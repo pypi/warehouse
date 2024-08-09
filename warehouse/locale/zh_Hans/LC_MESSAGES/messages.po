@@ -60,7 +60,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2024-07-30 13:34+0000\n"
+"PO-Revision-Date: 2024-08-08 18:40+0000\n"
 "Last-Translator: 大王叫我来巡山 <hamburger2048@users.noreply.hosted.weblate."
 "org>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
@@ -945,32 +945,32 @@ msgstr "Monty Python - 奶酪店素描"
 #: warehouse/templates/pages/help.html:683
 #: warehouse/templates/pages/help.html:688
 #: warehouse/templates/pages/help.html:700
-#: warehouse/templates/pages/help.html:721
-#: warehouse/templates/pages/help.html:735
-#: warehouse/templates/pages/help.html:744
-#: warehouse/templates/pages/help.html:756
-#: warehouse/templates/pages/help.html:767
-#: warehouse/templates/pages/help.html:772
-#: warehouse/templates/pages/help.html:780
-#: warehouse/templates/pages/help.html:791
-#: warehouse/templates/pages/help.html:836
-#: warehouse/templates/pages/help.html:844
-#: warehouse/templates/pages/help.html:892
-#: warehouse/templates/pages/help.html:897
-#: warehouse/templates/pages/help.html:902
-#: warehouse/templates/pages/help.html:912
-#: warehouse/templates/pages/help.html:921
-#: warehouse/templates/pages/help.html:935
-#: warehouse/templates/pages/help.html:943
-#: warehouse/templates/pages/help.html:951
-#: warehouse/templates/pages/help.html:959
-#: warehouse/templates/pages/help.html:968
-#: warehouse/templates/pages/help.html:987
-#: warehouse/templates/pages/help.html:1002
+#: warehouse/templates/pages/help.html:722
+#: warehouse/templates/pages/help.html:736
+#: warehouse/templates/pages/help.html:745
+#: warehouse/templates/pages/help.html:757
+#: warehouse/templates/pages/help.html:768
+#: warehouse/templates/pages/help.html:773
+#: warehouse/templates/pages/help.html:781
+#: warehouse/templates/pages/help.html:792
+#: warehouse/templates/pages/help.html:837
+#: warehouse/templates/pages/help.html:845
+#: warehouse/templates/pages/help.html:893
+#: warehouse/templates/pages/help.html:898
+#: warehouse/templates/pages/help.html:903
+#: warehouse/templates/pages/help.html:913
+#: warehouse/templates/pages/help.html:922
+#: warehouse/templates/pages/help.html:936
+#: warehouse/templates/pages/help.html:944
+#: warehouse/templates/pages/help.html:952
+#: warehouse/templates/pages/help.html:960
+#: warehouse/templates/pages/help.html:969
+#: warehouse/templates/pages/help.html:988
 #: warehouse/templates/pages/help.html:1003
 #: warehouse/templates/pages/help.html:1004
 #: warehouse/templates/pages/help.html:1005
-#: warehouse/templates/pages/help.html:1010
+#: warehouse/templates/pages/help.html:1006
+#: warehouse/templates/pages/help.html:1011
 #: warehouse/templates/pages/sponsors.html:33
 #: warehouse/templates/pages/sponsors.html:37
 #: warehouse/templates/pages/sponsors.html:41
@@ -7654,7 +7654,7 @@ msgid "Troubleshooting"
 msgstr "故障排除"
 
 #: warehouse/templates/pages/help.html:194
-#: warehouse/templates/pages/help.html:888
+#: warehouse/templates/pages/help.html:889
 msgid "About"
 msgstr "关于"
 
@@ -8745,8 +8745,9 @@ msgid "You'll receive an email with a password reset link."
 msgstr "你将收到一封带有密码重置链接的电子邮件。"
 
 #: warehouse/templates/pages/help.html:715
-msgid "If you've lost access to your PyPI account due to:"
-msgstr "如果由于以下原因而无法访问PyPI账户："
+msgid ""
+"If you've lost access to your PyPI account or can't fully verify it due to:"
+msgstr "如果由于以下原因无法访问PyPI账户或无法完全验证账户："
 
 # | msgid "Emails associated with your account"
 #: warehouse/templates/pages/help.html:717
@@ -8754,6 +8755,10 @@ msgid "Lost access to the email address associated with your account"
 msgstr "失去了与你的账户关联的电子邮件地址的访问权"
 
 #: warehouse/templates/pages/help.html:718
+msgid "Accidentally registered with an email address you cannot verify"
+msgstr "意外地使用你无法验证的电子邮件地址进行注册"
+
+#: warehouse/templates/pages/help.html:719
 msgid ""
 "Lost two-factor authentication <a href=\"#totp\">application</a>, <a "
 "href=\"#utfkey\">device</a>, and <a href=\"#recoverycodes\">recovery codes</"
@@ -8768,7 +8773,7 @@ msgstr ""
 # | "account, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\"
 # rel="
 # | "\"noopener\">file an issue on our tracker</a>."
-#: warehouse/templates/pages/help.html:721
+#: warehouse/templates/pages/help.html:722
 #, python-format
 msgid ""
 "You can proceed to <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -8779,11 +8784,11 @@ msgstr ""
 "rel=\"noopener\">在我们的问题跟踪系统上提交一个 issue</a>来请求请求账户恢复援"
 "助。"
 
-#: warehouse/templates/pages/help.html:729
+#: warehouse/templates/pages/help.html:730
 msgid "Ensure that your API Token is valid and has not been revoked."
 msgstr "确保你的 API 令牌有效且未被撤销。"
 
-#: warehouse/templates/pages/help.html:730
+#: warehouse/templates/pages/help.html:731
 msgid ""
 "Ensure that your API Token is <a href=\"#apitoken\">properly formatted</a> "
 "and does not contain any trailing characters such as newlines."
@@ -8791,18 +8796,18 @@ msgstr ""
 "确保你的API令牌是<a href=\"#apitoken\">正确的格式</a>，不包含任何尾部字符，如"
 "换行。"
 
-#: warehouse/templates/pages/help.html:731
+#: warehouse/templates/pages/help.html:732
 msgid "Ensure that the username you are using is <code>__token__</code>."
 msgstr "确保你在使用的用户名是 <code>__token__</code>。"
 
-#: warehouse/templates/pages/help.html:733
+#: warehouse/templates/pages/help.html:734
 msgid ""
 "Remember that PyPI and TestPyPI each require you to create an account, so "
 "your credentials may be different."
 msgstr ""
 "请记住，PyPI 和 TestPyPI 都需要你创建一个账户，所以你的凭证可能是不同的。"
 
-#: warehouse/templates/pages/help.html:735
+#: warehouse/templates/pages/help.html:736
 #, python-format
 msgid ""
 "If you're using Windows and trying to paste your token in the Command Prompt "
@@ -8818,7 +8823,7 @@ msgstr ""
 "模块的一个<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">已知问题</a>。"
 
-#: warehouse/templates/pages/help.html:744
+#: warehouse/templates/pages/help.html:745
 #, python-format
 msgid ""
 "Transport Layer Security, or TLS, is part of how we make sure connections "
@@ -8836,7 +8841,7 @@ msgstr ""
 "href=\"%(reason_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">在PSF博客上了解原因</a>。"
 
-#: warehouse/templates/pages/help.html:751
+#: warehouse/templates/pages/help.html:752
 #, python-format
 msgid ""
 "If you are having trouble with <code>%(command)s</code> and get a <code>No "
@@ -8848,7 +8853,7 @@ msgstr ""
 "fetch URL</code>（无法获取URL）错误，请尝试将<code>-v</code>添加到命令以获取"
 "更多信息："
 
-#: warehouse/templates/pages/help.html:753
+#: warehouse/templates/pages/help.html:754
 msgid ""
 "If you see an error like <code>There was a problem confirming the ssl "
 "certificate</code> or <code>tlsv1 alert protocol version</code> or "
@@ -8860,7 +8865,7 @@ msgstr ""
 "议版本）或<code>TLSV1_ALERT_PROTOCOL_VERSION</code>（TLSV1_警报协议版本）之类"
 "的错误，则需要使用更新的TLS支持库连接到PyPI。"
 
-#: warehouse/templates/pages/help.html:754
+#: warehouse/templates/pages/help.html:755
 msgid ""
 "The specific steps you need to take will depend on your operating system "
 "version, where your installation of Python originated (python.org, your OS "
@@ -8871,7 +8876,7 @@ msgstr ""
 "或中间发行商）以及Python、<code>setuptools</code>和<code>pip</code>的安装版"
 "本。"
 
-#: warehouse/templates/pages/help.html:756
+#: warehouse/templates/pages/help.html:757
 #, python-format
 msgid ""
 "For help, go to <a href=\"%(irc_href)s\" title=\"%(title)s\" "
@@ -8890,7 +8895,7 @@ msgstr ""
 "rel=\"noopener\">在 Discourse 上讨论</a>，包括操作系统和安装详细信息以及"
 "<code>%(command)s</code>的输出。"
 
-#: warehouse/templates/pages/help.html:767
+#: warehouse/templates/pages/help.html:768
 #, python-format
 msgid ""
 "We take <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -8900,7 +8905,7 @@ msgstr ""
 "我们非常重视<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">可访问性</a>，并希望使网站易于每个人使用。"
 
-#: warehouse/templates/pages/help.html:772
+#: warehouse/templates/pages/help.html:773
 #, python-format
 msgid ""
 "If you are experiencing an accessibility problem, <a href=\"%(href)s\" "
@@ -8911,7 +8916,7 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">请在GitHub上向我们报告</a>，以便我们可以尝"
 "试为你和其他人修复该问题。"
 
-#: warehouse/templates/pages/help.html:780
+#: warehouse/templates/pages/help.html:781
 #, python-format
 msgid ""
 "In a previous version of PyPI, it used to be possible for maintainers to "
@@ -8924,7 +8929,7 @@ msgstr ""
 "的PyPI不赞成使用此功能，我们建议你<a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">使用twine将项目上传到PyPI</a>。"
 
-#: warehouse/templates/pages/help.html:789
+#: warehouse/templates/pages/help.html:790
 msgid ""
 "Spammers return to PyPI with some regularity hoping to place their Search "
 "Engine Optimized phishing, scam, and click-farming content on the site. "
@@ -8936,7 +8941,7 @@ msgstr ""
 "内容放到网站上。由于PyPI允许对长描述和其他与项目相关的数据进行索引，并且通常"
 "具有良好的搜索信誉，所以它是首要目标。"
 
-#: warehouse/templates/pages/help.html:791
+#: warehouse/templates/pages/help.html:792
 #, python-format
 msgid ""
 "When the PyPI administrators are overwhelmed by spam <strong>or</strong> "
@@ -8951,35 +8956,35 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">我们的状态页面</a>了解更多详细信息，因为我"
 "们可能已经用干预的理由更新了它。"
 
-#: warehouse/templates/pages/help.html:800
+#: warehouse/templates/pages/help.html:801
 msgid "PyPI will return these errors for one of these reasons:"
 msgstr "PyPI将返回这些错误，原因如下："
 
-#: warehouse/templates/pages/help.html:802
+#: warehouse/templates/pages/help.html:803
 msgid "Filename has been used and file exists"
 msgstr "文件名已被使用，文件存在"
 
-#: warehouse/templates/pages/help.html:803
+#: warehouse/templates/pages/help.html:804
 msgid "Filename has been used but file no longer exists"
 msgstr "文件名已被使用但文件已不存在"
 
-#: warehouse/templates/pages/help.html:804
+#: warehouse/templates/pages/help.html:805
 msgid "A file with the exact same content exists"
 msgstr "存在完全相同内容的文件"
 
-#: warehouse/templates/pages/help.html:807
+#: warehouse/templates/pages/help.html:808
 msgid ""
 "PyPI does not allow for a filename to be reused, even once a project has "
 "been deleted and recreated."
 msgstr "PyPI不允许重用文件名，即使项目已被删除并重新创建。"
 
-#: warehouse/templates/pages/help.html:813
+#: warehouse/templates/pages/help.html:814
 msgid ""
 "A distribution filename on PyPI consists of the combination of project name, "
 "version number, and distribution type."
 msgstr "PyPI 上的分发文件名是项目名称、版本号和分发类型的组合。"
 
-#: warehouse/templates/pages/help.html:819
+#: warehouse/templates/pages/help.html:820
 msgid ""
 "This ensures that a given distribution for a given release for a given "
 "project will always resolve to the same file, and cannot be surreptitiously "
@@ -8989,7 +8994,7 @@ msgstr ""
 "这确保给定项目的给定版本的给定分发将始终解析到相同的文件，并且不会在某一天被"
 "项目维护者或恶意方偷偷更改（它只能被删除）。"
 
-#: warehouse/templates/pages/help.html:827
+#: warehouse/templates/pages/help.html:828
 msgid ""
 "To avoid this situation in most cases, you will need to change the version "
 "number to one that you haven't previously uploaded to PyPI, rebuild the "
@@ -9007,7 +9012,7 @@ msgstr ""
 # | "\">issue tracker</a>. Include the name of the requested classifier
 # and a
 # | "brief justification of why it is important."
-#: warehouse/templates/pages/help.html:836
+#: warehouse/templates/pages/help.html:837
 #, python-format
 msgid ""
 "If you would like to request a new trove classifier file a pull request on "
@@ -9020,7 +9025,7 @@ msgstr ""
 "rel=\"noopener\"><code>pypa/trove-classifiers</code>项目</a>。确保包含一个简"
 "短的理由来说明为何它是重要的。"
 
-#: warehouse/templates/pages/help.html:844
+#: warehouse/templates/pages/help.html:845
 #, python-format
 msgid ""
 "If you're experiencing an issue with PyPI itself, we welcome "
@@ -9035,14 +9040,14 @@ msgstr ""
 "<strong>建设性</strong>的反馈和错误报告。请注意，此跟踪器仅针对运行 PyPI 的软"
 "件的问题。在编写新问题之前，请先检查是否存在类似问题。"
 
-#: warehouse/templates/pages/help.html:851
+#: warehouse/templates/pages/help.html:852
 msgid ""
 "If you are having an issue is with a specific package installed from PyPI, "
 "you should reach out to the maintainers of that project directly instead."
 msgstr ""
 "如果你遇到的问题是从PyPI安装的特定包，那么你应该直接联系该项目的维护人员。"
 
-#: warehouse/templates/pages/help.html:856
+#: warehouse/templates/pages/help.html:857
 msgid ""
 "If you are having issues while setting up a <abbr title=\"time-based one-"
 "time password\">TOTP</abbr> device, it may be because your device time is "
@@ -9053,7 +9058,7 @@ msgstr ""
 "到问题，可能是因为你的设备时间未同步。请检查设备时间为自动更新并试着再次配置"
 "TOTP设备。"
 
-#: warehouse/templates/pages/help.html:863
+#: warehouse/templates/pages/help.html:864
 #, python-format
 msgid ""
 "Projects may get placed in quarantine for any number of reasons, such as "
@@ -9067,7 +9072,7 @@ msgstr ""
 "href=\"%(aup)s\" target=\"_blank\" rel=\"noopener\">可接受使用政策</a>的行"
 "为。"
 
-#: warehouse/templates/pages/help.html:872
+#: warehouse/templates/pages/help.html:873
 msgid ""
 "While in quarantine, the project is not installable by clients, and cannot "
 "be being modified by its maintainers. PyPI Administrators will need to "
@@ -9076,7 +9081,7 @@ msgstr ""
 "处于隔离状态时，项目无法被客户端安装，也无法被其维护者修改。在项目可以被恢复"
 "前，PyPI 管理员需要进行审核。"
 
-#: warehouse/templates/pages/help.html:879
+#: warehouse/templates/pages/help.html:880
 #, python-format
 msgid ""
 "If you believe your project has mistakenly been flagged for quarantine, "
@@ -9086,7 +9091,7 @@ msgstr ""
 "如果你相信你的项目被错误地标记为隔离，请附上详细信息通过 <a "
 "href=\"%(mailto)s\">security@pypi.org</a>联系 PyPI。"
 
-#: warehouse/templates/pages/help.html:892
+#: warehouse/templates/pages/help.html:893
 #, python-format
 msgid ""
 "PyPI is powered by the Warehouse project; <a href=\"%(href)s\" "
@@ -9099,7 +9104,7 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">Warehouse</a>是在Python打包组织（PyPA）的"
 "保护下开发的一个开源项目，由Python打包工作组（PackagingWG）提供支持。"
 
-#: warehouse/templates/pages/help.html:897
+#: warehouse/templates/pages/help.html:898
 #, python-format
 msgid ""
 "The <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -9111,7 +9116,7 @@ msgstr ""
 "rel=\"noopener\">PyPA</a>是一个独立的开发团队，其目标是改进和维护与Python打包"
 "相关的许多核心项目。"
 
-#: warehouse/templates/pages/help.html:902
+#: warehouse/templates/pages/help.html:903
 #, python-format
 msgid ""
 "The <a href=\"%(packaging_wg_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -9130,7 +9135,7 @@ msgstr ""
 "rel=\"noopener\">获得了开放技术基金的一个奖项</a>，该基金的资金使开发人员能够"
 "提高仓库的安全性和可访问性。"
 
-#: warehouse/templates/pages/help.html:912
+#: warehouse/templates/pages/help.html:913
 #, python-format
 msgid ""
 "PyPI is powered by <a href=\"%(warehouse_href)s\" title=\"%(title)s\" "
@@ -9142,7 +9147,7 @@ msgstr ""
 "rel=\"noopener\">Warehouse</a>和我们<a href=\"%(sponsors_href)s\">慷慨的赞助"
 "商</a>提供的各种工具和服务提供动力。"
 
-#: warehouse/templates/pages/help.html:919
+#: warehouse/templates/pages/help.html:920
 msgid ""
 "As of April 16, 2018, PyPI.org is at \"production\" status, meaning that it "
 "has moved out of beta and replaced the old site (pypi.python.org). It is now "
@@ -9152,7 +9157,7 @@ msgstr ""
 "站点（pypi.python.org）。它现在是健壮的，经过测试的，并且已经为预期的浏览器和"
 "API流量做好了准备。"
 
-#: warehouse/templates/pages/help.html:921
+#: warehouse/templates/pages/help.html:922
 #, python-format
 msgid ""
 "PyPI is heavily cached and distributed via <abbr title=\"content delivery "
@@ -9177,7 +9182,7 @@ msgstr ""
 "求，请考虑使用 <a href=\"%(mirror_href)s\"> 镜像 </a> 或 <a "
 "href=\"%(private_index_href)s\"> 私有索引 </a>。"
 
-#: warehouse/templates/pages/help.html:935
+#: warehouse/templates/pages/help.html:936
 #, python-format
 msgid ""
 "We have a huge amount of work to do to continue to maintain and improve PyPI "
@@ -9188,22 +9193,22 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">Warehouse项目</a>），我们还有大量的工作要"
 "做。"
 
-#: warehouse/templates/pages/help.html:940
+#: warehouse/templates/pages/help.html:941
 msgid "Financial:"
 msgstr "财务："
 
-#: warehouse/templates/pages/help.html:940
+#: warehouse/templates/pages/help.html:941
 #, python-format
 msgid ""
 "We would deeply appreciate <a href=\"%(href)s\">your donations to fund "
 "development and maintenance</a>."
 msgstr "我们将非常感谢<a href=\"%(href)s\">你为开发和维护提供资金</a>。"
 
-#: warehouse/templates/pages/help.html:941
+#: warehouse/templates/pages/help.html:942
 msgid "Development:"
 msgstr "发展："
 
-#: warehouse/templates/pages/help.html:941
+#: warehouse/templates/pages/help.html:942
 msgid ""
 "Warehouse is open source, and we would love to see some new faces working on "
 "the project. You <strong>do not</strong> need to be an experienced open-"
@@ -9214,7 +9219,7 @@ msgstr ""
 "strong>需要成为一个有经验的开源开发人员就可以做出贡献——事实上，我们很乐意帮助"
 "你提出第一个开源请求！"
 
-#: warehouse/templates/pages/help.html:943
+#: warehouse/templates/pages/help.html:944
 #, python-format
 msgid ""
 "If you have skills in Python, Full-Text Search, HTML, SCSS, JavaScript, or "
@@ -9234,7 +9239,7 @@ msgstr ""
 "href=\"%(good_first_issue_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">“好的第一期”</a>标签——我们建议你从这里开始。"
 
-#: warehouse/templates/pages/help.html:951
+#: warehouse/templates/pages/help.html:952
 #, python-format
 msgid ""
 "Issues are grouped into <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -9247,11 +9252,11 @@ msgstr ""
 "rel=\"noopener\">里程碑</a>；在当前里程碑中处理问题是帮助推进项目的一个好方"
 "法。如果你对某个特定问题感兴趣，请留下评论，我们可以指导你完成贡献过程。"
 
-#: warehouse/templates/pages/help.html:958
+#: warehouse/templates/pages/help.html:959
 msgid "Stay updated:"
 msgstr "保持更新："
 
-#: warehouse/templates/pages/help.html:959
+#: warehouse/templates/pages/help.html:960
 #, python-format
 msgid ""
 "You can also follow the ongoing development of the project on the <a "
@@ -9262,7 +9267,7 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Discourse 上的Python "
 "packaging 论坛</a>。"
 
-#: warehouse/templates/pages/help.html:968
+#: warehouse/templates/pages/help.html:969
 #, python-format
 msgid ""
 "Changes to PyPI are generally announced on both the <a "
@@ -9279,7 +9284,7 @@ msgstr ""
 "rel=\"noopener\">PyPI博客</a>上公布。PyPI博客还有<a href=\"%(rss_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">RSS</a>源。"
 
-#: warehouse/templates/pages/help.html:977
+#: warehouse/templates/pages/help.html:978
 #, python-format
 msgid ""
 "All traffic is routed through our global CDN, which lists their public IP "
@@ -9288,14 +9293,14 @@ msgstr ""
 "所有流量都通过我们的全球 CDN 路由，这里列出了它们的公共 IP 地址：<a "
 "href=\"%(href)s\">%(href)s</a>。"
 
-#: warehouse/templates/pages/help.html:978
+#: warehouse/templates/pages/help.html:979
 #, python-format
 msgid ""
 "More information about this list can be found here: <a "
 "href=\"%(href)s\">%(href)s</a>."
 msgstr "可在此处找到此列表的更多信息：<a href=\"%(href)s\">%(href)s</a>。"
 
-#: warehouse/templates/pages/help.html:982
+#: warehouse/templates/pages/help.html:983
 msgid ""
 "When Warehouse's maintainers are deploying new features, at first we mark "
 "them with a small \"beta feature\" symbol to tell you: this should probably "
@@ -9305,11 +9310,11 @@ msgstr ""
 "们，告诉你：这可能工作得很好，但它是新的，比其他站点功能测试得更少。"
 
 # | msgid "Currently, the following features are in beta:"
-#: warehouse/templates/pages/help.html:983
+#: warehouse/templates/pages/help.html:984
 msgid "Currently, no features are in beta."
 msgstr "目前，以下功能处于测试阶段."
 
-#: warehouse/templates/pages/help.html:987
+#: warehouse/templates/pages/help.html:988
 #, python-format
 msgid ""
 "\"PyPI\" should be pronounced like \"pie pea eye\", specifically with the "
@@ -9322,39 +9327,39 @@ msgstr ""
 "将减少与<a href=\"%(href)s\" title=\"%(title)s\">PyPy</a>项目的混淆，PyPy项目"
 "是Python语言的一种流行的替代实现。"
 
-#: warehouse/templates/pages/help.html:999
+#: warehouse/templates/pages/help.html:1000
 msgid "Resources"
 msgstr "资源"
 
-#: warehouse/templates/pages/help.html:1000
+#: warehouse/templates/pages/help.html:1001
 msgid "Looking for something else? Perhaps these links will help:"
 msgstr "在找别的吗？或许这些链接将有助于："
 
-#: warehouse/templates/pages/help.html:1002
+#: warehouse/templates/pages/help.html:1003
 msgid "Python Packaging User Guide"
 msgstr "Python 包装用户指南"
 
-#: warehouse/templates/pages/help.html:1003
+#: warehouse/templates/pages/help.html:1004
 msgid "Python documentation"
 msgstr "Python文档"
 
-#: warehouse/templates/pages/help.html:1004
+#: warehouse/templates/pages/help.html:1005
 msgid "(main Python website)"
 msgstr "（主Python网站）"
 
-#: warehouse/templates/pages/help.html:1005
+#: warehouse/templates/pages/help.html:1006
 msgid "Python community page"
 msgstr "Python社区页面"
 
-#: warehouse/templates/pages/help.html:1005
+#: warehouse/templates/pages/help.html:1006
 msgid "(lists IRC channels, mailing lists, etc.)"
 msgstr "（列出IRC频道、邮件列表等）"
 
-#: warehouse/templates/pages/help.html:1008
+#: warehouse/templates/pages/help.html:1009
 msgid "Contact"
 msgstr "联系"
 
-#: warehouse/templates/pages/help.html:1010
+#: warehouse/templates/pages/help.html:1011
 #, python-format
 msgid ""
 "The <a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" "
