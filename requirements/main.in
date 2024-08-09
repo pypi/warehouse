@@ -62,8 +62,8 @@ redis>=2.8.0,<6.0.0
 rfc3986
 sentry-sdk
 setuptools
-sigstore~=3.0.0
-pypi-attestations==0.0.9
+sigstore~=3.1.0
+pypi-attestations==0.0.10
 sqlalchemy[asyncio]>=2.0,<3.0
 stdlib-list
 stripe

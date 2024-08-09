@@ -42,6 +42,7 @@ import warehouse.constants
 
 from warehouse.accounts.utils import UserContext
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
+from warehouse.attestations.models import Attestation as DatabaseAttestation
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy, metadata
 from warehouse.macaroons import IMacaroonService, caveats, security_policy
@@ -3808,6 +3809,91 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status.startswith(expected_msg)
+
+    def test_upload_succeeds_upload_attestation(
+        self,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        metrics,
+    ):
+
+        project = ProjectFactory.create()
+        version = "1.0"
+        publisher = GitHubPublisherFactory.create(projects=[project])
+        claims = {
+            "sha": "somesha",
+            "repository": f"{publisher.repository_owner}/{publisher.repository_name}",
+            "workflow": "workflow_name",
+        }
+        identity = PublisherTokenContext(publisher, SignedClaims(claims))
+        db_request.oidc_publisher = identity.publisher
+        db_request.oidc_claims = identity.claims
+
+        db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
+        db_request.db.add(Classifier(classifier="Programming Language :: Python"))
+
+        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+        attestation = Attestation(
+            version=1,
+            verification_material=VerificationMaterial(
+                certificate="somebase64string", transparency_entries=[dict()]
+            ),
+            envelope=Envelope(
+                statement="somebase64string",
+                signature="somebase64string",
+            ),
+        )
+
+        pyramid_config.testing_securitypolicy(identity=identity)
+        db_request.user = None
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "attestations": f"[{attestation.model_dump_json()}]",
+                "version": version,
+                "summary": "This is my summary!",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+
+        process_attestations = pretend.call_recorder(
+            lambda request, distribution: [attestation]
+        )
+
+        monkeypatch.setattr(
+            legacy, "_parse_and_verify_attestations", process_attestations
+        )
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        attestations_db = (
+            db_request.db.query(DatabaseAttestation)
+            .join(DatabaseAttestation.file)
+            .filter(File.filename == filename)
+            .all()
+        )
+        assert len(attestations_db) == 1
+
+        assert (
+            pretend.call("warehouse.upload.attestations.ok") in metrics.increment.calls
+        )
 
     @pytest.mark.parametrize(
         "version, expected_version",
