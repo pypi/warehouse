@@ -11,13 +11,9 @@
 # limitations under the License.
 
 
-def split_and_strip_keywords(keyword_input: str) -> list[str]:
+def strip_keywords(keywords: list[str]) -> list[str]:
     """
-    Split keywords on commas and strip whitespace, remove empties.
+    Remove empties.
     Useful to cleanse user input prior to storing in Release.keywords_array.
     """
-    return [
-        stripped
-        for keyword in keyword_input.split(",")
-        if (stripped := keyword.strip())
-    ]
+    return [keyword for keyword in keywords if keyword]
