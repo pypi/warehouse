@@ -23,6 +23,17 @@ class UserFactory(WarehouseFactory):
     class Meta:
         model = User
 
+    class Params:
+        # Shortcut to create a user with a verified primary email
+        with_verified_primary_email = factory.Trait(
+            email=factory.RelatedFactory(
+                "tests.common.db.accounts.EmailFactory",
+                factory_related_name="user",
+                primary=True,
+                verified=True,
+            )
+        )
+
     username = factory.Faker("pystr", max_chars=12)
     name = factory.Faker("word")
     password = "!"

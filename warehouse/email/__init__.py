@@ -365,15 +365,6 @@ def send_account_recovery_initiated_email(
     }
 
 
-@_email(
-    "two-factor-not-yet-enabled",
-    allow_unverified=True,
-    repeat_window=datetime.timedelta(days=14),
-)
-def send_two_factor_not_yet_enabled_email(request, user):
-    return {"username": user.username}
-
-
 @_email("account-deleted")
 def send_account_deletion_email(request, user):
     return {"username": user.username}

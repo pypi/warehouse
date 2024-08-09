@@ -135,7 +135,7 @@
     <div class="callout-block">
       <p>
       {% if user.has_two_factor %}
-        {% trans href='#account-emails' %}
+        {% trans %}
         You must generate and safely store recovery codes before adding additional two factor
         authentication methods to your account.
         {% endtrans %}
@@ -155,7 +155,7 @@
     <div class="callout-block">
       <p>
       {% if user.has_two_factor %}
-        {% trans href='#account-emails' %}
+        {% trans %}
         Use a recovery code before adding additional two factor
         authentication methods to your account.
         {% endtrans %}

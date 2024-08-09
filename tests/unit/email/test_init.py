@@ -202,7 +202,7 @@ class TestSendEmailToUser:
         assert request.task.calls == []
         assert task.delay.calls == []
 
-    def test_doesnt_send_within_reset_window(self, pyramid_request, pyramid_services):
+    def test_doesnt_send_within_repeat_window(self, pyramid_request, pyramid_services):
         email_service = pretend.stub(
             last_sent=pretend.call_recorder(
                 lambda to, subject: datetime.datetime.now()
@@ -225,6 +225,49 @@ class TestSendEmailToUser:
 
         assert pyramid_request.task.calls == []
         assert task.delay.calls == []
+
+    def test_sends_when_outside_repeat_window(self, db_request, pyramid_services):
+        email_service = pretend.stub(
+            last_sent=pretend.call_recorder(
+                lambda to, subject: datetime.datetime.now()
+                - datetime.timedelta(seconds=69)
+            )
+        )
+        pyramid_services.register_service(email_service, IEmailSender, None, name="")
+
+        task = pretend.stub(delay=pretend.call_recorder(lambda *a, **kw: None))
+        db_request.task = pretend.call_recorder(lambda x: task)
+
+        user = UserFactory.create(with_verified_primary_email=True)
+
+        msg = EmailMessage(subject="My Subject", body_text="My Body")
+
+        email._send_email_to_user(
+            db_request, user, msg, repeat_window=datetime.timedelta(seconds=42)
+        )
+
+        assert db_request.task.calls == [pretend.call(email.send_email)]
+        assert task.delay.calls == [
+            pretend.call(
+                f"{user.name} <{user.primary_email.email}>",
+                {
+                    "sender": None,
+                    "subject": "My Subject",
+                    "body_text": "My Body",
+                    "body_html": None,
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": user.id,
+                    "additional": {
+                        "from_": None,
+                        "to": user.email,
+                        "subject": "My Subject",
+                        "redact_ip": False,
+                    },
+                },
+            )
+        ]
 
     @pytest.mark.parametrize(
         ("username", "primary_email", "address", "expected"),
@@ -1530,80 +1573,6 @@ class TestPasswordResetByAdminEmail:
         result = email.send_password_reset_by_admin_email(pyramid_request, stub_user)
 
         assert result == {}
-        assert pyramid_request.task.calls == [pretend.call(send_email)]
-        assert send_email.delay.calls == [
-            pretend.call(
-                f"{stub_user.username} <{stub_user.email}>",
-                {
-                    "sender": None,
-                    "subject": "Email Subject",
-                    "body_text": "Email Body",
-                    "body_html": (
-                        "<html>\n<head></head>\n"
-                        "<body><p>Email HTML Body</p></body>\n</html>\n"
-                    ),
-                },
-                {
-                    "tag": "account:email:sent",
-                    "user_id": stub_user.id,
-                    "additional": {
-                        "from_": "noreply@example.com",
-                        "to": stub_user.email,
-                        "subject": "Email Subject",
-                        "redact_ip": False,
-                    },
-                },
-            )
-        ]
-
-
-class Test2FAonUploadEmail:
-    def test_send_two_factor_not_yet_enabled_email(
-        self, pyramid_request, pyramid_config, monkeypatch
-    ):
-        stub_user = pretend.stub(
-            id="id",
-            username="username",
-            name="",
-            email="email@example.com",
-            primary_email=pretend.stub(email="email@example.com", verified=True),
-            has_2fa=False,
-        )
-        subject_renderer = pyramid_config.testing_add_renderer(
-            "email/two-factor-not-yet-enabled/subject.txt"
-        )
-        subject_renderer.string_response = "Email Subject"
-        body_renderer = pyramid_config.testing_add_renderer(
-            "email/two-factor-not-yet-enabled/body.txt"
-        )
-        body_renderer.string_response = "Email Body"
-        html_renderer = pyramid_config.testing_add_renderer(
-            "email/two-factor-not-yet-enabled/body.html"
-        )
-        html_renderer.string_response = "Email HTML Body"
-
-        send_email = pretend.stub(
-            delay=pretend.call_recorder(lambda *args, **kwargs: None)
-        )
-        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
-        monkeypatch.setattr(email, "send_email", send_email)
-
-        pyramid_request.db = pretend.stub(
-            query=lambda a: pretend.stub(
-                filter=lambda *a: pretend.stub(
-                    one=lambda: pretend.stub(user_id=stub_user.id)
-                )
-            ),
-        )
-        pyramid_request.user = stub_user
-        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
-
-        result = email.send_two_factor_not_yet_enabled_email(
-            pyramid_request,
-            stub_user,
-        )
-
-        assert result == {"username": stub_user.username}
         assert pyramid_request.task.calls == [pretend.call(send_email)]
         assert send_email.delay.calls == [
             pretend.call(

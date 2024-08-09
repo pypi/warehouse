@@ -16,13 +16,7 @@ import pytest
 from webob.multidict import MultiDict
 from wtforms.validators import StopValidation, ValidationError
 
-from warehouse.forms import (
-    DBForm,
-    Form,
-    PasswordStrengthValidator,
-    SetLocaleForm,
-    URIValidator,
-)
+from warehouse.forms import Form, PasswordStrengthValidator, SetLocaleForm, URIValidator
 
 
 class TestURIValidator:
@@ -197,17 +191,6 @@ class TestForm:
             assert v.calls == [pretend.call(form)]
             if i >= stop_after:
                 break
-
-
-class TestDBForm:
-    def test_form_requires_db(self):
-        with pytest.raises(TypeError):
-            DBForm()
-
-    def test_form_accepts_db(self):
-        db = pretend.stub()
-        form = DBForm(db=db)
-        assert form.db is db
 
 
 class TestSetLocaleForm:
