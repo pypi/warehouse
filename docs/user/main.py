@@ -1,6 +1,5 @@
 from pathlib import Path
 
-
 ORG_ACCOUNTS = """
 !!! info
 
@@ -11,7 +10,17 @@ ORG_ACCOUNTS = """
     to be one of the first to know how you can begin using them.
 """
 
-PREVIEW_FEATURES = {"org-accounts": ORG_ACCOUNTS}
+INDEX_ATTESTATIONS = """
+!!! info
+
+    Index attestations are currently under active development,
+    and are not generally available yet.
+"""
+
+PREVIEW_FEATURES = {
+    "org-accounts": ORG_ACCOUNTS,
+    "index-attestations": INDEX_ATTESTATIONS,
+}
 
 _HERE = Path(__file__).parent.resolve()
 
