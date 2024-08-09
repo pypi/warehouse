@@ -563,7 +563,10 @@ class Release(HasObservations, db.Model):
     keywords: Mapped[str | None]
     keywords_array: Mapped[list[str] | None] = mapped_column(
         ARRAY(String),
-        comment="Array of keywords. Null indicates no keywords were supplied by the uploader.",
+        comment=(
+            "Array of keywords. Null indicates no keywords were supplied by "
+            "the uploader."
+        ),
     )
     platform: Mapped[str | None]
     download_url: Mapped[str | None]

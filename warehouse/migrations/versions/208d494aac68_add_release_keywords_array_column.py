@@ -33,7 +33,10 @@ def upgrade():
             "keywords_array",
             postgresql.ARRAY(sa.String()),
             nullable=True,
-            comment="Array of keywords. Null indicates no keywords were supplied by the uploader.",
+            comment=(
+                "Array of keywords. Null indicates no keywords were supplied by "
+                "the uploader."
+            ),
         ),
     )
 
