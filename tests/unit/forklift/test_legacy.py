@@ -143,6 +143,25 @@ def test_construct_dependencies():
             pytest.fail("Unknown type of specifier")
 
 
+@pytest.mark.parametrize(
+    "versions,expected",
+    [
+        (["1.0", "2.0", "3.0"], ["1.0", "2.0", "3.0"]),
+        (["1.0", "3.0", "2.0"], ["1.0", "2.0", "3.0"]),
+    ],
+)
+def test_sort_releases(db_request, versions, expected):
+    project = ProjectFactory.create()
+    for i, v in enumerate(versions):
+        ReleaseFactory.create(project=project, version=v, _pypi_ordering=i)
+
+    legacy._sort_releases(db_request, project)
+
+    releases = db_request.db.query(Release).filter(Release.project == project).all()
+
+    assert [r.version for r in releases] == expected
+
+
 class TestFileValidation:
     def test_defaults_to_true(self):
         assert legacy._is_valid_dist_file("", "")
