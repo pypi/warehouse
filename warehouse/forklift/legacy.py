@@ -45,6 +45,7 @@ from pyramid.httpexceptions import (
     HTTPPermanentRedirect,
     HTTPTooManyRequests,
 )
+from pyramid.request import Request
 from pyramid.view import view_config
 from sigstore.verify import Verifier
 from sqlalchemy import and_, exists, func, orm
@@ -452,6 +453,44 @@ def _process_attestations(request, distribution: Distribution):
 
         # Log successful attestation upload
         metrics.increment("warehouse.upload.attestations.ok")
+
+
+def _sort_releases(request: Request, project: Project):
+    releases = (
+        request.db.query(Release)
+        .filter(Release.project == project)
+        .options(
+            orm.load_only(
+                Release.project_id,
+                Release.version,
+                Release._pypi_ordering,
+            )
+        )
+        .all()
+    )
+    for i, r in enumerate(
+        sorted(releases, key=lambda x: packaging_legacy.version.parse(x.version))
+    ):
+        # NOTE: If we set r._pypi_ordering, even to the same value it was
+        #       previously, then SQLAlchemy will decide that it needs to load
+        #       Release.description (with N+1 queries) for some reason that I
+        #       can't possibly fathom why. The SQLAlchemy docs say that
+        #       raisedload doesn't prevent SQLAlchemy for doing queries that it
+        #       needs to do for the Unit of Work pattern, so I guess since each
+        #       Release object was modified it feels the need to load each of
+        #       them... but I haven no idea why that means it feels the need to
+        #       load the Release.description relationship as well.
+        #
+        #       Technically, we can still execute a query for every release if
+        #       someone goes back and releases a version "0" or something that
+        #       would cause most or all of the releases to need to "shift" and
+        #       get updated.
+        #
+        #       We maybe want to convert this away from using the ORM and build up
+        #       a mapping of Release.id -> new _pypi_ordering and do a single bulk
+        #       update query to eliminate the possibility we trigger this again.
+        if r._pypi_ordering != i:
+            r._pypi_ordering = i
 
 
 @view_config(
@@ -898,21 +937,10 @@ def file_upload(request):
             },
         )
 
-    # TODO: We need a better solution to this than to just do it inline inside
-    #       this method. Ideally the version field would just be sortable, but
-    #       at least this should be some sort of hook or trigger.
-    releases = (
-        request.db.query(Release)
-        .filter(Release.project == project)
-        .options(
-            orm.load_only(Release.project_id, Release.version, Release._pypi_ordering)
-        )
-        .all()
-    )
-    for i, r in enumerate(
-        sorted(releases, key=lambda x: packaging_legacy.version.parse(x.version))
-    ):
-        r._pypi_ordering = i
+        # TODO: We need a better solution to this than to just do it inline inside
+        #       this method. Ideally the version field would just be sortable, but
+        #       at least this should be some sort of hook or trigger.
+        _sort_releases(request, project)
 
     # Pull the filename out of our POST data.
     filename = request.POST["content"].filename
