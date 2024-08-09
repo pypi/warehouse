@@ -13,7 +13,7 @@
 Add Release.keywords_array column
 
 Revision ID: 208d494aac68
-Revises: bb6943882aa9
+Revises: fd06c4fe2f97
 Create Date: 2024-08-02 19:02:01.760253
 """
 
@@ -23,7 +23,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "208d494aac68"
-down_revision = "bb6943882aa9"
+down_revision = "fd06c4fe2f97"
 
 
 def upgrade():
