@@ -11,7 +11,6 @@
 # limitations under the License.
 
 import json
-import typing
 import warnings
 
 import jwt
@@ -22,7 +21,7 @@ import sentry_sdk
 from zope.interface import implementer
 
 from warehouse.metrics.interfaces import IMetricsService
-from warehouse.oidc.errors import InvalidPublisherError, ReusedTokenError
+from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import IOIDCPublisherService, SignedClaims
 from warehouse.oidc.models import OIDCPublisher, PendingOIDCPublisher
 from warehouse.oidc.utils import find_publisher_by_issuer
@@ -79,6 +78,20 @@ class NullOIDCPublisherService:
         new_publisher = pending_publisher.reify(self.db)
         project.oidc_publishers.append(new_publisher)
         return new_publisher
+
+    def token_identifier_exists(self, jti: str) -> bool:
+        """
+        The NullOIDCPublisherService does not provide a mechanism to store used tokens
+        before their expiration.
+        """
+        return False
+
+    def store_jwt_identifier(self, jti: str, expiration: int) -> None:
+        """
+        The NullOIDCPublisherService does not provide a mechanism to store used tokens
+        before their expiration.
+        """
+        return
 
 
 @implementer(IOIDCPublisherService)
@@ -311,28 +324,11 @@ class OIDCPublisherService:
                 self.db, self.issuer_url, signed_claims, pending=pending
             )
 
-            jwt_token_identifier: str | None = signed_claims.get("jti")
-            # jti is in the __preverified_claims__ set, so if it was present,
-            # it was already checked
-            if pending is False and jwt_token_identifier:
-                if self.token_identifier_exists(jwt_token_identifier):
-                    self.metrics.increment(
-                        "warehouse.oidc.reused_token",
-                        tags=metrics_tags,
-                    )
-                    raise ReusedTokenError("JWT Token already used to mint a token.")
-
-            publisher.verify_claims(signed_claims)
+            publisher.verify_claims(signed_claims, self)
             self.metrics.increment(
                 "warehouse.oidc.find_publisher.ok",
                 tags=metrics_tags,
             )
-
-            if pending is False and jwt_token_identifier:
-                # Of note, exp is coming from a trusted source here,
-                # so we don't validate it
-                expiration = typing.cast(int, signed_claims.get("exp"))
-                self.store_jwt_identifier(jwt_token_identifier, expiration)
 
             return publisher
         except InvalidPublisherError as e:

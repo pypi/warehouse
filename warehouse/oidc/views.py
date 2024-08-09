@@ -13,7 +13,7 @@
 import time
 
 from datetime import datetime
-from typing import TypedDict
+from typing import TypedDict, cast
 
 import jwt
 import sentry_sdk
@@ -284,6 +284,14 @@ def mint_token(
         oidc_publisher_id=str(publisher.id),
         additional={"oidc": publisher.stored_claims(claims)},
     )
+
+    # We have used the given JWT to mint a new token. Let now store it to prevent
+    # its reuse if the claims contain a JTI. Of note, exp is coming from a trusted
+    # source here, so we don't validate it
+    if jwt_token_identifier := claims.get("jti"):
+        expiration = cast(int, claims.get("exp"))
+        oidc_service.store_jwt_identifier(jwt_token_identifier, expiration)
+
     for project in publisher.projects:
         project.record_event(
             tag=EventTag.Project.ShortLivedAPITokenAdded,
