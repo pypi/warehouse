@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20.12.2
+          node-version: 22.3.0
           cache: 'npm'
       - name: Install Node dependencies
         run: npm ci

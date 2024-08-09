@@ -21,15 +21,14 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class UserTokenContext:
+class UserContext:
     """
     This class supports `MacaroonSecurityPolicy` in
     `warehouse.macaroons.security_policy`.
 
-    It is a wrapper containing both the user associated with an API token
-    authenticated request and its corresponding Macaroon. We use it to smuggle
-    the Macaroon associated to the API token through to a session. `request.identity`
-    in an API token authenticated request should return this type.
+    It is a wrapper containing both a user associated with an authenticated request
+    and an optional corresponding Macaroon, if the authentication was via API token.
+    If the request was authenticated via login session, `macaroon` should be None.
     """
 
     user: User
@@ -37,9 +36,10 @@ class UserTokenContext:
     The associated user.
     """
 
-    macaroon: Macaroon
+    macaroon: Macaroon | None
     """
-    The Macaroon associated to the API token used to authenticate.
+    The Macaroon associated to the API token used to authenticate, if token
+    authentication was used.
     """
 
     def __principals__(self) -> list[str]:

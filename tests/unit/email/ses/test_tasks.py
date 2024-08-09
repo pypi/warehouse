@@ -19,7 +19,7 @@ from ....common.db.ses import EmailMessageFactory
 
 
 def test_cleanup_cleans_correctly(db_request):
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.UTC)
 
     EmailMessageFactory.create(
         status="Delivered",

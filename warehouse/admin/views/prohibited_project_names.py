@@ -32,7 +32,7 @@ from warehouse.packaging.models import (
 )
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import paginate_url_factory
-from warehouse.utils.project import remove_project
+from warehouse.utils.project import prohibit_and_remove_project
 
 
 @view_config(
@@ -250,23 +250,7 @@ def add_prohibited_project_names(request):
         )
         return HTTPSeeOther(request.route_path("admin.prohibited_project_names.list"))
 
-    # Add our requested prohibition.
-    request.db.add(
-        ProhibitedProjectName(
-            name=project_name, comment=comment, prohibited_by=request.user
-        )
-    )
-
-    # Go through and delete the project and everything related to it so that
-    # our prohibition actually blocks things and isn't ignored (since the
-    # prohibition only takes effect on new project registration).
-    project = (
-        request.db.query(Project)
-        .filter(Project.normalized_name == func.normalize_pep426_name(project_name))
-        .first()
-    )
-    if project is not None:
-        remove_project(project, request)
+    prohibit_and_remove_project(project_name, request, comment)
 
     request.session.flash(f"Prohibited Project Name {project_name!r}", queue="success")
 
@@ -334,25 +318,7 @@ def bulk_add_prohibited_project_names(request):
             ):
                 continue
 
-            # Add our requested prohibition.
-            request.db.add(
-                ProhibitedProjectName(
-                    name=project_name, comment=comment, prohibited_by=request.user
-                )
-            )
-
-            # Go through and delete the project and everything related to it so that
-            # our prohibition actually blocks things and isn't ignored (since the
-            # prohibition only takes effect on new project registration).
-            project = (
-                request.db.query(Project)
-                .filter(
-                    Project.normalized_name == func.normalize_pep426_name(project_name)
-                )
-                .first()
-            )
-            if project is not None:
-                remove_project(project, request, flash=False)
+            prohibit_and_remove_project(project_name, request, comment, flash=False)
 
         request.session.flash(
             f"Prohibited {len(project_names)!r} projects", queue="success"

@@ -20,7 +20,7 @@ from pydantic.dataclasses import dataclass
 from pymacaroons import Macaroon
 
 from warehouse.accounts import _oidc_publisher
-from warehouse.accounts.utils import UserTokenContext
+from warehouse.accounts.utils import UserContext
 from warehouse.macaroons import caveats
 from warehouse.macaroons.caveats import (
     Caveat,
@@ -271,7 +271,7 @@ class TestRequestUserCaveat:
 
         assert result == Failure("token with user restriction without a user")
 
-    def test_verify_invalid_identity(self):
+    def test_verify_invalid_identity_no_user(self):
         caveat = RequestUser(user_id="invalid")
         result = caveat.verify(
             pretend.stub(identity=pretend.stub()), pretend.stub(), pretend.stub()
@@ -279,13 +279,24 @@ class TestRequestUserCaveat:
 
         assert result == Failure("token with user restriction without a user")
 
+    def test_verify_invalid_identity_no_macaroon(self, db_request):
+        user = UserFactory.create()
+        user_context = UserContext(user, None)
+
+        caveat = RequestUser(user_id=str(user.id))
+        result = caveat.verify(
+            pretend.stub(identity=user_context), pretend.stub(), pretend.stub()
+        )
+
+        assert result == Failure("token with user restriction without a macaroon")
+
     def test_verify_invalid_user_id(self, db_request):
         user = UserFactory.create()
-        user_token_context = UserTokenContext(user, pretend.stub())
+        user_context = UserContext(user, pretend.stub())
 
         caveat = RequestUser(user_id="invalid")
         result = caveat.verify(
-            pretend.stub(identity=user_token_context), pretend.stub(), pretend.stub()
+            pretend.stub(identity=user_context), pretend.stub(), pretend.stub()
         )
 
         assert result == Failure(
@@ -294,11 +305,11 @@ class TestRequestUserCaveat:
 
     def test_verify_ok(self, db_request):
         user = UserFactory.create()
-        user_token_context = UserTokenContext(user, pretend.stub())
+        user_context = UserContext(user, pretend.stub())
 
         caveat = RequestUser(user_id=str(user.id))
         result = caveat.verify(
-            pretend.stub(identity=user_token_context), pretend.stub(), pretend.stub()
+            pretend.stub(identity=user_context), pretend.stub(), pretend.stub()
         )
 
         assert result == Success()

@@ -39,7 +39,7 @@
   }
 
   @media only screen and (max-width: $desktop) and (min-width: $mobile) {
-    padding: 0 0 ($spacing-unit * 1.5) 0;
+    padding: 0 0 ($spacing-unit * 1.5);
     display: flex;
     align-items: flex-start;
 

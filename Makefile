@@ -7,6 +7,17 @@ ifeq ($(WAREHOUSE_IPYTHON_SHELL), 1)
     IPYTHON = yes
 endif
 
+# Optimization: if the user explicitly passes tests via `T`,
+# disable xdist (since the overhead of spawning workers is typically
+# higher than running a small handful of specific tests).
+# Only do this when the user doesn't set any explicit `TESTARGS` to avoid
+# confusion.
+ifneq ($(T),)
+ifeq ($(TESTARGS),)
+	TESTARGS = -n 0
+endif
+endif
+
 default:
 	@echo "Call a specific subcommand:"
 	@echo
@@ -114,6 +125,7 @@ resetdb: .state/docker-build-base
 .state/db-populated: .state/db-migrated
 	docker compose run --rm web python -m warehouse sponsors populate-db
 	docker compose run --rm web python -m warehouse classifiers sync
+	docker compose exec --user postgres db psql -U postgres warehouse -f /post-migrations.sql
 	mkdir -p .state && touch .state/db-populated
 
 .state/db-migrated: .state/docker-build-base
@@ -128,7 +140,7 @@ initdb: .state/docker-build-base .state/db-populated
 inittuf: .state/db-migrated
 	docker compose up -d rstuf-api
 	docker compose up -d rstuf-worker
-	docker compose run --rm web rstuf admin ceremony -b -u -f dev/rstuf/bootstrap.json --api-server http://rstuf-api
+	docker compose run --rm web python -m warehouse tuf bootstrap dev/rstuf/bootstrap.json --api-server http://rstuf-api
 
 runmigrations: .state/docker-build-base
 	docker compose run --rm web python -m warehouse db upgrade head
@@ -138,6 +150,9 @@ reindex: .state/docker-build-base
 
 shell: .state/docker-build-base
 	docker compose run --rm web python -m warehouse shell
+
+totp: .state/docker-build-base
+	@docker compose run --rm base bin/devtotp
 
 dbshell: .state/docker-build-base
 	docker compose run --rm web psql -h db -d warehouse -U postgres

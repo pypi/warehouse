@@ -1,6 +1,8 @@
 # System Architecture
 
-Using the [C4 Model](https://c4model.com/) approach in [Mermaid syntax](https://mermaid.js.org/syntax/c4c.html)
+Using the [C4 Model](https://c4model.com/) approach in [Mermaid syntax](https://mermaid.js.org/syntax/c4c.html).
+
+_**Note**: These diagrams are best viewed in [light mode](https://github.com/mermaid-js/mermaid/issues/4906)._
 
 ## System Context Diagram
 
@@ -89,12 +91,12 @@ C4Container
     Container(camo, "Camo", "image proxy")
     Container(web_app, "Web", "Python (Pyramid, SQLAlchemy)", "Delivers HTML and API content")
     SystemQueue(sqs, "AWS SQS", "task broker")
-    SystemDb(elasticsearch, "Elasticsearch", "Index of projects, packages, metadata")
+    SystemDb(opensearch, "OpenSearch", "Index of projects, packages, metadata")
     SystemDb(db, "Postgres Database", "Store project, package metadata, user details")
     SystemDb(redis, "Redis", "Store short-term cache data")
 
     Rel(web_app, sqs, "queue tasks")
-    Rel(web_app, elasticsearch, "search for projects")
+    Rel(web_app, opensearch, "search for projects")
     Rel(web_app, db, "store/retrieve most data")
     Rel(web_app, redis, "cache data")
   }
@@ -151,7 +153,7 @@ C4Container
   Container_Boundary(c1, "Supporting Systems") {
     SystemDb(redis, "Redis", "Store short-term cache data")
     SystemQueue(sqs, "AWS SQS", "task broker")
-    SystemDb(elasticsearch, "Elasticsearch", "Index of projects, packages, metadata")
+    SystemDb(opensearch, "OpenSearch", "Index of projects, packages, metadata")
     SystemDb(db, "Postgres Database", "Store project, package metadata, user details")
     System(ses, "AWS SES", "Simple Email Service")
   }
@@ -161,7 +163,7 @@ C4Container
   BiRel(worker, sqs, "get next task/ack")
   BiRel(worker, redis, "store task results")
   BiRel(worker, db, "interact with models")
-  BiRel(worker, elasticsearch, "update search index")
+  BiRel(worker, opensearch, "update search index")
   Rel(worker, fastly, "purge URLs")
   Rel(worker, ses, "send emails")
 

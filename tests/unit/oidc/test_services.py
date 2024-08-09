@@ -88,7 +88,7 @@ class TestOIDCPublisherService:
         assert jwt.decode.calls == [
             pretend.call(
                 token,
-                key=key.key,
+                key=key,
                 algorithms=["RS256"],
                 options=dict(
                     verify_signature=True,
@@ -106,10 +106,7 @@ class TestOIDCPublisherService:
             )
         ]
 
-    @pytest.mark.parametrize("exc", [DecodeError, TypeError("foo")])
-    def test_verify_jwt_signature_get_key_for_token_fails(
-        self, metrics, monkeypatch, exc
-    ):
+    def test_verify_jwt_signature_get_key_for_token_fails(self, metrics, monkeypatch):
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="fakepublisher",
@@ -120,8 +117,8 @@ class TestOIDCPublisherService:
         )
 
         token = pretend.stub()
-        jwt = pretend.stub(decode=pretend.raiser(exc), PyJWTError=PyJWTError)
-        monkeypatch.setattr(service, "_get_key_for_token", pretend.raiser(exc))
+        jwt = pretend.stub(PyJWTError=PyJWTError)
+        monkeypatch.setattr(service, "_get_key_for_token", pretend.raiser(DecodeError))
         monkeypatch.setattr(services, "jwt", jwt)
         monkeypatch.setattr(
             services.sentry_sdk,
@@ -136,13 +133,7 @@ class TestOIDCPublisherService:
                 tags=["publisher:fakepublisher"],
             )
         ]
-
-        if exc != DecodeError:
-            assert services.sentry_sdk.capture_message.calls == [
-                pretend.call(f"JWT backend raised generic error: {exc}")
-            ]
-        else:
-            assert services.sentry_sdk.capture_message.calls == []
+        assert services.sentry_sdk.capture_message.calls == []
 
     @pytest.mark.parametrize("exc", [PyJWTError, TypeError("foo")])
     def test_verify_jwt_signature_fails(self, metrics, monkeypatch, exc):
@@ -981,15 +972,14 @@ class TestPyJWTBackstop:
 
         assert decoded == {"foo": "bar"}
 
-    def test_decodes_token_typeerror_on_pyjwk(self):
+    def test_decodes_token_pyjwk(self):
         privkey_jwk = PyJWK.from_json(algorithms.RSAAlgorithm.to_jwk(self._privkey))
         pubkey_jwk = PyJWK.from_json(algorithms.RSAAlgorithm.to_jwk(self._pubkey))
 
         token = jwt.encode({"foo": "bar"}, privkey_jwk.key, algorithm="RS256")
+        decoded = jwt.decode(token, pubkey_jwk, algorithms=["RS256"])
 
-        # Passing a `PyJWK` directly into `jwt.decode` does not work.
-        with pytest.raises(TypeError, match=r"Expecting a PEM-formatted key\."):
-            jwt.decode(token, pubkey_jwk, algorithms=["RS256"])
+        assert decoded == {"foo": "bar"}
 
     def test_decode_strict_aud(self):
         token = jwt.encode(

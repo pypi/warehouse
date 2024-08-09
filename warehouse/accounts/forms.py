@@ -120,7 +120,7 @@ class RecoveryCodeValueMixin:
             wtforms.validators.InputRequired(),
             PreventNullBytesValidator(),
             wtforms.validators.Regexp(
-                rf"^ *([0-9a-f] *){{{2*RECOVERY_CODE_BYTES}}}$",
+                rf"^ *([0-9a-f] *){{{2 * RECOVERY_CODE_BYTES}}}$",
                 message=_(
                     "Recovery Codes must be ${recovery_code_length} characters.",
                     mapping={"recovery_code_length": 2 * RECOVERY_CODE_BYTES},

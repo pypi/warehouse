@@ -98,6 +98,9 @@ def api_projects_observations(project: Project, request: Request) -> dict:
                 },
             )
 
+    # Manually add an origin field to the observation for tracking
+    data["origin"] = "api"
+
     project.record_observation(
         request=request,
         kind=kind,

@@ -61,6 +61,13 @@ def includeme(config):
         traverse="/{username}",
     )
     config.add_route(
+        "admin.user.submit_email",
+        "/admin/users/{username}/emails/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
         "admin.user.add_email",
         "/admin/users/{username}/add_email/",
         domain=warehouse,
@@ -89,8 +96,22 @@ def includeme(config):
         traverse="/{username}",
     )
     config.add_route(
-        "admin.user.wipe_factors",
-        "/admin/users/{username}/wipe_factors/",
+        "admin.user.account_recovery.initiate",
+        "/admin/users/{username}/account_recovery/initiate/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
+        "admin.user.account_recovery.cancel",
+        "/admin/users/{username}/account_recovery/cancel/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
+        "admin.user.account_recovery.complete",
+        "/admin/users/{username}/account_recovery/complete/",
         domain=warehouse,
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{username}",
@@ -178,6 +199,13 @@ def includeme(config):
         "/admin/projects/{project_name}/release/{version}/add_release_observation/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{project_name}/{version}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.project.remove_from_quarantine",
+        "/admin/projects/{project_name}/remove_from_quarantine/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
         domain=warehouse,
     )
     config.add_route(
@@ -270,8 +298,51 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "admin.malware_reports.project.list",
+        "/admin/projects/{project_name}/malware_reports/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.malware_reports.project.verdict_not_malware",
+        "/admin/projects/{project_name}/malware_reports/not_malware/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.malware_reports.project.verdict_quarantine",
+        "/admin/projects/{project_name}/malware_reports/quarantine/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.malware_reports.project.verdict_remove_malware",
+        "/admin/projects/{project_name}/malware_reports/remove_malware/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
         "admin.malware_reports.detail",
         "/admin/malware_reports/{observation_id}/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.malware_reports.detail.verdict_not_malware",
+        "/admin/malware_reports/{observation_id}/not_malware/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.malware_reports.detail.verdict_quarantine",
+        "/admin/malware_reports/{observation_id}/quarantine/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.malware_reports.detail.verdict_remove_malware",
+        "/admin/malware_reports/{observation_id}/remove_malware/",
         domain=warehouse,
     )
 

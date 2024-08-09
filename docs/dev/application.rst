@@ -106,7 +106,9 @@ Directories within the repository:
     owned/maintained projects)
   - `metrics/ <https://github.com/pypi/warehouse/tree/main/warehouse/metrics>`_ - services for recording metrics
   - `migrations/ <https://github.com/pypi/warehouse/tree/main/warehouse/migrations>`_ - changes to the database schema
-  - `packaging/ <https://github.com/pypi/warehouse/tree/main/warehouse/packaging>`_ - models
+  - `oidc/ <https://github.com/pypi/warehouse/tree/main/warehouse/oidc>`_ - `Trusted Publishing <https://docs.pypi.org/trusted-publishers/>`_ support
+  - `organizations/ <https://github.com/pypi/warehouse/tree/main/warehouse/organizations>`_ - organization accounts
+  - `packaging/ <https://github.com/pypi/warehouse/tree/main/warehouse/packaging>`_ - core packaging models (projects, releases, files)
   - `rate_limiting/ <https://github.com/pypi/warehouse/tree/main/warehouse/rate_limiting>`_ - rate limiting to prevent abuse
   - `rss/ <https://github.com/pypi/warehouse/tree/main/warehouse/rss>`_ - RSS feeds: :doc:`api-reference/feeds`
   - `search/ <https://github.com/pypi/warehouse/tree/main/warehouse/search>`_ - utilities for building and querying the search index

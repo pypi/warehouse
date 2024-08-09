@@ -16,7 +16,7 @@ concurrency:
 jobs:
   build:
     if: github.repository == 'pypi/warehouse'
-    runs-on: depot-ubuntu-22.04
+    runs-on: depot-ubuntu-22.04-arm
     outputs:
       buildId: ${{ steps.build.outputs.build-id}}
       token: ${{ steps.pull-token.outputs.token }}
@@ -58,7 +58,7 @@ jobs:
             command: bin/licenses
           - name: Translations
             command: bin/translations
-    runs-on: depot-ubuntu-22.04
+    runs-on: depot-ubuntu-22.04-arm
     container:
       image: registry.depot.dev/rltf7cln5v:${{ needs.build.outputs.buildId }}
       credentials:
@@ -68,11 +68,12 @@ jobs:
         BILLING_BACKEND: warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27
     services:
       postgres:
-        image: ${{ (matrix.name == 'Tests') && 'postgres:14.11' || '' }}
+        image: ${{ (matrix.name == 'Tests') && 'postgres:16.1' || '' }}
         ports:
           - 5432:5432
         env:
           POSTGRES_HOST_AUTH_METHOD: trust  # never do this in production!
+          POSTGRES_INITDB_ARGS: '--no-sync --set fsync=off --set full_page_writes=off'
         # Set health checks to wait until postgres has started
         options: --health-cmd "pg_isready --username=postgres --dbname=postgres" --health-interval 10s --health-timeout 5s --health-retries 5
       stripe:

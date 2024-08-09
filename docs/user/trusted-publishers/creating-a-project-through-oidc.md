@@ -25,6 +25,15 @@ trusted publishers. The forms on this page behave
 the same as with publishers for existing projects, except that you also need to
 provide the name of the PyPI project that will be created.
 
+!!! important
+
+    A "pending" publisher does **not** create a project or reserve a
+    project's name **until** it is actually used to publish.
+
+    If you create a "pending" publisher but another user registers the project
+    name before you actually publish to it, your "pending" publisher will be
+    **invalidated**.
+
 === "GitHub Actions"
 
     If you have a repository at

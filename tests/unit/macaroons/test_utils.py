@@ -13,12 +13,12 @@
 import pretend
 
 from tests.common.db.accounts import UserFactory
-from warehouse.accounts.utils import UserTokenContext
+from warehouse.accounts.utils import UserContext
 from warehouse.utils.security_policy import principals_for
 
 
-def test_usertoken_context_principals(db_request):
+def test_user_context_principals(db_request):
     user = UserFactory.create()
     assert principals_for(
-        UserTokenContext(user=user, macaroon=pretend.stub())
+        UserContext(user=user, macaroon=pretend.stub())
     ) == principals_for(user)

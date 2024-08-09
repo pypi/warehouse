@@ -92,7 +92,7 @@
           <img src="{{ gravatar(request, request.user.email, size=160) }}" class="img-circle elevation-2" alt="User Image">
         </div>
         <div class="info">
-          <a class="d-block">{{ request.user.name|default(request.user.username, true) }}</a>
+          <a class="d-block" href="{{ request.route_path('admin.user.detail', username=request.user.username) }}">{{ request.user.name|default(request.user.username, true) }}</a>
         </div>
       </div>
 

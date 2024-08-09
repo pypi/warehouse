@@ -20,7 +20,7 @@ from pyramid.security import Denied
 from zope.interface.verify import verifyClass
 
 from warehouse.accounts.interfaces import IUserService
-from warehouse.accounts.utils import UserTokenContext
+from warehouse.accounts.utils import UserContext
 from warehouse.authnz import Permissions
 from warehouse.macaroons import security_policy
 from warehouse.macaroons.interfaces import IMacaroonService
@@ -215,7 +215,7 @@ class TestMacaroonSecurityPolicy:
             ),
         )
 
-        assert policy.identity(request) == UserTokenContext(user, macaroon)
+        assert policy.identity(request) == UserContext(user, macaroon)
         assert extract_http_macaroon.calls == [pretend.call(request)]
         assert request.find_service.calls == [
             pretend.call(IMacaroonService, context=None),

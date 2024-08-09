@@ -38,11 +38,24 @@ def test_execute_observation_report(app_config):
 
 @responses.activate
 @pytest.mark.parametrize(
-    "kind", [ObservationKind.IsMalware, ObservationKind.SomethingElse]
+    ("kind", "reports"),
+    [
+        (ObservationKind.IsMalware, True),
+        (ObservationKind.IsDependencyConfusion, True),
+        (ObservationKind.IsSpam, False),
+        (ObservationKind.SomethingElse, False),
+        (ObservationKind.AccountRecovery, False),
+    ],
 )
 @pytest.mark.parametrize("payload", [{}, {"foo": "bar"}])
-def test_report_observation_to_helpscout(kind, payload, db_request, monkeypatch):
+def test_report_observation_to_helpscout(
+    kind, reports, payload, db_request, monkeypatch
+):
     db_request.registry.settings = {"helpscout.app_secret": "fake-sekret"}
+    db_request.route_url = (
+        lambda route_url, project_name="deadbeef": "/admin/malware_reports/"
+    )
+
     # Mock out the authentication to HelpScout
     monkeypatch.setattr(
         "warehouse.observations.tasks._authenticate_helpscout",
@@ -74,11 +87,15 @@ def test_report_observation_to_helpscout(kind, payload, db_request, monkeypatch)
 
     report_observation_to_helpscout(None, db_request, observation.id)
 
-    assert len(responses.calls) == 1
-    assert (
-        responses.calls[0].request.url == "https://api.helpscout.net/v2/conversations"
-    )
-    assert (
-        observation.additional["helpscout_conversation_url"]
-        == "https://api.helpscout.net/v2/conversations/123"
-    )
+    if reports:
+        assert len(responses.calls) == 1
+        assert (
+            responses.calls[0].request.url
+            == "https://api.helpscout.net/v2/conversations"
+        )
+        assert (
+            observation.additional["helpscout_conversation_url"]
+            == "https://api.helpscout.net/v2/conversations/123"
+        )
+    else:
+        assert len(responses.calls) == 0

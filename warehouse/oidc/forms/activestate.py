@@ -72,7 +72,7 @@ def _activestate_gql_api_call(
         )
         if response.status_code == 404:
             sentry_sdk.capture_message(
-                f"Unexpected {response.status_code } error "
+                f"Unexpected {response.status_code} error "
                 f"from ActiveState API: {response.content!r}"
             )
             raise wtforms.validators.ValidationError(
@@ -80,7 +80,7 @@ def _activestate_gql_api_call(
             )
         elif response.status_code >= 400:
             sentry_sdk.capture_message(
-                f"Unexpected {response.status_code } error "
+                f"Unexpected {response.status_code} error "
                 f"from ActiveState API: {response.content!r}"
             )
             raise wtforms.validators.ValidationError(

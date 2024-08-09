@@ -29,7 +29,7 @@ from warehouse.accounts.services import (
     database_login_factory,
 )
 from warehouse.accounts.tasks import compute_user_metrics
-from warehouse.accounts.utils import UserTokenContext
+from warehouse.accounts.utils import UserContext
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models import OIDCPublisher
 from warehouse.oidc.utils import PublisherTokenContext
@@ -40,15 +40,16 @@ from ...common.db.oidc import GitHubPublisherFactory
 
 
 class TestUser:
-    def test_with_user(self, db_request):
+    def test_with_user_context_no_macaroon(self, db_request):
         user = UserFactory.create()
-        request = pretend.stub(identity=user)
+        user_ctx = UserContext(user, None)
+        request = pretend.stub(identity=user_ctx)
 
         assert accounts._user(request) is user
 
-    def test_with_user_token_context(self, db_request):
+    def test_with_user_token_context_macaroon(self, db_request):
         user = UserFactory.create()
-        user_ctx = UserTokenContext(user, pretend.stub())
+        user_ctx = UserContext(user, pretend.stub())
         request = pretend.stub(identity=user_ctx)
 
         assert accounts._user(request) is user
@@ -107,7 +108,7 @@ class TestOrganizationAccess:
     def test_organization_access(self, db_session, identity, flag, orgs, expected):
         user = None if not identity else UserFactory()
         request = pretend.stub(
-            identity=user,
+            identity=UserContext(user, None),
             find_service=lambda interface, context=None: pretend.stub(
                 get_organizations_by_user=lambda x: orgs
             ),

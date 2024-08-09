@@ -23,6 +23,81 @@
 {% endblock %}
 
 {% block content %}
+  {% if project.lifecycle_status == 'quarantine-enter' %}
+    <div class="card card-danger">
+      <div class="card-header">
+        <h3 class="card-title">
+          <i class="icon fas fa-ban"></i> Quarantined
+        </h3>
+        <div class="card-tools">
+          <span class="time">
+            <i class="fas fa-clock"></i> <time datetime="{{ project.lifecycle_status_changed }}" title="{{ project.lifecycle_status_changed }}">{{ project.lifecycle_status_changed }}</time>
+          </span>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>
+          This project is quarantined.
+          It should not be pip-installable nor appear in searches.
+        </p>
+        <p>Note: {{ project.lifecycle_status_note }}</p>
+        <p>See Project Observations below for more details.</p>
+      </div>
+      <div class="card-footer">
+        <div class="row">
+          <div class="col">
+            <button type="submit"
+                    class="btn btn-block btn-outline-success"
+                    data-toggle="modal"
+                    data-target="#modal-exit-quarantine">Clear from Quarantine</button>
+          </div>
+          <div class="col">
+            <form class="form-inline" method="GET" action="{{ request.route_path('admin.prohibited_project_names.add') }}">
+              <input name="project" type="hidden" value="{{ project.name }}">
+              <input name="comment" type="hidden" value="malware" id="prohibitedComment">
+              <button type="submit" class="btn btn-block btn-outline-danger">Remove project as malware</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- .card -->
+
+   <div class="modal fade" id="modal-exit-quarantine">
+    <div class="modal-dialog modal-exit-quarantine">
+      <form id="exit-quarantine"
+            action="{{ request.route_path('admin.project.remove_from_quarantine', project_name=project.name) }}"
+            method="post">
+        <input name="csrf_token"
+               type="hidden"
+               value="{{ request.session.get_csrf_token() }}">
+        <div class="modal-content">
+          <div class="modal-header bg-success">
+            <h4 class="modal-title">Remove Project from Quarantine</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>
+              Confirming that <code>{{ project.name }}</code> is no longer in quarantine.
+            </p>
+            <p>
+              This will restore the project to the index for installation and
+            </p>
+          </div>
+          <div class="modal-footer justify-content-between">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-outline-success">Remove from Quarantine</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!-- /.modal -->
+
+  {% endif %}
+
 <div class="card card-primary" id="attributes">
   <div class="card-header">Attributes</div>
   <div class="card-body">
@@ -56,11 +131,11 @@
             </td>
             <td>
               {% if project.upload_limit %}
-              {% set upload_limit_value = project.upload_limit / ONE_MB %}
+              {% set upload_limit_value = project.upload_limit / ONE_MIB %}
               {% else %}
               {% set upload_limit_value = '' %}
               {% endif %}
-              <input type="number" name="upload_limit" id="uploadLimit" min="{{ MAX_FILESIZE / ONE_MB }}" max="{{ UPLOAD_LIMIT_CAP / ONE_MB }}" step=1 value="{{ upload_limit_value|int }}"> MiB
+              <input type="number" name="upload_limit" id="uploadLimit" min="{{ MAX_FILESIZE / ONE_MIB }}" max="{{ UPLOAD_LIMIT_CAP / ONE_MIB }}" step=1 value="{{ upload_limit_value|int }}"> MiB
             </td>
             <td>
               <button type="submit" class="btn btn-primary btn-sm">Submit</button>
@@ -80,11 +155,11 @@
             </td>
             <td>
               {% if project.total_size_limit %}
-              {% set total_size_limit_value = project.total_size_limit // ONE_GB %}
+              {% set total_size_limit_value = project.total_size_limit // ONE_GIB %}
               {% else %}
               {% set total_size_limit_value = '' %}
               {% endif %}
-              <input type="number" name="total_size_limit" id="totalSizeLimit" min="{{ MAX_PROJECT_SIZE // ONE_GB }}" value="{{total_size_limit_value}}"> GiB
+              <input type="number" name="total_size_limit" id="totalSizeLimit" min="{{ MAX_PROJECT_SIZE // ONE_GIB }}" value="{{total_size_limit_value}}"> GiB
             </td>
             <td>
               <button type="submit" class="btn btn-primary btn-sm">Submit</button>
@@ -255,6 +330,9 @@
   <div class="card-header">
     <h3 class="card-title">Project Observations</h3>
     <div class="card-tools">
+      {% if observations %}
+      <span class="badge badge-warning">{{ observations|length }}</span>
+      {% endif %}
       <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i>
       </button>
     </div>
@@ -267,6 +345,7 @@
       <table class="table table-hover table-striped">
         <thead>
           <tr>
+            <th></th>
             <th>Created</th>
             <th>Kind</th>
             <th>Reporter</th>
@@ -276,6 +355,11 @@
         <tbody>
           {% for observation in observations %}
           <tr>
+            <td>
+              <a href="{{ request.route_path('admin.malware_reports.detail', observation_id=observation.id) }}">
+                <i class="fa-regular fa-eye"></i>
+              </a>
+            </td>
             <td>{{ observation.created }}</td>
             {# TODO: There's no exact relationship back to the ObservationKind to get the human-string. Not exactly sure how to get that yet. #}
             <td>{{ observation.kind }}</td>

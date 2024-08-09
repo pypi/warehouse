@@ -121,3 +121,6 @@ the view's configuration:
       has_translations=True,
    )
    class SampleViews:
+
+
+You may have to :ref:`rebuild the translation files <building-translations>`.

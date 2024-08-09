@@ -11,7 +11,22 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
+{% extends "email/_base/body.txt" %}
 
-{% extends "email/_base/subject.txt" %}
 
-{% block subject %}{% trans %}Your PyPI account will soon require 2FA{% endtrans %}{% endblock %}
+{% block content %}
+# What?
+
+PyPI administrators have have initiated a password reset for your account.
+You will no longer be able to log in to PyPI with your existing password.
+
+
+# What should I do?
+
+To regain access to your account, reset your password on PyPI ({{ request.route_url('accounts.request-password-reset', _host=request.registry.settings.get('warehouse.domain')) }}).
+
+
+# How can I contact you?
+
+For more information, you can email admin@pypi.org to communicate with the PyPI administrators.
+{% endblock %}

@@ -18,7 +18,6 @@ from warehouse.accounts.interfaces import (
     ITokenService,
     IUserService,
 )
-from warehouse.accounts.models import User
 from warehouse.accounts.security_policy import (
     BasicAuthSecurityPolicy,
     SessionSecurityPolicy,
@@ -32,7 +31,7 @@ from warehouse.accounts.services import (
     database_login_factory,
 )
 from warehouse.accounts.tasks import compute_user_metrics
-from warehouse.accounts.utils import UserTokenContext
+from warehouse.accounts.utils import UserContext
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.macaroons.security_policy import MacaroonSecurityPolicy
 from warehouse.oidc.utils import PublisherTokenContext
@@ -55,12 +54,8 @@ def _user(request):
     if request.identity is None:
         return None
 
-    if isinstance(request.identity, UserTokenContext):
-        # A UserTokenContext signals a user-created API token;
-        # take the underlying user.
+    if isinstance(request.identity, UserContext):
         return request.identity.user
-    elif isinstance(request.identity, User):
-        return request.identity
     else:
         return None
 

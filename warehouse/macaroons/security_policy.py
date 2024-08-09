@@ -17,7 +17,7 @@ from pyramid.interfaces import ISecurityPolicy
 from zope.interface import implementer
 
 from warehouse.accounts.interfaces import IUserService
-from warehouse.accounts.utils import UserTokenContext
+from warehouse.accounts.utils import UserContext
 from warehouse.authnz import Permissions
 from warehouse.cache.http import add_vary_callback
 from warehouse.errors import WarehouseDenied
@@ -120,7 +120,7 @@ class MacaroonSecurityPolicy:
             is_disabled, _ = login_service.is_disabled(dm.user.id)
             if is_disabled:
                 return None
-            return UserTokenContext(dm.user, dm)
+            return UserContext(dm.user, dm)
 
         return PublisherTokenContext(dm.oidc_publisher, oidc_claims)
 

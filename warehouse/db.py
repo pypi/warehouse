@@ -187,8 +187,12 @@ def includeme(config):
         pool_timeout=20,
     )
 
-    # Register our request.db property
-    config.add_request_method(_create_session, name="db", reify=True)
+    # Possibly override how to fetch new db sessions from config.settings
+    #  Useful in test fixtures
+    db_session_factory = config.registry.settings.get(
+        "warehouse.db_create_session", _create_session
+    )
+    config.add_request_method(db_session_factory, name="db", reify=True)
 
     # Set a custom JSON serializer for psycopg
     renderer = JSON()

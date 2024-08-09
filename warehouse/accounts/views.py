@@ -1366,7 +1366,7 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     # Whenever we log in the user, we want to update their user so that it
     # records when the last login was.
     user_service = request.find_service(IUserService, context=None)
-    user_service.update_user(userid, last_login=datetime.datetime.utcnow())
+    user_service.update_user(userid, last_login=datetime.datetime.now(datetime.UTC))
     user = user_service.get_user(userid)
     user.record_event(
         tag=EventTag.Account.LoginSuccess,

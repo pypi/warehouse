@@ -66,7 +66,8 @@ def delete_declined_organizations(request):
         .filter(
             Organization.is_active == False,  # noqa: E712
             Organization.is_approved == False,  # noqa: E712
-            Organization.date_approved < (datetime.datetime.utcnow() - CLEANUP_AFTER),
+            Organization.date_approved
+            < (datetime.datetime.now(datetime.UTC) - CLEANUP_AFTER),
         )
         .all()
     )

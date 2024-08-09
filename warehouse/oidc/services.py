@@ -222,20 +222,13 @@ class OIDCPublisherService:
     def verify_jwt_signature(self, unverified_token: str) -> SignedClaims | None:
         try:
             key = self._get_key_for_token(unverified_token)
-        except Exception as e:
+        except jwt.PyJWTError:
             # The user might feed us an entirely nonsense JWT, e.g. one
             # with missing components.
             self.metrics.increment(
                 "warehouse.oidc.verify_jwt_signature.malformed_jwt",
                 tags=[f"publisher:{self.publisher}"],
             )
-
-            if not isinstance(e, jwt.PyJWTError):
-                with sentry_sdk.push_scope() as scope:
-                    scope.fingerprint = e
-                    # Similar to below: Other exceptions indicate an abstraction
-                    # leak, so we log them for upstream reporting.
-                    sentry_sdk.capture_message(f"JWT backend raised generic error: {e}")
             return None
 
         try:
@@ -243,7 +236,7 @@ class OIDCPublisherService:
             # set them explicitly to assert the intended verification behavior.
             signed_payload = jwt.decode(
                 unverified_token,
-                key=key.key,
+                key=key,
                 algorithms=["RS256"],
                 options=dict(
                     verify_signature=True,
@@ -273,7 +266,7 @@ class OIDCPublisherService:
             )
             if not isinstance(e, jwt.PyJWTError):
                 with sentry_sdk.push_scope() as scope:
-                    scope.fingerprint = e
+                    scope.fingerprint = [e]
                     # We expect pyjwt to only raise subclasses of PyJWTError, but
                     # we can't enforce this. Other exceptions indicate an abstraction
                     # leak, so we log them for upstream reporting.

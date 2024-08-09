@@ -55,6 +55,16 @@
         </span>
       </li>
       {% endif %}
+      {% if user.is_frozen %}
+      <li class="c-sb-list-item">
+        <span class="c-sb-list-item__label t-tx-charcoal-300">
+          Frozen
+          <span class="c-sb-list-item__text t-tx-charcoal-500">
+            <span class="badge red">Yes</span>
+          </span>
+        </span>
+      </li>
+      {% endif %}
     </ul>
   </div>
 </div>

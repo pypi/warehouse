@@ -37,7 +37,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from warehouse import db
 from warehouse.authnz import Permissions
 from warehouse.events.models import HasEvents
-from warehouse.observations.models import HasObserversMixin
+from warehouse.observations.models import HasObservations, HasObservers, ObservationKind
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils.attrs import make_repr
 from warehouse.utils.db.types import TZDateTime, bool_false, datetime_now
@@ -48,10 +48,11 @@ if TYPE_CHECKING:
     from warehouse.organizations.models import (
         Organization,
         OrganizationApplication,
+        OrganizationInvitation,
         OrganizationRole,
         Team,
     )
-    from warehouse.packaging.models import Project
+    from warehouse.packaging.models import Project, RoleInvitation
 
 
 class UserFactory:
@@ -68,9 +69,10 @@ class UserFactory:
 class DisableReason(enum.Enum):
     CompromisedPassword = "password compromised"
     AccountFrozen = "account frozen"
+    AdminInitiated = "admin initiated"
 
 
-class User(SitemapMixin, HasObserversMixin, HasEvents, db.Model):
+class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
     __tablename__ = "users"
     __table_args__ = (
         CheckConstraint("length(username) <= 50", name="users_valid_username_length"),
@@ -91,6 +93,7 @@ class User(SitemapMixin, HasObserversMixin, HasEvents, db.Model):
     is_active: Mapped[bool_false]
     is_frozen: Mapped[bool_false]
     is_superuser: Mapped[bool_false]
+    is_support: Mapped[bool_false]
     is_moderator: Mapped[bool_false]
     is_psf_staff: Mapped[bool_false]
     is_observer: Mapped[bool_false] = mapped_column(
@@ -125,6 +128,11 @@ class User(SitemapMixin, HasObserversMixin, HasEvents, db.Model):
         order_by="Macaroon.created.desc()",
     )
 
+    role_invitations: Mapped[list[RoleInvitation]] = orm.relationship(
+        "RoleInvitation",
+        back_populates="user",
+    )
+
     organization_applications: Mapped[list[OrganizationApplication]] = orm.relationship(
         back_populates="submitted_by",
     )
@@ -156,6 +164,10 @@ class User(SitemapMixin, HasObserversMixin, HasEvents, db.Model):
         cascade="all, delete-orphan",
         lazy=True,
         viewonly=True,
+    )
+
+    organization_invitations: Mapped[list[OrganizationInvitation]] = orm.relationship(
+        back_populates="user",
     )
 
     teams: Mapped[list[Team]] = orm.relationship(
@@ -238,18 +250,30 @@ class User(SitemapMixin, HasObserversMixin, HasEvents, db.Model):
         return not any(
             [
                 self.is_superuser,
+                self.is_support,
                 self.is_moderator,
                 self.is_psf_staff,
                 self.prohibit_password_reset,
             ]
         )
 
+    @property
+    def active_account_recoveries(self):
+        return [
+            observation
+            for observation in self.observations
+            if observation.kind == ObservationKind.AccountRecovery.value[0]
+            and observation.additional["status"] == "initiated"
+        ]
+
     def __principals__(self) -> list[str]:
         principals = [Authenticated, f"user:{self.id}"]
 
         if self.is_superuser:
             principals.append("group:admins")
-        if self.is_moderator or self.is_superuser:
+        if self.is_support:
+            principals.append("group:support")
+        if self.is_moderator or self.is_superuser or self.is_support:
             principals.append("group:moderators")
         if self.is_psf_staff or self.is_superuser:
             principals.append("group:psf_staff")
@@ -270,6 +294,18 @@ class User(SitemapMixin, HasObserversMixin, HasEvents, db.Model):
                 (
                     Permissions.AdminUsersRead,
                     Permissions.AdminUsersWrite,
+                    Permissions.AdminUsersEmailWrite,
+                    Permissions.AdminUsersAccountRecoveryWrite,
+                    Permissions.AdminDashboardSidebarRead,
+                ),
+            ),
+            (
+                Allow,
+                "group:support",
+                (
+                    Permissions.AdminUsersRead,
+                    Permissions.AdminUsersEmailWrite,
+                    Permissions.AdminUsersAccountRecoveryWrite,
                     Permissions.AdminDashboardSidebarRead,
                 ),
             ),

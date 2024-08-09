@@ -11,7 +11,7 @@ BROKER_URL=sqs://localstack:4566/?region=us-east-1&queue_name_prefix=warehouse-d
 
 DATABASE_URL=postgresql+psycopg://postgres@db/warehouse
 
-ELASTICSEARCH_URL=http://elasticsearch:9200/development
+OPENSEARCH_URL=http://opensearch:9200/development
 
 REDIS_URL=redis://redis:6379/0
 

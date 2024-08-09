@@ -13,7 +13,7 @@
 
 import pytest
 
-from elasticsearch_dsl import Search
+from opensearchpy import Search
 
 from warehouse.search import queries
 
@@ -35,9 +35,9 @@ EXPECTED_SEARCH_FIELDS = [
 
 class TestQueries:
     def test_no_terms(self):
-        es = Search()
+        opensearch = Search()
 
-        query = queries.get_es_query(es, "", "", [])
+        query = queries.get_opensearch_query(opensearch, "", "", [])
 
         assert query.to_dict() == {"query": {"match_all": {}}}
 
@@ -50,9 +50,9 @@ class TestQueries:
         ],
     )
     def test_quoted_query(self, terms, expected_prefix, expected_type):
-        es = Search()
+        opensearch = Search()
 
-        query = queries.get_es_query(es, terms, "", [])
+        query = queries.get_opensearch_query(opensearch, terms, "", [])
 
         assert query.to_dict() == {
             "query": {
@@ -81,10 +81,10 @@ class TestQueries:
         }
 
     def test_single_not_quoted_character(self):
-        es = Search()
+        opensearch = Search()
         terms = "a"
 
-        query = queries.get_es_query(es, terms, "", [])
+        query = queries.get_opensearch_query(opensearch, terms, "", [])
 
         assert query.to_dict() == {
             "query": {
@@ -104,10 +104,10 @@ class TestQueries:
         }
 
     def test_mixed_quoted_query(self):
-        es = Search()
+        opensearch = Search()
         terms = '"foo bar" baz'
 
-        query = queries.get_es_query(es, terms, "", [])
+        query = queries.get_opensearch_query(opensearch, terms, "", [])
 
         assert query.to_dict() == {
             "query": {
@@ -144,10 +144,10 @@ class TestQueries:
 
     @pytest.mark.parametrize("order,field", [("created", "created")])
     def test_sort_order(self, order, field):
-        es = Search()
+        opensearch = Search()
         terms = "foo bar"
 
-        query = queries.get_es_query(es, terms, order, [])
+        query = queries.get_opensearch_query(opensearch, terms, order, [])
 
         assert query.to_dict() == {
             "query": {
@@ -182,11 +182,11 @@ class TestQueries:
         }
 
     def test_with_classifiers_with_terms(self):
-        es = Search()
+        opensearch = Search()
         terms = "foo bar"
         classifiers = ["foo :: bar", "fiz :: buz"]
 
-        query = queries.get_es_query(es, terms, "", classifiers)
+        query = queries.get_opensearch_query(opensearch, terms, "", classifiers)
 
         assert query.to_dict() == {
             "query": {
@@ -237,11 +237,11 @@ class TestQueries:
         }
 
     def test_with_classifiers_with_no_terms(self):
-        es = Search()
+        opensearch = Search()
         terms = ""
         classifiers = ["foo :: bar", "fiz :: buz"]
 
-        query = queries.get_es_query(es, terms, "", classifiers)
+        query = queries.get_opensearch_query(opensearch, terms, "", classifiers)
 
         assert query.to_dict() == {
             "query": {
@@ -262,11 +262,11 @@ class TestQueries:
         }
 
     def test_with_classifier_with_no_terms_and_order(self):
-        es = Search()
+        opensearch = Search()
         terms = ""
         classifiers = ["foo :: bar"]
 
-        query = queries.get_es_query(es, terms, "-created", classifiers)
+        query = queries.get_opensearch_query(opensearch, terms, "-created", classifiers)
 
         assert query.to_dict() == {
             "query": {

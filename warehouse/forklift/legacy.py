@@ -29,6 +29,13 @@ import sentry_sdk
 import wtforms
 import wtforms.validators
 
+from pydantic import TypeAdapter, ValidationError
+from pypi_attestations import (
+    Attestation,
+    AttestationType,
+    Distribution,
+    VerificationError,
+)
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPException,
@@ -39,16 +46,15 @@ from pyramid.httpexceptions import (
     HTTPTooManyRequests,
 )
 from pyramid.view import view_config
+from sigstore.verify import Verifier
 from sqlalchemy import and_, exists, func, orm
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
-from warehouse.email import (
-    send_api_token_used_in_trusted_publisher_project_email,
-    send_two_factor_not_yet_enabled_email,
-)
+from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
+from warehouse.email import send_api_token_used_in_trusted_publisher_project_email
 from warehouse.events.tags import EventTag
 from warehouse.forklift import metadata
 from warehouse.forklift.forms import UploadForm, _filetype_extension_mapping
@@ -70,15 +76,9 @@ from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_releas
 from warehouse.rate_limiting.interfaces import RateLimiterException
 from warehouse.utils import readme
 
-ONE_MB = 1 * 1024 * 1024
-ONE_GB = 1 * 1024 * 1024 * 1024
-
-MAX_FILESIZE = 100 * ONE_MB
-MAX_PROJECT_SIZE = 10 * ONE_GB
-
 PATH_HASHER = "blake2_256"
 
-COMPRESSION_RATIO_MIN_SIZE = 64 * ONE_MB
+COMPRESSION_RATIO_MIN_SIZE = 64 * ONE_MIB
 
 # If the zip file decompressed to 50x more space
 # than it is uncompressed, consider it a ZIP bomb.
@@ -87,6 +87,11 @@ COMPRESSION_RATIO_MIN_SIZE = 64 * ONE_MB
 # See discussion here: https://github.com/pypi/warehouse/issues/13962
 COMPRESSION_RATIO_THRESHOLD = 50
 
+# SQS has a maximum total message length of 262144 bytes. In order to stay
+# under this when enqueuing a job to store BigQuery metadata, we truncate the
+# Description field to 40K bytes, which captures up to the 95th percentile of
+# existing descriptions.
+MAX_DESCRIPTION_LENGTH_TO_BIGQUERY = 40000
 
 # Wheel platform checking
 
@@ -367,6 +372,88 @@ def _is_duplicate_file(db_session, filename, hashes):
     return None
 
 
+def _process_attestations(request, distribution: Distribution):
+    """
+    Process any attestations included in a file upload request
+
+    Attestations, if present, will be parsed and verified against the uploaded
+    artifact. Attestations are only allowed when uploading via a Trusted
+    Publisher, because a Trusted Publisher provides the identity that will be
+    used to verify the attestations.
+    Currently, only GitHub Actions Trusted Publishers are supported, and
+    attestations are discarded after verification.
+    """
+
+    metrics = request.find_service(IMetricsService, context=None)
+
+    publisher = request.oidc_publisher
+    if not publisher or not publisher.publisher_name == "GitHub":
+        raise _exc_with_message(
+            HTTPBadRequest,
+            "Attestations are currently only supported when using Trusted "
+            "Publishing with GitHub Actions.",
+        )
+    try:
+        attestations = TypeAdapter(list[Attestation]).validate_json(
+            request.POST["attestations"]
+        )
+    except ValidationError as e:
+        # Log invalid (malformed) attestation upload
+        metrics.increment("warehouse.upload.attestations.malformed")
+        raise _exc_with_message(
+            HTTPBadRequest,
+            f"Error while decoding the included attestation: {e}",
+        )
+
+    if len(attestations) > 1:
+        metrics.increment("warehouse.upload.attestations.failed_multiple_attestations")
+        raise _exc_with_message(
+            HTTPBadRequest,
+            "Only a single attestation per-file is supported at the moment.",
+        )
+
+    verification_policy = publisher.publisher_verification_policy(request.oidc_claims)
+    for attestation_model in attestations:
+        try:
+            # For now, attestations are not stored, just verified
+            predicate_type, _ = attestation_model.verify(
+                Verifier.production(),
+                verification_policy,
+                distribution,
+            )
+        except VerificationError as e:
+            # Log invalid (failed verification) attestation upload
+            metrics.increment("warehouse.upload.attestations.failed_verify")
+            raise _exc_with_message(
+                HTTPBadRequest,
+                f"Could not verify the uploaded artifact using the included "
+                f"attestation: {e}",
+            )
+        except Exception as e:
+            with sentry_sdk.push_scope() as scope:
+                scope.fingerprint = [e]
+                sentry_sdk.capture_message(
+                    f"Unexpected error while verifying attestation: {e}"
+                )
+
+            raise _exc_with_message(
+                HTTPBadRequest,
+                f"Unknown error while trying to verify included attestations: {e}",
+            )
+
+        if predicate_type != AttestationType.PYPI_PUBLISH_V1:
+            metrics.increment(
+                "warehouse.upload.attestations.failed_unsupported_predicate_type"
+            )
+            raise _exc_with_message(
+                HTTPBadRequest,
+                f"Attestation with unsupported predicate type: {predicate_type}",
+            )
+
+        # Log successful attestation upload
+        metrics.increment("warehouse.upload.attestations.ok")
+
+
 @view_config(
     route_name="forklift.legacy.file_upload",
     uses_session=True,
@@ -427,6 +514,19 @@ def file_upload(request):
                 ).format(
                     request.user.username,
                     project_help=request.help_url(_anchor="verified-email"),
+                ),
+            ) from None
+        # Ensure user has enabled 2FA before they can upload a file.
+        if not request.user.has_two_factor:
+            raise _exc_with_message(
+                HTTPBadRequest,
+                (
+                    "User {!r} does not have two-factor authentication enabled. "
+                    "Please enable two-factor authentication before attempting to "
+                    "upload to PyPI. See {project_help} for more information."
+                ).format(
+                    request.user.username,
+                    project_help=request.help_url(_anchor="two-factor-authentication"),
                 ),
             ) from None
 
@@ -853,7 +953,7 @@ def file_upload(request):
                         HTTPBadRequest,
                         "File too large. "
                         + "Limit for project {name!r} is {limit} MB. ".format(
-                            name=project.name, limit=file_size_limit // ONE_MB
+                            name=project.name, limit=file_size_limit // ONE_MIB
                         )
                         + "See "
                         + request.help_url(_anchor="file-size-limit")
@@ -864,7 +964,7 @@ def file_upload(request):
                         HTTPBadRequest,
                         "Project size too large. Limit for "
                         + "project {name!r} total size is {limit} GB. ".format(
-                            name=project.name, limit=project_size_limit // ONE_GB
+                            name=project.name, limit=project_size_limit // ONE_GIB
                         )
                         + "See "
                         + request.help_url(_anchor="project-size-limit"),
@@ -1065,6 +1165,12 @@ def file_upload(request):
                 k: h.hexdigest().lower() for k, h in metadata_file_hashes.items()
             }
 
+        if "attestations" in request.POST:
+            _process_attestations(
+                request=request,
+                distribution=Distribution(name=filename, digest=file_hashes["sha256"]),
+            )
+
         # TODO: This should be handled by some sort of database trigger or a
         #       SQLAlchemy hook or the like instead of doing it inline in this
         #       view.
@@ -1161,11 +1267,6 @@ def file_upload(request):
                 },
             )
 
-    # Check if the user has any 2FA methods enabled, and if not, email them.
-    if request.user and not request.user.has_two_factor:
-        warnings.append("Two factor authentication is not enabled for your account.")
-        send_two_factor_not_yet_enabled_email(request, request.user)
-
     request.db.flush()  # flush db now so server default values are populated for celery
 
     # Push updates to BigQuery
@@ -1174,7 +1275,11 @@ def file_upload(request):
         "name": meta.name,
         "version": str(meta.version),
         "summary": meta.summary,
-        "description": meta.description,
+        "description": (
+            meta.description[:MAX_DESCRIPTION_LENGTH_TO_BIGQUERY]
+            if meta.description is not None
+            else None
+        ),
         "author": meta.author,
         "description_content_type": meta.description_content_type,
         "author_email": meta.author_email,

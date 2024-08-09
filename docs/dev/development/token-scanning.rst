@@ -67,7 +67,7 @@ the request at the bottom. If all went well, you should see a ``204`` ('No
 Content').
 
 Whether it worked or not, a bunch of metrics have been issued, you can see them
-in the `notdatadog` container log.
+in the ``notdatadog`` container log.
 
 GitLab Secret Detection
 -----------------------

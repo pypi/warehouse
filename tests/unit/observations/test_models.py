@@ -99,4 +99,3 @@ def test_user_observations_relationship(db_request):
     db_request.db.flush()  # so Observer is created
 
     assert len(user.observer.observations) == 2
-    assert len(user.observations) == 2

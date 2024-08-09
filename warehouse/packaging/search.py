@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from elasticsearch_dsl import Date, Document, Keyword, Text, analyzer
+from opensearchpy import Date, Document, Keyword, Text, analyzer
 
 from warehouse.search.utils import doc_type
 
@@ -69,5 +69,5 @@ class Project(Document):
 
     class Index:
         # make sure this class can match any index so it will always be used to
-        # deserialize data coming from elasticsearch.
+        # deserialize data coming from opensearch.
         name = "*"

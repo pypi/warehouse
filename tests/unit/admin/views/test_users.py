@@ -10,10 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
+
+import freezegun
 import pretend
 import pytest
 
-from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently
+from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from sqlalchemy.orm import joinedload
 from webob.multidict import MultiDict, NoVars
 
@@ -26,10 +29,16 @@ from warehouse.accounts.models import (
     WebAuthn,
 )
 from warehouse.admin.views import users as views
-from warehouse.packaging.models import JournalEntry, Project
+from warehouse.observations.models import ObservationKind
+from warehouse.packaging.models import JournalEntry, Project, ReleaseURL
 
 from ....common.db.accounts import EmailFactory, User, UserFactory
-from ....common.db.packaging import JournalEntryFactory, ProjectFactory, RoleFactory
+from ....common.db.packaging import (
+    JournalEntryFactory,
+    ProjectFactory,
+    ReleaseFactory,
+    RoleFactory,
+)
 
 
 class TestUserList:
@@ -134,7 +143,7 @@ class TestUserDetail:
 
         assert result["user"] == user
         assert result["roles"] == roles
-        assert result["form"].emails[0].primary.data
+        assert result["emails_form"].emails[0].primary.data
 
     def test_updates_user(self, db_request):
         user = UserFactory.create()
@@ -152,6 +161,55 @@ class TestUserDetail:
         assert resp.location == f"/admin/users/{user.username}/"
         assert user.name == "Jane Doe"
 
+    def test_user_detail_redirects_actual_name(self, db_request):
+        user = UserFactory.create(username="wu-tang")
+        db_request.matchdict["username"] = "Wu-Tang"
+        db_request.current_route_path = pretend.call_recorder(
+            lambda username: "/user/the-redirect/"
+        )
+
+        result = views.user_detail(user, db_request)
+
+        assert isinstance(result, HTTPMovedPermanently)
+        assert result.headers["Location"] == "/user/the-redirect/"
+        assert db_request.current_route_path.calls == [
+            pretend.call(username=user.username)
+        ]
+
+
+class TestUserEmailSubmit:
+    def test_updates_user_emails(self, db_request):
+        email1 = EmailFactory.create(primary=True)
+        email2 = EmailFactory.create(primary=False)
+        user = UserFactory.create(emails=[email1, email2])
+        db_request.matchdict["username"] = str(user.username)
+        db_request.method = "POST"
+        db_request.POST["name"] = "Jane Doe"
+        db_request.POST["emails-0-email"] = email1.email
+        db_request.POST["emails-0-primary"] = False
+        db_request.POST["emails-1-email"] = email2.email
+        db_request.POST["emails-1-primary"] = True
+
+        db_request.POST = MultiDict(db_request.POST)
+        db_request.route_path = pretend.call_recorder(
+            lambda route_name, username=None: f"/admin/users/{username}/"
+        )
+
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        resp = views.user_submit_email(user, db_request)
+
+        assert email1.primary is False
+        assert email2.primary is True
+
+        assert isinstance(resp, HTTPSeeOther)
+        assert resp.headers["Location"] == f"/admin/users/{user.username}/"
+        assert db_request.session.flash.calls == [
+            pretend.call(f"User '{user.username}': emails updated", queue="success")
+        ]
+
     def test_updates_user_no_primary_email(self, db_request):
         email = EmailFactory.create(primary=True)
         user = UserFactory.create(emails=[email])
@@ -162,20 +220,23 @@ class TestUserDetail:
         # No primary = checkbox unchecked
 
         db_request.POST = MultiDict(db_request.POST)
-        db_request.current_route_path = pretend.call_recorder(
-            lambda: f"/admin/users/{user.username}/"
+        db_request.route_path = pretend.call_recorder(
+            lambda route_name, username=None: f"/admin/users/{username}/"
         )
 
-        breach_service = pretend.stub(get_email_breach_count=lambda count: 0)
-        db_request.find_service = lambda interface, **kwargs: {
-            IEmailBreachedService: breach_service,
-        }[interface]
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
 
-        resp = views.user_detail(user, db_request)
+        resp = views.user_submit_email(user, db_request)
 
-        assert resp["form"].errors == {
-            "emails": ["There must be exactly one primary email"]
-        }
+        assert isinstance(resp, HTTPSeeOther)
+        assert resp.headers["Location"] == f"/admin/users/{user.username}/"
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "emails: ['There must be exactly one primary email']", queue="error"
+            )
+        ]
 
     def test_updates_user_multiple_primary_emails(self, db_request):
         email1 = EmailFactory.create(primary=True)
@@ -191,34 +252,37 @@ class TestUserDetail:
         # No primary = checkbox unchecked
 
         db_request.POST = MultiDict(db_request.POST)
-        db_request.current_route_path = pretend.call_recorder(
-            lambda: f"/admin/users/{user.username}/"
+        db_request.route_path = pretend.call_recorder(
+            lambda route_name, username=None: f"/admin/users/{username}/"
         )
 
-        breach_service = pretend.stub(get_email_breach_count=lambda count: 0)
-        db_request.find_service = lambda interface, **kwargs: {
-            IEmailBreachedService: breach_service,
-        }[interface]
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
 
-        resp = views.user_detail(user, db_request)
+        resp = views.user_submit_email(user, db_request)
 
-        assert resp["form"].errors == {
-            "emails": ["There must be exactly one primary email"]
-        }
+        assert isinstance(resp, HTTPSeeOther)
+        assert resp.headers["Location"] == f"/admin/users/{user.username}/"
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "emails: ['There must be exactly one primary email']", queue="error"
+            )
+        ]
 
     def test_user_detail_redirects_actual_name(self, db_request):
         user = UserFactory.create(username="wu-tang")
         db_request.matchdict["username"] = "Wu-Tang"
-        db_request.current_route_path = pretend.call_recorder(
-            lambda username: "/user/the-redirect/"
+        db_request.route_path = pretend.call_recorder(
+            lambda route_name, username=None: "/user/the-redirect/"
         )
 
-        result = views.user_detail(user, db_request)
+        result = views.user_submit_email(user, db_request)
 
         assert isinstance(result, HTTPMovedPermanently)
         assert result.headers["Location"] == "/user/the-redirect/"
-        assert db_request.current_route_path.calls == [
-            pretend.call(username=user.username)
+        assert db_request.route_path.calls == [
+            pretend.call("admin.user.detail", username=user.username)
         ]
 
 
@@ -467,7 +531,7 @@ class TestUserResetPassword:
         db_request.find_service = pretend.call_recorder(lambda iface, context: service)
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_password_compromised_email", send_email)
+        monkeypatch.setattr(views, "send_password_reset_by_admin_email", send_email)
 
         result = views.user_reset_password(user, db_request)
 
@@ -476,7 +540,7 @@ class TestUserResetPassword:
         ]
         assert send_email.calls == [pretend.call(db_request, user)]
         assert service.disable_password.calls == [
-            pretend.call(user.id, db_request, reason=DisableReason.CompromisedPassword)
+            pretend.call(user.id, db_request, reason=DisableReason.AdminInitiated)
         ]
         assert db_request.route_path.calls == [
             pretend.call("admin.user.detail", username=user.username)
@@ -498,7 +562,7 @@ class TestUserResetPassword:
         db_request.find_service = pretend.call_recorder(lambda iface, context: service)
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_password_compromised_email", send_email)
+        monkeypatch.setattr(views, "send_password_reset_by_admin_email", send_email)
 
         result = views.user_reset_password(user, db_request)
 
@@ -527,8 +591,662 @@ class TestUserResetPassword:
         ]
 
 
-class TestUserWipeFactors:
-    def test_wipes_factors(self, db_request, monkeypatch):
+class TestUserRecoverAccountInitiate:
+    def test_user_recover_account_initiate(self, db_request, db_session):
+        user = UserFactory.create(
+            totp_secret=b"aaaaabbbbbcccccddddd",
+            webauthn=[
+                WebAuthn(
+                    label="fake", credential_id="fake", public_key="extremely fake"
+                )
+            ],
+            recovery_codes=[
+                RecoveryCode(code="fake"),
+            ],
+        )
+        project0 = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project0)
+        release0 = ReleaseFactory.create(project=project0)
+        db_session.add(
+            ReleaseURL(
+                release=release0, name="Homepage", url="https://example.com/home0"
+            )
+        )
+        db_session.add(
+            ReleaseURL(
+                release=release0, name="Source Code", url="http://example.com/source0"
+            )
+        )
+        project1 = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project1)
+        release1 = ReleaseFactory.create(project=project1)
+        db_session.add(
+            ReleaseURL(
+                release=release1, name="Homepage", url="https://example.com/home1"
+            )
+        )
+        project2 = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project2)
+        release2 = ReleaseFactory.create(project=project2)
+        db_session.add(
+            ReleaseURL(release=release2, name="telnet", url="telnet://192.0.2.16:80/")
+        )
+        project3 = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project3)
+
+        result = views.user_recover_account_initiate(user, db_request)
+
+        assert result == {
+            "user": user,
+            "repo_urls": {
+                project0.name: {
+                    ("Homepage", "https://example.com/home0"),
+                    ("Source Code", "http://example.com/source0"),
+                },
+                project1.name: {
+                    ("Homepage", "https://example.com/home1"),
+                },
+            },
+        }
+
+    def test_user_recover_account_initiate_only_one(self, db_request):
+        db_request.route_path = pretend.call_recorder(
+            lambda route_name, **kwargs: "/user/the-redirect/"
+        )
+        admin_user = UserFactory.create()
+        user = UserFactory.create(
+            totp_secret=b"aaaaabbbbbcccccddddd",
+            webauthn=[
+                WebAuthn(
+                    label="fake", credential_id="fake", public_key="extremely fake"
+                )
+            ],
+            recovery_codes=[
+                RecoveryCode(code="fake"),
+            ],
+        )
+        account_recovery0 = user.record_observation(
+            request=db_request,
+            kind=ObservationKind.AccountRecovery,
+            actor=admin_user,
+            summary="Account Recovery",
+            payload={"completed": None},
+        )
+        account_recovery0.additional = {"status": "initiated"}
+
+        result = views.user_recover_account_initiate(user, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/user/the-redirect/"
+        assert db_request.route_path.calls == [
+            pretend.call("admin.user.detail", username=user.username)
+        ]
+
+    def test_user_recover_account_initiate_submit(
+        self, db_request, db_session, monkeypatch
+    ):
+        admin_user = UserFactory.create()
+        user = UserFactory.create(
+            totp_secret=b"aaaaabbbbbcccccddddd",
+            webauthn=[
+                WebAuthn(
+                    label="fake", credential_id="fake", public_key="extremely fake"
+                )
+            ],
+            recovery_codes=[
+                RecoveryCode(code="fake"),
+            ],
+        )
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+        release = ReleaseFactory.create(project=project)
+        db_session.add(
+            ReleaseURL(
+                release=release, name="Homepage", url="https://example.com/home0"
+            )
+        )
+        db_session.add(
+            ReleaseURL(
+                release=release, name="Source Code", url="http://example.com/source0"
+            )
+        )
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_account_recovery_initiated_email", send_email)
+        monkeypatch.setattr(views, "token_urlsafe", lambda: "deadbeef")
+
+        db_request.method = "POST"
+        db_request.user = admin_user
+        db_request.POST["project_name"] = project.name
+        db_request.POST["support_issue_link"] = (
+            "https://github.com/pypi/support/issues/666"
+        )
+        db_request.route_path = pretend.call_recorder(
+            lambda route_name, **kwargs: "/user/the-redirect/"
+        )
+
+        now = datetime.datetime.now(datetime.UTC)
+        with freezegun.freeze_time(now):
+            result = views.user_recover_account_initiate(user, db_request)
+
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                (user, None),
+                project_name=project.name,
+                support_issue_link="https://github.com/pypi/support/issues/666",
+                token="deadbeef",
+            )
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/user/the-redirect/"
+        assert db_request.route_path.calls == [
+            pretend.call("admin.user.detail", username=user.username)
+        ]
+        assert len(user.active_account_recoveries) == 1
+        account_recovery = user.active_account_recoveries[0]
+        assert account_recovery.payload == {
+            "initiated": str(now),
+            "completed": None,
+            "token": "deadbeef",
+            "project_name": project.name,
+            "repos": sorted(
+                [
+                    ("Source Code", "http://example.com/source0"),
+                    ("Homepage", "https://example.com/home0"),
+                ]
+            ),
+            "support_issue_link": "https://github.com/pypi/support/issues/666",
+            "override_to_email": None,
+        }
+        assert account_recovery.additional == {"status": "initiated"}
+
+    def test_user_recover_account_initiate_no_urls_submit(
+        self, db_request, db_session, monkeypatch
+    ):
+        admin_user = UserFactory.create()
+        user = UserFactory.create(
+            totp_secret=b"aaaaabbbbbcccccddddd",
+            webauthn=[
+                WebAuthn(
+                    label="fake", credential_id="fake", public_key="extremely fake"
+                )
+            ],
+            recovery_codes=[
+                RecoveryCode(code="fake"),
+            ],
+        )
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+        release = ReleaseFactory.create(project=project)
+        db_session.add(
+            ReleaseURL(release=release, name="telnet", url="telnet://192.0.2.16:80/")
+        )
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_account_recovery_initiated_email", send_email)
+        monkeypatch.setattr(views, "token_urlsafe", lambda: "deadbeef")
+
+        db_request.method = "POST"
+        db_request.user = admin_user
+        db_request.POST["project_name"] = ""
+        db_request.POST["support_issue_link"] = (
+            "https://github.com/pypi/support/issues/666"
+        )
+        db_request.route_path = pretend.call_recorder(
+            lambda route_name, **kwargs: "/user/the-redirect/"
+        )
+
+        now = datetime.datetime.now(datetime.UTC)
+        with freezegun.freeze_time(now):
+            result = views.user_recover_account_initiate(user, db_request)
+
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                (user, None),
+                project_name="",
+                support_issue_link="https://github.com/pypi/support/issues/666",
+                token="deadbeef",
+            )
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/user/the-redirect/"
+        assert db_request.route_path.calls == [
+            pretend.call("admin.user.detail", username=user.username)
+        ]
+        assert len(user.active_account_recoveries) == 1
+        account_recovery = user.active_account_recoveries[0]
+        assert account_recovery.payload == {
+            "initiated": str(now),
+            "completed": None,
+            "token": "deadbeef",
+            "project_name": "",
+            "repos": [],
+            "support_issue_link": "https://github.com/pypi/support/issues/666",
+            "override_to_email": None,
+        }
+        assert account_recovery.additional == {"status": "initiated"}
+
+    def test_user_recover_account_initiate_override_email(
+        self, db_request, db_session, monkeypatch
+    ):
+        admin_user = UserFactory.create()
+        user = UserFactory.create(
+            totp_secret=b"aaaaabbbbbcccccddddd",
+            webauthn=[
+                WebAuthn(
+                    label="fake", credential_id="fake", public_key="extremely fake"
+                )
+            ],
+            recovery_codes=[
+                RecoveryCode(code="fake"),
+            ],
+        )
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+        release = ReleaseFactory.create(project=project)
+        db_session.add(
+            ReleaseURL(release=release, name="telnet", url="telnet://192.0.2.16:80/")
+        )
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_account_recovery_initiated_email", send_email)
+        monkeypatch.setattr(views, "token_urlsafe", lambda: "deadbeef")
+
+        db_request.method = "POST"
+        db_request.user = admin_user
+        db_request.POST["project_name"] = ""
+        db_request.POST["support_issue_link"] = (
+            "https://github.com/pypi/support/issues/666"
+        )
+        db_request.POST["override_to_email"] = "foo@example.com"
+        db_request.route_path = pretend.call_recorder(
+            lambda route_name, **kwargs: "/user/the-redirect/"
+        )
+
+        now = datetime.datetime.now(datetime.UTC)
+        with freezegun.freeze_time(now):
+            result = views.user_recover_account_initiate(user, db_request)
+
+        _email = [e for e in user.emails if e.email == "foo@example.com"][0]
+        assert _email.verified is False
+
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                (user, _email),
+                project_name="",
+                support_issue_link="https://github.com/pypi/support/issues/666",
+                token="deadbeef",
+            )
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/user/the-redirect/"
+        assert db_request.route_path.calls == [
+            pretend.call("admin.user.detail", username=user.username)
+        ]
+        assert len(user.active_account_recoveries) == 1
+        account_recovery = user.active_account_recoveries[0]
+        assert account_recovery.payload == {
+            "initiated": str(now),
+            "completed": None,
+            "token": "deadbeef",
+            "project_name": "",
+            "repos": [],
+            "support_issue_link": "https://github.com/pypi/support/issues/666",
+            "override_to_email": "foo@example.com",
+        }
+        assert account_recovery.additional == {"status": "initiated"}
+
+    def test_user_recover_account_initiate_override_email_exists(
+        self, db_request, db_session, monkeypatch
+    ):
+        admin_user = UserFactory.create()
+        user = UserFactory.create(
+            totp_secret=b"aaaaabbbbbcccccddddd",
+            webauthn=[
+                WebAuthn(
+                    label="fake", credential_id="fake", public_key="extremely fake"
+                )
+            ],
+            recovery_codes=[
+                RecoveryCode(code="fake"),
+            ],
+        )
+        EmailFactory.create(
+            user=user, email="foo@example.com", primary=False, verified=False
+        )
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+        release = ReleaseFactory.create(project=project)
+        db_session.add(
+            ReleaseURL(release=release, name="telnet", url="telnet://192.0.2.16:80/")
+        )
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_account_recovery_initiated_email", send_email)
+        monkeypatch.setattr(views, "token_urlsafe", lambda: "deadbeef")
+
+        db_request.method = "POST"
+        db_request.user = admin_user
+        db_request.POST["project_name"] = ""
+        db_request.POST["support_issue_link"] = (
+            "https://github.com/pypi/support/issues/666"
+        )
+        db_request.POST["override_to_email"] = "foo@example.com"
+        db_request.route_path = pretend.call_recorder(
+            lambda route_name, **kwargs: "/user/the-redirect/"
+        )
+
+        now = datetime.datetime.now(datetime.UTC)
+        with freezegun.freeze_time(now):
+            result = views.user_recover_account_initiate(user, db_request)
+
+        _email = [e for e in user.emails if e.email == "foo@example.com"][0]
+        assert _email.verified is False
+
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                (user, _email),
+                project_name="",
+                support_issue_link="https://github.com/pypi/support/issues/666",
+                token="deadbeef",
+            )
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/user/the-redirect/"
+        assert db_request.route_path.calls == [
+            pretend.call("admin.user.detail", username=user.username)
+        ]
+        assert len(user.active_account_recoveries) == 1
+        account_recovery = user.active_account_recoveries[0]
+        assert account_recovery.payload == {
+            "initiated": str(now),
+            "completed": None,
+            "token": "deadbeef",
+            "project_name": "",
+            "repos": [],
+            "support_issue_link": "https://github.com/pypi/support/issues/666",
+            "override_to_email": "foo@example.com",
+        }
+        assert account_recovery.additional == {"status": "initiated"}
+
+    def test_user_recover_account_initiate_override_email_exists_wrong_user(
+        self, db_request, db_session, monkeypatch
+    ):
+        admin_user = UserFactory.create()
+        user = UserFactory.create(
+            totp_secret=b"aaaaabbbbbcccccddddd",
+            webauthn=[
+                WebAuthn(
+                    label="fake", credential_id="fake", public_key="extremely fake"
+                )
+            ],
+            recovery_codes=[
+                RecoveryCode(code="fake"),
+            ],
+        )
+        other_user = UserFactory.create()
+        EmailFactory.create(
+            user=other_user, email="foo@example.com", primary=False, verified=False
+        )
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+        release = ReleaseFactory.create(project=project)
+        db_session.add(
+            ReleaseURL(release=release, name="telnet", url="telnet://192.0.2.16:80/")
+        )
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_account_recovery_initiated_email", send_email)
+        monkeypatch.setattr(views, "token_urlsafe", lambda: "deadbeef")
+
+        db_request.method = "POST"
+        db_request.user = admin_user
+        db_request.POST["project_name"] = ""
+        db_request.POST["support_issue_link"] = (
+            "https://github.com/pypi/support/issues/666"
+        )
+        db_request.POST["override_to_email"] = "foo@example.com"
+        db_request.route_path = pretend.call_recorder(
+            lambda route_name, **kwargs: "/user/the-redirect/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.user_recover_account_initiate(user, db_request)
+
+        assert send_email.calls == []
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/user/the-redirect/"
+        assert db_request.route_path.calls == [
+            pretend.call("admin.user.account_recovery.initiate", username=user.username)
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call("Email address already associated with a user", queue="error")
+        ]
+        assert len(user.active_account_recoveries) == 0
+
+    def test_user_recover_account_initiate_no_support_issue_link_submit(
+        self, db_request, db_session
+    ):
+        admin_user = UserFactory.create()
+        user = UserFactory.create(
+            totp_secret=b"aaaaabbbbbcccccddddd",
+            webauthn=[
+                WebAuthn(
+                    label="fake", credential_id="fake", public_key="extremely fake"
+                )
+            ],
+            recovery_codes=[
+                RecoveryCode(code="fake"),
+            ],
+        )
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+        release = ReleaseFactory.create(project=project)
+        db_session.add(
+            ReleaseURL(release=release, name="telnet", url="telnet://192.0.2.16:80/")
+        )
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+
+        db_request.method = "POST"
+        db_request.user = admin_user
+        db_request.POST["project_name"] = ""
+        db_request.POST["support_issue_link"] = ""
+        db_request.route_path = pretend.call_recorder(
+            lambda route_name, **kwargs: "/user/the-redirect/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.user_recover_account_initiate(user, db_request)
+
+        assert send_email.calls == []
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/user/the-redirect/"
+        assert db_request.route_path.calls == [
+            pretend.call("admin.user.account_recovery.initiate", username=user.username)
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call("Provide a link to the pypi/support issue", queue="error")
+        ]
+        assert len(user.active_account_recoveries) == 0
+
+    def test_user_recover_account_initiate_invalid_support_issue_link_submit(
+        self, db_request, db_session
+    ):
+        admin_user = UserFactory.create()
+        user = UserFactory.create(
+            totp_secret=b"aaaaabbbbbcccccddddd",
+            webauthn=[
+                WebAuthn(
+                    label="fake", credential_id="fake", public_key="extremely fake"
+                )
+            ],
+            recovery_codes=[
+                RecoveryCode(code="fake"),
+            ],
+        )
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+        release = ReleaseFactory.create(project=project)
+        db_session.add(
+            ReleaseURL(release=release, name="telnet", url="telnet://192.0.2.16:80/")
+        )
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+
+        db_request.method = "POST"
+        db_request.user = admin_user
+        db_request.POST["project_name"] = ""
+        db_request.POST["support_issue_link"] = (
+            "https://github.com/pypi/warehouse/issues/420"
+        )
+        db_request.route_path = pretend.call_recorder(
+            lambda route_name, **kwargs: "/user/the-redirect/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.user_recover_account_initiate(user, db_request)
+
+        assert send_email.calls == []
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/user/the-redirect/"
+        assert db_request.route_path.calls == [
+            pretend.call("admin.user.account_recovery.initiate", username=user.username)
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call("The pypi/support issue link is invalid", queue="error")
+        ]
+        assert len(user.active_account_recoveries) == 0
+
+    def test_recover_account_initiate_invalid_project_name_with_available_urls_submit(
+        self, db_request, db_session
+    ):
+        admin_user = UserFactory.create()
+        user = UserFactory.create(
+            totp_secret=b"aaaaabbbbbcccccddddd",
+            webauthn=[
+                WebAuthn(
+                    label="fake", credential_id="fake", public_key="extremely fake"
+                )
+            ],
+            recovery_codes=[
+                RecoveryCode(code="fake"),
+            ],
+        )
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+        release = ReleaseFactory.create(project=project)
+        db_session.add(
+            ReleaseURL(release=release, name="Homepage", url="https://example.com/home")
+        )
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+
+        db_request.method = "POST"
+        db_request.user = admin_user
+        db_request.POST["project_name"] = ""
+        db_request.POST["support_issue_link"] = (
+            "https://github.com/pypi/support/issues/420"
+        )
+        db_request.route_path = pretend.call_recorder(
+            lambda route_name, **kwargs: "/user/the-redirect/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.user_recover_account_initiate(user, db_request)
+
+        assert send_email.calls == []
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/user/the-redirect/"
+        assert db_request.route_path.calls == [
+            pretend.call("admin.user.account_recovery.initiate", username=user.username)
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call("Select a project for verification", queue="error")
+        ]
+        assert len(user.active_account_recoveries) == 0
+
+
+class TestUserRecoverAccountCancel:
+    def test_user_recover_account_cancel_cancels_active_account_recoveries(
+        self, db_request, monkeypatch
+    ):
+        admin_user = UserFactory.create()
+        user = UserFactory.create(
+            totp_secret=b"aaaaabbbbbcccccddddd",
+            webauthn=[
+                WebAuthn(
+                    label="fake", credential_id="fake", public_key="extremely fake"
+                )
+            ],
+            recovery_codes=[
+                RecoveryCode(code="fake"),
+            ],
+        )
+
+        account_recovery0 = user.record_observation(
+            request=db_request,
+            kind=ObservationKind.AccountRecovery,
+            actor=admin_user,
+            summary="Account Recovery",
+            payload={"completed": None},
+        )
+        account_recovery0.additional = {"status": "initiated"}
+        account_recovery1 = user.record_observation(
+            request=db_request,
+            kind=ObservationKind.AccountRecovery,
+            actor=admin_user,
+            summary="Account Recovery",
+            payload={"completed": None},
+        )
+        account_recovery1.additional = {"status": "initiated"}
+
+        assert user.totp_secret is not None
+        assert len(user.webauthn) == 1
+        assert len(user.recovery_codes.all()) == 1
+
+        db_request.method = "POST"
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": user.username}
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.user = user
+        service = pretend.stub()
+        db_request.find_service = pretend.call_recorder(lambda iface, context: service)
+
+        now = datetime.datetime.now(datetime.UTC)
+        with freezegun.freeze_time(now):
+            result = views.user_recover_account_cancel(user, db_request)
+
+        assert user.totp_secret is not None
+        assert len(user.webauthn) == 1
+        assert len(user.recovery_codes.all()) == 1
+
+        assert db_request.find_service.calls == []
+        assert account_recovery0.additional["status"] == "cancelled"
+        assert account_recovery0.payload["cancelled"] == str(now)
+        assert account_recovery1.additional["status"] == "cancelled"
+        assert account_recovery1.payload["cancelled"] == str(now)
+        assert db_request.route_path.calls == [
+            pretend.call("admin.user.detail", username=user.username)
+        ]
+        assert result.status_code == 303
+        assert result.location == "/foobar"
+
+
+class TestUserRecoverAccountComplete:
+    def test_user_recover_account_complete(self, db_request, monkeypatch):
         user = UserFactory.create(
             totp_secret=b"aaaaabbbbbcccccddddd",
             webauthn=[
@@ -558,9 +1276,9 @@ class TestUserWipeFactors:
         db_request.find_service = pretend.call_recorder(lambda iface, context: service)
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_password_compromised_email", send_email)
+        monkeypatch.setattr(views, "send_password_reset_by_admin_email", send_email)
 
-        result = views.user_wipe_factors(user, db_request)
+        result = views.user_recover_account_complete(user, db_request)
 
         assert user.totp_secret is None
         assert len(user.webauthn) == 0
@@ -570,7 +1288,7 @@ class TestUserWipeFactors:
         ]
         assert send_email.calls == [pretend.call(db_request, user)]
         assert service.disable_password.calls == [
-            pretend.call(user.id, db_request, reason=DisableReason.CompromisedPassword)
+            pretend.call(user.id, db_request, reason=DisableReason.AdminInitiated)
         ]
         assert db_request.route_path.calls == [
             pretend.call("admin.user.detail", username=user.username)
@@ -578,7 +1296,83 @@ class TestUserWipeFactors:
         assert result.status_code == 303
         assert result.location == "/foobar"
 
-    def test_wipes_factors_bad_confirm(self, db_request, monkeypatch):
+    def test_user_recover_account_complete_completes_active_account_recoveries(
+        self, db_request, monkeypatch
+    ):
+        admin_user = UserFactory.create()
+        user = UserFactory.create(
+            totp_secret=b"aaaaabbbbbcccccddddd",
+            webauthn=[
+                WebAuthn(
+                    label="fake", credential_id="fake", public_key="extremely fake"
+                )
+            ],
+            recovery_codes=[
+                RecoveryCode(code="fake"),
+            ],
+        )
+
+        account_recovery0 = user.record_observation(
+            request=db_request,
+            kind=ObservationKind.AccountRecovery,
+            actor=admin_user,
+            summary="Account Recovery",
+            payload={"completed": None},
+        )
+        account_recovery0.additional = {"status": "initiated"}
+        account_recovery1 = user.record_observation(
+            request=db_request,
+            kind=ObservationKind.AccountRecovery,
+            actor=admin_user,
+            summary="Account Recovery",
+            payload={"completed": None},
+        )
+        account_recovery1.additional = {"status": "initiated"}
+
+        assert user.totp_secret is not None
+        assert len(user.webauthn) == 1
+        assert len(user.recovery_codes.all()) == 1
+
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": user.username}
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.user = user
+        service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda username: user.username),
+            disable_password=pretend.call_recorder(
+                lambda userid, request, reason: None
+            ),
+        )
+        db_request.find_service = pretend.call_recorder(lambda iface, context: service)
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_password_reset_by_admin_email", send_email)
+
+        now = datetime.datetime.now(datetime.UTC)
+        with freezegun.freeze_time(now):
+            result = views.user_recover_account_complete(user, db_request)
+
+        assert user.totp_secret is None
+        assert len(user.webauthn) == 0
+        assert len(user.recovery_codes.all()) == 0
+        assert db_request.find_service.calls == [
+            pretend.call(IUserService, context=None)
+        ]
+        assert account_recovery0.additional["status"] == "completed"
+        assert account_recovery0.payload["completed"] == str(now)
+        assert account_recovery1.additional["status"] == "completed"
+        assert account_recovery1.payload["completed"] == str(now)
+        assert send_email.calls == [pretend.call(db_request, user)]
+        assert service.disable_password.calls == [
+            pretend.call(user.id, db_request, reason=DisableReason.AdminInitiated)
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("admin.user.detail", username=user.username)
+        ]
+        assert result.status_code == 303
+        assert result.location == "/foobar"
+
+    def test_user_recover_account_complete_bad_confirm(self, db_request, monkeypatch):
         user = UserFactory.create()
 
         db_request.matchdict["username"] = str(user.username)
@@ -592,9 +1386,9 @@ class TestUserWipeFactors:
         db_request.find_service = pretend.call_recorder(lambda iface, context: service)
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_password_compromised_email", send_email)
+        monkeypatch.setattr(views, "send_password_reset_by_admin_email", send_email)
 
-        result = views.user_wipe_factors(user, db_request)
+        result = views.user_recover_account_complete(user, db_request)
 
         assert db_request.find_service.calls == []
         assert send_email.calls == []
@@ -605,14 +1399,14 @@ class TestUserWipeFactors:
         assert result.status_code == 303
         assert result.location == "/foobar"
 
-    def test_user_wipe_factors_redirects_actual_name(self, db_request):
+    def test_user_recover_account_complete_redirects_actual_name(self, db_request):
         user = UserFactory.create(username="wu-tang")
         db_request.matchdict["username"] = "Wu-Tang"
         db_request.current_route_path = pretend.call_recorder(
             lambda username: "/user/the-redirect/"
         )
 
-        result = views.user_wipe_factors(user, db_request)
+        result = views.user_recover_account_complete(user, db_request)
 
         assert isinstance(result, HTTPMovedPermanently)
         assert result.headers["Location"] == "/user/the-redirect/"

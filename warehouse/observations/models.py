@@ -63,7 +63,7 @@ class Observer(db.Model):
     parent: AssociationProxy = association_proxy("_association", "parent")
 
 
-class HasObserversMixin:
+class HasObservers:
     """A mixin for models that can have observers."""
 
     @declared_attr
@@ -98,14 +98,6 @@ class HasObserversMixin:
         )
         return relationship(assoc_cls)
 
-    @declared_attr
-    def observations(cls):  # noqa: N805
-        """Simplify `foo.observer.observations` to `foo.observations`."""
-        return association_proxy(
-            "observer_association",
-            "observer.observations",
-        )
-
 
 class ObservationKind(enum.Enum):
     """
@@ -121,6 +113,10 @@ class ObservationKind(enum.Enum):
     IsMalware = ("is_malware", "Is Malware")
     IsSpam = ("is_spam", "Is Spam")
     SomethingElse = ("something_else", "Something Else")
+    AccountRecovery = (
+        "account_recovery",
+        "Account Recovery",
+    )
 
 
 # A reverse-lookup map by the string value stored in the database

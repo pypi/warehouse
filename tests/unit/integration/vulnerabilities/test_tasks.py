@@ -110,7 +110,7 @@ def test_analyze_vulnerability_update_metadata(db_request, metrics):
 
     metrics.increment.calls = []  # reset
 
-    withdrawn_date = datetime.datetime.utcnow()
+    withdrawn_date = datetime.datetime.now(datetime.UTC)
 
     tasks.analyze_vulnerability_task(
         request=db_request,

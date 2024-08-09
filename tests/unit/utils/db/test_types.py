@@ -9,7 +9,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from datetime import datetime
+import datetime
 
 import pytz
 
@@ -20,7 +20,7 @@ from warehouse.utils.db.types import TZDateTime
 
 def test_tzdatetime_bind_nonnaive_datetime():
     dt_field = TZDateTime()
-    utc_datetime = pytz.UTC.localize(datetime.utcnow())
+    utc_datetime = pytz.UTC.localize(datetime.datetime.now())
     assert utc_datetime.tzinfo is not None
 
     naive_datetime = dt_field.process_bind_param(utc_datetime, dialect)
@@ -30,7 +30,7 @@ def test_tzdatetime_bind_nonnaive_datetime():
 
 def test_tzdatetime_bind_nonnaive_datetime_naive():
     dt_field = TZDateTime()
-    naive_datetime = datetime.utcnow()
+    naive_datetime = datetime.datetime.now()
     assert naive_datetime.tzinfo is None
 
     assert dt_field.process_bind_param(naive_datetime, dialect) is naive_datetime
@@ -44,7 +44,7 @@ def test_tzdatetime_bind_nonnaive_datetime_none():
 
 def test_tzdatetime_process_result_value():
     dt_field = TZDateTime()
-    naive_datetime = datetime.utcnow()
+    naive_datetime = datetime.datetime.now(datetime.UTC)
 
     utc_datetime = dt_field.process_result_value(naive_datetime, dialect)
     assert utc_datetime

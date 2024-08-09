@@ -9,12 +9,13 @@ volumes:
 
 services:
   db:
-    image: postgres:14.11
+    image: postgres:16.1
     ports:
       # 5432 may already in use by another PostgreSQL on host
       - "5433:5432"
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust  # never do this in production!
+      POSTGRES_INITDB_ARGS: '--no-sync --set fsync=off --set full_page_writes=off'
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
       interval: 1s
@@ -22,6 +23,7 @@ services:
     volumes:
       - ./dev/db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:z
       - ./dev/example.sql.xz:/example.sql.xz:z
+      - ./dev/db/post-migrations.sql:/post-migrations.sql:z
       - ./bin/wait-for-db:/usr/local/bin/wait-for-db:z
 
   stripe:
@@ -30,25 +32,32 @@ services:
       - "12111:12111"
 
   redis:
-    image: redis:4.0
+    image: redis:7.0
 
   localstack:
-    image: localstack/localstack:1.4
+    image: localstack/localstack:3.5
     stop_signal: SIGKILL
     environment:
       SERVICES: "sqs"
-      HOSTNAME: "localstack"
-      HOSTNAME_EXTERNAL: "localstack"
-      DEFAULT_REGION: "us-east-2"
+      LOCALSTACK_HOST: "localstack"
       LS_LOG: "error"
     ports:
       - "4566:4566"
 
-  elasticsearch:
-    image: elasticsearch:7.10.1
+  opensearch:
+    build:
+      context: ./dev/compose/opensearch
+    init: true
+    healthcheck:
+        test: ["CMD-SHELL", "curl -u admin:gqYeDIzbEwTTYmB7 --silent --fail http://localhost:9200/_cluster/health || exit 1"]
+        interval: 1s
+        start_period: 10s
     environment:
-      - xpack.security.enabled=false
       - discovery.type=single-node
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=gqYeDIzbEwTTYmB7
+      - DISABLE_INSTALL_DEMO_CONFIG=true
+      - DISABLE_SECURITY_PLUGIN=true
+      - DISABLE_PERFORMANCE_ANALYZER_AGENT_CLI=true
     ulimits:
       nofile:
         soft: 65536
@@ -56,7 +65,7 @@ services:
 
   camo:
     image: pypa/warehouse-camo:2.0.0
-    command: /bin/go-camo --listen=0.0.0.0:9000
+    command: "/bin/go-camo --listen=0.0.0.0:9000 --header 'Access-Control-Allow-Origin: http://localhost'"
     ports:
       - "9000:9000"
     environment:
@@ -87,6 +96,9 @@ services:
       - ./htmlcov:/opt/warehouse/src/htmlcov:z
       - ./setup.cfg:/opt/warehouse/src/setup.cfg:z
       - ./pyproject.toml:/opt/warehouse/src/pyproject.toml:z
+      # Site customization shim to enable multiprocess coverage collection in tests.
+      # See: https://coverage.readthedocs.io/en/latest/subprocess.html
+      - ./sitecustomize.py:/opt/warehouse/src/sitecustomize.py:z
       - packages:/var/opt/warehouse/packages
       - packages-archive:/var/opt/warehouse/packages-archive
       - sponsorlogos:/var/opt/warehouse/sponsorlogos
@@ -100,7 +112,7 @@ services:
 
   web:
     image: warehouse:docker-compose
-    command: gunicorn --reload --reload-extra-file=warehouse/api/openapi.yaml -b 0.0.0.0:8000 --access-logfile - --error-logfile - warehouse.wsgi:application
+    command: gunicorn --reload --reload-extra-file=warehouse/api/openapi.yaml -w 4 -b 0.0.0.0:8000 --access-logfile - --error-logfile - warehouse.wsgi:application
     env_file: dev/environment
     pull_policy: never
     volumes: *base_volumes
@@ -109,7 +121,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      elasticsearch:
+      opensearch:
         condition: service_started
       redis:
         condition: service_started
@@ -146,7 +158,7 @@ services:
   worker:
     image: warehouse:docker-compose
     pull_policy: never
-    command: hupper -m celery -A warehouse worker --beat --scheduler redbeat.RedBeatScheduler -l info
+    command: hupper --shutdown-interval 10 --reload-interval 10 -m celery -A warehouse worker --beat --scheduler redbeat.RedBeatScheduler -l info
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
       - packages:/var/opt/warehouse/packages

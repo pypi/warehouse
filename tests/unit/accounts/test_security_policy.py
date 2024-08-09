@@ -18,7 +18,7 @@ from pyramid.exceptions import HTTPForbidden
 from pyramid.interfaces import ISecurityPolicy
 from zope.interface.verify import verifyClass
 
-from warehouse.accounts import security_policy
+from warehouse.accounts import UserContext, security_policy
 from warehouse.accounts.interfaces import IUserService
 from warehouse.utils.security_policy import AuthenticationMethod
 
@@ -451,7 +451,7 @@ class TestSessionSecurityPolicy:
             remote_addr="1.2.3.4",
         )
 
-        assert policy.identity(request) is user
+        assert policy.identity(request).user is user
         assert request.authentication_method == AuthenticationMethod.SESSION
         assert session_helper_obj.authenticated_userid.calls == [pretend.call(request)]
         assert session_helper_cls.calls == [pretend.call()]
@@ -518,14 +518,15 @@ class TestPermits:
         "principals,expected", [("user:5", True), ("user:1", False)]
     )
     def test_acl(self, monkeypatch, policy_class, principals, expected):
-        monkeypatch.setattr(security_policy, "User", pretend.stub)
-
         request = pretend.stub(
             flags=pretend.stub(enabled=lambda flag: False),
-            identity=pretend.stub(
-                __principals__=lambda: principals,
-                has_primary_verified_email=True,
-                has_two_factor=True,
+            identity=UserContext(
+                user=pretend.stub(
+                    __principals__=lambda: principals,
+                    has_primary_verified_email=True,
+                    has_two_factor=True,
+                ),
+                macaroon=None,
             ),
             matched_route=pretend.stub(name="random.route"),
         )
@@ -535,13 +536,14 @@ class TestPermits:
         assert bool(policy.permits(request, context, "myperm")) == expected
 
     def test_permits_with_unverified_email(self, monkeypatch, policy_class):
-        monkeypatch.setattr(security_policy, "User", pretend.stub)
-
         request = pretend.stub(
-            identity=pretend.stub(
-                __principals__=lambda: ["user:5"],
-                has_primary_verified_email=False,
-                has_two_factor=False,
+            identity=UserContext(
+                user=pretend.stub(
+                    __principals__=lambda: ["user:5"],
+                    has_primary_verified_email=False,
+                    has_two_factor=False,
+                ),
+                macaroon=None,
             ),
             matched_route=pretend.stub(name="manage.projects"),
         )
@@ -551,13 +553,14 @@ class TestPermits:
         assert not policy.permits(request, context, "myperm")
 
     def test_permits_manage_projects_with_2fa(self, monkeypatch, policy_class):
-        monkeypatch.setattr(security_policy, "User", pretend.stub)
-
         request = pretend.stub(
-            identity=pretend.stub(
-                __principals__=lambda: ["user:5"],
-                has_primary_verified_email=True,
-                has_two_factor=True,
+            identity=UserContext(
+                user=pretend.stub(
+                    __principals__=lambda: ["user:5"],
+                    has_primary_verified_email=True,
+                    has_two_factor=True,
+                ),
+                macaroon=None,
             ),
             matched_route=pretend.stub(name="manage.projects"),
         )
@@ -567,14 +570,15 @@ class TestPermits:
         assert policy.permits(request, context, "myperm")
 
     def test_deny_manage_projects_without_2fa(self, monkeypatch, policy_class):
-        monkeypatch.setattr(security_policy, "User", pretend.stub)
-
         request = pretend.stub(
             flags=pretend.stub(enabled=lambda flag: False),
-            identity=pretend.stub(
-                __principals__=lambda: ["user:5"],
-                has_primary_verified_email=True,
-                has_two_factor=False,
+            identity=UserContext(
+                user=pretend.stub(
+                    __principals__=lambda: ["user:5"],
+                    has_primary_verified_email=True,
+                    has_two_factor=False,
+                ),
+                macaroon=None,
             ),
             matched_route=pretend.stub(name="manage.projects"),
         )
@@ -584,14 +588,15 @@ class TestPermits:
         assert not policy.permits(request, context, "myperm")
 
     def test_deny_forklift_file_upload_without_2fa(self, monkeypatch, policy_class):
-        monkeypatch.setattr(security_policy, "User", pretend.stub)
-
         request = pretend.stub(
             flags=pretend.stub(enabled=lambda flag: False),
-            identity=pretend.stub(
-                __principals__=lambda: ["user:5"],
-                has_primary_verified_email=True,
-                has_two_factor=False,
+            identity=UserContext(
+                user=pretend.stub(
+                    __principals__=lambda: ["user:5"],
+                    has_primary_verified_email=True,
+                    has_two_factor=False,
+                ),
+                macaroon=None,
             ),
             matched_route=pretend.stub(name="forklift.legacy.file_upload"),
         )
@@ -614,13 +619,14 @@ class TestPermits:
     def test_permits_2fa_routes_without_2fa(
         self, monkeypatch, policy_class, matched_route
     ):
-        monkeypatch.setattr(security_policy, "User", pretend.stub)
-
         request = pretend.stub(
-            identity=pretend.stub(
-                __principals__=lambda: ["user:5"],
-                has_primary_verified_email=True,
-                has_two_factor=False,
+            identity=UserContext(
+                user=pretend.stub(
+                    __principals__=lambda: ["user:5"],
+                    has_primary_verified_email=True,
+                    has_two_factor=False,
+                ),
+                macaroon=None,
             ),
             matched_route=pretend.stub(name=matched_route),
         )
