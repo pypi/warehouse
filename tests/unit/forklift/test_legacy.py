@@ -1047,6 +1047,7 @@ class TestFileUpload:
                 "pyversion": "source",
                 "content": content,
                 "description": "an example description",
+                "keywords": "keyword1, keyword2",
             }
         )
         db_request.POST.extend([("classifiers", "Environment :: Other Environment")])
@@ -1143,7 +1144,7 @@ class TestFileUpload:
                     "maintainer": None,
                     "maintainer_email": None,
                     "license": None,
-                    "keywords": None,
+                    "keywords": ["keyword1", "keyword2"],
                     "classifiers": ["Environment :: Other Environment"],
                     "platform": None,
                     "home_page": None,
