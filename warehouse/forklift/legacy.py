@@ -844,7 +844,7 @@ def file_upload(request):
             #       this and store this as a list.
             keywords=", ".join(meta.keywords) if meta.keywords else None,
             keywords_array=(
-                split_and_strip_keywords(meta.keywords.data) if meta.keywords else None
+                split_and_strip_keywords(meta.keywords) if meta.keywords else None
             ),
             requires_python=str(meta.requires_python) if meta.requires_python else None,
             # Since dynamic field values are RFC 822 email headers, which are
