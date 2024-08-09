@@ -13,7 +13,7 @@
 
 def strip_keywords(keywords: list[str]) -> list[str]:
     """
-    Strip whitespace, remove empties.
+    Remove empties.
     Useful to cleanse user input prior to storing in Release.keywords_array.
     """
-    return [stripped for keyword in keywords if (stripped := keyword.strip())]
+    return [keyword for keyword in keywords if keyword]
