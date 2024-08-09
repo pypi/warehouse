@@ -7,7 +7,7 @@ set -e
 export LC_ALL="${ENCODING:-en_US.UTF-8}"
 export LANG="${ENCODING:-en_US.UTF-8}"
 export COVERAGE_PROCESS_START="$(pwd)/pyproject.toml"
-COMMAND_ARGS="$@"
+COMMAND_ARGS=( "$@" )
 
 # Test the postgres connection
 while [ $# -gt 0 ]; do
@@ -37,7 +37,7 @@ mkdir -p warehouse/admin/static/dist/
 mkdir -p warehouse/static/dist/
 
 # Actually run our tests.
-python -m coverage run -m pytest --strict-markers $COMMAND_ARGS
+python -m coverage run -m pytest --strict-markers "${COMMAND_ARGS[@]}"
 python -m coverage combine
 python -m coverage html --show-contexts
 python -m coverage report -m --fail-under 100
