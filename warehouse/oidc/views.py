@@ -30,7 +30,7 @@ from warehouse.macaroons.services import DatabaseMacaroonService
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.errors import InvalidPublisherError, ReusedTokenError
 from warehouse.oidc.interfaces import IOIDCPublisherService
-from warehouse.oidc.models import OIDCPublisher, PendingOIDCPublisher
+from warehouse.oidc.models import GitHubPublisher, OIDCPublisher, PendingOIDCPublisher
 from warehouse.oidc.services import OIDCPublisherService
 from warehouse.oidc.utils import OIDC_ISSUER_ADMIN_FLAGS, OIDC_ISSUER_SERVICE_NAMES
 from warehouse.packaging.interfaces import IProjectService
@@ -302,4 +302,22 @@ def mint_token(
                 "publisher_url": publisher.publisher_url(),
             },
         )
+
+    # NOTE: This is for temporary metrics collection of GitHub Trusted Publishers
+    # that use reusable workflows. Since support for reusable workflows is accidental
+    # and not correctly implemented, we need to understand how widely it's being
+    # used before changing its behavior.
+    # ref: https://github.com/pypi/warehouse/pull/16364
+    if isinstance(publisher, GitHubPublisher) and claims:
+        job_workflow_ref = claims.get("job_workflow_ref")
+        workflow_ref = claims.get("workflow_ref")
+
+        # When using reusable workflows, `job_workflow_ref` contains the reusable (
+        # called) workflow and `workflow_ref` contains the parent (caller) workflow.
+        # With non-reusable workflows they are the same, so we count reusable
+        # workflows by checking if they are different.
+        if job_workflow_ref and workflow_ref and job_workflow_ref != workflow_ref:
+            metrics = request.find_service(IMetricsService, context=None)
+            metrics.increment("warehouse.oidc.mint_token.github_reusable_workflow")
+
     return {"success": True, "token": serialized}
