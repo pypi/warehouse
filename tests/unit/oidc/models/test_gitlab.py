@@ -40,6 +40,50 @@ class TestGitLabPublisher:
             == 2
         )
 
+    @pytest.mark.parametrize("environment", ["", "some_environment"])
+    @pytest.mark.parametrize(
+        ("workflow_filepath_a", "workflow_filepath_b"),
+        [
+            ("workflows/release_pypi/ci.yml", "workflows/release-pypi/ci.yml"),
+            ("workflows/release%pypi/ci.yml", "workflows/release-pypi/ci.yml"),
+        ],
+    )
+    def test_lookup_escapes(
+        self, db_request, environment, workflow_filepath_a, workflow_filepath_b
+    ):
+        GitLabPublisherFactory(
+            id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            namespace="foo",
+            project="bar",
+            workflow_filepath=workflow_filepath_a,
+            environment=environment,
+        )
+        GitLabPublisherFactory(
+            id="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+            namespace="foo",
+            project="bar",
+            workflow_filepath=workflow_filepath_b,
+            environment=environment,
+        )
+
+        for workflow_filepath in (workflow_filepath_a, workflow_filepath_b):
+            signed_claims = {
+                "project_path": "foo/bar",
+                "ci_config_ref_uri": (
+                    f"gitlab.com/foo/bar//{workflow_filepath}@refs/heads/main"
+                ),
+            }
+
+            if environment:
+                signed_claims["environment"] = environment
+
+            assert (
+                gitlab.GitLabPublisher.lookup_by_claims(
+                    db_request.db, signed_claims
+                ).workflow_filepath
+                == workflow_filepath
+            )
+
     def test_gitlab_publisher_all_known_claims(self):
         assert gitlab.GitLabPublisher.all_known_claims() == {
             # required verifiable claims

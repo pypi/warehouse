@@ -189,7 +189,26 @@ class GitHubPublisherMixin:
                 environment=environment.lower(),
             )
             .filter(
-                literal(workflow_ref).like(func.concat(klass.workflow_filename, "%"))
+                literal(workflow_ref).startswith(
+                    # NOTE: Ideally we would use `autoescape=True` instead of this
+                    # monstrosity here and below, but `autoescape` requires a string
+                    # instead of a column expression.
+                    # Before this, a user could induce a constraint violation by
+                    # having two publishers registered, with one being a match of
+                    # the other (e.g. `foo_bar.yml` matching `foo-bar.yml` due to `_`
+                    # matching any character). This had no security impact since claim
+                    # validation is always performed once lookup does succeed.
+                    func.replace(
+                        func.replace(
+                            func.replace(klass.workflow_filename, "\\", "\\\\"),
+                            "%",
+                            "\\%",
+                        ),
+                        "_",
+                        "\\_",
+                    ),
+                    escape="\\",
+                )
             )
         )
 
@@ -209,7 +228,18 @@ class GitHubPublisherMixin:
                 environment="",
             )
             .filter(
-                literal(workflow_ref).like(func.concat(klass.workflow_filename, "%"))
+                literal(workflow_ref).startswith(
+                    func.replace(
+                        func.replace(
+                            func.replace(klass.workflow_filename, "\\", "\\\\"),
+                            "%",
+                            "\\%",
+                        ),
+                        "_",
+                        "\\_",
+                    ),
+                    escape="\\",
+                )
             )
         )
 

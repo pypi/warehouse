@@ -176,7 +176,20 @@ class GitLabPublisherMixin:
                 environment=environment,
             )
             .filter(
-                literal(ci_config_ref).like(func.concat(klass.workflow_filepath, "%"))
+                literal(ci_config_ref).startswith(
+                    # See `__lookup_all__` in GitHubPublisherMixin for an
+                    # explanation of this mess.
+                    func.replace(
+                        func.replace(
+                            func.replace(klass.workflow_filepath, "\\", "\\\\"),
+                            "%",
+                            "\\%",
+                        ),
+                        "_",
+                        "\\_",
+                    ),
+                    escape="\\",
+                )
             )
         )
 
@@ -197,7 +210,18 @@ class GitLabPublisherMixin:
                 environment="",
             )
             .filter(
-                literal(ci_config_ref).like(func.concat(klass.workflow_filepath, "%"))
+                literal(ci_config_ref).startswith(
+                    func.replace(
+                        func.replace(
+                            func.replace(klass.workflow_filepath, "\\", "\\\\"),
+                            "%",
+                            "\\%",
+                        ),
+                        "_",
+                        "\\_",
+                    ),
+                    escape="\\",
+                )
             )
         )
 

@@ -41,6 +41,51 @@ class TestGitHubPublisher:
             == 2
         )
 
+    @pytest.mark.parametrize("environment", ["", "some_environment"])
+    @pytest.mark.parametrize(
+        ("workflow_a", "workflow_b"),
+        [
+            ("release-pypi.yml", "release_pypi.yml"),
+            ("release%pypi.yml", "release-pypi.yml"),
+        ],
+    )
+    def test_lookup_escapes(self, db_request, environment, workflow_a, workflow_b):
+        GitHubPublisherFactory(
+            id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            repository_owner="foo",
+            repository_name="bar",
+            repository_owner_id="1234",
+            workflow_filename=workflow_a,
+            environment=environment,
+        )
+        GitHubPublisherFactory(
+            id="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+            repository_owner="foo",
+            repository_name="bar",
+            repository_owner_id="1234",
+            workflow_filename=workflow_b,
+            environment=environment,
+        )
+
+        for workflow in (workflow_a, workflow_b):
+            signed_claims = {
+                "repository": "foo/bar",
+                "job_workflow_ref": (
+                    f"foo/bar/.github/workflows/{workflow}@refs/heads/main"
+                ),
+                "repository_owner_id": "1234",
+            }
+
+            if environment:
+                signed_claims["environment"] = environment
+
+            assert (
+                github.GitHubPublisher.lookup_by_claims(
+                    db_request.db, signed_claims
+                ).workflow_filename
+                == workflow
+            )
+
     def test_github_publisher_all_known_claims(self):
         assert github.GitHubPublisher.all_known_claims() == {
             # required verifiable claims
