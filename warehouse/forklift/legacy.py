@@ -495,7 +495,7 @@ def _verify_url(url: str, publisher_url: str | None) -> bool:
         and is_subpath
     )
 
-  
+ 
 def _sort_releases(request: Request, project: Project):
     releases = (
         request.db.query(Release)
