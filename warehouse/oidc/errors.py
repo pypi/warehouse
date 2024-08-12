@@ -13,3 +13,7 @@
 
 class InvalidPublisherError(Exception):
     pass
+
+
+class ReusedTokenError(Exception):
+    pass

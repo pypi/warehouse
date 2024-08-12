@@ -60,10 +60,10 @@ class TestGitHubPublisher:
             "nbf",
             "exp",
             "aud",
+            "jti",
             # unchecked claims
             "actor",
             "actor_id",
-            "jti",
             "run_id",
             "run_number",
             "run_attempt",
@@ -134,7 +134,9 @@ class TestGitHubPublisher:
         signed_claims["fake-claim"] = "fake"
         signed_claims["another-fake-claim"] = "also-fake"
         with pytest.raises(errors.InvalidPublisherError) as e:
-            publisher.verify_claims(signed_claims=signed_claims)
+            publisher.verify_claims(
+                signed_claims=signed_claims, publisher_service=pretend.stub()
+            )
         assert str(e.value) == "Check failed for required claim 'sub'"
         assert sentry_sdk.capture_message.calls == [
             pretend.call(
@@ -173,7 +175,9 @@ class TestGitHubPublisher:
         assert missing not in signed_claims
         assert publisher.__required_verifiable_claims__
         with pytest.raises(errors.InvalidPublisherError) as e:
-            publisher.verify_claims(signed_claims=signed_claims)
+            publisher.verify_claims(
+                signed_claims=signed_claims, publisher_service=pretend.stub()
+            )
         assert str(e.value) == f"Missing claim {missing!r}"
         assert sentry_sdk.capture_message.calls == [
             pretend.call(f"JWT for GitHubPublisher is missing claim: {missing}")
@@ -192,6 +196,10 @@ class TestGitHubPublisher:
         sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
         monkeypatch.setattr(_core, "sentry_sdk", sentry_sdk)
 
+        service_ = pretend.stub(
+            jwt_identifier_exists=pretend.call_recorder(lambda s: False),
+        )
+
         signed_claims = {
             claim_name: getattr(publisher, claim_name)
             for claim_name in github.GitHubPublisher.__required_verifiable_claims__
@@ -201,7 +209,9 @@ class TestGitHubPublisher:
         signed_claims["job_workflow_ref"] = publisher.job_workflow_ref + "@ref"
         assert publisher.__required_verifiable_claims__
         with pytest.raises(errors.InvalidPublisherError) as e:
-            publisher.verify_claims(signed_claims=signed_claims)
+            publisher.verify_claims(
+                signed_claims=signed_claims, publisher_service=service_
+            )
         assert str(e.value) == "Check failed for optional claim 'environment'"
         assert sentry_sdk.capture_message.calls == []
 
@@ -219,7 +229,7 @@ class TestGitHubPublisher:
             environment=environment,
         )
 
-        noop_check = pretend.call_recorder(lambda gt, sc, ac: True)
+        noop_check = pretend.call_recorder(lambda gt, sc, ac, **kwargs: True)
         verifiable_claims = {
             claim_name: noop_check
             for claim_name in publisher.__required_verifiable_claims__
@@ -240,7 +250,9 @@ class TestGitHubPublisher:
             for claim_name in github.GitHubPublisher.all_known_claims()
             if claim_name not in missing_claims
         }
-        assert publisher.verify_claims(signed_claims=signed_claims)
+        assert publisher.verify_claims(
+            signed_claims=signed_claims, publisher_service=pretend.stub()
+        )
         assert len(noop_check.calls) == len(verifiable_claims) + len(
             optional_verifiable_claims
         )
