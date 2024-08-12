@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
+
 from typing import Any
 
 from sigstore.verify.policy import (
@@ -32,6 +34,19 @@ from warehouse.oidc.models._core import (
     check_claim_binary,
     check_existing_jti,
 )
+
+_WORKFLOW_FILENAME_RE = re.compile(r"([^/]+\.(yml|yaml))(?=@)")
+
+
+def _extract_workflow_filename(workflow_ref: str) -> str | None:
+    """
+    Extracts a workflow filename (e.g. `foo.yml`) from the given workflow ref,
+    which can also be a "job" (i.e. reusable) workflow ref.
+    """
+    if match := _WORKFLOW_FILENAME_RE.search(workflow_ref):
+        return match.group(0)
+    else:
+        return None
 
 
 def _check_repository(ground_truth, signed_claim, _all_signed_claims, **_kwargs):
@@ -178,70 +193,36 @@ class GitHubPublisherMixin:
 
         repository = signed_claims["repository"]
         repository_owner, repository_name = repository.split("/", 1)
-        workflow_prefix = f"{repository}/.github/workflows/"
-        workflow_ref = signed_claims["job_workflow_ref"].removeprefix(workflow_prefix)
+        workflow_ref: str = signed_claims["job_workflow_ref"]
+        workflow_filename = _extract_workflow_filename(workflow_ref)
 
-        return (
-            Query(klass)
-            .filter_by(
-                repository_name=repository_name,
-                repository_owner=repository_owner,
-                repository_owner_id=signed_claims["repository_owner_id"],
-                environment=environment.lower(),
-            )
-            .filter(
-                literal(workflow_ref).startswith(
-                    # NOTE: Ideally we would use `autoescape=True` instead of this
-                    # monstrosity here and below, but `autoescape` requires a string
-                    # instead of a column expression.
-                    # Before this, a user could induce a constraint violation by
-                    # having two publishers registered, with one being a match of
-                    # the other (e.g. `foo_bar.yml` matching `foo-bar.yml` due to `_`
-                    # matching any character). This had no security impact since claim
-                    # validation is always performed once lookup does succeed.
-                    func.replace(
-                        func.replace(
-                            func.replace(klass.workflow_filename, "\\", "\\\\"),
-                            "%",
-                            "\\%",
-                        ),
-                        "_",
-                        "\\_",
-                    ),
-                    escape="\\",
-                )
-            )
+        if workflow_filename is None:
+            return None
+
+        return Query(klass).filter_by(
+            repository_name=repository_name,
+            repository_owner=repository_owner,
+            repository_owner_id=signed_claims["repository_owner_id"],
+            environment=environment.lower(),
+            workflow_filename=workflow_filename,
         )
 
     @staticmethod
     def __lookup_no_environment__(klass, signed_claims: SignedClaims) -> Query | None:
         repository = signed_claims["repository"]
         repository_owner, repository_name = repository.split("/", 1)
-        workflow_prefix = f"{repository}/.github/workflows/"
-        workflow_ref = signed_claims["job_workflow_ref"].removeprefix(workflow_prefix)
+        workflow_ref = signed_claims["job_workflow_ref"]
+        workflow_filename = _extract_workflow_filename(workflow_ref)
 
-        return (
-            Query(klass)
-            .filter_by(
-                repository_name=repository_name,
-                repository_owner=repository_owner,
-                repository_owner_id=signed_claims["repository_owner_id"],
-                environment="",
-            )
-            .filter(
-                literal(workflow_ref).startswith(
-                    func.replace(
-                        func.replace(
-                            func.replace(klass.workflow_filename, "\\", "\\\\"),
-                            "%",
-                            "\\%",
-                        ),
-                        "_",
-                        "\\_",
-                    ),
-                    escape="\\",
-                )
-            )
+        if workflow_filename is None:
+            return None
+
+        return Query(klass).filter_by(
+            repository_name=repository_name,
+            repository_owner=repository_owner,
+            repository_owner_id=signed_claims["repository_owner_id"],
+            environment="",
+            workflow_filename=workflow_filename,
         )
 
     __lookup_strategies__ = [
