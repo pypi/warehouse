@@ -75,6 +75,7 @@ from warehouse.packaging.models import (
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
 from warehouse.rate_limiting.interfaces import RateLimiterException
 from warehouse.utils import readme
+from warehouse.utils.release import strip_keywords
 
 PATH_HASHER = "blake2_256"
 
@@ -842,6 +843,7 @@ def file_upload(request):
             #       which we now go and turn it back into a string, we should fix
             #       this and store this as a list.
             keywords=", ".join(meta.keywords) if meta.keywords else None,
+            keywords_array=(strip_keywords(meta.keywords) if meta.keywords else None),
             requires_python=str(meta.requires_python) if meta.requires_python else None,
             # Since dynamic field values are RFC 822 email headers, which are
             # case-insensitive, normalize them to title-case so we don't have

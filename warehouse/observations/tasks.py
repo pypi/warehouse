@@ -91,6 +91,12 @@ def report_observation_to_helpscout(task, request: Request, model_id: UUID) -> N
         convo_text += dedent(
             f"""
             Inspector URL: {model.payload.get("inspector_url")}
+
+            Malware Reports URL: {request.route_url(
+                "admin.malware_reports.project.list",
+                project_name=target_name,
+                _host=request.registry.settings.get("warehouse.domain"),
+            )}
             """
         )
 
