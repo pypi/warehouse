@@ -13,7 +13,7 @@
 create verified field for ReleaseUrl
 
 Revision ID: 26455e3712a2
-Revises: bb6943882aa9
+Revises: 208d494aac68
 Create Date: 2024-04-30 18:40:17.149050
 """
 
@@ -22,7 +22,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision = "26455e3712a2"
-down_revision = "bb6943882aa9"
+down_revision = "208d494aac68"
 
 
 def upgrade():
