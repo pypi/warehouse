@@ -13,7 +13,7 @@
 import time
 
 from datetime import datetime
-from typing import TypedDict
+from typing import TypedDict, cast
 
 import jwt
 import sentry_sdk
@@ -28,7 +28,7 @@ from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.services import DatabaseMacaroonService
 from warehouse.metrics.interfaces import IMetricsService
-from warehouse.oidc.errors import InvalidPublisherError
+from warehouse.oidc.errors import InvalidPublisherError, ReusedTokenError
 from warehouse.oidc.interfaces import IOIDCPublisherService
 from warehouse.oidc.models import GitHubPublisher, OIDCPublisher, PendingOIDCPublisher
 from warehouse.oidc.services import OIDCPublisherService
@@ -238,6 +238,16 @@ def mint_token(
         publisher = oidc_service.find_publisher(claims, pending=False)
         # NOTE: assert to persuade mypy of the correct type here.
         assert isinstance(publisher, OIDCPublisher)
+    except ReusedTokenError:
+        return _invalid(
+            errors=[
+                {
+                    "code": "invalid-reuse-token",
+                    "description": "invalid token: already used",
+                }
+            ],
+            request=request,
+        )
     except InvalidPublisherError as e:
         return _invalid(
             errors=[
@@ -274,6 +284,14 @@ def mint_token(
         oidc_publisher_id=str(publisher.id),
         additional={"oidc": publisher.stored_claims(claims)},
     )
+
+    # We have used the given JWT to mint a new token. Let now store it to prevent
+    # its reuse if the claims contain a JTI. Of note, exp is coming from a trusted
+    # source here, so we don't validate it
+    if jwt_identifier := claims.get("jti"):
+        expiration = cast(int, claims.get("exp"))
+        oidc_service.store_jwt_identifier(jwt_identifier, expiration)
+
     for project in publisher.projects:
         project.record_event(
             tag=EventTag.Project.ShortLivedAPITokenAdded,
