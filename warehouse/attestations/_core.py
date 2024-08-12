@@ -15,6 +15,8 @@ import typing
 
 from pathlib import Path
 
+import sentry_sdk
+
 from pypi_attestations import (
     Attestation,
     AttestationBundle,
@@ -24,6 +26,7 @@ from pypi_attestations import (
     Publisher,
 )
 
+from warehouse.attestations.errors import UnknownPublisherError
 from warehouse.oidc.models import (
     GitHubPublisher as GitHubOIDCPublisher,
     GitLabPublisher as GitLabOIDCPublisher,
@@ -48,15 +51,17 @@ def publisher_from_oidc_publisher(publisher: OIDCPublisher) -> Publisher:
         case "GitLab":
             publisher = typing.cast(GitLabOIDCPublisher, publisher)
             return GitLabPublisher(
-                repository=publisher.project_path, environment=""
-            )  # TODO(dm)
+                repository=publisher.project_path, environment=publisher.environment
+            )
         case "GitHub":
             publisher = typing.cast(GitHubOIDCPublisher, publisher)
             return GitHubPublisher(
-                repository=publisher.repository, workflow="", environment=""
+                repository=publisher.repository,
+                workflow=publisher.workflow_filename,
+                environment=publisher.environment,
             )
         case _:
-            raise Exception()  # TODO(dm)
+            raise UnknownPublisherError()
 
 
 def generate_and_store_provenance_file(
@@ -64,7 +69,14 @@ def generate_and_store_provenance_file(
 ):
     storage = request.find_service(ISimpleStorage)
 
-    publisher: Publisher = publisher_from_oidc_publisher(request.oidc_publisher)
+    try:
+        publisher: Publisher = publisher_from_oidc_publisher(request.oidc_publisher)
+    except UnknownPublisherError:
+        sentry_sdk.capture_message(
+            f"Unsupported OIDCPublisher found {request.oidc_publisher.publisher_name}"
+        )
+
+        return
 
     attestation_bundle = AttestationBundle(
         publisher=publisher,

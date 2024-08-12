@@ -3872,12 +3872,12 @@ class TestFileUpload:
             IMetricsService: metrics,
         }.get(svc)
 
-        process_attestations = pretend.call_recorder(
+        parse_and_verify_attestations = pretend.call_recorder(
             lambda request, distribution: [attestation]
         )
 
         monkeypatch.setattr(
-            legacy, "_parse_and_verify_attestations", process_attestations
+            legacy, "_parse_and_verify_attestations", parse_and_verify_attestations
         )
 
         resp = legacy.file_upload(db_request)

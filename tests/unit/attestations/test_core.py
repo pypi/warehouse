@@ -9,25 +9,41 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import pathlib
-
-from pathlib import Path
+import hashlib
+import tempfile
+import typing
 
 import pretend
+import pytest
 
-from pypi_attestations import Attestation, Envelope, VerificationMaterial
+from pypi_attestations import (
+    Attestation,
+    AttestationBundle,
+    Envelope,
+    GitHubPublisher,
+    GitLabPublisher,
+    Provenance,
+    VerificationMaterial,
+)
 
 import warehouse.packaging
 
-from tests.common.db.packaging import FileFactory
-from warehouse.attestations._core import generate_provenance_file, get_provenance_digest
+from tests.common.db.oidc import GitHubPublisherFactory, GitLabPublisherFactory
+from tests.common.db.packaging import FileEventFactory, FileFactory
+from warehouse.attestations._core import (
+    generate_and_store_provenance_file,
+    get_provenance_digest,
+    publisher_from_oidc_publisher,
+)
+from warehouse.attestations.errors import UnknownPublisherError
 from warehouse.events.tags import EventTag
 from warehouse.packaging import ISimpleStorage
 
-from ...common.db.packaging import FileEventFactory
+if typing.TYPE_CHECKING:
+    from pathlib import Path
 
 
-def test_get_provenance_digest_succeed(db_request, monkeypatch):
+def test_get_provenance_digest(db_request):
     file = FileFactory.create()
     FileEventFactory.create(
         source=file,
@@ -35,55 +51,80 @@ def test_get_provenance_digest_succeed(db_request, monkeypatch):
         additional={"publisher_url": "fake-publisher-url"},
     )
 
-    generate_provenance_file = pretend.call_recorder(
-        lambda request, publisher_url, file_: (Path("fake-path"), "deadbeef")
-    )
-    monkeypatch.setattr(
-        warehouse.attestations._core,
-        "generate_provenance_file",
-        generate_provenance_file,
-    )
+    with tempfile.NamedTemporaryFile() as f:
+        storage_service = pretend.stub(get=pretend.call_recorder(lambda p: f))
 
-    hex_digest = get_provenance_digest(db_request, file)
+        db_request.find_service = pretend.call_recorder(
+            lambda svc, name=None, context=None: {
+                ISimpleStorage: storage_service,
+            }.get(svc)
+        )
 
-    assert hex_digest == "deadbeef"
-
-
-def test_get_provenance_digest_fails_no_attestations(db_request, monkeypatch):
-    file = FileFactory.create()
-    monkeypatch.setattr(warehouse.packaging.models.File, "attestations", [])
-
-    provenance_hash = get_provenance_digest(db_request, file)
-    assert provenance_hash is None
+        assert (
+            get_provenance_digest(db_request, file)
+            == hashlib.file_digest(f, "sha256").hexdigest()
+        )
 
 
-def test_get_provenance_digest_fails_no_publisher_url(db_request, monkeypatch):
+def test_get_provenance_digest_fails_no_publisher_url(db_request):
     file = FileFactory.create()
 
-    provenance_hash = get_provenance_digest(db_request, file)
-    assert provenance_hash is None
+    # If the publisher_url is missing, there is no provenance file
+    assert get_provenance_digest(db_request, file) is None
 
 
-def test_generate_provenance_file_succeed(db_request, monkeypatch):
-
-    def store_function(path, file_path, *, meta=None):
-        return f"https://files/attestations/{path}.provenance"
-
-    storage_service = pretend.stub(store=pretend.call_recorder(store_function))
-
-    db_request.find_service = pretend.call_recorder(
-        lambda svc, name=None, context=None: {
-            ISimpleStorage: storage_service,
-        }.get(svc)
-    )
-
-    publisher_url = "x-fake-publisher-url"
+def test_get_provenance_digest_fails_no_attestations(db_request):
+    # If the attestations are missing, there is no provenance file
     file = FileFactory.create()
+    file.attestations = []
     FileEventFactory.create(
         source=file,
         tag=EventTag.File.FileAdd,
-        additional={"publisher_url": publisher_url},
+        additional={"publisher_url": "fake-publisher-url"},
     )
+    assert get_provenance_digest(db_request, file) is None
+
+
+def test_publisher_from_oidc_publisher_github(db_request):
+    publisher = GitHubPublisherFactory.create()
+
+    attestation_publisher = publisher_from_oidc_publisher(publisher)
+    assert isinstance(attestation_publisher, GitHubPublisher)
+    assert attestation_publisher.repository == publisher.repository
+    assert attestation_publisher.workflow == publisher.workflow_filename
+    assert attestation_publisher.environment == publisher.environment
+
+
+def test_publisher_from_oidc_publisher_gitlab(db_request):
+    publisher = GitLabPublisherFactory.create()
+
+    attestation_publisher = publisher_from_oidc_publisher(publisher)
+    assert isinstance(attestation_publisher, GitLabPublisher)
+    assert attestation_publisher.repository == publisher.project_path
+    assert attestation_publisher.environment == publisher.environment
+
+
+def test_publisher_from_oidc_publisher_fails(db_request, monkeypatch):
+
+    publisher = pretend.stub(publisher_name="not-existing")
+
+    with pytest.raises(UnknownPublisherError):
+        publisher_from_oidc_publisher(publisher)
+
+
+def test_generate_and_store_provenance_file_no_publisher(db_request):
+    db_request.find_service = pretend.call_recorder(
+        lambda svc, name=None, context=None: None
+    )
+    db_request.oidc_publisher = pretend.stub(publisher_name="not-existing")
+
+    assert (
+        generate_and_store_provenance_file(db_request, pretend.stub(), pretend.stub())
+        is None
+    )
+
+
+def test_generate_and_store_provenance_file(db_request, monkeypatch):
 
     attestation = Attestation(
         version=1,
@@ -95,13 +136,43 @@ def test_generate_provenance_file_succeed(db_request, monkeypatch):
             signature="somebase64string",
         ),
     )
-
-    read_text = pretend.call_recorder(lambda _: attestation.model_dump_json())
-
-    monkeypatch.setattr(pathlib.Path, "read_text", read_text)
-
-    provenance_file_path, provenance_hash = generate_provenance_file(
-        db_request, publisher_url, file
+    publisher = GitHubPublisher(
+        repository="fake-repository",
+        workflow="fake-workflow",
+    )
+    provenance = Provenance(
+        attestation_bundles=[
+            AttestationBundle(
+                publisher=publisher,
+                attestations=[attestation],
+            )
+        ]
     )
 
-    assert provenance_hash is not None
+    @pretend.call_recorder
+    def storage_service_store(path: Path, file_path, *_args, **_kwargs):
+        expected = provenance.model_dump_json().encode("utf-8")
+        with open(file_path, "rb") as fp:
+            assert fp.read() == expected
+
+        assert path.suffix == ".provenance"
+
+    storage_service = pretend.stub(store=storage_service_store)
+    db_request.find_service = pretend.call_recorder(
+        lambda svc, name=None, context=None: {
+            ISimpleStorage: storage_service,
+        }.get(svc)
+    )
+
+    monkeypatch.setattr(
+        warehouse.attestations._core,
+        "publisher_from_oidc_publisher",
+        lambda s: publisher,
+    )
+
+    assert (
+        generate_and_store_provenance_file(
+            db_request, FileFactory.create(), [attestation]
+        )
+        is None
+    )
