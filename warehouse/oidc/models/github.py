@@ -28,7 +28,6 @@ from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models._core import (
     CheckClaimCallable,
     OIDCPublisher,
-    OIDCPublisherMixin,
     PendingOIDCPublisher,
     check_claim_binary,
     check_existing_jti,
@@ -138,6 +137,7 @@ class GitHubPublisherMixin:
         "repository_owner": check_claim_binary(str.__eq__),
         "repository_owner_id": check_claim_binary(str.__eq__),
         "job_workflow_ref": _check_job_workflow_ref,
+        "jti": check_existing_jti,
     }
 
     __required_unverifiable_claims__: set[str] = {"ref", "sha"}
@@ -240,9 +240,9 @@ class GitHubPublisherMixin:
         return f"repo:{self.repository}"
 
     @property
-    def jti(self):
+    def jti(self) -> str:
         """Placeholder value for JTI."""
-        return True
+        return "placeholder"
 
     def publisher_url(self, claims=None):
         base = f"https://github.com/{self.repository}"
@@ -306,13 +306,6 @@ class GitHubPublisher(GitHubPublisherMixin, OIDCPublisher):
         ),
     )
 
-    __required_verifiable_claims__ = (
-        GitHubPublisherMixin.__required_verifiable_claims__
-        | {
-            "jti": check_existing_jti,
-        }
-    )
-
     id = mapped_column(
         UUID(as_uuid=True), ForeignKey(OIDCPublisher.id), primary_key=True
     )
@@ -334,10 +327,6 @@ class PendingGitHubPublisher(GitHubPublisherMixin, PendingOIDCPublisher):
     id = mapped_column(
         UUID(as_uuid=True), ForeignKey(PendingOIDCPublisher.id), primary_key=True
     )
-
-    __preverified_claims__ = OIDCPublisherMixin.__preverified_claims__ | {
-        "jti",
-    }
 
     def reify(self, session):
         """

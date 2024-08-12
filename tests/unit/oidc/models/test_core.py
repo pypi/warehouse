@@ -57,7 +57,7 @@ class TestOIDCPublisher:
 
 def test_check_existing_jti():
     publisher = pretend.stub(
-        token_identifier_exists=pretend.call_recorder(lambda s: False),
+        jwt_identifier_exists=pretend.call_recorder(lambda s: False),
     )
 
     assert _core.check_existing_jti(
@@ -70,7 +70,7 @@ def test_check_existing_jti():
 
 def test_check_existing_jti_fails(metrics):
     publisher = pretend.stub(
-        token_identifier_exists=pretend.call_recorder(lambda s: True),
+        jwt_identifier_exists=pretend.call_recorder(lambda s: True),
         metrics=metrics,
         publisher="fakepublisher",
     )

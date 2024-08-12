@@ -13,7 +13,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, TypedDict, TypeVar, Unpack, cast
+from typing import TYPE_CHECKING, Any, TypedDict, TypeVar, Unpack
 
 import sentry_sdk
 
@@ -87,11 +87,11 @@ def check_existing_jti(
     _all_signed_claims,
     **kwargs: Unpack[CheckNamedArguments],
 ) -> bool:
+    """Returns True if the checks passes or raises an exception."""
 
-    publisher_service: OIDCPublisherService = cast(
-        OIDCPublisherService, kwargs.get("publisher_service")
-    )
-    if publisher_service.token_identifier_exists(signed_claim):
+    publisher_service: OIDCPublisherService = kwargs["publisher_service"]
+
+    if publisher_service.jwt_identifier_exists(signed_claim):
         publisher_service.metrics.increment(
             "warehouse.oidc.reused_token",
             tags=[f"publisher:{publisher_service.publisher}"],

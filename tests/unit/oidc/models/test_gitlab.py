@@ -192,7 +192,7 @@ class TestGitLabPublisher:
         monkeypatch.setattr(_core, "sentry_sdk", sentry_sdk)
 
         service = pretend.stub(
-            token_identifier_exists=pretend.call_recorder(lambda s: False)
+            jwt_identifier_exists=pretend.call_recorder(lambda s: False)
         )
 
         signed_claims = {

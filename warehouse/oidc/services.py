@@ -79,7 +79,7 @@ class NullOIDCPublisherService:
         project.oidc_publishers.append(new_publisher)
         return new_publisher
 
-    def token_identifier_exists(self, jti: str) -> bool:
+    def jwt_identifier_exists(self, jti: str) -> bool:
         """
         The NullOIDCPublisherService does not provide a mechanism to store used tokens
         before their expiration.
@@ -233,7 +233,7 @@ class OIDCPublisherService:
         unverified_header = jwt.get_unverified_header(token)
         return self._get_key(unverified_header["kid"])
 
-    def token_identifier_exists(self, jti: str) -> bool:
+    def jwt_identifier_exists(self, jti: str) -> bool:
         """
         Check if a JWT Token Identifier has already been used.
         """

@@ -22,7 +22,6 @@ from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models._core import (
     CheckClaimCallable,
     OIDCPublisher,
-    OIDCPublisherMixin,
     PendingOIDCPublisher,
     check_existing_jti,
 )
@@ -120,6 +119,7 @@ class GitLabPublisherMixin:
         "sub": _check_sub,
         "project_path": _check_project_path,
         "ci_config_ref_uri": _check_ci_config_ref_uri,
+        "jti": check_existing_jti,
     }
 
     __required_unverifiable_claims__: set[str] = {"ref_path", "sha"}
@@ -224,9 +224,9 @@ class GitLabPublisherMixin:
         return "GitLab"
 
     @property
-    def jti(self):
+    def jti(self) -> str:
         """Placeholder value for JTI."""
-        return True
+        return "placeholder"
 
     def publisher_url(self, claims=None):
         base = f"https://gitlab.com/{self.project_path}"
@@ -253,13 +253,6 @@ class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):
         ),
     )
 
-    __required_verifiable_claims__ = (
-        GitLabPublisherMixin.__required_verifiable_claims__
-        | {
-            "jti": check_existing_jti,
-        }
-    )
-
     id = mapped_column(
         UUID(as_uuid=True), ForeignKey(OIDCPublisher.id), primary_key=True
     )
@@ -277,10 +270,6 @@ class PendingGitLabPublisher(GitLabPublisherMixin, PendingOIDCPublisher):
             name="_pending_gitlab_oidc_publisher_uc",
         ),
     )
-
-    __preverified_claims__ = OIDCPublisherMixin.__preverified_claims__ | {
-        "jti",
-    }
 
     id = mapped_column(
         UUID(as_uuid=True), ForeignKey(PendingOIDCPublisher.id), primary_key=True

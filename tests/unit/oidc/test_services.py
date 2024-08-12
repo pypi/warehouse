@@ -728,7 +728,7 @@ class TestOIDCPublisherService:
         assert pending_publisher.reify.calls == [pretend.call(service.db)]
         assert project.oidc_publishers == [publisher]
 
-    def test_token_identifier_exists(self, metrics, mockredis, monkeypatch):
+    def test_jwt_identifier_exists(self, metrics, mockredis, monkeypatch):
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="fakepublisher",
@@ -740,9 +740,9 @@ class TestOIDCPublisherService:
 
         monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
 
-        assert service.token_identifier_exists("fake-jti-token") is False
+        assert service.jwt_identifier_exists("fake-jti-token") is False
 
-    def test_token_identifier_exists_find_duplicate(
+    def test_jwt_identifier_exists_find_duplicate(
         self, metrics, mockredis, monkeypatch
     ):
         service = services.OIDCPublisherService(
@@ -764,7 +764,7 @@ class TestOIDCPublisherService:
         jwt_token_identifier = "6e67b1cb-2b8d-4be5-91cb-757edb2ec970"
         service.store_jwt_identifier(jwt_token_identifier, expiration=expiration)
 
-        assert service.token_identifier_exists(jwt_token_identifier) is True
+        assert service.jwt_identifier_exists(jwt_token_identifier) is True
 
 
 class TestNullOIDCPublisherService:
@@ -1025,7 +1025,7 @@ class TestNullOIDCPublisherService:
         assert pending_publisher.reify.calls == [pretend.call(service.db)]
         assert project.oidc_publishers == [publisher]
 
-    def test_token_identifier_exists(self):
+    def test_jwt_identifier_exists(self):
         service = services.NullOIDCPublisherService(
             session=pretend.stub(),
             publisher="example",
@@ -1035,7 +1035,7 @@ class TestNullOIDCPublisherService:
             metrics=pretend.stub(),
         )
 
-        assert service.token_identifier_exists(pretend.stub()) is False
+        assert service.jwt_identifier_exists(pretend.stub()) is False
 
     def test_store_jwt_identifier(self):
         service = services.NullOIDCPublisherService(
