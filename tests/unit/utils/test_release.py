@@ -10,10 +10,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pytest
 
-class InvalidPublisherError(Exception):
-    pass
+from warehouse.utils.release import strip_keywords
 
 
-class ReusedTokenError(Exception):
-    pass
+@pytest.mark.parametrize(
+    ("keyword_input", "expected"),
+    [
+        ([], []),
+        ([""], []),
+        (["foo", "bar"], ["foo", "bar"]),
+        (["foo", "bar baz", ""], ["foo", "bar baz"]),
+        (["foo", "bar", "baz", "", ""], ["foo", "bar", "baz"]),
+    ],
+)
+def test_split_and_strip_keywords(keyword_input, expected):
+    assert strip_keywords(keyword_input) == expected

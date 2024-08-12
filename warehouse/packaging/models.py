@@ -501,6 +501,7 @@ class ReleaseURL(db.Model):
 
     name: Mapped[str] = mapped_column(String(32))
     url: Mapped[str]
+    verified: Mapped[bool] = mapped_column(default=False)
 
 
 DynamicFieldsEnum = ENUM(
@@ -561,6 +562,13 @@ class Release(HasObservations, db.Model):
     license: Mapped[str | None]
     summary: Mapped[str | None]
     keywords: Mapped[str | None]
+    keywords_array: Mapped[list[str] | None] = mapped_column(
+        ARRAY(String),
+        comment=(
+            "Array of keywords. Null indicates no keywords were supplied by "
+            "the uploader."
+        ),
+    )
     platform: Mapped[str | None]
     download_url: Mapped[str | None]
     _pypi_ordering: Mapped[int | None]
@@ -603,7 +611,7 @@ class Release(HasObservations, db.Model):
     project_urls = association_proxy(
         "_project_urls",
         "url",
-        creator=lambda k, v: ReleaseURL(name=k, url=v),
+        creator=lambda k, v: ReleaseURL(name=k, url=v["url"], verified=v["verified"]),
     )
 
     files: Mapped[list[File]] = orm.relationship(

@@ -18,11 +18,16 @@ import pretend
 import pytest
 
 from tests.common.db.accounts import UserFactory
-from tests.common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
+from tests.common.db.oidc import (
+    GitHubPublisherFactory,
+    GitLabPublisherFactory,
+    PendingGitHubPublisherFactory,
+)
 from tests.common.db.packaging import ProhibitedProjectFactory, ProjectFactory
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
+from warehouse.metrics import IMetricsService
 from warehouse.oidc import errors, views
 from warehouse.oidc.interfaces import IOIDCPublisherService
 from warehouse.packaging import services
@@ -361,6 +366,37 @@ def test_mint_token_trusted_publisher_lookup_fails(dummy_github_oidc_jwt):
     ]
 
 
+def test_mint_token_duplicate_token(dummy_github_oidc_jwt):
+    def find_publishers_mockup(_, pending: bool = False):
+        if pending is False:
+            raise errors.ReusedTokenError("some message")
+        else:
+            raise errors.InvalidPublisherError("some message")
+
+    claims = pretend.stub()
+    oidc_service = pretend.stub(
+        verify_jwt_signature=pretend.call_recorder(lambda token: claims),
+        find_publisher=find_publishers_mockup,
+    )
+    request = pretend.stub(
+        response=pretend.stub(status=None),
+        find_service=pretend.call_recorder(lambda cls, **kw: oidc_service),
+        flags=pretend.stub(disallow_oidc=lambda *a: False),
+    )
+
+    response = views.mint_token(oidc_service, dummy_github_oidc_jwt, request)
+    assert request.response.status == 422
+    assert response == {
+        "message": "Token request failed",
+        "errors": [
+            {
+                "code": "invalid-reuse-token",
+                "description": "invalid token: already used",
+            }
+        ],
+    }
+
+
 def test_mint_token_pending_publisher_project_already_exists(
     db_request, dummy_github_oidc_jwt
 ):
@@ -677,3 +713,99 @@ def test_mint_token_with_invalid_name_fails(
         assert err["description"] == (
             f"The name {pending_publisher.project_name!r} is invalid."
         )
+
+
+@pytest.mark.parametrize(
+    ("claims_in_token", "is_reusable", "is_github"),
+    [
+        (
+            {
+                "ref": "someref",
+                "sha": "somesha",
+                "workflow_ref": "org/repo/.github/workflows/parent.yml@someref",
+                "job_workflow_ref": "org2/repo2/.github/workflows/reusable.yml@v1",
+            },
+            True,
+            True,
+        ),
+        (
+            {
+                "ref": "someref",
+                "sha": "somesha",
+                "workflow_ref": "org/repo/.github/workflows/workflow.yml@someref",
+                "job_workflow_ref": "org/repo/.github/workflows/workflow.yml@someref",
+            },
+            False,
+            True,
+        ),
+        (
+            {
+                "ref": "someref",
+                "sha": "somesha",
+            },
+            False,
+            False,
+        ),
+    ],
+)
+def test_mint_token_github_reusable_workflow_metrics(
+    monkeypatch,
+    db_request,
+    claims_in_token,
+    is_reusable,
+    is_github,
+    dummy_github_oidc_jwt,
+    metrics,
+):
+    time = pretend.stub(time=pretend.call_recorder(lambda: 0))
+    monkeypatch.setattr(views, "time", time)
+
+    project = pretend.stub(
+        id="fakeprojectid",
+        record_event=pretend.call_recorder(lambda **kw: None),
+    )
+
+    publisher = GitHubPublisherFactory() if is_github else GitLabPublisherFactory()
+    monkeypatch.setattr(publisher.__class__, "projects", [project])
+    publisher.publisher_url = pretend.call_recorder(lambda **kw: "https://fake/url")
+    # NOTE: Can't set __str__ using pretend.stub()
+    monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")
+
+    def _find_publisher(claims, pending=False):
+        if pending:
+            return None
+        else:
+            return publisher
+
+    oidc_service = pretend.stub(
+        verify_jwt_signature=pretend.call_recorder(lambda token: claims_in_token),
+        find_publisher=pretend.call_recorder(_find_publisher),
+    )
+
+    db_macaroon = pretend.stub(description="fakemacaroon")
+    macaroon_service = pretend.stub(
+        create_macaroon=pretend.call_recorder(
+            lambda *a, **kw: ("raw-macaroon", db_macaroon)
+        )
+    )
+
+    def find_service(iface, **kw):
+        if iface == IOIDCPublisherService:
+            return oidc_service
+        elif iface == IMacaroonService:
+            return macaroon_service
+        elif iface == IMetricsService:
+            return metrics
+        assert False, iface
+
+    monkeypatch.setattr(db_request, "find_service", find_service)
+    monkeypatch.setattr(db_request, "domain", "fakedomain")
+
+    views.mint_token(oidc_service, dummy_github_oidc_jwt, db_request)
+
+    if is_reusable:
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.oidc.mint_token.github_reusable_workflow"),
+        ]
+    else:
+        assert not metrics.increment.calls
