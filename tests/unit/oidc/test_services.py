@@ -761,10 +761,10 @@ class TestOIDCPublisherService:
                 datetime.datetime.now(tz=datetime.UTC) + datetime.timedelta(minutes=15)
             ).timestamp()
         )
-        jwt_token_identifier = "6e67b1cb-2b8d-4be5-91cb-757edb2ec970"
-        service.store_jwt_identifier(jwt_token_identifier, expiration=expiration)
+        jwt_identifier = "6e67b1cb-2b8d-4be5-91cb-757edb2ec970"
+        service.store_jwt_identifier(jwt_identifier, expiration=expiration)
 
-        assert service.jwt_identifier_exists(jwt_token_identifier) is True
+        assert service.jwt_identifier_exists(jwt_identifier) is True
 
 
 class TestNullOIDCPublisherService:

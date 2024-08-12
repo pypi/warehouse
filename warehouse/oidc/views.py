@@ -288,9 +288,9 @@ def mint_token(
     # We have used the given JWT to mint a new token. Let now store it to prevent
     # its reuse if the claims contain a JTI. Of note, exp is coming from a trusted
     # source here, so we don't validate it
-    if jwt_token_identifier := claims.get("jti"):
+    if jwt_identifier := claims.get("jti"):
         expiration = cast(int, claims.get("exp"))
-        oidc_service.store_jwt_identifier(jwt_token_identifier, expiration)
+        oidc_service.store_jwt_identifier(jwt_identifier, expiration)
 
     for project in publisher.projects:
         project.record_event(
