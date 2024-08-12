@@ -144,6 +144,27 @@ def test_construct_dependencies():
             pytest.fail("Unknown type of specifier")
 
 
+@pytest.mark.parametrize(
+    "versions,expected",
+    [
+        (["1.0", "2.0", "3.0"], ["1.0", "2.0", "3.0"]),
+        (["1.0", "3.0", "2.0"], ["1.0", "2.0", "3.0"]),
+    ],
+)
+def test_sort_releases(db_request, versions, expected):
+    project = ProjectFactory.create()
+    releases = [
+        ReleaseFactory.create(project=project, version=v, _pypi_ordering=i)
+        for i, v in enumerate(versions)
+    ]
+
+    legacy._sort_releases(db_request, project)
+
+    assert [
+        r.version for r in sorted(releases, key=lambda r: r._pypi_ordering)
+    ] == expected
+
+
 class TestFileValidation:
     def test_defaults_to_true(self):
         assert legacy._is_valid_dist_file("", "")
@@ -1048,6 +1069,7 @@ class TestFileUpload:
                 "pyversion": "source",
                 "content": content,
                 "description": "an example description",
+                "keywords": "keyword1, keyword2",
             }
         )
         db_request.POST.extend([("classifiers", "Environment :: Other Environment")])
@@ -1144,7 +1166,7 @@ class TestFileUpload:
                     "maintainer": None,
                     "maintainer_email": None,
                     "license": None,
-                    "keywords": None,
+                    "keywords": ["keyword1", "keyword2"],
                     "classifiers": ["Environment :: Other Environment"],
                     "platform": None,
                     "home_page": None,

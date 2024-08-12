@@ -13,7 +13,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypedDict, TypeVar, Unpack
 
 import sentry_sdk
 
@@ -23,17 +23,23 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
-from warehouse.oidc.errors import InvalidPublisherError
+from warehouse.oidc.errors import InvalidPublisherError, ReusedTokenError
 from warehouse.oidc.interfaces import SignedClaims
 
 if TYPE_CHECKING:
     from warehouse.accounts.models import User
     from warehouse.macaroons.models import Macaroon
+    from warehouse.oidc.services import OIDCPublisherService
     from warehouse.packaging.models import Project
 
 C = TypeVar("C")
 
-CheckClaimCallable = Callable[[C, C, SignedClaims], bool]
+
+class CheckNamedArguments(TypedDict, total=False):
+    publisher_service: OIDCPublisherService
+
+
+CheckClaimCallable = Callable[[C, C, SignedClaims, Unpack[CheckNamedArguments]], bool]
 
 
 def check_claim_binary(binary_func: Callable[[C, C], bool]) -> CheckClaimCallable[C]:
@@ -45,7 +51,12 @@ def check_claim_binary(binary_func: Callable[[C, C], bool]) -> CheckClaimCallabl
     comparison checks like `str.__eq__`.
     """
 
-    def wrapper(ground_truth: C, signed_claim: C, all_signed_claims: SignedClaims):
+    def wrapper(
+        ground_truth: C,
+        signed_claim: C,
+        _all_signed_claims: SignedClaims,
+        **_kwargs: Unpack[CheckNamedArguments],
+    ) -> bool:
         return binary_func(ground_truth, signed_claim)
 
     return wrapper
@@ -59,10 +70,35 @@ def check_claim_invariant(value: C) -> CheckClaimCallable[C]:
     comparison checks, like "claim x is always the literal `true` value".
     """
 
-    def wrapper(ground_truth: C, signed_claim: C, all_signed_claims: SignedClaims):
+    def wrapper(
+        ground_truth: C,
+        signed_claim: C,
+        _all_signed_claims: SignedClaims,
+        **_kwargs: Unpack[CheckNamedArguments],
+    ):
         return ground_truth == signed_claim == value
 
     return wrapper
+
+
+def check_existing_jti(
+    _ground_truth,
+    signed_claim,
+    _all_signed_claims,
+    **kwargs: Unpack[CheckNamedArguments],
+) -> bool:
+    """Returns True if the checks passes or raises an exception."""
+
+    publisher_service: OIDCPublisherService = kwargs["publisher_service"]
+
+    if publisher_service.jwt_identifier_exists(signed_claim):
+        publisher_service.metrics.increment(
+            "warehouse.oidc.reused_token",
+            tags=[f"publisher:{publisher_service.publisher}"],
+        )
+        raise ReusedTokenError()
+
+    return True
 
 
 class OIDCPublisherProjectAssociation(db.Model):
@@ -162,7 +198,9 @@ class OIDCPublisherMixin:
             | cls.__unchecked_claims__
         )
 
-    def verify_claims(self, signed_claims: SignedClaims):
+    def verify_claims(
+        self, signed_claims: SignedClaims, publisher_service: OIDCPublisherService
+    ):
         """
         Given a JWT that has been successfully decoded (checked for a valid
         signature and basic claims), verify it against the more specific
@@ -211,7 +249,12 @@ class OIDCPublisherMixin:
         # verifiable claim is correct
         for claim_name, check in self.__required_verifiable_claims__.items():
             signed_claim = signed_claims.get(claim_name)
-            if not check(getattr(self, claim_name), signed_claim, signed_claims):
+            if not check(
+                getattr(self, claim_name),
+                signed_claim,
+                signed_claims,
+                publisher_service=publisher_service,
+            ):
                 raise InvalidPublisherError(
                     f"Check failed for required claim {claim_name!r}"
                 )
@@ -224,7 +267,12 @@ class OIDCPublisherMixin:
             # required for a given publisher.
             signed_claim = signed_claims.get(claim_name)
 
-            if not check(getattr(self, claim_name), signed_claim, signed_claims):
+            if not check(
+                getattr(self, claim_name),
+                signed_claim,
+                signed_claims,
+                publisher_service=publisher_service,
+            ):
                 raise InvalidPublisherError(
                     f"Check failed for optional claim {claim_name!r}"
                 )

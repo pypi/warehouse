@@ -117,14 +117,14 @@
             <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#nukeModal" {{ "disabled" if not perms_admin_users_write }}>
               <i class="icon fa fa-bomb"></i> Nuke user
             </button>
-            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#pwresetModal" {{ "disabled" if not perms_admin_users_account_recovery_write }}>
+            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#pwresetModal" {{ "disabled" if user.is_frozen or not perms_admin_users_account_recovery_write }}>
               <i class="fa-solid fa-unlock-keyhole"></i> Reset password
             </button>
             {% if not user.active_account_recoveries %}
-            <a href="{{ request.route_path('admin.user.account_recovery.initiate', username=user.username) }}" role="button" class="btn btn-block btn-danger" {{ "disabled" if not perms_admin_users_account_recovery_write }}>
+            <a href="{{ request.route_path('admin.user.account_recovery.initiate', username=user.username) }}" role="button" class="btn btn-block btn-danger {{ "disabled" if user.is_frozen or not perms_admin_users_account_recovery_write }}">
               <i class="fa-solid fa-recycle"></i> Start account recovery
             </a>
-            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#wipeFactorsModal" {{ "disabled" if not perms_admin_users_account_recovery_write }}>
+            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#wipeFactorsModal" {{ "disabled" if user.is_frozen or not perms_admin_users_account_recovery_write }}>
               <i class="fa-solid fa-toilet-paper"></i> Wipe 2FA and recovery codes
             </button>
             {% endif %}

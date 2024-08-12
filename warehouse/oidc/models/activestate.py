@@ -33,7 +33,7 @@ _ACTIVESTATE_URL = "https://platform.activestate.com"
 
 
 def _check_sub(
-    ground_truth: str, signed_claim: str, _all_signed_claims: SignedClaims
+    ground_truth: str, signed_claim: str, _all_signed_claims: SignedClaims, **_kwargs
 ) -> bool:
     # We expect a string formatted as follows:
     #  org:<orgName>:project:<projectName>

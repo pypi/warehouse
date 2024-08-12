@@ -27,7 +27,10 @@ from warehouse.oidc.models._core import (
 
 
 def _check_sub(
-    ground_truth: str, signed_claim: str, all_signed_claims: SignedClaims
+    ground_truth: str,
+    signed_claim: str,
+    _all_signed_claims: SignedClaims,
+    **_kwargs,
 ) -> bool:
     # If we haven't set a subject for the publisher, we don't need to check
     # this claim.
