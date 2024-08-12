@@ -11,7 +11,8 @@
 # limitations under the License.
 import hashlib
 import tempfile
-import typing
+
+from pathlib import Path
 
 import pretend
 import pytest
@@ -38,9 +39,6 @@ from warehouse.attestations._core import (
 from warehouse.attestations.errors import UnknownPublisherError
 from warehouse.events.tags import EventTag
 from warehouse.packaging import ISimpleStorage
-
-if typing.TYPE_CHECKING:
-    from pathlib import Path
 
 
 def test_get_provenance_digest(db_request):
