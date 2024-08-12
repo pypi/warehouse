@@ -27,11 +27,23 @@ from warehouse.oidc.models import _core, github
         # with `@` or extra suffixes or `git` refs that look like workflows.
         ("foo/bar/.github/workflows/basic.yml@refs/heads/main", "basic.yml"),
         ("foo/bar/.github/workflows/has-dash.yml@refs/heads/main", "has-dash.yml"),
-        ("foo/bar/.github/workflows/has--dashes.yml@refs/heads/main", "has--dashes.yml"),
-        ("foo/bar/.github/workflows/has--dashes-.yml@refs/heads/main", "has--dashes-.yml"),
+        (
+            "foo/bar/.github/workflows/has--dashes.yml@refs/heads/main",
+            "has--dashes.yml",
+        ),
+        (
+            "foo/bar/.github/workflows/has--dashes-.yml@refs/heads/main",
+            "has--dashes-.yml",
+        ),
         ("foo/bar/.github/workflows/has.period.yml@refs/heads/main", "has.period.yml"),
-        ("foo/bar/.github/workflows/has..periods.yml@refs/heads/main", "has..periods.yml"),
-        ("foo/bar/.github/workflows/has..periods..yml@refs/heads/main", "has..periods..yml"),
+        (
+            "foo/bar/.github/workflows/has..periods.yml@refs/heads/main",
+            "has..periods.yml",
+        ),
+        (
+            "foo/bar/.github/workflows/has..periods..yml@refs/heads/main",
+            "has..periods..yml",
+        ),
         (
             "foo/bar/.github/workflows/has_underscore.yml@refs/heads/main",
             "has_underscore.yml",

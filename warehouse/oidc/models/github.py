@@ -23,7 +23,6 @@ from sigstore.verify.policy import (
 from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Query, mapped_column
-from sqlalchemy.sql.expression import func, literal
 
 from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import SignedClaims
@@ -193,7 +192,7 @@ class GitHubPublisherMixin:
 
         repository = signed_claims["repository"]
         repository_owner, repository_name = repository.split("/", 1)
-        workflow_ref: str = signed_claims["job_workflow_ref"]
+        workflow_ref = signed_claims["job_workflow_ref"]
         workflow_filename = _extract_workflow_filename(workflow_ref)
 
         if workflow_filename is None:
