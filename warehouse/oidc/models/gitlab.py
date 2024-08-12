@@ -224,12 +224,16 @@ class GitLabPublisherMixin:
         return "GitLab"
 
     @property
+    def publisher_base_url(self):
+        return f"https://gitlab.com/{self.project_path}"
+
+    @property
     def jti(self) -> str:
         """Placeholder value for JTI."""
         return "placeholder"
 
     def publisher_url(self, claims=None):
-        base = f"https://gitlab.com/{self.project_path}"
+        base = self.publisher_base_url
         return f"{base}/commit/{claims['sha']}" if claims else base
 
     def stored_claims(self, claims=None):

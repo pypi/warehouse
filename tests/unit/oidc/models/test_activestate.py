@@ -84,6 +84,18 @@ class TestActiveStatePublisher:
 
         assert publisher.publisher_name == "ActiveState"
 
+    def test_publisher_base_url(self):
+        org_name = "fakeorg"
+        project_name = "fakeproject"
+        publisher = ActiveStatePublisher(
+            organization=org_name, activestate_project_name=project_name
+        )
+
+        assert (
+            publisher.publisher_base_url
+            == f"https://platform.activestate.com/{org_name}/{project_name}"
+        )
+
     def test_publisher_url(self):
         org_name = "fakeorg"
         project_name = "fakeproject"
