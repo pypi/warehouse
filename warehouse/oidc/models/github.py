@@ -193,9 +193,8 @@ class GitHubPublisherMixin:
         repository = signed_claims["repository"]
         repository_owner, repository_name = repository.split("/", 1)
         workflow_ref = signed_claims["job_workflow_ref"]
-        workflow_filename = _extract_workflow_filename(workflow_ref)
 
-        if workflow_filename is None:
+        if not (workflow_filename := _extract_workflow_filename(workflow_ref)):
             return None
 
         return Query(klass).filter_by(
@@ -211,9 +210,8 @@ class GitHubPublisherMixin:
         repository = signed_claims["repository"]
         repository_owner, repository_name = repository.split("/", 1)
         workflow_ref = signed_claims["job_workflow_ref"]
-        workflow_filename = _extract_workflow_filename(workflow_ref)
 
-        if workflow_filename is None:
+        if not (workflow_filename := _extract_workflow_filename(workflow_ref)):
             return None
 
         return Query(klass).filter_by(

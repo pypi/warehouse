@@ -179,9 +179,8 @@ class GitLabPublisherMixin:
         project_path = signed_claims["project_path"]
         ci_config_ref_uri = signed_claims["ci_config_ref_uri"]
         namespace, project = project_path.rsplit("/", 1)
-        workflow_filepath = _extract_workflow_filepath(ci_config_ref_uri)
 
-        if not workflow_filepath:
+        if not (workflow_filepath := _extract_workflow_filepath(ci_config_ref_uri)):
             return None
 
         return Query(klass).filter_by(
@@ -196,9 +195,8 @@ class GitLabPublisherMixin:
         project_path = signed_claims["project_path"]
         ci_config_ref_uri = signed_claims["ci_config_ref_uri"]
         namespace, project = project_path.rsplit("/", 1)
-        workflow_filepath = _extract_workflow_filepath(ci_config_ref_uri)
 
-        if not workflow_filepath:
+        if not (workflow_filepath := _extract_workflow_filepath(ci_config_ref_uri)):
             return None
 
         return Query(klass).filter_by(
