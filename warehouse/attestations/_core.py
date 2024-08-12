@@ -32,7 +32,7 @@ from warehouse.oidc.models import (
     GitLabPublisher as GitLabOIDCPublisher,
     OIDCPublisher,
 )
-from warehouse.packaging import File, ISimpleStorage
+from warehouse.packaging import File, IFileStorage
 
 
 def get_provenance_digest(request, file: File) -> str | None:
@@ -40,7 +40,7 @@ def get_provenance_digest(request, file: File) -> str | None:
     if not file.attestations or not file.publisher_url:
         return None
 
-    storage = request.find_service(ISimpleStorage)
+    storage = request.find_service(IFileStorage)
     provenance_file = storage.get(f"{file.path}.provenance")
 
     return hashlib.file_digest(provenance_file, "sha256").hexdigest()
@@ -67,7 +67,7 @@ def publisher_from_oidc_publisher(publisher: OIDCPublisher) -> Publisher:
 def generate_and_store_provenance_file(
     request, file: File, attestations: list[Attestation]
 ):
-    storage = request.find_service(ISimpleStorage)
+    storage = request.find_service(IFileStorage)
 
     try:
         publisher: Publisher = publisher_from_oidc_publisher(request.oidc_publisher)

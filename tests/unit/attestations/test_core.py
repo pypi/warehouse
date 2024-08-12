@@ -38,7 +38,7 @@ from warehouse.attestations._core import (
 )
 from warehouse.attestations.errors import UnknownPublisherError
 from warehouse.events.tags import EventTag
-from warehouse.packaging import ISimpleStorage
+from warehouse.packaging import IFileStorage
 
 
 def test_get_provenance_digest(db_request):
@@ -54,7 +54,7 @@ def test_get_provenance_digest(db_request):
 
         db_request.find_service = pretend.call_recorder(
             lambda svc, name=None, context=None: {
-                ISimpleStorage: storage_service,
+                IFileStorage: storage_service,
             }.get(svc)
         )
 
@@ -158,7 +158,7 @@ def test_generate_and_store_provenance_file(db_request, monkeypatch):
     storage_service = pretend.stub(store=storage_service_store)
     db_request.find_service = pretend.call_recorder(
         lambda svc, name=None, context=None: {
-            ISimpleStorage: storage_service,
+            IFileStorage: storage_service,
         }.get(svc)
     )
 

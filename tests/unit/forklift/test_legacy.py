@@ -3446,7 +3446,7 @@ class TestFileUpload:
             }
         )
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        storage_service = pretend.stub(store=lambda path, filepath, *, meta=None: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
             IMetricsService: metrics,
@@ -3866,7 +3866,7 @@ class TestFileUpload:
             }
         )
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        storage_service = pretend.stub(store=lambda path, filepath, *, meta=None: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
             IMetricsService: metrics,
