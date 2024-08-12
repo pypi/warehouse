@@ -13,8 +13,10 @@
 import base64
 import hashlib
 import hmac
+import json
 
 import pretend
+import pytest
 
 from warehouse.admin.views import helpscout as views
 
@@ -55,10 +57,20 @@ class TestHelpscoutApp:
             "html": '<span class="badge pending">No PyPI user found</span>'
         }
 
-    def test_valid_auth_no_such_email(self, db_request):
+    @pytest.mark.parametrize(
+        ("search_email",),
+        [
+            ("wutang@loudrecords.com",),
+            ("wutang+pypi@loudrecords.com",),
+            ("wutang@loudrecords.com",),
+        ],
+    )
+    def test_valid_auth_no_such_email(self, db_request, search_email):
+        EmailFactory.create(email="wutang@defjam.com")
+
         db_request.registry.settings["admin.helpscout.app_secret"] = "s3cr3t"
-        db_request.body = b'{"customer": {"email": "wutang@loudrecords.com"}}'
-        db_request.json_body = {"customer": {"email": "wutang@loudrecords.com"}}
+        db_request.json_body = {"customer": {"email": search_email}}
+        db_request.body = json.dumps(db_request.json_body).encode()
         db_request.headers["X-HelpScout-Signature"] = base64.b64encode(
             hmac.digest(
                 db_request.registry.settings["admin.helpscout.app_secret"].encode(),
@@ -71,12 +83,20 @@ class TestHelpscoutApp:
             "html": '<span class="badge pending">No PyPI user found</span>'
         }
 
-    def test_valid_auth_email_found(self, db_request):
-        email = EmailFactory.create(email="wutang@loudrecords.com")
+    @pytest.mark.parametrize(
+        ("search_email", "user_email"),
+        [
+            ("wutang@loudrecords.com", "wutang@loudrecords.com"),
+            ("wutang+pypi@loudrecords.com", "wutang@loudrecords.com"),
+            ("wutang@loudrecords.com", "wutang+pypi@loudrecords.com"),
+        ],
+    )
+    def test_valid_auth_email_found(self, db_request, search_email, user_email):
+        email = EmailFactory.create(email=user_email)
 
         db_request.registry.settings["admin.helpscout.app_secret"] = "s3cr3t"
-        db_request.body = b'{"customer": {"email": "wutang@loudrecords.com"}}'
-        db_request.json_body = {"customer": {"email": "wutang@loudrecords.com"}}
+        db_request.json_body = {"customer": {"email": f"{search_email}"}}
+        db_request.body = json.dumps(db_request.json_body).encode()
         db_request.headers["X-HelpScout-Signature"] = base64.b64encode(
             hmac.digest(
                 db_request.registry.settings["admin.helpscout.app_secret"].encode(),

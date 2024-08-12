@@ -7,6 +7,17 @@ ifeq ($(WAREHOUSE_IPYTHON_SHELL), 1)
     IPYTHON = yes
 endif
 
+# Optimization: if the user explicitly passes tests via `T`,
+# disable xdist (since the overhead of spawning workers is typically
+# higher than running a small handful of specific tests).
+# Only do this when the user doesn't set any explicit `TESTARGS` to avoid
+# confusion.
+ifneq ($(T),)
+ifeq ($(TESTARGS),)
+	TESTARGS = -n 0
+endif
+endif
+
 default:
 	@echo "Call a specific subcommand:"
 	@echo

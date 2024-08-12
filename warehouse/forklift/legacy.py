@@ -19,7 +19,6 @@ import tempfile
 import zipfile
 
 from cgi import FieldStorage
-from pathlib import Path
 
 import packaging.requirements
 import packaging.specifiers
@@ -31,7 +30,12 @@ import wtforms
 import wtforms.validators
 
 from pydantic import TypeAdapter, ValidationError
-from pypi_attestations import Attestation, AttestationType, VerificationError
+from pypi_attestations import (
+    Attestation,
+    AttestationType,
+    Distribution,
+    VerificationError,
+)
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPException,
@@ -50,10 +54,7 @@ from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
-from warehouse.email import (
-    send_api_token_used_in_trusted_publisher_project_email,
-    send_two_factor_not_yet_enabled_email,
-)
+from warehouse.email import send_api_token_used_in_trusted_publisher_project_email
 from warehouse.events.tags import EventTag
 from warehouse.forklift import metadata
 from warehouse.forklift.forms import UploadForm, _filetype_extension_mapping
@@ -74,6 +75,7 @@ from warehouse.packaging.models import (
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
 from warehouse.rate_limiting.interfaces import RateLimiterException
 from warehouse.utils import readme
+from warehouse.utils.release import strip_keywords
 
 PATH_HASHER = "blake2_256"
 
@@ -86,6 +88,11 @@ COMPRESSION_RATIO_MIN_SIZE = 64 * ONE_MIB
 # See discussion here: https://github.com/pypi/warehouse/issues/13962
 COMPRESSION_RATIO_THRESHOLD = 50
 
+# SQS has a maximum total message length of 262144 bytes. In order to stay
+# under this when enqueuing a job to store BigQuery metadata, we truncate the
+# Description field to 40K bytes, which captures up to the 95th percentile of
+# existing descriptions.
+MAX_DESCRIPTION_LENGTH_TO_BIGQUERY = 40000
 
 # Wheel platform checking
 
@@ -366,7 +373,7 @@ def _is_duplicate_file(db_session, filename, hashes):
     return None
 
 
-def _process_attestations(request, artifact_path: Path):
+def _process_attestations(request, distribution: Distribution):
     """
     Process any attestations included in a file upload request
 
@@ -413,7 +420,7 @@ def _process_attestations(request, artifact_path: Path):
             predicate_type, _ = attestation_model.verify(
                 Verifier.production(),
                 verification_policy,
-                artifact_path,
+                distribution,
             )
         except VerificationError as e:
             # Log invalid (failed verification) attestation upload
@@ -424,12 +431,15 @@ def _process_attestations(request, artifact_path: Path):
                 f"attestation: {e}",
             )
         except Exception as e:
-            sentry_sdk.capture_message(
-                f"Unexpected error while verifying attestation: {e}"
-            )
+            with sentry_sdk.push_scope() as scope:
+                scope.fingerprint = [e]
+                sentry_sdk.capture_message(
+                    f"Unexpected error while verifying attestation: {e}"
+                )
+
             raise _exc_with_message(
                 HTTPBadRequest,
-                f"Unknown error while trying to verify included " f"attestations: {e}",
+                f"Unknown error while trying to verify included attestations: {e}",
             )
 
         if predicate_type != AttestationType.PYPI_PUBLISH_V1:
@@ -438,7 +448,7 @@ def _process_attestations(request, artifact_path: Path):
             )
             raise _exc_with_message(
                 HTTPBadRequest,
-                f"Attestation with unsupported predicate type: " f"{predicate_type}",
+                f"Attestation with unsupported predicate type: {predicate_type}",
             )
 
         # Log successful attestation upload
@@ -505,6 +515,19 @@ def file_upload(request):
                 ).format(
                     request.user.username,
                     project_help=request.help_url(_anchor="verified-email"),
+                ),
+            ) from None
+        # Ensure user has enabled 2FA before they can upload a file.
+        if not request.user.has_two_factor:
+            raise _exc_with_message(
+                HTTPBadRequest,
+                (
+                    "User {!r} does not have two-factor authentication enabled. "
+                    "Please enable two-factor authentication before attempting to "
+                    "upload to PyPI. See {project_help} for more information."
+                ).format(
+                    request.user.username,
+                    project_help=request.help_url(_anchor="two-factor-authentication"),
                 ),
             ) from None
 
@@ -820,6 +843,7 @@ def file_upload(request):
             #       which we now go and turn it back into a string, we should fix
             #       this and store this as a list.
             keywords=", ".join(meta.keywords) if meta.keywords else None,
+            keywords_array=(strip_keywords(meta.keywords) if meta.keywords else None),
             requires_python=str(meta.requires_python) if meta.requires_python else None,
             # Since dynamic field values are RFC 822 email headers, which are
             # case-insensitive, normalize them to title-case so we don't have
@@ -1145,7 +1169,8 @@ def file_upload(request):
 
         if "attestations" in request.POST:
             _process_attestations(
-                request=request, artifact_path=Path(temporary_filename)
+                request=request,
+                distribution=Distribution(name=filename, digest=file_hashes["sha256"]),
             )
 
         # TODO: This should be handled by some sort of database trigger or a
@@ -1244,11 +1269,6 @@ def file_upload(request):
                 },
             )
 
-    # Check if the user has any 2FA methods enabled, and if not, email them.
-    if request.user and not request.user.has_two_factor:
-        warnings.append("Two factor authentication is not enabled for your account.")
-        send_two_factor_not_yet_enabled_email(request, request.user)
-
     request.db.flush()  # flush db now so server default values are populated for celery
 
     # Push updates to BigQuery
@@ -1257,7 +1277,11 @@ def file_upload(request):
         "name": meta.name,
         "version": str(meta.version),
         "summary": meta.summary,
-        "description": meta.description,
+        "description": (
+            meta.description[:MAX_DESCRIPTION_LENGTH_TO_BIGQUERY]
+            if meta.description is not None
+            else None
+        ),
         "author": meta.author,
         "description_content_type": meta.description_content_type,
         "author_email": meta.author_email,

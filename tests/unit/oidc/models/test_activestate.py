@@ -161,7 +161,9 @@ class TestActiveStatePublisher:
         signed_claims["fake-claim"] = "fake"
         signed_claims["another-fake-claim"] = "also-fake"
 
-        assert publisher.verify_claims(signed_claims=signed_claims)
+        assert publisher.verify_claims(
+            signed_claims=signed_claims, publisher_service=pretend.stub()
+        )
 
         assert sentry_sdk.capture_message.calls == [
             pretend.call(
@@ -211,10 +213,17 @@ class TestActiveStatePublisher:
 
         assert claim_to_drop not in signed_claims
         if valid:
-            assert publisher.verify_claims(signed_claims=signed_claims) is valid
+            assert (
+                publisher.verify_claims(
+                    signed_claims=signed_claims, publisher_service=pretend.stub()
+                )
+                is valid
+            )
         else:
             with pytest.raises(InvalidPublisherError) as e:
-                assert publisher.verify_claims(signed_claims=signed_claims)
+                assert publisher.verify_claims(
+                    signed_claims=signed_claims, publisher_service=pretend.stub()
+                )
             assert str(e.value) == error_msg
             assert sentry_sdk.capture_message.calls == [
                 pretend.call(

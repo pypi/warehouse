@@ -25,6 +25,7 @@ import pytest
 
 from pypi_attestations import (
     Attestation,
+    Distribution,
     Envelope,
     VerificationError,
     VerificationMaterial,
@@ -431,8 +432,9 @@ class TestFileUpload:
     def test_fails_invalid_version(self, pyramid_config, pyramid_request, version):
         pyramid_request.POST["protocol_version"] = version
         pyramid_request.flags = pretend.stub(enabled=lambda *a: False)
+        pyramid_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
 
-        user = pretend.stub(primary_email=pretend.stub(verified=True))
+        user = UserFactory.create(with_verified_primary_email=True)
         pyramid_config.testing_securitypolicy(identity=user)
         pyramid_request.user = user
 
@@ -1045,6 +1047,7 @@ class TestFileUpload:
                 "pyversion": "source",
                 "content": content,
                 "description": "an example description",
+                "keywords": "keyword1, keyword2",
             }
         )
         db_request.POST.extend([("classifiers", "Environment :: Other Environment")])
@@ -1141,7 +1144,7 @@ class TestFileUpload:
                     "maintainer": None,
                     "maintainer_email": None,
                     "license": None,
-                    "keywords": None,
+                    "keywords": ["keyword1", "keyword2"],
                     "classifiers": ["Environment :: Other Environment"],
                     "platform": None,
                     "home_page": None,
@@ -3467,6 +3470,10 @@ class TestFileUpload:
         assert resp.status_code == 200
 
         assert len(verify.calls) == 1
+        verified_distribution = verify.calls[0].args[3]
+        assert verified_distribution == Distribution(
+            name=filename, digest=_TAR_GZ_PKG_SHA256
+        )
 
     def test_upload_with_invalid_attestation_predicate_type_fails(
         self,
@@ -4243,11 +4250,10 @@ class TestFileUpload:
 
         assert resp.status_code == 200
 
-    def test_upload_succeeds_without_two_factor(
+    def test_upload_fails_without_two_factor(
         self, pyramid_config, db_request, metrics, project_service, monkeypatch
     ):
-        user = UserFactory.create(totp_secret=None)
-        EmailFactory.create(user=user)
+        user = UserFactory.create(totp_secret=None, with_verified_primary_email=True)
 
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -4273,19 +4279,23 @@ class TestFileUpload:
             IProjectService: project_service,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
 
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(legacy, "send_two_factor_not_yet_enabled_email", send_email)
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
 
-        resp = legacy.file_upload(db_request)
+        resp = excinfo.value
 
-        assert resp.status_code == 200
-        assert resp.body == (
-            b"Two factor authentication is not enabled for your account."
+        assert resp.status_code == 400
+        assert resp.status == (
+            (
+                "400 User {!r} does not have two-factor authentication enabled. "
+                "Please enable two-factor authentication before attempting to "
+                "upload to PyPI. See /the/help/url/ for more information."
+            ).format(user.username)
         )
-
-        assert send_email.calls == [
-            pretend.call(db_request, user),
+        assert db_request.help_url.calls == [
+            pretend.call(_anchor="two-factor-authentication")
         ]
 
     @pytest.mark.parametrize(

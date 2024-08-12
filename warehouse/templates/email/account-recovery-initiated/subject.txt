@@ -14,4 +14,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}{% trans %}Your PyPI account will soon require 2FA{% endtrans %}{% endblock %}
+{% block subject %}Account Recovery Request: {{ user.username }}{% endblock %}

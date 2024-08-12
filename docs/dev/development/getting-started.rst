@@ -188,7 +188,7 @@ application.
    (on Windows by editing the config file found at ``C:\Users\<USER>\AppData\Local\Docker\wsl``).
 
    If you are using Linux, you may need to configure the maximum map count to get
-   the `opensearch` up and running. According to the
+   the ``opensearch`` up and running. According to the
    `documentation <https://opensearch.org/docs/2.15/install-and-configure/install-opensearch/index/#important-settings>`_
    this can be set temporarily:
 
@@ -352,6 +352,10 @@ to a moderator if needed.
 
 All of these users have 2FA enabled via TOTP,
 using the same secret as ``make totp``.
+You can scan the following QR code to add this TOTP secret to your TOTP authenticator:
+
+.. image:: ../_static/warehouse_admin_totp.png
+   :width: 100
 
 They also have the following Recovery Codes generated:
 
@@ -369,7 +373,7 @@ They also have the following Recovery Codes generated:
 Using different accounts will allow you to see different parts of the site,
 and have slightly different experiences.
 
-For example, using `miketheman` will require email verification.
+For example, using ``miketheman`` will require email verification.
 See :ref:`testing-e-mails` for more information on how to see those emails.
 
 Logging in as users without 2FA
@@ -681,7 +685,19 @@ If you want to run a specific test, you can use the ``T`` variable:
 
     T=tests/unit/i18n/test_filters.py make tests
 
-You can add arguments to the test runner by using the ``TESTARGS`` variable:
+
+.. note::
+
+  By default, using the ``T`` variable disables testcase parallelization
+  (due to runner startup time being greater than actual test time). To
+  re-enable parallelization, you can pass explicit ``TESTARGS``:
+
+  .. code-block:: console
+
+    T=tests/unit/i18n/test_filters.py TESTARGS="-n auto" make tests
+
+You can also add arguments to the test runner by using the ``TESTARGS``
+variable:
 
 .. code-block:: console
 

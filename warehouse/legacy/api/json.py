@@ -18,7 +18,14 @@ from sqlalchemy.orm import Load, contains_eager, joinedload
 
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
-from warehouse.packaging.models import File, Project, Release, ReleaseURL
+from warehouse.packaging.models import (
+    Description,
+    File,
+    LifecycleStatus,
+    Project,
+    Release,
+    ReleaseURL,
+)
 from warehouse.utils.cors import _CORS_HEADERS
 
 _RELEASE_CACHE_DECORATOR = [
@@ -62,6 +69,14 @@ def _json_data(request, project, release, *, all_releases):
     # to just this release.
     if not all_releases:
         release_files = release_files.filter(Release.id == release.id)
+
+    # Get the raw description and description content type for this release
+    release_description = (
+        request.db.query(Description)
+        .options(Load(Description).load_only(Description.content_type, Description.raw))
+        .filter(Description.release == release)
+        .one()
+    )
 
     # Finally set an ordering, and execute the query.
     release_files = release_files.order_by(
@@ -134,8 +149,8 @@ def _json_data(request, project, release, *, all_releases):
             "name": project.name,
             "version": release.version,
             "summary": release.summary,
-            "description_content_type": release.description.content_type,
-            "description": release.description.raw,
+            "description_content_type": release_description.content_type,
+            "description": release_description.raw,
             "keywords": release.keywords,
             "license": release.license,
             "classifiers": list(release.classifiers),
@@ -185,6 +200,12 @@ def latest_release_factory(request):
             request.db.query(Release.id, Release.version)
             .join(Release.project)
             .filter(Project.normalized_name == normalized_name)
+            # Exclude projects in quarantine.
+            .filter(
+                Project.lifecycle_status.is_distinct_from(
+                    LifecycleStatus.QuarantineEnter
+                )
+            )
             .order_by(
                 Release.yanked.asc(),
                 Release.is_prerelease.nullslast(),
@@ -264,6 +285,10 @@ def release_factory(request):
             joinedload(Release._requires_dist),
         )
         .filter(Project.normalized_name == normalized_name)
+        # Exclude projects in quarantine.
+        .filter(
+            Project.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter)
+        )
     )
 
     try:

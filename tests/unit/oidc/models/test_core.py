@@ -51,5 +51,38 @@ class TestOIDCPublisher:
         publisher = _core.OIDCPublisher(projects=[])
 
         with pytest.raises(errors.InvalidPublisherError) as e:
-            publisher.verify_claims(signed_claims={})
+            publisher.verify_claims(signed_claims={}, publisher_service=pretend.stub())
         assert str(e.value) == "No required verifiable claims"
+
+
+def test_check_existing_jti():
+    publisher = pretend.stub(
+        jwt_identifier_exists=pretend.call_recorder(lambda s: False),
+    )
+
+    assert _core.check_existing_jti(
+        pretend.stub(),
+        "6e67b1cb-2b8d-4be5-91cb-757edb2ec970",
+        pretend.stub(),
+        publisher_service=publisher,
+    )
+
+
+def test_check_existing_jti_fails(metrics):
+    publisher = pretend.stub(
+        jwt_identifier_exists=pretend.call_recorder(lambda s: True),
+        metrics=metrics,
+        publisher="fakepublisher",
+    )
+    with pytest.raises(errors.ReusedTokenError):
+        assert _core.check_existing_jti(
+            pretend.stub(),
+            "6e67b1cb-2b8d-4be5-91cb-757edb2ec970",
+            pretend.stub(),
+            publisher_service=publisher,
+        )
+
+    assert (
+        pretend.call("warehouse.oidc.reused_token", tags=["publisher:fakepublisher"])
+        in metrics.increment.calls
+    )

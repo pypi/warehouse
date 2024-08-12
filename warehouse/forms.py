@@ -117,12 +117,6 @@ class Form(BaseForm):
         return errors
 
 
-class DBForm(Form):
-    def __init__(self, *args, db, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.db = db
-
-
 class SetLocaleForm(Form):
     __params__ = ["locale_id"]
 

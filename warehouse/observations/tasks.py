@@ -65,6 +65,13 @@ def report_observation_to_helpscout(task, request: Request, model_id: UUID) -> N
     # Fetch the Observation from the database
     model = request.db.get(Observation, model_id)
 
+    # Check to see if this ObservationKind should be sent
+    if OBSERVATION_KIND_MAP[model.kind] not in [
+        ObservationKind.IsDependencyConfusion,
+        ObservationKind.IsMalware,
+    ]:
+        return
+
     # TODO: What do we do for Release/File/User/etc?
     #  Maybe need a mapping of ObservationType and the name we want to use.
     target_name = model.related.name
@@ -84,6 +91,10 @@ def report_observation_to_helpscout(task, request: Request, model_id: UUID) -> N
         convo_text += dedent(
             f"""
             Inspector URL: {model.payload.get("inspector_url")}
+
+            Malware Reports URL: {request.route_url(
+                "admin.malware_reports.project.list", project_name=target_name,
+            )}
             """
         )
 
