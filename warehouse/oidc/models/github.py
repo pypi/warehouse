@@ -34,14 +34,25 @@ from warehouse.oidc.models._core import (
     check_existing_jti,
 )
 
-_WORKFLOW_FILENAME_RE = re.compile(r"([^/]+\.(yml|yaml))(?=@)")
+# This expression matches the workflow filename component of a GitHub
+# "workflow ref", i.e. the value present in the `workflow_ref` and
+# `job_workflow_ref` claims. This requires a nontrivial (and nonregular)
+# pattern, since the workflow filename and other components of the workflow
+# can contain overlapping delimiters (such as `@` in the workflow filename,
+# or `git` refs that look like workflow filenames).
+_WORKFLOW_FILENAME_RE = re.compile(
+    r"""
+    (                   # our capture group
+        [^/]+           # match one or more non-slash characters
+        \.(yml|yaml)    # match the literal suffix `.yml` or `.yaml`
+    )
+    (?=@)               # lookahead match for `@`, constraining the group above
+    """,
+    re.X,
+)
 
 
 def _extract_workflow_filename(workflow_ref: str) -> str | None:
-    """
-    Extracts a workflow filename (e.g. `foo.yml`) from the given workflow ref,
-    which can also be a "job" (i.e. reusable) workflow ref.
-    """
     if match := _WORKFLOW_FILENAME_RE.search(workflow_ref):
         return match.group(0)
     else:

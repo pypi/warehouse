@@ -19,17 +19,49 @@ from warehouse.oidc import errors
 from warehouse.oidc.models import _core, gitlab
 
 
+@pytest.mark.parametrize(
+    ("ci_config_ref_uri", "expected"),
+    [
+        # Well-formed `ci_config_ref_uri`s, including obnoxious ones.
+        ("gitlab.com/foo/bar//notnested.yml@/some/ref", "notnested.yml"),
+        ("gitlab.com/foo/bar//notnested.yaml@/some/ref", "notnested.yaml"),
+        ("gitlab.com/foo/bar//basic/basic.yml@/some/ref", "basic/basic.yml"),
+        (
+            "gitlab.com/foo/bar//more/nested/example.yml@/some/ref",
+            "more/nested/example.yml",
+        ),
+        (
+            "gitlab.com/foo/bar//too//many//slashes.yml@/some/ref",
+            "too//many//slashes.yml",
+        ),
+        (
+            "gitlab.com/foo/bar//too//many//slashes.yml@/some/ref",
+            "too//many//slashes.yml",
+        ),
+        ("gitlab.com/foo/bar//has-@.yml@/some/ref", "has-@.yml"),
+        ("gitlab.com/foo/bar//foo.bar.yml@/some/ref", "foo.bar.yml"),
+        ("gitlab.com/foo/bar//foo.yml.bar.yml@/some/ref", "foo.yml.bar.yml"),
+        ("gitlab.com/foo/bar//foo.yml@bar.yml@/some/ref", "foo.yml@bar.yml"),
+        ("gitlab.com/foo/bar//@foo.yml@bar.yml@/some/ref", "@foo.yml@bar.yml"),
+        (
+            "gitlab.com/foo/bar//@.yml.foo.yml@bar.yml@/some/ref",
+            "@.yml.foo.yml@bar.yml",
+        ),
+        # Malformed `ci_config_ref_uri`s.
+        ("gitlab.com/foo/bar//notnested.wrongsuffix@/some/ref", None),
+        ("gitlab.com/foo/bar//@/some/ref", None),
+        ("gitlab.com/foo/bar//.yml@/some/ref", None),
+        ("gitlab.com/foo/bar//.yaml@/some/ref", None),
+        ("gitlab.com/foo/bar//somedir/.yaml@/some/ref", None),
+    ],
+)
+def test_extract_workflow_filename(ci_config_ref_uri, expected):
+    assert gitlab._extract_workflow_filepath(ci_config_ref_uri) == expected
+
+
 @pytest.mark.parametrize("claim", ["", "repo", "repo:"])
 def test_check_sub(claim):
     assert gitlab._check_sub(pretend.stub(), claim, pretend.stub()) is False
-
-
-def test_lookup_strategies():
-    assert (
-        len(gitlab.GitLabPublisher.__lookup_strategies__)
-        == len(gitlab.PendingGitLabPublisher.__lookup_strategies__)
-        == 2
-    )
 
 
 class TestGitLabPublisher:
@@ -39,6 +71,22 @@ class TestGitLabPublisher:
             == len(gitlab.PendingGitLabPublisher.__lookup_strategies__)
             == 2
         )
+
+    @pytest.mark.parametrize("environment", [None, "some_environment"])
+    def test_lookup_fails_invalid_ci_config_ref_uri(self, environment):
+        signed_claims = {
+            "project_path": "foo/bar",
+            "ci_config_ref_uri": ("gitlab.com/foo/bar//example/.yml@refs/heads/main"),
+        }
+
+        if environment:
+            signed_claims["environment"] = environment
+
+        # The `ci_config_ref_uri` is malformed, so no queries are performed.
+        with pytest.raises(
+            errors.InvalidPublisherError, match="All lookup strategies exhausted"
+        ):
+            gitlab.GitLabPublisher.lookup_by_claims(pretend.stub(), signed_claims)
 
     @pytest.mark.parametrize("environment", ["", "some_environment"])
     @pytest.mark.parametrize(

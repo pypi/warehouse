@@ -27,14 +27,29 @@ from warehouse.oidc.models._core import (
     check_existing_jti,
 )
 
-_WORKFLOW_FILEPATH_RE = re.compile(r"((?<=\/\/).+\.(yml|yaml))(?=@)")
+# This expression matches the workflow filepath component of a GitLab
+# `ci_config_ref_uri` OIDC claim. This requires a nontrivial (and nonregular)
+# pattern, since the workflow path can contain interior slashes while also
+# being delimited by slashes, and has overlapping delimiters with the
+# other components of the claim.
+_WORKFLOW_FILEPATH_RE = re.compile(
+    r"""
+    (?<=\/\/)         # lookbehind match for `//`, which terminates the repo
+                      # component of the claim.
+
+    (                 # our capture group
+        .+            # match one or more of any character, including slashes
+        [^/]          # match at least one non-slash character, to prevent
+                      # empty basenames (e.g. `foo/.yml`)
+        \.(yml|yaml)  # match the literal suffix `.yml` or `.yaml`
+    )
+    (?=@)             # lookahead match for `@`, constraining the group above
+    """,
+    re.X,
+)
 
 
 def _extract_workflow_filepath(ci_config_ref_uri: str) -> str | None:
-    """
-    Extracts a workflow filepath (e.g. `foo/bar/ci.yml`) from a GitLab
-    `ci_config_ref_uri` claim.
-    """
     if match := _WORKFLOW_FILEPATH_RE.search(ci_config_ref_uri):
         return match.group(0)
     else:

@@ -26,6 +26,7 @@ from warehouse.oidc.models import _core, github
         # Well-formed workflow refs, including exceedingly obnoxious ones
         # with `@` or extra suffixes or `git` refs that look like workflows.
         ("foo/bar/.github/workflows/basic.yml@refs/heads/main", "basic.yml"),
+        ("foo/bar/.github/workflows/basic.yaml@refs/heads/main", "basic.yaml"),
         ("foo/bar/.github/workflows/has-dash.yml@refs/heads/main", "has-dash.yml"),
         (
             "foo/bar/.github/workflows/has--dashes.yml@refs/heads/main",
@@ -69,7 +70,7 @@ from warehouse.oidc.models import _core, github
             "basic.yml",
         ),
         (
-            "foo/bar/.github/workflows/basic.yml@refs/heads/misleading@branch@causestwomatches.yml",
+            "foo/bar/.github/workflows/basic.yml@refs/heads/bad@branch@twomatches.yml",
             "basic.yml",
         ),
         ("foo/bar/.github/workflows/foo.yml.yml@refs/heads/main", "foo.yml.yml"),
@@ -78,9 +79,11 @@ from warehouse.oidc.models import _core, github
             "foo.yml.foo.yml",
         ),
         # Malformed workflow refs.
+        ("foo/bar/.github/workflows/basic.wrongsuffix@refs/heads/main", None),
         ("foo/bar/.github/workflows/@refs/heads/main", None),
         ("foo/bar/.github/workflows/nosuffix@refs/heads/main", None),
         ("foo/bar/.github/workflows/.yml@refs/heads/main", None),
+        ("foo/bar/.github/workflows/.yaml@refs/heads/main", None),
         ("foo/bar/.github/workflows/main.yml", None),
     ],
 )
@@ -100,6 +103,23 @@ class TestGitHubPublisher:
             == len(github.PendingGitHubPublisher.__lookup_strategies__)
             == 2
         )
+
+    @pytest.mark.parametrize("environment", [None, "some_environment"])
+    def test_lookup_fails_invalid_workflow_ref(self, environment):
+        signed_claims = {
+            "repository": "foo/bar",
+            "job_workflow_ref": ("foo/bar/.github/workflows/.yml@refs/heads/main"),
+            "repository_owner_id": "1234",
+        }
+
+        if environment:
+            signed_claims["environment"] = environment
+
+        # The `job_workflow_ref` is malformed, so no queries are performed.
+        with pytest.raises(
+            errors.InvalidPublisherError, match="All lookup strategies exhausted"
+        ):
+            github.GitHubPublisher.lookup_by_claims(pretend.stub(), signed_claims)
 
     @pytest.mark.parametrize("environment", ["", "some_environment"])
     @pytest.mark.parametrize(
