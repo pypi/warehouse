@@ -652,6 +652,47 @@ class TestRelease:
         # TODO: It'd be nice to test for the actual ordering here.
         assert dict(release.urls) == dict(expected)
 
+    @pytest.mark.parametrize(
+        "release_urls",
+        [
+            [
+                ("Issues", "https://github.com/org/user/issues", True),
+                ("Source", "https://github.com/org/user", True),
+                ("Homepage", "https://example.com/", False),
+                ("Download", "https://example.com/", False),
+            ],
+            [
+                ("Issues", "https://github.com/org/user/issues", True),
+                ("Source", "https://github.com/org/user", True),
+                ("Homepage", "https://homepage.com/", False),
+                ("Download", "https://download.com/", False),
+            ],
+            [
+                ("Issues", "https://github.com/org/user/issues", True),
+                ("Source", "https://github.com/org/user", True),
+                ("Homepage", "https://homepage.com/", True),
+                ("Download", "https://download.com/", True),
+            ],
+        ],
+    )
+    def test_urls_by_verify_status(self, db_session, release_urls):
+        release = DBReleaseFactory.create(
+            home_page="https://homepage.com", download_url="https://download.com"
+        )
+        for label, url, verified in release_urls:
+            db_session.add(
+                ReleaseURL(
+                    release=release,
+                    name=label,
+                    url=url,
+                    verified=verified,
+                )
+            )
+
+        for verified_status in [True, False]:
+            for label, url in release.urls_by_verify_status(verified_status).items():
+                assert (label, url, verified_status) in release_urls
+
     def test_acl(self, db_session):
         project = DBProjectFactory.create()
         owner1 = DBRoleFactory.create(project=project)
