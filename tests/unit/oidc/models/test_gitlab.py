@@ -57,6 +57,7 @@ class TestGitLabPublisher:
             "nbf",
             "exp",
             "aud",
+            "jti",
             # unchecked claims
             "project_id",
             "namespace_id",
@@ -78,7 +79,6 @@ class TestGitLabPublisher:
             "runner_environment",
             "ci_config_sha",
             "project_visibility",
-            "jti",
             "user_access_level",
             "groups_direct",
         }
@@ -131,7 +131,9 @@ class TestGitLabPublisher:
         signed_claims["fake-claim"] = "fake"
         signed_claims["another-fake-claim"] = "also-fake"
         with pytest.raises(errors.InvalidPublisherError) as e:
-            publisher.verify_claims(signed_claims=signed_claims)
+            publisher.verify_claims(
+                signed_claims=signed_claims, publisher_service=pretend.stub()
+            )
         assert str(e.value) == "Check failed for required claim 'sub'"
         assert sentry_sdk.capture_message.calls == [
             pretend.call(
@@ -169,7 +171,9 @@ class TestGitLabPublisher:
         assert missing not in signed_claims
         assert publisher.__required_verifiable_claims__
         with pytest.raises(errors.InvalidPublisherError) as e:
-            publisher.verify_claims(signed_claims=signed_claims)
+            publisher.verify_claims(
+                signed_claims=signed_claims, publisher_service=pretend.stub()
+            )
         assert str(e.value) == f"Missing claim {missing!r}"
         assert sentry_sdk.capture_message.calls == [
             pretend.call(f"JWT for GitLabPublisher is missing claim: {missing}")
@@ -187,6 +191,10 @@ class TestGitLabPublisher:
         sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
         monkeypatch.setattr(_core, "sentry_sdk", sentry_sdk)
 
+        service = pretend.stub(
+            jwt_identifier_exists=pretend.call_recorder(lambda s: False)
+        )
+
         signed_claims = {
             claim_name: getattr(publisher, claim_name)
             for claim_name in gitlab.GitLabPublisher.__required_verifiable_claims__
@@ -196,7 +204,9 @@ class TestGitLabPublisher:
         signed_claims["ci_config_ref_uri"] = publisher.ci_config_ref_uri + "@ref"
         assert publisher.__required_verifiable_claims__
         with pytest.raises(errors.InvalidPublisherError) as e:
-            publisher.verify_claims(signed_claims=signed_claims)
+            publisher.verify_claims(
+                signed_claims=signed_claims, publisher_service=service
+            )
         assert str(e.value) == "Check failed for optional claim 'environment'"
         assert sentry_sdk.capture_message.calls == []
 
@@ -213,7 +223,7 @@ class TestGitLabPublisher:
             environment="environment",
         )
 
-        noop_check = pretend.call_recorder(lambda gt, sc, ac: True)
+        noop_check = pretend.call_recorder(lambda gt, sc, ac, **kwargs: True)
         verifiable_claims = {
             claim_name: noop_check
             for claim_name in publisher.__required_verifiable_claims__
@@ -234,7 +244,9 @@ class TestGitLabPublisher:
             for claim_name in gitlab.GitLabPublisher.all_known_claims()
             if claim_name not in missing_claims
         }
-        assert publisher.verify_claims(signed_claims=signed_claims)
+        assert publisher.verify_claims(
+            signed_claims=signed_claims, publisher_service=pretend.stub()
+        )
         assert len(noop_check.calls) == len(verifiable_claims) + len(
             optional_verifiable_claims
         )
