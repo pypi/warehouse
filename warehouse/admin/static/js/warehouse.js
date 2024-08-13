@@ -103,13 +103,18 @@ document.querySelectorAll(".btn-group[data-input][data-state]").forEach(function
 
 // Copy handler for copying text, e.g.
 //   - prohibited project names confirmation page
+//   - user account recoveries
 //
 document.querySelectorAll(".copy-text").forEach(function (element) {
-  function copy(text, target) {
+  $(element).tooltip({ title: "Click to copy!" });
+  function copy(text) {
     setTimeout(function () {
-      $("#copied_tip").remove();
+      $(element).tooltip("hide")
+        .attr("data-original-title", "Click to copy!");
     }, 1000);
-    $(target).append("<div class='tip' id='copied_tip'>Copied!</div>");
+    $(element).tooltip("hide")
+      .attr("data-original-title", "Copied!")
+      .tooltip("show");
     navigator.clipboard.writeText(text);
   }
 

@@ -13,7 +13,7 @@
 import time
 
 from datetime import datetime
-from typing import TypedDict
+from typing import TypedDict, cast
 
 import jwt
 import sentry_sdk
@@ -28,9 +28,9 @@ from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.services import DatabaseMacaroonService
 from warehouse.metrics.interfaces import IMetricsService
-from warehouse.oidc.errors import InvalidPublisherError
+from warehouse.oidc.errors import InvalidPublisherError, ReusedTokenError
 from warehouse.oidc.interfaces import IOIDCPublisherService
-from warehouse.oidc.models import OIDCPublisher, PendingOIDCPublisher
+from warehouse.oidc.models import GitHubPublisher, OIDCPublisher, PendingOIDCPublisher
 from warehouse.oidc.services import OIDCPublisherService
 from warehouse.oidc.utils import OIDC_ISSUER_ADMIN_FLAGS, OIDC_ISSUER_SERVICE_NAMES
 from warehouse.packaging.interfaces import IProjectService
@@ -130,7 +130,7 @@ def mint_token_from_oidc(request: Request):
         # an abstraction leak in jwt that we'll log for upstream reporting.
         if not isinstance(e, (jwt.PyJWTError, KeyError)):
             with sentry_sdk.push_scope() as scope:
-                scope.fingerprint = e
+                scope.fingerprint = [e]
                 sentry_sdk.capture_message(f"jwt.decode raised generic error: {e}")
 
         return _invalid(
@@ -238,6 +238,16 @@ def mint_token(
         publisher = oidc_service.find_publisher(claims, pending=False)
         # NOTE: assert to persuade mypy of the correct type here.
         assert isinstance(publisher, OIDCPublisher)
+    except ReusedTokenError:
+        return _invalid(
+            errors=[
+                {
+                    "code": "invalid-reuse-token",
+                    "description": "invalid token: already used",
+                }
+            ],
+            request=request,
+        )
     except InvalidPublisherError as e:
         return _invalid(
             errors=[
@@ -274,6 +284,14 @@ def mint_token(
         oidc_publisher_id=str(publisher.id),
         additional={"oidc": publisher.stored_claims(claims)},
     )
+
+    # We have used the given JWT to mint a new token. Let now store it to prevent
+    # its reuse if the claims contain a JTI. Of note, exp is coming from a trusted
+    # source here, so we don't validate it
+    if jwt_identifier := claims.get("jti"):
+        expiration = cast(int, claims.get("exp"))
+        oidc_service.store_jwt_identifier(jwt_identifier, expiration)
+
     for project in publisher.projects:
         project.record_event(
             tag=EventTag.Project.ShortLivedAPITokenAdded,
@@ -284,4 +302,22 @@ def mint_token(
                 "publisher_url": publisher.publisher_url(),
             },
         )
+
+    # NOTE: This is for temporary metrics collection of GitHub Trusted Publishers
+    # that use reusable workflows. Since support for reusable workflows is accidental
+    # and not correctly implemented, we need to understand how widely it's being
+    # used before changing its behavior.
+    # ref: https://github.com/pypi/warehouse/pull/16364
+    if isinstance(publisher, GitHubPublisher) and claims:
+        job_workflow_ref = claims.get("job_workflow_ref")
+        workflow_ref = claims.get("workflow_ref")
+
+        # When using reusable workflows, `job_workflow_ref` contains the reusable (
+        # called) workflow and `workflow_ref` contains the parent (caller) workflow.
+        # With non-reusable workflows they are the same, so we count reusable
+        # workflows by checking if they are different.
+        if job_workflow_ref and workflow_ref and job_workflow_ref != workflow_ref:
+            metrics = request.find_service(IMetricsService, context=None)
+            metrics.increment("warehouse.oidc.mint_token.github_reusable_workflow")
+
     return {"success": True, "token": serialized}

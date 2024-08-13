@@ -23,7 +23,7 @@ html5lib
 humanize
 itsdangerous
 Jinja2>=2.8
-kombu[sqs]>=5.3.5,<5.4  # https://github.com/jazzband/pip-tools/issues/1577
+kombu[sqs]>=5.4,<5.5  # https://github.com/jazzband/pip-tools/issues/1577
 limits
 linehaul
 lxml
@@ -36,6 +36,7 @@ packaging_legacy
 paginate>=0.5.2
 paginate_sqlalchemy
 passlib>=1.6.4
+platformdirs>=4.2
 premailer
 psycopg[c]
 pycurl
@@ -62,7 +63,7 @@ rfc3986
 sentry-sdk
 setuptools
 sigstore~=3.0.0
-pypi-attestations==0.0.8
+pypi-attestations==0.0.9
 sqlalchemy[asyncio]>=2.0,<3.0
 stdlib-list
 stripe

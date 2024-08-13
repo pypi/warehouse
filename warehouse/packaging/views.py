@@ -20,8 +20,7 @@ from warehouse.authnz import Permissions
 from warehouse.cache.origin import origin_cache
 from warehouse.observations.models import ObservationKind
 from warehouse.packaging.forms import SubmitMalwareObservationForm
-from warehouse.packaging.models import File, Project, Release, Role
-from warehouse.utils import readme
+from warehouse.packaging.models import Description, File, Project, Release, Role
 
 
 @view_config(
@@ -92,16 +91,13 @@ def release_detail(release, request):
     if project.name != request.matchdict.get("name", project.name):
         return HTTPMovedPermanently(request.current_route_path(name=project.name))
 
-    # Grab the rendered description if it exists, and if it doesn't, then we will render
-    # it inline.
-    # TODO: Remove the fallback to rendering inline and only support displaying the
-    #       already rendered content.
-    if release.description.html:
-        description = release.description.html
-    else:
-        description = readme.render(
-            release.description.raw, release.description.content_type
-        )
+    # Grab the rendered description
+    description_html = (
+        request.db.query(Description.html)
+        .filter(Description.id == release.description_id)
+        .one()
+        .html
+    )
 
     # Get all of the maintainers for this project.
     maintainers = [
@@ -149,7 +145,7 @@ def release_detail(release, request):
     return {
         "project": project,
         "release": release,
-        "description": description,
+        "description": description_html,
         "files": sdists + bdists,
         "sdists": sdists,
         "bdists": bdists,

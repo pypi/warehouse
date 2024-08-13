@@ -266,6 +266,103 @@ class TestProject:
             key=lambda x: x[1],
         )
 
+    def test_acl_for_quarantined_project(self, db_session):
+        """
+        If a Project is quarantined, the Project ACL should disallow any modifications.
+        """
+        project = DBProjectFactory.create(lifecycle_status="quarantine-enter")
+        owner1 = DBRoleFactory.create(project=project)
+        owner2 = DBRoleFactory.create(project=project)
+        maintainer1 = DBRoleFactory.create(project=project, role_name="Maintainer")
+        maintainer2 = DBRoleFactory.create(project=project, role_name="Maintainer")
+
+        organization = DBOrganizationFactory.create()
+        owner3 = DBOrganizationRoleFactory.create(organization=organization)
+        DBOrganizationProjectFactory.create(organization=organization, project=project)
+
+        team = DBTeamFactory.create()
+        owner4 = DBTeamRoleFactory.create(team=team)
+        DBTeamProjectRoleFactory.create(
+            team=team, project=project, role_name=TeamProjectRoleType.Owner
+        )
+
+        publisher = GitHubPublisherFactory.create(projects=[project])
+
+        acls = []
+        for location in lineage(project):
+            try:
+                acl = location.__acl__
+            except AttributeError:
+                continue
+
+            if acl and callable(acl):
+                acl = acl()
+
+            acls.extend(acl)
+
+        _perms_read_and_upload = [
+            Permissions.ProjectsRead,
+            Permissions.ProjectsUpload,
+        ]
+        assert acls == [
+            (
+                Allow,
+                "group:admins",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProhibitedProjectsWrite,
+                    Permissions.AdminProjectsDelete,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminProjectsWrite,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (
+                Allow,
+                "group:moderators",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (
+                Allow,
+                "group:observers",
+                Permissions.APIObservationsAdd,
+            ),
+            (
+                Allow,
+                Authenticated,
+                Permissions.SubmitMalwareObservation,
+            ),
+        ] + sorted(
+            [(Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload])],
+            key=lambda x: x[1],
+        ) + sorted(
+            [
+                (Allow, f"user:{owner1.user.id}", _perms_read_and_upload),
+                (Allow, f"user:{owner2.user.id}", _perms_read_and_upload),
+                (Allow, f"user:{owner3.user.id}", _perms_read_and_upload),
+                (Allow, f"user:{owner4.user.id}", _perms_read_and_upload),
+            ],
+            key=lambda x: x[1],
+        ) + sorted(
+            [
+                (Allow, f"user:{maintainer1.user.id}", _perms_read_and_upload),
+                (Allow, f"user:{maintainer2.user.id}", _perms_read_and_upload),
+            ],
+            key=lambda x: x[1],
+        )
+
     def test_repr(self, db_request):
         project = DBProjectFactory()
         assert isinstance(repr(project), str)
@@ -554,6 +651,47 @@ class TestRelease:
 
         # TODO: It'd be nice to test for the actual ordering here.
         assert dict(release.urls) == dict(expected)
+
+    @pytest.mark.parametrize(
+        "release_urls",
+        [
+            [
+                ("Issues", "https://github.com/org/user/issues", True),
+                ("Source", "https://github.com/org/user", True),
+                ("Homepage", "https://example.com/", False),
+                ("Download", "https://example.com/", False),
+            ],
+            [
+                ("Issues", "https://github.com/org/user/issues", True),
+                ("Source", "https://github.com/org/user", True),
+                ("Homepage", "https://homepage.com/", False),
+                ("Download", "https://download.com/", False),
+            ],
+            [
+                ("Issues", "https://github.com/org/user/issues", True),
+                ("Source", "https://github.com/org/user", True),
+                ("Homepage", "https://homepage.com/", True),
+                ("Download", "https://download.com/", True),
+            ],
+        ],
+    )
+    def test_urls_by_verify_status(self, db_session, release_urls):
+        release = DBReleaseFactory.create(
+            home_page="https://homepage.com", download_url="https://download.com"
+        )
+        for label, url, verified in release_urls:
+            db_session.add(
+                ReleaseURL(
+                    release=release,
+                    name=label,
+                    url=url,
+                    verified=verified,
+                )
+            )
+
+        for verified_status in [True, False]:
+            for label, url in release.urls_by_verify_status(verified_status).items():
+                assert (label, url, verified_status) in release_urls
 
     def test_acl(self, db_session):
         project = DBProjectFactory.create()

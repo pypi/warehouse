@@ -75,6 +75,12 @@
             Joined on {{ user.date_joined|format_date() }}
           </p>
           {% endif %}
+
+          {% if user.disabled_for %}
+          <p class="text-muted text-center">
+            Password disabled:<br>{{ user.disabled_for.value }}
+          </p>
+          {% endif %}
         </div>
 
         <div class="card-footer p-0">
@@ -111,14 +117,14 @@
             <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#nukeModal" {{ "disabled" if not perms_admin_users_write }}>
               <i class="icon fa fa-bomb"></i> Nuke user
             </button>
-            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#pwresetModal" {{ "disabled" if not perms_admin_users_account_recovery_write }}>
+            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#pwresetModal" {{ "disabled" if user.is_frozen or not perms_admin_users_account_recovery_write }}>
               <i class="fa-solid fa-unlock-keyhole"></i> Reset password
             </button>
             {% if not user.active_account_recoveries %}
-            <a href="{{ request.route_path('admin.user.account_recovery.initiate', username=user.username) }}" role="button" class="btn btn-block btn-danger" {{ "disabled" if not perms_admin_users_account_recovery_write }}>
+            <a href="{{ request.route_path('admin.user.account_recovery.initiate', username=user.username) }}" role="button" class="btn btn-block btn-danger {{ "disabled" if user.is_frozen or not perms_admin_users_account_recovery_write }}">
               <i class="fa-solid fa-recycle"></i> Start account recovery
             </a>
-            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#wipeFactorsModal" {{ "disabled" if not perms_admin_users_account_recovery_write }}>
+            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#wipeFactorsModal" {{ "disabled" if user.is_frozen or not perms_admin_users_account_recovery_write }}>
               <i class="fa-solid fa-toilet-paper"></i> Wipe 2FA and recovery codes
             </button>
             {% endif %}
@@ -312,7 +318,14 @@
                 </tr>
                 <tr>
                   <th>Token</th>
-                  <td>{{ account_recovery.payload["token"] }}</td>
+                  <td>
+                    <span>{{ account_recovery.payload["token"] }}</span>
+                    <button type="button"
+                            class="copy-text"
+                            data-copy-text="{{ account_recovery.payload["token"] }}">
+                      <i class="fa fa-copy" aria-hidden="true"></i>
+                    </button>
+                  </td>
                 </tr>
                 <tr>
                   <th>Project URLS</th>

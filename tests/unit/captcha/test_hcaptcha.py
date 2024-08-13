@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import pretend
+import pyramid_retry
 import pytest
 import requests
 import responses
@@ -118,6 +119,18 @@ class TestVerifyResponse:
             challenge_ts=None,
             hostname=None,
         )
+
+    def test_retries_on_timeout(self, monkeypatch):
+        service = hcaptcha.Service.create_service(
+            context=None,
+            request=_REQUEST,
+        )
+        monkeypatch.setattr(
+            service.request.http, "post", pretend.raiser(requests.Timeout)
+        )
+
+        with pytest.raises(pyramid_retry.RetryableException):
+            service.verify_response("meaningless")
 
     def test_unexpected_error(self, monkeypatch):
         service = hcaptcha.Service.create_service(

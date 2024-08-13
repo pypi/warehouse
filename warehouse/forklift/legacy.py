@@ -27,12 +27,18 @@ import packaging.specifiers
 import packaging.utils
 import packaging.version
 import packaging_legacy.version
+import rfc3986
 import sentry_sdk
 import wtforms
 import wtforms.validators
 
 from pydantic import TypeAdapter, ValidationError
-from pypi_attestations import Attestation, AttestationType, VerificationError
+from pypi_attestations import (
+    Attestation,
+    AttestationType,
+    Distribution,
+    VerificationError,
+)
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPException,
@@ -42,6 +48,7 @@ from pyramid.httpexceptions import (
     HTTPPermanentRedirect,
     HTTPTooManyRequests,
 )
+from pyramid.request import Request
 from pyramid.view import view_config
 from sigstore.verify import Verifier
 from sqlalchemy import and_, exists, func, orm
@@ -51,10 +58,7 @@ from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
-from warehouse.email import (
-    send_api_token_used_in_trusted_publisher_project_email,
-    send_two_factor_not_yet_enabled_email,
-)
+from warehouse.email import send_api_token_used_in_trusted_publisher_project_email
 from warehouse.events.tags import EventTag
 from warehouse.forklift import metadata
 from warehouse.forklift.forms import UploadForm, _filetype_extension_mapping
@@ -75,6 +79,7 @@ from warehouse.packaging.models import (
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
 from warehouse.rate_limiting.interfaces import RateLimiterException
 from warehouse.utils import readme
+from warehouse.utils.release import strip_keywords
 
 PATH_HASHER = "blake2_256"
 
@@ -87,6 +92,11 @@ COMPRESSION_RATIO_MIN_SIZE = 64 * ONE_MIB
 # See discussion here: https://github.com/pypi/warehouse/issues/13962
 COMPRESSION_RATIO_THRESHOLD = 50
 
+# SQS has a maximum total message length of 262144 bytes. In order to stay
+# under this when enqueuing a job to store BigQuery metadata, we truncate the
+# Description field to 40K bytes, which captures up to the 95th percentile of
+# existing descriptions.
+MAX_DESCRIPTION_LENGTH_TO_BIGQUERY = 40000
 
 # Wheel platform checking
 
@@ -367,7 +377,7 @@ def _is_duplicate_file(db_session, filename, hashes):
     return None
 
 
-def _process_attestations(request, artifact_path: Path):
+def _process_attestations(request, distribution: Distribution):
     """
     Process any attestations included in a file upload request
 
@@ -414,7 +424,7 @@ def _process_attestations(request, artifact_path: Path):
             predicate_type, _ = attestation_model.verify(
                 Verifier.production(),
                 verification_policy,
-                artifact_path,
+                distribution,
             )
         except VerificationError as e:
             # Log invalid (failed verification) attestation upload
@@ -426,7 +436,7 @@ def _process_attestations(request, artifact_path: Path):
             )
         except Exception as e:
             with sentry_sdk.push_scope() as scope:
-                scope.fingerprint = e
+                scope.fingerprint = [e]
                 sentry_sdk.capture_message(
                     f"Unexpected error while verifying attestation: {e}"
                 )
@@ -448,6 +458,82 @@ def _process_attestations(request, artifact_path: Path):
         # Log successful attestation upload
         metrics.increment("warehouse.upload.attestations.ok")
 
+
+def _verify_url(url: str, publisher_url: str | None) -> bool:
+    """
+    Verify a given URL against a Trusted Publisher URL
+
+    A URL is considered "verified" iff it matches the Trusted Publisher URL
+    such that, when both URLs are normalized:
+    - The scheme component is the same (e.g: both use `https`)
+    - The authority component is the same (e.g.: `github.com`)
+    - The path component is the same, or a sub-path of the Trusted Publisher URL
+      (e.g.: `org/project` and `org/project/issues.html` will pass verification
+      against an `org/project` Trusted Publisher path component)
+    - The path component of the Trusted Publisher URL is not empty
+    Note: We compare the authority component instead of the host component because
+    the authority includes the host, and in practice neither URL should have user
+    nor port information.
+    """
+    if not publisher_url:
+        return False
+
+    publisher_uri = rfc3986.api.uri_reference(publisher_url).normalize()
+    user_uri = rfc3986.api.uri_reference(url).normalize()
+    if publisher_uri.path is None:
+        # Currently no Trusted Publishers have an empty path component,
+        # so we defensively fail verification.
+        return False
+    elif user_uri.path and publisher_uri.path:
+        is_subpath = publisher_uri.path == user_uri.path or user_uri.path.startswith(
+            publisher_uri.path + "/"
+        )
+    else:
+        is_subpath = publisher_uri.path == user_uri.path
+
+    return (
+        publisher_uri.scheme == user_uri.scheme
+        and publisher_uri.authority == user_uri.authority
+        and is_subpath
+    )
+
+
+def _sort_releases(request: Request, project: Project):
+    releases = (
+        request.db.query(Release)
+        .filter(Release.project == project)
+        .options(
+            orm.load_only(
+                Release.project_id,
+                Release.version,
+                Release._pypi_ordering,
+            )
+        )
+        .all()
+    )
+    for i, r in enumerate(
+        sorted(releases, key=lambda x: packaging_legacy.version.parse(x.version))
+    ):
+        # NOTE: If we set r._pypi_ordering, even to the same value it was
+        #       previously, then SQLAlchemy will decide that it needs to load
+        #       Release.description (with N+1 queries) for some reason that I
+        #       can't possibly fathom why. The SQLAlchemy docs say that
+        #       raisedload doesn't prevent SQLAlchemy for doing queries that it
+        #       needs to do for the Unit of Work pattern, so I guess since each
+        #       Release object was modified it feels the need to load each of
+        #       them... but I haven no idea why that means it feels the need to
+        #       load the Release.description relationship as well.
+        #
+        #       Technically, we can still execute a query for every release if
+        #       someone goes back and releases a version "0" or something that
+        #       would cause most or all of the releases to need to "shift" and
+        #       get updated.
+        #
+        #       We maybe want to convert this away from using the ORM and build up
+        #       a mapping of Release.id -> new _pypi_ordering and do a single bulk
+        #       update query to eliminate the possibility we trigger this again.
+        if r._pypi_ordering != i:
+            r._pypi_ordering = i
 
 def _get_release_classifiers(db_session, classifiers_data):
     """
@@ -537,6 +623,19 @@ def file_upload(request):
                 ).format(
                     request.user.username,
                     project_help=request.help_url(_anchor="verified-email"),
+                ),
+            ) from None
+        # Ensure user has enabled 2FA before they can upload a file.
+        if not request.user.has_two_factor:
+            raise _exc_with_message(
+                HTTPBadRequest,
+                (
+                    "User {!r} does not have two-factor authentication enabled. "
+                    "Please enable two-factor authentication before attempting to "
+                    "upload to PyPI. See {project_help} for more information."
+                ).format(
+                    request.user.username,
+                    project_help=request.help_url(_anchor="two-factor-authentication"),
                 ),
             ) from None
 
@@ -807,7 +906,23 @@ def file_upload(request):
     # Determine if this is a draft release or a published one
     release_is_draft = bool(request.headers.get("Is-Draft", False))
 
+    # Verify any verifiable URLs
+    publisher_base_url = (
+        request.oidc_publisher.publisher_base_url if request.oidc_publisher else None
+    )
+    project_urls = (
+        {}
+        if not meta.project_urls
+        else {
+            name: {
+                "url": url,
+                "verified": _verify_url(url=url, publisher_url=publisher_base_url),
+            }
+            for name, url in meta.project_urls.items()
+        }
+    )
     try:
+        is_new_release = False
         release = (
             request.db.query(Release)
             .filter(
@@ -858,7 +973,7 @@ def file_upload(request):
                 html=rendered or "",
                 rendered_by=readme.renderer_version(),
             ),
-            project_urls=meta.project_urls or {},
+            project_urls=project_urls,
             # TODO: Fix this, we currently treat platform as if it is a single
             #       use field, but in reality it is a multi-use field, which the
             #       packaging.metadata library handles correctly.
@@ -870,6 +985,7 @@ def file_upload(request):
             #       which we now go and turn it back into a string, we should fix
             #       this and store this as a list.
             keywords=", ".join(meta.keywords) if meta.keywords else None,
+            keywords_array=(strip_keywords(meta.keywords) if meta.keywords else None),
             requires_python=str(meta.requires_python) if meta.requires_python else None,
             # Since dynamic field values are RFC 822 email headers, which are
             # case-insensitive, normalize them to title-case so we don't have
@@ -882,6 +998,7 @@ def file_upload(request):
             published=None if release_is_draft else datetime.now(tz=timezone.utc),
         )
         request.db.add(release)
+        is_new_release = True
 
         # TODO: This should be handled by some sort of database trigger or
         #       a SQLAlchemy hook or the like instead of doing it inline in
@@ -946,21 +1063,10 @@ def file_upload(request):
                 if field_value:
                     setattr(release, field, field_value)
 
-    # TODO: We need a better solution to this than to just do it inline inside
-    #       this method. Ideally the version field would just be sortable, but
-    #       at least this should be some sort of hook or trigger.
-    releases = (
-        request.db.query(Release)
-        .filter(Release.project == project)
-        .options(
-            orm.load_only(Release.project_id, Release.version, Release._pypi_ordering)
-        )
-        .all()
-    )
-    for i, r in enumerate(
-        sorted(releases, key=lambda x: packaging_legacy.version.parse(x.version))
-    ):
-        r._pypi_ordering = i
+        # TODO: We need a better solution to this than to just do it inline inside
+        #       this method. Ideally the version field would just be sortable, but
+        #       at least this should be some sort of hook or trigger.
+        _sort_releases(request, project)
 
     # Pull the filename out of our POST data.
     filename = request.POST["content"].filename
@@ -1226,7 +1332,8 @@ def file_upload(request):
 
         if "attestations" in request.POST:
             _process_attestations(
-                request=request, artifact_path=Path(temporary_filename)
+                request=request,
+                distribution=Distribution(name=filename, digest=file_hashes["sha256"]),
             )
 
         # TODO: This should be handled by some sort of database trigger or a
@@ -1335,10 +1442,18 @@ def file_upload(request):
                 },
             )
 
-    # Check if the user has any 2FA methods enabled, and if not, email them.
-    if request.user and not request.user.has_two_factor:
-        warnings.append("Two factor authentication is not enabled for your account.")
-        send_two_factor_not_yet_enabled_email(request, request.user)
+    # For existing releases, we check if any of the existing project URLs are unverified
+    # and have been verified in the current upload. In that case, we mark them as
+    # verified.
+    if not is_new_release and project_urls:
+        for name, release_url in release._project_urls.items():
+            if (
+                not release_url.verified
+                and name in project_urls
+                and project_urls[name]["url"] == release_url.url
+                and project_urls[name]["verified"]
+            ):
+                release_url.verified = True
 
     request.db.flush()  # flush db now so server default values are populated for celery
 
@@ -1348,7 +1463,11 @@ def file_upload(request):
         "name": meta.name,
         "version": str(meta.version),
         "summary": meta.summary,
-        "description": meta.description,
+        "description": (
+            meta.description[:MAX_DESCRIPTION_LENGTH_TO_BIGQUERY]
+            if meta.description is not None
+            else None
+        ),
         "author": meta.author,
         "description_content_type": meta.description_content_type,
         "author_email": meta.author_email,

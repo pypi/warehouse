@@ -17,7 +17,6 @@ import uuid
 
 import humanize
 import pytz
-import sentry_sdk
 
 from first import first
 from pyramid.httpexceptions import (
@@ -819,18 +818,6 @@ def reset_password(request, _form_class=ResetPasswordForm):
     if not last_login.tzinfo:
         last_login = pytz.UTC.localize(last_login)
     if user.last_login and user.last_login > last_login:
-        sentry_sdk.set_context(
-            "user",
-            {
-                "username": user.username,
-                "last_login": user.last_login,
-                "token_last_login": last_login,
-            },
-        )
-        sentry_sdk.capture_message(
-            f"Password reset token used after user logged in for {user.username}",
-            level="warning",
-        )
         return _error(
             request._(
                 "Invalid token: user has logged in since this token was requested"

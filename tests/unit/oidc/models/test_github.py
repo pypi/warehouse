@@ -20,17 +20,80 @@ from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.models import _core, github
 
 
+@pytest.mark.parametrize(
+    ("workflow_ref", "expected"),
+    [
+        # Well-formed workflow refs, including exceedingly obnoxious ones
+        # with `@` or extra suffixes or `git` refs that look like workflows.
+        ("foo/bar/.github/workflows/basic.yml@refs/heads/main", "basic.yml"),
+        ("foo/bar/.github/workflows/basic.yaml@refs/heads/main", "basic.yaml"),
+        ("foo/bar/.github/workflows/has-dash.yml@refs/heads/main", "has-dash.yml"),
+        (
+            "foo/bar/.github/workflows/has--dashes.yml@refs/heads/main",
+            "has--dashes.yml",
+        ),
+        (
+            "foo/bar/.github/workflows/has--dashes-.yml@refs/heads/main",
+            "has--dashes-.yml",
+        ),
+        ("foo/bar/.github/workflows/has.period.yml@refs/heads/main", "has.period.yml"),
+        (
+            "foo/bar/.github/workflows/has..periods.yml@refs/heads/main",
+            "has..periods.yml",
+        ),
+        (
+            "foo/bar/.github/workflows/has..periods..yml@refs/heads/main",
+            "has..periods..yml",
+        ),
+        (
+            "foo/bar/.github/workflows/has_underscore.yml@refs/heads/main",
+            "has_underscore.yml",
+        ),
+        (
+            "foo/bar/.github/workflows/nested@evil.yml@refs/heads/main",
+            "nested@evil.yml",
+        ),
+        (
+            "foo/bar/.github/workflows/nested.yml@evil.yml@refs/heads/main",
+            "nested.yml@evil.yml",
+        ),
+        (
+            "foo/bar/.github/workflows/extra@nested.yml@evil.yml@refs/heads/main",
+            "extra@nested.yml@evil.yml",
+        ),
+        (
+            "foo/bar/.github/workflows/extra.yml@nested.yml@evil.yml@refs/heads/main",
+            "extra.yml@nested.yml@evil.yml",
+        ),
+        (
+            "foo/bar/.github/workflows/basic.yml@refs/heads/misleading@branch.yml",
+            "basic.yml",
+        ),
+        (
+            "foo/bar/.github/workflows/basic.yml@refs/heads/bad@branch@twomatches.yml",
+            "basic.yml",
+        ),
+        ("foo/bar/.github/workflows/foo.yml.yml@refs/heads/main", "foo.yml.yml"),
+        (
+            "foo/bar/.github/workflows/foo.yml.foo.yml@refs/heads/main",
+            "foo.yml.foo.yml",
+        ),
+        # Malformed workflow refs.
+        ("foo/bar/.github/workflows/basic.wrongsuffix@refs/heads/main", None),
+        ("foo/bar/.github/workflows/@refs/heads/main", None),
+        ("foo/bar/.github/workflows/nosuffix@refs/heads/main", None),
+        ("foo/bar/.github/workflows/.yml@refs/heads/main", None),
+        ("foo/bar/.github/workflows/.yaml@refs/heads/main", None),
+        ("foo/bar/.github/workflows/main.yml", None),
+    ],
+)
+def test_extract_workflow_filename(workflow_ref, expected):
+    assert github._extract_workflow_filename(workflow_ref) == expected
+
+
 @pytest.mark.parametrize("claim", ["", "repo", "repo:"])
 def test_check_sub(claim):
     assert github._check_sub(pretend.stub(), claim, pretend.stub()) is False
-
-
-def test_lookup_strategies():
-    assert (
-        len(github.GitHubPublisher.__lookup_strategies__)
-        == len(github.PendingGitHubPublisher.__lookup_strategies__)
-        == 2
-    )
 
 
 class TestGitHubPublisher:
@@ -40,6 +103,68 @@ class TestGitHubPublisher:
             == len(github.PendingGitHubPublisher.__lookup_strategies__)
             == 2
         )
+
+    @pytest.mark.parametrize("environment", [None, "some_environment"])
+    def test_lookup_fails_invalid_workflow_ref(self, environment):
+        signed_claims = {
+            "repository": "foo/bar",
+            "job_workflow_ref": ("foo/bar/.github/workflows/.yml@refs/heads/main"),
+            "repository_owner_id": "1234",
+        }
+
+        if environment:
+            signed_claims["environment"] = environment
+
+        # The `job_workflow_ref` is malformed, so no queries are performed.
+        with pytest.raises(
+            errors.InvalidPublisherError, match="All lookup strategies exhausted"
+        ):
+            github.GitHubPublisher.lookup_by_claims(pretend.stub(), signed_claims)
+
+    @pytest.mark.parametrize("environment", ["", "some_environment"])
+    @pytest.mark.parametrize(
+        ("workflow_a", "workflow_b"),
+        [
+            ("release-pypi.yml", "release_pypi.yml"),
+            ("release%pypi.yml", "release-pypi.yml"),
+        ],
+    )
+    def test_lookup_escapes(self, db_request, environment, workflow_a, workflow_b):
+        GitHubPublisherFactory(
+            id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            repository_owner="foo",
+            repository_name="bar",
+            repository_owner_id="1234",
+            workflow_filename=workflow_a,
+            environment=environment,
+        )
+        GitHubPublisherFactory(
+            id="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+            repository_owner="foo",
+            repository_name="bar",
+            repository_owner_id="1234",
+            workflow_filename=workflow_b,
+            environment=environment,
+        )
+
+        for workflow in (workflow_a, workflow_b):
+            signed_claims = {
+                "repository": "foo/bar",
+                "job_workflow_ref": (
+                    f"foo/bar/.github/workflows/{workflow}@refs/heads/main"
+                ),
+                "repository_owner_id": "1234",
+            }
+
+            if environment:
+                signed_claims["environment"] = environment
+
+            assert (
+                github.GitHubPublisher.lookup_by_claims(
+                    db_request.db, signed_claims
+                ).workflow_filename
+                == workflow
+            )
 
     def test_github_publisher_all_known_claims(self):
         assert github.GitHubPublisher.all_known_claims() == {
@@ -60,10 +185,10 @@ class TestGitHubPublisher:
             "nbf",
             "exp",
             "aud",
+            "jti",
             # unchecked claims
             "actor",
             "actor_id",
-            "jti",
             "run_id",
             "run_number",
             "run_attempt",
@@ -97,6 +222,7 @@ class TestGitHubPublisher:
             assert getattr(publisher, claim_name) is not None
 
         assert str(publisher) == "fakeworkflow.yml"
+        assert publisher.publisher_base_url == "https://github.com/fakeowner/fakerepo"
         assert publisher.publisher_url() == "https://github.com/fakeowner/fakerepo"
         assert (
             publisher.publisher_url({"sha": "somesha"})
@@ -134,7 +260,9 @@ class TestGitHubPublisher:
         signed_claims["fake-claim"] = "fake"
         signed_claims["another-fake-claim"] = "also-fake"
         with pytest.raises(errors.InvalidPublisherError) as e:
-            publisher.verify_claims(signed_claims=signed_claims)
+            publisher.verify_claims(
+                signed_claims=signed_claims, publisher_service=pretend.stub()
+            )
         assert str(e.value) == "Check failed for required claim 'sub'"
         assert sentry_sdk.capture_message.calls == [
             pretend.call(
@@ -173,7 +301,9 @@ class TestGitHubPublisher:
         assert missing not in signed_claims
         assert publisher.__required_verifiable_claims__
         with pytest.raises(errors.InvalidPublisherError) as e:
-            publisher.verify_claims(signed_claims=signed_claims)
+            publisher.verify_claims(
+                signed_claims=signed_claims, publisher_service=pretend.stub()
+            )
         assert str(e.value) == f"Missing claim {missing!r}"
         assert sentry_sdk.capture_message.calls == [
             pretend.call(f"JWT for GitHubPublisher is missing claim: {missing}")
@@ -192,6 +322,10 @@ class TestGitHubPublisher:
         sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
         monkeypatch.setattr(_core, "sentry_sdk", sentry_sdk)
 
+        service_ = pretend.stub(
+            jwt_identifier_exists=pretend.call_recorder(lambda s: False),
+        )
+
         signed_claims = {
             claim_name: getattr(publisher, claim_name)
             for claim_name in github.GitHubPublisher.__required_verifiable_claims__
@@ -201,7 +335,9 @@ class TestGitHubPublisher:
         signed_claims["job_workflow_ref"] = publisher.job_workflow_ref + "@ref"
         assert publisher.__required_verifiable_claims__
         with pytest.raises(errors.InvalidPublisherError) as e:
-            publisher.verify_claims(signed_claims=signed_claims)
+            publisher.verify_claims(
+                signed_claims=signed_claims, publisher_service=service_
+            )
         assert str(e.value) == "Check failed for optional claim 'environment'"
         assert sentry_sdk.capture_message.calls == []
 
@@ -219,7 +355,7 @@ class TestGitHubPublisher:
             environment=environment,
         )
 
-        noop_check = pretend.call_recorder(lambda gt, sc, ac: True)
+        noop_check = pretend.call_recorder(lambda gt, sc, ac, **kwargs: True)
         verifiable_claims = {
             claim_name: noop_check
             for claim_name in publisher.__required_verifiable_claims__
@@ -240,7 +376,9 @@ class TestGitHubPublisher:
             for claim_name in github.GitHubPublisher.all_known_claims()
             if claim_name not in missing_claims
         }
-        assert publisher.verify_claims(signed_claims=signed_claims)
+        assert publisher.verify_claims(
+            signed_claims=signed_claims, publisher_service=pretend.stub()
+        )
         assert len(noop_check.calls) == len(verifiable_claims) + len(
             optional_verifiable_claims
         )

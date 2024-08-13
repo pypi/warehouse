@@ -25,6 +25,7 @@ import pytest
 
 from pypi_attestations import (
     Attestation,
+    Distribution,
     Envelope,
     VerificationError,
     VerificationMaterial,
@@ -57,6 +58,7 @@ from warehouse.packaging.models import (
     Project,
     ProjectMacaroonWarningAssociation,
     Release,
+    ReleaseURL,
     Role,
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
@@ -140,6 +142,27 @@ def test_construct_dependencies():
             assert dep.specifier == "spam>3"
         else:
             pytest.fail("Unknown type of specifier")
+
+
+@pytest.mark.parametrize(
+    "versions,expected",
+    [
+        (["1.0", "2.0", "3.0"], ["1.0", "2.0", "3.0"]),
+        (["1.0", "3.0", "2.0"], ["1.0", "2.0", "3.0"]),
+    ],
+)
+def test_sort_releases(db_request, versions, expected):
+    project = ProjectFactory.create()
+    releases = [
+        ReleaseFactory.create(project=project, version=v, _pypi_ordering=i)
+        for i, v in enumerate(versions)
+    ]
+
+    legacy._sort_releases(db_request, project)
+
+    assert [
+        r.version for r in sorted(releases, key=lambda r: r._pypi_ordering)
+    ] == expected
 
 
 class TestFileValidation:
@@ -431,8 +454,9 @@ class TestFileUpload:
     def test_fails_invalid_version(self, pyramid_config, pyramid_request, version):
         pyramid_request.POST["protocol_version"] = version
         pyramid_request.flags = pretend.stub(enabled=lambda *a: False)
+        pyramid_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
 
-        user = pretend.stub(primary_email=pretend.stub(verified=True))
+        user = UserFactory.create(with_verified_primary_email=True)
         pyramid_config.testing_securitypolicy(identity=user)
         pyramid_request.user = user
 
@@ -1038,6 +1062,7 @@ class TestFileUpload:
                 "pyversion": "source",
                 "content": content,
                 "description": "an example description",
+                "keywords": "keyword1, keyword2",
             }
         )
         db_request.POST.extend([("classifiers", "Environment :: Other Environment")])
@@ -1134,7 +1159,7 @@ class TestFileUpload:
                     "maintainer": None,
                     "maintainer_email": None,
                     "license": None,
-                    "keywords": None,
+                    "keywords": ["keyword1", "keyword2"],
                     "classifiers": ["Environment :: Other Environment"],
                     "platform": None,
                     "home_page": None,
@@ -3532,6 +3557,10 @@ class TestFileUpload:
         assert resp.status_code == 200
 
         assert len(verify.calls) == 1
+        verified_distribution = verify.calls[0].args[3]
+        assert verified_distribution == Distribution(
+            name=filename, digest=_TAR_GZ_PKG_SHA256
+        )
 
     def test_upload_with_invalid_attestation_predicate_type_fails(
         self,
@@ -3867,6 +3896,155 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status.startswith(expected_msg)
+
+    @pytest.mark.parametrize(
+        "url, expected",
+        [
+            ("https://google.com", False),  # Totally different
+            ("https://github.com/foo", False),  # Missing parts
+            ("https://github.com/foo/bar/", True),  # Exactly the same
+            ("https://github.com/foo/bar/readme.md", True),  # Additional parts
+            ("https://github.com/foo/bar", True),  # Missing trailing slash
+        ],
+    )
+    def test_new_release_url_verified(
+        self, monkeypatch, pyramid_config, db_request, metrics, url, expected
+    ):
+        project = ProjectFactory.create()
+        publisher = GitHubPublisherFactory.create(projects=[project])
+        publisher.repository_owner = "foo"
+        publisher.repository_name = "bar"
+        claims = {"sha": "somesha"}
+        identity = PublisherTokenContext(publisher, SignedClaims(claims))
+        db_request.oidc_publisher = identity.publisher
+        db_request.oidc_claims = identity.claims
+
+        db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
+        db_request.db.add(Classifier(classifier="Programming Language :: Python"))
+
+        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+
+        pyramid_config.testing_securitypolicy(identity=identity)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0",
+                "summary": "This is my summary!",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.POST.extend(
+            [
+                ("classifiers", "Environment :: Other Environment"),
+                ("classifiers", "Programming Language :: Python"),
+                ("requires_dist", "foo"),
+                ("requires_dist", "bar (>1.0)"),
+                ("project_urls", f"Test, {url}"),
+                ("requires_external", "Cheese (>1.0)"),
+                ("provides", "testing"),
+            ]
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+
+        legacy.file_upload(db_request)
+        release_url = (
+            db_request.db.query(ReleaseURL).filter(Release.project == project).one()
+        )
+        assert release_url is not None
+        assert release_url.verified == expected
+
+    def test_new_publisher_verifies_existing_release_url(
+        self,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        metrics,
+    ):
+        repo_name = "my_new_repo"
+        verified_url = "https://github.com/foo/bar"
+        unverified_url = f"https://github.com/foo/{repo_name}"
+
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        # We start with an existing release, with one verified URL and one unverified
+        # URL. Uploading a new file with a Trusted Publisher that matches the unverified
+        # URL should mark it as verified.
+        release.project_urls = {
+            "verified_url": {"url": verified_url, "verified": True},
+            "unverified_url": {"url": unverified_url, "verified": False},
+        }
+        publisher = GitHubPublisherFactory.create(projects=[project])
+        publisher.repository_owner = "foo"
+        publisher.repository_name = repo_name
+        claims = {"sha": "somesha"}
+        identity = PublisherTokenContext(publisher, SignedClaims(claims))
+        db_request.oidc_publisher = identity.publisher
+        db_request.oidc_claims = identity.claims
+
+        db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
+        db_request.db.add(Classifier(classifier="Programming Language :: Python"))
+
+        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+
+        pyramid_config.testing_securitypolicy(identity=identity)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0",
+                "summary": "This is my summary!",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.POST.extend(
+            [
+                ("classifiers", "Environment :: Other Environment"),
+                ("classifiers", "Programming Language :: Python"),
+                ("requires_dist", "foo"),
+                ("requires_dist", "bar (>1.0)"),
+                ("requires_external", "Cheese (>1.0)"),
+                ("provides", "testing"),
+            ]
+        )
+        db_request.POST.add("project_urls", f"verified_url, {verified_url}")
+        db_request.POST.add("project_urls", f"unverified_url, {unverified_url}")
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+
+        legacy.file_upload(db_request)
+
+        # After successful upload, the Release should have now both URLs verified
+        release_urls = (
+            db_request.db.query(ReleaseURL).filter(Release.project == project).all()
+        )
+        release_urls = {r.name: r.verified for r in release_urls}
+        assert "verified_url" in release_urls and "unverified_url" in release_urls
+        assert release_urls["verified_url"]
+        assert release_urls["unverified_url"]
 
     @pytest.mark.parametrize(
         "version, expected_version",
@@ -4308,11 +4486,10 @@ class TestFileUpload:
 
         assert resp.status_code == 200
 
-    def test_upload_succeeds_without_two_factor(
+    def test_upload_fails_without_two_factor(
         self, pyramid_config, db_request, metrics, project_service, monkeypatch
     ):
-        user = UserFactory.create(totp_secret=None)
-        EmailFactory.create(user=user)
+        user = UserFactory.create(totp_secret=None, with_verified_primary_email=True)
 
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -4338,19 +4515,23 @@ class TestFileUpload:
             IProjectService: project_service,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
 
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(legacy, "send_two_factor_not_yet_enabled_email", send_email)
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
 
-        resp = legacy.file_upload(db_request)
+        resp = excinfo.value
 
-        assert resp.status_code == 200
-        assert resp.body == (
-            b"Two factor authentication is not enabled for your account."
+        assert resp.status_code == 400
+        assert resp.status == (
+            (
+                "400 User {!r} does not have two-factor authentication enabled. "
+                "Please enable two-factor authentication before attempting to "
+                "upload to PyPI. See /the/help/url/ for more information."
+            ).format(user.username)
         )
-
-        assert send_email.calls == [
-            pretend.call(db_request, user),
+        assert db_request.help_url.calls == [
+            pretend.call(_anchor="two-factor-authentication")
         ]
 
     @pytest.mark.parametrize(
@@ -4674,3 +4855,86 @@ def test_missing_trailing_slash_redirect(pyramid_request):
         "/legacy/ (with a trailing slash)"
     )
     assert resp.headers["Location"] == "/legacy/"
+
+
+@pytest.mark.parametrize(
+    ("url", "publisher_url", "expected"),
+    [
+        (  # GitHub trivial case
+            "https://github.com/owner/project",
+            "https://github.com/owner/project",
+            True,
+        ),
+        (  # ActiveState trivial case
+            "https://platform.activestate.com/owner/project",
+            "https://platform.activestate.com/owner/project",
+            True,
+        ),
+        (  # GitLab trivial case
+            "https://gitlab.com/owner/project",
+            "https://gitlab.com/owner/project",
+            True,
+        ),
+        (  # URL is a sub-path of the TP URL
+            "https://github.com/owner/project/issues",
+            "https://github.com/owner/project",
+            True,
+        ),
+        (  # Normalization
+            "https://GiThUB.com/owner/project/",
+            "https://github.com/owner/project",
+            True,
+        ),
+        (  # TP URL is a prefix, but not a parent of the URL
+            "https://github.com/owner/project22",
+            "https://github.com/owner/project",
+            False,
+        ),
+        (  # URL is a parent of the TP URL
+            "https://github.com/owner",
+            "https://github.com/owner/project",
+            False,
+        ),
+        (  # Scheme component does not match
+            "http://github.com/owner/project",
+            "https://github.com/owner/project",
+            False,
+        ),
+        (  # Host component does not match
+            "https://gitlab.com/owner/project",
+            "https://github.com/owner/project",
+            False,
+        ),
+        (  # Host component matches, but contains user and port info
+            "https://user@github.com:443/owner/project",
+            "https://github.com/owner/project",
+            False,
+        ),
+        (  # URL path component is empty
+            "https://github.com",
+            "https://github.com/owner/project",
+            False,
+        ),
+        (  # TP URL path component is empty
+            # (currently no TPs have an empty path, so even if the given URL is a
+            # sub-path of the TP URL, we fail the verification)
+            "https://github.com/owner/project",
+            "https://github.com",
+            False,
+        ),
+        (  # Both path components are empty
+            # (currently no TPs have an empty path, so even if the given URL is the
+            # same as the TP URL, we fail the verification)
+            "https://github.com",
+            "https://github.com",
+            False,
+        ),
+        (  # Publisher URL is None
+            "https://github.com/owner/project",
+            None,
+            False,
+        ),
+    ],
+)
+def test_verify_url(url, publisher_url, expected):
+    assert legacy._verify_url(url, publisher_url) == expected

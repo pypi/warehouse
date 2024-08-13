@@ -49,10 +49,10 @@ Changes to XMLRPC API
   incident <https://status.python.org/incidents/grk0k7sz6zkp>`_.
 
 - ``package_releases`` As Warehouse does not support the concept of hidden
-  releases, the `show_hidden` flag now controls whether the latest version or
+  releases, the ``show_hidden`` flag now controls whether the latest version or
   all versions are returned.
 
-- ``release_data`` The `stable_version` flag is always an empty string. It was
+- ``release_data`` The ``stable_version`` flag is always an empty string. It was
   never fully supported anyway.
 
 - ``release_downloads`` and ``top_packages`` No longer supported. Use
@@ -81,7 +81,7 @@ Retrieve the last event's serial id (an ``int``).
 ``changelog_since_serial(since_serial)``
 ++++++++++++++++++++++++++++++++++++++++
 
-Retrieve a list of `(name, version, timestamp, action, serial)` since the
+Retrieve a list of ``(name, version, timestamp, action, serial)`` since the
 event identified by the given ``since_serial``. All timestamps are UTC
 values.
 
@@ -98,20 +98,20 @@ Package querying
 ``package_roles(package_name)``
 +++++++++++++++++++++++++++++++
 
-Retrieve a list of `[role, user]` for a given `package_name`.
-Role is either `Maintainer` or `Owner`.
+Retrieve a list of ``[role, user]`` for a given ``package_name``.
+Role is either ``Maintainer`` or ``Owner``.
 
 ``user_packages(user)``
 +++++++++++++++++++++++
 
-Retrieve a list of `[role, package_name]` for a given `user`.
-Role is either `Maintainer` or `Owner`.
+Retrieve a list of ``[role, package_name]`` for a given ``user``.
+Role is either ``Maintainer`` or ``Owner``.
 
 ``browse(classifiers)``
 +++++++++++++++++++++++
 
-Retrieve a list of `[name, version]` of all releases classified with all of
-the given classifiers. `classifiers` must be a list of Trove classifier
+Retrieve a list of ``[name, version]`` of all releases classified with all of
+the given classifiers. ``classifiers`` must be a list of Trove classifier
 strings.
 
 ``updated_releases(since)``
@@ -143,10 +143,10 @@ Returns a list of name strings.
 .. warning::
   Migrate to using the :doc:`json`.
 
-Retrieve a list of the releases registered for the given `package_name`,
+Retrieve a list of the releases registered for the given ``package_name``,
 ordered by version.
 
-If `show_hidden` is `False` (the default), only the latest version is
+If ``show_hidden`` is ``False`` (the default), only the latest version is
 returned.  Otherwise, all versions are returned.
 
 ``release_urls(package_name, release_version)``
@@ -155,7 +155,7 @@ returned.  Otherwise, all versions are returned.
 .. warning::
   Migrate to using the :doc:`json`.
 
-Retrieve a list of download URLs for the given `release_version`.
+Retrieve a list of download URLs for the given ``release_version``.
 Returns a list of dicts with the following keys:
 
 * filename
@@ -176,7 +176,7 @@ Returns a list of dicts with the following keys:
 .. warning::
   Migrate to using the :doc:`json`.
 
-Retrieve metadata describing a specific `release_version`.
+Retrieve metadata describing a specific ``release_version``.
 Returns a dict with keys for:
 
 * name
@@ -219,7 +219,7 @@ Deprecated Methods
 
 .. warning::
   The following methods are permanently deprecated and will return a
-  `RuntimeError`
+  ``RuntimeError``
 
 ``changelog(since, with_ids=False)``
 ++++++++++++++++++++++++++++++++++++
