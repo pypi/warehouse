@@ -225,9 +225,6 @@ def latest_release_factory(request):
             contains_eager(Release.project),
             contains_eager(Release._project_urls),
             joinedload(Release._requires_dist),
-            joinedload(Release.description).load_only(
-                Description.content_type, Description.raw
-            ),
         )
         .filter(Release.id == latest.id)
         .one()
@@ -286,9 +283,6 @@ def release_factory(request):
             contains_eager(Release.project),
             contains_eager(Release._project_urls),
             joinedload(Release._requires_dist),
-            joinedload(Release.description).load_only(
-                Description.content_type, Description.raw
-            ),
         )
         .filter(Project.normalized_name == normalized_name)
         # Exclude projects in quarantine.
