@@ -222,6 +222,7 @@ class TestGitHubPublisher:
             assert getattr(publisher, claim_name) is not None
 
         assert str(publisher) == "fakeworkflow.yml"
+        assert publisher.publisher_base_url == "https://github.com/fakeowner/fakerepo"
         assert publisher.publisher_url() == "https://github.com/fakeowner/fakerepo"
         assert (
             publisher.publisher_url({"sha": "somesha"})
