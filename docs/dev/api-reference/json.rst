@@ -87,6 +87,9 @@ Project
                     "last_month": -1,
                     "last_week": -1
                 },
+                "dynamic": [
+                    "requires_dist"
+                ],
                 "home_page": "",
                 "keywords": "sample,setuptools,development",
                 "license": "...",
@@ -103,6 +106,10 @@ Project
                     "Say Thanks!": "http://saythanks.io/to/example",
                     "Source": "https://github.com/pypa/sampleproject/"
                 },
+                "provides_extra": [
+                    "dev",
+                    "test"
+                ],
                 "release_url": "https://pypi.org/project/sampleproject/3.0.0/",
                 "requires_dist": [
                     "peppercorn",
