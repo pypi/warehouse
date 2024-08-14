@@ -526,13 +526,11 @@ def _verify_url(
         project_normalized_name=project_normalized_name,
     ):
         return True
-        
+
     if not publisher_url:
         return False
 
-    return _verify_url_with_trusted_publisher(
-        url=url, publisher_url=publisher_url
-    )
+    return _verify_url_with_trusted_publisher(url=url, publisher_url=publisher_url)
 
 
 def _sort_releases(request: Request, project: Project):
