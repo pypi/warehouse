@@ -481,7 +481,7 @@ def _verify_url_pypi(url: str, project_name: str, project_normalized_name: str) 
     )
 
 
-def _verify_url_with_trusted_publisher(url: str, publisher_url: str | None) -> bool:
+def _verify_url_with_trusted_publisher(url: str, publisher_url: str) -> bool:
     """
     Verify a given URL against a Trusted Publisher URL
 
@@ -497,9 +497,6 @@ def _verify_url_with_trusted_publisher(url: str, publisher_url: str | None) -> b
     the authority includes the host, and in practice neither URL should have user
     nor port information.
     """
-    if not publisher_url:
-        return False
-
     publisher_uri = rfc3986.api.uri_reference(publisher_url).normalize()
     user_uri = rfc3986.api.uri_reference(url).normalize()
     if publisher_uri.path is None:
@@ -518,6 +515,23 @@ def _verify_url_with_trusted_publisher(url: str, publisher_url: str | None) -> b
         and publisher_uri.authority == user_uri.authority
         and is_subpath
     )
+
+
+def _verify_url(
+    url: str, publisher_url: str | None, project_name: str, project_normalized_name: str
+) -> bool:
+    is_verified_pypi = _verify_url_pypi(
+        url=url,
+        project_name=project_name,
+        project_normalized_name=project_normalized_name,
+    )
+
+    if publisher_url:
+        return is_verified_pypi or _verify_url_with_trusted_publisher(
+            url=url, publisher_url=publisher_url
+        )
+    else:
+        return is_verified_pypi
 
 
 def _sort_releases(request: Request, project: Project):
@@ -890,12 +904,9 @@ def file_upload(request):
         else {
             name: {
                 "url": url,
-                "verified": _verify_url_with_trusted_publisher(
+                "verified": _verify_url(
                     url=url,
                     publisher_url=publisher_base_url,
-                )
-                or _verify_url_pypi(
-                    url=url,
                     project_name=project.name,
                     project_normalized_name=project.normalized_name,
                 ),

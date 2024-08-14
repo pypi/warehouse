@@ -4864,11 +4864,6 @@ def test_missing_trailing_slash_redirect(pyramid_request):
             "https://github.com",
             False,
         ),
-        (  # Publisher URL is None
-            "https://github.com/owner/project",
-            None,
-            False,
-        ),
     ],
 )
 def test_verify_url_with_trusted_publisher(url, publisher_url, expected):
