@@ -457,7 +457,31 @@ def _process_attestations(request, distribution: Distribution):
         metrics.increment("warehouse.upload.attestations.ok")
 
 
-def _verify_url(url: str, publisher_url: str | None) -> bool:
+_pypi_project_urls = [
+    "https://pypi.org/project/",
+    "https://pypi.org/p/",
+    "https://pypi.python.org/project/",
+    "https://pypi.python.org/p/",
+    "https://python.org/pypi/",
+]
+
+
+def _verify_url_pypi(url: str, project_name: str, project_normalized_name: str) -> bool:
+    candidate_urls = (
+        f"{pypi_project_url}{name}{optional_slash}"
+        for pypi_project_url in _pypi_project_urls
+        for name in {project_name, project_normalized_name}
+        for optional_slash in ["/", ""]
+    )
+
+    user_uri = rfc3986.api.uri_reference(url).normalize()
+    return any(
+        user_uri == rfc3986.api.uri_reference(candidate_url).normalize()
+        for candidate_url in candidate_urls
+    )
+
+
+def _verify_url_with_trusted_publisher(url: str, publisher_url: str | None) -> bool:
     """
     Verify a given URL against a Trusted Publisher URL
 
@@ -866,7 +890,15 @@ def file_upload(request):
         else {
             name: {
                 "url": url,
-                "verified": _verify_url(url=url, publisher_url=publisher_base_url),
+                "verified": _verify_url_with_trusted_publisher(
+                    url=url,
+                    publisher_url=publisher_base_url,
+                )
+                or _verify_url_pypi(
+                    url=url,
+                    project_name=project.name,
+                    project_normalized_name=project.normalized_name,
+                ),
             }
             for name, url in meta.project_urls.items()
         }
