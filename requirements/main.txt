@@ -1406,9 +1406,9 @@ nh3==0.2.18 \
     --hash=sha256:de3ceed6e661954871d6cd78b410213bdcb136f79aafe22aa7182e028b8c7307 \
     --hash=sha256:f0eca9ca8628dbb4e916ae2491d72957fdd35f7a5d326b7032a345f111ac07fe
     # via readme-renderer
-openapi-core==0.19.2 \
-    --hash=sha256:b05f81031cc5b14f3a90b02f955d2ec756ccd5fba4f4e80bc4362520dac679a4 \
-    --hash=sha256:db4e13dd3162d861d9485ae804f350586d9fd1d72808cdb264d6993d9b5ede3f
+openapi-core==0.19.3 \
+    --hash=sha256:5db6479ecccf76c52422961dc42b411b7625a802087d847251fdd66f0392b095 \
+    --hash=sha256:88c8be49b083a39923ada4c1269919ba119ab617c951f901757a054a483988b0
     # via pyramid-openapi3
 openapi-schema-validator==0.6.2 \
     --hash=sha256:11a95c9c9017912964e3e5f2545a5b11c3814880681fcacfb73b1759bb4f2804 \
@@ -2076,9 +2076,9 @@ securesystemslib==1.1.0 \
     --hash=sha256:100bf04e60b260e1c7c51e3232647697fde2c5ca5772fda4932d841d3fb6dd0e \
     --hash=sha256:27143a8e04b5573636f260f21d7e26b48bcedcf394e6f74ec31e9a5287e0c38b
     # via tuf
-sentry-sdk==2.12.0 \
-    --hash=sha256:7a8d5163d2ba5c5f4464628c6b68f85e86972f7c636acc78aed45c61b98b7a5e \
-    --hash=sha256:8763840497b817d44c49b3fe3f5f7388d083f2337ffedf008b2cdb63b5c86dc6
+sentry-sdk==2.13.0 \
+    --hash=sha256:6beede8fc2ab4043da7f69d95534e320944690680dd9a963178a49de71d726c6 \
+    --hash=sha256:8d4a576f7a98eb2fdb40e13106e41f330e5c79d72a68be1316e7852cf4995260
     # via -r requirements/main.in
 sigstore==3.0.0 \
     --hash=sha256:6cc7dc92607c2fd481aada0f3c79e710e4c6086e3beab50b07daa9a50a79d109 \
@@ -2259,9 +2259,9 @@ webencodings==0.5.1 \
     --hash=sha256:a0af1213f3c2226497a97e2b3aa01a7e4bee4f403f95be16fc9acd2947514a78 \
     --hash=sha256:b36a1c245f2d304965eb4e0a82848379241dc04b865afcc4aab16748587e1923
     # via html5lib
-webob==1.8.7 \
-    --hash=sha256:73aae30359291c14fa3b956f8b5ca31960e420c28c1bec002547fb04928cf89b \
-    --hash=sha256:b64ef5141be559cfade448f044fa45c2260351edcb6a8ef6b7e00c7dcef0c323
+webob==1.8.8 \
+    --hash=sha256:2abc1555e118fc251e705fc6dc66c7f5353bb9fbfab6d20e22f1c02b4b71bcee \
+    --hash=sha256:b60ba63f05c0cf61e086a10c3781a41fcfe30027753a8ae6d819c77592ce83ea
     # via pyramid
 werkzeug==3.0.3 \
     --hash=sha256:097e5bfda9f0aba8da6b8545146def481d06aa7d3266e7448e2cccf67dd8bd18 \
