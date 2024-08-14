@@ -1096,7 +1096,9 @@ def file_upload(request):
                 # --skip-existing functionality in twine
                 # ref: https://github.com/pypi/warehouse/issues/3482
                 # ref: https://github.com/pypa/twine/issues/332
-                "File already exists. See "
+                "File already exists "
+                + f"({filename!r}, with blake2_256 hash {file_hashes['blake2_256']!r})."
+                + " See "
                 + request.help_url(_anchor="file-name-reuse")
                 + " for more information.",
             )
