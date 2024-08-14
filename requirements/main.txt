@@ -1406,9 +1406,9 @@ nh3==0.2.18 \
     --hash=sha256:de3ceed6e661954871d6cd78b410213bdcb136f79aafe22aa7182e028b8c7307 \
     --hash=sha256:f0eca9ca8628dbb4e916ae2491d72957fdd35f7a5d326b7032a345f111ac07fe
     # via readme-renderer
-openapi-core==0.19.2 \
-    --hash=sha256:b05f81031cc5b14f3a90b02f955d2ec756ccd5fba4f4e80bc4362520dac679a4 \
-    --hash=sha256:db4e13dd3162d861d9485ae804f350586d9fd1d72808cdb264d6993d9b5ede3f
+openapi-core==0.19.3 \
+    --hash=sha256:5db6479ecccf76c52422961dc42b411b7625a802087d847251fdd66f0392b095 \
+    --hash=sha256:88c8be49b083a39923ada4c1269919ba119ab617c951f901757a054a483988b0
     # via pyramid-openapi3
 openapi-schema-validator==0.6.2 \
     --hash=sha256:11a95c9c9017912964e3e5f2545a5b11c3814880681fcacfb73b1759bb4f2804 \
