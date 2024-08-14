@@ -4,9 +4,9 @@
 #
 #    pip-compile --allow-unsafe --generate-hashes --output-file=requirements/docs-dev.txt requirements/docs-dev.in
 #
-alabaster==0.7.16 \
-    --hash=sha256:75a8b99c28a5dad50dd7f8ccdd447a121ddb3892da9e53d1ca5cca3106d58d65 \
-    --hash=sha256:b46733c07dce03ae4e150330b975c75737fa60f0a7c591b6c8bf4928a28e2c92
+alabaster==1.0.0 \
+    --hash=sha256:c00dca57bca26fa62a6d7d0a9fcce65f3e026e9bfe33e9c538fd3fbb2144fd9e \
+    --hash=sha256:fc6786402dc3fcb2de3cabd5fe455a2db534b371124f1f21de8731783dec828b
     # via sphinx
 anyio==4.4.0 \
     --hash=sha256:5aadc6a1bbb7cdb0bede386cac5e2940f5e2ff3aa20277e991cf028e0585ce94 \
