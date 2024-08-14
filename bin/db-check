@@ -1,0 +1,6 @@
+#!/bin/bash
+set -e
+
+# Check for outstanding database migrations
+python -m warehouse db upgrade head
+python -m warehouse db check
