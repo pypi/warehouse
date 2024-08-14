@@ -147,7 +147,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:570 warehouse/manage/views/__init__.py:872
+#: warehouse/accounts/views.py:569 warehouse/manage/views/__init__.py:872
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -280,8 +280,8 @@ msgstr ""
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/accounts/views.py:1557 warehouse/accounts/views.py:1800
-#: warehouse/manage/views/__init__.py:1249
+#: warehouse/accounts/views.py:1544 warehouse/accounts/views.py:1787
+#: warehouse/manage/views/__init__.py:1251
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help"
 "#admin-intervention for details."
@@ -301,20 +301,19 @@ msgstr ""
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1284
-#: warehouse/manage/views/__init__.py:1397
-#: warehouse/manage/views/__init__.py:1509
-#: warehouse/manage/views/__init__.py:1619
+#: warehouse/accounts/views.py:1610 warehouse/manage/views/__init__.py:1306
+#: warehouse/manage/views/__init__.py:1419
+#: warehouse/manage/views/__init__.py:1531
+#: warehouse/manage/views/__init__.py:1641
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:1634 warehouse/manage/views/__init__.py:1298
-#: warehouse/manage/views/__init__.py:1411
-#: warehouse/manage/views/__init__.py:1523
-#: warehouse/manage/views/__init__.py:1633
-
+#: warehouse/accounts/views.py:1621 warehouse/manage/views/__init__.py:1320
+#: warehouse/manage/views/__init__.py:1433
+#: warehouse/manage/views/__init__.py:1545
+#: warehouse/manage/views/__init__.py:1655
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
@@ -452,101 +451,102 @@ msgstr ""
 msgid "Invalid credentials. Try again"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1265
+#: warehouse/manage/views/__init__.py:1287
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See "
 "https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1378
+#: warehouse/manage/views/__init__.py:1400
 msgid ""
 "GitLab-based trusted publishing is temporarily disabled. See "
 "https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1490
+#: warehouse/manage/views/__init__.py:1512
 msgid ""
 "Google-based trusted publishing is temporarily disabled. See "
 "https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1599
+#: warehouse/manage/views/__init__.py:1621
 msgid ""
 "ActiveState-based trusted publishing is temporarily disabled. See "
 "https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1834
-#: warehouse/manage/views/__init__.py:2210
-#: warehouse/manage/views/__init__.py:2318
+#: warehouse/manage/views/__init__.py:1856
+#: warehouse/manage/views/__init__.py:2232
+#: warehouse/manage/views/__init__.py:2340
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2041
-#: warehouse/manage/views/__init__.py:2126
-#: warehouse/manage/views/__init__.py:2227
-#: warehouse/manage/views/__init__.py:2327
+#: warehouse/manage/views/__init__.py:2063
+#: warehouse/manage/views/__init__.py:2148
+#: warehouse/manage/views/__init__.py:2249
+#: warehouse/manage/views/__init__.py:2349
 msgid "Confirm the request"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2053
+#: warehouse/manage/views/__init__.py:2075
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2138
+#: warehouse/manage/views/__init__.py:2160
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2239
+#: warehouse/manage/views/__init__.py:2261
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2339
+#: warehouse/manage/views/__init__.py:2361
 msgid "Could not find file"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2343
+#: warehouse/manage/views/__init__.py:2365
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2493
+#: warehouse/manage/views/__init__.py:2515
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2600
+#: warehouse/manage/views/__init__.py:2622
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2667
+#: warehouse/manage/views/__init__.py:2689
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2699
+#: warehouse/manage/views/__init__.py:2721
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2712
+#: warehouse/manage/views/__init__.py:2734
 #: warehouse/manage/views/organizations.py:878
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2777
+#: warehouse/manage/views/__init__.py:2799
 #: warehouse/manage/views/organizations.py:943
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2810
+#: warehouse/manage/views/__init__.py:2832
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2821
+#: warehouse/manage/views/__init__.py:2843
 msgid "Invitation already expired."
 msgstr ""
 
+#: warehouse/manage/views/__init__.py:2875
 #: warehouse/manage/views/organizations.py:1130
 msgid "Invitation revoked from '${username}'."
 msgstr ""
@@ -705,7 +705,7 @@ msgstr ""
 msgid "Provide an Inspector link to specific lines of code."
 msgstr ""
 
-#: warehouse/packaging/views.py:221
+#: warehouse/packaging/views.py:217
 msgid "Your report has been recorded. Thank you for your help."
 msgstr ""
 
@@ -788,8 +788,8 @@ msgstr ""
 #: warehouse/templates/manage/project/release.html:225
 #: warehouse/templates/manage/project/releases.html:169
 #: warehouse/templates/manage/project/releases.html:213
-#: warehouse/templates/packaging/detail.html:386
-#: warehouse/templates/packaging/detail.html:405
+#: warehouse/templates/packaging/detail.html:407
+#: warehouse/templates/packaging/detail.html:426
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:220
@@ -5893,12 +5893,12 @@ msgid "Back to projects"
 msgstr ""
 
 #: warehouse/templates/manage/project/manage_project_base.html:70
-#: warehouse/templates/packaging/detail.html:293
+#: warehouse/templates/packaging/detail.html:302
 msgid "This project has been quarantined."
 msgstr ""
 
 #: warehouse/templates/manage/project/manage_project_base.html:72
-#: warehouse/templates/packaging/detail.html:295
+#: warehouse/templates/packaging/detail.html:304
 msgid ""
 "PyPI Admins need to review this project before it can be restored. While "
 "in quarantine, the project is not installable by clients, and cannot be "
@@ -5906,7 +5906,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/project/manage_project_base.html:79
-#: warehouse/templates/packaging/detail.html:302
+#: warehouse/templates/packaging/detail.html:311
 #, python-format
 msgid ""
 "Read more in the <a href=\"%(href)s\">project in quarantine</a> help "
@@ -6772,115 +6772,119 @@ msgstr ""
 msgid "Draft version"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:179
+#: warehouse/templates/packaging/detail.html:178
+msgid "This project has been quarantined"
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:184
 msgid "This release has been yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:185
+#: warehouse/templates/packaging/detail.html:190
 #, python-format
 msgid "Stable version available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:189
+#: warehouse/templates/packaging/detail.html:194
 #, python-format
 msgid "Newer version available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:193
+#: warehouse/templates/packaging/detail.html:198
 msgid "Latest version"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:199
+#: warehouse/templates/packaging/detail.html:204
 #, python-format
 msgid "Released: %(release_date)s"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:214
+#: warehouse/templates/packaging/detail.html:219
 msgid "No project description provided"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:227
+#: warehouse/templates/packaging/detail.html:232
 msgid "Navigation"
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:228
-#: warehouse/templates/packaging/detail.html:262
-#, python-format
-msgid "Navigation for %(project)s"
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:231
-#: warehouse/templates/packaging/detail.html:265
-msgid "Project description. Focus will be moved to the description."
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:233
 #: warehouse/templates/packaging/detail.html:267
-#: warehouse/templates/packaging/detail.html:301
+#, python-format
+msgid "Navigation for %(project)s"
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:236
+#: warehouse/templates/packaging/detail.html:270
+msgid "Project description. Focus will be moved to the description."
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:238
+#: warehouse/templates/packaging/detail.html:272
+#: warehouse/templates/packaging/detail.html:322
 msgid "Project description"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:237
-#: warehouse/templates/packaging/detail.html:277
+#: warehouse/templates/packaging/detail.html:242
+#: warehouse/templates/packaging/detail.html:282
 msgid "Release history. Focus will be moved to the history panel."
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:239
-#: warehouse/templates/packaging/detail.html:279
-#: warehouse/templates/packaging/detail.html:323
-msgid "Release history"
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:244
 #: warehouse/templates/packaging/detail.html:284
+#: warehouse/templates/packaging/detail.html:344
+msgid "Release history"
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:249
+#: warehouse/templates/packaging/detail.html:289
 msgid "Download files. Focus will be moved to the project files."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:246
-#: warehouse/templates/packaging/detail.html:286
-#: warehouse/templates/packaging/detail.html:385
+#: warehouse/templates/packaging/detail.html:251
+#: warehouse/templates/packaging/detail.html:291
+#: warehouse/templates/packaging/detail.html:406
 msgid "Download files"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:271
+#: warehouse/templates/packaging/detail.html:276
 msgid "Project details. Focus will be moved to the project details."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:273
-#: warehouse/templates/packaging/detail.html:315
+#: warehouse/templates/packaging/detail.html:278
+#: warehouse/templates/packaging/detail.html:336
 msgid "Project details"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:297
-#: warehouse/templates/packaging/detail.html:372
+#: warehouse/templates/packaging/detail.html:318
+#: warehouse/templates/packaging/detail.html:393
 msgid "Reason this release was yanked:"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:308
+#: warehouse/templates/packaging/detail.html:329
 msgid "The author of this package has not provided a project description"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:325
+#: warehouse/templates/packaging/detail.html:346
 msgid "Release notifications"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:326
+#: warehouse/templates/packaging/detail.html:347
 msgid "RSS feed"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:338
+#: warehouse/templates/packaging/detail.html:359
 msgid "This version"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:358
+#: warehouse/templates/packaging/detail.html:379
 msgid "pre-release"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:363
+#: warehouse/templates/packaging/detail.html:384
 msgid "yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:386
+#: warehouse/templates/packaging/detail.html:407
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -6888,24 +6892,24 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">installing packages</a>."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:388
+#: warehouse/templates/packaging/detail.html:409
 msgid "Source Distribution"
 msgid_plural "Source Distributions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/packaging/detail.html:404
+#: warehouse/templates/packaging/detail.html:425
 msgid "No source distribution files available for this release."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:405
+#: warehouse/templates/packaging/detail.html:426
 #, python-format
 msgid ""
 "See tutorial on <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">generating distribution archives</a>."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:412
+#: warehouse/templates/packaging/detail.html:433
 msgid "Built Distribution"
 msgid_plural "Built Distributions"
 msgstr[0] ""
