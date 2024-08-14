@@ -4800,84 +4800,6 @@ def test_missing_trailing_slash_redirect(pyramid_request):
 
 
 @pytest.mark.parametrize(
-    ("url", "publisher_url", "expected"),
-    [
-        (  # GitHub trivial case
-            "https://github.com/owner/project",
-            "https://github.com/owner/project",
-            True,
-        ),
-        (  # ActiveState trivial case
-            "https://platform.activestate.com/owner/project",
-            "https://platform.activestate.com/owner/project",
-            True,
-        ),
-        (  # GitLab trivial case
-            "https://gitlab.com/owner/project",
-            "https://gitlab.com/owner/project",
-            True,
-        ),
-        (  # URL is a sub-path of the TP URL
-            "https://github.com/owner/project/issues",
-            "https://github.com/owner/project",
-            True,
-        ),
-        (  # Normalization
-            "https://GiThUB.com/owner/project/",
-            "https://github.com/owner/project",
-            True,
-        ),
-        (  # TP URL is a prefix, but not a parent of the URL
-            "https://github.com/owner/project22",
-            "https://github.com/owner/project",
-            False,
-        ),
-        (  # URL is a parent of the TP URL
-            "https://github.com/owner",
-            "https://github.com/owner/project",
-            False,
-        ),
-        (  # Scheme component does not match
-            "http://github.com/owner/project",
-            "https://github.com/owner/project",
-            False,
-        ),
-        (  # Host component does not match
-            "https://gitlab.com/owner/project",
-            "https://github.com/owner/project",
-            False,
-        ),
-        (  # Host component matches, but contains user and port info
-            "https://user@github.com:443/owner/project",
-            "https://github.com/owner/project",
-            False,
-        ),
-        (  # URL path component is empty
-            "https://github.com",
-            "https://github.com/owner/project",
-            False,
-        ),
-        (  # TP URL path component is empty
-            # (currently no TPs have an empty path, so even if the given URL is a
-            # sub-path of the TP URL, we fail the verification)
-            "https://github.com/owner/project",
-            "https://github.com",
-            False,
-        ),
-        (  # Both path components are empty
-            # (currently no TPs have an empty path, so even if the given URL is the
-            # same as the TP URL, we fail the verification)
-            "https://github.com",
-            "https://github.com",
-            False,
-        ),
-    ],
-)
-def test_verify_url_with_trusted_publisher(url, publisher_url, expected):
-    assert legacy._verify_url_with_trusted_publisher(url, publisher_url) == expected
-
-
-@pytest.mark.parametrize(
     ("url", "project_name", "project_normalized_name", "expected"),
     [
         (  # PyPI /project/ case
@@ -4992,24 +4914,27 @@ def test_verify_url_pypi(url, project_name, project_normalized_name, expected):
 
 def test_verify_url():
     # `_verify_url` is just a helper function that calls `_verify_url_pypi` and
-    # `_verify_url_with_trusted_publisher`, where the actual verification logic lives.
+    # `OIDCPublisher.verify_url`, where the actual verification logic lives.
+    publisher_verifies = pretend.stub(verify_url=lambda url: True)
+    publisher_fails = pretend.stub(verify_url=lambda url: False)
+
     assert legacy._verify_url(
         url="https://pypi.org/project/myproject/",
-        publisher_url=None,
+        publisher=None,
         project_name="myproject",
         project_normalized_name="myproject",
     )
 
     assert legacy._verify_url(
         url="https://github.com/org/myproject/issues",
-        publisher_url="https://github.com/org/myproject",
+        publisher=publisher_verifies,
         project_name="myproject",
         project_normalized_name="myproject",
     )
 
     assert not legacy._verify_url(
         url="example.com",
-        publisher_url="https://github.com/or/myproject",
+        publisher=publisher_fails,
         project_name="myproject",
         project_normalized_name="myproject",
     )
