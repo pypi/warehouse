@@ -4981,3 +4981,28 @@ def test_verify_url_pypi(url, project_name, project_normalized_name, expected):
     assert (
         legacy._verify_url_pypi(url, project_name, project_normalized_name) == expected
     )
+
+
+def test_verify_url():
+    # `_verify_url` is just a helper function that calls `_verify_url_pypi` and
+    # `_verify_url_with_trusted_publisher`, where the actual verification logic lives.
+    assert legacy._verify_url(
+        url="https://pypi.org/project/myproject/",
+        publisher_url=None,
+        project_name="myproject",
+        project_normalized_name="myproject",
+    )
+
+    assert legacy._verify_url(
+        url="https://github.com/org/myproject/issues",
+        publisher_url="https://github.com/org/myproject",
+        project_name="myproject",
+        project_normalized_name="myproject",
+    )
+
+    assert not legacy._verify_url(
+        url="example.com",
+        publisher_url="https://github.com/or/myproject",
+        project_name="myproject",
+        project_normalized_name="myproject",
+    )
