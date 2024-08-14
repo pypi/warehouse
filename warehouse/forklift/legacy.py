@@ -20,7 +20,6 @@ import zipfile
 
 from cgi import FieldStorage
 from datetime import datetime, timezone
-from pathlib import Path
 
 import packaging.requirements
 import packaging.specifiers
@@ -534,6 +533,7 @@ def _sort_releases(request: Request, project: Project):
         #       update query to eliminate the possibility we trigger this again.
         if r._pypi_ordering != i:
             r._pypi_ordering = i
+
 
 def _get_release_classifiers(db_session, classifiers_data):
     """
