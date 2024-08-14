@@ -520,18 +520,19 @@ def _verify_url_with_trusted_publisher(url: str, publisher_url: str) -> bool:
 def _verify_url(
     url: str, publisher_url: str | None, project_name: str, project_normalized_name: str
 ) -> bool:
-    is_verified_pypi = _verify_url_pypi(
+    if _verify_url_pypi(
         url=url,
         project_name=project_name,
         project_normalized_name=project_normalized_name,
-    )
+    ):
+        return True
+        
+    if not publisher_url:
+        return False
 
-    if publisher_url:
-        return is_verified_pypi or _verify_url_with_trusted_publisher(
-            url=url, publisher_url=publisher_url
-        )
-    else:
-        return is_verified_pypi
+    return _verify_url_with_trusted_publisher(
+        url=url, publisher_url=publisher_url
+    )
 
 
 def _sort_releases(request: Request, project: Project):
