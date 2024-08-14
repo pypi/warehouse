@@ -172,6 +172,7 @@
     {% if release.is_draft %}
       <a class="status-badge status-badge--warn" href="{{ request.route_path('packaging.project', name=release.project.name) }}">
         <span>{% trans %}Draft version{% endtrans %}</span>
+      </a>
     {% elif project.lifecycle_status == "quarantine-enter" %}
       <a class="status-badge status-badge--warn" href="{{ request.route_path('help') }}#project_in_quarantine">
       <span>
