@@ -4982,9 +4982,7 @@ def test_verify_url_with_trusted_publisher(url, publisher_url, expected):
         ),
     ],
 )
-def test_verify_url_with_trusted_publisher(
-    url, project_name, project_normalized_name, expected
-):
+def test_verify_url_pypi(url, project_name, project_normalized_name, expected):
     assert (
         legacy._verify_url_pypi(url, project_name, project_normalized_name) == expected
     )
