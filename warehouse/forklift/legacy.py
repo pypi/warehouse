@@ -377,6 +377,83 @@ def _is_duplicate_file(db_session, filename, hashes):
     return None
 
 
+def _verify_url(url: str, publisher_url: str | None) -> bool:
+    """
+    Verify a given URL against a Trusted Publisher URL
+
+    A URL is considered "verified" iff it matches the Trusted Publisher URL
+    such that, when both URLs are normalized:
+    - The scheme component is the same (e.g: both use `https`)
+    - The authority component is the same (e.g.: `github.com`)
+    - The path component is the same, or a sub-path of the Trusted Publisher URL
+      (e.g.: `org/project` and `org/project/issues.html` will pass verification
+      against an `org/project` Trusted Publisher path component)
+    - The path component of the Trusted Publisher URL is not empty
+    Note: We compare the authority component instead of the host component because
+    the authority includes the host, and in practice neither URL should have user
+    nor port information.
+    """
+    if not publisher_url:
+        return False
+
+    publisher_uri = rfc3986.api.uri_reference(publisher_url).normalize()
+    user_uri = rfc3986.api.uri_reference(url).normalize()
+    if publisher_uri.path is None:
+        # Currently no Trusted Publishers have an empty path component,
+        # so we defensively fail verification.
+        return False
+    elif user_uri.path and publisher_uri.path:
+        is_subpath = publisher_uri.path == user_uri.path or user_uri.path.startswith(
+            publisher_uri.path + "/"
+        )
+    else:
+        is_subpath = publisher_uri.path == user_uri.path
+
+    return (
+        publisher_uri.scheme == user_uri.scheme
+        and publisher_uri.authority == user_uri.authority
+        and is_subpath
+    )
+
+
+def _sort_releases(request: Request, project: Project):
+    releases = (
+        request.db.query(Release)
+        .filter(Release.project == project)
+        .options(
+            orm.load_only(
+                Release.project_id,
+                Release.version,
+                Release._pypi_ordering,
+            )
+        )
+        .all()
+    )
+    for i, r in enumerate(
+        sorted(releases, key=lambda x: packaging_legacy.version.parse(x.version))
+    ):
+        # NOTE: If we set r._pypi_ordering, even to the same value it was
+        #       previously, then SQLAlchemy will decide that it needs to load
+        #       Release.description (with N+1 queries) for some reason that I
+        #       can't possibly fathom why. The SQLAlchemy docs say that
+        #       raisedload doesn't prevent SQLAlchemy for doing queries that it
+        #       needs to do for the Unit of Work pattern, so I guess since each
+        #       Release object was modified it feels the need to load each of
+        #       them... but I haven no idea why that means it feels the need to
+        #       load the Release.description relationship as well.
+        #
+        #       Technically, we can still execute a query for every release if
+        #       someone goes back and releases a version "0" or something that
+        #       would cause most or all of the releases to need to "shift" and
+        #       get updated.
+        #
+        #       We maybe want to convert this away from using the ORM and build up
+        #       a mapping of Release.id -> new _pypi_ordering and do a single bulk
+        #       update query to eliminate the possibility we trigger this again.
+        if r._pypi_ordering != i:
+            r._pypi_ordering = i
+
+
 @view_config(
     route_name="forklift.legacy.file_upload",
     uses_session=True,
