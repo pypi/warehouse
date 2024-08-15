@@ -73,42 +73,34 @@ def _simple_detail(project, request):
         "versions": versions,
         "files": [
             {
-                **{
-                    "filename": file.filename,
-                    "url": request.route_url("packaging.file", path=file.path),
-                    "hashes": {
-                        "sha256": file.sha256_digest,
-                    },
-                    "requires-python": (
-                        file.release.requires_python
-                        if file.release.requires_python
-                        else None
-                    ),
-                    "size": file.size,
-                    "upload-time": file.upload_time.isoformat() + "Z",
-                    "yanked": (
-                        file.release.yanked_reason
-                        if file.release.yanked and file.release.yanked_reason
-                        else file.release.yanked
-                    ),
-                    "data-dist-info-metadata": (
-                        {"sha256": file.metadata_file_sha256_digest}
-                        if file.metadata_file_sha256_digest
-                        else False
-                    ),
-                    "core-metadata": (
-                        {"sha256": file.metadata_file_sha256_digest}
-                        if file.metadata_file_sha256_digest
-                        else False
-                    ),
+                "filename": file.filename,
+                "url": request.route_url("packaging.file", path=file.path),
+                "hashes": {
+                    "sha256": file.sha256_digest,
                 },
-                **(
-                    {
-                        "provenance": provenance_digest,
-                    }
-                    if (provenance_digest := get_provenance_digest(request, file))
-                    else {}
+                "requires-python": (
+                    file.release.requires_python
+                    if file.release.requires_python
+                    else None
                 ),
+                "size": file.size,
+                "upload-time": file.upload_time.isoformat() + "Z",
+                "yanked": (
+                    file.release.yanked_reason
+                    if file.release.yanked and file.release.yanked_reason
+                    else file.release.yanked
+                ),
+                "data-dist-info-metadata": (
+                    {"sha256": file.metadata_file_sha256_digest}
+                    if file.metadata_file_sha256_digest
+                    else False
+                ),
+                "core-metadata": (
+                    {"sha256": file.metadata_file_sha256_digest}
+                    if file.metadata_file_sha256_digest
+                    else False
+                ),
+                "provenance": get_provenance_digest(request, file)
             }
             for file in files
         ],
