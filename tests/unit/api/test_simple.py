@@ -286,6 +286,7 @@ class TestSimpleDetail:
                     "upload-time": f.upload_time.isoformat() + "Z",
                     "data-dist-info-metadata": False,
                     "core-metadata": False,
+                    "provenance": None,
                 }
                 for f in files
             ],
@@ -334,6 +335,7 @@ class TestSimpleDetail:
                     "upload-time": f.upload_time.isoformat() + "Z",
                     "data-dist-info-metadata": False,
                     "core-metadata": False,
+                    "provenance": None,
                 }
                 for f in files
             ],
@@ -427,6 +429,7 @@ class TestSimpleDetail:
                         if f.metadata_file_sha256_digest is not None
                         else False
                     ),
+                    "provenance": None,
                 }
                 for f in files
             ],

@@ -11,5 +11,9 @@
 # limitations under the License.
 
 
-class UnknownPublisherError(Exception):
+class UnsupportedPublisherError(Exception):
+    pass
+
+
+class AttestationUploadError(Exception):
     pass

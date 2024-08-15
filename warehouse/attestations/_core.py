@@ -26,7 +26,7 @@ from pypi_attestations import (
     Publisher,
 )
 
-from warehouse.attestations.errors import UnknownPublisherError
+from warehouse.attestations.errors import UnsupportedPublisherError
 from warehouse.oidc.models import (
     GitHubPublisher as GitHubOIDCPublisher,
     GitLabPublisher as GitLabOIDCPublisher,
@@ -61,7 +61,7 @@ def publisher_from_oidc_publisher(publisher: OIDCPublisher) -> Publisher:
                 environment=publisher.environment,
             )
         case _:
-            raise UnknownPublisherError()
+            raise UnsupportedPublisherError
 
 
 def generate_and_store_provenance_file(
@@ -71,7 +71,7 @@ def generate_and_store_provenance_file(
 
     try:
         publisher: Publisher = publisher_from_oidc_publisher(request.oidc_publisher)
-    except UnknownPublisherError:
+    except UnsupportedPublisherError:
         sentry_sdk.capture_message(
             f"Unsupported OIDCPublisher found {request.oidc_publisher.publisher_name}"
         )

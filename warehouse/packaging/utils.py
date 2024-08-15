@@ -100,7 +100,7 @@ def _simple_detail(project, request):
                     if file.metadata_file_sha256_digest
                     else False
                 ),
-                "provenance": get_provenance_digest(request, file)
+                "provenance": get_provenance_digest(request, file),
             }
             for file in files
         ],

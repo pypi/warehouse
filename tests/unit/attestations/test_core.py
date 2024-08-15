@@ -36,7 +36,7 @@ from warehouse.attestations._core import (
     get_provenance_digest,
     publisher_from_oidc_publisher,
 )
-from warehouse.attestations.errors import UnknownPublisherError
+from warehouse.attestations.errors import UnsupportedPublisherError
 from warehouse.events.tags import EventTag
 from warehouse.packaging import IFileStorage
 
@@ -106,7 +106,7 @@ def test_publisher_from_oidc_publisher_fails(db_request, monkeypatch):
 
     publisher = pretend.stub(publisher_name="not-existing")
 
-    with pytest.raises(UnknownPublisherError):
+    with pytest.raises(UnsupportedPublisherError):
         publisher_from_oidc_publisher(publisher)
 
 

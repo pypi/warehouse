@@ -23,6 +23,6 @@ class AttestationFactory(WarehouseFactory):
         model = Attestation
 
     file = factory.SubFactory("tests.common.db.packaging.FileFactory")
-    attestation_file_sha256_digest = factory.LazyAttribute(
-        lambda o: hashlib.sha256(o.file.filename.encode("utf8")).hexdigest()
+    attestation_file_blake2_digest = factory.LazyAttribute(
+        lambda o: hashlib.blake2b(o.file.filename.encode("utf8")).hexdigest()
     )

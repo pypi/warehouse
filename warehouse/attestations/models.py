@@ -41,15 +41,15 @@ class Attestation(db.Model):
     )
     file: Mapped[File] = orm.relationship(back_populates="attestations")
 
-    attestation_file_sha256_digest: Mapped[str] = mapped_column(CITEXT)
+    attestation_file_blake2_digest: Mapped[str] = mapped_column(CITEXT)
 
     @hybrid_property
     def attestation_path(self):
         return "/".join(
             [
-                self.attestation_file_sha256_digest[:2],
-                self.attestation_file_sha256_digest[2:4],
-                self.attestation_file_sha256_digest[4:],
+                self.attestation_file_blake2_digest[:2],
+                self.attestation_file_blake2_digest[2:4],
+                self.attestation_file_blake2_digest[4:],
                 f"{Path(self.file.path).name}.attestation",
             ]
         )
