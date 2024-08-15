@@ -1962,7 +1962,9 @@ class TestFileUpload:
                 ),
             }
         )
-
+        blake2_256_digest = hashlib.blake2b(
+            file_content.getvalue(), digest_size=256 // 8
+        ).hexdigest()
         db_request.db.add(
             FileFactory.create(
                 release=release,
@@ -1986,7 +1988,9 @@ class TestFileUpload:
         assert db_request.help_url.calls == [pretend.call(_anchor="file-name-reuse")]
         assert resp.status_code == 400
         assert resp.status == (
-            "400 File already exists. See /the/help/url/ for more information."
+            f"400 File already exists ({filename!r}, "
+            f"with blake2_256 hash {blake2_256_digest!r}). "
+            "See /the/help/url/ for more information."
         )
 
     def test_upload_fails_with_diff_filename_same_blake2(
@@ -2018,15 +2022,16 @@ class TestFileUpload:
             }
         )
 
+        blake2_256_digest = hashlib.blake2b(
+            file_content.getvalue(), digest_size=256 // 8
+        ).hexdigest()
         db_request.db.add(
             FileFactory.create(
                 release=release,
                 filename=filename,
                 md5_digest=hashlib.md5(file_content.getvalue()).hexdigest(),
                 sha256_digest=hashlib.sha256(file_content.getvalue()).hexdigest(),
-                blake2_256_digest=hashlib.blake2b(
-                    file_content.getvalue(), digest_size=256 // 8
-                ).hexdigest(),
+                blake2_256_digest=blake2_256_digest,
                 path="source/{name[0]}/{name}/{filename}".format(
                     name=project.name, filename=filename
                 ),
@@ -2042,7 +2047,9 @@ class TestFileUpload:
         assert db_request.help_url.calls == [pretend.call(_anchor="file-name-reuse")]
         assert resp.status_code == 400
         assert resp.status == (
-            "400 File already exists. See /the/help/url/ for more information."
+            f"400 File already exists ({db_request.POST['content'].filename!r}, "
+            f"with blake2_256 hash {blake2_256_digest!r}). "
+            "See /the/help/url/ for more information."
         )
 
     @pytest.mark.parametrize(
