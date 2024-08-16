@@ -664,6 +664,7 @@ class TestGitHubPublisher:
             ("https://repository_owner.github.io/repository_name/subpage", True),
             ("https://repository_owner.github.io/repository_name/../malicious", False),
             ("https://repository_owner.github.io/", False),
+            ("https://repository_owner.github.io/unrelated_name/", False),
         ],
     )
     def test_github_publisher_verify_url(self, url, expected):
