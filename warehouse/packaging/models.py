@@ -65,7 +65,6 @@ from warehouse.accounts.models import User
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.events.models import HasEvents
-from warehouse.events.tags import EventTag
 from warehouse.integrations.vulnerabilities.models import VulnerabilityRecord
 from warehouse.observations.models import HasObservations
 from warehouse.organizations.models import (
@@ -841,23 +840,6 @@ class File(HasEvents, db.Model):
         lazy="joined",
         passive_deletes=True,
     )
-
-    @property
-    def publisher_url(self) -> str | None:
-        event_tag = self.Event.tag  # type: ignore[attr-defined]
-        event_additional = self.Event.additional  # type: ignore[attr-defined]
-
-        try:
-            release_event = self.events.where(
-                sql.and_(
-                    event_tag == EventTag.File.FileAdd,
-                    event_additional["publisher_url"].as_string().is_not(None),
-                )
-            ).one()
-        except (NoResultFound, MultipleResultsFound):
-            return None
-
-        return release_event.additional["publisher_url"]
 
     @property
     def uploaded_via_trusted_publisher(self) -> bool:

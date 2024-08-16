@@ -368,6 +368,7 @@ def _is_duplicate_file(db_session, filename, hashes):
 
     return None
 
+
 _pypi_project_urls = [
     "https://pypi.org/project/",
     "https://pypi.org/p/",
@@ -390,6 +391,7 @@ def _verify_url_pypi(url: str, project_name: str, project_normalized_name: str) 
         user_uri == rfc3986.api.uri_reference(candidate_url).normalize()
         for candidate_url in candidate_urls
     )
+
 
 def _verify_url_with_trusted_publisher(url: str, publisher_url: str) -> bool:
     """
