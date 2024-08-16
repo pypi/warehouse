@@ -9,3 +9,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+from warehouse.attestations.errors import (
+    AttestationUploadError,
+    UnsupportedPublisherError,
+)
+from warehouse.attestations.interfaces import IReleaseVerificationService
+from warehouse.attestations.models import Attestation
+from warehouse.attestations.services import ReleaseVerificationService
+
+__all__ = [
+    "Attestation",
+    "AttestationUploadError",
+    "IReleaseVerificationService",
+    "ReleaseVerificationService",
+    "UnsupportedPublisherError",
+]

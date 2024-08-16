@@ -62,7 +62,6 @@ from urllib3.util import parse_url
 
 from warehouse import db
 from warehouse.accounts.models import User
-from warehouse.attestations.models import Attestation
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.events.models import HasEvents
@@ -83,6 +82,7 @@ from warehouse.utils.attrs import make_repr
 from warehouse.utils.db.types import bool_false, datetime_now
 
 if typing.TYPE_CHECKING:
+    from warehouse.attestations.models import Attestation
     from warehouse.oidc.models import OIDCPublisher
 
 _MONOTONIC_SEQUENCE = 42

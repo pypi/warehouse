@@ -15,6 +15,7 @@ import tempfile
 
 import pretend
 
+from warehouse.attestations import IReleaseVerificationService
 from warehouse.packaging.interfaces import ISimpleStorage
 from warehouse.packaging.utils import _simple_detail, render_simple_detail
 
@@ -27,9 +28,35 @@ def test_simple_detail_empty_string(db_request):
     FileFactory.create(release=release)
 
     db_request.route_url = lambda *a, **kw: "the-url"
+    db_request.find_service = lambda svc, name=None, context=None: {
+        IReleaseVerificationService: pretend.stub(
+            get_provenance_digest=pretend.call_recorder(lambda f: None),
+        ),
+    }.get(svc)
+
     expected_content = _simple_detail(project, db_request)
 
     assert expected_content["files"][0]["requires-python"] is None
+
+
+def test_simple_detail_with_provenance(db_request):
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project, version="1.0")
+    FileFactory.create(release=release)
+
+    hash_digest = "deadbeefdeadbeefdeadbeefdeadbeef"
+
+    db_request.route_url = lambda *a, **kw: "the-url"
+    db_request.find_service = pretend.call_recorder(
+        lambda svc, name=None, context=None: {
+            IReleaseVerificationService: pretend.stub(
+                get_provenance_digest=pretend.call_recorder(lambda f: hash_digest),
+            ),
+        }.get(svc)
+    )
+
+    expected_content = _simple_detail(project, db_request)
+    assert expected_content["files"][0]["provenance"] == hash_digest
 
 
 def test_render_simple_detail(db_request, monkeypatch, jinja):
@@ -49,6 +76,12 @@ def test_render_simple_detail(db_request, monkeypatch, jinja):
     monkeypatch.setattr(hashlib, "blake2b", fakeblake2b)
 
     db_request.route_url = lambda *a, **kw: "the-url"
+    db_request.find_service = lambda svc, name=None, context=None: {
+        IReleaseVerificationService: pretend.stub(
+            get_provenance_digest=pretend.call_recorder(lambda f: None),
+        ),
+    }.get(svc)
+
     template = jinja.get_template("templates/api/simple/detail.html")
     expected_content = template.render(
         **_simple_detail(project, db_request), request=db_request
@@ -78,6 +111,9 @@ def test_render_simple_detail_with_store(db_request, monkeypatch, jinja):
     db_request.find_service = pretend.call_recorder(
         lambda svc, name=None, context=None: {
             ISimpleStorage: storage_service,
+            IReleaseVerificationService: pretend.stub(
+                get_provenance_digest=pretend.call_recorder(lambda f: None),
+            ),
         }.get(svc)
     )
 

@@ -11,58 +11,84 @@
 # limitations under the License.
 import hashlib
 import tempfile
+import typing
+
+from pathlib import Path
 
 import sentry_sdk
 
 from pydantic import TypeAdapter, ValidationError
 from pypi_attestations import (
     Attestation,
+    AttestationBundle,
     AttestationType,
     Distribution,
+    GitHubPublisher,
+    GitLabPublisher,
+    Provenance,
+    Publisher,
     VerificationError,
 )
+from pyramid.request import Request
 from sigstore.verify import Verifier
 from zope.interface import implementer
 
-from warehouse.attestations.errors import AttestationUploadError
-from warehouse.attestations.interfaces import IAttestationsService
+from warehouse.attestations.errors import (
+    AttestationUploadError,
+    UnsupportedPublisherError,
+)
+from warehouse.attestations.interfaces import IReleaseVerificationService
 from warehouse.attestations.models import Attestation as DatabaseAttestation
 from warehouse.metrics.interfaces import IMetricsService
-from warehouse.oidc.interfaces import SignedClaims
-from warehouse.oidc.models import OIDCPublisher
+from warehouse.oidc.models import (
+    GitHubPublisher as GitHubOIDCPublisher,
+    GitLabPublisher as GitLabOIDCPublisher,
+    OIDCPublisher,
+)
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import File
 
 
-@implementer(IAttestationsService)
-class AttestationsService:
+def _publisher_from_oidc_publisher(publisher: OIDCPublisher) -> Publisher:
+    """
+    Convert an OIDCPublisher object in a pypy-attestations Publisher.
+    """
+    match publisher.publisher_name:
+        case "GitLab":
+            publisher = typing.cast(GitLabOIDCPublisher, publisher)
+            return GitLabPublisher(
+                repository=publisher.project_path, environment=publisher.environment
+            )
+        case "GitHub":
+            publisher = typing.cast(GitHubOIDCPublisher, publisher)
+            return GitHubPublisher(
+                repository=publisher.repository,
+                workflow=publisher.workflow_filename,
+                environment=publisher.environment,
+            )
+        case _:
+            raise UnsupportedPublisherError
+
+
+@implementer(IReleaseVerificationService)
+class ReleaseVerificationService:
 
     def __init__(
         self,
         storage: IFileStorage,
         metrics: IMetricsService,
-        publisher: OIDCPublisher,
-        claims: SignedClaims,
     ):
         self.storage: IFileStorage = storage
         self.metrics: IMetricsService = metrics
 
-        self.publisher: OIDCPublisher = publisher
-        self.claims: SignedClaims = claims
-
     @classmethod
-    def create_service(cls, _context, request):
+    def create_service(cls, _context, request: Request):
         return cls(
             storage=request.find_service(IFileStorage),
             metrics=request.find_service(IMetricsService),
-            claims=request.oidc_claims,
-            publisher=request.oidc_publisher,
         )
 
-    def persist(
-        self, attestations: list[Attestation], file: File
-    ) -> list[DatabaseAttestation]:
-        attestations_db_models = []
+    def persist_attestations(self, attestations: list[Attestation], file: File) -> None:
         for attestation in attestations:
             with tempfile.NamedTemporaryFile() as tmp_file:
                 tmp_file.write(attestation.model_dump_json().encode("utf-8"))
@@ -80,11 +106,11 @@ class AttestationsService:
                     meta=None,
                 )
 
-                attestations_db_models.append(database_attestation)
+            file.attestations.append(database_attestation)
 
-        return attestations_db_models
-
-    def parse(self, attestation_data, distribution: Distribution) -> list[Attestation]:
+    def parse_attestations(
+        self, request: Request, distribution: Distribution
+    ) -> list[Attestation]:
         """
         Process any attestations included in a file upload request
 
@@ -96,7 +122,8 @@ class AttestationsService:
 
         Warning, attestation data at the beginning of this function is untrusted.
         """
-        if not self.publisher or not self.publisher.publisher_name == "GitHub":
+        publisher: OIDCPublisher | None = request.oidc_publisher
+        if not publisher or not publisher.publisher_name == "GitHub":
             raise AttestationUploadError(
                 "Attestations are only supported when using Trusted "
                 "Publishing with GitHub Actions.",
@@ -104,7 +131,7 @@ class AttestationsService:
 
         try:
             attestations = TypeAdapter(list[Attestation]).validate_json(
-                attestation_data
+                request.POST["attestations"]
             )
         except ValidationError as e:
             # Log invalid (malformed) attestation upload
@@ -122,7 +149,9 @@ class AttestationsService:
                 "Only a single attestation per file is supported.",
             )
 
-        verification_policy = self.publisher.publisher_verification_policy(self.claims)
+        verification_policy = publisher.publisher_verification_policy(
+            request.oidc_claims
+        )
         for attestation_model in attestations:
             try:
                 predicate_type, _ = attestation_model.verify(
@@ -157,3 +186,40 @@ class AttestationsService:
                 )
 
         return attestations
+
+    def generate_and_store_provenance_file(
+        self, oidc_publisher: OIDCPublisher, file: File, attestations: list[Attestation]
+    ) -> None:
+        try:
+            publisher: Publisher = _publisher_from_oidc_publisher(oidc_publisher)
+        except UnsupportedPublisherError:
+            sentry_sdk.capture_message(
+                f"Unsupported OIDCPublisher found {oidc_publisher.publisher_name}"
+            )
+
+            return
+
+        attestation_bundle = AttestationBundle(
+            publisher=publisher,
+            attestations=attestations,
+        )
+
+        provenance = Provenance(attestation_bundles=[attestation_bundle])
+
+        provenance_file_path = Path(f"{file.path}.provenance")
+        with tempfile.NamedTemporaryFile() as f:
+            f.write(provenance.model_dump_json().encode("utf-8"))
+            f.flush()
+
+            self.storage.store(
+                provenance_file_path,
+                f.name,
+            )
+
+    def get_provenance_digest(self, file: File) -> str | None:
+        """Returns the sha256 digest of the provenance file for the release."""
+        if not file.attestations or not file.publisher_url:
+            return None
+
+        provenance_file = self.storage.get(f"{file.path}.provenance")
+        return hashlib.file_digest(provenance_file, "sha256").hexdigest()

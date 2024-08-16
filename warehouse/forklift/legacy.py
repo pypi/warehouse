@@ -46,9 +46,7 @@ from sqlalchemy import and_, exists, func, orm
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.attestations._core import generate_and_store_provenance_file
-from warehouse.attestations.errors import AttestationUploadError
-from warehouse.attestations.interfaces import IAttestationsService
+from warehouse.attestations import AttestationUploadError, IReleaseVerificationService
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
@@ -1265,15 +1263,17 @@ def file_upload(request):
         # If the user provided attestations, verify and store them
         if "attestations" in request.POST:
             attestation_service = request.find_service(
-                IAttestationsService, context=None
+                IReleaseVerificationService, context=None
             )
 
             try:
-                attestations: list[Attestation] = attestation_service.parse(
-                    attestation_data=request.POST["attestations"],
-                    distribution=Distribution(
-                        name=filename, digest=file_hashes["sha256"]
-                    ),
+                attestations: list[Attestation] = (
+                    attestation_service.parse_attestations(
+                        request,
+                        Distribution(
+                            name=filename, digest=file_hashes["sha256"]
+                        ),
+                    )
                 )
             except AttestationUploadError as e:
                 raise _exc_with_message(
@@ -1281,14 +1281,13 @@ def file_upload(request):
                     str(e),
                 )
 
-            attestations_db_models = attestation_service.persist_attestations(
+            attestation_service.persist_attestations(
                 attestations=attestations,
                 file=file_,
             )
 
-            request.db.add_all(attestations_db_models)
-            generate_and_store_provenance_file(
-                request,
+            attestation_service.generate_and_store_provenance_file(
+                request.oidc_publisher,
                 file_,
                 attestations,
             )

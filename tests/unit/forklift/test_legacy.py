@@ -35,9 +35,11 @@ import warehouse.constants
 
 from warehouse.accounts.utils import UserContext
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
-from warehouse.attestations.errors import AttestationUploadError
-from warehouse.attestations.interfaces import IAttestationsService
-from warehouse.attestations.models import Attestation as DatabaseAttestation
+from warehouse.attestations import (
+    Attestation as DatabaseAttestation,
+    AttestationUploadError,
+    IReleaseVerificationService,
+)
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy, metadata
 from warehouse.macaroons import IMacaroonService, caveats, security_policy
@@ -3385,17 +3387,19 @@ class TestFileUpload:
             }
         )
 
+        def persist_attestations(attestations, file):
+            file.attestations.append(AttestationFactory.create(file=file))
+
         storage_service = pretend.stub(store=lambda path, filepath, *, meta=None: None)
-        attestations_service = pretend.stub(
-            parse=lambda *args, **kwargs: [attestation],
-            persist_attestations=lambda attestations, file: [
-                AttestationFactory.create(file=file)
-            ],
+        release_verification = pretend.stub(
+            parse_attestations=lambda *args, **kwargs: [attestation],
+            persist_attestations=persist_attestations,
+            generate_and_store_provenance_file=lambda p, f, a: None,
         )
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
             IMetricsService: metrics,
-            IAttestationsService: attestations_service,
+            IReleaseVerificationService: release_verification,
         }.get(svc)
 
         record_event = pretend.call_recorder(
@@ -3480,11 +3484,11 @@ class TestFileUpload:
         def stub_parse(*_args, **_kwargs):
             raise AttestationUploadError(expected_message)
 
-        attestations_service = pretend.stub(parse=stub_parse)
+        release_verification = pretend.stub(parse_attestations=stub_parse)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
             IMetricsService: metrics,
-            IAttestationsService: attestations_service,
+            IReleaseVerificationService: release_verification,
         }.get(svc)
 
         record_event = pretend.call_recorder(
