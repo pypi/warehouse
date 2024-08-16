@@ -503,7 +503,7 @@ class ReleaseURL(db.Model):
 
     name: Mapped[str] = mapped_column(String(32))
     url: Mapped[str]
-    verified: Mapped[bool] = mapped_column(default=False)
+    verified: Mapped[bool_false]
 
 
 DynamicFieldsEnum = ENUM(
@@ -689,6 +689,21 @@ class Release(HasObservations, db.Model):
 
             _urls[name] = url
 
+        return _urls
+
+    def urls_by_verify_status(self, verified: bool):
+        matching_urls = {
+            release_url.url
+            for release_url in self._project_urls.values()  # type: ignore[attr-defined]
+            if release_url.verified == verified
+        }
+
+        # Filter the output of `Release.urls`, since it has custom logic to de-duplicate
+        # release URLs
+        _urls = OrderedDict()
+        for name, url in self.urls.items():
+            if url in matching_urls:
+                _urls[name] = url
         return _urls
 
     @staticmethod

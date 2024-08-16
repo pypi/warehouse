@@ -10,12 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
+
 from typing import Any
 
 from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Query, mapped_column
-from sqlalchemy.sql.expression import func, literal
 
 from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import SignedClaims
@@ -25,6 +26,34 @@ from warehouse.oidc.models._core import (
     PendingOIDCPublisher,
     check_existing_jti,
 )
+
+# This expression matches the workflow filepath component of a GitLab
+# `ci_config_ref_uri` OIDC claim. This requires a nontrivial (and nonregular)
+# pattern, since the workflow path can contain interior slashes while also
+# being delimited by slashes, and has overlapping delimiters with the
+# other components of the claim.
+_WORKFLOW_FILEPATH_RE = re.compile(
+    r"""
+    (?<=\/\/)         # lookbehind match for `//`, which terminates the repo
+                      # component of the claim.
+
+    (                 # our capture group
+        .+            # match one or more of any character, including slashes
+        [^/]          # match at least one non-slash character, to prevent
+                      # empty basenames (e.g. `foo/.yml`)
+        \.(yml|yaml)  # match the literal suffix `.yml` or `.yaml`
+    )
+    (?=@)             # lookahead match for `@`, constraining the group above
+    """,
+    re.X,
+)
+
+
+def _extract_workflow_filepath(ci_config_ref_uri: str) -> str | None:
+    if match := _WORKFLOW_FILEPATH_RE.search(ci_config_ref_uri):
+        return match.group(0)
+    else:
+        return None
 
 
 def _check_project_path(ground_truth, signed_claim, _all_signed_claims, **_kwargs):
@@ -163,43 +192,33 @@ class GitLabPublisherMixin:
             return None
 
         project_path = signed_claims["project_path"]
-        ci_config_ref_prefix = f"gitlab.com/{project_path}//"
-        ci_config_ref = signed_claims["ci_config_ref_uri"].removeprefix(
-            ci_config_ref_prefix
-        )
+        ci_config_ref_uri = signed_claims["ci_config_ref_uri"]
         namespace, project = project_path.rsplit("/", 1)
 
-        return (
-            Query(klass)
-            .filter_by(
-                namespace=namespace,
-                project=project,
-                environment=environment,
-            )
-            .filter(
-                literal(ci_config_ref).like(func.concat(klass.workflow_filepath, "%"))
-            )
+        if not (workflow_filepath := _extract_workflow_filepath(ci_config_ref_uri)):
+            return None
+
+        return Query(klass).filter_by(
+            namespace=namespace,
+            project=project,
+            environment=environment,
+            workflow_filepath=workflow_filepath,
         )
 
     @staticmethod
     def __lookup_no_environment__(klass, signed_claims: SignedClaims) -> Query | None:
         project_path = signed_claims["project_path"]
-        ci_config_ref_prefix = f"gitlab.com/{project_path}//"
-        ci_config_ref = signed_claims["ci_config_ref_uri"].removeprefix(
-            ci_config_ref_prefix
-        )
+        ci_config_ref_uri = signed_claims["ci_config_ref_uri"]
         namespace, project = project_path.rsplit("/", 1)
 
-        return (
-            Query(klass)
-            .filter_by(
-                namespace=namespace,
-                project=project,
-                environment="",
-            )
-            .filter(
-                literal(ci_config_ref).like(func.concat(klass.workflow_filepath, "%"))
-            )
+        if not (workflow_filepath := _extract_workflow_filepath(ci_config_ref_uri)):
+            return None
+
+        return Query(klass).filter_by(
+            namespace=namespace,
+            project=project,
+            environment="",
+            workflow_filepath=workflow_filepath,
         )
 
     __lookup_strategies__ = [
