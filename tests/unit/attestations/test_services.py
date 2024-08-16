@@ -290,15 +290,6 @@ class TestAttestationsService:
                 == hashlib.file_digest(f, "sha256").hexdigest()
             )
 
-    def test_get_provenance_digest_fails_no_publisher_url(self, db_request):
-        release_verification = ReleaseVerificationService(
-            storage=pretend.stub(),
-            metrics=pretend.stub(),
-        )
-
-        # If the publisher_url is missing, there is no provenance file
-        assert release_verification.get_provenance_digest(FileFactory.create()) is None
-
     def test_get_provenance_digest_fails_no_attestations(self, db_request):
         # If the attestations are missing, there is no provenance file
         file = FileFactory.create()

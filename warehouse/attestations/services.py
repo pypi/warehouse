@@ -119,8 +119,6 @@ class ReleaseVerificationService:
         Publisher, because a Trusted Publisher provides the identity that will be
         used to verify the attestations.
         Only GitHub Actions Trusted Publishers are supported.
-
-        Warning, attestation data at the beginning of this function is untrusted.
         """
         publisher: OIDCPublisher | None = request.oidc_publisher
         if not publisher or not publisher.publisher_name == "GitHub":
@@ -218,7 +216,7 @@ class ReleaseVerificationService:
 
     def get_provenance_digest(self, file: File) -> str | None:
         """Returns the sha256 digest of the provenance file for the release."""
-        if not file.attestations or not file.publisher_url:
+        if not file.attestations:
             return None
 
         provenance_file = self.storage.get(f"{file.path}.provenance")
