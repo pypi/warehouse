@@ -3387,14 +3387,14 @@ class TestFileUpload:
             }
         )
 
-        def persist_attestations(attestations, file):
+        def persist_attestations(oidc_publisher, attestations, file):
             file.attestations.append(AttestationFactory.create(file=file))
 
         storage_service = pretend.stub(store=lambda path, filepath, *, meta=None: None)
         release_verification = pretend.stub(
             parse_attestations=lambda *args, **kwargs: [attestation],
             persist_attestations=persist_attestations,
-            generate_and_store_provenance_file=lambda p, f, a: None,
+            generate_and_store_provenance_file=lambda p, a, f: None,
         )
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,

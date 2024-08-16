@@ -1270,9 +1270,7 @@ def file_upload(request):
                 attestations: list[Attestation] = (
                     attestation_service.parse_attestations(
                         request,
-                        Distribution(
-                            name=filename, digest=file_hashes["sha256"]
-                        ),
+                        Distribution(name=filename, digest=file_hashes["sha256"]),
                     )
                 )
             except AttestationUploadError as e:
@@ -1282,14 +1280,7 @@ def file_upload(request):
                 )
 
             attestation_service.persist_attestations(
-                attestations=attestations,
-                file=file_,
-            )
-
-            attestation_service.generate_and_store_provenance_file(
-                request.oidc_publisher,
-                file_,
-                attestations,
+                request.oidc_publisher, attestations, file_
             )
 
             # Log successful attestation upload

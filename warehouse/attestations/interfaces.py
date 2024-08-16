@@ -23,7 +23,7 @@ class IReleaseVerificationService(Interface):
         created for.
         """
 
-    def persist_attestations(attestations: list[Attestation], file):
+    def persist_attestations(oidc_publisher, attestations: list[Attestation], file):
         """
         ̦Persist attestations in storage.
         """
@@ -37,7 +37,7 @@ class IReleaseVerificationService(Interface):
         """
 
     def generate_and_store_provenance_file(
-        oidc_publisher, file, attestations: list[Attestation]
+        oidc_publisher, attestations: list[Attestation], file
     ) -> None:
         """
         Generate and store a provenance file for a release, its attestations and an OIDCPublisher.

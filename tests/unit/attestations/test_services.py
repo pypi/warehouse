@@ -30,6 +30,8 @@ from pypi_attestations import (
 from sigstore.verify import Verifier
 from zope.interface.verify import verifyClass
 
+import warehouse.attestations.services
+
 from tests.common.db.oidc import GitHubPublisherFactory, GitLabPublisherFactory
 from tests.common.db.packaging import FileEventFactory, FileFactory
 from warehouse.attestations import (
@@ -73,7 +75,7 @@ class TestAttestationsService:
             pretend.call(IMetricsService),
         }
 
-    def test_persist(self, db_request):
+    def test_persist_attestations(self, db_request, monkeypatch):
         @pretend.call_recorder
         def storage_service_store(path: str, file_path, *_args, **_kwargs):
             expected = VALID_ATTESTATION.model_dump_json().encode("utf-8")
@@ -92,8 +94,16 @@ class TestAttestationsService:
             [VALID_ATTESTATION]
         )
         file = FileFactory.create(attestations=[])
-        db_request.oidc_publisher = pretend.stub(publisher_name="GitHub")
-        release_verification.persist_attestations([VALID_ATTESTATION], file)
+
+        monkeypatch.setattr(
+            warehouse.attestations.services.ReleaseVerificationService,
+            "generate_and_store_provenance_file",
+            lambda *args, **kwargs: None,
+        )
+
+        release_verification.persist_attestations(
+            pretend.stub(), [VALID_ATTESTATION], file
+        )
 
         attestations_db = (
             db_request.db.query(DatabaseAttestation)
@@ -356,7 +366,7 @@ class TestAttestationsService:
         )
         assert (
             release_verification.generate_and_store_provenance_file(
-                pretend.stub(), FileFactory.create(), [VALID_ATTESTATION]
+                pretend.stub(), [VALID_ATTESTATION], FileFactory.create()
             )
             is None
         )

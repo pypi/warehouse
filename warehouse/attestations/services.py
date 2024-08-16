@@ -88,7 +88,9 @@ class ReleaseVerificationService:
             metrics=request.find_service(IMetricsService),
         )
 
-    def persist_attestations(self, attestations: list[Attestation], file: File) -> None:
+    def persist_attestations(
+        self, oidc_publisher: OIDCPublisher, attestations: list[Attestation], file: File
+    ) -> None:
         for attestation in attestations:
             with tempfile.NamedTemporaryFile() as tmp_file:
                 tmp_file.write(attestation.model_dump_json().encode("utf-8"))
@@ -107,6 +109,8 @@ class ReleaseVerificationService:
                 )
 
             file.attestations.append(database_attestation)
+
+        self.generate_and_store_provenance_file(oidc_publisher, attestations, file)
 
     def parse_attestations(
         self, request: Request, distribution: Distribution
@@ -186,7 +190,7 @@ class ReleaseVerificationService:
         return attestations
 
     def generate_and_store_provenance_file(
-        self, oidc_publisher: OIDCPublisher, file: File, attestations: list[Attestation]
+        self, oidc_publisher: OIDCPublisher, attestations: list[Attestation], file: File
     ) -> None:
         try:
             publisher: Publisher = _publisher_from_oidc_publisher(oidc_publisher)
