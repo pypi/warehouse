@@ -54,6 +54,89 @@ class TestOIDCPublisher:
             publisher.verify_claims(signed_claims={}, publisher_service=pretend.stub())
         assert str(e.value) == "No required verifiable claims"
 
+    @pytest.mark.parametrize(
+        ("url", "publisher_url", "expected"),
+        [
+            (  # GitHub trivial case
+                "https://github.com/owner/project",
+                "https://github.com/owner/project",
+                True,
+            ),
+            (  # ActiveState trivial case
+                "https://platform.activestate.com/owner/project",
+                "https://platform.activestate.com/owner/project",
+                True,
+            ),
+            (  # GitLab trivial case
+                "https://gitlab.com/owner/project",
+                "https://gitlab.com/owner/project",
+                True,
+            ),
+            (  # URL is a sub-path of the TP URL
+                "https://github.com/owner/project/issues",
+                "https://github.com/owner/project",
+                True,
+            ),
+            (  # Normalization
+                "https://GiThUB.com/owner/project/",
+                "https://github.com/owner/project",
+                True,
+            ),
+            (  # TP URL is a prefix, but not a parent of the URL
+                "https://github.com/owner/project22",
+                "https://github.com/owner/project",
+                False,
+            ),
+            (  # URL is a parent of the TP URL
+                "https://github.com/owner",
+                "https://github.com/owner/project",
+                False,
+            ),
+            (  # Scheme component does not match
+                "http://github.com/owner/project",
+                "https://github.com/owner/project",
+                False,
+            ),
+            (  # Host component does not match
+                "https://gitlab.com/owner/project",
+                "https://github.com/owner/project",
+                False,
+            ),
+            (  # Host component matches, but contains user and port info
+                "https://user@github.com:443/owner/project",
+                "https://github.com/owner/project",
+                False,
+            ),
+            (  # URL path component is empty
+                "https://github.com",
+                "https://github.com/owner/project",
+                False,
+            ),
+            (  # TP URL path component is empty
+                # (currently no TPs have an empty path, so even if the given URL is a
+                # sub-path of the TP URL, we fail the verification)
+                "https://github.com/owner/project",
+                "https://github.com",
+                False,
+            ),
+            (  # Both path components are empty
+                # (currently no TPs have an empty path, so even if the given URL is the
+                # same as the TP URL, we fail the verification)
+                "https://github.com",
+                "https://github.com",
+                False,
+            ),
+        ],
+    )
+    def test_verify_url(self, monkeypatch, url, publisher_url, expected):
+        class ConcretePublisher(_core.OIDCPublisher):
+            @property
+            def publisher_base_url(self):
+                return publisher_url
+
+        publisher = ConcretePublisher()
+        assert publisher.verify_url(url) == expected
+
 
 def test_check_existing_jti():
     publisher = pretend.stub(

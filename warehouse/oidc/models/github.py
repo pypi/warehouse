@@ -14,6 +14,8 @@ import re
 
 from typing import Any
 
+import rfc3986
+
 from sigstore.verify.policy import (
     AllOf,
     AnyOf,
@@ -332,6 +334,39 @@ class GitHubPublisher(GitHubPublisherMixin, OIDCPublisher):
     id = mapped_column(
         UUID(as_uuid=True), ForeignKey(OIDCPublisher.id), primary_key=True
     )
+
+    def verify_url(self, url: str):
+        """
+        Verify a given URL against this GitHub's publisher information
+
+        In addition to the generic Trusted Publisher verification logic in
+        the parent class, the GitHub Trusted Publisher allows URLs hosted
+        on `github.io` for the configured repository, i.e:
+        `https://${OWNER}.github.io/${REPO_NAME}/`.
+
+        As with the generic verification, we allow subpaths of the `.io` URL,
+        but we normalize using `rfc3986` to reject things like
+        `https://${OWNER}.github.io/${REPO_NAME}/../malicious`, which would
+        resolve to a URL outside the `/$REPO_NAME` path.
+        """
+        if super().verify_url(url):
+            return True
+
+        docs_url = f"https://{self.repository_owner}.github.io/{self.repository_name}"
+        docs_uri = rfc3986.api.uri_reference(docs_url).normalize()
+        user_uri = rfc3986.api.uri_reference(url).normalize()
+
+        if not user_uri.path:
+            return False
+
+        is_subpath = docs_uri.path == user_uri.path or user_uri.path.startswith(
+            docs_uri.path + "/"
+        )
+        return (
+            docs_uri.scheme == user_uri.scheme
+            and docs_uri.authority == user_uri.authority
+            and is_subpath
+        )
 
 
 class PendingGitHubPublisher(GitHubPublisherMixin, PendingOIDCPublisher):
