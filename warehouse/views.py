@@ -98,14 +98,12 @@ def httpexception_view(exc, request):
             response = HTTPNotFound(
                 body="404 Not Found",
                 content_type="text/plain",
-                headers=_CORS_HEADERS,
             )
         elif isinstance(exc, HTTPNotFound) and json_path.match(request.path):
             response = HTTPNotFound(
                 body='{"message": "Not Found"}',
                 charset="utf-8",
                 content_type="application/json",
-                headers=_CORS_HEADERS,
             )
         else:
             response = render_to_response(
