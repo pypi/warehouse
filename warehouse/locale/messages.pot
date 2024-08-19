@@ -1,16 +1,16 @@
-#: warehouse/views.py:142
+#: warehouse/views.py:147
 msgid ""
 "You must verify your **primary** email address before you can perform "
 "this action."
 msgstr ""
 
-#: warehouse/views.py:158
+#: warehouse/views.py:163
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this"
 " action."
 msgstr ""
 
-#: warehouse/views.py:294
+#: warehouse/views.py:299
 msgid "Locale updated"
 msgstr ""
 
