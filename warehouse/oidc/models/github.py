@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
+
 from typing import Any
 
 from sigstore.verify.policy import (
@@ -21,7 +23,6 @@ from sigstore.verify.policy import (
 from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Query, mapped_column
-from sqlalchemy.sql.expression import func, literal
 
 from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import SignedClaims
@@ -30,10 +31,35 @@ from warehouse.oidc.models._core import (
     OIDCPublisher,
     PendingOIDCPublisher,
     check_claim_binary,
+    check_existing_jti,
+)
+
+# This expression matches the workflow filename component of a GitHub
+# "workflow ref", i.e. the value present in the `workflow_ref` and
+# `job_workflow_ref` claims. This requires a nontrivial (and nonregular)
+# pattern, since the workflow filename and other components of the workflow
+# can contain overlapping delimiters (such as `@` in the workflow filename,
+# or `git` refs that look like workflow filenames).
+_WORKFLOW_FILENAME_RE = re.compile(
+    r"""
+    (                   # our capture group
+        [^/]+           # match one or more non-slash characters
+        \.(yml|yaml)    # match the literal suffix `.yml` or `.yaml`
+    )
+    (?=@)               # lookahead match for `@`, constraining the group above
+    """,
+    re.X,
 )
 
 
-def _check_repository(ground_truth, signed_claim, all_signed_claims):
+def _extract_workflow_filename(workflow_ref: str) -> str | None:
+    if match := _WORKFLOW_FILENAME_RE.search(workflow_ref):
+        return match.group(0)
+    else:
+        return None
+
+
+def _check_repository(ground_truth, signed_claim, _all_signed_claims, **_kwargs):
     # Defensive: GitHub should never give us an empty repository claim.
     if not signed_claim:
         return False
@@ -42,7 +68,7 @@ def _check_repository(ground_truth, signed_claim, all_signed_claims):
     return signed_claim.lower() == ground_truth.lower()
 
 
-def _check_job_workflow_ref(ground_truth, signed_claim, all_signed_claims):
+def _check_job_workflow_ref(ground_truth, signed_claim, all_signed_claims, **_kwargs):
     # We expect a string formatted as follows:
     #   OWNER/REPO/.github/workflows/WORKFLOW.yml@REF
     # where REF is the value of either the `ref` or `sha` claims.
@@ -73,7 +99,7 @@ def _check_job_workflow_ref(ground_truth, signed_claim, all_signed_claims):
     return True
 
 
-def _check_environment(ground_truth, signed_claim, all_signed_claims):
+def _check_environment(ground_truth, signed_claim, _all_signed_claims, **_kwargs):
     # When there is an environment, we expect a case-insensitive string.
     # https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment
     # For tokens that are generated outside of an environment, the claim will
@@ -95,7 +121,7 @@ def _check_environment(ground_truth, signed_claim, all_signed_claims):
     return ground_truth.lower() == signed_claim.lower()
 
 
-def _check_sub(ground_truth, signed_claim, _all_signed_claims):
+def _check_sub(ground_truth, signed_claim, _all_signed_claims, **_kwargs):
     # We expect a string formatted as follows:
     #  repo:ORG/REPO[:OPTIONAL-STUFF]
     # where :OPTIONAL-STUFF is a concatenation of other job context
@@ -136,6 +162,7 @@ class GitHubPublisherMixin:
         "repository_owner": check_claim_binary(str.__eq__),
         "repository_owner_id": check_claim_binary(str.__eq__),
         "job_workflow_ref": _check_job_workflow_ref,
+        "jti": check_existing_jti,
     }
 
     __required_unverifiable_claims__: set[str] = {"ref", "sha"}
@@ -147,7 +174,6 @@ class GitHubPublisherMixin:
     __unchecked_claims__ = {
         "actor",
         "actor_id",
-        "jti",
         "run_id",
         "run_number",
         "run_attempt",
@@ -177,40 +203,34 @@ class GitHubPublisherMixin:
 
         repository = signed_claims["repository"]
         repository_owner, repository_name = repository.split("/", 1)
-        workflow_prefix = f"{repository}/.github/workflows/"
-        workflow_ref = signed_claims["job_workflow_ref"].removeprefix(workflow_prefix)
+        workflow_ref = signed_claims["job_workflow_ref"]
 
-        return (
-            Query(klass)
-            .filter_by(
-                repository_name=repository_name,
-                repository_owner=repository_owner,
-                repository_owner_id=signed_claims["repository_owner_id"],
-                environment=environment.lower(),
-            )
-            .filter(
-                literal(workflow_ref).like(func.concat(klass.workflow_filename, "%"))
-            )
+        if not (workflow_filename := _extract_workflow_filename(workflow_ref)):
+            return None
+
+        return Query(klass).filter_by(
+            repository_name=repository_name,
+            repository_owner=repository_owner,
+            repository_owner_id=signed_claims["repository_owner_id"],
+            environment=environment.lower(),
+            workflow_filename=workflow_filename,
         )
 
     @staticmethod
     def __lookup_no_environment__(klass, signed_claims: SignedClaims) -> Query | None:
         repository = signed_claims["repository"]
         repository_owner, repository_name = repository.split("/", 1)
-        workflow_prefix = f"{repository}/.github/workflows/"
-        workflow_ref = signed_claims["job_workflow_ref"].removeprefix(workflow_prefix)
+        workflow_ref = signed_claims["job_workflow_ref"]
 
-        return (
-            Query(klass)
-            .filter_by(
-                repository_name=repository_name,
-                repository_owner=repository_owner,
-                repository_owner_id=signed_claims["repository_owner_id"],
-                environment="",
-            )
-            .filter(
-                literal(workflow_ref).like(func.concat(klass.workflow_filename, "%"))
-            )
+        if not (workflow_filename := _extract_workflow_filename(workflow_ref)):
+            return None
+
+        return Query(klass).filter_by(
+            repository_name=repository_name,
+            repository_owner=repository_owner,
+            repository_owner_id=signed_claims["repository_owner_id"],
+            environment="",
+            workflow_filename=workflow_filename,
         )
 
     __lookup_strategies__ = [
@@ -238,8 +258,17 @@ class GitHubPublisherMixin:
     def sub(self):
         return f"repo:{self.repository}"
 
+    @property
+    def publisher_base_url(self):
+        return f"https://github.com/{self.repository}"
+
+    @property
+    def jti(self) -> str:
+        """Placeholder value for JTI."""
+        return "placeholder"
+
     def publisher_url(self, claims=None):
-        base = f"https://github.com/{self.repository}"
+        base = self.publisher_base_url
         sha = claims.get("sha") if claims else None
 
         if sha:

@@ -10,10 +10,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import alembic.command
+import click
 
-class InvalidPublisherError(Exception):
-    pass
+from warehouse.cli.db import db
 
 
-class ReusedTokenError(Exception):
-    pass
+@db.command()
+@click.pass_obj
+def check(config):
+    """
+    Check if autogenerate will create new operations.
+    """
+    alembic.command.check(config.alembic_config())

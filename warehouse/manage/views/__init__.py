@@ -1185,6 +1185,7 @@ class ManageOIDCPublisherViews:
         self.gitlab_publisher_form = GitLabPublisherForm(self.request.POST)
         self.google_publisher_form = GooglePublisherForm(self.request.POST)
         self.activestate_publisher_form = ActiveStatePublisherForm(self.request.POST)
+        self.prefilled_provider = None
 
     @property
     def _ratelimiters(self):
@@ -1238,6 +1239,7 @@ class ManageOIDCPublisherViews:
                     AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC
                 ),
             },
+            "prefilled_provider": self.prefilled_provider,
         }
 
     @view_config(request_method="GET")
@@ -1252,6 +1254,26 @@ class ManageOIDCPublisherViews:
             )
 
         return self.default_response
+
+    @view_config(request_method="GET", request_param="provider")
+    def manage_project_oidc_publishers_prefill(self):
+        provider_mapping = {
+            "github": self.github_publisher_form,
+            "gitlab": self.gitlab_publisher_form,
+            "google": self.google_publisher_form,
+            "activestate": self.activestate_publisher_form,
+        }
+        params = self.request.params
+        provider = params.get("provider")
+        provider = provider.lower() if provider else None
+        if provider in provider_mapping:
+            # The forms can be pre-filled by passing URL parameters. For example,
+            # https://(...)//publishing?provider=github&owner=octo&repository=repo
+            # will pre-fill the GitHub repository fields with `octo/repo`.
+            provider_mapping[provider].process(params)
+            self.prefilled_provider = provider
+
+        return self.manage_project_oidc_publishers()
 
     @view_config(
         request_method="POST",

@@ -61,7 +61,7 @@ Documentation
 -------------
 
 Important information should be documented with prose in the ``docs`` section.
-To ensure it builds and passes `doc8`_ style checks you can run
+To ensure it builds and passes documentation style checks you can run
 ``make dev-docs user-docs`` and ``make lint`` respectively.
 
 
@@ -187,6 +187,5 @@ feature branch at least once while you are working on it.
 .. _`Write comments as complete sentences.`: https://nedbatchelder.com/blog/201401/comments_should_be_sentences.html
 .. _`syntax`: https://sphinx-doc.org/domains.html#info-field-lists
 .. _`Studies have shown`: https://static1.smartbear.co/support/media/resources/cc/book/code-review-cisco-case-study.pdf
-.. _`doc8`: https://github.com/PyCQA/doc8
 .. _`coverage.py`: https://pypi.org/project/coverage
 .. _`the Black Code Style`: https://github.com/psf/black#the-black-code-style

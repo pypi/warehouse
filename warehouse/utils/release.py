@@ -11,9 +11,9 @@
 # limitations under the License.
 
 
-class InvalidPublisherError(Exception):
-    pass
-
-
-class ReusedTokenError(Exception):
-    pass
+def strip_keywords(keywords: list[str]) -> list[str]:
+    """
+    Remove empties.
+    Useful to cleanse user input prior to storing in Release.keywords_array.
+    """
+    return [keyword for keyword in keywords if keyword]
