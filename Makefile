@@ -145,6 +145,9 @@ inittuf: .state/db-migrated
 runmigrations: .state/docker-build-base
 	docker compose run --rm web python -m warehouse db upgrade head
 
+checkdb: .state/docker-build-base
+	docker compose run --rm web bin/db-check
+
 reindex: .state/docker-build-base
 	docker compose run --rm web python -m warehouse search reindex
 
@@ -168,4 +171,4 @@ purge: stop clean
 stop:
 	docker compose stop
 
-.PHONY: default build serve resetdb initdb shell dbshell tests dev-docs user-docs deps clean purge debug stop compile-pot runmigrations
+.PHONY: default build serve resetdb initdb shell dbshell tests dev-docs user-docs deps clean purge debug stop compile-pot runmigrations checkdb

@@ -1962,7 +1962,9 @@ class TestFileUpload:
                 ),
             }
         )
-
+        blake2_256_digest = hashlib.blake2b(
+            file_content.getvalue(), digest_size=256 // 8
+        ).hexdigest()
         db_request.db.add(
             FileFactory.create(
                 release=release,
@@ -1986,7 +1988,9 @@ class TestFileUpload:
         assert db_request.help_url.calls == [pretend.call(_anchor="file-name-reuse")]
         assert resp.status_code == 400
         assert resp.status == (
-            "400 File already exists. See /the/help/url/ for more information."
+            f"400 File already exists ({filename!r}, "
+            f"with blake2_256 hash {blake2_256_digest!r}). "
+            "See /the/help/url/ for more information."
         )
 
     def test_upload_fails_with_diff_filename_same_blake2(
@@ -2018,15 +2022,16 @@ class TestFileUpload:
             }
         )
 
+        blake2_256_digest = hashlib.blake2b(
+            file_content.getvalue(), digest_size=256 // 8
+        ).hexdigest()
         db_request.db.add(
             FileFactory.create(
                 release=release,
                 filename=filename,
                 md5_digest=hashlib.md5(file_content.getvalue()).hexdigest(),
                 sha256_digest=hashlib.sha256(file_content.getvalue()).hexdigest(),
-                blake2_256_digest=hashlib.blake2b(
-                    file_content.getvalue(), digest_size=256 // 8
-                ).hexdigest(),
+                blake2_256_digest=blake2_256_digest,
                 path="source/{name[0]}/{name}/{filename}".format(
                     name=project.name, filename=filename
                 ),
@@ -2042,7 +2047,9 @@ class TestFileUpload:
         assert db_request.help_url.calls == [pretend.call(_anchor="file-name-reuse")]
         assert resp.status_code == 400
         assert resp.status == (
-            "400 File already exists. See /the/help/url/ for more information."
+            f"400 File already exists ({db_request.POST['content'].filename!r}, "
+            f"with blake2_256 hash {blake2_256_digest!r}). "
+            "See /the/help/url/ for more information."
         )
 
     @pytest.mark.parametrize(
@@ -4864,12 +4871,145 @@ def test_missing_trailing_slash_redirect(pyramid_request):
             "https://github.com",
             False,
         ),
-        (  # Publisher URL is None
-            "https://github.com/owner/project",
-            None,
+    ],
+)
+def test_verify_url_with_trusted_publisher(url, publisher_url, expected):
+    assert legacy._verify_url_with_trusted_publisher(url, publisher_url) == expected
+
+
+@pytest.mark.parametrize(
+    ("url", "project_name", "project_normalized_name", "expected"),
+    [
+        (  # PyPI /project/ case
+            "https://pypi.org/project/myproject",
+            "myproject",
+            "myproject",
+            True,
+        ),
+        (  # PyPI /p/ case
+            "https://pypi.org/p/myproject",
+            "myproject",
+            "myproject",
+            True,
+        ),
+        (  # pypi.python.org /project/ case
+            "https://pypi.python.org/project/myproject",
+            "myproject",
+            "myproject",
+            True,
+        ),
+        (  # pypi.python.org /p/ case
+            "https://pypi.python.org/p/myproject",
+            "myproject",
+            "myproject",
+            True,
+        ),
+        (  # python.org/pypi/  case
+            "https://python.org/pypi/myproject",
+            "myproject",
+            "myproject",
+            True,
+        ),
+        (  # PyPI /project/ case
+            "https://pypi.org/project/myproject",
+            "myproject",
+            "myproject",
+            True,
+        ),
+        (  # Normalized name differs from URL
+            "https://pypi.org/project/my_project",
+            "my_project",
+            "my-project",
+            True,
+        ),
+        (  # Normalized name same as URL
+            "https://pypi.org/project/my-project",
+            "my_project",
+            "my-project",
+            True,
+        ),
+        (  # Trailing slash
+            "https://pypi.org/project/myproject/",
+            "myproject",
+            "myproject",
+            True,
+        ),
+        (  # Domains are case insensitive
+            "https://PyPI.org/project/myproject",
+            "myproject",
+            "myproject",
+            True,
+        ),
+        (  # Paths are case-sensitive
+            "https://pypi.org/Project/myproject",
+            "myproject",
+            "myproject",
+            False,
+        ),
+        (  # Wrong domain
+            "https://example.com/project/myproject",
+            "myproject",
+            "myproject",
+            False,
+        ),
+        (  # Wrong path
+            "https://pypi.org/something/myproject",
+            "myproject",
+            "myproject",
+            False,
+        ),
+        (  # Path has extra components
+            "https://pypi.org/something/myproject/something",
+            "myproject",
+            "myproject",
+            False,
+        ),
+        (  # Wrong package name
+            "https://pypi.org/project/otherproject",
+            "myproject",
+            "myproject",
+            False,
+        ),
+        (  # Similar package name
+            "https://pypi.org/project/myproject",
+            "myproject2",
+            "myproject2",
+            False,
+        ),
+        (  # Similar package name
+            "https://pypi.org/project/myproject2",
+            "myproject",
+            "myproject",
             False,
         ),
     ],
 )
-def test_verify_url(url, publisher_url, expected):
-    assert legacy._verify_url(url, publisher_url) == expected
+def test_verify_url_pypi(url, project_name, project_normalized_name, expected):
+    assert (
+        legacy._verify_url_pypi(url, project_name, project_normalized_name) == expected
+    )
+
+
+def test_verify_url():
+    # `_verify_url` is just a helper function that calls `_verify_url_pypi` and
+    # `_verify_url_with_trusted_publisher`, where the actual verification logic lives.
+    assert legacy._verify_url(
+        url="https://pypi.org/project/myproject/",
+        publisher_url=None,
+        project_name="myproject",
+        project_normalized_name="myproject",
+    )
+
+    assert legacy._verify_url(
+        url="https://github.com/org/myproject/issues",
+        publisher_url="https://github.com/org/myproject",
+        project_name="myproject",
+        project_normalized_name="myproject",
+    )
+
+    assert not legacy._verify_url(
+        url="example.com",
+        publisher_url="https://github.com/or/myproject",
+        project_name="myproject",
+        project_normalized_name="myproject",
+    )
