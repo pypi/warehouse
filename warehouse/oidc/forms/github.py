@@ -169,9 +169,14 @@ class GitHubPublisherBase(forms.Form):
 class PendingGitHubPublisherForm(GitHubPublisherBase, PendingPublisherMixin):
     __params__ = GitHubPublisherBase.__params__ + ["project_name"]
 
-    def __init__(self, *args, project_factory, **kwargs):
+    def __init__(self, *args, route_url, project_factory, **kwargs):
         super().__init__(*args, **kwargs)
+        self._route_url = route_url
         self._project_factory = project_factory
+
+    @property
+    def provider(self) -> str:
+        return "github"
 
 
 class GitHubPublisherForm(GitHubPublisherBase):
