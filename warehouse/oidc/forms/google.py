@@ -10,15 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import re
-
 import wtforms
 
 from warehouse import forms
 from warehouse.oidc.forms._core import PendingPublisherMixin
-
-_VALID_GITHUB_REPO = re.compile(r"^[a-zA-Z0-9-_.]+$")
-_VALID_GITHUB_OWNER = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9-]*$")
 
 
 class GooglePublisherBase(forms.Form):

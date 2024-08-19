@@ -446,9 +446,9 @@ types-itsdangerous==1.1.6 \
     --hash=sha256:21c6966c10e353a5d35d36c82aaa2c5598d3bc32ddc8e0591276da5ad2e3c638 \
     --hash=sha256:aef2535c2fa0527dcce244ece0792b20ec02ee46533800735275f82a45a0244d
     # via -r requirements/lint.in
-types-passlib==1.7.7.20240327 \
-    --hash=sha256:3a3b7f4258b71034d2e2f4f307d6810f9904f906cdf375514c8bdbdb28a4ad23 \
-    --hash=sha256:4cce6a1a3a6afee9fc4728b4d9784300764ac2be747f5bcc01646d904b85f4bb
+types-passlib==1.7.7.20240819 \
+    --hash=sha256:8fc8df71623845032293d5cf7f8091f0adfeba02d387a2888684b8413f14b3d0 \
+    --hash=sha256:c4d299083497b66e12258c7b77c08952574213fdf7009da3135d8181a6a25f23
     # via -r requirements/lint.in
 types-pyopenssl==24.1.0.20240722 \
     --hash=sha256:47913b4678a01d879f503a12044468221ed8576263c1540dcb0484ca21b08c39 \
@@ -464,9 +464,9 @@ types-pytz==2024.1.0.20240417 \
     # via
     #   -r requirements/lint.in
     #   types-babel
-types-redis==4.6.0.20240806 \
-    --hash=sha256:60dd02c2b91ea2d42ad079ac58dedc31d71d6eedb1c21d3796811b02baac655d \
-    --hash=sha256:9d8fbe0ce37e3660c0a06982db7812384295d10a93d637c7f8604a2f3c88b0e6
+types-redis==4.6.0.20240819 \
+    --hash=sha256:08f51f550ad41d0152bd98d77ac9d6d8f761369121710a213642f6036b9a7183 \
+    --hash=sha256:86db9af6f0033154e12bc22c77236cef0907b995fda8c9f0f0eacd59943ed2fc
     # via -r requirements/lint.in
 types-requests==2.32.0.20240712 \
     --hash=sha256:90c079ff05e549f6bf50e02e910210b98b8ff1ebdd18e19c873cd237737c1358 \
@@ -476,9 +476,9 @@ types-s3transfer==0.10.1 \
     --hash=sha256:02154cce46528287ad76ad1a0153840e0492239a0887e8833466eccf84b98da0 \
     --hash=sha256:49a7c81fa609ac1532f8de3756e64b58afcecad8767933310228002ec7adff74
     # via boto3-stubs
-types-setuptools==71.1.0.20240813 \
-    --hash=sha256:94ff4f0af18c7c24ac88932bcb0f5655fb7187a001b7c61e53a1bfdaf9877b54 \
-    --hash=sha256:d9d9ba2936f5d3b47b59ae9bf65942a60063ac1d6bbee180a8a79fbb43f22ce5
+types-setuptools==71.1.0.20240818 \
+    --hash=sha256:c4f95302f88369ac0ac46c67ddbfc70c6c4dbbb184d9fed356244217a2934025 \
+    --hash=sha256:f62eaffaa39774462c65fbb49368c4dc1d91a90a28371cb14e1af090ff0e41e3
     # via
     #   -r requirements/lint.in
     #   types-babel
