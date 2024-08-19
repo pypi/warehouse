@@ -12,17 +12,14 @@
  */
 
 /* This is a webpack plugin.
- *
  * This plugin generates one javascript bundle per locale.
- * It replaces the javascript translation function arguments with the locale-specific data.
  *
- * The translation to use is then determined and placeholders are replaced with values.
+ * It replaces the javascript translation function arguments with the locale-specific data.
  * The javascript functions are in `warehouse/static/js/warehouse/utils/messages-access.js`.
  *
- * Run 'make translations' to generate the 'messages.json' files for the KNOWN_LOCALES.
- * Run `make static_pipeline` to generate the js bundle for each locale.
+ * Run 'make translations' before webpack to extract the translatable text to gettext format files.
  *
- * Currently only for 'warehouse', but can be extended to 'admin' if needed.
+ * TODO: Currently only for 'warehouse', but can be extended to 'admin' if needed.
  */
 
 // ref: https://webpack.js.org/contribute/writing-a-plugin/
@@ -34,25 +31,64 @@ const ConstDependency = require("webpack/lib/dependencies/ConstDependency");
 const fs = require("node:fs");
 const {resolve} = require("node:path");
 const path = require("path");
+const gettextParser = require("gettext-parser");
 
-// load the locale translation data
+// generate and then load the locale translation data
 const baseDir = __dirname;
 const localeDir = path.resolve(baseDir, "warehouse/locale");
-const allLocaleData = fs
-  .readdirSync(localeDir)
-  .map((file) => resolve(localeDir, file, "LC_MESSAGES/messages.json"))
-  .filter((file) => {
+const KNOWN_LOCALES = [
+  "en",  // English
+  "es",  // Spanish
+  "fr",  // French
+  "ja",  // Japanese
+  "pt_BR",  // Brazilian Portuguese
+  "uk",  // Ukrainian
+  "el",  // Greek
+  "de",  // German
+  "zh_Hans",  // Simplified Chinese
+  "zh_Hant",  // Traditional Chinese
+  "ru",  // Russian
+  "he",  // Hebrew
+  "eo",  // Esperanto
+];
+const allLocaleData = KNOWN_LOCALES
+  .filter(langCode => langCode !== "en")
+  .map((langCode) => resolve(localeDir, langCode, "LC_MESSAGES/messages.po"))
+  .filter((file) => fs.statSync(file).isFile())
+  .map((file) => ({path: path.relative(baseDir, file), data: fs.readFileSync(file, "utf8")}))
+  .map((data) => {
     try {
-      return fs.statSync(file).isFile();
-    } catch {
-      // ignore error
+      const lines = data.data
+        .split("\n")
+        // gettext-parser does not support obsolete previous translations,
+        // so filter out those lines
+        // see: https://github.com/smhg/gettext-parser/issues/79
+        .filter(line => !line.startsWith("#~|"))
+        .join("\n");
+      const parsed = gettextParser.po.parse(lines);
+      const result = {
+        "": {
+          "language": parsed.headers["Language"],
+          "plural-forms": parsed.headers["Plural-Forms"],
+        },
+      };
+      const translations = parsed.translations[""];
+      for (const key in translations) {
+        if (key === "") {
+          continue;
+        }
+        const value = translations[key];
+        const refs = value.comments.reference.split("\n");
+        if (refs.every(refLine => !refLine.includes(".js:"))) {
+          continue;
+        }
+        result[value.msgid] = value.msgstr;
+      }
+      return result;
+    } catch (e) {
+      throw new Error(`Could not parse file ${data.path}: ${e.message}\n${e}`);
     }
-  })
-  .map((file) => {
-    console.log(`Translations from ${path.relative(baseDir, file)}`);
-    return fs.readFileSync(file, "utf8");
-  })
-  .map((data) => JSON.parse(data));
+  });
 
 
 const pluginName = "WebpackLocalisationPlugin";
@@ -89,7 +125,7 @@ class WebpackLocalisationPlugin {
             "[~`^$_\\[\\]{}\\\\'\"\\.#@\\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]+");
           const required = new RegExp("^ *nplurals *= *[0-9]+ *; *plural *= *.+$");
           if (denied.test(pluralForms) || !required.test(pluralForms)) {
-            throw new Error(`Invalid plural forms for ${self.localeData[""].language}.`);
+            throw new Error(`Invalid plural forms for ${self.localeData[""].language}: ${pluralForms}`);
           }
           const newValue = `function (n) {
   let nplurals, plural;

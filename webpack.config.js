@@ -120,7 +120,7 @@ module.exports = [
         removeKeyHash: /([a-f0-9]{8}\.?)/gi,
         publicPath: "",
         seed: sharedWebpackManifestData,
-        map: sharedWebpackManifestMap
+        map: sharedWebpackManifestMap,
       }),
       new LiveReloadPlugin(),
     ],
@@ -381,6 +381,5 @@ module.exports = [
       },
       dependencies: ["warehouse"],
     };
-
-  })
+  }),
 ];

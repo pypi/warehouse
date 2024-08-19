@@ -46,6 +46,7 @@
     "css-loader": "^7.1.2",
     "css-minimizer-webpack-plugin": "^7.0.0",
     "eslint": "^8.36.0",
+    "gettext-parser": "^7.0.1",
     "glob": "^10.2.2",
     "image-minimizer-webpack-plugin": "^4.0.2",
     "jest": "^29.5.0",
