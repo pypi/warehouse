@@ -15,7 +15,7 @@ import tempfile
 
 import pretend
 
-from warehouse.attestations import IReleaseVerificationService
+from warehouse.attestations import IIntegrityService
 from warehouse.packaging.interfaces import ISimpleStorage
 from warehouse.packaging.utils import _simple_detail, render_simple_detail
 
@@ -29,7 +29,7 @@ def test_simple_detail_empty_string(db_request):
 
     db_request.route_url = lambda *a, **kw: "the-url"
     db_request.find_service = lambda svc, name=None, context=None: {
-        IReleaseVerificationService: pretend.stub(
+        IIntegrityService: pretend.stub(
             get_provenance_digest=pretend.call_recorder(lambda f: None),
         ),
     }.get(svc)
@@ -49,7 +49,7 @@ def test_simple_detail_with_provenance(db_request):
     db_request.route_url = lambda *a, **kw: "the-url"
     db_request.find_service = pretend.call_recorder(
         lambda svc, name=None, context=None: {
-            IReleaseVerificationService: pretend.stub(
+            IIntegrityService: pretend.stub(
                 get_provenance_digest=pretend.call_recorder(lambda f: hash_digest),
             ),
         }.get(svc)
@@ -77,7 +77,7 @@ def test_render_simple_detail(db_request, monkeypatch, jinja):
 
     db_request.route_url = lambda *a, **kw: "the-url"
     db_request.find_service = lambda svc, name=None, context=None: {
-        IReleaseVerificationService: pretend.stub(
+        IIntegrityService: pretend.stub(
             get_provenance_digest=pretend.call_recorder(lambda f: None),
         ),
     }.get(svc)
@@ -111,7 +111,7 @@ def test_render_simple_detail_with_store(db_request, monkeypatch, jinja):
     db_request.find_service = pretend.call_recorder(
         lambda svc, name=None, context=None: {
             ISimpleStorage: storage_service,
-            IReleaseVerificationService: pretend.stub(
+            IIntegrityService: pretend.stub(
                 get_provenance_digest=pretend.call_recorder(lambda f: None),
             ),
         }.get(svc)

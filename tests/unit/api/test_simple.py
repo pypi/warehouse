@@ -18,7 +18,7 @@ from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.testing import DummyRequest
 
 from warehouse.api import simple
-from warehouse.attestations import IReleaseVerificationService
+from warehouse.attestations import IIntegrityService
 from warehouse.packaging.utils import API_VERSION
 
 from ...common.db.accounts import UserFactory
@@ -93,7 +93,7 @@ class TestSimpleIndex:
     def db_request(self, db_request):
         """Override db_request to add the Release Verification service"""
         db_request.find_service = lambda svc, name=None, context=None: {
-            IReleaseVerificationService: pretend.stub(),
+            IIntegrityService: pretend.stub(),
         }.get(svc)
 
         return db_request
@@ -200,7 +200,7 @@ class TestSimpleDetail:
     def db_request(self, db_request):
         """Override db_request to add the Release Verification service"""
         db_request.find_service = lambda svc, name=None, context=None: {
-            IReleaseVerificationService: pretend.stub(
+            IIntegrityService: pretend.stub(
                 get_provenance_digest=lambda *args, **kwargs: None,
             ),
         }.get(svc)

@@ -19,7 +19,7 @@ import packaging_legacy.version
 from pyramid_jinja2 import IJinja2Environment
 from sqlalchemy.orm import joinedload
 
-from warehouse.attestations import IReleaseVerificationService
+from warehouse.attestations import IIntegrityService
 from warehouse.attestations.models import Attestation
 from warehouse.packaging.interfaces import ISimpleStorage
 from warehouse.packaging.models import File, LifecycleStatus, Project, Release
@@ -67,9 +67,7 @@ def _simple_detail(project, request):
         {f.release.version for f in files}, key=packaging_legacy.version.parse
     )
 
-    release_verification = request.find_service(
-        IReleaseVerificationService, context=None
-    )
+    integrity_service = request.find_service(IIntegrityService, context=None)
 
     return {
         "meta": {"api-version": API_VERSION, "_last-serial": project.last_serial},
@@ -104,7 +102,7 @@ def _simple_detail(project, request):
                     if file.metadata_file_sha256_digest
                     else False
                 ),
-                "provenance": release_verification.get_provenance_digest(file),
+                "provenance": integrity_service.get_provenance_digest(file),
             }
             for file in files
         ],

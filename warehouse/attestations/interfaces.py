@@ -10,12 +10,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pypi_attestations import Attestation, Distribution
+from pypi_attestations import Attestation, Distribution, Provenance
 from pyramid.request import Request
 from zope.interface import Interface
 
 
-class IReleaseVerificationService(Interface):
+class IIntegrityService(Interface):
 
     def create_service(context, request):
         """
@@ -23,7 +23,7 @@ class IReleaseVerificationService(Interface):
         created for.
         """
 
-    def persist_attestations(oidc_publisher, attestations: list[Attestation], file):
+    def persist_attestations(attestations: list[Attestation], file):
         """
         ̦Persist attestations in storage.
         """
@@ -36,11 +36,16 @@ class IReleaseVerificationService(Interface):
         Process any attestations included in a file upload request
         """
 
-    def generate_and_store_provenance_file(
-        oidc_publisher, attestations: list[Attestation], file
-    ) -> None:
+    def generate_provenance(
+        oidc_publisher, attestations: list[Attestation]
+    ) -> Provenance | None:
         """
-        Generate and store a provenance file for a release, its attestations and an OIDCPublisher.
+        Generate a Provenance object from an OIDCPublisher and its attestations.
+        """
+
+    def persist_provenance(provenance: Provenance, file) -> None:
+        """
+        Persist a Provenance object in storage.
         """
 
     def get_provenance_digest(file) -> str | None:

@@ -46,7 +46,7 @@ from sqlalchemy import and_, exists, func, orm
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.attestations import AttestationUploadError, IReleaseVerificationService
+from warehouse.attestations import AttestationUploadError, IIntegrityService
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
@@ -1306,16 +1306,12 @@ def file_upload(request):
 
         # If the user provided attestations, verify and store them
         if "attestations" in request.POST:
-            attestation_service = request.find_service(
-                IReleaseVerificationService, context=None
-            )
+            integrity_service = request.find_service(IIntegrityService, context=None)
 
             try:
-                attestations: list[Attestation] = (
-                    attestation_service.parse_attestations(
-                        request,
-                        Distribution(name=filename, digest=file_hashes["sha256"]),
-                    )
+                attestations: list[Attestation] = integrity_service.parse_attestations(
+                    request,
+                    Distribution(name=filename, digest=file_hashes["sha256"]),
                 )
             except AttestationUploadError as e:
                 raise _exc_with_message(
@@ -1323,9 +1319,13 @@ def file_upload(request):
                     str(e),
                 )
 
-            attestation_service.persist_attestations(
-                request.oidc_publisher, attestations, file_
+            integrity_service.persist_attestations(attestations, file_)
+
+            provenance = integrity_service.generate_provenance(
+                request.oidc_publisher, attestations
             )
+            if provenance:
+                integrity_service.persist_provenance(provenance, file_)
 
             # Log successful attestation upload
             metrics.increment("warehouse.upload.attestations.ok")

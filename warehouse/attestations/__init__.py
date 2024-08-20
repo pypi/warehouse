@@ -14,14 +14,14 @@ from warehouse.attestations.errors import (
     AttestationUploadError,
     UnsupportedPublisherError,
 )
-from warehouse.attestations.interfaces import IReleaseVerificationService
+from warehouse.attestations.interfaces import IIntegrityService
 from warehouse.attestations.models import Attestation
-from warehouse.attestations.services import ReleaseVerificationService
+from warehouse.attestations.services import IntegrityService
 
 __all__ = [
     "Attestation",
     "AttestationUploadError",
-    "IReleaseVerificationService",
-    "ReleaseVerificationService",
+    "IIntegrityService",
+    "IntegrityService",
     "UnsupportedPublisherError",
 ]

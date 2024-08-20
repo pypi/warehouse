@@ -37,7 +37,7 @@ from warehouse.attestations.errors import (
     AttestationUploadError,
     UnsupportedPublisherError,
 )
-from warehouse.attestations.interfaces import IReleaseVerificationService
+from warehouse.attestations.interfaces import IIntegrityService
 from warehouse.attestations.models import Attestation as DatabaseAttestation
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.models import (
@@ -51,7 +51,7 @@ from warehouse.packaging.models import File
 
 def _publisher_from_oidc_publisher(publisher: OIDCPublisher) -> Publisher:
     """
-    Convert an OIDCPublisher object in a pypy-attestations Publisher.
+    Convert an OIDCPublisher object in a pypi-attestations Publisher.
     """
     match publisher.publisher_name:
         case "GitLab":
@@ -70,8 +70,8 @@ def _publisher_from_oidc_publisher(publisher: OIDCPublisher) -> Publisher:
             raise UnsupportedPublisherError
 
 
-@implementer(IReleaseVerificationService)
-class ReleaseVerificationService:
+@implementer(IIntegrityService)
+class IntegrityService:
 
     def __init__(
         self,
@@ -88,9 +88,7 @@ class ReleaseVerificationService:
             metrics=request.find_service(IMetricsService),
         )
 
-    def persist_attestations(
-        self, oidc_publisher: OIDCPublisher, attestations: list[Attestation], file: File
-    ) -> None:
+    def persist_attestations(self, attestations: list[Attestation], file: File) -> None:
         for attestation in attestations:
             with tempfile.NamedTemporaryFile() as tmp_file:
                 tmp_file.write(attestation.model_dump_json().encode("utf-8"))
@@ -109,8 +107,6 @@ class ReleaseVerificationService:
                 )
 
             file.attestations.append(database_attestation)
-
-        self.generate_and_store_provenance_file(oidc_publisher, attestations, file)
 
     def parse_attestations(
         self, request: Request, distribution: Distribution
@@ -189,9 +185,9 @@ class ReleaseVerificationService:
 
         return attestations
 
-    def generate_and_store_provenance_file(
-        self, oidc_publisher: OIDCPublisher, attestations: list[Attestation], file: File
-    ) -> None:
+    def generate_provenance(
+        self, oidc_publisher: OIDCPublisher, attestations: list[Attestation]
+    ) -> Provenance | None:
         try:
             publisher: Publisher = _publisher_from_oidc_publisher(oidc_publisher)
         except UnsupportedPublisherError:
@@ -199,15 +195,23 @@ class ReleaseVerificationService:
                 f"Unsupported OIDCPublisher found {oidc_publisher.publisher_name}"
             )
 
-            return
+            return None
 
         attestation_bundle = AttestationBundle(
             publisher=publisher,
             attestations=attestations,
         )
 
-        provenance = Provenance(attestation_bundles=[attestation_bundle])
+        return Provenance(attestation_bundles=[attestation_bundle])
 
+    def persist_provenance(
+        self,
+        provenance: Provenance,
+        file: File,
+    ) -> None:
+        """
+        Persist a Provenance object in storage.
+        """
         provenance_file_path = Path(f"{file.path}.provenance")
         with tempfile.NamedTemporaryFile() as f:
             f.write(provenance.model_dump_json().encode("utf-8"))

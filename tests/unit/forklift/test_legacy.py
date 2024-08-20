@@ -38,7 +38,7 @@ from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.attestations import (
     Attestation as DatabaseAttestation,
     AttestationUploadError,
-    IReleaseVerificationService,
+    IIntegrityService,
 )
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy, metadata
@@ -3338,8 +3338,10 @@ class TestFileUpload:
             ),
         ]
 
+    @pytest.mark.parametrize("provenance_rv", [None, "fake-provenance-object"])
     def test_upload_succeeds_with_valid_attestation(
         self,
+        provenance_rv,
         monkeypatch,
         pyramid_config,
         db_request,
@@ -3394,19 +3396,25 @@ class TestFileUpload:
             }
         )
 
-        def persist_attestations(oidc_publisher, attestations, file):
+        def persist_attestations(attestations, file):
             file.attestations.append(AttestationFactory.create(file=file))
 
+        def persist_provenance(provenance_object, file):
+            assert provenance_object == provenance_rv
+
         storage_service = pretend.stub(store=lambda path, filepath, *, meta=None: None)
-        release_verification = pretend.stub(
+        integrity_service = pretend.stub(
             parse_attestations=lambda *args, **kwargs: [attestation],
             persist_attestations=persist_attestations,
-            generate_and_store_provenance_file=lambda p, a, f: None,
+            generate_provenance=pretend.call_recorder(
+                lambda oidc_publisher, attestations: provenance_rv
+            ),
+            persist_provenance=persist_provenance,
         )
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
             IMetricsService: metrics,
-            IReleaseVerificationService: release_verification,
+            IIntegrityService: integrity_service,
         }.get(svc)
 
         record_event = pretend.call_recorder(
@@ -3427,6 +3435,10 @@ class TestFileUpload:
             .all()
         )
         assert len(attestations_db) == 1
+
+        assert integrity_service.generate_provenance.calls == [
+            pretend.call(db_request.oidc_publisher, [attestation])
+        ]
 
     @pytest.mark.parametrize(
         "expected_message",
@@ -3491,11 +3503,11 @@ class TestFileUpload:
         def stub_parse(*_args, **_kwargs):
             raise AttestationUploadError(expected_message)
 
-        release_verification = pretend.stub(parse_attestations=stub_parse)
+        integrity_service = pretend.stub(parse_attestations=stub_parse)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
             IMetricsService: metrics,
-            IReleaseVerificationService: release_verification,
+            IIntegrityService: integrity_service,
         }.get(svc)
 
         record_event = pretend.call_recorder(
