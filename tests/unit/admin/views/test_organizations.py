@@ -27,7 +27,7 @@ from ....common.db.organizations import (
 
 
 class TestOrganizationList:
-    def test_no_query(self, enable_organizations, db_request):
+    def test_no_query(self, _enable_organizations, db_request):
         organizations = sorted(
             OrganizationFactory.create_batch(30),
             key=lambda o: o.normalized_name,
@@ -36,7 +36,7 @@ class TestOrganizationList:
 
         assert result == {"organizations": organizations[:25], "query": "", "terms": []}
 
-    def test_with_page(self, enable_organizations, db_request):
+    def test_with_page(self, _enable_organizations, db_request):
         organizations = sorted(
             OrganizationFactory.create_batch(30),
             key=lambda o: o.normalized_name,
@@ -46,7 +46,7 @@ class TestOrganizationList:
 
         assert result == {"organizations": organizations[25:], "query": "", "terms": []}
 
-    def test_with_invalid_page(self, enable_organizations):
+    def test_with_invalid_page(self, _enable_organizations):
         request = pretend.stub(
             flags=pretend.stub(enabled=lambda *a: False),
             params={"page": "not an integer"},
@@ -55,7 +55,7 @@ class TestOrganizationList:
         with pytest.raises(HTTPBadRequest):
             views.organization_list(request)
 
-    def test_basic_query(self, enable_organizations, db_request):
+    def test_basic_query(self, _enable_organizations, db_request):
         organizations = sorted(
             OrganizationFactory.create_batch(5),
             key=lambda o: o.normalized_name,
@@ -67,7 +67,7 @@ class TestOrganizationList:
         assert result["query"] == organizations[0].name
         assert result["terms"] == [organizations[0].name]
 
-    def test_name_query(self, enable_organizations, db_request):
+    def test_name_query(self, _enable_organizations, db_request):
         organizations = sorted(
             OrganizationFactory.create_batch(5),
             key=lambda o: o.normalized_name,
@@ -79,7 +79,7 @@ class TestOrganizationList:
         assert result["query"] == f"name:{organizations[0].name}"
         assert result["terms"] == [f"name:{organizations[0].name}"]
 
-    def test_organization_query(self, enable_organizations, db_request):
+    def test_organization_query(self, _enable_organizations, db_request):
         organizations = sorted(
             OrganizationFactory.create_batch(5),
             key=lambda o: o.normalized_name,
@@ -91,7 +91,7 @@ class TestOrganizationList:
         assert result["query"] == f"organization:{organizations[0].display_name}"
         assert result["terms"] == [f"organization:{organizations[0].display_name}"]
 
-    def test_url_query(self, enable_organizations, db_request):
+    def test_url_query(self, _enable_organizations, db_request):
         organizations = sorted(
             OrganizationFactory.create_batch(5),
             key=lambda o: o.normalized_name,
@@ -103,7 +103,7 @@ class TestOrganizationList:
         assert result["query"] == f"url:{organizations[0].link_url}"
         assert result["terms"] == [f"url:{organizations[0].link_url}"]
 
-    def test_description_query(self, enable_organizations, db_request):
+    def test_description_query(self, _enable_organizations, db_request):
         organizations = sorted(
             OrganizationFactory.create_batch(5),
             key=lambda o: o.normalized_name,
@@ -115,7 +115,7 @@ class TestOrganizationList:
         assert result["query"] == f"description:'{organizations[0].description}'"
         assert result["terms"] == [f"description:{organizations[0].description}"]
 
-    def test_is_active_query(self, enable_organizations, db_request):
+    def test_is_active_query(self, _enable_organizations, db_request):
         organizations = sorted(
             OrganizationFactory.create_batch(5),
             key=lambda o: o.normalized_name,
@@ -134,7 +134,7 @@ class TestOrganizationList:
             "terms": ["is:active"],
         }
 
-    def test_is_inactive_query(self, enable_organizations, db_request):
+    def test_is_inactive_query(self, _enable_organizations, db_request):
         organizations = sorted(
             OrganizationFactory.create_batch(5),
             key=lambda o: o.normalized_name,
@@ -153,7 +153,7 @@ class TestOrganizationList:
             "terms": ["is:inactive"],
         }
 
-    def test_type_query(self, enable_organizations, db_request):
+    def test_type_query(self, _enable_organizations, db_request):
         company_org = OrganizationFactory.create(orgtype=OrganizationType.Company)
         community_org = OrganizationFactory.create(orgtype=OrganizationType.Community)
         db_request.GET["q"] = "type:company"
@@ -174,7 +174,7 @@ class TestOrganizationList:
             "terms": ["type:community"],
         }
 
-    def test_invalid_type_query(self, enable_organizations, db_request):
+    def test_invalid_type_query(self, _enable_organizations, db_request):
         company_org = OrganizationFactory.create(orgtype=OrganizationType.Company)
 
         db_request.GET["q"] = "type:invalid"
@@ -186,7 +186,7 @@ class TestOrganizationList:
             "terms": ["type:invalid"],
         }
 
-    def test_is_invalid_query(self, enable_organizations, db_request):
+    def test_is_invalid_query(self, _enable_organizations, db_request):
         organizations = sorted(
             OrganizationFactory.create_batch(5),
             key=lambda o: o.normalized_name,
@@ -202,7 +202,7 @@ class TestOrganizationList:
 
 
 class TestOrganizationDetail:
-    def test_detail(self, enable_organizations):
+    def test_detail(self, _enable_organizations):
         admin = pretend.stub(
             id="admin-id",
             username="admin",
@@ -260,7 +260,7 @@ class TestOrganizationDetail:
             "organization": organization,
         }
 
-    def test_detail_is_approved_true(self, enable_organizations):
+    def test_detail_is_approved_true(self, _enable_organizations):
         admin = pretend.stub(
             id="admin-id",
             username="admin",
@@ -321,7 +321,7 @@ class TestOrganizationDetail:
             "organization": organization,
         }
 
-    def test_detail_is_approved_false(self, enable_organizations):
+    def test_detail_is_approved_false(self, _enable_organizations):
         admin = pretend.stub(
             id="admin-id",
             username="admin",
@@ -382,7 +382,7 @@ class TestOrganizationDetail:
             "organization": organization,
         }
 
-    def test_detail_not_found(self, enable_organizations):
+    def test_detail_not_found(self, _enable_organizations):
         organization_service = pretend.stub(
             get_organization=lambda *a, **kw: None,
         )
@@ -397,7 +397,7 @@ class TestOrganizationDetail:
 
 
 class TestOrganizationApplicationList:
-    def test_no_query(self, enable_organizations, db_request):
+    def test_no_query(self, _enable_organizations, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(30),
             key=lambda o: o.normalized_name,
@@ -410,7 +410,7 @@ class TestOrganizationApplicationList:
             "terms": [],
         }
 
-    def test_with_page(self, enable_organizations, db_request):
+    def test_with_page(self, _enable_organizations, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(30),
             key=lambda o: o.normalized_name,
@@ -424,7 +424,7 @@ class TestOrganizationApplicationList:
             "terms": [],
         }
 
-    def test_with_invalid_page(self, enable_organizations):
+    def test_with_invalid_page(self, _enable_organizations):
         request = pretend.stub(
             flags=pretend.stub(enabled=lambda *a: False),
             params={"page": "not an integer"},
@@ -433,7 +433,7 @@ class TestOrganizationApplicationList:
         with pytest.raises(HTTPBadRequest):
             views.organization_applications_list(request)
 
-    def test_basic_query(self, enable_organizations, db_request):
+    def test_basic_query(self, _enable_organizations, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
             key=lambda o: o.normalized_name,
@@ -445,7 +445,7 @@ class TestOrganizationApplicationList:
         assert result["query"] == organization_applications[0].name
         assert result["terms"] == [organization_applications[0].name]
 
-    def test_name_query(self, enable_organizations, db_request):
+    def test_name_query(self, _enable_organizations, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
             key=lambda o: o.normalized_name,
@@ -457,7 +457,7 @@ class TestOrganizationApplicationList:
         assert result["query"] == f"name:{organization_applications[0].name}"
         assert result["terms"] == [f"name:{organization_applications[0].name}"]
 
-    def test_organization_application_query(self, enable_organizations, db_request):
+    def test_organization_application_query(self, _enable_organizations, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
             key=lambda o: o.normalized_name,
@@ -476,7 +476,7 @@ class TestOrganizationApplicationList:
             f"organization:{organization_applications[0].display_name}"
         ]
 
-    def test_url_query(self, enable_organizations, db_request):
+    def test_url_query(self, _enable_organizations, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
             key=lambda o: o.normalized_name,
@@ -488,7 +488,7 @@ class TestOrganizationApplicationList:
         assert result["query"] == f"url:{organization_applications[0].link_url}"
         assert result["terms"] == [f"url:{organization_applications[0].link_url}"]
 
-    def test_description_query(self, enable_organizations, db_request):
+    def test_description_query(self, _enable_organizations, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
             key=lambda o: o.normalized_name,
@@ -507,7 +507,7 @@ class TestOrganizationApplicationList:
             f"description:{organization_applications[0].description}"
         ]
 
-    def test_is_approved_query(self, enable_organizations, db_request):
+    def test_is_approved_query(self, _enable_organizations, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
             key=lambda o: o.normalized_name,
@@ -526,7 +526,7 @@ class TestOrganizationApplicationList:
             "terms": ["is:approved"],
         }
 
-    def test_is_declined_query(self, enable_organizations, db_request):
+    def test_is_declined_query(self, _enable_organizations, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
             key=lambda o: o.normalized_name,
@@ -545,7 +545,7 @@ class TestOrganizationApplicationList:
             "terms": ["is:declined"],
         }
 
-    def test_is_submitted_query(self, enable_organizations, db_request):
+    def test_is_submitted_query(self, _enable_organizations, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
             key=lambda o: o.normalized_name,
@@ -564,7 +564,7 @@ class TestOrganizationApplicationList:
             "terms": ["is:submitted"],
         }
 
-    def test_type_query(self, enable_organizations, db_request):
+    def test_type_query(self, _enable_organizations, db_request):
         company_org = OrganizationApplicationFactory.create(
             orgtype=OrganizationType.Company
         )
@@ -589,7 +589,7 @@ class TestOrganizationApplicationList:
             "terms": ["type:community"],
         }
 
-    def test_invalid_type_query(self, enable_organizations, db_request):
+    def test_invalid_type_query(self, _enable_organizations, db_request):
         company_org = OrganizationApplicationFactory.create(
             orgtype=OrganizationType.Company
         )
@@ -603,7 +603,7 @@ class TestOrganizationApplicationList:
             "terms": ["type:invalid"],
         }
 
-    def test_is_invalid_query(self, enable_organizations, db_request):
+    def test_is_invalid_query(self, _enable_organizations, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
             key=lambda o: o.normalized_name,
@@ -619,7 +619,7 @@ class TestOrganizationApplicationList:
 
 
 class TestOrganizationApplicationDetail:
-    def test_detail(self, enable_organizations):
+    def test_detail(self, _enable_organizations):
         admin = pretend.stub(
             id="admin-id",
             username="admin",
@@ -667,7 +667,7 @@ class TestOrganizationApplicationDetail:
             "organization_application": organization_application,
         }
 
-    def test_detail_is_approved_true(self, enable_organizations):
+    def test_detail_is_approved_true(self, _enable_organizations):
         admin = pretend.stub(
             id="admin-id",
             username="admin",
@@ -715,7 +715,7 @@ class TestOrganizationApplicationDetail:
             "organization_application": organization_application,
         }
 
-    def test_detail_is_approved_false(self, enable_organizations):
+    def test_detail_is_approved_false(self, _enable_organizations):
         admin = pretend.stub(
             id="admin-id",
             username="admin",
@@ -763,7 +763,7 @@ class TestOrganizationApplicationDetail:
             "organization_application": organization_application,
         }
 
-    def test_detail_not_found(self, enable_organizations):
+    def test_detail_not_found(self, _enable_organizations):
         organization_service = pretend.stub(
             get_organization_application=lambda *a, **kw: None,
         )
@@ -778,7 +778,7 @@ class TestOrganizationApplicationDetail:
 
 
 class TestActions:
-    def test_approve(self, enable_organizations, monkeypatch):
+    def test_approve(self, _enable_organizations, monkeypatch):
         admin = pretend.stub(
             id="admin-id",
             username="admin",
@@ -839,7 +839,7 @@ class TestActions:
         assert result.status_code == 303
         assert result.location == organization_detail_location
 
-    def test_approve_wrong_confirmation_input(self, enable_organizations, monkeypatch):
+    def test_approve_wrong_confirmation_input(self, _enable_organizations, monkeypatch):
         user_service = pretend.stub()
         organization_application = pretend.stub(id=pretend.stub(), name=pretend.stub())
         organization_service = pretend.stub(
@@ -870,7 +870,7 @@ class TestActions:
         assert result.status_code == 303
         assert result.location == organization_application_detail_location
 
-    def test_approve_not_found(self, enable_organizations):
+    def test_approve_not_found(self, _enable_organizations):
         organization_service = pretend.stub(
             get_organization_application=lambda *a, **kw: None,
         )
@@ -883,7 +883,7 @@ class TestActions:
         with pytest.raises(HTTPNotFound):
             views.organization_application_approve(request)
 
-    def test_decline(self, enable_organizations, monkeypatch):
+    def test_decline(self, _enable_organizations, monkeypatch):
         admin = pretend.stub(
             id="admin-id",
             username="admin",
@@ -947,7 +947,7 @@ class TestActions:
         assert result.status_code == 303
         assert result.location == organization_application_detail_location
 
-    def test_decline_wrong_confirmation_input(self, enable_organizations, monkeypatch):
+    def test_decline_wrong_confirmation_input(self, _enable_organizations, monkeypatch):
         user_service = pretend.stub()
         organization_application = pretend.stub(id=pretend.stub(), name=pretend.stub())
         organization_service = pretend.stub(
@@ -978,7 +978,7 @@ class TestActions:
         assert result.status_code == 303
         assert result.location == organization_application_detail_location
 
-    def test_decline_not_found(self, enable_organizations):
+    def test_decline_not_found(self, _enable_organizations):
         organization_service = pretend.stub(
             get_organization_application=lambda *a, **kw: None,
         )

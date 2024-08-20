@@ -2125,7 +2125,7 @@ class TestSendNewOrganizationDeclinedEmail:
 
 class TestOrganizationProjectEmails:
     @pytest.fixture
-    def organization_project(self, pyramid_user):
+    def _organization_project(self, pyramid_user):
         self.user = pyramid_user
         self.organization_name = "exampleorganization"
         self.project_name = "exampleproject"
@@ -2143,7 +2143,7 @@ class TestOrganizationProjectEmails:
     def test_send_organization_project_email(
         self,
         db_request,
-        organization_project,
+        _organization_project,
         make_email_renderers,
         send_email,
         email_template_name,
@@ -2198,7 +2198,7 @@ class TestOrganizationProjectEmails:
 
 class TestOrganizationMemberEmails:
     @pytest.fixture
-    def organization_invite(self, pyramid_user):
+    def _organization_invite(self, pyramid_user):
         self.initiator_user = pyramid_user
         self.user = UserFactory.create()
         EmailFactory.create(user=self.user, verified=True)
@@ -2211,7 +2211,7 @@ class TestOrganizationMemberEmails:
     def test_send_organization_member_invited_email(
         self,
         db_request,
-        organization_invite,
+        _organization_invite,
         make_email_renderers,
         send_email,
     ):
@@ -2272,7 +2272,7 @@ class TestOrganizationMemberEmails:
     def test_send_organization_role_verification_email(
         self,
         db_request,
-        organization_invite,
+        _organization_invite,
         make_email_renderers,
         send_email,
     ):
@@ -2332,7 +2332,7 @@ class TestOrganizationMemberEmails:
     def test_send_organization_member_invite_canceled_email(
         self,
         db_request,
-        organization_invite,
+        _organization_invite,
         make_email_renderers,
         send_email,
     ):
@@ -2385,7 +2385,7 @@ class TestOrganizationMemberEmails:
     def test_send_canceled_as_invited_organization_member_email(
         self,
         db_request,
-        organization_invite,
+        _organization_invite,
         make_email_renderers,
         send_email,
     ):
@@ -2437,7 +2437,7 @@ class TestOrganizationMemberEmails:
     def test_send_organization_member_invite_declined_email(
         self,
         db_request,
-        organization_invite,
+        _organization_invite,
         make_email_renderers,
         send_email,
     ):
@@ -2492,7 +2492,7 @@ class TestOrganizationMemberEmails:
     def test_send_declined_as_invited_organization_member_email(
         self,
         db_request,
-        organization_invite,
+        _organization_invite,
         make_email_renderers,
         send_email,
     ):
@@ -2544,7 +2544,7 @@ class TestOrganizationMemberEmails:
     def test_send_organization_member_added_email(
         self,
         db_request,
-        organization_invite,
+        _organization_invite,
         make_email_renderers,
         send_email,
     ):
@@ -2601,7 +2601,7 @@ class TestOrganizationMemberEmails:
     def test_send_added_as_organization_email(
         self,
         db_request,
-        organization_invite,
+        _organization_invite,
         make_email_renderers,
         send_email,
     ):
@@ -2657,7 +2657,7 @@ class TestOrganizationMemberEmails:
     def test_send_organization_member_removed_email(
         self,
         db_request,
-        organization_invite,
+        _organization_invite,
         make_email_renderers,
         send_email,
     ):
@@ -2712,7 +2712,7 @@ class TestOrganizationMemberEmails:
     def test_send_removed_as_organization_email(
         self,
         db_request,
-        organization_invite,
+        _organization_invite,
         make_email_renderers,
         send_email,
     ):
@@ -2766,7 +2766,7 @@ class TestOrganizationMemberEmails:
     def test_send_organization_member_role_changed_email(
         self,
         db_request,
-        organization_invite,
+        _organization_invite,
         make_email_renderers,
         send_email,
     ):
@@ -2823,7 +2823,7 @@ class TestOrganizationMemberEmails:
     def test_send_role_changed_as_organization_email(
         self,
         db_request,
-        organization_invite,
+        _organization_invite,
         make_email_renderers,
         send_email,
     ):
@@ -2879,7 +2879,7 @@ class TestOrganizationMemberEmails:
 
 class TestOrganizationUpdateEmails:
     @pytest.fixture
-    def organization_update(self, pyramid_user):
+    def _organization_update(self, pyramid_user):
         self.user = UserFactory.create()
         EmailFactory.create(user=self.user, verified=True)
         self.organization_name = "example"
@@ -2895,7 +2895,7 @@ class TestOrganizationUpdateEmails:
     def test_send_organization_renamed_email(
         self,
         db_request,
-        organization_update,
+        _organization_update,
         make_email_renderers,
         send_email,
     ):
@@ -2964,7 +2964,7 @@ class TestOrganizationUpdateEmails:
 
 class TestOrganizationRenameEmails:
     @pytest.fixture
-    def organization_rename(self, pyramid_user):
+    def _organization_rename(self, pyramid_user):
         self.user = UserFactory.create()
         EmailFactory.create(user=self.user, verified=True)
         self.organization_name = "example"
@@ -2973,7 +2973,7 @@ class TestOrganizationRenameEmails:
     def test_send_admin_organization_renamed_email(
         self,
         db_request,
-        organization_rename,
+        _organization_rename,
         make_email_renderers,
         send_email,
     ):
@@ -3026,7 +3026,7 @@ class TestOrganizationRenameEmails:
     def test_send_organization_renamed_email(
         self,
         db_request,
-        organization_rename,
+        _organization_rename,
         make_email_renderers,
         send_email,
     ):
@@ -3079,7 +3079,7 @@ class TestOrganizationRenameEmails:
 
 class TestOrganizationDeleteEmails:
     @pytest.fixture
-    def organization_delete(self, pyramid_user):
+    def _organization_delete(self, pyramid_user):
         self.user = UserFactory.create()
         EmailFactory.create(user=self.user, verified=True)
         self.organization_name = "example"
@@ -3087,7 +3087,7 @@ class TestOrganizationDeleteEmails:
     def test_send_admin_organization_deleted_email(
         self,
         db_request,
-        organization_delete,
+        _organization_delete,
         make_email_renderers,
         send_email,
     ):
@@ -3138,7 +3138,7 @@ class TestOrganizationDeleteEmails:
     def test_send_organization_deleted_email(
         self,
         db_request,
-        organization_delete,
+        _organization_delete,
         make_email_renderers,
         send_email,
     ):
@@ -3189,7 +3189,7 @@ class TestOrganizationDeleteEmails:
 
 class TestTeamMemberEmails:
     @pytest.fixture
-    def team(self, pyramid_user):
+    def _team(self, pyramid_user):
         self.user = UserFactory.create()
         EmailFactory.create(user=self.user, verified=True)
         self.submitter = pyramid_user
@@ -3208,7 +3208,7 @@ class TestTeamMemberEmails:
     def test_send_team_member_email(
         self,
         db_request,
-        team,
+        _team,
         make_email_renderers,
         send_email,
         email_template_name,
@@ -3278,7 +3278,7 @@ class TestTeamMemberEmails:
 
 class TestTeamEmails:
     @pytest.fixture
-    def team(self, pyramid_user):
+    def _team(self, pyramid_user):
         self.user = pyramid_user
         self.organization_name = "exampleorganization"
         self.team_name = "Example Team"
@@ -3293,7 +3293,7 @@ class TestTeamEmails:
     def test_send_team_email(
         self,
         db_request,
-        team,
+        _team,
         make_email_renderers,
         send_email,
         email_template_name,
@@ -4175,7 +4175,7 @@ class TestRoleChangedAsCollaboratorEmail:
 
 class TestTeamCollaboratorEmails:
     @pytest.fixture
-    def team(self, pyramid_user):
+    def _team(self, pyramid_user):
         self.user = UserFactory.create()
         EmailFactory.create(user=self.user, verified=True)
         self.submitter = pyramid_user
@@ -4206,7 +4206,7 @@ class TestTeamCollaboratorEmails:
     def test_send_team_collaborator_email(
         self,
         db_request,
-        team,
+        _team,
         make_email_renderers,
         send_email,
         email_template_name,

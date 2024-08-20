@@ -150,7 +150,7 @@ class TestActiveOrganizationPredicate:
         self,
         db_request,
         organization,
-        enable_organizations,
+        _enable_organizations,
     ):
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/manage/organizations/"
@@ -167,8 +167,8 @@ class TestActiveOrganizationPredicate:
         self,
         db_request,
         organization,
-        enable_organizations,
         inactive_subscription,
+        _enable_organizations,
     ):
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/manage/organizations/"
@@ -181,7 +181,11 @@ class TestActiveOrganizationPredicate:
         assert db_request.route_path.calls == [pretend.call("manage.organizations")]
 
     def test_active_subscription(
-        self, db_request, organization, enable_organizations, active_subscription
+        self,
+        db_request,
+        organization,
+        active_subscription,
+        _enable_organizations,
     ):
         predicate = ActiveOrganizationPredicate(True, None)
         assert predicate(organization, db_request)

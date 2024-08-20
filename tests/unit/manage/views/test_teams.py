@@ -46,7 +46,7 @@ from warehouse.utils.paginate import paginate_url_factory
 
 class TestManageTeamSettings:
     def test_manage_team(
-        self, db_request, organization_service, user_service, enable_organizations
+        self, db_request, organization_service, user_service, _enable_organizations
     ):
         team = TeamFactory.create()
 
@@ -63,7 +63,7 @@ class TestManageTeamSettings:
         }
 
     def test_save_team(
-        self, db_request, pyramid_user, organization_service, enable_organizations
+        self, db_request, pyramid_user, organization_service, _enable_organizations
     ):
         team = TeamFactory.create(name="Team Name")
         db_request.POST = MultiDict({"name": "Team name"})
@@ -77,7 +77,7 @@ class TestManageTeamSettings:
         assert team.name == "Team name"
 
     def test_save_team_validation_fails(
-        self, db_request, organization_service, enable_organizations
+        self, db_request, organization_service, _enable_organizations
     ):
         organization = OrganizationFactory.create()
         team = TeamFactory.create(
@@ -110,7 +110,7 @@ class TestManageTeamSettings:
         pyramid_user,
         organization_service,
         user_service,
-        enable_organizations,
+        _enable_organizations,
         monkeypatch,
     ):
         team = TeamFactory.create()
@@ -140,7 +140,7 @@ class TestManageTeamSettings:
         pyramid_user,
         organization_service,
         user_service,
-        enable_organizations,
+        _enable_organizations,
         monkeypatch,
     ):
         team = TeamFactory.create()
@@ -164,7 +164,7 @@ class TestManageTeamSettings:
         pyramid_user,
         organization_service,
         user_service,
-        enable_organizations,
+        _enable_organizations,
         monkeypatch,
     ):
         team = TeamFactory.create(name="Team Name")
@@ -195,7 +195,7 @@ class TestManageTeamProjects:
         db_request,
         pyramid_user,
         organization_service,
-        enable_organizations,
+        _enable_organizations,
         monkeypatch,
     ):
         team = TeamFactory.create()
@@ -224,7 +224,7 @@ class TestManageTeamRoles:
         db_request,
         organization_service,
         user_service,
-        enable_organizations,
+        _enable_organizations,
     ):
         team = TeamFactory.create()
 
@@ -245,7 +245,7 @@ class TestManageTeamRoles:
         db_request,
         organization_service,
         user_service,
-        enable_organizations,
+        _enable_organizations,
         monkeypatch,
     ):
         organization = OrganizationFactory.create()
@@ -328,7 +328,7 @@ class TestManageTeamRoles:
         db_request,
         organization_service,
         user_service,
-        enable_organizations,
+        _enable_organizations,
     ):
         organization = OrganizationFactory.create()
         team = TeamFactory(organization=organization)
@@ -380,7 +380,7 @@ class TestManageTeamRoles:
         db_request,
         organization_service,
         user_service,
-        enable_organizations,
+        _enable_organizations,
     ):
         organization = OrganizationFactory.create()
         team = TeamFactory(organization=organization)
@@ -422,7 +422,7 @@ class TestManageTeamRoles:
         db_request,
         organization_service,
         user_service,
-        enable_organizations,
+        _enable_organizations,
         monkeypatch,
     ):
         organization = OrganizationFactory.create()
@@ -505,7 +505,7 @@ class TestManageTeamRoles:
         db_request,
         organization_service,
         user_service,
-        enable_organizations,
+        _enable_organizations,
     ):
         organization = OrganizationFactory.create()
         team = TeamFactory(organization=organization)
@@ -556,7 +556,7 @@ class TestManageTeamRoles:
         db_request,
         organization_service,
         user_service,
-        enable_organizations,
+        _enable_organizations,
     ):
         organization = OrganizationFactory.create()
         team = TeamFactory(organization=organization)
@@ -720,7 +720,7 @@ class TestManageTeamHistory:
 
 class TestChangeTeamProjectRole:
     @pytest.fixture
-    def organization(self, enable_organizations, pyramid_user):
+    def organization(self, _enable_organizations, pyramid_user):
         organization = OrganizationFactory.create()
         OrganizationRoleFactory.create(
             organization=organization,
@@ -911,7 +911,7 @@ class TestChangeTeamProjectRole:
 
 class TestDeleteTeamProjectRole:
     @pytest.fixture
-    def organization(self, enable_organizations, pyramid_user):
+    def organization(self, _enable_organizations, pyramid_user):
         organization = OrganizationFactory.create()
         OrganizationRoleFactory.create(
             organization=organization,

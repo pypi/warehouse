@@ -30,21 +30,21 @@ class TestMockBillingViews:
             billing.MockBillingViews(organization, db_request)
 
     def test_mock_checkout_session(
-        self, db_request, organization, enable_organizations
+        self, db_request, organization, _enable_organizations
     ):
         view = billing.MockBillingViews(organization, db_request)
         result = view.mock_checkout_session()
 
         assert result == {"organization": organization}
 
-    def test_mock_portal_session(self, db_request, organization, enable_organizations):
+    def test_mock_portal_session(self, db_request, organization, _enable_organizations):
         view = billing.MockBillingViews(organization, db_request)
         result = view.mock_portal_session()
 
         assert result == {"organization": organization}
 
     def test_mock_trigger_checkout_session_completed(
-        self, db_request, organization, enable_organizations, monkeypatch
+        self, db_request, organization, _enable_organizations, monkeypatch
     ):
         monkeypatch.setattr(
             db_request,

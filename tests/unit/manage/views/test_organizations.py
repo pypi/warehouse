@@ -138,7 +138,7 @@ class TestManageOrganizations:
         with pytest.raises(HTTPNotFound):
             view.manage_organizations()
 
-    def test_create_organization_application(self, enable_organizations, monkeypatch):
+    def test_create_organization_application(self, _enable_organizations, monkeypatch):
         admins = []
         user_service = pretend.stub(
             get_admins=pretend.call_recorder(lambda *a, **kw: admins),
@@ -257,7 +257,7 @@ class TestManageOrganizations:
         assert isinstance(result, HTTPSeeOther)
 
     def test_create_organization_application_with_subscription(
-        self, enable_organizations, monkeypatch
+        self, _enable_organizations, monkeypatch
     ):
         admins = []
         user_service = pretend.stub(
@@ -474,7 +474,7 @@ class TestManageOrganizations:
 
 class TestManageOrganizationSettings:
     def test_manage_organization(
-        self, db_request, organization_service, enable_organizations, monkeypatch
+        self, db_request, organization_service, _enable_organizations, monkeypatch
     ):
         db_request.user = pretend.stub()
         organization = OrganizationFactory.create()
@@ -534,7 +534,7 @@ class TestManageOrganizationSettings:
         has_customer,
         billing_service,
         organization_service,
-        enable_organizations,
+        _enable_organizations,
         monkeypatch,
     ):
         organization = OrganizationFactory.create(orgtype=orgtype)
@@ -615,7 +615,7 @@ class TestManageOrganizationSettings:
         ]
 
     def test_save_organization_validation_fails(
-        self, db_request, organization_service, enable_organizations, monkeypatch
+        self, db_request, organization_service, _enable_organizations, monkeypatch
     ):
         organization = OrganizationFactory.create()
         db_request.POST = {
@@ -663,7 +663,7 @@ class TestManageOrganizationSettings:
         pyramid_user,
         organization_service,
         user_service,
-        enable_organizations,
+        _enable_organizations,
         monkeypatch,
     ):
         organization = OrganizationFactory.create(name="foobar")
@@ -744,7 +744,7 @@ class TestManageOrganizationSettings:
         ]
 
     def test_save_organization_name_wrong_confirm(
-        self, db_request, organization_service, enable_organizations, monkeypatch
+        self, db_request, organization_service, _enable_organizations, monkeypatch
     ):
         organization = OrganizationFactory.create(name="foobar")
         db_request.POST = {
@@ -771,7 +771,7 @@ class TestManageOrganizationSettings:
         ]
 
     def test_save_organization_name_validation_fails(
-        self, db_request, organization_service, enable_organizations, monkeypatch
+        self, db_request, organization_service, _enable_organizations, monkeypatch
     ):
         organization = OrganizationFactory.create(name="foobar")
         db_request.POST = {
@@ -820,7 +820,7 @@ class TestManageOrganizationSettings:
         pyramid_user,
         organization_service,
         user_service,
-        enable_organizations,
+        _enable_organizations,
         monkeypatch,
     ):
         organization = OrganizationFactory.create()
@@ -878,7 +878,7 @@ class TestManageOrganizationSettings:
         db_request,
         pyramid_user,
         organization_service,
-        enable_organizations,
+        _enable_organizations,
         monkeypatch,
     ):
         organization = OrganizationFactory.create()
@@ -924,7 +924,7 @@ class TestManageOrganizationSettings:
         pyramid_user,
         organization_service,
         user_service,
-        enable_organizations,
+        _enable_organizations,
         monkeypatch,
     ):
         organization = OrganizationFactory.create()
@@ -1063,7 +1063,7 @@ class TestManageOrganizationBillingViews:
         self,
         db_request,
         organization,
-        enable_organizations,
+        _enable_organizations,
     ):
         view = org_views.ManageOrganizationBillingViews(organization, db_request)
 
@@ -1081,7 +1081,7 @@ class TestManageOrganizationBillingViews:
         subscription_service,
         organization,
         subscription_price,
-        enable_organizations,
+        _enable_organizations,
         monkeypatch,
     ):
         db_request.route_path = pretend.call_recorder(
@@ -1122,7 +1122,7 @@ class TestManageOrganizationBillingViews:
         subscription_service,
         organization,
         subscription_price,
-        enable_organizations,
+        _enable_organizations,
         monkeypatch,
     ):
         db_request.route_path = pretend.call_recorder(
@@ -1158,7 +1158,7 @@ class TestManageOrganizationBillingViews:
         subscription_service,
         organization,
         organization_subscription,
-        enable_organizations,
+        _enable_organizations,
         monkeypatch,
     ):
         db_request.route_path = pretend.call_recorder(
@@ -1195,7 +1195,7 @@ class TestManageOrganizationBillingViews:
         subscription_service,
         organization,
         organization_subscription,
-        enable_organizations,
+        _enable_organizations,
         monkeypatch,
     ):
         db_request.route_path = pretend.call_recorder(
@@ -1229,7 +1229,7 @@ class TestManageOrganizationTeams:
         db_request,
         pyramid_user,
         organization_service,
-        enable_organizations,
+        _enable_organizations,
         monkeypatch,
     ):
         organization = OrganizationFactory.create()
@@ -1253,7 +1253,7 @@ class TestManageOrganizationTeams:
         db_request,
         pyramid_user,
         organization_service,
-        enable_organizations,
+        _enable_organizations,
         monkeypatch,
     ):
         organization = OrganizationFactory.create()
@@ -1300,7 +1300,7 @@ class TestManageOrganizationTeams:
         db_request,
         pyramid_user,
         organization_service,
-        enable_organizations,
+        _enable_organizations,
         monkeypatch,
     ):
         organization = OrganizationFactory.create()
@@ -1334,7 +1334,7 @@ class TestManageOrganizationProjects:
         db_request,
         pyramid_user,
         organization_service,
-        enable_organizations,
+        _enable_organizations,
         monkeypatch,
     ):
         organization = OrganizationFactory.create()
@@ -1369,7 +1369,7 @@ class TestManageOrganizationProjects:
         db_request,
         pyramid_user,
         organization_service,
-        enable_organizations,
+        _enable_organizations,
         monkeypatch,
     ):
         organization = OrganizationFactory.create()
@@ -1435,7 +1435,7 @@ class TestManageOrganizationProjects:
         db_request,
         pyramid_user,
         organization_service,
-        enable_organizations,
+        _enable_organizations,
         monkeypatch,
     ):
         organization = OrganizationFactory.create()
@@ -1500,7 +1500,7 @@ class TestManageOrganizationProjects:
         db_request,
         pyramid_user,
         organization_service,
-        enable_organizations,
+        _enable_organizations,
         monkeypatch,
     ):
         organization = OrganizationFactory.create()
@@ -1553,7 +1553,7 @@ class TestManageOrganizationProjects:
         self,
         db_request,
         pyramid_user,
-        enable_organizations,
+        _enable_organizations,
         monkeypatch,
     ):
         db_request.help_url = lambda *a, **kw: ""
@@ -1626,7 +1626,7 @@ class TestManageOrganizationProjects:
         db_request,
         pyramid_user,
         organization_service,
-        enable_organizations,
+        _enable_organizations,
         monkeypatch,
         invalid_name,
         expected,
@@ -1675,7 +1675,7 @@ class TestManageOrganizationProjects:
         db_request,
         pyramid_user,
         organization_service,
-        enable_organizations,
+        _enable_organizations,
         monkeypatch,
     ):
         db_request.help_url = lambda *a, **kw: "help-url"
@@ -1728,7 +1728,7 @@ class TestManageOrganizationProjects:
 
 class TestManageOrganizationRoles:
     def test_get_manage_organization_roles(
-        self, db_request, pyramid_user, enable_organizations
+        self, db_request, pyramid_user, _enable_organizations
     ):
         organization = OrganizationFactory.create(name="foobar")
         form_obj = pretend.stub()
@@ -1756,7 +1756,7 @@ class TestManageOrganizationRoles:
         organization_service,
         user_service,
         token_service,
-        enable_organizations,
+        _enable_organizations,
         monkeypatch,
     ):
         organization = OrganizationFactory.create(name="foobar", orgtype=orgtype)
@@ -1857,7 +1857,7 @@ class TestManageOrganizationRoles:
         ]
 
     def test_post_duplicate_organization_role(
-        self, db_request, organization_service, user_service, enable_organizations
+        self, db_request, organization_service, user_service, _enable_organizations
     ):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
@@ -1909,7 +1909,7 @@ class TestManageOrganizationRoles:
         db_request,
         organization_service,
         user_service,
-        enable_organizations,
+        _enable_organizations,
         with_email,
     ):
         organization = OrganizationFactory.create(name="foobar")
@@ -1956,7 +1956,7 @@ class TestManageOrganizationRoles:
         assert isinstance(result, HTTPSeeOther)
 
     def test_cannot_reinvite_organization_role(
-        self, db_request, organization_service, user_service, enable_organizations
+        self, db_request, organization_service, user_service, _enable_organizations
     ):
         organization = OrganizationFactory.create(name="foobar")
         new_user = UserFactory.create(username="new_user")
@@ -2022,7 +2022,7 @@ class TestManageOrganizationRoles:
         db_request,
         organization_service,
         user_service,
-        enable_organizations,
+        _enable_organizations,
         monkeypatch,
     ):
         organization = OrganizationFactory.create(name="foobar")
@@ -2149,7 +2149,7 @@ class TestManageOrganizationRoles:
 class TestResendOrganizationInvitations:
     @freeze_time(datetime.datetime.now(datetime.UTC))
     def test_resend_invitation(
-        self, db_request, token_service, enable_organizations, monkeypatch
+        self, db_request, token_service, _enable_organizations, monkeypatch
     ):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
@@ -2265,7 +2265,7 @@ class TestResendOrganizationInvitations:
         ]
 
     def test_resend_invitation_fails_corrupt_token(
-        self, db_request, token_service, enable_organizations
+        self, db_request, token_service, _enable_organizations
     ):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
@@ -2315,7 +2315,7 @@ class TestResendOrganizationInvitations:
         assert result.headers["Location"] == "/manage/organizations"
 
     def test_resend_invitation_fails_missing_invitation(
-        self, db_request, token_service, enable_organizations
+        self, db_request, token_service, _enable_organizations
     ):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
@@ -2360,7 +2360,7 @@ class TestResendOrganizationInvitations:
 
 class TestRevokeOrganizationInvitation:
     def test_revoke_invitation(
-        self, db_request, token_service, enable_organizations, monkeypatch
+        self, db_request, token_service, _enable_organizations, monkeypatch
     ):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
@@ -2443,7 +2443,7 @@ class TestRevokeOrganizationInvitation:
         assert result.headers["Location"] == "/manage/organizations"
 
     def test_invitation_does_not_exist(
-        self, db_request, token_service, enable_organizations
+        self, db_request, token_service, _enable_organizations
     ):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
@@ -2475,7 +2475,7 @@ class TestRevokeOrganizationInvitation:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/manage/organizations"
 
-    def test_token_expired(self, db_request, token_service, enable_organizations):
+    def test_token_expired(self, db_request, token_service, _enable_organizations):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
         OrganizationInvitationFactory.create(
@@ -2519,7 +2519,7 @@ class TestRevokeOrganizationInvitation:
 
 class TestChangeOrganizationRole:
     @pytest.mark.parametrize("orgtype", list(OrganizationType))
-    def test_change_role(self, db_request, orgtype, enable_organizations, monkeypatch):
+    def test_change_role(self, db_request, orgtype, _enable_organizations, monkeypatch):
         organization = OrganizationFactory.create(name="foobar", orgtype=orgtype)
         user = UserFactory.create(username="testuser")
         role = OrganizationRoleFactory.create(
@@ -2590,7 +2590,7 @@ class TestChangeOrganizationRole:
         assert result.headers["Location"] == "/the-redirect"
 
     def test_change_organization_role_invalid_role_name(
-        self, db_request, enable_organizations
+        self, db_request, _enable_organizations
     ):
         organization = OrganizationFactory.create(name="foobar")
 
@@ -2610,7 +2610,7 @@ class TestChangeOrganizationRole:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    def test_change_missing_organization_role(self, db_request, enable_organizations):
+    def test_change_missing_organization_role(self, db_request, _enable_organizations):
         organization = OrganizationFactory.create(name="foobar")
         missing_role_id = str(uuid.uuid4())
 
@@ -2630,7 +2630,9 @@ class TestChangeOrganizationRole:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    def test_change_own_owner_organization_role(self, db_request, enable_organizations):
+    def test_change_own_owner_organization_role(
+        self, db_request, _enable_organizations
+    ):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
         role = OrganizationRoleFactory.create(
@@ -2655,7 +2657,7 @@ class TestChangeOrganizationRole:
 
 
 class TestDeleteOrganizationRoles:
-    def test_delete_role(self, db_request, enable_organizations, monkeypatch):
+    def test_delete_role(self, db_request, _enable_organizations, monkeypatch):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
         role = OrganizationRoleFactory.create(
@@ -2721,7 +2723,7 @@ class TestDeleteOrganizationRoles:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    def test_delete_missing_role(self, db_request, enable_organizations, monkeypatch):
+    def test_delete_missing_role(self, db_request, _enable_organizations, monkeypatch):
         organization = OrganizationFactory.create(name="foobar")
         missing_role_id = str(uuid.uuid4())
 
@@ -2751,7 +2753,7 @@ class TestDeleteOrganizationRoles:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    def test_delete_other_role_as_nonowner(self, db_request, enable_organizations):
+    def test_delete_other_role_as_nonowner(self, db_request, _enable_organizations):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
         role = OrganizationRoleFactory.create(
@@ -2783,7 +2785,7 @@ class TestDeleteOrganizationRoles:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    def test_delete_own_owner_role(self, db_request, enable_organizations):
+    def test_delete_own_owner_role(self, db_request, _enable_organizations):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
         role = OrganizationRoleFactory.create(
@@ -2808,7 +2810,7 @@ class TestDeleteOrganizationRoles:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    def test_delete_non_owner_role(self, db_request, enable_organizations):
+    def test_delete_non_owner_role(self, db_request, _enable_organizations):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
         role = OrganizationRoleFactory.create(

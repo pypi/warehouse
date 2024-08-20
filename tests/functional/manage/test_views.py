@@ -55,7 +55,7 @@ class TestManageOrganizations:
         user_service,
         organization_service,
         db_request,
-        enable_organizations,
+        _enable_organizations,
         monkeypatch,
     ):
         pyramid_services.register_service(user_service, IUserService, None)
