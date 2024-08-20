@@ -30,7 +30,7 @@ import stdlib_list
 
 from packaging.utils import canonicalize_name
 from pyramid.httpexceptions import HTTPBadRequest, HTTPConflict, HTTPForbidden
-from sqlalchemy import exists, func
+from sqlalchemy import exists, func, or_
 from zope.interface import implementer
 
 from warehouse.admin.flags import AdminFlagValue
@@ -579,20 +579,23 @@ class ProjectService:
             )
 
         # Remove all pending publishers not owned by the creator.
-        # There might be other pending publishers for the same project name,
-        # which we've now invalidated by creating the project. These would
+        # There might be other pending publishers for the same or similar project
+        # name, which we've now invalidated by creating the project. These would
         # be disposed of on use, but we explicitly dispose of them here while
         # also sending emails to their owners.
         stale_pending_publishers = (
             request.db.query(PendingOIDCPublisher)
             .filter(
-                func.normalize_pep426_name(PendingOIDCPublisher.project_name)
-                == func.normalize_pep426_name(project.name),
+                or_(
+                    func.normalize_pep426_name(PendingOIDCPublisher.project_name)
+                    == func.normalize_pep426_name(project.name),
+                    func.ultranormalize_name(PendingOIDCPublisher.project_name)
+                    == func.ultranormalize_name(project.name),
+                ),
                 PendingOIDCPublisher.added_by != creator,
             )
             .all()
         )
-        # TODO: Also dispose of pending publishers with ultranormalized collisions
         for stale_publisher in stale_pending_publishers:
             send_pending_trusted_publisher_invalidated_email(
                 request,
