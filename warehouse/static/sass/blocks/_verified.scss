@@ -18,7 +18,7 @@
   <div class="verified"></div>
 */
 
-.verified {
+.verified, .unverified {
   ul {
     padding-top: 0;
   }
@@ -26,7 +26,7 @@
   li {
     list-style-type: circle;
     list-style-position: inside;
-    padding-left: 20;
+    padding-left: 20px;
 
     a {
         display: inline;
@@ -39,8 +39,8 @@
   }
 
   h6 {
-    padding-bottom: 5;
-    padding-top: 15;
+    padding-bottom: 5px;
+    padding-top: 15px;
   }
 
   small {
