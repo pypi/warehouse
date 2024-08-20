@@ -778,5 +778,4 @@ class _MockRedis:
 
 @pytest.fixture
 def mockredis():
-    mock_redis = _MockRedis()
-    yield mock_redis
+    return _MockRedis()
