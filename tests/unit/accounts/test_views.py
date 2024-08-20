@@ -3308,6 +3308,7 @@ class TestManageAccountPublishingViews:
     def test_initializes(self, metrics):
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda *a, **kw: metrics),
+            route_url=pretend.stub(),
             POST=MultiDict(),
             registry=pretend.stub(
                 settings={
@@ -3363,6 +3364,7 @@ class TestManageAccountPublishingViews:
                     "github.token": "fake-api-token",
                 }
             ),
+            route_url=pretend.stub(),
         )
 
         view = views.ManageAccountPublishingViews(request)
@@ -3391,8 +3393,10 @@ class TestManageAccountPublishingViews:
             view._check_ratelimits()
 
     def test_manage_publishing(self, metrics, monkeypatch):
+        route_url = pretend.stub()
         request = pretend.stub(
             user=pretend.stub(),
+            route_url=route_url,
             registry=pretend.stub(
                 settings={
                     "github.token": "fake-api-token",
@@ -3467,12 +3471,14 @@ class TestManageAccountPublishingViews:
             pretend.call(
                 request.POST,
                 api_token="fake-api-token",
+                route_url=route_url,
                 project_factory=project_factory,
             )
         ]
         assert pending_gitlab_publisher_form_cls.calls == [
             pretend.call(
                 request.POST,
+                route_url=route_url,
                 project_factory=project_factory,
             )
         ]
@@ -3561,12 +3567,14 @@ class TestManageAccountPublishingViews:
             pretend.call(
                 pyramid_request.POST,
                 api_token="fake-api-token",
+                route_url=pyramid_request.route_url,
                 project_factory=project_factory,
             )
         ]
         assert pending_gitlab_publisher_form_cls.calls == [
             pretend.call(
                 pyramid_request.POST,
+                route_url=pyramid_request.route_url,
                 project_factory=project_factory,
             )
         ]
@@ -3689,12 +3697,14 @@ class TestManageAccountPublishingViews:
             pretend.call(
                 pyramid_request.POST,
                 api_token="fake-api-token",
+                route_url=pyramid_request.route_url,
                 project_factory=project_factory,
             )
         ]
         assert pending_gitlab_publisher_form_cls.calls == [
             pretend.call(
                 pyramid_request.POST,
+                route_url=pyramid_request.route_url,
                 project_factory=project_factory,
             )
         ]
@@ -3828,12 +3838,14 @@ class TestManageAccountPublishingViews:
             pretend.call(
                 pyramid_request.POST,
                 api_token="fake-api-token",
+                route_url=pyramid_request.route_url,
                 project_factory=project_factory,
             )
         ]
         assert pending_gitlab_publisher_form_cls.calls == [
             pretend.call(
                 pyramid_request.POST,
+                route_url=pyramid_request.route_url,
                 project_factory=project_factory,
             )
         ]
@@ -4545,12 +4557,14 @@ class TestManageAccountPublishingViews:
             pretend.call(
                 pyramid_request.POST,
                 api_token="fake-api-token",
+                route_url=pyramid_request.route_url,
                 project_factory=project_factory,
             )
         ]
         assert pending_gitlab_publisher_form_cls.calls == [
             pretend.call(
                 pyramid_request.POST,
+                route_url=pyramid_request.route_url,
                 project_factory=project_factory,
             )
         ]
