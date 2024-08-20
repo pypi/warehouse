@@ -58,7 +58,6 @@ from warehouse.packaging.models import (
     Project,
     ProjectMacaroonWarningAssociation,
     Release,
-    ReleaseURL,
     Role,
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
@@ -3902,11 +3901,11 @@ class TestFileUpload:
         }.get(svc)
 
         legacy.file_upload(db_request)
-        release_url = (
-            db_request.db.query(ReleaseURL).filter(Release.project == project).one()
+        release_db = (
+            db_request.db.query(Release).filter(Release.project == project).one()
         )
-        assert release_url is not None
-        assert release_url.verified == expected
+        assert release_db.urls_by_verify_status(expected) == {"Test": url}
+        assert not release_db.urls_by_verify_status(not expected)
 
     def test_new_publisher_verifies_existing_release_url(
         self,
@@ -3980,13 +3979,14 @@ class TestFileUpload:
         legacy.file_upload(db_request)
 
         # After successful upload, the Release should have now both URLs verified
-        release_urls = (
-            db_request.db.query(ReleaseURL).filter(Release.project == project).all()
+        release_db = (
+            db_request.db.query(Release).filter(Release.project == project).one()
         )
-        release_urls = {r.name: r.verified for r in release_urls}
-        assert "verified_url" in release_urls and "unverified_url" in release_urls
-        assert release_urls["verified_url"]
-        assert release_urls["unverified_url"]
+        assert release_db.urls_by_verify_status(True) == {
+            "unverified_url": unverified_url,
+            "verified_url": verified_url,
+        }
+        assert not release_db.urls_by_verify_status(False)
 
     @pytest.mark.parametrize(
         "version, expected_version",
