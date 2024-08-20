@@ -43,9 +43,12 @@ class PendingPublisherMixin:
             # not escaped by Jinja
             raise wtforms.validators.ValidationError(
                 markupsafe.Markup(
-                    f"This project already exists, use the project's publishing"
-                    f" settings <a href='{url}'>here</a> to create a Trusted"
-                    f" Publisher for it."
+                    _(
+                        "This project already exists, use the project's publishing"
+                        " settings <a href='${url}'>here</a> to create a Trusted"
+                        " Publisher for it.",
+                        mapping={"url": url},
+                    )
                 )
             )
 
