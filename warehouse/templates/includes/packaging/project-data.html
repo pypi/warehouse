@@ -128,21 +128,22 @@
 {% if release.has_meta %}
 <div class="sidebar-section unverified">
   <h6>{% trans %}Meta{% endtrans %}</h6>
+  <ul class="vertical-tabs__list">
   {% if license %}
-  <p><strong>{% trans %}License:{% endtrans %}</strong> {{ license }}</p>
+  <li><strong>{% trans %}License:{% endtrans %}</strong> {{ license }}</li>
   {% endif %}
   {% if release.author_email %}
-    <p><strong>{% trans %}Author:{% endtrans %}</strong> <a href="mailto:{{ release.author_email|format_email|last }}">{{ release.author or release.author_email|format_email|first }}</a></p>
+    <li><strong>{% trans %}Author:{% endtrans %}</strong> <a href="mailto:{{ release.author_email|format_email|last }}">{{ release.author or release.author_email|format_email|first }}</a></li>
   {% elif release.author %}
-    <p><strong>{% trans %}Author:{% endtrans %}</strong> {{ release.author }}</p>
+    <li><strong>{% trans %}Author:{% endtrans %}</strong> {{ release.author }}</li>
   {% endif %}
   {% if release.maintainer_email %}
-    <p><strong>{% trans %}Maintainer:{% endtrans %}</strong> <a href="mailto:{{ release.maintainer_email|format_email|last }}">{{ release.maintainer or release.maintainer_email|format_email|first }}</a></p>
+    <li><strong>{% trans %}Maintainer:{% endtrans %}</strong> <a href="mailto:{{ release.maintainer_email|format_email|last }}">{{ release.maintainer or release.maintainer_email|format_email|first }}</a></li>
   {% elif release.maintainer %}
-    <p><strong>{% trans %}Maintainer:{% endtrans %}</strong> {{ release.maintainer }}</p>
+    <li><strong>{% trans %}Maintainer:{% endtrans %}</strong> {{ release.maintainer }}</li>
   {% endif %}
   {% if release.keywords %}
-  <p class="tags">
+  <li class="tags">
     <i class="fa fa-tags" aria-hidden="true"></i>
     <span class="sr-only">{% trans %}Tags{% endtrans %}</span>
     {% for keyword in release.keywords | format_tags %}
@@ -150,18 +151,19 @@
       {{ keyword }}{% if not loop.last %},{% endif %}
     </span>
     {% endfor %}
-  </p>
+  </li>
   {% endif %}
   {% if release.requires_python %}
-  <p>
+  <li>
     <strong>{% trans %}Requires:{% endtrans %}</strong> Python {{ release.requires_python|replace(',', ', ') }}
-  </p>
+  </li>
   {% endif %}
   {% if release.provides_extra %}
-  <p>
+  <li>
     <strong>{% trans %}Provides-Extra:{% endtrans %}</strong> {% for extra in release.provides_extra %}<code>{{ extra }}</code>{% if not loop.last %}, {% endif %}{% endfor %}
-  </p>
+  </li>
   {% endif %}
+  </ul>
 </div>
 {% endif %}
 
