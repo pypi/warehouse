@@ -19,7 +19,7 @@ from warehouse.i18n import extensions
 
 
 @pytest.mark.parametrize(
-    "ext, result",
+    ("ext", "result"),
     [
         # Just a sanity check: test that when we do nothing, text is not trimmed.
         ([], "   hey   "),
@@ -62,9 +62,12 @@ def _get_with_context(value, ctx=None):
 class TestFallbackInternationalizationExtension:
     @pytest.mark.parametrize(
         (
-            "newstyle_env, newstyle_param, "
-            "newer_gettext_expected, newer_ngettext_expected, "
-            "_pgettext, _npgettext"
+            "newstyle_env",
+            "newstyle_param",
+            "newer_gettext_expected",
+            "newer_ngettext_expected",
+            "_pgettext",
+            "_npgettext",
         ),
         [
             (
@@ -128,7 +131,7 @@ class TestFallbackInternationalizationExtension:
         assert _make_newer_ngettext.calls == newer_ngettext_expected
 
     @pytest.mark.parametrize(
-        "translation, expected",
+        ("translation", "expected"),
         [
             ("Youzer: %(user)s", "Youzer: monty"),
             ("Youzer: %(missing)s", "User: monty"),
@@ -161,7 +164,7 @@ class TestFallbackInternationalizationExtension:
         assert tmpl.render(LANGUAGE="en_US", user="monty") == expected
 
     @pytest.mark.parametrize(
-        "translation, translation_plural, num, expected",
+        ("translation", "translation_plural", "num", "expected"),
         [
             (
                 "%(user_num)s Youzer online",

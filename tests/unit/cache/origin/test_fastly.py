@@ -261,7 +261,7 @@ class TestFastlyCache:
         assert purge_delay.calls == [pretend.call("one"), pretend.call("two")]
 
     @pytest.mark.parametrize(
-        "connect_via,forced_ip_https_adapter_calls",
+        ("connect_via", "forced_ip_https_adapter_calls"),
         [(None, []), ("172.16.0.1", [pretend.call(dest_ip="172.16.0.1")])],
     )
     def test__purge_key_ok(
@@ -318,7 +318,7 @@ class TestFastlyCache:
         assert response.raise_for_status.calls == [pretend.call()]
 
     @pytest.mark.parametrize(
-        "connect_via,forced_ip_https_adapter_calls,result",
+        ("connect_via", "forced_ip_https_adapter_calls", "result"),
         [
             (None, [], {"status": "fail"}),
             (None, [], {}),
@@ -380,7 +380,7 @@ class TestFastlyCache:
         assert response.raise_for_status.calls == [pretend.call()]
 
     @pytest.mark.parametrize(
-        "connect_via,_purge_key_calls",
+        ("connect_via", "_purge_key_calls"),
         [
             (
                 None,
@@ -415,7 +415,7 @@ class TestFastlyCache:
         assert cacher._purge_key.calls == _purge_key_calls
 
     @pytest.mark.parametrize(
-        "connect_via,_purge_key_calls",
+        ("connect_via", "_purge_key_calls"),
         [
             (
                 None,
@@ -453,7 +453,7 @@ class TestFastlyCache:
         assert cacher._purge_key.calls == _purge_key_calls
 
     @pytest.mark.parametrize(
-        "connect_via,_purge_key_calls",
+        ("connect_via", "_purge_key_calls"),
         [
             (
                 None,
@@ -493,7 +493,7 @@ class TestFastlyCache:
         assert cacher._purge_key.calls == _purge_key_calls
 
     @pytest.mark.parametrize(
-        "connect_via,_purge_key_mock_effects,_purge_key_calls,metrics_calls",
+        ("connect_via", "_purge_key_mock_effects", "_purge_key_calls", "metrics_calls"),
         [
             (
                 "172.16.0.1",
@@ -555,7 +555,12 @@ class TestFastlyCache:
         assert metrics.increment.calls == metrics_calls
 
     @pytest.mark.parametrize(
-        "connect_via,_purge_key_mock_effects,expected_raise,_purge_key_calls",
+        (
+            "connect_via",
+            "_purge_key_mock_effects",
+            "expected_raise",
+            "_purge_key_calls",
+        ),
         [
             (
                 None,

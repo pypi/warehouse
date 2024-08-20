@@ -253,7 +253,7 @@ def test_ctime(inp, expected):
 
 
 @pytest.mark.parametrize(
-    "delta, expected",
+    ("delta", "expected"),
     [
         (datetime.timedelta(days=31), False),
         (datetime.timedelta(days=30), False),

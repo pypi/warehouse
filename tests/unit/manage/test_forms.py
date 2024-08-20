@@ -325,7 +325,7 @@ class TestProvisionTOTPForm:
         assert form.validate(), str(form.errors)
 
     @pytest.mark.parametrize(
-        "exception, expected_error",
+        ("exception", "expected_error"),
         [
             (otp.InvalidTOTPError, "Invalid TOTP code. Try again?"),
             (

@@ -76,7 +76,7 @@ def test_oidc_audience():
 
 
 @pytest.mark.parametrize(
-    "token_fixture_name,service_name",
+    ("token_fixture_name", "service_name"),
     [
         ("dummy_github_oidc_jwt", "github"),
         ("dummy_activestate_oidc_jwt", "activestate"),

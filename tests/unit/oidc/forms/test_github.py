@@ -69,7 +69,7 @@ class TestPendingGitHubPublisherForm:
 
 class TestGitHubPublisherForm:
     @pytest.mark.parametrize(
-        "token, headers",
+        ("token", "headers"),
         [
             (
                 None,
@@ -319,7 +319,7 @@ class TestGitHubPublisherForm:
             form.validate_workflow_filename(field)
 
     @pytest.mark.parametrize(
-        "data, expected",
+        ("data", "expected"),
         [
             ("wu-tang", "wu-tang"),
             ("WU-TANG", "wu-tang"),

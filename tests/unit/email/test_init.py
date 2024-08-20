@@ -5718,7 +5718,7 @@ class TestTwoFactorEmail:
 
 class TestRecoveryCodeEmails:
     @pytest.mark.parametrize(
-        "fn, template_name",
+        ("fn", "template_name"),
         [
             (email.send_recovery_codes_generated_email, "recovery-codes-generated"),
             (email.send_recovery_code_used_email, "recovery-code-used"),
@@ -5799,7 +5799,7 @@ class TestRecoveryCodeEmails:
 
 class TestTrustedPublisherEmails:
     @pytest.mark.parametrize(
-        "fn, template_name",
+        ("fn", "template_name"),
         [
             (
                 email.send_pending_trusted_publisher_invalidated_email,
@@ -5886,7 +5886,7 @@ class TestTrustedPublisherEmails:
         ]
 
     @pytest.mark.parametrize(
-        "fn, template_name",
+        ("fn", "template_name"),
         [
             (email.send_trusted_publisher_added_email, "trusted-publisher-added"),
             (email.send_trusted_publisher_removed_email, "trusted-publisher-removed"),

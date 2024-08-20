@@ -424,7 +424,7 @@ class TestReleaseFactory:
         _assert_has_cors_headers(resp.headers)
 
     @pytest.mark.parametrize(
-        "other_versions,the_version,lookup_version",
+        ("other_versions", "the_version", "lookup_version"),
         [
             (["0.1", "1.0", "2.0"], "3.0", "3.0"),
             (["0.1", "1.0", "2.0"], "3.0.0", "3.0"),

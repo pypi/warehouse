@@ -20,7 +20,7 @@ from ...common.db.packaging import FileFactory
 
 class TestGeoIPInfo:
     @pytest.mark.parametrize(
-        "test_input, expected",
+        ("test_input", "expected"),
         [
             ({}, ""),
             (
@@ -44,7 +44,7 @@ class TestGeoIPInfo:
 
 class TestUserAgentInfo:
     @pytest.mark.parametrize(
-        "test_input, expected",
+        ("test_input", "expected"),
         [
             (
                 (
@@ -188,7 +188,7 @@ class TestUserAgentInfo:
         assert file.events[0].additional is None
 
     @pytest.mark.parametrize(
-        "test_input, expected",
+        ("test_input", "expected"),
         [
             (
                 {
@@ -316,7 +316,7 @@ class TestUserAgentInfo:
         assert dataklazz.display() == expected
 
     @pytest.mark.parametrize(
-        "user_agent, expected",
+        ("user_agent", "expected"),
         [
             (
                 (

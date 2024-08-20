@@ -522,7 +522,7 @@ class TestManageOrganizationSettings:
         ]
 
     @pytest.mark.parametrize(
-        ["orgtype", "has_customer"],
+        ("orgtype", "has_customer"),
         [(orgtype, True) for orgtype in list(OrganizationType)]
         + [(orgtype, False) for orgtype in list(OrganizationType)],
     )
@@ -1609,7 +1609,7 @@ class TestManageOrganizationProjects:
         ]
 
     @pytest.mark.parametrize(
-        "invalid_name, expected",
+        ("invalid_name", "expected"),
         [
             ("-invalid-name-", "The name '-invalid-name-' is invalid."),
             (

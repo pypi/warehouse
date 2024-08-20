@@ -40,7 +40,7 @@ def test_invalid_token_leak_request():
 
 
 @pytest.mark.parametrize(
-    "record, error, reason",
+    ("record", "error", "reason"),
     [
         (None, "Record is not a dict but: None", "format"),
         ({}, "Record is missing attribute(s): token, type, url", "format"),
@@ -398,7 +398,7 @@ class TestGitHubTokenScanningPayloadVerifier:
         assert cache.cache == keys
 
     @pytest.mark.parametrize(
-        "payload, expected",
+        ("payload", "expected"),
         [
             ([], "Payload is not a dict but: []"),
             ({}, "Payload misses 'public_keys' attribute"),
