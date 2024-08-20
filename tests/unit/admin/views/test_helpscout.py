@@ -62,7 +62,6 @@ class TestHelpscoutApp:
         [
             "wutang@loudrecords.com",
             "wutang+pypi@loudrecords.com",
-            "wutang@loudrecords.com",
         ],
     )
     def test_valid_auth_no_such_email(self, db_request, search_email):

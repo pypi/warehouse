@@ -34,10 +34,6 @@ from warehouse.oidc.models import _core, gitlab
             "gitlab.com/foo/bar//too//many//slashes.yml@/some/ref",
             "too//many//slashes.yml",
         ),
-        (
-            "gitlab.com/foo/bar//too//many//slashes.yml@/some/ref",
-            "too//many//slashes.yml",
-        ),
         ("gitlab.com/foo/bar//has-@.yml@/some/ref", "has-@.yml"),
         ("gitlab.com/foo/bar//foo.bar.yml@/some/ref", "foo.bar.yml"),
         ("gitlab.com/foo/bar//foo.yml.bar.yml@/some/ref", "foo.yml.bar.yml"),

@@ -1008,12 +1008,6 @@ class TestFileUpload:
         [
             {"md5_digest": _TAR_GZ_PKG_MD5},
             {"sha256_digest": _TAR_GZ_PKG_SHA256},
-            {"md5_digest": _TAR_GZ_PKG_MD5},
-            {"sha256_digest": _TAR_GZ_PKG_SHA256},
-            {
-                "md5_digest": _TAR_GZ_PKG_MD5,
-                "sha256_digest": _TAR_GZ_PKG_SHA256,
-            },
             {
                 "md5_digest": _TAR_GZ_PKG_MD5,
                 "sha256_digest": _TAR_GZ_PKG_SHA256,
@@ -4824,12 +4818,6 @@ def test_missing_trailing_slash_redirect(pyramid_request):
         ),
         (  # python.org/pypi/  case
             "https://python.org/pypi/myproject",
-            "myproject",
-            "myproject",
-            True,
-        ),
-        (  # PyPI /project/ case
-            "https://pypi.org/project/myproject",
             "myproject",
             "myproject",
             True,
