@@ -47,7 +47,7 @@ class TestPendingGitHubPublisherForm:
         assert form._route_url == route_url
         assert form.validate()
 
-    def test_validate_project_name_already_in_use(self):
+    def test_validate_project_name_already_in_use(self, pyramid_config):
         project_factory = ["some-project"]
         route_url = pretend.call_recorder(lambda *args, **kwargs: "")
 
