@@ -280,6 +280,19 @@ class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):
         UUID(as_uuid=True), ForeignKey(OIDCPublisher.id), primary_key=True
     )
 
+    def verify_url(self, url: str):
+        """
+        Verify a given URL against this GitLab's publisher information
+
+        In addition to the generic Trusted Publisher verification logic in
+        the parent class, the GitLab Trusted Publisher ignores the suffix `.git`
+        in repo URLs, since `gitlab.com/org/repo.git` always redirects to
+        `gitlab.com/org/repo`. This does not apply to subpaths like
+        `gitlab.com/org/repo.git/issues`, which do not redirect to the correct URL.
+        """
+        url_for_generic_check = url.removesuffix("/").removesuffix(".git")
+        return super().verify_url(url_for_generic_check)
+
 
 class PendingGitLabPublisher(GitLabPublisherMixin, PendingOIDCPublisher):
     __tablename__ = "pending_gitlab_oidc_publishers"
