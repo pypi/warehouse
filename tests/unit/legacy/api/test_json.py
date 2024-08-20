@@ -707,7 +707,7 @@ class TestJSONRelease:
             "vulnerabilities": [],
         }
 
-    @pytest.mark.parametrize("withdrawn", (None, "2022-06-28T16:39:06Z"))
+    @pytest.mark.parametrize("withdrawn", [None, "2022-06-28T16:39:06Z"])
     def test_vulnerabilities_renders(self, pyramid_config, db_request, withdrawn):
         project = ProjectFactory.create(has_docs=False)
         release = ReleaseFactory.create(project=project, version="0.1")

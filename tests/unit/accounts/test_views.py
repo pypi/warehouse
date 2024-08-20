@@ -2042,7 +2042,7 @@ class TestRequestPasswordReset:
 
 
 class TestResetPassword:
-    @pytest.mark.parametrize("dates_utc", (True, False))
+    @pytest.mark.parametrize("dates_utc", [True, False])
     def test_get(self, db_request, user_service, token_service, dates_utc):
         user = UserFactory.create()
         form_inst = pretend.stub()
