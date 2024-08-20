@@ -22,8 +22,7 @@ PyPI renders these URLs on the project page and splits them into `verified` and
 
 ![Verified details](assets/verified_details.png){ loading=lazy }
 
-PyPI currently supports several ways of verifying project URLs and highlights 
-them using a green checkmark (:fontawesome-solid-circle-check:{ .checked }).
+PyPI currently supports several ways of verifying project URLs. When a URL is verified, PyPI highlights it using a green checkmark (:fontawesome-solid-circle-check:{ .checked }).
 
 !!! warning
 
