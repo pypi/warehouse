@@ -693,6 +693,83 @@ class TestRelease:
             for label, url in release.urls_by_verify_status(verified_status).items():
                 assert (label, url, verified_status) in release_urls
 
+    @pytest.mark.parametrize(
+        (
+            "homepage_metadata_url",
+            "download_metadata_url",
+            "extra_url",
+            "extra_url_verified",
+        ),
+        [
+            (
+                "https://homepage.com",
+                "https://download.com",
+                "https://example.com",
+                True,
+            ),
+            (
+                "https://homepage.com",
+                "https://download.com",
+                "https://homepage.com",
+                True,
+            ),
+            (
+                "https://homepage.com",
+                "https://download.com",
+                "https://homepage.com",
+                False,
+            ),
+            (
+                "https://homepage.com",
+                "https://download.com",
+                "https://download.com",
+                True,
+            ),
+            (
+                "https://homepage.com",
+                "https://download.com",
+                "https://download.com",
+                False,
+            ),
+        ],
+    )
+    def test_urls_by_verify_status_with_metadata_urls(
+        self,
+        db_session,
+        homepage_metadata_url,
+        download_metadata_url,
+        extra_url,
+        extra_url_verified,
+    ):
+        release = DBReleaseFactory.create(
+            home_page=homepage_metadata_url, download_url=download_metadata_url
+        )
+        db_session.add(
+            ReleaseURL(
+                release=release,
+                name="extra_url",
+                url=extra_url,
+                verified=extra_url_verified,
+            )
+        )
+
+        verified_urls = release.urls_by_verify_status(True).values()
+        unverified_urls = release.urls_by_verify_status(False).values()
+
+        # Homepage and Download URLs stored separately from the project URLs
+        # are considered unverified, unless they are equal to URLs present in
+        # `project_urls` that are verified.
+        if extra_url_verified:
+            assert extra_url in verified_urls
+            if homepage_metadata_url != extra_url:
+                assert homepage_metadata_url in unverified_urls
+            if download_metadata_url != extra_url:
+                assert download_metadata_url in unverified_urls
+        else:
+            assert extra_url in unverified_urls
+            assert homepage_metadata_url in unverified_urls
+            assert download_metadata_url in unverified_urls
+
     def test_acl(self, db_session):
         project = DBProjectFactory.create()
         owner1 = DBRoleFactory.create(project=project)
