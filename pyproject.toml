@@ -93,7 +93,7 @@ addopts = [
   "--numprocesses=auto",
 ]
 cache_dir = "dev/.pytest_cache"
-norecursedirs = ['build', 'dist', 'node_modules', '*.egg-info', '.state requirements']
+testpaths = ["tests/"]
 markers = [
     'unit: Quick running unit tests which test small units of functionality.',
     'functional: Slower running tests which test the entire system is functioning.',
