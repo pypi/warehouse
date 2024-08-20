@@ -43,7 +43,7 @@ combine_as_imports = true
 known_first_party = ['warehouse', 'tests']
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 warn_unused_configs = true
 warn_unused_ignores = true
 plugins = ["mypy_zope:plugin"]
