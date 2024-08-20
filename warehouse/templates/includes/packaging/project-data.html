@@ -48,6 +48,12 @@
   <div class="hidden github-repo-info" data-controller="github-repo-info">
     <ul class="vertical-tabs__list">
       <li>
+        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed" rel="noopener" href="https://github.com/{{ release.verified_user_name_and_repo_name|join("/") }}">
+          <i class="fab fa-github" aria-hidden="true"></i>
+          <strong>{% trans %}Repository{% endtrans %}</strong>
+        </a>
+      </li>
+      <li>
         <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
            data-github-repo-info-target="stargazersUrl" rel="noopener">
           <i class="fa fa-star" aria-hidden="true"></i>
