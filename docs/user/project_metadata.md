@@ -1,13 +1,14 @@
 # Project Metadata
 
 
-## Project-URL
+## Project URLs
 
-Package metadata can contain optional [`Project-URL`](https://packaging.python.
-org/en/latest/specifications/core-metadata/#project-url-multiple-use) 
-keys.
+Packages can specify URLs in their metadata via the [`[project.urls]` table] in the package's `pyproject.toml`.
 
-PyPI renders these URLs on the project page. They are also available in 
+[`[project.urls] table`]: https://packaging.python.org/en/latest/specifications/pyproject-toml/#urls
+
+PyPI renders these URLs on the project page, where they are split into
+'verified' and 'unverified' URLs. They are also available in 
 the [JSON API](https://warehouse.pypa.io/api-reference/json.html).
 
 ### Verified details
@@ -16,6 +17,12 @@ the [JSON API](https://warehouse.pypa.io/api-reference/json.html).
 
 PyPI currently supports several ways of verifying project URLs and displays 
 marks them using a green checkmark (:fontawesome-solid-circle-check:{ .checked }).
+
+!!! warning
+
+    An URL being verified only attests that the URL is under control of the
+    PyPI package owner, and does not imply any additional safety about that
+    URL or any other relationship to the project in question.
 
 ### Self-links
 
@@ -39,11 +46,6 @@ PyPI supports the following OIDC Publishers:
 [active-tab]: trusted-publishers/creating-a-project-through-oidc.md#activestate
 [gitlab-tab]: trusted-publishers/creating-a-project-through-oidc.md#gitlab-cicd
 
-!!! warning
-
-    An URL being verified only attests that the URL is under control of the
-    PyPI package owner, and does not imply any additional safety about that
-    URL or any other relationship to the project in question.
 
 ### Icons
 
