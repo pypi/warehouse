@@ -157,7 +157,7 @@ class ActiveStatePublisher(ActiveStatePublisherMixin, OIDCPublisher):
 class PendingActiveStatePublisher(ActiveStatePublisherMixin, PendingOIDCPublisher):
     __tablename__ = "pending_activestate_oidc_publishers"
     __mapper_args__ = {"polymorphic_identity": "pending_activestate_oidc_publishers"}
-    __table_args__ = (
+    __table_args__ = (  # type: ignore[assignment]
         UniqueConstraint(
             "organization",
             "activestate_project_name",

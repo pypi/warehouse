@@ -123,7 +123,7 @@ class GooglePublisher(GooglePublisherMixin, OIDCPublisher):
 class PendingGooglePublisher(GooglePublisherMixin, PendingOIDCPublisher):
     __tablename__ = "pending_google_oidc_publishers"
     __mapper_args__ = {"polymorphic_identity": "pending_google_oidc_publishers"}
-    __table_args__ = (
+    __table_args__ = (  # type: ignore[assignment]
         UniqueConstraint(
             "email",
             "sub",

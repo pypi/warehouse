@@ -297,7 +297,7 @@ class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):
 class PendingGitLabPublisher(GitLabPublisherMixin, PendingOIDCPublisher):
     __tablename__ = "pending_gitlab_oidc_publishers"
     __mapper_args__ = {"polymorphic_identity": "pending_gitlab_oidc_publishers"}
-    __table_args__ = (
+    __table_args__ = (  # type: ignore[assignment]
         UniqueConstraint(
             "namespace",
             "project",
