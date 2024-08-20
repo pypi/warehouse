@@ -2130,6 +2130,7 @@ class TestOrganizationProjectEmails:
         self.organization_name = "exampleorganization"
         self.project_name = "exampleproject"
 
+    @pytest.mark.usefixtures("_organization_project")
     @pytest.mark.parametrize(
         ("email_template_name", "send_organization_project_email"),
         [
@@ -2143,7 +2144,6 @@ class TestOrganizationProjectEmails:
     def test_send_organization_project_email(
         self,
         db_request,
-        _organization_project,
         make_email_renderers,
         send_email,
         email_template_name,
@@ -2208,10 +2208,10 @@ class TestOrganizationMemberEmails:
         self.email_token = "token"
         self.token_age = 72 * 60 * 60
 
+    @pytest.mark.usefixtures("_organization_invite")
     def test_send_organization_member_invited_email(
         self,
         db_request,
-        _organization_invite,
         make_email_renderers,
         send_email,
     ):
@@ -2269,10 +2269,10 @@ class TestOrganizationMemberEmails:
             )
         ]
 
+    @pytest.mark.usefixtures("_organization_invite")
     def test_send_organization_role_verification_email(
         self,
         db_request,
-        _organization_invite,
         make_email_renderers,
         send_email,
     ):
@@ -2329,10 +2329,10 @@ class TestOrganizationMemberEmails:
             )
         ]
 
+    @pytest.mark.usefixtures("_organization_invite")
     def test_send_organization_member_invite_canceled_email(
         self,
         db_request,
-        _organization_invite,
         make_email_renderers,
         send_email,
     ):
@@ -2382,10 +2382,10 @@ class TestOrganizationMemberEmails:
             )
         ]
 
+    @pytest.mark.usefixtures("_organization_invite")
     def test_send_canceled_as_invited_organization_member_email(
         self,
         db_request,
-        _organization_invite,
         make_email_renderers,
         send_email,
     ):
@@ -2434,10 +2434,10 @@ class TestOrganizationMemberEmails:
             )
         ]
 
+    @pytest.mark.usefixtures("_organization_invite")
     def test_send_organization_member_invite_declined_email(
         self,
         db_request,
-        _organization_invite,
         make_email_renderers,
         send_email,
     ):
@@ -2489,10 +2489,10 @@ class TestOrganizationMemberEmails:
             )
         ]
 
+    @pytest.mark.usefixtures("_organization_invite")
     def test_send_declined_as_invited_organization_member_email(
         self,
         db_request,
-        _organization_invite,
         make_email_renderers,
         send_email,
     ):
@@ -2541,10 +2541,10 @@ class TestOrganizationMemberEmails:
             )
         ]
 
+    @pytest.mark.usefixtures("_organization_invite")
     def test_send_organization_member_added_email(
         self,
         db_request,
-        _organization_invite,
         make_email_renderers,
         send_email,
     ):
@@ -2598,10 +2598,10 @@ class TestOrganizationMemberEmails:
             )
         ]
 
+    @pytest.mark.usefixtures("_organization_invite")
     def test_send_added_as_organization_email(
         self,
         db_request,
-        _organization_invite,
         make_email_renderers,
         send_email,
     ):
@@ -2654,10 +2654,10 @@ class TestOrganizationMemberEmails:
             )
         ]
 
+    @pytest.mark.usefixtures("_organization_invite")
     def test_send_organization_member_removed_email(
         self,
         db_request,
-        _organization_invite,
         make_email_renderers,
         send_email,
     ):
@@ -2709,10 +2709,10 @@ class TestOrganizationMemberEmails:
             )
         ]
 
+    @pytest.mark.usefixtures("_organization_invite")
     def test_send_removed_as_organization_email(
         self,
         db_request,
-        _organization_invite,
         make_email_renderers,
         send_email,
     ):
@@ -2763,10 +2763,10 @@ class TestOrganizationMemberEmails:
             )
         ]
 
+    @pytest.mark.usefixtures("_organization_invite")
     def test_send_organization_member_role_changed_email(
         self,
         db_request,
-        _organization_invite,
         make_email_renderers,
         send_email,
     ):
@@ -2820,10 +2820,10 @@ class TestOrganizationMemberEmails:
             )
         ]
 
+    @pytest.mark.usefixtures("_organization_invite")
     def test_send_role_changed_as_organization_email(
         self,
         db_request,
-        _organization_invite,
         make_email_renderers,
         send_email,
     ):
@@ -2892,10 +2892,10 @@ class TestOrganizationUpdateEmails:
         self.previous_organization_description = "An example group for testing"
         self.previous_organization_orgtype = "Community"
 
+    @pytest.mark.usefixtures("_organization_update")
     def test_send_organization_renamed_email(
         self,
         db_request,
-        _organization_update,
         make_email_renderers,
         send_email,
     ):
@@ -2970,10 +2970,10 @@ class TestOrganizationRenameEmails:
         self.organization_name = "example"
         self.previous_organization_name = "examplegroup"
 
+    @pytest.mark.usefixtures("_organization_rename")
     def test_send_admin_organization_renamed_email(
         self,
         db_request,
-        _organization_rename,
         make_email_renderers,
         send_email,
     ):
@@ -3023,10 +3023,10 @@ class TestOrganizationRenameEmails:
             )
         ]
 
+    @pytest.mark.usefixtures("_organization_rename")
     def test_send_organization_renamed_email(
         self,
         db_request,
-        _organization_rename,
         make_email_renderers,
         send_email,
     ):
@@ -3084,10 +3084,10 @@ class TestOrganizationDeleteEmails:
         EmailFactory.create(user=self.user, verified=True)
         self.organization_name = "example"
 
+    @pytest.mark.usefixtures("_organization_delete")
     def test_send_admin_organization_deleted_email(
         self,
         db_request,
-        _organization_delete,
         make_email_renderers,
         send_email,
     ):
@@ -3135,10 +3135,10 @@ class TestOrganizationDeleteEmails:
             )
         ]
 
+    @pytest.mark.usefixtures("_organization_delete")
     def test_send_organization_deleted_email(
         self,
         db_request,
-        _organization_delete,
         make_email_renderers,
         send_email,
     ):
@@ -3196,6 +3196,7 @@ class TestTeamMemberEmails:
         self.organization_name = "exampleorganization"
         self.team_name = "Example Team"
 
+    @pytest.mark.usefixtures("_team")
     @pytest.mark.parametrize(
         ("email_template_name", "send_team_member_email"),
         [
@@ -3208,7 +3209,6 @@ class TestTeamMemberEmails:
     def test_send_team_member_email(
         self,
         db_request,
-        _team,
         make_email_renderers,
         send_email,
         email_template_name,
@@ -3283,6 +3283,7 @@ class TestTeamEmails:
         self.organization_name = "exampleorganization"
         self.team_name = "Example Team"
 
+    @pytest.mark.usefixtures("_team")
     @pytest.mark.parametrize(
         ("email_template_name", "send_team_email"),
         [
@@ -3293,7 +3294,6 @@ class TestTeamEmails:
     def test_send_team_email(
         self,
         db_request,
-        _team,
         make_email_renderers,
         send_email,
         email_template_name,
@@ -4183,6 +4183,7 @@ class TestTeamCollaboratorEmails:
         self.project_name = "exampleproject"
         self.role = "Admin"
 
+    @pytest.mark.usefixtures("_team")
     @pytest.mark.parametrize(
         ("email_template_name", "send_team_collaborator_email"),
         [
@@ -4206,7 +4207,6 @@ class TestTeamCollaboratorEmails:
     def test_send_team_collaborator_email(
         self,
         db_request,
-        _team,
         make_email_renderers,
         send_email,
         email_template_name,

@@ -66,8 +66,8 @@ class TestFallbackInternationalizationExtension:
             "newstyle_param",
             "newer_gettext_expected",
             "newer_ngettext_expected",
-            "_pgettext",
-            "_npgettext",
+            "pgettext",
+            "npgettext",
         ),
         [
             (
@@ -104,8 +104,8 @@ class TestFallbackInternationalizationExtension:
         newstyle_param,
         newer_gettext_expected,
         newer_ngettext_expected,
-        _pgettext,
-        _npgettext,
+        pgettext,
+        npgettext,
     ):
         _make_newer_gettext = pretend.call_recorder(lambda func: func)
         _make_newer_ngettext = pretend.call_recorder(lambda func: func)
@@ -123,8 +123,8 @@ class TestFallbackInternationalizationExtension:
             pretend_gettext,
             pretend_ngettext,
             newstyle=newstyle_param,
-            pgettext=pretend_pgettext if _pgettext else None,
-            npgettext=pretend_npgettext if _npgettext else None,
+            pgettext=pretend_pgettext if pgettext else None,
+            npgettext=pretend_npgettext if npgettext else None,
         )
 
         assert _make_newer_gettext.calls == newer_gettext_expected

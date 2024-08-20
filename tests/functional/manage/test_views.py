@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import pretend
+import pytest
 
 from webob.multidict import MultiDict
 
@@ -49,13 +50,13 @@ class TestManageAccount:
 
 
 class TestManageOrganizations:
+    @pytest.mark.usefixtures("_enable_organizations")
     def test_create_organization(
         self,
         pyramid_services,
         user_service,
         organization_service,
         db_request,
-        _enable_organizations,
         monkeypatch,
     ):
         pyramid_services.register_service(user_service, IUserService, None)
