@@ -23,6 +23,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
+from warehouse.events.models import HasEvents
 from warehouse.oidc.errors import InvalidPublisherError, ReusedTokenError
 from warehouse.oidc.interfaces import SignedClaims
 
@@ -326,7 +327,7 @@ class OIDCPublisherMixin:
         raise NotImplementedError
 
 
-class OIDCPublisher(OIDCPublisherMixin, db.Model):
+class OIDCPublisher(OIDCPublisherMixin, HasEvents, db.Model):
     __tablename__ = "oidc_publishers"
 
     projects: Mapped[list[Project]] = orm.relationship(

@@ -769,6 +769,9 @@ def test_mint_token_github_reusable_workflow_metrics(
     monkeypatch.setattr(publisher.__class__, "projects", [project])
     # NOTE: Can't set __str__ using pretend.stub()
     monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")
+    monkeypatch.setattr(
+        publisher, "record_event", pretend.call_recorder(lambda *args, **kw: None)
+    )
 
     def _find_publisher(claims, pending=False):
         if pending:
@@ -804,10 +807,16 @@ def test_mint_token_github_reusable_workflow_metrics(
 
     if is_reusable:
         assert metrics.increment.calls == [
-            pretend.call(
-                "warehouse.oidc.mint_token.github_reusable_workflow",
-                tags=[f"publisher_url:{publisher.publisher_url(claims_in_token)}"],
-            ),
+            pretend.call("warehouse.oidc.mint_token.github_reusable_workflow"),
         ]
+
+        assert publisher.record_event.calls == [
+            pretend.call(
+                tag=EventTag.Publisher.ReusableWorkflowUsed,
+                request=db_request,
+                additional={"publisher_url": publisher.publisher_url(claims_in_token)},
+            )
+        ]
+
     else:
         assert not metrics.increment.calls
