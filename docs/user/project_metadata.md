@@ -1,22 +1,29 @@
 # Project Metadata
 
+Python packages can include additional metadata to provide more information 
+about the project. This document outlines the specific behaviors 
+implemented by PyPI to display project metadata and other details. The 
+comprehensive list of metadata fields is available in the [Python Packaging 
+User Guide].
+
+[Python Packaging User Guide]: https://packaging.python.org/en/latest/specifications/core-metadata/#core-metadata-specifications
+
 
 ## Project URLs
 
-Packages can specify URLs in their metadata via the [`[project.urls]` table] in the package's `pyproject.toml`.
+Packages owners can specify various URLs related to their project using 
+the [`[project.urls]` table](https://packaging.python.org/en/latest/specifications/pyproject-toml/#urls) in the package's `pyproject.toml`.
 
-[`[project.urls] table`]: https://packaging.python.org/en/latest/specifications/pyproject-toml/#urls
-
-PyPI renders these URLs on the project page, where they are split into
-'verified' and 'unverified' URLs. They are also available in 
-the [JSON API](https://warehouse.pypa.io/api-reference/json.html).
+PyPI renders these URLs on the project page and splits them into `verified` and 
+`unverified` subgroups. They are also available using the 
+[JSON API](https://warehouse.pypa.io/api-reference/json.html).
 
 ### Verified details
 
 ![Verified details](assets/verified_details.png){ loading=lazy }
 
-PyPI currently supports several ways of verifying project URLs and displays 
-marks them using a green checkmark (:fontawesome-solid-circle-check:{ .checked }).
+PyPI currently supports several ways of verifying project URLs and highlights 
+them using a green checkmark (:fontawesome-solid-circle-check:{ .checked }).
 
 !!! warning
 
@@ -26,8 +33,7 @@ marks them using a green checkmark (:fontawesome-solid-circle-check:{ .checked }
 
 ### Self-links
 
-Any URL to the project on PyPI will be considered verified[^1].
-[^1]: The complete list is defined [here](https://github.com/pypi/warehouse/blob/9d559e1096552b1c86fccb2e1b5008ec05fc534b/warehouse/forklift/legacy.py#L461)
+Any URL to the project on PyPI will be considered verified.
 
 ### Via Trusted Publishing
 
@@ -57,14 +63,14 @@ lists below and changes the default icon from
 
 #### General URL
 
-| Icon                                      | Name          | Description               | Aliases                                                      |
-|:------------------------------------------|:--------------|:--------------------------|:-------------------------------------------------------------|
-| :fontawesome-solid-house-chimney:         | Homepage      | For the project homepage  |                                                              |
-| :fontawesome-solid-cloud:                 | Download      | A download link           |                                                              |
-| :fontawesome-solid-scroll:                | Changelog     | Changelog information     |                                                              |
-| :fontawesome-solid-book:                  | Documentation | Project documentation     | :fontawesome-solid-info:{ title="Docs" }                     |
-| :fontawesome-solid-bug:                   | Bug           | Bug/Issue report location | :fontawesome-solid-info:{ title="Issue, Tracker, Report"}    |
-| :fontawesome-solid-circle-dollar-to-slot: | Funding       | Sponsoring information    | :fontawesome-solid-info:{ title="Sponsor, Donation, Donate"} |
+| Icon                                      | Name          | Description               | Aliases                   |
+|:------------------------------------------|:--------------|:--------------------------|:--------------------------|
+| :fontawesome-solid-house-chimney:         | Homepage      | For the project homepage  |                           |
+| :fontawesome-solid-cloud:                 | Download      | A download link           |                           |
+| :fontawesome-solid-scroll:                | Changelog     | Changelog information     |                           |
+| :fontawesome-solid-book:                  | Documentation | Project documentation     | Docs                      |
+| :fontawesome-solid-bug:                   | Bug           | Bug/Issue report location | Issue, Tracker, Report    |
+| :fontawesome-solid-circle-dollar-to-slot: | Funding       | Sponsoring information    | Sponsor, Donation, Donate |
 
 
 #### Hosting Platforms
@@ -101,8 +107,8 @@ lists below and changes the default icon from
 
 #### Python Ecosystem
 
-| Icon                        | Name   | Alias                                         |
-|:----------------------------|:-------|:----------------------------------------------|
-| :fontawesome-solid-cube:    | PyPI   | :fontawesome-solid-info:{ title="Cheeseshop"} |
-| :fontawesome-brands-python: | Python |                                               |
+| Icon                        | Name   | Alias      |
+|:----------------------------|:-------|:-----------|
+| :fontawesome-solid-cube:    | PyPI   | Cheeseshop |
+| :fontawesome-brands-python: | Python |            |
 
