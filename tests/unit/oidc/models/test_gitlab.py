@@ -602,14 +602,15 @@ class TestGitLabPublisher:
         db_request.db.add(publisher1)
         db_request.db.commit()
 
+        publisher2 = gitlab.GitLabPublisher(
+            project="repository_name",
+            namespace="repository_owner",
+            workflow_filepath="subfolder/worflow_filename.yml",
+            environment="",
+        )
+        db_request.db.add(publisher2)
+
         with pytest.raises(sqlalchemy.exc.IntegrityError):
-            publisher2 = gitlab.GitLabPublisher(
-                project="repository_name",
-                namespace="repository_owner",
-                workflow_filepath="subfolder/worflow_filename.yml",
-                environment="",
-            )
-            db_request.db.add(publisher2)
             db_request.db.commit()
 
     @pytest.mark.parametrize(
