@@ -45,8 +45,9 @@ class PendingPublisherMixin:
                 markupsafe.Markup(
                     _(
                         "This project already exists, use the project's publishing"
-                        " settings <a href='{url}'>here</a> to create a Trusted"
-                        " Publisher for it.".format(url=url)
+                        " settings <a href='${url}'>here</a> to create a Trusted"
+                        " Publisher for it.",
+                        mapping={"url": url},
                     )
                 )
             )
