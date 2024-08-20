@@ -659,6 +659,9 @@ class TestGitHubPublisher:
     @pytest.mark.parametrize(
         ("url", "expected"),
         [
+            ("https://github.com/repository_owner/repository_name.git", True),
+            ("https://github.com/repository_owner/repository_name.git/", True),
+            ("https://github.com/repository_owner/repository_name.git/issues", False),
             ("https://repository_owner.github.io/repository_name/", True),
             ("https://repository_owner.github.io/repository_name", True),
             ("https://repository_owner.github.io/repository_name/subpage", True),

@@ -348,8 +348,14 @@ class GitHubPublisher(GitHubPublisherMixin, OIDCPublisher):
         but we normalize using `rfc3986` to reject things like
         `https://${OWNER}.github.io/${REPO_NAME}/../malicious`, which would
         resolve to a URL outside the `/$REPO_NAME` path.
+
+        The suffix `.git` in repo URLs is ignored, since `github.com/org/repo.git`
+        always redirects to `github.com/org/repo`. This does not apply to subpaths,
+        like `github.com/org/repo.git/issues`, which do not redirect to the correct URL.
         """
-        if super().verify_url(url):
+        url_for_generic_check = url.removesuffix("/").removesuffix(".git")
+
+        if super().verify_url(url_for_generic_check):
             return True
 
         docs_url = f"https://{self.repository_owner}.github.io/{self.repository_name}"
