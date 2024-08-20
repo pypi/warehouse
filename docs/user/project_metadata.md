@@ -1,50 +1,68 @@
-# Projects metadata
+# Project Metadata
 
 
 ## Project-URL
 
-A package can contain optional [Project URL](https://packaging.python.org/en/latest/specifications/core-metadata/#project-url-multiple-use) 
+Package metadata can contain optional [`Project-URL`](https://packaging.python.
+org/en/latest/specifications/core-metadata/#project-url-multiple-use) 
 keys.
 
-PyPI renders these URLs on the package project page. They are also available in 
-the JSON data when requesting the package information.
+PyPI renders these URLs on the project page. They are also available in 
+the [JSON API](https://warehouse.pypa.io/api-reference/json.html).
 
 ### Verified details
 
 ![Verified details](assets/verified_details.png){ loading=lazy }
 
+PyPI currently supports several ways of verifying project URLs and displays 
+marks them using a green checkmark (:fontawesome-solid-circle-check:{ .checked }).
 
-[Trusted Publishing](trusted-publishers) allow PyPI to verify certain 
-information submitted by the package maintainer. Verified information appears in
-a separate section of the package detail page. A verified URL will have a green 
-checkmark attached (:fontawesome-solid-circle-check:{ .checked }).
+### Self-links
+
+Any URL to the project on PyPI will be considered verified[^1].
+[^1]: The complete list is defined [here](https://github.com/pypi/warehouse/blob/9d559e1096552b1c86fccb2e1b5008ec05fc534b/warehouse/forklift/legacy.py#L461)
+
+### Via Trusted Publishing
+
+[Trusted Publishing](trusted-publishers/index.md) allows PyPI to attest that the 
+publishing workflow for a package is coming from a verified source.
+
+PyPI supports the following OIDC Publishers:
+
+- [GitHub Actions][gh-action-tab]
+- [Google Cloud][gc-tab]
+- [ActiveState][active-tab]
+- [GitLab CI/CD][gitlab-tab]
+
+[gh-action-tab]: trusted-publishers/creating-a-project-through-oidc.md#github-actions
+[gc-tab]: trusted-publishers/creating-a-project-through-oidc.md#google-cloud
+[active-tab]: trusted-publishers/creating-a-project-through-oidc.md#activestate
+[gitlab-tab]: trusted-publishers/creating-a-project-through-oidc.md#gitlab-cicd
 
 !!! warning
 
-    An URL being verified only attest that the _provenance_ of the build has 
-    been verified, i.e. the packages sources are coming from the URL specified.
-
-    PyPI does not check the package content itself.
-
+    An URL being verified only attests that the URL is under control of the
+    PyPI package owner, and does not imply any additional safety about that
+    URL or any other relationship to the project in question.
 
 ### Icons
 
 ![Unverified details](assets/unverified_details.png){ loading=lazy }
 
-While the labels can be arbitrary, `warehouse` recognizes the one from the
+While the labels can be arbitrary, PyPI recognizes the ones from the
 lists below and changes the default icon from
 :fontawesome-solid-square-up-right: to a customized one.
 
 #### General URL
 
-| Icon                              | Name      | Description               | Aliases                                                   |
-|:----------------------------------|:----------|:--------------------------|:----------------------------------------------------------|
-| :fontawesome-solid-house-chimney: | Homepage  | For the project homepage  |                                                           |
-| :fontawesome-solid-cloud:         | Download  | A download link           |                                                           |
-| :fontawesome-solid-scroll:        | Changelog | Changelog information     |                                                           |
-| :fontawesome-solid-book:          | Documentation | Project documentation     | :fontawesome-solid-info:{ title="Docs" }                  |
-| :fontawesome-solid-bug:           | Bug | Bug/Issue report location | :fontawesome-solid-info:{ title="Issue, Tracker, Report"} |
-| :fontawesome-solid-circle-dollar-to-slot: | Funding | Sponsoring information | :fontawesome-solid-info:{ title="Sponsor, Donation, Donate"}                               |
+| Icon                                      | Name          | Description               | Aliases                                                      |
+|:------------------------------------------|:--------------|:--------------------------|:-------------------------------------------------------------|
+| :fontawesome-solid-house-chimney:         | Homepage      | For the project homepage  |                                                              |
+| :fontawesome-solid-cloud:                 | Download      | A download link           |                                                              |
+| :fontawesome-solid-scroll:                | Changelog     | Changelog information     |                                                              |
+| :fontawesome-solid-book:                  | Documentation | Project documentation     | :fontawesome-solid-info:{ title="Docs" }                     |
+| :fontawesome-solid-bug:                   | Bug           | Bug/Issue report location | :fontawesome-solid-info:{ title="Issue, Tracker, Report"}    |
+| :fontawesome-solid-circle-dollar-to-slot: | Funding       | Sponsoring information    | :fontawesome-solid-info:{ title="Sponsor, Donation, Donate"} |
 
 
 #### Hosting Platforms
@@ -52,7 +70,7 @@ lists below and changes the default icon from
 | Icon                           | Name      |
 |:-------------------------------|:----------|
 | :fontawesome-brands-github:    | GitHub    |
-| :fontawesome-brands-gitlab:    | Gitlab    |
+| :fontawesome-brands-gitlab:    | GitLab    |
 | :fontawesome-brands-bitbucket: | Bitbucket |
 | :fontawesome-brands-google:    | Google    |
 
@@ -71,18 +89,18 @@ lists below and changes the default icon from
 
 #### Continuous Integration Services
 
-| Icon                              | Name      |
-|:----------------------------------|:----------|
+| Icon                           | Name      |
+|:-------------------------------|:----------|
 | :fontawesome-solid-list-check: | AppVeyor  |
 | :fontawesome-solid-list-check: | CircleCI  |
 | :fontawesome-solid-list-check: | Codecov   |
 | :fontawesome-solid-list-check: | Coveralls |
-| :fontawesome-solid-list-check: | Travis CI  |
+| :fontawesome-solid-list-check: | Travis CI |
 
 #### Python Ecosystem
 
-| Icon                              | Name      | Alias                                         |
-|:----------------------------------|:----------|:----------------------------------------------|
-| :fontawesome-solid-cube:         | PyPI    | :fontawesome-solid-info:{ title="Cheeseshop"} |
+| Icon                        | Name   | Alias                                         |
+|:----------------------------|:-------|:----------------------------------------------|
+| :fontawesome-solid-cube:    | PyPI   | :fontawesome-solid-info:{ title="Cheeseshop"} |
 | :fontawesome-brands-python: | Python |                                               |
 
