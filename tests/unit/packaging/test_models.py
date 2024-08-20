@@ -784,7 +784,7 @@ class TestRelease:
         )
 
     @pytest.mark.parametrize(
-        ("home_page", "expected"),
+        ("url", "expected"),
         [
             (None, None),
             (
@@ -819,12 +819,14 @@ class TestRelease:
             ("git@bitbucket.org:definex/dsgnutils.git", None),
         ],
     )
-    def test_github_repo_info_url(self, db_session, home_page, expected):
-        release = DBReleaseFactory.create(home_page=home_page)
-        assert release.github_repo_info_url == expected
+    def test_verified_github_repo_info_url(self, db_session, url, expected):
+        release = DBReleaseFactory.create()
+        if url:
+            release.project_urls["Homepage"] = {"url": url, "verified": True}
+        assert release.verified_github_repo_info_url == expected
 
     @pytest.mark.parametrize(
-        ("home_page", "expected"),
+        ("url", "expected"),
         [
             (None, None),
             (
@@ -864,9 +866,11 @@ class TestRelease:
             ),
         ],
     )
-    def test_github_open_issue_info_url(self, db_session, home_page, expected):
-        release = DBReleaseFactory.create(home_page=home_page)
-        assert release.github_open_issue_info_url == expected
+    def test_verified_github_open_issue_info_url(self, db_session, url, expected):
+        release = DBReleaseFactory.create()
+        if url:
+            release.project_urls["Homepage"] = {"url": url, "verified": True}
+        assert release.verified_github_open_issue_info_url == expected
 
     def test_trusted_published_none(self, db_session):
         release = DBReleaseFactory.create()
