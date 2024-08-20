@@ -586,7 +586,8 @@ def test_mint_token_no_pending_publisher_ok(
             return oidc_service
         elif iface == IMacaroonService:
             return macaroon_service
-        assert False, iface
+        else:
+            pytest.fail(iface)
 
     monkeypatch.setattr(db_request, "find_service", find_service)
     monkeypatch.setattr(db_request, "domain", "fakedomain")
@@ -796,7 +797,8 @@ def test_mint_token_github_reusable_workflow_metrics(
             return macaroon_service
         elif iface == IMetricsService:
             return metrics
-        assert False, iface
+        else:
+            pytest.fail(iface)
 
     monkeypatch.setattr(db_request, "find_service", find_service)
     monkeypatch.setattr(db_request, "domain", "fakedomain")
