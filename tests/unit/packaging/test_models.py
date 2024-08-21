@@ -690,7 +690,9 @@ class TestRelease:
             )
 
         for verified_status in [True, False]:
-            for label, url in release.urls_by_verify_status(verified_status).items():
+            for label, url in release.urls_by_verify_status(
+                verified=verified_status
+            ).items():
                 assert (label, url, verified_status) in release_urls
 
     @pytest.mark.parametrize(
@@ -753,8 +755,8 @@ class TestRelease:
             )
         )
 
-        verified_urls = release.urls_by_verify_status(True).values()
-        unverified_urls = release.urls_by_verify_status(False).values()
+        verified_urls = release.urls_by_verify_status(verified=True).values()
+        unverified_urls = release.urls_by_verify_status(verified=False).values()
 
         # Homepage and Download URLs stored separately from the project URLs
         # are considered unverified, unless they are equal to URLs present in

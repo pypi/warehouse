@@ -689,7 +689,7 @@ class Release(HasObservations, db.Model):
 
         return _urls
 
-    def urls_by_verify_status(self, verified: bool):
+    def urls_by_verify_status(self, *, verified: bool):
         verified_urls = {
             release_url.url
             for release_url in self._project_urls.values()  # type: ignore[attr-defined]
