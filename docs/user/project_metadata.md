@@ -34,7 +34,8 @@ The following subsections specify the different types of URLs that can be verifi
 
 #### Self-links
 
-Any URL to the project on PyPI will be considered verified. For example, the project page for `pip` will mark all of the
+PyPI considers any URL pointing to that project on PyPI as verified.
+For example, the project page for `pip` will mark all of the
 following as verified:
 
 - `https://pypi.org/project/pip/`
