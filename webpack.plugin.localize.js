@@ -101,7 +101,8 @@ const allLocaleData = KNOWN_LOCALES
         if (refs.every(refLine => !refLine.includes(".js:"))) {
           continue;
         }
-        result[value.msgid] = value.msgstr;
+        // The 'msgid' and 'msgstr' must be strings.
+        result[value.msgid.toString()] = value.msgstr.toString();
       }
       return result;
     } catch (e) {
