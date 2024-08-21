@@ -34,6 +34,7 @@ from warehouse.packaging.models import (
 from warehouse.utils import readme
 
 from .accounts import UserFactory
+from .attestation import AttestationFactory
 from .base import WarehouseFactory
 from .observations import ObserverFactory
 
@@ -138,6 +139,12 @@ class FileFactory(WarehouseFactory):
                 "sdist",
             ]
         )
+    )
+
+    attestations = factory.RelatedFactoryList(
+        AttestationFactory,
+        factory_related_name="file",
+        size=1,
     )
 
 
