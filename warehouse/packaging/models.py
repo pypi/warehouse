@@ -689,12 +689,31 @@ class Release(HasObservations, db.Model):
 
         return _urls
 
-    def urls_by_verify_status(self, verified: bool):
-        matching_urls = {
+    def urls_by_verify_status(self, *, verified: bool):
+        verified_urls = {
             release_url.url
             for release_url in self._project_urls.values()  # type: ignore[attr-defined]
-            if release_url.verified == verified
+            if release_url.verified
         }
+
+        if verified:
+            matching_urls = verified_urls
+        else:
+            matching_urls = {
+                release_url.url
+                for release_url in self._project_urls.values()  # type: ignore[attr-defined] # noqa: E501
+                if not release_url.verified
+            }
+            # The Homepage and Download URLs in the release metadata are currently not
+            # verified, so we return them if the user requests non-verified URLs *and*
+            # they are not verified in `project_urls`.
+            matching_urls.update(
+                {
+                    url
+                    for url in (self.home_page, self.download_url)
+                    if url is not None and url not in verified_urls
+                }
+            )
 
         # Filter the output of `Release.urls`, since it has custom logic to de-duplicate
         # release URLs
@@ -706,7 +725,7 @@ class Release(HasObservations, db.Model):
 
     @property
     def verified_user_name_and_repo_name(self):
-        for _, url in self.urls_by_verify_status(True).items():
+        for _, url in self.urls_by_verify_status(verified=True).items():
             try:
                 parsed = parse_url(url)
             except LocationParseError:

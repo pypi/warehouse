@@ -3894,8 +3894,8 @@ class TestFileUpload:
         release_db = (
             db_request.db.query(Release).filter(Release.project == project).one()
         )
-        assert release_db.urls_by_verify_status(expected) == {"Test": url}
-        assert not release_db.urls_by_verify_status(not expected)
+        assert release_db.urls_by_verify_status(verified=expected) == {"Test": url}
+        assert not release_db.urls_by_verify_status(verified=not expected)
 
     def test_new_publisher_verifies_existing_release_url(
         self,
@@ -3972,11 +3972,11 @@ class TestFileUpload:
         release_db = (
             db_request.db.query(Release).filter(Release.project == project).one()
         )
-        assert release_db.urls_by_verify_status(True) == {
+        assert release_db.urls_by_verify_status(verified=True) == {
             "unverified_url": unverified_url,
             "verified_url": verified_url,
         }
-        assert not release_db.urls_by_verify_status(False)
+        assert not release_db.urls_by_verify_status(verified=False)
 
     @pytest.mark.parametrize(
         ("version", "expected_version"),
