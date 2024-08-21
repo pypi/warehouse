@@ -170,7 +170,7 @@ class TestAttestationsService:
         )
 
     @pytest.mark.parametrize(
-        "verify_exception, expected_message",
+        ("verify_exception", "expected_message"),
         [
             (
                 VerificationError,
