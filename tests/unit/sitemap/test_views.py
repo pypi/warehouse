@@ -105,5 +105,5 @@ def test_sitemap_bucket_too_many(monkeypatch, db_request):
 
     db_request.db.flush()
 
-    with pytest.raises(ValueError):
+    with pytest.raises(sitemap.BucketTooSmallError):
         sitemap.sitemap_bucket(db_request)

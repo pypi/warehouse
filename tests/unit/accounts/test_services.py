@@ -585,7 +585,7 @@ class TestDatabaseUserService:
 
     @pytest.mark.parametrize(
         ("last_totp_value", "valid"),
-        ([None, True], ["000000", True], ["000000", False]),
+        [(None, True), ("000000", True), ("000000", False)],
     )
     def test_check_totp_value(self, user_service, monkeypatch, last_totp_value, valid):
         verify_totp = pretend.call_recorder(lambda *a: valid)

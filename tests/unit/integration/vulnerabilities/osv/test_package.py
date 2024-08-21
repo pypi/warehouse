@@ -309,7 +309,7 @@ class TestVulnerabilityReportVerifier:
         assert cache.cache == keys
 
     @pytest.mark.parametrize(
-        "payload, expected",
+        ("payload", "expected"),
         [
             ([], "Payload is not a dict but: []"),
             ({}, "Payload misses 'public_keys' attribute"),

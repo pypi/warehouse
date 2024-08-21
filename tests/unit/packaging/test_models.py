@@ -953,9 +953,10 @@ class TestFile:
         Attempt to write a File by setting requires_python directly, which
         should fail to validate (it should only be set in Release).
         """
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(project=project)
+
         with pytest.raises(RuntimeError):
-            project = DBProjectFactory.create()
-            release = DBReleaseFactory.create(project=project)
             DBFileFactory.create(
                 release=release,
                 filename=f"{project.name}-{release.version}.tar.gz",
