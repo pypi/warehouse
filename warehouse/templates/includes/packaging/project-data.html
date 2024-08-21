@@ -130,37 +130,63 @@
   <h6>{% trans %}Meta{% endtrans %}</h6>
   <ul class="vertical-tabs__list">
   {% if license %}
-  <li><strong>{% trans %}License:{% endtrans %}</strong> {{ license }}</li>
+    <li>
+      <span class="vertical-tabs__tab vertical-tabs__tab--condensed">
+        <strong>{% trans %}License:{% endtrans %}</strong> {{ license }}
+      </span>
+    </li>
   {% endif %}
   {% if release.author_email %}
-    <li><strong>{% trans %}Author:{% endtrans %}</strong> <a href="mailto:{{ release.author_email|format_email|last }}">{{ release.author or release.author_email|format_email|first }}</a></li>
+    <li>
+      <span class="vertical-tabs__tab vertical-tabs__tab--condensed">
+        <strong>{% trans %}Author:{% endtrans %}</strong> <a href="mailto:{{ release.author_email|format_email|last }}">{{ release.author or release.author_email|format_email|first }}</a>
+      </span>
+    </li>
   {% elif release.author %}
-    <li><strong>{% trans %}Author:{% endtrans %}</strong> {{ release.author }}</li>
+    <li>
+      <span class="vertical-tabs__tab vertical-tabs__tab--condensed">
+        <strong>{% trans %}Author:{% endtrans %}</strong> {{ release.author }}
+      </span>
+    </li>
   {% endif %}
   {% if release.maintainer_email %}
-    <li><strong>{% trans %}Maintainer:{% endtrans %}</strong> <a href="mailto:{{ release.maintainer_email|format_email|last }}">{{ release.maintainer or release.maintainer_email|format_email|first }}</a></li>
+    <li>
+      <span class="vertical-tabs__tab vertical-tabs__tab--condensed">
+        <strong>{% trans %}Maintainer:{% endtrans %}</strong> <a href="mailto:{{ release.maintainer_email|format_email|last }}">{{ release.maintainer or release.maintainer_email|format_email|first }}</a>
+      </span>
+    </li>
   {% elif release.maintainer %}
-    <li><strong>{% trans %}Maintainer:{% endtrans %}</strong> {{ release.maintainer }}</li>
+    <li>
+      <span class="vertical-tabs__tab vertical-tabs__tab--condensed">
+        <strong>{% trans %}Maintainer:{% endtrans %}</strong> {{ release.maintainer }}
+      </span>
+    </li>
   {% endif %}
   {% if release.keywords %}
   <li class="tags">
-    <i class="fa fa-tags" aria-hidden="true"></i>
-    <span class="sr-only">{% trans %}Tags{% endtrans %}</span>
-    {% for keyword in release.keywords | format_tags %}
-    <span class="package-keyword">
-      {{ keyword }}{% if not loop.last %},{% endif %}
+    <span class="vertical-tabs__tab vertical-tabs__tab--condensed">
+      <i class="fa fa-tags" aria-hidden="true"></i>
+      <span class="sr-only">{% trans %}Tags{% endtrans %}</span>
+      {% for keyword in release.keywords | format_tags %}
+      <span class="package-keyword">
+        {{ keyword }}{% if not loop.last %},{% endif %}
+      </span>
+      {% endfor %}
     </span>
-    {% endfor %}
   </li>
   {% endif %}
   {% if release.requires_python %}
   <li>
-    <strong>{% trans %}Requires:{% endtrans %}</strong> Python {{ release.requires_python|replace(',', ', ') }}
+    <span class="vertical-tabs__tab vertical-tabs__tab--condensed">
+      <strong>{% trans %}Requires:{% endtrans %}</strong> Python {{ release.requires_python|replace(',', ', ') }}
+    </span>
   </li>
   {% endif %}
   {% if release.provides_extra %}
   <li>
-    <strong>{% trans %}Provides-Extra:{% endtrans %}</strong> {% for extra in release.provides_extra %}<code>{{ extra }}</code>{% if not loop.last %}, {% endif %}{% endfor %}
+    <span class="vertical-tabs__tab vertical-tabs__tab--condensed">
+      <strong>{% trans %}Provides-Extra:{% endtrans %}</strong> {% for extra in release.provides_extra %}<code>{{ extra }}</code>{% if not loop.last %}, {% endif %}{% endfor %}
+    </span>
   </li>
   {% endif %}
   </ul>
