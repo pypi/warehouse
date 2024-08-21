@@ -63,6 +63,9 @@ const sharedCSSPlugins = [
   new RemoveEmptyScriptsPlugin(),
 ];
 
+
+// Refs: https://github.com/shellscape/webpack-manifest-plugin/issues/229#issuecomment-737617994
+const sharedWebpackManifestPublicPath = "";
 const sharedWebpackManifestData = {};
 const sharedWebpackManifestMap =
   // Replace each entry with a prefix of a subdirectory.
@@ -81,8 +84,6 @@ const sharedWebpackManifestMap =
     }
     return file;
   };
-// Refs: https://github.com/shellscape/webpack-manifest-plugin/issues/229#issuecomment-737617994
-// publicPath: "",
 
 /* End Shared Plugins */
 
@@ -120,7 +121,7 @@ module.exports = [
       ...sharedCSSPlugins,
       new WebpackManifestPlugin({
         removeKeyHash: /([a-f0-9]{8}\.?)/gi,
-        publicPath: "",
+        publicPath: sharedWebpackManifestPublicPath,
         seed: sharedWebpackManifestData,
         map: sharedWebpackManifestMap,
       }),
@@ -286,7 +287,7 @@ module.exports = [
       ...sharedCSSPlugins,
       new WebpackManifestPlugin({
         removeKeyHash: /([a-f0-9]{8}\.?)/gi,
-        publicPath: "",
+        publicPath: sharedWebpackManifestPublicPath,
         map: sharedWebpackManifestMap,
       }),
       // admin site dependencies use jQuery
@@ -353,7 +354,7 @@ module.exports = [
         ...sharedCompressionPlugins,
         new WebpackManifestPlugin({
           removeKeyHash: /([a-f0-9]{8}\.?)/gi,
-          publicPath: "",
+          publicPath: sharedWebpackManifestPublicPath,
           seed: sharedWebpackManifestData,
           map: sharedWebpackManifestMap,
         }),
