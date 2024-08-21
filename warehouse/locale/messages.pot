@@ -2851,34 +2851,34 @@ msgstr ""
 msgid "Meta"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:133
+#: warehouse/templates/includes/packaging/project-data.html:135
 msgid "License:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:136
-#: warehouse/templates/includes/packaging/project-data.html:138
+#: warehouse/templates/includes/packaging/project-data.html:142
+#: warehouse/templates/includes/packaging/project-data.html:148
 msgid "Author:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:141
-#: warehouse/templates/includes/packaging/project-data.html:143
+#: warehouse/templates/includes/packaging/project-data.html:155
+#: warehouse/templates/includes/packaging/project-data.html:161
 #: warehouse/templates/pages/help.html:612
 msgid "Maintainer:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:148
+#: warehouse/templates/includes/packaging/project-data.html:169
 msgid "Tags"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:158
+#: warehouse/templates/includes/packaging/project-data.html:181
 msgid "Requires:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:163
+#: warehouse/templates/includes/packaging/project-data.html:188
 msgid "Provides-Extra:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:172
+#: warehouse/templates/includes/packaging/project-data.html:198
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
