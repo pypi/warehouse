@@ -30,11 +30,13 @@ PyPI currently supports several ways of verifying project URLs. When a URL is ve
     PyPI package owner, and does not imply any additional safety about that
     URL or any other relationship to the project in question.
 
-### Self-links
+The following subsections specify the different types of URLs that can be verified.
+
+#### Self-links
 
 Any URL to the project on PyPI will be considered verified.
 
-### Via Trusted Publishing
+#### Via Trusted Publishing
 
 [Trusted Publishing](trusted-publishers/index.md) allows PyPI to attest that the 
 publishing workflow for a package is coming from a verified source.
