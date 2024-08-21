@@ -645,15 +645,16 @@ class TestGitHubPublisher:
         db_request.db.add(publisher1)
         db_request.db.commit()
 
+        publisher2 = github.GitHubPublisher(
+            repository_name="repository_name",
+            repository_owner="repository_owner",
+            repository_owner_id="666",
+            workflow_filename="workflow_filename.yml",
+            environment="",
+        )
+        db_request.db.add(publisher2)
+
         with pytest.raises(sqlalchemy.exc.IntegrityError):
-            publisher2 = github.GitHubPublisher(
-                repository_name="repository_name",
-                repository_owner="repository_owner",
-                repository_owner_id="666",
-                workflow_filename="workflow_filename.yml",
-                environment="",
-            )
-            db_request.db.add(publisher2)
             db_request.db.commit()
 
     @pytest.mark.parametrize(

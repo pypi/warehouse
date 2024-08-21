@@ -51,7 +51,7 @@ class TestContentNegotiation:
         assert simple._select_content_type(request) == "text/html"
 
     @pytest.mark.parametrize(
-        "header, expected",
+        ("header", "expected"),
         [
             ("text/html", "text/html"),
             (
@@ -88,7 +88,7 @@ CONTENT_TYPE_PARAMS = [
 
 class TestSimpleIndex:
     @pytest.mark.parametrize(
-        "content_type,renderer_override",
+        ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
     def test_no_results_no_serial(self, db_request, content_type, renderer_override):
@@ -105,7 +105,7 @@ class TestSimpleIndex:
             assert db_request.override_renderer == renderer_override
 
     @pytest.mark.parametrize(
-        "content_type,renderer_override",
+        ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
     def test_no_results_with_serial(self, db_request, content_type, renderer_override):
@@ -124,7 +124,7 @@ class TestSimpleIndex:
             assert db_request.override_renderer == renderer_override
 
     @pytest.mark.parametrize(
-        "content_type,renderer_override",
+        ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
     def test_with_results_no_serial(self, db_request, content_type, renderer_override):
@@ -145,7 +145,7 @@ class TestSimpleIndex:
             assert db_request.override_renderer == renderer_override
 
     @pytest.mark.parametrize(
-        "content_type,renderer_override",
+        ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
     def test_with_results_with_serial(
@@ -201,7 +201,7 @@ class TestSimpleDetail:
         assert pyramid_request.current_route_path.calls == [pretend.call(name="foo")]
 
     @pytest.mark.parametrize(
-        "content_type,renderer_override",
+        ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
     def test_no_files_no_serial(self, db_request, content_type, renderer_override):
@@ -226,7 +226,7 @@ class TestSimpleDetail:
             assert db_request.override_renderer == renderer_override
 
     @pytest.mark.parametrize(
-        "content_type,renderer_override",
+        ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
     def test_no_files_with_serial(self, db_request, content_type, renderer_override):
@@ -251,7 +251,7 @@ class TestSimpleDetail:
             assert db_request.override_renderer == renderer_override
 
     @pytest.mark.parametrize(
-        "content_type,renderer_override",
+        ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
     def test_with_files_no_serial(self, db_request, content_type, renderer_override):
@@ -299,7 +299,7 @@ class TestSimpleDetail:
             assert db_request.override_renderer == renderer_override
 
     @pytest.mark.parametrize(
-        "content_type,renderer_override",
+        ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
     def test_with_files_with_serial(self, db_request, content_type, renderer_override):
@@ -347,7 +347,7 @@ class TestSimpleDetail:
             assert db_request.override_renderer == renderer_override
 
     @pytest.mark.parametrize(
-        "content_type,renderer_override",
+        ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
     def test_with_files_with_version_multi_digit(
