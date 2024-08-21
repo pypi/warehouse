@@ -342,11 +342,14 @@ class OIDCPublisherMixin:
         the authority includes the host, and in practice neither URL should have user
         nor port information.
         """
+        if self.publisher_base_url is None:
+            # Currently this only applies to the Google provider
+            return False
         publisher_uri = rfc3986.api.uri_reference(self.publisher_base_url).normalize()
         user_uri = rfc3986.api.uri_reference(url).normalize()
         if publisher_uri.path is None:
-            # Currently no Trusted Publishers have an empty path component,
-            # so we defensively fail verification.
+            # Currently no Trusted Publishers with a `publisher_base_url` have an empty
+            # path component, so we defensively fail verification.
             return False
         elif user_uri.path and publisher_uri.path:
             is_subpath = (
