@@ -63,7 +63,7 @@ The URLs that can be verified depend on the Trusted Publisher used:
     - https://gitlab.com/pypa/pip/* (all subpaths)
     - https://gitlab.com/pypa/pip.git
 - [Google Cloud][gc-tab]: No Google-specific URLs are currently verified.
-- [ActiveState][active-tab]: Packages uploaded using ActiveState will have URLs linking to the project in ActiveState 
+- [ActiveState][active-tab]: Packages uploaded using ActiveState will have URLs linked to the project in ActiveState 
   verified:
     - https://platform.activestate.com/pypa/pip
     - https://platform.activestate.com/pypa/pip/* (all subpaths)
