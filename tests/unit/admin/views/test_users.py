@@ -1414,6 +1414,59 @@ class TestUserRecoverAccountComplete:
             pretend.call(username=user.username)
         ]
 
+    def test_user_recover_account_complete_with_override_email_sets_as_primary(
+        self, db_request, monkeypatch
+    ):
+        user = UserFactory.create(with_verified_primary_email=True)
+        existing_primary_email = user.primary_email
+
+        assert len(user.emails) == 1
+
+        # Create preconditions from `views.user_recover_account_initiate`
+        override_to_email = EmailFactory.create(
+            user=user, primary=False, verified=False
+        )
+        recovery_observation = user.record_observation(
+            request=db_request,
+            kind=ObservationKind.AccountRecovery,
+            actor=user,
+            summary="Account Recovery",
+            payload={
+                "initiated": "2021-01-01T00:00:00+00:00",
+                "completed": None,
+                "override_to_email": override_to_email.email,
+            },
+        )
+        recovery_observation.additional = {"status": "initiated"}
+
+        assert len(user.active_account_recoveries) == 1
+        assert len(user.emails) == 2
+
+        db_request.method = "POST"
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": user.username}
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.user = user
+        service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda username: user.username),
+            disable_password=pretend.call_recorder(
+                lambda userid, request, reason: None
+            ),
+        )
+        db_request.find_service = pretend.call_recorder(lambda iface, context: service)
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_password_reset_by_admin_email", send_email)
+
+        result = views.user_recover_account_complete(user, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.location == "/foobar"
+        assert existing_primary_email.primary is False
+        assert existing_primary_email.verified is True
+        assert user.primary_email == override_to_email
+        assert user.primary_email.verified is True
+
 
 class TestBulkAddProhibitedUserName:
     def test_get(self):

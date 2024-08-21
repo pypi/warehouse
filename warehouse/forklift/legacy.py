@@ -62,6 +62,7 @@ from warehouse.forklift import metadata
 from warehouse.forklift.forms import UploadForm, _filetype_extension_mapping
 from warehouse.macaroons.models import Macaroon
 from warehouse.metrics import IMetricsService
+from warehouse.oidc.models import OIDCPublisher
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
 from warehouse.packaging.models import (
     Dependency,
@@ -481,44 +482,11 @@ def _verify_url_pypi(url: str, project_name: str, project_normalized_name: str) 
     )
 
 
-def _verify_url_with_trusted_publisher(url: str, publisher_url: str) -> bool:
-    """
-    Verify a given URL against a Trusted Publisher URL
-
-    A URL is considered "verified" iff it matches the Trusted Publisher URL
-    such that, when both URLs are normalized:
-    - The scheme component is the same (e.g: both use `https`)
-    - The authority component is the same (e.g.: `github.com`)
-    - The path component is the same, or a sub-path of the Trusted Publisher URL
-      (e.g.: `org/project` and `org/project/issues.html` will pass verification
-      against an `org/project` Trusted Publisher path component)
-    - The path component of the Trusted Publisher URL is not empty
-    Note: We compare the authority component instead of the host component because
-    the authority includes the host, and in practice neither URL should have user
-    nor port information.
-    """
-    publisher_uri = rfc3986.api.uri_reference(publisher_url).normalize()
-    user_uri = rfc3986.api.uri_reference(url).normalize()
-    if publisher_uri.path is None:
-        # Currently no Trusted Publishers have an empty path component,
-        # so we defensively fail verification.
-        return False
-    elif user_uri.path and publisher_uri.path:
-        is_subpath = publisher_uri.path == user_uri.path or user_uri.path.startswith(
-            publisher_uri.path + "/"
-        )
-    else:
-        is_subpath = publisher_uri.path == user_uri.path
-
-    return (
-        publisher_uri.scheme == user_uri.scheme
-        and publisher_uri.authority == user_uri.authority
-        and is_subpath
-    )
-
-
 def _verify_url(
-    url: str, publisher_url: str | None, project_name: str, project_normalized_name: str
+    url: str,
+    publisher: OIDCPublisher | None,
+    project_name: str,
+    project_normalized_name: str,
 ) -> bool:
     if _verify_url_pypi(
         url=url,
@@ -527,10 +495,10 @@ def _verify_url(
     ):
         return True
 
-    if not publisher_url:
+    if not publisher:
         return False
 
-    return _verify_url_with_trusted_publisher(url=url, publisher_url=publisher_url)
+    return publisher.verify_url(url)
 
 
 def _sort_releases(request: Request, project: Project):
@@ -894,9 +862,6 @@ def file_upload(request):
             ) from None
 
     # Verify any verifiable URLs
-    publisher_base_url = (
-        request.oidc_publisher.publisher_base_url if request.oidc_publisher else None
-    )
     project_urls = (
         {}
         if not meta.project_urls
@@ -905,7 +870,7 @@ def file_upload(request):
                 "url": url,
                 "verified": _verify_url(
                     url=url,
-                    publisher_url=publisher_base_url,
+                    publisher=request.oidc_publisher,
                     project_name=project.name,
                     project_normalized_name=project.normalized_name,
                 ),

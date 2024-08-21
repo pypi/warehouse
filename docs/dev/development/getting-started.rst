@@ -696,6 +696,14 @@ If you want to run a specific test, you can use the ``T`` variable:
 
     T=tests/unit/i18n/test_filters.py TESTARGS="-n auto" make tests
 
+  It also turns off test coverage reporting because it is almost guaranteed
+  to fail and add test time overhead. To re-enable the coverage report, you
+  can pass explicit ``COVERAGE``:
+
+  .. code-block:: console
+
+    T=tests/unit/i18n/test_filters.py COVERAGE=1 make tests
+
 You can also add arguments to the test runner by using the ``TESTARGS``
 variable:
 

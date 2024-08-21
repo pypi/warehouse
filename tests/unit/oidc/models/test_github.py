@@ -656,6 +656,30 @@ class TestGitHubPublisher:
             db_request.db.add(publisher2)
             db_request.db.commit()
 
+    @pytest.mark.parametrize(
+        ("url", "expected"),
+        [
+            ("https://github.com/repository_owner/repository_name.git", True),
+            ("https://github.com/repository_owner/repository_name.git/", True),
+            ("https://github.com/repository_owner/repository_name.git/issues", False),
+            ("https://repository_owner.github.io/repository_name/", True),
+            ("https://repository_owner.github.io/repository_name", True),
+            ("https://repository_owner.github.io/repository_name/subpage", True),
+            ("https://repository_owner.github.io/repository_name/../malicious", False),
+            ("https://repository_owner.github.io/", False),
+            ("https://repository_owner.github.io/unrelated_name/", False),
+        ],
+    )
+    def test_github_publisher_verify_url(self, url, expected):
+        publisher = github.GitHubPublisher(
+            repository_name="repository_name",
+            repository_owner="repository_owner",
+            repository_owner_id="666",
+            workflow_filename="workflow_filename.yml",
+            environment="",
+        )
+        assert publisher.verify_url(url) == expected
+
 
 class TestPendingGitHubPublisher:
     def test_reify_does_not_exist_yet(self, db_request):

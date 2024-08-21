@@ -1469,18 +1469,22 @@ class ManageAccountPublishingViews:
         self.pending_github_publisher_form = PendingGitHubPublisherForm(
             self.request.POST,
             api_token=self.request.registry.settings.get("github.token"),
+            route_url=self.request.route_url,
             project_factory=self.project_factory,
         )
         self.pending_gitlab_publisher_form = PendingGitLabPublisherForm(
             self.request.POST,
+            route_url=self.request.route_url,
             project_factory=self.project_factory,
         )
         self.pending_google_publisher_form = PendingGooglePublisherForm(
             self.request.POST,
+            route_url=self.request.route_url,
             project_factory=self.project_factory,
         )
         self.pending_activestate_publisher_form = PendingActiveStatePublisherForm(
             self.request.POST,
+            route_url=self.request.route_url,
             project_factory=self.project_factory,
         )
 
