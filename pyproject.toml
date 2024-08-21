@@ -43,7 +43,7 @@ combine_as_imports = true
 known_first_party = ['warehouse', 'tests']
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 warn_unused_configs = true
 warn_unused_ignores = true
 plugins = ["mypy_zope:plugin"]
@@ -93,7 +93,7 @@ addopts = [
   "--numprocesses=auto",
 ]
 cache_dir = "dev/.pytest_cache"
-norecursedirs = ['build', 'dist', 'node_modules', '*.egg-info', '.state requirements']
+testpaths = ["tests/"]
 markers = [
     'unit: Quick running unit tests which test small units of functionality.',
     'functional: Slower running tests which test the entire system is functioning.',
@@ -102,6 +102,7 @@ filterwarnings = [
     'ignore::warehouse.admin.services.InsecureStorageWarning',
     'ignore::warehouse.utils.exceptions.InsecureOIDCPublisherWarning',
     'ignore::warehouse.packaging.services.InsecureStorageWarning',
+    'error:SELECT statement has a cartesian product:sqlalchemy.exc.SAWarning',
 ]
 
 [tool.pip-tools.compile]
