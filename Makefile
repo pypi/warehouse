@@ -79,7 +79,7 @@ tests: .state/docker-build-base
 static_tests: .state/docker-build-static
 	docker compose run --rm static bin/static_tests $(T) $(TESTARGS)
 
-static_pipeline: .state/docker-build-static
+static_pipeline: translations .state/docker-build-static
 	docker compose run --rm static bin/static_pipeline $(T) $(TESTARGS)
 
 reformat: .state/docker-build-base
@@ -104,7 +104,7 @@ licenses: .state/docker-build-base
 deps: .state/docker-build-base
 	docker compose run --rm base bin/deps
 
-translations: .state/docker-build-base .state/docker-build-static
+translations: .state/docker-build-base
 	docker compose run --rm base bin/translations
 
 requirements/%.txt: requirements/%.in
