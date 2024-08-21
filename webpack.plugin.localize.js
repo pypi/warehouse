@@ -51,6 +51,18 @@ const KNOWN_LOCALES = [
   "he",  // Hebrew
   "eo",  // Esperanto
 ];
+
+// A custom regular expression to do some basic checking of the plural form,
+// to try to ensure the plural form expression contains only expected characters.
+// - the plural form expression MUST NOT have any type of quotes and
+//   the only whitespace allowed is space (not tab or form feed)
+// - MUST NOT allow brackets other than parentheses (()),
+//   as allowing braces ({}) might allow ending the function early
+// - MUST allow space, number variable (n), numbers, groups (()),
+//   comparisons (<>!=), ternary expressions (?:), and/or (&|),
+//   remainder (%)
+const pluralFormPattern = new RegExp("^ *nplurals *= *[0-9]+ *; *plural *=[ n0-9()<>!=?:&|%]+;?$");
+
 const allLocaleData = KNOWN_LOCALES
   .filter(langCode => langCode !== "en")
   .map((langCode) => resolve(localeDir, langCode, "LC_MESSAGES/messages.po"))
@@ -66,12 +78,19 @@ const allLocaleData = KNOWN_LOCALES
         .filter(line => !line.startsWith("#~|"))
         .join("\n");
       const parsed = gettextParser.po.parse(lines);
+      const language = parsed.headers["Language"];
+      const pluralForms = parsed.headers["Plural-Forms"];
       const result = {
         "": {
-          "language": parsed.headers["Language"],
-          "plural-forms": parsed.headers["Plural-Forms"],
+          "language": language,
+          "plural-forms": pluralForms,
         },
       };
+
+      if (!pluralFormPattern.test(pluralForms)) {
+        throw new Error(`Invalid plural forms for '${language}': "${pluralForms}"`);
+      }
+
       const translations = parsed.translations[""];
       for (const key in translations) {
         if (key === "") {
@@ -119,12 +138,6 @@ class WebpackLocalisationPlugin {
           statement.declarations[0].id.name === "messagesAccessPluralFormFunction") {
           const initData = statement.declarations[0].init;
           const pluralForms = self.localeData[""]["plural-forms"];
-          const denied = new RegExp(
-            "[~`^$_\\[\\]{}\\\\'\"\\.#@\\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]+");
-          const required = new RegExp("^ *nplurals *= *[0-9]+ *; *plural *= *.+$");
-          if (denied.test(pluralForms) || !required.test(pluralForms)) {
-            throw new Error(`Invalid plural forms for ${self.localeData[""].language}: ${pluralForms}`);
-          }
           const newValue = `function (n) {
   let nplurals, plural;
   ${pluralForms}
