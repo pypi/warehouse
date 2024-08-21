@@ -3384,6 +3384,7 @@ class TestFileUpload:
                 if not test_with_user
                 else None
             ),
+            "reusable_worfklow_used": False,  # This is tested in oidc.test_views
             "uploaded_via_trusted_publisher": not test_with_user,
         }
 

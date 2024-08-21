@@ -30,6 +30,7 @@ from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.metrics import IMetricsService
 from warehouse.oidc import errors, views
 from warehouse.oidc.interfaces import IOIDCPublisherService
+from warehouse.oidc.views import is_from_reusable_workflow
 from warehouse.packaging import services
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
@@ -804,10 +805,41 @@ def test_mint_token_github_reusable_workflow_metrics(
 
     if is_reusable:
         assert metrics.increment.calls == [
-            pretend.call(
-                "warehouse.oidc.mint_token.github_reusable_workflow",
-                tags=[f"publisher_url:{publisher.publisher_url(claims_in_token)}"],
-            ),
+            pretend.call("warehouse.oidc.mint_token.github_reusable_workflow"),
         ]
     else:
         assert not metrics.increment.calls
+
+
+@pytest.mark.parametrize(
+    ("is_github", "is_reusable", "claims"),
+    [
+        (False, False, {}),
+        (
+            True,
+            False,
+            {
+                "ref": "someref",
+                "sha": "somesha",
+                "workflow_ref": "org/repo/.github/workflows/workflow.yml@someref",
+                "job_workflow_ref": "org/repo/.github/workflows/workflow.yml@someref",
+            },
+        ),
+        (
+            True,
+            True,
+            {
+                "ref": "someref",
+                "sha": "somesha",
+                "workflow_ref": "org/repo/.github/workflows/parent.yml@someref",
+                "job_workflow_ref": "org2/repo2/.github/workflows/reusable.yml@v1",
+            },
+        ),
+    ],
+)
+def test_is_from_reusable_workflow(
+    db_request, is_github: bool, is_reusable: bool, claims: dict[str, str]
+):
+    publisher = GitHubPublisherFactory() if is_github else GitLabPublisherFactory()
+
+    assert is_from_reusable_workflow(publisher, claims) == is_reusable
