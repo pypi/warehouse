@@ -454,12 +454,14 @@ def configure(settings=None):
         "VERIFY_EMAIL_RATELIMIT_STRING",
         default="3 per 6 hours",
     )
-    maybe_set(
-        settings,
-        "warehouse.account.accounts_search_ratelimit_string",
-        "ACCOUNTS_SEARCH_RATELIMIT_STRING",
-        default="100 per hour",
-    ),
+    (
+        maybe_set(
+            settings,
+            "warehouse.account.accounts_search_ratelimit_string",
+            "ACCOUNTS_SEARCH_RATELIMIT_STRING",
+            default="100 per hour",
+        ),
+    )
     maybe_set(
         settings,
         "warehouse.account.password_reset_ratelimit_string",
@@ -738,6 +740,9 @@ def configure(settings=None):
 
     # Register support for OIDC based authentication
     config.include(".oidc")
+
+    # Register support for attestations
+    config.include(".attestations")
 
     # Register logged-in views
     config.include(".manage")
