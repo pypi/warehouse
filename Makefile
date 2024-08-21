@@ -12,10 +12,12 @@ endif
 # higher than running a small handful of specific tests).
 # Only do this when the user doesn't set any explicit `TESTARGS` to avoid
 # confusion.
+COVERAGE := yes
 ifneq ($(T),)
-ifeq ($(TESTARGS),)
-	TESTARGS = -n 0
-endif
+		COVERAGE = no
+		ifeq ($(TESTARGS),)
+				TESTARGS = -n 0
+		endif
 endif
 
 default:
@@ -74,7 +76,7 @@ debug: .state/docker-build-base
 	docker compose run --rm --service-ports web
 
 tests: .state/docker-build-base
-	docker compose run --rm tests bin/tests --postgresql-host db $(T) $(TESTARGS)
+	docker compose run --rm --env COVERAGE=$(COVERAGE) tests bin/tests --postgresql-host db $(T) $(TESTARGS)
 
 static_tests: .state/docker-build-static
 	docker compose run --rm static bin/static_tests $(T) $(TESTARGS)
@@ -145,6 +147,9 @@ inittuf: .state/db-migrated
 runmigrations: .state/docker-build-base
 	docker compose run --rm web python -m warehouse db upgrade head
 
+checkdb: .state/docker-build-base
+	docker compose run --rm web bin/db-check
+
 reindex: .state/docker-build-base
 	docker compose run --rm web python -m warehouse search reindex
 
@@ -168,4 +173,4 @@ purge: stop clean
 stop:
 	docker compose stop
 
-.PHONY: default build serve resetdb initdb shell dbshell tests dev-docs user-docs deps clean purge debug stop compile-pot runmigrations
+.PHONY: default build serve resetdb initdb shell dbshell tests dev-docs user-docs deps clean purge debug stop compile-pot runmigrations checkdb

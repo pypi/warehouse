@@ -42,7 +42,7 @@ class TestQueries:
         assert query.to_dict() == {"query": {"match_all": {}}}
 
     @pytest.mark.parametrize(
-        "terms,expected_prefix,expected_type",
+        ("terms", "expected_prefix", "expected_type"),
         [
             ('"foo bar"', '"foo bar"', "phrase"),
             ('"a"', '"a"', "phrase"),
@@ -142,7 +142,7 @@ class TestQueries:
             },
         }
 
-    @pytest.mark.parametrize("order,field", [("created", "created")])
+    @pytest.mark.parametrize(("order", "field"), [("created", "created")])
     def test_sort_order(self, order, field):
         opensearch = Search()
         terms = "foo bar"

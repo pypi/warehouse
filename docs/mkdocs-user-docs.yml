@@ -10,6 +10,7 @@ plugins:
       j2_variable_end_string: "]]-->"
 markdown_extensions:
   - admonition
+  - attr_list
   - pymdownx.details
   - pymdownx.superfences
   - pymdownx.tabbed:
@@ -17,6 +18,9 @@ markdown_extensions:
       slugify:
         !!python/object/apply:pymdownx.slugs.slugify { kwds: { case: lower } }
   - tables
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
 theme:
   name: material
   logo: assets/logo.png
@@ -70,3 +74,4 @@ nav:
   - "Digital Attestations":
       - "attestations/index.md"
       - "attestations/publish/v1.md"
+  - "project_metadata.md"

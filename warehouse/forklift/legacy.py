@@ -25,17 +25,12 @@ import packaging.specifiers
 import packaging.utils
 import packaging.version
 import packaging_legacy.version
+import rfc3986
 import sentry_sdk
 import wtforms
 import wtforms.validators
 
-from pydantic import TypeAdapter, ValidationError
-from pypi_attestations import (
-    Attestation,
-    AttestationType,
-    Distribution,
-    VerificationError,
-)
+from pypi_attestations import Attestation, Distribution
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPException,
@@ -45,12 +40,13 @@ from pyramid.httpexceptions import (
     HTTPPermanentRedirect,
     HTTPTooManyRequests,
 )
+from pyramid.request import Request
 from pyramid.view import view_config
-from sigstore.verify import Verifier
 from sqlalchemy import and_, exists, func, orm
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.attestations import AttestationUploadError, IIntegrityService
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
@@ -60,6 +56,8 @@ from warehouse.forklift import metadata
 from warehouse.forklift.forms import UploadForm, _filetype_extension_mapping
 from warehouse.macaroons.models import Macaroon
 from warehouse.metrics import IMetricsService
+from warehouse.oidc.models import OIDCPublisher
+from warehouse.oidc.views import is_from_reusable_workflow
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
 from warehouse.packaging.models import (
     Dependency,
@@ -373,86 +371,85 @@ def _is_duplicate_file(db_session, filename, hashes):
     return None
 
 
-def _process_attestations(request, distribution: Distribution):
-    """
-    Process any attestations included in a file upload request
+_pypi_project_urls = [
+    "https://pypi.org/project/",
+    "https://pypi.org/p/",
+    "https://pypi.python.org/project/",
+    "https://pypi.python.org/p/",
+    "https://python.org/pypi/",
+]
 
-    Attestations, if present, will be parsed and verified against the uploaded
-    artifact. Attestations are only allowed when uploading via a Trusted
-    Publisher, because a Trusted Publisher provides the identity that will be
-    used to verify the attestations.
-    Currently, only GitHub Actions Trusted Publishers are supported, and
-    attestations are discarded after verification.
-    """
 
-    metrics = request.find_service(IMetricsService, context=None)
+def _verify_url_pypi(url: str, project_name: str, project_normalized_name: str) -> bool:
+    candidate_urls = (
+        f"{pypi_project_url}{name}{optional_slash}"
+        for pypi_project_url in _pypi_project_urls
+        for name in {project_name, project_normalized_name}
+        for optional_slash in ["/", ""]
+    )
 
-    publisher = request.oidc_publisher
-    if not publisher or not publisher.publisher_name == "GitHub":
-        raise _exc_with_message(
-            HTTPBadRequest,
-            "Attestations are currently only supported when using Trusted "
-            "Publishing with GitHub Actions.",
+    user_uri = rfc3986.api.uri_reference(url).normalize()
+    return any(
+        user_uri == rfc3986.api.uri_reference(candidate_url).normalize()
+        for candidate_url in candidate_urls
+    )
+
+
+def _verify_url(
+    url: str,
+    publisher: OIDCPublisher | None,
+    project_name: str,
+    project_normalized_name: str,
+) -> bool:
+    if _verify_url_pypi(
+        url=url,
+        project_name=project_name,
+        project_normalized_name=project_normalized_name,
+    ):
+        return True
+
+    if not publisher:
+        return False
+
+    return publisher.verify_url(url)
+
+
+def _sort_releases(request: Request, project: Project):
+    releases = (
+        request.db.query(Release)
+        .filter(Release.project == project)
+        .options(
+            orm.load_only(
+                Release.project_id,
+                Release.version,
+                Release._pypi_ordering,
+            )
         )
-    try:
-        attestations = TypeAdapter(list[Attestation]).validate_json(
-            request.POST["attestations"]
-        )
-    except ValidationError as e:
-        # Log invalid (malformed) attestation upload
-        metrics.increment("warehouse.upload.attestations.malformed")
-        raise _exc_with_message(
-            HTTPBadRequest,
-            f"Error while decoding the included attestation: {e}",
-        )
-
-    if len(attestations) > 1:
-        metrics.increment("warehouse.upload.attestations.failed_multiple_attestations")
-        raise _exc_with_message(
-            HTTPBadRequest,
-            "Only a single attestation per-file is supported at the moment.",
-        )
-
-    verification_policy = publisher.publisher_verification_policy(request.oidc_claims)
-    for attestation_model in attestations:
-        try:
-            # For now, attestations are not stored, just verified
-            predicate_type, _ = attestation_model.verify(
-                Verifier.production(),
-                verification_policy,
-                distribution,
-            )
-        except VerificationError as e:
-            # Log invalid (failed verification) attestation upload
-            metrics.increment("warehouse.upload.attestations.failed_verify")
-            raise _exc_with_message(
-                HTTPBadRequest,
-                f"Could not verify the uploaded artifact using the included "
-                f"attestation: {e}",
-            )
-        except Exception as e:
-            with sentry_sdk.push_scope() as scope:
-                scope.fingerprint = [e]
-                sentry_sdk.capture_message(
-                    f"Unexpected error while verifying attestation: {e}"
-                )
-
-            raise _exc_with_message(
-                HTTPBadRequest,
-                f"Unknown error while trying to verify included attestations: {e}",
-            )
-
-        if predicate_type != AttestationType.PYPI_PUBLISH_V1:
-            metrics.increment(
-                "warehouse.upload.attestations.failed_unsupported_predicate_type"
-            )
-            raise _exc_with_message(
-                HTTPBadRequest,
-                f"Attestation with unsupported predicate type: {predicate_type}",
-            )
-
-        # Log successful attestation upload
-        metrics.increment("warehouse.upload.attestations.ok")
+        .all()
+    )
+    for i, r in enumerate(
+        sorted(releases, key=lambda x: packaging_legacy.version.parse(x.version))
+    ):
+        # NOTE: If we set r._pypi_ordering, even to the same value it was
+        #       previously, then SQLAlchemy will decide that it needs to load
+        #       Release.description (with N+1 queries) for some reason that I
+        #       can't possibly fathom why. The SQLAlchemy docs say that
+        #       raisedload doesn't prevent SQLAlchemy for doing queries that it
+        #       needs to do for the Unit of Work pattern, so I guess since each
+        #       Release object was modified it feels the need to load each of
+        #       them... but I haven no idea why that means it feels the need to
+        #       load the Release.description relationship as well.
+        #
+        #       Technically, we can still execute a query for every release if
+        #       someone goes back and releases a version "0" or something that
+        #       would cause most or all of the releases to need to "shift" and
+        #       get updated.
+        #
+        #       We maybe want to convert this away from using the ORM and build up
+        #       a mapping of Release.id -> new _pypi_ordering and do a single bulk
+        #       update query to eliminate the possibility we trigger this again.
+        if r._pypi_ordering != i:
+            r._pypi_ordering = i
 
 
 @view_config(
@@ -777,7 +774,25 @@ def file_upload(request):
                 ),
             ) from None
 
+    # Verify any verifiable URLs
+    project_urls = (
+        {}
+        if not meta.project_urls
+        else {
+            name: {
+                "url": url,
+                "verified": _verify_url(
+                    url=url,
+                    publisher=request.oidc_publisher,
+                    project_name=project.name,
+                    project_normalized_name=project.normalized_name,
+                ),
+            }
+            for name, url in meta.project_urls.items()
+        }
+    )
     try:
+        is_new_release = False
         canonical_version = packaging.utils.canonicalize_version(meta.version)
         release = (
             request.db.query(Release)
@@ -831,7 +846,7 @@ def file_upload(request):
                 html=rendered or "",
                 rendered_by=readme.renderer_version(),
             ),
-            project_urls=meta.project_urls or {},
+            project_urls=project_urls,
             # TODO: Fix this, we currently treat platform as if it is a single
             #       use field, but in reality it is a multi-use field, which the
             #       packaging.metadata library handles correctly.
@@ -870,6 +885,7 @@ def file_upload(request):
             uploaded_via=request.user_agent,
         )
         request.db.add(release)
+        is_new_release = True
 
         # TODO: This should be handled by some sort of database trigger or
         #       a SQLAlchemy hook or the like instead of doing it inline in
@@ -896,25 +912,21 @@ def file_upload(request):
                     if request.oidc_publisher
                     else None
                 ),
+                "reusable_worfklow_used": (
+                    is_from_reusable_workflow(
+                        request.oidc_publisher, request.oidc_claims
+                    )
+                    if request.oidc_publisher
+                    else False
+                ),
                 "uploaded_via_trusted_publisher": bool(request.oidc_publisher),
             },
         )
 
-    # TODO: We need a better solution to this than to just do it inline inside
-    #       this method. Ideally the version field would just be sortable, but
-    #       at least this should be some sort of hook or trigger.
-    releases = (
-        request.db.query(Release)
-        .filter(Release.project == project)
-        .options(
-            orm.load_only(Release.project_id, Release.version, Release._pypi_ordering)
-        )
-        .all()
-    )
-    for i, r in enumerate(
-        sorted(releases, key=lambda x: packaging_legacy.version.parse(x.version))
-    ):
-        r._pypi_ordering = i
+        # TODO: We need a better solution to this than to just do it inline inside
+        #       this method. Ideally the version field would just be sortable, but
+        #       at least this should be some sort of hook or trigger.
+        _sort_releases(request, project)
 
     # Pull the filename out of our POST data.
     filename = request.POST["content"].filename
@@ -1011,7 +1023,9 @@ def file_upload(request):
                 # --skip-existing functionality in twine
                 # ref: https://github.com/pypi/warehouse/issues/3482
                 # ref: https://github.com/pypa/twine/issues/332
-                "File already exists. See "
+                "File already exists "
+                + f"({filename!r}, with blake2_256 hash {file_hashes['blake2_256']!r})."
+                + " See "
                 + request.help_url(_anchor="file-name-reuse")
                 + " for more information.",
             )
@@ -1167,12 +1181,6 @@ def file_upload(request):
                 k: h.hexdigest().lower() for k, h in metadata_file_hashes.items()
             }
 
-        if "attestations" in request.POST:
-            _process_attestations(
-                request=request,
-                distribution=Distribution(name=filename, digest=file_hashes["sha256"]),
-            )
-
         # TODO: This should be handled by some sort of database trigger or a
         #       SQLAlchemy hook or the like instead of doing it inline in this
         #       view.
@@ -1268,6 +1276,45 @@ def file_upload(request):
                     "python-version": file_.python_version,
                 },
             )
+
+        # If the user provided attestations, verify and store them
+        if "attestations" in request.POST:
+            integrity_service = request.find_service(IIntegrityService, context=None)
+
+            try:
+                attestations: list[Attestation] = integrity_service.parse_attestations(
+                    request,
+                    Distribution(name=filename, digest=file_hashes["sha256"]),
+                )
+            except AttestationUploadError as e:
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    str(e),
+                )
+
+            integrity_service.persist_attestations(attestations, file_)
+
+            provenance = integrity_service.generate_provenance(
+                request.oidc_publisher, attestations
+            )
+            if provenance:
+                integrity_service.persist_provenance(provenance, file_)
+
+            # Log successful attestation upload
+            metrics.increment("warehouse.upload.attestations.ok")
+
+    # For existing releases, we check if any of the existing project URLs are unverified
+    # and have been verified in the current upload. In that case, we mark them as
+    # verified.
+    if not is_new_release and project_urls:
+        for name, release_url in release._project_urls.items():
+            if (
+                not release_url.verified
+                and name in project_urls
+                and project_urls[name]["url"] == release_url.url
+                and project_urls[name]["verified"]
+            ):
+                release_url.verified = True
 
     request.db.flush()  # flush db now so server default values are populated for celery
 

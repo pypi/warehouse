@@ -77,8 +77,11 @@ class TestWarehouseTask:
         assert runner.calls == [pretend.call(request)]
 
     def test_retry(self, monkeypatch, metrics):
+        class SpecificError(Exception):
+            pass
+
         def runner(self):
-            raise self.retry(exc=Exception())
+            raise self.retry(exc=SpecificError)
 
         request = pretend.stub(
             find_service=lambda *a, **kw: metrics,
@@ -90,7 +93,7 @@ class TestWarehouseTask:
         task.name = "warehouse.test.task"
         task.run = runner
 
-        with pytest.raises(Exception):
+        with pytest.raises(SpecificError):
             task.run(task)
 
         assert metrics.increment.calls == [

@@ -10,7 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
+
 from typing import Any
+
+import rfc3986
 
 from sigstore.verify.policy import (
     AllOf,
@@ -21,7 +25,6 @@ from sigstore.verify.policy import (
 from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Query, mapped_column
-from sqlalchemy.sql.expression import func, literal
 
 from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import SignedClaims
@@ -32,6 +35,30 @@ from warehouse.oidc.models._core import (
     check_claim_binary,
     check_existing_jti,
 )
+
+# This expression matches the workflow filename component of a GitHub
+# "workflow ref", i.e. the value present in the `workflow_ref` and
+# `job_workflow_ref` claims. This requires a nontrivial (and nonregular)
+# pattern, since the workflow filename and other components of the workflow
+# can contain overlapping delimiters (such as `@` in the workflow filename,
+# or `git` refs that look like workflow filenames).
+_WORKFLOW_FILENAME_RE = re.compile(
+    r"""
+    (                   # our capture group
+        [^/]+           # match one or more non-slash characters
+        \.(yml|yaml)    # match the literal suffix `.yml` or `.yaml`
+    )
+    (?=@)               # lookahead match for `@`, constraining the group above
+    """,
+    re.X,
+)
+
+
+def _extract_workflow_filename(workflow_ref: str) -> str | None:
+    if match := _WORKFLOW_FILENAME_RE.search(workflow_ref):
+        return match.group(0)
+    else:
+        return None
 
 
 def _check_repository(ground_truth, signed_claim, _all_signed_claims, **_kwargs):
@@ -178,40 +205,34 @@ class GitHubPublisherMixin:
 
         repository = signed_claims["repository"]
         repository_owner, repository_name = repository.split("/", 1)
-        workflow_prefix = f"{repository}/.github/workflows/"
-        workflow_ref = signed_claims["job_workflow_ref"].removeprefix(workflow_prefix)
+        workflow_ref = signed_claims["job_workflow_ref"]
 
-        return (
-            Query(klass)
-            .filter_by(
-                repository_name=repository_name,
-                repository_owner=repository_owner,
-                repository_owner_id=signed_claims["repository_owner_id"],
-                environment=environment.lower(),
-            )
-            .filter(
-                literal(workflow_ref).like(func.concat(klass.workflow_filename, "%"))
-            )
+        if not (workflow_filename := _extract_workflow_filename(workflow_ref)):
+            return None
+
+        return Query(klass).filter_by(
+            repository_name=repository_name,
+            repository_owner=repository_owner,
+            repository_owner_id=signed_claims["repository_owner_id"],
+            environment=environment.lower(),
+            workflow_filename=workflow_filename,
         )
 
     @staticmethod
     def __lookup_no_environment__(klass, signed_claims: SignedClaims) -> Query | None:
         repository = signed_claims["repository"]
         repository_owner, repository_name = repository.split("/", 1)
-        workflow_prefix = f"{repository}/.github/workflows/"
-        workflow_ref = signed_claims["job_workflow_ref"].removeprefix(workflow_prefix)
+        workflow_ref = signed_claims["job_workflow_ref"]
 
-        return (
-            Query(klass)
-            .filter_by(
-                repository_name=repository_name,
-                repository_owner=repository_owner,
-                repository_owner_id=signed_claims["repository_owner_id"],
-                environment="",
-            )
-            .filter(
-                literal(workflow_ref).like(func.concat(klass.workflow_filename, "%"))
-            )
+        if not (workflow_filename := _extract_workflow_filename(workflow_ref)):
+            return None
+
+        return Query(klass).filter_by(
+            repository_name=repository_name,
+            repository_owner=repository_owner,
+            repository_owner_id=signed_claims["repository_owner_id"],
+            environment="",
+            workflow_filename=workflow_filename,
         )
 
     __lookup_strategies__ = [
@@ -240,12 +261,16 @@ class GitHubPublisherMixin:
         return f"repo:{self.repository}"
 
     @property
+    def publisher_base_url(self):
+        return f"https://github.com/{self.repository}"
+
+    @property
     def jti(self) -> str:
         """Placeholder value for JTI."""
         return "placeholder"
 
     def publisher_url(self, claims=None):
-        base = f"https://github.com/{self.repository}"
+        base = self.publisher_base_url
         sha = claims.get("sha") if claims else None
 
         if sha:
@@ -309,6 +334,45 @@ class GitHubPublisher(GitHubPublisherMixin, OIDCPublisher):
     id = mapped_column(
         UUID(as_uuid=True), ForeignKey(OIDCPublisher.id), primary_key=True
     )
+
+    def verify_url(self, url: str):
+        """
+        Verify a given URL against this GitHub's publisher information
+
+        In addition to the generic Trusted Publisher verification logic in
+        the parent class, the GitHub Trusted Publisher allows URLs hosted
+        on `github.io` for the configured repository, i.e:
+        `https://${OWNER}.github.io/${REPO_NAME}/`.
+
+        As with the generic verification, we allow subpaths of the `.io` URL,
+        but we normalize using `rfc3986` to reject things like
+        `https://${OWNER}.github.io/${REPO_NAME}/../malicious`, which would
+        resolve to a URL outside the `/$REPO_NAME` path.
+
+        The suffix `.git` in repo URLs is ignored, since `github.com/org/repo.git`
+        always redirects to `github.com/org/repo`. This does not apply to subpaths,
+        like `github.com/org/repo.git/issues`, which do not redirect to the correct URL.
+        """
+        url_for_generic_check = url.removesuffix("/").removesuffix(".git")
+
+        if super().verify_url(url_for_generic_check):
+            return True
+
+        docs_url = f"https://{self.repository_owner}.github.io/{self.repository_name}"
+        docs_uri = rfc3986.api.uri_reference(docs_url).normalize()
+        user_uri = rfc3986.api.uri_reference(url).normalize()
+
+        if not user_uri.path:
+            return False
+
+        is_subpath = docs_uri.path == user_uri.path or user_uri.path.startswith(
+            docs_uri.path + "/"
+        )
+        return (
+            docs_uri.scheme == user_uri.scheme
+            and docs_uri.authority == user_uri.authority
+            and is_subpath
+        )
 
 
 class PendingGitHubPublisher(GitHubPublisherMixin, PendingOIDCPublisher):

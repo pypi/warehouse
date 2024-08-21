@@ -30,7 +30,7 @@ from warehouse.oidc.utils import PublisherTokenContext
 
 
 @pytest.mark.parametrize(
-    ["auth", "result"],
+    ("auth", "result"),
     [
         (None, None),
         ("notarealtoken", None),
@@ -50,7 +50,7 @@ def test_extract_http_macaroon(auth, result, metrics):
 
 
 @pytest.mark.parametrize(
-    ["auth", "result"],
+    ("auth", "result"),
     [
         ("notbase64", None),
         ("bm90YXJlYWx0b2tlbg==", None),  # "notarealtoken"
@@ -292,7 +292,7 @@ class TestMacaroonSecurityPolicy:
         assert result.s == "Invalid API Token: foo"
 
     @pytest.mark.parametrize(
-        "principals,expected", [(["user:5"], True), (["user:1"], False)]
+        ("principals", "expected"), [(["user:5"], True), (["user:1"], False)]
     )
     def test_permits_valid_macaroon(self, monkeypatch, principals, expected):
         macaroon_service = pretend.stub(

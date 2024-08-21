@@ -17,7 +17,6 @@ from natsort import natsorted
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 
 from warehouse.packaging import views
-from warehouse.utils import readme
 
 from ...common.db.accounts import UserFactory
 from ...common.db.classifiers import ClassifierFactory
@@ -176,65 +175,6 @@ class TestReleaseDetail:
             pretend.call(name=release.project.name, version=release.version)
         ]
 
-    def test_detail_render_plain(self, db_request):
-        users = [UserFactory.create(), UserFactory.create(), UserFactory.create()]
-        project = ProjectFactory.create()
-        releases = [
-            ReleaseFactory.create(
-                project=project,
-                version=v,
-                description=DescriptionFactory.create(
-                    raw="plaintext description",
-                    html="",
-                    content_type="text/plain",
-                ),
-            )
-            for v in ["1.0", "2.0", "3.0", "4.0.dev0"]
-        ] + [
-            ReleaseFactory.create(
-                project=project,
-                version="5.0",
-                description=DescriptionFactory.create(
-                    raw="plaintext description",
-                    html="",
-                    content_type="text/plain",
-                ),
-                yanked=True,
-                yanked_reason="plaintext yanked reason",
-            )
-        ]
-        files = [
-            FileFactory.create(
-                release=r,
-                filename=f"{project.name}-{r.version}.tar.gz",
-                python_version="source",
-                packagetype="sdist",
-            )
-            for r in releases
-        ]
-
-        # Create a role for each user
-        for user in users:
-            RoleFactory.create(user=user, project=project)
-
-        result = views.release_detail(releases[1], db_request)
-
-        assert result == {
-            "project": project,
-            "release": releases[1],
-            "files": [files[1]],
-            "sdists": [files[1]],
-            "bdists": [],
-            "description": "<pre>plaintext description</pre>",
-            "latest_version": project.latest_version,
-            "all_versions": [
-                (r.version, r.created, r.is_prerelease, r.yanked, r.yanked_reason)
-                for r in reversed(releases)
-            ],
-            "maintainers": sorted(users, key=lambda u: u.username.lower()),
-            "license": None,
-        }
-
     def test_detail_rendered(self, db_request):
         users = [UserFactory.create(), UserFactory.create(), UserFactory.create()]
         project = ProjectFactory.create()
@@ -293,73 +233,6 @@ class TestReleaseDetail:
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
             "license": None,
         }
-
-    def test_detail_renders(self, monkeypatch, db_request):
-        users = [UserFactory.create(), UserFactory.create(), UserFactory.create()]
-        project = ProjectFactory.create()
-        releases = [
-            ReleaseFactory.create(
-                project=project,
-                version=v,
-                description=DescriptionFactory.create(
-                    raw="unrendered description", html="", content_type="text/html"
-                ),
-            )
-            for v in ["1.0", "2.0", "3.0", "4.0.dev0"]
-        ] + [
-            ReleaseFactory.create(
-                project=project,
-                version="5.0",
-                description=DescriptionFactory.create(
-                    raw="plaintext description",
-                    html="",
-                    content_type="text/plain",
-                ),
-                yanked=True,
-                yanked_reason="plaintext yanked reason",
-            )
-        ]
-        files = [
-            FileFactory.create(
-                release=r,
-                filename=f"{project.name}-{r.version}.tar.gz",
-                python_version="source",
-                packagetype="sdist",
-            )
-            for r in releases
-        ]
-
-        # Create a role for each user
-        for user in users:
-            RoleFactory.create(user=user, project=project)
-
-        # patch the readme rendering logic.
-        render_description = pretend.call_recorder(
-            lambda raw, content_type: "rendered description"
-        )
-        monkeypatch.setattr(readme, "render", render_description)
-
-        result = views.release_detail(releases[1], db_request)
-
-        assert result == {
-            "project": project,
-            "release": releases[1],
-            "files": [files[1]],
-            "sdists": [files[1]],
-            "bdists": [],
-            "description": "rendered description",
-            "latest_version": project.latest_version,
-            "all_versions": [
-                (r.version, r.created, r.is_prerelease, r.yanked, r.yanked_reason)
-                for r in reversed(releases)
-            ],
-            "maintainers": sorted(users, key=lambda u: u.username.lower()),
-            "license": None,
-        }
-
-        assert render_description.calls == [
-            pretend.call("unrendered description", "text/html")
-        ]
 
     def test_detail_renders_files_natural_sort(self, db_request):
         """Tests that when a release has multiple versions of Python,

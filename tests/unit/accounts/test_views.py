@@ -376,7 +376,7 @@ class TestLogin:
     @pytest.mark.parametrize(
         # The set of all possible next URLs. Since this set is infinite, we
         # test only a finite set of reasonable URLs.
-        ("expected_next_url, observed_next_url"),
+        ("expected_next_url", "observed_next_url"),
         [("/security/", "/security/"), ("http://example.com", "/the-redirect")],
     )
     def test_post_validate_no_redirects(
@@ -1515,7 +1515,7 @@ class TestLogout:
     @pytest.mark.parametrize(
         # The set of all possible next URLs. Since this set is infinite, we
         # test only a finite set of reasonable URLs.
-        ("expected_next_url, observed_next_url"),
+        ("expected_next_url", "observed_next_url"),
         [("/security/", "/security/"), ("http://example.com", "/")],
     )
     def test_post_redirects_user(
@@ -1533,7 +1533,7 @@ class TestLogout:
     @pytest.mark.parametrize(
         # The set of all possible next URLs. Since this set is infinite, we
         # test only a finite set of reasonable URLs.
-        ("expected_next_url, observed_next_url"),
+        ("expected_next_url", "observed_next_url"),
         [("/security/", "/security/"), ("http://example.com", "/")],
     )
     def test_get_redirects_anonymous_user(
@@ -2042,7 +2042,7 @@ class TestRequestPasswordReset:
 
 
 class TestResetPassword:
-    @pytest.mark.parametrize("dates_utc", (True, False))
+    @pytest.mark.parametrize("dates_utc", [True, False])
     def test_get(self, db_request, user_service, token_service, dates_utc):
         user = UserFactory.create()
         form_inst = pretend.stub()
@@ -3308,6 +3308,7 @@ class TestManageAccountPublishingViews:
     def test_initializes(self, metrics):
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda *a, **kw: metrics),
+            route_url=pretend.stub(),
             POST=MultiDict(),
             registry=pretend.stub(
                 settings={
@@ -3325,7 +3326,7 @@ class TestManageAccountPublishingViews:
         ]
 
     @pytest.mark.parametrize(
-        "ip_exceeded, user_exceeded",
+        ("ip_exceeded", "user_exceeded"),
         [
             (False, False),
             (False, True),
@@ -3363,6 +3364,7 @@ class TestManageAccountPublishingViews:
                     "github.token": "fake-api-token",
                 }
             ),
+            route_url=pretend.stub(),
         )
 
         view = views.ManageAccountPublishingViews(request)
@@ -3391,8 +3393,10 @@ class TestManageAccountPublishingViews:
             view._check_ratelimits()
 
     def test_manage_publishing(self, metrics, monkeypatch):
+        route_url = pretend.stub()
         request = pretend.stub(
             user=pretend.stub(),
+            route_url=route_url,
             registry=pretend.stub(
                 settings={
                     "github.token": "fake-api-token",
@@ -3467,12 +3471,14 @@ class TestManageAccountPublishingViews:
             pretend.call(
                 request.POST,
                 api_token="fake-api-token",
+                route_url=route_url,
                 project_factory=project_factory,
             )
         ]
         assert pending_gitlab_publisher_form_cls.calls == [
             pretend.call(
                 request.POST,
+                route_url=route_url,
                 project_factory=project_factory,
             )
         ]
@@ -3561,18 +3567,20 @@ class TestManageAccountPublishingViews:
             pretend.call(
                 pyramid_request.POST,
                 api_token="fake-api-token",
+                route_url=pyramid_request.route_url,
                 project_factory=project_factory,
             )
         ]
         assert pending_gitlab_publisher_form_cls.calls == [
             pretend.call(
                 pyramid_request.POST,
+                route_url=pyramid_request.route_url,
                 project_factory=project_factory,
             )
         ]
 
     @pytest.mark.parametrize(
-        "view_name, flag, publisher_name",
+        ("view_name", "flag", "publisher_name"),
         [
             (
                 "add_pending_github_oidc_publisher",
@@ -3689,18 +3697,20 @@ class TestManageAccountPublishingViews:
             pretend.call(
                 pyramid_request.POST,
                 api_token="fake-api-token",
+                route_url=pyramid_request.route_url,
                 project_factory=project_factory,
             )
         ]
         assert pending_gitlab_publisher_form_cls.calls == [
             pretend.call(
                 pyramid_request.POST,
+                route_url=pyramid_request.route_url,
                 project_factory=project_factory,
             )
         ]
 
     @pytest.mark.parametrize(
-        "view_name, flag, publisher_name",
+        ("view_name", "flag", "publisher_name"),
         [
             (
                 "add_pending_github_oidc_publisher",
@@ -3828,18 +3838,20 @@ class TestManageAccountPublishingViews:
             pretend.call(
                 pyramid_request.POST,
                 api_token="fake-api-token",
+                route_url=pyramid_request.route_url,
                 project_factory=project_factory,
             )
         ]
         assert pending_gitlab_publisher_form_cls.calls == [
             pretend.call(
                 pyramid_request.POST,
+                route_url=pyramid_request.route_url,
                 project_factory=project_factory,
             )
         ]
 
     @pytest.mark.parametrize(
-        "view_name, flag, publisher_name, make_publisher, publisher_class",
+        ("view_name", "flag", "publisher_name", "make_publisher", "publisher_class"),
         [
             (
                 "add_pending_github_oidc_publisher",
@@ -3971,7 +3983,7 @@ class TestManageAccountPublishingViews:
         assert len(db_request.db.query(publisher_class).all()) == 3
 
     @pytest.mark.parametrize(
-        "view_name, publisher_name",
+        ("view_name", "publisher_name"),
         [
             (
                 "add_pending_github_oidc_publisher",
@@ -4045,7 +4057,7 @@ class TestManageAccountPublishingViews:
         ]
 
     @pytest.mark.parametrize(
-        "view_name, publisher_name",
+        ("view_name", "publisher_name"),
         [
             (
                 "add_pending_github_oidc_publisher",
@@ -4141,7 +4153,7 @@ class TestManageAccountPublishingViews:
         assert view._check_ratelimits.calls == [pretend.call()]
 
     @pytest.mark.parametrize(
-        "view_name, publisher_name, make_publisher, post_body",
+        ("view_name", "publisher_name", "make_publisher", "post_body"),
         [
             (
                 "add_pending_github_oidc_publisher",
@@ -4306,7 +4318,7 @@ class TestManageAccountPublishingViews:
         ]
 
     @pytest.mark.parametrize(
-        "view_name, publisher_name, post_body, publisher_class",
+        ("view_name", "publisher_name", "post_body", "publisher_class"),
         [
             (
                 "add_pending_github_oidc_publisher",
@@ -4545,12 +4557,14 @@ class TestManageAccountPublishingViews:
             pretend.call(
                 pyramid_request.POST,
                 api_token="fake-api-token",
+                route_url=pyramid_request.route_url,
                 project_factory=project_factory,
             )
         ]
         assert pending_gitlab_publisher_form_cls.calls == [
             pretend.call(
                 pyramid_request.POST,
+                route_url=pyramid_request.route_url,
                 project_factory=project_factory,
             )
         ]
@@ -4586,7 +4600,7 @@ class TestManageAccountPublishingViews:
         ]
 
     @pytest.mark.parametrize(
-        "make_publisher, publisher_class",
+        ("make_publisher", "publisher_class"),
         [
             (
                 lambda user_id: PendingGitHubPublisher(
@@ -4668,7 +4682,7 @@ class TestManageAccountPublishingViews:
         assert db_request.db.query(publisher_class).all() == [pending_publisher]
 
     @pytest.mark.parametrize(
-        "make_publisher, publisher_class",
+        ("make_publisher", "publisher_class"),
         [
             (
                 lambda user_id: PendingGitHubPublisher(
@@ -4742,7 +4756,7 @@ class TestManageAccountPublishingViews:
         assert db_request.db.query(publisher_class).all() == [pending_publisher]
 
     @pytest.mark.parametrize(
-        "publisher_name, make_publisher, publisher_class",
+        ("publisher_name", "make_publisher", "publisher_class"),
         [
             (
                 "GitHub",

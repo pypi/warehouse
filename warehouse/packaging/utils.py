@@ -19,10 +19,12 @@ import packaging_legacy.version
 from pyramid_jinja2 import IJinja2Environment
 from sqlalchemy.orm import joinedload
 
+from warehouse.attestations import IIntegrityService
+from warehouse.attestations.models import Attestation
 from warehouse.packaging.interfaces import ISimpleStorage
 from warehouse.packaging.models import File, LifecycleStatus, Project, Release
 
-API_VERSION = "1.1"
+API_VERSION = "1.2"
 
 
 def _simple_index(request, serial):
@@ -51,6 +53,7 @@ def _simple_detail(project, request):
         request.db.query(File)
         .options(joinedload(File.release))
         .join(Release)
+        .join(Attestation)
         .filter(Release.project == project)
         # Exclude projects that are in the `quarantine-enter` lifecycle status.
         .join(Project)
@@ -63,6 +66,8 @@ def _simple_detail(project, request):
     versions = sorted(
         {f.release.version for f in files}, key=packaging_legacy.version.parse
     )
+
+    integrity_service = request.find_service(IIntegrityService, context=None)
 
     return {
         "meta": {"api-version": API_VERSION, "_last-serial": project.last_serial},
@@ -97,6 +102,7 @@ def _simple_detail(project, request):
                     if file.metadata_file_sha256_digest
                     else False
                 ),
+                "provenance": integrity_service.get_provenance_digest(file),
             }
             for file in files
         ],

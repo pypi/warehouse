@@ -19,7 +19,7 @@ from warehouse.i18n import extensions
 
 
 @pytest.mark.parametrize(
-    "ext, result",
+    ("ext", "result"),
     [
         # Just a sanity check: test that when we do nothing, text is not trimmed.
         ([], "   hey   "),
@@ -62,9 +62,12 @@ def _get_with_context(value, ctx=None):
 class TestFallbackInternationalizationExtension:
     @pytest.mark.parametrize(
         (
-            "newstyle_env, newstyle_param, "
-            "newer_gettext_expected, newer_ngettext_expected, "
-            "_pgettext, _npgettext"
+            "newstyle_env",
+            "newstyle_param",
+            "newer_gettext_expected",
+            "newer_ngettext_expected",
+            "pgettext",
+            "npgettext",
         ),
         [
             (
@@ -101,8 +104,8 @@ class TestFallbackInternationalizationExtension:
         newstyle_param,
         newer_gettext_expected,
         newer_ngettext_expected,
-        _pgettext,
-        _npgettext,
+        pgettext,
+        npgettext,
     ):
         _make_newer_gettext = pretend.call_recorder(lambda func: func)
         _make_newer_ngettext = pretend.call_recorder(lambda func: func)
@@ -120,15 +123,15 @@ class TestFallbackInternationalizationExtension:
             pretend_gettext,
             pretend_ngettext,
             newstyle=newstyle_param,
-            pgettext=pretend_pgettext if _pgettext else None,
-            npgettext=pretend_npgettext if _npgettext else None,
+            pgettext=pretend_pgettext if pgettext else None,
+            npgettext=pretend_npgettext if npgettext else None,
         )
 
         assert _make_newer_gettext.calls == newer_gettext_expected
         assert _make_newer_ngettext.calls == newer_ngettext_expected
 
     @pytest.mark.parametrize(
-        "translation, expected",
+        ("translation", "expected"),
         [
             ("Youzer: %(user)s", "Youzer: monty"),
             ("Youzer: %(missing)s", "User: monty"),
@@ -161,7 +164,7 @@ class TestFallbackInternationalizationExtension:
         assert tmpl.render(LANGUAGE="en_US", user="monty") == expected
 
     @pytest.mark.parametrize(
-        "translation, translation_plural, num, expected",
+        ("translation", "translation_plural", "num", "expected"),
         [
             (
                 "%(user_num)s Youzer online",
