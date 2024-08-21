@@ -25,7 +25,3 @@ __all__ = [
     "IntegrityService",
     "UnsupportedPublisherError",
 ]
-
-
-def includeme(config):
-    config.register_service_factory(IntegrityService.create_service, IIntegrityService)
