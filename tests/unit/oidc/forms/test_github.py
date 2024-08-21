@@ -23,6 +23,7 @@ from warehouse.oidc.forms import github
 class TestPendingGitHubPublisherForm:
     def test_validate(self, monkeypatch):
         project_factory = []
+        route_url = pretend.stub()
         data = MultiDict(
             {
                 "owner": "some-owner",
@@ -32,7 +33,10 @@ class TestPendingGitHubPublisherForm:
             }
         )
         form = github.PendingGitHubPublisherForm(
-            MultiDict(data), api_token=pretend.stub(), project_factory=project_factory
+            MultiDict(data),
+            api_token=pretend.stub(),
+            route_url=route_url,
+            project_factory=project_factory,
         )
 
         # We're testing only the basic validation here.
@@ -40,17 +44,27 @@ class TestPendingGitHubPublisherForm:
         monkeypatch.setattr(form, "_lookup_owner", lambda o: owner_info)
 
         assert form._project_factory == project_factory
+        assert form._route_url == route_url
         assert form.validate()
 
-    def test_validate_project_name_already_in_use(self):
+    def test_validate_project_name_already_in_use(self, pyramid_config):
         project_factory = ["some-project"]
+        route_url = pretend.call_recorder(lambda *args, **kwargs: "")
+
         form = github.PendingGitHubPublisherForm(
-            api_token="fake-token", project_factory=project_factory
+            api_token="fake-token", route_url=route_url, project_factory=project_factory
         )
 
         field = pretend.stub(data="some-project")
         with pytest.raises(wtforms.validators.ValidationError):
             form.validate_project_name(field)
+        assert route_url.calls == [
+            pretend.call(
+                "manage.project.settings.publishing",
+                project_name="some-project",
+                _query={"provider": {"github"}},
+            )
+        ]
 
 
 class TestGitHubPublisherForm:

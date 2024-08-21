@@ -612,6 +612,23 @@ class TestGitLabPublisher:
             db_request.db.add(publisher2)
             db_request.db.commit()
 
+    @pytest.mark.parametrize(
+        ("url", "expected"),
+        [
+            ("https://gitlab.com/repository_owner/repository_name.git", True),
+            ("https://gitlab.com/repository_owner/repository_name.git/", True),
+            ("https://gitlab.com/repository_owner/repository_name.git/issues", False),
+        ],
+    )
+    def test_gitlab_publisher_verify_url(self, url, expected):
+        publisher = gitlab.GitLabPublisher(
+            project="repository_name",
+            namespace="repository_owner",
+            workflow_filepath="workflow_filename.yml",
+            environment="",
+        )
+        assert publisher.verify_url(url) == expected
+
 
 class TestPendingGitLabPublisher:
     def test_reify_does_not_exist_yet(self, db_request):

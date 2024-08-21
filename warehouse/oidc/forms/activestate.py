@@ -192,9 +192,14 @@ class ActiveStatePublisherBase(forms.Form):
 class PendingActiveStatePublisherForm(ActiveStatePublisherBase, PendingPublisherMixin):
     __params__ = ActiveStatePublisherBase.__params__ + ["project_name"]
 
-    def __init__(self, *args, project_factory, **kwargs):
+    def __init__(self, *args, route_url, project_factory, **kwargs):
         super().__init__(*args, **kwargs)
+        self._route_url = route_url
         self._project_factory = project_factory
+
+    @property
+    def provider(self) -> str:
+        return "activestate"
 
 
 class ActiveStatePublisherForm(ActiveStatePublisherBase):
