@@ -18,8 +18,6 @@
  * The javascript functions are in `warehouse/static/js/warehouse/utils/messages-access.js`.
  *
  * Run 'make translations' before webpack to extract the translatable text to gettext format files.
- *
- * TODO: Currently only for 'warehouse', but can be extended to 'admin' if needed.
  */
 
 // ref: https://webpack.js.org/contribute/writing-a-plugin/
