@@ -14,7 +14,7 @@ INDEX_ATTESTATIONS = """
 !!! info
 
     Index attestations are currently under active development,
-    and are not generally available yet.
+    and are not yet considered stable.
 """
 
 PREVIEW_FEATURES = {
