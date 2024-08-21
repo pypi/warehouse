@@ -27,7 +27,6 @@ theme:
   homepage: https://pypi.org
   features:
     - content.action.edit
-    - content.tooltips
   palette:
     - scheme: default
       media: "(prefers-color-scheme: light)"
