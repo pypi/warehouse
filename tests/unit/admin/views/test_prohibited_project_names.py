@@ -174,7 +174,7 @@ class TestAddProhibitedProjectName:
         assert result.headers["Location"] == "/foo/bar/"
 
     @pytest.mark.parametrize(
-        "project_name, prohibit_name",
+        ("project_name", "prohibit_name"),
         [
             ("foobar", "foobar"),
             ("FoObAr", "fOoBaR"),

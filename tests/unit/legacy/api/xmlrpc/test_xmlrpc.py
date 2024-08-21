@@ -78,7 +78,7 @@ class TestRateLimiting:
         ]
 
     @pytest.mark.parametrize(
-        "resets_in_delta, expected",
+        ("resets_in_delta", "expected"),
         [
             (datetime.timedelta(minutes=11, seconds=6.9), 666),
             (datetime.timedelta(seconds=0), 1),
@@ -490,7 +490,7 @@ def test_multicall(pyramid_request):
 
 
 @pytest.mark.parametrize(
-    "string, expected", [("Hello…", "Hello&#8230;"), ("Stripe\x1b", "Stripe")]
+    ("string", "expected"), [("Hello…", "Hello&#8230;"), ("Stripe\x1b", "Stripe")]
 )
 def test_clean_for_xml(string, expected):
     assert xmlrpc._clean_for_xml(string) == expected

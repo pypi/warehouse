@@ -515,7 +515,7 @@ class TestSessionSecurityPolicy:
 )
 class TestPermits:
     @pytest.mark.parametrize(
-        "principals,expected", [("user:5", True), ("user:1", False)]
+        ("principals", "expected"), [("user:5", True), ("user:1", False)]
     )
     def test_acl(self, monkeypatch, policy_class, principals, expected):
         request = pretend.stub(
