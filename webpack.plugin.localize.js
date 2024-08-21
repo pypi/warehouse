@@ -99,8 +99,6 @@ class WebpackLocalisationPlugin {
   apply(compiler) {
     const self = this;
 
-    // TODO: how to replace one argument of a function, and keep everything else the same?
-
     // create a handler for each factory.hooks.parser
     const handler = function (parser) {
 
