@@ -57,7 +57,7 @@ VALID_ATTESTATION = Attestation(
 )
 
 
-class TestAttestationsService:
+class TestIntegrityService:
     def test_interface_matches(self):
         assert verifyClass(IIntegrityService, IntegrityService)
 
