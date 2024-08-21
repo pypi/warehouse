@@ -10,22 +10,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.attestations.errors import (
-    AttestationUploadError,
-    UnsupportedPublisherError,
-)
+import pretend
+
+from warehouse import attestations
 from warehouse.attestations.interfaces import IIntegrityService
-from warehouse.attestations.models import Attestation
 from warehouse.attestations.services import IntegrityService
 
-__all__ = [
-    "Attestation",
-    "AttestationUploadError",
-    "IIntegrityService",
-    "IntegrityService",
-    "UnsupportedPublisherError",
-]
 
+def test_includeme():
+    config = pretend.stub(
+        register_service_factory=pretend.call_recorder(
+            lambda factory, iface, name=None: None
+        ),
+    )
 
-def includeme(config):
-    config.register_service_factory(IntegrityService.create_service, IIntegrityService)
+    attestations.includeme(config)
+
+    assert config.register_service_factory.calls == [
+        pretend.call(IntegrityService.create_service, IIntegrityService),
+    ]
