@@ -25,6 +25,8 @@
 // ref: https://github.com/webpack/webpack/discussions/14956
 // ref: https://github.com/webpack/webpack/issues/9992
 
+/* global module, __dirname */
+
 const ConstDependency = require("webpack/lib/dependencies/ConstDependency");
 const fs = require("node:fs");
 const {resolve} = require("node:path");
