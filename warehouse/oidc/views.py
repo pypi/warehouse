@@ -318,12 +318,9 @@ def mint_token(
         # workflows by checking if they are different.
         if job_workflow_ref and workflow_ref and job_workflow_ref != workflow_ref:
             metrics = request.find_service(IMetricsService, context=None)
-            metrics.increment("warehouse.oidc.mint_token.github_reusable_workflow")
-
-            publisher.record_event(
-                tag=EventTag.Publisher.ReusableWorkflowUsed,
-                request=request,
-                additional={"publisher_url": publisher.publisher_url(claims)},
+            metrics.increment(
+                "warehouse.oidc.mint_token.github_reusable_workflow",
+                tags=[f"publisher_url:{publisher.publisher_url(claims)}"],
             )
 
     return {"success": True, "token": serialized}

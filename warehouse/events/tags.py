@@ -144,11 +144,6 @@ class EventTag:
         # ReleaseFileAdd = "project:release:file:add"
         # ReleaseFileRemove = "project:release:file:remove"
 
-    class Publisher(EventTagEnum):
-        """Tags for Publisher events."""
-
-        ReusableWorkflowUsed = "publisher:reusable-workflow:used"
-
     class File(EventTagEnum):
         """Tags for File events.
 
