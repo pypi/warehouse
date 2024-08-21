@@ -336,11 +336,6 @@ msgstr ""
 msgid "Removed trusted publisher for project "
 msgstr ""
 
-#: warehouse/admin/static/js/warehouse.js:117
-#: warehouse/static/js/warehouse/controllers/clipboard_controller.js:32
-msgid "Copied"
-msgstr ""
-
 #: warehouse/admin/templates/admin/banners/preview.html:15
 msgid "Banner Preview"
 msgstr ""
@@ -712,6 +707,10 @@ msgstr ""
 
 #: warehouse/packaging/views.py:212
 msgid "Your report has been recorded. Thank you for your help."
+msgstr ""
+
+#: warehouse/static/js/warehouse/controllers/clipboard_controller.js:32
+msgid "Copied"
 msgstr ""
 
 #: warehouse/static/js/warehouse/controllers/password_breach_controller.js:48
