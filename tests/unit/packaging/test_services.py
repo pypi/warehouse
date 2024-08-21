@@ -693,7 +693,7 @@ class TestGCSFileStorage:
         assert blob.upload_from_filename.calls == [pretend.call(filename)]
 
     @pytest.mark.parametrize(
-        "path, expected",
+        ("path", "expected"),
         [
             ("xx/foo/bar.txt", "myprefix/xx/foo/bar.txt"),
             ("foo/bar.txt", "myprefix/foo/bar.txt"),

@@ -40,7 +40,7 @@ def test_invalid_token_leak_request():
 
 
 @pytest.mark.parametrize(
-    "record, error, reason",
+    ("record", "error", "reason"),
     [
         (None, "Record is not a dict but: None", "format"),
         ({}, "Record is missing attribute(s): token, type, url", "format"),
@@ -398,7 +398,7 @@ class TestGitHubTokenScanningPayloadVerifier:
         assert cache.cache == keys
 
     @pytest.mark.parametrize(
-        "payload, expected",
+        ("payload", "expected"),
         [
             ([], "Payload is not a dict but: []"),
             ({}, "Payload misses 'public_keys' attribute"),
@@ -654,9 +654,13 @@ def test_analyze_disclosure_invalid_macaroon(metrics):
 
 def test_analyze_disclosure_unknown_error(metrics, monkeypatch):
     request = pretend.stub(find_service=lambda *a, **k: metrics)
-    monkeypatch.setattr(utils, "_analyze_disclosure", pretend.raiser(ValueError()))
 
-    with pytest.raises(ValueError):
+    class SpecificError(Exception):
+        pass
+
+    monkeypatch.setattr(utils, "_analyze_disclosure", pretend.raiser(SpecificError))
+
+    with pytest.raises(SpecificError):
         utils.analyze_disclosure(
             request=request,
             disclosure_record={},

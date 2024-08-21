@@ -14,6 +14,10 @@
 from pyramid.static import ManifestCacheBuster as _ManifestCacheBuster
 
 
+class UnbustableError(ValueError):
+    pass
+
+
 class ManifestCacheBuster(_ManifestCacheBuster):
     def __init__(self, *args, strict=True, **kwargs):
         super().__init__(*args, **kwargs)
@@ -34,4 +38,6 @@ class ManifestCacheBuster(_ManifestCacheBuster):
             # must be cache busted otherwise it is likely an error of some kind
             # and should be remedied and without a loud error it's unlikely to
             # be noticed.
-            raise ValueError(f"{subpath} is not able to be cache busted.") from None
+            raise UnbustableError(
+                f"{subpath} is not able to be cache busted."
+            ) from None

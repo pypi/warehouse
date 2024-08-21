@@ -624,7 +624,7 @@ def db_request(pyramid_request, db_session):
 
 
 @pytest.fixture
-def enable_organizations(db_request):
+def _enable_organizations(db_request):
     flag = db_request.db.get(AdminFlag, AdminFlagValue.DISABLE_ORGANIZATIONS.value)
     flag.enabled = False
     yield
@@ -778,5 +778,4 @@ class _MockRedis:
 
 @pytest.fixture
 def mockredis():
-    mock_redis = _MockRedis()
-    yield mock_redis
+    return _MockRedis()

@@ -12,7 +12,7 @@
 
 import pytest
 
-from warehouse.utils.static import ManifestCacheBuster
+from warehouse.utils.static import ManifestCacheBuster, UnbustableError
 
 
 class TestManifestCacheBuster:
@@ -31,7 +31,7 @@ class TestManifestCacheBuster:
         monkeypatch.setattr(ManifestCacheBuster, "get_manifest", lambda x: {})
         cb = ManifestCacheBuster("warehouse:static/dist/manifest.json")
 
-        with pytest.raises(ValueError):
+        with pytest.raises(UnbustableError):
             cb(None, "/the/path/style.css", {"keyword": "arg"})
 
     def test_returns_when_invalid_and_not_strict(self, monkeypatch):
