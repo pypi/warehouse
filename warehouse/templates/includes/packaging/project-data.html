@@ -88,7 +88,6 @@
     </ul>
   </div>
   {% endif %}
-  
   {% if maintainers %}
     <h6>{% trans %}Maintainers{% endtrans %}</h6>
     {% for maintainer in maintainers %}
@@ -107,7 +106,7 @@
   {% endif %}
 </div>
 
-<div class="sidebar-section verified">
+<div class="sidebar-section unverified">
   <h3 class="sidebar-section__title">{% trans %}Unverified details{% endtrans %}</h3>
   <small><i>These details have <b>not</b> been verified by PyPI</i></small>
 {% if release.urls_by_verify_status(verified=False).values() | contains_valid_uris %}
