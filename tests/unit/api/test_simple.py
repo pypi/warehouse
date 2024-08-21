@@ -18,7 +18,6 @@ from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.testing import DummyRequest
 
 from warehouse.api import simple
-from warehouse.attestations import IIntegrityService
 from warehouse.packaging.utils import API_VERSION
 
 from ...common.db.accounts import UserFactory
@@ -88,16 +87,6 @@ CONTENT_TYPE_PARAMS = [
 
 
 class TestSimpleIndex:
-
-    @pytest.fixture
-    def db_request(self, db_request):
-        """Override db_request to add the Release Verification service"""
-        db_request.find_service = lambda svc, name=None, context=None: {
-            IIntegrityService: pretend.stub(),
-        }.get(svc)
-
-        return db_request
-
     @pytest.mark.parametrize(
         ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
@@ -196,17 +185,6 @@ class TestSimpleIndex:
 
 
 class TestSimpleDetail:
-    @pytest.fixture
-    def db_request(self, db_request):
-        """Override db_request to add the Release Verification service"""
-        db_request.find_service = lambda svc, name=None, context=None: {
-            IIntegrityService: pretend.stub(
-                get_provenance_digest=lambda *args, **kwargs: None,
-            ),
-        }.get(svc)
-
-        return db_request
-
     def test_redirects(self, pyramid_request):
         project = pretend.stub(normalized_name="foo")
 

@@ -30,6 +30,7 @@ from pypi_attestations import (
 from sigstore.verify import Verifier
 from zope.interface.verify import verifyClass
 
+from tests.common.db.attestation import AttestationFactory
 from tests.common.db.oidc import GitHubPublisherFactory, GitLabPublisherFactory
 from tests.common.db.packaging import FileEventFactory, FileFactory
 from warehouse.attestations import (
@@ -69,7 +70,7 @@ class TestAttestationsService:
 
         assert IntegrityService.create_service(None, request) is not None
         assert not set(request.find_service.calls) ^ {
-            pretend.call(IFileStorage),
+            pretend.call(IFileStorage, name="archive"),
             pretend.call(IMetricsService),
         }
 
@@ -359,6 +360,7 @@ class TestAttestationsService:
 
     def test_get_provenance_digest(self, db_request):
         file = FileFactory.create()
+        AttestationFactory.create(file=file)
         FileEventFactory.create(
             source=file,
             tag=EventTag.File.FileAdd,
