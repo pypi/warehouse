@@ -11,6 +11,8 @@
  * limitations under the License.
  */
 
+/* global module, __dirname */
+
 // This is the main configuration file for webpack.
 // See: https://webpack.js.org/configuration/
 
