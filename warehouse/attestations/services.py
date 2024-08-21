@@ -72,7 +72,6 @@ def _publisher_from_oidc_publisher(publisher: OIDCPublisher) -> Publisher:
 
 @implementer(IIntegrityService)
 class IntegrityService:
-
     def __init__(
         self,
         storage: IFileStorage,
@@ -84,7 +83,7 @@ class IntegrityService:
     @classmethod
     def create_service(cls, _context, request: Request):
         return cls(
-            storage=request.find_service(IFileStorage),
+            storage=request.find_service(IFileStorage, name="archive"),
             metrics=request.find_service(IMetricsService),
         )
 
