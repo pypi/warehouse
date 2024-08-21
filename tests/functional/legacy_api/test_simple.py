@@ -31,6 +31,7 @@ def test_simple_api_html(webtest):
     resp = webtest.get("/simple/", status=HTTPStatus.OK)
 
     assert resp.content_type == "text/html"
+    assert "X-PyPI-Last-Serial" in resp.headers
 
 
 def test_simple_api_detail(webtest):
@@ -38,4 +39,6 @@ def test_simple_api_detail(webtest):
 
     resp = webtest.get(f"/simple/{project.normalized_name}/", status=HTTPStatus.OK)
 
+    assert resp.content_type == "text/html"
+    assert "X-PyPI-Last-Serial" in resp.headers
     assert f"Links for {project.normalized_name}" in resp.text
