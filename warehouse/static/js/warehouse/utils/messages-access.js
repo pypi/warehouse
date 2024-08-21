@@ -11,13 +11,15 @@
  * limitations under the License.
  */
 
-// the value for 'messagesAccessLocaleData' is set by webpack.plugin.localize.js
-// default is en
-var messagesAccessLocaleData = {"": {"language": "en", "plural-forms": "nplurals = 2; plural = (n != 1)"}};
+// The value for 'messagesAccessLocaleData' is replaced by webpack.plugin.localize.js.
+// The variable name must match the name used in webpack.plugin.localize.js.
+// Default is 'en'.
+const messagesAccessLocaleData = {"": {"language": "en", "plural-forms": "nplurals = 2; plural = (n != 1)"}};
 
-// the value for 'messagesAccessPluralFormFunction' is set by webpack.plugin.localize.js
-// default is en
-var messagesAccessPluralFormFunction = function (n) {
+// The value for 'messagesAccessPluralFormFunction' is replaced by webpack.plugin.localize.js.
+// The variable name must match the name used in webpack.plugin.localize.js.
+// Default is 'en'.
+const messagesAccessPluralFormFunction = function (n) {
   let nplurals, plural;
   nplurals = 2; plural = (n != 1);
   return {total: nplurals, index: ((nplurals > 1 && plural === true) ? 1 : (plural ? plural : 0))};
@@ -38,7 +40,7 @@ var messagesAccessPluralFormFunction = function (n) {
  * ngettext("About a minute ago", "About %1 minutes ago", numMinutes, numMinutes);
 
  * @param singular {string} The default string for the singular translation.
- * @param plural {string} The default string for the plural translation.
+ * @param plural {string|null} The default string for the plural translation.
  * @param num {number} The number to use to select the appropriate translation.
  * @param extras {string} Additional values to put in placeholders.
  * @returns {string} The translated text.
@@ -69,11 +71,22 @@ export function ngettext(singular, plural, num, ...extras) {
  * @returns {string} The translated text.
  */
 export function gettext(singular, ...extras) {
-  return ngettext(singular, null, 1, ...extras);
+  return ngettextCustom(singular, null, 1, extras, messagesAccessLocaleData, messagesAccessPluralFormFunction);
 }
 
+/**
+ * Get the translation.
+ * @param singular {string} The default string for the singular translation.
+ * @param plural {string|null} The default string for the plural translation.
+ * @param num {number} The number to use to select the appropriate translation.
+ * @param extras {string[]} Additional values to put in placeholders.
+ * @param data {{}} The locale data used for translation.
+ * @param pluralForms The function that calculates the plural form.
+ * @returns {string} The translated text.
+ */
 export function ngettextCustom(singular, plural, num, extras, data, pluralForms) {
-  // this function allows for testing
+  // This function allows for testing and
+  // allows ngettext and gettext to have the signatures required by pybabel.
   const pluralFormsData = pluralForms(num);
   let value = getTranslationData(data, singular);
   if (Array.isArray(value)) {
@@ -84,6 +97,12 @@ export function ngettextCustom(singular, plural, num, extras, data, pluralForms)
   return insertPlaceholderValues(value, extras);
 }
 
+/**
+ * Get translation data safely.
+ * @param data {{}} The locale data used for translation.
+ * @param value {string} The default string for the singular translation, used as the key.
+ * @returns {string|string[]}
+ */
 function getTranslationData(data, value) {
   if (!value || !value.trim()) {
     return "";
@@ -95,6 +114,12 @@ function getTranslationData(data, value) {
   }
 }
 
+/**
+ * Insert placeholder values into a string.
+ * @param value {string} The translated string that might have placeholder values.
+ * @param extras {string[]} Additional values to put in placeholders.
+ * @returns {string}
+ */
 function insertPlaceholderValues(value, extras) {
   if (!value) {
     return "";
