@@ -723,9 +723,9 @@ class Release(HasObservations, db.Model):
                 _urls[name] = url
         return _urls
 
-    @staticmethod
-    def get_user_name_and_repo_name(urls):
-        for url in urls:
+    @property
+    def verified_user_name_and_repo_name(self):
+        for _, url in self.urls_by_verify_status(True).items():
             try:
                 parsed = parse_url(url)
             except LocationParseError:
@@ -741,14 +741,14 @@ class Release(HasObservations, db.Model):
         return None, None
 
     @property
-    def github_repo_info_url(self):
-        user_name, repo_name = self.get_user_name_and_repo_name(self.urls.values())
+    def verified_github_repo_info_url(self):
+        user_name, repo_name = self.verified_user_name_and_repo_name
         if user_name and repo_name:
             return f"https://api.github.com/repos/{user_name}/{repo_name}"
 
     @property
-    def github_open_issue_info_url(self):
-        user_name, repo_name = self.get_user_name_and_repo_name(self.urls.values())
+    def verified_github_open_issue_info_url(self):
+        user_name, repo_name = self.verified_user_name_and_repo_name
         if user_name and repo_name:
             return (
                 f"https://api.github.com/search/issues?q=repo:{user_name}/{repo_name}"

@@ -42,6 +42,53 @@
       </a>
     </span>
   {% endif %}
+
+  {% if release.verified_github_repo_info_url and release.verified_github_open_issue_info_url %}
+  <h6>{% trans %}GitHub Statistics{% endtrans %}</h6>
+  <div class="hidden github-repo-info" data-controller="github-repo-info">
+    <ul class="vertical-tabs__list">
+      <li>
+        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed" rel="noopener" href="https://github.com/{{ release.verified_user_name_and_repo_name|join("/") }}">
+          <i class="fab fa-github" aria-hidden="true"></i>
+          <strong>{% trans %}Repository{% endtrans %}</strong>
+        </a>
+      </li>
+      <li>
+        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+           data-github-repo-info-target="stargazersUrl" rel="noopener">
+          <i class="fa fa-star" aria-hidden="true"></i>
+          <strong>{% trans %}Stars:{% endtrans %}</strong>
+          <span data-github-repo-info-target="stargazersCount"></span>
+        </a>
+      </li>
+      <li>
+        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+           data-github-repo-info-target="forksUrl" rel="noopener">
+          <i class="fa fa-code-branch" aria-hidden="true"></i>
+          <strong>{% trans %}Forks:{% endtrans %}</strong>
+          <span data-github-repo-info-target="forksCount"></span>
+        </a>
+      </li>
+      <li>
+        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+           data-github-repo-info-target="openIssuesUrl" rel="noopener">
+          <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+          <strong>{% trans %}Open issues:{% endtrans %}</strong>
+          <span data-github-repo-info-target="openIssuesCount"></span>
+        </a>
+      </li>
+      <li>
+        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+           data-github-repo-info-target="openPRsUrl" rel="noopener">
+          <i class="fa fa-code-pull-request" aria-hidden="true"></i>
+          <strong>{% trans %}Open PRs:{% endtrans %}</strong>
+          <span data-github-repo-info-target="openPRsCount"></span>
+        </a>
+      </li>
+    </ul>
+  </div>
+  {% endif %}
+  
   {% if maintainers %}
     <h6>{% trans %}Maintainers{% endtrans %}</h6>
     {% for maintainer in maintainers %}
@@ -78,88 +125,76 @@
   </ul>
 {% endif %}
 
-  {% if release.github_repo_info_url and release.github_open_issue_info_url %}
-  <h6>{% trans %}GitHub Statistics{% endtrans %}</h6>
-  <div class="hidden github-repo-info" data-controller="github-repo-info">
-    <ul class="vertical-tabs__list">
-      <li>
-        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
-           data-github-repo-info-target="stargazersUrl" rel="noopener">
-          <i class="fa fa-star" aria-hidden="true"></i>
-          <strong>{% trans %}Stars:{% endtrans %}</strong>
-          <span data-github-repo-info-target="stargazersCount"></span>
-        </a>
-      </li>
-      <li>
-        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
-           data-github-repo-info-target="forksUrl" rel="noopener">
-          <i class="fa fa-code-branch" aria-hidden="true"></i>
-          <strong>{% trans %}Forks:{% endtrans %}</strong>
-          <span data-github-repo-info-target="forksCount"></span>
-        </a>
-      </li>
-      <li>
-        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
-           data-github-repo-info-target="openIssuesUrl" rel="noopener">
-          <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-          <strong>{% trans %}Open issues:{% endtrans %}</strong>
-          <span data-github-repo-info-target="openIssuesCount"></span>
-        </a>
-      </li>
-      <li>
-        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
-           data-github-repo-info-target="openPRsUrl" rel="noopener">
-          <i class="fa fa-code-pull-request" aria-hidden="true"></i>
-          <strong>{% trans %}Open PRs:{% endtrans %}</strong>
-          <span data-github-repo-info-target="openPRsCount"></span>
-        </a>
-      </li>
-    </ul>
-  </div>
-  {% endif %}
-
 {% if release.has_meta %}
-<div class="sidebar-section">
+<div class="sidebar-section unverified">
   <h6>{% trans %}Meta{% endtrans %}</h6>
+  <ul class="vertical-tabs__list">
   {% if license %}
-  <p><strong>{% trans %}License:{% endtrans %}</strong> {{ license }}</p>
+    <li>
+      <span class="vertical-tabs__tab vertical-tabs__tab--condensed">
+        <strong>{% trans %}License:{% endtrans %}</strong> {{ license }}
+      </span>
+    </li>
   {% endif %}
   {% if release.author_email %}
-    <p><strong>{% trans %}Author:{% endtrans %}</strong> <a href="mailto:{{ release.author_email|format_email|last }}">{{ release.author or release.author_email|format_email|first }}</a></p>
+    <li>
+      <span class="vertical-tabs__tab vertical-tabs__tab--condensed">
+        <strong>{% trans %}Author:{% endtrans %}</strong> <a href="mailto:{{ release.author_email|format_email|last }}">{{ release.author or release.author_email|format_email|first }}</a>
+      </span>
+    </li>
   {% elif release.author %}
-    <p><strong>{% trans %}Author:{% endtrans %}</strong> {{ release.author }}</p>
+    <li>
+      <span class="vertical-tabs__tab vertical-tabs__tab--condensed">
+        <strong>{% trans %}Author:{% endtrans %}</strong> {{ release.author }}
+      </span>
+    </li>
   {% endif %}
   {% if release.maintainer_email %}
-    <p><strong>{% trans %}Maintainer:{% endtrans %}</strong> <a href="mailto:{{ release.maintainer_email|format_email|last }}">{{ release.maintainer or release.maintainer_email|format_email|first }}</a></p>
+    <li>
+      <span class="vertical-tabs__tab vertical-tabs__tab--condensed">
+        <strong>{% trans %}Maintainer:{% endtrans %}</strong> <a href="mailto:{{ release.maintainer_email|format_email|last }}">{{ release.maintainer or release.maintainer_email|format_email|first }}</a>
+      </span>
+    </li>
   {% elif release.maintainer %}
-    <p><strong>{% trans %}Maintainer:{% endtrans %}</strong> {{ release.maintainer }}</p>
+    <li>
+      <span class="vertical-tabs__tab vertical-tabs__tab--condensed">
+        <strong>{% trans %}Maintainer:{% endtrans %}</strong> {{ release.maintainer }}
+      </span>
+    </li>
   {% endif %}
   {% if release.keywords %}
-  <p class="tags">
-    <i class="fa fa-tags" aria-hidden="true"></i>
-    <span class="sr-only">{% trans %}Tags{% endtrans %}</span>
-    {% for keyword in release.keywords | format_tags %}
-    <span class="package-keyword">
-      {{ keyword }}{% if not loop.last %},{% endif %}
+  <li class="tags">
+    <span class="vertical-tabs__tab vertical-tabs__tab--condensed">
+      <i class="fa fa-tags" aria-hidden="true"></i>
+      <span class="sr-only">{% trans %}Tags{% endtrans %}</span>
+      {% for keyword in release.keywords | format_tags %}
+      <span class="package-keyword">
+        {{ keyword }}{% if not loop.last %},{% endif %}
+      </span>
+      {% endfor %}
     </span>
-    {% endfor %}
-  </p>
+  </li>
   {% endif %}
   {% if release.requires_python %}
-  <p>
-    <strong>{% trans %}Requires:{% endtrans %}</strong> Python {{ release.requires_python|replace(',', ', ') }}
-  </p>
+  <li>
+    <span class="vertical-tabs__tab vertical-tabs__tab--condensed">
+      <strong>{% trans %}Requires:{% endtrans %}</strong> Python {{ release.requires_python|replace(',', ', ') }}
+    </span>
+  </li>
   {% endif %}
   {% if release.provides_extra %}
-  <p>
-    <strong>{% trans %}Provides-Extra:{% endtrans %}</strong> {% for extra in release.provides_extra %}<code>{{ extra }}</code>{% if not loop.last %}, {% endif %}{% endfor %}
-  </p>
+  <li>
+    <span class="vertical-tabs__tab vertical-tabs__tab--condensed">
+      <strong>{% trans %}Provides-Extra:{% endtrans %}</strong> {% for extra in release.provides_extra %}<code>{{ extra }}</code>{% if not loop.last %}, {% endif %}{% endfor %}
+    </span>
+  </li>
   {% endif %}
+  </ul>
 </div>
 {% endif %}
 
 {% if release.classifiers %}
-<div class="sidebar-section">
+<div class="sidebar-section unverified">
   <h6 class="sidebar-section__title">{% trans %}Classifiers{% endtrans %}</h6>
   <ul class="sidebar-section__classifiers">
     {% for classifier_head, classifier_tails in (release.classifiers|format_classifiers()).items() %}

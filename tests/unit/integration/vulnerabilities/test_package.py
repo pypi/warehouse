@@ -19,7 +19,7 @@ from warehouse.integrations.vulnerabilities import (
 
 
 @pytest.mark.parametrize(
-    "record, error, reason",
+    ("record", "error", "reason"),
     [
         (None, "Record is not a dict but: None", "format"),
         (

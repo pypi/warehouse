@@ -863,9 +863,8 @@ class TestRelease:
         )
 
     @pytest.mark.parametrize(
-        ("home_page", "expected"),
+        ("url", "expected"),
         [
-            (None, None),
             (
                 "https://github.com/pypi/warehouse",
                 "https://api.github.com/repos/pypi/warehouse",
@@ -898,14 +897,21 @@ class TestRelease:
             ("git@bitbucket.org:definex/dsgnutils.git", None),
         ],
     )
-    def test_github_repo_info_url(self, db_session, home_page, expected):
-        release = DBReleaseFactory.create(home_page=home_page)
-        assert release.github_repo_info_url == expected
+    def test_verified_github_repo_info_url(self, db_session, url, expected):
+        release = DBReleaseFactory.create()
+        release.project_urls["Homepage"] = {"url": url, "verified": True}
+        assert release.verified_github_repo_info_url == expected
+
+    def test_verified_github_repo_info_url_is_none_without_verified_url(
+        self,
+        db_session,
+    ):
+        release = DBReleaseFactory.create()
+        assert release.verified_github_repo_info_url is None
 
     @pytest.mark.parametrize(
-        ("home_page", "expected"),
+        ("url", "expected"),
         [
-            (None, None),
             (
                 "https://github.com/pypi/warehouse",
                 "https://api.github.com/search/issues?q=repo:pypi/warehouse"
@@ -943,9 +949,17 @@ class TestRelease:
             ),
         ],
     )
-    def test_github_open_issue_info_url(self, db_session, home_page, expected):
-        release = DBReleaseFactory.create(home_page=home_page)
-        assert release.github_open_issue_info_url == expected
+    def test_verified_github_open_issue_info_url(self, db_session, url, expected):
+        release = DBReleaseFactory.create()
+        release.project_urls["Homepage"] = {"url": url, "verified": True}
+        assert release.verified_github_open_issue_info_url == expected
+
+    def test_verified_github_open_issueo_info_url_is_none_without_verified_url(
+        self,
+        db_session,
+    ):
+        release = DBReleaseFactory.create()
+        assert release.verified_github_open_issue_info_url is None
 
     def test_trusted_published_none(self, db_session):
         release = DBReleaseFactory.create()
@@ -1018,9 +1032,10 @@ class TestFile:
         Attempt to write a File by setting requires_python directly, which
         should fail to validate (it should only be set in Release).
         """
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(project=project)
+
         with pytest.raises(RuntimeError):
-            project = DBProjectFactory.create()
-            release = DBReleaseFactory.create(project=project)
             DBFileFactory.create(
                 release=release,
                 filename=f"{project.name}-{release.version}.tar.gz",

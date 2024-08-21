@@ -249,7 +249,7 @@ class TestForbiddenView:
         assert resp.status_code == 303
         assert resp.headers["Location"] == "/accounts/login/?next=/foo/bar/%3Fb%3Ds"
 
-    @pytest.mark.parametrize("reason", ("manage_2fa_required",))
+    @pytest.mark.parametrize("reason", ["manage_2fa_required"])
     def test_two_factor_required(self, reason):
         result = WarehouseDenied("Some summary", reason=reason)
         exc = pretend.stub(result=result)
@@ -280,7 +280,7 @@ class TestForbiddenView:
 
     @pytest.mark.parametrize(
         "requested_path",
-        ("/manage/projects/", "/manage/account/two-factor/", "/manage/organizations/"),
+        ["/manage/projects/", "/manage/account/two-factor/", "/manage/organizations/"],
     )
     def test_unverified_email_redirects(self, requested_path):
         result = WarehouseDenied("Some summary", reason="unverified_email")

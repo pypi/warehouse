@@ -21,7 +21,7 @@ class TestReAuthView:
         assert set(manage.reauth_view.options) == {"require_reauth"}
 
     @pytest.mark.parametrize(
-        "require_reauth, needs_reauth_calls",
+        ("require_reauth", "needs_reauth_calls"),
         [
             (True, [pretend.call(manage.DEFAULT_TIME_TO_REAUTH)]),
             (666, [pretend.call(666)]),
@@ -52,7 +52,7 @@ class TestReAuthView:
         assert request.session.needs_reauthentication.calls == needs_reauth_calls
 
     @pytest.mark.parametrize(
-        "require_reauth, needs_reauth_calls",
+        ("require_reauth", "needs_reauth_calls"),
         [
             (True, [pretend.call(manage.DEFAULT_TIME_TO_REAUTH)]),
             (666, [pretend.call(666)]),

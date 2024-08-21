@@ -144,7 +144,7 @@ def test_construct_dependencies():
 
 
 @pytest.mark.parametrize(
-    "versions,expected",
+    ("versions", "expected"),
     [
         (["1.0", "2.0", "3.0"], ["1.0", "2.0", "3.0"]),
         (["1.0", "3.0", "2.0"], ["1.0", "2.0", "3.0"]),
@@ -192,7 +192,7 @@ class TestFileValidation:
 
         assert not legacy._is_valid_dist_file(fake_tar, "sdist")
 
-    @pytest.mark.parametrize("compression", ("gz",))
+    @pytest.mark.parametrize("compression", ["gz"])
     def test_tarfile_validation_invalid(self, tmpdir, compression):
         file_extension = f".{compression}" if compression else ""
         tar_fn = str(tmpdir.join(f"test.tar{file_extension}"))
@@ -208,7 +208,7 @@ class TestFileValidation:
             tar_fn, "sdist"
         ), "no PKG-INFO; should fail"
 
-    @pytest.mark.parametrize("compression", ("gz",))
+    @pytest.mark.parametrize("compression", ["gz"])
     def test_tarfile_validation_valid(self, tmpdir, compression):
         file_extension = f".{compression}" if compression else ""
         tar_fn = str(tmpdir.join(f"test.tar{file_extension}"))
@@ -1004,24 +1004,14 @@ class TestFileUpload:
 
     @pytest.mark.parametrize("macaroon_in_user_context", [True, False])
     @pytest.mark.parametrize(
-        ("digests",),
+        "digests",
         [
-            ({"md5_digest": _TAR_GZ_PKG_MD5},),
-            ({"sha256_digest": _TAR_GZ_PKG_SHA256},),
-            ({"md5_digest": _TAR_GZ_PKG_MD5},),
-            ({"sha256_digest": _TAR_GZ_PKG_SHA256},),
-            (
-                {
-                    "md5_digest": _TAR_GZ_PKG_MD5,
-                    "sha256_digest": _TAR_GZ_PKG_SHA256,
-                },
-            ),
-            (
-                {
-                    "md5_digest": _TAR_GZ_PKG_MD5,
-                    "sha256_digest": _TAR_GZ_PKG_SHA256,
-                },
-            ),
+            {"md5_digest": _TAR_GZ_PKG_MD5},
+            {"sha256_digest": _TAR_GZ_PKG_SHA256},
+            {
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "sha256_digest": _TAR_GZ_PKG_SHA256,
+            },
         ],
     )
     def test_successful_upload(
@@ -1402,7 +1392,7 @@ class TestFileUpload:
         )
 
     @pytest.mark.parametrize(
-        "deprecated_classifiers, expected",
+        ("deprecated_classifiers", "expected"),
         [
             (
                 {"AA :: BB": ["CC :: DD"]},
@@ -2052,7 +2042,7 @@ class TestFileUpload:
         )
 
     @pytest.mark.parametrize(
-        "filename, filetype, project_name",
+        ("filename", "filetype", "project_name"),
         [
             # completely different
             ("nope-{version}.tar.gz", "sdist", "something_else"),
@@ -2179,7 +2169,7 @@ class TestFileUpload:
         assert resp.status == ("400 Version in filename should be '1.2.3' not '6.6.6'.")
 
     @pytest.mark.parametrize(
-        "filetype, extension",
+        ("filetype", "extension"),
         [
             ("sdist", ".whl"),
             ("bdist_wheel", ".tar.gz"),
@@ -2674,7 +2664,7 @@ class TestFileUpload:
         ]
 
     @pytest.mark.parametrize(
-        "project_name, version",
+        ("project_name", "version"),
         [
             ("foo", "1.0.0"),
             ("foo-bar", "1.0.0"),
@@ -2745,7 +2735,7 @@ class TestFileUpload:
         assert resp.status_code == 200
 
     @pytest.mark.parametrize(
-        "project_name, filename_prefix",
+        ("project_name", "filename_prefix"),
         [
             ("flufl.enum", "flufl_enum"),
             ("foo-.bar", "foo_bar"),
@@ -2817,7 +2807,7 @@ class TestFileUpload:
         db_request.db.query(Filename).filter(Filename.filename == filename).one()
 
     @pytest.mark.parametrize(
-        "project_name, filename_prefix, version",
+        ("project_name", "filename_prefix", "version"),
         [
             ("flufl.enum", "flufl_enum", "1.0.0"),
             ("foo-.bar", "foo_bar", "1.0.0"),
@@ -3018,7 +3008,7 @@ class TestFileUpload:
         ]
 
     @pytest.mark.parametrize(
-        "filename, expected",
+        ("filename", "expected"),
         [
             (
                 "foo-1.0.whl",
@@ -3234,7 +3224,7 @@ class TestFileUpload:
         assert release.uploaded_via == "warehouse-tests/6.6.6"
 
     @pytest.mark.parametrize(
-        "version, expected_version",
+        ("version", "expected_version"),
         [
             ("1.0", "1.0"),
             ("v1.0", "1.0"),
@@ -3742,7 +3732,7 @@ class TestFileUpload:
         )
 
     @pytest.mark.parametrize(
-        "verify_exception, expected_msg",
+        ("verify_exception", "expected_msg"),
         [
             (
                 VerificationError,
@@ -3839,7 +3829,7 @@ class TestFileUpload:
         assert resp.status.startswith(expected_msg)
 
     @pytest.mark.parametrize(
-        "url, expected",
+        ("url", "expected"),
         [
             ("https://google.com", False),  # Totally different
             ("https://github.com/foo", False),  # Missing parts
@@ -3989,7 +3979,7 @@ class TestFileUpload:
         assert not release_db.urls_by_verify_status(verified=False)
 
     @pytest.mark.parametrize(
-        "version, expected_version",
+        ("version", "expected_version"),
         [
             ("1.0", "1.0"),
             ("v1.0", "1.0"),
@@ -4110,8 +4100,8 @@ class TestFileUpload:
 
     @pytest.mark.parametrize("parent_classifier", ["private", "Private", "PrIvAtE"])
     def test_private_classifiers_cannot_be_created(self, db_request, parent_classifier):
+        db_request.db.add(Classifier(classifier=f"{parent_classifier} :: Foo"))
         with pytest.raises(IntegrityError):
-            db_request.db.add(Classifier(classifier=f"{parent_classifier} :: Foo"))
             db_request.db.commit()
 
     def test_equivalent_version_one_release(self, pyramid_config, db_request, metrics):
@@ -4252,7 +4242,7 @@ class TestFileUpload:
         )
 
     @pytest.mark.parametrize(
-        "failing_limiter,remote_addr",
+        ("failing_limiter", "remote_addr"),
         [
             ("project.create.ip", "127.0.0.1"),
             ("project.create.user", "127.0.0.1"),
@@ -4828,12 +4818,6 @@ def test_missing_trailing_slash_redirect(pyramid_request):
         ),
         (  # python.org/pypi/  case
             "https://python.org/pypi/myproject",
-            "myproject",
-            "myproject",
-            True,
-        ),
-        (  # PyPI /project/ case
-            "https://pypi.org/project/myproject",
             "myproject",
             "myproject",
             True,

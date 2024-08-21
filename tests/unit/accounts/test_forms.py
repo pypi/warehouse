@@ -79,7 +79,7 @@ class TestLoginForm:
         assert user_service.find_userid.calls == [pretend.call("my_username")]
 
     @pytest.mark.parametrize(
-        "input_username,expected_username",
+        ("input_username", "expected_username"),
         [
             ("my_username", "my_username"),
             ("  my_username  ", "my_username"),
@@ -930,7 +930,7 @@ class TestTOTPAuthenticationForm:
         assert form.validate()
 
     @pytest.mark.parametrize(
-        "totp_value, expected_error",
+        ("totp_value", "expected_error"),
         [
             ("", "This field is required."),
             ("not_a_real_value", "TOTP code must be 6 digits."),
@@ -954,7 +954,7 @@ class TestTOTPAuthenticationForm:
         assert str(form.totp_value.errors.pop()) == expected_error
 
     @pytest.mark.parametrize(
-        "exception, expected_error, reason",
+        ("exception", "expected_error", "reason"),
         [
             (otp.InvalidTOTPError, "Invalid TOTP code.", "invalid_totp"),
             (otp.OutOfSyncTOTPError, "Invalid TOTP code.", "invalid_totp"),
@@ -1137,7 +1137,7 @@ class TestRecoveryCodeForm:
         assert form.recovery_code_value.errors.pop() == "This field is required."
 
     @pytest.mark.parametrize(
-        "exception, expected_reason, expected_error",
+        ("exception", "expected_reason", "expected_error"),
         [
             (InvalidRecoveryCode, "invalid_recovery_code", "Invalid recovery code."),
             (NoRecoveryCodes, "invalid_recovery_code", "Invalid recovery code."),
@@ -1177,7 +1177,7 @@ class TestRecoveryCodeForm:
         ]
 
     @pytest.mark.parametrize(
-        "input_string, validates",
+        ("input_string", "validates"),
         [
             (" deadbeef00001111 ", True),
             ("deadbeef00001111 ", True),
