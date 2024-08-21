@@ -34,19 +34,40 @@ The following subsections specify the different types of URLs that can be verifi
 
 #### Self-links
 
-Any URL to the project on PyPI will be considered verified.
+Any URL to the project on PyPI will be considered verified. For example, the project page for `pip` will mark all of the
+following as verified:
+
+- https://pypi.org/project/pip/
+- https://pypi.org/p/pip/
+- https://pypi.python.org/project/pip
+- https://pypi.python.org/p/pip
+- https://python.org/pypi/pip
 
 #### Via Trusted Publishing
 
 [Trusted Publishing](trusted-publishers/index.md) allows PyPI to attest that the 
 publishing workflow for a package is coming from a verified source.
 
-PyPI supports the following OIDC Publishers:
+The URLs that can be verified depend on the Trusted Publisher used:
 
-- [GitHub Actions][gh-action-tab]
-- [Google Cloud][gc-tab]
-- [ActiveState][active-tab]
-- [GitLab CI/CD][gitlab-tab]
+- [GitHub Actions][gh-action-tab]: Packages uploaded using GHA from a repository will have the GitHub URLs for that
+  repository verified. For example, for the `pypa/pip` repository, the following URLs will be verified:
+    - https://github.com/pypa/pip
+    - https://github.com/pypa/pip/* (all subpaths)
+    - https://github.com/pypa/pip.git
+    - https://pypa.github.io/pip
+    - https://pypa.github.io/pip/* (all subpaths)
+- [GitLab CI/CD][gitlab-tab]: Packages uploaded using GitLab CI/CD from a repository will have the GitLab URLs for that
+  repository verified. For example, for the `pypa/pip` repository, the following URLs will be verified:
+    - https://gitlab.com/pypa/pip
+    - https://gitlab.com/pypa/pip/* (all subpaths)
+    - https://gitlab.com/pypa/pip.git
+- [Google Cloud][gc-tab]: No Google-specific URLs are currently verified.
+- [ActiveState][active-tab]: Packages uploaded using ActiveState will have URLs linking to the project in ActiveState 
+  verified:
+    - https://platform.activestate.com/pypa/pip
+    - https://platform.activestate.com/pypa/pip/* (all subpaths)
+
 
 [gh-action-tab]: trusted-publishers/creating-a-project-through-oidc.md#github-actions
 [gc-tab]: trusted-publishers/creating-a-project-through-oidc.md#google-cloud
