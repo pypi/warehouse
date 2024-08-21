@@ -1770,9 +1770,9 @@ pyparsing==3.1.2 \
     --hash=sha256:a1bac0ce561155ecc3ed78ca94d3c9378656ad4c94c1270de543f621420f94ad \
     --hash=sha256:f9db75911801ed778fe61bb643079ff86601aca99fcae6345aa67292038fb742
     # via linehaul
-pypi-attestations==0.0.11 \
-    --hash=sha256:b730e6b23874d94da0f3817b1f9dd3ecb6a80d685f62a18ad96e5b0396149ded \
-    --hash=sha256:e74329074f049568591e300373e12fcd46a35e21723110856546e33bf2949efa
+pypi-attestations==0.0.9 \
+    --hash=sha256:3bfc07f64a8db0d6e2646720e70df7c7cb01a2936056c764a2cc3268969332f2 \
+    --hash=sha256:4b38cce5d221c8145cac255bfafe650ec0028d924d2b3572394df8ba8f07a609
     # via -r requirements/main.in
 pyqrcode==1.2.1 \
     --hash=sha256:1b2812775fa6ff5c527977c4cd2ccb07051ca7d0bc0aecf937a43864abe5eff6 \
@@ -2079,9 +2079,9 @@ sentry-sdk==2.13.0 \
     --hash=sha256:6beede8fc2ab4043da7f69d95534e320944690680dd9a963178a49de71d726c6 \
     --hash=sha256:8d4a576f7a98eb2fdb40e13106e41f330e5c79d72a68be1316e7852cf4995260
     # via -r requirements/main.in
-sigstore==3.2.0 \
-    --hash=sha256:25c8a871a3a6adf959c0cde598ea8bef8794f1a29277d067111eb4ded4ba7f65 \
-    --hash=sha256:d18508f34febb7775065855e92557fa1c2c16580df88f8e8903b9514438bad44
+sigstore==3.0.0 \
+    --hash=sha256:6cc7dc92607c2fd481aada0f3c79e710e4c6086e3beab50b07daa9a50a79d109 \
+    --hash=sha256:a6a9538a648e112a0c3d8092d3f73a351c7598164764f1e73a6b5ba406a3a0bd
     # via
     #   -r requirements/main.in
     #   pypi-attestations
