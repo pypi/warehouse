@@ -72,6 +72,12 @@ class TestOIDCPublisher:
                 "https://gitlab.com/owner/project",
                 True,
             ),
+            (
+                # Google trivial case (no publisher URL)
+                "https://example.com/owner/project",
+                None,
+                False,
+            ),
             (  # URL is a sub-path of the TP URL
                 "https://github.com/owner/project/issues",
                 "https://github.com/owner/project",
