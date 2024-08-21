@@ -91,7 +91,7 @@ class TestOIDCPublisherAndClaims:
 
 class TestOrganizationAccess:
     @pytest.mark.parametrize(
-        ["identity", "flag", "orgs", "expected"],
+        ("identity", "flag", "orgs", "expected"),
         [
             (False, True, [], False),  # Unauth'd always have no access
             (False, False, [], False),  # Unauth'd always have no access

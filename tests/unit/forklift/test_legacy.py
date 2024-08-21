@@ -56,7 +56,6 @@ from warehouse.packaging.models import (
     Project,
     ProjectMacaroonWarningAssociation,
     Release,
-    ReleaseURL,
     Role,
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
@@ -144,7 +143,7 @@ def test_construct_dependencies():
 
 
 @pytest.mark.parametrize(
-    "versions,expected",
+    ("versions", "expected"),
     [
         (["1.0", "2.0", "3.0"], ["1.0", "2.0", "3.0"]),
         (["1.0", "3.0", "2.0"], ["1.0", "2.0", "3.0"]),
@@ -192,7 +191,7 @@ class TestFileValidation:
 
         assert not legacy._is_valid_dist_file(fake_tar, "sdist")
 
-    @pytest.mark.parametrize("compression", ("gz",))
+    @pytest.mark.parametrize("compression", ["gz"])
     def test_tarfile_validation_invalid(self, tmpdir, compression):
         file_extension = f".{compression}" if compression else ""
         tar_fn = str(tmpdir.join(f"test.tar{file_extension}"))
@@ -208,7 +207,7 @@ class TestFileValidation:
             tar_fn, "sdist"
         ), "no PKG-INFO; should fail"
 
-    @pytest.mark.parametrize("compression", ("gz",))
+    @pytest.mark.parametrize("compression", ["gz"])
     def test_tarfile_validation_valid(self, tmpdir, compression):
         file_extension = f".{compression}" if compression else ""
         tar_fn = str(tmpdir.join(f"test.tar{file_extension}"))
@@ -1004,24 +1003,14 @@ class TestFileUpload:
 
     @pytest.mark.parametrize("macaroon_in_user_context", [True, False])
     @pytest.mark.parametrize(
-        ("digests",),
+        "digests",
         [
-            ({"md5_digest": _TAR_GZ_PKG_MD5},),
-            ({"sha256_digest": _TAR_GZ_PKG_SHA256},),
-            ({"md5_digest": _TAR_GZ_PKG_MD5},),
-            ({"sha256_digest": _TAR_GZ_PKG_SHA256},),
-            (
-                {
-                    "md5_digest": _TAR_GZ_PKG_MD5,
-                    "sha256_digest": _TAR_GZ_PKG_SHA256,
-                },
-            ),
-            (
-                {
-                    "md5_digest": _TAR_GZ_PKG_MD5,
-                    "sha256_digest": _TAR_GZ_PKG_SHA256,
-                },
-            ),
+            {"md5_digest": _TAR_GZ_PKG_MD5},
+            {"sha256_digest": _TAR_GZ_PKG_SHA256},
+            {
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "sha256_digest": _TAR_GZ_PKG_SHA256,
+            },
         ],
     )
     def test_successful_upload(
@@ -1402,7 +1391,7 @@ class TestFileUpload:
         )
 
     @pytest.mark.parametrize(
-        "deprecated_classifiers, expected",
+        ("deprecated_classifiers", "expected"),
         [
             (
                 {"AA :: BB": ["CC :: DD"]},
@@ -2052,7 +2041,7 @@ class TestFileUpload:
         )
 
     @pytest.mark.parametrize(
-        "filename, filetype, project_name",
+        ("filename", "filetype", "project_name"),
         [
             # completely different
             ("nope-{version}.tar.gz", "sdist", "something_else"),
@@ -2179,7 +2168,7 @@ class TestFileUpload:
         assert resp.status == ("400 Version in filename should be '1.2.3' not '6.6.6'.")
 
     @pytest.mark.parametrize(
-        "filetype, extension",
+        ("filetype", "extension"),
         [
             ("sdist", ".whl"),
             ("bdist_wheel", ".tar.gz"),
@@ -2595,7 +2584,7 @@ class TestFileUpload:
         ]
 
     @pytest.mark.parametrize(
-        "project_name, version",
+        ("project_name", "version"),
         [
             ("foo", "1.0.0"),
             ("foo-bar", "1.0.0"),
@@ -2666,7 +2655,7 @@ class TestFileUpload:
         assert resp.status_code == 200
 
     @pytest.mark.parametrize(
-        "project_name, filename_prefix",
+        ("project_name", "filename_prefix"),
         [
             ("flufl.enum", "flufl_enum"),
             ("foo-.bar", "foo_bar"),
@@ -2738,7 +2727,7 @@ class TestFileUpload:
         db_request.db.query(Filename).filter(Filename.filename == filename).one()
 
     @pytest.mark.parametrize(
-        "project_name, filename_prefix, version",
+        ("project_name", "filename_prefix", "version"),
         [
             ("flufl.enum", "flufl_enum", "1.0.0"),
             ("foo-.bar", "foo_bar", "1.0.0"),
@@ -2939,7 +2928,7 @@ class TestFileUpload:
         ]
 
     @pytest.mark.parametrize(
-        "filename, expected",
+        ("filename", "expected"),
         [
             (
                 "foo-1.0.whl",
@@ -3155,7 +3144,7 @@ class TestFileUpload:
         assert release.uploaded_via == "warehouse-tests/6.6.6"
 
     @pytest.mark.parametrize(
-        "version, expected_version",
+        ("version", "expected_version"),
         [
             ("1.0", "1.0"),
             ("v1.0", "1.0"),
@@ -3305,6 +3294,7 @@ class TestFileUpload:
                 if not test_with_user
                 else None
             ),
+            "reusable_worfklow_used": False,  # This is tested in oidc.test_views
             "uploaded_via_trusted_publisher": not test_with_user,
         }
 
@@ -3443,12 +3433,12 @@ class TestFileUpload:
     @pytest.mark.parametrize(
         "expected_message",
         [
-            ("Attestations are only supported when using",),
-            ("Error while decoding the included attestation",),
-            ("Only a single attestation",),
-            ("Could not verify the uploaded",),
-            ("Unknown error while trying",),
-            ("Attestation with unsupported predicate",),
+            "Attestations are only supported when using",
+            "Error while decoding the included attestation",
+            "Only a single attestation",
+            "Could not verify the uploaded",
+            "Unknown error while trying",
+            "Attestation with unsupported predicate",
         ],
     )
     def test_upload_fails_attestation_error(
@@ -3524,7 +3514,7 @@ class TestFileUpload:
         assert resp.status.startswith(f"400 {expected_message}")
 
     @pytest.mark.parametrize(
-        "url, expected",
+        ("url", "expected"),
         [
             ("https://google.com", False),  # Totally different
             ("https://github.com/foo", False),  # Missing parts
@@ -3586,11 +3576,11 @@ class TestFileUpload:
         }.get(svc)
 
         legacy.file_upload(db_request)
-        release_url = (
-            db_request.db.query(ReleaseURL).filter(Release.project == project).one()
+        release_db = (
+            db_request.db.query(Release).filter(Release.project == project).one()
         )
-        assert release_url is not None
-        assert release_url.verified == expected
+        assert release_db.urls_by_verify_status(verified=expected) == {"Test": url}
+        assert not release_db.urls_by_verify_status(verified=not expected)
 
     def test_new_publisher_verifies_existing_release_url(
         self,
@@ -3664,16 +3654,17 @@ class TestFileUpload:
         legacy.file_upload(db_request)
 
         # After successful upload, the Release should have now both URLs verified
-        release_urls = (
-            db_request.db.query(ReleaseURL).filter(Release.project == project).all()
+        release_db = (
+            db_request.db.query(Release).filter(Release.project == project).one()
         )
-        release_urls = {r.name: r.verified for r in release_urls}
-        assert "verified_url" in release_urls and "unverified_url" in release_urls
-        assert release_urls["verified_url"]
-        assert release_urls["unverified_url"]
+        assert release_db.urls_by_verify_status(verified=True) == {
+            "unverified_url": unverified_url,
+            "verified_url": verified_url,
+        }
+        assert not release_db.urls_by_verify_status(verified=False)
 
     @pytest.mark.parametrize(
-        "version, expected_version",
+        ("version", "expected_version"),
         [
             ("1.0", "1.0"),
             ("v1.0", "1.0"),
@@ -3794,8 +3785,8 @@ class TestFileUpload:
 
     @pytest.mark.parametrize("parent_classifier", ["private", "Private", "PrIvAtE"])
     def test_private_classifiers_cannot_be_created(self, db_request, parent_classifier):
+        db_request.db.add(Classifier(classifier=f"{parent_classifier} :: Foo"))
         with pytest.raises(IntegrityError):
-            db_request.db.add(Classifier(classifier=f"{parent_classifier} :: Foo"))
             db_request.db.commit()
 
     def test_equivalent_version_one_release(self, pyramid_config, db_request, metrics):
@@ -3936,7 +3927,7 @@ class TestFileUpload:
         )
 
     @pytest.mark.parametrize(
-        "failing_limiter,remote_addr",
+        ("failing_limiter", "remote_addr"),
         [
             ("project.create.ip", "127.0.0.1"),
             ("project.create.user", "127.0.0.1"),
@@ -4484,84 +4475,6 @@ def test_missing_trailing_slash_redirect(pyramid_request):
 
 
 @pytest.mark.parametrize(
-    ("url", "publisher_url", "expected"),
-    [
-        (  # GitHub trivial case
-            "https://github.com/owner/project",
-            "https://github.com/owner/project",
-            True,
-        ),
-        (  # ActiveState trivial case
-            "https://platform.activestate.com/owner/project",
-            "https://platform.activestate.com/owner/project",
-            True,
-        ),
-        (  # GitLab trivial case
-            "https://gitlab.com/owner/project",
-            "https://gitlab.com/owner/project",
-            True,
-        ),
-        (  # URL is a sub-path of the TP URL
-            "https://github.com/owner/project/issues",
-            "https://github.com/owner/project",
-            True,
-        ),
-        (  # Normalization
-            "https://GiThUB.com/owner/project/",
-            "https://github.com/owner/project",
-            True,
-        ),
-        (  # TP URL is a prefix, but not a parent of the URL
-            "https://github.com/owner/project22",
-            "https://github.com/owner/project",
-            False,
-        ),
-        (  # URL is a parent of the TP URL
-            "https://github.com/owner",
-            "https://github.com/owner/project",
-            False,
-        ),
-        (  # Scheme component does not match
-            "http://github.com/owner/project",
-            "https://github.com/owner/project",
-            False,
-        ),
-        (  # Host component does not match
-            "https://gitlab.com/owner/project",
-            "https://github.com/owner/project",
-            False,
-        ),
-        (  # Host component matches, but contains user and port info
-            "https://user@github.com:443/owner/project",
-            "https://github.com/owner/project",
-            False,
-        ),
-        (  # URL path component is empty
-            "https://github.com",
-            "https://github.com/owner/project",
-            False,
-        ),
-        (  # TP URL path component is empty
-            # (currently no TPs have an empty path, so even if the given URL is a
-            # sub-path of the TP URL, we fail the verification)
-            "https://github.com/owner/project",
-            "https://github.com",
-            False,
-        ),
-        (  # Both path components are empty
-            # (currently no TPs have an empty path, so even if the given URL is the
-            # same as the TP URL, we fail the verification)
-            "https://github.com",
-            "https://github.com",
-            False,
-        ),
-    ],
-)
-def test_verify_url_with_trusted_publisher(url, publisher_url, expected):
-    assert legacy._verify_url_with_trusted_publisher(url, publisher_url) == expected
-
-
-@pytest.mark.parametrize(
     ("url", "project_name", "project_normalized_name", "expected"),
     [
         (  # PyPI /project/ case
@@ -4590,12 +4503,6 @@ def test_verify_url_with_trusted_publisher(url, publisher_url, expected):
         ),
         (  # python.org/pypi/  case
             "https://python.org/pypi/myproject",
-            "myproject",
-            "myproject",
-            True,
-        ),
-        (  # PyPI /project/ case
-            "https://pypi.org/project/myproject",
             "myproject",
             "myproject",
             True,
@@ -4676,24 +4583,27 @@ def test_verify_url_pypi(url, project_name, project_normalized_name, expected):
 
 def test_verify_url():
     # `_verify_url` is just a helper function that calls `_verify_url_pypi` and
-    # `_verify_url_with_trusted_publisher`, where the actual verification logic lives.
+    # `OIDCPublisher.verify_url`, where the actual verification logic lives.
+    publisher_verifies = pretend.stub(verify_url=lambda url: True)
+    publisher_fails = pretend.stub(verify_url=lambda url: False)
+
     assert legacy._verify_url(
         url="https://pypi.org/project/myproject/",
-        publisher_url=None,
+        publisher=None,
         project_name="myproject",
         project_normalized_name="myproject",
     )
 
     assert legacy._verify_url(
         url="https://github.com/org/myproject/issues",
-        publisher_url="https://github.com/org/myproject",
+        publisher=publisher_verifies,
         project_name="myproject",
         project_normalized_name="myproject",
     )
 
     assert not legacy._verify_url(
         url="example.com",
-        publisher_url="https://github.com/or/myproject",
+        publisher=publisher_fails,
         project_name="myproject",
         project_normalized_name="myproject",
     )

@@ -10,15 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import re
-
 import wtforms
 
 from warehouse import forms
 from warehouse.oidc.forms._core import PendingPublisherMixin
-
-_VALID_GITHUB_REPO = re.compile(r"^[a-zA-Z0-9-_.]+$")
-_VALID_GITHUB_OWNER = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9-]*$")
 
 
 class GooglePublisherBase(forms.Form):
@@ -40,9 +35,14 @@ class GooglePublisherBase(forms.Form):
 class PendingGooglePublisherForm(GooglePublisherBase, PendingPublisherMixin):
     __params__ = GooglePublisherBase.__params__ + ["project_name"]
 
-    def __init__(self, *args, project_factory, **kwargs):
+    def __init__(self, *args, route_url, project_factory, **kwargs):
         super().__init__(*args, **kwargs)
+        self._route_url = route_url
         self._project_factory = project_factory
+
+    @property
+    def provider(self) -> str:
+        return "google"
 
 
 class GooglePublisherForm(GooglePublisherBase):

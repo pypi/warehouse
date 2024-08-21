@@ -45,9 +45,8 @@ from warehouse.utils.paginate import paginate_url_factory
 
 
 class TestManageTeamSettings:
-    def test_manage_team(
-        self, db_request, organization_service, user_service, enable_organizations
-    ):
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_manage_team(self, db_request, organization_service, user_service):
         team = TeamFactory.create()
 
         view = team_views.ManageTeamSettingsViews(team, db_request)
@@ -62,9 +61,8 @@ class TestManageTeamSettings:
             "save_team_form": form,
         }
 
-    def test_save_team(
-        self, db_request, pyramid_user, organization_service, enable_organizations
-    ):
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_save_team(self, db_request, pyramid_user, organization_service):
         team = TeamFactory.create(name="Team Name")
         db_request.POST = MultiDict({"name": "Team name"})
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
@@ -76,9 +74,8 @@ class TestManageTeamSettings:
         assert result.headers["Location"] == "/foo/bar/"
         assert team.name == "Team name"
 
-    def test_save_team_validation_fails(
-        self, db_request, organization_service, enable_organizations
-    ):
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_save_team_validation_fails(self, db_request, organization_service):
         organization = OrganizationFactory.create()
         team = TeamFactory.create(
             name="Team Name",
@@ -104,13 +101,13 @@ class TestManageTeamSettings:
             "This team name has already been used. Choose a different team name."
         ]
 
+    @pytest.mark.usefixtures("_enable_organizations")
     def test_delete_team(
         self,
         db_request,
         pyramid_user,
         organization_service,
         user_service,
-        enable_organizations,
         monkeypatch,
     ):
         team = TeamFactory.create()
@@ -134,13 +131,13 @@ class TestManageTeamSettings:
             ),
         ]
 
+    @pytest.mark.usefixtures("_enable_organizations")
     def test_delete_team_no_confirm(
         self,
         db_request,
         pyramid_user,
         organization_service,
         user_service,
-        enable_organizations,
         monkeypatch,
     ):
         team = TeamFactory.create()
@@ -158,13 +155,13 @@ class TestManageTeamSettings:
             pretend.call("Confirm the request", queue="error")
         ]
 
+    @pytest.mark.usefixtures("_enable_organizations")
     def test_delete_team_wrong_confirm(
         self,
         db_request,
         pyramid_user,
         organization_service,
         user_service,
-        enable_organizations,
         monkeypatch,
     ):
         team = TeamFactory.create(name="Team Name")
@@ -190,12 +187,12 @@ class TestManageTeamSettings:
 
 
 class TestManageTeamProjects:
+    @pytest.mark.usefixtures("_enable_organizations")
     def test_manage_team_projects(
         self,
         db_request,
         pyramid_user,
         organization_service,
-        enable_organizations,
         monkeypatch,
     ):
         team = TeamFactory.create()
@@ -219,12 +216,12 @@ class TestManageTeamProjects:
 
 
 class TestManageTeamRoles:
+    @pytest.mark.usefixtures("_enable_organizations")
     def test_manage_team_roles(
         self,
         db_request,
         organization_service,
         user_service,
-        enable_organizations,
     ):
         team = TeamFactory.create()
 
@@ -240,12 +237,12 @@ class TestManageTeamRoles:
             "form": form,
         }
 
+    @pytest.mark.usefixtures("_enable_organizations")
     def test_create_team_role(
         self,
         db_request,
         organization_service,
         user_service,
-        enable_organizations,
         monkeypatch,
     ):
         organization = OrganizationFactory.create()
@@ -323,12 +320,12 @@ class TestManageTeamRoles:
         ]
         assert isinstance(result, HTTPSeeOther)
 
+    @pytest.mark.usefixtures("_enable_organizations")
     def test_create_team_role_duplicate_member(
         self,
         db_request,
         organization_service,
         user_service,
-        enable_organizations,
     ):
         organization = OrganizationFactory.create()
         team = TeamFactory(organization=organization)
@@ -375,12 +372,12 @@ class TestManageTeamRoles:
             "form": form,
         }
 
+    @pytest.mark.usefixtures("_enable_organizations")
     def test_create_team_role_not_a_member(
         self,
         db_request,
         organization_service,
         user_service,
-        enable_organizations,
     ):
         organization = OrganizationFactory.create()
         team = TeamFactory(organization=organization)
@@ -417,12 +414,12 @@ class TestManageTeamRoles:
 
         assert form.username.errors == ["Not a valid choice."]
 
+    @pytest.mark.usefixtures("_enable_organizations")
     def test_delete_team_role(
         self,
         db_request,
         organization_service,
         user_service,
-        enable_organizations,
         monkeypatch,
     ):
         organization = OrganizationFactory.create()
@@ -500,12 +497,12 @@ class TestManageTeamRoles:
         ]
         assert isinstance(result, HTTPSeeOther)
 
+    @pytest.mark.usefixtures("_enable_organizations")
     def test_delete_team_role_not_a_member(
         self,
         db_request,
         organization_service,
         user_service,
-        enable_organizations,
     ):
         organization = OrganizationFactory.create()
         team = TeamFactory(organization=organization)
@@ -551,12 +548,11 @@ class TestManageTeamRoles:
         ]
         assert isinstance(result, HTTPSeeOther)
 
+    @pytest.mark.usefixtures("_enable_organizations")
     def test_delete_team_role_not_a_manager(
         self,
         db_request,
         organization_service,
-        user_service,
-        enable_organizations,
     ):
         organization = OrganizationFactory.create()
         team = TeamFactory(organization=organization)
@@ -720,7 +716,7 @@ class TestManageTeamHistory:
 
 class TestChangeTeamProjectRole:
     @pytest.fixture
-    def organization(self, enable_organizations, pyramid_user):
+    def organization(self, _enable_organizations, pyramid_user):
         organization = OrganizationFactory.create()
         OrganizationRoleFactory.create(
             organization=organization,
@@ -911,7 +907,7 @@ class TestChangeTeamProjectRole:
 
 class TestDeleteTeamProjectRole:
     @pytest.fixture
-    def organization(self, enable_organizations, pyramid_user):
+    def organization(self, _enable_organizations, pyramid_user):
         organization = OrganizationFactory.create()
         OrganizationRoleFactory.create(
             organization=organization,

@@ -71,7 +71,7 @@ class TestValidation:
             metadata.parse(None, form_data=data)
         _assert_invalid_metadata(excinfo.value, "version")
 
-    @pytest.mark.parametrize("field_name,length", metadata._LENGTH_LIMITS.items())
+    @pytest.mark.parametrize(("field_name", "length"), metadata._LENGTH_LIMITS.items())
     def test_length_is_limited(self, field_name, length):
         # Correct
         data = MultiDict(

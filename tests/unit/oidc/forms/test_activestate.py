@@ -37,6 +37,7 @@ def _raise(exception):
 class TestPendingActiveStatePublisherForm:
     def test_validate(self, monkeypatch):
         project_factory = []
+        route_url = pretend.stub()
         data = MultiDict(
             {
                 "organization": "some-org",
@@ -46,7 +47,7 @@ class TestPendingActiveStatePublisherForm:
             }
         )
         form = activestate.PendingActiveStatePublisherForm(
-            MultiDict(data), project_factory=project_factory
+            MultiDict(data), route_url=route_url, project_factory=project_factory
         )
 
         # Test built-in validations
@@ -55,17 +56,27 @@ class TestPendingActiveStatePublisherForm:
         monkeypatch.setattr(form, "_lookup_organization", lambda *o: None)
 
         assert form._project_factory == project_factory
+        assert form._route_url == route_url
         assert form.validate()
 
-    def test_validate_project_name_already_in_use(self):
+    def test_validate_project_name_already_in_use(self, pyramid_config):
         project_factory = ["some-project"]
+        route_url = pretend.call_recorder(lambda *args, **kwargs: "")
+
         form = activestate.PendingActiveStatePublisherForm(
-            project_factory=project_factory
+            route_url=route_url, project_factory=project_factory
         )
 
         field = pretend.stub(data="some-project")
         with pytest.raises(wtforms.validators.ValidationError):
             form.validate_project_name(field)
+        assert route_url.calls == [
+            pretend.call(
+                "manage.project.settings.publishing",
+                project_name="some-project",
+                _query={"provider": {"activestate"}},
+            )
+        ]
 
 
 class TestActiveStatePublisherForm:

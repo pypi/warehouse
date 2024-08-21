@@ -549,7 +549,7 @@ def user_recover_account_cancel(user, request):
     require_csrf=True,
     context=User,
 )
-def user_recover_account_complete(user, request):
+def user_recover_account_complete(user: User, request):
     if user.username != request.matchdict.get("username", user.username):
         return HTTPMovedPermanently(request.current_route_path(username=user.username))
 
@@ -567,6 +567,13 @@ def user_recover_account_complete(user, request):
     for account_recovery in user.active_account_recoveries:
         account_recovery.additional["status"] = "completed"
         account_recovery.payload["completed"] = str(datetime.datetime.now(datetime.UTC))
+        # Set the primary email to the override email if it exists, and mark as verified
+        if override_to_email := account_recovery.payload.get("override_to_email"):
+            for email in user.emails:
+                email.primary = False  # un-primary any others, so we have only one
+                if email.email == override_to_email:
+                    email.primary = True
+                    email.verified = True
 
     request.session.flash(
         (

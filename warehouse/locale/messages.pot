@@ -1,16 +1,16 @@
-#: warehouse/views.py:142
+#: warehouse/views.py:147
 msgid ""
 "You must verify your **primary** email address before you can perform "
 "this action."
 msgstr ""
 
-#: warehouse/views.py:158
+#: warehouse/views.py:163
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this"
 " action."
 msgstr ""
 
-#: warehouse/views.py:294
+#: warehouse/views.py:299
 msgid "Locale updated"
 msgstr ""
 
@@ -280,28 +280,28 @@ msgstr ""
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/accounts/views.py:1544 warehouse/accounts/views.py:1787
+#: warehouse/accounts/views.py:1548 warehouse/accounts/views.py:1791
 #: warehouse/manage/views/__init__.py:1249
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help"
 "#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1565
+#: warehouse/accounts/views.py:1569
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1581
+#: warehouse/accounts/views.py:1585
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1594
+#: warehouse/accounts/views.py:1598
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1610 warehouse/manage/views/__init__.py:1304
+#: warehouse/accounts/views.py:1614 warehouse/manage/views/__init__.py:1304
 #: warehouse/manage/views/__init__.py:1417
 #: warehouse/manage/views/__init__.py:1529
 #: warehouse/manage/views/__init__.py:1639
@@ -310,29 +310,29 @@ msgid ""
 "again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:1621 warehouse/manage/views/__init__.py:1318
+#: warehouse/accounts/views.py:1625 warehouse/manage/views/__init__.py:1318
 #: warehouse/manage/views/__init__.py:1431
 #: warehouse/manage/views/__init__.py:1543
 #: warehouse/manage/views/__init__.py:1653
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1635
+#: warehouse/accounts/views.py:1639
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's"
 " admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1662
+#: warehouse/accounts/views.py:1666
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1801 warehouse/accounts/views.py:1814
-#: warehouse/accounts/views.py:1821
+#: warehouse/accounts/views.py:1805 warehouse/accounts/views.py:1818
+#: warehouse/accounts/views.py:1825
 msgid "Invalid publisher ID"
 msgstr ""
 
-#: warehouse/accounts/views.py:1827
+#: warehouse/accounts/views.py:1831
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -578,15 +578,17 @@ msgstr ""
 msgid "Invalid project name"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:35
-msgid "This project already exists, create an ordinary Trusted Publisher instead"
+#: warehouse/oidc/forms/_core.py:46
+msgid ""
+"This project already exists, use the project's publishing settings <a "
+"href='${url}'>here</a> to create a Trusted Publisher for it."
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:47
+#: warehouse/oidc/forms/_core.py:66
 msgid "Specify a publisher ID"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:48
+#: warehouse/oidc/forms/_core.py:67
 msgid "Publisher must be specified by ID"
 msgstr ""
 
@@ -2805,74 +2807,78 @@ msgid "Verified details"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:19
-#: warehouse/templates/includes/packaging/project-data.html:67
+#: warehouse/templates/includes/packaging/project-data.html:113
 msgid "Project links"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:46
-msgid "Maintainers"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:48
-msgid "Avatar for {username} from gravatar.com"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:64
-msgid "Unverified details"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:82
+#: warehouse/templates/includes/packaging/project-data.html:47
 msgid "GitHub Statistics"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:89
+#: warehouse/templates/includes/packaging/project-data.html:53
+msgid "Repository"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:60
 msgid "Stars:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:97
+#: warehouse/templates/includes/packaging/project-data.html:68
 msgid "Forks:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:105
+#: warehouse/templates/includes/packaging/project-data.html:76
 msgid "Open issues:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:113
+#: warehouse/templates/includes/packaging/project-data.html:84
 msgid "Open PRs:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:123
+#: warehouse/templates/includes/packaging/project-data.html:92
+msgid "Maintainers"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:94
+msgid "Avatar for {username} from gravatar.com"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:110
+msgid "Unverified details"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:129
 msgid "Meta"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:125
+#: warehouse/templates/includes/packaging/project-data.html:134
 msgid "License:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:128
-#: warehouse/templates/includes/packaging/project-data.html:130
+#: warehouse/templates/includes/packaging/project-data.html:141
+#: warehouse/templates/includes/packaging/project-data.html:147
 msgid "Author:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:133
-#: warehouse/templates/includes/packaging/project-data.html:135
+#: warehouse/templates/includes/packaging/project-data.html:154
+#: warehouse/templates/includes/packaging/project-data.html:160
 #: warehouse/templates/pages/help.html:612
 msgid "Maintainer:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:140
+#: warehouse/templates/includes/packaging/project-data.html:168
 msgid "Tags"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:150
+#: warehouse/templates/includes/packaging/project-data.html:180
 msgid "Requires:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:155
+#: warehouse/templates/includes/packaging/project-data.html:187
 msgid "Provides-Extra:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:163
+#: warehouse/templates/includes/packaging/project-data.html:197
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
