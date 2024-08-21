@@ -65,7 +65,7 @@ class TestTUF:
         assert get_task_state.calls == [call(self.server, self.task_id)]
 
     @pytest.mark.parametrize(
-        "state, iterations",
+        ("state", "iterations"),
         [
             ("PENDING", 20),
             ("RUNNING", 20),

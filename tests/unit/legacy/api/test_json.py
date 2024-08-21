@@ -424,7 +424,7 @@ class TestReleaseFactory:
         _assert_has_cors_headers(resp.headers)
 
     @pytest.mark.parametrize(
-        "other_versions,the_version,lookup_version",
+        ("other_versions", "the_version", "lookup_version"),
         [
             (["0.1", "1.0", "2.0"], "3.0", "3.0"),
             (["0.1", "1.0", "2.0"], "3.0.0", "3.0"),
@@ -707,7 +707,7 @@ class TestJSONRelease:
             "vulnerabilities": [],
         }
 
-    @pytest.mark.parametrize("withdrawn", (None, "2022-06-28T16:39:06Z"))
+    @pytest.mark.parametrize("withdrawn", [None, "2022-06-28T16:39:06Z"])
     def test_vulnerabilities_renders(self, pyramid_config, db_request, withdrawn):
         project = ProjectFactory.create(has_docs=False)
         release = ReleaseFactory.create(project=project, version="0.1")

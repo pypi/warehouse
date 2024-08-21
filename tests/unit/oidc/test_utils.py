@@ -35,7 +35,7 @@ def test_find_publisher_by_issuer_bad_issuer_url():
 
 
 @pytest.mark.parametrize(
-    "environment, expected_id",
+    ("environment", "expected_id"),
     [
         (None, uuid.UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")),
         ("some_other_environment", uuid.UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")),
@@ -80,7 +80,7 @@ def test_find_publisher_by_issuer_github(db_request, environment, expected_id):
 
 
 @pytest.mark.parametrize(
-    "environment, expected_id",
+    ("environment", "expected_id"),
     [
         (None, uuid.UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")),
         ("some_other_environment", uuid.UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")),
@@ -121,7 +121,7 @@ def test_find_publisher_by_issuer_gitlab(db_request, environment, expected_id):
 
 
 @pytest.mark.parametrize(
-    "sub, expected_id",
+    ("sub", "expected_id"),
     [
         ("some-other-subject", uuid.UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")),
         ("some-subject", uuid.UUID("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")),
@@ -155,7 +155,15 @@ def test_find_publisher_by_issuer_google(db_request, sub, expected_id):
 
 
 @pytest.mark.parametrize(
-    "expected_id, sub, organization, project, actor_id, actor, ingredient_name",
+    (
+        "expected_id",
+        "sub",
+        "organization",
+        "project",
+        "actor_id",
+        "actor",
+        "ingredient_name",
+    ),
     [
         (
             uuid.UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
