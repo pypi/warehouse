@@ -725,7 +725,7 @@ class Release(HasObservations, db.Model):
 
     @property
     def verified_user_name_and_repo_name(self):
-        for _, url in self.urls_by_verify_status(True).items():
+        for _, url in self.urls_by_verify_status(verified=True).items():
             try:
                 parsed = parse_url(url)
             except LocationParseError:
