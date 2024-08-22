@@ -13,9 +13,11 @@ import hashlib
 import tempfile
 import typing
 import warnings
+
 from pathlib import Path
 
 import sentry_sdk
+
 from pydantic import TypeAdapter, ValidationError
 from pypi_attestations import (
     Attestation,
@@ -41,11 +43,7 @@ from warehouse.attestations.models import Attestation as DatabaseAttestation
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.models import (
     GitHubPublisher as GitHubOIDCPublisher,
-)
-from warehouse.oidc.models import (
     GitLabPublisher as GitLabOIDCPublisher,
-)
-from warehouse.oidc.models import (
     OIDCPublisher,
 )
 from warehouse.packaging.interfaces import IFileStorage
@@ -89,14 +87,23 @@ def _extract_attestations_from_request(request: Request) -> list[Attestation]:
         # Log invalid (malformed) attestation upload
         metrics.increment("warehouse.upload.attestations.malformed")
         raise AttestationUploadError(
-            f"Error while decoding the included attestation: {e}",
+            f"Malformed attestations: {e}",
         )
 
+    # Empty attestation sets are not permitted; users should omit `attestations`
+    # entirely to upload without attestations.
+    if not attestations:
+        raise AttestationUploadError(
+            "Malformed attestations: an empty attestation set is not permitted"
+        )
+
+    # This is a temporary constraint; multiple attestations per file will
+    # be supported in the future.
     if len(attestations) > 1:
         metrics.increment("warehouse.upload.attestations.failed_multiple_attestations")
 
         raise AttestationUploadError(
-            "Only a single attestation per file is supported.",
+            "Only a single attestation per file is supported",
         )
 
     return attestations

@@ -12,6 +12,7 @@
 
 import hashlib
 import io
+import json
 import re
 import tarfile
 import tempfile
@@ -35,11 +36,7 @@ import warehouse.constants
 
 from warehouse.accounts.utils import UserContext
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
-from warehouse.attestations import (
-    Attestation as DatabaseAttestation,
-    AttestationUploadError,
-    IIntegrityService,
-)
+from warehouse.attestations import Attestation as DatabaseAttestation, IIntegrityService
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy, metadata
 from warehouse.macaroons import IMacaroonService, caveats, security_policy
@@ -61,7 +58,6 @@ from warehouse.packaging.models import (
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
 
 from ...common.db.accounts import EmailFactory, UserFactory
-from ...common.db.attestation import AttestationFactory
 from ...common.db.classifiers import ClassifierFactory
 from ...common.db.oidc import GitHubPublisherFactory
 from ...common.db.packaging import (
@@ -3412,14 +3408,28 @@ class TestFileUpload:
         assert len(attestations_db) == 1
 
     @pytest.mark.parametrize(
-        "expected_message",
+        "invalid_attestations",
         [
-            "Attestations are only supported when using",
-            "Error while decoding the included attestation",
-            "Only a single attestation",
-            "Could not verify the uploaded",
-            "Unknown error while trying",
-            "Attestation with unsupported predicate",
+            # Bad top-level types.
+            "",
+            {},
+            1,
+            # Empty attestation sets not permitted.
+            [],
+            # Wrong version number.
+            [
+                {
+                    "version": 2,
+                    "verification_material": {
+                        "certificate": "somebase64string",
+                        "transparency_entries": [{}],
+                    },
+                    "envelope": {
+                        "statement": "somebase64string",
+                        "signature": "somebase64string",
+                    },
+                },
+            ],
         ],
     )
     def test_upload_fails_attestation_error(
@@ -3428,7 +3438,8 @@ class TestFileUpload:
         pyramid_config,
         db_request,
         metrics,
-        expected_message,
+        integrity_service,
+        invalid_attestations,
     ):
         from warehouse.events.models import HasEvents
 
@@ -3456,7 +3467,7 @@ class TestFileUpload:
             {
                 "metadata_version": "1.2",
                 "name": project.name,
-                "attestations": "",
+                "attestations": json.dumps(invalid_attestations),
                 "version": version,
                 "summary": "This is my summary!",
                 "filetype": "sdist",
@@ -3471,10 +3482,6 @@ class TestFileUpload:
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
 
-        def stub_parse(*_args, **_kwargs):
-            raise AttestationUploadError(expected_message)
-
-        integrity_service = pretend.stub(parse_attestations=stub_parse)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
             IMetricsService: metrics,
@@ -3492,7 +3499,7 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        assert resp.status.startswith(f"400 {expected_message}")
+        assert resp.status.startswith("400 Malformed attestations")
 
     @pytest.mark.parametrize(
         ("url", "expected"),
