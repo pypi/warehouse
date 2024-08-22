@@ -71,7 +71,6 @@ from warehouse.packaging.models import (
 )
 from warehouse.rate_limiting import IRateLimiter
 from warehouse.utils.paginate import paginate_url_factory
-from warehouse.utils.project import remove_documentation
 
 from ...common.db.accounts import EmailFactory
 from ...common.db.organizations import (
@@ -3724,9 +3723,10 @@ class TestManageProjectDocumentation:
 
         result = views.destroy_project_docs(project, db_request)
 
-        assert task.calls == [pretend.call(remove_documentation)]
-
-        assert remove_documentation_recorder.delay.calls == [pretend.call(project.name)]
+        assert remove_documentation_recorder.delay.calls == [
+            pretend.call(project.name),
+            pretend.call(project.normalized_name),
+        ]
 
         assert db_request.session.flash.calls == [
             pretend.call("Deleted docs for project 'foo'", queue="success")
