@@ -1419,9 +1419,9 @@ openapi-spec-validator==0.7.1 \
     --hash=sha256:3c81825043f24ccbcd2f4b149b11e8231abce5ba84f37065e14ec947d8f4e959 \
     --hash=sha256:8577b85a8268685da6f8aa30990b83b7960d4d1117e901d451b5d572605e5ec7
     # via openapi-core
-opensearch-py==2.6.0 \
-    --hash=sha256:0b7c27e8ed84c03c99558406927b6161f186a72502ca6d0325413d8e5523ba96 \
-    --hash=sha256:b6e78b685dd4e9c016d7a4299cf1de69e299c88322e3f81c716e6e23fe5683c1
+opensearch-py==2.7.0 \
+    --hash=sha256:6a36535efcda870c820fd84c4bda96d7d57fc900a8c7dec660a48c079904df97 \
+    --hash=sha256:c09a73727868c29f86ffbed1e987afb7f86bcce983b28bf69249cfad8c831d68
     # via -r requirements/main.in
 orjson==3.10.7 \
     --hash=sha256:084e537806b458911137f76097e53ce7bf5806dda33ddf6aaa66a028f8d43a23 \
@@ -2101,7 +2101,6 @@ six==1.16.0 \
     # via
     #   html5lib
     #   isodate
-    #   opensearch-py
     #   pymacaroons
     #   python-dateutil
     #   rfc3339-validator
