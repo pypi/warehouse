@@ -537,13 +537,8 @@ def activestate_oidc_service(db_session):
 
 
 @pytest.fixture
-def local_file_storage(tmp_path):
-    return packaging_services.GenericLocalBlobStorage(tmp_path)
-
-
-@pytest.fixture
-def integrity_service(db_session, local_file_storage, metrics):
-    return attestations_services.IntegrityService(local_file_storage, metrics)
+def integrity_service(db_session):
+    return attestations_services.NullIntegrityService()
 
 
 @pytest.fixture

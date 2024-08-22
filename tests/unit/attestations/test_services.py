@@ -92,7 +92,7 @@ class TestIntegrityService:
 
         file = FileFactory.create(attestations=[])
 
-        integrity_service.persist_attestations([VALID_ATTESTATION], file)
+        integrity_service._persist_attestations([VALID_ATTESTATION], file)
 
         attestations_db = (
             db_request.db.query(DatabaseAttestation)
@@ -280,7 +280,7 @@ class TestIntegrityService:
         oidc_publisher = pretend.stub(publisher_name="not-existing")
 
         assert (
-            integrity_service.generate_provenance(oidc_publisher, pretend.stub())
+            integrity_service._generate_provenance(oidc_publisher, pretend.stub())
             is None
         )
 
@@ -314,7 +314,7 @@ class TestIntegrityService:
             lambda s: publisher,
         )
 
-        provenance = integrity_service.generate_provenance(
+        provenance = integrity_service._generate_provenance(
             pretend.stub(),
             [VALID_ATTESTATION],
         )
@@ -354,7 +354,7 @@ class TestIntegrityService:
             metrics=pretend.stub(),
         )
         assert (
-            integrity_service.persist_provenance(provenance, FileFactory.create())
+            integrity_service._persist_provenance(provenance, FileFactory.create())
             is None
         )
 

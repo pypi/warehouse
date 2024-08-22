@@ -13,3 +13,7 @@
 
 class InsecureOIDCPublisherWarning(UserWarning):
     pass
+
+
+class InsecureIntegrityServiceWarning(UserWarning):
+    pass

@@ -1292,13 +1292,7 @@ def file_upload(request):
                     str(e),
                 )
 
-            integrity_service.persist_attestations(attestations, file_)
-
-            provenance = integrity_service.generate_provenance(
-                request.oidc_publisher, attestations
-            )
-            if provenance:
-                integrity_service.persist_provenance(provenance, file_)
+            integrity_service.generate_provenance(request, file_, attestations)
 
             # Log successful attestation upload
             metrics.increment("warehouse.upload.attestations.ok")
