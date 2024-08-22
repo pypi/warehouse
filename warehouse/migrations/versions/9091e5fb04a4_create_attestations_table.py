@@ -12,9 +12,9 @@
 """
 create Attestations table
 
-Revision ID: 7f0c9f105f44
+Revision ID: 9091e5fb04a4
 Revises: 26455e3712a2
-Create Date: 2024-07-25 15:49:01.993869
+Create Date: 2024-08-22 13:54:03.141492
 """
 
 import sqlalchemy as sa
@@ -22,7 +22,7 @@ import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import postgresql
 
-revision = "7f0c9f105f44"
+revision = "9091e5fb04a4"
 down_revision = "26455e3712a2"
 
 
