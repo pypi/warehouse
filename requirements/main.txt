@@ -62,9 +62,9 @@ attrs==24.2.0 \
     #   cattrs
     #   jsonschema
     #   referencing
-automat==24.8.0 \
-    --hash=sha256:0a6f26e0d52fb84afcfcbabb7d86ca6dbe0b2bb64735ad95df39c103bf8de091 \
-    --hash=sha256:f55735fdae5f461176ba2c8be7438ee06e47c4028ad80d1b4d5abef96d9d5863
+automat==24.8.1 \
+    --hash=sha256:b34227cf63f6325b8ad2399ede780675083e439b20c323d376373d8ee6306d88 \
+    --hash=sha256:bf029a7bc3da1e2c24da2343e7598affaa9f10bf0ab63ff808566ce90551e02a
     # via -r requirements/main.in
 b2sdk==2.5.1 \
     --hash=sha256:71de4a24c113ea1836ba4aa4569e4e6374daeaa58272e342679070424440fee1 \
