@@ -119,6 +119,10 @@ class NullIntegrityService:
             InsecureIntegrityServiceWarning,
         )
 
+    @classmethod
+    def create_service(cls, _context, _request):
+        return cls()
+
     def parse_attestations(
         self, request: Request, _distribution: Distribution
     ) -> list[Attestation]:

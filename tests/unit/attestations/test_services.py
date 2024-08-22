@@ -57,6 +57,11 @@ VALID_ATTESTATION = Attestation(
 )
 
 
+class TestNullIntegrityService:
+    def test_interface_matches(self):
+        assert verifyClass(IIntegrityService, services.NullIntegrityService)
+
+
 class TestIntegrityService:
     def test_interface_matches(self):
         assert verifyClass(IIntegrityService, IntegrityService)

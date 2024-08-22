@@ -14,11 +14,17 @@ import pretend
 
 from warehouse import attestations
 from warehouse.attestations.interfaces import IIntegrityService
-from warehouse.attestations.services import IntegrityService
 
 
 def test_includeme():
+    fake_service_klass = pretend.stub(create_service=pretend.stub())
     config = pretend.stub(
+        registry=pretend.stub(
+            settings={"attestations.backend": "fake.path.to.backend"}
+        ),
+        maybe_dotted=pretend.call_recorder(
+            lambda attr: fake_service_klass,
+        ),
         register_service_factory=pretend.call_recorder(
             lambda factory, iface, name=None: None
         ),
@@ -26,6 +32,7 @@ def test_includeme():
 
     attestations.includeme(config)
 
+    assert config.maybe_dotted.calls == [pretend.call("fake.path.to.backend")]
     assert config.register_service_factory.calls == [
-        pretend.call(IntegrityService.create_service, IIntegrityService),
+        pretend.call(fake_service_klass.create_service, IIntegrityService),
     ]

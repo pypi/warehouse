@@ -28,4 +28,9 @@ __all__ = [
 
 
 def includeme(config):
-    config.register_service_factory(IntegrityService.create_service, IIntegrityService)
+    integrity_service_class = config.maybe_dotted(
+        config.registry.settings["attestations.backend"]
+    )
+    config.register_service_factory(
+        integrity_service_class.create_service, IIntegrityService
+    )

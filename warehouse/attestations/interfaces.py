@@ -16,6 +16,11 @@ from zope.interface import Interface
 
 
 class IIntegrityService(Interface):
+    def create_service(context, request):
+        """
+        Create the service for the given context and request.
+        """
+
     def parse_attestations(
         request: Request, distribution: Distribution
     ) -> list[Attestation]:
