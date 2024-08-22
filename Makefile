@@ -81,7 +81,7 @@ tests: .state/docker-build-base
 static_tests: .state/docker-build-static
 	docker compose run --rm static bin/static_tests $(T) $(TESTARGS)
 
-static_pipeline: translations .state/docker-build-static
+static_pipeline: .state/docker-build-static
 	docker compose run --rm static bin/static_pipeline $(T) $(TESTARGS)
 
 reformat: .state/docker-build-base
