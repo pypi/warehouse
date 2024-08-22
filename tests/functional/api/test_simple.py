@@ -24,8 +24,7 @@ def test_simple_api_html(webtest):
 
 def test_simple_api_detail(webtest):
     project = ProjectFactory.create()
-    ReleaseFactory.create(version="1.0.0", project=project)
-    ReleaseFactory.create(version="2.0.0", project=project)
+    ReleaseFactory.create_batch(2, project=project)
 
     resp = webtest.get(f"/simple/{project.normalized_name}/", status=HTTPStatus.OK)
 
