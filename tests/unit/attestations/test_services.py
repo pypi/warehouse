@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import hashlib
-import tempfile
 
 import pretend
 import pytest
@@ -30,9 +29,8 @@ from pypi_attestations import (
 from sigstore.verify import Verifier
 from zope.interface.verify import verifyClass
 
-from tests.common.db.attestation import AttestationFactory
 from tests.common.db.oidc import GitHubPublisherFactory, GitLabPublisherFactory
-from tests.common.db.packaging import FileEventFactory, FileFactory
+from tests.common.db.packaging import FileFactory
 from warehouse.attestations import (
     Attestation as DatabaseAttestation,
     AttestationUploadError,
@@ -41,7 +39,6 @@ from warehouse.attestations import (
     UnsupportedPublisherError,
     services,
 )
-from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
 from warehouse.packaging import File, IFileStorage
 
@@ -317,9 +314,11 @@ class TestIntegrityService:
             GitLabPublisherFactory,
         ],
     )
-    def test_generate_provenance_succeeds(self, db_request, metrics, publisher_factory):
+    def test_generate_provenance_succeeds(
+        self, db_request, metrics, storage_service, publisher_factory
+    ):
         integrity_service = IntegrityService(
-            storage=pretend.stub(store=pretend.call_recorder(lambda *a, **kw: None)),
+            storage=storage_service,
             metrics=metrics,
         )
 
@@ -343,9 +342,18 @@ class TestIntegrityService:
             ]
         )
 
-        # We call `storage.store` twice: once for the attestation, and once
-        # for the provenance.
-        assert len(integrity_service.storage.store.calls) == 2
+        # We can round-trip the provenance object out of storage.
+        provenance_from_store = Provenance.model_validate_json(
+            storage_service.get(f"{file.path}.provenance").read()
+        )
+        provenance_from_store.attestation_bundles == [
+            AttestationBundle(
+                publisher=services._publisher_from_oidc_publisher(
+                    request.oidc_publisher
+                ),
+                attestations=[VALID_ATTESTATION],
+            )
+        ]
 
     def test_persist_provenance_succeeds(self, db_request, metrics):
         provenance = Provenance(
@@ -377,35 +385,29 @@ class TestIntegrityService:
             is None
         )
 
-    def test_get_provenance_digest(self, db_request):
+    def test_get_provenance_digest(self, db_request, metrics, storage_service):
         file = FileFactory.create()
-        AttestationFactory.create(file=file)
-        FileEventFactory.create(
-            source=file,
-            tag=EventTag.File.FileAdd,
-            additional={"publisher_url": "fake-publisher-url"},
+
+        integrity_service = IntegrityService(
+            storage=storage_service,
+            metrics=metrics,
         )
 
-        with tempfile.NamedTemporaryFile() as f:
-            integrity_service = IntegrityService(
-                storage=pretend.stub(get=pretend.call_recorder(lambda p: f)),
-                metrics=pretend.stub(),
-            )
+        db_request.oidc_publisher = GitHubPublisherFactory.create()
 
-            assert (
-                integrity_service.get_provenance_digest(file)
-                == hashlib.file_digest(f, "sha256").hexdigest()
-            )
+        integrity_service.generate_provenance(db_request, file, [VALID_ATTESTATION])
+        provenance_file = f"{file.path}.provenance"
+
+        assert (
+            integrity_service.get_provenance_digest(file)
+            == hashlib.file_digest(
+                storage_service.get(provenance_file), "sha256"
+            ).hexdigest()
+        )
 
     def test_get_provenance_digest_fails_no_attestations(self, db_request):
         # If the attestations are missing, there is no provenance file
         file = FileFactory.create()
-        file.attestations = []
-        FileEventFactory.create(
-            source=file,
-            tag=EventTag.File.FileAdd,
-            additional={"publisher_url": "fake-publisher-url"},
-        )
         integrity_service = IntegrityService(
             storage=pretend.stub(),
             metrics=pretend.stub(),

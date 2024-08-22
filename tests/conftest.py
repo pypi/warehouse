@@ -113,6 +113,15 @@ def metrics():
 
 
 @pytest.fixture
+def storage_service(tmp_path):
+    """
+    A good-enough local file storage service.
+    """
+
+    return packaging_services.LocalArchiveFileStorage(tmp_path)
+
+
+@pytest.fixture
 def remote_addr():
     return "1.2.3.4"
 
