@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from http import HTTPStatus
+
 import pytest
 
 
@@ -21,7 +23,7 @@ def test_incorrect_post_redirect(webtest):
 
     See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/308
     """
-    resp = webtest.post("/legacy", status=308)
+    resp = webtest.post("/legacy", status=HTTPStatus.PERMANENT_REDIRECT)
     assert resp.status == (
         "308 An upload was attempted to /legacy but the expected upload URL is "
         "/legacy/ (with a trailing slash)"
@@ -33,7 +35,7 @@ def test_incorrect_post_redirect(webtest):
 
 @pytest.mark.parametrize("action", ["submit", "submit_pkg_info"])
 def test_removed_upload_apis(webtest, action):
-    resp = webtest.post(f"/legacy/?:action={action}", status=410)
+    resp = webtest.post(f"/legacy/?:action={action}", status=HTTPStatus.GONE)
     assert resp.status == (
         "410 Project pre-registration is no longer required or supported, "
         "upload your files instead."
@@ -41,7 +43,7 @@ def test_removed_upload_apis(webtest, action):
 
 
 def test_remove_doc_upload(webtest):
-    resp = webtest.post("/legacy/?:action=doc_upload", status=410)
+    resp = webtest.post("/legacy/?:action=doc_upload", status=HTTPStatus.GONE)
     assert resp.status == (
         "410 Uploading documentation is no longer supported, we recommend "
         "using https://readthedocs.org/."

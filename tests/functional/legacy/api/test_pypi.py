@@ -10,7 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from http import HTTPStatus
+
 
 def test_doap(webtest):
-    resp = webtest.get("/pypi?:action=doap&name=foo&version=1.0", status=410)
+    resp = webtest.get(
+        "/pypi?:action=doap&name=foo&version=1.0", status=HTTPStatus.GONE
+    )
     assert resp.status == "410 DOAP is no longer supported."
