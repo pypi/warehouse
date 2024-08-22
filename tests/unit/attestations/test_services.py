@@ -293,16 +293,20 @@ class TestIntegrityService:
         )
         assert attestations == [VALID_ATTESTATION]
 
-    def test_generate_provenance_unsupported_publisher(self):
+    def test_generate_provenance_unsupported_publisher(self, metrics):
         integrity_service = IntegrityService(
             storage=pretend.stub(),
             metrics=pretend.stub(),
         )
 
-        oidc_publisher = pretend.stub(publisher_name="not-existing")
+        request = pretend.stub(
+            oidc_publisher=pretend.stub(publisher_name="not-existing")
+        )
 
         assert (
-            integrity_service._build_provenance_object(oidc_publisher, pretend.stub())
+            integrity_service.generate_provenance(
+                request, pretend.stub(), pretend.stub()
+            )
             is None
         )
 
