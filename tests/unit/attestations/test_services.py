@@ -61,6 +61,23 @@ class TestNullIntegrityService:
     def test_interface_matches(self):
         assert verifyClass(IIntegrityService, services.NullIntegrityService)
 
+    def test_get_provenance_digest(self, db_request):
+        db_request.oidc_publisher = pretend.stub(
+            publisher_name="GitHub",
+            repository="fake/fake",
+            workflow_filename="fake.yml",
+            environment="fake",
+        )
+
+        file = FileFactory.create()
+        service = services.NullIntegrityService()
+
+        provenance = service.generate_provenance(db_request, file, [VALID_ATTESTATION])
+        assert isinstance(provenance, Provenance)
+
+        provenance_digest = service.get_provenance_digest(file)
+        assert isinstance(provenance_digest, str)
+
 
 class TestIntegrityService:
     def test_interface_matches(self):
@@ -285,55 +302,48 @@ class TestIntegrityService:
         oidc_publisher = pretend.stub(publisher_name="not-existing")
 
         assert (
-            integrity_service._generate_provenance(oidc_publisher, pretend.stub())
+            integrity_service._build_provenance_object(oidc_publisher, pretend.stub())
             is None
         )
 
     @pytest.mark.parametrize(
-        "publisher_name",
+        "publisher_factory",
         [
-            "github",
-            "gitlab",
+            GitHubPublisherFactory,
+            GitLabPublisherFactory,
         ],
     )
-    def test_generate_provenance_succeeds(self, publisher_name: str, monkeypatch):
+    def test_generate_provenance_succeeds(self, db_request, metrics, publisher_factory):
         integrity_service = IntegrityService(
-            storage=pretend.stub(),
-            metrics=pretend.stub(),
+            storage=pretend.stub(store=pretend.call_recorder(lambda *a, **kw: None)),
+            metrics=metrics,
         )
 
-        if publisher_name == "github":
-            publisher = GitHubPublisher(
-                repository="fake-repository",
-                workflow="fake-workflow",
-            )
-        else:
-            publisher = GitLabPublisher(
-                repository="fake-repository",
-                environment="fake-env",
-            )
+        request = pretend.stub(oidc_publisher=publisher_factory.create())
+        file = FileFactory.create()
 
-        monkeypatch.setattr(
-            services,
-            "_publisher_from_oidc_publisher",
-            lambda s: publisher,
-        )
-
-        provenance = integrity_service._generate_provenance(
-            pretend.stub(),
+        provenance = integrity_service.generate_provenance(
+            request,
+            file,
             [VALID_ATTESTATION],
         )
 
         assert provenance == Provenance(
             attestation_bundles=[
                 AttestationBundle(
-                    publisher=publisher,
+                    publisher=services._publisher_from_oidc_publisher(
+                        request.oidc_publisher
+                    ),
                     attestations=[VALID_ATTESTATION],
                 )
             ]
         )
 
-    def test_persist_provenance_succeeds(self, db_request):
+        # We call `storage.store` twice: once for the attestation, and once
+        # for the provenance.
+        assert len(integrity_service.storage.store.calls) == 2
+
+    def test_persist_provenance_succeeds(self, db_request, metrics):
         provenance = Provenance(
             attestation_bundles=[
                 AttestationBundle(
@@ -356,7 +366,7 @@ class TestIntegrityService:
 
         integrity_service = IntegrityService(
             storage=pretend.stub(store=storage_service_store),
-            metrics=pretend.stub(),
+            metrics=metrics,
         )
         assert (
             integrity_service._persist_provenance(provenance, FileFactory.create())

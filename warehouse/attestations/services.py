@@ -242,7 +242,7 @@ class IntegrityService:
         self, request: Request, file: File, attestations: list[Attestation]
     ) -> Provenance | None:
         # Generate the provenance object.
-        provenance = self._generate_provenance(request.oidc_publisher, attestations)
+        provenance = self._build_provenance_object(request.oidc_publisher, attestations)
 
         if not provenance:
             return None
@@ -285,7 +285,7 @@ class IntegrityService:
 
             file.attestations.append(database_attestation)
 
-    def _generate_provenance(
+    def _build_provenance_object(
         self, oidc_publisher: OIDCPublisher, attestations: list[Attestation]
     ) -> Provenance | None:
         try:
