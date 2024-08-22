@@ -62,9 +62,9 @@ attrs==24.2.0 \
     #   cattrs
     #   jsonschema
     #   referencing
-automat==24.8.0 \
-    --hash=sha256:0a6f26e0d52fb84afcfcbabb7d86ca6dbe0b2bb64735ad95df39c103bf8de091 \
-    --hash=sha256:f55735fdae5f461176ba2c8be7438ee06e47c4028ad80d1b4d5abef96d9d5863
+automat==24.8.1 \
+    --hash=sha256:b34227cf63f6325b8ad2399ede780675083e439b20c323d376373d8ee6306d88 \
+    --hash=sha256:bf029a7bc3da1e2c24da2343e7598affaa9f10bf0ab63ff808566ce90551e02a
     # via -r requirements/main.in
 b2sdk==2.5.1 \
     --hash=sha256:71de4a24c113ea1836ba4aa4569e4e6374daeaa58272e342679070424440fee1 \
@@ -485,9 +485,9 @@ cssutils==2.11.1 \
     --hash=sha256:0563a76513b6af6eebbe788c3bf3d01c920e46b3f90c8416738c5cfc773ff8e2 \
     --hash=sha256:a67bfdfdff4f3867fab43698ec4897c1a828eca5973f4073321b3bccaf1199b1
     # via premailer
-datadog==0.49.1 \
-    --hash=sha256:4a56d57490ea699a0dfd9253547485a57b4120e93489defadcf95c66272374d6 \
-    --hash=sha256:4cb7a7991af6cadb868fe450cd456473e65f11fc678b7d7cf61044ff1c6074d8
+datadog==0.50.0 \
+    --hash=sha256:3a58e85f8da47c4a47893b42c759570ba0280cd212413d9b7246cb8fcb86f586 \
+    --hash=sha256:bac96fa0ef555cb10e828c05a7810a13db2bf3bfed34813fac45d3c9a2227b43
     # via -r requirements/main.in
 deprecated==1.2.14 \
     --hash=sha256:6fac8b097794a90302bdbb17b9b815e732d3c4720583ff1b198499d78470466c \
@@ -901,9 +901,9 @@ idna==3.7 \
     # via
     #   email-validator
     #   requests
-importlib-resources==6.4.3 \
-    --hash=sha256:2d6dfe3b9e055f72495c2085890837fc8c758984e209115c8792bddcb762cd93 \
-    --hash=sha256:4a202b9b9d38563b46da59221d77bb73862ab5d79d461307bcb826d725448b98
+importlib-resources==6.4.4 \
+    --hash=sha256:20600c8b7361938dc0bb2d5ec0297802e575df486f5a544fa414da65e13721f7 \
+    --hash=sha256:dda242603d1c9cd836c3368b1174ed74cb4049ecd209e7a1a0104620c18c5c11
     # via limits
 isodate==0.6.1 \
     --hash=sha256:0751eece944162659049d35f4f549ed815792b38793f07cf73381c1c87cbed96 \
@@ -1419,9 +1419,9 @@ openapi-spec-validator==0.7.1 \
     --hash=sha256:3c81825043f24ccbcd2f4b149b11e8231abce5ba84f37065e14ec947d8f4e959 \
     --hash=sha256:8577b85a8268685da6f8aa30990b83b7960d4d1117e901d451b5d572605e5ec7
     # via openapi-core
-opensearch-py==2.6.0 \
-    --hash=sha256:0b7c27e8ed84c03c99558406927b6161f186a72502ca6d0325413d8e5523ba96 \
-    --hash=sha256:b6e78b685dd4e9c016d7a4299cf1de69e299c88322e3f81c716e6e23fe5683c1
+opensearch-py==2.7.0 \
+    --hash=sha256:6a36535efcda870c820fd84c4bda96d7d57fc900a8c7dec660a48c079904df97 \
+    --hash=sha256:c09a73727868c29f86ffbed1e987afb7f86bcce983b28bf69249cfad8c831d68
     # via -r requirements/main.in
 orjson==3.10.7 \
     --hash=sha256:084e537806b458911137f76097e53ce7bf5806dda33ddf6aaa66a028f8d43a23 \
@@ -2101,7 +2101,6 @@ six==1.16.0 \
     # via
     #   html5lib
     #   isodate
-    #   opensearch-py
     #   pymacaroons
     #   python-dateutil
     #   rfc3339-validator
@@ -2261,9 +2260,9 @@ webob==1.8.8 \
     --hash=sha256:2abc1555e118fc251e705fc6dc66c7f5353bb9fbfab6d20e22f1c02b4b71bcee \
     --hash=sha256:b60ba63f05c0cf61e086a10c3781a41fcfe30027753a8ae6d819c77592ce83ea
     # via pyramid
-werkzeug==3.0.3 \
-    --hash=sha256:097e5bfda9f0aba8da6b8545146def481d06aa7d3266e7448e2cccf67dd8bd18 \
-    --hash=sha256:fc9645dc43e03e4d630d23143a04a7f947a9a3b5727cd535fdfe155a17cc48c8
+werkzeug==3.0.4 \
+    --hash=sha256:02c9eb92b7d6c06f31a782811505d2157837cea66aaede3e217c7c27c039476c \
+    --hash=sha256:34f2371506b250df4d4f84bfe7b0921e4762525762bbd936614909fe25cd7306
     # via openapi-core
 whitenoise==6.7.0 \
     --hash=sha256:58c7a6cd811e275a6c91af22e96e87da0b1109e9a53bb7464116ef4c963bf636 \
@@ -2411,9 +2410,9 @@ zxcvbn==4.4.28 \
     # via -r requirements/main.in
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==72.2.0 \
-    --hash=sha256:80aacbf633704e9c8bfa1d99fa5dd4dc59573efcf9e4042c13d3bcef91ac2ef9 \
-    --hash=sha256:f11dd94b7bae3a156a95ec151f24e4637fb4fa19c878e4d191bfb8b2d82728c4
+setuptools==73.0.1 \
+    --hash=sha256:b208925fcb9f7af924ed2dc04708ea89791e24bde0d3020b27df0e116088b34e \
+    --hash=sha256:d59a3e788ab7e012ab2c4baed1b376da6366883ee20d7a5fc426816e3d7b1193
     # via
     #   -r requirements/main.in
     #   pyramid
