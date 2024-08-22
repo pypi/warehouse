@@ -138,7 +138,7 @@ class TestIntegrityService:
         db_request.POST["attestations"] = "{'malformed-attestation'}"
         with pytest.raises(
             AttestationUploadError,
-            match="Error while decoding the included attestation",
+            match="Malformed attestations",
         ):
             integrity_service.parse_attestations(db_request, pretend.stub())
 
