@@ -485,9 +485,9 @@ cssutils==2.11.1 \
     --hash=sha256:0563a76513b6af6eebbe788c3bf3d01c920e46b3f90c8416738c5cfc773ff8e2 \
     --hash=sha256:a67bfdfdff4f3867fab43698ec4897c1a828eca5973f4073321b3bccaf1199b1
     # via premailer
-datadog==0.49.1 \
-    --hash=sha256:4a56d57490ea699a0dfd9253547485a57b4120e93489defadcf95c66272374d6 \
-    --hash=sha256:4cb7a7991af6cadb868fe450cd456473e65f11fc678b7d7cf61044ff1c6074d8
+datadog==0.50.0 \
+    --hash=sha256:3a58e85f8da47c4a47893b42c759570ba0280cd212413d9b7246cb8fcb86f586 \
+    --hash=sha256:bac96fa0ef555cb10e828c05a7810a13db2bf3bfed34813fac45d3c9a2227b43
     # via -r requirements/main.in
 deprecated==1.2.14 \
     --hash=sha256:6fac8b097794a90302bdbb17b9b815e732d3c4720583ff1b198499d78470466c \
