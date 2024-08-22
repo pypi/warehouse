@@ -3724,7 +3724,10 @@ class TestManageProjectDocumentation:
 
         result = views.destroy_project_docs(project, db_request)
 
-        assert task.calls == [pretend.call(remove_documentation)]
+        assert task.calls == [
+            pretend.call(remove_documentation),
+            pretend.call(remove_documentation),
+        ]
 
         assert remove_documentation_recorder.delay.calls == [pretend.call(project.name)]
 
