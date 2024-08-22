@@ -209,7 +209,7 @@ def test_remove_project(db_request, flash):
 @pytest.mark.parametrize("flash", [True, False])
 def test_destroy_docs(db_request, flash):
     user = UserFactory.create()
-    project = ProjectFactory.create(name="foo", has_docs=True)
+    project = ProjectFactory.create(name="Foo", has_docs=True)
     RoleFactory.create(user=user, project=project)
 
     db_request.user = user
@@ -226,11 +226,11 @@ def test_destroy_docs(db_request, flash):
         .has_docs
     )
 
-    assert remove_documentation_recorder.delay.calls == [call("foo")]
+    assert remove_documentation_recorder.delay.calls == [call("Foo"), call("foo")]
 
     if flash:
         assert db_request.session.flash.calls == [
-            call("Deleted docs for project 'foo'", queue="success")
+            call("Deleted docs for project 'Foo'", queue="success")
         ]
     else:
         assert db_request.session.flash.calls == []
