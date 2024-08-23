@@ -77,8 +77,11 @@ class TestWarehouseTask:
         assert runner.calls == [pretend.call(request)]
 
     def test_retry(self, monkeypatch, metrics):
+        class SpecificError(Exception):
+            pass
+
         def runner(self):
-            raise self.retry(exc=Exception())
+            raise self.retry(exc=SpecificError)
 
         request = pretend.stub(
             find_service=lambda *a, **kw: metrics,
@@ -90,7 +93,7 @@ class TestWarehouseTask:
         task.name = "warehouse.test.task"
         task.run = runner
 
-        with pytest.raises(Exception):
+        with pytest.raises(SpecificError):
             task.run(task)
 
         assert metrics.increment.calls == [
@@ -111,7 +114,14 @@ class TestWarehouseTask:
 
         assert task.apply_async() is async_result
 
-        assert apply_async.calls == [pretend.call(task)]
+        assert apply_async.calls == [
+            pretend.call(
+                task,
+                message_attributes={
+                    "task_name": {"StringValue": None, "DataType": "String"}
+                },
+            )
+        ]
         assert get_current_request.calls == [pretend.call()]
 
     def test_request_without_tm(self, monkeypatch):
@@ -129,7 +139,14 @@ class TestWarehouseTask:
 
         assert task.apply_async() is async_result
 
-        assert apply_async.calls == [pretend.call(task)]
+        assert apply_async.calls == [
+            pretend.call(
+                task,
+                message_attributes={
+                    "task_name": {"StringValue": None, "DataType": "String"}
+                },
+            )
+        ]
         assert get_current_request.calls == [pretend.call()]
 
     def test_request_after_commit(self, monkeypatch):
@@ -146,7 +163,12 @@ class TestWarehouseTask:
         task.app = Celery()
 
         args = (pretend.stub(), pretend.stub())
-        kwargs = {"foo": pretend.stub()}
+        kwargs = {
+            "foo": pretend.stub(),
+            "message_attributes": {
+                "task_name": {"StringValue": None, "DataType": "String"}
+            },
+        }
 
         assert task.apply_async(*args, **kwargs) is None
         assert get_current_request.calls == [pretend.call()]

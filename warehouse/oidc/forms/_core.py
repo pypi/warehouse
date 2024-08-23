@@ -9,7 +9,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import markupsafe
 import wtforms
 
 from warehouse import forms
@@ -31,12 +31,31 @@ class PendingPublisherMixin:
         project_name = field.data
 
         if project_name in self._project_factory:
+            url_params = {name: value for name, value in self.data.items() if value}
+            url_params["provider"] = {self.provider}
+            url = self._route_url(
+                "manage.project.settings.publishing",
+                project_name=project_name,
+                _query=url_params,
+            )
+
+            # We mark the error message as safe, so that the HTML hyperlink is
+            # not escaped by Jinja
             raise wtforms.validators.ValidationError(
-                _(
-                    "This project already exists, create an ordinary Trusted "
-                    "Publisher instead"
+                markupsafe.Markup(
+                    _(
+                        "This project already exists, use the project's publishing"
+                        " settings <a href='${url}'>here</a> to create a Trusted"
+                        " Publisher for it.",
+                        mapping={"url": url},
+                    )
                 )
             )
+
+    @property
+    def provider(self) -> str:  # pragma: no cover
+        # Only concrete subclasses are constructed.
+        raise NotImplementedError
 
 
 class DeletePublisherForm(forms.Form):

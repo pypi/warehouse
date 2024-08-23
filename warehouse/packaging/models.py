@@ -360,7 +360,16 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             permissions |= {(role.user_id, "Administer") for role in query.all()}
 
         for user_id, permission_name in sorted(permissions, key=lambda x: (x[1], x[0])):
-            if permission_name == "Administer":
+            # Disallow Write permissions for Projects in quarantine, allow Upload
+            if self.lifecycle_status == LifecycleStatus.QuarantineEnter:
+                acls.append(
+                    (
+                        Allow,
+                        f"user:{user_id}",
+                        [Permissions.ProjectsRead, Permissions.ProjectsUpload],
+                    )
+                )
+            elif permission_name == "Administer":
                 acls.append(
                     (
                         Allow,
@@ -497,6 +506,7 @@ class ReleaseURL(db.Model):
 
     name: Mapped[str] = mapped_column(String(32))
     url: Mapped[str]
+    verified: Mapped[bool_false]
 
 
 DynamicFieldsEnum = ENUM(
@@ -557,6 +567,13 @@ class Release(HasObservations, db.Model):
     license: Mapped[str | None]
     summary: Mapped[str | None]
     keywords: Mapped[str | None]
+    keywords_array: Mapped[list[str] | None] = mapped_column(
+        ARRAY(String),
+        comment=(
+            "Array of keywords. Null indicates no keywords were supplied by "
+            "the uploader."
+        ),
+    )
     platform: Mapped[str | None]
     download_url: Mapped[str | None]
     _pypi_ordering: Mapped[int | None]
@@ -599,7 +616,7 @@ class Release(HasObservations, db.Model):
     project_urls = association_proxy(
         "_project_urls",
         "url",
-        creator=lambda k, v: ReleaseURL(name=k, url=v),
+        creator=lambda k, v: ReleaseURL(name=k, url=v["url"], verified=v["verified"]),
     )
 
     files: Mapped[list[File]] = orm.relationship(
@@ -677,9 +694,43 @@ class Release(HasObservations, db.Model):
 
         return _urls
 
-    @staticmethod
-    def get_user_name_and_repo_name(urls):
-        for url in urls:
+    def urls_by_verify_status(self, *, verified: bool):
+        verified_urls = {
+            release_url.url
+            for release_url in self._project_urls.values()  # type: ignore[attr-defined]
+            if release_url.verified
+        }
+
+        if verified:
+            matching_urls = verified_urls
+        else:
+            matching_urls = {
+                release_url.url
+                for release_url in self._project_urls.values()  # type: ignore[attr-defined] # noqa: E501
+                if not release_url.verified
+            }
+            # The Homepage and Download URLs in the release metadata are currently not
+            # verified, so we return them if the user requests non-verified URLs *and*
+            # they are not verified in `project_urls`.
+            matching_urls.update(
+                {
+                    url
+                    for url in (self.home_page, self.download_url)
+                    if url is not None and url not in verified_urls
+                }
+            )
+
+        # Filter the output of `Release.urls`, since it has custom logic to de-duplicate
+        # release URLs
+        _urls = OrderedDict()
+        for name, url in self.urls.items():
+            if url in matching_urls:
+                _urls[name] = url
+        return _urls
+
+    @property
+    def verified_user_name_and_repo_name(self):
+        for _, url in self.urls_by_verify_status(verified=True).items():
             try:
                 parsed = parse_url(url)
             except LocationParseError:
@@ -695,14 +746,14 @@ class Release(HasObservations, db.Model):
         return None, None
 
     @property
-    def github_repo_info_url(self):
-        user_name, repo_name = self.get_user_name_and_repo_name(self.urls.values())
+    def verified_github_repo_info_url(self):
+        user_name, repo_name = self.verified_user_name_and_repo_name
         if user_name and repo_name:
             return f"https://api.github.com/repos/{user_name}/{repo_name}"
 
     @property
-    def github_open_issue_info_url(self):
-        user_name, repo_name = self.get_user_name_and_repo_name(self.urls.values())
+    def verified_github_open_issue_info_url(self):
+        user_name, repo_name = self.verified_user_name_and_repo_name
         if user_name and repo_name:
             return (
                 f"https://api.github.com/search/issues?q=repo:{user_name}/{repo_name}"

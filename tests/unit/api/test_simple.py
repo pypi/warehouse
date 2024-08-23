@@ -52,7 +52,7 @@ class TestContentNegotiation:
         assert simple._select_content_type(request) == simple.MIME_TEXT_HTML
 
     @pytest.mark.parametrize(
-        "header, expected",
+        ("header", "expected"),
         [
             (simple.MIME_TEXT_HTML, simple.MIME_TEXT_HTML),
             (
@@ -90,7 +90,7 @@ CONTENT_TYPE_PARAMS = [
 
 class TestSimpleIndex:
     @pytest.mark.parametrize(
-        "content_type,renderer_override",
+        ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
     def test_no_results_no_serial(self, db_request, content_type, renderer_override):
@@ -107,7 +107,7 @@ class TestSimpleIndex:
             assert db_request.override_renderer == renderer_override
 
     @pytest.mark.parametrize(
-        "content_type,renderer_override",
+        ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
     def test_no_results_with_serial(self, db_request, content_type, renderer_override):
@@ -126,7 +126,7 @@ class TestSimpleIndex:
             assert db_request.override_renderer == renderer_override
 
     @pytest.mark.parametrize(
-        "content_type,renderer_override",
+        ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
     def test_with_results_no_serial(self, db_request, content_type, renderer_override):
@@ -147,7 +147,7 @@ class TestSimpleIndex:
             assert db_request.override_renderer == renderer_override
 
     @pytest.mark.parametrize(
-        "content_type,renderer_override",
+        ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
     def test_with_results_with_serial(
@@ -172,6 +172,19 @@ class TestSimpleIndex:
         if renderer_override is not None:
             assert db_request.override_renderer == renderer_override
 
+    def test_quarantined_project_omitted_from_index(self, db_request):
+        db_request.accept = "text/html"
+        ProjectFactory.create(name="foo")
+        ProjectFactory.create(name="bar", lifecycle_status="quarantine-enter")
+
+        assert simple.simple_index(db_request) == {
+            "meta": {"_last-serial": 0, "api-version": API_VERSION},
+            "projects": [{"name": "foo", "_last-serial": 0}],
+        }
+        assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
+        assert db_request.response.content_type == "text/html"
+        _assert_has_cors_headers(db_request.response.headers)
+
 
 class TestSimpleDetail:
     def test_redirects(self, pyramid_request):
@@ -190,7 +203,7 @@ class TestSimpleDetail:
         assert pyramid_request.current_route_path.calls == [pretend.call(name="foo")]
 
     @pytest.mark.parametrize(
-        "content_type,renderer_override",
+        ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
     def test_no_files_no_serial(self, db_request, content_type, renderer_override):
@@ -218,7 +231,7 @@ class TestSimpleDetail:
             assert db_request.override_renderer == renderer_override
 
     @pytest.mark.parametrize(
-        "content_type,renderer_override",
+        ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
     def test_no_files_with_serial(self, db_request, content_type, renderer_override):
@@ -250,7 +263,7 @@ class TestSimpleDetail:
             assert db_request.override_renderer == renderer_override
 
     @pytest.mark.parametrize(
-        "content_type,renderer_override",
+        ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
     def test_with_files_no_serial(self, db_request, content_type, renderer_override):
@@ -301,7 +314,7 @@ class TestSimpleDetail:
             assert db_request.override_renderer == renderer_override
 
     @pytest.mark.parametrize(
-        "content_type,renderer_override",
+        ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
     def test_with_files_with_serial(self, db_request, content_type, renderer_override):
@@ -352,7 +365,7 @@ class TestSimpleDetail:
             assert db_request.override_renderer == renderer_override
 
     @pytest.mark.parametrize(
-        "content_type,renderer_override",
+        ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
     def test_with_files_with_version_multi_digit(
@@ -455,3 +468,19 @@ def _update_context(context, content_type, renderer_override):
     ]:
         return _valid_simple_detail_context(context)
     return context
+
+    def test_with_files_quarantined_omitted_from_index(self, db_request):
+        db_request.accept = "text/html"
+        project = ProjectFactory.create(lifecycle_status="quarantine-enter")
+        releases = ReleaseFactory.create_batch(3, project=project)
+        _ = [
+            FileFactory.create(release=r, filename=f"{project.name}-{r.version}.tar.gz")
+            for r in releases
+        ]
+
+        assert simple.simple_detail(project, db_request) == {
+            "meta": {"_last-serial": 0, "api-version": API_VERSION},
+            "name": project.normalized_name,
+            "files": [],
+            "versions": [],
+        }

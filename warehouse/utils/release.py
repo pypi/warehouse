@@ -11,19 +11,9 @@
 # limitations under the License.
 
 
-def test_incorrect_post_redirect(webtest):
+def strip_keywords(keywords: list[str]) -> list[str]:
     """
-    Per issue #8104, we should issue an HTTP-308 for a POST
-    in /legacy and point the user to the correct endpoint,
-    /legacy/
-
-    See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/308
+    Remove empties.
+    Useful to cleanse user input prior to storing in Release.keywords_array.
     """
-    resp = webtest.post("/legacy", status=308)
-    assert resp.status == (
-        "308 An upload was attempted to /legacy but the expected upload URL is "
-        "/legacy/ (with a trailing slash)"
-    )
-
-    assert "location" in resp.headers
-    assert resp.headers["location"] == "http://localhost/legacy/"
+    return [keyword for keyword in keywords if keyword]

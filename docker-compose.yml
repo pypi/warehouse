@@ -15,6 +15,7 @@ services:
       - "5433:5432"
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust  # never do this in production!
+      POSTGRES_INITDB_ARGS: '--no-sync --set fsync=off --set full_page_writes=off'
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
       interval: 1s
@@ -111,7 +112,7 @@ services:
 
   web:
     image: warehouse:docker-compose
-    command: gunicorn --reload --reload-extra-file=warehouse/api/openapi.yaml -w 4 -b 0.0.0.0:8000 --access-logfile - --error-logfile - warehouse.wsgi:application
+    command: gunicorn --reload --reload-extra-file=warehouse/api/openapi.yaml -b 0.0.0.0:8000 --access-logfile - --error-logfile - warehouse.wsgi:application
     env_file: dev/environment
     pull_policy: never
     volumes: *base_volumes

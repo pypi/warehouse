@@ -11,7 +11,6 @@
 # limitations under the License.
 
 import base64
-import distutils.util
 import enum
 import json
 import os
@@ -28,6 +27,7 @@ from pyramid import renderers
 from pyramid.authorization import Allow, Authenticated
 from pyramid.config import Configurator as _Configurator
 from pyramid.exceptions import HTTPForbidden
+from pyramid.settings import asbool
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
@@ -334,7 +334,7 @@ def configure(settings=None):
         settings,
         "warehouse.xmlrpc.search.enabled",
         "WAREHOUSE_XMLRPC_SEARCH",
-        coercer=distutils.util.strtobool,
+        coercer=asbool,
         default=True,
     )
     maybe_set(settings, "warehouse.xmlrpc.cache.url", "REDIS_URL")

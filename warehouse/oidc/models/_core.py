@@ -13,8 +13,9 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypedDict, TypeVar, Unpack
 
+import rfc3986
 import sentry_sdk
 
 from sigstore.verify.policy import VerificationPolicy
@@ -23,17 +24,23 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
-from warehouse.oidc.errors import InvalidPublisherError
+from warehouse.oidc.errors import InvalidPublisherError, ReusedTokenError
 from warehouse.oidc.interfaces import SignedClaims
 
 if TYPE_CHECKING:
     from warehouse.accounts.models import User
     from warehouse.macaroons.models import Macaroon
+    from warehouse.oidc.services import OIDCPublisherService
     from warehouse.packaging.models import Project
 
 C = TypeVar("C")
 
-CheckClaimCallable = Callable[[C, C, SignedClaims], bool]
+
+class CheckNamedArguments(TypedDict, total=False):
+    publisher_service: OIDCPublisherService
+
+
+CheckClaimCallable = Callable[[C, C, SignedClaims, Unpack[CheckNamedArguments]], bool]
 
 
 def check_claim_binary(binary_func: Callable[[C, C], bool]) -> CheckClaimCallable[C]:
@@ -45,7 +52,12 @@ def check_claim_binary(binary_func: Callable[[C, C], bool]) -> CheckClaimCallabl
     comparison checks like `str.__eq__`.
     """
 
-    def wrapper(ground_truth: C, signed_claim: C, all_signed_claims: SignedClaims):
+    def wrapper(
+        ground_truth: C,
+        signed_claim: C,
+        _all_signed_claims: SignedClaims,
+        **_kwargs: Unpack[CheckNamedArguments],
+    ) -> bool:
         return binary_func(ground_truth, signed_claim)
 
     return wrapper
@@ -59,10 +71,35 @@ def check_claim_invariant(value: C) -> CheckClaimCallable[C]:
     comparison checks, like "claim x is always the literal `true` value".
     """
 
-    def wrapper(ground_truth: C, signed_claim: C, all_signed_claims: SignedClaims):
+    def wrapper(
+        ground_truth: C,
+        signed_claim: C,
+        _all_signed_claims: SignedClaims,
+        **_kwargs: Unpack[CheckNamedArguments],
+    ):
         return ground_truth == signed_claim == value
 
     return wrapper
+
+
+def check_existing_jti(
+    _ground_truth,
+    signed_claim,
+    _all_signed_claims,
+    **kwargs: Unpack[CheckNamedArguments],
+) -> bool:
+    """Returns True if the checks passes or raises an exception."""
+
+    publisher_service: OIDCPublisherService = kwargs["publisher_service"]
+
+    if publisher_service.jwt_identifier_exists(signed_claim):
+        publisher_service.metrics.increment(
+            "warehouse.oidc.reused_token",
+            tags=[f"publisher:{publisher_service.publisher}"],
+        )
+        raise ReusedTokenError()
+
+    return True
 
 
 class OIDCPublisherProjectAssociation(db.Model):
@@ -162,7 +199,9 @@ class OIDCPublisherMixin:
             | cls.__unchecked_claims__
         )
 
-    def verify_claims(self, signed_claims: SignedClaims):
+    def verify_claims(
+        self, signed_claims: SignedClaims, publisher_service: OIDCPublisherService
+    ):
         """
         Given a JWT that has been successfully decoded (checked for a valid
         signature and basic claims), verify it against the more specific
@@ -211,7 +250,12 @@ class OIDCPublisherMixin:
         # verifiable claim is correct
         for claim_name, check in self.__required_verifiable_claims__.items():
             signed_claim = signed_claims.get(claim_name)
-            if not check(getattr(self, claim_name), signed_claim, signed_claims):
+            if not check(
+                getattr(self, claim_name),
+                signed_claim,
+                signed_claims,
+                publisher_service=publisher_service,
+            ):
                 raise InvalidPublisherError(
                     f"Check failed for required claim {claim_name!r}"
                 )
@@ -224,7 +268,12 @@ class OIDCPublisherMixin:
             # required for a given publisher.
             signed_claim = signed_claims.get(claim_name)
 
-            if not check(getattr(self, claim_name), signed_claim, signed_claims):
+            if not check(
+                getattr(self, claim_name),
+                signed_claim,
+                signed_claims,
+                publisher_service=publisher_service,
+            ):
                 raise InvalidPublisherError(
                     f"Check failed for optional claim {claim_name!r}"
                 )
@@ -233,6 +282,11 @@ class OIDCPublisherMixin:
 
     @property
     def publisher_name(self) -> str:  # pragma: no cover
+        # Only concrete subclasses are constructed.
+        raise NotImplementedError
+
+    @property
+    def publisher_base_url(self) -> str | None:  # pragma: no cover
         # Only concrete subclasses are constructed.
         raise NotImplementedError
 
@@ -271,6 +325,45 @@ class OIDCPublisherMixin:
         """
         # Only concrete subclasses are constructed.
         raise NotImplementedError
+
+    def verify_url(self, url: str) -> bool:
+        """
+        Verify a given URL against this Trusted Publisher's base URL
+
+        A URL is considered "verified" iff it matches the Trusted Publisher URL
+        such that, when both URLs are normalized:
+        - The scheme component is the same (e.g: both use `https`)
+        - The authority component is the same (e.g.: `github.com`)
+        - The path component is the same, or a sub-path of the Trusted Publisher URL
+          (e.g.: `org/project` and `org/project/issues.html` will pass verification
+          against an `org/project` Trusted Publisher path component)
+        - The path component of the Trusted Publisher URL is not empty
+        Note: We compare the authority component instead of the host component because
+        the authority includes the host, and in practice neither URL should have user
+        nor port information.
+        """
+        if self.publisher_base_url is None:
+            # Currently this only applies to the Google provider
+            return False
+        publisher_uri = rfc3986.api.uri_reference(self.publisher_base_url).normalize()
+        user_uri = rfc3986.api.uri_reference(url).normalize()
+        if publisher_uri.path is None:
+            # Currently no Trusted Publishers with a `publisher_base_url` have an empty
+            # path component, so we defensively fail verification.
+            return False
+        elif user_uri.path and publisher_uri.path:
+            is_subpath = (
+                publisher_uri.path == user_uri.path
+                or user_uri.path.startswith(publisher_uri.path + "/")
+            )
+        else:
+            is_subpath = publisher_uri.path == user_uri.path
+
+        return (
+            publisher_uri.scheme == user_uri.scheme
+            and publisher_uri.authority == user_uri.authority
+            and is_subpath
+        )
 
 
 class OIDCPublisher(OIDCPublisherMixin, db.Model):

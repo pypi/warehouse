@@ -25,6 +25,7 @@ import packaging.specifiers
 import packaging.utils
 import packaging.version
 import packaging_legacy.version
+import rfc3986
 import sentry_sdk
 import wtforms
 import wtforms.validators
@@ -45,6 +46,7 @@ from pyramid.httpexceptions import (
     HTTPPermanentRedirect,
     HTTPTooManyRequests,
 )
+from pyramid.request import Request
 from pyramid.view import view_config
 from sigstore.verify import Verifier
 from sqlalchemy import and_, exists, func, orm
@@ -54,15 +56,14 @@ from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
-from warehouse.email import (
-    send_api_token_used_in_trusted_publisher_project_email,
-    send_two_factor_not_yet_enabled_email,
-)
+from warehouse.email import send_api_token_used_in_trusted_publisher_project_email
 from warehouse.events.tags import EventTag
 from warehouse.forklift import metadata
 from warehouse.forklift.forms import UploadForm, _filetype_extension_mapping
 from warehouse.macaroons.models import Macaroon
 from warehouse.metrics import IMetricsService
+from warehouse.oidc.models import OIDCPublisher
+from warehouse.oidc.views import is_from_reusable_workflow
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
 from warehouse.packaging.models import (
     Dependency,
@@ -78,6 +79,7 @@ from warehouse.packaging.models import (
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
 from warehouse.rate_limiting.interfaces import RateLimiterException
 from warehouse.utils import readme
+from warehouse.utils.release import strip_keywords
 
 PATH_HASHER = "blake2_256"
 
@@ -90,6 +92,11 @@ COMPRESSION_RATIO_MIN_SIZE = 64 * ONE_MIB
 # See discussion here: https://github.com/pypi/warehouse/issues/13962
 COMPRESSION_RATIO_THRESHOLD = 50
 
+# SQS has a maximum total message length of 262144 bytes. In order to stay
+# under this when enqueuing a job to store BigQuery metadata, we truncate the
+# Description field to 40K bytes, which captures up to the 95th percentile of
+# existing descriptions.
+MAX_DESCRIPTION_LENGTH_TO_BIGQUERY = 40000
 
 # Wheel platform checking
 
@@ -452,6 +459,87 @@ def _process_attestations(request, distribution: Distribution):
         metrics.increment("warehouse.upload.attestations.ok")
 
 
+_pypi_project_urls = [
+    "https://pypi.org/project/",
+    "https://pypi.org/p/",
+    "https://pypi.python.org/project/",
+    "https://pypi.python.org/p/",
+    "https://python.org/pypi/",
+]
+
+
+def _verify_url_pypi(url: str, project_name: str, project_normalized_name: str) -> bool:
+    candidate_urls = (
+        f"{pypi_project_url}{name}{optional_slash}"
+        for pypi_project_url in _pypi_project_urls
+        for name in {project_name, project_normalized_name}
+        for optional_slash in ["/", ""]
+    )
+
+    user_uri = rfc3986.api.uri_reference(url).normalize()
+    return any(
+        user_uri == rfc3986.api.uri_reference(candidate_url).normalize()
+        for candidate_url in candidate_urls
+    )
+
+
+def _verify_url(
+    url: str,
+    publisher: OIDCPublisher | None,
+    project_name: str,
+    project_normalized_name: str,
+) -> bool:
+    if _verify_url_pypi(
+        url=url,
+        project_name=project_name,
+        project_normalized_name=project_normalized_name,
+    ):
+        return True
+
+    if not publisher:
+        return False
+
+    return publisher.verify_url(url)
+
+
+def _sort_releases(request: Request, project: Project):
+    releases = (
+        request.db.query(Release)
+        .filter(Release.project == project)
+        .options(
+            orm.load_only(
+                Release.project_id,
+                Release.version,
+                Release._pypi_ordering,
+            )
+        )
+        .all()
+    )
+    for i, r in enumerate(
+        sorted(releases, key=lambda x: packaging_legacy.version.parse(x.version))
+    ):
+        # NOTE: If we set r._pypi_ordering, even to the same value it was
+        #       previously, then SQLAlchemy will decide that it needs to load
+        #       Release.description (with N+1 queries) for some reason that I
+        #       can't possibly fathom why. The SQLAlchemy docs say that
+        #       raisedload doesn't prevent SQLAlchemy for doing queries that it
+        #       needs to do for the Unit of Work pattern, so I guess since each
+        #       Release object was modified it feels the need to load each of
+        #       them... but I haven no idea why that means it feels the need to
+        #       load the Release.description relationship as well.
+        #
+        #       Technically, we can still execute a query for every release if
+        #       someone goes back and releases a version "0" or something that
+        #       would cause most or all of the releases to need to "shift" and
+        #       get updated.
+        #
+        #       We maybe want to convert this away from using the ORM and build up
+        #       a mapping of Release.id -> new _pypi_ordering and do a single bulk
+        #       update query to eliminate the possibility we trigger this again.
+        if r._pypi_ordering != i:
+            r._pypi_ordering = i
+
+
 @view_config(
     route_name="forklift.legacy.file_upload",
     uses_session=True,
@@ -512,6 +600,19 @@ def file_upload(request):
                 ).format(
                     request.user.username,
                     project_help=request.help_url(_anchor="verified-email"),
+                ),
+            ) from None
+        # Ensure user has enabled 2FA before they can upload a file.
+        if not request.user.has_two_factor:
+            raise _exc_with_message(
+                HTTPBadRequest,
+                (
+                    "User {!r} does not have two-factor authentication enabled. "
+                    "Please enable two-factor authentication before attempting to "
+                    "upload to PyPI. See {project_help} for more information."
+                ).format(
+                    request.user.username,
+                    project_help=request.help_url(_anchor="two-factor-authentication"),
                 ),
             ) from None
 
@@ -761,7 +862,25 @@ def file_upload(request):
                 ),
             ) from None
 
+    # Verify any verifiable URLs
+    project_urls = (
+        {}
+        if not meta.project_urls
+        else {
+            name: {
+                "url": url,
+                "verified": _verify_url(
+                    url=url,
+                    publisher=request.oidc_publisher,
+                    project_name=project.name,
+                    project_normalized_name=project.normalized_name,
+                ),
+            }
+            for name, url in meta.project_urls.items()
+        }
+    )
     try:
+        is_new_release = False
         canonical_version = packaging.utils.canonicalize_version(meta.version)
         release = (
             request.db.query(Release)
@@ -815,7 +934,7 @@ def file_upload(request):
                 html=rendered or "",
                 rendered_by=readme.renderer_version(),
             ),
-            project_urls=meta.project_urls or {},
+            project_urls=project_urls,
             # TODO: Fix this, we currently treat platform as if it is a single
             #       use field, but in reality it is a multi-use field, which the
             #       packaging.metadata library handles correctly.
@@ -827,6 +946,7 @@ def file_upload(request):
             #       which we now go and turn it back into a string, we should fix
             #       this and store this as a list.
             keywords=", ".join(meta.keywords) if meta.keywords else None,
+            keywords_array=(strip_keywords(meta.keywords) if meta.keywords else None),
             requires_python=str(meta.requires_python) if meta.requires_python else None,
             # Since dynamic field values are RFC 822 email headers, which are
             # case-insensitive, normalize them to title-case so we don't have
@@ -853,6 +973,7 @@ def file_upload(request):
             uploaded_via=request.user_agent,
         )
         request.db.add(release)
+        is_new_release = True
 
         # TODO: This should be handled by some sort of database trigger or
         #       a SQLAlchemy hook or the like instead of doing it inline in
@@ -879,25 +1000,21 @@ def file_upload(request):
                     if request.oidc_publisher
                     else None
                 ),
+                "reusable_worfklow_used": (
+                    is_from_reusable_workflow(
+                        request.oidc_publisher, request.oidc_claims
+                    )
+                    if request.oidc_publisher
+                    else False
+                ),
                 "uploaded_via_trusted_publisher": bool(request.oidc_publisher),
             },
         )
 
-    # TODO: We need a better solution to this than to just do it inline inside
-    #       this method. Ideally the version field would just be sortable, but
-    #       at least this should be some sort of hook or trigger.
-    releases = (
-        request.db.query(Release)
-        .filter(Release.project == project)
-        .options(
-            orm.load_only(Release.project_id, Release.version, Release._pypi_ordering)
-        )
-        .all()
-    )
-    for i, r in enumerate(
-        sorted(releases, key=lambda x: packaging_legacy.version.parse(x.version))
-    ):
-        r._pypi_ordering = i
+        # TODO: We need a better solution to this than to just do it inline inside
+        #       this method. Ideally the version field would just be sortable, but
+        #       at least this should be some sort of hook or trigger.
+        _sort_releases(request, project)
 
     # Pull the filename out of our POST data.
     filename = request.POST["content"].filename
@@ -994,7 +1111,9 @@ def file_upload(request):
                 # --skip-existing functionality in twine
                 # ref: https://github.com/pypi/warehouse/issues/3482
                 # ref: https://github.com/pypa/twine/issues/332
-                "File already exists. See "
+                "File already exists "
+                + f"({filename!r}, with blake2_256 hash {file_hashes['blake2_256']!r})."
+                + " See "
                 + request.help_url(_anchor="file-name-reuse")
                 + " for more information.",
             )
@@ -1252,10 +1371,18 @@ def file_upload(request):
                 },
             )
 
-    # Check if the user has any 2FA methods enabled, and if not, email them.
-    if request.user and not request.user.has_two_factor:
-        warnings.append("Two factor authentication is not enabled for your account.")
-        send_two_factor_not_yet_enabled_email(request, request.user)
+    # For existing releases, we check if any of the existing project URLs are unverified
+    # and have been verified in the current upload. In that case, we mark them as
+    # verified.
+    if not is_new_release and project_urls:
+        for name, release_url in release._project_urls.items():
+            if (
+                not release_url.verified
+                and name in project_urls
+                and project_urls[name]["url"] == release_url.url
+                and project_urls[name]["verified"]
+            ):
+                release_url.verified = True
 
     request.db.flush()  # flush db now so server default values are populated for celery
 
@@ -1265,7 +1392,11 @@ def file_upload(request):
         "name": meta.name,
         "version": str(meta.version),
         "summary": meta.summary,
-        "description": meta.description,
+        "description": (
+            meta.description[:MAX_DESCRIPTION_LENGTH_TO_BIGQUERY]
+            if meta.description is not None
+            else None
+        ),
         "author": meta.author,
         "description_content_type": meta.description_content_type,
         "author_email": meta.author_email,

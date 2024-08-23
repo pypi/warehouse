@@ -266,6 +266,103 @@ class TestProject:
             key=lambda x: x[1],
         )
 
+    def test_acl_for_quarantined_project(self, db_session):
+        """
+        If a Project is quarantined, the Project ACL should disallow any modifications.
+        """
+        project = DBProjectFactory.create(lifecycle_status="quarantine-enter")
+        owner1 = DBRoleFactory.create(project=project)
+        owner2 = DBRoleFactory.create(project=project)
+        maintainer1 = DBRoleFactory.create(project=project, role_name="Maintainer")
+        maintainer2 = DBRoleFactory.create(project=project, role_name="Maintainer")
+
+        organization = DBOrganizationFactory.create()
+        owner3 = DBOrganizationRoleFactory.create(organization=organization)
+        DBOrganizationProjectFactory.create(organization=organization, project=project)
+
+        team = DBTeamFactory.create()
+        owner4 = DBTeamRoleFactory.create(team=team)
+        DBTeamProjectRoleFactory.create(
+            team=team, project=project, role_name=TeamProjectRoleType.Owner
+        )
+
+        publisher = GitHubPublisherFactory.create(projects=[project])
+
+        acls = []
+        for location in lineage(project):
+            try:
+                acl = location.__acl__
+            except AttributeError:
+                continue
+
+            if acl and callable(acl):
+                acl = acl()
+
+            acls.extend(acl)
+
+        _perms_read_and_upload = [
+            Permissions.ProjectsRead,
+            Permissions.ProjectsUpload,
+        ]
+        assert acls == [
+            (
+                Allow,
+                "group:admins",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProhibitedProjectsWrite,
+                    Permissions.AdminProjectsDelete,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminProjectsWrite,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (
+                Allow,
+                "group:moderators",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (
+                Allow,
+                "group:observers",
+                Permissions.APIObservationsAdd,
+            ),
+            (
+                Allow,
+                Authenticated,
+                Permissions.SubmitMalwareObservation,
+            ),
+        ] + sorted(
+            [(Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload])],
+            key=lambda x: x[1],
+        ) + sorted(
+            [
+                (Allow, f"user:{owner1.user.id}", _perms_read_and_upload),
+                (Allow, f"user:{owner2.user.id}", _perms_read_and_upload),
+                (Allow, f"user:{owner3.user.id}", _perms_read_and_upload),
+                (Allow, f"user:{owner4.user.id}", _perms_read_and_upload),
+            ],
+            key=lambda x: x[1],
+        ) + sorted(
+            [
+                (Allow, f"user:{maintainer1.user.id}", _perms_read_and_upload),
+                (Allow, f"user:{maintainer2.user.id}", _perms_read_and_upload),
+            ],
+            key=lambda x: x[1],
+        )
+
     def test_repr(self, db_request):
         project = DBProjectFactory()
         assert isinstance(repr(project), str)
@@ -555,6 +652,126 @@ class TestRelease:
         # TODO: It'd be nice to test for the actual ordering here.
         assert dict(release.urls) == dict(expected)
 
+    @pytest.mark.parametrize(
+        "release_urls",
+        [
+            [
+                ("Issues", "https://github.com/org/user/issues", True),
+                ("Source", "https://github.com/org/user", True),
+                ("Homepage", "https://example.com/", False),
+                ("Download", "https://example.com/", False),
+            ],
+            [
+                ("Issues", "https://github.com/org/user/issues", True),
+                ("Source", "https://github.com/org/user", True),
+                ("Homepage", "https://homepage.com/", False),
+                ("Download", "https://download.com/", False),
+            ],
+            [
+                ("Issues", "https://github.com/org/user/issues", True),
+                ("Source", "https://github.com/org/user", True),
+                ("Homepage", "https://homepage.com/", True),
+                ("Download", "https://download.com/", True),
+            ],
+        ],
+    )
+    def test_urls_by_verify_status(self, db_session, release_urls):
+        release = DBReleaseFactory.create(
+            home_page="https://homepage.com", download_url="https://download.com"
+        )
+        for label, url, verified in release_urls:
+            db_session.add(
+                ReleaseURL(
+                    release=release,
+                    name=label,
+                    url=url,
+                    verified=verified,
+                )
+            )
+
+        for verified_status in [True, False]:
+            for label, url in release.urls_by_verify_status(
+                verified=verified_status
+            ).items():
+                assert (label, url, verified_status) in release_urls
+
+    @pytest.mark.parametrize(
+        (
+            "homepage_metadata_url",
+            "download_metadata_url",
+            "extra_url",
+            "extra_url_verified",
+        ),
+        [
+            (
+                "https://homepage.com",
+                "https://download.com",
+                "https://example.com",
+                True,
+            ),
+            (
+                "https://homepage.com",
+                "https://download.com",
+                "https://homepage.com",
+                True,
+            ),
+            (
+                "https://homepage.com",
+                "https://download.com",
+                "https://homepage.com",
+                False,
+            ),
+            (
+                "https://homepage.com",
+                "https://download.com",
+                "https://download.com",
+                True,
+            ),
+            (
+                "https://homepage.com",
+                "https://download.com",
+                "https://download.com",
+                False,
+            ),
+        ],
+    )
+    def test_urls_by_verify_status_with_metadata_urls(
+        self,
+        db_session,
+        homepage_metadata_url,
+        download_metadata_url,
+        extra_url,
+        extra_url_verified,
+    ):
+        release = DBReleaseFactory.create(
+            home_page=homepage_metadata_url, download_url=download_metadata_url
+        )
+        db_session.add(
+            ReleaseURL(
+                release=release,
+                name="extra_url",
+                url=extra_url,
+                verified=extra_url_verified,
+            )
+        )
+
+        verified_urls = release.urls_by_verify_status(verified=True).values()
+        unverified_urls = release.urls_by_verify_status(verified=False).values()
+
+        # Homepage and Download URLs stored separately from the project URLs
+        # are considered unverified, unless they are equal to URLs present in
+        # `project_urls` that are verified.
+        if extra_url_verified:
+            assert extra_url in verified_urls
+            if homepage_metadata_url != extra_url:
+                assert homepage_metadata_url in unverified_urls
+            if download_metadata_url != extra_url:
+                assert download_metadata_url in unverified_urls
+        else:
+            assert extra_url in unverified_urls
+            assert homepage_metadata_url in unverified_urls
+            assert download_metadata_url in unverified_urls
+
     def test_acl(self, db_session):
         project = DBProjectFactory.create()
         owner1 = DBRoleFactory.create(project=project)
@@ -646,9 +863,8 @@ class TestRelease:
         )
 
     @pytest.mark.parametrize(
-        ("home_page", "expected"),
+        ("url", "expected"),
         [
-            (None, None),
             (
                 "https://github.com/pypi/warehouse",
                 "https://api.github.com/repos/pypi/warehouse",
@@ -681,14 +897,21 @@ class TestRelease:
             ("git@bitbucket.org:definex/dsgnutils.git", None),
         ],
     )
-    def test_github_repo_info_url(self, db_session, home_page, expected):
-        release = DBReleaseFactory.create(home_page=home_page)
-        assert release.github_repo_info_url == expected
+    def test_verified_github_repo_info_url(self, db_session, url, expected):
+        release = DBReleaseFactory.create()
+        release.project_urls["Homepage"] = {"url": url, "verified": True}
+        assert release.verified_github_repo_info_url == expected
+
+    def test_verified_github_repo_info_url_is_none_without_verified_url(
+        self,
+        db_session,
+    ):
+        release = DBReleaseFactory.create()
+        assert release.verified_github_repo_info_url is None
 
     @pytest.mark.parametrize(
-        ("home_page", "expected"),
+        ("url", "expected"),
         [
-            (None, None),
             (
                 "https://github.com/pypi/warehouse",
                 "https://api.github.com/search/issues?q=repo:pypi/warehouse"
@@ -726,9 +949,17 @@ class TestRelease:
             ),
         ],
     )
-    def test_github_open_issue_info_url(self, db_session, home_page, expected):
-        release = DBReleaseFactory.create(home_page=home_page)
-        assert release.github_open_issue_info_url == expected
+    def test_verified_github_open_issue_info_url(self, db_session, url, expected):
+        release = DBReleaseFactory.create()
+        release.project_urls["Homepage"] = {"url": url, "verified": True}
+        assert release.verified_github_open_issue_info_url == expected
+
+    def test_verified_github_open_issueo_info_url_is_none_without_verified_url(
+        self,
+        db_session,
+    ):
+        release = DBReleaseFactory.create()
+        assert release.verified_github_open_issue_info_url is None
 
     def test_trusted_published_none(self, db_session):
         release = DBReleaseFactory.create()
@@ -801,9 +1032,10 @@ class TestFile:
         Attempt to write a File by setting requires_python directly, which
         should fail to validate (it should only be set in Release).
         """
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(project=project)
+
         with pytest.raises(RuntimeError):
-            project = DBProjectFactory.create()
-            release = DBReleaseFactory.create(project=project)
             DBFileFactory.create(
                 release=release,
                 filename=f"{project.name}-{release.version}.tar.gz",

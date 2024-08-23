@@ -10,12 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
+
 from typing import Any
 
 from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Query, mapped_column
-from sqlalchemy.sql.expression import func, literal
 
 from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import SignedClaims
@@ -23,10 +24,39 @@ from warehouse.oidc.models._core import (
     CheckClaimCallable,
     OIDCPublisher,
     PendingOIDCPublisher,
+    check_existing_jti,
+)
+
+# This expression matches the workflow filepath component of a GitLab
+# `ci_config_ref_uri` OIDC claim. This requires a nontrivial (and nonregular)
+# pattern, since the workflow path can contain interior slashes while also
+# being delimited by slashes, and has overlapping delimiters with the
+# other components of the claim.
+_WORKFLOW_FILEPATH_RE = re.compile(
+    r"""
+    (?<=\/\/)         # lookbehind match for `//`, which terminates the repo
+                      # component of the claim.
+
+    (                 # our capture group
+        .+            # match one or more of any character, including slashes
+        [^/]          # match at least one non-slash character, to prevent
+                      # empty basenames (e.g. `foo/.yml`)
+        \.(yml|yaml)  # match the literal suffix `.yml` or `.yaml`
+    )
+    (?=@)             # lookahead match for `@`, constraining the group above
+    """,
+    re.X,
 )
 
 
-def _check_project_path(ground_truth, signed_claim, all_signed_claims):
+def _extract_workflow_filepath(ci_config_ref_uri: str) -> str | None:
+    if match := _WORKFLOW_FILEPATH_RE.search(ci_config_ref_uri):
+        return match.group(0)
+    else:
+        return None
+
+
+def _check_project_path(ground_truth, signed_claim, _all_signed_claims, **_kwargs):
     # Defensive: GitLab should never give us an empty project_path claim.
     if not signed_claim:
         return False
@@ -35,7 +65,7 @@ def _check_project_path(ground_truth, signed_claim, all_signed_claims):
     return signed_claim.lower() == ground_truth.lower()
 
 
-def _check_ci_config_ref_uri(ground_truth, signed_claim, all_signed_claims):
+def _check_ci_config_ref_uri(ground_truth, signed_claim, all_signed_claims, **_kwargs):
     # We expect a string formatted as follows:
     #   gitlab.com/OWNER/REPO//WORKFLOW_PATH/WORKFLOW_FILE.yml@REF
     # where REF is the value of the `ref_path` claim.
@@ -61,7 +91,7 @@ def _check_ci_config_ref_uri(ground_truth, signed_claim, all_signed_claims):
     return True
 
 
-def _check_environment(ground_truth, signed_claim, all_signed_claims):
+def _check_environment(ground_truth, signed_claim, _all_signed_claims, **_kwargs):
     # When there is an environment, we expect a string.
     # For tokens that are generated outside of an environment, the claim will
     # be missing.
@@ -80,7 +110,7 @@ def _check_environment(ground_truth, signed_claim, all_signed_claims):
     return ground_truth == signed_claim
 
 
-def _check_sub(ground_truth, signed_claim, _all_signed_claims):
+def _check_sub(ground_truth, signed_claim, _all_signed_claims, **_kwargs):
     # We expect a string formatted as follows:
     # project_path:NAMESPACE/PROJECT[:OPTIONAL-STUFF]
     # where :OPTIONAL-STUFF is a concatenation of other job context
@@ -118,6 +148,7 @@ class GitLabPublisherMixin:
         "sub": _check_sub,
         "project_path": _check_project_path,
         "ci_config_ref_uri": _check_ci_config_ref_uri,
+        "jti": check_existing_jti,
     }
 
     __required_unverifiable_claims__: set[str] = {"ref_path", "sha"}
@@ -149,7 +180,6 @@ class GitLabPublisherMixin:
         "runner_environment",
         "ci_config_sha",
         "project_visibility",
-        "jti",
         "user_access_level",
         "groups_direct",
     }
@@ -162,43 +192,33 @@ class GitLabPublisherMixin:
             return None
 
         project_path = signed_claims["project_path"]
-        ci_config_ref_prefix = f"gitlab.com/{project_path}//"
-        ci_config_ref = signed_claims["ci_config_ref_uri"].removeprefix(
-            ci_config_ref_prefix
-        )
+        ci_config_ref_uri = signed_claims["ci_config_ref_uri"]
         namespace, project = project_path.rsplit("/", 1)
 
-        return (
-            Query(klass)
-            .filter_by(
-                namespace=namespace,
-                project=project,
-                environment=environment,
-            )
-            .filter(
-                literal(ci_config_ref).like(func.concat(klass.workflow_filepath, "%"))
-            )
+        if not (workflow_filepath := _extract_workflow_filepath(ci_config_ref_uri)):
+            return None
+
+        return Query(klass).filter_by(
+            namespace=namespace,
+            project=project,
+            environment=environment,
+            workflow_filepath=workflow_filepath,
         )
 
     @staticmethod
     def __lookup_no_environment__(klass, signed_claims: SignedClaims) -> Query | None:
         project_path = signed_claims["project_path"]
-        ci_config_ref_prefix = f"gitlab.com/{project_path}//"
-        ci_config_ref = signed_claims["ci_config_ref_uri"].removeprefix(
-            ci_config_ref_prefix
-        )
+        ci_config_ref_uri = signed_claims["ci_config_ref_uri"]
         namespace, project = project_path.rsplit("/", 1)
 
-        return (
-            Query(klass)
-            .filter_by(
-                namespace=namespace,
-                project=project,
-                environment="",
-            )
-            .filter(
-                literal(ci_config_ref).like(func.concat(klass.workflow_filepath, "%"))
-            )
+        if not (workflow_filepath := _extract_workflow_filepath(ci_config_ref_uri)):
+            return None
+
+        return Query(klass).filter_by(
+            namespace=namespace,
+            project=project,
+            environment="",
+            workflow_filepath=workflow_filepath,
         )
 
     __lookup_strategies__ = [
@@ -222,8 +242,17 @@ class GitLabPublisherMixin:
     def publisher_name(self):
         return "GitLab"
 
+    @property
+    def publisher_base_url(self):
+        return f"https://gitlab.com/{self.project_path}"
+
+    @property
+    def jti(self) -> str:
+        """Placeholder value for JTI."""
+        return "placeholder"
+
     def publisher_url(self, claims=None):
-        base = f"https://gitlab.com/{self.project_path}"
+        base = self.publisher_base_url
         return f"{base}/commit/{claims['sha']}" if claims else base
 
     def stored_claims(self, claims=None):
@@ -250,6 +279,19 @@ class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):
     id = mapped_column(
         UUID(as_uuid=True), ForeignKey(OIDCPublisher.id), primary_key=True
     )
+
+    def verify_url(self, url: str):
+        """
+        Verify a given URL against this GitLab's publisher information
+
+        In addition to the generic Trusted Publisher verification logic in
+        the parent class, the GitLab Trusted Publisher ignores the suffix `.git`
+        in repo URLs, since `gitlab.com/org/repo.git` always redirects to
+        `gitlab.com/org/repo`. This does not apply to subpaths like
+        `gitlab.com/org/repo.git/issues`, which do not redirect to the correct URL.
+        """
+        url_for_generic_check = url.removesuffix("/").removesuffix(".git")
+        return super().verify_url(url_for_generic_check)
 
 
 class PendingGitLabPublisher(GitLabPublisherMixin, PendingOIDCPublisher):

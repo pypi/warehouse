@@ -71,7 +71,6 @@ from warehouse.packaging.models import (
 )
 from warehouse.rate_limiting import IRateLimiter
 from warehouse.utils.paginate import paginate_url_factory
-from warehouse.utils.project import remove_documentation
 
 from ...common.db.accounts import EmailFactory
 from ...common.db.organizations import (
@@ -118,7 +117,7 @@ class TestManageUnverifiedAccount:
 
 class TestManageAccount:
     @pytest.mark.parametrize(
-        "public_email, expected_public_email",
+        ("public_email", "expected_public_email"),
         [(None, ""), (pretend.stub(email="some@email.com"), "some@email.com")],
     )
     def test_default_response(self, monkeypatch, public_email, expected_public_email):
@@ -576,7 +575,7 @@ class TestManageAccount:
         assert old_primary.primary
 
     @pytest.mark.parametrize(
-        "has_primary_verified_email, expected_redirect",
+        ("has_primary_verified_email", "expected_redirect"),
         [
             (True, "manage.account"),
             (False, "manage.unverified-account"),
@@ -694,7 +693,7 @@ class TestManageAccount:
 
     @pytest.mark.parametrize("reverify_email_id", ["9999", "wutang"])
     @pytest.mark.parametrize(
-        "has_primary_verified_email,expected",
+        ("has_primary_verified_email", "expected"),
         [
             (True, "manage.account"),
             (False, "manage.unverified-account"),
@@ -1082,7 +1081,7 @@ class TestProvisionTOTP:
         }
 
     @pytest.mark.parametrize(
-        "user, expected_flash_calls",
+        ("user", "expected_flash_calls"),
         [
             (
                 pretend.stub(
@@ -1891,7 +1890,7 @@ class TestProvisionRecoveryCodes:
         ]
 
     @pytest.mark.parametrize(
-        "user, expected",
+        ("user", "expected"),
         [
             (
                 pretend.stub(
@@ -3985,9 +3984,10 @@ class TestManageProjectDocumentation:
 
         result = views.destroy_project_docs(project, db_request)
 
-        assert task.calls == [pretend.call(remove_documentation)]
-
-        assert remove_documentation_recorder.delay.calls == [pretend.call(project.name)]
+        assert remove_documentation_recorder.delay.calls == [
+            pretend.call(project.name),
+            pretend.call(project.normalized_name),
+        ]
 
         assert db_request.session.flash.calls == [
             pretend.call("Deleted docs for project 'foo'", queue="success")
@@ -4791,7 +4791,7 @@ class TestManageProjectRelease:
 
 class TestManageProjectRoles:
     @pytest.fixture
-    def organization(self, enable_organizations, pyramid_user):
+    def organization(self, _enable_organizations, pyramid_user):
         organization = OrganizationFactory.create()
         OrganizationRoleFactory.create(
             organization=organization,
@@ -6078,7 +6078,7 @@ class TestManageOIDCPublisherViews:
         ]
 
     @pytest.mark.parametrize(
-        "ip_exceeded, user_exceeded",
+        ("ip_exceeded", "user_exceeded"),
         [
             (False, False),
             (False, True),
@@ -6173,6 +6173,7 @@ class TestManageOIDCPublisherViews:
             "gitlab_publisher_form": view.gitlab_publisher_form,
             "google_publisher_form": view.google_publisher_form,
             "activestate_publisher_form": view.activestate_publisher_form,
+            "prefilled_provider": view.prefilled_provider,
         }
 
         assert request.flags.disallow_oidc.calls == [
@@ -6216,6 +6217,7 @@ class TestManageOIDCPublisherViews:
             "gitlab_publisher_form": view.gitlab_publisher_form,
             "google_publisher_form": view.google_publisher_form,
             "activestate_publisher_form": view.activestate_publisher_form,
+            "prefilled_provider": view.prefilled_provider,
         }
 
         assert pyramid_request.flags.disallow_oidc.calls == [
@@ -6236,7 +6238,237 @@ class TestManageOIDCPublisherViews:
         ]
 
     @pytest.mark.parametrize(
-        "view_name, publisher, make_form",
+        ("form_name", "prefilled_data"),
+        [
+            # All fields of GitHub provider
+            (
+                "github_publisher_form",
+                {
+                    "provider": "github",
+                    "owner": "owner",
+                    "repository": "repo",
+                    "workflow_filename": "file.yml",
+                    "environment": "my_env",
+                },
+            ),
+            # All fields of GitLab provider
+            (
+                "gitlab_publisher_form",
+                {
+                    "provider": "gitlab",
+                    "namespace": "owner",
+                    "project": "repo",
+                    "workflow_filepath": "file.yml",
+                    "environment": "my_env",
+                },
+            ),
+            # All fields of Google provider
+            (
+                "google_publisher_form",
+                {
+                    "provider": "google",
+                    "email": "email@example.com",
+                    "sub": "my_subject",
+                },
+            ),
+            # All fields of ActiveState provider
+            (
+                "activestate_publisher_form",
+                {
+                    "provider": "activestate",
+                    "organization": "my_org",
+                    "project": "my_project",
+                    "actor": "my_actor",
+                },
+            ),
+            # All fields of GitHub provider, case-insensitive
+            (
+                "github_publisher_form",
+                {
+                    "provider": "GitHub",
+                    "owner": "owner",
+                    "repository": "repo",
+                    "workflow_filename": "file.yml",
+                    "environment": "my_env",
+                },
+            ),
+        ],
+    )
+    def test_manage_project_oidc_publishers_prefill(
+        self, monkeypatch, form_name, prefilled_data
+    ):
+        project = pretend.stub(oidc_publishers=[])
+        request = pretend.stub(
+            user=pretend.stub(),
+            registry=pretend.stub(
+                settings={
+                    "github.token": "fake-api-token",
+                },
+            ),
+            find_service=lambda *a, **kw: None,
+            flags=pretend.stub(
+                disallow_oidc=pretend.call_recorder(lambda f=None: False)
+            ),
+            POST=MultiDict(),
+            params=MultiDict(prefilled_data),
+        )
+
+        view = views.ManageOIDCPublisherViews(project, request)
+        assert view.manage_project_oidc_publishers_prefill() == {
+            "disabled": {
+                "GitHub": False,
+                "GitLab": False,
+                "Google": False,
+                "ActiveState": False,
+            },
+            "project": project,
+            "github_publisher_form": view.github_publisher_form,
+            "gitlab_publisher_form": view.gitlab_publisher_form,
+            "google_publisher_form": view.google_publisher_form,
+            "activestate_publisher_form": view.activestate_publisher_form,
+            "prefilled_provider": prefilled_data["provider"].lower(),
+        }
+
+        # The form data does not contain the provider, so we'll remove it from
+        # the prefilled data before comparing them
+        if "provider" in prefilled_data:
+            del prefilled_data["provider"]
+        form = getattr(view, form_name)
+        assert form.data == prefilled_data
+
+    @pytest.mark.parametrize(
+        ("missing_fields", "prefilled_data", "extra_fields"),
+        [
+            # Only some fields present
+            (
+                ["repository", "environment"],
+                {
+                    "provider": "github",
+                    "owner": "owner",
+                    "workflow_filename": "file.yml",
+                },
+                [],
+            ),
+            # Extra fields present
+            (
+                [],
+                {
+                    "provider": "github",
+                    "owner": "owner",
+                    "repository": "repo",
+                    "workflow_filename": "file.yml",
+                    "environment": "my_env",
+                    "extra_field_1": "value1",
+                    "extra_field_2": "value2",
+                },
+                ["extra_field_1", "extra_field_2"],
+            ),
+            # Both missing fields and extra fields present
+            (
+                ["owner", "repository"],
+                {
+                    "provider": "github",
+                    "workflow_filename": "file.yml",
+                    "environment": "my_env",
+                    "extra_field_1": "value1",
+                    "extra_field_2": "value2",
+                },
+                ["extra_field_1", "extra_field_2"],
+            ),
+        ],
+    )
+    def test_manage_project_oidc_publishers_prefill_partial(
+        self, monkeypatch, missing_fields, prefilled_data, extra_fields
+    ):
+        project = pretend.stub(oidc_publishers=[])
+        request = pretend.stub(
+            user=pretend.stub(),
+            registry=pretend.stub(
+                settings={
+                    "github.token": "fake-api-token",
+                },
+            ),
+            find_service=lambda *a, **kw: None,
+            flags=pretend.stub(
+                disallow_oidc=pretend.call_recorder(lambda f=None: False)
+            ),
+            POST=MultiDict(),
+            params=MultiDict(prefilled_data),
+        )
+
+        view = views.ManageOIDCPublisherViews(project, request)
+        assert view.manage_project_oidc_publishers_prefill() == {
+            "disabled": {
+                "GitHub": False,
+                "GitLab": False,
+                "Google": False,
+                "ActiveState": False,
+            },
+            "project": project,
+            "github_publisher_form": view.github_publisher_form,
+            "gitlab_publisher_form": view.gitlab_publisher_form,
+            "google_publisher_form": view.google_publisher_form,
+            "activestate_publisher_form": view.activestate_publisher_form,
+            "prefilled_provider": prefilled_data["provider"].lower(),
+        }
+
+        # The form data does not contain the provider, so we'll remove it from
+        # the prefilled data before comparing them
+        if "provider" in prefilled_data:
+            del prefilled_data["provider"]
+        missing_data = {k: None for k in missing_fields}
+        # The expected form data is the prefilled data plus the missing fields
+        # (set to None) minus the extra fields
+        expected_data = prefilled_data | missing_data
+        expected_data = {
+            k: v for k, v in expected_data.items() if k not in extra_fields
+        }
+        assert view.github_publisher_form.data == expected_data
+
+    def test_manage_project_oidc_publishers_prefill_unknown_provider(self, monkeypatch):
+        project = pretend.stub(oidc_publishers=[])
+        prefilled_data = {
+            "provider": "github2",
+            "owner": "owner",
+            "repository": "repo",
+            "workflow_filename": "file.yml",
+            "environment": "my_env",
+        }
+        request = pretend.stub(
+            user=pretend.stub(),
+            registry=pretend.stub(
+                settings={
+                    "github.token": "fake-api-token",
+                },
+            ),
+            find_service=lambda *a, **kw: None,
+            flags=pretend.stub(
+                disallow_oidc=pretend.call_recorder(lambda f=None: False)
+            ),
+            POST=MultiDict(),
+            params=MultiDict(prefilled_data),
+        )
+
+        view = views.ManageOIDCPublisherViews(project, request)
+        assert view.manage_project_oidc_publishers_prefill() == {
+            "disabled": {
+                "GitHub": False,
+                "GitLab": False,
+                "Google": False,
+                "ActiveState": False,
+            },
+            "project": project,
+            "github_publisher_form": view.github_publisher_form,
+            "gitlab_publisher_form": view.gitlab_publisher_form,
+            "google_publisher_form": view.google_publisher_form,
+            "activestate_publisher_form": view.activestate_publisher_form,
+            "prefilled_provider": None,
+        }
+
+        assert all(v is None for _, v in view.github_publisher_form.data.items())
+
+    @pytest.mark.parametrize(
+        ("view_name", "publisher", "make_form"),
         [
             (
                 "add_github_oidc_publisher",
@@ -6414,7 +6646,7 @@ class TestManageOIDCPublisherViews:
         assert project.oidc_publishers == [publisher]
 
     @pytest.mark.parametrize(
-        "view_name, publisher_form_obj, expected_publisher",
+        ("view_name", "publisher_form_obj", "expected_publisher"),
         [
             (
                 "add_github_oidc_publisher",
@@ -6572,7 +6804,7 @@ class TestManageOIDCPublisherViews:
         assert view._check_ratelimits.calls == [pretend.call()]
 
     @pytest.mark.parametrize(
-        "view_name, publisher_name, publisher, post_body",
+        ("view_name", "publisher_name", "publisher", "post_body"),
         [
             (
                 "add_github_oidc_publisher",
@@ -6709,6 +6941,7 @@ class TestManageOIDCPublisherViews:
             "gitlab_publisher_form": view.gitlab_publisher_form,
             "google_publisher_form": view.google_publisher_form,
             "activestate_publisher_form": view.activestate_publisher_form,
+            "prefilled_provider": view.prefilled_provider,
         }
         assert view.metrics.increment.calls == [
             pretend.call(
@@ -6725,7 +6958,7 @@ class TestManageOIDCPublisherViews:
         ]
 
     @pytest.mark.parametrize(
-        "view_name, publisher_name",
+        ("view_name", "publisher_name"),
         [
             ("add_github_oidc_publisher", "GitHub"),
             ("add_gitlab_oidc_publisher", "GitLab"),
@@ -6775,7 +7008,7 @@ class TestManageOIDCPublisherViews:
         ]
 
     @pytest.mark.parametrize(
-        "view_name, publisher_name",
+        ("view_name", "publisher_name"),
         [
             ("add_github_oidc_publisher", "GitHub"),
             ("add_gitlab_oidc_publisher", "GitLab"),
@@ -6818,7 +7051,7 @@ class TestManageOIDCPublisherViews:
         ]
 
     @pytest.mark.parametrize(
-        "view_name, publisher_name",
+        ("view_name", "publisher_name"),
         [
             ("add_github_oidc_publisher", "GitHub"),
             ("add_gitlab_oidc_publisher", "GitLab"),

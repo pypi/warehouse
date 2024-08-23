@@ -21,11 +21,11 @@ container:
 
 .. code-block:: console
 
-    $ # install dependencies
-    $ docker compose run --rm static npm install
+    # install dependencies
+    docker compose run --rm static npm install
 
-    $ # start a build
-    $ docker compose run --rm static npm run build
+    # start a build
+    docker compose run --rm static npm run build
 
 
 Building outside of Docker
