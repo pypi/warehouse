@@ -107,6 +107,103 @@ Class                     Method
 ``HTTPServerError`` (5xx) Raise
 ========================= ==================================
 
+Implementing New Service
+-------------------------
+
+Warehouse uses services to provide pluggable functionalities within the codebase. They are implemented using
+`pyramid-service`_. After being registered, services are accessible using the ``find_service`` method of the
+``request`` object.
+
+When adding new services to warehouse, the following checklist serves as a comprehensive guideline to ensure
+you stay on track.
+
+Adding a new service
+~~~~~~~~~~~~~~~~~~~~
+
+1. Create an Interface for the service. The interface serves as the baseline of the new service (design by
+   contract pattern) and details all methods and attributes shared by the different service implementations.
+
+   Warehouse uses zope_ to define interfaces. The interfaces are usually declared in a file named
+   ``interfaces.py``.
+
+2. Create the new service. The service must define all methods and attributes declared in the interface.
+   This implementation contains the core logic of the service features.
+
+3. (Optional) Create other implementations of the interface. For instance, many services in ``warehouse``
+   also provide a NullService version used for development. These Null implementations only
+   provide basic functionalities without verifications and reduce the need for stubs in tests.
+
+   Any new implementation must implement the complete interface, including all its methods and attributes.
+
+4. Register the service. The new service(s) must be registered to be available in the request object.
+   This registration must be in the service module's ``includeme`` function for Pyramid to detect it.
+
+   - If you have multiple services, create a new setting (in ``warehouse/config.py``) to select which backend
+     to use.
+
+   - Add a default value for the setting in ``dev/environment`` for the development environment.
+
+   - Use the setting value in the ``includeme`` function to instantiate the appropriate service.
+
+5. (Optional) Add the new module to the ``warehouse/config.py``. If the new service is defined in a
+   new module, add the new module within the warehouse ``configure`` function. This enrollment
+   ensures Pyramid can detect it.
+
+Using the service
+~~~~~~~~~~~~~~~~~
+
+To use a service, query it using ``request.find_services`` with the service interface. This
+method will return an instance of the service correctly selected based on the context and environment.
+
+Example:
+
+.. code-block:: python
+
+   metrics = request.find_service(IMetricsService, context=None)
+
+
+Testing the service
+--------------------
+
+Like the rest of the ``warehouse`` codebase, the new service requires tests. Below are some
+recommended practices for performing appropriate tests.
+
+Testing the service itself
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+1. Implement a ``test_includeme`` function to test the service registration.
+2. Test each service implementation individually to meet ``warehouse`` 100% test coverage.
+
+   - Write a ``Test<ServiceName>`` class and implement a ``test_interface_matches`` function (the
+   exact name is irrelevant) to verify that the service implementation matches the interface definition
+   using the ``verifyClass`` function from zope.
+
+   - Write appropriate test functions for the different methods.
+
+3. Register the new service using its interface in ``tests/conftests.py``.
+4. (Optional) Modify ``tests/unit/test_config.py`` to check:
+
+   - If you have multiple services, that the new setting exists.
+   - That the module registration works if your service is part of a new module.
+
+5. (Optional) Depending on the needs, create a pytest fixture that returns the NullService
+   and register it in the pyramid_services fixture.
+
+Testing the service usage
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Except in the service tests, avoid mocking the service behavior and use the ``NullService``
+instead.
+
+Example
+-------
+
+The following `Pull Request`_ can serve as a baseline as it implements all these steps.
+
+
 .. |pip-tools| replace:: ``pip-tools``
 .. _pip-tools: https://pypi.org/project/pip-tools/
 .. _Dependabot pull requests: https://github.com/pypi/warehouse/pulls?q=is%3Apr+is%3Aopen+label%3Adependencies
+.. _`pyramid-service`: https://github.com/mmerickel/pyramid_services
+.. _zope: https://zopeinterface.readthedocs.io/
+.. _pull request: https://github.com/pypi/warehouse/pull/16546
