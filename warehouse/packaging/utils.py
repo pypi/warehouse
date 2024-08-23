@@ -63,9 +63,9 @@ def _simple_detail(project, request):
     versions = sorted(
         {f.release.version for f in files}, key=packaging_legacy.version.parse
     )
-    alternate_repositories = sorted(
-        alt_repo.url for alt_repo in project.alternate_repositories
-    )
+    alternate_repositories = [
+        request.route_url("api.simple.detail", name=project.normalized_name)
+    ] + sorted(alt_repo.url for alt_repo in project.alternate_repositories)
 
     return {
         "meta": {"api-version": API_VERSION, "_last-serial": project.last_serial},
