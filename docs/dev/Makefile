@@ -178,4 +178,4 @@ pseudoxml:
 
 # https://github.com/sphinx-doc/sphinx-autobuild#using-with-makefile
 livehtml:
-	sphinx-autobuild "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	sphinx-autobuild --host 0.0.0.0 "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
