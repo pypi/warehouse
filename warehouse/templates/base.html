@@ -33,9 +33,9 @@
 </div>
 {% endmacro %}
 
-{% macro input_field(name, user_friendly_name, form_instance, placeholder, autocomplete="", required=True, data_action="", data_target="") -%}
+{% macro input_field(name, user_friendly_name, form_instance, placeholder, data_action, data_target, autocapitalize="", autocomplete="", required=True) -%}
   {{ input_field_label(user_friendly_name, form_instance) }}
-  {{ form_instance(placeholder=gettext(placeholder), autocapitalize="off", autocomplete=autocomplete, spellcheck="false", required=required, data_target=data_target, data_action=data_action, class_="form-group__field", **{"aria-describedby":name + "-errors"}) }}
+  {{ form_instance(placeholder=gettext(placeholder), autocapitalize=autocapitalize, autocomplete=autocomplete, spellcheck="false", required=required, data_target=data_target, data_action=data_action, class_="form-group__field", **{"aria-describedby":name + "-errors"}) }}
   {{ input_field_errors(name, form_instance) }}
 {% endmacro %}
 

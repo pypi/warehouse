@@ -45,11 +45,23 @@
         {% endif %}
 
         <div class="form-group">
-          {{ input_field(name="username", user_friendly_name="Username", form_instance=form.username, placeholder="Your username", autocomplete="username") }}
+          {{ input_field(
+              name="username",
+              user_friendly_name="Username",
+              form_instance=form.username,
+              placeholder="Your username",
+              autocomplete="username",
+          ) }}
         </div>
 
         <div data-controller="password" class="form-group">
-          {{ input_field(name="password", user_friendly_name="Password", form_instance=form.password, placeholder="Your password", autocomplete="current-password") }}
+          {{ input_field(
+              name="password",
+              user_friendly_name="Password",
+              form_instance=form.password,
+              placeholder="Your password",
+              autocomplete="current-password"
+          ) }}
           <div class="form-group">
             <div class="split-layout margin-top--large margin-bottom--large">
               <div>
