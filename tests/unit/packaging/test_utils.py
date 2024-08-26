@@ -15,6 +15,7 @@ import tempfile
 
 import pretend
 
+from tests.common.db.attestation import AttestationFactory
 from warehouse.attestations import IIntegrityService
 from warehouse.packaging.interfaces import ISimpleStorage
 from warehouse.packaging.utils import _simple_detail, render_simple_detail
@@ -39,24 +40,23 @@ def test_simple_detail_empty_string(db_request):
     assert expected_content["files"][0]["requires-python"] is None
 
 
-def test_simple_detail_with_provenance(db_request):
+def test_simple_detail_with_provenance(db_request, integrity_service):
     project = ProjectFactory.create()
     release = ReleaseFactory.create(project=project, version="1.0")
-    FileFactory.create(release=release)
-
-    hash_digest = "deadbeefdeadbeefdeadbeefdeadbeef"
+    file = FileFactory.create(release=release)
+    AttestationFactory.create(file=file)
 
     db_request.route_url = lambda *a, **kw: "the-url"
     db_request.find_service = pretend.call_recorder(
-        lambda svc, name=None, context=None: {
-            IIntegrityService: pretend.stub(
-                get_provenance_digest=pretend.call_recorder(lambda f: hash_digest),
-            ),
-        }.get(svc)
+        lambda svc, name=None, context=None: {IIntegrityService: integrity_service}.get(
+            svc
+        )
     )
 
     expected_content = _simple_detail(project, db_request)
-    assert expected_content["files"][0]["provenance"] == hash_digest
+    assert expected_content["files"][0][
+        "provenance"
+    ] == integrity_service.get_provenance_digest(file)
 
 
 def test_render_simple_detail(db_request, monkeypatch, jinja):
