@@ -3898,12 +3898,91 @@ class TestFileUpload:
         assert release_db.urls_by_verify_status(verified=expected) == {"Test": url}
         assert not release_db.urls_by_verify_status(verified=not expected)
 
+    @pytest.mark.parametrize(
+        ("url", "expected"),
+        [
+            ("https://google.com", False),  # Totally different
+            ("https://github.com/foo", False),  # Missing parts
+            ("https://github.com/foo/bar/", True),  # Exactly the same
+            ("https://github.com/foo/bar/readme.md", True),  # Additional parts
+            ("https://github.com/foo/bar", True),  # Missing trailing slash
+        ],
+    )
+    def test_new_release_homepage_download_urls_verified(
+        self, monkeypatch, pyramid_config, db_request, metrics, url, expected
+    ):
+        project = ProjectFactory.create()
+        publisher = GitHubPublisherFactory.create(projects=[project])
+        publisher.repository_owner = "foo"
+        publisher.repository_name = "bar"
+        claims = {"sha": "somesha"}
+        identity = PublisherTokenContext(publisher, SignedClaims(claims))
+        db_request.oidc_publisher = identity.publisher
+        db_request.oidc_claims = identity.claims
+
+        db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
+        db_request.db.add(Classifier(classifier="Programming Language :: Python"))
+
+        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+
+        pyramid_config.testing_securitypolicy(identity=identity)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0",
+                "summary": "This is my summary!",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.POST.extend(
+            [
+                ("classifiers", "Environment :: Other Environment"),
+                ("classifiers", "Programming Language :: Python"),
+                ("requires_dist", "foo"),
+                ("requires_dist", "bar (>1.0)"),
+                ("home_page", url),
+                ("download_url", url),
+                ("requires_external", "Cheese (>1.0)"),
+                ("provides", "testing"),
+            ]
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+
+        legacy.file_upload(db_request)
+        release_db = (
+            db_request.db.query(Release).filter(Release.project == project).one()
+        )
+        assert release_db.urls_by_verify_status(verified=expected) == {
+            "Homepage": url,
+            "Download": url,
+        }
+        assert not release_db.urls_by_verify_status(verified=not expected)
+
+    @pytest.mark.parametrize(
+        ("home_page_verified", "download_url_verified"),
+        [(False, False), (False, True), (True, False), (True, True)],
+    )
     def test_new_publisher_verifies_existing_release_url(
         self,
         monkeypatch,
         pyramid_config,
         db_request,
         metrics,
+        home_page_verified,
+        download_url_verified,
     ):
         repo_name = "my_new_repo"
         verified_url = "https://github.com/foo/bar"
@@ -3911,13 +3990,18 @@ class TestFileUpload:
 
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
-        # We start with an existing release, with one verified URL and one unverified
-        # URL. Uploading a new file with a Trusted Publisher that matches the unverified
-        # URL should mark it as verified.
+        # We start with an existing release, with one verified URL and some unverified
+        # URLs. Uploading a new file with a Trusted Publisher that matches the
+        # unverified URLs should mark them as verified.
         release.project_urls = {
             "verified_url": {"url": verified_url, "verified": True},
             "unverified_url": {"url": unverified_url, "verified": False},
         }
+        release.home_page = verified_url if home_page_verified else unverified_url
+        release.home_page_verified = home_page_verified
+        release.download_url = verified_url if download_url_verified else unverified_url
+        release.download_url_verified = download_url_verified
+
         publisher = GitHubPublisherFactory.create(projects=[project])
         publisher.repository_owner = "foo"
         publisher.repository_name = repo_name
@@ -3956,6 +4040,11 @@ class TestFileUpload:
                 ("requires_dist", "bar (>1.0)"),
                 ("requires_external", "Cheese (>1.0)"),
                 ("provides", "testing"),
+                ("home_page", verified_url if home_page_verified else unverified_url),
+                (
+                    "download_url",
+                    verified_url if download_url_verified else unverified_url,
+                ),
             ]
         )
         db_request.POST.add("project_urls", f"verified_url, {verified_url}")
@@ -3969,13 +4058,16 @@ class TestFileUpload:
 
         legacy.file_upload(db_request)
 
-        # After successful upload, the Release should have now both URLs verified
+        # After successful upload, the Release should have now all URLs verified
         release_db = (
             db_request.db.query(Release).filter(Release.project == project).one()
         )
+
         assert release_db.urls_by_verify_status(verified=True) == {
             "unverified_url": unverified_url,
             "verified_url": verified_url,
+            "Homepage": release.home_page,
+            "Download": release.download_url,
         }
         assert not release_db.urls_by_verify_status(verified=False)
 
