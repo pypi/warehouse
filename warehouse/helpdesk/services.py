@@ -44,11 +44,11 @@ class ConsoleHelpDeskService:
         logging.debug("Creating ConsoleHelpDeskService")
         return cls()
 
-    def create_conversation(self, *, request_json: dict) -> None:
+    def create_conversation(self, *, request_json: dict) -> str:
         print("Observation created")
         print("request_json:")
         print(dedent(pprint.pformat(request_json)))
-        return
+        return "localhost"
 
 
 @implementer(IHelpDeskService)

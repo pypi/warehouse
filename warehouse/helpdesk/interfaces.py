@@ -10,7 +10,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 from zope.interface import Interface
 
 
-class IHelpDeskService(Interface): ...
+class IHelpDeskService(Interface):
+    def create_service(context, request) -> IHelpDeskService:
+        """
+        Create a new instance of the service.
+        """
+
+    def create_conversation(*, request_json: dict) -> str:
+        """
+        Create a new conversation in the helpdesk service.
+        """
