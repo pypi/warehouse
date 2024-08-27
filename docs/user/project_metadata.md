@@ -27,8 +27,14 @@ PyPI currently supports several ways of verifying project URLs. When a URL is ve
 !!! warning
 
     An URL being verified only attests that the URL is under control of the
-    PyPI package owner, and does not imply any additional safety about that
-    URL or any other relationship to the project in question.
+    PyPI package owner at the time of verification, and does not imply any
+    additional safety about that URL or any other relationship to the project
+    in question.
+
+    URL verification occurs when release files are uploaded and is not repeated
+    afterwards. This means the websites that verified URLs point to can change,
+    and the URL will still show up as verified. The verified status only reflects
+    control of the URL **at the time of file upload**, not at any later point.
 
 The following subsections specify the different types of URLs that can be verified.
 
