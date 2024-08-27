@@ -26,7 +26,7 @@ def raise_(ex):
 
 def test_populate_sponsors_from_sponsors_dict(db_request, monkeypatch, cli):
     engine = pretend.stub()
-    config = pretend.stub(registry={"sqlalchemy.engine": engine})
+    config = pretend.stub(registry={"sqlalchemy.engines": {"primary": engine}})
     session_cls = pretend.call_recorder(lambda bind: db_request.db)
     monkeypatch.setattr(db, "Session", session_cls)
 
@@ -65,7 +65,7 @@ def test_populate_sponsors_from_sponsors_dict(db_request, monkeypatch, cli):
 
 def test_do_not_duplicate_existing_sponsors(db_request, monkeypatch, cli):
     engine = pretend.stub()
-    config = pretend.stub(registry={"sqlalchemy.engine": engine})
+    config = pretend.stub(registry={"sqlalchemy.engines": {"primary": engine}})
     session_cls = pretend.call_recorder(lambda bind: db_request.db)
     monkeypatch.setattr(db, "Session", session_cls)
 
@@ -80,7 +80,7 @@ def test_do_not_duplicate_existing_sponsors(db_request, monkeypatch, cli):
 
 def test_capture_exception_if_error_and_rollback(db_request, monkeypatch, cli):
     engine = pretend.stub()
-    config = pretend.stub(registry={"sqlalchemy.engine": engine})
+    config = pretend.stub(registry={"sqlalchemy.engines": {"primary": engine}})
     session = pretend.stub()
     session.add = pretend.call_recorder(lambda obj: raise_(Exception("SQL exception")))
     session.rollback = pretend.call_recorder(lambda: True)

@@ -53,6 +53,34 @@ def test_model_base_repr(monkeypatch):
     assert repr(model) == "ModelBase(foo={})".format(repr("bar"))
 
 
+@pytest.mark.parametrize(
+    "matched_route,extra_predicates,value,expected",
+    [
+        (None, [], None, "primary"),
+        (True, [], None, "primary"),
+        (True, [], "primary", "primary"),
+        (True, [], "replica", "replica"),
+        (None, [None], None, "primary"),
+        (True, [None], None, "primary"),
+        (True, [None], "primary", "primary"),
+        (True, [None], "replica", "replica"),
+    ],
+)
+def test_with_database(matched_route, extra_predicates, value, expected):
+    route = pretend.stub(predicates=extra_predicates)
+    if value is not None:
+        route.predicates.append(db.WithDatabasePredicate(value, pretend.stub()))
+    request = pretend.stub(matched_route=route if matched_route else None)
+
+    assert db._select_database(request) == expected
+
+
+def test_with_database_is_true():
+    assert db.WithDatabasePredicate("foo", pretend.stub())(
+        pretend.stub(), pretend.stub()
+    )
+
+
 def test_listens_for(monkeypatch):
     venusian_attach = pretend.call_recorder(lambda fn, cb, category=None: None)
     monkeypatch.setattr(venusian, "attach", venusian_attach)
@@ -93,7 +121,7 @@ def test_configure_alembic(monkeypatch):
     monkeypatch.setattr(alembic.config, "Config", config_cls)
 
     config = pretend.stub(
-        registry=pretend.stub(settings={"database.url": pretend.stub()})
+        registry=pretend.stub(settings={"database.primary.url": pretend.stub()})
     )
 
     alembic_config = _configure_alembic(config)
@@ -101,7 +129,7 @@ def test_configure_alembic(monkeypatch):
     assert alembic_config is config_obj
     assert alembic_config.set_main_option.calls == [
         pretend.call("script_location", "warehouse:migrations"),
-        pretend.call("url", config.registry.settings["database.url"]),
+        pretend.call("url", config.registry.settings["database.primary.url"]),
     ]
     assert alembic_config.set_section_option.calls == [
         pretend.call("post_write_hooks", "hooks", "black, isort"),
@@ -112,26 +140,34 @@ def test_configure_alembic(monkeypatch):
     ]
 
 
-def test_raises_db_available_error(pyramid_services, metrics):
+def test_raises_db_available_error(monkeypatch, pyramid_services, metrics):
     def raiser():
         raise OperationalError("foo", {}, psycopg.OperationalError())
+
+    def select_database(request):
+        return "primary"
 
     engine = pretend.stub(connect=raiser)
     request = pretend.stub(
         find_service=pyramid_services.find_service,
-        registry={"sqlalchemy.engine": engine},
+        registry={"sqlalchemy.engines": {"primary": engine}},
+        read_only=False,
     )
+    monkeypatch.setattr(db, "_select_database", select_database)
 
     with pytest.raises(DatabaseNotAvailableError):
         _create_session(request)
 
     assert metrics.increment.calls == [
-        pretend.call("warehouse.db.session.start"),
-        pretend.call("warehouse.db.session.error", tags=["error_in:connecting"]),
+        pretend.call("warehouse.db.session.start", tags=["db:primary"]),
+        pretend.call(
+            "warehouse.db.session.error", tags=["error_in:connecting", "db:primary"]
+        ),
     ]
 
 
-def test_create_session(monkeypatch, pyramid_services):
+@pytest.mark.parametrize("db_name", ["primary", "replica"])
+def test_create_session(monkeypatch, pyramid_services, db_name):
     session_obj = pretend.stub(
         close=pretend.call_recorder(lambda: None),
         get=pretend.call_recorder(lambda *a: None),
@@ -139,16 +175,25 @@ def test_create_session(monkeypatch, pyramid_services):
     session_cls = pretend.call_recorder(lambda bind: session_obj)
     monkeypatch.setattr(db, "Session", session_cls)
 
+    def select_database(request):
+        return db_name
+
+    monkeypatch.setattr(db, "_select_database", select_database)
+
     connection = pretend.stub(
-        connection=pretend.stub(
-            # set_session=pretend.call_recorder(lambda **kw: None),
-        ),
+        connection=pretend.stub(),
         close=pretend.call_recorder(lambda: None),
     )
     engine = pretend.stub(connect=pretend.call_recorder(lambda: connection))
+    replica_engine = pretend.stub(
+        connect=pretend.call_recorder(lambda: connection),
+        pool=pretend.stub(checkedout=lambda: 0),
+    )
     request = pretend.stub(
         find_service=pyramid_services.find_service,
-        registry={"sqlalchemy.engine": engine},
+        registry={
+            "sqlalchemy.engines": {"primary": engine, "replica": [replica_engine]}
+        },
         tm=pretend.stub(),
         add_finished_callback=pretend.call_recorder(lambda callback: None),
     )
@@ -194,6 +239,11 @@ def test_create_session_read_only_mode(
     session_cls = pretend.call_recorder(lambda bind: session_obj)
     monkeypatch.setattr(db, "Session", session_cls)
 
+    def select_database(request):
+        return "primary"
+
+    monkeypatch.setattr(db, "_select_database", select_database)
+
     register = pretend.call_recorder(lambda session, transaction_manager: None)
     monkeypatch.setattr(zope.sqlalchemy, "register", register)
 
@@ -208,7 +258,7 @@ def test_create_session_read_only_mode(
     engine = pretend.stub(connect=pretend.call_recorder(lambda: connection))
     request = pretend.stub(
         find_service=pyramid_services.find_service,
-        registry={"sqlalchemy.engine": engine},
+        registry={"sqlalchemy.engines": {"primary": engine}},
         tm=pretend.stub(doom=pretend.call_recorder(lambda: None)),
         add_finished_callback=lambda callback: None,
         user=pretend.stub(is_superuser=is_superuser),
@@ -221,7 +271,7 @@ def test_create_session_read_only_mode(
 
 def test_includeme(monkeypatch):
     class FakeRegistry(dict):
-        settings = {"database.url": pretend.stub()}
+        settings = {"database.primary.url": pretend.stub()}
 
     engine = pretend.stub()
     create_engine = pretend.call_recorder(lambda url, **kw: engine)
@@ -240,11 +290,61 @@ def test_includeme(monkeypatch):
     ]
     assert create_engine.calls == [
         pretend.call(
-            config.registry.settings["database.url"],
+            config.registry.settings["database.primary.url"],
             isolation_level=DEFAULT_ISOLATION,
             pool_size=35,
             max_overflow=65,
             pool_timeout=20,
-        )
+            logging_name="primary",
+        ),
     ]
-    assert config.registry["sqlalchemy.engine"] is engine
+    assert config.registry["sqlalchemy.engines"]["primary"] is engine
+    assert config.registry["sqlalchemy.engines"]["replica"] == [engine]
+
+
+def test_includeme_with_replica(monkeypatch):
+    class FakeRegistry(dict):
+        settings = {
+            "database.primary.url": pretend.stub(),
+            "database.replica.urls": [pretend.stub()],
+        }
+
+    engine = pretend.stub()
+    replica_engine = pretend.stub()
+    create_engine = pretend.call_recorder(
+        lambda url, **kw: engine if kw["logging_name"] == "primary" else replica_engine
+    )
+    config = pretend.stub(
+        add_directive=pretend.call_recorder(lambda *a: None),
+        registry=FakeRegistry(),
+        add_request_method=pretend.call_recorder(lambda f, name, reify: None),
+        add_route_predicate=pretend.call_recorder(lambda *a, **kw: None),
+    )
+
+    monkeypatch.setattr(sqlalchemy, "create_engine", create_engine)
+
+    includeme(config)
+
+    assert config.add_directive.calls == [
+        pretend.call("alembic_config", _configure_alembic)
+    ]
+    assert create_engine.calls == [
+        pretend.call(
+            config.registry.settings["database.primary.url"],
+            isolation_level=DEFAULT_ISOLATION,
+            pool_size=35,
+            max_overflow=65,
+            pool_timeout=20,
+            logging_name="primary",
+        ),
+        pretend.call(
+            config.registry.settings["database.replica.urls"][0],
+            isolation_level=DEFAULT_ISOLATION,
+            pool_size=35,
+            max_overflow=65,
+            pool_timeout=20,
+            logging_name="replica",
+        ),
+    ]
+    assert config.registry["sqlalchemy.engines"]["primary"] is engine
+    assert config.registry["sqlalchemy.engines"]["replica"] == [replica_engine]

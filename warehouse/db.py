@@ -71,6 +71,23 @@ class DatabaseNotAvailableError(Exception): ...
 metadata = sqlalchemy.MetaData()
 
 
+# We'll add a basic predicate that won't do anything except allow marking a
+# route to be sent to a specific database.
+class WithDatabasePredicate:
+    def __init__(self, val, config):
+        self.val = val
+
+    def text(self):
+        return f"with_database = {self.val!r}"
+
+    phash = text
+
+    # This predicate doesn't actually participate in the route selection
+    # process, so we'll just always return True.
+    def __call__(self, info, request):
+        return True
+
+
 class ModelBase(DeclarativeBase):
     """Base class for models using declarative syntax."""
 
@@ -124,7 +141,7 @@ def listens_for(target, identifier, *args, **kwargs):
 def _configure_alembic(config):
     alembic_cfg = alembic.config.Config()
     alembic_cfg.set_main_option("script_location", "warehouse:migrations")
-    alembic_cfg.set_main_option("url", config.registry.settings["database.url"])
+    alembic_cfg.set_main_option("url", config.registry.settings["database.primary.url"])
     alembic_cfg.set_section_option("post_write_hooks", "hooks", "black, isort")
     alembic_cfg.set_section_option("post_write_hooks", "black.type", "console_scripts")
     alembic_cfg.set_section_option("post_write_hooks", "black.entrypoint", "black")
@@ -133,20 +150,38 @@ def _configure_alembic(config):
     return alembic_cfg
 
 
+def _select_database(request):
+    if request.matched_route is not None:
+        for predicate in request.matched_route.predicates:
+            if isinstance(predicate, WithDatabasePredicate):
+                return predicate.val
+
+    return "primary"
+
+
 def _create_session(request):
     metrics = request.find_service(IMetricsService, context=None)
-    metrics.increment("warehouse.db.session.start")
 
     # Create our connection, most likely pulling it from the pool of
     # connections
+    db_name = _select_database(request)
+    engine = request.registry["sqlalchemy.engines"][db_name]
+    # If our engine is a list, then we select one of the items in the list based
+    # on how who has the least number of connections.
+    if isinstance(engine, list):
+        engine = sorted(engine, key=lambda e: e.pool.checkedout())[0]
+    metrics.increment("warehouse.db.session.start", tags=[f"db:{db_name}"])
     try:
-        connection = request.registry["sqlalchemy.engine"].connect()
+        connection = engine.connect()
     except OperationalError:
         # When we tried to connection to PostgreSQL, our database was not available for
         # some reason. We're going to log it here and then raise our error. Most likely
         # this is a transient error that will go away.
         logger.warning("Got an error connecting to PostgreSQL", exc_info=True)
-        metrics.increment("warehouse.db.session.error", tags=["error_in:connecting"])
+        metrics.increment(
+            "warehouse.db.session.error",
+            tags=["error_in:connecting", f"db:{db_name}"],
+        )
         raise DatabaseNotAvailableError()
 
     # Now, create a session from our connection
@@ -159,7 +194,7 @@ def _create_session(request):
     # end of our connection.
     @request.add_finished_callback
     def cleanup(request):
-        metrics.increment("warehouse.db.session.finished")
+        metrics.increment("warehouse.db.session.finished", tags=[f"db:{db_name}"])
         session.close()
         connection.close()
 
@@ -179,20 +214,44 @@ def includeme(config):
     config.add_directive("alembic_config", _configure_alembic)
 
     # Create our SQLAlchemy Engine.
-    config.registry["sqlalchemy.engine"] = sqlalchemy.create_engine(
-        config.registry.settings["database.url"],
-        isolation_level=DEFAULT_ISOLATION,
-        pool_size=35,
-        max_overflow=65,
-        pool_timeout=20,
-    )
+    config.registry["sqlalchemy.engines"] = {
+        "primary": sqlalchemy.create_engine(
+            config.registry.settings["database.primary.url"],
+            isolation_level=DEFAULT_ISOLATION,
+            pool_size=35,
+            max_overflow=65,
+            pool_timeout=20,
+            logging_name="primary",
+        ),
+    }
+
+    # If we have a replica url configured, then we'll set our replica engine
+    # to connect to that url.
+    if replica_urls := config.registry.settings.get("database.replica.urls"):
+        replica_engines = [
+            sqlalchemy.create_engine(
+                replica_url,
+                isolation_level=DEFAULT_ISOLATION,
+                pool_size=35,
+                max_overflow=65,
+                pool_timeout=20,
+                logging_name="replica",
+            )
+            for replica_url in replica_urls
+        ]
+    # If we don't have a replica, then we'll just stash our primary engine
+    # as our replica engine as well. This will make other logic simpler, as
+    # we won't have to conditionalize engine selection on whether a replica
+    # exists or not.
+    else:
+        replica_engines = [config.registry["sqlalchemy.engines"]["primary"]]
+    config.registry["sqlalchemy.engines"]["replica"] = replica_engines
 
     # Possibly override how to fetch new db sessions from config.settings
     #  Useful in test fixtures
     db_session_factory = config.registry.settings.get(
         "warehouse.db_create_session", _create_session
     )
-    config.add_request_method(db_session_factory, name="db", reify=True)
 
     # Set a custom JSON serializer for psycopg
     renderer = JSON()
@@ -202,3 +261,9 @@ def includeme(config):
         return renderer_factory(obj, {})
 
     psycopg.types.json.set_json_dumps(serialize_as_json)
+
+    # Register our request.db property
+    config.add_request_method(db_session_factory, name="db", reify=True)
+
+    # Add a route predicate to mark a route as using a specific database.
+    config.add_route_predicate("with_database", WithDatabasePredicate)
