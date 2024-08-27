@@ -40,6 +40,7 @@ def validate_helpscout_signature(request):
     uses_session=False,
 )
 def helpscout(request):
+    """Integration for user details in Help Scout UI."""
     if not validate_helpscout_signature(request):
         request.response.status = 403
         return {"Error": "NotAuthorized"}
