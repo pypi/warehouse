@@ -92,15 +92,16 @@ lists below and changes the default icon from
 
 #### General URL
 
-| Icon                                      | Name          | Description               | Aliases                   |
-|:------------------------------------------|:--------------|:--------------------------|:--------------------------|
-| :fontawesome-solid-house-chimney:         | Homepage      | For the project homepage  |                           |
-| :fontawesome-solid-cloud:                 | Download      | A download link           |                           |
-| :fontawesome-solid-scroll:                | Changelog     | Changelog information     |                           |
-| :fontawesome-solid-book:                  | Documentation | Project documentation     | Docs                      |
-| :fontawesome-solid-bug:                   | Bug           | Bug/Issue report location | Issue, Tracker, Report    |
-| :fontawesome-solid-circle-dollar-to-slot: | Funding       | Sponsoring information    | Sponsor, Donation, Donate |
+| Icon                                      | Name           | Description                | Aliases                                                       |
+|:------------------------------------------|:---------------|:---------------------------|:--------------------------------------------------------------|
+| :fontawesome-solid-house-chimney:         | Homepage       | For the project homepage   |                                                               |
+| :fontawesome-solid-cloud:                 | Download       | A download link            |                                                               |
+| :fontawesome-solid-scroll:                | Changelog      | Changelog information      | Change log, Changes, Release notes, News, What's new, History |
+| :fontawesome-solid-book:                  | Documentation^*^ | Project <br/>documentation | Docs^*^ or an URL pointing on [Read the Docs]: domains        |
+| :fontawesome-solid-bug:                   | Bug^*^           | Bug/Issue report location  | Issue^*^, Tracker^*^, Report^*^                            |
+| :fontawesome-solid-circle-dollar-to-slot: | Funding^*^        | Sponsoring information     | Sponsor^*^, Donation^*^, Donate^*^                         |
 
+[Read the Docs]: https://about.readthedocs.com/
 
 #### Hosting Platforms
 
@@ -119,7 +120,7 @@ lists below and changes the default icon from
 | :fontawesome-brands-gitter:       | Gitter   |
 | :fontawesome-brands-discord:      | Discord  |
 | :fontawesome-brands-reddit-alien: | Reddit   |
-| :fontawesome-brands-slack:        | Slack    |
+| :fontawesome-brands-slack:        | Slack^*^ |
 | :fontawesome-brands-twitter:      | Twitter  |
 | :fontawesome-brands-youtube:      | Youtube  |
 | :fontawesome-brands-mastodon:     | Mastodon |
@@ -141,3 +142,4 @@ lists below and changes the default icon from
 | :fontawesome-solid-cube:    | PyPI   | Cheeseshop |
 | :fontawesome-brands-python: | Python |            |
 
+[^]: _^*^ Or any name starting with this prefix_

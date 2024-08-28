@@ -11,6 +11,8 @@ plugins:
 markdown_extensions:
   - admonition
   - attr_list
+  - footnotes
+  - pymdownx.caret
   - pymdownx.details
   - pymdownx.superfences
   - pymdownx.tabbed:
