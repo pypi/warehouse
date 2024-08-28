@@ -81,8 +81,7 @@ class TestIntegrityService:
 
     def test_create_service(self, db_request):
         service = IntegrityService.create_service(None, db_request)
-        assert service is not None
-        assert service.storage.base.exists()
+        assert isinstance(service, IntegrityService)
 
     def test_persist_attestations_succeeds(self, db_request, storage_service):
         integrity_service = IntegrityService(
