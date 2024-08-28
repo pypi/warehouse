@@ -1,8 +1,8 @@
 Patterns
-========
+********
 
 Dependency management
----------------------
+=====================
 
 Warehouse's approach to dependency management can be summarized as follows:
 
@@ -82,7 +82,7 @@ process for adding new dependencies:
 3. Commit the changes
 
 Returning vs Raising HTTP Exceptions
-------------------------------------
+====================================
 
 Pyramid allows the various HTTP Exceptions to be either returned or raised,
 and the difference between whether you return or raise them are subtle. The
@@ -108,7 +108,7 @@ Class                     Method
 ========================= ==================================
 
 Implementing new services
--------------------------
+=========================
 
 Warehouse uses services to provide pluggable functionalities within the codebase. They are implemented using
 `pyramid-service`_. After being registered, services are accessible using the ``find_service`` method of the
@@ -118,7 +118,7 @@ When adding new services to warehouse, the following checklist serves as a compr
 you stay on track.
 
 Adding a new service
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 1. Create an Interface for the service. The interface serves as the baseline of the new service (design by
    contract pattern) and details all methods and attributes shared by the different service implementations.
@@ -130,22 +130,28 @@ Adding a new service
    This implementation contains the core logic of the service features.
 
 3. (Optional) Create other implementations of the interface. For instance, many services in ``warehouse``
-   also provide a NullService version used for development. These Null implementations only
+   also provide a ``NullService`` version used for development. These Null implementations only
    provide basic functionalities without verifications and reduce the need for stubs in tests.
 
    Any new implementation must implement the complete interface, including all its methods and attributes.
 
-4. Register the service. The new service(s) must be registered to be available in the request object.
-   This registration must be in the service module's ``includeme`` function for Pyramid to detect it.
+4. Implement each service creation method. If the Service is simple enough, use a class method in
+   your service implementation (usually named ``create_service``). For more complex cases, implement
+   a ``ServiceFactory`` class, responsible to create the service instance.
 
-   - If you have multiple services, create a new setting (in ``warehouse/config.py``) to select which backend
-     to use.
+5. Register the service. The new service(s) must be registered to be available in the request object.
+
+   - If you have multiple services, create a new setting (in ``warehouse/config.py``) to select
+     which backend to use.
 
    - Add a default value for the setting in ``dev/environment`` for the development environment.
 
    - Use the setting value in the ``includeme`` function to instantiate the appropriate service.
 
-5. (Optional) Add the new module to the ``warehouse/config.py``. If the new service is defined in a
+   - Register your service factory. This registration must be in the service module's ``includeme``
+     function for Pyramid to detect it and use the service factory created at the previous step.
+
+6. (Optional) Add the new module to the ``warehouse/config.py``. If the new service is defined in a
    new module, add the new module within the warehouse ``configure`` function. This enrollment
    ensures Pyramid can detect it.
 
@@ -163,13 +169,13 @@ Example:
 
 
 Testing the service
---------------------
+~~~~~~~~~~~~~~~~~~~
 
 Like the rest of the ``warehouse`` codebase, the new service requires tests. Below are some
 recommended practices for performing appropriate tests.
 
 Testing the service itself
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 1. Implement a ``test_includeme`` function to test the service registration.
 2. Test each service implementation individually to meet ``warehouse`` 100% test coverage.
@@ -190,13 +196,13 @@ Testing the service itself
    and register it in the pyramid_services fixture.
 
 Testing the service usage
-~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Except in the service tests, avoid mocking the service behavior and use the ``NullService``
 instead.
 
 Example
--------
+~~~~~~~
 
 The following `Pull Request`_ can serve as a baseline as it implements all these steps.
 
