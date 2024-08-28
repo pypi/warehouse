@@ -39,8 +39,7 @@ from warehouse.attestations import (
     UnsupportedPublisherError,
     services,
 )
-from warehouse.metrics import IMetricsService
-from warehouse.packaging import File, IFileStorage
+from warehouse.packaging import File
 
 VALID_ATTESTATION = Attestation(
     version=1,
@@ -80,37 +79,18 @@ class TestIntegrityService:
     def test_interface_matches(self):
         assert verifyClass(IIntegrityService, IntegrityService)
 
-    def test_create_service(self):
-        request = pretend.stub(
-            find_service=pretend.call_recorder(
-                lambda svc, context=None, name=None: None
-            ),
-        )
+    def test_create_service(self, db_request):
+        service = IntegrityService.create_service(None, db_request)
+        assert service is not None
+        assert service.storage.base.exists()
 
-        assert IntegrityService.create_service(None, request) is not None
-        assert not set(request.find_service.calls) ^ {
-            pretend.call(IFileStorage, name="archive"),
-            pretend.call(IMetricsService),
-        }
-
-    def test_persist_attestations(self, db_request, monkeypatch):
-        @pretend.call_recorder
-        def storage_service_store(path: str, file_path, *_args, **_kwargs):
-            expected = VALID_ATTESTATION.model_dump_json().encode("utf-8")
-            with open(file_path, "rb") as fp:
-                assert fp.read() == expected
-
-            assert path.endswith(".attestation")
-
+    def test_persist_attestations_succeeds(self, db_request, storage_service):
         integrity_service = IntegrityService(
-            storage=pretend.stub(
-                store=storage_service_store,
-            ),
+            storage=storage_service,
             metrics=pretend.stub(),
         )
 
-        file = FileFactory.create(attestations=[])
-
+        file = FileFactory.create()
         integrity_service._persist_attestations([VALID_ATTESTATION], file)
 
         attestations_db = (
@@ -122,7 +102,15 @@ class TestIntegrityService:
         assert len(attestations_db) == 1
         assert len(file.attestations) == 1
 
-    def test_parse_no_publisher(self, db_request):
+        attestation_path = attestations_db[0].attestation_path
+
+        assert attestation_path.endswith(".attestation")
+        assert (
+            storage_service.get(attestation_path).read()
+            == VALID_ATTESTATION.model_dump_json().encode()
+        )
+
+    def test_parse_attestations_fails_no_publisher(self, db_request):
         integrity_service = IntegrityService(
             storage=pretend.stub(),
             metrics=pretend.stub(),
@@ -135,7 +123,7 @@ class TestIntegrityService:
         ):
             integrity_service.parse_attestations(db_request, pretend.stub())
 
-    def test_parse_unsupported_publisher(self, db_request):
+    def test_parse_attestations_fails_unsupported_publisher(self, db_request):
         integrity_service = IntegrityService(
             storage=pretend.stub(),
             metrics=pretend.stub(),
@@ -147,7 +135,7 @@ class TestIntegrityService:
         ):
             integrity_service.parse_attestations(db_request, pretend.stub())
 
-    def test_parse_malformed_attestation(self, metrics, db_request):
+    def test_parse_attestations_fails_malformed_attestation(self, metrics, db_request):
         integrity_service = IntegrityService(
             storage=pretend.stub(),
             metrics=metrics,
@@ -166,7 +154,7 @@ class TestIntegrityService:
             in metrics.increment.calls
         )
 
-    def test_parse_multiple_attestations(self, metrics, db_request):
+    def test_parse_attestations_fails_multiple_attestations(self, metrics, db_request):
         integrity_service = IntegrityService(
             storage=pretend.stub(),
             metrics=metrics,
@@ -202,7 +190,7 @@ class TestIntegrityService:
             ),
         ],
     )
-    def test_parse_failed_verification(
+    def test_parse_attestations_fails_verification(
         self, metrics, monkeypatch, db_request, verify_exception, expected_message
     ):
         integrity_service = IntegrityService(
@@ -231,7 +219,9 @@ class TestIntegrityService:
                 pretend.stub(),
             )
 
-    def test_parse_wrong_predicate(self, metrics, monkeypatch, db_request):
+    def test_parse_attestations_fails_wrong_predicate(
+        self, metrics, monkeypatch, db_request
+    ):
         integrity_service = IntegrityService(
             storage=pretend.stub(),
             metrics=metrics,
@@ -265,7 +255,7 @@ class TestIntegrityService:
             in metrics.increment.calls
         )
 
-    def test_parse_succeed(self, metrics, monkeypatch, db_request):
+    def test_parse_attestations_succeeds(self, metrics, monkeypatch, db_request):
         integrity_service = IntegrityService(
             storage=pretend.stub(),
             metrics=metrics,
@@ -290,22 +280,22 @@ class TestIntegrityService:
         )
         assert attestations == [VALID_ATTESTATION]
 
-    def test_generate_provenance_unsupported_publisher(self, metrics):
+    def test_generate_provenance_fails_unsupported_publisher(self, db_request, metrics):
         integrity_service = IntegrityService(
             storage=pretend.stub(),
             metrics=pretend.stub(),
         )
 
-        request = pretend.stub(
-            oidc_publisher=pretend.stub(publisher_name="not-existing")
-        )
+        db_request.oidc_publisher = pretend.stub(publisher_name="not-existing")
 
+        file = FileFactory.create()
         assert (
-            integrity_service.generate_provenance(
-                request, pretend.stub(), pretend.stub()
-            )
+            integrity_service.generate_provenance(db_request, file, [VALID_ATTESTATION])
             is None
         )
+
+        # If the generate provenance fails, verify that no attestations are stored
+        assert not file.attestations
 
     @pytest.mark.parametrize(
         "publisher_factory",
@@ -322,40 +312,41 @@ class TestIntegrityService:
             metrics=metrics,
         )
 
-        request = pretend.stub(oidc_publisher=publisher_factory.create())
         file = FileFactory.create()
 
+        db_request.oidc_publisher = publisher_factory.create()
         provenance = integrity_service.generate_provenance(
-            request,
+            db_request,
             file,
             [VALID_ATTESTATION],
         )
 
-        assert provenance == Provenance(
+        expected_provenance = Provenance(
             attestation_bundles=[
                 AttestationBundle(
                     publisher=services._publisher_from_oidc_publisher(
-                        request.oidc_publisher
+                        db_request.oidc_publisher
                     ),
                     attestations=[VALID_ATTESTATION],
                 )
             ]
         )
 
+        assert provenance == expected_provenance
+
         # We can round-trip the provenance object out of storage.
         provenance_from_store = Provenance.model_validate_json(
             storage_service.get(f"{file.path}.provenance").read()
         )
-        provenance_from_store.attestation_bundles == [
-            AttestationBundle(
-                publisher=services._publisher_from_oidc_publisher(
-                    request.oidc_publisher
-                ),
-                attestations=[VALID_ATTESTATION],
-            )
-        ]
+        assert provenance_from_store == expected_provenance == provenance
 
-    def test_persist_provenance_succeeds(self, db_request, metrics):
+        # Generate provenance also persist attestations
+        assert (
+            storage_service.get(file.attestations[0].attestation_path).read()
+            == VALID_ATTESTATION.model_dump_json().encode()
+        )
+
+    def test_persist_provenance_succeeds(self, db_request, storage_service, metrics):
         provenance = Provenance(
             attestation_bundles=[
                 AttestationBundle(
@@ -368,24 +359,19 @@ class TestIntegrityService:
             ]
         )
 
-        @pretend.call_recorder
-        def storage_service_store(path, file_path, *_args, **_kwargs):
-            expected = provenance.model_dump_json().encode("utf-8")
-            with open(file_path, "rb") as fp:
-                assert fp.read() == expected
-
-            assert path.suffix == ".provenance"
-
         integrity_service = IntegrityService(
-            storage=pretend.stub(store=storage_service_store),
+            storage=storage_service,
             metrics=metrics,
         )
+        file = FileFactory.create()
+        assert integrity_service._persist_provenance(provenance, file) is None
+
         assert (
-            integrity_service._persist_provenance(provenance, FileFactory.create())
-            is None
+            storage_service.get(f"{file.path}.provenance").read()
+            == provenance.model_dump_json().encode()
         )
 
-    def test_get_provenance_digest(self, db_request, metrics, storage_service):
+    def test_get_provenance_digest_succeeds(self, db_request, metrics, storage_service):
         file = FileFactory.create()
 
         integrity_service = IntegrityService(
@@ -416,7 +402,7 @@ class TestIntegrityService:
         assert integrity_service.get_provenance_digest(file) is None
 
 
-def test_publisher_from_oidc_publisher_github(db_request):
+def test_publisher_from_oidc_publisher_succeeds_github(db_request):
     publisher = GitHubPublisherFactory.create()
 
     attestation_publisher = services._publisher_from_oidc_publisher(publisher)
@@ -426,7 +412,7 @@ def test_publisher_from_oidc_publisher_github(db_request):
     assert attestation_publisher.environment == publisher.environment
 
 
-def test_publisher_from_oidc_publisher_gitlab(db_request):
+def test_publisher_from_oidc_publisher_succeeds_gitlab(db_request):
     publisher = GitLabPublisherFactory.create()
 
     attestation_publisher = services._publisher_from_oidc_publisher(publisher)
@@ -435,7 +421,7 @@ def test_publisher_from_oidc_publisher_gitlab(db_request):
     assert attestation_publisher.environment == publisher.environment
 
 
-def test_publisher_from_oidc_publisher_fails():
+def test_publisher_from_oidc_publisher_fails_unsupported():
     publisher = pretend.stub(publisher_name="not-existing")
 
     with pytest.raises(UnsupportedPublisherError):

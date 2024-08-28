@@ -36,7 +36,7 @@ import warehouse.constants
 
 from warehouse.accounts.utils import UserContext
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
-from warehouse.attestations import Attestation as DatabaseAttestation, IIntegrityService
+from warehouse.attestations import Attestation as DatabaseAttestation
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy, metadata
 from warehouse.macaroons import IMacaroonService, caveats, security_policy
@@ -3330,7 +3330,6 @@ class TestFileUpload:
         pyramid_config,
         db_request,
         metrics,
-        integrity_service,
     ):
         from warehouse.events.models import HasEvents
 
@@ -3381,13 +3380,6 @@ class TestFileUpload:
             }
         )
 
-        storage_service = pretend.stub(store=lambda path, filepath, *, meta=None: None)
-        db_request.find_service = lambda svc, name=None, context=None: {
-            IFileStorage: storage_service,
-            IMetricsService: metrics,
-            IIntegrityService: integrity_service,
-        }.get(svc)
-
         record_event = pretend.call_recorder(
             lambda self, *, tag, request=None, additional: None
         )
@@ -3437,8 +3429,6 @@ class TestFileUpload:
         monkeypatch,
         pyramid_config,
         db_request,
-        metrics,
-        integrity_service,
         invalid_attestations,
     ):
         from warehouse.events.models import HasEvents
@@ -3479,14 +3469,6 @@ class TestFileUpload:
                 ),
             }
         )
-
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-
-        db_request.find_service = lambda svc, name=None, context=None: {
-            IFileStorage: storage_service,
-            IMetricsService: metrics,
-            IIntegrityService: integrity_service,
-        }.get(svc)
 
         record_event = pretend.call_recorder(
             lambda self, *, tag, request=None, additional: None

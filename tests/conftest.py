@@ -57,7 +57,7 @@ from warehouse.oidc.utils import ACTIVESTATE_OIDC_ISSUER_URL, GITHUB_OIDC_ISSUER
 from warehouse.organizations import services as organization_services
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.packaging import services as packaging_services
-from warehouse.packaging.interfaces import IProjectService
+from warehouse.packaging.interfaces import IFileStorage, IProjectService
 from warehouse.subscriptions import services as subscription_services
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 
@@ -183,6 +183,7 @@ def pyramid_services(
     github_oidc_service,
     activestate_oidc_service,
     integrity_service,
+    storage_service,
     macaroon_service,
 ):
     services = _Services()
@@ -205,6 +206,7 @@ def pyramid_services(
     )
     services.register_service(integrity_service, IIntegrityService, None, name="")
     services.register_service(macaroon_service, IMacaroonService, None, name="")
+    services.register_service(storage_service, IFileStorage, None, "archive")
 
     return services
 
