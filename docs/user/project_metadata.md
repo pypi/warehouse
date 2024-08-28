@@ -92,14 +92,14 @@ lists below and changes the default icon from
 
 #### General URL
 
-| Icon                                      | Name           | Description                | Aliases                                                       |
-|:------------------------------------------|:---------------|:---------------------------|:--------------------------------------------------------------|
-| :fontawesome-solid-house-chimney:         | Homepage       | For the project homepage   |                                                               |
-| :fontawesome-solid-cloud:                 | Download       | A download link            |                                                               |
-| :fontawesome-solid-scroll:                | Changelog      | Changelog information      | Change log, Changes, Release notes, News, What's new, History |
+| Icon                                      | Name             | Description                | Aliases                                                       |
+|:------------------------------------------|:-----------------|:---------------------------|:--------------------------------------------------------------|
+| :fontawesome-solid-house-chimney:         | Homepage         | For the project homepage   |                                                               |
+| :fontawesome-solid-cloud:                 | Download         | A download link            |                                                               |
+| :fontawesome-solid-scroll:                | Changelog        | Changelog information      | Change log, Changes, Release notes, News, What's new, History |
 | :fontawesome-solid-book:                  | Documentation^*^ | Project <br/>documentation | Docs^*^ or an URL pointing on [Read the Docs]: domains        |
-| :fontawesome-solid-bug:                   | Bug^*^           | Bug/Issue report location  | Issue^*^, Tracker^*^, Report^*^                            |
-| :fontawesome-solid-circle-dollar-to-slot: | Funding^*^        | Sponsoring information     | Sponsor^*^, Donation^*^, Donate^*^                         |
+| :fontawesome-solid-bug:                   | Bug^*^           | Bug/Issue report location  | Issue^*^, Tracker^*^, Report^*^                               |
+| :fontawesome-solid-circle-dollar-to-slot: | Funding^*^       | Sponsoring information     | Sponsor^*^, Donation^*^, Donate^*^                            |
 
 [Read the Docs]: https://about.readthedocs.com/
 
