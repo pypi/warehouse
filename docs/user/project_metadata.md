@@ -101,7 +101,7 @@ will be recognized.
 | :fontawesome-solid-house-chimney:         | Homepage         | For the project homepage        |                                                                                                          |
 | :fontawesome-solid-cloud:                 | Download         | A download link                 |                                                                                                          |
 | :fontawesome-solid-scroll:                | Changelog        | Changelog information           | Change log, Changes, Release notes, News, What's new, History                                            |
-| :fontawesome-solid-book:                  | Documentation^*^ | Project <br/><br/>documentation | Docs^*^ , an URL pointing on [Read the Docs]: domains or an URL starting by `docs.` or `documentation.`. |
+| :fontawesome-solid-book:                  | Documentation^*^ | Project <br/><br/>documentation | Docs^*^ , an URL pointing to [Read the Docs] domains or an URL starting with `docs.` or `documentation.` |
 | :fontawesome-solid-bug:                   | Bug^*^           | Bug/Issue report location       | Issue^*^, Tracker^*^, Report^*^                                                                          |
 | :fontawesome-solid-circle-dollar-to-slot: | Funding^*^       | Sponsoring information          | Sponsor^*^, Donation^*^, Donate^*^                                                                       |
 
