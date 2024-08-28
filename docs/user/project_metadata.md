@@ -90,7 +90,7 @@ While the labels can be arbitrary, PyPI recognizes the ones from the
 lists below and changes the default icon from
 :fontawesome-solid-square-up-right: to a customized one.
 
-The recognition patterns are case-insensitive. Items marked with a ^*^ 
+The recognition patterns are case-insensitive. Items marked with an asterisk (^*^) 
 indicate a prefix. It means that any name starting with the specified pattern 
 will be recognized.
 
