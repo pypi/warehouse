@@ -1410,13 +1410,9 @@ def file_upload(request):
             ):
                 release_url.verified = True
 
-        if release.home_page and not release.home_page_verified and home_page_verified:
+        if home_page_verified and not release.home_page_verified:
             release.home_page_verified = True
-        if (
-            release.download_url
-            and not release.download_url_verified
-            and download_url_verified
-        ):
+        if download_url_verified and not release.download_url_verified:
             release.download_url_verified = True
 
     request.db.flush()  # flush db now so server default values are populated for celery
