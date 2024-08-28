@@ -107,7 +107,7 @@ Class                     Method
 ``HTTPServerError`` (5xx) Raise
 ========================= ==================================
 
-Implementing New Service
+Implementing new services
 -------------------------
 
 Warehouse uses services to provide pluggable functionalities within the codebase. They are implemented using
@@ -124,7 +124,7 @@ Adding a new service
    contract pattern) and details all methods and attributes shared by the different service implementations.
 
    Warehouse uses zope_ to define interfaces. The interfaces are usually declared in a file named
-   ``interfaces.py``.
+   ``interfaces.py`` within the relevant component, such as ``packaging/interfaces.py``.
 
 2. Create the new service. The service must define all methods and attributes declared in the interface.
    This implementation contains the core logic of the service features.
