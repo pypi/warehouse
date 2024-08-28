@@ -86,58 +86,79 @@ The URLs that can be verified depend on the Trusted Publisher used:
 
 ![Unverified details](assets/unverified_details.png){ loading=lazy }
 
-While the labels can be arbitrary, PyPI recognizes the ones from the
+While the labels or URLs can be arbitrary, PyPI recognizes the ones from the
 lists below and changes the default icon from
 :fontawesome-solid-square-up-right: to a customized one.
 
 #### General URL
 
-| Icon                                      | Name          | Description               | Aliases                   |
-|:------------------------------------------|:--------------|:--------------------------|:--------------------------|
-| :fontawesome-solid-house-chimney:         | Homepage      | For the project homepage  |                           |
-| :fontawesome-solid-cloud:                 | Download      | A download link           |                           |
-| :fontawesome-solid-scroll:                | Changelog     | Changelog information     |                           |
-| :fontawesome-solid-book:                  | Documentation | Project documentation     | Docs                      |
-| :fontawesome-solid-bug:                   | Bug           | Bug/Issue report location | Issue, Tracker, Report    |
-| :fontawesome-solid-circle-dollar-to-slot: | Funding       | Sponsoring information    | Sponsor, Donation, Donate |
+To display a custom icon, an entry must match one of the pattern. The 
+recognition patterns are case-insensitive. Items marked with an asterisk (^*^) 
+indicate a prefix. It means that any name starting with the specified pattern 
+will be recognized.
 
+| Name             | Icon                                      | Description               | Aliases                                                                                                  |
+|:-----------------|:------------------------------------------|:--------------------------|:---------------------------------------------------------------------------------------------------------|
+| Homepage         | :fontawesome-solid-house-chimney:         | For the project homepage  |                                                                                                          |
+| Download         | :fontawesome-solid-cloud:                 | A download link           |                                                                                                          |
+| Changelog        | :fontawesome-solid-scroll:                | Changelog information     | Change log, Changes, Release notes, News, What's new, History                                            |
+| Documentation^*^ | :fontawesome-solid-book:                  | Project documentation     | Docs^*^ , an URL pointing to [Read the Docs] domains or an URL starting with `docs.` or `documentation.` |
+| Bug^*^           | :fontawesome-solid-bug:                   | Bug/Issue report location | Issue^*^, Tracker^*^, Report^*^                                                                          |
+| Funding^*^       | :fontawesome-solid-circle-dollar-to-slot: | Sponsoring information    | Sponsor^*^, Donation^*^, Donate^*^                                                                       |
+
+[Read the Docs]: https://about.readthedocs.com/
 
 #### Hosting Platforms
 
-| Icon                           | Name      |
-|:-------------------------------|:----------|
-| :fontawesome-brands-github:    | GitHub    |
-| :fontawesome-brands-gitlab:    | GitLab    |
-| :fontawesome-brands-bitbucket: | Bitbucket |
-| :fontawesome-brands-google:    | Google    |
+An entry URL must point to a domain below to display a custom icon. Custom 
+subdomains are also matched. For instance, if `domain.com` is listed, a URL 
+ending in `.domain.com` will also match.
+
+| Service   | Icon                           | Domain                    |
+|:----------|:-------------------------------|:--------------------------|
+| Bitbucket | :fontawesome-brands-bitbucket: | `bitbucket.org`           |
+| GitHub    | :fontawesome-brands-github:    | `github.com`, `github.io` |
+| GitLab    | :fontawesome-brands-gitlab:    | `gitlab.com`              |
+| Google    | :fontawesome-brands-google:    | `google.com`              |
 
 
-#### Social Medias Platforms
+#### Social Media Platforms
 
-| Icon                              | Name     |
-|:----------------------------------|:---------|
-| :fontawesome-brands-gitter:       | Gitter   |
-| :fontawesome-brands-discord:      | Discord  |
-| :fontawesome-brands-reddit-alien: | Reddit   |
-| :fontawesome-brands-slack:        | Slack    |
-| :fontawesome-brands-twitter:      | Twitter  |
-| :fontawesome-brands-youtube:      | Youtube  |
-| :fontawesome-brands-mastodon:     | Mastodon |
+To display a custom icon, an entry must either :
+
+- have its name match the case-insensitive pattern listed
+- a URL pointing to a listed domain (custom subdomains are supported)
+
+| Platform | Icon                              | Name     | Domain                                        |
+|:---------|:----------------------------------|:---------|:----------------------------------------------|
+| Discord  | :fontawesome-brands-discord:      |          | `discord.com`, `discordapp.com`, `discord.gg` | 
+| Gitter   | :fontawesome-brands-gitter:       |          | `gitter.im`                                   |
+| Mastodon | :fontawesome-brands-mastodon:     | Mastodon |                                               |
+| Reddit   | :fontawesome-brands-reddit-alien: |          | `reddit.com`                                  |
+| Slack    | :fontawesome-brands-slack:        | Slack^*^ | `slack.com`                                   |
+| Youtube  | :fontawesome-brands-youtube:      |          | `youtube.com`, `youtu.be`                     |
+| Twitter  | :fontawesome-brands-twitter:      |          | `twitter.com`, `x.com`                        |
 
 #### Continuous Integration Services
 
-| Icon                           | Name      |
-|:-------------------------------|:----------|
-| :fontawesome-solid-list-check: | AppVeyor  |
-| :fontawesome-solid-list-check: | CircleCI  |
-| :fontawesome-solid-list-check: | Codecov   |
-| :fontawesome-solid-list-check: | Coveralls |
-| :fontawesome-solid-list-check: | Travis CI |
+To display a custom icon (:fontawesome-solid-list-check:), an entry URL must 
+point to one of the service provider domains listed below. Custom subdomains are 
+supported.
+
+| Service   | Domain                           |
+|:----------|:---------------------------------|
+| AppVeyor  | `ci.appveyor.com`                |
+| CircleCI  | `circleci.com`                   | 
+| Codecov   | `codecov.io`                     |
+| Coveralls | `coveralls.io`                   |
+| Travis CI | `travis-ci.com`, `travis-ci.org` |
 
 #### Python Ecosystem
 
-| Icon                        | Name   | Alias      |
-|:----------------------------|:-------|:-----------|
-| :fontawesome-solid-cube:    | PyPI   | Cheeseshop |
-| :fontawesome-brands-python: | Python |            |
+To display a custom icon, an entry URL must point to one of the domain listed
+below.
 
+| Name   | Icon                        | Domain                                                            |
+|:-------|:----------------------------|:------------------------------------------------------------------|
+| PyPI   | :fontawesome-solid-cube:    | `cheeseshop.python.org`, `pypi.io`, `pypi.org`, `pypi.python.org` |
+| Python | :fontawesome-brands-python: | `python.org`, `*.python.org`                                      |
