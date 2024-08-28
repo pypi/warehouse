@@ -286,7 +286,7 @@ class NewEmailMixin:
             )
 
         # Check if the domain is valid
-        extractor = TLDExtract(suffix_list_urls=())  # Use embedded snapshot list
+        extractor = TLDExtract(suffix_list_urls=())  # Updated during image build
         domain = extractor(address.domain.lower()).registered_domain
 
         if (
