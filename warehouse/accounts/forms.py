@@ -23,6 +23,7 @@ import wtforms
 import wtforms.fields
 
 from sqlalchemy import exists
+from tldextract import TLDExtract
 
 import warehouse.utils.otp as otp
 import warehouse.utils.webauthn as webauthn
@@ -285,7 +286,8 @@ class NewEmailMixin:
             )
 
         # Check if the domain is valid
-        domain = ".".join(address.domain.split(".")[-2:]).lower()
+        extractor = TLDExtract(suffix_list_urls=())  # Use embedded snapshot list
+        domain = extractor(address.domain.lower()).registered_domain
 
         if (
             domain in disposable_email_domains.blocklist
