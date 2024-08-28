@@ -12,21 +12,9 @@
 
 from http import HTTPStatus
 
-from ...common.db.packaging import ProjectFactory
 
-
-def test_simple_api_html(webtest):
-    resp = webtest.get("/simple/", status=HTTPStatus.OK)
-
-    assert resp.content_type == "text/html"
-    assert "X-PyPI-Last-Serial" in resp.headers
-
-
-def test_simple_api_detail(webtest):
-    project = ProjectFactory.create()
-
-    resp = webtest.get(f"/simple/{project.normalized_name}/", status=HTTPStatus.OK)
-
-    assert resp.content_type == "text/html"
-    assert "X-PyPI-Last-Serial" in resp.headers
-    assert f"Links for {project.normalized_name}" in resp.text
+def test_doap(webtest):
+    resp = webtest.get(
+        "/pypi?:action=doap&name=foo&version=1.0", status=HTTPStatus.GONE
+    )
+    assert resp.status == "410 DOAP is no longer supported."

@@ -367,6 +367,7 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".csp"),
             pretend.call(".referrer_policy"),
             pretend.call(".captcha"),
+            pretend.call(".helpdesk"),
             pretend.call(".http"),
             pretend.call(".utils.row_counter"),
         ]

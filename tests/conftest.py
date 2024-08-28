@@ -48,6 +48,8 @@ from warehouse.attestations import services as attestations_services
 from warehouse.attestations.interfaces import IIntegrityService
 from warehouse.email import services as email_services
 from warehouse.email.interfaces import IEmailSender
+from warehouse.helpdesk import services as helpdesk_services
+from warehouse.helpdesk.interfaces import IHelpDeskService
 from warehouse.macaroons import services as macaroon_services
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.metrics import IMetricsService
@@ -185,6 +187,7 @@ def pyramid_services(
     integrity_service,
     storage_service,
     macaroon_service,
+    helpdesk_service,
 ):
     services = _Services()
 
@@ -207,6 +210,7 @@ def pyramid_services(
     services.register_service(integrity_service, IIntegrityService, None, name="")
     services.register_service(macaroon_service, IMacaroonService, None, name="")
     services.register_service(storage_service, IFileStorage, None, name="archive")
+    services.register_service(helpdesk_service, IHelpDeskService, None)
 
     return services
 
@@ -338,6 +342,7 @@ def get_app_config(database, nondefaults=None):
         "billing.api_base": "http://stripe:12111",
         "billing.api_version": "2020-08-27",
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
+        "helpdesk.backend": "warehouse.helpdesk.services.ConsoleHelpDeskService",
         "files.url": "http://localhost:7000/",
         "archive_files.url": "http://localhost:7000/archive",
         "sessions.secret": "123456",
@@ -589,6 +594,11 @@ def email_service():
     return email_services.SMTPEmailSender(
         mailer=DummyMailer(), sender="noreply@pypi.dev"
     )
+
+
+@pytest.fixture
+def helpdesk_service():
+    return helpdesk_services.ConsoleHelpDeskService()
 
 
 class QueryRecorder:

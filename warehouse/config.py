@@ -425,6 +425,7 @@ def configure(settings=None):
     maybe_set(
         settings, "admin.helpscout.app_secret", "HELPSCOUT_APP_SECRET", default=None
     )
+    maybe_set(settings, "helpdesk.backend", "HELPDESK_BACKEND")
     maybe_set(settings, "helpscout.app_id", "HELPSCOUT_WAREHOUSE_APP_ID")
     maybe_set(settings, "helpscout.app_secret", "HELPSCOUT_WAREHOUSE_APP_SECRET")
     maybe_set(settings, "helpscout.mailbox_id", "HELPSCOUT_WAREHOUSE_MAILBOX_ID")
@@ -850,6 +851,9 @@ def configure(settings=None):
 
     # Register Captcha service
     config.include(".captcha")
+
+    # Register HelpDesk service
+    config.include(".helpdesk")
 
     config.add_settings({"http": {"verify": "/etc/ssl/certs/"}})
     config.include(".http")
