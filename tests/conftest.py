@@ -206,7 +206,7 @@ def pyramid_services(
     )
     services.register_service(integrity_service, IIntegrityService, None, name="")
     services.register_service(macaroon_service, IMacaroonService, None, name="")
-    services.register_service(storage_service, IFileStorage, None, "archive")
+    services.register_service(storage_service, IFileStorage, None, name="archive")
 
     return services
 
