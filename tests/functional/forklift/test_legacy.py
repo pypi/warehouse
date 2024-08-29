@@ -19,7 +19,7 @@ import pytest
 
 from warehouse.macaroons import caveats
 
-from ...common.db.accounts import EmailFactory, UserFactory
+from ...common.db.accounts import UserFactory
 from ...common.db.macaroons import MacaroonFactory
 
 
@@ -60,12 +60,12 @@ def test_remove_doc_upload(webtest):
 
 def test_file_upload(webtest):
     user = UserFactory.create(
+        with_verified_primary_email=True,
         password=(  # 'password'
             "$argon2id$v=19$m=1024,t=6,p=6$EiLE2Nsbo9S6N+acs/beGw$ccyZDCZstr1/+Y/1s3BVZ"
             "HOJaqfBroT0JCieHug281c"
-        )
+        ),
     )
-    EmailFactory.create(user=user, verified=True)
 
     # Construct the macaroon
     dm = MacaroonFactory.create(
