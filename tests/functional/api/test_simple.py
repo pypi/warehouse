@@ -10,9 +10,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import base64
+import hashlib
 from http import HTTPStatus
 
-from ...common.db.packaging import ProjectFactory, ReleaseFactory
+from ...common.db.packaging import (
+    ProjectFactory,
+    ReleaseFactory,
+)
+from ...common.db.accounts import EmailFactory, UserFactory
+from ...common.db.packaging import RoleFactory
+from ...common.db.macaroons import MacaroonFactory
+from ...common.db.oidc import GitHubPublisherFactory
+from warehouse.macaroons import caveats
+
+import pymacaroons
 
 
 def test_simple_api_html(webtest):
@@ -31,3 +43,75 @@ def test_simple_api_detail(webtest):
     assert resp.content_type == "text/html"
     assert "X-PyPI-Last-Serial" in resp.headers
     assert f"Links for {project.normalized_name}" in resp.text
+
+
+def test_simple_attestations_from_upload(webtest):
+    user = UserFactory.create(
+        password="$argon2id$v=19$m=1024,t=6,p=6$EiLE2Nsbo9S6N+acs/beGw$ccyZDCZstr1/+Y/1s3BVZHOJaqfBroT0JCieHug281c"  # 'password'
+    )
+    EmailFactory.create(user=user, verified=True)
+    project = ProjectFactory.create(name="sampleproject")
+    RoleFactory.create(user=user, project=project, role_name="Owner")
+    publisher = GitHubPublisherFactory.create(projects=[project])
+
+    # Construct the macaroon. This needs to be based on a Trusted Publisher, which is
+    # required to upload attestations
+    dm = MacaroonFactory.create(
+        oidc_publisher_id=publisher.id,
+        caveats=[
+            caveats.OIDCPublisher(oidc_publisher_id=str(publisher.id)),
+            caveats.ProjectID(project_ids=[str(p.id) for p in publisher.projects]),
+        ],
+        additional={"oidc": {"ref": "someref", "sha": "somesha"}},
+    )
+
+    m = pymacaroons.Macaroon(
+        location="localhost",
+        identifier=str(dm.id),
+        key=dm.key,
+        version=pymacaroons.MACAROON_V2,
+    )
+    for caveat in dm.caveats:
+        m.add_first_party_caveat(caveats.serialize(caveat))
+    serialized_macaroon = f"pypi-{m.serialize()}"
+
+    credentials = base64.b64encode(
+        f"__token__:{serialized_macaroon}".encode("utf-8")
+    ).decode("utf-8")
+
+    with open("./tests/functional/_fixtures/sampleproject-3.0.0.tar.gz", "rb") as f:
+        content = f.read()
+
+    with open(
+        "./tests/functional/_fixtures/sampleproject-3.0.0.tar.gz.publish.attestation",
+        "r",
+    ) as f:
+        attestation = f.read()
+
+    with open(
+        "./tests/functional/_fixtures/sampleproject-3.0.0.tar.gz.publish.attestation",
+        "rb",
+    ) as f:
+        digest = hashlib.file_digest(f, "sha256")
+
+    expected_hash = digest.hexdigest()
+
+    webtest.post(
+        "/legacy/?:action=file_upload",
+        headers={"Authorization": f"Basic {credentials}"},
+        params={
+            "name": "sampleproject",
+            "sha256_digest": "117ed88e5db073bb92969a7545745fd977ee85b7019706dd256a64058f70963d",
+            "filetype": "sdist",
+            "metadata_version": "2.1",
+            "version": "3.0.0",
+            "attestations": f"[{attestation}]",
+        },
+        upload_files=[("content", "sampleproject-3.0.0.tar.gz", content)],
+        status=HTTPStatus.OK,
+    )
+
+    response = webtest.get("/simple/sampleproject/", status=HTTPStatus.OK)
+    link = response.html.find("a", text="sampleproject-3.0.0.tar.gz")
+    assert "data-provenance" in link.attrs
+    assert link.get("data-provenance") == expected_hash
