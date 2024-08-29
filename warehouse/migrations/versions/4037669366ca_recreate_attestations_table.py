@@ -13,7 +13,7 @@
 recreate attestations table
 
 Revision ID: 4037669366ca
-Revises: 7ca0f1f5e7b3
+Revises: 606abd3b8e7f
 Create Date: 2024-08-21 20:33:53.489489
 """
 
@@ -23,7 +23,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "4037669366ca"
-down_revision = "7ca0f1f5e7b3"
+down_revision = "606abd3b8e7f"
 
 
 def upgrade():
