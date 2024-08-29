@@ -562,16 +562,17 @@ class TestRegistrationForm:
         )
 
     @pytest.mark.parametrize(
-        "email",
+        ("email", "prohibited_domain"),
         [
-            "foo@wutang.net",
-            "foo@clan.wutang.net",
-            "foo@one.two.wutang.net",
-            "foo@wUtAnG.net",
+            ("foo@wutang.net", "wutang.net"),
+            ("foo@clan.wutang.net", "wutang.net"),
+            ("foo@one.two.wutang.net", "wutang.net"),
+            ("foo@wUtAnG.net", "wutang.net"),
+            ("foo@one.wutang.co.uk", "wutang.co.uk"),
         ],
     )
-    def test_prohibited_email_error(self, db_request, email):
-        domain = ProhibitedEmailDomain(domain="wutang.net")
+    def test_prohibited_email_error(self, db_request, email, prohibited_domain):
+        domain = ProhibitedEmailDomain(domain=prohibited_domain)
         db_request.db.add(domain)
 
         form = forms.RegistrationForm(
