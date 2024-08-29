@@ -18,9 +18,9 @@ import pymacaroons
 import pytest
 
 from warehouse.macaroons import caveats
-from warehouse.macaroons.models import Macaroon
 
 from ...common.db.accounts import EmailFactory, UserFactory
+from ...common.db.macaroons import MacaroonFactory
 
 
 def test_incorrect_post_redirect(webtest):
@@ -68,14 +68,10 @@ def test_file_upload(webtest):
     EmailFactory.create(user=user, verified=True)
 
     # Construct the macaroon
-    dm = Macaroon(
+    dm = MacaroonFactory.create(
         user_id=user.id,
-        description="test",
         caveats=[caveats.RequestUser(user_id=str(user.id))],
     )
-    db = webtest.extra_environ["warehouse.db_session"]
-    db.add(dm)
-    db.commit()
 
     m = pymacaroons.Macaroon(
         location="localhost",
