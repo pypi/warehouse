@@ -25,7 +25,6 @@ import packaging.specifiers
 import packaging.utils
 import packaging.version
 import packaging_legacy.version
-import rfc3986
 import sentry_sdk
 import wtforms
 import wtforms.validators
@@ -62,9 +61,9 @@ from warehouse.forklift import metadata
 from warehouse.forklift.forms import UploadForm, _filetype_extension_mapping
 from warehouse.macaroons.models import Macaroon
 from warehouse.metrics import IMetricsService
-from warehouse.oidc.models import OIDCPublisher
 from warehouse.oidc.views import is_from_reusable_workflow
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
+from warehouse.packaging.metadata_verification import verify_url
 from warehouse.packaging.models import (
     Dependency,
     DependencyKind,
@@ -459,49 +458,6 @@ def _process_attestations(request, distribution: Distribution):
         metrics.increment("warehouse.upload.attestations.ok")
 
 
-_pypi_project_urls = [
-    "https://pypi.org/project/",
-    "https://pypi.org/p/",
-    "https://pypi.python.org/project/",
-    "https://pypi.python.org/p/",
-    "https://python.org/pypi/",
-]
-
-
-def _verify_url_pypi(url: str, project_name: str, project_normalized_name: str) -> bool:
-    candidate_urls = (
-        f"{pypi_project_url}{name}{optional_slash}"
-        for pypi_project_url in _pypi_project_urls
-        for name in {project_name, project_normalized_name}
-        for optional_slash in ["/", ""]
-    )
-
-    user_uri = rfc3986.api.uri_reference(url).normalize()
-    return any(
-        user_uri == rfc3986.api.uri_reference(candidate_url).normalize()
-        for candidate_url in candidate_urls
-    )
-
-
-def _verify_url(
-    url: str,
-    publisher: OIDCPublisher | None,
-    project_name: str,
-    project_normalized_name: str,
-) -> bool:
-    if _verify_url_pypi(
-        url=url,
-        project_name=project_name,
-        project_normalized_name=project_normalized_name,
-    ):
-        return True
-
-    if not publisher:
-        return False
-
-    return publisher.verify_url(url)
-
-
 def _sort_releases(request: Request, project: Project):
     releases = (
         request.db.query(Release)
@@ -869,7 +825,7 @@ def file_upload(request):
         else {
             name: {
                 "url": url,
-                "verified": _verify_url(
+                "verified": verify_url(
                     url=url,
                     publisher=request.oidc_publisher,
                     project_name=project.name,
@@ -883,7 +839,7 @@ def file_upload(request):
     home_page_verified = (
         False
         if home_page is None
-        else _verify_url(
+        else verify_url(
             url=home_page,
             publisher=request.oidc_publisher,
             project_name=project.name,
@@ -895,7 +851,7 @@ def file_upload(request):
     download_url_verified = (
         False
         if download_url is None
-        else _verify_url(
+        else verify_url(
             url=download_url,
             publisher=request.oidc_publisher,
             project_name=project.name,
