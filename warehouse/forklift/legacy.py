@@ -879,6 +879,30 @@ def file_upload(request):
             for name, url in meta.project_urls.items()
         }
     )
+    home_page = meta.home_page
+    home_page_verified = (
+        False
+        if home_page is None
+        else _verify_url(
+            url=home_page,
+            publisher=request.oidc_publisher,
+            project_name=project.name,
+            project_normalized_name=project.normalized_name,
+        )
+    )
+
+    download_url = meta.download_url
+    download_url_verified = (
+        False
+        if download_url is None
+        else _verify_url(
+            url=download_url,
+            publisher=request.oidc_publisher,
+            project_name=project.name,
+            project_normalized_name=project.normalized_name,
+        )
+    )
+
     try:
         is_new_release = False
         canonical_version = packaging.utils.canonicalize_version(meta.version)
@@ -934,6 +958,10 @@ def file_upload(request):
                 html=rendered or "",
                 rendered_by=readme.renderer_version(),
             ),
+            home_page=home_page,
+            home_page_verified=home_page_verified,
+            download_url=download_url,
+            download_url_verified=download_url_verified,
             project_urls=project_urls,
             # TODO: Fix this, we currently treat platform as if it is a single
             #       use field, but in reality it is a multi-use field, which the
@@ -964,8 +992,6 @@ def file_upload(request):
                     "author_email",
                     "maintainer",
                     "maintainer_email",
-                    "home_page",
-                    "download_url",
                     "provides_extra",
                 }
             },
@@ -1383,6 +1409,11 @@ def file_upload(request):
                 and project_urls[name]["verified"]
             ):
                 release_url.verified = True
+
+        if home_page_verified and not release.home_page_verified:
+            release.home_page_verified = True
+        if download_url_verified and not release.download_url_verified:
+            release.download_url_verified = True
 
     request.db.flush()  # flush db now so server default values are populated for celery
 
