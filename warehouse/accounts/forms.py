@@ -15,10 +15,8 @@ from __future__ import annotations
 import json
 import re
 
-from email.errors import HeaderParseError
-from email.headerregistry import Address
-
 import disposable_email_domains
+import email_validator
 import humanize
 import markupsafe
 import wtforms
@@ -281,20 +279,34 @@ class NewEmailMixin:
     def validate_email(self, field):
         # Additional checks for the validity of the address
         try:
-            address = Address(addr_spec=field.data)
-        except (ValueError, HeaderParseError):
+            resp = email_validator.validate_email(field.data, check_deliverability=True)
+        except email_validator.EmailNotValidError as e:
             raise wtforms.validators.ValidationError(
                 self.request._("The email address isn't valid. Try again.")
-            )
+            ) from e
 
         # Check if the domain is valid
         extractor = TLDExtract(suffix_list_urls=())  # Updated during image build
-        domain = extractor(address.domain.lower()).registered_domain
+        domain = extractor(resp.domain.lower()).registered_domain
+
+        mx_domains = set()
+        if hasattr(resp, "mx") and resp.mx:
+            mx_domains = {
+                extractor(mx_host.lower()).registered_domain
+                for _prio, mx_host in resp.mx
+            }
 
         if (
             domain in disposable_email_domains.blocklist
             or self.request.db.query(
-                exists().where(ProhibitedEmailDomain.domain == domain)
+                exists().where(
+                    (ProhibitedEmailDomain.domain == domain)
+                    & (ProhibitedEmailDomain.is_mx_record == False)  # noqa: E712
+                )
+                | exists().where(
+                    (ProhibitedEmailDomain.domain.in_(mx_domains))
+                    & (ProhibitedEmailDomain.is_mx_record == True)  # noqa: E712
+                )
             ).scalar()
         ):
             raise wtforms.validators.ValidationError(
@@ -562,11 +574,11 @@ class RequestPasswordResetForm(forms.Form):
         if "@" in field.data:
             # Additional checks for the validity of the address
             try:
-                Address(addr_spec=field.data)
-            except (IndexError, ValueError, HeaderParseError):
+                email_validator.validate_email(field.data, check_deliverability=True)
+            except email_validator.EmailSyntaxError as e:
                 raise wtforms.validators.ValidationError(
                     message=INVALID_PASSWORD_MESSAGE
-                )
+                ) from e
         else:
             # the regexp below must match the CheckConstraint
             # for the username field in accounts.models.User
