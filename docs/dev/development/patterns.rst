@@ -180,9 +180,7 @@ Testing the service itself
 1. Implement a ``test_includeme`` function to test the service registration.
 2. Test each service implementation individually to meet ``warehouse`` 100% test coverage.
 
-   - Write a ``Test<ServiceName>`` class and implement a ``test_interface_matches`` function (the
-   exact name is irrelevant) to verify that the service implementation matches the interface definition
-   using the ``verifyClass`` function from zope.
+   - Write a ``Test<ServiceName>`` class and implement ``test_interface_matches`` function (the exact name is irrelevant) to verify that the service implementation matches the interface definition using the ``verifyClass`` function from zope.
 
    - Write appropriate test functions for the different methods.
 
