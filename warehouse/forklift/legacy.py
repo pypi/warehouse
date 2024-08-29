@@ -25,7 +25,6 @@ import packaging.specifiers
 import packaging.utils
 import packaging.version
 import packaging_legacy.version
-import rfc3986
 import sentry_sdk
 import wtforms
 import wtforms.validators
@@ -56,9 +55,9 @@ from warehouse.forklift import metadata
 from warehouse.forklift.forms import UploadForm, _filetype_extension_mapping
 from warehouse.macaroons.models import Macaroon
 from warehouse.metrics import IMetricsService
-from warehouse.oidc.models import OIDCPublisher
 from warehouse.oidc.views import is_from_reusable_workflow
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
+from warehouse.packaging.metadata_verification import verify_url
 from warehouse.packaging.models import (
     Dependency,
     DependencyKind,
@@ -371,47 +370,86 @@ def _is_duplicate_file(db_session, filename, hashes):
     return None
 
 
-_pypi_project_urls = [
-    "https://pypi.org/project/",
-    "https://pypi.org/p/",
-    "https://pypi.python.org/project/",
-    "https://pypi.python.org/p/",
-    "https://python.org/pypi/",
-]
+def _process_attestations(request, distribution: Distribution):
+    """
+    Process any attestations included in a file upload request
 
+    Attestations, if present, will be parsed and verified against the uploaded
+    artifact. Attestations are only allowed when uploading via a Trusted
+    Publisher, because a Trusted Publisher provides the identity that will be
+    used to verify the attestations.
+    Currently, only GitHub Actions Trusted Publishers are supported, and
+    attestations are discarded after verification.
+    """
 
-def _verify_url_pypi(url: str, project_name: str, project_normalized_name: str) -> bool:
-    candidate_urls = (
-        f"{pypi_project_url}{name}{optional_slash}"
-        for pypi_project_url in _pypi_project_urls
-        for name in {project_name, project_normalized_name}
-        for optional_slash in ["/", ""]
-    )
+    metrics = request.find_service(IMetricsService, context=None)
 
-    user_uri = rfc3986.api.uri_reference(url).normalize()
-    return any(
-        user_uri == rfc3986.api.uri_reference(candidate_url).normalize()
-        for candidate_url in candidate_urls
-    )
+    publisher = request.oidc_publisher
+    if not publisher or not publisher.publisher_name == "GitHub":
+        raise _exc_with_message(
+            HTTPBadRequest,
+            "Attestations are currently only supported when using Trusted "
+            "Publishing with GitHub Actions.",
+        )
+    try:
+        attestations = TypeAdapter(list[Attestation]).validate_json(
+            request.POST["attestations"]
+        )
+    except ValidationError as e:
+        # Log invalid (malformed) attestation upload
+        metrics.increment("warehouse.upload.attestations.malformed")
+        raise _exc_with_message(
+            HTTPBadRequest,
+            f"Error while decoding the included attestation: {e}",
+        )
 
+    if len(attestations) > 1:
+        metrics.increment("warehouse.upload.attestations.failed_multiple_attestations")
+        raise _exc_with_message(
+            HTTPBadRequest,
+            "Only a single attestation per-file is supported at the moment.",
+        )
 
-def _verify_url(
-    url: str,
-    publisher: OIDCPublisher | None,
-    project_name: str,
-    project_normalized_name: str,
-) -> bool:
-    if _verify_url_pypi(
-        url=url,
-        project_name=project_name,
-        project_normalized_name=project_normalized_name,
-    ):
-        return True
+    verification_policy = publisher.publisher_verification_policy(request.oidc_claims)
+    for attestation_model in attestations:
+        try:
+            # For now, attestations are not stored, just verified
+            predicate_type, _ = attestation_model.verify(
+                Verifier.production(),
+                verification_policy,
+                distribution,
+            )
+        except VerificationError as e:
+            # Log invalid (failed verification) attestation upload
+            metrics.increment("warehouse.upload.attestations.failed_verify")
+            raise _exc_with_message(
+                HTTPBadRequest,
+                f"Could not verify the uploaded artifact using the included "
+                f"attestation: {e}",
+            )
+        except Exception as e:
+            with sentry_sdk.push_scope() as scope:
+                scope.fingerprint = [e]
+                sentry_sdk.capture_message(
+                    f"Unexpected error while verifying attestation: {e}"
+                )
 
-    if not publisher:
-        return False
+            raise _exc_with_message(
+                HTTPBadRequest,
+                f"Unknown error while trying to verify included attestations: {e}",
+            )
 
-    return publisher.verify_url(url)
+        if predicate_type != AttestationType.PYPI_PUBLISH_V1:
+            metrics.increment(
+                "warehouse.upload.attestations.failed_unsupported_predicate_type"
+            )
+            raise _exc_with_message(
+                HTTPBadRequest,
+                f"Attestation with unsupported predicate type: {predicate_type}",
+            )
+
+        # Log successful attestation upload
+        metrics.increment("warehouse.upload.attestations.ok")
 
 
 def _sort_releases(request: Request, project: Project):
@@ -781,7 +819,7 @@ def file_upload(request):
         else {
             name: {
                 "url": url,
-                "verified": _verify_url(
+                "verified": verify_url(
                     url=url,
                     publisher=request.oidc_publisher,
                     project_name=project.name,
@@ -791,6 +829,30 @@ def file_upload(request):
             for name, url in meta.project_urls.items()
         }
     )
+    home_page = meta.home_page
+    home_page_verified = (
+        False
+        if home_page is None
+        else verify_url(
+            url=home_page,
+            publisher=request.oidc_publisher,
+            project_name=project.name,
+            project_normalized_name=project.normalized_name,
+        )
+    )
+
+    download_url = meta.download_url
+    download_url_verified = (
+        False
+        if download_url is None
+        else verify_url(
+            url=download_url,
+            publisher=request.oidc_publisher,
+            project_name=project.name,
+            project_normalized_name=project.normalized_name,
+        )
+    )
+
     try:
         is_new_release = False
         canonical_version = packaging.utils.canonicalize_version(meta.version)
@@ -846,6 +908,10 @@ def file_upload(request):
                 html=rendered or "",
                 rendered_by=readme.renderer_version(),
             ),
+            home_page=home_page,
+            home_page_verified=home_page_verified,
+            download_url=download_url,
+            download_url_verified=download_url_verified,
             project_urls=project_urls,
             # TODO: Fix this, we currently treat platform as if it is a single
             #       use field, but in reality it is a multi-use field, which the
@@ -876,8 +942,6 @@ def file_upload(request):
                     "author_email",
                     "maintainer",
                     "maintainer_email",
-                    "home_page",
-                    "download_url",
                     "provides_extra",
                 }
             },
@@ -1309,6 +1373,11 @@ def file_upload(request):
                 and project_urls[name]["verified"]
             ):
                 release_url.verified = True
+
+        if home_page_verified and not release.home_page_verified:
+            release.home_page_verified = True
+        if download_url_verified and not release.download_url_verified:
+            release.download_url_verified = True
 
     request.db.flush()  # flush db now so server default values are populated for celery
 
