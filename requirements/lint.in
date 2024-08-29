@@ -16,6 +16,7 @@ types-certifi
 types-first
 types-html5lib
 types-itsdangerous
+types-lxml
 types-passlib
 types-python-slugify
 types-pytz

@@ -10,10 +10,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import socket
+
 import pretend
 import pytest
+import requests
+import rfc3986
 
-from warehouse.packaging.metadata_verification import _verify_url_pypi, verify_url
+from dns.inet import AF_INET
+
+from warehouse.packaging import metadata_verification as mv
+
+HTML_CONTENT = """
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width" />
+{tag_in_head}
+  <title>Welcome to the example documentation! &mdash; Example documentation</title>
+</head>
+<body>
+{tag_in_body}
+"""
 
 
 @pytest.mark.parametrize(
@@ -118,7 +136,238 @@ from warehouse.packaging.metadata_verification import _verify_url_pypi, verify_u
     ],
 )
 def test_verify_url_pypi(url, project_name, project_normalized_name, expected):
-    assert _verify_url_pypi(url, project_name, project_normalized_name) == expected
+    assert mv._verify_url_pypi(url, project_name, project_normalized_name) == expected
+
+
+def test_get_url_content(monkeypatch):
+    url = rfc3986.api.uri_reference("https://example.com")
+
+    def iter_content(self):
+        yield "content"
+
+    response = pretend.stub(raise_for_status=lambda: None, iter_content=iter_content)
+    monkeypatch.setattr(
+        requests,
+        "get",
+        lambda *args, **kwargs: response,
+    )
+
+    assert mv._get_url_content(url, 1024) == "content"
+
+
+def test_verify_url_meta_tag_request_raises(monkeypatch):
+    monkeypatch.setattr(
+        socket,
+        "getaddrinfo",
+        lambda *args: [(AF_INET, None, None, None, ("1.1.1.1",))],
+    )
+
+    def get_raises(*args, **kwargs):
+        raise requests.exceptions.RequestException()
+
+    monkeypatch.setattr(
+        requests,
+        "get",
+        get_raises,
+    )
+
+    assert not mv._verify_url_meta_tag("https://example.com", "package1", "package1")
+
+
+def test_verify_url_meta_tag_url_validation(monkeypatch):
+    valid_content = HTML_CONTENT.format(
+        tag_in_head='<meta content="package1" namespace="pypi.org" rel="me" />',
+        tag_in_body="",
+    )
+
+    monkeypatch.setattr(
+        socket,
+        "getaddrinfo",
+        lambda *args: [(socket.AF_INET, None, None, None, ("1.1.1.1",))],
+    )
+    monkeypatch.setattr(
+        mv,
+        "_get_url_content",
+        lambda url, max_length_bytes: valid_content,
+    )
+
+    # Valid URLs
+    assert mv._verify_url_meta_tag("https://example.com", "package1", "package1")
+    assert mv._verify_url_meta_tag("https://example.com:443", "package1", "package1")
+
+    # Invalid URLs
+    assert not mv._verify_url_meta_tag("invalid url", "package1", "package1")
+    assert not mv._verify_url_meta_tag("http://nothttps.com", "package1", "package1")
+    assert not mv._verify_url_meta_tag(
+        "https://wrongport.com:80", "package1", "package1"
+    )
+    assert not mv._verify_url_meta_tag("missinghttps.com", "package1", "package1")
+    # IPs are not allowed
+    assert not mv._verify_url_meta_tag("https://1.1.1.1", "package1", "package1")
+    assert not mv._verify_url_meta_tag(
+        "https://2001:0db8:85a3:0000:0000:8a2e:0370:7334", "package1", "package1"
+    )
+
+
+@pytest.mark.parametrize(
+    ("ip_address", "family", "expected"),
+    [
+        # Domains resolving to global IPs are allowed
+        ("1.1.1.1", socket.AF_INET, True),
+        ("2607:f8b0:4004:c08::8b", socket.AF_INET6, True),
+        # Domains resolving to private and shared IPs should fail
+        ("127.0.0.1", socket.AF_INET, False),
+        ("0.0.0.0", socket.AF_INET, False),
+        ("192.168.2.1", socket.AF_INET, False),
+        ("10.0.0.2", socket.AF_INET, False),
+        ("172.16.2.3", socket.AF_INET, False),
+        ("100.64.100.3", socket.AF_INET, False),
+        ("169.254.0.2", socket.AF_INET, False),
+        ("::1", socket.AF_INET6, False),
+        ("fd12:3456:789a:1::1", socket.AF_INET6, False),
+        ("fe80::ab8", socket.AF_INET6, False),
+        # Not IPv4 or IPv6
+        ("2.0000-0c91-f61f", socket.AF_IPX, False),
+        # Invalid IP
+        ("100.100.100.100.100", socket.AF_INET, False),
+    ],
+)
+def test_verify_url_meta_tag_ip_validation(monkeypatch, ip_address, family, expected):
+    valid_content = HTML_CONTENT.format(
+        tag_in_head='<meta content="package1" namespace="pypi.org" rel="me" />',
+        tag_in_body="",
+    )
+
+    monkeypatch.setattr(
+        socket,
+        "getaddrinfo",
+        lambda *args: [(family, None, None, None, (ip_address,))],
+    )
+    monkeypatch.setattr(
+        mv,
+        "_get_url_content",
+        lambda url, max_length_bytes: valid_content,
+    )
+
+    assert (
+        mv._verify_url_meta_tag("https://example.com", "package1", "package1")
+        == expected
+    )
+
+
+@pytest.mark.parametrize(
+    ("project_name", "tag_in_head", "tag_in_body", "expected"),
+    [
+        # Correct HTML, expected package inside content attribute
+        (
+            "package1",
+            '<meta content="package1" namespace="pypi.org" rel="me" />',
+            "",
+            True,
+        ),
+        # Correct HTML, expected package inside content attribute with multiple pkgs
+        (
+            "package1",
+            '<meta content="package1 package2 other" namespace="pypi.org" rel="me" />',
+            "",
+            True,
+        ),
+        # Correct HTML, meta tag missing
+        (
+            "package1",
+            "",
+            "",
+            False,
+        ),
+        # Correct HTML, wrong package inside content attribute
+        (
+            "package1",
+            '<meta content="package2" namespace="pypi.org" rel="me" />',
+            "",
+            False,
+        ),
+        # Correct HTML, missing content attribute
+        (
+            "package1",
+            '<meta namespace="pypi.org" rel="me" />',
+            "",
+            False,
+        ),
+        # Correct HTML, incorrect namespace attribute
+        (
+            "package1",
+            '<meta content="package1" namespace="notpypi.org" rel="me" />',
+            "",
+            False,
+        ),
+        # Correct HTML, missing namespace attribute
+        (
+            "package1",
+            '<meta content="package1" rel="me" />',
+            "",
+            False,
+        ),
+        # Correct HTML, incorrect rel attribute
+        (
+            "package1",
+            '<meta content="package1" namespace="pypi.org" rel="notme" />',
+            "",
+            False,
+        ),
+        # Correct HTML, missing rel attribute
+        (
+            "package1",
+            '<meta content="package1" namespace="pypi.org" />',
+            "",
+            False,
+        ),
+        # Correct HTML, tag inside body instead of head
+        (
+            "package1",
+            "",
+            '<meta content="package1" namespace="pypi.org" rel="me" />',
+            False,
+        ),
+    ],
+)
+def test_verify_url_meta_tag_content_parsing(
+    monkeypatch, project_name, tag_in_head, tag_in_body, expected
+):
+    monkeypatch.setattr(
+        socket,
+        "getaddrinfo",
+        lambda *args: [(socket.AF_INET, None, None, None, ("1.1.1.1",))],
+    )
+    monkeypatch.setattr(
+        mv,
+        "_get_url_content",
+        lambda url, max_length_bytes: HTML_CONTENT.format(
+            tag_in_head=tag_in_head, tag_in_body=tag_in_body
+        ),
+    )
+
+    assert (
+        mv._verify_url_meta_tag(
+            url="https://example.com",
+            project_name=project_name,
+            project_normalized_name=project_name,
+        )
+        == expected
+    )
+
+
+def test_verify_url_meta_tag_content_parsing_invalid_html(monkeypatch):
+    monkeypatch.setattr(
+        socket,
+        "getaddrinfo",
+        lambda *args: [(socket.AF_INET, None, None, None, ("1.1.1.1",))],
+    )
+    monkeypatch.setattr(
+        mv,
+        "_get_url_content",
+        lambda url, max_length_bytes: "<<<<<",
+    )
+    assert not mv._verify_url_meta_tag("https://example.com", "package1", "package1")
 
 
 def test_verify_url():
@@ -127,21 +376,21 @@ def test_verify_url():
     publisher_verifies = pretend.stub(verify_url=lambda url: True)
     publisher_fails = pretend.stub(verify_url=lambda url: False)
 
-    assert verify_url(
+    assert mv.verify_url(
         url="https://pypi.org/project/myproject/",
         publisher=None,
         project_name="myproject",
         project_normalized_name="myproject",
     )
 
-    assert verify_url(
+    assert mv.verify_url(
         url="https://github.com/org/myproject/issues",
         publisher=publisher_verifies,
         project_name="myproject",
         project_normalized_name="myproject",
     )
 
-    assert not verify_url(
+    assert not mv.verify_url(
         url="example.com",
         publisher=publisher_fails,
         project_name="myproject",
