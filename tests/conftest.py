@@ -333,6 +333,7 @@ def get_app_config(database, nondefaults=None):
         "sessions.url": "redis://localhost:0/",
         "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
         "warehouse.xmlrpc.cache.url": "redis://localhost:0/",
+        "archive_files.path": "/tmp",
     }
 
     if nondefaults:
