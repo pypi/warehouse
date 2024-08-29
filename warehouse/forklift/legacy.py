@@ -29,7 +29,13 @@ import sentry_sdk
 import wtforms
 import wtforms.validators
 
-from pypi_attestations import Attestation, Distribution
+from pydantic import TypeAdapter, ValidationError
+from pypi_attestations import (
+    Attestation,
+    AttestationType,
+    Distribution,
+    VerificationError,
+)
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPException,
@@ -41,6 +47,7 @@ from pyramid.httpexceptions import (
 )
 from pyramid.request import Request
 from pyramid.view import view_config
+from sigstore.verify import Verifier
 from sqlalchemy import and_, exists, func, orm
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 

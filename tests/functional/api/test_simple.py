@@ -12,19 +12,17 @@
 
 import base64
 import hashlib
+
 from http import HTTPStatus
 
-from ...common.db.packaging import (
-    ProjectFactory,
-    ReleaseFactory,
-)
-from ...common.db.accounts import EmailFactory, UserFactory
-from ...common.db.packaging import RoleFactory
-from ...common.db.macaroons import MacaroonFactory
-from ...common.db.oidc import GitHubPublisherFactory
+import pymacaroons
+
 from warehouse.macaroons import caveats
 
-import pymacaroons
+from ...common.db.accounts import EmailFactory, UserFactory
+from ...common.db.macaroons import MacaroonFactory
+from ...common.db.oidc import GitHubPublisherFactory
+from ...common.db.packaging import ProjectFactory, ReleaseFactory, RoleFactory
 
 
 def test_simple_api_html(webtest):
@@ -47,7 +45,10 @@ def test_simple_api_detail(webtest):
 
 def test_simple_attestations_from_upload(webtest):
     user = UserFactory.create(
-        password="$argon2id$v=19$m=1024,t=6,p=6$EiLE2Nsbo9S6N+acs/beGw$ccyZDCZstr1/+Y/1s3BVZHOJaqfBroT0JCieHug281c"  # 'password'
+        password=(  # 'password'
+            "$argon2id$v=19$m=1024,t=6,p=6$EiLE2Nsbo9S6N+acs/beGw$ccyZDCZstr1/+Y/1s3BVZ"
+            "HOJaqfBroT0JCieHug281c"
+        )
     )
     EmailFactory.create(user=user, verified=True)
     project = ProjectFactory.create(name="sampleproject")
@@ -75,16 +76,15 @@ def test_simple_attestations_from_upload(webtest):
         m.add_first_party_caveat(caveats.serialize(caveat))
     serialized_macaroon = f"pypi-{m.serialize()}"
 
-    credentials = base64.b64encode(
-        f"__token__:{serialized_macaroon}".encode("utf-8")
-    ).decode("utf-8")
+    credentials = base64.b64encode(f"__token__:{serialized_macaroon}".encode()).decode(
+        "utf-8"
+    )
 
     with open("./tests/functional/_fixtures/sampleproject-3.0.0.tar.gz", "rb") as f:
         content = f.read()
 
     with open(
         "./tests/functional/_fixtures/sampleproject-3.0.0.tar.gz.publish.attestation",
-        "r",
     ) as f:
         attestation = f.read()
 
@@ -101,7 +101,9 @@ def test_simple_attestations_from_upload(webtest):
         headers={"Authorization": f"Basic {credentials}"},
         params={
             "name": "sampleproject",
-            "sha256_digest": "117ed88e5db073bb92969a7545745fd977ee85b7019706dd256a64058f70963d",
+            "sha256_digest": (
+                "117ed88e5db073bb92969a7545745fd977ee85b7019706dd256a64058f70963d"
+            ),
             "filetype": "sdist",
             "metadata_version": "2.1",
             "version": "3.0.0",
