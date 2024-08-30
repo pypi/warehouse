@@ -139,12 +139,14 @@ class NullIntegrityService:
         provenance = Provenance(attestation_bundles=[attestation_bundle])
 
         for attestation in attestations:
-            DatabaseAttestation(
+            database_attestation = DatabaseAttestation(
                 file=file,
                 attestation_file_blake2_digest=hashlib.blake2b(
                     attestation.model_dump_json().encode("utf-8")
                 ).hexdigest(),
             )
+
+            file.attestations.append(database_attestation)
 
         return provenance
 
@@ -281,6 +283,8 @@ class IntegrityService:
                     tmp_file.name,
                     meta=None,
                 )
+
+                file.attestations.append(database_attestation)
 
     def _build_provenance_object(
         self, oidc_publisher: OIDCPublisher, attestations: list[Attestation]
