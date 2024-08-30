@@ -111,17 +111,18 @@ def _extract_attestations_from_request(request: Request) -> list[Attestation]:
 
 @implementer(IIntegrityService)
 class NullIntegrityService:
-    def __init__(self):
+    def __init__(self, session):
         warnings.warn(
             "NullIntegrityService is intended only for use in development, "
             "you should not use it in production due to the lack of actual "
             "attestation verification.",
             InsecureIntegrityServiceWarning,
         )
+        self.db = session
 
     @classmethod
-    def create_service(cls, _context, _request):
-        return cls()
+    def create_service(cls, _context, request):
+        return cls(session=request.db)
 
     def parse_attestations(
         self, request: Request, _distribution: Distribution
@@ -165,19 +166,17 @@ class NullIntegrityService:
 
 @implementer(IIntegrityService)
 class IntegrityService:
-    def __init__(
-        self,
-        storage: IFileStorage,
-        metrics: IMetricsService,
-    ):
+    def __init__(self, storage: IFileStorage, metrics: IMetricsService, session):
         self.storage: IFileStorage = storage
         self.metrics: IMetricsService = metrics
+        self.db = session
 
     @classmethod
-    def create_service(cls, _context, request: Request):
+    def create_service(cls, _context, request):
         return cls(
             storage=request.find_service(IFileStorage, name="archive"),
             metrics=request.find_service(IMetricsService),
+            session=request.db,
         )
 
     def parse_attestations(

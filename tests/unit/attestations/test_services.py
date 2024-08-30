@@ -66,7 +66,7 @@ class TestNullIntegrityService:
         )
 
         file = FileFactory.create()
-        service = services.NullIntegrityService()
+        service = services.NullIntegrityService(session=db_request.db)
 
         provenance = service.generate_provenance(db_request, file, [VALID_ATTESTATION])
         assert isinstance(provenance, Provenance)
@@ -87,6 +87,7 @@ class TestIntegrityService:
         integrity_service = IntegrityService(
             storage=storage_service,
             metrics=pretend.stub(),
+            session=db_request.db,
         )
 
         file = FileFactory.create()
@@ -113,6 +114,7 @@ class TestIntegrityService:
         integrity_service = IntegrityService(
             storage=pretend.stub(),
             metrics=pretend.stub(),
+            session=db_request.db,
         )
 
         db_request.oidc_publisher = None
@@ -126,6 +128,7 @@ class TestIntegrityService:
         integrity_service = IntegrityService(
             storage=pretend.stub(),
             metrics=pretend.stub(),
+            session=db_request.db,
         )
         db_request.oidc_publisher = pretend.stub(publisher_name="not-existing")
         with pytest.raises(
@@ -138,6 +141,7 @@ class TestIntegrityService:
         integrity_service = IntegrityService(
             storage=pretend.stub(),
             metrics=metrics,
+            session=db_request.db,
         )
 
         db_request.oidc_publisher = pretend.stub(publisher_name="GitHub")
@@ -157,6 +161,7 @@ class TestIntegrityService:
         integrity_service = IntegrityService(
             storage=pretend.stub(),
             metrics=metrics,
+            session=db_request.db,
         )
 
         db_request.oidc_publisher = pretend.stub(publisher_name="GitHub")
@@ -195,6 +200,7 @@ class TestIntegrityService:
         integrity_service = IntegrityService(
             storage=pretend.stub(),
             metrics=metrics,
+            session=db_request.db,
         )
 
         db_request.oidc_publisher = pretend.stub(
@@ -224,6 +230,7 @@ class TestIntegrityService:
         integrity_service = IntegrityService(
             storage=pretend.stub(),
             metrics=metrics,
+            session=db_request.db,
         )
         db_request.oidc_publisher = pretend.stub(
             publisher_name="GitHub",
@@ -258,6 +265,7 @@ class TestIntegrityService:
         integrity_service = IntegrityService(
             storage=pretend.stub(),
             metrics=metrics,
+            session=db_request.db,
         )
         db_request.oidc_publisher = pretend.stub(
             publisher_name="GitHub",
@@ -283,6 +291,7 @@ class TestIntegrityService:
         integrity_service = IntegrityService(
             storage=pretend.stub(),
             metrics=pretend.stub(),
+            session=db_request.db,
         )
 
         db_request.oidc_publisher = pretend.stub(publisher_name="not-existing")
@@ -309,6 +318,7 @@ class TestIntegrityService:
         integrity_service = IntegrityService(
             storage=storage_service,
             metrics=metrics,
+            session=db_request.db,
         )
 
         file = FileFactory.create()
@@ -361,6 +371,7 @@ class TestIntegrityService:
         integrity_service = IntegrityService(
             storage=storage_service,
             metrics=metrics,
+            session=db_request.db,
         )
         file = FileFactory.create()
         assert integrity_service._persist_provenance(provenance, file) is None
@@ -376,6 +387,7 @@ class TestIntegrityService:
         integrity_service = IntegrityService(
             storage=storage_service,
             metrics=metrics,
+            session=db_request.db,
         )
 
         db_request.oidc_publisher = GitHubPublisherFactory.create()
@@ -396,6 +408,7 @@ class TestIntegrityService:
         integrity_service = IntegrityService(
             storage=pretend.stub(),
             metrics=pretend.stub(),
+            session=db_request.db,
         )
 
         assert integrity_service.get_provenance_digest(file) is None

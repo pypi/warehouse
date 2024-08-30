@@ -555,7 +555,7 @@ def activestate_oidc_service(db_session):
 
 @pytest.fixture
 def integrity_service(db_session):
-    return attestations_services.NullIntegrityService()
+    return attestations_services.NullIntegrityService(db_session)
 
 
 @pytest.fixture
