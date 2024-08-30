@@ -14,6 +14,7 @@ import base64
 import hashlib
 
 from http import HTTPStatus
+from pathlib import Path
 
 import pymacaroons
 
@@ -23,6 +24,9 @@ from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.macaroons import MacaroonFactory
 from ...common.db.oidc import GitHubPublisherFactory
 from ...common.db.packaging import ProjectFactory, ReleaseFactory, RoleFactory
+
+_HERE = Path(__file__).parent
+_ASSETS = _HERE.parent / "_fixtures"
 
 
 def test_simple_api_html(webtest):
@@ -80,21 +84,18 @@ def test_simple_attestations_from_upload(webtest):
         "utf-8"
     )
 
-    with open("./tests/functional/_fixtures/sampleproject-3.0.0.tar.gz", "rb") as f:
+    with open(_ASSETS / "sampleproject-3.0.0.tar.gz", "rb") as f:
         content = f.read()
 
     with open(
-        "./tests/functional/_fixtures/sampleproject-3.0.0.tar.gz.publish.attestation",
+        _ASSETS / "sampleproject-3.0.0.tar.gz.publish.attestation",
     ) as f:
         attestation = f.read()
 
-    with open(
-        "./tests/functional/_fixtures/sampleproject-3.0.0.tar.gz.publish.attestation",
-        "rb",
-    ) as f:
-        digest = hashlib.file_digest(f, "sha256")
-
-    expected_hash = digest.hexdigest()
+    expected_hash = hashlib.sha256(
+        # Filename:len(attestations)
+        b"sampleproject-3.0.0.tar.gz:1"
+    ).hexdigest()
 
     webtest.post(
         "/legacy/?:action=file_upload",
