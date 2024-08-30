@@ -7055,7 +7055,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/pages/help.html:91
-msgid "How can I restore a delete project, release or file?"
+msgid "How can I restore a deleted project, release or file?"
 msgstr ""
 
 #: warehouse/templates/pages/help.html:94
