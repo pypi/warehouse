@@ -114,7 +114,7 @@ Warehouse uses services to provide pluggable functionalities within the codebase
 `pyramid-service`_. After being registered, services are accessible using the ``find_service`` method of the
 ``request`` object.
 
-When adding new services to warehouse, the following checklist serves as a comprehensive guideline to ensure
+When adding new services to ``warehouse``, the following checklist serves as a comprehensive guideline to ensure
 you stay on track.
 
 Adding a new service
