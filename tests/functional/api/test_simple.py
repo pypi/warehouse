@@ -92,11 +92,6 @@ def test_simple_attestations_from_upload(webtest):
     ) as f:
         attestation = f.read()
 
-    expected_hash = hashlib.sha256(
-        # Filename:len(attestations)
-        b"sampleproject-3.0.0.tar.gz:1"
-    ).hexdigest()
-
     webtest.post(
         "/legacy/?:action=file_upload",
         headers={"Authorization": f"Basic {credentials}"},
@@ -114,7 +109,15 @@ def test_simple_attestations_from_upload(webtest):
         status=HTTPStatus.OK,
     )
 
+    assert len(project.releases) == 1
+    assert project.releases[0].files.count() == 1
+    assert len(project.releases[0].files[0].attestations) == 1
+
     response = webtest.get("/simple/sampleproject/", status=HTTPStatus.OK)
     link = response.html.find("a", text="sampleproject-3.0.0.tar.gz")
+
     assert "data-provenance" in link.attrs
-    assert link.get("data-provenance") == expected_hash
+    assert (
+        link.get("data-provenance")
+        == hashlib.sha256(b"sampleproject-3.0.0.tar.gz:1").hexdigest()
+    )
