@@ -393,9 +393,9 @@ webob==1.8.8 \
     --hash=sha256:2abc1555e118fc251e705fc6dc66c7f5353bb9fbfab6d20e22f1c02b4b71bcee \
     --hash=sha256:b60ba63f05c0cf61e086a10c3781a41fcfe30027753a8ae6d819c77592ce83ea
     # via webtest
-webtest==3.0.0 \
-    --hash=sha256:2a001a9efa40d2a7e5d9cd8d1527c75f41814eb6afce2c3d207402547b1e5ead \
-    --hash=sha256:54bd969725838d9861a9fa27f8d971f79d275d94ae255f5c501f53bb6d9929eb
+webtest==3.0.1 \
+    --hash=sha256:493b5c802f8948a65b5e3a1ad5b2524ee5e1ab60cd713d9a3da3b8da082c06fe \
+    --hash=sha256:b3bc75d020d0576ee93a5f149666045e58fe2400ea5f0c214d7430d7d213d0d0
     # via -r requirements/tests.in
 
 # The following packages are considered to be unsafe in a requirements file:
