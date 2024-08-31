@@ -102,11 +102,11 @@ const allLocaleData = KNOWN_LOCALES
           continue;
         }
         result[value.msgid] = value.msgstr
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#39;");
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
       }
       return result;
     } catch (e) {
