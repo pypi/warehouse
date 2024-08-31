@@ -24,7 +24,7 @@ def test_generate_key():
 
 class TestCaveats:
     @pytest.mark.parametrize(
-        "value,expected",
+        ("value", "expected"),
         [
             (
                 [
@@ -42,7 +42,7 @@ class TestCaveats:
         assert dm._caveats == expected
 
     @pytest.mark.parametrize(
-        "value,expected",
+        ("value", "expected"),
         [
             (
                 [[3, "a614e122-a9ee-473c-b6df-8c4f1b776628"], [1, ["foo", "bar"]]],

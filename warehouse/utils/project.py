@@ -177,6 +177,7 @@ def remove_project(project, request, flash=True):
 
 def destroy_docs(project, request, flash=True):
     request.task(remove_documentation).delay(project.name)
+    request.task(remove_documentation).delay(project.normalized_name)
 
     project.has_docs = False
 

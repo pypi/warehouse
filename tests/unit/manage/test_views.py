@@ -71,7 +71,6 @@ from warehouse.packaging.models import (
 )
 from warehouse.rate_limiting import IRateLimiter
 from warehouse.utils.paginate import paginate_url_factory
-from warehouse.utils.project import remove_documentation
 
 from ...common.db.accounts import EmailFactory
 from ...common.db.organizations import (
@@ -117,7 +116,7 @@ class TestManageUnverifiedAccount:
 
 class TestManageAccount:
     @pytest.mark.parametrize(
-        "public_email, expected_public_email",
+        ("public_email", "expected_public_email"),
         [(None, ""), (pretend.stub(email="some@email.com"), "some@email.com")],
     )
     def test_default_response(self, monkeypatch, public_email, expected_public_email):
@@ -575,7 +574,7 @@ class TestManageAccount:
         assert old_primary.primary
 
     @pytest.mark.parametrize(
-        "has_primary_verified_email, expected_redirect",
+        ("has_primary_verified_email", "expected_redirect"),
         [
             (True, "manage.account"),
             (False, "manage.unverified-account"),
@@ -693,7 +692,7 @@ class TestManageAccount:
 
     @pytest.mark.parametrize("reverify_email_id", ["9999", "wutang"])
     @pytest.mark.parametrize(
-        "has_primary_verified_email,expected",
+        ("has_primary_verified_email", "expected"),
         [
             (True, "manage.account"),
             (False, "manage.unverified-account"),
@@ -1081,7 +1080,7 @@ class TestProvisionTOTP:
         }
 
     @pytest.mark.parametrize(
-        "user, expected_flash_calls",
+        ("user", "expected_flash_calls"),
         [
             (
                 pretend.stub(
@@ -1890,7 +1889,7 @@ class TestProvisionRecoveryCodes:
         ]
 
     @pytest.mark.parametrize(
-        "user, expected",
+        ("user", "expected"),
         [
             (
                 pretend.stub(
@@ -3724,9 +3723,10 @@ class TestManageProjectDocumentation:
 
         result = views.destroy_project_docs(project, db_request)
 
-        assert task.calls == [pretend.call(remove_documentation)]
-
-        assert remove_documentation_recorder.delay.calls == [pretend.call(project.name)]
+        assert remove_documentation_recorder.delay.calls == [
+            pretend.call(project.name),
+            pretend.call(project.normalized_name),
+        ]
 
         assert db_request.session.flash.calls == [
             pretend.call("Deleted docs for project 'foo'", queue="success")
@@ -4530,7 +4530,7 @@ class TestManageProjectRelease:
 
 class TestManageProjectRoles:
     @pytest.fixture
-    def organization(self, enable_organizations, pyramid_user):
+    def organization(self, _enable_organizations, pyramid_user):
         organization = OrganizationFactory.create()
         OrganizationRoleFactory.create(
             organization=organization,
@@ -5817,7 +5817,7 @@ class TestManageOIDCPublisherViews:
         ]
 
     @pytest.mark.parametrize(
-        "ip_exceeded, user_exceeded",
+        ("ip_exceeded", "user_exceeded"),
         [
             (False, False),
             (False, True),
@@ -5977,7 +5977,7 @@ class TestManageOIDCPublisherViews:
         ]
 
     @pytest.mark.parametrize(
-        "form_name, prefilled_data",
+        ("form_name", "prefilled_data"),
         [
             # All fields of GitHub provider
             (
@@ -6076,7 +6076,7 @@ class TestManageOIDCPublisherViews:
         assert form.data == prefilled_data
 
     @pytest.mark.parametrize(
-        "missing_fields, prefilled_data, extra_fields",
+        ("missing_fields", "prefilled_data", "extra_fields"),
         [
             # Only some fields present
             (
@@ -6207,7 +6207,7 @@ class TestManageOIDCPublisherViews:
         assert all(v is None for _, v in view.github_publisher_form.data.items())
 
     @pytest.mark.parametrize(
-        "view_name, publisher, make_form",
+        ("view_name", "publisher", "make_form"),
         [
             (
                 "add_github_oidc_publisher",
@@ -6385,7 +6385,7 @@ class TestManageOIDCPublisherViews:
         assert project.oidc_publishers == [publisher]
 
     @pytest.mark.parametrize(
-        "view_name, publisher_form_obj, expected_publisher",
+        ("view_name", "publisher_form_obj", "expected_publisher"),
         [
             (
                 "add_github_oidc_publisher",
@@ -6543,7 +6543,7 @@ class TestManageOIDCPublisherViews:
         assert view._check_ratelimits.calls == [pretend.call()]
 
     @pytest.mark.parametrize(
-        "view_name, publisher_name, publisher, post_body",
+        ("view_name", "publisher_name", "publisher", "post_body"),
         [
             (
                 "add_github_oidc_publisher",
@@ -6697,7 +6697,7 @@ class TestManageOIDCPublisherViews:
         ]
 
     @pytest.mark.parametrize(
-        "view_name, publisher_name",
+        ("view_name", "publisher_name"),
         [
             ("add_github_oidc_publisher", "GitHub"),
             ("add_gitlab_oidc_publisher", "GitLab"),
@@ -6747,7 +6747,7 @@ class TestManageOIDCPublisherViews:
         ]
 
     @pytest.mark.parametrize(
-        "view_name, publisher_name",
+        ("view_name", "publisher_name"),
         [
             ("add_github_oidc_publisher", "GitHub"),
             ("add_gitlab_oidc_publisher", "GitLab"),
@@ -6790,7 +6790,7 @@ class TestManageOIDCPublisherViews:
         ]
 
     @pytest.mark.parametrize(
-        "view_name, publisher_name",
+        ("view_name", "publisher_name"),
         [
             ("add_github_oidc_publisher", "GitHub"),
             ("add_gitlab_oidc_publisher", "GitLab"),

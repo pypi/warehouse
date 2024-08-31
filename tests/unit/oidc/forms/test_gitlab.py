@@ -146,7 +146,7 @@ class TestGitLabPublisherForm:
             form.validate_workflow_filepath(field)
 
     @pytest.mark.parametrize(
-        "data, expected",
+        ("data", "expected"),
         [
             ("", ""),
             ("  ", ""),
