@@ -16,7 +16,7 @@ import typing
 from uuid import UUID
 
 from sqlalchemy import ForeignKey, orm
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import CITEXT, JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
@@ -44,3 +44,9 @@ class Provenance(db.Model):
 
     # This JSONB has the structure of a PEP 740 provenance object.
     provenance: Mapped[dict] = mapped_column(JSONB, nullable=False)
+
+    # The Blake2/256 digest of the provenance object stored in this row.
+    # Postgres uses a compact binary representation under the hood and is
+    # unlikely to provide a permanently stable serialization, so this is the
+    # hash of the RFC 8785 serialization.
+    provenance_blake2_256_digest: Mapped[str] = mapped_column(CITEXT)
