@@ -10,11 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-recreate attestations
+add provenance table
 
-Revision ID: 323ee049ac28
+Revision ID: 1b9ae6ec6ec0
 Revises: dcf1e3986782
-Create Date: 2024-09-03 19:41:26.449967
+Create Date: 2024-09-03 23:39:30.853147
 """
 
 import sqlalchemy as sa
@@ -22,16 +22,16 @@ import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import postgresql
 
-revision = "323ee049ac28"
+revision = "1b9ae6ec6ec0"
 down_revision = "dcf1e3986782"
 
 
 def upgrade():
     op.create_table(
-        "attestation",
+        "provenance",
         sa.Column("file_id", sa.UUID(), nullable=False),
         sa.Column(
-            "attestation_file_blake2_digest", postgresql.CITEXT(), nullable=False
+            "provenance", postgresql.JSONB(astext_type=sa.Text()), nullable=False
         ),
         sa.Column(
             "id", sa.UUID(), server_default=sa.text("gen_random_uuid()"), nullable=False
@@ -44,4 +44,4 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_table("attestation")
+    op.drop_table("provenance")

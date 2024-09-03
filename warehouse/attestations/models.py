@@ -13,12 +13,10 @@ from __future__ import annotations
 
 import typing
 
-from pathlib import Path
 from uuid import UUID
 
 from sqlalchemy import ForeignKey, orm
-from sqlalchemy.dialects.postgresql import CITEXT
-from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
@@ -27,29 +25,22 @@ if typing.TYPE_CHECKING:
     from warehouse.packaging.models import File
 
 
-class Attestation(db.Model):
+class Provenance(db.Model):
     """
-    Table used to store Attestations.
+    A table for PEP 740 provenance objects.
 
-    Attestations are stored on disk. We keep in database only the attestation hash.
+    Provenance objects contain one or more attestation objects.
+    These attestation objects are grouped into "bundles," each of which
+    contains one or more attestations along with the Trusted Publisher
+    identity that produced them.
     """
 
-    __tablename__ = "attestation"
+    __tablename__ = "provenance"
 
     file_id: Mapped[UUID] = mapped_column(
         ForeignKey("release_files.id", onupdate="CASCADE", ondelete="CASCADE"),
     )
-    file: Mapped[File] = orm.relationship(back_populates="attestations")
+    file: Mapped[File] = orm.relationship(back_populates="provenance")
 
-    attestation_file_blake2_digest: Mapped[str] = mapped_column(CITEXT)
-
-    @hybrid_property
-    def attestation_path(self):
-        return "/".join(
-            [
-                self.attestation_file_blake2_digest[:2],
-                self.attestation_file_blake2_digest[2:4],
-                self.attestation_file_blake2_digest[4:],
-                f"{Path(self.file.path).name}.attestation",
-            ]
-        )
+    # This JSONB has the structure of a PEP 740 provenance object.
+    provenance: Mapped[dict] = mapped_column(JSONB, nullable=False)

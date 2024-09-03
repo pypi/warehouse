@@ -62,7 +62,7 @@ from urllib3.util import parse_url
 
 from warehouse import db
 from warehouse.accounts.models import User
-from warehouse.attestations.models import Attestation
+from warehouse.attestations.models import Provenance
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.events.models import HasEvents
@@ -839,9 +839,7 @@ class File(HasEvents, db.Model):
         nullable=True,
         comment="If True, the metadata for the file cannot be backfilled.",
     )
-
-    # PEP 740 attestations
-    attestations: Mapped[list[Attestation]] = orm.relationship(
+    provenance: Mapped[Provenance] = orm.relationship(
         cascade="all, delete-orphan",
         lazy="joined",
         passive_deletes=True,
