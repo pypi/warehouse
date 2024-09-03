@@ -14,8 +14,8 @@ import socket
 
 import pretend
 import pytest
-import requests
 import rfc3986
+import urllib3
 
 from dns.inet import AF_INET
 
@@ -142,33 +142,55 @@ def test_verify_url_pypi(url, project_name, project_normalized_name, expected):
 def test_get_url_content(monkeypatch):
     url = rfc3986.api.uri_reference("https://example.com")
 
-    def iter_content(self):
+    def iter_content():
         yield "content"
 
-    response = pretend.stub(raise_for_status=lambda: None, iter_content=iter_content)
+    response = pretend.stub(
+        drain_conn=pretend.call_recorder(lambda: None),
+        release_conn=pretend.call_recorder(lambda: None),
+        stream=lambda amt: iter_content(),
+    )
+    pool = pretend.stub(request=lambda *args, **kwargs: response)
     monkeypatch.setattr(
-        requests,
-        "get",
-        lambda *args, **kwargs: response,
+        urllib3,
+        "HTTPSConnectionPool",
+        lambda *args, **kwargs: pool,
     )
 
-    assert mv._get_url_content(url, 1024) == "content"
+    assert (
+        mv._get_url_content(
+            resolved_ip="100.100.100.100", url=url, max_length_bytes=1024
+        )
+        == "content"
+    )
+    assert response.drain_conn.calls == [pretend.call()]
+    assert response.release_conn.calls == [pretend.call()]
 
 
-def test_verify_url_meta_tag_request_raises(monkeypatch):
+def test_verify_url_meta_tag_urllib_raises(monkeypatch):
     monkeypatch.setattr(
         socket,
         "getaddrinfo",
         lambda *args: [(AF_INET, None, None, None, ("1.1.1.1",))],
     )
 
-    def get_raises(*args, **kwargs):
-        raise requests.exceptions.RequestException()
+    def pool_raises(*args, **kwargs):
+        raise urllib3.exceptions.ProtocolError()
 
     monkeypatch.setattr(
-        requests,
-        "get",
-        get_raises,
+        urllib3.HTTPSConnectionPool,
+        "__init__",
+        pool_raises,
+    )
+
+    assert not mv._verify_url_meta_tag("https://example.com", "package1", "package1")
+
+
+def test_verify_url_meta_tag_getaddrinfo_empty(monkeypatch):
+    monkeypatch.setattr(
+        socket,
+        "getaddrinfo",
+        lambda *args: [],
     )
 
     assert not mv._verify_url_meta_tag("https://example.com", "package1", "package1")
@@ -188,18 +210,20 @@ def test_verify_url_meta_tag_url_validation(monkeypatch):
     monkeypatch.setattr(
         mv,
         "_get_url_content",
-        lambda url, max_length_bytes: valid_content,
+        lambda resolved_ip, url, max_length_bytes: valid_content,
     )
 
     # Valid URLs
     assert mv._verify_url_meta_tag("https://example.com", "package1", "package1")
-    assert mv._verify_url_meta_tag("https://example.com:443", "package1", "package1")
 
     # Invalid URLs
     assert not mv._verify_url_meta_tag("invalid url", "package1", "package1")
     assert not mv._verify_url_meta_tag("http://nothttps.com", "package1", "package1")
     assert not mv._verify_url_meta_tag(
-        "https://wrongport.com:80", "package1", "package1"
+        "https://portincluded.com:80", "package1", "package1"
+    )
+    assert not mv._verify_url_meta_tag(
+        "https://portincluded.com:443", "package1", "package1"
     )
     assert not mv._verify_url_meta_tag("missinghttps.com", "package1", "package1")
     # IPs are not allowed
@@ -246,7 +270,7 @@ def test_verify_url_meta_tag_ip_validation(monkeypatch, ip_address, family, expe
     monkeypatch.setattr(
         mv,
         "_get_url_content",
-        lambda url, max_length_bytes: valid_content,
+        lambda resolved_ip, url, max_length_bytes: valid_content,
     )
 
     assert (
@@ -341,7 +365,7 @@ def test_verify_url_meta_tag_content_parsing(
     monkeypatch.setattr(
         mv,
         "_get_url_content",
-        lambda url, max_length_bytes: HTML_CONTENT.format(
+        lambda resolved_ip, url, max_length_bytes: HTML_CONTENT.format(
             tag_in_head=tag_in_head, tag_in_body=tag_in_body
         ),
     )
@@ -365,7 +389,7 @@ def test_verify_url_meta_tag_content_parsing_invalid_html(monkeypatch):
     monkeypatch.setattr(
         mv,
         "_get_url_content",
-        lambda url, max_length_bytes: "<<<<<",
+        lambda resolved_ip, url, max_length_bytes: "<<<<<",
     )
     assert not mv._verify_url_meta_tag("https://example.com", "package1", "package1")
 
