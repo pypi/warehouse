@@ -84,10 +84,8 @@ def _get_url_content(
 
     content = r.read(max_length_bytes)
 
-    # When using `preload_content=False`, the HTTP connection must be manually released
-    # back to the pool.
-    r.drain_conn()
-    r.release_conn()
+    # When using `preload_content=False`, the HTTP connection must be manually closed
+    r.close()
 
     return content
 
