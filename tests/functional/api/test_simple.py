@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import base64
 import hashlib
 
 from http import HTTPStatus
@@ -80,10 +79,6 @@ def test_simple_attestations_from_upload(webtest):
         m.add_first_party_caveat(caveats.serialize(caveat))
     serialized_macaroon = f"pypi-{m.serialize()}"
 
-    credentials = base64.b64encode(f"__token__:{serialized_macaroon}".encode()).decode(
-        "utf-8"
-    )
-
     with open(_ASSETS / "sampleproject-3.0.0.tar.gz", "rb") as f:
         content = f.read()
 
@@ -92,9 +87,9 @@ def test_simple_attestations_from_upload(webtest):
     ) as f:
         attestation = f.read()
 
+    webtest.set_authorization(("Basic", ("__token__", serialized_macaroon)))
     webtest.post(
         "/legacy/?:action=file_upload",
-        headers={"Authorization": f"Basic {credentials}"},
         params={
             "name": "sampleproject",
             "sha256_digest": (
@@ -113,11 +108,24 @@ def test_simple_attestations_from_upload(webtest):
     assert project.releases[0].files.count() == 1
     assert len(project.releases[0].files[0].attestations) == 1
 
+    expected_provenance = hashlib.sha256(b"sampleproject-3.0.0.tar.gz:1").hexdigest()
+    expected_filename = "sampleproject-3.0.0.tar.gz"
+
     response = webtest.get("/simple/sampleproject/", status=HTTPStatus.OK)
-    link = response.html.find("a", text="sampleproject-3.0.0.tar.gz")
+    link = response.html.find("a", text=expected_filename)
 
     assert "data-provenance" in link.attrs
-    assert (
-        link.get("data-provenance")
-        == hashlib.sha256(b"sampleproject-3.0.0.tar.gz:1").hexdigest()
+    assert link.get("data-provenance") == expected_provenance
+
+    response = webtest.get(
+        "/simple/sampleproject/",
+        headers={"Accept": "application/vnd.pypi.simple.v1+json"},
+        status=HTTPStatus.OK,
     )
+
+    assert response.content_type == "application/vnd.pypi.simple.v1+json"
+
+    json_content = response.json
+    assert len(json_content["files"]) == 1
+    assert json_content["files"][0]["filename"] == expected_filename
+    assert json_content["files"][0]["provenance"] == expected_provenance
