@@ -14,8 +14,6 @@ import tempfile
 import typing
 import warnings
 
-from pathlib import Path
-
 import sentry_sdk
 
 from pydantic import TypeAdapter, ValidationError
@@ -312,12 +310,11 @@ class IntegrityService:
         """
         Persist a Provenance object in storage.
         """
-        provenance_file_path = Path(f"{file.path}.provenance")
         with tempfile.NamedTemporaryFile() as f:
             f.write(provenance.model_dump_json().encode("utf-8"))
             f.flush()
 
             self.storage.store(
-                provenance_file_path,
+                f"{file.path}.provenance",
                 f.name,
             )
