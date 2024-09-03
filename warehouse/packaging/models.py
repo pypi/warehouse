@@ -81,6 +81,7 @@ from warehouse.utils.attrs import make_repr
 from warehouse.utils.db.types import bool_false, datetime_now
 
 if typing.TYPE_CHECKING:
+    from warehouse.attestations.models import Attestation
     from warehouse.oidc.models import OIDCPublisher
 
 _MONOTONIC_SEQUENCE = 42
@@ -837,6 +838,13 @@ class File(HasEvents, db.Model):
     metadata_file_unbackfillable: Mapped[bool_false] = mapped_column(
         nullable=True,
         comment="If True, the metadata for the file cannot be backfilled.",
+    )
+
+    # PEP 740 attestations
+    attestations: Mapped[list[Attestation]] = orm.relationship(
+        cascade="all, delete-orphan",
+        lazy="joined",
+        passive_deletes=True,
     )
 
     @property

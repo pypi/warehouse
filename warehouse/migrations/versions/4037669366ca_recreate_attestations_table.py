@@ -10,11 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-create Attestations table
+recreate attestations table
 
-Revision ID: 7f0c9f105f44
-Revises: 26455e3712a2
-Create Date: 2024-07-25 15:49:01.993869
+Revision ID: 4037669366ca
+Revises: 606abd3b8e7f
+Create Date: 2024-08-21 20:33:53.489489
 """
 
 import sqlalchemy as sa
@@ -22,8 +22,8 @@ import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import postgresql
 
-revision = "7f0c9f105f44"
-down_revision = "26455e3712a2"
+revision = "4037669366ca"
+down_revision = "606abd3b8e7f"
 
 
 def upgrade():

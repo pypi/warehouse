@@ -9,11 +9,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import hashlib
+
+import factory
+
+from warehouse.attestations.models import Attestation
+
+from .base import WarehouseFactory
 
 
-class InsecureOIDCPublisherWarning(UserWarning):
-    pass
+class AttestationFactory(WarehouseFactory):
+    class Meta:
+        model = Attestation
 
-
-class InsecureIntegrityServiceWarning(UserWarning):
-    pass
+    file = factory.SubFactory("tests.common.db.packaging.FileFactory")
+    attestation_file_blake2_digest = factory.LazyAttribute(
+        lambda o: hashlib.blake2b(o.file.filename.encode("utf8")).hexdigest()
+    )

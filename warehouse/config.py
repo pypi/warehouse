@@ -405,6 +405,12 @@ def configure(settings=None):
         "OIDC_BACKEND",
         default="warehouse.oidc.services.OIDCPublisherService",
     )
+    maybe_set(
+        settings,
+        "attestations.backend",
+        "ATTESTATIONS_BACKEND",
+        default="warehouse.attestations.services.IntegrityService",
+    )
 
     # Pythondotorg integration settings
     maybe_set(
@@ -460,7 +466,7 @@ def configure(settings=None):
         "warehouse.account.accounts_search_ratelimit_string",
         "ACCOUNTS_SEARCH_RATELIMIT_STRING",
         default="100 per hour",
-    ),
+    )
     maybe_set(
         settings,
         "warehouse.account.password_reset_ratelimit_string",
@@ -739,6 +745,9 @@ def configure(settings=None):
 
     # Register support for OIDC based authentication
     config.include(".oidc")
+
+    # Register support for attestations
+    config.include(".attestations")
 
     # Register logged-in views
     config.include(".manage")
