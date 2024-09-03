@@ -142,13 +142,9 @@ def test_verify_url_pypi(url, project_name, project_normalized_name, expected):
 def test_get_url_content(monkeypatch):
     url = rfc3986.api.uri_reference("https://example.com")
 
-    def iter_content():
-        yield "content"
-
     response = pretend.stub(
-        drain_conn=pretend.call_recorder(lambda: None),
-        release_conn=pretend.call_recorder(lambda: None),
-        stream=lambda amt: iter_content(),
+        close=pretend.call_recorder(lambda: None),
+        read=lambda amt: "content",
     )
     pool = pretend.stub(request=lambda *args, **kwargs: response)
     monkeypatch.setattr(
@@ -163,8 +159,7 @@ def test_get_url_content(monkeypatch):
         )
         == "content"
     )
-    assert response.drain_conn.calls == [pretend.call()]
-    assert response.release_conn.calls == [pretend.call()]
+    assert response.close.calls == [pretend.call()]
 
 
 def test_verify_url_meta_tag_urllib_raises(monkeypatch):
