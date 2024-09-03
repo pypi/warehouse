@@ -18,6 +18,7 @@ from base64 import b64encode
 from textwrap import dedent
 
 from warehouse import db, tasks
+from warehouse.helpdesk.interfaces import IHelpDeskService
 
 from .models import OBSERVATION_KIND_MAP, Observation, ObservationKind
 
@@ -54,13 +55,6 @@ def execute_observation_report(config: Configurator, session: SA_Session):
 def report_observation_to_helpscout(task, request: Request, model_id: UUID) -> None:
     """
     Report an Observation to HelpScout for further tracking.
-
-    NOTE: Not using one of the existing `helpscout` libraries,
-     because they all seem to be focused on the HelpScout API v1,
-     which is deprecated. The v2 API is a bit more complex, but
-     we can use the `requests` library directly to make the calls.
-     If we see that there's further usage of the HelpScout API,
-     we can look at creating a more general-purpose library/module.
     """
     # Fetch the Observation from the database
     model = request.db.get(Observation, model_id)
@@ -100,30 +94,13 @@ def report_observation_to_helpscout(task, request: Request, model_id: UUID) -> N
             """
         )
 
-    # If no secret is supplied, bypass HelpScout API and print.
-    if not request.registry.settings.get("helpscout.app_secret"):  # pragma: no cover
-        output = (
-            dedent(
-                f"""
-            type: email
-            observer: {model.observer.parent.username}
-            customer: {model.observer.parent.email}
-            subject: Observation Report for {target_name}
-            """
-            )
-            + convo_text
-        )
-        print(output)
-        return
-
-    _helpscout_bearer_token = _authenticate_helpscout(request)
-    _helpscout_mailbox_id = request.registry.settings.get("helpscout.mailbox_id")
+    helpdesk_service = request.find_service(IHelpDeskService)
 
     request_json = {
         "type": "email",
         "customer": {"email": model.observer.parent.email},
         "subject": f"Observation Report for {target_name}",
-        "mailboxId": _helpscout_mailbox_id,
+        "mailboxId": helpdesk_service.mailbox_id,
         "status": "active",
         "threads": [
             {
@@ -147,32 +124,9 @@ def report_observation_to_helpscout(task, request: Request, model_id: UUID) -> N
             }
         ]
 
-    resp = request.http.post(
-        "https://api.helpscout.net/v2/conversations",
-        headers={"Authorization": f"Bearer {_helpscout_bearer_token}"},
-        json=request_json,
-        timeout=10,
-    )
-    resp.raise_for_status()
+    new_convo_location = helpdesk_service.create_conversation(request_json=request_json)
+
     # Add the conversation URL back to the Observation for tracking purposes.
-    model.additional["helpscout_conversation_url"] = resp.headers["Location"]
+    model.additional["helpscout_conversation_url"] = new_convo_location
     request.db.add(model)
-
-
-def _authenticate_helpscout(request: Request) -> str:  # pragma: no cover (manual test)
-    """
-    Perform the authentication dance with HelpScout to get a bearer token.
-    https://developer.helpscout.com/mailbox-api/overview/authentication/#client-credentials-flow
-    """
-    helpscout_app_id = request.registry.settings.get("helpscout.app_id")
-    helpscout_app_secret = request.registry.settings.get("helpscout.app_secret")
-
-    auth_token_response = request.http.post(
-        "https://api.helpscout.net/v2/oauth2/token",
-        auth=(helpscout_app_id, helpscout_app_secret),
-        json={"grant_type": "client_credentials"},
-        timeout=10,
-    )
-    auth_token_response.raise_for_status()
-
-    return auth_token_response.json()["access_token"]
+    return

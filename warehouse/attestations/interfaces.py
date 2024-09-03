@@ -16,18 +16,10 @@ from zope.interface import Interface
 
 
 class IIntegrityService(Interface):
-
     def create_service(context, request):
         """
-        Create the service, given the context and request for which it is being
-        created for.
+        Create the service for the given context and request.
         """
-
-    def persist_attestations(attestations: list[Attestation], file):
-        """
-        ̦Persist attestations in storage.
-        """
-        pass
 
     def parse_attestations(
         request: Request, distribution: Distribution
@@ -37,15 +29,11 @@ class IIntegrityService(Interface):
         """
 
     def generate_provenance(
-        oidc_publisher, attestations: list[Attestation]
+        request, file, attestations: list[Attestation]
     ) -> Provenance | None:
         """
-        Generate a Provenance object from an OIDCPublisher and its attestations.
-        """
-
-    def persist_provenance(provenance: Provenance, file) -> None:
-        """
-        Persist a Provenance object in storage.
+        Generate and persist a Provenance object for the given file and list of
+        associated attestations.
         """
 
     def get_provenance_digest(file) -> str | None:

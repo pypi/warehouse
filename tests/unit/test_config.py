@@ -250,6 +250,7 @@ def test_configure(monkeypatch, settings, environment):
         "warehouse.packaging.project_create_user_ratelimit_string": "20 per hour",
         "warehouse.packaging.project_create_ip_ratelimit_string": "40 per hour",
         "oidc.backend": "warehouse.oidc.services.OIDCPublisherService",
+        "attestations.backend": "warehouse.attestations.services.IntegrityService",
         "warehouse.organizations.max_undecided_organization_applications": 3,
         "reconcile_file_storages.batch_size": 100,
         "metadata_backfill.batch_size": 500,
@@ -348,6 +349,7 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".accounts"),
             pretend.call(".macaroons"),
             pretend.call(".oidc"),
+            pretend.call(".attestations"),
             pretend.call(".manage"),
             pretend.call(".organizations"),
             pretend.call(".subscriptions"),
@@ -365,6 +367,7 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".csp"),
             pretend.call(".referrer_policy"),
             pretend.call(".captcha"),
+            pretend.call(".helpdesk"),
             pretend.call(".http"),
             pretend.call(".utils.row_counter"),
         ]

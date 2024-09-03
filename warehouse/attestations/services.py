@@ -12,6 +12,7 @@
 import hashlib
 import tempfile
 import typing
+import warnings
 
 from pathlib import Path
 
@@ -47,6 +48,7 @@ from warehouse.oidc.models import (
 )
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import File
+from warehouse.utils.exceptions import InsecureIntegrityServiceWarning
 
 
 def _publisher_from_oidc_publisher(publisher: OIDCPublisher) -> Publisher:
@@ -70,43 +72,112 @@ def _publisher_from_oidc_publisher(publisher: OIDCPublisher) -> Publisher:
             raise UnsupportedPublisherError
 
 
-@implementer(IIntegrityService)
-class IntegrityService:
+def _extract_attestations_from_request(request: Request) -> list[Attestation]:
+    """
+    Extract well-formed attestation objects from the given request's payload.
+    """
 
-    def __init__(
-        self,
-        storage: IFileStorage,
-        metrics: IMetricsService,
-    ):
-        self.storage: IFileStorage = storage
-        self.metrics: IMetricsService = metrics
+    metrics = request.find_service(IMetricsService, context=None)
 
-    @classmethod
-    def create_service(cls, _context, request: Request):
-        return cls(
-            storage=request.find_service(IFileStorage),
-            metrics=request.find_service(IMetricsService),
+    try:
+        attestations = TypeAdapter(list[Attestation]).validate_json(
+            request.POST["attestations"]
+        )
+    except ValidationError as e:
+        # Log invalid (malformed) attestation upload
+        metrics.increment("warehouse.upload.attestations.malformed")
+        raise AttestationUploadError(
+            f"Malformed attestations: {e}",
         )
 
-    def persist_attestations(self, attestations: list[Attestation], file: File) -> None:
+    # Empty attestation sets are not permitted; users should omit `attestations`
+    # entirely to upload without attestations.
+    if not attestations:
+        raise AttestationUploadError(
+            "Malformed attestations: an empty attestation set is not permitted"
+        )
+
+    # This is a temporary constraint; multiple attestations per file will
+    # be supported in the future.
+    if len(attestations) > 1:
+        metrics.increment("warehouse.upload.attestations.failed_multiple_attestations")
+
+        raise AttestationUploadError(
+            "Only a single attestation per file is supported",
+        )
+
+    return attestations
+
+
+@implementer(IIntegrityService)
+class NullIntegrityService:
+    def __init__(self, session):
+        warnings.warn(
+            "NullIntegrityService is intended only for use in development, "
+            "you should not use it in production due to the lack of actual "
+            "attestation verification.",
+            InsecureIntegrityServiceWarning,
+        )
+        self.db = session
+
+    @classmethod
+    def create_service(cls, _context, request):
+        return cls(session=request.db)
+
+    def parse_attestations(
+        self, request: Request, _distribution: Distribution
+    ) -> list[Attestation]:
+        return _extract_attestations_from_request(request)
+
+    def generate_provenance(
+        self, request: Request, file: File, attestations: list[Attestation]
+    ) -> Provenance | None:
+        publisher = _publisher_from_oidc_publisher(request.oidc_publisher)
+        attestation_bundle = AttestationBundle(
+            publisher=publisher,
+            attestations=attestations,
+        )
+        provenance = Provenance(attestation_bundles=[attestation_bundle])
+
         for attestation in attestations:
-            with tempfile.NamedTemporaryFile() as tmp_file:
-                tmp_file.write(attestation.model_dump_json().encode("utf-8"))
-
-                attestation_digest = hashlib.file_digest(
-                    tmp_file, "blake2b"
-                ).hexdigest()
-                database_attestation = DatabaseAttestation(
-                    file=file, attestation_file_blake2_digest=attestation_digest
+            self.db.add(
+                DatabaseAttestation(
+                    file=file,
+                    attestation_file_blake2_digest=hashlib.blake2b(
+                        attestation.model_dump_json().encode("utf-8")
+                    ).hexdigest(),
                 )
+            )
 
-                self.storage.store(
-                    database_attestation.attestation_path,
-                    tmp_file.name,
-                    meta=None,
-                )
+        return provenance
 
-            file.attestations.append(database_attestation)
+    def get_provenance_digest(self, file: File) -> str | None:
+        if not file.attestations:
+            return None
+
+        # For the null service, our "provenance digest" is just the digest
+        # of the release file's name merged with the number of attestations.
+        # We do this because there's no verification involved; we just need
+        # a unique value to preserve invariants.
+        return hashlib.sha256(
+            f"{file.filename}:{len(file.attestations)}".encode()
+        ).hexdigest()
+
+
+@implementer(IIntegrityService)
+class IntegrityService:
+    def __init__(self, storage: IFileStorage, metrics: IMetricsService, session):
+        self.storage: IFileStorage = storage
+        self.metrics: IMetricsService = metrics
+        self.db = session
+
+    @classmethod
+    def create_service(cls, _context, request):
+        return cls(
+            storage=request.find_service(IFileStorage, name="archive"),
+            metrics=request.find_service(IMetricsService),
+            session=request.db,
+        )
 
     def parse_attestations(
         self, request: Request, distribution: Distribution
@@ -127,25 +198,7 @@ class IntegrityService:
                 "Publishing with GitHub Actions.",
             )
 
-        try:
-            attestations = TypeAdapter(list[Attestation]).validate_json(
-                request.POST["attestations"]
-            )
-        except ValidationError as e:
-            # Log invalid (malformed) attestation upload
-            self.metrics.increment("warehouse.upload.attestations.malformed")
-            raise AttestationUploadError(
-                f"Error while decoding the included attestation: {e}",
-            )
-
-        if len(attestations) > 1:
-            self.metrics.increment(
-                "warehouse.upload.attestations.failed_multiple_attestations"
-            )
-
-            raise AttestationUploadError(
-                "Only a single attestation per file is supported.",
-            )
+        attestations = _extract_attestations_from_request(request)
 
         verification_policy = publisher.publisher_verification_policy(
             request.oidc_claims
@@ -186,6 +239,53 @@ class IntegrityService:
         return attestations
 
     def generate_provenance(
+        self, request: Request, file: File, attestations: list[Attestation]
+    ) -> Provenance | None:
+
+        # Generate the provenance object.
+        provenance = self._build_provenance_object(request.oidc_publisher, attestations)
+
+        if not provenance:
+            return None
+
+        # Persist the attestations and provenance objects. We only do this
+        # after generating the provenance above, to prevent orphaned artifacts
+        # on any generation failures.
+        self._persist_attestations(attestations, file)
+        self._persist_provenance(provenance, file)
+
+        return provenance
+
+    def get_provenance_digest(self, file: File) -> str | None:
+        """Returns the sha256 digest of the provenance file for the release."""
+        if not file.attestations:
+            return None
+
+        provenance_file = self.storage.get(f"{file.path}.provenance")
+        return hashlib.file_digest(provenance_file, "sha256").hexdigest()
+
+    def _persist_attestations(
+        self, attestations: list[Attestation], file: File
+    ) -> None:
+        for attestation in attestations:
+            with tempfile.NamedTemporaryFile() as tmp_file:
+                tmp_file.write(attestation.model_dump_json().encode("utf-8"))
+
+                attestation_digest = hashlib.file_digest(
+                    tmp_file, "blake2b"
+                ).hexdigest()
+                database_attestation = DatabaseAttestation(
+                    file=file, attestation_file_blake2_digest=attestation_digest
+                )
+                self.db.add(database_attestation)
+
+                self.storage.store(
+                    database_attestation.attestation_path,
+                    tmp_file.name,
+                    meta=None,
+                )
+
+    def _build_provenance_object(
         self, oidc_publisher: OIDCPublisher, attestations: list[Attestation]
     ) -> Provenance | None:
         try:
@@ -204,7 +304,7 @@ class IntegrityService:
 
         return Provenance(attestation_bundles=[attestation_bundle])
 
-    def persist_provenance(
+    def _persist_provenance(
         self,
         provenance: Provenance,
         file: File,
@@ -221,11 +321,3 @@ class IntegrityService:
                 provenance_file_path,
                 f.name,
             )
-
-    def get_provenance_digest(self, file: File) -> str | None:
-        """Returns the sha256 digest of the provenance file for the release."""
-        if not file.attestations:
-            return None
-
-        provenance_file = self.storage.get(f"{file.path}.provenance")
-        return hashlib.file_digest(provenance_file, "sha256").hexdigest()

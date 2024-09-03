@@ -405,6 +405,12 @@ def configure(settings=None):
         "OIDC_BACKEND",
         default="warehouse.oidc.services.OIDCPublisherService",
     )
+    maybe_set(
+        settings,
+        "attestations.backend",
+        "ATTESTATIONS_BACKEND",
+        default="warehouse.attestations.services.IntegrityService",
+    )
 
     # Pythondotorg integration settings
     maybe_set(
@@ -419,6 +425,7 @@ def configure(settings=None):
     maybe_set(
         settings, "admin.helpscout.app_secret", "HELPSCOUT_APP_SECRET", default=None
     )
+    maybe_set(settings, "helpdesk.backend", "HELPDESK_BACKEND")
     maybe_set(settings, "helpscout.app_id", "HELPSCOUT_WAREHOUSE_APP_ID")
     maybe_set(settings, "helpscout.app_secret", "HELPSCOUT_WAREHOUSE_APP_SECRET")
     maybe_set(settings, "helpscout.mailbox_id", "HELPSCOUT_WAREHOUSE_MAILBOX_ID")
@@ -459,7 +466,7 @@ def configure(settings=None):
         "warehouse.account.accounts_search_ratelimit_string",
         "ACCOUNTS_SEARCH_RATELIMIT_STRING",
         default="100 per hour",
-    ),
+    )
     maybe_set(
         settings,
         "warehouse.account.password_reset_ratelimit_string",
@@ -739,6 +746,9 @@ def configure(settings=None):
     # Register support for OIDC based authentication
     config.include(".oidc")
 
+    # Register support for attestations
+    config.include(".attestations")
+
     # Register logged-in views
     config.include(".manage")
 
@@ -841,6 +851,9 @@ def configure(settings=None):
 
     # Register Captcha service
     config.include(".captcha")
+
+    # Register HelpDesk service
+    config.include(".helpdesk")
 
     config.add_settings({"http": {"verify": "/etc/ssl/certs/"}})
     config.include(".http")

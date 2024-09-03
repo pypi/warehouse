@@ -44,8 +44,12 @@ from warehouse import admin, config, email, static
 from warehouse.accounts import services as account_services
 from warehouse.accounts.interfaces import ITokenService, IUserService
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
+from warehouse.attestations import services as attestations_services
+from warehouse.attestations.interfaces import IIntegrityService
 from warehouse.email import services as email_services
 from warehouse.email.interfaces import IEmailSender
+from warehouse.helpdesk import services as helpdesk_services
+from warehouse.helpdesk.interfaces import IHelpDeskService
 from warehouse.macaroons import services as macaroon_services
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.metrics import IMetricsService
@@ -55,7 +59,7 @@ from warehouse.oidc.utils import ACTIVESTATE_OIDC_ISSUER_URL, GITHUB_OIDC_ISSUER
 from warehouse.organizations import services as organization_services
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.packaging import services as packaging_services
-from warehouse.packaging.interfaces import IProjectService
+from warehouse.packaging.interfaces import IFileStorage, IProjectService
 from warehouse.subscriptions import services as subscription_services
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 
@@ -108,6 +112,15 @@ def metrics():
             )
         ),
     )
+
+
+@pytest.fixture
+def storage_service(tmp_path):
+    """
+    A good-enough local file storage service.
+    """
+
+    return packaging_services.LocalArchiveFileStorage(tmp_path)
 
 
 @pytest.fixture
@@ -171,7 +184,10 @@ def pyramid_services(
     project_service,
     github_oidc_service,
     activestate_oidc_service,
+    integrity_service,
+    storage_service,
     macaroon_service,
+    helpdesk_service,
 ):
     services = _Services()
 
@@ -191,7 +207,10 @@ def pyramid_services(
     services.register_service(
         activestate_oidc_service, IOIDCPublisherService, None, name="activestate"
     )
+    services.register_service(integrity_service, IIntegrityService, None, name="")
     services.register_service(macaroon_service, IMacaroonService, None, name="")
+    services.register_service(storage_service, IFileStorage, None, name="archive")
+    services.register_service(helpdesk_service, IHelpDeskService, None)
 
     return services
 
@@ -315,13 +334,16 @@ def get_app_config(database, nondefaults=None):
         "opensearch.url": "https://localhost/warehouse",
         "files.backend": "warehouse.packaging.services.LocalFileStorage",
         "archive_files.backend": "warehouse.packaging.services.LocalArchiveFileStorage",
+        "archive_files.path": "/tmp",
         "simple.backend": "warehouse.packaging.services.LocalSimpleStorage",
         "docs.backend": "warehouse.packaging.services.LocalDocsStorage",
         "sponsorlogos.backend": "warehouse.admin.services.LocalSponsorLogoStorage",
         "billing.backend": "warehouse.subscriptions.services.MockStripeBillingService",
+        "attestations.backend": "warehouse.attestations.services.NullIntegrityService",
         "billing.api_base": "http://stripe:12111",
         "billing.api_version": "2020-08-27",
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
+        "helpdesk.backend": "warehouse.helpdesk.services.ConsoleHelpDeskService",
         "files.url": "http://localhost:7000/",
         "archive_files.url": "http://localhost:7000/archive",
         "sessions.secret": "123456",
@@ -381,13 +403,11 @@ def get_db_session_for_app_config(app_config):
 
 @pytest.fixture(scope="session")
 def app_config(database):
-
     return get_app_config(database)
 
 
 @pytest.fixture(scope="session")
 def app_config_dbsession_from_env(database):
-
     nondefaults = {
         "warehouse.db_create_session": lambda r: r.environ.get("warehouse.db_session")
     }
@@ -534,6 +554,11 @@ def activestate_oidc_service(db_session):
 
 
 @pytest.fixture
+def integrity_service(db_session):
+    return attestations_services.NullIntegrityService(db_session)
+
+
+@pytest.fixture
 def macaroon_service(db_session):
     return macaroon_services.DatabaseMacaroonService(db_session)
 
@@ -570,6 +595,11 @@ def email_service():
     return email_services.SMTPEmailSender(
         mailer=DummyMailer(), sender="noreply@pypi.dev"
     )
+
+
+@pytest.fixture
+def helpdesk_service():
+    return helpdesk_services.ConsoleHelpDeskService()
 
 
 class QueryRecorder:

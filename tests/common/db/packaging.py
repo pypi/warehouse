@@ -141,10 +141,11 @@ class FileFactory(WarehouseFactory):
         )
     )
 
+    # Empty attestations by default.
     attestations = factory.RelatedFactoryList(
         AttestationFactory,
         factory_related_name="file",
-        size=1,
+        size=0,
     )
 
 

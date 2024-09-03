@@ -25,3 +25,12 @@ __all__ = [
     "IntegrityService",
     "UnsupportedPublisherError",
 ]
+
+
+def includeme(config):
+    integrity_service_class = config.maybe_dotted(
+        config.registry.settings["attestations.backend"]
+    )
+    config.register_service_factory(
+        integrity_service_class.create_service, IIntegrityService
+    )

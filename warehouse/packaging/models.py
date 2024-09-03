@@ -560,6 +560,7 @@ class Release(HasObservations, db.Model):
     maintainer: Mapped[str | None]
     maintainer_email: Mapped[str | None]
     home_page: Mapped[str | None]
+    home_page_verified: Mapped[bool_false]
     license: Mapped[str | None]
     summary: Mapped[str | None]
     keywords: Mapped[str | None]
@@ -572,6 +573,7 @@ class Release(HasObservations, db.Model):
     )
     platform: Mapped[str | None]
     download_url: Mapped[str | None]
+    download_url_verified: Mapped[bool_false]
     _pypi_ordering: Mapped[int | None]
     requires_python: Mapped[str | None] = mapped_column(Text)
     created: Mapped[datetime_now] = mapped_column()
@@ -691,30 +693,15 @@ class Release(HasObservations, db.Model):
         return _urls
 
     def urls_by_verify_status(self, *, verified: bool):
-        verified_urls = {
+        matching_urls = {
             release_url.url
-            for release_url in self._project_urls.values()  # type: ignore[attr-defined]
-            if release_url.verified
+            for release_url in self._project_urls.values()  # type: ignore[attr-defined] # noqa: E501
+            if release_url.verified == verified
         }
-
-        if verified:
-            matching_urls = verified_urls
-        else:
-            matching_urls = {
-                release_url.url
-                for release_url in self._project_urls.values()  # type: ignore[attr-defined] # noqa: E501
-                if not release_url.verified
-            }
-            # The Homepage and Download URLs in the release metadata are currently not
-            # verified, so we return them if the user requests non-verified URLs *and*
-            # they are not verified in `project_urls`.
-            matching_urls.update(
-                {
-                    url
-                    for url in (self.home_page, self.download_url)
-                    if url is not None and url not in verified_urls
-                }
-            )
+        if self.home_page and self.home_page_verified == verified:
+            matching_urls.add(self.home_page)
+        if self.download_url and self.download_url_verified == verified:
+            matching_urls.add(self.download_url)
 
         # Filter the output of `Release.urls`, since it has custom logic to de-duplicate
         # release URLs
