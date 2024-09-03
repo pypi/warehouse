@@ -82,7 +82,7 @@ def _get_url_content(
     except Exception:
         raise GetContentError()
 
-    content = next(r.stream(max_length_bytes))
+    content = r.read(max_length_bytes)
 
     # When using `preload_content=False`, the HTTP connection must be manually released
     # back to the pool.
