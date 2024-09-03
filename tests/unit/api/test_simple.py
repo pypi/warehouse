@@ -17,7 +17,6 @@ from packaging.version import parse
 from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.testing import DummyRequest
 
-from tests.common.db.attestation import AttestationFactory
 from warehouse.api import simple
 from warehouse.packaging.utils import API_VERSION
 
@@ -287,7 +286,6 @@ class TestSimpleDetail:
                     "upload-time": f.upload_time.isoformat() + "Z",
                     "data-dist-info-metadata": False,
                     "core-metadata": False,
-                    "provenance": None,
                 }
                 for f in files
             ],
@@ -336,7 +334,6 @@ class TestSimpleDetail:
                     "upload-time": f.upload_time.isoformat() + "Z",
                     "data-dist-info-metadata": False,
                     "core-metadata": False,
-                    "provenance": None,
                 }
                 for f in files
             ],
@@ -430,7 +427,6 @@ class TestSimpleDetail:
                         if f.metadata_file_sha256_digest is not None
                         else False
                     ),
-                    "provenance": None,
                 }
                 for f in files
             ],
@@ -442,65 +438,6 @@ class TestSimpleDetail:
 
         if renderer_override is not None:
             assert db_request.override_renderer == renderer_override
-
-    def test_with_files_varying_provenance(self, db_request, integrity_service):
-        project = ProjectFactory.create()
-        release = ReleaseFactory.create(project=project, version="1.0.0")
-
-        # wheel with provenance, sdist with no provenance
-        wheel = FileFactory.create(
-            release=release,
-            filename=f"{project.name}-1.0.0.whl",
-            packagetype="bdist_wheel",
-            metadata_file_sha256_digest="deadbeefdeadbeefdeadbeefdeadbeef",
-        )
-        AttestationFactory.create(file=wheel)
-        sdist = FileFactory.create(
-            release=release,
-            filename=f"{project.name}-1.0.0.tar.gz",
-            packagetype="sdist",
-        )
-
-        files = [sdist, wheel]
-
-        urls_iter = (f"/file/{f.filename}" for f in files)
-        db_request.matchdict["name"] = project.normalized_name
-        db_request.route_url = lambda *a, **kw: next(urls_iter)
-        user = UserFactory.create()
-        je = JournalEntryFactory.create(name=project.name, submitted_by=user)
-
-        assert simple.simple_detail(project, db_request) == {
-            "meta": {"_last-serial": je.id, "api-version": API_VERSION},
-            "name": project.normalized_name,
-            "versions": ["1.0.0"],
-            "files": [
-                {
-                    "filename": f.filename,
-                    "url": f"/file/{f.filename}",
-                    "hashes": {"sha256": f.sha256_digest},
-                    "requires-python": f.requires_python,
-                    "yanked": False,
-                    "size": f.size,
-                    "upload-time": f.upload_time.isoformat() + "Z",
-                    "data-dist-info-metadata": (
-                        {"sha256": "deadbeefdeadbeefdeadbeefdeadbeef"}
-                        if f.metadata_file_sha256_digest is not None
-                        else False
-                    ),
-                    "core-metadata": (
-                        {"sha256": "deadbeefdeadbeefdeadbeefdeadbeef"}
-                        if f.metadata_file_sha256_digest is not None
-                        else False
-                    ),
-                    "provenance": integrity_service.get_provenance_digest(f),
-                }
-                for f in files
-            ],
-        }
-
-        # Backstop: assert that we're testing at least provenance above
-        # by confirming that the wheel has one.
-        assert integrity_service.get_provenance_digest(wheel) is not None
 
     def test_with_files_quarantined_omitted_from_index(self, db_request):
         db_request.accept = "text/html"

@@ -173,7 +173,7 @@ class GenericBlobStorage:
         self.bucket = bucket
         self.prefix = prefix
 
-    def _get_path(self, path: str) -> str:
+    def _get_path(self, path):
         # If we have a prefix, then prepend it to our path. This will let us
         # store items inside of a sub directory without exposing that to end
         # users.
@@ -261,7 +261,7 @@ class GenericS3BlobStorage(GenericBlobStorage):
                 raise
             raise FileNotFoundError(f"No such key: {path!r}") from None
 
-    def store(self, path: str, file_path, *, meta=None):
+    def store(self, path, file_path, *, meta=None):
         extra_args = {}
         if meta is not None:
             extra_args["Metadata"] = meta

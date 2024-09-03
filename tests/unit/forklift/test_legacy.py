@@ -12,7 +12,6 @@
 
 import hashlib
 import io
-import json
 import re
 import tarfile
 import tempfile
@@ -24,8 +23,15 @@ from unittest import mock
 import pretend
 import pytest
 
-from pypi_attestations import Attestation, Envelope, VerificationMaterial
+from pypi_attestations import (
+    Attestation,
+    Distribution,
+    Envelope,
+    VerificationError,
+    VerificationMaterial,
+)
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPTooManyRequests
+from sigstore.verify import Verifier
 from sqlalchemy import and_, exists
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
@@ -36,7 +42,6 @@ import warehouse.constants
 
 from warehouse.accounts.utils import UserContext
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
-from warehouse.attestations import Attestation as DatabaseAttestation
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy, metadata
 from warehouse.macaroons import IMacaroonService, caveats, security_policy
@@ -2415,6 +2420,85 @@ class TestFileUpload:
             "See /the/help/url/ for more information."
         ).format(project.name)
 
+    def test_upload_attestation_fails_without_oidc_publisher(
+        self,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        metrics,
+        project_service,
+        macaroon_service,
+    ):
+        project = ProjectFactory.create()
+        owner = UserFactory.create()
+        maintainer = UserFactory.create()
+        RoleFactory.create(user=owner, project=project, role_name="Owner")
+        RoleFactory.create(user=maintainer, project=project, role_name="Maintainer")
+
+        EmailFactory.create(user=maintainer)
+        db_request.user = maintainer
+        raw_macaroon, macaroon = macaroon_service.create_macaroon(
+            "fake location",
+            "fake description",
+            [caveats.RequestUser(user_id=str(maintainer.id))],
+            user_id=maintainer.id,
+        )
+        identity = UserContext(maintainer, macaroon)
+
+        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+        attestation = Attestation(
+            version=1,
+            verification_material=VerificationMaterial(
+                certificate="some_cert", transparency_entries=[dict()]
+            ),
+            envelope=Envelope(
+                statement="somebase64string",
+                signature="somebase64string",
+            ),
+        )
+
+        pyramid_config.testing_securitypolicy(identity=identity)
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "attestations": f"[{attestation.model_dump_json()}]",
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        extract_http_macaroon = pretend.call_recorder(lambda r, _: raw_macaroon)
+        monkeypatch.setattr(
+            security_policy, "_extract_http_macaroon", extract_http_macaroon
+        )
+
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMacaroonService: macaroon_service,
+            IMetricsService: metrics,
+            IProjectService: project_service,
+        }.get(svc)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status == (
+            "400 Attestations are currently only supported when using Trusted "
+            "Publishing with GitHub Actions."
+        )
+
     @pytest.mark.parametrize(
         "plat",
         [
@@ -3324,7 +3408,7 @@ class TestFileUpload:
             ),
         ]
 
-    def test_upload_succeeds_with_valid_attestation(
+    def test_upload_with_valid_attestation_succeeds(
         self,
         monkeypatch,
         pyramid_config,
@@ -3380,56 +3464,213 @@ class TestFileUpload:
             }
         )
 
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+
         record_event = pretend.call_recorder(
             lambda self, *, tag, request=None, additional: None
         )
         monkeypatch.setattr(HasEvents, "record_event", record_event)
+
+        verify = pretend.call_recorder(
+            lambda _self, _verifier, _policy, _dist: (
+                "https://docs.pypi.org/attestations/publish/v1",
+                None,
+            )
+        )
+        monkeypatch.setattr(Attestation, "verify", verify)
+        monkeypatch.setattr(Verifier, "production", lambda: pretend.stub())
+
         resp = legacy.file_upload(db_request)
 
         assert resp.status_code == 200
 
-        assert (
-            pretend.call("warehouse.upload.attestations.ok") in metrics.increment.calls
+        assert len(verify.calls) == 1
+        verified_distribution = verify.calls[0].args[3]
+        assert verified_distribution == Distribution(
+            name=filename, digest=_TAR_GZ_PKG_SHA256
         )
-        attestations_db = (
-            db_request.db.query(DatabaseAttestation)
-            .join(DatabaseAttestation.file)
-            .filter(File.filename == filename)
-            .all()
-        )
-        assert len(attestations_db) == 1
 
-    @pytest.mark.parametrize(
-        "invalid_attestations",
-        [
-            # Bad top-level types.
-            "",
-            {},
-            1,
-            # Empty attestation sets not permitted.
-            [],
-            # Wrong version number.
-            [
-                {
-                    "version": 2,
-                    "verification_material": {
-                        "certificate": "somebase64string",
-                        "transparency_entries": [{}],
-                    },
-                    "envelope": {
-                        "statement": "somebase64string",
-                        "signature": "somebase64string",
-                    },
-                },
-            ],
-        ],
-    )
-    def test_upload_fails_attestation_error(
+    def test_upload_with_invalid_attestation_predicate_type_fails(
         self,
         monkeypatch,
         pyramid_config,
         db_request,
-        invalid_attestations,
+        metrics,
+    ):
+        from warehouse.events.models import HasEvents
+
+        project = ProjectFactory.create()
+        version = "1.0"
+        publisher = GitHubPublisherFactory.create(projects=[project])
+        claims = {
+            "sha": "somesha",
+            "repository": f"{publisher.repository_owner}/{publisher.repository_name}",
+            "workflow": "workflow_name",
+        }
+        identity = PublisherTokenContext(publisher, SignedClaims(claims))
+        db_request.oidc_publisher = identity.publisher
+        db_request.oidc_claims = identity.claims
+
+        db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
+        db_request.db.add(Classifier(classifier="Programming Language :: Python"))
+
+        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+        attestation = Attestation(
+            version=1,
+            verification_material=VerificationMaterial(
+                certificate="somebase64string", transparency_entries=[dict()]
+            ),
+            envelope=Envelope(
+                statement="somebase64string",
+                signature="somebase64string",
+            ),
+        )
+
+        pyramid_config.testing_securitypolicy(identity=identity)
+        db_request.user = None
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "attestations": f"[{attestation.model_dump_json()}]",
+                "version": version,
+                "summary": "This is my summary!",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+
+        record_event = pretend.call_recorder(
+            lambda self, *, tag, request=None, additional: None
+        )
+        monkeypatch.setattr(HasEvents, "record_event", record_event)
+
+        invalid_predicate_type = "Unsupported predicate type"
+        verify = pretend.call_recorder(
+            lambda _self, _verifier, _policy, _dist: (invalid_predicate_type, None)
+        )
+        monkeypatch.setattr(Attestation, "verify", verify)
+        monkeypatch.setattr(Verifier, "production", lambda: pretend.stub())
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status.startswith(
+            f"400 Attestation with unsupported predicate type: {invalid_predicate_type}"
+        )
+
+    def test_upload_with_multiple_attestations_fails(
+        self,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        metrics,
+    ):
+        from warehouse.events.models import HasEvents
+
+        project = ProjectFactory.create()
+        version = "1.0"
+        publisher = GitHubPublisherFactory.create(projects=[project])
+        claims = {
+            "sha": "somesha",
+            "repository": f"{publisher.repository_owner}/{publisher.repository_name}",
+            "workflow": "workflow_name",
+        }
+        identity = PublisherTokenContext(publisher, SignedClaims(claims))
+        db_request.oidc_publisher = identity.publisher
+        db_request.oidc_claims = identity.claims
+
+        db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
+        db_request.db.add(Classifier(classifier="Programming Language :: Python"))
+
+        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+        attestation = Attestation(
+            version=1,
+            verification_material=VerificationMaterial(
+                certificate="somebase64string", transparency_entries=[dict()]
+            ),
+            envelope=Envelope(
+                statement="somebase64string",
+                signature="somebase64string",
+            ),
+        )
+
+        pyramid_config.testing_securitypolicy(identity=identity)
+        db_request.user = None
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "attestations": f"[{attestation.model_dump_json()},"
+                f" {attestation.model_dump_json()}]",
+                "version": version,
+                "summary": "This is my summary!",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+
+        record_event = pretend.call_recorder(
+            lambda self, *, tag, request=None, additional: None
+        )
+        monkeypatch.setattr(HasEvents, "record_event", record_event)
+
+        verify = pretend.call_recorder(
+            lambda _self, _verifier, _policy, _dist: (
+                "https://docs.pypi.org/attestations/publish/v1",
+                None,
+            )
+        )
+        monkeypatch.setattr(Attestation, "verify", verify)
+        monkeypatch.setattr(Verifier, "production", lambda: pretend.stub())
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status.startswith(
+            "400 Only a single attestation per-file is supported at the moment."
+        )
+
+    def test_upload_with_malformed_attestation_fails(
+        self,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        metrics,
     ):
         from warehouse.events.models import HasEvents
 
@@ -3457,7 +3698,7 @@ class TestFileUpload:
             {
                 "metadata_version": "1.2",
                 "name": project.name,
-                "attestations": json.dumps(invalid_attestations),
+                "attestations": "[{'a_malformed_attestation': 3}]",
                 "version": version,
                 "summary": "This is my summary!",
                 "filetype": "sdist",
@@ -3470,6 +3711,12 @@ class TestFileUpload:
             }
         )
 
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+
         record_event = pretend.call_recorder(
             lambda self, *, tag, request=None, additional: None
         )
@@ -3481,7 +3728,106 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        assert resp.status.startswith("400 Malformed attestations")
+        assert resp.status.startswith(
+            "400 Error while decoding the included attestation:"
+        )
+
+    @pytest.mark.parametrize(
+        ("verify_exception", "expected_msg"),
+        [
+            (
+                VerificationError,
+                "400 Could not verify the uploaded artifact using the included "
+                "attestation",
+            ),
+            (
+                ValueError,
+                "400 Unknown error while trying to verify included attestations",
+            ),
+        ],
+    )
+    def test_upload_with_failing_attestation_verification(
+        self,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        metrics,
+        verify_exception,
+        expected_msg,
+    ):
+        from warehouse.events.models import HasEvents
+
+        project = ProjectFactory.create()
+        version = "1.0"
+        publisher = GitHubPublisherFactory.create(projects=[project])
+        claims = {
+            "sha": "somesha",
+            "repository": f"{publisher.repository_owner}/{publisher.repository_name}",
+            "workflow": "workflow_name",
+        }
+        identity = PublisherTokenContext(publisher, SignedClaims(claims))
+        db_request.oidc_publisher = identity.publisher
+        db_request.oidc_claims = identity.claims
+
+        db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
+        db_request.db.add(Classifier(classifier="Programming Language :: Python"))
+
+        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+        attestation = Attestation(
+            version=1,
+            verification_material=VerificationMaterial(
+                certificate="somebase64string", transparency_entries=[dict()]
+            ),
+            envelope=Envelope(
+                statement="somebase64string",
+                signature="somebase64string",
+            ),
+        )
+
+        pyramid_config.testing_securitypolicy(identity=identity)
+        db_request.user = None
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "attestations": f"[{attestation.model_dump_json()}]",
+                "version": version,
+                "summary": "This is my summary!",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+
+        record_event = pretend.call_recorder(
+            lambda self, *, tag, request=None, additional: None
+        )
+        monkeypatch.setattr(HasEvents, "record_event", record_event)
+
+        def failing_verify(_self, _verifier, _policy, _dist):
+            raise verify_exception("error")
+
+        monkeypatch.setattr(Attestation, "verify", failing_verify)
+        monkeypatch.setattr(Verifier, "production", lambda: pretend.stub())
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status.startswith(expected_msg)
 
     @pytest.mark.parametrize(
         ("url", "expected"),
