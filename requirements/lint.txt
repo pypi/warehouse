@@ -155,6 +155,10 @@ cryptography==42.0.8 \
     # via
     #   types-pyopenssl
     #   types-redis
+cssselect==1.2.0 \
+    --hash=sha256:666b19839cfaddb9ce9d36bfe4c969132c647b92fc9088c4e23f786b30f1b3dc \
+    --hash=sha256:da1885f0c10b60c03ed5eccbb6b68d6eff248d91976fcde348f395d54c9fd35e
+    # via types-lxml
 curlylint==0.13.1 \
     --hash=sha256:008b9d160f3920404ac12efb05c0a39e209cb972f9aafd956b79c5f4e2162752 \
     --hash=sha256:9546ea82cdfc9292fd6fe49dca28587164bd315782a209c0a46e013d7f38d2fa
@@ -430,6 +434,10 @@ types-babel==2.11.0.15 \
     --hash=sha256:282c184c8c9d81e8269212c1b8fa0d39ee88fb8bc43be47980412781c9c85f7e \
     --hash=sha256:d0579f2e8adeaef3fbe2eb63e5a2ecf01767fc018e5f3f36a3c9d8b723bd62c7
     # via -r requirements/lint.in
+types-beautifulsoup4==4.12.0.20240511 \
+    --hash=sha256:004f6096fdd83b19cdbf6cb10e4eae57b10205eccc365d0a69d77da836012e28 \
+    --hash=sha256:7ceda66a93ba28d759d5046d7fec9f4cad2f563a77b3a789efc90bcadafeefd1
+    # via types-lxml
 types-boto3==1.0.2 \
     --hash=sha256:15f3ffad0314e40a0708fec25f94891414f93260202422bf8b19b6913853c983 \
     --hash=sha256:a6a88e94d59d887839863a64095493956efc148e747206880a7eb47d90ae8398
@@ -449,10 +457,16 @@ types-first==2.0.5.20240806 \
 types-html5lib==1.1.11.20240806 \
     --hash=sha256:575c4fd84ba8eeeaa8520c7e4c7042b7791f5ec3e9c0a5d5c418124c42d9e7e4 \
     --hash=sha256:8060dc98baf63d6796a765bbbc809fff9f7a383f6e3a9add526f814c086545ef
-    # via -r requirements/lint.in
+    # via
+    #   -r requirements/lint.in
+    #   types-beautifulsoup4
 types-itsdangerous==1.1.6 \
     --hash=sha256:21c6966c10e353a5d35d36c82aaa2c5598d3bc32ddc8e0591276da5ad2e3c638 \
     --hash=sha256:aef2535c2fa0527dcce244ece0792b20ec02ee46533800735275f82a45a0244d
+    # via -r requirements/lint.in
+types-lxml==2024.8.7 \
+    --hash=sha256:9ee5cdb1efd60f6eeb101b78f92591fd99202e4878b46d621b52f6cd67a9c80f \
+    --hash=sha256:a0b8669b2dc57d47dcf31fbbee5007f8ed71b37406f4c7e5fa650e2480568eb9
     # via -r requirements/lint.in
 types-passlib==1.7.7.20240819 \
     --hash=sha256:8fc8df71623845032293d5cf7f8091f0adfeba02d387a2888684b8413f14b3d0 \
@@ -513,6 +527,7 @@ typing-extensions==4.12.2 \
     # via
     #   celery-types
     #   mypy
+    #   types-lxml
 urllib3==2.2.2 \
     --hash=sha256:a448b2f64d686155468037e1ace9f2d2199776e17f0a46610480d311f73e3472 \
     --hash=sha256:dd505485549a7a552833da5e6063639d0d177c04f23bc3864e41e5dc5f612168
