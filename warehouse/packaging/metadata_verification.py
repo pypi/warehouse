@@ -70,9 +70,27 @@ def verify_url(
 
 
 def verify_email(email: str, project: Project) -> bool:
+    """
+    Verify an email address included in a project's metadata
+
+    This function is intended to be used during file uploads, checking the emails
+    included in the metadata against the emails of the Owners and Maintainers of that
+    PyPI project.
+    Note: Only emails that are marked as verified and public are used for verification.
+    """
     _, email = format_email(email)
-    owner_emails = {owner.email for owner in project.owners}
+    owner_emails = {
+        email.email
+        for owner in project.owners
+        for email in owner.emails
+        if email.public and email.verified
+    }
     if email in owner_emails:
         return True
-    maintainer_emails = {maintainer.email for maintainer in project.maintainers}
+    maintainer_emails = {
+        email.email
+        for maintainer in project.maintainers
+        for email in maintainer.emails
+        if email.public and email.verified
+    }
     return email in maintainer_emails

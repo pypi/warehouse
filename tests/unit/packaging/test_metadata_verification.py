@@ -155,22 +155,53 @@ def test_verify_url():
     )
 
 
-def test_verify_email(db_request):
+@pytest.mark.parametrize(
+    ("primary", "public", "verified", "expected"),
+    [
+        (True, True, True, True),
+        (False, True, True, True),
+        (True, False, True, False),
+        (True, True, False, False),
+        (False, False, True, False),
+        (True, False, False, False),
+        (False, True, False, False),
+        (False, False, False, False),
+    ],
+)
+def test_verify_email(db_request, primary, public, verified, expected):
     owner = UserFactory.create()
     maintainer = UserFactory.create()
 
-    EmailFactory.create(user=owner, email="owner@example.com")
-    EmailFactory.create(user=maintainer, email="maintainer@example.com")
+    EmailFactory.create(
+        user=owner,
+        email="owner@example.com",
+        primary=primary,
+        public=public,
+        verified=verified,
+    )
+    EmailFactory.create(
+        user=maintainer,
+        email="maintainer@example.com",
+        primary=primary,
+        public=public,
+        verified=verified,
+    )
     project = ProjectFactory.create()
     RoleFactory.create(user=owner, project=project)
     RoleFactory.create(user=maintainer, project=project, role_name="Maintainer")
 
-    assert verify_email(email="owner@example.com", project=project)
-    assert verify_email(email="maintainer@example.com", project=project)
-    assert verify_email(email="Owner name <owner@example.com>", project=project)
-    assert verify_email(
-        email="Maintainer name <maintainer@example.com>", project=project
+    # Emails associated with the project, with different primary/public/verified values
+    assert verify_email(email="owner@example.com", project=project) == expected
+    assert verify_email(email="maintainer@example.com", project=project) == expected
+    assert (
+        verify_email(email="Owner name <owner@example.com>", project=project)
+        == expected
+    )
+    assert (
+        verify_email(email="Maintainer name <maintainer@example.com>", project=project)
+        == expected
     )
 
+    # Emails not associated with the project
     assert not verify_email(email="other@example.com", project=project)
     assert not verify_email(email="Other name <other@example.com>", project=project)

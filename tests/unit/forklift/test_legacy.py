@@ -4077,7 +4077,13 @@ class TestFileUpload:
         owner = UserFactory.create()
         maintainer = UserFactory.create()
 
-        EmailFactory.create(user=owner, email="owner@example.com")
+        EmailFactory.create(
+            user=owner,
+            email="owner@example.com",
+            verified=True,
+            primary=True,
+            public=True,
+        )
         EmailFactory.create(user=maintainer, email="maintainer@example.com")
         project = ProjectFactory.create()
         RoleFactory.create(user=owner, project=project)
