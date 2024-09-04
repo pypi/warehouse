@@ -45,8 +45,8 @@ class Provenance(db.Model):
     # This JSONB has the structure of a PEP 740 provenance object.
     provenance: Mapped[dict] = mapped_column(JSONB, nullable=False)
 
-    # The Blake2/256 digest of the provenance object stored in this row.
+    # The SHA-2/256 digest of the provenance object stored in this row.
     # Postgres uses a compact binary representation under the hood and is
     # unlikely to provide a permanently stable serialization, so this is the
     # hash of the RFC 8785 serialization.
-    provenance_blake2_256_digest: Mapped[str] = mapped_column(CITEXT)
+    provenance_digest: Mapped[str] = mapped_column(CITEXT)

@@ -33,7 +33,7 @@ def upgrade():
         sa.Column(
             "provenance", postgresql.JSONB(astext_type=sa.Text()), nullable=False
         ),
-        sa.Column("provenance_blake2_256_digest", postgresql.CITEXT(), nullable=False),
+        sa.Column("provenance_digest", postgresql.CITEXT(), nullable=False),
         sa.Column(
             "id", sa.UUID(), server_default=sa.text("gen_random_uuid()"), nullable=False
         ),
