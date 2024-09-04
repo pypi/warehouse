@@ -12,7 +12,9 @@
 
 import rfc3986
 
+from warehouse.filters import format_email
 from warehouse.oidc.models import OIDCPublisher
+from warehouse.packaging import Project
 
 _pypi_project_urls = [
     "https://pypi.org/project/",
@@ -65,3 +67,12 @@ def verify_url(
         return False
 
     return publisher.verify_url(url)
+
+
+def verify_email(email: str, project: Project) -> bool:
+    _, email = format_email(email)
+    owner_emails = {owner.email for owner in project.owners}
+    if email in owner_emails:
+        return True
+    maintainer_emails = {maintainer.email for maintainer in project.maintainers}
+    return email in maintainer_emails

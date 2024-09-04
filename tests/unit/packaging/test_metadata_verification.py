@@ -13,7 +13,13 @@
 import pretend
 import pytest
 
-from warehouse.packaging.metadata_verification import _verify_url_pypi, verify_url
+from tests.common.db.accounts import EmailFactory, UserFactory
+from tests.common.db.packaging import ProjectFactory, RoleFactory
+from warehouse.packaging.metadata_verification import (
+    _verify_url_pypi,
+    verify_email,
+    verify_url,
+)
 
 
 @pytest.mark.parametrize(
@@ -147,3 +153,24 @@ def test_verify_url():
         project_name="myproject",
         project_normalized_name="myproject",
     )
+
+
+def test_verify_email(db_request):
+    owner = UserFactory.create()
+    maintainer = UserFactory.create()
+
+    EmailFactory.create(user=owner, email="owner@example.com")
+    EmailFactory.create(user=maintainer, email="maintainer@example.com")
+    project = ProjectFactory.create()
+    RoleFactory.create(user=owner, project=project)
+    RoleFactory.create(user=maintainer, project=project, role_name="Maintainer")
+
+    assert verify_email(email="owner@example.com", project=project)
+    assert verify_email(email="maintainer@example.com", project=project)
+    assert verify_email(email="Owner name <owner@example.com>", project=project)
+    assert verify_email(
+        email="Maintainer name <maintainer@example.com>", project=project
+    )
+
+    assert not verify_email(email="other@example.com", project=project)
+    assert not verify_email(email="Other name <other@example.com>", project=project)
