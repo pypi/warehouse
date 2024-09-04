@@ -11,9 +11,5 @@
 # limitations under the License.
 
 
-class InsecureOIDCPublisherWarning(UserWarning):
-    pass
-
-
-class InsecureIntegrityServiceWarning(UserWarning):
+class AttestationUploadError(Exception):
     pass

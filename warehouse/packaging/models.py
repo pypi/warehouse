@@ -62,7 +62,6 @@ from urllib3.util import parse_url
 
 from warehouse import db
 from warehouse.accounts.models import User
-from warehouse.attestations.models import Provenance
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.events.models import HasEvents
@@ -82,6 +81,7 @@ from warehouse.utils.attrs import make_repr
 from warehouse.utils.db.types import bool_false, datetime_now
 
 if typing.TYPE_CHECKING:
+    from warehouse.attestations.models import Provenance
     from warehouse.oidc.models import OIDCPublisher
 
 _MONOTONIC_SEQUENCE = 42
@@ -840,9 +840,7 @@ class File(HasEvents, db.Model):
         comment="If True, the metadata for the file cannot be backfilled.",
     )
     provenance: Mapped[Provenance] = orm.relationship(
-        cascade="all, delete-orphan",
-        lazy="joined",
-        passive_deletes=True,
+        cascade="all, delete-orphan", lazy=False, passive_deletes=True
     )
 
     @property

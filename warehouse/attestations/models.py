@@ -43,7 +43,7 @@ class Provenance(db.Model):
     file: Mapped[File] = orm.relationship(back_populates="provenance")
 
     # This JSONB has the structure of a PEP 740 provenance object.
-    provenance: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    provenance: Mapped[dict] = mapped_column(JSONB, nullable=False, deferred=True)
 
     # The SHA-2/256 digest of the provenance object stored in this row.
     # Postgres uses a compact binary representation under the hood and is
