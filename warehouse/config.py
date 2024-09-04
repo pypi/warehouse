@@ -520,6 +520,7 @@ def configure(settings=None):
                     "headers.HeaderDebugPanel",
                     "request_vars.RequestVarsDebugPanel",
                     "renderings.RenderingsDebugPanel",
+                    "session.SessionDebugPanel",
                     "logger.LoggingPanel",
                     "performance.PerformanceDebugPanel",
                     "routes.RoutesDebugPanel",
