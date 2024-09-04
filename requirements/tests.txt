@@ -270,9 +270,9 @@ pytest-icdiff==0.9 \
     --hash=sha256:13aede616202e57fcc882568b64589002ef85438046f012ac30a8d959dac8b75 \
     --hash=sha256:efee0da3bd1b24ef2d923751c5c547fbb8df0a46795553fba08ef57c3ca03d82
     # via -r requirements/tests.in
-pytest-postgresql==6.0.1 \
-    --hash=sha256:87c099c01d50ccb48653a1ae954e4156c6c420aac65f0920a70e68839460c720 \
-    --hash=sha256:be4e57d6a75017bfa532730069677b5ba19336fc8bd12b2af3e158a3b1580ce2
+pytest-postgresql==6.1.0 \
+    --hash=sha256:7127d4f875d92db99bd3a99303b4e6eff8af2937a5c45133245b4a3b5919c6f6 \
+    --hash=sha256:acf57e974459c36cec977eb720e1ffd873b765817a0b7ac6f1407e786e1bbf40
     # via -r requirements/tests.in
 pytest-randomly==3.15.0 \
     --hash=sha256:0516f4344b29f4e9cdae8bce31c4aeebf59d0b9ef05927c33354ff3859eeeca6 \
