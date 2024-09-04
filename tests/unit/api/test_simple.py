@@ -503,7 +503,7 @@ class TestSimpleDetail:
                         else False
                     ),
                     "provenance": (
-                        f.provenance.provenance_blake2_256_digest
+                        f.provenance.provenance_digest
                         if f.provenance is not None
                         else None
                     ),
