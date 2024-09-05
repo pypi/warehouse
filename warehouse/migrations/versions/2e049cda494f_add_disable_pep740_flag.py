@@ -17,8 +17,6 @@ Revises: dcf1e3986782
 Create Date: 2024-09-05 15:15:58.703955
 """
 
-import sqlalchemy as sa
-
 from alembic import op
 
 revision = "2e049cda494f"
@@ -40,5 +38,4 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_table("provenance")
     op.execute("DELETE FROM admin_flags WHERE id = 'disable-pep740-support'")
