@@ -105,7 +105,9 @@ def test_simple_attestations_from_upload(webtest):
     assert len(project.releases) == 1
     assert project.releases[0].files.count() == 1
     assert project.releases[0].files[0].provenance is not None
-
+    # While we needed to be authenticated to upload a project, this is no longer
+    # required to view it.
+    webtest.authorization = None
     expected_provenance = project.releases[0].files[0].provenance.provenance_digest
     expected_filename = "sampleproject-3.0.0.tar.gz"
 
