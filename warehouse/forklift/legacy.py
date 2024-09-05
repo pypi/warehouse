@@ -1232,7 +1232,9 @@ def file_upload(request):
         )
 
         # If the user provided attestations, verify and store them
-        if "attestations" in request.POST:
+        if "attestations" in request.POST and not request.flags.enabled(
+            AdminFlagValue.DISABLE_PEP740
+        ):
             integrity_service: IIntegrityService = request.find_service(
                 IIntegrityService, context=None
             )
