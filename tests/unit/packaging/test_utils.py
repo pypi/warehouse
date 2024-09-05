@@ -46,9 +46,9 @@ def test_simple_detail_with_provenance(
     # Provenance objects are generated at upload time, so we
     # are mocking it here.
     provenance = integrity_service.build_provenance(
-        pretend.stub(
-            oidc_publisher=GitHubPublisherFactory.create()
-        ), file, [dummy_attestation]
+        pretend.stub(oidc_publisher=GitHubPublisherFactory.create()),
+        file,
+        [dummy_attestation],
     )
 
     expected_content = _simple_detail(project, db_request)
