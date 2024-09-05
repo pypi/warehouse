@@ -157,6 +157,12 @@ class NullIntegrityService:
     def parse_attestations(
         self, request: Request, _distribution: Distribution
     ) -> list[Attestation]:
+        publisher: OIDCPublisher | None = request.oidc_publisher
+        if not publisher or not publisher.publisher_name == "GitHub":
+            raise AttestationUploadError(
+                "Attestations are only supported when using Trusted "
+                "Publishing with GitHub Actions.",
+            )
         return _extract_attestations_from_request(request)
 
     def build_provenance(

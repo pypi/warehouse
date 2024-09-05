@@ -62,6 +62,13 @@ class TestNullIntegrityService:
         assert provenance.file == file
         assert file.provenance == provenance
 
+    def test_parse_attestations_fails_without_publisher(self, db_request):
+        service = services.NullIntegrityService(session=db_request.db)
+        with pytest.raises(
+            AttestationUploadError, match="Attestations are only supported"
+        ):
+            service.parse_attestations(db_request, pretend.stub())
+
 
 class TestIntegrityService:
     def test_interface_matches(self):
