@@ -30,7 +30,7 @@ def upgrade():
         VALUES (
             'disable-pep740-support',
             'Disable PEP 740 support.',
-            TRUE,
+            FALSE,
             FALSE
         )
     """
