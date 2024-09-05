@@ -42,10 +42,13 @@ def test_simple_detail_with_provenance(
     file = FileFactory.create(release=release)
 
     db_request.route_url = lambda *a, **kw: "the-url"
-    db_request.oidc_publisher = GitHubPublisherFactory.create()
 
+    # Provenance objects are generated at upload time, so we
+    # are mocking it here.
     provenance = integrity_service.build_provenance(
-        db_request, file, [dummy_attestation]
+        pretend.stub(
+            oidc_publisher=GitHubPublisherFactory.create()
+        ), file, [dummy_attestation]
     )
 
     expected_content = _simple_detail(project, db_request)
