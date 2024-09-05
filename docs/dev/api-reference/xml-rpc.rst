@@ -47,13 +47,6 @@ Changes to XMLRPC API
   driven by unidentified traffic, presumably automated. `See historical
   incident <https://status.python.org/incidents/grk0k7sz6zkp>`_.
 
-- ``package_releases`` As Warehouse does not support the concept of hidden
-  releases, the ``show_hidden`` flag now controls whether the latest version or
-  all versions are returned.
-
-- ``release_data`` The ``stable_version`` flag is always an empty string. It was
-  never fully supported anyway.
-
 - ``release_downloads`` and ``top_packages`` No longer supported. Use
   :doc:`Google BigQuery <bigquery-datasets>` instead (`guidance
   <https://packaging.python.org/guides/analyzing-pypi-package-downloads/>`_,
