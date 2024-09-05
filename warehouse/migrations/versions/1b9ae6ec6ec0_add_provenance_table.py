@@ -43,19 +43,6 @@ def upgrade():
         sa.PrimaryKeyConstraint("id"),
     )
 
-    op.execute(
-        """
-        INSERT INTO admin_flags(id, description, enabled, notify)
-        VALUES (
-            'disable-pep740-support',
-            'Disable PEP 740 support.',
-            FALSE,
-            TRUE
-        )
-    """
-    )
-
 
 def downgrade():
     op.drop_table("provenance")
-    op.execute("DELETE FROM admin_flags WHERE id = 'disable-pep740-support'")

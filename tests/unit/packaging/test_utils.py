@@ -16,7 +16,6 @@ import tempfile
 import pretend
 
 from tests.common.db.oidc import GitHubPublisherFactory
-from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.attestations import IIntegrityService
 from warehouse.packaging.interfaces import ISimpleStorage
 from warehouse.packaging.utils import _simple_detail, render_simple_detail
@@ -54,26 +53,6 @@ def test_simple_detail_with_provenance(
 
     expected_content = _simple_detail(project, db_request)
     assert expected_content["files"][0]["provenance"] == provenance.provenance_digest
-
-
-def test_simple_detail_with_provenance_but_disabled(
-    db_request, integrity_service, dummy_attestation
-):
-    disable_pep740 = (
-        db_request.db.query(AdminFlag)
-        .filter(AdminFlag.id == AdminFlagValue.DISABLE_PEP740.value)
-        .first()
-    )
-    disable_pep740.enabled = True
-
-    project = ProjectFactory.create()
-    release = ReleaseFactory.create(project=project, version="1.0")
-    FileFactory.create(release=release)
-
-    db_request.route_url = lambda *a, **kw: "the-url"
-
-    expected_content = _simple_detail(project, db_request)
-    assert expected_content["files"][0]["provenance"] is None
 
 
 def test_render_simple_detail(db_request, monkeypatch, jinja):

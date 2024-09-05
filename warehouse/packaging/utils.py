@@ -19,7 +19,6 @@ import packaging_legacy.version
 from pyramid_jinja2 import IJinja2Environment
 from sqlalchemy.orm import joinedload
 
-from warehouse.admin.flags import AdminFlagValue
 from warehouse.packaging.interfaces import ISimpleStorage
 from warehouse.packaging.models import File, LifecycleStatus, Project, Release
 
@@ -65,9 +64,6 @@ def _simple_detail(project, request):
         {f.release.version for f in files}, key=packaging_legacy.version.parse
     )
 
-    # If the flag is set, this means the provenance download is disabled
-    is_pep740_enabled: bool = not request.flags.enabled(AdminFlagValue.DISABLE_PEP740)
-
     return {
         "meta": {"api-version": API_VERSION, "_last-serial": project.last_serial},
         "name": project.normalized_name,
@@ -102,9 +98,7 @@ def _simple_detail(project, request):
                     else False
                 ),
                 "provenance": (
-                    file.provenance.provenance_digest
-                    if is_pep740_enabled and file.provenance
-                    else None
+                    file.provenance.provenance_digest if file.provenance else None
                 ),
             }
             for file in files
