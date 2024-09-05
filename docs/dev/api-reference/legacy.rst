@@ -7,7 +7,7 @@ The "Legacy API" provides feature parity with `pypi-legacy`_, hence the term
 .. note::
   This API is available as both HTML and JSON as described in `PEP 691`_.
 
-  It is reccommended that new intergrations use the JSON version.
+  It is recommended that new integrations use the JSON version.
 
 .. _simple-api:
 
