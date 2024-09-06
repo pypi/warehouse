@@ -62,6 +62,20 @@ class TestLoginForm:
         assert form.breach_service is breach_service
         assert form.validate(), str(form.errors)
 
+    def test_validate_username_with_null_bytes(self, pyramid_config):
+        request = pretend.stub()
+        user_service = pretend.stub()
+        breach_service = pretend.stub()
+        form = forms.LoginForm(
+            formdata=MultiDict({"username": "my_username\0"}),
+            request=request,
+            user_service=user_service,
+            breach_service=breach_service,
+        )
+
+        assert not form.validate()
+        assert str(form.username.errors.pop()) == "Null bytes are not allowed."
+
     def test_validate_username_with_no_user(self):
         request = pretend.stub()
         user_service = pretend.stub(
@@ -69,13 +83,13 @@ class TestLoginForm:
         )
         breach_service = pretend.stub()
         form = forms.LoginForm(
-            request=request, user_service=user_service, breach_service=breach_service
+            formdata=MultiDict({"username": "my_username"}),
+            request=request,
+            user_service=user_service,
+            breach_service=breach_service,
         )
-        field = pretend.stub(data="my_username")
 
-        with pytest.raises(wtforms.validators.ValidationError):
-            form.validate_username(field)
-
+        assert not form.validate()
         assert user_service.find_userid.calls == [pretend.call("my_username")]
 
     @pytest.mark.parametrize(
@@ -93,11 +107,13 @@ class TestLoginForm:
         user_service = pretend.stub(find_userid=pretend.call_recorder(lambda userid: 1))
         breach_service = pretend.stub()
         form = forms.LoginForm(
-            request=request, user_service=user_service, breach_service=breach_service
+            formdata=MultiDict({"username": input_username}),
+            request=request,
+            user_service=user_service,
+            breach_service=breach_service,
         )
-        field = pretend.stub(data=input_username)
-        form.validate_username(field)
 
+        assert not form.validate()
         assert user_service.find_userid.calls == [pretend.call(expected_username)]
 
     def test_validate_password_no_user(self):
