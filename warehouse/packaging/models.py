@@ -542,6 +542,8 @@ DynamicFieldsEnum = ENUM(
     "Maintainer",
     "Maintainer-Email",
     "License",
+    "License-Expression",
+    "License-File",
     "Classifier",
     "Requires-Dist",
     "Requires-Python",
@@ -587,6 +589,14 @@ class Release(HasObservations, db.Model):
     home_page: Mapped[str | None]
     home_page_verified: Mapped[bool_false]
     license: Mapped[str | None]
+    license_expression: Mapped[str | None]
+    license_files: Mapped[list[str] | None] = mapped_column(
+        ARRAY(String),
+        comment=(
+            "Array of license files. Null indicates no License-File(s) were supplied "
+            "by the uploader."
+        ),
+    )
     summary: Mapped[str | None]
     keywords: Mapped[str | None]
     keywords_array: Mapped[list[str] | None] = mapped_column(
