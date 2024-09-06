@@ -48,6 +48,12 @@ from warehouse.accounts.models import User
 from warehouse.cache.http import add_vary, cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.classifiers.models import Classifier
+from warehouse.constants import (
+    ONE_DAY_IN_SECONDS,
+    ONE_HOUR_IN_SECONDS,
+    SIX_HOURS_IN_SECONDS,
+    TEN_MINUTES_IN_SECONDS,
+)
 from warehouse.db import DatabaseNotAvailableError
 from warehouse.errors import WarehouseDenied
 from warehouse.forms import SetLocaleForm
@@ -205,11 +211,11 @@ def service_unavailable(exc, request):
     route_name="robots.txt",
     renderer="robots.txt",
     decorator=[
-        cache_control(1 * 24 * 60 * 60),  # 1 day
+        cache_control(ONE_DAY_IN_SECONDS),
         origin_cache(
-            1 * 24 * 60 * 60,  # 1 day
-            stale_while_revalidate=6 * 60 * 60,  # 6 hours
-            stale_if_error=1 * 24 * 60 * 60,  # 1 day
+            ONE_DAY_IN_SECONDS,
+            stale_while_revalidate=SIX_HOURS_IN_SECONDS,
+            stale_if_error=ONE_DAY_IN_SECONDS,
         ),
     ],
 )
@@ -222,11 +228,11 @@ def robotstxt(request):
     route_name="opensearch.xml",
     renderer="opensearch.xml",
     decorator=[
-        cache_control(1 * 24 * 60 * 60),  # 1 day
+        cache_control(ONE_DAY_IN_SECONDS),
         origin_cache(
-            1 * 24 * 60 * 60,  # 1 day
-            stale_while_revalidate=6 * 60 * 60,  # 6 hours
-            stale_if_error=1 * 24 * 60 * 60,  # 1 day
+            ONE_DAY_IN_SECONDS,
+            stale_while_revalidate=SIX_HOURS_IN_SECONDS,
+            stale_if_error=ONE_DAY_IN_SECONDS,
         ),
     ],
 )
@@ -240,9 +246,9 @@ def opensearchxml(request):
     renderer="index.html",
     decorator=[
         origin_cache(
-            1 * 60 * 60,  # 1 hour
-            stale_while_revalidate=10 * 60,  # 10 minutes
-            stale_if_error=1 * 24 * 60 * 60,  # 1 day
+            ONE_HOUR_IN_SECONDS,
+            stale_while_revalidate=TEN_MINUTES_IN_SECONDS,
+            stale_if_error=ONE_DAY_IN_SECONDS,
             keys=["all-projects"],
         )
     ],
@@ -314,8 +320,8 @@ def list_classifiers(request):
     renderer="search/results.html",
     decorator=[
         origin_cache(
-            1 * 60 * 60,  # 1 hour
-            stale_if_error=1 * 24 * 60 * 60,  # 1 day
+            ONE_HOUR_IN_SECONDS,
+            stale_if_error=ONE_DAY_IN_SECONDS,
             keys=["all-projects"],
         )
     ],
@@ -426,11 +432,11 @@ def search(request):
     renderer="pages/stats.html",
     decorator=[
         add_vary("Accept"),
-        cache_control(1 * 24 * 60 * 60),  # 1 day
+        cache_control(ONE_DAY_IN_SECONDS),
         origin_cache(
-            1 * 24 * 60 * 60,  # 1 day
-            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
-            stale_if_error=1 * 24 * 60 * 60,  # 1 day
+            ONE_DAY_IN_SECONDS,
+            stale_while_revalidate=ONE_DAY_IN_SECONDS,
+            stale_if_error=ONE_DAY_IN_SECONDS,
         ),
     ],
     has_translations=True,
@@ -440,11 +446,11 @@ def search(request):
     renderer="json",
     decorator=[
         add_vary("Accept"),
-        cache_control(1 * 24 * 60 * 60),  # 1 day
+        cache_control(ONE_DAY_IN_SECONDS),
         origin_cache(
-            1 * 24 * 60 * 60,  # 1 day
-            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
-            stale_if_error=1 * 24 * 60 * 60,  # 1 day
+            ONE_DAY_IN_SECONDS,
+            stale_while_revalidate=ONE_DAY_IN_SECONDS,
+            stale_if_error=ONE_DAY_IN_SECONDS,
         ),
     ],
     accept="application/json",

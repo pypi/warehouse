@@ -20,6 +20,11 @@ from sqlalchemy import func, or_
 from warehouse.accounts.models import User
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
+from warehouse.constants import (
+    ONE_DAY_IN_SECONDS,
+    ONE_HOUR_IN_SECONDS,
+    SIX_HOURS_IN_SECONDS,
+)
 from warehouse.packaging.models import Project
 
 AGE_BEFORE_INDEX = datetime.timedelta(days=14)
@@ -37,11 +42,11 @@ class BucketTooSmallError(ValueError):
     route_name="index.sitemap.xml",
     renderer="sitemap/index.xml",
     decorator=[
-        cache_control(1 * 60 * 60),  # 1 hour
+        cache_control(ONE_HOUR_IN_SECONDS),
         origin_cache(
-            1 * 24 * 60 * 60,  # 1 day
-            stale_while_revalidate=6 * 60 * 60,  # 6 hours
-            stale_if_error=1 * 24 * 60 * 60,  # 1 day
+            ONE_DAY_IN_SECONDS,
+            stale_while_revalidate=SIX_HOURS_IN_SECONDS,
+            stale_if_error=ONE_DAY_IN_SECONDS,
             keys=["all-projects"],
         ),
     ],
@@ -103,11 +108,11 @@ def sitemap_index(request):
     route_name="bucket.sitemap.xml",
     renderer="sitemap/bucket.xml",
     decorator=[
-        cache_control(1 * 60 * 60),  # 1 hour
+        cache_control(ONE_HOUR_IN_SECONDS),
         origin_cache(
-            1 * 24 * 60 * 60,  # 1 day
-            stale_while_revalidate=6 * 60 * 60,  # 6 hours
-            stale_if_error=1 * 24 * 60 * 60,  # 1 day
+            ONE_DAY_IN_SECONDS,
+            stale_while_revalidate=SIX_HOURS_IN_SECONDS,
+            stale_if_error=ONE_DAY_IN_SECONDS,
             keys=["all-projects"],
         ),
     ],

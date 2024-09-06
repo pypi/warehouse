@@ -18,6 +18,11 @@ from sqlalchemy import func
 
 from warehouse.cache.http import add_vary, cache_control
 from warehouse.cache.origin import origin_cache
+from warehouse.constants import (
+    FIVE_MINUTES_IN_SECONDS,
+    ONE_DAY_IN_SECONDS,
+    TEN_MINUTES_IN_SECONDS,
+)
 from warehouse.packaging.models import JournalEntry, Project
 from warehouse.packaging.utils import _simple_detail, _simple_index
 from warehouse.utils.cors import _CORS_HEADERS
@@ -57,11 +62,11 @@ def _select_content_type(request: Request) -> str:
     renderer="api/simple/index.html",
     decorator=[
         add_vary("Accept"),
-        cache_control(10 * 60),  # 10 minutes
+        cache_control(TEN_MINUTES_IN_SECONDS),
         origin_cache(
-            1 * 24 * 60 * 60,  # 1 day
-            stale_while_revalidate=5 * 60,  # 5 minutes
-            stale_if_error=1 * 24 * 60 * 60,  # 1 day
+            ONE_DAY_IN_SECONDS,
+            stale_while_revalidate=FIVE_MINUTES_IN_SECONDS,
+            stale_if_error=ONE_DAY_IN_SECONDS,
         ),
     ],
 )
@@ -88,11 +93,11 @@ def simple_index(request):
     renderer="api/simple/detail.html",
     decorator=[
         add_vary("Accept"),
-        cache_control(10 * 60),  # 10 minutes
+        cache_control(TEN_MINUTES_IN_SECONDS),
         origin_cache(
-            1 * 24 * 60 * 60,  # 1 day
-            stale_while_revalidate=5 * 60,  # 5 minutes
-            stale_if_error=1 * 24 * 60 * 60,  # 1 day
+            ONE_DAY_IN_SECONDS,
+            stale_while_revalidate=FIVE_MINUTES_IN_SECONDS,
+            stale_if_error=ONE_DAY_IN_SECONDS,
         ),
     ],
 )

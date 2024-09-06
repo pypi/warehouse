@@ -33,7 +33,13 @@ from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
 from warehouse.authnz import Permissions
-from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
+from warehouse.constants import (
+    MAX_FILESIZE,
+    MAX_PROJECT_SIZE,
+    ONE_GIB,
+    ONE_MIB,
+    TEN_YEARS_IN_SECONDS,
+)
 from warehouse.utils.static import ManifestCacheBuster
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
@@ -396,7 +402,7 @@ def configure(settings=None):
         "token.default.max_age",
         "TOKEN_DEFAULT_MAX_AGE",
         coercer=int,
-        default=21600,  # 6 hours
+        default=timedelta(hours=6).total_seconds(),
     )
     maybe_set(
         settings,
@@ -824,7 +830,7 @@ def configure(settings=None):
         "warehouse:static/dist/",
         # Don't cache at all if prevent_http_cache is true, else we'll cache
         # the files for 10 years.
-        cache_max_age=0 if prevent_http_cache else 10 * 365 * 24 * 60 * 60,
+        cache_max_age=0 if prevent_http_cache else TEN_YEARS_IN_SECONDS,
     )
     config.add_cache_buster(
         "warehouse:static/dist/",
@@ -836,7 +842,7 @@ def configure(settings=None):
     )
     config.whitenoise_serve_static(
         autorefresh=prevent_http_cache,
-        max_age=0 if prevent_http_cache else 10 * 365 * 24 * 60 * 60,
+        max_age=0 if prevent_http_cache else TEN_YEARS_IN_SECONDS,
     )
     config.whitenoise_add_files("warehouse:static/dist/", prefix="/static/")
     config.whitenoise_add_manifest(

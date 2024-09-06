@@ -17,9 +17,10 @@ from pyramid.renderers import render_to_response
 
 from warehouse.accounts.forms import ReAuthenticateForm
 from warehouse.accounts.interfaces import IUserService
+from warehouse.constants import THIRTY_MINUTES_IN_SECONDS
 from warehouse.rate_limiting import IRateLimiter, RateLimit
 
-DEFAULT_TIME_TO_REAUTH = 30 * 60  # 30 minutes
+DEFAULT_TIME_TO_REAUTH = THIRTY_MINUTES_IN_SECONDS
 
 
 def reauth_view(view, info):

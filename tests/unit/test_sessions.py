@@ -23,6 +23,7 @@ import warehouse.sessions
 import warehouse.utils.otp as otp
 import warehouse.utils.webauthn as webauthn
 
+from warehouse.constants import TWELVE_HOURS_IN_SECONDS
 from warehouse.sessions import (
     InvalidSession,
     Session,
@@ -420,7 +421,7 @@ class TestSessionFactory:
         )
 
         assert session_factory.signer.unsign.calls == [
-            pretend.call("123456", max_age=12 * 60 * 60)
+            pretend.call("123456", max_age=TWELVE_HOURS_IN_SECONDS)
         ]
 
         assert session_factory.redis.get.calls == [
@@ -450,7 +451,7 @@ class TestSessionFactory:
         )
 
         assert session_factory.signer.unsign.calls == [
-            pretend.call("123456", max_age=12 * 60 * 60)
+            pretend.call("123456", max_age=TWELVE_HOURS_IN_SECONDS)
         ]
 
         assert session_factory.redis.get.calls == [
@@ -485,7 +486,7 @@ class TestSessionFactory:
         )
 
         assert session_factory.signer.unsign.calls == [
-            pretend.call("123456", max_age=12 * 60 * 60)
+            pretend.call("123456", max_age=TWELVE_HOURS_IN_SECONDS)
         ]
 
         assert session_factory.redis.get.calls == [
@@ -570,7 +571,11 @@ class TestSessionFactory:
             )
         ]
         assert session_factory.redis.setex.calls == [
-            pretend.call("warehouse/session/data/123456", 12 * 60 * 60, b"msgpack data")
+            pretend.call(
+                "warehouse/session/data/123456",
+                TWELVE_HOURS_IN_SECONDS,
+                b"msgpack data",
+            )
         ]
         assert pyramid_request.session.should_save.calls == [
             pretend.call(),
@@ -581,7 +586,7 @@ class TestSessionFactory:
             pretend.call(
                 "session_id",
                 "cookie data",
-                max_age=12 * 60 * 60,
+                max_age=TWELVE_HOURS_IN_SECONDS,
                 httponly=True,
                 secure=False,
                 samesite=b"lax",

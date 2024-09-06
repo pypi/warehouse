@@ -15,6 +15,7 @@ import redis
 from zope.interface import implementer
 
 from warehouse import tasks
+from warehouse.constants import TWENTY_FIVE_HOURS_IN_SECONDS
 from warehouse.legacy.api.xmlrpc import cache
 from warehouse.legacy.api.xmlrpc.cache import interfaces
 
@@ -55,7 +56,7 @@ class RedisXMLRPCCache:
             name=request.registry.settings.get("warehouse.xmlrpc.cache.name", "xmlrpc"),
             expires=int(
                 request.registry.settings.get(
-                    "warehouse.xmlrpc.cache.expires", 25 * 60 * 60
+                    "warehouse.xmlrpc.cache.expires", TWENTY_FIVE_HOURS_IN_SECONDS
                 )
             ),
         )

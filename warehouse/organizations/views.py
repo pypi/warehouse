@@ -14,6 +14,7 @@ from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
 
 from warehouse.cache.origin import origin_cache
+from warehouse.constants import ONE_DAY_IN_SECONDS
 from warehouse.organizations.models import Organization
 
 
@@ -21,9 +22,7 @@ from warehouse.organizations.models import Organization
     route_name="organizations.profile",
     context=Organization,
     renderer="organizations/profile.html",
-    decorator=[
-        origin_cache(1 * 24 * 60 * 60, stale_if_error=1 * 24 * 60 * 60)  # 1 day each.
-    ],
+    decorator=[origin_cache(ONE_DAY_IN_SECONDS, stale_if_error=ONE_DAY_IN_SECONDS)],
     has_translations=True,
 )
 def profile(organization, request):

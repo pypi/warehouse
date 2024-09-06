@@ -21,6 +21,7 @@ from sqlalchemy.exc import NoResultFound
 
 from warehouse import email
 from warehouse.accounts.interfaces import IUserService
+from warehouse.constants import THREE_DAYS_IN_SECONDS
 from warehouse.email.interfaces import IEmailSender
 from warehouse.email.services import EmailMessage
 
@@ -2206,7 +2207,7 @@ class TestOrganizationMemberEmails:
         self.organization_name = "example"
         self.message = "test message"
         self.email_token = "token"
-        self.token_age = 72 * 60 * 60
+        self.token_age = THREE_DAYS_IN_SECONDS
 
     @pytest.mark.usefixtures("_organization_invite")
     def test_send_organization_member_invited_email(

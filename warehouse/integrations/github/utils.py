@@ -17,6 +17,7 @@ import time
 import requests
 
 from warehouse import integrations
+from warehouse.constants import THIRTY_MINUTES_IN_SECONDS
 from warehouse.email import send_token_compromised_email_leak
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import InvalidMacaroonError
@@ -113,7 +114,7 @@ class GitHubPublicKeyMetaAPIError(InvalidTokenLeakRequestError):
     pass
 
 
-PUBLIC_KEYS_CACHE_TIME = 60 * 30  # 30 minutes
+PUBLIC_KEYS_CACHE_TIME = THIRTY_MINUTES_IN_SECONDS
 PUBLIC_KEYS_CACHE = integrations.PublicKeysCache(cache_time=PUBLIC_KEYS_CACHE_TIME)
 
 

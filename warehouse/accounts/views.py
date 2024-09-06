@@ -63,6 +63,7 @@ from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.cache.origin import origin_cache
 from warehouse.captcha.interfaces import ICaptchaService
+from warehouse.constants import ONE_DAY_IN_SECONDS
 from warehouse.email import (
     send_added_as_collaborator_email,
     send_added_as_organization_member_email,
@@ -159,9 +160,7 @@ def incomplete_password_resets(exc, request):
     route_name="accounts.profile",
     context=User,
     renderer="accounts/profile.html",
-    decorator=[
-        origin_cache(1 * 24 * 60 * 60, stale_if_error=1 * 24 * 60 * 60)  # 1 day each.
-    ],
+    decorator=[origin_cache(ONE_DAY_IN_SECONDS, stale_if_error=ONE_DAY_IN_SECONDS)],
     has_translations=True,
 )
 def profile(user, request):

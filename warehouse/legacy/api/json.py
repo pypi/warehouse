@@ -18,6 +18,11 @@ from sqlalchemy.orm import Load, contains_eager, joinedload
 
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
+from warehouse.constants import (
+    FIFTEEN_MINUTES_IN_SECONDS,
+    FIVE_MINUTES_IN_SECONDS,
+    ONE_DAY_IN_SECONDS,
+)
 from warehouse.packaging.models import (
     Description,
     File,
@@ -29,21 +34,21 @@ from warehouse.packaging.models import (
 from warehouse.utils.cors import _CORS_HEADERS
 
 _RELEASE_CACHE_DECORATOR = [
-    cache_control(15 * 60),  # 15 minutes
+    cache_control(FIFTEEN_MINUTES_IN_SECONDS),
     origin_cache(
-        1 * 24 * 60 * 60,  # 1 day
-        stale_while_revalidate=5 * 60,  # 5 minutes
-        stale_if_error=1 * 24 * 60 * 60,  # 1 day
+        ONE_DAY_IN_SECONDS,
+        stale_while_revalidate=FIVE_MINUTES_IN_SECONDS,
+        stale_if_error=ONE_DAY_IN_SECONDS,
         keys=["all-legacy-json", "release-legacy-json"],
     ),
 ]
 
 _PROJECT_CACHE_DECORATOR = [
-    cache_control(15 * 60),  # 15 minutes
+    cache_control(FIFTEEN_MINUTES_IN_SECONDS),
     origin_cache(
-        1 * 24 * 60 * 60,  # 1 day
-        stale_while_revalidate=5 * 60,  # 5 minutes
-        stale_if_error=1 * 24 * 60 * 60,  # 1 day
+        ONE_DAY_IN_SECONDS,
+        stale_while_revalidate=FIVE_MINUTES_IN_SECONDS,
+        stale_if_error=ONE_DAY_IN_SECONDS,
         keys=["all-legacy-json", "project-legacy-json"],
     ),
 ]

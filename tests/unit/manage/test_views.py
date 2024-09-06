@@ -39,7 +39,7 @@ from warehouse.accounts.interfaces import (
     TokenExpired,
 )
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
+from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, SIX_HOURS_IN_SECONDS
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
@@ -4806,7 +4806,9 @@ class TestManageProjectRoles:
             find_userid=lambda username: new_user.id, get_user=lambda userid: new_user
         )
         token_service = pretend.stub(
-            dumps=lambda data: "TOKEN", max_age=6 * 60 * 60, loads=lambda data: None
+            dumps=lambda data: "TOKEN",
+            max_age=SIX_HOURS_IN_SECONDS,
+            loads=lambda data: None,
         )
         db_request.find_service = pretend.call_recorder(
             lambda iface, context=None, name=None: {
@@ -4891,7 +4893,9 @@ class TestManageProjectRoles:
             find_userid=lambda username: user.id, get_user=lambda userid: user
         )
         token_service = pretend.stub(
-            dumps=lambda data: "TOKEN", max_age=6 * 60 * 60, loads=lambda data: None
+            dumps=lambda data: "TOKEN",
+            max_age=SIX_HOURS_IN_SECONDS,
+            loads=lambda data: None,
         )
         db_request.find_service = pretend.call_recorder(
             lambda iface, context=None, name=None: {
@@ -4950,7 +4954,9 @@ class TestManageProjectRoles:
             find_userid=lambda username: new_user.id, get_user=lambda userid: new_user
         )
         token_service = pretend.stub(
-            dumps=lambda data: "TOKEN", max_age=6 * 60 * 60, loads=lambda data: None
+            dumps=lambda data: "TOKEN",
+            max_age=SIX_HOURS_IN_SECONDS,
+            loads=lambda data: None,
         )
         db_request.find_service = pretend.call_recorder(
             lambda iface, context=None, name=None: {
@@ -5039,7 +5045,7 @@ class TestManageProjectRoles:
         )
         token_service = pretend.stub(
             dumps=lambda data: "TOKEN",
-            max_age=6 * 60 * 60,
+            max_age=SIX_HOURS_IN_SECONDS,
             loads=lambda data: None,
         )
         db_request.find_service = pretend.call_recorder(
@@ -5103,7 +5109,7 @@ class TestManageProjectRoles:
         )
         token_service = pretend.stub(
             dumps=lambda data: "TOKEN",
-            max_age=6 * 60 * 60,
+            max_age=SIX_HOURS_IN_SECONDS,
             loads=lambda data: {"desired_role": "Maintainer"},
         )
         db_request.find_service = pretend.call_recorder(

@@ -16,6 +16,7 @@ from pyramid.view import view_config
 from sqlalchemy.orm import joinedload
 
 from warehouse.cache.origin import origin_cache
+from warehouse.constants import FIVE_DAYS_IN_SECONDS, ONE_DAY_IN_SECONDS
 from warehouse.packaging.models import Project, Release
 
 
@@ -48,9 +49,9 @@ def _format_author(release):
     renderer="rss/updates.xml",
     decorator=[
         origin_cache(
-            1 * 24 * 60 * 60,  # 1 day
-            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
-            stale_if_error=5 * 24 * 60 * 60,  # 5 days
+            ONE_DAY_IN_SECONDS,
+            stale_while_revalidate=ONE_DAY_IN_SECONDS,
+            stale_if_error=FIVE_DAYS_IN_SECONDS,
             keys=["all-projects"],
         )
     ],
@@ -75,9 +76,9 @@ def rss_updates(request):
     renderer="rss/packages.xml",
     decorator=[
         origin_cache(
-            1 * 24 * 60 * 60,  # 1 day
-            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
-            stale_if_error=5 * 24 * 60 * 60,  # 5 days
+            ONE_DAY_IN_SECONDS,
+            stale_while_revalidate=ONE_DAY_IN_SECONDS,
+            stale_if_error=FIVE_DAYS_IN_SECONDS,
             keys=["all-projects"],
         )
     ],
@@ -103,11 +104,7 @@ def rss_packages(request):
     route_name="rss.project.releases",
     context=Project,
     renderer="rss/project_releases.xml",
-    decorator=[
-        origin_cache(
-            1 * 24 * 60 * 60, stale_if_error=5 * 24 * 60 * 60  # 1 day, 5 days stale
-        )
-    ],
+    decorator=[origin_cache(ONE_DAY_IN_SECONDS, stale_if_error=FIVE_DAYS_IN_SECONDS)],
 )
 def rss_project_releases(project, request):
     request.response.content_type = "text/xml"

@@ -18,6 +18,7 @@ from sqlalchemy.exc import NoResultFound
 from warehouse.accounts.models import User
 from warehouse.authnz import Permissions
 from warehouse.cache.origin import origin_cache
+from warehouse.constants import FIVE_DAYS_IN_SECONDS, ONE_DAY_IN_SECONDS
 from warehouse.observations.models import ObservationKind
 from warehouse.packaging.forms import SubmitMalwareObservationForm
 from warehouse.packaging.models import Description, File, Project, Release, Role
@@ -27,11 +28,7 @@ from warehouse.packaging.models import Description, File, Project, Release, Role
     route_name="packaging.project",
     context=Project,
     renderer="packaging/detail.html",
-    decorator=[
-        origin_cache(
-            1 * 24 * 60 * 60, stale_if_error=5 * 24 * 60 * 60  # 1 day, 5 days stale
-        )
-    ],
+    decorator=[origin_cache(ONE_DAY_IN_SECONDS, stale_if_error=FIVE_DAYS_IN_SECONDS)],
     has_translations=True,
 )
 def project_detail(project, request):
@@ -60,11 +57,7 @@ def project_detail(project, request):
     route_name="packaging.release",
     context=Release,
     renderer="packaging/detail.html",
-    decorator=[
-        origin_cache(
-            1 * 24 * 60 * 60, stale_if_error=5 * 24 * 60 * 60  # 1 day, 5 days stale
-        )
-    ],
+    decorator=[origin_cache(ONE_DAY_IN_SECONDS, stale_if_error=FIVE_DAYS_IN_SECONDS)],
     has_translations=True,
 )
 def release_detail(release, request):
