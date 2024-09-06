@@ -12,7 +12,7 @@
 
 from http import HTTPStatus
 
-from ...common.db.packaging import ProjectFactory, ReleaseFactory
+from ...common.db.packaging import FileFactory, ProjectFactory, ReleaseFactory
 
 
 def test_simple_api_html(webtest):
@@ -24,10 +24,13 @@ def test_simple_api_html(webtest):
 
 def test_simple_api_detail(webtest):
     project = ProjectFactory.create()
-    ReleaseFactory.create_batch(2, project=project)
+    release = ReleaseFactory.create(project=project)
+    FileFactory.create_batch(2, release=release, packagetype="bdist_wheel")
 
     resp = webtest.get(f"/simple/{project.normalized_name}/", status=HTTPStatus.OK)
 
     assert resp.content_type == "text/html"
     assert "X-PyPI-Last-Serial" in resp.headers
-    assert f"Links for {project.normalized_name}" in resp.text
+    assert resp.html.h1.string == f"Links for {project.normalized_name}"
+    # There should be a link for every file
+    assert len(resp.html.find_all("a")) == 2
