@@ -12,8 +12,6 @@
 
 import pretend
 import pytest
-import requests
-import responses
 
 from warehouse.observations.models import ObservationKind
 from warehouse.observations.tasks import (
@@ -36,7 +34,6 @@ def test_execute_observation_report(app_config):
     assert _delay.calls == [pretend.call(observation.id)]
 
 
-@responses.activate
 @pytest.mark.parametrize(
     ("kind", "reports"),
     [
@@ -49,16 +46,10 @@ def test_execute_observation_report(app_config):
 )
 @pytest.mark.parametrize("payload", [{}, {"foo": "bar"}])
 def test_report_observation_to_helpscout(
-    kind, reports, payload, db_request, monkeypatch
+    kind, reports, payload, db_request, helpdesk_service, monkeypatch
 ):
     db_request.registry.settings = {"helpscout.app_secret": "fake-sekret"}
     db_request.route_url = lambda *a, **kw: "/admin/malware_reports/"
-
-    # Mock out the authentication to HelpScout
-    monkeypatch.setattr(
-        "warehouse.observations.tasks._authenticate_helpscout",
-        lambda x: "SOME_TOKEN",
-    )
 
     # Create an Observation
     user = UserFactory.create()
@@ -74,26 +65,10 @@ def test_report_observation_to_helpscout(
     # Need to flush the session to ensure the Observation has an ID
     db_request.db.flush()
 
-    db_request.http = requests.Session()
-
-    responses.add(
-        responses.POST,
-        "https://api.helpscout.net/v2/conversations",
-        json={"id": 123},
-        headers={"Location": "https://api.helpscout.net/v2/conversations/123"},
-    )
+    hs_svc_spy = pretend.call_recorder(lambda *args, **kwargs: None)
+    monkeypatch.setattr(helpdesk_service, "create_conversation", hs_svc_spy)
 
     report_observation_to_helpscout(None, db_request, observation.id)
 
-    if reports:
-        assert len(responses.calls) == 1
-        assert (
-            responses.calls[0].request.url
-            == "https://api.helpscout.net/v2/conversations"
-        )
-        assert (
-            observation.additional["helpscout_conversation_url"]
-            == "https://api.helpscout.net/v2/conversations/123"
-        )
-    else:
-        assert len(responses.calls) == 0
+    # If it's not supposed to report, then we shouldn't have called the service
+    assert bool(hs_svc_spy.calls) == reports

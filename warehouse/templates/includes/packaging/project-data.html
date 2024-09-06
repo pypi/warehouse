@@ -13,7 +13,11 @@
 -#}
 
 <div class="sidebar-section verified">
-  <h3 class="sidebar-section__title">{% trans %}Verified details{% endtrans %}</h3>
+  <h3 class="sidebar-section__title">{% trans %}Verified details{% endtrans %}&nbsp;
+      <a href="https://docs.pypi.org/project_metadata/#verified-details">
+          <small><i>{% trans %}(What is this?){% endtrans %}</i></small>
+      </a>
+  </h3>
   <small><i>These details have been verified by PyPI</i></small>
   {% if release.urls_by_verify_status(verified=True).values() | contains_valid_uris %}
     <h6>{% trans %}Project links{% endtrans %}</h6>

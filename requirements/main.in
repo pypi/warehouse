@@ -68,6 +68,7 @@ sqlalchemy[asyncio]>=2.0,<3.0
 stdlib-list
 stripe
 structlog
+tldextract
 transaction
 trove-classifiers
 ua-parser

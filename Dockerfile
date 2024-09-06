@@ -1,6 +1,6 @@
 # First things first, we build an image which is where we're going to compile
 # our static assets with. We use this stage in development.
-FROM node:22.6.0-bookworm AS static-deps
+FROM node:22.7.0-bookworm AS static-deps
 
 WORKDIR /opt/warehouse/src/
 
@@ -234,6 +234,8 @@ COPY --from=static /opt/warehouse/src/warehouse/admin/static/dist/ /opt/warehous
 COPY --from=build /opt/warehouse/ /opt/warehouse/
 COPY . /opt/warehouse/src/
 
+# Pre-cache TLD list
+RUN tldextract --update
 # Load our module to pre-compile as much bytecode as we can easily.
 # Saves time collectively on container boot!
 RUN python -m warehouse

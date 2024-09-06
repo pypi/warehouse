@@ -19,7 +19,6 @@ jobs:
     runs-on: depot-ubuntu-22.04-arm
     outputs:
       buildId: ${{ steps.build.outputs.build-id}}
-      token: ${{ steps.pull-token.outputs.token }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -34,9 +33,6 @@ jobs:
             DEVEL=yes
             CI=yes
           tags: pypi/warehouse:ci-${{ github.run_id }}
-      - name: Export Token
-        id: pull-token
-        run: echo "token=$(depot pull-token)" >> "$GITHUB_OUTPUT"
   test:
     # Time out if our test suite has gotten hung
     timeout-minutes: 15
@@ -61,9 +57,6 @@ jobs:
     runs-on: depot-ubuntu-22.04-arm
     container:
       image: registry.depot.dev/rltf7cln5v:${{ needs.build.outputs.buildId }}
-      credentials:
-        username: x-token
-        password: ${{ needs.build.outputs.token }}
       env:
         BILLING_BACKEND: warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27
     services:
@@ -101,9 +94,6 @@ jobs:
     continue-on-error: true
     container:
       image: registry.depot.dev/rltf7cln5v:${{ needs.build.outputs.buildId }}
-      credentials:
-        username: x-token
-        password: ${{ needs.build.outputs.token }}
     services:
       postgres:
         image: postgres:16.1

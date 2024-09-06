@@ -20,40 +20,32 @@ Example usage (Python 3)::
   >>> import pprint
   >>> import time
   >>> client = xmlrpc.client.ServerProxy('https://pypi.org/pypi')
-  >>> client.package_releases('roundup')
-  ['1.6.0']
+  >>> client.changelog_last_serial()
+  24891357
   >>> time.sleep(1)  # Sleep to avoid rate limit
-  >>> pprint.pprint(client.release_urls('roundup', '1.6.0'))
-  [{'comment_text': '',
-  'digests': {'md5': '54d587da7c3d9c83f13d04674cacdc2a',
-              'sha256': '1814c74b40c4a6287e0a97b810f6adc6a3312168201eaa0badd1dd8c216b1bcb'},
-  'downloads': -1,
-  'filename': 'roundup-1.6.0.tar.gz',
-  'has_sig': True,
-  'md5_digest': '54d587da7c3d9c83f13d04674cacdc2a',
-  'packagetype': 'sdist',
-  'path': 'f0/07/6f4e2164ed82dfff873ee55181f782926bcb4a29f6a83fe4f8b9cbf5489c/roundup-1.6.0.tar.gz',
-  'python_version': 'source',
-  'sha256_digest': '1814c74b40c4a6287e0a97b810f6adc6a3312168201eaa0badd1dd8c216b1bcb',
-  'size': 2893499,
-  'upload_time_iso_8601': '2018-07-13T11:30:36.405653Z',
-  'url': 'https://files.pythonhosted.org/packages/f0/07/6f4e2164ed82dfff873ee55181f782926bcb4a29f6a83fe4f8b9cbf5489c/roundup-1.6.0.tar.gz'}]
+  >>> client.changelog_since_serial(24891357)
+  [['py-pcapplusplus', '1.0.0', 1725534675, 'remove release', 24891358]]
+  >>> time.sleep(1)  # Sleep to avoid rate limit
+  >>> pprint.pprint(client.list_packages_with_serial())
+  {'0': 3075854,
+   '0-._.-._.-._.-._.-._.-._.-0': 1448421,
+   '0-core-client': 3242044,
+   '0-orchestrator': 3242047,
+   '0.0.1': 3430659,
+   '0.618': 14863648,
+  ...
 
 .. _changes-to-legacy-api:
 
 Changes to XMLRPC API
 ---------------------
 
+- ``list_packages``, ``package_releases``, ``release_urls``, and ``release_data``
+  permanently deprecated and disabled. See `Deprecated Methods`_ for alternatives.
+
 - ``search`` Permanently deprecated and disabled due to excessive traffic
   driven by unidentified traffic, presumably automated. `See historical
   incident <https://status.python.org/incidents/grk0k7sz6zkp>`_.
-
-- ``package_releases`` As Warehouse does not support the concept of hidden
-  releases, the ``show_hidden`` flag now controls whether the latest version or
-  all versions are returned.
-
-- ``release_data`` The ``stable_version`` flag is always an empty string. It was
-  never fully supported anyway.
 
 - ``release_downloads`` and ``top_packages`` No longer supported. Use
   :doc:`Google BigQuery <bigquery-datasets>` instead (`guidance
@@ -95,6 +87,10 @@ package.
 Package querying
 ----------------
 
+.. warning::
+  The following methods are considered unsupported and will be deprecated
+  in the future.
+
 ``package_roles(package_name)``
 +++++++++++++++++++++++++++++++
 
@@ -128,96 +124,10 @@ since the given timestamp. The packages will be listed in descending date
 of most recent change.
 
 
-``list_packages()``
-+++++++++++++++++++
-
-.. warning::
-  Migrate to using the :doc:`Simple API <legacy>`.
-
-Retrieve a list of the package names registered with the package index.
-Returns a list of name strings.
-
-``package_releases(package_name, show_hidden=False)``
-+++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-.. warning::
-  Migrate to using the :doc:`json`.
-
-Retrieve a list of the releases registered for the given ``package_name``,
-ordered by version.
-
-If ``show_hidden`` is ``False`` (the default), only the latest version is
-returned.  Otherwise, all versions are returned.
-
-``release_urls(package_name, release_version)``
-+++++++++++++++++++++++++++++++++++++++++++++++
-
-.. warning::
-  Migrate to using the :doc:`json`.
-
-Retrieve a list of download URLs for the given ``release_version``.
-Returns a list of dicts with the following keys:
-
-* filename
-* packagetype ('sdist', 'bdist_wheel', etc)
-* python_version (required version, or 'source', or 'any')
-* size (an ``int``)
-* md5_digest
-* digests (a dict with two keys, "md5" and "sha256")
-* has_sig (a boolean)
-* upload_time_iso_8601 (a ``DateTime`` object)
-* comment_text
-* downloads (always says "-1")
-* url
-
-``release_data(package_name, release_version)``
-+++++++++++++++++++++++++++++++++++++++++++++++
-
-.. warning::
-  Migrate to using the :doc:`json`.
-
-Retrieve metadata describing a specific ``release_version``.
-Returns a dict with keys for:
-
-* name
-* version
-* stable_version (always an empty string or None)
-* bugtrack_url
-* package_url
-* release_url
-* docs_url (URL of the packages.python.org docs if they've been supplied)
-* home_page
-* download_url
-* project_url
-* author
-* author_email
-* maintainer
-* maintainer_email
-* summary
-* description (string, sometimes the entirety of a ``README``)
-* license
-* keywords
-* platform
-* classifiers (list of classifier strings)
-* requires
-* requires_dist
-* provides
-* provides_dist
-* obsoletes
-* obsoletes_dist
-* requires_python
-* requires_external
-* _pypi_ordering
-* _pypi_hidden
-* downloads (``{'last_day': 0, 'last_week': 0, 'last_month': 0}``)
-
-If the release does not exist, an empty dictionary is returned.
-
-
 Deprecated Methods
 ------------------
 
-.. warning::
+.. attention::
   The following methods are permanently deprecated and will return a
   ``RuntimeError``
 
@@ -229,12 +139,12 @@ Deprecated in favor of ``changelog_since_serial``.
 ``package_data(package_name, version)``
 +++++++++++++++++++++++++++++++++++++++
 
-Deprecated in favor of ``release_data``, :doc:`json` should be used.
+Deprecated, :doc:`json` should be used.
 
 ``package_urls(package_name, version)``
 +++++++++++++++++++++++++++++++++++++++
 
-Deprecated in favor of ``release_urls``, :doc:`json` should be used.
+Deprecated, :doc:`json` should be used.
 
 ``top_packages(num=None)``
 ++++++++++++++++++++++++++
@@ -249,5 +159,29 @@ instead (`guidance <https://packaging.python.org/guides/analyzing-pypi-package-d
 Permanently deprecated and disabled due to excessive traffic
 driven by unidentified traffic, presumably automated. `See historical incident
 <https://status.python.org/incidents/grk0k7sz6zkp>`_.
+
+``list_packages()``
++++++++++++++++++++
+
+Use the :doc:`Simple API <legacy>`
+to query for list of project names with releases on PyPI.
+
+``package_releases(package_name, show_hidden=False)``
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Use :doc:`json` or :doc:`Simple API <legacy>` to query for available releases
+of a given project.
+
+``release_urls(package_name, release_version)``
++++++++++++++++++++++++++++++++++++++++++++++++
+
+Use :doc:`json` or :doc:`Simple API <legacy>` to query for file download URLs
+for a given release.
+
+``release_data(package_name, release_version)``
++++++++++++++++++++++++++++++++++++++++++++++++
+
+Use :doc:`json` or :doc:`Simple API <legacy>` to query for metadata of a given
+release.
 
 .. _pypi-announce: https://mail.python.org/mailman3/lists/pypi-announce.python.org/
