@@ -220,9 +220,9 @@ pluggy==1.5.0 \
     --hash=sha256:2cffa88e94fdc978c4c574f15f9e59b7f4201d439195c3715ca9e2486f1d0cf1 \
     --hash=sha256:44e1ad92c8ca002de6377e165f3e0f1be63266ab4d554740532335b9d75ea669
     # via pytest
-port-for==0.7.2 \
-    --hash=sha256:074f29335130578aa42fef3726985e57d01c15189e509633a8a1b0b7f9226349 \
-    --hash=sha256:16b279ab4f210bad33515c45bd9af0c6e048ab24c3b6bbd9cfc7e451782617df
+port-for==0.7.3 \
+    --hash=sha256:2d597e5854a1b323b17eba8ae0630784c779857abde5e22444c88d233a60f953 \
+    --hash=sha256:786fa1171cee23093a475d65228b4a9877d249827ceb7cd2362cb7b80d0c69d4
     # via pytest-postgresql
 pprintpp==0.4.0 \
     --hash=sha256:b6b4dcdd0c0c0d75e4d7b2f21a9e933e5b2ce62b26e1a54537f9651ae5a5c01d \
@@ -270,9 +270,9 @@ pytest-icdiff==0.9 \
     --hash=sha256:13aede616202e57fcc882568b64589002ef85438046f012ac30a8d959dac8b75 \
     --hash=sha256:efee0da3bd1b24ef2d923751c5c547fbb8df0a46795553fba08ef57c3ca03d82
     # via -r requirements/tests.in
-pytest-postgresql==6.0.1 \
-    --hash=sha256:87c099c01d50ccb48653a1ae954e4156c6c420aac65f0920a70e68839460c720 \
-    --hash=sha256:be4e57d6a75017bfa532730069677b5ba19336fc8bd12b2af3e158a3b1580ce2
+pytest-postgresql==6.1.1 \
+    --hash=sha256:bd4c0970d25685ac3d34d42263fcbfbf134bf02d22519fce7e1ccf4122d8b99a \
+    --hash=sha256:f996637367e6aecebba1349da52eea95340bdb434c90e4b79739e62c656056e2
     # via -r requirements/tests.in
 pytest-randomly==3.15.0 \
     --hash=sha256:0516f4344b29f4e9cdae8bce31c4aeebf59d0b9ef05927c33354ff3859eeeca6 \
