@@ -356,6 +356,10 @@ class RegistrationForm(  # type: ignore[misc]
                     "Choose a name with 100 characters or less."
                 ),
             ),
+            wtforms.validators.Regexp(
+                r"(?i)(?:(?!:\/\/).)*$",
+                message=_("URLs are not allowed in the name field."),
+            ),
             PreventNullBytesValidator(),
         ]
     )

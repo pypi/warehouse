@@ -798,6 +798,33 @@ class TestRegistrationForm:
         assert not form.validate()
         assert form.full_name.errors.pop() == "Null bytes are not allowed."
 
+    @pytest.mark.parametrize(
+        "input_name",
+        [
+            "https://example.com",
+            "hello http://example.com",
+            "http://example.com goodbye",
+        ],
+    )
+    def test_name_contains_url(self, pyramid_config, input_name):
+        form = forms.RegistrationForm(
+            request=pretend.stub(),
+            formdata=MultiDict({"full_name": input_name}),
+            user_service=pretend.stub(
+                find_userid=pretend.call_recorder(lambda _: None)
+            ),
+            captcha_service=pretend.stub(
+                enabled=False,
+                verify_response=pretend.call_recorder(lambda _: None),
+            ),
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: True),
+        )
+        assert not form.validate()
+        assert (
+            str(form.full_name.errors.pop())
+            == "URLs are not allowed in the name field."
+        )
+
 
 class TestRequestPasswordResetForm:
     @pytest.mark.parametrize(
