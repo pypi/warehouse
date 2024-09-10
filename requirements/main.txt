@@ -916,9 +916,9 @@ idna==3.8 \
     #   email-validator
     #   requests
     #   tldextract
-importlib-resources==6.4.4 \
-    --hash=sha256:20600c8b7361938dc0bb2d5ec0297802e575df486f5a544fa414da65e13721f7 \
-    --hash=sha256:dda242603d1c9cd836c3368b1174ed74cb4049ecd209e7a1a0104620c18c5c11
+importlib-resources==6.4.5 \
+    --hash=sha256:980862a1d16c9e147a59603677fa2aa5fd82b87f223b6cb870695bcfce830065 \
+    --hash=sha256:ac29d5f956f01d5e4bb63102a5a19957f1b9175e45649977264a1416783bb717
     # via limits
 isodate==0.6.1 \
     --hash=sha256:0751eece944162659049d35f4f549ed815792b38793f07cf73381c1c87cbed96 \
