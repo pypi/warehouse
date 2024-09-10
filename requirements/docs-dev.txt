@@ -224,9 +224,9 @@ markupsafe==2.1.5 \
     --hash=sha256:fce659a462a1be54d2ffcacea5e3ba2d74daa74f30f5f143fe0c58636e355fdd \
     --hash=sha256:ffee1f21e5ef0d712f9033568f8344d5da8cc2869dbd08d87c84656e6a2d2f68
     # via jinja2
-mdit-py-plugins==0.4.1 \
-    --hash=sha256:1020dfe4e6bfc2c79fb49ae4e3f5b297f5ccd20f010187acc52af2921e27dc6a \
-    --hash=sha256:834b8ac23d1cd60cec703646ffd22ae97b7955a6d596eb1d304be1e251ae499c
+mdit-py-plugins==0.4.2 \
+    --hash=sha256:0c673c3f889399a33b95e88d2f0d111b4447bdfea7f237dab2d488f459835636 \
+    --hash=sha256:5f2cd1fdb606ddf152d37ec30e46101a60512bc0e5fa1a7002c36647b09e26b5
     # via myst-parser
 mdurl==0.1.2 \
     --hash=sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8 \
@@ -332,9 +332,9 @@ sphinx==8.0.2 \
     #   sphinx-basic-ng
     #   sphinx-copybutton
     #   sphinxcontrib-httpdomain
-sphinx-autobuild==2024.4.16 \
-    --hash=sha256:1c0ed37a1970eed197f9c5a66d65759e7c4e4cba7b5a5d77940752bf1a59f2c7 \
-    --hash=sha256:f2522779d30fcbf0253e09714f274ce8c608cb6ebcd67922b1c54de59faba702
+sphinx-autobuild==2024.9.3 \
+    --hash=sha256:55fe9bcc05dab659650d79bed0e6beb8b6032234edbf23f028f2cac3471f0c2d \
+    --hash=sha256:75929a5a92b932da8d29837406d6d973a927c456f30986a27f1f20b067897892
     # via -r requirements/docs-dev.in
 sphinx-basic-ng==1.0.0b2 \
     --hash=sha256:9ec55a47c90c8c002b5960c57492ec3021f5193cb26cebc2dc4ea226848651c9 \
@@ -376,9 +376,9 @@ sphinxcontrib-serializinghtml==2.0.0 \
     --hash=sha256:6e2cb0eef194e10c27ec0023bfeb25badbbb5868244cf5bc5bdc04e4464bf331 \
     --hash=sha256:e9d912827f872c029017a53f0ef2180b327c3f7fd23c87229f7a8e8b70031d4d
     # via sphinx
-starlette==0.38.2 \
-    --hash=sha256:4ec6a59df6bbafdab5f567754481657f7ed90dc9d69b0c9ff017907dd54faeff \
-    --hash=sha256:c7c0441065252160993a1a37cf2a73bb64d271b17303e0b0c1eb7191cfb12d75
+starlette==0.38.5 \
+    --hash=sha256:04a92830a9b6eb1442c766199d62260c3d4dc9c4f9188360626b1e0273cb7077 \
+    --hash=sha256:632f420a9d13e3ee2a6f18f437b0a9f1faecb0bc42e1942aa2ea0e379a4c4206
     # via sphinx-autobuild
 urllib3==2.2.2 \
     --hash=sha256:a448b2f64d686155468037e1ace9f2d2199776e17f0a46610480d311f73e3472 \

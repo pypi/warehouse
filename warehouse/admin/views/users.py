@@ -172,6 +172,15 @@ def user_detail(user, request):
         for email_entry in emails_form.emails.entries
     }
 
+    # Get recent Journal entries submitted by this username
+    submitted_by_journals = (
+        request.db.query(JournalEntry)
+        .filter(JournalEntry.submitted_by == user)
+        .order_by(JournalEntry.submitted_date.desc())
+        .limit(50)
+        .all()
+    )
+
     return {
         "user": user,
         "form": form,
@@ -179,6 +188,7 @@ def user_detail(user, request):
         "roles": roles,
         "add_email_form": EmailForm(),
         "breached_email_count": breached_email_count,
+        "submitted_by_journals": submitted_by_journals,
     }
 
 
