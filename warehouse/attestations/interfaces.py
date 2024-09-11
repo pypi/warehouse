@@ -10,11 +10,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pypi_attestations import Attestation, Distribution
-from pyramid.request import Request
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from zope.interface import Interface
 
-from warehouse.attestations.models import Provenance
+if TYPE_CHECKING:
+    from pypi_attestations import Attestation, Distribution
+    from pyramid.request import Request
+
+    from warehouse.attestations.models import Provenance
 
 
 class IIntegrityService(Interface):

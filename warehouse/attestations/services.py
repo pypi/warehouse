@@ -18,6 +18,7 @@ import warnings
 
 import rfc8785
 import sentry_sdk
+
 from pydantic import TypeAdapter, ValidationError
 from pypi_attestations import (
     Attestation,
@@ -40,11 +41,7 @@ from warehouse.attestations.models import Provenance as DatabaseProvenance
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.models import (
     GitHubPublisher as GitHubOIDCPublisher,
-)
-from warehouse.oidc.models import (
     GitLabPublisher as GitLabOIDCPublisher,
-)
-from warehouse.oidc.models import (
     OIDCPublisher,
 )
 from warehouse.utils.exceptions import InsecureIntegrityServiceWarning

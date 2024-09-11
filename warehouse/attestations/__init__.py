@@ -10,15 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.attestations.errors import AttestationUploadError
 from warehouse.attestations.interfaces import IIntegrityService
-from warehouse.attestations.services import IntegrityService
-
-__all__ = [
-    "AttestationUploadError",
-    "IIntegrityService",
-    "IntegrityService",
-]
 
 
 def includeme(config):
