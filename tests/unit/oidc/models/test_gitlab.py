@@ -204,7 +204,7 @@ class TestGitLabPublisher:
         scope = pretend.stub()
         sentry_sdk = pretend.stub(
             capture_message=pretend.call_recorder(lambda s: None),
-            push_scope=pretend.call_recorder(
+            new_scope=pretend.call_recorder(
                 lambda: pretend.stub(
                     __enter__=lambda *a: scope, __exit__=lambda *a: None
                 )
@@ -243,7 +243,7 @@ class TestGitLabPublisher:
         scope = pretend.stub()
         sentry_sdk = pretend.stub(
             capture_message=pretend.call_recorder(lambda s: None),
-            push_scope=pretend.call_recorder(
+            new_scope=pretend.call_recorder(
                 lambda: pretend.stub(
                     __enter__=lambda *a: scope, __exit__=lambda *a: None
                 )

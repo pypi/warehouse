@@ -301,7 +301,7 @@ class OIDCPublisherService:
                 tags=[f"publisher:{self.publisher}"],
             )
             if not isinstance(e, jwt.PyJWTError):
-                with sentry_sdk.push_scope() as scope:
+                with sentry_sdk.new_scope() as scope:
                     scope.fingerprint = [e]
                     # We expect pyjwt to only raise subclasses of PyJWTError, but
                     # we can't enforce this. Other exceptions indicate an abstraction

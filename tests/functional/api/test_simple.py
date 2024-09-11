@@ -20,7 +20,12 @@ from warehouse.macaroons import caveats
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.macaroons import MacaroonFactory
 from ...common.db.oidc import GitHubPublisherFactory
-from ...common.db.packaging import ProjectFactory, ReleaseFactory, RoleFactory
+from ...common.db.packaging import (
+    FileFactory,
+    ProjectFactory,
+    ReleaseFactory,
+    RoleFactory,
+)
 
 _HERE = Path(__file__).parent
 _ASSETS = _HERE.parent / "_fixtures"
@@ -35,7 +40,8 @@ def test_simple_api_html(webtest):
 
 def test_simple_api_detail(webtest):
     project = ProjectFactory.create()
-    ReleaseFactory.create_batch(2, project=project)
+    release = ReleaseFactory.create(project=project)
+    FileFactory.create_batch(2, release=release, packagetype="bdist_wheel")
 
     resp = webtest.get(f"/simple/{project.normalized_name}/", status=HTTPStatus.OK)
 

@@ -11,7 +11,7 @@ msgpack-types
 mypy-zope
 sphinx-lint
 types-babel
-types-boto3
+boto3-stubs
 types-certifi
 types-first
 types-html5lib
@@ -20,7 +20,7 @@ types-passlib
 types-python-slugify
 types-pytz
 types-redis
-types-requests==2.32.0.20240712
+types-requests==2.32.0.20240907
 types-setuptools
 types-stripe
 types-WTForms

@@ -275,6 +275,7 @@ def test_configure(monkeypatch, settings, environment):
                         "RequestVarsDebugPanel"
                     ),
                     "pyramid_debugtoolbar.panels.renderings.RenderingsDebugPanel",
+                    "pyramid_debugtoolbar.panels.session.SessionDebugPanel",
                     "pyramid_debugtoolbar.panels.logger.LoggingPanel",
                     (
                         "pyramid_debugtoolbar.panels.performance."

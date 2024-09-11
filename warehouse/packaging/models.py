@@ -843,6 +843,13 @@ class File(HasEvents, db.Model):
         cascade="all, delete-orphan", lazy=False, passive_deletes=True
     )
 
+    # PEP 740
+    provenance: Mapped[Provenance] = orm.relationship(
+        cascade="all, delete-orphan",
+        lazy="joined",
+        passive_deletes=True,
+    )
+
     @property
     def uploaded_via_trusted_publisher(self) -> bool:
         """Return True if the file was uploaded via a trusted publisher."""

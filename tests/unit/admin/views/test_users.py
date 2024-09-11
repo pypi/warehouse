@@ -131,6 +131,11 @@ class TestUserDetail:
         user = UserFactory.create(emails=[email])
         project = ProjectFactory.create()
         roles = sorted([RoleFactory(project=project, user=user, role_name="Owner")])
+        journal_entries = sorted(
+            [JournalEntryFactory.create(submitted_by=user) for _ in range(5)],
+            key=lambda j: j.submitted_date,
+            reverse=True,
+        )
         db_request.matchdict["username"] = str(user.username)
         db_request.POST = NoVars()
 
@@ -144,6 +149,7 @@ class TestUserDetail:
         assert result["user"] == user
         assert result["roles"] == roles
         assert result["emails_form"].emails[0].primary.data
+        assert result["submitted_by_journals"] == journal_entries[:5]
 
     def test_updates_user(self, db_request):
         user = UserFactory.create()

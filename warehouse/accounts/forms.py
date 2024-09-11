@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import json
 import re
 
@@ -76,23 +78,23 @@ class PreventNullBytesValidator:
             raise wtforms.validators.StopValidation(self.message)
 
 
+def _check_for_existing_username(form: LoginForm, field):
+    field.data = field.data.strip()
+
+    userid = form.user_service.find_userid(field.data)
+
+    if userid is None:
+        raise wtforms.validators.ValidationError(_("No user found with that username"))
+
+
 class UsernameMixin:
     username = wtforms.StringField(
         validators=[
             wtforms.validators.InputRequired(),
-            PreventNullBytesValidator(message=INVALID_USERNAME_MESSAGE),
+            PreventNullBytesValidator(),
+            _check_for_existing_username,
         ],
     )
-
-    def validate_username(self, field):
-        field.data = field.data.strip()
-
-        userid = self.user_service.find_userid(field.data)
-
-        if userid is None:
-            raise wtforms.validators.ValidationError(
-                _("No user found with that username")
-            )
 
 
 class TOTPValueMixin:
@@ -327,11 +329,13 @@ class HoneypotMixin:
     confirm_form = wtforms.StringField()
 
 
-class UsernameSearchForm(UsernameMixin, forms.Form):
-    def validate_username(self, field):
-        # Override this function from UsernameMixin. We don't care if the
-        # username is valid or not
-        return True
+class UsernameSearchForm(forms.Form):
+    username = wtforms.StringField(
+        validators=[
+            wtforms.validators.InputRequired(),
+            PreventNullBytesValidator(),
+        ],
+    )
 
 
 class RegistrationForm(  # type: ignore[misc]
@@ -351,6 +355,10 @@ class RegistrationForm(  # type: ignore[misc]
                     "The name is too long. "
                     "Choose a name with 100 characters or less."
                 ),
+            ),
+            wtforms.validators.Regexp(
+                r"(?i)(?:(?!:\/\/).)*$",
+                message=_("URLs are not allowed in the name field."),
             ),
             PreventNullBytesValidator(),
         ]
