@@ -839,6 +839,8 @@ class File(HasEvents, db.Model):
         nullable=True,
         comment="If True, the metadata for the file cannot be backfilled.",
     )
+
+    # PEP 740
     provenance: Mapped[Provenance] = orm.relationship(
         cascade="all, delete-orphan",
         lazy="joined",
