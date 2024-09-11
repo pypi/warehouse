@@ -135,6 +135,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
 
     organization_applications: Mapped[list[OrganizationApplication]] = orm.relationship(
         back_populates="submitted_by",
+        cascade="all, delete-orphan",
     )
 
     organizations: Mapped[list[Organization]] = orm.relationship(
