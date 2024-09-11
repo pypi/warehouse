@@ -10,21 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.attestations.errors import AttestationUploadError
-from warehouse.attestations.interfaces import IIntegrityService
-from warehouse.attestations.services import IntegrityService
 
-__all__ = [
-    "AttestationUploadError",
-    "IIntegrityService",
-    "IntegrityService",
-]
-
-
-def includeme(config):
-    integrity_service_class = config.maybe_dotted(
-        config.registry.settings["attestations.backend"]
-    )
-    config.register_service_factory(
-        integrity_service_class.create_service, IIntegrityService
-    )
+class AttestationUploadError(Exception):
+    pass

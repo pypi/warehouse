@@ -60,6 +60,7 @@ requests
 requests-aws4auth
 redis>=2.8.0,<6.0.0
 rfc3986
+rfc8785
 sentry-sdk
 setuptools
 sigstore~=3.0.0
