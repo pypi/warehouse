@@ -129,7 +129,7 @@ def mint_token_from_oidc(request: Request):
         # We expect only PyJWTError and KeyError; anything else indicates
         # an abstraction leak in jwt that we'll log for upstream reporting.
         if not isinstance(e, (jwt.PyJWTError, KeyError)):
-            with sentry_sdk.push_scope() as scope:
+            with sentry_sdk.new_scope() as scope:
                 scope.fingerprint = [e]
                 sentry_sdk.capture_message(f"jwt.decode raised generic error: {e}")
 
