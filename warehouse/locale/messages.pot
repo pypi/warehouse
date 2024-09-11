@@ -2814,9 +2814,18 @@ msgstr ""
 msgid "(What is this?)"
 msgstr ""
 
+#: warehouse/templates/includes/packaging/project-data.html:21
+msgid "These details have been verified by PyPI"
+msgstr ""
+
 #: warehouse/templates/includes/packaging/project-data.html:23
 #: warehouse/templates/includes/packaging/project-data.html:117
 msgid "Project links"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:31
+#, python-format
+msgid "URL verified by PyPI on %(release_date)s"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:51
@@ -2853,6 +2862,10 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:114
 msgid "Unverified details"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:115
+msgid "These details have <b>not</b> been verified by PyPI"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:133
