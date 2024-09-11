@@ -575,7 +575,7 @@ class RequestPasswordResetForm(forms.Form):
             # Additional checks for the validity of the address
             try:
                 email_validator.validate_email(field.data, check_deliverability=True)
-            except email_validator.EmailSyntaxError as e:
+            except email_validator.EmailNotValidError as e:
                 raise wtforms.validators.ValidationError(
                     message=INVALID_PASSWORD_MESSAGE
                 ) from e
