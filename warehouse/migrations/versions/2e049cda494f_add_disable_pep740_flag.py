@@ -13,14 +13,14 @@
 add DISABLE_PEP740 flag
 
 Revision ID: 2e049cda494f
-Revises: dcf1e3986782
+Revises: f204918656f1
 Create Date: 2024-09-05 15:15:58.703955
 """
 
 from alembic import op
 
 revision = "2e049cda494f"
-down_revision = "dcf1e3986782"
+down_revision = "f204918656f1"
 
 
 def upgrade():
