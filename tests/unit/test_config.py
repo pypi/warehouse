@@ -142,6 +142,91 @@ def test_maybe_set_compound(monkeypatch, environ, base, name, envvar, expected):
 
 
 @pytest.mark.parametrize(
+    ("environ", "name", "envvar", "coercer", "default", "db", "expected"),
+    [
+        (
+            {"BASE_REDIS_URL": "redis://127.0.0.1:6379"},
+            "test.foo",
+            "BASE_REDIS_URL",
+            None,
+            None,
+            None,
+            {"test.foo": "redis://127.0.0.1:6379/0"},
+        ),
+        (
+            {"BASE_REDIS_URL": "redis://127.0.0.1:6379"},
+            "test.foo",
+            "BASE_REDIS_URL",
+            None,
+            None,
+            0,
+            {"test.foo": "redis://127.0.0.1:6379/0"},
+        ),
+        (
+            {"BASE_REDIS_URL": "redis://127.0.0.1:6379"},
+            "test.foo",
+            "BASE_REDIS_URL",
+            None,
+            None,
+            1,
+            {"test.foo": "redis://127.0.0.1:6379/1"},
+        ),
+        ({}, "test.foo", "BASE_REDIS_URL", None, None, None, {}),
+        ({}, "test.foo", "BASE_REDIS_URL", None, None, 0, {}),
+        ({}, "test.foo", "BASE_REDIS_URL", None, None, 1, {}),
+        (
+            {"BASE_REDIS_URL": "redis://127.0.0.1:6379"},
+            "test.foo",
+            "BASE_REDIS_URL",
+            str,
+            None,
+            None,
+            {"test.foo": "redis://127.0.0.1:6379/0"},
+        ),
+        (
+            {"BASE_REDIS_URL": "redis://127.0.0.1:6379"},
+            "test.foo",
+            "BASE_REDIS_URL",
+            str,
+            None,
+            0,
+            {"test.foo": "redis://127.0.0.1:6379/0"},
+        ),
+        (
+            {"BASE_REDIS_URL": "redis://127.0.0.1:6379"},
+            "test.foo",
+            "BASE_REDIS_URL",
+            str,
+            None,
+            1,
+            {"test.foo": "redis://127.0.0.1:6379/1"},
+        ),
+        ({}, "test.foo", "BASE_REDIS_URL", str, None, None, {}),
+        ({}, "test.foo", "BASE_REDIS_URL", str, None, 0, {}),
+        (
+            {},
+            "test.foo",
+            "BASE_REDIS_URL",
+            str,
+            "redis://127.0.0.1:6379/6",
+            1,
+            {"test.foo": "redis://127.0.0.1:6379/6"},
+        ),
+    ],
+)
+def test_maybe_set_redis(
+    monkeypatch, environ, name, envvar, coercer, default, db, expected
+):
+    for key, value in environ.items():
+        monkeypatch.setenv(key, value)
+    settings = {}
+    config.maybe_set_redis(
+        settings, name, envvar, coercer=coercer, default=default, db=db
+    )
+    assert settings == expected
+
+
+@pytest.mark.parametrize(
     ("settings", "environment"),
     [
         (None, config.Environment.production),

@@ -18,6 +18,7 @@ import secrets
 import shlex
 
 from datetime import timedelta
+from urllib.parse import urlparse, urlunparse
 
 import orjson
 import platformdirs
@@ -238,6 +239,19 @@ def maybe_set_compound(settings, base, name, envvar):
             settings[".".join([base, key])] = value
 
 
+def maybe_set_redis(settings, name, envvar, coercer=None, default=None, db=None):
+    if envvar in os.environ:
+        value = os.environ[envvar]
+        if coercer is not None:
+            value = coercer(value)
+        parsed_url = urlparse(value)  # noqa: WH001
+        parsed_url = parsed_url._replace(path=(str(db) if db is not None else "0"))
+        value = urlunparse(parsed_url)
+        settings.setdefault(name, value)
+    elif default is not None:
+        settings.setdefault(name, default)
+
+
 def from_base64_encoded_json(configuration):
     return json.loads(base64.urlsafe_b64decode(configuration.encode("ascii")))
 
@@ -304,15 +318,15 @@ def configure(settings=None):
     )
     maybe_set(settings, "warehouse.downloads_table", "WAREHOUSE_DOWNLOADS_TABLE")
     maybe_set(settings, "celery.broker_url", "BROKER_URL")
-    maybe_set(settings, "celery.result_url", "REDIS_URL")
-    maybe_set(settings, "celery.scheduler_url", "REDIS_URL")
-    maybe_set(settings, "oidc.jwk_cache_url", "REDIS_URL")
+    maybe_set_redis(settings, "celery.result_url", "BASE_REDIS_URL", db=0)
+    maybe_set_redis(settings, "celery.scheduler_url", "BASE_REDIS_URL", db=0)
+    maybe_set_redis(settings, "oidc.jwk_cache_url", "BASE_REDIS_URL", db=0)
     maybe_set(settings, "database.url", "DATABASE_URL")
     maybe_set(settings, "opensearch.url", "OPENSEARCH_URL")
     maybe_set(settings, "sentry.dsn", "SENTRY_DSN")
     maybe_set(settings, "sentry.transport", "SENTRY_TRANSPORT")
-    maybe_set(settings, "sessions.url", "REDIS_URL")
-    maybe_set(settings, "ratelimit.url", "REDIS_URL")
+    maybe_set_redis(settings, "sessions.url", "BASE_REDIS_URL", db=0)
+    maybe_set_redis(settings, "ratelimit.url", "BASE_REDIS_URL", db=0)
     maybe_set(settings, "captcha.backend", "CAPTCHA_BACKEND")
     maybe_set(settings, "recaptcha.site_key", "RECAPTCHA_SITE_KEY")
     maybe_set(settings, "recaptcha.secret_key", "RECAPTCHA_SECRET_KEY")
@@ -337,7 +351,7 @@ def configure(settings=None):
         coercer=asbool,
         default=True,
     )
-    maybe_set(settings, "warehouse.xmlrpc.cache.url", "REDIS_URL")
+    maybe_set_redis(settings, "warehouse.xmlrpc.cache.url", "BASE_REDIS_URL", db=0)
     maybe_set(
         settings,
         "warehouse.xmlrpc.client.ratelimit_string",
