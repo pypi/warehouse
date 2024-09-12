@@ -212,6 +212,24 @@ def test_maybe_set_compound(monkeypatch, environ, base, name, envvar, expected):
             1,
             {"test.foo": "redis://127.0.0.1:6379/6"},
         ),
+        (
+            {"REDIS_URL": "redis://127.0.0.1:6379/6"},
+            "test.foo",
+            "REDIS_URL",
+            str,
+            None,
+            9,
+            {"test.foo": "redis://127.0.0.1:6379/9"},
+        ),
+        (
+            {"REDIS_URL": "rediss://foo:bar@example.com:6379/6?fizz=buzz&wu=tang"},
+            "test.foo",
+            "REDIS_URL",
+            str,
+            None,
+            9,
+            {"test.foo": "rediss://foo:bar@example.com:6379/9?fizz=buzz&wu=tang"},
+        ),
     ],
 )
 def test_maybe_set_redis(
