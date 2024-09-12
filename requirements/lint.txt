@@ -425,9 +425,9 @@ regex==2024.9.11 \
     --hash=sha256:f9268774428ec173654985ce55fc6caf4c6d11ade0f6f914d48ef4719eb05ebb \
     --hash=sha256:faa3c142464efec496967359ca99696c896c591c56c53506bac1ad465f66e919
     # via sphinx-lint
-sphinx-lint==0.9.1 \
-    --hash=sha256:185cee19ff1129549c45e15a3b25404daeb47c54d15112dda589cedad82957aa \
-    --hash=sha256:df34271ab65ce43676cbd90726f4dea5cd200b43b01448b2aee8f06e609edcbb
+sphinx-lint==1.0.0 \
+    --hash=sha256:6117a0f340b2dc73eadfc57db7531d4477e0929f92a0c1a2f61e6edbc272f0bc \
+    --hash=sha256:6eafdb44172ce526f405bf36c713eb246f1340ec2d667e7298e2487ed76decd2
     # via -r requirements/lint.in
 tokenize-rt==6.0.0 \
     --hash=sha256:b9711bdfc51210211137499b5e355d3de5ec88a85d2025c520cbb921b5194367 \
