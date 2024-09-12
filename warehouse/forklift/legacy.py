@@ -312,8 +312,8 @@ def _is_valid_dist_file(filename, filetype):
                 bad_tar = True
                 member = tar.next()
                 while member:
-                    parts = os.path.split(member.name)
-                    if len(parts) == 2 and parts[1] == "PKG-INFO":
+                    _, tail = os.path.split(member.name)
+                    if tail == "PKG-INFO":
                         bad_tar = False
                     member = tar.next()
                 if bad_tar:
