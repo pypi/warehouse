@@ -260,38 +260,52 @@ def _is_valid_dist_file(filename, filetype):
     a valid distribution file.
     """
 
-    # If our file is a zipfile, then ensure that it's members are only
-    # compressed with supported compression methods.
-    if zipfile.is_zipfile(filename):
-        # Ensure the compression ratio is not absurd (decompression bomb)
-        compressed_size = os.stat(filename).st_size
-        with zipfile.ZipFile(filename) as zfp:
-            decompressed_size = sum(e.file_size for e in zfp.infolist())
-        if (
-            decompressed_size > COMPRESSION_RATIO_MIN_SIZE
-            and decompressed_size / compressed_size > COMPRESSION_RATIO_THRESHOLD
-        ):
-            sentry_sdk.capture_message(
-                f"File {filename} ({filetype}) exceeds compression ratio "
-                f"of {COMPRESSION_RATIO_THRESHOLD} "
-                f"({decompressed_size}/{compressed_size})"
-            )
-            return False
-
-        # Check that the compression type is valid
-        with zipfile.ZipFile(filename) as zfp:
-            for zinfo in zfp.infolist():
-                if zinfo.compress_type not in {
-                    zipfile.ZIP_STORED,
-                    zipfile.ZIP_DEFLATED,
-                }:
+    if filename.endswith((".zip", ".whl")):
+        # Ensure that this is a valid zip file, and that it has a
+        # PKG-INFO or WHEEL file.
+        try:
+            with zipfile.ZipFile(filename) as zfp:
+                # Ensure that the compression ratio is not absurd (decompression bomb)
+                compressed_size = os.stat(filename).st_size
+                decompressed_size = sum(e.file_size for e in zfp.infolist())
+                if (
+                    decompressed_size > COMPRESSION_RATIO_MIN_SIZE
+                    and decompressed_size / compressed_size
+                    > COMPRESSION_RATIO_THRESHOLD
+                ):
+                    sentry_sdk.capture_message(
+                        f"File {filename} ({filetype}) exceeds compression ratio "
+                        f"of {COMPRESSION_RATIO_THRESHOLD} "
+                        f"({decompressed_size}/{compressed_size})"
+                    )
                     return False
 
-    if filename.endswith(".tar.gz"):
+                # Check that the compression type is valid
+                for zinfo in zfp.infolist():
+                    if zinfo.compress_type not in {
+                        zipfile.ZIP_STORED,
+                        zipfile.ZIP_DEFLATED,
+                    }:
+                        return False
+
+                # Check that the right files are present
+                for zipname in zfp.namelist():
+                    parts = os.path.split(zipname)
+                    if len(parts) == 2:
+                        if filename.endswith(".zip") and parts[1] == "PKG-INFO":
+                            break
+                        if filename.endswith(".whl") and parts[1] == "WHEEL":
+                            break
+                else:
+                    return False
+
+        except zipfile.BadZipFile:
+            return False
+
+    elif filename.endswith(".tar.gz"):
+        # Ensure that this is a valid tar file, and that it contains PKG-INFO.
         # TODO: Ideally Ensure the compression ratio is not absurd
         # (decompression bomb), like we do for wheel/zip above.
-
-        # Ensure that this is a valid tar file, and that it contains PKG-INFO.
         try:
             with tarfile.open(filename, "r:gz") as tar:
                 # This decompresses the entire stream to validate it and the
@@ -306,38 +320,6 @@ def _is_valid_dist_file(filename, filetype):
                 if bad_tar:
                     return False
         except (tarfile.ReadError, EOFError):
-            return False
-    elif filename.endswith(".zip"):
-        # Ensure that the .zip is a valid zip file, and that it has a
-        # PKG-INFO file.
-        try:
-            with zipfile.ZipFile(filename, "r") as zfp:
-                for zipname in zfp.namelist():
-                    parts = os.path.split(zipname)
-                    if len(parts) == 2 and parts[1] == "PKG-INFO":
-                        # We need the no branch below to work around a bug in
-                        # coverage.py where it's detecting a missed branch
-                        # where there isn't one.
-                        break
-                else:
-                    return False
-        except zipfile.BadZipFile:
-            return False
-    elif filename.endswith(".whl"):
-        # Ensure that the .whl is a valid zip file, and that it has a WHEEL
-        # file.
-        try:
-            with zipfile.ZipFile(filename, "r") as zfp:
-                for zipname in zfp.namelist():
-                    parts = os.path.split(zipname)
-                    if len(parts) == 2 and parts[1] == "WHEEL":
-                        # We need the no branch below to work around a bug in
-                        # coverage.py where it's detecting a missed branch
-                        # where there isn't one.
-                        break
-                else:
-                    return False
-        except zipfile.BadZipFile:
             return False
 
     # If we haven't yet decided it's not valid, then we'll assume it is and
