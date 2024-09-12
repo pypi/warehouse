@@ -290,12 +290,11 @@ def _is_valid_dist_file(filename, filetype):
 
                 # Check that the right files are present
                 for zipname in zfp.namelist():
-                    parts = os.path.split(zipname)
-                    if len(parts) == 2:
-                        if filename.endswith(".zip") and parts[1] == "PKG-INFO":
-                            break
-                        if filename.endswith(".whl") and parts[1] == "WHEEL":
-                            break
+                    _, tail = os.path.split(zipname)
+                    if filename.endswith(".zip") and tail == "PKG-INFO":
+                        break
+                    if filename.endswith(".whl") and tail == "WHEEL":
+                        break
                 else:
                     return False
 
