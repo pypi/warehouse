@@ -49,6 +49,7 @@ from warehouse.i18n import localize as _
 MAX_PASSWORD_SIZE = 4096
 
 # Common messages, set as constants to keep them from drifting.
+INVALID_EMAIL_MESSAGE = _("The email address isn't valid. Try again.")
 INVALID_PASSWORD_MESSAGE = _("The password is invalid. Try again.")
 INVALID_USERNAME_MESSAGE = _(
     "The username is invalid. Usernames "
@@ -577,7 +578,7 @@ class RequestPasswordResetForm(forms.Form):
                 email_validator.validate_email(field.data, check_deliverability=True)
             except email_validator.EmailNotValidError as e:
                 raise wtforms.validators.ValidationError(
-                    message=INVALID_PASSWORD_MESSAGE
+                    message=INVALID_EMAIL_MESSAGE
                 ) from e
         else:
             # the regexp below must match the CheckConstraint
