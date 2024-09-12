@@ -46,7 +46,7 @@ BREACHED_EMAILS=warehouse.accounts.NullEmailBreachedService
 BREACHED_PASSWORDS=warehouse.accounts.NullPasswordBreachedService
 
 OIDC_BACKEND=warehouse.oidc.services.NullOIDCPublisherService
-ATTESTATIONS_BACKEND=warehouse.attestations.services.NullIntegrityService
+INTEGRITY_BACKEND=warehouse.attestations.services.NullIntegrityService
 
 METRICS_BACKEND=warehouse.metrics.DataDogMetrics host=notdatadog
 
