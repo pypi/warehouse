@@ -244,7 +244,7 @@ def maybe_set_redis(settings, name, envvar, coercer=None, default=None, db=None)
         value = os.environ[envvar]
         if coercer is not None:
             value = coercer(value)
-        parsed_url = urlparse(value)  # noqa: WH001
+        parsed_url = urlparse(value)  # noqa: WH001, we're going to urlunparse this
         parsed_url = parsed_url._replace(path=(str(db) if db is not None else "0"))
         value = urlunparse(parsed_url)
         settings.setdefault(name, value)
