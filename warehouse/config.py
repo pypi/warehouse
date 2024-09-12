@@ -240,6 +240,12 @@ def maybe_set_compound(settings, base, name, envvar):
 
 
 def maybe_set_redis(settings, name, envvar, coercer=None, default=None, db=None):
+    """
+    Note on our DB numbering:
+      - General purpose caches and temporary storage should go in 1-9
+      - Celery queues, results, and schedulers should use 10-15
+      - By default Redis only allows use of 0-15, so db should be <16
+    """
     if envvar in os.environ:
         value = os.environ[envvar]
         if coercer is not None:
