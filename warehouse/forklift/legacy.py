@@ -434,7 +434,7 @@ def _process_attestations(request, distribution: Distribution):
                 f"attestation: {e}",
             )
         except Exception as e:
-            with sentry_sdk.push_scope() as scope:
+            with sentry_sdk.new_scope() as scope:
                 scope.fingerprint = [e]
                 sentry_sdk.capture_message(
                     f"Unexpected error while verifying attestation: {e}"

@@ -53,8 +53,16 @@ ignore_exceptions = (
     DisconnectionError,
 )
 
+ignore_strings = [
+    "was sent code 131!",
+    "was sent SIGINT!",
+]
+
 
 def before_send(event, hint):
+    if "message" in event and any(s in event["message"] for s in ignore_strings):
+        return None
+
     if "exc_info" in hint:
         exc_type, exc_value, tb = hint["exc_info"]
         if (
