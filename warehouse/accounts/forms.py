@@ -162,6 +162,36 @@ class NewUsernameMixin:
             )
 
 
+def _validate_password(form, field) -> None:
+    """Reusable password validator for login and registration forms."""
+    userid = form.user_service.find_userid(form.username.data)
+    if userid is not None:
+        try:
+            if not form.user_service.check_password(
+                userid,
+                field.data,
+                tags=form._check_password_metrics_tags,
+            ):
+                user = form.user_service.get_user(userid)
+                user.record_event(
+                    tag=f"account:{form.action}:failure",
+                    request=form.request,
+                    additional={"reason": "invalid_password"},
+                )
+                raise wtforms.validators.ValidationError(INVALID_PASSWORD_MESSAGE)
+        except TooManyFailedLogins as err:
+            raise wtforms.validators.ValidationError(
+                _(
+                    "There have been too many unsuccessful login attempts. "
+                    "You have been locked out for ${time}. "
+                    "Please try again later.",
+                    mapping={
+                        "time": humanize.naturaldelta(err.resets_in.total_seconds())
+                    },
+                )
+            ) from None
+
+
 class PasswordMixin:
     password = wtforms.PasswordField(
         validators=[
@@ -171,6 +201,7 @@ class PasswordMixin:
                 max=MAX_PASSWORD_SIZE,
                 message=_("Password too long."),
             ),
+            _validate_password,
         ]
     )
 
@@ -181,34 +212,6 @@ class PasswordMixin:
         self.action = action
         self._check_password_metrics_tags = check_password_metrics_tags
         super().__init__(*args, **kwargs)
-
-    def validate_password(self, field):
-        userid = self.user_service.find_userid(self.username.data)
-        if userid is not None:
-            try:
-                if not self.user_service.check_password(
-                    userid,
-                    field.data,
-                    tags=self._check_password_metrics_tags,
-                ):
-                    user = self.user_service.get_user(userid)
-                    user.record_event(
-                        tag=f"account:{self.action}:failure",
-                        request=self.request,
-                        additional={"reason": "invalid_password"},
-                    )
-                    raise wtforms.validators.ValidationError(INVALID_PASSWORD_MESSAGE)
-            except TooManyFailedLogins as err:
-                raise wtforms.validators.ValidationError(
-                    _(
-                        "There have been too many unsuccessful login attempts. "
-                        "You have been locked out for ${time}. "
-                        "Please try again later.",
-                        mapping={
-                            "time": humanize.naturaldelta(err.resets_in.total_seconds())
-                        },
-                    )
-                ) from None
 
 
 class NewPasswordMixin:
@@ -408,7 +411,7 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
             raise wtforms.validators.ValidationError(INVALID_PASSWORD_MESSAGE)
 
         # Do our typical validation of the password.
-        super().validate_password(field)
+        _validate_password(self, field)
 
         userid = self.user_service.find_userid(self.username.data)
 
