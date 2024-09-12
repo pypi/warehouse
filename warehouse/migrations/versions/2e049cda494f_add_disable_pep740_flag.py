@@ -28,7 +28,7 @@ def upgrade():
         """
         INSERT INTO admin_flags(id, description, enabled, notify)
         VALUES (
-            'disable-pep740-support',
+            'disable-pep740',
             'Disable PEP 740 support.',
             FALSE,
             FALSE
@@ -38,4 +38,4 @@ def upgrade():
 
 
 def downgrade():
-    op.execute("DELETE FROM admin_flags WHERE id = 'disable-pep740-support'")
+    op.execute("DELETE FROM admin_flags WHERE id = 'disable-pep740'")
