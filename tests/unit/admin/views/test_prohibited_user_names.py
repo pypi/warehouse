@@ -9,12 +9,73 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import pretend
+import pytest
+
+from pyramid.httpexceptions import HTTPBadRequest
 
 from warehouse.accounts.models import ProhibitedUserName, User
 from warehouse.admin.views import prohibited_user_names as views
 
-from ....common.db.accounts import UserFactory
+from ....common.db.accounts import ProhibitedUsernameFactory, UserFactory
+
+
+class TestProhibitedUserNameList:
+    def test_no_query(self, db_request):
+        prohibited = sorted(
+            ProhibitedUsernameFactory.create_batch(30),
+            key=lambda b: b.created,
+        )
+
+        result = views.prohibited_usernames(db_request)
+
+        assert result == {"prohibited_user_names": prohibited[:25], "query": None}
+
+    def test_with_page(self, db_request):
+        prohibited = sorted(
+            ProhibitedUsernameFactory.create_batch(30),
+            key=lambda b: b.created,
+        )
+        db_request.GET["page"] = "2"
+
+        result = views.prohibited_usernames(db_request)
+
+        assert result == {"prohibited_user_names": prohibited[25:], "query": None}
+
+    def test_with_invalid_page(self):
+        request = pretend.stub(params={"page": "not an integer"})
+
+        with pytest.raises(HTTPBadRequest):
+            views.prohibited_usernames(request)
+
+    def test_basic_query(self, db_request):
+        prohibited = sorted(
+            ProhibitedUsernameFactory.create_batch(30),
+            key=lambda b: b.created,
+        )
+        db_request.GET["q"] = prohibited[0].name
+
+        result = views.prohibited_usernames(db_request)
+
+        assert result == {
+            "prohibited_user_names": [prohibited[0]],
+            "query": prohibited[0].name,
+        }
+
+    def test_wildcard_query(self, db_request):
+        prohibited = sorted(
+            ProhibitedUsernameFactory.create_batch(30),
+            key=lambda b: b.created,
+        )
+        db_request.GET["q"] = f"{prohibited[0].name[:-1]}%"
+
+        result = views.prohibited_usernames(db_request)
+
+        assert result == {
+            "prohibited_user_names": [prohibited[0]],
+            "query": f"{prohibited[0].name[:-1]}%",
+        }
 
 
 class TestBulkAddProhibitedUserName:

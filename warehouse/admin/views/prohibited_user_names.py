@@ -10,13 +10,49 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.httpexceptions import HTTPSeeOther
+from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
+from pyramid.httpexceptions import HTTPBadRequest, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy import literal
 
 from warehouse.accounts.models import ProhibitedUserName, User
 from warehouse.admin.views.users import _nuke_user
 from warehouse.authnz import Permissions
+from warehouse.utils.paginate import paginate_url_factory
+
+
+@view_config(
+    route_name="admin.prohibited_user_names.list",
+    renderer="admin/prohibited_user_names/list.html",
+    permission=Permissions.AdminProhibitedUsernameRead,
+    request_method="GET",
+    uses_session=True,
+)
+def prohibited_usernames(request):
+    q = request.params.get("q")
+
+    try:
+        page_num = int(request.params.get("page", 1))
+    except ValueError:
+        raise HTTPBadRequest("'page' must be an integer.") from None
+
+    prohibited_user_names_query = request.db.query(ProhibitedUserName).order_by(
+        ProhibitedUserName.created.desc()
+    )
+
+    if q:
+        prohibited_user_names_query = prohibited_user_names_query.filter(
+            ProhibitedUserName.name.ilike(q)
+        )
+
+    prohibited_user_names = SQLAlchemyORMPage(
+        prohibited_user_names_query,
+        page=page_num,
+        items_per_page=25,
+        url_maker=paginate_url_factory(request),
+    )
+
+    return {"prohibited_user_names": prohibited_user_names, "query": q}
 
 
 @view_config(
