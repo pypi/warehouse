@@ -425,6 +425,12 @@ def configure(settings=None):
         "OIDC_BACKEND",
         default="warehouse.oidc.services.OIDCPublisherService",
     )
+    maybe_set(
+        settings,
+        "integrity.backend",
+        "INTEGRITY_BACKEND",
+        default="warehouse.attestations.services.IntegrityService",
+    )
 
     # Pythondotorg integration settings
     maybe_set(
