@@ -300,6 +300,15 @@ class OIDCPublisherMixin:
         # Only concrete subclasses are constructed.
         raise NotImplementedError
 
+    @property
+    def supports_attestations(self) -> bool:
+        """
+        Returns whether or not this kind of publisher supports attestations.
+
+        Concrete subclasses should override this upon adding attestation support.
+        """
+        return False
+
     def publisher_verification_policy(
         self, claims: SignedClaims
     ) -> VerificationPolicy:  # pragma: no cover

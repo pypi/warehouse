@@ -9,3 +9,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+from warehouse.attestations.interfaces import IIntegrityService
+
+
+def includeme(config):
+    integrity_service_class = config.maybe_dotted(
+        config.registry.settings["integrity.backend"]
+    )
+    config.register_service_factory(
+        integrity_service_class.create_service, IIntegrityService
+    )
