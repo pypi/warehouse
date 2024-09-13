@@ -107,6 +107,17 @@ def _extract_attestations_from_request(request: Request) -> list[Attestation]:
     Extract well-formed attestation objects from the given request's payload.
     """
 
+    publisher: OIDCPublisher | None = request.oidc_publisher
+    if not publisher:
+        raise AttestationUploadError(
+            "Attestations are only supported when using Trusted Publishing"
+        )
+    if not publisher.supports_attestations:
+        raise AttestationUploadError(
+            "Attestations are not currently supported with "
+            f"{publisher.publisher_name} publishers"
+        )
+
     metrics = request.find_service(IMetricsService, context=None)
 
     try:
@@ -157,12 +168,6 @@ class NullIntegrityService:
     def parse_attestations(
         self, request: Request, _distribution: Distribution
     ) -> list[Attestation]:
-        publisher: OIDCPublisher | None = request.oidc_publisher
-        if not publisher or not publisher.publisher_name == "GitHub":
-            raise AttestationUploadError(
-                "Attestations are only supported when using Trusted "
-                "Publishing with GitHub Actions.",
-            )
         return _extract_attestations_from_request(request)
 
     def build_provenance(
@@ -196,14 +201,11 @@ class IntegrityService:
         used to verify the attestations.
         Only GitHub Actions Trusted Publishers are supported.
         """
-        publisher: OIDCPublisher | None = request.oidc_publisher
-        if not publisher or not publisher.publisher_name == "GitHub":
-            raise AttestationUploadError(
-                "Attestations are only supported when using Trusted "
-                "Publishing with GitHub Actions.",
-            )
 
         attestations = _extract_attestations_from_request(request)
+
+        # The above attestation extraction guarantees that we have a publisher.
+        publisher: OIDCPublisher = request.oidc_publisher
 
         verification_policy = publisher.publisher_verification_policy(
             request.oidc_claims

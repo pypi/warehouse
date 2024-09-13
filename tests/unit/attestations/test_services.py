@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import hashlib
+import json
 
 import pretend
 import pytest
@@ -29,12 +30,8 @@ from zope.interface.verify import verifyClass
 
 from tests.common.db.oidc import GitHubPublisherFactory, GitLabPublisherFactory
 from tests.common.db.packaging import FileFactory
-from warehouse.attestations import (
-    AttestationUploadError,
-    IIntegrityService,
-    IntegrityService,
-    services,
-)
+from warehouse.attestations import IIntegrityService, services
+from warehouse.attestations.errors import AttestationUploadError
 from warehouse.attestations.models import Provenance as DatabaseProvenance
 
 
@@ -51,7 +48,7 @@ class TestNullIntegrityService:
         )
 
         file = FileFactory.create()
-        service = services.NullIntegrityService(session=db_request.db)
+        service = services.NullIntegrityService.create_service(None, db_request)
 
         provenance = service.build_provenance(db_request, file, [dummy_attestation])
         assert isinstance(provenance, DatabaseProvenance)
@@ -62,24 +59,30 @@ class TestNullIntegrityService:
         assert provenance.file == file
         assert file.provenance == provenance
 
-    def test_parse_attestations_fails_without_publisher(self, db_request):
-        service = services.NullIntegrityService(session=db_request.db)
-        with pytest.raises(
-            AttestationUploadError, match="Attestations are only supported"
-        ):
-            service.parse_attestations(db_request, pretend.stub())
+    def test_parse_attestations(self, db_request, monkeypatch):
+        service = services.NullIntegrityService.create_service(None, db_request)
+
+        extract_attestations_from_request = pretend.call_recorder(lambda r: None)
+        monkeypatch.setattr(
+            services,
+            "_extract_attestations_from_request",
+            extract_attestations_from_request,
+        )
+
+        service.parse_attestations(db_request, pretend.stub())
+        assert extract_attestations_from_request.calls == [pretend.call(db_request)]
 
 
 class TestIntegrityService:
     def test_interface_matches(self):
-        assert verifyClass(IIntegrityService, IntegrityService)
+        assert verifyClass(IIntegrityService, services.IntegrityService)
 
     def test_create_service(self, db_request):
-        service = IntegrityService.create_service(None, db_request)
-        assert isinstance(service, IntegrityService)
+        service = services.IntegrityService.create_service(None, db_request)
+        assert isinstance(service, services.IntegrityService)
 
     def test_parse_attestations_fails_no_publisher(self, db_request):
-        integrity_service = IntegrityService(
+        integrity_service = services.IntegrityService(
             metrics=pretend.stub(),
             session=db_request.db,
         )
@@ -87,28 +90,30 @@ class TestIntegrityService:
         db_request.oidc_publisher = None
         with pytest.raises(
             AttestationUploadError,
-            match="Attestations are only supported when using Trusted",
+            match="Attestations are only supported when using Trusted Publishing",
         ):
             integrity_service.parse_attestations(db_request, pretend.stub())
 
     def test_parse_attestations_fails_unsupported_publisher(self, db_request):
-        integrity_service = IntegrityService(
+        integrity_service = services.IntegrityService(
             metrics=pretend.stub(), session=db_request.db
         )
-        db_request.oidc_publisher = pretend.stub(publisher_name="not-existing")
+        db_request.oidc_publisher = pretend.stub(
+            supports_attestations=False, publisher_name="fake"
+        )
         with pytest.raises(
             AttestationUploadError,
-            match="Attestations are only supported when using Trusted",
+            match="Attestations are not currently supported with fake publishers",
         ):
             integrity_service.parse_attestations(db_request, pretend.stub())
 
     def test_parse_attestations_fails_malformed_attestation(self, metrics, db_request):
-        integrity_service = IntegrityService(
+        integrity_service = services.IntegrityService(
             metrics=metrics,
             session=db_request.db,
         )
 
-        db_request.oidc_publisher = pretend.stub(publisher_name="GitHub")
+        db_request.oidc_publisher = pretend.stub(supports_attestations=True)
         db_request.POST["attestations"] = "{'malformed-attestation'}"
         with pytest.raises(
             AttestationUploadError,
@@ -124,12 +129,12 @@ class TestIntegrityService:
     def test_parse_attestations_fails_multiple_attestations(
         self, metrics, db_request, dummy_attestation
     ):
-        integrity_service = IntegrityService(
+        integrity_service = services.IntegrityService(
             metrics=metrics,
             session=db_request.db,
         )
 
-        db_request.oidc_publisher = pretend.stub(publisher_name="GitHub")
+        db_request.oidc_publisher = pretend.stub(supports_attestations=True)
         db_request.POST["attestations"] = TypeAdapter(list[Attestation]).dump_json(
             [dummy_attestation, dummy_attestation]
         )
@@ -168,13 +173,13 @@ class TestIntegrityService:
         verify_exception,
         expected_message,
     ):
-        integrity_service = IntegrityService(
+        integrity_service = services.IntegrityService(
             metrics=metrics,
             session=db_request.db,
         )
 
         db_request.oidc_publisher = pretend.stub(
-            publisher_name="GitHub",
+            supports_attestations=True,
             publisher_verification_policy=pretend.call_recorder(lambda c: None),
         )
         db_request.oidc_claims = {"sha": "somesha"}
@@ -201,12 +206,12 @@ class TestIntegrityService:
         db_request,
         dummy_attestation,
     ):
-        integrity_service = IntegrityService(
+        integrity_service = services.IntegrityService(
             metrics=metrics,
             session=db_request.db,
         )
         db_request.oidc_publisher = pretend.stub(
-            publisher_name="GitHub",
+            supports_attestations=True,
             publisher_verification_policy=pretend.call_recorder(lambda c: None),
         )
         db_request.oidc_claims = {"sha": "somesha"}
@@ -237,12 +242,12 @@ class TestIntegrityService:
     def test_parse_attestations_succeeds(
         self, metrics, monkeypatch, db_request, dummy_attestation
     ):
-        integrity_service = IntegrityService(
+        integrity_service = services.IntegrityService(
             metrics=metrics,
             session=db_request.db,
         )
         db_request.oidc_publisher = pretend.stub(
-            publisher_name="GitHub",
+            supports_attestations=True,
             publisher_verification_policy=pretend.call_recorder(lambda c: None),
         )
         db_request.oidc_claims = {"sha": "somesha"}
@@ -264,7 +269,7 @@ class TestIntegrityService:
     def test_build_provenance_fails_unsupported_publisher(
         self, db_request, dummy_attestation
     ):
-        integrity_service = IntegrityService(
+        integrity_service = services.IntegrityService(
             metrics=pretend.stub(),
             session=db_request.db,
         )
@@ -290,7 +295,7 @@ class TestIntegrityService:
     ):
         db_request.oidc_publisher = publisher_factory.create()
 
-        integrity_service = IntegrityService(
+        integrity_service = services.IntegrityService(
             metrics=pretend.stub(),
             session=db_request.db,
         )
@@ -331,3 +336,13 @@ def test_publisher_from_oidc_publisher_fails_unsupported():
 
     with pytest.raises(AttestationUploadError):
         services._publisher_from_oidc_publisher(publisher)
+
+
+def test_extract_attestations_from_request_empty_list(db_request):
+    db_request.oidc_publisher = GitHubPublisherFactory.create()
+    db_request.POST = {"attestations": json.dumps([])}
+
+    with pytest.raises(
+        AttestationUploadError, match="an empty attestation set is not permitted"
+    ):
+        services._extract_attestations_from_request(db_request)

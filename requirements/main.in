@@ -10,9 +10,10 @@ celery[sqs]>=5.3.5,<5.5
 celery-redbeat
 certifi
 click
-cryptography
+cryptography>=43.0.1
 datadog>=0.19.0
 disposable-email-domains
+email-validator
 first
 forcediphttpsadapter
 github-reserved-names>=1.0.0
