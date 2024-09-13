@@ -23,7 +23,7 @@ import wtforms.validators
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy import literal, or_, select
+from sqlalchemy import or_, select
 from sqlalchemy.orm import joinedload
 
 from warehouse import forms
@@ -593,47 +593,3 @@ def user_recover_account_complete(user: User, request):
         queue="success",
     )
     return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
-
-
-@view_config(
-    route_name="admin.prohibited_user_names.bulk_add",
-    renderer="admin/prohibited_user_names/bulk.html",
-    permission=Permissions.AdminUsersWrite,
-    uses_session=True,
-    require_methods=False,
-)
-def bulk_add_prohibited_user_names(request):
-    if request.method == "POST":
-        user_names = request.POST.get("users", "").split()
-
-        for user_name in user_names:
-            # Check to make sure the prohibition doesn't already exist.
-            if (
-                request.db.query(literal(True))
-                .filter(
-                    request.db.query(ProhibitedUserName)
-                    .filter(ProhibitedUserName.name == user_name.lower())
-                    .exists()
-                )
-                .scalar()
-            ):
-                continue
-
-            # Go through and delete the usernames
-
-            user = request.db.query(User).filter(User.username == user_name).first()
-            if user is not None:
-                _nuke_user(user, request)
-            else:
-                request.db.add(
-                    ProhibitedUserName(
-                        name=user_name.lower(),
-                        comment="nuked",
-                        prohibited_by=request.user,
-                    )
-                )
-
-        request.session.flash(f"Prohibited {len(user_names)!r} users", queue="success")
-
-        return HTTPSeeOther(request.route_path("admin.prohibited_user_names.bulk_add"))
-    return {}
