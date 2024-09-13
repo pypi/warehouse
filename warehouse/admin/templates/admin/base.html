@@ -110,7 +110,7 @@
 
       <!-- Sidebar Menu -->
       <nav class="mt-2">
-        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+        <ul class="nav nav-pills nav-sidebar nav-child-indent flex-column" data-widget="treeview" role="menu" data-accordion="false">
           {# TODO: Is there a cleaner way to show/hide the allowed sections? #}
           {% if request.has_permission(Permissions.AdminDashboardSidebarRead) %}
           <li class="nav-item">
@@ -153,14 +153,38 @@
               <i class="fa fa-book nav-icon"></i> <p>Journals</p>
             </a>
           </li>
-          <li class="nav-item">
-            <a href="{{ request.route_path('admin.prohibited_project_names.list') }}" class="nav-link">
-              <i class="fa fa-ban nav-icon"></i> <p>Prohibited Project Names</p>
+          <li class="nav-item menu-closed">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fa fa-ban"></i>
+              <p>
+                Prohibition Era
+                <i class="right fas fa-angle-left"></i>
+              </p>
             </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="{{ request.route_path('admin.prohibited_project_names.list') }}" class="nav-link">
+                  <i class="nav-icon fa fa-cubes fa-flip-vertical"></i>
+                  <p>Project Names</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="nav-icon fa fa-user fa-flip-vertical"></i>
+                  <p>Usernames <span class="right badge badge-warning">TODO</span></p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="nav-icon fa fa-envelope fa-flip-vertical"></i>
+                  <p>Email Domains <span class="right badge badge-warning">TODO</span></p>
+                </a>
+              </li>
+            </ul>
           </li>
           <li class="nav-item">
             <a href="{{ request.route_path('admin.observations.list') }}" class="nav-link">
-              <i class="fa-solid fa-eye nav-icon"></i> <p>Observations <span class="right badge badge-danger">New</span></p>
+              <i class="fa-solid fa-eye nav-icon"></i> <p>Observations</p>
             </a>
           </li>
           <li class="nav-item">
