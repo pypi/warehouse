@@ -261,6 +261,8 @@ def _is_valid_dist_file(filename, filetype):
     """
 
     if filename.endswith((".zip", ".whl")):
+        if not zipfile.is_zipfile(filename):
+            return False
         # Ensure that this is a valid zip file, and that it has a
         # PKG-INFO or WHEEL file.
         try:
@@ -302,6 +304,8 @@ def _is_valid_dist_file(filename, filetype):
             return False
 
     elif filename.endswith(".tar.gz"):
+        if not tarfile.is_tarfile(filename):
+            return False
         # Ensure that this is a valid tar file, and that it contains PKG-INFO.
         # TODO: Ideally Ensure the compression ratio is not absurd
         # (decompression bomb), like we do for wheel/zip above.
