@@ -14,107 +14,107 @@ msgstr ""
 msgid "Locale updated"
 msgstr ""
 
-#: warehouse/accounts/forms.py:54
+#: warehouse/accounts/forms.py:52 warehouse/accounts/forms.py:286
+msgid "The email address isn't valid. Try again."
+msgstr ""
+
+#: warehouse/accounts/forms.py:53
 msgid "The password is invalid. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:55
+#: warehouse/accounts/forms.py:54
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a "
 "letter or number. Choose a different username."
 msgstr ""
 
-#: warehouse/accounts/forms.py:73
+#: warehouse/accounts/forms.py:72
 msgid "Null bytes are not allowed."
 msgstr ""
 
-#: warehouse/accounts/forms.py:87
+#: warehouse/accounts/forms.py:86
 msgid "No user found with that username"
 msgstr ""
 
-#: warehouse/accounts/forms.py:107
+#: warehouse/accounts/forms.py:106
 msgid "TOTP code must be ${totp_length} digits."
 msgstr ""
 
-#: warehouse/accounts/forms.py:127
+#: warehouse/accounts/forms.py:126
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr ""
 
-#: warehouse/accounts/forms.py:142
+#: warehouse/accounts/forms.py:141
 msgid "Choose a username with 50 characters or less."
 msgstr ""
 
-#: warehouse/accounts/forms.py:159
+#: warehouse/accounts/forms.py:158
 msgid ""
 "This username is already being used by another account. Choose a "
 "different username."
 msgstr ""
 
-#: warehouse/accounts/forms.py:173 warehouse/accounts/forms.py:222
-#: warehouse/accounts/forms.py:235
+#: warehouse/accounts/forms.py:172 warehouse/accounts/forms.py:221
+#: warehouse/accounts/forms.py:234
 msgid "Password too long."
 msgstr ""
 
-#: warehouse/accounts/forms.py:209
+#: warehouse/accounts/forms.py:208
 msgid ""
 "There have been too many unsuccessful login attempts. You have been "
 "locked out for ${time}. Please try again later."
 msgstr ""
 
-#: warehouse/accounts/forms.py:238
+#: warehouse/accounts/forms.py:237
 msgid "Your passwords don't match. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:272
+#: warehouse/accounts/forms.py:271
 msgid "The email address is too long. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:287
-msgid "The email address isn't valid. Try again."
-msgstr ""
-
-#: warehouse/accounts/forms.py:301
+#: warehouse/accounts/forms.py:314
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:312
+#: warehouse/accounts/forms.py:325
 msgid ""
 "This email address is already being used by this account. Use a different"
 " email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:319
+#: warehouse/accounts/forms.py:332
 msgid ""
 "This email address is already being used by another account. Use a "
 "different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:354 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:367 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 
-#: warehouse/accounts/forms.py:361
+#: warehouse/accounts/forms.py:374
 msgid "URLs are not allowed in the name field."
 msgstr ""
 
-#: warehouse/accounts/forms.py:450
+#: warehouse/accounts/forms.py:463
 msgid "Invalid TOTP code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:467
+#: warehouse/accounts/forms.py:480
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
-#: warehouse/accounts/forms.py:536
+#: warehouse/accounts/forms.py:549
 msgid "Invalid recovery code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:545
+#: warehouse/accounts/forms.py:558
 msgid "Recovery code has been previously used."
 msgstr ""
 
-#: warehouse/accounts/forms.py:575
+#: warehouse/accounts/forms.py:588
 msgid "The username isn't valid. Try again."
 msgstr ""
 
@@ -2814,9 +2814,18 @@ msgstr ""
 msgid "(What is this?)"
 msgstr ""
 
+#: warehouse/templates/includes/packaging/project-data.html:21
+msgid "These details have been verified by PyPI"
+msgstr ""
+
 #: warehouse/templates/includes/packaging/project-data.html:23
 #: warehouse/templates/includes/packaging/project-data.html:164
 msgid "Project links"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:31
+#, python-format
+msgid "URL verified by PyPI on %(release_date)s"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:51
@@ -2865,6 +2874,10 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:161
 msgid "Unverified details"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:162
+msgid "These details have <b>not</b> been verified by PyPI"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:180

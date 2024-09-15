@@ -13,6 +13,7 @@
 import datetime
 import json
 
+import email_validator
 import pretend
 import pytest
 import wtforms
@@ -397,6 +398,21 @@ class TestLoginForm:
         assert user_service.check_password.calls == []
 
 
+@pytest.fixture
+def _no_deliverability_check(monkeypatch):
+    """
+    Prevents the email_validator library from checking deliverability of email
+    """
+    original_validate_email = email_validator.validate_email  # recursion prevention
+
+    def mock_validate_email(email, check_deliverability=True, *args, **kwargs):
+        return original_validate_email(
+            email, check_deliverability=False, *args, **kwargs
+        )
+
+    monkeypatch.setattr("email_validator.validate_email", mock_validate_email)
+
+
 class TestRegistrationForm:
     def test_validate(self):
         captcha_service = pretend.stub(
@@ -577,6 +593,7 @@ class TestRegistrationForm:
             "different email."
         )
 
+    @pytest.mark.usefixtures("_no_deliverability_check")
     @pytest.mark.parametrize(
         ("email", "prohibited_domain"),
         [

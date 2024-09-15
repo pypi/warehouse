@@ -157,9 +157,13 @@
                       </ul>
                       <hr>
                       <p>
-                        Type the username '{{ user.username }}' to confirm:
+                        Enter username '{{ user.username }}'
+                        <button type="button" class="copy-text" data-copy-text="{{ user.username }}">
+                          <i class="fa fa-copy" aria-hidden="true"></i>
+                        </button>
+                        to confirm:
                       </p>
-                      <input type="text" name="username" placeholder="{{ user.username }}">
+                      <input type="text" name="username" placeholder="{{ user.username }}" autocomplete="off" autocorrect="off" autocapitalize="off">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -198,9 +202,13 @@
                       </ul>
                       <hr>
                       <p>
-                        Type the username '{{ user.username }}' to confirm:
+                        Enter username '{{ user.username }}'
+                        <button type="button" class="copy-text" data-copy-text="{{ user.username }}">
+                          <i class="fa fa-copy" aria-hidden="true"></i>
+                        </button>
+                        to confirm:
                       </p>
-                      <input type="text" name="username" placeholder="{{ user.username }}">
+                      <input type="text" name="username" placeholder="{{ user.username }}" autocomplete="off" autocorrect="off" autocapitalize="off">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

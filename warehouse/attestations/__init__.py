@@ -10,10 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-class InsecureOIDCPublisherWarning(UserWarning):
-    pass
+from warehouse.attestations.interfaces import IIntegrityService
 
 
-class InsecureIntegrityServiceWarning(UserWarning):
-    pass
+def includeme(config):
+    integrity_service_class = config.maybe_dotted(
+        config.registry.settings["integrity.backend"]
+    )
+    config.register_service_factory(
+        integrity_service_class.create_service, IIntegrityService
+    )

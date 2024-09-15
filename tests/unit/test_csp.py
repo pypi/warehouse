@@ -245,7 +245,6 @@ def test_includeme():
             {
                 "csp": {
                     "base-uri": ["'self'"],
-                    "block-all-mixed-content": [],
                     "connect-src": [
                         "'self'",
                         "https://api.github.com/repos/",
