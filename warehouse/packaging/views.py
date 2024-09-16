@@ -10,8 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import timedelta
-
 from natsort import natsorted
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
@@ -31,8 +29,7 @@ from warehouse.packaging.models import Description, File, Project, Release, Role
     renderer="packaging/detail.html",
     decorator=[
         origin_cache(
-            timedelta(days=1).total_seconds(),
-            stale_if_error=timedelta(days=5).total_seconds(),
+            1 * 24 * 60 * 60, stale_if_error=5 * 24 * 60 * 60  # 1 day, 5 days stale
         )
     ],
     has_translations=True,
@@ -65,8 +62,7 @@ def project_detail(project, request):
     renderer="packaging/detail.html",
     decorator=[
         origin_cache(
-            timedelta(days=1).total_seconds(),
-            stale_if_error=timedelta(days=5).total_seconds(),
+            1 * 24 * 60 * 60, stale_if_error=5 * 24 * 60 * 60  # 1 day, 5 days stale
         )
     ],
     has_translations=True,

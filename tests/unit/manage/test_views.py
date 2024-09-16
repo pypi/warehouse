@@ -4806,9 +4806,7 @@ class TestManageProjectRoles:
             find_userid=lambda username: new_user.id, get_user=lambda userid: new_user
         )
         token_service = pretend.stub(
-            dumps=lambda data: "TOKEN",
-            max_age=datetime.timedelta(hours=6).total_seconds(),
-            loads=lambda data: None,
+            dumps=lambda data: "TOKEN", max_age=6 * 60 * 60, loads=lambda data: None
         )
         db_request.find_service = pretend.call_recorder(
             lambda iface, context=None, name=None: {
@@ -4893,9 +4891,7 @@ class TestManageProjectRoles:
             find_userid=lambda username: user.id, get_user=lambda userid: user
         )
         token_service = pretend.stub(
-            dumps=lambda data: "TOKEN",
-            max_age=datetime.timedelta(hours=6).total_seconds(),
-            loads=lambda data: None,
+            dumps=lambda data: "TOKEN", max_age=6 * 60 * 60, loads=lambda data: None
         )
         db_request.find_service = pretend.call_recorder(
             lambda iface, context=None, name=None: {
@@ -4954,9 +4950,7 @@ class TestManageProjectRoles:
             find_userid=lambda username: new_user.id, get_user=lambda userid: new_user
         )
         token_service = pretend.stub(
-            dumps=lambda data: "TOKEN",
-            max_age=datetime.timedelta(hours=6).total_seconds(),
-            loads=lambda data: None,
+            dumps=lambda data: "TOKEN", max_age=6 * 60 * 60, loads=lambda data: None
         )
         db_request.find_service = pretend.call_recorder(
             lambda iface, context=None, name=None: {
@@ -5045,7 +5039,7 @@ class TestManageProjectRoles:
         )
         token_service = pretend.stub(
             dumps=lambda data: "TOKEN",
-            max_age=datetime.timedelta(hours=6).total_seconds(),
+            max_age=6 * 60 * 60,
             loads=lambda data: None,
         )
         db_request.find_service = pretend.call_recorder(
@@ -5109,7 +5103,7 @@ class TestManageProjectRoles:
         )
         token_service = pretend.stub(
             dumps=lambda data: "TOKEN",
-            max_age=datetime.timedelta(hours=6).total_seconds(),
+            max_age=6 * 60 * 60,
             loads=lambda data: {"desired_role": "Maintainer"},
         )
         db_request.find_service = pretend.call_recorder(

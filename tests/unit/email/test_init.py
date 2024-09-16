@@ -2206,7 +2206,7 @@ class TestOrganizationMemberEmails:
         self.organization_name = "example"
         self.message = "test message"
         self.email_token = "token"
-        self.token_age = datetime.timedelta(days=3).total_seconds()
+        self.token_age = 72 * 60 * 60
 
     @pytest.mark.usefixtures("_organization_invite")
     def test_send_organization_member_invited_email(

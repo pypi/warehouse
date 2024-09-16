@@ -14,8 +14,6 @@
 import collections
 import re
 
-from datetime import timedelta
-
 import opensearchpy
 
 from pyramid.exceptions import PredicateMismatch
@@ -207,11 +205,11 @@ def service_unavailable(exc, request):
     route_name="robots.txt",
     renderer="robots.txt",
     decorator=[
-        cache_control(timedelta(days=1).total_seconds()),
+        cache_control(1 * 24 * 60 * 60),  # 1 day
         origin_cache(
-            timedelta(days=1).total_seconds(),
-            stale_while_revalidate=timedelta(hours=6).total_seconds(),
-            stale_if_error=timedelta(days=1).total_seconds(),
+            1 * 24 * 60 * 60,  # 1 day
+            stale_while_revalidate=6 * 60 * 60,  # 6 hours
+            stale_if_error=1 * 24 * 60 * 60,  # 1 day
         ),
     ],
 )
@@ -224,11 +222,11 @@ def robotstxt(request):
     route_name="opensearch.xml",
     renderer="opensearch.xml",
     decorator=[
-        cache_control(timedelta(days=1).total_seconds()),
+        cache_control(1 * 24 * 60 * 60),  # 1 day
         origin_cache(
-            timedelta(days=1).total_seconds(),
-            stale_while_revalidate=timedelta(hours=6).total_seconds(),
-            stale_if_error=timedelta(days=1).total_seconds(),
+            1 * 24 * 60 * 60,  # 1 day
+            stale_while_revalidate=6 * 60 * 60,  # 6 hours
+            stale_if_error=1 * 24 * 60 * 60,  # 1 day
         ),
     ],
 )
@@ -242,9 +240,9 @@ def opensearchxml(request):
     renderer="index.html",
     decorator=[
         origin_cache(
-            timedelta(hours=1).total_seconds(),
-            stale_while_revalidate=timedelta(minutes=10).total_seconds(),
-            stale_if_error=timedelta(days=1).total_seconds(),
+            1 * 60 * 60,  # 1 hour
+            stale_while_revalidate=10 * 60,  # 10 minutes
+            stale_if_error=1 * 24 * 60 * 60,  # 1 day
             keys=["all-projects"],
         )
     ],
@@ -316,8 +314,8 @@ def list_classifiers(request):
     renderer="search/results.html",
     decorator=[
         origin_cache(
-            timedelta(hours=1).total_seconds(),
-            stale_if_error=timedelta(days=1).total_seconds(),
+            1 * 60 * 60,  # 1 hour
+            stale_if_error=1 * 24 * 60 * 60,  # 1 day
             keys=["all-projects"],
         )
     ],
@@ -428,11 +426,11 @@ def search(request):
     renderer="pages/stats.html",
     decorator=[
         add_vary("Accept"),
-        cache_control(timedelta(days=1).total_seconds()),
+        cache_control(1 * 24 * 60 * 60),  # 1 day
         origin_cache(
-            timedelta(days=1).total_seconds(),
-            stale_while_revalidate=timedelta(days=1).total_seconds(),
-            stale_if_error=timedelta(days=1).total_seconds(),
+            1 * 24 * 60 * 60,  # 1 day
+            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
+            stale_if_error=1 * 24 * 60 * 60,  # 1 day
         ),
     ],
     has_translations=True,
@@ -442,11 +440,11 @@ def search(request):
     renderer="json",
     decorator=[
         add_vary("Accept"),
-        cache_control(timedelta(days=1).total_seconds()),
+        cache_control(1 * 24 * 60 * 60),  # 1 day
         origin_cache(
-            timedelta(days=1).total_seconds(),
-            stale_while_revalidate=timedelta(days=1).total_seconds(),
-            stale_if_error=timedelta(days=1).total_seconds(),
+            1 * 24 * 60 * 60,  # 1 day
+            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
+            stale_if_error=1 * 24 * 60 * 60,  # 1 day
         ),
     ],
     accept="application/json",
