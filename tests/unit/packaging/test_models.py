@@ -369,6 +369,19 @@ class TestProject:
         project = DBProjectFactory()
         assert isinstance(repr(project), str)
 
+    def test_maintainers(self, db_session):
+        project = DBProjectFactory.create()
+        owner1 = DBRoleFactory.create(project=project)
+        owner2 = DBRoleFactory.create(project=project)
+        maintainer1 = DBRoleFactory.create(project=project, role_name="Maintainer")
+        maintainer2 = DBRoleFactory.create(project=project, role_name="Maintainer")
+
+        assert maintainer1.user in project.maintainers
+        assert maintainer2.user in project.maintainers
+
+        assert owner1.user not in project.maintainers
+        assert owner2.user not in project.maintainers
+
     def test_deletion_with_trusted_publisher(self, db_session):
         """
         When we remove a Project, ensure that we also remove the related
