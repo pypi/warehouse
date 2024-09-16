@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import timedelta
+
 from warehouse import integrations
 
 
@@ -76,7 +78,7 @@ class VulnerabilityReportRequest:
         )
 
 
-DEFAULT_PUBLIC_KEYS_CACHE_SECONDS = 60 * 30  # 30 minutes
+DEFAULT_PUBLIC_KEYS_CACHE_SECONDS = timedelta(minutes=30).total_seconds()
 DEFAULT_PUBLIC_KEYS_CACHE = integrations.PublicKeysCache(
     cache_time=DEFAULT_PUBLIC_KEYS_CACHE_SECONDS
 )

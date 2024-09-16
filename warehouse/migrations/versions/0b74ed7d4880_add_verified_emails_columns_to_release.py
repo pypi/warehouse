@@ -26,24 +26,45 @@ down_revision = "2e049cda494f"
 
 
 def upgrade():
+    conn = op.get_bind()
+    conn.execute(sa.text("SET statement_timeout = 120000"))
+    conn.execute(sa.text("SET lock_timeout = 120000"))
+
     op.add_column(
         "releases",
         sa.Column(
             "author_email_verified",
             sa.Boolean(),
             server_default=sa.text("false"),
-            nullable=False,
+            nullable=True,
         ),
     )
+    op.execute(
+        """
+        UPDATE releases
+        SET author_email_verified = false
+        WHERE author_email_verified IS NULL
+    """
+    )
+    op.alter_column("releases", "author_email_verified", nullable=False)
+
     op.add_column(
         "releases",
         sa.Column(
             "maintainer_email_verified",
             sa.Boolean(),
             server_default=sa.text("false"),
-            nullable=False,
+            nullable=True,
         ),
     )
+    op.execute(
+        """
+        UPDATE releases
+        SET maintainer_email_verified = false
+        WHERE maintainer_email_verified IS NULL
+    """
+    )
+    op.alter_column("releases", "maintainer_email_verified", nullable=False)
 
 
 def downgrade():
