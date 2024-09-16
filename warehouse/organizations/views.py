@@ -10,8 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import timedelta
-
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
 
@@ -24,10 +22,7 @@ from warehouse.organizations.models import Organization
     context=Organization,
     renderer="organizations/profile.html",
     decorator=[
-        origin_cache(
-            timedelta(days=1).total_seconds(),
-            stale_if_error=timedelta(days=1).total_seconds(),
-        )
+        origin_cache(1 * 24 * 60 * 60, stale_if_error=1 * 24 * 60 * 60)  # 1 day each.
     ],
     has_translations=True,
 )

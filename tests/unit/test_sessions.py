@@ -12,8 +12,6 @@
 
 import time
 
-from datetime import timedelta
-
 import msgpack
 import pretend
 import pytest
@@ -422,7 +420,7 @@ class TestSessionFactory:
         )
 
         assert session_factory.signer.unsign.calls == [
-            pretend.call("123456", max_age=timedelta(hours=12).total_seconds())
+            pretend.call("123456", max_age=12 * 60 * 60)
         ]
 
         assert session_factory.redis.get.calls == [
@@ -452,7 +450,7 @@ class TestSessionFactory:
         )
 
         assert session_factory.signer.unsign.calls == [
-            pretend.call("123456", max_age=timedelta(hours=12).total_seconds())
+            pretend.call("123456", max_age=12 * 60 * 60)
         ]
 
         assert session_factory.redis.get.calls == [
@@ -487,7 +485,7 @@ class TestSessionFactory:
         )
 
         assert session_factory.signer.unsign.calls == [
-            pretend.call("123456", max_age=timedelta(hours=12).total_seconds())
+            pretend.call("123456", max_age=12 * 60 * 60)
         ]
 
         assert session_factory.redis.get.calls == [
@@ -572,11 +570,7 @@ class TestSessionFactory:
             )
         ]
         assert session_factory.redis.setex.calls == [
-            pretend.call(
-                "warehouse/session/data/123456",
-                timedelta(hours=12).total_seconds(),
-                b"msgpack data",
-            )
+            pretend.call("warehouse/session/data/123456", 12 * 60 * 60, b"msgpack data")
         ]
         assert pyramid_request.session.should_save.calls == [
             pretend.call(),
@@ -587,7 +581,7 @@ class TestSessionFactory:
             pretend.call(
                 "session_id",
                 "cookie data",
-                max_age=timedelta(hours=12).total_seconds(),
+                max_age=12 * 60 * 60,
                 httponly=True,
                 secure=False,
                 samesite=b"lax",

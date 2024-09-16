@@ -160,10 +160,7 @@ def incomplete_password_resets(exc, request):
     context=User,
     renderer="accounts/profile.html",
     decorator=[
-        origin_cache(
-            datetime.timedelta(days=1).total_seconds(),
-            stale_if_error=datetime.timedelta(days=1).total_seconds(),
-        )
+        origin_cache(1 * 24 * 60 * 60, stale_if_error=1 * 24 * 60 * 60)  # 1 day each.
     ],
     has_translations=True,
 )
