@@ -412,6 +412,23 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
         )
 
     @property
+    def maintainers(self):
+        """Return all users who are maintainers of the project."""
+        maintainer_roles = (
+            orm.object_session(self)
+            .query(User.id)
+            .join(Role.user)
+            .filter(Role.role_name == "Maintainer", Role.project == self)
+            .subquery()
+        )
+        return (
+            orm.object_session(self)
+            .query(User)
+            .join(maintainer_roles, User.id == maintainer_roles.c.id)
+            .all()
+        )
+
+    @property
     def all_versions(self):
         return (
             orm.object_session(self)
@@ -558,8 +575,10 @@ class Release(HasObservations, db.Model):
     is_prerelease: Mapped[bool_false]
     author: Mapped[str | None]
     author_email: Mapped[str | None]
+    author_email_verified: Mapped[bool_false]
     maintainer: Mapped[str | None]
     maintainer_email: Mapped[str | None]
+    maintainer_email_verified: Mapped[bool_false]
     home_page: Mapped[str | None]
     home_page_verified: Mapped[bool_false]
     license: Mapped[str | None]
