@@ -110,19 +110,6 @@ Retrieve a list of ``[name, version]`` of all releases classified with all of
 the given classifiers. ``classifiers`` must be a list of Trove classifier
 strings.
 
-``updated_releases(since)``
-+++++++++++++++++++++++++++
-
-Retrieve a list of package releases made since the given timestamp. The
-releases will be listed in descending release date.
-
-``changed_packages(since)``
-+++++++++++++++++++++++++++
-
-Retrieve a list of package names where those packages have been changed
-since the given timestamp. The packages will be listed in descending date
-of most recent change.
-
 
 Deprecated Methods
 ------------------

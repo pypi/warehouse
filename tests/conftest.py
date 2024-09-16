@@ -30,6 +30,7 @@ import webtest as _webtest
 
 from jinja2 import Environment, FileSystemLoader
 from psycopg.errors import InvalidCatalogName
+from pypi_attestations import Attestation, Envelope, VerificationMaterial
 from pyramid.i18n import TranslationString
 from pyramid.static import ManifestCacheBuster
 from pyramid_jinja2 import IJinja2Environment
@@ -387,13 +388,11 @@ def get_db_session_for_app_config(app_config):
 
 @pytest.fixture(scope="session")
 def app_config(database):
-
     return get_app_config(database)
 
 
 @pytest.fixture(scope="session")
 def app_config_dbsession_from_env(database):
-
     nondefaults = {
         "warehouse.db_create_session": lambda r: r.environ.get("warehouse.db_session")
     }
@@ -536,6 +535,20 @@ def activestate_oidc_service(db_session):
         pretend.stub(),
         pretend.stub(),
         pretend.stub(),
+    )
+
+
+@pytest.fixture
+def dummy_attestation():
+    return Attestation(
+        version=1,
+        verification_material=VerificationMaterial(
+            certificate="somebase64string", transparency_entries=[dict()]
+        ),
+        envelope=Envelope(
+            statement="somebase64string",
+            signature="somebase64string",
+        ),
     )
 
 

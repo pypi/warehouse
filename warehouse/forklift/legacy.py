@@ -63,7 +63,7 @@ from warehouse.macaroons.models import Macaroon
 from warehouse.metrics import IMetricsService
 from warehouse.oidc.views import is_from_reusable_workflow
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
-from warehouse.packaging.metadata_verification import verify_url
+from warehouse.packaging.metadata_verification import verify_email, verify_url
 from warehouse.packaging.models import (
     Dependency,
     DependencyKind,
@@ -434,7 +434,7 @@ def _process_attestations(request, distribution: Distribution):
                 f"attestation: {e}",
             )
         except Exception as e:
-            with sentry_sdk.push_scope() as scope:
+            with sentry_sdk.new_scope() as scope:
                 scope.fingerprint = [e]
                 sentry_sdk.capture_message(
                     f"Unexpected error while verifying attestation: {e}"
@@ -859,6 +859,19 @@ def file_upload(request):
         )
     )
 
+    author_email = meta.author_email
+    author_email_verified = (
+        False
+        if author_email is None
+        else verify_email(email=author_email, project=project)
+    )
+    maintainer_email = meta.maintainer_email
+    maintainer_email_verified = (
+        False
+        if maintainer_email is None
+        else verify_email(email=maintainer_email, project=project)
+    )
+
     try:
         is_new_release = False
         canonical_version = packaging.utils.canonicalize_version(meta.version)
@@ -919,6 +932,10 @@ def file_upload(request):
             download_url=download_url,
             download_url_verified=download_url_verified,
             project_urls=project_urls,
+            author_email=author_email,
+            author_email_verified=author_email_verified,
+            maintainer_email=maintainer_email,
+            maintainer_email_verified=maintainer_email_verified,
             # TODO: Fix this, we currently treat platform as if it is a single
             #       use field, but in reality it is a multi-use field, which the
             #       packaging.metadata library handles correctly.
@@ -945,9 +962,7 @@ def file_upload(request):
                     "summary",
                     "license",
                     "author",
-                    "author_email",
                     "maintainer",
-                    "maintainer_email",
                     "provides_extra",
                 }
             },
@@ -1251,7 +1266,9 @@ def file_upload(request):
                 k: h.hexdigest().lower() for k, h in metadata_file_hashes.items()
             }
 
-        if "attestations" in request.POST:
+        if "attestations" in request.POST and not request.flags.enabled(
+            AdminFlagValue.DISABLE_PEP740
+        ):
             _process_attestations(
                 request=request,
                 distribution=Distribution(name=filename, digest=file_hashes["sha256"]),
