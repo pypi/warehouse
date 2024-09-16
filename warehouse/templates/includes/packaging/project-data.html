@@ -108,6 +108,29 @@
       </span>
     {% endfor %}
   {% endif %}
+  {% if release.has_meta and (release.author_email_verified or release.maintainer_email_verified) %}
+  <div class="sidebar-section verified">
+    <h6>{% trans %}Meta{% endtrans %}</h6>
+    <ul class="vertical-tabs__list">
+    {% if release.author_email and release.author_email_verified %}
+      <li>
+        <span class="vertical-tabs__tab vertical-tabs__tab--condensed">
+          <strong>{% trans %}Author:{% endtrans %}</strong> <a href="mailto:{{ release.author_email|format_email|last }}">{{ release.author or release.author_email|format_email|first }}</a>
+          <i class="fa fa-circle-check check" title="Email verified by PyPI"></i>
+        </span>
+      </li>
+    {% endif %}
+    {% if release.maintainer_email and release.maintainer_email_verified%}
+      <li>
+        <span class="vertical-tabs__tab vertical-tabs__tab--condensed">
+          <strong>{% trans %}Maintainer:{% endtrans %}</strong> <a href="mailto:{{ release.maintainer_email|format_email|last }}">{{ release.maintainer or release.maintainer_email|format_email|first }}</a>
+          <i class="fa fa-circle-check check" title="Email verified by PyPI"></i>
+        </span>
+      </li>
+    {% endif %}
+    </ul>
+  </div>
+  {% endif %}
 </div>
 
 <div class="sidebar-section unverified">
@@ -139,7 +162,7 @@
       </span>
     </li>
   {% endif %}
-  {% if release.author_email %}
+  {% if release.author_email and not release.author_email_verified %}
     <li>
       <span class="vertical-tabs__tab vertical-tabs__tab--condensed">
         <strong>{% trans %}Author:{% endtrans %}</strong> <a href="mailto:{{ release.author_email|format_email|last }}">{{ release.author or release.author_email|format_email|first }}</a>
@@ -152,7 +175,7 @@
       </span>
     </li>
   {% endif %}
-  {% if release.maintainer_email %}
+  {% if release.maintainer_email and not release.maintainer_email_verified%}
     <li>
       <span class="vertical-tabs__tab vertical-tabs__tab--condensed">
         <strong>{% trans %}Maintainer:{% endtrans %}</strong> <a href="mailto:{{ release.maintainer_email|format_email|last }}">{{ release.maintainer or release.maintainer_email|format_email|first }}</a>

@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import timedelta
+
 import redis
 
 from zope.interface import implementer
@@ -55,7 +57,8 @@ class RedisXMLRPCCache:
             name=request.registry.settings.get("warehouse.xmlrpc.cache.name", "xmlrpc"),
             expires=int(
                 request.registry.settings.get(
-                    "warehouse.xmlrpc.cache.expires", 25 * 60 * 60
+                    "warehouse.xmlrpc.cache.expires",
+                    timedelta(hours=25).total_seconds(),
                 )
             ),
         )

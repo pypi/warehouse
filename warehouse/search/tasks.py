@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import binascii
+import datetime
 import os
 import urllib.parse
 
@@ -118,7 +119,11 @@ def reindex(self, request):
     """
     r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
     try:
-        with SearchLock(r, timeout=30 * 60, blocking_timeout=30):
+        with SearchLock(
+            r,
+            timeout=datetime.timedelta(minutes=30).total_seconds(),
+            blocking_timeout=30,
+        ):
             p = parse_url(request.registry.settings["opensearch.url"])
             qs = urllib.parse.parse_qs(p.query)
             kwargs = {

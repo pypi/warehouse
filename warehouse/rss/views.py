@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import timedelta
 from email.utils import getaddresses
 
 from pyramid.view import view_config
@@ -48,9 +49,9 @@ def _format_author(release):
     renderer="rss/updates.xml",
     decorator=[
         origin_cache(
-            1 * 24 * 60 * 60,  # 1 day
-            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
-            stale_if_error=5 * 24 * 60 * 60,  # 5 days
+            timedelta(days=1).total_seconds(),
+            stale_while_revalidate=timedelta(days=1).total_seconds(),
+            stale_if_error=timedelta(days=5).total_seconds(),
             keys=["all-projects"],
         )
     ],
@@ -75,9 +76,9 @@ def rss_updates(request):
     renderer="rss/packages.xml",
     decorator=[
         origin_cache(
-            1 * 24 * 60 * 60,  # 1 day
-            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
-            stale_if_error=5 * 24 * 60 * 60,  # 5 days
+            timedelta(days=1).total_seconds(),
+            stale_while_revalidate=timedelta(days=1).total_seconds(),
+            stale_if_error=timedelta(days=5).total_seconds(),
             keys=["all-projects"],
         )
     ],
@@ -105,7 +106,8 @@ def rss_packages(request):
     renderer="rss/project_releases.xml",
     decorator=[
         origin_cache(
-            1 * 24 * 60 * 60, stale_if_error=5 * 24 * 60 * 60  # 1 day, 5 days stale
+            timedelta(days=1).total_seconds(),
+            stale_if_error=timedelta(days=5).total_seconds(),
         )
     ],
 )

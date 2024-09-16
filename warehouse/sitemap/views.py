@@ -37,11 +37,11 @@ class BucketTooSmallError(ValueError):
     route_name="index.sitemap.xml",
     renderer="sitemap/index.xml",
     decorator=[
-        cache_control(1 * 60 * 60),  # 1 hour
+        cache_control(datetime.timedelta(hours=1).total_seconds()),
         origin_cache(
-            1 * 24 * 60 * 60,  # 1 day
-            stale_while_revalidate=6 * 60 * 60,  # 6 hours
-            stale_if_error=1 * 24 * 60 * 60,  # 1 day
+            datetime.timedelta(days=1).total_seconds(),
+            stale_while_revalidate=datetime.timedelta(hours=6).total_seconds(),
+            stale_if_error=datetime.timedelta(days=1).total_seconds(),
             keys=["all-projects"],
         ),
     ],
@@ -103,11 +103,11 @@ def sitemap_index(request):
     route_name="bucket.sitemap.xml",
     renderer="sitemap/bucket.xml",
     decorator=[
-        cache_control(1 * 60 * 60),  # 1 hour
+        cache_control(datetime.timedelta(hours=1).total_seconds()),
         origin_cache(
-            1 * 24 * 60 * 60,  # 1 day
-            stale_while_revalidate=6 * 60 * 60,  # 6 hours
-            stale_if_error=1 * 24 * 60 * 60,  # 1 day
+            datetime.timedelta(days=1).total_seconds(),
+            stale_while_revalidate=datetime.timedelta(hours=6).total_seconds(),
+            stale_if_error=datetime.timedelta(days=1).total_seconds(),
             keys=["all-projects"],
         ),
     ],

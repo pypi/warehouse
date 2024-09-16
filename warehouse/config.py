@@ -87,6 +87,8 @@ class RootFactory:
                 Permissions.AdminOrganizationsWrite,
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedProjectsWrite,
+                Permissions.AdminProhibitedUsernameRead,
+                Permissions.AdminProhibitedUsernameWrite,
                 Permissions.AdminProjectsDelete,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminProjectsSetLimit,
@@ -114,6 +116,7 @@ class RootFactory:
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
                 Permissions.AdminProhibitedProjectsRead,
+                Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminProjectsSetLimit,
                 Permissions.AdminRoleAdd,
@@ -138,6 +141,7 @@ class RootFactory:
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
                 Permissions.AdminProhibitedProjectsRead,
+                Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminProjectsSetLimit,
                 Permissions.AdminRoleAdd,
@@ -392,7 +396,7 @@ def configure(settings=None):
         "token.default.max_age",
         "TOKEN_DEFAULT_MAX_AGE",
         coercer=int,
-        default=21600,  # 6 hours
+        default=timedelta(hours=6).total_seconds(),
     )
     maybe_set(
         settings,
@@ -820,7 +824,9 @@ def configure(settings=None):
         "warehouse:static/dist/",
         # Don't cache at all if prevent_http_cache is true, else we'll cache
         # the files for 10 years.
-        cache_max_age=0 if prevent_http_cache else 10 * 365 * 24 * 60 * 60,
+        cache_max_age=(
+            0 if prevent_http_cache else timedelta(days=365 * 10).total_seconds()
+        ),
     )
     config.add_cache_buster(
         "warehouse:static/dist/",
@@ -832,7 +838,7 @@ def configure(settings=None):
     )
     config.whitenoise_serve_static(
         autorefresh=prevent_http_cache,
-        max_age=0 if prevent_http_cache else 10 * 365 * 24 * 60 * 60,
+        max_age=0 if prevent_http_cache else timedelta(days=365 * 10).total_seconds(),
     )
     config.whitenoise_add_files("warehouse:static/dist/", prefix="/static/")
     config.whitenoise_add_manifest(
