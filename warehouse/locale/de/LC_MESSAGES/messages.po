@@ -64,11 +64,15 @@ msgstr ""
 msgid "Locale updated"
 msgstr "Lokalisierung aktualisiert"
 
-#: warehouse/accounts/forms.py:52
+#: warehouse/accounts/forms.py:52 warehouse/accounts/forms.py:286
+msgid "The email address isn't valid. Try again."
+msgstr "Die E-Mail-Adresse ist nicht gültig. Bitte erneut versuchen."
+
+#: warehouse/accounts/forms.py:53
 msgid "The password is invalid. Try again."
 msgstr "Das Passwort ist ungültig. Bitte erneut versuchen."
 
-#: warehouse/accounts/forms.py:53
+#: warehouse/accounts/forms.py:54
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -78,28 +82,28 @@ msgstr ""
 "Punkten, Binde- oder Unterstrichen bestehen und mit einem Buchstaben oder "
 "einer Zahl beginnen und enden. Bitte einen anderen Benutzernamen wählen."
 
-#: warehouse/accounts/forms.py:71
+#: warehouse/accounts/forms.py:72
 msgid "Null bytes are not allowed."
 msgstr "Null Bytes sind nicht erlaubt."
 
-#: warehouse/accounts/forms.py:94
+#: warehouse/accounts/forms.py:86
 msgid "No user found with that username"
 msgstr "Kein Benutzer mit diesem Namen gefunden"
 
-#: warehouse/accounts/forms.py:105
+#: warehouse/accounts/forms.py:106
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "Der TOTP-Code muss ${totp_length} Zeichen lang sein."
 
-#: warehouse/accounts/forms.py:125
+#: warehouse/accounts/forms.py:126
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr ""
 "Wiederherstellungscodes müssen ${recovery_code_length} Zeichen lang sein."
 
-#: warehouse/accounts/forms.py:140
+#: warehouse/accounts/forms.py:141
 msgid "Choose a username with 50 characters or less."
 msgstr "Bitte Benutzername mit 50 Zeichen oder weniger wählen."
 
-#: warehouse/accounts/forms.py:157
+#: warehouse/accounts/forms.py:158
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -107,12 +111,12 @@ msgstr ""
 "Dieser Benutzername wird schon von einem anderen Konto verwendet. Bitte "
 "einen anderen Benutzername wählen."
 
-#: warehouse/accounts/forms.py:171 warehouse/accounts/forms.py:220
-#: warehouse/accounts/forms.py:233
+#: warehouse/accounts/forms.py:172 warehouse/accounts/forms.py:221
+#: warehouse/accounts/forms.py:234
 msgid "Password too long."
 msgstr "Passwort zu lang."
 
-#: warehouse/accounts/forms.py:207
+#: warehouse/accounts/forms.py:208
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
@@ -120,25 +124,21 @@ msgstr ""
 "Es gab zu viele erfolglose Login-Versuche. Bitte Versuche es erneut in "
 "${time}"
 
-#: warehouse/accounts/forms.py:236
+#: warehouse/accounts/forms.py:237
 msgid "Your passwords don't match. Try again."
 msgstr "Die Passwörter stimmen nicht überein. Bitte erneut versuchen."
 
-#: warehouse/accounts/forms.py:270
+#: warehouse/accounts/forms.py:271
 msgid "The email address is too long. Try again."
 msgstr "Die E-Mail-Adresse ist zu Lang. Bitte erneut versuchen."
 
-#: warehouse/accounts/forms.py:285
-msgid "The email address isn't valid. Try again."
-msgstr "Die E-Mail-Adresse ist nicht gültig. Bitte erneut versuchen."
-
-#: warehouse/accounts/forms.py:299
+#: warehouse/accounts/forms.py:314
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "E-Mail-Adressen dieser Domain können nicht verwendet werden. Bitte eine "
 "andere E-Mail-Adresse verwenden."
 
-#: warehouse/accounts/forms.py:310
+#: warehouse/accounts/forms.py:325
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -146,7 +146,7 @@ msgstr ""
 "Diese E-Mail-Adresse wird schon von diesem Konto verwendet. Bitte eine "
 "andere verwenden."
 
-#: warehouse/accounts/forms.py:317
+#: warehouse/accounts/forms.py:332
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -154,30 +154,36 @@ msgstr ""
 "Diese E-Mail-Adresse wird bereits von einem anderen Konto verwendet. "
 "Verwenden Sie eine andere E-Mail-Adresse."
 
-#: warehouse/accounts/forms.py:350 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:367 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 "Der Name ist zu lang. Bitte  einen Namen mit 100 Zeichen oder weniger "
 "verwenden."
 
-#: warehouse/accounts/forms.py:442
+#: warehouse/accounts/forms.py:374
+#, fuzzy
+#| msgid "Null bytes are not allowed."
+msgid "URLs are not allowed in the name field."
+msgstr "Null Bytes sind nicht erlaubt."
+
+#: warehouse/accounts/forms.py:463
 msgid "Invalid TOTP code."
 msgstr "Ungültiger TOTP-Code."
 
-#: warehouse/accounts/forms.py:459
+#: warehouse/accounts/forms.py:480
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Ungültige WebAuthn-Assertion: Bad payload"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/accounts/forms.py:528
+#: warehouse/accounts/forms.py:549
 msgid "Invalid recovery code."
 msgstr "Ungültiger Wiederherstellungs-Code."
 
-#: warehouse/accounts/forms.py:537
+#: warehouse/accounts/forms.py:558
 msgid "Recovery code has been previously used."
 msgstr "Wiederherstellungscode wurde bereits benutzt."
 
-#: warehouse/accounts/forms.py:567
+#: warehouse/accounts/forms.py:588
 msgid "The username isn't valid. Try again."
 msgstr "Der Benutzername ist nicht gültig. Bitte erneut versuchen."
 
@@ -3532,10 +3538,20 @@ msgstr "Verifiziert"
 msgid "(What is this?)"
 msgstr ""
 
+#: warehouse/templates/includes/packaging/project-data.html:21
+msgid "These details have been verified by PyPI"
+msgstr ""
+
 #: warehouse/templates/includes/packaging/project-data.html:23
-#: warehouse/templates/includes/packaging/project-data.html:117
+#: warehouse/templates/includes/packaging/project-data.html:140
 msgid "Project links"
 msgstr "Projekt-Links"
+
+#: warehouse/templates/includes/packaging/project-data.html:31
+#, fuzzy, python-format
+#| msgid "Released: %(release_date)s"
+msgid "URL verified by PyPI on %(release_date)s"
+msgstr "Veröffentlicht am: %(release_date)s"
 
 #: warehouse/templates/includes/packaging/project-data.html:51
 #, fuzzy
@@ -3577,44 +3593,51 @@ msgstr "Betreuer"
 msgid "Avatar for {username} from gravatar.com"
 msgstr "Profilbild für {username} von gravatar.com"
 
-#: warehouse/templates/includes/packaging/project-data.html:114
+#: warehouse/templates/includes/packaging/project-data.html:113
+#: warehouse/templates/includes/packaging/project-data.html:156
+msgid "Meta"
+msgstr "Meta"
+
+#: warehouse/templates/includes/packaging/project-data.html:118
+#: warehouse/templates/includes/packaging/project-data.html:168
+#: warehouse/templates/includes/packaging/project-data.html:174
+msgid "Author:"
+msgstr "Autor:"
+
+#: warehouse/templates/includes/packaging/project-data.html:126
+#: warehouse/templates/includes/packaging/project-data.html:181
+#: warehouse/templates/includes/packaging/project-data.html:187
+#: warehouse/templates/pages/help.html:620
+msgid "Maintainer:"
+msgstr "Betreuer:"
+
+#: warehouse/templates/includes/packaging/project-data.html:137
 #, fuzzy
 #| msgid "Unverified"
 msgid "Unverified details"
 msgstr "Unbestätigt"
 
-#: warehouse/templates/includes/packaging/project-data.html:133
-msgid "Meta"
-msgstr "Meta"
-
 #: warehouse/templates/includes/packaging/project-data.html:138
+msgid "These details have <b>not</b> been verified by PyPI"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:161
 msgid "License:"
 msgstr "Lizenz:"
 
-#: warehouse/templates/includes/packaging/project-data.html:145
-#: warehouse/templates/includes/packaging/project-data.html:151
-msgid "Author:"
-msgstr "Autor:"
-
-#: warehouse/templates/includes/packaging/project-data.html:158
-#: warehouse/templates/includes/packaging/project-data.html:164
-#: warehouse/templates/pages/help.html:620
-msgid "Maintainer:"
-msgstr "Betreuer:"
-
-#: warehouse/templates/includes/packaging/project-data.html:172
+#: warehouse/templates/includes/packaging/project-data.html:195
 msgid "Tags"
 msgstr "Schlagwörter"
 
-#: warehouse/templates/includes/packaging/project-data.html:184
+#: warehouse/templates/includes/packaging/project-data.html:207
 msgid "Requires:"
 msgstr "Benötigt:"
 
-#: warehouse/templates/includes/packaging/project-data.html:191
+#: warehouse/templates/includes/packaging/project-data.html:214
 msgid "Provides-Extra:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:201
+#: warehouse/templates/includes/packaging/project-data.html:224
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
