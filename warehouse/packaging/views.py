@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import timedelta
+
 from natsort import natsorted
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
@@ -18,7 +20,6 @@ from sqlalchemy.exc import NoResultFound
 from warehouse.accounts.models import User
 from warehouse.authnz import Permissions
 from warehouse.cache.origin import origin_cache
-from warehouse.constants import FIVE_DAYS_IN_SECONDS, ONE_DAY_IN_SECONDS
 from warehouse.observations.models import ObservationKind
 from warehouse.packaging.forms import SubmitMalwareObservationForm
 from warehouse.packaging.models import Description, File, Project, Release, Role
@@ -28,7 +29,12 @@ from warehouse.packaging.models import Description, File, Project, Release, Role
     route_name="packaging.project",
     context=Project,
     renderer="packaging/detail.html",
-    decorator=[origin_cache(ONE_DAY_IN_SECONDS, stale_if_error=FIVE_DAYS_IN_SECONDS)],
+    decorator=[
+        origin_cache(
+            timedelta(days=1).total_seconds(),
+            stale_if_error=timedelta(days=5).total_seconds(),
+        )
+    ],
     has_translations=True,
 )
 def project_detail(project, request):
@@ -57,7 +63,12 @@ def project_detail(project, request):
     route_name="packaging.release",
     context=Release,
     renderer="packaging/detail.html",
-    decorator=[origin_cache(ONE_DAY_IN_SECONDS, stale_if_error=FIVE_DAYS_IN_SECONDS)],
+    decorator=[
+        origin_cache(
+            timedelta(days=1).total_seconds(),
+            stale_if_error=timedelta(days=5).total_seconds(),
+        )
+    ],
     has_translations=True,
 )
 def release_detail(release, request):

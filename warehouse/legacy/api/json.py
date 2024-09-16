@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import timedelta
+
 from packaging.utils import canonicalize_name, canonicalize_version
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
@@ -18,11 +20,6 @@ from sqlalchemy.orm import Load, contains_eager, joinedload
 
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
-from warehouse.constants import (
-    FIFTEEN_MINUTES_IN_SECONDS,
-    FIVE_MINUTES_IN_SECONDS,
-    ONE_DAY_IN_SECONDS,
-)
 from warehouse.packaging.models import (
     Description,
     File,
@@ -34,21 +31,21 @@ from warehouse.packaging.models import (
 from warehouse.utils.cors import _CORS_HEADERS
 
 _RELEASE_CACHE_DECORATOR = [
-    cache_control(FIFTEEN_MINUTES_IN_SECONDS),
+    cache_control(timedelta(minutes=15).total_seconds()),
     origin_cache(
-        ONE_DAY_IN_SECONDS,
-        stale_while_revalidate=FIVE_MINUTES_IN_SECONDS,
-        stale_if_error=ONE_DAY_IN_SECONDS,
+        timedelta(days=1).total_seconds(),
+        stale_while_revalidate=timedelta(minutes=5).total_seconds(),
+        stale_if_error=timedelta(days=1).total_seconds(),
         keys=["all-legacy-json", "release-legacy-json"],
     ),
 ]
 
 _PROJECT_CACHE_DECORATOR = [
-    cache_control(FIFTEEN_MINUTES_IN_SECONDS),
+    cache_control(timedelta(minutes=15).total_seconds()),
     origin_cache(
-        ONE_DAY_IN_SECONDS,
-        stale_while_revalidate=FIVE_MINUTES_IN_SECONDS,
-        stale_if_error=ONE_DAY_IN_SECONDS,
+        timedelta(days=1).total_seconds(),
+        stale_while_revalidate=timedelta(minutes=5).total_seconds(),
+        stale_if_error=timedelta(days=1).total_seconds(),
         keys=["all-legacy-json", "project-legacy-json"],
     ),
 ]

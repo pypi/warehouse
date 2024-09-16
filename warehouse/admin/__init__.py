@@ -10,8 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import timedelta
+
 from warehouse.admin.services import ISponsorLogoStorage
-from warehouse.constants import TEN_YEARS_IN_SECONDS
 from warehouse.utils.static import ManifestCacheBuster
 
 
@@ -33,7 +34,9 @@ def includeme(config):
         "warehouse.admin:static/dist",
         # Don't cache at all if prevent_http_cache is true, else we'll cache
         # the files for 10 years.
-        cache_max_age=0 if prevent_http_cache else TEN_YEARS_IN_SECONDS,
+        cache_max_age=(
+            0 if prevent_http_cache else timedelta(days=365 * 10).total_seconds()
+        ),
     )
     config.add_cache_buster(
         "warehouse.admin:static/dist/",

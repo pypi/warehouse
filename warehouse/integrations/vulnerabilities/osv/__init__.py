@@ -13,10 +13,11 @@
 import json
 import time
 
+from datetime import timedelta
+
 import requests
 
 from warehouse import integrations
-from warehouse.constants import THIRTY_MINUTES_IN_SECONDS
 from warehouse.integrations import vulnerabilities
 
 
@@ -25,7 +26,7 @@ class OSVPublicKeyAPIError(vulnerabilities.InvalidVulnerabilityReportError):
 
 
 OSV_PUBLIC_KEYS_URL = "https://osv.dev/public_keys/pypa"
-DEFAULT_PUBLIC_KEYS_CACHE_SECONDS = THIRTY_MINUTES_IN_SECONDS
+DEFAULT_PUBLIC_KEYS_CACHE_SECONDS = timedelta(minutes=30).total_seconds()
 DEFAULT_PUBLIC_KEYS_CACHE = integrations.PublicKeysCache(
     cache_time=DEFAULT_PUBLIC_KEYS_CACHE_SECONDS
 )

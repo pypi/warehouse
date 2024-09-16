@@ -14,6 +14,8 @@
 import collections
 import re
 
+from datetime import timedelta
+
 import opensearchpy
 
 from pyramid.exceptions import PredicateMismatch
@@ -48,12 +50,6 @@ from warehouse.accounts.models import User
 from warehouse.cache.http import add_vary, cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.classifiers.models import Classifier
-from warehouse.constants import (
-    ONE_DAY_IN_SECONDS,
-    ONE_HOUR_IN_SECONDS,
-    SIX_HOURS_IN_SECONDS,
-    TEN_MINUTES_IN_SECONDS,
-)
 from warehouse.db import DatabaseNotAvailableError
 from warehouse.errors import WarehouseDenied
 from warehouse.forms import SetLocaleForm
@@ -211,11 +207,11 @@ def service_unavailable(exc, request):
     route_name="robots.txt",
     renderer="robots.txt",
     decorator=[
-        cache_control(ONE_DAY_IN_SECONDS),
+        cache_control(timedelta(days=1).total_seconds()),
         origin_cache(
-            ONE_DAY_IN_SECONDS,
-            stale_while_revalidate=SIX_HOURS_IN_SECONDS,
-            stale_if_error=ONE_DAY_IN_SECONDS,
+            timedelta(days=1).total_seconds(),
+            stale_while_revalidate=timedelta(hours=6).total_seconds(),
+            stale_if_error=timedelta(days=1).total_seconds(),
         ),
     ],
 )
@@ -228,11 +224,11 @@ def robotstxt(request):
     route_name="opensearch.xml",
     renderer="opensearch.xml",
     decorator=[
-        cache_control(ONE_DAY_IN_SECONDS),
+        cache_control(timedelta(days=1).total_seconds()),
         origin_cache(
-            ONE_DAY_IN_SECONDS,
-            stale_while_revalidate=SIX_HOURS_IN_SECONDS,
-            stale_if_error=ONE_DAY_IN_SECONDS,
+            timedelta(days=1).total_seconds(),
+            stale_while_revalidate=timedelta(hours=6).total_seconds(),
+            stale_if_error=timedelta(days=1).total_seconds(),
         ),
     ],
 )
@@ -246,9 +242,9 @@ def opensearchxml(request):
     renderer="index.html",
     decorator=[
         origin_cache(
-            ONE_HOUR_IN_SECONDS,
-            stale_while_revalidate=TEN_MINUTES_IN_SECONDS,
-            stale_if_error=ONE_DAY_IN_SECONDS,
+            timedelta(hours=1).total_seconds(),
+            stale_while_revalidate=timedelta(minutes=10).total_seconds(),
+            stale_if_error=timedelta(days=1).total_seconds(),
             keys=["all-projects"],
         )
     ],
@@ -320,8 +316,8 @@ def list_classifiers(request):
     renderer="search/results.html",
     decorator=[
         origin_cache(
-            ONE_HOUR_IN_SECONDS,
-            stale_if_error=ONE_DAY_IN_SECONDS,
+            timedelta(hours=1).total_seconds(),
+            stale_if_error=timedelta(days=1).total_seconds(),
             keys=["all-projects"],
         )
     ],
@@ -432,11 +428,11 @@ def search(request):
     renderer="pages/stats.html",
     decorator=[
         add_vary("Accept"),
-        cache_control(ONE_DAY_IN_SECONDS),
+        cache_control(timedelta(days=1).total_seconds()),
         origin_cache(
-            ONE_DAY_IN_SECONDS,
-            stale_while_revalidate=ONE_DAY_IN_SECONDS,
-            stale_if_error=ONE_DAY_IN_SECONDS,
+            timedelta(days=1).total_seconds(),
+            stale_while_revalidate=timedelta(days=1).total_seconds(),
+            stale_if_error=timedelta(days=1).total_seconds(),
         ),
     ],
     has_translations=True,
@@ -446,11 +442,11 @@ def search(request):
     renderer="json",
     decorator=[
         add_vary("Accept"),
-        cache_control(ONE_DAY_IN_SECONDS),
+        cache_control(timedelta(days=1).total_seconds()),
         origin_cache(
-            ONE_DAY_IN_SECONDS,
-            stale_while_revalidate=ONE_DAY_IN_SECONDS,
-            stale_if_error=ONE_DAY_IN_SECONDS,
+            timedelta(days=1).total_seconds(),
+            stale_while_revalidate=timedelta(days=1).total_seconds(),
+            stale_if_error=timedelta(days=1).total_seconds(),
         ),
     ],
     accept="application/json",

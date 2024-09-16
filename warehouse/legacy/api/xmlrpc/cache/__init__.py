@@ -12,6 +12,8 @@
 
 import collections
 
+from datetime import timedelta
+
 from pyramid.exceptions import ConfigurationError
 from sqlalchemy.orm.base import NO_VALUE
 from sqlalchemy.orm.session import Session
@@ -19,7 +21,6 @@ from urllib3.util import parse_url
 
 from warehouse import db
 from warehouse.accounts.models import Email, User
-from warehouse.constants import TWENTY_FIVE_HOURS_IN_SECONDS
 from warehouse.legacy.api.xmlrpc.cache.derivers import cached_return_view
 from warehouse.legacy.api.xmlrpc.cache.fncache import RedisLru
 from warehouse.legacy.api.xmlrpc.cache.interfaces import IXMLRPCCache
@@ -87,7 +88,7 @@ def email_primary_receive_set(config, target, value, oldvalue, initiator):
 def includeme(config):
     xmlrpc_cache_url = config.registry.settings.get("warehouse.xmlrpc.cache.url")
     xmlrpc_cache_expires = config.registry.settings.get(
-        "warehouse.xmlrpc.cache.expires", TWENTY_FIVE_HOURS_IN_SECONDS
+        "warehouse.xmlrpc.cache.expires", timedelta(hours=25).total_seconds()
     )
 
     if xmlrpc_cache_url is None:

@@ -39,7 +39,7 @@ from warehouse.accounts.interfaces import (
     TokenExpired,
 )
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, SIX_HOURS_IN_SECONDS
+from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
@@ -4807,7 +4807,7 @@ class TestManageProjectRoles:
         )
         token_service = pretend.stub(
             dumps=lambda data: "TOKEN",
-            max_age=SIX_HOURS_IN_SECONDS,
+            max_age=datetime.timedelta(hours=6).total_seconds(),
             loads=lambda data: None,
         )
         db_request.find_service = pretend.call_recorder(
@@ -4894,7 +4894,7 @@ class TestManageProjectRoles:
         )
         token_service = pretend.stub(
             dumps=lambda data: "TOKEN",
-            max_age=SIX_HOURS_IN_SECONDS,
+            max_age=datetime.timedelta(hours=6).total_seconds(),
             loads=lambda data: None,
         )
         db_request.find_service = pretend.call_recorder(
@@ -4955,7 +4955,7 @@ class TestManageProjectRoles:
         )
         token_service = pretend.stub(
             dumps=lambda data: "TOKEN",
-            max_age=SIX_HOURS_IN_SECONDS,
+            max_age=datetime.timedelta(hours=6).total_seconds(),
             loads=lambda data: None,
         )
         db_request.find_service = pretend.call_recorder(
@@ -5045,7 +5045,7 @@ class TestManageProjectRoles:
         )
         token_service = pretend.stub(
             dumps=lambda data: "TOKEN",
-            max_age=SIX_HOURS_IN_SECONDS,
+            max_age=datetime.timedelta(hours=6).total_seconds(),
             loads=lambda data: None,
         )
         db_request.find_service = pretend.call_recorder(
@@ -5109,7 +5109,7 @@ class TestManageProjectRoles:
         )
         token_service = pretend.stub(
             dumps=lambda data: "TOKEN",
-            max_age=SIX_HOURS_IN_SECONDS,
+            max_age=datetime.timedelta(hours=6).total_seconds(),
             loads=lambda data: {"desired_role": "Maintainer"},
         )
         db_request.find_service = pretend.call_recorder(

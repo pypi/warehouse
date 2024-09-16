@@ -10,13 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import timedelta
 from email.utils import getaddresses
 
 from pyramid.view import view_config
 from sqlalchemy.orm import joinedload
 
 from warehouse.cache.origin import origin_cache
-from warehouse.constants import FIVE_DAYS_IN_SECONDS, ONE_DAY_IN_SECONDS
 from warehouse.packaging.models import Project, Release
 
 
@@ -49,9 +49,9 @@ def _format_author(release):
     renderer="rss/updates.xml",
     decorator=[
         origin_cache(
-            ONE_DAY_IN_SECONDS,
-            stale_while_revalidate=ONE_DAY_IN_SECONDS,
-            stale_if_error=FIVE_DAYS_IN_SECONDS,
+            timedelta(days=1).total_seconds(),
+            stale_while_revalidate=timedelta(days=1).total_seconds(),
+            stale_if_error=timedelta(days=5).total_seconds(),
             keys=["all-projects"],
         )
     ],
@@ -76,9 +76,9 @@ def rss_updates(request):
     renderer="rss/packages.xml",
     decorator=[
         origin_cache(
-            ONE_DAY_IN_SECONDS,
-            stale_while_revalidate=ONE_DAY_IN_SECONDS,
-            stale_if_error=FIVE_DAYS_IN_SECONDS,
+            timedelta(days=1).total_seconds(),
+            stale_while_revalidate=timedelta(days=1).total_seconds(),
+            stale_if_error=timedelta(days=5).total_seconds(),
             keys=["all-projects"],
         )
     ],
@@ -104,7 +104,12 @@ def rss_packages(request):
     route_name="rss.project.releases",
     context=Project,
     renderer="rss/project_releases.xml",
-    decorator=[origin_cache(ONE_DAY_IN_SECONDS, stale_if_error=FIVE_DAYS_IN_SECONDS)],
+    decorator=[
+        origin_cache(
+            timedelta(days=1).total_seconds(),
+            stale_if_error=timedelta(days=5).total_seconds(),
+        )
+    ],
 )
 def rss_project_releases(project, request):
     request.response.content_type = "text/xml"

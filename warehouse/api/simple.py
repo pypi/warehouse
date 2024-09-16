@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import timedelta
 
 from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.request import Request
@@ -18,11 +19,6 @@ from sqlalchemy import func
 
 from warehouse.cache.http import add_vary, cache_control
 from warehouse.cache.origin import origin_cache
-from warehouse.constants import (
-    FIVE_MINUTES_IN_SECONDS,
-    ONE_DAY_IN_SECONDS,
-    TEN_MINUTES_IN_SECONDS,
-)
 from warehouse.packaging.models import JournalEntry, Project
 from warehouse.packaging.utils import _simple_detail, _simple_index
 from warehouse.utils.cors import _CORS_HEADERS
@@ -62,11 +58,11 @@ def _select_content_type(request: Request) -> str:
     renderer="api/simple/index.html",
     decorator=[
         add_vary("Accept"),
-        cache_control(TEN_MINUTES_IN_SECONDS),
+        cache_control(timedelta(minutes=10).total_seconds()),
         origin_cache(
-            ONE_DAY_IN_SECONDS,
-            stale_while_revalidate=FIVE_MINUTES_IN_SECONDS,
-            stale_if_error=ONE_DAY_IN_SECONDS,
+            timedelta(days=1).total_seconds(),
+            stale_while_revalidate=timedelta(minutes=5).total_seconds(),
+            stale_if_error=timedelta(days=1).total_seconds(),
         ),
     ],
 )
@@ -93,11 +89,11 @@ def simple_index(request):
     renderer="api/simple/detail.html",
     decorator=[
         add_vary("Accept"),
-        cache_control(TEN_MINUTES_IN_SECONDS),
+        cache_control(timedelta(minutes=10).total_seconds()),
         origin_cache(
-            ONE_DAY_IN_SECONDS,
-            stale_while_revalidate=FIVE_MINUTES_IN_SECONDS,
-            stale_if_error=ONE_DAY_IN_SECONDS,
+            timedelta(days=1).total_seconds(),
+            stale_while_revalidate=timedelta(minutes=5).total_seconds(),
+            stale_if_error=timedelta(days=1).total_seconds(),
         ),
     ],
 )

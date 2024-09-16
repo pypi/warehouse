@@ -13,14 +13,15 @@
 import functools
 import json
 
+from datetime import timedelta
+
 from pyramid.renderers import render_to_response
 
 from warehouse.accounts.forms import ReAuthenticateForm
 from warehouse.accounts.interfaces import IUserService
-from warehouse.constants import THIRTY_MINUTES_IN_SECONDS
 from warehouse.rate_limiting import IRateLimiter, RateLimit
 
-DEFAULT_TIME_TO_REAUTH = THIRTY_MINUTES_IN_SECONDS
+DEFAULT_TIME_TO_REAUTH = timedelta(minutes=30).total_seconds()
 
 
 def reauth_view(view, info):

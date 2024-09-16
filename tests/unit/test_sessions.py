@@ -12,6 +12,8 @@
 
 import time
 
+from datetime import timedelta
+
 import msgpack
 import pretend
 import pytest
@@ -23,7 +25,6 @@ import warehouse.sessions
 import warehouse.utils.otp as otp
 import warehouse.utils.webauthn as webauthn
 
-from warehouse.constants import TWELVE_HOURS_IN_SECONDS
 from warehouse.sessions import (
     InvalidSession,
     Session,
@@ -421,7 +422,7 @@ class TestSessionFactory:
         )
 
         assert session_factory.signer.unsign.calls == [
-            pretend.call("123456", max_age=TWELVE_HOURS_IN_SECONDS)
+            pretend.call("123456", max_age=timedelta(hours=12).total_seconds())
         ]
 
         assert session_factory.redis.get.calls == [
@@ -451,7 +452,7 @@ class TestSessionFactory:
         )
 
         assert session_factory.signer.unsign.calls == [
-            pretend.call("123456", max_age=TWELVE_HOURS_IN_SECONDS)
+            pretend.call("123456", max_age=timedelta(hours=12).total_seconds())
         ]
 
         assert session_factory.redis.get.calls == [
@@ -486,7 +487,7 @@ class TestSessionFactory:
         )
 
         assert session_factory.signer.unsign.calls == [
-            pretend.call("123456", max_age=TWELVE_HOURS_IN_SECONDS)
+            pretend.call("123456", max_age=timedelta(hours=12).total_seconds())
         ]
 
         assert session_factory.redis.get.calls == [
@@ -573,7 +574,7 @@ class TestSessionFactory:
         assert session_factory.redis.setex.calls == [
             pretend.call(
                 "warehouse/session/data/123456",
-                TWELVE_HOURS_IN_SECONDS,
+                timedelta(hours=12).total_seconds(),
                 b"msgpack data",
             )
         ]
@@ -586,7 +587,7 @@ class TestSessionFactory:
             pretend.call(
                 "session_id",
                 "cookie data",
-                max_age=TWELVE_HOURS_IN_SECONDS,
+                max_age=timedelta(hours=12).total_seconds(),
                 httponly=True,
                 secure=False,
                 samesite=b"lax",

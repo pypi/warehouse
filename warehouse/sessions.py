@@ -26,7 +26,6 @@ import warehouse.utils.otp as otp
 import warehouse.utils.webauthn as webauthn
 
 from warehouse.cache.http import add_vary
-from warehouse.constants import TWELVE_HOURS_IN_SECONDS
 from warehouse.utils import crypto
 from warehouse.utils.msgpack import object_encode
 
@@ -223,7 +222,7 @@ class Session(dict):
 @implementer(ISessionFactory)
 class SessionFactory:
     cookie_name = "session_id"
-    max_age = TWELVE_HOURS_IN_SECONDS
+    max_age = datetime.timedelta(hours=12).total_seconds()
 
     def __init__(self, secret, url):
         self.redis = redis.StrictRedis.from_url(url)
