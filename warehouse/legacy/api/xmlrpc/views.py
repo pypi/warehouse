@@ -164,7 +164,7 @@ def xmlrpc_method(**kwargs):
 xmlrpc_cache_by_project = functools.partial(
     xmlrpc_method,
     xmlrpc_cache=True,
-    xmlrpc_cache_expires=int(datetime.timedelta(days=2).total_seconds()),
+    xmlrpc_cache_expires=datetime.timedelta(days=2).total_seconds(),
     xmlrpc_cache_tag="project/%s",
     xmlrpc_cache_arg_index=0,
     xmlrpc_cache_tag_processor=canonicalize_name,
@@ -174,7 +174,7 @@ xmlrpc_cache_by_project = functools.partial(
 xmlrpc_cache_all_projects = functools.partial(
     xmlrpc_method,
     xmlrpc_cache=True,
-    xmlrpc_cache_expires=int(datetime.timedelta(hours=1).total_seconds()),
+    xmlrpc_cache_expires=datetime.timedelta(hours=1).total_seconds(),
     xmlrpc_cache_tag="all-projects",
 )
 

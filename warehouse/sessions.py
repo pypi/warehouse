@@ -222,7 +222,7 @@ class Session(dict):
 @implementer(ISessionFactory)
 class SessionFactory:
     cookie_name = "session_id"
-    max_age = int(datetime.timedelta(hours=12).total_seconds())
+    max_age = datetime.timedelta(hours=12).total_seconds()
 
     def __init__(self, secret, url):
         self.redis = redis.StrictRedis.from_url(url)
