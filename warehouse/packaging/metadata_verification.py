@@ -12,7 +12,9 @@
 
 import rfc3986
 
+from warehouse.filters import format_email
 from warehouse.oidc.models import OIDCPublisher
+from warehouse.packaging import Project
 
 _pypi_project_urls = [
     "https://pypi.org/project/",
@@ -65,3 +67,30 @@ def verify_url(
         return False
 
     return publisher.verify_url(url)
+
+
+def verify_email(email: str, project: Project) -> bool:
+    """
+    Verify an email address included in a project's metadata
+
+    This function is intended to be used during file uploads, checking the emails
+    included in the metadata against the emails of the Owners and Maintainers of that
+    PyPI project.
+    Note: Only emails that are marked as verified and public are used for verification.
+    """
+    _, email = format_email(email)
+    owner_emails = {
+        email.email
+        for owner in project.owners
+        for email in owner.emails
+        if email.public and email.verified
+    }
+    if email in owner_emails:
+        return True
+    maintainer_emails = {
+        email.email
+        for maintainer in project.maintainers
+        for email in maintainer.emails
+        if email.public and email.verified
+    }
+    return email in maintainer_emails
