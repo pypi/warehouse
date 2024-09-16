@@ -1236,7 +1236,9 @@ def file_upload(request):
                 k: h.hexdigest().lower() for k, h in metadata_file_hashes.items()
             }
 
-        if "attestations" in request.POST:
+        if "attestations" in request.POST and not request.flags.enabled(
+            AdminFlagValue.DISABLE_PEP740
+        ):
             _process_attestations(
                 request=request,
                 distribution=Distribution(name=filename, digest=file_hashes["sha256"]),

@@ -296,6 +296,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                     Permissions.AdminObservationsRead,
                     Permissions.AdminObservationsWrite,
                     Permissions.AdminProhibitedProjectsWrite,
+                    Permissions.AdminProhibitedUsernameWrite,
                     Permissions.AdminProjectsDelete,
                     Permissions.AdminProjectsRead,
                     Permissions.AdminProjectsSetLimit,

@@ -87,6 +87,8 @@ class RootFactory:
                 Permissions.AdminOrganizationsWrite,
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedProjectsWrite,
+                Permissions.AdminProhibitedUsernameRead,
+                Permissions.AdminProhibitedUsernameWrite,
                 Permissions.AdminProjectsDelete,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminProjectsSetLimit,
@@ -114,6 +116,7 @@ class RootFactory:
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
                 Permissions.AdminProhibitedProjectsRead,
+                Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminProjectsSetLimit,
                 Permissions.AdminRoleAdd,
@@ -138,6 +141,7 @@ class RootFactory:
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
                 Permissions.AdminProhibitedProjectsRead,
+                Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminProjectsSetLimit,
                 Permissions.AdminRoleAdd,
@@ -424,6 +428,12 @@ def configure(settings=None):
         "oidc.backend",
         "OIDC_BACKEND",
         default="warehouse.oidc.services.OIDCPublisherService",
+    )
+    maybe_set(
+        settings,
+        "integrity.backend",
+        "INTEGRITY_BACKEND",
+        default="warehouse.attestations.services.IntegrityService",
     )
 
     # Pythondotorg integration settings
