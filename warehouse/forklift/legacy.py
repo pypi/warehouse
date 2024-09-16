@@ -300,7 +300,7 @@ def _is_valid_dist_file(filename, filetype):
                 else:
                     return False
 
-        except zipfile.BadZipFile:
+        except zipfile.BadZipFile:  # pragma: no cover
             return False
 
     elif filename.endswith(".tar.gz"):

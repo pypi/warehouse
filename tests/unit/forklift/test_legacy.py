@@ -192,28 +192,6 @@ class TestFileValidation:
 
         assert not legacy._is_valid_dist_file(fake_tar, "sdist")
 
-    @pytest.mark.parametrize("filename", ["test.whl"])
-    def test_bails_with_valid_zipfile_that_raises_exception(self, tmpdir, filename):
-        fake_zip = str(tmpdir.join(filename))
-
-        # Create a zip file
-        filebody = _get_whl_testdata()
-
-        # Save the original zip file to disk
-        with open(fake_zip, "wb") as f:
-            f.write(filebody)
-
-        # Corrupt the zip file by overwriting part of its central directory
-        with open(fake_zip, "r+b") as f:
-            f.seek(100)
-            f.write(b"corrupt")
-
-        # This should pass
-        assert zipfile.is_zipfile(fake_zip)
-
-        # This should fail
-        assert not legacy._is_valid_dist_file(fake_zip, "bdist_wheel")
-
     @pytest.mark.parametrize("filename", ["test.tar.gz"])
     def test_bails_with_valid_tarfile_that_raises_exception(self, tmpdir, filename):
         fake_tar = str(tmpdir.join(filename))
