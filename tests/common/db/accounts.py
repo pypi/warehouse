@@ -14,7 +14,7 @@ import datetime
 
 import factory
 
-from warehouse.accounts.models import Email, User
+from warehouse.accounts.models import Email, ProhibitedUserName, User
 
 from .base import WarehouseFactory
 
@@ -70,3 +70,10 @@ class EmailFactory(WarehouseFactory):
     public = False
     unverify_reason = None
     transient_bounces = 0
+
+
+class ProhibitedUsernameFactory(WarehouseFactory):
+    class Meta:
+        model = ProhibitedUserName
+
+    name = factory.Faker("user_name")

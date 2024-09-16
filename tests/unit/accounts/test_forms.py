@@ -13,6 +13,7 @@
 import datetime
 import json
 
+import email_validator
 import pretend
 import pytest
 import wtforms
@@ -62,6 +63,20 @@ class TestLoginForm:
         assert form.breach_service is breach_service
         assert form.validate(), str(form.errors)
 
+    def test_validate_username_with_null_bytes(self, pyramid_config):
+        request = pretend.stub()
+        user_service = pretend.stub()
+        breach_service = pretend.stub()
+        form = forms.LoginForm(
+            formdata=MultiDict({"username": "my_username\0"}),
+            request=request,
+            user_service=user_service,
+            breach_service=breach_service,
+        )
+
+        assert not form.validate()
+        assert str(form.username.errors.pop()) == "Null bytes are not allowed."
+
     def test_validate_username_with_no_user(self):
         request = pretend.stub()
         user_service = pretend.stub(
@@ -69,13 +84,13 @@ class TestLoginForm:
         )
         breach_service = pretend.stub()
         form = forms.LoginForm(
-            request=request, user_service=user_service, breach_service=breach_service
+            formdata=MultiDict({"username": "my_username"}),
+            request=request,
+            user_service=user_service,
+            breach_service=breach_service,
         )
-        field = pretend.stub(data="my_username")
 
-        with pytest.raises(wtforms.validators.ValidationError):
-            form.validate_username(field)
-
+        assert not form.validate()
         assert user_service.find_userid.calls == [pretend.call("my_username")]
 
     @pytest.mark.parametrize(
@@ -93,11 +108,13 @@ class TestLoginForm:
         user_service = pretend.stub(find_userid=pretend.call_recorder(lambda userid: 1))
         breach_service = pretend.stub()
         form = forms.LoginForm(
-            request=request, user_service=user_service, breach_service=breach_service
+            formdata=MultiDict({"username": input_username}),
+            request=request,
+            user_service=user_service,
+            breach_service=breach_service,
         )
-        field = pretend.stub(data=input_username)
-        form.validate_username(field)
 
+        assert not form.validate()
         assert user_service.find_userid.calls == [pretend.call(expected_username)]
 
     def test_validate_password_no_user(self):
@@ -381,6 +398,21 @@ class TestLoginForm:
         assert user_service.check_password.calls == []
 
 
+@pytest.fixture
+def _no_deliverability_check(monkeypatch):
+    """
+    Prevents the email_validator library from checking deliverability of email
+    """
+    original_validate_email = email_validator.validate_email  # recursion prevention
+
+    def mock_validate_email(email, check_deliverability=True, *args, **kwargs):
+        return original_validate_email(
+            email, check_deliverability=False, *args, **kwargs
+        )
+
+    monkeypatch.setattr("email_validator.validate_email", mock_validate_email)
+
+
 class TestRegistrationForm:
     def test_validate(self):
         captcha_service = pretend.stub(
@@ -561,6 +593,7 @@ class TestRegistrationForm:
             "different email."
         )
 
+    @pytest.mark.usefixtures("_no_deliverability_check")
     @pytest.mark.parametrize(
         ("email", "prohibited_domain"),
         [
@@ -781,6 +814,33 @@ class TestRegistrationForm:
         )
         assert not form.validate()
         assert form.full_name.errors.pop() == "Null bytes are not allowed."
+
+    @pytest.mark.parametrize(
+        "input_name",
+        [
+            "https://example.com",
+            "hello http://example.com",
+            "http://example.com goodbye",
+        ],
+    )
+    def test_name_contains_url(self, pyramid_config, input_name):
+        form = forms.RegistrationForm(
+            request=pretend.stub(),
+            formdata=MultiDict({"full_name": input_name}),
+            user_service=pretend.stub(
+                find_userid=pretend.call_recorder(lambda _: None)
+            ),
+            captcha_service=pretend.stub(
+                enabled=False,
+                verify_response=pretend.call_recorder(lambda _: None),
+            ),
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: True),
+        )
+        assert not form.validate()
+        assert (
+            str(form.full_name.errors.pop())
+            == "URLs are not allowed in the name field."
+        )
 
 
 class TestRequestPasswordResetForm:
