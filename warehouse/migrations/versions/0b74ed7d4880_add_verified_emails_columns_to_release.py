@@ -13,7 +13,7 @@
 Add verified emails columns to Release
 
 Revision ID: 0b74ed7d4880
-Revises: dcf1e3986782
+Revises: 2e049cda494f
 Create Date: 2024-09-04 14:04:12.622697
 """
 
@@ -22,7 +22,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision = "0b74ed7d4880"
-down_revision = "dcf1e3986782"
+down_revision = "2e049cda494f"
 
 
 def upgrade():
