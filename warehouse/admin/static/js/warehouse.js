@@ -29,6 +29,8 @@ import "admin-lte/plugins/datatables-rowgroup/js/rowGroup.bootstrap4";
 // Import AdminLTE JS
 import "admin-lte/build/js/AdminLTE";
 
+import "./treeview";
+
 // Get our timeago function
 import timeAgo from "warehouse/utils/timeago";
 
