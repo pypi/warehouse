@@ -2862,15 +2862,6 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:113
 #: warehouse/templates/includes/packaging/project-data.html:156
-#: warehouse/templates/includes/packaging/project-data.html:114
-msgid "Unverified details"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:115
-msgid "These details have <b>not</b> been verified by PyPI"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:133
 msgid "Meta"
 msgstr ""
 
@@ -2889,6 +2880,10 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:137
 msgid "Unverified details"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:138
+msgid "These details have <b>not</b> been verified by PyPI"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:161
