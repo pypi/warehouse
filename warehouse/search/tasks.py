@@ -121,7 +121,7 @@ def reindex(self, request):
     try:
         with SearchLock(
             r,
-            timeout=datetime.timedelta(minutes=3).total_seconds(),
+            timeout=datetime.timedelta(minutes=30).total_seconds(),
             blocking_timeout=30,
         ):
             p = parse_url(request.registry.settings["opensearch.url"])
