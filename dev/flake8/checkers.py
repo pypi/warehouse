@@ -27,6 +27,11 @@ WH002_msg = (
     "WH002 Prefer `sqlalchemy.orm.relationship(back_populates=...)` "
     "over `sqlalchemy.orm.relationship(backref=...)`"
 )
+WH003_msg = (
+    "WH003 Prefer `datetime.timedelta([seconds|hours|days]=...).total_seconds()` "
+    "over integer multiplication to create durations. "
+    "See https://docs.python.org/3/library/datetime.html#datetime.timedelta"
+)
 
 
 class WarehouseVisitor(ast.NodeVisitor):
@@ -80,6 +85,16 @@ class WarehouseVisitor(ast.NodeVisitor):
     def visit_AnnAssign(self, node: ast.AnnAssign) -> None:  # noqa: N802
         self.check_for_backref(node)
         self.generic_visit(node)
+
+    def visit_BinOp(self, node: ast.BinOp) -> None:  # noqa: N802
+        def is_multiplication_of_60(n: ast.BinOp) -> bool:
+            return isinstance(n.op, ast.Mult) and (
+                (isinstance(n.left, ast.Constant) and n.left.value == 60)
+                or (isinstance(n.right, ast.Constant) and n.right.value == 60)
+            )
+
+        if is_multiplication_of_60(node):
+            self.errors.append((node.lineno, node.col_offset, WH003_msg))
 
 
 class WarehouseCheck:

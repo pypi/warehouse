@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import timedelta
+
 from packaging.utils import canonicalize_name, canonicalize_version
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
@@ -29,21 +31,21 @@ from warehouse.packaging.models import (
 from warehouse.utils.cors import _CORS_HEADERS
 
 _RELEASE_CACHE_DECORATOR = [
-    cache_control(15 * 60),  # 15 minutes
+    cache_control(timedelta(minutes=15).total_seconds()),
     origin_cache(
-        1 * 24 * 60 * 60,  # 1 day
-        stale_while_revalidate=5 * 60,  # 5 minutes
-        stale_if_error=1 * 24 * 60 * 60,  # 1 day
+        timedelta(days=1).total_seconds(),
+        stale_while_revalidate=timedelta(minutes=5).total_seconds(),
+        stale_if_error=timedelta(days=1).total_seconds(),
         keys=["all-legacy-json", "release-legacy-json"],
     ),
 ]
 
 _PROJECT_CACHE_DECORATOR = [
-    cache_control(15 * 60),  # 15 minutes
+    cache_control(timedelta(minutes=15).total_seconds()),
     origin_cache(
-        1 * 24 * 60 * 60,  # 1 day
-        stale_while_revalidate=5 * 60,  # 5 minutes
-        stale_if_error=1 * 24 * 60 * 60,  # 1 day
+        timedelta(days=1).total_seconds(),
+        stale_while_revalidate=timedelta(minutes=5).total_seconds(),
+        stale_if_error=timedelta(days=1).total_seconds(),
         keys=["all-legacy-json", "project-legacy-json"],
     ),
 ]
