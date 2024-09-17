@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import timedelta
 
 from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.request import Request
@@ -58,11 +57,11 @@ def _select_content_type(request: Request) -> str:
     renderer="api/simple/index.html",
     decorator=[
         add_vary("Accept"),
-        cache_control(timedelta(minutes=10).total_seconds()),
+        cache_control(10 * 60),  # 10 minutes
         origin_cache(
-            timedelta(days=1).total_seconds(),
-            stale_while_revalidate=timedelta(minutes=5).total_seconds(),
-            stale_if_error=timedelta(days=1).total_seconds(),
+            1 * 24 * 60 * 60,  # 1 day
+            stale_while_revalidate=5 * 60,  # 5 minutes
+            stale_if_error=1 * 24 * 60 * 60,  # 1 day
         ),
     ],
 )
@@ -89,11 +88,11 @@ def simple_index(request):
     renderer="api/simple/detail.html",
     decorator=[
         add_vary("Accept"),
-        cache_control(timedelta(minutes=10).total_seconds()),
+        cache_control(10 * 60),  # 10 minutes
         origin_cache(
-            timedelta(days=1).total_seconds(),
-            stale_while_revalidate=timedelta(minutes=5).total_seconds(),
-            stale_if_error=timedelta(days=1).total_seconds(),
+            1 * 24 * 60 * 60,  # 1 day
+            stale_while_revalidate=5 * 60,  # 5 minutes
+            stale_if_error=1 * 24 * 60 * 60,  # 1 day
         ),
     ],
 )
