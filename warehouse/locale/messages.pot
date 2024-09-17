@@ -2861,7 +2861,7 @@ msgid "GitLab Statistics"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:134
-msgid "Open MRs:"
+msgid "Open merge requests:"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:143
