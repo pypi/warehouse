@@ -56,11 +56,15 @@ msgstr ""
 msgid "Locale updated"
 msgstr "Локалізація оновлена"
 
-#: warehouse/accounts/forms.py:52
+#: warehouse/accounts/forms.py:52 warehouse/accounts/forms.py:286
+msgid "The email address isn't valid. Try again."
+msgstr "Ця електронна адреса недійсна. Спробуйте знову."
+
+#: warehouse/accounts/forms.py:53
 msgid "The password is invalid. Try again."
 msgstr "Цей пароль недійсний. Спробуйте ще."
 
-#: warehouse/accounts/forms.py:53
+#: warehouse/accounts/forms.py:54
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -70,27 +74,27 @@ msgstr ""
 "літер, чисел, крапок, дефісів та підкреслень. Також вони мають починатися і "
 "закінчуватися на літеру або число. Оберіть інше ім'я користувача."
 
-#: warehouse/accounts/forms.py:71
+#: warehouse/accounts/forms.py:72
 msgid "Null bytes are not allowed."
 msgstr "Нульові символи не допускаються."
 
-#: warehouse/accounts/forms.py:94
+#: warehouse/accounts/forms.py:86
 msgid "No user found with that username"
 msgstr "Користувача з таким іменем не знайдено"
 
-#: warehouse/accounts/forms.py:105
+#: warehouse/accounts/forms.py:106
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "Код TOTP має містити ${totp_length} цифр(и)."
 
-#: warehouse/accounts/forms.py:125
+#: warehouse/accounts/forms.py:126
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr "Код відновлення має містити ${recovery_code_length} символів."
 
-#: warehouse/accounts/forms.py:140
+#: warehouse/accounts/forms.py:141
 msgid "Choose a username with 50 characters or less."
 msgstr "Оберіть ім'я користувача, довжиною 50 символів чи менше."
 
-#: warehouse/accounts/forms.py:157
+#: warehouse/accounts/forms.py:158
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -98,12 +102,12 @@ msgstr ""
 "Таким ім'ям користувача уже користується хтось інший. Оберіть інше ім'я "
 "користувача."
 
-#: warehouse/accounts/forms.py:171 warehouse/accounts/forms.py:220
-#: warehouse/accounts/forms.py:233
+#: warehouse/accounts/forms.py:172 warehouse/accounts/forms.py:221
+#: warehouse/accounts/forms.py:234
 msgid "Password too long."
 msgstr "Пароль занадто довгий."
 
-#: warehouse/accounts/forms.py:207
+#: warehouse/accounts/forms.py:208
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
@@ -111,25 +115,21 @@ msgstr ""
 "Ви здійснили забагато невдалих спроб увійти. Ви заблоковані на ${time}. "
 "Спробуйте знову пізніше."
 
-#: warehouse/accounts/forms.py:236
+#: warehouse/accounts/forms.py:237
 msgid "Your passwords don't match. Try again."
 msgstr "Ваші паролі не збігаються. Спробуйте знову."
 
-#: warehouse/accounts/forms.py:270
+#: warehouse/accounts/forms.py:271
 msgid "The email address is too long. Try again."
 msgstr "Ця електронна адреса занадто довга. Спробуйте знову."
 
-#: warehouse/accounts/forms.py:285
-msgid "The email address isn't valid. Try again."
-msgstr "Ця електронна адреса недійсна. Спробуйте знову."
-
-#: warehouse/accounts/forms.py:299
+#: warehouse/accounts/forms.py:314
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Ви не можете використовувати електронну адресу із цього домену. "
 "Скористайтеся іншою."
 
-#: warehouse/accounts/forms.py:310
+#: warehouse/accounts/forms.py:325
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -137,33 +137,39 @@ msgstr ""
 "Ця електронна адреса вже використовується у цьому обліковому записі. Введіть "
 "іншу."
 
-#: warehouse/accounts/forms.py:317
+#: warehouse/accounts/forms.py:332
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
 msgstr "Ця електронна адреса вже кимось використовується. Введіть іншу."
 
-#: warehouse/accounts/forms.py:350 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:367 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Це ім'я задовге. Оберіть ім'я довжиною 100 символів або менше."
 
-#: warehouse/accounts/forms.py:442
+#: warehouse/accounts/forms.py:374
+#, fuzzy
+#| msgid "Double dashes are not allowed in the name"
+msgid "URLs are not allowed in the name field."
+msgstr "Подвійна риска недопустима в назві"
+
+#: warehouse/accounts/forms.py:463
 msgid "Invalid TOTP code."
 msgstr "Недійсний код TOTP."
 
-#: warehouse/accounts/forms.py:459
+#: warehouse/accounts/forms.py:480
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Недійсна перевірка WebAuthn: Неправильний вміст"
 
-#: warehouse/accounts/forms.py:528
+#: warehouse/accounts/forms.py:549
 msgid "Invalid recovery code."
 msgstr "Недійсний код відновлення."
 
-#: warehouse/accounts/forms.py:537
+#: warehouse/accounts/forms.py:558
 msgid "Recovery code has been previously used."
 msgstr "Код відновлення вже використано."
 
-#: warehouse/accounts/forms.py:567
+#: warehouse/accounts/forms.py:588
 msgid "The username isn't valid. Try again."
 msgstr "Це імʼя користувача недійсне. Спробуйте знову."
 
@@ -3435,10 +3441,20 @@ msgstr "Підтверджені подробиці"
 msgid "(What is this?)"
 msgstr ""
 
+#: warehouse/templates/includes/packaging/project-data.html:21
+msgid "These details have been verified by PyPI"
+msgstr ""
+
 #: warehouse/templates/includes/packaging/project-data.html:23
-#: warehouse/templates/includes/packaging/project-data.html:117
+#: warehouse/templates/includes/packaging/project-data.html:140
 msgid "Project links"
 msgstr "Посилання проєкту"
+
+#: warehouse/templates/includes/packaging/project-data.html:31
+#, fuzzy, python-format
+#| msgid "Released: %(release_date)s"
+msgid "URL verified by PyPI on %(release_date)s"
+msgstr "Опубліковано: %(release_date)s"
 
 #: warehouse/templates/includes/packaging/project-data.html:51
 msgid "GitHub Statistics"
@@ -3478,42 +3494,49 @@ msgstr "Доглядачі"
 msgid "Avatar for {username} from gravatar.com"
 msgstr "Аватар {username} із gravatar.com"
 
-#: warehouse/templates/includes/packaging/project-data.html:114
-msgid "Unverified details"
-msgstr "Непідтверджені подробиці"
-
-#: warehouse/templates/includes/packaging/project-data.html:133
+#: warehouse/templates/includes/packaging/project-data.html:113
+#: warehouse/templates/includes/packaging/project-data.html:156
 msgid "Meta"
 msgstr "Мета"
 
-#: warehouse/templates/includes/packaging/project-data.html:138
-msgid "License:"
-msgstr "Ліцензія:"
-
-#: warehouse/templates/includes/packaging/project-data.html:145
-#: warehouse/templates/includes/packaging/project-data.html:151
+#: warehouse/templates/includes/packaging/project-data.html:118
+#: warehouse/templates/includes/packaging/project-data.html:168
+#: warehouse/templates/includes/packaging/project-data.html:174
 msgid "Author:"
 msgstr "Автор:"
 
-#: warehouse/templates/includes/packaging/project-data.html:158
-#: warehouse/templates/includes/packaging/project-data.html:164
+#: warehouse/templates/includes/packaging/project-data.html:126
+#: warehouse/templates/includes/packaging/project-data.html:181
+#: warehouse/templates/includes/packaging/project-data.html:187
 #: warehouse/templates/pages/help.html:620
 msgid "Maintainer:"
 msgstr "Доглядач:"
 
-#: warehouse/templates/includes/packaging/project-data.html:172
+#: warehouse/templates/includes/packaging/project-data.html:137
+msgid "Unverified details"
+msgstr "Непідтверджені подробиці"
+
+#: warehouse/templates/includes/packaging/project-data.html:138
+msgid "These details have <b>not</b> been verified by PyPI"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:161
+msgid "License:"
+msgstr "Ліцензія:"
+
+#: warehouse/templates/includes/packaging/project-data.html:195
 msgid "Tags"
 msgstr "Мітки"
 
-#: warehouse/templates/includes/packaging/project-data.html:184
+#: warehouse/templates/includes/packaging/project-data.html:207
 msgid "Requires:"
 msgstr "Потребує:"
 
-#: warehouse/templates/includes/packaging/project-data.html:191
+#: warehouse/templates/includes/packaging/project-data.html:214
 msgid "Provides-Extra:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:201
+#: warehouse/templates/includes/packaging/project-data.html:224
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39

@@ -2819,7 +2819,7 @@ msgid "These details have been verified by PyPI"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:23
-#: warehouse/templates/includes/packaging/project-data.html:164
+#: warehouse/templates/includes/packaging/project-data.html:187
 msgid "Project links"
 msgstr ""
 
@@ -2872,46 +2872,49 @@ msgstr ""
 msgid "Avatar for {username} from gravatar.com"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:161
-msgid "Unverified details"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:162
-msgid "These details have <b>not</b> been verified by PyPI"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:180
+#: warehouse/templates/includes/packaging/project-data.html:160
+#: warehouse/templates/includes/packaging/project-data.html:203
 msgid "Meta"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:185
-msgid "License:"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:192
-#: warehouse/templates/includes/packaging/project-data.html:198
+#: warehouse/templates/includes/packaging/project-data.html:165
+#: warehouse/templates/includes/packaging/project-data.html:215
+#: warehouse/templates/includes/packaging/project-data.html:221
 msgid "Author:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:205
-#: warehouse/templates/includes/packaging/project-data.html:211
+#: warehouse/templates/includes/packaging/project-data.html:173
+#: warehouse/templates/includes/packaging/project-data.html:228
+#: warehouse/templates/includes/packaging/project-data.html:234
 #: warehouse/templates/pages/help.html:620
 msgid "Maintainer:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:219
+#: warehouse/templates/includes/packaging/project-data.html:184
+msgid "Unverified details"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:185
+msgid "These details have <b>not</b> been verified by PyPI"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:208
+msgid "License:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:242
 msgid "Tags"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:231
+#: warehouse/templates/includes/packaging/project-data.html:254
 msgid "Requires:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:238
+#: warehouse/templates/includes/packaging/project-data.html:261
 msgid "Provides-Extra:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:248
+#: warehouse/templates/includes/packaging/project-data.html:271
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39

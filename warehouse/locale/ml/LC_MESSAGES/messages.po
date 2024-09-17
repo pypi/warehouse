@@ -39,11 +39,15 @@ msgstr ""
 msgid "Locale updated"
 msgstr "ലോക്കൽ അപ്ഡേറ്റ് ചെയ്തു"
 
-#: warehouse/accounts/forms.py:52
+#: warehouse/accounts/forms.py:52 warehouse/accounts/forms.py:286
+msgid "The email address isn't valid. Try again."
+msgstr "ഇമെയിൽ വിലാസം സാധുവല്ല. വീണ്ടും ശ്രമിക്ക്."
+
+#: warehouse/accounts/forms.py:53
 msgid "The password is invalid. Try again."
 msgstr "പാസ്‌വേഡ് അസാധുവാണ്. വീണ്ടും ശ്രമിക്ക്."
 
-#: warehouse/accounts/forms.py:53
+#: warehouse/accounts/forms.py:54
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -53,39 +57,39 @@ msgstr ""
 "എന്നിവ ഉൾക്കൊള്ളണം. കൂടാതെ ഒരു അക്ഷരമോ നമ്പറോ ഉപയോഗിച്ച് ആരംഭിക്കുകയും പൂർത്തിയാക്കുകയും "
 "വേണം. മറ്റൊരു ഉപയോക്തൃനാമം തിരഞ്ഞെടുക്കുക."
 
-#: warehouse/accounts/forms.py:71
+#: warehouse/accounts/forms.py:72
 msgid "Null bytes are not allowed."
 msgstr "നൾ ബൈറ്റുകൾ അനുവദനീയമല്ല."
 
-#: warehouse/accounts/forms.py:94
+#: warehouse/accounts/forms.py:86
 msgid "No user found with that username"
 msgstr "ആ ഉപയോക്തൃനാമത്തിൽ ഒരു ഉപയോക്താവിനെയും കണ്ടെത്തിയില്ല"
 
-#: warehouse/accounts/forms.py:105
+#: warehouse/accounts/forms.py:106
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "TOTP കോഡ് ${totp_length} അക്കങ്ങളായിരിക്കണം."
 
-#: warehouse/accounts/forms.py:125
+#: warehouse/accounts/forms.py:126
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr "റിക്കവറി കോഡുകൾ ${recovery_code_length} പ്രതീകങ്ങളായിരിക്കണം."
 
-#: warehouse/accounts/forms.py:140
+#: warehouse/accounts/forms.py:141
 msgid "Choose a username with 50 characters or less."
 msgstr "50 പ്രതീകങ്ങളോ അതിൽ കുറവോ ഉള്ള ഉപയോക്തൃനാമം തിരഞ്ഞെടുക്കുക"
 
-#: warehouse/accounts/forms.py:157
+#: warehouse/accounts/forms.py:158
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
 msgstr ""
 "ഈ ഉപയോക്തൃനാമം ഇതിനകം മറ്റൊരു അക്കൗണ്ട് ഉപയോഗിക്കുന്നു. മറ്റൊരു ഉപയോക്തൃനാമം തിരഞ്ഞെടുക്കുക."
 
-#: warehouse/accounts/forms.py:171 warehouse/accounts/forms.py:220
-#: warehouse/accounts/forms.py:233
+#: warehouse/accounts/forms.py:172 warehouse/accounts/forms.py:221
+#: warehouse/accounts/forms.py:234
 msgid "Password too long."
 msgstr "പാസ്സ്‌വേർഡ് വളരെ നീളമുള്ളതാണ്."
 
-#: warehouse/accounts/forms.py:207
+#: warehouse/accounts/forms.py:208
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
@@ -93,58 +97,58 @@ msgstr ""
 "നിരവധി ലോഗിൻ ശ്രമങ്ങൾ പരാജയപ്പെട്ടു. നിങ്ങൾ ${time}-ന് ലോക്ക് ഔട്ട് ആയി. ദയവായി പിന്നീട് "
 "വീണ്ടും ശ്രമിക്കുക."
 
-#: warehouse/accounts/forms.py:236
+#: warehouse/accounts/forms.py:237
 msgid "Your passwords don't match. Try again."
 msgstr "നിങ്ങളുടെ പാസ്‌വേഡുകൾ പൊരുത്തപ്പെടുന്നില്ല. വീണ്ടും ശ്രമിക്ക്."
 
-#: warehouse/accounts/forms.py:270
+#: warehouse/accounts/forms.py:271
 msgid "The email address is too long. Try again."
 msgstr "ഇമെയിൽ വിലാസം വളരെ നീളമുള്ളതാണ്. വീണ്ടും ശ്രമിക്കൂ."
 
-#: warehouse/accounts/forms.py:285
-msgid "The email address isn't valid. Try again."
-msgstr "ഇമെയിൽ വിലാസം സാധുവല്ല. വീണ്ടും ശ്രമിക്ക്."
-
-#: warehouse/accounts/forms.py:299
+#: warehouse/accounts/forms.py:314
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "ഈ ഡൊമെയ്‌നിൽ നിന്ന് നിങ്ങൾക്ക് ഒരു ഇമെയിൽ വിലാസം ഉപയോഗിക്കാൻ കഴിയില്ല. മറ്റൊരു ഇമെയിൽ "
 "ഉപയോഗിക്കുക."
 
-#: warehouse/accounts/forms.py:310
+#: warehouse/accounts/forms.py:325
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
 msgstr "ഈ ഇമെയിൽ വിലാസം ഇതിനകം ഈ അക്കൗണ്ട് ഉപയോഗിക്കുന്നു. മറ്റൊരു ഇമെയിൽ ഉപയോഗിക്കുക."
 
-#: warehouse/accounts/forms.py:317
+#: warehouse/accounts/forms.py:332
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
 msgstr ""
 "ഈ ഇമെയിൽ വിലാസം ഇതിനകം മറ്റൊരു അക്കൗണ്ട് ഉപയോഗിക്കുന്നു. മറ്റൊരു ഇമെയിൽ ഉപയോഗിക്കുക."
 
-#: warehouse/accounts/forms.py:350 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:367 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "പേര് വളരെ നീണ്ടതാണ്. 100 പ്രതീകങ്ങളോ അതിൽ കുറവോ ഉള്ള ഒരു പേര് തിരഞ്ഞെടുക്കുക."
 
-#: warehouse/accounts/forms.py:442
+#: warehouse/accounts/forms.py:374
+msgid "URLs are not allowed in the name field."
+msgstr ""
+
+#: warehouse/accounts/forms.py:463
 msgid "Invalid TOTP code."
 msgstr "അസാധുവായ TOTP കോഡ്."
 
-#: warehouse/accounts/forms.py:459
+#: warehouse/accounts/forms.py:480
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "WebAuthn അവകാശവാദം അസാധുവാണ്: മോശം പേലോഡ്"
 
-#: warehouse/accounts/forms.py:528
+#: warehouse/accounts/forms.py:549
 msgid "Invalid recovery code."
 msgstr "അസാധുവായ റിക്കവറി കോഡ്."
 
-#: warehouse/accounts/forms.py:537
+#: warehouse/accounts/forms.py:558
 msgid "Recovery code has been previously used."
 msgstr "റിക്കവറി കോഡ് മുമ്പ് ഉപയോഗിച്ചിരുന്നു."
 
-#: warehouse/accounts/forms.py:567
+#: warehouse/accounts/forms.py:588
 msgid "The username isn't valid. Try again."
 msgstr "ഇമെയിൽ വിലാസം സാധുവല്ല. വീണ്ടും ശ്രമിക്കുക."
 
@@ -2941,9 +2945,18 @@ msgstr ""
 msgid "(What is this?)"
 msgstr ""
 
+#: warehouse/templates/includes/packaging/project-data.html:21
+msgid "These details have been verified by PyPI"
+msgstr ""
+
 #: warehouse/templates/includes/packaging/project-data.html:23
-#: warehouse/templates/includes/packaging/project-data.html:117
+#: warehouse/templates/includes/packaging/project-data.html:140
 msgid "Project links"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:31
+#, python-format
+msgid "URL verified by PyPI on %(release_date)s"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:51
@@ -2978,42 +2991,49 @@ msgstr ""
 msgid "Avatar for {username} from gravatar.com"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:114
-msgid "Unverified details"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:133
+#: warehouse/templates/includes/packaging/project-data.html:113
+#: warehouse/templates/includes/packaging/project-data.html:156
 msgid "Meta"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:138
-msgid "License:"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:145
-#: warehouse/templates/includes/packaging/project-data.html:151
+#: warehouse/templates/includes/packaging/project-data.html:118
+#: warehouse/templates/includes/packaging/project-data.html:168
+#: warehouse/templates/includes/packaging/project-data.html:174
 msgid "Author:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:158
-#: warehouse/templates/includes/packaging/project-data.html:164
+#: warehouse/templates/includes/packaging/project-data.html:126
+#: warehouse/templates/includes/packaging/project-data.html:181
+#: warehouse/templates/includes/packaging/project-data.html:187
 #: warehouse/templates/pages/help.html:620
 msgid "Maintainer:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:172
+#: warehouse/templates/includes/packaging/project-data.html:137
+msgid "Unverified details"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:138
+msgid "These details have <b>not</b> been verified by PyPI"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:161
+msgid "License:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:195
 msgid "Tags"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:184
+#: warehouse/templates/includes/packaging/project-data.html:207
 msgid "Requires:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:191
+#: warehouse/templates/includes/packaging/project-data.html:214
 msgid "Provides-Extra:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:201
+#: warehouse/templates/includes/packaging/project-data.html:224
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39

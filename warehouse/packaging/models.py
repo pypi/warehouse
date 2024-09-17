@@ -296,6 +296,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                     Permissions.AdminObservationsRead,
                     Permissions.AdminObservationsWrite,
                     Permissions.AdminProhibitedProjectsWrite,
+                    Permissions.AdminProhibitedUsernameWrite,
                     Permissions.AdminProjectsDelete,
                     Permissions.AdminProjectsRead,
                     Permissions.AdminProjectsSetLimit,
@@ -407,6 +408,23 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             orm.object_session(self)
             .query(User)
             .join(owner_roles, User.id == owner_roles.c.id)
+            .all()
+        )
+
+    @property
+    def maintainers(self):
+        """Return all users who are maintainers of the project."""
+        maintainer_roles = (
+            orm.object_session(self)
+            .query(User.id)
+            .join(Role.user)
+            .filter(Role.role_name == "Maintainer", Role.project == self)
+            .subquery()
+        )
+        return (
+            orm.object_session(self)
+            .query(User)
+            .join(maintainer_roles, User.id == maintainer_roles.c.id)
             .all()
         )
 
@@ -557,8 +575,10 @@ class Release(HasObservations, db.Model):
     is_prerelease: Mapped[bool_false]
     author: Mapped[str | None]
     author_email: Mapped[str | None]
+    author_email_verified: Mapped[bool_false]
     maintainer: Mapped[str | None]
     maintainer_email: Mapped[str | None]
+    maintainer_email_verified: Mapped[bool_false]
     home_page: Mapped[str | None]
     home_page_verified: Mapped[bool_false]
     license: Mapped[str | None]

@@ -63,6 +63,9 @@ class Permissions(StrEnum):
     AdminProhibitedProjectsRead = "admin:prohibited-projects:read"
     AdminProhibitedProjectsWrite = "admin:prohibited-projects:write"
 
+    AdminProhibitedUsernameRead = "admin:prohibited-username:read"
+    AdminProhibitedUsernameWrite = "admin:prohibited-username:write"
+
     AdminProjectsDelete = "admin:projects:delete"
     AdminProjectsRead = "admin:projects:read"
     AdminProjectsSetLimit = "admin:projects:set-limit"

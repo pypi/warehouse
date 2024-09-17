@@ -119,11 +119,6 @@ def test_includeme():
             traverse="/{username}",
         ),
         pretend.call(
-            "admin.prohibited_user_names.bulk_add",
-            "/admin/prohibited_user_names/bulk/",
-            domain=warehouse,
-        ),
-        pretend.call(
             "admin.macaroon.decode_token", "/admin/token/decode", domain=warehouse
         ),
         pretend.call(
@@ -277,6 +272,16 @@ def test_includeme():
         pretend.call(
             "admin.prohibited_project_names.release",
             "/admin/prohibited_project_names/release/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.prohibited_user_names.list",
+            "/admin/prohibited_user_names/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.prohibited_user_names.bulk_add",
+            "/admin/prohibited_user_names/bulk/",
             domain=warehouse,
         ),
         pretend.call(
