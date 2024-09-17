@@ -583,7 +583,6 @@ def includeme(config):
         "/draft/{hash}/",
         factory="warehouse.packaging.models:DraftFactory",
         traverse="/{hash}/",
-        read_only=True,
         domain=warehouse,
     )
     config.add_route(
@@ -591,7 +590,6 @@ def includeme(config):
         "/draft/{hash}/{name}/",
         factory="warehouse.packaging.models:DraftFactory",
         traverse="/{hash}/{name}/",
-        read_only=True,
         domain=warehouse,
     )
 
