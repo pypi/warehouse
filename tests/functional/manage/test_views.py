@@ -55,7 +55,6 @@ class TestManageAccount:
 
     def test_changing_password_succeeds(self, webtest, remote_addr, socket_enabled):
         """If the user changes their password, their session should be invalidated."""
-        totp_known_secret = b"\x453f47ec8c43d1f205f0a5244391342b428b3b06"
         # create a User
         user = UserFactory.create(
             with_verified_primary_email=True,
@@ -64,7 +63,6 @@ class TestManageAccount:
                 "t=6,p=6$EiLE2Nsbo9S6N+acs/beGw$ccyZDCZstr1/+Y/1s3BVZ"
                 "HOJaqfBroT0JCieHug281c"
             ),
-            totp_secret=totp_known_secret,
         )
 
         # visit login page
@@ -85,7 +83,7 @@ class TestManageAccount:
 
         # Generate the correct TOTP value from the known secret
         two_factor_form["totp_value"] = (
-            _get_totp(totp_known_secret).generate(time.time()).decode()
+            _get_totp(user.totp_secret).generate(time.time()).decode()
         )
 
         logged_in = two_factor_form.submit().follow(status=HTTPStatus.OK)
