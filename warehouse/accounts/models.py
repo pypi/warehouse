@@ -135,6 +135,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
 
     organization_applications: Mapped[list[OrganizationApplication]] = orm.relationship(
         back_populates="submitted_by",
+        cascade="all, delete-orphan",
     )
 
     organizations: Mapped[list[Organization]] = orm.relationship(
@@ -393,6 +394,9 @@ class ProhibitedEmailDomain(db.Model):
 
     created: Mapped[datetime_now]
     domain: Mapped[str] = mapped_column(unique=True)
+    is_mx_record: Mapped[bool_false] = mapped_column(
+        comment="Prohibit any domains that have this domain as an MX record?"
+    )
     _prohibited_by: Mapped[UUID | None] = mapped_column(
         "prohibited_by",
         PG_UUID(as_uuid=True),

@@ -31,7 +31,7 @@ class TestGetFlags:
 
 class TestEditFlag:
     @pytest.mark.parametrize(
-        "description, enabled, post, expected_description, expected_enabled",
+        ("description", "enabled", "post", "expected_description", "expected_enabled"),
         [
             (
                 # Nothing changed when enabled

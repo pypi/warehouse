@@ -13,7 +13,7 @@ DATABASE_URL=postgresql+psycopg://postgres@db/warehouse
 
 OPENSEARCH_URL=http://opensearch:9200/development
 
-REDIS_URL=redis://redis:6379/0
+REDIS_URL=redis://redis:6379
 
 SESSION_SECRET="an insecure development secret"
 
@@ -46,6 +46,7 @@ BREACHED_EMAILS=warehouse.accounts.NullEmailBreachedService
 BREACHED_PASSWORDS=warehouse.accounts.NullPasswordBreachedService
 
 OIDC_BACKEND=warehouse.oidc.services.NullOIDCPublisherService
+INTEGRITY_BACKEND=warehouse.attestations.services.NullIntegrityService
 
 METRICS_BACKEND=warehouse.metrics.DataDogMetrics host=notdatadog
 
@@ -83,3 +84,4 @@ HCAPTCHA_SECRET_KEY=0x0000000000000000000000000000000000000000
 # HELPSCOUT_WAREHOUSE_APP_ID="an insecure helpscout app id"
 # HELPSCOUT_WAREHOUSE_APP_SECRET="an insecure helpscout app secret"
 # HELPSCOUT_WAREHOUSE_MAILBOX_ID=123456789
+HELPDESK_BACKEND="warehouse.helpdesk.services.ConsoleHelpDeskService"

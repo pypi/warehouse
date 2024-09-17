@@ -46,7 +46,7 @@ class TestDatabaseMacaroonService:
         assert service.db is session
 
     @pytest.mark.parametrize(
-        ["raw_macaroon", "result"],
+        ("raw_macaroon", "result"),
         [
             (None, None),
             ("noprefixhere", None),

@@ -14,7 +14,9 @@ import datetime
 
 import factory
 
-from warehouse.accounts.models import Email, User
+from argon2 import PasswordHasher
+
+from warehouse.accounts.models import Email, ProhibitedUserName, User
 
 from .base import WarehouseFactory
 
@@ -33,10 +35,26 @@ class UserFactory(WarehouseFactory):
                 verified=True,
             )
         )
+        # Allow passing a cleartext password to the factory
+        # This will be hashed before saving the user.
+        # Usage: UserFactory(clear_pwd="password")
+        clear_pwd = None
 
     username = factory.Faker("pystr", max_chars=12)
     name = factory.Faker("word")
-    password = "!"
+    password = factory.LazyAttribute(
+        # Note: argon2 is used directly here, since it's our "best" hashing algorithm
+        # instead of using `passlib`, since we may wish to replace it.
+        lambda obj: (
+            PasswordHasher(
+                memory_cost=1024,
+                parallelism=6,
+                time_cost=6,
+            ).hash(obj.clear_pwd)
+            if obj.clear_pwd
+            else "!"
+        )
+    )
     is_active = True
     is_superuser = False
     is_moderator = False
@@ -70,3 +88,10 @@ class EmailFactory(WarehouseFactory):
     public = False
     unverify_reason = None
     transient_bounces = 0
+
+
+class ProhibitedUsernameFactory(WarehouseFactory):
+    class Meta:
+        model = ProhibitedUserName
+
+    name = factory.Faker("user_name")

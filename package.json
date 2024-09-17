@@ -61,7 +61,7 @@
     "stylelint-config-standard-scss": "^13.1.0",
     "stylelint-selector-bem-pattern": "^4.0.0",
     "svgo": "^3.0.2",
-    "webpack": "^5.80.0",
+    "webpack": "^5.94.0",
     "webpack-cli": "^5.0.2",
     "webpack-livereload-plugin": "^3.0.2",
     "webpack-manifest-plugin": "^5.0.0",

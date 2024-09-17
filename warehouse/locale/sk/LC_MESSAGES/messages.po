@@ -15,14 +15,14 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 "X-Generator: Weblate 5.2-dev\n"
 
-#: warehouse/views.py:142
+#: warehouse/views.py:147
 msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
 msgstr ""
 "Pred vykonaním tejto akcie musíte overiť svoju **primárnu** e-mailovú adresu."
 
-#: warehouse/views.py:158
+#: warehouse/views.py:163
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
@@ -30,15 +30,19 @@ msgstr ""
 "Na vykonanie tejto akcie musí byť vo vašom účte povolená dvojfaktorová "
 "autentifikácia."
 
-#: warehouse/views.py:294
+#: warehouse/views.py:299
 msgid "Locale updated"
 msgstr "Miestne nastavenie bolo aktualizované"
 
-#: warehouse/accounts/forms.py:51
+#: warehouse/accounts/forms.py:52 warehouse/accounts/forms.py:286
+msgid "The email address isn't valid. Try again."
+msgstr "Neplatná emailová adresa. Skúste to znovu."
+
+#: warehouse/accounts/forms.py:53
 msgid "The password is invalid. Try again."
 msgstr "Heslo je neplatné. Skúste to znova."
 
-#: warehouse/accounts/forms.py:52
+#: warehouse/accounts/forms.py:54
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -48,39 +52,39 @@ msgstr ""
 "písmen, číslic, bodiek, pomlčiek a podčiarkovníkov. A tiež musí začínať a "
 "končiť písmenom alebo číslom. Vyberte iné používateľské meno."
 
-#: warehouse/accounts/forms.py:70
+#: warehouse/accounts/forms.py:72
 msgid "Null bytes are not allowed."
 msgstr "Nulové bajty nie sú povolené."
 
-#: warehouse/accounts/forms.py:93
+#: warehouse/accounts/forms.py:86
 msgid "No user found with that username"
 msgstr "Nenašiel sa žiadny používateľ s týmto používateľským menom"
 
-#: warehouse/accounts/forms.py:104
+#: warehouse/accounts/forms.py:106
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "Kód TOTP musí obsahovať ${totp_length} číslic."
 
-#: warehouse/accounts/forms.py:124
+#: warehouse/accounts/forms.py:126
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr "Kódy na obnovenie musia mať ${recovery_code_length} znakov."
 
-#: warehouse/accounts/forms.py:139
+#: warehouse/accounts/forms.py:141
 msgid "Choose a username with 50 characters or less."
 msgstr "Vyberte si používateľské meno s 50 alebo menej znakmi."
 
-#: warehouse/accounts/forms.py:156
+#: warehouse/accounts/forms.py:158
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
 msgstr ""
 "Toto používateľské meno už používa iný účet. Vyberte iné používateľské meno."
 
-#: warehouse/accounts/forms.py:170 warehouse/accounts/forms.py:219
-#: warehouse/accounts/forms.py:232
+#: warehouse/accounts/forms.py:172 warehouse/accounts/forms.py:221
+#: warehouse/accounts/forms.py:234
 msgid "Password too long."
 msgstr "Heslo je príliš dlhé."
 
-#: warehouse/accounts/forms.py:206
+#: warehouse/accounts/forms.py:208
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
@@ -88,61 +92,63 @@ msgstr ""
 "Vyskytlo sa príliš veľa neúspešných pokusov o prihlásenie. Boli ste vymknutý "
 "na ${time}. Skúste neskôr prosím."
 
-#: warehouse/accounts/forms.py:235
+#: warehouse/accounts/forms.py:237
 msgid "Your passwords don't match. Try again."
 msgstr "Vaše heslá sa nezhodujú. Skúste to znova."
 
-#: warehouse/accounts/forms.py:269
+#: warehouse/accounts/forms.py:271
 msgid "The email address is too long. Try again."
 msgstr "Emailová adresa je príliš dlhá. Skúste to znovu."
 
-#: warehouse/accounts/forms.py:284
-msgid "The email address isn't valid. Try again."
-msgstr "Neplatná emailová adresa. Skúste to znovu."
-
-#: warehouse/accounts/forms.py:297
+#: warehouse/accounts/forms.py:314
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr "Nemôžete použiť e-mailovú adresu z tejto domény. Použite iný e-mail."
 
-#: warehouse/accounts/forms.py:308
+#: warehouse/accounts/forms.py:325
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
 msgstr "Tento účet už túto e-mailovú adresu používa. Použite iný e-mail."
 
-#: warehouse/accounts/forms.py:315
+#: warehouse/accounts/forms.py:332
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
 msgstr "Túto e-mailovú adresu už používa iný účet. Použite iný e-mail."
 
-#: warehouse/accounts/forms.py:348 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:367 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Názov je príliš dlhý. Vyberte názov so 100 znakmi alebo menej."
 
-#: warehouse/accounts/forms.py:440
+#: warehouse/accounts/forms.py:374
+#, fuzzy
+#| msgid "Null bytes are not allowed."
+msgid "URLs are not allowed in the name field."
+msgstr "Nulové bajty nie sú povolené."
+
+#: warehouse/accounts/forms.py:463
 msgid "Invalid TOTP code."
 msgstr "Neplatný TOTP kód."
 
-#: warehouse/accounts/forms.py:457
+#: warehouse/accounts/forms.py:480
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Neplatné tvrdenie WebAuthn: Zlé užitočné zaťaženie"
 
-#: warehouse/accounts/forms.py:526
+#: warehouse/accounts/forms.py:549
 msgid "Invalid recovery code."
 msgstr "Neplatný obnovovací kód."
 
-#: warehouse/accounts/forms.py:535
+#: warehouse/accounts/forms.py:558
 msgid "Recovery code has been previously used."
 msgstr "Obnovovací kód už bol použitý."
 
-#: warehouse/accounts/forms.py:565
+#: warehouse/accounts/forms.py:588
 #, fuzzy
 #| msgid "The email address isn't valid. Try again."
 msgid "The username isn't valid. Try again."
 msgstr "Neplatná emailová adresa. Skúste to znovu."
 
-#: warehouse/accounts/views.py:120
+#: warehouse/accounts/views.py:119
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
@@ -150,7 +156,7 @@ msgstr ""
 "Vyskytlo sa príliš veľa neúspešných pokusov o prihlásenie. Boli ste "
 "zablokovaní na {}. Skúste neskôr prosím."
 
-#: warehouse/accounts/views.py:137
+#: warehouse/accounts/views.py:136
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -159,7 +165,7 @@ msgstr ""
 "Skontrolujte si doručenú poštu a postupujte podľa overovacích odkazov. (IP: "
 "${ip})"
 
-#: warehouse/accounts/views.py:149
+#: warehouse/accounts/views.py:148
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
@@ -169,25 +175,25 @@ msgstr ""
 "dokončenia. Skontrolujte si doručenú poštu a postupujte podľa overovacích "
 "odkazov. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:331 warehouse/accounts/views.py:400
-#: warehouse/accounts/views.py:402 warehouse/accounts/views.py:431
-#: warehouse/accounts/views.py:433 warehouse/accounts/views.py:539
+#: warehouse/accounts/views.py:330 warehouse/accounts/views.py:399
+#: warehouse/accounts/views.py:401 warehouse/accounts/views.py:430
+#: warehouse/accounts/views.py:432 warehouse/accounts/views.py:538
 msgid "Invalid or expired two factor login."
 msgstr "Neplatné alebo vypršané dvojfaktorové prihlásenie."
 
-#: warehouse/accounts/views.py:394
+#: warehouse/accounts/views.py:393
 msgid "Already authenticated"
 msgstr "Už overené"
 
-#: warehouse/accounts/views.py:474
+#: warehouse/accounts/views.py:473
 msgid "Successful WebAuthn assertion"
 msgstr "Úspešné tvrdenie WebAuthn"
 
-#: warehouse/accounts/views.py:570 warehouse/manage/views/__init__.py:870
+#: warehouse/accounts/views.py:569 warehouse/manage/views/__init__.py:870
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "Obnovovací kód bol prijatý. Dodaný kód nie je možné znova použiť."
 
-#: warehouse/accounts/views.py:662
+#: warehouse/accounts/views.py:661
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -195,132 +201,132 @@ msgstr ""
 "Registrácia nového používateľa je dočasne zakázaná. Podrobnosti nájdete na "
 "https://pypi.org/help#admin-intervention."
 
-#: warehouse/accounts/views.py:800
+#: warehouse/accounts/views.py:799
 msgid "Expired token: request a new password reset link"
 msgstr "Platnosť tokenu vypršala: vyžiadajte si nový odkaz na obnovenie hesla"
 
-#: warehouse/accounts/views.py:802
+#: warehouse/accounts/views.py:801
 msgid "Invalid token: request a new password reset link"
 msgstr "Neplatný token: požiadajte o nový odkaz na obnovenie hesla"
 
-#: warehouse/accounts/views.py:804 warehouse/accounts/views.py:917
-#: warehouse/accounts/views.py:1021 warehouse/accounts/views.py:1190
+#: warehouse/accounts/views.py:803 warehouse/accounts/views.py:904
+#: warehouse/accounts/views.py:1008 warehouse/accounts/views.py:1177
 msgid "Invalid token: no token supplied"
 msgstr "Neplatný token: nebol dodaný žiadny token"
 
-#: warehouse/accounts/views.py:808
+#: warehouse/accounts/views.py:807
 msgid "Invalid token: not a password reset token"
 msgstr "Neplatný token: nejde o token na obnovenie hesla"
 
-#: warehouse/accounts/views.py:813
+#: warehouse/accounts/views.py:812
 msgid "Invalid token: user not found"
 msgstr "Neplatný token: používateľ sa nenašiel"
 
-#: warehouse/accounts/views.py:835
+#: warehouse/accounts/views.py:822
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "Neplatný token: používateľ sa prihlásil od vyžiadania tohto tokenu"
 
-#: warehouse/accounts/views.py:853
+#: warehouse/accounts/views.py:840
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
 "Neplatný token: heslo už bolo zmenené, odkedy bol tento token vyžiadaný"
 
-#: warehouse/accounts/views.py:885
+#: warehouse/accounts/views.py:872
 msgid "You have reset your password"
 msgstr "Obnovili ste svoje heslo"
 
-#: warehouse/accounts/views.py:913
+#: warehouse/accounts/views.py:900
 msgid "Expired token: request a new email verification link"
 msgstr "Platnosť tokenu vypršala: vyžiadajte si nový odkaz na overenie e-mailu"
 
-#: warehouse/accounts/views.py:915
+#: warehouse/accounts/views.py:902
 msgid "Invalid token: request a new email verification link"
 msgstr "Neplatný token: požiadajte o nový odkaz na overenie e-mailu"
 
-#: warehouse/accounts/views.py:921
+#: warehouse/accounts/views.py:908
 msgid "Invalid token: not an email verification token"
 msgstr "Neplatný token: nejde o overovací token e-mailu"
 
-#: warehouse/accounts/views.py:930
+#: warehouse/accounts/views.py:917
 msgid "Email not found"
 msgstr "Email nenájdený"
 
-#: warehouse/accounts/views.py:933
+#: warehouse/accounts/views.py:920
 msgid "Email already verified"
 msgstr "Email už bol overený"
 
-#: warehouse/accounts/views.py:950
+#: warehouse/accounts/views.py:937
 msgid "You can now set this email as your primary address"
 msgstr "Teraz môžete tento e-mail nastaviť ako svoju primárnu adresu"
 
-#: warehouse/accounts/views.py:954
+#: warehouse/accounts/views.py:941
 msgid "This is your primary address"
 msgstr "Toto je vaša primárna adresa"
 
-#: warehouse/accounts/views.py:959
+#: warehouse/accounts/views.py:946
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "E-mailová adresa ${email_address} bola overená. ${confirm_message}."
 
-#: warehouse/accounts/views.py:1017
+#: warehouse/accounts/views.py:1004
 msgid "Expired token: request a new organization invitation"
 msgstr "Token s vypršanou platnosťou: požiadajte o pozvánku novej organizácie"
 
-#: warehouse/accounts/views.py:1019
+#: warehouse/accounts/views.py:1006
 msgid "Invalid token: request a new organization invitation"
 msgstr "Neplatný token: požiadajte o pozvánku novej organizácie"
 
-#: warehouse/accounts/views.py:1025
+#: warehouse/accounts/views.py:1012
 msgid "Invalid token: not an organization invitation token"
 msgstr "Neplatný token: nejedná sa o token pozvánky do organizácie"
 
-#: warehouse/accounts/views.py:1029
+#: warehouse/accounts/views.py:1016
 msgid "Organization invitation is not valid."
 msgstr "Pozvánka do organizácie je neplatná."
 
-#: warehouse/accounts/views.py:1038
+#: warehouse/accounts/views.py:1025
 msgid "Organization invitation no longer exists."
 msgstr "Pozvánka do organizácie už neexistuje."
 
-#: warehouse/accounts/views.py:1089
+#: warehouse/accounts/views.py:1076
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "Pozvánka do '${organization_name}' bola odmietnutá."
 
-#: warehouse/accounts/views.py:1152
+#: warehouse/accounts/views.py:1139
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Teraz ste ${role} organizácie '${organization_name}'."
 
-#: warehouse/accounts/views.py:1186
+#: warehouse/accounts/views.py:1173
 msgid "Expired token: request a new project role invitation"
 msgstr "Expirovaný token: požiadajte o novú pozvánku pre rolu v projekte"
 
-#: warehouse/accounts/views.py:1188
+#: warehouse/accounts/views.py:1175
 msgid "Invalid token: request a new project role invitation"
 msgstr "Neplatný token: požiadajte o novú pozvánku pre rolu v projekte"
 
-#: warehouse/accounts/views.py:1194
+#: warehouse/accounts/views.py:1181
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Neplatný token: nejedná sa o token pozvánky k spolupráci"
 
-#: warehouse/accounts/views.py:1198
+#: warehouse/accounts/views.py:1185
 msgid "Role invitation is not valid."
 msgstr "Pozvánka pre rolu je neplatná."
 
-#: warehouse/accounts/views.py:1213
+#: warehouse/accounts/views.py:1200
 msgid "Role invitation no longer exists."
 msgstr "Pozvánka pre rolu už neexistuje."
 
-#: warehouse/accounts/views.py:1244
+#: warehouse/accounts/views.py:1231
 msgid "Invitation for '${project_name}' is declined."
 msgstr "Pozvánka pre '${project_name}' bola odmietnutá."
 
-#: warehouse/accounts/views.py:1310
+#: warehouse/accounts/views.py:1297
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Teraz ste ${role} projektu '${project_name}'."
 
-#: warehouse/accounts/views.py:1557 warehouse/accounts/views.py:1800
-#: warehouse/manage/views/__init__.py:1247
+#: warehouse/accounts/views.py:1548 warehouse/accounts/views.py:1791
+#: warehouse/manage/views/__init__.py:1249
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -328,7 +334,7 @@ msgstr ""
 "Nové registrácie sú dočasne zakázané. Viac informácií na https://pypi.org/"
 "help#admin-intervention."
 
-#: warehouse/accounts/views.py:1578
+#: warehouse/accounts/views.py:1569
 #, fuzzy
 #| msgid ""
 #| "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
@@ -338,7 +344,7 @@ msgstr ""
 "Odstránenie projektu je dočasne zakázané. Podrobnosti nájdete na https://"
 "pypi.org/help#admin-intervention."
 
-#: warehouse/accounts/views.py:1594
+#: warehouse/accounts/views.py:1585
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
@@ -346,15 +352,15 @@ msgstr ""
 "Ak chcete zaregistrovať čakajúceho dôveryhodného vydavateľa, musíte mať "
 "overený e-mail. Podrobnosti nájdete na https://pypi.org/help#openid-connect."
 
-#: warehouse/accounts/views.py:1607
+#: warehouse/accounts/views.py:1598
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 "Naraz nemôžete zaregistrovať viac ako 3 čakajúcich dôveryhodných vydavateľov."
 
-#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1282
-#: warehouse/manage/views/__init__.py:1395
-#: warehouse/manage/views/__init__.py:1507
-#: warehouse/manage/views/__init__.py:1617
+#: warehouse/accounts/views.py:1614 warehouse/manage/views/__init__.py:1304
+#: warehouse/manage/views/__init__.py:1417
+#: warehouse/manage/views/__init__.py:1529
+#: warehouse/manage/views/__init__.py:1639
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
@@ -362,14 +368,14 @@ msgstr ""
 "Príliš mnoho neúspešných pokusov o registráciu pomocou OpenID Connect. "
 "Skúste to prosím neskoršie."
 
-#: warehouse/accounts/views.py:1634 warehouse/manage/views/__init__.py:1296
-#: warehouse/manage/views/__init__.py:1409
-#: warehouse/manage/views/__init__.py:1521
-#: warehouse/manage/views/__init__.py:1631
+#: warehouse/accounts/views.py:1625 warehouse/manage/views/__init__.py:1318
+#: warehouse/manage/views/__init__.py:1431
+#: warehouse/manage/views/__init__.py:1543
+#: warehouse/manage/views/__init__.py:1653
 msgid "The trusted publisher could not be registered"
 msgstr "Dôveryhodného vydavateľa sa nepodarilo zaregistrovať"
 
-#: warehouse/accounts/views.py:1648
+#: warehouse/accounts/views.py:1639
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
@@ -377,16 +383,16 @@ msgstr ""
 "Tento dôveryhodný vydavateľ už bol zaregistrovaný. Ak to nebolo úmyselné, "
 "kontaktujte administrátorov PyPI."
 
-#: warehouse/accounts/views.py:1675
+#: warehouse/accounts/views.py:1666
 msgid "Registered a new pending publisher to create "
 msgstr "Zaregistroval sa nový vydavateľ čakajúci na vytvorenie. "
 
-#: warehouse/accounts/views.py:1814 warehouse/accounts/views.py:1827
-#: warehouse/accounts/views.py:1834
+#: warehouse/accounts/views.py:1805 warehouse/accounts/views.py:1818
+#: warehouse/accounts/views.py:1825
 msgid "Invalid publisher ID"
 msgstr "Neplatné ID vlastníka"
 
-#: warehouse/accounts/views.py:1840
+#: warehouse/accounts/views.py:1831
 msgid "Removed trusted publisher for project "
 msgstr "Pre projekt bol odstránený dôveryhodný vydavateľ. "
 
@@ -526,7 +532,7 @@ msgstr "API token neexistuje."
 msgid "Invalid credentials. Try again"
 msgstr "Neplatné poverenia. Skúste to znova"
 
-#: warehouse/manage/views/__init__.py:1263
+#: warehouse/manage/views/__init__.py:1285
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -534,7 +540,7 @@ msgstr ""
 "Dôveryhodné publikovanie na GitHub je dočasne zakázané. Podrobnosti nájdete "
 "na https://pypi.org/help#admin-intervention."
 
-#: warehouse/manage/views/__init__.py:1376
+#: warehouse/manage/views/__init__.py:1398
 #, fuzzy
 #| msgid ""
 #| "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
@@ -546,7 +552,7 @@ msgstr ""
 "Dôveryhodné publikovanie na GitHub je dočasne zakázané. Podrobnosti nájdete "
 "na https://pypi.org/help#admin-intervention."
 
-#: warehouse/manage/views/__init__.py:1488
+#: warehouse/manage/views/__init__.py:1510
 #, fuzzy
 #| msgid ""
 #| "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
@@ -558,7 +564,7 @@ msgstr ""
 "Dôveryhodné publikovanie na GitHub je dočasne zakázané. Podrobnosti nájdete "
 "na https://pypi.org/help#admin-intervention."
 
-#: warehouse/manage/views/__init__.py:1597
+#: warehouse/manage/views/__init__.py:1619
 #, fuzzy
 #| msgid ""
 #| "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
@@ -570,9 +576,9 @@ msgstr ""
 "Dôveryhodné publikovanie na GitHub je dočasne zakázané. Podrobnosti nájdete "
 "na https://pypi.org/help#admin-intervention."
 
-#: warehouse/manage/views/__init__.py:1832
-#: warehouse/manage/views/__init__.py:2133
-#: warehouse/manage/views/__init__.py:2241
+#: warehouse/manage/views/__init__.py:1854
+#: warehouse/manage/views/__init__.py:2155
+#: warehouse/manage/views/__init__.py:2263
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -580,46 +586,46 @@ msgstr ""
 "Odstránenie projektu je dočasne zakázané. Podrobnosti nájdete na https://"
 "pypi.org/help#admin-intervention."
 
-#: warehouse/manage/views/__init__.py:1964
-#: warehouse/manage/views/__init__.py:2049
-#: warehouse/manage/views/__init__.py:2150
-#: warehouse/manage/views/__init__.py:2250
+#: warehouse/manage/views/__init__.py:1986
+#: warehouse/manage/views/__init__.py:2071
+#: warehouse/manage/views/__init__.py:2172
+#: warehouse/manage/views/__init__.py:2272
 msgid "Confirm the request"
 msgstr "Potvrďte žiadosť"
 
-#: warehouse/manage/views/__init__.py:1976
+#: warehouse/manage/views/__init__.py:1998
 msgid "Could not yank release - "
 msgstr "Nepodarilo sa vytrhnúť uvoľnenie -. "
 
-#: warehouse/manage/views/__init__.py:2061
+#: warehouse/manage/views/__init__.py:2083
 msgid "Could not un-yank release - "
 msgstr "Nepodarilo sa uvoľniť uvoľnenie -. "
 
-#: warehouse/manage/views/__init__.py:2162
+#: warehouse/manage/views/__init__.py:2184
 msgid "Could not delete release - "
 msgstr "Vydanie sa nepodarilo odstrániť -. "
 
-#: warehouse/manage/views/__init__.py:2262
+#: warehouse/manage/views/__init__.py:2284
 msgid "Could not find file"
 msgstr "Nepodarilo sa nájsť súbor"
 
-#: warehouse/manage/views/__init__.py:2266
+#: warehouse/manage/views/__init__.py:2288
 msgid "Could not delete file - "
 msgstr "Nepodarilo sa odstrániť súbor -. "
 
-#: warehouse/manage/views/__init__.py:2416
+#: warehouse/manage/views/__init__.py:2438
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "Tím '${team_name}' už má v projekte rolu ${role_name}"
 
-#: warehouse/manage/views/__init__.py:2523
+#: warehouse/manage/views/__init__.py:2545
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "Používateľ '${username}' už má v projekte rolu ${role_name}"
 
-#: warehouse/manage/views/__init__.py:2590
+#: warehouse/manage/views/__init__.py:2612
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "${username} je teraz ${role} projektu '${project_name}'."
 
-#: warehouse/manage/views/__init__.py:2622
+#: warehouse/manage/views/__init__.py:2644
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -627,26 +633,26 @@ msgstr ""
 "Používateľ '${username}' nemá overenú primárnu e-mailovú adresu a nemôže byť "
 "pridaný ako ${role_name} pre projekt"
 
-#: warehouse/manage/views/__init__.py:2635
+#: warehouse/manage/views/__init__.py:2657
 #: warehouse/manage/views/organizations.py:878
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr "Používateľ '${username}' už má aktívnu pozvánku. Skúste neskôr prosím."
 
-#: warehouse/manage/views/__init__.py:2700
+#: warehouse/manage/views/__init__.py:2722
 #: warehouse/manage/views/organizations.py:943
 msgid "Invitation sent to '${username}'"
 msgstr "Pozvánka bola odoslaná používateľovi '${username}'"
 
-#: warehouse/manage/views/__init__.py:2733
+#: warehouse/manage/views/__init__.py:2755
 msgid "Could not find role invitation."
 msgstr "Nepodarilo sa nájsť pozvánku na rolu."
 
-#: warehouse/manage/views/__init__.py:2744
+#: warehouse/manage/views/__init__.py:2766
 msgid "Invitation already expired."
 msgstr "Pozvánka už vypršala."
 
-#: warehouse/manage/views/__init__.py:2776
+#: warehouse/manage/views/__init__.py:2798
 #: warehouse/manage/views/organizations.py:1130
 msgid "Invitation revoked from '${username}'."
 msgstr "Pozvánka od '${username}' bola odvolaná."
@@ -680,16 +686,17 @@ msgstr "Pozvánka s vypršanou platnosťou pre '${username}' bola odstránená."
 msgid "Invalid project name"
 msgstr "Neplatný názov projektu"
 
-#: warehouse/oidc/forms/_core.py:35
+#: warehouse/oidc/forms/_core.py:46
 msgid ""
-"This project already exists, create an ordinary Trusted Publisher instead"
+"This project already exists, use the project's publishing settings <a "
+"href='${url}'>here</a> to create a Trusted Publisher for it."
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:47
+#: warehouse/oidc/forms/_core.py:66
 msgid "Specify a publisher ID"
 msgstr "Zadajte ID vlastníka"
 
-#: warehouse/oidc/forms/_core.py:48
+#: warehouse/oidc/forms/_core.py:67
 msgid "Publisher must be specified by ID"
 msgstr "Vydavateľ musí byť špecifikovaný ID"
 
@@ -839,7 +846,7 @@ msgstr ""
 msgid "Provide an Inspector link to specific lines of code."
 msgstr ""
 
-#: warehouse/packaging/views.py:216
+#: warehouse/packaging/views.py:212
 msgid "Your report has been recorded. Thank you for your help."
 msgstr ""
 
@@ -926,67 +933,67 @@ msgstr "Monty Python - Náčrt syrárne"
 #: warehouse/templates/packaging/detail.html:417
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
-#: warehouse/templates/pages/help.html:220
-#: warehouse/templates/pages/help.html:227
-#: warehouse/templates/pages/help.html:241
-#: warehouse/templates/pages/help.html:257
-#: warehouse/templates/pages/help.html:261
-#: warehouse/templates/pages/help.html:318
-#: warehouse/templates/pages/help.html:340
-#: warehouse/templates/pages/help.html:345
-#: warehouse/templates/pages/help.html:350
-#: warehouse/templates/pages/help.html:352
-#: warehouse/templates/pages/help.html:357
+#: warehouse/templates/pages/help.html:228
+#: warehouse/templates/pages/help.html:235
+#: warehouse/templates/pages/help.html:249
+#: warehouse/templates/pages/help.html:265
+#: warehouse/templates/pages/help.html:269
+#: warehouse/templates/pages/help.html:326
+#: warehouse/templates/pages/help.html:348
+#: warehouse/templates/pages/help.html:353
 #: warehouse/templates/pages/help.html:358
-#: warehouse/templates/pages/help.html:359
-#: warehouse/templates/pages/help.html:363
-#: warehouse/templates/pages/help.html:396
-#: warehouse/templates/pages/help.html:398
-#: warehouse/templates/pages/help.html:401
-#: warehouse/templates/pages/help.html:437
-#: warehouse/templates/pages/help.html:442
-#: warehouse/templates/pages/help.html:448
-#: warehouse/templates/pages/help.html:527
-#: warehouse/templates/pages/help.html:559
-#: warehouse/templates/pages/help.html:565
-#: warehouse/templates/pages/help.html:568
-#: warehouse/templates/pages/help.html:570
-#: warehouse/templates/pages/help.html:579
-#: warehouse/templates/pages/help.html:601
-#: warehouse/templates/pages/help.html:608
-#: warehouse/templates/pages/help.html:626
-#: warehouse/templates/pages/help.html:633
-#: warehouse/templates/pages/help.html:644
-#: warehouse/templates/pages/help.html:670
-#: warehouse/templates/pages/help.html:683
-#: warehouse/templates/pages/help.html:688
-#: warehouse/templates/pages/help.html:700
-#: warehouse/templates/pages/help.html:721
-#: warehouse/templates/pages/help.html:735
-#: warehouse/templates/pages/help.html:744
-#: warehouse/templates/pages/help.html:756
-#: warehouse/templates/pages/help.html:767
-#: warehouse/templates/pages/help.html:772
-#: warehouse/templates/pages/help.html:780
+#: warehouse/templates/pages/help.html:360
+#: warehouse/templates/pages/help.html:365
+#: warehouse/templates/pages/help.html:366
+#: warehouse/templates/pages/help.html:367
+#: warehouse/templates/pages/help.html:371
+#: warehouse/templates/pages/help.html:404
+#: warehouse/templates/pages/help.html:406
+#: warehouse/templates/pages/help.html:409
+#: warehouse/templates/pages/help.html:445
+#: warehouse/templates/pages/help.html:450
+#: warehouse/templates/pages/help.html:456
+#: warehouse/templates/pages/help.html:535
+#: warehouse/templates/pages/help.html:567
+#: warehouse/templates/pages/help.html:573
+#: warehouse/templates/pages/help.html:576
+#: warehouse/templates/pages/help.html:578
+#: warehouse/templates/pages/help.html:587
+#: warehouse/templates/pages/help.html:609
+#: warehouse/templates/pages/help.html:616
+#: warehouse/templates/pages/help.html:634
+#: warehouse/templates/pages/help.html:641
+#: warehouse/templates/pages/help.html:652
+#: warehouse/templates/pages/help.html:678
+#: warehouse/templates/pages/help.html:691
+#: warehouse/templates/pages/help.html:696
+#: warehouse/templates/pages/help.html:718
+#: warehouse/templates/pages/help.html:740
+#: warehouse/templates/pages/help.html:754
+#: warehouse/templates/pages/help.html:763
+#: warehouse/templates/pages/help.html:775
+#: warehouse/templates/pages/help.html:786
 #: warehouse/templates/pages/help.html:791
-#: warehouse/templates/pages/help.html:836
-#: warehouse/templates/pages/help.html:844
-#: warehouse/templates/pages/help.html:892
-#: warehouse/templates/pages/help.html:897
-#: warehouse/templates/pages/help.html:902
-#: warehouse/templates/pages/help.html:912
+#: warehouse/templates/pages/help.html:799
+#: warehouse/templates/pages/help.html:810
+#: warehouse/templates/pages/help.html:855
+#: warehouse/templates/pages/help.html:863
+#: warehouse/templates/pages/help.html:911
+#: warehouse/templates/pages/help.html:916
 #: warehouse/templates/pages/help.html:921
-#: warehouse/templates/pages/help.html:935
-#: warehouse/templates/pages/help.html:943
-#: warehouse/templates/pages/help.html:951
-#: warehouse/templates/pages/help.html:959
-#: warehouse/templates/pages/help.html:968
+#: warehouse/templates/pages/help.html:931
+#: warehouse/templates/pages/help.html:940
+#: warehouse/templates/pages/help.html:954
+#: warehouse/templates/pages/help.html:962
+#: warehouse/templates/pages/help.html:970
+#: warehouse/templates/pages/help.html:978
 #: warehouse/templates/pages/help.html:987
-#: warehouse/templates/pages/help.html:1002
-#: warehouse/templates/pages/help.html:1003
-#: warehouse/templates/pages/help.html:1004
-#: warehouse/templates/pages/help.html:1005
-#: warehouse/templates/pages/help.html:1010
+#: warehouse/templates/pages/help.html:1006
+#: warehouse/templates/pages/help.html:1021
+#: warehouse/templates/pages/help.html:1022
+#: warehouse/templates/pages/help.html:1023
+#: warehouse/templates/pages/help.html:1024
+#: warehouse/templates/pages/help.html:1029
 #: warehouse/templates/pages/sponsors.html:33
 #: warehouse/templates/pages/sponsors.html:37
 #: warehouse/templates/pages/sponsors.html:41
@@ -1080,7 +1087,7 @@ msgstr "Hlavná navigácia"
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
 #: warehouse/templates/base.html:275
 #: warehouse/templates/includes/current-user-indicator.html:63
-#: warehouse/templates/pages/help.html:111
+#: warehouse/templates/pages/help.html:118
 #: warehouse/templates/pages/sitemap.html:27
 msgid "Help"
 msgstr "Pomoc"
@@ -1546,19 +1553,19 @@ msgstr "Heslo"
 #: warehouse/templates/manage/organizations.html:247
 #: warehouse/templates/manage/organizations.html:272
 #: warehouse/templates/manage/organizations.html:298
-#: warehouse/templates/manage/project/publishing.html:38
-#: warehouse/templates/manage/project/publishing.html:53
-#: warehouse/templates/manage/project/publishing.html:75
-#: warehouse/templates/manage/project/publishing.html:95
-#: warehouse/templates/manage/project/publishing.html:142
-#: warehouse/templates/manage/project/publishing.html:157
-#: warehouse/templates/manage/project/publishing.html:172
-#: warehouse/templates/manage/project/publishing.html:187
-#: warehouse/templates/manage/project/publishing.html:229
-#: warehouse/templates/manage/project/publishing.html:244
-#: warehouse/templates/manage/project/publishing.html:285
-#: warehouse/templates/manage/project/publishing.html:307
-#: warehouse/templates/manage/project/publishing.html:329
+#: warehouse/templates/manage/project/publishing.html:46
+#: warehouse/templates/manage/project/publishing.html:61
+#: warehouse/templates/manage/project/publishing.html:83
+#: warehouse/templates/manage/project/publishing.html:103
+#: warehouse/templates/manage/project/publishing.html:151
+#: warehouse/templates/manage/project/publishing.html:166
+#: warehouse/templates/manage/project/publishing.html:181
+#: warehouse/templates/manage/project/publishing.html:196
+#: warehouse/templates/manage/project/publishing.html:239
+#: warehouse/templates/manage/project/publishing.html:254
+#: warehouse/templates/manage/project/publishing.html:296
+#: warehouse/templates/manage/project/publishing.html:318
+#: warehouse/templates/manage/project/publishing.html:340
 #: warehouse/templates/manage/project/roles.html:273
 #: warehouse/templates/manage/project/roles.html:289
 #: warehouse/templates/manage/project/roles.html:305
@@ -3092,7 +3099,7 @@ msgstr "%(username)s zatiaľ nenahral do PyPI žiadne projekty."
 
 #: warehouse/templates/includes/accounts/profile-public-email.html:17
 #: warehouse/templates/manage/account/publishing.html:274
-#: warehouse/templates/manage/project/publishing.html:227
+#: warehouse/templates/manage/project/publishing.html:237
 msgid "Email"
 msgstr "E-mailová adresa"
 
@@ -3178,78 +3185,104 @@ msgstr "Členovia"
 msgid "Verified details"
 msgstr "Overený"
 
-#: warehouse/templates/includes/packaging/project-data.html:31
-msgid "Maintainers"
-msgstr "Údržbári"
+#: warehouse/templates/includes/packaging/project-data.html:18
+msgid "(What is this?)"
+msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:33
-msgid "Avatar for {username} from gravatar.com"
-msgstr "Avatar pre {username} z gravatar.com"
+#: warehouse/templates/includes/packaging/project-data.html:21
+msgid "These details have been verified by PyPI"
+msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:49
-#, fuzzy
-#| msgid "Unverified"
-msgid "Unverified details"
-msgstr "Neoverené"
-
-#: warehouse/templates/includes/packaging/project-data.html:52
+#: warehouse/templates/includes/packaging/project-data.html:23
+#: warehouse/templates/includes/packaging/project-data.html:140
 msgid "Project links"
 msgstr "Odkazy na projekty"
 
-#: warehouse/templates/includes/packaging/project-data.html:67
+#: warehouse/templates/includes/packaging/project-data.html:31
+#, fuzzy, python-format
+#| msgid "Released: %(release_date)s"
+msgid "URL verified by PyPI on %(release_date)s"
+msgstr "Vydané: %(release_date)s"
+
+#: warehouse/templates/includes/packaging/project-data.html:51
 #, fuzzy
 #| msgid "GitHub statistics:"
 msgid "GitHub Statistics"
 msgstr "Štatistiky GitHub:"
 
-#: warehouse/templates/includes/packaging/project-data.html:74
+#: warehouse/templates/includes/packaging/project-data.html:57
+msgid "Repository"
+msgstr "Repozitár"
+
+#: warehouse/templates/includes/packaging/project-data.html:64
 msgid "Stars:"
 msgstr "Hviezdy:"
 
-#: warehouse/templates/includes/packaging/project-data.html:82
+#: warehouse/templates/includes/packaging/project-data.html:72
 msgid "Forks:"
 msgstr "Vidličky:"
 
-#: warehouse/templates/includes/packaging/project-data.html:90
+#: warehouse/templates/includes/packaging/project-data.html:80
 msgid "Open issues:"
 msgstr "Otvorené problémy:"
 
-#: warehouse/templates/includes/packaging/project-data.html:98
+#: warehouse/templates/includes/packaging/project-data.html:88
 msgid "Open PRs:"
 msgstr "Otvorené PR:"
 
-#: warehouse/templates/includes/packaging/project-data.html:108
+#: warehouse/templates/includes/packaging/project-data.html:96
+msgid "Maintainers"
+msgstr "Údržbári"
+
+#: warehouse/templates/includes/packaging/project-data.html:98
+msgid "Avatar for {username} from gravatar.com"
+msgstr "Avatar pre {username} z gravatar.com"
+
+#: warehouse/templates/includes/packaging/project-data.html:113
+#: warehouse/templates/includes/packaging/project-data.html:156
 msgid "Meta"
 msgstr "Meta"
 
-#: warehouse/templates/includes/packaging/project-data.html:110
-msgid "License:"
-msgstr "Licencia:"
-
-#: warehouse/templates/includes/packaging/project-data.html:113
-#: warehouse/templates/includes/packaging/project-data.html:115
+#: warehouse/templates/includes/packaging/project-data.html:118
+#: warehouse/templates/includes/packaging/project-data.html:168
+#: warehouse/templates/includes/packaging/project-data.html:174
 msgid "Author:"
 msgstr "autor:"
 
-#: warehouse/templates/includes/packaging/project-data.html:118
-#: warehouse/templates/includes/packaging/project-data.html:120
-#: warehouse/templates/pages/help.html:612
+#: warehouse/templates/includes/packaging/project-data.html:126
+#: warehouse/templates/includes/packaging/project-data.html:181
+#: warehouse/templates/includes/packaging/project-data.html:187
+#: warehouse/templates/pages/help.html:620
 msgid "Maintainer:"
 msgstr "Údržba:"
 
-#: warehouse/templates/includes/packaging/project-data.html:125
+#: warehouse/templates/includes/packaging/project-data.html:137
+#, fuzzy
+#| msgid "Unverified"
+msgid "Unverified details"
+msgstr "Neoverené"
+
+#: warehouse/templates/includes/packaging/project-data.html:138
+msgid "These details have <b>not</b> been verified by PyPI"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:161
+msgid "License:"
+msgstr "Licencia:"
+
+#: warehouse/templates/includes/packaging/project-data.html:195
 msgid "Tags"
 msgstr "Tagy"
 
-#: warehouse/templates/includes/packaging/project-data.html:135
+#: warehouse/templates/includes/packaging/project-data.html:207
 msgid "Requires:"
 msgstr "Vyžaduje sa:"
 
-#: warehouse/templates/includes/packaging/project-data.html:140
+#: warehouse/templates/includes/packaging/project-data.html:214
 msgid "Provides-Extra:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:148
+#: warehouse/templates/includes/packaging/project-data.html:224
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
@@ -4078,6 +4111,7 @@ msgstr ""
 #: warehouse/templates/manage/account/token.html:166
 #: warehouse/templates/manage/organization/settings.html:216
 #: warehouse/templates/manage/organization/settings.html:278
+#: warehouse/templates/manage/project/publishing.html:25
 #: warehouse/templates/manage/team/settings.html:82
 msgid "Proceed with caution!"
 msgstr "Postupujte opatrne!"
@@ -4508,7 +4542,7 @@ msgstr "manažér"
 #: warehouse/templates/manage/organization/roles.html:53
 #: warehouse/templates/manage/organization/roles.html:172
 #: warehouse/templates/manage/organizations.html:90
-#: warehouse/templates/manage/project/publishing.html:36
+#: warehouse/templates/manage/project/publishing.html:44
 #: warehouse/templates/manage/project/roles.html:50
 #: warehouse/templates/manage/project/roles.html:85
 #: warehouse/templates/manage/project/roles.html:115
@@ -4757,7 +4791,7 @@ msgstr ""
 "budú dostávať iba váš <span class=\"badge\">Primárny</span> e-mail."
 
 #: warehouse/templates/manage/account/publishing.html:27
-#: warehouse/templates/manage/project/publishing.html:25
+#: warehouse/templates/manage/project/publishing.html:33
 #, fuzzy, python-format
 #| msgid ""
 #| "Read more about GitHub Actions's OpenID Connect support <a "
@@ -4791,12 +4825,12 @@ msgid "The project (on PyPI) that will be created when this publisher is used"
 msgstr "Projekt (na PyPI), ktorý sa vytvorí pri použití tohto vydavateľa"
 
 #: warehouse/templates/manage/account/publishing.html:58
-#: warehouse/templates/manage/project/publishing.html:41
+#: warehouse/templates/manage/project/publishing.html:49
 msgid "owner"
 msgstr "vlastník"
 
 #: warehouse/templates/manage/account/publishing.html:60
-#: warehouse/templates/manage/project/publishing.html:43
+#: warehouse/templates/manage/project/publishing.html:51
 msgid ""
 "The GitHub organization name or GitHub username that owns the repository"
 msgstr ""
@@ -4804,32 +4838,32 @@ msgstr ""
 "úložisko"
 
 #: warehouse/templates/manage/account/publishing.html:68
-#: warehouse/templates/manage/project/publishing.html:51
+#: warehouse/templates/manage/project/publishing.html:59
 msgid "Repository name"
 msgstr "Názov úložiska"
 
 #: warehouse/templates/manage/account/publishing.html:74
-#: warehouse/templates/manage/project/publishing.html:57
+#: warehouse/templates/manage/project/publishing.html:65
 msgid "repository"
 msgstr "Úložisko"
 
 #: warehouse/templates/manage/account/publishing.html:82
-#: warehouse/templates/manage/project/publishing.html:65
+#: warehouse/templates/manage/project/publishing.html:73
 msgid "The name of the GitHub repository that contains the publishing workflow"
 msgstr "Názov úložiska GitHub, ktorý obsahuje pracovný postup publikovania"
 
 #: warehouse/templates/manage/account/publishing.html:90
-#: warehouse/templates/manage/project/publishing.html:73
+#: warehouse/templates/manage/project/publishing.html:81
 msgid "Workflow name"
 msgstr "Názov pracovného postupu"
 
 #: warehouse/templates/manage/account/publishing.html:96
-#: warehouse/templates/manage/project/publishing.html:79
+#: warehouse/templates/manage/project/publishing.html:87
 msgid "workflow.yml"
 msgstr "workflow.yml"
 
 #: warehouse/templates/manage/account/publishing.html:102
-#: warehouse/templates/manage/project/publishing.html:85
+#: warehouse/templates/manage/project/publishing.html:93
 msgid ""
 "The filename of the publishing workflow. This file should exist in the "
 "<code>.github/workflows/</code> directory in the repository configured above."
@@ -4839,29 +4873,29 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:110
 #: warehouse/templates/manage/account/publishing.html:217
-#: warehouse/templates/manage/project/publishing.html:93
-#: warehouse/templates/manage/project/publishing.html:185
+#: warehouse/templates/manage/project/publishing.html:101
+#: warehouse/templates/manage/project/publishing.html:194
 msgid "Environment name"
 msgstr "Názov prostredia"
 
 #: warehouse/templates/manage/account/publishing.html:114
 #: warehouse/templates/manage/account/publishing.html:221
 #: warehouse/templates/manage/account/publishing.html:293
-#: warehouse/templates/manage/project/publishing.html:97
-#: warehouse/templates/manage/project/publishing.html:189
-#: warehouse/templates/manage/project/publishing.html:246
+#: warehouse/templates/manage/project/publishing.html:105
+#: warehouse/templates/manage/project/publishing.html:198
+#: warehouse/templates/manage/project/publishing.html:256
 msgid "(optional)"
 msgstr "(voliteľné)"
 
 #: warehouse/templates/manage/account/publishing.html:118
 #: warehouse/templates/manage/account/publishing.html:224
-#: warehouse/templates/manage/project/publishing.html:101
-#: warehouse/templates/manage/project/publishing.html:192
+#: warehouse/templates/manage/project/publishing.html:109
+#: warehouse/templates/manage/project/publishing.html:201
 msgid "release"
 msgstr "uvoľniť"
 
 #: warehouse/templates/manage/account/publishing.html:124
-#: warehouse/templates/manage/project/publishing.html:107
+#: warehouse/templates/manage/project/publishing.html:115
 #, python-format
 msgid ""
 "The name of the <a href=\"%(href)s\">GitHub Actions environment</a> that the "
@@ -4882,17 +4916,17 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:241
 #: warehouse/templates/manage/account/publishing.html:312
 #: warehouse/templates/manage/account/publishing.html:415
-#: warehouse/templates/manage/project/publishing.html:122
-#: warehouse/templates/manage/project/publishing.html:209
-#: warehouse/templates/manage/project/publishing.html:265
-#: warehouse/templates/manage/project/publishing.html:346
+#: warehouse/templates/manage/project/publishing.html:130
+#: warehouse/templates/manage/project/publishing.html:218
+#: warehouse/templates/manage/project/publishing.html:275
+#: warehouse/templates/manage/project/publishing.html:357
 #: warehouse/templates/manage/project/roles.html:341
 #: warehouse/templates/manage/team/roles.html:131
 msgid "Add"
 msgstr "Pridať"
 
 #: warehouse/templates/manage/account/publishing.html:146
-#: warehouse/templates/manage/project/publishing.html:129
+#: warehouse/templates/manage/project/publishing.html:138
 #, fuzzy, python-format
 #| msgid ""
 #| "Read more about GitHub Actions's OpenID Connect support <a "
@@ -4905,21 +4939,21 @@ msgstr ""
 "href=\"%(href)s\">tu</a>."
 
 #: warehouse/templates/manage/account/publishing.html:172
-#: warehouse/templates/manage/project/publishing.html:140
+#: warehouse/templates/manage/project/publishing.html:149
 #, fuzzy
 #| msgid "Name"
 msgid "Namespace"
 msgstr "Meno"
 
 #: warehouse/templates/manage/account/publishing.html:177
-#: warehouse/templates/manage/project/publishing.html:145
+#: warehouse/templates/manage/project/publishing.html:154
 #, fuzzy
 #| msgid "No name set"
 msgid "namespace"
 msgstr "Nie je nastavené žiadne meno"
 
 #: warehouse/templates/manage/account/publishing.html:179
-#: warehouse/templates/manage/project/publishing.html:147
+#: warehouse/templates/manage/project/publishing.html:156
 msgid ""
 "The GitLab username or GitLab group/subgroup namespace that the project is "
 "under"
@@ -4927,21 +4961,21 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:187
 #: warehouse/templates/manage/project/documentation.html:35
-#: warehouse/templates/manage/project/publishing.html:155
+#: warehouse/templates/manage/project/publishing.html:164
 #: warehouse/templates/manage/project/release.html:129
 #: warehouse/templates/pages/stats.html:73
 msgid "Project name"
 msgstr "Meno projektu"
 
 #: warehouse/templates/manage/account/publishing.html:192
-#: warehouse/templates/manage/project/publishing.html:160
+#: warehouse/templates/manage/project/publishing.html:169
 #, fuzzy
 #| msgid "Project"
 msgid "project"
 msgstr "Projekt"
 
 #: warehouse/templates/manage/account/publishing.html:194
-#: warehouse/templates/manage/project/publishing.html:162
+#: warehouse/templates/manage/project/publishing.html:171
 #, fuzzy
 #| msgid ""
 #| "The name of the GitHub repository that contains the publishing workflow"
@@ -4949,17 +4983,17 @@ msgid "The name of the GitLab project that contains the publishing workflow"
 msgstr "Názov úložiska GitHub, ktorý obsahuje pracovný postup publikovania"
 
 #: warehouse/templates/manage/account/publishing.html:202
-#: warehouse/templates/manage/project/publishing.html:170
+#: warehouse/templates/manage/project/publishing.html:179
 msgid "Top-level pipeline file path"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:207
-#: warehouse/templates/manage/project/publishing.html:175
+#: warehouse/templates/manage/project/publishing.html:184
 msgid ".gitlab-ci.yml"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:209
-#: warehouse/templates/manage/project/publishing.html:177
+#: warehouse/templates/manage/project/publishing.html:186
 #, fuzzy
 #| msgid ""
 #| "The filename of the publishing workflow. This file should exist in the "
@@ -4974,7 +5008,7 @@ msgstr ""
 "adresári <code>.github/workflows/</code> v úložisku nakonfigurovanom vyššie."
 
 #: warehouse/templates/manage/account/publishing.html:226
-#: warehouse/templates/manage/project/publishing.html:194
+#: warehouse/templates/manage/project/publishing.html:203
 #, fuzzy, python-format
 #| msgid ""
 #| "The name of the <a href=\"%(href)s\">GitHub Actions environment</a> that "
@@ -4999,7 +5033,7 @@ msgstr ""
 "mať publikačný prístup PyPI."
 
 #: warehouse/templates/manage/account/publishing.html:248
-#: warehouse/templates/manage/project/publishing.html:216
+#: warehouse/templates/manage/project/publishing.html:226
 #, fuzzy, python-format
 #| msgid ""
 #| "Read more about GitHub Actions's OpenID Connect support <a "
@@ -5012,24 +5046,24 @@ msgstr ""
 "href=\"%(href)s\">tu</a>."
 
 #: warehouse/templates/manage/account/publishing.html:279
-#: warehouse/templates/manage/project/publishing.html:232
+#: warehouse/templates/manage/project/publishing.html:242
 #, fuzzy
 #| msgid "Email"
 msgid "email"
 msgstr "E-mailová adresa"
 
 #: warehouse/templates/manage/account/publishing.html:281
-#: warehouse/templates/manage/project/publishing.html:234
+#: warehouse/templates/manage/project/publishing.html:244
 msgid "The email address of the account or service account used to publish."
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:289
-#: warehouse/templates/manage/project/publishing.html:242
+#: warehouse/templates/manage/project/publishing.html:252
 msgid "Subject"
 msgstr "Predmet"
 
 #: warehouse/templates/manage/account/publishing.html:297
-#: warehouse/templates/manage/project/publishing.html:250
+#: warehouse/templates/manage/project/publishing.html:260
 #, fuzzy
 #| msgid "Subject"
 msgid "subject"
@@ -5044,7 +5078,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:319
-#: warehouse/templates/manage/project/publishing.html:272
+#: warehouse/templates/manage/project/publishing.html:283
 #, fuzzy, python-format
 #| msgid ""
 #| "Read more about GitHub Actions's OpenID Connect support <a "
@@ -5057,20 +5091,20 @@ msgstr ""
 "href=\"%(href)s\">tu</a>."
 
 #: warehouse/templates/manage/account/publishing.html:352
-#: warehouse/templates/manage/project/publishing.html:283
+#: warehouse/templates/manage/project/publishing.html:294
 #: warehouse/templates/organizations/profile.html:30
 msgid "Organization"
 msgstr "Organizácia"
 
 #: warehouse/templates/manage/account/publishing.html:358
-#: warehouse/templates/manage/project/publishing.html:289
+#: warehouse/templates/manage/project/publishing.html:300
 #, fuzzy
 #| msgid "Organization"
 msgid "my-organization"
 msgstr "Organizácia"
 
 #: warehouse/templates/manage/account/publishing.html:366
-#: warehouse/templates/manage/project/publishing.html:297
+#: warehouse/templates/manage/project/publishing.html:308
 #, fuzzy
 #| msgid ""
 #| "The GitHub organization name or GitHub username that owns the repository"
@@ -5080,40 +5114,40 @@ msgstr ""
 "úložisko"
 
 #: warehouse/templates/manage/account/publishing.html:374
-#: warehouse/templates/manage/project/publishing.html:305
+#: warehouse/templates/manage/project/publishing.html:316
 #, fuzzy
 #| msgid "Project name"
 msgid "ActiveState Project name"
 msgstr "Meno projektu"
 
 #: warehouse/templates/manage/account/publishing.html:380
-#: warehouse/templates/manage/project/publishing.html:311
+#: warehouse/templates/manage/project/publishing.html:322
 #, fuzzy
 #| msgid "Project"
 msgid "my-project"
 msgstr "Projekt"
 
 #: warehouse/templates/manage/account/publishing.html:388
-#: warehouse/templates/manage/project/publishing.html:319
+#: warehouse/templates/manage/project/publishing.html:330
 msgid "The ActiveState project that will build your Python artifact."
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:396
-#: warehouse/templates/manage/project/publishing.html:327
+#: warehouse/templates/manage/project/publishing.html:338
 #, fuzzy
 #| msgid "Your username"
 msgid "Actor Username"
 msgstr "Vaše užívateľské meno"
 
 #: warehouse/templates/manage/account/publishing.html:402
-#: warehouse/templates/manage/project/publishing.html:333
+#: warehouse/templates/manage/project/publishing.html:344
 #, fuzzy
 #| msgid "Username"
 msgid "my-username"
 msgstr "Užívateľské meno"
 
 #: warehouse/templates/manage/account/publishing.html:408
-#: warehouse/templates/manage/project/publishing.html:339
+#: warehouse/templates/manage/project/publishing.html:350
 msgid ""
 "The username for the ActiveState account that will trigger the build of your "
 "Python artifact."
@@ -5141,12 +5175,12 @@ msgid "Pending project name"
 msgstr "Čakajúci názov projektu"
 
 #: warehouse/templates/manage/account/publishing.html:471
-#: warehouse/templates/manage/project/publishing.html:373
+#: warehouse/templates/manage/project/publishing.html:384
 msgid "Publisher"
 msgstr "Vydavateľ"
 
 #: warehouse/templates/manage/account/publishing.html:472
-#: warehouse/templates/manage/project/publishing.html:374
+#: warehouse/templates/manage/project/publishing.html:385
 msgid "Details"
 msgstr ""
 
@@ -5193,7 +5227,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:549
-#: warehouse/templates/manage/project/publishing.html:422
+#: warehouse/templates/manage/project/publishing.html:432
 #, python-format
 msgid ""
 "You must first enable <a href=\"%(href)s\">two-factor authentication</a> on "
@@ -6569,7 +6603,13 @@ msgstr ""
 "Pozvánka na pripojenie <a href=\"%(href)s\">%(organization_name)s</a> bola "
 "odmietnutá"
 
-#: warehouse/templates/manage/project/publishing.html:258
+#: warehouse/templates/manage/project/publishing.html:26
+msgid ""
+"Some form fields have been autofilled, please double-check their values "
+"before submitting the form."
+msgstr ""
+
+#: warehouse/templates/manage/project/publishing.html:268
 #, python-format
 msgid ""
 "The subject is the numeric ID that represents the principal making the "
@@ -6578,20 +6618,20 @@ msgid ""
 "here.</a>"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:365
+#: warehouse/templates/manage/project/publishing.html:376
 msgid "Manage current publishers"
 msgstr "Spravujte súčasných vydavateľov"
 
-#: warehouse/templates/manage/project/publishing.html:369
+#: warehouse/templates/manage/project/publishing.html:380
 #, python-format
 msgid "OpenID Connect publishers associated with %(project_name)s"
 msgstr "Vlastníci OpenID Connect pridružení k %(project_name)s"
 
-#: warehouse/templates/manage/project/publishing.html:385
+#: warehouse/templates/manage/project/publishing.html:396
 msgid "No publishers are currently configured."
 msgstr "Momentálne nie sú nakonfigurovaní žiadni vydavatelia."
 
-#: warehouse/templates/manage/project/publishing.html:390
+#: warehouse/templates/manage/project/publishing.html:401
 msgid "Add a new publisher"
 msgstr "Pridať nového vydavateľa"
 
@@ -6978,7 +7018,7 @@ msgid "Project Roles"
 msgstr "Projektové roly"
 
 #: warehouse/templates/manage/project/roles.html:46
-#: warehouse/templates/pages/help.html:611
+#: warehouse/templates/pages/help.html:619
 msgid "There are two possible roles for collaborators:"
 msgstr "Spolupracovníci majú dve možné úlohy:"
 
@@ -7789,49 +7829,49 @@ msgstr ""
 "href=\"#recoverycodes\">kódy na obnovenie</a>, môžete požiadať o pomoc <a "
 "href=\"#account-recovery\">s obnovením účtu</a>."
 
-#: warehouse/templates/pages/help.html:52
+#: warehouse/templates/pages/help.html:53
 msgid "What's a package, project, or release?"
 msgstr "Čo je balík, projekt alebo vydanie?"
 
-#: warehouse/templates/pages/help.html:53
+#: warehouse/templates/pages/help.html:54
 msgid "How do I install a file (package) from PyPI?"
 msgstr "Ako nainštalujem súbor (balík) z PyPI?"
 
-#: warehouse/templates/pages/help.html:54
+#: warehouse/templates/pages/help.html:55
 msgid "How do I package and publish my code for PyPI?"
 msgstr "Ako zabalím a zverejním svoj kód pre PyPI?"
 
-#: warehouse/templates/pages/help.html:55
+#: warehouse/templates/pages/help.html:56
 msgid "What's a trove classifier?"
 msgstr "Čo je to klasifikátor trove?"
 
-#: warehouse/templates/pages/help.html:56
+#: warehouse/templates/pages/help.html:57
 msgid "What's a \"yanked\" release?"
 msgstr "Čo je to „vytrhnuté“ vydanie?"
 
-#: warehouse/templates/pages/help.html:58
+#: warehouse/templates/pages/help.html:60
 msgid "Why do I need a verified email address?"
 msgstr "Prečo potrebujem overenú e-mailovú adresu?"
 
-#: warehouse/templates/pages/help.html:59
+#: warehouse/templates/pages/help.html:61
 msgid "Why is PyPI telling me my password is compromised?"
 msgstr "Prečo mi PyPI hovorí, že moje heslo je prelomené?"
 
-#: warehouse/templates/pages/help.html:60
+#: warehouse/templates/pages/help.html:62
 msgid "What should I do if I notice suspicious activity on my account?"
 msgstr "Čo mám robiť, ak na svojom účte zaznamenám podozrivú aktivitu?"
 
-#: warehouse/templates/pages/help.html:61
+#: warehouse/templates/pages/help.html:63
 msgid "Why is PyPI telling me my API token is compromised?"
 msgstr "Prečo mi PyPI hovorí, že môj token API je napadnutý?"
 
-#: warehouse/templates/pages/help.html:62
+#: warehouse/templates/pages/help.html:64
 #, fuzzy
 #| msgid "What is two factor authentication and how does it work on PyPI?"
 msgid "What is two-factor authentication and how does it work on PyPI?"
 msgstr "Čo je dvojfaktorová autentifikácia a ako funguje na PyPI?"
 
-#: warehouse/templates/pages/help.html:63
+#: warehouse/templates/pages/help.html:65
 #, fuzzy
 #| msgid ""
 #| "How does two factor authentication with an authentication application "
@@ -7846,7 +7886,7 @@ msgstr ""
 "(<abbr title=\"time-based one-time password\">TOTP</abbr>)? Ako to nastavím "
 "v PyPI?"
 
-#: warehouse/templates/pages/help.html:64
+#: warehouse/templates/pages/help.html:66
 #, fuzzy
 #| msgid ""
 #| "How does two factor authentication with a security device (e.g. USB key) "
@@ -7858,12 +7898,12 @@ msgstr ""
 "Ako funguje dvojfaktorová autentifikácia pomocou bezpečnostného zariadenia "
 "(napr. USB kľúča)? Ako to nastavím v PyPI?"
 
-#: warehouse/templates/pages/help.html:65
+#: warehouse/templates/pages/help.html:67
 msgid "What devices (other than a USB key) can I use as a security device?"
 msgstr ""
 "Aké zariadenia (okrem USB kľúča) môžem použiť ako bezpečnostné zariadenie?"
 
-#: warehouse/templates/pages/help.html:66
+#: warehouse/templates/pages/help.html:68
 #, fuzzy
 #| msgid ""
 #| "How does two factor authentication with a recovery code work? How do I "
@@ -7875,54 +7915,114 @@ msgstr ""
 "Ako funguje dvojfaktorové overenie pomocou kódu na obnovenie? Ako to "
 "nastavím v PyPI?"
 
-#: warehouse/templates/pages/help.html:67
+#: warehouse/templates/pages/help.html:69
 msgid "How can I use API tokens to authenticate with PyPI?"
 msgstr "Ako môžem použiť tokeny API na autentifikáciu pomocou PyPI?"
 
-#: warehouse/templates/pages/help.html:68
+#: warehouse/templates/pages/help.html:70
 msgid "Why do certain actions require me to confirm my password?"
 msgstr "Prečo odo mňa niektoré akcie vyžadujú potvrdenie hesla?"
 
-#: warehouse/templates/pages/help.html:69
+#: warehouse/templates/pages/help.html:71
 msgid "How do I change my PyPI username?"
 msgstr "Ako zmením svoje používateľské meno PyPI?"
 
-#: warehouse/templates/pages/help.html:70
+#: warehouse/templates/pages/help.html:72
 msgid "How can I use Trusted Publishers to publish to PyPI?"
 msgstr "Ako môžem použiť dôveryhodných vydavateľov na publikovanie v PyPI?"
 
-#: warehouse/templates/pages/help.html:72
-msgid "How can I run a mirror of PyPI?"
-msgstr "Ako môžem spustiť zrkadlo PyPI?"
-
-#: warehouse/templates/pages/help.html:73
+#: warehouse/templates/pages/help.html:75
 msgid "Does PyPI have APIs I can use?"
 msgstr "Má PyPI API, ktoré môžem použiť?"
 
-#: warehouse/templates/pages/help.html:74
+#: warehouse/templates/pages/help.html:76
+msgid "How can I run a mirror of PyPI?"
+msgstr "Ako môžem spustiť zrkadlo PyPI?"
+
+#: warehouse/templates/pages/help.html:77
 msgid "How do I get notified when a new version of a project is released?"
 msgstr "Ako dostanem upozornenie, keď je vydaná nová verzia projektu?"
 
-#: warehouse/templates/pages/help.html:75
+#: warehouse/templates/pages/help.html:78
 msgid ""
 "Where can I see statistics about PyPI, downloads, and project/package usage?"
 msgstr ""
 "Kde môžem vidieť štatistiky o PyPI, sťahovaniach a používaní projektov/"
 "balíkov?"
 
-#: warehouse/templates/pages/help.html:76
+#: warehouse/templates/pages/help.html:79
 msgid "What are the file hashes used for, and how can I verify them?"
 msgstr "Na čo sa používajú hodnoty hash súborov a ako ich môžem overiť?"
 
-#: warehouse/templates/pages/help.html:78
+#: warehouse/templates/pages/help.html:82
+msgid "How can I publish my private packages to PyPI?"
+msgstr "Ako môžem publikovať svoje súkromné balíčky v PyPI?"
+
+#: warehouse/templates/pages/help.html:83
+msgid "Why isn't my desired project name available?"
+msgstr "Prečo nie je k dispozícii požadovaný názov projektu?"
+
+#: warehouse/templates/pages/help.html:84
+msgid "How do I claim an abandoned or previously registered project name?"
+msgstr ""
+"Ako môžem uplatniť nárok na názov opusteného alebo predtým registrovaného "
+"projektu?"
+
+#: warehouse/templates/pages/help.html:85
+msgid "What collaborator roles are available for a project on PyPI?"
+msgstr "Aké roly spolupracovníkov sú dostupné pre projekt na PyPI?"
+
+#: warehouse/templates/pages/help.html:86
+msgid "How do I become an owner/maintainer of a project on PyPI?"
+msgstr "Ako sa stanem vlastníkom/správcom projektu na PyPI?"
+
+#: warehouse/templates/pages/help.html:87
+msgid "How can I upload a project description in a different format?"
+msgstr "Ako môžem nahrať popis projektu v inom formáte?"
+
+#: warehouse/templates/pages/help.html:88
+msgid "How do I get a file size limit exemption or increase for my project?"
+msgstr ""
+"Ako získam výnimku alebo zvýšenie limitu veľkosti súboru pre môj projekt?"
+
+#: warehouse/templates/pages/help.html:89
+msgid ""
+"How do I get a total project size limit exemption or increase for my project?"
+msgstr ""
+"Ako získam výnimku z limitu celkovej veľkosti projektu alebo zvýšenie pre "
+"môj projekt?"
+
+#: warehouse/templates/pages/help.html:90
+msgid ""
+"Where does PyPI get its data on project vulnerabilities from, and how can I "
+"correct it?"
+msgstr ""
+"Odkiaľ PyPI získava údaje o zraniteľnostiach projektu a ako ich môžem "
+"opraviť?"
+
+#: warehouse/templates/pages/help.html:91
+msgid "How can I restore a deleted project, release or file?"
+msgstr ""
+
+#: warehouse/templates/pages/help.html:94
+msgid "Why am I getting \"the description failed to render\" error?"
+msgstr "Prečo sa mi zobrazuje chyba „popis sa nepodarilo vykresliť“?"
+
+#: warehouse/templates/pages/help.html:95
+msgid ""
+"Why can't I manually upload files to PyPI, through the browser interface?"
+msgstr ""
+"Prečo nemôžem manuálne nahrať súbory do PyPI cez rozhranie prehliadača?"
+
+#: warehouse/templates/pages/help.html:96
 msgid "I forgot my PyPI password. Can you help me?"
 msgstr "Zabudol som svoje heslo PyPI. Môžeš mi pomôcť?"
 
-#: warehouse/templates/pages/help.html:79
+#: warehouse/templates/pages/help.html:97
 msgid "I've lost access to my PyPI account. Can you help me?"
 msgstr "Stratil som prístup k svojmu účtu PyPI. Môžeš mi pomôcť?"
 
-#: warehouse/templates/pages/help.html:80
+#: warehouse/templates/pages/help.html:98
 #, fuzzy
 #| msgid ""
 #| "Why am I getting a \"Invalid or non-existent authentication information."
@@ -7934,7 +8034,7 @@ msgstr ""
 "Prečo sa mi zobrazuje „Neplatné alebo neexistujúce overovacie informácie“. "
 "chyba pri nahrávaní súborov?"
 
-#: warehouse/templates/pages/help.html:81
+#: warehouse/templates/pages/help.html:99
 msgid ""
 "Why am I getting \"No matching distribution found\" or \"Could not fetch "
 "URL\" errors during <code>pip install</code>?"
@@ -7942,49 +8042,15 @@ msgstr ""
 "Prečo sa mi počas inštalácie <code>pip</code> zobrazujú chyby „Nenašla sa "
 "žiadna zodpovedajúca distribúcia“ alebo „Nepodarilo sa načítať adresu URL“?"
 
-#: warehouse/templates/pages/help.html:82
+#: warehouse/templates/pages/help.html:100
 msgid "I am having trouble using the PyPI website. Can you help me?"
 msgstr "Mám problémy s používaním webovej stránky PyPI. Môžeš mi pomôcť?"
 
-#: warehouse/templates/pages/help.html:83
-msgid ""
-"Why can't I manually upload files to PyPI, through the browser interface?"
-msgstr ""
-"Prečo nemôžem manuálne nahrať súbory do PyPI cez rozhranie prehliadača?"
-
-#: warehouse/templates/pages/help.html:84
-msgid "How can I publish my private packages to PyPI?"
-msgstr "Ako môžem publikovať svoje súkromné balíčky v PyPI?"
-
-#: warehouse/templates/pages/help.html:85
+#: warehouse/templates/pages/help.html:101
 msgid "Why did my package or user registration get blocked?"
 msgstr "Prečo bol môj balík alebo registrácia používateľa zablokovaná?"
 
-#: warehouse/templates/pages/help.html:86
-msgid "How do I get a file size limit exemption or increase for my project?"
-msgstr ""
-"Ako získam výnimku alebo zvýšenie limitu veľkosti súboru pre môj projekt?"
-
-#: warehouse/templates/pages/help.html:87
-msgid ""
-"How do I get a total project size limit exemption or increase for my project?"
-msgstr ""
-"Ako získam výnimku z limitu celkovej veľkosti projektu alebo zvýšenie pre "
-"môj projekt?"
-
-#: warehouse/templates/pages/help.html:88
-msgid ""
-"Where does PyPI get its data on project vulnerabilities from, and how can I "
-"correct it?"
-msgstr ""
-"Odkiaľ PyPI získava údaje o zraniteľnostiach projektu a ako ich môžem "
-"opraviť?"
-
-#: warehouse/templates/pages/help.html:89
-msgid "Why am I getting \"the description failed to render\" error?"
-msgstr "Prečo sa mi zobrazuje chyba „popis sa nepodarilo vykresliť“?"
-
-#: warehouse/templates/pages/help.html:91
+#: warehouse/templates/pages/help.html:102
 msgid ""
 "Why am I getting a \"Filename or contents already exists\" or \"Filename has "
 "been previously used\" error?"
@@ -7992,37 +8058,15 @@ msgstr ""
 "Prečo sa mi zobrazuje chyba „Názov súboru alebo obsah už existuje“ alebo "
 "„Názov súboru už bol použitý“?"
 
-#: warehouse/templates/pages/help.html:92
-msgid "Why isn't my desired project name available?"
-msgstr "Prečo nie je k dispozícii požadovaný názov projektu?"
-
-#: warehouse/templates/pages/help.html:93
-msgid "How do I claim an abandoned or previously registered project name?"
-msgstr ""
-"Ako môžem uplatniť nárok na názov opusteného alebo predtým registrovaného "
-"projektu?"
-
-#: warehouse/templates/pages/help.html:94
-msgid "What collaborator roles are available for a project on PyPI?"
-msgstr "Aké roly spolupracovníkov sú dostupné pre projekt na PyPI?"
-
-#: warehouse/templates/pages/help.html:95
-msgid "How do I become an owner/maintainer of a project on PyPI?"
-msgstr "Ako sa stanem vlastníkom/správcom projektu na PyPI?"
-
-#: warehouse/templates/pages/help.html:96
-msgid "How can I upload a project description in a different format?"
-msgstr "Ako môžem nahrať popis projektu v inom formáte?"
-
-#: warehouse/templates/pages/help.html:97
+#: warehouse/templates/pages/help.html:103
 msgid "How do I request a new trove classifier?"
 msgstr "Ako požiadam o nový klasifikátor?"
 
-#: warehouse/templates/pages/help.html:98
+#: warehouse/templates/pages/help.html:104
 msgid "Where can I report a bug or provide feedback about PyPI?"
 msgstr "Kde môžem nahlásiť chybu alebo poskytnúť spätnú väzbu o PyPI?"
 
-#: warehouse/templates/pages/help.html:99
+#: warehouse/templates/pages/help.html:105
 #, fuzzy
 #| msgid ""
 #| "How does two factor authentication with an authentication application "
@@ -8037,79 +8081,79 @@ msgstr ""
 "(<abbr title=\"time-based one-time password\">TOTP</abbr>)? Ako to nastavím "
 "v PyPI?"
 
-#: warehouse/templates/pages/help.html:100
+#: warehouse/templates/pages/help.html:106
 msgid "My project says it's in quarantine. What does that mean?"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:102
+#: warehouse/templates/pages/help.html:109
 msgid "Who maintains PyPI?"
 msgstr "Kto spravuje PyPI?"
 
-#: warehouse/templates/pages/help.html:103
+#: warehouse/templates/pages/help.html:110
 msgid "What powers PyPI?"
 msgstr "Čo poháňa PyPI?"
 
-#: warehouse/templates/pages/help.html:104
+#: warehouse/templates/pages/help.html:111
 msgid "Can I depend on PyPI being available?"
 msgstr "Môžem sa spoľahnúť na dostupnosť PyPI?"
 
-#: warehouse/templates/pages/help.html:105
+#: warehouse/templates/pages/help.html:112
 msgid "How can I contribute to PyPI?"
 msgstr "Ako môžem prispieť k PyPI?"
 
-#: warehouse/templates/pages/help.html:106
+#: warehouse/templates/pages/help.html:113
 msgid "How do I keep up with upcoming changes to PyPI?"
 msgstr "Ako môžem držať krok s pripravovanými zmenami PyPI?"
 
-#: warehouse/templates/pages/help.html:107
+#: warehouse/templates/pages/help.html:114
 msgid "How can I get a list of PyPI's IP addresses?"
 msgstr "Ako môžem získať zoznam IP adries PyPI?"
 
-#: warehouse/templates/pages/help.html:108
+#: warehouse/templates/pages/help.html:115
 msgid ""
 "What does the \"beta feature\" badge mean? What are Warehouse's current beta "
 "features?"
 msgstr ""
 "Čo znamená odznak „funkcie beta“? Aké sú aktuálne beta funkcie Warehouse?"
 
-#: warehouse/templates/pages/help.html:109
+#: warehouse/templates/pages/help.html:116
 msgid "How do I pronounce \"PyPI\"?"
 msgstr "Ako vyslovím \"PyPI\"?"
 
-#: warehouse/templates/pages/help.html:116
+#: warehouse/templates/pages/help.html:123
 msgid "Common questions"
 msgstr "Časté otázky"
 
-#: warehouse/templates/pages/help.html:119
-#: warehouse/templates/pages/help.html:208
+#: warehouse/templates/pages/help.html:126
+#: warehouse/templates/pages/help.html:216
 msgid "Basics"
 msgstr "Základy"
 
-#: warehouse/templates/pages/help.html:130
+#: warehouse/templates/pages/help.html:137
 msgid "My Account"
 msgstr "Môj účet"
 
-#: warehouse/templates/pages/help.html:149
-#: warehouse/templates/pages/help.html:556
+#: warehouse/templates/pages/help.html:156
+#: warehouse/templates/pages/help.html:564
 msgid "Integrating"
 msgstr "Integrácia"
 
-#: warehouse/templates/pages/help.html:160
-#: warehouse/templates/pages/help.html:593
+#: warehouse/templates/pages/help.html:167
+#: warehouse/templates/pages/help.html:601
 msgid "Administration of projects on PyPI"
 msgstr "Administrácia projektov na PyPI"
 
-#: warehouse/templates/pages/help.html:175
-#: warehouse/templates/pages/help.html:696
+#: warehouse/templates/pages/help.html:183
+#: warehouse/templates/pages/help.html:714
 msgid "Troubleshooting"
 msgstr "Riešenie problémov"
 
-#: warehouse/templates/pages/help.html:194
-#: warehouse/templates/pages/help.html:888
+#: warehouse/templates/pages/help.html:202
+#: warehouse/templates/pages/help.html:907
 msgid "About"
 msgstr "O"
 
-#: warehouse/templates/pages/help.html:211
+#: warehouse/templates/pages/help.html:219
 #, python-format
 msgid ""
 "<p>We use a number of terms to describe software available on PyPI, like "
@@ -8143,7 +8187,7 @@ msgstr ""
 "obsahovať niekoľko súborov (balíkov), napríklad archív obsahujúci zdrojový "
 "kód alebo binárny <a href=\"%(wheel_href)s\">wheel</a>. </p>"
 
-#: warehouse/templates/pages/help.html:220
+#: warehouse/templates/pages/help.html:228
 #, python-format
 msgid ""
 "To learn how to install a file from PyPI, visit the <a "
@@ -8158,7 +8202,7 @@ msgstr ""
 "href=\"%(user_guide_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Python Packaging User Guide</a>."
 
-#: warehouse/templates/pages/help.html:227
+#: warehouse/templates/pages/help.html:235
 #, python-format
 msgid ""
 "For full instructions on configuring, packaging and distributing your Python "
@@ -8173,7 +8217,7 @@ msgstr ""
 "href=\"%(user_guide_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Python Packaging User Guide</a>."
 
-#: warehouse/templates/pages/help.html:234
+#: warehouse/templates/pages/help.html:242
 #, python-format
 msgid ""
 "Classifiers are used to categorize projects on PyPI. See <a "
@@ -8184,7 +8228,7 @@ msgstr ""
 "informácie, ako aj zoznam platných klasifikátorov nájdete na <a "
 "href=\"%(href)s\">stránke klasifikátorov</a>."
 
-#: warehouse/templates/pages/help.html:241
+#: warehouse/templates/pages/help.html:249
 #, python-format
 msgid ""
 "A yanked release is a release that is always ignored by an installer, unless "
@@ -8200,11 +8244,11 @@ msgstr ""
 "rel=\"noopener\"><abbr title=\"Python enhancement proposal\">PEP</abbr> 592</"
 "a>."
 
-#: warehouse/templates/pages/help.html:248
+#: warehouse/templates/pages/help.html:256
 msgid "My account"
 msgstr "Účet"
 
-#: warehouse/templates/pages/help.html:251
+#: warehouse/templates/pages/help.html:259
 msgid ""
 "Currently, PyPI requires a verified email address to perform the following "
 "operations:"
@@ -8212,15 +8256,15 @@ msgstr ""
 "V súčasnosti vyžaduje PyPI overenú e-mailovú adresu na vykonávanie "
 "nasledujúcich operácií:"
 
-#: warehouse/templates/pages/help.html:253
+#: warehouse/templates/pages/help.html:261
 msgid "Register a new project."
 msgstr "Zaregistrujte nový projekt."
 
-#: warehouse/templates/pages/help.html:254
+#: warehouse/templates/pages/help.html:262
 msgid "Upload a new version or file."
 msgstr "Nahrajte novú verziu alebo súbor."
 
-#: warehouse/templates/pages/help.html:256
+#: warehouse/templates/pages/help.html:264
 msgid ""
 "The list of activities that require a verified email address is likely to "
 "grow over time."
@@ -8228,7 +8272,7 @@ msgstr ""
 "Zoznam aktivít, ktoré vyžadujú overenú e-mailovú adresu, sa bude časom "
 "pravdepodobne rozširovať."
 
-#: warehouse/templates/pages/help.html:257
+#: warehouse/templates/pages/help.html:265
 #, python-format
 msgid ""
 "This policy will allow us to enforce a key policy of <a href=\"%(href)s\" "
@@ -8243,7 +8287,7 @@ msgstr ""
 "Znižuje tiež životaschopnosť spamových útokov na vytváranie mnohých účtov "
 "automatizovaným spôsobom."
 
-#: warehouse/templates/pages/help.html:258
+#: warehouse/templates/pages/help.html:266
 #, python-format
 msgid ""
 "You can manage your account's email addresses in your <a "
@@ -8256,7 +8300,7 @@ msgstr ""
 "potvrdzovací e-mail používateľom, ktorí sa zaregistrovali v minulosti "
 "predtým, ako sme začali presadzovať tieto pravidlá."
 
-#: warehouse/templates/pages/help.html:261
+#: warehouse/templates/pages/help.html:269
 #, fuzzy, python-format
 #| msgid ""
 #| "<p> PyPI itself has not suffered a breach. This is a protective measure "
@@ -8322,7 +8366,7 @@ msgstr ""
 "bolo vaše heslo obnovené a nemôžete sa prihlásiť do PyPI, kým <a "
 "href=\"%(reset_pwd_href)s\"> neobnovíte svoje heslo</a>. </p>"
 
-#: warehouse/templates/pages/help.html:296
+#: warehouse/templates/pages/help.html:304
 #, fuzzy, python-format
 #| msgid ""
 #| "<p> All PyPI user events are stored under security history in account "
@@ -8344,7 +8388,7 @@ msgstr ""
 "správcov PyPI ohľadom udalosti na adrese <a href=\"mailto:"
 "%(admin_email)s\">%(admin_email)s</a></li> </ul> </p>"
 
-#: warehouse/templates/pages/help.html:308
+#: warehouse/templates/pages/help.html:316
 msgid ""
 "<p> A PyPI API token linked to your account was posted on a public website. "
 "It was automatically revoked, but before regenerating a new one, please "
@@ -8357,7 +8401,7 @@ msgstr ""
 "skontrolujte e-mail, ktorý ste dostali, a pokúste sa zistiť príčinu. Platí "
 "aj sekcia <a href=\"#suspicious-activity\">podozrivá aktivita</a>. </p>"
 
-#: warehouse/templates/pages/help.html:318
+#: warehouse/templates/pages/help.html:326
 #, fuzzy
 #| msgid ""
 #| "<p> Two factor authentication (2FA) makes your account more secure by "
@@ -8400,7 +8444,7 @@ msgstr ""
 "sledovať na <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">discuss.python.org</a>.</p>"
 
-#: warehouse/templates/pages/help.html:340
+#: warehouse/templates/pages/help.html:348
 #, python-format
 msgid ""
 "PyPI users can set up two-factor authentication using any authentication "
@@ -8413,7 +8457,7 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"><abbr title=\"time-"
 "based one-time password\">TOTP</abbr> štandard</a>."
 
-#: warehouse/templates/pages/help.html:341
+#: warehouse/templates/pages/help.html:349
 msgid ""
 "<abbr title=\"time-based one-time password\">TOTP</abbr> authentication "
 "applications generate a regularly changing authentication code to use when "
@@ -8423,7 +8467,7 @@ msgstr ""
 "abbr> generujú pravidelne sa meniaci overovací kód, ktorý sa má použiť pri "
 "prihlasovaní sa do vášho účtu."
 
-#: warehouse/templates/pages/help.html:342
+#: warehouse/templates/pages/help.html:350
 msgid ""
 "Because <abbr title=\"time-based one-time password\">TOTP</abbr> is an open "
 "standard, there are many applications that are compatible with your PyPI "
@@ -8433,7 +8477,7 @@ msgstr ""
 "štandard, existuje veľa aplikácií, ktoré sú kompatibilné s vaším účtom PyPI. "
 "Medzi obľúbené aplikácie patria:"
 
-#: warehouse/templates/pages/help.html:345
+#: warehouse/templates/pages/help.html:353
 #, python-format
 msgid ""
 "Google Authenticator for <a href=\"%(android_href)s\" title=\"%(title)s\" "
@@ -8445,14 +8489,14 @@ msgstr ""
 "href=\"%(ios_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">iOS</a>"
 
-#: warehouse/templates/pages/help.html:348
-#: warehouse/templates/pages/help.html:350
-#: warehouse/templates/pages/help.html:355
-#: warehouse/templates/pages/help.html:357
+#: warehouse/templates/pages/help.html:356
+#: warehouse/templates/pages/help.html:358
+#: warehouse/templates/pages/help.html:363
+#: warehouse/templates/pages/help.html:365
 msgid "(proprietary)"
 msgstr "(vlastnené)"
 
-#: warehouse/templates/pages/help.html:352
+#: warehouse/templates/pages/help.html:360
 #, python-format
 msgid ""
 "Duo Mobile for <a href=\"%(android_href)s\" title=\"%(title)s\" "
@@ -8464,12 +8508,12 @@ msgstr ""
 "href=\"%(ios_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">iOS</a>"
 
-#: warehouse/templates/pages/help.html:358
-#: warehouse/templates/pages/help.html:359
+#: warehouse/templates/pages/help.html:366
+#: warehouse/templates/pages/help.html:367
 msgid "(open source)"
 msgstr "(open source)"
 
-#: warehouse/templates/pages/help.html:363
+#: warehouse/templates/pages/help.html:371
 #, python-format
 msgid ""
 "Some password managers (e.g. <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -8482,7 +8526,7 @@ msgstr ""
 "autentifikačné kódy. Z bezpečnostných dôvodov vám PyPI umožňuje nastaviť iba "
 "jednu aplikáciu na účet."
 
-#: warehouse/templates/pages/help.html:371
+#: warehouse/templates/pages/help.html:379
 msgid ""
 "To set up <abbr title=\"two factor authentication\">2FA</abbr> with an "
 "authentication application:"
@@ -8490,7 +8534,7 @@ msgstr ""
 "Ak chcete nastaviť <abbr title=\"two factor authentication\">2FA</abbr> "
 "pomocou autentifikačnej aplikácie:"
 
-#: warehouse/templates/pages/help.html:373
+#: warehouse/templates/pages/help.html:381
 msgid ""
 "Open an authentication (<abbr title=\"time-based one-time password\">TOTP</"
 "abbr>) application"
@@ -8498,7 +8542,7 @@ msgstr ""
 "Otvorte aplikáciu overovania (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
 
-#: warehouse/templates/pages/help.html:374
+#: warehouse/templates/pages/help.html:382
 msgid ""
 "Log in to your PyPI account, go to your account settings, and choose \"Add "
 "<abbr title=\"two factor authentication\">2FA</abbr> with authentication "
@@ -8508,7 +8552,7 @@ msgstr ""
 "možnosť „Pridať <abbr title=\"two factor authentication\">2FA</abbr> s "
 "autentifikačnou aplikáciou“"
 
-#: warehouse/templates/pages/help.html:375
+#: warehouse/templates/pages/help.html:383
 msgid ""
 "PyPI will generate a secret key, specific to your account. This is displayed "
 "as a QR code, and as a text code."
@@ -8516,7 +8560,7 @@ msgstr ""
 "PyPI vygeneruje tajný kľúč špecifický pre váš účet. Zobrazuje sa ako QR kód "
 "a ako textový kód."
 
-#: warehouse/templates/pages/help.html:376
+#: warehouse/templates/pages/help.html:384
 msgid ""
 "Scan the QR code with your authentication application, or type it in "
 "manually. The method of input will depend on the application you have chosen."
@@ -8524,7 +8568,7 @@ msgstr ""
 "Naskenujte QR kód pomocou overovacej aplikácie alebo ho zadajte ručne. "
 "Spôsob zadávania bude závisieť od aplikácie, ktorú ste si vybrali."
 
-#: warehouse/templates/pages/help.html:377
+#: warehouse/templates/pages/help.html:385
 #, fuzzy
 #| msgid ""
 #| "Your application will generate an authentication code - use this to "
@@ -8536,7 +8580,7 @@ msgstr ""
 "Vaša aplikácia vygeneruje overovací kód – použite ho na overenie vášho "
 "nastavenia v PyPI"
 
-#: warehouse/templates/pages/help.html:380
+#: warehouse/templates/pages/help.html:388
 msgid ""
 "The PyPI server and your application now share your PyPI secret key, "
 "allowing your application to generate valid authentication codes for your "
@@ -8545,26 +8589,26 @@ msgstr ""
 "Server PyPI a vaša aplikácia teraz zdieľajú váš tajný kľúč PyPI, čo vašej "
 "aplikácii umožňuje generovať platné overovacie kódy pre váš účet PyPI."
 
-#: warehouse/templates/pages/help.html:382
-#: warehouse/templates/pages/help.html:424
+#: warehouse/templates/pages/help.html:390
+#: warehouse/templates/pages/help.html:432
 msgid "Next time you log in to PyPI you'll need to:"
 msgstr "Pri ďalšom prihlásení do PyPI budete musieť:"
 
-#: warehouse/templates/pages/help.html:384
-#: warehouse/templates/pages/help.html:476
+#: warehouse/templates/pages/help.html:392
+#: warehouse/templates/pages/help.html:484
 msgid "Provide your username and password, as normal"
 msgstr "Zadajte svoje používateľské meno a heslo ako zvyčajne"
 
-#: warehouse/templates/pages/help.html:385
+#: warehouse/templates/pages/help.html:393
 msgid "Open your authentication application to generate an authentication code"
 msgstr ""
 "Otvorte svoju autentifikačnú aplikáciu a vygenerujte autentifikačný kód"
 
-#: warehouse/templates/pages/help.html:386
+#: warehouse/templates/pages/help.html:394
 msgid "Use this code to finish logging into PyPI"
 msgstr "Tento kód použite na dokončenie prihlásenia do PyPI"
 
-#: warehouse/templates/pages/help.html:392
+#: warehouse/templates/pages/help.html:400
 msgid ""
 "A security device is a USB key or <a href=\"#utfdevices\">other device</a> "
 "that generates a one-time password and sends that password to the browser. "
@@ -8575,7 +8619,7 @@ msgstr ""
 "prehliadača. Toto heslo potom PyPI používa na vašu autentifikáciu ako "
 "používateľa."
 
-#: warehouse/templates/pages/help.html:394
+#: warehouse/templates/pages/help.html:402
 #, fuzzy
 #| msgid ""
 #| "To set up two factor authentication with a <em>USB key</em>, you'll need:"
@@ -8585,7 +8629,7 @@ msgstr ""
 "Ak chcete nastaviť dvojfaktorové overenie pomocou <em>USB kľúča</em>, budete "
 "potrebovať:"
 
-#: warehouse/templates/pages/help.html:396
+#: warehouse/templates/pages/help.html:404
 #, python-format
 msgid ""
 "To use a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -8598,11 +8642,11 @@ msgstr ""
 "authentication\">WebAuthn</abbr> a PublicKeyCredential</a>, pretože toto je "
 "štandard implementovaný PyPI."
 
-#: warehouse/templates/pages/help.html:397
+#: warehouse/templates/pages/help.html:405
 msgid "To be running JavaScript on your browser"
 msgstr "Ak chcete spustiť JavaScript vo svojom prehliadači"
 
-#: warehouse/templates/pages/help.html:398
+#: warehouse/templates/pages/help.html:406
 #, python-format
 msgid ""
 "To use a USB key that adheres to the <a href=\"%(href)s\" "
@@ -8613,7 +8657,7 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">FIDO U2F "
 "špecifikácia</a>:"
 
-#: warehouse/templates/pages/help.html:401
+#: warehouse/templates/pages/help.html:409
 #, python-format
 msgid ""
 "Popular keys include <a href=\"%(yubikey_href)s\" title=\"%(title)s\" "
@@ -8628,7 +8672,7 @@ msgstr ""
 "rel=\"noopener\">Google Titan</a> a <a href=\"%(thetis_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Thetis</a>."
 
-#: warehouse/templates/pages/help.html:408
+#: warehouse/templates/pages/help.html:416
 msgid ""
 "Note that some older Yubico USB keys <strong>do not follow the FIDO "
 "specification</strong>, and will therefore not work with PyPI"
@@ -8636,11 +8680,11 @@ msgstr ""
 "Upozorňujeme, že niektoré staršie USB kľúče Yubico <strong> nespĺňajú "
 "špecifikáciu FIDO</strong>, a preto nebudú fungovať s PyPI"
 
-#: warehouse/templates/pages/help.html:413
+#: warehouse/templates/pages/help.html:421
 msgid "Follow these steps:"
 msgstr "Nasleduj tieto kroky:"
 
-#: warehouse/templates/pages/help.html:415
+#: warehouse/templates/pages/help.html:423
 msgid ""
 "<li>Log in to your PyPI account, go to your account settings, and choose "
 "\"Add <abbr title=\"two factor authentication\">2FA</abbr> with security "
@@ -8657,7 +8701,7 @@ msgstr ""
 "bezpečnostné zariadenie“</li> <li>Vložte a dotknite sa kľúča USB podľa "
 "pokynov prehliadača</li>"
 
-#: warehouse/templates/pages/help.html:422
+#: warehouse/templates/pages/help.html:430
 msgid ""
 "Once complete, your USB key will be registered to your PyPI account and can "
 "be used during the log in process."
@@ -8665,7 +8709,7 @@ msgstr ""
 "Po dokončení sa váš USB kľúč zaregistruje do vášho účtu PyPI a môžete ho "
 "použiť počas procesu prihlasovania."
 
-#: warehouse/templates/pages/help.html:426
+#: warehouse/templates/pages/help.html:434
 msgid ""
 "<li>Provide your username and password, as normal</li> <li>Insert and touch "
 "your USB key to finish logging into PyPI</li>"
@@ -8673,7 +8717,7 @@ msgstr ""
 "<li>Uveďte svoje používateľské meno a heslo ako obvykle</li> <li>Vložte a "
 "dotknite sa USB kľúča, aby ste dokončili prihlásenie do PyPI</li>"
 
-#: warehouse/templates/pages/help.html:437
+#: warehouse/templates/pages/help.html:445
 #, python-format
 msgid ""
 "There is a growing ecosystem of <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -8684,7 +8728,7 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">zariadenia, ktoré sú kompatibilné s FIDO</"
 "a>, a preto ich možno používať s PyPI."
 
-#: warehouse/templates/pages/help.html:442
+#: warehouse/templates/pages/help.html:450
 #, python-format
 msgid ""
 "Emerging solutions include biometric (facial and fingerprint) scanners and "
@@ -8698,7 +8742,7 @@ msgstr ""
 "rel=\"noopener\">mobilné telefóny, ktoré fungujú ako bezpečnostné "
 "zariadenia</a>."
 
-#: warehouse/templates/pages/help.html:448
+#: warehouse/templates/pages/help.html:456
 #, fuzzy, python-format
 #| msgid ""
 #| "As PyPI's two factor implementation follows the <a href=\"%(href)s\" "
@@ -8716,7 +8760,7 @@ msgstr ""
 "rel=\"noopener\"><abbr title=\"web authentication\">WebAuthn</abbr></a>, "
 "používatelia PyPI budú môcť využiť akýkoľvek budúci vývoj v tejto oblasti."
 
-#: warehouse/templates/pages/help.html:457
+#: warehouse/templates/pages/help.html:465
 #, fuzzy
 #| msgid ""
 #| "If you lose access to your <a href=\"#totp\">authentication application</"
@@ -8731,7 +8775,7 @@ msgstr ""
 "alebo <a href=\"#utfkey\">bezpečnostnému zariadeniu</a>, môžete tieto kódy "
 "použiť na prihlásenie do PyPI."
 
-#: warehouse/templates/pages/help.html:460
+#: warehouse/templates/pages/help.html:468
 #, fuzzy
 #| msgid ""
 #| "Recovery codes are <strong>one time use</strong>. They are not a "
@@ -8749,11 +8793,11 @@ msgstr ""
 "href=\"#utfkey\">bezpečnostné zariadenie</a> a mali by sa používať iba na "
 "obnovu. Po použití obnovovacieho kódu na prihlásenie sa stane neaktívnym."
 
-#: warehouse/templates/pages/help.html:466
+#: warehouse/templates/pages/help.html:474
 msgid "To provision recovery codes:"
 msgstr "Poskytnutie kódov na obnovenie:"
 
-#: warehouse/templates/pages/help.html:468
+#: warehouse/templates/pages/help.html:476
 msgid ""
 "Log in to your PyPI account, go to your account settings, and choose "
 "\"Generate recovery codes\""
@@ -8761,7 +8805,7 @@ msgstr ""
 "Prihláste sa do svojho účtu PyPI, prejdite do nastavení účtu a vyberte "
 "možnosť „Generovať kódy na obnovenie“"
 
-#: warehouse/templates/pages/help.html:469
+#: warehouse/templates/pages/help.html:477
 msgid ""
 "Securely store the displayed recovery codes! Consider printing them out and "
 "storing them in a safe location or saving them in a password manager."
@@ -8769,7 +8813,7 @@ msgstr ""
 "Bezpečne uložte zobrazené obnovovacie kódy! Zvážte ich vytlačenie a uloženie "
 "na bezpečnom mieste alebo ich uloženie do správcu hesiel."
 
-#: warehouse/templates/pages/help.html:472
+#: warehouse/templates/pages/help.html:480
 msgid ""
 "If you lose access to your stored recovery codes or use all of them, you can "
 "get new ones by selecting \"Regenerate recovery codes\" in your account "
@@ -8779,11 +8823,11 @@ msgstr ""
 "všetky, môžete získať nové tak, že v nastaveniach účtu vyberiete možnosť "
 "„Obnoviť kódy obnovenia“."
 
-#: warehouse/templates/pages/help.html:474
+#: warehouse/templates/pages/help.html:482
 msgid "To sign in with a recovery code:"
 msgstr "Ak sa chcete prihlásiť pomocou kódu na obnovenie:"
 
-#: warehouse/templates/pages/help.html:477
+#: warehouse/templates/pages/help.html:485
 #, fuzzy
 #| msgid ""
 #| "When prompted for two factor authentication, select \"Login using "
@@ -8795,14 +8839,14 @@ msgstr ""
 "Keď sa zobrazí výzva na dvojfaktorové overenie, vyberte možnosť „Prihlásiť "
 "sa pomocou kódov na obnovenie“"
 
-#: warehouse/templates/pages/help.html:478
+#: warehouse/templates/pages/help.html:486
 msgid ""
 "As each code can be used only once, you might want to mark the code as used"
 msgstr ""
 "Keďže každý kód možno použiť iba raz, možno budete chcieť kód označiť ako "
 "použitý"
 
-#: warehouse/templates/pages/help.html:479
+#: warehouse/templates/pages/help.html:487
 msgid ""
 "If you have few recovery codes remaining, you may also want to generate a "
 "new set using the \"Regenerate recovery codes\" button in your account "
@@ -8812,7 +8856,7 @@ msgstr ""
 "súpravu pomocou tlačidla „Znovu vygenerovať kódy na obnovenie“ v "
 "nastaveniach účtu."
 
-#: warehouse/templates/pages/help.html:485
+#: warehouse/templates/pages/help.html:493
 #, fuzzy
 #| msgid ""
 #| "API tokens provide an alternative way to authenticate when uploading "
@@ -8824,7 +8868,7 @@ msgstr ""
 "Tokeny API poskytujú alternatívny spôsob autentifikácie pri nahrávaní "
 "balíkov do PyPI."
 
-#: warehouse/templates/pages/help.html:490
+#: warehouse/templates/pages/help.html:498
 #, fuzzy
 #| msgid ""
 #| "<p>API tokens provide an alternative way (instead of username and "
@@ -8846,13 +8890,13 @@ msgstr ""
 "rozsah tokenu na konkrétny projekt.</p> <p><strong>Dôrazne odporúčame, aby "
 "ste sa tam, kde je to možné, overili pomocou tokenu API.</strong></p>"
 
-#: warehouse/templates/pages/help.html:497
+#: warehouse/templates/pages/help.html:505
 msgid ""
 "When using an API token from a CI provider, we recommend scoping the token "
 "down to the minimum necessary projects."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:504
+#: warehouse/templates/pages/help.html:512
 #, python-format
 msgid ""
 "If you are publishing to PyPI from a CI provider that supports <a "
@@ -8860,20 +8904,20 @@ msgid ""
 "Trusted Publishing instead."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:512
+#: warehouse/templates/pages/help.html:520
 msgid "To make an API token:"
 msgstr "Vytvorenie tokenu API:"
 
-#: warehouse/templates/pages/help.html:515
+#: warehouse/templates/pages/help.html:523
 msgid "Verify your email address"
 msgstr "Overte svoju e-mailovú adresu"
 
-#: warehouse/templates/pages/help.html:515
+#: warehouse/templates/pages/help.html:523
 #, python-format
 msgid "(check your <a href=\"%(href)s\">account settings</a>)"
 msgstr "(skontrolujte <a href=\"%(href)s\">nastavenia účtu</a>)"
 
-#: warehouse/templates/pages/help.html:516
+#: warehouse/templates/pages/help.html:524
 #, python-format
 msgid ""
 "In your <a href=\"%(href)s\">account settings</a>, go to the API tokens "
@@ -8882,21 +8926,21 @@ msgstr ""
 "V <a href=\"%(href)s\">nastaveniach účtu</a> prejdite do sekcie API tokeny a "
 "vyberte \"Pridať API token\""
 
-#: warehouse/templates/pages/help.html:519
+#: warehouse/templates/pages/help.html:527
 msgid "To use an API token:"
 msgstr "Ak chcete použiť token API:"
 
-#: warehouse/templates/pages/help.html:522
+#: warehouse/templates/pages/help.html:530
 msgid "Set your username to <code>__token__</code>"
 msgstr "Nastavte svoje používateľské meno na <code>__token__</code>"
 
-#: warehouse/templates/pages/help.html:523
+#: warehouse/templates/pages/help.html:531
 msgid ""
 "Set your password to the token value, including the <code>pypi-</code> prefix"
 msgstr ""
 "Nastavte svoje heslo na hodnotu tokenu vrátane predpony <code>pypi-</code>"
 
-#: warehouse/templates/pages/help.html:527
+#: warehouse/templates/pages/help.html:535
 #, python-format
 msgid ""
 "Where you edit or add these values will depend on your individual use case. "
@@ -8914,7 +8958,7 @@ msgstr ""
 "(napr. <a href=\"%(travis_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\"><code>.travis.yml</code>, ak používate Travis</a>)."
 
-#: warehouse/templates/pages/help.html:531
+#: warehouse/templates/pages/help.html:539
 msgid ""
 "Advanced users may wish to inspect their token by decoding it with base64, "
 "and checking the output against the unique identifier displayed on PyPI."
@@ -8923,7 +8967,7 @@ msgstr ""
 "dekódujú pomocou base64 a skontrolujú výstup podľa jedinečného "
 "identifikátora zobrazeného na PyPI."
 
-#: warehouse/templates/pages/help.html:535
+#: warehouse/templates/pages/help.html:543
 msgid ""
 "<p>PyPI asks you to confirm your password before you want to perform a "
 "<i>sensitive action</i>. Sensitive actions include things like adding or "
@@ -8942,11 +8986,11 @@ msgstr ""
 "takéto akcie vykonávali iba na svojom osobnom počítači chránenom heslom. </"
 "strong> </p>"
 
-#: warehouse/templates/pages/help.html:542
+#: warehouse/templates/pages/help.html:550
 msgid "PyPI does not currently support changing a username."
 msgstr "PyPI momentálne nepodporuje zmenu používateľského mena."
 
-#: warehouse/templates/pages/help.html:543
+#: warehouse/templates/pages/help.html:551
 msgid ""
 "Instead, you can create a new account with the desired username, add the new "
 "account as a maintainer of all the projects your old account owns, and then "
@@ -8956,7 +9000,7 @@ msgstr ""
 "menom, pridať nový účet ako správcu všetkých projektov, ktoré vlastní váš "
 "starý účet, a potom starý účet odstrániť, čo bude mať rovnaký účinok."
 
-#: warehouse/templates/pages/help.html:547
+#: warehouse/templates/pages/help.html:555
 #, fuzzy, python-format
 #| msgid ""
 #| "PyPI users and projects can use <a href=\"%(docs)s\">Trusted Publishers</"
@@ -8972,15 +9016,15 @@ msgstr ""
 "dôveryhodnú službu tretej strany, čím sa eliminuje potreba používať tokeny "
 "alebo heslá API."
 
-#: warehouse/templates/pages/help.html:559
+#: warehouse/templates/pages/help.html:567
 msgid "Yes, including RSS feeds of new packages and new releases."
 msgstr "Áno, vrátane kanálov RSS nových balíkov a nových vydaní."
 
-#: warehouse/templates/pages/help.html:559
+#: warehouse/templates/pages/help.html:567
 msgid "See the API reference."
 msgstr "Pozrite si referenciu API."
 
-#: warehouse/templates/pages/help.html:562
+#: warehouse/templates/pages/help.html:570
 #, python-format
 msgid ""
 "If you need to run your own mirror of PyPI, the <a "
@@ -8992,7 +9036,7 @@ msgstr ""
 "<a href=\"%(href)s\">bandersnatch</a>. Všimnite si, že požiadavky na "
 "úložisko pre zrkadlo PyPI by presiahli 1 terabajt – a stále rastú!"
 
-#: warehouse/templates/pages/help.html:565
+#: warehouse/templates/pages/help.html:573
 #, python-format
 msgid ""
 "You can subscribe to the <a href=\"%(rss_href)s\" title=\"%(title)s\" "
@@ -9009,7 +9053,7 @@ msgstr ""
 "uvedených ako <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">GitHub apps</a>."
 
-#: warehouse/templates/pages/help.html:568
+#: warehouse/templates/pages/help.html:576
 #, python-format
 msgid ""
 "You can analyze PyPI project/package metadata and <a href=\"%(href)s\" "
@@ -9021,7 +9065,7 @@ msgstr ""
 "analyzovať prostredníctvom našej verejnej množiny údajov v nástroji Google "
 "BigQuery."
 
-#: warehouse/templates/pages/help.html:570
+#: warehouse/templates/pages/help.html:578
 #, python-format
 msgid ""
 "<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -9046,7 +9090,7 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">other relevant "
 "factors</a>."
 
-#: warehouse/templates/pages/help.html:579
+#: warehouse/templates/pages/help.html:587
 #, python-format
 msgid ""
 "For recent statistics on uptime and performance, see <a href=\"%(href)s\" "
@@ -9056,7 +9100,7 @@ msgstr ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">our "
 "status page</a>."
 
-#: warehouse/templates/pages/help.html:582
+#: warehouse/templates/pages/help.html:590
 msgid ""
 "For each package hosted on PyPI, there are corresponding hashes for that "
 "file. These hashes can be used to verify that the file you are downloading "
@@ -9072,7 +9116,7 @@ msgstr ""
 "získať zo stránky projektu v časti „Stiahnuť súbory“ alebo z JSON API. Tu je "
 "príklad generovania hashov:"
 
-#: warehouse/templates/pages/help.html:589
+#: warehouse/templates/pages/help.html:597
 msgid ""
 "In practice, it would only be necessary to verify one of the hashes. It is "
 "not recommended to use the MD5 hash because of known security issues with "
@@ -9082,7 +9126,7 @@ msgstr ""
 "hash MD5 kvôli známym bezpečnostným problémom s algoritmom MD5. Tento hash "
 "je poskytnutý len pre spätnú kompatibilitu."
 
-#: warehouse/templates/pages/help.html:596
+#: warehouse/templates/pages/help.html:604
 #, python-format
 msgid ""
 "PyPI does not support publishing private packages. If you need to publish "
@@ -9093,7 +9137,7 @@ msgstr ""
 "svoj súkromný balík do indexu balíkov, odporúčaným riešením je spustiť "
 "vlastné nasadenie projektu <a href=\"%(href)s\">devpi</a>."
 
-#: warehouse/templates/pages/help.html:599
+#: warehouse/templates/pages/help.html:607
 msgid ""
 "Your publishing tool may return an error that your new project can't be "
 "created with your desired name, despite no evidence of a project or release "
@@ -9105,7 +9149,7 @@ msgstr ""
 "dôkaz o projekte alebo vydaní s rovnakým názvom. V súčasnosti existujú štyri "
 "hlavné dôvody, prečo k tomu môže dôjsť:"
 
-#: warehouse/templates/pages/help.html:601
+#: warehouse/templates/pages/help.html:609
 #, python-format
 msgid ""
 "The project name conflicts with a <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -9116,14 +9160,14 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Standard "
 "Library</a> z ľubovoľnej hlavnej verzie od verzie 2.5 do súčasnosti."
 
-#: warehouse/templates/pages/help.html:602
+#: warehouse/templates/pages/help.html:610
 msgid ""
 "The project name is too similar to an existing project and may be confusable."
 msgstr ""
 "Názov projektu je príliš podobný existujúcemu projektu a môže byť "
 "zameniteľný."
 
-#: warehouse/templates/pages/help.html:603
+#: warehouse/templates/pages/help.html:611
 #, python-format
 msgid ""
 "The project name has been explicitly prohibited by the PyPI administrators. "
@@ -9135,7 +9179,7 @@ msgstr ""
 "<code>%(incorrect_code)s</code> je bežný preklep pre <code>%(correct_code)s</"
 "code> a nemal by používateľa prekvapiť škodlivým balíkom."
 
-#: warehouse/templates/pages/help.html:604
+#: warehouse/templates/pages/help.html:612
 msgid ""
 "The project name has been registered by another user, but no releases have "
 "been created."
@@ -9143,12 +9187,12 @@ msgstr ""
 "Názov projektu bol zaregistrovaný iným používateľom, ale neboli vytvorené "
 "žiadne vydania."
 
-#: warehouse/templates/pages/help.html:604
+#: warehouse/templates/pages/help.html:612
 #, python-format
 msgid "See <a href=\"%(href)s\">%(anchor_text)s</a>"
 msgstr "Pozri <a href=\"%(href)s\">%(anchor_text)s</a>"
 
-#: warehouse/templates/pages/help.html:608
+#: warehouse/templates/pages/help.html:616
 #, python-format
 msgid ""
 "Follow the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -9159,7 +9203,7 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">\"Ako požiadať o prenos názvu\"</a> v "
 "časti <abbr title=\"Python enhancement proposal\">PEP</abbr> 541."
 
-#: warehouse/templates/pages/help.html:612
+#: warehouse/templates/pages/help.html:620
 msgid ""
 "Can upload releases for a package. Cannot add collaborators. Cannot delete "
 "files, releases, or the project."
@@ -9167,11 +9211,11 @@ msgstr ""
 "Môže nahrať vydania pre balík. Nie je možné pridať spolupracovníkov. Nie je "
 "možné odstrániť súbory, vydania alebo projekt."
 
-#: warehouse/templates/pages/help.html:613
+#: warehouse/templates/pages/help.html:621
 msgid "Owner:"
 msgstr "vlastník:"
 
-#: warehouse/templates/pages/help.html:613
+#: warehouse/templates/pages/help.html:621
 msgid ""
 "Can upload releases. Can add other collaborators. Can delete files, "
 "releases, or the entire project."
@@ -9179,7 +9223,7 @@ msgstr ""
 "Môže nahrávať vydania. Môže pridať ďalších spolupracovníkov. Môže odstrániť "
 "súbory, vydania alebo celý projekt."
 
-#: warehouse/templates/pages/help.html:616
+#: warehouse/templates/pages/help.html:624
 msgid ""
 "Only the current owners of a project have the ability to add new owners or "
 "maintainers. If you need to request ownership, you should contact the "
@@ -9193,21 +9237,21 @@ msgstr ""
 "projektov poskytuje svoje kontaktné údaje v poli „Autor“ v časti „Meta“ na "
 "stránke projektu."
 
-#: warehouse/templates/pages/help.html:617
+#: warehouse/templates/pages/help.html:625
 #, python-format
 msgid ""
 "If the owner is unresponsive, see <a href=\"%(href)s\">%(anchor_text)s</a>"
 msgstr ""
 "Ak vlastník nereaguje, pozrite si <a href=\"%(href)s\">%(anchor_text)s</a>"
 
-#: warehouse/templates/pages/help.html:621
+#: warehouse/templates/pages/help.html:629
 msgid ""
 "When using <code>pyproject.toml</code> for project metadata, you can use the "
 "extension of the <code>readme</code> field value to control how PyPI renders "
 "your description."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:626
+#: warehouse/templates/pages/help.html:634
 #, python-format
 msgid ""
 "For example, <code>readme = \"README.md\"</code> will render the description "
@@ -9216,7 +9260,7 @@ msgid ""
 "rel=\"noopener\">reStructuredText</a>"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:633
+#: warehouse/templates/pages/help.html:641
 #, python-format
 msgid ""
 "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -9227,7 +9271,7 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
 "Guide</a>."
 
-#: warehouse/templates/pages/help.html:644
+#: warehouse/templates/pages/help.html:652
 #, fuzzy, python-format
 #| msgid ""
 #| "If you can't upload your project's release to PyPI because you're hitting "
@@ -9256,29 +9300,29 @@ msgstr ""
 "poriadku). Potom <a href=\"%(file_issue_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">nahláste problém</a> a povedzte nám:"
 
-#: warehouse/templates/pages/help.html:653
-#: warehouse/templates/pages/help.html:675
+#: warehouse/templates/pages/help.html:661
+#: warehouse/templates/pages/help.html:683
 msgid "A link to your project on PyPI (or Test PyPI)"
 msgstr "Odkaz na váš projekt na PyPI (alebo Test PyPI)"
 
-#: warehouse/templates/pages/help.html:654
+#: warehouse/templates/pages/help.html:662
 msgid "The size of your release, in megabytes"
 msgstr "Veľkosť vášho vydania v megabajtoch"
 
-#: warehouse/templates/pages/help.html:655
+#: warehouse/templates/pages/help.html:663
 msgid ""
 "Which index/indexes you need the increase for (PyPI, Test PyPI, or both)"
 msgstr ""
 "Pre ktorý index/indexy potrebujete zvýšenie (PyPI, Test PyPI alebo oboje)"
 
-#: warehouse/templates/pages/help.html:656
-#: warehouse/templates/pages/help.html:677
+#: warehouse/templates/pages/help.html:664
+#: warehouse/templates/pages/help.html:685
 msgid ""
 "A brief description of your project, including the reason for the additional "
 "size."
 msgstr "Stručný popis vášho projektu vrátane dôvodu dodatočnej veľkosti."
 
-#: warehouse/templates/pages/help.html:663
+#: warehouse/templates/pages/help.html:671
 #, fuzzy, python-format
 #| msgid ""
 #| "If you can't upload your project's release to PyPI because you're hitting "
@@ -9294,7 +9338,7 @@ msgstr ""
 "veľkosti projektu, najprv odstráňte nepotrebné vydania alebo jednotlivé "
 "súbory, aby ste znížili celkovú veľkosť projektu."
 
-#: warehouse/templates/pages/help.html:670
+#: warehouse/templates/pages/help.html:678
 #, python-format
 msgid ""
 "If that is not possible, we can sometimes increase your limit. <a "
@@ -9305,11 +9349,11 @@ msgstr ""
 "href=\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Podajte problém</a> a povedzte nám:"
 
-#: warehouse/templates/pages/help.html:676
+#: warehouse/templates/pages/help.html:684
 msgid "The total size of your project, in gigabytes"
 msgstr "Celková veľkosť vášho projektu v gigabajtoch"
 
-#: warehouse/templates/pages/help.html:683
+#: warehouse/templates/pages/help.html:691
 #, python-format
 msgid ""
 "PyPI receives reports on vulnerabilities in the packages hosted on it from "
@@ -9325,7 +9369,7 @@ msgstr ""
 "zraniteľnosti z <a href=\"%(vulns_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Packaging Advisory Database</a>."
 
-#: warehouse/templates/pages/help.html:688
+#: warehouse/templates/pages/help.html:696
 #, python-format
 msgid ""
 "If you believe vulnerability data for your project is invalid or incorrect, "
@@ -9336,7 +9380,17 @@ msgstr ""
 "nesprávne, <a href=\"%(file_issue_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">nahláste problém</a> s podrobnosťami."
 
-#: warehouse/templates/pages/help.html:700
+#: warehouse/templates/pages/help.html:703
+msgid ""
+"Deletion of a project, release or file on PyPI is permanent and "
+"irreversable, without exception. Deletion of a project makes it "
+"uninstallable, and releases the project name for use by any other PyPI user. "
+"Deleted files <a href=\"#file-name-reuse\">cannot be re-uploaded</a>. "
+"Deleted projects, releases or files cannot be restored by PyPI "
+"administrators."
+msgstr ""
+
+#: warehouse/templates/pages/help.html:718
 #, python-format
 msgid ""
 "PyPI will reject uploads if the package description fails to render. You may "
@@ -9347,7 +9401,7 @@ msgstr ""
 "href=\"%(href)s\" title=\"%(title)s\">použiť príkaz kontroly špagátu</a> na "
 "lokálne overenie platnosti popisu."
 
-#: warehouse/templates/pages/help.html:706
+#: warehouse/templates/pages/help.html:724
 #, fuzzy
 #| msgid ""
 #| "If you've forgotten your PyPI password but you remember your email "
@@ -9359,31 +9413,38 @@ msgstr ""
 "Ak ste zabudli svoje heslo PyPI, ale pamätáte si svoju e-mailovú adresu "
 "alebo používateľské meno, postupujte podľa týchto krokov na obnovenie hesla:"
 
-#: warehouse/templates/pages/help.html:708
+#: warehouse/templates/pages/help.html:726
 #, python-format
 msgid "Go to <a href=\"%(href)s\">reset your password</a>."
 msgstr "Prejdite na <a href=\"%(href)s\">reset your password</a>."
 
-#: warehouse/templates/pages/help.html:709
+#: warehouse/templates/pages/help.html:727
 msgid ""
 "Enter the email address or username you used for PyPI and submit the form."
 msgstr ""
 "Zadajte e-mailovú adresu alebo používateľské meno, ktoré ste použili pre "
 "PyPI, a odošlite formulár."
 
-#: warehouse/templates/pages/help.html:710
+#: warehouse/templates/pages/help.html:728
 msgid "You'll receive an email with a password reset link."
 msgstr "Dostanete e-mail s odkazom na obnovenie hesla."
 
-#: warehouse/templates/pages/help.html:715
-msgid "If you've lost access to your PyPI account due to:"
+#: warehouse/templates/pages/help.html:733
+#, fuzzy
+#| msgid "If you've lost access to your PyPI account due to:"
+msgid ""
+"If you've lost access to your PyPI account or can't fully verify it due to:"
 msgstr "Ak ste stratili prístup k svojmu účtu PyPI z nasledujúcich dôvodov:"
 
-#: warehouse/templates/pages/help.html:717
+#: warehouse/templates/pages/help.html:735
 msgid "Lost access to the email address associated with your account"
 msgstr "Stratili ste prístup k e-mailovej adrese priradenej k vášmu účtu"
 
-#: warehouse/templates/pages/help.html:718
+#: warehouse/templates/pages/help.html:736
+msgid "Accidentally registered with an email address you cannot verify"
+msgstr ""
+
+#: warehouse/templates/pages/help.html:737
 #, fuzzy
 #| msgid ""
 #| "Lost two factor authentication <a href=\"#totp\">application</a>, <a "
@@ -9398,7 +9459,7 @@ msgstr ""
 "href=\"#utfkey\">zariadenia</a> a <a href=\"#recoverycodes\">kódov na "
 "obnovenie</a>"
 
-#: warehouse/templates/pages/help.html:721
+#: warehouse/templates/pages/help.html:740
 #, python-format
 msgid ""
 "You can proceed to <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -9409,11 +9470,11 @@ msgstr ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">podať problém na našom sledovači</a>."
 
-#: warehouse/templates/pages/help.html:729
+#: warehouse/templates/pages/help.html:748
 msgid "Ensure that your API Token is valid and has not been revoked."
 msgstr "Uistite sa, že váš API Token je platný a nebol odvolaný."
 
-#: warehouse/templates/pages/help.html:730
+#: warehouse/templates/pages/help.html:749
 msgid ""
 "Ensure that your API Token is <a href=\"#apitoken\">properly formatted</a> "
 "and does not contain any trailing characters such as newlines."
@@ -9421,13 +9482,13 @@ msgstr ""
 "Uistite sa, že váš token API je <a href=\"#apitoken\">správne naformátovaný</"
 "a> a neobsahuje žiadne koncové znaky, ako napríklad nové riadky."
 
-#: warehouse/templates/pages/help.html:731
+#: warehouse/templates/pages/help.html:750
 msgid "Ensure that the username you are using is <code>__token__</code>."
 msgstr ""
 "Uistite sa, že používateľské meno, ktoré používate, je <code>__token__</"
 "code>."
 
-#: warehouse/templates/pages/help.html:733
+#: warehouse/templates/pages/help.html:752
 #, fuzzy
 #| msgid ""
 #| "In both cases, remember that PyPI and TestPyPI each require you to create "
@@ -9439,7 +9500,7 @@ msgstr ""
 "V oboch prípadoch nezabudnite, že PyPI a TestPyPI vyžadujú, aby ste si "
 "vytvorili účet, takže vaše poverenia sa môžu líšiť."
 
-#: warehouse/templates/pages/help.html:735
+#: warehouse/templates/pages/help.html:754
 #, fuzzy, python-format
 #| msgid ""
 #| "If you're using Windows and trying to paste your password or token in the "
@@ -9460,7 +9521,7 @@ msgstr ""
 "okna alebo povoliť „Použiť Ctrl+Shift+C/V ako kopírovať/prilepiť“ v časti "
 "„Vlastnosti“."
 
-#: warehouse/templates/pages/help.html:744
+#: warehouse/templates/pages/help.html:763
 #, python-format
 msgid ""
 "Transport Layer Security, or TLS, is part of how we make sure connections "
@@ -9479,7 +9540,7 @@ msgstr ""
 "<a href=\"%(reason_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\"> Prečo, sa dozviete na blogu PSF</a>."
 
-#: warehouse/templates/pages/help.html:751
+#: warehouse/templates/pages/help.html:770
 #, python-format
 msgid ""
 "If you are having trouble with <code>%(command)s</code> and get a <code>No "
@@ -9491,7 +9552,7 @@ msgstr ""
 "code>, skúste do príkazu pridať <code>-v</code>, aby ste získali ďalšie "
 "informácie:"
 
-#: warehouse/templates/pages/help.html:753
+#: warehouse/templates/pages/help.html:772
 msgid ""
 "If you see an error like <code>There was a problem confirming the ssl "
 "certificate</code> or <code>tlsv1 alert protocol version</code> or "
@@ -9503,7 +9564,7 @@ msgstr ""
 "<code>TLSV1_ALERT_PROTOCOL_VERSION</code>, musíte sa pripojiť k PyPI pomocou "
 "novšej knižnice podpory TLS."
 
-#: warehouse/templates/pages/help.html:754
+#: warehouse/templates/pages/help.html:773
 msgid ""
 "The specific steps you need to take will depend on your operating system "
 "version, where your installation of Python originated (python.org, your OS "
@@ -9515,7 +9576,7 @@ msgstr ""
 "dodávateľ OS alebo sprostredkovateľský distribútor) a nainštalovaných verzií "
 "Pythonu, <code>setuptools</code> a <code>pip</code>."
 
-#: warehouse/templates/pages/help.html:756
+#: warehouse/templates/pages/help.html:775
 #, python-format
 msgid ""
 "For help, go to <a href=\"%(irc_href)s\" title=\"%(title)s\" "
@@ -9535,7 +9596,7 @@ msgstr ""
 "rel=\"noopener\">diskutujte na Discourse</a> vrátane vášho operačného "
 "systému a podrobností o inštalácii a výstupu <code>%(command)s</code>."
 
-#: warehouse/templates/pages/help.html:767
+#: warehouse/templates/pages/help.html:786
 #, python-format
 msgid ""
 "We take <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -9546,7 +9607,7 @@ msgstr ""
 "rel=\"noopener\">dostupnosť</a> berieme veľmi vážne a chceme, aby používanie "
 "webovej stránky bolo pre každého jednoduché."
 
-#: warehouse/templates/pages/help.html:772
+#: warehouse/templates/pages/help.html:791
 #, python-format
 msgid ""
 "If you are experiencing an accessibility problem, <a href=\"%(href)s\" "
@@ -9557,7 +9618,7 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">nahláste nám to na GitHub</a>, aby sme sa "
 "mohli pokúsiť problém vyriešiť za vás a ostatných."
 
-#: warehouse/templates/pages/help.html:780
+#: warehouse/templates/pages/help.html:799
 #, python-format
 msgid ""
 "In a previous version of PyPI, it used to be possible for maintainers to "
@@ -9572,7 +9633,7 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">nahrať svoj projekt "
 "do PyPI</a> pomocou špagátu."
 
-#: warehouse/templates/pages/help.html:789
+#: warehouse/templates/pages/help.html:808
 msgid ""
 "Spammers return to PyPI with some regularity hoping to place their Search "
 "Engine Optimized phishing, scam, and click-farming content on the site. "
@@ -9586,7 +9647,7 @@ msgstr ""
 "údajov súvisiacich s projektmi a má vo všeobecnosti dobrú povesť "
 "vyhľadávania, je hlavným cieľom."
 
-#: warehouse/templates/pages/help.html:791
+#: warehouse/templates/pages/help.html:810
 #, python-format
 msgid ""
 "When the PyPI administrators are overwhelmed by spam <strong>or</strong> "
@@ -9603,23 +9664,23 @@ msgstr ""
 "rel=\"noopener\">našej stavovej stránke</a>, pretože sme ju pravdepodobne "
 "aktualizovali s odôvodnením zásahu."
 
-#: warehouse/templates/pages/help.html:800
+#: warehouse/templates/pages/help.html:819
 msgid "PyPI will return these errors for one of these reasons:"
 msgstr "PyPI vráti tieto chyby z jedného z týchto dôvodov:"
 
-#: warehouse/templates/pages/help.html:802
+#: warehouse/templates/pages/help.html:821
 msgid "Filename has been used and file exists"
 msgstr "Názov súboru bol použitý a súbor existuje"
 
-#: warehouse/templates/pages/help.html:803
+#: warehouse/templates/pages/help.html:822
 msgid "Filename has been used but file no longer exists"
 msgstr "Názov súboru bol použitý, ale súbor už neexistuje"
 
-#: warehouse/templates/pages/help.html:804
+#: warehouse/templates/pages/help.html:823
 msgid "A file with the exact same content exists"
 msgstr "Existuje súbor s presne rovnakým obsahom"
 
-#: warehouse/templates/pages/help.html:807
+#: warehouse/templates/pages/help.html:826
 msgid ""
 "PyPI does not allow for a filename to be reused, even once a project has "
 "been deleted and recreated."
@@ -9627,7 +9688,7 @@ msgstr ""
 "PyPI neumožňuje opätovné použitie názvu súboru, a to ani po odstránení a "
 "opätovnom vytvorení projektu."
 
-#: warehouse/templates/pages/help.html:813
+#: warehouse/templates/pages/help.html:832
 msgid ""
 "A distribution filename on PyPI consists of the combination of project name, "
 "version number, and distribution type."
@@ -9635,7 +9696,7 @@ msgstr ""
 "Názov distribučného súboru v PyPI pozostáva z kombinácie názvu projektu, "
 "čísla verzie a typu distribúcie."
 
-#: warehouse/templates/pages/help.html:819
+#: warehouse/templates/pages/help.html:838
 msgid ""
 "This ensures that a given distribution for a given release for a given "
 "project will always resolve to the same file, and cannot be surreptitiously "
@@ -9646,7 +9707,7 @@ msgstr ""
 "prenesená do rovnakého súboru a nemôže byť jedného dňa tajne zmenená "
 "správcom projektu alebo škodlivou stranou (dá sa iba odstrániť)."
 
-#: warehouse/templates/pages/help.html:827
+#: warehouse/templates/pages/help.html:846
 msgid ""
 "To avoid this situation in most cases, you will need to change the version "
 "number to one that you haven't previously uploaded to PyPI, rebuild the "
@@ -9656,7 +9717,7 @@ msgstr ""
 "číslo verzie na číslo, ktoré ste predtým nenahrali do PyPI, prebudovať "
 "distribúciu a potom nahrať novú distribúciu."
 
-#: warehouse/templates/pages/help.html:836
+#: warehouse/templates/pages/help.html:855
 #, python-format
 msgid ""
 "If you would like to request a new trove classifier file a pull request on "
@@ -9669,7 +9730,7 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\"><code>pypa/trove-classifiers</code></a>. "
 "Nezabudnite uviesť krátke odôvodnenie, prečo je to dôležité."
 
-#: warehouse/templates/pages/help.html:844
+#: warehouse/templates/pages/help.html:863
 #, python-format
 msgid ""
 "If you're experiencing an issue with PyPI itself, we welcome "
@@ -9686,7 +9747,7 @@ msgstr ""
 "určený len na problémy so softvérom, ktorý ešte nepoužíva PyPI. Pred "
 "napísaním nového problému skontrolujte, či neexistuje nový problém."
 
-#: warehouse/templates/pages/help.html:851
+#: warehouse/templates/pages/help.html:870
 msgid ""
 "If you are having an issue is with a specific package installed from PyPI, "
 "you should reach out to the maintainers of that project directly instead."
@@ -9694,7 +9755,7 @@ msgstr ""
 "Ak máte problém s konkrétnym balíkom nainštalovaným z PyPI, mali by ste sa "
 "namiesto toho obrátiť priamo na správcov tohto projektu."
 
-#: warehouse/templates/pages/help.html:856
+#: warehouse/templates/pages/help.html:875
 msgid ""
 "If you are having issues while setting up a <abbr title=\"time-based one-"
 "time password\">TOTP</abbr> device, it may be because your device time is "
@@ -9702,7 +9763,7 @@ msgid ""
 "and try setting up the device again."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:863
+#: warehouse/templates/pages/help.html:882
 #, python-format
 msgid ""
 "Projects may get placed in quarantine for any number of reasons, such as "
@@ -9712,14 +9773,14 @@ msgid ""
 "a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:872
+#: warehouse/templates/pages/help.html:891
 msgid ""
 "While in quarantine, the project is not installable by clients, and cannot "
 "be being modified by its maintainers. PyPI Administrators will need to "
 "review this project before it can be restored."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:879
+#: warehouse/templates/pages/help.html:898
 #, python-format
 msgid ""
 "If you believe your project has mistakenly been flagged for quarantine, "
@@ -9727,7 +9788,7 @@ msgid ""
 "details."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:892
+#: warehouse/templates/pages/help.html:911
 #, python-format
 msgid ""
 "PyPI is powered by the Warehouse project; <a href=\"%(href)s\" "
@@ -9741,7 +9802,7 @@ msgstr ""
 "source projekt vyvinutý pod záštitou Python Packaging Authority (PyPA) a "
 "podporovaný Python Packaging Working Group (PackagingWG)."
 
-#: warehouse/templates/pages/help.html:897
+#: warehouse/templates/pages/help.html:916
 #, python-format
 msgid ""
 "The <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -9753,7 +9814,7 @@ msgstr ""
 "rel=\"noopener\">PyPA</a> je nezávislá skupina vývojárov, ktorej cieľom je "
 "vylepšiť a udržiavať mnoho kľúčových projektov súvisiacich s balením Pythonu."
 
-#: warehouse/templates/pages/help.html:902
+#: warehouse/templates/pages/help.html:921
 #, python-format
 msgid ""
 "The <a href=\"%(packaging_wg_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -9773,7 +9834,7 @@ msgstr ""
 "rel=\"noopener\">zabezpečil ocenenie od Open Technology Fund</a>, ktorého "
 "financovanie umožňuje vývojárom zlepšiť bezpečnosť a dostupnosť skladu."
 
-#: warehouse/templates/pages/help.html:912
+#: warehouse/templates/pages/help.html:931
 #, python-format
 msgid ""
 "PyPI is powered by <a href=\"%(warehouse_href)s\" title=\"%(title)s\" "
@@ -9786,7 +9847,7 @@ msgstr ""
 "služieb poskytovaných našimi <a href=\"%(sponsors_href)s\">štedrými "
 "sponzormi</a>."
 
-#: warehouse/templates/pages/help.html:919
+#: warehouse/templates/pages/help.html:938
 msgid ""
 "As of April 16, 2018, PyPI.org is at \"production\" status, meaning that it "
 "has moved out of beta and replaced the old site (pypi.python.org). It is now "
@@ -9797,7 +9858,7 @@ msgstr ""
 "robustný, otestovaný a pripravený na očakávanú návštevnosť prehliadača a "
 "rozhrania API."
 
-#: warehouse/templates/pages/help.html:921
+#: warehouse/templates/pages/help.html:940
 #, python-format
 msgid ""
 "PyPI is heavily cached and distributed via <abbr title=\"content delivery "
@@ -9825,7 +9886,7 @@ msgstr ""
 "href=\"%(mirror_href)s\">mirror</a> alebo <a "
 "href=\"%(private_index_href)s\">súkromný index</a>."
 
-#: warehouse/templates/pages/help.html:935
+#: warehouse/templates/pages/help.html:954
 #, python-format
 msgid ""
 "We have a huge amount of work to do to continue to maintain and improve PyPI "
@@ -9836,11 +9897,11 @@ msgstr ""
 "zlepšovali PyPI (známy aj ako <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">projekt Warehouse</a>)."
 
-#: warehouse/templates/pages/help.html:940
+#: warehouse/templates/pages/help.html:959
 msgid "Financial:"
 msgstr "Finančné:"
 
-#: warehouse/templates/pages/help.html:940
+#: warehouse/templates/pages/help.html:959
 #, python-format
 msgid ""
 "We would deeply appreciate <a href=\"%(href)s\">your donations to fund "
@@ -9849,11 +9910,11 @@ msgstr ""
 "Veľmi by sme ocenili <a href=\"%(href)s\">vaše dary na financovanie vývoja a "
 "údržby</a>."
 
-#: warehouse/templates/pages/help.html:941
+#: warehouse/templates/pages/help.html:960
 msgid "Development:"
 msgstr "Vývoj:"
 
-#: warehouse/templates/pages/help.html:941
+#: warehouse/templates/pages/help.html:960
 msgid ""
 "Warehouse is open source, and we would love to see some new faces working on "
 "the project. You <strong>do not</strong> need to be an experienced open-"
@@ -9865,7 +9926,7 @@ msgstr ""
 "skúseným vývojárom open source – v skutočnosti by sme vám radi pomohli podať "
 "vašu prvú požiadavku na stiahnutie open source!"
 
-#: warehouse/templates/pages/help.html:943
+#: warehouse/templates/pages/help.html:962
 #, fuzzy, python-format
 #| msgid ""
 #| "If you have skills in Python, ElasticSearch, HTML, SCSS, JavaScript, or "
@@ -9896,7 +9957,7 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">'Good first issue'</"
 "a> – odporúčame vám začať tu."
 
-#: warehouse/templates/pages/help.html:951
+#: warehouse/templates/pages/help.html:970
 #, fuzzy, python-format
 #| msgid ""
 #| "Issues are grouped into <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -9917,11 +9978,11 @@ msgstr ""
 "máte záujem pracovať na konkrétnom probléme, zanechajte komentár a my vás "
 "prevedieme procesom prispievania."
 
-#: warehouse/templates/pages/help.html:958
+#: warehouse/templates/pages/help.html:977
 msgid "Stay updated:"
 msgstr "Zostaňte informovaní:"
 
-#: warehouse/templates/pages/help.html:959
+#: warehouse/templates/pages/help.html:978
 #, python-format
 msgid ""
 "You can also follow the ongoing development of the project on the <a "
@@ -9932,7 +9993,7 @@ msgstr ""
 "href=\"%(discourse_forum_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Python packaging forum on Discourse</a>."
 
-#: warehouse/templates/pages/help.html:968
+#: warehouse/templates/pages/help.html:987
 #, fuzzy, python-format
 #| msgid ""
 #| "Changes to PyPI are generally announced on both the <a "
@@ -9962,7 +10023,7 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">RSS</a> pre štítok "
 "„pypi“."
 
-#: warehouse/templates/pages/help.html:977
+#: warehouse/templates/pages/help.html:996
 #, python-format
 msgid ""
 "All traffic is routed through our global CDN, which lists their public IP "
@@ -9971,7 +10032,7 @@ msgstr ""
 "Všetka prevádzka je smerovaná cez našu globálnu sieť CDN, ktorá uvádza ich "
 "verejné IP adresy tu: <a href=\"%(href)s\">%(href)s</a>."
 
-#: warehouse/templates/pages/help.html:978
+#: warehouse/templates/pages/help.html:997
 #, python-format
 msgid ""
 "More information about this list can be found here: <a "
@@ -9980,7 +10041,7 @@ msgstr ""
 "Viac informácií o tomto zozname nájdete tu: <a href=\"%(href)s\">%(href)s</"
 "a>."
 
-#: warehouse/templates/pages/help.html:982
+#: warehouse/templates/pages/help.html:1001
 msgid ""
 "When Warehouse's maintainers are deploying new features, at first we mark "
 "them with a small \"beta feature\" symbol to tell you: this should probably "
@@ -9990,11 +10051,11 @@ msgstr ""
 "symbolom „beta funkcie“, aby sme vám povedali: toto by pravdepodobne malo "
 "fungovať dobre, ale je to nové a menej testované ako iné funkcie webu."
 
-#: warehouse/templates/pages/help.html:983
+#: warehouse/templates/pages/help.html:1002
 msgid "Currently, no features are in beta."
 msgstr "V súčasnosti nie sú žiadne funkcie v beta verzii."
 
-#: warehouse/templates/pages/help.html:987
+#: warehouse/templates/pages/help.html:1006
 #, python-format
 msgid ""
 "\"PyPI\" should be pronounced like \"pie pea eye\", specifically with the "
@@ -10008,39 +10069,39 @@ msgstr ""
 "zámenu s projektom <a href=\"%(href)s\" title=\"%(title)s\">PyPy</a>, ktorý "
 "je populárnou alternatívnou implementáciou jazyka Python."
 
-#: warehouse/templates/pages/help.html:999
+#: warehouse/templates/pages/help.html:1018
 msgid "Resources"
 msgstr "Zdroje"
 
-#: warehouse/templates/pages/help.html:1000
+#: warehouse/templates/pages/help.html:1019
 msgid "Looking for something else? Perhaps these links will help:"
 msgstr "Hľadáte niečo iné? Možno pomôžu tieto odkazy:"
 
-#: warehouse/templates/pages/help.html:1002
+#: warehouse/templates/pages/help.html:1021
 msgid "Python Packaging User Guide"
 msgstr "Používateľská príručka balíka Python"
 
-#: warehouse/templates/pages/help.html:1003
+#: warehouse/templates/pages/help.html:1022
 msgid "Python documentation"
 msgstr "Python dokumentácia"
 
-#: warehouse/templates/pages/help.html:1004
+#: warehouse/templates/pages/help.html:1023
 msgid "(main Python website)"
 msgstr "(hlavná webová stránka Pythonu)"
 
-#: warehouse/templates/pages/help.html:1005
+#: warehouse/templates/pages/help.html:1024
 msgid "Python community page"
 msgstr "Stránka komunity Python"
 
-#: warehouse/templates/pages/help.html:1005
+#: warehouse/templates/pages/help.html:1024
 msgid "(lists IRC channels, mailing lists, etc.)"
 msgstr "(uvádza IRC kanály, mailing listy atď.)"
 
-#: warehouse/templates/pages/help.html:1008
+#: warehouse/templates/pages/help.html:1027
 msgid "Contact"
 msgstr "Kontakt"
 
-#: warehouse/templates/pages/help.html:1010
+#: warehouse/templates/pages/help.html:1029
 #, python-format
 msgid ""
 "The <a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -10813,9 +10874,6 @@ msgstr[2] "Pre filtre '%(filters)s' neboli žiadne výsledky"
 
 #~ msgid "Workflow"
 #~ msgstr "Pracovný postup"
-
-#~ msgid "Repository"
-#~ msgstr "Repozitár"
 
 #~ msgid "Environment"
 #~ msgstr "Životné prostredie"

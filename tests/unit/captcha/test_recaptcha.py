@@ -22,7 +22,7 @@ from warehouse.captcha import recaptcha
 
 
 @pytest.fixture
-def _request():
+def session_resetting_request():
     """A pretend request object with a requests.Session that is reset between tests."""
     return pretend.stub(
         # returning a real requests.Session object because responses is responsible
@@ -73,26 +73,30 @@ class TestVerifyResponse:
         assert not responses.calls
 
     @responses.activate
-    def test_remote_ip_payload(self, _request):
+    def test_remote_ip_payload(self, session_resetting_request):
         responses.add(
             responses.POST,
             recaptcha.VERIFY_URL,
             json={"success": True},
         )
-        serv = recaptcha.Service.create_service(context=None, request=_request)
+        serv = recaptcha.Service.create_service(
+            context=None, request=session_resetting_request
+        )
         serv.verify_response("meaningless", remote_ip="ip")
 
         payload = dict(urllib.parse.parse_qsl(responses.calls[0].request.body))
         assert payload["remoteip"] == "ip"
 
     @responses.activate
-    def test_unexpected_data_error(self, _request):
+    def test_unexpected_data_error(self, session_resetting_request):
         responses.add(
             responses.POST,
             recaptcha.VERIFY_URL,
             body="something awful",
         )
-        serv = recaptcha.Service.create_service(context=None, request=_request)
+        serv = recaptcha.Service.create_service(
+            context=None, request=session_resetting_request
+        )
 
         with pytest.raises(recaptcha.UnexpectedError) as err:
             serv.verify_response("meaningless")
@@ -101,13 +105,15 @@ class TestVerifyResponse:
         assert str(err.value) == expected
 
     @responses.activate
-    def test_missing_success_key_error(self, _request):
+    def test_missing_success_key_error(self, session_resetting_request):
         responses.add(
             responses.POST,
             recaptcha.VERIFY_URL,
             json={"foo": "bar"},
         )
-        serv = recaptcha.Service.create_service(context=None, request=_request)
+        serv = recaptcha.Service.create_service(
+            context=None, request=session_resetting_request
+        )
 
         with pytest.raises(recaptcha.UnexpectedError) as err:
             serv.verify_response("meaningless")
@@ -116,13 +122,15 @@ class TestVerifyResponse:
         assert str(err.value) == expected
 
     @responses.activate
-    def test_missing_error_codes_key_error(self, _request):
+    def test_missing_error_codes_key_error(self, session_resetting_request):
         responses.add(
             responses.POST,
             recaptcha.VERIFY_URL,
             json={"success": False},
         )
-        serv = recaptcha.Service.create_service(context=None, request=_request)
+        serv = recaptcha.Service.create_service(
+            context=None, request=session_resetting_request
+        )
 
         with pytest.raises(recaptcha.UnexpectedError) as err:
             serv.verify_response("meaningless")
@@ -131,7 +139,7 @@ class TestVerifyResponse:
         assert str(err.value) == expected
 
     @responses.activate
-    def test_error_map_error(self, _request):
+    def test_error_map_error(self, session_resetting_request):
         for key, exc_tp in recaptcha.ERROR_CODE_MAP.items():
             responses.add(
                 responses.POST,
@@ -144,14 +152,16 @@ class TestVerifyResponse:
                 },
             )
 
-            serv = recaptcha.Service.create_service(context=None, request=_request)
+            serv = recaptcha.Service.create_service(
+                context=None, request=session_resetting_request
+            )
             with pytest.raises(exc_tp):
                 serv.verify_response("meaningless")
 
             responses.reset()
 
     @responses.activate
-    def test_error_map_unknown_error(self, _request):
+    def test_error_map_unknown_error(self, session_resetting_request):
         responses.add(
             responses.POST,
             recaptcha.VERIFY_URL,
@@ -163,13 +173,17 @@ class TestVerifyResponse:
             },
         )
 
-        serv = recaptcha.Service.create_service(context=None, request=_request)
+        serv = recaptcha.Service.create_service(
+            context=None, request=session_resetting_request
+        )
         with pytest.raises(recaptcha.UnexpectedError) as err:
             serv.verify_response("meaningless")
         assert str(err.value) == "Unexpected error code: slartibartfast"
 
     @responses.activate
-    def test_challenge_response_missing_timestamp_success(self, _request):
+    def test_challenge_response_missing_timestamp_success(
+        self, session_resetting_request
+    ):
         responses.add(
             responses.POST,
             recaptcha.VERIFY_URL,
@@ -179,7 +193,9 @@ class TestVerifyResponse:
             },
         )
 
-        serv = recaptcha.Service.create_service(context=None, request=_request)
+        serv = recaptcha.Service.create_service(
+            context=None, request=session_resetting_request
+        )
         res = serv.verify_response("meaningless")
 
         assert isinstance(res, recaptcha.ChallengeResponse)
@@ -187,7 +203,9 @@ class TestVerifyResponse:
         assert res.hostname == "hostname_value"
 
     @responses.activate
-    def test_challenge_response_missing_hostname_success(self, _request):
+    def test_challenge_response_missing_hostname_success(
+        self, session_resetting_request
+    ):
         responses.add(
             responses.POST,
             recaptcha.VERIFY_URL,
@@ -197,7 +215,9 @@ class TestVerifyResponse:
             },
         )
 
-        serv = recaptcha.Service.create_service(context=None, request=_request)
+        serv = recaptcha.Service.create_service(
+            context=None, request=session_resetting_request
+        )
         res = serv.verify_response("meaningless")
 
         assert isinstance(res, recaptcha.ChallengeResponse)
@@ -205,7 +225,7 @@ class TestVerifyResponse:
         assert res.challenge_ts == 0
 
     @responses.activate
-    def test_challenge_response_success(self, _request):
+    def test_challenge_response_success(self, session_resetting_request):
         responses.add(
             responses.POST,
             recaptcha.VERIFY_URL,
@@ -216,7 +236,9 @@ class TestVerifyResponse:
             },
         )
 
-        serv = recaptcha.Service.create_service(context=None, request=_request)
+        serv = recaptcha.Service.create_service(
+            context=None, request=session_resetting_request
+        )
         res = serv.verify_response("meaningless")
 
         assert isinstance(res, recaptcha.ChallengeResponse)
@@ -224,8 +246,10 @@ class TestVerifyResponse:
         assert res.challenge_ts == 0
 
     @responses.activate
-    def test_unexpected_error(self, _request):
-        serv = recaptcha.Service.create_service(context=None, request=_request)
+    def test_unexpected_error(self, session_resetting_request):
+        serv = recaptcha.Service.create_service(
+            context=None, request=session_resetting_request
+        )
         serv.request.http.post = pretend.raiser(socket.error)
 
         with pytest.raises(recaptcha.UnexpectedError):
@@ -256,7 +280,9 @@ class TestCSPPolicy:
         }
 
 
-def test_create_service(_request):
-    svc = recaptcha.Service.create_service(context=None, request=_request)
+def test_create_service(session_resetting_request):
+    svc = recaptcha.Service.create_service(
+        context=None, request=session_resetting_request
+    )
     assert isinstance(svc, recaptcha.Service)
-    assert svc.request is _request
+    assert svc.request is session_resetting_request

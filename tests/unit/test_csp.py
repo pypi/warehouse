@@ -198,7 +198,7 @@ class TestCSPPolicy:
         assert isinstance(policy, collections.defaultdict)
 
     @pytest.mark.parametrize(
-        "existing, incoming, expected",
+        ("existing", "incoming", "expected"),
         [
             (
                 {"foo": ["bar"]},
@@ -245,7 +245,6 @@ def test_includeme():
             {
                 "csp": {
                     "base-uri": ["'self'"],
-                    "block-all-mixed-content": [],
                     "connect-src": [
                         "'self'",
                         "https://api.github.com/repos/",

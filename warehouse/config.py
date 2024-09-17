@@ -11,7 +11,6 @@
 # limitations under the License.
 
 import base64
-import distutils.util
 import enum
 import json
 import os
@@ -19,6 +18,7 @@ import secrets
 import shlex
 
 from datetime import timedelta
+from urllib.parse import urlparse, urlunparse
 
 import orjson
 import platformdirs
@@ -28,6 +28,7 @@ from pyramid import renderers
 from pyramid.authorization import Allow, Authenticated
 from pyramid.config import Configurator as _Configurator
 from pyramid.exceptions import HTTPForbidden
+from pyramid.settings import asbool
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
@@ -86,6 +87,8 @@ class RootFactory:
                 Permissions.AdminOrganizationsWrite,
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedProjectsWrite,
+                Permissions.AdminProhibitedUsernameRead,
+                Permissions.AdminProhibitedUsernameWrite,
                 Permissions.AdminProjectsDelete,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminProjectsSetLimit,
@@ -113,6 +116,7 @@ class RootFactory:
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
                 Permissions.AdminProhibitedProjectsRead,
+                Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminProjectsSetLimit,
                 Permissions.AdminRoleAdd,
@@ -137,6 +141,7 @@ class RootFactory:
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
                 Permissions.AdminProhibitedProjectsRead,
+                Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminProjectsSetLimit,
                 Permissions.AdminRoleAdd,
@@ -238,6 +243,25 @@ def maybe_set_compound(settings, base, name, envvar):
             settings[".".join([base, key])] = value
 
 
+def maybe_set_redis(settings, name, envvar, coercer=None, default=None, db=None):
+    """
+    Note on our DB numbering:
+      - General purpose caches and temporary storage should go in 1-9
+      - Celery queues, results, and schedulers should use 10-15
+      - By default Redis only allows use of 0-15, so db should be <16
+    """
+    if envvar in os.environ:
+        value = os.environ[envvar]
+        if coercer is not None:
+            value = coercer(value)
+        parsed_url = urlparse(value)  # noqa: WH001, we're going to urlunparse this
+        parsed_url = parsed_url._replace(path=(str(db) if db is not None else "0"))
+        value = urlunparse(parsed_url)
+        settings.setdefault(name, value)
+    elif default is not None:
+        settings.setdefault(name, default)
+
+
 def from_base64_encoded_json(configuration):
     return json.loads(base64.urlsafe_b64decode(configuration.encode("ascii")))
 
@@ -304,15 +328,15 @@ def configure(settings=None):
     )
     maybe_set(settings, "warehouse.downloads_table", "WAREHOUSE_DOWNLOADS_TABLE")
     maybe_set(settings, "celery.broker_url", "BROKER_URL")
-    maybe_set(settings, "celery.result_url", "REDIS_URL")
-    maybe_set(settings, "celery.scheduler_url", "REDIS_URL")
-    maybe_set(settings, "oidc.jwk_cache_url", "REDIS_URL")
+    maybe_set_redis(settings, "celery.result_url", "REDIS_URL", db=12)
+    maybe_set_redis(settings, "celery.scheduler_url", "REDIS_URL", db=0)
+    maybe_set_redis(settings, "oidc.jwk_cache_url", "REDIS_URL", db=1)
     maybe_set(settings, "database.url", "DATABASE_URL")
     maybe_set(settings, "opensearch.url", "OPENSEARCH_URL")
     maybe_set(settings, "sentry.dsn", "SENTRY_DSN")
     maybe_set(settings, "sentry.transport", "SENTRY_TRANSPORT")
-    maybe_set(settings, "sessions.url", "REDIS_URL")
-    maybe_set(settings, "ratelimit.url", "REDIS_URL")
+    maybe_set_redis(settings, "sessions.url", "REDIS_URL", db=2)
+    maybe_set_redis(settings, "ratelimit.url", "REDIS_URL", db=3)
     maybe_set(settings, "captcha.backend", "CAPTCHA_BACKEND")
     maybe_set(settings, "recaptcha.site_key", "RECAPTCHA_SITE_KEY")
     maybe_set(settings, "recaptcha.secret_key", "RECAPTCHA_SECRET_KEY")
@@ -334,10 +358,10 @@ def configure(settings=None):
         settings,
         "warehouse.xmlrpc.search.enabled",
         "WAREHOUSE_XMLRPC_SEARCH",
-        coercer=distutils.util.strtobool,
+        coercer=asbool,
         default=True,
     )
-    maybe_set(settings, "warehouse.xmlrpc.cache.url", "REDIS_URL")
+    maybe_set_redis(settings, "warehouse.xmlrpc.cache.url", "REDIS_URL", db=4)
     maybe_set(
         settings,
         "warehouse.xmlrpc.client.ratelimit_string",
@@ -405,6 +429,12 @@ def configure(settings=None):
         "OIDC_BACKEND",
         default="warehouse.oidc.services.OIDCPublisherService",
     )
+    maybe_set(
+        settings,
+        "integrity.backend",
+        "INTEGRITY_BACKEND",
+        default="warehouse.attestations.services.IntegrityService",
+    )
 
     # Pythondotorg integration settings
     maybe_set(
@@ -419,6 +449,7 @@ def configure(settings=None):
     maybe_set(
         settings, "admin.helpscout.app_secret", "HELPSCOUT_APP_SECRET", default=None
     )
+    maybe_set(settings, "helpdesk.backend", "HELPDESK_BACKEND")
     maybe_set(settings, "helpscout.app_id", "HELPSCOUT_WAREHOUSE_APP_ID")
     maybe_set(settings, "helpscout.app_secret", "HELPSCOUT_WAREHOUSE_APP_SECRET")
     maybe_set(settings, "helpscout.mailbox_id", "HELPSCOUT_WAREHOUSE_MAILBOX_ID")
@@ -519,6 +550,7 @@ def configure(settings=None):
                     "headers.HeaderDebugPanel",
                     "request_vars.RequestVarsDebugPanel",
                     "renderings.RenderingsDebugPanel",
+                    "session.SessionDebugPanel",
                     "logger.LoggingPanel",
                     "performance.PerformanceDebugPanel",
                     "routes.RoutesDebugPanel",
@@ -841,6 +873,9 @@ def configure(settings=None):
 
     # Register Captcha service
     config.include(".captcha")
+
+    # Register HelpDesk service
+    config.include(".helpdesk")
 
     config.add_settings({"http": {"verify": "/etc/ssl/certs/"}})
     config.include(".http")

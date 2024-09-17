@@ -15,6 +15,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, TypedDict, TypeVar, Unpack
 
+import rfc3986
 import sentry_sdk
 
 from sigstore.verify.policy import VerificationPolicy
@@ -219,7 +220,7 @@ class OIDCPublisherMixin:
             list(signed_claims.keys() - self.all_known_claims())
         )
         if unaccounted_claims:
-            with sentry_sdk.push_scope() as scope:
+            with sentry_sdk.new_scope() as scope:
                 scope.fingerprint = unaccounted_claims
                 sentry_sdk.capture_message(
                     f"JWT for {self.__class__.__name__} has unaccounted claims: "
@@ -237,7 +238,7 @@ class OIDCPublisherMixin:
             # change in the JWT's payload.
             signed_claim = signed_claims.get(claim_name)
             if signed_claim is None:
-                with sentry_sdk.push_scope() as scope:
+                with sentry_sdk.new_scope() as scope:
                     scope.fingerprint = [claim_name]
                     sentry_sdk.capture_message(
                         f"JWT for {self.__class__.__name__} is missing claim: "
@@ -299,6 +300,15 @@ class OIDCPublisherMixin:
         # Only concrete subclasses are constructed.
         raise NotImplementedError
 
+    @property
+    def supports_attestations(self) -> bool:
+        """
+        Returns whether or not this kind of publisher supports attestations.
+
+        Concrete subclasses should override this upon adding attestation support.
+        """
+        return False
+
     def publisher_verification_policy(
         self, claims: SignedClaims
     ) -> VerificationPolicy:  # pragma: no cover
@@ -324,6 +334,45 @@ class OIDCPublisherMixin:
         """
         # Only concrete subclasses are constructed.
         raise NotImplementedError
+
+    def verify_url(self, url: str) -> bool:
+        """
+        Verify a given URL against this Trusted Publisher's base URL
+
+        A URL is considered "verified" iff it matches the Trusted Publisher URL
+        such that, when both URLs are normalized:
+        - The scheme component is the same (e.g: both use `https`)
+        - The authority component is the same (e.g.: `github.com`)
+        - The path component is the same, or a sub-path of the Trusted Publisher URL
+          (e.g.: `org/project` and `org/project/issues.html` will pass verification
+          against an `org/project` Trusted Publisher path component)
+        - The path component of the Trusted Publisher URL is not empty
+        Note: We compare the authority component instead of the host component because
+        the authority includes the host, and in practice neither URL should have user
+        nor port information.
+        """
+        if self.publisher_base_url is None:
+            # Currently this only applies to the Google provider
+            return False
+        publisher_uri = rfc3986.api.uri_reference(self.publisher_base_url).normalize()
+        user_uri = rfc3986.api.uri_reference(url).normalize()
+        if publisher_uri.path is None:
+            # Currently no Trusted Publishers with a `publisher_base_url` have an empty
+            # path component, so we defensively fail verification.
+            return False
+        elif user_uri.path and publisher_uri.path:
+            is_subpath = (
+                publisher_uri.path == user_uri.path
+                or user_uri.path.startswith(publisher_uri.path + "/")
+            )
+        else:
+            is_subpath = publisher_uri.path == user_uri.path
+
+        return (
+            publisher_uri.scheme == user_uri.scheme
+            and publisher_uri.authority == user_uri.authority
+            and is_subpath
+        )
 
 
 class OIDCPublisher(OIDCPublisherMixin, db.Model):

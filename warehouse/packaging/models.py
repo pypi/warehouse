@@ -62,6 +62,7 @@ from urllib3.util import parse_url
 
 from warehouse import db
 from warehouse.accounts.models import User
+from warehouse.attestations.models import Provenance
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.events.models import HasEvents
@@ -319,6 +320,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                     Permissions.AdminObservationsRead,
                     Permissions.AdminObservationsWrite,
                     Permissions.AdminProhibitedProjectsWrite,
+                    Permissions.AdminProhibitedUsernameWrite,
                     Permissions.AdminProjectsDelete,
                     Permissions.AdminProjectsRead,
                     Permissions.AdminProjectsSetLimit,
@@ -434,6 +436,23 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
         )
 
     @property
+    def maintainers(self):
+        """Return all users who are maintainers of the project."""
+        maintainer_roles = (
+            orm.object_session(self)
+            .query(User.id)
+            .join(Role.user)
+            .filter(Role.role_name == "Maintainer", Role.project == self)
+            .subquery()
+        )
+        return (
+            orm.object_session(self)
+            .query(User)
+            .join(maintainer_roles, User.id == maintainer_roles.c.id)
+            .all()
+        )
+
+    @property
     def all_versions(self):
         return (
             orm.object_session(self)
@@ -529,7 +548,7 @@ class ReleaseURL(db.Model):
 
     name: Mapped[str] = mapped_column(String(32))
     url: Mapped[str]
-    verified: Mapped[bool] = mapped_column(default=False)
+    verified: Mapped[bool_false]
 
 
 DynamicFieldsEnum = ENUM(
@@ -586,9 +605,12 @@ class Release(HasObservations, db.Model):
     draft_hash = orm.column_property(func.make_draft_hash(project_name, version))
     author: Mapped[str | None]
     author_email: Mapped[str | None]
+    author_email_verified: Mapped[bool_false]
     maintainer: Mapped[str | None]
     maintainer_email: Mapped[str | None]
+    maintainer_email_verified: Mapped[bool_false]
     home_page: Mapped[str | None]
+    home_page_verified: Mapped[bool_false]
     license: Mapped[str | None]
     summary: Mapped[str | None]
     keywords: Mapped[str | None]
@@ -601,6 +623,7 @@ class Release(HasObservations, db.Model):
     )
     platform: Mapped[str | None]
     download_url: Mapped[str | None]
+    download_url_verified: Mapped[bool_false]
     _pypi_ordering: Mapped[int | None]
     requires_python: Mapped[str | None] = mapped_column(Text)
     created: Mapped[datetime_now] = mapped_column()
@@ -720,12 +743,16 @@ class Release(HasObservations, db.Model):
 
         return _urls
 
-    def urls_by_verify_status(self, verified: bool):
+    def urls_by_verify_status(self, *, verified: bool):
         matching_urls = {
             release_url.url
-            for release_url in self._project_urls.values()  # type: ignore[attr-defined]
+            for release_url in self._project_urls.values()  # type: ignore[attr-defined] # noqa: E501
             if release_url.verified == verified
         }
+        if self.home_page and self.home_page_verified == verified:
+            matching_urls.add(self.home_page)
+        if self.download_url and self.download_url_verified == verified:
+            matching_urls.add(self.download_url)
 
         # Filter the output of `Release.urls`, since it has custom logic to de-duplicate
         # release URLs
@@ -735,9 +762,9 @@ class Release(HasObservations, db.Model):
                 _urls[name] = url
         return _urls
 
-    @staticmethod
-    def get_user_name_and_repo_name(urls):
-        for url in urls:
+    @property
+    def verified_user_name_and_repo_name(self):
+        for _, url in self.urls_by_verify_status(verified=True).items():
             try:
                 parsed = parse_url(url)
             except LocationParseError:
@@ -753,14 +780,14 @@ class Release(HasObservations, db.Model):
         return None, None
 
     @property
-    def github_repo_info_url(self):
-        user_name, repo_name = self.get_user_name_and_repo_name(self.urls.values())
+    def verified_github_repo_info_url(self):
+        user_name, repo_name = self.verified_user_name_and_repo_name
         if user_name and repo_name:
             return f"https://api.github.com/repos/{user_name}/{repo_name}"
 
     @property
-    def github_open_issue_info_url(self):
-        user_name, repo_name = self.get_user_name_and_repo_name(self.urls.values())
+    def verified_github_open_issue_info_url(self):
+        user_name, repo_name = self.verified_user_name_and_repo_name
         if user_name and repo_name:
             return (
                 f"https://api.github.com/search/issues?q=repo:{user_name}/{repo_name}"
@@ -874,6 +901,13 @@ class File(HasEvents, db.Model):
     metadata_file_unbackfillable: Mapped[bool_false] = mapped_column(
         nullable=True,
         comment="If True, the metadata for the file cannot be backfilled.",
+    )
+
+    # PEP 740
+    provenance: Mapped[Provenance] = orm.relationship(
+        cascade="all, delete-orphan",
+        lazy="joined",
+        passive_deletes=True,
     )
 
     @property

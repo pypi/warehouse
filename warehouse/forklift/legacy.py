@@ -26,7 +26,6 @@ import packaging.specifiers
 import packaging.utils
 import packaging.version
 import packaging_legacy.version
-import rfc3986
 import sentry_sdk
 import wtforms
 import wtforms.validators
@@ -63,7 +62,9 @@ from warehouse.forklift import metadata
 from warehouse.forklift.forms import UploadForm, _filetype_extension_mapping
 from warehouse.macaroons.models import Macaroon
 from warehouse.metrics import IMetricsService
+from warehouse.oidc.views import is_from_reusable_workflow
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
+from warehouse.packaging.metadata_verification import verify_email, verify_url
 from warehouse.packaging.models import (
     Dependency,
     DependencyKind,
@@ -260,38 +261,55 @@ def _is_valid_dist_file(filename, filetype):
     a valid distribution file.
     """
 
-    # If our file is a zipfile, then ensure that it's members are only
-    # compressed with supported compression methods.
-    if zipfile.is_zipfile(filename):
-        # Ensure the compression ratio is not absurd (decompression bomb)
-        compressed_size = os.stat(filename).st_size
-        with zipfile.ZipFile(filename) as zfp:
-            decompressed_size = sum(e.file_size for e in zfp.infolist())
-        if (
-            decompressed_size > COMPRESSION_RATIO_MIN_SIZE
-            and decompressed_size / compressed_size > COMPRESSION_RATIO_THRESHOLD
-        ):
-            sentry_sdk.capture_message(
-                f"File {filename} ({filetype}) exceeds compression ratio "
-                f"of {COMPRESSION_RATIO_THRESHOLD} "
-                f"({decompressed_size}/{compressed_size})"
-            )
+    if filename.endswith((".zip", ".whl")):
+        if not zipfile.is_zipfile(filename):
             return False
-
-        # Check that the compression type is valid
-        with zipfile.ZipFile(filename) as zfp:
-            for zinfo in zfp.infolist():
-                if zinfo.compress_type not in {
-                    zipfile.ZIP_STORED,
-                    zipfile.ZIP_DEFLATED,
-                }:
+        # Ensure that this is a valid zip file, and that it has a
+        # PKG-INFO or WHEEL file.
+        try:
+            with zipfile.ZipFile(filename) as zfp:
+                # Ensure that the compression ratio is not absurd (decompression bomb)
+                compressed_size = os.stat(filename).st_size
+                decompressed_size = sum(e.file_size for e in zfp.infolist())
+                if (
+                    decompressed_size > COMPRESSION_RATIO_MIN_SIZE
+                    and decompressed_size / compressed_size
+                    > COMPRESSION_RATIO_THRESHOLD
+                ):
+                    sentry_sdk.capture_message(
+                        f"File {filename} ({filetype}) exceeds compression ratio "
+                        f"of {COMPRESSION_RATIO_THRESHOLD} "
+                        f"({decompressed_size}/{compressed_size})"
+                    )
                     return False
 
-    if filename.endswith(".tar.gz"):
+                # Check that the compression type is valid
+                for zinfo in zfp.infolist():
+                    if zinfo.compress_type not in {
+                        zipfile.ZIP_STORED,
+                        zipfile.ZIP_DEFLATED,
+                    }:
+                        return False
+
+                # Check that the right files are present
+                for zipname in zfp.namelist():
+                    _, tail = os.path.split(zipname)
+                    if filename.endswith(".zip") and tail == "PKG-INFO":
+                        break
+                    if filename.endswith(".whl") and tail == "WHEEL":
+                        break
+                else:
+                    return False
+
+        except zipfile.BadZipFile:  # pragma: no cover
+            return False
+
+    elif filename.endswith(".tar.gz"):
+        if not tarfile.is_tarfile(filename):
+            return False
+        # Ensure that this is a valid tar file, and that it contains PKG-INFO.
         # TODO: Ideally Ensure the compression ratio is not absurd
         # (decompression bomb), like we do for wheel/zip above.
-
-        # Ensure that this is a valid tar file, and that it contains PKG-INFO.
         try:
             with tarfile.open(filename, "r:gz") as tar:
                 # This decompresses the entire stream to validate it and the
@@ -299,45 +317,13 @@ def _is_valid_dist_file(filename, filetype):
                 bad_tar = True
                 member = tar.next()
                 while member:
-                    parts = os.path.split(member.name)
-                    if len(parts) == 2 and parts[1] == "PKG-INFO":
+                    _, tail = os.path.split(member.name)
+                    if tail == "PKG-INFO":
                         bad_tar = False
                     member = tar.next()
                 if bad_tar:
                     return False
         except (tarfile.ReadError, EOFError):
-            return False
-    elif filename.endswith(".zip"):
-        # Ensure that the .zip is a valid zip file, and that it has a
-        # PKG-INFO file.
-        try:
-            with zipfile.ZipFile(filename, "r") as zfp:
-                for zipname in zfp.namelist():
-                    parts = os.path.split(zipname)
-                    if len(parts) == 2 and parts[1] == "PKG-INFO":
-                        # We need the no branch below to work around a bug in
-                        # coverage.py where it's detecting a missed branch
-                        # where there isn't one.
-                        break
-                else:
-                    return False
-        except zipfile.BadZipFile:
-            return False
-    elif filename.endswith(".whl"):
-        # Ensure that the .whl is a valid zip file, and that it has a WHEEL
-        # file.
-        try:
-            with zipfile.ZipFile(filename, "r") as zfp:
-                for zipname in zfp.namelist():
-                    parts = os.path.split(zipname)
-                    if len(parts) == 2 and parts[1] == "WHEEL":
-                        # We need the no branch below to work around a bug in
-                        # coverage.py where it's detecting a missed branch
-                        # where there isn't one.
-                        break
-                else:
-                    return False
-        except zipfile.BadZipFile:
             return False
 
     # If we haven't yet decided it's not valid, then we'll assume it is and
@@ -434,7 +420,7 @@ def _process_attestations(request, distribution: Distribution):
                 f"attestation: {e}",
             )
         except Exception as e:
-            with sentry_sdk.push_scope() as scope:
+            with sentry_sdk.new_scope() as scope:
                 scope.fingerprint = [e]
                 sentry_sdk.capture_message(
                     f"Unexpected error while verifying attestation: {e}"
@@ -456,45 +442,6 @@ def _process_attestations(request, distribution: Distribution):
 
         # Log successful attestation upload
         metrics.increment("warehouse.upload.attestations.ok")
-
-
-def _verify_url(url: str, publisher_url: str | None) -> bool:
-    """
-    Verify a given URL against a Trusted Publisher URL
-
-    A URL is considered "verified" iff it matches the Trusted Publisher URL
-    such that, when both URLs are normalized:
-    - The scheme component is the same (e.g: both use `https`)
-    - The authority component is the same (e.g.: `github.com`)
-    - The path component is the same, or a sub-path of the Trusted Publisher URL
-      (e.g.: `org/project` and `org/project/issues.html` will pass verification
-      against an `org/project` Trusted Publisher path component)
-    - The path component of the Trusted Publisher URL is not empty
-    Note: We compare the authority component instead of the host component because
-    the authority includes the host, and in practice neither URL should have user
-    nor port information.
-    """
-    if not publisher_url:
-        return False
-
-    publisher_uri = rfc3986.api.uri_reference(publisher_url).normalize()
-    user_uri = rfc3986.api.uri_reference(url).normalize()
-    if publisher_uri.path is None:
-        # Currently no Trusted Publishers have an empty path component,
-        # so we defensively fail verification.
-        return False
-    elif user_uri.path and publisher_uri.path:
-        is_subpath = publisher_uri.path == user_uri.path or user_uri.path.startswith(
-            publisher_uri.path + "/"
-        )
-    else:
-        is_subpath = publisher_uri.path == user_uri.path
-
-    return (
-        publisher_uri.scheme == user_uri.scheme
-        and publisher_uri.authority == user_uri.authority
-        and is_subpath
-    )
 
 
 def _sort_releases(request: Request, project: Project):
@@ -907,20 +854,59 @@ def file_upload(request):
     release_is_draft = bool(request.headers.get("Is-Draft", False))
 
     # Verify any verifiable URLs
-    publisher_base_url = (
-        request.oidc_publisher.publisher_base_url if request.oidc_publisher else None
-    )
     project_urls = (
         {}
         if not meta.project_urls
         else {
             name: {
                 "url": url,
-                "verified": _verify_url(url=url, publisher_url=publisher_base_url),
+                "verified": verify_url(
+                    url=url,
+                    publisher=request.oidc_publisher,
+                    project_name=project.name,
+                    project_normalized_name=project.normalized_name,
+                ),
             }
             for name, url in meta.project_urls.items()
         }
     )
+    home_page = meta.home_page
+    home_page_verified = (
+        False
+        if home_page is None
+        else verify_url(
+            url=home_page,
+            publisher=request.oidc_publisher,
+            project_name=project.name,
+            project_normalized_name=project.normalized_name,
+        )
+    )
+
+    download_url = meta.download_url
+    download_url_verified = (
+        False
+        if download_url is None
+        else verify_url(
+            url=download_url,
+            publisher=request.oidc_publisher,
+            project_name=project.name,
+            project_normalized_name=project.normalized_name,
+        )
+    )
+
+    author_email = meta.author_email
+    author_email_verified = (
+        False
+        if author_email is None
+        else verify_email(email=author_email, project=project)
+    )
+    maintainer_email = meta.maintainer_email
+    maintainer_email_verified = (
+        False
+        if maintainer_email is None
+        else verify_email(email=maintainer_email, project=project)
+    )
+
     try:
         is_new_release = False
         release = (
@@ -973,7 +959,15 @@ def file_upload(request):
                 html=rendered or "",
                 rendered_by=readme.renderer_version(),
             ),
+            home_page=home_page,
+            home_page_verified=home_page_verified,
+            download_url=download_url,
+            download_url_verified=download_url_verified,
             project_urls=project_urls,
+            author_email=author_email,
+            author_email_verified=author_email_verified,
+            maintainer_email=maintainer_email,
+            maintainer_email_verified=maintainer_email_verified,
             # TODO: Fix this, we currently treat platform as if it is a single
             #       use field, but in reality it is a multi-use field, which the
             #       packaging.metadata library handles correctly.
@@ -1024,6 +1018,13 @@ def file_upload(request):
                     request.oidc_publisher.publisher_url(request.oidc_claims)
                     if request.oidc_publisher
                     else None
+                ),
+                "reusable_worfklow_used": (
+                    is_from_reusable_workflow(
+                        request.oidc_publisher, request.oidc_claims
+                    )
+                    if request.oidc_publisher
+                    else False
                 ),
                 "uploaded_via_trusted_publisher": bool(request.oidc_publisher),
             },
@@ -1330,7 +1331,9 @@ def file_upload(request):
                 k: h.hexdigest().lower() for k, h in metadata_file_hashes.items()
             }
 
-        if "attestations" in request.POST:
+        if "attestations" in request.POST and not request.flags.enabled(
+            AdminFlagValue.DISABLE_PEP740
+        ):
             _process_attestations(
                 request=request,
                 distribution=Distribution(name=filename, digest=file_hashes["sha256"]),
@@ -1454,6 +1457,11 @@ def file_upload(request):
                 and project_urls[name]["verified"]
             ):
                 release_url.verified = True
+
+        if home_page_verified and not release.home_page_verified:
+            release.home_page_verified = True
+        if download_url_verified and not release.download_url_verified:
+            release.download_url_verified = True
 
     request.db.flush()  # flush db now so server default values are populated for celery
 

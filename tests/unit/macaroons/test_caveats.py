@@ -63,7 +63,7 @@ def test_caveat_verify_fails():
 
 
 @pytest.mark.parametrize(
-    "caveat,expected",
+    ("caveat", "expected"),
     [
         (Expiration(expires_at=50, not_before=10), b"[0,50,10]"),
         (ProjectName(normalized_names=["foo", "bar"]), b'[1,["foo","bar"]]'),
@@ -79,7 +79,7 @@ def test_serialization(caveat, expected):
 
 
 @pytest.mark.parametrize(
-    "caveat,expected",
+    ("caveat", "expected"),
     [
         (Expiration(expires_at=50, not_before=10), [[0, 50, 10]]),
         (ProjectName(normalized_names=["foo", "bar"]), [[1, ["foo", "bar"]]]),
@@ -100,7 +100,7 @@ def test_serialization_onto_events(caveat, expected, db_request):
 
 class TestDeserialization:
     @pytest.mark.parametrize(
-        "data,expected",
+        ("data", "expected"),
         [
             # Current Caveat Style
             (b"[0,50,10]", Expiration(expires_at=50, not_before=10)),

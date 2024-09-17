@@ -30,6 +30,7 @@ import webtest as _webtest
 
 from jinja2 import Environment, FileSystemLoader
 from psycopg.errors import InvalidCatalogName
+from pypi_attestations import Attestation, Envelope, VerificationMaterial
 from pyramid.i18n import TranslationString
 from pyramid.static import ManifestCacheBuster
 from pyramid_jinja2 import IJinja2Environment
@@ -46,6 +47,8 @@ from warehouse.accounts.interfaces import ITokenService, IUserService
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.email import services as email_services
 from warehouse.email.interfaces import IEmailSender
+from warehouse.helpdesk import services as helpdesk_services
+from warehouse.helpdesk.interfaces import IHelpDeskService
 from warehouse.macaroons import services as macaroon_services
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.metrics import IMetricsService
@@ -172,6 +175,7 @@ def pyramid_services(
     github_oidc_service,
     activestate_oidc_service,
     macaroon_service,
+    helpdesk_service,
 ):
     services = _Services()
 
@@ -192,6 +196,7 @@ def pyramid_services(
         activestate_oidc_service, IOIDCPublisherService, None, name="activestate"
     )
     services.register_service(macaroon_service, IMacaroonService, None, name="")
+    services.register_service(helpdesk_service, IHelpDeskService, None)
 
     return services
 
@@ -315,6 +320,7 @@ def get_app_config(database, nondefaults=None):
         "opensearch.url": "https://localhost/warehouse",
         "files.backend": "warehouse.packaging.services.LocalFileStorage",
         "archive_files.backend": "warehouse.packaging.services.LocalArchiveFileStorage",
+        "archive_files.path": "/tmp",
         "simple.backend": "warehouse.packaging.services.LocalSimpleStorage",
         "docs.backend": "warehouse.packaging.services.LocalDocsStorage",
         "sponsorlogos.backend": "warehouse.admin.services.LocalSponsorLogoStorage",
@@ -322,6 +328,7 @@ def get_app_config(database, nondefaults=None):
         "billing.api_base": "http://stripe:12111",
         "billing.api_version": "2020-08-27",
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
+        "helpdesk.backend": "warehouse.helpdesk.services.ConsoleHelpDeskService",
         "files.url": "http://localhost:7000/",
         "archive_files.url": "http://localhost:7000/archive",
         "sessions.secret": "123456",
@@ -381,15 +388,17 @@ def get_db_session_for_app_config(app_config):
 
 @pytest.fixture(scope="session")
 def app_config(database):
-
     return get_app_config(database)
 
 
 @pytest.fixture(scope="session")
 def app_config_dbsession_from_env(database):
-
     nondefaults = {
-        "warehouse.db_create_session": lambda r: r.environ.get("warehouse.db_session")
+        "warehouse.db_create_session": lambda r: r.environ.get("warehouse.db_session"),
+        "breached_passwords.backend": "warehouse.accounts.services.NullPasswordBreachedService",  # noqa: E501
+        "token.two_factor.secret": "insecure token",
+        # A running redis service is required for functional web sessions
+        "sessions.url": "redis://redis:0/",
     }
 
     return get_app_config(database, nondefaults)
@@ -534,6 +543,20 @@ def activestate_oidc_service(db_session):
 
 
 @pytest.fixture
+def dummy_attestation():
+    return Attestation(
+        version=1,
+        verification_material=VerificationMaterial(
+            certificate="somebase64string", transparency_entries=[dict()]
+        ),
+        envelope=Envelope(
+            statement="somebase64string",
+            signature="somebase64string",
+        ),
+    )
+
+
+@pytest.fixture
 def macaroon_service(db_session):
     return macaroon_services.DatabaseMacaroonService(db_session)
 
@@ -570,6 +593,11 @@ def email_service():
     return email_services.SMTPEmailSender(
         mailer=DummyMailer(), sender="noreply@pypi.dev"
     )
+
+
+@pytest.fixture
+def helpdesk_service():
+    return helpdesk_services.ConsoleHelpDeskService()
 
 
 class QueryRecorder:
@@ -624,7 +652,7 @@ def db_request(pyramid_request, db_session):
 
 
 @pytest.fixture
-def enable_organizations(db_request):
+def _enable_organizations(db_request):
     flag = db_request.db.get(AdminFlag, AdminFlagValue.DISABLE_ORGANIZATIONS.value)
     flag.enabled = False
     yield
@@ -673,7 +701,7 @@ class _TestApp(_webtest.TestApp):
 
 
 @pytest.fixture
-def webtest(app_config_dbsession_from_env):
+def webtest(app_config_dbsession_from_env, remote_addr):
     """
     This fixture yields a test app with an alternative Pyramid configuration,
     injecting the database session and transaction manager into the app.
@@ -703,6 +731,7 @@ def webtest(app_config_dbsession_from_env):
                 "warehouse.db_session": _db_session,
                 "tm.active": True,  # disable pyramid_tm
                 "tm.manager": tm,  # pass in our own tm for the app to use
+                "REMOTE_ADDR": remote_addr,  # set the same address for all requests
             },
         )
         yield testapp
@@ -778,5 +807,4 @@ class _MockRedis:
 
 @pytest.fixture
 def mockredis():
-    mock_redis = _MockRedis()
-    yield mock_redis
+    return _MockRedis()

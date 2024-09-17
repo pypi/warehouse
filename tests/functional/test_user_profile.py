@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from http import HTTPStatus
+
 from tests.common.db.accounts import UserFactory
 
 
@@ -27,4 +29,4 @@ def test_user_profile(webtest):
     assert user.username
     # ...and verify that the user's profile page exists
     resp = webtest.get(f"/user/{user.username}/")
-    assert resp.status_code == 200
+    assert resp.status_code == HTTPStatus.OK

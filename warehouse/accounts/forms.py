@@ -10,19 +10,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import json
 import re
 
-from email.errors import HeaderParseError
-from email.headerregistry import Address
-
 import disposable_email_domains
+import email_validator
 import humanize
 import markupsafe
 import wtforms
 import wtforms.fields
 
 from sqlalchemy import exists
+from tldextract import TLDExtract
 
 import warehouse.utils.otp as otp
 import warehouse.utils.webauthn as webauthn
@@ -48,6 +49,7 @@ from warehouse.i18n import localize as _
 MAX_PASSWORD_SIZE = 4096
 
 # Common messages, set as constants to keep them from drifting.
+INVALID_EMAIL_MESSAGE = _("The email address isn't valid. Try again.")
 INVALID_PASSWORD_MESSAGE = _("The password is invalid. Try again.")
 INVALID_USERNAME_MESSAGE = _(
     "The username is invalid. Usernames "
@@ -75,23 +77,23 @@ class PreventNullBytesValidator:
             raise wtforms.validators.StopValidation(self.message)
 
 
+def _check_for_existing_username(form: LoginForm, field):
+    field.data = field.data.strip()
+
+    userid = form.user_service.find_userid(field.data)
+
+    if userid is None:
+        raise wtforms.validators.ValidationError(_("No user found with that username"))
+
+
 class UsernameMixin:
     username = wtforms.StringField(
         validators=[
             wtforms.validators.InputRequired(),
-            PreventNullBytesValidator(message=INVALID_USERNAME_MESSAGE),
+            PreventNullBytesValidator(),
+            _check_for_existing_username,
         ],
     )
-
-    def validate_username(self, field):
-        field.data = field.data.strip()
-
-        userid = self.user_service.find_userid(field.data)
-
-        if userid is None:
-            raise wtforms.validators.ValidationError(
-                _("No user found with that username")
-            )
 
 
 class TOTPValueMixin:
@@ -278,19 +280,34 @@ class NewEmailMixin:
     def validate_email(self, field):
         # Additional checks for the validity of the address
         try:
-            address = Address(addr_spec=field.data)
-        except (ValueError, HeaderParseError):
+            resp = email_validator.validate_email(field.data, check_deliverability=True)
+        except email_validator.EmailNotValidError as e:
             raise wtforms.validators.ValidationError(
                 self.request._("The email address isn't valid. Try again.")
-            )
+            ) from e
 
         # Check if the domain is valid
-        domain = ".".join(address.domain.split(".")[-2:]).lower()
+        extractor = TLDExtract(suffix_list_urls=())  # Updated during image build
+        domain = extractor(resp.domain.lower()).registered_domain
+
+        mx_domains = set()
+        if hasattr(resp, "mx") and resp.mx:
+            mx_domains = {
+                extractor(mx_host.lower()).registered_domain
+                for _prio, mx_host in resp.mx
+            }
 
         if (
             domain in disposable_email_domains.blocklist
             or self.request.db.query(
-                exists().where(ProhibitedEmailDomain.domain == domain)
+                exists().where(
+                    (ProhibitedEmailDomain.domain == domain)
+                    & (ProhibitedEmailDomain.is_mx_record == False)  # noqa: E712
+                )
+                | exists().where(
+                    (ProhibitedEmailDomain.domain.in_(mx_domains))
+                    & (ProhibitedEmailDomain.is_mx_record == True)  # noqa: E712
+                )
             ).scalar()
         ):
             raise wtforms.validators.ValidationError(
@@ -325,11 +342,13 @@ class HoneypotMixin:
     confirm_form = wtforms.StringField()
 
 
-class UsernameSearchForm(UsernameMixin, forms.Form):
-    def validate_username(self, field):
-        # Override this function from UsernameMixin. We don't care if the
-        # username is valid or not
-        return True
+class UsernameSearchForm(forms.Form):
+    username = wtforms.StringField(
+        validators=[
+            wtforms.validators.InputRequired(),
+            PreventNullBytesValidator(),
+        ],
+    )
 
 
 class RegistrationForm(  # type: ignore[misc]
@@ -349,6 +368,10 @@ class RegistrationForm(  # type: ignore[misc]
                     "The name is too long. "
                     "Choose a name with 100 characters or less."
                 ),
+            ),
+            wtforms.validators.Regexp(
+                r"(?i)(?:(?!:\/\/).)*$",
+                message=_("URLs are not allowed in the name field."),
             ),
             PreventNullBytesValidator(),
         ]
@@ -552,11 +575,11 @@ class RequestPasswordResetForm(forms.Form):
         if "@" in field.data:
             # Additional checks for the validity of the address
             try:
-                Address(addr_spec=field.data)
-            except (IndexError, ValueError, HeaderParseError):
+                email_validator.validate_email(field.data, check_deliverability=True)
+            except email_validator.EmailNotValidError as e:
                 raise wtforms.validators.ValidationError(
-                    message=INVALID_PASSWORD_MESSAGE
-                )
+                    message=INVALID_EMAIL_MESSAGE
+                ) from e
         else:
             # the regexp below must match the CheckConstraint
             # for the username field in accounts.models.User
