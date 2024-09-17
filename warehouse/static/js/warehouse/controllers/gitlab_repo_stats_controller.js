@@ -38,6 +38,13 @@ export default class extends Controller {
           );
         }
 
+        console.error(
+          `Received ${response.status} HTTP code while fetching Gitlab ${project_object} data. The response is "${response.text}"`
+        );
+
+        return 0;
+      }).catch(error => {
+        console.error(`An error ocured while fetching Gitlab ${project_object} data: ${error.message || error}`);
         return 0;
       });
     };
@@ -77,6 +84,8 @@ export default class extends Controller {
         );
       })
       // swallow errors, we don't want to show them to the user
-      .catch(() => {});
+      .catch((error) => {
+        console.error(`An error ocured while fetching Gitlab data: ${error.message || error}`);
+      });
   }
 }
