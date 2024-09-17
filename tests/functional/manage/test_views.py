@@ -53,7 +53,7 @@ class TestManageAccount:
         assert user.name == "new name"
         assert user.public_email is None
 
-    def test_changing_password_succeeds(self, webtest, remote_addr, socket_enabled):
+    def test_changing_password_succeeds(self, webtest, socket_enabled):
         """A user can log in, and change their password."""
         # create a User
         user = UserFactory.create(
