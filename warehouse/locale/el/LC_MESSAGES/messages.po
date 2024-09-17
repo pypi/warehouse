@@ -47,11 +47,15 @@ msgstr ""
 msgid "Locale updated"
 msgstr "η τοπική γλώσσα ενημερώθηκε"
 
-#: warehouse/accounts/forms.py:52
+#: warehouse/accounts/forms.py:52 warehouse/accounts/forms.py:286
+msgid "The email address isn't valid. Try again."
+msgstr "Το email δεν είναι έγκυρο. Δοκιμάστε ξανά."
+
+#: warehouse/accounts/forms.py:53
 msgid "The password is invalid. Try again."
 msgstr "Ο κωδικός δεν είναι έγκυρος. Προσπαθήστε ξανά."
 
-#: warehouse/accounts/forms.py:53
+#: warehouse/accounts/forms.py:54
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -62,28 +66,28 @@ msgstr ""
 "να ξεκινά και να τελειώνει με ένα γράμμα ή έναν αριθμό. Επιλέξτε ένα "
 "διαφορετικό όνομα χρήστη."
 
-#: warehouse/accounts/forms.py:71
+#: warehouse/accounts/forms.py:72
 msgid "Null bytes are not allowed."
 msgstr "Μηδενικά byte δεν επιτρέπονται."
 
-#: warehouse/accounts/forms.py:94
+#: warehouse/accounts/forms.py:86
 msgid "No user found with that username"
 msgstr "Δεν βρέθηκε χρήστης με αυτό το όνομα"
 
-#: warehouse/accounts/forms.py:105
+#: warehouse/accounts/forms.py:106
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "Ο κώδικας TOTP πρέπει να αποτελείται από ${totp_length} ψηφία."
 
-#: warehouse/accounts/forms.py:125
+#: warehouse/accounts/forms.py:126
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr ""
 "Οι Kωδικοί Aνάκτησης πρέπει να είναι ${recovery_code_length} χαρακτήρες."
 
-#: warehouse/accounts/forms.py:140
+#: warehouse/accounts/forms.py:141
 msgid "Choose a username with 50 characters or less."
 msgstr "Επιλέξτε ένα όνομα χρήστη έως 50 χαρακτήρες ή λιγότερους."
 
-#: warehouse/accounts/forms.py:157
+#: warehouse/accounts/forms.py:158
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -91,14 +95,14 @@ msgstr ""
 "Αυτό το όνομα χρήστη χρησιμοποιείται ήδη από άλλον λογαριασμό. Διαλέξτε ένα "
 "διαφορετικό όνομα χρήστη."
 
-#: warehouse/accounts/forms.py:171 warehouse/accounts/forms.py:220
-#: warehouse/accounts/forms.py:233
+#: warehouse/accounts/forms.py:172 warehouse/accounts/forms.py:221
+#: warehouse/accounts/forms.py:234
 #, fuzzy
 #| msgid "Password strength:"
 msgid "Password too long."
 msgstr "Δύναμη κωδικού χρήστη:"
 
-#: warehouse/accounts/forms.py:207
+#: warehouse/accounts/forms.py:208
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -107,27 +111,23 @@ msgid ""
 "out for ${time}. Please try again later."
 msgstr "Έγιναν πολλές ανεπιτυχείς απόπειρες σύνδεσης. Δοκιμάστε ξανά αργότερα."
 
-#: warehouse/accounts/forms.py:236
+#: warehouse/accounts/forms.py:237
 msgid "Your passwords don't match. Try again."
 msgstr "Οι κωδικοί δεν ταιριάζουν. Δοκιμάστε ξανά."
 
-#: warehouse/accounts/forms.py:270
+#: warehouse/accounts/forms.py:271
 #, fuzzy
 #| msgid "The email address isn't valid. Try again."
 msgid "The email address is too long. Try again."
 msgstr "Το email δεν είναι έγκυρο. Δοκιμάστε ξανά."
 
-#: warehouse/accounts/forms.py:285
-msgid "The email address isn't valid. Try again."
-msgstr "Το email δεν είναι έγκυρο. Δοκιμάστε ξανά."
-
-#: warehouse/accounts/forms.py:299
+#: warehouse/accounts/forms.py:314
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Δεν μπορείτε να χρησιμοποιήσετε ένα email από αυτό το domain. Δοκιμάστε με "
 "άλλο email."
 
-#: warehouse/accounts/forms.py:310
+#: warehouse/accounts/forms.py:325
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -135,7 +135,7 @@ msgstr ""
 "Αυτό το email χρησιμοποιείται ήδη από αυτόν τον λογαριασμό. Χρησιμοποιήστε "
 "ένα διαφορετικό email."
 
-#: warehouse/accounts/forms.py:317
+#: warehouse/accounts/forms.py:332
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -143,29 +143,33 @@ msgstr ""
 "Αυτό το email χρησιμοποιείται ήδη από άλλο λογαριασμό. Χρησιμοποιήστε ένα "
 "διαφορετικό email."
 
-#: warehouse/accounts/forms.py:350 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:367 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 "Το όνομα είναι πολύ μεγάλο. Διαλέξτε ένα όνομα με μέγιστο 100 χαρακτήρες."
 
-#: warehouse/accounts/forms.py:442
+#: warehouse/accounts/forms.py:374
+msgid "URLs are not allowed in the name field."
+msgstr ""
+
+#: warehouse/accounts/forms.py:463
 msgid "Invalid TOTP code."
 msgstr "Μη έγκυρος TOTP κωδικός."
 
-#: warehouse/accounts/forms.py:459
+#: warehouse/accounts/forms.py:480
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Μη έγκυρο WebAuthn assertion: Bad payload"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/accounts/forms.py:528
+#: warehouse/accounts/forms.py:549
 msgid "Invalid recovery code."
 msgstr "Μη έγκυρος κωδικός ανάκτησης."
 
-#: warehouse/accounts/forms.py:537
+#: warehouse/accounts/forms.py:558
 msgid "Recovery code has been previously used."
 msgstr "Ο Κωδικός Ανάκτησης έχει ήδη χρησιμοποιηθεί."
 
-#: warehouse/accounts/forms.py:567
+#: warehouse/accounts/forms.py:588
 msgid "The username isn't valid. Try again."
 msgstr "Το όνομα χρήστη δεν είναι έγκυρο. Δοκιμάστε ξανά."
 
@@ -3481,10 +3485,20 @@ msgstr "Επιβεβαιώθηκε"
 msgid "(What is this?)"
 msgstr ""
 
+#: warehouse/templates/includes/packaging/project-data.html:21
+msgid "These details have been verified by PyPI"
+msgstr ""
+
 #: warehouse/templates/includes/packaging/project-data.html:23
-#: warehouse/templates/includes/packaging/project-data.html:117
+#: warehouse/templates/includes/packaging/project-data.html:140
 msgid "Project links"
 msgstr "Σύνδεσμοι project"
+
+# | msgid "Last released: %(release_date)s"
+#: warehouse/templates/includes/packaging/project-data.html:31
+#, fuzzy, python-format
+msgid "URL verified by PyPI on %(release_date)s"
+msgstr "Τελευταία εκδόθηκε: %(release_date)s"
 
 #: warehouse/templates/includes/packaging/project-data.html:51
 #, fuzzy
@@ -3526,44 +3540,51 @@ msgstr "Συντηρητές"
 msgid "Avatar for {username} from gravatar.com"
 msgstr "Το avatar του χρήστη {username} από το gravatar.com"
 
-#: warehouse/templates/includes/packaging/project-data.html:114
+#: warehouse/templates/includes/packaging/project-data.html:113
+#: warehouse/templates/includes/packaging/project-data.html:156
+msgid "Meta"
+msgstr "Meta"
+
+#: warehouse/templates/includes/packaging/project-data.html:118
+#: warehouse/templates/includes/packaging/project-data.html:168
+#: warehouse/templates/includes/packaging/project-data.html:174
+msgid "Author:"
+msgstr "Συγγραφέας:"
+
+#: warehouse/templates/includes/packaging/project-data.html:126
+#: warehouse/templates/includes/packaging/project-data.html:181
+#: warehouse/templates/includes/packaging/project-data.html:187
+#: warehouse/templates/pages/help.html:620
+msgid "Maintainer:"
+msgstr "Συντηρητής:"
+
+#: warehouse/templates/includes/packaging/project-data.html:137
 #, fuzzy
 #| msgid "Unverified"
 msgid "Unverified details"
 msgstr "Ανεπιβεβαίωτο"
 
-#: warehouse/templates/includes/packaging/project-data.html:133
-msgid "Meta"
-msgstr "Meta"
-
 #: warehouse/templates/includes/packaging/project-data.html:138
+msgid "These details have <b>not</b> been verified by PyPI"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:161
 msgid "License:"
 msgstr "Άδεια:"
 
-#: warehouse/templates/includes/packaging/project-data.html:145
-#: warehouse/templates/includes/packaging/project-data.html:151
-msgid "Author:"
-msgstr "Συγγραφέας:"
-
-#: warehouse/templates/includes/packaging/project-data.html:158
-#: warehouse/templates/includes/packaging/project-data.html:164
-#: warehouse/templates/pages/help.html:620
-msgid "Maintainer:"
-msgstr "Συντηρητής:"
-
-#: warehouse/templates/includes/packaging/project-data.html:172
+#: warehouse/templates/includes/packaging/project-data.html:195
 msgid "Tags"
 msgstr "Ετικέτες"
 
-#: warehouse/templates/includes/packaging/project-data.html:184
+#: warehouse/templates/includes/packaging/project-data.html:207
 msgid "Requires:"
 msgstr "Απαιτήσεις:"
 
-#: warehouse/templates/includes/packaging/project-data.html:191
+#: warehouse/templates/includes/packaging/project-data.html:214
 msgid "Provides-Extra:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:201
+#: warehouse/templates/includes/packaging/project-data.html:224
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
