@@ -57,12 +57,7 @@ class TestManageAccount:
         """If the user changes their password, their session should be invalidated."""
         # create a User
         user = UserFactory.create(
-            with_verified_primary_email=True,
-            password=(  # 'password'
-                "$argon2id$v=19$m=1024,"
-                "t=6,p=6$EiLE2Nsbo9S6N+acs/beGw$ccyZDCZstr1/+Y/1s3BVZ"
-                "HOJaqfBroT0JCieHug281c"
-            ),
+            with_verified_primary_email=True, clear_pwd="password"
         )
 
         # visit login page
