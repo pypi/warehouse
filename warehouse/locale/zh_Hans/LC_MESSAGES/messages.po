@@ -60,17 +60,17 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2024-08-31 05:16+0000\n"
+"PO-Revision-Date: 2024-09-12 03:57+0000\n"
 "Last-Translator: 大王叫我来巡山 <hamburger2048@users.noreply.hosted.weblate."
 "org>\n"
-"Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
-"pypa/warehouse/zh_Hans/>\n"
+"Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
+"projects/pypa/warehouse/zh_Hans/>\n"
 "Language: zh_Hans\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.7.1-dev\n"
+"X-Generator: Weblate 5.8-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:147
@@ -90,11 +90,15 @@ msgstr "你的账户必须启用双因素身份验证才能执行此操作。"
 msgid "Locale updated"
 msgstr "区域设置已更新"
 
-#: warehouse/accounts/forms.py:52
+#: warehouse/accounts/forms.py:52 warehouse/accounts/forms.py:286
+msgid "The email address isn't valid. Try again."
+msgstr "电子邮件地址无效。请再试一次。"
+
+#: warehouse/accounts/forms.py:53
 msgid "The password is invalid. Try again."
 msgstr "密码错误。请重试。"
 
-#: warehouse/accounts/forms.py:53
+#: warehouse/accounts/forms.py:54
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -103,38 +107,38 @@ msgstr ""
 "用户名无效。用户名须由字母、数字、圆点、连字符和下划线组成，以字母或数字开头"
 "和结尾。选择其他用户名。"
 
-#: warehouse/accounts/forms.py:71
+#: warehouse/accounts/forms.py:72
 msgid "Null bytes are not allowed."
 msgstr "不允许 Null 字节。"
 
-#: warehouse/accounts/forms.py:94
+#: warehouse/accounts/forms.py:86
 msgid "No user found with that username"
 msgstr "未找到使用该用户名的用户"
 
-#: warehouse/accounts/forms.py:105
+#: warehouse/accounts/forms.py:106
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "单次有效密码必须为 ${totp_length} 位数字。"
 
-#: warehouse/accounts/forms.py:125
+#: warehouse/accounts/forms.py:126
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr "恢复代码必须是 ${recovery_code_length} 字符。"
 
-#: warehouse/accounts/forms.py:140
+#: warehouse/accounts/forms.py:141
 msgid "Choose a username with 50 characters or less."
 msgstr "请选择一个不超过 50 个字符的用户名。"
 
-#: warehouse/accounts/forms.py:157
+#: warehouse/accounts/forms.py:158
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
 msgstr "此用户名已被其他用户使用。请换个用户名。"
 
-#: warehouse/accounts/forms.py:171 warehouse/accounts/forms.py:220
-#: warehouse/accounts/forms.py:233
+#: warehouse/accounts/forms.py:172 warehouse/accounts/forms.py:221
+#: warehouse/accounts/forms.py:234
 msgid "Password too long."
 msgstr "密码过长。"
 
-#: warehouse/accounts/forms.py:207
+#: warehouse/accounts/forms.py:208
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
@@ -142,56 +146,56 @@ msgstr ""
 "尝试登录失败次数过多，请稍后重试。你被锁在账户外面已经 ${time} 了。请稍后再"
 "试。"
 
-#: warehouse/accounts/forms.py:236
+#: warehouse/accounts/forms.py:237
 msgid "Your passwords don't match. Try again."
 msgstr "输入的密码不一致，请重试。"
 
-#: warehouse/accounts/forms.py:270
+#: warehouse/accounts/forms.py:271
 msgid "The email address is too long. Try again."
 msgstr "电子邮件地址太长。请重新输入。"
 
-#: warehouse/accounts/forms.py:285
-msgid "The email address isn't valid. Try again."
-msgstr "电子邮件地址无效。请再试一次。"
-
-#: warehouse/accounts/forms.py:299
+#: warehouse/accounts/forms.py:314
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr "你不能使用来自该域名的电子邮件地址。请更换电子邮件地址。"
 
-#: warehouse/accounts/forms.py:310
+#: warehouse/accounts/forms.py:325
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
 msgstr "此账户已使用此电子邮件地址。请使用一个不同的电子邮件地址。"
 
-#: warehouse/accounts/forms.py:317
+#: warehouse/accounts/forms.py:332
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
 msgstr "此电子邮件地址已被另一个账户使用。使用一个不同的电子邮件地址。"
 
-#: warehouse/accounts/forms.py:350 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:367 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "用户名太长。请选择一个不超过100个字符的用户名。"
 
-#: warehouse/accounts/forms.py:442
+#: warehouse/accounts/forms.py:374
+msgid "URLs are not allowed in the name field."
+msgstr "名称字段中不允许 URL。"
+
+#: warehouse/accounts/forms.py:463
 msgid "Invalid TOTP code."
 msgstr "无效的 TOTP 代码。"
 
-#: warehouse/accounts/forms.py:459
+#: warehouse/accounts/forms.py:480
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "无效的 WebAuthn 断言：数据错误"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/accounts/forms.py:528
+#: warehouse/accounts/forms.py:549
 msgid "Invalid recovery code."
 msgstr "无效的恢复代码。"
 
-#: warehouse/accounts/forms.py:537
+#: warehouse/accounts/forms.py:558
 msgid "Recovery code has been previously used."
 msgstr "恢复代码先前已用过。"
 
-#: warehouse/accounts/forms.py:567
+#: warehouse/accounts/forms.py:588
 msgid "The username isn't valid. Try again."
 msgstr "用户名无效。请再试一次。"
 
@@ -3095,10 +3099,19 @@ msgstr "已验证的详情"
 msgid "(What is this?)"
 msgstr "（这是什么？）"
 
+#: warehouse/templates/includes/packaging/project-data.html:21
+msgid "These details have been verified by PyPI"
+msgstr "这些详情已由 PyPI 验证"
+
 #: warehouse/templates/includes/packaging/project-data.html:23
-#: warehouse/templates/includes/packaging/project-data.html:117
+#: warehouse/templates/includes/packaging/project-data.html:140
 msgid "Project links"
 msgstr "项目链接"
+
+#: warehouse/templates/includes/packaging/project-data.html:31
+#, python-format
+msgid "URL verified by PyPI on %(release_date)s"
+msgstr "PyPI 于 %(release_date)s 验证了 URL"
 
 #: warehouse/templates/includes/packaging/project-data.html:51
 msgid "GitHub Statistics"
@@ -3132,42 +3145,49 @@ msgstr "维护者"
 msgid "Avatar for {username} from gravatar.com"
 msgstr "gravatar.com 上 {username} 的头像"
 
-#: warehouse/templates/includes/packaging/project-data.html:114
-msgid "Unverified details"
-msgstr "未验证的详情"
-
-#: warehouse/templates/includes/packaging/project-data.html:133
+#: warehouse/templates/includes/packaging/project-data.html:113
+#: warehouse/templates/includes/packaging/project-data.html:156
 msgid "Meta"
 msgstr "元数据"
 
-#: warehouse/templates/includes/packaging/project-data.html:138
-msgid "License:"
-msgstr "许可证："
-
-#: warehouse/templates/includes/packaging/project-data.html:145
-#: warehouse/templates/includes/packaging/project-data.html:151
+#: warehouse/templates/includes/packaging/project-data.html:118
+#: warehouse/templates/includes/packaging/project-data.html:168
+#: warehouse/templates/includes/packaging/project-data.html:174
 msgid "Author:"
 msgstr "作者："
 
-#: warehouse/templates/includes/packaging/project-data.html:158
-#: warehouse/templates/includes/packaging/project-data.html:164
+#: warehouse/templates/includes/packaging/project-data.html:126
+#: warehouse/templates/includes/packaging/project-data.html:181
+#: warehouse/templates/includes/packaging/project-data.html:187
 #: warehouse/templates/pages/help.html:620
 msgid "Maintainer:"
 msgstr "维护者："
 
-#: warehouse/templates/includes/packaging/project-data.html:172
+#: warehouse/templates/includes/packaging/project-data.html:137
+msgid "Unverified details"
+msgstr "未验证的详情"
+
+#: warehouse/templates/includes/packaging/project-data.html:138
+msgid "These details have <b>not</b> been verified by PyPI"
+msgstr "PyPI<b>尚未</b>验证这些详情"
+
+#: warehouse/templates/includes/packaging/project-data.html:161
+msgid "License:"
+msgstr "许可证："
+
+#: warehouse/templates/includes/packaging/project-data.html:195
 msgid "Tags"
 msgstr "标签"
 
-#: warehouse/templates/includes/packaging/project-data.html:184
+#: warehouse/templates/includes/packaging/project-data.html:207
 msgid "Requires:"
 msgstr "需要："
 
-#: warehouse/templates/includes/packaging/project-data.html:191
+#: warehouse/templates/includes/packaging/project-data.html:214
 msgid "Provides-Extra:"
 msgstr "Provides-Extra:"
 
-#: warehouse/templates/includes/packaging/project-data.html:201
+#: warehouse/templates/includes/packaging/project-data.html:224
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
@@ -8745,11 +8765,10 @@ msgid ""
 "Deleted projects, releases or files cannot be restored by PyPI "
 "administrators."
 msgstr ""
-"在 PyPI "
-"上删除项目、发行版或文件是永久性的且不可逆。删除项目会造成项目无法安装，"
-"并将允许任何其他 PyPI 用户使用该项目使用的名称。删除的文件<a href=\"#file-"
-"name-reuse\">不能被重新上传</a>。删除的项目、发行版或文件不能被 PyPI "
-"管理员恢复。"
+"在 PyPI 上删除项目、发行版或文件是永久性的且不可逆。删除项目会造成项目无法安"
+"装，并将允许任何其他 PyPI 用户使用该项目使用的名称。删除的文件<a "
+"href=\"#file-name-reuse\">不能被重新上传</a>。删除的项目、发行版或文件不能被 "
+"PyPI 管理员恢复。"
 
 #: warehouse/templates/pages/help.html:718
 #, python-format

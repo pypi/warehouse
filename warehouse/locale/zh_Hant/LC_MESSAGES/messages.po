@@ -59,11 +59,15 @@ msgstr "必須在您的帳戶上啟用雙因素身份驗證才能執行此操作
 msgid "Locale updated"
 msgstr "區域設置已更新"
 
-#: warehouse/accounts/forms.py:52
+#: warehouse/accounts/forms.py:52 warehouse/accounts/forms.py:286
+msgid "The email address isn't valid. Try again."
+msgstr "電子郵件地址無效。 請再試一次。"
+
+#: warehouse/accounts/forms.py:53
 msgid "The password is invalid. Try again."
 msgstr "密碼無效。 請再試一次。"
 
-#: warehouse/accounts/forms.py:53
+#: warehouse/accounts/forms.py:54
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -72,38 +76,38 @@ msgstr ""
 "使用者名稱無效。 使用者名稱必須由字母，數字，點，連字符和下劃線組成。 並且還"
 "必須以字母或數字開頭和結尾。 選擇其他使用者名稱。"
 
-#: warehouse/accounts/forms.py:71
+#: warehouse/accounts/forms.py:72
 msgid "Null bytes are not allowed."
 msgstr "不允許 Null 字節。"
 
-#: warehouse/accounts/forms.py:94
+#: warehouse/accounts/forms.py:86
 msgid "No user found with that username"
 msgstr "找不到使用該使用者名稱的使用者"
 
-#: warehouse/accounts/forms.py:105
+#: warehouse/accounts/forms.py:106
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "基於時間的一次性密碼 (TOTP) 必須剛好是 ${totp_length} 位數。"
 
-#: warehouse/accounts/forms.py:125
+#: warehouse/accounts/forms.py:126
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr "恢復程式必須為${recovery_code_length}字元。"
 
-#: warehouse/accounts/forms.py:140
+#: warehouse/accounts/forms.py:141
 msgid "Choose a username with 50 characters or less."
 msgstr "選擇一個不超過 50 字的用戶名。"
 
-#: warehouse/accounts/forms.py:157
+#: warehouse/accounts/forms.py:158
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
 msgstr "此使用者名稱已被另一個帳戶使用。 選擇其他使用者名稱。"
 
-#: warehouse/accounts/forms.py:171 warehouse/accounts/forms.py:220
-#: warehouse/accounts/forms.py:233
+#: warehouse/accounts/forms.py:172 warehouse/accounts/forms.py:221
+#: warehouse/accounts/forms.py:234
 msgid "Password too long."
 msgstr "密碼過長。"
 
-#: warehouse/accounts/forms.py:207
+#: warehouse/accounts/forms.py:208
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
@@ -111,55 +115,57 @@ msgstr ""
 "登錄嘗試失敗的次數過多，請稍後再試。你被鎖在賬戶外面已經 ${time} 了。請稍後再"
 "試。"
 
-#: warehouse/accounts/forms.py:236
+#: warehouse/accounts/forms.py:237
 msgid "Your passwords don't match. Try again."
 msgstr "您的密碼不匹配。 請再試一次。"
 
-#: warehouse/accounts/forms.py:270
+#: warehouse/accounts/forms.py:271
 msgid "The email address is too long. Try again."
 msgstr "電子郵件地址太長。 請再試一次。"
 
-#: warehouse/accounts/forms.py:285
-msgid "The email address isn't valid. Try again."
-msgstr "電子郵件地址無效。 請再試一次。"
-
-#: warehouse/accounts/forms.py:299
+#: warehouse/accounts/forms.py:314
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr "您不能使用來自該網域的電子郵件地址。 請使用其他電子郵件。"
 
-#: warehouse/accounts/forms.py:310
+#: warehouse/accounts/forms.py:325
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
 msgstr "此帳戶已使用此電子郵件地址。 請使用其他電子郵件。"
 
-#: warehouse/accounts/forms.py:317
+#: warehouse/accounts/forms.py:332
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
 msgstr "其他帳戶已使用此電子郵件地址。 請使用其他電子郵件。"
 
-#: warehouse/accounts/forms.py:350 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:367 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "名稱太長了。請選擇不超過 100 個字的名稱。"
 
-#: warehouse/accounts/forms.py:442
+#: warehouse/accounts/forms.py:374
+#, fuzzy
+#| msgid "Null bytes are not allowed."
+msgid "URLs are not allowed in the name field."
+msgstr "不允許 Null 字節。"
+
+#: warehouse/accounts/forms.py:463
 msgid "Invalid TOTP code."
 msgstr "無效的一次性密碼 (TOTP)。"
 
-#: warehouse/accounts/forms.py:459
+#: warehouse/accounts/forms.py:480
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "無效的 WebAuthn 斷言：負載錯誤"
 
-#: warehouse/accounts/forms.py:528
+#: warehouse/accounts/forms.py:549
 msgid "Invalid recovery code."
 msgstr "無效的重設碼。"
 
-#: warehouse/accounts/forms.py:537
+#: warehouse/accounts/forms.py:558
 msgid "Recovery code has been previously used."
 msgstr "重設碼已重新生成。"
 
-#: warehouse/accounts/forms.py:567
+#: warehouse/accounts/forms.py:588
 msgid "The username isn't valid. Try again."
 msgstr "使用者名稱無效。 請再試一次。"
 
@@ -3339,10 +3345,20 @@ msgstr "已驗證"
 msgid "(What is this?)"
 msgstr ""
 
+#: warehouse/templates/includes/packaging/project-data.html:21
+msgid "These details have been verified by PyPI"
+msgstr ""
+
 #: warehouse/templates/includes/packaging/project-data.html:23
-#: warehouse/templates/includes/packaging/project-data.html:117
+#: warehouse/templates/includes/packaging/project-data.html:140
 msgid "Project links"
 msgstr "專案連結"
+
+#: warehouse/templates/includes/packaging/project-data.html:31
+#, fuzzy, python-format
+#| msgid "Released: %(release_date)s"
+msgid "URL verified by PyPI on %(release_date)s"
+msgstr "已發行：%(release_date)s"
 
 #: warehouse/templates/includes/packaging/project-data.html:51
 #, fuzzy
@@ -3384,44 +3400,51 @@ msgstr "維護者"
 msgid "Avatar for {username} from gravatar.com"
 msgstr "從 gravatar.com 取得的{username} 頭像"
 
-#: warehouse/templates/includes/packaging/project-data.html:114
+#: warehouse/templates/includes/packaging/project-data.html:113
+#: warehouse/templates/includes/packaging/project-data.html:156
+msgid "Meta"
+msgstr "資料說明"
+
+#: warehouse/templates/includes/packaging/project-data.html:118
+#: warehouse/templates/includes/packaging/project-data.html:168
+#: warehouse/templates/includes/packaging/project-data.html:174
+msgid "Author:"
+msgstr "作者："
+
+#: warehouse/templates/includes/packaging/project-data.html:126
+#: warehouse/templates/includes/packaging/project-data.html:181
+#: warehouse/templates/includes/packaging/project-data.html:187
+#: warehouse/templates/pages/help.html:620
+msgid "Maintainer:"
+msgstr "維護者："
+
+#: warehouse/templates/includes/packaging/project-data.html:137
 #, fuzzy
 #| msgid "Unverified"
 msgid "Unverified details"
 msgstr "未驗證"
 
-#: warehouse/templates/includes/packaging/project-data.html:133
-msgid "Meta"
-msgstr "資料說明"
-
 #: warehouse/templates/includes/packaging/project-data.html:138
+msgid "These details have <b>not</b> been verified by PyPI"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:161
 msgid "License:"
 msgstr "許可證："
 
-#: warehouse/templates/includes/packaging/project-data.html:145
-#: warehouse/templates/includes/packaging/project-data.html:151
-msgid "Author:"
-msgstr "作者："
-
-#: warehouse/templates/includes/packaging/project-data.html:158
-#: warehouse/templates/includes/packaging/project-data.html:164
-#: warehouse/templates/pages/help.html:620
-msgid "Maintainer:"
-msgstr "維護者："
-
-#: warehouse/templates/includes/packaging/project-data.html:172
+#: warehouse/templates/includes/packaging/project-data.html:195
 msgid "Tags"
 msgstr "標籤"
 
-#: warehouse/templates/includes/packaging/project-data.html:184
+#: warehouse/templates/includes/packaging/project-data.html:207
 msgid "Requires:"
 msgstr "需求："
 
-#: warehouse/templates/includes/packaging/project-data.html:191
+#: warehouse/templates/includes/packaging/project-data.html:214
 msgid "Provides-Extra:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:201
+#: warehouse/templates/includes/packaging/project-data.html:224
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
