@@ -249,7 +249,7 @@ def test_includeme():
                         "'self'",
                         "https://api.github.com/repos/",
                         "https://api.github.com/search/issues",
-                        "https://gitlab.com",
+                        "https://gitlab.com/api/",
                         "https://*.google-analytics.com",
                         "https://*.analytics.google.com",
                         "https://*.googletagmanager.com",
