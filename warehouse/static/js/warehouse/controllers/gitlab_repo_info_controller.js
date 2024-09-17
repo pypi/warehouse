@@ -19,8 +19,8 @@ export default class extends Controller {
     "forksUrl",
     "openIssuesCount",
     "openIssuesUrl",
-    "stargazersCount",
-    "stargazersUrl",
+    "starrersCount",
+    "starrersUrl",
     "openMRsCount",
     "openMRsUrl",
   ];
@@ -32,8 +32,8 @@ export default class extends Controller {
     this.openIssuesUrlTarget.href = stats.issues_url;
     this.openMRsCountTarget.textContent = stats.MRs;
     this.openMRsUrlTarget.href = stats.MRs_url;
-    this.stargazersCountTarget.textContent = stats.followers;
-    this.stargazersUrlTarget.href = stats.followers_url;
+    this.starrersCountTarget.textContent = stats.starrers;
+    this.starrersUrlTarget.href = stats.starrers_url;
 
     // unhide the container now that the data is populated
     this.element.classList.remove("hidden");

@@ -65,8 +65,8 @@ export default class extends Controller {
         const stats = {
           issues: issues_count,
           issues_url: project.web_url + "/-/issues",
-          followers: project.star_count || 0,
-          followers_url: project.web_url + "/-/starrers",
+          starrers: project.star_count || 0,
+          starrers_url: project.web_url + "/-/starrers",
           forks: project.forks_count || 0,
           forks_url: project.web_url + "/-/forks",
           MRs: merge_requests_count,
