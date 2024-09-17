@@ -14,8 +14,6 @@ import json
 import re
 import time
 
-from datetime import timedelta
-
 import requests
 
 from warehouse import integrations
@@ -115,7 +113,7 @@ class GitHubPublicKeyMetaAPIError(InvalidTokenLeakRequestError):
     pass
 
 
-PUBLIC_KEYS_CACHE_TIME = timedelta(minutes=30).total_seconds()
+PUBLIC_KEYS_CACHE_TIME = 60 * 30  # 30 minutes
 PUBLIC_KEYS_CACHE = integrations.PublicKeysCache(cache_time=PUBLIC_KEYS_CACHE_TIME)
 
 

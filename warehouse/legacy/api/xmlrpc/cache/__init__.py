@@ -12,8 +12,6 @@
 
 import collections
 
-from datetime import timedelta
-
 from pyramid.exceptions import ConfigurationError
 from sqlalchemy.orm.base import NO_VALUE
 from sqlalchemy.orm.session import Session
@@ -88,7 +86,7 @@ def email_primary_receive_set(config, target, value, oldvalue, initiator):
 def includeme(config):
     xmlrpc_cache_url = config.registry.settings.get("warehouse.xmlrpc.cache.url")
     xmlrpc_cache_expires = config.registry.settings.get(
-        "warehouse.xmlrpc.cache.expires", timedelta(hours=25).total_seconds()
+        "warehouse.xmlrpc.cache.expires", 25 * 60 * 60
     )
 
     if xmlrpc_cache_url is None:
