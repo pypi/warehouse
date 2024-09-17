@@ -54,7 +54,7 @@ class TestManageAccount:
         assert user.public_email is None
 
     def test_changing_password_succeeds(self, webtest, remote_addr, socket_enabled):
-        """If the user changes their password, their session should be invalidated."""
+        """A user can log in, and change their password."""
         # create a User
         user = UserFactory.create(
             with_verified_primary_email=True, clear_pwd="password"
