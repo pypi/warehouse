@@ -893,8 +893,8 @@ def configure(settings=None):
     )
 
     # Sanity check our request and responses.
-    # Note: It is very important that this go last. We need everything else that might
-    #       have added a tween to be registered prior to this.
+    # Note: It is very important that this go last. We need everything else
+    # that might have added a tween to be registered prior to this.
     config.include(".sanity")
 
     # Finally, commit all of our changes
