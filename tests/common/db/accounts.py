@@ -13,12 +13,20 @@
 import datetime
 
 import factory
+import faker
 
 from argon2 import PasswordHasher
 
-from warehouse.accounts.models import Email, ProhibitedUserName, User
+from warehouse.accounts.models import (
+    Email,
+    ProhibitedEmailDomain,
+    ProhibitedUserName,
+    User,
+)
 
 from .base import WarehouseFactory
+
+fake = faker.Faker()
 
 
 class UserFactory(WarehouseFactory):
@@ -88,6 +96,15 @@ class EmailFactory(WarehouseFactory):
     public = False
     unverify_reason = None
     transient_bounces = 0
+
+
+class ProhibitedEmailDomainFactory(WarehouseFactory):
+    class Meta:
+        model = ProhibitedEmailDomain
+
+    # TODO: Replace when factory_boy supports `unique`.
+    #  See https://github.com/FactoryBoy/factory_boy/pull/997
+    domain = factory.Sequence(lambda _: fake.unique.domain_name())
 
 
 class ProhibitedUsernameFactory(WarehouseFactory):
