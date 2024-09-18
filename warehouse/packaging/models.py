@@ -148,7 +148,7 @@ class DraftFactory:
         try:
             release = (
                 self.request.db.query(Release)
-                .filter(Release.draft_hash == draft_hash, Release.published.is_(None))
+                .filter(Release.draft_hash == draft_hash, Release.published is None)
                 .one()
             )
             return {
@@ -284,7 +284,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             if draft_hash:
                 query = query.filter(Release.draft_hash == draft_hash)
             else:
-                query = query.filter(Release.published.isnot(None))
+                query = query.filter(Release.published is not None)
             return query.one()
 
         except MultipleResultsFound:
@@ -463,7 +463,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                 Release.yanked,
                 Release.yanked_reason,
             )
-            .filter(Release.project == self, Release.published.isnot(None))
+            .filter(Release.project == self, Release.published is not None)
             .order_by(Release._pypi_ordering.desc())
             .all()
         )
@@ -476,7 +476,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             .filter(
                 Release.project == self,
                 Release.yanked.is_(False),
-                Release.published.isnot(None),
+                Release.published is not None,
             )
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .first()
