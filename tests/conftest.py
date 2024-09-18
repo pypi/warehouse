@@ -212,6 +212,7 @@ def pyramid_request(pyramid_services, jinja, remote_addr, remote_addr_hashed):
     dummy_request._unauthenticated_userid = None
     dummy_request.user = None
     dummy_request.oidc_publisher = None
+    dummy_request.metrics = dummy_request.find_service(IMetricsService)
 
     dummy_request.registry.registerUtility(jinja, IJinja2Environment, name=".jinja2")
 

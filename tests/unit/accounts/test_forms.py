@@ -414,7 +414,7 @@ def _no_deliverability_check(monkeypatch):
 
 
 class TestRegistrationForm:
-    def test_validate(self):
+    def test_validate(self, metrics):
         captcha_service = pretend.stub(
             enabled=False,
             verify_response=pretend.call_recorder(lambda _: None),
@@ -432,7 +432,8 @@ class TestRegistrationForm:
 
         form = forms.RegistrationForm(
             request=pretend.stub(
-                db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False))
+                db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False)),
+                metrics=metrics,
             ),
             formdata=MultiDict(
                 {
@@ -538,10 +539,11 @@ class TestRegistrationForm:
             str(form.email.errors.pop()) == "The email address isn't valid. Try again."
         )
 
-    def test_exotic_email_success(self):
+    def test_exotic_email_success(self, metrics):
         form = forms.RegistrationForm(
             request=pretend.stub(
-                db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False))
+                db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False)),
+                metrics=metrics,
             ),
             formdata=MultiDict({"email": "foo@n--tree.net"}),
             user_service=pretend.stub(
