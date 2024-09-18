@@ -111,7 +111,7 @@ Implementing new services
 =========================
 
 Warehouse uses services to provide pluggable functionalities within the codebase. They are implemented using
-`pyramid-service`_. After being registered, services are accessible using the ``find_service`` method of the
+`pyramid-services`_. After being registered, services are accessible using the ``find_service`` method of the
 ``request`` object.
 
 When adding new services to ``warehouse``, the following checklist serves as a comprehensive guideline to ensure
@@ -123,11 +123,12 @@ Adding a new service
 1. Create an Interface for the service. The interface serves as the baseline of the new service (design by
    contract pattern) and details all methods and attributes shared by the different service implementations.
 
-   Warehouse uses zope_ to define interfaces. The interfaces are usually declared in a file named
+   Warehouse uses `zope.interface`_ to define interfaces. The interfaces are usually declared in a file named
    ``interfaces.py`` within the relevant component, such as ``packaging/interfaces.py``.
 
 2. Create the new service. The service must define all methods and attributes declared in the interface.
-   This implementation contains the core logic of the service features.
+   This implementation contains the core logic of the service features. Additionally, services may add
+   further methods that are not required on all implementations of the interface.
 
 3. (Optional) Create other implementations of the interface. For instance, many services in ``warehouse``
    also provide a ``NullService`` version used for development. These Null implementations only
@@ -161,11 +162,11 @@ Using the service
 To use a service, query it using ``request.find_service()`` with the service interface. This
 method will return an instance of the service correctly selected based on the context and environment.
 
-Example:
+Example (from `packaging/utils.py`_):
 
 .. code-block:: python
 
-   metrics = request.find_service(IMetricsService, context=None)
+   storage = request.find_service(ISimpleStorage)
 
 
 Testing the service
@@ -207,7 +208,8 @@ The following `Pull Request`_ can serve as a baseline as it implements all these
 
 .. |pip-tools| replace:: ``pip-tools``
 .. _pip-tools: https://pypi.org/project/pip-tools/
+.. _`packaging/utils.py`: https://github.com/pypi/warehouse/blob/a36ae299d043bb4a770d6fd0f4e73b8e99dd6461/warehouse/packaging/utils.py#L122
 .. _Dependabot pull requests: https://github.com/pypi/warehouse/pulls?q=is%3Apr+is%3Aopen+label%3Adependencies
-.. _`pyramid-service`: https://github.com/mmerickel/pyramid_services
-.. _zope: https://zopeinterface.readthedocs.io/
+.. _`pyramid-services`: https://github.com/mmerickel/pyramid_services
+.. _`zope.interface`: https://zopeinterface.readthedocs.io/
 .. _pull request: https://github.com/pypi/warehouse/pull/16546
