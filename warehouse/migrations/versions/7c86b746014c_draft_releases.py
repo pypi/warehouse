@@ -10,16 +10,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-empty message
+Merge migration.
 
 Revision ID: 7c86b746014c
 Revises: ('0b74ed7d4880', '93388f06f5e7')
 Create Date: 2024-09-17 22:58:42.074252
 """
-
-import sqlalchemy as sa
-
-from alembic import op
 
 revision = "7c86b746014c"
 down_revision = ("0b74ed7d4880", "93388f06f5e7")
