@@ -285,6 +285,21 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            "admin.prohibited_email_domains.list",
+            "/admin/prohibited_email_domains/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.prohibited_email_domains.add",
+            "/admin/prohibited_email_domains/add/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.prohibited_email_domains.remove",
+            "/admin/prohibited_email_domains/remove/",
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.observations.list",
             "/admin/observations/",
             domain=warehouse,
