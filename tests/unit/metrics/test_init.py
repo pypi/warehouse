@@ -89,5 +89,6 @@ def test_include_sets_class():
         pretend.call(_metrics, name="metrics", reify=True)
     ]
 
+
 def test_finds_service(pyramid_request):
     assert _metrics(pyramid_request) == pyramid_request.find_service(IMetricsService)
