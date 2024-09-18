@@ -413,7 +413,7 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
     @view_config(request_method="POST", request_param=ChangePasswordForm.__params__)
     def change_password(self):
         form = ChangePasswordForm(
-            MultiDict(**self.request.POST),
+            self.request.POST,
             request=self.request,
             username=self.request.user.username,
             full_name=self.request.user.name,
@@ -584,7 +584,7 @@ class ProvisionTOTPViews:
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         form = ProvisionTOTPForm(
-            MultiDict(**self.request.POST),
+            self.request.POST,
             totp_secret=self.request.session.get_totp_secret(),
         )
 
@@ -711,7 +711,7 @@ class ProvisionWebAuthnViews:
     )
     def validate_webauthn_provision(self):
         form = ProvisionWebAuthnForm(
-            MultiDict(**self.request.POST),
+            self.request.POST,
             user_service=self.user_service,
             user_id=self.request.user.id,
             challenge=self.request.session.get_webauthn_challenge(),
@@ -769,7 +769,7 @@ class ProvisionWebAuthnViews:
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         form = DeleteWebAuthnForm(
-            MultiDict(**self.request.POST),
+            self.request.POST,
             username=self.request.user.username,
             user_service=self.user_service,
             user_id=self.request.user.id,
@@ -931,7 +931,7 @@ class ProvisionMacaroonViews:
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         form = CreateMacaroonForm(
-            MultiDict(**self.request.POST),
+            self.request.POST,
             user_id=self.request.user.id,
             macaroon_service=self.macaroon_service,
             project_names=self.project_names,

@@ -80,7 +80,7 @@
 
       {% if totp_form %}
       <div class="twofa-login__method {% if has_webauthn %}twofa-login__method--padded{% endif %}">
-        <form method="POST" action="{{ request.current_route_path() }}">
+        <form method="POST" action="{{ request.current_route_path() }}" id="totp-auth-form">
           <h2>{% trans %}Authenticate with an app{% endtrans %}</h2>
 
           <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">

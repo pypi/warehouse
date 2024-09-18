@@ -290,6 +290,7 @@ def test_configure(monkeypatch, settings, environment):
         whitenoise_add_manifest=pretend.call_recorder(lambda *a, **kw: None),
         scan=pretend.call_recorder(lambda categories, ignore: None),
         commit=pretend.call_recorder(lambda: None),
+        add_view_deriver=pretend.call_recorder(lambda *a, **kw: None),
     )
     configurator_cls = pretend.call_recorder(lambda settings: configurator_obj)
     monkeypatch.setattr(config, "Configurator", configurator_cls)
@@ -530,6 +531,11 @@ def test_configure(monkeypatch, settings, environment):
     assert configurator_obj.add_renderer.calls == [
         pretend.call("json", json_renderer_obj),
         pretend.call("xmlrpc", xmlrpc_renderer_obj),
+    ]
+    assert configurator_obj.add_view_deriver.calls == [
+        pretend.call(
+            config.reject_duplicate_post_keys_view, under=config.viewderivers.INGRESS
+        )
     ]
 
     assert json_renderer_cls.calls == [
