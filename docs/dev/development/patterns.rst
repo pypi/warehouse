@@ -158,7 +158,7 @@ Adding a new service
 Using the service
 ~~~~~~~~~~~~~~~~~
 
-To use a service, query it using ``request.find_services`` with the service interface. This
+To use a service, query it using ``request.find_service()`` with the service interface. This
 method will return an instance of the service correctly selected based on the context and environment.
 
 Example:
