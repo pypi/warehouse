@@ -13,12 +13,12 @@
 -#}
 
 <div class="sidebar-section verified">
-  <h3 class="sidebar-section__title">{% trans %}Verified details{% endtrans %}&nbsp;
-      <a href="https://docs.pypi.org/project_metadata/#verified-details">
-          <small><i>{% trans %}(What is this?){% endtrans %}</i></small>
-      </a>
-  </h3>
-  <small><i>{% trans %}These details have been verified by PyPI{% endtrans %}</i></small>
+  <h3 class="sidebar-section__title">
+    {% trans %}Verified details{% endtrans %}
+    <i class="fa fa-circle-check check" title="{% trans release_date=release.created.date() %}Verified by PyPI on {{ release_date }}
+    {% endtrans %}"></i>
+</h3>
+  <small><i>{% trans href="https://docs.pypi.org/project_metadata/#verified-details" %}These details have been <a href="{{ href }}">verified by PyPI</a>{% endtrans %}</i></small>
   {% if release.urls_by_verify_status(verified=True).values() | contains_valid_uris %}
     <h6>{% trans %}Project links{% endtrans %}</h6>
     <ul class="vertical-tabs__list">
@@ -28,7 +28,6 @@
         <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed" href="{{ url }}" rel="nofollow">
           {{ url_icon(name, url) }}{{ name }}
         </a>
-        <i class="fa fa-circle-check check" title="{% trans release_date=release.created.date() %}URL verified by PyPI on {{ release_date }}{% endtrans %}"></i>
       </li>
       {% endif %}
       {% endfor %}
