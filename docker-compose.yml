@@ -137,6 +137,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
       stripe:
         condition: service_started
 

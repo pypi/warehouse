@@ -220,7 +220,7 @@ class OIDCPublisherMixin:
             list(signed_claims.keys() - self.all_known_claims())
         )
         if unaccounted_claims:
-            with sentry_sdk.push_scope() as scope:
+            with sentry_sdk.new_scope() as scope:
                 scope.fingerprint = unaccounted_claims
                 sentry_sdk.capture_message(
                     f"JWT for {self.__class__.__name__} has unaccounted claims: "
@@ -238,7 +238,7 @@ class OIDCPublisherMixin:
             # change in the JWT's payload.
             signed_claim = signed_claims.get(claim_name)
             if signed_claim is None:
-                with sentry_sdk.push_scope() as scope:
+                with sentry_sdk.new_scope() as scope:
                     scope.fingerprint = [claim_name]
                     sentry_sdk.capture_message(
                         f"JWT for {self.__class__.__name__} is missing claim: "
@@ -299,6 +299,15 @@ class OIDCPublisherMixin:
         """
         # Only concrete subclasses are constructed.
         raise NotImplementedError
+
+    @property
+    def supports_attestations(self) -> bool:
+        """
+        Returns whether or not this kind of publisher supports attestations.
+
+        Concrete subclasses should override this upon adding attestation support.
+        """
+        return False
 
     def publisher_verification_policy(
         self, claims: SignedClaims

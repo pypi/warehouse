@@ -116,11 +116,6 @@ def includeme(config):
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{username}",
     )
-    config.add_route(
-        "admin.prohibited_user_names.bulk_add",
-        "/admin/prohibited_user_names/bulk/",
-        domain=warehouse,
-    )
 
     # Macaroon related Admin pages
     config.add_route(
@@ -285,6 +280,17 @@ def includeme(config):
     config.add_route(
         "admin.prohibited_project_names.release",
         "/admin/prohibited_project_names/release/",
+        domain=warehouse,
+    )
+    # Prohibited Username related Admin pages
+    config.add_route(
+        "admin.prohibited_user_names.list",
+        "/admin/prohibited_user_names/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.prohibited_user_names.bulk_add",
+        "/admin/prohibited_user_names/bulk/",
         domain=warehouse,
     )
 

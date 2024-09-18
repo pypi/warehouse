@@ -165,7 +165,6 @@ def includeme(config):
         {
             "csp": {
                 "base-uri": [SELF],
-                "block-all-mixed-content": [],
                 "connect-src": _connect_src_settings(config),
                 "default-src": [NONE],
                 "font-src": [SELF, "fonts.gstatic.com"],

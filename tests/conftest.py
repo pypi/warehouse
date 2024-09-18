@@ -30,6 +30,7 @@ import webtest as _webtest
 
 from jinja2 import Environment, FileSystemLoader
 from psycopg.errors import InvalidCatalogName
+from pypi_attestations import Attestation, Envelope, VerificationMaterial
 from pyramid.i18n import TranslationString
 from pyramid.static import ManifestCacheBuster
 from pyramid_jinja2 import IJinja2Environment
@@ -319,6 +320,7 @@ def get_app_config(database, nondefaults=None):
         "opensearch.url": "https://localhost/warehouse",
         "files.backend": "warehouse.packaging.services.LocalFileStorage",
         "archive_files.backend": "warehouse.packaging.services.LocalArchiveFileStorage",
+        "archive_files.path": "/tmp",
         "simple.backend": "warehouse.packaging.services.LocalSimpleStorage",
         "docs.backend": "warehouse.packaging.services.LocalDocsStorage",
         "sponsorlogos.backend": "warehouse.admin.services.LocalSponsorLogoStorage",
@@ -386,15 +388,17 @@ def get_db_session_for_app_config(app_config):
 
 @pytest.fixture(scope="session")
 def app_config(database):
-
     return get_app_config(database)
 
 
 @pytest.fixture(scope="session")
 def app_config_dbsession_from_env(database):
-
     nondefaults = {
-        "warehouse.db_create_session": lambda r: r.environ.get("warehouse.db_session")
+        "warehouse.db_create_session": lambda r: r.environ.get("warehouse.db_session"),
+        "breached_passwords.backend": "warehouse.accounts.services.NullPasswordBreachedService",  # noqa: E501
+        "token.two_factor.secret": "insecure token",
+        # A running redis service is required for functional web sessions
+        "sessions.url": "redis://redis:0/",
     }
 
     return get_app_config(database, nondefaults)
@@ -535,6 +539,20 @@ def activestate_oidc_service(db_session):
         pretend.stub(),
         pretend.stub(),
         pretend.stub(),
+    )
+
+
+@pytest.fixture
+def dummy_attestation():
+    return Attestation(
+        version=1,
+        verification_material=VerificationMaterial(
+            certificate="somebase64string", transparency_entries=[dict()]
+        ),
+        envelope=Envelope(
+            statement="somebase64string",
+            signature="somebase64string",
+        ),
     )
 
 
@@ -683,7 +701,7 @@ class _TestApp(_webtest.TestApp):
 
 
 @pytest.fixture
-def webtest(app_config_dbsession_from_env):
+def webtest(app_config_dbsession_from_env, remote_addr):
     """
     This fixture yields a test app with an alternative Pyramid configuration,
     injecting the database session and transaction manager into the app.
@@ -713,6 +731,7 @@ def webtest(app_config_dbsession_from_env):
                 "warehouse.db_session": _db_session,
                 "tm.active": True,  # disable pyramid_tm
                 "tm.manager": tm,  # pass in our own tm for the app to use
+                "REMOTE_ADDR": remote_addr,  # set the same address for all requests
             },
         )
         yield testapp
