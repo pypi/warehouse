@@ -106,18 +106,7 @@
   &__tab {
     display: block;
     padding: $half-spacing-unit;
-    cursor: pointer;
     @include link-without-underline;
-
-    &:hover {
-      color: darken($primary-color, 10);
-    }
-
-    &:active,
-    &:focus {
-      outline: 1px solid $white;
-      box-shadow: 0 0 0 2px $primary-color;
-    }
 
     &--mobile {
       display: none;
