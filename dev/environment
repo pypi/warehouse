@@ -7,7 +7,6 @@ WAREHOUSE_IP_SALT="insecure himalayan pink salt"
 
 AWS_ACCESS_KEY_ID=foo
 AWS_SECRET_ACCESS_KEY=foo
-BROKER_URL=sqs://localstack:4566/?region=us-east-1&queue_name_prefix=warehouse-dev
 
 DATABASE_URL=postgresql+psycopg://postgres@db/warehouse
 
