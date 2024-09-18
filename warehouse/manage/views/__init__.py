@@ -29,6 +29,7 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
 from venusian import lift
 from webauthn.helpers import bytes_to_base64url
+from webob.multidict import MultiDict
 
 import warehouse.utils.otp as otp
 
@@ -451,10 +452,12 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
             return self.default_response
 
         form = ConfirmPasswordForm(
-            formdata={
-                "password": confirm_password,
-                "username": self.request.user.username,
-            },
+            formdata=MultiDict(
+                {
+                    "password": confirm_password,
+                    "username": self.request.user.username,
+                }
+            ),
             request=self.request,
             user_service=self.user_service,
         )
@@ -631,10 +634,12 @@ class ProvisionTOTPViews:
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         form = DeleteTOTPForm(
-            formdata={
-                "password": self.request.POST["confirm_password"],
-                "username": self.request.user.username,
-            },
+            formdata=MultiDict(
+                {
+                    "password": self.request.POST["confirm_password"],
+                    "username": self.request.user.username,
+                }
+            ),
             request=self.request,
             user_service=self.user_service,
         )
@@ -1003,11 +1008,13 @@ class ProvisionMacaroonViews:
     )
     def delete_macaroon(self):
         form = DeleteMacaroonForm(
-            formdata={
-                "password": self.request.POST["confirm_password"],
-                "username": self.request.user.username,
-                "macaroon_id": self.request.POST["macaroon_id"],
-            },
+            formdata=MultiDict(
+                {
+                    "password": self.request.POST["confirm_password"],
+                    "username": self.request.user.username,
+                    "macaroon_id": self.request.POST["macaroon_id"],
+                }
+            ),
             request=self.request,
             macaroon_service=self.macaroon_service,
             user_service=self.user_service,
