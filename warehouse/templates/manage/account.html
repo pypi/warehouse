@@ -375,7 +375,7 @@
   <section id="change-password">
     <h2 class="sub-title">{% trans %}Change password{% endtrans %}</h2>
     {{ form_error_anchor(change_password_form) }}
-    <form data-controller="password password-match password-strength-gauge" method="POST" action="#errors">
+    <form data-controller="password password-match password-strength-gauge" method="POST" action="#errors" id="change-password-form">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       {{ form_errors(change_password_form) }}
       <div class="form-group">
