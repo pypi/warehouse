@@ -43,11 +43,23 @@ class InvalidInputResponseError(HCaptchaError):
     pass
 
 
+class ExpiredInputResponseError(HCaptchaError):
+    pass
+
+
+class AlreadySeenResponseError(HCaptchaError):
+    pass
+
+
 class BadRequestError(HCaptchaError):
     pass
 
 
-class InvalidOrAlreadySeenResponseError(HCaptchaError):
+class MissingRemoteIPError(HCaptchaError):
+    pass
+
+
+class InvalidRemoteIPError(HCaptchaError):
     pass
 
 
@@ -63,16 +75,25 @@ class UnexpectedError(HCaptchaError):
     pass
 
 
+class InvalidOrAlreadySeenResponseError(HCaptchaError):
+    pass
+
+
 # https://docs.hcaptcha.com/#siteverify-error-codes-table
 ERROR_CODE_MAP = {
     "missing-input-secret": MissingInputSecretError,
     "invalid-input-secret": InvalidInputSecretError,
     "missing-input-response": MissingInputResponseError,
     "invalid-input-response": InvalidInputResponseError,
-    "invalid-or-already-seen-response": InvalidOrAlreadySeenResponseError,
+    "expired-input-response": ExpiredInputResponseError,
+    "already-seen-response": AlreadySeenResponseError,
+    "bad-request": BadRequestError,
+    "missing-remoteip": MissingRemoteIPError,
+    "invalid-remoteip": InvalidRemoteIPError,
     "not-using-dummy-passcode": NotUsingDummyPasscodeError,
     "sitekey-secret-mismatch": SitekeySecretMismatchError,
-    "bad-request": BadRequestError,
+    # Maybe legacy?
+    "invalid-or-already-seen-response": InvalidOrAlreadySeenResponseError,
 }
 
 

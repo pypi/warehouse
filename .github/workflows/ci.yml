@@ -69,6 +69,10 @@ jobs:
           POSTGRES_INITDB_ARGS: '--no-sync --set fsync=off --set full_page_writes=off'
         # Set health checks to wait until postgres has started
         options: --health-cmd "pg_isready --username=postgres --dbname=postgres" --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+        image: ${{ (matrix.name == 'Tests') && 'redis:7.0' || '' }}
+        ports:
+          - 6379:6379
       stripe:
         image: ${{ (matrix.name == 'Tests') && 'stripe/stripe-mock:v0.162.0' || '' }}
         ports:

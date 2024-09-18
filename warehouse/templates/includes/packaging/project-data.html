@@ -13,12 +13,12 @@
 -#}
 
 <div class="sidebar-section verified">
-  <h3 class="sidebar-section__title">{% trans %}Verified details{% endtrans %}&nbsp;
-      <a href="https://docs.pypi.org/project_metadata/#verified-details">
-          <small><i>{% trans %}(What is this?){% endtrans %}</i></small>
-      </a>
-  </h3>
-  <small><i>{% trans %}These details have been verified by PyPI{% endtrans %}</i></small>
+  <h3 class="sidebar-section__title">
+    {% trans %}Verified details{% endtrans %}
+    <i class="fa fa-circle-check check" title="{% trans release_date=release.created.date() %}Verified by PyPI on {{ release_date }}
+    {% endtrans %}"></i>
+</h3>
+  <small><i>{% trans href="https://docs.pypi.org/project_metadata/#verified-details" %}These details have been <a href="{{ href }}">verified by PyPI</a>{% endtrans %}</i></small>
   {% if release.urls_by_verify_status(verified=True).values() | contains_valid_uris %}
     <h6>{% trans %}Project links{% endtrans %}</h6>
     <ul class="vertical-tabs__list">
@@ -28,7 +28,6 @@
         <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed" href="{{ url }}" rel="nofollow">
           {{ url_icon(name, url) }}{{ name }}
         </a>
-        <i class="fa fa-circle-check check" title="{% trans release_date=release.created.date() %}URL verified by PyPI on {{ release_date }}{% endtrans %}"></i>
       </li>
       {% endif %}
       {% endfor %}
@@ -111,7 +110,7 @@
   {% if release.has_meta and (release.author_email_verified or release.maintainer_email_verified) %}
   <div class="sidebar-section verified">
     <h6>{% trans %}Meta{% endtrans %}</h6>
-    <ul class="vertical-tabs__list">
+    <ul>
     {% if release.author_email and release.author_email_verified %}
       <li>
         <span class="vertical-tabs__tab vertical-tabs__tab--condensed">
@@ -154,43 +153,43 @@
 {% if release.has_meta %}
 <div class="sidebar-section unverified">
   <h6>{% trans %}Meta{% endtrans %}</h6>
-  <ul class="vertical-tabs__list">
+  <ul>
   {% if license %}
     <li>
-      <span class="vertical-tabs__tab vertical-tabs__tab--condensed">
+      <span>
         <strong>{% trans %}License:{% endtrans %}</strong> {{ license }}
       </span>
     </li>
   {% endif %}
   {% if release.author_email and not release.author_email_verified %}
     <li>
-      <span class="vertical-tabs__tab vertical-tabs__tab--condensed">
+      <span>
         <strong>{% trans %}Author:{% endtrans %}</strong> <a href="mailto:{{ release.author_email|format_email|last }}">{{ release.author or release.author_email|format_email|first }}</a>
       </span>
     </li>
   {% elif release.author %}
     <li>
-      <span class="vertical-tabs__tab vertical-tabs__tab--condensed">
+      <span>
         <strong>{% trans %}Author:{% endtrans %}</strong> {{ release.author }}
       </span>
     </li>
   {% endif %}
   {% if release.maintainer_email and not release.maintainer_email_verified%}
     <li>
-      <span class="vertical-tabs__tab vertical-tabs__tab--condensed">
+      <span>
         <strong>{% trans %}Maintainer:{% endtrans %}</strong> <a href="mailto:{{ release.maintainer_email|format_email|last }}">{{ release.maintainer or release.maintainer_email|format_email|first }}</a>
       </span>
     </li>
   {% elif release.maintainer %}
     <li>
-      <span class="vertical-tabs__tab vertical-tabs__tab--condensed">
+      <span>
         <strong>{% trans %}Maintainer:{% endtrans %}</strong> {{ release.maintainer }}
       </span>
     </li>
   {% endif %}
   {% if release.keywords %}
   <li class="tags">
-    <span class="vertical-tabs__tab vertical-tabs__tab--condensed">
+    <span>
       <i class="fa fa-tags" aria-hidden="true"></i>
       <span class="sr-only">{% trans %}Tags{% endtrans %}</span>
       {% for keyword in release.keywords | format_tags %}
@@ -203,7 +202,7 @@
   {% endif %}
   {% if release.requires_python %}
   <li>
-    <span class="vertical-tabs__tab vertical-tabs__tab--condensed">
+    <span>
       <strong>{% trans %}Requires:{% endtrans %}</strong> Python {{ release.requires_python|replace(',', ', ') }}
     </span>
   </li>
