@@ -68,18 +68,19 @@ def add_prohibited_email_domain(request):
         request.session.flash("Email domain is required.", queue="error")
         raise HTTPSeeOther(request.route_path("admin.prohibited_email_domains.list"))
     # validate that the domain is valid
-    if not extract(email_domain).registered_domain:
+    registered_domain = extract(email_domain).registered_domain
+    if not registered_domain:
         request.session.flash(f"Invalid domain name '{email_domain}'", queue="error")
         raise HTTPSeeOther(request.route_path("admin.prohibited_email_domains.list"))
     # make sure we don't have a duplicate entry
     if (
         request.db.query(func.count(ProhibitedEmailDomain.id))
-        .filter(ProhibitedEmailDomain.domain == email_domain)
+        .filter(ProhibitedEmailDomain.domain == registered_domain)
         .scalar()
         > 0
     ):
         request.session.flash(
-            f"Email domain '{email_domain}' already exists.", queue="error"
+            f"Email domain '{registered_domain}' already exists.", queue="error"
         )
         raise HTTPSeeOther(request.route_path("admin.prohibited_email_domains.list"))
 
@@ -88,7 +89,7 @@ def add_prohibited_email_domain(request):
     comment = request.POST.get("comment")
 
     prohibited_email_domain = ProhibitedEmailDomain(
-        domain=email_domain,
+        domain=registered_domain,
         is_mx_record=is_mx_record,
         prohibited_by=request.user,
         comment=comment,

@@ -127,14 +127,22 @@ class TestProhibitedEmailDomainsAdd:
             )
         ]
 
-    def test_success(self, db_request):
+    @pytest.mark.parametrize(
+        ("input_domain", "expected_domain"),
+        [
+            ("example.com", "example.com"),
+            ("mail.example.co.uk", "example.co.uk"),
+            ("https://example.com/", "example.com"),
+        ],
+    )
+    def test_success(self, db_request, input_domain, expected_domain):
         db_request.method = "POST"
         db_request.route_path = lambda a: "/admin/prohibited_email_domains/list/"
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.POST = {
-            "email_domain": "example.com",
+            "email_domain": input_domain,
             "is_mx_record": "on",
             "comment": "testing",
         }
@@ -148,7 +156,7 @@ class TestProhibitedEmailDomainsAdd:
         ]
 
         query = db_request.db.query(ProhibitedEmailDomain).filter(
-            ProhibitedEmailDomain.domain == "example.com"
+            ProhibitedEmailDomain.domain == expected_domain
         )
         assert query.count() == 1
         assert query.one().is_mx_record
