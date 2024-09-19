@@ -16,7 +16,11 @@ import tempfile
 import pretend
 
 from warehouse.packaging.interfaces import ISimpleStorage
-from warehouse.packaging.utils import _simple_detail, render_simple_detail
+from warehouse.packaging.utils import (
+    _simple_detail,
+    _valid_simple_detail_context,
+    render_simple_detail,
+)
 
 from ...common.db.packaging import FileFactory, ProjectFactory, ReleaseFactory
 
@@ -50,9 +54,9 @@ def test_render_simple_detail(db_request, monkeypatch, jinja):
 
     db_request.route_url = lambda *a, **kw: "the-url"
     template = jinja.get_template("templates/api/simple/detail.html")
-    expected_content = template.render(
-        **_simple_detail(project, db_request), request=db_request
-    ).encode("utf-8")
+    context = _simple_detail(project, db_request)
+    context = _valid_simple_detail_context(context)
+    expected_content = template.render(**context, request=db_request).encode("utf-8")
 
     content_hash, path = render_simple_detail(project, db_request)
 
@@ -107,9 +111,9 @@ def test_render_simple_detail_with_store(db_request, monkeypatch, jinja):
     monkeypatch.setattr(tempfile, "NamedTemporaryFile", FakeNamedTemporaryFile)
 
     template = jinja.get_template("templates/api/simple/detail.html")
-    expected_content = template.render(
-        **_simple_detail(project, db_request), request=db_request
-    ).encode("utf-8")
+    context = _simple_detail(project, db_request)
+    context = _valid_simple_detail_context(context)
+    expected_content = template.render(**context, request=db_request).encode("utf-8")
 
     content_hash, path = render_simple_detail(project, db_request, store=True)
 

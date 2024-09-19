@@ -282,6 +282,10 @@ class NewEmailMixin:
         try:
             resp = email_validator.validate_email(field.data, check_deliverability=True)
         except email_validator.EmailNotValidError as e:
+            self.request.metrics.increment(
+                "warehouse.accounts.forms.validate_email",
+                tags=["result:invalid", "reason:email_validator"],
+            )
             raise wtforms.validators.ValidationError(
                 self.request._("The email address isn't valid. Try again.")
             ) from e
@@ -310,6 +314,10 @@ class NewEmailMixin:
                 )
             ).scalar()
         ):
+            self.request.metrics.increment(
+                "warehouse.accounts.forms.validate_email",
+                tags=["result:invalid", "reason:prohibited_domain"],
+            )
             raise wtforms.validators.ValidationError(
                 self.request._(
                     "You can't use an email address from this domain. Use a "
@@ -321,6 +329,10 @@ class NewEmailMixin:
         userid = self.user_service.find_userid_by_email(field.data)
 
         if userid and userid == self.user_id:
+            self.request.metrics.increment(
+                "warehouse.accounts.forms.validate_email",
+                tags=["result:invalid", "reason:email_in_use_by_self"],
+            )
             raise wtforms.validators.ValidationError(
                 self.request._(
                     "This email address is already being used by this account. "
@@ -328,12 +340,21 @@ class NewEmailMixin:
                 )
             )
         if userid:
+            self.request.metrics.increment(
+                "warehouse.accounts.forms.validate_email",
+                tags=["result:invalid", "reason:email_in_use_by_other"],
+            )
             raise wtforms.validators.ValidationError(
                 self.request._(
                     "This email address is already being used "
                     "by another account. Use a different email."
                 )
             )
+
+        self.request.metrics.increment(
+            "warehouse.accounts.forms.validate_email",
+            tags=["result:valid"],
+        )
 
 
 class HoneypotMixin:

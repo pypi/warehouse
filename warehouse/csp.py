@@ -97,6 +97,7 @@ def _connect_src_settings(config) -> list:
         SELF,
         "https://api.github.com/repos/",
         "https://api.github.com/search/issues",
+        "https://gitlab.com/api/",
         "https://*.google-analytics.com",
         "https://*.analytics.google.com",
         "https://*.googletagmanager.com",

@@ -12,6 +12,7 @@
 
 import base64
 import enum
+import functools
 import json
 import os
 import secrets
@@ -28,6 +29,7 @@ from pyramid import renderers
 from pyramid.authorization import Allow, Authenticated
 from pyramid.config import Configurator as _Configurator
 from pyramid.exceptions import HTTPForbidden
+from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.settings import asbool
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
@@ -264,6 +266,34 @@ def maybe_set_redis(settings, name, envvar, coercer=None, default=None, db=None)
 
 def from_base64_encoded_json(configuration):
     return json.loads(base64.urlsafe_b64decode(configuration.encode("ascii")))
+
+
+def reject_duplicate_post_keys_view(view, info):
+    if info.options.get("permit_duplicate_post_keys") or info.exception_only:
+        return view
+
+    else:
+        # If this isn't an exception or hasn't been permitted to have duplicate
+        # POST keys, wrap the view with a check
+
+        @functools.wraps(view)
+        def wrapped(context, request):
+            if request.POST:
+                # Determine if there are any duplicate keys
+                keys = list(request.POST.keys())
+                if len(keys) != len(set(keys)):
+                    return HTTPBadRequest(
+                        "POST body may not contain duplicate keys "
+                        f"(URL: {request.url!r})"
+                    )
+
+            # Casting succeeded, so just return the regular view
+            return view(context, request)
+
+        return wrapped
+
+
+reject_duplicate_post_keys_view.options = {"permit_duplicate_post_keys"}  # type: ignore
 
 
 def configure(settings=None):
@@ -817,6 +847,11 @@ def configure(settings=None):
         ],
     )
 
+    # Reject requests with duplicate POST keys
+    config.add_view_deriver(
+        reject_duplicate_post_keys_view, over="rendered_view", under="decorated_view"
+    )
+
     # Enable Warehouse to serve our static files
     prevent_http_cache = config.get_settings().get("pyramid.prevent_http_cache", False)
     config.add_static_view(
@@ -893,8 +928,8 @@ def configure(settings=None):
     )
 
     # Sanity check our request and responses.
-    # Note: It is very important that this go last. We need everything else that might
-    #       have added a tween to be registered prior to this.
+    # Note: It is very important that this go last. We need everything else
+    # that might have added a tween to be registered prior to this.
     config.include(".sanity")
 
     # Finally, commit all of our changes

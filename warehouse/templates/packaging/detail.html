@@ -147,6 +147,13 @@
   data-github-repo-stats-issue-url-value="{{release.verified_github_open_issue_info_url}}">
 </div>
 {% endif %}
+{% if release.verified_gitlab_repository %}
+<div class="hidden"
+  data-controller="gitlab-repo-stats"
+  data-gitlab-repo-stats-gitlab-repo-info-outlet=".gitlab-repo-info"
+  data-gitlab-repo-stats-repository-value="{{release.verified_gitlab_repository}}">
+</div>
+{% endif %}
 
 <div class="banner">
   <div class="package-header">

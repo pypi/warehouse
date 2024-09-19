@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import base64
 import hashlib
 import io
 import re
@@ -2471,11 +2472,12 @@ class TestFileUpload:
         attestation = Attestation(
             version=1,
             verification_material=VerificationMaterial(
-                certificate="some_cert", transparency_entries=[dict()]
+                certificate=base64.b64encode(b"some_cert"),
+                transparency_entries=[dict()],
             ),
             envelope=Envelope(
-                statement="somebase64string",
-                signature="somebase64string",
+                statement=base64.b64encode(b"somebase64string"),
+                signature=base64.b64encode(b"somebase64string"),
             ),
         )
 
