@@ -60,7 +60,14 @@ def test_remove_doc_upload(webtest):
     )
 
 
-def test_file_upload(webtest):
+@pytest.mark.parametrize(
+    "upload_url",
+    [
+        "/legacy/?:action=file_upload",
+        "/legacy/",
+    ],
+)
+def test_file_upload(webtest, upload_url):
     user = UserFactory.create(
         with_verified_primary_email=True,
         password=(  # 'password'
@@ -109,7 +116,7 @@ def test_file_upload(webtest):
     params.add("classifiers", "Programming Language :: Python :: 3.11")
 
     webtest.post(
-        "/legacy/?:action=file_upload",
+        upload_url,
         headers={"Authorization": f"Basic {credentials}"},
         params=params,
         upload_files=[("content", "sampleproject-3.0.0.tar.gz", content)],
