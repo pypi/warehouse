@@ -38,3 +38,4 @@ def test_rejects_duplicate_post_keys(webtest, socket_enabled):
 
     resp = webtest.post("/account/login", params=body, status=HTTPStatus.BAD_REQUEST)
     assert "POST body may not contain duplicate keys" in resp.body.decode()
+    assert "(URL: 'http://localhost/account/login')" in resp.body.decode()
