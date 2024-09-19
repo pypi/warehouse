@@ -14,7 +14,7 @@ from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy import exists, select
-from tldextract import extract
+from tldextract import TLDExtract
 
 from warehouse.accounts.models import ProhibitedEmailDomain
 from warehouse.authnz import Permissions
@@ -68,7 +68,8 @@ def add_prohibited_email_domain(request):
         request.session.flash("Email domain is required.", queue="error")
         raise HTTPSeeOther(request.route_path("admin.prohibited_email_domains.list"))
     # validate that the domain is valid
-    registered_domain = extract(email_domain).registered_domain
+    extractor = TLDExtract(suffix_list_urls=())  # Updated during image build
+    registered_domain = extractor(email_domain).registered_domain
     if not registered_domain:
         request.session.flash(f"Invalid domain name '{email_domain}'", queue="error")
         raise HTTPSeeOther(request.route_path("admin.prohibited_email_domains.list"))
