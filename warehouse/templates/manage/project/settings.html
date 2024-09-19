@@ -204,6 +204,17 @@
 
   <h3>{% trans %}Alternate repository locations{% endtrans %}</h3>
 
+  <div class="callout-block">
+    <p>
+        {% trans pep_url="https://peps.python.org/pep-0708/#alternate-locations-metadata"
+            %}Provisional support for <a href="{{ pep_url }}">PEP 708</a> "Alternate Locations" Metadata. {% endtrans %}
+    </p>
+    <p>
+        {% trans pypi_announce_url="https://mail.python.org/mailman3/lists/pypi-announce.python.org/"
+            %}Implementation may change, consider subscribing to <a href="{{ pypi_announce_url }}">pypi-announce</a> to be notified of changes.{% endtrans %}
+    </p>
+  </div>
+
   {% if project.alternate_repositories %}
   <table class="table table--alternate-repository-locations">
     <caption class="sr-only">{% trans project_name=project.name %}Alternate repository locations for
