@@ -534,7 +534,9 @@ def test_configure(monkeypatch, settings, environment):
     ]
     assert configurator_obj.add_view_deriver.calls == [
         pretend.call(
-            config.reject_duplicate_post_keys_view, under=config.viewderivers.INGRESS
+            config.reject_duplicate_post_keys_view,
+            over="rendered_view",
+            under="decorated_view",
         )
     ]
 
