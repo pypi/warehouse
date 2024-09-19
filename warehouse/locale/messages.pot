@@ -14,7 +14,7 @@ msgstr ""
 msgid "Locale updated"
 msgstr ""
 
-#: warehouse/accounts/forms.py:52 warehouse/accounts/forms.py:286
+#: warehouse/accounts/forms.py:52 warehouse/accounts/forms.py:290
 msgid "The email address isn't valid. Try again."
 msgstr ""
 
@@ -74,47 +74,47 @@ msgstr ""
 msgid "The email address is too long. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:314
+#: warehouse/accounts/forms.py:322
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:325
+#: warehouse/accounts/forms.py:337
 msgid ""
 "This email address is already being used by this account. Use a different"
 " email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:332
+#: warehouse/accounts/forms.py:348
 msgid ""
 "This email address is already being used by another account. Use a "
 "different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:367 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:388 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 
-#: warehouse/accounts/forms.py:374
+#: warehouse/accounts/forms.py:395
 msgid "URLs are not allowed in the name field."
 msgstr ""
 
-#: warehouse/accounts/forms.py:463
+#: warehouse/accounts/forms.py:484
 msgid "Invalid TOTP code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:480
+#: warehouse/accounts/forms.py:501
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
-#: warehouse/accounts/forms.py:549
+#: warehouse/accounts/forms.py:570
 msgid "Invalid recovery code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:558
+#: warehouse/accounts/forms.py:579
 msgid "Recovery code has been previously used."
 msgstr ""
 
-#: warehouse/accounts/forms.py:588
+#: warehouse/accounts/forms.py:609
 msgid "The username isn't valid. Try again."
 msgstr ""
 
@@ -2806,115 +2806,112 @@ msgstr ""
 msgid "Members"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:16
+#: warehouse/templates/includes/packaging/project-data.html:17
 msgid "Verified details"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:18
-msgid "(What is this?)"
+#, python-format
+msgid "Verified by PyPI on %(release_date)s"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:21
-msgid "These details have been verified by PyPI"
+#, python-format
+msgid "These details have been <a href=\"%(href)s\">verified by PyPI</a>"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:23
-#: warehouse/templates/includes/packaging/project-data.html:187
+#: warehouse/templates/includes/packaging/project-data.html:186
 msgid "Project links"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:31
-#, python-format
-msgid "URL verified by PyPI on %(release_date)s"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:51
+#: warehouse/templates/includes/packaging/project-data.html:50
 msgid "GitHub Statistics"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:57
-#: warehouse/templates/includes/packaging/project-data.html:103
+#: warehouse/templates/includes/packaging/project-data.html:56
+#: warehouse/templates/includes/packaging/project-data.html:102
 msgid "Repository"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:64
-#: warehouse/templates/includes/packaging/project-data.html:110
+#: warehouse/templates/includes/packaging/project-data.html:63
+#: warehouse/templates/includes/packaging/project-data.html:109
 msgid "Stars:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:72
-#: warehouse/templates/includes/packaging/project-data.html:118
+#: warehouse/templates/includes/packaging/project-data.html:71
+#: warehouse/templates/includes/packaging/project-data.html:117
 msgid "Forks:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:80
-#: warehouse/templates/includes/packaging/project-data.html:126
+#: warehouse/templates/includes/packaging/project-data.html:79
+#: warehouse/templates/includes/packaging/project-data.html:125
 msgid "Open issues:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:88
+#: warehouse/templates/includes/packaging/project-data.html:87
 msgid "Open PRs:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:97
+#: warehouse/templates/includes/packaging/project-data.html:96
 msgid "GitLab Statistics"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:134
+#: warehouse/templates/includes/packaging/project-data.html:133
 msgid "Open merge requests:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:143
+#: warehouse/templates/includes/packaging/project-data.html:142
 msgid "Maintainers"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:145
+#: warehouse/templates/includes/packaging/project-data.html:144
 msgid "Avatar for {username} from gravatar.com"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:160
-#: warehouse/templates/includes/packaging/project-data.html:203
+#: warehouse/templates/includes/packaging/project-data.html:159
+#: warehouse/templates/includes/packaging/project-data.html:202
 msgid "Meta"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:165
-#: warehouse/templates/includes/packaging/project-data.html:215
-#: warehouse/templates/includes/packaging/project-data.html:221
+#: warehouse/templates/includes/packaging/project-data.html:164
+#: warehouse/templates/includes/packaging/project-data.html:214
+#: warehouse/templates/includes/packaging/project-data.html:220
 msgid "Author:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:173
-#: warehouse/templates/includes/packaging/project-data.html:228
-#: warehouse/templates/includes/packaging/project-data.html:234
+#: warehouse/templates/includes/packaging/project-data.html:172
+#: warehouse/templates/includes/packaging/project-data.html:227
+#: warehouse/templates/includes/packaging/project-data.html:233
 #: warehouse/templates/pages/help.html:620
 msgid "Maintainer:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:184
+#: warehouse/templates/includes/packaging/project-data.html:183
 msgid "Unverified details"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:185
+#: warehouse/templates/includes/packaging/project-data.html:184
 msgid "These details have <b>not</b> been verified by PyPI"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:208
+#: warehouse/templates/includes/packaging/project-data.html:207
 msgid "License:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:242
+#: warehouse/templates/includes/packaging/project-data.html:241
 msgid "Tags"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:254
+#: warehouse/templates/includes/packaging/project-data.html:253
 msgid "Requires:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:261
+#: warehouse/templates/includes/packaging/project-data.html:260
 msgid "Provides-Extra:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:271
+#: warehouse/templates/includes/packaging/project-data.html:270
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
