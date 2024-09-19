@@ -56,11 +56,15 @@ msgstr ""
 msgid "Locale updated"
 msgstr "ロケールが更新されました (Locale updated)"
 
-#: warehouse/accounts/forms.py:52
+#: warehouse/accounts/forms.py:52 warehouse/accounts/forms.py:286
+msgid "The email address isn't valid. Try again."
+msgstr "メールアドレスが無効です。もう一度やり直してください。"
+
+#: warehouse/accounts/forms.py:53
 msgid "The password is invalid. Try again."
 msgstr "パスワードが無効です。もう一度やり直してください。"
 
-#: warehouse/accounts/forms.py:53
+#: warehouse/accounts/forms.py:54
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -70,27 +74,27 @@ msgstr ""
 "コアで構成する必要があります。また、文字または数字で開始および終了する必要が"
 "あります。別のユーザー名を選択してください。"
 
-#: warehouse/accounts/forms.py:71
+#: warehouse/accounts/forms.py:72
 msgid "Null bytes are not allowed."
 msgstr "ヌルバイトは許可されていません。"
 
-#: warehouse/accounts/forms.py:94
+#: warehouse/accounts/forms.py:86
 msgid "No user found with that username"
 msgstr "そのユーザー名のユーザーは見つかりませんでした"
 
-#: warehouse/accounts/forms.py:105
+#: warehouse/accounts/forms.py:106
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "TOTP コードは ${totp_length} 桁でなければなりません。"
 
-#: warehouse/accounts/forms.py:125
+#: warehouse/accounts/forms.py:126
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr "リカバリーコード"
 
-#: warehouse/accounts/forms.py:140
+#: warehouse/accounts/forms.py:141
 msgid "Choose a username with 50 characters or less."
 msgstr "50文字以下のユーザー名を選択してください。"
 
-#: warehouse/accounts/forms.py:157
+#: warehouse/accounts/forms.py:158
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -98,12 +102,12 @@ msgstr ""
 "このユーザー名はすでに別のアカウントで使用されています。別のユーザー名を選択"
 "してください。"
 
-#: warehouse/accounts/forms.py:171 warehouse/accounts/forms.py:220
-#: warehouse/accounts/forms.py:233
+#: warehouse/accounts/forms.py:172 warehouse/accounts/forms.py:221
+#: warehouse/accounts/forms.py:234
 msgid "Password too long."
 msgstr "パスワードが長すぎます。"
 
-#: warehouse/accounts/forms.py:207
+#: warehouse/accounts/forms.py:208
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
@@ -111,25 +115,21 @@ msgstr ""
 "ログインの失敗が多数発生しました。${time} の間ロックアウトされました。後でや"
 "り直してください。"
 
-#: warehouse/accounts/forms.py:236
+#: warehouse/accounts/forms.py:237
 msgid "Your passwords don't match. Try again."
 msgstr "パスワードが一致しません。もう一度やり直してください。"
 
-#: warehouse/accounts/forms.py:270
+#: warehouse/accounts/forms.py:271
 msgid "The email address is too long. Try again."
 msgstr "メールアドレスが長過ぎます。もう一度やり直してください。"
 
-#: warehouse/accounts/forms.py:285
-msgid "The email address isn't valid. Try again."
-msgstr "メールアドレスが無効です。もう一度やり直してください。"
-
-#: warehouse/accounts/forms.py:299
+#: warehouse/accounts/forms.py:314
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "このドメインからのメールアドレスは使用できません。別のメールアドレスを使用し"
 "てください。"
 
-#: warehouse/accounts/forms.py:310
+#: warehouse/accounts/forms.py:325
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -137,7 +137,7 @@ msgstr ""
 "このメールアドレスはすでにこのアカウントで使用されています。別のメールアドレ"
 "スを使用してください。"
 
-#: warehouse/accounts/forms.py:317
+#: warehouse/accounts/forms.py:332
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -145,28 +145,32 @@ msgstr ""
 "このメールアドレスはすでに別のアカウントで使用されています。別のメールアドレ"
 "スを使用してください。"
 
-#: warehouse/accounts/forms.py:350 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:367 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "名前が長過ぎます。100字以下の名前を選択してください。"
 
-#: warehouse/accounts/forms.py:442
+#: warehouse/accounts/forms.py:374
+msgid "URLs are not allowed in the name field."
+msgstr ""
+
+#: warehouse/accounts/forms.py:463
 msgid "Invalid TOTP code."
 msgstr "不正なTOTPコード。"
 
-#: warehouse/accounts/forms.py:459
+#: warehouse/accounts/forms.py:480
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "無効なWebAuthnアサーション：不正なペイロード"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/accounts/forms.py:528
+#: warehouse/accounts/forms.py:549
 msgid "Invalid recovery code."
 msgstr "回復コードが無効です。"
 
-#: warehouse/accounts/forms.py:537
+#: warehouse/accounts/forms.py:558
 msgid "Recovery code has been previously used."
 msgstr "復旧コードは以前に使用済みです。"
 
-#: warehouse/accounts/forms.py:567
+#: warehouse/accounts/forms.py:588
 #, fuzzy
 #| msgid "The email address isn't valid. Try again."
 msgid "The username isn't valid. Try again."
@@ -3517,10 +3521,20 @@ msgstr "確認済"
 msgid "(What is this?)"
 msgstr ""
 
+#: warehouse/templates/includes/packaging/project-data.html:21
+msgid "These details have been verified by PyPI"
+msgstr ""
+
 #: warehouse/templates/includes/packaging/project-data.html:23
-#: warehouse/templates/includes/packaging/project-data.html:117
+#: warehouse/templates/includes/packaging/project-data.html:140
 msgid "Project links"
 msgstr "プロジェクトのリンク"
+
+#: warehouse/templates/includes/packaging/project-data.html:31
+#, fuzzy, python-format
+#| msgid "Released: %(release_date)s"
+msgid "URL verified by PyPI on %(release_date)s"
+msgstr "リリース日: %(release_date)s"
 
 #: warehouse/templates/includes/packaging/project-data.html:51
 #, fuzzy
@@ -3562,44 +3576,51 @@ msgstr "メンテナ"
 msgid "Avatar for {username} from gravatar.com"
 msgstr "gravatar.com 上の {username} のアバター"
 
-#: warehouse/templates/includes/packaging/project-data.html:114
+#: warehouse/templates/includes/packaging/project-data.html:113
+#: warehouse/templates/includes/packaging/project-data.html:156
+msgid "Meta"
+msgstr "メタデータ"
+
+#: warehouse/templates/includes/packaging/project-data.html:118
+#: warehouse/templates/includes/packaging/project-data.html:168
+#: warehouse/templates/includes/packaging/project-data.html:174
+msgid "Author:"
+msgstr "作者:"
+
+#: warehouse/templates/includes/packaging/project-data.html:126
+#: warehouse/templates/includes/packaging/project-data.html:181
+#: warehouse/templates/includes/packaging/project-data.html:187
+#: warehouse/templates/pages/help.html:620
+msgid "Maintainer:"
+msgstr "メンテナ:"
+
+#: warehouse/templates/includes/packaging/project-data.html:137
 #, fuzzy
 #| msgid "Unverified"
 msgid "Unverified details"
 msgstr "未確認"
 
-#: warehouse/templates/includes/packaging/project-data.html:133
-msgid "Meta"
-msgstr "メタデータ"
-
 #: warehouse/templates/includes/packaging/project-data.html:138
+msgid "These details have <b>not</b> been verified by PyPI"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:161
 msgid "License:"
 msgstr "ライセンス:"
 
-#: warehouse/templates/includes/packaging/project-data.html:145
-#: warehouse/templates/includes/packaging/project-data.html:151
-msgid "Author:"
-msgstr "作者:"
-
-#: warehouse/templates/includes/packaging/project-data.html:158
-#: warehouse/templates/includes/packaging/project-data.html:164
-#: warehouse/templates/pages/help.html:620
-msgid "Maintainer:"
-msgstr "メンテナ:"
-
-#: warehouse/templates/includes/packaging/project-data.html:172
+#: warehouse/templates/includes/packaging/project-data.html:195
 msgid "Tags"
 msgstr "タグ"
 
-#: warehouse/templates/includes/packaging/project-data.html:184
+#: warehouse/templates/includes/packaging/project-data.html:207
 msgid "Requires:"
 msgstr "必須:"
 
-#: warehouse/templates/includes/packaging/project-data.html:191
+#: warehouse/templates/includes/packaging/project-data.html:214
 msgid "Provides-Extra:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:201
+#: warehouse/templates/includes/packaging/project-data.html:224
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39

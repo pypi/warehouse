@@ -192,6 +192,35 @@ class TestFileValidation:
 
         assert not legacy._is_valid_dist_file(fake_tar, "sdist")
 
+    @pytest.mark.parametrize("filename", ["test.tar.gz"])
+    def test_bails_with_valid_tarfile_that_raises_exception(self, tmpdir, filename):
+        fake_tar = str(tmpdir.join(filename))
+
+        # Create a tarfile in memory
+        buffer = io.BytesIO()
+        with tarfile.open(fileobj=buffer, mode="w") as tar:
+            # Add a file with valid content
+            file_content = b"Hello, World!"
+            tarinfo = tarfile.TarInfo(name="example.txt")
+            tarinfo.size = len(file_content)
+            tar.addfile(tarinfo, io.BytesIO(file_content))
+
+        # Get the tar data
+        tar_data = buffer.getvalue()
+
+        # Corrupt the tar file by truncating it
+        corrupted_tar_data = tar_data[:-10]  # Remove last 10 bytes
+
+        # Save the corrupted tar data to a file
+        with open(fake_tar, "wb") as f:
+            f.write(corrupted_tar_data)
+
+        # This should pass
+        assert tarfile.is_tarfile(fake_tar)
+
+        # This should fail
+        assert not legacy._is_valid_dist_file(fake_tar, "sdist")
+
     @pytest.mark.parametrize("compression", ["gz"])
     def test_tarfile_validation_invalid(self, tmpdir, compression):
         file_extension = f".{compression}" if compression else ""

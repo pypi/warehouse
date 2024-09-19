@@ -212,6 +212,7 @@ def pyramid_request(pyramid_services, jinja, remote_addr, remote_addr_hashed):
     dummy_request._unauthenticated_userid = None
     dummy_request.user = None
     dummy_request.oidc_publisher = None
+    dummy_request.metrics = dummy_request.find_service(IMetricsService)
 
     dummy_request.registry.registerUtility(jinja, IJinja2Environment, name=".jinja2")
 
@@ -394,7 +395,11 @@ def app_config(database):
 @pytest.fixture(scope="session")
 def app_config_dbsession_from_env(database):
     nondefaults = {
-        "warehouse.db_create_session": lambda r: r.environ.get("warehouse.db_session")
+        "warehouse.db_create_session": lambda r: r.environ.get("warehouse.db_session"),
+        "breached_passwords.backend": "warehouse.accounts.services.NullPasswordBreachedService",  # noqa: E501
+        "token.two_factor.secret": "insecure token",
+        # A running redis service is required for functional web sessions
+        "sessions.url": "redis://redis:0/",
     }
 
     return get_app_config(database, nondefaults)
@@ -697,7 +702,7 @@ class _TestApp(_webtest.TestApp):
 
 
 @pytest.fixture
-def webtest(app_config_dbsession_from_env):
+def webtest(app_config_dbsession_from_env, remote_addr):
     """
     This fixture yields a test app with an alternative Pyramid configuration,
     injecting the database session and transaction manager into the app.
@@ -727,6 +732,7 @@ def webtest(app_config_dbsession_from_env):
                 "warehouse.db_session": _db_session,
                 "tm.active": True,  # disable pyramid_tm
                 "tm.manager": tm,  # pass in our own tm for the app to use
+                "REMOTE_ADDR": remote_addr,  # set the same address for all requests
             },
         )
         yield testapp

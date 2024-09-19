@@ -170,12 +170,13 @@ class TestSaveAccountForm:
 
 
 class TestAddEmailForm:
-    def test_validate(self):
+    def test_validate(self, metrics):
         user_id = pretend.stub()
         user_service = pretend.stub(find_userid_by_email=lambda _: None)
         form = forms.AddEmailForm(
             request=pretend.stub(
-                db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False))
+                db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False)),
+                metrics=metrics,
             ),
             formdata=MultiDict({"email": "foo@bar.com"}),
             user_id=user_id,
