@@ -17,6 +17,8 @@ from http import HTTPStatus
 import pymacaroons
 import pytest
 
+from webob.multidict import MultiDict
+
 from warehouse.macaroons import caveats
 
 from ...common.db.accounts import UserFactory
@@ -90,10 +92,8 @@ def test_file_upload(webtest):
     with open("./tests/functional/_fixtures/sampleproject-3.0.0.tar.gz", "rb") as f:
         content = f.read()
 
-    webtest.post(
-        "/legacy/?:action=file_upload",
-        headers={"Authorization": f"Basic {credentials}"},
-        params={
+    params = MultiDict(
+        {
             "name": "sampleproject",
             "sha256_digest": (
                 "117ed88e5db073bb92969a7545745fd977ee85b7019706dd256a64058f70963d"
@@ -101,7 +101,15 @@ def test_file_upload(webtest):
             "filetype": "sdist",
             "metadata_version": "2.1",
             "version": "3.0.0",
-        },
+        }
+    )
+    params.add("project-url", "https://example.com/foo")
+    params.add("project-url", "https://example.com/bar")
+
+    webtest.post(
+        "/legacy/?:action=file_upload",
+        headers={"Authorization": f"Basic {credentials}"},
+        params=params,
         upload_files=[("content", "sampleproject-3.0.0.tar.gz", content)],
         status=HTTPStatus.OK,
     )
