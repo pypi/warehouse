@@ -61,13 +61,13 @@ def test_remove_doc_upload(webtest):
 
 
 @pytest.mark.parametrize(
-    "upload_url",
+    ("upload_url", "additional_data"),
     [
-        "/legacy/?:action=file_upload",
-        "/legacy/",
+        ("/legacy/?:action=file_upload", {}),
+        ("/legacy/", {":action": "file_upload", "protocol_version": "1"}),
     ],
 )
-def test_file_upload(webtest, upload_url):
+def test_file_upload(webtest, upload_url, additional_data):
     user = UserFactory.create(
         with_verified_primary_email=True,
         password=(  # 'password'
@@ -110,6 +110,7 @@ def test_file_upload(webtest, upload_url):
             "version": "3.0.0",
         }
     )
+    params.update(additional_data)
     params.add("project-url", "https://example.com/foo")
     params.add("project-url", "https://example.com/bar")
     params.add("classifiers", "Programming Language :: Python :: 3.10")
