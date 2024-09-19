@@ -1799,9 +1799,9 @@ pyparsing==3.1.4 \
     --hash=sha256:a6a7ee4235a3f944aa1fa2249307708f893fe5717dc603503c6c7969c070fb7c \
     --hash=sha256:f86ec8d1a83f11977c9a6ea7598e8c27fc5cddfa5b07ea2241edbbde1d7bc032
     # via linehaul
-pypi-attestations==0.0.11 \
-    --hash=sha256:b730e6b23874d94da0f3817b1f9dd3ecb6a80d685f62a18ad96e5b0396149ded \
-    --hash=sha256:e74329074f049568591e300373e12fcd46a35e21723110856546e33bf2949efa
+pypi-attestations==0.0.12 \
+    --hash=sha256:b1b2d5e700def138a214869f65835ff20e5f2e524acca841d5280ea89c2d2c46 \
+    --hash=sha256:d4a901121993ff8693ef9fd99e83f506ce79b5f799c36fcf8ddcdb38f4f8960b
     # via -r requirements/main.in
 pyqrcode==1.2.1 \
     --hash=sha256:1b2812775fa6ff5c527977c4cd2ccb07051ca7d0bc0aecf937a43864abe5eff6 \

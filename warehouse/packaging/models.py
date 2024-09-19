@@ -233,6 +233,11 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
         order_by=lambda: Release._pypi_ordering.desc(),
         passive_deletes=True,
     )
+    alternate_repositories: Mapped[list[AlternateRepository]] = orm.relationship(
+        cascade="all, delete-orphan",
+        back_populates="project",
+        passive_deletes=True,
+    )
 
     __table_args__ = (
         CheckConstraint(
@@ -1044,3 +1049,34 @@ class ProjectMacaroonWarningAssociation(db.Model):
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         primary_key=True,
     )
+
+
+class AlternateRepository(db.Model):
+    """
+    Store an alternate repository name, url, description for a project.
+    One project can have zero, one, or more alternate repositories.
+
+    For each project, ensures the url and name are unique.
+    Urls must start with http(s).
+    """
+
+    __tablename__ = "alternate_repositories"
+    __table_args__ = (
+        UniqueConstraint("project_id", "url"),
+        UniqueConstraint("project_id", "name"),
+        CheckConstraint(
+            "url ~* '^https?://.+'::text",
+            name="alternate_repository_valid_url",
+        ),
+    )
+
+    __repr__ = make_repr("name", "url")
+
+    project_id: Mapped[UUID] = mapped_column(
+        ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
+    )
+    project: Mapped[Project] = orm.relationship(back_populates="alternate_repositories")
+
+    name: Mapped[str]
+    url: Mapped[str]
+    description: Mapped[str]
