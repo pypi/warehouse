@@ -25,7 +25,7 @@ import orjson
 import platformdirs
 import transaction
 
-from pyramid import renderers, viewderivers
+from pyramid import renderers
 from pyramid.authorization import Allow, Authenticated
 from pyramid.config import Configurator as _Configurator
 from pyramid.exceptions import HTTPForbidden
@@ -845,7 +845,9 @@ def configure(settings=None):
     )
 
     # Reject requests with duplicate POST keys
-    config.add_view_deriver(reject_duplicate_post_keys_view, under=viewderivers.INGRESS)
+    config.add_view_deriver(
+        reject_duplicate_post_keys_view, over="rendered_view", under="decorated_view"
+    )
 
     # Enable Warehouse to serve our static files
     prevent_http_cache = config.get_settings().get("pyramid.prevent_http_cache", False)
