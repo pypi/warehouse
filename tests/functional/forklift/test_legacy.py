@@ -17,6 +17,8 @@ from http import HTTPStatus
 import pymacaroons
 import pytest
 
+from webob.multidict import MultiDict
+
 from warehouse.macaroons import caveats
 
 from ...common.db.accounts import UserFactory
@@ -58,7 +60,14 @@ def test_remove_doc_upload(webtest):
     )
 
 
-def test_file_upload(webtest):
+@pytest.mark.parametrize(
+    ("upload_url", "additional_data"),
+    [
+        ("/legacy/?:action=file_upload", {}),
+        ("/legacy/", {":action": "file_upload", "protocol_version": "1"}),
+    ],
+)
+def test_file_upload(webtest, upload_url, additional_data):
     user = UserFactory.create(
         with_verified_primary_email=True,
         password=(  # 'password'
@@ -90,10 +99,8 @@ def test_file_upload(webtest):
     with open("./tests/functional/_fixtures/sampleproject-3.0.0.tar.gz", "rb") as f:
         content = f.read()
 
-    webtest.post(
-        "/legacy/?:action=file_upload",
-        headers={"Authorization": f"Basic {credentials}"},
-        params={
+    params = MultiDict(
+        {
             "name": "sampleproject",
             "sha256_digest": (
                 "117ed88e5db073bb92969a7545745fd977ee85b7019706dd256a64058f70963d"
@@ -101,7 +108,18 @@ def test_file_upload(webtest):
             "filetype": "sdist",
             "metadata_version": "2.1",
             "version": "3.0.0",
-        },
+        }
+    )
+    params.update(additional_data)
+    params.add("project-url", "https://example.com/foo")
+    params.add("project-url", "https://example.com/bar")
+    params.add("classifiers", "Programming Language :: Python :: 3.10")
+    params.add("classifiers", "Programming Language :: Python :: 3.11")
+
+    webtest.post(
+        upload_url,
+        headers={"Authorization": f"Basic {credentials}"},
+        params=params,
         upload_files=[("content", "sampleproject-3.0.0.tar.gz", content)],
         status=HTTPStatus.OK,
     )

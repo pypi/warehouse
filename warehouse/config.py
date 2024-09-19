@@ -274,11 +274,13 @@ def reject_duplicate_post_keys_view(view, info):
         @functools.wraps(view)
         def wrapped(context, request):
             if request.POST:
-                # Attempt to cast to a dict to catch duplicate keys
-                try:
-                    dict(**request.POST)
-                except TypeError:
-                    return HTTPBadRequest("POST body may not contain duplicate keys")
+                # Determine if there are any duplicate keys
+                keys = list(request.POST.keys())
+                if len(keys) != len(set(keys)):
+                    return HTTPBadRequest(
+                        "POST body may not contain duplicate keys "
+                        f"(URL: {request.url!r})"
+                    )
 
             # Casting succeeded, so just return the regular view
             return view(context, request)
