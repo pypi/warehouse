@@ -1080,7 +1080,7 @@ msgstr ""
 #: warehouse/templates/manage/project/release.html:188
 #: warehouse/templates/manage/project/settings.html:87
 #: warehouse/templates/manage/project/settings.html:136
-#: warehouse/templates/manage/project/settings.html:346
+#: warehouse/templates/manage/project/settings.html:357
 #: warehouse/templates/manage/team/settings.html:84
 msgid "Warning"
 msgstr ""
@@ -1446,9 +1446,9 @@ msgstr ""
 #: warehouse/templates/manage/project/roles.html:328
 #: warehouse/templates/manage/project/roles.html:359
 #: warehouse/templates/manage/project/roles.html:380
-#: warehouse/templates/manage/project/settings.html:276
-#: warehouse/templates/manage/project/settings.html:296
-#: warehouse/templates/manage/project/settings.html:316
+#: warehouse/templates/manage/project/settings.html:287
+#: warehouse/templates/manage/project/settings.html:307
+#: warehouse/templates/manage/project/settings.html:327
 #: warehouse/templates/manage/team/roles.html:106
 #: warehouse/templates/manage/team/settings.html:35
 #: warehouse/templates/packaging/submit-malware-observation.html:58
@@ -1703,9 +1703,9 @@ msgstr ""
 #: warehouse/templates/manage/project/history.html:312
 #: warehouse/templates/manage/project/history.html:323
 #: warehouse/templates/manage/project/history.html:334
-#: warehouse/templates/manage/project/settings.html:213
-#: warehouse/templates/manage/project/settings.html:274
-#: warehouse/templates/manage/project/settings.html:280
+#: warehouse/templates/manage/project/settings.html:224
+#: warehouse/templates/manage/project/settings.html:285
+#: warehouse/templates/manage/project/settings.html:291
 #: warehouse/templates/manage/unverified-account.html:112
 msgid "Name"
 msgstr ""
@@ -4458,7 +4458,7 @@ msgstr ""
 #: warehouse/templates/manage/project/publishing.html:275
 #: warehouse/templates/manage/project/publishing.html:357
 #: warehouse/templates/manage/project/roles.html:341
-#: warehouse/templates/manage/project/settings.html:337
+#: warehouse/templates/manage/project/settings.html:348
 #: warehouse/templates/manage/team/roles.html:131
 msgid "Add"
 msgstr ""
@@ -5500,7 +5500,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/roles.html:252
 #: warehouse/templates/manage/project/release.html:112
 #: warehouse/templates/manage/project/releases.html:109
-#: warehouse/templates/manage/project/settings.html:241
+#: warehouse/templates/manage/project/settings.html:252
 msgid "Delete"
 msgstr ""
 
@@ -5897,9 +5897,9 @@ msgstr ""
 #: warehouse/templates/manage/project/history.html:313
 #: warehouse/templates/manage/project/history.html:324
 #: warehouse/templates/manage/project/history.html:335
-#: warehouse/templates/manage/project/settings.html:214
-#: warehouse/templates/manage/project/settings.html:294
-#: warehouse/templates/manage/project/settings.html:300
+#: warehouse/templates/manage/project/settings.html:225
+#: warehouse/templates/manage/project/settings.html:305
+#: warehouse/templates/manage/project/settings.html:311
 msgid "Url"
 msgstr ""
 
@@ -6499,7 +6499,7 @@ msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:108
 #: warehouse/templates/manage/project/settings.html:179
-#: warehouse/templates/manage/project/settings.html:384
+#: warehouse/templates/manage/project/settings.html:395
 msgid "Project Name"
 msgstr ""
 
@@ -6592,53 +6592,68 @@ msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:209
 #, python-format
+msgid ""
+"Provisional support for <a href=\"%(pep_url)s\">PEP 708</a> \"Alternate "
+"Locations\" Metadata."
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:213
+#, python-format
+msgid ""
+"Implementation may change, consider subscribing to <a "
+"href=\"%(pypi_announce_url)s\">pypi-announce</a> to be notified of "
+"changes."
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:220
+#, python-format
 msgid "Alternate repository locations for %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:215
+#: warehouse/templates/manage/project/settings.html:226
 msgid "Description"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:234
+#: warehouse/templates/manage/project/settings.html:245
 #, python-format
 msgid "Delete %(name)s from this project."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:242
+#: warehouse/templates/manage/project/settings.html:253
 msgid "Alternate Repository Name"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:257
+#: warehouse/templates/manage/project/settings.html:268
 msgid "There are no alternate repositories for this project, yet."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:261
+#: warehouse/templates/manage/project/settings.html:272
 msgid "Get started by adding an alternate repository below."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:267
+#: warehouse/templates/manage/project/settings.html:278
 msgid "Add alternate repository location"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:314
+#: warehouse/templates/manage/project/settings.html:325
 msgid "Alternate repository description"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:320
 #: warehouse/templates/manage/project/settings.html:331
+#: warehouse/templates/manage/project/settings.html:342
 msgid "Description of the purpose or content of the alternate repository."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:344
-#: warehouse/templates/manage/project/settings.html:384
+#: warehouse/templates/manage/project/settings.html:355
+#: warehouse/templates/manage/project/settings.html:395
 msgid "Delete project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:347
+#: warehouse/templates/manage/project/settings.html:358
 msgid "Deleting this project will:"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:352
+#: warehouse/templates/manage/project/settings.html:363
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s"
@@ -6649,15 +6664,15 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/project/settings.html:358
+#: warehouse/templates/manage/project/settings.html:369
 msgid "Irreversibly delete the project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:362
+#: warehouse/templates/manage/project/settings.html:373
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:364
+#: warehouse/templates/manage/project/settings.html:375
 msgid ""
 "This user will be able to make new releases under this project name, so "
 "long as the distribution filenames do not match filenames from a "
