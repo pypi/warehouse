@@ -279,7 +279,7 @@ def reject_duplicate_post_keys_view(view, info):
                 if len(keys) != len(set(keys)):
                     return HTTPBadRequest(
                         "POST body may not contain duplicate keys "
-                        f"(URL: { request.url!r })"
+                        f"(URL: {request.url!r})"
                     )
 
             # Casting succeeded, so just return the regular view
