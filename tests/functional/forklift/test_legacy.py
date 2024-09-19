@@ -105,6 +105,8 @@ def test_file_upload(webtest):
     )
     params.add("project-url", "https://example.com/foo")
     params.add("project-url", "https://example.com/bar")
+    params.add("classifiers", "Programming Language :: Python :: 3.10")
+    params.add("classifiers", "Programming Language :: Python :: 3.11")
 
     webtest.post(
         "/legacy/?:action=file_upload",
