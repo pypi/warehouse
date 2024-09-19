@@ -13,7 +13,7 @@
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy import func
+from sqlalchemy import exists, select
 from tldextract import extract
 
 from warehouse.accounts.models import ProhibitedEmailDomain
@@ -73,11 +73,8 @@ def add_prohibited_email_domain(request):
         request.session.flash(f"Invalid domain name '{email_domain}'", queue="error")
         raise HTTPSeeOther(request.route_path("admin.prohibited_email_domains.list"))
     # make sure we don't have a duplicate entry
-    if (
-        request.db.query(func.count(ProhibitedEmailDomain.id))
-        .filter(ProhibitedEmailDomain.domain == registered_domain)
-        .scalar()
-        > 0
+    if request.db.scalar(
+        select(exists().where(ProhibitedEmailDomain.domain == registered_domain))
     ):
         request.session.flash(
             f"Email domain '{registered_domain}' already exists.", queue="error"
