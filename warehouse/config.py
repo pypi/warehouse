@@ -269,7 +269,12 @@ def from_base64_encoded_json(configuration):
 
 
 def reject_duplicate_post_keys_view(view, info):
-    if not info.options.get("permit_duplicate_post_keys") and not info.exception_only:
+    if info.options.get("permit_duplicate_post_keys") or info.exception_only:
+        return view
+
+    else:
+        # If this isn't an exception or hasn't been permitted to have duplicate
+        # POST keys, wrap the view with a check
 
         @functools.wraps(view)
         def wrapped(context, request):
@@ -286,8 +291,6 @@ def reject_duplicate_post_keys_view(view, info):
             return view(context, request)
 
         return wrapped
-
-    return view
 
 
 reject_duplicate_post_keys_view.options = {"permit_duplicate_post_keys"}  # type: ignore
