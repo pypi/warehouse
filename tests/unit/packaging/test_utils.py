@@ -84,9 +84,6 @@ def test_render_simple_detail_with_store(db_request, monkeypatch, jinja):
             ISimpleStorage: storage_service,
         }.get(svc)
     )
-    db_request.route_url = pretend.call_recorder(
-        lambda path_name, name=None: f"http://localhost/simple/{name}"
-    )
 
     fake_hasher = pretend.stub(
         update=pretend.call_recorder(lambda x: None),
@@ -126,11 +123,6 @@ def test_render_simple_detail_with_store(db_request, monkeypatch, jinja):
     assert fakeblake2b.calls == [pretend.call(digest_size=32)]
     assert fake_hasher.update.calls == [pretend.call(expected_content)]
     assert fake_hasher.hexdigest.calls == [pretend.call()]
-
-    assert db_request.route_url.calls == [
-        pretend.call("api.simple.detail", name=project.normalized_name),
-        pretend.call("api.simple.detail", name=project.normalized_name),
-    ]
 
     assert storage_service.store.calls == [
         pretend.call(

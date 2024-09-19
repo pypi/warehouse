@@ -209,9 +209,6 @@ class TestSimpleDetail:
     def test_no_files_no_serial(self, db_request, content_type, renderer_override):
         db_request.accept = content_type
         project = ProjectFactory.create()
-        db_request.route_url = lambda route_name, **kwargs: (
-            f"http://localhost/simple/{project.normalized_name}"
-        )
         db_request.matchdict["name"] = project.normalized_name
         user = UserFactory.create()
         JournalEntryFactory.create(submitted_by=user)
@@ -221,9 +218,7 @@ class TestSimpleDetail:
             "name": project.normalized_name,
             "files": [],
             "versions": [],
-            "alternate-locations": [
-                f"http://localhost/simple/{project.normalized_name}"
-            ],
+            "alternate-locations": [],
         }
         context = _update_context(context, content_type, renderer_override)
         assert simple.simple_detail(project, db_request) == context
@@ -242,9 +237,6 @@ class TestSimpleDetail:
     def test_no_files_with_serial(self, db_request, content_type, renderer_override):
         db_request.accept = content_type
         project = ProjectFactory.create()
-        db_request.route_url = lambda route_name, **kwargs: (
-            f"http://localhost/simple/{project.normalized_name}"
-        )
         db_request.matchdict["name"] = project.normalized_name
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
@@ -258,10 +250,7 @@ class TestSimpleDetail:
             "name": project.normalized_name,
             "files": [],
             "versions": [],
-            "alternate-locations": [
-                f"http://localhost/simple/{project.normalized_name}"
-            ]
-            + sorted(al.url for al in als),
+            "alternate-locations": sorted(al.url for al in als),
         }
         context = _update_context(context, content_type, renderer_override)
         assert simple.simple_detail(project, db_request) == context
@@ -280,9 +269,6 @@ class TestSimpleDetail:
     def test_with_files_no_serial(self, db_request, content_type, renderer_override):
         db_request.accept = content_type
         project = ProjectFactory.create()
-        db_request.route_url = lambda route_name, **kwargs: (
-            f"http://localhost/simple/{project.normalized_name}"
-        )
         releases = ReleaseFactory.create_batch(3, project=project)
         release_versions = sorted([r.version for r in releases], key=parse)
         files = [
@@ -293,11 +279,7 @@ class TestSimpleDetail:
         files = sorted(files, key=lambda f: (parse(f.release.version), f.filename))
         urls_iter = (f"/file/{f.filename}" for f in files)
         db_request.matchdict["name"] = project.normalized_name
-        db_request.route_url = lambda route_name, **kw: (
-            next(urls_iter)
-            if route_name == "packaging.file"
-            else f"http://localhost/simple/{project.normalized_name}"
-        )
+        db_request.route_url = lambda *a, **kw: next(urls_iter)
         user = UserFactory.create()
         JournalEntryFactory.create(submitted_by=user)
 
@@ -319,9 +301,7 @@ class TestSimpleDetail:
                 }
                 for f in files
             ],
-            "alternate-locations": [
-                f"http://localhost/simple/{project.normalized_name}"
-            ],
+            "alternate-locations": [],
         }
         context = _update_context(context, content_type, renderer_override)
         assert simple.simple_detail(project, db_request) == context
@@ -350,11 +330,7 @@ class TestSimpleDetail:
         files = sorted(files, key=lambda f: (parse(f.release.version), f.filename))
         urls_iter = (f"/file/{f.filename}" for f in files)
         db_request.matchdict["name"] = project.normalized_name
-        db_request.route_url = lambda route_name, **kw: (
-            next(urls_iter)
-            if route_name == "packaging.file"
-            else f"http://localhost/simple/{project.normalized_name}"
-        )
+        db_request.route_url = lambda *a, **kw: next(urls_iter)
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
@@ -376,9 +352,7 @@ class TestSimpleDetail:
                 }
                 for f in files
             ],
-            "alternate-locations": [
-                f"http://localhost/simple/{project.normalized_name}"
-            ],
+            "alternate-locations": [],
         }
         context = _update_context(context, content_type, renderer_override)
         assert simple.simple_detail(project, db_request) == context
@@ -444,11 +418,7 @@ class TestSimpleDetail:
 
         urls_iter = (f"/file/{f.filename}" for f in files)
         db_request.matchdict["name"] = project.normalized_name
-        db_request.route_url = lambda route_name, **kw: (
-            next(urls_iter)
-            if route_name == "packaging.file"
-            else f"http://localhost/simple/{project.normalized_name}"
-        )
+        db_request.route_url = lambda *a, **kw: next(urls_iter)
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
@@ -478,9 +448,7 @@ class TestSimpleDetail:
                 }
                 for f in files
             ],
-            "alternate-locations": [
-                f"http://localhost/simple/{project.normalized_name}"
-            ],
+            "alternate-locations": [],
         }
         context = _update_context(context, content_type, renderer_override)
         assert simple.simple_detail(project, db_request) == context
