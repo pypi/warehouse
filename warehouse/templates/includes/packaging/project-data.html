@@ -51,7 +51,7 @@
   <div class="hidden github-repo-info" data-controller="github-repo-info">
     <ul class="vertical-tabs__list">
       <li>
-        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed" rel="noopener" href="https://github.com/{{ release.verified_user_name_and_repo_name|join("/") }}">
+        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed" rel="noopener" href="https://github.com/{{ release.verified_github_user_name_and_repo_name|join("/") }}">
           <i class="fab fa-github" aria-hidden="true"></i>
           <strong>{% trans %}Repository{% endtrans %}</strong>
         </a>
@@ -91,6 +91,53 @@
     </ul>
   </div>
   {% endif %}
+
+  {% if release.verified_gitlab_repository %}
+  <h6>{% trans %}GitLab Statistics{% endtrans %}</h6>
+  <div class="hidden gitlab-repo-info" data-controller="gitlab-repo-info">
+    <ul class="vertical-tabs__list">
+      <li>
+        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed" rel="noopener" href="https://gitlab.com/{{ release.verified_gitlab_user_name_and_repo_name|join("/") }}">
+          <i class="fab fa-gitlab" aria-hidden="true"></i>
+          <strong>{% trans %}Repository{% endtrans %}</strong>
+        </a>
+      </li>
+      <li>
+        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+           data-gitlab-repo-info-target="starrersUrl" rel="noopener">
+          <i class="fa fa-star" aria-hidden="true"></i>
+          <strong>{% trans %}Stars:{% endtrans %}</strong>
+          <span data-gitlab-repo-info-target="starrersCount"></span>
+        </a>
+      </li>
+      <li>
+        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+           data-gitlab-repo-info-target="forksUrl" rel="noopener">
+          <i class="fa fa-code-branch" aria-hidden="true"></i>
+          <strong>{% trans %}Forks:{% endtrans %}</strong>
+          <span data-gitlab-repo-info-target="forksCount"></span>
+        </a>
+      </li>
+      <li>
+        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+           data-gitlab-repo-info-target="openIssuesUrl" rel="noopener">
+          <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+          <strong>{% trans %}Open issues:{% endtrans %}</strong>
+          <span data-gitlab-repo-info-target="openIssuesCount"></span>
+        </a>
+      </li>
+      <li>
+        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+           data-gitlab-repo-info-target="openMRsUrl" rel="noopener">
+          <i class="fa fa-code-pull-request" aria-hidden="true"></i>
+          <strong>{% trans %}Open merge requests:{% endtrans %}</strong>
+          <span data-gitlab-repo-info-target="openMRsCount"></span>
+        </a>
+      </li>
+    </ul>
+  </div>
+  {% endif %}
+
   {% if maintainers %}
     <h6>{% trans %}Maintainers{% endtrans %}</h6>
     {% for maintainer in maintainers %}
