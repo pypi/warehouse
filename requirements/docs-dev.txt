@@ -8,9 +8,9 @@ alabaster==1.0.0 \
     --hash=sha256:c00dca57bca26fa62a6d7d0a9fcce65f3e026e9bfe33e9c538fd3fbb2144fd9e \
     --hash=sha256:fc6786402dc3fcb2de3cabd5fe455a2db534b371124f1f21de8731783dec828b
     # via sphinx
-anyio==4.4.0 \
-    --hash=sha256:5aadc6a1bbb7cdb0bede386cac5e2940f5e2ff3aa20277e991cf028e0585ce94 \
-    --hash=sha256:c1b2d8f46a8a812513012e1107cb0e68c17159a7a594208005a57dc776e1bdc7
+anyio==4.5.0 \
+    --hash=sha256:c5a275fe5ca0afd788001f58fca1e69e29ce706d746e317d660e21f70c530ef9 \
+    --hash=sha256:fdeb095b7cc5a5563175eedd926ec4ae55413bb4be5770c424af0ba46ccb4a78
     # via
     #   starlette
     #   watchfiles
