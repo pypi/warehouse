@@ -587,8 +587,6 @@ class ProjectService:
             request.db.query(PendingOIDCPublisher)
             .filter(
                 or_(
-                    func.normalize_pep426_name(PendingOIDCPublisher.project_name)
-                    == func.normalize_pep426_name(project.name),
                     func.ultranormalize_name(PendingOIDCPublisher.project_name)
                     == func.ultranormalize_name(project.name),
                 ),
