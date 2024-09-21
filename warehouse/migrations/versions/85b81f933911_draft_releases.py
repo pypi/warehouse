@@ -12,24 +12,28 @@
 """
 Draft Releases
 
-Revision ID: 423931bcf0e1
+Revision ID: 85b81f933911
 Revises: a8050411bc65
-Create Date: 2024-09-21 01:16:50.115774
+Create Date: 2024-09-21 03:49:20.048416
 """
 
 import sqlalchemy as sa
 
 from alembic import op
 
-revision = "423931bcf0e1"
+revision = "85b81f933911"
 down_revision = "a8050411bc65"
 
 
 def upgrade():
     op.add_column("releases", sa.Column("project_name", sa.Text(), nullable=True))
-    op.add_column("releases", sa.Column("published", sa.DateTime(), nullable=True))
-
-    # Fill the project_name and published columns
+    op.add_column(
+        "releases",
+        sa.Column(
+            "published", sa.DateTime(), server_default=sa.text("now()"), nullable=True
+        ),
+    )
+    # Fill the project_name and published columns.
     op.execute(
         """
         UPDATE releases AS target SET published = (
