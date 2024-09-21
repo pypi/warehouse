@@ -12,16 +12,16 @@
 """
 Draft Releases
 
-Revision ID: 93388f06f5e7
+Revision ID: 423931bcf0e1
 Revises: a8050411bc65
-Create Date: 2020-09-29 18:23:35.798571
+Create Date: 2024-09-21 01:16:50.115774
 """
 
 import sqlalchemy as sa
 
 from alembic import op
 
-revision = "93388f06f5e7"
+revision = "423931bcf0e1"
 down_revision = "a8050411bc65"
 
 
