@@ -602,12 +602,12 @@ class Release(HasObservations, db.Model):
     project_id: Mapped[UUID] = mapped_column(
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
     )
-    project_name = Column(Text)
+    project_name: Mapped[str | None] = mapped_column(Text)
     project: Mapped[Project] = orm.relationship(back_populates="releases")
     version: Mapped[str] = mapped_column(Text)
     canonical_version: Mapped[str] = mapped_column()
     is_prerelease: Mapped[bool_false]
-    draft_hash = orm.column_property(func.make_draft_hash(project_name, version))
+    draft_hash: Mapped[str | None] = orm.column_property(func.make_draft_hash("project_name", version))
     author: Mapped[str | None]
     author_email: Mapped[str | None]
     author_email_verified: Mapped[bool_false]
@@ -632,7 +632,7 @@ class Release(HasObservations, db.Model):
     _pypi_ordering: Mapped[int | None]
     requires_python: Mapped[str | None] = mapped_column(Text)
     created: Mapped[datetime_now] = mapped_column()
-    published = Mapped[datetime_now | None]
+    published: Mapped[datetime_now | None]
 
     description_id: Mapped[UUID] = mapped_column(
         ForeignKey("release_descriptions.id", onupdate="CASCADE", ondelete="CASCADE"),

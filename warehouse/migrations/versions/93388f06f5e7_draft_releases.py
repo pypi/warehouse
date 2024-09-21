@@ -13,7 +13,7 @@
 Draft Releases
 
 Revision ID: 93388f06f5e7
-Revises: 80018e46c5a4
+Revises: a8050411bc65
 Create Date: 2020-09-29 18:23:35.798571
 """
 
@@ -22,7 +22,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision = "93388f06f5e7"
-down_revision = "6e003184453d"
+down_revision = "a8050411bc65"
 
 
 def upgrade():
