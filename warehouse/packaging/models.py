@@ -607,7 +607,9 @@ class Release(HasObservations, db.Model):
     version: Mapped[str] = mapped_column(Text)
     canonical_version: Mapped[str] = mapped_column()
     is_prerelease: Mapped[bool_false]
-    draft_hash: Mapped[str | None] = orm.column_property(func.make_draft_hash("project_name", version))
+    draft_hash: Mapped[str | None] = orm.column_property(
+        func.make_draft_hash("project_name", version)
+    )
     author: Mapped[str | None]
     author_email: Mapped[str | None]
     author_email_verified: Mapped[bool_false]
