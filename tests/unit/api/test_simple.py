@@ -464,9 +464,19 @@ class TestSimpleDetail:
         if renderer_override is not None:
             assert db_request.override_renderer == renderer_override
 
+    @pytest.mark.parametrize(
+        ("content_type", "renderer_override"),
+        CONTENT_TYPE_PARAMS,
+    )
     def test_with_files_varying_provenance(
-        self, db_request, integrity_service, dummy_attestation
+        self,
+        db_request,
+        integrity_service,
+        dummy_attestation,
+        content_type,
+        renderer_override,
     ):
+        db_request.accept = content_type
         db_request.oidc_publisher = GitHubPublisherFactory.create()
 
         project = ProjectFactory.create()
@@ -500,7 +510,7 @@ class TestSimpleDetail:
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
-        assert simple.simple_detail(project, db_request) == {
+        context = {
             "meta": {"_last-serial": je.id, "api-version": API_VERSION},
             "name": project.normalized_name,
             "versions": ["1.0.0"],
@@ -531,10 +541,23 @@ class TestSimpleDetail:
                 }
                 for f in files
             ],
+            "alternate-locations": [],
         }
+        context = _update_context(context, content_type, renderer_override)
 
-    def test_with_files_quarantined_omitted_from_index(self, db_request):
-        db_request.accept = "text/html"
+        assert simple.simple_detail(project, db_request) == context
+
+        if renderer_override is not None:
+            assert db_request.override_renderer == renderer_override
+
+    @pytest.mark.parametrize(
+        ("content_type", "renderer_override"),
+        CONTENT_TYPE_PARAMS,
+    )
+    def test_with_files_quarantined_omitted_from_index(
+        self, db_request, content_type, renderer_override
+    ):
+        db_request.accept = content_type
         project = ProjectFactory.create(lifecycle_status="quarantine-enter")
         releases = ReleaseFactory.create_batch(3, project=project)
         _ = [
@@ -542,12 +565,19 @@ class TestSimpleDetail:
             for r in releases
         ]
 
-        assert simple.simple_detail(project, db_request) == {
+        context = {
             "meta": {"_last-serial": 0, "api-version": API_VERSION},
             "name": project.normalized_name,
             "files": [],
             "versions": [],
+            "alternate-locations": [],
         }
+        context = _update_context(context, content_type, renderer_override)
+
+        assert simple.simple_detail(project, db_request) == context
+
+        if renderer_override is not None:
+            assert db_request.override_renderer == renderer_override
 
 
 def _update_context(context, content_type, renderer_override):
