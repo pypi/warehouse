@@ -64,7 +64,7 @@ class TestManageAccount:
         login_page = webtest.get("/account/login/", status=HTTPStatus.OK)
 
         # Fill & submit the login form
-        login_form = login_page.forms[2]  # TODO: form should have an ID, doesn't yet
+        login_form = login_page.forms["login-form"]
         anonymous_csrf_token = login_form["csrf_token"].value
         login_form["username"] = user.username
         login_form["password"] = "password"
@@ -72,8 +72,7 @@ class TestManageAccount:
 
         two_factor_page = login_form.submit().follow(status=HTTPStatus.OK)
 
-        # TODO: form doesn't have an ID yet
-        two_factor_form = two_factor_page.forms[2]
+        two_factor_form = two_factor_page.forms["totp-auth-form"]
         two_factor_form["csrf_token"] = anonymous_csrf_token
 
         # Generate the correct TOTP value from the known secret
@@ -94,9 +93,8 @@ class TestManageAccount:
         assert anonymous_csrf_token != logged_in_csrf_token
 
         # Fill & submit the change password form
-        # TODO: form doesn't have an ID yet
         new_password = faker.Faker().password()  # a secure-enough password for testing
-        change_password_form = change_password_page.forms[3]
+        change_password_form = change_password_page.forms["change-password-form"]
         change_password_form["csrf_token"] = logged_in_csrf_token
         change_password_form["password"] = "password"
         change_password_form["new_password"] = new_password

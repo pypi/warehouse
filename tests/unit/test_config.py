@@ -290,6 +290,7 @@ def test_configure(monkeypatch, settings, environment):
         whitenoise_add_manifest=pretend.call_recorder(lambda *a, **kw: None),
         scan=pretend.call_recorder(lambda categories, ignore: None),
         commit=pretend.call_recorder(lambda: None),
+        add_view_deriver=pretend.call_recorder(lambda *a, **kw: None),
     )
     configurator_cls = pretend.call_recorder(lambda settings: configurator_obj)
     monkeypatch.setattr(config, "Configurator", configurator_cls)
@@ -531,6 +532,13 @@ def test_configure(monkeypatch, settings, environment):
         pretend.call("json", json_renderer_obj),
         pretend.call("xmlrpc", xmlrpc_renderer_obj),
     ]
+    assert configurator_obj.add_view_deriver.calls == [
+        pretend.call(
+            config.reject_duplicate_post_keys_view,
+            over="rendered_view",
+            under="decorated_view",
+        )
+    ]
 
     assert json_renderer_cls.calls == [
         pretend.call(
@@ -566,6 +574,8 @@ def test_root_factory_access_control_list():
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
                 Permissions.AdminOrganizationsWrite,
+                Permissions.AdminProhibitedEmailDomainsRead,
+                Permissions.AdminProhibitedEmailDomainsWrite,
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedProjectsWrite,
                 Permissions.AdminProhibitedUsernameRead,
@@ -596,6 +606,7 @@ def test_root_factory_access_control_list():
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
+                Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProjectsRead,
@@ -621,6 +632,7 @@ def test_root_factory_access_control_list():
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
+                Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProjectsRead,

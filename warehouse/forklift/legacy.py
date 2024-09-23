@@ -487,6 +487,7 @@ def _sort_releases(request: Request, project: Project):
     require_csrf=False,
     require_methods=["POST"],
     has_translations=True,
+    permit_duplicate_post_keys=True,
 )
 def file_upload(request):
     # This is a list of warnings that we'll emit *IF* the request is successful.

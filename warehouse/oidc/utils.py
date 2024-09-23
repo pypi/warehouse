@@ -90,6 +90,10 @@ def find_publisher_by_issuer(
         # claims for an issuer that we don't recognize and support.
         raise InvalidPublisherError(f"Issuer {issuer_url!r} is unsupported")
 
+    # Before looking up the publisher by claims, we need to ensure that all expected
+    # claims are present in the JWT.
+    publisher_cls.check_claims_existence(signed_claims)
+
     return publisher_cls.lookup_by_claims(session, signed_claims)
 
 

@@ -293,6 +293,22 @@ def includeme(config):
         "/admin/prohibited_user_names/bulk/",
         domain=warehouse,
     )
+    # Prohibited Email related Admin pages
+    config.add_route(
+        "admin.prohibited_email_domains.list",
+        "/admin/prohibited_email_domains/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.prohibited_email_domains.add",
+        "/admin/prohibited_email_domains/add/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.prohibited_email_domains.remove",
+        "/admin/prohibited_email_domains/remove/",
+        domain=warehouse,
+    )
 
     # Observation related Admin pages
     config.add_route(

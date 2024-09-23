@@ -28,9 +28,6 @@ exclude_lines = [
   "if (typing\\.)?TYPE_CHECKING:",
 ]
 
-# Don't show us anything that's already 100% covered.
-skip_covered = true
-
 [tool.curlylint]
 include = '\.(html|jinja|txt)$'
 # For jinja's i18n extension:
