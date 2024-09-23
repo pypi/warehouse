@@ -12,11 +12,9 @@
 
 from __future__ import annotations
 
-import hashlib
 import typing
 import warnings
 
-import rfc8785
 import sentry_sdk
 
 from pydantic import TypeAdapter, ValidationError
@@ -93,11 +91,7 @@ def _build_provenance(
         mode="json"
     )
 
-    db_provenance = DatabaseProvenance(
-        file=file,
-        provenance=provenance,
-        provenance_digest=hashlib.sha256(rfc8785.dumps(provenance)).hexdigest(),
-    )
+    db_provenance = DatabaseProvenance(file=file, provenance=provenance)
 
     return db_provenance
 
