@@ -30,7 +30,7 @@ import stdlib_list
 
 from packaging.utils import canonicalize_name
 from pyramid.httpexceptions import HTTPBadRequest, HTTPConflict, HTTPForbidden
-from sqlalchemy import exists, func, or_
+from sqlalchemy import exists, func
 from zope.interface import implementer
 
 from warehouse.admin.flags import AdminFlagValue
@@ -586,10 +586,8 @@ class ProjectService:
         stale_pending_publishers = (
             request.db.query(PendingOIDCPublisher)
             .filter(
-                or_(
-                    func.ultranormalize_name(PendingOIDCPublisher.project_name)
-                    == func.ultranormalize_name(project.name),
-                ),
+                func.ultranormalize_name(PendingOIDCPublisher.project_name)
+                == func.ultranormalize_name(project.name),
                 PendingOIDCPublisher.added_by != creator,
             )
             .all()
