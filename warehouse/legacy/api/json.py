@@ -25,6 +25,8 @@ from warehouse.packaging.models import (
     Project,
     Release,
     ReleaseURL,
+    Role,
+    User,
 )
 from warehouse.utils.cors import _CORS_HEADERS
 
@@ -144,6 +146,24 @@ def _json_data(request, project, release, *, all_releases):
         for vulnerability_record in release.vulnerabilities
     ]
 
+    # Serialize maintainers and their project role.
+    maintainers = [
+        {
+            "username": maintainer.username,
+            "name": maintainer.name,
+            "role_name": maintainer.role_name,
+        }
+        for maintainer in (
+            request.db.query(Role)
+            .join(User)
+            .filter(Role.project == project)
+            .distinct(User.username)
+            .order_by(User.username)
+            .with_entities(User.username, User.name, Role.role_name)
+            .all()
+        )
+    ]
+
     data = {
         "info": {
             "name": project.name,
@@ -158,6 +178,7 @@ def _json_data(request, project, release, *, all_releases):
             "author_email": release.author_email,
             "maintainer": release.maintainer,
             "maintainer_email": release.maintainer_email,
+            "maintainers": maintainers,
             "requires_python": release.requires_python,
             "platform": release.platform,
             "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
