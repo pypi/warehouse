@@ -25,7 +25,7 @@ from tests.common.db.oidc import GitHubPublisherFactory
 from tests.common.db.packaging import ProjectFactory, RoleFactory
 from warehouse.macaroons import caveats
 
-from ...common.db.accounts import UserFactory
+from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.macaroons import MacaroonFactory
 
 _HERE = Path(__file__).parent
@@ -329,3 +329,11 @@ def test_provenance_upload(webtest):
     assert len(attestations) == 1
     attestation = attestations[0]
     assert attestation == json.loads(attestation_contents)
+
+    # While we needed to be authenticated to upload a project, this is no longer
+    # required to view it.
+    webtest.authorization = None
+    expected_filename = "sampleproject-3.0.0.tar.gz"
+
+    response = webtest.get(f"/_/provenance/{expected_filename}/", status=HTTPStatus.OK)
+    assert response.json == project.releases[0].files[0].provenance.provenance
