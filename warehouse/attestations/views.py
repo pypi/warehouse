@@ -26,7 +26,7 @@ from warehouse.packaging.models import File
     require_csrf=False,
     has_translations=False,
 )
-def provenance_for_release_file(file: File, request: Request):
+def provenance_for_file(file: File, request: Request):
     if request.flags.enabled(AdminFlagValue.DISABLE_PEP740):
         return HTTPForbidden(json={"message": "Attestations temporarily disabled"})
 
