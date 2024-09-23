@@ -137,6 +137,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
       stripe:
         condition: service_started
 
@@ -257,9 +259,12 @@ services:
       context: .
       target: docs
     image: warehouse:docker-compose-docs
+    command: sphinx-autobuild --host 0.0.0.0 "docs/dev/" "docs/dev/_build"
     volumes:
       - ./bin:/opt/warehouse/src/bin:z
       - ./docs:/opt/warehouse/src/docs:z
+    ports:
+      - "10002:8000"
 
   user-docs:
     image: warehouse:docker-compose-docs

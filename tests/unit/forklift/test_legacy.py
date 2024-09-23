@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import base64
 import hashlib
 import io
 import json
@@ -185,6 +186,35 @@ class TestFileValidation:
         with open(fake_tar, "wb") as fp:
             fp.write(b"Definitely not a valid tar file.")
 
+        assert not legacy._is_valid_dist_file(fake_tar, "sdist")
+
+    @pytest.mark.parametrize("filename", ["test.tar.gz"])
+    def test_bails_with_valid_tarfile_that_raises_exception(self, tmpdir, filename):
+        fake_tar = str(tmpdir.join(filename))
+
+        # Create a tarfile in memory
+        buffer = io.BytesIO()
+        with tarfile.open(fileobj=buffer, mode="w") as tar:
+            # Add a file with valid content
+            file_content = b"Hello, World!"
+            tarinfo = tarfile.TarInfo(name="example.txt")
+            tarinfo.size = len(file_content)
+            tar.addfile(tarinfo, io.BytesIO(file_content))
+
+        # Get the tar data
+        tar_data = buffer.getvalue()
+
+        # Corrupt the tar file by truncating it
+        corrupted_tar_data = tar_data[:-10]  # Remove last 10 bytes
+
+        # Save the corrupted tar data to a file
+        with open(fake_tar, "wb") as f:
+            f.write(corrupted_tar_data)
+
+        # This should pass
+        assert tarfile.is_tarfile(fake_tar)
+
+        # This should fail
         assert not legacy._is_valid_dist_file(fake_tar, "sdist")
 
     @pytest.mark.parametrize("compression", ["gz"])
@@ -2415,6 +2445,87 @@ class TestFileUpload:
             "See /the/help/url/ for more information."
         ).format(project.name)
 
+    def test_upload_attestation_fails_without_oidc_publisher(
+        self,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        metrics,
+        project_service,
+        macaroon_service,
+        integrity_service,
+    ):
+        project = ProjectFactory.create()
+        owner = UserFactory.create()
+        maintainer = UserFactory.create()
+        RoleFactory.create(user=owner, project=project, role_name="Owner")
+        RoleFactory.create(user=maintainer, project=project, role_name="Maintainer")
+
+        EmailFactory.create(user=maintainer)
+        db_request.user = maintainer
+        raw_macaroon, macaroon = macaroon_service.create_macaroon(
+            "fake location",
+            "fake description",
+            [caveats.RequestUser(user_id=str(maintainer.id))],
+            user_id=maintainer.id,
+        )
+        identity = UserContext(maintainer, macaroon)
+
+        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+        attestation = Attestation(
+            version=1,
+            verification_material=VerificationMaterial(
+                certificate=base64.b64encode(b"some_cert"),
+                transparency_entries=[dict()],
+            ),
+            envelope=Envelope(
+                statement=base64.b64encode(b"somebase64string"),
+                signature=base64.b64encode(b"somebase64string"),
+            ),
+        )
+
+        pyramid_config.testing_securitypolicy(identity=identity)
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "attestations": f"[{attestation.model_dump_json()}]",
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        extract_http_macaroon = pretend.call_recorder(lambda r, _: raw_macaroon)
+        monkeypatch.setattr(
+            security_policy, "_extract_http_macaroon", extract_http_macaroon
+        )
+
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMacaroonService: macaroon_service,
+            IMetricsService: metrics,
+            IProjectService: project_service,
+            IIntegrityService: integrity_service,
+        }.get(svc)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status == (
+            "400 Attestations are only supported when using Trusted Publishing"
+        )
+
     @pytest.mark.parametrize(
         "plat",
         [
@@ -3728,6 +3839,80 @@ class TestFileUpload:
             "Download": release.download_url,
         }
         assert not release_db.urls_by_verify_status(verified=False)
+
+    def test_new_release_email_verified(
+        self, monkeypatch, pyramid_config, db_request, metrics
+    ):
+        owner = UserFactory.create()
+        maintainer = UserFactory.create()
+
+        EmailFactory.create(
+            user=owner,
+            email="owner@example.com",
+            verified=True,
+            primary=True,
+            public=True,
+        )
+        EmailFactory.create(user=maintainer, email="maintainer@example.com")
+        project = ProjectFactory.create()
+        RoleFactory.create(user=owner, project=project)
+        RoleFactory.create(user=maintainer, project=project, role_name="Maintainer")
+
+        publisher = GitHubPublisherFactory.create(projects=[project])
+        publisher.repository_owner = "foo"
+        publisher.repository_name = "bar"
+        claims = {"sha": "somesha"}
+        identity = PublisherTokenContext(publisher, SignedClaims(claims))
+        db_request.oidc_publisher = identity.publisher
+        db_request.oidc_claims = identity.claims
+
+        db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
+        db_request.db.add(Classifier(classifier="Programming Language :: Python"))
+
+        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+
+        pyramid_config.testing_securitypolicy(identity=identity)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0",
+                "summary": "This is my summary!",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.POST.extend(
+            [
+                ("classifiers", "Environment :: Other Environment"),
+                ("classifiers", "Programming Language :: Python"),
+                ("requires_dist", "foo"),
+                ("requires_dist", "bar (>1.0)"),
+                ("requires_external", "Cheese (>1.0)"),
+                ("provides", "testing"),
+                ("author_email", "owner@example.com"),
+                ("maintainer_email", "unverified@example.com"),
+            ]
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+
+        legacy.file_upload(db_request)
+        release_db = (
+            db_request.db.query(Release).filter(Release.project == project).one()
+        )
+        assert release_db.author_email_verified
+        assert not release_db.maintainer_email_verified
 
     @pytest.mark.parametrize(
         ("version", "expected_version"),

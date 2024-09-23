@@ -169,7 +169,7 @@ class LocalDocsStorage:
 
 
 class GenericBlobStorage:
-    def __init__(self, bucket, *, prefix=None):
+    def __init__(self, bucket, *, prefix: str | None = None):
         self.bucket = bucket
         self.prefix = prefix
 
@@ -184,7 +184,7 @@ class GenericBlobStorage:
 
 
 class GenericB2BlobStorage(GenericBlobStorage):
-    def get(self, path):
+    def get(self, path: str):
         path = self._get_path(path)
         try:
             file_obj = io.BytesIO()
@@ -195,14 +195,14 @@ class GenericB2BlobStorage(GenericBlobStorage):
         except b2sdk.v2.exception.FileNotPresent:
             raise FileNotFoundError(f"No such key: {path!r}") from None
 
-    def get_metadata(self, path):
+    def get_metadata(self, path: str):
         path = self._get_path(path)
         try:
             return self.bucket.get_file_info_by_name(path).file_info
         except b2sdk.v2.exception.FileNotPresent:
             raise FileNotFoundError(f"No such key: {path!r}") from None
 
-    def get_checksum(self, path):
+    def get_checksum(self, path: str):
         path = self._get_path(path)
         try:
             return self.bucket.get_file_info_by_id(
@@ -211,7 +211,7 @@ class GenericB2BlobStorage(GenericBlobStorage):
         except b2sdk.v2.exception.FileNotPresent:
             raise FileNotFoundError(f"No such key: {path!r}") from None
 
-    def store(self, path, file_path, *, meta=None):
+    def store(self, path: str, file_path, *, meta=None):
         path = self._get_path(path)
         self.bucket.upload_local_file(
             local_file=file_path,
@@ -231,7 +231,7 @@ class B2FileStorage(GenericB2BlobStorage):
 
 
 class GenericS3BlobStorage(GenericBlobStorage):
-    def get(self, path):
+    def get(self, path: str):
         # Note: this is not actually used to serve files, instead our CDN is
         # configured to connect directly to our storage bucket. See:
         # https://github.com/python/pypi-infra/blob/master/terraform/file-hosting/vcl/main.vcl
@@ -242,7 +242,7 @@ class GenericS3BlobStorage(GenericBlobStorage):
                 raise
             raise FileNotFoundError(f"No such key: {path!r}") from None
 
-    def get_metadata(self, path):
+    def get_metadata(self, path: str):
         try:
             return self.bucket.Object(self._get_path(path)).metadata
         except botocore.exceptions.ClientError as exc:
@@ -250,7 +250,7 @@ class GenericS3BlobStorage(GenericBlobStorage):
                 raise
             raise FileNotFoundError(f"No such key: {path!r}") from None
 
-    def get_checksum(self, path):
+    def get_checksum(self, path: str):
         try:
             return (
                 self.bucket.Object(self._get_path(path)).e_tag.rstrip('"').lstrip('"')
@@ -327,16 +327,16 @@ class S3DocsStorage:
 
 
 class GenericGCSBlobStorage(GenericBlobStorage):
-    def get(self, path):
+    def get(self, path: str):
         # Note: this is not actually used in to serve files, instead our CDN is
         # configured to connect directly to our storage bucket. See:
         # https://github.com/python/pypi-infra/blob/master/terraform/file-hosting/vcl/main.vcl
         raise NotImplementedError
 
-    def get_metadata(self, path):
+    def get_metadata(self, path: str):
         raise NotImplementedError
 
-    def get_checksum(self, path):
+    def get_checksum(self, path: str):
         raise NotImplementedError
 
     @google.api_core.retry.Retry(
@@ -344,7 +344,7 @@ class GenericGCSBlobStorage(GenericBlobStorage):
             google.api_core.exceptions.ServiceUnavailable
         )
     )
-    def store(self, path, file_path, *, meta=None):
+    def store(self, path: str, file_path, *, meta=None):
         path = self._get_path(path)
         blob = self.bucket.blob(path)
         if meta is not None:
