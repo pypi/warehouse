@@ -2123,9 +2123,9 @@ sentry-sdk==2.14.0 \
     --hash=sha256:1e0e2eaf6dad918c7d1e0edac868a7bf20017b177f242cefe2a6bcd47955961d \
     --hash=sha256:b8bc3dc51d06590df1291b7519b85c75e2ced4f28d9ea655b6d54033503b5bf4
     # via -r requirements/main.in
-sigstore==3.2.0 \
-    --hash=sha256:25c8a871a3a6adf959c0cde598ea8bef8794f1a29277d067111eb4ded4ba7f65 \
-    --hash=sha256:d18508f34febb7775065855e92557fa1c2c16580df88f8e8903b9514438bad44
+sigstore==3.3.0 \
+    --hash=sha256:0a4c9cd3efc0f01ac053dc9dfba95bfdc998a14c59c80342ef40a290b406758d \
+    --hash=sha256:931e9913996ceace713d28e2431989414e711af30606f0b1e8bdc30fcbdd3fbe
     # via
     #   -r requirements/main.in
     #   pypi-attestations
