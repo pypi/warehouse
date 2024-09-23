@@ -163,6 +163,25 @@ class ProjectFactory:
             return True
 
 
+class FileFactory:
+    def __init__(self, request):
+        self.request = request
+
+    def __getitem__(self, filename):
+        try:
+            return self.request.db.query(File).filter(File.filename == filename).one()
+        except NoResultFound:
+            raise KeyError from None
+
+    def __contains__(self, filename):
+        try:
+            self[filename]
+        except KeyError:
+            return False
+        else:
+            return True
+
+
 class LifecycleStatus(enum.StrEnum):
     QuarantineEnter = "quarantine-enter"
     QuarantineExit = "quarantine-exit"
