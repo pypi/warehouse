@@ -25,6 +25,7 @@ from warehouse.oidc.models import GitHubPublisher
 from warehouse.organizations.models import TeamProjectRoleType
 from warehouse.packaging.models import (
     File,
+    FileFactory,
     Project,
     ProjectFactory,
     ProjectMacaroonWarningAssociation,
@@ -84,6 +85,53 @@ class TestProjectFactory:
 
         assert "foo" in root
         assert "bar" not in root
+
+
+class TestFileFactory:
+    def test_traversal_finds(self, db_request):
+        project = DBProjectFactory.create(name="fakeproject")
+        release = DBReleaseFactory.create(project=project)
+        rfile_1 = DBFileFactory.create(
+            release=release,
+            filename=f"{release.project.name}-{release.version}.tar.gz",
+            python_version="source",
+            packagetype="sdist",
+        )
+        rfile_2 = DBFileFactory.create(
+            release=release,
+            filename=f"{release.project.name}-{release.version}.whl",
+            python_version="bdist_wheel",
+            packagetype="bdist_wheel",
+        )
+
+        root = FileFactory(db_request)
+        assert root[rfile_1.filename] == rfile_1
+        assert root[rfile_2.filename] == rfile_2
+
+    def test_travel_cant_find(self, db_request):
+        project = DBProjectFactory.create(name="fakeproject")
+        release = DBReleaseFactory.create(project=project)
+
+        root = FileFactory(db_request)
+
+        # Project and release exist, but no file exists.
+        with pytest.raises(KeyError):
+            root[f"{release.project.name}-{release.version}.tar.gz"]
+
+    def test_contains(self, db_request):
+        project = DBProjectFactory.create(name="fakeproject")
+        release = DBReleaseFactory.create(project=project)
+        rfile_1 = DBFileFactory.create(
+            release=release,
+            filename=f"{release.project.name}-{release.version}.tar.gz",
+            python_version="source",
+            packagetype="sdist",
+        )
+
+        root = FileFactory(db_request)
+
+        assert rfile_1.filename in root
+        assert (rfile_1.filename + ".invalid") not in root
 
 
 class TestProject:
