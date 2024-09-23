@@ -563,6 +563,14 @@ def test_routes(warehouse):
             traverse="/{name}",
             domain=warehouse,
         ),
+        # PEP 740 URLs
+        pretend.call(
+            "attestations.provenance",
+            "/_/provenance/{filename}/",
+            factory="warehouse.packaging.models:FileFactory",
+            traverse="/{filename}",
+            domain=warehouse,
+        ),
         # Mock URLs
         pretend.call(
             "mock.billing.checkout-session",

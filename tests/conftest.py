@@ -45,6 +45,8 @@ from warehouse import admin, config, email, static
 from warehouse.accounts import services as account_services
 from warehouse.accounts.interfaces import ITokenService, IUserService
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
+from warehouse.attestations import services as attestations_services
+from warehouse.attestations.interfaces import IIntegrityService
 from warehouse.email import services as email_services
 from warehouse.email.interfaces import IEmailSender
 from warehouse.helpdesk import services as helpdesk_services
@@ -174,6 +176,7 @@ def pyramid_services(
     project_service,
     github_oidc_service,
     activestate_oidc_service,
+    integrity_service,
     macaroon_service,
     helpdesk_service,
 ):
@@ -195,6 +198,7 @@ def pyramid_services(
     services.register_service(
         activestate_oidc_service, IOIDCPublisherService, None, name="activestate"
     )
+    services.register_service(integrity_service, IIntegrityService, None)
     services.register_service(macaroon_service, IMacaroonService, None, name="")
     services.register_service(helpdesk_service, IHelpDeskService, None)
 
@@ -326,6 +330,7 @@ def get_app_config(database, nondefaults=None):
         "docs.backend": "warehouse.packaging.services.LocalDocsStorage",
         "sponsorlogos.backend": "warehouse.admin.services.LocalSponsorLogoStorage",
         "billing.backend": "warehouse.subscriptions.services.MockStripeBillingService",
+        "integrity.backend": "warehouse.attestations.services.NullIntegrityService",
         "billing.api_base": "http://stripe:12111",
         "billing.api_version": "2020-08-27",
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
@@ -555,6 +560,11 @@ def dummy_attestation():
             signature="somebase64string",
         ),
     )
+
+
+@pytest.fixture
+def integrity_service(db_session):
+    return attestations_services.NullIntegrityService(db_session)
 
 
 @pytest.fixture

@@ -13,16 +13,23 @@
 import base64
 
 from http import HTTPStatus
+from pathlib import Path
 
 import pymacaroons
 import pytest
 
 from webob.multidict import MultiDict
 
+from tests.common.db.oidc import GitHubPublisherFactory
+from tests.common.db.packaging import ProjectFactory, RoleFactory
 from warehouse.macaroons import caveats
 
-from ...common.db.accounts import UserFactory
+from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.macaroons import MacaroonFactory
+
+_HERE = Path(__file__).parent
+_ASSETS = _HERE.parent / "_fixtures"
+assert _ASSETS.is_dir()
 
 
 def test_incorrect_post_redirect(webtest):
@@ -270,3 +277,74 @@ def test_invalid_classifier_upload_error(webtest):
         status=HTTPStatus.BAD_REQUEST,
     )
     assert "'This :: Is :: Invalid' is not a valid classifier" in resp.body.decode()
+
+
+def test_provenance_available_after_upload(webtest):
+    user = UserFactory.create(
+        password=(  # 'password'
+            "$argon2id$v=19$m=1024,t=6,p=6$EiLE2Nsbo9S6N+acs/beGw$ccyZDCZstr1/+Y/1s3BVZ"
+            "HOJaqfBroT0JCieHug281c"
+        )
+    )
+    EmailFactory.create(user=user, verified=True)
+    project = ProjectFactory.create(name="sampleproject")
+    RoleFactory.create(user=user, project=project, role_name="Owner")
+    publisher = GitHubPublisherFactory.create(projects=[project])
+
+    # Construct the macaroon. This needs to be based on a Trusted Publisher, which is
+    # required to upload attestations
+    dm = MacaroonFactory.create(
+        oidc_publisher_id=publisher.id,
+        caveats=[
+            caveats.OIDCPublisher(oidc_publisher_id=str(publisher.id)),
+            caveats.ProjectID(project_ids=[str(p.id) for p in publisher.projects]),
+        ],
+        additional={"oidc": {"ref": "someref", "sha": "somesha"}},
+    )
+
+    m = pymacaroons.Macaroon(
+        location="localhost",
+        identifier=str(dm.id),
+        key=dm.key,
+        version=pymacaroons.MACAROON_V2,
+    )
+    for caveat in dm.caveats:
+        m.add_first_party_caveat(caveats.serialize(caveat))
+    serialized_macaroon = f"pypi-{m.serialize()}"
+
+    with open(_ASSETS / "sampleproject-3.0.0.tar.gz", "rb") as f:
+        content = f.read()
+
+    with open(
+        _ASSETS / "sampleproject-3.0.0.tar.gz.publish.attestation",
+    ) as f:
+        attestation = f.read()
+
+    webtest.set_authorization(("Basic", ("__token__", serialized_macaroon)))
+    webtest.post(
+        "/legacy/?:action=file_upload",
+        params={
+            "name": "sampleproject",
+            "sha256_digest": (
+                "117ed88e5db073bb92969a7545745fd977ee85b7019706dd256a64058f70963d"
+            ),
+            "filetype": "sdist",
+            "metadata_version": "2.1",
+            "version": "3.0.0",
+            "attestations": f"[{attestation}]",
+        },
+        upload_files=[("content", "sampleproject-3.0.0.tar.gz", content)],
+        status=HTTPStatus.OK,
+    )
+
+    assert len(project.releases) == 1
+    assert project.releases[0].files.count() == 1
+    assert project.releases[0].files[0].provenance is not None
+
+    # While we needed to be authenticated to upload a project, this is no longer
+    # required to view it.
+    webtest.authorization = None
+    expected_filename = "sampleproject-3.0.0.tar.gz"
+
+    response = webtest.get(f"/_/provenance/{expected_filename}/", status=HTTPStatus.OK)
+    assert response.json == project.releases[0].files[0].provenance.provenance
