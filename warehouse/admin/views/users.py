@@ -572,7 +572,6 @@ def user_recover_account_complete(user: User, request):
     user.totp_secret = None
     user.webauthn = []
     user.recovery_codes = []
-    _user_reset_password(user, request)
 
     for account_recovery in user.active_account_recoveries:
         account_recovery.additional["status"] = "completed"
@@ -584,6 +583,8 @@ def user_recover_account_complete(user: User, request):
                 if email.email == override_to_email:
                     email.primary = True
                     email.verified = True
+
+    _user_reset_password(user, request)
 
     request.session.flash(
         (
