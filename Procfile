@@ -5,4 +5,3 @@ web-uploads: bin/start-web ddtrace-run python -m gunicorn.app.wsgiapp -c gunicor
 worker: bin/start-worker celery -A warehouse worker -Q default -l info --max-tasks-per-child 32
 worker-beat: bin/start-worker celery -A warehouse beat -S redbeat.RedBeatScheduler -l info
 worker-traced: env DD_SERVICE=warehouse-worker bin/start-worker ddtrace-run celery -A warehouse worker -Q default -l info --max-tasks-per-child 32
-worker-drain-sqs: env BROKER_URL=sqs:///?region=us-east-2&queue_name_prefix=pypi-worker bin/start-worker celery -A warehouse worker -Q default -l info --max-tasks-per-child 32
