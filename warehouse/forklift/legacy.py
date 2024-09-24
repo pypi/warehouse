@@ -561,6 +561,7 @@ def file_upload(request):
         # TODO: Once https://github.com/pypa/warehouse/issues/3632 has been solved,
         #       we might consider a different condition, possibly looking at
         #       User.is_active instead.
+        # TODO: That issue was closed on 02-May-2019, so this comment should be resolved.
         if not (request.user.primary_email and request.user.primary_email.verified):
             raise _exc_with_message(
                 HTTPBadRequest,
@@ -930,9 +931,15 @@ def file_upload(request):
             .one()
         )
     except NoResultFound:
-        release_classifiers = _get_release_classifiers(
-            request.db, form.classifiers.data
-        )
+        release_classifiers = (
+            _get_release_classifiers(request.db, form.classifiers.data)
+            if hasattr(form, 'classifiers')
+            else [])
+
+        optional_form_data = {}
+        for key in form_metadata_fields:
+            if hasattr(form, key):
+                optional_form_data[key] = getattr(form, key).data
 
         release = Release(
             project=project,
@@ -987,7 +994,7 @@ def file_upload(request):
             # to store every possible variation, and can use an enum to restrict them
             # in the database
             dynamic=[x.title() for x in meta.dynamic] if meta.dynamic else None,
-            **{k: getattr(form, k).data for k in form_metadata_fields},
+            ##**optional_form_data,
             uploader=request.user if request.user else None,
             uploaded_via=request.user_agent,
             published=None if release_is_draft else datetime.now(tz=timezone.utc),
