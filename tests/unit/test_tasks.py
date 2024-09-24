@@ -593,6 +593,23 @@ def test_make_celery_app():
             "redis://127.0.0.1:6379/10",
             {},
         ),
+        (
+            Environment.production,
+            True,
+            None,
+            (
+                "rediss://user:pass@redis.example.com:6379/10"
+                "?socket_timeout=5&irreleveant=0"
+                "&ssl_cert_reqs=required&ssl_ca_certs=/p/a/t/h/cacert.pem"
+            ),
+            (
+                "rediss://user:pass@redis.example.com:6379/10"
+                "?ssl_cert_reqs=required&ssl_ca_certs=/p/a/t/h/cacert.pem"
+            ),
+            {
+                "socket_timeout": 5,
+            },
+        ),
     ],
 )
 def test_includeme(
