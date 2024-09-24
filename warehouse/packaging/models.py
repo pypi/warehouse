@@ -163,25 +163,6 @@ class ProjectFactory:
             return True
 
 
-class FileFactory:
-    def __init__(self, request):
-        self.request = request
-
-    def __getitem__(self, filename):
-        try:
-            return self.request.db.query(File).filter(File.filename == filename).one()
-        except NoResultFound:
-            raise KeyError from None
-
-    def __contains__(self, filename):
-        try:
-            self[filename]
-        except KeyError:
-            return False
-        else:
-            return True
-
-
 class LifecycleStatus(enum.StrEnum):
     QuarantineEnter = "quarantine-enter"
     QuarantineExit = "quarantine-exit"
@@ -713,6 +694,18 @@ class Release(HasObservations, db.Model):
     uploader: Mapped[User] = orm.relationship(User)
     uploaded_via: Mapped[str | None]
 
+    def __getitem__(self, filename: str) -> File:
+        session: orm.Session = orm.object_session(self)  # type: ignore[assignment]
+
+        try:
+            return (
+                session.query(File)
+                .filter(File.release == self, File.filename == filename)
+                .one()
+            )
+        except NoResultFound:
+            raise KeyError from None
+
     @property
     def urls(self):
         _urls = OrderedDict()
@@ -865,6 +858,9 @@ class File(HasEvents, db.Model):
             Index("release_files_archived_idx", "archived"),
             Index("release_files_cached_idx", "cached"),
         )
+
+    __parent__ = dotted_navigator("release")
+    __name__ = dotted_navigator("filename")
 
     release_id: Mapped[UUID] = mapped_column(
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),

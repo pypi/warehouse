@@ -25,7 +25,6 @@ from warehouse.oidc.models import GitHubPublisher
 from warehouse.organizations.models import TeamProjectRoleType
 from warehouse.packaging.models import (
     File,
-    FileFactory,
     Project,
     ProjectFactory,
     ProjectMacaroonWarningAssociation,
@@ -85,53 +84,6 @@ class TestProjectFactory:
 
         assert "foo" in root
         assert "bar" not in root
-
-
-class TestFileFactory:
-    def test_traversal_finds(self, db_request):
-        project = DBProjectFactory.create(name="fakeproject")
-        release = DBReleaseFactory.create(project=project)
-        rfile_1 = DBFileFactory.create(
-            release=release,
-            filename=f"{release.project.name}-{release.version}.tar.gz",
-            python_version="source",
-            packagetype="sdist",
-        )
-        rfile_2 = DBFileFactory.create(
-            release=release,
-            filename=f"{release.project.name}-{release.version}.whl",
-            python_version="bdist_wheel",
-            packagetype="bdist_wheel",
-        )
-
-        root = FileFactory(db_request)
-        assert root[rfile_1.filename] == rfile_1
-        assert root[rfile_2.filename] == rfile_2
-
-    def test_travel_cant_find(self, db_request):
-        project = DBProjectFactory.create(name="fakeproject")
-        release = DBReleaseFactory.create(project=project)
-
-        root = FileFactory(db_request)
-
-        # Project and release exist, but no file exists.
-        with pytest.raises(KeyError):
-            root[f"{release.project.name}-{release.version}.tar.gz"]
-
-    def test_contains(self, db_request):
-        project = DBProjectFactory.create(name="fakeproject")
-        release = DBReleaseFactory.create(project=project)
-        rfile_1 = DBFileFactory.create(
-            release=release,
-            filename=f"{release.project.name}-{release.version}.tar.gz",
-            python_version="source",
-            packagetype="sdist",
-        )
-
-        root = FileFactory(db_request)
-
-        assert rfile_1.filename in root
-        assert (rfile_1.filename + ".invalid") not in root
 
 
 class TestProject:
@@ -546,6 +498,41 @@ class TestReleaseURL:
 
 
 class TestRelease:
+    def test_getattr(self, db_session):
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(project=project)
+        file = DBFileFactory.create(
+            release=release,
+            filename=f"{release.project.name}-{release.version}.tar.gz",
+            python_version="source",
+        )
+
+        assert release[file.filename] == file
+
+    def test_getattr_invalid_file(self, db_session):
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(project=project)
+
+        with pytest.raises(KeyError):
+            # Well-formed filename, but the File doesn't actually exist.
+            release[f"{release.project.name}-{release.version}.tar.gz"]
+
+    def test_getattr_wrong_file_for_release(self, db_session):
+        project = DBProjectFactory.create()
+        release1 = DBReleaseFactory.create(project=project)
+        release2 = DBReleaseFactory.create(project=project)
+        file = DBFileFactory.create(
+            release=release1,
+            filename=f"{release1.project.name}-{release1.version}.tar.gz",
+            python_version="source",
+        )
+
+        assert release1[file.filename] == file
+
+        # Accessing a file through a different release does not work.
+        with pytest.raises(KeyError):
+            release2[file.filename]
+
     def test_has_meta_true_with_keywords(self, db_session):
         release = DBReleaseFactory.create(keywords="foo, bar")
         assert release.has_meta
