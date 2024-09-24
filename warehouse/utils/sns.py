@@ -80,7 +80,7 @@ class MessageVerifier:
         cert_host = cert_url_p.netloc
         if cert_scheme != "https":
             raise InvalidMessageError("Invalid scheme for SigningCertURL")
-        if _signing_url_host_re.fullmatch(cert_host) is None:
+        if not cert_host or _signing_url_host_re.fullmatch(cert_host) is None:
             raise InvalidMessageError("Invalid location for SigningCertURL")
 
         resp = self.http.get(cert_url)
