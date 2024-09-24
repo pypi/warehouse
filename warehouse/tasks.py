@@ -195,10 +195,7 @@ def includeme(config):
 
     broker_transport_options = {}
 
-    broker_url = s.get("celery.broker_url")
-    if broker_url is None:
-        broker_url = s["celery.broker_redis_url"]
-
+    broker_url = s["celery.broker_url"]
     if broker_url.startswith("sqs://"):
         parsed_url = parse_url(broker_url)
         parsed_query = urllib.parse.parse_qs(parsed_url.query)
