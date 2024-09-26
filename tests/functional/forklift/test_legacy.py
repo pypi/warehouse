@@ -336,7 +336,7 @@ def test_provenance_upload(webtest):
     expected_filename = "sampleproject-3.0.0.tar.gz"
 
     response = webtest.get(
-        f"/metadata/{project.name}/3.0.0/{expected_filename}/provenance",
+        f"/integrity/{project.name}/3.0.0/{expected_filename}/provenance",
         status=HTTPStatus.OK,
     )
     assert response.json == project.releases[0].files[0].provenance.provenance
