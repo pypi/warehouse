@@ -566,7 +566,7 @@ def test_routes(warehouse):
         # PEP 740 URLs
         pretend.call(
             "attestations.provenance",
-            "/metadata/{project_name}/{release}/{filename}/provenance",
+            "/integrity/{project_name}/{release}/{filename}/provenance",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}/{release}/{filename}",
             domain=warehouse,

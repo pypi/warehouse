@@ -10,12 +10,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.httpexceptions import HTTPForbidden, HTTPNotFound
+from pyramid.httpexceptions import HTTPForbidden, HTTPNotAcceptable, HTTPNotFound
 from pyramid.request import Request
 from pyramid.view import view_config
 
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.cache.http import add_vary
 from warehouse.packaging.models import File
+from warehouse.utils.cors import _CORS_HEADERS
+
+MIME_TEXT_HTML = "text/html"
+MIME_PYPI_INTEGRITY_V1_HTML = "application/vnd.pypi.integrity.v1+html"
+MIME_PYPI_INTEGRITY_V1_JSON = "application/vnd.pypi.integrity.v1+json"
+
+
+def _select_content_type(request: Request) -> str:
+    offers = request.accept.acceptable_offers(
+        [
+            # JSON currently has the highest priority.
+            MIME_PYPI_INTEGRITY_V1_JSON,
+            MIME_TEXT_HTML,
+            MIME_PYPI_INTEGRITY_V1_HTML,
+        ]
+    )
+
+    # Default case: JSON.
+    if not offers:
+        return MIME_PYPI_INTEGRITY_V1_JSON
+    else:
+        return offers[0][0]
 
 
 @view_config(
@@ -25,8 +48,17 @@ from warehouse.packaging.models import File
     renderer="json",
     require_csrf=False,
     has_translations=False,
+    decorator=[
+        add_vary("Accept"),
+    ],
 )
 def provenance_for_file(file: File, request: Request):
+    # Determine our response content-type. For the time being, only the JSON
+    # type is accepted.
+    request.response.content_type = _select_content_type(request)
+    if request.response.content_type != MIME_PYPI_INTEGRITY_V1_JSON:
+        return HTTPNotAcceptable(json={"message": "Request not acceptable"})
+
     if request.flags.enabled(AdminFlagValue.DISABLE_PEP740):
         return HTTPForbidden(json={"message": "Attestations temporarily disabled"})
 
@@ -34,5 +66,8 @@ def provenance_for_file(file: File, request: Request):
         return HTTPNotFound(
             json={"message": f"No provenance available for {file.filename}"}
         )
+
+    # Apply CORS headers.
+    request.response.headers.update(_CORS_HEADERS)
 
     return file.provenance.provenance

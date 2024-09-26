@@ -579,7 +579,7 @@ def includeme(config):
     # PEP 740 URLs
     config.add_route(
         "attestations.provenance",
-        "/metadata/{project_name}/{release}/{filename}/provenance",
+        "/integrity/{project_name}/{release}/{filename}/provenance",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{project_name}/{release}/{filename}",
         domain=warehouse,
