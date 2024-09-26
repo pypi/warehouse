@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import base64
+import json
 
 from http import HTTPStatus
 from pathlib import Path
@@ -279,7 +280,7 @@ def test_invalid_classifier_upload_error(webtest):
     assert "'This :: Is :: Invalid' is not a valid classifier" in resp.body.decode()
 
 
-def test_provenance_available_after_upload(webtest):
+def test_provenance_upload(webtest):
     user = UserFactory.create(
         password=(  # 'password'
             "$argon2id$v=19$m=1024,t=6,p=6$EiLE2Nsbo9S6N+acs/beGw$ccyZDCZstr1/+Y/1s3BVZ"
@@ -318,7 +319,7 @@ def test_provenance_available_after_upload(webtest):
     with open(
         _ASSETS / "sampleproject-3.0.0.tar.gz.publish.attestation",
     ) as f:
-        attestation = f.read()
+        attestation_contents = f.read()
 
     webtest.set_authorization(("Basic", ("__token__", serialized_macaroon)))
     webtest.post(
@@ -331,23 +332,24 @@ def test_provenance_available_after_upload(webtest):
             "filetype": "sdist",
             "metadata_version": "2.1",
             "version": "3.0.0",
-            "attestations": f"[{attestation}]",
+            "attestations": f"[{attestation_contents}]",
         },
         upload_files=[("content", "sampleproject-3.0.0.tar.gz", content)],
         status=HTTPStatus.OK,
     )
 
     assert len(project.releases) == 1
-    assert project.releases[0].files.count() == 1
-    assert project.releases[0].files[0].provenance is not None
-
-    # While we needed to be authenticated to upload a project, this is no longer
-    # required to view it.
-    webtest.authorization = None
-    expected_filename = "sampleproject-3.0.0.tar.gz"
-
-    response = webtest.get(
-        f"/integrity/{project.name}/3.0.0/{expected_filename}/provenance",
-        status=HTTPStatus.OK,
-    )
-    assert response.json == project.releases[0].files[0].provenance.provenance
+    release = project.releases[0]
+    assert release.files.count() == 1
+    file_ = project.releases[0].files[0]
+    assert file_.provenance is not None
+    provenance = file_.provenance.provenance
+    assert "attestation_bundles" in provenance
+    attestation_bundles = provenance["attestation_bundles"]
+    assert len(attestation_bundles) == 1
+    bundle = provenance["attestation_bundles"][0]
+    assert "attestations" in bundle
+    attestations = bundle["attestations"]
+    assert len(attestations) == 1
+    attestation = attestations[0]
+    assert attestation == json.loads(attestation_contents)
