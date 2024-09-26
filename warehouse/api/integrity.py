@@ -15,7 +15,8 @@ from pyramid.request import Request
 from pyramid.view import view_config
 
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.cache.http import add_vary
+from warehouse.cache.http import add_vary, cache_control
+from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import File
 from warehouse.utils.cors import _CORS_HEADERS
 
@@ -50,6 +51,12 @@ def _select_content_type(request: Request) -> str:
     has_translations=False,
     decorator=[
         add_vary("Accept"),
+        cache_control(10 * 60),  # 10 minutes
+        origin_cache(
+            1 * 24 * 60 * 60,  # 1 day
+            stale_while_revalidate=5 * 60,  # 5 minutes
+            stale_if_error=1 * 24 * 60 * 60,  # 1 day
+        ),
     ],
 )
 def provenance_for_file(file: File, request: Request):
