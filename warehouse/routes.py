@@ -568,11 +568,28 @@ def includeme(config):
         "/danger-api/echo",
         domain=warehouse,
     )
+
     config.add_route(
         "api.projects.observations",
         "/danger-api/projects/{name}/observations",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}",
+        domain=warehouse,
+    )
+
+    # Draft URLs
+    config.add_route(
+        "legacy.api.draft.index",
+        "/draft/{hash}/",
+        factory="warehouse.packaging.models:DraftFactory",
+        traverse="/{hash}/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "legacy.api.draft.detail",
+        "/draft/{hash}/{name}/",
+        factory="warehouse.packaging.models:DraftFactory",
+        traverse="/{hash}/{name}/",
         domain=warehouse,
     )
 

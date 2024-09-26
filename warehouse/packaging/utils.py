@@ -51,7 +51,7 @@ def _simple_detail(project, request):
         request.db.query(File)
         .options(joinedload(File.release))
         .join(Release)
-        .filter(Release.project == project)
+        .filter(Release.project == project, Release.published is not None)
         # Exclude projects that are in the `quarantine-enter` lifecycle status.
         .join(Project)
         .filter(
