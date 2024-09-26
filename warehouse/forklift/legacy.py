@@ -1246,7 +1246,9 @@ def file_upload(request):
                     request,
                     Distribution(name=filename, digest=file_hashes["sha256"]),
                 )
-                integrity_service.build_provenance(request, file_, attestations)
+                request.db.add(
+                    integrity_service.build_provenance(request, file_, attestations)
+                )
             except AttestationUploadError as e:
                 raise _exc_with_message(
                     HTTPBadRequest,
