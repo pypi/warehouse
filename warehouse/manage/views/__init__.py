@@ -1197,14 +1197,6 @@ class ManageProjectSettingsViews:
             description=form.description.data,
         )
         self.request.db.add(alt_repo)
-        self.request.db.add(
-            JournalEntry(
-                name=alt_repo.name,
-                action=f"add alternate repository {alt_repo.name} "
-                f"to project {self.project.name}",
-                submitted_by=self.request.user,
-            )
-        )
         self.project.record_event(
             tag=EventTag.Project.AlternateRepositoryAdd,
             request=self.request,
