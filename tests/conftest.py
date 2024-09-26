@@ -701,7 +701,7 @@ class _TestApp(_webtest.TestApp):
         return xmlrpc.client.loads(resp.body)
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def tm():
     # Create a new transaction manager for dependant test cases
     tm = transaction.TransactionManager(explicit=True)
