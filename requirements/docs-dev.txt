@@ -376,9 +376,9 @@ sphinxcontrib-serializinghtml==2.0.0 \
     --hash=sha256:6e2cb0eef194e10c27ec0023bfeb25badbbb5868244cf5bc5bdc04e4464bf331 \
     --hash=sha256:e9d912827f872c029017a53f0ef2180b327c3f7fd23c87229f7a8e8b70031d4d
     # via sphinx
-starlette==0.39.0 \
-    --hash=sha256:57164a38948018134537d31367fb46ef9be6050a8e955fb4990235960ed03f92 \
-    --hash=sha256:b35acedae74e95967dd9c0a47b45f5803dcd8973d0d95c18c1abb184845ba42c
+starlette==0.39.1 \
+    --hash=sha256:0d31c90dacae588734e91b98cb4469fd37848ef23d2dd34355c5542bc827c02a \
+    --hash=sha256:33c5a94f64d3ab2c799b2715b45f254a3752f229d334f1562a3aaf78c23eab95
     # via sphinx-autobuild
 urllib3==2.2.3 \
     --hash=sha256:ca899ca043dcb1bafa3e262d73aa25c465bfb49e0bd9dd5d59f1d0acba2f8fac \
