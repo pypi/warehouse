@@ -115,6 +115,13 @@ Accept: application/vnd.pypi.integrity.v1+json
     }
     ```
 
+#### Status codes
+
+* `200 OK` - no error
+* `403 Forbidden` - access is temporarily disabled by the PyPI administrators
+* `404 Not Found` - file has no provenance
+* `406 Not Acceptable` - `Accept:` header not recognized
+
 [PEP 740]: https://peps.python.org/pep-0740/
 
 [publish attestation]: /attestations/publish/v1
