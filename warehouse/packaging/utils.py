@@ -22,7 +22,7 @@ from sqlalchemy.orm import joinedload
 from warehouse.packaging.interfaces import ISimpleStorage
 from warehouse.packaging.models import File, LifecycleStatus, Project, Release
 
-API_VERSION = "1.2"
+API_VERSION = "1.3"
 
 
 def _simple_index(request, serial):
@@ -100,6 +100,16 @@ def _simple_detail(project, request):
                     {"sha256": file.metadata_file_sha256_digest}
                     if file.metadata_file_sha256_digest
                     else False
+                ),
+                "provenance": (
+                    request.route_url(
+                        "attestations.provenance",
+                        project_name=project.normalized_name,
+                        release=file.release.version,
+                        filename=file.filename,
+                    )
+                    if file.provenance
+                    else None
                 ),
             }
             for file in files
