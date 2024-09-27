@@ -11,9 +11,5 @@
 # limitations under the License.
 
 
-class UnsupportedPublisherError(Exception):
-    pass
-
-
 class AttestationUploadError(Exception):
     pass

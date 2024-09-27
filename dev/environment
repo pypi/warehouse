@@ -7,13 +7,12 @@ WAREHOUSE_IP_SALT="insecure himalayan pink salt"
 
 AWS_ACCESS_KEY_ID=foo
 AWS_SECRET_ACCESS_KEY=foo
-BROKER_URL=sqs://localstack:4566/?region=us-east-1&queue_name_prefix=warehouse-dev
 
 DATABASE_URL=postgresql+psycopg://postgres@db/warehouse
 
 OPENSEARCH_URL=http://opensearch:9200/development
 
-REDIS_URL=redis://redis:6379/0
+REDIS_URL=redis://redis:6379
 
 SESSION_SECRET="an insecure development secret"
 
@@ -46,7 +45,7 @@ BREACHED_EMAILS=warehouse.accounts.NullEmailBreachedService
 BREACHED_PASSWORDS=warehouse.accounts.NullPasswordBreachedService
 
 OIDC_BACKEND=warehouse.oidc.services.NullOIDCPublisherService
-ATTESTATIONS_BACKEND=warehouse.attestations.services.NullIntegrityService
+INTEGRITY_BACKEND=warehouse.attestations.services.NullIntegrityService
 
 METRICS_BACKEND=warehouse.metrics.DataDogMetrics host=notdatadog
 

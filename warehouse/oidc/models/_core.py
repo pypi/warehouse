@@ -199,6 +199,52 @@ class OIDCPublisherMixin:
             | cls.__unchecked_claims__
         )
 
+    @classmethod
+    def check_claims_existence(cls, signed_claims: SignedClaims) -> None:
+        """
+        Raises an error if any of the required claims for a Publisher is missing from
+        `signed_claims`.
+
+        This is used to check if required claims are missing from the token. If so,
+        an error is logged since this is likely a bug from the OIDC provider that
+        generated the token. Unexpected claims are logged as warnings that the JWT
+        payload has changed.
+        """
+
+        # Defensive programming: treat the absence of any claims to verify
+        # as a failure rather than trivially valid.
+        if not cls.__required_verifiable_claims__:
+            raise InvalidPublisherError("No required verifiable claims")
+
+        # All claims should be accounted for.
+        # The presence of an unaccounted claim is not an error, only a warning
+        # that the JWT payload has changed.
+        unaccounted_claims = sorted(list(signed_claims.keys() - cls.all_known_claims()))
+        if unaccounted_claims:
+            with sentry_sdk.new_scope() as scope:
+                scope.fingerprint = unaccounted_claims
+                sentry_sdk.capture_message(
+                    f"JWT for {cls.__name__} has unaccounted claims: "
+                    f"{unaccounted_claims}"
+                )
+
+        # Verify that all required claims are present.
+        for claim_name in (
+            cls.__required_verifiable_claims__.keys()
+            | cls.__required_unverifiable_claims__
+        ):
+            # All required claims are mandatory. The absence of a missing
+            # claim *is* an error with the JWT, since it indicates a breaking
+            # change in the JWT's payload.
+            signed_claim = signed_claims.get(claim_name)
+            if signed_claim is None:
+                with sentry_sdk.new_scope() as scope:
+                    scope.fingerprint = [claim_name]
+                    sentry_sdk.capture_message(
+                        f"JWT for {cls.__name__} is missing claim: " f"{claim_name}"
+                    )
+                raise InvalidPublisherError(f"Missing claim {claim_name!r}")
+
     def verify_claims(
         self, signed_claims: SignedClaims, publisher_service: OIDCPublisherService
     ):
@@ -208,46 +254,8 @@ class OIDCPublisherMixin:
         claims of this publisher.
         """
 
-        # Defensive programming: treat the absence of any claims to verify
-        # as a failure rather than trivially valid.
-        if not self.__required_verifiable_claims__:
-            raise InvalidPublisherError("No required verifiable claims")
-
-        # All claims should be accounted for.
-        # The presence of an unaccounted claim is not an error, only a warning
-        # that the JWT payload has changed.
-        unaccounted_claims = sorted(
-            list(signed_claims.keys() - self.all_known_claims())
-        )
-        if unaccounted_claims:
-            with sentry_sdk.push_scope() as scope:
-                scope.fingerprint = unaccounted_claims
-                sentry_sdk.capture_message(
-                    f"JWT for {self.__class__.__name__} has unaccounted claims: "
-                    f"{unaccounted_claims}"
-                )
-
-        # Finally, perform the actual claim verification. First, verify that
-        # all required claims are present.
-        for claim_name in (
-            self.__required_verifiable_claims__.keys()
-            | self.__required_unverifiable_claims__
-        ):
-            # All required claims are mandatory. The absence of a missing
-            # claim *is* an error with the JWT, since it indicates a breaking
-            # change in the JWT's payload.
-            signed_claim = signed_claims.get(claim_name)
-            if signed_claim is None:
-                with sentry_sdk.push_scope() as scope:
-                    scope.fingerprint = [claim_name]
-                    sentry_sdk.capture_message(
-                        f"JWT for {self.__class__.__name__} is missing claim: "
-                        f"{claim_name}"
-                    )
-                raise InvalidPublisherError(f"Missing claim {claim_name!r}")
-
-        # Now that we've verified all claims are present, verify each
-        # verifiable claim is correct
+        # All required claims should be present, since this is checked during Publisher
+        # lookup. Now we verify each verifiable claim is correct.
         for claim_name, check in self.__required_verifiable_claims__.items():
             signed_claim = signed_claims.get(claim_name)
             if not check(
@@ -299,6 +307,15 @@ class OIDCPublisherMixin:
         """
         # Only concrete subclasses are constructed.
         raise NotImplementedError
+
+    @property
+    def supports_attestations(self) -> bool:
+        """
+        Returns whether or not this kind of publisher supports attestations.
+
+        Concrete subclasses should override this upon adding attestation support.
+        """
+        return False
 
     def publisher_verification_policy(
         self, claims: SignedClaims

@@ -142,6 +142,89 @@ def test_maybe_set_compound(monkeypatch, environ, base, name, envvar, expected):
 
 
 @pytest.mark.parametrize(
+    ("environ", "coercer", "default", "db", "expected"),
+    [
+        (
+            {"REDIS_URL": "redis://127.0.0.1:6379"},
+            None,
+            None,
+            None,
+            {"test.foo": "redis://127.0.0.1:6379/0"},
+        ),
+        (
+            {"REDIS_URL": "redis://127.0.0.1:6379"},
+            None,
+            None,
+            0,
+            {"test.foo": "redis://127.0.0.1:6379/0"},
+        ),
+        (
+            {"REDIS_URL": "redis://127.0.0.1:6379"},
+            None,
+            None,
+            1,
+            {"test.foo": "redis://127.0.0.1:6379/1"},
+        ),
+        ({}, None, None, None, {}),
+        ({}, None, None, 0, {}),
+        ({}, None, None, 1, {}),
+        (
+            {"REDIS_URL": "redis://127.0.0.1:6379"},
+            str,
+            None,
+            None,
+            {"test.foo": "redis://127.0.0.1:6379/0"},
+        ),
+        (
+            {"REDIS_URL": "redis://127.0.0.1:6379"},
+            str,
+            None,
+            0,
+            {"test.foo": "redis://127.0.0.1:6379/0"},
+        ),
+        (
+            {"REDIS_URL": "redis://127.0.0.1:6379"},
+            str,
+            None,
+            1,
+            {"test.foo": "redis://127.0.0.1:6379/1"},
+        ),
+        ({}, str, None, None, {}),
+        ({}, str, None, 0, {}),
+        (
+            {},
+            str,
+            "redis://127.0.0.1:6379/6",
+            1,
+            {"test.foo": "redis://127.0.0.1:6379/6"},
+        ),
+        (
+            {"REDIS_URL": "redis://127.0.0.1:6379/6"},
+            str,
+            None,
+            9,
+            {"test.foo": "redis://127.0.0.1:6379/9"},
+        ),
+        (
+            {"REDIS_URL": "rediss://foo:bar@example.com:6379/6?fizz=buzz&wu=tang"},
+            str,
+            None,
+            9,
+            {"test.foo": "rediss://foo:bar@example.com:6379/9?fizz=buzz&wu=tang"},
+        ),
+    ],
+)
+def test_maybe_set_redis(monkeypatch, environ, coercer, default, db, expected):
+    for key, value in environ.items():
+        monkeypatch.setenv(key, value)
+    settings = {}
+    config.maybe_set_redis(
+        settings, "test.foo", "REDIS_URL", coercer=coercer, default=default, db=db
+    )
+    assert settings == expected
+
+
+@pytest.mark.parametrize(
     ("settings", "environment"),
     [
         (None, config.Environment.production),
@@ -207,6 +290,7 @@ def test_configure(monkeypatch, settings, environment):
         whitenoise_add_manifest=pretend.call_recorder(lambda *a, **kw: None),
         scan=pretend.call_recorder(lambda categories, ignore: None),
         commit=pretend.call_recorder(lambda: None),
+        add_view_deriver=pretend.call_recorder(lambda *a, **kw: None),
     )
     configurator_cls = pretend.call_recorder(lambda settings: configurator_obj)
     monkeypatch.setattr(config, "Configurator", configurator_cls)
@@ -250,7 +334,7 @@ def test_configure(monkeypatch, settings, environment):
         "warehouse.packaging.project_create_user_ratelimit_string": "20 per hour",
         "warehouse.packaging.project_create_ip_ratelimit_string": "40 per hour",
         "oidc.backend": "warehouse.oidc.services.OIDCPublisherService",
-        "attestations.backend": "warehouse.attestations.services.IntegrityService",
+        "integrity.backend": "warehouse.attestations.services.IntegrityService",
         "warehouse.organizations.max_undecided_organization_applications": 3,
         "reconcile_file_storages.batch_size": 100,
         "metadata_backfill.batch_size": 500,
@@ -275,6 +359,7 @@ def test_configure(monkeypatch, settings, environment):
                         "RequestVarsDebugPanel"
                     ),
                     "pyramid_debugtoolbar.panels.renderings.RenderingsDebugPanel",
+                    "pyramid_debugtoolbar.panels.session.SessionDebugPanel",
                     "pyramid_debugtoolbar.panels.logger.LoggingPanel",
                     (
                         "pyramid_debugtoolbar.panels.performance."
@@ -349,7 +434,6 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".accounts"),
             pretend.call(".macaroons"),
             pretend.call(".oidc"),
-            pretend.call(".attestations"),
             pretend.call(".manage"),
             pretend.call(".organizations"),
             pretend.call(".subscriptions"),
@@ -448,6 +532,13 @@ def test_configure(monkeypatch, settings, environment):
         pretend.call("json", json_renderer_obj),
         pretend.call("xmlrpc", xmlrpc_renderer_obj),
     ]
+    assert configurator_obj.add_view_deriver.calls == [
+        pretend.call(
+            config.reject_duplicate_post_keys_view,
+            over="rendered_view",
+            under="decorated_view",
+        )
+    ]
 
     assert json_renderer_cls.calls == [
         pretend.call(
@@ -483,8 +574,12 @@ def test_root_factory_access_control_list():
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
                 Permissions.AdminOrganizationsWrite,
+                Permissions.AdminProhibitedEmailDomainsRead,
+                Permissions.AdminProhibitedEmailDomainsWrite,
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedProjectsWrite,
+                Permissions.AdminProhibitedUsernameRead,
+                Permissions.AdminProhibitedUsernameWrite,
                 Permissions.AdminProjectsDelete,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminProjectsSetLimit,
@@ -511,7 +606,9 @@ def test_root_factory_access_control_list():
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
+                Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedProjectsRead,
+                Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminProjectsSetLimit,
                 Permissions.AdminRoleAdd,
@@ -535,7 +632,9 @@ def test_root_factory_access_control_list():
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
+                Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedProjectsRead,
+                Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminProjectsSetLimit,
                 Permissions.AdminRoleAdd,

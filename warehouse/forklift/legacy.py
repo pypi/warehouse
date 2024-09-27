@@ -29,7 +29,13 @@ import sentry_sdk
 import wtforms
 import wtforms.validators
 
-from pypi_attestations import Attestation, Distribution
+from pydantic import TypeAdapter, ValidationError
+from pypi_attestations import (
+    Attestation,
+    AttestationType,
+    Distribution,
+    VerificationError,
+)
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPException,
@@ -41,11 +47,11 @@ from pyramid.httpexceptions import (
 )
 from pyramid.request import Request
 from pyramid.view import view_config
+from sigstore.verify import Verifier
 from sqlalchemy import and_, exists, func, orm
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.attestations import AttestationUploadError, IIntegrityService
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
@@ -57,7 +63,7 @@ from warehouse.macaroons.models import Macaroon
 from warehouse.metrics import IMetricsService
 from warehouse.oidc.views import is_from_reusable_workflow
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
-from warehouse.packaging.metadata_verification import verify_url
+from warehouse.packaging.metadata_verification import verify_email, verify_url
 from warehouse.packaging.models import (
     Dependency,
     DependencyKind,
@@ -254,38 +260,55 @@ def _is_valid_dist_file(filename, filetype):
     a valid distribution file.
     """
 
-    # If our file is a zipfile, then ensure that it's members are only
-    # compressed with supported compression methods.
-    if zipfile.is_zipfile(filename):
-        # Ensure the compression ratio is not absurd (decompression bomb)
-        compressed_size = os.stat(filename).st_size
-        with zipfile.ZipFile(filename) as zfp:
-            decompressed_size = sum(e.file_size for e in zfp.infolist())
-        if (
-            decompressed_size > COMPRESSION_RATIO_MIN_SIZE
-            and decompressed_size / compressed_size > COMPRESSION_RATIO_THRESHOLD
-        ):
-            sentry_sdk.capture_message(
-                f"File {filename} ({filetype}) exceeds compression ratio "
-                f"of {COMPRESSION_RATIO_THRESHOLD} "
-                f"({decompressed_size}/{compressed_size})"
-            )
+    if filename.endswith((".zip", ".whl")):
+        if not zipfile.is_zipfile(filename):
             return False
-
-        # Check that the compression type is valid
-        with zipfile.ZipFile(filename) as zfp:
-            for zinfo in zfp.infolist():
-                if zinfo.compress_type not in {
-                    zipfile.ZIP_STORED,
-                    zipfile.ZIP_DEFLATED,
-                }:
+        # Ensure that this is a valid zip file, and that it has a
+        # PKG-INFO or WHEEL file.
+        try:
+            with zipfile.ZipFile(filename) as zfp:
+                # Ensure that the compression ratio is not absurd (decompression bomb)
+                compressed_size = os.stat(filename).st_size
+                decompressed_size = sum(e.file_size for e in zfp.infolist())
+                if (
+                    decompressed_size > COMPRESSION_RATIO_MIN_SIZE
+                    and decompressed_size / compressed_size
+                    > COMPRESSION_RATIO_THRESHOLD
+                ):
+                    sentry_sdk.capture_message(
+                        f"File {filename} ({filetype}) exceeds compression ratio "
+                        f"of {COMPRESSION_RATIO_THRESHOLD} "
+                        f"({decompressed_size}/{compressed_size})"
+                    )
                     return False
 
-    if filename.endswith(".tar.gz"):
+                # Check that the compression type is valid
+                for zinfo in zfp.infolist():
+                    if zinfo.compress_type not in {
+                        zipfile.ZIP_STORED,
+                        zipfile.ZIP_DEFLATED,
+                    }:
+                        return False
+
+                # Check that the right files are present
+                for zipname in zfp.namelist():
+                    _, tail = os.path.split(zipname)
+                    if filename.endswith(".zip") and tail == "PKG-INFO":
+                        break
+                    if filename.endswith(".whl") and tail == "WHEEL":
+                        break
+                else:
+                    return False
+
+        except zipfile.BadZipFile:  # pragma: no cover
+            return False
+
+    elif filename.endswith(".tar.gz"):
+        if not tarfile.is_tarfile(filename):
+            return False
+        # Ensure that this is a valid tar file, and that it contains PKG-INFO.
         # TODO: Ideally Ensure the compression ratio is not absurd
         # (decompression bomb), like we do for wheel/zip above.
-
-        # Ensure that this is a valid tar file, and that it contains PKG-INFO.
         try:
             with tarfile.open(filename, "r:gz") as tar:
                 # This decompresses the entire stream to validate it and the
@@ -293,45 +316,13 @@ def _is_valid_dist_file(filename, filetype):
                 bad_tar = True
                 member = tar.next()
                 while member:
-                    parts = os.path.split(member.name)
-                    if len(parts) == 2 and parts[1] == "PKG-INFO":
+                    _, tail = os.path.split(member.name)
+                    if tail == "PKG-INFO":
                         bad_tar = False
                     member = tar.next()
                 if bad_tar:
                     return False
         except (tarfile.ReadError, EOFError):
-            return False
-    elif filename.endswith(".zip"):
-        # Ensure that the .zip is a valid zip file, and that it has a
-        # PKG-INFO file.
-        try:
-            with zipfile.ZipFile(filename, "r") as zfp:
-                for zipname in zfp.namelist():
-                    parts = os.path.split(zipname)
-                    if len(parts) == 2 and parts[1] == "PKG-INFO":
-                        # We need the no branch below to work around a bug in
-                        # coverage.py where it's detecting a missed branch
-                        # where there isn't one.
-                        break
-                else:
-                    return False
-        except zipfile.BadZipFile:
-            return False
-    elif filename.endswith(".whl"):
-        # Ensure that the .whl is a valid zip file, and that it has a WHEEL
-        # file.
-        try:
-            with zipfile.ZipFile(filename, "r") as zfp:
-                for zipname in zfp.namelist():
-                    parts = os.path.split(zipname)
-                    if len(parts) == 2 and parts[1] == "WHEEL":
-                        # We need the no branch below to work around a bug in
-                        # coverage.py where it's detecting a missed branch
-                        # where there isn't one.
-                        break
-                else:
-                    return False
-        except zipfile.BadZipFile:
             return False
 
     # If we haven't yet decided it's not valid, then we'll assume it is and
@@ -368,6 +359,88 @@ def _is_duplicate_file(db_session, filename, hashes):
         )
 
     return None
+
+
+def _process_attestations(request, distribution: Distribution):
+    """
+    Process any attestations included in a file upload request
+
+    Attestations, if present, will be parsed and verified against the uploaded
+    artifact. Attestations are only allowed when uploading via a Trusted
+    Publisher, because a Trusted Publisher provides the identity that will be
+    used to verify the attestations.
+    Currently, only GitHub Actions Trusted Publishers are supported, and
+    attestations are discarded after verification.
+    """
+
+    metrics = request.find_service(IMetricsService, context=None)
+
+    publisher = request.oidc_publisher
+    if not publisher or not publisher.publisher_name == "GitHub":
+        raise _exc_with_message(
+            HTTPBadRequest,
+            "Attestations are currently only supported when using Trusted "
+            "Publishing with GitHub Actions.",
+        )
+    try:
+        attestations = TypeAdapter(list[Attestation]).validate_json(
+            request.POST["attestations"]
+        )
+    except ValidationError as e:
+        # Log invalid (malformed) attestation upload
+        metrics.increment("warehouse.upload.attestations.malformed")
+        raise _exc_with_message(
+            HTTPBadRequest,
+            f"Error while decoding the included attestation: {e}",
+        )
+
+    if len(attestations) > 1:
+        metrics.increment("warehouse.upload.attestations.failed_multiple_attestations")
+        raise _exc_with_message(
+            HTTPBadRequest,
+            "Only a single attestation per-file is supported at the moment.",
+        )
+
+    verification_policy = publisher.publisher_verification_policy(request.oidc_claims)
+    for attestation_model in attestations:
+        try:
+            # For now, attestations are not stored, just verified
+            predicate_type, _ = attestation_model.verify(
+                Verifier.production(),
+                verification_policy,
+                distribution,
+            )
+        except VerificationError as e:
+            # Log invalid (failed verification) attestation upload
+            metrics.increment("warehouse.upload.attestations.failed_verify")
+            raise _exc_with_message(
+                HTTPBadRequest,
+                f"Could not verify the uploaded artifact using the included "
+                f"attestation: {e}",
+            )
+        except Exception as e:
+            with sentry_sdk.new_scope() as scope:
+                scope.fingerprint = [e]
+                sentry_sdk.capture_message(
+                    f"Unexpected error while verifying attestation: {e}"
+                )
+
+            raise _exc_with_message(
+                HTTPBadRequest,
+                f"Unknown error while trying to verify included attestations: {e}",
+            )
+
+        if predicate_type != AttestationType.PYPI_PUBLISH_V1:
+            metrics.increment(
+                "warehouse.upload.attestations.failed_unsupported_predicate_type"
+            )
+            raise _exc_with_message(
+                HTTPBadRequest,
+                f"Attestation with unsupported predicate type: {predicate_type}",
+            )
+
+        # Log successful attestation upload
+        metrics.increment("warehouse.upload.attestations.ok")
 
 
 def _sort_releases(request: Request, project: Project):
@@ -414,6 +487,7 @@ def _sort_releases(request: Request, project: Project):
     require_csrf=False,
     require_methods=["POST"],
     has_translations=True,
+    permit_duplicate_post_keys=True,
 )
 def file_upload(request):
     # This is a list of warnings that we'll emit *IF* the request is successful.
@@ -771,6 +845,19 @@ def file_upload(request):
         )
     )
 
+    author_email = meta.author_email
+    author_email_verified = (
+        False
+        if author_email is None
+        else verify_email(email=author_email, project=project)
+    )
+    maintainer_email = meta.maintainer_email
+    maintainer_email_verified = (
+        False
+        if maintainer_email is None
+        else verify_email(email=maintainer_email, project=project)
+    )
+
     try:
         is_new_release = False
         canonical_version = packaging.utils.canonicalize_version(meta.version)
@@ -831,6 +918,10 @@ def file_upload(request):
             download_url=download_url,
             download_url_verified=download_url_verified,
             project_urls=project_urls,
+            author_email=author_email,
+            author_email_verified=author_email_verified,
+            maintainer_email=maintainer_email,
+            maintainer_email_verified=maintainer_email_verified,
             # TODO: Fix this, we currently treat platform as if it is a single
             #       use field, but in reality it is a multi-use field, which the
             #       packaging.metadata library handles correctly.
@@ -857,9 +948,7 @@ def file_upload(request):
                     "summary",
                     "license",
                     "author",
-                    "author_email",
                     "maintainer",
-                    "maintainer_email",
                     "provides_extra",
                 }
             },
@@ -1163,6 +1252,14 @@ def file_upload(request):
                 k: h.hexdigest().lower() for k, h in metadata_file_hashes.items()
             }
 
+        if "attestations" in request.POST and not request.flags.enabled(
+            AdminFlagValue.DISABLE_PEP740
+        ):
+            _process_attestations(
+                request=request,
+                distribution=Distribution(name=filename, digest=file_hashes["sha256"]),
+            )
+
         # TODO: This should be handled by some sort of database trigger or a
         #       SQLAlchemy hook or the like instead of doing it inline in this
         #       view.
@@ -1258,26 +1355,6 @@ def file_upload(request):
                     "python-version": file_.python_version,
                 },
             )
-
-        # If the user provided attestations, verify and store them
-        if "attestations" in request.POST:
-            integrity_service = request.find_service(IIntegrityService, context=None)
-
-            try:
-                attestations: list[Attestation] = integrity_service.parse_attestations(
-                    request,
-                    Distribution(name=filename, digest=file_hashes["sha256"]),
-                )
-            except AttestationUploadError as e:
-                raise _exc_with_message(
-                    HTTPBadRequest,
-                    str(e),
-                )
-
-            integrity_service.generate_provenance(request, file_, attestations)
-
-            # Log successful attestation upload
-            metrics.increment("warehouse.upload.attestations.ok")
 
     # For existing releases, we check if any of the existing project URLs are unverified
     # and have been verified in the current upload. In that case, we mark them as

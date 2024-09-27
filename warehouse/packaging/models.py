@@ -62,6 +62,7 @@ from urllib3.util import parse_url
 
 from warehouse import db
 from warehouse.accounts.models import User
+from warehouse.attestations.models import Provenance
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.events.models import HasEvents
@@ -81,7 +82,6 @@ from warehouse.utils.attrs import make_repr
 from warehouse.utils.db.types import bool_false, datetime_now
 
 if typing.TYPE_CHECKING:
-    from warehouse.attestations.models import Attestation
     from warehouse.oidc.models import OIDCPublisher
 
 _MONOTONIC_SEQUENCE = 42
@@ -233,6 +233,11 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
         order_by=lambda: Release._pypi_ordering.desc(),
         passive_deletes=True,
     )
+    alternate_repositories: Mapped[list[AlternateRepository]] = orm.relationship(
+        cascade="all, delete-orphan",
+        back_populates="project",
+        passive_deletes=True,
+    )
 
     __table_args__ = (
         CheckConstraint(
@@ -296,6 +301,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                     Permissions.AdminObservationsRead,
                     Permissions.AdminObservationsWrite,
                     Permissions.AdminProhibitedProjectsWrite,
+                    Permissions.AdminProhibitedUsernameWrite,
                     Permissions.AdminProjectsDelete,
                     Permissions.AdminProjectsRead,
                     Permissions.AdminProjectsSetLimit,
@@ -407,6 +413,23 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             orm.object_session(self)
             .query(User)
             .join(owner_roles, User.id == owner_roles.c.id)
+            .all()
+        )
+
+    @property
+    def maintainers(self):
+        """Return all users who are maintainers of the project."""
+        maintainer_roles = (
+            orm.object_session(self)
+            .query(User.id)
+            .join(Role.user)
+            .filter(Role.role_name == "Maintainer", Role.project == self)
+            .subquery()
+        )
+        return (
+            orm.object_session(self)
+            .query(User)
+            .join(maintainer_roles, User.id == maintainer_roles.c.id)
             .all()
         )
 
@@ -557,8 +580,10 @@ class Release(HasObservations, db.Model):
     is_prerelease: Mapped[bool_false]
     author: Mapped[str | None]
     author_email: Mapped[str | None]
+    author_email_verified: Mapped[bool_false]
     maintainer: Mapped[str | None]
     maintainer_email: Mapped[str | None]
+    maintainer_email_verified: Mapped[bool_false]
     home_page: Mapped[str | None]
     home_page_verified: Mapped[bool_false]
     license: Mapped[str | None]
@@ -711,17 +736,18 @@ class Release(HasObservations, db.Model):
                 _urls[name] = url
         return _urls
 
-    @property
-    def verified_user_name_and_repo_name(self):
+    def verified_user_name_and_repo_name(
+        self, domains: set[str], reserved_names: typing.Sequence[str] | None = None
+    ):
         for _, url in self.urls_by_verify_status(verified=True).items():
             try:
                 parsed = parse_url(url)
             except LocationParseError:
                 continue
             segments = parsed.path.strip("/").split("/") if parsed.path else []
-            if parsed.netloc in {"github.com", "www.github.com"} and len(segments) >= 2:
+            if parsed.netloc in domains and len(segments) >= 2:
                 user_name, repo_name = segments[:2]
-                if user_name in GITHUB_RESERVED_NAMES:
+                if reserved_names and user_name in reserved_names:
                     continue
                 if repo_name.endswith(".git"):
                     repo_name = repo_name.removesuffix(".git")
@@ -729,19 +755,37 @@ class Release(HasObservations, db.Model):
         return None, None
 
     @property
+    def verified_github_user_name_and_repo_name(self):
+        return self.verified_user_name_and_repo_name(
+            {"github.com", "www.github.com"}, GITHUB_RESERVED_NAMES
+        )
+
+    @property
     def verified_github_repo_info_url(self):
-        user_name, repo_name = self.verified_user_name_and_repo_name
+        user_name, repo_name = self.verified_github_user_name_and_repo_name
         if user_name and repo_name:
             return f"https://api.github.com/repos/{user_name}/{repo_name}"
 
     @property
     def verified_github_open_issue_info_url(self):
-        user_name, repo_name = self.verified_user_name_and_repo_name
+        user_name, repo_name = self.verified_github_user_name_and_repo_name
         if user_name and repo_name:
             return (
                 f"https://api.github.com/search/issues?q=repo:{user_name}/{repo_name}"
                 "+type:issue+state:open&per_page=1"
             )
+
+    @property
+    def verified_gitlab_user_name_and_repo_name(self):
+        return self.verified_user_name_and_repo_name({"gitlab.com", "www.gitlab.com"})
+
+    @property
+    def verified_gitlab_repository(self):
+        user_name, repo_name = self.verified_gitlab_user_name_and_repo_name
+        if user_name and repo_name:
+            return f"{user_name}/{repo_name}"
+
+        return None
 
     @property
     def has_meta(self):
@@ -840,8 +884,8 @@ class File(HasEvents, db.Model):
         comment="If True, the metadata for the file cannot be backfilled.",
     )
 
-    # PEP 740 attestations
-    attestations: Mapped[list[Attestation]] = orm.relationship(
+    # PEP 740
+    provenance: Mapped[Provenance] = orm.relationship(
         cascade="all, delete-orphan",
         lazy="joined",
         passive_deletes=True,
@@ -1005,3 +1049,34 @@ class ProjectMacaroonWarningAssociation(db.Model):
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         primary_key=True,
     )
+
+
+class AlternateRepository(db.Model):
+    """
+    Store an alternate repository name, url, description for a project.
+    One project can have zero, one, or more alternate repositories.
+
+    For each project, ensures the url and name are unique.
+    Urls must start with http(s).
+    """
+
+    __tablename__ = "alternate_repositories"
+    __table_args__ = (
+        UniqueConstraint("project_id", "url"),
+        UniqueConstraint("project_id", "name"),
+        CheckConstraint(
+            "url ~* '^https?://.+'::text",
+            name="alternate_repository_valid_url",
+        ),
+    )
+
+    __repr__ = make_repr("name", "url")
+
+    project_id: Mapped[UUID] = mapped_column(
+        ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
+    )
+    project: Mapped[Project] = orm.relationship(back_populates="alternate_repositories")
+
+    name: Mapped[str]
+    url: Mapped[str]
+    description: Mapped[str]

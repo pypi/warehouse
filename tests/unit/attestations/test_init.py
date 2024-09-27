@@ -19,9 +19,7 @@ from warehouse.attestations.interfaces import IIntegrityService
 def test_includeme():
     fake_service_klass = pretend.stub(create_service=pretend.stub())
     config = pretend.stub(
-        registry=pretend.stub(
-            settings={"attestations.backend": "fake.path.to.backend"}
-        ),
+        registry=pretend.stub(settings={"integrity.backend": "fake.path.to.backend"}),
         maybe_dotted=pretend.call_recorder(
             lambda attr: fake_service_klass,
         ),

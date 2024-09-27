@@ -277,6 +277,10 @@ class GitHubPublisherMixin:
             return f"{base}/commit/{sha}"
         return base
 
+    @property
+    def supports_attestations(self) -> bool:
+        return True
+
     def publisher_verification_policy(self, claims):
         """
         Get the policy used to verify attestations signed with GitHub Actions.

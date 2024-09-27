@@ -234,17 +234,10 @@ class TestGitHubPublisher:
         }
 
     def test_github_publisher_unaccounted_claims(self, monkeypatch):
-        publisher = github.GitHubPublisher(
-            repository_name="fakerepo",
-            repository_owner="fakeowner",
-            repository_owner_id="fakeid",
-            workflow_filename="fakeworkflow.yml",
-        )
-
         scope = pretend.stub()
         sentry_sdk = pretend.stub(
             capture_message=pretend.call_recorder(lambda s: None),
-            push_scope=pretend.call_recorder(
+            new_scope=pretend.call_recorder(
                 lambda: pretend.stub(
                     __enter__=lambda *a: scope, __exit__=lambda *a: None
                 )
@@ -259,11 +252,8 @@ class TestGitHubPublisher:
         }
         signed_claims["fake-claim"] = "fake"
         signed_claims["another-fake-claim"] = "also-fake"
-        with pytest.raises(errors.InvalidPublisherError) as e:
-            publisher.verify_claims(
-                signed_claims=signed_claims, publisher_service=pretend.stub()
-            )
-        assert str(e.value) == "Check failed for required claim 'sub'"
+
+        github.GitHubPublisher.check_claims_existence(signed_claims)
         assert sentry_sdk.capture_message.calls == [
             pretend.call(
                 "JWT for GitHubPublisher has unaccounted claims: "
@@ -272,7 +262,11 @@ class TestGitHubPublisher:
         ]
         assert scope.fingerprint == ["another-fake-claim", "fake-claim"]
 
-    @pytest.mark.parametrize("missing", ["sub", "ref"])
+    @pytest.mark.parametrize(
+        "missing",
+        github.GitHubPublisher.__required_verifiable_claims__.keys()
+        | github.GitHubPublisher.__required_unverifiable_claims__,
+    )
     def test_github_publisher_missing_claims(self, monkeypatch, missing):
         publisher = github.GitHubPublisher(
             repository_name="fakerepo",
@@ -284,7 +278,7 @@ class TestGitHubPublisher:
         scope = pretend.stub()
         sentry_sdk = pretend.stub(
             capture_message=pretend.call_recorder(lambda s: None),
-            push_scope=pretend.call_recorder(
+            new_scope=pretend.call_recorder(
                 lambda: pretend.stub(
                     __enter__=lambda *a: scope, __exit__=lambda *a: None
                 )
@@ -301,9 +295,7 @@ class TestGitHubPublisher:
         assert missing not in signed_claims
         assert publisher.__required_verifiable_claims__
         with pytest.raises(errors.InvalidPublisherError) as e:
-            publisher.verify_claims(
-                signed_claims=signed_claims, publisher_service=pretend.stub()
-            )
+            github.GitHubPublisher.check_claims_existence(signed_claims)
         assert str(e.value) == f"Missing claim {missing!r}"
         assert sentry_sdk.capture_message.calls == [
             pretend.call(f"JWT for GitHubPublisher is missing claim: {missing}")
@@ -376,6 +368,7 @@ class TestGitHubPublisher:
             for claim_name in github.GitHubPublisher.all_known_claims()
             if claim_name not in missing_claims
         }
+        github.GitHubPublisher.check_claims_existence(signed_claims)
         assert publisher.verify_claims(
             signed_claims=signed_claims, publisher_service=pretend.stub()
         )

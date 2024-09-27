@@ -9,20 +9,23 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import hashlib
+"""
+rollback attestations again
 
-import factory
+Revision ID: dcf1e3986782
+Revises: 4037669366ca
+Create Date: 2024-09-03 18:04:17.149056
+"""
 
-from warehouse.attestations.models import Attestation
+from alembic import op
 
-from .base import WarehouseFactory
+revision = "dcf1e3986782"
+down_revision = "4037669366ca"
 
 
-class AttestationFactory(WarehouseFactory):
-    class Meta:
-        model = Attestation
+def upgrade():
+    op.drop_table("attestation")
 
-    file = factory.SubFactory("tests.common.db.packaging.FileFactory")
-    attestation_file_blake2_digest = factory.LazyAttribute(
-        lambda o: hashlib.blake2b(o.file.filename.encode("utf8")).hexdigest()
-    )
+
+def downgrade():
+    pass

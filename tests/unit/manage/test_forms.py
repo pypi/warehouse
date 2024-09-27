@@ -19,6 +19,7 @@ from webob.multidict import MultiDict
 import warehouse.utils.otp as otp
 import warehouse.utils.webauthn as webauthn
 
+from warehouse.accounts.models import ProhibitedEmailDomain
 from warehouse.manage import forms
 
 from ...common.db.packaging import ProjectFactory
@@ -169,12 +170,13 @@ class TestSaveAccountForm:
 
 
 class TestAddEmailForm:
-    def test_validate(self):
+    def test_validate(self, metrics):
         user_id = pretend.stub()
         user_service = pretend.stub(find_userid_by_email=lambda _: None)
         form = forms.AddEmailForm(
             request=pretend.stub(
-                db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False))
+                db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False)),
+                metrics=metrics,
             ),
             formdata=MultiDict({"email": "foo@bar.com"}),
             user_id=user_id,
@@ -240,11 +242,112 @@ class TestAddEmailForm:
             "Use a different email."
         )
 
-    def test_email_too_long_error(self, pyramid_config):
-        form = forms.AddEmailForm(
-            request=pretend.stub(
-                db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False))
+    @pytest.mark.parametrize(
+        ("email_address", "mx_record_domain", "prohibited_domain"),
+        [
+            ("foo@wutang.net", "in.mail.net", "mail.net"),
+            (
+                "foo@outlook.com",
+                "outlook-com.mail.protection.outlook.com",
+                "outlook.com",
             ),
+        ],
+    )
+    def test_prohibited_mx_domain_error(
+        self,
+        monkeypatch,
+        db_request,
+        email_address,
+        mx_record_domain,
+        prohibited_domain,
+    ):
+        """
+        Similar to `test_prohibited_email_error()`, checking the MX domain.
+        """
+        mock_deliverability_info = {"mx": [(10, mx_record_domain)]}
+
+        def mock_function(*args, **kwargs):
+            return mock_deliverability_info
+
+        monkeypatch.setattr(
+            "email_validator.deliverability.validate_email_deliverability",
+            mock_function,
+        )
+
+        prohibited_mx_domain = ProhibitedEmailDomain(
+            domain=prohibited_domain,
+            is_mx_record=True,
+        )
+        db_request.db.add(prohibited_mx_domain)
+
+        form = forms.AddEmailForm(
+            request=db_request,
+            formdata=MultiDict({"email": email_address}),
+            user_service=pretend.stub(find_userid_by_email=lambda _: None),
+            user_id=pretend.stub(),
+        )
+
+        assert not form.validate()
+        assert (
+            str(form.email.errors.pop())
+            == "You can't use an email address from this domain. "
+            "Use a different email."
+        )
+
+    @pytest.mark.parametrize(
+        ("email_address", "mx_record_domain", "prohibited_domain"),
+        [
+            (
+                "foo@microsoft.com",
+                "microsoft-com.mail.protection.outlook.com",
+                "outlook.com",
+            ),
+        ],
+    )
+    def test_prohibited_mx_domain_passes(
+        self,
+        monkeypatch,
+        db_request,
+        email_address,
+        mx_record_domain,
+        prohibited_domain,
+    ):
+        """
+        Similar to `test_prohibited_email_error()`, allowing if:
+          - the `registered_domain` part of the email address is **not** prohibited
+          - the `registered_domain` part of the MX record is prohibited
+
+        This is to allow for cases where the email address that shares MX records with a
+        prohibited domain is not itself prohibited.
+        """
+        mock_deliverability_info = {"mx": [(10, mx_record_domain)]}
+
+        def mock_function(*args, **kwargs):
+            return mock_deliverability_info
+
+        monkeypatch.setattr(
+            "email_validator.deliverability.validate_email_deliverability",
+            mock_function,
+        )
+
+        prohibited_mx_domain = ProhibitedEmailDomain(
+            domain=prohibited_domain,
+            is_mx_record=False,
+        )
+        db_request.db.add(prohibited_mx_domain)
+
+        form = forms.AddEmailForm(
+            request=db_request,
+            formdata=MultiDict({"email": email_address}),
+            user_service=pretend.stub(find_userid_by_email=lambda _: None),
+            user_id=pretend.stub(),
+        )
+
+        assert form.validate()
+
+    def test_email_too_long_error(self, pyramid_request):
+        form = forms.AddEmailForm(
+            request=pyramid_request,
             formdata=MultiDict({"email": f"{'x' * 300}@bar.com"}),
             user_service=pretend.stub(find_userid_by_email=lambda _: None),
             user_id=pretend.stub(),
@@ -252,7 +355,7 @@ class TestAddEmailForm:
 
         assert not form.validate()
         assert (
-            str(form.email.errors.pop()) == "The email address is too long. Try again."
+            str(form.email.errors.pop()) == "The email address isn't valid. Try again."
         )
 
 

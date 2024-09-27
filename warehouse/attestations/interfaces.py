@@ -10,9 +10,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pypi_attestations import Attestation, Distribution, Provenance
-from pyramid.request import Request
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from zope.interface import Interface
+
+if TYPE_CHECKING:
+    from pypi_attestations import Attestation, Distribution
+    from pyramid.request import Request
+
+    from warehouse.attestations.models import Provenance
 
 
 class IIntegrityService(Interface):
@@ -25,18 +33,11 @@ class IIntegrityService(Interface):
         request: Request, distribution: Distribution
     ) -> list[Attestation]:
         """
-        Process any attestations included in a file upload request
+        Process any attestations included in a file upload request.
         """
 
-    def generate_provenance(
-        request, file, attestations: list[Attestation]
-    ) -> Provenance | None:
+    def build_provenance(request, file, attestations: list[Attestation]) -> Provenance:
         """
-        Generate and persist a Provenance object for the given file and list of
-        associated attestations.
-        """
-
-    def get_provenance_digest(file) -> str | None:
-        """
-        Compute a provenance file digest for a `File` if it exists.
+        Construct and persist a provenance object composed of the given attestations,
+        and attach it to the given file.
         """

@@ -51,8 +51,12 @@ class TestOIDCPublisher:
         publisher = _core.OIDCPublisher(projects=[])
 
         with pytest.raises(errors.InvalidPublisherError) as e:
-            publisher.verify_claims(signed_claims={}, publisher_service=pretend.stub())
+            publisher.check_claims_existence(signed_claims={})
         assert str(e.value) == "No required verifiable claims"
+
+    def test_supports_attestations(self):
+        publisher = _core.OIDCPublisher(projects=[])
+        assert not publisher.supports_attestations
 
     @pytest.mark.parametrize(
         ("url", "publisher_url", "expected"),

@@ -12,12 +12,14 @@
 
 import base64
 import enum
+import functools
 import json
 import os
 import secrets
 import shlex
 
 from datetime import timedelta
+from urllib.parse import urlparse, urlunparse
 
 import orjson
 import platformdirs
@@ -27,6 +29,7 @@ from pyramid import renderers
 from pyramid.authorization import Allow, Authenticated
 from pyramid.config import Configurator as _Configurator
 from pyramid.exceptions import HTTPForbidden
+from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.settings import asbool
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
@@ -84,8 +87,12 @@ class RootFactory:
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
                 Permissions.AdminOrganizationsWrite,
+                Permissions.AdminProhibitedEmailDomainsRead,
+                Permissions.AdminProhibitedEmailDomainsWrite,
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedProjectsWrite,
+                Permissions.AdminProhibitedUsernameRead,
+                Permissions.AdminProhibitedUsernameWrite,
                 Permissions.AdminProjectsDelete,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminProjectsSetLimit,
@@ -112,7 +119,9 @@ class RootFactory:
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
+                Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedProjectsRead,
+                Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminProjectsSetLimit,
                 Permissions.AdminRoleAdd,
@@ -136,7 +145,9 @@ class RootFactory:
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
+                Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedProjectsRead,
+                Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminProjectsSetLimit,
                 Permissions.AdminRoleAdd,
@@ -238,8 +249,55 @@ def maybe_set_compound(settings, base, name, envvar):
             settings[".".join([base, key])] = value
 
 
+def maybe_set_redis(settings, name, envvar, coercer=None, default=None, db=None):
+    """
+    Note on our DB numbering:
+      - General purpose caches and temporary storage should go in 1-9
+      - Celery queues, results, and schedulers should use 10-15
+      - By default Redis only allows use of 0-15, so db should be <16
+    """
+    if envvar in os.environ:
+        value = os.environ[envvar]
+        if coercer is not None:
+            value = coercer(value)
+        parsed_url = urlparse(value)  # noqa: WH001, we're going to urlunparse this
+        parsed_url = parsed_url._replace(path=(str(db) if db is not None else "0"))
+        value = urlunparse(parsed_url)
+        settings.setdefault(name, value)
+    elif default is not None:
+        settings.setdefault(name, default)
+
+
 def from_base64_encoded_json(configuration):
     return json.loads(base64.urlsafe_b64decode(configuration.encode("ascii")))
+
+
+def reject_duplicate_post_keys_view(view, info):
+    if info.options.get("permit_duplicate_post_keys") or info.exception_only:
+        return view
+
+    else:
+        # If this isn't an exception or hasn't been permitted to have duplicate
+        # POST keys, wrap the view with a check
+
+        @functools.wraps(view)
+        def wrapped(context, request):
+            if request.POST:
+                # Determine if there are any duplicate keys
+                keys = list(request.POST.keys())
+                if len(keys) != len(set(keys)):
+                    return HTTPBadRequest(
+                        "POST body may not contain duplicate keys "
+                        f"(URL: {request.url!r})"
+                    )
+
+            # Casting succeeded, so just return the regular view
+            return view(context, request)
+
+        return wrapped
+
+
+reject_duplicate_post_keys_view.options = {"permit_duplicate_post_keys"}  # type: ignore
 
 
 def configure(settings=None):
@@ -304,15 +362,16 @@ def configure(settings=None):
     )
     maybe_set(settings, "warehouse.downloads_table", "WAREHOUSE_DOWNLOADS_TABLE")
     maybe_set(settings, "celery.broker_url", "BROKER_URL")
-    maybe_set(settings, "celery.result_url", "REDIS_URL")
-    maybe_set(settings, "celery.scheduler_url", "REDIS_URL")
-    maybe_set(settings, "oidc.jwk_cache_url", "REDIS_URL")
+    maybe_set_redis(settings, "celery.broker_redis_url", "REDIS_URL", db=10)
+    maybe_set_redis(settings, "celery.result_url", "REDIS_URL", db=12)
+    maybe_set_redis(settings, "celery.scheduler_url", "REDIS_URL", db=0)
+    maybe_set_redis(settings, "oidc.jwk_cache_url", "REDIS_URL", db=1)
     maybe_set(settings, "database.url", "DATABASE_URL")
     maybe_set(settings, "opensearch.url", "OPENSEARCH_URL")
     maybe_set(settings, "sentry.dsn", "SENTRY_DSN")
     maybe_set(settings, "sentry.transport", "SENTRY_TRANSPORT")
-    maybe_set(settings, "sessions.url", "REDIS_URL")
-    maybe_set(settings, "ratelimit.url", "REDIS_URL")
+    maybe_set_redis(settings, "sessions.url", "REDIS_URL", db=2)
+    maybe_set_redis(settings, "ratelimit.url", "REDIS_URL", db=3)
     maybe_set(settings, "captcha.backend", "CAPTCHA_BACKEND")
     maybe_set(settings, "recaptcha.site_key", "RECAPTCHA_SITE_KEY")
     maybe_set(settings, "recaptcha.secret_key", "RECAPTCHA_SECRET_KEY")
@@ -337,7 +396,7 @@ def configure(settings=None):
         coercer=asbool,
         default=True,
     )
-    maybe_set(settings, "warehouse.xmlrpc.cache.url", "REDIS_URL")
+    maybe_set_redis(settings, "warehouse.xmlrpc.cache.url", "REDIS_URL", db=4)
     maybe_set(
         settings,
         "warehouse.xmlrpc.client.ratelimit_string",
@@ -407,8 +466,8 @@ def configure(settings=None):
     )
     maybe_set(
         settings,
-        "attestations.backend",
-        "ATTESTATIONS_BACKEND",
+        "integrity.backend",
+        "INTEGRITY_BACKEND",
         default="warehouse.attestations.services.IntegrityService",
     )
 
@@ -466,7 +525,7 @@ def configure(settings=None):
         "warehouse.account.accounts_search_ratelimit_string",
         "ACCOUNTS_SEARCH_RATELIMIT_STRING",
         default="100 per hour",
-    )
+    ),
     maybe_set(
         settings,
         "warehouse.account.password_reset_ratelimit_string",
@@ -526,6 +585,7 @@ def configure(settings=None):
                     "headers.HeaderDebugPanel",
                     "request_vars.RequestVarsDebugPanel",
                     "renderings.RenderingsDebugPanel",
+                    "session.SessionDebugPanel",
                     "logger.LoggingPanel",
                     "performance.PerformanceDebugPanel",
                     "routes.RoutesDebugPanel",
@@ -746,9 +806,6 @@ def configure(settings=None):
     # Register support for OIDC based authentication
     config.include(".oidc")
 
-    # Register support for attestations
-    config.include(".attestations")
-
     # Register logged-in views
     config.include(".manage")
 
@@ -793,6 +850,11 @@ def configure(settings=None):
             "pyramid_debugtoolbar.toolbar_tween_factory",
             EXCVIEW,
         ],
+    )
+
+    # Reject requests with duplicate POST keys
+    config.add_view_deriver(
+        reject_duplicate_post_keys_view, over="rendered_view", under="decorated_view"
     )
 
     # Enable Warehouse to serve our static files
@@ -871,8 +933,8 @@ def configure(settings=None):
     )
 
     # Sanity check our request and responses.
-    # Note: It is very important that this go last. We need everything else that might
-    #       have added a tween to be registered prior to this.
+    # Note: It is very important that this go last. We need everything else
+    # that might have added a tween to be registered prior to this.
     config.include(".sanity")
 
     # Finally, commit all of our changes

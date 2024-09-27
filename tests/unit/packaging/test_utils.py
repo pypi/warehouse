@@ -15,10 +15,12 @@ import tempfile
 
 import pretend
 
-from tests.common.db.attestation import AttestationFactory
-from warehouse.attestations import IIntegrityService
 from warehouse.packaging.interfaces import ISimpleStorage
-from warehouse.packaging.utils import _simple_detail, render_simple_detail
+from warehouse.packaging.utils import (
+    _simple_detail,
+    _valid_simple_detail_context,
+    render_simple_detail,
+)
 
 from ...common.db.packaging import FileFactory, ProjectFactory, ReleaseFactory
 
@@ -32,20 +34,6 @@ def test_simple_detail_empty_string(db_request):
     expected_content = _simple_detail(project, db_request)
 
     assert expected_content["files"][0]["requires-python"] is None
-
-
-def test_simple_detail_with_provenance(db_request, integrity_service):
-    project = ProjectFactory.create()
-    release = ReleaseFactory.create(project=project, version="1.0")
-    file = FileFactory.create(release=release)
-    AttestationFactory.create(file=file)
-
-    db_request.route_url = lambda *a, **kw: "the-url"
-
-    expected_content = _simple_detail(project, db_request)
-    assert expected_content["files"][0][
-        "provenance"
-    ] == integrity_service.get_provenance_digest(file)
 
 
 def test_render_simple_detail(db_request, monkeypatch, jinja):
@@ -65,11 +53,10 @@ def test_render_simple_detail(db_request, monkeypatch, jinja):
     monkeypatch.setattr(hashlib, "blake2b", fakeblake2b)
 
     db_request.route_url = lambda *a, **kw: "the-url"
-
     template = jinja.get_template("templates/api/simple/detail.html")
-    expected_content = template.render(
-        **_simple_detail(project, db_request), request=db_request
-    ).encode("utf-8")
+    context = _simple_detail(project, db_request)
+    context = _valid_simple_detail_context(context)
+    expected_content = template.render(**context, request=db_request).encode("utf-8")
 
     content_hash, path = render_simple_detail(project, db_request)
 
@@ -84,9 +71,7 @@ def test_render_simple_detail(db_request, monkeypatch, jinja):
     )
 
 
-def test_render_simple_detail_with_store(
-    db_request, monkeypatch, jinja, integrity_service
-):
+def test_render_simple_detail_with_store(db_request, monkeypatch, jinja):
     project = ProjectFactory.create()
 
     storage_service = pretend.stub(
@@ -97,7 +82,6 @@ def test_render_simple_detail_with_store(
     db_request.find_service = pretend.call_recorder(
         lambda svc, name=None, context=None: {
             ISimpleStorage: storage_service,
-            IIntegrityService: integrity_service,
         }.get(svc)
     )
 
@@ -127,9 +111,9 @@ def test_render_simple_detail_with_store(
     monkeypatch.setattr(tempfile, "NamedTemporaryFile", FakeNamedTemporaryFile)
 
     template = jinja.get_template("templates/api/simple/detail.html")
-    expected_content = template.render(
-        **_simple_detail(project, db_request), request=db_request
-    ).encode("utf-8")
+    context = _simple_detail(project, db_request)
+    context = _valid_simple_detail_context(context)
+    expected_content = template.render(**context, request=db_request).encode("utf-8")
 
     content_hash, path = render_simple_detail(project, db_request, store=True)
 

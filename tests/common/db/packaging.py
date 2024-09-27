@@ -20,6 +20,7 @@ import packaging.utils
 
 from warehouse.observations.models import ObservationKind
 from warehouse.packaging.models import (
+    AlternateRepository,
     Dependency,
     DependencyKind,
     Description,
@@ -34,7 +35,6 @@ from warehouse.packaging.models import (
 from warehouse.utils import readme
 
 from .accounts import UserFactory
-from .attestation import AttestationFactory
 from .base import WarehouseFactory
 from .observations import ObserverFactory
 
@@ -141,13 +141,6 @@ class FileFactory(WarehouseFactory):
         )
     )
 
-    # Empty attestations by default.
-    attestations = factory.RelatedFactoryList(
-        AttestationFactory,
-        factory_related_name="file",
-        size=0,
-    )
-
 
 class FileEventFactory(WarehouseFactory):
     class Meta:
@@ -208,3 +201,13 @@ class ProhibitedProjectFactory(WarehouseFactory):
     )
     name = factory.Faker("pystr", max_chars=12)
     prohibited_by = factory.SubFactory(UserFactory)
+
+
+class AlternateRepositoryFactory(WarehouseFactory):
+    class Meta:
+        model = AlternateRepository
+
+    name = factory.Faker("word")
+    url = factory.Faker("uri")
+    description = factory.Faker("text")
+    project = factory.SubFactory(ProjectFactory)

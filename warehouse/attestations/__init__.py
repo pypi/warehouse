@@ -10,26 +10,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.attestations.errors import (
-    AttestationUploadError,
-    UnsupportedPublisherError,
-)
 from warehouse.attestations.interfaces import IIntegrityService
-from warehouse.attestations.models import Attestation
-from warehouse.attestations.services import IntegrityService
-
-__all__ = [
-    "Attestation",
-    "AttestationUploadError",
-    "IIntegrityService",
-    "IntegrityService",
-    "UnsupportedPublisherError",
-]
 
 
 def includeme(config):
     integrity_service_class = config.maybe_dotted(
-        config.registry.settings["attestations.backend"]
+        config.registry.settings["integrity.backend"]
     )
     config.register_service_factory(
         integrity_service_class.create_service, IIntegrityService
