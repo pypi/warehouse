@@ -12,7 +12,12 @@
 
 from http import HTTPStatus
 
-from ...common.db.packaging import FileFactory, ProjectFactory, ReleaseFactory
+from ...common.db.packaging import (
+    FileFactory,
+    ProjectFactory,
+    ProvenanceFactory,
+    ReleaseFactory,
+)
 
 
 def test_simple_api_html(webtest):
@@ -34,3 +39,24 @@ def test_simple_api_detail(webtest):
     assert resp.html.h1.string == f"Links for {project.normalized_name}"
     # There should be a link for every file
     assert len(resp.html.find_all("a")) == 2
+
+
+def test_simple_api_has_provenance(webtest):
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project)
+    files = FileFactory.create_batch(2, release=release, packagetype="bdist_wheel")
+
+    for file in files:
+        ProvenanceFactory.create(file=file)
+
+    resp = webtest.get(f"/simple/{project.normalized_name}/", status=HTTPStatus.OK)
+    links = resp.html.find_all("a")
+
+    for link, file in zip(links, files):
+        provenance_url = link.get("data-provenance")
+        assert provenance_url is not None
+
+        assert provenance_url == (
+            f"http://localhost/integrity/{file.release.project.normalized_name}/"
+            f"{file.release.version}/{file.filename}/provenance"
+        )
