@@ -74,5 +74,10 @@ nav:
       - "trusted-publishers/internals.md"
   - "Digital Attestations":
       - "attestations/index.md"
+      - "attestations/producing-attestations.md"
+      - "attestations/consuming-attestations.md"
       - "attestations/publish/v1.md"
   - "project_metadata.md"
+  - "API Reference":
+      - "api/index.md"
+      - "api/integrity.md"
