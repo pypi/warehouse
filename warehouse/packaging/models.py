@@ -15,6 +15,7 @@ import enum
 import typing
 
 from collections import OrderedDict
+from datetime import datetime, timedelta
 from uuid import UUID
 
 import packaging.utils
@@ -459,6 +460,17 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             .first()
         )
 
+    @property
+    def in_deletion_window(self) -> bool:
+        """
+        A project can be deleted by a non-admin owner if it's within its
+        "deletion window," i.e. each of its releases and constituent files
+        are within their respective deletion windows.
+
+        See `Release.in_deletion_window`.
+        """
+        return all(release.in_deletion_window for release in self.releases)
+
 
 class DependencyKind(enum.IntEnum):
     requires = 1
@@ -812,6 +824,18 @@ class Release(HasObservations, db.Model):
             return False
         return all(file.uploaded_via_trusted_publisher for file in files)
 
+    @property
+    def in_deletion_window(self) -> bool:
+        """
+        A release can be deleted by a non-admin owner if its within its
+        "deletion window," i.e. each of its files is within its respective
+        deletion window.
+
+        See `File.in_deletion_window`.
+        """
+        files = self.files.all()  # type: ignore[attr-defined]
+        return all(file.in_deletion_window for file in files)
+
 
 class PackageType(str, enum.Enum):
     bdist_dmg = "bdist_dmg"
@@ -923,6 +947,14 @@ class File(HasEvents, db.Model):
     @property
     def pretty_wheel_tags(self) -> list[str]:
         return wheel.filename_to_pretty_tags(self.filename)
+
+    @property
+    def in_deletion_window(self) -> bool:
+        """
+        A file can be deleted by a non-admin owner if it's within its
+        "deletion window," i.e. was uploaded no more than 7 days ago.
+        """
+        return self.upload_time >= datetime.now() - timedelta(days=7)
 
 
 class Filename(db.ModelBase):
