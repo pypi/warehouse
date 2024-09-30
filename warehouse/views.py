@@ -329,7 +329,7 @@ def search(request):
 
     ratelimiter.hit(request.remote_addr)
     if not ratelimiter.test(request.remote_addr):
-        metrics.increment("warehouse.search.ratelimiter.exceeded", tags=[])
+        metrics.increment("warehouse.search.ratelimiter.exceeded")
         message = (
             "Your search query could not be performed because there were too "
             "many requests by the client."
@@ -339,7 +339,7 @@ def search(request):
             _resets_in = max(1, int(_resets_in.total_seconds()))
             message += f" Limit may reset in {_resets_in} seconds."
         raise HTTPTooManyRequests(message)
-    metrics.increment("warehouse.search.ratelimiter.hit", tags=[])
+    metrics.increment("warehouse.search.ratelimiter.hit")
 
     querystring = request.params.get("q", "").replace("'", '"')
     # Bail early for really long queries before ES raises an error

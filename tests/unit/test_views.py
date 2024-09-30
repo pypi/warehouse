@@ -671,7 +671,7 @@ class TestSearch:
             search(db_request)
 
         assert metrics.increment.calls == [
-            pretend.call("warehouse.search.ratelimiter.hit", tags=[]),
+            pretend.call("warehouse.search.ratelimiter.hit"),
             pretend.call("warehouse.views.search.error", tags=["error:query_too_long"]),
         ]
 
@@ -705,7 +705,7 @@ class TestSearch:
 
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert metrics.increment.calls == [
-            pretend.call("warehouse.search.ratelimiter.hit", tags=[]),
+            pretend.call("warehouse.search.ratelimiter.hit"),
             pretend.call("warehouse.views.search.error"),
         ]
         assert metrics.histogram.calls == []
@@ -742,7 +742,7 @@ class TestSearch:
 
         assert exc_info.value.args[0] == message
         assert metrics.increment.calls == [
-            pretend.call("warehouse.search.ratelimiter.exceeded", tags=[])
+            pretend.call("warehouse.search.ratelimiter.exceeded")
         ]
 
 
