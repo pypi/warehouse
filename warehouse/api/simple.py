@@ -18,6 +18,11 @@ from sqlalchemy import func
 
 from warehouse.cache.http import add_vary, cache_control
 from warehouse.cache.origin import origin_cache
+from warehouse.constants import (
+    MIME_PYPI_SIMPLE_V1_HTML,
+    MIME_PYPI_SIMPLE_V1_JSON,
+    MIME_TEXT_HTML,
+)
 from warehouse.packaging.models import JournalEntry, Project
 from warehouse.packaging.utils import (
     _simple_detail,
@@ -25,10 +30,6 @@ from warehouse.packaging.utils import (
     _valid_simple_detail_context,
 )
 from warehouse.utils.cors import _CORS_HEADERS
-
-MIME_TEXT_HTML = "text/html"
-MIME_PYPI_SIMPLE_V1_HTML = "application/vnd.pypi.simple.v1+html"
-MIME_PYPI_SIMPLE_V1_JSON = "application/vnd.pypi.simple.v1+json"
 
 
 def _select_content_type(request: Request) -> str:
