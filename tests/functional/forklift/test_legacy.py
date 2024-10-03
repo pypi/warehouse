@@ -281,13 +281,7 @@ def test_invalid_classifier_upload_error(webtest):
 
 
 def test_provenance_upload(webtest):
-    user = UserFactory.create(
-        password=(  # 'password'
-            "$argon2id$v=19$m=1024,t=6,p=6$EiLE2Nsbo9S6N+acs/beGw$ccyZDCZstr1/+Y/1s3BVZ"
-            "HOJaqfBroT0JCieHug281c"
-        )
-    )
-    EmailFactory.create(user=user, verified=True)
+    user = UserFactory.create(with_verified_primary_email=True, clear_pwd="password")
     project = ProjectFactory.create(name="sampleproject")
     RoleFactory.create(user=user, project=project, role_name="Owner")
     publisher = GitHubPublisherFactory.create(projects=[project])
