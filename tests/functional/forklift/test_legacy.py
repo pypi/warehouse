@@ -25,7 +25,7 @@ from tests.common.db.oidc import GitHubPublisherFactory
 from tests.common.db.packaging import ProjectFactory, RoleFactory
 from warehouse.macaroons import caveats
 
-from ...common.db.accounts import EmailFactory, UserFactory
+from ...common.db.accounts import UserFactory
 from ...common.db.macaroons import MacaroonFactory
 
 _HERE = Path(__file__).parent
