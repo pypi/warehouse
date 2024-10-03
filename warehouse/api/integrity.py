@@ -43,7 +43,7 @@ def _select_content_type(request: Request) -> str:
 
 
 @view_config(
-    route_name="attestations.provenance",
+    route_name="integrity.provenance",
     context=File,
     require_methods=["GET"],
     renderer="json",
