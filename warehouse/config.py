@@ -556,6 +556,12 @@ def configure(settings=None):
         "PROJECT_CREATE_IP_RATELIMIT_STRING",
         default="40 per hour",
     )
+    maybe_set(
+        settings,
+        "warehouse.search.ratelimit_string",
+        "SEARCH_RATELIMIT_STRING",
+        default="5 per second",
+    )
 
     # OIDC feature flags and settings
     maybe_set(settings, "warehouse.oidc.audience", "OIDC_AUDIENCE")
