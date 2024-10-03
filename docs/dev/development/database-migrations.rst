@@ -79,7 +79,7 @@ To remove a column:
 1. Perform the Python-level code changes, i.e. remove usages of the
    column/attribute within Warehouse itself. Do **not** generate
    an accompanying migration.
-2. Submit the changes as a PR. Tag the PR with `skip-db-check` to allow
+2. Submit the changes as a PR. Tag the PR with ``skip-db-check`` to allow
    it to pass CI without accompanying migrations.
 3. Prepare a second PR containing just the generated migrations.
 4. Merge the first PR and ensure its deployment before merging the second.
