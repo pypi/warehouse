@@ -103,7 +103,7 @@ def _simple_detail(project, request):
                 ),
                 "provenance": (
                     request.route_url(
-                        "attestations.provenance",
+                        "integrity.provenance",
                         project_name=project.normalized_name,
                         release=file.release.version,
                         filename=file.filename,

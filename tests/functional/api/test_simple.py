@@ -52,7 +52,8 @@ def test_simple_api_has_provenance(webtest):
     resp = webtest.get(f"/simple/{project.normalized_name}/", status=HTTPStatus.OK)
     links = resp.html.find_all("a")
 
-    for link, file in zip(links, files):
+    for file in files:
+        link = next(link for link in links if link.text == file.filename)
         provenance_url = link.get("data-provenance")
         assert provenance_url is not None
 
