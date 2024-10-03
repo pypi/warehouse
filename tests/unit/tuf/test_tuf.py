@@ -130,7 +130,7 @@ class TestTUF:
         db_request.db.query = lambda a: stub(filter=lambda a: stub(one=one))
 
         # Test early return, if no RSTUF API URL configured
-        db_request.registry.settings = {"tuf.rstuf_api_url": None}
+        db_request.registry.settings = {"rstuf.api_url": None}
         tuf.update_metadata(db_request, project_id)
 
         assert not one.calls
@@ -140,7 +140,7 @@ class TestTUF:
         index_digest = "digest"
         index_size = 42
 
-        db_request.registry.settings = {"tuf.rstuf_api_url": rstuf_url}
+        db_request.registry.settings = {"rstuf.api_url": rstuf_url}
 
         render = call_recorder(lambda *a, **kw: (index_digest, None, index_size))
         monkeypatch.setattr(tuf, "render_simple_detail", render)
