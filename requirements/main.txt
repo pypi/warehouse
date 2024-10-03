@@ -1930,9 +1930,9 @@ readme-renderer[md]==43.0 \
     --hash=sha256:1818dd28140813509eeed8d62687f7cd4f7bad90d4db586001c5dc09d4fde311 \
     --hash=sha256:19db308d86ecd60e5affa3b2a98f017af384678c63c88e5d4556a380e674f3f9
     # via -r requirements/main.in
-redis==5.0.8 \
-    --hash=sha256:0c5b10d387568dfe0698c6fad6615750c24170e548ca2deac10c649d463e9870 \
-    --hash=sha256:56134ee08ea909106090934adc36f65c9bcbbaecea5b21ba704ba6fb561f8eb4
+redis==5.1.0 \
+    --hash=sha256:b756df1e4a3858fcc0ef861f3fc53623a96c41e2b1f5304e09e0fe758d333d40 \
+    --hash=sha256:fd4fccba0d7f6aa48c58a78d76ddb4afc698f5da4a2c1d03d916e4fd7ab88cdd
     # via
     #   -r requirements/main.in
     #   celery-redbeat
@@ -1990,9 +1990,9 @@ rfc8785==0.1.4 \
     # via
     #   -r requirements/main.in
     #   sigstore
-rich==13.8.1 \
-    --hash=sha256:1760a3c0848469b97b558fc61c85233e3dafb69c7a071b4d60c38099d3cd4c06 \
-    --hash=sha256:8260cda28e3db6bf04d2d1ef4dbc03ba80a824c88b0e7668a0f23126a424844a
+rich==13.9.1 \
+    --hash=sha256:097cffdf85db1babe30cc7deba5ab3a29e1b9885047dab24c57e9a7f8a9c1466 \
+    --hash=sha256:b340e739f30aa58921dc477b8adaa9ecdb7cecc217be01d93730ee1bc8aa83be
     # via sigstore
 rpds-py==0.20.0 \
     --hash=sha256:06db23d43f26478303e954c34c75182356ca9aa7797d22c5345b16871ab9c45c \
@@ -2113,9 +2113,9 @@ securesystemslib==1.1.0 \
     --hash=sha256:100bf04e60b260e1c7c51e3232647697fde2c5ca5772fda4932d841d3fb6dd0e \
     --hash=sha256:27143a8e04b5573636f260f21d7e26b48bcedcf394e6f74ec31e9a5287e0c38b
     # via tuf
-sentry-sdk==2.14.0 \
-    --hash=sha256:1e0e2eaf6dad918c7d1e0edac868a7bf20017b177f242cefe2a6bcd47955961d \
-    --hash=sha256:b8bc3dc51d06590df1291b7519b85c75e2ced4f28d9ea655b6d54033503b5bf4
+sentry-sdk==2.15.0 \
+    --hash=sha256:8fb0d1a4e1a640172f31502e4503543765a1fe8a9209779134a4ac52d4677303 \
+    --hash=sha256:a599e7d3400787d6f43327b973e55a087b931ba2c592a7a7afa691f8eb5e75e2
     # via -r requirements/main.in
 sigstore==3.3.0 \
     --hash=sha256:0a4c9cd3efc0f01ac053dc9dfba95bfdc998a14c59c80342ef40a290b406758d \
@@ -2202,9 +2202,9 @@ stdlib-list==0.10.0 \
     --hash=sha256:6519c50d645513ed287657bfe856d527f277331540691ddeaf77b25459964a14 \
     --hash=sha256:b3a911bc441d03e0332dd1a9e7d0870ba3bb0a542a74d7524f54fb431256e214
     # via -r requirements/main.in
-stripe==10.12.0 \
-    --hash=sha256:0c79c1f3a844533c8d30cc283b43afb622aaa402539fca19167a9004fea3471c \
-    --hash=sha256:5abec44548d3814bc1e070aa1852bcb3fc5cc029e947c0f733156eb1f8c87030
+stripe==11.0.0 \
+    --hash=sha256:37a1f6ab0cee4ad0fa7d01e6f1e5ed9be33ee4aeae85e1a0b4ed81d42b9721bd \
+    --hash=sha256:d144b49fc51a50be67d5025ab59fc0884e120929798a699e775369b0c214b9ae
     # via -r requirements/main.in
 structlog==24.4.0 \
     --hash=sha256:597f61e80a91cc0749a9fd2a098ed76715a1c8a01f73e336b746504d1aad7610 \
