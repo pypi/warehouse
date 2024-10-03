@@ -57,7 +57,7 @@ from warehouse.packaging.models import (
     Role,
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
-from warehouse.tuf import update_metadata
+from warehouse.tuf.tasks import update_metadata
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.classifiers import ClassifierFactory

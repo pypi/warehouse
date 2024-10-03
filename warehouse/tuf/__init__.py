@@ -17,15 +17,8 @@ RSTUF API client library
 import time
 
 from typing import Any
-from uuid import UUID
 
 import requests
-
-from pyramid.request import Request
-
-from warehouse import tasks
-from warehouse.packaging.models import Project
-from warehouse.packaging.utils import render_simple_detail
 
 
 class RSTUFError(Exception):
@@ -101,38 +94,3 @@ def wait_for_success(server: str, task_id: str):
 
     else:
         raise RSTUFError("RSTUF job failed, please check payload and retry")
-
-
-@tasks.task(ignore_result=True, acks_late=True)
-def update_metadata(request: Request, project_id: UUID):
-    """Update TUF metadata to capture project changes (PEP 458).
-
-    NOTE: PEP 458 says, TUF targets metadata must include path, hash and size of
-    distributions files and simple detail files. In reality, simple detail files
-    are enough, as they already include all relevant distribution file infos.
-    """
-    server = request.registry.settings["rstuf.api_url"]
-    if not server:
-        return
-
-    project = request.db.query(Project).filter(Project.id == project_id).one()
-
-    # NOTE: We ignore the returned simple detail path with the content hash as
-    # infix. In TUF metadata the project name and hash are listed separately, so
-    # that there is only one entry per target file, even if the content changes.
-    digest, _, size = render_simple_detail(project, request, store=True)
-    payload = {
-        "targets": [
-            {
-                "path": project.normalized_name,
-                "info": {
-                    "length": size,
-                    "hashes": {"blake2b-256": digest},
-                },
-            }
-        ]
-    }
-
-    # TODO: Handle errors: pass, retry or notify
-    task_id = post_artifacts(server, payload)
-    wait_for_success(server, task_id)
