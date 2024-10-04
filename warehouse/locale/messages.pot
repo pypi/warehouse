@@ -1218,7 +1218,7 @@ msgid "Report security issue"
 msgstr ""
 
 #: warehouse/templates/base.html:319
-msgid "Privacy policy"
+msgid "Privacy Notice"
 msgstr ""
 
 #: warehouse/templates/base.html:320
