@@ -150,7 +150,7 @@ initdb: .state/docker-build-base .state/db-populated
 inittuf: .state/db-migrated
 	docker compose up -d rstuf-api
 	docker compose up -d rstuf-worker
-	docker compose run --rm web python -m warehouse tuf bootstrap dev/rstuf/bootstrap.json --api-server http://rstuf-api
+	docker compose run --rm web rstuf admin --api-server http://rstuf-api send bootstrap dev/rstuf/bootstrap.json
 
 runmigrations: .state/docker-build-base
 	docker compose run --rm web python -m warehouse db upgrade head

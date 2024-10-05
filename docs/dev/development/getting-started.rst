@@ -256,7 +256,7 @@ You should see the following line at the bottom of the output:
 
 .. code-block:: console
 
-    Bootstrap completed using `dev/rstuf/bootstrap.json`. 🔐 🎉
+    Bootstrap completed. 🔐 🎉
 
 
 This command sends a static *bootstrap payload* to the RSTUF API. The payload
