@@ -16,7 +16,7 @@ from pyramid.request import Request
 from warehouse import tasks
 from warehouse.packaging.models import Project
 from warehouse.packaging.utils import render_simple_detail
-from warehouse.tuf import post_artifacts, wait_for_success
+from warehouse.tuf.interfaces import ITUFService
 
 
 @tasks.task(ignore_result=True, acks_late=True)
@@ -27,9 +27,7 @@ def update_metadata(request: Request, project_id: UUID):
     distributions files and simple detail files. In reality, simple detail files
     are enough, as they already include all relevant distribution file infos.
     """
-    server = request.registry.settings["rstuf.api_url"]
-    if not server:
-        return
+    rstuf_service = request.find_service(ITUFService, context=None)
 
     project = request.db.query(Project).filter(Project.id == project_id).one()
 
@@ -50,5 +48,5 @@ def update_metadata(request: Request, project_id: UUID):
     }
 
     # TODO: Handle errors: pass, retry or notify
-    task_id = post_artifacts(server, payload)
-    wait_for_success(server, task_id)
+    task_id = rstuf_service.post_artifacts(payload)
+    rstuf_service.wait_for_success(task_id)

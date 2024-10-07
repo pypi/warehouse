@@ -35,18 +35,16 @@ class TestTUFTasks:
         render = call_recorder(lambda *a, **kw: (index_digest, None, index_size))
         tuf.tasks.render_simple_detail = render
 
-        post = call_recorder(lambda *a: self.task_id)
-        monkeypatch.setattr(tuf.tasks, "post_artifacts", post)
-
-        wait = call_recorder(lambda *a: None)
-        monkeypatch.setattr(tuf.tasks, "wait_for_success", wait)
+        rstuf = tuf.services.RSTUFService.create_service(db_request)
+        rstuf.post_artifacts = call_recorder(lambda *a: self.task_id)
+        rstuf.wait_for_success = call_recorder(lambda *a: None)
+        db_request.find_service = call_recorder(lambda *a, **kw: rstuf)
 
         tuf.tasks.update_metadata(db_request, project_id)
         assert one.calls == [call()]
         assert render.calls == [call(project, db_request, store=True)]
-        assert post.calls == [
+        assert rstuf.post_artifacts.calls == [
             call(
-                rstuf_url,
                 {
                     "targets": [
                         {
@@ -60,19 +58,4 @@ class TestTUFTasks:
                 },
             )
         ]
-        assert wait.calls == [call(rstuf_url, self.task_id)]
-
-    def test_update_metadata_no_rstuf_api_url(self, db_request):
-        project_id = "id"
-        project_name = "name"
-
-        project = stub(normalized_name=project_name)
-
-        one = call_recorder(lambda: project)
-        db_request.db.query = lambda a: stub(filter=lambda a: stub(one=one))
-
-        # Test early return, if no RSTUF API URL configured
-        db_request.registry.settings = {"rstuf.api_url": None}
-        tuf.tasks.update_metadata(db_request, project_id)
-
-        assert not one.calls
+        assert rstuf.wait_for_success.calls == [call(self.task_id)]

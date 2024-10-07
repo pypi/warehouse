@@ -44,7 +44,6 @@ from pyramid.view import view_config
 from sqlalchemy import and_, exists, func, orm
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 
-from warehouse import tuf
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.attestations.errors import AttestationUploadError
 from warehouse.attestations.interfaces import IIntegrityService
@@ -1306,8 +1305,6 @@ def file_upload(request):
             release.download_url_verified = True
 
     request.db.flush()  # flush db now so server default values are populated for celery
-
-    request.task(tuf.tasks.update_metadata).delay(release.project.id)
 
     # Push updates to BigQuery
     dist_metadata = {

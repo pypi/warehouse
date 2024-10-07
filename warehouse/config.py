@@ -942,6 +942,9 @@ def configure(settings=None):
         ignore=["warehouse.migrations.env", "warehouse.celery", "warehouse.wsgi"],
     )
 
+    # RSTUF configuration to provide TUF metadata
+    config.include(".tuf")
+
     # Sanity check our request and responses.
     # Note: It is very important that this go last. We need everything else
     # that might have added a tween to be registered prior to this.
