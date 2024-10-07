@@ -28,11 +28,11 @@ class TestTUFTasks:
 
         rstuf_url = "url"
         index_digest = "digest"
-        index_size = 42
+        index_size = 255
 
         db_request.registry.settings = {"rstuf.api_url": rstuf_url}
 
-        render = call_recorder(lambda *a, **kw: (index_digest, None, index_size))
+        render = call_recorder(lambda *a, **kw: (index_digest, index_size))
         tuf.tasks.render_simple_detail = render
 
         rstuf = tuf.services.RSTUFService.create_service(db_request)

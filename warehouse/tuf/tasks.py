@@ -34,7 +34,7 @@ def update_metadata(request: Request, project_id: UUID):
     # NOTE: We ignore the returned simple detail path with the content hash as
     # infix. In TUF metadata the project name and hash are listed separately, so
     # that there is only one entry per target file, even if the content changes.
-    digest, _, size = render_simple_detail(project, request, store=True)
+    digest, size = render_simple_detail(project, request, store=True)
     payload = {
         "targets": [
             {
