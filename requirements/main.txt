@@ -1987,9 +1987,7 @@ rfc3986==2.0.0 \
 rfc8785==0.1.4 \
     --hash=sha256:520d690b448ecf0703691c76e1a34a24ddcd4fc5bc41d589cb7c58ec651bcd48 \
     --hash=sha256:e545841329fe0eee4f6a3b44e7034343100c12b4ec566dc06ca9735681deb4da
-    # via
-    #   -r requirements/main.in
-    #   sigstore
+    # via sigstore
 rich==13.9.1 \
     --hash=sha256:097cffdf85db1babe30cc7deba5ab3a29e1b9885047dab24c57e9a7f8a9c1466 \
     --hash=sha256:b340e739f30aa58921dc477b8adaa9ecdb7cecc217be01d93730ee1bc8aa83be
@@ -2202,9 +2200,9 @@ stdlib-list==0.10.0 \
     --hash=sha256:6519c50d645513ed287657bfe856d527f277331540691ddeaf77b25459964a14 \
     --hash=sha256:b3a911bc441d03e0332dd1a9e7d0870ba3bb0a542a74d7524f54fb431256e214
     # via -r requirements/main.in
-stripe==11.0.0 \
-    --hash=sha256:37a1f6ab0cee4ad0fa7d01e6f1e5ed9be33ee4aeae85e1a0b4ed81d42b9721bd \
-    --hash=sha256:d144b49fc51a50be67d5025ab59fc0884e120929798a699e775369b0c214b9ae
+stripe==11.1.0 \
+    --hash=sha256:1fac660dcc3014268cafc94a45ebeac66f1a752365f60019d2263e0c1e0f965b \
+    --hash=sha256:2cd09ca015dc5ce9d80cf5bbe81cd6a4d528997ddedadd53844e183f36211ace
     # via -r requirements/main.in
 structlog==24.4.0 \
     --hash=sha256:597f61e80a91cc0749a9fd2a098ed76715a1c8a01f73e336b746504d1aad7610 \
