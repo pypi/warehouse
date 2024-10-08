@@ -1,7 +1,7 @@
 [tool.coverage.run]
 branch = true
 dynamic_context = "test_function"
-source = ["warehouse"]
+source = ["warehouse", "tests"]
 omit = [
   # We don't want to get coverage information for our migrations.
   "warehouse/migrations/*",
