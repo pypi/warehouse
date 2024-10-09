@@ -36,6 +36,8 @@ from warehouse.oidc.models._core import (
     check_existing_jti,
 )
 
+GITHUB_OIDC_ISSUER_URL = "https://token.actions.githubusercontent.com"
+
 # This expression matches the workflow filename component of a GitHub
 # "workflow ref", i.e. the value present in the `workflow_ref` and
 # `job_workflow_ref` claims. This requires a nontrivial (and nonregular)
