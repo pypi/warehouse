@@ -66,7 +66,7 @@ class RSTUFService:
                 case "SUCCESS":
                     break
 
-                case "PENDING" | "RUNNING" | "RECEIVED" | "STARTED":
+                case "PENDING" | "PRE_RUN" | "RUNNING" | "RECEIVED" | "STARTED":
                     time.sleep(self.delay)
                     continue
 

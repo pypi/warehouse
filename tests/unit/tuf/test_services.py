@@ -101,7 +101,7 @@ class TestRSTUFService:
             (
                 [
                     {"data": {"state": "PENDING"}},
-                    {"data": {"state": "STARTED"}},
+                    {"data": {"state": "PRE_RUN"}},
                     {"data": {"state": "RECEIVED"}},
                     {"data": {"state": "STARTED"}},
                     {"data": {"state": "SUCCESS"}},
@@ -123,7 +123,7 @@ class TestRSTUFService:
             (
                 [
                     {"data": {"state": "PENDING"}},
-                    {"data": {"state": "STARTED"}},
+                    {"data": {"state": "PRE_RUN"}},
                     {"data": {"state": "RECEIVED"}},
                     {"data": {"state": "STARTED"}},
                     {"data": {"state": "ERRORED"}},
@@ -134,7 +134,7 @@ class TestRSTUFService:
             (
                 [
                     {"data": {"state": "PENDING"}},
-                    {"data": {"state": "STARTED"}},
+                    {"data": {"state": "PRE_RUN"}},
                     {"data": {"state": "RECEIVED"}},
                     {"data": {"state": "STARTED"}},
                     {"data": {"state": "REVOKED"}},
@@ -145,7 +145,7 @@ class TestRSTUFService:
             (
                 [
                     {"data": {"state": "PENDING"}},
-                    {"data": {"state": "STARTED"}},
+                    {"data": {"state": "PRE_RUN"}},
                     {"data": {"state": "RECEIVED"}},
                     {"data": {"state": "STARTED"}},
                     {"data": {"state": "REJECTED"}},
@@ -156,7 +156,7 @@ class TestRSTUFService:
             (
                 [
                     {"data": {"state": "PENDING"}},
-                    {"data": {"state": "STARTED"}},
+                    {"data": {"state": "PRE_RUN"}},
                     {"data": {"state": "RECEIVED"}},
                     {"data": {"state": "STARTED"}},
                     {"data": {"state": "INVALID_STATE"}},

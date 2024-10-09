@@ -36,7 +36,7 @@ def update_metadata(request: Request, project_id: UUID):
     # that there is only one entry per target file, even if the content changes.
     digest, size = render_simple_detail(project, request, store=True)
     payload = {
-        "targets": [
+        "artifacts": [
             {
                 "path": project.normalized_name,
                 "info": {

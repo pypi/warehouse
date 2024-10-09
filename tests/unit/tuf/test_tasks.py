@@ -46,7 +46,7 @@ class TestTUFTasks:
         assert rstuf.post_artifacts.calls == [
             call(
                 {
-                    "targets": [
+                    "artifacts": [
                         {
                             "path": project_name,
                             "info": {
