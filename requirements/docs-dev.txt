@@ -400,9 +400,9 @@ urllib3==2.2.3 \
     --hash=sha256:ca899ca043dcb1bafa3e262d73aa25c465bfb49e0bd9dd5d59f1d0acba2f8fac \
     --hash=sha256:e7d814a81dad81e6caf2ec9fdedb284ecc9c73076b62654547cc64ccdcae26e9
     # via requests
-uvicorn==0.31.0 \
-    --hash=sha256:13bc21373d103859f68fe739608e2eb054a816dea79189bc3ca08ea89a275906 \
-    --hash=sha256:cac7be4dd4d891c363cd942160a7b02e69150dcbc7a36be04d5f4af4b17c8ced
+uvicorn==0.31.1 \
+    --hash=sha256:adc42d9cac80cf3e51af97c1851648066841e7cfb6993a4ca8de29ac1548ed41 \
+    --hash=sha256:f5167919867b161b7bcaf32646c6a94cdbd4c3aa2eb5c17d36bb9aa5cfd8c493
     # via sphinx-autobuild
 watchfiles==0.23.0 \
     --hash=sha256:02b7ba9d4557149410747353e7325010d48edcfe9d609a85cb450f17fd50dc3d \
