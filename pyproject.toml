@@ -97,6 +97,7 @@ markers = [
 ]
 filterwarnings = [
     'ignore::warehouse.admin.services.InsecureStorageWarning',
+    'ignore::warehouse.utils.exceptions.InsecureIntegrityServiceWarning',
     'ignore::warehouse.utils.exceptions.InsecureOIDCPublisherWarning',
     'ignore::warehouse.packaging.services.InsecureStorageWarning',
     'error:SELECT statement has a cartesian product:sqlalchemy.exc.SAWarning',
