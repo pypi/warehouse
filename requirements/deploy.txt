@@ -185,9 +185,9 @@ wrapt==1.16.0 \
     # via
     #   ddtrace
     #   deprecated
-xmltodict==0.13.0 \
-    --hash=sha256:341595a488e3e01a85a9d8911d8912fd922ede5fecc4dce437eb4b6c8d037e56 \
-    --hash=sha256:aa89e8fd76320154a40d19a0df04a4695fb9dc5ba977cbb68ab3e4eb225e7852
+xmltodict==0.14.0 \
+    --hash=sha256:6dd20b8de8d0eb84d175ec706cc17b53df236615b0980de33537736319e5ee85 \
+    --hash=sha256:8b39b25b564fd466be566c9e8a869cc4b5083c2fec7f98665f47bf0853f6cc77
     # via ddtrace
 zipp==3.20.2 \
     --hash=sha256:a817ac80d6cf4b23bf7f2828b7cabf326f15a001bea8b1f9b49631780ba28350 \
