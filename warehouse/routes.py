@@ -14,7 +14,7 @@
 def includeme(config):
     # We need to get the value of the Warehouse and Forklift domains, we'll use
     # these to segregate the Warehouse routes from the Forklift routes until
-    # Forklift is properly split out into it's own project.
+    # Forklift is properly split out into its own project.
     warehouse = config.get_settings().get("warehouse.domain")
     files_url = config.get_settings()["files.url"]
 
@@ -573,6 +573,12 @@ def includeme(config):
         "/danger-api/projects/{name}/observations",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "api.release",
+        "/api/projects/{name}/{version}",
+        factory="warehouse.legacy.api.json.release_factory",
         domain=warehouse,
     )
 
