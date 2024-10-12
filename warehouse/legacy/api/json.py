@@ -343,32 +343,3 @@ def json_release(release, request):
 )
 def json_release_slash(release, request):
     return json_release(release, request)
-
-
-@view_config(
-    route_name="api.release",
-    context=Release,
-    renderer="json",
-    decorator=_RELEASE_CACHE_DECORATOR,
-    accept="application/json",
-    request_method="POST",
-    require_methods=["POST"],
-    uses_session=True,
-    require_csrf=False,
-)
-def json_release_modify(release, request):
-    body = request.json_body
-    data = json_release(release, request)
-    data['JSON'] = body
-    return data
-
-
-@view_config(
-    route_name="api.release",
-    context=Release,
-    renderer="json",
-    decorator=_RELEASE_CACHE_DECORATOR,
-    request_method="GET",
-)
-def json_release_get(release, request):
-    return json_release(release, request)
