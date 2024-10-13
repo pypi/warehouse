@@ -13,6 +13,7 @@ click
 cryptography>=43.0.1
 datadog>=0.19.0
 disposable-email-domains
+dnspython
 email-validator
 first
 forcediphttpsadapter
@@ -61,7 +62,6 @@ requests
 requests-aws4auth
 redis>=2.8.0,<6.0.0
 rfc3986
-rfc8785
 sentry-sdk
 setuptools
 sigstore~=3.3.0
