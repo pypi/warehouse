@@ -316,7 +316,9 @@ pyyaml==6.0.2 \
     --hash=sha256:efdca5630322a10774e8e98e1af481aad470dd62c3170801852d752aa7a783ba \
     --hash=sha256:f753120cb8181e736c57ef7636e83f31b9c0d1722c516f7e86cf15b7aa57ff12 \
     --hash=sha256:ff3824dc5261f50c9b0dfb3be22b4567a6f938ccce4587b38952d85fd9e9afe4
-    # via myst-parser
+    # via
+    #   myst-parser
+    #   sphinxcontrib-mermaid
 requests==2.32.3 \
     --hash=sha256:55365417734eb18255590a9ff9eb97e9e1da868d4ccd6402399eaf68af20a760 \
     --hash=sha256:70761cfe03c773ceb22aa2f671b4757976145175cdfca038c02654d061d6dcc6
@@ -348,6 +350,7 @@ sphinx==8.0.2 \
     #   sphinx-basic-ng
     #   sphinx-copybutton
     #   sphinxcontrib-httpdomain
+    #   sphinxcontrib-mermaid
 sphinx-autobuild==2024.10.3 \
     --hash=sha256:158e16c36f9d633e613c9aaf81c19b0fc458ca78b112533b20dafcda430d60fa \
     --hash=sha256:248150f8f333e825107b6d4b86113ab28fa51750e5f9ae63b59dc339be951fb1
@@ -380,9 +383,9 @@ sphinxcontrib-jsmath==1.0.1 \
     --hash=sha256:2ec2eaebfb78f3f2078e73666b1415417a116cc848b72e5172e596c871103178 \
     --hash=sha256:a9925e4a4587247ed2191a22df5f6970656cb8ca2bd6284309578f2153e0c4b8
     # via sphinx
-sphinxcontrib-mermaid==0.9.2 \
-    --hash=sha256:252ef13dd23164b28f16d8b0205cf184b9d8e2b714a302274d9f59eb708e77af \
-    --hash=sha256:6795a72037ca55e65663d2a2c1a043d636dc3d30d418e56dd6087d1459d98a5d
+sphinxcontrib-mermaid==1.0.0 \
+    --hash=sha256:2e8ab67d3e1e2816663f9347d026a8dee4a858acdd4ad32dd1c808893db88146 \
+    --hash=sha256:60b72710ea02087f212028feb09711225fbc2e343a10d34822fe787510e1caa3
     # via -r requirements/docs-dev.in
 sphinxcontrib-qthelp==2.0.0 \
     --hash=sha256:4fe7d0ac8fc171045be623aba3e2a8f613f8682731f9153bb2e40ece16b9bbab \
