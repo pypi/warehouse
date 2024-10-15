@@ -2257,9 +2257,9 @@ translationstring==1.4 \
     --hash=sha256:5f4dc4d939573db851c8d840551e1a0fb27b946afe3b95aafc22577eed2d6262 \
     --hash=sha256:bf947538d76e69ba12ab17283b10355a9ecfbc078e6123443f43f2107f6376f3
     # via pyramid
-trove-classifiers==2024.9.12 \
-    --hash=sha256:4b46b3e134a4d01999ac5bc6e528afcc10cc48f0f724f185f267e276005768f4 \
-    --hash=sha256:f88a27a892891c87c5f8bbdf110710ae9e0a4725ea8e0fb45f1bcadf088a491f
+trove-classifiers==2024.10.13 \
+    --hash=sha256:4154432be880041d8cb1e01f7e0d9989a4ca24a71355bc036777919ec0a633f2 \
+    --hash=sha256:b820fc6f9544543afa15e5d9cfc426cde3b20fc2246dff6f019b835731508cef
     # via -r requirements/main.in
 tuf==5.1.0 \
     --hash=sha256:1865737bf8e05893ae31b4511617da7f02cf070562fa3c931074d29ef5fb46d7 \
