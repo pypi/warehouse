@@ -302,6 +302,7 @@ class NewEmailMixin:
                 extractor(mx_host.lower()).registered_domain
                 for _prio, mx_host in resp.mx
             }
+            mx_domains.update({mx_host.lower() for _prio, mx_host in resp.mx})
 
         # Resolve the returned MX domain's IP address to a PTR record, to a domain
         all_mx_domains = set()
