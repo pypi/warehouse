@@ -290,11 +290,9 @@ class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):
         `gitlab.com/org/repo`. This does not apply to subpaths like
         `gitlab.com/org/repo.git/issues`, which do not redirect to the correct URL.
         """
-        normalized_url_prefixes = (self.publisher_base_url.lower(),)
-        for prefix in normalized_url_prefixes:
-            if url.lower().startswith(prefix):
-                url = prefix + url[len(prefix) :]
-                break
+        lowercase_base_url = self.publisher_base_url.lower()
+        if url.lower().startswith(lowercase_base_url):
+            url = lowercase_base_url + url[len(lowercase_base_url) :]
 
         url_for_generic_check = url.removesuffix("/").removesuffix(".git")
         return super().verify_url(url_for_generic_check)
