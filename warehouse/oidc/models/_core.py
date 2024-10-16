@@ -173,12 +173,6 @@ class OIDCPublisherMixin:
     # even have an "equivalent" column.
     __lookup_strategies__: list = []
 
-    # URL Verification Case Sensitivity
-    # Determines whether the user URLs should be verified in a case-sensitive
-    # manner. By default, the URLs are treated as case-sensitive. This behavior
-    # can be overridden in individual Publisher definitions.
-    url_verification_is_case_sensitive: bool = True
-
     @classmethod
     def lookup_by_claims(cls, session, signed_claims: SignedClaims):
         for lookup in cls.__lookup_strategies__:
@@ -368,15 +362,7 @@ class OIDCPublisherMixin:
         if self.publisher_base_url is None:
             # Currently this only applies to the Google provider
             return False
-        # Several OIDC Publishers have case-insensitive owner/repo slugs.
-        # In such cases, we want to perform a case-insensitive comparison
-        # during the URL verification.
-        if not self.url_verification_is_case_sensitive:
-            url = url.lower()
-            publisher_base_url = self.publisher_base_url.lower()
-        else:
-            publisher_base_url = self.publisher_base_url
-        publisher_uri = rfc3986.api.uri_reference(publisher_base_url).normalize()
+        publisher_uri = rfc3986.api.uri_reference(self.publisher_base_url).normalize()
         user_uri = rfc3986.api.uri_reference(url).normalize()
         if publisher_uri.path is None:
             # Currently no Trusted Publishers with a `publisher_base_url` have an empty

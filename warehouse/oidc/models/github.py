@@ -196,9 +196,6 @@ class GitHubPublisherMixin:
         "ref_protected",
     }
 
-    # GitHub uses case-insensitive owner/repo slugs
-    url_verification_is_case_sensitive: bool = False
-
     @staticmethod
     def __lookup_all__(klass, signed_claims: SignedClaims) -> Query | None:
         # This lookup requires the environment claim to be present;
@@ -363,14 +360,20 @@ class GitHubPublisher(GitHubPublisherMixin, OIDCPublisher):
         GitHub uses case-insensitive owner/repo slugs - so we perform a case-insensitive
         comparison.
         """
-        url = url.lower()
+        docs_url = (
+            f"https://{self.repository_owner}.github.io/{self.repository_name}".lower()
+        )
+
+        normalized_url_prefixes = (self.publisher_base_url.lower(), docs_url)
+        for prefix in normalized_url_prefixes:
+            if url.lower().startswith(prefix):
+                url = prefix + url[len(prefix) :]
+                break
+
         url_for_generic_check = url.removesuffix("/").removesuffix(".git")
         if super().verify_url(url_for_generic_check):
             return True
 
-        docs_url = (
-            f"https://{self.repository_owner}.github.io/{self.repository_name}".lower()
-        )
         docs_uri = rfc3986.api.uri_reference(docs_url).normalize()
         user_uri = rfc3986.api.uri_reference(url).normalize()
 

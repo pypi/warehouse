@@ -184,9 +184,6 @@ class GitLabPublisherMixin:
         "groups_direct",
     }
 
-    # GitLab uses case-insensitive owner/repo slugs
-    url_verification_is_case_sensitive: bool = False
-
     @staticmethod
     def __lookup_all__(klass, signed_claims: SignedClaims) -> Query | None:
         # This lookup requires the environment claim to be present;
@@ -293,6 +290,12 @@ class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):
         `gitlab.com/org/repo`. This does not apply to subpaths like
         `gitlab.com/org/repo.git/issues`, which do not redirect to the correct URL.
         """
+        normalized_url_prefixes = (self.publisher_base_url.lower(),)
+        for prefix in normalized_url_prefixes:
+            if url.lower().startswith(prefix):
+                url = prefix + url[len(prefix) :]
+                break
+
         url_for_generic_check = url.removesuffix("/").removesuffix(".git")
         return super().verify_url(url_for_generic_check)
 
