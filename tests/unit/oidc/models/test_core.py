@@ -15,6 +15,7 @@ import pytest
 
 from warehouse.oidc import errors
 from warehouse.oidc.models import _core
+from warehouse.oidc.models._core import verify_url_from_reference
 
 
 def test_check_claim_binary():
@@ -179,3 +180,25 @@ def test_check_existing_jti_fails(metrics):
         pretend.call("warehouse.oidc.reused_token", tags=["publisher:fakepublisher"])
         in metrics.increment.calls
     )
+
+
+@pytest.mark.parametrize(
+    ("reference", "url", "expected"),
+    [
+        ("https://example.com", "https://example.com", True),
+        ("https://example.com", "https://example.com/", True),
+        ("https://example.com", "https://example.com/subpage", True),
+        ("https://example.com/", "https://example.com/", True),
+        ("https://example.com/", "https://example.com/subpage", True),
+        # Mismatch between schemes
+        ("https://example.com", "http://example.com", False),
+        # Wrong authority
+        ("https://example.com", "https://not_example.com", False),
+        # Missing sub path
+        ("https://example.com/", "https://example.com", False),
+        # Not sub path
+        ("https://example.com/path1/", "https://example.com/path1/../malicious", False),
+    ],
+)
+def test_verify_url_from_reference(reference: str, url: str, expected: bool):
+    assert verify_url_from_reference(reference, url) == expected

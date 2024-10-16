@@ -102,6 +102,38 @@ def check_existing_jti(
     return True
 
 
+def verify_url_from_reference(reference_url: str, url: str) -> bool:
+    """
+    Verify a given URL against a reference URL.
+
+    This method checks that both URLs have:
+        - the same scheme
+        - the same authority
+
+    Finally, that the URL is a sub-path of the reference
+    """
+    reference_uri = rfc3986.api.uri_reference(reference_url).normalize()
+    user_uri = rfc3986.api.uri_reference(url).normalize()
+
+    if not user_uri.path and reference_uri.path:
+        return False
+
+    reference_path = reference_uri.path
+    if reference_path is None:
+        reference_path = ""
+    elif not reference_path.endswith("/"):
+        reference_path += "/"
+
+    is_subpath = reference_uri.path == user_uri.path or user_uri.path.startswith(
+        reference_path
+    )
+    return (
+        reference_uri.scheme == user_uri.scheme
+        and reference_uri.authority == user_uri.authority
+        and is_subpath
+    )
+
+
 class OIDCPublisherProjectAssociation(db.Model):
     __tablename__ = "oidc_publisher_project_association"
 

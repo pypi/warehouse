@@ -25,6 +25,7 @@ from warehouse.oidc.models._core import (
     OIDCPublisher,
     PendingOIDCPublisher,
     check_existing_jti,
+    verify_url_from_reference,
 )
 
 # This expression matches the workflow filepath component of a GitLab
@@ -289,9 +290,30 @@ class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):
         in repo URLs, since `gitlab.com/org/repo.git` always redirects to
         `gitlab.com/org/repo`. This does not apply to subpaths like
         `gitlab.com/org/repo.git/issues`, which do not redirect to the correct URL.
+
+        In addition to the generic Trusted Publisher verification logic in
+        the parent class, the GitLab Trusted Publisher allows URLs hosted
+        on `gitlab.io` for the configured repository, i.e:
+        `https://${OWNER}.gitlab.io/${SUBGROUP}/${PROJECT}`.
+
+        This method does not support the verification when Unique Domain are used.
         """
         url_for_generic_check = url.removesuffix("/").removesuffix(".git")
-        return super().verify_url(url_for_generic_check)
+        if super().verify_url(url_for_generic_check):
+            return True
+
+        try:
+            owner, subgroup = self.namespace.split("/", maxsplit=1)
+            subgroup += "/"
+        except ValueError:
+            owner, subgroup = self.namespace, ""
+
+        if self.project == f"{owner}.gitlab.io" and not subgroup:
+            docs_url = f"https://{owner}.gitlab.io"
+        else:
+            docs_url = f"https://{owner}.gitlab.io/{subgroup}{self.project}"
+
+        return verify_url_from_reference(docs_url, url)
 
 
 class PendingGitLabPublisher(GitLabPublisherMixin, PendingOIDCPublisher):
