@@ -12,10 +12,12 @@
 
 from __future__ import annotations
 
+import contextlib
 import json
 import re
 
 import disposable_email_domains
+import dns.resolver
 import email_validator
 import humanize
 import markupsafe
@@ -300,6 +302,26 @@ class NewEmailMixin:
                 extractor(mx_host.lower()).registered_domain
                 for _prio, mx_host in resp.mx
             }
+            mx_domains.update({mx_host.lower() for _prio, mx_host in resp.mx})
+
+        # Resolve the returned MX domain's IP address to a PTR record, to a domain
+        all_mx_domains = set()
+        for mx_domain in mx_domains:
+            with contextlib.suppress(
+                dns.resolver.NoAnswer,
+                dns.resolver.NXDOMAIN,
+                dns.resolver.NoNameservers,
+                dns.resolver.LifetimeTimeout,
+            ):
+                mx_ip = dns.resolver.resolve(mx_domain, "A")
+                mx_ptr = dns.resolver.resolve_address(mx_ip[0].address)
+                mx_ptr_domain = extractor(
+                    mx_ptr[0].target.to_text().lower()
+                ).registered_domain
+                all_mx_domains.add(mx_ptr_domain)
+
+        # combine both sets
+        all_mx_domains.update(mx_domains)
 
         if (
             domain in disposable_email_domains.blocklist
@@ -309,7 +331,7 @@ class NewEmailMixin:
                     & (ProhibitedEmailDomain.is_mx_record == False)  # noqa: E712
                 )
                 | exists().where(
-                    (ProhibitedEmailDomain.domain.in_(mx_domains))
+                    (ProhibitedEmailDomain.domain.in_(all_mx_domains))
                     & (ProhibitedEmailDomain.is_mx_record == True)  # noqa: E712
                 )
             ).scalar()
