@@ -246,6 +246,7 @@ class TestAddEmailForm:
         ("email_address", "mx_record_domain", "prohibited_domain"),
         [
             ("foo@wutang.net", "in.mail.net", "mail.net"),
+            ("foo@wutang.net", "in.mail.net", "in.mail.net"),
             (
                 "foo@outlook.com",
                 "outlook-com.mail.protection.outlook.com",
