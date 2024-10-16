@@ -136,9 +136,14 @@ class TestOIDCPublisher:
                 "https://github.com",
                 False,
             ),
+            (  # Default verification is case-sensitive
+                "https://publisher.com/owner/project",
+                "https://publisher.com/owner/PrOjeCt",
+                False,
+            ),
         ],
     )
-    def test_verify_url(self, monkeypatch, url, publisher_url, expected):
+    def test_verify_url(self, url, publisher_url, expected):
         class ConcretePublisher(_core.OIDCPublisher):
             @property
             def publisher_base_url(self):

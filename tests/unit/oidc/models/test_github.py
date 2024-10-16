@@ -662,6 +662,7 @@ class TestGitHubPublisher:
             ("https://repository_owner.github.io/repository_name/../malicious", False),
             ("https://repository_owner.github.io/", False),
             ("https://repository_owner.github.io/unrelated_name/", False),
+            ("https://github.com/RePosItory_OwNeR/rePository_Name.git", True),
         ],
     )
     def test_github_publisher_verify_url(self, url, expected):

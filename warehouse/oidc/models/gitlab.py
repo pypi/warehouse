@@ -184,6 +184,9 @@ class GitLabPublisherMixin:
         "groups_direct",
     }
 
+    # GitLab uses case-insensitive owner/repo slugs
+    url_verification_is_case_sensitive: bool = False
+
     @staticmethod
     def __lookup_all__(klass, signed_claims: SignedClaims) -> Query | None:
         # This lookup requires the environment claim to be present;
