@@ -531,6 +531,13 @@ class TestSimpleDetail:
 
         files = [sdist, wheel]
 
+        db_request.matchdict["name"] = project.normalized_name
+
+        # Rendering the simple index calls route_url once for each file,
+        # and zero or one times per file depending on whether the file
+        # has provenance. We emulate this while testing by maintaining
+        # two iters of URLs we want to return, each of which will be
+        # pulled from as appropriate when a route_url call is made.
         urls_iter = (f"/file/{f.filename}" for f in files)
         provenance_iter = (
             (
@@ -539,10 +546,17 @@ class TestSimpleDetail:
             )
             for f in [wheel]
         )
-        db_request.matchdict["name"] = project.normalized_name
-        db_request.route_url = lambda r, **kw: (
-            next(urls_iter) if r == "packaging.file" else next(provenance_iter)
-        )
+
+        def route_url(route, **_kw):
+            if route == "packaging.file":
+                return next(urls_iter)
+            elif route == "integrity.provenance":
+                return next(provenance_iter)
+            else:
+                assert False, route
+
+        db_request.route_url = route_url
+
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
