@@ -521,7 +521,6 @@ class TestSimpleDetail:
         )
 
         provenance = ProvenanceFactory.create(file=wheel)
-        assert wheel.provenance is not None
         assert wheel.provenance == provenance
 
         sdist = FileFactory.create(

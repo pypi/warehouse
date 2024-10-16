@@ -55,7 +55,6 @@ def test_simple_api_has_provenance(webtest):
     for file in files:
         link = next(link for link in links if link.text == file.filename)
         provenance_url = link.get("data-provenance")
-        assert provenance_url is not None
 
         assert provenance_url == (
             f"http://localhost/integrity/{file.release.project.normalized_name}/"
