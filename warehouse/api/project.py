@@ -11,24 +11,17 @@
 # limitations under the License.
 
 from json import JSONDecodeError
-from pyramid.httpexceptions import (
-    HTTPBadRequest,
-    HTTPForbidden,
-)
+
+from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden
 from pyramid.view import view_config
+
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
-from warehouse.packaging.models import (
-    Release,
-)
+from warehouse.forklift.legacy import _exc_with_message
+
 # TODO: Refactor these so they don't come from legacy.
-from warehouse.legacy.api.json import (
-    _RELEASE_CACHE_DECORATOR,
-    json_release,
-)
-from warehouse.forklift.legacy import (
-    _exc_with_message,
-)
+from warehouse.legacy.api.json import _RELEASE_CACHE_DECORATOR, json_release
+from warehouse.packaging.models import Release
 
 
 @view_config(
@@ -51,8 +44,8 @@ def json_release_get(release, request):
     request_method="PATCH",
     require_methods=["PATCH"],
     uses_session=True,
-    ## openapi=True,
-    ## api_version="api-v1",
+    # openapi=True,
+    # api_version="api-v1",
     permission=Permissions.APIModify,
     require_csrf=False,
 )
@@ -60,7 +53,8 @@ def json_release_modify(release, request):
     # Let API clients know if we're in read-only mode.
     if request.flags.enabled(AdminFlagValue.READ_ONLY):
         raise _exc_with_message(
-            HTTPForbidden, "Read-only mode: Project modifications are temporarily disabled."
+            HTTPForbidden,
+            "Read-only mode: Project modifications are temporarily disabled.",
         )
 
     data = json_release(release, request)
@@ -82,8 +76,8 @@ def json_release_modify(release, request):
 
     missing = object()
     # As per PEP 592, releases can be yanked and unyanked willy-nilly.
-    yanked = body.get('yanked', missing)
-    yanked_reason = body.get('yanked_reason', missing)
+    yanked = body.get("yanked", missing)
+    yanked_reason = body.get("yanked_reason", missing)
 
     # 2024-10-15(warsaw): Likely we should use jsonschema.validate() to
     # validate the data types read from the request body, but with the optional
@@ -92,8 +86,7 @@ def json_release_modify(release, request):
     # First we yank or unyank the release.
     if yanked is not missing:
         if not isinstance(yanked, bool):
-            raise _exc_with_message(
-                HTTPBadRequest, "`yanked` must be a boolean")
+            raise _exc_with_message(HTTPBadRequest, "`yanked` must be a boolean")
         release.yanked = yanked
 
     # Next, if the release is either being yanked or the yank status is not
@@ -114,8 +107,9 @@ def json_release_modify(release, request):
             yanked_reason = ""
         if not isinstance(yanked_reason, str):
             raise _exc_with_message(
-                HTTPBadRequest, "`yanked_reason` must be a string or None")
-        release.yanked_reason = ("" if yanked_reason is None else yanked_reason)
+                HTTPBadRequest, "`yanked_reason` must be a string or None"
+            )
+        release.yanked_reason = "" if yanked_reason is None else yanked_reason
 
     # Return the new JSON body of the release object.
     return json_release(release, request)
