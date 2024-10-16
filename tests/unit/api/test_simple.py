@@ -553,7 +553,7 @@ class TestSimpleDetail:
             elif route == "integrity.provenance":
                 return next(provenance_iter)
             else:
-                assert False, route
+                pytest.fail(f"unexpected route: {route}")
 
         db_request.route_url = route_url
 
