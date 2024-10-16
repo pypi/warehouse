@@ -609,6 +609,7 @@ class TestGitLabPublisher:
             ("https://gitlab.com/repository_owner/repository_name.git/", True),
             ("https://gitlab.com/repository_owner/repository_name.git/issues", False),
             ("https://gitlab.com/repository_OwNeR/RePoSiToRy_Name.git/", True),
+            ("https://gitlab.com/another_owner/repository_name/issues", False),
         ],
     )
     def test_gitlab_publisher_verify_url(self, url, expected):
