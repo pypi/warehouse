@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Use GitHub App Token
-        uses: wow-actions/use-app-token@v2.0.2
+        uses: wow-actions/use-app-token@v2.1.1
         id: generate_token
         with:
           app_id: ${{ secrets.COMBINE_PRS_APP_ID }}
