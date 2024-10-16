@@ -663,6 +663,7 @@ class TestGitHubPublisher:
             ("https://repository_owner.github.io/", False),
             ("https://repository_owner.github.io/unrelated_name/", False),
             ("https://github.com/RePosItory_OwNeR/rePository_Name.git", True),
+            ("https://repository_owner.github.io/RePoSiToRy_NaMe/subpage", True),
         ],
     )
     def test_github_publisher_verify_url(self, url, expected):

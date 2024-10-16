@@ -359,13 +359,18 @@ class GitHubPublisher(GitHubPublisherMixin, OIDCPublisher):
         The suffix `.git` in repo URLs is ignored, since `github.com/org/repo.git`
         always redirects to `github.com/org/repo`. This does not apply to subpaths,
         like `github.com/org/repo.git/issues`, which do not redirect to the correct URL.
-        """
-        url_for_generic_check = url.removesuffix("/").removesuffix(".git")
 
+        GitHub uses case-insensitive owner/repo slugs - so we perform a case-insensitive
+        comparison.
+        """
+        url = url.lower()
+        url_for_generic_check = url.removesuffix("/").removesuffix(".git")
         if super().verify_url(url_for_generic_check):
             return True
 
-        docs_url = f"https://{self.repository_owner}.github.io/{self.repository_name}"
+        docs_url = (
+            f"https://{self.repository_owner}.github.io/{self.repository_name}".lower()
+        )
         docs_uri = rfc3986.api.uri_reference(docs_url).normalize()
         user_uri = rfc3986.api.uri_reference(url).normalize()
 
