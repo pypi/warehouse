@@ -576,7 +576,7 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
-        "api.release",
+        "api.rest.release",
         "/api/projects/{name}/{version}",
         factory="warehouse.legacy.api.json.release_factory",
         domain=warehouse,

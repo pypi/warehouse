@@ -163,6 +163,7 @@ class MacaroonSecurityPolicy:
             #  operations, bypassing any 2FA requirements.
             Permissions.APIEcho,
             Permissions.APIObservationsAdd,
+            Permissions.APIModify,
         ]:
             return WarehouseDenied(
                 f"API tokens are not valid for permission: {permission}!",
