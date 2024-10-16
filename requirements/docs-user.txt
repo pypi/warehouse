@@ -237,13 +237,13 @@ mkdocs-get-deps==0.2.0 \
     --hash=sha256:162b3d129c7fad9b19abfdcb9c1458a651628e4b1dea628ac68790fb3061c60c \
     --hash=sha256:2bf11d0b133e77a0dd036abeeb06dec8775e46efa526dc70667d8863eefc6134
     # via mkdocs
-mkdocs-macros-plugin==1.3.4 \
-    --hash=sha256:6f99dc10420a82afa4835db7896f0a242d3b8f593c090c66f3b427ceebbc8767 \
-    --hash=sha256:de6ea32729bf2ffffed18b23966e27b4915512370e5cbc37a388f32ff75b97b9
+mkdocs-macros-plugin==1.3.5 \
+    --hash=sha256:58bd47ea7097d1a2824dc9d0d912c211823c5e6e6fe8a19a3ecf33346f7d6547 \
+    --hash=sha256:5fd6969e2c43e23031ffb719bebe7421163ea26f4dc360af2343144ca979b04b
     # via -r requirements/docs-user.in
-mkdocs-material==9.5.40 \
-    --hash=sha256:8e7a16ada34e79a7b6459ff2602584222f522c738b6a023d1bea853d5049da6f \
-    --hash=sha256:b69d70e667ec51fc41f65e006a3184dd00d95b2439d982cb1586e4c018943156
+mkdocs-material==9.5.41 \
+    --hash=sha256:30fa5d459b4b8130848ecd8e1c908878345d9d8268f7ddbc31eebe88d462d97b \
+    --hash=sha256:990bc138c33342b5b73e7545915ebc0136e501bfbd8e365735144f5120891d83
     # via -r requirements/docs-user.in
 mkdocs-material-extensions==1.3.1 \
     --hash=sha256:10c9511cea88f568257f960358a467d12b970e1f7b2c0e5fb2bb48cab1928443 \
@@ -451,9 +451,9 @@ six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
     --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
     # via python-dateutil
-super-collections==0.5.0 \
-    --hash=sha256:95db6b400fc16e29087ba1188eada9669fb8b8a4c4c4e6b4c63037e2e8166798 \
-    --hash=sha256:d4a38a0eefa7d02a46d65594437cff94b54cf84c8ee62f9cc4067eca38462ebb
+super-collections==0.5.3 \
+    --hash=sha256:907d35b25dc4070910e8254bf2f5c928348af1cf8a1f1e8259e06c666e902cff \
+    --hash=sha256:94c1ec96c0a0d5e8e7d389ed8cde6882ac246940507c5e6b86e91945c2968d46
     # via mkdocs-macros-plugin
 termcolor==2.5.0 \
     --hash=sha256:37b17b5fc1e604945c2642c872a3764b5d547a48009871aea3edd3afa180afb8 \
