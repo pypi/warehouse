@@ -357,7 +357,7 @@ class TestActiveStatePublisher:
             ("https://platform.activestate.com/repository_name/PrOjECt_NaMe", False),
         ],
     )
-    def test_gitlab_publisher_verify_url(self, url, expected):
+    def test_activestate_publisher_verify_url(self, url, expected):
         publisher = ActiveStatePublisher(
             organization="repository_name",
             activestate_project_name="project_name",
