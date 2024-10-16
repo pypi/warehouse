@@ -289,7 +289,7 @@ class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):
         in repo URLs, since `gitlab.com/org/repo.git` always redirects to
         `gitlab.com/org/repo`. This does not apply to subpaths like
         `gitlab.com/org/repo.git/issues`, which do not redirect to the correct URL.
-        
+
         GitLab uses case-insensitive owner/repo slugs - so we perform a case-insensitive
         comparison.
         """
