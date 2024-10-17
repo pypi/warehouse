@@ -563,6 +563,12 @@ def test_routes(warehouse):
             traverse="/{name}",
             domain=warehouse,
         ),
+        pretend.call(
+            'api.rest.release',
+            "/api/projects/{name}/{version}",
+            factory="warehouse.legacy.api.json.release_factory",
+            domain=warehouse,
+        ),
         # PEP 740 URLs
         pretend.call(
             "integrity.provenance",
