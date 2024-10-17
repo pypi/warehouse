@@ -8,9 +8,9 @@ alabaster==1.0.0 \
     --hash=sha256:c00dca57bca26fa62a6d7d0a9fcce65f3e026e9bfe33e9c538fd3fbb2144fd9e \
     --hash=sha256:fc6786402dc3fcb2de3cabd5fe455a2db534b371124f1f21de8731783dec828b
     # via sphinx
-anyio==4.6.0 \
-    --hash=sha256:137b4559cbb034c477165047febb6ff83f390fc3b20bf181c1fc0a728cb8beeb \
-    --hash=sha256:c7d2e9d63e31599eeb636c8c5c03a7e108d73b345f064f1c19fdc87b79036a9a
+anyio==4.6.2.post1 \
+    --hash=sha256:4c8bc31ccdb51c7f7bd251f51c609e038d63e34219b44aa86e47576389880b4c \
+    --hash=sha256:6d170c36fba3bdd840c73d3868c1e777e33676a69c3a72cf0a0d5d6d8009b61d
     # via
     #   starlette
     #   watchfiles
@@ -316,7 +316,9 @@ pyyaml==6.0.2 \
     --hash=sha256:efdca5630322a10774e8e98e1af481aad470dd62c3170801852d752aa7a783ba \
     --hash=sha256:f753120cb8181e736c57ef7636e83f31b9c0d1722c516f7e86cf15b7aa57ff12 \
     --hash=sha256:ff3824dc5261f50c9b0dfb3be22b4567a6f938ccce4587b38952d85fd9e9afe4
-    # via myst-parser
+    # via
+    #   myst-parser
+    #   sphinxcontrib-mermaid
 requests==2.32.3 \
     --hash=sha256:55365417734eb18255590a9ff9eb97e9e1da868d4ccd6402399eaf68af20a760 \
     --hash=sha256:70761cfe03c773ceb22aa2f671b4757976145175cdfca038c02654d061d6dcc6
@@ -337,9 +339,9 @@ soupsieve==2.6 \
     --hash=sha256:e2e68417777af359ec65daac1057404a3c8a5455bb8abc36f1a9866ab1a51abb \
     --hash=sha256:e72c4ff06e4fb6e4b5a9f0f55fe6e81514581fca1515028625d0f299c602ccc9
     # via beautifulsoup4
-sphinx==8.0.2 \
-    --hash=sha256:0cce1ddcc4fd3532cf1dd283bc7d886758362c5c1de6598696579ce96d8ffa5b \
-    --hash=sha256:56173572ae6c1b9a38911786e206a110c9749116745873feae4f9ce88e59391d
+sphinx==8.1.3 \
+    --hash=sha256:09719015511837b76bf6e03e42eb7595ac8c2e41eeb9c29c5b755c6b677992a2 \
+    --hash=sha256:43c1911eecb0d3e161ad78611bc905d1ad0e523e4ddc202a58a821773dc4c927
     # via
     #   -r requirements/docs-dev.in
     #   furo
@@ -348,6 +350,7 @@ sphinx==8.0.2 \
     #   sphinx-basic-ng
     #   sphinx-copybutton
     #   sphinxcontrib-httpdomain
+    #   sphinxcontrib-mermaid
 sphinx-autobuild==2024.10.3 \
     --hash=sha256:158e16c36f9d633e613c9aaf81c19b0fc458ca78b112533b20dafcda430d60fa \
     --hash=sha256:248150f8f333e825107b6d4b86113ab28fa51750e5f9ae63b59dc339be951fb1
@@ -380,9 +383,9 @@ sphinxcontrib-jsmath==1.0.1 \
     --hash=sha256:2ec2eaebfb78f3f2078e73666b1415417a116cc848b72e5172e596c871103178 \
     --hash=sha256:a9925e4a4587247ed2191a22df5f6970656cb8ca2bd6284309578f2153e0c4b8
     # via sphinx
-sphinxcontrib-mermaid==0.9.2 \
-    --hash=sha256:252ef13dd23164b28f16d8b0205cf184b9d8e2b714a302274d9f59eb708e77af \
-    --hash=sha256:6795a72037ca55e65663d2a2c1a043d636dc3d30d418e56dd6087d1459d98a5d
+sphinxcontrib-mermaid==1.0.0 \
+    --hash=sha256:2e8ab67d3e1e2816663f9347d026a8dee4a858acdd4ad32dd1c808893db88146 \
+    --hash=sha256:60b72710ea02087f212028feb09711225fbc2e343a10d34822fe787510e1caa3
     # via -r requirements/docs-dev.in
 sphinxcontrib-qthelp==2.0.0 \
     --hash=sha256:4fe7d0ac8fc171045be623aba3e2a8f613f8682731f9153bb2e40ece16b9bbab \
@@ -392,17 +395,17 @@ sphinxcontrib-serializinghtml==2.0.0 \
     --hash=sha256:6e2cb0eef194e10c27ec0023bfeb25badbbb5868244cf5bc5bdc04e4464bf331 \
     --hash=sha256:e9d912827f872c029017a53f0ef2180b327c3f7fd23c87229f7a8e8b70031d4d
     # via sphinx
-starlette==0.39.2 \
-    --hash=sha256:134dd6deb655a9775991d352312d53f1879775e5cc8a481f966e83416a2c3f71 \
-    --hash=sha256:caaa3b87ef8518ef913dac4f073dea44e85f73343ad2bdc17941931835b2a26a
+starlette==0.41.0 \
+    --hash=sha256:39cbd8768b107d68bfe1ff1672b38a2c38b49777de46d2a592841d58e3bf7c2a \
+    --hash=sha256:a0193a3c413ebc9c78bff1c3546a45bb8c8bcb4a84cae8747d650a65bd37210a
     # via sphinx-autobuild
 urllib3==2.2.3 \
     --hash=sha256:ca899ca043dcb1bafa3e262d73aa25c465bfb49e0bd9dd5d59f1d0acba2f8fac \
     --hash=sha256:e7d814a81dad81e6caf2ec9fdedb284ecc9c73076b62654547cc64ccdcae26e9
     # via requests
-uvicorn==0.31.1 \
-    --hash=sha256:adc42d9cac80cf3e51af97c1851648066841e7cfb6993a4ca8de29ac1548ed41 \
-    --hash=sha256:f5167919867b161b7bcaf32646c6a94cdbd4c3aa2eb5c17d36bb9aa5cfd8c493
+uvicorn==0.32.0 \
+    --hash=sha256:60b8f3a5ac027dcd31448f411ced12b5ef452c646f76f02f8cc3f25d8d26fd82 \
+    --hash=sha256:f78b36b143c16f54ccdb8190d0a26b5f1901fe5a3c777e1ab29f26391af8551e
     # via sphinx-autobuild
 watchfiles==0.23.0 \
     --hash=sha256:02b7ba9d4557149410747353e7325010d48edcfe9d609a85cb450f17fd50dc3d \
