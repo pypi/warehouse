@@ -258,6 +258,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
 
     def __getitem__(self, version):
         session = orm.object_session(self)
+        assert session is not None
         canonical_version = packaging.utils.canonicalize_version(version)
 
         try:
@@ -289,6 +290,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
 
     def __acl__(self):
         session = orm.object_session(self)
+        assert session is not None
         acls = [
             # TODO: Similar to `warehouse.accounts.models.User.__acl__`, we express the
             #       permissions here in terms of the permissions that the user has on
@@ -417,42 +419,39 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
     @property
     def owners(self):
         """Return all users who are owners of the project."""
+        session = orm.object_session(self)
+        assert session is not None
         owner_roles = (
-            orm.object_session(self)
-            .query(User.id)
+            session.query(User.id)
             .join(Role.user)
             .filter(Role.role_name == "Owner", Role.project == self)
             .subquery()
         )
-        return (
-            orm.object_session(self)
-            .query(User)
-            .join(owner_roles, User.id == owner_roles.c.id)
-            .all()
-        )
+        return session.query(User).join(owner_roles, User.id == owner_roles.c.id).all()
 
     @property
     def maintainers(self):
         """Return all users who are maintainers of the project."""
+        session = orm.object_session(self)
+        assert session is not None
         maintainer_roles = (
-            orm.object_session(self)
-            .query(User.id)
+            session.query(User.id)
             .join(Role.user)
             .filter(Role.role_name == "Maintainer", Role.project == self)
             .subquery()
         )
         return (
-            orm.object_session(self)
-            .query(User)
+            session.query(User)
             .join(maintainer_roles, User.id == maintainer_roles.c.id)
             .all()
         )
 
     @property
     def all_versions(self):
+        session = orm.object_session(self)
+        assert session is not None
         return (
-            orm.object_session(self)
-            .query(
+            session.query(
                 Release.version,
                 Release.created,
                 Release.is_prerelease,
@@ -466,9 +465,10 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
 
     @property
     def latest_version(self):
+        session = orm.object_session(self)
+        assert session is not None
         return (
-            orm.object_session(self)
-            .query(Release.version, Release.created, Release.is_prerelease)
+            session.query(Release.version, Release.created, Release.is_prerelease)
             .filter(Release.project == self, Release.yanked.is_(False))
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .first()
@@ -727,7 +727,8 @@ class Release(HasObservations, db.Model):
     uploaded_via: Mapped[str | None]
 
     def __getitem__(self, filename: str) -> File:
-        session: orm.Session = orm.object_session(self)  # type: ignore[assignment]
+        session = orm.object_session(self)
+        assert session is not None
 
         try:
             return (
