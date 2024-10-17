@@ -28,8 +28,8 @@ KNOWN_LOCALES = {
         "es",  # Spanish
         "fr",  # French
         "ja",  # Japanese
-        "pt_BR",  # Brazilian Portugeuse
-        "uk",  # Ukranian
+        "pt_BR",  # Brazilian Portuguese
+        "uk",  # Ukrainian
         "el",  # Greek
         "de",  # German
         "zh_Hans",  # Simplified Chinese
