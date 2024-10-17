@@ -63,6 +63,8 @@ from warehouse.packaging import services as packaging_services
 from warehouse.packaging.interfaces import IProjectService
 from warehouse.subscriptions import services as subscription_services
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
+from warehouse.tuf import services as tuf_services
+from warehouse.tuf.interfaces import ITUFService
 
 from .common.db import Session
 from .common.db.accounts import EmailFactory, UserFactory
@@ -179,6 +181,7 @@ def pyramid_services(
     integrity_service,
     macaroon_service,
     helpdesk_service,
+    tuf_service,
 ):
     services = _Services()
 
@@ -201,6 +204,7 @@ def pyramid_services(
     services.register_service(integrity_service, IIntegrityService, None)
     services.register_service(macaroon_service, IMacaroonService, None, name="")
     services.register_service(helpdesk_service, IHelpDeskService, None)
+    services.register_service(tuf_service, ITUFService, None)
 
     return services
 
@@ -609,6 +613,11 @@ def email_service():
 @pytest.fixture
 def helpdesk_service():
     return helpdesk_services.ConsoleHelpDeskService()
+
+
+@pytest.fixture
+def tuf_service(db_session):
+    return tuf_services.RSTUFService(db_session)
 
 
 class QueryRecorder:
