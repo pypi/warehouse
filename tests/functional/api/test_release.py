@@ -12,16 +12,16 @@
 
 import base64
 
+from http import HTTPStatus
+
 import pymacaroons
 import pytest
 
-from http import HTTPStatus
+from warehouse.macaroons import caveats
 
 from ...common.db.accounts import UserFactory
 from ...common.db.macaroons import MacaroonFactory
 from ...common.db.packaging import ProjectFactory, ReleaseFactory, RoleFactory
-
-from warehouse.macaroons import caveats
 
 
 def _make_credentials(user):
@@ -50,20 +50,18 @@ def test_release_get(webtest):
 
     resp = webtest.get(
         f"/api/projects/{project.normalized_name}/{release.version}",
-        headers={'Content-Type': 'application/json'},
+        headers={"Content-Type": "application/json"},
         status=HTTPStatus.OK,
     )
     assert resp.content_type == "application/json"
-    info = resp.json['info']
-    assert not info['yanked']
-    assert info['yanked_reason'] is None
+    info = resp.json["info"]
+    assert not info["yanked"]
+    assert info["yanked_reason"] is None
 
 
-@pytest.mark.parametrize('body', [
-    {'yanked': True},
-    {'yanked': True, 'yanked_reason': 'because'},
-    {'yanked': False}
-    ]
+@pytest.mark.parametrize(
+    "body",
+    [{"yanked": True}, {"yanked": True, "yanked_reason": "because"}, {"yanked": False}],
 )
 def test_release_patch_noargs_unauthenticated(webtest, body):
     project = ProjectFactory.create()
@@ -82,12 +80,12 @@ def test_release_patch_bad_payload(webtest):
 
     project = ProjectFactory.create()
     release = ReleaseFactory.create(project=project)
-    RoleFactory.create(user=user, project=project, role_name='Owner')
+    RoleFactory.create(user=user, project=project, role_name="Owner")
 
     webtest.patch(
         f"/api/projects/{project.normalized_name}/{release.version}",
         headers={"Authorization": f"Basic {credentials}"},
-        params='xyz',
+        params="xyz",
         status=HTTPStatus.BAD_REQUEST,
     )
 
@@ -106,7 +104,7 @@ def test_release_patch_no_payload(webtest):
 
     project = ProjectFactory.create()
     release = ReleaseFactory.create(project=project)
-    RoleFactory.create(user=user, project=project, role_name='Owner')
+    RoleFactory.create(user=user, project=project, role_name="Owner")
 
     webtest.patch(
         f"/api/projects/{project.normalized_name}/{release.version}",
@@ -116,11 +114,11 @@ def test_release_patch_no_payload(webtest):
 
 
 @pytest.mark.parametrize(
-    ('role', 'status'),
+    ("role", "status"),
     [
-        ('Owner', HTTPStatus.OK),
-        ('Maintainer', HTTPStatus.FORBIDDEN),
-    ]
+        ("Owner", HTTPStatus.OK),
+        ("Maintainer", HTTPStatus.FORBIDDEN),
+    ],
 )
 def test_release_patch_single_by_role(webtest, role, status):
     user = UserFactory.create(with_verified_primary_email=True, clear_pwd="password")
@@ -139,25 +137,29 @@ def test_release_patch_single_by_role(webtest, role, status):
 
 
 @pytest.mark.parametrize(
-    ('body', 'expected'),
+    ("body", "expected"),
     [
-        ({}, {'yanked': False, 'yanked_reason': None}),
-        ({'yanked': True, 'yanked_reason': 'because'}, None),
-        ({'yanked': True, 'yanked_reason': None}, None),
-        ({'yanked': False, 'yanked_reason': 'because'}, {'yanked': False, 'yanked_reason': None}),
-        ({'yanked': True}, {'yanked': True, 'yanked_reason': None}),
-        ({'yanked': False}, {'yanked': False, 'yanked_reason': None}),
-        ({'yanked_reason': 'because'}, {'yanked': False, 'yanked_reason': None}),
-        ({'yanked': 'not-a-bool', 'yanked_reason': 'because'}, HTTPStatus.BAD_REQUEST),
-        ({'yanked': True, 'yanked_reason': 7}, HTTPStatus.BAD_REQUEST),
-    ])
+        ({}, {"yanked": False, "yanked_reason": None}),
+        ({"yanked": True, "yanked_reason": "because"}, None),
+        ({"yanked": True, "yanked_reason": None}, None),
+        (
+            {"yanked": False, "yanked_reason": "because"},
+            {"yanked": False, "yanked_reason": None},
+        ),
+        ({"yanked": True}, {"yanked": True, "yanked_reason": None}),
+        ({"yanked": False}, {"yanked": False, "yanked_reason": None}),
+        ({"yanked_reason": "because"}, {"yanked": False, "yanked_reason": None}),
+        ({"yanked": "not-a-bool", "yanked_reason": "because"}, HTTPStatus.BAD_REQUEST),
+        ({"yanked": True, "yanked_reason": 7}, HTTPStatus.BAD_REQUEST),
+    ],
+)
 def test_release_patch_single(webtest, body, expected):
     user = UserFactory.create(with_verified_primary_email=True, clear_pwd="password")
     credentials = _make_credentials(user)
 
     project = ProjectFactory.create()
     release = ReleaseFactory.create(project=project)
-    RoleFactory.create(user=user, project=project, role_name='Owner')
+    RoleFactory.create(user=user, project=project, role_name="Owner")
 
     status = HTTPStatus.OK
     if expected is None:
@@ -175,7 +177,7 @@ def test_release_patch_single(webtest, body, expected):
     if status != HTTPStatus.OK:
         return
 
-    info = resp.json['info']
+    info = resp.json["info"]
 
     for key, value in expected.items():
         assert info[key] == value
@@ -187,64 +189,64 @@ def test_release_transitions(webtest):
 
     project = ProjectFactory.create()
     release = ReleaseFactory.create(project=project)
-    RoleFactory.create(user=user, project=project, role_name='Owner')
+    RoleFactory.create(user=user, project=project, role_name="Owner")
 
     # Start by yanking a release with a reason.
     resp = webtest.patch_json(
         f"/api/projects/{project.normalized_name}/{release.version}",
         headers={"Authorization": f"Basic {credentials}"},
-        params={'yanked': True, 'yanked_reason': 'because'},
+        params={"yanked": True, "yanked_reason": "because"},
         status=HTTPStatus.OK,
     )
 
-    info = resp.json['info']
-    assert info['yanked']
-    assert info['yanked_reason'] == 'because'
+    info = resp.json["info"]
+    assert info["yanked"]
+    assert info["yanked_reason"] == "because"
 
     # Yanking again without a reason does not change the previous reason.
     resp = webtest.patch_json(
         f"/api/projects/{project.normalized_name}/{release.version}",
         headers={"Authorization": f"Basic {credentials}"},
-        params={'yanked': True},
+        params={"yanked": True},
         status=HTTPStatus.OK,
     )
 
-    info = resp.json['info']
-    assert info['yanked']
-    assert info['yanked_reason'] == 'because'
+    info = resp.json["info"]
+    assert info["yanked"]
+    assert info["yanked_reason"] == "because"
 
     # The package is still yanked, so you can change the reason.
     resp = webtest.patch_json(
         f"/api/projects/{project.normalized_name}/{release.version}",
         headers={"Authorization": f"Basic {credentials}"},
-        params={'yanked_reason': 'why not'},
+        params={"yanked_reason": "why not"},
         status=HTTPStatus.OK,
     )
 
-    info = resp.json['info']
-    assert info['yanked']
-    assert info['yanked_reason'] == 'why not'
+    info = resp.json["info"]
+    assert info["yanked"]
+    assert info["yanked_reason"] == "why not"
 
     # Unyanking the package resets the reason.
     resp = webtest.patch_json(
         f"/api/projects/{project.normalized_name}/{release.version}",
         headers={"Authorization": f"Basic {credentials}"},
-        params={'yanked': False},
+        params={"yanked": False},
         status=HTTPStatus.OK,
     )
 
-    info = resp.json['info']
-    assert not info['yanked']
-    assert info['yanked_reason'] is None
+    info = resp.json["info"]
+    assert not info["yanked"]
+    assert info["yanked_reason"] is None
 
     # Setting the reason for an unyanking package ignores the reason.
     resp = webtest.patch_json(
         f"/api/projects/{project.normalized_name}/{release.version}",
         headers={"Authorization": f"Basic {credentials}"},
-        params={'yanked_reason': 'unyanked'},
+        params={"yanked_reason": "unyanked"},
         status=HTTPStatus.OK,
     )
 
-    info = resp.json['info']
-    assert not info['yanked']
-    assert info['yanked_reason'] is None
+    info = resp.json["info"]
+    assert not info["yanked"]
+    assert info["yanked_reason"] is None

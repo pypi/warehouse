@@ -10,9 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pytest
-
 import pretend
+import pytest
 
 from pyramid.httpexceptions import HTTPForbidden
 
@@ -28,4 +27,6 @@ def test_fails_in_read_only_mode(pyramid_request):
     resp = excinfo.value
 
     assert resp.status_code == 403
-    assert resp.status == ("403 Read-only mode: Release modifications are temporarily disabled.")
+    assert resp.status == (
+        "403 Read-only mode: Release modifications are temporarily disabled."
+    )

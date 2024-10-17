@@ -564,7 +564,7 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
-            'api.rest.release',
+            "api.rest.release",
             "/api/projects/{name}/{version}",
             factory="warehouse.legacy.api.json.release_factory",
             domain=warehouse,
