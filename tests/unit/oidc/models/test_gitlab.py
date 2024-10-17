@@ -670,7 +670,6 @@ class TestGitLabPublisher:
                 f"https://{NAMESPACE}.gitlab.io/subpage",
                 True,
             ),
-            # The special rule only works when the project name is the same as the owner
             (
                 "project_name.gitlab.io",
                 NAMESPACE,

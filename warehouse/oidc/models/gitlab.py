@@ -296,7 +296,21 @@ class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):
         on `gitlab.io` for the configured repository, i.e:
         `https://${OWNER}.gitlab.io/${SUBGROUP}/${PROJECT}`.
 
-        This method does not support the verification when the Unique Domain setting is used.
+        This method does not support the verification when the Unique Domain setting is
+        used.
+
+        The rules implemented in this method are derived from
+        https://docs.gitlab.com/ee/user/project/pages/getting_started_part_one.html#project-website-examples
+        https://docs.gitlab.com/ee/user/project/pages/getting_started_part_one.html#user-and-group-website-examples
+
+        The table stems from GitLab documentation and is replicated here for clarity.
+        | Namespace                    | GitLab Page URL                          |
+        | ---------------------------- | ---------------------------------------- |
+        | username/username.example.io | https://username.gitlab.io               |
+        | acmecorp/acmecorp.example.io | https://acmecorp.gitlab.io               |
+        | username/my-website          | https://username.gitlab.io/my-website    |
+        | group/webshop                | https://group.gitlab.io/webshop          |
+        | group/subgroup/project       | https://group.gitlab.io/subgroup/project |
         """
         url_for_generic_check = url.removesuffix("/").removesuffix(".git")
         if super().verify_url(url_for_generic_check):
