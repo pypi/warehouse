@@ -92,6 +92,29 @@ def test_project_patch_bad_payload(webtest):
     )
 
 
+def test_project_patch_no_payload(webtest):
+    # 2024-10-17(warsaw): This test is here to mimic a body-less curl command such as:
+    #
+    # curl -X PATCH http://localhost/api/projects/dstufft-testpkg/21.0 -H "..." -u "..."
+    #
+    # Note the lack of a -d to pass data to the PATCH command.  This ends up
+    # with request.body being None rather than an empty dictionary which could
+    # be JSON-decoded.  The semantics are the same -- there's nothing to PATCH
+    # so nothing to do.  This test is here just to get to 100% coverage.
+    user = UserFactory.create(with_verified_primary_email=True, clear_pwd="password")
+    credentials = _make_credentials(user)
+
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project)
+    RoleFactory.create(user=user, project=project, role_name='Owner')
+
+    webtest.patch(
+        f"/api/projects/{project.normalized_name}/{release.version}",
+        headers={"Authorization": f"Basic {credentials}"},
+        status=HTTPStatus.OK,
+    )
+
+
 @pytest.mark.parametrize(
     ('role', 'status'),
     [
