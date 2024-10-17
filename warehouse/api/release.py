@@ -54,7 +54,7 @@ def json_release_modify(release, request):
     if request.flags.enabled(AdminFlagValue.READ_ONLY):
         raise _exc_with_message(
             HTTPForbidden,
-            "Read-only mode: Project modifications are temporarily disabled.",
+            "Read-only mode: Release modifications are temporarily disabled.",
         )
 
     data = json_release(release, request)

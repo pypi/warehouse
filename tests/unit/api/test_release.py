@@ -16,16 +16,16 @@ import pretend
 
 from pyramid.httpexceptions import HTTPForbidden
 
-from warehouse.api import project
+from warehouse.api import release
 
 
 def test_fails_in_read_only_mode(pyramid_request):
     pyramid_request.flags = pretend.stub(enabled=lambda *a: True)
 
     with pytest.raises(HTTPForbidden) as excinfo:
-        project.json_release_modify(None, pyramid_request)
+        release.json_release_modify(None, pyramid_request)
 
     resp = excinfo.value
 
     assert resp.status_code == 403
-    assert resp.status == ("403 Read-only mode: Project modifications are temporarily disabled.")
+    assert resp.status == ("403 Read-only mode: Release modifications are temporarily disabled.")

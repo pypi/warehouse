@@ -44,7 +44,7 @@ def _make_credentials(user):
     return base64.b64encode(f"__token__:{serialized_macaroon}".encode()).decode("utf-8")
 
 
-def test_project_get(webtest):
+def test_release_get(webtest):
     project = ProjectFactory.create()
     release = ReleaseFactory.create(project=project)
 
@@ -65,7 +65,7 @@ def test_project_get(webtest):
     {'yanked': False}
     ]
 )
-def test_project_patch_noargs_unauthenticated(webtest, body):
+def test_release_patch_noargs_unauthenticated(webtest, body):
     project = ProjectFactory.create()
     release = ReleaseFactory.create(project=project)
 
@@ -76,7 +76,7 @@ def test_project_patch_noargs_unauthenticated(webtest, body):
     )
 
 
-def test_project_patch_bad_payload(webtest):
+def test_release_patch_bad_payload(webtest):
     user = UserFactory.create(with_verified_primary_email=True, clear_pwd="password")
     credentials = _make_credentials(user)
 
@@ -92,7 +92,7 @@ def test_project_patch_bad_payload(webtest):
     )
 
 
-def test_project_patch_no_payload(webtest):
+def test_release_patch_no_payload(webtest):
     # 2024-10-17(warsaw): This test is here to mimic a body-less curl command such as:
     #
     # curl -X PATCH http://localhost/api/projects/dstufft-testpkg/21.0 -H "..." -u "..."
@@ -122,7 +122,7 @@ def test_project_patch_no_payload(webtest):
         ('Maintainer', HTTPStatus.FORBIDDEN),
     ]
 )
-def test_project_patch_single_by_role(webtest, role, status):
+def test_release_patch_single_by_role(webtest, role, status):
     user = UserFactory.create(with_verified_primary_email=True, clear_pwd="password")
     credentials = _make_credentials(user)
 
@@ -151,7 +151,7 @@ def test_project_patch_single_by_role(webtest, role, status):
         ({'yanked': 'not-a-bool', 'yanked_reason': 'because'}, HTTPStatus.BAD_REQUEST),
         ({'yanked': True, 'yanked_reason': 7}, HTTPStatus.BAD_REQUEST),
     ])
-def test_project_patch_single(webtest, body, expected):
+def test_release_patch_single(webtest, body, expected):
     user = UserFactory.create(with_verified_primary_email=True, clear_pwd="password")
     credentials = _make_credentials(user)
 
@@ -181,7 +181,7 @@ def test_project_patch_single(webtest, body, expected):
         assert info[key] == value
 
 
-def test_project_transitions(webtest):
+def test_release_transitions(webtest):
     user = UserFactory.create(with_verified_primary_email=True, clear_pwd="password")
     credentials = _make_credentials(user)
 
