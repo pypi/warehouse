@@ -644,13 +644,13 @@ class TestGitLabPublisher:
                 f"https://owner.with.dot.gitlab.io/{PROJECT_NAME}",
                 True,
             ),
-            # Unique domains are not supported
-            (
+            ( # Unique domains are not supported
                 PROJECT_NAME,
                 NAMESPACE,
                 f"https://{PROJECT_NAME}-123456.gitlab.io/",
                 False,
             ),
+            # Project name is not properly formed
             (PROJECT_NAME, NAMESPACE, f"https://{NAMESPACE}.gitlab.io/", False),
             (
                 f"{NAMESPACE}.gitlab.io",
@@ -670,7 +670,7 @@ class TestGitLabPublisher:
                 f"https://{NAMESPACE}.gitlab.io/subpage",
                 True,
             ),
-            (
+            ( # Only for user/group own pages
                 "project_name.gitlab.io",
                 NAMESPACE,
                 f"https://{NAMESPACE}.gitlab.io/subpage",
