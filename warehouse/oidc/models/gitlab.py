@@ -296,7 +296,7 @@ class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):
         on `gitlab.io` for the configured repository, i.e:
         `https://${OWNER}.gitlab.io/${SUBGROUP}/${PROJECT}`.
 
-        This method does not support the verification when Unique Domain are used.
+        This method does not support the verification when the Unique Domain setting is used.
         """
         url_for_generic_check = url.removesuffix("/").removesuffix(".git")
         if super().verify_url(url_for_generic_check):
