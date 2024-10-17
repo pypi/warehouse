@@ -118,14 +118,15 @@ def verify_url_from_reference(reference_url: str, url: str) -> bool:
     if not user_uri.path and reference_uri.path:
         return False
 
-    reference_path = reference_uri.path
-    if reference_path is None:
-        reference_path = ""
-    elif not reference_path.endswith("/"):
-        reference_path += "/"
-
+    # A reference path can be a prefix of a user path only if it ends
+    # with a forward slash ("/"). E.g: `my/path` is a prefix of both
+    # `/my/path/user` and `my/path_user`, but only the first one should
+    # pass verification.
+    reference_path_prefix = (
+        "" if reference_uri.path is None else reference_uri.path.rstrip("/") + "/"
+    )
     is_subpath = reference_uri.path == user_uri.path or user_uri.path.startswith(
-        reference_path
+        reference_path_prefix
     )
     return (
         reference_uri.scheme == user_uri.scheme
