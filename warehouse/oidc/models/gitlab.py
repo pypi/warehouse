@@ -27,6 +27,8 @@ from warehouse.oidc.models._core import (
     check_existing_jti,
 )
 
+GITLAB_OIDC_ISSUER_URL = "https://gitlab.com"
+
 # This expression matches the workflow filepath component of a GitLab
 # `ci_config_ref_uri` OIDC claim. This requires a nontrivial (and nonregular)
 # pattern, since the workflow path can contain interior slashes while also

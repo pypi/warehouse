@@ -29,6 +29,8 @@ from warehouse.oidc.models._core import (
     PendingOIDCPublisher,
 )
 
+ACTIVESTATE_OIDC_ISSUER_URL = "https://platform.activestate.com/api/v1/oauth/oidc"
+
 _ACTIVESTATE_URL = "https://platform.activestate.com"
 
 
