@@ -988,9 +988,9 @@ jsonschema-specifications==2023.12.1 \
     # via
     #   jsonschema
     #   openapi-schema-validator
-kombu[sqs]==5.4.0 \
-    --hash=sha256:ad200a8dbdaaa2bbc5f26d2ee7d707d9a1fded353a0f4bd751ce8c7d9f449c60 \
-    --hash=sha256:c8dd99820467610b4febbc7a9e8a0d3d7da2d35116b67184418b51cc520ea6b6
+kombu[sqs]==5.4.2 \
+    --hash=sha256:14212f5ccf022fc0a70453bb025a1dcc32782a588c49ea866884047d66e14763 \
+    --hash=sha256:eef572dd2fd9fc614b37580e3caeafdd5af46c1eff31e7fba89138cdb406f2cf
     # via
     #   -r requirements/main.in
     #   celery
@@ -2287,7 +2287,9 @@ typing-extensions==4.12.2 \
 tzdata==2024.2 \
     --hash=sha256:7d85cc416e9382e69095b7bdf4afd9e3880418a2413feec7069d533d6b4e31cc \
     --hash=sha256:a48093786cdcde33cad18c2555e8532f34422074448fbc874186f0abd79565cd
-    # via celery
+    # via
+    #   celery
+    #   kombu
 ua-parser==0.18.0 \
     --hash=sha256:9d94ac3a80bcb0166823956a779186c746b50ea4c9fd9bf30fdb758553c38950 \
     --hash=sha256:db51f1b59bfaa82ed9e2a1d99a54d3e4153dddf99ac1435d51828165422e624e
