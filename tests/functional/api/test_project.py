@@ -76,6 +76,22 @@ def test_project_patch_noargs_unauthenticated(webtest, body):
     )
 
 
+def test_project_patch_bad_payload(webtest):
+    user = UserFactory.create(with_verified_primary_email=True, clear_pwd="password")
+    credentials = _make_credentials(user)
+
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project)
+    RoleFactory.create(user=user, project=project, role_name='Owner')
+
+    webtest.patch(
+        f"/api/projects/{project.normalized_name}/{release.version}",
+        headers={"Authorization": f"Basic {credentials}"},
+        params='xyz',
+        status=HTTPStatus.BAD_REQUEST,
+    )
+
+
 @pytest.mark.parametrize(
     ('role', 'status'),
     [
