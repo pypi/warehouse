@@ -520,9 +520,9 @@ types-first==2.0.5.20240806 \
     --hash=sha256:11e3eba5bfc294be7afc6cea00be69cb20244674df117aa67648dcbd26c96766 \
     --hash=sha256:d630f9e7f4816731ec05389ccea80d7668cbf879a9c3fade9e5ad3aa6cece27c
     # via -r requirements/lint.in
-types-html5lib==1.1.11.20240806 \
-    --hash=sha256:575c4fd84ba8eeeaa8520c7e4c7042b7791f5ec3e9c0a5d5c418124c42d9e7e4 \
-    --hash=sha256:8060dc98baf63d6796a765bbbc809fff9f7a383f6e3a9add526f814c086545ef
+types-html5lib==1.1.11.20241018 \
+    --hash=sha256:3f1e064d9ed2c289001ae6392c84c93833abb0816165c6ff0abfc304a779f403 \
+    --hash=sha256:98042555ff78d9e3a51c77c918b1041acbb7eb6c405408d8a9e150ff5beccafa
     # via -r requirements/lint.in
 types-itsdangerous==1.1.6 \
     --hash=sha256:21c6966c10e353a5d35d36c82aaa2c5598d3bc32ddc8e0591276da5ad2e3c638 \
@@ -558,9 +558,9 @@ types-s3transfer==0.10.3 \
     --hash=sha256:d34c5a82f531af95bb550927136ff5b737a1ed3087f90a59d545591dfde5b4cc \
     --hash=sha256:f761b2876ac4c208e6c6b75cdf5f6939009768be9950c545b11b0225e7703ee7
     # via boto3-stubs
-types-setuptools==75.1.0.20241014 \
-    --hash=sha256:29b0560a8d4b4a91174be085847002c69abfcb048e20b33fc663005aedf56804 \
-    --hash=sha256:caab58366741fb99673d0138b6e2d760717f154cfb981b74fea5e8de40f0b703
+types-setuptools==75.2.0.20241018 \
+    --hash=sha256:86eeada00390425c1251a88d4cc276a923a28e1caccc56e89c0acb2dd358e88d \
+    --hash=sha256:bcb7aded3d1e546350d2293a3f9352b0d1887c87b2e5586e2b0325485e24837e
     # via
     #   -r requirements/lint.in
     #   types-babel
@@ -643,9 +643,9 @@ zope-schema==7.0.1 \
     # via mypy-zope
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==75.1.0 \
-    --hash=sha256:35ab7fd3bcd95e6b7fd704e4a1539513edad446c097797f2985e0e4b960772f2 \
-    --hash=sha256:d59a21b17a275fb872a9c3dae73963160ae079f1049ed956880cd7c09b120538
+setuptools==75.2.0 \
+    --hash=sha256:753bb6ebf1f465a1912e19ed1d41f403a79173a9acf66a42e7e6aec45c3c16ec \
+    --hash=sha256:a7fcb66f68b4d9e8e66b42f9876150a3371558f98fa32222ffaa5bced76406f8
     # via
     #   zope-event
     #   zope-interface

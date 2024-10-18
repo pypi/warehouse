@@ -2136,9 +2136,9 @@ securesystemslib==1.1.0 \
     --hash=sha256:100bf04e60b260e1c7c51e3232647697fde2c5ca5772fda4932d841d3fb6dd0e \
     --hash=sha256:27143a8e04b5573636f260f21d7e26b48bcedcf394e6f74ec31e9a5287e0c38b
     # via tuf
-sentry-sdk==2.16.0 \
-    --hash=sha256:49139c31ebcd398f4f6396b18910610a0c1602f6e67083240c33019d1f6aa30c \
-    --hash=sha256:90f733b32e15dfc1999e6b7aca67a38688a567329de4d6e184154a73f96c6892
+sentry-sdk==2.17.0 \
+    --hash=sha256:625955884b862cc58748920f9e21efdfb8e0d4f98cca4ab0d3918576d5b606ad \
+    --hash=sha256:dd0a05352b78ffeacced73a94e86f38b32e2eae15fff5f30ca5abb568a72eacf
     # via -r requirements/main.in
 sigstore==3.4.0 \
     --hash=sha256:71038afff4e0254aadc562cc725f6a1ccad7d32ff62abb3305c698737ee0a546 \
@@ -2265,9 +2265,9 @@ translationstring==1.4 \
     --hash=sha256:5f4dc4d939573db851c8d840551e1a0fb27b946afe3b95aafc22577eed2d6262 \
     --hash=sha256:bf947538d76e69ba12ab17283b10355a9ecfbc078e6123443f43f2107f6376f3
     # via pyramid
-trove-classifiers==2024.10.13 \
-    --hash=sha256:4154432be880041d8cb1e01f7e0d9989a4ca24a71355bc036777919ec0a633f2 \
-    --hash=sha256:b820fc6f9544543afa15e5d9cfc426cde3b20fc2246dff6f019b835731508cef
+trove-classifiers==2024.10.16 \
+    --hash=sha256:8a3570c880f7ca2ffebbc91806aee3e8f5cd221422dfc8cd2cad4b48789ac69b \
+    --hash=sha256:9b02a4cb49bd2e85c13e728ee461f4f332d6334736b18d61254c964643687144
     # via -r requirements/main.in
 tuf==5.1.0 \
     --hash=sha256:1865737bf8e05893ae31b4511617da7f02cf070562fa3c931074d29ef5fb46d7 \
@@ -2483,9 +2483,9 @@ zxcvbn==4.4.28 \
     # via -r requirements/main.in
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==75.1.0 \
-    --hash=sha256:35ab7fd3bcd95e6b7fd704e4a1539513edad446c097797f2985e0e4b960772f2 \
-    --hash=sha256:d59a21b17a275fb872a9c3dae73963160ae079f1049ed956880cd7c09b120538
+setuptools==75.2.0 \
+    --hash=sha256:753bb6ebf1f465a1912e19ed1d41f403a79173a9acf66a42e7e6aec45c3c16ec \
+    --hash=sha256:a7fcb66f68b4d9e8e66b42f9876150a3371558f98fa32222ffaa5bced76406f8
     # via
     #   -r requirements/main.in
     #   pyramid
