@@ -76,6 +76,7 @@ class GenericBillingService:
         return self.api.Customer.create(
             name=name,
             description=description,
+            metadata={"billing_service": "pypi"},
         )
 
     def update_customer(self, customer_id, name, description):
@@ -96,6 +97,7 @@ class GenericBillingService:
             cancel_url=cancel_url,
             mode="subscription",
             line_items=[{"price": price_id} for price_id in price_ids],
+            metadata={"billing_service": "pypi"},
             # Uncomment `automatic_tax` to calculate tax automatically.
             # Requires active tax settings on Stripe Dashboard.
             # https://dashboard.stripe.com/settings/tax/activate
@@ -152,6 +154,7 @@ class GenericBillingService:
             description=description,
             tax_code=tax_code,
             unit_label=unit_label,
+            metadata={"billing_service": "pypi"},
         )
 
     def retrieve_product(self, product_id):
@@ -253,6 +256,7 @@ class GenericBillingService:
             },
             product=product_id,
             tax_behavior=tax_behavior,
+            metadata={"billing_service": "pypi"},
         )
 
     def retrieve_price(self, price_id):
@@ -650,7 +654,7 @@ class StripeSubscriptionService:
                 price_id=None,
                 currency="usd",
                 subscription_product_id=subscription_product.id,
-                unit_amount=700,
+                unit_amount=500,
                 recurring=StripeSubscriptionPriceInterval.Month,
                 tax_behavior="inclusive",
             )

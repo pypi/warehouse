@@ -1069,13 +1069,9 @@ class TestManageOrganizationBillingViews:
     ):
         view = org_views.ManageOrganizationBillingViews(organization, db_request)
 
-        # We're not ready for companies to activate their own subscriptions yet.
-        with pytest.raises(HTTPNotFound):
-            assert view.activate_subscription()
+        result = view.activate_subscription()
 
-        # result = view.activate_subscription()
-
-        # assert result == {"organization": organization}
+        assert result == {"organization": organization}
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_create_subscription(
