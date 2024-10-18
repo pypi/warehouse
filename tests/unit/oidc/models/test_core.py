@@ -201,4 +201,4 @@ def test_check_existing_jti_fails(metrics):
     ],
 )
 def test_verify_url_from_reference(reference: str, url: str, expected: bool):
-    assert verify_url_from_reference(reference, url) == expected
+    assert verify_url_from_reference(reference_url=reference, url=url) == expected

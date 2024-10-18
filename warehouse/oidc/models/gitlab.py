@@ -327,7 +327,7 @@ class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):
         else:
             docs_url = f"https://{owner}.gitlab.io/{subgroup}{self.project}"
 
-        return verify_url_from_reference(docs_url, url)
+        return verify_url_from_reference(reference_url=docs_url, url=url)
 
 
 class PendingGitLabPublisher(GitLabPublisherMixin, PendingOIDCPublisher):

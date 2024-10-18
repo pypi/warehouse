@@ -362,7 +362,7 @@ class GitHubPublisher(GitHubPublisherMixin, OIDCPublisher):
             return True
 
         docs_url = f"https://{self.repository_owner}.github.io/{self.repository_name}"
-        return verify_url_from_reference(docs_url, url)
+        return verify_url_from_reference(reference_url=docs_url, url=url)
 
 
 class PendingGitHubPublisher(GitHubPublisherMixin, PendingOIDCPublisher):

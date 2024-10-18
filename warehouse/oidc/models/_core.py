@@ -102,7 +102,7 @@ def check_existing_jti(
     return True
 
 
-def verify_url_from_reference(reference_url: str, url: str) -> bool:
+def verify_url_from_reference(*, reference_url: str, url: str) -> bool:
     """
     Verify a given URL against a reference URL.
 
