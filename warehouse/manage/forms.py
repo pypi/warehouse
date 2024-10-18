@@ -14,6 +14,8 @@ import json
 
 import wtforms
 
+from urllib3 import PoolManager, Timeout
+
 import warehouse.utils.otp as otp
 import warehouse.utils.webauthn as webauthn
 
@@ -25,6 +27,7 @@ from warehouse.accounts.forms import (
     TOTPValueMixin,
     WebAuthnCredentialMixin,
 )
+from warehouse.constants import MIME_PYPI_SIMPLE_V1_ALL
 from warehouse.i18n import localize as _
 from warehouse.organizations.models import (
     OrganizationRoleType,
@@ -713,6 +716,23 @@ class CreateTeamForm(SaveTeamForm):
     __params__ = SaveTeamForm.__params__
 
 
+def validate_is_simple(form, field):
+    try:
+        timeout = Timeout(connect=1.0, read=1.0)
+        http = PoolManager(timeout=timeout)
+        response = http.request(
+            "HEAD", field.data, headers={"Accept": ", ".join(MIME_PYPI_SIMPLE_V1_ALL)}
+        )
+        if response.headers.get("Content-Type") not in MIME_PYPI_SIMPLE_V1_ALL:
+            raise wtforms.validators.ValidationError(
+                _("Unable to parse simple index at given url")
+            )
+    except Exception as exc:
+        raise wtforms.validators.ValidationError(
+            _(f"Unable to parse simple index at given url: {exc}")
+        )
+
+
 class AddAlternateRepositoryForm(forms.Form):
     """Form to add an Alternate Repository Location for a Project."""
 
@@ -744,6 +764,7 @@ class AddAlternateRepositoryForm(forms.Form):
                 ),
             ),
             forms.URIValidator(),
+            validate_is_simple,
         ]
     )
     description = wtforms.TextAreaField(
