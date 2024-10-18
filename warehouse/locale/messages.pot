@@ -373,7 +373,7 @@ msgstr ""
 msgid "Select project"
 msgstr ""
 
-#: warehouse/manage/forms.py:495 warehouse/oidc/forms/_core.py:23
+#: warehouse/manage/forms.py:495 warehouse/oidc/forms/_core.py:24
 #: warehouse/oidc/forms/gitlab.py:44
 msgid "Specify project name"
 msgstr ""
@@ -624,21 +624,36 @@ msgstr ""
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:25 warehouse/oidc/forms/gitlab.py:46
+#: warehouse/oidc/forms/_core.py:26 warehouse/oidc/forms/_core.py:36
+#: warehouse/oidc/forms/gitlab.py:46
 msgid "Invalid project name"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:46
+#: warehouse/oidc/forms/_core.py:50
 msgid ""
-"This project already exists, use the project's publishing settings <a "
+"This project already exists: use the project's publishing settings <a "
 "href='${url}'>here</a> to create a Trusted Publisher for it."
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:66
+#: warehouse/oidc/forms/_core.py:60
+msgid "This project name isn't allowed"
+msgstr ""
+
+#: warehouse/oidc/forms/_core.py:64
+msgid "This project name is too similar to an existing project"
+msgstr ""
+
+#: warehouse/oidc/forms/_core.py:68
+msgid ""
+"This project name isn't allowed (conflict with the Python standard "
+"library module name)"
+msgstr ""
+
+#: warehouse/oidc/forms/_core.py:85
 msgid "Specify a publisher ID"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:67
+#: warehouse/oidc/forms/_core.py:86
 msgid "Publisher must be specified by ID"
 msgstr ""
 
