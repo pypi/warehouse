@@ -329,3 +329,14 @@ def test_provenance_upload(webtest):
     assert len(attestations) == 1
     attestation = attestations[0]
     assert attestation == json.loads(attestation_contents)
+
+    # While we needed to be authenticated to upload a project, this is no longer
+    # required to view it.
+    webtest.authorization = None
+    expected_filename = "sampleproject-3.0.0.tar.gz"
+
+    response = webtest.get(
+        f"/integrity/{project.name}/3.0.0/{expected_filename}/provenance",
+        status=HTTPStatus.OK,
+    )
+    assert response.json == project.releases[0].files[0].provenance.provenance

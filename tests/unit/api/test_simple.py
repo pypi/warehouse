@@ -17,6 +17,7 @@ from packaging.version import parse
 from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.testing import DummyRequest
 
+from tests.common.db.oidc import GitHubPublisherFactory
 from warehouse.api import simple
 from warehouse.packaging.utils import API_VERSION, _valid_simple_detail_context
 
@@ -26,6 +27,7 @@ from ...common.db.packaging import (
     FileFactory,
     JournalEntryFactory,
     ProjectFactory,
+    ProvenanceFactory,
     ReleaseFactory,
 )
 
@@ -298,6 +300,7 @@ class TestSimpleDetail:
                     "upload-time": f.upload_time.isoformat() + "Z",
                     "data-dist-info-metadata": False,
                     "core-metadata": False,
+                    "provenance": None,
                 }
                 for f in files
             ],
@@ -349,6 +352,7 @@ class TestSimpleDetail:
                     "upload-time": f.upload_time.isoformat() + "Z",
                     "data-dist-info-metadata": False,
                     "core-metadata": False,
+                    "provenance": None,
                 }
                 for f in files
             ],
@@ -445,6 +449,7 @@ class TestSimpleDetail:
                         if f.metadata_file_sha256_digest is not None
                         else False
                     ),
+                    "provenance": None,
                 }
                 for f in files
             ],
@@ -480,6 +485,126 @@ class TestSimpleDetail:
             "name": project.normalized_name,
             "files": [],
             "versions": [],
+            "alternate-locations": [],
+        }
+        context = _update_context(context, content_type, renderer_override)
+
+        assert simple.simple_detail(project, db_request) == context
+
+        if renderer_override is not None:
+            assert db_request.override_renderer == renderer_override
+
+    @pytest.mark.parametrize(
+        ("content_type", "renderer_override"),
+        CONTENT_TYPE_PARAMS,
+    )
+    def test_with_files_varying_provenance(
+        self,
+        db_request,
+        integrity_service,
+        dummy_attestation,
+        content_type,
+        renderer_override,
+    ):
+        db_request.accept = content_type
+        db_request.oidc_publisher = GitHubPublisherFactory.create()
+
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0.0")
+
+        # wheel with provenance, sdist with no provenance
+        wheel = FileFactory.create(
+            release=release,
+            filename=f"{project.name}-1.0.0.whl",
+            packagetype="bdist_wheel",
+            metadata_file_sha256_digest="deadbeefdeadbeefdeadbeefdeadbeef",
+        )
+
+        provenance = ProvenanceFactory.create(file=wheel)
+        assert wheel.provenance == provenance
+
+        sdist = FileFactory.create(
+            release=release,
+            filename=f"{project.name}-1.0.0.tar.gz",
+            packagetype="sdist",
+        )
+
+        files = [sdist, wheel]
+
+        db_request.matchdict["name"] = project.normalized_name
+
+        def route_url(route, **kw):
+            # Rendering the simple index calls route_url once for each file,
+            # and zero or one times per file depending on whether the file
+            # has provenance. We emulate this while testing by maintaining
+            # a dictionary of expected URLs for each route, which are
+            # pulled from as appropriate when a route_url call is made.
+            route_urls = {
+                "packaging.file": {f.path: f"/file/{f.filename}" for f in files},
+                "integrity.provenance": {
+                    (
+                        wheel.release.project.normalized_name,
+                        wheel.release.version,
+                        wheel.filename,
+                    ): (
+                        f"/integrity/{wheel.release.project.normalized_name}/"
+                        f"{wheel.release.version}/{wheel.filename}/provenance"
+                    )
+                },
+            }
+
+            match route:
+                case "packaging.file":
+                    return route_urls[route].get(kw.get("path"), "")
+                case "integrity.provenance":
+                    key = (
+                        kw.get("project_name"),
+                        kw.get("release"),
+                        kw.get("filename"),
+                    )
+                    return route_urls[route].get(key, "")
+                case _:
+                    pytest.fail(f"unexpected route: {route}")
+
+        db_request.route_url = route_url
+
+        user = UserFactory.create()
+        je = JournalEntryFactory.create(name=project.name, submitted_by=user)
+
+        context = {
+            "meta": {"_last-serial": je.id, "api-version": API_VERSION},
+            "name": project.normalized_name,
+            "versions": ["1.0.0"],
+            "files": [
+                {
+                    "filename": f.filename,
+                    "url": f"/file/{f.filename}",
+                    "hashes": {"sha256": f.sha256_digest},
+                    "requires-python": f.requires_python,
+                    "yanked": False,
+                    "size": f.size,
+                    "upload-time": f.upload_time.isoformat() + "Z",
+                    "data-dist-info-metadata": (
+                        {"sha256": "deadbeefdeadbeefdeadbeefdeadbeef"}
+                        if f.metadata_file_sha256_digest is not None
+                        else False
+                    ),
+                    "core-metadata": (
+                        {"sha256": "deadbeefdeadbeefdeadbeefdeadbeef"}
+                        if f.metadata_file_sha256_digest is not None
+                        else False
+                    ),
+                    "provenance": (
+                        (
+                            f"/integrity/{f.release.project.normalized_name}/"
+                            f"{f.release.version}/{f.filename}/provenance"
+                        )
+                        if f.provenance is not None
+                        else None
+                    ),
+                }
+                for f in files
+            ],
             "alternate-locations": [],
         }
         context = _update_context(context, content_type, renderer_override)
