@@ -533,27 +533,38 @@ class TestSimpleDetail:
 
         db_request.matchdict["name"] = project.normalized_name
 
-        # Rendering the simple index calls route_url once for each file,
-        # and zero or one times per file depending on whether the file
-        # has provenance. We emulate this while testing by maintaining
-        # two iters of URLs we want to return, each of which will be
-        # pulled from as appropriate when a route_url call is made.
-        urls_iter = (f"/file/{f.filename}" for f in files)
-        provenance_iter = (
-            (
-                f"/integrity/{f.release.project.normalized_name}/"
-                f"{f.release.version}/{f.filename}/provenance"
-            )
-            for f in [wheel]
-        )
+        def route_url(route, **kw):
+            # Rendering the simple index calls route_url once for each file,
+            # and zero or one times per file depending on whether the file
+            # has provenance. We emulate this while testing by maintaining
+            # a dictionary of expected URLs for each route, which are
+            # pulled from as appropriate when a route_url call is made.
+            route_urls = {
+                "packaging.file": {f.path: f"/file/{f.filename}" for f in files},
+                "integrity.provenance": {
+                    (
+                        wheel.release.project.normalized_name,
+                        wheel.release.version,
+                        wheel.filename,
+                    ): (
+                        f"/integrity/{wheel.release.project.normalized_name}/"
+                        f"{wheel.release.version}/{wheel.filename}/provenance"
+                    )
+                },
+            }
 
-        def route_url(route, **_kw):
-            if route == "packaging.file":
-                return next(urls_iter)
-            elif route == "integrity.provenance":
-                return next(provenance_iter)
-            else:
-                pytest.fail(f"unexpected route: {route}")
+            match route:
+                case "packaging.file":
+                    return route_urls[route].get(kw.get("path"), "")
+                case "integrity.provenance":
+                    key = (
+                        kw.get("project_name"),
+                        kw.get("release"),
+                        kw.get("filename"),
+                    )
+                    return route_urls[route].get(key, "")
+                case _:
+                    pytest.fail(f"unexpected route: {route}")
 
         db_request.route_url = route_url
 
