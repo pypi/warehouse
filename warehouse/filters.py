@@ -21,10 +21,8 @@ import urllib.parse
 
 from email.utils import getaddresses
 
-import html5lib
-import html5lib.serializer
-import html5lib.treewalkers
 import jinja2
+import lxml.html.html5parser
 import packaging_legacy.version
 import pytz
 
@@ -69,25 +67,19 @@ def _camo_url(request, url):
 
 
 @jinja2.pass_context
-def camoify(ctx, value):
+def camoify(ctx, value: str) -> str:
     request = ctx.get("request") or get_current_request()
 
     # Parse the rendered output and replace any inline images that don't point
     # to HTTPS with camouflaged images.
-    tree_builder = html5lib.treebuilders.getTreeBuilder("dom")
-    parser = html5lib.html5parser.HTMLParser(tree=tree_builder)
-    dom = parser.parse(value)
+    dom = lxml.html.html5parser.fromstring(value)
 
-    for element in dom.getElementsByTagName("img"):
-        src = element.getAttribute("src")
-        if src:
-            element.setAttribute("src", request.camo_url(src))
+    for element in dom.xpath("//img"):
+        src = element.get("src")
+        if src and not src.startswith("https://"):
+            element.set("src", request.camo_url(src))
 
-    tree_walker = html5lib.treewalkers.getTreeWalker("dom")
-    html_serializer = html5lib.serializer.HTMLSerializer()
-    camoed = "".join(html_serializer.serialize(tree_walker(dom)))
-
-    return camoed
+    return lxml.html.tostring(dom, encoding="unicode")
 
 
 _SI_SYMBOLS = ["k", "M", "G", "T", "P", "E", "Z", "Y"]
