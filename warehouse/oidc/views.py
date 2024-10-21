@@ -11,13 +11,11 @@
 # limitations under the License.
 
 import time
-
 from datetime import datetime
 from typing import TypedDict, cast
 
 import jwt
 import sentry_sdk
-
 from pydantic import BaseModel, StrictStr, ValidationError
 from pyramid.httpexceptions import HTTPException, HTTPForbidden
 from pyramid.request import Request
@@ -300,6 +298,7 @@ def mint_token(
                 "expires": expires_at,
                 "publisher_name": publisher.publisher_name,
                 "publisher_url": publisher.publisher_url(),
+                "reusable_workflow_used": is_from_reusable_workflow(publisher, claims),
             },
         )
 
