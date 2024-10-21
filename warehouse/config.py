@@ -470,6 +470,7 @@ def configure(settings=None):
         "INTEGRITY_BACKEND",
         default="warehouse.attestations.services.IntegrityService",
     )
+    maybe_set(settings, "rstuf.api_url", "RSTUF_API_URL")
 
     # Pythondotorg integration settings
     maybe_set(
@@ -940,6 +941,9 @@ def configure(settings=None):
         ),
         ignore=["warehouse.migrations.env", "warehouse.celery", "warehouse.wsgi"],
     )
+
+    # RSTUF configuration to provide TUF metadata
+    config.include(".tuf")
 
     # Sanity check our request and responses.
     # Note: It is very important that this go last. We need everything else
