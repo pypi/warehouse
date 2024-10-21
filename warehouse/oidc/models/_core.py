@@ -19,7 +19,7 @@ import rfc3986
 import sentry_sdk
 
 from sigstore.verify.policy import VerificationPolicy
-from sqlalchemy import ForeignKey, String, orm
+from sqlalchemy import ForeignKey, Index, String, func, orm
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -414,6 +414,12 @@ class PendingOIDCPublisher(OIDCPublisherMixin, db.Model):
     )
     added_by: Mapped[User] = orm.relationship(back_populates="pending_oidc_publishers")
 
+    __table_args__ = (
+        Index(
+            "pending_project_name_ultranormalized",
+            func.ultranormalize_name(project_name),
+        ),
+    )
     __mapper_args__ = {
         "polymorphic_identity": "pending_oidc_publishers",
         "polymorphic_on": OIDCPublisherMixin.discriminator,

@@ -382,7 +382,7 @@ class GitHubPublisher(GitHubPublisherMixin, OIDCPublisher):
 class PendingGitHubPublisher(GitHubPublisherMixin, PendingOIDCPublisher):
     __tablename__ = "pending_github_oidc_publishers"
     __mapper_args__ = {"polymorphic_identity": "pending_github_oidc_publishers"}
-    __table_args__ = (
+    __table_args__ = (  # type: ignore[assignment]
         UniqueConstraint(
             "repository_name",
             "repository_owner",
