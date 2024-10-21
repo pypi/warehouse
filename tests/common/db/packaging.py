@@ -28,6 +28,7 @@ from warehouse.packaging.models import (
     JournalEntry,
     ProhibitedProjectName,
     Project,
+    Provenance,
     Release,
     Role,
     RoleInvitation,
@@ -140,6 +141,14 @@ class FileFactory(WarehouseFactory):
             ]
         )
     )
+
+
+class ProvenanceFactory(WarehouseFactory):
+    class Meta:
+        model = Provenance
+
+    file = factory.SubFactory(FileFactory)
+    provenance = factory.Faker("json")
 
 
 class FileEventFactory(WarehouseFactory):

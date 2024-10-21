@@ -9,12 +9,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import hashlib
 import json
 
 import pretend
 import pytest
-import rfc8785
 
 from pydantic import TypeAdapter
 from pypi_attestations import (
@@ -52,10 +50,6 @@ class TestNullIntegrityService:
 
         provenance = service.build_provenance(db_request, file, [dummy_attestation])
         assert isinstance(provenance, DatabaseProvenance)
-        assert (
-            provenance.provenance_digest
-            == hashlib.sha256(rfc8785.dumps(provenance.provenance)).hexdigest()
-        )
         assert provenance.file == file
         assert file.provenance == provenance
 

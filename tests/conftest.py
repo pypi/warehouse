@@ -45,6 +45,8 @@ from warehouse import admin, config, email, static
 from warehouse.accounts import services as account_services
 from warehouse.accounts.interfaces import ITokenService, IUserService
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
+from warehouse.attestations import services as attestations_services
+from warehouse.attestations.interfaces import IIntegrityService
 from warehouse.email import services as email_services
 from warehouse.email.interfaces import IEmailSender
 from warehouse.helpdesk import services as helpdesk_services
@@ -174,6 +176,7 @@ def pyramid_services(
     project_service,
     github_oidc_service,
     activestate_oidc_service,
+    integrity_service,
     macaroon_service,
     helpdesk_service,
 ):
@@ -195,6 +198,7 @@ def pyramid_services(
     services.register_service(
         activestate_oidc_service, IOIDCPublisherService, None, name="activestate"
     )
+    services.register_service(integrity_service, IIntegrityService, None)
     services.register_service(macaroon_service, IMacaroonService, None, name="")
     services.register_service(helpdesk_service, IHelpDeskService, None)
 
@@ -326,6 +330,7 @@ def get_app_config(database, nondefaults=None):
         "docs.backend": "warehouse.packaging.services.LocalDocsStorage",
         "sponsorlogos.backend": "warehouse.admin.services.LocalSponsorLogoStorage",
         "billing.backend": "warehouse.subscriptions.services.MockStripeBillingService",
+        "integrity.backend": "warehouse.attestations.services.NullIntegrityService",
         "billing.api_base": "http://stripe:12111",
         "billing.api_version": "2020-08-27",
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
@@ -558,6 +563,11 @@ def dummy_attestation():
 
 
 @pytest.fixture
+def integrity_service(db_session):
+    return attestations_services.NullIntegrityService(db_session)
+
+
+@pytest.fixture
 def macaroon_service(db_session):
     return macaroon_services.DatabaseMacaroonService(db_session)
 
@@ -702,7 +712,20 @@ class _TestApp(_webtest.TestApp):
 
 
 @pytest.fixture
-def webtest(app_config_dbsession_from_env, remote_addr):
+def tm():
+    # Create a new transaction manager for dependant test cases
+    tm = transaction.TransactionManager(explicit=True)
+    tm.begin()
+    tm.doom()
+
+    yield tm
+
+    # Abort the transaction, leaving database in previous state
+    tm.abort()
+
+
+@pytest.fixture
+def webtest(app_config_dbsession_from_env, remote_addr, tm):
     """
     This fixture yields a test app with an alternative Pyramid configuration,
     injecting the database session and transaction manager into the app.
@@ -718,11 +741,6 @@ def webtest(app_config_dbsession_from_env, remote_addr):
 
     app = app_config_dbsession_from_env.make_wsgi_app()
 
-    # Create a new transaction manager for dependant test cases
-    tm = transaction.TransactionManager(explicit=True)
-    tm.begin()
-    tm.doom()
-
     with get_db_session_for_app_config(app_config_dbsession_from_env) as _db_session:
         # Register the app with the external test environment, telling
         # request.db to use this db_session and use the Transaction manager.
@@ -736,9 +754,6 @@ def webtest(app_config_dbsession_from_env, remote_addr):
             },
         )
         yield testapp
-
-    # Abort the transaction, leaving database in previous state
-    tm.abort()
 
 
 class _MockRedis:

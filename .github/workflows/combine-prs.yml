@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Use GitHub App Token
-        uses: wow-actions/use-app-token@v2.0.2
+        uses: wow-actions/use-app-token@v2.1.1
         id: generate_token
         with:
           app_id: ${{ secrets.COMBINE_PRS_APP_ID }}
@@ -36,7 +36,7 @@ jobs:
 
       - name: combine-prs
         id: combine-prs
-        uses: github/combine-prs@v5.1.0
+        uses: github/combine-prs@v5.2.0
         with:
           github_token: ${{ steps.generate_token.outputs.BOT_TOKEN }}
           ignore_label: ${{ github.event.inputs.ignoreLabel || 'blocked' }}
