@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import http
+
 from textwrap import dedent
 
 import pretend
@@ -124,4 +126,71 @@ class TestHelpScoutService:
         )
 
         assert resp == "https://api.helpscout.net/v2/conversations/123"
+        assert len(responses.calls) == 1
+
+    @responses.activate
+    def test_add_tag(self):
+        responses.get(
+            "https://api.helpscout.net/v2/conversations/123",
+            headers={"Content-Type": "application/hal+json"},
+            json={"tags": [{"id": 9150, "color": "#929499", "tag": "existing_tag"}]},
+        )
+        responses.put(
+            "https://api.helpscout.net/v2/conversations/123/tags",
+            match=[
+                responses.matchers.json_params_matcher(
+                    {"tags": ["existing_tag", "added_tag"]}
+                )
+            ],
+            status=http.HTTPStatus.NO_CONTENT,
+        )
+
+        service = HelpScoutService(
+            session=requests.Session(),
+            bearer_token="fake token",
+            mailbox_id="12345",
+        )
+
+        service.add_tag(
+            conversation_url="https://api.helpscout.net/v2/conversations/123",
+            tag="added_tag",
+        )
+
+        assert len(responses.calls) == 2
+        # GET call
+        get_call = responses.calls[0]
+        assert get_call.request.url == "https://api.helpscout.net/v2/conversations/123"
+        assert get_call.request.headers["Authorization"] == "Bearer fake token"
+        assert get_call.response.json() == {
+            "tags": [{"id": 9150, "color": "#929499", "tag": "existing_tag"}]
+        }
+        # PUT call
+        put_call = responses.calls[1]
+        assert (
+            put_call.request.url
+            == "https://api.helpscout.net/v2/conversations/123/tags"
+        )
+        assert put_call.request.headers["Authorization"] == "Bearer fake token"
+        assert put_call.response.status_code == http.HTTPStatus.NO_CONTENT
+
+    @responses.activate
+    def test_add_tag_with_duplicate(self):
+        responses.get(
+            "https://api.helpscout.net/v2/conversations/123",
+            headers={"Content-Type": "application/hal+json"},
+            json={"tags": [{"id": 9150, "color": "#929499", "tag": "existing_tag"}]},
+        )
+
+        service = HelpScoutService(
+            session=requests.Session(),
+            bearer_token="fake token",
+            mailbox_id="12345",
+        )
+
+        service.add_tag(
+            conversation_url="https://api.helpscout.net/v2/conversations/123",
+            tag="existing_tag",
+        )
+
+        # No PUT call should be made
         assert len(responses.calls) == 1
