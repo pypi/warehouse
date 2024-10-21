@@ -11,11 +11,13 @@
 # limitations under the License.
 
 import time
+
 from datetime import datetime
 from typing import TypedDict, cast
 
 import jwt
 import sentry_sdk
+
 from pydantic import BaseModel, StrictStr, ValidationError
 from pyramid.httpexceptions import HTTPException, HTTPForbidden
 from pyramid.request import Request
