@@ -14,3 +14,12 @@ ONE_MIB = 1 * 1024 * 1024
 ONE_GIB = 1 * 1024 * 1024 * 1024
 MAX_FILESIZE = 100 * ONE_MIB
 MAX_PROJECT_SIZE = 10 * ONE_GIB
+
+MIME_TEXT_HTML = "text/html"
+MIME_PYPI_SIMPLE_V1_HTML = "application/vnd.pypi.simple.v1+html"
+MIME_PYPI_SIMPLE_V1_JSON = "application/vnd.pypi.simple.v1+json"
+
+MIME_PYPI_SIMPLE_V1_ALL = [
+    MIME_PYPI_SIMPLE_V1_JSON,
+    MIME_PYPI_SIMPLE_V1_HTML,
+]
