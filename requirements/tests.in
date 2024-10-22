@@ -12,3 +12,4 @@ pytest-xdist
 pytz
 responses>=0.5.1
 webtest
+packaging @ https://github.com/ewdurbin/packaging/archive/23df2ac6294e4df83cf05d791d97635f4b3ba067.zip

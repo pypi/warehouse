@@ -215,10 +215,10 @@ mirakuru==2.5.3 \
     --hash=sha256:2fab68356fb98fb5358ea3ab65f5e511f34b5a0b16cfd0a0935ef15a3393f025 \
     --hash=sha256:39b33f8fcdf13764a6cfe936e0feeead3902a161fec438df3be7cce98f7933c6
     # via pytest-postgresql
-packaging==24.1 \
-    --hash=sha256:026ed72c8ed3fcce5bf8950572258698927fd1dbda10a5e981cdf0ac37f4f002 \
-    --hash=sha256:5b8f2217dbdbd2f7f384c41c628544e6d52f2d0f53c6d0c3ea61aa5d1d7ff124
+packaging @ https://github.com/ewdurbin/packaging/archive/23df2ac6294e4df83cf05d791d97635f4b3ba067.zip \
+    --hash=sha256:82d7e56c655c4244a5cf039885e00e243d1864815960efb4922c694e07beb4a3
     # via
+    #   -r requirements/tests.in
     #   pytest
     #   pytest-sugar
 pluggy==1.5.0 \

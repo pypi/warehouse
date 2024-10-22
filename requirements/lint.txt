@@ -350,10 +350,11 @@ mypy-zope==1.0.7 \
     --hash=sha256:32a79ce78647c0bea61e7e0c0eb1233fcb97bb94e8950cca73f17d3419c602f7 \
     --hash=sha256:f19de249574319d81083b15f8a022c6b15583582f23340a860922141f1b651ca
     # via -r requirements/lint.in
-packaging==24.1 \
-    --hash=sha256:026ed72c8ed3fcce5bf8950572258698927fd1dbda10a5e981cdf0ac37f4f002 \
-    --hash=sha256:5b8f2217dbdbd2f7f384c41c628544e6d52f2d0f53c6d0c3ea61aa5d1d7ff124
-    # via black
+packaging @ https://github.com/ewdurbin/packaging/archive/23df2ac6294e4df83cf05d791d97635f4b3ba067.zip \
+    --hash=sha256:82d7e56c655c4244a5cf039885e00e243d1864815960efb4922c694e07beb4a3
+    # via
+    #   -r requirements/lint.in
+    #   black
 parsy==1.1.0 \
     --hash=sha256:25bd5cea2954950ebbfdf71f8bdaf7fd45a5df5325fd36a1064be2204d9d4c94 \
     --hash=sha256:36173ba01a5372c7a1b32352cc73a279a49198f52252adf1c8c1ed41d1f94e8d
