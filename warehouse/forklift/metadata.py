@@ -233,7 +233,18 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
                         )
                     )
 
-    # TODO: Ensure PEP 639 constraints are applied
+    # Ensure that License and License-Expression are mutually exclusive
+    # See https://peps.python.org/pep-0639/#deprecate-license-field
+    if metadata.license and metadata.license_expression:
+        errors.append(
+            InvalidMetadata(
+                "license",
+                (
+                    "License is deprecated when License-Expression is present. "
+                    "Only License-Expression should be present."
+                ),
+            )
+        )
 
     # If we've collected any errors, then raise an ExceptionGroup containing them.
     if errors:

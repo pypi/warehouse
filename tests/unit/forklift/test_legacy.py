@@ -4903,6 +4903,66 @@ class TestFileUpload:
             f"in distribution file {filename}"
         )
 
+    def test_upload_fails_when_license_and_license_expression_are_present(
+        self,
+        pyramid_config,
+        db_request,
+        metrics,
+    ):
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}-py3-none-any.whl".format(project.name, "1.0")
+        data = _get_whl_testdata(name=project.name, version="1.0")
+        digest = hashlib.md5(data).hexdigest()
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "2.4",
+                "name": project.name,
+                "version": "1.0",
+                "summary": "This is my summary!",
+                "filetype": "bdist_wheel",
+                "md5_digest": digest,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(data),
+                    type="application/zip",
+                ),
+            }
+        )
+        db_request.POST.extend(
+            [
+                ("license_expression", "MIT OR Apache-2.0"),
+                ("license", "MIT LICENSE or Apache-2.0 License"),
+            ]
+        )
+        db_request.POST.extend([("pyversion", "py3")])
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status == (
+            "400 License is deprecated when License-Expression is present. "
+            "Only License-Expression should be present. "
+            "See https://packaging.python.org/specifications/core-metadata "
+            "for more information."
+        )
+
 
 def test_submit(pyramid_request):
     resp = legacy.submit(pyramid_request)
