@@ -4691,6 +4691,120 @@ class TestFileUpload:
             if not warning_already_sent:
                 assert not warning_exists
 
+    @pytest.mark.parametrize(
+        ("version", "expected_version"),
+        [
+            ("1.0", "1.0"),
+            ("v1.0", "1.0"),
+        ],
+    )
+    def test_upload_succeeds_creates_release_metadata_2_4(
+        self, pyramid_config, db_request, metrics, version, expected_version
+    ):
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "2.4",
+                "name": project.name,
+                "version": version,
+                "summary": "This is my summary!",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+                "supported_platform": "i386-win32-2791",
+            }
+        )
+        db_request.POST.extend(
+            [
+                ("requires_dist", "foo"),
+                ("requires_dist", "bar (>1.0)"),
+                ("project_urls", "Test, https://example.com/"),
+                ("requires_external", "Cheese (>1.0)"),
+                ("provides_extra", "testing"),
+                ("provides_extra", "plugin"),
+                ("dynamic", "Supported-Platform"),
+                ("license_expression", "MIT OR Apache-2.0"),
+                ("license_files", "licenses/LICENSE.APACHE"),
+                ("license_files", "licenses/LICENSE.MIT"),
+            ]
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        # Ensure that a Release object has been created.
+        release = (
+            db_request.db.query(Release)
+            .filter(
+                (Release.project == project) & (Release.version == expected_version)
+            )
+            .one()
+        )
+        assert release.summary == "This is my summary!"
+        assert set(release.requires_dist) == {"foo", "bar>1.0"}
+        assert release.project_urls == {"Test": "https://example.com/"}
+        assert set(release.requires_external) == {"Cheese (>1.0)"}
+        assert release.version == expected_version
+        assert release.canonical_version == "1"
+        assert release.uploaded_via == "warehouse-tests/6.6.6"
+        assert set(release.provides_extra) == {"testing", "plugin"}
+        assert set(release.dynamic) == {"Supported-Platform"}
+        assert release.license_expression == "MIT OR Apache-2.0"
+        assert set(release.license_files) == {
+            "licenses/LICENSE.APACHE",
+            "licenses/LICENSE.MIT",
+        }
+
+        # Ensure that a File object has been created.
+        db_request.db.query(File).filter(
+            (File.release == release) & (File.filename == filename)
+        ).one()
+
+        # Ensure that a Filename object has been created.
+        db_request.db.query(Filename).filter(Filename.filename == filename).one()
+
+        # Ensure that all of our journal entries have been created
+        journals = (
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .order_by("submitted_date", "id")
+            .all()
+        )
+        assert [(j.name, j.version, j.action, j.submitted_by) for j in journals] == [
+            (
+                release.project.name,
+                release.version,
+                "new release",
+                user,
+            ),
+            (
+                release.project.name,
+                release.version,
+                f"add source file {filename}",
+                user,
+            ),
+        ]
+
 
 def test_submit(pyramid_request):
     resp = legacy.submit(pyramid_request)

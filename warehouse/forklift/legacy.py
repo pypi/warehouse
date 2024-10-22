@@ -861,6 +861,8 @@ def file_upload(request):
                     # should pull off and insert into our new release.
                     "summary",
                     "license",
+                    "license_expression",
+                    "license_files",
                     "author",
                     "maintainer",
                     "provides_extra",
