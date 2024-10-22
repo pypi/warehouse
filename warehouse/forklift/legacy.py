@@ -56,7 +56,6 @@ from warehouse.forklift import metadata
 from warehouse.forklift.forms import UploadForm, _filetype_extension_mapping
 from warehouse.macaroons.models import Macaroon
 from warehouse.metrics import IMetricsService
-from warehouse.oidc.views import is_from_reusable_workflow
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
 from warehouse.packaging.metadata_verification import verify_email, verify_url
 from warehouse.packaging.models import (
@@ -897,13 +896,6 @@ def file_upload(request):
                     if request.oidc_publisher
                     else None
                 ),
-                # NOTE(ww, 2024-10-21): This unfortunately typo'd event field
-                # was always incorrect, since the `file_upload` endpoint isn't
-                # itself aware of the kind of workflow that minted its API
-                # token. The correctly named datapoint is now under the
-                # `account:short_lived_api_token:added` event which, despite
-                # its name, is actually a project event.
-                "reusable_worfklow_used": False,
                 "uploaded_via_trusted_publisher": bool(request.oidc_publisher),
             },
         )
