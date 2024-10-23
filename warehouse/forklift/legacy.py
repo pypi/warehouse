@@ -1061,7 +1061,7 @@ def file_upload(request):
                 with zipfile.ZipFile(temporary_filename) as zfp:
                     for license_file in meta.license_files:
                         try:
-                            _ = zfp.read(license_file)
+                            zfp.read(license_file)
                         except KeyError:
                             raise _exc_with_message(
                                 HTTPBadRequest,
@@ -1176,6 +1176,11 @@ def file_upload(request):
                 )
 
             filename = os.path.basename(temporary_filename)
+            # Get the name and version from the original filename. Eventually this
+            # should use packaging.utils.parse_wheel_filename(filename), but until then
+            # we can't use this as it adds additional normailzation to the project name
+            # and version.
+            name, version, _ = filename.split("-", 2)
 
             if meta.license_files and packaging.version.Version(
                 meta.metadata_version
@@ -1186,12 +1191,15 @@ def file_upload(request):
                 """
                 with zipfile.ZipFile(temporary_filename) as zfp:
                     for license_file in meta.license_files:
+                        license_filename = (
+                            f"{name}-{version}.dist-info/licenses/{license_file}"
+                        )
                         try:
-                            _ = zfp.read(license_file)
+                            zfp.read(license_filename)
                         except KeyError:
                             raise _exc_with_message(
                                 HTTPBadRequest,
-                                f"License-File {license_file} does not exist in "
+                                f"License-File {license_filename} does not exist in "
                                 f"distribution file {filename}",
                             )
 
@@ -1200,11 +1208,6 @@ def file_upload(request):
             The name of the .whl file is used to find the corresponding .dist-info dir.
             See https://peps.python.org/pep-0491/#file-contents
             """
-            # Get the name and version from the original filename. Eventually this
-            # should use packaging.utils.parse_wheel_filename(filename), but until then
-            # we can't use this as it adds additional normailzation to the project name
-            # and version.
-            name, version, _ = filename.split("-", 2)
             metadata_filename = f"{name}-{version}.dist-info/METADATA"
             try:
                 with zipfile.ZipFile(temporary_filename) as zfp:

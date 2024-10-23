@@ -73,8 +73,8 @@ def _get_tar_testdata(compression_type=""):
     temp_f = io.BytesIO()
     with tarfile.open(fileobj=temp_f, mode=f"w:{compression_type}") as tar:
         tar.add("/dev/null", arcname="fake_package/PKG-INFO")
-        tar.add("/dev/null", arcname="licenses/LICENSE.MIT")
-        tar.add("/dev/null", arcname="licenses/LICENSE.APACHE")
+        tar.add("/dev/null", arcname="LICENSE.MIT")
+        tar.add("/dev/null", arcname="LICENSE.APACHE")
     return temp_f.getvalue()
 
 
@@ -82,8 +82,8 @@ def _get_zip_testdata():
     temp_f = io.BytesIO()
     with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
         zfp.writestr("fake_package/PKG-INFO", "Fake PKG-INFO")
-        zfp.writestr("licenses/LICENSE.MIT", "Fake License")
-        zfp.writestr("licenses/LICENSE.APACHE", "Fake License")
+        zfp.writestr("LICENSE.MIT", "Fake License")
+        zfp.writestr("LICENSE.APACHE", "Fake License")
     return temp_f.getvalue()
 
 
@@ -91,8 +91,10 @@ def _get_whl_testdata(name="fake_package", version="1.0"):
     temp_f = io.BytesIO()
     with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
         zfp.writestr(f"{name}-{version}.dist-info/METADATA", "Fake metadata")
-        zfp.writestr("licenses/LICENSE.MIT", "Fake License")
-        zfp.writestr("licenses/LICENSE.APACHE", "Fake License")
+        zfp.writestr(f"{name}-{version}.dist-info/licenses/LICENSE.MIT", "Fake License")
+        zfp.writestr(
+            f"{name}-{version}.dist-info/licenses/LICENSE.APACHE", "Fake License"
+        )
     return temp_f.getvalue()
 
 
@@ -4773,8 +4775,8 @@ class TestFileUpload:
         db_request.POST.extend(
             [
                 ("license_expression", "MIT OR Apache-2.0"),
-                ("license_files", "licenses/LICENSE.APACHE"),
-                ("license_files", "licenses/LICENSE.MIT"),
+                ("license_files", "LICENSE.APACHE"),
+                ("license_files", "LICENSE.MIT"),
             ]
         )
         if filetype == "bdist_wheel":
@@ -4804,8 +4806,8 @@ class TestFileUpload:
         assert release.uploaded_via == "warehouse-tests/6.6.6"
         assert release.license_expression == "MIT OR Apache-2.0"
         assert set(release.license_files) == {
-            "licenses/LICENSE.APACHE",
-            "licenses/LICENSE.MIT",
+            "LICENSE.APACHE",
+            "LICENSE.MIT",
         }
 
         # Ensure that a File object has been created.
@@ -4852,11 +4854,13 @@ class TestFileUpload:
                 filename = "{}-{}.zip".format(project.name, "1.0")
                 digest = _ZIP_PKG_MD5
                 data = _ZIP_PKG_TESTDATA
+            license_filename = "LICENSE"
         elif filetype == "bdist_wheel":
             filename = "{}-{}-py3-none-any.whl".format(project.name, "1.0")
             data = _get_whl_testdata(name=project.name, version="1.0")
             digest = hashlib.md5(data).hexdigest()
             monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+            license_filename = f"{project.name}-1.0.dist-info/licenses/LICENSE"
 
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -4879,8 +4883,8 @@ class TestFileUpload:
         db_request.POST.extend(
             [
                 ("license_expression", "MIT OR Apache-2.0"),
-                ("license_files", "licenses/LICENSE"),  # Does not exist in test data
-                ("license_files", "licenses/LICENSE.MIT"),
+                ("license_files", "LICENSE"),  # Does not exist in test data
+                ("license_files", "LICENSE.MIT"),
             ]
         )
         if filetype == "bdist_wheel":
@@ -4899,7 +4903,7 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 License-File licenses/LICENSE does not exist "
+            f"400 License-File {license_filename} does not exist "
             f"in distribution file {filename}"
         )
 
