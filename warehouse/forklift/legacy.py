@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import copy
 import hashlib
 import hmac
 import os.path
@@ -1130,20 +1129,17 @@ def file_upload(request):
                 Ensure all License-File keys exist in the wheel
                 See https://peps.python.org/pep-0639/#add-license-file-field
                 """
-                license_files = copy.deepcopy(meta.license_files)
                 with tarfile.open(temporary_filename, "r:gz") as tar:
                     # Already validated as a tarfile by _is_valid_dist_file above
-                    member = tar.next()
-                    while member:
-                        if member.name in license_files:
-                            license_files.remove(member.name)
-                        member = tar.next()
-                if license_files != []:
-                    raise _exc_with_message(
-                        HTTPBadRequest,
-                        f"License-File {license_files[0]} does not exist in "
-                        f"distribution file {filename}",
-                    )
+                    for license_file in meta.license_files:
+                        try:
+                            tar.getmember(license_file)
+                        except KeyError:
+                            raise _exc_with_message(
+                                HTTPBadRequest,
+                                f"License-File {license_file} does not exist in "
+                                f"distribution file {filename}",
+                            )
 
         # Check that if it's a binary wheel, it's on a supported platform
         if filename.endswith(".whl"):
