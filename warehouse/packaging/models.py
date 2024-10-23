@@ -593,8 +593,8 @@ class Release(HasObservations, db.Model):
     license_files: Mapped[list[str] | None] = mapped_column(
         ARRAY(String),
         comment=(
-            "Array of license files. Null indicates no License-File(s) were supplied "
-            "by the uploader."
+            "Array of license filenames. "
+            "Null indicates no License-File(s) were supplied by the uploader."
         ),
     )
     summary: Mapped[str | None]

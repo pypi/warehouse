@@ -38,7 +38,7 @@ def upgrade():
             postgresql.ARRAY(sa.String()),
             nullable=True,
             comment=(
-                "Array of license files. "
+                "Array of license filenames. "
                 "Null indicates no License-File(s) were supplied by the uploader."
             ),
         ),
