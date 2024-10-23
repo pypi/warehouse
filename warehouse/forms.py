@@ -75,6 +75,7 @@ class PasswordStrengthValidator:
             raise ValidationError(msg)
 
 
+# TODO: Remove this once `UploadForm` is updated to use `wtforms.Form` directly.
 class Form(BaseForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -115,7 +116,7 @@ class Form(BaseForm):
         return errors
 
 
-class SetLocaleForm(Form):
+class SetLocaleForm(BaseForm):
     __params__ = ["locale_id"]
 
     locale_id = StringField(validators=[InputRequired(message="Missing locale ID")])

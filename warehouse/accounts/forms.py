@@ -385,7 +385,7 @@ class HoneypotMixin:
     confirm_form = wtforms.StringField()
 
 
-class UsernameSearchForm(forms.Form):
+class UsernameSearchForm(wtforms.Form):
     username = wtforms.StringField(
         validators=[
             wtforms.validators.InputRequired(),
@@ -401,7 +401,7 @@ class RegistrationForm(  # type: ignore[misc]
     NewEmailMixin,
     NewPasswordMixin,
     HoneypotMixin,
-    forms.Form,
+    wtforms.Form,
 ):
     full_name = wtforms.StringField(
         validators=[
@@ -439,7 +439,7 @@ class RegistrationForm(  # type: ignore[misc]
             raise wtforms.validators.ValidationError("Recaptcha error.")
 
 
-class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
+class LoginForm(PasswordMixin, UsernameMixin, wtforms.Form):
     def __init__(self, *args, user_service, breach_service, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
@@ -480,7 +480,7 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
                 )
 
 
-class _TwoFactorAuthenticationForm(forms.Form):
+class _TwoFactorAuthenticationForm(wtforms.Form):
     def __init__(self, *args, request, user_id, user_service, **kwargs):
         super().__init__(*args, **kwargs)
         self.request = request
@@ -544,7 +544,7 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
         self.validated_credential = validated_credential
 
 
-class ReAuthenticateForm(PasswordMixin, forms.Form):
+class ReAuthenticateForm(PasswordMixin, wtforms.Form):
     __params__ = [
         "username",
         "password",
@@ -602,7 +602,7 @@ class RecoveryCodeAuthenticationForm(
             )
 
 
-class RequestPasswordResetForm(forms.Form):
+class RequestPasswordResetForm(wtforms.Form):
     username_or_email = wtforms.StringField(
         validators=[
             wtforms.validators.InputRequired(),
@@ -632,5 +632,5 @@ class RequestPasswordResetForm(forms.Form):
                 )
 
 
-class ResetPasswordForm(NewPasswordMixin, forms.Form):
+class ResetPasswordForm(NewPasswordMixin, wtforms.Form):
     pass
