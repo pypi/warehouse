@@ -26,7 +26,7 @@ PyPI currently supports several ways of verifying project URLs. When a URL is ve
 
 !!! warning
 
-    An URL being verified only attests that the URL is under control of the
+    A URL being verified only attests that the URL is under control of the
     PyPI package owner at the time of verification, and does not imply any
     additional safety about that URL or any other relationship to the project
     in question.
@@ -102,7 +102,7 @@ will be recognized.
 | Homepage         | :fontawesome-solid-house-chimney:         | For the project homepage  |                                                                                                          |
 | Download         | :fontawesome-solid-cloud:                 | A download link           |                                                                                                          |
 | Changelog        | :fontawesome-solid-scroll:                | Changelog information     | Change log, Changes, Release notes, News, What's new, History                                            |
-| Documentation^*^ | :fontawesome-solid-book:                  | Project documentation     | Docs^*^ , an URL pointing to [Read the Docs] domains or an URL starting with `docs.` or `documentation.` |
+| Documentation^*^ | :fontawesome-solid-book:                  | Project documentation     | Docs^*^ , a URL pointing to [Read the Docs] domains or a URL starting with `docs.` or `documentation.` |
 | Bug^*^           | :fontawesome-solid-bug:                   | Bug/Issue report location | Issue^*^, Tracker^*^, Report^*^                                                                          |
 | Funding^*^       | :fontawesome-solid-circle-dollar-to-slot: | Sponsoring information    | Sponsor^*^, Donation^*^, Donate^*^                                                                       |
 
