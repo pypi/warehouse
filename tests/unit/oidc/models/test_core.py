@@ -143,7 +143,6 @@ class TestOIDCPublisher:
             ),
         ],
     )
-
     def test_verify_url(self, monkeypatch, url, publisher_url, expected):
         class TestPublisher(_core.OIDCPublisher):
             __abstract__ = True
