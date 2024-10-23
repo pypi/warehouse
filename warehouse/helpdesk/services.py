@@ -50,6 +50,10 @@ class ConsoleHelpDeskService:
         print(dedent(pprint.pformat(request_json)))
         return "localhost"
 
+    def add_tag(self, *, conversation_url: str, tag: str) -> None:
+        print(f"Adding tag '{tag}' to conversation '{conversation_url}'")
+        return
+
 
 @implementer(IHelpDeskService)
 class HelpScoutService:
@@ -120,3 +124,32 @@ class HelpScoutService:
         resp.raise_for_status()
         # return the API-friendly location of the conversation
         return resp.headers["Location"]
+
+    def add_tag(self, *, conversation_url: str, tag: str) -> None:
+        """
+        Add a tag to a conversation in HelpScout
+        https://developer.helpscout.com/mailbox-api/endpoints/conversations/tags/update/
+        """
+        # Get existing tags and append new one
+        resp = self.http.get(
+            conversation_url, headers={"Authorization": f"Bearer {self.bearer_token}"}
+        )
+        resp.raise_for_status()
+
+        # collect tag strings from response
+        tags = [tag["tag"] for tag in resp.json()["tags"]]
+
+        if tag in tags:
+            # tag already exists, no need to add it
+            return
+
+        tags.append(tag)
+
+        resp = self.http.put(
+            f"{conversation_url}/tags",
+            headers={"Authorization": f"Bearer {self.bearer_token}"},
+            json={"tags": tags},
+            timeout=10,
+        )
+        resp.raise_for_status()
+        return

@@ -242,4 +242,6 @@ class IntegrityService:
     def build_provenance(
         self, request: Request, file: File, attestations: list[Attestation]
     ) -> DatabaseProvenance:
-        return _build_provenance(request, file, attestations)
+        provenance = _build_provenance(request, file, attestations)
+        self.metrics.increment("warehouse.attestations.build_provenance.ok")
+        return provenance
