@@ -350,6 +350,22 @@ class TestActiveStatePublisher:
                 check(expected, actual, signed_claims)
             assert str(e.value) == error_msg
 
+    @pytest.mark.parametrize(
+        ("url", "expected"),
+        [
+            ("https://platform.activestate.com/repository_name/project_name", True),
+            ("https://platform.activestate.com/repository_name/PrOjECt_NaMe", False),
+        ],
+    )
+    def test_activestate_publisher_verify_url(self, url, expected):
+        publisher = ActiveStatePublisher(
+            organization="repository_name",
+            activestate_project_name="project_name",
+            actor_id=ACTOR_ID,
+            actor=ACTOR,
+        )
+        assert publisher.verify_url(url) == expected
+
 
 class TestPendingActiveStatePublisher:
     def test_reify_does_not_exist_yet(self, db_request):
