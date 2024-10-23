@@ -492,9 +492,9 @@ sphinx-lint==1.0.0 \
     --hash=sha256:6117a0f340b2dc73eadfc57db7531d4477e0929f92a0c1a2f61e6edbc272f0bc \
     --hash=sha256:6eafdb44172ce526f405bf36c713eb246f1340ec2d667e7298e2487ed76decd2
     # via -r requirements/lint.in
-tokenize-rt==6.0.0 \
-    --hash=sha256:b9711bdfc51210211137499b5e355d3de5ec88a85d2025c520cbb921b5194367 \
-    --hash=sha256:d4ff7ded2873512938b4f8cbb98c9b07118f01d30ac585a30d7a88353ca36d22
+tokenize-rt==6.1.0 \
+    --hash=sha256:d706141cdec4aa5f358945abe36b911b8cbdc844545da99e811250c0cee9b6fc \
+    --hash=sha256:e8ee836616c0877ab7c7b54776d2fefcc3bde714449a206762425ae114b53c86
     # via pyupgrade
 toml==0.10.2 \
     --hash=sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b \
