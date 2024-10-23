@@ -1055,7 +1055,7 @@ def file_upload(request):
                 meta.metadata_version
             ) >= packaging.version.Version("2.4"):
                 """
-                Ensure all License-File keys exist in the wheel
+                Ensure all License-File keys exist in the sdist
                 See https://peps.python.org/pep-0639/#add-license-file-field
                 """
                 with zipfile.ZipFile(temporary_filename) as zfp:
@@ -1126,7 +1126,7 @@ def file_upload(request):
                 meta.metadata_version
             ) >= packaging.version.Version("2.4"):
                 """
-                Ensure all License-File keys exist in the wheel
+                Ensure all License-File keys exist in the sdist
                 See https://peps.python.org/pep-0639/#add-license-file-field
                 """
                 with tarfile.open(temporary_filename, "r:gz") as tar:
