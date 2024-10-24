@@ -1590,6 +1590,7 @@ pyasn1==0.6.1 \
     --hash=sha256:6f580d2bdd84365380830acf45550f2511469f673cb4a5ae3857a3170128b034
     # via
     #   pyasn1-modules
+    #   pypi-attestations
     #   rsa
     #   sigstore
 pyasn1-modules==0.4.1 \
@@ -1780,9 +1781,9 @@ pyparsing==3.2.0 \
     --hash=sha256:93d9577b88da0bbea8cc8334ee8b918ed014968fd2ec383e868fb8afb1ccef84 \
     --hash=sha256:cbf74e27246d595d9a74b186b810f6fbb86726dbf3b9532efb343f6d7294fe9c
     # via linehaul
-pypi-attestations==0.0.12 \
-    --hash=sha256:b1b2d5e700def138a214869f65835ff20e5f2e524acca841d5280ea89c2d2c46 \
-    --hash=sha256:d4a901121993ff8693ef9fd99e83f506ce79b5f799c36fcf8ddcdb38f4f8960b
+pypi-attestations==0.0.13 \
+    --hash=sha256:2f61f3ba81d836b54359096f43f19d7ddb15fa13542d3236b9caf92bd8b3af65 \
+    --hash=sha256:cc4213c2aab3b9d06d54c353ed7f23febf92b2409b0bb4ce5d8ade0aadcbd6ed
     # via -r requirements/main.in
 pyqrcode==1.2.1 \
     --hash=sha256:1b2812775fa6ff5c527977c4cd2ccb07051ca7d0bc0aecf937a43864abe5eff6 \
