@@ -1491,8 +1491,8 @@ orjson==3.10.7 \
     --hash=sha256:f4db56635b58cd1a200b0a23744ff44206ee6aa428185e2b6c4a65b3197abdcd \
     --hash=sha256:fdf5197a21dd660cf19dfd2a3ce79574588f8f5e2dbf21bda9ee2d2b46924d84
     # via -r requirements/main.in
-packaging @ https://github.com/ewdurbin/packaging/archive/23df2ac6294e4df83cf05d791d97635f4b3ba067.zip \
-    --hash=sha256:82d7e56c655c4244a5cf039885e00e243d1864815960efb4922c694e07beb4a3
+packaging @ https://github.com/pypa/packaging/archive/029f41580098bcf52b69684843bdc7ea37959a7e.zip \
+    --hash=sha256:ca27d2b5ec28c95c674977f4e6de1ba58624c3d864895ad439a91cc6df0c1c4c
     # via
     #   -r requirements/main.in
     #   forcediphttpsadapter

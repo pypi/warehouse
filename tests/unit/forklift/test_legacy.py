@@ -3060,16 +3060,16 @@ class TestFileUpload:
         [
             (
                 "foo-1.0.whl",
-                "400 Invalid wheel filename (wrong number of parts): foo-1.0",
+                "400 Invalid wheel filename (wrong number of parts): 'foo-1.0'",
             ),
             (
                 "foo-1.0-q-py3-none-any.whl",
-                "400 Invalid build number: q in 'foo-1.0-q-py3-none-any'",
+                "400 Invalid build number: q in ''foo-1.0-q-py3-none-any''",
             ),
             (
                 "foo-0.0.4test1-py3-none-any.whl",
                 "400 Invalid wheel filename (invalid version): "
-                "foo-0.0.4test1-py3-none-any",
+                "'foo-0.0.4test1-py3-none-any'",
             ),
             (
                 "something.tar.gz",

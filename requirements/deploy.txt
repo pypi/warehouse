@@ -90,8 +90,8 @@ opentelemetry-api==1.27.0 \
     --hash=sha256:953d5871815e7c30c81b56d910c707588000fff7a3ca1c73e6531911d53065e7 \
     --hash=sha256:ed673583eaa5f81b5ce5e86ef7cdaf622f88ef65f0b9aab40b843dcae5bef342
     # via ddtrace
-packaging @ https://github.com/ewdurbin/packaging/archive/23df2ac6294e4df83cf05d791d97635f4b3ba067.zip \
-    --hash=sha256:82d7e56c655c4244a5cf039885e00e243d1864815960efb4922c694e07beb4a3
+packaging @ https://github.com/pypa/packaging/archive/029f41580098bcf52b69684843bdc7ea37959a7e.zip \
+    --hash=sha256:ca27d2b5ec28c95c674977f4e6de1ba58624c3d864895ad439a91cc6df0c1c4c
     # via
     #   -r requirements/deploy.in
     #   gunicorn

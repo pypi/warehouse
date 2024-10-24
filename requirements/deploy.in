@@ -1,3 +1,3 @@
 gunicorn==23.0.0
 ddtrace==2.14.2
-packaging @ https://github.com/ewdurbin/packaging/archive/23df2ac6294e4df83cf05d791d97635f4b3ba067.zip
+packaging @ https://github.com/pypa/packaging/archive/029f41580098bcf52b69684843bdc7ea37959a7e.zip

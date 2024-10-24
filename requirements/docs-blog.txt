@@ -409,8 +409,8 @@ msgpack==1.1.0 \
     --hash=sha256:f80bc7d47f76089633763f952e67f8214cb7b3ee6bfa489b3cb6a84cfac114cd \
     --hash=sha256:fd2906780f25c8ed5d7b323379f6138524ba793428db5d0e9d226d3fa6aa1788
     # via cachecontrol
-packaging @ https://github.com/ewdurbin/packaging/archive/23df2ac6294e4df83cf05d791d97635f4b3ba067.zip \
-    --hash=sha256:82d7e56c655c4244a5cf039885e00e243d1864815960efb4922c694e07beb4a3
+packaging @ https://github.com/pypa/packaging/archive/029f41580098bcf52b69684843bdc7ea37959a7e.zip \
+    --hash=sha256:ca27d2b5ec28c95c674977f4e6de1ba58624c3d864895ad439a91cc6df0c1c4c
     # via
     #   -r requirements/docs-blog.in
     #   mkdocs
