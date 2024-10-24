@@ -860,6 +860,8 @@ def file_upload(request):
                     # should pull off and insert into our new release.
                     "summary",
                     "license",
+                    "license_expression",
+                    "license_files",
                     "author",
                     "maintainer",
                     "provides_extra",
@@ -1038,6 +1040,27 @@ def file_upload(request):
         if not _is_valid_dist_file(temporary_filename, form.filetype.data):
             raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
 
+        if filename.endswith(".zip"):
+            filename = os.path.basename(temporary_filename)
+
+            if meta.license_files and packaging.version.Version(  # pragma: no branch
+                meta.metadata_version
+            ) >= packaging.version.Version("2.4"):
+                """
+                Ensure all License-File keys exist in the sdist
+                See https://peps.python.org/pep-0639/#add-license-file-field
+                """
+                with zipfile.ZipFile(temporary_filename) as zfp:
+                    for license_file in meta.license_files:
+                        try:
+                            zfp.read(license_file)
+                        except KeyError:
+                            raise _exc_with_message(
+                                HTTPBadRequest,
+                                f"License-File {license_file} does not exist in "
+                                f"distribution file {filename}",
+                            )
+
         # Check that the sdist filename is correct
         if filename.endswith(".tar.gz"):
             # Extract the project name and version from the filename and check it.
@@ -1089,6 +1112,27 @@ def file_upload(request):
                     f"{str(version)!r}.",
                 )
 
+            filename = os.path.basename(temporary_filename)
+
+            if meta.license_files and packaging.version.Version(
+                meta.metadata_version
+            ) >= packaging.version.Version("2.4"):
+                """
+                Ensure all License-File keys exist in the sdist
+                See https://peps.python.org/pep-0639/#add-license-file-field
+                """
+                with tarfile.open(temporary_filename, "r:gz") as tar:
+                    # Already validated as a tarfile by _is_valid_dist_file above
+                    for license_file in meta.license_files:
+                        try:
+                            tar.getmember(license_file)
+                        except KeyError:
+                            raise _exc_with_message(
+                                HTTPBadRequest,
+                                f"License-File {license_file} does not exist in "
+                                f"distribution file {filename}",
+                            )
+
         # Check that if it's a binary wheel, it's on a supported platform
         if filename.endswith(".whl"):
             try:
@@ -1123,17 +1167,39 @@ def file_upload(request):
                     f"{str(version)!r}.",
                 )
 
-            """
-            Extract METADATA file from a wheel and return it as a content.
-            The name of the .whl file is used to find the corresponding .dist-info dir.
-            See https://peps.python.org/pep-0491/#file-contents
-            """
             filename = os.path.basename(temporary_filename)
             # Get the name and version from the original filename. Eventually this
             # should use packaging.utils.parse_wheel_filename(filename), but until then
             # we can't use this as it adds additional normailzation to the project name
             # and version.
             name, version, _ = filename.split("-", 2)
+
+            if meta.license_files and packaging.version.Version(
+                meta.metadata_version
+            ) >= packaging.version.Version("2.4"):
+                """
+                Ensure all License-File keys exist in the wheel
+                See https://peps.python.org/pep-0639/#add-license-file-field
+                """
+                with zipfile.ZipFile(temporary_filename) as zfp:
+                    for license_file in meta.license_files:
+                        license_filename = (
+                            f"{name}-{version}.dist-info/licenses/{license_file}"
+                        )
+                        try:
+                            zfp.read(license_filename)
+                        except KeyError:
+                            raise _exc_with_message(
+                                HTTPBadRequest,
+                                f"License-File {license_filename} does not exist in "
+                                f"distribution file {filename}",
+                            )
+
+            """
+            Extract METADATA file from a wheel and return it as a content.
+            The name of the .whl file is used to find the corresponding .dist-info dir.
+            See https://peps.python.org/pep-0491/#file-contents
+            """
             metadata_filename = f"{name}-{version}.dist-info/METADATA"
             try:
                 with zipfile.ZipFile(temporary_filename) as zfp:

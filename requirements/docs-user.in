@@ -1,3 +1,4 @@
 mkdocs
 mkdocs-material
 mkdocs-macros-plugin
+packaging @ https://github.com/pypa/packaging/archive/029f41580098bcf52b69684843bdc7ea37959a7e.zip

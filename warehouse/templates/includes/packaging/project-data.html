@@ -199,7 +199,20 @@
 <div class="sidebar-section unverified">
   <h6>{% trans %}Meta{% endtrans %}</h6>
   <ul>
-  {% if license %}
+  {% if release.license_expression %}
+    <li>
+      <span>
+        <strong>{% trans %}License Expression:{% endtrans %}</strong> {{ release.license_expression }}
+        <br>
+          <small>
+            <i>
+              <a target="_blank" href="https://spdx.org/licenses/">SPDX</a>
+              <a target="_blank" href="https://spdx.github.io/spdx-spec/v2-draft/SPDX-license-expressions/">{% trans %}License Expression{% endtrans %}</a>
+            </i>
+        </small>
+      </span>
+    </li>
+  {% elif license %}
     <li>
       <span>
         <strong>{% trans %}License:{% endtrans %}</strong> {{ license }}
