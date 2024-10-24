@@ -388,9 +388,9 @@ pyflakes==3.2.0 \
     --hash=sha256:1c61603ff154621fb2a9172037d84dca3500def8c8b630657d1701f026f8af3f \
     --hash=sha256:84b5be138a2dfbb40689ca07e2152deb896a65c3a3e24c251c5c62489568074a
     # via flake8
-pyupgrade==3.18.0 \
-    --hash=sha256:74dbca15f715342393d20e31575d846643fdeb32c6fe8d9598c41645bab3f762 \
-    --hash=sha256:894cf4c64c17c020f86adaab55a82449a7add29b1ea4a1b9e659ed48c922d3ae
+pyupgrade==3.19.0 \
+    --hash=sha256:1364fcae4436a6a236a85960587390ec8a939ad0f65f429346f70a5f201c1489 \
+    --hash=sha256:7ed4b7d972ed2788c43994f4a24f949d5bf044342992f3b48e1bed0092ddaa01
     # via -r requirements/lint.in
 regex==2024.9.11 \
     --hash=sha256:01c2acb51f8a7d6494c8c5eafe3d8e06d76563d8a8a4643b37e9b2dd8a2ff623 \
@@ -492,9 +492,9 @@ sphinx-lint==1.0.0 \
     --hash=sha256:6117a0f340b2dc73eadfc57db7531d4477e0929f92a0c1a2f61e6edbc272f0bc \
     --hash=sha256:6eafdb44172ce526f405bf36c713eb246f1340ec2d667e7298e2487ed76decd2
     # via -r requirements/lint.in
-tokenize-rt==6.0.0 \
-    --hash=sha256:b9711bdfc51210211137499b5e355d3de5ec88a85d2025c520cbb921b5194367 \
-    --hash=sha256:d4ff7ded2873512938b4f8cbb98c9b07118f01d30ac585a30d7a88353ca36d22
+tokenize-rt==6.1.0 \
+    --hash=sha256:d706141cdec4aa5f358945abe36b911b8cbdc844545da99e811250c0cee9b6fc \
+    --hash=sha256:e8ee836616c0877ab7c7b54776d2fefcc3bde714449a206762425ae114b53c86
     # via pyupgrade
 toml==0.10.2 \
     --hash=sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b \
