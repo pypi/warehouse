@@ -30,7 +30,6 @@ from pypi_attestations import (
     VerificationError,
 )
 from pyramid.request import Request
-from sigstore.verify import Verifier
 from zope.interface import implementer
 
 from warehouse.attestations.errors import AttestationUploadError
@@ -207,7 +206,6 @@ class IntegrityService:
         for attestation_model in attestations:
             try:
                 predicate_type, _ = attestation_model.verify(
-                    Verifier.production(),
                     verification_policy,
                     distribution,
                 )
