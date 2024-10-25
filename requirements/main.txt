@@ -947,9 +947,9 @@ jsonschema-specifications==2023.12.1 \
     # via
     #   jsonschema
     #   openapi-schema-validator
-kombu[sqs]==5.4.0 \
-    --hash=sha256:ad200a8dbdaaa2bbc5f26d2ee7d707d9a1fded353a0f4bd751ce8c7d9f449c60 \
-    --hash=sha256:c8dd99820467610b4febbc7a9e8a0d3d7da2d35116b67184418b51cc520ea6b6
+kombu[sqs]==5.4.2 \
+    --hash=sha256:14212f5ccf022fc0a70453bb025a1dcc32782a588c49ea866884047d66e14763 \
+    --hash=sha256:eef572dd2fd9fc614b37580e3caeafdd5af46c1eff31e7fba89138cdb406f2cf
     # via
     #   -r requirements/main.in
     #   celery
@@ -1591,6 +1591,7 @@ pyasn1==0.6.1 \
     --hash=sha256:6f580d2bdd84365380830acf45550f2511469f673cb4a5ae3857a3170128b034
     # via
     #   pyasn1-modules
+    #   pypi-attestations
     #   rsa
     #   sigstore
 pyasn1-modules==0.4.1 \
@@ -1781,9 +1782,9 @@ pyparsing==3.2.0 \
     --hash=sha256:93d9577b88da0bbea8cc8334ee8b918ed014968fd2ec383e868fb8afb1ccef84 \
     --hash=sha256:cbf74e27246d595d9a74b186b810f6fbb86726dbf3b9532efb343f6d7294fe9c
     # via linehaul
-pypi-attestations==0.0.12 \
-    --hash=sha256:b1b2d5e700def138a214869f65835ff20e5f2e524acca841d5280ea89c2d2c46 \
-    --hash=sha256:d4a901121993ff8693ef9fd99e83f506ce79b5f799c36fcf8ddcdb38f4f8960b
+pypi-attestations==0.0.13 \
+    --hash=sha256:2f61f3ba81d836b54359096f43f19d7ddb15fa13542d3236b9caf92bd8b3af65 \
+    --hash=sha256:cc4213c2aab3b9d06d54c353ed7f23febf92b2409b0bb4ce5d8ade0aadcbd6ed
     # via -r requirements/main.in
 pyqrcode==1.2.1 \
     --hash=sha256:1b2812775fa6ff5c527977c4cd2ccb07051ca7d0bc0aecf937a43864abe5eff6 \
@@ -2243,7 +2244,9 @@ typing-extensions==4.12.2 \
 tzdata==2024.2 \
     --hash=sha256:7d85cc416e9382e69095b7bdf4afd9e3880418a2413feec7069d533d6b4e31cc \
     --hash=sha256:a48093786cdcde33cad18c2555e8532f34422074448fbc874186f0abd79565cd
-    # via celery
+    # via
+    #   celery
+    #   kombu
 ua-parser==0.18.0 \
     --hash=sha256:9d94ac3a80bcb0166823956a779186c746b50ea4c9fd9bf30fdb758553c38950 \
     --hash=sha256:db51f1b59bfaa82ed9e2a1d99a54d3e4153dddf99ac1435d51828165422e624e
