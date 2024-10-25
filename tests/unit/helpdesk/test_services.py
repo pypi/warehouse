@@ -19,6 +19,7 @@ import pytest
 import requests
 import responses
 
+from pyramid_retry import RetryableException
 from zope.interface.verify import verifyClass
 
 from warehouse.helpdesk.interfaces import IHelpDeskService
@@ -99,6 +100,28 @@ class TestHelpScoutService:
         )
 
         with pytest.raises(KeyError):
+            HelpScoutService.create_service(context, request)
+
+    @responses.activate
+    def test_retries_on_error(self):
+        responses.add(
+            responses.POST,
+            "https://api.helpscout.net/v2/oauth2/token",
+            body=requests.exceptions.RequestException(),
+        )
+
+        context = None
+        request = pretend.stub(
+            http=requests.Session(),
+            registry=pretend.stub(
+                settings={
+                    "helpscout.app_id": "an insecure helpscout app id",
+                    "helpscout.app_secret": "an insecure helpscout app secret",
+                },
+            ),
+        )
+
+        with pytest.raises(RetryableException):
             HelpScoutService.create_service(context, request)
 
     @responses.activate
