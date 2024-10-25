@@ -181,10 +181,9 @@ class TestIntegrityService:
             [dummy_attestation]
         )
 
-        def failing_verify(_self, _verifier, _policy, _dist):
+        def failing_verify(_self, _policy, _dist):
             raise verify_exception("error")
 
-        monkeypatch.setattr(Verifier, "production", lambda: pretend.stub())
         monkeypatch.setattr(Attestation, "verify", failing_verify)
 
         with pytest.raises(AttestationUploadError, match=expected_message):
