@@ -20,3 +20,7 @@
 {% endblock %}
 
 {% block reason %}{% trans initiator_username=initiator_username, site=site %}You are receiving this because you have been added by {{ initiator_username }} to a project on {{ site }}.{% endtrans %}{% endblock %}
+
+Project "{{ project_name }}" details: https://pypi.org/project/{{ project_name }}
+Role "{{ role }}" details: https://pypi.org/help/#collaborator-roles
+Added by {{ initiator_username }}: https://pypi.org/user/{{ initiator_username }}
