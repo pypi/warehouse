@@ -50,7 +50,6 @@ cache_dir = "dev/.mypy_cache"
 [[tool.mypy.overrides]]
 # These modules do not yet have types available.
 module = [
-    "alembic_postgresql_enum.*",
     "automat.*",
     "bpython.*",  # https://github.com/bpython/bpython/issues/892
     "b2sdk.*",  # https://github.com/Backblaze/b2-sdk-python/issues/148
@@ -60,7 +59,6 @@ module = [
     "google.cloud.*",
     "forcediphttpsadapter.*",
     "IPython.*",  # has types, but only installed in dev
-    "linehaul.*",
     "packaging_legacy.*",
     "paginate.*",
     "paginate_sqlalchemy.*",
@@ -77,7 +75,6 @@ module = [
     "transaction.*",
     "ua_parser.*",  # https://github.com/ua-parser/uap-python/issues/110
     "venusian.*",
-    "whitenoise.*",
     "zope.sqlalchemy.*",
 ]
 ignore_missing_imports = true
@@ -97,6 +94,7 @@ markers = [
 ]
 filterwarnings = [
     'ignore::warehouse.admin.services.InsecureStorageWarning',
+    'ignore::warehouse.utils.exceptions.InsecureIntegrityServiceWarning',
     'ignore::warehouse.utils.exceptions.InsecureOIDCPublisherWarning',
     'ignore::warehouse.packaging.services.InsecureStorageWarning',
     'error:SELECT statement has a cartesian product:sqlalchemy.exc.SAWarning',
