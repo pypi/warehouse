@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import cast
+
 import click
 
 from warehouse.cli import warehouse
@@ -569,10 +571,12 @@ def populate_db(config):
         img = params.pop("image")
         params["is_active"] = True
         params["link_url"] = params.pop("url")
-        params["activity_markdown"] = "\n\n".join(params.pop("activity", [])).strip()
-        params["color_logo_url"] = BLACK_BASE_URL + img
+        params["activity_markdown"] = "\n\n".join(
+            cast(list, params.pop("activity", []))
+        ).strip()
+        params["color_logo_url"] = BLACK_BASE_URL + str(img)
         if params["footer"] or params["infra_sponsor"]:
-            params["white_logo_url"] = WHITE_BASE_URL + img
+            params["white_logo_url"] = WHITE_BASE_URL + str(img)
 
         sponsor = Sponsor(**params)
         try:

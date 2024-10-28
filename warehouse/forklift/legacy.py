@@ -461,7 +461,7 @@ def file_upload(request):
     request.metrics.increment("warehouse.upload.attempt")
 
     # This is a list of warnings that we'll emit *IF* the request is successful.
-    warnings = []
+    warnings: list[str] = []
 
     # If we're in read-only mode, let upload clients know
     if request.flags.enabled(AdminFlagValue.READ_ONLY):
@@ -618,7 +618,7 @@ def file_upload(request):
         meta = metadata.parse(None, form_data=request.POST)
     except* metadata.InvalidMetadata as exc:
         # Turn our list of errors into a mapping of errors, keyed by the field
-        errors = {}
+        errors: dict = {}
         for error in exc.exceptions:
             errors.setdefault(error.field, []).append(error)
 
