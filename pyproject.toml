@@ -93,10 +93,7 @@ markers = [
     'functional: Slower running tests which test the entire system is functioning.',
 ]
 filterwarnings = [
-    'ignore::warehouse.admin.services.InsecureStorageWarning',
-    'ignore::warehouse.utils.exceptions.InsecureIntegrityServiceWarning',
-    'ignore::warehouse.utils.exceptions.InsecureOIDCPublisherWarning',
-    'ignore::warehouse.packaging.services.InsecureStorageWarning',
+    'ignore::warehouse.utils.exceptions.DevelopmentModeWarning',
     'error:SELECT statement has a cartesian product:sqlalchemy.exc.SAWarning',
 ]
 
