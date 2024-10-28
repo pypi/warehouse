@@ -31,6 +31,7 @@ def run_migrations_offline():
     script output.
     """
     options = context.config.get_section(context.config.config_ini_section)
+    assert options is not None  # type narrowing
     url = options.pop("url")
     context.configure(url=url, compare_server_default=True)
 
@@ -46,6 +47,7 @@ def run_migrations_online():
     and associate a connection with the context.
     """
     options = context.config.get_section(context.config.config_ini_section)
+    assert options is not None  # type narrowing
     url = options.pop("url")
     connectable = create_engine(url, poolclass=pool.NullPool)
 
