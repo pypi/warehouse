@@ -133,6 +133,8 @@ Adding a new service
 3. (Optional) Create other implementations of the interface. For instance, many services in ``warehouse``
    also provide a ``NullService`` version used for development. These Null implementations only
    provide basic functionalities without verifications and reduce the need for stubs in tests.
+   When implementing a warning for using the service, subclass the exception from
+   ``warehouse.utils.exceptions.DevelopmentModeWarning`` to minimize warnings in the test logs.
 
    Any new implementation must implement the complete interface, including all its methods and attributes.
 
