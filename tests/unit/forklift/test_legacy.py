@@ -3104,7 +3104,7 @@ class TestFileUpload:
             "linux_x86_64",
             "linux_x86_64.win32",
             "macosx_9_2_x86_64",
-            "macosx_15_2_arm64",
+            "macosx_16_2_arm64",
             "macosx_10_15_amd64",
         ],
     )
@@ -3401,7 +3401,6 @@ class TestFileUpload:
                 if not test_with_user
                 else None
             ),
-            "reusable_worfklow_used": False,  # This is tested in oidc.test_views
             "uploaded_via_trusted_publisher": not test_with_user,
         }
 
