@@ -48,7 +48,7 @@ class TestUploadForm:
     )
     def test_full_validate_valid(self, data):
         form = UploadForm(MultiDict(data))
-        form.full_validate()
+        assert form.full_validate() is None
 
     @pytest.mark.parametrize(
         "data",
