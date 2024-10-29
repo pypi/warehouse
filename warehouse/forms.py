@@ -11,7 +11,7 @@
 # limitations under the License.
 
 from wtforms import Form as BaseForm, StringField
-from wtforms.validators import InputRequired, StopValidation, ValidationError
+from wtforms.validators import InputRequired, ValidationError
 from zxcvbn import zxcvbn
 
 from warehouse.i18n import KNOWN_LOCALES
@@ -73,47 +73,6 @@ class PasswordStrengthValidator:
             if results["feedback"]["suggestions"]:
                 msg += " " + " ".join(results["feedback"]["suggestions"])
             raise ValidationError(msg)
-
-
-# TODO: Remove this once `UploadForm` is updated to use `wtforms.Form` directly.
-class Form(BaseForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._form_errors = []
-
-    def validate(self, *args, **kwargs):
-        success = super().validate(*args, **kwargs)
-
-        # Determine what form level validators we have to run.
-        form_validators = getattr(self.meta, "validators", [])
-        full_validate = getattr(self, "full_validate", None)
-        if full_validate is not None:
-            form_validators.append(full_validate.__func__)
-
-        # Attempt run any form level validators now.
-        self._form_errors = []
-        for validator in form_validators:
-            try:
-                validator(self)
-            except StopValidation as exc:
-                success = False
-                if exc.args and exc.args[0]:
-                    self._form_errors.append(exc.args[0])
-                break
-            except ValueError as exc:
-                success = False
-                self._form_errors.append(exc.args[0])
-
-        return success
-
-    @property
-    def errors(self):
-        errors = super().errors
-
-        if self._form_errors:
-            errors["__all__"] = self._form_errors
-
-        return errors
 
 
 class SetLocaleForm(BaseForm):
