@@ -494,6 +494,20 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "manage.project.archive",
+        "/manage/project/{project_name}/archive/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.project.unarchive",
+        "/manage/project/{project_name}/unarchive/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
         "manage.project.history",
         "/manage/project/{project_name}/history/",
         factory="warehouse.packaging.models:ProjectFactory",

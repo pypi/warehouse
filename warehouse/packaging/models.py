@@ -166,6 +166,7 @@ class ProjectFactory:
 class LifecycleStatus(enum.StrEnum):
     QuarantineEnter = "quarantine-enter"
     QuarantineExit = "quarantine-exit"
+    Archived = "archived"
 
 
 class Project(SitemapMixin, HasEvents, HasObservations, db.Model):

@@ -63,6 +63,7 @@ from warehouse.organizations.models import (
 from warehouse.packaging.models import (
     File,
     JournalEntry,
+    LifecycleStatus,
     Project,
     Release,
     Role,
@@ -2602,7 +2603,7 @@ class TestManageProjectSettings:
     @pytest.mark.parametrize("enabled", [False, True])
     def test_manage_project_settings(self, enabled, monkeypatch):
         request = pretend.stub(organization_access=enabled)
-        project = pretend.stub(organization=None)
+        project = pretend.stub(organization=None, lifecycle_status=None)
         view = views.ManageProjectSettingsViews(project, request)
         form = pretend.stub()
         view.transfer_organization_project_form_class = lambda *a, **kw: form
@@ -2629,7 +2630,7 @@ class TestManageProjectSettings:
         request = pretend.stub(organization_access=True)
         organization_managed = pretend.stub(name="managed-org", is_active=True)
         organization_owned = pretend.stub(name="owned-org", is_active=True)
-        project = pretend.stub(organization=organization_managed)
+        project = pretend.stub(organization=organization_managed, lifecycle_status=None)
         view = views.ManageProjectSettingsViews(project, request)
         form = pretend.stub()
         view.transfer_organization_project_form_class = pretend.call_recorder(
@@ -2661,7 +2662,7 @@ class TestManageProjectSettings:
         request = pretend.stub(organization_access=True)
         organization_managed = pretend.stub(name="managed-org", is_active=True)
         organization_owned = pretend.stub(name="owned-org", is_active=True)
-        project = pretend.stub(organization=organization_owned)
+        project = pretend.stub(organization=organization_owned, lifecycle_status=None)
         view = views.ManageProjectSettingsViews(project, request)
         form = pretend.stub()
         view.transfer_organization_project_form_class = pretend.call_recorder(
@@ -7955,3 +7956,96 @@ class TestManageOIDCPublisherViews:
                 queue="error",
             )
         ]
+
+
+class TestArchiveProject:
+    def test_archive(self, db_request):
+        project = ProjectFactory.create(name="foo")
+        user = UserFactory.create(username="testuser")
+
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.method = "POST"
+        db_request.user = user
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.archive_project(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert project.lifecycle_status == LifecycleStatus.Archived
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name=project.name)
+        ]
+
+    def test_unarchive_project(self, db_request):
+        project = ProjectFactory.create(
+            name="foo", lifecycle_status=LifecycleStatus.Archived
+        )
+        user = UserFactory.create(username="testuser")
+
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.method = "POST"
+        db_request.user = user
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.unarchive_project(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name=project.name)
+        ]
+        assert project.lifecycle_status is None
+
+    def test_disallowed_archive(self, db_request):
+        project = ProjectFactory.create(name="foo", lifecycle_status="quarantine-enter")
+        user = UserFactory.create(username="testuser")
+
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.method = "POST"
+        db_request.user = user
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.archive_project(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Cannot archive project with status {project.lifecycle_status}",
+                queue="error",
+            )
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
+        ]
+        assert project.lifecycle_status == "quarantine-enter"
+
+    def test_disallowed_unarchive(self, db_request):
+        project = ProjectFactory.create(name="foo", lifecycle_status="quarantine-enter")
+        user = UserFactory.create(username="testuser")
+
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.method = "POST"
+        db_request.user = user
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.unarchive_project(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.session.flash.calls == [
+            pretend.call("Can only unarchive an archived project", queue="error")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
+        ]
+        assert project.lifecycle_status == "quarantine-enter"
