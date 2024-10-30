@@ -124,6 +124,8 @@ class EventTag:
         OrganizationProjectRemove = "project:organization_project:remove"
         OwnersRequire2FADisabled = "project:owners_require_2fa:disabled"
         OwnersRequire2FAEnabled = "project:owners_require_2fa:enabled"
+        ProjectArchiveEnter = "project:archive:enter"
+        ProjectArchiveExit = "project:archive:exit"
         ProjectCreate = "project:create"
         ProjectQuarantineEnter = "project:quarantine:enter"
         ProjectQuarantineExit = "project:quarantine:exit"

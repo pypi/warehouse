@@ -131,6 +131,7 @@ from warehouse.packaging.models import (
     AlternateRepository,
     File,
     JournalEntry,
+    LifecycleStatus,
     Project,
     Release,
     Role,
@@ -144,7 +145,6 @@ from warehouse.utils.project import confirm_project, destroy_docs, remove_projec
 
 
 class ManageAccountMixin:
-
     def __init__(self, request):
         self.request = request
         self.user_service = request.find_service(IUserService, context=None)
@@ -218,7 +218,6 @@ class ManageAccountMixin:
 )
 @lift()
 class ManageUnverifiedAccountViews(ManageAccountMixin):
-
     @view_config(request_method="GET")
     def manage_unverified_account(self):
         return {"help_url": self.request.help_url(_anchor="account-recovery")}
@@ -236,7 +235,6 @@ class ManageUnverifiedAccountViews(ManageAccountMixin):
 )
 @lift()
 class ManageVerifiedAccountViews(ManageAccountMixin):
-
     @property
     def active_projects(self):
         return user_projects(request=self.request)["projects_sole_owned"]
@@ -3180,3 +3178,70 @@ def manage_project_history(project, request):
 )
 def manage_project_documentation(project, request):
     return {"project": project}
+
+
+@view_config(
+    route_name="manage.project.archive",
+    context=Project,
+    uses_session=True,
+    require_methods=["POST"],
+    permission=Permissions.ProjectsWrite,
+    has_translations=True,
+)
+def archive_project(project, request) -> HTTPSeeOther:
+    """
+    Archive a Project. Reversible action.
+    """
+    if (
+        project.lifecycle_status is None
+        or project.lifecycle_status == LifecycleStatus.QuarantineExit
+    ):
+        project.lifecycle_status = LifecycleStatus.Archived
+        project.record_event(
+            tag=EventTag.Project.ProjectArchiveEnter,
+            request=request,
+            additional={
+                "submitted_by": request.user.username,
+            },
+        )
+    else:
+        request.session.flash(
+            request._(f"Cannot archive project with status {project.lifecycle_status}"),
+            queue="error",
+        )
+
+    return HTTPSeeOther(
+        request.route_path("manage.project.settings", project_name=project.name)
+    )
+
+
+@view_config(
+    route_name="manage.project.unarchive",
+    context=Project,
+    uses_session=True,
+    require_methods=["POST"],
+    permission=Permissions.ProjectsWrite,
+    has_translations=True,
+)
+def unarchive_project(project, request) -> HTTPSeeOther:
+    """
+    Unarchive a Project. Reversible action.
+    """
+    if project.lifecycle_status == LifecycleStatus.Archived:
+        project.lifecycle_status = None
+        project.record_event(
+            tag=EventTag.Project.ProjectArchiveExit,
+            request=request,
+            additional={
+                "submitted_by": request.user.username,
+            },
+        )
+    else:
+        request.session.flash(
+            request._("Can only unarchive an archived project"),
+            queue="error",
+        )
+
+    return HTTPSeeOther(
+        request.route_path("manage.project.settings", project_name=project.name)
+    )
