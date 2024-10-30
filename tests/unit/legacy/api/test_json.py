@@ -262,8 +262,10 @@ class TestJSONProject:
                 "release_url": "/the/fake/url/",
                 "requires_dist": None,
                 "requires_python": None,
+                "roles": {
+                    "owner": ["guido"],
+                },
                 "summary": None,
-                "users": ["guido"],
                 "yanked": False,
                 "yanked_reason": None,
                 "version": "3.0",
@@ -542,7 +544,9 @@ class TestJSONRelease:
         RoleFactory.create(user=user, project=project)
         RoleFactory.create(user=UserFactory.create(username="dstufft"), project=project)
         RoleFactory.create(
-            user=UserFactory.create(username="ewdurbin"), project=project
+            user=UserFactory.create(username="ewdurbin"),
+            project=project,
+            role_name="Maintainer",
         )
 
         JournalEntryFactory.reset_sequence()
@@ -594,8 +598,11 @@ class TestJSONRelease:
                 "release_url": "/the/fake/url/",
                 "requires_dist": None,
                 "requires_python": None,
+                "roles": {
+                    "owner": ["dstufft", "guido"],
+                    "maintainer": ["ewdurbin"],
+                },
                 "summary": None,
-                "users": ["dstufft", "ewdurbin", "guido"],
                 "yanked": False,
                 "yanked_reason": None,
                 "version": "3.0",
@@ -692,8 +699,10 @@ class TestJSONRelease:
                 "release_url": "/the/fake/url/",
                 "requires_dist": None,
                 "requires_python": None,
+                "roles": {
+                    "owner": ["dstufft", "ewdurbin"],
+                },
                 "summary": None,
-                "users": ["dstufft", "ewdurbin"],
                 "yanked": False,
                 "yanked_reason": None,
                 "version": "0.1",
