@@ -7,6 +7,8 @@ on:
   merge_group:
     types: [checks_requested]
   workflow_dispatch:  # generally only for the "combine-prs" workflow
+permissions:
+  contents: read
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
@@ -18,7 +20,6 @@ jobs:
       buildId: ${{ steps.build.outputs.build-id}}
     permissions:
       id-token: write
-      contents: read
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -63,7 +64,6 @@ jobs:
         BILLING_BACKEND: warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27
     permissions:
       id-token: write
-      contents: read
     services:
       postgres:
         image: ${{ (matrix.name == 'Tests') && 'postgres:16.1' || '' }}
@@ -107,7 +107,6 @@ jobs:
       image: registry.depot.dev/rltf7cln5v:${{ needs.build.outputs.buildId }}
     permissions:
       id-token: write
-      contents: read
     services:
       postgres:
         image: postgres:16.1
