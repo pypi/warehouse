@@ -25,6 +25,8 @@ from warehouse.packaging.models import (
     Project,
     Release,
     ReleaseURL,
+    Role,
+    User,
 )
 from warehouse.utils.cors import _CORS_HEADERS
 
@@ -64,6 +66,19 @@ def _json_data(request, project, release, *, all_releases):
         .outerjoin(File)
         .filter(Release.project == project)
     )
+
+    # Get all of the maintainers for this project.
+    maintainers = [
+        r.user
+        for r in (
+            request.db.query(Role)
+            .join(User)
+            .filter(Role.project == project)
+            .distinct(User.username)
+            .order_by(User.username)
+            .all()
+        )
+    ]
 
     # If we're not looking for all_releases, then we'll filter this further
     # to just this release.
@@ -158,6 +173,7 @@ def _json_data(request, project, release, *, all_releases):
             "author_email": release.author_email,
             "maintainer": release.maintainer,
             "maintainer_email": release.maintainer_email,
+            "users": sorted(user.username for user in maintainers),
             "requires_python": release.requires_python,
             "platform": release.platform,
             "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},

@@ -26,6 +26,7 @@ from ....common.db.packaging import (
     JournalEntryFactory,
     ProjectFactory,
     ReleaseFactory,
+    RoleFactory,
 )
 
 
@@ -210,7 +211,9 @@ class TestJSONProject:
             )
             for r in releases[1:]
         ]
-        user = UserFactory.create()
+        user = UserFactory.create(username="guido")
+        RoleFactory.create(user=user, project=project)
+
         JournalEntryFactory.reset_sequence()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
@@ -260,6 +263,7 @@ class TestJSONProject:
                 "requires_dist": None,
                 "requires_python": None,
                 "summary": None,
+                "users": ["guido"],
                 "yanked": False,
                 "yanked_reason": None,
                 "version": "3.0",
@@ -533,7 +537,14 @@ class TestJSONRelease:
             )
             for r in releases[1:]
         ]
-        user = UserFactory.create()
+
+        user = UserFactory.create(username="guido")
+        RoleFactory.create(user=user, project=project)
+        RoleFactory.create(user=UserFactory.create(username="dstufft"), project=project)
+        RoleFactory.create(
+            user=UserFactory.create(username="ewdurbin"), project=project
+        )
+
         JournalEntryFactory.reset_sequence()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
@@ -584,6 +595,7 @@ class TestJSONRelease:
                 "requires_dist": None,
                 "requires_python": None,
                 "summary": None,
+                "users": ["dstufft", "ewdurbin", "guido"],
                 "yanked": False,
                 "yanked_reason": None,
                 "version": "3.0",
@@ -625,7 +637,12 @@ class TestJSONRelease:
             size=200,
         )
 
-        user = UserFactory.create()
+        user = UserFactory.create(username="dstufft")
+        RoleFactory.create(user=user, project=project)
+        RoleFactory.create(
+            user=UserFactory.create(username="ewdurbin"), project=project
+        )
+
         JournalEntryFactory.reset_sequence()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
@@ -676,6 +693,7 @@ class TestJSONRelease:
                 "requires_dist": None,
                 "requires_python": None,
                 "summary": None,
+                "users": ["dstufft", "ewdurbin"],
                 "yanked": False,
                 "yanked_reason": None,
                 "version": "0.1",
