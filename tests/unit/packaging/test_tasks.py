@@ -419,6 +419,8 @@ bq_schema = [
     SchemaField("maintainer", "STRING", "NULLABLE"),
     SchemaField("maintainer_email", "STRING", "NULLABLE"),
     SchemaField("license", "STRING", "NULLABLE"),
+    SchemaField("license_expression", "STRING", "NULLABLE"),
+    SchemaField("license_files", "STRING", "REPEATED"),
     SchemaField("keywords", "STRING", "NULLABLE"),
     SchemaField("classifiers", "STRING", "REPEATED"),
     SchemaField("platform", "STRING", "REPEATED"),
@@ -624,6 +626,8 @@ class TestUpdateBigQueryMetadata:
                         "maintainer_email": form_factory["maintainer_email"].data
                         or None,
                         "license": form_factory["license"].data or None,
+                        "license_expression": None,
+                        "license_files": [],
                         "keywords": form_factory["description_content_type"].data
                         or None,
                         "classifiers": form_factory["classifiers"].data or [],
@@ -774,6 +778,8 @@ class TestSyncBigQueryMetadata:
                         "maintainer": release.maintainer or None,
                         "maintainer_email": release.maintainer_email or None,
                         "license": release.license or None,
+                        "license_expression": None,
+                        "license_files": [],
                         "keywords": release.keywords or None,
                         "classifiers": release.classifiers or [],
                         "platform": [release.platform] or [],

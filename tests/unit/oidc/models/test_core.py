@@ -140,12 +140,14 @@ class TestOIDCPublisher:
         ],
     )
     def test_verify_url(self, monkeypatch, url, publisher_url, expected):
-        class ConcretePublisher(_core.OIDCPublisher):
+        class TestPublisher(_core.OIDCPublisher):
+            __abstract__ = True
+
             @property
             def publisher_base_url(self):
                 return publisher_url
 
-        publisher = ConcretePublisher()
+        publisher = TestPublisher()
         assert publisher.verify_url(url) == expected
 
 
