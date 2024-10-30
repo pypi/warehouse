@@ -40,6 +40,41 @@
     <a href="{{ help_url }}"> (request an increase) </a>{% endtrans %}</li>
   </ul>
 
+  <h2>{% trans %}Archive project{% endtrans %}</h2>
+  {% set can_be_archived = not project.lifecycle_status or project.lifecycle_status == "quarantine-exit" %}
+  {% set can_be_unarchived = project.lifecycle_status == "archived" %}
+  <div class="callout-block callout-block--danger" data-controller="archive-confirm">
+  <p>
+    {% trans %}
+    Archiving a project will block any new uploads. Before doing so, we
+    recommend publishing a final release with an update to the project's
+    README to warn the users that the project won't receive further updates,
+    and to mention any alternative projects they may consider as a replacement.
+    {% endtrans %}
+  </p>
+  </div>
+    <a href="#archive-project" class="button button--primary {{ 'button--disabled' if not can_be_archived }}">
+      {% trans %}Archive project{% endtrans %}
+    </a>
+    <a href="#unarchive-project" class="button button--primary {{ 'button--disabled' if not can_be_unarchived }}">
+      {% trans %}Unarchive project{% endtrans %}
+    </a>
+    {% if not project.lifecycle_status %}
+    {% elif project.lifecycle_status == "archived" %}
+    {% endif %}
+  
+  {% set action = request.route_path('manage.project.archive', project_name=project.name) %}
+  {% set slug = "archive-project" %}
+  {% set title = gettext("Archive project") %}
+  {% set extra_description = gettext("Archiving a project will block any new file uploads") %}
+  {{ confirm_modal(title=title, label=project.name, slug=slug, extra_description=extra_description, action=action, warning=False) }}
+
+  {% set action = request.route_path('manage.project.unarchive', project_name=project.name) %}
+  {% set slug = "unarchive-project" %}
+  {% set title = gettext("Unarchive project") %}
+  {% set extra_description = gettext("Unarchiving a project will allow new file uploads") %}
+  {{ confirm_modal(title=title, label=project.name, slug=slug, extra_description=extra_description, action=action, warning=False) }}
+
   <h3>{% trans %}API tokens{% endtrans %}</h3>
   <p>{% trans %}API tokens provide an alternative way to authenticate when uploading packages to PyPI.{% endtrans %}</p>
   {% if user.has_primary_verified_email %}
