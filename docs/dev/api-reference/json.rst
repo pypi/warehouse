@@ -117,6 +117,10 @@ Project
                     "coverage ; extra == 'test'"
                 ],
                 "requires_python": ">=3.7",
+                "roles": {
+                    "owner": ["alice", "bob"],
+                    "maintainer: ["carol", "dave"],
+                },
                 "summary": "A sample Python project",
                 "version": "3.0.0",
                 "yanked": false,
