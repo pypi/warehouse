@@ -119,7 +119,7 @@ Project
                 "requires_python": ">=3.7",
                 "roles": {
                     "owner": ["alice", "bob"],
-                    "maintainer: ["carol", "dave"],
+                    "maintainer": ["carol", "dave"],
                 },
                 "summary": "A sample Python project",
                 "version": "3.0.0",
