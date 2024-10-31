@@ -1332,27 +1332,35 @@ class TestFile:
         assert rfile.pretty_wheel_tags == ["Source"]
 
     @pytest.mark.parametrize(
-        ("upload_time", "deletable"),
+        ("upload_time", "is_prerelease", "deletable"),
         [
             # Deletable at the instant of upload
-            (datetime(year=2000, month=1, day=1), True),
+            (datetime(year=2000, month=1, day=1), False, True),
             # Deletable within the normal period
-            (datetime(year=2000, month=1, day=1) - timedelta(hours=1), True),
-            (datetime(year=2000, month=1, day=1) - timedelta(days=1), True),
-            (datetime(year=2000, month=1, day=1) - timedelta(days=2), True),
+            (datetime(year=2000, month=1, day=1) - timedelta(hours=1), False, True),
+            (datetime(year=2000, month=1, day=1) - timedelta(days=1), False, True),
+            (datetime(year=2000, month=1, day=1) - timedelta(days=2), False, True),
             # Not deletable if uploaded 72 hours after the upload time
             # PEP-753 specifies deletion period is less than 72 hours
-            (datetime(year=2000, month=1, day=1) - timedelta(days=3), False),
+            (datetime(year=2000, month=1, day=1) - timedelta(days=3), False, False),
             # Deletable when inexplicably uploaded in the future
-            (datetime(year=2000, month=1, day=1) + timedelta(hours=1), True),
+            (datetime(year=2000, month=1, day=1) + timedelta(hours=1), False, True),
             # Not deletable outside of the deletion period
-            (datetime(year=2000, month=1, day=1) - timedelta(days=3, seconds=1), False),
-            (datetime(year=2000, month=1, day=1) - timedelta(days=4), False),
+            (
+                datetime(year=2000, month=1, day=1) - timedelta(days=3, seconds=1),
+                False,
+                False,
+            ),
+            (datetime(year=2000, month=1, day=1) - timedelta(days=4), False, False),
+            # Deletable when it's a prerelease and outside the deletion period
+            (datetime(year=2000, month=1, day=1) - timedelta(days=4), True, False),
         ],
     )
-    def test_in_deletion_window(self, db_session, upload_time, deletable):
+    def test_in_deletion_window(
+        self, db_session, upload_time, is_prerelease, deletable
+    ):
         project = DBProjectFactory.create()
-        release = DBReleaseFactory.create(project=project)
+        release = DBReleaseFactory.create(project=project, is_prerelease=is_prerelease)
 
         fake_now = datetime(year=2000, month=1, day=1)
 

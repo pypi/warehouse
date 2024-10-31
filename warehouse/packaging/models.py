@@ -967,9 +967,13 @@ class File(HasEvents, db.Model):
     def in_deletion_window(self) -> bool:
         """
         A file can be deleted by a non-admin owner if it's within its
-        "deletion window," i.e. was uploaded less than 72 hours ago.
+        "deletion window," i.e. was uploaded less than 72 hours ago OR
+        it has a pre-release version specifier.
         """
-        return self.upload_time > datetime.now() - timedelta(hours=72)
+        return (
+            self.release.is_prerelease
+            or self.upload_time > datetime.now() - timedelta(hours=72)
+        )
 
 
 class Filename(db.ModelBase):
