@@ -503,12 +503,12 @@ class TestProject:
         release2 = DBReleaseFactory.create(project=project)
         DBFileFactory.create(
             release=release2,
-            upload_time=fake_now - timedelta(days=2),
+            upload_time=fake_now - timedelta(days=1),
             packagetype="bdist_wheel",
         )
         DBFileFactory.create(
             release=release2,
-            upload_time=fake_now - timedelta(days=3),
+            upload_time=fake_now - timedelta(days=2),
             packagetype="bdist_wheel",
         )
 
@@ -517,7 +517,7 @@ class TestProject:
 
         # One release is not deletable, so the entire project is not deletable.
         release3 = DBReleaseFactory.create(project=project)
-        DBFileFactory.create(release=release3, upload_time=fake_now - timedelta(days=8))
+        DBFileFactory.create(release=release3, upload_time=fake_now - timedelta(days=4))
         with freezegun.freeze_time(fake_now):
             assert not release3.in_deletion_window
             assert not project.in_deletion_window
@@ -1194,7 +1194,7 @@ class TestRelease:
 
         DBFileFactory.create(
             release=release,
-            upload_time=fake_now - timedelta(days=7, hours=1),
+            upload_time=fake_now - timedelta(days=3, hours=1),
             packagetype="bdist_wheel",
         )
 
@@ -1339,14 +1339,15 @@ class TestFile:
             # Deletable within the normal period
             (datetime(year=2000, month=1, day=1) - timedelta(hours=1), True),
             (datetime(year=2000, month=1, day=1) - timedelta(days=1), True),
-            (datetime(year=2000, month=1, day=1) - timedelta(days=5), True),
-            # Deletable at the instant of the end of the deletion period
-            (datetime(year=2000, month=1, day=1) - timedelta(days=7), True),
+            (datetime(year=2000, month=1, day=1) - timedelta(days=2), True),
+            # Not deletable if uploaded 72 hours after the upload time
+            # PEP-753 specifies deletion period is less than 72 hours
+            (datetime(year=2000, month=1, day=1) - timedelta(days=3), False),
             # Deletable when inexplicably uploaded in the future
             (datetime(year=2000, month=1, day=1) + timedelta(hours=1), True),
             # Not deletable outside of the deletion period
-            (datetime(year=2000, month=1, day=1) - timedelta(days=7, seconds=1), False),
-            (datetime(year=2000, month=1, day=1) - timedelta(days=8), False),
+            (datetime(year=2000, month=1, day=1) - timedelta(days=3, seconds=1), False),
+            (datetime(year=2000, month=1, day=1) - timedelta(days=4), False),
         ],
     )
     def test_in_deletion_window(self, db_session, upload_time, deletable):
