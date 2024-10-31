@@ -9,12 +9,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import hashlib
 import json
 
 import pretend
 import pytest
-import rfc8785
 
 from pydantic import TypeAdapter
 from pypi_attestations import (
@@ -52,10 +50,6 @@ class TestNullIntegrityService:
 
         provenance = service.build_provenance(db_request, file, [dummy_attestation])
         assert isinstance(provenance, DatabaseProvenance)
-        assert (
-            provenance.provenance_digest
-            == hashlib.sha256(rfc8785.dumps(provenance.provenance)).hexdigest()
-        )
         assert provenance.file == file
         assert file.provenance == provenance
 
@@ -187,10 +181,9 @@ class TestIntegrityService:
             [dummy_attestation]
         )
 
-        def failing_verify(_self, _verifier, _policy, _dist):
+        def failing_verify(_self, _policy, _dist):
             raise verify_exception("error")
 
-        monkeypatch.setattr(Verifier, "production", lambda: pretend.stub())
         monkeypatch.setattr(Attestation, "verify", failing_verify)
 
         with pytest.raises(AttestationUploadError, match=expected_message):
@@ -267,10 +260,10 @@ class TestIntegrityService:
         assert attestations == [dummy_attestation]
 
     def test_build_provenance_fails_unsupported_publisher(
-        self, db_request, dummy_attestation
+        self, metrics, db_request, dummy_attestation
     ):
         integrity_service = services.IntegrityService(
-            metrics=pretend.stub(),
+            metrics=metrics,
             session=db_request.db,
         )
 
@@ -283,6 +276,8 @@ class TestIntegrityService:
         # If building provenance fails, nothing is stored or associated with the file
         assert not file.provenance
 
+        assert metrics.increment.calls == []
+
     @pytest.mark.parametrize(
         "publisher_factory",
         [
@@ -291,12 +286,12 @@ class TestIntegrityService:
         ],
     )
     def test_build_provenance_succeeds(
-        self, db_request, publisher_factory, dummy_attestation
+        self, metrics, db_request, publisher_factory, dummy_attestation
     ):
         db_request.oidc_publisher = publisher_factory.create()
 
         integrity_service = services.IntegrityService(
-            metrics=pretend.stub(),
+            metrics=metrics,
             session=db_request.db,
         )
 
@@ -310,6 +305,10 @@ class TestIntegrityService:
 
         model = Provenance.model_validate(provenance.provenance)
         assert model.attestation_bundles[0].attestations == [dummy_attestation]
+
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.attestations.build_provenance.ok")
+        ]
 
 
 def test_publisher_from_oidc_publisher_succeeds_github(db_request):

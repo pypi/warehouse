@@ -706,6 +706,18 @@ class Release(HasObservations, db.Model):
     uploader: Mapped[User] = orm.relationship(User)
     uploaded_via: Mapped[str | None]
 
+    def __getitem__(self, filename: str) -> File:
+        session: orm.Session = orm.object_session(self)  # type: ignore[assignment]
+
+        try:
+            return (
+                session.query(File)
+                .filter(File.release == self, File.filename == filename)
+                .one()
+            )
+        except NoResultFound:
+            raise KeyError from None
+
     @property
     def urls(self):
         _urls = OrderedDict()
@@ -870,6 +882,9 @@ class File(HasEvents, db.Model):
             Index("release_files_archived_idx", "archived"),
             Index("release_files_cached_idx", "cached"),
         )
+
+    __parent__ = dotted_navigator("release")
+    __name__ = dotted_navigator("filename")
 
     release_id: Mapped[UUID] = mapped_column(
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),

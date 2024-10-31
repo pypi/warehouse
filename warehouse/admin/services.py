@@ -18,9 +18,10 @@ import google.api_core.retry
 from zope.interface import implementer
 
 from warehouse.admin.interfaces import ISponsorLogoStorage
+from warehouse.utils.exceptions import DevelopmentModeWarning
 
 
-class InsecureStorageWarning(UserWarning):
+class InsecureStorageWarning(DevelopmentModeWarning):
     pass
 
 
