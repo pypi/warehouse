@@ -148,36 +148,6 @@ def _json_data(request, project, release, *, all_releases):
         for vulnerability_record in release.vulnerabilities
     ]
 
-    # All roles and their users associated with this project.  Note that
-    # unlike everything other than `project.name` (which is immutable), this
-    # data comes from the project itself, not the latest release.
-    #
-    # 2024-10-30(warsaw): It's convenient to use a defaultdict here.  We could
-    # have alternatively used a base dict and the .setdefault() method, but it
-    # doesn't matter too much because we still have to post-process the data
-    # structure before we can pass it to the "info" key.  The reason is that
-    # the JSON serializer doesn't know how to serialize defaultdicts, but it
-    # also doesn't know how to serialize sets, and we want to use a set just
-    # for uniqueness.  Thus below we turn the defaultdict mapping role names to
-    # sets, into a base dict mapping role names to lists.  I think it's
-    # moderately more efficient because the defaultdict only instantiates sets
-    # when the key is missing.
-    roles = defaultdict(set)
-    # Get all of the maintainers for this project.
-    for role in (
-        request.db.query(Role)
-        .join(User)
-        .filter(Role.project == project)
-        .distinct(User.username)
-        .order_by(User.username)
-        .all()
-    ):
-        # 2024-10-30(warsaw): Normalizing the role name to lower case, but only
-        # because I think that looks better.  This could introduce some
-        # friction in the future if we ever have a writable API that lets us
-        # add and modify roles.
-        roles[role.role_name.lower()].add(role.user.username)
-
     data = {
         "info": {
             "name": project.name,
@@ -193,7 +163,6 @@ def _json_data(request, project, release, *, all_releases):
             "maintainer": release.maintainer,
             "maintainer_email": release.maintainer_email,
             "requires_python": release.requires_python,
-            "roles": {key: sorted(value) for key, value in roles.items()},
             "platform": release.platform,
             "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
             "package_url": request.route_url("packaging.project", name=project.name),
@@ -223,6 +192,42 @@ def _json_data(request, project, release, *, all_releases):
 
     if all_releases:
         data["releases"] = releases
+        # All roles and their users associated with this project.  Note that
+        # unlike everything other than `project.name` (which is immutable),
+        # this data comes from the project itself, not the latest release.  It
+        # should only be included in the response when `all_releases` is True,
+        # because that's a signal that we're asking for the project view, not a
+        # specific release view.
+        #
+        # 2024-10-30(warsaw): It's convenient to use a defaultdict here.  We
+        # could have alternatively used a base dict and the .setdefault()
+        # method, but it doesn't matter too much because we still have to
+        # post-process the data structure before we can pass it to the "info"
+        # key.  The reason is that the JSON serializer doesn't know how to
+        # serialize defaultdicts, but it also doesn't know how to serialize
+        # sets, and we want to use a set just for uniqueness.  Thus below we
+        # turn the defaultdict mapping role names to sets, into a base dict
+        # mapping role names to lists.  I think it's moderately more efficient
+        # because the defaultdict only instantiates sets when the key is
+        # missing.
+        roles = defaultdict(set)
+        # Get all of the maintainers for this project.
+        for role in (
+            request.db.query(Role)
+            .join(User)
+            .filter(Role.project == project)
+            .distinct(User.username)
+            .order_by(User.username)
+            .all()
+        ):
+            # 2024-10-30(warsaw): Normalizing the role name to lower case, but only
+            # because I think that looks better.  This could introduce some
+            # friction in the future if we ever have a writable API that lets us
+            # add and modify roles.
+            roles[role.role_name.lower()].add(role.user.username)
+
+        data["info"]["roles"] = {key: sorted(value) for key, value in roles.items()}
+
 
     return data
 
