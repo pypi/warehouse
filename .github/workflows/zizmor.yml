@@ -9,6 +9,8 @@ on:
 
 jobs:
   zizmor:
+    # Advanced Security is not enabled on private repositories
+    if: github.repository == 'pypi/warehouse'
     name: Zizmor latest via Cargo
     runs-on: ubuntu-latest
     permissions:
