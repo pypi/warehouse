@@ -15,7 +15,6 @@ import re
 import wtforms
 import wtforms.validators
 
-from warehouse import forms
 from warehouse.utils.project import PROJECT_NAME_RE
 
 _filetype_extension_mapping = {
@@ -31,7 +30,7 @@ _filetype_extension_mapping = {
 #       Any additional validations (such as duplicate filenames, etc) should
 #       occur elsewhere so that they can happen after we've authorized the request
 #       to upload for the given project.
-class UploadForm(forms.Form):
+class UploadForm(wtforms.Form):
     # The name field is duplicated out of the general metadata handling, to be
     # part of the upload form as well so that we can use it prior to extracting
     # the metadata from the uploaded artifact.
@@ -87,25 +86,38 @@ class UploadForm(forms.Form):
         ]
     )
 
-    def full_validate(self):
+    def validate(self, _extra_validators=None) -> bool:
+        """
+        Perform validation on combinations of fields.
+        """
+
+        # Validate all defined fields first.
+        success = super().validate()
+        if not success:
+            return False
+
         # All non source releases *must* have a pyversion
         if (
             self.filetype.data
             and self.filetype.data != "sdist"
             and not self.pyversion.data
         ):
-            raise wtforms.validators.ValidationError(
+            assert isinstance(self.pyversion.errors, list)
+            self.pyversion.errors.append(
                 "Python version is required for binary distribution uploads."
             )
+            return False
 
         # All source releases *must* have a pyversion of "source"
         if self.filetype.data == "sdist":
             if not self.pyversion.data:
                 self.pyversion.data = "source"
             elif self.pyversion.data != "source":
-                raise wtforms.validators.ValidationError(
+                assert isinstance(self.pyversion.errors, list)
+                self.pyversion.errors.append(
                     "Use 'source' as Python version for an sdist."
                 )
+                return False
 
         # We *must* have at least one digest to verify against.
         if (
@@ -113,6 +125,7 @@ class UploadForm(forms.Form):
             and not self.sha256_digest.data
             and not self.blake2_256_digest.data
         ):
-            raise wtforms.validators.ValidationError(
-                "Include at least one message digest."
-            )
+            self.form_errors.append("Include at least one message digest.")
+            return False
+
+        return success

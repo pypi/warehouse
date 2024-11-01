@@ -26,7 +26,6 @@ from pyramid.view import view_config
 from sqlalchemy import or_, select
 from sqlalchemy.orm import joinedload
 
-from warehouse import forms
 from warehouse.accounts.interfaces import IEmailBreachedService, IUserService
 from warehouse.accounts.models import (
     DisableReason,
@@ -88,7 +87,7 @@ def user_list(request):
     return {"users": users, "query": q}
 
 
-class EmailForm(forms.Form):
+class EmailForm(wtforms.Form):
     email = wtforms.fields.EmailField(validators=[wtforms.validators.InputRequired()])
     primary = wtforms.fields.BooleanField()
     verified = wtforms.fields.BooleanField()
@@ -96,7 +95,7 @@ class EmailForm(forms.Form):
     unverify_reason = wtforms.fields.StringField(render_kw={"readonly": True})
 
 
-class EmailsForm(forms.Form):
+class EmailsForm(wtforms.Form):
     emails = wtforms.fields.FieldList(wtforms.fields.FormField(EmailForm))
 
     def validate_emails(self, field):
@@ -108,7 +107,7 @@ class EmailsForm(forms.Form):
             )
 
 
-class UserForm(forms.Form):
+class UserForm(wtforms.Form):
     name = wtforms.StringField(
         validators=[wtforms.validators.Optional(), wtforms.validators.Length(max=100)]
     )
