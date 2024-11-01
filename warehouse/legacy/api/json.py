@@ -228,7 +228,6 @@ def _json_data(request, project, release, *, all_releases):
 
         data["info"]["roles"] = {key: sorted(value) for key, value in roles.items()}
 
-
     return data
 
 
