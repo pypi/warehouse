@@ -1129,7 +1129,7 @@ class ManageProjectSettingsViews:
         self.add_alternate_repository_form_class = AddAlternateRepositoryForm
 
     @view_config(request_method="GET")
-    def manage_project_settings(self):
+    def manage_project_settings(self, add_alternate_repository_form=None):
         if not self.request.organization_access:
             # Disable transfer of project to any organization.
             organization_choices = set()
@@ -1153,7 +1153,11 @@ class ManageProjectSettingsViews:
                 active_organizations_owned | active_organizations_managed
             ) - current_organization
 
-        add_alt_repo_form = self.add_alternate_repository_form_class()
+        add_alt_repo_form = (
+            self.add_alternate_repository_form_class()
+            if add_alternate_repository_form is None
+            else add_alternate_repository_form
+        )
 
         return {
             "project": self.project,
@@ -1182,12 +1186,7 @@ class ManageProjectSettingsViews:
                 self.request._("Invalid alternate repository location details"),
                 queue="error",
             )
-            return HTTPSeeOther(
-                self.request.route_path(
-                    "manage.project.settings",
-                    project_name=self.project.name,
-                )
-            )
+            return self.manage_project_settings(add_alternate_repository_form=form)
 
         # add the alternate repository location entry
         alt_repo = AlternateRepository(
