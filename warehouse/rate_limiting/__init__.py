@@ -17,10 +17,10 @@ from datetime import datetime, timezone
 
 import redis
 
-from first import first
 from limits import parse_many
 from limits.storage import storage_from_string
 from limits.strategies import MovingWindowRateLimiter
+from more_itertools import first_true
 from zope.interface import implementer
 
 from warehouse.metrics import IMetricsService
@@ -113,7 +113,7 @@ class RateLimiter:
         # If we have any resets, then we'll go through and find whichever one
         # is going to reset soonest and use that as our hint for when this
         # limit might be available again.
-        return first(sorted(resets))
+        return first_true(sorted(resets))
 
 
 @implementer(IRateLimiter)
