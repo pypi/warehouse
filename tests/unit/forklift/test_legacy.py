@@ -591,8 +591,10 @@ class TestFileUpload:
                     "metadata_version": "1.2",
                     "name": "example",
                     "version": "1.0",
-                    "filetype": "bdist_wat",
+                    "filetype": "bdist_wheel",
+                    "content": "fake binary content",
                 },
+                "Invalid value for pyversion. "
                 "Error: Python version is required for binary distribution uploads.",
             ),
             (
@@ -614,6 +616,7 @@ class TestFileUpload:
                     "filetype": "sdist",
                     "pyversion": "1.0",
                 },
+                "Invalid value for pyversion. "
                 "Error: Use 'source' as Python version for an sdist.",
             ),
             # digest errors.
@@ -623,6 +626,7 @@ class TestFileUpload:
                     "name": "example",
                     "version": "1.0",
                     "filetype": "sdist",
+                    "content": "fake binary content",
                 },
                 "Error: Include at least one message digest.",
             ),
@@ -3401,7 +3405,6 @@ class TestFileUpload:
                 if not test_with_user
                 else None
             ),
-            "reusable_worfklow_used": False,  # This is tested in oidc.test_views
             "uploaded_via_trusted_publisher": not test_with_user,
         }
 

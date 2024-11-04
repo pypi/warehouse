@@ -56,7 +56,6 @@ from warehouse.forklift import metadata
 from warehouse.forklift.forms import UploadForm, _filetype_extension_mapping
 from warehouse.macaroons.models import Macaroon
 from warehouse.metrics import IMetricsService
-from warehouse.oidc.views import is_from_reusable_workflow
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
 from warehouse.packaging.metadata_verification import verify_email, verify_url
 from warehouse.packaging.models import (
@@ -896,13 +895,6 @@ def file_upload(request):
                     request.oidc_publisher.publisher_url(request.oidc_claims)
                     if request.oidc_publisher
                     else None
-                ),
-                "reusable_worfklow_used": (
-                    is_from_reusable_workflow(
-                        request.oidc_publisher, request.oidc_claims
-                    )
-                    if request.oidc_publisher
-                    else False
                 ),
                 "uploaded_via_trusted_publisher": bool(request.oidc_publisher),
             },
