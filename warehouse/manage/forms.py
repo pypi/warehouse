@@ -67,7 +67,7 @@ class UsernameMixin:
             )
 
 
-class CreateRoleForm(RoleNameMixin, UsernameMixin, forms.Form):
+class CreateRoleForm(RoleNameMixin, UsernameMixin, wtforms.Form):
     def __init__(self, *args, user_service, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
@@ -76,7 +76,7 @@ class CreateRoleForm(RoleNameMixin, UsernameMixin, forms.Form):
 class CreateInternalRoleForm(
     RoleNameMixin,
     TeamProjectRoleNameMixin,
-    forms.Form,
+    wtforms.Form,
 ):
     is_team = wtforms.RadioField(
         "Team or member?",
@@ -121,15 +121,15 @@ class CreateInternalRoleForm(
             self.team_project_role_name.validators = []
 
 
-class ChangeRoleForm(RoleNameMixin, forms.Form):
+class ChangeRoleForm(RoleNameMixin, wtforms.Form):
     pass
 
 
-class ChangeTeamProjectRoleForm(TeamProjectRoleNameMixin, forms.Form):
+class ChangeTeamProjectRoleForm(TeamProjectRoleNameMixin, wtforms.Form):
     pass
 
 
-class SaveAccountForm(forms.Form):
+class SaveAccountForm(wtforms.Form):
     __params__ = ["name", "public_email"]
 
     name = wtforms.StringField(
@@ -164,7 +164,7 @@ class SaveAccountForm(forms.Form):
                 )
 
 
-class AddEmailForm(NewEmailMixin, forms.Form):
+class AddEmailForm(NewEmailMixin, wtforms.Form):
     __params__ = ["email"]
 
     def __init__(self, *args, user_service, user_id, **kwargs):
@@ -173,7 +173,7 @@ class AddEmailForm(NewEmailMixin, forms.Form):
         self.user_id = user_id
 
 
-class ChangePasswordForm(PasswordMixin, NewPasswordMixin, forms.Form):
+class ChangePasswordForm(PasswordMixin, NewPasswordMixin, wtforms.Form):
     __params__ = ["password", "new_password", "password_confirm"]
 
     def __init__(self, *args, user_service, **kwargs):
@@ -181,7 +181,7 @@ class ChangePasswordForm(PasswordMixin, NewPasswordMixin, forms.Form):
         self.user_service = user_service
 
 
-class ConfirmPasswordForm(UsernameMixin, PasswordMixin, forms.Form):
+class ConfirmPasswordForm(UsernameMixin, PasswordMixin, wtforms.Form):
     __params__ = ["confirm_password"]
 
     def __init__(self, *args, user_service, **kwargs):
@@ -194,7 +194,7 @@ class DeleteTOTPForm(ConfirmPasswordForm):
     pass
 
 
-class ProvisionTOTPForm(TOTPValueMixin, forms.Form):
+class ProvisionTOTPForm(TOTPValueMixin, wtforms.Form):
     __params__ = ["totp_value"]
 
     def __init__(self, *args, totp_secret, **kwargs):
@@ -213,7 +213,7 @@ class ProvisionTOTPForm(TOTPValueMixin, forms.Form):
             raise wtforms.validators.ValidationError("Invalid TOTP code. Try again?")
 
 
-class DeleteWebAuthnForm(forms.Form):
+class DeleteWebAuthnForm(wtforms.Form):
     __params__ = ["confirm_device_name"]
 
     label = wtforms.StringField(
@@ -239,7 +239,7 @@ class DeleteWebAuthnForm(forms.Form):
         self.webauthn = webauthn
 
 
-class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
+class ProvisionWebAuthnForm(WebAuthnCredentialMixin, wtforms.Form):
     __params__ = ["label", "credential"]
 
     label = wtforms.StringField(
@@ -288,7 +288,7 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
             raise wtforms.validators.ValidationError(f"Label '{label}' already in use")
 
 
-class CreateMacaroonForm(forms.Form):
+class CreateMacaroonForm(wtforms.Form):
     __params__ = ["description", "token_scope"]
 
     def __init__(
@@ -361,7 +361,7 @@ class CreateMacaroonForm(forms.Form):
         self.validated_scope = {"projects": [scope_value]}
 
 
-class DeleteMacaroonForm(UsernameMixin, PasswordMixin, forms.Form):
+class DeleteMacaroonForm(UsernameMixin, PasswordMixin, wtforms.Form):
     __params__ = ["confirm_password", "macaroon_id"]
 
     macaroon_id = wtforms.StringField(
@@ -458,7 +458,7 @@ class OrganizationNameMixin:
             )
 
 
-class AddOrganizationProjectForm(forms.Form):
+class AddOrganizationProjectForm(wtforms.Form):
     __params__ = ["add_existing_project", "existing_project_name", "new_project_name"]
 
     add_existing_project = wtforms.RadioField(
@@ -509,7 +509,7 @@ class AddOrganizationProjectForm(forms.Form):
                 )
 
 
-class TransferOrganizationProjectForm(forms.Form):
+class TransferOrganizationProjectForm(wtforms.Form):
     __params__ = ["organization"]
 
     organization = wtforms.SelectField(
@@ -527,7 +527,9 @@ class TransferOrganizationProjectForm(forms.Form):
         ]
 
 
-class CreateOrganizationRoleForm(OrganizationRoleNameMixin, UsernameMixin, forms.Form):
+class CreateOrganizationRoleForm(
+    OrganizationRoleNameMixin, UsernameMixin, wtforms.Form
+):
     def __init__(self, *args, orgtype, organization_service, user_service, **kwargs):
         super().__init__(*args, **kwargs)
         if orgtype != OrganizationType.Company:
@@ -541,7 +543,7 @@ class CreateOrganizationRoleForm(OrganizationRoleNameMixin, UsernameMixin, forms
         self.user_service = user_service
 
 
-class ChangeOrganizationRoleForm(OrganizationRoleNameMixin, forms.Form):
+class ChangeOrganizationRoleForm(OrganizationRoleNameMixin, wtforms.Form):
     def __init__(self, *args, orgtype, **kwargs):
         super().__init__(*args, **kwargs)
         if orgtype != OrganizationType.Company:
@@ -553,7 +555,7 @@ class ChangeOrganizationRoleForm(OrganizationRoleNameMixin, forms.Form):
             ]
 
 
-class SaveOrganizationNameForm(OrganizationNameMixin, forms.Form):
+class SaveOrganizationNameForm(OrganizationNameMixin, wtforms.Form):
     __params__ = ["name"]
 
     def __init__(
@@ -565,7 +567,7 @@ class SaveOrganizationNameForm(OrganizationNameMixin, forms.Form):
         self.user = user
 
 
-class SaveOrganizationForm(forms.Form):
+class SaveOrganizationForm(wtforms.Form):
     __params__ = ["display_name", "link_url", "description", "orgtype"]
 
     display_name = wtforms.StringField(
@@ -637,7 +639,7 @@ class CreateOrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationF
             self.max_applications is not None
             and len(self.user.organization_applications) >= self.max_applications
         ):
-            self._form_errors.append(
+            self.form_errors.append(
                 _(
                     "You have already submitted the maximum number of "
                     f"Organization requests ({self.max_applications})."
@@ -647,7 +649,7 @@ class CreateOrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationF
         return True
 
 
-class CreateTeamRoleForm(forms.Form):
+class CreateTeamRoleForm(wtforms.Form):
     username = wtforms.SelectField(
         "Select user",
         choices=[("", "Select user")],
@@ -660,7 +662,7 @@ class CreateTeamRoleForm(forms.Form):
         self.username.choices += [(name, name) for name in sorted(user_choices)]
 
 
-class SaveTeamForm(forms.Form):
+class SaveTeamForm(wtforms.Form):
     __params__ = ["name"]
 
     name = wtforms.StringField(
@@ -713,7 +715,7 @@ class CreateTeamForm(SaveTeamForm):
     __params__ = SaveTeamForm.__params__
 
 
-class AddAlternateRepositoryForm(forms.Form):
+class AddAlternateRepositoryForm(wtforms.Form):
     """Form to add an Alternate Repository Location for a Project."""
 
     __params__ = ["display_name", "link_url", "description"]
