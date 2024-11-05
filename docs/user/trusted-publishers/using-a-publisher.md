@@ -26,7 +26,7 @@ below describe the setup process for each supported trusted publisher.
         name: upload release to PyPI
         runs-on: ubuntu-latest
         # Specifying a GitHub environment is optional, but strongly encouraged
-        environment: release
+        environment: pypi
         permissions:
           # IMPORTANT: this permission is mandatory for trusted publishing
           id-token: write
@@ -46,7 +46,7 @@ below describe the setup process for each supported trusted publisher.
         name: upload release to PyPI
         runs-on: ubuntu-latest
     +    # Specifying a GitHub environment is optional, but strongly encouraged
-    +    environment: release
+    +    environment: pypi
     +    permissions:
     +      # IMPORTANT: this permission is mandatory for trusted publishing
     +      id-token: write
