@@ -38,7 +38,7 @@ In the context of trusted publishing, the machinery is as follows:
 
     * For example, a trusted publisher configuration for GitHub Actions might
       specify `repo: octo-org/example` with `workflow: release.yml` and
-      `environment: release`, indicating that a presented OIDC token **must**
+      `environment: pypi`, indicating that a presented OIDC token **must**
       contain exactly those claims to be considered valid.
 
     * When applicable, PyPI also checks claims that prevent
