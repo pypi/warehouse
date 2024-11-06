@@ -197,8 +197,8 @@ producing (abbreviated for clarity):
 
 In this case, we can see that the certificate binds a public key
 to an identity (``https://github.com/trailofbits/pypi-attestation-models/.github/workflows/release.yml@refs/tags/v0.0.4a2``),
-which can then be matched against the project's registered Trusted Publishers
-during the verification process.
+which is verified against the project's registered Trusted Publishers
+at upload time.
 
 Envelope
 ^^^^^^^^
@@ -209,7 +209,7 @@ The ``envelope`` key contains two components:
 
   .. code-block:: bash
 
-    jq -r .envelope.statement < /tmp/attestation.json | base64 -d
+    jq -r .envelope.statement < /tmp/attestation.json | base64 -d | jq
 
   yielding:
 
@@ -232,7 +232,7 @@ The ``envelope`` key contains two components:
 * The ``signature``, which contains the base64-encoded signature over
   ``statement``.
 
-  ``signature`` can be verified using the public key bound within
+  The ``signature`` can be verified using the public key bound within
   ``verification_material.certificate``, fully linking the attestation back to
   the identity that produced it.
 
@@ -280,6 +280,12 @@ Verifying an attestation object
 
 Attestation object verification is described at a high level in :pep:`740`.
 
+Users are **strongly discouraged** from implementing the steps below in an
+ad-hoc manner, since they involve error-prone X.509 and transparency log
+operations. Instead, we **strongly encourage** integrators to use
+either `pypi-attestation-models`_ or `sigstore-python`_'s pre-existing APIs
+for attestation manipulation, signing, and verification.
+
 Using the details above, we can provide the steps with slightly more accuracy:
 
 1. Retrieve the distribution (sdist or wheel) being verified and its
@@ -320,12 +326,6 @@ Using the details above, we can provide the steps with slightly more accuracy:
 
 If any of the steps above fail, the attestation should be considered invalid
 and any operations on its associated distribution should halt.
-
-Users are **strongly discouraged** from implementing the steps above in an
-ad-hoc manner, since they involve error-prone X.509 and transparency log
-operations. Instead, we **strongly encourage** integrators to use
-either `pypi-attestation-models`_ or `sigstore-python`_'s pre-existing APIs
-for attestation manipulation, signing, and verification.
 
 .. _`attestation user docs`: https://docs.pypi.org/attestations/
 
