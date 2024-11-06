@@ -23,13 +23,6 @@ individual attestations from a file's provenance, as appropriate.
 
 Get the provenance object for the given `<filename>`.
 
-!!! note
-
-    The `<project>` and `<version>` components must be consistent with the
-    `<filename>`,  meaning that
-    `GET /integrity/sampleproject/1.0.0/unrelated-1.0.0.tar.gz/provenance`
-    will **not** work.
-
 This endpoint is currently only available as JSON.
 
 Example JSON request (default if no `Accept` header is passed):
@@ -117,7 +110,7 @@ Accept: application/vnd.pypi.integrity.v1+json
 
 #### Status codes
 
-* `200 OK` - no error
+* `200 OK` - no error, provenance is available
 * `403 Forbidden` - access is temporarily disabled by the PyPI administrators
 * `404 Not Found` - file has no provenance
 * `406 Not Acceptable` - `Accept:` header not recognized

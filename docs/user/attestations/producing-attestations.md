@@ -14,24 +14,8 @@ Support for other Trusted Publishers is planned.
 === "GitHub Actions"
 
     If you publish to PyPI with [`pypa/gh-action-pypi-publish`][gh-action-pypi-publish]
-    (the official PyPA action), attestations are built directly into the normal Trusted
-    Publishing workflow.
-
-    To enable them explicitly, you can pass `attestations: true` as an action setting:
-
-    ```yaml
-    uses: pypa/gh-action-pypi-publish@release/v2
-    with:
-      attestations: true
-    ```
-
-    When enabled, `gh-action-pypi-publish` will generate and upload a
-    [publish attestation] for each file being uploaded.
-
-    !!! note
-
-        Enabling attestations explicitly with `attestations: true` is currently
-        required, but will become the default in a future release of the action.
+    (the official PyPA action), attestations are generated and uploaded automatically
+    by default, with no additional configuration necessary.
 
 ## The manual way
 
