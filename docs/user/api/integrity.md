@@ -19,7 +19,9 @@ individual attestations from a file's provenance, as appropriate.
 
 ## Routes
 
-### `GET /integrity/<project>/<version>/<filename>/provenance`
+### Get provenance for file
+
+Route: `GET /integrity/<project>/<version>/<filename>/provenance`
 
 Get the provenance object for the given `<filename>`.
 
