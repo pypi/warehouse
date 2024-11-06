@@ -11,7 +11,7 @@ directions for submitting security vulnerabilities, please visit
 
 Project and release activity details
 ------------------------------------
-See :doc:`api-reference/feeds` for how to track new and updated releases on
+See :doc:`/api-reference/feeds` for how to track new and updated releases on
 PyPI.
 
 Indices and tables
