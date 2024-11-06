@@ -7,7 +7,9 @@ PyPI allows attestations to be attached to individual *release files*
 
 Attestations are currently only supported when uploading with
 [Trusted Publishing], and currently only with GitHub-based Trusted Publishers.
-Support for other Trusted Publishers is planned.
+Support for other Trusted Publishers is planned. See
+[#17001](https://github.com/pypi/warehouse/issues/17001) for additional
+information.
 
 ## The easy way
 
