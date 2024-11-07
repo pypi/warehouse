@@ -1,24 +1,15 @@
-API reference
-=============
+# Introduction
 
-.. note::
+<!--[[ preview('user-api-docs') ]]-->
 
-  API documentation is being moved to PyPI's
-  `user documentation site <https://docs.pypi.org/api/>`_.
+PyPI has several API endpoints, each of which is referenced in the table
+of contents for this hierarchy.
 
-  Please see `issue #16541 <https://github.com/pypi/warehouse/issues/16541>`_
-  for more information and status updates.
-
-Warehouse has several API endpoints. See :doc:`../application` for the
-parts of Warehouse that generate them.
-
-API policies
-------------
+## API policies
 
 Please be aware of these PyPI API policies:
 
-Caching
-~~~~~~~
+### Caching
 
 All API requests are cached. Requests to the JSON, RSS or Legacy APIs are
 cached by our CDN provider. You can determine if you've hit the cache based on
@@ -30,8 +21,7 @@ this header to determine whether to actually repeat a request or not.
 
 The XML-RPC API does not have the ability to indicate cached responses.
 
-Rate limiting
-~~~~~~~~~~~~~
+### Rate limiting
 
 Due to the heavy caching and CDN use, there is currently no rate limiting of
 PyPI APIs at the edge. The XML-RPC API may be rate limited if usage is causing
@@ -53,25 +43,10 @@ suggestions:
   mirror or cache
   <https://packaging.python.org/guides/index-mirrors-and-caches/>`_.
 
-API Preference
-~~~~~~~~~~~~~~
+### API Preference
 
 For periodically checking for new packages or updates to existing packages,
 use our RSS feeds.
 
 No new integrations should use the XML-RPC APIs as they are planned for
 deprecation. Existing consumers should migrate to JSON/RSS/Legacy APIs.
-
-Available APIs & Datasets
--------------------------
-
-.. toctree::
-    :maxdepth: 2
-
-    feeds
-    json
-    legacy
-    stats
-    xml-rpc
-    integration-guide
-    bigquery-datasets

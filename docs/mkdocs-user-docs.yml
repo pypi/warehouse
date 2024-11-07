@@ -16,7 +16,8 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
-      slugify: !!python/object/apply:pymdownx.slugs.slugify {kwds: {case: lower}}
+      slugify:
+        !!python/object/apply:pymdownx.slugs.slugify { kwds: { case: lower } }
   - tables
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
@@ -71,4 +72,12 @@ nav:
       - "trusted-publishers/security-model.md"
       - "trusted-publishers/troubleshooting.md"
       - "trusted-publishers/internals.md"
+  - "Digital Attestations":
+      - "attestations/index.md"
+      - "attestations/producing-attestations.md"
+      - "attestations/consuming-attestations.md"
+      - "attestations/publish/v1.md"
   - "project_metadata.md"
+  - "API Reference":
+      - "api/index.md"
+      - "api/integrity.md"
