@@ -15,7 +15,7 @@ As you work on your patch, keep this in mind:
   2.0.
 
 If you believe you've identified a security issue in Warehouse, follow the
-directions on the :doc:`security page </security>`.
+directions on the :doc:`security page </security/index>`.
 
 Code
 ----
