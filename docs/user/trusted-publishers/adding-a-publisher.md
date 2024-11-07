@@ -32,7 +32,7 @@ each.
 
     For example, if you have a project at `https://github.com/octo-org/sampleproject`
     that uses a publishing workflow defined in `.github/workflows/release.yml`
-    and a custom environment named `release`, then you'd do the following:
+    and a custom environment named `pypi`, then you'd do the following:
 
     ![Image showing adding a new GitHub publisher](/assets/trusted-publishing/github/project-publishing-form.png)
 
