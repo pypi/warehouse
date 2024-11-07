@@ -14,23 +14,39 @@
 
 {% extends "base.html" %}
 
+{% block title %}{{ file.filename }}{% endblock %}
+
 {% block content %}
-<h1> {% trans filename=file.filename %} Details for {{ filename }} {% endtrans %} </h1>
-<ul>
-  <li>{% trans upload_time=humanize(file.upload_time) %} Uploaded: {{ upload_time }} {% endtrans %}</li>
-  <li>{% trans size=file.size|filesizeformat() if file.size else 0|filesizeformat() %} Size: {{ size }} {% endtrans %}</li>
-  <li>{% trans tags=', '.join(file.pretty_wheel_tags) %} Tags: {{ tags }} {% endtrans %}</li>
-  <li>{% trans %} Hashes: {% endtrans %}</li>
-  <ul>
-    <li> SHA256: {{ file.sha256_digest }} </li>
-    <li> MD5: {{ file.md5_digest }} </li>
-    <li> BLAKE2b-256: {{ file.blake2_256_digest }} </li>
-  </ul>
-  <li>{% trans is_tp="Yes" if file.uploaded_via_trusted_publisher else "No" %} Uploaded using Trusted Publishing?: {{ is_tp }} {% endtrans %}</li>
-  <li>{% trans uploaded_via=file.uploaded_via %} Uploaded via: {{ uploaded_via }} {% endtrans %}</li>
-  {% if file.provenance %}
-  <li>{%trans link=request.route_url('integrity.provenance', project_name=project.name, release=release.version, filename=file.filename)%} Provenance: {{ link }} {% endtrans %}</li>
-  {% endif %}
-</ul>
+
+<div class="banner">
+  <div class="package-header">
+    <div class="package-header__left">
+      <h1 class="package-header__name">
+        {% trans filename=file.filename %}Details for {{ filename }}{% endtrans %}
+      </h1>
+    </div>
+  </div>
+</div>
+
+<div class="horizontal-section horizontal-section--grey, horizontal-section--thin">
+  <div class="site-container">
+    <ul>
+      <li>{% trans upload_time=humanize(file.upload_time) %} Uploaded: {{ upload_time }} {% endtrans %}</li>
+      <li>{% trans size=file.size|filesizeformat() if file.size else 0|filesizeformat() %} Size: {{ size }} {% endtrans %}</li>
+      <li>{% trans tags=', '.join(file.pretty_wheel_tags) %} Tags: {{ tags }} {% endtrans %}</li>
+      <li>{% trans %} Hashes: {% endtrans %}</li>
+      <ul>
+        <li>SHA256: {{ file.sha256_digest }}</li>
+        <li>MD5: {{ file.md5_digest }}</li>
+        <li>BLAKE2b-256: {{ file.blake2_256_digest }}</li>
+      </ul>
+      <li>{% trans is_tp="Yes" if file.uploaded_via_trusted_publisher else "No" %} Uploaded using Trusted Publishing?: {{ is_tp }} {% endtrans %}</li>
+      <li>{% trans uploaded_via=file.uploaded_via %} Uploaded via: {{ uploaded_via }} {% endtrans %}</li>
+      {% if file.provenance %}
+      <li>{%trans link=request.route_url('integrity.provenance', project_name=project.name, release=release.version, filename=file.filename)%} Provenance: {{ link }} {% endtrans %}</li>
+      {% endif %}
+    </ul>
+  </div>
+</div>
 {% endblock %}
 
