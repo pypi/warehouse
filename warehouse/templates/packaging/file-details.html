@@ -21,15 +21,35 @@
 <div class="banner">
   <div class="package-header">
     <div class="package-header__left">
-      <h1 class="package-header__name">
-        {% trans filename=file.filename %}Details for {{ filename }}{% endtrans %}
-      </h1>
+      <h1 class="package-header__name">{{ file.filename }}</h1>
     </div>
   </div>
 </div>
 
-<div class="horizontal-section horizontal-section--grey, horizontal-section--thin">
-  <div class="site-container">
+<div class="file-details">
+  <div class="file-details file-details__nav">
+    <div class="sidebar-section">
+      <h3 class="sidebar-section__title">{% trans %}Navigation{% endtrans %}</h3>
+      <nav aria-label="{% trans filename=file.filename %}Navigation for {{ filename }}{% endtrans %}">
+        <ul class="vertical-tabs__list" role="tablist">
+          <li role="tab">
+            <a id="description-tab" href="" class="vertical-tabs__tab vertical-tabs__tab--with-icon" aria-label="{% trans %}Project description. Focus will be moved to the description.{% endtrans %}">
+              <i class="fa fa-align-left" aria-hidden="true"></i>
+              {% trans %}Project description{% endtrans %}
+            </a>
+          </li>
+          <li role="tab">
+            <a id="history-tab" href="" class="vertical-tabs__tab vertical-tabs__tab--with-icon" aria-label="{% trans %}Release history. Focus will be moved to the history panel.{% endtrans %}">
+              <i class="fa fa-history" aria-hidden="true"></i>
+              {% trans version=release.version %}Release {{ version }}{% endtrans %}
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <div class="file-details file-details__contents">
     <ul>
       <li>{% trans upload_time=humanize(file.upload_time) %} Uploaded: {{ upload_time }} {% endtrans %}</li>
       <li>{% trans size=file.size|filesizeformat() if file.size else 0|filesizeformat() %} Size: {{ size }} {% endtrans %}</li>
@@ -48,5 +68,7 @@
     </ul>
   </div>
 </div>
+
+
 {% endblock %}
 
