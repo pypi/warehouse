@@ -138,7 +138,8 @@ def test_includeme(monkeypatch):
     assert len(opensearch_client_init.calls) == 1
     assert opensearch_client_init.calls[0].kwargs["hosts"] == ["https://some.url"]
     assert opensearch_client_init.calls[0].kwargs["timeout"] == 0.5
-    assert opensearch_client_init.calls[0].kwargs["retry_on_timeout"] is False
+    assert opensearch_client_init.calls[0].kwargs["retry_on_timeout"] is True
+    assert opensearch_client_init.calls[0].kwargs["max_retries"] == 1
     assert (
         opensearch_client_init.calls[0].kwargs["connection_class"]
         == opensearchpy.connection.http_requests.RequestsHttpConnection
