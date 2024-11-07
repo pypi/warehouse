@@ -123,7 +123,7 @@
                     <li>Subject name: {{ statement.subject[0].name }}</li>
                     <li>Subject digest: {{ statement.subject[0].digest.sha256 }}</li>
                     <li>Transparency log index: {{ attestation.verification_material.transparency_entries[0].logIndex }} </li>
-                    <li>Transparency log integration time: {{ attestation.verification_material.transparency_entries[0].integratedTime }} </li>
+                    <li>Transparency log integration time: {{ humanize(attestation.verification_material.transparency_entries[0].integratedTime | int | ctime, time="true") }} </li>
                   </ul>
                 </li>
                 {% endfor %}
