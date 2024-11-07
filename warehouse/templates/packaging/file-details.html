@@ -116,7 +116,13 @@
               <ul>
                 {% for attestation in bundle.attestations %}
                 <li>
-                  {{ attestation.envelope }}
+                  {% set statement = attestation.statement %}
+                  Statement type: {{ statement._type }}
+                  <ul>
+                    <li>Predicate type: {{ statement.predicateType }}</li>
+                    <li>Subject name: {{ statement.subject[0].name }}</li>
+                    <li>Subject digest: {{ statement.subject[0].digest.sha256 }}</li>
+                  </ul>
                 </li>
                 {% endfor %}
               </ul>
