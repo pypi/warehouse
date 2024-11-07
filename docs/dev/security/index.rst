@@ -14,9 +14,6 @@ Project and release activity details
 See :doc:`/api-reference/feeds` for how to track new and updated releases on
 PyPI.
 
-Indices and tables
-==================
-
 .. toctree::
   :maxdepth: 2
 
