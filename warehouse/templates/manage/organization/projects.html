@@ -90,7 +90,7 @@
         <p>
           {% trans %}There are no projects in your organization, yet.{% endtrans %}
           {% if request.has_permission(Permissions.OrganizationProjectsAdd) %}
-          {% trans href='https://packaging.python.org/' %}Get started by adding a project that you own using the form below. To learn how to create a new project, visit the <a href="{{ href }}" target="_blank" rel="noopener">Python Packaging User Guide</a>{% endtrans %}
+          {%+ trans href='https://packaging.python.org/' %}Get started by adding a project that you own using the form below. To learn how to create a new project, visit the <a href="{{ href }}" target="_blank" rel="noopener">Python Packaging User Guide</a>{% endtrans %}
           {% endif %}
         </p>
       </div>

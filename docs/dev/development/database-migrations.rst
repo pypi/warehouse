@@ -72,7 +72,7 @@ and may require a full revert.
 .. _removing-a-column:
 
 Removing a column
-=================
+-----------------
 
 To remove a column:
 
@@ -88,7 +88,7 @@ This will ensure that the "old" version of Warehouse (prior to the new migration
 has no references to the column being deleted).
 
 Renaming a column
-=================
+-----------------
 
 Renaming a column is more complex than deleting a column, since it involves
 a data migration. To rename a column:
