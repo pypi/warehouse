@@ -448,6 +448,9 @@
 
           {% for file in files %}
           {% include "warehouse:templates/includes/hash-modal.html" %}
+          {% if file.provenance %}
+          {% include "warehouse:templates/includes/provenance-modal.html" %}
+          {% endif %}
           {% endfor %}
 
         {% endif %}
