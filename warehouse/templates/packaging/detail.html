@@ -106,12 +106,19 @@
         </a>
         ({{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}
         <a href="#copy-hash-modal-{{ file.id }}">{%- trans -%}view hashes{%- endtrans -%}</a>)
-        <p class="file__meta">
-          Uploaded {{ humanize(file.upload_time) }}
-          {% for tag in file.pretty_wheel_tags %}
-          <code>{{ tag }}</code>
-          {% endfor %}
-        </p>
+        <div class="file__meta">
+          <p>
+            Uploaded {{ humanize(file.upload_time) }}
+            {% for tag in file.pretty_wheel_tags %}
+            <code>{{ tag }}</code>
+            {% endfor %}
+          </p>
+          <p>
+            {%- if file.provenance -%}
+            <a href="#file-provenance-modal-{{ file.id }}">{%- trans -%}View provenance{%- endtrans -%}</a>
+            {%- endif -%}
+          </p>
+        </div>
       </div>
     </div>
   {% endfor %}

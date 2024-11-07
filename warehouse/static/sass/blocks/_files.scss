@@ -31,22 +31,20 @@
 */
 
 .file {
-  @include clearfix;
-  display: table;
-  table-layout: fixed;
-  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
 
   &__meta {
-    font-size: 0.8rem;
     padding-top: $quarter-spacing-unit;
+
+    p {
+      padding-bottom: $quarter-spacing-unit;
+    }
   }
 
   &__graphic {
     width: 26px;
-    display: table-cell;
-    text-align: center;
-    vertical-align: middle;
-    position: relative;
     padding-right: $quarter-spacing-unit;
 
     @media screen and (max-width: $tablet) {
@@ -55,7 +53,6 @@
   }
 
   &__card {
-    display: block;
-    margin: $quarter-spacing-unit 0;
+    width: calc(100% - 26px);
   }
 }
