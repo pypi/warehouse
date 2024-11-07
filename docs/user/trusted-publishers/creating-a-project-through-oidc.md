@@ -38,7 +38,7 @@ provide the name of the PyPI project that will be created.
 
     If you have a repository at
     `https://github.com/octo-org/sampleproject` with a release workflow at
-    `release.yml` and an environment named `release` that you would like to publish
+    `release.yml` and an environment named `pypi` that you would like to publish
     to PyPI as `sampleproject`, then you would do the following:
 
     ![Image showing adding a new GitHub publisher](/assets/trusted-publishing/github/pending-publisher-form-filled.png)

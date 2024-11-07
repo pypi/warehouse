@@ -295,7 +295,7 @@ legacy PyPI upload API. This is the endpoint that tools such as `twine
 <https://twine.readthedocs.io/>`_ use to `upload distributions to PyPI
 <https://packaging.python.org/guides/distributing-packages-using-setuptools/#uploading-your-project-to-pypi>`_.
 
-The upload api can be used to upload artifacts by sending a multipart/form-data
+The upload API can be used to upload artifacts by sending a ``multipart/form-data``
 POST request with the following fields:
 
 - ``:action`` set to ``file_upload``
@@ -314,6 +314,9 @@ POST request with the following fields:
   ``source``
 - ``metadata_version``, ``name`` and ``version`` set according to the
   `Core metadata specifications`_
+- ``attestations`` can be set to a JSON array of :pep:`740` attestation
+  objects. PyPI will reject the upload if it can't verify each of the
+  supplied.
 - You can set any other field from the `Core metadata specifications`_.
   All fields need to be renamed to lowercase and hyphens need to replaced
   by underscores. So instead of "Description-Content-Type" the field must be

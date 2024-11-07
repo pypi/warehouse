@@ -316,7 +316,7 @@ def update_bigquery_release_files(task, request, dist_metadata):
         # values individually
         json_rows = dict()
         for sch in table_schema:
-            field_data = dist_metadata[sch.name]
+            field_data = dist_metadata.get(sch.name, None)
 
             if isinstance(field_data, datetime.datetime):
                 field_data = field_data.isoformat()

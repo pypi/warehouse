@@ -63,8 +63,8 @@
           <form class="form-horizontal" method="POST" action="{{ request.current_route_path() }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
-            {% if form.errors.__all__ %}
-              {% for error in form.errors.__all__ %}
+            {% if form.form_errors %}
+              {% for error in form.form_errors %}
               <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
               {% endfor %}
             {% endif %}

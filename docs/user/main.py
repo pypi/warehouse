@@ -1,6 +1,5 @@
 from pathlib import Path
 
-
 ORG_ACCOUNTS = """
 !!! info
 
@@ -11,7 +10,28 @@ ORG_ACCOUNTS = """
     to be one of the first to know how you can begin using them.
 """
 
-PREVIEW_FEATURES = {"org-accounts": ORG_ACCOUNTS}
+INDEX_ATTESTATIONS = """
+!!! info
+
+    Index attestations are currently under active development,
+    and are not yet considered stable.
+"""
+
+USER_API_DOCS = """
+!!! info
+
+    User-level API documentation is a **work in progress**, and is currently
+    being migrated from PyPI's
+    [developer documentation](https://warehouse.pypa.io/api-reference/index.html).
+    Please see [issue #16541](https://github.com/pypi/warehouse/issues/16541)
+    for more information and status updates.
+"""
+
+PREVIEW_FEATURES = {
+    "org-accounts": ORG_ACCOUNTS,
+    "index-attestations": INDEX_ATTESTATIONS,
+    "user-api-docs": USER_API_DOCS,
+}
 
 _HERE = Path(__file__).parent.resolve()
 
