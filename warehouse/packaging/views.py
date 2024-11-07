@@ -11,6 +11,7 @@
 # limitations under the License.
 
 from natsort import natsorted
+from pypi_attestations import Provenance
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy.exc import NoResultFound
@@ -29,7 +30,8 @@ from warehouse.packaging.models import Description, File, Project, Release, Role
     renderer="packaging/detail.html",
     decorator=[
         origin_cache(
-            1 * 24 * 60 * 60, stale_if_error=5 * 24 * 60 * 60  # 1 day, 5 days stale
+            1 * 24 * 60 * 60,
+            stale_if_error=5 * 24 * 60 * 60,  # 1 day, 5 days stale
         )
     ],
     has_translations=True,
@@ -62,7 +64,8 @@ def project_detail(project, request):
     renderer="packaging/detail.html",
     decorator=[
         origin_cache(
-            1 * 24 * 60 * 60, stale_if_error=5 * 24 * 60 * 60  # 1 day, 5 days stale
+            1 * 24 * 60 * 60,
+            stale_if_error=5 * 24 * 60 * 60,  # 1 day, 5 days stale
         )
     ],
     has_translations=True,
@@ -168,6 +171,11 @@ def file_details(file: File, request):
         "project": file.release.project,
         "release": file.release,
         "file": file,
+        "provenance": (
+            Provenance.model_validate(file.provenance.provenance)
+            if file.provenance
+            else None
+        ),
     }
 
 
