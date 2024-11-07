@@ -350,8 +350,8 @@ mypy-zope==1.0.8 \
     --hash=sha256:854303a95aefc4289e8a0796808e002c2c7ecde0a10a8f7b8f48092f94ef9b9f \
     --hash=sha256:8794a77dae0c7e2f28b8ac48569091310b3ee45bb9d6cd4797dcb837c40f9976
     # via -r requirements/lint.in
-packaging @ https://github.com/pypa/packaging/archive/029f41580098bcf52b69684843bdc7ea37959a7e.zip \
-    --hash=sha256:ca27d2b5ec28c95c674977f4e6de1ba58624c3d864895ad439a91cc6df0c1c4c
+packaging @ https://github.com/pypa/packaging/archive/9c66f5c844bf3262f560c1521a0e6837079b16ff.zip \
+    --hash=sha256:0ecb957b247a84f08d8a896db1bf0341aea1e47dd1de68e50b083c9252a534ef
     # via
     #   -r requirements/lint.in
     #   black

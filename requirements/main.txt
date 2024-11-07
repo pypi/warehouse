@@ -1492,8 +1492,8 @@ orjson==3.10.10 \
     --hash=sha256:f1d647ca8d62afeb774340a343c7fc023efacfd3a39f70c798991063f0c681dd \
     --hash=sha256:ff38c5fb749347768a603be1fb8a31856458af839f31f064c5aa74aca5be9efe
     # via -r requirements/main.in
-packaging @ https://github.com/pypa/packaging/archive/029f41580098bcf52b69684843bdc7ea37959a7e.zip \
-    --hash=sha256:ca27d2b5ec28c95c674977f4e6de1ba58624c3d864895ad439a91cc6df0c1c4c
+packaging @ https://github.com/pypa/packaging/archive/9c66f5c844bf3262f560c1521a0e6837079b16ff.zip \
+    --hash=sha256:0ecb957b247a84f08d8a896db1bf0341aea1e47dd1de68e50b083c9252a534ef
     # via
     #   -r requirements/main.in
     #   forcediphttpsadapter

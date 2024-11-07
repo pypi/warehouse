@@ -33,7 +33,7 @@ msgpack
 natsort
 opensearch-py
 orjson
-packaging @ https://github.com/pypa/packaging/archive/029f41580098bcf52b69684843bdc7ea37959a7e.zip
+packaging @ https://github.com/pypa/packaging/archive/9c66f5c844bf3262f560c1521a0e6837079b16ff.zip
 packaging_legacy
 paginate>=0.5.2
 paginate_sqlalchemy

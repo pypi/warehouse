@@ -215,8 +215,8 @@ mirakuru==2.5.3 \
     --hash=sha256:2fab68356fb98fb5358ea3ab65f5e511f34b5a0b16cfd0a0935ef15a3393f025 \
     --hash=sha256:39b33f8fcdf13764a6cfe936e0feeead3902a161fec438df3be7cce98f7933c6
     # via pytest-postgresql
-packaging @ https://github.com/pypa/packaging/archive/029f41580098bcf52b69684843bdc7ea37959a7e.zip \
-    --hash=sha256:ca27d2b5ec28c95c674977f4e6de1ba58624c3d864895ad439a91cc6df0c1c4c
+packaging @ https://github.com/pypa/packaging/archive/9c66f5c844bf3262f560c1521a0e6837079b16ff.zip \
+    --hash=sha256:0ecb957b247a84f08d8a896db1bf0341aea1e47dd1de68e50b083c9252a534ef
     # via
     #   -r requirements/tests.in
     #   pytest
