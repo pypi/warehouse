@@ -191,9 +191,9 @@ factory-boy==3.3.1 \
     --hash=sha256:7b1113c49736e1e9995bc2a18f4dbf2c52cf0f841103517010b1d825712ce3ca \
     --hash=sha256:8317aa5289cdfc45f9cae570feb07a6177316c82e34d14df3c2e1f22f26abef0
     # via -r requirements/tests.in
-faker==30.8.1 \
-    --hash=sha256:4f7f133560b9d4d2a915581f4ba86f9a6a83421b89e911f36c4c96cff58135a5 \
-    --hash=sha256:93e8b70813f76d05d98951154681180cb795cfbcff3eced7680d963bcc0da2a9
+faker==30.8.2 \
+    --hash=sha256:4a82b2908cd19f3bba1a4da2060cc4eb18a40410ccdf9350d071d79dc92fe3ce \
+    --hash=sha256:aa31b52cdae3673d6a78b4857c7bcdc0e98f201a5cb77d7827fa9e6b5876da94
     # via factory-boy
 freezegun==1.5.1 \
     --hash=sha256:b29dedfcda6d5e8e083ce71b2b542753ad48cfec44037b3fc79702e2980a89e9 \
@@ -279,9 +279,9 @@ pytest-postgresql==6.1.1 \
     --hash=sha256:bd4c0970d25685ac3d34d42263fcbfbf134bf02d22519fce7e1ccf4122d8b99a \
     --hash=sha256:f996637367e6aecebba1349da52eea95340bdb434c90e4b79739e62c656056e2
     # via -r requirements/tests.in
-pytest-randomly==3.15.0 \
-    --hash=sha256:0516f4344b29f4e9cdae8bce31c4aeebf59d0b9ef05927c33354ff3859eeeca6 \
-    --hash=sha256:b908529648667ba5e54723088edd6f82252f540cc340d748d1fa985539687047
+pytest-randomly==3.16.0 \
+    --hash=sha256:11bf4d23a26484de7860d82f726c0629837cf4064b79157bd18ec9d41d7feb26 \
+    --hash=sha256:8633d332635a1a0983d3bba19342196807f6afb17c3eef78e02c2f85dade45d6
     # via -r requirements/tests.in
 pytest-socket==0.7.0 \
     --hash=sha256:71ab048cbbcb085c15a4423b73b619a8b35d6a307f46f78ea46be51b1b7e11b3 \
@@ -392,9 +392,9 @@ urllib3==2.2.3 \
     # via
     #   requests
     #   responses
-waitress==3.0.0 \
-    --hash=sha256:005da479b04134cdd9dd602d1ee7c49d79de0537610d653674cc6cbde222b8a1 \
-    --hash=sha256:2a06f242f4ba0cc563444ca3d1998959447477363a2d7e9b8b4d75d35cfd1669
+waitress==3.0.1 \
+    --hash=sha256:26cdbc593093a15119351690752c99adc13cbc6786d75f7b6341d1234a3730ac \
+    --hash=sha256:ef0c1f020d9f12a515c4ec65c07920a702613afcad1dbfdc3bcec256b6c072b3
     # via webtest
 webob==1.8.9 \
     --hash=sha256:45e34c58ed0c7e2ecd238ffd34432487ff13d9ad459ddfd77895e67abba7c1f9 \
@@ -406,7 +406,7 @@ webtest==3.0.1 \
     # via -r requirements/tests.in
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==75.2.0 \
-    --hash=sha256:753bb6ebf1f465a1912e19ed1d41f403a79173a9acf66a42e7e6aec45c3c16ec \
-    --hash=sha256:a7fcb66f68b4d9e8e66b42f9876150a3371558f98fa32222ffaa5bced76406f8
+setuptools==75.3.0 \
+    --hash=sha256:f2504966861356aa38616760c0f66568e535562374995367b4e69c7143cf6bcd \
+    --hash=sha256:fba5dd4d766e97be1b1681d98712680ae8f2f26d7881245f2ce9e40714f1a686
     # via pytest-postgresql

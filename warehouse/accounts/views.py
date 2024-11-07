@@ -18,7 +18,7 @@ import uuid
 import humanize
 import pytz
 
-from first import first
+from more_itertools import first_true
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPMovedPermanently,
@@ -727,8 +727,8 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
         if user is None:
             user = user_service.get_user_by_email(form.username_or_email.data)
         if user is not None:
-            email = first(
-                user.emails, key=lambda e: e.email == form.username_or_email.data
+            email = first_true(
+                user.emails, pred=lambda e: e.email == form.username_or_email.data
             )
         else:
             token_service = request.find_service(ITokenService, name="password")
