@@ -152,6 +152,26 @@ def release_detail(release, request):
 
 
 @view_config(
+    route_name="packaging.file_details",
+    context=File,
+    renderer="packaging/file-details.html",
+    decorator=[
+        origin_cache(
+            1 * 24 * 60 * 60,
+            stale_if_error=5 * 24 * 60 * 60,  # 1 day, 5 days stale
+        )
+    ],
+    has_translations=True,
+)
+def file_details(file: File, request):
+    return {
+        "project": file.release.project,
+        "release": file.release,
+        "file": file,
+    }
+
+
+@view_config(
     route_name="includes.edit-project-button",
     context=Project,
     renderer="includes/manage-project-button.html",
