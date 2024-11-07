@@ -23,9 +23,12 @@
 
   &__nav {
     width: 25%;
+    margin-right: 25px;
+    font-weight: 400;
   }
 
   &__contents {
     width: 75%;
+    word-break: break-all;
   }
 }
