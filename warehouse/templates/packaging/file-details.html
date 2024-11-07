@@ -122,6 +122,8 @@
                     <li>Predicate type: {{ statement.predicateType }}</li>
                     <li>Subject name: {{ statement.subject[0].name }}</li>
                     <li>Subject digest: {{ statement.subject[0].digest.sha256 }}</li>
+                    <li>Transparency log index: {{ attestation.verification_material.transparency_entries[0].logIndex }} </li>
+                    <li>Transparency log integration time: {{ attestation.verification_material.transparency_entries[0].integratedTime }} </li>
                   </ul>
                 </li>
                 {% endfor %}
