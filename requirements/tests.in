@@ -12,4 +12,3 @@ pytest-xdist
 pytz
 responses>=0.5.1
 webtest
-packaging @ https://github.com/pypa/packaging/archive/9c66f5c844bf3262f560c1521a0e6837079b16ff.zip

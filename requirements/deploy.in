@@ -1,3 +1,2 @@
 gunicorn==23.0.0
 ddtrace==2.16.0
-packaging @ https://github.com/pypa/packaging/archive/9c66f5c844bf3262f560c1521a0e6837079b16ff.zip
