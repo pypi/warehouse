@@ -355,9 +355,9 @@ mypy-zope==1.0.9 \
     --hash=sha256:37d6985dfb05a4c27b35cff47577fd5bad878db4893ddedf54d165f7389a1cdb \
     --hash=sha256:6666c1556891a3cb186137519dbd7a58cb30fb72b2504798cad47b35391921ba
     # via -r requirements/lint.in
-packaging==24.1 \
-    --hash=sha256:026ed72c8ed3fcce5bf8950572258698927fd1dbda10a5e981cdf0ac37f4f002 \
-    --hash=sha256:5b8f2217dbdbd2f7f384c41c628544e6d52f2d0f53c6d0c3ea61aa5d1d7ff124
+packaging==24.2 \
+    --hash=sha256:09abb1bccd265c01f4a3aa3f7a7db064b36514d2cba19a2f694fe6150451a759 \
+    --hash=sha256:c228a6dc5e932d346bc5739379109d49e8853dd8223571c7c5b55260edc0b97f
     # via black
 parsy==1.1.0 \
     --hash=sha256:25bd5cea2954950ebbfdf71f8bdaf7fd45a5df5325fd36a1064be2204d9d4c94 \
