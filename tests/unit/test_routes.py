@@ -514,6 +514,13 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "packaging.file_details",
+            "/project/{name}/{version}/{filename}/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}/{version}/{filename}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "packaging.release",
             "/project/{name}/{version}/",
             factory="warehouse.packaging.models:ProjectFactory",
