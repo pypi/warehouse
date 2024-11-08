@@ -24,6 +24,7 @@ from ...common.db.packaging import (
     DescriptionFactory,
     FileFactory,
     ProjectFactory,
+    ProvenanceFactory,
     ReleaseFactory,
     RoleFactory,
 )
@@ -134,6 +135,55 @@ class TestProjectDetail:
 
         assert resp is response
         assert release_detail.calls == [pretend.call(release, db_request)]
+
+
+class TestFileDetail:
+    def test_detail_rendered_no_provenance(self, db_request):
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(
+            project=project,
+            version="1.0",
+        )
+        file = FileFactory.create(
+            release=release,
+            filename=f"{project.name}-{release.version}.tar.gz",
+            python_version="source",
+            packagetype="sdist",
+        )
+
+        result = views.file_details(file, db_request)
+        assert result == {
+            "project": project,
+            "release": release,
+            "file": file,
+            "provenance": None,
+        }
+
+    def test_detail_rendered_with_provenance(self, monkeypatch, db_request):
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(
+            project=project,
+            version="1.0",
+        )
+        file = FileFactory.create(
+            release=release,
+            filename=f"{project.name}-{release.version}.tar.gz",
+            python_version="source",
+            packagetype="sdist",
+            provenance=ProvenanceFactory.create(),
+        )
+        provenance_model = pretend.stub()
+        monkeypatch.setattr(
+            "pypi_attestations.Provenance.model_validate", lambda _x: provenance_model
+        )
+        result = views.file_details(file, db_request)
+
+        assert result == {
+            "project": project,
+            "release": release,
+            "file": file,
+            "provenance": provenance_model,
+        }
 
 
 class TestReleaseDetail:
