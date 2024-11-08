@@ -1489,9 +1489,9 @@ orjson==3.10.11 \
     --hash=sha256:f4c57ea78a753812f528178aa2f1c57da633754c91d2124cb28991dab4c79a54 \
     --hash=sha256:f91d9eb554310472bd09f5347950b24442600594c2edc1421403d7610a0998fd
     # via -r requirements/main.in
-packaging==24.1 \
-    --hash=sha256:026ed72c8ed3fcce5bf8950572258698927fd1dbda10a5e981cdf0ac37f4f002 \
-    --hash=sha256:5b8f2217dbdbd2f7f384c41c628544e6d52f2d0f53c6d0c3ea61aa5d1d7ff124
+packaging==24.2 \
+    --hash=sha256:09abb1bccd265c01f4a3aa3f7a7db064b36514d2cba19a2f694fe6150451a759 \
+    --hash=sha256:c228a6dc5e932d346bc5739379109d49e8853dd8223571c7c5b55260edc0b97f
     # via
     #   -r requirements/main.in
     #   forcediphttpsadapter
