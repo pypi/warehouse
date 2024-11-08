@@ -7058,11 +7058,6 @@ msgstr ""
 msgid "Uploaded using Trusted Publishing? %(is_tp)s"
 msgstr ""
 
-#: warehouse/templates/packaging/file-details.html:95
-#, python-format
-msgid "Provenance: %(link)s"
-msgstr ""
-
 #: warehouse/templates/packaging/submit-malware-observation.html:23
 msgid "Submit Malware Report for Project"
 msgstr ""

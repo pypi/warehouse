@@ -92,12 +92,6 @@
       {% if provenance %}
       <div>
         <p>
-          {% trans link=request.route_url('integrity.provenance', project_name=project.name, release=release.version, filename=file.filename) %}
-          Provenance: {{ link }}
-          {% endtrans %}
-        </p>
-
-        <p>
           The following attestations were made for <code>{{ file.filename }}</code>:
         </p>
 
@@ -122,8 +116,9 @@
                     <li>Predicate type: {{ statement.predicateType }}</li>
                     <li>Subject name: {{ statement.subject[0].name }}</li>
                     <li>Subject digest: {{ statement.subject[0].digest.sha256 }}</li>
-                    <li>Transparency log index: {{ attestation.verification_material.transparency_entries[0].logIndex }} </li>
-                    <li>Transparency log integration time: {{ humanize(attestation.verification_material.transparency_entries[0].integratedTime | int | ctime, time="true") }} </li>
+                    {% set tlog_entry = attestation.verification_material.transparency_entries[0] %}
+                    <li>Transparency log index: <a href="https://search.sigstore.dev/?logIndex={{ tlog_entry.logIndex }}">{{ tlog_entry.logIndex }}</a> </li>
+                    <li>Transparency log integration time: {{ humanize(tlog_entry.integratedTime | int | ctime, time="true") }} </li>
                   </ul>
                 </li>
                 {% endfor %}
