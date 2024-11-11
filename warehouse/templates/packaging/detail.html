@@ -105,8 +105,9 @@
           {{ file.filename }}
         </a>
         ({{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}
-        <a href="#copy-hash-modal-{{ file.id }}">{%- trans -%}view hashes{%- endtrans -%}</a>
-        <a href="{{ request.route_url('packaging.file_details', name=release.project.name, version=release.version, filename=file.filename) }}">{%- trans -%}view details{%- endtrans -%}</a>)
+        <a href="#{{ file.filename }}" data-project-tabs-target="tab" data-action="project-tabs#onTabClick">
+          {%- trans -%}view details{%- endtrans -%}
+        </a>)
         <p class="file__meta">
           Uploaded {{ humanize(file.upload_time) }}
           {% for tag in file.pretty_wheel_tags %}
@@ -404,6 +405,7 @@
           <div id="files" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="files-tab mobile-files-tab" tabindex="-1">
             <h2 class="page-title">{% trans %}Download files{% endtrans %}</h2>
             <p>{% trans href='https://packaging.python.org/tutorials/installing-packages/', title=gettext('External link') %}Download the file for your platform. If you're not sure which to choose, learn more about <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">installing packages</a>.{% endtrans %}</p>
+
             <h3>
               {% trans count=sdists|length %}
                 Source Distribution
@@ -440,8 +442,9 @@
             {% endif %}
           </div>
 
+          {# Tabs: file details #}
           {% for file in files %}
-          {% include "warehouse:templates/includes/hash-modal.html" %}
+          {% include "warehouse:templates/includes/file-details.html" %}
           {% endfor %}
 
         {% endif %}

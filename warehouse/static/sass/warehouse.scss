@@ -110,7 +110,6 @@
 @import "blocks/project-description";
 /*rtl:end:ignore*/
 @import "blocks/files";
-@import "blocks/file_details";
 @import "blocks/radio-toggle-form";
 @import "blocks/release";
 @import "blocks/release-timeline";
@@ -253,7 +252,7 @@
 .wrap-children {
   margin-bottom: -5px;
 
-  >* {
+  > * {
     margin-bottom: 5px;
   }
 }
@@ -311,8 +310,8 @@
 // RTL SUPPORT. See https://rtlcss.com/
 /*rtl:begin:ignore*/
 // fix padding on split layouts
-html[dir="rtl"] .package-snippet .split-layout> :first-child,
-html[dir="rtl"] .package-description.split-layout> :first-child {
+html[dir="rtl"] .package-snippet .split-layout > :first-child,
+html[dir="rtl"] .package-description.split-layout > :first-child {
   padding-left: 0;
   padding-right: $spacing-unit;
 }
@@ -325,7 +324,7 @@ time {
 
 // force email select to display ltr
 // Remove when/if this is marked for translation
-#public_email {  // stylelint-disable-line selector-id-pattern -- remove when translated
+#public_email { // stylelint-disable-line selector-id-pattern -- remove when translated
   direction: ltr;
 }
 
@@ -334,7 +333,6 @@ time {
 .form-errors {
   text-align: left;
 }
-
 /*rtl:end:ignore*/
 
 // ACCESSIBILITY

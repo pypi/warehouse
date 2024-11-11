@@ -517,13 +517,6 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
-        "packaging.file_details",
-        "/project/{name}/{version}/{filename}/",
-        factory="warehouse.packaging.models:ProjectFactory",
-        traverse="/{name}/{version}/{filename}",
-        domain=warehouse,
-    )
-    config.add_route(
         "packaging.release",
         "/project/{name}/{version}/",
         factory="warehouse.packaging.models:ProjectFactory",
