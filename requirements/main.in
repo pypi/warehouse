@@ -65,7 +65,7 @@ rfc3986
 sentry-sdk
 setuptools
 sigstore~=3.5.1
-pypi-attestations==0.0.15
+pypi-attestations==0.0.16
 sqlalchemy[asyncio]>=2.0,<3.0
 stdlib-list
 stripe
