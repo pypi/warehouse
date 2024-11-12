@@ -826,7 +826,7 @@ msgstr ""
 #: warehouse/templates/base.html:321 warehouse/templates/base.html:331
 #: warehouse/templates/base.html:344
 #: warehouse/templates/includes/accounts/profile-callout.html:18
-#: warehouse/templates/includes/file-details.html:79
+#: warehouse/templates/includes/file-details.html:84
 #: warehouse/templates/index.html:100 warehouse/templates/index.html:104
 #: warehouse/templates/manage/account.html:228
 #: warehouse/templates/manage/account.html:234
@@ -2728,25 +2728,30 @@ msgstr ""
 
 #: warehouse/templates/includes/file-details.html:32
 #, python-format
+msgid "Uploaded using Trusted Publishing? %(is_tp)s"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:37
+#, python-format
 msgid "Uploaded via: %(uploaded_via)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:40
+#: warehouse/templates/includes/file-details.html:45
 #, python-format
 msgid "Hashes for %(filename)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:43
+#: warehouse/templates/includes/file-details.html:48
 msgid "Algorithm"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:44
+#: warehouse/templates/includes/file-details.html:49
 msgid "Hash digest"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:53
-#: warehouse/templates/includes/file-details.html:62
-#: warehouse/templates/includes/file-details.html:71
+#: warehouse/templates/includes/file-details.html:58
+#: warehouse/templates/includes/file-details.html:67
+#: warehouse/templates/includes/file-details.html:76
 #: warehouse/templates/manage/account.html:206
 #: warehouse/templates/manage/account/recovery_codes-provision.html:58
 #: warehouse/templates/manage/account/totp-provision.html:57
@@ -2756,9 +2761,9 @@ msgstr ""
 msgid "Copy to clipboard"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:54
-#: warehouse/templates/includes/file-details.html:63
-#: warehouse/templates/includes/file-details.html:72
+#: warehouse/templates/includes/file-details.html:59
+#: warehouse/templates/includes/file-details.html:68
+#: warehouse/templates/includes/file-details.html:77
 #: warehouse/templates/manage/account.html:207
 #: warehouse/templates/manage/account/recovery_codes-provision.html:59
 #: warehouse/templates/manage/account/totp-provision.html:58
@@ -2767,16 +2772,11 @@ msgstr ""
 msgid "Copy"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:79
+#: warehouse/templates/includes/file-details.html:84
 #, python-format
 msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">See more details on using hashes here.</a>"
-msgstr ""
-
-#: warehouse/templates/includes/file-details.html:88
-#, python-format
-msgid "Uploaded using Trusted Publishing? %(is_tp)s"
 msgstr ""
 
 #: warehouse/templates/includes/flash-messages.html:19
