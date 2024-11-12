@@ -113,6 +113,19 @@ class TestExcWithMessage:
         assert exc.status_code == 400
         assert exc.status == "400 look at these wild chars: ?Ã¤â??"
 
+    def test_exc_with_missing_message(self, monkeypatch):
+        sentry_sdk = pretend.stub(
+            capture_message=pretend.call_recorder(lambda message: None)
+        )
+        monkeypatch.setattr(legacy, "sentry_sdk", sentry_sdk)
+        exc = legacy._exc_with_message(HTTPBadRequest, "")
+        assert isinstance(exc, HTTPBadRequest)
+        assert exc.status_code == 400
+        assert exc.status == "400 Bad Request"
+        assert sentry_sdk.capture_message.calls == [
+            pretend.call("Attempting to _exc_with_message without a message")
+        ]
+
 
 def test_construct_dependencies():
     types = {"requires": DependencyKind.requires, "provides": DependencyKind.provides}
