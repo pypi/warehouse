@@ -2527,7 +2527,7 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 Invalid attestations supplied during upload:"
+            "400 Invalid attestations supplied during upload: "
             "Attestations are only supported when using Trusted Publishing"
         )
 
