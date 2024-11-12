@@ -3605,6 +3605,64 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status.startswith("400 Invalid attestations")
 
+    def test_upload_fails_attestations_unsupported_publisher(
+        self,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        dummy_attestation,
+    ):
+        from warehouse.events.models import HasEvents
+
+        project = ProjectFactory.create()
+        version = "1.0"
+        publisher = pretend.stub(
+            publisher_name="ActiveState",
+            publisher_url=lambda *_a, **_kw: "https://fake.example.com",
+            supports_attestations=True,
+        )
+        identity = PublisherTokenContext(publisher, SignedClaims({}))
+        db_request.oidc_publisher = identity.publisher
+        db_request.oidc_claims = identity.claims
+
+        db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
+        db_request.db.add(Classifier(classifier="Programming Language :: Python"))
+
+        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+
+        pyramid_config.testing_securitypolicy(identity=identity)
+        db_request.user = None
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "attestations": f"[{dummy_attestation.model_dump_json()}]",
+                "version": version,
+                "summary": "This is my summary!",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        record_event = pretend.call_recorder(
+            lambda self, *, tag, request=None, additional: None
+        )
+        monkeypatch.setattr(HasEvents, "record_event", record_event)
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert "Unsupported publisher: ActiveState" in resp.status
+
     @pytest.mark.parametrize(
         ("url", "expected"),
         [
