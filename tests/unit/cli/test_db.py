@@ -281,7 +281,7 @@ def test_stamp_command(monkeypatch, cli, pyramid_config):
 
 
 def test_upgrade_command(monkeypatch, cli, pyramid_config):
-    alembic_upgrade = pretend.call_recorder(lambda config, revision: None)
+    alembic_upgrade = pretend.call_recorder(lambda config, revision, sql: None)
     monkeypatch.setattr(alembic.command, "upgrade", alembic_upgrade)
 
     alembic_config = pretend.stub(attributes={})
@@ -297,7 +297,7 @@ def test_upgrade_command(monkeypatch, cli, pyramid_config):
 
     result = cli.invoke(upgrade, ["foo"], obj=pyramid_config)
     assert result.exit_code == 0
-    assert alembic_upgrade.calls == [pretend.call(alembic_config, "foo")]
+    assert alembic_upgrade.calls == [pretend.call(alembic_config, "foo", sql=False)]
 
 
 def test_check_command(monkeypatch, cli, pyramid_config):
