@@ -1245,7 +1245,7 @@ def file_upload(request):
             except AttestationUploadError as e:
                 raise _exc_with_message(
                     HTTPBadRequest,
-                    str(e),
+                    f"Invalid attestations supplied during upload: {e}",
                 )
 
             # Log successful attestation upload

@@ -2527,7 +2527,8 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 Attestations are only supported when using Trusted Publishing"
+            "400 Invalid attestations supplied during upload: "
+            "Attestations are only supported when using Trusted Publishing"
         )
 
     @pytest.mark.parametrize(
@@ -3599,7 +3600,7 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        assert resp.status.startswith("400 Malformed attestations")
+        assert resp.status.startswith("400 Invalid attestations")
 
     @pytest.mark.parametrize(
         ("url", "expected"),
