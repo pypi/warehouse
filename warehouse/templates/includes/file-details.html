@@ -91,7 +91,8 @@
   </p>
 </div>
 
-{% if provenance %}
+{% if file.provenance %}
+{% set provenance = file.provenance.as_model %}
 <div>
   <p>
     The following attestations were made for <code>{{ file.filename }}</code>:
@@ -115,9 +116,9 @@
             {% set statement = attestation.statement %}
             Statement type: {{ statement._type }}
             <ul>
-              <li>Predicate type: {{ statement.predicateType }}</li>
-              <li>Subject name: {{ statement.subject[0].name }}</li>
-              <li>Subject digest: {{ statement.subject[0].digest.sha256 }}</li>
+              <li>Predicate type: <code>{{ statement.predicateType }}</code></li>
+              <li>Subject name: <code>{{ statement.subject[0].name }}</code></li>
+              <li>Subject digest: <code>{{ statement.subject[0].digest.sha256 }}</code></li>
               {% set tlog_entry = attestation.verification_material.transparency_entries[0] %}
               <li>Transparency log index: <a href="https://search.sigstore.dev/?logIndex={{ tlog_entry.logIndex }}">{{ tlog_entry.logIndex }}</a> </li>
               <li>Transparency log integration time: {{ humanize(tlog_entry.integratedTime | int | ctime, time="true") }} </li>
