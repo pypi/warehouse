@@ -1158,6 +1158,27 @@ def file_upload(request):
                 k: h.hexdigest().lower() for k, h in metadata_file_hashes.items()
             }
 
+        # If the user provided attestations, verify them
+        # We persist these attestations subsequently, only after the
+        # release file is persisted.
+        integrity_service: IIntegrityService = request.find_service(
+            IIntegrityService, context=None
+        )
+        attestations: list[Attestation] = []
+        if "attestations" in request.POST and not request.flags.enabled(
+            AdminFlagValue.DISABLE_PEP740
+        ):
+            try:
+                attestations = integrity_service.parse_attestations(
+                    request,
+                    Distribution(name=filename, digest=file_hashes["sha256"]),
+                )
+            except AttestationUploadError as e:
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    f"Invalid attestations supplied during upload: {e}",
+                )
+
         # TODO: This should be handled by some sort of database trigger or a
         #       SQLAlchemy hook or the like instead of doing it inline in this
         #       view.
@@ -1226,19 +1247,9 @@ def file_upload(request):
             )
         )
 
-        # If the user provided attestations, verify and store them
-        if "attestations" in request.POST and not request.flags.enabled(
-            AdminFlagValue.DISABLE_PEP740
-        ):
-            integrity_service: IIntegrityService = request.find_service(
-                IIntegrityService, context=None
-            )
-
+        # If we have attestations from above, persist them.
+        if attestations:
             try:
-                attestations: list[Attestation] = integrity_service.parse_attestations(
-                    request,
-                    Distribution(name=filename, digest=file_hashes["sha256"]),
-                )
                 request.db.add(
                     integrity_service.build_provenance(request, file_, attestations)
                 )

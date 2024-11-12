@@ -1117,6 +1117,7 @@ class TestFileUpload:
         assert resp.status_code == 200
         assert db_request.find_service.calls == [
             pretend.call(IMetricsService, context=None),
+            pretend.call(IIntegrityService, context=None),
             pretend.call(IFileStorage, name="archive"),
         ]
         assert len(storage_service.store.calls) == 1
@@ -2627,6 +2628,7 @@ class TestFileUpload:
         assert resp.status_code == 200
         assert db_request.find_service.calls == [
             pretend.call(IMetricsService, context=None),
+            pretend.call(IIntegrityService, context=None),
             pretend.call(IFileStorage, name="archive"),
         ]
         assert storage_service.store.calls == [
@@ -2976,6 +2978,7 @@ class TestFileUpload:
         assert resp.status_code == 200
         assert db_request.find_service.calls == [
             pretend.call(IMetricsService, context=None),
+            pretend.call(IIntegrityService, context=None),
             pretend.call(IFileStorage, name="archive"),
         ]
         assert storage_service.store.calls == [
