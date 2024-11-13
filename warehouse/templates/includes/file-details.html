@@ -97,9 +97,8 @@
     </p>
   </div>
 
-  <h3>Provenance</h3>
-
   {% if file.provenance %}
+  <h3>Provenance</h3>
     {% set provenance = file.provenance.as_model %}
     <p>
     The following attestation bundles were made for <code>{{ file.filename }}</code>:
