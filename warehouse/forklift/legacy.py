@@ -1043,6 +1043,8 @@ def file_upload(request):
         if not _is_valid_dist_file(temporary_filename, form.filetype.data):
             raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
 
+        # TODO: Remove sdist zip handling when #12245 is resolved
+        # (PEP 625 – Filename of a Source Distribution)
         if filename.endswith(".zip"):
             filename = os.path.basename(temporary_filename)
 
