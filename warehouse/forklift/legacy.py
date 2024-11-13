@@ -1048,9 +1048,7 @@ def file_upload(request):
         if filename.endswith(".zip"):
             filename = os.path.basename(temporary_filename)
 
-            if meta.license_files and packaging.version.Version(  # pragma: no branch
-                meta.metadata_version
-            ) >= packaging.version.Version("2.4"):
+            if meta.license_files:  # pragma: no branch
                 """
                 Ensure all License-File keys exist in the sdist
                 See https://peps.python.org/pep-0639/#add-license-file-field
@@ -1119,9 +1117,7 @@ def file_upload(request):
 
             filename = os.path.basename(temporary_filename)
 
-            if meta.license_files and packaging.version.Version(
-                meta.metadata_version
-            ) >= packaging.version.Version("2.4"):
+            if meta.license_files:
                 """
                 Ensure all License-File keys exist in the sdist
                 See https://peps.python.org/pep-0639/#add-license-file-field
@@ -1179,9 +1175,7 @@ def file_upload(request):
             # and version.
             name, version, _ = filename.split("-", 2)
 
-            if meta.license_files and packaging.version.Version(
-                meta.metadata_version
-            ) >= packaging.version.Version("2.4"):
+            if meta.license_files:
                 """
                 Ensure all License-File keys exist in the wheel
                 See https://peps.python.org/pep-0639/#add-license-file-field
