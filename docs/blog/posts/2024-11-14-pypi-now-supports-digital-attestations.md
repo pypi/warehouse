@@ -15,7 +15,7 @@ publishing, in order to further increase trust in the supply-chain security of
 their projects. Additionally, a new API is available for consumers and
 installers to verify published attestations.
 
-Many projects have already begun publishing attestations, with more than 10,000
+Many projects have already begun publishing attestations, with more than 20,000
 attestations already published.
 
 This finalizes PyPI's support for [PEP 740], and follows directly from previous
