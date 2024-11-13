@@ -13,7 +13,10 @@ from __future__ import annotations
 
 import typing
 
+from functools import cached_property
 from uuid import UUID
+
+import pypi_attestations
 
 from sqlalchemy import ForeignKey, orm
 from sqlalchemy.dialects.postgresql import JSONB
@@ -44,3 +47,7 @@ class Provenance(db.Model):
 
     # This JSONB has the structure of a PEP 740 provenance object.
     provenance: Mapped[dict] = mapped_column(JSONB, nullable=False, deferred=True)
+
+    @cached_property
+    def as_model(self):
+        return pypi_attestations.Provenance.model_validate(self.provenance)

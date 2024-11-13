@@ -189,6 +189,9 @@ _dist_file_re = re.compile(r".+?(?P<extension>\.(tar\.gz|zip|whl))$", re.I)
 
 
 def _exc_with_message(exc, message, **kwargs):
+    if not message:
+        sentry_sdk.capture_message("Attempting to _exc_with_message without a message")
+
     # The crappy old API that PyPI offered uses the status to pass down
     # messages to the client. So this function will make that easier to do.
     resp = exc(detail=message, **kwargs)
@@ -1311,7 +1314,7 @@ def file_upload(request):
             except AttestationUploadError as e:
                 raise _exc_with_message(
                     HTTPBadRequest,
-                    str(e),
+                    f"Invalid attestations supplied during upload: {e}",
                 )
 
             # Log successful attestation upload
