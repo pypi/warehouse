@@ -12,6 +12,16 @@
  # limitations under the License.
 -#}
 
+{% macro publisher(publ) -%}
+{% if publ.kind == "GitHub" %}
+<p>
+  Publisher: <a href="https://github.com/{{ publ.repository }}/blob/HEAD/.github/workflows/{{ publ.workflow }}">
+    <i class="fa-brands fa-github" aria-hidden="true"></i>
+    <code>{{ publ.workflow }}</code> on {{ publ.repository }}
+  </a>
+</p>
+{% endif %}
+{%- endmacro %}
 
 <div id="{{ file.filename }}" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="file-tab mobile-file-tab" tabindex="-1">
   <h2 class="page-title">{% trans %}File details{% endtrans %}</h2>
@@ -102,24 +112,20 @@
         </div>
 
         <div class="card file__card">
-          Publisher: {{ bundle.publisher.kind }}
-          <ul>
-            <li>Repository: {{ bundle.publisher.repository }}</li>
-            <li>Workflow: {{ bundle.publisher.workflow }}</li>
-          </ul>
+          {{ publisher(bundle.publisher )}}
           Attestations:
           <ul>
             {% for attestation in bundle.attestations %}
             <li>
               {% set statement = attestation.statement %}
-              Statement type: {{ statement._type }}
+              Statement type: <a href="{{ statement._type }}"><code>{{ statement._type }}</code></a>
               <ul>
-                <li>Predicate type: <code>{{ statement.predicateType }}</code></li>
+                <li>Predicate type: <a href="{{ statement.predicateType }}"><code>{{ statement.predicateType }}</code></a></li>
                 <li>Subject name: <code>{{ statement.subject[0].name }}</code></li>
                 <li>Subject digest: <code>{{ statement.subject[0].digest.sha256 }}</code></li>
                 {% set tlog_entry = attestation.verification_material.transparency_entries[0] %}
-                <li>Transparency log index: <a href="https://search.sigstore.dev/?logIndex={{ tlog_entry.logIndex }}">{{ tlog_entry.logIndex }}</a> </li>
-                <li>Transparency log integration time: {{ humanize(tlog_entry.integratedTime | int | ctime, time="true") }} </li>
+                <li>Sigstore transparency entry: <a href="https://search.sigstore.dev/?logIndex={{ tlog_entry.logIndex }}">{{ tlog_entry.logIndex }}</a> </li>
+                <li>Sigstore integration time: {{ humanize(tlog_entry.integratedTime | int | ctime, time="true") }} </li>
               </ul>
             </li>
             {% endfor %}
