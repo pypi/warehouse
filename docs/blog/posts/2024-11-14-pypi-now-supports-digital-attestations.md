@@ -40,7 +40,9 @@ cryptographic signatures, such as those provided by PGP:
   case of an upload of a project built with GitHub Actions, PyPI's support for
   digital attestations defines a strong and verifiable association between a file
   on PyPI and the source repository, workflow, and even the commit hash that
-  produced and uploaded the file.
+  produced and uploaded the file. Additionally, publishing attestations to a
+  transparency log helps mitigate against both compromise of PyPI and compromise
+  of the projects themselves.
 * **Attestations are verified when uploaded, and must be verifiable to be uploaded:**
   Upon review of the state of historical PGP signatures published to PyPI, [we
   found that many signatures were not verifiable], either by PyPI or by end
@@ -84,7 +86,7 @@ Publisher environments [is planned]. While not recommended, maintainers can also
 ### Acknowledgements
 
 Support for work on PEP 740's authoring and design was provided by the
-[Soverign Tech Fund] and the Google Open Source Security Team.
+[Sovereign Tech Agency] and the Google Open Source Security Team.
 
 Funding for the implementation of PEP 740 was provided by the Google Open
 Source Security Team, and much of the development work on PyPI and related
@@ -108,7 +110,7 @@ _Dustin Ingram is a maintainer of the Python Package Index._
 [we announced last year]: 2023-04-20-introducing-trusted-publishers.md
 [we found that many signatures were not verifiable]: https://blog.yossarian.net/2023/05/21/PGP-signatures-on-PyPI-worse-than-useless
 [manually generate and publish attestations]: https://docs.pypi.org/attestations/producing-attestations/#the-manual-way
-[Soverign Tech Fund]: https://www.sovereign.tech/tech/python-package-index
+[Sovereign Tech Agency]: https://www.sovereign.tech/tech/python-package-index
 [is planned]: https://github.com/pypi/warehouse/issues/17001
 [Trail of Bits]: https://www.trailofbits.com/
 [William Woodruff]: https://github.com/woodruffw
