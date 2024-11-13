@@ -28,6 +28,10 @@ down_revision = "2af8015830dd"
 
 
 def upgrade():
+    conn = op.get_bind()
+    conn.execute(sa.text("SET statement_timeout = 120000"))
+    conn.execute(sa.text("SET lock_timeout = 120000"))
+
     op.add_column(
         "releases", sa.Column("license_expression", sa.String(), nullable=True)
     )
