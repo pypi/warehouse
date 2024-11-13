@@ -124,8 +124,8 @@
                 <li>Subject name: <code>{{ statement.subject[0].name }}</code></li>
                 <li>Subject digest: <code>{{ statement.subject[0].digest.sha256 }}</code></li>
                 {% set tlog_entry = attestation.verification_material.transparency_entries[0] %}
-                <li>Transparency log index: <a href="https://search.sigstore.dev/?logIndex={{ tlog_entry.logIndex }}">{{ tlog_entry.logIndex }}</a> </li>
-                <li>Transparency log integration time: {{ humanize(tlog_entry.integratedTime | int | ctime, time="true") }} </li>
+                <li>Sigstore transparency entry: <a href="https://search.sigstore.dev/?logIndex={{ tlog_entry.logIndex }}">{{ tlog_entry.logIndex }}</a> </li>
+                <li>Sigstore integration time: {{ humanize(tlog_entry.integratedTime | int | ctime, time="true") }} </li>
               </ul>
             </li>
             {% endfor %}
