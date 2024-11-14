@@ -18,6 +18,7 @@ from sigstore.verify.policy import (
     AllOf,
     AnyOf,
     OIDCBuildConfigURI,
+    OIDCIssuerV2,
     OIDCSourceRepositoryDigest,
 )
 from sqlalchemy import ForeignKey, String, UniqueConstraint
@@ -34,6 +35,8 @@ from warehouse.oidc.models._core import (
     check_existing_jti,
     verify_url_from_reference,
 )
+
+GITHUB_OIDC_ISSUER_URL = "https://token.actions.githubusercontent.com"
 
 # This expression matches the workflow filename component of a GitHub
 # "workflow ref", i.e. the value present in the `workflow_ref` and
@@ -288,6 +291,7 @@ class GitHubPublisherMixin:
         claims:
         - OIDCBuildConfigURI (e.g:
         https://github.com/org/repo/.github/workflows/workflow.yml@REF})
+        - OIDCIssuerV2 (should always be https://token.actions.githubusercontent.com/)
         - OIDCSourceRepositoryDigest (the commit SHA corresponding to the version of
         the repo used)
 
@@ -308,6 +312,7 @@ class GitHubPublisherMixin:
 
         return AllOf(
             [
+                OIDCIssuerV2(GITHUB_OIDC_ISSUER_URL),
                 OIDCSourceRepositoryDigest(sha),
                 AnyOf(expected_build_configs),
             ],

@@ -12,11 +12,10 @@
 
 import wtforms
 
-from warehouse import forms
 from warehouse.i18n import localize as _
 
 
-class SubmitMalwareObservationForm(forms.Form):
+class SubmitMalwareObservationForm(wtforms.Form):
     """Form to submit details about a Project with Malware"""
 
     inspector_link = wtforms.fields.URLField(

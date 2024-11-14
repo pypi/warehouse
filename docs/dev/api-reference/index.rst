@@ -1,6 +1,14 @@
 API reference
 =============
 
+.. note::
+
+  API documentation is being moved to PyPI's
+  `user documentation site <https://docs.pypi.org/api/>`_.
+
+  Please see `issue #16541 <https://github.com/pypi/warehouse/issues/16541>`_
+  for more information and status updates.
+
 Warehouse has several API endpoints. See :doc:`../application` for the
 parts of Warehouse that generate them.
 
