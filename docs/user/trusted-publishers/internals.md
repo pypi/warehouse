@@ -200,7 +200,7 @@ stored ID and fails if they don't match. Through this process, only the original
 GitHub user remains authorized to publish to their PyPI projects, even if they
 change their username or delete their account.
 
-### How do I become a Trusted Publisher?
+### How do I become a Trusted Publishing provider?
 If you are an operator of a hosted compute service or are a CI provider, you
 may want PyPI to support your platform or service as a Trusted Publisher.
 
