@@ -73,6 +73,17 @@ def _get_tar_testdata(compression_type=""):
     temp_f = io.BytesIO()
     with tarfile.open(fileobj=temp_f, mode=f"w:{compression_type}") as tar:
         tar.add("/dev/null", arcname="fake_package/PKG-INFO")
+        tar.add("/dev/null", arcname="LICENSE.MIT")
+        tar.add("/dev/null", arcname="LICENSE.APACHE")
+    return temp_f.getvalue()
+
+
+def _get_zip_testdata():
+    temp_f = io.BytesIO()
+    with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
+        zfp.writestr("fake_package/PKG-INFO", "Fake PKG-INFO")
+        zfp.writestr("LICENSE.MIT", "Fake License")
+        zfp.writestr("LICENSE.APACHE", "Fake License")
     return temp_f.getvalue()
 
 
@@ -80,6 +91,10 @@ def _get_whl_testdata(name="fake_package", version="1.0"):
     temp_f = io.BytesIO()
     with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
         zfp.writestr(f"{name}-{version}.dist-info/METADATA", "Fake metadata")
+        zfp.writestr(f"{name}-{version}.dist-info/licenses/LICENSE.MIT", "Fake License")
+        zfp.writestr(
+            f"{name}-{version}.dist-info/licenses/LICENSE.APACHE", "Fake License"
+        )
     return temp_f.getvalue()
 
 
@@ -96,6 +111,12 @@ _TAR_BZ2_PKG_TESTDATA = _get_tar_testdata("bz2")
 _TAR_BZ2_PKG_MD5 = hashlib.md5(_TAR_BZ2_PKG_TESTDATA).hexdigest()
 _TAR_BZ2_PKG_SHA256 = hashlib.sha256(_TAR_BZ2_PKG_TESTDATA).hexdigest()
 _TAR_BZ2_PKG_STORAGE_HASH = _storage_hash(_TAR_BZ2_PKG_TESTDATA)
+
+
+_ZIP_PKG_TESTDATA = _get_zip_testdata()
+_ZIP_PKG_MD5 = hashlib.md5(_ZIP_PKG_TESTDATA).hexdigest()
+_ZIP_PKG_SHA256 = hashlib.sha256(_ZIP_PKG_TESTDATA).hexdigest()
+_ZIP_PKG_STORAGE_HASH = _storage_hash(_ZIP_PKG_TESTDATA)
 
 
 class TestExcWithMessage:
@@ -2877,7 +2898,7 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         filename = f"{filename_prefix}-{version}.tar.gz"
-        filebody = _get_whl_testdata(name=project_name, version=version)
+        filebody = _TAR_GZ_PKG_TESTDATA
 
         @pretend.call_recorder
         def storage_service_store(path, file_path, *, meta):
@@ -4707,6 +4728,261 @@ class TestFileUpload:
             assert send_email.calls == []
             if not warning_already_sent:
                 assert not warning_exists
+
+    @pytest.mark.parametrize(
+        ("version", "expected_version", "filetype", "mimetype"),
+        [
+            ("1.0", "1.0", "sdist", "application/tar"),
+            ("v1.0", "1.0", "sdist", "application/tar"),
+            ("1.0", "1.0", "sdist", "application/zip"),
+            ("v1.0", "1.0", "sdist", "application/zip"),
+            ("1.0", "1.0", "bdist_wheel", "application/zip"),
+            ("v1.0", "1.0", "bdist_wheel", "application/zip"),
+        ],
+    )
+    def test_upload_succeeds_creates_release_metadata_2_4(
+        self,
+        pyramid_config,
+        db_request,
+        metrics,
+        monkeypatch,
+        version,
+        expected_version,
+        filetype,
+        mimetype,
+    ):
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+
+        if filetype == "sdist":
+            if mimetype == "application/tar":
+                filename = "{}-{}.tar.gz".format(project.name, "1.0")
+                digest = _TAR_GZ_PKG_MD5
+                data = _TAR_GZ_PKG_TESTDATA
+            elif mimetype == "application/zip":
+                filename = "{}-{}.zip".format(project.name, "1.0")
+                digest = _ZIP_PKG_MD5
+                data = _ZIP_PKG_TESTDATA
+        elif filetype == "bdist_wheel":
+            filename = "{}-{}-py3-none-any.whl".format(project.name, "1.0")
+            data = _get_whl_testdata(name=project.name, version="1.0")
+            digest = hashlib.md5(data).hexdigest()
+            monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "2.4",
+                "name": project.name,
+                "version": version,
+                "summary": "This is my summary!",
+                "filetype": filetype,
+                "md5_digest": digest,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(data),
+                    type=mimetype,
+                ),
+            }
+        )
+        db_request.POST.extend(
+            [
+                ("license_expression", "MIT OR Apache-2.0"),
+                ("license_files", "LICENSE.APACHE"),
+                ("license_files", "LICENSE.MIT"),
+            ]
+        )
+        if filetype == "bdist_wheel":
+            db_request.POST.extend([("pyversion", "py3")])
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        # Ensure that a Release object has been created.
+        release = (
+            db_request.db.query(Release)
+            .filter(
+                (Release.project == project) & (Release.version == expected_version)
+            )
+            .one()
+        )
+        assert release.summary == "This is my summary!"
+        assert release.version == expected_version
+        assert release.canonical_version == "1"
+        assert release.uploaded_via == "warehouse-tests/6.6.6"
+        assert release.license_expression == "MIT OR Apache-2.0"
+        assert set(release.license_files) == {
+            "LICENSE.APACHE",
+            "LICENSE.MIT",
+        }
+
+        # Ensure that a File object has been created.
+        db_request.db.query(File).filter(
+            (File.release == release) & (File.filename == filename)
+        ).one()
+
+        # Ensure that a Filename object has been created.
+        db_request.db.query(Filename).filter(Filename.filename == filename).one()
+
+    @pytest.mark.parametrize(
+        ("version", "expected_version", "filetype", "mimetype"),
+        [
+            ("1.0", "1.0", "sdist", "application/tar"),
+            ("v1.0", "1.0", "sdist", "application/tar"),
+            ("1.0", "1.0", "sdist", "application/zip"),
+            ("v1.0", "1.0", "sdist", "application/zip"),
+            ("1.0", "1.0", "bdist_wheel", "application/zip"),
+            ("v1.0", "1.0", "bdist_wheel", "application/zip"),
+        ],
+    )
+    def test_upload_fails_missing_license_file_metadata_2_4(
+        self,
+        pyramid_config,
+        db_request,
+        metrics,
+        monkeypatch,
+        version,
+        expected_version,
+        filetype,
+        mimetype,
+    ):
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+
+        if filetype == "sdist":
+            if mimetype == "application/tar":
+                filename = "{}-{}.tar.gz".format(project.name, "1.0")
+                digest = _TAR_GZ_PKG_MD5
+                data = _TAR_GZ_PKG_TESTDATA
+            elif mimetype == "application/zip":
+                filename = "{}-{}.zip".format(project.name, "1.0")
+                digest = _ZIP_PKG_MD5
+                data = _ZIP_PKG_TESTDATA
+            license_filename = "LICENSE"
+        elif filetype == "bdist_wheel":
+            filename = "{}-{}-py3-none-any.whl".format(project.name, "1.0")
+            data = _get_whl_testdata(name=project.name, version="1.0")
+            digest = hashlib.md5(data).hexdigest()
+            monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+            license_filename = f"{project.name}-1.0.dist-info/licenses/LICENSE"
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "2.4",
+                "name": project.name,
+                "version": version,
+                "summary": "This is my summary!",
+                "filetype": filetype,
+                "md5_digest": digest,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(data),
+                    type=mimetype,
+                ),
+            }
+        )
+        db_request.POST.extend(
+            [
+                ("license_expression", "MIT OR Apache-2.0"),
+                ("license_files", "LICENSE"),  # Does not exist in test data
+                ("license_files", "LICENSE.MIT"),
+            ]
+        )
+        if filetype == "bdist_wheel":
+            db_request.POST.extend([("pyversion", "py3")])
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status == (
+            f"400 License-File {license_filename} does not exist "
+            f"in distribution file {filename}"
+        )
+
+    def test_upload_fails_when_license_and_license_expression_are_present(
+        self,
+        pyramid_config,
+        db_request,
+        metrics,
+    ):
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}-py3-none-any.whl".format(project.name, "1.0")
+        data = _get_whl_testdata(name=project.name, version="1.0")
+        digest = hashlib.md5(data).hexdigest()
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "2.4",
+                "name": project.name,
+                "version": "1.0",
+                "summary": "This is my summary!",
+                "filetype": "bdist_wheel",
+                "md5_digest": digest,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(data),
+                    type="application/zip",
+                ),
+            }
+        )
+        db_request.POST.extend(
+            [
+                ("license_expression", "MIT OR Apache-2.0"),
+                ("license", "MIT LICENSE or Apache-2.0 License"),
+            ]
+        )
+        db_request.POST.extend([("pyversion", "py3")])
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status == (
+            "400 License is deprecated when License-Expression is present. "
+            "Only License-Expression should be present. "
+            "See https://packaging.python.org/specifications/core-metadata "
+            "for more information."
+        )
 
 
 def test_submit(pyramid_request):
