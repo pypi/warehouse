@@ -21,8 +21,6 @@ API token, Trusted Publishing and attestations are **not** a substitute
 for essential security practices like limiting who can trigger your publishing
 workflows.
 
-[Trusted Publishers - Security Model and Considerations]: /trusted-publishers/security-model/
-
 ### "Keyless" signing with Sigstore
 
 !!! tip
@@ -88,6 +86,8 @@ from Rekor, as well as an inclusion proof from Fulcio's CT log.
 [Trusted Publishing]: /trusted-publishers/
 
 [Sigstore's "keyless signing"]: https://docs.sigstore.dev/cosign/signing/overview/
+
+[Trusted Publishers - Security Model and Considerations]: /trusted-publishers/security-model/
 
 [Trusted Publishers]: /trusted-publishers/
 
