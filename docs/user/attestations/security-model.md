@@ -76,7 +76,7 @@ in the Fulcio CA:
   Fulcio-issued certificate does not sign
 
 Put together, these transparency mechanisms attenuate the trust placed
-in Fulcio by making Fulcio's honesty *cryptographically auditable and
+in Fulcio by making Fulcio's integrity *cryptographically auditable and
 verifiable*.
 
 PyPI's attestations feature makes full use of these trust-reduction techniques:
