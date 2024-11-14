@@ -200,6 +200,38 @@ stored ID and fails if they don't match. Through this process, only the original
 GitHub user remains authorized to publish to their PyPI projects, even if they
 change their username or delete their account.
 
+### How do I become a Trusted Publisher?
+If you are an operator of a hosted compute service or are a CI provider, you
+may want PyPI to support your platform or service as a Trusted Publisher.
+
+There are three primary requirements for adding a new Trusted Publisher
+platform to PyPI:
+
+1. **OIDC Identity Provider**: Trusted Publishing relies on a given platform
+   operating an identity provider using the [OpenID Connect] specification.
+   Other forms of identity providers are not eligible.
+
+1. **Reasonable OIDC claim set**: Your OIDC claims must sufficiently identify a
+   unique workload that may be scoped to a PyPI project or set of projects.
+   These claims must support the prevention of resurrection attacks, meaning
+   that reusable or mutatable claims (such as a repository or project name)
+   must be backed by an immutable and guaranteed unique identifier (such as a
+   numeric ID).  Additionally, the claimset must support a customizable `aud`
+   claim that can be set to the value `pypi`. Identity providers that don't
+   meet this standard for claims are not eligible.
+
+1. **Reliability & notability**: The effort necessary to integrate with a new
+   Trusted Publisher is not exceptional, but not trivial either. In the
+   interest of making the best use of PyPI's finite resources, we only plan to
+   support platforms that have a reasonable level of usage among PyPI users for
+   publishing. Additionally, we have high standards for overall reliability and
+   security in the operation of a supported Identity Provider: in practice,
+   this means that a home-grown or personal use IdP will not be eligible.
+
+If you feel as if your platform sufficiently meets these requirements, we
+encourage you to [file an issue] requesting Trusted Publisher support for your
+platform or service.
+
 [OpenID Connect]: https://openid.net/connect/
 
 [account resurrection attacks]:
@@ -210,3 +242,5 @@ change their username or delete their account.
 [JSON Web Tokens]: https://en.wikipedia.org/wiki/JSON_Web_Token
 
 [GitHub's secret scanning system]: https://docs.github.com/en/code-security/secret-scanning/about-secret-scanning
+
+[file an issue]: https://github.com/pypi/warehouse/issues/new?template=feature-request.md
