@@ -107,7 +107,7 @@ _Dustin Ingram is a maintainer of the Python Package Index._
 [Trusted Publishing]: https://docs.pypi.org/trusted-publishers/
 [deprecation and removal of PGP signatures]: https://blog.pypi.org/posts/2023-05-23-removing-pgp/
 [pypa/gh-action-pypi-publish]: https://github.com/pypa/gh-action-pypi-publish
-[Attestations: a new generation of signatures on PyPI]: https://blog.trailofbits.com/2024/11/14/attestations-a-new-generation-of-signatures-on-pypi
+[Attestations: a new generation of signatures on PyPI]: https://blog.trailofbits.com/2024/11/14/attestations-a-new-generation-of-signatures-on-pypi/
 [Integrity API]: https://docs.pypi.org/api/integrity/
 [we announced last year]: 2023-04-20-introducing-trusted-publishers.md
 [we found that many signatures were not verifiable]: https://blog.yossarian.net/2023/05/21/PGP-signatures-on-PyPI-worse-than-useless
