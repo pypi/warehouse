@@ -93,6 +93,8 @@ Source Security Team, and much of the development work on PyPI and related
 tools was performed by [Trail of Bits], with special thanks to contributors
 [William Woodruff] and [Facundo Tuesca].
 
+Thanks to the the [Sigstore project] for their work popularizing identity-based signing, hosting a public-good transparency log, and continued support of the [Python client for Sigstore].
+
 Many thanks to [Sviatoslav Sydorenko] as well for his support and ongoing
 maintenence of the [pypa/gh-action-pypi-publish] action, as well his support
 for implementing PEP 740 in the action.
@@ -115,4 +117,6 @@ _Dustin Ingram is a maintainer of the Python Package Index._
 [Trail of Bits]: https://www.trailofbits.com/
 [William Woodruff]: https://github.com/woodruffw
 [Facundo Tuesca]: https://github.com/facutuesca
+[Sigstore project]: https://www.sigstore.dev/
+[Python client for Sigstore]: https://pypi.org/project/sigstore/
 [Sviatoslav Sydorenko]: https://github.com/webknjaz
