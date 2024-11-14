@@ -25,8 +25,8 @@ from warehouse.oidc.models._core import (
     OIDCPublisher,
     PendingOIDCPublisher,
     check_existing_jti,
-    verify_url_from_reference,
 )
+from warehouse.oidc.urls import verify_url_from_reference
 
 GITLAB_OIDC_ISSUER_URL = "https://gitlab.com"
 
