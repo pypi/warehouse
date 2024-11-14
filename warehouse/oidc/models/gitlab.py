@@ -293,6 +293,9 @@ class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):
         `gitlab.com/org/repo`. This does not apply to subpaths like
         `gitlab.com/org/repo.git/issues`, which do not redirect to the correct URL.
 
+        GitLab uses case-insensitive owner/repo slugs - so we perform a case-insensitive
+        comparison.
+
         In addition to the generic Trusted Publisher verification logic in
         the parent class, the GitLab Trusted Publisher allows URLs hosted
         on `gitlab.io` for the configured repository, i.e:
@@ -314,6 +317,10 @@ class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):
         | group/webshop                | https://group.gitlab.io/webshop          |
         | group/subgroup/project       | https://group.gitlab.io/subgroup/project |
         """
+        lowercase_base_url = self.publisher_base_url.lower()
+        if url.lower().startswith(lowercase_base_url):
+            url = lowercase_base_url + url[len(lowercase_base_url) :]
+
         url_for_generic_check = url.removesuffix("/").removesuffix(".git")
         if super().verify_url(url_for_generic_check):
             return True
@@ -330,6 +337,7 @@ class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):
             docs_url = f"https://{owner}.gitlab.io/{subgroup}{self.project}"
 
         return verify_url_from_reference(reference_url=docs_url, url=url)
+
 
 
 class PendingGitLabPublisher(GitLabPublisherMixin, PendingOIDCPublisher):

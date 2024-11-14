@@ -644,6 +644,12 @@ class TestGitLabPublisher:
                 f"https://owner.with.dot.gitlab.io/{PROJECT_NAME}",
                 True,
             ),
+            (
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://gitlab.com/{PROJECT_NAME.replace('e', 'E')}/{PROJECT_NAME.replace('r', 'R')}.git/",
+                True
+            ),
             (  # Unique domains are not supported
                 PROJECT_NAME,
                 NAMESPACE,
