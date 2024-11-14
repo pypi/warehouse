@@ -95,12 +95,6 @@
                   {% trans %}Download{% endtrans %}
                 </a>
               </li>
-              <li>
-                <a href="#copy-hash-modal-{{ file.id }}" class="dropdown__link">
-                  <i class="fa fa-hashtag" aria-hidden="true"></i>
-                  {% trans %}View Hashes{% endtrans %}
-                </a>
-              </li>
 
               <li>
                 {% set title = gettext("Delete file from") %}
@@ -209,9 +203,4 @@
     {{ confirm_button(gettext("Delete release"), gettext("Version"), "delete_version", release.version, additional_attributes="data-delete-confirm-target=button") }}
   </div>
 
-  {% if files %}
-  {% for file in files %}
-  {% include "warehouse:templates/includes/hash-modal.html" %}
-  {% endfor %}
-  {% endif %}
 {% endblock %}

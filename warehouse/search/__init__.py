@@ -92,7 +92,7 @@ def includeme(config):
         "verify_certs": True,
         "ca_certs": certifi.where(),
         "timeout": 0.5,
-        "retry_on_timeout": False,
+        "retry_on_timeout": True,
         "serializer": opensearchpy.serializer.serializer,
         "max_retries": 1,
     }

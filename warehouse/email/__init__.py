@@ -19,7 +19,7 @@ import pytz
 import sentry_sdk
 
 from celery.schedules import crontab
-from first import first
+from more_itertools import first_true
 from pyramid_mailer.exceptions import BadHeaders, EncodingError, InvalidMessage
 from sqlalchemy.exc import NoResultFound
 
@@ -36,7 +36,9 @@ from warehouse.metrics.interfaces import IMetricsService
 def _compute_recipient(user, email):
     # We want to try and use the user's name, then their username, and finally
     # nothing to display a "Friendly" name for the recipient.
-    return str(Address(first([user.name, user.username], default=""), addr_spec=email))
+    return str(
+        Address(first_true([user.name, user.username], default=""), addr_spec=email)
+    )
 
 
 def _redact_ip(request, email):

@@ -32,7 +32,7 @@ from webob.multidict import MultiDict
 
 from warehouse.utils import http
 
-SUPPORTED_METADATA_VERSIONS = {"1.0", "1.1", "1.2", "2.0", "2.1", "2.2", "2.3"}
+SUPPORTED_METADATA_VERSIONS = {"1.0", "1.1", "1.2", "2.0", "2.1", "2.2", "2.3", "2.4"}
 
 
 # Mapping of fields on a Metadata instance to any limits on the length of that
@@ -232,6 +232,19 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
                             f"Can't have direct dependency: {req}",
                         )
                     )
+
+    # Ensure that License and License-Expression are mutually exclusive
+    # See https://peps.python.org/pep-0639/#deprecate-license-field
+    if metadata.license and metadata.license_expression:
+        errors.append(
+            InvalidMetadata(
+                "license",
+                (
+                    "License is deprecated when License-Expression is present. "
+                    "Only License-Expression should be present."
+                ),
+            )
+        )
 
     # If we've collected any errors, then raise an ExceptionGroup containing them.
     if errors:

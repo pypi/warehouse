@@ -12,7 +12,6 @@
 import markupsafe
 import wtforms
 
-from warehouse import forms
 from warehouse.i18n import localize as _
 from warehouse.utils.project import PROJECT_NAME_RE
 
@@ -58,7 +57,7 @@ class PendingPublisherMixin:
         raise NotImplementedError
 
 
-class DeletePublisherForm(forms.Form):
+class DeletePublisherForm(wtforms.Form):
     __params__ = ["publisher_id"]
 
     publisher_id = wtforms.StringField(

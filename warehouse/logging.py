@@ -37,7 +37,7 @@ class StructlogFormatter(logging.Formatter):
                 "event": record.msg,
                 "thread": threading.get_ident(),
             }
-            record.msg = RENDERER(None, None, event_dict)
+            record.msg = RENDERER(None, record.levelname, event_dict)
 
         return super().format(record)
 

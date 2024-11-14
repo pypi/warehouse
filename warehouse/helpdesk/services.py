@@ -21,6 +21,8 @@ import typing
 
 from textwrap import dedent
 
+from pyramid_retry import RetryableException
+from requests.exceptions import RequestException
 from zope.interface import implementer
 
 from .interfaces import IHelpDeskService
@@ -93,15 +95,18 @@ class HelpScoutService:
         #
         # TODO: Ideally, we would cache this token for up to 48 hours and reuse it.
         #  For now, we'll just get a new token each time, since we're low enough volume.
-        resp = request.http.post(
-            "https://api.helpscout.net/v2/oauth2/token",
-            json={
-                "grant_type": "client_credentials",
-                "client_id": _app_id,
-                "client_secret": _app_secret,
-            },
-        )
-        resp.raise_for_status()
+        try:
+            resp = request.http.post(
+                "https://api.helpscout.net/v2/oauth2/token",
+                json={
+                    "grant_type": "client_credentials",
+                    "client_id": _app_id,
+                    "client_secret": _app_secret,
+                },
+            )
+            resp.raise_for_status()
+        except RequestException as e:
+            raise RetryableException from e
 
         return cls(
             session=request.http,
