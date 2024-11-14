@@ -647,8 +647,8 @@ class TestGitLabPublisher:
             (
                 PROJECT_NAME,
                 NAMESPACE,
-                f"https://gitlab.com/{PROJECT_NAME.replace('e', 'E')}/{PROJECT_NAME.replace('r', 'R')}.git/",
-                True
+                f"https://gitlab.com/{NAMESPACE.replace('e', 'E')}/{PROJECT_NAME.replace('r', 'R')}/",
+                True,
             ),
             (  # Unique domains are not supported
                 PROJECT_NAME,

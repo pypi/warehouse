@@ -339,7 +339,6 @@ class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):
         return verify_url_from_reference(reference_url=docs_url, url=url)
 
 
-
 class PendingGitLabPublisher(GitLabPublisherMixin, PendingOIDCPublisher):
     __tablename__ = "pending_gitlab_oidc_publishers"
     __mapper_args__ = {"polymorphic_identity": "pending_gitlab_oidc_publishers"}
