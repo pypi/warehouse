@@ -10,6 +10,39 @@ PyPI's support for attestations is built on top of a combination
 of [Trusted Publishing] and [Sigstore's "keyless signing"] ability.
 See below for security considerations for each.
 
+### Trustworthiness
+
+!!! note
+
+    TL;DR: An attestation will tell you **who** produced a
+    PyPI package, but not **whether** you should trust them.
+
+Like with all signing schemes, it's tempting to treat the *presence* of
+an attestation as proof of a package's *trustworthiness*.
+
+However, this is **not** what an attestation (or any kind of signature)
+conveys. At its core, a valid signature for some identity conveys a
+proof of **authenticity**: if the signature is verifiable against a key,
+then we know that the identity that controls that key produced the signature
+and is saying *something* about the signed-over data.
+
+In other words: a valid signature asserts **authenticity**, but it does **not**
+tell the verifying party (e.g., a user installing packages from PyPI) **whether**
+they should trust the identity that holds the key.
+
+As a concrete example: PyPI serves `sampleproject-4.0.0.tar.gz`, which is
+[attested] by [pypa/sampleproject] on GitHub. This is a proof that
+`sampleproject-4.0.0.tar.gz` is authentic for that identity, but it does **not**
+tell the user **whether** they should trust [pypa/sampleproject]. To determine
+trust, the user *must* make a trust decision about [pypa/sampleproject].
+
+This trust decision can have a time dimension: a user might decide to trust
+[pypa/sampleproject] because it was the first identity seen for the
+`sampleproject` name on PyPI. Then, if a new release of `sampleproject` is
+attested by a new identity ("`pypa/evil-sampleproject`") or has
+no attestation at all, the user can *observe the difference automatically* and
+begin to remediate it.
+
 ### Trusted Publishing
 
 Because attestations are tied to Trusted Publisher identities, all
@@ -102,3 +135,7 @@ from Rekor, as well as an inclusion proof from Fulcio's CT log.
 [Certificate Transparency]: https://certificate.transparency.dev/
 
 [Rekor]: https://docs.sigstore.dev/logging/overview/
+
+[attested]: https://pypi.org/project/sampleproject/#sampleproject-4.0.0.tar.gz
+
+[pypa/sampleproject]: https://github.com/pypa/sampleproject
