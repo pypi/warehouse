@@ -26,6 +26,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from warehouse import db
 from warehouse.oidc.errors import InvalidPublisherError, ReusedTokenError
 from warehouse.oidc.interfaces import SignedClaims
+from warehouse.oidc.urls import verify_url_from_reference
 
 if TYPE_CHECKING:
     from warehouse.accounts.models import User
@@ -363,23 +364,13 @@ class OIDCPublisherMixin:
             # Currently this only applies to the Google provider
             return False
         publisher_uri = rfc3986.api.uri_reference(self.publisher_base_url).normalize()
-        user_uri = rfc3986.api.uri_reference(url).normalize()
         if publisher_uri.path is None:
             # Currently no Trusted Publishers with a `publisher_base_url` have an empty
             # path component, so we defensively fail verification.
             return False
-        elif user_uri.path and publisher_uri.path:
-            is_subpath = (
-                publisher_uri.path == user_uri.path
-                or user_uri.path.startswith(publisher_uri.path + "/")
-            )
-        else:
-            is_subpath = publisher_uri.path == user_uri.path
-
-        return (
-            publisher_uri.scheme == user_uri.scheme
-            and publisher_uri.authority == user_uri.authority
-            and is_subpath
+        return verify_url_from_reference(
+            reference_url=self.publisher_base_url,
+            url=url,
         )
 
 

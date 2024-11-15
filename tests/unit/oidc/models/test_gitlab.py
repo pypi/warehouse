@@ -18,6 +18,9 @@ from tests.common.db.oidc import GitLabPublisherFactory, PendingGitLabPublisherF
 from warehouse.oidc import errors
 from warehouse.oidc.models import _core, gitlab
 
+PROJECT_NAME = "project_name"
+NAMESPACE = "project_owner"
+
 
 @pytest.mark.parametrize(
     ("ci_config_ref_uri", "expected"),
@@ -603,19 +606,105 @@ class TestGitLabPublisher:
             db_request.db.commit()
 
     @pytest.mark.parametrize(
-        ("url", "expected"),
+        ("project_name", "namespace", "url", "expected"),
         [
-            ("https://gitlab.com/repository_owner/repository_name.git", True),
-            ("https://gitlab.com/repository_owner/repository_name.git/", True),
-            ("https://gitlab.com/repository_owner/repository_name.git/issues", False),
-            ("https://gitlab.com/repository_OwNeR/RePoSiToRy_Name.git/", True),
-            ("https://gitlab.com/another_owner/repository_name/issues", False),
+            (
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://gitlab.com/{NAMESPACE}/{PROJECT_NAME}.git",
+                True,
+            ),
+            (
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://gitlab.com/{NAMESPACE}/{PROJECT_NAME}.git/",
+                True,
+            ),
+            (
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://gitlab.com/{NAMESPACE}/{PROJECT_NAME}.git/issues",
+                False,
+            ),
+            (
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://{NAMESPACE}.gitlab.io/{PROJECT_NAME}/",
+                True,
+            ),
+            (
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://{NAMESPACE}.gitlab.io/{PROJECT_NAME}/subpage/",
+                True,
+            ),
+            (
+                PROJECT_NAME,
+                "owner.with.dot",
+                f"https://owner.with.dot.gitlab.io/{PROJECT_NAME}",
+                True,
+            ),
+            (
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://gitlab.com/{NAMESPACE.replace('e', 'E')}/"
+                f"{PROJECT_NAME.replace('r', 'R')}/",
+                True,
+            ),
+            (  # Unique domains are not supported
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://{PROJECT_NAME}-123456.gitlab.io/",
+                False,
+            ),
+            # Project name is not properly formed
+            (PROJECT_NAME, NAMESPACE, f"https://{NAMESPACE}.gitlab.io/", False),
+            (
+                f"{NAMESPACE}.gitlab.io",
+                NAMESPACE,
+                f"https://{NAMESPACE}.gitlab.io",
+                True,
+            ),
+            (
+                f"{NAMESPACE}.gitlab.io",
+                NAMESPACE,
+                f"https://{NAMESPACE}.gitlab.io/",
+                True,
+            ),
+            (
+                f"{NAMESPACE}.gitlab.io",
+                NAMESPACE,
+                f"https://{NAMESPACE}.gitlab.io/subpage",
+                True,
+            ),
+            (  # Only for user/group own pages
+                "project_name.gitlab.io",
+                NAMESPACE,
+                f"https://{NAMESPACE}.gitlab.io/subpage",
+                False,
+            ),
+            (
+                "project",
+                "group/subgroup",
+                "https://group.gitlab.io/subgroup/project/",
+                True,
+            ),
+            (
+                "project",
+                "group/subgroup",
+                "https://group.gitlab.io/subgroup/project/about",
+                True,
+            ),
+            # The namespace should only contain 1 element
+            ("group.gitlab.io", "group/subgroup", "https://group.gitlab.io/", False),
         ],
     )
-    def test_gitlab_publisher_verify_url(self, url, expected):
+    def test_gitlab_publisher_verify_url(
+        self, project_name: str, namespace: str, url: str, expected: bool
+    ):
         publisher = gitlab.GitLabPublisher(
-            project="repository_name",
-            namespace="repository_owner",
+            project=project_name,
+            namespace=namespace,
             workflow_filepath="workflow_filename.yml",
             environment="",
         )

@@ -14,8 +14,6 @@ import re
 
 from typing import Any
 
-import rfc3986
-
 from sigstore.verify.policy import (
     AllOf,
     AnyOf,
@@ -36,6 +34,7 @@ from warehouse.oidc.models._core import (
     check_claim_binary,
     check_existing_jti,
 )
+from warehouse.oidc.urls import verify_url_from_reference
 
 GITHUB_OIDC_ISSUER_URL = "https://token.actions.githubusercontent.com"
 
@@ -368,7 +367,6 @@ class GitHubPublisher(GitHubPublisherMixin, OIDCPublisher):
         docs_url = (
             f"https://{self.repository_owner}.github.io/{self.repository_name}".lower()
         )
-
         normalized_url_prefixes = (self.publisher_base_url.lower(), docs_url)
         for prefix in normalized_url_prefixes:
             if url.lower().startswith(prefix):
@@ -379,20 +377,7 @@ class GitHubPublisher(GitHubPublisherMixin, OIDCPublisher):
         if super().verify_url(url_for_generic_check):
             return True
 
-        docs_uri = rfc3986.api.uri_reference(docs_url).normalize()
-        user_uri = rfc3986.api.uri_reference(url).normalize()
-
-        if not user_uri.path:
-            return False
-
-        is_subpath = docs_uri.path == user_uri.path or user_uri.path.startswith(
-            docs_uri.path + "/"
-        )
-        return (
-            docs_uri.scheme == user_uri.scheme
-            and docs_uri.authority == user_uri.authority
-            and is_subpath
-        )
+        return verify_url_from_reference(reference_url=docs_url, url=url)
 
 
 class PendingGitHubPublisher(GitHubPublisherMixin, PendingOIDCPublisher):
