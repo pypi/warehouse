@@ -771,7 +771,7 @@ class Release(HasObservations, db.Model):
         return _urls
 
     def verified_user_name_and_repo_name(
-        self, domains: set[str], reserved_names: typing.Sequence[str] | None = None
+        self, domains: set[str], reserved_names: typing.Collection[str] | None = None
     ):
         for _, url in self.urls_by_verify_status(verified=True).items():
             try:

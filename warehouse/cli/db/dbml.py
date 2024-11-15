@@ -12,7 +12,7 @@
 
 import json
 
-from collections.abc import Iterator
+from collections.abc import Iterable
 from typing import Literal, NotRequired, TypedDict
 
 import click
@@ -95,7 +95,7 @@ class TableInfo(TypedDict):
     comment: NotRequired[str]
 
 
-def generate_dbml_file(tables: Iterator[Table], _output: str | None) -> None:
+def generate_dbml_file(tables: Iterable[Table], _output: str | None) -> None:
     file = click.open_file(_output, "w") if _output else click.open_file("-", "w")
 
     tables_info = {}
