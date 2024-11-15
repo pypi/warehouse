@@ -1,2 +1,2 @@
 gunicorn==23.0.0
-ddtrace==2.16.0
+ddtrace==2.16.2
