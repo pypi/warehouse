@@ -1058,7 +1058,7 @@ msgstr "Monty Python - La Sceno de la Fromaĝobutiko"
 #: warehouse/templates/base.html:321 warehouse/templates/base.html:331
 #: warehouse/templates/base.html:344
 #: warehouse/templates/includes/accounts/profile-callout.html:18
-#: warehouse/templates/includes/hash-modal.html:23
+#: warehouse/templates/includes/file-details.html:94
 #: warehouse/templates/index.html:100 warehouse/templates/index.html:104
 #: warehouse/templates/manage/account.html:228
 #: warehouse/templates/manage/account.html:234
@@ -1068,12 +1068,12 @@ msgstr "Monty Python - La Sceno de la Fromaĝobutiko"
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/manage_base.html:208
-#: warehouse/templates/manage/project/release.html:144
-#: warehouse/templates/manage/project/release.html:200
+#: warehouse/templates/manage/project/release.html:138
+#: warehouse/templates/manage/project/release.html:194
 #: warehouse/templates/manage/project/releases.html:140
 #: warehouse/templates/manage/project/releases.html:179
-#: warehouse/templates/packaging/detail.html:405
-#: warehouse/templates/packaging/detail.html:424
+#: warehouse/templates/packaging/detail.html:407
+#: warehouse/templates/packaging/detail.html:427
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:228
@@ -1341,7 +1341,7 @@ msgstr "Ŝalti poŝaparatan version"
 #: warehouse/templates/manage/organization/settings.html:280
 #: warehouse/templates/manage/organization/settings.html:286
 #: warehouse/templates/manage/project/documentation.html:27
-#: warehouse/templates/manage/project/release.html:188
+#: warehouse/templates/manage/project/release.html:182
 #: warehouse/templates/manage/project/settings.html:87
 #: warehouse/templates/manage/project/settings.html:136
 #: warehouse/templates/manage/project/settings.html:357
@@ -3286,16 +3286,13 @@ msgstr "Fermi ĉi tiun sciigon"
 #: warehouse/templates/includes/flash-messages.html:33
 #: warehouse/templates/includes/flash-messages.html:40
 #: warehouse/templates/includes/flash-messages.html:51
-#: warehouse/templates/includes/hash-modal.html:17
-#: warehouse/templates/includes/hash-modal.html:19
-#: warehouse/templates/includes/hash-modal.html:68
 #: warehouse/templates/includes/session-notifications.html:40
 #: warehouse/templates/manage/account.html:199
 #: warehouse/templates/manage/account.html:201
 #: warehouse/templates/manage/account.html:211
 #: warehouse/templates/manage/manage_base.html:329
 #: warehouse/templates/manage/manage_base.html:331
-#: warehouse/templates/manage/project/release.html:143
+#: warehouse/templates/manage/project/release.html:137
 #: warehouse/templates/manage/project/releases.html:178
 #: warehouse/templates/manage/project/settings.html:72
 #: warehouse/templates/manage/unverified-account.html:172
@@ -3337,51 +3334,65 @@ msgstr "Agordoj pri la konto"
 msgid "Public profile"
 msgstr "Publika profilo"
 
-#: warehouse/templates/includes/flash-messages.html:19
-msgid "Error"
-msgstr "Eraro"
+#: warehouse/templates/includes/file-details.html:27
+#, fuzzy
+#| msgid "Account details"
+msgid "File details"
+msgstr "Detaloj pri konto"
 
-#: warehouse/templates/includes/flash-messages.html:48
-msgid "Success"
-msgstr "Sukceso"
-
-#: warehouse/templates/includes/hash-modal.html:23
+#: warehouse/templates/includes/file-details.html:38
 #, python-format
-msgid ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Hashes</a> for %(filename)s"
+msgid "Upload date: %(upload_time)s"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Haketaĵoj</a> de %(filename)s"
 
-#: warehouse/templates/includes/hash-modal.html:28
+#: warehouse/templates/includes/file-details.html:39
+#, python-format
+msgid "Size: %(size)s"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:40
+#, python-format
+msgid "Tags: %(tags)s"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:42
+#, python-format
+msgid "Uploaded using Trusted Publishing? %(is_tp)s"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:47
+#, python-format
+msgid "Uploaded via: %(uploaded_via)s"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:55
 #, python-format
 msgid "Hashes for %(filename)s"
 msgstr "Haketaĵoj de %(filename)s"
 
-#: warehouse/templates/includes/hash-modal.html:31
+#: warehouse/templates/includes/file-details.html:58
 msgid "Algorithm"
 msgstr "Algoritmo"
 
-#: warehouse/templates/includes/hash-modal.html:32
+#: warehouse/templates/includes/file-details.html:59
 msgid "Hash digest"
 msgstr "Haketaĵa digesto"
 
-#: warehouse/templates/includes/hash-modal.html:41
-#: warehouse/templates/includes/hash-modal.html:50
-#: warehouse/templates/includes/hash-modal.html:59
+#: warehouse/templates/includes/file-details.html:68
+#: warehouse/templates/includes/file-details.html:77
+#: warehouse/templates/includes/file-details.html:86
 #: warehouse/templates/manage/account.html:206
 #: warehouse/templates/manage/account/recovery_codes-provision.html:58
 #: warehouse/templates/manage/account/totp-provision.html:57
 #: warehouse/templates/manage/unverified-account.html:179
-#: warehouse/templates/packaging/detail.html:165
+#: warehouse/templates/packaging/detail.html:167
 #: warehouse/templates/pages/classifiers.html:38
 msgid "Copy to clipboard"
 msgstr "Kopii en tondujon"
 
-#: warehouse/templates/includes/hash-modal.html:42
-#: warehouse/templates/includes/hash-modal.html:51
-#: warehouse/templates/includes/hash-modal.html:60
+#: warehouse/templates/includes/file-details.html:69
+#: warehouse/templates/includes/file-details.html:78
+#: warehouse/templates/includes/file-details.html:87
 #: warehouse/templates/manage/account.html:207
 #: warehouse/templates/manage/account/recovery_codes-provision.html:59
 #: warehouse/templates/manage/account/totp-provision.html:58
@@ -3389,6 +3400,26 @@ msgstr "Kopii en tondujon"
 #: warehouse/templates/pages/classifiers.html:39
 msgid "Copy"
 msgstr "Kopii"
+
+#: warehouse/templates/includes/file-details.html:94
+#, fuzzy, python-format
+#| msgid ""
+#| "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+#| "rel=\"noopener\">Hashes</a> for %(filename)s"
+msgid ""
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">See more details on using hashes here.</a>"
+msgstr ""
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">Haketaĵoj</a> de %(filename)s"
+
+#: warehouse/templates/includes/flash-messages.html:19
+msgid "Error"
+msgstr "Eraro"
+
+#: warehouse/templates/includes/flash-messages.html:48
+msgid "Success"
+msgstr "Sukceso"
 
 #: warehouse/templates/includes/manage-project-button.html:16
 msgid "Manage project"
@@ -3627,14 +3658,14 @@ msgid "Meta"
 msgstr "Metadateno"
 
 #: warehouse/templates/includes/packaging/project-data.html:164
-#: warehouse/templates/includes/packaging/project-data.html:212
-#: warehouse/templates/includes/packaging/project-data.html:218
+#: warehouse/templates/includes/packaging/project-data.html:225
+#: warehouse/templates/includes/packaging/project-data.html:231
 msgid "Author:"
 msgstr "Aŭtoro:"
 
 #: warehouse/templates/includes/packaging/project-data.html:171
-#: warehouse/templates/includes/packaging/project-data.html:225
-#: warehouse/templates/includes/packaging/project-data.html:231
+#: warehouse/templates/includes/packaging/project-data.html:238
+#: warehouse/templates/includes/packaging/project-data.html:244
 #: warehouse/templates/pages/help.html:620
 msgid "Maintainer:"
 msgstr "Prizorganto:"
@@ -3650,22 +3681,30 @@ msgid "These details have <b>not</b> been verified by PyPI"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:205
+msgid "License Expression:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:210
+msgid "License Expression"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:218
 msgid "License:"
 msgstr "Permesilo:"
 
-#: warehouse/templates/includes/packaging/project-data.html:239
+#: warehouse/templates/includes/packaging/project-data.html:252
 msgid "Tags"
 msgstr "Etikedoj"
 
-#: warehouse/templates/includes/packaging/project-data.html:251
+#: warehouse/templates/includes/packaging/project-data.html:264
 msgid "Requires:"
 msgstr "Postulas:"
 
-#: warehouse/templates/includes/packaging/project-data.html:258
+#: warehouse/templates/includes/packaging/project-data.html:271
 msgid "Provides-Extra:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:268
+#: warehouse/templates/includes/packaging/project-data.html:281
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
@@ -5366,15 +5405,6 @@ msgstr "Ne valida restaŭra kodo."
 msgid "(optional)"
 msgstr "Kialo (ne deviga)"
 
-#: warehouse/templates/manage/account/publishing.html:118
-#: warehouse/templates/manage/account/publishing.html:224
-#: warehouse/templates/manage/project/publishing.html:109
-#: warehouse/templates/manage/project/publishing.html:201
-#, fuzzy
-#| msgid "Releases"
-msgid "release"
-msgstr "Eldonoj"
-
 #: warehouse/templates/manage/account/publishing.html:124
 #: warehouse/templates/manage/project/publishing.html:115
 #, python-format
@@ -5438,7 +5468,7 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:187
 #: warehouse/templates/manage/project/documentation.html:35
 #: warehouse/templates/manage/project/publishing.html:164
-#: warehouse/templates/manage/project/release.html:129
+#: warehouse/templates/manage/project/release.html:123
 #: warehouse/templates/pages/stats.html:73
 msgid "Project name"
 msgstr "Nomo de projekto"
@@ -5472,6 +5502,14 @@ msgid ""
 "This file should exist in the project configured above (external pipelines "
 "are not supported)."
 msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:224
+#: warehouse/templates/manage/project/publishing.html:109
+#: warehouse/templates/manage/project/publishing.html:201
+#, fuzzy
+#| msgid "Releases"
+msgid "release"
+msgstr "Eldonoj"
 
 #: warehouse/templates/manage/account/publishing.html:226
 #: warehouse/templates/manage/project/publishing.html:203
@@ -6668,7 +6706,7 @@ msgid "Delete expired invitation for %(user)s"
 msgstr "Eksvalidigi inviton por %(user)s"
 
 #: warehouse/templates/manage/organization/roles.html:252
-#: warehouse/templates/manage/project/release.html:112
+#: warehouse/templates/manage/project/release.html:106
 #: warehouse/templates/manage/project/releases.html:109
 #: warehouse/templates/manage/project/settings.html:252
 msgid "Delete"
@@ -7025,7 +7063,7 @@ msgstr "Dosiero forigita for de la eldono de la versio %(version)s"
 
 #: warehouse/templates/manage/project/history.html:94
 #: warehouse/templates/manage/project/history.html:125
-#: warehouse/templates/manage/project/release.html:118
+#: warehouse/templates/manage/project/release.html:112
 msgid "Filename:"
 msgstr "Dosiernomo:"
 
@@ -7231,14 +7269,14 @@ msgid "Back to projects"
 msgstr "Reen al projektoj"
 
 #: warehouse/templates/manage/project/manage_project_base.html:70
-#: warehouse/templates/packaging/detail.html:300
+#: warehouse/templates/packaging/detail.html:302
 #, fuzzy
 #| msgid "This project has no releases"
 msgid "This project has been quarantined."
 msgstr "Ĉi tiu projekto ne havas eldonojn"
 
 #: warehouse/templates/manage/project/manage_project_base.html:72
-#: warehouse/templates/packaging/detail.html:302
+#: warehouse/templates/packaging/detail.html:304
 msgid ""
 "PyPI Admins need to review this project before it can be restored. While in "
 "quarantine, the project is not installable by clients, and cannot be being "
@@ -7246,7 +7284,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/project/manage_project_base.html:79
-#: warehouse/templates/packaging/detail.html:309
+#: warehouse/templates/packaging/detail.html:311
 #, fuzzy, python-format
 #| msgid "Invitation for '${project_name}' is declined."
 msgid ""
@@ -7349,25 +7387,21 @@ msgstr "Opcioj pri dosiero"
 msgid "Download"
 msgstr "Elŝuti"
 
-#: warehouse/templates/manage/project/release.html:101
-msgid "View Hashes"
-msgstr "Vidi Haketaĵojn"
-
-#: warehouse/templates/manage/project/release.html:106
+#: warehouse/templates/manage/project/release.html:100
 msgid "Delete file from"
 msgstr "Forigi dosieron for de"
 
-#: warehouse/templates/manage/project/release.html:108
+#: warehouse/templates/manage/project/release.html:102
 msgid "Delete file"
 msgstr "Forigi dosieron"
 
-#: warehouse/templates/manage/project/release.html:120
+#: warehouse/templates/manage/project/release.html:114
 msgid ""
 "I understand that my users will no longer be able to install this file for "
 "this release of this project."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:121
+#: warehouse/templates/manage/project/release.html:115
 #, python-format
 msgid ""
 "I understand that I will <a href=%(href)s target=\"_blank\" "
@@ -7375,32 +7409,32 @@ msgid ""
 "a> %(filename)s."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:122
-#: warehouse/templates/manage/project/release.html:205
+#: warehouse/templates/manage/project/release.html:116
+#: warehouse/templates/manage/project/release.html:199
 msgid "I understand that I will not be able to undo this."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:123
-#: warehouse/templates/manage/project/release.html:206
+#: warehouse/templates/manage/project/release.html:117
+#: warehouse/templates/manage/project/release.html:200
 msgid ""
 "I understand that the PyPI administrators will not be able to undo this."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:139
+#: warehouse/templates/manage/project/release.html:133
 msgid "Uploading new files"
 msgstr "Alŝuto de novaj dosieroj"
 
-#: warehouse/templates/manage/project/release.html:141
+#: warehouse/templates/manage/project/release.html:135
 msgid "No files found"
 msgstr "Neniu dosiero trovita"
 
-#: warehouse/templates/manage/project/release.html:143
+#: warehouse/templates/manage/project/release.html:137
 #: warehouse/templates/manage/project/releases.html:178
 #: warehouse/templates/manage/project/settings.html:72
 msgid "Dismiss"
 msgstr "Fermi"
 
-#: warehouse/templates/manage/project/release.html:144
+#: warehouse/templates/manage/project/release.html:138
 #, python-format
 msgid ""
 "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -7409,17 +7443,17 @@ msgstr ""
 "Lernu kiel alŝuti dosierojn per la <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Manlibro de Python-Uzanto pri Pakado</a>"
 
-#: warehouse/templates/manage/project/release.html:147
+#: warehouse/templates/manage/project/release.html:141
 msgid "Release settings"
 msgstr "Agordoj pri eldono"
 
-#: warehouse/templates/manage/project/release.html:151
-#: warehouse/templates/manage/project/release.html:181
+#: warehouse/templates/manage/project/release.html:145
+#: warehouse/templates/manage/project/release.html:175
 #: warehouse/templates/manage/project/releases.html:123
 msgid "Yank release"
 msgstr "Fortiri eldonon"
 
-#: warehouse/templates/manage/project/release.html:154
+#: warehouse/templates/manage/project/release.html:148
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -7448,7 +7482,7 @@ msgstr[1] ""
 "ignoriĝos dum instalado, por la plejparto de la kazoj.\n"
 "        "
 
-#: warehouse/templates/manage/project/release.html:160
+#: warehouse/templates/manage/project/release.html:154
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -7464,7 +7498,7 @@ msgstr ""
 "plejparto de la kazoj.\n"
 "        "
 
-#: warehouse/templates/manage/project/release.html:164
+#: warehouse/templates/manage/project/release.html:158
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -7481,7 +7515,7 @@ msgstr ""
 "ekzanta versio, ekz. per <code>%(project_name)s==%(version)s</code>.\n"
 "      "
 
-#: warehouse/templates/manage/project/release.html:167
+#: warehouse/templates/manage/project/release.html:161
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -7493,7 +7527,7 @@ msgstr ""
 "        Por pli da informo, vidu <a href=\"%(href)s\">PEP 592</a>.\n"
 "      "
 
-#: warehouse/templates/manage/project/release.html:174
+#: warehouse/templates/manage/project/release.html:168
 #: warehouse/templates/manage/project/releases.html:126
 #, fuzzy, python-format
 #| msgid ""
@@ -7512,13 +7546,13 @@ msgstr ""
 "code>.\n"
 "          "
 
-#: warehouse/templates/manage/project/release.html:178
+#: warehouse/templates/manage/project/release.html:172
 #: warehouse/templates/manage/project/releases.html:130
 msgid "Reason (optional)"
 msgstr "Kialo (ne deviga)"
 
-#: warehouse/templates/manage/project/release.html:181
-#: warehouse/templates/manage/project/release.html:209
+#: warehouse/templates/manage/project/release.html:175
+#: warehouse/templates/manage/project/release.html:203
 #: warehouse/templates/manage/project/releases.html:23
 #: warehouse/templates/manage/project/releases.html:120
 #: warehouse/templates/manage/project/releases.html:133
@@ -7526,13 +7560,13 @@ msgstr "Kialo (ne deviga)"
 msgid "Version"
 msgstr "Versio"
 
-#: warehouse/templates/manage/project/release.html:186
-#: warehouse/templates/manage/project/release.html:209
+#: warehouse/templates/manage/project/release.html:180
+#: warehouse/templates/manage/project/release.html:203
 #: warehouse/templates/manage/project/releases.html:136
 msgid "Delete release"
 msgstr "Forigi eldonon"
 
-#: warehouse/templates/manage/project/release.html:190
+#: warehouse/templates/manage/project/release.html:184
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -7559,18 +7593,18 @@ msgstr[1] ""
 "%(count)s dosieroj.\n"
 "      "
 
-#: warehouse/templates/manage/project/release.html:196
+#: warehouse/templates/manage/project/release.html:190
 msgid "Deleting will irreversibly delete this release."
 msgstr "Forigo kaŭzos nemalfareblan perdon de ĉi tiu eldono."
 
-#: warehouse/templates/manage/project/release.html:198
+#: warehouse/templates/manage/project/release.html:192
 #: warehouse/templates/manage/project/releases.html:138
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
 "the same version number."
 msgstr "Vi ne povos realŝuti novan samspecan distribuon de la sama versio."
 
-#: warehouse/templates/manage/project/release.html:199
+#: warehouse/templates/manage/project/release.html:193
 #: warehouse/templates/manage/project/releases.html:139
 msgid ""
 "Deletion will break any downstream projects relying on a pinned version of "
@@ -7581,7 +7615,7 @@ msgstr ""
 "pako. Ĝi estu lasta rimedo por trakti jurajn problemojn aŭ por forigi "
 "fiaĵojn."
 
-#: warehouse/templates/manage/project/release.html:200
+#: warehouse/templates/manage/project/release.html:194
 #: warehouse/templates/manage/project/releases.html:140
 #, python-format
 msgid ""
@@ -7595,20 +7629,20 @@ msgstr ""
 "href=\"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">posteldonon</a> anstataŭe."
 
-#: warehouse/templates/manage/project/release.html:202
+#: warehouse/templates/manage/project/release.html:196
 #, python-format
 msgid ""
 "I understand that I am permanently deleting all files for the "
 "%(release_version)s release of this project."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:203
+#: warehouse/templates/manage/project/release.html:197
 msgid ""
 "I understand that my users will no longer be able to install this release of "
 "this project."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:204
+#: warehouse/templates/manage/project/release.html:198
 #, python-format
 msgid ""
 "I understand that I will <a href=\"%(href)s\" target=\"_blank\" "
@@ -8350,138 +8384,138 @@ msgstr "Profilo de %(username)s"
 msgid "%(org)s has not uploaded any projects to PyPI, yet"
 msgstr "%(user)s ankoraŭ eldonis neniun al PyPI, sed"
 
-#: warehouse/templates/packaging/detail.html:108
+#: warehouse/templates/packaging/detail.html:109
 #, fuzzy
-#| msgid "View Hashes"
-msgid "view hashes"
-msgstr "Vidi Haketaĵojn"
+#| msgid "Unverified"
+msgid "view details"
+msgstr "Ne kontrolita"
 
-#: warehouse/templates/packaging/detail.html:126
+#: warehouse/templates/packaging/detail.html:128
 #, python-format
 msgid "RSS: latest releases for %(project_name)s"
 msgstr "RSS: plej novaj eldonoj de %(project_name)s"
 
-#: warehouse/templates/packaging/detail.html:167
+#: warehouse/templates/packaging/detail.html:169
 msgid "Copy PIP instructions"
 msgstr "Kopii instrukcion por PIP"
 
-#: warehouse/templates/packaging/detail.html:178
+#: warehouse/templates/packaging/detail.html:180
 #, fuzzy
 #| msgid "This project has no releases"
 msgid "This project has been quarantined"
 msgstr "Ĉi tiu projekto ne havas eldonojn"
 
-#: warehouse/templates/packaging/detail.html:184
+#: warehouse/templates/packaging/detail.html:186
 msgid "This release has been yanked"
 msgstr "Ĉi tiu eldono estis fortirita"
 
-#: warehouse/templates/packaging/detail.html:190
+#: warehouse/templates/packaging/detail.html:192
 #, python-format
 msgid "Stable version available (%(version)s)"
 msgstr "Stabila versio havebla (%(version)s)"
 
-#: warehouse/templates/packaging/detail.html:194
+#: warehouse/templates/packaging/detail.html:196
 #, python-format
 msgid "Newer version available (%(version)s)"
 msgstr "Pli nova versio havebla (%(version)s)"
 
-#: warehouse/templates/packaging/detail.html:198
+#: warehouse/templates/packaging/detail.html:200
 msgid "Latest version"
 msgstr "Plej nova versio"
 
-#: warehouse/templates/packaging/detail.html:203
+#: warehouse/templates/packaging/detail.html:205
 #, python-format
 msgid "Released: %(release_date)s"
 msgstr "Eldonita je: %(release_date)s"
 
-#: warehouse/templates/packaging/detail.html:217
+#: warehouse/templates/packaging/detail.html:219
 msgid "No project description provided"
 msgstr "Neniu projekta priskribo donita"
 
-#: warehouse/templates/packaging/detail.html:230
+#: warehouse/templates/packaging/detail.html:232
 msgid "Navigation"
 msgstr "Navigilo"
 
-#: warehouse/templates/packaging/detail.html:231
-#: warehouse/templates/packaging/detail.html:265
+#: warehouse/templates/packaging/detail.html:233
+#: warehouse/templates/packaging/detail.html:267
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr "Navigilo por %(project)s"
 
-#: warehouse/templates/packaging/detail.html:234
-#: warehouse/templates/packaging/detail.html:268
+#: warehouse/templates/packaging/detail.html:236
+#: warehouse/templates/packaging/detail.html:270
 msgid "Project description. Focus will be moved to the description."
 msgstr "La priskribo de la projekto. Fokuso moviĝos al la priskribo."
 
-#: warehouse/templates/packaging/detail.html:236
-#: warehouse/templates/packaging/detail.html:270
-#: warehouse/templates/packaging/detail.html:320
+#: warehouse/templates/packaging/detail.html:238
+#: warehouse/templates/packaging/detail.html:272
+#: warehouse/templates/packaging/detail.html:322
 msgid "Project description"
 msgstr "Priskribo de la projekto"
 
-#: warehouse/templates/packaging/detail.html:240
-#: warehouse/templates/packaging/detail.html:280
+#: warehouse/templates/packaging/detail.html:242
+#: warehouse/templates/packaging/detail.html:282
 msgid "Release history. Focus will be moved to the history panel."
 msgstr "La historio de eldonoj. Fokuso moviĝos al la historipanelo."
 
-#: warehouse/templates/packaging/detail.html:242
-#: warehouse/templates/packaging/detail.html:282
-#: warehouse/templates/packaging/detail.html:342
+#: warehouse/templates/packaging/detail.html:244
+#: warehouse/templates/packaging/detail.html:284
+#: warehouse/templates/packaging/detail.html:344
 msgid "Release history"
 msgstr "Historio de eldonoj"
 
-#: warehouse/templates/packaging/detail.html:247
-#: warehouse/templates/packaging/detail.html:287
+#: warehouse/templates/packaging/detail.html:249
+#: warehouse/templates/packaging/detail.html:289
 msgid "Download files. Focus will be moved to the project files."
 msgstr "Elŝuti dosierojn. Fokuso moviĝos al la projektaj dosieroj."
 
-#: warehouse/templates/packaging/detail.html:249
-#: warehouse/templates/packaging/detail.html:289
-#: warehouse/templates/packaging/detail.html:404
+#: warehouse/templates/packaging/detail.html:251
+#: warehouse/templates/packaging/detail.html:291
+#: warehouse/templates/packaging/detail.html:406
 msgid "Download files"
 msgstr "Elŝuti dosierojn"
 
-#: warehouse/templates/packaging/detail.html:274
+#: warehouse/templates/packaging/detail.html:276
 msgid "Project details. Focus will be moved to the project details."
 msgstr "La detaloj pri la projekto. Fokuso moviĝos al la projektaj detaloj."
 
-#: warehouse/templates/packaging/detail.html:276
-#: warehouse/templates/packaging/detail.html:334
+#: warehouse/templates/packaging/detail.html:278
+#: warehouse/templates/packaging/detail.html:336
 msgid "Project details"
 msgstr "Detaloj pri la projekto"
 
-#: warehouse/templates/packaging/detail.html:316
-#: warehouse/templates/packaging/detail.html:391
+#: warehouse/templates/packaging/detail.html:318
+#: warehouse/templates/packaging/detail.html:393
 #, fuzzy
 #| msgid "This release has been yanked"
 msgid "Reason this release was yanked:"
 msgstr "Ĉi tiu eldono estis fortirita"
 
-#: warehouse/templates/packaging/detail.html:327
+#: warehouse/templates/packaging/detail.html:329
 msgid "The author of this package has not provided a project description"
 msgstr "La aŭtoro de ĉi tiu pako ankoraŭ ne priskribis la projekton"
 
-#: warehouse/templates/packaging/detail.html:344
+#: warehouse/templates/packaging/detail.html:346
 msgid "Release notifications"
 msgstr "Sciigoj pri eldonoj"
 
-#: warehouse/templates/packaging/detail.html:345
+#: warehouse/templates/packaging/detail.html:347
 msgid "RSS feed"
 msgstr "RSS-abonfluo"
 
-#: warehouse/templates/packaging/detail.html:357
+#: warehouse/templates/packaging/detail.html:359
 msgid "This version"
 msgstr "Ĉi tiu versio"
 
-#: warehouse/templates/packaging/detail.html:377
+#: warehouse/templates/packaging/detail.html:379
 msgid "pre-release"
 msgstr "pra-eldono"
 
-#: warehouse/templates/packaging/detail.html:382
+#: warehouse/templates/packaging/detail.html:384
 msgid "yanked"
 msgstr "fortirita"
 
-#: warehouse/templates/packaging/detail.html:405
+#: warehouse/templates/packaging/detail.html:407
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -8492,17 +8526,17 @@ msgstr ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">instalado de pakoj</a>."
 
-#: warehouse/templates/packaging/detail.html:407
+#: warehouse/templates/packaging/detail.html:410
 msgid "Source Distribution"
 msgid_plural "Source Distributions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/packaging/detail.html:423
+#: warehouse/templates/packaging/detail.html:426
 msgid "No source distribution files available for this release."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:424
+#: warehouse/templates/packaging/detail.html:427
 #, fuzzy, python-format
 #| msgid ""
 #| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -8514,7 +8548,7 @@ msgstr ""
 "Lernu kiel alŝuti dosierojn per la <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Manlibro de Python-Uzanto pri Pakado</a>"
 
-#: warehouse/templates/packaging/detail.html:431
+#: warehouse/templates/packaging/detail.html:434
 msgid "Built Distribution"
 msgid_plural "Built Distributions"
 msgstr[0] ""
@@ -11576,6 +11610,14 @@ msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "Troviĝis neniu rezulto pri '%(term)s'"
 msgstr[1] "Troviĝis neniu rezulto pri '%(term)s'"
+
+#~ msgid "View Hashes"
+#~ msgstr "Vidi Haketaĵojn"
+
+#, fuzzy
+#~| msgid "View Hashes"
+#~ msgid "view hashes"
+#~ msgstr "Vidi Haketaĵojn"
 
 #, fuzzy, python-format
 #~| msgid "Profile of %(username)s"
