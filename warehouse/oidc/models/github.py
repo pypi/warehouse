@@ -14,8 +14,6 @@ import re
 
 from typing import Any
 
-import rfc3986
-
 from sigstore.verify.policy import (
     AllOf,
     AnyOf,
