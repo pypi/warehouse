@@ -358,7 +358,9 @@ class TestIsDuplicateFile:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = f"{project.name}-{release.version}.tar.gz"
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
         file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
         file_value = file_content.getvalue()
 
@@ -389,8 +391,12 @@ class TestIsDuplicateFile:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = f"{project.name}-{release.version}.tar.gz"
-        requested_file_name = f"{project.name}-{release.version}-1.tar.gz"
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
+        requested_file_name = "{}-{}.post1.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
         file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
         file_value = file_content.getvalue()
 
@@ -426,8 +432,12 @@ class TestIsDuplicateFile:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = f"{project.name}-{release.version}.tar.gz"
-        requested_file_name = f"{project.name}-{release.version}-1.tar.gz"
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
+        requested_file_name = "{}-{}.post1.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
         file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
         file_value = file_content.getvalue()
 
@@ -461,7 +471,9 @@ class TestIsDuplicateFile:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = f"{project.name}-{release.version}.tar.gz"
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
         file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
         file_value = file_content.getvalue()
 
@@ -1097,7 +1109,9 @@ class TestFileUpload:
 
         db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
 
-        filename = f"{project.name}-{release.version}.tar.gz"
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
 
         db_request.user = user
         user_context = UserContext(
@@ -1273,7 +1287,9 @@ class TestFileUpload:
 
         db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
 
-        filename = f"{project.name}-{release.version}.tar.gz"
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
 
         db_request.POST = MultiDict(
             {
@@ -1309,7 +1325,9 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = f"{project.name}-{release.version}.tar.gz"
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
 
         db_request.POST = MultiDict(
             {
@@ -1347,7 +1365,9 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = f"{project.name}-{release.version}.tar.bz2"
+        filename = "{}-{}.tar.bz2".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
 
         db_request.POST = MultiDict(
             {
@@ -1390,7 +1410,9 @@ class TestFileUpload:
         )
         RoleFactory.create(user=user, project=project)
 
-        filename = f"{project.name}-{release.version}.zip"
+        filename = "{}-{}.zip".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
 
         db_request.POST = MultiDict(
             {
@@ -1424,7 +1446,9 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = f"{project.name}-{release.version}.tar.gz"
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
 
         db_request.POST = MultiDict(
             {
@@ -1489,7 +1513,9 @@ class TestFileUpload:
         )
         monkeypatch.setattr(metadata, "deprecated_classifiers", deprecated_classifiers)
 
-        filename = f"{project.name}-{release.version}.tar.gz"
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
 
         db_request.POST = MultiDict(
             {
@@ -1560,7 +1586,9 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = f"{project.name}-{release.version}.tar.gz"
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
 
         db_request.POST = MultiDict(
             {
@@ -1597,7 +1625,9 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = f"{project.name}-{release.version}.zip"
+        filename = "{}-{}.zip".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
 
         db_request.POST = MultiDict(
             {
@@ -1675,7 +1705,9 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = f"{project.name}-{release.version}.tar.gz"
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
 
         db_request.POST = MultiDict(
             {
@@ -1720,7 +1752,9 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = f"{project.name}-{release.version}.tar.gz"
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
 
         db_request.POST = MultiDict(
             {
@@ -1772,7 +1806,9 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = f"{project.name}-{release.version}.tar.gz"
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
 
         db_request.POST = MultiDict(
             {
@@ -1826,7 +1862,7 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}.tar.gz".format("example", "1.0")
+        filename = "example-1.0.tar.gz"
 
         db_request.POST = MultiDict(
             {
@@ -1908,7 +1944,9 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = f"{project.name}-{release.version}.tar.gz"
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
         file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
 
         db_request.POST = MultiDict(
@@ -1952,7 +1990,9 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = f"{project.name}-{release.version}.tar.gz"
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
         file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
 
         db_request.POST = MultiDict(
@@ -1999,7 +2039,9 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = f"{project.name}-{release.version}.tar.gz"
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
         file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
 
         db_request.POST = MultiDict(
@@ -2056,7 +2098,9 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = f"{project.name}-{release.version}.tar.gz"
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
         file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
 
         db_request.POST = MultiDict(
@@ -2250,7 +2294,9 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = f"{project.name}-{release.version}{extension}"
+        filename = "{}-{}{}".format(
+            project.normalized_name.replace("-", "_"), release.version, extension
+        )
 
         db_request.POST = MultiDict(
             {
@@ -2293,7 +2339,9 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = f"{project.name}-{release.version}.tar.wat"
+        filename = "{}-{}.tar.wat".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
 
         db_request.POST = MultiDict(
             {
@@ -2334,7 +2382,9 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = f"{character + project.name}-{release.version}.tar.wat"
+        filename = "{}{}-{}.tar.gz".format(
+            character, project.normalized_name.replace("-", "_"), release.version
+        )
 
         db_request.POST = MultiDict(
             {
@@ -2371,7 +2421,9 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = f"{project.name}{character}-{release.version}.tar.wat"
+        filename = "{}{}-{}.tar.wat".format(
+            project.normalized_name.replace("-", "_"), character, release.version
+        )
 
         db_request.POST = MultiDict(
             {
@@ -2408,7 +2460,9 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user1, project=project)
 
-        filename = f"{project.name}-{release.version}.tar.wat"
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
 
         pyramid_config.testing_securitypolicy(identity=user2, permissive=False)
         db_request.user = user2
@@ -2450,7 +2504,9 @@ class TestFileUpload:
 
         publisher = GitHubPublisherFactory.create(projects=[project])
 
-        filename = f"{project.name}-{release.version}.tar.wat"
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
 
         pyramid_config.testing_securitypolicy(identity=publisher, permissive=False)
         db_request.user = None
@@ -2509,7 +2565,9 @@ class TestFileUpload:
         )
         identity = UserContext(maintainer, macaroon)
 
-        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), "1.0"
+        )
         attestation = Attestation(
             version=1,
             verification_material=VerificationMaterial(
@@ -3249,7 +3307,8 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         new_project_name = "package_name"
-        filename = "{}-{}.tar.gz".format(new_project_name, "1.1")
+        new_project_version = "1.1"
+        filename = f"{new_project_name}-{new_project_version}.tar.gz"
 
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -3258,7 +3317,7 @@ class TestFileUpload:
             {
                 "metadata_version": "1.1",
                 "name": new_project_name,
-                "version": "1.1",
+                "version": new_project_version,
                 "summary": "This is my summary!",
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
@@ -3289,7 +3348,9 @@ class TestFileUpload:
         # Ensure that a Release object has been created.
         release = (
             db_request.db.query(Release)
-            .filter((Release.project == project) & (Release.version == "1.1"))
+            .filter(
+                (Release.project == project) & (Release.version == new_project_version)
+            )
             .one()
         )
 
@@ -3337,7 +3398,9 @@ class TestFileUpload:
         db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
         db_request.db.add(Classifier(classifier="Programming Language :: Python"))
 
-        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), "1.0"
+        )
 
         pyramid_config.testing_securitypolicy(identity=identity)
         db_request.user = identity if test_with_user else None
@@ -3504,7 +3567,9 @@ class TestFileUpload:
         db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
         db_request.db.add(Classifier(classifier="Programming Language :: Python"))
 
-        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), "1.0"
+        )
         attestation = Attestation(
             version=1,
             verification_material=VerificationMaterial(
@@ -3607,7 +3672,9 @@ class TestFileUpload:
         db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
         db_request.db.add(Classifier(classifier="Programming Language :: Python"))
 
-        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), "1.0"
+        )
 
         pyramid_config.testing_securitypolicy(identity=identity)
         db_request.user = None
@@ -3667,7 +3734,9 @@ class TestFileUpload:
         db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
         db_request.db.add(Classifier(classifier="Programming Language :: Python"))
 
-        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), "1.0"
+        )
 
         pyramid_config.testing_securitypolicy(identity=identity)
         db_request.user_agent = "warehouse-tests/6.6.6"
@@ -3736,7 +3805,9 @@ class TestFileUpload:
         db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
         db_request.db.add(Classifier(classifier="Programming Language :: Python"))
 
-        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), "1.0"
+        )
 
         pyramid_config.testing_securitypolicy(identity=identity)
         db_request.user_agent = "warehouse-tests/6.6.6"
@@ -3826,7 +3897,9 @@ class TestFileUpload:
         db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
         db_request.db.add(Classifier(classifier="Programming Language :: Python"))
 
-        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), "1.0"
+        )
 
         pyramid_config.testing_securitypolicy(identity=identity)
         db_request.user_agent = "warehouse-tests/6.6.6"
@@ -3913,7 +3986,9 @@ class TestFileUpload:
         db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
         db_request.db.add(Classifier(classifier="Programming Language :: Python"))
 
-        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), "1.0"
+        )
 
         pyramid_config.testing_securitypolicy(identity=identity)
         db_request.user_agent = "warehouse-tests/6.6.6"
@@ -3976,7 +4051,9 @@ class TestFileUpload:
         db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
         db_request.db.add(Classifier(classifier="Programming Language :: Python"))
 
-        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), "1.0"
+        )
 
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -4109,7 +4186,9 @@ class TestFileUpload:
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
-                    filename="{}-{}.tar.gz".format(project.name, "1.0.0"),
+                    filename="{}-{}.tar.gz".format(
+                        project.normalized_name.replace("-", "_"), "1.0.0"
+                    ),
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
@@ -4157,7 +4236,9 @@ class TestFileUpload:
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
-                    filename="{}-{}.tar.gz".format(project.name, "1.0.0"),
+                    filename="{}-{}.tar.gz".format(
+                        project.normalized_name.replace("-", "_"), "1.0.0"
+                    ),
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
@@ -4670,7 +4751,9 @@ class TestFileUpload:
                 )
             )
 
-        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), "1.0"
+        )
 
         pyramid_config.testing_securitypolicy(identity=identity)
         db_request.POST = MultiDict(
@@ -4844,11 +4927,15 @@ class TestFileUpload:
 
         if filetype == "sdist":
             if mimetype == "application/tar":
-                filename = "{}-{}.tar.gz".format(project.name, "1.0")
+                filename = "{}-{}.tar.gz".format(
+                    project.normalized_name.replace("-", "_"), "1.0"
+                )
                 digest = _TAR_GZ_PKG_MD5
                 data = _TAR_GZ_PKG_TESTDATA
             elif mimetype == "application/zip":
-                filename = "{}-{}.zip".format(project.name, "1.0")
+                filename = "{}-{}.zip".format(
+                    project.normalized_name.replace("-", "_"), "1.0"
+                )
                 digest = _ZIP_PKG_MD5
                 data = _ZIP_PKG_TESTDATA
         elif filetype == "bdist_wheel":
@@ -4954,11 +5041,15 @@ class TestFileUpload:
 
         if filetype == "sdist":
             if mimetype == "application/tar":
-                filename = "{}-{}.tar.gz".format(project.name, "1.0")
+                filename = "{}-{}.tar.gz".format(
+                    project.normalized_name.replace("-", "_"), "1.0"
+                )
                 digest = _TAR_GZ_PKG_MD5
                 data = _TAR_GZ_PKG_TESTDATA
             elif mimetype == "application/zip":
-                filename = "{}-{}.zip".format(project.name, "1.0")
+                filename = "{}-{}.zip".format(
+                    project.normalized_name.replace("-", "_"), "1.0"
+                )
                 digest = _ZIP_PKG_MD5
                 data = _ZIP_PKG_TESTDATA
             license_filename = "LICENSE"
