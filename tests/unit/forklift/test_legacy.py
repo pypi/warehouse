@@ -380,7 +380,7 @@ class TestFileValidation:
 
         assert legacy._is_valid_dist_file(f, "bdist_wheel") == (
             False,
-            "Invalid wheel filename (wrong number of parts): 'cheese'",
+            "Unable to parse name and version from wheel filename"
         )
 
     def test_incorrect_number_of_top_level_directories_sdist_tar(self, tmpdir):

@@ -314,14 +314,9 @@ def _is_valid_dist_file(filename, filetype):
                         return False, f"PKG-INFO not found at {target_file}"
                 if filename.endswith(".whl"):
                     try:
-                        name, version, _, _ = packaging.utils.parse_wheel_filename(
-                            os.path.basename(filename)
-                        )
-                    except packaging.utils.InvalidWheelFilename as e:
-                        return (
-                            False,
-                            str(e),
-                        )
+                        name, version, _ = os.path.basename(filename).split("-", 2)
+                    except ValueError:
+                        return (False, "Unable to parse name and version from wheel filename")
                     target_file = os.path.join(f"{name}-{version}.dist-info", "WHEEL")
                     try:
                         zfp.read(target_file)
