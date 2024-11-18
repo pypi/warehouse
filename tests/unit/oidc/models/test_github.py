@@ -651,6 +651,25 @@ class TestGitHubPublisher:
         )
         assert publisher.verify_url(url) == expected
 
+    @pytest.mark.parametrize("environment", ("", "some-env"))
+    def test_github_publisher_attestation_identity(self, environment):
+        publisher = github.GitHubPublisher(
+            repository_name="repository_name",
+            repository_owner="repository_owner",
+            repository_owner_id="666",
+            workflow_filename="workflow_filename.yml",
+            environment=environment,
+        )
+
+        identity = publisher.attestation_identity
+        assert identity.repository == publisher.repository
+        assert identity.workflow == publisher.workflow_filename
+
+        if not environment:
+            assert identity.environment is None
+        else:
+            assert identity.environment == publisher.environment
+
 
 class TestPendingGitHubPublisher:
     def test_reify_does_not_exist_yet(self, db_request):
