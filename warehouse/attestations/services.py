@@ -39,23 +39,6 @@ if typing.TYPE_CHECKING:
     from warehouse.packaging.models import File
 
 
-def _build_provenance(
-    request: Request, file: File, attestations: list[Attestation]
-) -> DatabaseProvenance:
-    attestation_bundle = AttestationBundle(
-        publisher=request.oidc_publisher.attestation_identity,
-        attestations=attestations,
-    )
-
-    provenance = Provenance(attestation_bundles=[attestation_bundle]).model_dump(
-        mode="json"
-    )
-
-    db_provenance = DatabaseProvenance(file=file, provenance=provenance)
-
-    return db_provenance
-
-
 def _extract_attestations_from_request(request: Request) -> list[Attestation]:
     """
     Extract well-formed attestation objects from the given request's payload.
@@ -127,7 +110,16 @@ class NullIntegrityService:
     def build_provenance(
         self, request: Request, file: File, attestations: list[Attestation]
     ) -> DatabaseProvenance:
-        return _build_provenance(request, file, attestations)
+        attestation_bundle = AttestationBundle(
+            publisher=request.oidc_publisher.attestation_identity,
+            attestations=attestations,
+        )
+
+        provenance = Provenance(attestation_bundles=[attestation_bundle]).model_dump(
+            mode="json"
+        )
+
+        return DatabaseProvenance(file=file, provenance=provenance)
 
 
 @implementer(IIntegrityService)
@@ -198,6 +190,15 @@ class IntegrityService:
     def build_provenance(
         self, request: Request, file: File, attestations: list[Attestation]
     ) -> DatabaseProvenance:
-        provenance = _build_provenance(request, file, attestations)
+        attestation_bundle = AttestationBundle(
+            publisher=request.oidc_publisher.attestation_identity,
+            attestations=attestations,
+        )
+
+        provenance = Provenance(attestation_bundles=[attestation_bundle]).model_dump(
+            mode="json"
+        )
+        db_provenance = DatabaseProvenance(file=file, provenance=provenance)
+
         self.metrics.increment("warehouse.attestations.build_provenance.ok")
-        return provenance
+        return db_provenance
