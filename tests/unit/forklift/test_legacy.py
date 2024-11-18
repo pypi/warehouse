@@ -2919,6 +2919,12 @@ class TestFileUpload:
 
         monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
 
+        # PEP625: This is testing sdists with invalid names and versions, which
+        # will trigger a notification
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(legacy, "send_pep625_name_email", send_email)
+        monkeypatch.setattr(legacy, "send_pep625_version_email", send_email)
+
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         db_request.user_agent = "warehouse-tests/6.6.6"
@@ -3242,7 +3248,7 @@ class TestFileUpload:
         project = ProjectFactory.create(name="Package-Name")
         RoleFactory.create(user=user, project=project)
 
-        new_project_name = "package-name"
+        new_project_name = "package_name"
         filename = "{}-{}.tar.gz".format(new_project_name, "1.1")
 
         pyramid_config.testing_securitypolicy(identity=user)
@@ -4730,6 +4736,86 @@ class TestFileUpload:
                 assert not warning_exists
 
     @pytest.mark.parametrize(
+        ("filename", "function_name", "extra_kwargs"),
+        [
+            ("some_thing-1.0.post9.zip", "send_pep625_extension_email", {}),
+            (
+                "some-thing-1.0.post9.tar.gz",
+                "send_pep625_name_email",
+                {"normalized_name": "some_thing"},
+            ),
+            (
+                "some_thing-1.0-9.tar.gz",
+                "send_pep625_version_email",
+                {"normalized_version": "1.0.post9"},
+            ),
+        ],
+    )
+    def test_upload_warns_pep625(
+        self,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        metrics,
+        project_service,
+        macaroon_service,
+        filename,
+        function_name,
+        extra_kwargs,
+    ):
+        project = ProjectFactory.create(name="some_thing")
+        owner = UserFactory.create()
+        maintainer = UserFactory.create()
+        RoleFactory.create(user=owner, project=project, role_name="Owner")
+        RoleFactory.create(user=maintainer, project=project, role_name="Maintainer")
+
+        pyramid_config.testing_securitypolicy(identity=owner)
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0.post9",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMacaroonService: macaroon_service,
+            IMetricsService: metrics,
+            IProjectService: project_service,
+        }.get(svc)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(legacy, function_name, send_email)
+        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                {owner, maintainer},
+                project_name=project.name,
+                filename=filename,
+                **extra_kwargs,
+            ),
+        ]
+
+    @pytest.mark.parametrize(
         ("version", "expected_version", "filetype", "mimetype"),
         [
             ("1.0", "1.0", "sdist", "application/tar"),
@@ -4804,6 +4890,10 @@ class TestFileUpload:
             IFileStorage: storage_service,
             IMetricsService: metrics,
         }.get(svc)
+
+        # PEP625: This is testing .zip sdists, which will trigger a notification
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(legacy, "send_pep625_extension_email", send_email)
 
         resp = legacy.file_upload(db_request)
 
@@ -4912,6 +5002,10 @@ class TestFileUpload:
             IFileStorage: storage_service,
             IMetricsService: metrics,
         }.get(svc)
+
+        # PEP625: This is testing .zip sdists, which will trigger a notification
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(legacy, "send_pep625_extension_email", send_email)
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)

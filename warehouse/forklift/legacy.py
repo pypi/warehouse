@@ -50,7 +50,12 @@ from warehouse.attestations.interfaces import IIntegrityService
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
-from warehouse.email import send_api_token_used_in_trusted_publisher_project_email
+from warehouse.email import (
+    send_api_token_used_in_trusted_publisher_project_email,
+    send_pep625_extension_email,
+    send_pep625_name_email,
+    send_pep625_version_email,
+)
 from warehouse.events.tags import EventTag
 from warehouse.forklift import metadata
 from warehouse.forklift.forms import UploadForm, _filetype_extension_mapping
@@ -1045,7 +1050,17 @@ def file_upload(request):
 
         # TODO: Remove sdist zip handling when #12245 is resolved
         # (PEP 625 – Filename of a Source Distribution)
-        if filename.endswith(".zip"):
+        if form.filetype.data == "sdist" and filename.endswith(".zip"):
+
+            # PEP 625: Enforcement on filename extensions. Files ending with
+            # .zip will not be permitted.
+            send_pep625_extension_email(
+                request,
+                set(project.users),
+                project_name=project.name,
+                filename=filename,
+            )
+
             filename = os.path.basename(temporary_filename)
 
             if meta.license_files:  # pragma: no branch
@@ -1072,7 +1087,9 @@ def file_upload(request):
             # version that normalizes to be what we expect
 
             try:
-                name, version = packaging.utils.parse_sdist_filename(filename)
+                name_from_filename, version_from_filename = (
+                    packaging.utils.parse_sdist_filename(filename)
+                )
             except packaging.utils.InvalidSdistFilename:
                 raise _exc_with_message(
                     HTTPBadRequest,
@@ -1084,35 +1101,61 @@ def file_upload(request):
             # what we were expecting
             if (
                 meta.version.is_postrelease
-                and name != packaging.utils.canonicalize_name(meta.name)
+                and name_from_filename != packaging.utils.canonicalize_name(meta.name)
             ):
                 # The distribution is a source distribution, the version is a
                 # postrelease, and the project name doesn't match, so
                 # there may be a hyphen in the version. Split the filename on the
                 # second to last hyphen instead.
-                name = filename.rpartition("-")[0].rpartition("-")[0]
-                version = packaging.version.Version(
-                    filename[len(name) + 1 : -len(".tar.gz")]
+                name_from_filename = filename.rpartition("-")[0].rpartition("-")[0]
+                version_string_from_filename = filename[
+                    len(name_from_filename) + 1 : -len(".tar.gz")
+                ]
+                version_from_filename = packaging.version.Version(
+                    version_string_from_filename
                 )
 
-            # Normalize the prefix in the filename. Eventually this should be
-            # unnecessary once we become more restrictive in what we permit
-            filename_prefix = name.lower().replace(".", "_").replace("-", "_")
+                # PEP 625: Enforcement of project version normalization.
+                # Filenames with dashes in the version will not be permitted.
+                if "-" in version_string_from_filename:
+                    send_pep625_version_email(
+                        request,
+                        set(project.users),
+                        project_name=project.name,
+                        filename=filename,
+                        normalized_version=str(version_from_filename),
+                    )
 
-            # Make sure that our filename matches the project that it is being
-            # uploaded to.
+            # Ensure that the prefix in the filename and the project name
+            # normalize to be the same thing. Eventually this should be
+            # unnecessary once we become more restrictive in what we permit
+            filename_prefix = (
+                name_from_filename.lower().replace(".", "_").replace("-", "_")
+            )
             if (prefix := project.normalized_name.replace("-", "_")) != filename_prefix:
                 raise _exc_with_message(
                     HTTPBadRequest,
                     f"Start filename for {project.name!r} with {prefix!r}.",
                 )
 
+            # PEP 625: Enforcement of project name normalization. Filenames
+            # that do not start with the normalized project name (with dashes
+            # replaced with underscores) will not be permitted.
+            if not filename.startswith(name_from_filename.replace("-", "_")):
+                send_pep625_name_email(
+                    request,
+                    set(project.users),
+                    project_name=project.name,
+                    filename=filename,
+                    normalized_name=project.normalized_name.replace("-", "_"),
+                )
+
             # Make sure that the version in the filename matches the metadata
-            if version != meta.version:
+            if version_from_filename != meta.version:
                 raise _exc_with_message(
                     HTTPBadRequest,
                     f"Version in filename should be {str(meta.version)!r} not "
-                    f"{str(version)!r}.",
+                    f"{str(version_from_filename)!r}.",
                 )
 
             filename = os.path.basename(temporary_filename)
