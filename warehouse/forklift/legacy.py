@@ -316,7 +316,10 @@ def _is_valid_dist_file(filename, filetype):
                     try:
                         name, version, _ = os.path.basename(filename).split("-", 2)
                     except ValueError:
-                        return (False, "Unable to parse name and version from wheel filename")
+                        return (
+                            False,
+                            "Unable to parse name and version from wheel filename",
+                        )
                     target_file = os.path.join(f"{name}-{version}.dist-info", "WHEEL")
                     try:
                         zfp.read(target_file)
