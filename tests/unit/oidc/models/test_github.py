@@ -16,7 +16,6 @@ import sqlalchemy
 
 from tests.common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
 from warehouse.oidc import errors
-from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.models import _core, github
 
 
@@ -651,7 +650,7 @@ class TestGitHubPublisher:
         )
         assert publisher.verify_url(url) == expected
 
-    @pytest.mark.parametrize("environment", ("", "some-env"))
+    @pytest.mark.parametrize("environment", ["", "some-env"])
     def test_github_publisher_attestation_identity(self, environment):
         publisher = github.GitHubPublisher(
             repository_name="repository_name",

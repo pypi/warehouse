@@ -18,7 +18,6 @@ from typing import TYPE_CHECKING, Any, TypedDict, TypeVar, Unpack
 import rfc3986
 import sentry_sdk
 
-from sigstore.verify.policy import VerificationPolicy
 from sqlalchemy import ForeignKey, String, orm
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column

@@ -15,13 +15,6 @@ import re
 from typing import Any
 
 from pypi_attestations import GitHubPublisher as GitHubIdentity, Publisher
-from sigstore.verify.policy import (
-    AllOf,
-    AnyOf,
-    OIDCBuildConfigURI,
-    OIDCIssuerV2,
-    OIDCSourceRepositoryDigest,
-)
 from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Query, mapped_column
