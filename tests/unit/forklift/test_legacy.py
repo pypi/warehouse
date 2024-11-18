@@ -4973,7 +4973,9 @@ class TestFileUpload:
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(legacy, function_name, send_email)
-        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
 
         resp = legacy.file_upload(db_request)
 
@@ -5034,7 +5036,9 @@ class TestFileUpload:
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(legacy, "send_pep625_name_email", send_email)
-        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
