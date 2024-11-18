@@ -183,7 +183,6 @@ class TestIntegrityService:
 
         db_request.oidc_publisher = pretend.stub(
             attestation_identity=pretend.stub(),
-            publisher_verification_policy=pretend.call_recorder(lambda c: None),
         )
         db_request.oidc_claims = {"sha": "somesha"}
         db_request.POST["attestations"] = TypeAdapter(list[Attestation]).dump_json(
@@ -214,7 +213,6 @@ class TestIntegrityService:
         )
         db_request.oidc_publisher = pretend.stub(
             attestation_identity=pretend.stub(),
-            publisher_verification_policy=pretend.call_recorder(lambda c: None),
         )
         db_request.oidc_claims = {"sha": "somesha"}
         db_request.POST["attestations"] = TypeAdapter(list[Attestation]).dump_json(
@@ -250,7 +248,6 @@ class TestIntegrityService:
         )
         db_request.oidc_publisher = pretend.stub(
             attestation_identity=pretend.stub(),
-            publisher_verification_policy=pretend.call_recorder(lambda c: None),
         )
         db_request.oidc_claims = {"sha": "somesha"}
         db_request.POST["attestations"] = TypeAdapter(list[Attestation]).dump_json(

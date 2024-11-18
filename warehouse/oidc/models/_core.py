@@ -322,17 +322,6 @@ class OIDCPublisherMixin:
         """
         return None
 
-    def publisher_verification_policy(
-        self, claims: SignedClaims
-    ) -> VerificationPolicy:  # pragma: no cover
-        """
-        Get the policy used to verify attestations signed with this publisher.
-        NOTE: This is **NOT** a `@property` because we pass `claims` to it.
-        When calling, make sure to use `publisher_verification_policy()`
-        """
-        # Only concrete subclasses are constructed.
-        raise NotImplementedError
-
     def stored_claims(
         self, claims: SignedClaims | None = None
     ) -> dict:  # pragma: no cover
