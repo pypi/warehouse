@@ -260,7 +260,7 @@ def _is_valid_dist_file(filename, filetype):
 
     if filename.endswith((".zip", ".whl")):
         if not zipfile.is_zipfile(filename):
-            return False
+            return False, "File is not a zipfile"
         # Ensure that this is a valid zip file, and that it has a
         # PKG-INFO or WHEEL file.
         try:
@@ -278,7 +278,11 @@ def _is_valid_dist_file(filename, filetype):
                         f"of {COMPRESSION_RATIO_THRESHOLD} "
                         f"({decompressed_size}/{compressed_size})"
                     )
-                    return False
+                    return (
+                        False,
+                        "File exceeds compression ratio of "
+                        f"{COMPRESSION_RATIO_THRESHOLD}",
+                    )
 
                 # Check that the compression type is valid
                 for zinfo in zfp.infolist():
@@ -286,24 +290,45 @@ def _is_valid_dist_file(filename, filetype):
                         zipfile.ZIP_STORED,
                         zipfile.ZIP_DEFLATED,
                     }:
-                        return False
+                        return (
+                            False,
+                            "File does not use a supported compression type",
+                        )
 
-                # Check that the right files are present
-                for zipname in zfp.namelist():
-                    _, tail = os.path.split(zipname)
-                    if filename.endswith(".zip") and tail == "PKG-INFO":
-                        break
-                    if filename.endswith(".whl") and tail == "WHEEL":
-                        break
-                else:
-                    return False
+                if filename.endswith(".zip"):
+                    top_level = os.path.commonprefix(zfp.namelist())
+                    if top_level in [".", "/", ""]:
+                        return (
+                            False,
+                            "Incorrect number of top-level directories in sdist",
+                        )
+                    target_file = os.path.join(top_level, "PKG-INFO")
+                    try:
+                        zfp.read(target_file)
+                    except KeyError:
+                        return False, f"PKG-INFO not found at {target_file}"
+                if filename.endswith(".whl"):
+                    try:
+                        name, version, _, _ = packaging.utils.parse_wheel_filename(
+                            os.path.basename(filename)
+                        )
+                    except packaging.utils.InvalidWheelFilename as e:
+                        return (
+                            False,
+                            str(e),
+                        )
+                    target_file = os.path.join(f"{name}-{version}.dist-info", "WHEEL")
+                    try:
+                        zfp.read(target_file)
+                    except KeyError:
+                        return False, f"WHEEL not found at {target_file}"
 
         except zipfile.BadZipFile:  # pragma: no cover
-            return False
+            return False, None
 
     elif filename.endswith(".tar.gz"):
         if not tarfile.is_tarfile(filename):
-            return False
+            return False, "File is not a tarfile"
         # Ensure that this is a valid tar file, and that it contains PKG-INFO.
         # TODO: Ideally Ensure the compression ratio is not absurd
         # (decompression bomb), like we do for wheel/zip above.
@@ -311,21 +336,23 @@ def _is_valid_dist_file(filename, filetype):
             with tarfile.open(filename, "r:gz") as tar:
                 # This decompresses the entire stream to validate it and the
                 # tar within.  Easy CPU DoS attack. :/
-                bad_tar = True
-                member = tar.next()
-                while member:
-                    _, tail = os.path.split(member.name)
-                    if tail == "PKG-INFO":
-                        bad_tar = False
-                    member = tar.next()
-                if bad_tar:
-                    return False
+                top_level = os.path.commonprefix(tar.getnames())
+                if top_level in [".", "/", ""]:
+                    return (
+                        False,
+                        "Incorrect number of top-level directories in sdist",
+                    )
+                target_file = os.path.join(top_level, "PKG-INFO")
+                try:
+                    tar.getmember(target_file)
+                except KeyError:
+                    return False, f"PKG-INFO not found at {target_file}"
         except (tarfile.ReadError, EOFError):
-            return False
+            return False, None
 
     # If we haven't yet decided it's not valid, then we'll assume it is and
     # allow it.
-    return True
+    return True, None
 
 
 def _is_duplicate_file(db_session, filename, hashes):
@@ -1040,8 +1067,14 @@ def file_upload(request):
             )
 
         # Check the file to make sure it is a valid distribution file.
-        if not _is_valid_dist_file(temporary_filename, form.filetype.data):
-            raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
+        _valid, _msg = _is_valid_dist_file(
+            temporary_filename,
+            form.filetype.data,
+        )
+        if not _valid:
+            raise _exc_with_message(
+                HTTPBadRequest, f"Invalid distribution file. {_msg}"
+            )
 
         # TODO: Remove sdist zip handling when #12245 is resolved
         # (PEP 625 – Filename of a Source Distribution)
@@ -1054,14 +1087,16 @@ def file_upload(request):
                 See https://peps.python.org/pep-0639/#add-license-file-field
                 """
                 with zipfile.ZipFile(temporary_filename) as zfp:
+                    top_level = os.path.commonprefix(zfp.namelist())
                     for license_file in meta.license_files:
+                        target_file = os.path.join(top_level, license_file)
                         try:
-                            zfp.read(license_file)
+                            zfp.read(target_file)
                         except KeyError:
                             raise _exc_with_message(
                                 HTTPBadRequest,
                                 f"License-File {license_file} does not exist in "
-                                f"distribution file {filename}",
+                                f"distribution file {filename} at {target_file}",
                             )
 
         # Check that the sdist filename is correct
@@ -1123,15 +1158,17 @@ def file_upload(request):
                 See https://peps.python.org/pep-0639/#add-license-file-field
                 """
                 with tarfile.open(temporary_filename, "r:gz") as tar:
+                    top_level = os.path.commonprefix(tar.getnames())
                     # Already validated as a tarfile by _is_valid_dist_file above
                     for license_file in meta.license_files:
+                        target_file = os.path.join(top_level, license_file)
                         try:
-                            tar.getmember(license_file)
+                            tar.getmember(target_file)
                         except KeyError:
                             raise _exc_with_message(
                                 HTTPBadRequest,
                                 f"License-File {license_file} does not exist in "
-                                f"distribution file {filename}",
+                                f"distribution file {filename} at {target_file}",
                             )
 
         # Check that if it's a binary wheel, it's on a supported platform
@@ -1190,8 +1227,8 @@ def file_upload(request):
                         except KeyError:
                             raise _exc_with_message(
                                 HTTPBadRequest,
-                                f"License-File {license_filename} does not exist in "
-                                f"distribution file {filename}",
+                                f"License-File {license_file} does not exist in "
+                                f"distribution file {filename} at {license_filename}",
                             )
 
             """

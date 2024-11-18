@@ -72,18 +72,18 @@ from ...common.db.packaging import (
 def _get_tar_testdata(compression_type=""):
     temp_f = io.BytesIO()
     with tarfile.open(fileobj=temp_f, mode=f"w:{compression_type}") as tar:
-        tar.add("/dev/null", arcname="fake_package/PKG-INFO")
-        tar.add("/dev/null", arcname="LICENSE.MIT")
-        tar.add("/dev/null", arcname="LICENSE.APACHE")
+        tar.add("/dev/null", arcname="fake_package-1.0/PKG-INFO")
+        tar.add("/dev/null", arcname="fake_package-1.0/LICENSE.MIT")
+        tar.add("/dev/null", arcname="fake_package-1.0/LICENSE.APACHE")
     return temp_f.getvalue()
 
 
 def _get_zip_testdata():
     temp_f = io.BytesIO()
     with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
-        zfp.writestr("fake_package/PKG-INFO", "Fake PKG-INFO")
-        zfp.writestr("LICENSE.MIT", "Fake License")
-        zfp.writestr("LICENSE.APACHE", "Fake License")
+        zfp.writestr("fake_package-1.0/PKG-INFO", "Fake PKG-INFO")
+        zfp.writestr("fake_package-1.0/LICENSE.MIT", "Fake License")
+        zfp.writestr("fake_package-1.0/LICENSE.APACHE", "Fake License")
     return temp_f.getvalue()
 
 
@@ -196,7 +196,7 @@ def test_sort_releases(db_request, versions, expected):
 
 class TestFileValidation:
     def test_defaults_to_true(self):
-        assert legacy._is_valid_dist_file("", "")
+        assert legacy._is_valid_dist_file("", "") == (True, None)
 
     @pytest.mark.parametrize(
         ("filename", "filetype"),
@@ -211,7 +211,10 @@ class TestFileValidation:
         with open(f, "wb") as fp:
             fp.write(b"this isn't a valid zip file")
 
-        assert not legacy._is_valid_dist_file(f, filetype)
+        assert legacy._is_valid_dist_file(f, filetype) == (
+            False,
+            "File is not a zipfile",
+        )
 
     @pytest.mark.parametrize("filename", ["test.tar.gz"])
     def test_bails_with_invalid_tarfile(self, tmpdir, filename):
@@ -220,7 +223,10 @@ class TestFileValidation:
         with open(fake_tar, "wb") as fp:
             fp.write(b"Definitely not a valid tar file.")
 
-        assert not legacy._is_valid_dist_file(fake_tar, "sdist")
+        assert legacy._is_valid_dist_file(fake_tar, "sdist") == (
+            False,
+            "File is not a tarfile",
+        )
 
     @pytest.mark.parametrize("filename", ["test.tar.gz"])
     def test_bails_with_valid_tarfile_that_raises_exception(self, tmpdir, filename):
@@ -249,7 +255,7 @@ class TestFileValidation:
         assert tarfile.is_tarfile(fake_tar)
 
         # This should fail
-        assert not legacy._is_valid_dist_file(fake_tar, "sdist")
+        assert legacy._is_valid_dist_file(fake_tar, "sdist") == (False, None)
 
     @pytest.mark.parametrize("compression", ["gz"])
     def test_tarfile_validation_invalid(self, tmpdir, compression):
@@ -261,11 +267,13 @@ class TestFileValidation:
             fp.write(b"Dummy data file.")
 
         with tarfile.open(tar_fn, f"w:{compression}") as tar:
+            tar.add(data_file, arcname="package/__init__.py")
             tar.add(data_file, arcname="package/module.py")
 
-        assert not legacy._is_valid_dist_file(
-            tar_fn, "sdist"
-        ), "no PKG-INFO; should fail"
+        assert legacy._is_valid_dist_file(tar_fn, "sdist") == (
+            False,
+            "PKG-INFO not found at package/PKG-INFO",
+        )
 
     @pytest.mark.parametrize("compression", ["gz"])
     def test_tarfile_validation_valid(self, tmpdir, compression):
@@ -281,45 +289,53 @@ class TestFileValidation:
             tar.add(data_file, arcname="package/PKG-INFO")
             tar.add(data_file, arcname="package/data_file.txt")
 
-        assert legacy._is_valid_dist_file(tar_fn, "sdist")
+        assert legacy._is_valid_dist_file(tar_fn, "sdist") == (True, None)
 
     def test_zip_no_pkg_info(self, tmpdir):
         f = str(tmpdir.join("test.zip"))
 
         with zipfile.ZipFile(f, "w") as zfp:
-            zfp.writestr("something.txt", b"Just a placeholder file")
+            zfp.writestr("package/something.txt", b"Just a placeholder file")
+            zfp.writestr("package/else.txt", b"Just a placeholder file")
 
-        assert not legacy._is_valid_dist_file(f, "sdist")
+        assert legacy._is_valid_dist_file(f, "sdist") == (
+            False,
+            "PKG-INFO not found at package/PKG-INFO",
+        )
 
     def test_zip_has_pkg_info(self, tmpdir):
         f = str(tmpdir.join("test.zip"))
 
         with zipfile.ZipFile(f, "w") as zfp:
-            zfp.writestr("something.txt", b"Just a placeholder file")
-            zfp.writestr("PKG-INFO", b"this is the package info")
+            zfp.writestr("package/something.txt", b"Just a placeholder file")
+            zfp.writestr("package/PKG-INFO", b"this is the package info")
 
-        assert legacy._is_valid_dist_file(f, "sdist")
+        assert legacy._is_valid_dist_file(f, "sdist") == (True, None)
 
     def test_zipfile_supported_compression(self, tmpdir):
         f = str(tmpdir.join("test.zip"))
 
         with zipfile.ZipFile(f, "w") as zfp:
-            zfp.writestr("PKG-INFO", b"this is the package info")
-            zfp.writestr("1.txt", b"1", zipfile.ZIP_STORED)
-            zfp.writestr("2.txt", b"2", zipfile.ZIP_DEFLATED)
+            zfp.writestr("test-1.0/src/__init__.py", b"this is the module")
+            zfp.writestr("test-1.0/PKG-INFO", b"this is the package info")
+            zfp.writestr("test-1.0/1.txt", b"1", zipfile.ZIP_STORED)
+            zfp.writestr("test-1.0/2.txt", b"2", zipfile.ZIP_DEFLATED)
 
-        assert legacy._is_valid_dist_file(f, "")
+        assert legacy._is_valid_dist_file(f, "") == (True, None)
 
     @pytest.mark.parametrize("method", [zipfile.ZIP_BZIP2, zipfile.ZIP_LZMA])
     def test_zipfile_unsupported_compression(self, tmpdir, method):
         f = str(tmpdir.join("test.zip"))
 
         with zipfile.ZipFile(f, "w") as zfp:
-            zfp.writestr("1.txt", b"1", zipfile.ZIP_STORED)
-            zfp.writestr("2.txt", b"2", zipfile.ZIP_DEFLATED)
-            zfp.writestr("3.txt", b"3", method)
+            zfp.writestr("test-1.0/1.txt", b"1", zipfile.ZIP_STORED)
+            zfp.writestr("test-1.0/2.txt", b"2", zipfile.ZIP_DEFLATED)
+            zfp.writestr("test-1.0/3.txt", b"3", method)
 
-        assert not legacy._is_valid_dist_file(f, "")
+        assert legacy._is_valid_dist_file(f, "") == (
+            False,
+            "File does not use a supported compression type",
+        )
 
     def test_zipfile_exceeds_compression_threshold(self, tmpdir):
         f = str(tmpdir.join("test.zip"))
@@ -330,24 +346,75 @@ class TestFileValidation:
                 "1.dat", b"0" * 65 * warehouse.constants.ONE_MIB, zipfile.ZIP_DEFLATED
             )
 
-        assert not legacy._is_valid_dist_file(f, "")
+        assert legacy._is_valid_dist_file(f, "") == (
+            False,
+            "File exceeds compression ratio of 50",
+        )
 
     def test_wheel_no_wheel_file(self, tmpdir):
-        f = str(tmpdir.join("test.whl"))
+        f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
 
         with zipfile.ZipFile(f, "w") as zfp:
             zfp.writestr("something.txt", b"Just a placeholder file")
 
-        assert not legacy._is_valid_dist_file(f, "bdist_wheel")
+        assert legacy._is_valid_dist_file(f, "bdist_wheel") == (
+            False,
+            "WHEEL not found at test-1.0.dist-info/WHEEL",
+        )
 
     def test_wheel_has_wheel_file(self, tmpdir):
-        f = str(tmpdir.join("test.whl"))
+        f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
 
         with zipfile.ZipFile(f, "w") as zfp:
             zfp.writestr("something.txt", b"Just a placeholder file")
-            zfp.writestr("WHEEL", b"this is the package info")
+            zfp.writestr("test-1.0.dist-info/WHEEL", b"this is the package info")
 
-        assert legacy._is_valid_dist_file(f, "bdist_wheel")
+        assert legacy._is_valid_dist_file(f, "bdist_wheel") == (True, None)
+
+    def test_invalid_wheel_filename(self, tmpdir):
+        f = str(tmpdir.join("cheese.whl"))
+
+        with zipfile.ZipFile(f, "w") as zfp:
+            zfp.writestr("something.txt", b"Just a placeholder file")
+            zfp.writestr("test-1.0.dist-info/WHEEL", b"this is the package info")
+
+        assert legacy._is_valid_dist_file(f, "bdist_wheel") == (
+            False,
+            "Invalid wheel filename (wrong number of parts): 'cheese'",
+        )
+
+    def test_incorrect_number_of_top_level_directories_sdist_tar(self, tmpdir):
+        tar_fn = str(tmpdir.join("test.tar.gz"))
+        data_file = str(tmpdir.join("dummy_data"))
+
+        with open(data_file, "wb") as fp:
+            fp.write(b"Dummy data file.")
+
+        with tarfile.open(tar_fn, "w:gz") as tar:
+            tar.add(data_file, arcname="package/module.py")
+            tar.add(data_file, arcname="package/PKG-INFO")
+            tar.add(data_file, arcname="package/data_file.txt")
+            tar.add(data_file, arcname="notpackage/test.txt")
+
+        assert legacy._is_valid_dist_file(tar_fn, "sdist") == (
+            False,
+            "Incorrect number of top-level directories in sdist",
+        )
+
+    def test_incorrect_number_of_top_level_directories_sdist_zip(self, tmpdir):
+        f = str(tmpdir.join("test.zip"))
+
+        with zipfile.ZipFile(f, "w") as zfp:
+            zfp.writestr("test-1.0/src/__init__.py", b"this is the module")
+            zfp.writestr("test-1.0/PKG-INFO", b"this is the package info")
+            zfp.writestr("test-1.0/1.txt", b"1", zipfile.ZIP_STORED)
+            zfp.writestr("test-1.0/2.txt", b"2", zipfile.ZIP_DEFLATED)
+            zfp.writestr("notpackage/test.txt", b"2", zipfile.ZIP_DEFLATED)
+
+        assert legacy._is_valid_dist_file(f, "") == (
+            False,
+            "Incorrect number of top-level directories in sdist",
+        )
 
 
 class TestIsDuplicateFile:
@@ -1618,7 +1685,9 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        assert resp.status == "400 Invalid distribution file."
+        assert resp.status == (
+            "400 Invalid distribution file. " "File is not a zipfile"
+        )
 
     def test_upload_fails_end_of_file_error(
         self, pyramid_config, db_request, metrics, project_service
@@ -1664,7 +1733,9 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        assert resp.status == "400 Invalid distribution file."
+        assert resp.status == (
+            "400 Invalid distribution file. " "File is not a tarfile"
+        )
 
     def test_upload_fails_with_too_large_file(self, pyramid_config, db_request):
         user = UserFactory.create()
@@ -2144,7 +2215,9 @@ class TestFileUpload:
             IFileStorage: storage_service,
             IMetricsService: metrics,
         }.get(svc)
-        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
 
         db_request.POST = MultiDict(
             {
@@ -2199,7 +2272,9 @@ class TestFileUpload:
             IFileStorage: storage_service,
             IMetricsService: metrics,
         }.get(svc)
-        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
 
         filetype = "sdist" if filename.endswith(".tar.gz") else "bdist_wheel"
         db_request.POST = MultiDict(
@@ -2654,7 +2729,9 @@ class TestFileUpload:
             }.get(svc)
         )
 
-        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
 
         resp = legacy.file_upload(db_request)
 
@@ -2775,7 +2852,9 @@ class TestFileUpload:
             }.get(svc)
         )
 
-        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
 
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -2841,7 +2920,9 @@ class TestFileUpload:
             }.get(svc)
         )
 
-        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
 
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -2917,7 +2998,9 @@ class TestFileUpload:
             }.get(svc)
         )
 
-        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
 
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -3003,7 +3086,9 @@ class TestFileUpload:
             }.get(svc)
         )
 
-        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
 
         resp = legacy.file_upload(db_request)
 
@@ -3127,7 +3212,9 @@ class TestFileUpload:
             }
         )
 
-        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
@@ -3176,7 +3263,9 @@ class TestFileUpload:
             }
         )
 
-        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
@@ -3222,7 +3311,9 @@ class TestFileUpload:
             }
         )
 
-        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
@@ -4769,7 +4860,9 @@ class TestFileUpload:
             filename = "{}-{}-py3-none-any.whl".format(project.name, "1.0")
             data = _get_whl_testdata(name=project.name, version="1.0")
             digest = hashlib.md5(data).hexdigest()
-            monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+            monkeypatch.setattr(
+                legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+            )
 
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -4871,12 +4964,14 @@ class TestFileUpload:
                 filename = "{}-{}.zip".format(project.name, "1.0")
                 digest = _ZIP_PKG_MD5
                 data = _ZIP_PKG_TESTDATA
-            license_filename = "LICENSE"
+            license_filename = "fake_package-1.0/LICENSE"
         elif filetype == "bdist_wheel":
             filename = "{}-{}-py3-none-any.whl".format(project.name, "1.0")
             data = _get_whl_testdata(name=project.name, version="1.0")
             digest = hashlib.md5(data).hexdigest()
-            monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+            monkeypatch.setattr(
+                legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+            )
             license_filename = f"{project.name}-1.0.dist-info/licenses/LICENSE"
 
         pyramid_config.testing_securitypolicy(identity=user)
@@ -4920,8 +5015,8 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            f"400 License-File {license_filename} does not exist "
-            f"in distribution file {filename}"
+            f"400 License-File LICENSE does not exist "
+            f"in distribution file {filename} at {license_filename}"
         )
 
     def test_upload_fails_when_license_and_license_expression_are_present(
