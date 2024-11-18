@@ -2084,9 +2084,7 @@ sentry-sdk==2.18.0 \
 sigstore==3.5.1 \
     --hash=sha256:88f73c8edf1662ff9b86ef6fe0870bb6af4ac99ff808b84995e6a41957b7b3d2 \
     --hash=sha256:e7023aef4e574120712c16c6bb151f4caee55791c4677fe30c92ef4e50800204
-    # via
-    #   -r requirements/main.in
-    #   pypi-attestations
+    # via pypi-attestations
 sigstore-protobuf-specs==0.3.2 \
     --hash=sha256:50c99fa6747a3a9c5c562a43602cf76df0b199af28f0e9d4319b6775630425ea \
     --hash=sha256:cae041b40502600b8a633f43c257695d0222a94efa1e5110a7ec7ada78c39d99

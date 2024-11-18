@@ -23,10 +23,7 @@ from pypi_attestations import (
     AttestationBundle,
     AttestationType,
     Distribution,
-    GitHubPublisher,
-    GitLabPublisher,
     Provenance,
-    Publisher,
     VerificationError,
 )
 from pyramid.request import Request
@@ -36,63 +33,10 @@ from warehouse.attestations.errors import AttestationUploadError
 from warehouse.attestations.interfaces import IIntegrityService
 from warehouse.attestations.models import Provenance as DatabaseProvenance
 from warehouse.metrics.interfaces import IMetricsService
-from warehouse.oidc.models import (
-    GitHubPublisher as GitHubOIDCPublisher,
-    GitLabPublisher as GitLabOIDCPublisher,
-    OIDCPublisher,
-)
 from warehouse.utils.exceptions import InsecureIntegrityServiceWarning
 
 if typing.TYPE_CHECKING:
     from warehouse.packaging.models import File
-
-
-def _publisher_from_oidc_publisher(publisher: OIDCPublisher) -> Publisher:
-    """
-    Convert an OIDCPublisher object in a pypi-attestations Publisher.
-    """
-    match publisher.publisher_name:
-        case "GitLab":
-            publisher = typing.cast(GitLabOIDCPublisher, publisher)
-            return GitLabPublisher(
-                repository=publisher.project_path, environment=publisher.environment
-            )
-        case "GitHub":
-            publisher = typing.cast(GitHubOIDCPublisher, publisher)
-            return GitHubPublisher(
-                repository=publisher.repository,
-                workflow=publisher.workflow_filename,
-                environment=publisher.environment,
-            )
-        case _:
-            raise AttestationUploadError(
-                f"Unsupported publisher: {publisher.publisher_name}"
-            )
-
-
-def _build_provenance(
-    request: Request, file: File, attestations: list[Attestation]
-) -> DatabaseProvenance:
-    try:
-        publisher: Publisher = _publisher_from_oidc_publisher(request.oidc_publisher)
-    except AttestationUploadError as exc:
-        sentry_sdk.capture_message(
-            f"Unsupported OIDCPublisher found {request.oidc_publisher.publisher_name}"
-        )
-        raise exc
-
-    attestation_bundle = AttestationBundle(
-        publisher=publisher,
-        attestations=attestations,
-    )
-
-    provenance = Provenance(attestation_bundles=[attestation_bundle]).model_dump(
-        mode="json"
-    )
-
-    db_provenance = DatabaseProvenance(file=file, provenance=provenance)
-
-    return db_provenance
 
 
 def _extract_attestations_from_request(request: Request) -> list[Attestation]:
@@ -100,15 +44,15 @@ def _extract_attestations_from_request(request: Request) -> list[Attestation]:
     Extract well-formed attestation objects from the given request's payload.
     """
 
-    publisher: OIDCPublisher | None = request.oidc_publisher
-    if not publisher:
+    if not request.oidc_publisher:
         raise AttestationUploadError(
             "Attestations are only supported when using Trusted Publishing"
         )
-    if not publisher.supports_attestations:
+
+    if not request.oidc_publisher.attestation_identity:
         raise AttestationUploadError(
             "Attestations are not currently supported with "
-            f"{publisher.publisher_name} publishers"
+            f"{request.oidc_publisher.publisher_name} publishers"
         )
 
     metrics = request.find_service(IMetricsService, context=None)
@@ -166,7 +110,16 @@ class NullIntegrityService:
     def build_provenance(
         self, request: Request, file: File, attestations: list[Attestation]
     ) -> DatabaseProvenance:
-        return _build_provenance(request, file, attestations)
+        attestation_bundle = AttestationBundle(
+            publisher=request.oidc_publisher.attestation_identity,
+            attestations=attestations,
+        )
+
+        provenance = Provenance(attestation_bundles=[attestation_bundle]).model_dump(
+            mode="json"
+        )
+
+        return DatabaseProvenance(file=file, provenance=provenance)
 
 
 @implementer(IIntegrityService)
@@ -197,16 +150,13 @@ class IntegrityService:
 
         attestations = _extract_attestations_from_request(request)
 
-        # The above attestation extraction guarantees that we have a publisher.
-        publisher: OIDCPublisher = request.oidc_publisher
+        # Sanity-checked above.
+        expected_identity = request.oidc_publisher.attestation_identity
 
-        verification_policy = publisher.publisher_verification_policy(
-            request.oidc_claims
-        )
         for attestation_model in attestations:
             try:
                 predicate_type, _ = attestation_model.verify(
-                    verification_policy,
+                    expected_identity,
                     distribution,
                 )
             except VerificationError as e:
@@ -240,6 +190,15 @@ class IntegrityService:
     def build_provenance(
         self, request: Request, file: File, attestations: list[Attestation]
     ) -> DatabaseProvenance:
-        provenance = _build_provenance(request, file, attestations)
+        attestation_bundle = AttestationBundle(
+            publisher=request.oidc_publisher.attestation_identity,
+            attestations=attestations,
+        )
+
+        provenance = Provenance(attestation_bundles=[attestation_bundle]).model_dump(
+            mode="json"
+        )
+        db_provenance = DatabaseProvenance(file=file, provenance=provenance)
+
         self.metrics.increment("warehouse.attestations.build_provenance.ok")
-        return provenance
+        return db_provenance
