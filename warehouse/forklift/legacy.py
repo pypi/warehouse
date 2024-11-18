@@ -1098,26 +1098,29 @@ def file_upload(request):
 
             # The previous function fails to accomodate the edge case where
             # versions may contain hyphens, so we handle that here based on
-            # what we were expecting
+            # what we were expecting. This requires there to be at least two
+            # hyphens in the filename: one between the project name & version
+            # and one inside the version
             if (
                 meta.version.is_postrelease
                 and name_from_filename != packaging.utils.canonicalize_name(meta.name)
+                and filename.count("-") >= 2
             ):
-                # The distribution is a source distribution, the version is a
-                # postrelease, and the project name doesn't match, so
-                # there may be a hyphen in the version. Split the filename on the
-                # second to last hyphen instead.
-                name_from_filename = filename.rpartition("-")[0].rpartition("-")[0]
-                version_string_from_filename = filename[
-                    len(name_from_filename) + 1 : -len(".tar.gz")
-                ]
-                version_from_filename = packaging.version.Version(
-                    version_string_from_filename
-                )
+                try:
+                    # The distribution is a source distribution, the version is a
+                    # postrelease, and the project name doesn't match, so
+                    # there may be a hyphen in the version. Split the filename on the
+                    # second to last hyphen instead.
+                    name_from_filename = filename.rpartition("-")[0].rpartition("-")[0]
+                    version_string_from_filename = filename[
+                        len(name_from_filename) + 1 : -len(".tar.gz")
+                    ]
+                    version_from_filename = packaging.version.Version(
+                        version_string_from_filename
+                    )
 
-                # PEP 625: Enforcement of project version normalization.
-                # Filenames with dashes in the version will not be permitted.
-                if "-" in version_string_from_filename:
+                    # PEP 625: Enforcement of project version normalization.
+                    # Filenames with dashes in the version will not be permitted.
                     send_pep625_version_email(
                         request,
                         set(project.users),
@@ -1125,6 +1128,9 @@ def file_upload(request):
                         filename=filename,
                         normalized_version=str(version_from_filename),
                     )
+                except packaging.version.InvalidVersion:
+                    # If the version isn't valid, we're not on this edge case.
+                    pass
 
             # Ensure that the prefix in the filename and the project name
             # normalize to be the same thing. Eventually this should be
