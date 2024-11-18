@@ -392,9 +392,9 @@ urllib3==2.2.3 \
     # via
     #   requests
     #   responses
-waitress==3.0.1 \
-    --hash=sha256:26cdbc593093a15119351690752c99adc13cbc6786d75f7b6341d1234a3730ac \
-    --hash=sha256:ef0c1f020d9f12a515c4ec65c07920a702613afcad1dbfdc3bcec256b6c072b3
+waitress==3.0.2 \
+    --hash=sha256:682aaaf2af0c44ada4abfb70ded36393f0e307f4ab9456a215ce0020baefc31f \
+    --hash=sha256:c56d67fd6e87c2ee598b76abdd4e96cfad1f24cacdea5078d382b1f9d7b5ed2e
     # via webtest
 webob==1.8.9 \
     --hash=sha256:45e34c58ed0c7e2ecd238ffd34432487ff13d9ad459ddfd77895e67abba7c1f9 \
