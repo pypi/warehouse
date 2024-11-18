@@ -4792,8 +4792,8 @@ class TestFileUpload:
         db_request.POST.extend(
             [
                 ("license_expression", "MIT OR Apache-2.0"),
-                ("license_files", "LICENSE.APACHE"),
-                ("license_files", "LICENSE.MIT"),
+                ("license_file", "LICENSE.APACHE"),
+                ("license_file", "LICENSE.MIT"),
             ]
         )
         if filetype == "bdist_wheel":
@@ -4900,8 +4900,8 @@ class TestFileUpload:
         db_request.POST.extend(
             [
                 ("license_expression", "MIT OR Apache-2.0"),
-                ("license_files", "LICENSE"),  # Does not exist in test data
-                ("license_files", "LICENSE.MIT"),
+                ("license_file", "LICENSE"),  # Does not exist in test data
+                ("license_file", "LICENSE.MIT"),
             ]
         )
         if filetype == "bdist_wheel":
