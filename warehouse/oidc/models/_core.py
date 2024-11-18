@@ -29,10 +29,13 @@ from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.urls import verify_url_from_reference
 
 if TYPE_CHECKING:
+    from pypi_attestations import Publisher
+
     from warehouse.accounts.models import User
     from warehouse.macaroons.models import Macaroon
     from warehouse.oidc.services import OIDCPublisherService
     from warehouse.packaging.models import Project
+
 
 C = TypeVar("C")
 
@@ -310,13 +313,14 @@ class OIDCPublisherMixin:
         raise NotImplementedError
 
     @property
-    def supports_attestations(self) -> bool:
+    def attestation_identity(self) -> Publisher | None:
         """
-        Returns whether or not this kind of publisher supports attestations.
+        Returns an appropriate attestation verification identity, if this
+        kind of publisher supports attestations.
 
         Concrete subclasses should override this upon adding attestation support.
         """
-        return False
+        return None
 
     def publisher_verification_policy(
         self, claims: SignedClaims

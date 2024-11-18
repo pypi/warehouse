@@ -14,6 +14,7 @@ import re
 
 from typing import Any
 
+from pypi_attestations import GitHubPublisher as GitHubIdentity, Publisher
 from sigstore.verify.policy import (
     AllOf,
     AnyOf,
@@ -280,8 +281,12 @@ class GitHubPublisherMixin:
         return base
 
     @property
-    def supports_attestations(self) -> bool:
-        return True
+    def attestation_identity(self) -> Publisher | None:
+        return GitHubIdentity(
+            repository=self.repository,
+            workflow=self.workflow_filename,
+            environment=self.environment if self.environment else None,
+        )
 
     def publisher_verification_policy(self, claims):
         """
