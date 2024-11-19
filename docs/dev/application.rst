@@ -96,7 +96,7 @@ Directories within the repository:
   - `cli/ <https://github.com/pypi/warehouse/tree/main/warehouse/cli>`_ - entry scripts and
     :ref:`the interactive shell <running-the-interactive-shell>`
   - `email/ <https://github.com/pypi/warehouse/tree/main/warehouse/email>`_ - services for sending emails
-  - `forklift/ <https://github.com/pypi/warehouse/tree/main/warehouse/forklift>`_ - :ref:`upload-api-forklift`
+  - `forklift/ <https://github.com/pypi/warehouse/tree/main/warehouse/forklift>`_ - `upload API <https://docs.pypi.org/api/upload/>`_
   - `i18n/ <https://github.com/pypi/warehouse/tree/main/warehouse/i18n>`_ - internationalization
   - `integrations/ <https://github.com/pypi/warehouse/tree/main/warehouse/integrations>`_ - integrations with other services
   - `legacy/ <https://github.com/pypi/warehouse/tree/main/warehouse/legacy>`_ - most of the read-only APIs implemented here
