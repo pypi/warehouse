@@ -39,6 +39,12 @@ if typing.TYPE_CHECKING:
     from warehouse.packaging.models import File
 
 
+SUPPORTED_ATTESTATION_TYPES = {
+    AttestationType.PYPI_PUBLISH_V1,
+    AttestationType.SLSA_PROVENANCE_V1,
+}
+
+
 def _extract_attestations_from_request(request: Request) -> list[Attestation]:
     """
     Extract well-formed attestation objects from the given request's payload.
@@ -177,7 +183,7 @@ class IntegrityService:
                     f"Unknown error while trying to verify included attestations: {e}",
                 )
 
-            if predicate_type != AttestationType.PYPI_PUBLISH_V1:
+            if predicate_type not in SUPPORTED_ATTESTATION_TYPES:
                 self.metrics.increment(
                     "warehouse.upload.attestations.failed_unsupported_predicate_type"
                 )
