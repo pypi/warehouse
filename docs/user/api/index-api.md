@@ -9,7 +9,7 @@ This page documents PyPI's implementation of the
 
 !!! note
 
-    The index API are sometimes called the "legacy API,"
+    The index API is sometimes called the "legacy API,"
     since it provides feature parity with PyPI's legacy codebase.
 
 !!! note
