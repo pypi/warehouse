@@ -88,15 +88,15 @@ def sitemap_index(request):
         .group_by(User.sitemap_bucket)
         .all()
     )
-    buckets = {}
+    buckets: dict[str, datetime.datetime] = {}
     for b in itertools.chain(projects, users):
         current = buckets.setdefault(b.sitemap_bucket, b.modified)
         if current is None or (b.modified is not None and b.modified > current):
             buckets[b.sitemap_bucket] = b.modified
-    buckets = [Bucket(name=k, modified=v) for k, v in buckets.items()]
-    buckets.sort(key=lambda x: x.name)
+    bucket_list = [Bucket(name=k, modified=v) for k, v in buckets.items()]
+    bucket_list.sort(key=lambda x: x.name)
 
-    return {"buckets": buckets}
+    return {"buckets": bucket_list}
 
 
 @view_config(
