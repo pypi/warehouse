@@ -34,8 +34,25 @@ def administer_project_include(request):
         .filter(ProhibitedProjectName.name == func.normalize_pep426_name(project_name))
         .one_or_none()
     )
+    collisions = (
+        request.db.query(Project)
+        .filter(
+            func.ultranormalize_name(Project.name)
+            == func.ultranormalize_name(project_name)
+        )
+        .filter(
+            func.normalize_pep426_name(Project.name)
+            != func.normalize_pep426_name(project_name)
+        )
+        .all()
+    )
 
-    return {"project": project, "project_name": project_name, "prohibited": prohibited}
+    return {
+        "project": project,
+        "project_name": project_name,
+        "prohibited": prohibited,
+        "collisions": [p.name for p in collisions],
+    }
 
 
 @view_config(
