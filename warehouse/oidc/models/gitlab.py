@@ -14,6 +14,7 @@ import re
 
 from typing import Any
 
+from pypi_attestations import GitLabPublisher as GitLabIdentity, Publisher
 from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Query, mapped_column
@@ -257,6 +258,14 @@ class GitLabPublisherMixin:
     def publisher_url(self, claims=None):
         base = self.publisher_base_url
         return f"{base}/commit/{claims['sha']}" if claims else base
+
+    @property
+    def attestation_identity(self) -> Publisher | None:
+        return GitLabIdentity(
+            repository=self.project_path,
+            workflow_filepath=self.workflow_filepath,
+            environment=self.environment if self.environment else None,
+        )
 
     def stored_claims(self, claims=None):
         claims = claims if claims else {}
