@@ -40,8 +40,12 @@ class TestNullIntegrityService:
     def test_interface_matches(self):
         assert verifyClass(IIntegrityService, services.NullIntegrityService)
 
-    def test_build_provenance(self, db_request, dummy_attestation):
-        db_request.oidc_publisher = GitHubPublisherFactory.create()
+    @pytest.mark.parametrize(
+        "publisher_factory",
+        [GitHubPublisherFactory, GitLabPublisherFactory],
+    )
+    def test_build_provenance(self, db_request, dummy_attestation, publisher_factory):
+        db_request.oidc_publisher = publisher_factory.create()
 
         file = FileFactory.create()
         service = services.NullIntegrityService.create_service(None, db_request)
@@ -89,7 +93,6 @@ class TestIntegrityService:
     @pytest.mark.parametrize(
         "publisher_factory",
         [
-            GitLabPublisherFactory,
             GooglePublisherFactory,
             ActiveStatePublisherFactory,
         ],
@@ -267,7 +270,7 @@ class TestIntegrityService:
 
     @pytest.mark.parametrize(
         "publisher_factory",
-        [GitHubPublisherFactory],
+        [GitHubPublisherFactory, GitLabPublisherFactory],
     )
     def test_build_provenance_succeeds(
         self, metrics, db_request, publisher_factory, dummy_attestation
@@ -295,8 +298,12 @@ class TestIntegrityService:
         ]
 
 
-def test_extract_attestations_from_request_empty_list(db_request):
-    db_request.oidc_publisher = GitHubPublisherFactory.create()
+@pytest.mark.parametrize(
+    "publisher_factory",
+    [GitHubPublisherFactory, GitLabPublisherFactory],
+)
+def test_extract_attestations_from_request_empty_list(db_request, publisher_factory):
+    db_request.oidc_publisher = publisher_factory.create()
     db_request.POST = {"attestations": json.dumps([])}
 
     with pytest.raises(

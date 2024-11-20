@@ -20,6 +20,13 @@
     <code>{{ publ.workflow }}</code> on {{ publ.repository }}
   </a>
 </p>
+{% elif publ.kind == "GitLab" %}
+<p>
+  Publisher: <a href="https://gitlab.com/{{ publ.repository }}/blob/HEAD/{{ publ.workflow_filepath }}">
+    <i class="fa-brands fa-gitlab" aria-hidden="true"></i>
+    <code>{{ publ.workflow_filepath }}</code> on {{ publ.repository }}
+  </a>
+</p>
 {% endif %}
 {%- endmacro %}
 

@@ -710,6 +710,25 @@ class TestGitLabPublisher:
         )
         assert publisher.verify_url(url) == expected
 
+    @pytest.mark.parametrize("environment", ["", "some-env"])
+    def test_gitlab_publisher_attestation_identity(self, environment):
+        publisher = gitlab.GitLabPublisher(
+            project="project",
+            namespace="group/subgroup",
+            workflow_filepath="workflow_filename.yml",
+            environment=environment,
+        )
+
+        identity = publisher.attestation_identity
+        assert identity is not None
+        assert identity.repository == publisher.project_path
+        assert identity.workflow_filepath == publisher.workflow_filepath
+
+        if not environment:
+            assert identity.environment is None
+        else:
+            assert identity.environment == publisher.environment
+
 
 class TestPendingGitLabPublisher:
     def test_reify_does_not_exist_yet(self, db_request):
