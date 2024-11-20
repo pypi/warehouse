@@ -6,8 +6,8 @@ PyPI allows attestations to be attached to individual *release files*
 (source and binary distributions within a release) at upload time.
 
 Attestations are currently only supported when uploading with
-[Trusted Publishing], and currently only with GitHub-based Trusted Publishers.
-Support for other Trusted Publishers is planned. See
+[Trusted Publishing], and currently only with GitHub and GitLab-based
+Trusted Publishers. Support for other Trusted Publishers is planned. See
 [#17001](https://github.com/pypi/warehouse/issues/17001) for additional
 information.
 
@@ -108,6 +108,99 @@ information.
     See PyPI's [legacy upload API documentation] for adding attestations to a file
     upload at the upload API level.
 
+
+=== "GitLab CI/CD"
+
+    First, a GitLab workflow that uses Trusted Publishing to upload should already be
+    set up. See [here][GitLab Trusted Publishing] for the instructions.
+
+    Once that workflow exists, one can generate the attestations by adding an extra job
+    in the workflow that runs after building, but before publishing:
+
+    ```yaml
+    generate-pypi-attestations:
+      stage: build
+      image: python:3-bookworm
+      needs:
+      - job: build-job
+        artifacts: true
+      id_tokens:
+        SIGSTORE_ID_TOKEN:
+          aud: sigstore
+      script:
+        - python -m pip install -U pypi-attestations
+        - python -m pypi_attestations sign python_pkg/dist/*
+      artifacts:
+        paths:
+          - "python_pkg/dist/"
+    ```
+
+    The entire workflow, with the three jobs (build, generate attestations, and
+    publish) will look like this:
+
+    ```yaml
+    build-job:
+      stage: build
+      image: python:3-bookworm
+      script:
+        - python -m pip install -U build
+        - cd python_pkg && python -m build
+      artifacts:
+        paths:
+          - "python_pkg/dist/"
+
+    generate-pypi-attestations:
+      stage: build
+      image: python:3-bookworm
+      needs:
+      - job: build-job
+        artifacts: true
+      id_tokens:
+        SIGSTORE_ID_TOKEN:
+          aud: sigstore
+      script:
+        - python -m pip install -U pypi-attestations
+        - python -m pypi_attestations sign python_pkg/dist/*
+      artifacts:
+        paths:
+          - "python_pkg/dist/"
+
+    publish-job:
+      stage: deploy
+      image: python:3-bookworm
+      dependencies:
+        - build-job
+        - generate-pypi-attestations
+      id_tokens:
+        PYPI_ID_TOKEN:
+          # Use "testpypi" if uploading to TestPyPI
+          aud: pypi
+      script:
+        # Install dependencies
+        - apt update && apt install -y jq
+        - python -m pip install -U twine id
+
+        # Retrieve the OIDC token from GitLab CI/CD, and exchange it for a PyPI API token
+        - oidc_token=$(python -m id PYPI)
+        # Replace "https://pypi.org/*" with "https://test.pypi.org/*" if uploading to TestPyPI
+        - resp=$(curl -X POST https://pypi.org/_/oidc/mint-token -d "{\"token\":\"${oidc_token}\"}")
+        - api_token=$(jq --raw-output '.token' <<< "${resp}")
+
+        # Upload to PyPI authenticating via the newly-minted token, including the generated attestations
+        # Add "--repository testpypi" if uploading to TestPyPI
+        - twine --verbose --attestations upload -u __token__ -p "${api_token}" python_pkg/dist/*
+    ```
+
+    Note how, compared with the [Trusted Publishing workflow][GitLab Trusted Publishing], it has the
+    following changes:
+
+    - There is a new job called `generate-pypi-attestations` to generate the attestations and store
+      them as artifacts
+    - The publish job now also depends on `generate-pypi-attestations`, since it needs to download the
+      generated attestations from it.
+    - The publish job now calls `twine` passing the `--attestations` flag, to enable attestation upload.
+
+
 [Trusted Publishing]: /trusted-publishers/
 
 [gh-action-pypi-publish]: https://github.com/pypa/gh-action-pypi-publish
@@ -129,3 +222,5 @@ information.
 [twine]: https://github.com/pypa/twine
 
 [legacy upload API documentation]: https://warehouse.pypa.io/api-reference/legacy.html#upload-api
+
+[GitLab Trusted Publishing]: /trusted-publishers/using-a-publisher/#gitlab-cicd
