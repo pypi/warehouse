@@ -37,7 +37,11 @@
   </div>
   <div>
     {% if collisions %}
-    <b>Ultranormalization collisions: <code>{{ collisions|join(',') }}</code></b>
+    <b>Ultranormalization collisions:
+      {% for collision in collisions %}
+        <code><a href="{{ request.route_path('admin.project.detail', project_name=collision) }}">{{ collision }}</a></code>{% if not loop.last %}, {% endif %}
+      {% endfor %}
+    </b>
     {% endif %}
   </div>
 </div>
