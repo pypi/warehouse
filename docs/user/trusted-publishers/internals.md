@@ -219,7 +219,7 @@ platform to PyPI:
      * `claims_supported`: an array of claim names that PyPI should expect to
        see inside OIDC credentials issued by the IdP
 
-(where `iss` is the value of the `iss` claim in a provided OIDC token)
+     (where `iss` is the value of the `iss` claim in a provided OIDC token)
 
      IdPs that cannot provide discovery or these fields within the discovery
      response are not eligible.
