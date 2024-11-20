@@ -212,12 +212,14 @@ platform to PyPI:
    Other forms of identity providers are not eligible.
 
 1. **OIDC Discovery**: Your OIDC IdP **must** support [OpenID Connect Discovery],
-   i.e. serve a `https://{domain}/.well-known/openid-configuration` endpoint
+   i.e. serve a `https://{iss}/.well-known/openid-configuration` endpoint
    that contains, at minimum:
 
      * `jwks_uri`: a URL to the JSON Web Key (JWK) set used by the IdP for signing;
      * `claims_supported`: an array of claim names that PyPI should expect to
        see inside OIDC credentials issued by the IdP
+
+(where `iss` is the value of the `iss` claim in a provided OIDC token)
 
      IdPs that cannot provide discovery or these fields within the discovery
      response are not eligible.
