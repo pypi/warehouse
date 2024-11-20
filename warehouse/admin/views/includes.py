@@ -11,7 +11,7 @@
 # limitations under the License.
 
 from pyramid.view import view_config
-from sqlalchemy import func
+from sqlalchemy import func, select
 
 from warehouse.accounts.models import User
 from warehouse.packaging.models import ProhibitedProjectName, Project
@@ -34,8 +34,8 @@ def administer_project_include(request):
         .filter(ProhibitedProjectName.name == func.normalize_pep426_name(project_name))
         .one_or_none()
     )
-    collisions = (
-        request.db.query(Project)
+    collisions = request.db.scalars(
+        select(Project.name)
         .filter(
             func.ultranormalize_name(Project.name)
             == func.ultranormalize_name(project_name)
@@ -44,14 +44,13 @@ def administer_project_include(request):
             func.normalize_pep426_name(Project.name)
             != func.normalize_pep426_name(project_name)
         )
-        .all()
-    )
+    ).all()
 
     return {
         "project": project,
         "project_name": project_name,
         "prohibited": prohibited,
-        "collisions": [p.name for p in collisions],
+        "collisions": collisions,
     }
 
 
