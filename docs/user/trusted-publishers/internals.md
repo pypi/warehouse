@@ -211,6 +211,19 @@ platform to PyPI:
    operating an identity provider using the [OpenID Connect] specification.
    Other forms of identity providers are not eligible.
 
+1. **OIDC Discovery**: Your OIDC IdP **must** support [OpenID Connect Discovery],
+   i.e. serve a `https://{iss}/.well-known/openid-configuration` endpoint
+   that contains, at minimum:
+
+     * `jwks_uri`: a URL to the JSON Web Key (JWK) set used by the IdP for signing;
+     * `claims_supported`: an array of claim names that PyPI should expect to
+       see inside OIDC credentials issued by the IdP
+
+     (where `iss` is the value of the `iss` claim in a provided OIDC token)
+
+     IdPs that cannot provide discovery or these fields within the discovery
+     response are not eligible.
+
 1. **Reasonable OIDC claim set**: Your OIDC claims must sufficiently identify a
    unique workload that may be scoped to a PyPI project or set of projects.
    These claims must support the prevention of resurrection attacks, meaning
@@ -244,3 +257,5 @@ platform or service.
 [GitHub's secret scanning system]: https://docs.github.com/en/code-security/secret-scanning/about-secret-scanning
 
 [file an issue]: https://github.com/pypi/warehouse/issues/new?template=feature-request.md
+
+[OpenID Connect Discovery]: https://openid.net/specs/openid-connect-discovery-1_0.html
