@@ -81,13 +81,14 @@ def _extract_attestations_from_request(request: Request) -> list[Attestation]:
             "Malformed attestations: an empty attestation set is not permitted"
         )
 
-    # This is a temporary constraint; multiple attestations per file will
-    # be supported in the future.
-    if len(attestations) > 1:
-        metrics.increment("warehouse.upload.attestations.failed_multiple_attestations")
-
+    # We currently allow at most one attestation per predicate type
+    max_attestations = len(SUPPORTED_ATTESTATION_TYPES)
+    if len(attestations) > max_attestations:
+        metrics.increment(
+            "warehouse.upload.attestations.failed_limit_multiple_attestations"
+        )
         raise AttestationUploadError(
-            "Only a single attestation per file is supported",
+            f"A maximum of {max_attestations} attestations per file are supported",
         )
 
     return attestations
@@ -158,6 +159,8 @@ class IntegrityService:
         # Sanity-checked above.
         expected_identity = request.oidc_publisher.attestation_identity
 
+        seen_predicate_types: set[str] = set()
+
         for attestation_model in attestations:
             try:
                 predicate_type, _ = attestation_model.verify(
@@ -189,6 +192,17 @@ class IntegrityService:
                 raise AttestationUploadError(
                     f"Attestation with unsupported predicate type: {predicate_type}",
                 )
+
+            if predicate_type in seen_predicate_types:
+                self.metrics.increment(
+                    "warehouse.upload.attestations.failed_duplicate_predicate_type"
+                )
+                raise AttestationUploadError(
+                    f"Multiple attestations for the same file with the same predicate "
+                    f"type: {predicate_type}",
+                )
+
+            seen_predicate_types.add(predicate_type)
 
         return attestations
 
