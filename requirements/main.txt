@@ -1808,9 +1808,9 @@ pyramid-mailer==0.15.1 \
     --hash=sha256:28d4a7829ebc19dd40e712d8cb1998cec03c296ba675b2c112a503539738bdc1 \
     --hash=sha256:ec0aff54d9179b2aa2922ff82c2016a4dc8d1da5dc3408d6594f0e2096446f9b
     # via -r requirements/main.in
-pyramid-openapi3==0.19 \
-    --hash=sha256:843c1666d7f57e29694c2deaf215c83b96d210a3a3b479d52fbf4575b38869b0 \
-    --hash=sha256:d0d68f0745ba059c91fc0ca4f764466adaaf3bf97acf6f129e096c04ced7022b
+pyramid-openapi3==0.19.1 \
+    --hash=sha256:4fd588b4f555907cb6eef15d947f783d59c25659bf3daf916c0a9ba9721f6494 \
+    --hash=sha256:c0ca278b1f6b3f1d1dcd0351db69b77009fe450f2c9f0fce03726b8b3fabcdd8
     # via -r requirements/main.in
 pyramid-redirect==0.4 \
     --hash=sha256:2e43aca7c364137b8d33c07578813f6612d775b6d87dde5e555bdf5fd8aaa752 \
