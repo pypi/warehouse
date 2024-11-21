@@ -25,7 +25,7 @@ parallel = true
 exclude_lines = [
   "pragma: no cover",
   "class \\w+\\(Interface\\):",
-  "if (typing\\.)?TYPE_CHECKING:",
+  "if (typing\\.|t\\.)?TYPE_CHECKING:",
 ]
 
 [tool.curlylint]

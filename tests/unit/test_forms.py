@@ -16,7 +16,12 @@ import pytest
 from webob.multidict import MultiDict
 from wtforms.validators import ValidationError
 
-from warehouse.forms import PasswordStrengthValidator, SetLocaleForm, URIValidator
+from warehouse.forms import (
+    PasswordStrengthValidator,
+    PreventHTMLTagsValidator,
+    SetLocaleForm,
+    URIValidator,
+)
 
 
 class TestURIValidator:
@@ -81,6 +86,30 @@ class TestPasswordStrengthValidator:
         with pytest.raises(ValidationError) as exc:
             validator(pretend.stub(), pretend.stub(data=password))
         assert str(exc.value) == expected
+
+
+class TestPreventHTMLTagsValidator:
+    def test_valid(self):
+        validator = PreventHTMLTagsValidator()
+        validator(pretend.stub(), pretend.stub(data="https://example.com"))
+
+    def test_invalid(self):
+        validator = PreventHTMLTagsValidator()
+        with pytest.raises(ValidationError) as exc:
+            validator(
+                pretend.stub(), pretend.stub(data="<img src='https://example.com'>")
+            )
+
+        assert str(exc.value) == "HTML tags are not allowed"
+
+    def test_custom_message(self):
+        validator = PreventHTMLTagsValidator(message="No HTML allowed")
+        with pytest.raises(ValidationError) as exc:
+            validator(
+                pretend.stub(), pretend.stub(data="<img src='https://example.com'>")
+            )
+
+        assert str(exc.value) == "No HTML allowed"
 
 
 class TestSetLocaleForm:
