@@ -12,7 +12,7 @@
 
 from __future__ import annotations
 
-import typing as t
+from typing import TYPE_CHECKING
 
 from nh3 import clean, is_html
 from wtforms import Form as BaseForm, StringField
@@ -22,7 +22,7 @@ from zxcvbn import zxcvbn
 from warehouse.i18n import KNOWN_LOCALES
 from warehouse.utils.http import is_valid_uri
 
-if t.TYPE_CHECKING:
+if TYPE_CHECKING:
     from wtforms.fields import Field
 
 
