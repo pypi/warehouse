@@ -151,7 +151,6 @@ class IntegrityService:
         artifact. Attestations are only allowed when uploading via a Trusted
         Publisher, because a Trusted Publisher provides the identity that will be
         used to verify the attestations.
-        Only GitHub Actions Trusted Publishers are supported.
         """
 
         attestations = _extract_attestations_from_request(request)
