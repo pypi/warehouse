@@ -1410,7 +1410,9 @@ nh3==0.2.18 \
     --hash=sha256:c8b3a1cebcba9b3669ed1a84cc65bf005728d2f0bc1ed2a6594a992e817f3a50 \
     --hash=sha256:de3ceed6e661954871d6cd78b410213bdcb136f79aafe22aa7182e028b8c7307 \
     --hash=sha256:f0eca9ca8628dbb4e916ae2491d72957fdd35f7a5d326b7032a345f111ac07fe
-    # via readme-renderer
+    # via
+    #   -r requirements/main.in
+    #   readme-renderer
 openapi-core==0.19.4 \
     --hash=sha256:1150d9daa5e7b4cacfd7d7e097333dc89382d7d72703934128dcf8a1a4d0df49 \
     --hash=sha256:38e8347b6ebeafe8d3beb588214ecf0171874bb65411e9d4efd23cb011687201

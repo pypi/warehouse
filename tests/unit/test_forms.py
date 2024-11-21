@@ -89,9 +89,24 @@ class TestPasswordStrengthValidator:
 
 
 class TestPreventHTMLTagsValidator:
-    def test_valid(self):
+    @pytest.mark.parametrize(
+        "inbound_data",
+        [
+            "A link https://example.com",
+            "query string https://example.com?query=string",
+            "anchor https://example.com#fragment",
+            "qs and anchor https://example.com?query=string#fragment",
+            "path, qs, anchor https://example.com/path?query=string#fragment",
+            "A comment with a > character",
+            "A comment with a < character",
+            "A comment with a & character",
+            "A comment with a ' character",
+            'A comment with a " character',
+        ],
+    )
+    def test_valid(self, inbound_data):
         validator = PreventHTMLTagsValidator()
-        validator(pretend.stub(), pretend.stub(data="https://example.com"))
+        validator(pretend.stub(), pretend.stub(data=inbound_data))
 
     def test_invalid(self):
         validator = PreventHTMLTagsValidator()

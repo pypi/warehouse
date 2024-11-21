@@ -31,6 +31,7 @@ lxml
 more-itertools
 msgpack
 natsort
+nh3
 opensearch-py
 orjson
 packaging>=24.2

@@ -14,8 +14,7 @@ from __future__ import annotations
 
 import typing as t
 
-from html import escape
-
+from nh3 import clean, is_html
 from wtforms import Form as BaseForm, StringField
 from wtforms.validators import InputRequired, ValidationError
 from zxcvbn import zxcvbn
@@ -95,7 +94,10 @@ class PreventHTMLTagsValidator:
         self.message = message
 
     def __call__(self, form: BaseForm, field: Field):
-        if escape(field.data) != field.data:
+        # Override the default nh3.ALLOWED_TAGS to be an empty set
+        allowed_tags: set[str] = set()
+
+        if is_html(field.data) and field.data != clean(field.data, tags=allowed_tags):
             raise ValidationError(self.message)
 
 
