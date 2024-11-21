@@ -10,9 +10,9 @@ alembic==1.14.0 \
     # via
     #   -r requirements/main.in
     #   alembic-postgresql-enum
-alembic-postgresql-enum==1.3.0 \
-    --hash=sha256:42539e225f8b6c9adc9862a259edeed105b02143d55503152eeeea7a0b5af70b \
-    --hash=sha256:64d5de7ac2ea39433afd965b057ca882fb420eb5cd6a7db8e2b4d0e7e673cae1
+alembic-postgresql-enum==1.4.0 \
+    --hash=sha256:c9eb20cb594085a48175aabcc5ffb448e6abfcc3f34cd9d03a1b7d5cc35457b8 \
+    --hash=sha256:fb0af50059891bf3fb9638d4c32a61b4eee116c302a90e0c74ed3f5f396153f4
     # via -r requirements/main.in
 amqp==5.3.1 \
     --hash=sha256:43b3319e1b4e7d1251833a93d672b4af1e40f3d632d479b98661a95f117880a2 \
@@ -1808,9 +1808,9 @@ pyramid-mailer==0.15.1 \
     --hash=sha256:28d4a7829ebc19dd40e712d8cb1998cec03c296ba675b2c112a503539738bdc1 \
     --hash=sha256:ec0aff54d9179b2aa2922ff82c2016a4dc8d1da5dc3408d6594f0e2096446f9b
     # via -r requirements/main.in
-pyramid-openapi3==0.19 \
-    --hash=sha256:843c1666d7f57e29694c2deaf215c83b96d210a3a3b479d52fbf4575b38869b0 \
-    --hash=sha256:d0d68f0745ba059c91fc0ca4f764466adaaf3bf97acf6f129e096c04ced7022b
+pyramid-openapi3==0.19.1 \
+    --hash=sha256:4fd588b4f555907cb6eef15d947f783d59c25659bf3daf916c0a9ba9721f6494 \
+    --hash=sha256:c0ca278b1f6b3f1d1dcd0351db69b77009fe450f2c9f0fce03726b8b3fabcdd8
     # via -r requirements/main.in
 pyramid-redirect==0.4 \
     --hash=sha256:2e43aca7c364137b8d33c07578813f6612d775b6d87dde5e555bdf5fd8aaa752 \
@@ -2069,9 +2069,9 @@ rsa==4.9 \
     --hash=sha256:90260d9058e514786967344d0ef75fa8727eed8a7d2e43ce9f4bcf1b536174f7 \
     --hash=sha256:e38464a49c6c85d7f1351b0126661487a7e0a14a50f1675ec50eb34d4f20ef21
     # via google-auth
-s3transfer==0.10.3 \
-    --hash=sha256:263ed587a5803c6c708d3ce44dc4dfedaab4c1a32e8329bab818933d79ddcf5d \
-    --hash=sha256:4f50ed74ab84d474ce614475e0b8d5047ff080810aac5d01ea25231cfc944b0c
+s3transfer==0.10.4 \
+    --hash=sha256:244a76a24355363a68164241438de1b72f8781664920260c48465896b712a41e \
+    --hash=sha256:29edc09801743c21eb5ecbc617a152df41d3c287f67b615f73e5f750583666a7
     # via boto3
 securesystemslib==1.1.0 \
     --hash=sha256:100bf04e60b260e1c7c51e3232647697fde2c5ca5772fda4932d841d3fb6dd0e \
@@ -2171,9 +2171,9 @@ stdlib-list==0.11.0 \
     --hash=sha256:8bf8decfffaaf273d4cfeb5bd852b910a00dec1037dcf163576803622bccf597 \
     --hash=sha256:b74a7b643a77a12637e907f3f62f0ab9f67300bce4014f6b2d3c8b4c8fd63c66
     # via -r requirements/main.in
-stripe==11.2.0 \
-    --hash=sha256:4c53d61d7b596070324bfa5d7215843145fe5466e48973d828aab41ad209b5ce \
-    --hash=sha256:dec812eabc95488862be40e6c799acdaf2e1225d686490a793f949fab745fdd0
+stripe==11.3.0 \
+    --hash=sha256:98e625d9ddbabcecf02666867169696e113d9eaba27979fb310a7a8dfd44097c \
+    --hash=sha256:9d2e86943e1e4f325835d3860c4f58aa98d49229c9caf67588f9f9b2451e8e56
     # via -r requirements/main.in
 structlog==24.4.0 \
     --hash=sha256:597f61e80a91cc0749a9fd2a098ed76715a1c8a01f73e336b746504d1aad7610 \
@@ -2424,9 +2424,9 @@ zxcvbn==4.4.28 \
     # via -r requirements/main.in
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==75.5.0 \
-    --hash=sha256:5c4ccb41111392671f02bb5f8436dfc5a9a7185e80500531b133f5775c4163ef \
-    --hash=sha256:87cb777c3b96d638ca02031192d40390e0ad97737e27b6b4fa831bea86f2f829
+setuptools==75.6.0 \
+    --hash=sha256:8199222558df7c86216af4f84c30e9b34a61d8ba19366cc914424cdbd28252f6 \
+    --hash=sha256:ce74b49e8f7110f9bf04883b730f4765b774ef3ef28f722cce7c273d253aaf7d
     # via
     #   -r requirements/main.in
     #   pyramid
