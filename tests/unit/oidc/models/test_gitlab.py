@@ -615,6 +615,18 @@ class TestGitLabPublisher:
                 True,
             ),
             (
+                "Project_Name",
+                NAMESPACE,
+                f"https://gitlab.com/{NAMESPACE}/{PROJECT_NAME}.git",
+                True,
+            ),
+            (
+                PROJECT_NAME,
+                "Project_Owner",
+                f"https://gitlab.com/{NAMESPACE}/{PROJECT_NAME}.git",
+                True,
+            ),
+            (
                 PROJECT_NAME,
                 NAMESPACE,
                 f"https://gitlab.com/{NAMESPACE}/{PROJECT_NAME}.git/",
