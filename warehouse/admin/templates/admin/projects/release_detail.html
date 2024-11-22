@@ -273,6 +273,20 @@
           <td><code>{{ release.license }}</code></td>
         </tr>
         <tr>
+          <td>License-Expression</td>
+          <td><code>{{ release.license_expression }}</code></td>
+        </tr>
+        <tr>
+          <td>License-Files</td>
+          <td>
+            {% if release.license_files is not none %}
+            {% for license_file in release.license_files %}
+            <code>{{ license_file }}</code><br>
+            {% endfor %}
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
           <td>Classifier</td>
           <td>
             {% for classifier in release.classifiers %}

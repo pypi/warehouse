@@ -10,12 +10,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from nh3 import is_html
 from wtforms import Form as BaseForm, StringField
 from wtforms.validators import InputRequired, ValidationError
 from zxcvbn import zxcvbn
 
 from warehouse.i18n import KNOWN_LOCALES
 from warehouse.utils.http import is_valid_uri
+
+if TYPE_CHECKING:
+    from wtforms.fields import Field
 
 
 class URIValidator:
@@ -73,6 +81,21 @@ class PasswordStrengthValidator:
             if results["feedback"]["suggestions"]:
                 msg += " " + " ".join(results["feedback"]["suggestions"])
             raise ValidationError(msg)
+
+
+class PreventHTMLTagsValidator:
+    """
+    Validate the field to ensure that it does not contain any HTML tags.
+    """
+
+    def __init__(self, message: str | None = None):
+        if message is None:
+            message = "HTML tags are not allowed"
+        self.message = message
+
+    def __call__(self, form: BaseForm, field: Field):
+        if is_html(field.data):
+            raise ValidationError(self.message)
 
 
 class SetLocaleForm(BaseForm):

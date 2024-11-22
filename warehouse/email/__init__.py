@@ -1065,6 +1065,34 @@ def send_api_token_used_in_trusted_publisher_project_email(
     }
 
 
+@_email("pep625-extension-email")
+def send_pep625_extension_email(request, users, project_name, filename):
+    return {
+        "project_name": project_name,
+        "filename": filename,
+    }
+
+
+@_email("pep625-name-email")
+def send_pep625_name_email(request, users, project_name, filename, normalized_name):
+    return {
+        "project_name": project_name,
+        "filename": filename,
+        "normalized_name": normalized_name,
+    }
+
+
+@_email("pep625-version-email")
+def send_pep625_version_email(
+    request, users, project_name, filename, normalized_version
+):
+    return {
+        "project_name": project_name,
+        "filename": filename,
+        "normalized_version": normalized_version,
+    }
+
+
 def includeme(config):
     email_sending_class = config.maybe_dotted(config.registry.settings["mail.backend"])
     config.register_service_factory(email_sending_class.create_service, IEmailSender)

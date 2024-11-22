@@ -37,7 +37,8 @@ Project and release activity details
 PyPI publishes a "journal" of all project, package, and release
 activity (including Owner and Maintainer additions and removals, and
 source file and release additions and removals). You can query it with
-a mix of :ref:`changelog-since` and :ref:`simple-api`. Call
+a mix of :ref:`changelog-since` and the
+`index API <https://docs.pypi.org/api/index-api/>`_. Call
 ``changelog_last_serial()`` (in :doc:`xml-rpc`) to get the current
 revision of the journal (the last event's serial ID), then look at
 ``/simple/`` to get a list of all packages that currently

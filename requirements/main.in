@@ -31,9 +31,10 @@ lxml
 more-itertools
 msgpack
 natsort
+nh3
 opensearch-py
 orjson
-packaging>=23.2
+packaging>=24.2
 packaging_legacy
 paginate>=0.5.2
 paginate_sqlalchemy
@@ -64,8 +65,7 @@ redis>=2.8.0,<6.0.0
 rfc3986
 sentry-sdk
 setuptools
-sigstore~=3.5.1
-pypi-attestations==0.0.16
+pypi-attestations==0.0.17
 sqlalchemy[asyncio]>=2.0,<3.0
 stdlib-list
 stripe

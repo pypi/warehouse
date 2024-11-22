@@ -16,7 +16,6 @@ import sqlalchemy
 
 from tests.common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
 from warehouse.oidc import errors
-from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.models import _core, github
 
 
@@ -602,31 +601,6 @@ class TestGitHubPublisher:
         check = github.GitHubPublisher.__optional_verifiable_claims__["environment"]
         assert check(truth, claim, pretend.stub()) is valid
 
-    @pytest.mark.parametrize(
-        ("ref", "sha", "raises"),
-        [
-            ("ref", "sha", False),
-            (None, "sha", False),
-            ("ref", None, False),
-            (None, None, True),
-        ],
-    )
-    def test_github_publisher_verification_policy(self, ref, sha, raises):
-        publisher = github.GitHubPublisher(
-            repository_name="fakerepo",
-            repository_owner="fakeowner",
-            repository_owner_id="fakeid",
-            workflow_filename="fakeworkflow.yml",
-            environment="",
-        )
-        claims = {"ref": ref, "sha": sha}
-
-        if not raises:
-            publisher.publisher_verification_policy(claims)
-        else:
-            with pytest.raises(InvalidPublisherError):
-                publisher.publisher_verification_policy(claims)
-
     def test_github_publisher_duplicates_cant_be_created(self, db_request):
         publisher1 = github.GitHubPublisher(
             repository_name="repository_name",
@@ -662,6 +636,8 @@ class TestGitHubPublisher:
             ("https://repository_owner.github.io/repository_name/../malicious", False),
             ("https://repository_owner.github.io/", False),
             ("https://repository_owner.github.io/unrelated_name/", False),
+            ("https://github.com/RePosItory_OwNeR/rePository_Name.git", True),
+            ("https://repository_owner.github.io/RePoSiToRy_NaMe/subpage", True),
         ],
     )
     def test_github_publisher_verify_url(self, url, expected):
@@ -673,6 +649,25 @@ class TestGitHubPublisher:
             environment="",
         )
         assert publisher.verify_url(url) == expected
+
+    @pytest.mark.parametrize("environment", ["", "some-env"])
+    def test_github_publisher_attestation_identity(self, environment):
+        publisher = github.GitHubPublisher(
+            repository_name="repository_name",
+            repository_owner="repository_owner",
+            repository_owner_id="666",
+            workflow_filename="workflow_filename.yml",
+            environment=environment,
+        )
+
+        identity = publisher.attestation_identity
+        assert identity.repository == publisher.repository
+        assert identity.workflow == publisher.workflow_filename
+
+        if not environment:
+            assert identity.environment is None
+        else:
+            assert identity.environment == publisher.environment
 
 
 class TestPendingGitHubPublisher:
