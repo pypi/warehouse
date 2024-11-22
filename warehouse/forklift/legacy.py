@@ -1082,7 +1082,6 @@ def file_upload(request):
         # TODO: Remove sdist zip handling when #12245 is resolved
         # (PEP 625 – Filename of a Source Distribution)
         if form.filetype.data == "sdist" and filename.endswith(".zip"):
-
             # PEP 625: Enforcement on filename extensions. Files ending with
             # .zip will not be permitted.
             send_pep625_extension_email(
@@ -1398,15 +1397,9 @@ def file_upload(request):
 
         # If we have attestations from above, persist them.
         if attestations:
-            try:
-                request.db.add(
-                    integrity_service.build_provenance(request, file_, attestations)
-                )
-            except AttestationUploadError as e:
-                raise _exc_with_message(
-                    HTTPBadRequest,
-                    f"Invalid attestations supplied during upload: {e}",
-                )
+            request.db.add(
+                integrity_service.build_provenance(request, file_, attestations)
+            )
 
             # Log successful attestation upload
             metrics.increment("warehouse.upload.attestations.ok")
