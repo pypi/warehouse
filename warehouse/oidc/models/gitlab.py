@@ -331,7 +331,9 @@ class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):
             url = lowercase_base_url + url[len(lowercase_base_url) :]
 
         url_for_generic_check = url.removesuffix("/").removesuffix(".git")
-        if super().verify_url(url_for_generic_check):
+        if verify_url_from_reference(
+            reference_url=lowercase_base_url, url=url_for_generic_check
+        ):
             return True
 
         try:
