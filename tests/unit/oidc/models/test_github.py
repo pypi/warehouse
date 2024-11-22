@@ -625,6 +625,20 @@ class TestGitHubPublisher:
             db_request.db.commit()
 
     @pytest.mark.parametrize(
+        "repository_name",
+        [
+            "repository_name",
+            "Repository_Name",
+        ],
+    )
+    @pytest.mark.parametrize(
+        "repository_owner",
+        [
+            "repository_owner",
+            "Repository_Owner",
+        ],
+    )
+    @pytest.mark.parametrize(
         ("url", "expected"),
         [
             ("https://github.com/repository_owner/repository_name.git", True),
@@ -640,10 +654,12 @@ class TestGitHubPublisher:
             ("https://repository_owner.github.io/RePoSiToRy_NaMe/subpage", True),
         ],
     )
-    def test_github_publisher_verify_url(self, url, expected):
+    def test_github_publisher_verify_url(
+        self, url, expected, repository_name, repository_owner
+    ):
         publisher = github.GitHubPublisher(
-            repository_name="repository_name",
-            repository_owner="repository_owner",
+            repository_name=repository_name,
+            repository_owner=repository_owner,
             repository_owner_id="666",
             workflow_filename="workflow_filename.yml",
             environment="",

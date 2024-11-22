@@ -337,7 +337,10 @@ class GitHubPublisher(GitHubPublisherMixin, OIDCPublisher):
                 break
 
         url_for_generic_check = url.removesuffix("/").removesuffix(".git")
-        if super().verify_url(url_for_generic_check):
+        if verify_url_from_reference(
+            reference_url=self.publisher_base_url.lower(),
+            url=url_for_generic_check,
+        ):
             return True
 
         return verify_url_from_reference(reference_url=docs_url, url=url)
