@@ -27,7 +27,6 @@
 
 // TOOLS LAYER: libraries and mixins
 @import "tools/bourbon/bourbon"; // Also imports bourbon's default settings
-@import "tools/neat/neat"; // Also imports neat's default settings
 @import "tools/design-utilities";
 @import "tools/layout-utilities";
 @import "tools/link-utilities";
@@ -37,7 +36,6 @@
 @import "settings/breakpoints";
 @import "settings/colours";
 @import "settings/fonts";
-@import "settings/neat";
 @import "settings/grid";
 @import "settings/z-index";
 

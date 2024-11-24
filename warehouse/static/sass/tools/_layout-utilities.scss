@@ -28,6 +28,12 @@
   }
 }
 
+@mixin grid-container {
+  display: grid;
+  grid-template-columns: repeat($grid-columns, 1fr);
+  column-gap: $half-spacing-unit;
+}
+
 @mixin split-layout {
   display: flex;
   justify-content: space-between;
