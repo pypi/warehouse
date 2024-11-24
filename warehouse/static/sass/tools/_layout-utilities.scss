@@ -15,7 +15,8 @@
 @mixin centered-container($width) {
   max-width: $width;
 
-  @include margin(null auto);
+  margin-left: auto;
+  margin-right: auto;
   @include clearfix;
 }
 
