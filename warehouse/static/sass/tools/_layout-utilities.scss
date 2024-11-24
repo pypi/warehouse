@@ -12,6 +12,17 @@
  * limitations under the License.
  */
 
+ @mixin clearfix {
+  // From Bourbon. https://www.bourbon.io/docs/latest/#clearfix
+  // TODO: Confirm usages across codebase, and remove if not needed.
+  // Guidance is to fix layouts with flexbox or grid instead.
+  &::after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+}
+
 @mixin centered-container($width) {
   max-width: $width;
 
