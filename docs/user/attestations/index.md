@@ -32,6 +32,11 @@ Currently, PyPI allows the following attestation predicates:
 * [SLSA Provenance]
 * [PyPI Publish]
 
+Each file can be uploaded along its attestations. Currently PyPI supports two
+attestations per file: one for each of the allowed predicates. Uploads with more
+than two attestations per file, or with attestations with repeated predicates will
+be rejected.
+
 [in-toto Attestation Framework]: https://github.com/in-toto/attestation/blob/main/spec/README.md
 
 [PEP 740]: https://peps.python.org/pep-0740/

@@ -18,7 +18,8 @@
 */
 
 .col-half {
-  @include span-columns(6);
+  @include grid-container;
+  grid-column: span 6;
 
   &:last-of-type {
     margin: 0;

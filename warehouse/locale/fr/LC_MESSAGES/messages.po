@@ -23,18 +23,19 @@
 # Jean Abou Samra <jean@abou-samra.fr>, 2023.
 # Antoine Contes <admin@tatanesan.fr>, 2023.
 # Julien <github@mandark.fr>, 2023.
-# Michael <laurencehall1@outlook.com>, 2023.
+# Michael <laurencehall1@outlook.com>, 2023, 2024.
 # Vincent <vincelmj@gmail.com>, 2024.
 # Tanguy Dugas du Villard <tanguy.dugas01@gmail.com>, 2024.
 # Pierre PETAT <pierrepetat@hotmail.fr>, 2024.
 # Laurent FAVOLE <laurentfavole03@gmail.com>, 2024.
+# Alexis <alexis.challande@trailofbits.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2024-11-11 16:19+0000\n"
-"Last-Translator: Laurent FAVOLE <laurentfavole03@gmail.com>\n"
+"PO-Revision-Date: 2024-11-21 14:37+0000\n"
+"Last-Translator: Michael <laurencehall1@outlook.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/pypa/warehouse/fr/"
 ">\n"
 "Language: fr\n"
@@ -42,7 +43,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.8.2\n"
+"X-Generator: Weblate 5.9-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:149
@@ -50,7 +51,7 @@ msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
 msgstr ""
-"Vous devez vérifier votre adresse mail **principale** avant de pouvoir "
+"Vous devez vérifier votre adresse électronique **primaire** avant de pouvoir "
 "effectuer cette action."
 
 #: warehouse/views.py:165
@@ -162,10 +163,8 @@ msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Le nom est trop long. Choisissez un nom d’au plus 100 caractères."
 
 #: warehouse/accounts/forms.py:417
-#, fuzzy
-#| msgid "Null bytes are not allowed."
 msgid "URLs are not allowed in the name field."
-msgstr "Les octets nus ne sont pas autorisés."
+msgstr "Les URLs ne sont pas autorisées dans le champ nom."
 
 #: warehouse/accounts/forms.py:506
 msgid "Invalid TOTP code."
@@ -184,10 +183,8 @@ msgid "Recovery code has been previously used."
 msgstr "Le code de récupération a été utilisé précédemment."
 
 #: warehouse/accounts/forms.py:631
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
 msgid "The username isn't valid. Try again."
-msgstr "L’adresse e-mail est invalide. Veuillez réessayer."
+msgstr "Le nom d'utilisateur est invalide. Veuillez réessayer."
 
 #: warehouse/accounts/views.py:119
 msgid ""
@@ -388,14 +385,10 @@ msgstr ""
 "pypi.org/help#admin-intervention pour plus d'informations."
 
 #: warehouse/accounts/views.py:1569
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr ""
-"L'inscription de nouveaux profils est temporairement désactivée. Consultez "
-"https://pypi.org/help#admin-intervention pour plus d'informations."
+"désactivée. Consultez https://pypi.org/help#admin-intervention pour plus "
+"d'informations."
 
 #: warehouse/accounts/views.py:1585
 msgid ""
@@ -438,10 +431,8 @@ msgstr ""
 "administrateurs de PyPI si cela n'était pas intentionnel."
 
 #: warehouse/accounts/views.py:1666
-#, fuzzy
-#| msgid "Add a new provider"
 msgid "Registered a new pending publisher to create "
-msgstr "Ajouter un nouveau fournisseur"
+msgstr "Nouveau fournisseur ajouté pour "
 
 #: warehouse/accounts/views.py:1805 warehouse/accounts/views.py:1818
 #: warehouse/accounts/views.py:1825
@@ -999,7 +990,7 @@ msgstr ""
 "Le chemin du fichier du pipeline de plus haut niveau ne peut pas commencer "
 "ou finir par /"
 
-#: warehouse/packaging/forms.py:26
+#: warehouse/packaging/forms.py:27
 msgid "Provide an Inspector link to specific lines of code."
 msgstr ""
 
@@ -1073,7 +1064,7 @@ msgstr "Monty Python, le sketch de la fromagerie"
 #: warehouse/templates/base.html:321 warehouse/templates/base.html:331
 #: warehouse/templates/base.html:344
 #: warehouse/templates/includes/accounts/profile-callout.html:18
-#: warehouse/templates/includes/file-details.html:94
+#: warehouse/templates/includes/file-details.html:101
 #: warehouse/templates/index.html:100 warehouse/templates/index.html:104
 #: warehouse/templates/manage/account.html:228
 #: warehouse/templates/manage/account.html:234
@@ -3225,54 +3216,54 @@ msgstr "Paramètres du compte"
 msgid "Public profile"
 msgstr "Profil public"
 
-#: warehouse/templates/includes/file-details.html:27
+#: warehouse/templates/includes/file-details.html:34
 #, fuzzy
 #| msgid "Billing details"
 msgid "File details"
 msgstr "Informations de facturation"
 
-#: warehouse/templates/includes/file-details.html:38
+#: warehouse/templates/includes/file-details.html:45
 #, python-format
 msgid "Upload date: %(upload_time)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:39
+#: warehouse/templates/includes/file-details.html:46
 #, fuzzy, python-format
 #| msgid "Expires: %(exp)s"
 msgid "Size: %(size)s"
 msgstr "Expire : %(exp)s"
 
-#: warehouse/templates/includes/file-details.html:40
+#: warehouse/templates/includes/file-details.html:47
 #, python-format
 msgid "Tags: %(tags)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:42
+#: warehouse/templates/includes/file-details.html:49
 #, python-format
 msgid "Uploaded using Trusted Publishing? %(is_tp)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:47
+#: warehouse/templates/includes/file-details.html:54
 #, python-format
 msgid "Uploaded via: %(uploaded_via)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:55
+#: warehouse/templates/includes/file-details.html:62
 #, python-format
 msgid "Hashes for %(filename)s"
 msgstr "Empreintes pour %(filename)s"
 
-#: warehouse/templates/includes/file-details.html:58
+#: warehouse/templates/includes/file-details.html:65
 msgid "Algorithm"
 msgstr "Algorithme"
 
-#: warehouse/templates/includes/file-details.html:59
+#: warehouse/templates/includes/file-details.html:66
 msgid "Hash digest"
 msgstr "Empreinte de hachage"
 
-#: warehouse/templates/includes/file-details.html:68
-#: warehouse/templates/includes/file-details.html:77
-#: warehouse/templates/includes/file-details.html:86
+#: warehouse/templates/includes/file-details.html:75
+#: warehouse/templates/includes/file-details.html:84
+#: warehouse/templates/includes/file-details.html:93
 #: warehouse/templates/manage/account.html:206
 #: warehouse/templates/manage/account/recovery_codes-provision.html:58
 #: warehouse/templates/manage/account/totp-provision.html:57
@@ -3282,9 +3273,9 @@ msgstr "Empreinte de hachage"
 msgid "Copy to clipboard"
 msgstr "Copier dans le presse-papiers"
 
-#: warehouse/templates/includes/file-details.html:69
-#: warehouse/templates/includes/file-details.html:78
-#: warehouse/templates/includes/file-details.html:87
+#: warehouse/templates/includes/file-details.html:76
+#: warehouse/templates/includes/file-details.html:85
+#: warehouse/templates/includes/file-details.html:94
 #: warehouse/templates/manage/account.html:207
 #: warehouse/templates/manage/account/recovery_codes-provision.html:59
 #: warehouse/templates/manage/account/totp-provision.html:58
@@ -3293,7 +3284,7 @@ msgstr "Copier dans le presse-papiers"
 msgid "Copy"
 msgstr "Copier"
 
-#: warehouse/templates/includes/file-details.html:94
+#: warehouse/templates/includes/file-details.html:101
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "

@@ -1469,6 +1469,8 @@ def file_upload(request):
         "maintainer": meta.maintainer,
         "maintainer_email": meta.maintainer_email,
         "license": meta.license,
+        "license_expression": meta.license_expression,
+        "license_files": meta.license_files,
         "keywords": meta.keywords,
         "classifiers": meta.classifiers,
         "platform": meta.platforms[0] if meta.platforms else None,

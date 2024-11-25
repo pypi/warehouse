@@ -12,10 +12,22 @@
  * limitations under the License.
  */
 
+ @mixin clearfix {
+  // From Bourbon. https://www.bourbon.io/docs/latest/#clearfix
+  // TODO: Confirm usages across codebase, and remove if not needed.
+  // Guidance is to fix layouts with flexbox or grid instead.
+  &::after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+}
+
 @mixin centered-container($width) {
   max-width: $width;
 
-  @include margin(null auto);
+  margin-left: auto;
+  margin-right: auto;
   @include clearfix;
 }
 
@@ -26,6 +38,12 @@
   @media screen and (max-width: $small-tablet) {
     padding: 0 $half-spacing-unit;
   }
+}
+
+@mixin grid-container {
+  display: grid;
+  grid-template-columns: repeat($grid-columns, 1fr);
+  column-gap: $half-spacing-unit;
 }
 
 @mixin split-layout {
