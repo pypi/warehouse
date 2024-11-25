@@ -160,11 +160,13 @@
 }
 
 .public-email {
-  @include ellipsis;
-
+  display: inline-block;
   max-width: 85%;
+  overflow: hidden;
   position: relative;
+  text-overflow: ellipsis;
   top: 3px;
+  white-space: nowrap;
 
   &::after {
     content: none !important;
