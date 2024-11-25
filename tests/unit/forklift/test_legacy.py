@@ -1195,7 +1195,7 @@ class TestFileUpload:
 
         db_request.POST = MultiDict(
             {
-                "metadata_version": "1.2",
+                "metadata_version": "2.4",
                 "name": project.name,
                 "version": release.version,
                 "filetype": "sdist",
@@ -1203,9 +1203,16 @@ class TestFileUpload:
                 "content": content,
                 "description": "an example description",
                 "keywords": "keyword1, keyword2",
+                "license_expression": "MIT OR Apache-2.0",
             }
         )
-        db_request.POST.extend([("classifiers", "Environment :: Other Environment")])
+        db_request.POST.extend(
+            [
+                ("classifiers", "Environment :: Other Environment"),
+                ("license_file", "LICENSE.APACHE"),
+                ("license_file", "LICENSE.MIT"),
+            ]
+        )
         db_request.POST.update(digests)
 
         @pretend.call_recorder
@@ -1289,7 +1296,7 @@ class TestFileUpload:
         assert delay.calls == [
             pretend.call(
                 {
-                    "metadata_version": "1.2",
+                    "metadata_version": "2.4",
                     "name": project.name,
                     "version": release.version,
                     "summary": None,
@@ -1300,6 +1307,8 @@ class TestFileUpload:
                     "maintainer": None,
                     "maintainer_email": None,
                     "license": None,
+                    "license_expression": "MIT OR Apache-2.0",
+                    "license_files": ["LICENSE.APACHE", "LICENSE.MIT"],
                     "keywords": ["keyword1", "keyword2"],
                     "classifiers": ["Environment :: Other Environment"],
                     "platform": None,
