@@ -26,9 +26,6 @@
 */
 
 // TOOLS LAYER: libraries and mixins
-/* stylelint-disable -- Upgrading bourbon to modern */
-@import "node_modules/bourbon/core/_bourbon"; // Also imports bourbon's default settings
-/* stylelint-enable */
 @import "tools/design-utilities";
 @import "tools/layout-utilities";
 @import "tools/link-utilities";
