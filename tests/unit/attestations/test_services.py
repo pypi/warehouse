@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import json
+import re
 
 import pretend
 import pytest
@@ -186,8 +187,10 @@ class TestIntegrityService:
 
         with pytest.raises(
             AttestationUploadError,
-            match="Multiple attestations for the same file with the same predicate "
-            "type: AttestationType.PYPI_PUBLISH_V1",
+            match=re.escape(
+                "Multiple attestations for the same file with the same predicate "
+                "type (https://docs.pypi.org/attestations/publish/v1) are not supported"
+            ),
         ):
             integrity_service.parse_attestations(
                 db_request,

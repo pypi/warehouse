@@ -159,11 +159,11 @@ class IntegrityService:
         # Sanity-checked above.
         expected_identity = request.oidc_publisher.attestation_identity
 
-        seen_predicate_types: set[str] = set()
+        seen_predicate_types: set[AttestationType] = set()
 
         for attestation_model in attestations:
             try:
-                predicate_type, _ = attestation_model.verify(
+                predicate_type_str, _ = attestation_model.verify(
                     expected_identity,
                     distribution,
                 )
@@ -185,21 +185,23 @@ class IntegrityService:
                     f"Unknown error while trying to verify included attestations: {e}",
                 )
 
-            if predicate_type not in SUPPORTED_ATTESTATION_TYPES:
+            if predicate_type_str not in SUPPORTED_ATTESTATION_TYPES:
                 self.metrics.increment(
                     "warehouse.upload.attestations.failed_unsupported_predicate_type"
                 )
                 raise AttestationUploadError(
-                    f"Attestation with unsupported predicate type: {predicate_type}",
+                    f"Attestation with unsupported predicate type: "
+                    f"{predicate_type_str}",
                 )
+            predicate_type = AttestationType(predicate_type_str)
 
             if predicate_type in seen_predicate_types:
                 self.metrics.increment(
                     "warehouse.upload.attestations.failed_duplicate_predicate_type"
                 )
                 raise AttestationUploadError(
-                    f"Multiple attestations for the same file with the same predicate "
-                    f"type: {predicate_type}",
+                    f"Multiple attestations for the same file with the same "
+                    f"predicate type ({predicate_type.value}) are not supported",
                 )
 
             seen_predicate_types.add(predicate_type)
