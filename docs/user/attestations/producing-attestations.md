@@ -188,7 +188,7 @@ information.
 
         # Upload to PyPI authenticating via the newly-minted token, including the generated attestations
         # Add "--repository testpypi" if uploading to TestPyPI
-        - twine --verbose --attestations upload -u __token__ -p "${api_token}" python_pkg/dist/*
+        - twine upload --verbose --attestations -u __token__ -p "${api_token}" python_pkg/dist/*
     ```
 
     Note how, compared with the [Trusted Publishing workflow][GitLab Trusted Publishing], it has the
