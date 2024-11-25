@@ -1024,7 +1024,7 @@ msgstr ""
 "Der Pfad der Pipelinedatei der obersten Ebene darf nicht mit / beginnen oder "
 "enden"
 
-#: warehouse/packaging/forms.py:26
+#: warehouse/packaging/forms.py:27
 msgid "Provide an Inspector link to specific lines of code."
 msgstr ""
 
@@ -1099,7 +1099,7 @@ msgstr "Monty Python - Der Cheese-Shop Sketch"
 #: warehouse/templates/base.html:321 warehouse/templates/base.html:331
 #: warehouse/templates/base.html:344
 #: warehouse/templates/includes/accounts/profile-callout.html:18
-#: warehouse/templates/includes/file-details.html:94
+#: warehouse/templates/includes/file-details.html:101
 #: warehouse/templates/index.html:100 warehouse/templates/index.html:104
 #: warehouse/templates/manage/account.html:228
 #: warehouse/templates/manage/account.html:234
@@ -3425,54 +3425,54 @@ msgstr "Kontoeinstellungen"
 msgid "Public profile"
 msgstr "Öffentliches Profil"
 
-#: warehouse/templates/includes/file-details.html:27
+#: warehouse/templates/includes/file-details.html:34
 #, fuzzy
 #| msgid "Account details"
 msgid "File details"
 msgstr "Konto-Details"
 
-#: warehouse/templates/includes/file-details.html:38
+#: warehouse/templates/includes/file-details.html:45
 #, python-format
 msgid "Upload date: %(upload_time)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:39
+#: warehouse/templates/includes/file-details.html:46
 #, fuzzy, python-format
 #| msgid "Expires: %(exp)s"
 msgid "Size: %(size)s"
 msgstr "Verfällt: %(exp)s"
 
-#: warehouse/templates/includes/file-details.html:40
+#: warehouse/templates/includes/file-details.html:47
 #, python-format
 msgid "Tags: %(tags)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:42
+#: warehouse/templates/includes/file-details.html:49
 #, python-format
 msgid "Uploaded using Trusted Publishing? %(is_tp)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:47
+#: warehouse/templates/includes/file-details.html:54
 #, python-format
 msgid "Uploaded via: %(uploaded_via)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:55
+#: warehouse/templates/includes/file-details.html:62
 #, python-format
 msgid "Hashes for %(filename)s"
 msgstr "Hash-Codes für %(filename)s"
 
-#: warehouse/templates/includes/file-details.html:58
+#: warehouse/templates/includes/file-details.html:65
 msgid "Algorithm"
 msgstr "Algorithmus"
 
-#: warehouse/templates/includes/file-details.html:59
+#: warehouse/templates/includes/file-details.html:66
 msgid "Hash digest"
 msgstr "Hashwert"
 
-#: warehouse/templates/includes/file-details.html:68
-#: warehouse/templates/includes/file-details.html:77
-#: warehouse/templates/includes/file-details.html:86
+#: warehouse/templates/includes/file-details.html:75
+#: warehouse/templates/includes/file-details.html:84
+#: warehouse/templates/includes/file-details.html:93
 #: warehouse/templates/manage/account.html:206
 #: warehouse/templates/manage/account/recovery_codes-provision.html:58
 #: warehouse/templates/manage/account/totp-provision.html:57
@@ -3482,9 +3482,9 @@ msgstr "Hashwert"
 msgid "Copy to clipboard"
 msgstr "In die Zwischenablage kopieren"
 
-#: warehouse/templates/includes/file-details.html:69
-#: warehouse/templates/includes/file-details.html:78
-#: warehouse/templates/includes/file-details.html:87
+#: warehouse/templates/includes/file-details.html:76
+#: warehouse/templates/includes/file-details.html:85
+#: warehouse/templates/includes/file-details.html:94
 #: warehouse/templates/manage/account.html:207
 #: warehouse/templates/manage/account/recovery_codes-provision.html:59
 #: warehouse/templates/manage/account/totp-provision.html:58
@@ -3493,7 +3493,7 @@ msgstr "In die Zwischenablage kopieren"
 msgid "Copy"
 msgstr "Kopieren"
 
-#: warehouse/templates/includes/file-details.html:94
+#: warehouse/templates/includes/file-details.html:101
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
