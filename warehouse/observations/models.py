@@ -113,6 +113,7 @@ class ObservationKind(enum.Enum):
     IsMalware = ("is_malware", "Is Malware")
     IsSpam = ("is_spam", "Is Spam")
     SomethingElse = ("something_else", "Something Else")
+    AccountAbuse = ("account_abuse", "Account Abuse")
     AccountRecovery = (
         "account_recovery",
         "Account Recovery",

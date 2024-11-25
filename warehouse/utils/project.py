@@ -119,6 +119,10 @@ def quarantine_project(project: Project, request, flash=True) -> None:
         )
     )
 
+    # freeze associated user accounts
+    for user in project.users:
+        user.is_frozen = True
+
     if flash:
         request.session.flash(
             f"Project {project.name} quarantined.\n"

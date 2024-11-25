@@ -159,17 +159,22 @@ if (tokenTable.length) {
 }
 
 // Observations
-let observationsTable = $("#observations");
-if (observationsTable.length) {
-  let table = observationsTable.DataTable({
-    responsive: true,
-    lengthChange: false,
-  });
-  table.column(".time").order("desc").draw();
-  table.columns([".payload"]).visible(false);
-  new $.fn.dataTable.Buttons(table, {buttons: ["copy", "csv", "colvis"]});
-  table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
-}
+// Note: Each of these tables **must** have the same columns for this to work.
+const tableSelectors = ["#observations", "#user_observations"];
+
+tableSelectors.forEach(selector => {
+  let tableElement = $(selector);
+  if (tableElement.length) {
+    let table = tableElement.DataTable({
+      responsive: true,
+      lengthChange: false,
+    });
+    table.column(".time").order("desc").draw();
+    table.columns([".payload"]).visible(false);
+    new $.fn.dataTable.Buttons(table, {buttons: ["copy", "csv", "colvis"]});
+    table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
+  }
+});
 
 // Malware Reports
 let malwareReportsTable = $("#malware-reports");

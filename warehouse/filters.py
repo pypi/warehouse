@@ -129,7 +129,7 @@ def format_tags(tags):
 
 
 def format_classifiers(classifiers):
-    structured = collections.OrderedDict()
+    structured: collections.OrderedDict[str, list[str]] = collections.OrderedDict()
 
     # Split up our classifiers into our data structure
     for classifier in classifiers:

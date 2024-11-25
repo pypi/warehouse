@@ -115,7 +115,7 @@
         {% endif %}
       </label>
       {{ pending_github_publisher_form.environment(
-        placeholder=gettext("release"),
+        placeholder="testpypi" if testPyPI else "pypi",
         class_="form-group__field",
         autocomplete="off",
         aria_describedby="environment-errors",

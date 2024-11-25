@@ -13,10 +13,13 @@ from __future__ import annotations
 
 import typing
 
+from functools import cached_property
 from uuid import UUID
 
+import pypi_attestations
+
 from sqlalchemy import ForeignKey, orm
-from sqlalchemy.dialects.postgresql import CITEXT, JSONB
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
@@ -45,8 +48,6 @@ class Provenance(db.Model):
     # This JSONB has the structure of a PEP 740 provenance object.
     provenance: Mapped[dict] = mapped_column(JSONB, nullable=False, deferred=True)
 
-    # The SHA-2/256 digest of the provenance object stored in this row.
-    # Postgres uses a compact binary representation under the hood and is
-    # unlikely to provide a permanently stable serialization, so this is the
-    # hash of the RFC 8785 serialization.
-    provenance_digest: Mapped[str] = mapped_column(CITEXT)
+    @cached_property
+    def as_model(self):
+        return pypi_attestations.Provenance.model_validate(self.provenance)

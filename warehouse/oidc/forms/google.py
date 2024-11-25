@@ -12,11 +12,10 @@
 
 import wtforms
 
-from warehouse import forms
 from warehouse.oidc.forms._core import PendingPublisherMixin
 
 
-class GooglePublisherBase(forms.Form):
+class GooglePublisherBase(wtforms.Form):
     __params__ = ["email", "sub"]
 
     email = wtforms.fields.EmailField(

@@ -10,12 +10,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from nh3 import is_html
 from wtforms import Form as BaseForm, StringField
-from wtforms.validators import InputRequired, StopValidation, ValidationError
+from wtforms.validators import InputRequired, ValidationError
 from zxcvbn import zxcvbn
 
 from warehouse.i18n import KNOWN_LOCALES
 from warehouse.utils.http import is_valid_uri
+
+if TYPE_CHECKING:
+    from wtforms.fields import Field
 
 
 class URIValidator:
@@ -75,47 +83,22 @@ class PasswordStrengthValidator:
             raise ValidationError(msg)
 
 
-class Form(BaseForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._form_errors = []
+class PreventHTMLTagsValidator:
+    """
+    Validate the field to ensure that it does not contain any HTML tags.
+    """
 
-    def validate(self, *args, **kwargs):
-        success = super().validate(*args, **kwargs)
+    def __init__(self, message: str | None = None):
+        if message is None:
+            message = "HTML tags are not allowed"
+        self.message = message
 
-        # Determine what form level validators we have to run.
-        form_validators = getattr(self.meta, "validators", [])
-        full_validate = getattr(self, "full_validate", None)
-        if full_validate is not None:
-            form_validators.append(full_validate.__func__)
-
-        # Attempt run any form level validators now.
-        self._form_errors = []
-        for validator in form_validators:
-            try:
-                validator(self)
-            except StopValidation as exc:
-                success = False
-                if exc.args and exc.args[0]:
-                    self._form_errors.append(exc.args[0])
-                break
-            except ValueError as exc:
-                success = False
-                self._form_errors.append(exc.args[0])
-
-        return success
-
-    @property
-    def errors(self):
-        errors = super().errors
-
-        if self._form_errors:
-            errors["__all__"] = self._form_errors
-
-        return errors
+    def __call__(self, form: BaseForm, field: Field):
+        if is_html(field.data):
+            raise ValidationError(self.message)
 
 
-class SetLocaleForm(Form):
+class SetLocaleForm(BaseForm):
     __params__ = ["locale_id"]
 
     locale_id = StringField(validators=[InputRequired(message="Missing locale ID")])

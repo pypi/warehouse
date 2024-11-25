@@ -25,3 +25,8 @@ class IHelpDeskService(Interface):
         """
         Create a new conversation in the helpdesk service.
         """
+
+    def add_tag(*, conversation_url: str, tag: str) -> None:
+        """
+        Add a tag to a conversation.
+        """

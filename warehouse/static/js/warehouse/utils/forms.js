@@ -45,7 +45,7 @@ export function submitTriggers() {
     button.addEventListener(
       "click",
       removeFilter.bind(null, input.value),
-      false
+      false,
     );
   }
 }

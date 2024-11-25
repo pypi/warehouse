@@ -25,6 +25,8 @@ from warehouse.oidc.models._core import (
     check_claim_invariant,
 )
 
+GOOGLE_OIDC_ISSUER_URL = "https://accounts.google.com"
+
 
 def _check_sub(
     ground_truth: str,

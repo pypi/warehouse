@@ -14,6 +14,7 @@ import opensearchpy
 import pretend
 
 from warehouse import search
+from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 from ...common.db.packaging import ProjectFactory, ReleaseFactory
 
@@ -118,11 +119,15 @@ def test_includeme(monkeypatch):
                 "aws.key_id": "AAAAAAAAAAAA",
                 "aws.secret_key": "deadbeefdeadbeefdeadbeef",
                 "opensearch.url": opensearch_url,
+                "warehouse.search.ratelimit_string": "10 per second",
             },
             __setitem__=registry.__setitem__,
         ),
         add_request_method=pretend.call_recorder(lambda *a, **kw: None),
         add_periodic_task=pretend.call_recorder(lambda *a, **kw: None),
+        register_service_factory=pretend.call_recorder(
+            lambda factory, iface, name=None: None
+        ),
     )
 
     search.includeme(config)
@@ -132,8 +137,9 @@ def test_includeme(monkeypatch):
     ]
     assert len(opensearch_client_init.calls) == 1
     assert opensearch_client_init.calls[0].kwargs["hosts"] == ["https://some.url"]
-    assert opensearch_client_init.calls[0].kwargs["timeout"] == 2
-    assert opensearch_client_init.calls[0].kwargs["retry_on_timeout"] is False
+    assert opensearch_client_init.calls[0].kwargs["timeout"] == 0.5
+    assert opensearch_client_init.calls[0].kwargs["retry_on_timeout"] is True
+    assert opensearch_client_init.calls[0].kwargs["max_retries"] == 1
     assert (
         opensearch_client_init.calls[0].kwargs["connection_class"]
         == opensearchpy.connection.http_requests.RequestsHttpConnection
@@ -146,4 +152,8 @@ def test_includeme(monkeypatch):
     assert registry["opensearch.replicas"] == 0
     assert config.add_request_method.calls == [
         pretend.call(search.opensearch, name="opensearch", reify=True)
+    ]
+
+    assert config.register_service_factory.calls == [
+        pretend.call(RateLimit("10 per second"), IRateLimiter, name="search")
     ]

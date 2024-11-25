@@ -14,7 +14,6 @@ import re
 
 import wtforms
 
-from warehouse import forms
 from warehouse.i18n import localize as _
 from warehouse.oidc.forms._core import PendingPublisherMixin
 
@@ -24,7 +23,7 @@ _VALID_GITLAB_NAMESPACE = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9-_./]*$")
 _VALID_GITLAB_ENVIRONMENT = re.compile(r"^[a-zA-Z0-9\-_/${} ]+$")
 
 
-class GitLabPublisherBase(forms.Form):
+class GitLabPublisherBase(wtforms.Form):
     __params__ = ["namespace", "project", "workflow_filepath", "environment"]
 
     namespace = wtforms.StringField(
