@@ -1292,14 +1292,6 @@ class ManageProjectSettingsViews:
 
         # delete the alternate repository location entry
         self.request.db.delete(alt_repo)
-        self.request.db.add(
-            JournalEntry(
-                name=alt_repo.name,
-                action=f"deleted alternate repository {alt_repo.name} "
-                f"from project {self.project.name}",
-                submitted_by=self.request.user,
-            )
-        )
         self.project.record_event(
             tag=EventTag.Project.AlternateRepositoryDelete,
             request=self.request,
