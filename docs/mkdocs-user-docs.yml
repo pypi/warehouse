@@ -85,9 +85,10 @@ nav:
       - "attestations/publish/v1.md"
       - "attestations/security-model.md"
   - "project_metadata.md"
-  - "API Reference":
+  - "APIs and Datasets":
       - "api/index.md"
       - "api/index-api.md"
       - "api/upload.md"
       - "api/integrity.md"
       - "api/stats.md"
+      - "api/bigquery.md"

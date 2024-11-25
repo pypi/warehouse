@@ -2,20 +2,20 @@
 
 <!--[[ preview('user-api-docs') ]]-->
 
-PyPI has several API endpoints, each of which is referenced in the table
-of contents for this hierarchy.
+PyPI has several API endpoints and public datasets, each of which is referenced
+in the table of contents for this hierarchy.
 
 ## API policies
 
-Please be aware of these PyPI API policies:
+Please be aware of these PyPI API policies.
 
 ### Caching
 
-All API requests are cached. Requests to the JSON, RSS or Legacy APIs are
+All API requests are cached. Requests to the JSON, RSS or Index APIs are
 cached by our CDN provider. You can determine if you've hit the cache based on
 the ``X-Cache`` and ``X-Cache-Hits`` headers in the response.
 
-Requests to the JSON, RSS and Legacy APIs also provide an ``ETag`` header. If
+Requests to the JSON, RSS and Index APIs also provide an ``ETag`` header. If
 you're making a lot of repeated requests, ensure your API consumer will respect
 this header to determine whether to actually repeat a request or not.
 
@@ -39,9 +39,8 @@ suggestions:
   (minutes). Generally PyPI can handle it, but it's preferred to make requests
   in serial over a longer amount of time if possible.
 * If your consumer is actually an organization or service that will be
-  downloading a lot of packages from PyPI, consider `using your own index
-  mirror or cache
-  <https://packaging.python.org/guides/index-mirrors-and-caches/>`_.
+  downloading a lot of packages from PyPI, consider
+  [using your own index mirror or cache].
 
 ### API Preference
 
@@ -49,4 +48,7 @@ For periodically checking for new packages or updates to existing packages,
 use our RSS feeds.
 
 No new integrations should use the XML-RPC APIs as they are planned for
-deprecation. Existing consumers should migrate to JSON/RSS/Legacy APIs.
+deprecation. Existing consumers should migrate to JSON/RSS/[Index APIs].
+
+[Index APIs]: ./index-api.md
+[using your own index mirror or cache]: https://packaging.python.org/guides/index-mirrors-and-caches/
