@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import json
+import re
 
 import pretend
 import pytest
@@ -132,7 +133,7 @@ class TestIntegrityService:
             in metrics.increment.calls
         )
 
-    def test_parse_attestations_fails_multiple_attestations(
+    def test_parse_attestations_fails_multiple_attestations_exceeds_limit(
         self, metrics, db_request, dummy_attestation
     ):
         integrity_service = services.IntegrityService(
@@ -140,12 +141,16 @@ class TestIntegrityService:
             session=db_request.db,
         )
 
+        max_attestations = len(services.SUPPORTED_ATTESTATION_TYPES)
+
         db_request.oidc_publisher = pretend.stub(attestation_identity=pretend.stub())
         db_request.POST["attestations"] = TypeAdapter(list[Attestation]).dump_json(
-            [dummy_attestation, dummy_attestation]
+            [dummy_attestation] * (max_attestations + 1)
         )
         with pytest.raises(
-            AttestationUploadError, match="Only a single attestation per file"
+            AttestationUploadError,
+            match=f"A maximum of {max_attestations} attestations per file are "
+            f"supported",
         ):
             integrity_service.parse_attestations(
                 db_request,
@@ -153,7 +158,49 @@ class TestIntegrityService:
             )
 
         assert (
-            pretend.call("warehouse.upload.attestations.failed_multiple_attestations")
+            pretend.call(
+                "warehouse.upload.attestations.failed_limit_multiple_attestations"
+            )
+            in metrics.increment.calls
+        )
+
+    def test_parse_attestations_fails_multiple_attestations_same_predicate(
+        self, metrics, monkeypatch, db_request, dummy_attestation
+    ):
+        integrity_service = services.IntegrityService(
+            metrics=metrics,
+            session=db_request.db,
+        )
+        max_attestations = len(services.SUPPORTED_ATTESTATION_TYPES)
+        db_request.oidc_publisher = pretend.stub(
+            attestation_identity=pretend.stub(),
+        )
+        db_request.oidc_claims = {"sha": "somesha"}
+        db_request.POST["attestations"] = TypeAdapter(list[Attestation]).dump_json(
+            [dummy_attestation] * max_attestations
+        )
+
+        monkeypatch.setattr(Verifier, "production", lambda: pretend.stub())
+        monkeypatch.setattr(
+            Attestation, "verify", lambda *args: (AttestationType.PYPI_PUBLISH_V1, {})
+        )
+
+        with pytest.raises(
+            AttestationUploadError,
+            match=re.escape(
+                "Multiple attestations for the same file with the same predicate "
+                "type (https://docs.pypi.org/attestations/publish/v1) are not supported"
+            ),
+        ):
+            integrity_service.parse_attestations(
+                db_request,
+                pretend.stub(),
+            )
+
+        assert (
+            pretend.call(
+                "warehouse.upload.attestations.failed_duplicate_predicate_type"
+            )
             in metrics.increment.calls
         )
 
