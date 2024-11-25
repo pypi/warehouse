@@ -181,7 +181,7 @@ information.
         - python -m pip install -U twine id
 
         # Retrieve the OIDC token from GitLab CI/CD, and exchange it for a PyPI API token
-        - oidc_token=$(python -m id PYPI)
+        - oidc_token=$(python -m id pypi)
         # Replace "https://pypi.org/*" with "https://test.pypi.org/*" if uploading to TestPyPI
         - resp=$(curl -X POST https://pypi.org/_/oidc/mint-token -d "{\"token\":\"${oidc_token}\"}")
         - api_token=$(jq --raw-output '.token' <<< "${resp}")
