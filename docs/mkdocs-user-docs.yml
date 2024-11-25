@@ -91,3 +91,4 @@ nav:
       - "api/upload.md"
       - "api/integrity.md"
       - "api/stats.md"
+      - "api/bigquery.md"
