@@ -23,7 +23,7 @@ export default class extends Controller {
     let date = timestamp.substr(0, 10).split("-").map(i => parseInt(i));
     let time = timestamp.substr(11, 8).split(":").map(i => parseInt(i));
     return new Date(
-      Date.UTC(parseInt(date[0]), parseInt(date[1]) - 1, parseInt(date[2]), ...time)
+      Date.UTC(parseInt(date[0]), parseInt(date[1]) - 1, parseInt(date[2]), ...time),
     );
   }
 

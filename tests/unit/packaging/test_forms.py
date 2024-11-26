@@ -83,3 +83,16 @@ class TestSubmitObservationForm:
 
         assert not form.validate()
         assert "summary" in form.errors
+
+    def test_summary_contains_html_tags(self, pyramid_request):
+        pyramid_request.POST = MultiDict(
+            {
+                "inspector_link": self.inspector_link,
+                "summary": '<img src="https://example.com/image.png">',
+            }
+        )
+
+        form = SubmitMalwareObservationForm(pyramid_request.POST)
+
+        assert not form.validate()
+        assert "summary" in form.errors

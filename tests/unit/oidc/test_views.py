@@ -630,6 +630,7 @@ def test_mint_token_no_pending_publisher_ok(
                 "expires": 900,
                 "publisher_name": "GitHub",
                 "publisher_url": "https://fake/url",
+                "reusable_workflow_used": False,
             },
         )
     ]

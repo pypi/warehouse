@@ -221,7 +221,7 @@ services:
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
       - ./webpack.config.js:/opt/warehouse/src/webpack.config.js:z
-      - ./.babelrc:/opt/warehouse/src/.babelrc:z
+      - ./babel.config.js:/opt/warehouse/src/babel.config.js:z
       - ./.stylelintrc.json:/opt/warehouse/src/.stylelintrc.json:z
       - ./tests/frontend:/opt/warehouse/src/tests/frontend:z
       - ./bin:/opt/warehouse/src/bin:z

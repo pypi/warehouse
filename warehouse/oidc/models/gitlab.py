@@ -14,6 +14,7 @@ import re
 
 from typing import Any
 
+from pypi_attestations import GitLabPublisher as GitLabIdentity, Publisher
 from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Query, mapped_column
@@ -26,6 +27,9 @@ from warehouse.oidc.models._core import (
     PendingOIDCPublisher,
     check_existing_jti,
 )
+from warehouse.oidc.urls import verify_url_from_reference
+
+GITLAB_OIDC_ISSUER_URL = "https://gitlab.com"
 
 # This expression matches the workflow filepath component of a GitLab
 # `ci_config_ref_uri` OIDC claim. This requires a nontrivial (and nonregular)
@@ -255,6 +259,14 @@ class GitLabPublisherMixin:
         base = self.publisher_base_url
         return f"{base}/commit/{claims['sha']}" if claims else base
 
+    @property
+    def attestation_identity(self) -> Publisher | None:
+        return GitLabIdentity(
+            repository=self.project_path,
+            workflow_filepath=self.workflow_filepath,
+            environment=self.environment if self.environment else None,
+        )
+
     def stored_claims(self, claims=None):
         claims = claims if claims else {}
         return {"ref_path": claims.get("ref_path"), "sha": claims.get("sha")}
@@ -289,9 +301,53 @@ class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):
         in repo URLs, since `gitlab.com/org/repo.git` always redirects to
         `gitlab.com/org/repo`. This does not apply to subpaths like
         `gitlab.com/org/repo.git/issues`, which do not redirect to the correct URL.
+
+        GitLab uses case-insensitive owner/repo slugs - so we perform a case-insensitive
+        comparison.
+
+        In addition to the generic Trusted Publisher verification logic in
+        the parent class, the GitLab Trusted Publisher allows URLs hosted
+        on `gitlab.io` for the configured repository, i.e:
+        `https://${OWNER}.gitlab.io/${SUBGROUP}/${PROJECT}`.
+
+        This method does not support the verification when the Unique Domain setting is
+        used.
+
+        The rules implemented in this method are derived from
+        https://docs.gitlab.com/ee/user/project/pages/getting_started_part_one.html#project-website-examples
+        https://docs.gitlab.com/ee/user/project/pages/getting_started_part_one.html#user-and-group-website-examples
+
+        The table stems from GitLab documentation and is replicated here for clarity.
+        | Namespace                    | GitLab Page URL                          |
+        | ---------------------------- | ---------------------------------------- |
+        | username/username.example.io | https://username.gitlab.io               |
+        | acmecorp/acmecorp.example.io | https://acmecorp.gitlab.io               |
+        | username/my-website          | https://username.gitlab.io/my-website    |
+        | group/webshop                | https://group.gitlab.io/webshop          |
+        | group/subgroup/project       | https://group.gitlab.io/subgroup/project |
         """
+        lowercase_base_url = self.publisher_base_url.lower()
+        if url.lower().startswith(lowercase_base_url):
+            url = lowercase_base_url + url[len(lowercase_base_url) :]
+
         url_for_generic_check = url.removesuffix("/").removesuffix(".git")
-        return super().verify_url(url_for_generic_check)
+        if verify_url_from_reference(
+            reference_url=lowercase_base_url, url=url_for_generic_check
+        ):
+            return True
+
+        try:
+            owner, subgroup = self.namespace.split("/", maxsplit=1)
+            subgroup += "/"
+        except ValueError:
+            owner, subgroup = self.namespace, ""
+
+        if self.project == f"{owner}.gitlab.io" and not subgroup:
+            docs_url = f"https://{owner}.gitlab.io"
+        else:
+            docs_url = f"https://{owner}.gitlab.io/{subgroup}{self.project}"
+
+        return verify_url_from_reference(reference_url=docs_url, url=url)
 
 
 class PendingGitLabPublisher(GitLabPublisherMixin, PendingOIDCPublisher):

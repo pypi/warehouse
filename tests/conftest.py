@@ -41,7 +41,7 @@ from sqlalchemy import event
 
 import warehouse
 
-from warehouse import admin, config, email, static
+from warehouse import admin, config, static
 from warehouse.accounts import services as account_services
 from warehouse.accounts.interfaces import ITokenService, IUserService
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
@@ -688,7 +688,7 @@ def send_email(pyramid_request, monkeypatch):
         lambda *args, **kwargs: send_email_stub
     )
     pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
-    monkeypatch.setattr(email, "send_email", send_email_stub)
+    monkeypatch.setattr(warehouse.email, "send_email", send_email_stub)
     return send_email_stub
 
 

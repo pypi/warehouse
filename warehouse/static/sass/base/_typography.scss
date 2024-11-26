@@ -157,7 +157,7 @@ button {
   line-height: $base-line-height;
 }
 
-@include selection {
+::selection {
   color: darken($primary-color, 15);
   background: $highlight-color;
 }

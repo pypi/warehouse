@@ -112,7 +112,9 @@
   }
 
   &__yanked-reason p {
-    @include ellipsis;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   &--current {

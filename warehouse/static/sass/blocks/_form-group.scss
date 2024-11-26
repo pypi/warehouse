@@ -44,7 +44,26 @@
     font-weight: normal;
   }
 
-  #{$all-text-inputs}.form-group__field,
+:where(
+  input:not([type]),
+  select,
+  textarea,
+  [type="color"],
+  [type="date"],
+  [type="datetime"],
+  [type="datetime-local"],
+  [type="email"],
+  [type="month"],
+  [type="month"],
+  [type="number"],
+  [type="password"],
+  [type="search"],
+  [type="tel"],
+  [type="text"],
+  [type="time"],
+  [type="url"],
+  [type="week"]
+).form-group__field,
   select.form-group__field {
     display: block;
     width: 350px;
