@@ -232,6 +232,8 @@ class TestReleaseDetail:
             ],
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
             "license": None,
+            "get_publication_details": views.get_publication_details,
+            "format_url": views.format_url,
         }
 
     def test_detail_renders_files_natural_sort(self, db_request):
@@ -322,6 +324,134 @@ class TestReleaseDetail:
             "Multiline License is very long, so long that it is far longer than 100 "
             "characters, it's really so lo..."
         )
+
+    @pytest.mark.parametrize(
+        ("base_url", "reference", "expected"),
+        [
+            (
+                "https://github.com/pypi/warehouse",
+                "2ec275dc2a05cd8ed2f0a9a0adadfcff9096d982",
+                (
+                    "https://github.com/pypi/warehouse/tree/"
+                    "2ec275dc2a05cd8ed2f0a9a0adadfcff9096d982"
+                ),
+            ),
+            (
+                "https://gitlab.com/sample/sample",
+                "refs/heads/main",
+                "https://gitlab.com/sample/sample/tree/refs/heads/main",
+            ),
+        ],
+    )
+    def test_format_url(self, base_url, reference, expected):
+        assert views.format_url(base_url, reference) == expected
+
+    @pytest.mark.parametrize(
+        ("publisher_name", "claims"),
+        [
+            (
+                "GitLab",
+                {
+                    "1.3.6.1.4.1.57264.1.8": "https://gitlab.com",
+                    "1.3.6.1.4.1.57264.1.9": (
+                        "https://gitlab.com/facutuesca/gitlab-oidc-project//"
+                        ".gitlab-ci.yml@refs/heads/main"
+                    ),
+                    "1.3.6.1.4.1.57264.1.10": (
+                        "72f7c63b75eb55ea80864962f0e645c93414da34"
+                    ),
+                    "1.3.6.1.4.1.57264.1.11": "gitlab-hosted",
+                    "1.3.6.1.4.1.57264.1.12": (
+                        "https://gitlab.com/facutuesca/gitlab-oidc-project"
+                    ),
+                    "1.3.6.1.4.1.57264.1.13": (
+                        "72f7c63b75eb55ea80864962f0e645c93414da34"
+                    ),
+                    "1.3.6.1.4.1.57264.1.14": "refs/heads/main",
+                    "1.3.6.1.4.1.57264.1.15": "55235664",
+                    "1.3.6.1.4.1.57264.1.16": "https://gitlab.com/facutuesca",
+                    "1.3.6.1.4.1.57264.1.17": "12885801",
+                    "1.3.6.1.4.1.57264.1.18": (
+                        "https://gitlab.com/facutuesca/gitlab-oidc-project//"
+                        ".gitlab-ci.yml@refs/heads/main"
+                    ),
+                    "1.3.6.1.4.1.57264.1.19": (
+                        "72f7c63b75eb55ea80864962f0e645c93414da34"
+                    ),
+                    "1.3.6.1.4.1.57264.1.20": "push",
+                    "1.3.6.1.4.1.57264.1.21": (
+                        "https://gitlab.com/facutuesca/gitlab-oidc-project/-/jobs/"
+                        "8415754949"
+                    ),
+                    "1.3.6.1.4.1.57264.1.22": "private",
+                },
+            ),
+            (
+                "GitHub",
+                {
+                    "1.3.6.1.4.1.57264.1.8": (
+                        "https://token.actions.githubusercontent.com"
+                    ),
+                    "1.3.6.1.4.1.57264.1.9": (
+                        "https://github.com/trailofbits/pypi-attestations/"
+                        ".github/workflows/release.yml@refs/tags/v0.0.16"
+                    ),
+                    "1.3.6.1.4.1.57264.1.10": (
+                        "58c872e67c03c9c031ba71b1654ff542ff290cd7"
+                    ),
+                    "1.3.6.1.4.1.57264.1.11": "github-hosted",
+                    "1.3.6.1.4.1.57264.1.12": (
+                        "https://github.com/trailofbits/pypi-attestations"
+                    ),
+                    "1.3.6.1.4.1.57264.1.13": (
+                        "58c872e67c03c9c031ba71b1654ff542ff290cd7"
+                    ),
+                    "1.3.6.1.4.1.57264.1.14": "refs/tags/v0.0.16",
+                    "1.3.6.1.4.1.57264.1.15": "772247423",
+                    "1.3.6.1.4.1.57264.1.16": "https://github.com/trailofbits",
+                    "1.3.6.1.4.1.57264.1.17": "2314423",
+                    "1.3.6.1.4.1.57264.1.18": (
+                        "https://github.com/trailofbits/pypi-attestations/"
+                        ".github/workflows/release.yml@refs/tags/v0.0.16"
+                    ),
+                    "1.3.6.1.4.1.57264.1.19": (
+                        "58c872e67c03c9c031ba71b1654ff542ff290cd7"
+                    ),
+                    "1.3.6.1.4.1.57264.1.20": "release",
+                    "1.3.6.1.4.1.57264.1.21": (
+                        "https://github.com/trailofbits/pypi-attestations/actions/"
+                        "runs/11732568384/attempts/1"
+                    ),
+                    "1.3.6.1.4.1.57264.1.22": "public",
+                },
+            ),
+        ],
+    )
+    def test_get_publication_details(self, publisher_name, claims):
+        if publisher_name == "GitLab":
+            publisher = pretend.stub(
+                kind="GitLab",
+                workflow_filepath="subfolder/example.yml",
+            )
+        elif publisher_name == "GitHub":
+            publisher = pretend.stub(
+                kind="GitHub",
+                workflow="example.yml",
+            )
+
+        views.get_publication_details(
+            claims,
+            publisher,
+        )
+
+    def test_get_publication_details_unknown(self):
+        results = views.get_publication_details(
+            claims={},
+            publisher=pretend.stub(kind="unknown-publisher"),
+        )
+
+        assert not results["workflow_filename"]
+        assert results["workflow_url"] == "/blob//"
 
 
 class TestReportMalwareButton:

@@ -9,6 +9,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import typing
 
 from natsort import natsorted
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
@@ -21,6 +22,9 @@ from warehouse.cache.origin import origin_cache
 from warehouse.observations.models import ObservationKind
 from warehouse.packaging.forms import SubmitMalwareObservationForm
 from warehouse.packaging.models import Description, File, Project, Release, Role
+
+if typing.TYPE_CHECKING:
+    import pypi_attestations
 
 
 @view_config(
@@ -54,6 +58,61 @@ def project_detail(project, request):
         raise HTTPNotFound
 
     return release_detail(release, request)
+
+
+def format_url(base_url: str, reference: str):
+    """Format a URL to create a permalink to a repository.
+
+    Works on both GitHub and GitLab.
+    Reference can either be a hash or a named revision.
+    """
+    return f"{base_url}/tree/{reference}"
+
+
+def get_publication_details(
+    claims: dict[str, str], publisher: pypi_attestations.Publisher
+):
+    """Helper function for Jinja to format the claims present in the attestation."""
+    workflow_filename = ""
+    if publisher.kind == "GitHub":
+        workflow_filename = publisher.workflow
+    elif publisher.kind == "GitLab":
+        workflow_filename = publisher.workflow_filepath
+
+    # Source Repository URI
+    repo_url = claims.get("1.3.6.1.4.1.57264.1.12", "")
+    # Build Config URI
+    workflow_url = claims.get("1.3.6.1.4.1.57264.1.18", "")
+    # Build Config Digest
+    build_hash = claims.get("1.3.6.1.4.1.57264.1.19", "")
+
+    # The claim `workflow_url` does not return a valid link to the repository,
+    # but we can use it to retrieve the path towards the workflow file.
+    workflow_file_path = workflow_url.split("@")[0].replace(repo_url + "/", "")
+
+    workflow_permalink = f"{repo_url}/blob/{build_hash}/{workflow_file_path}"
+
+    return {
+        "workflow_url": workflow_permalink,
+        "workflow_filename": workflow_filename,
+        "build_hash": build_hash,
+        # Issuer
+        "issuer": claims.get("1.3.6.1.4.1.57264.1.8"),
+        # Runner Environment
+        "environment": claims.get("1.3.6.1.4.1.57264.1.11"),
+        # Source Repository URI
+        "source": claims.get("1.3.6.1.4.1.57264.1.12"),
+        # Source Repository Digest
+        "source_digest": claims.get("1.3.6.1.4.1.57264.1.13"),
+        # Source Repository Ref
+        "source_ref": claims.get("1.3.6.1.4.1.57264.1.14"),
+        # Source Repository Owner URI
+        "owner": claims.get("1.3.6.1.4.1.57264.1.16"),
+        # Build Trigger
+        "trigger": claims.get("1.3.6.1.4.1.57264.1.20"),
+        # Source Repository Visibility At Signing
+        "access": claims.get("1.3.6.1.4.1.57264.1.22"),
+    }
 
 
 @view_config(
@@ -148,6 +207,9 @@ def release_detail(release, request):
         "all_versions": project.all_versions,
         "maintainers": maintainers,
         "license": license,
+        # Additional function to format the attestations
+        "get_publication_details": get_publication_details,
+        "format_url": format_url,
     }
 
 

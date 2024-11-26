@@ -12,42 +12,22 @@
  # limitations under the License.
 -#}
 
-{% macro repo_url_with_reference(repo_url, reference) %}
-    {{ repo_url }}/tree/{{ reference }}
-{% endmacro %}
-
-{% macro workflow_filename(publisher) %}
-    {% if publisher.kind == "GitHub" %}
-        {{- publisher.workflow -}}
-    {% elif publisher.kind == "GitLab" %}
-        {{- publisher.workflow_filepath -}}
-    {% endif %}
-{% endmacro %}
-
-{% macro workflow_url(publisher, claims) %}
-    {%- set repo_url = claims.get('1.3.6.1.4.1.57264.1.12', '') -%}
-    {%- set build_hash = claims.get('1.3.6.1.4.1.57264.1.19', '') -%}
-    {%- set workflow_url = claims.get('1.3.6.1.4.1.57264.1.18', '') -%}
-    {%- set file_path = workflow_url.split('@')[0].replace(repo_url + '/', '') -%}
-    {{- repo_url + "/blob/" + build_hash + "/" + file_path -}}
-{% endmacro %}
-
-{% macro repository_name(publisher) %}
-    {{- publisher.repository -}}
-{% endmacro %}
-
-{% macro publisher(publ, claims) -%}
+{% macro publisher(publ) -%}
 {% if publ.kind == "GitHub" %}
-    {%- set brand="github" -%}
-{% elif publ.kind == "GitLab" %}
-    {%- set brand="gitlab" -%}
-{% endif %}
 <p>
-  Permanent source link: <a href="{{ repo_url_with_reference(claims.get('1.3.6.1.4.1.57264.1.12'),claims.get('1.3.6.1.4.1.57264.1.13')) }}">
-    <i class="fa-brands fa-{{ brand }}" aria-hidden="true"></i>
-    {{ repository_name(publ) }}#{{ claims.get("1.3.6.1.4.1.57264.1.13") }}
+  Publisher: <a href="https://github.com/{{ publ.repository }}/blob/HEAD/.github/workflows/{{ publ.workflow }}">
+    <i class="fa-brands fa-github" aria-hidden="true"></i>
+    <code>{{ publ.workflow }}</code> on {{ publ.repository }}
   </a>
 </p>
+{% elif publ.kind == "GitLab" %}
+<p>
+  Publisher: <a href="https://gitlab.com/{{ publ.repository }}/blob/HEAD/{{ publ.workflow_filepath }}">
+    <i class="fa-brands fa-gitlab" aria-hidden="true"></i>
+    <code>{{ publ.workflow_filepath }}</code> on {{ publ.repository }}
+  </a>
+</p>
+{% endif %}
 {%- endmacro %}
 
 <div id="{{ file.filename }}" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="file-tab mobile-file-tab" tabindex="-1">
@@ -138,14 +118,14 @@
         </div>
 
         <div class="card file__card">
-          {{ publisher(bundle.publisher, bundle.attestations[0].certificate_claims )}}
+          {{ publisher(bundle.publisher) }}
           Attestations:
           <small>
             <i>Values shown here reflect the state when the release was signed and may no longer be current.</i>
           </small>
           <ul>
           {% for attestation in bundle.attestations %}
-            <li>
+          <li>
               {% set statement = attestation.statement %}
               Statement:
               <ul>
@@ -157,45 +137,31 @@
                 <li>Sigstore transparency entry: <a href="https://search.sigstore.dev/?logIndex={{ tlog_entry.logIndex }}">{{ tlog_entry.logIndex }}</a> </li>
                 <li>Sigstore integration time: {{ humanize(tlog_entry.integratedTime | int | ctime, time="true") }} </li>
               </ul>
-              {% set claims = attestation.certificate_claims %}
+              {% set claims = get_publication_details(attestation.certificate_claims, bundle.publisher) %}
               Source repository:
               <ul>
-                <!-- 1.3.6.1.4.1.57264.1.12 | Source Repository URI-->
-                <!-- 1.3.6.1.4.1.57264.1.13 | Source Repository Digest-->
-                <li>Permalink: <a href="{{ repo_url_with_reference(claims.get("1.3.6.1.4.1.57264.1.12"), claims.get("1.3.6.1.4.1.57264.1.13")) }}">
-                    <code>{{ repository_name(bundle.publisher) }}#{{ claims.get("1.3.6.1.4.1.57264.1.13") }}</code>
+                <li>Permalink: <a href="{{ format_url(claims.source, claims.source_digest) }}">
+                    <code>{{ bundle.publisher.repository }}@{{ claims.source_digest }}</code>
                 </a></li>
-                <!-- 1.3.6.1.4.1.57264.1.14 | Source Repository Ref-->
-                <li>Branch / Tag: <a href="{{ repo_url_with_reference(claims.get("1.3.6.1.4.1.57264.1.12"), claims.get("1.3.6.1.4.1.57264.1.14")) }} ">
-                    <code>{{ claims.get("1.3.6.1.4.1.57264.1.14") }}</code>
+                <li>Branch / Tag: <a href="{{ format_url(claims.source, claims.source_ref) }} ">
+                    <code>{{ claims.source_ref }}</code>
                 </a></li>
-                <!-- 1.3.6.1.4.1.57264.1.15 | Source Repository Identifier-->
-                <!-- 1.3.6.1.4.1.57264.1.16 | Source Repository Owner URI-->
-                <li>Owner: <a href="{{ claims.get("1.3.6.1.4.1.57264.1.16") }}">{{ claims.get("1.3.6.1.4.1.57264.1.16") }}</a></li>
-                <!-- 1.3.6.1.4.1.57264.1.17 | Source Repository Owner Identifier-->
-                <!-- 1.3.6.1.4.1.57264.1.22 | Source Repository Visibility At Signing-->
-                <li>Access: <code>{{ claims.get("1.3.6.1.4.1.57264.1.22") }}</code></li>
+                <li>Owner: <a href="{{ claims.owner }}">{{ claims.owner }}</a></li>
+                <li>Access: <code>{{ claims.access }}</code></li>
               </ul>
-              Build information:
+              Publication detail:
               <ul>
-                <!-- 1.3.6.1.4.1.57264.1.8 | Issuer-->
-                <!-- 1.3.6.1.4.1.57264.1.9 | Build Signer URI-->
-                <!-- 1.3.6.1.4.1.57264.1.10 | Build Signer Digest-->
-                <li>Token Issuer: <code>{{ claims.get("1.3.6.1.4.1.57264.1.8") }}</code></li>
-                <!-- 1.3.6.1.4.1.57264.1.11 | Runner Environment-->
-                <li>Build Environment: <code>{{ claims.get("1.3.6.1.4.1.57264.1.11") }}</code></li>
-                <!-- 1.3.6.1.4.1.57264.1.18 | Build Config URI-->
-                <!-- 1.3.6.1.4.1.57264.1.19 | Build Config Digest-->
-                <li>Build Configuration File:
-                  <a href="{{ workflow_url(bundle.publisher, claims) }}">
-                    <code>{{ workflow_filename(bundle.publisher) }}#{{ claims.get("1.3.6.1.4.1.57264.1.19") }}</code>
+                <li>Token Issuer: <code>{{ claims.issuer }}</code></li>
+                <li>Runner Environment: <code>{{ claims.environment }}</code></li>
+                <li>Publication workflow:
+                  <a href="{{ claims.workflow_url }}">
+                    <code>{{ claims.workflow_filename }}@{{ claims.build_hash }}</code>
                   </a>
                 </li>
-                <!-- 1.3.6.1.4.1.57264.1.20 | Build Trigger-->
-                <li>Trigger Event: <code>{{ claims.get("1.3.6.1.4.1.57264.1.20") }}</code></li>
-                <!-- 1.3.6.1.4.1.57264.1.21 | Run Invocation URI-->
+                <li>Trigger Event: <code>{{ claims.trigger }}</code></li>
               </ul>
-            {% endfor %}
+          </li>
+          {% endfor %}
           </ul>
         </div>
       </div>
