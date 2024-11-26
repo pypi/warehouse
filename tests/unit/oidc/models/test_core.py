@@ -54,9 +54,9 @@ class TestOIDCPublisher:
             publisher.check_claims_existence(signed_claims={})
         assert str(e.value) == "No required verifiable claims"
 
-    def test_supports_attestations(self):
+    def test_attestation_identity(self):
         publisher = _core.OIDCPublisher(projects=[])
-        assert not publisher.supports_attestations
+        assert not publisher.attestation_identity
 
     @pytest.mark.parametrize(
         ("url", "publisher_url", "expected"),
@@ -134,6 +134,11 @@ class TestOIDCPublisher:
                 # same as the TP URL, we fail the verification)
                 "https://github.com",
                 "https://github.com",
+                False,
+            ),
+            (  # Default verification is case-sensitive
+                "https://publisher.com/owner/project",
+                "https://publisher.com/owner/PrOjeCt",
                 False,
             ),
         ],

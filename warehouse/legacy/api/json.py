@@ -173,6 +173,8 @@ def _json_data(request, project, release, *, all_releases):
             "description": release_description.raw,
             "keywords": release.keywords,
             "license": release.license,
+            "license_expression": release.license_expression,
+            "license_files": release.license_files,
             "classifiers": list(release.classifiers),
             "author": release.author,
             "author_email": release.author_email,

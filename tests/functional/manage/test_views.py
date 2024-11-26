@@ -81,7 +81,9 @@ class TestManageAccount:
         )
 
         logged_in = two_factor_form.submit().follow(status=HTTPStatus.OK)
-        assert logged_in.html.find("title", text="Warehouse · The Python Package Index")
+        assert logged_in.html.find(
+            "title", string="Warehouse · The Python Package Index"
+        )
 
         # Now visit the change password page
         change_password_page = logged_in.goto("/manage/account/", status=HTTPStatus.OK)

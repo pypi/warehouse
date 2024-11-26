@@ -53,6 +53,7 @@ from warehouse.packaging.models import (
     Role,
 )
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
+from warehouse.utils.exceptions import DevelopmentModeWarning
 from warehouse.utils.project import PROJECT_NAME_RE
 
 logger = logging.getLogger(__name__)
@@ -74,7 +75,7 @@ STDLIB_PROHIBITED = {
 }
 
 
-class InsecureStorageWarning(UserWarning):
+class InsecureStorageWarning(DevelopmentModeWarning):
     pass
 
 

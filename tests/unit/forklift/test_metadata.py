@@ -29,15 +29,27 @@ def _assert_invalid_metadata(exc, field):
 
 class TestParse:
     def test_valid_from_file(self):
-        meta = metadata.parse(b"Metadata-Version: 2.1\nName: foo\nVersion: 1.0\n")
+        meta = metadata.parse(
+            b"Metadata-Version: 2.4\nName: foo\nVersion: 1.0\n"
+            b"License-File: Something\nLicense-File: Something Else\n"
+        )
         assert meta.name == "foo"
         assert meta.version == Version("1.0")
+        assert meta.license_files == [
+            "Something",
+            "Something Else",
+        ]
 
     def test_valid_from_form(self):
-        data = MultiDict(metadata_version="2.1", name="spam", version="2.0")
+        data = MultiDict(metadata_version="2.4", name="spam", version="2.0")
+        data.extend([("license_file", "Something"), ("license_file", "Something Else")])
         meta = metadata.parse(None, form_data=data)
         assert meta.name == "spam"
         assert meta.version == Version("2.0")
+        assert meta.license_files == [
+            "Something",
+            "Something Else",
+        ]
 
     def test_invalid_no_data(self):
         with pytest.raises(metadata.NoMetadataError):

@@ -18,7 +18,6 @@ from typing import TYPE_CHECKING, Any, TypedDict, TypeVar, Unpack
 import rfc3986
 import sentry_sdk
 
-from sigstore.verify.policy import VerificationPolicy
 from sqlalchemy import ForeignKey, String, orm
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
@@ -26,12 +25,16 @@ from sqlalchemy.orm import Mapped, mapped_column
 from warehouse import db
 from warehouse.oidc.errors import InvalidPublisherError, ReusedTokenError
 from warehouse.oidc.interfaces import SignedClaims
+from warehouse.oidc.urls import verify_url_from_reference
 
 if TYPE_CHECKING:
+    from pypi_attestations import Publisher
+
     from warehouse.accounts.models import User
     from warehouse.macaroons.models import Macaroon
     from warehouse.oidc.services import OIDCPublisherService
     from warehouse.packaging.models import Project
+
 
 C = TypeVar("C")
 
@@ -309,24 +312,14 @@ class OIDCPublisherMixin:
         raise NotImplementedError
 
     @property
-    def supports_attestations(self) -> bool:
+    def attestation_identity(self) -> Publisher | None:
         """
-        Returns whether or not this kind of publisher supports attestations.
+        Returns an appropriate attestation verification identity, if this
+        kind of publisher supports attestations.
 
         Concrete subclasses should override this upon adding attestation support.
         """
-        return False
-
-    def publisher_verification_policy(
-        self, claims: SignedClaims
-    ) -> VerificationPolicy:  # pragma: no cover
-        """
-        Get the policy used to verify attestations signed with this publisher.
-        NOTE: This is **NOT** a `@property` because we pass `claims` to it.
-        When calling, make sure to use `publisher_verification_policy()`
-        """
-        # Only concrete subclasses are constructed.
-        raise NotImplementedError
+        return None
 
     def stored_claims(
         self, claims: SignedClaims | None = None
@@ -363,23 +356,13 @@ class OIDCPublisherMixin:
             # Currently this only applies to the Google provider
             return False
         publisher_uri = rfc3986.api.uri_reference(self.publisher_base_url).normalize()
-        user_uri = rfc3986.api.uri_reference(url).normalize()
         if publisher_uri.path is None:
             # Currently no Trusted Publishers with a `publisher_base_url` have an empty
             # path component, so we defensively fail verification.
             return False
-        elif user_uri.path and publisher_uri.path:
-            is_subpath = (
-                publisher_uri.path == user_uri.path
-                or user_uri.path.startswith(publisher_uri.path + "/")
-            )
-        else:
-            is_subpath = publisher_uri.path == user_uri.path
-
-        return (
-            publisher_uri.scheme == user_uri.scheme
-            and publisher_uri.authority == user_uri.authority
-            and is_subpath
+        return verify_url_from_reference(
+            reference_url=self.publisher_base_url,
+            url=url,
         )
 
 

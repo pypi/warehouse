@@ -46,7 +46,7 @@ default:
 	mkdir -p .state
 	touch .state/docker-build-base
 
-.state/docker-build-static: Dockerfile package.json package-lock.json .babelrc
+.state/docker-build-static: Dockerfile package.json package-lock.json babel.config.js
 	# Build our static container for this project.
 	docker compose build --force-rm static
 

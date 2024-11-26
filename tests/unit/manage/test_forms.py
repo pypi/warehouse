@@ -899,14 +899,12 @@ class TestCreateOrganizationApplicationForm:
 
         form.validate__max_apps(pretend.stub())
 
-        assert form.errors == {
-            "__all__": [
-                (
-                    "You have already submitted the maximum number of "
-                    "Organization requests (3)."
-                )
-            ]
-        }
+        assert form.form_errors == [
+            (
+                "You have already submitted the maximum number of "
+                "Organization requests (3)."
+            )
+        ]
 
         assert organization_service.get_organization_applications_by_name.calls == []
         assert organization_service.find_organizationid.calls == []
