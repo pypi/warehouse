@@ -331,7 +331,11 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
         # The project has zero or more OIDC publishers registered to it,
         # each of which serves as an identity with the ability to upload releases.
         for publisher in self.oidc_publishers:
-            acls.append((Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload]))
+            if self.lifecycle_status != LifecycleStatus.Archived:
+                # Only allow uploads in non-archived projects
+                acls.append(
+                    (Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload])
+                )
 
         # Get all of the users for this project.
         user_query = (
@@ -377,27 +381,27 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
         for user_id, permission_name in sorted(permissions, key=lambda x: (x[1], x[0])):
             # Disallow Write permissions for Projects in quarantine, allow Upload
             if self.lifecycle_status == LifecycleStatus.QuarantineEnter:
-                acls.append(
-                    (
-                        Allow,
-                        f"user:{user_id}",
-                        [Permissions.ProjectsRead, Permissions.ProjectsUpload],
-                    )
-                )
+                current_permissions = [
+                    Permissions.ProjectsRead,
+                    Permissions.ProjectsUpload,
+                ]
             elif permission_name == "Administer":
-                acls.append(
-                    (
-                        Allow,
-                        f"user:{user_id}",
-                        [
-                            Permissions.ProjectsRead,
-                            Permissions.ProjectsUpload,
-                            Permissions.ProjectsWrite,
-                        ],
-                    )
-                )
+                current_permissions = [
+                    Permissions.ProjectsRead,
+                    Permissions.ProjectsUpload,
+                    Permissions.ProjectsWrite,
+                ]
             else:
-                acls.append((Allow, f"user:{user_id}", [Permissions.ProjectsUpload]))
+                current_permissions = [Permissions.ProjectsUpload]
+
+            if self.lifecycle_status == LifecycleStatus.Archived:
+                # Disallow upload permissions for archived projects
+                current_permissions = [
+                    p for p in current_permissions if p != Permissions.ProjectsUpload
+                ]
+
+            if current_permissions:
+                acls.append((Allow, f"user:{user_id}", current_permissions))
         return acls
 
     @property

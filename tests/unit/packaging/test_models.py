@@ -365,6 +365,100 @@ class TestProject:
             key=lambda x: x[1],
         )
 
+    def test_acl_for_archived_project(self, db_session):
+        """
+        If a Project is archived, the Project ACL should disallow uploads.
+        """
+        project = DBProjectFactory.create(lifecycle_status="archived")
+        owner1 = DBRoleFactory.create(project=project)
+        owner2 = DBRoleFactory.create(project=project)
+
+        # Maintainers should not appear in the ACLs, since they only have
+        # upload permissions, and anchived projects don't allow upload
+        DBRoleFactory.create(project=project, role_name="Maintainer")
+        DBRoleFactory.create(project=project, role_name="Maintainer")
+
+        organization = DBOrganizationFactory.create()
+        owner3 = DBOrganizationRoleFactory.create(organization=organization)
+        DBOrganizationProjectFactory.create(organization=organization, project=project)
+
+        team = DBTeamFactory.create()
+        owner4 = DBTeamRoleFactory.create(team=team)
+        DBTeamProjectRoleFactory.create(
+            team=team, project=project, role_name=TeamProjectRoleType.Owner
+        )
+
+        # Publishers should not appear in the ACLs, since they only have upload
+        # permissions, and archived projects don't allow upload
+        GitHubPublisherFactory.create(projects=[project])
+
+        acls = []
+        for location in lineage(project):
+            try:
+                acl = location.__acl__
+            except AttributeError:
+                continue
+
+            if acl and callable(acl):
+                acl = acl()
+
+            acls.extend(acl)
+
+        _perms_read_and_write = [
+            Permissions.ProjectsRead,
+            Permissions.ProjectsWrite,
+        ]
+        assert acls == [
+            (
+                Allow,
+                "group:admins",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProhibitedProjectsWrite,
+                    Permissions.AdminProhibitedUsernameWrite,
+                    Permissions.AdminProjectsDelete,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminProjectsWrite,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (
+                Allow,
+                "group:moderators",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (
+                Allow,
+                "group:observers",
+                Permissions.APIObservationsAdd,
+            ),
+            (
+                Allow,
+                Authenticated,
+                Permissions.SubmitMalwareObservation,
+            ),
+        ] + sorted(
+            [
+                (Allow, f"user:{owner1.user.id}", _perms_read_and_write),
+                (Allow, f"user:{owner2.user.id}", _perms_read_and_write),
+                (Allow, f"user:{owner3.user.id}", _perms_read_and_write),
+                (Allow, f"user:{owner4.user.id}", _perms_read_and_write),
+            ],
+            key=lambda x: x[1],
+        )
+
     def test_repr(self, db_request):
         project = DBProjectFactory()
         assert isinstance(repr(project), str)
