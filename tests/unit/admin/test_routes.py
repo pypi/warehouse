@@ -248,6 +248,20 @@ def test_includeme():
             traverse="/{project_name}",
             domain=warehouse,
         ),
+        pretend.call(
+            "admin.project.archive",
+            "/admin/projects/{project_name}/archive/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.project.unarchive",
+            "/admin/projects/{project_name}/unarchive/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
         pretend.call("admin.journals.list", "/admin/journals/", domain=warehouse),
         pretend.call(
             "admin.prohibited_project_names.list",
