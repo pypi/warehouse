@@ -196,3 +196,42 @@ def destroy_docs(project, request, flash=True):
         request.session.flash(
             f"Deleted docs for project {project.name!r}", queue="success"
         )
+
+
+def archive_project(project: Project, request) -> None:
+    if (
+        project.lifecycle_status is None
+        or project.lifecycle_status == LifecycleStatus.QuarantineExit
+    ):
+        project.lifecycle_status = LifecycleStatus.Archived
+        project.record_event(
+            tag=EventTag.Project.ProjectArchiveEnter,
+            request=request,
+            additional={
+                "submitted_by": request.user.username,
+            },
+        )
+        request.session.flash("Project archived", queue="success")
+    else:
+        request.session.flash(
+            f"Cannot archive project with status {project.lifecycle_status}",
+            queue="error",
+        )
+
+
+def unarchive_project(project: Project, request) -> None:
+    if project.lifecycle_status == LifecycleStatus.Archived:
+        project.lifecycle_status = None
+        project.record_event(
+            tag=EventTag.Project.ProjectArchiveExit,
+            request=request,
+            additional={
+                "submitted_by": request.user.username,
+            },
+        )
+        request.session.flash("Project unarchived", queue="success")
+    else:
+        request.session.flash(
+            "Can only unarchive an archived project",
+            queue="error",
+        )

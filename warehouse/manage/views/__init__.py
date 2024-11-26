@@ -132,7 +132,6 @@ from warehouse.packaging.models import (
     AlternateRepository,
     File,
     JournalEntry,
-    LifecycleStatus,
     Project,
     Release,
     Role,
@@ -142,7 +141,13 @@ from warehouse.packaging.models import (
 from warehouse.rate_limiting import IRateLimiter
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import paginate_url_factory
-from warehouse.utils.project import confirm_project, destroy_docs, remove_project
+from warehouse.utils.project import (
+    archive_project,
+    confirm_project,
+    destroy_docs,
+    remove_project,
+    unarchive_project,
+)
 
 
 class ManageAccountMixin:
@@ -3301,30 +3306,12 @@ def manage_project_documentation(project, request):
     uses_session=True,
     require_methods=["POST"],
     permission=Permissions.ProjectsWrite,
-    has_translations=True,
 )
-def archive_project(project, request) -> HTTPSeeOther:
+def archive_project_view(project, request) -> HTTPSeeOther:
     """
     Archive a Project. Reversible action.
     """
-    if (
-        project.lifecycle_status is None
-        or project.lifecycle_status == LifecycleStatus.QuarantineExit
-    ):
-        project.lifecycle_status = LifecycleStatus.Archived
-        project.record_event(
-            tag=EventTag.Project.ProjectArchiveEnter,
-            request=request,
-            additional={
-                "submitted_by": request.user.username,
-            },
-        )
-    else:
-        request.session.flash(
-            request._(f"Cannot archive project with status {project.lifecycle_status}"),
-            queue="error",
-        )
-
+    archive_project(project, request)
     return HTTPSeeOther(
         request.route_path("manage.project.settings", project_name=project.name)
     )
@@ -3336,27 +3323,12 @@ def archive_project(project, request) -> HTTPSeeOther:
     uses_session=True,
     require_methods=["POST"],
     permission=Permissions.ProjectsWrite,
-    has_translations=True,
 )
-def unarchive_project(project, request) -> HTTPSeeOther:
+def unarchive_project_view(project, request) -> HTTPSeeOther:
     """
     Unarchive a Project. Reversible action.
     """
-    if project.lifecycle_status == LifecycleStatus.Archived:
-        project.lifecycle_status = None
-        project.record_event(
-            tag=EventTag.Project.ProjectArchiveExit,
-            request=request,
-            additional={
-                "submitted_by": request.user.username,
-            },
-        )
-    else:
-        request.session.flash(
-            request._("Can only unarchive an archived project"),
-            queue="error",
-        )
-
+    unarchive_project(project, request)
     return HTTPSeeOther(
         request.route_path("manage.project.settings", project_name=project.name)
     )
