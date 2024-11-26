@@ -7481,7 +7481,7 @@ class TestArchiveProject:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
 
-        result = views.archive_project(project, db_request)
+        result = views.archive_project_view(project, db_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
@@ -7503,7 +7503,7 @@ class TestArchiveProject:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
 
-        result = views.unarchive_project(project, db_request)
+        result = views.unarchive_project_view(project, db_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
@@ -7523,7 +7523,7 @@ class TestArchiveProject:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
 
-        result = views.archive_project(project, db_request)
+        result = views.archive_project_view(project, db_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
@@ -7549,7 +7549,7 @@ class TestArchiveProject:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
 
-        result = views.unarchive_project(project, db_request)
+        result = views.unarchive_project_view(project, db_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
