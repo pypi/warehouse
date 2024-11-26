@@ -12,6 +12,7 @@
 
 import wtforms
 
+from warehouse.forms import PreventHTMLTagsValidator
 from warehouse.i18n import localize as _
 
 
@@ -32,6 +33,7 @@ class SubmitMalwareObservationForm(wtforms.Form):
         validators=[
             wtforms.validators.InputRequired(),
             wtforms.validators.Length(min=10, max=2000),
+            PreventHTMLTagsValidator(),
         ],
     )
 

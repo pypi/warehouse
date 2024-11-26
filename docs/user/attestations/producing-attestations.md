@@ -5,11 +5,21 @@
 PyPI allows attestations to be attached to individual *release files*
 (source and binary distributions within a release) at upload time.
 
-Attestations are currently only supported when uploading with
-[Trusted Publishing], and currently only with GitHub and GitLab-based
-Trusted Publishers. Support for other Trusted Publishers is planned. See
-[#17001](https://github.com/pypi/warehouse/issues/17001) for additional
-information.
+## Prerequisites
+
+Before uploading attestations to the index, please:
+
+* Review the [Linux Foundation Immutable Record notice], which applies to the
+  public transparency log.
+* Set up [Trusted Publishing] with a supported CI/CD provider. Supported
+  providers are listed below with instructions for each.
+
+    !!! note
+
+        Support for other Trusted Publishers is planned.
+        See #17001 for additional information.
+
+## Producing attestations
 
 === "GitHub Actions"
 
@@ -181,14 +191,14 @@ information.
         - python -m pip install -U twine id
 
         # Retrieve the OIDC token from GitLab CI/CD, and exchange it for a PyPI API token
-        - oidc_token=$(python -m id PYPI)
+        - oidc_token=$(python -m id pypi)
         # Replace "https://pypi.org/*" with "https://test.pypi.org/*" if uploading to TestPyPI
         - resp=$(curl -X POST https://pypi.org/_/oidc/mint-token -d "{\"token\":\"${oidc_token}\"}")
         - api_token=$(jq --raw-output '.token' <<< "${resp}")
 
         # Upload to PyPI authenticating via the newly-minted token, including the generated attestations
         # Add "--repository testpypi" if uploading to TestPyPI
-        - twine --verbose --attestations upload -u __token__ -p "${api_token}" python_pkg/dist/*
+        - twine upload --verbose --attestations -u __token__ -p "${api_token}" python_pkg/dist/*
     ```
 
     Note how, compared with the [Trusted Publishing workflow][GitLab Trusted Publishing], it has the
@@ -224,3 +234,4 @@ information.
 [legacy upload API documentation]: https://warehouse.pypa.io/api-reference/legacy.html#upload-api
 
 [GitLab Trusted Publishing]: /trusted-publishers/using-a-publisher/#gitlab-cicd
+[Linux Foundation Immutable Record notice]: https://lfprojects.org/policies/hosted-project-tools-immutable-records/

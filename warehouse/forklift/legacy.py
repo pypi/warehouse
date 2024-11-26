@@ -1082,7 +1082,6 @@ def file_upload(request):
         # TODO: Remove sdist zip handling when #12245 is resolved
         # (PEP 625 – Filename of a Source Distribution)
         if form.filetype.data == "sdist" and filename.endswith(".zip"):
-
             # PEP 625: Enforcement on filename extensions. Files ending with
             # .zip will not be permitted.
             send_pep625_extension_email(
@@ -1307,6 +1306,27 @@ def file_upload(request):
                 k: h.hexdigest().lower() for k, h in metadata_file_hashes.items()
             }
 
+        # If the user provided attestations, verify them
+        # We persist these attestations subsequently, only after the
+        # release file is persisted.
+        integrity_service: IIntegrityService = request.find_service(
+            IIntegrityService, context=None
+        )
+        attestations: list[Attestation] = []
+        if "attestations" in request.POST and not request.flags.enabled(
+            AdminFlagValue.DISABLE_PEP740
+        ):
+            try:
+                attestations = integrity_service.parse_attestations(
+                    request,
+                    Distribution(name=filename, digest=file_hashes["sha256"]),
+                )
+            except AttestationUploadError as e:
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    f"Invalid attestations supplied during upload: {e}",
+                )
+
         # TODO: This should be handled by some sort of database trigger or a
         #       SQLAlchemy hook or the like instead of doing it inline in this
         #       view.
@@ -1375,27 +1395,11 @@ def file_upload(request):
             )
         )
 
-        # If the user provided attestations, verify and store them
-        if "attestations" in request.POST and not request.flags.enabled(
-            AdminFlagValue.DISABLE_PEP740
-        ):
-            integrity_service: IIntegrityService = request.find_service(
-                IIntegrityService, context=None
+        # If we have attestations from above, persist them.
+        if attestations:
+            request.db.add(
+                integrity_service.build_provenance(request, file_, attestations)
             )
-
-            try:
-                attestations: list[Attestation] = integrity_service.parse_attestations(
-                    request,
-                    Distribution(name=filename, digest=file_hashes["sha256"]),
-                )
-                request.db.add(
-                    integrity_service.build_provenance(request, file_, attestations)
-                )
-            except AttestationUploadError as e:
-                raise _exc_with_message(
-                    HTTPBadRequest,
-                    f"Invalid attestations supplied during upload: {e}",
-                )
 
             # Log successful attestation upload
             metrics.increment("warehouse.upload.attestations.ok")
@@ -1465,6 +1469,8 @@ def file_upload(request):
         "maintainer": meta.maintainer,
         "maintainer_email": meta.maintainer_email,
         "license": meta.license,
+        "license_expression": meta.license_expression,
+        "license_files": meta.license_files,
         "keywords": meta.keywords,
         "classifiers": meta.classifiers,
         "platform": meta.platforms[0] if meta.platforms else None,

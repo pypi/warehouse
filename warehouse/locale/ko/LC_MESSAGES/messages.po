@@ -865,7 +865,7 @@ msgstr "최상위 파이프라인 파일 경로는 .yml 혹은 .yaml 로 끝나�
 msgid "Top-level pipeline file path cannot start or end with /"
 msgstr "최상위 파이프라인 파일 경로는 /로 시작하거나 끝날 수 없습니다"
 
-#: warehouse/packaging/forms.py:26
+#: warehouse/packaging/forms.py:27
 msgid "Provide an Inspector link to specific lines of code."
 msgstr "코드의 특정 줄에 Inspector 링크를 적어주세요."
 
@@ -938,7 +938,7 @@ msgstr "몬티 파이썬 - 치즈 샵 스케치"
 #: warehouse/templates/base.html:321 warehouse/templates/base.html:331
 #: warehouse/templates/base.html:344
 #: warehouse/templates/includes/accounts/profile-callout.html:18
-#: warehouse/templates/includes/file-details.html:94
+#: warehouse/templates/includes/file-details.html:101
 #: warehouse/templates/index.html:100 warehouse/templates/index.html:104
 #: warehouse/templates/manage/account.html:228
 #: warehouse/templates/manage/account.html:234
@@ -3009,54 +3009,54 @@ msgstr "계정 설정"
 msgid "Public profile"
 msgstr "공개 프로필"
 
-#: warehouse/templates/includes/file-details.html:27
+#: warehouse/templates/includes/file-details.html:34
 #, fuzzy
 #| msgid "Billing details"
 msgid "File details"
 msgstr "결제 정보"
 
-#: warehouse/templates/includes/file-details.html:38
+#: warehouse/templates/includes/file-details.html:45
 #, python-format
 msgid "Upload date: %(upload_time)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:39
+#: warehouse/templates/includes/file-details.html:46
 #, fuzzy, python-format
 #| msgid "Expires: %(exp)s"
 msgid "Size: %(size)s"
 msgstr "만료: %(exp)s"
 
-#: warehouse/templates/includes/file-details.html:40
+#: warehouse/templates/includes/file-details.html:47
 #, python-format
 msgid "Tags: %(tags)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:42
+#: warehouse/templates/includes/file-details.html:49
 #, python-format
 msgid "Uploaded using Trusted Publishing? %(is_tp)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:47
+#: warehouse/templates/includes/file-details.html:54
 #, python-format
 msgid "Uploaded via: %(uploaded_via)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:55
+#: warehouse/templates/includes/file-details.html:62
 #, python-format
 msgid "Hashes for %(filename)s"
 msgstr "%(filename)s의 해시"
 
-#: warehouse/templates/includes/file-details.html:58
+#: warehouse/templates/includes/file-details.html:65
 msgid "Algorithm"
 msgstr "알고리듬"
 
-#: warehouse/templates/includes/file-details.html:59
+#: warehouse/templates/includes/file-details.html:66
 msgid "Hash digest"
 msgstr "해시 다이제스트"
 
-#: warehouse/templates/includes/file-details.html:68
-#: warehouse/templates/includes/file-details.html:77
-#: warehouse/templates/includes/file-details.html:86
+#: warehouse/templates/includes/file-details.html:75
+#: warehouse/templates/includes/file-details.html:84
+#: warehouse/templates/includes/file-details.html:93
 #: warehouse/templates/manage/account.html:206
 #: warehouse/templates/manage/account/recovery_codes-provision.html:58
 #: warehouse/templates/manage/account/totp-provision.html:57
@@ -3066,9 +3066,9 @@ msgstr "해시 다이제스트"
 msgid "Copy to clipboard"
 msgstr "클립보드로 복사하기"
 
-#: warehouse/templates/includes/file-details.html:69
-#: warehouse/templates/includes/file-details.html:78
-#: warehouse/templates/includes/file-details.html:87
+#: warehouse/templates/includes/file-details.html:76
+#: warehouse/templates/includes/file-details.html:85
+#: warehouse/templates/includes/file-details.html:94
 #: warehouse/templates/manage/account.html:207
 #: warehouse/templates/manage/account/recovery_codes-provision.html:59
 #: warehouse/templates/manage/account/totp-provision.html:58
@@ -3077,7 +3077,7 @@ msgstr "클립보드로 복사하기"
 msgid "Copy"
 msgstr "복사"
 
-#: warehouse/templates/includes/file-details.html:94
+#: warehouse/templates/includes/file-details.html:101
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "

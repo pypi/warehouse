@@ -6,13 +6,15 @@
 # Diego Kluwe de Souza <dikluwe@gmail.com>, 2023.
 # Gaspar De Lima <gaspardelima48@gmail.com>, 2024.
 # Paulo Santos - PJ <pjdsant@gmail.com>, 2024.
+# Carlos Eduardo Porto Da Hora <carlosportomanduca@gmail.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-09-27 17:33+0200\n"
-"PO-Revision-Date: 2024-09-05 01:27+0000\n"
-"Last-Translator: ssantos <ssantos@web.de>\n"
+"PO-Revision-Date: 2024-11-17 07:50+0000\n"
+"Last-Translator: Carlos Eduardo Porto Da Hora <carlosportomanduca@gmail."
+"com>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/pypa/"
 "warehouse/pt/>\n"
 "Language: pt\n"
@@ -20,7 +22,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.7.2-rc\n"
+"X-Generator: Weblate 5.9-dev\n"
 
 #: warehouse/views.py:149
 msgid ""
@@ -137,10 +139,8 @@ msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "O nome é muito longo. Escolha um nome com 100 carateres ou menos."
 
 #: warehouse/accounts/forms.py:417
-#, fuzzy
-#| msgid "Null bytes are not allowed."
 msgid "URLs are not allowed in the name field."
-msgstr "Bytes nulos não são permitidos."
+msgstr "URLs não são permitidas no campo de nome"
 
 #: warehouse/accounts/forms.py:506
 msgid "Invalid TOTP code."
@@ -159,10 +159,8 @@ msgid "Recovery code has been previously used."
 msgstr "Código de recuperação já utilizado anteriormente."
 
 #: warehouse/accounts/forms.py:631
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
 msgid "The username isn't valid. Try again."
-msgstr "O endereço de e-mail não é válido. Tente novamente."
+msgstr "O nome de usuário é invalido, tente novamente."
 
 #: warehouse/accounts/views.py:119
 msgid ""
@@ -450,8 +448,8 @@ msgid ""
 "You have already submitted an application for that name. Choose a different "
 "organization account name."
 msgstr ""
-"Esse nome de conta de organização já se encontra em uso. Escolha um nome "
-"diferente para a conta da organização."
+"Você já submeteu uma aplicação com este nome. Escolha um nome de organização "
+"diferente."
 
 #: warehouse/manage/forms.py:490
 msgid "Select project"
@@ -523,22 +521,16 @@ msgid "This team name has already been used. Choose a different team name."
 msgstr "Este nome de equipe já está em uso. Escolha um nome diferente."
 
 #: warehouse/manage/forms.py:726
-#, fuzzy
-#| msgid "Specify repository name"
 msgid "Specify your alternate repository name"
-msgstr "Nome do repositório"
+msgstr "Especifique o nome de seu repositório alternativo"
 
 #: warehouse/manage/forms.py:740
-#, fuzzy
-#| msgid "Specify repository name"
 msgid "Specify your alternate repository URL"
-msgstr "Nome do repositório"
+msgstr "Especifique a URL de seu repositório alternativo"
 
 #: warehouse/manage/forms.py:744
-#, fuzzy
-#| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid "The URL is too long. Choose a URL with 400 characters or less."
-msgstr "O nome é muito longo. Escolha um nome com 100 carateres ou menos."
+msgstr "A URL é muito longa. Escolha uma URL com 400 caracteres ou menos."
 
 #: warehouse/manage/forms.py:758
 #, fuzzy
@@ -585,16 +577,12 @@ msgid "Invalid credentials. Try again"
 msgstr "Credenciais inválidas. Tente novamente"
 
 #: warehouse/manage/views/__init__.py:1182
-#, fuzzy
-#| msgid "Invalid repository name"
 msgid "Invalid alternate repository location details"
-msgstr "Nome de repositório inválido"
+msgstr "Detalhes de localização do repositório alternativo inválidos"
 
 #: warehouse/manage/views/__init__.py:1219
-#, fuzzy
-#| msgid "Invalid repository name"
 msgid "Added alternate repository '${name}'"
-msgstr "Nome de repositório inválido"
+msgstr "repositório alternativo adicionado '${name}'"
 
 #: warehouse/manage/views/__init__.py:1253
 #: warehouse/manage/views/__init__.py:2154
@@ -605,38 +593,32 @@ msgid "Confirm the request"
 msgstr "Confirme a solicitação"
 
 #: warehouse/manage/views/__init__.py:1265
-#, fuzzy
-#| msgid "Invalid repository name"
 msgid "Invalid alternate repository id"
-msgstr "Nome de repositório inválido"
+msgstr "ID de repositório alternativo inválido"
 
 #: warehouse/manage/views/__init__.py:1276
-#, fuzzy
-#| msgid "Invalid repository name"
 msgid "Invalid alternate repository for project"
-msgstr "Nome de repositório inválido"
+msgstr "Repositório alternativo invalido para o projeto"
 
 #: warehouse/manage/views/__init__.py:1284
 msgid ""
 "Could not delete alternate repository - ${confirm} is not the same as "
 "${alt_repo_name}"
 msgstr ""
+"Não foi possível deletar o repositório alternativo - ${confirm} não é o "
+"mesmo que ${alt_repo_name}"
 
 #: warehouse/manage/views/__init__.py:1322
 msgid "Deleted alternate repository '${name}'"
-msgstr ""
+msgstr "Repositório alternativo '${name}' deletado"
 
 #: warehouse/manage/views/__init__.py:1453
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
 msgstr ""
-"O registo de novos utilizadores está temporariamente desativado. Consulte "
-"https://pypi.org/help#admin-intervention para mais detalhes."
+"Publicações confiáveis baseadas em Github estão temporariamente "
+"desabilitadas. Veja https://pypi.org/help#admin-intervention para detalhes."
 
 #: warehouse/manage/views/__init__.py:1566
 #, fuzzy
@@ -787,6 +769,8 @@ msgid ""
 "This project already exists, use the project's publishing settings <a "
 "href='${url}'>here</a> to create a Trusted Publisher for it."
 msgstr ""
+"Esse projeto já existe, Use as configurações de projetos <a "
+"href='${url}'>Aqui</a> Para criar um Editor Confiável para ele."
 
 #: warehouse/oidc/forms/_core.py:65
 msgid "Specify a publisher ID"
@@ -934,7 +918,7 @@ msgstr "O nome do fluxo de trabalho deve terminar com .yml ou .yaml"
 msgid "Top-level pipeline file path cannot start or end with /"
 msgstr ""
 
-#: warehouse/packaging/forms.py:26
+#: warehouse/packaging/forms.py:27
 msgid "Provide an Inspector link to specific lines of code."
 msgstr ""
 
@@ -1008,7 +992,7 @@ msgstr "Monthy Python - A Cena da Loja de Queijo"
 #: warehouse/templates/base.html:321 warehouse/templates/base.html:331
 #: warehouse/templates/base.html:344
 #: warehouse/templates/includes/accounts/profile-callout.html:18
-#: warehouse/templates/includes/file-details.html:94
+#: warehouse/templates/includes/file-details.html:101
 #: warehouse/templates/index.html:100 warehouse/templates/index.html:104
 #: warehouse/templates/manage/account.html:228
 #: warehouse/templates/manage/account.html:234
@@ -3133,54 +3117,54 @@ msgstr "Configurações da conta"
 msgid "Public profile"
 msgstr "Perfil público"
 
-#: warehouse/templates/includes/file-details.html:27
+#: warehouse/templates/includes/file-details.html:34
 #, fuzzy
 #| msgid "Account details"
 msgid "File details"
 msgstr "Detalhes da conta"
 
-#: warehouse/templates/includes/file-details.html:38
+#: warehouse/templates/includes/file-details.html:45
 #, python-format
 msgid "Upload date: %(upload_time)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:39
+#: warehouse/templates/includes/file-details.html:46
 #, fuzzy, python-format
 #| msgid "Expires: %(exp)s"
 msgid "Size: %(size)s"
 msgstr "Expira: %(exp)s"
 
-#: warehouse/templates/includes/file-details.html:40
+#: warehouse/templates/includes/file-details.html:47
 #, python-format
 msgid "Tags: %(tags)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:42
+#: warehouse/templates/includes/file-details.html:49
 #, python-format
 msgid "Uploaded using Trusted Publishing? %(is_tp)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:47
+#: warehouse/templates/includes/file-details.html:54
 #, python-format
 msgid "Uploaded via: %(uploaded_via)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:55
+#: warehouse/templates/includes/file-details.html:62
 #, python-format
 msgid "Hashes for %(filename)s"
 msgstr "Hashes para %(filename)s"
 
-#: warehouse/templates/includes/file-details.html:58
+#: warehouse/templates/includes/file-details.html:65
 msgid "Algorithm"
 msgstr "Algoritmo"
 
-#: warehouse/templates/includes/file-details.html:59
+#: warehouse/templates/includes/file-details.html:66
 msgid "Hash digest"
 msgstr "Digest de hash"
 
-#: warehouse/templates/includes/file-details.html:68
-#: warehouse/templates/includes/file-details.html:77
-#: warehouse/templates/includes/file-details.html:86
+#: warehouse/templates/includes/file-details.html:75
+#: warehouse/templates/includes/file-details.html:84
+#: warehouse/templates/includes/file-details.html:93
 #: warehouse/templates/manage/account.html:206
 #: warehouse/templates/manage/account/recovery_codes-provision.html:58
 #: warehouse/templates/manage/account/totp-provision.html:57
@@ -3190,9 +3174,9 @@ msgstr "Digest de hash"
 msgid "Copy to clipboard"
 msgstr "Copiar para a área de trabalho"
 
-#: warehouse/templates/includes/file-details.html:69
-#: warehouse/templates/includes/file-details.html:78
-#: warehouse/templates/includes/file-details.html:87
+#: warehouse/templates/includes/file-details.html:76
+#: warehouse/templates/includes/file-details.html:85
+#: warehouse/templates/includes/file-details.html:94
 #: warehouse/templates/manage/account.html:207
 #: warehouse/templates/manage/account/recovery_codes-provision.html:59
 #: warehouse/templates/manage/account/totp-provision.html:58
@@ -3201,7 +3185,7 @@ msgstr "Copiar para a área de trabalho"
 msgid "Copy"
 msgstr "Copiar"
 
-#: warehouse/templates/includes/file-details.html:94
+#: warehouse/templates/includes/file-details.html:101
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "

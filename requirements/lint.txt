@@ -559,13 +559,13 @@ types-requests==2.32.0.20241016 \
     --hash=sha256:0d9cad2f27515d0e3e3da7134a1b6f28fb97129d86b867f24d9c726452634d95 \
     --hash=sha256:4195d62d6d3e043a4eaaf08ff8a62184584d2e8684e9d2aa178c7915a7da3747
     # via -r requirements/lint.in
-types-s3transfer==0.10.3 \
-    --hash=sha256:d34c5a82f531af95bb550927136ff5b737a1ed3087f90a59d545591dfde5b4cc \
-    --hash=sha256:f761b2876ac4c208e6c6b75cdf5f6939009768be9950c545b11b0225e7703ee7
+types-s3transfer==0.10.4 \
+    --hash=sha256:03123477e3064c81efe712bf9d372c7c72f2790711431f9baa59cf96ea607267 \
+    --hash=sha256:22ac1aabc98f9d7f2928eb3fb4d5c02bf7435687f0913345a97dd3b84d0c217d
     # via boto3-stubs
-types-setuptools==75.5.0.20241119 \
-    --hash=sha256:2b1ec21346656aeb4f43fa6b70b223b4fa726e324c509a05f35611209f134014 \
-    --hash=sha256:6e7f1937a8b70cc5c724facc619da721b86d47ac673e3eb739e44d36afd260fc
+types-setuptools==75.5.0.20241122 \
+    --hash=sha256:196aaf1811cbc1c77ac1d4c4879d5308b6fdf426e56b73baadbca2a1827dadef \
+    --hash=sha256:d69c445f7bdd5e49d1b2441aadcee1388febcc9ad9d9d5fd33648b555e0b1c31
     # via
     #   -r requirements/lint.in
     #   types-babel
@@ -648,9 +648,9 @@ zope-schema==7.0.1 \
     # via mypy-zope
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==75.5.0 \
-    --hash=sha256:5c4ccb41111392671f02bb5f8436dfc5a9a7185e80500531b133f5775c4163ef \
-    --hash=sha256:87cb777c3b96d638ca02031192d40390e0ad97737e27b6b4fa831bea86f2f829
+setuptools==75.6.0 \
+    --hash=sha256:8199222558df7c86216af4f84c30e9b34a61d8ba19366cc914424cdbd28252f6 \
+    --hash=sha256:ce74b49e8f7110f9bf04883b730f4765b774ef3ef28f722cce7c273d253aaf7d
     # via
     #   zope-event
     #   zope-interface

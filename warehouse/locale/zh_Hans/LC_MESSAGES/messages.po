@@ -877,7 +877,7 @@ msgstr "顶层管线文件路径必须以 .yml 或 .yaml 结尾"
 msgid "Top-level pipeline file path cannot start or end with /"
 msgstr "顶层管线文件路径不能以 / 开头或结尾"
 
-#: warehouse/packaging/forms.py:26
+#: warehouse/packaging/forms.py:27
 msgid "Provide an Inspector link to specific lines of code."
 msgstr "提供到特定项目行的 Inspector 链接。"
 
@@ -950,7 +950,7 @@ msgstr "Monty Python - 奶酪店素描"
 #: warehouse/templates/base.html:321 warehouse/templates/base.html:331
 #: warehouse/templates/base.html:344
 #: warehouse/templates/includes/accounts/profile-callout.html:18
-#: warehouse/templates/includes/file-details.html:94
+#: warehouse/templates/includes/file-details.html:101
 #: warehouse/templates/index.html:100 warehouse/templates/index.html:104
 #: warehouse/templates/manage/account.html:228
 #: warehouse/templates/manage/account.html:234
@@ -2993,51 +2993,51 @@ msgstr "账户设置"
 msgid "Public profile"
 msgstr "公开个人资料"
 
-#: warehouse/templates/includes/file-details.html:27
+#: warehouse/templates/includes/file-details.html:34
 msgid "File details"
 msgstr "文件详情"
 
-#: warehouse/templates/includes/file-details.html:38
+#: warehouse/templates/includes/file-details.html:45
 #, python-format
 msgid "Upload date: %(upload_time)s"
 msgstr "上传日期：%(upload_time)s"
 
-#: warehouse/templates/includes/file-details.html:39
+#: warehouse/templates/includes/file-details.html:46
 #, python-format
 msgid "Size: %(size)s"
 msgstr "大小： %(size)s"
 
-#: warehouse/templates/includes/file-details.html:40
+#: warehouse/templates/includes/file-details.html:47
 #, python-format
 msgid "Tags: %(tags)s"
 msgstr "标签：%(tags)s"
 
-#: warehouse/templates/includes/file-details.html:42
+#: warehouse/templates/includes/file-details.html:49
 #, python-format
 msgid "Uploaded using Trusted Publishing? %(is_tp)s"
 msgstr "是否使用受信任发布上传？%(is_tp)s"
 
-#: warehouse/templates/includes/file-details.html:47
+#: warehouse/templates/includes/file-details.html:54
 #, python-format
 msgid "Uploaded via: %(uploaded_via)s"
 msgstr "上传方式：%(uploaded_via)s"
 
-#: warehouse/templates/includes/file-details.html:55
+#: warehouse/templates/includes/file-details.html:62
 #, python-format
 msgid "Hashes for %(filename)s"
 msgstr "%(filename)s 文件的哈希"
 
-#: warehouse/templates/includes/file-details.html:58
+#: warehouse/templates/includes/file-details.html:65
 msgid "Algorithm"
 msgstr "算法"
 
-#: warehouse/templates/includes/file-details.html:59
+#: warehouse/templates/includes/file-details.html:66
 msgid "Hash digest"
 msgstr "哈希摘要"
 
-#: warehouse/templates/includes/file-details.html:68
-#: warehouse/templates/includes/file-details.html:77
-#: warehouse/templates/includes/file-details.html:86
+#: warehouse/templates/includes/file-details.html:75
+#: warehouse/templates/includes/file-details.html:84
+#: warehouse/templates/includes/file-details.html:93
 #: warehouse/templates/manage/account.html:206
 #: warehouse/templates/manage/account/recovery_codes-provision.html:58
 #: warehouse/templates/manage/account/totp-provision.html:57
@@ -3047,9 +3047,9 @@ msgstr "哈希摘要"
 msgid "Copy to clipboard"
 msgstr "复制到剪贴板"
 
-#: warehouse/templates/includes/file-details.html:69
-#: warehouse/templates/includes/file-details.html:78
-#: warehouse/templates/includes/file-details.html:87
+#: warehouse/templates/includes/file-details.html:76
+#: warehouse/templates/includes/file-details.html:85
+#: warehouse/templates/includes/file-details.html:94
 #: warehouse/templates/manage/account.html:207
 #: warehouse/templates/manage/account/recovery_codes-provision.html:59
 #: warehouse/templates/manage/account/totp-provision.html:58
@@ -3058,7 +3058,7 @@ msgstr "复制到剪贴板"
 msgid "Copy"
 msgstr "复制"
 
-#: warehouse/templates/includes/file-details.html:94
+#: warehouse/templates/includes/file-details.html:101
 #, python-format
 msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
