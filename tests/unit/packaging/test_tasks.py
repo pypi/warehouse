@@ -440,8 +440,7 @@ bq_schema = [
 
 class TestUpdateBigQueryMetadata:
     class ListField(Field):
-        def process_formdata(self, valuelist):
-            self.data = [v.strip() for v in valuelist if v.strip()]
+        pass
 
     input_parameters = [
         (

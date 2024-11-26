@@ -42,11 +42,6 @@ def test_cli_help(monkeypatch, cli):
     configure = pretend.call_recorder(lambda: config)
     monkeypatch.setattr(warehouse.cli, "LazyConfig", configure)
 
-    @warehouse.cli.warehouse.command()
-    @click.pass_obj
-    def cli_test_command(obj):
-        assert obj is config
-
     result = cli.invoke(warehouse.cli.warehouse, ["db", "-h"])
 
     assert result.exit_code == 0

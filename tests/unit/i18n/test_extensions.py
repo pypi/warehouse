@@ -43,12 +43,6 @@ pretend_npgettext = pretend.call_recorder(
 )
 
 
-def _get_with_context(value, ctx=None):
-    if isinstance(value, dict):
-        return value.get(ctx, value)
-    return value
-
-
 class TestFallbackInternationalizationExtension:
     @pytest.mark.parametrize(
         (
@@ -139,8 +133,7 @@ class TestFallbackInternationalizationExtension:
         @pass_context
         def gettext(context, string):
             language = context.get("LANGUAGE", "en")
-            value = languages.get(language, {}).get(string, string)
-            return _get_with_context(value)
+            return languages.get(language, {}).get(string, string)
 
         env = Environment(
             loader=DictLoader(templates),
@@ -214,10 +207,8 @@ class TestFallbackInternationalizationExtension:
         def ngettext(context, s, p, n):
             language = context.get("LANGUAGE", "en")
             if n != 1:
-                value = languages.get(language, {}).get(p, p)
-                return _get_with_context(value)
-            value = languages.get(language, {}).get(s, s)
-            return _get_with_context(value)
+                return languages.get(language, {}).get(p, p)
+            return languages.get(language, {}).get(s, s)
 
         env = Environment(
             loader=DictLoader(templates),

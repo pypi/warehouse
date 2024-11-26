@@ -202,12 +202,6 @@ class NotLock:
     def __exit__(self, exc_type, exc_value, traceback):
         pass
 
-    def acquire(self):
-        return True
-
-    def release(self):
-        return True
-
 
 class TestSearchLock:
     def test_is_subclass_of_redis_lock(self, mockredis):

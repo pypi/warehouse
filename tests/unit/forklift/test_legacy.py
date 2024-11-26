@@ -5479,22 +5479,6 @@ class TestFileUpload:
             name=project.normalized_name.replace("-", "_"), version=version
         )
 
-        @pretend.call_recorder
-        def storage_service_store(path, file_path, *, meta):
-            with open(file_path, "rb") as fp:
-                if file_path.endswith(".metadata"):
-                    assert fp.read() == b"Fake metadata"
-                else:
-                    assert fp.read() == filebody
-
-        storage_service = pretend.stub(store=storage_service_store)
-
-        db_request.find_service = pretend.call_recorder(
-            lambda svc, name=None, context=None: {
-                IFileStorage: storage_service,
-            }.get(svc)
-        )
-
         monkeypatch.setattr(
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
