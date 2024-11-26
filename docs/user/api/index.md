@@ -45,7 +45,7 @@ suggestions:
 ### API Preference
 
 For periodically checking for new packages or updates to existing packages,
-use our RSS feeds.
+use our [RSS feeds].
 
 No new integrations should use the XML-RPC APIs as they are planned for
 deprecation. Existing consumers should migrate to JSON/RSS/[Index APIs].
@@ -57,69 +57,6 @@ deprecation. Existing consumers should migrate to JSON/RSS/[Index APIs].
 
 Many tools already integrate with PyPI, uploading packages or
 retrieving data; see [the Python Packaging Guide's tool recommendations].
-
-### Migrating to the new PyPI
-
-Warehouse has now replaced the legacy PyPI site that was deployed at
-<https://pypi.python.org/>. If your site/service
-used to link or upload to pypi.python.org, it may continue to work due
-to redirects, but you should use <https://pypi.org> instead.
-
-You should also watch [our status page] and subscribe to
-[the PyPI blog] and
-[the PyPI announcement list (low-traffic)] to find out about future changes.
-
-Here are some tips.
-
-!!! note
-
-    `{name}` is the name of the package as represented in the URL;
-    for `https://pypi.org/project/arrow/`, you'd insert `arrow`
-    wherever you see `{name}`.
-
-* If your client correctly follows redirects, you can replace
-  `pypi.python.org` in your links with `pypi.org` and everything
-  should just work. For instance, the project detail page
-  `https://pypi.org/pypi/{name}` (with or without a trailing slash)
-  redirects to `https://pypi.org/project/{name}/`.
-
-* Shorter URL: `https://pypi.org/p/{name}/` will redirect to
-  `https://pypi.org/project/{name}/`.
-
-* All APIs: [access is HTTPS-only]
-  (changed in October 2017). Furthermore, `pypi.org` honors an
-  `Accept-Encoding: gzip` header, whereas `pypi.python.org` ignored it.
-
-* JSON API: `https://pypi.org/pypi/{name}/json` returns the
-  expected JSON response directly. See [JSON API].
-
-* XML-RPC API: See [Changes to XMLRPC API]. Will be deprecated in
-  the future (no specific end date set yet); switch to the [RSS Feeds],
-  [Index API], or [JSON API].
-
-* Packages/updates RSS feeds: `https://pypi.org/pypi?%3Aaction=rss`
-  redirects to `https://pypi.org/rss/updates.xml`, and
-  `https://pypi.org/pypi?%3Aaction=packages_rss` redirects to
-  `https://pypi.org/rss/packages.xml`. See [RSS Feeds] for
-  descriptions. The data differs from the legacy feed data because
-  the new feeds are standards-compliant and fix inaccuracies in the
-  publication date; see #3248 for more information.
-
-* Documentation upload: Users can no longer use `doc_upload` in the
-  API to upload documentation ZIP files, separate from packages, to be
-  hosted at `pythonhosted.org`. See #509 for more information.
-
-* `User-Agent` Filtering: Some client user agents were filtered to
-  always use `legacy.pypi.org`, a temporary deployment of the legacy
-  PyPI codebase, regardless of brownouts or redirects, in order to
-  give them extra time to migrate. On 30 April 2018,
-  `legacy.pypi.org` was shut down, so all clients use `pypi.org`
-  regardless of their `User-Agent`.
-
-* Subscribe to [the PyPI blog] and [the PyPI announcement list (low-traffic)].
-
-If you're a PyPI end user or packager looking to migrate to the new
-PyPI, [see the official Python Packaging User Guide on migrating to PyPI].
 
 ### Querying PyPI for Package URLs
 
@@ -174,22 +111,10 @@ As you’ll note, it is just a redirect to the canonical file.
 
 [the Python Packaging Guide's tool recommendations]: https://packaging.python.org/guides/tool-recommendations/
 
-[our status page]: https://status.python.org/
-
-[the PyPI announcement list (low-traffic)]: https://mail.python.org/mailman3/lists/pypi-announce.python.org/
-
-[access is HTTPS-only]: https://mail.python.org/pipermail/distutils-sig/2017-October/031712.html
-
-[RSS Feeds]: ./feeds.md
-
-[see the official Python Packaging User Guide on migrating to PyPI]: https://packaging.python.org/guides/migrating-to-pypi-org/
+[RSS feeds]: ./feeds.md
 
 [PEP 491's file name convention]: https://peps.python.org/pep-0491/#file-name-convention
 
 [Index API]: ./index-api.md
 
 [JSON API]: https://warehouse.pypa.io/api-reference/json/
-
-[Changes to XMLRPC API]: https://warehouse.pypa.io/api-reference/xml-rpc.html#changes-to-xmlrpc-api
-
-[the PyPI blog]: https://blog.pypi.org/
