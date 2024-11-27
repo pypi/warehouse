@@ -173,8 +173,6 @@ class FakeESIndices:
 
     def remove_alias(self, name, alias):
         self.aliases[name] = [n for n in self.aliases[name] if n != alias]
-        if not self.aliases[name]:
-            del self.aliases[name]
 
     def update_aliases(self, *, body):
         for items in body["actions"]:

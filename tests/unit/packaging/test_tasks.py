@@ -527,8 +527,7 @@ class TestUpdateBigQueryMetadata:
 
         # Process the mocked wtform fields
         for key, value in form_factory.items():
-            if isinstance(value, StringField) or isinstance(value, self.ListField):
-                value.process(None)
+            value.process(None)
 
         get_table = pretend.stub(schema=bq_schema)
         bigquery = pretend.stub(

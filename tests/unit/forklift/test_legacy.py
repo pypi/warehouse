@@ -3068,10 +3068,7 @@ class TestFileUpload:
         @pretend.call_recorder
         def storage_service_store(path, file_path, *, meta):
             with open(file_path, "rb") as fp:
-                if file_path.endswith(".metadata"):
-                    assert fp.read() == b"Fake metadata"
-                else:
-                    assert fp.read() == filebody
+                assert fp.read() == filebody
 
         storage_service = pretend.stub(store=storage_service_store)
 
