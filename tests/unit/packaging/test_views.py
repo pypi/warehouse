@@ -326,11 +326,12 @@ class TestReleaseDetail:
         )
 
     @pytest.mark.parametrize(
-        ("base_url", "reference", "expected"),
+        ("base_url", "reference", "publisher", "expected"),
         [
             (
                 "https://github.com/pypi/warehouse",
                 "2ec275dc2a05cd8ed2f0a9a0adadfcff9096d982",
+                pretend.stub(kind="GitHub"),
                 (
                     "https://github.com/pypi/warehouse/tree/"
                     "2ec275dc2a05cd8ed2f0a9a0adadfcff9096d982"
@@ -339,12 +340,19 @@ class TestReleaseDetail:
             (
                 "https://gitlab.com/sample/sample",
                 "refs/heads/main",
-                "https://gitlab.com/sample/sample/tree/refs/heads/main",
+                pretend.stub(kind="GitLab"),
+                "https://gitlab.com/sample/sample/-/tree/main",
+            ),
+            (
+                "https://example.com/sample/sample",
+                "refs/heads/main",
+                pretend.stub(kind="Unknown"),
+                "https://example.com/sample/sample/refs/heads/main",
             ),
         ],
     )
-    def test_format_url(self, base_url, reference, expected):
-        assert views.format_url(base_url, reference) == expected
+    def test_format_url(self, base_url, reference, publisher, expected):
+        assert views.format_url(base_url, reference, publisher) == expected
 
     @pytest.mark.parametrize(
         ("publisher_name", "claims"),

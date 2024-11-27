@@ -9,9 +9,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import typing
+
+from typing import cast
 
 from natsort import natsorted
+from pypi_attestations import GitHubPublisher, GitLabPublisher, Publisher
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy.exc import NoResultFound
@@ -22,9 +24,6 @@ from warehouse.cache.origin import origin_cache
 from warehouse.observations.models import ObservationKind
 from warehouse.packaging.forms import SubmitMalwareObservationForm
 from warehouse.packaging.models import Description, File, Project, Release, Role
-
-if typing.TYPE_CHECKING:
-    import pypi_attestations
 
 
 @view_config(
@@ -60,24 +59,31 @@ def project_detail(project, request):
     return release_detail(release, request)
 
 
-def format_url(base_url: str, reference: str):
+def format_url(base_url: str, reference: str, publisher: Publisher):
     """Format a URL to create a permalink to a repository.
 
-    Works on both GitHub and GitLab.
     Reference can either be a hash or a named revision.
     """
-    return f"{base_url}/tree/{reference}"
+    match publisher.kind:
+        case "GitHub":
+            return f"{base_url}/tree/{reference}"
+        case "GitLab":
+            reference = reference.removeprefix("refs/heads/")
+            return f"{base_url}/-/tree/{reference}"
+        case _:
+            # Best effort here
+            return f"{base_url}/{reference}"
 
 
-def get_publication_details(
-    claims: dict[str, str], publisher: pypi_attestations.Publisher
-):
+def get_publication_details(claims: dict[str, str], publisher: Publisher):
     """Helper function for Jinja to format the claims present in the attestation."""
-    workflow_filename = ""
-    if publisher.kind == "GitHub":
-        workflow_filename = publisher.workflow
-    elif publisher.kind == "GitLab":
-        workflow_filename = publisher.workflow_filepath
+    match publisher.kind:
+        case "GitHub":
+            workflow_filename = cast(GitHubPublisher, publisher).workflow
+        case "GitLab":
+            workflow_filename = cast(GitLabPublisher, publisher).workflow_filepath
+        case _:
+            workflow_filename = ""
 
     # Source Repository URI
     repo_url = claims.get("1.3.6.1.4.1.57264.1.12", "")

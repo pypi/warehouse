@@ -140,10 +140,10 @@
               {% set claims = get_publication_details(attestation.certificate_claims, bundle.publisher) %}
               Source repository:
               <ul>
-                <li>Permalink: <a href="{{ format_url(claims.source, claims.source_digest) }}">
+                <li>Permalink: <a href="{{ format_url(claims.source, claims.source_digest, bundle.publisher) }}">
                     <code>{{ bundle.publisher.repository }}@{{ claims.source_digest }}</code>
                 </a></li>
-                <li>Branch / Tag: <a href="{{ format_url(claims.source, claims.source_ref) }} ">
+                <li>Branch / Tag: <a href="{{ format_url(claims.source, claims.source_ref, bundle.publisher) }} ">
                     <code>{{ claims.source_ref }}</code>
                 </a></li>
                 <li>Owner: <a href="{{ claims.owner }}">{{ claims.owner }}</a></li>
