@@ -48,7 +48,7 @@ def api_v0_view_config(**kwargs):
 
     # Prevent developers forgetting to set a permission
     if "permission" not in kwargs:  # pragma: no cover (safety check)
-        raise TypeError("`permission` keyword is is required")
+        raise TypeError("`permission` keyword is required")
 
     # Set defaults for API views
     kwargs.update(
