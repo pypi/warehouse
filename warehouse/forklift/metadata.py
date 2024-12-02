@@ -20,7 +20,6 @@ from packaging.metadata import (
     _LIST_FIELDS,
     _RAW_TO_EMAIL_MAPPING,
     _STRING_FIELDS,
-    _VALID_METADATA_VERSIONS,
     InvalidMetadata,
     Metadata,
     RawMetadata,
