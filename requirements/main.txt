@@ -900,10 +900,6 @@ idna==3.10 \
     #   email-validator
     #   requests
     #   tldextract
-importlib-resources==6.4.5 \
-    --hash=sha256:980862a1d16c9e147a59603677fa2aa5fd82b87f223b6cb870695bcfce830065 \
-    --hash=sha256:ac29d5f956f01d5e4bb63102a5a19957f1b9175e45649977264a1416783bb717
-    # via limits
 isodate==0.7.2 \
     --hash=sha256:28009937d8031054830160fce6d409ed342816b543597cece116d966c6d99e15 \
     --hash=sha256:4cd1aa0f43ca76f4a6c6c0292a85f40b35ec2e43e315b59f06e6d32171a953e6
@@ -988,9 +984,9 @@ lazy-object-proxy==1.10.0 \
     --hash=sha256:edb45bb8278574710e68a6b021599a10ce730d156e5b254941754a9cc0b17d03 \
     --hash=sha256:fec03caabbc6b59ea4a638bee5fce7117be8e99a4103d9d5ad77f15d6f81020c
     # via openapi-spec-validator
-limits==3.13.0 \
-    --hash=sha256:6571b0c567bfa175a35fed9f8a954c0c92f1c3200804282f1b8f1de4ad98a953 \
-    --hash=sha256:9767f7233da4255e9904b79908a728e8ec0984c0b086058b4cbbd309aea553f6
+limits==3.14.1 \
+    --hash=sha256:051aca02da56e6932599a25cb8e70543959294f5d587d57bcd7e38df234e697b \
+    --hash=sha256:cad16a9b3cf3924e27da48e78bdab33ef312ecb7194fdb50e509cc8111c8d0bb
     # via -r requirements/main.in
 linehaul==1.0.2 \
     --hash=sha256:4545fee3b54df22c697d204da8668e8fd975afcb28cbb5654865e43491c70ff0 \
