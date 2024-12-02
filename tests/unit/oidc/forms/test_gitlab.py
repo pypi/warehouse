@@ -134,6 +134,45 @@ class TestGitLabPublisherForm:
         assert not form.validate()
 
     @pytest.mark.parametrize(
+        "project_name",
+        ["invalid.git", "invalid.atom", "invalid--project"],
+    )
+    def test_reserved_project_names(self, project_name):
+
+        data = MultiDict(
+            {
+                "namespace": "some",
+                "workflow_filepath": "subfolder/some-workflow.yml",
+                "project": project_name,
+            }
+        )
+
+        form = gitlab.GitLabPublisherForm(data)
+        assert not form.validate()
+
+    @pytest.mark.parametrize(
+        "namespace",
+        [
+            "invalid.git",
+            "invalid.atom",
+            "consecutive--special-characters",
+            "must-end-with-non-special-characters-",
+        ],
+    )
+    def test_reserved_organization_names(self, namespace):
+
+        data = MultiDict(
+            {
+                "namespace": namespace,
+                "workflow_filepath": "subfolder/some-workflow.yml",
+                "project": "valid-project",
+            }
+        )
+
+        form = gitlab.GitLabPublisherForm(data)
+        assert not form.validate()
+
+    @pytest.mark.parametrize(
         "workflow_filepath",
         [
             "missing_suffix",
