@@ -220,7 +220,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
-        libpq5 libxml2 libxslt1.1 libcurl4 git \
+        libpq5 libxml2 libxslt1.1 libcurl4  \
         $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev vim oathtool'; fi) \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -238,5 +238,4 @@ COPY . /opt/warehouse/src/
 RUN tldextract --update
 # Load our module to pre-compile as much bytecode as we can easily.
 # Saves time collectively on container boot!
-RUN pip install --force pypi-attestations@git+https://github.com/trailofbits/pypi-attestations/@dm/extensions
 RUN python -m warehouse
