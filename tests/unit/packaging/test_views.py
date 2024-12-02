@@ -232,8 +232,7 @@ class TestReleaseDetail:
             ],
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
             "license": None,
-            "get_publication_details": views.get_publication_details,
-            "format_url": views.format_url,
+            "PEP740AttestationViewer": views.PEP740AttestationViewer,
         }
 
     def test_detail_renders_files_natural_sort(self, db_request):
@@ -325,141 +324,131 @@ class TestReleaseDetail:
             "characters, it's really so lo..."
         )
 
-    @pytest.mark.parametrize(
-        ("base_url", "reference", "publisher", "expected"),
-        [
-            (
-                "https://github.com/pypi/warehouse",
-                "2ec275dc2a05cd8ed2f0a9a0adadfcff9096d982",
-                pretend.stub(kind="GitHub"),
-                (
-                    "https://github.com/pypi/warehouse/tree/"
-                    "2ec275dc2a05cd8ed2f0a9a0adadfcff9096d982"
-                ),
-            ),
-            (
-                "https://gitlab.com/sample/sample",
-                "refs/heads/main",
-                pretend.stub(kind="GitLab"),
-                "https://gitlab.com/sample/sample/-/tree/main",
-            ),
-            (
-                "https://example.com/sample/sample",
-                "refs/heads/main",
-                pretend.stub(kind="Unknown"),
-                "https://example.com/sample/sample/refs/heads/main",
-            ),
-        ],
-    )
-    def test_format_url(self, base_url, reference, publisher, expected):
-        assert views.format_url(base_url, reference, publisher) == expected
 
-    @pytest.mark.parametrize(
-        ("publisher_name", "claims"),
-        [
-            (
-                "GitLab",
-                {
-                    "1.3.6.1.4.1.57264.1.8": "https://gitlab.com",
-                    "1.3.6.1.4.1.57264.1.9": (
-                        "https://gitlab.com/facutuesca/gitlab-oidc-project//"
-                        ".gitlab-ci.yml@refs/heads/main"
-                    ),
-                    "1.3.6.1.4.1.57264.1.10": (
-                        "72f7c63b75eb55ea80864962f0e645c93414da34"
-                    ),
-                    "1.3.6.1.4.1.57264.1.11": "gitlab-hosted",
-                    "1.3.6.1.4.1.57264.1.12": (
-                        "https://gitlab.com/facutuesca/gitlab-oidc-project"
-                    ),
-                    "1.3.6.1.4.1.57264.1.13": (
-                        "72f7c63b75eb55ea80864962f0e645c93414da34"
-                    ),
-                    "1.3.6.1.4.1.57264.1.14": "refs/heads/main",
-                    "1.3.6.1.4.1.57264.1.15": "55235664",
-                    "1.3.6.1.4.1.57264.1.16": "https://gitlab.com/facutuesca",
-                    "1.3.6.1.4.1.57264.1.17": "12885801",
-                    "1.3.6.1.4.1.57264.1.18": (
-                        "https://gitlab.com/facutuesca/gitlab-oidc-project//"
-                        ".gitlab-ci.yml@refs/heads/main"
-                    ),
-                    "1.3.6.1.4.1.57264.1.19": (
-                        "72f7c63b75eb55ea80864962f0e645c93414da34"
-                    ),
-                    "1.3.6.1.4.1.57264.1.20": "push",
-                    "1.3.6.1.4.1.57264.1.21": (
-                        "https://gitlab.com/facutuesca/gitlab-oidc-project/-/jobs/"
-                        "8415754949"
-                    ),
-                    "1.3.6.1.4.1.57264.1.22": "private",
-                },
-            ),
-            (
-                "GitHub",
-                {
-                    "1.3.6.1.4.1.57264.1.8": (
-                        "https://token.actions.githubusercontent.com"
-                    ),
-                    "1.3.6.1.4.1.57264.1.9": (
-                        "https://github.com/trailofbits/pypi-attestations/"
-                        ".github/workflows/release.yml@refs/tags/v0.0.16"
-                    ),
-                    "1.3.6.1.4.1.57264.1.10": (
-                        "58c872e67c03c9c031ba71b1654ff542ff290cd7"
-                    ),
-                    "1.3.6.1.4.1.57264.1.11": "github-hosted",
-                    "1.3.6.1.4.1.57264.1.12": (
-                        "https://github.com/trailofbits/pypi-attestations"
-                    ),
-                    "1.3.6.1.4.1.57264.1.13": (
-                        "58c872e67c03c9c031ba71b1654ff542ff290cd7"
-                    ),
-                    "1.3.6.1.4.1.57264.1.14": "refs/tags/v0.0.16",
-                    "1.3.6.1.4.1.57264.1.15": "772247423",
-                    "1.3.6.1.4.1.57264.1.16": "https://github.com/trailofbits",
-                    "1.3.6.1.4.1.57264.1.17": "2314423",
-                    "1.3.6.1.4.1.57264.1.18": (
-                        "https://github.com/trailofbits/pypi-attestations/"
-                        ".github/workflows/release.yml@refs/tags/v0.0.16"
-                    ),
-                    "1.3.6.1.4.1.57264.1.19": (
-                        "58c872e67c03c9c031ba71b1654ff542ff290cd7"
-                    ),
-                    "1.3.6.1.4.1.57264.1.20": "release",
-                    "1.3.6.1.4.1.57264.1.21": (
-                        "https://github.com/trailofbits/pypi-attestations/actions/"
-                        "runs/11732568384/attempts/1"
-                    ),
-                    "1.3.6.1.4.1.57264.1.22": "public",
-                },
-            ),
-        ],
-    )
-    def test_get_publication_details(self, publisher_name, claims):
-        if publisher_name == "GitLab":
-            publisher = pretend.stub(
-                kind="GitLab",
-                workflow_filepath="subfolder/example.yml",
-            )
-        elif publisher_name == "GitHub":
-            publisher = pretend.stub(
-                kind="GitHub",
-                workflow="example.yml",
-            )
+class TestPEP740AttestationViewer:
 
-        views.get_publication_details(
-            claims,
-            publisher,
+    @pytest.fixture
+    def gitlab_attestation(self, gitlab_provenance):
+        return gitlab_provenance.attestation_bundles[0].attestations[0]
+
+    @pytest.fixture
+    def github_attestation(self, github_provenance):
+        return github_provenance.attestation_bundles[0].attestations[0]
+
+    def test_github_pep740(self, github_attestation):
+        """Test GitLab attestation properties and URL formatting."""
+        github_publisher = pretend.stub(
+            kind="GitHub",
+            workflow=".github/workflows/release.yml",
         )
 
-    def test_get_publication_details_unknown(self):
-        results = views.get_publication_details(
-            claims={},
-            publisher=pretend.stub(kind="unknown-publisher"),
+        viewer = views.PEP740AttestationViewer(
+            publisher=github_publisher,
+            attestation=github_attestation,
         )
 
-        assert not results["workflow_filename"]
-        assert results["workflow_url"] == "/blob//"
+        assert viewer.statement_type == "https://in-toto.io/Statement/v1"
+        assert viewer.predicate_type == "https://docs.pypi.org/attestations/publish/v1"
+        assert viewer.subject_name == "sampleproject-4.0.0.tar.gz"
+        assert (
+            viewer.subject_digest
+            == "0ace7980f82c5815ede4cd7bf9f6693684cec2ae47b9b7ade9add533b8627c6b"
+        )
+        assert viewer.transparency_entry["integratedTime"] == "1730932627"
+
+        assert viewer.repository_url == "https://github.com/pypa/sampleproject"
+        assert viewer.workflow_filename == ".github/workflows/release.yml"
+        assert viewer.workflow_url == (
+            "https://github.com/pypa/sampleproject/blob/"
+            "621e4974ca25ce531773def586ba3ed8e736b3fc/"
+            ".github/workflows/release.yml"
+        )
+        assert viewer.build_digest == "621e4974ca25ce531773def586ba3ed8e736b3fc"
+
+        assert viewer.issuer == "https://token.actions.githubusercontent.com"
+        assert viewer.environment == "github-hosted"
+
+        assert viewer.source == "https://github.com/pypa/sampleproject"
+        assert viewer.source_digest == "621e4974ca25ce531773def586ba3ed8e736b3fc"
+        assert viewer.source_reference == "refs/heads/main"
+        assert viewer.owner == "https://github.com/pypa"
+
+        assert viewer.trigger == "push"
+        assert viewer.access == "public"
+
+        assert viewer.permalink_with_digest == (
+            "https://github.com/pypa/sampleproject/tree/"
+            "621e4974ca25ce531773def586ba3ed8e736b3fc"
+        )
+        assert (
+            viewer.permalink_with_reference
+            == "https://github.com/pypa/sampleproject/tree/refs/heads/main"
+        )
+
+    def test_gitlab_pep740(self, gitlab_attestation):
+        """Test GitLab attestation properties and URL formatting."""
+        gitlab_publisher = pretend.stub(
+            kind="GitLab",
+            workflow_filepath=".gitlab-ci.yml",
+        )
+
+        viewer = views.PEP740AttestationViewer(
+            publisher=gitlab_publisher,
+            attestation=gitlab_attestation,
+        )
+
+        assert viewer.statement_type == "https://in-toto.io/Statement/v1"
+        assert viewer.predicate_type == "https://docs.pypi.org/attestations/publish/v1"
+        assert viewer.subject_name == "pep740_sampleproject-1.0.0.tar.gz"
+        assert (
+            viewer.subject_digest
+            == "6cdd4a1a0a49aeef47265e7bf8ec1667257b397d34d731dc7b7af349deca1cd8"
+        )
+        assert viewer.transparency_entry["integratedTime"] == "1732724143"
+
+        assert (
+            viewer.repository_url == "https://gitlab.com/pep740-example/sampleproject"
+        )
+        assert viewer.workflow_filename == ".gitlab-ci.yml"
+        assert viewer.workflow_url == (
+            "https://gitlab.com/pep740-example/sampleproject/blob/"
+            "0b706bbf1b50e7266b33762568566d6ec0f76d69//.gitlab-ci.yml"
+        )
+        assert viewer.build_digest == "0b706bbf1b50e7266b33762568566d6ec0f76d69"
+
+        assert viewer.issuer == "https://gitlab.com"
+        assert viewer.environment == "gitlab-hosted"
+
+        assert viewer.source == "https://gitlab.com/pep740-example/sampleproject"
+        assert viewer.source_digest == "0b706bbf1b50e7266b33762568566d6ec0f76d69"
+        assert viewer.source_reference == "refs/heads/main"
+        assert viewer.owner == "https://gitlab.com/pep740-example"
+
+        assert viewer.trigger == "push"
+        assert viewer.access == "private"
+
+        assert viewer.permalink_with_digest == (
+            "https://gitlab.com/pep740-example/sampleproject/-/tree/"
+            "0b706bbf1b50e7266b33762568566d6ec0f76d69"
+        )
+        assert (
+            viewer.permalink_with_reference
+            == "https://gitlab.com/pep740-example/sampleproject/-/tree/main"
+        )
+
+    def test_unknown_publisher(self, github_attestation):
+        viewer = views.PEP740AttestationViewer(
+            publisher=pretend.stub(
+                kind="Unknown",
+            ),
+            attestation=pretend.stub(certificate_claims={}),
+        )
+
+        assert viewer.workflow_filename == ""
+        assert (
+            viewer._format_url("https://example.com", "refs/heads/main")
+            == "https://example.com/refs/heads/main"
+        )
 
 
 class TestReportMalwareButton:

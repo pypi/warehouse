@@ -13,7 +13,13 @@
 from typing import cast
 
 from natsort import natsorted
-from pypi_attestations import GitHubPublisher, GitLabPublisher, Publisher
+from pypi_attestations import (
+    Attestation,
+    GitHubPublisher,
+    GitLabPublisher,
+    Publisher,
+    TransparencyLogEntry,
+)
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy.exc import NoResultFound
@@ -24,6 +30,135 @@ from warehouse.cache.origin import origin_cache
 from warehouse.observations.models import ObservationKind
 from warehouse.packaging.forms import SubmitMalwareObservationForm
 from warehouse.packaging.models import Description, File, Project, Release, Role
+
+
+class PEP740AttestationViewer:
+
+    def __init__(self, publisher: Publisher, attestation: Attestation):
+        self.publisher = publisher
+        self.attestation = attestation
+        self.claims = self.attestation.certificate_claims
+
+    def _format_url(self, base_url: str, reference: str) -> str:
+        """Format a URL to create a permalink to a repository.
+
+        Reference can either be a hash or a named revision.
+        """
+        match self.publisher.kind:
+            case "GitHub":
+                return f"{base_url}/tree/{reference}"
+            case "GitLab":
+                reference = reference.removeprefix("refs/heads/")
+                return f"{base_url}/-/tree/{reference}"
+            case _:
+                # Best effort here
+                return f"{base_url}/{reference}"
+
+    # Statement properties
+    @property
+    def statement_type(self) -> str:
+        """The type of the attestation statement."""
+        return self.attestation.statement["_type"]
+
+    @property
+    def predicate_type(self) -> str:
+        """The type of the predicate in the attestation statement."""
+        return self.attestation.statement["predicateType"]
+
+    @property
+    def subject_name(self) -> str:
+        """The name of the subject in the attestation."""
+        return self.attestation.statement["subject"][0]["name"]
+
+    @property
+    def subject_digest(self) -> str:
+        """The SHA256 digest of the subject."""
+        return self.attestation.statement["subject"][0]["digest"]["sha256"]
+
+    @property
+    def transparency_entry(self) -> TransparencyLogEntry:
+        """The first transparency log entry from the verification material."""
+        return self.attestation.verification_material.transparency_entries[0]
+
+    # Certificate properties
+    @property
+    def repository_url(self) -> str:
+        """Source Repository URI."""
+        return self.claims.get("1.3.6.1.4.1.57264.1.12", "")
+
+    @property
+    def workflow_filename(self) -> str:
+        """The filename of the workflow configuration."""
+        match self.publisher.kind:
+            case "GitHub":
+                return cast(GitHubPublisher, self.publisher).workflow
+            case "GitLab":
+                return cast(GitLabPublisher, self.publisher).workflow_filepath
+            case _:
+                return ""
+
+    @property
+    def workflow_url(self) -> str:
+        """Build Config URI with permalink to the exact version used."""
+        repo_url = self.repository_url
+        workflow_url = self.claims.get("1.3.6.1.4.1.57264.1.18", "")
+        workflow_file_path = workflow_url.split("@")[0].replace(repo_url + "/", "")
+        return f"{repo_url}/blob/{self.build_digest}/{workflow_file_path}"
+
+    @property
+    def build_digest(self) -> str:
+        """Build Config Digest."""
+        return self.claims.get("1.3.6.1.4.1.57264.1.19", "")
+
+    @property
+    def issuer(self) -> str:
+        """Issuer of the attestation."""
+        return self.claims.get("1.3.6.1.4.1.57264.1.8", "")
+
+    @property
+    def environment(self) -> str:
+        """Runner Environment."""
+        return self.claims.get("1.3.6.1.4.1.57264.1.11", "")
+
+    @property
+    def source(self) -> str:
+        """Source Repository URI."""
+        return self.claims.get("1.3.6.1.4.1.57264.1.12", "")
+
+    @property
+    def source_digest(self) -> str:
+        """Source Repository Digest."""
+        return self.claims.get("1.3.6.1.4.1.57264.1.13", "")
+
+    @property
+    def source_reference(self) -> str:
+        """Source Repository Reference."""
+        return self.claims.get("1.3.6.1.4.1.57264.1.14", "")
+
+    @property
+    def owner(self) -> str:
+        """Source Repository Owner URI."""
+        return self.claims.get("1.3.6.1.4.1.57264.1.16", "")
+
+    @property
+    def trigger(self) -> str:
+        """Build Trigger."""
+        return self.claims.get("1.3.6.1.4.1.57264.1.20", "")
+
+    @property
+    def access(self) -> str:
+        """Source Repository Visibility At Signing."""
+        return self.claims.get("1.3.6.1.4.1.57264.1.22", "")
+
+    @property
+    def permalink_with_digest(self) -> str:
+        """Construct a permalink using the source digest."""
+        return self._format_url(self.source, self.source_digest)
+
+    @property
+    def permalink_with_reference(self) -> str:
+        """Construct a permalink using the source reference."""
+        return self._format_url(self.source, self.source_reference)
 
 
 @view_config(
@@ -57,68 +192,6 @@ def project_detail(project, request):
         raise HTTPNotFound
 
     return release_detail(release, request)
-
-
-def format_url(base_url: str, reference: str, publisher: Publisher):
-    """Format a URL to create a permalink to a repository.
-
-    Reference can either be a hash or a named revision.
-    """
-    match publisher.kind:
-        case "GitHub":
-            return f"{base_url}/tree/{reference}"
-        case "GitLab":
-            reference = reference.removeprefix("refs/heads/")
-            return f"{base_url}/-/tree/{reference}"
-        case _:
-            # Best effort here
-            return f"{base_url}/{reference}"
-
-
-def get_publication_details(claims: dict[str, str], publisher: Publisher):
-    """Helper function for Jinja to format the claims present in the attestation."""
-    match publisher.kind:
-        case "GitHub":
-            workflow_filename = cast(GitHubPublisher, publisher).workflow
-        case "GitLab":
-            workflow_filename = cast(GitLabPublisher, publisher).workflow_filepath
-        case _:
-            workflow_filename = ""
-
-    # Source Repository URI
-    repo_url = claims.get("1.3.6.1.4.1.57264.1.12", "")
-    # Build Config URI
-    workflow_url = claims.get("1.3.6.1.4.1.57264.1.18", "")
-    # Build Config Digest
-    build_hash = claims.get("1.3.6.1.4.1.57264.1.19", "")
-
-    # The claim `workflow_url` does not return a valid link to the repository,
-    # but we can use it to retrieve the path towards the workflow file.
-    workflow_file_path = workflow_url.split("@")[0].replace(repo_url + "/", "")
-
-    workflow_permalink = f"{repo_url}/blob/{build_hash}/{workflow_file_path}"
-
-    return {
-        "workflow_url": workflow_permalink,
-        "workflow_filename": workflow_filename,
-        "build_hash": build_hash,
-        # Issuer
-        "issuer": claims.get("1.3.6.1.4.1.57264.1.8"),
-        # Runner Environment
-        "environment": claims.get("1.3.6.1.4.1.57264.1.11"),
-        # Source Repository URI
-        "source": claims.get("1.3.6.1.4.1.57264.1.12"),
-        # Source Repository Digest
-        "source_digest": claims.get("1.3.6.1.4.1.57264.1.13"),
-        # Source Repository Ref
-        "source_ref": claims.get("1.3.6.1.4.1.57264.1.14"),
-        # Source Repository Owner URI
-        "owner": claims.get("1.3.6.1.4.1.57264.1.16"),
-        # Build Trigger
-        "trigger": claims.get("1.3.6.1.4.1.57264.1.20"),
-        # Source Repository Visibility At Signing
-        "access": claims.get("1.3.6.1.4.1.57264.1.22"),
-    }
 
 
 @view_config(
@@ -214,8 +287,7 @@ def release_detail(release, request):
         "maintainers": maintainers,
         "license": license,
         # Additional function to format the attestations
-        "get_publication_details": get_publication_details,
-        "format_url": format_url,
+        "PEP740AttestationViewer": PEP740AttestationViewer,
     }
 
 

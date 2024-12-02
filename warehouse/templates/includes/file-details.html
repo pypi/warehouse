@@ -125,40 +125,38 @@
           </small>
           <ul>
           {% for attestation in bundle.attestations %}
+          {% set viewer = PEP740AttestationViewer(bundle.publisher, attestation) %}
           <li>
-              {% set statement = attestation.statement %}
               Statement:
               <ul>
-                <li>Statement type: <a href="{{ statement._type }}"><code>{{ statement._type }}</code></a></li>
-                <li>Predicate type: <a href="{{ statement.predicateType }}"><code>{{ statement.predicateType }}</code></a></li>
-                <li>Subject name: <code>{{ statement.subject[0].name }}</code></li>
-                <li>Subject digest: <code>{{ statement.subject[0].digest.sha256 }}</code></li>
-                {% set tlog_entry = attestation.verification_material.transparency_entries[0] %}
-                <li>Sigstore transparency entry: <a href="https://search.sigstore.dev/?logIndex={{ tlog_entry.logIndex }}">{{ tlog_entry.logIndex }}</a> </li>
-                <li>Sigstore integration time: {{ humanize(tlog_entry.integratedTime | int | ctime, time="true") }} </li>
+                <li>Statement type: <a href="{{ viewer.statement_type }}"><code>{{ viewer.statement_type }}</code></a></li>
+                <li>Predicate type: <a href="{{ viewer.predicate_type }}"><code>{{ viewer.predicate_type }}</code></a></li>
+                <li>Subject name: <code>{{ viewer.subject_name }}</code></li>
+                <li>Subject digest: <code>{{ viewer.subject_digest }}</code></li>
+                <li>Sigstore transparency entry: <a href="https://search.sigstore.dev/?logIndex={{ viewer.transparency_entry.logIndex }}">{{ viewer.transparency_entry.logIndex }}</a> </li>
+                <li>Sigstore integration time: {{ humanize(viewer.transparency_entry.integratedTime | int | ctime, time="true") }} </li>
               </ul>
-              {% set claims = get_publication_details(attestation.certificate_claims, bundle.publisher) %}
               Source repository:
               <ul>
-                <li>Permalink: <a href="{{ format_url(claims.source, claims.source_digest, bundle.publisher) }}">
-                    <code>{{ bundle.publisher.repository }}@{{ claims.source_digest }}</code>
+                <li>Permalink: <a href="{{ viewer.permalink_with_digest }}">
+                    <code>{{ bundle.publisher.repository }}@{{ viewer.source_digest }}</code>
                 </a></li>
-                <li>Branch / Tag: <a href="{{ format_url(claims.source, claims.source_ref, bundle.publisher) }} ">
-                    <code>{{ claims.source_ref }}</code>
+                <li>Branch / Tag: <a href="{{ viewer.permalink_with_reference }}">
+                    <code>{{ viewer.source_reference }}</code>
                 </a></li>
-                <li>Owner: <a href="{{ claims.owner }}">{{ claims.owner }}</a></li>
-                <li>Access: <code>{{ claims.access }}</code></li>
+                <li>Owner: <a href="{{ viewer.owner }}">{{ viewer.owner }}</a></li>
+                <li>Access: <code>{{ viewer.access }}</code></li>
               </ul>
               Publication detail:
               <ul>
-                <li>Token Issuer: <code>{{ claims.issuer }}</code></li>
-                <li>Runner Environment: <code>{{ claims.environment }}</code></li>
+                <li>Token Issuer: <code>{{ viewer.issuer }}</code></li>
+                <li>Runner Environment: <code>{{ viewer.environment }}</code></li>
                 <li>Publication workflow:
-                  <a href="{{ claims.workflow_url }}">
-                    <code>{{ claims.workflow_filename }}@{{ claims.build_hash }}</code>
+                  <a href="{{ viewer.workflow_url }}">
+                    <code>{{ viewer.workflow_filename }}@{{ viewer.build_digest }}</code>
                   </a>
                 </li>
-                <li>Trigger Event: <code>{{ claims.trigger }}</code></li>
+                <li>Trigger Event: <code>{{ viewer.trigger }}</code></li>
               </ul>
           </li>
           {% endfor %}
