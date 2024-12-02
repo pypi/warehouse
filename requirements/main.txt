@@ -2263,9 +2263,9 @@ urllib3==2.2.3 \
     #   opensearch-py
     #   requests
     #   sentry-sdk
-venusian==3.1.0 \
-    --hash=sha256:d1fb1e49927f42573f6c9b7c4fcf61c892af8fdcaa2314daa01d9a560b23488d \
-    --hash=sha256:eb72cdca6f3139a15dc80f9c95d3c10f8a54a0ba881eeef8e2ec5b42d3ee3a95
+venusian==3.1.1 \
+    --hash=sha256:0845808a985976acbceaa1fbb871c7fac4fb28ae75453232970e9c2c2866dbf4 \
+    --hash=sha256:534fb3b355669283eb3954581931e5d1d071fce61d029d58f3219a5e3a6f0c41
     # via
     #   pyramid
     #   pyramid-rpc
