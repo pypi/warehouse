@@ -1430,9 +1430,9 @@ openapi-spec-validator==0.7.1 \
     --hash=sha256:3c81825043f24ccbcd2f4b149b11e8231abce5ba84f37065e14ec947d8f4e959 \
     --hash=sha256:8577b85a8268685da6f8aa30990b83b7960d4d1117e901d451b5d572605e5ec7
     # via openapi-core
-opensearch-py==2.7.1 \
-    --hash=sha256:5417650eba98a1c7648e502207cebf3a12beab623ffe0ebbf55f9b1b4b6e44e9 \
-    --hash=sha256:67ab76e9373669bc71da417096df59827c08369ac3795d5438c9a8be21cbd759
+opensearch-py==2.8.0 \
+    --hash=sha256:52c60fdb5d4dcf6cce3ee746c13b194529b0161e0f41268b98ab8f1624abe2fa \
+    --hash=sha256:6598df0bc7a003294edd0ba88a331e0793acbb8c910c43edf398791e3b2eccda
     # via -r requirements/main.in
 orjson==3.10.12 \
     --hash=sha256:0000758ae7c7853e0a4a6063f534c61656ebff644391e1f81698c1b2d2fc8cd2 \
