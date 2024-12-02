@@ -13,14 +13,14 @@
 Index ultranormalized pending project_name
 
 Revision ID: f7720656a33c
-Revises: 26455e3712a2
+Revises: 6ee23f5a6c1b
 Create Date: 2024-08-20 06:07:46.546659
 """
 
 from alembic import op
 
 revision = "f7720656a33c"
-down_revision = "a8050411bc65"
+down_revision = "6ee23f5a6c1b"
 
 # Note: It is VERY important to ensure that a migration does not lock for a
 #       long period of time and to ensure that each individual migration does
