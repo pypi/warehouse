@@ -96,10 +96,10 @@ class GitLabPublisherBase(wtforms.Form):
 class PendingGitLabPublisherForm(GitLabPublisherBase, PendingPublisherMixin):
     __params__ = GitLabPublisherBase.__params__ + ["project_name"]
 
-    def __init__(self, *args, route_url, project_factory, **kwargs):
+    def __init__(self, *args, route_url, check_project_name, **kwargs):
         super().__init__(*args, **kwargs)
         self._route_url = route_url
-        self._project_factory = project_factory
+        self._check_project_name = check_project_name
 
     @property
     def provider(self) -> str:
