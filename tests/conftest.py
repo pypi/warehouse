@@ -833,7 +833,7 @@ def mockredis():
 @pytest.fixture
 def gitlab_provenance() -> Provenance:
     """
-    Claims extracted from
+    Provenance from
     https://test.pypi.org/integrity/pep740-sampleproject/1.0.0/pep740_sampleproject-1.0.0.tar.gz/provenance
     """
     return Provenance.model_validate_json(
@@ -844,7 +844,7 @@ def gitlab_provenance() -> Provenance:
 @pytest.fixture
 def github_provenance() -> Provenance:
     """
-    Claims extracted from
+    Provenance from
     https://pypi.org/integrity/sampleproject/4.0.0/sampleproject-4.0.0.tar.gz/provenance
     """
     return Provenance.model_validate_json(

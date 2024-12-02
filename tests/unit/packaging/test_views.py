@@ -336,7 +336,6 @@ class TestPEP740AttestationViewer:
         return github_provenance.attestation_bundles[0].attestations[0]
 
     def test_github_pep740(self, github_attestation):
-        """Test GitLab attestation properties and URL formatting."""
         github_publisher = pretend.stub(
             kind="GitHub",
             workflow=".github/workflows/release.yml",
@@ -386,7 +385,6 @@ class TestPEP740AttestationViewer:
         )
 
     def test_gitlab_pep740(self, gitlab_attestation):
-        """Test GitLab attestation properties and URL formatting."""
         gitlab_publisher = pretend.stub(
             kind="GitLab",
             workflow_filepath=".gitlab-ci.yml",
