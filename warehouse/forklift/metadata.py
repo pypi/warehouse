@@ -34,7 +34,7 @@ from webob.multidict import MultiDict
 from warehouse.utils import http
 
 SUPPORTED_METADATA_VERSIONS = {"1.0", "1.1", "1.2", "2.1", "2.2", "2.3", "2.4"}
-assert all(ver in _VALID_METADATA_VERSIONS for ver in SUPPORTED_METADATA_VERSIONS)
+assert SUPPORTED_METADATA_VERSIONS.issubset(_VALID_METADATA_VERSIONS)
 
 # Mapping of fields on a Metadata instance to any limits on the length of that
 # field. Fields without a limit will naturally be unlimited in length.
