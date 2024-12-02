@@ -49,12 +49,14 @@
 {% endmacro %}
 
 {# define macros for FAQ to use them as headers and in TOC #}
+{# Basics #}
 {% macro packages() %}{% trans %}What's a package, project, or release?{% endtrans %}{% endmacro %}
 {% macro installing() %}{% trans %}How do I install a file (package) from PyPI?{% endtrans %}{% endmacro %}
 {% macro publishing() %}{% trans %}How do I package and publish my code for PyPI?{% endtrans %}{% endmacro %}
 {% macro trove_classifier() %}{% trans %}What's a trove classifier?{% endtrans %}{% endmacro %}
 {% macro yanked() %}{% trans %}What's a "yanked" release?{% endtrans %}{% endmacro %}
 
+{# My Account #}
 {% macro verified_email() %}{% trans %}Why do I need a verified email address?{% endtrans %}{% endmacro %}
 {% macro compromised_password() %}{% trans %}Why is PyPI telling me my password is compromised?{% endtrans %}{% endmacro %}
 {% macro suspicious_activity() %}{% trans %}What should I do if I notice suspicious activity on my account?{% endtrans %}{% endmacro %}
@@ -69,35 +71,41 @@
 {% macro username_change() %}{% trans %}How do I change my PyPI username?{% endtrans %}{% endmacro %}
 {% macro trusted_publishers() %}{% trans %}How can I use Trusted Publishers to publish to PyPI?{% endtrans %}{% endmacro %}
 
-{% macro mirroring() %}{% trans %}How can I run a mirror of PyPI?{% endtrans %}{% endmacro %}
+{# Integrating #}
 {% macro APIs() %}{% trans %}Does PyPI have APIs I can use?{% endtrans %}{% endmacro %}
+{% macro mirroring() %}{% trans %}How can I run a mirror of PyPI?{% endtrans %}{% endmacro %}
 {% macro project_release_notifications() %}{% trans %}How do I get notified when a new version of a project is released?{% endtrans %}{% endmacro %}
 {% macro statistics() %}{% trans %}Where can I see statistics about PyPI, downloads, and project/package usage?{% endtrans %}{% endmacro %}
 {% macro verify_hashes() %}{% trans %}What are the file hashes used for, and how can I verify them?{% endtrans %}{% endmacro %}
 
-{% macro login_problem() %}{% trans %}I forgot my PyPI password. Can you help me?{% endtrans %}{% endmacro %}
-{% macro account_recovery() %}{% trans %}I've lost access to my PyPI account. Can you help me?{% endtrans %}{% endmacro %}
-{% macro invalid_auth() %}{% trans %}Why am I getting an "Invalid or non-existent authentication information." error when uploading files?{% endtrans %}{% endmacro %}
-{% macro tls_deprecation() %}{% trans %}Why am I getting "No matching distribution found" or "Could not fetch URL" errors during <code>pip install</code>?{% endtrans %}{% endmacro %}
-{% macro accessibility() %}{% trans %}I am having trouble using the PyPI website. Can you help me?{% endtrans %}{% endmacro %}
-{% macro uploading() %}{% trans %}Why can't I manually upload files to PyPI, through the browser interface?{% endtrans %}{% endmacro %}
+{# Administration of projects on PyPI #}
 {% macro private_indices() %}{% trans %}How can I publish my private packages to PyPI?{% endtrans %}{% endmacro %}
-{% macro admin_intervention() %}{% trans %}Why did my package or user registration get blocked?{% endtrans %}{% endmacro %}
-{% macro file_size_limit() %}{% trans %}How do I get a file size limit exemption or increase for my project?{% endtrans %}{% endmacro %}
-{% macro project_size_limit() %}{% trans %}How do I get a total project size limit exemption or increase for my project?{% endtrans %}{% endmacro %}
-{% macro vulnerability_data() %}{% trans %}Where does PyPI get its data on project vulnerabilities from, and how can I correct it?{% endtrans %}{% endmacro %}
-{% macro description_render_failure() %}{% trans %}Why am I getting "the description failed to render" error?{% endtrans %}{% endmacro %}
-
-{% macro file_name_reuse() %}{% trans %}Why am I getting a "Filename or contents already exists" or "Filename has been previously used" error?{% endtrans %}{% endmacro %}
 {% macro project_name() %}{% trans %}Why isn't my desired project name available?{% endtrans %}{% endmacro %}
 {% macro project_name_claim() %}{% trans %}How do I claim an abandoned or previously registered project name?{% endtrans %}{% endmacro %}
 {% macro collaborator_roles() %}{% trans %}What collaborator roles are available for a project on PyPI?{% endtrans %}{% endmacro %}
 {% macro request_ownership() %}{% trans %}How do I become an owner/maintainer of a project on PyPI?{% endtrans %}{% endmacro %}
 {% macro description_content_type() %}{% trans %}How can I upload a project description in a different format?{% endtrans %}{% endmacro %}
+{% macro file_size_limit() %}{% trans %}How do I get a file size limit exemption or increase for my project?{% endtrans %}{% endmacro %}
+{% macro project_size_limit() %}{% trans %}How do I get a total project size limit exemption or increase for my project?{% endtrans %}{% endmacro %}
+{% macro vulnerability_data() %}{% trans %}Where does PyPI get its data on project vulnerabilities from, and how can I correct it?{% endtrans %}{% endmacro %}
+{% macro deletion() %}{% trans %}How can I restore a deleted project, release or file?{% endtrans %}{% endmacro %}
+
+{# Troubleshooting #}
+{% macro description_render_failure() %}{% trans %}Why am I getting "the description failed to render" error?{% endtrans %}{% endmacro %}
+{% macro uploading() %}{% trans %}Why can't I manually upload files to PyPI, through the browser interface?{% endtrans %}{% endmacro %}
+{% macro login_problem() %}{% trans %}I forgot my PyPI password. Can you help me?{% endtrans %}{% endmacro %}
+{% macro account_recovery() %}{% trans %}I've lost access to my PyPI account. Can you help me?{% endtrans %}{% endmacro %}
+{% macro invalid_auth() %}{% trans %}Why am I getting an "Invalid or non-existent authentication information." error when uploading files?{% endtrans %}{% endmacro %}
+{% macro tls_deprecation() %}{% trans %}Why am I getting "No matching distribution found" or "Could not fetch URL" errors during <code>pip install</code>?{% endtrans %}{% endmacro %}
+{% macro accessibility() %}{% trans %}I am having trouble using the PyPI website. Can you help me?{% endtrans %}{% endmacro %}
+{% macro admin_intervention() %}{% trans %}Why did my package or user registration get blocked?{% endtrans %}{% endmacro %}
+{% macro file_name_reuse() %}{% trans %}Why am I getting a "Filename or contents already exists" or "Filename has been previously used" error?{% endtrans %}{% endmacro %}
 {% macro new_classifier() %}{% trans %}How do I request a new trove classifier?{% endtrans %}{% endmacro %}
 {% macro feedback() %}{% trans %}Where can I report a bug or provide feedback about PyPI?{% endtrans %}{% endmacro %}
 {% macro totp_trouble() %}{% trans %}I'm having trouble setting up two factor authentication with an authentication application (<abbr title="time-based one-time password">TOTP</abbr>). Can you help me?{% endtrans %}{% endmacro %}
+{% macro project_in_quarantine() %}{% trans %}My project says it's in quarantine. What does that mean?{% endtrans %}{% endmacro %}
 
+{# About #}
 {% macro maintainers() %}{% trans %}Who maintains PyPI?{% endtrans %}{% endmacro %}
 {% macro sponsors() %}{% trans %}What powers PyPI?{% endtrans %}{% endmacro %}
 {% macro availability() %}{% trans %}Can I depend on PyPI being available?{% endtrans %}{% endmacro %}
@@ -167,6 +175,7 @@
           <li><a href="#file-size-limit">{{ file_size_limit() }}</a></li>
           <li><a href="#project-size-limit">{{ project_size_limit() }}</a></li>
           <li><a href="#vulnerability-data">{{ vulnerability_data() }}</a></li>
+          <li><a href="#deletion">{{ deletion() }}</a></li>
         </ul>
       </section>
 
@@ -185,6 +194,7 @@
           <li><a href="#new-classifier">{{ new_classifier() }}</a></li>
           <li><a href="#feedback">{{ feedback() }}</a></li>
           <li><a href="#totp_trouble">{{ totp_trouble() }}</a></li>
+          <li><a href="#project_in_quarantine">{{ project_in_quarantine() }}</a></li>
         </ul>
       </section>
 
@@ -688,6 +698,16 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
           {% endtrans %}
         </p>
 
+        <h3 id="deletion">{{ deletion() }}</h3>
+        <p>
+          {% trans %}
+          Deletion of a project, release or file on PyPI is permanent and irreversable, without exception.
+          Deletion of a project makes it uninstallable, and releases the project name for use by any other PyPI user.
+          Deleted files <a href="#file-name-reuse">cannot be re-uploaded</a>.
+          Deleted projects, releases or files cannot be restored by PyPI administrators.
+          {% endtrans %}
+        </p>
+
       </section>
 
       <section class="faq-group" id="troubleshooting">
@@ -710,9 +730,10 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
         {{ code_of_conduct() }}
 
         <h3 id="account-recovery">{{ account_recovery() }}</h3>
-        <p>{% trans %}If you've lost access to your PyPI account due to:{% endtrans %}</p>
+        <p>{% trans %}If you've lost access to your PyPI account or can't fully verify it due to:{% endtrans %}</p>
         <ul>
           <li>{% trans %}Lost access to the email address associated with your account{% endtrans %}</li>
+          <li>{% trans %}Accidentally registered with an email address you cannot verify{% endtrans %}</li>
           <li>{% trans %}Lost two-factor authentication <a href="#totp">application</a>, <a href="#utfkey">device</a>, and <a href="#recoverycodes">recovery codes</a>{% endtrans %}</li>
         </ul>
         <p>
@@ -853,6 +874,31 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
         <p>
           {% trans %}
           If you are having issues while setting up a <abbr title="time-based one-time password">TOTP</abbr> device, it may be because your device time is out of sync. Please check that the time on your device is set automatically, and try setting up the device again.
+          {% endtrans %}
+        </p>
+
+        <h3 id="project_in_quarantine">{{ project_in_quarantine() }}</h3>
+        <p>
+          {% trans tou="https://policies.python.org/pypi.org/Terms-of-Use/", aup="https://policies.python.org/pypi.org/Acceptable-Use-Policy/" %}
+            Projects may get placed in quarantine for any number of reasons,
+            such as suspicion of malicious activity, spam, or other violations of the
+            <a href="{{ tou }}" target="_blank" rel="noopener">Terms of Use</a>
+            or
+            <a href="{{ aup }}" target="_blank" rel="noopener">Acceptable Use Policy</a>.
+          {% endtrans %}
+        </p>
+        <p>
+          {% trans %}
+            While in quarantine, the project is not installable by clients,
+            and cannot be being modified by its maintainers.
+            PyPI Administrators will need to review this project before it can be restored.
+          {% endtrans %}
+        </p>
+        <p>
+          {% trans mailto="mailto:security@pypi.org" %}
+            If you believe your project has mistakenly been flagged for quarantine,
+            contact PyPI via <a href="{{ mailto }}">security@pypi.org</a>
+            with any details.
           {% endtrans %}
         </p>
       </section>

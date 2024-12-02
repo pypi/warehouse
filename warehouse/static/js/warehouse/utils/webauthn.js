@@ -136,7 +136,7 @@ const postCredential = async (label, credential, token) => {
       cache: "no-cache",
       body: formData,
       credentials: "same-origin",
-    }
+    },
   );
 
   return await resp.json();
@@ -156,7 +156,7 @@ const postAssertion = async (assertion, token, rememberDevice) => {
       cache: "no-cache",
       body: formData,
       credentials: "same-origin",
-    }
+    },
   );
 
   return await resp.json();
@@ -189,7 +189,7 @@ export const ProvisionWebAuthn = () => {
       "/manage/account/webauthn-provision/options", {
         cache: "no-cache",
         credentials: "same-origin",
-      }
+      },
     );
 
     const credentialOptions = await resp.json();
@@ -219,7 +219,7 @@ export const AuthenticateWebAuthn = () => {
       "/account/webauthn-authenticate/options" + window.location.search, {
         cache: "no-cache",
         credentials: "same-origin",
-      }
+      },
     );
 
     const assertionOptions = await resp.json();

@@ -17,11 +17,16 @@ import wtforms
 from webob.multidict import MultiDict
 
 from warehouse.oidc.forms import gitlab
+from warehouse.packaging.interfaces import ProjectNameUnavailableReason
 
 
 class TestPendingGitLabPublisherForm:
     def test_validate(self, monkeypatch):
-        project_factory = []
+        route_url = pretend.stub()
+
+        def check_project_name(name):
+            return None  # Name is available.
+
         data = MultiDict(
             {
                 "namespace": "some-owner",
@@ -31,20 +36,32 @@ class TestPendingGitLabPublisherForm:
             }
         )
         form = gitlab.PendingGitLabPublisherForm(
-            MultiDict(data), project_factory=project_factory
+            MultiDict(data), route_url=route_url, check_project_name=check_project_name
         )
 
-        assert form._project_factory == project_factory
+        assert form._route_url == route_url
+        assert form._check_project_name == check_project_name
         # We're testing only the basic validation here.
         assert form.validate()
 
-    def test_validate_project_name_already_in_use(self):
-        project_factory = ["some-project"]
-        form = gitlab.PendingGitLabPublisherForm(project_factory=project_factory)
+    def test_validate_project_name_already_in_use(self, pyramid_config):
+        route_url = pretend.call_recorder(lambda *args, **kwargs: "my_url")
+
+        form = gitlab.PendingGitLabPublisherForm(
+            route_url=route_url,
+            check_project_name=lambda name: ProjectNameUnavailableReason.AlreadyExists,
+        )
 
         field = pretend.stub(data="some-project")
         with pytest.raises(wtforms.validators.ValidationError):
             form.validate_project_name(field)
+        assert route_url.calls == [
+            pretend.call(
+                "manage.project.settings.publishing",
+                project_name="some-project",
+                _query={"provider": {"gitlab"}},
+            )
+        ]
 
 
 class TestGitLabPublisherForm:
@@ -172,7 +189,7 @@ class TestGitLabPublisherForm:
             form.validate_workflow_filepath(field)
 
     @pytest.mark.parametrize(
-        "data, expected",
+        ("data", "expected"),
         [
             ("", ""),
             ("  ", ""),

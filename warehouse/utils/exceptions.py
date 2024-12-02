@@ -11,5 +11,13 @@
 # limitations under the License.
 
 
-class InsecureOIDCPublisherWarning(UserWarning):
+class DevelopmentModeWarning(UserWarning):
+    pass
+
+
+class InsecureOIDCPublisherWarning(DevelopmentModeWarning):
+    pass
+
+
+class InsecureIntegrityServiceWarning(DevelopmentModeWarning):
     pass

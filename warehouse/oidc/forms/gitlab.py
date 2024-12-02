@@ -15,7 +15,6 @@ import typing
 
 import wtforms
 
-from warehouse import forms
 from warehouse.i18n import localize as _
 from warehouse.oidc.forms._core import PendingPublisherMixin
 
@@ -33,7 +32,7 @@ def ends_with_atom_or_git(form: forms.Form, field: wtforms.Field) -> None:
         raise wtforms.validators.ValidationError(_("Name ends with .git or .atom"))
 
 
-class GitLabPublisherBase(forms.Form):
+class GitLabPublisherBase(wtforms.Form):
     __params__ = ["namespace", "project", "workflow_filepath", "environment"]
 
     namespace = wtforms.StringField(
@@ -116,9 +115,14 @@ class GitLabPublisherBase(forms.Form):
 class PendingGitLabPublisherForm(GitLabPublisherBase, PendingPublisherMixin):
     __params__ = GitLabPublisherBase.__params__ + ["project_name"]
 
-    def __init__(self, *args, project_factory, **kwargs):
+    def __init__(self, *args, route_url, check_project_name, **kwargs):
         super().__init__(*args, **kwargs)
-        self._project_factory = project_factory
+        self._route_url = route_url
+        self._check_project_name = check_project_name
+
+    @property
+    def provider(self) -> str:
+        return "gitlab"
 
 
 class GitLabPublisherForm(GitLabPublisherBase):

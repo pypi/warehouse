@@ -30,11 +30,11 @@ export default class extends Controller {
       mode: "cors",
     };
     const fetchRepoData = fetch(this.urlValue, fetchParams).then((response) =>
-      response.ok === true ? response.json() : null
+      response.ok === true ? response.json() : null,
     );
 
     const fetchIssueData = fetch(this.issueUrlValue, fetchParams).then(
-      (response) => (response.ok === true ? response.json() : null)
+      (response) => (response.ok === true ? response.json() : null),
     );
 
     const allData = Promise.all([fetchRepoData, fetchIssueData]);
@@ -52,7 +52,7 @@ export default class extends Controller {
           PRs: res[0].open_issues_count - res[1].total_count,
         };
         this.githubRepoInfoOutlets.forEach((outlet) =>
-          outlet.updateStats(stats)
+          outlet.updateStats(stats),
         );
       })
       // swallow errors, we don't want to show them to the user

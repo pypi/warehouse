@@ -25,9 +25,14 @@ from warehouse.oidc.models._core import (
     check_claim_invariant,
 )
 
+GOOGLE_OIDC_ISSUER_URL = "https://accounts.google.com"
+
 
 def _check_sub(
-    ground_truth: str, signed_claim: str, all_signed_claims: SignedClaims
+    ground_truth: str,
+    signed_claim: str,
+    _all_signed_claims: SignedClaims,
+    **_kwargs,
 ) -> bool:
     # If we haven't set a subject for the publisher, we don't need to check
     # this claim.
@@ -81,6 +86,10 @@ class GooglePublisherMixin:
     def publisher_name(self):
         return "Google"
 
+    @property
+    def publisher_base_url(self):
+        return None
+
     def publisher_url(self, claims=None):
         return None
 
@@ -116,7 +125,7 @@ class GooglePublisher(GooglePublisherMixin, OIDCPublisher):
 class PendingGooglePublisher(GooglePublisherMixin, PendingOIDCPublisher):
     __tablename__ = "pending_google_oidc_publishers"
     __mapper_args__ = {"polymorphic_identity": "pending_google_oidc_publishers"}
-    __table_args__ = (
+    __table_args__ = (  # type: ignore[assignment]
         UniqueConstraint(
             "email",
             "sub",

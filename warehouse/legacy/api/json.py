@@ -18,7 +18,14 @@ from sqlalchemy.orm import Load, contains_eager, joinedload
 
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
-from warehouse.packaging.models import Description, File, Project, Release, ReleaseURL
+from warehouse.packaging.models import (
+    Description,
+    File,
+    LifecycleStatus,
+    Project,
+    Release,
+    ReleaseURL,
+)
 from warehouse.utils.cors import _CORS_HEADERS
 
 _RELEASE_CACHE_DECORATOR = [
@@ -146,6 +153,8 @@ def _json_data(request, project, release, *, all_releases):
             "description": release_description.raw,
             "keywords": release.keywords,
             "license": release.license,
+            "license_expression": release.license_expression,
+            "license_files": release.license_files,
             "classifiers": list(release.classifiers),
             "author": release.author,
             "author_email": release.author_email,
@@ -193,6 +202,12 @@ def latest_release_factory(request):
             request.db.query(Release.id, Release.version)
             .join(Release.project)
             .filter(Project.normalized_name == normalized_name)
+            # Exclude projects in quarantine.
+            .filter(
+                Project.lifecycle_status.is_distinct_from(
+                    LifecycleStatus.QuarantineEnter
+                )
+            )
             .order_by(
                 Release.yanked.asc(),
                 Release.is_prerelease.nullslast(),
@@ -272,6 +287,10 @@ def release_factory(request):
             joinedload(Release._requires_dist),
         )
         .filter(Project.normalized_name == normalized_name)
+        # Exclude projects in quarantine.
+        .filter(
+            Project.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter)
+        )
     )
 
     try:

@@ -8,7 +8,6 @@ on:
     types: [checks_requested]
   workflow_dispatch:  # generally only for the "combine-prs" workflow
 permissions:
-  id-token: write
   contents: read
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
@@ -19,10 +18,13 @@ jobs:
     runs-on: depot-ubuntu-22.04-arm
     outputs:
       buildId: ${{ steps.build.outputs.build-id}}
-      token: ${{ steps.pull-token.outputs.token }}
+    permissions:
+      id-token: write
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Set up Depot CLI
         uses: depot/setup-action@v1
       - name: Build image
@@ -34,9 +36,6 @@ jobs:
             DEVEL=yes
             CI=yes
           tags: pypi/warehouse:ci-${{ github.run_id }}
-      - name: Export Token
-        id: pull-token
-        run: echo "token=$(depot pull-token)" >> "$GITHUB_OUTPUT"
   test:
     # Time out if our test suite has gotten hung
     timeout-minutes: 15
@@ -61,11 +60,10 @@ jobs:
     runs-on: depot-ubuntu-22.04-arm
     container:
       image: registry.depot.dev/rltf7cln5v:${{ needs.build.outputs.buildId }}
-      credentials:
-        username: x-token
-        password: ${{ needs.build.outputs.token }}
       env:
         BILLING_BACKEND: warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27
+    permissions:
+      id-token: write
     services:
       postgres:
         image: ${{ (matrix.name == 'Tests') && 'postgres:16.1' || '' }}
@@ -73,8 +71,13 @@ jobs:
           - 5432:5432
         env:
           POSTGRES_HOST_AUTH_METHOD: trust  # never do this in production!
+          POSTGRES_INITDB_ARGS: '--no-sync --set fsync=off --set full_page_writes=off'
         # Set health checks to wait until postgres has started
         options: --health-cmd "pg_isready --username=postgres --dbname=postgres" --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+        image: ${{ (matrix.name == 'Tests') && 'redis:7.0' || '' }}
+        ports:
+          - 6379:6379
       stripe:
         image: ${{ (matrix.name == 'Tests') && 'stripe/stripe-mock:v0.162.0' || '' }}
         ports:
@@ -83,6 +86,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Cache mypy results
         if: ${{ (matrix.name == 'Lint') }}
         uses: actions/cache@v4
@@ -92,3 +97,42 @@ jobs:
           key: ${{ runner.os }}-mypy-${{ env.pythonLocation }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
       - name: Run ${{ matrix.name }}
         run: ${{ matrix.command }}
+
+  check_db:
+    name: Check Database Consistency
+    needs: build
+    runs-on: depot-ubuntu-22.04-arm
+    continue-on-error: true
+    container:
+      image: registry.depot.dev/rltf7cln5v:${{ needs.build.outputs.buildId }}
+    permissions:
+      id-token: write
+    services:
+      postgres:
+        image: postgres:16.1
+        ports:
+        - 5432:5432
+        env:
+          POSTGRES_DB: warehouse
+          POSTGRES_HOST_AUTH_METHOD: trust  # never do this in production!
+          POSTGRES_INITDB_ARGS: '--no-sync --set fsync=off --set full_page_writes=off'
+        # Set health checks to wait until postgres has started
+        options: --health-cmd "pg_isready --username=postgres --dbname=postgres" --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Dotenv Action
+        # We need to load the environment variables to run the CLI
+        id: dotenv
+        uses: falti/dotenv-action@v1
+        with:
+          path: dev/environment
+          export-variables: true
+          keys-case: upper
+      - name: Check Database
+        run: bin/db-check
+        env:
+          # override the hostname set in `dev/environment`
+          DATABASE_URL: 'postgresql+psycopg://postgres@postgres/warehouse'

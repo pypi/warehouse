@@ -19,7 +19,6 @@ import requests
 import sentry_sdk
 import wtforms
 
-from warehouse import forms
 from warehouse.i18n import localize as _
 from warehouse.oidc.forms._core import PendingPublisherMixin
 
@@ -113,7 +112,7 @@ def _activestate_gql_api_call(
         )
 
 
-class ActiveStatePublisherBase(forms.Form):
+class ActiveStatePublisherBase(wtforms.Form):
     __params__ = ["organization", "project", "actor"]
 
     organization = wtforms.StringField(
@@ -192,9 +191,14 @@ class ActiveStatePublisherBase(forms.Form):
 class PendingActiveStatePublisherForm(ActiveStatePublisherBase, PendingPublisherMixin):
     __params__ = ActiveStatePublisherBase.__params__ + ["project_name"]
 
-    def __init__(self, *args, project_factory, **kwargs):
+    def __init__(self, *args, route_url, check_project_name, **kwargs):
         super().__init__(*args, **kwargs)
-        self._project_factory = project_factory
+        self._route_url = route_url
+        self._check_project_name = check_project_name
+
+    @property
+    def provider(self) -> str:
+        return "activestate"
 
 
 class ActiveStatePublisherForm(ActiveStatePublisherBase):

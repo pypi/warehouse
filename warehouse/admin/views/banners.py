@@ -18,7 +18,7 @@ from sqlalchemy.exc import NoResultFound
 
 from warehouse.authnz import Permissions
 from warehouse.banners.models import Banner
-from warehouse.forms import Form, URIValidator
+from warehouse.forms import URIValidator
 
 
 @view_config(
@@ -145,7 +145,7 @@ def preview_banner(request):
         raise HTTPNotFound
 
 
-class BannerForm(Form):
+class BannerForm(wtforms.Form):
     name = wtforms.fields.StringField(
         validators=[
             wtforms.validators.Length(max=100),

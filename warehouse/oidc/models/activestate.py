@@ -29,11 +29,13 @@ from warehouse.oidc.models._core import (
     PendingOIDCPublisher,
 )
 
+ACTIVESTATE_OIDC_ISSUER_URL = "https://platform.activestate.com/api/v1/oauth/oidc"
+
 _ACTIVESTATE_URL = "https://platform.activestate.com"
 
 
 def _check_sub(
-    ground_truth: str, signed_claim: str, _all_signed_claims: SignedClaims
+    ground_truth: str, signed_claim: str, _all_signed_claims: SignedClaims, **_kwargs
 ) -> bool:
     # We expect a string formatted as follows:
     #  org:<orgName>:project:<projectName>
@@ -118,10 +120,14 @@ class ActiveStatePublisherMixin:
     def project(self) -> str:
         return self.activestate_project_name
 
-    def publisher_url(self, claims: SignedClaims | None = None) -> str:
+    @property
+    def publisher_base_url(self) -> str:
         return urllib.parse.urljoin(
             _ACTIVESTATE_URL, f"{self.organization}/{self.activestate_project_name}"
         )
+
+    def publisher_url(self, claims: SignedClaims | None = None) -> str:
+        return self.publisher_base_url
 
     def stored_claims(self, claims=None):
         return {}
@@ -153,7 +159,7 @@ class ActiveStatePublisher(ActiveStatePublisherMixin, OIDCPublisher):
 class PendingActiveStatePublisher(ActiveStatePublisherMixin, PendingOIDCPublisher):
     __tablename__ = "pending_activestate_oidc_publishers"
     __mapper_args__ = {"polymorphic_identity": "pending_activestate_oidc_publishers"}
-    __table_args__ = (
+    __table_args__ = (  # type: ignore[assignment]
         UniqueConstraint(
             "organization",
             "activestate_project_name",

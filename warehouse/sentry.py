@@ -17,16 +17,13 @@ from sentry_sdk.integrations.logging import LoggingIntegration
 from sentry_sdk.integrations.pyramid import PyramidIntegration
 from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 from sentry_sdk.integrations.wsgi import SentryWsgiMiddleware
+from webob.request import DisconnectionError
 
 
 def _sentry(request):
     return request.registry["sentry"]
 
 
-# There is an 'ignore_errors' kwarg for sentry_sdk.init() however it is supposedly
-# WIP and unstable compared to the 'before_send' kwarg. We can switch to
-# 'ignore_errors' once https://github.com/getsentry/sentry-python/issues/149
-# is closed.
 ignore_exceptions = (
     # For some reason we get periodic SystemExit exceptions, I think it is
     # because of OpenSSL generating a SIGABRT when OpenSSL_Die() is called, and
@@ -52,10 +49,20 @@ ignore_exceptions = (
     "gunicorn.http.errors.InvalidProxyLine",
     "gunicorn.http.errors.ForbiddenProxyRequest",
     "gunicorn.http.errors.InvalidSchemeHeaders",
+    # Webob raises this when the client disconnects, which we can't do anything about
+    DisconnectionError,
 )
+
+ignore_strings = [
+    "was sent code 131!",
+    "was sent SIGINT!",
+]
 
 
 def before_send(event, hint):
+    if "message" in event and any(s in event["message"] for s in ignore_strings):
+        return None
+
     if "exc_info" in hint:
         exc_type, exc_value, tb = hint["exc_info"]
         if (

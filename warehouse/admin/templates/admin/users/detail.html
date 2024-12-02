@@ -75,6 +75,12 @@
             Joined on {{ user.date_joined|format_date() }}
           </p>
           {% endif %}
+
+          {% if user.disabled_for %}
+          <p class="text-muted text-center">
+            Password disabled:<br>{{ user.disabled_for.value }}
+          </p>
+          {% endif %}
         </div>
 
         <div class="card-footer p-0">
@@ -111,14 +117,14 @@
             <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#nukeModal" {{ "disabled" if not perms_admin_users_write }}>
               <i class="icon fa fa-bomb"></i> Nuke user
             </button>
-            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#pwresetModal" {{ "disabled" if not perms_admin_users_account_recovery_write }}>
+            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#pwresetModal" {{ "disabled" if user.is_frozen or not perms_admin_users_account_recovery_write }}>
               <i class="fa-solid fa-unlock-keyhole"></i> Reset password
             </button>
             {% if not user.active_account_recoveries %}
-            <a href="{{ request.route_path('admin.user.account_recovery.initiate', username=user.username) }}" role="button" class="btn btn-block btn-danger" {{ "disabled" if not perms_admin_users_account_recovery_write }}>
+            <a href="{{ request.route_path('admin.user.account_recovery.initiate', username=user.username) }}" role="button" class="btn btn-block btn-danger {{ "disabled" if user.is_frozen or not perms_admin_users_account_recovery_write }}">
               <i class="fa-solid fa-recycle"></i> Start account recovery
             </a>
-            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#wipeFactorsModal" {{ "disabled" if not perms_admin_users_account_recovery_write }}>
+            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#wipeFactorsModal" {{ "disabled" if user.is_frozen or not perms_admin_users_account_recovery_write }}>
               <i class="fa-solid fa-toilet-paper"></i> Wipe 2FA and recovery codes
             </button>
             {% endif %}
@@ -151,9 +157,13 @@
                       </ul>
                       <hr>
                       <p>
-                        Type the username '{{ user.username }}' to confirm:
+                        Enter username '{{ user.username }}'
+                        <button type="button" class="copy-text" data-copy-text="{{ user.username }}">
+                          <i class="fa fa-copy" aria-hidden="true"></i>
+                        </button>
+                        to confirm:
                       </p>
-                      <input type="text" name="username" placeholder="{{ user.username }}">
+                      <input type="text" name="username" placeholder="{{ user.username }}" autocomplete="off" autocorrect="off" autocapitalize="off">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -192,9 +202,13 @@
                       </ul>
                       <hr>
                       <p>
-                        Type the username '{{ user.username }}' to confirm:
+                        Enter username '{{ user.username }}'
+                        <button type="button" class="copy-text" data-copy-text="{{ user.username }}">
+                          <i class="fa fa-copy" aria-hidden="true"></i>
+                        </button>
+                        to confirm:
                       </p>
-                      <input type="text" name="username" placeholder="{{ user.username }}">
+                      <input type="text" name="username" placeholder="{{ user.username }}" autocomplete="off" autocorrect="off" autocapitalize="off">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -421,8 +435,8 @@
           <form class="form-horizontal" method="POST" action="{{ request.current_route_path() }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
-            {% if form.errors.__all__ %}
-              {% for error in form.errors.__all__ %}
+            {% if form.form_errors %}
+              {% for error in form.form_errors %}
               <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
               {% endfor %}
             {% endif %}
@@ -495,8 +509,8 @@
           <form class="form-horizontal" method="POST" action="{{ request.route_path('admin.user.submit_email', username=user.username) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
-            {% if form.errors.__all__ %}
-              {% for error in form.errors.__all__ %}
+            {% if form.form_errors %}
+              {% for error in form.form_errors %}
               <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
               {% endfor %}
             {% endif %}
@@ -556,8 +570,8 @@
               <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
               <div class="card-body">
-                {% if add_email_form.errors.__all__ %}
-                  {% for error in add_email_form.errors.__all__ %}
+                {% if add_email_form.form_errors %}
+                  {% for error in add_email_form.form_errors %}
                   <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
                   {% endfor %}
                 {% endif %}
@@ -869,10 +883,42 @@
         </div>
       </div> <!-- .card -->
 
+    {% if user.observations %}
+      <div class="card card-warning card-outline">
+        <div class="card-header with-border">
+          <h3 class="card-title">Observations about <code>{{ user.username }}</code></h3>
+        </div>
+        <div class="card-body">
+          <table id="user_observations" class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th scope="col" class="time">Time</th>
+                <th scope="col" class="related">Related</th>
+                <th scope="col" class="kind">Kind</th>
+                <th scope="col" class="summary">Summary</th>
+                <th scope="col" class="payload">Payload</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for observation in user.observations %}
+              <tr>
+                <td>{{ observation.created }}</td>
+                <td>{{ observation.related }}</td>
+                <td>{{ observation.kind_display }}</td>
+                <td>{{ observation.summary }}</td>
+                <td>{{ observation.payload }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div> <!-- .card -->
+    {% endif %}
+
     {% if user.observer.observations %}
       <div class="card">
         <div class="card-header with-border">
-          <h3 class="card-title">Observations</h3>
+          <h3 class="card-title">Admin-submitted Observations</h3>
         </div>
         <div class="card-body">
           <table id="observations" class="table table-striped table-hover">
@@ -900,6 +946,42 @@
         </div>
       </div> <!-- .card -->
     {% endif %}
+
+    {% if submitted_by_journals %}
+      <div class="card card-outline" id="submitted_by_journals">
+        <div class="card-header with-border">
+          <h3 class="card-title">Journals (most recent)</h3>
+        </div>
+        <div class="card-body">
+          <table id="submitted_by_journals" class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th>Submitted Date</th>
+                <th>Project Name</th>
+                <th>Version</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for journal in submitted_by_journals %}
+                <tr>
+                  <td>{{ journal.submitted_date }}</td>
+                  <td>{{ journal.name }}</td>
+                  <td>{{ journal.version }}</td>
+                  <td>{{ journal.action }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="card-footer">
+          <a href="{{ request.route_path('admin.journals.list', _query={"q": "user:" + user.username}) }}"
+             class="btn btn-primary">View all journals for username</a>
+        </div>
+      </div>
+      <!-- .card -->
+    {% endif %}
+
     </div>
   </div>
 {% endblock %}

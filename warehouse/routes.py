@@ -576,6 +576,15 @@ def includeme(config):
         domain=warehouse,
     )
 
+    # PEP 740 URLs
+    config.add_route(
+        "integrity.provenance",
+        "/integrity/{project_name}/{release}/{filename}/provenance",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}/{release}/{filename}",
+        domain=warehouse,
+    )
+
     # Mock URLs
     config.add_route(
         "mock.billing.checkout-session",

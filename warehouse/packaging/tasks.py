@@ -44,7 +44,7 @@ def _copy_file_to_cache(archive_storage, cache_storage, path):
 @tasks.task(
     ignore_result=True,
     acks_late=True,
-    time_limit=30,
+    time_limit=120,
     autoretry_for=(
         SoftTimeLimitExceeded,
         TimeLimitExceeded,
@@ -316,7 +316,7 @@ def update_bigquery_release_files(task, request, dist_metadata):
         # values individually
         json_rows = dict()
         for sch in table_schema:
-            field_data = dist_metadata[sch.name]
+            field_data = dist_metadata.get(sch.name, None)
 
             if isinstance(field_data, datetime.datetime):
                 field_data = field_data.isoformat()

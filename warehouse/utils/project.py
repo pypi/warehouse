@@ -37,7 +37,7 @@ def remove_documentation(task, request, project_name):
 
 
 PROJECT_NAME_RE = re.compile(
-    r"^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$", re.IGNORECASE
+    r"^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])\Z", re.IGNORECASE
 )
 
 
@@ -119,6 +119,10 @@ def quarantine_project(project: Project, request, flash=True) -> None:
         )
     )
 
+    # freeze associated user accounts
+    for user in project.users:
+        user.is_frozen = True
+
     if flash:
         request.session.flash(
             f"Project {project.name} quarantined.\n"
@@ -177,6 +181,7 @@ def remove_project(project, request, flash=True):
 
 def destroy_docs(project, request, flash=True):
     request.task(remove_documentation).delay(project.name)
+    request.task(remove_documentation).delay(project.normalized_name)
 
     project.has_docs = False
 

@@ -168,7 +168,6 @@
 
   table {
     @include card;
-    @include border-width(1px null);
     border-collapse: collapse;
     border-spacing: 0;
     text-align: left;

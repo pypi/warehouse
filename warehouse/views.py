@@ -26,6 +26,7 @@ from pyramid.httpexceptions import (
     HTTPRequestEntityTooLarge,
     HTTPSeeOther,
     HTTPServiceUnavailable,
+    HTTPTooManyRequests,
     exception_response,
 )
 from pyramid.i18n import make_localizer
@@ -60,7 +61,9 @@ from warehouse.packaging.models import (
     Release,
     ReleaseClassifiers,
 )
+from warehouse.rate_limiting import IRateLimiter
 from warehouse.search.queries import SEARCH_FILTER_ORDER, get_opensearch_query
+from warehouse.utils.cors import _CORS_HEADERS
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import OpenSearchPage, paginate_url_factory
 from warehouse.utils.row_counter import RowCount
@@ -94,7 +97,10 @@ def httpexception_view(exc, request):
     try:
         # Lightweight version of 404 page for `/simple/`
         if isinstance(exc, HTTPNotFound) and request.path.startswith("/simple/"):
-            response = HTTPNotFound(body="404 Not Found", content_type="text/plain")
+            response = HTTPNotFound(
+                body="404 Not Found",
+                content_type="text/plain",
+            )
         elif isinstance(exc, HTTPNotFound) and json_path.match(request.path):
             response = HTTPNotFound(
                 body='{"message": "Not Found"}',
@@ -118,6 +124,7 @@ def httpexception_view(exc, request):
     response.headers.extend(
         (k, v) for k, v in exc.headers.items() if k not in response.headers
     )
+    response.headers.extend(_CORS_HEADERS)
 
     return response
 
@@ -317,7 +324,22 @@ def list_classifiers(request):
     has_translations=True,
 )
 def search(request):
+    ratelimiter = request.find_service(IRateLimiter, name="search", context=None)
     metrics = request.find_service(IMetricsService, context=None)
+
+    ratelimiter.hit(request.remote_addr)
+    if not ratelimiter.test(request.remote_addr):
+        metrics.increment("warehouse.search.ratelimiter.exceeded")
+        message = (
+            "Your search query could not be performed because there were too "
+            "many requests by the client."
+        )
+        _resets_in = ratelimiter.resets_in(request.remote_addr)
+        if _resets_in is not None:
+            _resets_in = max(1, int(_resets_in.total_seconds()))
+            message += f" Limit may reset in {_resets_in} seconds."
+        raise HTTPTooManyRequests(message)
+    metrics.increment("warehouse.search.ratelimiter.hit")
 
     querystring = request.params.get("q", "").replace("'", '"')
     # Bail early for really long queries before ES raises an error

@@ -419,6 +419,8 @@ bq_schema = [
     SchemaField("maintainer", "STRING", "NULLABLE"),
     SchemaField("maintainer_email", "STRING", "NULLABLE"),
     SchemaField("license", "STRING", "NULLABLE"),
+    SchemaField("license_expression", "STRING", "NULLABLE"),
+    SchemaField("license_files", "STRING", "REPEATED"),
     SchemaField("keywords", "STRING", "NULLABLE"),
     SchemaField("classifiers", "STRING", "REPEATED"),
     SchemaField("platform", "STRING", "REPEATED"),
@@ -469,6 +471,8 @@ class TestUpdateBigQueryMetadata:
                 "maintainer": StringField(default="").bind(Form(), "test"),
                 "maintainer_email": StringField(default="").bind(Form(), "test"),
                 "license": StringField(default="").bind(Form(), "test"),
+                "license_expression": StringField(default="").bind(Form(), "test"),
+                "license_files": StringField(default=["LICENSE"]).bind(Form(), "test"),
                 "keywords": StringField(default="").bind(Form(), "test"),
                 "classifiers": ListField(
                     default=["Environment :: Other Environment"]
@@ -568,6 +572,8 @@ class TestUpdateBigQueryMetadata:
             "maintainer": form_factory["maintainer"].data,
             "maintainer_email": form_factory["maintainer_email"].data,
             "license": form_factory["license"].data,
+            "license_expression": form_factory["license_expression"].data,
+            "license_files": form_factory["license_files"].data,
             "keywords": form_factory["keywords"].data,
             "classifiers": form_factory["classifiers"].data,
             "platform": form_factory["platform"].data,
@@ -624,6 +630,9 @@ class TestUpdateBigQueryMetadata:
                         "maintainer_email": form_factory["maintainer_email"].data
                         or None,
                         "license": form_factory["license"].data or None,
+                        "license_expression": form_factory["license_expression"].data
+                        or None,
+                        "license_files": form_factory["license_files"].data or [],
                         "keywords": form_factory["description_content_type"].data
                         or None,
                         "classifiers": form_factory["classifiers"].data or [],
@@ -698,7 +707,12 @@ class TestSyncBigQueryMetadata:
     ):
         project = ProjectFactory.create()
         description = DescriptionFactory.create()
-        release = ReleaseFactory.create(project=project, description=description)
+        release = ReleaseFactory.create(
+            project=project,
+            description=description,
+            license_expression="Apache-2.0",
+            license_files=["LICENSE.APACHE"],
+        )
         release.platform = "test_platform"
         release_file = FileFactory.create(
             release=release,
@@ -774,6 +788,8 @@ class TestSyncBigQueryMetadata:
                         "maintainer": release.maintainer or None,
                         "maintainer_email": release.maintainer_email or None,
                         "license": release.license or None,
+                        "license_expression": release.license_expression or None,
+                        "license_files": release.license_files or [],
                         "keywords": release.keywords or None,
                         "classifiers": release.classifiers or [],
                         "platform": [release.platform] or [],

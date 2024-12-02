@@ -24,6 +24,7 @@ import warehouse.cli.db.dbml
 import warehouse.db
 
 from warehouse.cli.db.branches import branches
+from warehouse.cli.db.check import check
 from warehouse.cli.db.current import current
 from warehouse.cli.db.downgrade import downgrade
 from warehouse.cli.db.heads import heads
@@ -280,7 +281,7 @@ def test_stamp_command(monkeypatch, cli, pyramid_config):
 
 
 def test_upgrade_command(monkeypatch, cli, pyramid_config):
-    alembic_upgrade = pretend.call_recorder(lambda config, revision: None)
+    alembic_upgrade = pretend.call_recorder(lambda config, revision, sql: None)
     monkeypatch.setattr(alembic.command, "upgrade", alembic_upgrade)
 
     alembic_config = pretend.stub(attributes={})
@@ -296,7 +297,19 @@ def test_upgrade_command(monkeypatch, cli, pyramid_config):
 
     result = cli.invoke(upgrade, ["foo"], obj=pyramid_config)
     assert result.exit_code == 0
-    assert alembic_upgrade.calls == [pretend.call(alembic_config, "foo")]
+    assert alembic_upgrade.calls == [pretend.call(alembic_config, "foo", sql=False)]
+
+
+def test_check_command(monkeypatch, cli, pyramid_config):
+    alembic_check = pretend.call_recorder(lambda config: None)
+    monkeypatch.setattr(alembic.command, "check", alembic_check)
+
+    alembic_config = pretend.stub(attributes={})
+    pyramid_config.alembic_config = lambda: alembic_config
+
+    result = cli.invoke(check, obj=pyramid_config)
+    assert result.exit_code == 0
+    assert alembic_check.calls == [pretend.call(alembic_config)]
 
 
 def test_dbml_command(monkeypatch, cli):

@@ -168,7 +168,7 @@ def test_create_session(monkeypatch, pyramid_services):
 
 
 @pytest.mark.parametrize(
-    "admin_flag, is_superuser, doom_calls",
+    ("admin_flag", "is_superuser", "doom_calls"),
     [
         (None, True, []),
         (None, False, []),

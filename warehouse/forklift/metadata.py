@@ -32,8 +32,7 @@ from webob.multidict import MultiDict
 
 from warehouse.utils import http
 
-SUPPORTED_METADATA_VERSIONS = {"1.0", "1.1", "1.2", "2.0", "2.1", "2.2", "2.3"}
-
+SUPPORTED_METADATA_VERSIONS = {"1.0", "1.1", "1.2", "2.1", "2.2", "2.3", "2.4"}
 
 # Mapping of fields on a Metadata instance to any limits on the length of that
 # field. Fields without a limit will naturally be unlimited in length.
@@ -76,7 +75,10 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
     errors: list[InvalidMetadata] = []
 
     # We restrict the supported Metadata versions to the ones that we've implemented
-    # support for.
+    # support for. The metadata version is first validated by `packaging` thus adding a
+    # version here does not make is supported unless it is supported by `packaging` as
+    # well. See `packaging.metadata._VALID_METADATA_VERSIONS` for a list of the
+    # supported versions.
     if metadata.metadata_version not in SUPPORTED_METADATA_VERSIONS:
         errors.append(
             InvalidMetadata(
@@ -233,6 +235,19 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
                         )
                     )
 
+    # Ensure that License and License-Expression are mutually exclusive
+    # See https://peps.python.org/pep-0639/#deprecate-license-field
+    if metadata.license and metadata.license_expression:
+        errors.append(
+            InvalidMetadata(
+                "license",
+                (
+                    "License is deprecated when License-Expression is present. "
+                    "Only License-Expression should be present."
+                ),
+            )
+        )
+
     # If we've collected any errors, then raise an ExceptionGroup containing them.
     if errors:
         raise ExceptionGroup("invalid metadata", errors)
@@ -242,6 +257,7 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
 _override = {
     "platforms": "platform",
     "supported_platforms": "supported_platform",
+    "license_files": "license_file",
 }
 _FORM_TO_RAW_MAPPING = {_override.get(k, k): k for k in _RAW_TO_EMAIL_MAPPING}
 

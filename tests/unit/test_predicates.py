@@ -146,11 +146,11 @@ class TestActiveOrganizationPredicate:
         predicate = ActiveOrganizationPredicate(True, None)
         assert not predicate(organization, db_request)
 
+    @pytest.mark.usefixtures("_enable_organizations")
     def test_inactive_organization(
         self,
         db_request,
         organization,
-        enable_organizations,
     ):
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/manage/organizations/"
@@ -163,11 +163,11 @@ class TestActiveOrganizationPredicate:
 
         assert db_request.route_path.calls == [pretend.call("manage.organizations")]
 
+    @pytest.mark.usefixtures("_enable_organizations")
     def test_inactive_subscription(
         self,
         db_request,
         organization,
-        enable_organizations,
         inactive_subscription,
     ):
         db_request.route_path = pretend.call_recorder(
@@ -180,8 +180,12 @@ class TestActiveOrganizationPredicate:
 
         assert db_request.route_path.calls == [pretend.call("manage.organizations")]
 
+    @pytest.mark.usefixtures("_enable_organizations")
     def test_active_subscription(
-        self, db_request, organization, enable_organizations, active_subscription
+        self,
+        db_request,
+        organization,
+        active_subscription,
     ):
         predicate = ActiveOrganizationPredicate(True, None)
         assert predicate(organization, db_request)

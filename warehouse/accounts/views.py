@@ -17,9 +17,8 @@ import uuid
 
 import humanize
 import pytz
-import sentry_sdk
 
-from first import first
+from more_itertools import first_true
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPMovedPermanently,
@@ -95,10 +94,10 @@ from warehouse.oidc.models import (
 )
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import OrganizationRole, OrganizationRoleType
+from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import (
     JournalEntry,
     Project,
-    ProjectFactory,
     Release,
     Role,
     RoleInvitation,
@@ -728,8 +727,8 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
         if user is None:
             user = user_service.get_user_by_email(form.username_or_email.data)
         if user is not None:
-            email = first(
-                user.emails, key=lambda e: e.email == form.username_or_email.data
+            email = first_true(
+                user.emails, pred=lambda e: e.email == form.username_or_email.data
             )
         else:
             token_service = request.find_service(ITokenService, name="password")
@@ -819,18 +818,6 @@ def reset_password(request, _form_class=ResetPasswordForm):
     if not last_login.tzinfo:
         last_login = pytz.UTC.localize(last_login)
     if user.last_login and user.last_login > last_login:
-        sentry_sdk.set_context(
-            "user",
-            {
-                "username": user.username,
-                "last_login": user.last_login,
-                "token_last_login": last_login,
-            },
-        )
-        sentry_sdk.capture_message(
-            f"Password reset token used after user logged in for {user.username}",
-            level="warning",
-        )
         return _error(
             request._(
                 "Invalid token: user has logged in since this token was requested"
@@ -1477,24 +1464,28 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
 class ManageAccountPublishingViews:
     def __init__(self, request):
         self.request = request
-        self.project_factory = ProjectFactory(request)
         self.metrics = self.request.find_service(IMetricsService, context=None)
+        self.project_service = self.request.find_service(IProjectService, context=None)
         self.pending_github_publisher_form = PendingGitHubPublisherForm(
             self.request.POST,
             api_token=self.request.registry.settings.get("github.token"),
-            project_factory=self.project_factory,
+            route_url=self.request.route_url,
+            check_project_name=self.project_service.check_project_name,
         )
         self.pending_gitlab_publisher_form = PendingGitLabPublisherForm(
             self.request.POST,
-            project_factory=self.project_factory,
+            route_url=self.request.route_url,
+            check_project_name=self.project_service.check_project_name,
         )
         self.pending_google_publisher_form = PendingGooglePublisherForm(
             self.request.POST,
-            project_factory=self.project_factory,
+            route_url=self.request.route_url,
+            check_project_name=self.project_service.check_project_name,
         )
         self.pending_activestate_publisher_form = PendingActiveStatePublisherForm(
             self.request.POST,
-            project_factory=self.project_factory,
+            route_url=self.request.route_url,
+            check_project_name=self.project_service.check_project_name,
         )
 
     @property

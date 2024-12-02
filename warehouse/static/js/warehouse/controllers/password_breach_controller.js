@@ -32,7 +32,7 @@ export default class extends Controller {
           e => {
             console.error(e);  // eslint-disable-line no-console
             this.hideMessage();  // default to hiding the message on errors
-          }
+          },
         );
       }
     }
@@ -91,7 +91,7 @@ export default class extends Controller {
     // For our uses, we're going to consider any password that has ever appeared in
     // a breach to be insecure, even if only once.
     let isBreached = responseText.split("\n").some(
-      line => line.toLowerCase().split(":")[0] === hashedPassword.slice(5)
+      line => line.toLowerCase().split(":")[0] === hashedPassword.slice(5),
     );
     if (isBreached) {
       this.showMessage();

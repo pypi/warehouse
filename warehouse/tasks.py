@@ -114,6 +114,15 @@ class WarehouseTask(celery.Task):
         # avoid :(
         request = get_current_request()
 
+        # Add custom SQS MessageAttributes to payload for tracing. Ref:
+        # https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-message-metadata.html
+        kwargs["message_attributes"] = {
+            "task_name": {
+                "StringValue": self.name,
+                "DataType": "String",
+            },
+        }
+
         # If for whatever reason we were unable to get a request we'll just
         # skip this and call the original method to send this immediately.
         if request is None or not hasattr(request, "tm"):
@@ -186,7 +195,10 @@ def includeme(config):
 
     broker_transport_options = {}
 
-    broker_url = s["celery.broker_url"]
+    broker_url = s.get("celery.broker_url")
+    if broker_url is None:
+        broker_url = s["celery.broker_redis_url"]
+
     if broker_url.startswith("sqs://"):
         parsed_url = parse_url(broker_url)
         parsed_query = urllib.parse.parse_qs(parsed_url.query)
@@ -226,6 +238,8 @@ def includeme(config):
         task_serializer="json",
         worker_disable_rate_limits=True,
         REDBEAT_REDIS_URL=s["celery.scheduler_url"],
+        # Silence deprecation warning on startup
+        broker_connection_retry_on_startup=False,
     )
     config.registry["celery.app"].Task = WarehouseTask
     config.registry["celery.app"].pyramid_config = config
