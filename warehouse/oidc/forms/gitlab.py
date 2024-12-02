@@ -26,7 +26,7 @@ _VALID_GITLAB_ENVIRONMENT = re.compile(r"^[a-zA-Z0-9\-_/${} ]+$")
 _CONSECUTIVE_SPECIAL_CHARACTERS = re.compile(r"(?!.*[._-]{2})")
 
 
-def ends_with_atom_or_git(form: forms.Form, field: wtforms.Field) -> None:
+def ends_with_atom_or_git(form: wtforms.Form, field: wtforms.Field) -> None:
     field_value = typing.cast(str, field.data).lower()
     if field_value.endswith(".atom") or field_value.endswith(".git"):
         raise wtforms.validators.ValidationError(_("Name ends with .git or .atom"))
