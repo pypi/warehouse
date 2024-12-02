@@ -17,12 +17,16 @@ import wtforms
 from webob.multidict import MultiDict
 
 from warehouse.oidc.forms import google
+from warehouse.packaging.interfaces import ProjectNameUnavailableReason
 
 
 class TestPendingGooglePublisherForm:
     def test_validate(self, monkeypatch):
-        project_factory = []
         route_url = pretend.stub()
+
+        def check_project_name(name):
+            return None  # Name is available.
+
         data = MultiDict(
             {
                 "sub": "some-subject",
@@ -31,18 +35,18 @@ class TestPendingGooglePublisherForm:
             }
         )
         form = google.PendingGooglePublisherForm(
-            MultiDict(data), route_url=route_url, project_factory=project_factory
+            MultiDict(data), route_url=route_url, check_project_name=check_project_name
         )
 
-        assert form._project_factory == project_factory
+        assert form._check_project_name == check_project_name
         assert form._route_url == route_url
         assert form.validate()
 
     def test_validate_project_name_already_in_use(self, pyramid_config):
-        project_factory = ["some-project"]
         route_url = pretend.call_recorder(lambda *args, **kwargs: "my_url")
         form = google.PendingGooglePublisherForm(
-            route_url=route_url, project_factory=project_factory
+            route_url=route_url,
+            check_project_name=lambda name: ProjectNameUnavailableReason.AlreadyExists,
         )
 
         field = pretend.stub(data="some-project")

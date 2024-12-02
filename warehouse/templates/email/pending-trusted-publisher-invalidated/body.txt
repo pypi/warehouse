@@ -16,6 +16,6 @@
 {% block content %}
 You registered a pending trusted publisher for a project
 ({{ project_name }}), but someone else has invalidated your pending publisher
-by creating the project before you did.
+by creating the project, or one with a conflicting name, before you did.
 {% endblock %}
 

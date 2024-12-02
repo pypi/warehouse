@@ -383,7 +383,7 @@ msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Теперь у вас роль ${role} в проекте «${project_name}»."
 
 #: warehouse/accounts/views.py:1548 warehouse/accounts/views.py:1791
-#: warehouse/manage/views/__init__.py:1417
+#: warehouse/manage/views/__init__.py:1409
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -412,10 +412,10 @@ msgstr ""
 "Вы не можете зарегистрировать более 3-х ожидающих подключения трастовых "
 "публикаторов одновременно."
 
-#: warehouse/accounts/views.py:1614 warehouse/manage/views/__init__.py:1472
-#: warehouse/manage/views/__init__.py:1585
-#: warehouse/manage/views/__init__.py:1697
-#: warehouse/manage/views/__init__.py:1807
+#: warehouse/accounts/views.py:1614 warehouse/manage/views/__init__.py:1464
+#: warehouse/manage/views/__init__.py:1577
+#: warehouse/manage/views/__init__.py:1689
+#: warehouse/manage/views/__init__.py:1799
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
@@ -423,10 +423,10 @@ msgstr ""
 "Было предпринято слишком много попыток регистрации трастового публикатора. "
 "Попробуйте еще раз позже."
 
-#: warehouse/accounts/views.py:1625 warehouse/manage/views/__init__.py:1486
-#: warehouse/manage/views/__init__.py:1599
-#: warehouse/manage/views/__init__.py:1711
-#: warehouse/manage/views/__init__.py:1821
+#: warehouse/accounts/views.py:1625 warehouse/manage/views/__init__.py:1478
+#: warehouse/manage/views/__init__.py:1591
+#: warehouse/manage/views/__init__.py:1703
+#: warehouse/manage/views/__init__.py:1813
 msgid "The trusted publisher could not be registered"
 msgstr "Трастовый публикатор не может быть зарегистрирован"
 
@@ -492,8 +492,8 @@ msgstr ""
 msgid "Select project"
 msgstr "Выберите проект"
 
-#: warehouse/manage/forms.py:495 warehouse/oidc/forms/_core.py:22
-#: warehouse/oidc/forms/gitlab.py:43
+#: warehouse/manage/forms.py:495 warehouse/oidc/forms/_core.py:23
+#: warehouse/oidc/forms/gitlab.py:57
 msgid "Specify project name"
 msgstr "Укажите название проекта"
 
@@ -637,10 +637,10 @@ msgid "Added alternate repository '${name}'"
 msgstr "Неверное имя репозитория"
 
 #: warehouse/manage/views/__init__.py:1253
-#: warehouse/manage/views/__init__.py:2154
-#: warehouse/manage/views/__init__.py:2239
-#: warehouse/manage/views/__init__.py:2340
-#: warehouse/manage/views/__init__.py:2440
+#: warehouse/manage/views/__init__.py:2146
+#: warehouse/manage/views/__init__.py:2231
+#: warehouse/manage/views/__init__.py:2332
+#: warehouse/manage/views/__init__.py:2432
 msgid "Confirm the request"
 msgstr "Подтвердите запрос"
 
@@ -662,11 +662,11 @@ msgid ""
 "${alt_repo_name}"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1322
+#: warehouse/manage/views/__init__.py:1314
 msgid "Deleted alternate repository '${name}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1453
+#: warehouse/manage/views/__init__.py:1445
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -674,7 +674,7 @@ msgstr ""
 "Размещаемая на GitHub трастовая публикация временно отключена. Подробнее "
 "смотрите здесь: https://pypi.org/help#admin-intervention."
 
-#: warehouse/manage/views/__init__.py:1566
+#: warehouse/manage/views/__init__.py:1558
 msgid ""
 "GitLab-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -682,7 +682,7 @@ msgstr ""
 "Доверенное издание на базе GitLab временно отключено. См. https://pypi.org/"
 "help#admin-intervention for details."
 
-#: warehouse/manage/views/__init__.py:1678
+#: warehouse/manage/views/__init__.py:1670
 msgid ""
 "Google-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -690,7 +690,7 @@ msgstr ""
 "Доверенная публикация на основе Google временно отключена. Подробности см. "
 "на сайте https://pypi.org/help#admin-intervention."
 
-#: warehouse/manage/views/__init__.py:1787
+#: warehouse/manage/views/__init__.py:1779
 msgid ""
 "ActiveState-based trusted publishing is temporarily disabled. See https://"
 "pypi.org/help#admin-intervention for details."
@@ -698,9 +698,9 @@ msgstr ""
 "Доверенное издание на базе ActiveState временно отключено. См. https://pypi."
 "org/help#admin-intervention for details."
 
-#: warehouse/manage/views/__init__.py:2022
-#: warehouse/manage/views/__init__.py:2323
-#: warehouse/manage/views/__init__.py:2431
+#: warehouse/manage/views/__init__.py:2014
+#: warehouse/manage/views/__init__.py:2315
+#: warehouse/manage/views/__init__.py:2423
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -708,39 +708,39 @@ msgstr ""
 "Удаление проекта временно отключено. Подробнее смотрите здесь: https://pypi."
 "org/help#admin-intervention."
 
-#: warehouse/manage/views/__init__.py:2166
+#: warehouse/manage/views/__init__.py:2158
 msgid "Could not yank release - "
 msgstr "Не удалось выдернуть фиксатор - "
 
-#: warehouse/manage/views/__init__.py:2251
+#: warehouse/manage/views/__init__.py:2243
 msgid "Could not un-yank release - "
 msgstr "Невозможно отсоединить фиксатор - "
 
-#: warehouse/manage/views/__init__.py:2352
+#: warehouse/manage/views/__init__.py:2344
 msgid "Could not delete release - "
 msgstr "Не удалось удалить релиз‐ "
 
-#: warehouse/manage/views/__init__.py:2452
+#: warehouse/manage/views/__init__.py:2444
 msgid "Could not find file"
 msgstr "Не удалось найти файл"
 
-#: warehouse/manage/views/__init__.py:2456
+#: warehouse/manage/views/__init__.py:2448
 msgid "Could not delete file - "
 msgstr "Не удалось удалить файл - "
 
-#: warehouse/manage/views/__init__.py:2606
+#: warehouse/manage/views/__init__.py:2598
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "Команда '${team_name}' уже имеет в проекте роль ${role_name}"
 
-#: warehouse/manage/views/__init__.py:2713
+#: warehouse/manage/views/__init__.py:2705
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "Пользователь «${username}» уже имеет в проекте роль ${role_name}"
 
-#: warehouse/manage/views/__init__.py:2780
+#: warehouse/manage/views/__init__.py:2772
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "${username} теперь ${role} в проекте '${project_name}'."
 
-#: warehouse/manage/views/__init__.py:2812
+#: warehouse/manage/views/__init__.py:2804
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -748,7 +748,7 @@ msgstr ""
 "Пользователь «${username}» не имеет проверенного основного адреса "
 "электронной почты и не может быть добавлен в проект с ролью ${role_name}"
 
-#: warehouse/manage/views/__init__.py:2825
+#: warehouse/manage/views/__init__.py:2817
 #: warehouse/manage/views/organizations.py:878
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
@@ -756,20 +756,20 @@ msgstr ""
 "Пользователь «${username}» уже имеет активное приглашение. Пожалуйста, "
 "повторите попытку позже."
 
-#: warehouse/manage/views/__init__.py:2890
+#: warehouse/manage/views/__init__.py:2882
 #: warehouse/manage/views/organizations.py:943
 msgid "Invitation sent to '${username}'"
 msgstr "Приглашение отправлено пользователю «${username}»"
 
-#: warehouse/manage/views/__init__.py:2923
+#: warehouse/manage/views/__init__.py:2915
 msgid "Could not find role invitation."
 msgstr "Не удалось найти приглашение на роль."
 
-#: warehouse/manage/views/__init__.py:2934
+#: warehouse/manage/views/__init__.py:2926
 msgid "Invitation already expired."
 msgstr "Приглашение уже истекло."
 
-#: warehouse/manage/views/__init__.py:2966
+#: warehouse/manage/views/__init__.py:2958
 #: warehouse/manage/views/organizations.py:1130
 msgid "Invitation revoked from '${username}'."
 msgstr "Приглашение для «${username}» отозвано."
@@ -800,21 +800,43 @@ msgstr "Приглашение организации не может быть �
 msgid "Expired invitation for '${username}' deleted."
 msgstr "Исключенное приглашение для \"${username}\" удалено."
 
-#: warehouse/oidc/forms/_core.py:24 warehouse/oidc/forms/gitlab.py:45
+#: warehouse/oidc/forms/_core.py:25 warehouse/oidc/forms/_core.py:35
+#: warehouse/oidc/forms/gitlab.py:60 warehouse/oidc/forms/gitlab.py:64
 msgid "Invalid project name"
 msgstr "Неверное имя проекта"
 
-#: warehouse/oidc/forms/_core.py:45
+#: warehouse/oidc/forms/_core.py:49
 msgid ""
-"This project already exists, use the project's publishing settings <a "
+"This project already exists: use the project's publishing settings <a "
 "href='${url}'>here</a> to create a Trusted Publisher for it."
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:65
+#: warehouse/oidc/forms/_core.py:59
+#, fuzzy
+#| msgid "This project name is already in use"
+msgid "This project name isn't allowed"
+msgstr "Это название проекта уже используется"
+
+#: warehouse/oidc/forms/_core.py:63
+#, fuzzy
+#| msgid ""
+#| "The project name is too similar to an existing project and may be "
+#| "confusable."
+msgid "This project name is too similar to an existing project"
+msgstr ""
+"Название проекта слишком похоже на существующий проект и может сбить с толку."
+
+#: warehouse/oidc/forms/_core.py:67
+msgid ""
+"This project name isn't allowed (conflict with the Python standard library "
+"module name)"
+msgstr ""
+
+#: warehouse/oidc/forms/_core.py:84
 msgid "Specify a publisher ID"
 msgstr "Указать идентификатор издателя"
 
-#: warehouse/oidc/forms/_core.py:66
+#: warehouse/oidc/forms/_core.py:85
 msgid "Publisher must be specified by ID"
 msgstr "Издатель должен быть указан через ID"
 
@@ -911,29 +933,35 @@ msgid "Workflow filename must be a filename only, without directories"
 msgstr "Имя файла Workflow должно быть только именем файла, без каталогов"
 
 #: warehouse/oidc/forms/gitlab.py:32
+#, fuzzy
+#| msgid "Workflow name must end with .yml or .yaml"
+msgid "Name ends with .git or .atom"
+msgstr "Название рабочего процесса должно заканчиваться .yml или .yaml"
+
+#: warehouse/oidc/forms/gitlab.py:41
 msgid "Specify GitLab namespace (username or group/subgroup)"
 msgstr ""
 "Укажите владельца репозитория GitHub (имя пользователя или организацию)"
 
-#: warehouse/oidc/forms/gitlab.py:36
+#: warehouse/oidc/forms/gitlab.py:46 warehouse/oidc/forms/gitlab.py:50
 msgid "Invalid GitLab username or group/subgroup name."
 msgstr "Неверное имя пользователя или организации GitHub."
 
-#: warehouse/oidc/forms/gitlab.py:53
+#: warehouse/oidc/forms/gitlab.py:72
 msgid "Specify top-level pipeline file path"
 msgstr "Укажите путь к файлу трубопровода верхнего уровня"
 
-#: warehouse/oidc/forms/gitlab.py:62
+#: warehouse/oidc/forms/gitlab.py:81
 msgid "Invalid environment name"
 msgstr "Неверное имя окружения"
 
-#: warehouse/oidc/forms/gitlab.py:77
+#: warehouse/oidc/forms/gitlab.py:96
 msgid "Top-level pipeline file path must end with .yml or .yaml"
 msgstr ""
 "Путь к файлу трубопровода верхнего уровня должен заканчиваться на .yml или ."
 "yaml"
 
-#: warehouse/oidc/forms/gitlab.py:81
+#: warehouse/oidc/forms/gitlab.py:100
 msgid "Top-level pipeline file path cannot start or end with /"
 msgstr ""
 "Путь к файлу трубопровода верхнего уровня не может начинаться или "
@@ -11176,9 +11204,6 @@ msgstr[2] "Не было результатов для фильтров '%(filte
 
 #~ msgid "No user found with that username or email"
 #~ msgstr "Пользователь с таким именем или адресом электронной почты не найден"
-
-#~ msgid "This project name is already in use"
-#~ msgstr "Это название проекта уже используется"
 
 #, python-format
 #~ msgid ""

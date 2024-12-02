@@ -70,7 +70,6 @@ def _project_docs(db, project_name=None):
     release_data = (
         select(
             Description.raw.label("description"),
-            Release.version.label("latest_version"),
             Release.author,
             Release.author_email,
             Release.maintainer,
