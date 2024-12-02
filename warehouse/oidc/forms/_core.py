@@ -13,6 +13,7 @@ import markupsafe
 import wtforms
 
 from warehouse.i18n import localize as _
+from warehouse.packaging.interfaces import ProjectNameUnavailableReason
 from warehouse.utils.project import PROJECT_NAME_RE
 
 
@@ -29,27 +30,45 @@ class PendingPublisherMixin:
     def validate_project_name(self, field):
         project_name = field.data
 
-        if project_name in self._project_factory:
-            url_params = {name: value for name, value in self.data.items() if value}
-            url_params["provider"] = {self.provider}
-            url = self._route_url(
-                "manage.project.settings.publishing",
-                project_name=project_name,
-                _query=url_params,
-            )
+        match self._check_project_name(project_name):
+            case ProjectNameUnavailableReason.Invalid:
+                raise wtforms.validators.ValidationError(_("Invalid project name"))
+            case ProjectNameUnavailableReason.AlreadyExists:
+                url_params = {name: value for name, value in self.data.items() if value}
+                url_params["provider"] = {self.provider}
+                url = self._route_url(
+                    "manage.project.settings.publishing",
+                    project_name=project_name,
+                    _query=url_params,
+                )
 
-            # We mark the error message as safe, so that the HTML hyperlink is
-            # not escaped by Jinja
-            raise wtforms.validators.ValidationError(
-                markupsafe.Markup(
-                    _(
-                        "This project already exists, use the project's publishing"
-                        " settings <a href='${url}'>here</a> to create a Trusted"
-                        " Publisher for it.",
-                        mapping={"url": url},
+                # We mark the error message as safe, so that the HTML hyperlink is
+                # not escaped by Jinja
+                raise wtforms.validators.ValidationError(
+                    markupsafe.Markup(
+                        _(
+                            "This project already exists: use the project's publishing"
+                            " settings <a href='${url}'>here</a> to create a Trusted"
+                            " Publisher for it.",
+                            mapping={"url": url},
+                        )
                     )
                 )
-            )
+            case ProjectNameUnavailableReason.Prohibited:
+                raise wtforms.validators.ValidationError(
+                    _("This project name isn't allowed")
+                )
+            case ProjectNameUnavailableReason.TooSimilar:
+                raise wtforms.validators.ValidationError(
+                    _("This project name is too similar to an existing project")
+                )
+            case ProjectNameUnavailableReason.Stdlib:
+                raise wtforms.validators.ValidationError(
+                    _(
+                        "This project name isn't allowed (conflict with the Python"
+                        " standard library module name)"
+                    )
+                )
 
     @property
     def provider(self) -> str:  # pragma: no cover
