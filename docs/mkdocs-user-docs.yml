@@ -2,6 +2,7 @@ site_name: PyPI Docs
 docs_dir: user
 site_dir: user-site
 plugins:
+  - search
   - macros:
       module_name: user/main
       j2_block_start_string: "<!--[[%"
@@ -85,9 +86,11 @@ nav:
       - "attestations/publish/v1.md"
       - "attestations/security-model.md"
   - "project_metadata.md"
-  - "API Reference":
+  - "APIs and Datasets":
       - "api/index.md"
       - "api/index-api.md"
       - "api/upload.md"
       - "api/integrity.md"
       - "api/stats.md"
+      - "api/bigquery.md"
+      - "api/feeds.md"
