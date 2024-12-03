@@ -31,7 +31,6 @@ NameAnalyzer = analyzer(
 class Project(Document):
     name = Text()
     normalized_name = Text(analyzer=NameAnalyzer)
-    latest_version = Keyword()
     summary = Text(analyzer="snowball")
     description = Text(analyzer="snowball")
     author = Text()
@@ -51,7 +50,6 @@ class Project(Document):
         obj = cls(meta={"id": release.normalized_name})
         obj["name"] = release.name
         obj["normalized_name"] = release.normalized_name
-        obj["latest_version"] = release.latest_version
         obj["summary"] = release.summary
         obj["description"] = release.description
         obj["author"] = release.author

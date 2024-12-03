@@ -231,7 +231,7 @@ Before uploading attestations to the index, please:
 
 [twine]: https://github.com/pypa/twine
 
-[legacy upload API documentation]: https://warehouse.pypa.io/api-reference/legacy.html#upload-api
+[legacy upload API documentation]: /api/upload
 
 [GitLab Trusted Publishing]: /trusted-publishers/using-a-publisher/#gitlab-cicd
 [Linux Foundation Immutable Record notice]: https://lfprojects.org/policies/hosted-project-tools-immutable-records/

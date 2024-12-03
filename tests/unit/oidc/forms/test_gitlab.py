@@ -17,12 +17,16 @@ import wtforms
 from webob.multidict import MultiDict
 
 from warehouse.oidc.forms import gitlab
+from warehouse.packaging.interfaces import ProjectNameUnavailableReason
 
 
 class TestPendingGitLabPublisherForm:
     def test_validate(self, monkeypatch):
-        project_factory = []
         route_url = pretend.stub()
+
+        def check_project_name(name):
+            return None  # Name is available.
+
         data = MultiDict(
             {
                 "namespace": "some-owner",
@@ -32,20 +36,20 @@ class TestPendingGitLabPublisherForm:
             }
         )
         form = gitlab.PendingGitLabPublisherForm(
-            MultiDict(data), route_url=route_url, project_factory=project_factory
+            MultiDict(data), route_url=route_url, check_project_name=check_project_name
         )
 
         assert form._route_url == route_url
-        assert form._project_factory == project_factory
+        assert form._check_project_name == check_project_name
         # We're testing only the basic validation here.
         assert form.validate()
 
     def test_validate_project_name_already_in_use(self, pyramid_config):
-        project_factory = ["some-project"]
         route_url = pretend.call_recorder(lambda *args, **kwargs: "my_url")
 
         form = gitlab.PendingGitLabPublisherForm(
-            route_url=route_url, project_factory=project_factory
+            route_url=route_url,
+            check_project_name=lambda name: ProjectNameUnavailableReason.AlreadyExists,
         )
 
         field = pretend.stub(data="some-project")
@@ -127,6 +131,45 @@ class TestGitLabPublisherForm:
         form = gitlab.GitLabPublisherForm(MultiDict(data))
 
         # We're testing only the basic validation here.
+        assert not form.validate()
+
+    @pytest.mark.parametrize(
+        "project_name",
+        ["invalid.git", "invalid.atom", "invalid--project"],
+    )
+    def test_reserved_project_names(self, project_name):
+
+        data = MultiDict(
+            {
+                "namespace": "some",
+                "workflow_filepath": "subfolder/some-workflow.yml",
+                "project": project_name,
+            }
+        )
+
+        form = gitlab.GitLabPublisherForm(data)
+        assert not form.validate()
+
+    @pytest.mark.parametrize(
+        "namespace",
+        [
+            "invalid.git",
+            "invalid.atom",
+            "consecutive--special-characters",
+            "must-end-with-non-special-characters-",
+        ],
+    )
+    def test_reserved_organization_names(self, namespace):
+
+        data = MultiDict(
+            {
+                "namespace": namespace,
+                "workflow_filepath": "subfolder/some-workflow.yml",
+                "project": "valid-project",
+            }
+        )
+
+        form = gitlab.GitLabPublisherForm(data)
         assert not form.validate()
 
     @pytest.mark.parametrize(
