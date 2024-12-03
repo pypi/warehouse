@@ -1,7 +1,5 @@
 # Integrity API
 
-<!--[[ preview('user-api-docs') ]]-->
-
 The Integrity API provides access to PyPI's implementation of [PEP 740].
 
 ## Concepts

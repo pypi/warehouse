@@ -1,7 +1,5 @@
 # Introduction
 
-<!--[[ preview('user-api-docs') ]]-->
-
 PyPI has several API endpoints and public datasets, each of which is referenced
 in the table of contents for this hierarchy.
 
