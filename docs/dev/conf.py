@@ -32,7 +32,6 @@ extensions = [
 ]
 
 redirects = {
-    "api-reference/index": "https://docs.pypi.org/api/",
     "api-reference/feeds": "https://docs.pypi.org/api/feeds/",
     "api-reference/json": "https://docs.pypi.org/api/index-api/",
     "api-reference/legacy": "https://docs.pypi.org/api/json/",
