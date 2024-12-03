@@ -117,4 +117,4 @@ As you’ll note, it is just a redirect to the canonical file.
 
 [Index API]: ./index-api.md
 
-[JSON API]: https://warehouse.pypa.io/api-reference/json/
+[JSON API]: ./json.md
