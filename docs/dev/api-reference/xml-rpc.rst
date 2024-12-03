@@ -85,7 +85,7 @@ Changes to XMLRPC API
   incident <https://status.python.org/incidents/grk0k7sz6zkp>`_.
 
 - ``release_downloads`` and ``top_packages`` No longer supported. Use
-  :doc:`Google BigQuery <bigquery-datasets>` instead (`guidance
+  `BigQuery Datasets <https://docs.pypi.org/api/bigquery/>`_ instead (`guidance
   <https://packaging.python.org/guides/analyzing-pypi-package-downloads/>`_,
   `tips <https://langui.sh/2016/12/09/data-driven-decisions/>`_).
 
@@ -163,17 +163,17 @@ Deprecated in favor of ``changelog_since_serial``.
 ``package_data(package_name, version)``
 +++++++++++++++++++++++++++++++++++++++
 
-Deprecated, :doc:`json` should be used.
+Deprecated, the `JSON API <https://docs.pypi.org/api/json/>`_ should be used.
 
 ``package_urls(package_name, version)``
 +++++++++++++++++++++++++++++++++++++++
 
-Deprecated, :doc:`json` should be used.
+Deprecated, the `JSON API <https://docs.pypi.org/api/json/>`_ should be used.
 
 ``top_packages(num=None)``
 ++++++++++++++++++++++++++
 
-Use :doc:`Google BigQuery <bigquery-datasets>`
+Use `BigQuery Datasets <https://docs.pypi.org/api/bigquery/>`_
 instead (`guidance <https://packaging.python.org/guides/analyzing-pypi-package-downloads/>`_,
 `tips <https://langui.sh/2016/12/09/data-driven-decisions/>`_).
 
@@ -187,25 +187,28 @@ driven by unidentified traffic, presumably automated. `See historical incident
 ``list_packages()``
 +++++++++++++++++++
 
-Use the :doc:`Simple API <legacy>`
+Use the `Index API <https://docs.pypi.org/api/index-api/>`_
 to query for list of project names with releases on PyPI.
 
 ``package_releases(package_name, show_hidden=False)``
 +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Use :doc:`json` or :doc:`Simple API <legacy>` to query for available releases
-of a given project.
+Use the `JSON API <https://docs.pypi.org/api/json/>`_ or
+`Index API <https://docs.pypi.org/api/index-api/>`_ to query for available
+releases of a given project.
 
 ``release_urls(package_name, release_version)``
 +++++++++++++++++++++++++++++++++++++++++++++++
 
-Use :doc:`json` or :doc:`Simple API <legacy>` to query for file download URLs
-for a given release.
+Use the `JSON API <https://docs.pypi.org/api/json/>`_ or
+`Index API <https://docs.pypi.org/api/index-api/>`_ to query for file download
+URLs for a given release.
 
 ``release_data(package_name, release_version)``
 +++++++++++++++++++++++++++++++++++++++++++++++
 
-Use :doc:`json` or :doc:`Simple API <legacy>` to query for metadata of a given
-release.
+Use the `JSON API <https://docs.pypi.org/api/json/>`_ or
+`Index API <https://docs.pypi.org/api/index-api/>`_ to query for metadata of a
+given release.
 
 .. _pypi-announce: https://mail.python.org/mailman3/lists/pypi-announce.python.org/
