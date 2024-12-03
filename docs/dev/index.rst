@@ -9,7 +9,7 @@ Contents:
    development/index
    application
    architecture
-   api-reference/index
+   api-reference/xml-rpc
    ui-principles
    security/index
    translations
