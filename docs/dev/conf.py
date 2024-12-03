@@ -33,8 +33,8 @@ extensions = [
 
 redirects = {
     "api-reference/feeds": "https://docs.pypi.org/api/feeds/",
-    "api-reference/json": "https://docs.pypi.org/api/index-api/",
-    "api-reference/legacy": "https://docs.pypi.org/api/json/",
+    "api-reference/json": "https://docs.pypi.org/api/json/",
+    "api-reference/legacy": "https://docs.pypi.org/api/index-api/",
     "api-reference/stats": "https://docs.pypi.org/api/stats/",
     "api-reference/integration-guide": "https://docs.pypi.org/api/",
     "api-reference/bigquery-datasets": "https://docs.pypi.org/api/bigquery",
