@@ -18,6 +18,6 @@ directions for submitting security vulnerabilities, please visit
 
 Project and release activity details
 ------------------------------------
-See :doc:`/api-reference/feeds` for how to track new and updated releases on
-PyPI.
+See `RSS Feeds <https://docs.pypi.org/api/feeds/>`_ for how to track new and
+updated releases on PyPI.
 
