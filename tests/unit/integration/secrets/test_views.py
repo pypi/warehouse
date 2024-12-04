@@ -13,21 +13,35 @@
 import json
 
 import pretend
+import pytest
 
 from warehouse.integrations.secrets import utils, views
 
 
 class TestDiscloseToken:
-    def test_disclose_token(self, pyramid_request, metrics, monkeypatch):
-        pyramid_request.headers = {
-            "GITHUB-PUBLIC-KEY-IDENTIFIER": "foo",
-            "GITHUB-PUBLIC-KEY-SIGNATURE": "bar",
-        }
+    @pytest.mark.parametrize(
+        ("origin", "headers", "settings", "api_url"),
+        [
+            (
+                "GitHub",
+                {
+                    "GITHUB-PUBLIC-KEY-IDENTIFIER": "foo",
+                    "GITHUB-PUBLIC-KEY-SIGNATURE": "bar",
+                },
+                {
+                    "github.token": "token",
+                },
+                "https://api.github.com/meta/public_keys/token_scanning",
+            ),
+        ],
+    )
+    def test_disclose_token(
+        self, pyramid_request, metrics, monkeypatch, origin, headers, settings, api_url
+    ):
+        pyramid_request.headers = headers
         pyramid_request.body = "[1, 2, 3]"
         pyramid_request.json_body = [1, 2, 3]
-        pyramid_request.registry.settings = {
-            "github.token": "token",
-        }
+        pyramid_request.registry.settings = settings
         pyramid_request.find_service = lambda *a, **k: metrics
 
         http = pyramid_request.http = pretend.stub()
@@ -47,9 +61,9 @@ class TestDiscloseToken:
             pretend.call(
                 session=http,
                 metrics=metrics,
-                origin="GitHub",
+                origin=origin,
                 api_token="token",
-                api_url="https://api.github.com/meta/public_keys/token_scanning",
+                api_url=api_url,
             )
         ]
         assert verify.calls == [
@@ -59,21 +73,26 @@ class TestDiscloseToken:
             pretend.call(
                 request=pyramid_request,
                 disclosure_records=[1, 2, 3],
-                origin="GitHub",
+                origin=origin,
                 metrics=metrics,
             )
         ]
 
-    def test_disclose_token_no_token(self, pyramid_request, metrics, monkeypatch):
-        pyramid_request.headers = {
-            "GITHUB-PUBLIC-KEY-IDENTIFIER": "foo",
-            "GITHUB-PUBLIC-KEY-SIGNATURE": "bar",
-        }
+    @pytest.mark.parametrize(
+        ("headers"),
+        [
+            {
+                "GITHUB-PUBLIC-KEY-IDENTIFIER": "foo",
+                "GITHUB-PUBLIC-KEY-SIGNATURE": "bar",
+            },
+        ],
+    )
+    def test_disclose_token_no_token(
+        self, pyramid_request, metrics, monkeypatch, headers
+    ):
+        pyramid_request.headers = headers
         pyramid_request.body = "[1, 2, 3]"
         pyramid_request.json_body = [1, 2, 3]
-        pyramid_request.registry.settings = {
-            "github.token_scanning_meta_api.url": "http://foo"
-        }
         pyramid_request.find_service = lambda *a, **k: metrics
         pyramid_request.http = pretend.stub()
 
@@ -89,17 +108,27 @@ class TestDiscloseToken:
 
         assert response.status_code == 204
 
-    def test_disclose_token_verify_fail(self, pyramid_request, metrics, monkeypatch):
-        pyramid_request.headers = {
-            "GITHUB-PUBLIC-KEY-IDENTIFIER": "foo",
-            "GITHUB-PUBLIC-KEY-SIGNATURE": "bar",
-        }
+    @pytest.mark.parametrize(
+        ("headers", "settings"),
+        [
+            (
+                {
+                    "GITHUB-PUBLIC-KEY-IDENTIFIER": "foo",
+                    "GITHUB-PUBLIC-KEY-SIGNATURE": "bar",
+                },
+                {
+                    "github.token": "token",
+                },
+            ),
+        ],
+    )
+    def test_disclose_token_verify_fail(
+        self, pyramid_request, metrics, monkeypatch, headers, settings
+    ):
+        pyramid_request.headers = headers
         pyramid_request.body = "[1, 2, 3]"
         pyramid_request.find_service = lambda *a, **k: metrics
-        pyramid_request.registry.settings = {
-            "github.token": "token",
-            "github.token_scanning_meta_api.url": "http://foo",
-        }
+        pyramid_request.registry.settings = settings
         pyramid_request.http = pretend.stub()
 
         verify = pretend.call_recorder(lambda **k: False)
@@ -111,7 +140,24 @@ class TestDiscloseToken:
 
         assert response.status_int == 400
 
-    def test_disclose_token_verify_invalid_json(self, metrics, monkeypatch):
+    @pytest.mark.parametrize(
+        ("origin", "headers", "settings"),
+        [
+            (
+                "GitHub",
+                {
+                    "GITHUB-PUBLIC-KEY-IDENTIFIER": "foo",
+                    "GITHUB-PUBLIC-KEY-SIGNATURE": "bar",
+                },
+                {
+                    "github.token": "token",
+                },
+            ),
+        ],
+    )
+    def test_disclose_token_verify_invalid_json(
+        self, metrics, monkeypatch, origin, headers, settings
+    ):
         verify = pretend.call_recorder(lambda **k: True)
         verifier = pretend.stub(verify=verify)
         verifier_cls = pretend.call_recorder(lambda **k: verifier)
@@ -119,11 +165,10 @@ class TestDiscloseToken:
 
         # We need to raise on a property access, can't do that with a stub.
         class Request:
-            headers = {
-                "GITHUB-PUBLIC-KEY-IDENTIFIER": "foo",
-                "GITHUB-PUBLIC-KEY-SIGNATURE": "bar",
-            }
-            body = "["
+
+            def __init__(self, headers, body):
+                self.headers = headers
+                self.body = body
 
             @property
             def json_body(self):
@@ -134,32 +179,40 @@ class TestDiscloseToken:
 
             response = pretend.stub(status_int=200)
             http = pretend.stub()
-            registry = pretend.stub(
-                settings={
-                    "github.token": "token",
-                    "github.token_scanning_meta_api.url": "http://foo",
-                }
-            )
+            registry = pretend.stub(settings=settings)
 
-        request = Request()
+        request = Request(headers, "[")
         response = views.disclose_token(request)
 
         assert response.status_int == 400
         assert metrics.increment.calls == [
-            pretend.call("warehouse.token_leak.github.error.payload.json_error")
+            pretend.call(
+                f"warehouse.token_leak.{origin.lower()}.error.payload.json_error"
+            )
         ]
 
-    def test_disclose_token_wrong_payload(self, pyramid_request, metrics, monkeypatch):
-        pyramid_request.headers = {
-            "GITHUB-PUBLIC-KEY-IDENTIFIER": "foo",
-            "GITHUB-PUBLIC-KEY-SIGNATURE": "bar",
-        }
+    @pytest.mark.parametrize(
+        ("origin", "headers", "settings"),
+        [
+            (
+                "GitHub",
+                {
+                    "GITHUB-PUBLIC-KEY-IDENTIFIER": "foo",
+                    "GITHUB-PUBLIC-KEY-SIGNATURE": "bar",
+                },
+                {
+                    "github.token": "token",
+                },
+            ),
+        ],
+    )
+    def test_disclose_token_wrong_payload(
+        self, pyramid_request, metrics, monkeypatch, origin, headers, settings
+    ):
+        pyramid_request.headers = headers
         pyramid_request.body = "{}"
         pyramid_request.json_body = {}
-        pyramid_request.registry.settings = {
-            "github.token": "token",
-            "github.token_scanning_meta_api.url": "http://foo",
-        }
+        pyramid_request.registry.settings = settings
         pyramid_request.find_service = lambda *a, **k: metrics
 
         pyramid_request.http = pretend.stub()
@@ -173,7 +226,7 @@ class TestDiscloseToken:
 
         assert response.status_code == 400
         assert metrics.increment.calls == [
-            pretend.call("warehouse.token_leak.github.error.format")
+            pretend.call(f"warehouse.token_leak.{origin.lower()}.error.format")
         ]
 
     def test_disclose_token_missing_headers(self, pyramid_request):

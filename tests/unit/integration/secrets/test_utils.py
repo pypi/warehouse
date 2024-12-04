@@ -91,6 +91,7 @@ def test_token_leak_disclosure_request_from_api_record(source):
 
 
 class TestGenericTokenScanningPayloadVerifier:
+
     def test_init(self, metrics):
         session = pretend.stub()
         token = "api_token"
@@ -98,7 +99,7 @@ class TestGenericTokenScanningPayloadVerifier:
         cache = integrations.PublicKeysCache(cache_time=12)
 
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
-            origin="GitHub",
+            origin="SomeOrigin",
             api_url="http://foo",
             session=session,
             metrics=metrics,
@@ -112,7 +113,18 @@ class TestGenericTokenScanningPayloadVerifier:
         assert generic_verifier._api_url == url
         assert generic_verifier._public_keys_cache is cache
 
-    def test_verify_cache_miss(self, metrics):
+    @pytest.mark.parametrize(
+        ("origin", "payload"),
+        [
+            (
+                "GitHub",
+                b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
+                b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
+                b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]',
+            )
+        ],
+    )
+    def test_verify_cache_miss(self, metrics, origin, payload):
         # Example taken from
         # https://gist.github.com/ewjoachim/7dde11c31d9686ed6b4431c3ca166da2
         meta_payload = {
@@ -134,7 +146,7 @@ class TestGenericTokenScanningPayloadVerifier:
         session = pretend.stub(get=lambda *a, **k: response)
         cache = integrations.PublicKeysCache(cache_time=12)
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
-            origin="GitHub",
+            origin=origin,
             api_url="http://foo",
             session=session,
             metrics=metrics,
@@ -147,22 +159,28 @@ class TestGenericTokenScanningPayloadVerifier:
             "cku2XdcmFWNHl2WSJi2fkE8t+auvB24eURaOd2A=="
         )
 
-        payload = (
-            b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
-            b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
-            b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]'
-        )
         assert (
             generic_verifier.verify(payload=payload, key_id=key_id, signature=signature)
             is True
         )
 
         assert metrics.increment.calls == [
-            pretend.call("warehouse.token_leak.github.auth.cache.miss"),
-            pretend.call("warehouse.token_leak.github.auth.success"),
+            pretend.call(f"warehouse.token_leak.{origin.lower()}.auth.cache.miss"),
+            pretend.call(f"warehouse.token_leak.{origin.lower()}.auth.success"),
         ]
 
-    def test_verify_cache_hit(self, metrics):
+    @pytest.mark.parametrize(
+        ("origin", "payload"),
+        [
+            (
+                "GitHub",
+                b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
+                b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
+                b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]',
+            )
+        ],
+    )
+    def test_verify_cache_hit(self, metrics, origin, payload):
         session = pretend.stub()
         cache = integrations.PublicKeysCache(cache_time=12)
         cache.cached_at = time.time()
@@ -177,7 +195,7 @@ class TestGenericTokenScanningPayloadVerifier:
             }
         ]
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
-            origin="GitHub",
+            origin=origin,
             api_url="http://foo",
             session=session,
             metrics=metrics,
@@ -191,25 +209,20 @@ class TestGenericTokenScanningPayloadVerifier:
             "cku2XdcmFWNHl2WSJi2fkE8t+auvB24eURaOd2A=="
         )
 
-        payload = (
-            b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
-            b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
-            b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]'
-        )
         assert (
             generic_verifier.verify(payload=payload, key_id=key_id, signature=signature)
             is True
         )
 
         assert metrics.increment.calls == [
-            pretend.call("warehouse.token_leak.github.auth.cache.hit"),
-            pretend.call("warehouse.token_leak.github.auth.success"),
+            pretend.call(f"warehouse.token_leak.{origin.lower()}.auth.cache.hit"),
+            pretend.call(f"warehouse.token_leak.{origin.lower()}.auth.success"),
         ]
 
     def test_verify_error(self, metrics):
         cache = integrations.PublicKeysCache(cache_time=12)
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
-            origin="GitHub",
+            origin="SomeOrigin",
             api_url="http://foo",
             session=pretend.stub(),
             metrics=metrics,
@@ -223,13 +236,13 @@ class TestGenericTokenScanningPayloadVerifier:
         assert generic_verifier.verify(payload={}, key_id="a", signature="a") is False
 
         assert metrics.increment.calls == [
-            pretend.call("warehouse.token_leak.github.auth.cache.miss"),
-            pretend.call("warehouse.token_leak.github.auth.error.bla"),
+            pretend.call("warehouse.token_leak.someorigin.auth.cache.miss"),
+            pretend.call("warehouse.token_leak.someorigin.auth.error.bla"),
         ]
 
     def test_headers_auth_no_token(self):
         headers = utils.GenericTokenScanningPayloadVerifier(
-            origin="GitHub",
+            origin="SomeOrigin",
             api_url="http://foo",
             session=pretend.stub(),
             metrics=pretend.stub(),
@@ -240,7 +253,7 @@ class TestGenericTokenScanningPayloadVerifier:
 
     def test_headers_auth_token(self):
         headers = utils.GenericTokenScanningPayloadVerifier(
-            origin="GitHub",
+            origin="SomeOrigin",
             api_url="http://foo",
             session=pretend.stub(),
             metrics=pretend.stub(),
@@ -269,7 +282,7 @@ class TestGenericTokenScanningPayloadVerifier:
         session = pretend.stub(get=pretend.call_recorder(lambda *a, **k: response))
 
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
-            origin="GitHub",
+            origin="SomeOrigin",
             api_url="http://foo",
             session=session,
             metrics=metrics,
@@ -291,7 +304,7 @@ class TestGenericTokenScanningPayloadVerifier:
         cache.set(now=time.time(), value=cache_value)
 
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
-            origin="GitHub",
+            origin="SomeOrigin",
             api_url="http://foo",
             session=session,
             metrics=pretend.stub(),
@@ -305,7 +318,7 @@ class TestGenericTokenScanningPayloadVerifier:
         cache = integrations.PublicKeysCache(cache_time=12)
 
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
-            origin="GitHub",
+            origin="SomeOrigin",
             api_url="http://foo",
             session=session,
             metrics=pretend.stub(),
@@ -325,7 +338,7 @@ class TestGenericTokenScanningPayloadVerifier:
             get=lambda *a, **k: response,
         )
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
-            origin="GitHub",
+            origin="SomeOrigin",
             api_url="http://foo",
             session=session,
             metrics=pretend.stub(),
@@ -345,7 +358,7 @@ class TestGenericTokenScanningPayloadVerifier:
         )
         session = pretend.stub(get=lambda *a, **k: response)
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
-            origin="GitHub",
+            origin="SomeOrigin",
             api_url="http://foo",
             session=session,
             metrics=pretend.stub(),
@@ -361,7 +374,7 @@ class TestGenericTokenScanningPayloadVerifier:
         session = pretend.stub(get=pretend.raiser(requests.ConnectionError))
 
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
-            origin="GitHub",
+            origin="SomeOrigin",
             api_url="http://foo",
             session=session,
             metrics=pretend.stub(),
@@ -371,7 +384,7 @@ class TestGenericTokenScanningPayloadVerifier:
         with pytest.raises(utils.GenericPublicKeyMetaAPIError) as exc:
             generic_verifier.retrieve_public_key_payload()
 
-        assert str(exc.value) == "Could not connect to GitHub"
+        assert str(exc.value) == "Could not connect to SomeOrigin"
         assert exc.value.reason == "public_key_api.network_error"
 
     def test_extract_public_keys(self):
@@ -390,7 +403,7 @@ class TestGenericTokenScanningPayloadVerifier:
         }
         cache = integrations.PublicKeysCache(cache_time=12)
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
-            origin="GitHub",
+            origin="SomeOrigin",
             api_url="http://foo",
             session=pretend.stub(),
             metrics=pretend.stub(),
@@ -434,7 +447,7 @@ class TestGenericTokenScanningPayloadVerifier:
     def test_extract_public_keys_error(self, payload, expected):
         cache = integrations.PublicKeysCache(cache_time=12)
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
-            origin="GitHub",
+            origin="SomeOrigin",
             api_url="http://foo",
             session=pretend.stub(),
             metrics=pretend.stub(),
@@ -450,7 +463,7 @@ class TestGenericTokenScanningPayloadVerifier:
 
     def test_check_public_key(self):
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
-            origin="GitHub",
+            origin="SomeOrigin",
             api_url="http://foo",
             session=pretend.stub(),
             metrics=pretend.stub(),
@@ -465,7 +478,7 @@ class TestGenericTokenScanningPayloadVerifier:
 
     def test_check_public_key_error(self):
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
-            origin="GitHub",
+            origin="SomeOrigin",
             api_url="http://foo",
             session=pretend.stub(),
             metrics=pretend.stub(),
@@ -478,9 +491,20 @@ class TestGenericTokenScanningPayloadVerifier:
         assert str(exc.value) == "Key c not found in public keys"
         assert exc.value.reason == "wrong_key_id"
 
-    def test_check_signature(self):
+    @pytest.mark.parametrize(
+        ("origin", "payload"),
+        [
+            (
+                "GitHub",
+                b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
+                b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
+                b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]',
+            )
+        ],
+    )
+    def test_check_signature(self, origin, payload):
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
-            origin="GitHub",
+            origin=origin,
             api_url="http://foo",
             session=pretend.stub(),
             metrics=pretend.stub(),
@@ -497,11 +521,6 @@ class TestGenericTokenScanningPayloadVerifier:
             "cku2XdcmFWNHl2WSJi2fkE8t+auvB24eURaOd2A=="
         )
 
-        payload = (
-            b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
-            b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
-            b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]'
-        )
         assert (
             generic_verifier._check_signature(
                 payload=payload, public_key=public_key, signature=signature
@@ -509,9 +528,20 @@ class TestGenericTokenScanningPayloadVerifier:
             is None
         )
 
-    def test_check_signature_invalid_signature(self):
+    @pytest.mark.parametrize(
+        ("origin", "payload"),
+        [
+            (
+                "GitHub",
+                b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
+                b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
+                b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]',
+            )
+        ],
+    )
+    def test_check_signature_invalid_signature(self, origin, payload):
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
-            origin="GitHub",
+            origin=origin,
             api_url="http://foo",
             session=pretend.stub(),
             metrics=pretend.stub(),
@@ -529,11 +559,6 @@ class TestGenericTokenScanningPayloadVerifier:
             "cku2XdcmFWNHl2WSJi2fkE8t+auvB24eURaOd2A=="
         )
 
-        payload = (
-            b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
-            b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
-            b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]'
-        )
         with pytest.raises(integrations.InvalidPayloadSignatureError) as exc:
             generic_verifier._check_signature(
                 payload=payload, public_key=public_key, signature=signature
@@ -544,7 +569,7 @@ class TestGenericTokenScanningPayloadVerifier:
 
     def test_check_signature_invalid_crypto(self):
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
-            origin="GitHub",
+            origin="SomeOrigin",
             api_url="http://foo",
             session=pretend.stub(),
             metrics=pretend.stub(),
@@ -601,15 +626,17 @@ def test_analyze_disclosure(monkeypatch, metrics):
             "token": "pypi-1234",
             "url": "http://example.com",
         },
-        origin="github",
+        origin="SomeOrigin",
     )
     assert metrics.increment.calls == [
-        pretend.call("warehouse.token_leak.github.received"),
-        pretend.call("warehouse.token_leak.github.valid"),
-        pretend.call("warehouse.token_leak.github.processed"),
+        pretend.call("warehouse.token_leak.someorigin.received"),
+        pretend.call("warehouse.token_leak.someorigin.valid"),
+        pretend.call("warehouse.token_leak.someorigin.processed"),
     ]
     assert send_email.calls == [
-        pretend.call(request, user, public_url="http://example.com", origin="github")
+        pretend.call(
+            request, user, public_url="http://example.com", origin="SomeOrigin"
+        )
     ]
     assert find.calls == [pretend.call(raw_macaroon="pypi-1234")]
     assert delete.calls == [pretend.call(macaroon_id="12")]
@@ -639,11 +666,11 @@ def test_analyze_disclosure_wrong_record(metrics):
     utils.analyze_disclosure(
         request=request,
         disclosure_record={},
-        origin="github",
+        origin="SomeOrigin",
     )
     assert metrics.increment.calls == [
-        pretend.call("warehouse.token_leak.github.received"),
-        pretend.call("warehouse.token_leak.github.error.format"),
+        pretend.call("warehouse.token_leak.someorigin.received"),
+        pretend.call("warehouse.token_leak.someorigin.error.format"),
     ]
 
 
@@ -663,11 +690,11 @@ def test_analyze_disclosure_invalid_macaroon(metrics):
             "token": "pypi-1234",
             "url": "http://example.com",
         },
-        origin="github",
+        origin="SomeOrigin",
     )
     assert metrics.increment.calls == [
-        pretend.call("warehouse.token_leak.github.received"),
-        pretend.call("warehouse.token_leak.github.error.invalid"),
+        pretend.call("warehouse.token_leak.someorigin.received"),
+        pretend.call("warehouse.token_leak.someorigin.error.invalid"),
     ]
 
 
@@ -683,10 +710,10 @@ def test_analyze_disclosure_unknown_error(metrics, monkeypatch):
         utils.analyze_disclosure(
             request=request,
             disclosure_record={},
-            origin="github",
+            origin="SomeOrigin",
         )
     assert metrics.increment.calls == [
-        pretend.call("warehouse.token_leak.github.error.unknown"),
+        pretend.call("warehouse.token_leak.someorigin.error.unknown"),
     ]
 
 
