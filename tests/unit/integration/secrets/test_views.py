@@ -14,11 +14,11 @@ import json
 
 import pretend
 
-from warehouse.integrations.github import utils, views
+from warehouse.integrations.secrets import utils, views
 
 
-class TestGitHubDiscloseToken:
-    def test_github_disclose_token(self, pyramid_request, metrics, monkeypatch):
+class TestDiscloseToken:
+    def test_disclose_token(self, pyramid_request, metrics, monkeypatch):
         pyramid_request.headers = {
             "GITHUB-PUBLIC-KEY-IDENTIFIER": "foo",
             "GITHUB-PUBLIC-KEY-SIGNATURE": "bar",
@@ -27,7 +27,6 @@ class TestGitHubDiscloseToken:
         pyramid_request.json_body = [1, 2, 3]
         pyramid_request.registry.settings = {
             "github.token": "token",
-            "github.token_scanning_meta_api.url": "http://foo",
         }
         pyramid_request.find_service = lambda *a, **k: metrics
 
@@ -36,17 +35,21 @@ class TestGitHubDiscloseToken:
         verify = pretend.call_recorder(lambda **k: True)
         verifier = pretend.stub(verify=verify)
         verifier_cls = pretend.call_recorder(lambda **k: verifier)
-        monkeypatch.setattr(utils, "GitHubTokenScanningPayloadVerifier", verifier_cls)
+        monkeypatch.setattr(utils, "GenericTokenScanningPayloadVerifier", verifier_cls)
 
         analyze_disclosures = pretend.call_recorder(lambda **k: None)
         monkeypatch.setattr(utils, "analyze_disclosures", analyze_disclosures)
 
-        response = views.github_disclose_token(pyramid_request)
+        response = views.disclose_token(pyramid_request)
 
         assert response.status_code == 204
         assert verifier_cls.calls == [
             pretend.call(
-                session=http, metrics=metrics, api_token="token", api_url="http://foo"
+                session=http,
+                metrics=metrics,
+                origin="GitHub",
+                api_token="token",
+                api_url="https://api.github.com/meta/public_keys/token_scanning",
             )
         ]
         assert verify.calls == [
@@ -56,14 +59,12 @@ class TestGitHubDiscloseToken:
             pretend.call(
                 request=pyramid_request,
                 disclosure_records=[1, 2, 3],
-                origin="github",
+                origin="GitHub",
                 metrics=metrics,
             )
         ]
 
-    def test_github_disclose_token_no_token(
-        self, pyramid_request, metrics, monkeypatch
-    ):
+    def test_disclose_token_no_token(self, pyramid_request, metrics, monkeypatch):
         pyramid_request.headers = {
             "GITHUB-PUBLIC-KEY-IDENTIFIER": "foo",
             "GITHUB-PUBLIC-KEY-SIGNATURE": "bar",
@@ -79,18 +80,16 @@ class TestGitHubDiscloseToken:
         verify = pretend.call_recorder(lambda **k: True)
         verifier = pretend.stub(verify=verify)
         verifier_cls = pretend.call_recorder(lambda **k: verifier)
-        monkeypatch.setattr(utils, "GitHubTokenScanningPayloadVerifier", verifier_cls)
+        monkeypatch.setattr(utils, "GenericTokenScanningPayloadVerifier", verifier_cls)
 
         analyze_disclosures = pretend.call_recorder(lambda **k: None)
         monkeypatch.setattr(utils, "analyze_disclosures", analyze_disclosures)
 
-        response = views.github_disclose_token(pyramid_request)
+        response = views.disclose_token(pyramid_request)
 
         assert response.status_code == 204
 
-    def test_github_disclose_token_verify_fail(
-        self, pyramid_request, metrics, monkeypatch
-    ):
+    def test_disclose_token_verify_fail(self, pyramid_request, metrics, monkeypatch):
         pyramid_request.headers = {
             "GITHUB-PUBLIC-KEY-IDENTIFIER": "foo",
             "GITHUB-PUBLIC-KEY-SIGNATURE": "bar",
@@ -106,17 +105,17 @@ class TestGitHubDiscloseToken:
         verify = pretend.call_recorder(lambda **k: False)
         verifier = pretend.stub(verify=verify)
         verifier_cls = pretend.call_recorder(lambda **k: verifier)
-        monkeypatch.setattr(utils, "GitHubTokenScanningPayloadVerifier", verifier_cls)
+        monkeypatch.setattr(utils, "GenericTokenScanningPayloadVerifier", verifier_cls)
 
-        response = views.github_disclose_token(pyramid_request)
+        response = views.disclose_token(pyramid_request)
 
         assert response.status_int == 400
 
-    def test_github_disclose_token_verify_invalid_json(self, metrics, monkeypatch):
+    def test_disclose_token_verify_invalid_json(self, metrics, monkeypatch):
         verify = pretend.call_recorder(lambda **k: True)
         verifier = pretend.stub(verify=verify)
         verifier_cls = pretend.call_recorder(lambda **k: verifier)
-        monkeypatch.setattr(utils, "GitHubTokenScanningPayloadVerifier", verifier_cls)
+        monkeypatch.setattr(utils, "GenericTokenScanningPayloadVerifier", verifier_cls)
 
         # We need to raise on a property access, can't do that with a stub.
         class Request:
@@ -143,16 +142,14 @@ class TestGitHubDiscloseToken:
             )
 
         request = Request()
-        response = views.github_disclose_token(request)
+        response = views.disclose_token(request)
 
         assert response.status_int == 400
         assert metrics.increment.calls == [
             pretend.call("warehouse.token_leak.github.error.payload.json_error")
         ]
 
-    def test_github_disclose_token_wrong_payload(
-        self, pyramid_request, metrics, monkeypatch
-    ):
+    def test_disclose_token_wrong_payload(self, pyramid_request, metrics, monkeypatch):
         pyramid_request.headers = {
             "GITHUB-PUBLIC-KEY-IDENTIFIER": "foo",
             "GITHUB-PUBLIC-KEY-SIGNATURE": "bar",
@@ -170,11 +167,16 @@ class TestGitHubDiscloseToken:
         verify = pretend.call_recorder(lambda **k: True)
         verifier = pretend.stub(verify=verify)
         verifier_cls = pretend.call_recorder(lambda **k: verifier)
-        monkeypatch.setattr(utils, "GitHubTokenScanningPayloadVerifier", verifier_cls)
+        monkeypatch.setattr(utils, "GenericTokenScanningPayloadVerifier", verifier_cls)
 
-        response = views.github_disclose_token(pyramid_request)
+        response = views.disclose_token(pyramid_request)
 
         assert response.status_code == 400
         assert metrics.increment.calls == [
             pretend.call("warehouse.token_leak.github.error.format")
         ]
+
+    def test_disclose_token_missing_headers(self, pyramid_request):
+        response = views.disclose_token(pyramid_request)
+
+        assert response.status_code == 404

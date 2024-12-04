@@ -532,6 +532,11 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "integrations.secrets.disclose-token",
+            "/_/secrets/disclose-token",
+            domain=warehouse,
+        ),
+        pretend.call(
             "integrations.github.disclose-token",
             "/_/github/disclose-token",
             domain=warehouse,

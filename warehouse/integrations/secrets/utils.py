@@ -109,7 +109,7 @@ class TokenLeakDisclosureRequest:
         )
 
 
-class GitHubPublicKeyMetaAPIError(InvalidTokenLeakRequestError):
+class GenericPublicKeyMetaAPIError(InvalidTokenLeakRequestError):
     pass
 
 
@@ -117,7 +117,7 @@ PUBLIC_KEYS_CACHE_TIME = 60 * 30  # 30 minutes
 PUBLIC_KEYS_CACHE = integrations.PublicKeysCache(cache_time=PUBLIC_KEYS_CACHE_TIME)
 
 
-class GitHubTokenScanningPayloadVerifier(integrations.PayloadVerifier):
+class GenericTokenScanningPayloadVerifier(integrations.PayloadVerifier):
     """
     Checks payload signature using:
     - `requests` for HTTP calls
@@ -128,18 +128,20 @@ class GitHubTokenScanningPayloadVerifier(integrations.PayloadVerifier):
         self,
         session,
         metrics,
+        origin: str,
         api_url: str,
         api_token: str | None = None,
         public_keys_cache=PUBLIC_KEYS_CACHE,
     ):
         super().__init__(metrics=metrics, public_keys_cache=public_keys_cache)
+        self._origin = origin
         self._session = session
         self._api_token = api_token
         self._api_url = api_url
 
     @property
     def metric_name(self):
-        return "token_leak.github"
+        return f"token_leak.{self._origin.lower()}"
 
     def _headers_auth(self):
         if not self._api_token:
@@ -152,35 +154,35 @@ class GitHubTokenScanningPayloadVerifier(integrations.PayloadVerifier):
             response.raise_for_status()
             return response.json()
         except requests.HTTPError as exc:
-            raise GitHubPublicKeyMetaAPIError(
+            raise GenericPublicKeyMetaAPIError(
                 f"Invalid response code {response.status_code}: {response.text[:100]}",
                 f"public_key_api.status.{response.status_code}",
             ) from exc
         except json.JSONDecodeError as exc:
-            raise GitHubPublicKeyMetaAPIError(
+            raise GenericPublicKeyMetaAPIError(
                 f"Non-JSON response received: {response.text[:100]}",
                 "public_key_api.invalid_json",
             ) from exc
         except requests.RequestException as exc:
-            raise GitHubPublicKeyMetaAPIError(
-                "Could not connect to GitHub", "public_key_api.network_error"
+            raise GenericPublicKeyMetaAPIError(
+                f"Could not connect to {self._origin}", "public_key_api.network_error"
             ) from exc
 
     def extract_public_keys(self, pubkey_api_data):
         if not isinstance(pubkey_api_data, dict):
-            raise GitHubPublicKeyMetaAPIError(
+            raise GenericPublicKeyMetaAPIError(
                 f"Payload is not a dict but: {str(pubkey_api_data)[:100]}",
                 "public_key_api.format_error",
             )
         try:
             public_keys = pubkey_api_data["public_keys"]
         except KeyError:
-            raise GitHubPublicKeyMetaAPIError(
+            raise GenericPublicKeyMetaAPIError(
                 "Payload misses 'public_keys' attribute", "public_key_api.format_error"
             )
 
         if not isinstance(public_keys, list):
-            raise GitHubPublicKeyMetaAPIError(
+            raise GenericPublicKeyMetaAPIError(
                 "Payload 'public_keys' attribute is not a list",
                 "public_key_api.format_error",
             )
@@ -189,14 +191,14 @@ class GitHubTokenScanningPayloadVerifier(integrations.PayloadVerifier):
         result = []
         for public_key in public_keys:
             if not isinstance(public_key, dict):
-                raise GitHubPublicKeyMetaAPIError(
+                raise GenericPublicKeyMetaAPIError(
                     f"Key is not a dict but: {public_key}",
                     "public_key_api.format_error",
                 )
 
             attributes = set(public_key)
             if not expected_attributes <= attributes:
-                raise GitHubPublicKeyMetaAPIError(
+                raise GenericPublicKeyMetaAPIError(
                     "Missing attribute in key: "
                     f"{sorted(expected_attributes - attributes)}",
                     "public_key_api.format_error",
@@ -212,14 +214,14 @@ class GitHubTokenScanningPayloadVerifier(integrations.PayloadVerifier):
 def _analyze_disclosure(request, disclosure_record, origin):
     metrics = request.find_service(IMetricsService, context=None)
 
-    metrics.increment(f"warehouse.token_leak.{origin}.received")
+    metrics.increment(f"warehouse.token_leak.{origin.lower()}.received")
 
     try:
         disclosure = TokenLeakDisclosureRequest.from_api_record(
             record=disclosure_record
         )
     except InvalidTokenLeakRequestError as exc:
-        metrics.increment(f"warehouse.token_leak.{origin}.error.{exc.reason}")
+        metrics.increment(f"warehouse.token_leak.{origin.lower()}.error.{exc.reason}")
         return
 
     macaroon_service = request.find_service(IMacaroonService, context=None)
@@ -228,10 +230,10 @@ def _analyze_disclosure(request, disclosure_record, origin):
             raw_macaroon=disclosure.token
         )
     except InvalidMacaroonError:
-        metrics.increment(f"warehouse.token_leak.{origin}.error.invalid")
+        metrics.increment(f"warehouse.token_leak.{origin.lower()}.error.invalid")
         return
 
-    metrics.increment(f"warehouse.token_leak.{origin}.valid")
+    metrics.increment(f"warehouse.token_leak.{origin.lower()}.valid")
 
     macaroon_service.delete_macaroon(macaroon_id=str(database_macaroon.id))
 
@@ -255,7 +257,7 @@ def _analyze_disclosure(request, disclosure_record, origin):
             "description": database_macaroon.description,
         },
     )
-    metrics.increment(f"warehouse.token_leak.{origin}.processed")
+    metrics.increment(f"warehouse.token_leak.{origin.lower()}.processed")
 
 
 def analyze_disclosure(request, disclosure_record, origin):
@@ -267,15 +269,15 @@ def analyze_disclosure(request, disclosure_record, origin):
         )
     except Exception:
         metrics = request.find_service(IMetricsService, context=None)
-        metrics.increment(f"warehouse.token_leak.{origin}.error.unknown")
+        metrics.increment(f"warehouse.token_leak.{origin.lower()}.error.unknown")
         raise
 
 
 def analyze_disclosures(request, disclosure_records, origin, metrics):
-    from warehouse.integrations.github import tasks
+    from warehouse.integrations.secrets import tasks
 
     if not isinstance(disclosure_records, list):
-        metrics.increment(f"warehouse.token_leak.{origin}.error.format")
+        metrics.increment(f"warehouse.token_leak.{origin.lower()}.error.format")
         raise InvalidTokenLeakRequestError(
             "Invalid format: payload is not a list", "format"
         )
