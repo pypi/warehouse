@@ -19,7 +19,7 @@ What happened?
 
 {% set site_name=request.registry.settings["site.name"] %}
 
-A third party ({{ origin }}) has informed us that a {{ site_name }} API token
+A third party ({{ origin.name }}) has informed us that a {{ site_name }} API token
 associated with your account "{{ username }}" was found to be accessible at the
 following public URL. We have automatically revoked this token.
 
@@ -46,7 +46,7 @@ you and release a malicious package.
 
 How do you know this?
 
-This is an automated message. Our partner {{ origin }} analyzes all the data it receives
+This is an automated message. Our partner {{ origin.name }} analyzes all the data it receives
 for unintentional {{ site_name }} token publications and warns us every time it finds
 one. We check every disclosure we recieve and take action when the token appears valid.
 

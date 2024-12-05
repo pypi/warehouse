@@ -538,14 +538,18 @@ def includeme(config):
         traverse="/{name}/",
         domain=warehouse,
     )
-    # Integration URLs
 
+    # Integration URLs
     config.add_route(
-        "integrations.github.disclose-token",
+        "integrations.secrets.disclose-token",
+        "/_/secrets/disclose-token",
+        domain=warehouse,
+    )
+    config.add_route(
+        "integrations.github.disclose-token",  # For backwards compatiblity
         "/_/github/disclose-token",
         domain=warehouse,
     )
-
     config.add_route(
         "integrations.vulnerabilities.osv.report",
         "/_/vulnerabilities/osv/report",

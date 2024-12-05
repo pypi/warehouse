@@ -10,15 +10,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from warehouse.integrations.secrets import utils
 
-from warehouse import tasks
-from warehouse.integrations.github import utils
+# Separate for use in tests
+_github_origin = utils.DisclosureOrigin(
+    name="GitHub",
+    key_id_header="GITHUB-PUBLIC-KEY-IDENTIFIER",
+    signature_header="GITHUB-PUBLIC-KEY-SIGNATURE",
+    verification_url="https://api.github.com/meta/public_keys/token_scanning",
+    api_token="github.token",
+)
 
-
-@tasks.task(ignore_result=True, acks_late=True)
-def analyze_disclosure_task(request, disclosure_record, origin):
-    utils.analyze_disclosure(
-        request=request,
-        disclosure_record=disclosure_record,
-        origin=origin,
-    )
+origins = [_github_origin]
