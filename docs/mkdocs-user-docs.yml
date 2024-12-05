@@ -95,3 +95,4 @@ nav:
       - "api/stats.md"
       - "api/bigquery.md"
       - "api/feeds.md"
+      - "api/secrets.md"
