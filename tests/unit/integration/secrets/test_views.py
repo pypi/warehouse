@@ -41,7 +41,7 @@ class TestDiscloseToken:
                     "GOSST-PUBLIC-KEY-SIGNATURE": "bar",
                 },
                 {},
-                "https://storage.googleapis.com/depsdev-gcp-public-keys/secret_scanning",
+                "https://storage.googleapis.com/depsdev-gcp-public-keys/secret_scanning",  # noqa
                 None,
             ),
         ],

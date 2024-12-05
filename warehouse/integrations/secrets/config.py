@@ -24,7 +24,9 @@ _depsdev_origin = utils.DisclosureOrigin(
     name="Deps.dev",
     key_id_header="GOSST-PUBLIC-KEY-IDENTIFIER",
     signature_header="GOSST-PUBLIC-KEY-SIGNATURE",
-    verification_url="https://storage.googleapis.com/depsdev-gcp-public-keys/secret_scanning",
+    verification_url=(
+        "https://storage.googleapis.com/depsdev-gcp-public-keys/secret_scanning"
+    ),
 )
 
 origins = [_github_origin, _depsdev_origin]
