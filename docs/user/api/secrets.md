@@ -44,11 +44,18 @@ PyPI expects every request to this API to include two headers:
 The names of these headers can be arbitrary and should be provided to PyPI at
 integration time. They will be verified for every request.
 
+PyPI assumes that the signature is an ECDSA signature, and that the digest is
+SHA-256.
+
 ### Public key verification
 
 PyPI expects to be able to verify the public key used to sign the request at a
 URL provided at integration time. This URL structure is arbitrary but should
 exist at a trusted domain.
+
+Integrating parties should be prepared to provide P-256/384/521 keys, and use
+SHA-256 only (not SHA-384 or SHA-512, despite those being common with P-384 and
+P-521 respectively).
 
 The response from a GET request to this URL should return a JSON document with
 the following example structure:
