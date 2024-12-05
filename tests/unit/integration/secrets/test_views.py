@@ -15,7 +15,7 @@ import json
 import pretend
 import pytest
 
-from warehouse.integrations.secrets import utils, views
+from warehouse.integrations.secrets import config, utils, views
 
 
 class TestDiscloseToken:
@@ -23,7 +23,7 @@ class TestDiscloseToken:
         ("origin", "headers", "settings", "api_url"),
         [
             (
-                "GitHub",
+                config._github_origin,
                 {
                     "GITHUB-PUBLIC-KEY-IDENTIFIER": "foo",
                     "GITHUB-PUBLIC-KEY-SIGNATURE": "bar",

@@ -15,27 +15,13 @@ import json
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNoContent, HTTPNotFound
 from pyramid.view import view_config
 
-from warehouse.integrations.secrets import utils
+from warehouse.integrations.secrets import config, utils
 from warehouse.metrics import IMetricsService
-
-# Headers that we expect to be present for each integrator
-origin_headers = {
-    "GitHub": ("GITHUB-PUBLIC-KEY-IDENTIFIER", "GITHUB-PUBLIC-KEY-SIGNATURE"),
-}
-
-# The URL that we use to get the public key to verify the signature
-origin_verification_urls = {
-    "GitHub": "https://api.github.com/meta/public_keys/token_scanning"
-}
-
-# The key for the setting which contains an API token, if necessary, to include
-# with the request to the above URL
-origin_api_token = {"GitHub": "github.token"}
 
 
 def _detect_origin(request):
-    for origin, headers in origin_headers.items():
-        if set(headers).issubset(request.headers.keys()):
+    for origin in config.origins:
+        if origin.headers.issubset(request.headers.keys()):
             return origin
 
 
@@ -69,17 +55,16 @@ def disclose_token(request):
 
     body = request.body
 
-    key_id_header, signature_header = origin_headers[origin]
-    key_id = request.headers.get(key_id_header)
-    signature = request.headers.get(signature_header)
+    key_id = request.headers.get(origin.key_id_header)
+    signature = request.headers.get(origin.signature_header)
     metrics = request.find_service(IMetricsService, context=None)
 
     verifier = utils.GenericTokenScanningPayloadVerifier(
         session=request.http,
         metrics=metrics,
         origin=origin,
-        api_url=origin_verification_urls[origin],
-        api_token=request.registry.settings.get(origin_api_token[origin]),
+        api_url=origin.verification_url,
+        api_token=request.registry.settings.get(origin.api_token),
     )
 
     if not verifier.verify(payload=body, key_id=key_id, signature=signature):
@@ -89,7 +74,7 @@ def disclose_token(request):
         disclosures = request.json_body
     except json.decoder.JSONDecodeError:
         metrics.increment(
-            f"warehouse.token_leak.{origin.lower()}.error.payload.json_error"
+            f"warehouse.token_leak.{origin.metric_name}.error.payload.json_error"
         )
         return HTTPBadRequest()
 

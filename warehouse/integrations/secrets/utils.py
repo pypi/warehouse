@@ -24,6 +24,33 @@ from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.metrics import IMetricsService
 
 
+class DisclosureOrigin:
+
+    def __init__(
+        self, name, key_id_header, signature_header, verification_url, api_token=None
+    ):
+        # The display name of the integrator
+        self.name = name
+        # The headers that we expect to be present for each integrator
+        self.key_id_header = key_id_header
+        self.signature_header = signature_header
+        # The URL that we use to get the public key to verify the signature
+        self.verification_url = verification_url
+        # The key for the setting which contains an API token, if necessary, to include
+        # with the request to the above URL
+        self.api_token = api_token
+
+    @property
+    def metric_name(self):
+        """Normalized version of the display name"""
+        return self.name.lower().replace(".", "")
+
+    @property
+    def headers(self):
+        """Set of all headers that must be present"""
+        return {self.key_id_header, self.signature_header}
+
+
 class ExtractionFailedError(Exception):
     pass
 
@@ -128,7 +155,7 @@ class GenericTokenScanningPayloadVerifier(integrations.PayloadVerifier):
         self,
         session,
         metrics,
-        origin: str,
+        origin: DisclosureOrigin,
         api_url: str,
         api_token: str | None = None,
         public_keys_cache=PUBLIC_KEYS_CACHE,
@@ -141,7 +168,7 @@ class GenericTokenScanningPayloadVerifier(integrations.PayloadVerifier):
 
     @property
     def metric_name(self):
-        return f"token_leak.{self._origin.lower()}"
+        return f"token_leak.{self._origin.metric_name}"
 
     def _headers_auth(self):
         if not self._api_token:
@@ -165,7 +192,8 @@ class GenericTokenScanningPayloadVerifier(integrations.PayloadVerifier):
             ) from exc
         except requests.RequestException as exc:
             raise GenericPublicKeyMetaAPIError(
-                f"Could not connect to {self._origin}", "public_key_api.network_error"
+                f"Could not connect to {self._origin.name}",
+                "public_key_api.network_error",
             ) from exc
 
     def extract_public_keys(self, pubkey_api_data):
@@ -214,14 +242,16 @@ class GenericTokenScanningPayloadVerifier(integrations.PayloadVerifier):
 def _analyze_disclosure(request, disclosure_record, origin):
     metrics = request.find_service(IMetricsService, context=None)
 
-    metrics.increment(f"warehouse.token_leak.{origin.lower()}.received")
+    metrics.increment(f"warehouse.token_leak.{origin.metric_name}.received")
 
     try:
         disclosure = TokenLeakDisclosureRequest.from_api_record(
             record=disclosure_record
         )
     except InvalidTokenLeakRequestError as exc:
-        metrics.increment(f"warehouse.token_leak.{origin.lower()}.error.{exc.reason}")
+        metrics.increment(
+            f"warehouse.token_leak.{origin.metric_name}.error.{exc.reason}"
+        )
         return
 
     macaroon_service = request.find_service(IMacaroonService, context=None)
@@ -230,10 +260,10 @@ def _analyze_disclosure(request, disclosure_record, origin):
             raw_macaroon=disclosure.token
         )
     except InvalidMacaroonError:
-        metrics.increment(f"warehouse.token_leak.{origin.lower()}.error.invalid")
+        metrics.increment(f"warehouse.token_leak.{origin.metric_name}.error.invalid")
         return
 
-    metrics.increment(f"warehouse.token_leak.{origin.lower()}.valid")
+    metrics.increment(f"warehouse.token_leak.{origin.metric_name}.valid")
 
     macaroon_service.delete_macaroon(macaroon_id=str(database_macaroon.id))
 
@@ -257,7 +287,7 @@ def _analyze_disclosure(request, disclosure_record, origin):
             "description": database_macaroon.description,
         },
     )
-    metrics.increment(f"warehouse.token_leak.{origin.lower()}.processed")
+    metrics.increment(f"warehouse.token_leak.{origin.metric_name}.processed")
 
 
 def analyze_disclosure(request, disclosure_record, origin):
@@ -269,7 +299,7 @@ def analyze_disclosure(request, disclosure_record, origin):
         )
     except Exception:
         metrics = request.find_service(IMetricsService, context=None)
-        metrics.increment(f"warehouse.token_leak.{origin.lower()}.error.unknown")
+        metrics.increment(f"warehouse.token_leak.{origin.metric_name}.error.unknown")
         raise
 
 
@@ -277,7 +307,7 @@ def analyze_disclosures(request, disclosure_records, origin, metrics):
     from warehouse.integrations.secrets import tasks
 
     if not isinstance(disclosure_records, list):
-        metrics.increment(f"warehouse.token_leak.{origin.lower()}.error.format")
+        metrics.increment(f"warehouse.token_leak.{origin.metric_name}.error.format")
         raise InvalidTokenLeakRequestError(
             "Invalid format: payload is not a list", "format"
         )
