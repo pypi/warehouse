@@ -121,6 +121,10 @@ ARG CI=no
 # i.e. 'docker compose run --rm web python -m warehouse shell --type=ipython')
 ARG IPYTHON=no
 
+# We don't want to install deploy dependencies in the test image so we can gain a few
+# seconds when running tests.
+ARG TESTS=no
+
 # By default, Docker has special steps to avoid keeping APT caches in the layers, which
 # is good, but in our case, we're going to mount a special cache volume (kept between
 # builds), so we WANT the cache to persist.
@@ -177,8 +181,8 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     set -x \
     && pip --disable-pip-version-check \
             install --no-deps \
-                    -r /tmp/requirements/deploy.txt \
                     -r /tmp/requirements/main.txt \
+    								$(if [ "$TESTS" = "no" ]; then echo '-r /tmp/requirements/deploy.txt'; fi) \
                     $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt'; fi) \
                     $(if [ "$CI" = "yes" ]; then echo '-r /tmp/requirements/docs-dev.txt -r /tmp/requirements/docs-user.txt -r /tmp/requirements/docs-blog.txt'; fi ) \
     && pip check \
