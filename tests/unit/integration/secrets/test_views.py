@@ -20,7 +20,7 @@ from warehouse.integrations.secrets import config, utils, views
 
 class TestDiscloseToken:
     @pytest.mark.parametrize(
-        ("origin", "headers", "settings", "api_url"),
+        ("origin", "headers", "settings", "api_url", "api_token"),
         [
             (
                 config._github_origin,
@@ -32,11 +32,30 @@ class TestDiscloseToken:
                     "github.token": "token",
                 },
                 "https://api.github.com/meta/public_keys/token_scanning",
+                "token",
+            ),
+            (
+                config._depsdev_origin,
+                {
+                    "GOSST-PUBLIC-KEY-IDENTIFIER": "foo",
+                    "GOSST-PUBLIC-KEY-SIGNATURE": "bar",
+                },
+                {},
+                "https://storage.googleapis.com/depsdev-gcp-public-keys/secret_scanning",  # noqa
+                None,
             ),
         ],
     )
     def test_disclose_token(
-        self, pyramid_request, metrics, monkeypatch, origin, headers, settings, api_url
+        self,
+        pyramid_request,
+        metrics,
+        monkeypatch,
+        origin,
+        headers,
+        settings,
+        api_url,
+        api_token,
     ):
         pyramid_request.headers = headers
         pyramid_request.body = "[1, 2, 3]"
@@ -62,7 +81,7 @@ class TestDiscloseToken:
                 session=http,
                 metrics=metrics,
                 origin=origin,
-                api_token="token",
+                api_token=api_token,
                 api_url=api_url,
             )
         ]
