@@ -881,7 +881,7 @@ msgstr "Top-úroveň potrubia súbor cesta nemôže začať alebo skončiť s /"
 msgid "Provide an Inspector link to specific lines of code."
 msgstr "Poskytnite inšpektorový odkaz na konkrétne linky kódu."
 
-#: warehouse/packaging/views.py:212
+#: warehouse/packaging/views.py:352
 msgid "Your report has been recorded. Thank you for your help."
 msgstr "Vaša správa bola zaznamenaná. Ďakujeme za vašu pomoc."
 
@@ -3035,7 +3035,7 @@ msgstr "Zavrieť toto upozornenie"
 #: warehouse/templates/manage/unverified-account.html:172
 #: warehouse/templates/manage/unverified-account.html:174
 #: warehouse/templates/manage/unverified-account.html:184
-#: warehouse/templates/search/results.html:198
+#: warehouse/templates/search/results.html:197
 msgid "Close"
 msgstr "Zavrieť"
 
@@ -4298,7 +4298,7 @@ msgstr "vygenerované %(generated_datetime)s"
 msgid "%(remaining)s unused"
 msgstr "%(remaining)s nepoužité"
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:49
+#: warehouse/templates/manage/account/recovery_codes-burn.html:50
 #: warehouse/templates/manage/manage_base.html:42
 msgid "Regenerate"
 msgstr "Regenerovať"
@@ -5312,7 +5312,7 @@ msgstr ""
 "Najprv musíte povoliť <a href=\"%(href)s\">dva-factor overenie</a> na vašom "
 "účte pred pridaním nového vydavateľa."
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:34
+#: warehouse/templates/manage/account/recovery_codes-burn.html:35
 msgid ""
 "In order to verify that you have safely stored your recovery codes for use "
 "in the event of a lost 2FA device, submit one of your recovery codes here."
@@ -5321,7 +5321,7 @@ msgstr ""
 "použitie v prípade straty zariadenia 2FA, odošlite sem jeden z vašich "
 "obnovovacích kódov."
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:39
+#: warehouse/templates/manage/account/recovery_codes-burn.html:40
 msgid ""
 "The recovery code you choose will be considered used and no longer be "
 "available to bypass 2FA."
@@ -5329,7 +5329,7 @@ msgstr ""
 "Kód na obnovenie, ktorý si vyberiete, sa bude považovať za použitý a už "
 "nebude k dispozícii na obídenie 2FA."
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:44
+#: warehouse/templates/manage/account/recovery_codes-burn.html:45
 msgid ""
 "<strong>Forgot to safely store your recovery codes?</strong> You'll need to "
 "generate them again."
@@ -5345,7 +5345,7 @@ msgstr "Kódy na obnovenie účtu"
 msgid "Regenerate recovery codes"
 msgstr "Obnovte obnovovacie kódy"
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:42
+#: warehouse/templates/manage/account/recovery_codes-provision.html:43
 msgid ""
 "If you lose access to your authentication application or security key(s), "
 "you’ll need to use one of these recovery codes to log into your PyPI "
@@ -5355,7 +5355,7 @@ msgstr ""
 "kľúčom, na prihlásenie do účtu PyPI budete musieť použiť jeden z týchto "
 "kódov na obnovenie. Každý kód možno použiť iba <strong>raz</strong>."
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:43
+#: warehouse/templates/manage/account/recovery_codes-provision.html:44
 msgid ""
 "These codes should <strong>only</strong> be used for account recovery, not "
 "for typical logins."
@@ -5363,7 +5363,7 @@ msgstr ""
 "Tieto kódy by sa mali používať <strong>len</strong> na obnovenie účtu, nie "
 "na typické prihlásenia."
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:44
+#: warehouse/templates/manage/account/recovery_codes-provision.html:45
 msgid ""
 "<strong>Keep these somewhere safe</strong>. If you lose your authentication "
 "application or security key(s) and do not have access to these recovery "
@@ -10540,51 +10540,51 @@ msgid "Logos"
 msgstr "Logá"
 
 #: warehouse/templates/search/results.html:18
-#: warehouse/templates/search/results.html:114
-#: warehouse/templates/search/results.html:211
+#: warehouse/templates/search/results.html:113
+#: warehouse/templates/search/results.html:210
 msgid "Search results"
 msgstr "Výsledky vyhľadávania"
 
-#: warehouse/templates/search/results.html:40
+#: warehouse/templates/search/results.html:39
 #, python-format
 msgid "Did you mean '<a class=\"link\" href=\"%(link)s\">%(text)s</a>'?"
 msgstr "Mali ste na mysli „<a class=\"link\" href=\"%(link)s\">%(text)s</a>“?"
 
-#: warehouse/templates/search/results.html:82
+#: warehouse/templates/search/results.html:81
 msgid "Close panel"
 msgstr "Zavrieť panel"
 
-#: warehouse/templates/search/results.html:86
+#: warehouse/templates/search/results.html:85
 #, python-format
 msgid "Filter by <a href=\"%(href)s\">classifier</a>"
 msgstr "Filtrovať podľa <a href=\"%(href)s\">klasifikátora</a>"
 
-#: warehouse/templates/search/results.html:117
+#: warehouse/templates/search/results.html:116
 msgid "Enter a search query, or select a filter from the list of classifiers."
 msgstr ""
 "Zadajte vyhľadávací dopyt alebo vyberte filter zo zoznamu klasifikátorov."
 
-#: warehouse/templates/search/results.html:118
+#: warehouse/templates/search/results.html:117
 msgid "Enter a search query, or add a filter by clicking on the button."
 msgstr "Zadajte vyhľadávací dopyt alebo pridajte filter kliknutím na tlačidlo."
 
-#: warehouse/templates/search/results.html:119
+#: warehouse/templates/search/results.html:118
 msgid "You can combine searches and classifier filters. Examples:"
 msgstr "Môžete kombinovať vyhľadávania a filtre klasifikátorov. Príklady:"
 
-#: warehouse/templates/search/results.html:123
+#: warehouse/templates/search/results.html:122
 msgid "Python 3 compatible projects"
 msgstr "Projekty kompatibilné s Python 3"
 
-#: warehouse/templates/search/results.html:128
+#: warehouse/templates/search/results.html:127
 msgid "Sphinx extensions that have a stable/production status"
 msgstr "Rozšírenia Sphinx, ktoré majú stabilný/produkčný stav"
 
-#: warehouse/templates/search/results.html:133
+#: warehouse/templates/search/results.html:132
 msgid "Projects related to \"graphics\" with OSI-approved licenses"
 msgstr "Projekty súvisiace s „grafikou“ s licenciami schválenými OSI"
 
-#: warehouse/templates/search/results.html:150
+#: warehouse/templates/search/results.html:149
 #, python-format
 msgid "<strong>%(count_display)s</strong> project"
 msgid_plural "<strong>%(count_display)s</strong> projects"
@@ -10592,44 +10592,44 @@ msgstr[0] "<strong>%(count_display)s</strong> projekt"
 msgstr[1] "<strong>%(count_display)s</strong> projekty"
 msgstr[2] "<strong>%(count_display)s</strong> projektov"
 
-#: warehouse/templates/search/results.html:157
+#: warehouse/templates/search/results.html:156
 #, python-format
 msgid "for \"%(term)s\""
 msgstr "pre \"%(term)s\""
 
-#: warehouse/templates/search/results.html:161
+#: warehouse/templates/search/results.html:160
 msgid "with the selected classifier"
 msgid_plural "with the selected classifiers"
 msgstr[0] "s vybraným klasifikátorom"
 msgstr[1] "s vybranými klasifikátormi"
 msgstr[2] "s vybranými klasifikátormi"
 
-#: warehouse/templates/search/results.html:177
+#: warehouse/templates/search/results.html:176
 msgid "Order by"
 msgstr "Zoradiť podľa"
 
-#: warehouse/templates/search/results.html:179
+#: warehouse/templates/search/results.html:178
 msgid "Relevance"
 msgstr "Relevantnosť"
 
-#: warehouse/templates/search/results.html:180
+#: warehouse/templates/search/results.html:179
 msgid "Date last updated"
 msgstr "Dátum poslednej aktualizácie"
 
-#: warehouse/templates/search/results.html:193
+#: warehouse/templates/search/results.html:192
 msgid "Filter"
 msgstr "Filter"
 
-#: warehouse/templates/search/results.html:204
+#: warehouse/templates/search/results.html:203
 msgid "Add filter"
 msgstr "Pridajte filter"
 
-#: warehouse/templates/search/results.html:220
+#: warehouse/templates/search/results.html:219
 #, python-format
 msgid "There were no results for '%(term)s'"
 msgstr "Nenašli sa žiadne výsledky pre „%(term)s“"
 
-#: warehouse/templates/search/results.html:222
+#: warehouse/templates/search/results.html:221
 #, python-format
 msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
