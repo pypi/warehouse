@@ -966,7 +966,7 @@ msgstr ""
 msgid "Provide an Inspector link to specific lines of code."
 msgstr ""
 
-#: warehouse/packaging/views.py:212
+#: warehouse/packaging/views.py:352
 msgid "Your report has been recorded. Thank you for your help."
 msgstr ""
 
@@ -3231,7 +3231,7 @@ msgstr "解除此通知"
 #: warehouse/templates/manage/unverified-account.html:172
 #: warehouse/templates/manage/unverified-account.html:174
 #: warehouse/templates/manage/unverified-account.html:184
-#: warehouse/templates/search/results.html:198
+#: warehouse/templates/search/results.html:197
 msgid "Close"
 msgstr "關閉"
 
@@ -4520,7 +4520,7 @@ msgstr "已產生%(generated_datetime)s"
 msgid "%(remaining)s unused"
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:49
+#: warehouse/templates/manage/account/recovery_codes-burn.html:50
 #: warehouse/templates/manage/manage_base.html:42
 msgid "Regenerate"
 msgstr "重新產生"
@@ -5631,19 +5631,19 @@ msgid ""
 "your account before adding a new publisher."
 msgstr "你的帳戶尚未啟用雙重認證。"
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:34
+#: warehouse/templates/manage/account/recovery_codes-burn.html:35
 msgid ""
 "In order to verify that you have safely stored your recovery codes for use "
 "in the event of a lost 2FA device, submit one of your recovery codes here."
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:39
+#: warehouse/templates/manage/account/recovery_codes-burn.html:40
 msgid ""
 "The recovery code you choose will be considered used and no longer be "
 "available to bypass 2FA."
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:44
+#: warehouse/templates/manage/account/recovery_codes-burn.html:45
 msgid ""
 "<strong>Forgot to safely store your recovery codes?</strong> You'll need to "
 "generate them again."
@@ -5657,7 +5657,7 @@ msgstr "帳戶重置碼"
 msgid "Regenerate recovery codes"
 msgstr "重新產生重設碼"
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:42
+#: warehouse/templates/manage/account/recovery_codes-provision.html:43
 msgid ""
 "If you lose access to your authentication application or security key(s), "
 "you’ll need to use one of these recovery codes to log into your PyPI "
@@ -5666,13 +5666,13 @@ msgstr ""
 "如果您無法訪問身份驗證應用程序或安全密鑰，則需要使用以下恢復代碼之一登錄您的"
 "PyPI帳戶。 每個代碼只能使用<strong>一次</strong>。"
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:43
+#: warehouse/templates/manage/account/recovery_codes-provision.html:44
 msgid ""
 "These codes should <strong>only</strong> be used for account recovery, not "
 "for typical logins."
 msgstr "這些代碼應<strong>僅</strong>用於帳戶恢復，而不用於典型的登錄。"
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:44
+#: warehouse/templates/manage/account/recovery_codes-provision.html:45
 msgid ""
 "<strong>Keep these somewhere safe</strong>. If you lose your authentication "
 "application or security key(s) and do not have access to these recovery "
@@ -11120,50 +11120,50 @@ msgid "Logos"
 msgstr ""
 
 #: warehouse/templates/search/results.html:18
-#: warehouse/templates/search/results.html:114
-#: warehouse/templates/search/results.html:211
+#: warehouse/templates/search/results.html:113
+#: warehouse/templates/search/results.html:210
 msgid "Search results"
 msgstr "搜尋結果"
 
-#: warehouse/templates/search/results.html:40
+#: warehouse/templates/search/results.html:39
 #, python-format
 msgid "Did you mean '<a class=\"link\" href=\"%(link)s\">%(text)s</a>'?"
 msgstr "你的意思是'<a class=\"link\" href=\"%(link)s\">2%(text)s3</a>'嗎？"
 
-#: warehouse/templates/search/results.html:82
+#: warehouse/templates/search/results.html:81
 msgid "Close panel"
 msgstr "關閉面板"
 
-#: warehouse/templates/search/results.html:86
+#: warehouse/templates/search/results.html:85
 #, python-format
 msgid "Filter by <a href=\"%(href)s\">classifier</a>"
 msgstr "通過<a href=\"%(href)s\">分類器</a>過濾"
 
-#: warehouse/templates/search/results.html:117
+#: warehouse/templates/search/results.html:116
 msgid "Enter a search query, or select a filter from the list of classifiers."
 msgstr "輸入搜尋查詢，或從分類器列表中選擇篩選器。"
 
-#: warehouse/templates/search/results.html:118
+#: warehouse/templates/search/results.html:117
 msgid "Enter a search query, or add a filter by clicking on the button."
 msgstr "輸入一個搜索查詢，或通過點擊按鈕添加一個過濾器。"
 
-#: warehouse/templates/search/results.html:119
+#: warehouse/templates/search/results.html:118
 msgid "You can combine searches and classifier filters. Examples:"
 msgstr "您可以將搜索和分類器篩選器結合起來。範例："
 
-#: warehouse/templates/search/results.html:123
+#: warehouse/templates/search/results.html:122
 msgid "Python 3 compatible projects"
 msgstr "與Python 3兼容的項目"
 
-#: warehouse/templates/search/results.html:128
+#: warehouse/templates/search/results.html:127
 msgid "Sphinx extensions that have a stable/production status"
 msgstr "具有穩定/製作狀態的 Sphinx 擴展"
 
-#: warehouse/templates/search/results.html:133
+#: warehouse/templates/search/results.html:132
 msgid "Projects related to \"graphics\" with OSI-approved licenses"
 msgstr "與具有 OSI 批准許可證的“圖形”相關的項目"
 
-#: warehouse/templates/search/results.html:150
+#: warehouse/templates/search/results.html:149
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -11180,12 +11180,12 @@ msgstr[0] ""
 "              <strong>%(count_display)s</strong> 專案\n"
 "              "
 
-#: warehouse/templates/search/results.html:157
+#: warehouse/templates/search/results.html:156
 #, python-format
 msgid "for \"%(term)s\""
 msgstr "對於“%(term)s”"
 
-#: warehouse/templates/search/results.html:161
+#: warehouse/templates/search/results.html:160
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -11202,32 +11202,32 @@ msgstr[0] ""
 "                  使用選定的分類器\n"
 "                "
 
-#: warehouse/templates/search/results.html:177
+#: warehouse/templates/search/results.html:176
 msgid "Order by"
 msgstr "按順序排列"
 
-#: warehouse/templates/search/results.html:179
+#: warehouse/templates/search/results.html:178
 msgid "Relevance"
 msgstr "相關性"
 
-#: warehouse/templates/search/results.html:180
+#: warehouse/templates/search/results.html:179
 msgid "Date last updated"
 msgstr "最後更新日期"
 
-#: warehouse/templates/search/results.html:193
+#: warehouse/templates/search/results.html:192
 msgid "Filter"
 msgstr "過濾器"
 
-#: warehouse/templates/search/results.html:204
+#: warehouse/templates/search/results.html:203
 msgid "Add filter"
 msgstr "添加過濾器"
 
-#: warehouse/templates/search/results.html:220
+#: warehouse/templates/search/results.html:219
 #, fuzzy, python-format
 msgid "There were no results for '%(term)s'"
 msgstr "There were no results for '%(filters)s' filter"
 
-#: warehouse/templates/search/results.html:222
+#: warehouse/templates/search/results.html:221
 #, fuzzy, python-format
 #| msgid "There were no results for '%(term)s'"
 msgid "There were no results for '%(filters)s' filter"

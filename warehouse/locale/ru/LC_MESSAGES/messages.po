@@ -971,7 +971,7 @@ msgstr ""
 msgid "Provide an Inspector link to specific lines of code."
 msgstr "Укажите ссылку на Inspector с конкретными строками кода."
 
-#: warehouse/packaging/views.py:212
+#: warehouse/packaging/views.py:352
 msgid "Your report has been recorded. Thank you for your help."
 msgstr "Ваша жалоба была зарегистрирована. Спасибо за помощь."
 
@@ -3139,7 +3139,7 @@ msgstr "Скрыть это уведомление"
 #: warehouse/templates/manage/unverified-account.html:172
 #: warehouse/templates/manage/unverified-account.html:174
 #: warehouse/templates/manage/unverified-account.html:184
-#: warehouse/templates/search/results.html:198
+#: warehouse/templates/search/results.html:197
 msgid "Close"
 msgstr "Закрыть"
 
@@ -4414,7 +4414,7 @@ msgstr "сгенерирован %(generated_datetime)s"
 msgid "%(remaining)s unused"
 msgstr "%(remaining)s неиспользованные"
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:49
+#: warehouse/templates/manage/account/recovery_codes-burn.html:50
 #: warehouse/templates/manage/manage_base.html:42
 msgid "Regenerate"
 msgstr "Сгенерировать повторно"
@@ -5435,7 +5435,7 @@ msgstr ""
 "Перед добавлением нового издателя необходимо включить <a "
 "href=\"%(href)s\">двухфакторную аутентификацию</a> в своей учетной записи."
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:34
+#: warehouse/templates/manage/account/recovery_codes-burn.html:35
 msgid ""
 "In order to verify that you have safely stored your recovery codes for use "
 "in the event of a lost 2FA device, submit one of your recovery codes here."
@@ -5444,7 +5444,7 @@ msgstr ""
 "использования в случае потерянного устройства 2FA, подайте один из ваших "
 "кодов восстановления здесь."
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:39
+#: warehouse/templates/manage/account/recovery_codes-burn.html:40
 msgid ""
 "The recovery code you choose will be considered used and no longer be "
 "available to bypass 2FA."
@@ -5452,7 +5452,7 @@ msgstr ""
 "Код восстановления, который вы выберете, будет считаться использованным и "
 "больше не будет доступен для обхода 2FA."
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:44
+#: warehouse/templates/manage/account/recovery_codes-burn.html:45
 msgid ""
 "<strong>Forgot to safely store your recovery codes?</strong> You'll need to "
 "generate them again."
@@ -5468,7 +5468,7 @@ msgstr "Коды восстановления учётной записи"
 msgid "Regenerate recovery codes"
 msgstr "Повторно сгенерировать коды восстановления"
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:42
+#: warehouse/templates/manage/account/recovery_codes-provision.html:43
 msgid ""
 "If you lose access to your authentication application or security key(s), "
 "you’ll need to use one of these recovery codes to log into your PyPI "
@@ -5479,7 +5479,7 @@ msgstr ""
 "кодов восстановления для входа в свою учётную запись PyPI. Каждый код может "
 "быть использован <strong>лишь один раз</strong>."
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:43
+#: warehouse/templates/manage/account/recovery_codes-provision.html:44
 msgid ""
 "These codes should <strong>only</strong> be used for account recovery, not "
 "for typical logins."
@@ -5487,7 +5487,7 @@ msgstr ""
 "Эти коды должны использоваться <strong>только</strong> для восстановления "
 "учётной записи, а не для повседневного в неё входа."
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:44
+#: warehouse/templates/manage/account/recovery_codes-provision.html:45
 msgid ""
 "<strong>Keep these somewhere safe</strong>. If you lose your authentication "
 "application or security key(s) and do not have access to these recovery "
@@ -10782,52 +10782,52 @@ msgid "Logos"
 msgstr "Логотип"
 
 #: warehouse/templates/search/results.html:18
-#: warehouse/templates/search/results.html:114
-#: warehouse/templates/search/results.html:211
+#: warehouse/templates/search/results.html:113
+#: warehouse/templates/search/results.html:210
 msgid "Search results"
 msgstr "Результаты поиска"
 
-#: warehouse/templates/search/results.html:40
+#: warehouse/templates/search/results.html:39
 #, python-format
 msgid "Did you mean '<a class=\"link\" href=\"%(link)s\">%(text)s</a>'?"
 msgstr "Вы имели в виду «<a class=\"link\" href=\"%(link)s\">%(text)s</a>»?"
 
-#: warehouse/templates/search/results.html:82
+#: warehouse/templates/search/results.html:81
 msgid "Close panel"
 msgstr "Закрыть панель"
 
-#: warehouse/templates/search/results.html:86
+#: warehouse/templates/search/results.html:85
 #, python-format
 msgid "Filter by <a href=\"%(href)s\">classifier</a>"
 msgstr "Фильтр по <a href=\"%(href)s\">классификатору</a>"
 
-#: warehouse/templates/search/results.html:117
+#: warehouse/templates/search/results.html:116
 msgid "Enter a search query, or select a filter from the list of classifiers."
 msgstr ""
 "Введите поисковый запрос или выберите фильтр из списка классификаторов."
 
-#: warehouse/templates/search/results.html:118
+#: warehouse/templates/search/results.html:117
 msgid "Enter a search query, or add a filter by clicking on the button."
 msgstr "Введите поисковый запрос или добавьте фильтр, нажав на кнопку."
 
-#: warehouse/templates/search/results.html:119
+#: warehouse/templates/search/results.html:118
 msgid "You can combine searches and classifier filters. Examples:"
 msgstr "Вы можете комбинировать поиск и фильтры по классификаторам. Примеры:"
 
-#: warehouse/templates/search/results.html:123
+#: warehouse/templates/search/results.html:122
 msgid "Python 3 compatible projects"
 msgstr "Проекты, совместимые с третьим Python’ом"
 
-#: warehouse/templates/search/results.html:128
+#: warehouse/templates/search/results.html:127
 msgid "Sphinx extensions that have a stable/production status"
 msgstr ""
 "Расширения Sphinx, имеющие стабильный статус/готовые к боевому применению"
 
-#: warehouse/templates/search/results.html:133
+#: warehouse/templates/search/results.html:132
 msgid "Projects related to \"graphics\" with OSI-approved licenses"
 msgstr "Проекты, связанные с «графикой» с лицензиями, одобренными OSI"
 
-#: warehouse/templates/search/results.html:150
+#: warehouse/templates/search/results.html:149
 #, python-format
 msgid "<strong>%(count_display)s</strong> project"
 msgid_plural "<strong>%(count_display)s</strong> projects"
@@ -10835,44 +10835,44 @@ msgstr[0] "<strong>%(count_display)s</strong> проект"
 msgstr[1] "<strong>%(count_display)s</strong> проекта"
 msgstr[2] "<strong>%(count_display)s</strong> проектов"
 
-#: warehouse/templates/search/results.html:157
+#: warehouse/templates/search/results.html:156
 #, python-format
 msgid "for \"%(term)s\""
 msgstr "по запросу «%(term)s»"
 
-#: warehouse/templates/search/results.html:161
+#: warehouse/templates/search/results.html:160
 msgid "with the selected classifier"
 msgid_plural "with the selected classifiers"
 msgstr[0] "с выбранным классификатором"
 msgstr[1] "с выбранными классификаторами"
 msgstr[2] "с выбранными классификаторами"
 
-#: warehouse/templates/search/results.html:177
+#: warehouse/templates/search/results.html:176
 msgid "Order by"
 msgstr "Сортировать по"
 
-#: warehouse/templates/search/results.html:179
+#: warehouse/templates/search/results.html:178
 msgid "Relevance"
 msgstr "Соответствию"
 
-#: warehouse/templates/search/results.html:180
+#: warehouse/templates/search/results.html:179
 msgid "Date last updated"
 msgstr "Дате последнего обновления"
 
-#: warehouse/templates/search/results.html:193
+#: warehouse/templates/search/results.html:192
 msgid "Filter"
 msgstr "Фильтр"
 
-#: warehouse/templates/search/results.html:204
+#: warehouse/templates/search/results.html:203
 msgid "Add filter"
 msgstr "Добавить фильтр"
 
-#: warehouse/templates/search/results.html:220
+#: warehouse/templates/search/results.html:219
 #, python-format
 msgid "There were no results for '%(term)s'"
 msgstr "По запросу «%(term)s» результатов не найдено"
 
-#: warehouse/templates/search/results.html:222
+#: warehouse/templates/search/results.html:221
 #, python-format
 msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
