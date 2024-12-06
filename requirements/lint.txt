@@ -505,9 +505,9 @@ toml==0.10.2 \
     --hash=sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b \
     --hash=sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f
     # via curlylint
-types-awscrt==0.23.1 \
-    --hash=sha256:0d362a5d62d68ca4216f458172f41c1123ec04791d68364de8ee8b61b528b262 \
-    --hash=sha256:a20b425dabb258bc3d07a5e7de503fd9558dd1542d72de796e74e402c6d493b2
+types-awscrt==0.23.3 \
+    --hash=sha256:043c0ae0fe5d272618294cbeaf1c349a654a9f7c00121be64d27486933ac4a26 \
+    --hash=sha256:cc0057885cb7ce1e66856123a4c2861b051e9f0716b1767ad72bfe4ca26bbcd4
     # via botocore-stubs
 types-babel==2.11.0.15 \
     --hash=sha256:282c184c8c9d81e8269212c1b8fa0d39ee88fb8bc43be47980412781c9c85f7e \
@@ -574,9 +574,9 @@ types-stripe==3.5.2.20240106 \
     --hash=sha256:63a36958f0dc4a71685b027f0b6d807ff197ee337135ac19a0f8b6132365ca52 \
     --hash=sha256:9ea7bc9b9889a3d8606114c52dcc70a8fc62d44a46da4bc5ee19f0d463674bb8
     # via -r requirements/lint.in
-types-webob==1.8.0.20240822 \
-    --hash=sha256:a15c30ee333fd57cc8074ef16a6ef58fab99e564a6a5628b4f54e05803f3208a \
-    --hash=sha256:e1038bcaec6916c24644425511931b5689046877e5d3a20c645d9a346b2c1ef8
+types-webob==1.8.0.20241205 \
+    --hash=sha256:c6b5c593a348707281880ba05f50c8b3e3fec04c2fd9852659a59d9b2f2dac7c \
+    --hash=sha256:e33089ae98a73a5b4bdd4f3e1ef8acad653fd1e5d89ad87e9845a1922896c1a7
     # via -r requirements/lint.in
 types-wtforms==3.2.1.20241025 \
     --hash=sha256:0f525db273c0b667dada7fe509b444cfe0b87a5bfe87111424766f62b8cb838d \
