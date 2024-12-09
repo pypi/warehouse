@@ -129,13 +129,7 @@ services:
         condition: service_started
 
   tests:
-    build:
-      context: .
-      args:
-        DEVEL: "yes"
-        IPYTHON: "no"
-        TESTS: "yes"
-    image: warehouse:docker-compose-tests
+    image: warehouse:docker-compose
     pull_policy: never
     environment:
       ENCODING: "C"

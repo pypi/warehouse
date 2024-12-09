@@ -35,7 +35,6 @@ jobs:
           build-args: |
             DEVEL=yes
             CI=yes
-            TESTS=yes
           tags: pypi/warehouse:ci-${{ github.run_id }}
   test:
     # Time out if our test suite has gotten hung
