@@ -12,7 +12,7 @@
 
 import pretend
 
-from warehouse.integrations.github import tasks, utils
+from warehouse.integrations.secrets import tasks, utils
 
 
 def test_analyze_disclosure_task(monkeypatch):

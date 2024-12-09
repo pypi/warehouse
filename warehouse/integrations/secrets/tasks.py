@@ -12,7 +12,7 @@
 
 
 from warehouse import tasks
-from warehouse.integrations.github import utils
+from warehouse.integrations.secrets import utils
 
 
 @tasks.task(ignore_result=True, acks_late=True)
