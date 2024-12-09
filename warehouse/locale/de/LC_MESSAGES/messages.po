@@ -7908,14 +7908,14 @@ msgid ""
 "%(release_version)s release of this project."
 msgstr ""
 "Ich verstehe, dass ich dauerhaft alle Dateien für die %(release_version)s-"
-"Version dieses Projekts löschen."
+"Version dieses Projekts lösche."
 
 #: warehouse/templates/manage/project/release.html:197
 msgid ""
 "I understand that my users will no longer be able to install this release of "
 "this project."
 msgstr ""
-"Ich verstehe, dass meine Benutzer nicht mehr in der Lage sein werdeb, diese "
+"Ich verstehe, dass meine Benutzer nicht mehr in der Lage sein werden, diese "
 "Veröffentlichung dieses Projekts zu installieren."
 
 #: warehouse/templates/manage/project/release.html:198
@@ -7927,7 +7927,7 @@ msgid ""
 msgstr ""
 "Ich verstehe, dass ich <a href=\"%(href)s\" target=\"_blank\" "
 "rel=\"noopener\">nicht in der Lage sein werde, irgendeine gelöschte Dateien "
-"mit den gleichen Dateinamen</a> erneut hochzuladen."
+"mit dem gleichen Dateinamen</a> erneut hochzuladen."
 
 #: warehouse/templates/manage/project/releases.html:20
 #, python-format
