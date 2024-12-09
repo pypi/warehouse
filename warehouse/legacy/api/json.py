@@ -91,6 +91,21 @@ def _json_data(request, project, release, *, all_releases):
         if file_ is not None:
             files.append(file_)
 
+    # Map our filenames into a dictionary that maps each filename to a list of
+    # its events, with a single query
+    all_file_ids = [file_.id for _, file_ in release_files if file_]
+    all_file_events = (
+        request.db.query(File.Event)
+        .filter(File.Event.source_id.in_(all_file_ids))
+        .all()
+    )
+    events_by_filename = {}
+    for event in all_file_events:
+        for _, file_ in release_files:
+            if file_ and event.source_id == file_.id:
+                events = events_by_filename.setdefault(file_.filename, [])
+                events.append(event)
+
     # Serialize our database objects to match the way that PyPI legacy
     # presented this data.
     releases = {
@@ -134,7 +149,7 @@ def _json_data(request, project, release, *, all_releases):
                             }
                         },
                     }
-                    for e in f.events
+                    for e in events_by_filename.get(f.filename, [])
                 ],
             }
             for f in fs
