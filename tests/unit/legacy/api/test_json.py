@@ -291,6 +291,7 @@ class TestJSONProject:
                         "requires_python": None,
                         "yanked": False,
                         "yanked_reason": None,
+                        "events": [],
                     }
                 ],
                 "2.0": [
@@ -316,6 +317,7 @@ class TestJSONProject:
                         "requires_python": None,
                         "yanked": False,
                         "yanked_reason": None,
+                        "events": [],
                     }
                 ],
                 "3.0": [
@@ -341,6 +343,7 @@ class TestJSONProject:
                         "requires_python": None,
                         "yanked": False,
                         "yanked_reason": None,
+                        "events": [],
                     }
                 ],
             },
@@ -365,6 +368,7 @@ class TestJSONProject:
                     "requires_python": None,
                     "yanked": False,
                     "yanked_reason": None,
+                    "events": [],
                 }
             ],
             "last_serial": je.id,
@@ -613,6 +617,7 @@ class TestJSONRelease:
                     "requires_python": None,
                     "yanked": False,
                     "yanked_reason": None,
+                    "events": [],
                 }
             ],
             "last_serial": je.id,
@@ -707,6 +712,7 @@ class TestJSONRelease:
                     "requires_python": None,
                     "yanked": False,
                     "yanked_reason": None,
+                    "events": [],
                 }
             ],
             "last_serial": je.id,
