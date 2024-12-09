@@ -15,6 +15,7 @@ import pytest
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 
+from warehouse.events.tags import EventTag
 from warehouse.legacy.api import json
 from warehouse.packaging.models import LifecycleStatus, ReleaseURL
 
@@ -210,7 +211,19 @@ class TestJSONProject:
             )
             for r in releases[1:]
         ]
+
         user = UserFactory.create()
+
+        for file_ in files:
+            file_.record_event(
+                tag=EventTag.File.FileAdd,
+                request=db_request,
+                additional={
+                    "submitted_by": user.username,
+                    "uploaded_via_trusted_publisher": False,
+                },
+            )
+
         JournalEntryFactory.reset_sequence()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
@@ -291,7 +304,14 @@ class TestJSONProject:
                         "requires_python": None,
                         "yanked": False,
                         "yanked_reason": None,
-                        "events": [],
+                        "events": [
+                            {
+                                "submitted_by": user.username,
+                                "tag": "file:add",
+                                "time": files[0].events[0].time,
+                                "uploaded_via_trusted_publisher": False,
+                            }
+                        ],
                     }
                 ],
                 "2.0": [
@@ -317,7 +337,14 @@ class TestJSONProject:
                         "requires_python": None,
                         "yanked": False,
                         "yanked_reason": None,
-                        "events": [],
+                        "events": [
+                            {
+                                "submitted_by": user.username,
+                                "tag": "file:add",
+                                "time": files[1].events[0].time,
+                                "uploaded_via_trusted_publisher": False,
+                            }
+                        ],
                     }
                 ],
                 "3.0": [
@@ -343,7 +370,14 @@ class TestJSONProject:
                         "requires_python": None,
                         "yanked": False,
                         "yanked_reason": None,
-                        "events": [],
+                        "events": [
+                            {
+                                "submitted_by": user.username,
+                                "tag": "file:add",
+                                "time": files[2].events[0].time,
+                                "uploaded_via_trusted_publisher": False,
+                            }
+                        ],
                     }
                 ],
             },
@@ -368,7 +402,14 @@ class TestJSONProject:
                     "requires_python": None,
                     "yanked": False,
                     "yanked_reason": None,
-                    "events": [],
+                    "events": [
+                        {
+                            "submitted_by": user.username,
+                            "tag": "file:add",
+                            "time": files[2].events[0].time,
+                            "uploaded_via_trusted_publisher": False,
+                        }
+                    ],
                 }
             ],
             "last_serial": je.id,
@@ -539,7 +580,19 @@ class TestJSONRelease:
             )
             for r in releases[1:]
         ]
+
         user = UserFactory.create()
+
+        for file_ in files:
+            file_.record_event(
+                tag=EventTag.File.FileAdd,
+                request=db_request,
+                additional={
+                    "submitted_by": user.username,
+                    "uploaded_via_trusted_publisher": False,
+                },
+            )
+
         JournalEntryFactory.reset_sequence()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
@@ -617,7 +670,14 @@ class TestJSONRelease:
                     "requires_python": None,
                     "yanked": False,
                     "yanked_reason": None,
-                    "events": [],
+                    "events": [
+                        {
+                            "submitted_by": user.username,
+                            "tag": "file:add",
+                            "time": files[-1].events[0].time,
+                            "uploaded_via_trusted_publisher": False,
+                        }
+                    ],
                 }
             ],
             "last_serial": je.id,
@@ -627,7 +687,7 @@ class TestJSONRelease:
     def test_minimal_renders(self, pyramid_config, db_request):
         project = ProjectFactory.create(has_docs=False)
         release = ReleaseFactory.create(project=project, version="0.1")
-        file = FileFactory.create(
+        file_ = FileFactory.create(
             release=release,
             filename=f"{project.name}-{release.version}.tar.gz",
             python_version="source",
@@ -635,6 +695,16 @@ class TestJSONRelease:
         )
 
         user = UserFactory.create()
+
+        file_.record_event(
+            tag=EventTag.File.FileAdd,
+            request=db_request,
+            additional={
+                "submitted_by": user.username,
+                "uploaded_via_trusted_publisher": False,
+            },
+        )
+
         JournalEntryFactory.reset_sequence()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
@@ -648,7 +718,7 @@ class TestJSONRelease:
         result = json.json_release(release, db_request)
 
         assert set(db_request.route_url.calls) == {
-            pretend.call("packaging.file", path=file.path),
+            pretend.call("packaging.file", path=file_.path),
             pretend.call("packaging.project", name=project.name),
             pretend.call(
                 "packaging.release", name=project.name, version=release.version
@@ -695,24 +765,31 @@ class TestJSONRelease:
                 {
                     "comment_text": None,
                     "downloads": -1,
-                    "filename": file.filename,
+                    "filename": file_.filename,
                     "has_sig": False,
-                    "md5_digest": file.md5_digest,
+                    "md5_digest": file_.md5_digest,
                     "digests": {
-                        "md5": file.md5_digest,
-                        "sha256": file.sha256_digest,
-                        "blake2b_256": file.blake2_256_digest,
+                        "md5": file_.md5_digest,
+                        "sha256": file_.sha256_digest,
+                        "blake2b_256": file_.blake2_256_digest,
                     },
-                    "packagetype": file.packagetype,
+                    "packagetype": file_.packagetype,
                     "python_version": "source",
                     "size": 200,
-                    "upload_time": file.upload_time.strftime("%Y-%m-%dT%H:%M:%S"),
-                    "upload_time_iso_8601": file.upload_time.isoformat() + "Z",
+                    "upload_time": file_.upload_time.strftime("%Y-%m-%dT%H:%M:%S"),
+                    "upload_time_iso_8601": file_.upload_time.isoformat() + "Z",
                     "url": "/the/fake/url/",
                     "requires_python": None,
                     "yanked": False,
                     "yanked_reason": None,
-                    "events": [],
+                    "events": [
+                        {
+                            "submitted_by": user.username,
+                            "tag": "file:add",
+                            "time": file_.events[0].time,
+                            "uploaded_via_trusted_publisher": False,
+                        }
+                    ],
                 }
             ],
             "last_serial": je.id,
