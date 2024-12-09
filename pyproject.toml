@@ -85,6 +85,10 @@ addopts = [
   "--allow-hosts=localhost,::1,stripe",
   "--durations=20",
   "--numprocesses=auto",
+  # Disable ddtrace for tests
+  "-p no:ddtrace",
+  "-p no:ddtrace.pytest_bdd",
+  "-p no:ddtrace.pytest_benchmark",
 ]
 cache_dir = "dev/.pytest_cache"
 testpaths = ["tests/"]
