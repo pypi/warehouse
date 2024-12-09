@@ -28,9 +28,7 @@ down_revision = "f7720656a33c"
 def upgrade():
     op.add_column(
         "releases",
-        sa.Column(
-            "published", sa.DateTime(), server_default=sa.text("now()"), nullable=True
-        ),
+        sa.Column("published", sa.DateTime(), nullable=True),
     )
 
     op.execute(
