@@ -119,6 +119,23 @@ def _json_data(request, project, release, *, all_releases):
                 "requires_python": r.requires_python if r.requires_python else None,
                 "yanked": r.yanked,
                 "yanked_reason": r.yanked_reason or None,
+                "events": [
+                    {
+                        "tag": e.tag,
+                        "time": e.time,
+                        **{
+                            k: v
+                            for k, v in e.additional.items()
+                            if k
+                            in {
+                                "submitted_by",
+                                "publisher_url",
+                                "uploaded_via_trusted_publisher",
+                            }
+                        },
+                    }
+                    for e in f.events
+                ],
             }
             for f in fs
         ]
