@@ -42,7 +42,7 @@ from warehouse.utils.db import windowed_query
 def _project_docs(db, project_name=None):
     releases_list = (
         select(Release.id)
-        .filter(Release.yanked.is_(False), Release.files)
+        .filter(Release.yanked.is_(False), Release.published.is_(True), Release.files)
         .order_by(
             Release.project_id,
             Release.is_prerelease.nullslast(),

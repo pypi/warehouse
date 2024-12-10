@@ -454,7 +454,11 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
         return (
             orm.object_session(self)
             .query(Release.version, Release.created, Release.is_prerelease)
-            .filter(Release.project == self, Release.yanked.is_(False))
+            .filter(
+                Release.project == self,
+                Release.yanked.is_(False),
+                Release.published.is_(True),
+            )
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .first()
         )
