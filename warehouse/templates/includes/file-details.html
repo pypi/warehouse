@@ -118,23 +118,48 @@
         </div>
 
         <div class="card file__card">
-          {{ publisher(bundle.publisher )}}
+          {{ publisher(bundle.publisher) }}
           Attestations:
+          <small>
+            <i>Values shown here reflect the state when the release was signed and may no longer be current.</i>
+          </small>
           <ul>
-            {% for attestation in bundle.attestations %}
-            <li>
-              {% set statement = attestation.statement %}
-              Statement type: <a href="{{ statement._type }}"><code>{{ statement._type }}</code></a>
+          {% for attestation in bundle.attestations %}
+          {% set viewer = PEP740AttestationViewer(bundle.publisher, attestation) %}
+          <li>
+              Statement:
               <ul>
-                <li>Predicate type: <a href="{{ statement.predicateType }}"><code>{{ statement.predicateType }}</code></a></li>
-                <li>Subject name: <code>{{ statement.subject[0].name }}</code></li>
-                <li>Subject digest: <code>{{ statement.subject[0].digest.sha256 }}</code></li>
-                {% set tlog_entry = attestation.verification_material.transparency_entries[0] %}
-                <li>Sigstore transparency entry: <a href="https://search.sigstore.dev/?logIndex={{ tlog_entry.logIndex }}">{{ tlog_entry.logIndex }}</a> </li>
-                <li>Sigstore integration time: {{ humanize(tlog_entry.integratedTime | int | ctime, time="true") }} </li>
+                <li>Statement type: <a href="{{ viewer.statement_type }}"><code>{{ viewer.statement_type }}</code></a></li>
+                <li>Predicate type: <a href="{{ viewer.predicate_type }}"><code>{{ viewer.predicate_type }}</code></a></li>
+                <li>Subject name: <code>{{ viewer.subject_name }}</code></li>
+                <li>Subject digest: <code>{{ viewer.subject_digest }}</code></li>
+                <li>Sigstore transparency entry: <a href="https://search.sigstore.dev/?logIndex={{ viewer.transparency_entry.logIndex }}">{{ viewer.transparency_entry.logIndex }}</a> </li>
+                <li>Sigstore integration time: {{ humanize(viewer.transparency_entry.integratedTime | int | ctime, time="true") }} </li>
               </ul>
-            </li>
-            {% endfor %}
+              Source repository:
+              <ul>
+                <li>Permalink: <a href="{{ viewer.permalink_with_digest }}">
+                    <code>{{ bundle.publisher.repository }}@{{ viewer.source_digest }}</code>
+                </a></li>
+                <li>Branch / Tag: <a href="{{ viewer.permalink_with_reference }}">
+                    <code>{{ viewer.source_reference }}</code>
+                </a></li>
+                <li>Owner: <a href="{{ viewer.owner }}">{{ viewer.owner }}</a></li>
+                <li>Access: <code>{{ viewer.access }}</code></li>
+              </ul>
+              Publication detail:
+              <ul>
+                <li>Token Issuer: <code>{{ viewer.issuer }}</code></li>
+                <li>Runner Environment: <code>{{ viewer.environment }}</code></li>
+                <li>Publication workflow:
+                  <a href="{{ viewer.workflow_url }}">
+                    <code>{{ viewer.workflow_filename }}@{{ viewer.build_digest }}</code>
+                  </a>
+                </li>
+                <li>Trigger Event: <code>{{ viewer.trigger }}</code></li>
+              </ul>
+          </li>
+          {% endfor %}
           </ul>
         </div>
       </div>

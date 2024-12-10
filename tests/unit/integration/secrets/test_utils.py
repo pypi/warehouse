@@ -20,7 +20,17 @@ import requests
 
 from warehouse import integrations
 from warehouse.events.tags import EventTag
-from warehouse.integrations.github import tasks, utils
+from warehouse.integrations.secrets import tasks, utils
+
+
+@pytest.fixture
+def someorigin():
+    return utils.DisclosureOrigin(
+        name="SomeOrigin",
+        key_id_header="SOME_KEY_ID_HEADER",
+        signature_header="SOME_SIGNATURE_HEADER",
+        verification_url="https://some.verification.url",
+    )
 
 
 def test_token_leak_matcher_extract():
@@ -90,14 +100,16 @@ def test_token_leak_disclosure_request_from_api_record(source):
     assert request.source == source
 
 
-class TestGitHubTokenScanningPayloadVerifier:
-    def test_init(self, metrics):
+class TestGenericTokenScanningPayloadVerifier:
+
+    def test_init(self, metrics, someorigin):
         session = pretend.stub()
         token = "api_token"
         url = "http://foo"
         cache = integrations.PublicKeysCache(cache_time=12)
 
-        github_verifier = utils.GitHubTokenScanningPayloadVerifier(
+        generic_verifier = utils.GenericTokenScanningPayloadVerifier(
+            origin=someorigin,
             api_url="http://foo",
             session=session,
             metrics=metrics,
@@ -105,13 +117,13 @@ class TestGitHubTokenScanningPayloadVerifier:
             public_keys_cache=cache,
         )
 
-        assert github_verifier._session is session
-        assert github_verifier._metrics is metrics
-        assert github_verifier._api_token == token
-        assert github_verifier._api_url == url
-        assert github_verifier._public_keys_cache is cache
+        assert generic_verifier._session is session
+        assert generic_verifier._metrics is metrics
+        assert generic_verifier._api_token == token
+        assert generic_verifier._api_url == url
+        assert generic_verifier._public_keys_cache is cache
 
-    def test_verify_cache_miss(self, metrics):
+    def test_verify_cache_miss(self, metrics, someorigin):
         # Example taken from
         # https://gist.github.com/ewjoachim/7dde11c31d9686ed6b4431c3ca166da2
         meta_payload = {
@@ -132,7 +144,8 @@ class TestGitHubTokenScanningPayloadVerifier:
         )
         session = pretend.stub(get=lambda *a, **k: response)
         cache = integrations.PublicKeysCache(cache_time=12)
-        github_verifier = utils.GitHubTokenScanningPayloadVerifier(
+        generic_verifier = utils.GenericTokenScanningPayloadVerifier(
+            origin=someorigin,
             api_url="http://foo",
             session=session,
             metrics=metrics,
@@ -144,23 +157,23 @@ class TestGitHubTokenScanningPayloadVerifier:
             "MEQCIAfgjgz6Ou/3DXMYZBervz1TKCHFsvwMcbuJhNZse622AiAG86/"
             "cku2XdcmFWNHl2WSJi2fkE8t+auvB24eURaOd2A=="
         )
-
         payload = (
             b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
             b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
             b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]'
         )
+
         assert (
-            github_verifier.verify(payload=payload, key_id=key_id, signature=signature)
+            generic_verifier.verify(payload=payload, key_id=key_id, signature=signature)
             is True
         )
 
         assert metrics.increment.calls == [
-            pretend.call("warehouse.token_leak.github.auth.cache.miss"),
-            pretend.call("warehouse.token_leak.github.auth.success"),
+            pretend.call("warehouse.token_leak.someorigin.auth.cache.miss"),
+            pretend.call("warehouse.token_leak.someorigin.auth.success"),
         ]
 
-    def test_verify_cache_hit(self, metrics):
+    def test_verify_cache_hit(self, metrics, someorigin):
         session = pretend.stub()
         cache = integrations.PublicKeysCache(cache_time=12)
         cache.cached_at = time.time()
@@ -174,7 +187,8 @@ class TestGitHubTokenScanningPayloadVerifier:
                 "-----END PUBLIC KEY-----",
             }
         ]
-        github_verifier = utils.GitHubTokenScanningPayloadVerifier(
+        generic_verifier = utils.GenericTokenScanningPayloadVerifier(
+            origin=someorigin,
             api_url="http://foo",
             session=session,
             metrics=metrics,
@@ -187,44 +201,46 @@ class TestGitHubTokenScanningPayloadVerifier:
             "MEQCIAfgjgz6Ou/3DXMYZBervz1TKCHFsvwMcbuJhNZse622AiAG86/"
             "cku2XdcmFWNHl2WSJi2fkE8t+auvB24eURaOd2A=="
         )
-
         payload = (
             b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
             b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
             b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]'
         )
+
         assert (
-            github_verifier.verify(payload=payload, key_id=key_id, signature=signature)
+            generic_verifier.verify(payload=payload, key_id=key_id, signature=signature)
             is True
         )
 
         assert metrics.increment.calls == [
-            pretend.call("warehouse.token_leak.github.auth.cache.hit"),
-            pretend.call("warehouse.token_leak.github.auth.success"),
+            pretend.call("warehouse.token_leak.someorigin.auth.cache.hit"),
+            pretend.call("warehouse.token_leak.someorigin.auth.success"),
         ]
 
-    def test_verify_error(self, metrics):
+    def test_verify_error(self, metrics, someorigin):
         cache = integrations.PublicKeysCache(cache_time=12)
-        github_verifier = utils.GitHubTokenScanningPayloadVerifier(
+        generic_verifier = utils.GenericTokenScanningPayloadVerifier(
+            origin=someorigin,
             api_url="http://foo",
             session=pretend.stub(),
             metrics=metrics,
             api_token="api-token",
             public_keys_cache=cache,
         )
-        github_verifier.retrieve_public_key_payload = pretend.raiser(
+        generic_verifier.retrieve_public_key_payload = pretend.raiser(
             integrations.InvalidPayloadSignatureError("Bla", "bla")
         )
 
-        assert github_verifier.verify(payload={}, key_id="a", signature="a") is False
+        assert generic_verifier.verify(payload={}, key_id="a", signature="a") is False
 
         assert metrics.increment.calls == [
-            pretend.call("warehouse.token_leak.github.auth.cache.miss"),
-            pretend.call("warehouse.token_leak.github.auth.error.bla"),
+            pretend.call("warehouse.token_leak.someorigin.auth.cache.miss"),
+            pretend.call("warehouse.token_leak.someorigin.auth.error.bla"),
         ]
 
-    def test_headers_auth_no_token(self):
-        headers = utils.GitHubTokenScanningPayloadVerifier(
+    def test_headers_auth_no_token(self, someorigin):
+        headers = utils.GenericTokenScanningPayloadVerifier(
+            origin=someorigin,
             api_url="http://foo",
             session=pretend.stub(),
             metrics=pretend.stub(),
@@ -233,8 +249,9 @@ class TestGitHubTokenScanningPayloadVerifier:
         )._headers_auth()
         assert headers == {}
 
-    def test_headers_auth_token(self):
-        headers = utils.GitHubTokenScanningPayloadVerifier(
+    def test_headers_auth_token(self, someorigin):
+        headers = utils.GenericTokenScanningPayloadVerifier(
+            origin=someorigin,
             api_url="http://foo",
             session=pretend.stub(),
             metrics=pretend.stub(),
@@ -243,7 +260,7 @@ class TestGitHubTokenScanningPayloadVerifier:
         )._headers_auth()
         assert headers == {"Authorization": "token api-token"}
 
-    def test_retrieve_public_key_payload(self, metrics):
+    def test_retrieve_public_key_payload(self, metrics, someorigin):
         meta_payload = {
             "public_keys": [
                 {
@@ -262,14 +279,15 @@ class TestGitHubTokenScanningPayloadVerifier:
         )
         session = pretend.stub(get=pretend.call_recorder(lambda *a, **k: response))
 
-        github_verifier = utils.GitHubTokenScanningPayloadVerifier(
+        generic_verifier = utils.GenericTokenScanningPayloadVerifier(
+            origin=someorigin,
             api_url="http://foo",
             session=session,
             metrics=metrics,
             api_token="api-token",
             public_keys_cache=pretend.stub(),
         )
-        assert github_verifier.retrieve_public_key_payload() == meta_payload
+        assert generic_verifier.retrieve_public_key_payload() == meta_payload
         assert session.get.calls == [
             pretend.call(
                 "http://foo",
@@ -277,26 +295,28 @@ class TestGitHubTokenScanningPayloadVerifier:
             )
         ]
 
-    def test_get_cached_public_key_cache_hit(self):
+    def test_get_cached_public_key_cache_hit(self, someorigin):
         session = pretend.stub()
         cache = integrations.PublicKeysCache(cache_time=12)
         cache_value = pretend.stub()
         cache.set(now=time.time(), value=cache_value)
 
-        github_verifier = utils.GitHubTokenScanningPayloadVerifier(
+        generic_verifier = utils.GenericTokenScanningPayloadVerifier(
+            origin=someorigin,
             api_url="http://foo",
             session=session,
             metrics=pretend.stub(),
             public_keys_cache=cache,
         )
 
-        assert github_verifier._get_cached_public_keys() is cache_value
+        assert generic_verifier._get_cached_public_keys() is cache_value
 
-    def test_get_cached_public_key_cache_miss_no_cache(self):
+    def test_get_cached_public_key_cache_miss_no_cache(self, someorigin):
         session = pretend.stub()
         cache = integrations.PublicKeysCache(cache_time=12)
 
-        github_verifier = utils.GitHubTokenScanningPayloadVerifier(
+        generic_verifier = utils.GenericTokenScanningPayloadVerifier(
+            origin=someorigin,
             api_url="http://foo",
             session=session,
             metrics=pretend.stub(),
@@ -304,9 +324,9 @@ class TestGitHubTokenScanningPayloadVerifier:
         )
 
         with pytest.raises(integrations.CacheMissError):
-            github_verifier._get_cached_public_keys()
+            generic_verifier._get_cached_public_keys()
 
-    def test_retrieve_public_key_payload_http_error(self):
+    def test_retrieve_public_key_payload_http_error(self, someorigin):
         response = pretend.stub(
             status_code=418,
             text="I'm a teapot",
@@ -315,54 +335,57 @@ class TestGitHubTokenScanningPayloadVerifier:
         session = pretend.stub(
             get=lambda *a, **k: response,
         )
-        github_verifier = utils.GitHubTokenScanningPayloadVerifier(
+        generic_verifier = utils.GenericTokenScanningPayloadVerifier(
+            origin=someorigin,
             api_url="http://foo",
             session=session,
             metrics=pretend.stub(),
             public_keys_cache=pretend.stub(),
         )
-        with pytest.raises(utils.GitHubPublicKeyMetaAPIError) as exc:
-            github_verifier.retrieve_public_key_payload()
+        with pytest.raises(utils.GenericPublicKeyMetaAPIError) as exc:
+            generic_verifier.retrieve_public_key_payload()
 
         assert str(exc.value) == "Invalid response code 418: I'm a teapot"
         assert exc.value.reason == "public_key_api.status.418"
 
-    def test_retrieve_public_key_payload_json_error(self):
+    def test_retrieve_public_key_payload_json_error(self, someorigin):
         response = pretend.stub(
             text="Still a non-json teapot",
             json=pretend.raiser(json.JSONDecodeError("", "", 3)),
             raise_for_status=lambda: None,
         )
         session = pretend.stub(get=lambda *a, **k: response)
-        github_verifier = utils.GitHubTokenScanningPayloadVerifier(
+        generic_verifier = utils.GenericTokenScanningPayloadVerifier(
+            origin=someorigin,
             api_url="http://foo",
             session=session,
             metrics=pretend.stub(),
             public_keys_cache=pretend.stub(),
         )
-        with pytest.raises(utils.GitHubPublicKeyMetaAPIError) as exc:
-            github_verifier.retrieve_public_key_payload()
+        with pytest.raises(utils.GenericPublicKeyMetaAPIError) as exc:
+            generic_verifier.retrieve_public_key_payload()
 
         assert str(exc.value) == "Non-JSON response received: Still a non-json teapot"
         assert exc.value.reason == "public_key_api.invalid_json"
 
-    def test_retrieve_public_key_payload_connection_error(self):
+    def test_retrieve_public_key_payload_connection_error(self, someorigin):
         session = pretend.stub(get=pretend.raiser(requests.ConnectionError))
 
-        github_verifier = utils.GitHubTokenScanningPayloadVerifier(
+        generic_verifier = utils.GenericTokenScanningPayloadVerifier(
+            origin=someorigin,
             api_url="http://foo",
             session=session,
             metrics=pretend.stub(),
             public_keys_cache=pretend.stub(),
         )
 
-        with pytest.raises(utils.GitHubPublicKeyMetaAPIError) as exc:
-            github_verifier.retrieve_public_key_payload()
+        with pytest.raises(utils.GenericPublicKeyMetaAPIError) as exc:
+            generic_verifier.retrieve_public_key_payload()
 
-        assert str(exc.value) == "Could not connect to GitHub"
+        assert str(exc.value) == "Could not connect to SomeOrigin"
         assert exc.value.reason == "public_key_api.network_error"
 
-    def test_extract_public_keys(self):
+    def test_extract_public_keys(self, someorigin):
         meta_payload = {
             "public_keys": [
                 {
@@ -377,14 +400,15 @@ class TestGitHubTokenScanningPayloadVerifier:
             ]
         }
         cache = integrations.PublicKeysCache(cache_time=12)
-        github_verifier = utils.GitHubTokenScanningPayloadVerifier(
+        generic_verifier = utils.GenericTokenScanningPayloadVerifier(
+            origin=someorigin,
             api_url="http://foo",
             session=pretend.stub(),
             metrics=pretend.stub(),
             public_keys_cache=cache,
         )
 
-        keys = github_verifier.extract_public_keys(pubkey_api_data=meta_payload)
+        keys = generic_verifier.extract_public_keys(pubkey_api_data=meta_payload)
 
         assert keys == [
             {
@@ -418,24 +442,26 @@ class TestGitHubTokenScanningPayloadVerifier:
             ),
         ],
     )
-    def test_extract_public_keys_error(self, payload, expected):
+    def test_extract_public_keys_error(self, payload, expected, someorigin):
         cache = integrations.PublicKeysCache(cache_time=12)
-        github_verifier = utils.GitHubTokenScanningPayloadVerifier(
+        generic_verifier = utils.GenericTokenScanningPayloadVerifier(
+            origin=someorigin,
             api_url="http://foo",
             session=pretend.stub(),
             metrics=pretend.stub(),
             public_keys_cache=cache,
         )
 
-        with pytest.raises(utils.GitHubPublicKeyMetaAPIError) as exc:
-            list(github_verifier.extract_public_keys(pubkey_api_data=payload))
+        with pytest.raises(utils.GenericPublicKeyMetaAPIError) as exc:
+            list(generic_verifier.extract_public_keys(pubkey_api_data=payload))
 
         assert exc.value.reason == "public_key_api.format_error"
         assert str(exc.value) == expected
         assert cache.cache is None
 
-    def test_check_public_key(self):
-        github_verifier = utils.GitHubTokenScanningPayloadVerifier(
+    def test_check_public_key(self, someorigin):
+        generic_verifier = utils.GenericTokenScanningPayloadVerifier(
+            origin=someorigin,
             api_url="http://foo",
             session=pretend.stub(),
             metrics=pretend.stub(),
@@ -446,10 +472,11 @@ class TestGitHubTokenScanningPayloadVerifier:
             {"key_id": "a", "key": "b"},
             {"key_id": "c", "key": "d"},
         ]
-        assert github_verifier._check_public_key(public_keys=keys, key_id="c") == "d"
+        assert generic_verifier._check_public_key(public_keys=keys, key_id="c") == "d"
 
-    def test_check_public_key_error(self):
-        github_verifier = utils.GitHubTokenScanningPayloadVerifier(
+    def test_check_public_key_error(self, someorigin):
+        generic_verifier = utils.GenericTokenScanningPayloadVerifier(
+            origin=someorigin,
             api_url="http://foo",
             session=pretend.stub(),
             metrics=pretend.stub(),
@@ -457,13 +484,25 @@ class TestGitHubTokenScanningPayloadVerifier:
         )
 
         with pytest.raises(integrations.InvalidPayloadSignatureError) as exc:
-            github_verifier._check_public_key(public_keys=[], key_id="c")
+            generic_verifier._check_public_key(public_keys=[], key_id="c")
 
         assert str(exc.value) == "Key c not found in public keys"
         assert exc.value.reason == "wrong_key_id"
 
-    def test_check_signature(self):
-        github_verifier = utils.GitHubTokenScanningPayloadVerifier(
+    @pytest.mark.parametrize(
+        ("origin", "payload"),
+        [
+            (
+                "GitHub",
+                b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
+                b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
+                b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]',
+            )
+        ],
+    )
+    def test_check_signature(self, origin, payload):
+        generic_verifier = utils.GenericTokenScanningPayloadVerifier(
+            origin=origin,
             api_url="http://foo",
             session=pretend.stub(),
             metrics=pretend.stub(),
@@ -480,20 +519,27 @@ class TestGitHubTokenScanningPayloadVerifier:
             "cku2XdcmFWNHl2WSJi2fkE8t+auvB24eURaOd2A=="
         )
 
-        payload = (
-            b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
-            b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
-            b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]'
-        )
         assert (
-            github_verifier._check_signature(
+            generic_verifier._check_signature(
                 payload=payload, public_key=public_key, signature=signature
             )
             is None
         )
 
-    def test_check_signature_invalid_signature(self):
-        github_verifier = utils.GitHubTokenScanningPayloadVerifier(
+    @pytest.mark.parametrize(
+        ("origin", "payload"),
+        [
+            (
+                "GitHub",
+                b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
+                b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
+                b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]',
+            )
+        ],
+    )
+    def test_check_signature_invalid_signature(self, origin, payload):
+        generic_verifier = utils.GenericTokenScanningPayloadVerifier(
+            origin=origin,
             api_url="http://foo",
             session=pretend.stub(),
             metrics=pretend.stub(),
@@ -511,21 +557,17 @@ class TestGitHubTokenScanningPayloadVerifier:
             "cku2XdcmFWNHl2WSJi2fkE8t+auvB24eURaOd2A=="
         )
 
-        payload = (
-            b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
-            b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
-            b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]'
-        )
         with pytest.raises(integrations.InvalidPayloadSignatureError) as exc:
-            github_verifier._check_signature(
+            generic_verifier._check_signature(
                 payload=payload, public_key=public_key, signature=signature
             )
 
         assert str(exc.value) == "Invalid signature"
         assert exc.value.reason == "invalid_signature"
 
-    def test_check_signature_invalid_crypto(self):
-        github_verifier = utils.GitHubTokenScanningPayloadVerifier(
+    def test_check_signature_invalid_crypto(self, someorigin):
+        generic_verifier = utils.GenericTokenScanningPayloadVerifier(
+            origin=someorigin,
             api_url="http://foo",
             session=pretend.stub(),
             metrics=pretend.stub(),
@@ -537,7 +579,7 @@ class TestGitHubTokenScanningPayloadVerifier:
         payload = "yeah, nope, that won't pass"
 
         with pytest.raises(integrations.InvalidPayloadSignatureError) as exc:
-            github_verifier._check_signature(
+            generic_verifier._check_signature(
                 payload=payload, public_key=public_key, signature=signature
             )
 
@@ -545,7 +587,7 @@ class TestGitHubTokenScanningPayloadVerifier:
         assert exc.value.reason == "invalid_crypto"
 
 
-def test_analyze_disclosure(monkeypatch, metrics):
+def test_analyze_disclosure(monkeypatch, metrics, someorigin):
     user_id = uuid.UUID(bytes=b"0" * 16)
     user = pretend.stub(
         id=user_id,
@@ -582,15 +624,15 @@ def test_analyze_disclosure(monkeypatch, metrics):
             "token": "pypi-1234",
             "url": "http://example.com",
         },
-        origin="github",
+        origin=someorigin,
     )
     assert metrics.increment.calls == [
-        pretend.call("warehouse.token_leak.github.received"),
-        pretend.call("warehouse.token_leak.github.valid"),
-        pretend.call("warehouse.token_leak.github.processed"),
+        pretend.call("warehouse.token_leak.someorigin.received"),
+        pretend.call("warehouse.token_leak.someorigin.valid"),
+        pretend.call("warehouse.token_leak.someorigin.processed"),
     ]
     assert send_email.calls == [
-        pretend.call(request, user, public_url="http://example.com", origin="github")
+        pretend.call(request, user, public_url="http://example.com", origin=someorigin)
     ]
     assert find.calls == [pretend.call(raw_macaroon="pypi-1234")]
     assert delete.calls == [pretend.call(macaroon_id="12")]
@@ -609,7 +651,7 @@ def test_analyze_disclosure(monkeypatch, metrics):
     ]
 
 
-def test_analyze_disclosure_wrong_record(metrics):
+def test_analyze_disclosure_wrong_record(metrics, someorigin):
     svc = {
         utils.IMetricsService: metrics,
         utils.IMacaroonService: pretend.stub(),
@@ -620,15 +662,15 @@ def test_analyze_disclosure_wrong_record(metrics):
     utils.analyze_disclosure(
         request=request,
         disclosure_record={},
-        origin="github",
+        origin=someorigin,
     )
     assert metrics.increment.calls == [
-        pretend.call("warehouse.token_leak.github.received"),
-        pretend.call("warehouse.token_leak.github.error.format"),
+        pretend.call("warehouse.token_leak.someorigin.received"),
+        pretend.call("warehouse.token_leak.someorigin.error.format"),
     ]
 
 
-def test_analyze_disclosure_invalid_macaroon(metrics):
+def test_analyze_disclosure_invalid_macaroon(metrics, someorigin):
     find = pretend.raiser(utils.InvalidMacaroonError("Bla", "bla"))
     svc = {
         utils.IMetricsService: metrics,
@@ -644,15 +686,15 @@ def test_analyze_disclosure_invalid_macaroon(metrics):
             "token": "pypi-1234",
             "url": "http://example.com",
         },
-        origin="github",
+        origin=someorigin,
     )
     assert metrics.increment.calls == [
-        pretend.call("warehouse.token_leak.github.received"),
-        pretend.call("warehouse.token_leak.github.error.invalid"),
+        pretend.call("warehouse.token_leak.someorigin.received"),
+        pretend.call("warehouse.token_leak.someorigin.error.invalid"),
     ]
 
 
-def test_analyze_disclosure_unknown_error(metrics, monkeypatch):
+def test_analyze_disclosure_unknown_error(metrics, monkeypatch, someorigin):
     request = pretend.stub(find_service=lambda *a, **k: metrics)
 
     class SpecificError(Exception):
@@ -664,19 +706,19 @@ def test_analyze_disclosure_unknown_error(metrics, monkeypatch):
         utils.analyze_disclosure(
             request=request,
             disclosure_record={},
-            origin="github",
+            origin=someorigin,
         )
     assert metrics.increment.calls == [
-        pretend.call("warehouse.token_leak.github.error.unknown"),
+        pretend.call("warehouse.token_leak.someorigin.error.unknown"),
     ]
 
 
-def test_analyze_disclosures_wrong_type(metrics):
+def test_analyze_disclosures_wrong_type(metrics, someorigin):
     with pytest.raises(utils.InvalidTokenLeakRequestError) as exc:
         utils.analyze_disclosures(
             request=pretend.stub(),
             disclosure_records={},
-            origin="yay",
+            origin=someorigin,
             metrics=metrics,
         )
 
