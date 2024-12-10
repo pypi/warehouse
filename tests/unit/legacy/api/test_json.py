@@ -118,6 +118,13 @@ class TestLatestReleaseFactory:
         db_request.matchdict = {"name": project.normalized_name}
         assert json.latest_release_factory(db_request) == release
 
+    def test_with_unpublished(self, db_request):
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        ReleaseFactory.create(project=project, version="2.0", published=False)
+        db_request.matchdict = {"name": project.normalized_name}
+        assert json.latest_release_factory(db_request) == release
+
     def test_project_quarantined(self, monkeypatch, db_request):
         project = ProjectFactory.create(
             lifecycle_status=LifecycleStatus.QuarantineEnter
@@ -190,6 +197,15 @@ class TestJSONProject:
                 ),
             )
         ]
+
+        ReleaseFactory.create(
+            project=project,
+            version="3.1",
+            description=DescriptionFactory.create(
+                content_type=description_content_type
+            ),
+            published=False,
+        )
 
         for urlspec in project_urls:
             label, _, purl = urlspec.partition(",")

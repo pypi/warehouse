@@ -135,6 +135,19 @@ class TestProjectDetail:
         assert resp is response
         assert release_detail.calls == [pretend.call(release, db_request)]
 
+    def test_with_unpublished(self, monkeypatch, db_request):
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        ReleaseFactory.create(project=project, version="1.1", published=False)
+
+        response = pretend.stub()
+        release_detail = pretend.call_recorder(lambda ctx, request: response)
+        monkeypatch.setattr(views, "release_detail", release_detail)
+
+        resp = views.project_detail(project, db_request)
+        assert resp is response
+        assert release_detail.calls == [pretend.call(release, db_request)]
+
 
 class TestReleaseDetail:
     def test_normalizing_name_redirects(self, db_request):
@@ -178,30 +191,45 @@ class TestReleaseDetail:
     def test_detail_rendered(self, db_request):
         users = [UserFactory.create(), UserFactory.create(), UserFactory.create()]
         project = ProjectFactory.create()
-        releases = [
-            ReleaseFactory.create(
-                project=project,
-                version=v,
-                description=DescriptionFactory.create(
-                    raw="unrendered description",
-                    html="rendered description",
-                    content_type="text/html",
-                ),
-            )
-            for v in ["1.0", "2.0", "3.0", "4.0.dev0"]
-        ] + [
-            ReleaseFactory.create(
-                project=project,
-                version="5.0",
-                description=DescriptionFactory.create(
-                    raw="plaintext description",
-                    html="",
-                    content_type="text/plain",
-                ),
-                yanked=True,
-                yanked_reason="plaintext yanked reason",
-            )
-        ]
+        releases = (
+            [
+                ReleaseFactory.create(
+                    project=project,
+                    version=v,
+                    description=DescriptionFactory.create(
+                        raw="unrendered description",
+                        html="rendered description",
+                        content_type="text/html",
+                    ),
+                )
+                for v in ["1.0", "2.0", "3.0", "4.0.dev0"]
+            ]
+            + [
+                ReleaseFactory.create(
+                    project=project,
+                    version="5.0",
+                    description=DescriptionFactory.create(
+                        raw="plaintext description",
+                        html="",
+                        content_type="text/plain",
+                    ),
+                    yanked=True,
+                    yanked_reason="plaintext yanked reason",
+                )
+            ]
+            + [
+                ReleaseFactory.create(
+                    project=project,
+                    version="5.1",
+                    description=DescriptionFactory.create(
+                        raw="unrendered description",
+                        html="rendered description",
+                        content_type="text/html",
+                    ),
+                    published=False,
+                )
+            ]
+        )
         files = [
             FileFactory.create(
                 release=r,
@@ -226,6 +254,7 @@ class TestReleaseDetail:
             "bdists": [],
             "description": "rendered description",
             "latest_version": project.latest_version,
+            # Non published version are not listed here
             "all_versions": [
                 (r.version, r.created, r.is_prerelease, r.yanked, r.yanked_reason)
                 for r in reversed(releases)

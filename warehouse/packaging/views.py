@@ -179,7 +179,10 @@ def project_detail(project, request):
     try:
         release = (
             request.db.query(Release)
-            .filter(Release.project == project)
+            .filter(
+                Release.project == project,
+                Release.published.is_(True),
+            )
             .order_by(
                 Release.yanked,
                 Release.is_prerelease.nullslast(),
