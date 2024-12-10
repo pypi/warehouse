@@ -19,7 +19,6 @@ import tempfile
 import zipfile
 
 from cgi import FieldStorage
-from datetime import datetime
 
 import packaging.requirements
 import packaging.specifiers
@@ -903,7 +902,6 @@ def file_upload(request):
             },
             uploader=request.user if request.user else None,
             uploaded_via=request.user_agent,
-            published=datetime.now(),
         )
         request.db.add(release)
         is_new_release = True
@@ -934,6 +932,7 @@ def file_upload(request):
                     else None
                 ),
                 "uploaded_via_trusted_publisher": bool(request.oidc_publisher),
+                "published": True,
             },
         )
 

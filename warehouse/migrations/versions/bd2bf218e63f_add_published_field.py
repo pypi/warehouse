@@ -10,32 +10,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-add published in Release
+add published field
 
-Revision ID: 3e7bf3217166
+Revision ID: bd2bf218e63f
 Revises: f7720656a33c
-Create Date: 2024-12-06 11:04:21.907167
+Create Date: 2024-12-10 10:40:19.588606
 """
 
 import sqlalchemy as sa
 
 from alembic import op
 
-revision = "3e7bf3217166"
+revision = "bd2bf218e63f"
 down_revision = "f7720656a33c"
 
 
 def upgrade():
     op.add_column(
         "releases",
-        sa.Column("published", sa.DateTime(), nullable=True),
-    )
-
-    op.execute(
-        """
-        UPDATE releases
-        SET published = created
-        """
+        sa.Column(
+            "published", sa.Boolean(), server_default=sa.text("true"), nullable=False
+        ),
     )
 
 

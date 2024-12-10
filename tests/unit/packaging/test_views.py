@@ -9,7 +9,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from datetime import datetime
 
 import pretend
 import pytest
@@ -326,12 +325,7 @@ class TestReleaseDetail:
 
     def test_created_with_published(self, db_request):
         release = ReleaseFactory.create()
-        assert release.published > datetime(year=2008, month=1, day=1)
-
-    def test_without_published_date(self, db_request):
-        release = ReleaseFactory.create(published=None)
-        db_request.db.flush()
-        assert release.published is None
+        assert release.published is True
 
 
 class TestReportMalwareButton:
