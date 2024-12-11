@@ -172,6 +172,8 @@ class TestUserProfile:
                 created=project.created + datetime.timedelta(minutes=3),
                 is_prerelease=True,
             )
+        # add one more project, associated to the user, but no releases
+        RoleFactory.create(user=user, project=ProjectFactory.create())
 
         with query_recorder:
             response = views.profile(user, db_request)
