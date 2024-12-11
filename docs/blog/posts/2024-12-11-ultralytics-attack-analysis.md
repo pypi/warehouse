@@ -41,7 +41,7 @@ Not every package and release on PyPI should be treated as trusted, it is up to 
 
 PyPI staff and volunteers do their best to remove malware, but because the service is open to anyone looking to publish software there is an unfortunately high amount of abuse. Thankfully most of this abuse does not have the same widespread impact as a targeted attack on an already widely-used project.
 
-Mike Fiedler, the PyPI Safety and Security Engineer is working on new systems for reducing the time that malware is available to be installed on PyPI, through [APIs that security researchers can automatically send reports](./2023-09-18-inbound-malware-reporting/) to and new [“quarantine” release status](./2024-08-16-safety-and-security-engineer-year-in-review/#project-lifecycle-status-quarantine) to prevent harm while a human investigates the situation. Expect more in this space in 2025!
+Mike Fiedler, the PyPI Safety and Security Engineer is working on new systems for reducing the time that malware is available to be installed on PyPI, through [APIs that security researchers can automatically send reports](./2023-09-18-inbound-malware-reporting.md) to and new [“quarantine” release status](./2024-08-16-safety-and-security-engineer-year-in-review.md#project-lifecycle-status-quarantine) to prevent harm while a human investigates the situation. Expect more in this space in 2025!
 
 ## What can you do as a publisher to the Python Package Index?
 
