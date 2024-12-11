@@ -20,7 +20,7 @@ Despite the success of the attack, many things went right from PyPI’s perspect
 
 From looking at the [Sigstore transparency logs](https://search.sigstore.dev/?logIndex=153589716) and the PyPI provenance attestations, it was clear that the first set of injected packages were published through the existing GitHub Actions workflow, not by an API token. This considerably reduced the scope of the attack: either the malicious code was inside the source repository or was injected during the build phase. Later investigation showed that the [attack targeted the GitHub Actions cache](https://blog.yossarian.net/2024/12/06/zizmor-ultralytics-injection#conclusions) which was used during the build phase.
 
-The second round of malicious releases came from the attacker using an unrevoked PyPI API token that was still available to the GitHub Actions workflow, potentially a hold-over from before the project adopted Trusted Publishing. This was detectable because there were no corresponding source repository activity or or PyPI publish attestations for the second round of releases.
+The second round of malicious releases came from the attacker using an unrevoked PyPI API token that was still available to the GitHub Actions workflow, potentially a hold-over from before the project adopted Trusted Publishing. This was detectable because there were no corresponding source repository activity or PyPI publish attestations for the second round of releases.
 
 Once tools begin utilizing these publish attestations to record the “expected” provenance of software, this type of attack will be less effective as the lack of provenance information will be more apparent and verifiable at install time.
 
@@ -28,7 +28,7 @@ Once tools begin utilizing these publish attestations to record the “expected�
 
 From this story, we can see a few places where PyPI can help developers towards a secure configuration without infringing on existing use-cases:
 
-* **API tokens are allowed to go unused alongside Trusted Publishers.** It’s valid for a project to use a mix of API tokens and Trusted Publishers because Trusted Publishers aren’t universally supported by all platforms. However, API tokens that are being unused over a period of time despite releases continuing to be published via Trusted Publishing is a strong indicator that the API token is no longer needed and can be revoked. \
+* **API tokens are allowed to go unused alongside Trusted Publishers.** It’s valid for a project to use a mix of API tokens and Trusted Publishers because Trusted Publishers aren’t universally supported by all platforms. However, API tokens that are being unused over a period of time despite releases continuing to be published via Trusted Publishing is a strong indicator that the API token is no longer needed and can be revoked.
 
 * **GitHub Environments are optional, but recommended, when using a GitHub Trusted Publisher.** However, PyPI doesn’t fail or warn users that are using a GitHub Environment that the corresponding Trusted Publisher isn’t configured to require the GitHub Environment. This fact didn’t end up mattering for this specific attack, but during the investigation it was noticed as something easy for project maintainers to miss.
 
