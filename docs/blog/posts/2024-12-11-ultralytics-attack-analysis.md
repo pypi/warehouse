@@ -12,11 +12,11 @@ Last week, the Python project “[ultralytics](https://pypi.org/project/ultralyt
 
 <!-- more -->
 
-The attack highlights the importance of securing software forges and the build and publish workflows for open source projects. A [complete set of details is available](https://blog.yossarian.net/2024/12/06/zizmor-ultralytics-injection#conclusions) thanks to the analysis of William Woodruff from Trail of Bits.
+The attack highlights the importance of securing software forges and the build and publish workflows for open source projects. A [complete set of details is available](https://blog.yossarian.net/2024/12/06/zizmor-ultralytics-injection) thanks to the analysis of William Woodruff from Trail of Bits.
 
 ## Visibility from Attestations and Trusted Publishers
 
-Despite the success of the attack, many things went right from PyPI’s perspective, especially the ability to audit the attack while it was occurring and after the fact. Because the Ultralytics project was using Trusted Publishing and the [PyPA’s publishing GitHub Action](https://github.com/pypa/gh-action-pypi-publish): PyPI staff, volunteers, and security researchers were able to dig into how maliciously injected software was able to make its way into the package.
+Despite the success of the attack, many things went right from PyPI’s perspective, especially the ability to audit the attack while it was occurring and after the fact. Because the Ultralytics project was using [Trusted Publishing](https://docs.pypi.org/trusted-publishers/) and the [PyPA’s publishing GitHub Action](https://github.com/pypa/gh-action-pypi-publish): PyPI staff, volunteers, and security researchers were able to dig into how maliciously injected software was able to make its way into the package.
 
 From looking at the [Sigstore transparency logs](https://search.sigstore.dev/?logIndex=153589716) and the PyPI provenance attestations, it was clear that the first set of injected packages were published through the existing GitHub Actions workflow, not by an API token. This considerably reduced the scope of the attack: either the malicious code was inside the source repository or was injected during the build phase. Later investigation showed that the [attack targeted the GitHub Actions cache](https://blog.yossarian.net/2024/12/06/zizmor-ultralytics-injection#conclusions) which was used during the build phase.
 
@@ -41,7 +41,7 @@ Not every package and release on PyPI should be treated as trusted, it is up to 
 
 PyPI staff and volunteers do their best to remove malware, but because the service is open to anyone looking to publish software there is an unfortunately high amount of abuse. Thankfully most of this abuse does not have the same widespread impact as a targeted attack on an already widely-used project.
 
-Mike Fiedler, the PyPI Safety and Security Engineer is working on new systems for reducing the time that malware is available to be installed on PyPI, through [APIs that security researchers can automatically send reports](https://blog.pypi.org/posts/2023-09-18-inbound-malware-reporting/) to and new [“quarantine” release status](https://blog.pypi.org/posts/2024-08-16-safety-and-security-engineer-year-in-review/#project-lifecycle-status-quarantine) to prevent harm while a human investigates the situation. Expect more in this space in 2025!
+Mike Fiedler, the PyPI Safety and Security Engineer is working on new systems for reducing the time that malware is available to be installed on PyPI, through [APIs that security researchers can automatically send reports](./2023-09-18-inbound-malware-reporting/) to and new [“quarantine” release status](./2024-08-16-safety-and-security-engineer-year-in-review/#project-lifecycle-status-quarantine) to prevent harm while a human investigates the situation. Expect more in this space in 2025!
 
 ## What can you do as a publisher to the Python Package Index?
 
