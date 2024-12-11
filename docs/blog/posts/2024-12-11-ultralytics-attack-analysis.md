@@ -10,6 +10,8 @@ tags:
 
 Last week, the Python project “[ultralytics](https://pypi.org/project/ultralytics/)” suffered a supply-chain attack through a compromise of the projects’ GitHub Actions workflows and subsequently its PyPI API token. No security flaw in PyPI was used to execute this attack. Versions 8.3.41, 8.3.42, 8.3.45, and 8.3.46 were affected and have been removed from PyPI.
 
+<!-- more -->
+
 The attack highlights the importance of securing software forges and the build and publish workflows for open source projects. A [complete set of details is available](https://blog.yossarian.net/2024/12/06/zizmor-ultralytics-injection#conclusions) thanks to the analysis of William Woodruff from Trail of Bits.
 
 ## Visibility from Attestations and Trusted Publishers
