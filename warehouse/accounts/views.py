@@ -189,7 +189,7 @@ def profile(user, request):
             Release.summary,
         )
         .join(Role, Project.id == Role.project_id)
-        .outerjoin(
+        .join(
             latest_releases_subquery,
             Project.id == latest_releases_subquery.c.project_id,
         )
