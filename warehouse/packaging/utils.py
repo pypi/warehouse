@@ -133,6 +133,8 @@ def render_simple_detail(project, request, store=False):
         f"{project.normalized_name}/{content_hash}.{project.normalized_name}.html"
     )
 
+    simple_detail_size = len(content.encode("utf-8"))
+
     if store:
         storage = request.find_service(ISimpleStorage)
         with tempfile.NamedTemporaryFile() as f:
@@ -158,7 +160,7 @@ def render_simple_detail(project, request, store=False):
                 },
             )
 
-    return (content_hash, simple_detail_path)
+    return (content_hash, simple_detail_size)
 
 
 def _valid_simple_detail_context(context: dict) -> dict:
