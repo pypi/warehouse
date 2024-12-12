@@ -23,14 +23,31 @@ from warehouse.events.tags import EventTag
 from warehouse.integrations.secrets import tasks, utils
 
 
-@pytest.fixture
-def someorigin():
-    return utils.DisclosureOrigin(
-        name="SomeOrigin",
+def test_disclosure_origin_serialization(someorigin):
+    assert (
+        someorigin.to_dict()
+        == utils.DisclosureOrigin.from_dict(someorigin.to_dict()).to_dict()
+        == {
+            "name": "SomeOrigin",
+            "key_id_header": "SOME_KEY_ID_HEADER",
+            "signature_header": "SOME_SIGNATURE_HEADER",
+            "verification_url": "https://some.verification.url",
+            "api_token": None,
+        }
+    )
+
+
+def test_disclosure_origin_equivalence(someorigin):
+    assert someorigin == someorigin
+    someotherorigin = utils.DisclosureOrigin(
+        name="SomeOtherOrigin",
         key_id_header="SOME_KEY_ID_HEADER",
         signature_header="SOME_SIGNATURE_HEADER",
         verification_url="https://some.verification.url",
+        api_token=None,
     )
+    assert someorigin != someotherorigin
+    assert someorigin != "wu-tang"
 
 
 def test_token_leak_matcher_extract():
@@ -726,7 +743,7 @@ def test_analyze_disclosures_wrong_type(metrics, someorigin):
     assert exc.value.reason == "format"
 
 
-def test_analyze_disclosures_raise(metrics, monkeypatch):
+def test_analyze_disclosures_raise(metrics, monkeypatch, someorigin):
     task = pretend.stub(delay=pretend.call_recorder(lambda *a, **k: None))
     request = pretend.stub(task=lambda x: task)
 
@@ -735,12 +752,12 @@ def test_analyze_disclosures_raise(metrics, monkeypatch):
     utils.analyze_disclosures(
         request=request,
         disclosure_records=[1, 2, 3],
-        origin="yay",
+        origin=someorigin,
         metrics=metrics,
     )
 
     assert task.delay.calls == [
-        pretend.call(disclosure_record=1, origin="yay"),
-        pretend.call(disclosure_record=2, origin="yay"),
-        pretend.call(disclosure_record=3, origin="yay"),
+        pretend.call(disclosure_record=1, origin=someorigin.to_dict()),
+        pretend.call(disclosure_record=2, origin=someorigin.to_dict()),
+        pretend.call(disclosure_record=3, origin=someorigin.to_dict()),
     ]

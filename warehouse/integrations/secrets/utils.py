@@ -50,6 +50,31 @@ class DisclosureOrigin:
         """Set of all headers that must be present"""
         return {self.key_id_header, self.signature_header}
 
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "key_id_header": self.key_id_header,
+            "signature_header": self.signature_header,
+            "verification_url": self.verification_url,
+            "api_token": self.api_token,
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(**data)
+
+    def __eq__(self, other):
+        if not isinstance(other, DisclosureOrigin):
+            return False
+
+        return (
+            self.name == other.name
+            and self.key_id_header == other.key_id_header
+            and self.signature_header == other.signature_header
+            and self.verification_url == other.verification_url
+            and self.api_token == other.api_token
+        )
+
 
 class ExtractionFailedError(Exception):
     pass
@@ -314,5 +339,5 @@ def analyze_disclosures(request, disclosure_records, origin, metrics):
 
     for disclosure_record in disclosure_records:
         request.task(tasks.analyze_disclosure_task).delay(
-            disclosure_record=disclosure_record, origin=origin
+            disclosure_record=disclosure_record, origin=origin.to_dict()
         )
