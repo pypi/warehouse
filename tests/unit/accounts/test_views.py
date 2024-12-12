@@ -76,7 +76,12 @@ from ...common.db.organizations import (
     OrganizationInvitationFactory,
     OrganizationRoleFactory,
 )
-from ...common.db.packaging import ProjectFactory, RoleFactory, RoleInvitationFactory
+from ...common.db.packaging import (
+    ProjectFactory,
+    ReleaseFactory,
+    RoleFactory,
+    RoleInvitationFactory,
+)
 
 
 class TestFailedLoginView:
@@ -145,6 +150,38 @@ class TestUserProfile:
     def test_returns_user(self, db_request):
         user = UserFactory.create()
         assert views.profile(user, db_request) == {"user": user, "projects": []}
+
+    def test_user_profile_queries_once_for_all_projects(
+        self, db_request, query_recorder
+    ):
+        user = UserFactory.create()
+        projects = ProjectFactory.create_batch(3)
+        for project in projects:
+            # associate the user to each project as role: owner
+            RoleFactory.create(user=user, project=project)
+            # Add some releases, with time skew to ensure the ordering is correct
+            ReleaseFactory.create(
+                project=project, created=project.created + datetime.timedelta(minutes=1)
+            )
+            ReleaseFactory.create(
+                project=project, created=project.created + datetime.timedelta(minutes=2)
+            )
+            # Add a prerelease, shouldn't affect any results
+            ReleaseFactory.create(
+                project=project,
+                created=project.created + datetime.timedelta(minutes=3),
+                is_prerelease=True,
+            )
+        # add one more project, associated to the user, but no releases
+        RoleFactory.create(user=user, project=ProjectFactory.create())
+
+        with query_recorder:
+            response = views.profile(user, db_request)
+
+        assert response["user"] == user
+        assert len(response["projects"]) == 3
+        # Two queries, one for the user (via context), one for their projects
+        assert len(query_recorder.queries) == 2
 
 
 class TestAccountsSearch:
