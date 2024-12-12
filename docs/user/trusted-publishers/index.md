@@ -4,7 +4,7 @@ title: Getting Started
 
 # Publishing to PyPI with a Trusted Publisher
 
-"Trusted publishing" is our term for using the [OpenID Connect
+"Trusted Publishing" is our term for using the [OpenID Connect
 (OIDC)](https://openid.net/connect/) standard to exchange short-lived identity
 tokens between a trusted third-party service and PyPI. This method can be used
 in automated environments and eliminates the need to use manually generated API
@@ -42,10 +42,10 @@ the TL;DR:
 This confers significant usability and security advantages when compared
 to PyPI's traditional authentication methods:
 
-* Usability: with trusted publishing, users no longer need to manually create
+* Usability: with Trusted Publishing, users no longer need to manually create
   API tokens on PyPI and copy-paste them into their CI provider. The only
   manual step is configuring the publisher on PyPI.
 * Security: PyPI's normal API tokens are long-lived, meaning that an attacker
   who compromises a package's release token can use it until its legitimate user
-  notices and manually revokes it. Trusted publishing avoids this problem because
+  notices and manually revokes it. Trusted Publishing avoids this problem because
   the tokens minted expire automatically.
