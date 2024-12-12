@@ -35,6 +35,18 @@ class TestDiscloseToken:
                 "token",
             ),
             (
+                config._github_origin,
+                {
+                    "GitHub-Public-Key-Identifier": "foo",
+                    "GitHub-Public-Key-Signature": "bar",
+                },
+                {
+                    "github.token": "token",
+                },
+                "https://api.github.com/meta/public_keys/token_scanning",
+                "token",
+            ),
+            (
                 config._depsdev_origin,
                 {
                     "GOSST-PUBLIC-KEY-IDENTIFIER": "foo",
