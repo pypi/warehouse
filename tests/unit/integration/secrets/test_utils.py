@@ -47,6 +47,7 @@ def test_disclosure_origin_equivalence(someorigin):
         api_token=None,
     )
     assert someorigin != someotherorigin
+    assert someorigin != "wu-tang"
 
 
 def test_token_leak_matcher_extract():
