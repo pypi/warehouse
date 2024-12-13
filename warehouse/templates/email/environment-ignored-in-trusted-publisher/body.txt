@@ -1,0 +1,58 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "email/_base/body.txt" %}
+
+{% set domain = request.registry.settings.get('warehouse.domain') %}
+
+{% block content %}
+  {% trans publisher_name=publisher.publisher_name, project_name=project_name, environment_name=environment_name,
+     project_href=request.route_url('packaging.project', name=project_name, _host=domain)
+  %}
+    A Trusted Publisher for project {{ project_name }} ({{ project_href }}) was just
+    used from a CI/CD job configured with a {{ publisher_name }} environment.
+    The environment used was: {{ environment_name }}.
+  {% endtrans %}
+
+
+  {% trans %}
+    Since the Trusted is configured to allow any environment,
+    for security reasons we recommend constraining it to only one.
+  {% endtrans %}
+
+
+  {% trans environment_name=environment_name,
+     auto_href=request.route_url('manage.project.settings.publishing', project_name=project_name, _host=domain,
+                                 _query={'publisher_id': publisher.id, 'constrain_environment': environment_name })
+  %}
+    If you are an owner of this project, you can automatically constrain this Trusted Publisher to
+    '{{ environment_name }}' by following this link: {{ auto_href }}.
+  {% endtrans %}
+
+
+  {% trans environment_name=environment_name,
+     manual_href=request.route_url('manage.project.settings.publishing', project_name=project_name, _host=domain)
+  %}
+    Alternatively, you can do this manually by going to the project's
+    publishing settings ({{ manual_href }}), deleting
+    the existing Trusted Publisher and creating a new one with the environment set to '{{ environment_name }}'.
+  {% endtrans %}
+
+
+  {% trans email_address='admin@pypi.org' %}
+    If you have questions, you can email
+    {{ email_address }} to communicate with the PyPI administrators.
+  {% endtrans %}
+
+{% endblock %}
+
