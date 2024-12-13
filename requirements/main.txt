@@ -1674,7 +1674,6 @@ pycurl==7.45.3 \
     --hash=sha256:fa7751b614d9aa82d7a0f49ca90924c29c6cedf85a2f8687fb6a772dbfe48711 \
     --hash=sha256:fbd4a6b8654b779089c5a44af1c65c1419c2cd60718780df6d8f354eb35d6d55
     # via
-    #   -r requirements/main.in
     #   celery
     #   kombu
 pydantic[email]==2.10.2 \
