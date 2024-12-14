@@ -365,7 +365,7 @@
               {% endif %}
               name="locale_id" value="{{ identifier }}" type="submit"
             >
-              {{ locale.display_name }}
+              {{ locale.display_name.title() }}
             </button>
           </li>
           {% endfor %}
