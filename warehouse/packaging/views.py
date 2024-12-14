@@ -30,6 +30,7 @@ from warehouse.cache.origin import origin_cache
 from warehouse.observations.models import ObservationKind
 from warehouse.packaging.forms import SubmitMalwareObservationForm
 from warehouse.packaging.models import Description, File, Project, Release, Role
+from warehouse.utils.user_agents import should_show_share_image
 
 
 class PEP740AttestationViewer:
@@ -275,9 +276,6 @@ def release_detail(release, request):
         key=lambda f: f.filename,
     )
 
-    # TODO: Move somewhere more sensible, ignore version
-    is_slackbot = request.user_agent == "Slackbot-LinkExpanding 1.0 (+https://api.slack.com/robots)"
-
     return {
         "project": project,
         "release": release,
@@ -291,7 +289,7 @@ def release_detail(release, request):
         "license": license,
         # Additional function to format the attestations
         "PEP740AttestationViewer": PEP740AttestationViewer,
-        "is_slackbot": is_slackbot,
+        "show_share_image": should_show_share_image(request),
     }
 
 
