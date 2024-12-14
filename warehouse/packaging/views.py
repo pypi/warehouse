@@ -275,6 +275,9 @@ def release_detail(release, request):
         key=lambda f: f.filename,
     )
 
+    # TODO: Move somewhere more sensible, ignore version
+    is_slackbot = request.user_agent == "Slackbot-LinkExpanding 1.0 (+https://api.slack.com/robots)"
+
     return {
         "project": project,
         "release": release,
@@ -288,6 +291,7 @@ def release_detail(release, request):
         "license": license,
         # Additional function to format the attestations
         "PEP740AttestationViewer": PEP740AttestationViewer,
+        "is_slackbot": is_slackbot,
     }
 
 
