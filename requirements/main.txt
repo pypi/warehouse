@@ -189,9 +189,9 @@ celery[sqs]==5.4.0 \
 celery-redbeat==2.2.0 \
     --hash=sha256:71104729380d4eaefd91a9b7d270ba7851bfff9ad55a43ac8365acbb0c608b77
     # via -r requirements/main.in
-certifi==2024.8.30 \
-    --hash=sha256:922820b53db7a7257ffbda3f597266d435245903d80737e34f8a45ff3e3230d8 \
-    --hash=sha256:bec941d2aa8195e248a60b31ff9f0558284cf01a52591ceda73ea9afffd69fd9
+certifi==2024.12.14 \
+    --hash=sha256:1275f7a45be9464efc1173084eaa30f866fe2e47d389406136d332ed4967ec56 \
+    --hash=sha256:b650d30f370c2b724812bee08008be0c4163b163ddaec3f2546c1caf65f191db
     # via
     #   -r requirements/main.in
     #   opensearch-py
