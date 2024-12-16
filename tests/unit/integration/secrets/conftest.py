@@ -10,16 +10,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pytest
 
-from warehouse import tasks
 from warehouse.integrations.secrets import utils
 
 
-@tasks.task(ignore_result=True, acks_late=True)
-def analyze_disclosure_task(request, disclosure_record, origin):
-    origin = utils.DisclosureOrigin.from_dict(origin)
-    utils.analyze_disclosure(
-        request=request,
-        disclosure_record=disclosure_record,
-        origin=origin,
+@pytest.fixture
+def someorigin():
+    return utils.DisclosureOrigin(
+        name="SomeOrigin",
+        key_id_header="SOME_KEY_ID_HEADER",
+        signature_header="SOME_SIGNATURE_HEADER",
+        verification_url="https://some.verification.url",
     )

@@ -2,9 +2,9 @@
 title: Adding a Trusted Publisher to an Existing PyPI Project
 ---
 
-# Adding a trusted publisher to an existing PyPI project
+# Adding a Trusted Publisher to an existing PyPI project
 
-Adding a trusted publisher to a PyPI project only requires a single setup step.
+Adding a Trusted Publisher to a PyPI project only requires a single setup step.
 
 On the ["Your projects" page](https://pypi.org/manage/projects/), click "Manage" on any project you'd like to
 configure:
@@ -16,7 +16,7 @@ Then, click on "Publishing" in the project's sidebar:
 ![Image showing the 'Publishing' link in the project sidebar](/assets/trusted-publishing/project-publishing-link.png)
 
 That link will take you to the publisher configuration page for the project,
-which will allow you to configure trusted publishers for the different
+which will allow you to configure Trusted Publishers for the different
 platforms supported by PyPI (such as GitHub Actions).
 
 To enable a publisher, you need to tell PyPI how to trust it. Each trusted

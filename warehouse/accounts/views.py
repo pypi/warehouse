@@ -30,6 +30,7 @@ from pyramid.httpexceptions import (
 from pyramid.interfaces import ISecurityPolicy
 from pyramid.security import forget, remember
 from pyramid.view import view_config, view_defaults
+from sqlalchemy import and_, func, select
 from sqlalchemy.exc import NoResultFound
 from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
@@ -168,13 +169,52 @@ def profile(user, request):
     if user.username != request.matchdict.get("username", user.username):
         return HTTPMovedPermanently(request.current_route_path(username=user.username))
 
-    projects = (
-        request.db.query(Project)
-        .filter(Project.users.contains(user))
-        .join(Project.releases)
-        .order_by(Release.created.desc())
-        .all()
+    # Query only for the necessary data that the template needs
+    # Subquery to get the latest release date for each project associated with the user
+    latest_releases_subquery = (
+        select(
+            Release.project_id, func.max(Release.created).label("latest_release_date")
+        )
+        .join(Role, Release.project_id == Role.project_id)
+        .where(Role.user_id == user.id)
+        .group_by(Release.project_id)
+        .subquery()
     )
+    # Main query to select the latest releases
+    stmt = (
+        select(
+            Project.name,
+            Project.normalized_name,
+            Release.created,
+            Release.summary,
+        )
+        .join(Role, Project.id == Role.project_id)
+        .join(
+            latest_releases_subquery,
+            Project.id == latest_releases_subquery.c.project_id,
+        )
+        .outerjoin(
+            Release,
+            and_(
+                Release.project_id == latest_releases_subquery.c.project_id,
+                Release.created == latest_releases_subquery.c.latest_release_date,
+            ),
+        )
+        .where(Role.user_id == user.id)
+        .distinct()
+        .order_by(Release.created.desc())
+    )
+
+    # Construct the list of projects with their latest releases from query results
+    projects = [
+        {
+            "name": row.name,
+            "normalized_name": row.normalized_name,
+            "created": row.created,
+            "summary": row.summary,
+        }
+        for row in request.db.execute(stmt)
+    ]
 
     return {"user": user, "projects": projects}
 
