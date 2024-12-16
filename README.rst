@@ -28,6 +28,12 @@ You can find help or get involved on:
 - The Packaging category on `Discourse`_ for discussing
   new ideas and community initiatives
 
+Testing
+----------
+
+Read the `running tests and linters section`_ of our documentation to
+learn how to test your code.
+
 Code of Conduct
 ---------------
 
