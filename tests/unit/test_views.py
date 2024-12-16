@@ -12,6 +12,8 @@
 
 import datetime
 
+from pathlib import Path
+
 import opensearchpy
 import pretend
 import pytest
@@ -25,6 +27,7 @@ from pyramid.httpexceptions import (
     HTTPServiceUnavailable,
     HTTPTooManyRequests,
 )
+from pyramid.response import FileResponse
 from trove_classifiers import sorted_classifiers
 from webob.multidict import MultiDict
 
@@ -361,6 +364,23 @@ class TestServiceUnavailableView:
         assert resp.content_type == "text/html"
         assert resp.body == b"A 503 Error"
         _assert_has_cors_headers(resp.headers)
+
+
+def test_favicon(pyramid_request):
+    pyramid_request.static_path = pretend.call_recorder(lambda path: f"/static/{path}")
+    # Construct the path to the favicon.ico file relative to the codebase directory
+    codebase_dir = Path(__file__).resolve().parent.parent.parent
+    favicon_path = (
+        codebase_dir / "warehouse" / "static" / "dist" / "images" / "favicon.ico"
+    )
+    # Create a dummy file to test the favicon
+    favicon_path.parent.mkdir(parents=True, exist_ok=True)
+    favicon_path.touch()
+
+    response = views.favicon(pyramid_request)
+
+    assert isinstance(response, FileResponse)
+    assert pyramid_request.response.content_type == "image/x-icon"
 
 
 def test_robotstxt(pyramid_request):

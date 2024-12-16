@@ -15,6 +15,8 @@ import json
 import pretend
 import pytest
 
+from webob.headers import EnvironHeaders
+
 from warehouse.integrations.secrets import config, utils, views
 
 
@@ -27,6 +29,18 @@ class TestDiscloseToken:
                 {
                     "GITHUB-PUBLIC-KEY-IDENTIFIER": "foo",
                     "GITHUB-PUBLIC-KEY-SIGNATURE": "bar",
+                },
+                {
+                    "github.token": "token",
+                },
+                "https://api.github.com/meta/public_keys/token_scanning",
+                "token",
+            ),
+            (
+                config._github_origin,
+                {  # Test for case-insensitivity on header names
+                    "GitHub-Public-Key-Identifier": "foo",
+                    "GitHub-Public-Key-Signature": "bar",
                 },
                 {
                     "github.token": "token",
@@ -57,7 +71,9 @@ class TestDiscloseToken:
         api_url,
         api_token,
     ):
-        pyramid_request.headers = headers
+        pyramid_request.headers = EnvironHeaders({})
+        for k, v in headers.items():
+            pyramid_request.headers[k] = v
         pyramid_request.body = "[1, 2, 3]"
         pyramid_request.json_body = [1, 2, 3]
         pyramid_request.registry.settings = settings
