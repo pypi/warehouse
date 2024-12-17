@@ -17,6 +17,8 @@ import typing
 from base64 import b64encode
 from textwrap import dedent
 
+from requests.exceptions import RequestException
+
 from warehouse import db, tasks
 from warehouse.helpdesk.interfaces import IHelpDeskService
 
@@ -55,7 +57,7 @@ def execute_observation_report(config: Configurator, session: SA_Session):
     bind=True,
     ignore_result=True,
     acks_late=True,
-    autoretry_for=(Exception,),
+    autoretry_for=(RequestException,),
     retry_backoff=True,
 )
 def report_observation_to_helpscout(task, request: Request, model_id: UUID) -> None:
