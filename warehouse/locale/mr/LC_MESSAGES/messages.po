@@ -20,19 +20,19 @@ msgstr ""
 "X-Generator: Weblate 4.13.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/views.py:149
+#: warehouse/views.py:157
 msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
 msgstr ""
 
-#: warehouse/views.py:165
+#: warehouse/views.py:173
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
 msgstr ""
 
-#: warehouse/views.py:301
+#: warehouse/views.py:332
 msgid "Locale updated"
 msgstr "अद्ययावत लोकॅल"
 
@@ -153,7 +153,7 @@ msgstr ""
 msgid "The username isn't valid. Try again."
 msgstr "ईमेल पत्ता वैध नाही. पुन्हा प्रयत्न करा."
 
-#: warehouse/accounts/views.py:119
+#: warehouse/accounts/views.py:120
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -162,7 +162,7 @@ msgid ""
 "out for {}. Please try again later."
 msgstr "बरेच लॉगिन प्रयत्न अयशस्वी झाले. पुन्हा प्रयत्न करा."
 
-#: warehouse/accounts/views.py:136
+#: warehouse/accounts/views.py:137
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -170,7 +170,7 @@ msgstr ""
 "या खात्यात पुष्टी न करता बर्‍याच ईमेल जोडल्या गेल्या आहेत. आपला इनबॉक्स तपासा आणि "
 "सत्यापन दुव्यांचे अनुसरण करा. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:148
+#: warehouse/accounts/views.py:149
 #, fuzzy
 #| msgid ""
 #| "Too many emails have been added to this account without verifying them. "
@@ -183,25 +183,25 @@ msgstr ""
 "या खात्यात पुष्टी न करता बर्‍याच ईमेल जोडल्या गेल्या आहेत. आपला इनबॉक्स तपासा आणि "
 "सत्यापन दुव्यांचे अनुसरण करा. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:330 warehouse/accounts/views.py:399
-#: warehouse/accounts/views.py:401 warehouse/accounts/views.py:430
-#: warehouse/accounts/views.py:432 warehouse/accounts/views.py:538
+#: warehouse/accounts/views.py:370 warehouse/accounts/views.py:439
+#: warehouse/accounts/views.py:441 warehouse/accounts/views.py:470
+#: warehouse/accounts/views.py:472 warehouse/accounts/views.py:578
 msgid "Invalid or expired two factor login."
 msgstr "अवैध किंवा कालबाह्य दोन घटक लॉगिन."
 
-#: warehouse/accounts/views.py:393
+#: warehouse/accounts/views.py:433
 msgid "Already authenticated"
 msgstr "आधीच प्रमाणीकृत"
 
-#: warehouse/accounts/views.py:473
+#: warehouse/accounts/views.py:513
 msgid "Successful WebAuthn assertion"
 msgstr "यशस्वी WebAuthn प्रतिपादन"
 
-#: warehouse/accounts/views.py:569 warehouse/manage/views/__init__.py:873
+#: warehouse/accounts/views.py:609 warehouse/manage/views/__init__.py:873
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "पुनर्प्राप्ती कोड स्वीकारला. पुरवलेला कोड पुन्हा वापरला जाऊ शकत नाही."
 
-#: warehouse/accounts/views.py:661
+#: warehouse/accounts/views.py:701
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -209,148 +209,148 @@ msgstr ""
 "नवीन वापरकर्ता नोंदणी तात्पुरती अक्षम केली. तपशीलांसाठी https://pypi.org/help#admin-"
 "intervention पहा."
 
-#: warehouse/accounts/views.py:799
+#: warehouse/accounts/views.py:839
 msgid "Expired token: request a new password reset link"
 msgstr "कालबाह्य टोकन: नवीन संकेतशब्द रीसेट दुव्याची विनंती करा"
 
-#: warehouse/accounts/views.py:801
+#: warehouse/accounts/views.py:841
 msgid "Invalid token: request a new password reset link"
 msgstr "अवैध टोकन: नवीन संकेतशब्द रीसेट दुव्याची विनंती करा"
 
-#: warehouse/accounts/views.py:803 warehouse/accounts/views.py:904
-#: warehouse/accounts/views.py:1008 warehouse/accounts/views.py:1177
+#: warehouse/accounts/views.py:843 warehouse/accounts/views.py:944
+#: warehouse/accounts/views.py:1048 warehouse/accounts/views.py:1217
 msgid "Invalid token: no token supplied"
 msgstr "अवैध टोकन: कोणतेही टोकन दिले नाही"
 
-#: warehouse/accounts/views.py:807
+#: warehouse/accounts/views.py:847
 msgid "Invalid token: not a password reset token"
 msgstr "अवैध टोकन: संकेतशब्द रीसेट टोकन नाही"
 
-#: warehouse/accounts/views.py:812
+#: warehouse/accounts/views.py:852
 msgid "Invalid token: user not found"
 msgstr "अवैध टोकन: वापरकर्ता आढळला नाही"
 
-#: warehouse/accounts/views.py:822
+#: warehouse/accounts/views.py:862
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "अवैध टोकन: या टोकनची विनंती केल्यापासून वापरकर्त्याने लॉग इन केले"
 
-#: warehouse/accounts/views.py:840
+#: warehouse/accounts/views.py:880
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "अवैध टोकन: हा टोकन विनंती केल्यानंतर संकेतशब्द बदलून झाला आहे"
 
-#: warehouse/accounts/views.py:872
+#: warehouse/accounts/views.py:912
 msgid "You have reset your password"
 msgstr "आपण आपला संकेतशब्द रीसेट केला आहे"
 
-#: warehouse/accounts/views.py:900
+#: warehouse/accounts/views.py:940
 msgid "Expired token: request a new email verification link"
 msgstr "कालबाह्य टोकन: नवीन ईमेल सत्यापन दुव्याची विनंती करा"
 
-#: warehouse/accounts/views.py:902
+#: warehouse/accounts/views.py:942
 msgid "Invalid token: request a new email verification link"
 msgstr "अवैध टोकन: नवीन ईमेल सत्यापन दुव्याची विनंती करा"
 
-#: warehouse/accounts/views.py:908
+#: warehouse/accounts/views.py:948
 msgid "Invalid token: not an email verification token"
 msgstr "अवैध टोकन: ईमेल सत्यापन टोकन नाही"
 
-#: warehouse/accounts/views.py:917
+#: warehouse/accounts/views.py:957
 msgid "Email not found"
 msgstr "ईमेल आढळला नाही"
 
-#: warehouse/accounts/views.py:920
+#: warehouse/accounts/views.py:960
 msgid "Email already verified"
 msgstr "ईमेल आधीच सत्यापित आहे"
 
-#: warehouse/accounts/views.py:937
+#: warehouse/accounts/views.py:977
 msgid "You can now set this email as your primary address"
 msgstr "आपण आता हा ईमेल आपला प्राथमिक ईमेल म्हणून सेट करू शकता"
 
-#: warehouse/accounts/views.py:941
+#: warehouse/accounts/views.py:981
 msgid "This is your primary address"
 msgstr "हा तुमचा प्राथमिक पत्ता आहे"
 
-#: warehouse/accounts/views.py:946
+#: warehouse/accounts/views.py:986
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "ईमेल पत्ता ${email_address} सत्यापित. ${confirm_message}."
 
-#: warehouse/accounts/views.py:1004
+#: warehouse/accounts/views.py:1044
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new organization invitation"
 msgstr "कालबाह्य टोकन: नवीन प्रकल्प भूमिकेच्या आमंत्रणाची विनंती करा"
 
-#: warehouse/accounts/views.py:1006
+#: warehouse/accounts/views.py:1046
 #, fuzzy
 #| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new organization invitation"
 msgstr "अवैध टोकन: नवीन प्रकल्प भूमिकेच्या आमंत्रणाची विनंती करा"
 
-#: warehouse/accounts/views.py:1012
+#: warehouse/accounts/views.py:1052
 #, fuzzy
 #| msgid "Invalid token: not a collaboration invitation token"
 msgid "Invalid token: not an organization invitation token"
 msgstr "अवैध टोकन: सहकार्याचे आमंत्रण टोकन नाही"
 
-#: warehouse/accounts/views.py:1016
+#: warehouse/accounts/views.py:1056
 #, fuzzy
 #| msgid "Role invitation is not valid."
 msgid "Organization invitation is not valid."
 msgstr "भूमिका आमंत्रण वैध नाही."
 
-#: warehouse/accounts/views.py:1025
+#: warehouse/accounts/views.py:1065
 #, fuzzy
 #| msgid "Role invitation no longer exists."
 msgid "Organization invitation no longer exists."
 msgstr "भूमिका आमंत्रण यापुढे विद्यमान नाही."
 
-#: warehouse/accounts/views.py:1076
+#: warehouse/accounts/views.py:1116
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "'${project_name}' चे आमंत्रण नाकारले गेले आहे."
 
-#: warehouse/accounts/views.py:1139
+#: warehouse/accounts/views.py:1179
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "आपण आता '${project_name}' प्रोजेक्टची  ${role}  आहात."
 
-#: warehouse/accounts/views.py:1173
+#: warehouse/accounts/views.py:1213
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new project role invitation"
 msgstr "कालबाह्य टोकन: नवीन प्रकल्प भूमिकेच्या आमंत्रणाची विनंती करा"
 
-#: warehouse/accounts/views.py:1175
+#: warehouse/accounts/views.py:1215
 #, fuzzy
 #| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new project role invitation"
 msgstr "अवैध टोकन: नवीन प्रकल्प भूमिकेच्या आमंत्रणाची विनंती करा"
 
-#: warehouse/accounts/views.py:1181
+#: warehouse/accounts/views.py:1221
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "अवैध टोकन: सहकार्याचे आमंत्रण टोकन नाही"
 
-#: warehouse/accounts/views.py:1185
+#: warehouse/accounts/views.py:1225
 msgid "Role invitation is not valid."
 msgstr "भूमिका आमंत्रण वैध नाही."
 
-#: warehouse/accounts/views.py:1200
+#: warehouse/accounts/views.py:1240
 msgid "Role invitation no longer exists."
 msgstr "भूमिका आमंत्रण यापुढे विद्यमान नाही."
 
-#: warehouse/accounts/views.py:1231
+#: warehouse/accounts/views.py:1271
 msgid "Invitation for '${project_name}' is declined."
 msgstr "'${project_name}' चे आमंत्रण नाकारले गेले आहे."
 
-#: warehouse/accounts/views.py:1297
+#: warehouse/accounts/views.py:1337
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "आपण आता '${project_name}' प्रोजेक्टची  ${role}  आहात."
 
-#: warehouse/accounts/views.py:1548 warehouse/accounts/views.py:1791
+#: warehouse/accounts/views.py:1588 warehouse/accounts/views.py:1831
 #: warehouse/manage/views/__init__.py:1409
 #, fuzzy
 #| msgid ""
@@ -363,7 +363,7 @@ msgstr ""
 "नवीन वापरकर्ता नोंदणी तात्पुरती अक्षम केली. तपशीलांसाठी https://pypi.org/help#admin-"
 "intervention पहा."
 
-#: warehouse/accounts/views.py:1569
+#: warehouse/accounts/views.py:1609
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -373,17 +373,17 @@ msgstr ""
 "नवीन वापरकर्ता नोंदणी तात्पुरती अक्षम केली. तपशीलांसाठी https://pypi.org/help#admin-"
 "intervention पहा."
 
-#: warehouse/accounts/views.py:1585
+#: warehouse/accounts/views.py:1625
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1598
+#: warehouse/accounts/views.py:1638
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1614 warehouse/manage/views/__init__.py:1464
+#: warehouse/accounts/views.py:1654 warehouse/manage/views/__init__.py:1464
 #: warehouse/manage/views/__init__.py:1577
 #: warehouse/manage/views/__init__.py:1689
 #: warehouse/manage/views/__init__.py:1799
@@ -395,29 +395,29 @@ msgid ""
 "again later."
 msgstr "बरेच लॉगिन प्रयत्न अयशस्वी झाले. पुन्हा प्रयत्न करा."
 
-#: warehouse/accounts/views.py:1625 warehouse/manage/views/__init__.py:1478
+#: warehouse/accounts/views.py:1665 warehouse/manage/views/__init__.py:1478
 #: warehouse/manage/views/__init__.py:1591
 #: warehouse/manage/views/__init__.py:1703
 #: warehouse/manage/views/__init__.py:1813
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1639
+#: warehouse/accounts/views.py:1679
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1666
+#: warehouse/accounts/views.py:1706
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1805 warehouse/accounts/views.py:1818
-#: warehouse/accounts/views.py:1825
+#: warehouse/accounts/views.py:1845 warehouse/accounts/views.py:1858
+#: warehouse/accounts/views.py:1865
 msgid "Invalid publisher ID"
 msgstr ""
 
-#: warehouse/accounts/views.py:1831
+#: warehouse/accounts/views.py:1871
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -972,7 +972,7 @@ msgstr ""
 msgid "Provide an Inspector link to specific lines of code."
 msgstr ""
 
-#: warehouse/packaging/views.py:212
+#: warehouse/packaging/views.py:352
 msgid "Your report has been recorded. Thank you for your help."
 msgstr ""
 
@@ -2934,7 +2934,7 @@ msgstr ""
 #: warehouse/templates/manage/unverified-account.html:172
 #: warehouse/templates/manage/unverified-account.html:174
 #: warehouse/templates/manage/unverified-account.html:184
-#: warehouse/templates/search/results.html:198
+#: warehouse/templates/search/results.html:197
 msgid "Close"
 msgstr ""
 
@@ -4172,7 +4172,7 @@ msgstr "रीलिझ हटवा"
 msgid "%(remaining)s unused"
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:49
+#: warehouse/templates/manage/account/recovery_codes-burn.html:50
 #: warehouse/templates/manage/manage_base.html:42
 msgid "Regenerate"
 msgstr ""
@@ -5144,19 +5144,19 @@ msgid ""
 "your account before adding a new publisher."
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:34
+#: warehouse/templates/manage/account/recovery_codes-burn.html:35
 msgid ""
 "In order to verify that you have safely stored your recovery codes for use "
 "in the event of a lost 2FA device, submit one of your recovery codes here."
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:39
+#: warehouse/templates/manage/account/recovery_codes-burn.html:40
 msgid ""
 "The recovery code you choose will be considered used and no longer be "
 "available to bypass 2FA."
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:44
+#: warehouse/templates/manage/account/recovery_codes-burn.html:45
 msgid ""
 "<strong>Forgot to safely store your recovery codes?</strong> You'll need to "
 "generate them again."
@@ -5172,20 +5172,20 @@ msgstr "त्रुटी कोड"
 msgid "Regenerate recovery codes"
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:42
+#: warehouse/templates/manage/account/recovery_codes-provision.html:43
 msgid ""
 "If you lose access to your authentication application or security key(s), "
 "you’ll need to use one of these recovery codes to log into your PyPI "
 "account. Each code can only be used <strong>once</strong>."
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:43
+#: warehouse/templates/manage/account/recovery_codes-provision.html:44
 msgid ""
 "These codes should <strong>only</strong> be used for account recovery, not "
 "for typical logins."
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:44
+#: warehouse/templates/manage/account/recovery_codes-provision.html:45
 msgid ""
 "<strong>Keep these somewhere safe</strong>. If you lose your authentication "
 "application or security key(s) and do not have access to these recovery "
@@ -9688,93 +9688,93 @@ msgid "Logos"
 msgstr ""
 
 #: warehouse/templates/search/results.html:18
-#: warehouse/templates/search/results.html:114
-#: warehouse/templates/search/results.html:211
+#: warehouse/templates/search/results.html:113
+#: warehouse/templates/search/results.html:210
 msgid "Search results"
 msgstr "शोध परिणाम"
 
-#: warehouse/templates/search/results.html:40
+#: warehouse/templates/search/results.html:39
 #, python-format
 msgid "Did you mean '<a class=\"link\" href=\"%(link)s\">%(text)s</a>'?"
 msgstr ""
 
-#: warehouse/templates/search/results.html:82
+#: warehouse/templates/search/results.html:81
 msgid "Close panel"
 msgstr "पॅनेल बंद करा"
 
-#: warehouse/templates/search/results.html:86
+#: warehouse/templates/search/results.html:85
 #, python-format
 msgid "Filter by <a href=\"%(href)s\">classifier</a>"
 msgstr "याद्वारे गाळा <a href=\"%(href)s\">वर्गीकरण घटक </a>"
 
-#: warehouse/templates/search/results.html:117
+#: warehouse/templates/search/results.html:116
 msgid "Enter a search query, or select a filter from the list of classifiers."
 msgstr "शोध क्वेरी प्रविष्ट करा, किंवा क्लासिफायरच्या सूचीमधून एक फिल्टर निवडा."
 
-#: warehouse/templates/search/results.html:118
+#: warehouse/templates/search/results.html:117
 msgid "Enter a search query, or add a filter by clicking on the button."
 msgstr "शोध क्वेरी प्रविष्ट करा किंवा बटणावर क्लिक करून फिल्टर जोडा."
 
-#: warehouse/templates/search/results.html:119
+#: warehouse/templates/search/results.html:118
 msgid "You can combine searches and classifier filters. Examples:"
 msgstr "आपण शोध आणि वर्गीकरण फिल्टर एकत्र करू शकता. उदाहरणे:"
 
-#: warehouse/templates/search/results.html:123
+#: warehouse/templates/search/results.html:122
 msgid "Python 3 compatible projects"
 msgstr "पायथन 3 सुसंगत प्रकल्प"
 
-#: warehouse/templates/search/results.html:128
+#: warehouse/templates/search/results.html:127
 msgid "Sphinx extensions that have a stable/production status"
 msgstr ""
 
-#: warehouse/templates/search/results.html:133
+#: warehouse/templates/search/results.html:132
 msgid "Projects related to \"graphics\" with OSI-approved licenses"
 msgstr "ओएसआय-मंजूर परवान्यांसह \"ग्राफिक्स\" संबंधित प्रकल्प"
 
-#: warehouse/templates/search/results.html:150
+#: warehouse/templates/search/results.html:149
 #, python-format
 msgid "<strong>%(count_display)s</strong> project"
 msgid_plural "<strong>%(count_display)s</strong> projects"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/search/results.html:157
+#: warehouse/templates/search/results.html:156
 #, python-format
 msgid "for \"%(term)s\""
 msgstr "\"%(term)s\" साठी"
 
-#: warehouse/templates/search/results.html:161
+#: warehouse/templates/search/results.html:160
 msgid "with the selected classifier"
 msgid_plural "with the selected classifiers"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/search/results.html:177
+#: warehouse/templates/search/results.html:176
 msgid "Order by"
 msgstr "याद्वारे क्रमित करा"
 
-#: warehouse/templates/search/results.html:179
+#: warehouse/templates/search/results.html:178
 msgid "Relevance"
 msgstr "संदर्भाप्रमाणे"
 
-#: warehouse/templates/search/results.html:180
+#: warehouse/templates/search/results.html:179
 msgid "Date last updated"
 msgstr "अंतिम अद्यतनित तारीख"
 
-#: warehouse/templates/search/results.html:193
+#: warehouse/templates/search/results.html:192
 msgid "Filter"
 msgstr "फिल्टर करा"
 
-#: warehouse/templates/search/results.html:204
+#: warehouse/templates/search/results.html:203
 msgid "Add filter"
 msgstr "फिल्टर जोडा"
 
-#: warehouse/templates/search/results.html:220
+#: warehouse/templates/search/results.html:219
 #, python-format
 msgid "There were no results for '%(term)s'"
 msgstr ""
 
-#: warehouse/templates/search/results.html:222
+#: warehouse/templates/search/results.html:221
 #, python-format
 msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
