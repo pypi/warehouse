@@ -51,7 +51,13 @@ def execute_observation_report(config: Configurator, session: SA_Session):
         config.task(report_observation_to_helpscout).delay(obj.id)
 
 
-@tasks.task(bind=True, ignore_result=True, acks_late=True)
+@tasks.task(
+    bind=True,
+    ignore_result=True,
+    acks_late=True,
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+)
 def report_observation_to_helpscout(task, request: Request, model_id: UUID) -> None:
     """
     Report an Observation to HelpScout for further tracking.
