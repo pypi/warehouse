@@ -42,7 +42,6 @@ passlib>=1.6.4
 platformdirs>=4.2
 premailer
 psycopg[c]
-pycurl
 pydantic
 pyqrcode
 pyramid>=2.0
