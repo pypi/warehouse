@@ -26,19 +26,19 @@ msgstr ""
 "X-Generator: Weblate 5.9-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/views.py:149
+#: warehouse/views.py:157
 msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
 msgstr "กรุณายืนยันอีเมลหลักของคุณก่อนที่จะสามารถดำเนินการนี้ได้"
 
-#: warehouse/views.py:165
+#: warehouse/views.py:173
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
 msgstr "กรุณาเปิดการยืนยันสองขั้นตอนในบัญชีของคุณเพื่อดำเนินการต่อ"
 
-#: warehouse/views.py:301
+#: warehouse/views.py:332
 msgid "Locale updated"
 msgstr "ตำเเหน่งอัปเดต"
 
@@ -150,14 +150,14 @@ msgstr "รหัสกู้คืนถูกใช้ไปเเล้ว"
 msgid "The username isn't valid. Try again."
 msgstr "ชื่อผู้ใช้ไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง"
 
-#: warehouse/accounts/views.py:119
+#: warehouse/accounts/views.py:120
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
 msgstr ""
 "มีความพยายามเข้าถึงระบบที่ไม่สำเร็จมากเกินไป คุณถูกออกจากระบบ {} กรุณาลองใหม่ในภายหลัง"
 
-#: warehouse/accounts/views.py:136
+#: warehouse/accounts/views.py:137
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -165,7 +165,7 @@ msgstr ""
 "มีการเพิ่มอีเมลมากเกินไปในบัญชีนี้โดยไม่ยืนยันอีเมล ตรวจสอบอีเมลของคุณและทําตามลิงก์ยืนยัน (IP: "
 "${ip})"
 
-#: warehouse/accounts/views.py:148
+#: warehouse/accounts/views.py:149
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
@@ -174,25 +174,25 @@ msgstr ""
 "มีการเพิ่มอีเมลมากเกินไปในบัญชีนี้โดยไม่ต้องตรวจสอบ "
 "ตรวจสอบกล่องจดหมายของคุณและทําตามลิงก์ยืนยัน （(IP: ${ip})"
 
-#: warehouse/accounts/views.py:330 warehouse/accounts/views.py:399
-#: warehouse/accounts/views.py:401 warehouse/accounts/views.py:430
-#: warehouse/accounts/views.py:432 warehouse/accounts/views.py:538
+#: warehouse/accounts/views.py:370 warehouse/accounts/views.py:439
+#: warehouse/accounts/views.py:441 warehouse/accounts/views.py:470
+#: warehouse/accounts/views.py:472 warehouse/accounts/views.py:578
 msgid "Invalid or expired two factor login."
 msgstr "ระบบยืนยันตัวตนสองขั้นตอนไม่ถูกต้องหรือหมดอายุไปแล้ว"
 
-#: warehouse/accounts/views.py:393
+#: warehouse/accounts/views.py:433
 msgid "Already authenticated"
 msgstr "คุณได้ทำการยืนยันตัวตนไปแล้ว"
 
-#: warehouse/accounts/views.py:473
+#: warehouse/accounts/views.py:513
 msgid "Successful WebAuthn assertion"
 msgstr "การตรวจสอบ WebAuthn เสร็จสิ้น"
 
-#: warehouse/accounts/views.py:569 warehouse/manage/views/__init__.py:873
+#: warehouse/accounts/views.py:609 warehouse/manage/views/__init__.py:873
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "รหัสกู้คืนถูกต้อง ไม่สามารถใช้รหัสที่ให้มาได้อีกครั้ง"
 
-#: warehouse/accounts/views.py:661
+#: warehouse/accounts/views.py:701
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -200,130 +200,130 @@ msgstr ""
 "การสมัครผู้ใช้งานใหม่ถูกปิดใช้งานชั่วคราว ดูข้อมูลเพิ่มเติมได้ที่ https://pypi.org/help#admin-"
 "intervention"
 
-#: warehouse/accounts/views.py:799
+#: warehouse/accounts/views.py:839
 msgid "Expired token: request a new password reset link"
 msgstr "โทเคนหมดอายุ: กรุณาขอลิ้งค์ในการตั้งรหัสผ่านใหม่"
 
-#: warehouse/accounts/views.py:801
+#: warehouse/accounts/views.py:841
 msgid "Invalid token: request a new password reset link"
 msgstr "โทเคนไม่ถูกต้อง: กรุณาขอลิ้งค์ในการตั้งรหัสผ่านใหม่"
 
-#: warehouse/accounts/views.py:803 warehouse/accounts/views.py:904
-#: warehouse/accounts/views.py:1008 warehouse/accounts/views.py:1177
+#: warehouse/accounts/views.py:843 warehouse/accounts/views.py:944
+#: warehouse/accounts/views.py:1048 warehouse/accounts/views.py:1217
 msgid "Invalid token: no token supplied"
 msgstr "โทเคนไม่ถูกต้อง: ไม่มีโทเคน"
 
-#: warehouse/accounts/views.py:807
+#: warehouse/accounts/views.py:847
 msgid "Invalid token: not a password reset token"
 msgstr "โทเคนไม่ถูกต้อง: ไม่ใช่โทเคนในการตั้งค่ารหัสผ่านใหม่"
 
-#: warehouse/accounts/views.py:812
+#: warehouse/accounts/views.py:852
 msgid "Invalid token: user not found"
 msgstr "โทเคนไม่ถูกต้อง: ไม่ค้นพบผู้ใช้งาน"
 
-#: warehouse/accounts/views.py:822
+#: warehouse/accounts/views.py:862
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "โทเคนไม่ถูกต้อง: ผู้ใช้งานได้ทำการเข้าสู่ระบบหลังจากมีการร้องขอโทเคนนี้"
 
-#: warehouse/accounts/views.py:840
+#: warehouse/accounts/views.py:880
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "โทเคนไม่ถูกต้อง: รหัสผ่านถูกเปลี่ยนแปลงแล้วหลังจากมีการร้องขอโทเคนนี้"
 
-#: warehouse/accounts/views.py:872
+#: warehouse/accounts/views.py:912
 msgid "You have reset your password"
 msgstr "คุณได้ทำการตั้งค่ารหัสผ่านใหม่"
 
-#: warehouse/accounts/views.py:900
+#: warehouse/accounts/views.py:940
 msgid "Expired token: request a new email verification link"
 msgstr "โทเคนหมดอายุ: กรุณาร้องขอลิ้งค์การยืนยันที่อยู่อีเมล์ใหม่"
 
-#: warehouse/accounts/views.py:902
+#: warehouse/accounts/views.py:942
 msgid "Invalid token: request a new email verification link"
 msgstr "โทเคนไม่ถูกต้อง: กรุณายืนยันที่อยู่อีเมล์ใหม่"
 
-#: warehouse/accounts/views.py:908
+#: warehouse/accounts/views.py:948
 msgid "Invalid token: not an email verification token"
 msgstr "โทเคนหมดอายุ: ไม่ใช่โทเคนในการยืนยันอีเมล์"
 
-#: warehouse/accounts/views.py:917
+#: warehouse/accounts/views.py:957
 msgid "Email not found"
 msgstr "ไม่พบอีเมล์"
 
-#: warehouse/accounts/views.py:920
+#: warehouse/accounts/views.py:960
 msgid "Email already verified"
 msgstr "อีเมล์ได้ทำการยืนยันไปแล้ว"
 
-#: warehouse/accounts/views.py:937
+#: warehouse/accounts/views.py:977
 msgid "You can now set this email as your primary address"
 msgstr "คุณสามารถตั้งค่าให้อีเมล์นี้เป็นอีเมล์หลักได้"
 
-#: warehouse/accounts/views.py:941
+#: warehouse/accounts/views.py:981
 msgid "This is your primary address"
 msgstr "นี่คือที่อยู่อีเมล์หลัก"
 
-#: warehouse/accounts/views.py:946
+#: warehouse/accounts/views.py:986
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "อีเมล์ ${email_address} ยืนยันแล้ว. ${confirm_message}."
 
-#: warehouse/accounts/views.py:1004
+#: warehouse/accounts/views.py:1044
 msgid "Expired token: request a new organization invitation"
 msgstr "โทเคนหมดอายุ: กรุณาขอลิ้งค์จากองค์กรของคุณใหม่"
 
-#: warehouse/accounts/views.py:1006
+#: warehouse/accounts/views.py:1046
 msgid "Invalid token: request a new organization invitation"
 msgstr "โทเคนไม่ถูกต้อง: กรุณาขอคำเชิญจากองค์กรของคุณ"
 
-#: warehouse/accounts/views.py:1012
+#: warehouse/accounts/views.py:1052
 msgid "Invalid token: not an organization invitation token"
 msgstr "โทเคนหมดอายุ: ไม่ใช่โทเคนที่องค์กรเชิญมา"
 
-#: warehouse/accounts/views.py:1016
+#: warehouse/accounts/views.py:1056
 msgid "Organization invitation is not valid."
 msgstr "คำเชิจากองค์กรไม่ถูกต้อง"
 
-#: warehouse/accounts/views.py:1025
+#: warehouse/accounts/views.py:1065
 msgid "Organization invitation no longer exists."
 msgstr "ไม่มีคำเชิญเข้าร่วมองค์กรอีกต่อไป"
 
-#: warehouse/accounts/views.py:1076
+#: warehouse/accounts/views.py:1116
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "คำเชิจาก '${organization_name}' ถูกปฏิเสธ"
 
-#: warehouse/accounts/views.py:1139
+#: warehouse/accounts/views.py:1179
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "คุณได้เป็น ${role} ของ '${organization_name}'"
 
-#: warehouse/accounts/views.py:1173
+#: warehouse/accounts/views.py:1213
 msgid "Expired token: request a new project role invitation"
 msgstr "โทเคนหมดอายุ: กรุณาขอลิ้งค์สำหรับโปรเจค"
 
-#: warehouse/accounts/views.py:1175
+#: warehouse/accounts/views.py:1215
 msgid "Invalid token: request a new project role invitation"
 msgstr "โทเคนไม่ถูกต้อง: กรุณาขอลิ้งค์ในการใช้งานใหม่"
 
-#: warehouse/accounts/views.py:1181
+#: warehouse/accounts/views.py:1221
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "โทเคนหมดอายุ: ไม่ใช่โทเคนในการยืนยันอีเมล์"
 
-#: warehouse/accounts/views.py:1185
+#: warehouse/accounts/views.py:1225
 msgid "Role invitation is not valid."
 msgstr "ตำเเหน่งการเชิญไม่ถูกต้อง"
 
-#: warehouse/accounts/views.py:1200
+#: warehouse/accounts/views.py:1240
 msgid "Role invitation no longer exists."
 msgstr "คำเชิญไม่ถูกต้อง"
 
-#: warehouse/accounts/views.py:1231
+#: warehouse/accounts/views.py:1271
 msgid "Invitation for '${project_name}' is declined."
 msgstr "การเชิญ  '${project_name}' ได้ถูกการปฏิเสธ"
 
-#: warehouse/accounts/views.py:1297
+#: warehouse/accounts/views.py:1337
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "ตอนนี้คุณได้เป็น ${role} ของโปรเจค '${project_name}' แล้ว"
 
-#: warehouse/accounts/views.py:1548 warehouse/accounts/views.py:1791
+#: warehouse/accounts/views.py:1588 warehouse/accounts/views.py:1831
 #: warehouse/manage/views/__init__.py:1409
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
@@ -332,12 +332,12 @@ msgstr ""
 "การรับสมัครผู้ใช้งานใหม่ปิดใช้งานชั่วคราว ดูข้อมูลเพิ่มเติมได้ที่ https://pypi.org/help#admin-"
 "intervention"
 
-#: warehouse/accounts/views.py:1569
+#: warehouse/accounts/views.py:1609
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr ""
 "ถูกปิดใช้งานชั่วคราว ดูข้อมูลเพิ่มเติมได้ที่ https://pypi.org/help#admin-intervention"
 
-#: warehouse/accounts/views.py:1585
+#: warehouse/accounts/views.py:1625
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
@@ -345,11 +345,11 @@ msgstr ""
 "คุณต้องมีอีเมลที่ยืนยันแล้วจึงจะสามารถลงทะเบียนผู้เผยแพร่ที่เชื่อถือได้ที่รอดำเนินการ ดูข้อมูลเพิ่มเติมที่ "
 "https://pypi.org/help#openid-connect"
 
-#: warehouse/accounts/views.py:1598
+#: warehouse/accounts/views.py:1638
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr "คุณไม่สามารถลงทะเบียนผู้เผยแพร่ที่รอดำเนินการมากกว่า 3 รายพร้อมกันได้"
 
-#: warehouse/accounts/views.py:1614 warehouse/manage/views/__init__.py:1464
+#: warehouse/accounts/views.py:1654 warehouse/manage/views/__init__.py:1464
 #: warehouse/manage/views/__init__.py:1577
 #: warehouse/manage/views/__init__.py:1689
 #: warehouse/manage/views/__init__.py:1799
@@ -358,30 +358,30 @@ msgid ""
 "again later."
 msgstr "มีการพยายามลงทะเบียนผู้เผยแพร่ที่เชื่อถือได้หลายครั้งเกินไป ลองอีกครั้งในภายหลัง"
 
-#: warehouse/accounts/views.py:1625 warehouse/manage/views/__init__.py:1478
+#: warehouse/accounts/views.py:1665 warehouse/manage/views/__init__.py:1478
 #: warehouse/manage/views/__init__.py:1591
 #: warehouse/manage/views/__init__.py:1703
 #: warehouse/manage/views/__init__.py:1813
 msgid "The trusted publisher could not be registered"
 msgstr "ไม่สามารถลงทะเบียนผู้เผยแพร่ที่เชื่อถือได้"
 
-#: warehouse/accounts/views.py:1639
+#: warehouse/accounts/views.py:1679
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 "ผู้เผยแพร่ที่เชื่อถือได้รายนี้ได้รับการลงทะเบียนแล้ว โปรดติดต่อผู้ดูแลระบบของ PyPI หากไม่ได้ตั้งใจ"
 
-#: warehouse/accounts/views.py:1666
+#: warehouse/accounts/views.py:1706
 msgid "Registered a new pending publisher to create "
 msgstr "ลงทะเบียนผู้เผยแพร่ใหม่ที่รอดำเนินการเพื่อสร้าง "
 
-#: warehouse/accounts/views.py:1805 warehouse/accounts/views.py:1818
-#: warehouse/accounts/views.py:1825
+#: warehouse/accounts/views.py:1845 warehouse/accounts/views.py:1858
+#: warehouse/accounts/views.py:1865
 msgid "Invalid publisher ID"
 msgstr "ID ผู้เผยแพร่ไม่ถูกต้อง"
 
-#: warehouse/accounts/views.py:1831
+#: warehouse/accounts/views.py:1871
 msgid "Removed trusted publisher for project "
 msgstr "ลบผู้เผยแพร่ที่เชื่อถือได้สำหรับโครงการแล้ว "
 
@@ -864,7 +864,7 @@ msgstr ""
 msgid "Provide an Inspector link to specific lines of code."
 msgstr ""
 
-#: warehouse/packaging/views.py:212
+#: warehouse/packaging/views.py:352
 msgid "Your report has been recorded. Thank you for your help."
 msgstr ""
 
@@ -2780,7 +2780,7 @@ msgstr ""
 #: warehouse/templates/manage/unverified-account.html:172
 #: warehouse/templates/manage/unverified-account.html:174
 #: warehouse/templates/manage/unverified-account.html:184
-#: warehouse/templates/search/results.html:198
+#: warehouse/templates/search/results.html:197
 msgid "Close"
 msgstr ""
 
@@ -4003,7 +4003,7 @@ msgstr ""
 msgid "%(remaining)s unused"
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:49
+#: warehouse/templates/manage/account/recovery_codes-burn.html:50
 #: warehouse/templates/manage/manage_base.html:42
 msgid "Regenerate"
 msgstr ""
@@ -4966,19 +4966,19 @@ msgid ""
 "your account before adding a new publisher."
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:34
+#: warehouse/templates/manage/account/recovery_codes-burn.html:35
 msgid ""
 "In order to verify that you have safely stored your recovery codes for use "
 "in the event of a lost 2FA device, submit one of your recovery codes here."
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:39
+#: warehouse/templates/manage/account/recovery_codes-burn.html:40
 msgid ""
 "The recovery code you choose will be considered used and no longer be "
 "available to bypass 2FA."
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:44
+#: warehouse/templates/manage/account/recovery_codes-burn.html:45
 msgid ""
 "<strong>Forgot to safely store your recovery codes?</strong> You'll need to "
 "generate them again."
@@ -4994,20 +4994,20 @@ msgstr "ป้อนรหัสกู้คืน"
 msgid "Regenerate recovery codes"
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:42
+#: warehouse/templates/manage/account/recovery_codes-provision.html:43
 msgid ""
 "If you lose access to your authentication application or security key(s), "
 "you’ll need to use one of these recovery codes to log into your PyPI "
 "account. Each code can only be used <strong>once</strong>."
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:43
+#: warehouse/templates/manage/account/recovery_codes-provision.html:44
 msgid ""
 "These codes should <strong>only</strong> be used for account recovery, not "
 "for typical logins."
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:44
+#: warehouse/templates/manage/account/recovery_codes-provision.html:45
 msgid ""
 "<strong>Keep these somewhere safe</strong>. If you lose your authentication "
 "application or security key(s) and do not have access to these recovery "
@@ -9374,91 +9374,91 @@ msgid "Logos"
 msgstr ""
 
 #: warehouse/templates/search/results.html:18
-#: warehouse/templates/search/results.html:114
-#: warehouse/templates/search/results.html:211
+#: warehouse/templates/search/results.html:113
+#: warehouse/templates/search/results.html:210
 msgid "Search results"
 msgstr ""
 
-#: warehouse/templates/search/results.html:40
+#: warehouse/templates/search/results.html:39
 #, python-format
 msgid "Did you mean '<a class=\"link\" href=\"%(link)s\">%(text)s</a>'?"
 msgstr ""
 
-#: warehouse/templates/search/results.html:82
+#: warehouse/templates/search/results.html:81
 msgid "Close panel"
 msgstr ""
 
-#: warehouse/templates/search/results.html:86
+#: warehouse/templates/search/results.html:85
 #, python-format
 msgid "Filter by <a href=\"%(href)s\">classifier</a>"
 msgstr ""
 
-#: warehouse/templates/search/results.html:117
+#: warehouse/templates/search/results.html:116
 msgid "Enter a search query, or select a filter from the list of classifiers."
 msgstr ""
 
-#: warehouse/templates/search/results.html:118
+#: warehouse/templates/search/results.html:117
 msgid "Enter a search query, or add a filter by clicking on the button."
 msgstr ""
 
-#: warehouse/templates/search/results.html:119
+#: warehouse/templates/search/results.html:118
 msgid "You can combine searches and classifier filters. Examples:"
 msgstr ""
 
-#: warehouse/templates/search/results.html:123
+#: warehouse/templates/search/results.html:122
 msgid "Python 3 compatible projects"
 msgstr ""
 
-#: warehouse/templates/search/results.html:128
+#: warehouse/templates/search/results.html:127
 msgid "Sphinx extensions that have a stable/production status"
 msgstr ""
 
-#: warehouse/templates/search/results.html:133
+#: warehouse/templates/search/results.html:132
 msgid "Projects related to \"graphics\" with OSI-approved licenses"
 msgstr ""
 
-#: warehouse/templates/search/results.html:150
+#: warehouse/templates/search/results.html:149
 #, python-format
 msgid "<strong>%(count_display)s</strong> project"
 msgid_plural "<strong>%(count_display)s</strong> projects"
 msgstr[0] ""
 
-#: warehouse/templates/search/results.html:157
+#: warehouse/templates/search/results.html:156
 #, python-format
 msgid "for \"%(term)s\""
 msgstr ""
 
-#: warehouse/templates/search/results.html:161
+#: warehouse/templates/search/results.html:160
 msgid "with the selected classifier"
 msgid_plural "with the selected classifiers"
 msgstr[0] ""
 
-#: warehouse/templates/search/results.html:177
+#: warehouse/templates/search/results.html:176
 msgid "Order by"
 msgstr ""
 
-#: warehouse/templates/search/results.html:179
+#: warehouse/templates/search/results.html:178
 msgid "Relevance"
 msgstr ""
 
-#: warehouse/templates/search/results.html:180
+#: warehouse/templates/search/results.html:179
 msgid "Date last updated"
 msgstr ""
 
-#: warehouse/templates/search/results.html:193
+#: warehouse/templates/search/results.html:192
 msgid "Filter"
 msgstr "ตัวกรอง"
 
-#: warehouse/templates/search/results.html:204
+#: warehouse/templates/search/results.html:203
 msgid "Add filter"
 msgstr "เพิ่มตัวกรอง"
 
-#: warehouse/templates/search/results.html:220
+#: warehouse/templates/search/results.html:219
 #, python-format
 msgid "There were no results for '%(term)s'"
 msgstr ""
 
-#: warehouse/templates/search/results.html:222
+#: warehouse/templates/search/results.html:221
 #, python-format
 msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
