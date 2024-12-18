@@ -932,6 +932,7 @@ def file_upload(request):
                     else None
                 ),
                 "uploaded_via_trusted_publisher": bool(request.oidc_publisher),
+                "published": True,
             },
         )
 
