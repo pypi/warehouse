@@ -30,7 +30,6 @@ from warehouse.cache.origin import origin_cache
 from warehouse.observations.models import ObservationKind
 from warehouse.packaging.forms import SubmitMalwareObservationForm
 from warehouse.packaging.models import Description, File, Project, Release, Role
-from warehouse.utils.user_agents import should_show_share_image
 
 
 class PEP740AttestationViewer:
@@ -289,7 +288,6 @@ def release_detail(release, request):
         "license": license,
         # Additional function to format the attestations
         "PEP740AttestationViewer": PEP740AttestationViewer,
-        "show_share_image": should_show_share_image(request),
     }
 
 
