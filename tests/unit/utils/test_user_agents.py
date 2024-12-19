@@ -13,6 +13,13 @@
 from warehouse.utils.user_agents import should_show_share_image
 
 
+def test_default_show_image() -> None:
+    # Missing user-agent header
+    assert should_show_share_image(None) is True
+    # Empty user-agent header
+    assert should_show_share_image("") is True
+
+
 def test_shows_share_image_for_social_networks() -> None:
     # https://developer.x.com/en/docs/x-for-websites/cards/guides/troubleshooting-cards#validate_twitterbot
     assert should_show_share_image("Twitterbot/1.0") is True

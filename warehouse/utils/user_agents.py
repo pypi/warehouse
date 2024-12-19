@@ -13,9 +13,13 @@
 from pyramid.request import Request
 
 
-def should_show_share_image(request: Request) -> bool:
-    if user_agent := request.user_agent:
-        if user_agent.strip().startswith("Slackbot-LinkExpanding"):
-            return False
+def should_show_share_image(user_agent: str | None) -> bool:
+    # User agent header not included or empty
+    if not user_agent:
+        return True
+
+    # Don't show the og:image for Slackbot link-expansion requests
+    if user_agent.strip().startswith("Slackbot-LinkExpanding"):
+        return False
 
     return True
