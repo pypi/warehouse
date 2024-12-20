@@ -51,19 +51,19 @@ msgstr ""
 "X-Generator: Weblate 5.8.2\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/views.py:149
+#: warehouse/views.py:157
 msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
 msgstr "이 행동을 수행하기전에 **기본** 이메일 주소를 확인하셔야합니다."
 
-#: warehouse/views.py:165
+#: warehouse/views.py:173
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
 msgstr "이 작업을 수행하려면 계정에서 2차 인증을 활성화해야 합니다."
 
-#: warehouse/views.py:301
+#: warehouse/views.py:332
 msgid "Locale updated"
 msgstr "언어 업데이트됨"
 
@@ -180,13 +180,13 @@ msgstr "복구 코드는 이전에 사용되었습니다."
 msgid "The username isn't valid. Try again."
 msgstr "유효하지 않은 사용자명입니다. 다시 시도해 주세요."
 
-#: warehouse/accounts/views.py:119
+#: warehouse/accounts/views.py:120
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
 msgstr "너무 많은 잘못된 로그인 시도가 있었습니다. 나중에 다시 시도해주세요."
 
-#: warehouse/accounts/views.py:136
+#: warehouse/accounts/views.py:137
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -194,7 +194,7 @@ msgstr ""
 "이 계정에 인증되지 않은 이메일이 너무 많이 추가되었습니다. 당신의 수신함을 확"
 "인하고 인증 주소를 따르세요. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:148
+#: warehouse/accounts/views.py:149
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
@@ -203,25 +203,25 @@ msgstr ""
 "이 계정에 대해 너무 많은 암호 재설정이 완료되지 않고 요청되었습니다. 받은 편"
 "지함을 확인하고 확인 링크를 따릅니다. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:330 warehouse/accounts/views.py:399
-#: warehouse/accounts/views.py:401 warehouse/accounts/views.py:430
-#: warehouse/accounts/views.py:432 warehouse/accounts/views.py:538
+#: warehouse/accounts/views.py:370 warehouse/accounts/views.py:439
+#: warehouse/accounts/views.py:441 warehouse/accounts/views.py:470
+#: warehouse/accounts/views.py:472 warehouse/accounts/views.py:578
 msgid "Invalid or expired two factor login."
 msgstr "2단계 인증 로그인이 잘못되거나 만료되었습니다."
 
-#: warehouse/accounts/views.py:393
+#: warehouse/accounts/views.py:433
 msgid "Already authenticated"
 msgstr "이미 인증됨"
 
-#: warehouse/accounts/views.py:473
+#: warehouse/accounts/views.py:513
 msgid "Successful WebAuthn assertion"
 msgstr "WebAuthn 승인 성공"
 
-#: warehouse/accounts/views.py:569 warehouse/manage/views/__init__.py:873
+#: warehouse/accounts/views.py:609 warehouse/manage/views/__init__.py:873
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "복구 코드가 승인되었습니다. 주어진 코드는 재사용이 불가능합니다."
 
-#: warehouse/accounts/views.py:661
+#: warehouse/accounts/views.py:701
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -229,130 +229,130 @@ msgstr ""
 "새 사용자 등록이 잠시 불가능한 상태입니다. https://pypi.org/help#admin-"
 "intervention 에서 자세한 내용을 확인하세요."
 
-#: warehouse/accounts/views.py:799
+#: warehouse/accounts/views.py:839
 msgid "Expired token: request a new password reset link"
 msgstr "만료된 토큰: 새로운 암호 설정 링크를 요청하세요"
 
-#: warehouse/accounts/views.py:801
+#: warehouse/accounts/views.py:841
 msgid "Invalid token: request a new password reset link"
 msgstr "잘못된 토큰: 새로운 암호 설정 링크를 요청하세요"
 
-#: warehouse/accounts/views.py:803 warehouse/accounts/views.py:904
-#: warehouse/accounts/views.py:1008 warehouse/accounts/views.py:1177
+#: warehouse/accounts/views.py:843 warehouse/accounts/views.py:944
+#: warehouse/accounts/views.py:1048 warehouse/accounts/views.py:1217
 msgid "Invalid token: no token supplied"
 msgstr "잘못된 토큰: 토큰이 제공되지 않음"
 
-#: warehouse/accounts/views.py:807
+#: warehouse/accounts/views.py:847
 msgid "Invalid token: not a password reset token"
 msgstr "잘못된 토큰: 암호 재설정 토큰이 아님"
 
-#: warehouse/accounts/views.py:812
+#: warehouse/accounts/views.py:852
 msgid "Invalid token: user not found"
 msgstr "잘못된 토큰: 사용자 없음"
 
-#: warehouse/accounts/views.py:822
+#: warehouse/accounts/views.py:862
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "잘못된 토큰: 이 토큰이 요청된 이후로 사용자가 로그인함"
 
-#: warehouse/accounts/views.py:840
+#: warehouse/accounts/views.py:880
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "잘못된 토큰: 이 토큰이 요청된 이후로 패스워드가 변경됨"
 
-#: warehouse/accounts/views.py:872
+#: warehouse/accounts/views.py:912
 msgid "You have reset your password"
 msgstr "패스워드를 재설정해야 합니다"
 
-#: warehouse/accounts/views.py:900
+#: warehouse/accounts/views.py:940
 msgid "Expired token: request a new email verification link"
 msgstr "만료된 토큰: 새로운 이메일 확인 링크를 요청하세요"
 
-#: warehouse/accounts/views.py:902
+#: warehouse/accounts/views.py:942
 msgid "Invalid token: request a new email verification link"
 msgstr "잘못된 토큰: 새로운 이메일 확인 링크를 요청하세요"
 
-#: warehouse/accounts/views.py:908
+#: warehouse/accounts/views.py:948
 msgid "Invalid token: not an email verification token"
 msgstr "잘못된 토큰: 이메일 확인 토큰이 아님"
 
-#: warehouse/accounts/views.py:917
+#: warehouse/accounts/views.py:957
 msgid "Email not found"
 msgstr "이메일을 찾을 수 없음"
 
-#: warehouse/accounts/views.py:920
+#: warehouse/accounts/views.py:960
 msgid "Email already verified"
 msgstr "이미 확인된 이메일"
 
-#: warehouse/accounts/views.py:937
+#: warehouse/accounts/views.py:977
 msgid "You can now set this email as your primary address"
 msgstr "이 이메일을 기본 이메일 주소로 지정할 수 있습니다"
 
-#: warehouse/accounts/views.py:941
+#: warehouse/accounts/views.py:981
 msgid "This is your primary address"
 msgstr "기본 이메일 주소입니다"
 
-#: warehouse/accounts/views.py:946
+#: warehouse/accounts/views.py:986
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "이메일 주소 ${email_address}가 확인되었습니다. ${confirm_message}."
 
-#: warehouse/accounts/views.py:1004
+#: warehouse/accounts/views.py:1044
 msgid "Expired token: request a new organization invitation"
 msgstr "만료된 토큰: 새로운 조직의 초대를 요청하세요"
 
-#: warehouse/accounts/views.py:1006
+#: warehouse/accounts/views.py:1046
 msgid "Invalid token: request a new organization invitation"
 msgstr "유효하지 않은 토큰: 새 조직 초대를 요청하세요"
 
-#: warehouse/accounts/views.py:1012
+#: warehouse/accounts/views.py:1052
 msgid "Invalid token: not an organization invitation token"
 msgstr "잘못된 토큰 : 공동 작업 초대 토큰이 아닙니다"
 
-#: warehouse/accounts/views.py:1016
+#: warehouse/accounts/views.py:1056
 msgid "Organization invitation is not valid."
 msgstr "조직 초대가 올바르지 않습니다."
 
-#: warehouse/accounts/views.py:1025
+#: warehouse/accounts/views.py:1065
 msgid "Organization invitation no longer exists."
 msgstr "더 이상 존재하지 않는 조직 초대입니다."
 
-#: warehouse/accounts/views.py:1076
+#: warehouse/accounts/views.py:1116
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "'${organization_name}'의 초대가 거부되었습니다."
 
-#: warehouse/accounts/views.py:1139
+#: warehouse/accounts/views.py:1179
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "이제 '${organization_name}' 프로젝트의 ${role} 입니다."
 
-#: warehouse/accounts/views.py:1173
+#: warehouse/accounts/views.py:1213
 msgid "Expired token: request a new project role invitation"
 msgstr "만료된 토큰: 역할을 새로 요청하세요"
 
-#: warehouse/accounts/views.py:1175
+#: warehouse/accounts/views.py:1215
 msgid "Invalid token: request a new project role invitation"
 msgstr "잘못된 토큰: 새 프로젝트 역할 초대를 요청하세요"
 
-#: warehouse/accounts/views.py:1181
+#: warehouse/accounts/views.py:1221
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "잘못된 토큰 : 공동 작업 초대 토큰이 아닙니다"
 
-#: warehouse/accounts/views.py:1185
+#: warehouse/accounts/views.py:1225
 msgid "Role invitation is not valid."
 msgstr "역할 초대가 유효하지 않습니다."
 
-#: warehouse/accounts/views.py:1200
+#: warehouse/accounts/views.py:1240
 msgid "Role invitation no longer exists."
 msgstr "그 역할 초대는 더 이상 존재하지 않습니다."
 
-#: warehouse/accounts/views.py:1231
+#: warehouse/accounts/views.py:1271
 msgid "Invitation for '${project_name}' is declined."
 msgstr "'${project_name}'의 초대가 거부되었습니다."
 
-#: warehouse/accounts/views.py:1297
+#: warehouse/accounts/views.py:1337
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "당신은 이제 '${project_name}' 프로젝트의 ${role} 역할 입니다."
 
-#: warehouse/accounts/views.py:1548 warehouse/accounts/views.py:1791
+#: warehouse/accounts/views.py:1588 warehouse/accounts/views.py:1831
 #: warehouse/manage/views/__init__.py:1409
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
@@ -361,13 +361,13 @@ msgstr ""
 "신규 사용자 등록이 불가능한 상태입니다. https://pypi.org/help#admin-"
 "intervention 에서 자세한 내용을 확인하세요."
 
-#: warehouse/accounts/views.py:1569
+#: warehouse/accounts/views.py:1609
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr ""
 "비활성화되었습니다. https://pypi.org/help#admin-intervention 에서 자세한 내용"
 "을 확인하세요."
 
-#: warehouse/accounts/views.py:1585
+#: warehouse/accounts/views.py:1625
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
@@ -375,12 +375,12 @@ msgstr ""
 "새로운 사용자 등록을 위해 확인된 이메일 계정이 필요합니다. 다음 사이트를 참조"
 "하세요. https://pypi.org/help#openid-connect ."
 
-#: warehouse/accounts/views.py:1598
+#: warehouse/accounts/views.py:1638
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 "한 번의 3개 이상의 처리되지 않은 신뢰할 수 있는 공급자를 등록할 수 없습니다"
 
-#: warehouse/accounts/views.py:1614 warehouse/manage/views/__init__.py:1464
+#: warehouse/accounts/views.py:1654 warehouse/manage/views/__init__.py:1464
 #: warehouse/manage/views/__init__.py:1577
 #: warehouse/manage/views/__init__.py:1689
 #: warehouse/manage/views/__init__.py:1799
@@ -389,14 +389,14 @@ msgid ""
 "again later."
 msgstr "너무 많은 잘못된 로그인 시도가 있었습니다. 나중에 다시 시도해주세요."
 
-#: warehouse/accounts/views.py:1625 warehouse/manage/views/__init__.py:1478
+#: warehouse/accounts/views.py:1665 warehouse/manage/views/__init__.py:1478
 #: warehouse/manage/views/__init__.py:1591
 #: warehouse/manage/views/__init__.py:1703
 #: warehouse/manage/views/__init__.py:1813
 msgid "The trusted publisher could not be registered"
 msgstr "신뢰할 수 있는 공급자가 등록될 수 없습니다"
 
-#: warehouse/accounts/views.py:1639
+#: warehouse/accounts/views.py:1679
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
@@ -404,16 +404,16 @@ msgstr ""
 "이 신뢰할 수 있는 공급자는 이미 등록되었습니다. 이러한 시도가 의도한 것이 아"
 "니라면, PyPI 관리자에게 연락하십시오."
 
-#: warehouse/accounts/views.py:1666
+#: warehouse/accounts/views.py:1706
 msgid "Registered a new pending publisher to create "
 msgstr "새 임시 게시자를 등록하였습니다. "
 
-#: warehouse/accounts/views.py:1805 warehouse/accounts/views.py:1818
-#: warehouse/accounts/views.py:1825
+#: warehouse/accounts/views.py:1845 warehouse/accounts/views.py:1858
+#: warehouse/accounts/views.py:1865
 msgid "Invalid publisher ID"
 msgstr "유효하지 않은 퍼블리셔 ID"
 
-#: warehouse/accounts/views.py:1831
+#: warehouse/accounts/views.py:1871
 msgid "Removed trusted publisher for project "
 msgstr "프로젝트에 대한 신뢰할 수 있는 공급자가 제거됨 "
 
@@ -900,7 +900,7 @@ msgstr "최상위 파이프라인 파일 경로는 /로 시작하거나 끝날 �
 msgid "Provide an Inspector link to specific lines of code."
 msgstr "코드의 특정 줄에 Inspector 링크를 적어주세요."
 
-#: warehouse/packaging/views.py:212
+#: warehouse/packaging/views.py:352
 msgid "Your report has been recorded. Thank you for your help."
 msgstr "제출이 기록되었습니다. 도와주셔서 감사합니다."
 
@@ -3004,7 +3004,7 @@ msgstr "이 알림 지우기"
 #: warehouse/templates/manage/unverified-account.html:172
 #: warehouse/templates/manage/unverified-account.html:174
 #: warehouse/templates/manage/unverified-account.html:184
-#: warehouse/templates/search/results.html:198
+#: warehouse/templates/search/results.html:197
 msgid "Close"
 msgstr "닫기"
 
@@ -4233,7 +4233,7 @@ msgstr "%(generated_datetime)s에 생성됨"
 msgid "%(remaining)s unused"
 msgstr "%(remaining)s 미사용됨"
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:49
+#: warehouse/templates/manage/account/recovery_codes-burn.html:50
 #: warehouse/templates/manage/manage_base.html:42
 msgid "Regenerate"
 msgstr "재생성"
@@ -5224,7 +5224,7 @@ msgstr ""
 "새로운 게시자를 추가하기 전에 계정에 <a href=\"%(href)s\">2단계 인증</a>을 활"
 "성화해야 합니다."
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:34
+#: warehouse/templates/manage/account/recovery_codes-burn.html:35
 msgid ""
 "In order to verify that you have safely stored your recovery codes for use "
 "in the event of a lost 2FA device, submit one of your recovery codes here."
@@ -5232,7 +5232,7 @@ msgstr ""
 "2단계 인증 장치를 분실했을 때 사용할 복구 코드를 안전하게 저장했는지 확인하려"
 "면, 여기에서 복구 코드 중 하나를 제출하세요."
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:39
+#: warehouse/templates/manage/account/recovery_codes-burn.html:40
 msgid ""
 "The recovery code you choose will be considered used and no longer be "
 "available to bypass 2FA."
@@ -5240,7 +5240,7 @@ msgstr ""
 "선택한 복구 코드는 사용된 것으로 간주되어 더 이상 2단계 인증을 우회하는 데 사"
 "용될 수 없습니다."
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:44
+#: warehouse/templates/manage/account/recovery_codes-burn.html:45
 msgid ""
 "<strong>Forgot to safely store your recovery codes?</strong> You'll need to "
 "generate them again."
@@ -5256,7 +5256,7 @@ msgstr "계정 복구 코드"
 msgid "Regenerate recovery codes"
 msgstr "복구 코드 재설정"
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:42
+#: warehouse/templates/manage/account/recovery_codes-provision.html:43
 msgid ""
 "If you lose access to your authentication application or security key(s), "
 "you’ll need to use one of these recovery codes to log into your PyPI "
@@ -5266,7 +5266,7 @@ msgstr ""
 "PyPI 계정에 로그인해야 합니다. 각 코드는 <strong>한 번</strong>만 사용할 수 "
 "있습니다."
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:43
+#: warehouse/templates/manage/account/recovery_codes-provision.html:44
 msgid ""
 "These codes should <strong>only</strong> be used for account recovery, not "
 "for typical logins."
@@ -5274,7 +5274,7 @@ msgstr ""
 "이 코드는 일반적인 로그인이 아닌, <strong>계정 복구에만</strong> 사용되어야 "
 "합니다."
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:44
+#: warehouse/templates/manage/account/recovery_codes-provision.html:45
 msgid ""
 "<strong>Keep these somewhere safe</strong>. If you lose your authentication "
 "application or security key(s) and do not have access to these recovery "
@@ -10029,92 +10029,92 @@ msgid "Logos"
 msgstr ""
 
 #: warehouse/templates/search/results.html:18
-#: warehouse/templates/search/results.html:114
-#: warehouse/templates/search/results.html:211
+#: warehouse/templates/search/results.html:113
+#: warehouse/templates/search/results.html:210
 msgid "Search results"
 msgstr "검색결과"
 
-#: warehouse/templates/search/results.html:40
+#: warehouse/templates/search/results.html:39
 #, python-format
 msgid "Did you mean '<a class=\"link\" href=\"%(link)s\">%(text)s</a>'?"
 msgstr ""
 
-#: warehouse/templates/search/results.html:82
+#: warehouse/templates/search/results.html:81
 msgid "Close panel"
 msgstr "패널 닫기"
 
-#: warehouse/templates/search/results.html:86
+#: warehouse/templates/search/results.html:85
 #, python-format
 msgid "Filter by <a href=\"%(href)s\">classifier</a>"
 msgstr "<a href=\"%(href)s\">분류자</a>로 필터링하기"
 
-#: warehouse/templates/search/results.html:117
+#: warehouse/templates/search/results.html:116
 msgid "Enter a search query, or select a filter from the list of classifiers."
 msgstr "검색 쿼리를 입력하거나 분류자 리스트에서의 필터를 선택하세요."
 
-#: warehouse/templates/search/results.html:118
+#: warehouse/templates/search/results.html:117
 msgid "Enter a search query, or add a filter by clicking on the button."
 msgstr ""
 
-#: warehouse/templates/search/results.html:119
+#: warehouse/templates/search/results.html:118
 msgid "You can combine searches and classifier filters. Examples:"
 msgstr ""
 
-#: warehouse/templates/search/results.html:123
+#: warehouse/templates/search/results.html:122
 msgid "Python 3 compatible projects"
 msgstr "파이썬 3와 호환되는 프로젝트"
 
-#: warehouse/templates/search/results.html:128
+#: warehouse/templates/search/results.html:127
 msgid "Sphinx extensions that have a stable/production status"
 msgstr "안정/프로덕션 상태인 스핑크스 확장"
 
-#: warehouse/templates/search/results.html:133
+#: warehouse/templates/search/results.html:132
 msgid "Projects related to \"graphics\" with OSI-approved licenses"
 msgstr ""
 
-#: warehouse/templates/search/results.html:150
+#: warehouse/templates/search/results.html:149
 #, fuzzy, python-format
 #| msgid "<strong>Collaborator for</strong>: %(project)s"
 msgid "<strong>%(count_display)s</strong> project"
 msgid_plural "<strong>%(count_display)s</strong> projects"
 msgstr[0] "<strong>공동작업자</strong>: %(project)s"
 
-#: warehouse/templates/search/results.html:157
+#: warehouse/templates/search/results.html:156
 #, python-format
 msgid "for \"%(term)s\""
 msgstr ""
 
-#: warehouse/templates/search/results.html:161
+#: warehouse/templates/search/results.html:160
 msgid "with the selected classifier"
 msgid_plural "with the selected classifiers"
 msgstr[0] ""
 
-#: warehouse/templates/search/results.html:177
+#: warehouse/templates/search/results.html:176
 msgid "Order by"
 msgstr "정렬 순서"
 
-#: warehouse/templates/search/results.html:179
+#: warehouse/templates/search/results.html:178
 msgid "Relevance"
 msgstr "관련성"
 
-#: warehouse/templates/search/results.html:180
+#: warehouse/templates/search/results.html:179
 msgid "Date last updated"
 msgstr "마지막 업데이트된 데이터"
 
-#: warehouse/templates/search/results.html:193
+#: warehouse/templates/search/results.html:192
 msgid "Filter"
 msgstr "필터"
 
-#: warehouse/templates/search/results.html:204
+#: warehouse/templates/search/results.html:203
 msgid "Add filter"
 msgstr "필터를 추가하세요"
 
-#: warehouse/templates/search/results.html:220
+#: warehouse/templates/search/results.html:219
 #, python-format
 msgid "There were no results for '%(term)s'"
 msgstr "'%(term)s'의 결과는 없습니다"
 
-#: warehouse/templates/search/results.html:222
+#: warehouse/templates/search/results.html:221
 #, python-format
 msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
