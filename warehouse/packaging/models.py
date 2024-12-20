@@ -333,19 +333,26 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             acls.append((Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload]))
 
         # Get all of the users for this project.
-        query = session.query(Role).filter(Role.project == self)
-        query = query.options(orm.lazyload(Role.project))
-        query = query.options(orm.lazyload(Role.user))
+        user_query = (
+            session.query(Role)
+            .filter(Role.project == self)
+            .options(orm.lazyload(Role.project), orm.lazyload(Role.user))
+        )
         permissions = {
             (role.user_id, "Administer" if role.role_name == "Owner" else "Upload")
-            for role in query.all()
+            for role in user_query.all()
         }
 
         # Add all of the team members for this project.
-        query = session.query(TeamProjectRole).filter(TeamProjectRole.project == self)
-        query = query.options(orm.lazyload(TeamProjectRole.project))
-        query = query.options(orm.lazyload(TeamProjectRole.team))
-        for role in query.all():
+        team_query = (
+            session.query(TeamProjectRole)
+            .filter(TeamProjectRole.project == self)
+            .options(
+                orm.lazyload(TeamProjectRole.project),
+                orm.lazyload(TeamProjectRole.team),
+            )
+        )
+        for role in team_query.all():
             permissions |= {
                 (user.id, "Administer" if role.role_name.value == "Owner" else "Upload")
                 for user in role.team.members
@@ -353,13 +360,18 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
 
         # Add all organization owners for this project.
         if self.organization:
-            query = session.query(OrganizationRole).filter(
-                OrganizationRole.organization == self.organization,
-                OrganizationRole.role_name == OrganizationRoleType.Owner,
+            org_query = (
+                session.query(OrganizationRole)
+                .filter(
+                    OrganizationRole.organization == self.organization,
+                    OrganizationRole.role_name == OrganizationRoleType.Owner,
+                )
+                .options(
+                    orm.lazyload(OrganizationRole.organization),
+                    orm.lazyload(OrganizationRole.user),
+                )
             )
-            query = query.options(orm.lazyload(OrganizationRole.organization))
-            query = query.options(orm.lazyload(OrganizationRole.user))
-            permissions |= {(role.user_id, "Administer") for role in query.all()}
+            permissions |= {(role.user_id, "Administer") for role in org_query.all()}
 
         for user_id, permission_name in sorted(permissions, key=lambda x: (x[1], x[0])):
             # Disallow Write permissions for Projects in quarantine, allow Upload
@@ -759,7 +771,7 @@ class Release(HasObservations, db.Model):
         return _urls
 
     def verified_user_name_and_repo_name(
-        self, domains: set[str], reserved_names: typing.Sequence[str] | None = None
+        self, domains: set[str], reserved_names: typing.Collection[str] | None = None
     ):
         for _, url in self.urls_by_verify_status(verified=True).items():
             try:
