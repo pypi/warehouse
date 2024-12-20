@@ -57,7 +57,7 @@ class UploadForm(wtforms.Form):
     pyversion = wtforms.StringField(validators=[wtforms.validators.Optional()])
     filetype = wtforms.StringField(
         validators=[
-            wtforms.validators.InputRequired(),
+            wtforms.validators.Optional(),
             wtforms.validators.AnyOf(
                 _filetype_extension_mapping.keys(), message="Use a known file type."
             ),
@@ -119,13 +119,24 @@ class UploadForm(wtforms.Form):
                 )
                 return False
 
-        # We *must* have at least one digest to verify against.
-        if (
-            not self.md5_digest.data
-            and not self.sha256_digest.data
-            and not self.blake2_256_digest.data
-        ):
-            self.form_errors.append("Include at least one message digest.")
-            return False
+        # We *must* have:
+        # - either no filetype, no digests (and no file)
+        # - a filetype, at least one digest (and a file)
+        if not self.filetype.data:
+            if (
+                self.md5_digest.data
+                or self.sha256_digest.data
+                or self.blake2_256_digest.data
+            ):
+                self.form_errors.append("No digest are allowed without a file.")
+                return False
+        else:
+            if (
+                not self.md5_digest.data
+                and not self.sha256_digest.data
+                and not self.blake2_256_digest.data
+            ):
+                self.form_errors.append("Include at least one message digest.")
+                return False
 
         return success

@@ -427,6 +427,40 @@ def _sort_releases(request: Request, project: Project):
             r._pypi_ordering = i
 
 
+def publish_staged_release(request, project, release):
+    """
+    Publish a staged release.
+
+    This method assumes all preconditions are met and only modifies the release
+    state to 'published', creating the appropriate events.
+    """
+    metrics = request.find_service(IMetricsService, context=None)
+
+    request.db.add(
+        JournalEntry(
+            name=project.name,
+            action="publish release",
+            version=release.version,
+            submitted_by=request.user if request.user else None,
+        )
+    )
+
+    project.record_event(
+        tag=EventTag.Project.ReleasePublish,
+        request=request,
+        additional={
+            "submitted_by": (
+                request.user.username if request.user else "OpenID created token"
+            ),
+            "uploaded_via_trusted_publisher": bool(request.oidc_publisher),
+            "canonical_version": release.canonical_version,
+        },
+    )
+    release.published = True
+
+    metrics.increment("warehouse.publish.ok")
+
+
 @view_config(
     route_name="forklift.legacy.file_upload",
     uses_session=True,
@@ -604,10 +638,6 @@ def file_upload(request):
             ),
         )
 
-    # Ensure that we have file data in the request.
-    if "content" not in request.POST:
-        raise _exc_with_message(HTTPBadRequest, "Upload payload does not have a file.")
-
     # Look up the project first before doing anything else, this is so we can
     # automatically register it if we need to and can check permissions before
     # going any further.
@@ -749,6 +779,9 @@ def file_upload(request):
                     projecthelp=request.help_url(_anchor="description-content-type"),
                 ),
             ) from None
+
+    # Is the current release a staged release
+    staged_release = bool(request.headers.get("X-PyPI-Is-Staged", False))
 
     # Verify any verifiable URLs
     project_urls = (
@@ -902,6 +935,7 @@ def file_upload(request):
             },
             uploader=request.user if request.user else None,
             uploaded_via=request.user_agent,
+            published=not staged_release,
         )
         request.db.add(release)
         is_new_release = True
@@ -932,7 +966,7 @@ def file_upload(request):
                     else None
                 ),
                 "uploaded_via_trusted_publisher": bool(request.oidc_publisher),
-                "published": True,
+                "published": not staged_release,
             },
         )
 
@@ -940,6 +974,28 @@ def file_upload(request):
         #       this method. Ideally the version field would just be sortable, but
         #       at least this should be some sort of hook or trigger.
         _sort_releases(request, project)
+
+    # Ensure that we have file data in the request.
+    if "content" not in request.POST:
+        # We only allow empty file data to publish staged release
+        if is_new_release or release.published is True:
+            raise _exc_with_message(
+                HTTPBadRequest, "Upload payload does not have a file."
+            )
+
+        # In this case: publish the staged release and return early
+        publish_staged_release(request, project, release)
+        return HTTPOk()
+
+    # From here, we know we have a file - let's start the validation
+    if not form.filetype.data:
+        raise _exc_with_message(
+            HTTPBadRequest,
+            # TODO(dm): This is the previous message (from the form validation)
+            #   Can this be changed to something cleaner or will it break a
+            #   downstream usage?
+            "Invalid value for filetype. Error: This field is required.",
+        )
 
     # Pull the filename out of our POST data.
     filename = request.POST["content"].filename
@@ -1436,20 +1492,26 @@ def file_upload(request):
     # For existing releases, we check if any of the existing project URLs are unverified
     # and have been verified in the current upload. In that case, we mark them as
     # verified.
-    if not is_new_release and project_urls:
-        for name, release_url in release._project_urls.items():
-            if (
-                not release_url.verified
-                and name in project_urls
-                and project_urls[name]["url"] == release_url.url
-                and project_urls[name]["verified"]
-            ):
-                release_url.verified = True
+    if not is_new_release:
+        if project_urls:
+            for name, release_url in release._project_urls.items():
+                if (
+                    not release_url.verified
+                    and name in project_urls
+                    and project_urls[name]["url"] == release_url.url
+                    and project_urls[name]["verified"]
+                ):
+                    release_url.verified = True
 
-        if home_page_verified and not release.home_page_verified:
-            release.home_page_verified = True
-        if download_url_verified and not release.download_url_verified:
-            release.download_url_verified = True
+            if home_page_verified and not release.home_page_verified:
+                release.home_page_verified = True
+            if download_url_verified and not release.download_url_verified:
+                release.download_url_verified = True
+
+        # If we had a staged release and this request does not include the header, that
+        # means we are good to publish
+        if not staged_release and release.published is False:
+            publish_staged_release(request, project, release)
 
     request.db.flush()  # flush db now so server default values are populated for celery
 

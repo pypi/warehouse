@@ -695,15 +695,6 @@ class TestFileUpload:
                     "metadata_version": "1.2",
                     "name": "example",
                     "version": "1.0",
-                    "md5_digest": "bad",
-                },
-                "Invalid value for filetype. Error: This field is required.",
-            ),
-            (
-                {
-                    "metadata_version": "1.2",
-                    "name": "example",
-                    "version": "1.0",
                     "filetype": "bdist_wheel",
                     "content": "fake binary content",
                 },
@@ -753,6 +744,25 @@ class TestFileUpload:
                 },
                 "Invalid value for sha256_digest. "
                 "Error: Use a valid, hex-encoded, SHA256 message digest.",
+            ),
+            # digest and filetype interactions
+            (
+                {
+                    "metadata_version": "1.2",
+                    "name": "example",
+                    "version": "1.0",
+                    "md5_digest": "a fake md5 digest",
+                },
+                "Error: No digest are allowed without a file.",
+            ),
+            (
+                {
+                    "metadata_version": "1.2",
+                    "name": "example",
+                    "version": "1.0",
+                    "filetype": "sdist",
+                },
+                "Error: Include at least one message digest.",
             ),
             # summary errors
             (
@@ -1084,6 +1094,7 @@ class TestFileUpload:
         EmailFactory.create(user=user)
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -1101,6 +1112,36 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == "400 Upload payload does not have a file."
+
+    def test_upload_fails_without_filetype(self, pyramid_config, db_request):
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": "example",
+                "version": "1.0",
+                "content": pretend.stub(
+                    filename="fails-without-filetype-1.0.tar.gz",
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert (
+            resp.status
+            == "400 Invalid value for filetype. Error: This field is required."
+        )
 
     @pytest.mark.parametrize("value", [("UNKNOWN"), ("UNKNOWN\n\n")])
     def test_upload_cleans_unknown_values(self, pyramid_config, db_request, value):
@@ -1128,6 +1169,7 @@ class TestFileUpload:
         EmailFactory.create(user=user)
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -5341,6 +5383,301 @@ class TestFileUpload:
             "See https://packaging.python.org/specifications/core-metadata "
             "for more information."
         )
+
+
+class TestStagedRelease:
+    @staticmethod
+    def get_identity(project, db_request, pyramid_config):
+        identity = UserFactory.create()
+        EmailFactory.create(user=identity)
+        RoleFactory.create(user=identity, project=project)
+
+        db_request.user = identity
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        pyramid_config.testing_securitypolicy(identity=identity)
+        return identity
+
+    def test_upload_with_stage(self, monkeypatch, db_request, pyramid_config, metrics):
+        from warehouse.events.models import HasEvents
+        from warehouse.events.tags import EventTag
+
+        project = ProjectFactory.create()
+        identity = self.get_identity(project, db_request, pyramid_config)
+
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), "1.0"
+        )
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0",
+                "summary": "This is my summary!",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.headers["X-PyPI-Is-Staged"] = "1"
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+
+        record_event = pretend.call_recorder(
+            lambda self, *, tag, request=None, additional: None
+        )
+        monkeypatch.setattr(HasEvents, "record_event", record_event)
+
+        resp = legacy.file_upload(db_request)
+        assert resp.status_code == 200
+
+        # Ensure that a Release object has been created.
+        release = (
+            db_request.db.query(Release)
+            .filter((Release.project == project) & (Release.version == "1.0"))
+            .one()
+        )
+
+        assert not release.published
+
+        # Ensure that a File object has been created.
+        db_request.db.query(File).filter(
+            (File.release == release) & (File.filename == filename)
+        ).one()
+
+        # Ensure that all of our journal entries have been created
+        journals = (
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .order_by("submitted_date", "id")
+            .all()
+        )
+        assert [(j.name, j.version, j.action, j.submitted_by) for j in journals] == [
+            (
+                release.project.name,
+                release.version,
+                "new release",
+                identity,
+            ),
+            (
+                release.project.name,
+                release.version,
+                f"add source file {filename}",
+                identity,
+            ),
+        ]
+
+        # Ensure that all of our events have been created
+        release_event = {
+            "submitted_by": identity.username,
+            "canonical_version": release.canonical_version,
+            "publisher_url": None,
+            "uploaded_via_trusted_publisher": False,
+            "published": False,
+        }
+
+        fileadd_event = {
+            "filename": filename,
+            "submitted_by": identity.username,
+            "canonical_version": release.canonical_version,
+            "publisher_url": None,
+            "project_id": str(project.id),
+            "uploaded_via_trusted_publisher": False,
+        }
+
+        assert record_event.calls == [
+            pretend.call(
+                mock.ANY,
+                tag=EventTag.Project.ReleaseAdd,
+                request=db_request,
+                additional=release_event,
+            ),
+            pretend.call(
+                mock.ANY,
+                tag=EventTag.File.FileAdd,
+                request=db_request,
+                additional=fileadd_event,
+            ),
+        ]
+
+    def test_publish_without_file(
+        self, monkeypatch, db_request, pyramid_config, metrics
+    ):
+        from warehouse.events.models import HasEvents
+        from warehouse.events.tags import EventTag
+
+        project = ProjectFactory.create()
+        identity = self.get_identity(project, db_request, pyramid_config)
+
+        release = ReleaseFactory.create(project=project, version="1.0")
+        release.published = False
+        FileFactory.create(release=release)
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0",
+            }
+        )
+
+        record_event = pretend.call_recorder(
+            lambda self, *, tag, request=None, additional: None
+        )
+        monkeypatch.setattr(HasEvents, "record_event", record_event)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IMetricsService: metrics,
+        }.get(svc)
+
+        resp = legacy.file_upload(db_request)
+        assert resp.status_code == 200
+
+        release = (
+            db_request.db.query(Release)
+            .filter((Release.project == project) & (Release.version == "1.0"))
+            .one()
+        )
+
+        assert release.published
+        assert record_event.calls == [
+            pretend.call(
+                mock.ANY,
+                tag=EventTag.Project.ReleasePublish,
+                request=db_request,
+                additional={
+                    "submitted_by": identity.username,
+                    "canonical_version": release.canonical_version,
+                    "uploaded_via_trusted_publisher": False,
+                },
+            ),
+        ]
+
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.upload.attempt"),
+            pretend.call("warehouse.publish.ok"),
+        ]
+
+    def test_publish_with_file(self, monkeypatch, db_request, pyramid_config, metrics):
+        from warehouse.events.models import HasEvents
+        from warehouse.events.tags import EventTag
+
+        project = ProjectFactory.create()
+        identity = self.get_identity(project, db_request, pyramid_config)
+
+        # Create a release and add a file
+        release = ReleaseFactory.create(project=project, version="1.0")
+        release.published = False
+        FileFactory.create(release=release, packagetype="bdist_wheel")
+
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), "1.0"
+        )
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0",
+                "summary": "This is my summary!",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+
+        record_event = pretend.call_recorder(
+            lambda self, *, tag, request=None, additional: None
+        )
+        monkeypatch.setattr(HasEvents, "record_event", record_event)
+
+        resp = legacy.file_upload(db_request)
+        assert resp.status_code == 200
+
+        # Ensure that a Release object has been created.
+        release = (
+            db_request.db.query(Release)
+            .filter((Release.project == project) & (Release.version == "1.0"))
+            .one()
+        )
+
+        assert release.published
+
+        # Ensure that a File object has been created.
+        db_request.db.query(File).filter(
+            (File.release == release) & (File.filename == filename)
+        ).one()
+
+        # Ensure that all of our journal entries have been created
+        journals = (
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .order_by("submitted_date", "id")
+            .all()
+        )
+        assert [(j.name, j.version, j.action, j.submitted_by) for j in journals] == [
+            (
+                release.project.name,
+                release.version,
+                f"add source file {filename}",
+                identity,
+            ),
+            (
+                release.project.name,
+                release.version,
+                "publish release",
+                identity,
+            ),
+        ]
+
+        # Ensure that all of our events have been created
+        release_event = {
+            "submitted_by": identity.username,
+            "canonical_version": release.canonical_version,
+            "uploaded_via_trusted_publisher": False,
+        }
+
+        fileadd_event = {
+            "filename": filename,
+            "submitted_by": (identity.username),
+            "canonical_version": release.canonical_version,
+            "publisher_url": None,
+            "project_id": str(project.id),
+            "uploaded_via_trusted_publisher": False,
+        }
+
+        assert record_event.calls == [
+            pretend.call(
+                mock.ANY,
+                tag=EventTag.File.FileAdd,
+                request=db_request,
+                additional=fileadd_event,
+            ),
+            pretend.call(
+                mock.ANY,
+                tag=EventTag.Project.ReleasePublish,
+                request=db_request,
+                additional=release_event,
+            ),
+        ]
 
 
 def test_submit(pyramid_request):

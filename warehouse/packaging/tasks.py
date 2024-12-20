@@ -10,11 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import datetime
 import logging
 import tempfile
 
 from collections import namedtuple
+from datetime import datetime, timedelta, timezone
 from itertools import product
 
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
@@ -318,7 +318,7 @@ def update_bigquery_release_files(task, request, dist_metadata):
         for sch in table_schema:
             field_data = dist_metadata.get(sch.name, None)
 
-            if isinstance(field_data, datetime.datetime):
+            if isinstance(field_data, datetime):
                 field_data = field_data.isoformat()
 
             # Replace all empty objects to None will ensure
@@ -384,7 +384,7 @@ def sync_bigquery_release_files(request):
                 else:
                     field_data = None
 
-                if isinstance(field_data, datetime.datetime):
+                if isinstance(field_data, datetime):
                     field_data = field_data.isoformat()
 
                 # Replace all empty objects to None will ensure
@@ -444,3 +444,26 @@ def sync_bigquery_release_files(request):
                 json_rows, table_name, job_config=LoadJobConfig(schema=table_schema)
             ).result()
             break
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def delete_staged_stalled_releases(request):
+    """
+    Purge all staged (unpublished) releases that have not been updated for 15
+    days.
+    """
+    rows_deleted = (
+        request.db.query(Release)
+        .filter(Release.published.is_(False))
+        .filter(
+            # The token has been created at more than 1 day ago
+            Release.created + timedelta(days=15)
+            < datetime.now(tz=timezone.utc)
+        )
+        .delete(synchronize_session=False)
+    )
+    metrics = request.find_service(IMetricsService, context=None)
+    metrics.gauge(
+        "warehouse.release.stalled_releases_deleted",
+        rows_deleted,
+    )
