@@ -20,7 +20,7 @@ from warehouse.observations.tasks import (
 )
 
 from ...common.db.accounts import UserFactory
-from ...common.db.packaging import ProjectFactory
+from ...common.db.packaging import ProjectFactory, RoleFactory
 
 
 def test_execute_observation_report(app_config):
@@ -55,6 +55,9 @@ def test_report_observation_to_helpscout(
     user = UserFactory.create()
     db_request.user = user
     project = ProjectFactory.create()
+    project_owner = UserFactory.create()
+    RoleFactory.create(project=project, user=project_owner, role_name="Owner")
+
     observation = project.record_observation(
         request=db_request,
         kind=kind,

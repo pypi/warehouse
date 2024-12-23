@@ -85,9 +85,14 @@ def report_observation_to_helpscout(task, request: Request, model_id: UUID) -> N
         Summary: {model.summary}
         Model Name: {model.__class__.__name__}
 
-        Project URL: https://pypi.org/project/{target_name}/
+        Project URL: {request.route_url('packaging.project', name=target_name)}
         """
     )
+    for owner in model.related.owners:
+        username = owner.username
+        owner_url = request.route_url("admin.user.detail", username=username)
+        convo_text += f"Owner: {username}\n"
+        convo_text += f"Owner URL: {owner_url}\n"
 
     if OBSERVATION_KIND_MAP[model.kind] == ObservationKind.IsMalware:
         convo_text += dedent(
