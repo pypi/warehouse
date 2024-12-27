@@ -533,9 +533,9 @@ types-itsdangerous==1.1.6 \
     --hash=sha256:21c6966c10e353a5d35d36c82aaa2c5598d3bc32ddc8e0591276da5ad2e3c638 \
     --hash=sha256:aef2535c2fa0527dcce244ece0792b20ec02ee46533800735275f82a45a0244d
     # via -r requirements/lint.in
-types-passlib==1.7.7.20240819 \
-    --hash=sha256:8fc8df71623845032293d5cf7f8091f0adfeba02d387a2888684b8413f14b3d0 \
-    --hash=sha256:c4d299083497b66e12258c7b77c08952574213fdf7009da3135d8181a6a25f23
+types-passlib==1.7.7.20241221 \
+    --hash=sha256:2376ac4e4b6c179205e987c28d77df9cceba1ebb1f79cfa23623a9cc581dde07 \
+    --hash=sha256:c7e7d2d836aef2ef26a650110fc89cff896163767aebd8f5d6d5b2675e460173
     # via -r requirements/lint.in
 types-pyopenssl==24.1.0.20240722 \
     --hash=sha256:47913b4678a01d879f503a12044468221ed8576263c1540dcb0484ca21b08c39 \
