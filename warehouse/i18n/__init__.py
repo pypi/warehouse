@@ -37,6 +37,7 @@ KNOWN_LOCALES = {
         "ru",  # Russian
         "he",  # Hebrew
         "eo",  # Esperanto
+        "ko",  # Korean
     ]
 }
 
