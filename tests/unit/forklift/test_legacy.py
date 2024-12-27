@@ -695,6 +695,15 @@ class TestFileUpload:
                     "metadata_version": "1.2",
                     "name": "example",
                     "version": "1.0",
+                    "md5_digest": "bad",
+                },
+                "Invalid value for filetype. Error: This field is required.",
+            ),
+            (
+                {
+                    "metadata_version": "1.2",
+                    "name": "example",
+                    "version": "1.0",
                     "filetype": "bdist_wheel",
                     "content": "fake binary content",
                 },
@@ -744,25 +753,6 @@ class TestFileUpload:
                 },
                 "Invalid value for sha256_digest. "
                 "Error: Use a valid, hex-encoded, SHA256 message digest.",
-            ),
-            # digest and filetype interactions
-            (
-                {
-                    "metadata_version": "1.2",
-                    "name": "example",
-                    "version": "1.0",
-                    "md5_digest": "a fake md5 digest",
-                },
-                "Error: No digest are allowed without a file.",
-            ),
-            (
-                {
-                    "metadata_version": "1.2",
-                    "name": "example",
-                    "version": "1.0",
-                    "filetype": "sdist",
-                },
-                "Error: Include at least one message digest.",
             ),
             # summary errors
             (
@@ -1094,7 +1084,6 @@ class TestFileUpload:
         EmailFactory.create(user=user)
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
-        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -1112,36 +1101,6 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == "400 Upload payload does not have a file."
-
-    def test_upload_fails_without_filetype(self, pyramid_config, db_request):
-        user = UserFactory.create()
-        EmailFactory.create(user=user)
-        pyramid_config.testing_securitypolicy(identity=user)
-        db_request.user = user
-        db_request.user_agent = "warehouse-tests/6.6.6"
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": "example",
-                "version": "1.0",
-                "content": pretend.stub(
-                    filename="fails-without-filetype-1.0.tar.gz",
-                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
-                    type="application/tar",
-                ),
-            }
-        )
-
-        with pytest.raises(HTTPBadRequest) as excinfo:
-            legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert (
-            resp.status
-            == "400 Invalid value for filetype. Error: This field is required."
-        )
 
     @pytest.mark.parametrize("value", [("UNKNOWN"), ("UNKNOWN\n\n")])
     def test_upload_cleans_unknown_values(self, pyramid_config, db_request, value):
@@ -1169,7 +1128,6 @@ class TestFileUpload:
         EmailFactory.create(user=user)
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
-        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -5507,63 +5465,6 @@ class TestStagedRelease:
                 request=db_request,
                 additional=fileadd_event,
             ),
-        ]
-
-    def test_publish_without_file(
-        self, monkeypatch, db_request, pyramid_config, metrics
-    ):
-        from warehouse.events.models import HasEvents
-        from warehouse.events.tags import EventTag
-
-        project = ProjectFactory.create()
-        identity = self.get_identity(project, db_request, pyramid_config)
-
-        release = ReleaseFactory.create(project=project, version="1.0")
-        release.published = False
-        FileFactory.create(release=release)
-
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": project.name,
-                "version": "1.0",
-            }
-        )
-
-        record_event = pretend.call_recorder(
-            lambda self, *, tag, request=None, additional: None
-        )
-        monkeypatch.setattr(HasEvents, "record_event", record_event)
-        db_request.find_service = lambda svc, name=None, context=None: {
-            IMetricsService: metrics,
-        }.get(svc)
-
-        resp = legacy.file_upload(db_request)
-        assert resp.status_code == 200
-
-        release = (
-            db_request.db.query(Release)
-            .filter((Release.project == project) & (Release.version == "1.0"))
-            .one()
-        )
-
-        assert release.published
-        assert record_event.calls == [
-            pretend.call(
-                mock.ANY,
-                tag=EventTag.Project.ReleasePublish,
-                request=db_request,
-                additional={
-                    "submitted_by": identity.username,
-                    "canonical_version": release.canonical_version,
-                    "uploaded_via_trusted_publisher": False,
-                },
-            ),
-        ]
-
-        assert metrics.increment.calls == [
-            pretend.call("warehouse.upload.attempt"),
-            pretend.call("warehouse.publish.ok"),
         ]
 
     def test_publish_with_file(self, monkeypatch, db_request, pyramid_config, metrics):

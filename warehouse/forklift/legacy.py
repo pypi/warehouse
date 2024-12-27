@@ -637,6 +637,9 @@ def file_upload(request):
                 ]
             ),
         )
+    # Ensure that we have file data in the request.
+    if "content" not in request.POST:
+        raise _exc_with_message(HTTPBadRequest, "Upload payload does not have a file.")
 
     # Look up the project first before doing anything else, this is so we can
     # automatically register it if we need to and can check permissions before
@@ -974,28 +977,6 @@ def file_upload(request):
         #       this method. Ideally the version field would just be sortable, but
         #       at least this should be some sort of hook or trigger.
         _sort_releases(request, project)
-
-    # Ensure that we have file data in the request.
-    if "content" not in request.POST:
-        # We only allow empty file data to publish staged release
-        if is_new_release or release.published is True:
-            raise _exc_with_message(
-                HTTPBadRequest, "Upload payload does not have a file."
-            )
-
-        # In this case: publish the staged release and return early
-        publish_staged_release(request, project, release)
-        return HTTPOk()
-
-    # From here, we know we have a file - let's start the validation
-    if not form.filetype.data:
-        raise _exc_with_message(
-            HTTPBadRequest,
-            # TODO(dm): This is the previous message (from the form validation)
-            #   Can this be changed to something cleaner or will it break a
-            #   downstream usage?
-            "Invalid value for filetype. Error: This field is required.",
-        )
 
     # Pull the filename out of our POST data.
     filename = request.POST["content"].filename
