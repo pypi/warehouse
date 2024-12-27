@@ -456,7 +456,7 @@ def delete_staged_stalled_releases(request):
         request.db.query(Release)
         .filter(Release.published.is_(False))
         .filter(
-            # The token has been created at more than 1 day ago
+            # The release has been created at more than 15 day ago
             Release.created + timedelta(days=15)
             < datetime.now(tz=timezone.utc)
         )

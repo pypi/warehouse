@@ -5345,23 +5345,39 @@ class TestFileUpload:
 
 class TestStagedRelease:
     @staticmethod
-    def get_identity(project, db_request, pyramid_config):
-        identity = UserFactory.create()
-        EmailFactory.create(user=identity)
-        RoleFactory.create(user=identity, project=project)
+    def get_identity(test_with_user, project, db_request, pyramid_config):
 
-        db_request.user = identity
+        if test_with_user:
+            identity = UserFactory.create()
+            EmailFactory.create(user=identity)
+            RoleFactory.create(user=identity, project=project)
+            db_request.user = identity
+        else:
+            publisher = GitHubPublisherFactory.create(projects=[project])
+            claims = {"sha": "somesha"}
+            identity = PublisherTokenContext(publisher, SignedClaims(claims))
+            db_request.oidc_publisher = identity.publisher
+            db_request.oidc_claims = identity.claims
+
+
         db_request.user_agent = "warehouse-tests/6.6.6"
 
         pyramid_config.testing_securitypolicy(identity=identity)
         return identity
 
-    def test_upload_with_stage(self, monkeypatch, db_request, pyramid_config, metrics):
+    @pytest.mark.parametrize(
+        "test_with_user",
+        [
+            True,
+            False,
+        ],
+    )
+    def test_upload_with_stage(self, test_with_user, monkeypatch, db_request, pyramid_config, metrics):
         from warehouse.events.models import HasEvents
         from warehouse.events.tags import EventTag
 
         project = ProjectFactory.create()
-        identity = self.get_identity(project, db_request, pyramid_config)
+        identity = self.get_identity(test_with_user, project, db_request, pyramid_config)
 
         filename = "{}-{}.tar.gz".format(
             project.normalized_name.replace("-", "_"), "1.0"
@@ -5424,32 +5440,44 @@ class TestStagedRelease:
                 release.project.name,
                 release.version,
                 "new release",
-                identity,
+                identity if test_with_user else None,
             ),
             (
                 release.project.name,
                 release.version,
                 f"add source file {filename}",
-                identity,
+                identity if test_with_user else None,
             ),
         ]
 
         # Ensure that all of our events have been created
         release_event = {
-            "submitted_by": identity.username,
+            "submitted_by": (
+                identity.username if test_with_user else "OpenID created token"
+            ),
             "canonical_version": release.canonical_version,
-            "publisher_url": None,
-            "uploaded_via_trusted_publisher": False,
+            "publisher_url": (
+                f"{identity.publisher.publisher_url()}/commit/somesha"
+                if not test_with_user
+                else None
+            ),
+            "uploaded_via_trusted_publisher": not test_with_user,
             "published": False,
         }
 
         fileadd_event = {
             "filename": filename,
-            "submitted_by": identity.username,
+            "submitted_by": (
+                identity.username if test_with_user else "OpenID created token"
+            ),
             "canonical_version": release.canonical_version,
-            "publisher_url": None,
+            "publisher_url": (
+                f"{identity.publisher.publisher_url()}/commit/somesha"
+                if not test_with_user
+                else None
+            ),
             "project_id": str(project.id),
-            "uploaded_via_trusted_publisher": False,
+            "uploaded_via_trusted_publisher": not test_with_user,
         }
 
         assert record_event.calls == [
@@ -5467,12 +5495,19 @@ class TestStagedRelease:
             ),
         ]
 
-    def test_publish_with_file(self, monkeypatch, db_request, pyramid_config, metrics):
+    @pytest.mark.parametrize(
+        "test_with_user",
+        [
+            True,
+            False,
+        ],
+    )
+    def test_publish_with_file(self, test_with_user, monkeypatch, db_request, pyramid_config, metrics):
         from warehouse.events.models import HasEvents
         from warehouse.events.tags import EventTag
 
         project = ProjectFactory.create()
-        identity = self.get_identity(project, db_request, pyramid_config)
+        identity = self.get_identity(test_with_user, project, db_request, pyramid_config)
 
         # Create a release and add a file
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -5499,9 +5534,8 @@ class TestStagedRelease:
             }
         )
 
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
-            IFileStorage: storage_service,
+            IFileStorage: pretend.stub(store=lambda path, filepath, meta: None),
             IMetricsService: metrics,
         }.get(svc)
 
@@ -5509,6 +5543,8 @@ class TestStagedRelease:
             lambda self, *, tag, request=None, additional: None
         )
         monkeypatch.setattr(HasEvents, "record_event", record_event)
+
+        assert not release.published
 
         resp = legacy.file_upload(db_request)
         assert resp.status_code == 200
@@ -5539,30 +5575,38 @@ class TestStagedRelease:
                 release.project.name,
                 release.version,
                 f"add source file {filename}",
-                identity,
+                identity if test_with_user else None,
             ),
             (
                 release.project.name,
                 release.version,
                 "publish release",
-                identity,
+                identity if test_with_user else None,
             ),
         ]
 
         # Ensure that all of our events have been created
         release_event = {
-            "submitted_by": identity.username,
+            "submitted_by": (
+                identity.username if test_with_user else "OpenID created token"
+            ),
             "canonical_version": release.canonical_version,
-            "uploaded_via_trusted_publisher": False,
+            "uploaded_via_trusted_publisher": not test_with_user,
         }
 
         fileadd_event = {
             "filename": filename,
-            "submitted_by": (identity.username),
+            "submitted_by": (
+                identity.username if test_with_user else "OpenID created token"
+            ),
             "canonical_version": release.canonical_version,
-            "publisher_url": None,
+            "publisher_url": (
+                f"{identity.publisher.publisher_url()}/commit/somesha"
+                if not test_with_user
+                else None
+            ),
             "project_id": str(project.id),
-            "uploaded_via_trusted_publisher": False,
+            "uploaded_via_trusted_publisher": not test_with_user,
         }
 
         assert record_event.calls == [
