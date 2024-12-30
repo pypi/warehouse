@@ -78,6 +78,8 @@ def report_observation_to_helpscout(task, request: Request, model_id: UUID) -> N
     #  Maybe need a mapping of ObservationType and the name we want to use.
     target_name = model.related.name
 
+    warehouse_domain = request.registry.settings.get("warehouse.domain")
+
     # Add new Conversation to HelpScout for tracking purposes
     convo_text = dedent(
         f"""
@@ -85,12 +87,16 @@ def report_observation_to_helpscout(task, request: Request, model_id: UUID) -> N
         Summary: {model.summary}
         Model Name: {model.__class__.__name__}
 
-        Project URL: {request.route_url('packaging.project', name=target_name)}
+        Project URL: {request.route_url(
+            'packaging.project', name=target_name, _host=warehouse_domain
+        )}
         """
     )
     for owner in model.related.owners:
         username = owner.username
-        owner_url = request.route_url("admin.user.detail", username=username)
+        owner_url = request.route_url(
+            "admin.user.detail", username=username, _host=warehouse_domain
+        )
         convo_text += f"Owner: {username}\n"
         convo_text += f"Owner URL: {owner_url}\n"
 
@@ -102,7 +108,7 @@ def report_observation_to_helpscout(task, request: Request, model_id: UUID) -> N
             Malware Reports URL: {request.route_url(
                 "admin.malware_reports.project.list",
                 project_name=target_name,
-                _host=request.registry.settings.get("warehouse.domain"),
+                _host=warehouse_domain,
             )}
             """
         )
