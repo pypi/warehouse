@@ -978,6 +978,9 @@ def file_upload(request):
         #       at least this should be some sort of hook or trigger.
         _sort_releases(request, project)
 
+    if release.published is True and staged_release:
+        raise _exc_with_message(HTTPBadRequest, "Release already published.")
+
     # Pull the filename out of our POST data.
     filename = request.POST["content"].filename
 
