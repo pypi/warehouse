@@ -131,6 +131,7 @@ class EventTag:
         ReleaseRemove = "project:release:remove"
         ReleaseUnyank = "project:release:unyank"
         ReleaseYank = "project:release:yank"
+        ReleasePublish = "project:release:publish"
         RoleAdd = "project:role:add"
         RoleChange = "project:role:change"
         RoleDeclineInvite = "project:role:decline_invite"

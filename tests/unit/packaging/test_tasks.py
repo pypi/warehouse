@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import tempfile
 
 from contextlib import contextmanager
@@ -24,11 +25,12 @@ from wtforms import Field, Form, StringField
 import warehouse.packaging.tasks
 
 from warehouse.accounts.models import WebAuthn
-from warehouse.packaging.models import Description
+from warehouse.packaging.models import Description, Release
 from warehouse.packaging.tasks import (
     check_file_cache_tasks_outstanding,
     compute_2fa_metrics,
     compute_packaging_metrics,
+    delete_staged_stalled_releases,
     sync_bigquery_release_files,
     sync_file_to_cache,
     update_bigquery_release_files,
@@ -908,4 +910,37 @@ def test_compute_2fa_metrics(db_request, monkeypatch):
         pretend.call("warehouse.2fa.total_users_with_totp_enabled", 1),
         pretend.call("warehouse.2fa.total_users_with_webauthn_enabled", 1),
         pretend.call("warehouse.2fa.total_users_with_two_factor_enabled", 2),
+    ]
+
+
+def test_delete_staged_stalled_releases(db_request, metrics):
+    # We create 4 releases:
+    # - One unpublished and created 30 days ago
+    # - One published and created 25 days ago
+    # - One unpublished and created 3 days ago
+    # - One published and created now
+    # The task should only delete the first one
+
+    release_30_days = ReleaseFactory.create(published=False)
+    release_30_days.created -= datetime.timedelta(days=30)
+
+    release_25_days = ReleaseFactory.create(published=True)
+    release_25_days.created -= datetime.timedelta(days=30)
+
+    release_3_days = ReleaseFactory.create(published=False)
+    release_3_days.created -= datetime.timedelta(days=3)
+
+    ReleaseFactory.create(published=True)
+
+    deleted_release_id = release_30_days.id
+
+    assert db_request.db.query(Release).count() == 4
+    delete_staged_stalled_releases(db_request)
+    assert db_request.db.query(Release).count() == 3
+    assert (
+        db_request.db.query(Release).filter(Release.id == deleted_release_id).count()
+    ) == 0
+
+    assert metrics.gauge.calls == [
+        pretend.call("warehouse.release.stalled_releases_deleted", 1),
     ]

@@ -53,6 +53,14 @@
       <a href="{{ event.additional.publisher_url }}">{{ event.additional.publisher_url }}</a>
     {% endif %}
     </small>
+    <small>
+    {% trans %}Published:{% endtrans %}
+    {% if event.additional.published is defined and event.additional.published is false %}
+      {% trans %}No{% endtrans %}
+    {% else %}
+      {% trans %}Yes{% endtrans %}
+    {% endif %}
+    </small>
     {% elif event.tag == EventTag.Project.ReleaseRemove %}
     <strong>
       {# No link to removed release #}
@@ -75,7 +83,18 @@
     <small>
       {% trans %}Yanked by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
     </small>
-
+    {% elif event.tag == EventTag.Project.ReleasePublish %}
+    <strong>
+      {% trans href=request.route_path('manage.project.release', project_name=project.name, version=event.additional.canonical_version), version=event.additional.canonical_version %}<a href="{{ href }}">Version {{ version }}</a> published{% endtrans %}
+    </strong>
+    <small>
+      {% trans %}Published by:{% endtrans %}
+      {% if event.additional.uploaded_via_trusted_publisher or event.additional.publisher_url %}
+        <a href="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}">{{ event.additional.submitted_by }}</a>
+      {% else %}
+        <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+      {% endif %}
+    </small>
     {# Display file events #}
     {% elif event.tag == EventTag.File.FileAdd %}
     <strong>
