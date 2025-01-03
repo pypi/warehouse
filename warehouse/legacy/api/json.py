@@ -64,7 +64,6 @@ def _json_data(request, project, release, *, all_releases):
         .outerjoin(File)
         .filter(
             Release.project == project,
-            Release.published.is_(True),
         )
     )
 
@@ -210,7 +209,6 @@ def latest_release_factory(request):
                 Project.lifecycle_status.is_distinct_from(
                     LifecycleStatus.QuarantineEnter
                 ),
-                Release.published.is_(True),
             )
             .order_by(
                 Release.yanked.asc(),

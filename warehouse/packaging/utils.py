@@ -57,7 +57,6 @@ def _simple_detail(project, request):
         .join(Project)
         .filter(
             Project.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter),
-            Release.published.is_(True),
         )
         .all(),
         key=lambda f: (packaging_legacy.version.parse(f.release.version), f.filename),

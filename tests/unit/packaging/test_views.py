@@ -191,45 +191,43 @@ class TestReleaseDetail:
     def test_detail_rendered(self, db_request):
         users = [UserFactory.create(), UserFactory.create(), UserFactory.create()]
         project = ProjectFactory.create()
-        releases = (
-            [
-                ReleaseFactory.create(
-                    project=project,
-                    version=v,
-                    description=DescriptionFactory.create(
-                        raw="unrendered description",
-                        html="rendered description",
-                        content_type="text/html",
-                    ),
-                )
-                for v in ["1.0", "2.0", "3.0", "4.0.dev0"]
-            ]
-            + [
-                ReleaseFactory.create(
-                    project=project,
-                    version="5.0",
-                    description=DescriptionFactory.create(
-                        raw="plaintext description",
-                        html="",
-                        content_type="text/plain",
-                    ),
-                    yanked=True,
-                    yanked_reason="plaintext yanked reason",
-                )
-            ]
-            + [
-                ReleaseFactory.create(
-                    project=project,
-                    version="5.1",
-                    description=DescriptionFactory.create(
-                        raw="unrendered description",
-                        html="rendered description",
-                        content_type="text/html",
-                    ),
-                    published=False,
-                )
-            ]
+        releases = [
+            ReleaseFactory.create(
+                project=project,
+                version=v,
+                description=DescriptionFactory.create(
+                    raw="unrendered description",
+                    html="rendered description",
+                    content_type="text/html",
+                ),
+            )
+            for v in ["1.0", "2.0", "3.0", "4.0.dev0"]
+        ] + [
+            ReleaseFactory.create(
+                project=project,
+                version="5.0",
+                description=DescriptionFactory.create(
+                    raw="plaintext description",
+                    html="",
+                    content_type="text/plain",
+                ),
+                yanked=True,
+                yanked_reason="plaintext yanked reason",
+            )
+        ]
+
+        # Add an unpublished version
+        staged_release = ReleaseFactory.create(
+            project=project,
+            version="5.1",
+            description=DescriptionFactory.create(
+                raw="unrendered description",
+                html="rendered description",
+                content_type="text/html",
+            ),
+            published=False,
         )
+
         files = [
             FileFactory.create(
                 release=r,
@@ -237,7 +235,7 @@ class TestReleaseDetail:
                 python_version="source",
                 packagetype="sdist",
             )
-            for r in releases
+            for r in releases + [staged_release]
         ]
 
         # Create a role for each user
