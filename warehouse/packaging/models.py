@@ -52,10 +52,12 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import (
     Mapped,
+    ORMExecuteState,
     attribute_keyed_dict,
     declared_attr,
     mapped_column,
     validates,
+    with_loader_criteria,
 )
 from urllib3.exceptions import LocationParseError
 from urllib3.util import parse_url
@@ -79,7 +81,7 @@ from warehouse.organizations.models import (
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils import dotted_navigator, wheel
 from warehouse.utils.attrs import make_repr
-from warehouse.utils.db.types import bool_false, datetime_now
+from warehouse.utils.db.types import bool_false, bool_true, datetime_now
 
 if typing.TYPE_CHECKING:
     from warehouse.oidc.models import OIDCPublisher
@@ -457,7 +459,6 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             .filter(
                 Release.project == self,
                 Release.yanked.is_(False),
-                Release.published.is_(True),
             )
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .first()
@@ -616,7 +617,7 @@ class Release(HasObservations, db.Model):
     _pypi_ordering: Mapped[int | None]
     requires_python: Mapped[str | None] = mapped_column(Text)
     created: Mapped[datetime_now] = mapped_column()
-    published: Mapped[datetime_now | None]
+    published: Mapped[bool_true] = mapped_column()
 
     description_id: Mapped[UUID] = mapped_column(
         ForeignKey("release_descriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
@@ -1032,6 +1033,21 @@ def ensure_monotonic_journals(config, session, flush_context, instances):
                 )
             )
             return
+
+
+@db.listens_for(db.Session, "do_orm_execute")
+def filter_staged_release(config, state: ORMExecuteState):
+    if (
+        state.is_select
+        and not state.is_column_load
+        and not state.is_relationship_load
+        and not state.statement.get_execution_options().get("include_staged", False)
+    ):
+        state.statement = state.statement.options(
+            with_loader_criteria(
+                Release, lambda cls: cls.published, include_aliases=True
+            )
+        )
 
 
 class ProhibitedProjectName(db.Model):
