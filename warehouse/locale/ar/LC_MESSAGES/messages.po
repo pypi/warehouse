@@ -19,13 +19,14 @@
 # Der Marschall <meinkontobasic@outlook.com>, 2024.
 # Rabah Djebbes <rabahdjebbes6@gmail.com>, 2024.
 # Enas Hussien <enenasamd@gmail.com>, 2024.
+# zakarya mustafa <kalione010@gmail.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2024-09-24 20:40+0000\n"
-"Last-Translator: Enas Hussien <enenasamd@gmail.com>\n"
+"PO-Revision-Date: 2024-12-16 02:06+0000\n"
+"Last-Translator: zakarya mustafa <kalione010@gmail.com>\n"
 "Language-Team: Arabic <https://hosted.weblate.org/projects/pypa/warehouse/ar/"
 ">\n"
 "Language: ar\n"
@@ -34,10 +35,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 5.8-dev\n"
+"X-Generator: Weblate 5.9-rc\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/views.py:149
+#: warehouse/views.py:157
 msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
@@ -45,13 +46,13 @@ msgstr ""
 "يجب عليك التحقق من عنوان بريدك الإلكتروني **الأساسي** قبل أن تتمكن من تنفيذ "
 "هذا الإجراء."
 
-#: warehouse/views.py:165
+#: warehouse/views.py:173
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
 msgstr "يجب تمكين المصادقة الثنائية على حسابك لتنفيذ هذا الإجراء."
 
-#: warehouse/views.py:301
+#: warehouse/views.py:332
 msgid "Locale updated"
 msgstr "تم تحديث الإعدادات المحلية"
 
@@ -74,7 +75,6 @@ msgstr ""
 "اسم مستخدم مختلف."
 
 #: warehouse/accounts/forms.py:74
-#, fuzzy
 msgid "Null bytes are not allowed."
 msgstr "غير مسموح بالبايتات الفارغة."
 
@@ -95,7 +95,6 @@ msgid "Choose a username with 50 characters or less."
 msgstr "الرجاء اختيار اسم مستخدم طوله 50 حرفاً أو أقل."
 
 #: warehouse/accounts/forms.py:160
-#, fuzzy
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -107,12 +106,11 @@ msgid "Password too long."
 msgstr "كلمة المرور طويلة للغاية."
 
 #: warehouse/accounts/forms.py:210
-#, fuzzy
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
 msgstr ""
-"كانت هناك محاولات عديدة فاشلة لتسجيل الدخول. لقد تم توقيفك حتى ${time}. رجاء "
+"كانت هناك عدة محاولات فاشلة لتسجيل الدخول. لقد تم توقيفك حتى ${time}. رجاء "
 "أعد المحاولة لاحقا."
 
 #: warehouse/accounts/forms.py:239
@@ -134,34 +132,30 @@ msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
 msgstr ""
-"هذا البريد الاليكتروني يستخدمه هذا الحساب بالفعل. يرجاء استخدام بريد "
-"اليكتروني مختلف."
+"هذا البريد الالكتروني يستخدمه هذا الحساب بالفعل.استخدم بريد الكتروني مختلف."
 
 #: warehouse/accounts/forms.py:370
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
-msgstr ""
-"هذا البريد الاليكتروني يستخدمه حساب آخر. يرجاء استخدام بريد اليكتروني مختلف."
+msgstr "هذا البريد الالكتروني يستخدمه حساب آخر.استخدام بريد الكتروني مختلف."
 
 #: warehouse/accounts/forms.py:410 warehouse/manage/forms.py:139
 #: warehouse/manage/forms.py:730
 msgid "The name is too long. Choose a name with 100 characters or less."
-msgstr "هذا الاسم طويل للغاية. يرجاء اختيار اسم طوله 100 حرفاً أو أقل."
+msgstr "هذا الاسم طويل للغاية.اختر اسم طوله 100 حرفاً أو أقل."
 
 #: warehouse/accounts/forms.py:417
-#, fuzzy
-#| msgid "Null bytes are not allowed."
 msgid "URLs are not allowed in the name field."
-msgstr "غير مسموح بالبايتات الفارغة."
+msgstr "غير مسموح بالبايتات الفارغة في حقل الاسم."
 
 #: warehouse/accounts/forms.py:506
 msgid "Invalid TOTP code."
-msgstr "كود TOTP غير صحيح."
+msgstr "رمز TOTP غير صالح."
 
 #: warehouse/accounts/forms.py:523
 msgid "Invalid WebAuthn assertion: Bad payload"
-msgstr "توكيد WebAuthn غير صالح: حمولة سيئة"
+msgstr "إثبات WebAuthn غير صالح: حمولة خاطئة"
 
 #: warehouse/accounts/forms.py:592
 msgid "Invalid recovery code."
@@ -175,7 +169,7 @@ msgstr "تم استخدام رمز الاسترداد مسبقًا."
 msgid "The username isn't valid. Try again."
 msgstr "اسم المستخدم غير صالح. حاول مرة أخرى."
 
-#: warehouse/accounts/views.py:119
+#: warehouse/accounts/views.py:120
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
@@ -183,7 +177,7 @@ msgstr ""
 "كانت هناك محاولات تسجيل دخول كثيرة فاشلة. تم توقيفك حتى {}. رجاء أعد "
 "المحاولة لاحقا."
 
-#: warehouse/accounts/views.py:136
+#: warehouse/accounts/views.py:137
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -191,7 +185,7 @@ msgstr ""
 "تمت إضافة عدد كبير جدًا من رسائل البريد الإلكتروني إلى هذا الحساب دون التحقق "
 "منها. تحقق من بريدك الوارد واتبع روابط التحقق. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:148
+#: warehouse/accounts/views.py:149
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
@@ -200,25 +194,25 @@ msgstr ""
 "تم طلب تغيير كلمة السر لهذا الحساب مراتٍ كثيرة دون اكمالها. تحقق من بريدك "
 "الوارد واتبع روابط التحقق. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:330 warehouse/accounts/views.py:399
-#: warehouse/accounts/views.py:401 warehouse/accounts/views.py:430
-#: warehouse/accounts/views.py:432 warehouse/accounts/views.py:538
+#: warehouse/accounts/views.py:370 warehouse/accounts/views.py:439
+#: warehouse/accounts/views.py:441 warehouse/accounts/views.py:470
+#: warehouse/accounts/views.py:472 warehouse/accounts/views.py:578
 msgid "Invalid or expired two factor login."
 msgstr "تسجيل دخول ثنائي العامل غير صالح أو منتهي الصلاحية."
 
-#: warehouse/accounts/views.py:393
+#: warehouse/accounts/views.py:433
 msgid "Already authenticated"
 msgstr "موثق بالفعل"
 
-#: warehouse/accounts/views.py:473
+#: warehouse/accounts/views.py:513
 msgid "Successful WebAuthn assertion"
 msgstr "توكيد WebAuthn ناجح"
 
-#: warehouse/accounts/views.py:569 warehouse/manage/views/__init__.py:873
+#: warehouse/accounts/views.py:609 warehouse/manage/views/__init__.py:873
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "تم قبول رمز الاسترداد. لا يمكن استخدام الرمز مرة أخرى."
 
-#: warehouse/accounts/views.py:661
+#: warehouse/accounts/views.py:701
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -226,130 +220,130 @@ msgstr ""
 "تسجيل المستخدمين الجدد موقوف مؤقتاً. للتفاصيل: https://pypi.org/help#admin-"
 "intervention."
 
-#: warehouse/accounts/views.py:799
+#: warehouse/accounts/views.py:839
 msgid "Expired token: request a new password reset link"
 msgstr "رمز منتهي الصلاحية: برجاء طلب رابط جديد لتغيير كلمة السر"
 
-#: warehouse/accounts/views.py:801
+#: warehouse/accounts/views.py:841
 msgid "Invalid token: request a new password reset link"
 msgstr "رمز غير صحيح: برجاء طلب رابط جديد لتغيير كلمة السر"
 
-#: warehouse/accounts/views.py:803 warehouse/accounts/views.py:904
-#: warehouse/accounts/views.py:1008 warehouse/accounts/views.py:1177
+#: warehouse/accounts/views.py:843 warehouse/accounts/views.py:944
+#: warehouse/accounts/views.py:1048 warehouse/accounts/views.py:1217
 msgid "Invalid token: no token supplied"
 msgstr "رمز غير صحيح: لا يوجد رمز"
 
-#: warehouse/accounts/views.py:807
+#: warehouse/accounts/views.py:847
 msgid "Invalid token: not a password reset token"
 msgstr "رمز غير صحيح: ليس رمزاً لتغيير كلمة السر"
 
-#: warehouse/accounts/views.py:812
+#: warehouse/accounts/views.py:852
 msgid "Invalid token: user not found"
 msgstr "رمز غير صحيح: لم يتم العثور على المستخدم"
 
-#: warehouse/accounts/views.py:822
+#: warehouse/accounts/views.py:862
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "رمز غير صحيح: المستخدم سجل الدخول منذ وقت طلب هذا الرمز"
 
-#: warehouse/accounts/views.py:840
+#: warehouse/accounts/views.py:880
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "رمز غير صحيح: كلمة السر تغيرت بالفعل منذ وقت طلب هذا الرمز"
 
-#: warehouse/accounts/views.py:872
+#: warehouse/accounts/views.py:912
 msgid "You have reset your password"
 msgstr "لقد قمت بتغيير كلمة السر الخاصة بك"
 
-#: warehouse/accounts/views.py:900
+#: warehouse/accounts/views.py:940
 msgid "Expired token: request a new email verification link"
 msgstr "رمز منتهي الصلاحية: برجاء طلب رابط جديد لتأكيد البريد الاليكتروني"
 
-#: warehouse/accounts/views.py:902
+#: warehouse/accounts/views.py:942
 msgid "Invalid token: request a new email verification link"
 msgstr "رمز غير صحيح: برجاء طلب رابط جديد لتأكيد البريد الاليكتروني"
 
-#: warehouse/accounts/views.py:908
+#: warehouse/accounts/views.py:948
 msgid "Invalid token: not an email verification token"
 msgstr "رمز غير صحيح: ليس رمزاً لتأكيد البريد الاليكتروني"
 
-#: warehouse/accounts/views.py:917
+#: warehouse/accounts/views.py:957
 msgid "Email not found"
 msgstr "لم يتم العثور على البريد الاليكتروني"
 
-#: warehouse/accounts/views.py:920
+#: warehouse/accounts/views.py:960
 msgid "Email already verified"
 msgstr "تم تأكيد البريد الاليكتروني بالفعل"
 
-#: warehouse/accounts/views.py:937
+#: warehouse/accounts/views.py:977
 msgid "You can now set this email as your primary address"
 msgstr "تستطيع الآن استخدام هذا البريد الاليكتروني كبريدك الاليكتروني الأساسي"
 
-#: warehouse/accounts/views.py:941
+#: warehouse/accounts/views.py:981
 msgid "This is your primary address"
 msgstr "هذا بريدك الاليكتروني الأساسي"
 
-#: warehouse/accounts/views.py:946
+#: warehouse/accounts/views.py:986
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "تم تأكيد البريد الاليكتروني ${email_address}. ${confirm_message}."
 
-#: warehouse/accounts/views.py:1004
+#: warehouse/accounts/views.py:1044
 msgid "Expired token: request a new organization invitation"
 msgstr "رمز منتهي الصلاحية: قم بطلب رابط دعوة جديد للمنظمة"
 
-#: warehouse/accounts/views.py:1006
+#: warehouse/accounts/views.py:1046
 msgid "Invalid token: request a new organization invitation"
 msgstr "رمز غير صالح: قم بطلب دعوة جديدة"
 
-#: warehouse/accounts/views.py:1012
+#: warehouse/accounts/views.py:1052
 msgid "Invalid token: not an organization invitation token"
 msgstr "رمز غير صالح: ليس رمزاً لدعوة إلى مؤسسة"
 
-#: warehouse/accounts/views.py:1016
+#: warehouse/accounts/views.py:1056
 msgid "Organization invitation is not valid."
 msgstr "دعوة المنظمة غير صالحة."
 
-#: warehouse/accounts/views.py:1025
+#: warehouse/accounts/views.py:1065
 msgid "Organization invitation no longer exists."
 msgstr "دعوة المنظمة لم تعد صالحة."
 
-#: warehouse/accounts/views.py:1076
+#: warehouse/accounts/views.py:1116
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "تم رفض دعوة '${organization_name}'."
 
-#: warehouse/accounts/views.py:1139
+#: warehouse/accounts/views.py:1179
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "تم تحديث صلاحياتك لتكن ${role} فى المشروع ${organization_name}."
 
-#: warehouse/accounts/views.py:1173
+#: warehouse/accounts/views.py:1213
 msgid "Expired token: request a new project role invitation"
 msgstr "رمز منتهي الصلاحية: قم بطلب رابط دعوة جديد لدور في المشروع"
 
-#: warehouse/accounts/views.py:1175
+#: warehouse/accounts/views.py:1215
 msgid "Invalid token: request a new project role invitation"
 msgstr "رمز منتهي الصلاحية: قم بطلب رابط دعوة جديد لدور في المشروع"
 
-#: warehouse/accounts/views.py:1181
+#: warehouse/accounts/views.py:1221
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "رمز غير صحيح: ليس رمزاً لدعوة مشاركة"
 
-#: warehouse/accounts/views.py:1185
+#: warehouse/accounts/views.py:1225
 msgid "Role invitation is not valid."
 msgstr "دعوة الدور غير صالحة."
 
-#: warehouse/accounts/views.py:1200
+#: warehouse/accounts/views.py:1240
 msgid "Role invitation no longer exists."
 msgstr "دعوة الدور لم تعد صالحة."
 
-#: warehouse/accounts/views.py:1231
+#: warehouse/accounts/views.py:1271
 msgid "Invitation for '${project_name}' is declined."
 msgstr "دعوة '${project_name}' تم رفضها."
 
-#: warehouse/accounts/views.py:1297
+#: warehouse/accounts/views.py:1337
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "تم تحديث صلاحياتك لتكن ${role} فى المشروع ${project_name}."
 
-#: warehouse/accounts/views.py:1548 warehouse/accounts/views.py:1791
+#: warehouse/accounts/views.py:1588 warehouse/accounts/views.py:1831
 #: warehouse/manage/views/__init__.py:1409
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
@@ -358,17 +352,13 @@ msgstr ""
 "النشر الموثوق موقوف مؤقتاً. للتفاصيل: https://pypi.org/help#admin-"
 "intervention."
 
-#: warehouse/accounts/views.py:1569
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
+#: warehouse/accounts/views.py:1609
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr ""
-"تسجيل المستخدمين الجدد موقوف مؤقتاً. للتفاصيل: https://pypi.org/help#admin-"
-"intervention."
+"تسجيل المستخدمين الجدد موقوف مؤقتاً. للتفاصيل انظر : https://pypi.org/help"
+"#admin-intervention."
 
-#: warehouse/accounts/views.py:1585
+#: warehouse/accounts/views.py:1625
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
@@ -376,31 +366,27 @@ msgstr ""
 "يجب أن يكون لديك بريد إلكتروني تم التحقق منه حتى تتمكن من التسجيل كناشر "
 "موثوق قيد المراجعة. إطّلع على https://pypi.org/help#openid-connect للتفاصيل."
 
-#: warehouse/accounts/views.py:1598
+#: warehouse/accounts/views.py:1638
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr "لا يمكنك تسجيل أكثر من 3 ناشرين موثوقين قيد المراجعة مرّة واحدة."
 
-#: warehouse/accounts/views.py:1614 warehouse/manage/views/__init__.py:1464
+#: warehouse/accounts/views.py:1654 warehouse/manage/views/__init__.py:1464
 #: warehouse/manage/views/__init__.py:1577
 #: warehouse/manage/views/__init__.py:1689
 #: warehouse/manage/views/__init__.py:1799
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
-msgstr ""
-"كانت هناك محاولات تسجيل دخول فاشلة كثيرة جداً. برجاء المحاولة في وقت لاحق."
+msgstr "كانت هناك محاولات تسجيل دخول فاشلة كثيرة جداً. حاول مرة أخرى لاحقًا."
 
-#: warehouse/accounts/views.py:1625 warehouse/manage/views/__init__.py:1478
+#: warehouse/accounts/views.py:1665 warehouse/manage/views/__init__.py:1478
 #: warehouse/manage/views/__init__.py:1591
 #: warehouse/manage/views/__init__.py:1703
 #: warehouse/manage/views/__init__.py:1813
 msgid "The trusted publisher could not be registered"
 msgstr "حساب الناشر الموثوق لا يمكن تسجيله"
 
-#: warehouse/accounts/views.py:1639
+#: warehouse/accounts/views.py:1679
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
@@ -408,16 +394,16 @@ msgstr ""
 "هذا الناشر الموثوق قد تم تسجيله بالفعل. قم بمراسلة مسؤلي PyPI إن لم يكن هذا "
 "مقصودا."
 
-#: warehouse/accounts/views.py:1666
+#: warehouse/accounts/views.py:1706
 msgid "Registered a new pending publisher to create "
 msgstr "تم تسجيل حساب ناشر جديد للإنشاء تحت المراجعة. "
 
-#: warehouse/accounts/views.py:1805 warehouse/accounts/views.py:1818
-#: warehouse/accounts/views.py:1825
+#: warehouse/accounts/views.py:1845 warehouse/accounts/views.py:1858
+#: warehouse/accounts/views.py:1865
 msgid "Invalid publisher ID"
 msgstr "مُعَرّف ناشر غير صالح"
 
-#: warehouse/accounts/views.py:1831
+#: warehouse/accounts/views.py:1871
 msgid "Removed trusted publisher for project "
 msgstr "تمت إزالة ناشر موثوق لمشروع. "
 
@@ -515,30 +501,22 @@ msgid "This team name has already been used. Choose a different team name."
 msgstr "اسم الفريق هذا مُستخدم بالفعل. قم بإختيار اسم فريق مختلف."
 
 #: warehouse/manage/forms.py:726
-#, fuzzy
-#| msgid "Specify project name"
 msgid "Specify your alternate repository name"
-msgstr "حدد اسم المشروع"
+msgstr "حدد اسم مستودعك البديل"
 
 #: warehouse/manage/forms.py:740
 msgid "Specify your alternate repository URL"
-msgstr ""
+msgstr "حدد رابط مستودعك البديل"
 
 #: warehouse/manage/forms.py:744
-#, fuzzy
-#| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid "The URL is too long. Choose a URL with 400 characters or less."
-msgstr "هذا الاسم طويل للغاية. برجاء اختيار اسم طوله 100 حرفاً أو أقل."
+msgstr "هذا الرابط طويل للغاية. اختر رابط طوله 400 حرفاً أو أقل."
 
 #: warehouse/manage/forms.py:758
-#, fuzzy
-#| msgid ""
-#| "The organization description is too long. Choose a organization "
-#| "description with 400 characters or less."
 msgid ""
 "The description is too long. Choose a description with 400 characters or "
 "less."
-msgstr "وصف المؤسسة هذا طويل للغاية. اختر وصف مؤسسة طوله 400 حرفاً أو أقل."
+msgstr "الوصف هذا طويل للغاية. اختر وصف طوله 400 حرفاً أو أقل."
 
 #: warehouse/manage/views/__init__.py:285
 msgid "Account details updated"
@@ -571,16 +549,12 @@ msgid "Invalid credentials. Try again"
 msgstr "خطاء فى الأعتمادات (كلمه السر او الأسم او رمز الأصلاح). جرب مره اخرى"
 
 #: warehouse/manage/views/__init__.py:1182
-#, fuzzy
-#| msgid "Invalid repository name"
 msgid "Invalid alternate repository location details"
-msgstr "اسم المستودع غير صالح"
+msgstr "تفاصيل موقع المستودع البديل غير صالح"
 
 #: warehouse/manage/views/__init__.py:1219
-#, fuzzy
-#| msgid "Invalid repository name"
 msgid "Added alternate repository '${name}'"
-msgstr "اسم المستودع غير صالح"
+msgstr "تمت اضافة مستودع بديل '${name}'"
 
 #: warehouse/manage/views/__init__.py:1253
 #: warehouse/manage/views/__init__.py:2146
@@ -591,26 +565,22 @@ msgid "Confirm the request"
 msgstr "تأكيد الطلب"
 
 #: warehouse/manage/views/__init__.py:1265
-#, fuzzy
-#| msgid "Invalid repository name"
 msgid "Invalid alternate repository id"
-msgstr "اسم المستودع غير صالح"
+msgstr "ID المستودع البديل غير صالح"
 
 #: warehouse/manage/views/__init__.py:1276
-#, fuzzy
-#| msgid "Invalid repository name"
 msgid "Invalid alternate repository for project"
-msgstr "اسم المستودع غير صالح"
+msgstr "اسم المستودع غير صالح للمشروع"
 
 #: warehouse/manage/views/__init__.py:1284
 msgid ""
 "Could not delete alternate repository - ${confirm} is not the same as "
 "${alt_repo_name}"
-msgstr ""
+msgstr "لا يمكن حذف المستودع البديل - ${confirm} ليس مشابها ${alt_repo_name}"
 
 #: warehouse/manage/views/__init__.py:1314
 msgid "Deleted alternate repository '${name}'"
-msgstr ""
+msgstr "تم حذف المستودع البديل '${name}'"
 
 #: warehouse/manage/views/__init__.py:1445
 msgid ""
@@ -723,35 +693,25 @@ msgid "Invitation revoked from '${username}'."
 msgstr "تم إنهاء الدعوة من خلال '${username}'."
 
 #: warehouse/manage/views/organizations.py:854
-#, fuzzy
-#| msgid "User '${username}' already has ${role_name} role for project"
 msgid "User '${username}' already has ${role_name} role for organization"
-msgstr "المستخدم '{username}' له صلاحيات ${rol_name} فى المشروع"
+msgstr "المستخدم '{username}' بالفعل له صلاحيات ${rol_name} فى المنظمة"
 
 #: warehouse/manage/views/organizations.py:865
-#, fuzzy
-#| msgid ""
-#| "User '${username}' does not have a verified primary email address and "
-#| "cannot be added as a ${role_name} for project"
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
 msgstr ""
-"المستخدم '${username}' ليس لديه بريد إلكتروني أولي صالح ولا يمكن إضافتة "
-"كـ${role_name} للمشروع"
+"المستخدم '${username}' لم يقم بتأكيد الايميل الأساسي بعد ولايمكنه الإضافة ك "
+"'${role_name} لهذه المنظمة"
 
 #: warehouse/manage/views/organizations.py:1026
 #: warehouse/manage/views/organizations.py:1068
-#, fuzzy
-#| msgid "Could not find role invitation."
 msgid "Could not find organization invitation."
-msgstr "لم يتم العثور علي الدعوة."
+msgstr "لم يتم العثور على المنظمة."
 
 #: warehouse/manage/views/organizations.py:1036
-#, fuzzy
-#| msgid "Organization invitation no longer exists."
 msgid "Organization invitation could not be re-sent."
-msgstr "دعوة المنظمة لم تعد صالحة."
+msgstr "لا يمكن إعادة إرسال دعوة المنظمة."
 
 #: warehouse/manage/views/organizations.py:1083
 #, fuzzy
@@ -781,7 +741,7 @@ msgstr "اسم المشروع هذا قيد الاستخدام. اختر اسم 
 
 #: warehouse/oidc/forms/_core.py:63
 msgid "This project name is too similar to an existing project"
-msgstr ""
+msgstr "اسم المشروع هذا مشابه جدا لاسم مشروع موجود"
 
 #: warehouse/oidc/forms/_core.py:67
 msgid ""
@@ -928,7 +888,7 @@ msgstr ""
 msgid "Provide an Inspector link to specific lines of code."
 msgstr ""
 
-#: warehouse/packaging/views.py:212
+#: warehouse/packaging/views.py:352
 msgid "Your report has been recorded. Thank you for your help."
 msgstr ""
 
@@ -3182,7 +3142,7 @@ msgstr ""
 #: warehouse/templates/manage/unverified-account.html:172
 #: warehouse/templates/manage/unverified-account.html:174
 #: warehouse/templates/manage/unverified-account.html:184
-#: warehouse/templates/search/results.html:198
+#: warehouse/templates/search/results.html:197
 msgid "Close"
 msgstr ""
 
@@ -4434,7 +4394,7 @@ msgstr ""
 msgid "%(remaining)s unused"
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:49
+#: warehouse/templates/manage/account/recovery_codes-burn.html:50
 #: warehouse/templates/manage/manage_base.html:42
 msgid "Regenerate"
 msgstr ""
@@ -5473,19 +5433,19 @@ msgid ""
 "your account before adding a new publisher."
 msgstr "لم يقم المستخدم %(user)s ، برفع أي مشروع بعد."
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:34
+#: warehouse/templates/manage/account/recovery_codes-burn.html:35
 msgid ""
 "In order to verify that you have safely stored your recovery codes for use "
 "in the event of a lost 2FA device, submit one of your recovery codes here."
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:39
+#: warehouse/templates/manage/account/recovery_codes-burn.html:40
 msgid ""
 "The recovery code you choose will be considered used and no longer be "
 "available to bypass 2FA."
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:44
+#: warehouse/templates/manage/account/recovery_codes-burn.html:45
 msgid ""
 "<strong>Forgot to safely store your recovery codes?</strong> You'll need to "
 "generate them again."
@@ -5501,20 +5461,20 @@ msgstr "كود خطأ"
 msgid "Regenerate recovery codes"
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:42
+#: warehouse/templates/manage/account/recovery_codes-provision.html:43
 msgid ""
 "If you lose access to your authentication application or security key(s), "
 "you’ll need to use one of these recovery codes to log into your PyPI "
 "account. Each code can only be used <strong>once</strong>."
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:43
+#: warehouse/templates/manage/account/recovery_codes-provision.html:44
 msgid ""
 "These codes should <strong>only</strong> be used for account recovery, not "
 "for typical logins."
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:44
+#: warehouse/templates/manage/account/recovery_codes-provision.html:45
 msgid ""
 "<strong>Keep these somewhere safe</strong>. If you lose your authentication "
 "application or security key(s) and do not have access to these recovery "
@@ -10166,50 +10126,50 @@ msgid "Logos"
 msgstr ""
 
 #: warehouse/templates/search/results.html:18
-#: warehouse/templates/search/results.html:114
-#: warehouse/templates/search/results.html:211
+#: warehouse/templates/search/results.html:113
+#: warehouse/templates/search/results.html:210
 msgid "Search results"
 msgstr ""
 
-#: warehouse/templates/search/results.html:40
+#: warehouse/templates/search/results.html:39
 #, python-format
 msgid "Did you mean '<a class=\"link\" href=\"%(link)s\">%(text)s</a>'?"
 msgstr ""
 
-#: warehouse/templates/search/results.html:82
+#: warehouse/templates/search/results.html:81
 msgid "Close panel"
 msgstr ""
 
-#: warehouse/templates/search/results.html:86
+#: warehouse/templates/search/results.html:85
 #, python-format
 msgid "Filter by <a href=\"%(href)s\">classifier</a>"
 msgstr ""
 
-#: warehouse/templates/search/results.html:117
+#: warehouse/templates/search/results.html:116
 msgid "Enter a search query, or select a filter from the list of classifiers."
 msgstr ""
 
-#: warehouse/templates/search/results.html:118
+#: warehouse/templates/search/results.html:117
 msgid "Enter a search query, or add a filter by clicking on the button."
 msgstr ""
 
-#: warehouse/templates/search/results.html:119
+#: warehouse/templates/search/results.html:118
 msgid "You can combine searches and classifier filters. Examples:"
 msgstr ""
 
-#: warehouse/templates/search/results.html:123
+#: warehouse/templates/search/results.html:122
 msgid "Python 3 compatible projects"
 msgstr ""
 
-#: warehouse/templates/search/results.html:128
+#: warehouse/templates/search/results.html:127
 msgid "Sphinx extensions that have a stable/production status"
 msgstr ""
 
-#: warehouse/templates/search/results.html:133
+#: warehouse/templates/search/results.html:132
 msgid "Projects related to \"graphics\" with OSI-approved licenses"
 msgstr ""
 
-#: warehouse/templates/search/results.html:150
+#: warehouse/templates/search/results.html:149
 #, fuzzy, python-format
 #| msgid "<strong>Collaborator for</strong>: %(project)s"
 msgid "<strong>%(count_display)s</strong> project"
@@ -10221,12 +10181,12 @@ msgstr[3] "<strong>متعاون في</strong>: %(project)s"
 msgstr[4] "<strong>متعاون في</strong>: %(project)s"
 msgstr[5] "<strong>متعاون في</strong>: %(project)s"
 
-#: warehouse/templates/search/results.html:157
+#: warehouse/templates/search/results.html:156
 #, python-format
 msgid "for \"%(term)s\""
 msgstr ""
 
-#: warehouse/templates/search/results.html:161
+#: warehouse/templates/search/results.html:160
 msgid "with the selected classifier"
 msgid_plural "with the selected classifiers"
 msgstr[0] ""
@@ -10236,32 +10196,32 @@ msgstr[3] ""
 msgstr[4] ""
 msgstr[5] ""
 
-#: warehouse/templates/search/results.html:177
+#: warehouse/templates/search/results.html:176
 msgid "Order by"
 msgstr ""
 
-#: warehouse/templates/search/results.html:179
+#: warehouse/templates/search/results.html:178
 msgid "Relevance"
 msgstr ""
 
-#: warehouse/templates/search/results.html:180
+#: warehouse/templates/search/results.html:179
 msgid "Date last updated"
 msgstr ""
 
-#: warehouse/templates/search/results.html:193
+#: warehouse/templates/search/results.html:192
 msgid "Filter"
 msgstr ""
 
-#: warehouse/templates/search/results.html:204
+#: warehouse/templates/search/results.html:203
 msgid "Add filter"
 msgstr ""
 
-#: warehouse/templates/search/results.html:220
+#: warehouse/templates/search/results.html:219
 #, python-format
 msgid "There were no results for '%(term)s'"
 msgstr ""
 
-#: warehouse/templates/search/results.html:222
+#: warehouse/templates/search/results.html:221
 #, python-format
 msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
