@@ -110,6 +110,7 @@ from warehouse.oidc.forms import (
     GitLabPublisherForm,
     GooglePublisherForm,
 )
+from warehouse.oidc.forms._core import ConstrainEnvirormentForm
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import (
     ActiveStatePublisher,
@@ -1434,6 +1435,117 @@ class ManageOIDCPublisherViews:
             self.prefilled_provider = provider
 
         return self.manage_project_oidc_publishers()
+
+    @view_config(
+        request_method="GET", request_param=ConstrainEnvirormentForm.__params__
+    )
+    def manage_project_oidc_publisher_constrain_environment(self):
+        if self.request.flags.disallow_oidc():
+            self.request.session.flash(
+                (
+                    "Trusted publishing is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+            return self.default_response
+
+        self.metrics.increment("warehouse.oidc.constrain_publisher_environment.attempt")
+
+        form = ConstrainEnvirormentForm(self.request.params)
+
+        if not form.validate():
+            self.request.session.flash(
+                self.request._("The trusted publisher could not be constrained"),
+                queue="error",
+            )
+            return self.default_response
+
+        publisher = self.request.db.get(OIDCPublisher, form.publisher_id.data)
+
+        if publisher is None or publisher not in self.project.oidc_publishers:
+            self.request.session.flash(
+                "Invalid publisher for project",
+                queue="error",
+            )
+            return self.default_response
+
+        # First we add the new trusted publisher
+        if isinstance(publisher, GitHubPublisher):
+            constrained_publisher = GitHubPublisher(
+                repository_name=publisher.repository_name,
+                repository_owner=publisher.repository_owner,
+                repository_owner_id=publisher.repository_owner_id,
+                workflow_filename=publisher.workflow_filename,
+                environment=form.constrain_environment.data,
+            )
+        elif isinstance(publisher, GitLabPublisher):
+            constrained_publisher = GitLabPublisher(
+                namespace=publisher.namespace,
+                project=publisher.project,
+                workflow_filepath=publisher.workflow_filepath,
+                environment=form.constrain_environment.data,
+            )
+
+        else:
+            self.request.session.flash(
+                "Can only constrain the environment for GitHub and GitLab publishers",
+                queue="error",
+            )
+            return self.default_response
+
+        if publisher.environment != "":
+            self.request.session.flash(
+                "Can only constrain the environment for publishers without an "
+                "environment configured",
+                queue="error",
+            )
+            return self.default_response
+
+        self.request.db.add(constrained_publisher)
+        self.request.db.flush()  # ensure constrained_publisher.id is available
+        self.project.oidc_publishers.append(constrained_publisher)
+
+        self.project.record_event(
+            tag=EventTag.Project.OIDCPublisherAdded,
+            request=self.request,
+            additional={
+                "publisher": constrained_publisher.publisher_name,
+                "id": str(constrained_publisher.id),
+                "specifier": str(constrained_publisher),
+                "url": constrained_publisher.publisher_url(),
+                "submitted_by": self.request.user.username,
+            },
+        )
+
+        # Then, we remove the old trusted publisher from the project
+        # and, if there are no projects left associated with the publisher,
+        # we delete it entirely.
+        self.project.oidc_publishers.remove(publisher)
+        if len(publisher.projects) == 0:
+            self.request.db.delete(publisher)
+
+        self.project.record_event(
+            tag=EventTag.Project.OIDCPublisherRemoved,
+            request=self.request,
+            additional={
+                "publisher": publisher.publisher_name,
+                "id": str(publisher.id),
+                "specifier": str(publisher),
+                "url": publisher.publisher_url(),
+                "submitted_by": self.request.user.username,
+            },
+        )
+
+        self.request.session.flash(
+            self.request._(
+                f"Trusted publisher for project {self.project.name!r} has been "
+                f"constrained to environment {constrained_publisher.environment!r}"
+            ),
+            queue="success",
+        )
+
+        return HTTPSeeOther(self.request.path)
 
     @view_config(
         request_method="POST",
