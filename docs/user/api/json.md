@@ -482,6 +482,44 @@ For example, here is what a withdrawn vulnerability might look like:
 }
 ```
 
+### Get a user
+
+Route: `GET /user/<username>/json`
+
+Returns the same information found in the HTML profile page (`/user/<username>`), but in a JSON format. 
+It contains the time of account creation, the username, the name (or null), and a list of the user's projects.
+
+Status codes:
+
+* `200 OK` - no error
+* `404 Not Found` - User was not found
+
+Example request:
+```
+GET /user/someuser/json HTTP/1.1
+Host: pypi.org
+Accept: application/json
+```
+
+??? "Example JSON response"
+
+    ```http
+    HTTP/1.1 200 OK
+    Content-Type: application/json; charset="UTF-8"
+
+    {
+        "joined_at": "2025-01-01T06:35:12",
+        "name": "Some User",
+        "projects": [
+            {
+                "last_released": "2025-01-04T08:47:36",
+                "name": "sampleproject",
+                "summary": "sample project"
+            }
+        ],
+        "username": "someuser"
+    }
+    ```
 
 [Index API]: ./index-api.md
 [known vulnerabilities]: https://github.com/pypa/advisory-database
