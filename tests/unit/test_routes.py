@@ -623,6 +623,18 @@ def test_routes(warehouse):
             factory="warehouse.legacy.api.json.release_factory",
             domain=warehouse,
         ),
+        pretend.call(
+            "legacy.api.json.user",
+            "/user/{username}/json",
+            factory="warehouse.legacy.api.json.user_factory",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "legacy.api.json.user_slash",
+            "/user/{username}/json/",
+            factory="warehouse.legacy.api.json.user_factory",
+            domain=warehouse,
+        ),
         pretend.call("legacy.docs", docs_route_url),
     ]
 
