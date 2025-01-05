@@ -640,6 +640,20 @@ def includeme(config):
         domain=warehouse,
     )
 
+    config.add_route(
+        "legacy.api.json.user",
+        "/user/{username}/json",
+        factory="warehouse.legacy.api.json.user_factory",
+        domain=warehouse,
+    )
+
+    config.add_route(
+        "legacy.api.json.user_slash",
+        "/user/{username}/json/",
+        factory="warehouse.legacy.api.json.user_factory",
+        domain=warehouse,
+    )
+
     # Legacy Action URLs
     # TODO: We should probably add Warehouse routes for these that just error
     #       and direct people to use upload.pypi.org
