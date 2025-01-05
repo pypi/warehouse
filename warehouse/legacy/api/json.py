@@ -16,6 +16,7 @@ from pyramid.view import view_config
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.orm import Load, contains_eager, joinedload
 
+from warehouse.accounts.models import User
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import (
@@ -310,6 +311,17 @@ def release_factory(request):
         return HTTPNotFound(headers=_CORS_HEADERS)
 
     return release
+
+
+def user_factory(request):
+    username = request.matchdict["username"]
+
+    try:
+        user = request.db.query(User).filter(User.username == username).one()
+    except NoResultFound:
+        return HTTPNotFound(headers=_CORS_HEADERS)
+
+    return user
 
 
 @view_config(
