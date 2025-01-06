@@ -200,38 +200,40 @@ def destroy_docs(project, request, flash=True):
 
 def archive_project(project: Project, request) -> None:
     if (
-        project.lifecycle_status is None
-        or project.lifecycle_status == LifecycleStatus.QuarantineExit
+        project.lifecycle_status is not None
+        and project.lifecycle_status != LifecycleStatus.QuarantineExit
     ):
-        project.lifecycle_status = LifecycleStatus.Archived
-        project.record_event(
-            tag=EventTag.Project.ProjectArchiveEnter,
-            request=request,
-            additional={
-                "submitted_by": request.user.username,
-            },
-        )
-        request.session.flash("Project archived", queue="success")
-    else:
         request.session.flash(
             f"Cannot archive project with status {project.lifecycle_status}",
             queue="error",
         )
+        return
+
+    project.lifecycle_status = LifecycleStatus.Archived
+    project.record_event(
+        tag=EventTag.Project.ProjectArchiveEnter,
+        request=request,
+        additional={
+            "submitted_by": request.user.username,
+        },
+    )
+    request.session.flash("Project archived", queue="success")
 
 
 def unarchive_project(project: Project, request) -> None:
-    if project.lifecycle_status == LifecycleStatus.Archived:
-        project.lifecycle_status = None
-        project.record_event(
-            tag=EventTag.Project.ProjectArchiveExit,
-            request=request,
-            additional={
-                "submitted_by": request.user.username,
-            },
-        )
-        request.session.flash("Project unarchived", queue="success")
-    else:
+    if project.lifecycle_status != LifecycleStatus.Archived:
         request.session.flash(
             "Can only unarchive an archived project",
             queue="error",
         )
+        return
+
+    project.lifecycle_status = None
+    project.record_event(
+        tag=EventTag.Project.ProjectArchiveExit,
+        request=request,
+        additional={
+            "submitted_by": request.user.username,
+        },
+    )
+    request.session.flash("Project unarchived", queue="success")
