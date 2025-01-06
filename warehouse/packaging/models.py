@@ -396,9 +396,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
 
             if self.lifecycle_status == LifecycleStatus.Archived:
                 # Disallow upload permissions for archived projects
-                current_permissions = [
-                    p for p in current_permissions if p != Permissions.ProjectsUpload
-                ]
+                current_permissions.remove(Permissions.ProjectsUpload)
 
             if current_permissions:
                 acls.append((Allow, f"user:{user_id}", current_permissions))
