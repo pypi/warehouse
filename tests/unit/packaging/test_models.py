@@ -374,9 +374,8 @@ class TestProject:
         owner2 = DBRoleFactory.create(project=project)
 
         # Maintainers should not appear in the ACLs, since they only have
-        # upload permissions, and anchived projects don't allow upload
-        DBRoleFactory.create(project=project, role_name="Maintainer")
-        DBRoleFactory.create(project=project, role_name="Maintainer")
+        # upload permissions, and archived projects don't allow upload
+        DBRoleFactory.create_batch(2, project=project, role_name="Maintainer")
 
         organization = DBOrganizationFactory.create()
         owner3 = DBOrganizationRoleFactory.create(organization=organization)
