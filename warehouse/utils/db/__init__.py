@@ -10,6 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.utils.db.windowed_query import windowed_query
+from warehouse.utils.db.query_printer import print_query
 
-__all__ = ["windowed_query"]
+__all__ = ["print_query"]
