@@ -328,11 +328,11 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             (Allow, Authenticated, Permissions.SubmitMalwareObservation),
         ]
 
-        # The project has zero or more OIDC publishers registered to it,
-        # each of which serves as an identity with the ability to upload releases.
-        for publisher in self.oidc_publishers:
-            if self.lifecycle_status != LifecycleStatus.Archived:
-                # Only allow uploads in non-archived projects
+        if self.lifecycle_status != LifecycleStatus.Archived:
+            # The project has zero or more OIDC publishers registered to it,
+            # each of which serves as an identity with the ability to upload releases
+            # (only if the project is not archived)
+            for publisher in self.oidc_publishers:
                 acls.append(
                     (Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload])
                 )
