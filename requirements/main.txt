@@ -1777,9 +1777,9 @@ pydantic-core==2.27.1 \
     --hash=sha256:f69ed81ab24d5a3bd93861c8c4436f54afdf8e8cc421562b0c7504cf3be58206 \
     --hash=sha256:f82d068a2d6ecfc6e054726080af69a6764a10015467d7d7b9f66d6ed5afa23b
     # via pydantic
-pygments==2.18.0 \
-    --hash=sha256:786ff802f32e91311bff3889f6e9a86e81505fe99f2735bb6d60ae0c5004f199 \
-    --hash=sha256:b8e6aca0523f3ab76fee51799c488e38782ac06eafcf95e7ba832985c8e7b13a
+pygments==2.19.0 \
+    --hash=sha256:4755e6e64d22161d5b61432c0600c923c5927214e7c956e31c23923c89251a9b \
+    --hash=sha256:afc4146269910d4bdfabcd27c24923137a74d562a23a320a41a55ad303e19783
     # via
     #   readme-renderer
     #   rich
