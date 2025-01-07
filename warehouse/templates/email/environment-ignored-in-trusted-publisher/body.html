@@ -17,43 +17,28 @@
 
 {% block content %}
   <p>
-    {% trans publisher_name=publisher.publisher_name, project_name=project_name, environment_name=environment_name,
-    project_href=request.route_url('packaging.project', name=project_name, _host=domain)
-    %}
-      A Trusted Publisher for project <a href="{{ project_href }}">{{ project_name }}</a> was just
-      used from a CI/CD job configured with a {{ publisher_name }} environment.
-      The environment used was: <strong>{{ environment_name }}</strong>.
-    {% endtrans %}
-  </p>
-    {% trans %}
-  <p>
-      Since the Trusted Publisher is configured to allow <strong>any</strong> environment,
-      for security reasons we recommend constraining it to only one.
-  </p>
-    {% endtrans %}
-  <p>
-    {% trans environment_name=environment_name,
-    auto_href=request.route_url('manage.project.settings.publishing', project_name=project_name, _host=domain,
-                                _query={'publisher_id': publisher.id, 'constrain_environment': environment_name })
-    %}
-     If you are an owner of this project, you can automatically constrain this Trusted Publisher to
-     '{{ environment_name }}' by following this link: <a href="{{ auto_href }}">constrain publisher</a>.
-    {% endtrans %}
+    A Trusted Publisher for project
+    <a href="{{ request.route_url('packaging.project', name=project_name, _host=domain) }}">{{ project_name }}</a>
+    was just used from a CI/CD job configured with a {{ publisher.publisher_name }} environment.
+    The environment used was: <strong>{{ environment_name }}</strong>.
   </p>
   <p>
-    {% trans environment_name=environment_name,
-    manual_href=request.route_url('manage.project.settings.publishing', project_name=project_name, _host=domain)
-    %}
-     Alternatively, you can do this manually by going to the project's
-     <a href="{{ manual_href }}">publishing settings</a>, deleting
-    the existing Trusted Publisher and creating a new one with the environment set to '{{ environment_name }}'.
-    {% endtrans %}
+    Since the Trusted Publisher is configured to allow <strong>any</strong> environment,
+    for security reasons we recommend constraining it to only one.
   </p>
   <p>
-    {% trans href='mailto:admin@pypi.org', email_address='admin@pypi.org' %}
-      If you have questions, you can email
-      <a href="{{ href }}">{{ email_address }}</a> to communicate with the PyPI
-      administrators.
-    {% endtrans %}
+    If you are an owner of this project, you can automatically constrain this Trusted Publisher to
+    '{{ environment_name }}' by following this link:
+    <a href="{{ request.route_url('manage.project.settings.publishing', project_name=project_name, _host=domain, _query={'publisher_id': publisher.id, 'constrain_environment': environment_name }) }}">constrain publisher</a>.
+  </p>
+  <p>
+    Alternatively, you can do this manually by going to the project's
+    <a href="{{ request.route_url('manage.project.settings.publishing', project_name=project_name, _host=domain) }}">publishing settings</a>,
+    deleting the existing Trusted Publisher and creating a new one with the environment set to '{{ environment_name }}'.
+  </p>
+  <p>
+    If you have questions, you can email
+    <a href="mailto:admin@pypi.org">admin@pypi.org</a> to communicate with the PyPI
+    administrators.
   </p>
 {% endblock %}

@@ -2082,47 +2082,6 @@ msgid ""
 "organization"
 msgstr ""
 
-#: warehouse/templates/email/environment-ignored-in-trusted-publisher/body.html:20
-#, python-format
-msgid ""
-"A Trusted Publisher for project <a "
-"href=\"%(project_href)s\">%(project_name)s</a> was just used from a CI/CD"
-" job configured with a %(publisher_name)s environment. The environment "
-"used was: <strong>%(environment_name)s</strong>."
-msgstr ""
-
-#: warehouse/templates/email/environment-ignored-in-trusted-publisher/body.html:28
-msgid ""
-"<p> Since the Trusted Publisher is configured to allow "
-"<strong>any</strong> environment, for security reasons we recommend "
-"constraining it to only one. </p>"
-msgstr ""
-
-#: warehouse/templates/email/environment-ignored-in-trusted-publisher/body.html:35
-#, python-format
-msgid ""
-"If you are an owner of this project, you can automatically constrain this"
-" Trusted Publisher to '%(environment_name)s' by following this link: <a "
-"href=\"%(auto_href)s\">constrain publisher</a>."
-msgstr ""
-
-#: warehouse/templates/email/environment-ignored-in-trusted-publisher/body.html:44
-#, python-format
-msgid ""
-"Alternatively, you can do this manually by going to the project's <a "
-"href=\"%(manual_href)s\">publishing settings</a>, deleting the existing "
-"Trusted Publisher and creating a new one with the environment set to "
-"'%(environment_name)s'."
-msgstr ""
-
-#: warehouse/templates/email/environment-ignored-in-trusted-publisher/body.html:53
-#, python-format
-msgid ""
-"If you have questions, you can email <a "
-"href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-"administrators."
-msgstr ""
-
 #: warehouse/templates/email/new-email-added/body.html:17
 #, python-format
 msgid ""

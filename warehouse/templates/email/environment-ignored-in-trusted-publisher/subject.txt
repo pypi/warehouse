@@ -14,4 +14,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}{% trans project_name=project_name %}Trusted Publisher for project {{ project_name }} can be made more secure{% endtrans %}{% endblock %}
+{% block subject %}Trusted Publisher for project {{ project_name }} can be made more secure{% endblock %}
