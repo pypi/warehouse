@@ -152,7 +152,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:609 warehouse/manage/views/__init__.py:874
+#: warehouse/accounts/views.py:609 warehouse/manage/views/__init__.py:871
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -286,7 +286,7 @@ msgid "You are now ${role} of the '${project_name}' project."
 msgstr ""
 
 #: warehouse/accounts/views.py:1588 warehouse/accounts/views.py:1831
-#: warehouse/manage/views/__init__.py:1410
+#: warehouse/manage/views/__init__.py:1407
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help"
 "#admin-intervention for details."
@@ -446,43 +446,43 @@ msgid ""
 "less."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:286
+#: warehouse/manage/views/__init__.py:283
 msgid "Account details updated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:316
+#: warehouse/manage/views/__init__.py:313
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:822
+#: warehouse/manage/views/__init__.py:819
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:823
+#: warehouse/manage/views/__init__.py:820
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:932
+#: warehouse/manage/views/__init__.py:929
 msgid "Verify your email to create an API token."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1032
+#: warehouse/manage/views/__init__.py:1029
 msgid "API Token does not exist."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1064
+#: warehouse/manage/views/__init__.py:1061
 msgid "Invalid credentials. Try again"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1183
+#: warehouse/manage/views/__init__.py:1180
 msgid "Invalid alternate repository location details"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1220
+#: warehouse/manage/views/__init__.py:1217
 msgid "Added alternate repository '${name}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1254
+#: warehouse/manage/views/__init__.py:1251
 #: warehouse/manage/views/__init__.py:2258
 #: warehouse/manage/views/__init__.py:2343
 #: warehouse/manage/views/__init__.py:2444
@@ -490,25 +490,25 @@ msgstr ""
 msgid "Confirm the request"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1266
+#: warehouse/manage/views/__init__.py:1263
 msgid "Invalid alternate repository id"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1277
+#: warehouse/manage/views/__init__.py:1274
 msgid "Invalid alternate repository for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1285
+#: warehouse/manage/views/__init__.py:1282
 msgid ""
 "Could not delete alternate repository - ${confirm} is not the same as "
 "${alt_repo_name}"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1315
+#: warehouse/manage/views/__init__.py:1312
 msgid "Deleted alternate repository '${name}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1459
+#: warehouse/manage/views/__init__.py:1457
 msgid "The trusted publisher could not be constrained"
 msgstr ""
 
@@ -6100,6 +6100,26 @@ msgstr ""
 
 #: warehouse/templates/manage/project/publishing.html:401
 msgid "Add a new publisher"
+msgstr ""
+
+#: warehouse/templates/manage/project/publishing.html:443
+#: warehouse/templates/manage/project/publishing.html:446
+msgid "Constrain environment"
+msgstr ""
+
+#: warehouse/templates/manage/project/publishing.html:453
+msgid "Restrict Trusted Publisher environment to:"
+msgstr ""
+
+#: warehouse/templates/manage/project/publishing.html:455
+#, python-format
+msgid ""
+"I understand that this Trusted Publisher will only allow uploads frow "
+"CI/CD workflows running in %(constrained_environment_name)s"
+msgstr ""
+
+#: warehouse/templates/manage/project/publishing.html:458
+msgid "New Environment Name"
 msgstr ""
 
 #: warehouse/templates/manage/project/release.html:18

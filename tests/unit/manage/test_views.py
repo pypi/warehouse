@@ -6508,8 +6508,13 @@ class TestManageOIDCPublisherViews:
         db_request.db.add(publisher)
         db_request.db.flush()  # To get the id
 
-        db_request.method = "GET"
-        db_request.POST = MultiDict()
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {
+                "constrained_publisher_id": str(publisher.id),
+                "constrained_environment_name": new_environment_name,
+            }
+        )
         db_request.find_service = lambda *a, **kw: metrics
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -6518,17 +6523,9 @@ class TestManageOIDCPublisherViews:
             disallow_oidc=pretend.call_recorder(lambda f=None: False)
         )
         db_request._ = lambda s: s
-        params = {
-            "publisher_id": str(publisher.id),
-            "constrain_environment": new_environment_name,
-        }
-        db_request.params = MultiDict(params)
-
         view = views.ManageOIDCPublisherViews(project, db_request)
 
-        assert isinstance(
-            view.manage_project_oidc_publisher_constrain_environment(), HTTPSeeOther
-        )
+        assert isinstance(view.constrain_environment(), HTTPSeeOther)
         assert view.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.constrain_publisher_environment.attempt",
@@ -6599,8 +6596,13 @@ class TestManageOIDCPublisherViews:
         db_request.db.add(publisher)
         db_request.db.flush()  # To get the id
 
-        db_request.method = "GET"
-        db_request.POST = MultiDict()
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {
+                "constrained_publisher_id": str(publisher.id),
+                "constrained_environment_name": "fakeenv",
+            }
+        )
         db_request.find_service = lambda *a, **kw: metrics
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -6609,17 +6611,9 @@ class TestManageOIDCPublisherViews:
             disallow_oidc=pretend.call_recorder(lambda f=None: False)
         )
         db_request._ = lambda s: s
-        params = {
-            "publisher_id": str(publisher.id),
-            "constrain_environment": "fakeenv",
-        }
-        db_request.params = MultiDict(params)
-
         view = views.ManageOIDCPublisherViews(project, db_request)
 
-        assert isinstance(
-            view.manage_project_oidc_publisher_constrain_environment(), HTTPSeeOther
-        )
+        assert isinstance(view.constrain_environment(), HTTPSeeOther)
         assert view.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.constrain_publisher_environment.attempt",
@@ -6680,13 +6674,9 @@ class TestManageOIDCPublisherViews:
 
     def test_constrain_oidc_publisher_admin_disabled(self, monkeypatch):
         project = pretend.stub()
-        params = {
-            "publisher_id": uuid.uuid4(),
-            "constrain_environment": "fakeenv",
-        }
         request = pretend.stub(
-            method="GET",
-            params=MultiDict(params),
+            method="POST",
+            params=MultiDict(),
             user=pretend.stub(),
             find_service=lambda *a, **kw: None,
             flags=pretend.stub(
@@ -6694,7 +6684,12 @@ class TestManageOIDCPublisherViews:
             ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             _=lambda s: s,
-            POST=MultiDict(),
+            POST=MultiDict(
+                {
+                    "constrained_publisher_id": uuid.uuid4(),
+                    "constrained_environment_name": "fakeenv",
+                }
+            ),
             registry=pretend.stub(settings={}),
         )
 
@@ -6704,10 +6699,7 @@ class TestManageOIDCPublisherViews:
             views.ManageOIDCPublisherViews, "default_response", default_response
         )
 
-        assert (
-            view.manage_project_oidc_publisher_constrain_environment()
-            == default_response
-        )
+        assert view.constrain_environment() == default_response
         assert request.session.flash.calls == [
             pretend.call(
                 (
@@ -6720,13 +6712,9 @@ class TestManageOIDCPublisherViews:
 
     def test_constrain_oidc_publisher_invalid_params(self, monkeypatch, metrics):
         project = pretend.stub()
-        params = {
-            "publisher_id": "not_an_uuid",
-            "constrain_environment": "fakeenv",
-        }
         request = pretend.stub(
-            method="GET",
-            params=MultiDict(params),
+            method="POST",
+            params=MultiDict(),
             user=pretend.stub(),
             find_service=lambda *a, **kw: metrics,
             flags=pretend.stub(
@@ -6734,7 +6722,12 @@ class TestManageOIDCPublisherViews:
             ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             _=lambda s: s,
-            POST=MultiDict(),
+            POST=MultiDict(
+                {
+                    "constrained_publisher_id": "not_an_uuid",
+                    "constrained_environment_name": "fakeenv",
+                }
+            ),
             registry=pretend.stub(settings={}),
         )
 
@@ -6744,10 +6737,7 @@ class TestManageOIDCPublisherViews:
             views.ManageOIDCPublisherViews, "default_response", default_response
         )
 
-        assert (
-            view.manage_project_oidc_publisher_constrain_environment()
-            == default_response
-        )
+        assert view.constrain_environment() == default_response
         assert view.metrics.increment.calls == [
             pretend.call("warehouse.oidc.constrain_publisher_environment.attempt")
         ]
@@ -6762,13 +6752,13 @@ class TestManageOIDCPublisherViews:
         self, monkeypatch, metrics, db_request
     ):
         project = pretend.stub()
-        params = {
-            "publisher_id": str(uuid.uuid4()),
-            "constrain_environment": "fakeenv",
-        }
-        db_request.params = MultiDict(params)
-        db_request.method = "GET"
-        db_request.POST = MultiDict()
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {
+                "constrained_publisher_id": str(uuid.uuid4()),
+                "constrained_environment_name": "fakeenv",
+            }
+        )
         db_request.find_service = lambda *a, **kw: metrics
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -6783,10 +6773,7 @@ class TestManageOIDCPublisherViews:
             views.ManageOIDCPublisherViews, "default_response", default_response
         )
 
-        assert (
-            view.manage_project_oidc_publisher_constrain_environment()
-            == default_response
-        )
+        assert view.constrain_environment() == default_response
         assert view.metrics.increment.calls == [
             pretend.call("warehouse.oidc.constrain_publisher_environment.attempt")
         ]
@@ -6820,13 +6807,14 @@ class TestManageOIDCPublisherViews:
         db_request.db.add(publisher)
         db_request.db.flush()  # To get the id
 
-        params = {
-            "publisher_id": str(publisher.id),
-            "constrain_environment": "fakeenv",
-        }
-        db_request.params = MultiDict(params)
-        db_request.method = "GET"
-        db_request.POST = MultiDict()
+        db_request.params = MultiDict()
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {
+                "constrained_publisher_id": str(publisher.id),
+                "constrained_environment_name": "fakeenv",
+            }
+        )
         db_request.find_service = lambda *a, **kw: metrics
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -6841,10 +6829,7 @@ class TestManageOIDCPublisherViews:
             views.ManageOIDCPublisherViews, "default_response", default_response
         )
 
-        assert (
-            view.manage_project_oidc_publisher_constrain_environment()
-            == default_response
-        )
+        assert view.constrain_environment() == default_response
         assert view.metrics.increment.calls == [
             pretend.call("warehouse.oidc.constrain_publisher_environment.attempt")
         ]
@@ -6882,13 +6867,14 @@ class TestManageOIDCPublisherViews:
         project.record_event = pretend.call_recorder(lambda *a, **kw: None)
         RoleFactory.create(user=owner, project=project, role_name="Owner")
 
-        params = {
-            "publisher_id": str(publisher.id),
-            "constrain_environment": "fakeenv",
-        }
-        db_request.params = MultiDict(params)
-        db_request.method = "GET"
-        db_request.POST = MultiDict()
+        db_request.params = MultiDict()
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {
+                "constrained_publisher_id": str(publisher.id),
+                "constrained_environment_name": "fakeenv",
+            }
+        )
         db_request.find_service = lambda *a, **kw: metrics
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -6903,10 +6889,7 @@ class TestManageOIDCPublisherViews:
             views.ManageOIDCPublisherViews, "default_response", default_response
         )
 
-        assert (
-            view.manage_project_oidc_publisher_constrain_environment()
-            == default_response
-        )
+        assert view.constrain_environment() == default_response
         assert view.metrics.increment.calls == [
             pretend.call("warehouse.oidc.constrain_publisher_environment.attempt")
         ]
@@ -6938,13 +6921,14 @@ class TestManageOIDCPublisherViews:
         db_request.db.add(publisher)
         db_request.db.flush()  # To get the id
 
-        params = {
-            "publisher_id": str(publisher.id),
-            "constrain_environment": "fakeenv",
-        }
-        db_request.params = MultiDict(params)
-        db_request.method = "GET"
-        db_request.POST = MultiDict()
+        db_request.params = MultiDict()
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {
+                "constrained_publisher_id": str(publisher.id),
+                "constrained_environment_name": "fakeenv",
+            }
+        )
         db_request.find_service = lambda *a, **kw: metrics
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -6959,10 +6943,7 @@ class TestManageOIDCPublisherViews:
             views.ManageOIDCPublisherViews, "default_response", default_response
         )
 
-        assert (
-            view.manage_project_oidc_publisher_constrain_environment()
-            == default_response
-        )
+        assert view.constrain_environment() == default_response
         assert view.metrics.increment.calls == [
             pretend.call("warehouse.oidc.constrain_publisher_environment.attempt")
         ]

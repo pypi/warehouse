@@ -438,4 +438,25 @@
   </div>
 </div>
 
+{# Define the modal for constraining environments only if the expected URL params are present -#}
+{% if request.params.constrained_environment_name is defined and request.params.constrained_publisher_id is defined %}
+{% set title = gettext("Constrain environment") %}
+{% set constrained_environment_name = request.params.constrained_environment_name %}
+{% set confirm_name = "constrain_environment" %}
+{% set confirm_button_label = gettext("Constrain environment") %}
+{% set slug = confirm_name.lower().replace(' ', '-') + '-modal' %}
+{% set extra_fields %}
+  <input name="constrained_publisher_id" type="hidden" value="{{ request.params.constrained_publisher_id }}">
+  <input name="constrained_environment_name" type="hidden" value="{{ constrained_environment_name }}">
+{% endset %}
+{% set extra_description %}
+<p>{% trans %}Restrict Trusted Publisher environment to: {% endtrans %}<strong>{{ constrained_environment_name }}</strong></p>
+  <ul class="no-bullets no-left-margin">
+    <li><input class="inline-checkbox" type="checkbox" data-action="input->confirm#check" data-confirm-target="checkbox"> {% trans %}I understand that this Trusted Publisher will only allow uploads frow CI/CD workflows running in {{ constrained_environment_name }}{% endtrans %}</li>
+  </ul>
+{% endset %}
+{{ confirm_modal(title=title, label=gettext("New Environment Name"), confirm_name="constrained_environment_name", confirm_string=constrained_environment_name, slug=slug, confirm_button_label=confirm_button_label, extra_fields=extra_fields, extra_description=extra_description, warning=False, confirm_string_in_title=False) }}
+{% endif %}
+
+
 {% endblock %}

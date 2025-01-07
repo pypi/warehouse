@@ -87,16 +87,16 @@ class DeletePublisherForm(wtforms.Form):
     )
 
 
-class ConstrainEnvirormentForm(wtforms.Form):
-    __params__ = ["publisher_id", "constrain_environment"]
+class ConstrainEnvironmentForm(wtforms.Form):
+    __params__ = ["constrained_publisher_id", "constrained_environment_name"]
 
-    publisher_id = wtforms.StringField(
+    constrained_publisher_id = wtforms.StringField(
         validators=[
             wtforms.validators.InputRequired(message=_("Specify a publisher ID")),
             wtforms.validators.UUID(message=_("Publisher must be specified by ID")),
         ]
     )
-    constrain_environment = wtforms.StringField(
+    constrained_environment_name = wtforms.StringField(
         validators=[
             wtforms.validators.InputRequired(message=_("Specify an environment name")),
         ]

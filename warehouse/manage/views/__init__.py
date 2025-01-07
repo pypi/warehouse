@@ -110,7 +110,7 @@ from warehouse.oidc.forms import (
     GitLabPublisherForm,
     GooglePublisherForm,
 )
-from warehouse.oidc.forms._core import ConstrainEnvirormentForm
+from warehouse.oidc.forms._core import ConstrainEnvironmentForm
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import (
     ActiveStatePublisher,
@@ -145,7 +145,6 @@ from warehouse.utils.project import confirm_project, destroy_docs, remove_projec
 
 
 class ManageAccountMixin:
-
     def __init__(self, request):
         self.request = request
         self.user_service = request.find_service(IUserService, context=None)
@@ -219,7 +218,6 @@ class ManageAccountMixin:
 )
 @lift()
 class ManageUnverifiedAccountViews(ManageAccountMixin):
-
     @view_config(request_method="GET")
     def manage_unverified_account(self):
         return {"help_url": self.request.help_url(_anchor="account-recovery")}
@@ -237,7 +235,6 @@ class ManageUnverifiedAccountViews(ManageAccountMixin):
 )
 @lift()
 class ManageVerifiedAccountViews(ManageAccountMixin):
-
     @property
     def active_projects(self):
         return user_projects(request=self.request)["projects_sole_owned"]
@@ -1437,9 +1434,10 @@ class ManageOIDCPublisherViews:
         return self.manage_project_oidc_publishers()
 
     @view_config(
-        request_method="GET", request_param=ConstrainEnvirormentForm.__params__
+        request_method="POST",
+        request_param=ConstrainEnvironmentForm.__params__,
     )
-    def manage_project_oidc_publisher_constrain_environment(self):
+    def constrain_environment(self):
         if self.request.flags.disallow_oidc():
             self.request.session.flash(
                 (
@@ -1452,7 +1450,7 @@ class ManageOIDCPublisherViews:
 
         self.metrics.increment("warehouse.oidc.constrain_publisher_environment.attempt")
 
-        form = ConstrainEnvirormentForm(self.request.params)
+        form = ConstrainEnvironmentForm(self.request.POST)
 
         if not form.validate():
             self.request.session.flash(
@@ -1461,7 +1459,9 @@ class ManageOIDCPublisherViews:
             )
             return self.default_response
 
-        publisher = self.request.db.get(OIDCPublisher, form.publisher_id.data)
+        publisher = self.request.db.get(
+            OIDCPublisher, form.constrained_publisher_id.data
+        )
 
         if publisher is None or publisher not in self.project.oidc_publishers:
             self.request.session.flash(
@@ -1477,14 +1477,14 @@ class ManageOIDCPublisherViews:
                 repository_owner=publisher.repository_owner,
                 repository_owner_id=publisher.repository_owner_id,
                 workflow_filename=publisher.workflow_filename,
-                environment=form.constrain_environment.data,
+                environment=form.constrained_environment_name.data,
             )
         elif isinstance(publisher, GitLabPublisher):
             constrained_publisher = GitLabPublisher(
                 namespace=publisher.namespace,
                 project=publisher.project,
                 workflow_filepath=publisher.workflow_filepath,
-                environment=form.constrain_environment.data,
+                environment=form.constrained_environment_name.data,
             )
 
         else:

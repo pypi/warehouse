@@ -29,7 +29,7 @@
   <p>
     If you are an owner of this project, you can automatically constrain this Trusted Publisher to
     '{{ environment_name }}' by following this link:
-    <a href="{{ request.route_url('manage.project.settings.publishing', project_name=project_name, _host=domain, _query={'publisher_id': publisher.id, 'constrain_environment': environment_name }) }}">constrain publisher</a>.
+    <a href="{{ request.route_url('manage.project.settings.publishing', project_name=project_name, _host=domain, _anchor='constrain_environment-modal', _query={'constrained_publisher_id': publisher.id, 'constrained_environment_name': environment_name }) }}">constrain publisher</a>.
   </p>
   <p>
     Alternatively, you can do this manually by going to the project's
