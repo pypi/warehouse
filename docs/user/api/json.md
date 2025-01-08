@@ -495,11 +495,11 @@ Status codes:
 * `404 Not Found` - User was not found
 
 Example request:
-```
+
+```http
 GET /user/someuser/json HTTP/1.1
 Host: pypi.org
 Accept: application/json
-```
 
 ??? "Example JSON response"
 
