@@ -487,7 +487,7 @@ For example, here is what a withdrawn vulnerability might look like:
 Route: `GET /user/<username>/json`
 
 Returns the same information found in the HTML profile page (`/user/<username>`), but in a JSON format. 
-It contains the time of account creation, the username, the name (or null), and a list of the user's projects.
+It contains the time of account creation, the username, the name (if present), and a list of the user's projects.
 
 Status codes:
 
