@@ -313,17 +313,6 @@ def release_factory(request):
     return release
 
 
-def user_factory(request):
-    username = request.matchdict["username"]
-
-    try:
-        user = request.db.query(User).filter(User.username == username).one()
-    except NoResultFound:
-        return HTTPNotFound(headers=_CORS_HEADERS)
-
-    return user
-
-
 @view_config(
     route_name="legacy.api.json.release",
     context=Release,

@@ -643,14 +643,16 @@ def includeme(config):
     config.add_route(
         "legacy.api.json.user",
         "/user/{username}/json",
-        factory="warehouse.legacy.api.json.user_factory",
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
         domain=warehouse,
     )
 
     config.add_route(
         "legacy.api.json.user_slash",
         "/user/{username}/json/",
-        factory="warehouse.legacy.api.json.user_factory",
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
         domain=warehouse,
     )
 

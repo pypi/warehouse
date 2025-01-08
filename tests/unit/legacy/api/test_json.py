@@ -776,20 +776,6 @@ class TestJSONReleaseSlash:
         ]
 
 
-class TestUserFactory:
-    def test_user_factory(self, db_request):
-        user = UserFactory.create()
-        db_request.matchdict = {"username": user.username}
-        resp = json.user_factory(db_request)
-        assert resp == user
-
-    def test_missing_user(self, db_request):
-        db_request.matchdict = {"username": "abc"}
-        resp = json.user_factory(db_request)
-        assert isinstance(resp, HTTPNotFound)
-        _assert_has_cors_headers(resp.headers)
-
-
 class TestJSONUser:
     def test_no_projects(self, db_request):
         user = UserFactory.create()
