@@ -17,10 +17,13 @@ import typing
 from base64 import b64encode
 from textwrap import dedent
 
+from humanize import naturaldate, naturaltime
 from requests.exceptions import RequestException
 
 from warehouse import db, tasks
-from warehouse.helpdesk.interfaces import IHelpDeskService
+from warehouse.helpdesk.interfaces import IAdminNotificationService, IHelpDeskService
+from warehouse.packaging.models import LifecycleStatus
+from warehouse.utils.project import quarantine_project
 
 from .models import OBSERVATION_KIND_MAP, Observation, ObservationKind
 
@@ -51,6 +54,8 @@ def execute_observation_report(config: Configurator, session: SA_Session):
         # We pass the ID of the Observation, not the Observation itself,
         #  because the Observation object is not currently JSON-serializable.
         config.task(report_observation_to_helpscout).delay(obj.id)
+        # Now that we've told Help Scout, run auto-quarantine.
+        config.task(auto_quarantine_project).delay(obj.id)
 
 
 @tasks.task(
@@ -148,4 +153,128 @@ def report_observation_to_helpscout(task, request: Request, model_id: UUID) -> N
     # Add the conversation URL back to the Observation for tracking purposes.
     model.additional["helpscout_conversation_url"] = new_convo_location
     request.db.add(model)
+    return
+
+
+@tasks.task(
+    bind=True,
+    ignore_result=True,
+    acks_late=True,
+    autoretry_for=(RequestException,),
+    retry_backoff=True,
+)
+def auto_quarantine_project(task, request: Request, model_id: UUID) -> None:
+    """
+    Automatically quarantine a Project for Admin review.
+
+    Conditions must be met:
+
+    - ObservationKind is IsMalware
+    - Observed Project is not already quarantined
+    - Observed Project has at least 2 Observations, at least 1 by `User.is_observer`
+    """
+    # Fetch the Observation from the database, load the related Project
+    model = request.db.get(Observation, model_id)
+    project = model.related
+
+    # Add more logging context
+    logger = request.log.bind(
+        kind=model.kind,
+        observer=model.observer.parent.username,
+        project=project.name,
+        task=task.name,
+    )
+
+    # Check to see if this ObservationKind should be sent
+    if OBSERVATION_KIND_MAP[model.kind] != ObservationKind.IsMalware:
+        logger.info("ObservationKind is not IsMalware. Not quarantining.")
+        return
+    # Check if the project is already quarantined
+    if project.lifecycle_status == LifecycleStatus.QuarantineEnter:
+        logger.info("Project is already quarantined. No change needed.")
+        return
+    # Check Observers
+    observer_users = {obs.observer.parent for obs in project.observations}
+    if len(observer_users) < 2:
+        logger.info("Project has fewer than 2 observers. Not quarantining.")
+        return
+    if not any(observer.is_observer for observer in observer_users):
+        logger.info("Project has no `User.is_observer` Observers. Not quarantining.")
+        return
+
+    # Quarantine the project
+    logger.info("Auto-quarantining project due to multiple malware observations.")
+
+    # Call a Slack Webhook to notify admins of the quarantine
+    warehouse_domain = request.registry.settings.get("warehouse.domain")
+
+    project_page = request.route_url(
+        "packaging.project",
+        name=project.normalized_name,
+        _host=warehouse_domain,
+    )
+    last_published_date = naturaldate(project.latest_version.created)
+    last_published_time = naturaltime(project.latest_version.created)
+    first_published_date = naturaldate(project.created)
+    first_published_time = naturaltime(project.created)
+    malware_reports_url = request.route_url(
+        "admin.malware_reports.project.list",
+        project_name=project.normalized_name,
+        _host=warehouse_domain,
+    )
+
+    # Construct a Slack webhook payload with the project details
+    notification_service = request.find_service(IAdminNotificationService)
+    webhook_payload = {
+        "blocks": [
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": (
+                        f"*PyPI Admin - Automated Quarantine*\n"
+                        f"*<{project_page}|Project: {project.name}>*"
+                    ),
+                },
+            },
+            {
+                "type": "section",
+                "fields": [
+                    {
+                        "type": "mrkdwn",
+                        "text": (
+                            f"*Last Published:*\n"
+                            f"{last_published_date} ({last_published_time})"
+                        ),
+                    },
+                    {
+                        "type": "mrkdwn",
+                        "text": (
+                            f"*First Published:*\n"
+                            f"{first_published_date} ({first_published_time})"
+                        ),
+                    },
+                ],
+            },
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": (
+                        f"Visit <{malware_reports_url}|"
+                        f"PyPI Admin :dumpster-fire: Malware Reports> "
+                        f"to review and take action"
+                    ),
+                },
+            },
+            {"type": "divider"},
+        ]
+    }
+
+    # Quarantine the project
+    quarantine_project(project, request, flash=False)
+
+    # Send the notification
+    notification_service.send_notification(payload=webhook_payload)
+
     return
