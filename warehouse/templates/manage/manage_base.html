@@ -177,7 +177,7 @@
     {% endif %}
 
     {% set disabled = not user.has_burned_recovery_codes or not user.has_primary_verified_email %}
-    {% if not user.has_two_factor %}
+    {% if not disabled and not user.has_two_factor %}
      <div class="callout-block">
         <p>
         {% trans %}
