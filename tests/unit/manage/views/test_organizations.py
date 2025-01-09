@@ -1066,16 +1066,67 @@ class TestManageOrganizationBillingViews:
         self,
         db_request,
         organization,
+        monkeypatch,
     ):
+        organization_activate_billing_form_obj = pretend.stub()
+        organization_activate_billing_form_cls = pretend.call_recorder(
+            lambda *a, **kw: organization_activate_billing_form_obj
+        )
+        monkeypatch.setattr(
+            org_views,
+            "OrganizationActivateBillingForm",
+            organization_activate_billing_form_cls,
+        )
+        db_request.POST = MultiDict()
+
         view = org_views.ManageOrganizationBillingViews(organization, db_request)
 
-        # We're not ready for companies to activate their own subscriptions yet.
-        with pytest.raises(HTTPNotFound):
-            assert view.activate_subscription()
+        result = view.activate_subscription()
 
-        # result = view.activate_subscription()
+        assert result == {
+            "organization": organization,
+            "form": organization_activate_billing_form_obj,
+        }
 
-        # assert result == {"organization": organization}
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_post_activate_subscription_valid(
+        self,
+        db_request,
+        organization,
+        monkeypatch,
+    ):
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"terms_of_service_agreement": "1"})
+
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "mock-billing-url"
+        )
+
+        view = org_views.ManageOrganizationBillingViews(organization, db_request)
+
+        result = view.activate_subscription()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "mock-billing-url"
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_post_activate_subscription_invalid(
+        self,
+        db_request,
+        organization,
+        monkeypatch,
+    ):
+        db_request.method = "POST"
+        db_request.POST = MultiDict()
+
+        view = org_views.ManageOrganizationBillingViews(organization, db_request)
+
+        result = view.activate_subscription()
+
+        assert result["organization"] == organization
+        assert result["form"].terms_of_service_agreement.errors == [
+            "Terms of Service must be accepted."
+        ]
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_create_subscription(
