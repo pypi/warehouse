@@ -385,8 +385,7 @@ class DeleteMacaroonForm(UsernameMixin, PasswordMixin, wtforms.Form):
 class OrganizationActivateBillingForm(wtforms.Form):
     terms_of_service_agreement = wtforms.BooleanField(
         validators=[
-            wtforms.validators.AnyOf(
-                [True],
+            wtforms.validators.DataRequired(
                 message="Terms of Service must be accepted.",
             ),
         ],
