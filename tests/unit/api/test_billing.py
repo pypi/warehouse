@@ -51,7 +51,8 @@ class TestHandleBillingWebhookEvent:
                     "customer": stripe_customer.customer_id,
                     "status": "complete",
                     "subscription": subscription.subscription_id,
-                    "metadata": {},  # Missing our expected metadata tags (billing_service and domain)
+                    # Missing expected metadata tags (billing_service, domain)
+                    "metadata": {},
                 },
             },
         }
