@@ -27,6 +27,7 @@ from warehouse.organizations.models import (
     OrganizationRoleType,
     OrganizationStripeCustomer,
     OrganizationStripeSubscription,
+    OrganizationTermsOfServiceAgreement,
     OrganizationType,
     Team,
     TeamProjectRole,
@@ -633,6 +634,42 @@ class TestDatabaseOrganizationService:
             )
             .count()
         )
+
+    def test_add_organization_terms_of_service_agreement(
+        self, organization_service, db_request
+    ):
+        organization = OrganizationFactory.create()
+        assert organization.terms_of_service_agreements == []
+        organization_service.add_organization_terms_of_service_agreement(
+            organization.id
+        )
+        assert (
+            db_request.db.query(OrganizationTermsOfServiceAgreement)
+            .filter(
+                OrganizationTermsOfServiceAgreement.organization_id == organization.id,
+                OrganizationTermsOfServiceAgreement.agreed.isnot(None),
+                OrganizationTermsOfServiceAgreement.notified.is_(None),
+            )
+            .count()
+        ) == 1
+
+    def test_add_organization_terms_of_service_agreement_notified(
+        self, organization_service, db_request
+    ):
+        organization = OrganizationFactory.create()
+        assert organization.terms_of_service_agreements == []
+        organization_service.add_organization_terms_of_service_agreement(
+            organization.id, notified=True
+        )
+        assert (
+            db_request.db.query(OrganizationTermsOfServiceAgreement)
+            .filter(
+                OrganizationTermsOfServiceAgreement.organization_id == organization.id,
+                OrganizationTermsOfServiceAgreement.agreed.is_(None),
+                OrganizationTermsOfServiceAgreement.notified.isnot(None),
+            )
+            .count()
+        ) == 1
 
     def test_add_organization_subscription(self, organization_service, db_request):
         organization = OrganizationFactory.create()
