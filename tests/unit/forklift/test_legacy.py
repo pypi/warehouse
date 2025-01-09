@@ -2757,8 +2757,12 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = f"{project.name}-{release.version}-cp34-none-{plat}.whl"
-        filebody = _get_whl_testdata(name=project.name, version=release.version)
+        filename = "{}-{}-cp34-none-{}.whl".format(
+            project.normalized_name.replace("-", "_"), release.version, plat
+        )
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version=release.version
+        )
         filestoragehash = _storage_hash(filebody)
 
         pyramid_config.testing_securitypolicy(identity=user)
@@ -3115,15 +3119,20 @@ class TestFileUpload:
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
-        FileFactory.create(
-            release=release,
-            packagetype="sdist",
-            filename=f"{project.name}-{release.version}.tar.gz",
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"),
+            release.version,
         )
+        FileFactory.create(release=release, packagetype="sdist", filename=filename)
         RoleFactory.create(user=user, project=project)
 
-        filename = f"{project.name}-{release.version}-cp34-none-any.whl"
-        filebody = _get_whl_testdata(name=project.name, version=release.version)
+        filename = "{}-{}-cp34-none-any.whl".format(
+            project.normalized_name.replace("-", "_"),
+            release.version,
+        )
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version=release.version
+        )
         filestoragehash = _storage_hash(filebody)
 
         pyramid_config.testing_securitypolicy(identity=user)
@@ -3368,7 +3377,10 @@ class TestFileUpload:
         with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
             zfp.writestr("some_file", "some_data")
 
-        filename = f"{project.name}-{release.version}-cp34-none-any.whl"
+        filename = "{}-{}-cp34-none-any.whl".format(
+            project.normalized_name.replace("-", "_"),
+            release.version,
+        )
         filebody = temp_f.getvalue()
 
         db_request.POST = MultiDict(
@@ -5107,8 +5119,12 @@ class TestFileUpload:
                 digest = _ZIP_PKG_MD5
                 data = _ZIP_PKG_TESTDATA
         elif filetype == "bdist_wheel":
-            filename = "{}-{}-py3-none-any.whl".format(project.name, "1.0")
-            data = _get_whl_testdata(name=project.name, version="1.0")
+            filename = "{}-{}-py3-none-any.whl".format(
+                project.normalized_name.replace("-", "_"), "1.0"
+            )
+            data = _get_whl_testdata(
+                name=project.normalized_name.replace("-", "_"), version="1.0"
+            )
             digest = hashlib.md5(data).hexdigest()
             monkeypatch.setattr(
                 legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
@@ -5224,13 +5240,20 @@ class TestFileUpload:
                 data = _ZIP_PKG_TESTDATA
             license_filename = "fake_package-1.0/LICENSE"
         elif filetype == "bdist_wheel":
-            filename = "{}-{}-py3-none-any.whl".format(project.name, "1.0")
-            data = _get_whl_testdata(name=project.name, version="1.0")
+            filename = "{}-{}-py3-none-any.whl".format(
+                project.normalized_name.replace("-", "_"),
+                "1.0",
+            )
+            data = _get_whl_testdata(
+                name=project.normalized_name.replace("-", "_"), version="1.0"
+            )
             digest = hashlib.md5(data).hexdigest()
             monkeypatch.setattr(
                 legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
             )
-            license_filename = f"{project.name}-1.0.dist-info/licenses/LICENSE"
+            license_filename = "{}-1.0.dist-info/licenses/LICENSE".format(
+                project.normalized_name.replace("-", "_")
+            )
 
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
