@@ -158,7 +158,7 @@ msgstr ""
 "utiliser une adresse e-mail différente."
 
 #: warehouse/accounts/forms.py:410 warehouse/manage/forms.py:139
-#: warehouse/manage/forms.py:730
+#: warehouse/manage/forms.py:741
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Le nom est trop long. Choisissez un nom d’au plus 100 caractères."
 
@@ -447,12 +447,12 @@ msgstr "Éditeur de confiance du projet supprimé "
 msgid "Banner Preview"
 msgstr "Aperçu de la bannière"
 
-#: warehouse/manage/forms.py:408
+#: warehouse/manage/forms.py:419
 msgid "Choose an organization account name with 50 characters or less."
 msgstr ""
 "Sélectionnez un nom de compte d'organisation de 50 caractères ou moins."
 
-#: warehouse/manage/forms.py:416
+#: warehouse/manage/forms.py:427
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
@@ -464,7 +464,7 @@ msgstr ""
 "se terminer par une lettre ou un nombre. Sélectionnez un nom de compte "
 "d'organisation différent."
 
-#: warehouse/manage/forms.py:439
+#: warehouse/manage/forms.py:450
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
@@ -472,7 +472,7 @@ msgstr ""
 "Ce nom d'organisation est déjà utilisé. Choisissez un nom d'organisation "
 "différent."
 
-#: warehouse/manage/forms.py:454
+#: warehouse/manage/forms.py:465
 msgid ""
 "You have already submitted an application for that name. Choose a different "
 "organization account name."
@@ -480,16 +480,16 @@ msgstr ""
 "Vous avez déjà envoyé une application pour ce nom. Choisissez un nom "
 "d'organisation différent."
 
-#: warehouse/manage/forms.py:490
+#: warehouse/manage/forms.py:501
 msgid "Select project"
 msgstr "Sélectionner le projet"
 
-#: warehouse/manage/forms.py:495 warehouse/oidc/forms/_core.py:23
+#: warehouse/manage/forms.py:506 warehouse/oidc/forms/_core.py:23
 #: warehouse/oidc/forms/gitlab.py:57
 msgid "Specify project name"
 msgstr "Spécifiez le nom du projet"
 
-#: warehouse/manage/forms.py:498
+#: warehouse/manage/forms.py:509
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
@@ -497,13 +497,13 @@ msgstr ""
 "Doit commencer et se terminer par une lettre ou un chiffre ne contenant que "
 "des chiffres au format ASCII et des « . » , « _ » et « -' »."
 
-#: warehouse/manage/forms.py:505
+#: warehouse/manage/forms.py:516
 msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr ""
 "Ce nom de projet est déjà utilisé. Choisissez un nom de projet différent."
 
-#: warehouse/manage/forms.py:578
+#: warehouse/manage/forms.py:589
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
@@ -511,7 +511,7 @@ msgstr ""
 "Le nom de l'organisation est trop long. Choisissez un nom d'organisation "
 "d’au plus 100 caractères."
 
-#: warehouse/manage/forms.py:590
+#: warehouse/manage/forms.py:601
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
@@ -519,11 +519,11 @@ msgstr ""
 "L'URL de l'organisation est trop longue. Choisissez une URL d’au plus 400 "
 "caractères."
 
-#: warehouse/manage/forms.py:597
+#: warehouse/manage/forms.py:608
 msgid "The organization URL must start with http:// or https://"
 msgstr "L'URL de l'organisation doit commencer par http:// ou https://"
 
-#: warehouse/manage/forms.py:608
+#: warehouse/manage/forms.py:619
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
@@ -531,15 +531,15 @@ msgstr ""
 "La description de l'organisation est trop longue. Choisissez une description "
 "d’au plus 400 caractères."
 
-#: warehouse/manage/forms.py:643
+#: warehouse/manage/forms.py:654
 msgid "You have already submitted the maximum number of "
 msgstr "Vous avez déjà soumis le nombre maximum de "
 
-#: warehouse/manage/forms.py:673
+#: warehouse/manage/forms.py:684
 msgid "Choose a team name with 50 characters or less."
 msgstr "Choisissez un nom d'équipe de 50 caractères ou moins."
 
-#: warehouse/manage/forms.py:679
+#: warehouse/manage/forms.py:690
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
@@ -548,24 +548,24 @@ msgstr ""
 "ou se terminer par un espace, un point, un tiret bas, un tiret ou un slash. "
 "Choisissez un autre nom d'équipe."
 
-#: warehouse/manage/forms.py:707
+#: warehouse/manage/forms.py:718
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 "Ce nom d'équipe est déjà utilisé. Choisissez un nom d'équipe différent."
 
-#: warehouse/manage/forms.py:726
+#: warehouse/manage/forms.py:737
 msgid "Specify your alternate repository name"
 msgstr "Spécifiez le nom du dépôt alternatif"
 
-#: warehouse/manage/forms.py:740
+#: warehouse/manage/forms.py:751
 msgid "Specify your alternate repository URL"
 msgstr "Spécifiez l'URL du dépôt alternatif"
 
-#: warehouse/manage/forms.py:744
+#: warehouse/manage/forms.py:755
 msgid "The URL is too long. Choose a URL with 400 characters or less."
 msgstr "L'URL est trop longue. Choisissez une URL d’au plus 400 caractères."
 
-#: warehouse/manage/forms.py:758
+#: warehouse/manage/forms.py:769
 msgid ""
 "The description is too long. Choose a description with 400 characters or "
 "less."
@@ -729,7 +729,7 @@ msgstr ""
 "rôle « ${role_name} » ne peut donc pas être ajouté au projet"
 
 #: warehouse/manage/views/__init__.py:2817
-#: warehouse/manage/views/organizations.py:878
+#: warehouse/manage/views/organizations.py:889
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
@@ -737,7 +737,7 @@ msgstr ""
 "plus tard."
 
 #: warehouse/manage/views/__init__.py:2882
-#: warehouse/manage/views/organizations.py:943
+#: warehouse/manage/views/organizations.py:954
 msgid "Invitation sent to '${username}'"
 msgstr "Invitation envoyée à « ${username} »"
 
@@ -750,16 +750,16 @@ msgid "Invitation already expired."
 msgstr "Invitation déjà expirée."
 
 #: warehouse/manage/views/__init__.py:2958
-#: warehouse/manage/views/organizations.py:1130
+#: warehouse/manage/views/organizations.py:1141
 msgid "Invitation revoked from '${username}'."
 msgstr "Invitation annulée par « ${username} »."
 
-#: warehouse/manage/views/organizations.py:854
+#: warehouse/manage/views/organizations.py:865
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 "Le profil « ${username} » a déjà le rôle « ${role_name} » pour l'organisation"
 
-#: warehouse/manage/views/organizations.py:865
+#: warehouse/manage/views/organizations.py:876
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -767,16 +767,16 @@ msgstr ""
 "Le profil « ${username} » n'a pas d'adresse e-mail principale vérifiée, son "
 "rôle « ${role_name} » ne peut donc pas être ajouté a l'organisation"
 
-#: warehouse/manage/views/organizations.py:1026
-#: warehouse/manage/views/organizations.py:1068
+#: warehouse/manage/views/organizations.py:1037
+#: warehouse/manage/views/organizations.py:1079
 msgid "Could not find organization invitation."
 msgstr "Impossible de trouver l'invitation à l'organisation."
 
-#: warehouse/manage/views/organizations.py:1036
+#: warehouse/manage/views/organizations.py:1047
 msgid "Organization invitation could not be re-sent."
 msgstr "L'invitation à l'organisation n'a pas pu être renvoyée."
 
-#: warehouse/manage/views/organizations.py:1083
+#: warehouse/manage/views/organizations.py:1094
 msgid "Expired invitation for '${username}' deleted."
 msgstr "L'invitation expirée au projet « ${project_name} » a été supprimée."
 
@@ -1644,6 +1644,7 @@ msgstr "Mot de passe"
 #: warehouse/templates/manage/account/token.html:150
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
+#: warehouse/templates/manage/organization/activate_subscription.html:34
 #: warehouse/templates/manage/organization/projects.html:128
 #: warehouse/templates/manage/organization/projects.html:151
 #: warehouse/templates/manage/organization/roles.html:270
@@ -1999,9 +2000,9 @@ msgid ""
 "rel=\"noopener\">Terms of Use</a> and <a href=\"%(aup)s\" "
 "rel=\"noopener\">Acceptable Use Policy</a>."
 msgstr ""
-"Pour plus d'informations, veuillez lire les <a href=\"%(tou)s\" rel="
-"\"noopener\">conditions d'utilisation</a> complètes et la <a href=\"%(aup)s\""
-" rel=\"noopener\">Politique d'utilisation acceptable</a>."
+"Pour plus d'informations, veuillez lire les <a href=\"%(tou)s\" "
+"rel=\"noopener\">conditions d'utilisation</a> complètes et la <a "
+"href=\"%(aup)s\" rel=\"noopener\">Politique d'utilisation acceptable</a>."
 
 #: warehouse/templates/accounts/register.html:64
 #: warehouse/templates/manage/account.html:139
@@ -4620,7 +4621,7 @@ msgstr "Confirmez la valeur pour « %(item)s » afin de continuer."
 
 #: warehouse/templates/manage/manage_base.html:366
 #: warehouse/templates/manage/manage_base.html:418
-#: warehouse/templates/manage/organization/activate_subscription.html:32
+#: warehouse/templates/manage/organization/activate_subscription.html:52
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -5866,18 +5867,36 @@ msgstr ""
 "standard FIDO, et ne fonctionneront pas avec PyPI."
 
 #: warehouse/templates/manage/organization/activate_subscription.html:17
-#: warehouse/templates/manage/organization/activate_subscription.html:21
-#: warehouse/templates/manage/organization/activate_subscription.html:35
+#: warehouse/templates/manage/organization/activate_subscription.html:22
+#: warehouse/templates/manage/organization/activate_subscription.html:54
 msgid "Activate Subscription"
 msgstr "Activer l'abonnement"
 
-#: warehouse/templates/manage/organization/activate_subscription.html:27
+#: warehouse/templates/manage/organization/activate_subscription.html:26
 msgid ""
 "Company accounts require an active subscription. Please enter up-to-date "
 "billing information to enable the account."
 msgstr ""
 "Les comptes d'entreprise nécessitent un abonnement actif. Veuillez mettre à "
 "jour vos informations de paiement pour activer le compte."
+
+#: warehouse/templates/manage/organization/activate_subscription.html:33
+#, fuzzy
+#| msgid "Terms of Use"
+msgid "Terms of Service"
+msgstr "Conditions d'utilisation"
+
+#: warehouse/templates/manage/organization/activate_subscription.html:37
+#, fuzzy, python-format
+#| msgid ""
+#| "<a href=\"%(user_profile)s\">%(username)s</a> has joined the "
+#| "\"%(organization_name)s\" organization"
+msgid ""
+"I agree to the PyPI <a href=\"%(tos_url)s\">Terms of Service</a> on behalf "
+"of the %(organization_name)s organization."
+msgstr ""
+"Le profil <a href=\"%(user_profile)s\">%(username)s</a> a rejoint "
+"l'organisation « %(organization_name)s »"
 
 #: warehouse/templates/manage/organization/history.html:20
 #: warehouse/templates/manage/project/history.html:20
@@ -8732,19 +8751,19 @@ msgid ""
 "href=\"%(reset_pwd_href)s\">reset your password</a>. </p>"
 msgstr ""
 "<p> PyPI lui-même n'a pas subi de fuite de données. Il s'agit d'une mesure "
-"de protection pour réduire le risque d'attaque <a href=\""
-"%(credential_stuffing_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">par réutilisation d'identifiants</a> envers PyPI et les "
+"de protection pour réduire le risque d'attaque <a "
+"href=\"%(credential_stuffing_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">par réutilisation d'identifiants</a> envers PyPI et les "
 "personnes qui l'utilisent. </p> <p> Chaque fois qu'un mot de passe est "
 "fourni - lors de l'inscription, de l'authentification ou de la mise à jour "
 "du mot de passe - PyPI vérifie en toute sécurité si ce mot de passe est "
 "apparu dans des fuites de données publiques. </p> <p> À chaque fois, PyPI "
 "génère une empreinte SHA-1 du mot de passe fourni et utilise les cinq (5) "
-"premiers caractères de l'empreinte pour vérifier dans <a href=\""
-"%(haveibeenpwned_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">l'API de HaveIBeenPwned</a> et déterminer si le mot de passe "
-"est déjà compromis. Le mot de passe en clair n'est jamais conservé par PyPI "
-"ou envoyé à l'API de HaveIBeenPwned. </p> <p> PyPI n'autorisera pas "
+"premiers caractères de l'empreinte pour vérifier dans <a "
+"href=\"%(haveibeenpwned_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">l'API de HaveIBeenPwned</a> et déterminer si le mot de "
+"passe est déjà compromis. Le mot de passe en clair n'est jamais conservé par "
+"PyPI ou envoyé à l'API de HaveIBeenPwned. </p> <p> PyPI n'autorisera pas "
 "l'utilisation de mots de passe compromis lors de la définition d'un mot de "
 "passe à l'inscription ou à la mise à jour de votre mot de passe. </p> <p> Si "
 "vous recevez un message d'erreur indiquant que « Ce mot de passe apparaît "
@@ -8752,8 +8771,8 @@ msgstr ""
 "vous devez le modifier dès que possible à tous les autres endroits où vous "
 "l'utilisez. </p> <p> Si vous avez reçu cette erreur en essayant de vous "
 "connecter ou de publier sur PyPI, votre mot de passe a été réinitialisé, et "
-"vous ne pouvez pas vous connecter à PyPI avant de <a href=\"%(reset_pwd_href)"
-"s\">réinitialiser votre mot de passe</a>.</p>"
+"vous ne pouvez pas vous connecter à PyPI avant de <a "
+"href=\"%(reset_pwd_href)s\">réinitialiser votre mot de passe</a>.</p>"
 
 #: warehouse/templates/pages/help.html:304
 #, fuzzy, python-format

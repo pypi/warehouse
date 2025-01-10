@@ -17,13 +17,14 @@
 # SimpleXtra <simplextra25@gmail.com>, 2022.
 # muhammad danang <surdanang@gmail.com>, 2022.
 # Arsy Opraza Akma <aras.opraza@gmail.com>, 2024.
+# Roffi Ulwan <roffiulwannusa@gmail.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2024-08-08 18:40+0000\n"
-"Last-Translator: Arsy Opraza Akma <aras.opraza@gmail.com>\n"
+"PO-Revision-Date: 2025-01-08 18:15+0000\n"
+"Last-Translator: Roffi Ulwan <roffiulwannusa@gmail.com>\n"
 "Language-Team: Indonesian <https://hosted.weblate.org/projects/pypa/"
 "warehouse/id/>\n"
 "Language: id\n"
@@ -31,7 +32,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.7-dev\n"
+"X-Generator: Weblate 5.10-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:157
@@ -39,6 +40,8 @@ msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
 msgstr ""
+"Anda harus memverifikasi alamat email **utama** Anda sebelum bisa melakukan "
+"aksi ini."
 
 #: warehouse/views.py:173
 msgid ""
@@ -104,13 +107,12 @@ msgid "Password too long."
 msgstr "Kata sandi terlalu panjang."
 
 #: warehouse/accounts/forms.py:210
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
-msgstr "Terlalu banyak upaya masuk yang gagal. Coba lagi nanti."
+msgstr ""
+"Terlalu banyak upaya masuk yang gagal. Anda telah di kunci selama ${time}. "
+"Coba lagi nanti."
 
 #: warehouse/accounts/forms.py:239
 msgid "Your passwords don't match. Try again."
@@ -139,13 +141,14 @@ msgid ""
 msgstr "Alamat email ini sudah digunakan oleh akun lain. Gunakan email lain."
 
 #: warehouse/accounts/forms.py:410 warehouse/manage/forms.py:139
-#: warehouse/manage/forms.py:730
+#: warehouse/manage/forms.py:741
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Nama terlalu panjang. Pilih nama dengan panjang kurang dari 100 huruf."
 
 #: warehouse/accounts/forms.py:417
+#, fuzzy
 msgid "URLs are not allowed in the name field."
-msgstr ""
+msgstr "URLs tidak di izinkan pada kotak nama."
 
 #: warehouse/accounts/forms.py:506
 msgid "Invalid TOTP code."
@@ -164,10 +167,8 @@ msgid "Recovery code has been previously used."
 msgstr "Kode pemulihan telah digunakan sebelumnya."
 
 #: warehouse/accounts/forms.py:631
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
 msgid "The username isn't valid. Try again."
-msgstr "Alamat email tidak valid. Coba lagi."
+msgstr "Nama pengguna tidak valid. Coba lagi."
 
 #: warehouse/accounts/views.py:120
 #, fuzzy
@@ -176,7 +177,9 @@ msgstr "Alamat email tidak valid. Coba lagi."
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
-msgstr "Terlalu banyak upaya masuk yang gagal. Coba lagi nanti."
+msgstr ""
+"Terlalu banyak upaya masuk yang gagal. Anda telah dikunci untuk {}. Coba "
+"lagi nanti."
 
 #: warehouse/accounts/views.py:137
 msgid ""
@@ -187,17 +190,14 @@ msgstr ""
 "verifikasi. Periksa kotak masuk Anda dan ikuti tautan verifikasi. (IP: ${ip})"
 
 #: warehouse/accounts/views.py:149
-#, fuzzy
-#| msgid ""
-#| "Too many emails have been added to this account without verifying them. "
-#| "Check your inbox and follow the verification links. (IP: ${ip})"
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
 "${ip})"
 msgstr ""
-"Terlalu banyak email telah ditambahkan ke akun ini tanpa dilakukan "
-"verifikasi. Periksa kotak masuk Anda dan ikuti tautan verifikasi. (IP: ${ip})"
+"Terlalu banyak permintaan perubahan kata sandi untuk akun ini tanpa "
+"menyelesaikannya. Periksa kotak masuk Anda dan ikuti tautan verifikasi. (IP: "
+"${ip})"
 
 #: warehouse/accounts/views.py:370 warehouse/accounts/views.py:439
 #: warehouse/accounts/views.py:441 warehouse/accounts/views.py:470
@@ -294,46 +294,32 @@ msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Alamat email ${email_address} terverifikasi. ${confirm_message}."
 
 #: warehouse/accounts/views.py:1044
-#, fuzzy
-#| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new organization invitation"
-msgstr "Token kedaluwarsa: minta undangan peran proyek baru"
+msgstr "Token kedaluwarsa: minta undangan organisasi baru"
 
 #: warehouse/accounts/views.py:1046
-#, fuzzy
-#| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new organization invitation"
-msgstr "Token tidak valid: minta undangan peran proyek baru"
+msgstr "Token tidak valid: minta undangan organisasi baru"
 
 #: warehouse/accounts/views.py:1052
-#, fuzzy
-#| msgid "Invalid token: not a collaboration invitation token"
 msgid "Invalid token: not an organization invitation token"
-msgstr "Token tidak valid: bukan token undangan kolaborasi"
+msgstr "Token tidak valid: bukan token undangan organisasi"
 
 #: warehouse/accounts/views.py:1056
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Organization invitation is not valid."
-msgstr "Undangan peran tidak valid."
+msgstr "Undangan Organisasi tidak valid."
 
 #: warehouse/accounts/views.py:1065
-#, fuzzy
-#| msgid "Role invitation no longer exists."
 msgid "Organization invitation no longer exists."
-msgstr "Undangan peran sudah tidak ada."
+msgstr "Undangan Organisasi sudah tidak ada."
 
 #: warehouse/accounts/views.py:1116
-#, fuzzy
-#| msgid "Invitation for '${project_name}' is declined."
 msgid "Invitation for '${organization_name}' is declined."
-msgstr "Undangan untuk '${project_name}' ditolak."
+msgstr "Undangan untuk '${organization_name}' ditolak."
 
 #: warehouse/accounts/views.py:1179
-#, fuzzy
-#| msgid "You are now ${role} of the '${project_name}' project."
 msgid "You are now ${role} of the '${organization_name}' organization."
-msgstr "Anda sekarang menjadi ${role} dari proyek '${project_name}'."
+msgstr "Anda sekarang menjadi ${role} dari organisasi '${organization_name}'."
 
 #: warehouse/accounts/views.py:1213
 #, fuzzy
@@ -342,8 +328,6 @@ msgid "Expired token: request a new project role invitation"
 msgstr "Token kedaluwarsa: minta undangan peran proyek baru"
 
 #: warehouse/accounts/views.py:1215
-#, fuzzy
-#| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new project role invitation"
 msgstr "Token tidak valid: minta undangan peran proyek baru"
 
@@ -377,28 +361,30 @@ msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
-"Registrasi pengguna baru sementara dinonaktifkan. Lihat https://pypi.org/"
+"Penerbitan terpercaya sementara dinonaktifkan. Lihat https://pypi.org/"
 "help#admin-intervention untuk detailnya."
 
 #: warehouse/accounts/views.py:1609
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr ""
-"Registrasi pengguna baru sementara dinonaktifkan. Lihat https://pypi.org/"
-"help#admin-intervention untuk detailnya."
+"dinonaktifkan. Lihat https://pypi.org/help#admin-intervention untuk "
+"detailnya."
 
 #: warehouse/accounts/views.py:1625
+#, fuzzy
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
+"Anda harus memiliki email terverifikasi untuk mendaftarkan penerbitan "
+"terpercaya yang ditunda. Lihat https://pypi.org/help#openid-connect untuk "
+"penjelasan."
 
 #: warehouse/accounts/views.py:1638
+#, fuzzy
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
+"Anda tidak bisa mendaftarkan lebih dari 3 penerbitan terpercaya sekaligus."
 
 #: warehouse/accounts/views.py:1654 warehouse/manage/views/__init__.py:1464
 #: warehouse/manage/views/__init__.py:1577
@@ -411,139 +397,118 @@ msgstr ""
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
-msgstr "Terlalu banyak usaha registrasi OpenID Connect. Coba lagi nanti."
+msgstr ""
+"Terlalu banyak usaha registrasi penerbitan terpercaya. Coba lagi nanti."
 
 #: warehouse/accounts/views.py:1665 warehouse/manage/views/__init__.py:1478
 #: warehouse/manage/views/__init__.py:1591
 #: warehouse/manage/views/__init__.py:1703
 #: warehouse/manage/views/__init__.py:1813
+#, fuzzy
 msgid "The trusted publisher could not be registered"
-msgstr ""
+msgstr "Penerbitan terpercayanya tidak bisa di daftarkan"
 
 #: warehouse/accounts/views.py:1679
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
+"Penerbitan terpercaya ini telah terdaftar. Silakan hubungi admin PyPI jika "
+"ini tidak seharusnya terjadi."
 
 #: warehouse/accounts/views.py:1706
 #, fuzzy
 #| msgid "Manage current providers"
 msgid "Registered a new pending publisher to create "
-msgstr "Kelola penyedia saat ini"
+msgstr "Mendaftarkan penerbit baru yang tertunda untuk dibuat "
 
 #: warehouse/accounts/views.py:1845 warehouse/accounts/views.py:1858
 #: warehouse/accounts/views.py:1865
-#, fuzzy
-#| msgid "Manage version"
 msgid "Invalid publisher ID"
-msgstr "Mengelola versi"
+msgstr "ID penerbit tidak valid"
 
 #: warehouse/accounts/views.py:1871
 msgid "Removed trusted publisher for project "
-msgstr ""
+msgstr "Menghapus penerbit tepercaya untuk proyek "
 
 #: warehouse/admin/templates/admin/banners/preview.html:15
 msgid "Banner Preview"
 msgstr "Pratinjau Spanduk"
 
-#: warehouse/manage/forms.py:408
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
+#: warehouse/manage/forms.py:419
 msgid "Choose an organization account name with 50 characters or less."
-msgstr "Pilih nama pengguna kurang dari 50 huruf."
+msgstr "Pilih nama akun organisasi dengan 50 huruf atau kurang."
 
-#: warehouse/manage/forms.py:416
-#, fuzzy
-#| msgid ""
-#| "The username is invalid. Usernames must be composed of letters, numbers, "
-#| "dots, hyphens and underscores. And must also start and finish with a "
-#| "letter or number. Choose a different username."
+#: warehouse/manage/forms.py:427
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
 "start and finish with a letter or number. Choose a different organization "
 "account name."
 msgstr ""
-"Nama pengguna tidak valid. Nama pengguna harus terdiri dari huruf, angka, "
-"titik, tanda hubung, dan garis bawah. Dan juga harus mulai dan selesai "
-"dengan huruf atau angka. Pilih nama pengguna yang berbeda."
+"Nama akun organisasi tidak valid. Nama organisasi harus terdiri dari huruf, "
+"angka, titik, tanda hubung, dan garis bawah. Dan juga harus mulai dan "
+"selesai dengan huruf atau angka. Pilih nama organisasi yang berbeda."
 
-#: warehouse/manage/forms.py:439
-#, fuzzy
-#| msgid ""
-#| "This username is already being used by another account. Choose a "
-#| "different username."
+#: warehouse/manage/forms.py:450
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
 msgstr ""
-"Nama pengguna ini sudah digunakan oleh akun lain. Pilih nama pengguna yang "
+"Nama akun organisasi ini sudah digunakan. Pilih nama akun organisasi yang "
 "berbeda."
 
-#: warehouse/manage/forms.py:454
-#, fuzzy
-#| msgid ""
-#| "This username is already being used by another account. Choose a "
-#| "different username."
+#: warehouse/manage/forms.py:465
 msgid ""
 "You have already submitted an application for that name. Choose a different "
 "organization account name."
 msgstr ""
-"Nama pengguna ini sudah digunakan oleh akun lain. Pilih nama pengguna yang "
+"Anda telah mengirim pengajuan untuk nama itu. Pilih nama organisasi yang "
 "berbeda."
 
-#: warehouse/manage/forms.py:490
-#, fuzzy
-#| msgid "Delete project"
+#: warehouse/manage/forms.py:501
 msgid "Select project"
-msgstr "Hapus proyek"
+msgstr "Pilih proyek"
 
-#: warehouse/manage/forms.py:495 warehouse/oidc/forms/_core.py:23
+#: warehouse/manage/forms.py:506 warehouse/oidc/forms/_core.py:23
 #: warehouse/oidc/forms/gitlab.py:57
-#, fuzzy
-#| msgid "Specify repository name"
 msgid "Specify project name"
-msgstr "Tentukan nama repositori"
+msgstr "Tentukan nama proyek"
 
-#: warehouse/manage/forms.py:498
+#: warehouse/manage/forms.py:509
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
+"Awali dan akhiri dengan huruf atau angka yang hanya mengandung numerik ASCII "
+"dan '.', '_' dan '-'."
 
-#: warehouse/manage/forms.py:505
-#, fuzzy
-#| msgid ""
-#| "This username is already being used by another account. Choose a "
-#| "different username."
+#: warehouse/manage/forms.py:516
 msgid ""
 "This project name has already been used. Choose a different project name."
-msgstr ""
-"Nama pengguna ini sudah digunakan oleh akun lain. Pilih nama pengguna yang "
-"berbeda."
+msgstr "Nama proyek ini telah digunakan. Pilih nama proyek yang berbeda."
 
-#: warehouse/manage/forms.py:578
-#, fuzzy
-#| msgid "The name is too long. Choose a name with 100 characters or less."
+#: warehouse/manage/forms.py:589
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
-msgstr "Nama terlalu panjang. Pilih nama dengan panjang kurang dari 100 huruf."
+msgstr ""
+"Nama organisasi terlalu panjang. Pilih nama organisasi dengan panjang kurang "
+"dari 100 huruf."
 
-#: warehouse/manage/forms.py:590
-#, fuzzy
-#| msgid "The name is too long. Choose a name with 100 characters or less."
+#: warehouse/manage/forms.py:601
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
-msgstr "Nama terlalu panjang. Pilih nama dengan panjang kurang dari 100 huruf."
-
-#: warehouse/manage/forms.py:597
-msgid "The organization URL must start with http:// or https://"
 msgstr ""
+"URL organisasi terlalu panjang. Pilih URL organisasi dengan panjang kurang "
+"dari 400 huruf."
 
 #: warehouse/manage/forms.py:608
+msgid "The organization URL must start with http:// or https://"
+msgstr "URL organisasi harus diawali dengan http:// atau https://"
+
+#: warehouse/manage/forms.py:619
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -551,23 +516,23 @@ msgid ""
 "with 400 characters or less."
 msgstr "Nama terlalu panjang. Pilih nama dengan panjang kurang dari 100 huruf."
 
-#: warehouse/manage/forms.py:643
+#: warehouse/manage/forms.py:654
 msgid "You have already submitted the maximum number of "
 msgstr ""
 
-#: warehouse/manage/forms.py:673
+#: warehouse/manage/forms.py:684
 #, fuzzy
 #| msgid "Choose a username with 50 characters or less."
 msgid "Choose a team name with 50 characters or less."
 msgstr "Pilih nama pengguna kurang dari 50 huruf."
 
-#: warehouse/manage/forms.py:679
+#: warehouse/manage/forms.py:690
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:707
+#: warehouse/manage/forms.py:718
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -577,25 +542,25 @@ msgstr ""
 "Nama pengguna ini sudah digunakan oleh akun lain. Pilih nama pengguna yang "
 "berbeda."
 
-#: warehouse/manage/forms.py:726
+#: warehouse/manage/forms.py:737
 #, fuzzy
 #| msgid "Specify repository name"
 msgid "Specify your alternate repository name"
 msgstr "Tentukan nama repositori"
 
-#: warehouse/manage/forms.py:740
+#: warehouse/manage/forms.py:751
 #, fuzzy
 #| msgid "Specify repository name"
 msgid "Specify your alternate repository URL"
 msgstr "Tentukan nama repositori"
 
-#: warehouse/manage/forms.py:744
+#: warehouse/manage/forms.py:755
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid "The URL is too long. Choose a URL with 400 characters or less."
 msgstr "Nama terlalu panjang. Pilih nama dengan panjang kurang dari 100 huruf."
 
-#: warehouse/manage/forms.py:758
+#: warehouse/manage/forms.py:769
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -797,7 +762,7 @@ msgstr ""
 "dan tidak dapat ditambahkan sebagai ${role_name} di proyek"
 
 #: warehouse/manage/views/__init__.py:2817
-#: warehouse/manage/views/organizations.py:878
+#: warehouse/manage/views/organizations.py:889
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
@@ -805,7 +770,7 @@ msgstr ""
 "nanti."
 
 #: warehouse/manage/views/__init__.py:2882
-#: warehouse/manage/views/organizations.py:943
+#: warehouse/manage/views/organizations.py:954
 msgid "Invitation sent to '${username}'"
 msgstr "Undangan dikirim ke '${username}'"
 
@@ -818,17 +783,17 @@ msgid "Invitation already expired."
 msgstr "Undangan sudah kedaluwarsa."
 
 #: warehouse/manage/views/__init__.py:2958
-#: warehouse/manage/views/organizations.py:1130
+#: warehouse/manage/views/organizations.py:1141
 msgid "Invitation revoked from '${username}'."
 msgstr "Undangan dibatalkan dari '${username}'."
 
-#: warehouse/manage/views/organizations.py:854
+#: warehouse/manage/views/organizations.py:865
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "Pengguna '${username}' sudah memiliki peran ${role_name} di proyek"
 
-#: warehouse/manage/views/organizations.py:865
+#: warehouse/manage/views/organizations.py:876
 #, fuzzy
 #| msgid ""
 #| "User '${username}' does not have a verified primary email address and "
@@ -840,20 +805,20 @@ msgstr ""
 "Pengguna '${username}' tidak memiliki alamat email primer yang diverifikasi "
 "dan tidak dapat ditambahkan sebagai ${role_name} di proyek"
 
-#: warehouse/manage/views/organizations.py:1026
-#: warehouse/manage/views/organizations.py:1068
+#: warehouse/manage/views/organizations.py:1037
+#: warehouse/manage/views/organizations.py:1079
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find organization invitation."
 msgstr "Tidak dapat menemukan undangan peran."
 
-#: warehouse/manage/views/organizations.py:1036
+#: warehouse/manage/views/organizations.py:1047
 #, fuzzy
 #| msgid "Role invitation no longer exists."
 msgid "Organization invitation could not be re-sent."
 msgstr "Undangan peran sudah tidak ada."
 
-#: warehouse/manage/views/organizations.py:1083
+#: warehouse/manage/views/organizations.py:1094
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
@@ -1750,6 +1715,7 @@ msgstr "Kata sandi"
 #: warehouse/templates/manage/account/token.html:150
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
+#: warehouse/templates/manage/organization/activate_subscription.html:34
 #: warehouse/templates/manage/organization/projects.html:128
 #: warehouse/templates/manage/organization/projects.html:151
 #: warehouse/templates/manage/organization/roles.html:270
@@ -4990,7 +4956,7 @@ msgstr "Konfirmasi %(item)s untuk melanjutkan."
 
 #: warehouse/templates/manage/manage_base.html:366
 #: warehouse/templates/manage/manage_base.html:418
-#: warehouse/templates/manage/organization/activate_subscription.html:32
+#: warehouse/templates/manage/organization/activate_subscription.html:52
 msgid "Cancel"
 msgstr "Batal"
 
@@ -6298,18 +6264,34 @@ msgstr ""
 "tidak akan berfungsi dengan PyPI."
 
 #: warehouse/templates/manage/organization/activate_subscription.html:17
-#: warehouse/templates/manage/organization/activate_subscription.html:21
-#: warehouse/templates/manage/organization/activate_subscription.html:35
+#: warehouse/templates/manage/organization/activate_subscription.html:22
+#: warehouse/templates/manage/organization/activate_subscription.html:54
 #, fuzzy
 #| msgid "Project description"
 msgid "Activate Subscription"
 msgstr "Deskripsi proyek"
 
-#: warehouse/templates/manage/organization/activate_subscription.html:27
+#: warehouse/templates/manage/organization/activate_subscription.html:26
 msgid ""
 "Company accounts require an active subscription. Please enter up-to-date "
 "billing information to enable the account."
 msgstr ""
+
+#: warehouse/templates/manage/organization/activate_subscription.html:33
+#, fuzzy
+#| msgid "Terms of use"
+msgid "Terms of Service"
+msgstr "Ketentuan penggunaan"
+
+#: warehouse/templates/manage/organization/activate_subscription.html:37
+#, fuzzy, python-format
+#| msgid ""
+#| "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
+msgid ""
+"I agree to the PyPI <a href=\"%(tos_url)s\">Terms of Service</a> on behalf "
+"of the %(organization_name)s organization."
+msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> diubah menjadi proyek %(role_name)s"
 
 #: warehouse/templates/manage/organization/history.html:20
 #: warehouse/templates/manage/project/history.html:20
