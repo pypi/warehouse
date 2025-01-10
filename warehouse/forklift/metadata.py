@@ -30,6 +30,7 @@ from packaging.requirements import InvalidRequirement, Requirement
 from trove_classifiers import all_classifiers, deprecated_classifiers
 from webob.multidict import MultiDict
 
+from warehouse.packaging.models import DynamicFieldsEnum
 from warehouse.utils import http
 
 SUPPORTED_METADATA_VERSIONS = {"1.0", "1.1", "1.2", "2.1", "2.2", "2.3", "2.4"}
@@ -141,7 +142,7 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
             InvalidMetadata("classifier", f"{classifier!r} is not a valid classifier.")
         )
 
-    # Validate that no deprecated classifers are being used.
+    # Validate that no deprecated classifiers are being used.
     # NOTE: We only check this is we're not doing a backfill, because backfill
     #       operations may legitimately use deprecated classifiers.
     if not backfill:
@@ -235,6 +236,19 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
                         )
                     )
 
+    # Validate that any `dynamic` fields passed are in the allowed list
+    # TODO: This probably should be lifted up to packaging.metadata
+    for field in {"dynamic"}:
+        if (value := getattr(metadata, field)) is not None:
+            for key in value:
+                if key not in map(str.lower, DynamicFieldsEnum.enums):
+                    errors.append(
+                        InvalidMetadata(
+                            _RAW_TO_EMAIL_MAPPING.get(field, field),
+                            f"Dynamic field {key!r} is not a valid dynamic field.",
+                        )
+                    )
+
     # Ensure that License and License-Expression are mutually exclusive
     # See https://peps.python.org/pep-0639/#deprecate-license-field
     if metadata.license and metadata.license_expression:
@@ -263,12 +277,12 @@ _FORM_TO_RAW_MAPPING = {_override.get(k, k): k for k in _RAW_TO_EMAIL_MAPPING}
 
 
 def parse_form_metadata(data: MultiDict) -> Metadata:
-    # We construct a RawMetdata using the form data, which we will later pass
+    # We construct a RawMetadata using the form data, which we will later pass
     # to Metadata to get a validated metadata.
     #
-    # NOTE: Form data is very similiar to the email format where the only difference
+    # NOTE: Form data is very similar to the email format where the only difference
     #       between a list and a single value is whether or not the same key is used
-    #       multiple times. Thus we will handle things in a similiar way, always
+    #       multiple times. Thus, we will handle things in a similar way, always
     #       fetching things as a list and then determining what to do based on the
     #       field type and how many values we found.
     #
