@@ -6115,7 +6115,8 @@ msgstr ""
 #, python-format
 msgid ""
 "I understand that this Trusted Publisher will only allow uploads frow "
-"CI/CD workflows running in %(constrained_environment_name)s"
+"CI/CD workflows running in the '%(constrained_environment_name)s' "
+"environment."
 msgstr ""
 
 #: warehouse/templates/manage/project/publishing.html:458

@@ -452,7 +452,7 @@
 {% set extra_description %}
 <p>{% trans %}Restrict Trusted Publisher environment to: {% endtrans %}<strong>{{ constrained_environment_name }}</strong></p>
   <ul class="no-bullets no-left-margin">
-    <li><input class="inline-checkbox" type="checkbox" data-action="input->confirm#check" data-confirm-target="checkbox"> {% trans %}I understand that this Trusted Publisher will only allow uploads frow CI/CD workflows running in {{ constrained_environment_name }}{% endtrans %}</li>
+    <li><input class="inline-checkbox" type="checkbox" data-action="input->confirm#check" data-confirm-target="checkbox"> {% trans %}I understand that this Trusted Publisher will only allow uploads frow CI/CD workflows running in the '{{ constrained_environment_name }}' environment.{% endtrans %}</li>
   </ul>
 {% endset %}
 {{ confirm_modal(title=title, label=gettext("New Environment Name"), confirm_name="constrained_environment_name", confirm_string=constrained_environment_name, slug=slug, confirm_button_label=confirm_button_label, extra_fields=extra_fields, extra_description=extra_description, warning=False, confirm_string_in_title=False) }}
