@@ -51,6 +51,7 @@ from warehouse.manage.forms import (
     CreateOrganizationApplicationForm,
     CreateOrganizationRoleForm,
     CreateTeamForm,
+    OrganizationActivateBillingForm,
     SaveOrganizationForm,
     SaveOrganizationNameForm,
     TransferOrganizationProjectForm,
@@ -554,9 +555,17 @@ class ManageOrganizationBillingViews:
         renderer="manage/organization/activate_subscription.html",
     )
     def activate_subscription(self):
-        # We're not ready for companies to activate their own subscriptions yet.
-        raise HTTPNotFound()
-        # return {"organization": self.organization}
+        form = OrganizationActivateBillingForm(self.request.POST)
+        if self.request.method == "POST" and form.validate():
+            self.organization_service.add_organization_terms_of_service_agreement(
+                self.organization.id
+            )
+            route = self.request.route_path(
+                "manage.organization.subscription",
+                organization_name=self.organization.normalized_name,
+            )
+            return HTTPSeeOther(route)
+        return {"organization": self.organization, "form": form}
 
     @view_config(route_name="manage.organization.subscription")
     def create_or_manage_subscription(self):

@@ -382,6 +382,17 @@ class DeleteMacaroonForm(UsernameMixin, PasswordMixin, wtforms.Form):
 # /manage/organizations/ forms
 
 
+class OrganizationActivateBillingForm(wtforms.Form):
+    terms_of_service_agreement = wtforms.BooleanField(
+        validators=[
+            wtforms.validators.DataRequired(
+                message="Terms of Service must be accepted.",
+            ),
+        ],
+        default=False,
+    )
+
+
 class OrganizationRoleNameMixin:
     role_name = wtforms.SelectField(
         "Select role",
