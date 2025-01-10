@@ -757,9 +757,9 @@ grpcio==1.69.0 \
     # via
     #   google-api-core
     #   grpcio-status
-grpcio-status==1.68.1 \
-    --hash=sha256:66f3d8847f665acfd56221333d66f7ad8927903d87242a482996bdb45e8d28fd \
-    --hash=sha256:e1378d036c81a1610d7b4c7a146cd663dd13fcc915cf4d7d053929dba5bbb6e1
+grpcio-status==1.69.0 \
+    --hash=sha256:595ef84e5178d6281caa732ccf68ff83259241608d26b0e9c40a5e66eee2a2d2 \
+    --hash=sha256:d6b2a3c9562c03a817c628d7ba9a925e209c228762d6d7677ae5c9401a542853
     # via google-api-core
 grpclib==0.4.7 \
     --hash=sha256:2988ef57c02b22b7a2e8e961792c41ccf97efc2ace91ae7a5b0de03c363823c3
