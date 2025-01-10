@@ -590,6 +590,7 @@ def billing_service(app_config):
         api=stripe,
         publishable_key="pk_test_123",
         webhook_secret="whsec_123",
+        domain="localhost",
     )
 
 

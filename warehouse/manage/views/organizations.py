@@ -573,8 +573,10 @@ class ManageOrganizationBillingViews:
         if not self.request.organization_access:
             raise HTTPNotFound()
 
-        if not self.organization.subscriptions:
-            # Create subscription if there are no existing subscription.
+        if not self.organization.manageable_subscription:
+            # Create subscription if there are no manageable subscription.
+            # This occurs if no subscription exists, or all subscriptions have reached
+            # a terminal state of Canceled.
             return self.create_subscription()
         else:
             # Manage subscription if there is an existing subscription.
