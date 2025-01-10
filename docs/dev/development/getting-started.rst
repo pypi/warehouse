@@ -30,8 +30,11 @@ improve the process:
 Detailed installation instructions
 ----------------------------------
 
-Getting the Warehouse source code
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Get the Warehouse source code
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+First, fork and clone the Warehouse source code to work on it locally.
+
 `Fork <https://docs.github.com/en/get-started/quickstart/fork-a-repo>`_ the repository
 on `GitHub`_ and
 `clone <https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository>`_ it to
@@ -54,25 +57,36 @@ you stay up-to-date with our repository:
     git merge upstream/main
 
 
-Configure the development environment
+Create your development environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. note::
-   In case you are used to using a virtual environment for Python development:
-   it's unnecessary for Warehouse development. Our Makefile scripts execute all
-   developer actions inside Docker containers.
+   Warehouse development can be done using Makefile scripts which 
+   executive all developer actions inside Docker containers. You do 
+   not need to create a Python virtual environment.
 
-Verifying Make Installation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Verify that you have Make installed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Verify that you have make installed in your environment
+We use Make to build the docs and the Warehouse site. 
+Verify that you have Make installed in your environment.
 
 .. code-block:: console
 
     make --version
 
-If you do not have it installed,
-consult your OS documentation on how to install ``make``.
+If you do not have `Make` installed,
+consult your operating system documentation on how to install ``make``.
+
+
+Do you want to build the docs or the Warehouse site?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you wish to build the entire Warehouse site, 
+use Docker and follow the instructions below. However, if you are only 
+contributing to the user or development documentation, then you can skip 
+setting up Docker below and use `Make` instead. To build the docs, 
+follow the `instructions here <#build-docs>`_. 
 
 
 Why Docker?
@@ -733,13 +747,17 @@ formatting and linting. You can reformat with:
 
     make reformat
 
+.. _build-docs:
 
 Building documentation
 ----------------------
 
 The Warehouse documentation is stored in the :file:`docs/`
-directory. It is written in `reStructured Text`_ and rendered using
-`Sphinx`_.
+directory with three subdirectories: blog, dev and user. 
+Development docs (in the dev directory) are written in 
+`reStructured Text`_ and rendered using `Sphinx`_. User docs `/user`
+are written in markdown and rendered using `mkdocs`. The blog is 
+also written in markdown. 
 
 Use :command:`make` to build the documentation. For example:
 
