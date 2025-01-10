@@ -274,6 +274,20 @@ class TestValidation:
             metadata.parse(None, form_data=data)
         _assert_invalid_metadata(excinfo.value, field_name.replace("_", "-"))
 
+    def test_valid_dynamic(self):
+        data = MultiDict(metadata_version="2.2", name="spam", version="2.0")
+        data.add("dynamic", "keywords")
+        data.add("dynamic", "author")
+        meta = metadata.parse(None, form_data=data)
+        assert meta.dynamic == ["keywords", "author"]
+
+    def test_invalid_dynamic(self):
+        data = MultiDict(metadata_version="2.2", name="spam", version="2.0")
+        data.add("dynamic", "Requires")
+        with pytest.raises(ExceptionGroup) as excinfo:
+            metadata.parse(None, form_data=data)
+        _assert_invalid_metadata(excinfo.value, "dynamic")
+
 
 class TestFromFormData:
     def test_valid(self):
