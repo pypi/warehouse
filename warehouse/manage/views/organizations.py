@@ -72,7 +72,6 @@ from warehouse.organizations.models import (
 from warehouse.packaging import IProjectService, Project, Role
 from warehouse.packaging.models import JournalEntry, ProjectFactory
 from warehouse.subscriptions import IBillingService, ISubscriptionService
-from warehouse.subscriptions.models import StripeSubscription, StripeSubscriptionStatus
 from warehouse.subscriptions.services import MockStripeBillingService
 from warehouse.utils.organization import confirm_organization
 from warehouse.utils.paginate import paginate_url_factory
@@ -574,17 +573,10 @@ class ManageOrganizationBillingViews:
         if not self.request.organization_access:
             raise HTTPNotFound()
 
-        live_subscriptions = (
-            self.request.db.query(StripeSubscription)
-            .filter(StripeSubscription.organization == self.organization)
-            .filter(
-                StripeSubscription.status.not_in([StripeSubscriptionStatus.Canceled])
-            )
-            .all()
-        )
-
-        if not live_subscriptions:
-            # Create subscription if there are no existing subscription.
+        if not self.organization.manageable_subscription:
+            # Create subscription if there are no manageable subscription.
+            # This occurs if no subscription exists, or all subscriptions have reached
+            # a terminal state of Canceled.
             return self.create_subscription()
         else:
             # Manage subscription if there is an existing subscription.
