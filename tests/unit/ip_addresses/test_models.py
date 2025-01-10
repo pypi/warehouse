@@ -24,7 +24,7 @@ class TestIpAddress:
     def test_repr(self, db_request):
         ip_address = db_request.ip_address
         assert isinstance(repr(ip_address), str)
-        assert repr(ip_address) == "1.2.3.4"
+        assert repr(ip_address) == "192.0.2.1"
 
     def test_invalid_transformed(self, db_request):
         ip_address = DBIpAddressFactory(ip_address="wutang")
@@ -33,21 +33,21 @@ class TestIpAddress:
     @pytest.mark.parametrize(
         "kwargs",
         [
-            {"ip_address": "1.2.3.4", "is_banned": True},
+            {"ip_address": "192.0.2.1", "is_banned": True},
             {
-                "ip_address": "1.2.3.4",
+                "ip_address": "192.0.2.1",
                 "is_banned": True,
                 "ban_reason": BanReason.AUTHENTICATION_ATTEMPTS,
             },
-            {"ip_address": "1.2.3.4", "is_banned": True, "ban_date": sql.func.now()},
+            {"ip_address": "192.0.2.1", "is_banned": True, "ban_date": sql.func.now()},
             {
-                "ip_address": "1.2.3.4",
+                "ip_address": "192.0.2.1",
                 "is_banned": False,
                 "ban_reason": BanReason.AUTHENTICATION_ATTEMPTS,
             },
-            {"ip_address": "1.2.3.4", "is_banned": False, "ban_date": sql.func.now()},
+            {"ip_address": "192.0.2.1", "is_banned": False, "ban_date": sql.func.now()},
             {
-                "ip_address": "1.2.3.4",
+                "ip_address": "192.0.2.1",
                 "is_banned": False,
                 "ban_reason": BanReason.AUTHENTICATION_ATTEMPTS,
                 "ban_date": sql.func.now(),
