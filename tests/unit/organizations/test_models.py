@@ -445,8 +445,38 @@ class TestTeam:
             organization=organization, subscription=subscription
         )
         assert organization.active_subscription is not None
+        assert organization.manageable_subscription is not None
 
     def test_active_subscription_none(self, db_session):
+        organization = DBOrganizationFactory.create()
+        stripe_customer = DBStripeCustomerFactory.create()
+        DBOrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
+        )
+        subscription = DBStripeSubscriptionFactory.create(
+            customer=stripe_customer,
+            status="unpaid",
+        )
+        DBOrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+        assert organization.active_subscription is None
+        assert organization.manageable_subscription is not None
+
+    def test_manageable_subscription(self, db_session):
+        organization = DBOrganizationFactory.create()
+        stripe_customer = DBStripeCustomerFactory.create()
+        DBOrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
+        )
+        subscription = DBStripeSubscriptionFactory.create(customer=stripe_customer)
+        DBOrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+        assert organization.active_subscription is not None
+        assert organization.manageable_subscription is not None
+
+    def test_manageable_subscription_none(self, db_session):
         organization = DBOrganizationFactory.create()
         stripe_customer = DBStripeCustomerFactory.create()
         DBOrganizationStripeCustomerFactory.create(
@@ -460,3 +490,4 @@ class TestTeam:
             organization=organization, subscription=subscription
         )
         assert organization.active_subscription is None
+        assert organization.manageable_subscription is None

@@ -490,6 +490,14 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         else:
             return None
 
+    @property
+    def manageable_subscription(self):
+        for subscription in self.subscriptions:
+            if subscription.is_manageable:
+                return subscription
+        else:
+            return None
+
     def customer_name(self, site_name="PyPI"):
         return f"{site_name} Organization - {self.display_name} ({self.name})"
 

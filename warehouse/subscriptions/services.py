@@ -37,10 +37,11 @@ from warehouse.subscriptions.models import (
 
 
 class GenericBillingService:
-    def __init__(self, api, publishable_key, webhook_secret):
+    def __init__(self, api, publishable_key, webhook_secret, domain):
         self.api = api
         self.publishable_key = publishable_key
         self.webhook_secret = webhook_secret
+        self.domain = domain
 
     @classmethod
     def create_service(cls, context, request):
@@ -76,7 +77,7 @@ class GenericBillingService:
         return self.api.Customer.create(
             name=name,
             description=description,
-            metadata={"billing_service": "pypi"},
+            metadata={"billing_service": "pypi", "domain": self.domain},
         )
 
     def update_customer(self, customer_id, name, description):
@@ -97,7 +98,7 @@ class GenericBillingService:
             cancel_url=cancel_url,
             mode="subscription",
             line_items=[{"price": price_id} for price_id in price_ids],
-            metadata={"billing_service": "pypi"},
+            metadata={"billing_service": "pypi", "domain": self.domain},
             # Uncomment `automatic_tax` to calculate tax automatically.
             # Requires active tax settings on Stripe Dashboard.
             # https://dashboard.stripe.com/settings/tax/activate
@@ -154,7 +155,7 @@ class GenericBillingService:
             description=description,
             tax_code=tax_code,
             unit_label=unit_label,
-            metadata={"billing_service": "pypi"},
+            metadata={"billing_service": "pypi", "domain": self.domain},
         )
 
     def retrieve_product(self, product_id):
@@ -256,7 +257,7 @@ class GenericBillingService:
             },
             product=product_id,
             tax_behavior=tax_behavior,
-            metadata={"billing_service": "pypi"},
+            metadata={"billing_service": "pypi", "domain": self.domain},
         )
 
     def retrieve_price(self, price_id):
@@ -332,8 +333,9 @@ class MockStripeBillingService(GenericBillingService):
         stripe.api_key = "sk_test_123"
         publishable_key = "pk_test_123"
         webhook_secret = "whsec_123"
+        domain = "localhost"
 
-        return cls(stripe, publishable_key, webhook_secret)
+        return cls(stripe, publishable_key, webhook_secret, domain)
 
     def create_customer(self, name, description):
         # Mock Stripe doesn't return a customer_id so create a mock id by default
@@ -370,8 +372,9 @@ class StripeBillingService(GenericBillingService):
         stripe.api_key = request.registry.settings["billing.secret_key"]
         publishable_key = request.registry.settings["billing.publishable_key"]
         webhook_secret = request.registry.settings["billing.webhook_key"]
+        domain = request.registry.settings["billing.domain"]
 
-        return cls(stripe, publishable_key, webhook_secret)
+        return cls(stripe, publishable_key, webhook_secret, domain)
 
 
 @implementer(ISubscriptionService)

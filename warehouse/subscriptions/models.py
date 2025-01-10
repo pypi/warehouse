@@ -125,6 +125,12 @@ class StripeSubscription(db.Model):
             StripeSubscriptionStatus.Trialing.value,
         ]
 
+    @property
+    def is_manageable(self):
+        return self.status not in [
+            StripeSubscriptionStatus.Canceled.value,
+        ]
+
 
 class StripeSubscriptionProduct(db.Model):
     __tablename__ = "stripe_subscription_products"

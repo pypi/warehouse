@@ -27,6 +27,11 @@ def handle_billing_webhook_event(request, event):
         # Occurs when a Checkout Session has been successfully completed.
         case "checkout.session.completed":
             checkout_session = event["data"]["object"]
+            if not (
+                checkout_session["metadata"].get("billing_service") == "pypi"
+                and checkout_session["metadata"].get("domain") == billing_service.domain
+            ):
+                return
             # Get expanded checkout session object
             checkout_session = billing_service.get_checkout_session(
                 checkout_session["id"],
