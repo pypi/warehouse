@@ -43,13 +43,18 @@ from warehouse.packaging.interfaces import (
     IFileStorage,
     IProjectService,
     ISimpleStorage,
-    ProjectNameUnavailableReason,
     TooManyProjectsCreated,
 )
 from warehouse.packaging.models import (
     JournalEntry,
     ProhibitedProjectName,
     Project,
+    ProjectNameUnavailableError,
+    ProjectNameUnavailableExisting,
+    ProjectNameUnavailableInvalid,
+    ProjectNameUnavailableProhibited,
+    ProjectNameUnavailableSimilar,
+    ProjectNameUnavailableStdlib,
     Role,
 )
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
@@ -443,32 +448,36 @@ class ProjectService:
         self.ratelimiters["project.create.user"].hit(creator.id)
         self.ratelimiters["project.create.ip"].hit(request.remote_addr)
 
-    def check_project_name(self, name: str) -> ProjectNameUnavailableReason | None:
+    def check_project_name(self, name: str) -> ProjectNameUnavailableError | None:
         if not PROJECT_NAME_RE.match(name):
-            return ProjectNameUnavailableReason.Invalid
+            return ProjectNameUnavailableInvalid()
 
         # Also check for collisions with Python Standard Library modules.
         if canonicalize_name(name) in STDLIB_PROHIBITED:
-            return ProjectNameUnavailableReason.Stdlib
+            return ProjectNameUnavailableStdlib()
 
-        if self.db.query(
-            exists().where(Project.normalized_name == func.normalize_pep426_name(name))
-        ).scalar():
-            return ProjectNameUnavailableReason.AlreadyExists
+        if (
+            existing_project := self.db.query(Project)
+            .where(Project.normalized_name == func.normalize_pep426_name(name))
+            .scalar()
+        ):
+            return ProjectNameUnavailableExisting(existing_project)
 
         if self.db.query(
             exists().where(
                 ProhibitedProjectName.name == func.normalize_pep426_name(name)
             )
         ).scalar():
-            return ProjectNameUnavailableReason.Prohibited
+            return ProjectNameUnavailableProhibited()
 
-        if self.db.query(
-            exists().where(
+        if (
+            similar_project := self.db.query(Project)
+            .where(
                 func.ultranormalize_name(Project.name) == func.ultranormalize_name(name)
             )
-        ).scalar():
-            return ProjectNameUnavailableReason.TooSimilar
+            .scalar()
+        ):
+            return ProjectNameUnavailableSimilar(similar_project)
 
         return None
 
@@ -491,9 +500,9 @@ class ProjectService:
 
         # Verify that the project name is both valid and currently available.
         match self.check_project_name(name):
-            case ProjectNameUnavailableReason.Invalid:
+            case ProjectNameUnavailableInvalid():
                 raise HTTPBadRequest(f"The name {name!r} is invalid.")
-            case ProjectNameUnavailableReason.AlreadyExists:
+            case ProjectNameUnavailableExisting():
                 # Found existing project with conflicting name.
                 raise HTTPConflict(
                     (
@@ -504,7 +513,7 @@ class ProjectService:
                         projecthelp=request.help_url(_anchor="project-name"),
                     ),
                 ) from None
-            case ProjectNameUnavailableReason.Prohibited:
+            case ProjectNameUnavailableProhibited():
                 raise HTTPBadRequest(
                     (
                         "The name {name!r} isn't allowed. "
@@ -514,17 +523,18 @@ class ProjectService:
                         projecthelp=request.help_url(_anchor="project-name"),
                     ),
                 ) from None
-            case ProjectNameUnavailableReason.TooSimilar:
+            case ProjectNameUnavailableSimilar(similar_project=similar_project):
                 raise HTTPBadRequest(
                     (
-                        "The name {name!r} is too similar to an existing project. "
-                        "See {projecthelp} for more information."
+                        "The name {name!r} is too similar to an existing project named "
+                        "{similar_name!r}. See {projecthelp} for more information."
                     ).format(
                         name=name,
+                        similar_name=similar_project.name,
                         projecthelp=request.help_url(_anchor="project-name"),
                     ),
                 ) from None
-            case ProjectNameUnavailableReason.Stdlib:
+            case ProjectNameUnavailableStdlib():
                 raise HTTPBadRequest(
                     (
                         "The name {name!r} isn't allowed (conflict with Python "
