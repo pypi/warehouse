@@ -6108,7 +6108,7 @@ msgid "Constrain environment"
 msgstr ""
 
 #: warehouse/templates/manage/project/publishing.html:455
-msgid "Restrict Trusted Publisher environment to"
+msgid "This will restrict the Trusted Publisher's environment to"
 msgstr ""
 
 #: warehouse/templates/manage/project/publishing.html:459
