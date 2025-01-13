@@ -1471,7 +1471,7 @@ def file_upload(request):
         "license": meta.license,
         "license_expression": meta.license_expression,
         "license_files": meta.license_files,
-        "keywords": meta.keywords,
+        "keywords": ", ".join(meta.keywords) if meta.keywords else None,
         "classifiers": meta.classifiers,
         "platform": meta.platforms[0] if meta.platforms else None,
         "home_page": meta.home_page,
