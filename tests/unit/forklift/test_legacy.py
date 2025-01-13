@@ -907,7 +907,7 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 The name {!r} is too similar to an existing project. "
+            "400 The name {!r} is too similar to an existing project named 'toasting'. "
             "See /the/help/url/ for more information."
         ).format(conflicting_name)
 

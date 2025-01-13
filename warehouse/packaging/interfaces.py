@@ -14,6 +14,7 @@ import enum
 
 from zope.interface import Interface
 
+from warehouse.packaging.models import Project
 from warehouse.rate_limiting.interfaces import RateLimiterException
 
 
@@ -73,14 +74,6 @@ class IDocsStorage(Interface):
         """
         Remove all files matching the given prefix.
         """
-
-
-class ProjectNameUnavailableReason(enum.Enum):
-    Invalid = "invalid"
-    Stdlib = "stdlib"
-    AlreadyExists = "already-exists"
-    Prohibited = "prohibited"
-    TooSimilar = "too-similar"
 
 
 class IProjectService(Interface):

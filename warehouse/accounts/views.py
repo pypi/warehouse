@@ -1511,21 +1511,25 @@ class ManageAccountPublishingViews:
             api_token=self.request.registry.settings.get("github.token"),
             route_url=self.request.route_url,
             check_project_name=self.project_service.check_project_name,
+            user=request.user,
         )
         self.pending_gitlab_publisher_form = PendingGitLabPublisherForm(
             self.request.POST,
             route_url=self.request.route_url,
             check_project_name=self.project_service.check_project_name,
+            user=request.user,
         )
         self.pending_google_publisher_form = PendingGooglePublisherForm(
             self.request.POST,
             route_url=self.request.route_url,
             check_project_name=self.project_service.check_project_name,
+            user=request.user,
         )
         self.pending_activestate_publisher_form = PendingActiveStatePublisherForm(
             self.request.POST,
             route_url=self.request.route_url,
             check_project_name=self.project_service.check_project_name,
+            user=request.user,
         )
 
     @property

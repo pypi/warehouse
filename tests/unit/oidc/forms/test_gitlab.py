@@ -17,12 +17,13 @@ import wtforms
 from webob.multidict import MultiDict
 
 from warehouse.oidc.forms import gitlab
-from warehouse.packaging.interfaces import ProjectNameUnavailableReason
+from warehouse.packaging.models import ProjectNameUnavailableExisting
 
 
 class TestPendingGitLabPublisherForm:
     def test_validate(self, monkeypatch):
         route_url = pretend.stub()
+        user = pretend.stub()
 
         def check_project_name(name):
             return None  # Name is available.
@@ -36,32 +37,51 @@ class TestPendingGitLabPublisherForm:
             }
         )
         form = gitlab.PendingGitLabPublisherForm(
-            MultiDict(data), route_url=route_url, check_project_name=check_project_name
+            MultiDict(data),
+            route_url=route_url,
+            check_project_name=check_project_name,
+            user=user,
         )
 
         assert form._route_url == route_url
         assert form._check_project_name == check_project_name
+        assert form._user == user
         # We're testing only the basic validation here.
         assert form.validate()
 
-    def test_validate_project_name_already_in_use(self, pyramid_config):
+    @pytest.mark.parametrize("is_project_owner", [True, False])
+    def test_validate_project_name_already_in_use(
+        self, pyramid_config, is_project_owner
+    ):
+        user = pretend.stub()
+        owners = []
+        if is_project_owner:
+            owners.append(user)
         route_url = pretend.call_recorder(lambda *args, **kwargs: "my_url")
 
         form = gitlab.PendingGitLabPublisherForm(
             route_url=route_url,
-            check_project_name=lambda name: ProjectNameUnavailableReason.AlreadyExists,
+            check_project_name=lambda name: ProjectNameUnavailableExisting(
+                existing_project=pretend.stub(owners=owners)
+            ),
+            user=user,
         )
 
         field = pretend.stub(data="some-project")
         with pytest.raises(wtforms.validators.ValidationError):
             form.validate_project_name(field)
-        assert route_url.calls == [
-            pretend.call(
-                "manage.project.settings.publishing",
-                project_name="some-project",
-                _query={"provider": {"gitlab"}},
-            )
-        ]
+        if is_project_owner:
+            # The project settings URL is only shown in the error message if
+            # the user is the owner of the project
+            assert route_url.calls == [
+                pretend.call(
+                    "manage.project.settings.publishing",
+                    project_name="some-project",
+                    _query={"provider": {"gitlab"}},
+                )
+            ]
+        else:
+            assert route_url.calls == []
 
 
 class TestGitLabPublisherForm:
@@ -138,7 +158,6 @@ class TestGitLabPublisherForm:
         ["invalid.git", "invalid.atom", "invalid--project"],
     )
     def test_reserved_project_names(self, project_name):
-
         data = MultiDict(
             {
                 "namespace": "some",
@@ -160,7 +179,6 @@ class TestGitLabPublisherForm:
         ],
     )
     def test_reserved_organization_names(self, namespace):
-
         data = MultiDict(
             {
                 "namespace": namespace,

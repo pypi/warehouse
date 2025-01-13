@@ -13,7 +13,13 @@ import markupsafe
 import wtforms
 
 from warehouse.i18n import localize as _
-from warehouse.packaging.interfaces import ProjectNameUnavailableReason
+from warehouse.packaging.models import (
+    ProjectNameUnavailableExisting,
+    ProjectNameUnavailableInvalid,
+    ProjectNameUnavailableProhibited,
+    ProjectNameUnavailableSimilar,
+    ProjectNameUnavailableStdlib,
+)
 from warehouse.utils.project import PROJECT_NAME_RE
 
 
@@ -31,38 +37,52 @@ class PendingPublisherMixin:
         project_name = field.data
 
         match self._check_project_name(project_name):
-            case ProjectNameUnavailableReason.Invalid:
+            case ProjectNameUnavailableInvalid():
                 raise wtforms.validators.ValidationError(_("Invalid project name"))
-            case ProjectNameUnavailableReason.AlreadyExists:
-                url_params = {name: value for name, value in self.data.items() if value}
-                url_params["provider"] = {self.provider}
-                url = self._route_url(
-                    "manage.project.settings.publishing",
-                    project_name=project_name,
-                    _query=url_params,
-                )
+            case ProjectNameUnavailableExisting(existing_project=existing_project):
+                # If the user owns the existing project, the error message includes a
+                # link to the project settings that the user can modify.
+                if self._user in existing_project.owners:
+                    url_params = {
+                        name: value for name, value in self.data.items() if value
+                    }
+                    url_params["provider"] = {self.provider}
+                    url = self._route_url(
+                        "manage.project.settings.publishing",
+                        project_name=project_name,
+                        _query=url_params,
+                    )
 
-                # We mark the error message as safe, so that the HTML hyperlink is
-                # not escaped by Jinja
-                raise wtforms.validators.ValidationError(
-                    markupsafe.Markup(
-                        _(
-                            "This project already exists: use the project's publishing"
-                            " settings <a href='${url}'>here</a> to create a Trusted"
-                            " Publisher for it.",
-                            mapping={"url": url},
+                    # We mark the error message as safe, so that the HTML hyperlink is
+                    # not escaped by Jinja
+                    raise wtforms.validators.ValidationError(
+                        markupsafe.Markup(
+                            _(
+                                "This project already exists: use the project's "
+                                "publishing settings <a href='${url}'>here</a> to "
+                                "create a Trusted Publisher for it.",
+                                mapping={"url": url},
+                            )
                         )
                     )
-                )
-            case ProjectNameUnavailableReason.Prohibited:
+                else:
+                    raise wtforms.validators.ValidationError(
+                        _("This project already exists.")
+                    )
+
+            case ProjectNameUnavailableProhibited():
                 raise wtforms.validators.ValidationError(
                     _("This project name isn't allowed")
                 )
-            case ProjectNameUnavailableReason.TooSimilar:
+            case ProjectNameUnavailableSimilar(similar_project=similar_project):
                 raise wtforms.validators.ValidationError(
-                    _("This project name is too similar to an existing project")
+                    _(
+                        "This project name is too similar to an existing project "
+                        "named '${name}'",
+                        mapping={"name": similar_project.name},
+                    )
                 )
-            case ProjectNameUnavailableReason.Stdlib:
+            case ProjectNameUnavailableStdlib():
                 raise wtforms.validators.ValidationError(
                     _(
                         "This project name isn't allowed (conflict with the Python"
