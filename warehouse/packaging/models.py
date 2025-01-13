@@ -998,6 +998,13 @@ class JournalEntry(db.ModelBase):
             Index("journals_version_idx", "version"),
             Index("journals_submitted_by_idx", "submitted_by"),
             Index("journals_submitted_date_id_idx", cls.submitted_date, cls.id),
+            # Composite index for journals to be able to sort by
+            # `submitted_by`, and `submitted_date` in descending order.
+            Index(
+                "journals_submitted_by_and_reverse_date_idx",
+                cls._submitted_by,
+                cls.submitted_date.desc(),
+            ),
         )
 
     id: Mapped[int] = mapped_column(primary_key=True)

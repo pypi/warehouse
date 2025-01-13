@@ -1309,7 +1309,7 @@ class TestFileUpload:
                     "license": None,
                     "license_expression": "MIT OR Apache-2.0",
                     "license_files": ["LICENSE.APACHE", "LICENSE.MIT"],
-                    "keywords": ["keyword1", "keyword2"],
+                    "keywords": "keyword1, keyword2",
                     "classifiers": ["Environment :: Other Environment"],
                     "platform": None,
                     "home_page": None,
