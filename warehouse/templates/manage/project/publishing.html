@@ -450,7 +450,7 @@
   <input name="constrained_environment_name" type="hidden" value="{{ constrained_environment_name }}">
 {% endset %}
 {% set extra_description %}
-<p>{% trans %}Restrict Trusted Publisher environment to: {% endtrans %}<strong>{{ constrained_environment_name }}</strong></p>
+<p>{% trans %}Restrict Trusted Publisher environment to:{% endtrans %} <strong>{{ constrained_environment_name }}</strong></p>
   <ul class="no-bullets no-left-margin">
     <li><input class="inline-checkbox" type="checkbox" data-action="input->confirm#check" data-confirm-target="checkbox"> {% trans %}I understand that this Trusted Publisher will only allow uploads frow CI/CD workflows running in the '{{ constrained_environment_name }}' environment.{% endtrans %}</li>
   </ul>
