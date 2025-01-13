@@ -6107,11 +6107,19 @@ msgstr ""
 msgid "Constrain environment"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:453
-msgid "Restrict Trusted Publisher environment to:"
+#: warehouse/templates/manage/project/publishing.html:455
+msgid "Restrict Trusted Publisher environment to"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:455
+#: warehouse/templates/manage/project/publishing.html:459
+#, python-format
+msgid ""
+"If you currently use multiple environments in your CI/CD workflows, you "
+"must either change them all to '%(constrained_environment_name)s' or "
+"register each as a Trusted Publisher."
+msgstr ""
+
+#: warehouse/templates/manage/project/publishing.html:467
 #, python-format
 msgid ""
 "I understand that this Trusted Publisher will only allow uploads frow "
@@ -6119,7 +6127,7 @@ msgid ""
 "environment."
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:458
+#: warehouse/templates/manage/project/publishing.html:471
 msgid "New Environment Name"
 msgstr ""
 

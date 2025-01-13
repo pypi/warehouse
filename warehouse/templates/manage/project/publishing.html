@@ -450,10 +450,23 @@
   <input name="constrained_environment_name" type="hidden" value="{{ constrained_environment_name }}">
 {% endset %}
 {% set extra_description %}
-<p>{% trans %}Restrict Trusted Publisher environment to:{% endtrans %} <strong>{{ constrained_environment_name }}</strong></p>
+<div>
+  <div>
+    {% trans %}Restrict Trusted Publisher environment to{% endtrans %} <strong>{{ constrained_environment_name }}</strong>
+  </div>
+
+  <div class="callout-block callout-block--warning">
+    {% trans %}
+    If you currently use multiple environments in your CI/CD workflows, you
+    must either change them all to '{{ constrained_environment_name }}' or register
+    each as a Trusted Publisher.
+    {% endtrans %}
+  </div>
+
   <ul class="no-bullets no-left-margin">
     <li><input class="inline-checkbox" type="checkbox" data-action="input->confirm#check" data-confirm-target="checkbox"> {% trans %}I understand that this Trusted Publisher will only allow uploads frow CI/CD workflows running in the '{{ constrained_environment_name }}' environment.{% endtrans %}</li>
   </ul>
+</div>
 {% endset %}
 {{ confirm_modal(title=title, label=gettext("New Environment Name"), confirm_name="constrained_environment_name", confirm_string=constrained_environment_name, slug=slug, confirm_button_label=confirm_button_label, extra_fields=extra_fields, extra_description=extra_description, warning=False, confirm_string_in_title=False) }}
 {% endif %}
