@@ -74,13 +74,9 @@ class PendingPublisherMixin:
                 raise wtforms.validators.ValidationError(
                     _("This project name isn't allowed")
                 )
-            case ProjectNameUnavailableSimilar(similar_project=similar_project):
+            case ProjectNameUnavailableSimilar():
                 raise wtforms.validators.ValidationError(
-                    _(
-                        "This project name is too similar to an existing project "
-                        "named '${name}'",
-                        mapping={"name": similar_project.name},
-                    )
+                    _("This project name is too similar to an existing project")
                 )
             case ProjectNameUnavailableStdlib():
                 raise wtforms.validators.ValidationError(
