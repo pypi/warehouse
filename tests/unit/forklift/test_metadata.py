@@ -14,6 +14,7 @@ import packaging.metadata
 import pytest
 
 from packaging.version import Version
+from sqlalchemy.dialects.postgresql import ENUM
 from webob.multidict import MultiDict
 
 from warehouse.forklift import metadata
@@ -284,6 +285,19 @@ class TestValidation:
     def test_invalid_dynamic(self):
         data = MultiDict(metadata_version="2.2", name="spam", version="2.0")
         data.add("dynamic", "Invalid")
+        with pytest.raises(ExceptionGroup) as excinfo:
+            metadata.parse(None, form_data=data)
+        _assert_invalid_metadata(excinfo.value, "dynamic")
+
+    def test_valid_dynamic_but_missing_from_our_enum(self, monkeypatch):
+        """
+        Handles the case where there are new metadata fields that pypa/packaging
+        considers to be valid, but don't exist in our enum and would otherwise fail
+        when inserting them into the database
+        """
+        monkeypatch.setattr(metadata, "DynamicFieldsEnum", ENUM())
+        data = MultiDict(metadata_version="2.2", name="spam", version="2.0")
+        data.add("dynamic", "author")
         with pytest.raises(ExceptionGroup) as excinfo:
             metadata.parse(None, form_data=data)
         _assert_invalid_metadata(excinfo.value, "dynamic")
