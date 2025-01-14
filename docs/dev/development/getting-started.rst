@@ -62,7 +62,7 @@ Create your development environment
 
 .. note::
    Warehouse development can be done using Makefile scripts which 
-   executive all developer actions inside Docker containers. You do 
+   execute all developer actions inside Docker containers. You do 
    not need to create a Python virtual environment.
 
 Verify that you have Make installed
