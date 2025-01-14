@@ -1016,11 +1016,11 @@ class TestProjectService:
 
     def test_check_project_name_already_exists(self, db_session):
         service = ProjectService(session=db_session)
-        ProjectFactory.create(name="foo")
+        project = ProjectFactory.create(name="foo")
 
-        assert isinstance(
-            service.check_project_name("foo"), ProjectNameUnavailableExisting
-        )
+        unavailable_error = service.check_project_name("foo")
+        assert isinstance(unavailable_error, ProjectNameUnavailableExisting)
+        assert unavailable_error.existing_project == project
         assert isinstance(
             service.check_project_name("Foo"),
             ProjectNameUnavailableExisting,
@@ -1043,6 +1043,18 @@ class TestProjectService:
 
         assert isinstance(
             service.check_project_name("foo"), ProjectNameUnavailableSimilar
+        )
+
+    def test_check_project_name_too_similar_multiple_existing(self, db_session):
+        service = ProjectService(session=db_session)
+        project1 = ProjectFactory.create(name="f00")
+        project2 = ProjectFactory.create(name="f0o")
+
+        unavailable_error = service.check_project_name("foo")
+        assert isinstance(unavailable_error, ProjectNameUnavailableSimilar)
+        assert (
+            unavailable_error.similar_project == project1
+            or unavailable_error.similar_project == project2
         )
 
     def test_check_project_name_ok(self, db_session):

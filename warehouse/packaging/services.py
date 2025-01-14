@@ -459,7 +459,7 @@ class ProjectService:
         if (
             existing_project := self.db.query(Project)
             .where(Project.normalized_name == func.normalize_pep426_name(name))
-            .scalar()
+            .first()
         ):
             return ProjectNameUnavailableExisting(existing_project)
 
@@ -475,7 +475,7 @@ class ProjectService:
             .where(
                 func.ultranormalize_name(Project.name) == func.ultranormalize_name(name)
             )
-            .scalar()
+            .first()
         ):
             return ProjectNameUnavailableSimilar(similar_project)
 
