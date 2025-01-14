@@ -32,7 +32,7 @@ def upgrade():
         "ALTER TYPE public.release_dynamic_fields ADD VALUE IF NOT EXISTS 'Provides'"
     )
     op.execute(
-        "ALTER TYPE public.release_dynamic_fields ADD VALUE IF NOT EXISTS 'Obseletes'"
+        "ALTER TYPE public.release_dynamic_fields ADD VALUE IF NOT EXISTS 'Obsoletes'"
     )
 
 
