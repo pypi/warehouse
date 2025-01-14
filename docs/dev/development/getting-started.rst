@@ -80,7 +80,7 @@ consult your operating system documentation on how to install ``make``.
 
 
 Do you want to build the docs or the Warehouse site?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you wish to build the entire Warehouse site, 
 use Docker and follow the instructions below. However, if you are only 
