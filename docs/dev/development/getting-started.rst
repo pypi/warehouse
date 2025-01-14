@@ -66,7 +66,7 @@ Create your development environment
    not need to create a Python virtual environment.
 
 Verify that you have Make installed
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We use Make to build the docs and the Warehouse site. 
 Verify that you have Make installed in your environment.
