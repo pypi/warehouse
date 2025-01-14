@@ -25,46 +25,14 @@ down_revision = "ed4cc2ef6b0f"
 
 
 def upgrade():
-    op.sync_enum_values(
-        enum_schema="public",
-        enum_name="release_dynamic_fields",
-        new_values=[
-            "Platform",
-            "Supported-Platform",
-            "Summary",
-            "Description",
-            "Description-Content-Type",
-            "Keywords",
-            "Author",
-            "Author-Email",
-            "Maintainer",
-            "Maintainer-Email",
-            "License",
-            "License-Expression",
-            "License-File",
-            "Classifier",
-            "Requires-Dist",
-            "Requires-Python",
-            "Requires-External",
-            "Project-Url",
-            "Provides-Extra",
-            "Provides-Dist",
-            "Obsoletes-Dist",
-            "Home-Page",
-            "Download-Url",
-            "Requires",
-            "Provides",
-            "Obsoletes",
-        ],
-        affected_columns=[
-            TableReference(
-                table_schema="public",
-                table_name="releases",
-                column_name="dynamic",
-                column_type=ColumnType.ARRAY,
-            )
-        ],
-        enum_values_to_rename=[],
+    op.execute(
+        "ALTER TYPE public.release_dynamic_fields ADD VALUE IF NOT EXISTS 'Requires'"
+    )
+    op.execute(
+        "ALTER TYPE public.release_dynamic_fields ADD VALUE IF NOT EXISTS 'Provides'"
+    )
+    op.execute(
+        "ALTER TYPE public.release_dynamic_fields ADD VALUE IF NOT EXISTS 'Obseletes'"
     )
 
 
