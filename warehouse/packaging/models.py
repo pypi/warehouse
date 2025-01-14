@@ -547,8 +547,6 @@ DynamicFieldsEnum = ENUM(
     "Description",
     "Description-Content-Type",
     "Keywords",
-    "Home-Page",
-    "Download-Url",
     "Author",
     "Author-Email",
     "Maintainer",
@@ -564,6 +562,14 @@ DynamicFieldsEnum = ENUM(
     "Provides-Extra",
     "Provides-Dist",
     "Obsoletes-Dist",
+    # Although the following are deprecated fields, they are technically
+    # permitted as dynamic by PEP 643
+    # https://github.com/pypa/setuptools/issues/4797#issuecomment-2589514950
+    "Home-Page",
+    "Download-Url",
+    "Requires",
+    "Provides",
+    "Obsoletes",
     name="release_dynamic_fields",
 )
 
