@@ -523,14 +523,13 @@ class ProjectService:
                         projecthelp=request.help_url(_anchor="project-name"),
                     ),
                 ) from None
-            case ProjectNameUnavailableSimilar(similar_project=similar_project):
+            case ProjectNameUnavailableSimilar():
                 raise HTTPBadRequest(
                     (
-                        "The name {name!r} is too similar to an existing project named "
-                        "{similar_name!r}. See {projecthelp} for more information."
+                        "The name {name!r} is too similar to an existing project. "
+                        "See {projecthelp} for more information."
                     ).format(
                         name=name,
-                        similar_name=similar_project.name,
                         projecthelp=request.help_url(_anchor="project-name"),
                     ),
                 ) from None

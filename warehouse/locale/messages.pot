@@ -673,26 +673,25 @@ msgstr ""
 msgid "This project name isn't allowed"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:80
-#, python-brace-format
-msgid "This project name is too similar to an existing project named '${name}'"
+#: warehouse/oidc/forms/_core.py:79
+msgid "This project name is too similar to an existing project"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:88
+#: warehouse/oidc/forms/_core.py:84
 msgid ""
 "This project name isn't allowed (conflict with the Python standard "
 "library module name)"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:104 warehouse/oidc/forms/_core.py:115
+#: warehouse/oidc/forms/_core.py:100 warehouse/oidc/forms/_core.py:111
 msgid "Specify a publisher ID"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:105 warehouse/oidc/forms/_core.py:116
+#: warehouse/oidc/forms/_core.py:101 warehouse/oidc/forms/_core.py:112
 msgid "Publisher must be specified by ID"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:121
+#: warehouse/oidc/forms/_core.py:117
 msgid "Specify an environment name"
 msgstr ""
 
