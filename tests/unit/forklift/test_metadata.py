@@ -283,7 +283,7 @@ class TestValidation:
 
     def test_invalid_dynamic(self):
         data = MultiDict(metadata_version="2.2", name="spam", version="2.0")
-        data.add("dynamic", "Requires")
+        data.add("dynamic", "Invalid")
         with pytest.raises(ExceptionGroup) as excinfo:
             metadata.parse(None, form_data=data)
         _assert_invalid_metadata(excinfo.value, "dynamic")
