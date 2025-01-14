@@ -1093,6 +1093,17 @@ def send_pep625_version_email(
     }
 
 
+@_email("environment-ignored-in-trusted-publisher")
+def send_environment_ignored_in_trusted_publisher_email(
+    request, users, project_name, publisher, environment_name
+):
+    return {
+        "project_name": project_name,
+        "publisher": publisher,
+        "environment_name": environment_name,
+    }
+
+
 def includeme(config):
     email_sending_class = config.maybe_dotted(config.registry.settings["mail.backend"])
     config.register_service_factory(email_sending_class.create_service, IEmailSender)
