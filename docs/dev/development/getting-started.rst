@@ -58,7 +58,7 @@ you stay up-to-date with our repository:
 
 
 Create your development environment
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. note::
    Warehouse development can be done using Makefile scripts which 
