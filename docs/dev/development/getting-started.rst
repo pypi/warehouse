@@ -31,7 +31,7 @@ Detailed installation instructions
 ----------------------------------
 
 Get the Warehouse source code
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 First, fork and clone the Warehouse source code to work on it locally.
 
