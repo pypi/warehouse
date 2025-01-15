@@ -34,6 +34,7 @@ if typing.TYPE_CHECKING:
     from sqlalchemy.orm import Session as SA_Session
 
     from warehouse.config import Configurator
+    from warehouse.tasks import WarehouseTask
 
 
 @db.listens_for(db.Session, "after_flush")
@@ -47,7 +48,7 @@ def new_observation_created(_config, session: SA_Session, _flush_context):
 
 
 @db.listens_for(db.Session, "after_commit")
-def execute_observation_report(config: Configurator, session: SA_Session):
+def react_to_observation_created(config: Configurator, session: SA_Session):
     # Fetch the observations from the session.
     observations = session.info.pop("warehouse.observations.new", set())
     for obj in observations:
@@ -55,7 +56,7 @@ def execute_observation_report(config: Configurator, session: SA_Session):
         #  because the Observation object is not currently JSON-serializable.
         config.task(report_observation_to_helpscout).delay(obj.id)
         # Now that we've told Help Scout, run auto-quarantine.
-        config.task(auto_quarantine_project).delay(obj.id)
+        config.task(evaluate_project_for_quarantine).delay(obj.id)
 
 
 @tasks.task(
@@ -163,9 +164,11 @@ def report_observation_to_helpscout(task, request: Request, model_id: UUID) -> N
     autoretry_for=(RequestException,),
     retry_backoff=True,
 )
-def auto_quarantine_project(task, request: Request, model_id: UUID) -> None:
+def evaluate_project_for_quarantine(
+    task: WarehouseTask, request: Request, observation_id: UUID
+) -> None:
     """
-    Automatically quarantine a Project for Admin review.
+    Conditionally quarantine a Project for Admin review.
 
     Conditions must be met:
 
@@ -174,19 +177,19 @@ def auto_quarantine_project(task, request: Request, model_id: UUID) -> None:
     - Observed Project has at least 2 Observations, at least 1 by `User.is_observer`
     """
     # Fetch the Observation from the database, load the related Project
-    model = request.db.get(Observation, model_id)
-    project = model.related
+    observation = request.db.get(Observation, observation_id)
+    project = observation.related
 
     # Add more logging context
     logger = request.log.bind(
-        kind=model.kind,
-        observer=model.observer.parent.username,
+        kind=observation.kind,
+        observer=observation.observer.parent.username,
         project=project.name,
         task=task.name,
     )
 
     # Check to see if this ObservationKind should be sent
-    if OBSERVATION_KIND_MAP[model.kind] != ObservationKind.IsMalware:
+    if OBSERVATION_KIND_MAP[observation.kind] != ObservationKind.IsMalware:
         logger.info("ObservationKind is not IsMalware. Not quarantining.")
         return
     # Check if the project is already quarantined

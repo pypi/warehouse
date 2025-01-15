@@ -15,8 +15,8 @@ import pytest
 
 from warehouse.observations.models import ObservationKind
 from warehouse.observations.tasks import (
-    auto_quarantine_project,
-    execute_observation_report,
+    evaluate_project_for_quarantine,
+    react_to_observation_created,
     report_observation_to_helpscout,
 )
 from warehouse.packaging.models import LifecycleStatus
@@ -31,7 +31,7 @@ def test_execute_observation_report(app_config):
     observation = pretend.stub(id=pretend.stub())
     session = pretend.stub(info={"warehouse.observations.new": {observation}})
 
-    execute_observation_report(app_config, session)
+    react_to_observation_created(app_config, session)
 
     assert _delay.calls == [pretend.call(observation.id), pretend.call(observation.id)]
 
@@ -96,7 +96,7 @@ class TestAutoQuarantineProject:
         # Need to flush the session to ensure the Observation has an ID
         db_request.db.flush()
 
-        auto_quarantine_project(dummy_task, db_request, observation.id)
+        evaluate_project_for_quarantine(dummy_task, db_request, observation.id)
 
         assert project.lifecycle_status != LifecycleStatus.QuarantineEnter
         assert db_request.log.info.calls == [
@@ -121,7 +121,7 @@ class TestAutoQuarantineProject:
         # Need to flush the session to ensure the Observation has an ID
         db_request.db.flush()
 
-        auto_quarantine_project(dummy_task, db_request, observation.id)
+        evaluate_project_for_quarantine(dummy_task, db_request, observation.id)
 
         assert project.lifecycle_status == LifecycleStatus.QuarantineEnter
         assert db_request.log.info.calls == [
@@ -144,7 +144,7 @@ class TestAutoQuarantineProject:
         # Need to flush the session to ensure the Observation has an ID
         db_request.db.flush()
 
-        auto_quarantine_project(dummy_task, db_request, observation.id)
+        evaluate_project_for_quarantine(dummy_task, db_request, observation.id)
 
         assert project.lifecycle_status != LifecycleStatus.QuarantineEnter
         assert db_request.log.info.calls == [
@@ -177,7 +177,7 @@ class TestAutoQuarantineProject:
         # Need to flush the session to ensure the Observations has an ID
         db_request.db.flush()
 
-        auto_quarantine_project(dummy_task, db_request, observation.id)
+        evaluate_project_for_quarantine(dummy_task, db_request, observation.id)
 
         assert project.lifecycle_status != LifecycleStatus.QuarantineEnter
         assert db_request.log.info.calls == [
@@ -227,7 +227,7 @@ class TestAutoQuarantineProject:
         ns_svc_spy = pretend.call_recorder(lambda *args, **kwargs: None)
         monkeypatch.setattr(notification_service, "send_notification", ns_svc_spy)
 
-        auto_quarantine_project(dummy_task, db_request, observation.id)
+        evaluate_project_for_quarantine(dummy_task, db_request, observation.id)
 
         assert len(ns_svc_spy.calls) == 1
         assert project.lifecycle_status == LifecycleStatus.QuarantineEnter

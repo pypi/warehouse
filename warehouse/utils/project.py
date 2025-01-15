@@ -13,10 +13,9 @@
 import re
 
 from pyramid.httpexceptions import HTTPSeeOther
-from sqlalchemy import select
 from sqlalchemy.sql import func
 
-from warehouse.accounts.models import User
+from warehouse.accounts.services import IUserService
 from warehouse.events.tags import EventTag
 from warehouse.packaging.interfaces import IDocsStorage
 from warehouse.packaging.models import (
@@ -107,9 +106,8 @@ def quarantine_project(project: Project, request, flash=True) -> None:
     # TODO: This should probably be extracted to somewhere more general for tasks,
     #  but it got confusing where to add it in the context of this PR.
     #  Since JournalEntry has FK to `User`, it needs to be a real object.
-    actor = request.user or request.db.scalar(
-        select(User).where(User.username == "admin")
-    )
+    user_service = request.find_service(IUserService)
+    actor = request.user or user_service.get_admin_user()
 
     project.lifecycle_status = LifecycleStatus.QuarantineEnter
     project.lifecycle_status_note = f"Quarantined by {actor.username}."
