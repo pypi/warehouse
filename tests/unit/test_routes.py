@@ -77,6 +77,7 @@ def test_routes(warehouse):
         pretend.call("force-status", r"/_force-status/{status:[45]\d\d}/"),
         pretend.call("index", "/", domain=warehouse),
         pretend.call("locale", "/locale/", domain=warehouse),
+        pretend.call("favicon.ico", "/favicon.ico", domain=warehouse),
         pretend.call("robots.txt", "/robots.txt", domain=warehouse),
         pretend.call("opensearch.xml", "/opensearch.xml", domain=warehouse),
         pretend.call("index.sitemap.xml", "/sitemap.xml", domain=warehouse),
@@ -532,6 +533,11 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "integrations.secrets.disclose-token",
+            "/_/secrets/disclose-token",
+            domain=warehouse,
+        ),
+        pretend.call(
             "integrations.github.disclose-token",
             "/_/github/disclose-token",
             domain=warehouse,
@@ -561,6 +567,14 @@ def test_routes(warehouse):
             "/danger-api/projects/{name}/observations",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}",
+            domain=warehouse,
+        ),
+        # PEP 740 URLs
+        pretend.call(
+            "integrity.provenance",
+            "/integrity/{project_name}/{release}/{filename}/provenance",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}/{release}/{filename}",
             domain=warehouse,
         ),
         # Mock URLs

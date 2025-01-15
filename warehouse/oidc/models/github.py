@@ -14,14 +14,7 @@ import re
 
 from typing import Any
 
-import rfc3986
-
-from sigstore.verify.policy import (
-    AllOf,
-    AnyOf,
-    OIDCBuildConfigURI,
-    OIDCSourceRepositoryDigest,
-)
+from pypi_attestations import GitHubPublisher as GitHubIdentity, Publisher
 from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Query, mapped_column
@@ -35,6 +28,9 @@ from warehouse.oidc.models._core import (
     check_claim_binary,
     check_existing_jti,
 )
+from warehouse.oidc.urls import verify_url_from_reference
+
+GITHUB_OIDC_ISSUER_URL = "https://token.actions.githubusercontent.com"
 
 # This expression matches the workflow filename component of a GitHub
 # "workflow ref", i.e. the value present in the `workflow_ref` and
@@ -277,37 +273,12 @@ class GitHubPublisherMixin:
             return f"{base}/commit/{sha}"
         return base
 
-    def publisher_verification_policy(self, claims):
-        """
-        Get the policy used to verify attestations signed with GitHub Actions.
-
-        This policy checks the certificate in an attestation against the following
-        claims:
-        - OIDCBuildConfigURI (e.g:
-        https://github.com/org/repo/.github/workflows/workflow.yml@REF})
-        - OIDCSourceRepositoryDigest (the commit SHA corresponding to the version of
-        the repo used)
-
-        Note: the Build Config URI might end with either a ref (i.e: refs/heads/main)
-        or with a commit SHA, so we allow either by using the `AnyOf` policy and
-        grouping both possibilities together.
-        """
-        sha = claims.get("sha") if claims else None
-        ref = claims.get("ref") if claims else None
-        if not (ref or sha):
-            raise InvalidPublisherError("The ref and sha claims are empty")
-
-        expected_build_configs = [
-            OIDCBuildConfigURI(f"https://github.com/{self.job_workflow_ref}@{claim}")
-            for claim in [ref, sha]
-            if claim is not None
-        ]
-
-        return AllOf(
-            [
-                OIDCSourceRepositoryDigest(sha),
-                AnyOf(expected_build_configs),
-            ],
+    @property
+    def attestation_identity(self) -> Publisher | None:
+        return GitHubIdentity(
+            repository=self.repository,
+            workflow=self.workflow_filename,
+            environment=self.environment if self.environment else None,
         )
 
     def stored_claims(self, claims=None):
@@ -352,33 +323,33 @@ class GitHubPublisher(GitHubPublisherMixin, OIDCPublisher):
         The suffix `.git` in repo URLs is ignored, since `github.com/org/repo.git`
         always redirects to `github.com/org/repo`. This does not apply to subpaths,
         like `github.com/org/repo.git/issues`, which do not redirect to the correct URL.
-        """
-        url_for_generic_check = url.removesuffix("/").removesuffix(".git")
 
-        if super().verify_url(url_for_generic_check):
+        GitHub uses case-insensitive owner/repo slugs - so we perform a case-insensitive
+        comparison.
+        """
+        docs_url = (
+            f"https://{self.repository_owner}.github.io/{self.repository_name}".lower()
+        )
+        normalized_url_prefixes = (self.publisher_base_url.lower(), docs_url)
+        for prefix in normalized_url_prefixes:
+            if url.lower().startswith(prefix):
+                url = prefix + url[len(prefix) :]
+                break
+
+        url_for_generic_check = url.removesuffix("/").removesuffix(".git")
+        if verify_url_from_reference(
+            reference_url=self.publisher_base_url.lower(),
+            url=url_for_generic_check,
+        ):
             return True
 
-        docs_url = f"https://{self.repository_owner}.github.io/{self.repository_name}"
-        docs_uri = rfc3986.api.uri_reference(docs_url).normalize()
-        user_uri = rfc3986.api.uri_reference(url).normalize()
-
-        if not user_uri.path:
-            return False
-
-        is_subpath = docs_uri.path == user_uri.path or user_uri.path.startswith(
-            docs_uri.path + "/"
-        )
-        return (
-            docs_uri.scheme == user_uri.scheme
-            and docs_uri.authority == user_uri.authority
-            and is_subpath
-        )
+        return verify_url_from_reference(reference_url=docs_url, url=url)
 
 
 class PendingGitHubPublisher(GitHubPublisherMixin, PendingOIDCPublisher):
     __tablename__ = "pending_github_oidc_publishers"
     __mapper_args__ = {"polymorphic_identity": "pending_github_oidc_publishers"}
-    __table_args__ = (
+    __table_args__ = (  # type: ignore[assignment]
         UniqueConstraint(
             "repository_name",
             "repository_owner",

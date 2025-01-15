@@ -11,6 +11,7 @@
 # limitations under the License.
 
 from pyramid import events, viewderivers
+from pyramid.request import Request
 from pyramid_retry import IBeforeRetry
 
 from warehouse.metrics import event_handlers
@@ -19,6 +20,10 @@ from warehouse.metrics.services import DataDogMetrics, NullMetrics
 from warehouse.metrics.views import timing_view
 
 __all__ = ["IMetricsService", "NullMetrics", "DataDogMetrics", "includeme"]
+
+
+def _metrics(request: Request) -> IMetricsService:
+    return request.find_service(IMetricsService)
 
 
 def includeme(config):
@@ -38,3 +43,6 @@ def includeme(config):
 
     # Register our view deriver that ensures we get our view timed.
     config.add_view_deriver(timing_view, under=viewderivers.INGRESS)
+
+    # Add the metrics service to the request.
+    config.add_request_method(_metrics, name="metrics", reify=True)

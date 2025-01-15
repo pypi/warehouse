@@ -176,6 +176,7 @@ class TestProject:
                     Permissions.AdminObservationsRead,
                     Permissions.AdminObservationsWrite,
                     Permissions.AdminProhibitedProjectsWrite,
+                    Permissions.AdminProhibitedUsernameWrite,
                     Permissions.AdminProjectsDelete,
                     Permissions.AdminProjectsRead,
                     Permissions.AdminProjectsSetLimit,
@@ -313,6 +314,7 @@ class TestProject:
                     Permissions.AdminObservationsRead,
                     Permissions.AdminObservationsWrite,
                     Permissions.AdminProhibitedProjectsWrite,
+                    Permissions.AdminProhibitedUsernameWrite,
                     Permissions.AdminProjectsDelete,
                     Permissions.AdminProjectsRead,
                     Permissions.AdminProjectsSetLimit,
@@ -366,6 +368,19 @@ class TestProject:
     def test_repr(self, db_request):
         project = DBProjectFactory()
         assert isinstance(repr(project), str)
+
+    def test_maintainers(self, db_session):
+        project = DBProjectFactory.create()
+        owner1 = DBRoleFactory.create(project=project)
+        owner2 = DBRoleFactory.create(project=project)
+        maintainer1 = DBRoleFactory.create(project=project, role_name="Maintainer")
+        maintainer2 = DBRoleFactory.create(project=project, role_name="Maintainer")
+
+        assert maintainer1.user in project.maintainers
+        assert maintainer2.user in project.maintainers
+
+        assert owner1.user not in project.maintainers
+        assert owner2.user not in project.maintainers
 
     def test_deletion_with_trusted_publisher(self, db_session):
         """
@@ -483,6 +498,41 @@ class TestReleaseURL:
 
 
 class TestRelease:
+    def test_getattr(self, db_session):
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(project=project)
+        file = DBFileFactory.create(
+            release=release,
+            filename=f"{release.project.name}-{release.version}.tar.gz",
+            python_version="source",
+        )
+
+        assert release[file.filename] == file
+
+    def test_getattr_invalid_file(self, db_session):
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(project=project)
+
+        with pytest.raises(KeyError):
+            # Well-formed filename, but the File doesn't actually exist.
+            release[f"{release.project.name}-{release.version}.tar.gz"]
+
+    def test_getattr_wrong_file_for_release(self, db_session):
+        project = DBProjectFactory.create()
+        release1 = DBReleaseFactory.create(project=project)
+        release2 = DBReleaseFactory.create(project=project)
+        file = DBFileFactory.create(
+            release=release1,
+            filename=f"{release1.project.name}-{release1.version}.tar.gz",
+            python_version="source",
+        )
+
+        assert release1[file.filename] == file
+
+        # Accessing a file through a different release does not work.
+        with pytest.raises(KeyError):
+            release2[file.filename]
+
     def test_has_meta_true_with_keywords(self, db_session):
         release = DBReleaseFactory.create(keywords="foo, bar")
         assert release.has_meta
@@ -801,6 +851,7 @@ class TestRelease:
                     Permissions.AdminObservationsRead,
                     Permissions.AdminObservationsWrite,
                     Permissions.AdminProhibitedProjectsWrite,
+                    Permissions.AdminProhibitedUsernameWrite,
                     Permissions.AdminProjectsDelete,
                     Permissions.AdminProjectsRead,
                     Permissions.AdminProjectsSetLimit,
@@ -960,6 +1011,52 @@ class TestRelease:
     ):
         release = DBReleaseFactory.create()
         assert release.verified_github_open_issue_info_url is None
+
+    @pytest.mark.parametrize(
+        ("url", "expected"),
+        [
+            (
+                "https://gitlab.com/someuser/someproject",
+                "someuser/someproject",
+            ),
+            (
+                "https://gitlab.com/someuser/someproject/",
+                "someuser/someproject",
+            ),
+            (
+                "https://gitlab.com/someuser/someproject/-/tree/stable-9",
+                "someuser/someproject",
+            ),
+            (
+                "https://www.gitlab.com/someuser/someproject",
+                "someuser/someproject",
+            ),
+            ("https://gitlab.com/someuser/", None),
+            ("https://google.com/pypi/warehouse/tree/main", None),
+            ("https://google.com", None),
+            ("incorrect url", None),
+            (
+                "https://gitlab.com/someuser/someproject.git",
+                "someuser/someproject",
+            ),
+            (
+                "https://www.gitlab.com/someuser/someproject.git/",
+                "someuser/someproject",
+            ),
+            ("git@bitbucket.org:definex/dsgnutils.git", None),
+        ],
+    )
+    def test_verified_gitlab_repository(self, db_session, url, expected):
+        release = DBReleaseFactory.create()
+        release.project_urls["Homepage"] = {"url": url, "verified": True}
+        assert release.verified_gitlab_repository == expected
+
+    def test_verified_gitlab_repository_is_none_without_verified_url(
+        self,
+        db_session,
+    ):
+        release = DBReleaseFactory.create()
+        assert release.verified_gitlab_repository is None
 
     def test_trusted_published_none(self, db_session):
         release = DBReleaseFactory.create()

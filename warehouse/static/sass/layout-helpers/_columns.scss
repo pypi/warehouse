@@ -14,11 +14,17 @@
 
 /*
   Column that is 50% wide:
-  <div class="col-half"></div>
+  <div class="col-grid">
+    <div class="col-half"></div>
+  </div>
 */
 
+.col-grid {
+  @include grid-container;
+}
+
 .col-half {
-  @include span-columns(6);
+  grid-column: span 6;
 
   &:last-of-type {
     margin: 0;

@@ -21,6 +21,7 @@ from urllib3.util import parse_url
 
 from warehouse import db
 from warehouse.packaging.models import Project, Release
+from warehouse.rate_limiting import IRateLimiter, RateLimit
 from warehouse.search.utils import get_index
 
 
@@ -79,14 +80,19 @@ def opensearch(request):
 
 
 def includeme(config):
+    ratelimit_string = config.registry.settings.get("warehouse.search.ratelimit_string")
+    config.register_service_factory(
+        RateLimit(ratelimit_string), IRateLimiter, name="search"
+    )
+
     p = parse_url(config.registry.settings["opensearch.url"])
     qs = urllib.parse.parse_qs(p.query)
     kwargs = {
         "hosts": [urllib.parse.urlunparse((p.scheme, p.netloc) + ("",) * 4)],
         "verify_certs": True,
         "ca_certs": certifi.where(),
-        "timeout": 2,
-        "retry_on_timeout": False,
+        "timeout": 0.5,
+        "retry_on_timeout": True,
         "serializer": opensearchpy.serializer.serializer,
         "max_retries": 1,
     }

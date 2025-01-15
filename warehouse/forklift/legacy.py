@@ -29,13 +29,7 @@ import sentry_sdk
 import wtforms
 import wtforms.validators
 
-from pydantic import TypeAdapter, ValidationError
-from pypi_attestations import (
-    Attestation,
-    AttestationType,
-    Distribution,
-    VerificationError,
-)
+from pypi_attestations import Attestation, Distribution
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPException,
@@ -47,23 +41,28 @@ from pyramid.httpexceptions import (
 )
 from pyramid.request import Request
 from pyramid.view import view_config
-from sigstore.verify import Verifier
 from sqlalchemy import and_, exists, func, orm
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.attestations.errors import AttestationUploadError
+from warehouse.attestations.interfaces import IIntegrityService
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
-from warehouse.email import send_api_token_used_in_trusted_publisher_project_email
+from warehouse.email import (
+    send_api_token_used_in_trusted_publisher_project_email,
+    send_pep625_extension_email,
+    send_pep625_name_email,
+    send_pep625_version_email,
+)
 from warehouse.events.tags import EventTag
 from warehouse.forklift import metadata
 from warehouse.forklift.forms import UploadForm, _filetype_extension_mapping
 from warehouse.macaroons.models import Macaroon
 from warehouse.metrics import IMetricsService
-from warehouse.oidc.views import is_from_reusable_workflow
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
-from warehouse.packaging.metadata_verification import verify_url
+from warehouse.packaging.metadata_verification import verify_email, verify_url
 from warehouse.packaging.models import (
     Dependency,
     DependencyKind,
@@ -153,6 +152,7 @@ _macosx_major_versions = {
     "12",
     "13",
     "14",
+    "15",
 }
 
 # manylinux pep600 and musllinux pep656 are a little more complicated:
@@ -194,6 +194,9 @@ _dist_file_re = re.compile(r".+?(?P<extension>\.(tar\.gz|zip|whl))$", re.I)
 
 
 def _exc_with_message(exc, message, **kwargs):
+    if not message:
+        sentry_sdk.capture_message("Attempting to _exc_with_message without a message")
+
     # The crappy old API that PyPI offered uses the status to pass down
     # messages to the client. So this function will make that easier to do.
     resp = exc(detail=message, **kwargs)
@@ -260,89 +263,99 @@ def _is_valid_dist_file(filename, filetype):
     a valid distribution file.
     """
 
-    # If our file is a zipfile, then ensure that it's members are only
-    # compressed with supported compression methods.
-    if zipfile.is_zipfile(filename):
-        # Ensure the compression ratio is not absurd (decompression bomb)
-        compressed_size = os.stat(filename).st_size
-        with zipfile.ZipFile(filename) as zfp:
-            decompressed_size = sum(e.file_size for e in zfp.infolist())
-        if (
-            decompressed_size > COMPRESSION_RATIO_MIN_SIZE
-            and decompressed_size / compressed_size > COMPRESSION_RATIO_THRESHOLD
-        ):
-            sentry_sdk.capture_message(
-                f"File {filename} ({filetype}) exceeds compression ratio "
-                f"of {COMPRESSION_RATIO_THRESHOLD} "
-                f"({decompressed_size}/{compressed_size})"
-            )
-            return False
+    if filename.endswith((".zip", ".whl")):
+        if not zipfile.is_zipfile(filename):
+            return False, "File is not a zipfile"
+        # Ensure that this is a valid zip file, and that it has a
+        # PKG-INFO or WHEEL file.
+        try:
+            with zipfile.ZipFile(filename) as zfp:
+                # Ensure that the compression ratio is not absurd (decompression bomb)
+                compressed_size = os.stat(filename).st_size
+                decompressed_size = sum(e.file_size for e in zfp.infolist())
+                if (
+                    decompressed_size > COMPRESSION_RATIO_MIN_SIZE
+                    and decompressed_size / compressed_size
+                    > COMPRESSION_RATIO_THRESHOLD
+                ):
+                    sentry_sdk.capture_message(
+                        f"File {filename} ({filetype}) exceeds compression ratio "
+                        f"of {COMPRESSION_RATIO_THRESHOLD} "
+                        f"({decompressed_size}/{compressed_size})"
+                    )
+                    return (
+                        False,
+                        "File exceeds compression ratio of "
+                        f"{COMPRESSION_RATIO_THRESHOLD}",
+                    )
 
-        # Check that the compression type is valid
-        with zipfile.ZipFile(filename) as zfp:
-            for zinfo in zfp.infolist():
-                if zinfo.compress_type not in {
-                    zipfile.ZIP_STORED,
-                    zipfile.ZIP_DEFLATED,
-                }:
-                    return False
+                # Check that the compression type is valid
+                for zinfo in zfp.infolist():
+                    if zinfo.compress_type not in {
+                        zipfile.ZIP_STORED,
+                        zipfile.ZIP_DEFLATED,
+                    }:
+                        return (
+                            False,
+                            "File does not use a supported compression type",
+                        )
 
-    if filename.endswith(".tar.gz"):
+                if filename.endswith(".zip"):
+                    top_level = os.path.commonprefix(zfp.namelist())
+                    if top_level in [".", "/", ""]:
+                        return (
+                            False,
+                            "Incorrect number of top-level directories in sdist",
+                        )
+                    target_file = os.path.join(top_level, "PKG-INFO")
+                    try:
+                        zfp.read(target_file)
+                    except KeyError:
+                        return False, f"PKG-INFO not found at {target_file}"
+                if filename.endswith(".whl"):
+                    try:
+                        name, version, _ = os.path.basename(filename).split("-", 2)
+                    except ValueError:
+                        return (
+                            False,
+                            "Unable to parse name and version from wheel filename",
+                        )
+                    target_file = os.path.join(f"{name}-{version}.dist-info", "WHEEL")
+                    try:
+                        zfp.read(target_file)
+                    except KeyError:
+                        return False, f"WHEEL not found at {target_file}"
+
+        except zipfile.BadZipFile:  # pragma: no cover
+            return False, None
+
+    elif filename.endswith(".tar.gz"):
+        if not tarfile.is_tarfile(filename):
+            return False, "File is not a tarfile"
+        # Ensure that this is a valid tar file, and that it contains PKG-INFO.
         # TODO: Ideally Ensure the compression ratio is not absurd
         # (decompression bomb), like we do for wheel/zip above.
-
-        # Ensure that this is a valid tar file, and that it contains PKG-INFO.
         try:
             with tarfile.open(filename, "r:gz") as tar:
                 # This decompresses the entire stream to validate it and the
                 # tar within.  Easy CPU DoS attack. :/
-                bad_tar = True
-                member = tar.next()
-                while member:
-                    parts = os.path.split(member.name)
-                    if len(parts) == 2 and parts[1] == "PKG-INFO":
-                        bad_tar = False
-                    member = tar.next()
-                if bad_tar:
-                    return False
+                top_level = os.path.commonprefix(tar.getnames())
+                if top_level in [".", "/", ""]:
+                    return (
+                        False,
+                        "Incorrect number of top-level directories in sdist",
+                    )
+                target_file = os.path.join(top_level, "PKG-INFO")
+                try:
+                    tar.getmember(target_file)
+                except KeyError:
+                    return False, f"PKG-INFO not found at {target_file}"
         except (tarfile.ReadError, EOFError):
-            return False
-    elif filename.endswith(".zip"):
-        # Ensure that the .zip is a valid zip file, and that it has a
-        # PKG-INFO file.
-        try:
-            with zipfile.ZipFile(filename, "r") as zfp:
-                for zipname in zfp.namelist():
-                    parts = os.path.split(zipname)
-                    if len(parts) == 2 and parts[1] == "PKG-INFO":
-                        # We need the no branch below to work around a bug in
-                        # coverage.py where it's detecting a missed branch
-                        # where there isn't one.
-                        break
-                else:
-                    return False
-        except zipfile.BadZipFile:
-            return False
-    elif filename.endswith(".whl"):
-        # Ensure that the .whl is a valid zip file, and that it has a WHEEL
-        # file.
-        try:
-            with zipfile.ZipFile(filename, "r") as zfp:
-                for zipname in zfp.namelist():
-                    parts = os.path.split(zipname)
-                    if len(parts) == 2 and parts[1] == "WHEEL":
-                        # We need the no branch below to work around a bug in
-                        # coverage.py where it's detecting a missed branch
-                        # where there isn't one.
-                        break
-                else:
-                    return False
-        except zipfile.BadZipFile:
-            return False
+            return False, None
 
     # If we haven't yet decided it's not valid, then we'll assume it is and
     # allow it.
-    return True
+    return True, None
 
 
 def _is_duplicate_file(db_session, filename, hashes):
@@ -374,88 +387,6 @@ def _is_duplicate_file(db_session, filename, hashes):
         )
 
     return None
-
-
-def _process_attestations(request, distribution: Distribution):
-    """
-    Process any attestations included in a file upload request
-
-    Attestations, if present, will be parsed and verified against the uploaded
-    artifact. Attestations are only allowed when uploading via a Trusted
-    Publisher, because a Trusted Publisher provides the identity that will be
-    used to verify the attestations.
-    Currently, only GitHub Actions Trusted Publishers are supported, and
-    attestations are discarded after verification.
-    """
-
-    metrics = request.find_service(IMetricsService, context=None)
-
-    publisher = request.oidc_publisher
-    if not publisher or not publisher.publisher_name == "GitHub":
-        raise _exc_with_message(
-            HTTPBadRequest,
-            "Attestations are currently only supported when using Trusted "
-            "Publishing with GitHub Actions.",
-        )
-    try:
-        attestations = TypeAdapter(list[Attestation]).validate_json(
-            request.POST["attestations"]
-        )
-    except ValidationError as e:
-        # Log invalid (malformed) attestation upload
-        metrics.increment("warehouse.upload.attestations.malformed")
-        raise _exc_with_message(
-            HTTPBadRequest,
-            f"Error while decoding the included attestation: {e}",
-        )
-
-    if len(attestations) > 1:
-        metrics.increment("warehouse.upload.attestations.failed_multiple_attestations")
-        raise _exc_with_message(
-            HTTPBadRequest,
-            "Only a single attestation per-file is supported at the moment.",
-        )
-
-    verification_policy = publisher.publisher_verification_policy(request.oidc_claims)
-    for attestation_model in attestations:
-        try:
-            # For now, attestations are not stored, just verified
-            predicate_type, _ = attestation_model.verify(
-                Verifier.production(),
-                verification_policy,
-                distribution,
-            )
-        except VerificationError as e:
-            # Log invalid (failed verification) attestation upload
-            metrics.increment("warehouse.upload.attestations.failed_verify")
-            raise _exc_with_message(
-                HTTPBadRequest,
-                f"Could not verify the uploaded artifact using the included "
-                f"attestation: {e}",
-            )
-        except Exception as e:
-            with sentry_sdk.push_scope() as scope:
-                scope.fingerprint = [e]
-                sentry_sdk.capture_message(
-                    f"Unexpected error while verifying attestation: {e}"
-                )
-
-            raise _exc_with_message(
-                HTTPBadRequest,
-                f"Unknown error while trying to verify included attestations: {e}",
-            )
-
-        if predicate_type != AttestationType.PYPI_PUBLISH_V1:
-            metrics.increment(
-                "warehouse.upload.attestations.failed_unsupported_predicate_type"
-            )
-            raise _exc_with_message(
-                HTTPBadRequest,
-                f"Attestation with unsupported predicate type: {predicate_type}",
-            )
-
-        # Log successful attestation upload
-        metrics.increment("warehouse.upload.attestations.ok")
 
 
 def _sort_releases(request: Request, project: Project):
@@ -502,6 +433,7 @@ def _sort_releases(request: Request, project: Project):
     require_csrf=False,
     require_methods=["POST"],
     has_translations=True,
+    permit_duplicate_post_keys=True,
 )
 def file_upload(request):
     # This is a list of warnings that we'll emit *IF* the request is successful.
@@ -859,6 +791,19 @@ def file_upload(request):
         )
     )
 
+    author_email = meta.author_email
+    author_email_verified = (
+        False
+        if author_email is None
+        else verify_email(email=author_email, project=project)
+    )
+    maintainer_email = meta.maintainer_email
+    maintainer_email_verified = (
+        False
+        if maintainer_email is None
+        else verify_email(email=maintainer_email, project=project)
+    )
+
     try:
         is_new_release = False
         canonical_version = packaging.utils.canonicalize_version(meta.version)
@@ -919,6 +864,10 @@ def file_upload(request):
             download_url=download_url,
             download_url_verified=download_url_verified,
             project_urls=project_urls,
+            author_email=author_email,
+            author_email_verified=author_email_verified,
+            maintainer_email=maintainer_email,
+            maintainer_email_verified=maintainer_email_verified,
             # TODO: Fix this, we currently treat platform as if it is a single
             #       use field, but in reality it is a multi-use field, which the
             #       packaging.metadata library handles correctly.
@@ -944,10 +893,10 @@ def file_upload(request):
                     # should pull off and insert into our new release.
                     "summary",
                     "license",
+                    "license_expression",
+                    "license_files",
                     "author",
-                    "author_email",
                     "maintainer",
-                    "maintainer_email",
                     "provides_extra",
                 }
             },
@@ -981,13 +930,6 @@ def file_upload(request):
                     request.oidc_publisher.publisher_url(request.oidc_claims)
                     if request.oidc_publisher
                     else None
-                ),
-                "reusable_worfklow_used": (
-                    is_from_reusable_workflow(
-                        request.oidc_publisher, request.oidc_claims
-                    )
-                    if request.oidc_publisher
-                    else False
                 ),
                 "uploaded_via_trusted_publisher": bool(request.oidc_publisher),
             },
@@ -1128,8 +1070,46 @@ def file_upload(request):
             )
 
         # Check the file to make sure it is a valid distribution file.
-        if not _is_valid_dist_file(temporary_filename, form.filetype.data):
-            raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
+        _valid, _msg = _is_valid_dist_file(
+            temporary_filename,
+            form.filetype.data,
+        )
+        if not _valid:
+            raise _exc_with_message(
+                HTTPBadRequest, f"Invalid distribution file. {_msg}"
+            )
+
+        # TODO: Remove sdist zip handling when #12245 is resolved
+        # (PEP 625 – Filename of a Source Distribution)
+        if form.filetype.data == "sdist" and filename.endswith(".zip"):
+            # PEP 625: Enforcement on filename extensions. Files ending with
+            # .zip will not be permitted.
+            send_pep625_extension_email(
+                request,
+                set(project.users),
+                project_name=project.name,
+                filename=filename,
+            )
+
+            filename = os.path.basename(temporary_filename)
+
+            if meta.license_files:  # pragma: no branch
+                """
+                Ensure all License-File keys exist in the sdist
+                See https://peps.python.org/pep-0639/#add-license-file-field
+                """
+                with zipfile.ZipFile(temporary_filename) as zfp:
+                    top_level = os.path.commonprefix(zfp.namelist())
+                    for license_file in meta.license_files:
+                        target_file = os.path.join(top_level, license_file)
+                        try:
+                            zfp.read(target_file)
+                        except KeyError:
+                            raise _exc_with_message(
+                                HTTPBadRequest,
+                                f"License-File {license_file} does not exist in "
+                                f"distribution file {filename} at {target_file}",
+                            )
 
         # Check that the sdist filename is correct
         if filename.endswith(".tar.gz"):
@@ -1139,7 +1119,9 @@ def file_upload(request):
             # version that normalizes to be what we expect
 
             try:
-                name, version = packaging.utils.parse_sdist_filename(filename)
+                name_from_filename, version_from_filename = (
+                    packaging.utils.parse_sdist_filename(filename)
+                )
             except packaging.utils.InvalidSdistFilename:
                 raise _exc_with_message(
                     HTTPBadRequest,
@@ -1148,39 +1130,92 @@ def file_upload(request):
 
             # The previous function fails to accomodate the edge case where
             # versions may contain hyphens, so we handle that here based on
-            # what we were expecting
+            # what we were expecting. This requires there to be at least two
+            # hyphens in the filename: one between the project name & version
+            # and one inside the version
             if (
                 meta.version.is_postrelease
-                and name != packaging.utils.canonicalize_name(meta.name)
+                and name_from_filename != packaging.utils.canonicalize_name(meta.name)
+                and filename.count("-") >= 2
             ):
-                # The distribution is a source distribution, the version is a
-                # postrelease, and the project name doesn't match, so
-                # there may be a hyphen in the version. Split the filename on the
-                # second to last hyphen instead.
-                name = filename.rpartition("-")[0].rpartition("-")[0]
-                version = packaging.version.Version(
-                    filename[len(name) + 1 : -len(".tar.gz")]
-                )
+                try:
+                    # The distribution is a source distribution, the version is a
+                    # postrelease, and the project name doesn't match, so
+                    # there may be a hyphen in the version. Split the filename on the
+                    # second to last hyphen instead.
+                    name_from_filename = filename.rpartition("-")[0].rpartition("-")[0]
+                    version_string_from_filename = filename[
+                        len(name_from_filename) + 1 : -len(".tar.gz")
+                    ]
+                    version_from_filename = packaging.version.Version(
+                        version_string_from_filename
+                    )
 
-            # Normalize the prefix in the filename. Eventually this should be
+                    # PEP 625: Enforcement of project version normalization.
+                    # Filenames with dashes in the version will not be permitted.
+                    send_pep625_version_email(
+                        request,
+                        set(project.users),
+                        project_name=project.name,
+                        filename=filename,
+                        normalized_version=str(version_from_filename),
+                    )
+                except packaging.version.InvalidVersion:
+                    # If the version isn't valid, we're not on this edge case.
+                    pass
+
+            # Ensure that the prefix in the filename and the project name
+            # normalize to be the same thing. Eventually this should be
             # unnecessary once we become more restrictive in what we permit
-            filename_prefix = name.lower().replace(".", "_").replace("-", "_")
-
-            # Make sure that our filename matches the project that it is being
-            # uploaded to.
+            filename_prefix = (
+                name_from_filename.lower().replace(".", "_").replace("-", "_")
+            )
             if (prefix := project.normalized_name.replace("-", "_")) != filename_prefix:
                 raise _exc_with_message(
                     HTTPBadRequest,
                     f"Start filename for {project.name!r} with {prefix!r}.",
                 )
 
+            # PEP 625: Enforcement of project name normalization. Filenames
+            # that do not start with the normalized project name (with dashes
+            # replaced with underscores) will not be permitted.
+            if not filename.startswith(name_from_filename.replace("-", "_")):
+                send_pep625_name_email(
+                    request,
+                    set(project.users),
+                    project_name=project.name,
+                    filename=filename,
+                    normalized_name=project.normalized_name.replace("-", "_"),
+                )
+
             # Make sure that the version in the filename matches the metadata
-            if version != meta.version:
+            if version_from_filename != meta.version:
                 raise _exc_with_message(
                     HTTPBadRequest,
                     f"Version in filename should be {str(meta.version)!r} not "
-                    f"{str(version)!r}.",
+                    f"{str(version_from_filename)!r}.",
                 )
+
+            filename = os.path.basename(temporary_filename)
+
+            if meta.license_files:
+                """
+                Ensure all License-File keys exist in the sdist
+                See https://peps.python.org/pep-0639/#add-license-file-field
+                """
+                with tarfile.open(temporary_filename, "r:gz") as tar:
+                    top_level = os.path.commonprefix(tar.getnames())
+                    # Already validated as a tarfile by _is_valid_dist_file above
+                    for license_file in meta.license_files:
+                        target_file = os.path.join(top_level, license_file)
+                        try:
+                            tar.getmember(target_file)
+                        except KeyError:
+                            raise _exc_with_message(
+                                HTTPBadRequest,
+                                f"License-File {license_file} does not exist in "
+                                f"distribution file {filename} at {target_file}",
+                            )
 
         # Check that if it's a binary wheel, it's on a supported platform
         if filename.endswith(".whl"):
@@ -1216,17 +1251,37 @@ def file_upload(request):
                     f"{str(version)!r}.",
                 )
 
-            """
-            Extract METADATA file from a wheel and return it as a content.
-            The name of the .whl file is used to find the corresponding .dist-info dir.
-            See https://peps.python.org/pep-0491/#file-contents
-            """
             filename = os.path.basename(temporary_filename)
             # Get the name and version from the original filename. Eventually this
             # should use packaging.utils.parse_wheel_filename(filename), but until then
             # we can't use this as it adds additional normailzation to the project name
             # and version.
             name, version, _ = filename.split("-", 2)
+
+            if meta.license_files:
+                """
+                Ensure all License-File keys exist in the wheel
+                See https://peps.python.org/pep-0639/#add-license-file-field
+                """
+                with zipfile.ZipFile(temporary_filename) as zfp:
+                    for license_file in meta.license_files:
+                        license_filename = (
+                            f"{name}-{version}.dist-info/licenses/{license_file}"
+                        )
+                        try:
+                            zfp.read(license_filename)
+                        except KeyError:
+                            raise _exc_with_message(
+                                HTTPBadRequest,
+                                f"License-File {license_file} does not exist in "
+                                f"distribution file {filename} at {license_filename}",
+                            )
+
+            """
+            Extract METADATA file from a wheel and return it as a content.
+            The name of the .whl file is used to find the corresponding .dist-info dir.
+            See https://peps.python.org/pep-0491/#file-contents
+            """
             metadata_filename = f"{name}-{version}.dist-info/METADATA"
             try:
                 with zipfile.ZipFile(temporary_filename) as zfp:
@@ -1251,11 +1306,26 @@ def file_upload(request):
                 k: h.hexdigest().lower() for k, h in metadata_file_hashes.items()
             }
 
-        if "attestations" in request.POST:
-            _process_attestations(
-                request=request,
-                distribution=Distribution(name=filename, digest=file_hashes["sha256"]),
-            )
+        # If the user provided attestations, verify them
+        # We persist these attestations subsequently, only after the
+        # release file is persisted.
+        integrity_service: IIntegrityService = request.find_service(
+            IIntegrityService, context=None
+        )
+        attestations: list[Attestation] = []
+        if "attestations" in request.POST and not request.flags.enabled(
+            AdminFlagValue.DISABLE_PEP740
+        ):
+            try:
+                attestations = integrity_service.parse_attestations(
+                    request,
+                    Distribution(name=filename, digest=file_hashes["sha256"]),
+                )
+            except AttestationUploadError as e:
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    f"Invalid attestations supplied during upload: {e}",
+                )
 
         # TODO: This should be handled by some sort of database trigger or a
         #       SQLAlchemy hook or the like instead of doing it inline in this
@@ -1325,6 +1395,15 @@ def file_upload(request):
             )
         )
 
+        # If we have attestations from above, persist them.
+        if attestations:
+            request.db.add(
+                integrity_service.build_provenance(request, file_, attestations)
+            )
+
+            # Log successful attestation upload
+            metrics.increment("warehouse.upload.attestations.ok")
+
         # TODO: We need a better answer about how to make this transactional so
         #       this won't take affect until after a commit has happened, for
         #       now we'll just ignore it and save it before the transaction is
@@ -1390,7 +1469,9 @@ def file_upload(request):
         "maintainer": meta.maintainer,
         "maintainer_email": meta.maintainer_email,
         "license": meta.license,
-        "keywords": meta.keywords,
+        "license_expression": meta.license_expression,
+        "license_files": meta.license_files,
+        "keywords": ", ".join(meta.keywords) if meta.keywords else None,
         "classifiers": meta.classifiers,
         "platform": meta.platforms[0] if meta.platforms else None,
         "home_page": meta.home_page,

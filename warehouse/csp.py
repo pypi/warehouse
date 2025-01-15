@@ -97,6 +97,7 @@ def _connect_src_settings(config) -> list:
         SELF,
         "https://api.github.com/repos/",
         "https://api.github.com/search/issues",
+        "https://gitlab.com/api/",
         "https://*.google-analytics.com",
         "https://*.analytics.google.com",
         "https://*.googletagmanager.com",
@@ -165,7 +166,6 @@ def includeme(config):
         {
             "csp": {
                 "base-uri": [SELF],
-                "block-all-mixed-content": [],
                 "connect-src": _connect_src_settings(config),
                 "default-src": [NONE],
                 "font-src": [SELF, "fonts.gstatic.com"],

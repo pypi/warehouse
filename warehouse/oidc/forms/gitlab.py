@@ -11,20 +11,28 @@
 # limitations under the License.
 
 import re
+import typing
 
 import wtforms
 
-from warehouse import forms
 from warehouse.i18n import localize as _
 from warehouse.oidc.forms._core import PendingPublisherMixin
 
 # https://docs.gitlab.com/ee/user/reserved_names.html#limitations-on-project-and-group-names
-_VALID_GITLAB_PROJECT = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9-_.]*$")
-_VALID_GITLAB_NAMESPACE = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9-_./]*$")
+_VALID_GITLAB_PROJECT = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_.-]*[a-zA-Z0-9]$")
+_VALID_GITLAB_NAMESPACE = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9-_./+]*[a-zA-Z0-9]$")
 _VALID_GITLAB_ENVIRONMENT = re.compile(r"^[a-zA-Z0-9\-_/${} ]+$")
 
+_CONSECUTIVE_SPECIAL_CHARACTERS = re.compile(r"(?!.*[._-]{2})")
 
-class GitLabPublisherBase(forms.Form):
+
+def ends_with_atom_or_git(form: wtforms.Form, field: wtforms.Field) -> None:
+    field_value = typing.cast(str, field.data).lower()
+    if field_value.endswith(".atom") or field_value.endswith(".git"):
+        raise wtforms.validators.ValidationError(_("Name ends with .git or .atom"))
+
+
+class GitLabPublisherBase(wtforms.Form):
     __params__ = ["namespace", "project", "workflow_filepath", "environment"]
 
     namespace = wtforms.StringField(
@@ -32,8 +40,13 @@ class GitLabPublisherBase(forms.Form):
             wtforms.validators.InputRequired(
                 message=_("Specify GitLab namespace (username or group/subgroup)"),
             ),
+            ends_with_atom_or_git,
             wtforms.validators.Regexp(
                 _VALID_GITLAB_NAMESPACE,
+                message=_("Invalid GitLab username or group/subgroup name."),
+            ),
+            wtforms.validators.Regexp(
+                _CONSECUTIVE_SPECIAL_CHARACTERS,
                 message=_("Invalid GitLab username or group/subgroup name."),
             ),
         ]
@@ -42,8 +55,13 @@ class GitLabPublisherBase(forms.Form):
     project = wtforms.StringField(
         validators=[
             wtforms.validators.InputRequired(message=_("Specify project name")),
+            ends_with_atom_or_git,
             wtforms.validators.Regexp(
                 _VALID_GITLAB_PROJECT, message=_("Invalid project name")
+            ),
+            wtforms.validators.Regexp(
+                _CONSECUTIVE_SPECIAL_CHARACTERS,
+                message=_("Invalid project name"),
             ),
         ]
     )
@@ -97,10 +115,10 @@ class GitLabPublisherBase(forms.Form):
 class PendingGitLabPublisherForm(GitLabPublisherBase, PendingPublisherMixin):
     __params__ = GitLabPublisherBase.__params__ + ["project_name"]
 
-    def __init__(self, *args, route_url, project_factory, **kwargs):
+    def __init__(self, *args, route_url, check_project_name, **kwargs):
         super().__init__(*args, **kwargs)
         self._route_url = route_url
-        self._project_factory = project_factory
+        self._check_project_name = check_project_name
 
     @property
     def provider(self) -> str:

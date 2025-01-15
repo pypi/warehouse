@@ -1,9 +1,9 @@
 # Project Metadata
 
-Python packages can include additional metadata to provide more information 
-about the project. This document outlines the specific behaviors 
-implemented by PyPI to display project metadata and other details. The 
-comprehensive list of metadata fields is available in the [Python Packaging 
+Python packages can include additional metadata to provide more information
+about the project. This document outlines the specific behaviors
+implemented by PyPI to display project metadata and other details. The
+comprehensive list of metadata fields is available in the [Python Packaging
 User Guide].
 
 [Python Packaging User Guide]: https://packaging.python.org/en/latest/specifications/core-metadata/#core-metadata-specifications
@@ -11,12 +11,11 @@ User Guide].
 
 ## Project URLs
 
-Packages owners can specify various URLs related to their project using 
+Packages owners can specify various URLs related to their project using
 the [`[project.urls]` table](https://packaging.python.org/en/latest/specifications/pyproject-toml/#urls) in the package's `pyproject.toml`.
 
-PyPI renders these URLs on the project page and splits them into `verified` and 
-`unverified` subgroups. They are also available using the 
-[JSON API](https://warehouse.pypa.io/api-reference/json.html).
+PyPI renders these URLs on the project page and splits them into `verified` and
+`unverified` subgroups. They are also available using the [JSON API](./api/json.md).
 
 ### Verified details
 
@@ -26,7 +25,7 @@ PyPI currently supports several ways of verifying project URLs. When a URL is ve
 
 !!! warning
 
-    An URL being verified only attests that the URL is under control of the
+    A URL being verified only attests that the URL is under control of the
     PyPI package owner at the time of verification, and does not imply any
     additional safety about that URL or any other relationship to the project
     in question.
@@ -52,7 +51,7 @@ following as verified:
 
 #### Via Trusted Publishing
 
-[Trusted Publishing](trusted-publishers/index.md) allows PyPI to attest that the 
+[Trusted Publishing](trusted-publishers/index.md) allows PyPI to attest that the
 publishing workflow for a package is coming from a verified source.
 
 The URLs that can be verified depend on the Trusted Publisher used:
@@ -70,7 +69,7 @@ The URLs that can be verified depend on the Trusted Publisher used:
     - `https://gitlab.com/pypa/pip/*` (all subpaths)
     - `https://gitlab.com/pypa/pip.git`
 - [Google Cloud][gc-tab]: No Google-specific URLs are currently verified.
-- [ActiveState][active-tab]: Packages uploaded using ActiveState will have URLs linked to the project in ActiveState 
+- [ActiveState][active-tab]: Packages uploaded using ActiveState will have URLs linked to the project in ActiveState
   verified:
     - `https://platform.activestate.com/pypa/pip`
     - `https://platform.activestate.com/pypa/pip/*` (all subpaths)
@@ -92,9 +91,9 @@ lists below and changes the default icon from
 
 #### General URL
 
-To display a custom icon, an entry must match one of the pattern. The 
-recognition patterns are case-insensitive. Items marked with an asterisk (^*^) 
-indicate a prefix. It means that any name starting with the specified pattern 
+To display a custom icon, an entry must match one of the pattern. The
+recognition patterns are case-insensitive. Items marked with an asterisk (^*^)
+indicate a prefix. It means that any name starting with the specified pattern
 will be recognized.
 
 | Name             | Icon                                      | Description               | Aliases                                                                                                  |
@@ -102,7 +101,7 @@ will be recognized.
 | Homepage         | :fontawesome-solid-house-chimney:         | For the project homepage  |                                                                                                          |
 | Download         | :fontawesome-solid-cloud:                 | A download link           |                                                                                                          |
 | Changelog        | :fontawesome-solid-scroll:                | Changelog information     | Change log, Changes, Release notes, News, What's new, History                                            |
-| Documentation^*^ | :fontawesome-solid-book:                  | Project documentation     | Docs^*^ , an URL pointing to [Read the Docs] domains or an URL starting with `docs.` or `documentation.` |
+| Documentation^*^ | :fontawesome-solid-book:                  | Project documentation     | Docs^*^ , a URL pointing to [Read the Docs] domains or a URL starting with `docs.` or `documentation.` |
 | Bug^*^           | :fontawesome-solid-bug:                   | Bug/Issue report location | Issue^*^, Tracker^*^, Report^*^                                                                          |
 | Funding^*^       | :fontawesome-solid-circle-dollar-to-slot: | Sponsoring information    | Sponsor^*^, Donation^*^, Donate^*^                                                                       |
 
@@ -110,8 +109,8 @@ will be recognized.
 
 #### Hosting Platforms
 
-An entry URL must point to a domain below to display a custom icon. Custom 
-subdomains are also matched. For instance, if `domain.com` is listed, a URL 
+An entry URL must point to a domain below to display a custom icon. Custom
+subdomains are also matched. For instance, if `domain.com` is listed, a URL
 ending in `.domain.com` will also match.
 
 | Service   | Icon                           | Domain                    |
@@ -131,7 +130,7 @@ To display a custom icon, an entry must either :
 
 | Platform | Icon                              | Name     | Domain                                        |
 |:---------|:----------------------------------|:---------|:----------------------------------------------|
-| Discord  | :fontawesome-brands-discord:      |          | `discord.com`, `discordapp.com`, `discord.gg` | 
+| Discord  | :fontawesome-brands-discord:      |          | `discord.com`, `discordapp.com`, `discord.gg` |
 | Gitter   | :fontawesome-brands-gitter:       |          | `gitter.im`                                   |
 | Mastodon | :fontawesome-brands-mastodon:     | Mastodon |                                               |
 | Reddit   | :fontawesome-brands-reddit-alien: |          | `reddit.com`                                  |
@@ -141,14 +140,14 @@ To display a custom icon, an entry must either :
 
 #### Continuous Integration Services
 
-To display a custom icon (:fontawesome-solid-list-check:), an entry URL must 
-point to one of the service provider domains listed below. Custom subdomains are 
+To display a custom icon (:fontawesome-solid-list-check:), an entry URL must
+point to one of the service provider domains listed below. Custom subdomains are
 supported.
 
 | Service   | Domain                           |
 |:----------|:---------------------------------|
 | AppVeyor  | `ci.appveyor.com`                |
-| CircleCI  | `circleci.com`                   | 
+| CircleCI  | `circleci.com`                   |
 | Codecov   | `codecov.io`                     |
 | Coveralls | `coveralls.io`                   |
 | Travis CI | `travis-ci.com`, `travis-ci.org` |

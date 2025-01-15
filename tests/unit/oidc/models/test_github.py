@@ -16,7 +16,6 @@ import sqlalchemy
 
 from tests.common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
 from warehouse.oidc import errors
-from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.models import _core, github
 
 
@@ -234,17 +233,10 @@ class TestGitHubPublisher:
         }
 
     def test_github_publisher_unaccounted_claims(self, monkeypatch):
-        publisher = github.GitHubPublisher(
-            repository_name="fakerepo",
-            repository_owner="fakeowner",
-            repository_owner_id="fakeid",
-            workflow_filename="fakeworkflow.yml",
-        )
-
         scope = pretend.stub()
         sentry_sdk = pretend.stub(
             capture_message=pretend.call_recorder(lambda s: None),
-            push_scope=pretend.call_recorder(
+            new_scope=pretend.call_recorder(
                 lambda: pretend.stub(
                     __enter__=lambda *a: scope, __exit__=lambda *a: None
                 )
@@ -259,11 +251,8 @@ class TestGitHubPublisher:
         }
         signed_claims["fake-claim"] = "fake"
         signed_claims["another-fake-claim"] = "also-fake"
-        with pytest.raises(errors.InvalidPublisherError) as e:
-            publisher.verify_claims(
-                signed_claims=signed_claims, publisher_service=pretend.stub()
-            )
-        assert str(e.value) == "Check failed for required claim 'sub'"
+
+        github.GitHubPublisher.check_claims_existence(signed_claims)
         assert sentry_sdk.capture_message.calls == [
             pretend.call(
                 "JWT for GitHubPublisher has unaccounted claims: "
@@ -272,7 +261,11 @@ class TestGitHubPublisher:
         ]
         assert scope.fingerprint == ["another-fake-claim", "fake-claim"]
 
-    @pytest.mark.parametrize("missing", ["sub", "ref"])
+    @pytest.mark.parametrize(
+        "missing",
+        github.GitHubPublisher.__required_verifiable_claims__.keys()
+        | github.GitHubPublisher.__required_unverifiable_claims__,
+    )
     def test_github_publisher_missing_claims(self, monkeypatch, missing):
         publisher = github.GitHubPublisher(
             repository_name="fakerepo",
@@ -284,7 +277,7 @@ class TestGitHubPublisher:
         scope = pretend.stub()
         sentry_sdk = pretend.stub(
             capture_message=pretend.call_recorder(lambda s: None),
-            push_scope=pretend.call_recorder(
+            new_scope=pretend.call_recorder(
                 lambda: pretend.stub(
                     __enter__=lambda *a: scope, __exit__=lambda *a: None
                 )
@@ -301,9 +294,7 @@ class TestGitHubPublisher:
         assert missing not in signed_claims
         assert publisher.__required_verifiable_claims__
         with pytest.raises(errors.InvalidPublisherError) as e:
-            publisher.verify_claims(
-                signed_claims=signed_claims, publisher_service=pretend.stub()
-            )
+            github.GitHubPublisher.check_claims_existence(signed_claims)
         assert str(e.value) == f"Missing claim {missing!r}"
         assert sentry_sdk.capture_message.calls == [
             pretend.call(f"JWT for GitHubPublisher is missing claim: {missing}")
@@ -376,6 +367,7 @@ class TestGitHubPublisher:
             for claim_name in github.GitHubPublisher.all_known_claims()
             if claim_name not in missing_claims
         }
+        github.GitHubPublisher.check_claims_existence(signed_claims)
         assert publisher.verify_claims(
             signed_claims=signed_claims, publisher_service=pretend.stub()
         )
@@ -609,31 +601,6 @@ class TestGitHubPublisher:
         check = github.GitHubPublisher.__optional_verifiable_claims__["environment"]
         assert check(truth, claim, pretend.stub()) is valid
 
-    @pytest.mark.parametrize(
-        ("ref", "sha", "raises"),
-        [
-            ("ref", "sha", False),
-            (None, "sha", False),
-            ("ref", None, False),
-            (None, None, True),
-        ],
-    )
-    def test_github_publisher_verification_policy(self, ref, sha, raises):
-        publisher = github.GitHubPublisher(
-            repository_name="fakerepo",
-            repository_owner="fakeowner",
-            repository_owner_id="fakeid",
-            workflow_filename="fakeworkflow.yml",
-            environment="",
-        )
-        claims = {"ref": ref, "sha": sha}
-
-        if not raises:
-            publisher.publisher_verification_policy(claims)
-        else:
-            with pytest.raises(InvalidPublisherError):
-                publisher.publisher_verification_policy(claims)
-
     def test_github_publisher_duplicates_cant_be_created(self, db_request):
         publisher1 = github.GitHubPublisher(
             repository_name="repository_name",
@@ -658,6 +625,20 @@ class TestGitHubPublisher:
             db_request.db.commit()
 
     @pytest.mark.parametrize(
+        "repository_name",
+        [
+            "repository_name",
+            "Repository_Name",
+        ],
+    )
+    @pytest.mark.parametrize(
+        "repository_owner",
+        [
+            "repository_owner",
+            "Repository_Owner",
+        ],
+    )
+    @pytest.mark.parametrize(
         ("url", "expected"),
         [
             ("https://github.com/repository_owner/repository_name.git", True),
@@ -669,17 +650,40 @@ class TestGitHubPublisher:
             ("https://repository_owner.github.io/repository_name/../malicious", False),
             ("https://repository_owner.github.io/", False),
             ("https://repository_owner.github.io/unrelated_name/", False),
+            ("https://github.com/RePosItory_OwNeR/rePository_Name.git", True),
+            ("https://repository_owner.github.io/RePoSiToRy_NaMe/subpage", True),
         ],
     )
-    def test_github_publisher_verify_url(self, url, expected):
+    def test_github_publisher_verify_url(
+        self, url, expected, repository_name, repository_owner
+    ):
         publisher = github.GitHubPublisher(
-            repository_name="repository_name",
-            repository_owner="repository_owner",
+            repository_name=repository_name,
+            repository_owner=repository_owner,
             repository_owner_id="666",
             workflow_filename="workflow_filename.yml",
             environment="",
         )
         assert publisher.verify_url(url) == expected
+
+    @pytest.mark.parametrize("environment", ["", "some-env"])
+    def test_github_publisher_attestation_identity(self, environment):
+        publisher = github.GitHubPublisher(
+            repository_name="repository_name",
+            repository_owner="repository_owner",
+            repository_owner_id="666",
+            workflow_filename="workflow_filename.yml",
+            environment=environment,
+        )
+
+        identity = publisher.attestation_identity
+        assert identity.repository == publisher.repository
+        assert identity.workflow == publisher.workflow_filename
+
+        if not environment:
+            assert identity.environment is None
+        else:
+            assert identity.environment == publisher.environment
 
 
 class TestPendingGitHubPublisher:

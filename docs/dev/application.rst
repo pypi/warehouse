@@ -96,7 +96,7 @@ Directories within the repository:
   - `cli/ <https://github.com/pypi/warehouse/tree/main/warehouse/cli>`_ - entry scripts and
     :ref:`the interactive shell <running-the-interactive-shell>`
   - `email/ <https://github.com/pypi/warehouse/tree/main/warehouse/email>`_ - services for sending emails
-  - `forklift/ <https://github.com/pypi/warehouse/tree/main/warehouse/forklift>`_ - :ref:`upload-api-forklift`
+  - `forklift/ <https://github.com/pypi/warehouse/tree/main/warehouse/forklift>`_ - `upload API <https://docs.pypi.org/api/upload/>`_
   - `i18n/ <https://github.com/pypi/warehouse/tree/main/warehouse/i18n>`_ - internationalization
   - `integrations/ <https://github.com/pypi/warehouse/tree/main/warehouse/integrations>`_ - integrations with other services
   - `legacy/ <https://github.com/pypi/warehouse/tree/main/warehouse/legacy>`_ - most of the read-only APIs implemented here
@@ -110,7 +110,7 @@ Directories within the repository:
   - `organizations/ <https://github.com/pypi/warehouse/tree/main/warehouse/organizations>`_ - organization accounts
   - `packaging/ <https://github.com/pypi/warehouse/tree/main/warehouse/packaging>`_ - core packaging models (projects, releases, files)
   - `rate_limiting/ <https://github.com/pypi/warehouse/tree/main/warehouse/rate_limiting>`_ - rate limiting to prevent abuse
-  - `rss/ <https://github.com/pypi/warehouse/tree/main/warehouse/rss>`_ - RSS feeds: :doc:`api-reference/feeds`
+  - `rss/ <https://github.com/pypi/warehouse/tree/main/warehouse/rss>`_ - `RSS Feeds <https://docs.pypi.org/api/feeds/>`_
   - `search/ <https://github.com/pypi/warehouse/tree/main/warehouse/search>`_ - utilities for building and querying the search index
   - `sitemap/ <https://github.com/pypi/warehouse/tree/main/warehouse/sitemap>`_ - site maps
   - `sponsors/ <https://github.com/pypi/warehouse/tree/main/warehouse/sponsors>`_ - sponsors management
@@ -156,9 +156,8 @@ may be used to from the legacy site, such as:
 
 - `HTTP access to APIs; now it's HTTPS-only <https://mail.python.org/pipermail/distutils-sig/2017-October/031712.html>`_
 
-- GPG/PGP signatures for packages (still visible in the :doc:`../api-reference/legacy/`
-  per `PEP 503 <https://peps.python.org/pep-0503/>`_, but no
-  longer visible in the web UI)
+- GPG/PGP signatures for packages (no longer visible in the web UI or index, but retrievable
+  by appending an ``.asc`` if the signature exists)
 
 - `OpenID and Google auth login <https://mail.python.org/pipermail/distutils-sig/2018-January/031855.html>`_
   are no longer supported.

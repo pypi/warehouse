@@ -82,6 +82,7 @@ from ...common.db.organizations import (
     TeamRoleFactory,
 )
 from ...common.db.packaging import (
+    AlternateRepositoryFactory,
     FileEventFactory,
     FileFactory,
     JournalEntryFactory,
@@ -95,7 +96,6 @@ from ...common.db.packaging import (
 
 
 class TestManageUnverifiedAccount:
-
     def test_manage_account(self, monkeypatch):
         user_service = pretend.stub()
         name = pretend.stub()
@@ -2606,6 +2606,7 @@ class TestManageProjectSettings:
         view = views.ManageProjectSettingsViews(project, request)
         form = pretend.stub()
         view.transfer_organization_project_form_class = lambda *a, **kw: form
+        view.add_alternate_repository_form_class = lambda *a, **kw: form
 
         user_organizations = pretend.call_recorder(
             lambda *a, **kw: {
@@ -2621,6 +2622,7 @@ class TestManageProjectSettings:
             "MAX_FILESIZE": MAX_FILESIZE,
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
             "transfer_organization_project_form": form,
+            "add_alternate_repository_form_class": form,
         }
 
     def test_manage_project_settings_in_organization_managed(self, monkeypatch):
@@ -2633,6 +2635,7 @@ class TestManageProjectSettings:
         view.transfer_organization_project_form_class = pretend.call_recorder(
             lambda *a, **kw: form
         )
+        view.add_alternate_repository_form_class = lambda *a, **kw: form
 
         user_organizations = pretend.call_recorder(
             lambda *a, **kw: {
@@ -2648,6 +2651,7 @@ class TestManageProjectSettings:
             "MAX_FILESIZE": MAX_FILESIZE,
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
             "transfer_organization_project_form": form,
+            "add_alternate_repository_form_class": form,
         }
         assert view.transfer_organization_project_form_class.calls == [
             pretend.call(organization_choices={"owned-org"})
@@ -2663,6 +2667,7 @@ class TestManageProjectSettings:
         view.transfer_organization_project_form_class = pretend.call_recorder(
             lambda *a, **kw: form
         )
+        view.add_alternate_repository_form_class = lambda *a, **kw: form
 
         user_organizations = pretend.call_recorder(
             lambda *a, **kw: {
@@ -2678,9 +2683,264 @@ class TestManageProjectSettings:
             "MAX_FILESIZE": MAX_FILESIZE,
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
             "transfer_organization_project_form": form,
+            "add_alternate_repository_form_class": form,
         }
         assert view.transfer_organization_project_form_class.calls == [
             pretend.call(organization_choices={"managed-org"})
+        ]
+
+    def test_add_alternate_repository(self, monkeypatch, db_request):
+        project = ProjectFactory.create(name="foo")
+
+        db_request.POST = MultiDict(
+            {
+                "display_name": "foo alt repo",
+                "link_url": "https://example.org",
+                "description": "foo alt repo descr",
+                "alternate_repository_location": "add",
+            }
+        )
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
+
+        add_alternate_repository_form_class = pretend.call_recorder(
+            views.AddAlternateRepositoryForm
+        )
+        monkeypatch.setattr(
+            views,
+            "AddAlternateRepositoryForm",
+            add_alternate_repository_form_class,
+        )
+
+        settings_views = views.ManageProjectSettingsViews(project, db_request)
+        result = settings_views.add_project_alternate_repository()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.session.flash.calls == [
+            pretend.call("Added alternate repository 'foo alt repo'", queue="success")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
+        ]
+        assert add_alternate_repository_form_class.calls == [
+            pretend.call(db_request.POST)
+        ]
+
+    def test_add_alternate_repository_invalid(self, monkeypatch, db_request):
+        project = ProjectFactory.create(name="foo")
+
+        db_request.POST = MultiDict(
+            {
+                "display_name": "foo alt repo",
+                "link_url": "invalid link",
+                "description": "foo alt repo descr",
+                "alternate_repository_location": "add",
+            }
+        )
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
+
+        add_alternate_repository_form_class = pretend.call_recorder(
+            views.AddAlternateRepositoryForm
+        )
+        monkeypatch.setattr(
+            views,
+            "AddAlternateRepositoryForm",
+            add_alternate_repository_form_class,
+        )
+
+        settings_views = views.ManageProjectSettingsViews(project, db_request)
+        result = settings_views.add_project_alternate_repository()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.session.flash.calls == [
+            pretend.call("Invalid alternate repository location details", queue="error")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
+        ]
+        assert add_alternate_repository_form_class.calls == [
+            pretend.call(db_request.POST)
+        ]
+
+    def test_delete_alternate_repository(self, db_request):
+        project = ProjectFactory.create(name="foo")
+        alt_repo = AlternateRepositoryFactory.create(project=project)
+
+        db_request.POST = MultiDict(
+            {
+                "alternate_repository_id": str(alt_repo.id),
+                "confirm_alternate_repository_name": alt_repo.name,
+                "alternate_repository_location": "delete",
+            }
+        )
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
+
+        settings_views = views.ManageProjectSettingsViews(project, db_request)
+        result = settings_views.delete_project_alternate_repository()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Deleted alternate repository '{alt_repo.name}'", queue="success"
+            )
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
+        ]
+
+    @pytest.mark.parametrize("alt_repo_id", [None, "", "blah"])
+    def test_delete_alternate_repository_invalid_id(self, db_request, alt_repo_id):
+        project = ProjectFactory.create(name="foo")
+        alt_repo = AlternateRepositoryFactory.create(project=project)
+
+        db_request.POST = MultiDict(
+            {
+                "alternate_repository_id": alt_repo_id,
+                "confirm_alternate_repository_name": alt_repo.name,
+                "alternate_repository_location": "delete",
+            }
+        )
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
+
+        settings_views = views.ManageProjectSettingsViews(project, db_request)
+        result = settings_views.delete_project_alternate_repository()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.session.flash.calls == [
+            pretend.call("Invalid alternate repository id", queue="error")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
+        ]
+
+    def test_delete_alternate_repository_wrong_id(self, db_request):
+        project = ProjectFactory.create(name="foo")
+        alt_repo = AlternateRepositoryFactory.create(project=project)
+
+        db_request.POST = MultiDict(
+            {
+                "alternate_repository_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                "confirm_alternate_repository_name": alt_repo.name,
+                "alternate_repository_location": "delete",
+            }
+        )
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
+
+        settings_views = views.ManageProjectSettingsViews(project, db_request)
+        result = settings_views.delete_project_alternate_repository()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.session.flash.calls == [
+            pretend.call("Invalid alternate repository for project", queue="error")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
+        ]
+
+    def test_delete_alternate_repository_no_confirm(self, db_request):
+        project = ProjectFactory.create(name="foo")
+        alt_repo = AlternateRepositoryFactory.create(project=project)
+
+        db_request.POST = MultiDict(
+            {
+                "alternate_repository_id": str(alt_repo.id),
+                "alternate_repository_location": "delete",
+            }
+        )
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
+
+        settings_views = views.ManageProjectSettingsViews(project, db_request)
+        result = settings_views.delete_project_alternate_repository()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.session.flash.calls == [
+            pretend.call("Confirm the request", queue="error")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
+        ]
+
+    def test_delete_alternate_repository_wrong_confirm(self, db_request):
+        project = ProjectFactory.create(name="foo")
+        alt_repo = AlternateRepositoryFactory.create(project=project)
+
+        db_request.POST = MultiDict(
+            {
+                "alternate_repository_id": str(alt_repo.id),
+                "confirm_alternate_repository_name": f"invalid-confirm-{alt_repo.name}",
+                "alternate_repository_location": "delete",
+            }
+        )
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
+
+        settings_views = views.ManageProjectSettingsViews(project, db_request)
+        result = settings_views.delete_project_alternate_repository()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Could not delete alternate repository - "
+                f"invalid-confirm-{alt_repo.name} is not the same as {alt_repo.name}",
+                queue="error",
+            )
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
         ]
 
     def test_remove_organization_project_no_confirm(self):
@@ -6205,6 +6465,495 @@ class TestManageOIDCPublisherViews:
         }
 
         assert all(v is None for _, v in view.github_publisher_form.data.items())
+
+    @pytest.mark.parametrize(
+        ("publisher", "new_environment_name"),
+        [
+            (
+                GitHubPublisher(
+                    repository_name="some-repository",
+                    repository_owner="some-owner",
+                    repository_owner_id="666",
+                    workflow_filename="some-workflow-filename.yml",
+                    environment="",
+                ),
+                "fakeenv",
+            ),
+            (
+                GitLabPublisher(
+                    namespace="some-namespace",
+                    project="some-project",
+                    workflow_filepath="some-workflow-filename.yml",
+                    environment="",
+                ),
+                "fakeenv",
+            ),
+        ],
+    )
+    def test_manage_project_oidc_publishers_constrain_environment(
+        self,
+        monkeypatch,
+        metrics,
+        db_request,
+        publisher,
+        new_environment_name,
+    ):
+        owner = UserFactory.create()
+        db_request.user = owner
+
+        project = ProjectFactory.create(oidc_publishers=[publisher])
+        project.record_event = pretend.call_recorder(lambda *a, **kw: None)
+        RoleFactory.create(user=owner, project=project, role_name="Owner")
+
+        db_request.db.add(publisher)
+        db_request.db.flush()  # To get the id
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {
+                "constrained_publisher_id": str(publisher.id),
+                "constrained_environment_name": new_environment_name,
+            }
+        )
+        db_request.find_service = lambda *a, **kw: metrics
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
+        db_request._ = lambda s: s
+        view = views.ManageOIDCPublisherViews(project, db_request)
+
+        assert isinstance(view.constrain_environment(), HTTPSeeOther)
+        assert view.metrics.increment.calls == [
+            pretend.call(
+                "warehouse.oidc.constrain_publisher_environment.attempt",
+            ),
+        ]
+
+        # The old publisher is actually removed entirely from the DB
+        # and replaced by the new constrained publisher.
+        publishers = db_request.db.query(OIDCPublisher).all()
+        assert len(publishers) == 1
+        constrained_publisher = publishers[0]
+        assert constrained_publisher.environment == new_environment_name
+        assert project.oidc_publishers == [constrained_publisher]
+
+        assert project.record_event.calls == [
+            pretend.call(
+                tag=EventTag.Project.OIDCPublisherAdded,
+                request=db_request,
+                additional={
+                    "publisher": constrained_publisher.publisher_name,
+                    "id": str(constrained_publisher.id),
+                    "specifier": str(constrained_publisher),
+                    "url": publisher.publisher_url(),
+                    "submitted_by": db_request.user.username,
+                },
+            ),
+            pretend.call(
+                tag=EventTag.Project.OIDCPublisherRemoved,
+                request=db_request,
+                additional={
+                    "publisher": publisher.publisher_name,
+                    "id": str(publisher.id),
+                    "specifier": str(publisher),
+                    "url": publisher.publisher_url(),
+                    "submitted_by": db_request.user.username,
+                },
+            ),
+        ]
+        assert db_request.flags.disallow_oidc.calls == [pretend.call()]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Trusted publisher for project {project.name!r} has been "
+                f"constrained to environment {new_environment_name!r}",
+                queue="success",
+            )
+        ]
+
+    def test_manage_project_oidc_publishers_constrain_environment_shared_publisher(
+        self,
+        metrics,
+        db_request,
+    ):
+        publisher = GitHubPublisher(
+            repository_name="some-repository",
+            repository_owner="some-owner",
+            repository_owner_id="666",
+            workflow_filename="some-workflow-filename.yml",
+            environment="",
+        )
+        owner = UserFactory.create()
+        db_request.user = owner
+
+        project = ProjectFactory.create(oidc_publishers=[publisher])
+        other_project = ProjectFactory.create(oidc_publishers=[publisher])
+        project.record_event = pretend.call_recorder(lambda *a, **kw: None)
+        RoleFactory.create(user=owner, project=project, role_name="Owner")
+
+        db_request.db.add(publisher)
+        db_request.db.flush()  # To get the id
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {
+                "constrained_publisher_id": str(publisher.id),
+                "constrained_environment_name": "fakeenv",
+            }
+        )
+        db_request.find_service = lambda *a, **kw: metrics
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
+        db_request._ = lambda s: s
+        view = views.ManageOIDCPublisherViews(project, db_request)
+
+        assert isinstance(view.constrain_environment(), HTTPSeeOther)
+        assert view.metrics.increment.calls == [
+            pretend.call(
+                "warehouse.oidc.constrain_publisher_environment.attempt",
+            ),
+        ]
+
+        # The old publisher is should still be present in the DB, because other_project
+        # still uses it.
+        assert db_request.db.query(OIDCPublisher).count() == 2
+        assert (
+            db_request.db.query(GitHubPublisher)
+            .filter(GitHubPublisher.environment == "")
+            .filter(GitHubPublisher.projects.contains(other_project))
+            .count()
+        ) == 1
+
+        # The new constrained publisher should exist, and associated to the current
+        # project
+        constrained_publisher = (
+            db_request.db.query(GitHubPublisher)
+            .filter(GitHubPublisher.environment == "fakeenv")
+            .one()
+        )
+        assert project.oidc_publishers == [constrained_publisher]
+
+        assert project.record_event.calls == [
+            pretend.call(
+                tag=EventTag.Project.OIDCPublisherAdded,
+                request=db_request,
+                additional={
+                    "publisher": constrained_publisher.publisher_name,
+                    "id": str(constrained_publisher.id),
+                    "specifier": str(constrained_publisher),
+                    "url": publisher.publisher_url(),
+                    "submitted_by": db_request.user.username,
+                },
+            ),
+            pretend.call(
+                tag=EventTag.Project.OIDCPublisherRemoved,
+                request=db_request,
+                additional={
+                    "publisher": publisher.publisher_name,
+                    "id": str(publisher.id),
+                    "specifier": str(publisher),
+                    "url": publisher.publisher_url(),
+                    "submitted_by": db_request.user.username,
+                },
+            ),
+        ]
+        assert db_request.flags.disallow_oidc.calls == [pretend.call()]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Trusted publisher for project {project.name!r} has been "
+                f"constrained to environment 'fakeenv'",
+                queue="success",
+            )
+        ]
+
+    def test_constrain_oidc_publisher_admin_disabled(self, monkeypatch):
+        project = pretend.stub()
+        request = pretend.stub(
+            method="POST",
+            params=MultiDict(),
+            user=pretend.stub(),
+            find_service=lambda *a, **kw: None,
+            flags=pretend.stub(
+                disallow_oidc=pretend.call_recorder(lambda f=None: True)
+            ),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            _=lambda s: s,
+            POST=MultiDict(
+                {
+                    "constrained_publisher_id": uuid.uuid4(),
+                    "constrained_environment_name": "fakeenv",
+                }
+            ),
+            registry=pretend.stub(settings={}),
+        )
+
+        view = views.ManageOIDCPublisherViews(project, request)
+        default_response = {"_": pretend.stub()}
+        monkeypatch.setattr(
+            views.ManageOIDCPublisherViews, "default_response", default_response
+        )
+
+        assert view.constrain_environment() == default_response
+        assert request.session.flash.calls == [
+            pretend.call(
+                (
+                    "Trusted publishing is temporarily disabled. See "
+                    "https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+        ]
+
+    def test_constrain_oidc_publisher_invalid_params(self, monkeypatch, metrics):
+        project = pretend.stub()
+        request = pretend.stub(
+            method="POST",
+            params=MultiDict(),
+            user=pretend.stub(),
+            find_service=lambda *a, **kw: metrics,
+            flags=pretend.stub(
+                disallow_oidc=pretend.call_recorder(lambda f=None: False)
+            ),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            _=lambda s: s,
+            POST=MultiDict(
+                {
+                    "constrained_publisher_id": "not_an_uuid",
+                    "constrained_environment_name": "fakeenv",
+                }
+            ),
+            registry=pretend.stub(settings={}),
+        )
+
+        view = views.ManageOIDCPublisherViews(project, request)
+        default_response = {"_": pretend.stub()}
+        monkeypatch.setattr(
+            views.ManageOIDCPublisherViews, "default_response", default_response
+        )
+
+        assert view.constrain_environment() == default_response
+        assert view.metrics.increment.calls == [
+            pretend.call("warehouse.oidc.constrain_publisher_environment.attempt")
+        ]
+        assert request.session.flash.calls == [
+            pretend.call(
+                "The trusted publisher could not be constrained",
+                queue="error",
+            )
+        ]
+
+    def test_constrain_non_extant_oidc_publisher(
+        self, monkeypatch, metrics, db_request
+    ):
+        project = pretend.stub()
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {
+                "constrained_publisher_id": str(uuid.uuid4()),
+                "constrained_environment_name": "fakeenv",
+            }
+        )
+        db_request.find_service = lambda *a, **kw: metrics
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
+
+        view = views.ManageOIDCPublisherViews(project, db_request)
+        default_response = {"_": pretend.stub()}
+        monkeypatch.setattr(
+            views.ManageOIDCPublisherViews, "default_response", default_response
+        )
+
+        assert view.constrain_environment() == default_response
+        assert view.metrics.increment.calls == [
+            pretend.call("warehouse.oidc.constrain_publisher_environment.attempt")
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Invalid publisher for project",
+                queue="error",
+            )
+        ]
+
+    def test_constrain_publisher_from_different_project(
+        self, monkeypatch, metrics, db_request
+    ):
+        owner = UserFactory.create()
+        db_request.user = owner
+
+        publisher = GitHubPublisher(
+            repository_name="some-repository",
+            repository_owner="some-owner",
+            repository_owner_id="666",
+            workflow_filename="some-workflow-filename.yml",
+            environment="",
+        )
+
+        request_project = ProjectFactory.create(oidc_publishers=[])
+        request_project.record_event = pretend.call_recorder(lambda *a, **kw: None)
+        RoleFactory.create(user=owner, project=request_project, role_name="Owner")
+
+        ProjectFactory.create(oidc_publishers=[publisher])
+
+        db_request.db.add(publisher)
+        db_request.db.flush()  # To get the id
+
+        db_request.params = MultiDict()
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {
+                "constrained_publisher_id": str(publisher.id),
+                "constrained_environment_name": "fakeenv",
+            }
+        )
+        db_request.find_service = lambda *a, **kw: metrics
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
+
+        view = views.ManageOIDCPublisherViews(request_project, db_request)
+        default_response = {"_": pretend.stub()}
+        monkeypatch.setattr(
+            views.ManageOIDCPublisherViews, "default_response", default_response
+        )
+
+        assert view.constrain_environment() == default_response
+        assert view.metrics.increment.calls == [
+            pretend.call("warehouse.oidc.constrain_publisher_environment.attempt")
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Invalid publisher for project",
+                queue="error",
+            )
+        ]
+
+    @pytest.mark.parametrize(
+        "publisher",
+        [
+            ActiveStatePublisher(
+                organization="some-org",
+                activestate_project_name="some-project",
+                actor="some-user",
+                actor_id="some-user-id",
+            ),
+            GooglePublisher(
+                email="some-email@example.com",
+                sub="some-sub",
+            ),
+        ],
+    )
+    def test_constrain_unsupported_publisher(
+        self, monkeypatch, metrics, db_request, publisher
+    ):
+        owner = UserFactory.create()
+        db_request.user = owner
+        db_request.db.add(publisher)
+        db_request.db.flush()  # To get the id
+
+        project = ProjectFactory.create(oidc_publishers=[publisher])
+        project.record_event = pretend.call_recorder(lambda *a, **kw: None)
+        RoleFactory.create(user=owner, project=project, role_name="Owner")
+
+        db_request.params = MultiDict()
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {
+                "constrained_publisher_id": str(publisher.id),
+                "constrained_environment_name": "fakeenv",
+            }
+        )
+        db_request.find_service = lambda *a, **kw: metrics
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
+
+        view = views.ManageOIDCPublisherViews(project, db_request)
+        default_response = {"_": pretend.stub()}
+        monkeypatch.setattr(
+            views.ManageOIDCPublisherViews, "default_response", default_response
+        )
+
+        assert view.constrain_environment() == default_response
+        assert view.metrics.increment.calls == [
+            pretend.call("warehouse.oidc.constrain_publisher_environment.attempt")
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Can only constrain the environment for GitHub and GitLab publishers",
+                queue="error",
+            )
+        ]
+
+    def test_constrain_publisher_already_constrained(
+        self, monkeypatch, metrics, db_request
+    ):
+        owner = UserFactory.create()
+        db_request.user = owner
+
+        publisher = GitHubPublisher(
+            repository_name="some-repository",
+            repository_owner="some-owner",
+            repository_owner_id="666",
+            workflow_filename="some-workflow-filename.yml",
+            environment="env-already-constrained",
+        )
+
+        project = ProjectFactory.create(oidc_publishers=[publisher])
+        project.record_event = pretend.call_recorder(lambda *a, **kw: None)
+        RoleFactory.create(user=owner, project=project, role_name="Owner")
+
+        db_request.db.add(publisher)
+        db_request.db.flush()  # To get the id
+
+        db_request.params = MultiDict()
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {
+                "constrained_publisher_id": str(publisher.id),
+                "constrained_environment_name": "fakeenv",
+            }
+        )
+        db_request.find_service = lambda *a, **kw: metrics
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
+
+        view = views.ManageOIDCPublisherViews(project, db_request)
+        default_response = {"_": pretend.stub()}
+        monkeypatch.setattr(
+            views.ManageOIDCPublisherViews, "default_response", default_response
+        )
+
+        assert view.constrain_environment() == default_response
+        assert view.metrics.increment.calls == [
+            pretend.call("warehouse.oidc.constrain_publisher_environment.attempt")
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Can only constrain the environment for publishers without an "
+                "environment configured",
+                queue="error",
+            )
+        ]
 
     @pytest.mark.parametrize(
         ("view_name", "publisher", "make_form"),

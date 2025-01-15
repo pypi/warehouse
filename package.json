@@ -9,7 +9,7 @@
     "lint:fix": "eslint 'warehouse/static/js/**' 'warehouse/admin/static/js/**' 'tests/frontend/**' 'webpack.*.js' --ignore-pattern 'warehouse/static/js/vendor/**' --fix",
     "stylelint": "stylelint '**/*.scss' --cache",
     "stylelint:fix": "stylelint '**/*.scss' --cache --fix",
-    "test": "jest --coverage"
+    "test": "NODE_OPTIONS='$NODE_OPTIONS --experimental-vm-modules' jest --coverage"
   },
   "jest": {
     "setupFilesAfterEnv": [
@@ -23,7 +23,7 @@
     "@hotwired/stimulus": "^3.2.1",
     "@hotwired/stimulus-webpack-helpers": "^1.0.1",
     "admin-lte": "^3.2.0",
-    "cookie": "^0.5.0",
+    "cookie": "^0.7.0",
     "date-fns": "^2.30.0",
     "debounce": "^1.2.1",
     "jquery": "^3.7.0",
@@ -34,13 +34,12 @@
     "sweetalert2": "11.4.8"
   },
   "devDependencies": {
-    "@babel/core": "^7.21.3",
-    "@babel/eslint-parser": "^7.21.3",
-    "@babel/preset-env": "^7.21.4",
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
     "@stylistic/eslint-plugin-js": "^2.1.0",
     "@testing-library/dom": "^9.2.0",
     "@testing-library/jest-dom": "^5.16.5",
-    "babel-jest": "^29.5.0",
+    "babel-jest": "^29.7.0",
     "compression-webpack-plugin": "^11.1.0",
     "copy-webpack-plugin": "^12.0.2",
     "css-loader": "^7.1.2",
@@ -76,8 +75,8 @@
       "jquery": true
     },
     "extends": "eslint:recommended",
-    "parser": "@babel/eslint-parser",
     "parserOptions": {
+      "ecmaVersion": "latest",
       "sourceType": "module"
     },
     "plugins": [

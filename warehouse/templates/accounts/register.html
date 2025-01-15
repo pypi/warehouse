@@ -30,13 +30,30 @@
   <div class="horizontal-section">
     <div class="site-container">
       <h1 class="page-title">{% trans title=title %}Create an account on {{ title }}{% endtrans %}</h1>
-
+      <aside>
+        <p>
+          {% trans title=title %}Before creating an account on {{ title }}, familiarize yourself with the following guidelines:{% endtrans %}
+        </p>
+        <ul>
+          <li>{% trans title=title %}Do not use {{ title }} for any illegal or harmful activities.{% endtrans %}</li>
+          <li>{% trans %}Do not impersonate others or post private information without their consent.{% endtrans %}</li>
+          <li>{% trans %}Be respectful of other users and avoid abusive or discriminatory language.{% endtrans %}</li>
+          <li>{% trans %}Do not post spam or distribute malware.{% endtrans %}</li>
+          <li>{% trans title=title %}Do not use {{ title }} to conduct security research.{% endtrans %}</li>
+        </ul>
+        <p>
+          {% trans tou="https://policies.python.org/pypi.org/Terms-of-Use/", aup="https://policies.python.org/pypi.org/Acceptable-Use-Policy/" %}
+          For more information, please read the full <a href="{{ tou }}" rel="noopener">Terms of Use</a> and <a href="{{ aup }}" rel="noopener">Acceptable Use Policy</a>.
+          {% endtrans %}
+        </p>
+      </aside>
+      <hr>
       <form method="POST" action="{{ request.current_route_path() }}" data-controller="password password-match password-strength-gauge password-breach">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
-        {% if form.errors.__all__ %}
+        {% if form.form_errors %}
         <ul class="form-errors" role="alert">
-          {% for error in form.errors.__all__ %}
+          {% for error in form.form_errors %}
           <li>{{ error }}</li>
           {% endfor %}
         </ul>

@@ -29,6 +29,8 @@ from warehouse.oidc.models._core import (
     PendingOIDCPublisher,
 )
 
+ACTIVESTATE_OIDC_ISSUER_URL = "https://platform.activestate.com/api/v1/oauth/oidc"
+
 _ACTIVESTATE_URL = "https://platform.activestate.com"
 
 
@@ -157,7 +159,7 @@ class ActiveStatePublisher(ActiveStatePublisherMixin, OIDCPublisher):
 class PendingActiveStatePublisher(ActiveStatePublisherMixin, PendingOIDCPublisher):
     __tablename__ = "pending_activestate_oidc_publishers"
     __mapper_args__ = {"polymorphic_identity": "pending_activestate_oidc_publishers"}
-    __table_args__ = (
+    __table_args__ = (  # type: ignore[assignment]
         UniqueConstraint(
             "organization",
             "activestate_project_name",

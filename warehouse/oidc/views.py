@@ -23,6 +23,7 @@ from pyramid.httpexceptions import HTTPException, HTTPForbidden
 from pyramid.request import Request
 from pyramid.view import view_config
 
+from warehouse.email import send_environment_ignored_in_trusted_publisher_email
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
@@ -31,6 +32,7 @@ from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.errors import InvalidPublisherError, ReusedTokenError
 from warehouse.oidc.interfaces import IOIDCPublisherService, SignedClaims
 from warehouse.oidc.models import GitHubPublisher, OIDCPublisher, PendingOIDCPublisher
+from warehouse.oidc.models.gitlab import GitLabPublisher
 from warehouse.oidc.services import OIDCPublisherService
 from warehouse.oidc.utils import OIDC_ISSUER_ADMIN_FLAGS, OIDC_ISSUER_SERVICE_NAMES
 from warehouse.packaging.interfaces import IProjectService
@@ -129,7 +131,7 @@ def mint_token_from_oidc(request: Request):
         # We expect only PyJWTError and KeyError; anything else indicates
         # an abstraction leak in jwt that we'll log for upstream reporting.
         if not isinstance(e, (jwt.PyJWTError, KeyError)):
-            with sentry_sdk.push_scope() as scope:
+            with sentry_sdk.new_scope() as scope:
                 scope.fingerprint = [e]
                 sentry_sdk.capture_message(f"jwt.decode raised generic error: {e}")
 
@@ -300,7 +302,27 @@ def mint_token(
                 "expires": expires_at,
                 "publisher_name": publisher.publisher_name,
                 "publisher_url": publisher.publisher_url(),
+                "reusable_workflow_used": is_from_reusable_workflow(publisher, claims),
             },
+        )
+
+    # Send a warning email to the owners of the project using the Trusted Publisher if
+    # the TP has no environment configured but the OIDC claims contain one.
+    # The email contains a link to change the TP so that it only accepts the
+    # environment seen in the current OIDC claims.
+    #
+    # Note: currently we only send the email if the Trusted Publisher is used in only
+    # a single project, since multiple projects using the same TP might mean they don't
+    # use a single environment.
+    if len(publisher.projects) == 1 and should_send_environment_warning_email(
+        publisher, claims
+    ):
+        send_environment_ignored_in_trusted_publisher_email(
+            request,
+            set(publisher.projects[0].owners),
+            project_name=publisher.projects[0].name,
+            publisher=publisher,
+            environment_name=claims["environment"],
         )
 
     # NOTE: This is for temporary metrics collection of GitHub Trusted Publishers
@@ -330,3 +352,23 @@ def is_from_reusable_workflow(
     # With non-reusable workflows they are the same, so we count reusable
     # workflows by checking if they are different.
     return bool(job_workflow_ref and workflow_ref and job_workflow_ref != workflow_ref)
+
+
+def should_send_environment_warning_email(
+    publisher: OIDCPublisher, claims: SignedClaims
+) -> bool:
+    """
+    Determine if the claims contain an environment but the publisher doesn't
+
+    If the publisher does not have an environment configured but the claims
+    contain one, it means the project can easily improve security by constraining
+    the Trusted Publisher to only that environment.
+
+    This currently only applies to GitHub and GitLab publishers.
+    """
+    if not isinstance(publisher, (GitHubPublisher, GitLabPublisher)):
+        return False
+
+    claims_env = claims.get("environment")
+
+    return publisher.environment == "" and claims_env is not None and claims_env != ""

@@ -18,6 +18,9 @@ from tests.common.db.oidc import GitLabPublisherFactory, PendingGitLabPublisherF
 from warehouse.oidc import errors
 from warehouse.oidc.models import _core, gitlab
 
+PROJECT_NAME = "project_name"
+NAMESPACE = "project_owner"
+
 
 @pytest.mark.parametrize(
     ("ci_config_ref_uri", "expected"),
@@ -195,16 +198,10 @@ class TestGitLabPublisher:
         }
 
     def test_gitlab_publisher_unaccounted_claims(self, monkeypatch):
-        publisher = gitlab.GitLabPublisher(
-            project="fakerepo",
-            namespace="fakeowner",
-            workflow_filepath="subfolder/fakeworkflow.yml",
-        )
-
         scope = pretend.stub()
         sentry_sdk = pretend.stub(
             capture_message=pretend.call_recorder(lambda s: None),
-            push_scope=pretend.call_recorder(
+            new_scope=pretend.call_recorder(
                 lambda: pretend.stub(
                     __enter__=lambda *a: scope, __exit__=lambda *a: None
                 )
@@ -219,11 +216,8 @@ class TestGitLabPublisher:
         }
         signed_claims["fake-claim"] = "fake"
         signed_claims["another-fake-claim"] = "also-fake"
-        with pytest.raises(errors.InvalidPublisherError) as e:
-            publisher.verify_claims(
-                signed_claims=signed_claims, publisher_service=pretend.stub()
-            )
-        assert str(e.value) == "Check failed for required claim 'sub'"
+
+        gitlab.GitLabPublisher.check_claims_existence(signed_claims)
         assert sentry_sdk.capture_message.calls == [
             pretend.call(
                 "JWT for GitLabPublisher has unaccounted claims: "
@@ -232,7 +226,11 @@ class TestGitLabPublisher:
         ]
         assert scope.fingerprint == ["another-fake-claim", "fake-claim"]
 
-    @pytest.mark.parametrize("missing", ["sub", "ref_path"])
+    @pytest.mark.parametrize(
+        "missing",
+        gitlab.GitLabPublisher.__required_verifiable_claims__.keys()
+        | gitlab.GitLabPublisher.__required_unverifiable_claims__,
+    )
     def test_gitlab_publisher_missing_claims(self, monkeypatch, missing):
         publisher = gitlab.GitLabPublisher(
             project="fakerepo",
@@ -243,7 +241,7 @@ class TestGitLabPublisher:
         scope = pretend.stub()
         sentry_sdk = pretend.stub(
             capture_message=pretend.call_recorder(lambda s: None),
-            push_scope=pretend.call_recorder(
+            new_scope=pretend.call_recorder(
                 lambda: pretend.stub(
                     __enter__=lambda *a: scope, __exit__=lambda *a: None
                 )
@@ -260,9 +258,7 @@ class TestGitLabPublisher:
         assert missing not in signed_claims
         assert publisher.__required_verifiable_claims__
         with pytest.raises(errors.InvalidPublisherError) as e:
-            publisher.verify_claims(
-                signed_claims=signed_claims, publisher_service=pretend.stub()
-            )
+            gitlab.GitLabPublisher.check_claims_existence(signed_claims)
         assert str(e.value) == f"Missing claim {missing!r}"
         assert sentry_sdk.capture_message.calls == [
             pretend.call(f"JWT for GitLabPublisher is missing claim: {missing}")
@@ -610,21 +606,140 @@ class TestGitLabPublisher:
             db_request.db.commit()
 
     @pytest.mark.parametrize(
-        ("url", "expected"),
+        ("project_name", "namespace", "url", "expected"),
         [
-            ("https://gitlab.com/repository_owner/repository_name.git", True),
-            ("https://gitlab.com/repository_owner/repository_name.git/", True),
-            ("https://gitlab.com/repository_owner/repository_name.git/issues", False),
+            (
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://gitlab.com/{NAMESPACE}/{PROJECT_NAME}.git",
+                True,
+            ),
+            (
+                "Project_Name",
+                NAMESPACE,
+                f"https://gitlab.com/{NAMESPACE}/{PROJECT_NAME}.git",
+                True,
+            ),
+            (
+                PROJECT_NAME,
+                "Project_Owner",
+                f"https://gitlab.com/{NAMESPACE}/{PROJECT_NAME}.git",
+                True,
+            ),
+            (
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://gitlab.com/{NAMESPACE}/{PROJECT_NAME}.git/",
+                True,
+            ),
+            (
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://gitlab.com/{NAMESPACE}/{PROJECT_NAME}.git/issues",
+                False,
+            ),
+            (
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://{NAMESPACE}.gitlab.io/{PROJECT_NAME}/",
+                True,
+            ),
+            (
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://{NAMESPACE}.gitlab.io/{PROJECT_NAME}/subpage/",
+                True,
+            ),
+            (
+                PROJECT_NAME,
+                "owner.with.dot",
+                f"https://owner.with.dot.gitlab.io/{PROJECT_NAME}",
+                True,
+            ),
+            (
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://gitlab.com/{NAMESPACE.replace('e', 'E')}/"
+                f"{PROJECT_NAME.replace('r', 'R')}/",
+                True,
+            ),
+            (  # Unique domains are not supported
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://{PROJECT_NAME}-123456.gitlab.io/",
+                False,
+            ),
+            # Project name is not properly formed
+            (PROJECT_NAME, NAMESPACE, f"https://{NAMESPACE}.gitlab.io/", False),
+            (
+                f"{NAMESPACE}.gitlab.io",
+                NAMESPACE,
+                f"https://{NAMESPACE}.gitlab.io",
+                True,
+            ),
+            (
+                f"{NAMESPACE}.gitlab.io",
+                NAMESPACE,
+                f"https://{NAMESPACE}.gitlab.io/",
+                True,
+            ),
+            (
+                f"{NAMESPACE}.gitlab.io",
+                NAMESPACE,
+                f"https://{NAMESPACE}.gitlab.io/subpage",
+                True,
+            ),
+            (  # Only for user/group own pages
+                "project_name.gitlab.io",
+                NAMESPACE,
+                f"https://{NAMESPACE}.gitlab.io/subpage",
+                False,
+            ),
+            (
+                "project",
+                "group/subgroup",
+                "https://group.gitlab.io/subgroup/project/",
+                True,
+            ),
+            (
+                "project",
+                "group/subgroup",
+                "https://group.gitlab.io/subgroup/project/about",
+                True,
+            ),
+            # The namespace should only contain 1 element
+            ("group.gitlab.io", "group/subgroup", "https://group.gitlab.io/", False),
         ],
     )
-    def test_gitlab_publisher_verify_url(self, url, expected):
+    def test_gitlab_publisher_verify_url(
+        self, project_name: str, namespace: str, url: str, expected: bool
+    ):
         publisher = gitlab.GitLabPublisher(
-            project="repository_name",
-            namespace="repository_owner",
+            project=project_name,
+            namespace=namespace,
             workflow_filepath="workflow_filename.yml",
             environment="",
         )
         assert publisher.verify_url(url) == expected
+
+    @pytest.mark.parametrize("environment", ["", "some-env"])
+    def test_gitlab_publisher_attestation_identity(self, environment):
+        publisher = gitlab.GitLabPublisher(
+            project="project",
+            namespace="group/subgroup",
+            workflow_filepath="workflow_filename.yml",
+            environment=environment,
+        )
+
+        identity = publisher.attestation_identity
+        assert identity is not None
+        assert identity.repository == publisher.project_path
+        assert identity.workflow_filepath == publisher.workflow_filepath
+
+        if not environment:
+            assert identity.environment is None
+        else:
+            assert identity.environment == publisher.environment
 
 
 class TestPendingGitLabPublisher:

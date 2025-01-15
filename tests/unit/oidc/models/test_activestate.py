@@ -152,16 +152,10 @@ class TestActiveStatePublisher:
         }
 
     def test_activestate_publisher_unaccounted_claims(self, monkeypatch):
-        publisher = ActiveStatePublisher(
-            organization=ORG_URL_NAME,
-            activestate_project_name=PROJECT_NAME,
-            actor_id=ACTOR_ID,
-        )
-
         scope = pretend.stub()
         sentry_sdk = pretend.stub(
             capture_message=pretend.call_recorder(lambda s: None),
-            push_scope=pretend.call_recorder(
+            new_scope=pretend.call_recorder(
                 lambda: pretend.stub(
                     __enter__=lambda *a: scope, __exit__=lambda *a: None
                 )
@@ -173,9 +167,7 @@ class TestActiveStatePublisher:
         signed_claims["fake-claim"] = "fake"
         signed_claims["another-fake-claim"] = "also-fake"
 
-        assert publisher.verify_claims(
-            signed_claims=signed_claims, publisher_service=pretend.stub()
-        )
+        ActiveStatePublisher.check_claims_existence(signed_claims)
 
         assert sentry_sdk.capture_message.calls == [
             pretend.call(
@@ -212,7 +204,7 @@ class TestActiveStatePublisher:
         scope = pretend.stub()
         sentry_sdk = pretend.stub(
             capture_message=pretend.call_recorder(lambda s: None),
-            push_scope=pretend.call_recorder(
+            new_scope=pretend.call_recorder(
                 lambda: pretend.stub(
                     __enter__=lambda *a: scope, __exit__=lambda *a: None
                 )
@@ -225,17 +217,17 @@ class TestActiveStatePublisher:
 
         assert claim_to_drop not in signed_claims
         if valid:
+            ActiveStatePublisher.check_claims_existence(signed_claims)
             assert (
                 publisher.verify_claims(
-                    signed_claims=signed_claims, publisher_service=pretend.stub()
+                    signed_claims=signed_claims, publisher_service=pretend.stub
                 )
                 is valid
             )
         else:
             with pytest.raises(InvalidPublisherError) as e:
-                assert publisher.verify_claims(
-                    signed_claims=signed_claims, publisher_service=pretend.stub()
-                )
+                ActiveStatePublisher.check_claims_existence(signed_claims)
+
             assert str(e.value) == error_msg
             assert sentry_sdk.capture_message.calls == [
                 pretend.call(
@@ -357,6 +349,22 @@ class TestActiveStatePublisher:
             with pytest.raises(InvalidPublisherError) as e:
                 check(expected, actual, signed_claims)
             assert str(e.value) == error_msg
+
+    @pytest.mark.parametrize(
+        ("url", "expected"),
+        [
+            ("https://platform.activestate.com/repository_name/project_name", True),
+            ("https://platform.activestate.com/repository_name/PrOjECt_NaMe", False),
+        ],
+    )
+    def test_activestate_publisher_verify_url(self, url, expected):
+        publisher = ActiveStatePublisher(
+            organization="repository_name",
+            activestate_project_name="project_name",
+            actor_id=ACTOR_ID,
+            actor=ACTOR,
+        )
+        assert publisher.verify_url(url) == expected
 
 
 class TestPendingActiveStatePublisher:

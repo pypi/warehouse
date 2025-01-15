@@ -14,6 +14,7 @@ import packaging.metadata
 import pytest
 
 from packaging.version import Version
+from sqlalchemy.dialects.postgresql import ENUM
 from webob.multidict import MultiDict
 
 from warehouse.forklift import metadata
@@ -29,15 +30,27 @@ def _assert_invalid_metadata(exc, field):
 
 class TestParse:
     def test_valid_from_file(self):
-        meta = metadata.parse(b"Metadata-Version: 2.1\nName: foo\nVersion: 1.0\n")
+        meta = metadata.parse(
+            b"Metadata-Version: 2.4\nName: foo\nVersion: 1.0\n"
+            b"License-File: Something\nLicense-File: Something Else\n"
+        )
         assert meta.name == "foo"
         assert meta.version == Version("1.0")
+        assert meta.license_files == [
+            "Something",
+            "Something Else",
+        ]
 
     def test_valid_from_form(self):
-        data = MultiDict(metadata_version="2.1", name="spam", version="2.0")
+        data = MultiDict(metadata_version="2.4", name="spam", version="2.0")
+        data.extend([("license_file", "Something"), ("license_file", "Something Else")])
         meta = metadata.parse(None, form_data=data)
         assert meta.name == "spam"
         assert meta.version == Version("2.0")
+        assert meta.license_files == [
+            "Something",
+            "Something Else",
+        ]
 
     def test_invalid_no_data(self):
         with pytest.raises(metadata.NoMetadataError):
@@ -261,6 +274,33 @@ class TestValidation:
         with pytest.raises(ExceptionGroup) as excinfo:
             metadata.parse(None, form_data=data)
         _assert_invalid_metadata(excinfo.value, field_name.replace("_", "-"))
+
+    def test_valid_dynamic(self):
+        data = MultiDict(metadata_version="2.2", name="spam", version="2.0")
+        data.add("dynamic", "keywords")
+        data.add("dynamic", "author")
+        meta = metadata.parse(None, form_data=data)
+        assert meta.dynamic == ["keywords", "author"]
+
+    def test_invalid_dynamic(self):
+        data = MultiDict(metadata_version="2.2", name="spam", version="2.0")
+        data.add("dynamic", "Invalid")
+        with pytest.raises(ExceptionGroup) as excinfo:
+            metadata.parse(None, form_data=data)
+        _assert_invalid_metadata(excinfo.value, "dynamic")
+
+    def test_valid_dynamic_but_missing_from_our_enum(self, monkeypatch):
+        """
+        Handles the case where there are new metadata fields that pypa/packaging
+        considers to be valid, but don't exist in our enum and would otherwise fail
+        when inserting them into the database
+        """
+        monkeypatch.setattr(metadata, "DynamicFieldsEnum", ENUM())
+        data = MultiDict(metadata_version="2.2", name="spam", version="2.0")
+        data.add("dynamic", "author")
+        with pytest.raises(ExceptionGroup) as excinfo:
+            metadata.parse(None, form_data=data)
+        _assert_invalid_metadata(excinfo.value, "dynamic")
 
 
 class TestFromFormData:

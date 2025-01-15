@@ -10,9 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
 
 import collections
 import re
+import typing
+
+from pathlib import Path
 
 import opensearchpy
 
@@ -26,11 +30,13 @@ from pyramid.httpexceptions import (
     HTTPRequestEntityTooLarge,
     HTTPSeeOther,
     HTTPServiceUnavailable,
+    HTTPTooManyRequests,
     exception_response,
 )
 from pyramid.i18n import make_localizer
 from pyramid.interfaces import ITranslationDirectories
 from pyramid.renderers import render_to_response
+from pyramid.response import FileResponse
 from pyramid.view import (
     exception_view_config,
     forbidden_view_config,
@@ -60,11 +66,15 @@ from warehouse.packaging.models import (
     Release,
     ReleaseClassifiers,
 )
+from warehouse.rate_limiting import IRateLimiter
 from warehouse.search.queries import SEARCH_FILTER_ORDER, get_opensearch_query
 from warehouse.utils.cors import _CORS_HEADERS
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import OpenSearchPage, paginate_url_factory
 from warehouse.utils.row_counter import RowCount
+
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
 
 JSON_REGEX = r"^/pypi/([^\/]+)\/?([^\/]+)?/json\/?$"
 json_path = re.compile(JSON_REGEX)
@@ -202,6 +212,29 @@ def service_unavailable(exc, request):
 
 
 @view_config(
+    route_name="favicon.ico",
+    decorator=[
+        cache_control(365 * 24 * 60 * 60),  # 1 year
+    ],
+)
+def favicon(request: Request) -> FileResponse:
+    """
+    Return static favicon.ico file
+
+    The favicon path is not known, static files are compressed into a dist/ directory.
+    """
+    favicon_filename = Path(
+        request.static_path("warehouse:static/dist/images/favicon.ico")
+    ).name
+    favicon_path = (
+        Path(__file__).parent / "static" / "dist" / "images" / favicon_filename
+    )
+
+    request.response.content_type = "image/x-icon"
+    return FileResponse(favicon_path, request=request)
+
+
+@view_config(
     route_name="robots.txt",
     renderer="robots.txt",
     decorator=[
@@ -322,7 +355,22 @@ def list_classifiers(request):
     has_translations=True,
 )
 def search(request):
+    ratelimiter = request.find_service(IRateLimiter, name="search", context=None)
     metrics = request.find_service(IMetricsService, context=None)
+
+    ratelimiter.hit(request.remote_addr)
+    if not ratelimiter.test(request.remote_addr):
+        metrics.increment("warehouse.search.ratelimiter.exceeded")
+        message = (
+            "Your search query could not be performed because there were too "
+            "many requests by the client."
+        )
+        _resets_in = ratelimiter.resets_in(request.remote_addr)
+        if _resets_in is not None:
+            _resets_in = max(1, int(_resets_in.total_seconds()))
+            message += f" Limit may reset in {_resets_in} seconds."
+        raise HTTPTooManyRequests(message)
+    metrics.increment("warehouse.search.ratelimiter.hit")
 
     querystring = request.params.get("q", "").replace("'", '"')
     # Bail early for really long queries before ES raises an error

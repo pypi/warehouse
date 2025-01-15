@@ -9,6 +9,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import datetime
 
 from sqlalchemy import delete, func, orm, select
 from sqlalchemy.exc import NoResultFound
@@ -35,6 +36,7 @@ from warehouse.organizations.models import (
     OrganizationRoleType,
     OrganizationStripeCustomer,
     OrganizationStripeSubscription,
+    OrganizationTermsOfServiceAgreement,
     Team,
     TeamProjectRole,
     TeamRole,
@@ -533,6 +535,22 @@ class DatabaseOrganizationService:
         )
 
         self.db.delete(organization_project)
+
+    def add_organization_terms_of_service_agreement(
+        self, organization_id, notified=False
+    ):
+        """
+        Add a record of end user agreeing to terms of service,
+        or being notified of a terms of service change.
+        """
+        terms_of_service_agreement = OrganizationTermsOfServiceAgreement(
+            organization_id=organization_id
+        )
+        if notified:
+            terms_of_service_agreement.notified = datetime.datetime.now(tz=datetime.UTC)
+        else:
+            terms_of_service_agreement.agreed = datetime.datetime.now(tz=datetime.UTC)
+        self.db.add(terms_of_service_agreement)
 
     def get_organization_subscription(self, organization_id, subscription_id):
         """

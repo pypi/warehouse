@@ -22,7 +22,7 @@ from sqlalchemy.orm import joinedload
 from warehouse.packaging.interfaces import ISimpleStorage
 from warehouse.packaging.models import File, LifecycleStatus, Project, Release
 
-API_VERSION = "1.1"
+API_VERSION = "1.3"
 
 
 def _simple_index(request, serial):
@@ -63,11 +63,15 @@ def _simple_detail(project, request):
     versions = sorted(
         {f.release.version for f in files}, key=packaging_legacy.version.parse
     )
+    alternate_repositories = sorted(
+        alt_repo.url for alt_repo in project.alternate_repositories
+    )
 
     return {
         "meta": {"api-version": API_VERSION, "_last-serial": project.last_serial},
         "name": project.normalized_name,
         "versions": versions,
+        "alternate-locations": alternate_repositories,
         "files": [
             {
                 "filename": file.filename,
@@ -97,6 +101,16 @@ def _simple_detail(project, request):
                     if file.metadata_file_sha256_digest
                     else False
                 ),
+                "provenance": (
+                    request.route_url(
+                        "integrity.provenance",
+                        project_name=project.normalized_name,
+                        release=file.release.version,
+                        filename=file.filename,
+                    )
+                    if file.provenance
+                    else None
+                ),
             }
             for file in files
         ],
@@ -105,6 +119,7 @@ def _simple_detail(project, request):
 
 def render_simple_detail(project, request, store=False):
     context = _simple_detail(project, request)
+    context = _valid_simple_detail_context(context)
 
     env = request.registry.queryUtility(IJinja2Environment, name=".jinja2")
     template = env.get_template("templates/api/simple/detail.html")
@@ -144,3 +159,8 @@ def render_simple_detail(project, request, store=False):
             )
 
     return (content_hash, simple_detail_path)
+
+
+def _valid_simple_detail_context(context: dict) -> dict:
+    context["alternate_locations"] = context.pop("alternate-locations", [])
+    return context

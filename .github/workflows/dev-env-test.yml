@@ -8,9 +8,11 @@ on:
 jobs:
   build:
     # TODO: Should we test on other platforms like Windows and Mac?
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - run: make build
       - run: docker compose up -d
       - run: docker compose ps

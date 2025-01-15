@@ -8,7 +8,6 @@ on:
     types: [checks_requested]
   workflow_dispatch:  # generally only for the "combine-prs" workflow
 permissions:
-  id-token: write
   contents: read
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
@@ -16,12 +15,16 @@ concurrency:
 jobs:
   build:
     if: github.repository == 'pypi/warehouse'
-    runs-on: depot-ubuntu-22.04-arm
+    runs-on: depot-ubuntu-24.04-arm
     outputs:
       buildId: ${{ steps.build.outputs.build-id}}
+    permissions:
+      id-token: write
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Set up Depot CLI
         uses: depot/setup-action@v1
       - name: Build image
@@ -54,11 +57,13 @@ jobs:
             command: bin/licenses
           - name: Translations
             command: bin/translations
-    runs-on: depot-ubuntu-22.04-arm
+    runs-on: depot-ubuntu-24.04-arm
     container:
       image: registry.depot.dev/rltf7cln5v:${{ needs.build.outputs.buildId }}
       env:
         BILLING_BACKEND: warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27
+    permissions:
+      id-token: write
     services:
       postgres:
         image: ${{ (matrix.name == 'Tests') && 'postgres:16.1' || '' }}
@@ -69,6 +74,10 @@ jobs:
           POSTGRES_INITDB_ARGS: '--no-sync --set fsync=off --set full_page_writes=off'
         # Set health checks to wait until postgres has started
         options: --health-cmd "pg_isready --username=postgres --dbname=postgres" --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+        image: ${{ (matrix.name == 'Tests') && 'redis:7.0' || '' }}
+        ports:
+          - 6379:6379
       stripe:
         image: ${{ (matrix.name == 'Tests') && 'stripe/stripe-mock:v0.162.0' || '' }}
         ports:
@@ -77,6 +86,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Cache mypy results
         if: ${{ (matrix.name == 'Lint') }}
         uses: actions/cache@v4
@@ -90,10 +101,12 @@ jobs:
   check_db:
     name: Check Database Consistency
     needs: build
-    runs-on: depot-ubuntu-22.04-arm
+    runs-on: depot-ubuntu-24.04-arm
     continue-on-error: true
     container:
       image: registry.depot.dev/rltf7cln5v:${{ needs.build.outputs.buildId }}
+    permissions:
+      id-token: write
     services:
       postgres:
         image: postgres:16.1
@@ -108,6 +121,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Dotenv Action
         # We need to load the environment variables to run the CLI
         id: dotenv

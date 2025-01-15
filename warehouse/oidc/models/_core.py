@@ -18,20 +18,23 @@ from typing import TYPE_CHECKING, Any, TypedDict, TypeVar, Unpack
 import rfc3986
 import sentry_sdk
 
-from sigstore.verify.policy import VerificationPolicy
-from sqlalchemy import ForeignKey, String, orm
+from sqlalchemy import ForeignKey, Index, String, func, orm
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
 from warehouse.oidc.errors import InvalidPublisherError, ReusedTokenError
 from warehouse.oidc.interfaces import SignedClaims
+from warehouse.oidc.urls import verify_url_from_reference
 
 if TYPE_CHECKING:
+    from pypi_attestations import Publisher
+
     from warehouse.accounts.models import User
     from warehouse.macaroons.models import Macaroon
     from warehouse.oidc.services import OIDCPublisherService
     from warehouse.packaging.models import Project
+
 
 C = TypeVar("C")
 
@@ -199,6 +202,52 @@ class OIDCPublisherMixin:
             | cls.__unchecked_claims__
         )
 
+    @classmethod
+    def check_claims_existence(cls, signed_claims: SignedClaims) -> None:
+        """
+        Raises an error if any of the required claims for a Publisher is missing from
+        `signed_claims`.
+
+        This is used to check if required claims are missing from the token. If so,
+        an error is logged since this is likely a bug from the OIDC provider that
+        generated the token. Unexpected claims are logged as warnings that the JWT
+        payload has changed.
+        """
+
+        # Defensive programming: treat the absence of any claims to verify
+        # as a failure rather than trivially valid.
+        if not cls.__required_verifiable_claims__:
+            raise InvalidPublisherError("No required verifiable claims")
+
+        # All claims should be accounted for.
+        # The presence of an unaccounted claim is not an error, only a warning
+        # that the JWT payload has changed.
+        unaccounted_claims = sorted(list(signed_claims.keys() - cls.all_known_claims()))
+        if unaccounted_claims:
+            with sentry_sdk.new_scope() as scope:
+                scope.fingerprint = unaccounted_claims
+                sentry_sdk.capture_message(
+                    f"JWT for {cls.__name__} has unaccounted claims: "
+                    f"{unaccounted_claims}"
+                )
+
+        # Verify that all required claims are present.
+        for claim_name in (
+            cls.__required_verifiable_claims__.keys()
+            | cls.__required_unverifiable_claims__
+        ):
+            # All required claims are mandatory. The absence of a missing
+            # claim *is* an error with the JWT, since it indicates a breaking
+            # change in the JWT's payload.
+            signed_claim = signed_claims.get(claim_name)
+            if signed_claim is None:
+                with sentry_sdk.new_scope() as scope:
+                    scope.fingerprint = [claim_name]
+                    sentry_sdk.capture_message(
+                        f"JWT for {cls.__name__} is missing claim: " f"{claim_name}"
+                    )
+                raise InvalidPublisherError(f"Missing claim {claim_name!r}")
+
     def verify_claims(
         self, signed_claims: SignedClaims, publisher_service: OIDCPublisherService
     ):
@@ -208,46 +257,8 @@ class OIDCPublisherMixin:
         claims of this publisher.
         """
 
-        # Defensive programming: treat the absence of any claims to verify
-        # as a failure rather than trivially valid.
-        if not self.__required_verifiable_claims__:
-            raise InvalidPublisherError("No required verifiable claims")
-
-        # All claims should be accounted for.
-        # The presence of an unaccounted claim is not an error, only a warning
-        # that the JWT payload has changed.
-        unaccounted_claims = sorted(
-            list(signed_claims.keys() - self.all_known_claims())
-        )
-        if unaccounted_claims:
-            with sentry_sdk.push_scope() as scope:
-                scope.fingerprint = unaccounted_claims
-                sentry_sdk.capture_message(
-                    f"JWT for {self.__class__.__name__} has unaccounted claims: "
-                    f"{unaccounted_claims}"
-                )
-
-        # Finally, perform the actual claim verification. First, verify that
-        # all required claims are present.
-        for claim_name in (
-            self.__required_verifiable_claims__.keys()
-            | self.__required_unverifiable_claims__
-        ):
-            # All required claims are mandatory. The absence of a missing
-            # claim *is* an error with the JWT, since it indicates a breaking
-            # change in the JWT's payload.
-            signed_claim = signed_claims.get(claim_name)
-            if signed_claim is None:
-                with sentry_sdk.push_scope() as scope:
-                    scope.fingerprint = [claim_name]
-                    sentry_sdk.capture_message(
-                        f"JWT for {self.__class__.__name__} is missing claim: "
-                        f"{claim_name}"
-                    )
-                raise InvalidPublisherError(f"Missing claim {claim_name!r}")
-
-        # Now that we've verified all claims are present, verify each
-        # verifiable claim is correct
+        # All required claims should be present, since this is checked during Publisher
+        # lookup. Now we verify each verifiable claim is correct.
         for claim_name, check in self.__required_verifiable_claims__.items():
             signed_claim = signed_claims.get(claim_name)
             if not check(
@@ -300,16 +311,15 @@ class OIDCPublisherMixin:
         # Only concrete subclasses are constructed.
         raise NotImplementedError
 
-    def publisher_verification_policy(
-        self, claims: SignedClaims
-    ) -> VerificationPolicy:  # pragma: no cover
+    @property
+    def attestation_identity(self) -> Publisher | None:
         """
-        Get the policy used to verify attestations signed with this publisher.
-        NOTE: This is **NOT** a `@property` because we pass `claims` to it.
-        When calling, make sure to use `publisher_verification_policy()`
+        Returns an appropriate attestation verification identity, if this
+        kind of publisher supports attestations.
+
+        Concrete subclasses should override this upon adding attestation support.
         """
-        # Only concrete subclasses are constructed.
-        raise NotImplementedError
+        return None
 
     def stored_claims(
         self, claims: SignedClaims | None = None
@@ -346,23 +356,13 @@ class OIDCPublisherMixin:
             # Currently this only applies to the Google provider
             return False
         publisher_uri = rfc3986.api.uri_reference(self.publisher_base_url).normalize()
-        user_uri = rfc3986.api.uri_reference(url).normalize()
         if publisher_uri.path is None:
             # Currently no Trusted Publishers with a `publisher_base_url` have an empty
             # path component, so we defensively fail verification.
             return False
-        elif user_uri.path and publisher_uri.path:
-            is_subpath = (
-                publisher_uri.path == user_uri.path
-                or user_uri.path.startswith(publisher_uri.path + "/")
-            )
-        else:
-            is_subpath = publisher_uri.path == user_uri.path
-
-        return (
-            publisher_uri.scheme == user_uri.scheme
-            and publisher_uri.authority == user_uri.authority
-            and is_subpath
+        return verify_url_from_reference(
+            reference_url=self.publisher_base_url,
+            url=url,
         )
 
 
@@ -397,6 +397,12 @@ class PendingOIDCPublisher(OIDCPublisherMixin, db.Model):
     )
     added_by: Mapped[User] = orm.relationship(back_populates="pending_oidc_publishers")
 
+    __table_args__ = (
+        Index(
+            "pending_project_name_ultranormalized",
+            func.ultranormalize_name(project_name),
+        ),
+    )
     __mapper_args__ = {
         "polymorphic_identity": "pending_oidc_publishers",
         "polymorphic_on": OIDCPublisherMixin.discriminator,

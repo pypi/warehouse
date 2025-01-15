@@ -11,7 +11,7 @@ Contents:
    architecture
    api-reference/index
    ui-principles
-   security
+   security/index
    translations
    roadmap
 
