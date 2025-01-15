@@ -173,7 +173,7 @@ services:
       SIMPLE_BACKEND: "warehouse.packaging.services.LocalSimpleStorage path=/var/opt/warehouse/simple/ url=http://files:9001/simple/{path}"
 
   rstuf-api:
-    image: ghcr.io/repository-service-tuf/repository-service-tuf-api:v0.12.0b1
+    image: ghcr.io/repository-service-tuf/repository-service-tuf-api:v1.0.0b1
     ports:
       - 8001:80
     stop_signal: SIGKILL
@@ -187,7 +187,7 @@ services:
         condition: service_started
 
   rstuf-worker:
-    image: ghcr.io/repository-service-tuf/repository-service-tuf-worker:v0.14.0b1
+    image: ghcr.io/repository-service-tuf/repository-service-tuf-worker:v1.0.0b1
     volumes:
       - rstuf-metadata:/var/opt/repository-service-tuf/storage
       - ./dev/rstuf/keys/online:/keyvault
@@ -200,7 +200,7 @@ services:
       - RSTUF_REDIS_SERVER=redis://redis
       - RSTUF_REDIS_SERVER_DB_RESULT=1
       - RSTUF_REDIS_SERVER_DB_REPO_SETTINGS=2
-      - RSTUF_SQL_SERVER=postgresql://postgres@db:5432/rstuf
+      - RSTUF_DB_SERVER=postgresql://postgres@db:5432/rstuf
     depends_on:
       db:
         condition: service_healthy
