@@ -75,7 +75,7 @@ Verify that you have Make installed in your environment.
 
     make --version
 
-If you do not have `Make` installed,
+If you do not have ``Make`` installed,
 consult your operating system documentation on how to install ``make``.
 
 
@@ -85,7 +85,7 @@ Do you want to build the docs or the Warehouse site?
 If you wish to build the entire Warehouse site,
 use Docker and follow the instructions below. However, if you are only
 contributing to the user or development documentation, then you can skip
-setting up Docker below and use `Make` instead. To build the docs,
+setting up Docker below and use ``Make`` instead. To build the docs,
 follow the `instructions here <#build-docs>`_.
 
 
@@ -755,8 +755,8 @@ Building documentation
 The Warehouse documentation is stored in the :file:`docs/`
 directory with three subdirectories: blog, dev and user.
 Development docs (in the dev directory) are written in
-`reStructured Text`_ and rendered using `Sphinx`_. User docs `/user`
-are written in markdown and rendered using `mkdocs`. The blog is
+`reStructured Text`_ and rendered using `Sphinx`_. User docs ``/user``
+are written in markdown and rendered using ``mkdocs``. The blog is
 also written in markdown.
 
 Use :command:`make` to build the documentation. For example:
