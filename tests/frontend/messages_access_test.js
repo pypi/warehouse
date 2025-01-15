@@ -33,7 +33,7 @@ describe("messages access util", () => {
         expected: "My default message: more message here",
       },
     ])("translates $singular $extras to '$expected'", async (
-      {singular, extras, expected}
+      {singular, extras, expected},
     ) => {
       const result = gettext(singular, ...extras);
       expect(result).toEqual(expected);
@@ -75,7 +75,7 @@ describe("messages access util", () => {
         expected: "My default plural messages more message here something else.",
       },
     ])("translates $singular $plural $num $extras to '$expected'", async (
-      {singular, plural, num, extras, expected}
+      {singular, plural, num, extras, expected},
     ) => {
       const result = ngettext(singular, plural, num, ...extras);
       expect(result).toEqual(expected);
@@ -152,7 +152,7 @@ describe("messages access util", () => {
         expected: "My translated message 2 waves.",
       },
     ])("translates $singular $plural $num $extras to '$expected'", async (
-      {singular, plural, num, extras, expected}
+      {singular, plural, num, extras, expected},
     ) => {
       const result = ngettextCustom(singular, plural, num, extras, data, pluralForms);
       expect(result).toEqual(expected);
@@ -229,7 +229,7 @@ describe("messages access util", () => {
         expected: "My translated message 1 waves.",
       },
     ])("translates $singular $plural $num $extras to '$expected'", async (
-      {singular, plural, num, extras, expected}
+      {singular, plural, num, extras, expected},
     ) => {
       const result = ngettextCustom(singular, plural, num, extras, data, pluralForms);
       expect(result).toEqual(expected);
