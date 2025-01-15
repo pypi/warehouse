@@ -36,6 +36,7 @@ const gettextParser = require("gettext-parser");
 // generate and then load the locale translation data
 const baseDir = __dirname;
 const localeDir = path.resolve(baseDir, "warehouse/locale");
+// This list should match `warehouse.i18n.KNOWN_LOCALES`
 const KNOWN_LOCALES = [
   "en",  // English
   "es",  // Spanish
@@ -50,6 +51,7 @@ const KNOWN_LOCALES = [
   "ru",  // Russian
   "he",  // Hebrew
   "eo",  // Esperanto
+  "ko",  // Korean
 ];
 
 // A custom regular expression to do some basic checking of the plural form,
