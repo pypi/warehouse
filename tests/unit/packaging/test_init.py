@@ -27,8 +27,9 @@ from warehouse.packaging.interfaces import (
 )
 from warehouse.packaging.models import AlternateRepository, File, Project, Release, Role
 from warehouse.packaging.services import project_service_factory
-from warehouse.packaging.tasks import (  # sync_bigquery_release_files,
+from warehouse.packaging.tasks import (
     check_file_cache_tasks_outstanding,
+    sync_bigquery_release_files,
     update_description_html,
 )
 from warehouse.rate_limiting import IRateLimiter, RateLimit
@@ -169,10 +170,10 @@ def test_includeme(monkeypatch, with_bq_sync):
     ]
 
     if with_bq_sync:
-        # assert (
-        #    pretend.call(crontab(minute=0), sync_bigquery_release_files)
-        #    in config.add_periodic_task.calls
-        # )
+        assert (
+            pretend.call(crontab(minute="*"), sync_bigquery_release_files)
+            in config.add_periodic_task.calls
+        )
         pass
 
     assert (
