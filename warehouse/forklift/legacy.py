@@ -478,6 +478,9 @@ def file_upload(request):
         # TODO: Once https://github.com/pypa/warehouse/issues/3632 has been solved,
         #       we might consider a different condition, possibly looking at
         #       User.is_active instead.
+        #
+        # warsaw(2024-10-14): This issue is resolved, so this comment should
+        # be reconsidered in a future branch.
         if not (request.user.primary_email and request.user.primary_email.verified):
             raise _exc_with_message(
                 HTTPBadRequest,

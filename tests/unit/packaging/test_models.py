@@ -217,6 +217,7 @@ class TestProject:
                     Allow,
                     f"user:{owner1.user.id}",
                     [
+                        Permissions.APIModify,
                         Permissions.ProjectsRead,
                         Permissions.ProjectsUpload,
                         Permissions.ProjectsWrite,
@@ -226,6 +227,7 @@ class TestProject:
                     Allow,
                     f"user:{owner2.user.id}",
                     [
+                        Permissions.APIModify,
                         Permissions.ProjectsRead,
                         Permissions.ProjectsUpload,
                         Permissions.ProjectsWrite,
@@ -235,6 +237,7 @@ class TestProject:
                     Allow,
                     f"user:{owner3.user.id}",
                     [
+                        Permissions.APIModify,
                         Permissions.ProjectsRead,
                         Permissions.ProjectsUpload,
                         Permissions.ProjectsWrite,
@@ -244,6 +247,7 @@ class TestProject:
                     Allow,
                     f"user:{owner4.user.id}",
                     [
+                        Permissions.APIModify,
                         Permissions.ProjectsRead,
                         Permissions.ProjectsUpload,
                         Permissions.ProjectsWrite,
@@ -889,6 +893,7 @@ class TestRelease:
                     Allow,
                     f"user:{owner1.user.id}",
                     [
+                        Permissions.APIModify,
                         Permissions.ProjectsRead,
                         Permissions.ProjectsUpload,
                         Permissions.ProjectsWrite,
@@ -898,6 +903,7 @@ class TestRelease:
                     Allow,
                     f"user:{owner2.user.id}",
                     [
+                        Permissions.APIModify,
                         Permissions.ProjectsRead,
                         Permissions.ProjectsUpload,
                         Permissions.ProjectsWrite,

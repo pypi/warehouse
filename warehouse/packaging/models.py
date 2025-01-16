@@ -389,6 +389,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                         Allow,
                         f"user:{user_id}",
                         [
+                            Permissions.APIModify,
                             Permissions.ProjectsRead,
                             Permissions.ProjectsUpload,
                             Permissions.ProjectsWrite,

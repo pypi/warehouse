@@ -30,7 +30,7 @@ class DomainPredicate:
 
     def __call__(self, info, request):
         # Support running under the same instance for local development and for
-        # test.pypi.io which will continue to host it's own uploader.
+        # test.pypi.io which will continue to host its own uploader.
         if self.val is None:
             return True
 
@@ -40,9 +40,7 @@ class DomainPredicate:
 class HeadersPredicate:
     def __init__(self, val: list[str], config):
         if not val:
-            raise ConfigurationError(
-                "Excpected at least one value in headers predicate"
-            )
+            raise ConfigurationError("Expected at least one value in headers predicate")
 
         self.sub_predicates = [
             predicates.HeaderPredicate(subval, config) for subval in val
