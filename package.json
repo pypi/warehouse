@@ -58,7 +58,7 @@
     "sass-loader": "^14.2.1",
     "sharp": "^0.32.6",
     "stylelint": "^16.6.1",
-    "stylelint-config-standard-scss": "^13.1.0",
+    "stylelint-config-standard-scss": "^14.0.0",
     "stylelint-selector-bem-pattern": "^4.0.0",
     "svgo": "^3.0.2",
     "webpack": "^5.94.0",
