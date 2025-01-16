@@ -171,7 +171,7 @@ def test_includeme(monkeypatch, with_bq_sync):
 
     if with_bq_sync:
         assert (
-            pretend.call(crontab(minute="*"), sync_bigquery_release_files)
+            pretend.call(crontab(minute="*/5"), sync_bigquery_release_files)
             in config.add_periodic_task.calls
         )
         pass
