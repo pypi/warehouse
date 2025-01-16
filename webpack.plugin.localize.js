@@ -103,12 +103,14 @@ const allLocaleData = KNOWN_LOCALES
         if (refs.every(refLine => !refLine.includes(".js:"))) {
           continue;
         }
-        result[value.msgid] = value.msgstr
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;")
-          .replace(/'/g, "&#39;");
+        result[value.msgid] = value.msgstr.map(function(str) {
+          return str
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+        });
       }
       return result;
     } catch (e) {
