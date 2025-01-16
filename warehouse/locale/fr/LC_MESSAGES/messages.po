@@ -158,7 +158,7 @@ msgstr ""
 "utiliser une adresse e-mail différente."
 
 #: warehouse/accounts/forms.py:410 warehouse/manage/forms.py:139
-#: warehouse/manage/forms.py:730
+#: warehouse/manage/forms.py:741
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Le nom est trop long. Choisissez un nom d’au plus 100 caractères."
 
@@ -227,7 +227,7 @@ msgstr "Authentification déjà active"
 msgid "Successful WebAuthn assertion"
 msgstr "Vérification WebAuthn réussie"
 
-#: warehouse/accounts/views.py:609 warehouse/manage/views/__init__.py:873
+#: warehouse/accounts/views.py:609 warehouse/manage/views/__init__.py:871
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Code de récupération accepté. Le code fourni ne peut plus être utilisé."
@@ -376,7 +376,7 @@ msgstr ""
 "« ${project_name} »."
 
 #: warehouse/accounts/views.py:1588 warehouse/accounts/views.py:1831
-#: warehouse/manage/views/__init__.py:1409
+#: warehouse/manage/views/__init__.py:1407
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -404,10 +404,10 @@ msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 "Vous ne pouvez pas enregistrer plus de 3 éditeurs de confiance à la fois."
 
-#: warehouse/accounts/views.py:1654 warehouse/manage/views/__init__.py:1464
-#: warehouse/manage/views/__init__.py:1577
+#: warehouse/accounts/views.py:1654 warehouse/manage/views/__init__.py:1576
 #: warehouse/manage/views/__init__.py:1689
-#: warehouse/manage/views/__init__.py:1799
+#: warehouse/manage/views/__init__.py:1801
+#: warehouse/manage/views/__init__.py:1911
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
@@ -415,10 +415,10 @@ msgstr ""
 "Il y a eu trop de tentatives d'inscription d'éditeur de confiance. Veuillez "
 "réessayer plus tard."
 
-#: warehouse/accounts/views.py:1665 warehouse/manage/views/__init__.py:1478
-#: warehouse/manage/views/__init__.py:1591
+#: warehouse/accounts/views.py:1665 warehouse/manage/views/__init__.py:1590
 #: warehouse/manage/views/__init__.py:1703
-#: warehouse/manage/views/__init__.py:1813
+#: warehouse/manage/views/__init__.py:1815
+#: warehouse/manage/views/__init__.py:1925
 msgid "The trusted publisher could not be registered"
 msgstr "L'éditeur de confiance n'a pas pu être enregistré"
 
@@ -447,12 +447,12 @@ msgstr "Éditeur de confiance du projet supprimé "
 msgid "Banner Preview"
 msgstr "Aperçu de la bannière"
 
-#: warehouse/manage/forms.py:408
+#: warehouse/manage/forms.py:419
 msgid "Choose an organization account name with 50 characters or less."
 msgstr ""
 "Sélectionnez un nom de compte d'organisation de 50 caractères ou moins."
 
-#: warehouse/manage/forms.py:416
+#: warehouse/manage/forms.py:427
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
@@ -464,7 +464,7 @@ msgstr ""
 "se terminer par une lettre ou un nombre. Sélectionnez un nom de compte "
 "d'organisation différent."
 
-#: warehouse/manage/forms.py:439
+#: warehouse/manage/forms.py:450
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
@@ -472,7 +472,7 @@ msgstr ""
 "Ce nom d'organisation est déjà utilisé. Choisissez un nom d'organisation "
 "différent."
 
-#: warehouse/manage/forms.py:454
+#: warehouse/manage/forms.py:465
 msgid ""
 "You have already submitted an application for that name. Choose a different "
 "organization account name."
@@ -480,16 +480,16 @@ msgstr ""
 "Vous avez déjà envoyé une application pour ce nom. Choisissez un nom "
 "d'organisation différent."
 
-#: warehouse/manage/forms.py:490
+#: warehouse/manage/forms.py:501
 msgid "Select project"
 msgstr "Sélectionner le projet"
 
-#: warehouse/manage/forms.py:495 warehouse/oidc/forms/_core.py:23
+#: warehouse/manage/forms.py:506 warehouse/oidc/forms/_core.py:23
 #: warehouse/oidc/forms/gitlab.py:57
 msgid "Specify project name"
 msgstr "Spécifiez le nom du projet"
 
-#: warehouse/manage/forms.py:498
+#: warehouse/manage/forms.py:509
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
@@ -497,13 +497,13 @@ msgstr ""
 "Doit commencer et se terminer par une lettre ou un chiffre ne contenant que "
 "des chiffres au format ASCII et des « . » , « _ » et « -' »."
 
-#: warehouse/manage/forms.py:505
+#: warehouse/manage/forms.py:516
 msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr ""
 "Ce nom de projet est déjà utilisé. Choisissez un nom de projet différent."
 
-#: warehouse/manage/forms.py:578
+#: warehouse/manage/forms.py:589
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
@@ -511,7 +511,7 @@ msgstr ""
 "Le nom de l'organisation est trop long. Choisissez un nom d'organisation "
 "d’au plus 100 caractères."
 
-#: warehouse/manage/forms.py:590
+#: warehouse/manage/forms.py:601
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
@@ -519,11 +519,11 @@ msgstr ""
 "L'URL de l'organisation est trop longue. Choisissez une URL d’au plus 400 "
 "caractères."
 
-#: warehouse/manage/forms.py:597
+#: warehouse/manage/forms.py:608
 msgid "The organization URL must start with http:// or https://"
 msgstr "L'URL de l'organisation doit commencer par http:// ou https://"
 
-#: warehouse/manage/forms.py:608
+#: warehouse/manage/forms.py:619
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
@@ -531,15 +531,15 @@ msgstr ""
 "La description de l'organisation est trop longue. Choisissez une description "
 "d’au plus 400 caractères."
 
-#: warehouse/manage/forms.py:643
+#: warehouse/manage/forms.py:654
 msgid "You have already submitted the maximum number of "
 msgstr "Vous avez déjà soumis le nombre maximum de "
 
-#: warehouse/manage/forms.py:673
+#: warehouse/manage/forms.py:684
 msgid "Choose a team name with 50 characters or less."
 msgstr "Choisissez un nom d'équipe de 50 caractères ou moins."
 
-#: warehouse/manage/forms.py:679
+#: warehouse/manage/forms.py:690
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
@@ -548,24 +548,24 @@ msgstr ""
 "ou se terminer par un espace, un point, un tiret bas, un tiret ou un slash. "
 "Choisissez un autre nom d'équipe."
 
-#: warehouse/manage/forms.py:707
+#: warehouse/manage/forms.py:718
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 "Ce nom d'équipe est déjà utilisé. Choisissez un nom d'équipe différent."
 
-#: warehouse/manage/forms.py:726
+#: warehouse/manage/forms.py:737
 msgid "Specify your alternate repository name"
 msgstr "Spécifiez le nom du dépôt alternatif"
 
-#: warehouse/manage/forms.py:740
+#: warehouse/manage/forms.py:751
 msgid "Specify your alternate repository URL"
 msgstr "Spécifiez l'URL du dépôt alternatif"
 
-#: warehouse/manage/forms.py:744
+#: warehouse/manage/forms.py:755
 msgid "The URL is too long. Choose a URL with 400 characters or less."
 msgstr "L'URL est trop longue. Choisissez une URL d’au plus 400 caractères."
 
-#: warehouse/manage/forms.py:758
+#: warehouse/manage/forms.py:769
 msgid ""
 "The description is too long. Choose a description with 400 characters or "
 "less."
@@ -573,63 +573,63 @@ msgstr ""
 "La description est trop longue. Choisissez une description d’au plus 400 "
 "caractères."
 
-#: warehouse/manage/views/__init__.py:285
+#: warehouse/manage/views/__init__.py:283
 msgid "Account details updated"
 msgstr "Détails du compte mis à jour"
 
-#: warehouse/manage/views/__init__.py:315
+#: warehouse/manage/views/__init__.py:313
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "E-mail ${email_address} ajouté - consultez votre boîte mail pour le lien de "
 "vérification"
 
-#: warehouse/manage/views/__init__.py:821
+#: warehouse/manage/views/__init__.py:819
 msgid "Recovery codes already generated"
 msgstr "Les codes de récupération ont déjà été générés"
 
-#: warehouse/manage/views/__init__.py:822
+#: warehouse/manage/views/__init__.py:820
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 "La génération de nouveaux codes de récupération rendra invalide vos codes "
 "existants."
 
-#: warehouse/manage/views/__init__.py:931
+#: warehouse/manage/views/__init__.py:929
 msgid "Verify your email to create an API token."
 msgstr "Vérifiez votre adresse e-mail pour créer un token API."
 
-#: warehouse/manage/views/__init__.py:1031
+#: warehouse/manage/views/__init__.py:1029
 msgid "API Token does not exist."
 msgstr "API Token n'existe pas."
 
-#: warehouse/manage/views/__init__.py:1063
+#: warehouse/manage/views/__init__.py:1061
 msgid "Invalid credentials. Try again"
 msgstr "Identifiants incorrects. Veuillez réessayer"
 
-#: warehouse/manage/views/__init__.py:1182
+#: warehouse/manage/views/__init__.py:1180
 msgid "Invalid alternate repository location details"
 msgstr "Informations de localisation du dépôt alternatif invalides"
 
-#: warehouse/manage/views/__init__.py:1219
+#: warehouse/manage/views/__init__.py:1217
 msgid "Added alternate repository '${name}'"
 msgstr "Dépôt alternatif '${name}' ajouté"
 
-#: warehouse/manage/views/__init__.py:1253
-#: warehouse/manage/views/__init__.py:2146
-#: warehouse/manage/views/__init__.py:2231
-#: warehouse/manage/views/__init__.py:2332
-#: warehouse/manage/views/__init__.py:2432
+#: warehouse/manage/views/__init__.py:1251
+#: warehouse/manage/views/__init__.py:2258
+#: warehouse/manage/views/__init__.py:2343
+#: warehouse/manage/views/__init__.py:2444
+#: warehouse/manage/views/__init__.py:2544
 msgid "Confirm the request"
 msgstr "Confirmer la demande"
 
-#: warehouse/manage/views/__init__.py:1265
+#: warehouse/manage/views/__init__.py:1263
 msgid "Invalid alternate repository id"
 msgstr "ID du dépôt alternatif invalide"
 
-#: warehouse/manage/views/__init__.py:1276
+#: warehouse/manage/views/__init__.py:1274
 msgid "Invalid alternate repository for project"
 msgstr "Dépôt alternatif invalide pour ce projet"
 
-#: warehouse/manage/views/__init__.py:1284
+#: warehouse/manage/views/__init__.py:1282
 msgid ""
 "Could not delete alternate repository - ${confirm} is not the same as "
 "${alt_repo_name}"
@@ -637,11 +637,17 @@ msgstr ""
 "Suppression du dépôt alternatif impossible - ${confirm} n'est pas le même "
 "que ${alt_repo_name}"
 
-#: warehouse/manage/views/__init__.py:1314
+#: warehouse/manage/views/__init__.py:1312
 msgid "Deleted alternate repository '${name}'"
 msgstr "Dépôt alternatif '${name}' supprimé"
 
-#: warehouse/manage/views/__init__.py:1445
+#: warehouse/manage/views/__init__.py:1457
+#, fuzzy
+#| msgid "The trusted publisher could not be registered"
+msgid "The trusted publisher could not be constrained"
+msgstr "L'éditeur de confiance n'a pas pu être enregistré"
+
+#: warehouse/manage/views/__init__.py:1557
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -649,7 +655,7 @@ msgstr ""
 "La publication de confiance basée sur GitHub est temporairement désactivée. "
 "Consultez https://pypi.org/help#admin-intervention pour plus d'informations."
 
-#: warehouse/manage/views/__init__.py:1558
+#: warehouse/manage/views/__init__.py:1670
 msgid ""
 "GitLab-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -657,7 +663,7 @@ msgstr ""
 "La publication de confiance basée sur GitLab est temporairement désactivée. "
 "Consultez https://pypi.org/help#admin-intervention pour plus d'informations."
 
-#: warehouse/manage/views/__init__.py:1670
+#: warehouse/manage/views/__init__.py:1782
 msgid ""
 "Google-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -665,7 +671,7 @@ msgstr ""
 "Publication de confiance basée sur Google est temporairement désactivée. "
 "Consultez https://pypi.org/help#admin-intervention pour plus d'informations."
 
-#: warehouse/manage/views/__init__.py:1779
+#: warehouse/manage/views/__init__.py:1891
 msgid ""
 "ActiveState-based trusted publishing is temporarily disabled. See https://"
 "pypi.org/help#admin-intervention for details."
@@ -674,9 +680,9 @@ msgstr ""
 "désactivée. Consultez https://pypi.org/help#admin-intervention pour plus "
 "d'informations."
 
-#: warehouse/manage/views/__init__.py:2014
-#: warehouse/manage/views/__init__.py:2315
-#: warehouse/manage/views/__init__.py:2423
+#: warehouse/manage/views/__init__.py:2126
+#: warehouse/manage/views/__init__.py:2427
+#: warehouse/manage/views/__init__.py:2535
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -684,43 +690,43 @@ msgstr ""
 "La suppression de projet est temporairement désactivée. Consultez https://"
 "pypi.org/help#admin-intervention pour plus d'informations."
 
-#: warehouse/manage/views/__init__.py:2158
+#: warehouse/manage/views/__init__.py:2270
 msgid "Could not yank release - "
 msgstr "Impossible de remiser la version - "
 
-#: warehouse/manage/views/__init__.py:2243
+#: warehouse/manage/views/__init__.py:2355
 msgid "Could not un-yank release - "
 msgstr "Impossibile de dé-remiser la version - "
 
-#: warehouse/manage/views/__init__.py:2344
+#: warehouse/manage/views/__init__.py:2456
 msgid "Could not delete release - "
 msgstr "Impossible de supprimer la version - "
 
-#: warehouse/manage/views/__init__.py:2444
+#: warehouse/manage/views/__init__.py:2556
 msgid "Could not find file"
 msgstr "Impossible de trouver le fichier"
 
-#: warehouse/manage/views/__init__.py:2448
+#: warehouse/manage/views/__init__.py:2560
 msgid "Could not delete file - "
 msgstr "Impossible de supprimer le fichier - "
 
-#: warehouse/manage/views/__init__.py:2598
+#: warehouse/manage/views/__init__.py:2710
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 "L'équipe « ${team_name} » a déjà le rôle « ${role_name} » pour le projet"
 
-#: warehouse/manage/views/__init__.py:2705
+#: warehouse/manage/views/__init__.py:2817
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 "Le profil « ${username} » a déjà le rôle « ${role_name} » pour le projet"
 
-#: warehouse/manage/views/__init__.py:2772
+#: warehouse/manage/views/__init__.py:2884
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 "${username} a désormais le rôle « ${role} » au sein du projet "
 "« ${project_name} »."
 
-#: warehouse/manage/views/__init__.py:2804
+#: warehouse/manage/views/__init__.py:2916
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -728,38 +734,38 @@ msgstr ""
 "Le profil « ${username} » n'a pas d'adresse e-mail principale vérifiée, son "
 "rôle « ${role_name} » ne peut donc pas être ajouté au projet"
 
-#: warehouse/manage/views/__init__.py:2817
-#: warehouse/manage/views/organizations.py:878
+#: warehouse/manage/views/__init__.py:2929
+#: warehouse/manage/views/organizations.py:889
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "Le profil « ${username} » a déjà reçu une invitation. Veuillez réessayer "
 "plus tard."
 
-#: warehouse/manage/views/__init__.py:2882
-#: warehouse/manage/views/organizations.py:943
+#: warehouse/manage/views/__init__.py:2994
+#: warehouse/manage/views/organizations.py:954
 msgid "Invitation sent to '${username}'"
 msgstr "Invitation envoyée à « ${username} »"
 
-#: warehouse/manage/views/__init__.py:2915
+#: warehouse/manage/views/__init__.py:3027
 msgid "Could not find role invitation."
 msgstr "Impossible de trouver l'invitation."
 
-#: warehouse/manage/views/__init__.py:2926
+#: warehouse/manage/views/__init__.py:3038
 msgid "Invitation already expired."
 msgstr "Invitation déjà expirée."
 
-#: warehouse/manage/views/__init__.py:2958
-#: warehouse/manage/views/organizations.py:1130
+#: warehouse/manage/views/__init__.py:3070
+#: warehouse/manage/views/organizations.py:1141
 msgid "Invitation revoked from '${username}'."
 msgstr "Invitation annulée par « ${username} »."
 
-#: warehouse/manage/views/organizations.py:854
+#: warehouse/manage/views/organizations.py:865
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 "Le profil « ${username} » a déjà le rôle « ${role_name} » pour l'organisation"
 
-#: warehouse/manage/views/organizations.py:865
+#: warehouse/manage/views/organizations.py:876
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -767,16 +773,16 @@ msgstr ""
 "Le profil « ${username} » n'a pas d'adresse e-mail principale vérifiée, son "
 "rôle « ${role_name} » ne peut donc pas être ajouté a l'organisation"
 
-#: warehouse/manage/views/organizations.py:1026
-#: warehouse/manage/views/organizations.py:1068
+#: warehouse/manage/views/organizations.py:1037
+#: warehouse/manage/views/organizations.py:1079
 msgid "Could not find organization invitation."
 msgstr "Impossible de trouver l'invitation à l'organisation."
 
-#: warehouse/manage/views/organizations.py:1036
+#: warehouse/manage/views/organizations.py:1047
 msgid "Organization invitation could not be re-sent."
 msgstr "L'invitation à l'organisation n'a pas pu être renvoyée."
 
-#: warehouse/manage/views/organizations.py:1083
+#: warehouse/manage/views/organizations.py:1094
 msgid "Expired invitation for '${username}' deleted."
 msgstr "L'invitation expirée au projet « ${project_name} » a été supprimée."
 
@@ -809,13 +815,19 @@ msgstr ""
 "Ce nom de projet n'est pas autorisé (conflit avec le nom du module de la "
 "bibliothèque standard Python)"
 
-#: warehouse/oidc/forms/_core.py:84
+#: warehouse/oidc/forms/_core.py:84 warehouse/oidc/forms/_core.py:95
 msgid "Specify a publisher ID"
 msgstr "Spécifier un ID d'éditeur"
 
-#: warehouse/oidc/forms/_core.py:85
+#: warehouse/oidc/forms/_core.py:85 warehouse/oidc/forms/_core.py:96
 msgid "Publisher must be specified by ID"
 msgstr "L'auteur doit être spécifié par son identifiant"
+
+#: warehouse/oidc/forms/_core.py:101
+#, fuzzy
+#| msgid "Specify project name"
+msgid "Specify an environment name"
+msgstr "Spécifiez le nom du projet"
 
 #: warehouse/oidc/forms/activestate.py:47
 msgid "Double dashes are not allowed in the name"
@@ -953,6 +965,61 @@ msgstr "Indiquez un lien d'inspecteur pour spécifier les lignes de code."
 #: warehouse/packaging/views.py:352
 msgid "Your report has been recorded. Thank you for your help."
 msgstr "Votre rapport a été enregistré. Merci de votre aide."
+
+#: warehouse/static/js/warehouse/controllers/clipboard_controller.js:32
+msgid "Copied"
+msgstr ""
+
+#: warehouse/static/js/warehouse/controllers/password_breach_controller.js:48
+msgid "Error while validating hashed password, disregard on development"
+msgstr ""
+
+#: warehouse/static/js/warehouse/controllers/password_match_controller.js:32
+#, fuzzy
+#| msgid "Password"
+msgid "Passwords match"
+msgstr "Mot de passe"
+
+#: warehouse/static/js/warehouse/controllers/password_match_controller.js:36
+#, fuzzy
+#| msgid "Your passwords don't match. Try again."
+msgid "Passwords do not match"
+msgstr "Vos mots de passe ne correspondent pas. Veuillez réessayer."
+
+#: warehouse/static/js/warehouse/controllers/password_strength_gauge_controller.js:27
+#: warehouse/templates/base.html:30
+msgid "Password field is empty"
+msgstr "Le champ du mot de passe est vide"
+
+#: warehouse/static/js/warehouse/controllers/password_strength_gauge_controller.js:42
+#, fuzzy
+#| msgid "Password strength:"
+msgid "Password is strong"
+msgstr "Force du mot de passe :"
+
+#: warehouse/static/js/warehouse/utils/timeago.js:33
+#, fuzzy
+#| msgid "Registered by:"
+msgid "Yesterday"
+msgid_plural "About %1 days ago"
+msgstr[0] "Inscrit par :"
+msgstr[1] "Inscrit par :"
+
+#: warehouse/static/js/warehouse/utils/timeago.js:37
+msgid "About an hour ago"
+msgid_plural "About %1 hours ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/static/js/warehouse/utils/timeago.js:39
+msgid "About a minute ago"
+msgid_plural "About %1 minutes ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/static/js/warehouse/utils/timeago.js:41
+msgid "Just now"
+msgstr ""
 
 #: warehouse/subscriptions/models.py:35
 #: warehouse/templates/manage/project/history.html:230
@@ -1180,10 +1247,6 @@ msgstr ""
 #: warehouse/templates/base.html:27
 msgid "Password strength:"
 msgstr "Force du mot de passe :"
-
-#: warehouse/templates/base.html:30
-msgid "Password field is empty"
-msgstr "Le champ du mot de passe est vide"
 
 #: warehouse/templates/base.html:39 warehouse/templates/base.html:47
 #: warehouse/templates/includes/current-user-indicator.html:17
@@ -1644,6 +1707,7 @@ msgstr "Mot de passe"
 #: warehouse/templates/manage/account/token.html:150
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
+#: warehouse/templates/manage/organization/activate_subscription.html:34
 #: warehouse/templates/manage/organization/projects.html:128
 #: warehouse/templates/manage/organization/projects.html:151
 #: warehouse/templates/manage/organization/roles.html:270
@@ -1999,9 +2063,9 @@ msgid ""
 "rel=\"noopener\">Terms of Use</a> and <a href=\"%(aup)s\" "
 "rel=\"noopener\">Acceptable Use Policy</a>."
 msgstr ""
-"Pour plus d'informations, veuillez lire les <a href=\"%(tou)s\" rel="
-"\"noopener\">conditions d'utilisation</a> complètes et la <a href=\"%(aup)s\""
-" rel=\"noopener\">Politique d'utilisation acceptable</a>."
+"Pour plus d'informations, veuillez lire les <a href=\"%(tou)s\" "
+"rel=\"noopener\">conditions d'utilisation</a> complètes et la <a "
+"href=\"%(aup)s\" rel=\"noopener\">Politique d'utilisation acceptable</a>."
 
 #: warehouse/templates/accounts/register.html:64
 #: warehouse/templates/manage/account.html:139
@@ -4620,7 +4684,7 @@ msgstr "Confirmez la valeur pour « %(item)s » afin de continuer."
 
 #: warehouse/templates/manage/manage_base.html:366
 #: warehouse/templates/manage/manage_base.html:418
-#: warehouse/templates/manage/organization/activate_subscription.html:32
+#: warehouse/templates/manage/organization/activate_subscription.html:52
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -5866,18 +5930,36 @@ msgstr ""
 "standard FIDO, et ne fonctionneront pas avec PyPI."
 
 #: warehouse/templates/manage/organization/activate_subscription.html:17
-#: warehouse/templates/manage/organization/activate_subscription.html:21
-#: warehouse/templates/manage/organization/activate_subscription.html:35
+#: warehouse/templates/manage/organization/activate_subscription.html:22
+#: warehouse/templates/manage/organization/activate_subscription.html:54
 msgid "Activate Subscription"
 msgstr "Activer l'abonnement"
 
-#: warehouse/templates/manage/organization/activate_subscription.html:27
+#: warehouse/templates/manage/organization/activate_subscription.html:26
 msgid ""
 "Company accounts require an active subscription. Please enter up-to-date "
 "billing information to enable the account."
 msgstr ""
 "Les comptes d'entreprise nécessitent un abonnement actif. Veuillez mettre à "
 "jour vos informations de paiement pour activer le compte."
+
+#: warehouse/templates/manage/organization/activate_subscription.html:33
+#, fuzzy
+#| msgid "Terms of Use"
+msgid "Terms of Service"
+msgstr "Conditions d'utilisation"
+
+#: warehouse/templates/manage/organization/activate_subscription.html:37
+#, fuzzy, python-format
+#| msgid ""
+#| "<a href=\"%(user_profile)s\">%(username)s</a> has joined the "
+#| "\"%(organization_name)s\" organization"
+msgid ""
+"I agree to the PyPI <a href=\"%(tos_url)s\">Terms of Service</a> on behalf "
+"of the %(organization_name)s organization."
+msgstr ""
+"Le profil <a href=\"%(user_profile)s\">%(username)s</a> a rejoint "
+"l'organisation « %(organization_name)s »"
 
 #: warehouse/templates/manage/organization/history.html:20
 #: warehouse/templates/manage/project/history.html:20
@@ -6945,6 +7027,38 @@ msgstr "Aucun éditeur n'est actuellement configuré."
 #| msgid "Add a new provider"
 msgid "Add a new publisher"
 msgstr "Ajouter un nouveau fournisseur"
+
+#: warehouse/templates/manage/project/publishing.html:443
+#: warehouse/templates/manage/project/publishing.html:446
+#, fuzzy
+#| msgid "Invalid environment name"
+msgid "Constrain environment"
+msgstr "Nom d'environnement invalide"
+
+#: warehouse/templates/manage/project/publishing.html:455
+msgid "This will restrict the Trusted Publisher's environment to"
+msgstr ""
+
+#: warehouse/templates/manage/project/publishing.html:459
+#, python-format
+msgid ""
+"If you currently use multiple environments in your CI/CD workflows, you must "
+"either change them all to '%(constrained_environment_name)s' or register "
+"each as a Trusted Publisher."
+msgstr ""
+
+#: warehouse/templates/manage/project/publishing.html:467
+#, python-format
+msgid ""
+"I understand that this Trusted Publisher will only allow uploads frow CI/CD "
+"workflows running in the '%(constrained_environment_name)s' environment."
+msgstr ""
+
+#: warehouse/templates/manage/project/publishing.html:471
+#, fuzzy
+#| msgid "Environment name"
+msgid "New Environment Name"
+msgstr "Nom de l'environnement"
 
 #: warehouse/templates/manage/project/release.html:18
 #, python-format
@@ -8732,19 +8846,19 @@ msgid ""
 "href=\"%(reset_pwd_href)s\">reset your password</a>. </p>"
 msgstr ""
 "<p> PyPI lui-même n'a pas subi de fuite de données. Il s'agit d'une mesure "
-"de protection pour réduire le risque d'attaque <a href=\""
-"%(credential_stuffing_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">par réutilisation d'identifiants</a> envers PyPI et les "
+"de protection pour réduire le risque d'attaque <a "
+"href=\"%(credential_stuffing_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">par réutilisation d'identifiants</a> envers PyPI et les "
 "personnes qui l'utilisent. </p> <p> Chaque fois qu'un mot de passe est "
 "fourni - lors de l'inscription, de l'authentification ou de la mise à jour "
 "du mot de passe - PyPI vérifie en toute sécurité si ce mot de passe est "
 "apparu dans des fuites de données publiques. </p> <p> À chaque fois, PyPI "
 "génère une empreinte SHA-1 du mot de passe fourni et utilise les cinq (5) "
-"premiers caractères de l'empreinte pour vérifier dans <a href=\""
-"%(haveibeenpwned_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">l'API de HaveIBeenPwned</a> et déterminer si le mot de passe "
-"est déjà compromis. Le mot de passe en clair n'est jamais conservé par PyPI "
-"ou envoyé à l'API de HaveIBeenPwned. </p> <p> PyPI n'autorisera pas "
+"premiers caractères de l'empreinte pour vérifier dans <a "
+"href=\"%(haveibeenpwned_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">l'API de HaveIBeenPwned</a> et déterminer si le mot de "
+"passe est déjà compromis. Le mot de passe en clair n'est jamais conservé par "
+"PyPI ou envoyé à l'API de HaveIBeenPwned. </p> <p> PyPI n'autorisera pas "
 "l'utilisation de mots de passe compromis lors de la définition d'un mot de "
 "passe à l'inscription ou à la mise à jour de votre mot de passe. </p> <p> Si "
 "vous recevez un message d'erreur indiquant que « Ce mot de passe apparaît "
@@ -8752,8 +8866,8 @@ msgstr ""
 "vous devez le modifier dès que possible à tous les autres endroits où vous "
 "l'utilisez. </p> <p> Si vous avez reçu cette erreur en essayant de vous "
 "connecter ou de publier sur PyPI, votre mot de passe a été réinitialisé, et "
-"vous ne pouvez pas vous connecter à PyPI avant de <a href=\"%(reset_pwd_href)"
-"s\">réinitialiser votre mot de passe</a>.</p>"
+"vous ne pouvez pas vous connecter à PyPI avant de <a "
+"href=\"%(reset_pwd_href)s\">réinitialiser votre mot de passe</a>.</p>"
 
 #: warehouse/templates/pages/help.html:304
 #, fuzzy, python-format

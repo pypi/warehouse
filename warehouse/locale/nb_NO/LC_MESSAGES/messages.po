@@ -132,7 +132,7 @@ msgstr ""
 "postadresse."
 
 #: warehouse/accounts/forms.py:410 warehouse/manage/forms.py:139
-#: warehouse/manage/forms.py:730
+#: warehouse/manage/forms.py:741
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Navnet er for langt. Velg et navn med 100 eller færre tegn."
 
@@ -201,7 +201,7 @@ msgstr "Allerede autentisert"
 msgid "Successful WebAuthn assertion"
 msgstr "Vellykket WebAuthn-påstand"
 
-#: warehouse/accounts/views.py:609 warehouse/manage/views/__init__.py:873
+#: warehouse/accounts/views.py:609 warehouse/manage/views/__init__.py:871
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Gjenopprettingskode akseptert. Den medfølgende koden kan ikke brukes igjen."
@@ -341,7 +341,7 @@ msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Du er nå ${role} av '${project_name}'-prosjektet."
 
 #: warehouse/accounts/views.py:1588 warehouse/accounts/views.py:1831
-#: warehouse/manage/views/__init__.py:1409
+#: warehouse/manage/views/__init__.py:1407
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -372,10 +372,10 @@ msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 "Du kan ikke registrere mer enn 3 ventende pålitelige utgivere samtidig."
 
-#: warehouse/accounts/views.py:1654 warehouse/manage/views/__init__.py:1464
-#: warehouse/manage/views/__init__.py:1577
+#: warehouse/accounts/views.py:1654 warehouse/manage/views/__init__.py:1576
 #: warehouse/manage/views/__init__.py:1689
-#: warehouse/manage/views/__init__.py:1799
+#: warehouse/manage/views/__init__.py:1801
+#: warehouse/manage/views/__init__.py:1911
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
@@ -383,10 +383,10 @@ msgstr ""
 "Det har vært for mange forsøk på registrering av klarerte utgivere. Prøv "
 "igjen senere."
 
-#: warehouse/accounts/views.py:1665 warehouse/manage/views/__init__.py:1478
-#: warehouse/manage/views/__init__.py:1591
+#: warehouse/accounts/views.py:1665 warehouse/manage/views/__init__.py:1590
 #: warehouse/manage/views/__init__.py:1703
-#: warehouse/manage/views/__init__.py:1813
+#: warehouse/manage/views/__init__.py:1815
+#: warehouse/manage/views/__init__.py:1925
 msgid "The trusted publisher could not be registered"
 msgstr "Den klarerte utgiveren kunne ikke registreres"
 
@@ -418,11 +418,11 @@ msgstr "Fjernet klarert utgiver for prosjektet "
 msgid "Banner Preview"
 msgstr "Forhåndsvisning av banner"
 
-#: warehouse/manage/forms.py:408
+#: warehouse/manage/forms.py:419
 msgid "Choose an organization account name with 50 characters or less."
 msgstr "Velg et organisasjonskontonavn med 50 tegn eller mindre."
 
-#: warehouse/manage/forms.py:416
+#: warehouse/manage/forms.py:427
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
@@ -434,7 +434,7 @@ msgstr ""
 "også starte og avslutte med en bokstav eller et tall. Velg et annet "
 "organisasjonskontonavn."
 
-#: warehouse/manage/forms.py:439
+#: warehouse/manage/forms.py:450
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
@@ -442,7 +442,7 @@ msgstr ""
 "Dette organisasjonskontonavnet er allerede brukt. Velg et annet "
 "organisasjonskontonavn."
 
-#: warehouse/manage/forms.py:454
+#: warehouse/manage/forms.py:465
 msgid ""
 "You have already submitted an application for that name. Choose a different "
 "organization account name."
@@ -450,16 +450,16 @@ msgstr ""
 "Du har allerede sendt inn en søknad for det navnet. Velg et annet "
 "organisasjonskontonavn."
 
-#: warehouse/manage/forms.py:490
+#: warehouse/manage/forms.py:501
 msgid "Select project"
 msgstr "Velg prosjekt"
 
-#: warehouse/manage/forms.py:495 warehouse/oidc/forms/_core.py:23
+#: warehouse/manage/forms.py:506 warehouse/oidc/forms/_core.py:23
 #: warehouse/oidc/forms/gitlab.py:57
 msgid "Specify project name"
 msgstr "Angi prosjektnavn"
 
-#: warehouse/manage/forms.py:498
+#: warehouse/manage/forms.py:509
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
@@ -467,12 +467,12 @@ msgstr ""
 "Start og slutt med en bokstav eller et tall som inneholder bare ASCII-"
 "numerisk og '.', '_' og '-'."
 
-#: warehouse/manage/forms.py:505
+#: warehouse/manage/forms.py:516
 msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr "Dette prosjektnavnet er allerede brukt. Velg et annet prosjektnavn."
 
-#: warehouse/manage/forms.py:578
+#: warehouse/manage/forms.py:589
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
@@ -480,7 +480,7 @@ msgstr ""
 "Organisasjonsnavnet er for langt. Velg et organisasjonsnavn med 100 tegn "
 "eller mindre."
 
-#: warehouse/manage/forms.py:590
+#: warehouse/manage/forms.py:601
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
@@ -488,11 +488,11 @@ msgstr ""
 "Organisasjons-URLen er for lang. Velg en organisasjons-URL med 400 tegn "
 "eller mindre."
 
-#: warehouse/manage/forms.py:597
+#: warehouse/manage/forms.py:608
 msgid "The organization URL must start with http:// or https://"
 msgstr "Organisasjonens URL må starte med http:// eller https://"
 
-#: warehouse/manage/forms.py:608
+#: warehouse/manage/forms.py:619
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
@@ -500,15 +500,15 @@ msgstr ""
 "Organisasjonsbeskrivelsen er for lang. Velg en organisasjonsbeskrivelse med "
 "400 tegn eller mindre."
 
-#: warehouse/manage/forms.py:643
+#: warehouse/manage/forms.py:654
 msgid "You have already submitted the maximum number of "
 msgstr "Du har allerede sendt inn maksimalt antall av "
 
-#: warehouse/manage/forms.py:673
+#: warehouse/manage/forms.py:684
 msgid "Choose a team name with 50 characters or less."
 msgstr "Velg et lagnavn med 50 tegn eller færre."
 
-#: warehouse/manage/forms.py:679
+#: warehouse/manage/forms.py:690
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
@@ -516,27 +516,27 @@ msgstr ""
 "Lagnavnet er ugyldig. Lagnavn kan ikke begynne eller slutte med mellomrom, "
 "punktum, understrek, bindestrek eller skråstrek. Velg et annet lagnavn."
 
-#: warehouse/manage/forms.py:707
+#: warehouse/manage/forms.py:718
 msgid "This team name has already been used. Choose a different team name."
 msgstr "Dette lagnavnet er allerede brukt. Velg et annet lagnavn."
 
-#: warehouse/manage/forms.py:726
+#: warehouse/manage/forms.py:737
 #, fuzzy
 #| msgid "Project name"
 msgid "Specify your alternate repository name"
 msgstr "Prosjektnavn"
 
-#: warehouse/manage/forms.py:740
+#: warehouse/manage/forms.py:751
 msgid "Specify your alternate repository URL"
 msgstr ""
 
-#: warehouse/manage/forms.py:744
+#: warehouse/manage/forms.py:755
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid "The URL is too long. Choose a URL with 400 characters or less."
 msgstr "Navnet er for langt. Velg et navn med 100 eller færre tegn."
 
-#: warehouse/manage/forms.py:758
+#: warehouse/manage/forms.py:769
 #, fuzzy
 #| msgid ""
 #| "The organization description is too long. Choose a organization "
@@ -548,81 +548,87 @@ msgstr ""
 "Organisasjonsbeskrivelsen er for lang. Velg en organisasjonsbeskrivelse med "
 "400 tegn eller mindre."
 
-#: warehouse/manage/views/__init__.py:285
+#: warehouse/manage/views/__init__.py:283
 msgid "Account details updated"
 msgstr "Kontodetaljer oppdatert"
 
-#: warehouse/manage/views/__init__.py:315
+#: warehouse/manage/views/__init__.py:313
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "E-post ${email_address} lagt til - sjekk e-posten din for en "
 "bekreftelseslenke"
 
-#: warehouse/manage/views/__init__.py:821
+#: warehouse/manage/views/__init__.py:819
 msgid "Recovery codes already generated"
 msgstr "Gjenopprettingskoder er allerede generert"
 
-#: warehouse/manage/views/__init__.py:822
+#: warehouse/manage/views/__init__.py:820
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 "Generering av nye gjenopprettingskoder vil ugyldiggjøre de eksisterende "
 "kodene dine."
 
-#: warehouse/manage/views/__init__.py:931
+#: warehouse/manage/views/__init__.py:929
 msgid "Verify your email to create an API token."
 msgstr "Bekreft e-postadressen din for å opprette et API-token."
 
-#: warehouse/manage/views/__init__.py:1031
+#: warehouse/manage/views/__init__.py:1029
 msgid "API Token does not exist."
 msgstr "API-token eksisterer ikke."
 
-#: warehouse/manage/views/__init__.py:1063
+#: warehouse/manage/views/__init__.py:1061
 msgid "Invalid credentials. Try again"
 msgstr "Ugyldige legitimasjon. Prøv igjen"
 
-#: warehouse/manage/views/__init__.py:1182
+#: warehouse/manage/views/__init__.py:1180
 #, fuzzy
 #| msgid "Invalid TOTP code."
 msgid "Invalid alternate repository location details"
 msgstr "Ugyldig TOTP-kode."
 
-#: warehouse/manage/views/__init__.py:1219
+#: warehouse/manage/views/__init__.py:1217
 #, fuzzy
 #| msgid "Invalid TOTP code."
 msgid "Added alternate repository '${name}'"
 msgstr "Ugyldig TOTP-kode."
 
-#: warehouse/manage/views/__init__.py:1253
-#: warehouse/manage/views/__init__.py:2146
-#: warehouse/manage/views/__init__.py:2231
-#: warehouse/manage/views/__init__.py:2332
-#: warehouse/manage/views/__init__.py:2432
+#: warehouse/manage/views/__init__.py:1251
+#: warehouse/manage/views/__init__.py:2258
+#: warehouse/manage/views/__init__.py:2343
+#: warehouse/manage/views/__init__.py:2444
+#: warehouse/manage/views/__init__.py:2544
 msgid "Confirm the request"
 msgstr "Bekreft forespørselen"
 
-#: warehouse/manage/views/__init__.py:1265
+#: warehouse/manage/views/__init__.py:1263
 #, fuzzy
 #| msgid "Invalid TOTP code."
 msgid "Invalid alternate repository id"
 msgstr "Ugyldig TOTP-kode."
 
-#: warehouse/manage/views/__init__.py:1276
+#: warehouse/manage/views/__init__.py:1274
 #, fuzzy
 #| msgid "Invalid TOTP code."
 msgid "Invalid alternate repository for project"
 msgstr "Ugyldig TOTP-kode."
 
-#: warehouse/manage/views/__init__.py:1284
+#: warehouse/manage/views/__init__.py:1282
 msgid ""
 "Could not delete alternate repository - ${confirm} is not the same as "
 "${alt_repo_name}"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1314
+#: warehouse/manage/views/__init__.py:1312
 msgid "Deleted alternate repository '${name}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1445
+#: warehouse/manage/views/__init__.py:1457
+#, fuzzy
+#| msgid "The trusted publisher could not be registered"
+msgid "The trusted publisher could not be constrained"
+msgstr "Den klarerte utgiveren kunne ikke registreres"
+
+#: warehouse/manage/views/__init__.py:1557
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -630,7 +636,7 @@ msgstr ""
 "GitHub-basert klarert publisering er midlertidig deaktivert. Se https://pypi."
 "org/help#admin-intervention for detaljer."
 
-#: warehouse/manage/views/__init__.py:1558
+#: warehouse/manage/views/__init__.py:1670
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -642,7 +648,7 @@ msgstr ""
 "Registrering av nye brukere er midlertidig deaktivert. Se https://pypi.org/"
 "help#admin-intervention for detaljer."
 
-#: warehouse/manage/views/__init__.py:1670
+#: warehouse/manage/views/__init__.py:1782
 msgid ""
 "Google-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -650,7 +656,7 @@ msgstr ""
 "GitLab-basert klarert publisering er midlertidig deaktivert. Se https://pypi."
 "org/help#admin-intervention for detaljer."
 
-#: warehouse/manage/views/__init__.py:1779
+#: warehouse/manage/views/__init__.py:1891
 msgid ""
 "ActiveState-based trusted publishing is temporarily disabled. See https://"
 "pypi.org/help#admin-intervention for details."
@@ -658,9 +664,9 @@ msgstr ""
 "ActiveState-basert klarert publisering er midlertidig deaktivert. Se https://"
 "pypi.org/help#admin-intervention for detaljer."
 
-#: warehouse/manage/views/__init__.py:2014
-#: warehouse/manage/views/__init__.py:2315
-#: warehouse/manage/views/__init__.py:2423
+#: warehouse/manage/views/__init__.py:2126
+#: warehouse/manage/views/__init__.py:2427
+#: warehouse/manage/views/__init__.py:2535
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -668,95 +674,95 @@ msgstr ""
 "Prosjektsletting er midlertidig deaktivert. Se https://pypi.org/help#admin-"
 "intervention for detaljer."
 
-#: warehouse/manage/views/__init__.py:2158
+#: warehouse/manage/views/__init__.py:2270
 #, fuzzy
 msgid "Could not yank release - "
 msgstr "Kunne ikke dra ut utgivelsen - "
 
-#: warehouse/manage/views/__init__.py:2243
+#: warehouse/manage/views/__init__.py:2355
 #, fuzzy
 msgid "Could not un-yank release - "
 msgstr "Kunne ikke ta tilbake utgivelsen - "
 
-#: warehouse/manage/views/__init__.py:2344
+#: warehouse/manage/views/__init__.py:2456
 #, fuzzy
 msgid "Could not delete release - "
 msgstr "Kunne ikke slette utgivelsen - "
 
-#: warehouse/manage/views/__init__.py:2444
+#: warehouse/manage/views/__init__.py:2556
 msgid "Could not find file"
 msgstr "Fant ikke filen"
 
-#: warehouse/manage/views/__init__.py:2448
+#: warehouse/manage/views/__init__.py:2560
 #, fuzzy
 msgid "Could not delete file - "
 msgstr "Kunne ikke slette filen - "
 
-#: warehouse/manage/views/__init__.py:2598
+#: warehouse/manage/views/__init__.py:2710
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "Teamet '${team_name}' har allerede rollen ${role_name} for prosjektet"
 
-#: warehouse/manage/views/__init__.py:2705
+#: warehouse/manage/views/__init__.py:2817
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "Brukeren '${username}' har allerede rollen ${role_name} for prosjektet"
 
-#: warehouse/manage/views/__init__.py:2772
+#: warehouse/manage/views/__init__.py:2884
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "Du har ikke eierskap i dette prosjektet"
 
-#: warehouse/manage/views/__init__.py:2804
+#: warehouse/manage/views/__init__.py:2916
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2817
-#: warehouse/manage/views/organizations.py:878
+#: warehouse/manage/views/__init__.py:2929
+#: warehouse/manage/views/organizations.py:889
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2882
-#: warehouse/manage/views/organizations.py:943
+#: warehouse/manage/views/__init__.py:2994
+#: warehouse/manage/views/organizations.py:954
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2915
+#: warehouse/manage/views/__init__.py:3027
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2926
+#: warehouse/manage/views/__init__.py:3038
 #, fuzzy
 msgid "Invitation already expired."
 msgstr "E-postadresse allerede bekreftet"
 
-#: warehouse/manage/views/__init__.py:2958
-#: warehouse/manage/views/organizations.py:1130
+#: warehouse/manage/views/__init__.py:3070
+#: warehouse/manage/views/organizations.py:1141
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:854
+#: warehouse/manage/views/organizations.py:865
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:865
+#: warehouse/manage/views/organizations.py:876
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1026
-#: warehouse/manage/views/organizations.py:1068
+#: warehouse/manage/views/organizations.py:1037
+#: warehouse/manage/views/organizations.py:1079
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1036
+#: warehouse/manage/views/organizations.py:1047
 msgid "Organization invitation could not be re-sent."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1083
+#: warehouse/manage/views/organizations.py:1094
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
 
@@ -793,13 +799,19 @@ msgid ""
 "module name)"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:84
+#: warehouse/oidc/forms/_core.py:84 warehouse/oidc/forms/_core.py:95
 msgid "Specify a publisher ID"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:85
+#: warehouse/oidc/forms/_core.py:85 warehouse/oidc/forms/_core.py:96
 msgid "Publisher must be specified by ID"
 msgstr ""
+
+#: warehouse/oidc/forms/_core.py:101
+#, fuzzy
+#| msgid "Specify project name"
+msgid "Specify an environment name"
+msgstr "Angi prosjektnavn"
 
 #: warehouse/oidc/forms/activestate.py:47
 #, fuzzy
@@ -936,6 +948,63 @@ msgstr ""
 
 #: warehouse/packaging/views.py:352
 msgid "Your report has been recorded. Thank you for your help."
+msgstr ""
+
+#: warehouse/static/js/warehouse/controllers/clipboard_controller.js:32
+msgid "Copied"
+msgstr ""
+
+#: warehouse/static/js/warehouse/controllers/password_breach_controller.js:48
+msgid "Error while validating hashed password, disregard on development"
+msgstr ""
+
+#: warehouse/static/js/warehouse/controllers/password_match_controller.js:32
+#, fuzzy
+#| msgid "Password"
+msgid "Passwords match"
+msgstr "Passord"
+
+#: warehouse/static/js/warehouse/controllers/password_match_controller.js:36
+#, fuzzy
+#| msgid "Your passwords don't match. Try again."
+msgid "Passwords do not match"
+msgstr "Passordene samsvarer ikke. Prøv igjen."
+
+#: warehouse/static/js/warehouse/controllers/password_strength_gauge_controller.js:27
+#: warehouse/templates/base.html:30
+#, fuzzy
+#| msgid "Password reset"
+msgid "Password field is empty"
+msgstr "Tilbakestill passord"
+
+#: warehouse/static/js/warehouse/controllers/password_strength_gauge_controller.js:42
+#, fuzzy
+#| msgid "Password reset"
+msgid "Password is strong"
+msgstr "Tilbakestill passord"
+
+#: warehouse/static/js/warehouse/utils/timeago.js:33
+#, fuzzy
+#| msgid "Register"
+msgid "Yesterday"
+msgid_plural "About %1 days ago"
+msgstr[0] "Registrer"
+msgstr[1] "Registrer"
+
+#: warehouse/static/js/warehouse/utils/timeago.js:37
+msgid "About an hour ago"
+msgid_plural "About %1 hours ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/static/js/warehouse/utils/timeago.js:39
+msgid "About a minute ago"
+msgid_plural "About %1 minutes ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/static/js/warehouse/utils/timeago.js:41
+msgid "Just now"
 msgstr ""
 
 #: warehouse/subscriptions/models.py:35
@@ -1172,12 +1241,6 @@ msgstr ""
 #, fuzzy
 #| msgid "Password reset"
 msgid "Password strength:"
-msgstr "Tilbakestill passord"
-
-#: warehouse/templates/base.html:30
-#, fuzzy
-#| msgid "Password reset"
-msgid "Password field is empty"
 msgstr "Tilbakestill passord"
 
 #: warehouse/templates/base.html:39 warehouse/templates/base.html:47
@@ -1659,6 +1722,7 @@ msgstr "Passord"
 #: warehouse/templates/manage/account/token.html:150
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
+#: warehouse/templates/manage/organization/activate_subscription.html:34
 #: warehouse/templates/manage/organization/projects.html:128
 #: warehouse/templates/manage/organization/projects.html:151
 #: warehouse/templates/manage/organization/roles.html:270
@@ -4559,7 +4623,7 @@ msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:366
 #: warehouse/templates/manage/manage_base.html:418
-#: warehouse/templates/manage/organization/activate_subscription.html:32
+#: warehouse/templates/manage/organization/activate_subscription.html:52
 msgid "Cancel"
 msgstr "Avbryt"
 
@@ -5752,18 +5816,32 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/organization/activate_subscription.html:17
-#: warehouse/templates/manage/organization/activate_subscription.html:21
-#: warehouse/templates/manage/organization/activate_subscription.html:35
+#: warehouse/templates/manage/organization/activate_subscription.html:22
+#: warehouse/templates/manage/organization/activate_subscription.html:54
 #, fuzzy
 #| msgid "Project documentation"
 msgid "Activate Subscription"
 msgstr "Prosjektdokumentasjon"
 
-#: warehouse/templates/manage/organization/activate_subscription.html:27
+#: warehouse/templates/manage/organization/activate_subscription.html:26
 msgid ""
 "Company accounts require an active subscription. Please enter up-to-date "
 "billing information to enable the account."
 msgstr ""
+
+#: warehouse/templates/manage/organization/activate_subscription.html:33
+#, fuzzy
+#| msgid "Terms of use"
+msgid "Terms of Service"
+msgstr "Bruksvilkår"
+
+#: warehouse/templates/manage/organization/activate_subscription.html:37
+#, fuzzy, python-format
+#| msgid "You are not an owner of this project"
+msgid ""
+"I agree to the PyPI <a href=\"%(tos_url)s\">Terms of Service</a> on behalf "
+"of the %(organization_name)s organization."
+msgstr "Du har ikke eierskap i dette prosjektet"
 
 #: warehouse/templates/manage/organization/history.html:20
 #: warehouse/templates/manage/project/history.html:20
@@ -6873,6 +6951,38 @@ msgstr ""
 #| msgid "Manage this project"
 msgid "Add a new publisher"
 msgstr "Håndter dette prosjektet"
+
+#: warehouse/templates/manage/project/publishing.html:443
+#: warehouse/templates/manage/project/publishing.html:446
+#, fuzzy
+#| msgid "Invalid TOTP code."
+msgid "Constrain environment"
+msgstr "Ugyldig TOTP-kode."
+
+#: warehouse/templates/manage/project/publishing.html:455
+msgid "This will restrict the Trusted Publisher's environment to"
+msgstr ""
+
+#: warehouse/templates/manage/project/publishing.html:459
+#, python-format
+msgid ""
+"If you currently use multiple environments in your CI/CD workflows, you must "
+"either change them all to '%(constrained_environment_name)s' or register "
+"each as a Trusted Publisher."
+msgstr ""
+
+#: warehouse/templates/manage/project/publishing.html:467
+#, python-format
+msgid ""
+"I understand that this Trusted Publisher will only allow uploads frow CI/CD "
+"workflows running in the '%(constrained_environment_name)s' environment."
+msgstr ""
+
+#: warehouse/templates/manage/project/publishing.html:471
+#, fuzzy
+#| msgid "Invalid TOTP code."
+msgid "New Environment Name"
+msgstr "Ugyldig TOTP-kode."
 
 #: warehouse/templates/manage/project/release.html:18
 #, python-format
