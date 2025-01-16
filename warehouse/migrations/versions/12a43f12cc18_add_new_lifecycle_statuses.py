@@ -13,7 +13,7 @@
 Add new lifecycle statuses
 
 Revision ID: 12a43f12cc18
-Revises: e24aa37164e72
+Revises: 24aa37164e72
 """
 
 from alembic import op
