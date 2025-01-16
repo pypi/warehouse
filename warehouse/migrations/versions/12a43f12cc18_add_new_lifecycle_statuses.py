@@ -24,22 +24,7 @@ down_revision = "24aa37164e72"
 
 
 def upgrade():
-    op.execute("SET statement_timeout = 60000")
-    op.execute("SET lock_timeout = 120000")
-
-    op.sync_enum_values(
-        "public",
-        "lifecyclestatus",
-        ["quarantine-enter", "quarantine-exit", "archived"],
-        [
-            TableReference(
-                table_schema="public",
-                table_name="projects",
-                column_name="lifecycle_status",
-            )
-        ],
-        enum_values_to_rename=[],
-    )
+    op.execute("ALTER TYPE public.lifecyclestatus ADD VALUE IF NOT EXISTS 'archived'")
 
 
 def downgrade():
