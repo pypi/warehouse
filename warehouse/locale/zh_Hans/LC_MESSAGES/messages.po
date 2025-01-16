@@ -51,17 +51,18 @@
 # Eric <zxmegaxqug@hldrive.com>, 2023, 2024.
 # 123456789 <15183543555@163.com>, 2023.
 # Thomas <jzh20180312@163.com>, 2023.
-# 大王叫我来巡山 <hamburger2048@users.noreply.hosted.weblate.org>, 2024.
+# 大王叫我来巡山 <hamburger2048@users.noreply.hosted.weblate.org>, 2024, 2025.
 # Eana Hufwe <eana@1a23.com>, 2024.
 # Peter Shen <xianpeng.shen@gmail.com>, 2024.
 # Xiang Heng Wei <yylteam@hotmail.com>, 2024.
 # Max <maxxu2002@outlook.com>, 2024.
+# mzssbqd <2728084071@qq.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2024-12-03 07:32+0000\n"
+"PO-Revision-Date: 2025-01-15 16:50+0000\n"
 "Last-Translator: 大王叫我来巡山 <hamburger2048@users.noreply.hosted.weblate."
 "org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
@@ -71,7 +72,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.9-dev\n"
+"X-Generator: Weblate 5.10-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:157
@@ -93,7 +94,7 @@ msgstr "区域设置已更新"
 
 #: warehouse/accounts/forms.py:54 warehouse/accounts/forms.py:292
 msgid "The email address isn't valid. Try again."
-msgstr "电子邮件地址无效。请再试一次。"
+msgstr "电子邮件地址无效。请重新输入。"
 
 #: warehouse/accounts/forms.py:55
 msgid "The password is invalid. Try again."
@@ -172,7 +173,7 @@ msgid ""
 msgstr "此电子邮件地址已被另一个账户使用。使用一个不同的电子邮件地址。"
 
 #: warehouse/accounts/forms.py:410 warehouse/manage/forms.py:139
-#: warehouse/manage/forms.py:730
+#: warehouse/manage/forms.py:741
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "用户名太长。请选择一个不超过100个字符的用户名。"
 
@@ -239,7 +240,7 @@ msgstr "已通过身份验证"
 msgid "Successful WebAuthn assertion"
 msgstr "成功的 WebAuthn 断言"
 
-#: warehouse/accounts/views.py:609 warehouse/manage/views/__init__.py:873
+#: warehouse/accounts/views.py:609 warehouse/manage/views/__init__.py:871
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "接受恢复代码。无法再次使用提供的代码。"
 
@@ -375,7 +376,7 @@ msgid "You are now ${role} of the '${project_name}' project."
 msgstr "你不是此项目的所有者。"
 
 #: warehouse/accounts/views.py:1588 warehouse/accounts/views.py:1831
-#: warehouse/manage/views/__init__.py:1409
+#: warehouse/manage/views/__init__.py:1407
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -399,19 +400,19 @@ msgstr ""
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr "你不能一下子注册超过三个待定的受信任发布者。"
 
-#: warehouse/accounts/views.py:1654 warehouse/manage/views/__init__.py:1464
-#: warehouse/manage/views/__init__.py:1577
+#: warehouse/accounts/views.py:1654 warehouse/manage/views/__init__.py:1576
 #: warehouse/manage/views/__init__.py:1689
-#: warehouse/manage/views/__init__.py:1799
+#: warehouse/manage/views/__init__.py:1801
+#: warehouse/manage/views/__init__.py:1911
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
 msgstr "受信任发布者的注册尝试次数过多。请稍后重试。"
 
-#: warehouse/accounts/views.py:1665 warehouse/manage/views/__init__.py:1478
-#: warehouse/manage/views/__init__.py:1591
+#: warehouse/accounts/views.py:1665 warehouse/manage/views/__init__.py:1590
 #: warehouse/manage/views/__init__.py:1703
-#: warehouse/manage/views/__init__.py:1813
+#: warehouse/manage/views/__init__.py:1815
+#: warehouse/manage/views/__init__.py:1925
 msgid "The trusted publisher could not be registered"
 msgstr "无法注册该受信任发布者"
 
@@ -438,11 +439,11 @@ msgstr "删除了项目的受信任发布者 "
 msgid "Banner Preview"
 msgstr "横幅预览"
 
-#: warehouse/manage/forms.py:408
+#: warehouse/manage/forms.py:419
 msgid "Choose an organization account name with 50 characters or less."
 msgstr "选择一个不超过 50 个字符的组织账户名。"
 
-#: warehouse/manage/forms.py:416
+#: warehouse/manage/forms.py:427
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
@@ -452,70 +453,70 @@ msgstr ""
 "该组织账户名无效。组织账户名必须由字母、数字、圆点、连字符和下划线组成。而且"
 "还必须以字母或数字开头和结尾。选择一个不同的组织账户名。"
 
-#: warehouse/manage/forms.py:439
+#: warehouse/manage/forms.py:450
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
 msgstr "此组织账户名已被使用。选择不同的组织账户名。"
 
-#: warehouse/manage/forms.py:454
+#: warehouse/manage/forms.py:465
 msgid ""
 "You have already submitted an application for that name. Choose a different "
 "organization account name."
 msgstr "你已经提交了对此名称的申请。请另选一个组织账户名。"
 
-#: warehouse/manage/forms.py:490
+#: warehouse/manage/forms.py:501
 msgid "Select project"
 msgstr "选择项目"
 
-#: warehouse/manage/forms.py:495 warehouse/oidc/forms/_core.py:23
+#: warehouse/manage/forms.py:506 warehouse/oidc/forms/_core.py:23
 #: warehouse/oidc/forms/gitlab.py:57
 msgid "Specify project name"
 msgstr "指定项目名称"
 
-#: warehouse/manage/forms.py:498
+#: warehouse/manage/forms.py:509
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
 "从开始到结束，只能输入ASCII字母、数字以及句点（.）、下划线（_）和横杠（-）。"
 
-#: warehouse/manage/forms.py:505
+#: warehouse/manage/forms.py:516
 msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr "此项目名已被使用。 选择不同的项目名称。"
 
-#: warehouse/manage/forms.py:578
+#: warehouse/manage/forms.py:589
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
 msgstr "该组织名太长。请选择一个不超过100个字符的组织名。"
 
-#: warehouse/manage/forms.py:590
+#: warehouse/manage/forms.py:601
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
 msgstr "该组织 URL 太长。请选择一个不超过400个字符的组织 URL。"
 
-#: warehouse/manage/forms.py:597
+#: warehouse/manage/forms.py:608
 msgid "The organization URL must start with http:// or https://"
 msgstr "组织 URL 必须以 http:// 或 https:// 开头"
 
-#: warehouse/manage/forms.py:608
+#: warehouse/manage/forms.py:619
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
 msgstr "组织描述太长。请选择一个不超过400个字符的组织描述。"
 
-#: warehouse/manage/forms.py:643
+#: warehouse/manage/forms.py:654
 msgid "You have already submitted the maximum number of "
 msgstr "你已经提交了最大数量的 "
 
-#: warehouse/manage/forms.py:673
+#: warehouse/manage/forms.py:684
 msgid "Choose a team name with 50 characters or less."
 msgstr "选择一个不超过 50 个字符的团队名。"
 
-#: warehouse/manage/forms.py:679
+#: warehouse/manage/forms.py:690
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
@@ -523,95 +524,99 @@ msgstr ""
 "团队名称无效。 团队名称不能以空格、句点、下划线、连字符或斜杠开头或结尾。 选"
 "择不同的团队名称。"
 
-#: warehouse/manage/forms.py:707
+#: warehouse/manage/forms.py:718
 msgid "This team name has already been used. Choose a different team name."
 msgstr "此团队名已被使用。 选择不同的团队名称。"
 
-#: warehouse/manage/forms.py:726
+#: warehouse/manage/forms.py:737
 msgid "Specify your alternate repository name"
 msgstr "指定备选存储库名称"
 
-#: warehouse/manage/forms.py:740
+#: warehouse/manage/forms.py:751
 msgid "Specify your alternate repository URL"
 msgstr "指定备选存储库 URL"
 
-#: warehouse/manage/forms.py:744
+#: warehouse/manage/forms.py:755
 msgid "The URL is too long. Choose a URL with 400 characters or less."
 msgstr "URL 太长。请选择一个不超过400个字符的 URL。"
 
-#: warehouse/manage/forms.py:758
+#: warehouse/manage/forms.py:769
 msgid ""
 "The description is too long. Choose a description with 400 characters or "
 "less."
 msgstr "描述太长。请选择一个不超过400个字符的描述。"
 
-#: warehouse/manage/views/__init__.py:285
+#: warehouse/manage/views/__init__.py:283
 msgid "Account details updated"
 msgstr "已更新账户详细信息"
 
-#: warehouse/manage/views/__init__.py:315
+#: warehouse/manage/views/__init__.py:313
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr "电子邮件${email_address}已添加 - 请检查邮箱中的验证链接"
 
-#: warehouse/manage/views/__init__.py:821
+#: warehouse/manage/views/__init__.py:819
 msgid "Recovery codes already generated"
 msgstr "已生成恢复代码"
 
-#: warehouse/manage/views/__init__.py:822
+#: warehouse/manage/views/__init__.py:820
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "生成新的恢复代码将使现有代码失效。"
 
-#: warehouse/manage/views/__init__.py:931
+#: warehouse/manage/views/__init__.py:929
 msgid "Verify your email to create an API token."
 msgstr "验证你的电子邮件以创建 API 令牌。"
 
-#: warehouse/manage/views/__init__.py:1031
+#: warehouse/manage/views/__init__.py:1029
 msgid "API Token does not exist."
 msgstr "API 令牌不存在。"
 
-#: warehouse/manage/views/__init__.py:1063
+#: warehouse/manage/views/__init__.py:1061
 msgid "Invalid credentials. Try again"
 msgstr "无效凭据。再试一次"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/manage/views/__init__.py:1182
+#: warehouse/manage/views/__init__.py:1180
 msgid "Invalid alternate repository location details"
 msgstr "无效的备选存储库位置详情"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/manage/views/__init__.py:1219
+#: warehouse/manage/views/__init__.py:1217
 msgid "Added alternate repository '${name}'"
 msgstr "已添加备选存储库 '${name}'"
 
-#: warehouse/manage/views/__init__.py:1253
-#: warehouse/manage/views/__init__.py:2146
-#: warehouse/manage/views/__init__.py:2231
-#: warehouse/manage/views/__init__.py:2332
-#: warehouse/manage/views/__init__.py:2432
+#: warehouse/manage/views/__init__.py:1251
+#: warehouse/manage/views/__init__.py:2258
+#: warehouse/manage/views/__init__.py:2343
+#: warehouse/manage/views/__init__.py:2444
+#: warehouse/manage/views/__init__.py:2544
 msgid "Confirm the request"
 msgstr "确认请求"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/manage/views/__init__.py:1265
+#: warehouse/manage/views/__init__.py:1263
 msgid "Invalid alternate repository id"
 msgstr "无效的备选存储库 id"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/manage/views/__init__.py:1276
+#: warehouse/manage/views/__init__.py:1274
 msgid "Invalid alternate repository for project"
 msgstr "无效的项目备选存储库"
 
-#: warehouse/manage/views/__init__.py:1284
+#: warehouse/manage/views/__init__.py:1282
 msgid ""
 "Could not delete alternate repository - ${confirm} is not the same as "
 "${alt_repo_name}"
 msgstr "无法删除备选存储库 - ${confirm} 和 ${alt_repo_name} 不一样"
 
-#: warehouse/manage/views/__init__.py:1314
+#: warehouse/manage/views/__init__.py:1312
 msgid "Deleted alternate repository '${name}'"
 msgstr "删除备选存储库 '${name}'"
 
-#: warehouse/manage/views/__init__.py:1445
+#: warehouse/manage/views/__init__.py:1457
+msgid "The trusted publisher could not be constrained"
+msgstr "无法限制该受信任发布者"
+
+#: warehouse/manage/views/__init__.py:1557
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -619,7 +624,7 @@ msgstr ""
 "基于 Github 的受信任发布暂时被禁用。有关详细信息，请参见 https://pypi.org/"
 "help#admin-intervention。"
 
-#: warehouse/manage/views/__init__.py:1558
+#: warehouse/manage/views/__init__.py:1670
 msgid ""
 "GitLab-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -627,7 +632,7 @@ msgstr ""
 "基于 GitLab 的受信任发布暂时被禁用。有关详细信息，请参见 https://pypi.org/"
 "help#admin-intervention。"
 
-#: warehouse/manage/views/__init__.py:1670
+#: warehouse/manage/views/__init__.py:1782
 msgid ""
 "Google-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -635,7 +640,7 @@ msgstr ""
 "基于 Google 的受信任发布暂时被禁用。有关详细信息，请参见 https://pypi.org/"
 "help#admin-intervention。"
 
-#: warehouse/manage/views/__init__.py:1779
+#: warehouse/manage/views/__init__.py:1891
 msgid ""
 "ActiveState-based trusted publishing is temporarily disabled. See https://"
 "pypi.org/help#admin-intervention for details."
@@ -643,9 +648,9 @@ msgstr ""
 "基于 ActiveState 的受信任发布暂时被禁用。有关详细信息，请参见 https://pypi."
 "org/help#admin-intervention。"
 
-#: warehouse/manage/views/__init__.py:2014
-#: warehouse/manage/views/__init__.py:2315
-#: warehouse/manage/views/__init__.py:2423
+#: warehouse/manage/views/__init__.py:2126
+#: warehouse/manage/views/__init__.py:2427
+#: warehouse/manage/views/__init__.py:2535
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -653,39 +658,39 @@ msgstr ""
 "项目删除暂时被禁用。有关详细信息，请参见https://pypi.org/help#admin-"
 "intervention。"
 
-#: warehouse/manage/views/__init__.py:2158
+#: warehouse/manage/views/__init__.py:2270
 msgid "Could not yank release - "
 msgstr "无法对发布进行 yank 操作 - "
 
-#: warehouse/manage/views/__init__.py:2243
+#: warehouse/manage/views/__init__.py:2355
 msgid "Could not un-yank release - "
 msgstr "无法取消对发布采取的 yank 操作- "
 
-#: warehouse/manage/views/__init__.py:2344
+#: warehouse/manage/views/__init__.py:2456
 msgid "Could not delete release - "
 msgstr "无法删除发布 - "
 
-#: warehouse/manage/views/__init__.py:2444
+#: warehouse/manage/views/__init__.py:2556
 msgid "Could not find file"
 msgstr "找不到文件"
 
-#: warehouse/manage/views/__init__.py:2448
+#: warehouse/manage/views/__init__.py:2560
 msgid "Could not delete file - "
 msgstr "无法删除文件 - "
 
-#: warehouse/manage/views/__init__.py:2598
+#: warehouse/manage/views/__init__.py:2710
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "'${team_name}' 团队在项目中已经有 ${role_name} 角色"
 
-#: warehouse/manage/views/__init__.py:2705
+#: warehouse/manage/views/__init__.py:2817
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "用户“${username}”在这个项目中已有${role_name}"
 
-#: warehouse/manage/views/__init__.py:2772
+#: warehouse/manage/views/__init__.py:2884
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "${username} 现为 '${project_name}' 项目的 ${role}。"
 
-#: warehouse/manage/views/__init__.py:2804
+#: warehouse/manage/views/__init__.py:2916
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -693,35 +698,35 @@ msgstr ""
 "用户'$ {username}'没有经过验证的主电子邮件地址，因此不能作为项目的$ "
 "{role_name}添加"
 
-#: warehouse/manage/views/__init__.py:2817
-#: warehouse/manage/views/organizations.py:878
+#: warehouse/manage/views/__init__.py:2929
+#: warehouse/manage/views/organizations.py:889
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr "用户'$ {username}'已经具有有效的邀请。请稍后再试。"
 
-#: warehouse/manage/views/__init__.py:2882
-#: warehouse/manage/views/organizations.py:943
+#: warehouse/manage/views/__init__.py:2994
+#: warehouse/manage/views/organizations.py:954
 msgid "Invitation sent to '${username}'"
 msgstr "邀请已发送到“ $ {username}”"
 
-#: warehouse/manage/views/__init__.py:2915
+#: warehouse/manage/views/__init__.py:3027
 msgid "Could not find role invitation."
 msgstr "找不到角色邀请。"
 
-#: warehouse/manage/views/__init__.py:2926
+#: warehouse/manage/views/__init__.py:3038
 msgid "Invitation already expired."
 msgstr "邀请已过期。"
 
-#: warehouse/manage/views/__init__.py:2958
-#: warehouse/manage/views/organizations.py:1130
+#: warehouse/manage/views/__init__.py:3070
+#: warehouse/manage/views/organizations.py:1141
 msgid "Invitation revoked from '${username}'."
 msgstr "从“${username}”撤回邀请。"
 
-#: warehouse/manage/views/organizations.py:854
+#: warehouse/manage/views/organizations.py:865
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "用户 '${username}' 已在组织中任 ${role_name}"
 
-#: warehouse/manage/views/organizations.py:865
+#: warehouse/manage/views/organizations.py:876
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -729,16 +734,16 @@ msgstr ""
 "用户'$ {username}'没有经过验证的主电子邮件地址，因此不能被加为组织的$ "
 "{role_name}"
 
-#: warehouse/manage/views/organizations.py:1026
-#: warehouse/manage/views/organizations.py:1068
+#: warehouse/manage/views/organizations.py:1037
+#: warehouse/manage/views/organizations.py:1079
 msgid "Could not find organization invitation."
 msgstr "找不到组织邀请。"
 
-#: warehouse/manage/views/organizations.py:1036
+#: warehouse/manage/views/organizations.py:1047
 msgid "Organization invitation could not be re-sent."
 msgstr "不能重新发送组织邀请。"
 
-#: warehouse/manage/views/organizations.py:1083
+#: warehouse/manage/views/organizations.py:1094
 msgid "Expired invitation for '${username}' deleted."
 msgstr "删除了对 '${username}' 的过期邀请。"
 
@@ -770,13 +775,17 @@ msgid ""
 "module name)"
 msgstr "此项目名称不被允许（与 Python 标准库模块名冲突）"
 
-#: warehouse/oidc/forms/_core.py:84
+#: warehouse/oidc/forms/_core.py:84 warehouse/oidc/forms/_core.py:95
 msgid "Specify a publisher ID"
 msgstr "指定发布者 ID"
 
-#: warehouse/oidc/forms/_core.py:85
+#: warehouse/oidc/forms/_core.py:85 warehouse/oidc/forms/_core.py:96
 msgid "Publisher must be specified by ID"
 msgstr "发布者必须由 ID 指定"
+
+#: warehouse/oidc/forms/_core.py:101
+msgid "Specify an environment name"
+msgstr "指定环境名称"
 
 #: warehouse/oidc/forms/activestate.py:47
 msgid "Double dashes are not allowed in the name"
@@ -903,6 +912,58 @@ msgstr "提供到特定项目行的 Inspector 链接。"
 #: warehouse/packaging/views.py:352
 msgid "Your report has been recorded. Thank you for your help."
 msgstr "你的报告已被记录。感谢您的帮助。"
+
+#: warehouse/static/js/warehouse/controllers/clipboard_controller.js:32
+msgid "Copied"
+msgstr ""
+
+#: warehouse/static/js/warehouse/controllers/password_breach_controller.js:48
+msgid "Error while validating hashed password, disregard on development"
+msgstr ""
+
+#: warehouse/static/js/warehouse/controllers/password_match_controller.js:32
+#, fuzzy
+#| msgid "Password"
+msgid "Passwords match"
+msgstr "密码"
+
+#: warehouse/static/js/warehouse/controllers/password_match_controller.js:36
+#, fuzzy
+#| msgid "Your passwords don't match. Try again."
+msgid "Passwords do not match"
+msgstr "输入的密码不一致，请重试。"
+
+#: warehouse/static/js/warehouse/controllers/password_strength_gauge_controller.js:27
+#: warehouse/templates/base.html:30
+msgid "Password field is empty"
+msgstr "密码是空的"
+
+#: warehouse/static/js/warehouse/controllers/password_strength_gauge_controller.js:42
+#, fuzzy
+#| msgid "Password strength:"
+msgid "Password is strong"
+msgstr "密码强度："
+
+#: warehouse/static/js/warehouse/utils/timeago.js:33
+#, fuzzy
+#| msgid "Registered by:"
+msgid "Yesterday"
+msgid_plural "About %1 days ago"
+msgstr[0] "注册方："
+
+#: warehouse/static/js/warehouse/utils/timeago.js:37
+msgid "About an hour ago"
+msgid_plural "About %1 hours ago"
+msgstr[0] ""
+
+#: warehouse/static/js/warehouse/utils/timeago.js:39
+msgid "About a minute ago"
+msgid_plural "About %1 minutes ago"
+msgstr[0] ""
+
+#: warehouse/static/js/warehouse/utils/timeago.js:41
+msgid "Just now"
+msgstr ""
 
 #: warehouse/subscriptions/models.py:35
 #: warehouse/templates/manage/project/history.html:230
@@ -1126,10 +1187,6 @@ msgstr ""
 #: warehouse/templates/base.html:27
 msgid "Password strength:"
 msgstr "密码强度："
-
-#: warehouse/templates/base.html:30
-msgid "Password field is empty"
-msgstr "密码是空的"
 
 #: warehouse/templates/base.html:39 warehouse/templates/base.html:47
 #: warehouse/templates/includes/current-user-indicator.html:17
@@ -1574,6 +1631,7 @@ msgstr "密码"
 #: warehouse/templates/manage/account/token.html:150
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
+#: warehouse/templates/manage/organization/activate_subscription.html:34
 #: warehouse/templates/manage/organization/projects.html:128
 #: warehouse/templates/manage/organization/projects.html:151
 #: warehouse/templates/manage/organization/roles.html:270
@@ -3333,7 +3391,7 @@ msgstr "许可证表示："
 
 #: warehouse/templates/includes/packaging/project-data.html:210
 msgid "License Expression"
-msgstr "许可证表示"
+msgstr "许可证表达式"
 
 #: warehouse/templates/includes/packaging/project-data.html:218
 msgid "License:"
@@ -4383,7 +4441,7 @@ msgstr "确认 %(item)s 以继续。"
 
 #: warehouse/templates/manage/manage_base.html:366
 #: warehouse/templates/manage/manage_base.html:418
-#: warehouse/templates/manage/organization/activate_subscription.html:32
+#: warehouse/templates/manage/organization/activate_subscription.html:52
 msgid "Cancel"
 msgstr "取消"
 
@@ -5514,16 +5572,29 @@ msgid ""
 msgstr "请注意，一些旧的USB密钥不符合FIDO标准，不能与PyPI一起使用。"
 
 #: warehouse/templates/manage/organization/activate_subscription.html:17
-#: warehouse/templates/manage/organization/activate_subscription.html:21
-#: warehouse/templates/manage/organization/activate_subscription.html:35
+#: warehouse/templates/manage/organization/activate_subscription.html:22
+#: warehouse/templates/manage/organization/activate_subscription.html:54
 msgid "Activate Subscription"
 msgstr "激活订阅"
 
-#: warehouse/templates/manage/organization/activate_subscription.html:27
+#: warehouse/templates/manage/organization/activate_subscription.html:26
 msgid ""
 "Company accounts require an active subscription. Please enter up-to-date "
 "billing information to enable the account."
 msgstr "公司账户需要有效订阅。 请输入最新账单信息以启用该账户。"
+
+#: warehouse/templates/manage/organization/activate_subscription.html:33
+msgid "Terms of Service"
+msgstr "服务条款"
+
+#: warehouse/templates/manage/organization/activate_subscription.html:37
+#, python-format
+msgid ""
+"I agree to the PyPI <a href=\"%(tos_url)s\">Terms of Service</a> on behalf "
+"of the %(organization_name)s organization."
+msgstr ""
+"我代表 %(organization_name)s 组织同意 PyPI 的 <a href=\"%(tos_url)s\">服务条"
+"款</a>。"
 
 #: warehouse/templates/manage/organization/history.html:20
 #: warehouse/templates/manage/project/history.html:20
@@ -6505,6 +6576,40 @@ msgstr "当前未配置任何发布者。"
 #: warehouse/templates/manage/project/publishing.html:401
 msgid "Add a new publisher"
 msgstr "添加新的发布者"
+
+# | msgid "Invalid TOTP code."
+#: warehouse/templates/manage/project/publishing.html:443
+#: warehouse/templates/manage/project/publishing.html:446
+msgid "Constrain environment"
+msgstr "限制环境"
+
+#: warehouse/templates/manage/project/publishing.html:455
+msgid "This will restrict the Trusted Publisher's environment to"
+msgstr "这会限制受信任发布者的环境为"
+
+#: warehouse/templates/manage/project/publishing.html:459
+#, python-format
+msgid ""
+"If you currently use multiple environments in your CI/CD workflows, you must "
+"either change them all to '%(constrained_environment_name)s' or register "
+"each as a Trusted Publisher."
+msgstr ""
+"如果你当前在你的 CI/CD 工作流中使用多个环境，你必须将它们全部更改为 "
+"'%(constrained_environment_name)s'，或者将其中的每个注册为一个受信任发布者。"
+
+#: warehouse/templates/manage/project/publishing.html:467
+#, python-format
+msgid ""
+"I understand that this Trusted Publisher will only allow uploads frow CI/CD "
+"workflows running in the '%(constrained_environment_name)s' environment."
+msgstr ""
+"我理解此受信任发布者将只允许来自运行在 '%(constrained_environment_name)s 环境"
+"中的 CI/CD 工作流的上传。"
+
+# | msgid "Invalid TOTP code."
+#: warehouse/templates/manage/project/publishing.html:471
+msgid "New Environment Name"
+msgstr "新环境名称"
 
 #: warehouse/templates/manage/project/release.html:18
 #, python-format

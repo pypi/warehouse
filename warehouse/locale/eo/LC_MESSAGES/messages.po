@@ -1,12 +1,12 @@
 # Jakub Fabijan <animatorzPolski@gmail.com>, 2020.
-# phlostically <phlostically@mailinator.com>, 2021, 2022, 2024.
+# phlostically <phlostically@mailinator.com>, 2021, 2022, 2024, 2025.
 # Adolfo Jayme Barrientos <fitojb@ubuntu.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-12-29 13:51+0200\n"
-"PO-Revision-Date: 2024-12-20 10:02+0000\n"
+"PO-Revision-Date: 2025-01-14 23:50+0000\n"
 "Last-Translator: phlostically <phlostically@mailinator.com>\n"
 "Language-Team: Esperanto <https://hosted.weblate.org/projects/pypa/warehouse/"
 "eo/>\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.9.2-dev\n"
+"X-Generator: Weblate 5.10-dev\n"
 
 #: warehouse/views.py:157
 msgid ""
@@ -122,7 +122,7 @@ msgstr ""
 "adreson."
 
 #: warehouse/accounts/forms.py:410 warehouse/manage/forms.py:139
-#: warehouse/manage/forms.py:730
+#: warehouse/manage/forms.py:741
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "La nomo estas tro longa. Elektu nomon de maksimume 100 signoj."
 
@@ -189,7 +189,7 @@ msgstr "Jam aŭtentikigita"
 msgid "Successful WebAuthn assertion"
 msgstr "Sukcesa WebAuthn-aserto"
 
-#: warehouse/accounts/views.py:609 warehouse/manage/views/__init__.py:873
+#: warehouse/accounts/views.py:609 warehouse/manage/views/__init__.py:871
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "Realira kodo akceptiĝis. La submetita kodo ne estas reuzebla."
 
@@ -326,7 +326,7 @@ msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Vi estas nun ${role} de la projekto '${project_name}'."
 
 #: warehouse/accounts/views.py:1588 warehouse/accounts/views.py:1831
-#: warehouse/manage/views/__init__.py:1409
+#: warehouse/manage/views/__init__.py:1407
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -350,19 +350,19 @@ msgstr ""
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr "Vi ne rajtas samtempe starigi pli ol 3 estontajn fidatajn eldonantojn."
 
-#: warehouse/accounts/views.py:1654 warehouse/manage/views/__init__.py:1464
-#: warehouse/manage/views/__init__.py:1577
+#: warehouse/accounts/views.py:1654 warehouse/manage/views/__init__.py:1576
 #: warehouse/manage/views/__init__.py:1689
-#: warehouse/manage/views/__init__.py:1799
+#: warehouse/manage/views/__init__.py:1801
+#: warehouse/manage/views/__init__.py:1911
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
 msgstr "Okazis troo da provoj registri fidatajn eldonantojn. Reprovu poste."
 
-#: warehouse/accounts/views.py:1665 warehouse/manage/views/__init__.py:1478
-#: warehouse/manage/views/__init__.py:1591
+#: warehouse/accounts/views.py:1665 warehouse/manage/views/__init__.py:1590
 #: warehouse/manage/views/__init__.py:1703
-#: warehouse/manage/views/__init__.py:1813
+#: warehouse/manage/views/__init__.py:1815
+#: warehouse/manage/views/__init__.py:1925
 msgid "The trusted publisher could not be registered"
 msgstr "Ne eblis registri la fidatan eldonanton"
 
@@ -391,11 +391,11 @@ msgstr "Forigis fidatan eldonanton por projekto "
 msgid "Banner Preview"
 msgstr "Antaŭrigardo de Rubando"
 
-#: warehouse/manage/forms.py:408
+#: warehouse/manage/forms.py:419
 msgid "Choose an organization account name with 50 characters or less."
 msgstr "Nomu vian organizaĵon per maksimume 50 skribsignoj."
 
-#: warehouse/manage/forms.py:416
+#: warehouse/manage/forms.py:427
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
@@ -406,7 +406,7 @@ msgstr ""
 "literoj, ciferoj, punktoj, streketoj kaj substrekoj. Ĝi devas komenciĝi kaj "
 "finiĝi per litero aŭ cifero. Elektu alian organizaĵan kontonomon."
 
-#: warehouse/manage/forms.py:439
+#: warehouse/manage/forms.py:450
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
@@ -414,7 +414,7 @@ msgstr ""
 "Tiu organizaĵa kontonomo jam estas uzata. Elektu alian organizaĵan "
 "kontonomon."
 
-#: warehouse/manage/forms.py:454
+#: warehouse/manage/forms.py:465
 msgid ""
 "You have already submitted an application for that name. Choose a different "
 "organization account name."
@@ -422,16 +422,16 @@ msgstr ""
 "Vi jam submetis peton por organizaĵo de tiu konta nomo. Elektu alian "
 "organizaĵan kontan nomon."
 
-#: warehouse/manage/forms.py:490
+#: warehouse/manage/forms.py:501
 msgid "Select project"
 msgstr "Elekti projekton"
 
-#: warehouse/manage/forms.py:495 warehouse/oidc/forms/_core.py:23
+#: warehouse/manage/forms.py:506 warehouse/oidc/forms/_core.py:23
 #: warehouse/oidc/forms/gitlab.py:57
 msgid "Specify project name"
 msgstr "Specifi nomon de projekto"
 
-#: warehouse/manage/forms.py:498
+#: warehouse/manage/forms.py:509
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
@@ -439,12 +439,12 @@ msgstr ""
 "Komenciĝante kaj finiĝante per litero aŭ cifero, enhavante nur Askiajn "
 "literojn, ciferojn, punkton «.», substrekon «_» kaj streketon «-»."
 
-#: warehouse/manage/forms.py:505
+#: warehouse/manage/forms.py:516
 msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr "Tiu projekta nomo jam estas uzata. Elektu alian projektan nomon."
 
-#: warehouse/manage/forms.py:578
+#: warehouse/manage/forms.py:589
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
@@ -452,7 +452,7 @@ msgstr ""
 "La organizaĵa nomo estas tro longa. Nomu la organizaĵon per maksimume 100 "
 "skribsignoj."
 
-#: warehouse/manage/forms.py:590
+#: warehouse/manage/forms.py:601
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
@@ -460,11 +460,11 @@ msgstr ""
 "La organizaĵa retadreso estas tro longa. Elektu retadreson de maksimume 400 "
 "skribsignoj."
 
-#: warehouse/manage/forms.py:597
+#: warehouse/manage/forms.py:608
 msgid "The organization URL must start with http:// or https://"
 msgstr "La organizaĵa retadreso devas komenciĝi per http:// aŭ https://"
 
-#: warehouse/manage/forms.py:608
+#: warehouse/manage/forms.py:619
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
@@ -472,15 +472,15 @@ msgstr ""
 "La organizaĵa priskribo estas tro longa. Elektu priskribon de maksimume 400 "
 "signoj."
 
-#: warehouse/manage/forms.py:643
+#: warehouse/manage/forms.py:654
 msgid "You have already submitted the maximum number of "
 msgstr "Vi jam submetis la maksimuman nombron de "
 
-#: warehouse/manage/forms.py:673
+#: warehouse/manage/forms.py:684
 msgid "Choose a team name with 50 characters or less."
 msgstr "Nomu la teamon per maksimume 200 skribsignoj."
 
-#: warehouse/manage/forms.py:679
+#: warehouse/manage/forms.py:690
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
@@ -489,85 +489,85 @@ msgstr ""
 "spaceto, punkto, substreko, streketo aŭ suprenstreko. Nomu vian teamon "
 "alimaniere."
 
-#: warehouse/manage/forms.py:707
+#: warehouse/manage/forms.py:718
 msgid "This team name has already been used. Choose a different team name."
 msgstr "Tiu teama nomo jam estas uzata. Nomu vian teamon alimaniere."
 
-#: warehouse/manage/forms.py:726
+#: warehouse/manage/forms.py:737
 msgid "Specify your alternate repository name"
 msgstr "Specifu la nomon de via alternativa deponejo"
 
-#: warehouse/manage/forms.py:740
+#: warehouse/manage/forms.py:751
 msgid "Specify your alternate repository URL"
 msgstr "Specifu la retadreson de via alternativa deponejo"
 
-#: warehouse/manage/forms.py:744
+#: warehouse/manage/forms.py:755
 msgid "The URL is too long. Choose a URL with 400 characters or less."
 msgstr ""
 "La retadreso estas tro longa. Elektu retadreson de maksimume 400 skribsignoj."
 
-#: warehouse/manage/forms.py:758
+#: warehouse/manage/forms.py:769
 msgid ""
 "The description is too long. Choose a description with 400 characters or "
 "less."
 msgstr "La priskribo estas tro longa. Priskribu per maksimume 400 skribsignoj."
 
-#: warehouse/manage/views/__init__.py:285
+#: warehouse/manage/views/__init__.py:283
 msgid "Account details updated"
 msgstr "Detaloj pri konto ĝisdatiĝis"
 
-#: warehouse/manage/views/__init__.py:315
+#: warehouse/manage/views/__init__.py:313
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "Retpoŝta adreso ${email_address} aldonita — kontrolu vian enirkeston pri "
 "ligilo de kontrolado"
 
-#: warehouse/manage/views/__init__.py:821
+#: warehouse/manage/views/__init__.py:819
 msgid "Recovery codes already generated"
 msgstr "Realiraj kodoj jam generitaj"
 
-#: warehouse/manage/views/__init__.py:822
+#: warehouse/manage/views/__init__.py:820
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 "Generado de novaj realiraj kodoj eksvalidigos viajn ekzistantajn kodojn."
 
-#: warehouse/manage/views/__init__.py:931
+#: warehouse/manage/views/__init__.py:929
 msgid "Verify your email to create an API token."
 msgstr "Konfirmu vian retpoŝtan adreson por krei API-ĵetonon."
 
-#: warehouse/manage/views/__init__.py:1031
+#: warehouse/manage/views/__init__.py:1029
 msgid "API Token does not exist."
 msgstr "API-ĵetono ne ekzistas."
 
-#: warehouse/manage/views/__init__.py:1063
+#: warehouse/manage/views/__init__.py:1061
 msgid "Invalid credentials. Try again"
 msgstr "Ne validaj salutiloj. Reprovu"
 
-#: warehouse/manage/views/__init__.py:1182
+#: warehouse/manage/views/__init__.py:1180
 msgid "Invalid alternate repository location details"
 msgstr "Nevalidaj detaloj pri loko de alternativa deponejo"
 
-#: warehouse/manage/views/__init__.py:1219
+#: warehouse/manage/views/__init__.py:1217
 msgid "Added alternate repository '${name}'"
 msgstr "Aldonis alternativan deponejon «${name}»"
 
-#: warehouse/manage/views/__init__.py:1253
-#: warehouse/manage/views/__init__.py:2146
-#: warehouse/manage/views/__init__.py:2231
-#: warehouse/manage/views/__init__.py:2332
-#: warehouse/manage/views/__init__.py:2432
+#: warehouse/manage/views/__init__.py:1251
+#: warehouse/manage/views/__init__.py:2258
+#: warehouse/manage/views/__init__.py:2343
+#: warehouse/manage/views/__init__.py:2444
+#: warehouse/manage/views/__init__.py:2544
 msgid "Confirm the request"
 msgstr "Konfirmi la peton"
 
-#: warehouse/manage/views/__init__.py:1265
+#: warehouse/manage/views/__init__.py:1263
 msgid "Invalid alternate repository id"
 msgstr "Nevalida identigilo de alternativa deponejo"
 
-#: warehouse/manage/views/__init__.py:1276
+#: warehouse/manage/views/__init__.py:1274
 msgid "Invalid alternate repository for project"
 msgstr "Nevalida alternativa deponejo por projekto"
 
-#: warehouse/manage/views/__init__.py:1284
+#: warehouse/manage/views/__init__.py:1282
 msgid ""
 "Could not delete alternate repository - ${confirm} is not the same as "
 "${alt_repo_name}"
@@ -575,11 +575,15 @@ msgstr ""
 "Ne eblis forigi alternativan deponejon – ${confirm} diferencas de "
 "${alt_repo_name}"
 
-#: warehouse/manage/views/__init__.py:1314
+#: warehouse/manage/views/__init__.py:1312
 msgid "Deleted alternate repository '${name}'"
 msgstr "Forigis alternativan deponejon «${name}»"
 
-#: warehouse/manage/views/__init__.py:1445
+#: warehouse/manage/views/__init__.py:1457
+msgid "The trusted publisher could not be constrained"
+msgstr "Malsukcesis limigi la fidatan eldonanton"
+
+#: warehouse/manage/views/__init__.py:1557
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -587,7 +591,7 @@ msgstr ""
 "Fidata eldonado per GitHub estas provizore malebligita. Vidu la paĝon "
 "https://pypi.org/help#admin-intervention por detaloj."
 
-#: warehouse/manage/views/__init__.py:1558
+#: warehouse/manage/views/__init__.py:1670
 msgid ""
 "GitLab-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -595,7 +599,7 @@ msgstr ""
 "Fidata eldonado per GitLab estas provizore malebligita. Vidu la paĝon "
 "https://pypi.org/help#admin-intervention por detaloj."
 
-#: warehouse/manage/views/__init__.py:1670
+#: warehouse/manage/views/__init__.py:1782
 msgid ""
 "Google-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -603,7 +607,7 @@ msgstr ""
 "Fidata eldonado per Google estas provizore malebligita. Vidu la paĝon "
 "https://pypi.org/help#admin-intervention por detaloj."
 
-#: warehouse/manage/views/__init__.py:1779
+#: warehouse/manage/views/__init__.py:1891
 msgid ""
 "ActiveState-based trusted publishing is temporarily disabled. See https://"
 "pypi.org/help#admin-intervention for details."
@@ -611,51 +615,51 @@ msgstr ""
 "Fidata eldonado per ActiveState estas provizore malebligita. Vidu la paĝon "
 "https://pypi.org/help#admin-intervention por detaloj."
 
-#: warehouse/manage/views/__init__.py:2014
-#: warehouse/manage/views/__init__.py:2315
-#: warehouse/manage/views/__init__.py:2423
+#: warehouse/manage/views/__init__.py:2126
+#: warehouse/manage/views/__init__.py:2427
+#: warehouse/manage/views/__init__.py:2535
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
-"Forviŝado de projekto estas provizore malebligita. Vidu la paĝon https://pypi"
-".org/help#admin-intervention por detaloj."
+"Forviŝado de projekto estas provizore malebligita. Vidu la paĝon https://"
+"pypi.org/help#admin-intervention por detaloj."
 
-#: warehouse/manage/views/__init__.py:2158
+#: warehouse/manage/views/__init__.py:2270
 msgid "Could not yank release - "
 msgstr "Ne eblis malfortiri eldonon "
 
-#: warehouse/manage/views/__init__.py:2243
+#: warehouse/manage/views/__init__.py:2355
 msgid "Could not un-yank release - "
 msgstr "Ne eblis malfortiri eldonon – "
 
-#: warehouse/manage/views/__init__.py:2344
+#: warehouse/manage/views/__init__.py:2456
 msgid "Could not delete release - "
 msgstr "Ne eblis forigi eldonon – "
 
-#: warehouse/manage/views/__init__.py:2444
+#: warehouse/manage/views/__init__.py:2556
 msgid "Could not find file"
 msgstr "Ne eblis trovi dosieron"
 
-#: warehouse/manage/views/__init__.py:2448
+#: warehouse/manage/views/__init__.py:2560
 msgid "Could not delete file - "
 msgstr "Ne eblis forviŝi dosieron – "
 
-#: warehouse/manage/views/__init__.py:2598
+#: warehouse/manage/views/__init__.py:2710
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 "La teamo «${team_name}» jam havas la rolon ${role_name} por la projekto"
 
-#: warehouse/manage/views/__init__.py:2705
+#: warehouse/manage/views/__init__.py:2817
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 "La uzanto '${username}' jam havas la rolon ${role_name} por la projekto"
 
-#: warehouse/manage/views/__init__.py:2772
+#: warehouse/manage/views/__init__.py:2884
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "${username} estas nun ${role} de la projekto «${project_name}»."
 
-#: warehouse/manage/views/__init__.py:2804
+#: warehouse/manage/views/__init__.py:2916
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -663,37 +667,37 @@ msgstr ""
 "Uzanto '${username}' ne havas kontrolitan ĉefan retpoŝtan adreson, kaj tial "
 "ne rajtas esti aldonita kiel ${role_name} de projekto"
 
-#: warehouse/manage/views/__init__.py:2817
-#: warehouse/manage/views/organizations.py:878
+#: warehouse/manage/views/__init__.py:2929
+#: warehouse/manage/views/organizations.py:889
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "La uzanto '${username}' ankoraŭ havas aktivan inviton. Bonvolu reprovi poste."
 
-#: warehouse/manage/views/__init__.py:2882
-#: warehouse/manage/views/organizations.py:943
+#: warehouse/manage/views/__init__.py:2994
+#: warehouse/manage/views/organizations.py:954
 msgid "Invitation sent to '${username}'"
 msgstr "Invito sendita al '${username}'"
 
-#: warehouse/manage/views/__init__.py:2915
+#: warehouse/manage/views/__init__.py:3027
 msgid "Could not find role invitation."
 msgstr "Ne povis trovi inviton al rolo."
 
-#: warehouse/manage/views/__init__.py:2926
+#: warehouse/manage/views/__init__.py:3038
 msgid "Invitation already expired."
 msgstr "Invito jam eksvalidiĝis."
 
-#: warehouse/manage/views/__init__.py:2958
-#: warehouse/manage/views/organizations.py:1130
+#: warehouse/manage/views/__init__.py:3070
+#: warehouse/manage/views/organizations.py:1141
 msgid "Invitation revoked from '${username}'."
 msgstr "Invito de '${username}' eksvalidiĝis."
 
-#: warehouse/manage/views/organizations.py:854
+#: warehouse/manage/views/organizations.py:865
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 "La uzanto «${username}» jam havas la rolon ${role_name} por la organizaĵo"
 
-#: warehouse/manage/views/organizations.py:865
+#: warehouse/manage/views/organizations.py:876
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -701,16 +705,16 @@ msgstr ""
 "La uzanto «${username}» ne havas konfirmitan ĉefan retpoŝtan adreson, kaj "
 "tial ne rajtas esti ${role_name} de la organizaĵo"
 
-#: warehouse/manage/views/organizations.py:1026
-#: warehouse/manage/views/organizations.py:1068
+#: warehouse/manage/views/organizations.py:1037
+#: warehouse/manage/views/organizations.py:1079
 msgid "Could not find organization invitation."
 msgstr "Ne eblis trovi inviton al organizaĵo."
 
-#: warehouse/manage/views/organizations.py:1036
+#: warehouse/manage/views/organizations.py:1047
 msgid "Organization invitation could not be re-sent."
 msgstr "Ne eblis resendi inviton al organizaĵo."
 
-#: warehouse/manage/views/organizations.py:1083
+#: warehouse/manage/views/organizations.py:1094
 msgid "Expired invitation for '${username}' deleted."
 msgstr "Eksvalidiĝinta Invito por «${username}» estas forviŝita."
 
@@ -743,13 +747,17 @@ msgstr ""
 "Jen malpermesata projekta nomo (kiu konfliktas kun la nomo de modulo en la "
 "norma biblioteko de Python)"
 
-#: warehouse/oidc/forms/_core.py:84
+#: warehouse/oidc/forms/_core.py:84 warehouse/oidc/forms/_core.py:95
 msgid "Specify a publisher ID"
 msgstr "Specifu identigilon de eldonanto"
 
-#: warehouse/oidc/forms/_core.py:85
+#: warehouse/oidc/forms/_core.py:85 warehouse/oidc/forms/_core.py:96
 msgid "Publisher must be specified by ID"
 msgstr "La eldonanto devas esti specifita de identigilo"
+
+#: warehouse/oidc/forms/_core.py:101
+msgid "Specify an environment name"
+msgstr "Specifi nomon de medio"
 
 #: warehouse/oidc/forms/activestate.py:47
 msgid "Double dashes are not allowed in the name"
@@ -873,6 +881,61 @@ msgstr "Provizu hiperligon al specifaj kodaj linioj ĉe Inspector."
 #: warehouse/packaging/views.py:352
 msgid "Your report has been recorded. Thank you for your help."
 msgstr "Via raporto estis submetita. Dankon pro via helpo."
+
+#: warehouse/static/js/warehouse/controllers/clipboard_controller.js:32
+msgid "Copied"
+msgstr ""
+
+#: warehouse/static/js/warehouse/controllers/password_breach_controller.js:48
+msgid "Error while validating hashed password, disregard on development"
+msgstr ""
+
+#: warehouse/static/js/warehouse/controllers/password_match_controller.js:32
+#, fuzzy
+#| msgid "Password"
+msgid "Passwords match"
+msgstr "Pasvorto"
+
+#: warehouse/static/js/warehouse/controllers/password_match_controller.js:36
+#, fuzzy
+#| msgid "Your passwords don't match. Try again."
+msgid "Passwords do not match"
+msgstr "Viaj pasvortoj ne kongruas. Reprovu."
+
+#: warehouse/static/js/warehouse/controllers/password_strength_gauge_controller.js:27
+#: warehouse/templates/base.html:30
+msgid "Password field is empty"
+msgstr "Pasvorta kampo estas malplena"
+
+#: warehouse/static/js/warehouse/controllers/password_strength_gauge_controller.js:42
+#, fuzzy
+#| msgid "Password strength:"
+msgid "Password is strong"
+msgstr "Forto de la pasvorto:"
+
+#: warehouse/static/js/warehouse/utils/timeago.js:33
+#, fuzzy
+#| msgid "Registered by:"
+msgid "Yesterday"
+msgid_plural "About %1 days ago"
+msgstr[0] "Registrita de:"
+msgstr[1] "Registrita de:"
+
+#: warehouse/static/js/warehouse/utils/timeago.js:37
+msgid "About an hour ago"
+msgid_plural "About %1 hours ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/static/js/warehouse/utils/timeago.js:39
+msgid "About a minute ago"
+msgid_plural "About %1 minutes ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/static/js/warehouse/utils/timeago.js:41
+msgid "Just now"
+msgstr ""
 
 #: warehouse/subscriptions/models.py:35
 #: warehouse/templates/manage/project/history.html:230
@@ -1083,8 +1146,9 @@ msgid ""
 msgstr ""
 "Konsideru <a href=\"https://github.com/pypi/warehouse\" target=\"_blank\" "
 "rel=\"noopener\">kontribui</a> aŭ <a href=\"https://psfmember.org/civicrm/"
-"contribute/transact?reset=1&id=13\" target=\"_blank\" rel=\"noopener\""
-">donaci</a> por helpi nin konstrui pli stabilan kaj sekuran platformon."
+"contribute/transact?reset=1&id=13\" target=\"_blank\" "
+"rel=\"noopener\">donaci</a> por helpi nin konstrui pli stabilan kaj sekuran "
+"platformon."
 
 #: warehouse/templates/base.html:24
 msgid ""
@@ -1097,10 +1161,6 @@ msgstr ""
 #: warehouse/templates/base.html:27
 msgid "Password strength:"
 msgstr "Forto de la pasvorto:"
-
-#: warehouse/templates/base.html:30
-msgid "Password field is empty"
-msgstr "Pasvorta kampo estas malplena"
 
 #: warehouse/templates/base.html:39 warehouse/templates/base.html:47
 #: warehouse/templates/includes/current-user-indicator.html:17
@@ -1168,9 +1228,9 @@ msgid ""
 "href=\"%(trademarks_href)s\">trademarks</a> of the <a href=\"%(psf_href)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Software Foundation</a>."
 msgstr ""
-"«%(wordmark)s», «%(name)s» kaj la blokara emblemo estas registritaj <a href="
-"\"%(trademarks_href)s\">markoj</a> de <a href=\"%(psf_href)s\" target="
-"\"_blank\" rel=\"noopener\">Python Software Foundation</a>."
+"«%(wordmark)s», «%(name)s» kaj la blokara emblemo estas registritaj <a "
+"href=\"%(trademarks_href)s\">markoj</a> de <a href=\"%(psf_href)s\" "
+"target=\"_blank\" rel=\"noopener\">Python Software Foundation</a>."
 
 #: warehouse/templates/base.html:93 warehouse/templates/index.html:97
 msgid ""
@@ -1551,6 +1611,7 @@ msgstr "Pasvorto"
 #: warehouse/templates/manage/account/token.html:150
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
+#: warehouse/templates/manage/organization/activate_subscription.html:34
 #: warehouse/templates/manage/organization/projects.html:128
 #: warehouse/templates/manage/organization/projects.html:151
 #: warehouse/templates/manage/organization/roles.html:270
@@ -1655,8 +1716,8 @@ msgid ""
 "Would you like to accept this invitation to join '<a "
 "href=\"%(project_link)s\">%(project_name)s</a>' as a project %(role_name)s?"
 msgstr ""
-"Ĉu akcepti ĉi tiun inviton aliĝi al la projekto «<a href=\"%(project_link)s\""
-">%(project_name)s</a>» kiel projekta %(role_name)s?"
+"Ĉu akcepti ĉi tiun inviton aliĝi al la projekto «<a "
+"href=\"%(project_link)s\">%(project_name)s</a>» kiel projekta %(role_name)s?"
 
 #: warehouse/templates/accounts/invite-confirmation.html:40
 #: warehouse/templates/accounts/organization-invite-confirmation.html:40
@@ -1892,9 +1953,9 @@ msgid ""
 "rel=\"noopener\">Terms of Use</a> and <a href=\"%(aup)s\" "
 "rel=\"noopener\">Acceptable Use Policy</a>."
 msgstr ""
-"Por pli da informoj, bonvolu legi la plenajn <a href=\"%(tou)s\" rel="
-"\"noopener\">Uzkondiĉojn</a> kaj <a href=\"%(aup)s\" rel=\"noopener\""
-">Regulojn pri Akceptebla Uzado</a>."
+"Por pli da informoj, bonvolu legi la plenajn <a href=\"%(tou)s\" "
+"rel=\"noopener\">Uzkondiĉojn</a> kaj <a href=\"%(aup)s\" "
+"rel=\"noopener\">Regulojn pri Akceptebla Uzado</a>."
 
 #: warehouse/templates/accounts/register.html:64
 #: warehouse/templates/manage/account.html:139
@@ -2043,9 +2104,9 @@ msgid ""
 "rel=\"%(rel)s\">Upgrade your browser</a> to log in with a security device (e."
 "g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)"
-"s\">Ĝisdatigu vian TTT-legilon</a> por saluti per sekuriga aparato (ekz. USB-"
-"ŝlosilo)"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" "
+"rel=\"%(rel)s\">Ĝisdatigu vian TTT-legilon</a> por saluti per sekuriga "
+"aparato (ekz. USB-ŝlosilo)"
 
 #: warehouse/templates/accounts/two-factor.html:64
 #: warehouse/templates/accounts/two-factor.html:130
@@ -2079,8 +2140,8 @@ msgid ""
 msgstr ""
 "<p>Generu kodon per la aŭtentikiga programo konektita al via PyPI-konto. "
 "Entajpu ĉi tiun kodon en la formularon por kontroli vian identon.</p> <p>Ĉu "
-"perdinte vian programon? Ĉu ne funkcante? <a href=\"%(href)s\""
-">Helpiĝu</a>.</p>"
+"perdinte vian programon? Ĉu ne funkcante? <a href=\"%(href)s\">Helpiĝu</a>.</"
+"p>"
 
 #: warehouse/templates/accounts/two-factor.html:150
 msgid "Lost your security key or application?"
@@ -2115,8 +2176,8 @@ msgid ""
 "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"Se vi ne faris tion, vi povas mesaĝi ĉe <a href=\"%(href)s\""
-">%(email_address)s</a> al la administrantoj de PyPI."
+"Se vi ne faris tion, vi povas mesaĝi ĉe <a "
+"href=\"%(href)s\">%(email_address)s</a> al la administrantoj de PyPI."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:19
 #, python-format
@@ -2143,8 +2204,9 @@ msgid ""
 "organization %(organization_name)s by <a "
 "href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"Vi fariĝis <strong>%(role)s</strong> de la organizaĵo «%(organization_name)s»"
-" ĉe %(site)s far <a href=\"%(submitter_profile)s\">%(submitter)s</a>."
+"Vi fariĝis <strong>%(role)s</strong> de la organizaĵo "
+"«%(organization_name)s» ĉe %(site)s far <a "
+"href=\"%(submitter_profile)s\">%(submitter)s</a>."
 
 #: warehouse/templates/email/added-as-organization-member/body.html:26
 #: warehouse/templates/email/role-changed-as-organization-member/body.html:26
@@ -2177,8 +2239,8 @@ msgid ""
 "href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
 "Vi fariĝis teamano de la teamo «%(team_name)s» en la organizaĵo "
-"«%(organization_name)s» far <a href=\"%(submitter_profile)s\""
-">%(submitter)s</a>."
+"«%(organization_name)s» far <a href=\"%(submitter_profile)s\">%(submitter)s</"
+"a>."
 
 #: warehouse/templates/email/added-as-team-member/body.html:24
 msgid "You are receiving this because you are a member of this team."
@@ -2241,8 +2303,8 @@ msgid ""
 "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"Se vi konsideras tion misa, vi povas mesaĝi ĉe <a href=\"%(href)s\""
-">%(email_address)s</a> al la administrantoj de PyPI."
+"Se vi konsideras tion misa, vi povas mesaĝi ĉe <a "
+"href=\"%(href)s\">%(email_address)s</a> al la administrantoj de PyPI."
 
 #: warehouse/templates/email/canceled-as-invited-organization-member/body.html:19
 #, python-format
@@ -2281,8 +2343,8 @@ msgid ""
 "href=\"%(href)s\">%(new_email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"Se vi ne faris tion, vi povas mesaĝi ĉe <a href=\"%(href)s\""
-">%(new_email_address)s</a> al la administrantoj de PyPI."
+"Se vi ne faris tion, vi povas mesaĝi ĉe <a "
+"href=\"%(href)s\">%(new_email_address)s</a> al la administrantoj de PyPI."
 
 #: warehouse/templates/email/new-organization-approved/body.html:17
 #, python-format
@@ -2338,8 +2400,8 @@ msgid ""
 "%(email_address)s\">%(email_address)s</a> to communicate with the %(site)s "
 "administrators."
 msgstr ""
-"Se vi ne intencis tion, vi povas mesaĝi ĉe <a href=\"mailto:%(email_address)"
-"s\">%(email_address)s</a> al la administrantoj de %(site)s."
+"Se vi ne intencis tion, vi povas mesaĝi ĉe <a href=\"mailto:"
+"%(email_address)s\">%(email_address)s</a> al la administrantoj de %(site)s."
 
 #: warehouse/templates/email/organization-deleted/body.html:37
 msgid "You are receiving this because you were an owner of this organization."
@@ -2628,12 +2690,12 @@ msgid ""
 "password is compromised. The plaintext password is never stored by PyPI or "
 "sent to HaveIBeenPwned."
 msgstr ""
-"Ni uzas senpagan sekurecan servon de <a href=\"%(have_i_been_pwned_url)s\""
-">HaveIBeenPwned</a>. Dum registrado, aŭtentikigo, aŭ ĝisdatigo de vian "
-"pasvorton, ni kalkulas la SHA1-haketaĵon de via pasvorto kaj uzas la unuajn "
-"5 signojn de la haketaĵo por decidi ĉu la pasvorto estas kompromitita. La "
-"neĉifrita pasvorto neniam estos konservita de PyPI aŭ sendita al "
-"HaveIBeenPwned."
+"Ni uzas senpagan sekurecan servon de <a "
+"href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a>. Dum registrado, "
+"aŭtentikigo, aŭ ĝisdatigo de vian pasvorton, ni kalkulas la SHA1-haketaĵon "
+"de via pasvorto kaj uzas la unuajn 5 signojn de la haketaĵo por decidi ĉu la "
+"pasvorto estas kompromitita. La neĉifrita pasvorto neniam estos konservita "
+"de PyPI aŭ sendita al HaveIBeenPwned."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:47
 #, python-format
@@ -2713,8 +2775,8 @@ msgid ""
 "You can generate recovery codes for your account here: <a "
 "href=\"%(href)s\">%(href)s</a>"
 msgstr ""
-"Vi povas generi realirajn kodojn por via konto ĉi tie: <a href=\"%(href)s\""
-">%(href)s</a>"
+"Vi povas generi realirajn kodojn por via konto ĉi tie: <a "
+"href=\"%(href)s\">%(href)s</a>"
 
 #: warehouse/templates/email/recovery-code-used/body.html:19
 #, python-format
@@ -2863,7 +2925,8 @@ msgstr ""
 msgid ""
 "A team named \"%(team_name)s\" has been created in the "
 "\"%(organization_name)s\" organization."
-msgstr "Teamo «%(team_name)s» kreiĝis en la organizaĵo «%(organization_name)s»."
+msgstr ""
+"Teamo «%(team_name)s» kreiĝis en la organizaĵo «%(organization_name)s»."
 
 #: warehouse/templates/email/team-created/body.html:24
 #: warehouse/templates/email/team-deleted/body.html:24
@@ -2891,8 +2954,8 @@ msgid ""
 "<a href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
 "<a href=\"%(user_profile)s\">%(username)s</a> fariĝis teamano de la teamo "
-"«%(team_name)s» en la organizaĵo «%(organization_name)s» far <a href=\""
-"%(submitter_profile)s\">%(submitter)s</a>."
+"«%(team_name)s» en la organizaĵo «%(organization_name)s» far <a "
+"href=\"%(submitter_profile)s\">%(submitter)s</a>."
 
 #: warehouse/templates/email/team-member-removed/body.html:18
 #, python-format
@@ -2902,8 +2965,8 @@ msgid ""
 "by <a href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
 "<a href=\"%(user_profile)s\">%(username)s</a> fariĝis eksteamano el la teamo "
-"«%(team_name)s» en la organizaĵo «%(organization_name)s» far <a href=\""
-"%(submitter_profile)s\">%(submitter)s</a>."
+"«%(team_name)s» en la organizaĵo «%(organization_name)s» far <a "
+"href=\"%(submitter_profile)s\">%(submitter)s</a>."
 
 #: warehouse/templates/email/two-factor-added/body.html:18
 #, python-format
@@ -3100,8 +3163,8 @@ msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">See more details on using hashes here.</a>"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
-">Jen pliaj detaloj pri uzado de haketaĵoj.</a>"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">Jen pliaj detaloj pri uzado de haketaĵoj.</a>"
 
 #: warehouse/templates/includes/flash-messages.html:19
 msgid "Error"
@@ -3751,7 +3814,8 @@ msgstr "Sekuriga aparato (<abbr title=\"reta aŭtentikigo\">WebAuthn</abbr>)"
 msgid ""
 "Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
-msgstr "Aŭtentikigilo (<abbr title=\"tempo-baza unufoja pasvorto\">TOTP</abbr>)"
+msgstr ""
+"Aŭtentikigilo (<abbr title=\"tempo-baza unufoja pasvorto\">TOTP</abbr>)"
 
 #: warehouse/templates/manage/account.html:551
 #: warehouse/templates/manage/unverified-account.html:274
@@ -3926,8 +3990,8 @@ msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
 msgstr ""
-"Metodo: Aŭtentikiga programo (<abbr title=\"tempo-baza unufoja pasvorto\""
-">TOTP</abbr>)"
+"Metodo: Aŭtentikiga programo (<abbr title=\"tempo-baza unufoja "
+"pasvorto\">TOTP</abbr>)"
 
 #: warehouse/templates/manage/account.html:655
 #: warehouse/templates/manage/unverified-account.html:376
@@ -4210,9 +4274,9 @@ msgid ""
 "account. <a href=\"%(href)s\">Learn more about <abbr title=\"two factor "
 "authentication\">2FA</abbr></a>. Once 2FA is enabled, it cannot be disabled."
 msgstr ""
-"Dupaŝa aŭtentikigo aldonas kroman tavolon de sekureco al via konto. <a href="
-"\"%(href)s\">Lernu plu pri <abbr title=\"dupaŝa aŭtentikigo\">2PA</abbr></"
-"a>. Post starigo de 2PA, ĝi ne estas malstarigebla."
+"Dupaŝa aŭtentikigo aldonas kroman tavolon de sekureco al via konto. <a "
+"href=\"%(href)s\">Lernu plu pri <abbr title=\"dupaŝa aŭtentikigo\">2PA</"
+"abbr></a>. Post starigo de 2PA, ĝi ne estas malstarigebla."
 
 #: warehouse/templates/manage/manage_base.html:29
 msgid "Recovery methods enabled"
@@ -4387,9 +4451,9 @@ msgid ""
 "rel=\"noopener\">Upgrade your browser</a> to set up two factor "
 "authentication with a security device (e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
-">Ĝisdatigu vian TTT-legilon</a> por ebligi dupaŝan aŭtentikigon per sekuriga "
-"aparato (ekz. USB-ŝlosilo)"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">Ĝisdatigu vian TTT-legilon</a> por ebligi dupaŝan "
+"aŭtentikigon per sekuriga aparato (ekz. USB-ŝlosilo)"
 
 #: warehouse/templates/manage/manage_base.html:219
 #: warehouse/templates/manage/organization/manage_organization_base.html:28
@@ -4426,7 +4490,7 @@ msgstr "La %(item)s konfirmiĝu por daŭrigi."
 
 #: warehouse/templates/manage/manage_base.html:366
 #: warehouse/templates/manage/manage_base.html:418
-#: warehouse/templates/manage/organization/activate_subscription.html:32
+#: warehouse/templates/manage/organization/activate_subscription.html:52
 msgid "Cancel"
 msgstr "Rezigni"
 
@@ -4824,8 +4888,8 @@ msgid ""
 "If you cannot verify a primary email address, please see <a "
 "href=\"%(help_url)s\">%(help_url)s</a>."
 msgstr ""
-"Se vi ne povas konfirmi ĉefan retpoŝtan adreson, bonvolu legi <a href=\""
-"%(help_url)s\">%(help_url)s</a>."
+"Se vi ne povas konfirmi ĉefan retpoŝtan adreson, bonvolu legi <a "
+"href=\"%(help_url)s\">%(help_url)s</a>."
 
 #: warehouse/templates/manage/unverified-account.html:213
 msgid ""
@@ -5482,8 +5546,8 @@ msgid ""
 "based one-time password\">TOTP</abbr> standard</a>."
 msgstr ""
 "PyPI subtenas ajnan programon, kiu kongruas kun la <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">normo <abbr title"
-"=\"tempo-baza unufoja pasvorto\">TOTP</abbr></a>."
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">normo <abbr "
+"title=\"tempo-baza unufoja pasvorto\">TOTP</abbr></a>."
 
 #: warehouse/templates/manage/account/totp-provision.html:36
 #, python-format
@@ -5614,18 +5678,31 @@ msgstr ""
 "ne funkcias kun PyPI."
 
 #: warehouse/templates/manage/organization/activate_subscription.html:17
-#: warehouse/templates/manage/organization/activate_subscription.html:21
-#: warehouse/templates/manage/organization/activate_subscription.html:35
+#: warehouse/templates/manage/organization/activate_subscription.html:22
+#: warehouse/templates/manage/organization/activate_subscription.html:54
 msgid "Activate Subscription"
 msgstr "Aktivigi abonon"
 
-#: warehouse/templates/manage/organization/activate_subscription.html:27
+#: warehouse/templates/manage/organization/activate_subscription.html:26
 msgid ""
 "Company accounts require an active subscription. Please enter up-to-date "
 "billing information to enable the account."
 msgstr ""
 "Firmaa konto postulas aktivan abonon. Bonvolu tajpi ĝisdatajn fakturajn "
 "informojn por aktivigi la konton."
+
+#: warehouse/templates/manage/organization/activate_subscription.html:33
+msgid "Terms of Service"
+msgstr "Uzokondiĉoj"
+
+#: warehouse/templates/manage/organization/activate_subscription.html:37
+#, python-format
+msgid ""
+"I agree to the PyPI <a href=\"%(tos_url)s\">Terms of Service</a> on behalf "
+"of the %(organization_name)s organization."
+msgstr ""
+"Mi konsentas al la <a href=\"%(tos_url)s\">Uzokondiĉoj</a> de PyPI "
+"reprezentante la organizaĵon %(organization_name)s."
 
 #: warehouse/templates/manage/organization/history.html:20
 #: warehouse/templates/manage/project/history.html:20
@@ -5765,8 +5842,8 @@ msgid ""
 "%(team_name)s team added as project %(role_name)s for <a "
 "href=\"%(href)s\">%(project_name)s</a>"
 msgstr ""
-"Teamo %(team_name)s aldoniĝis kiel projekta %(role_name)s por <a href=\""
-"%(href)s\">%(project_name)s</a>"
+"Teamo %(team_name)s aldoniĝis kiel projekta %(role_name)s por <a "
+"href=\"%(href)s\">%(project_name)s</a>"
 
 #: warehouse/templates/manage/organization/history.html:106
 #: warehouse/templates/manage/team/history.html:45
@@ -5775,8 +5852,8 @@ msgid ""
 "%(team_name)s team removed as project %(role_name)s for <a "
 "href=\"%(href)s\">%(project_name)s</a>"
 msgstr ""
-"Teamo %(team_name)s malaldoniĝis kiel projekta %(role_name)s por <a href=\""
-"%(href)s\">%(project_name)s</a>"
+"Teamo %(team_name)s malaldoniĝis kiel projekta %(role_name)s por <a "
+"href=\"%(href)s\">%(project_name)s</a>"
 
 #: warehouse/templates/manage/organization/history.html:110
 #: warehouse/templates/manage/team/history.html:49
@@ -5785,8 +5862,8 @@ msgid ""
 "%(team_name)s team changed to project %(role_name)s for <a "
 "href=\"%(href)s\">%(project_name)s</a>"
 msgstr ""
-"Teamo %(team_name)s fariĝis projekta %(role_name)s por <a href=\"%(href)s\""
-">%(project_name)s</a>"
+"Teamo %(team_name)s fariĝis projekta %(role_name)s por <a "
+"href=\"%(href)s\">%(project_name)s</a>"
 
 #: warehouse/templates/manage/organization/history.html:117
 #: warehouse/templates/manage/team/history.html:56
@@ -5887,8 +5964,9 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
 "Komencu aldonante projekton posedatan de vi per la ĉi-suba formularo. Por "
-"lerni kiel krei novan projekton, legu la <a href=\"%(href)s\" target=\"_blank"
-"\" rel=\"noopener\">Manlibron por Python-Uzantoj pri Pakado</a>"
+"lerni kiel krei novan projekton, legu la <a href=\"%(href)s\" "
+"target=\"_blank\" rel=\"noopener\">Manlibron por Python-Uzantoj pri Pakado</"
+"a>"
 
 #: warehouse/templates/manage/organization/projects.html:105
 msgid "Add project to organization"
@@ -6159,7 +6237,8 @@ msgstr "Administri la agordojn pri «%(organization_name)s»"
 #: warehouse/templates/manage/organization/settings.html:33
 #, python-format
 msgid "Change the organization account name <a href=\"%(href)s\">below</a>."
-msgstr "Ŝanĝi la nomon de la organizaĵa konto <a href=\"%(href)s\">ĉi-sube</a>."
+msgstr ""
+"Ŝanĝi la nomon de la organizaĵa konto <a href=\"%(href)s\">ĉi-sube</a>."
 
 #: warehouse/templates/manage/organization/settings.html:37
 #: warehouse/templates/manage/team/settings.html:64
@@ -6256,9 +6335,9 @@ msgid ""
 "href=\"%(remove_delete_href)s\">remove project</a> <b>or</b> <a "
 "href=\"%(remove_delete_href)s\">delete project</a>"
 msgstr ""
-"<a href=\"%(transfer_href)s\">transdoni posedrajton</a> kaj <a href=\""
-"%(remove_delete_href)s\">forigi projekton</a> <b>aŭ</b> <a href=\""
-"%(remove_delete_href)s\">forviŝi projekton</a>"
+"<a href=\"%(transfer_href)s\">transdoni posedrajton</a> kaj <a "
+"href=\"%(remove_delete_href)s\">forigi projekton</a> <b>aŭ</b> <a "
+"href=\"%(remove_delete_href)s\">forviŝi projekton</a>"
 
 #: warehouse/templates/manage/organization/settings.html:281
 msgid "You will not be able to recover your organization after you delete it."
@@ -6280,8 +6359,8 @@ msgid ""
 "Please ensure you have retrieved all invoices from <a "
 "href=\"%(billing_href)s\">your billing portal</a> before proceeding."
 msgstr ""
-"Bonvolu certigi, ke vi elŝutis ĉiujn fakturojn el <a href=\"%(billing_href)"
-"s\">via faktura portalo</a> antaŭ ol daŭrigi."
+"Bonvolu certigi, ke vi elŝutis ĉiujn fakturojn el <a "
+"href=\"%(billing_href)s\">via faktura portalo</a> antaŭ ol daŭrigi."
 
 #: warehouse/templates/manage/organization/teams.html:17
 msgid "Organization teams"
@@ -6647,6 +6726,41 @@ msgstr "Neniu eldonanto estas starigita."
 msgid "Add a new publisher"
 msgstr "Aldoni novan eldonanton"
 
+#: warehouse/templates/manage/project/publishing.html:443
+#: warehouse/templates/manage/project/publishing.html:446
+msgid "Constrain environment"
+msgstr "Limigi medion"
+
+#: warehouse/templates/manage/project/publishing.html:455
+msgid "This will restrict the Trusted Publisher's environment to"
+msgstr "Tio limigos la medion de la Fidata Eldonanto al"
+
+#: warehouse/templates/manage/project/publishing.html:459
+#, python-format
+msgid ""
+"If you currently use multiple environments in your CI/CD workflows, you must "
+"either change them all to '%(constrained_environment_name)s' or register "
+"each as a Trusted Publisher."
+msgstr ""
+"Se vi aktuale uzas plurajn mediojn en viaj laborfluoj pri kontinuaj "
+"integrado kaj disponigado, vi devas aŭ ŝanĝi ilin al "
+"«%(constrained_environment_name)s» aŭ registri ĉiun el ili kiel Fidatan "
+"Eldonanton."
+
+#: warehouse/templates/manage/project/publishing.html:467
+#, python-format
+msgid ""
+"I understand that this Trusted Publisher will only allow uploads frow CI/CD "
+"workflows running in the '%(constrained_environment_name)s' environment."
+msgstr ""
+"Mi komprenas, ke tiu Fidata Eldonanto nur permesos alŝutojn el laborfluo de "
+"kontinuaj integrado/disponigo ruliĝanta en la medio "
+"«%(constrained_environment_name)s»."
+
+#: warehouse/templates/manage/project/publishing.html:471
+msgid "New Environment Name"
+msgstr "Nomo de nova medio"
+
 #: warehouse/templates/manage/project/release.html:18
 #, python-format
 msgid "Manage '%(project_name)s' – release version %(version)s"
@@ -6887,8 +7001,8 @@ msgid ""
 msgstr ""
 "Konsideru <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">fortiron</a> de ĉi tiu eldono, faron de nova eldono, aŭ <a "
-"href=\"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
-">posteldonon</a> anstataŭe."
+"href=\"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">posteldonon</a> anstataŭe."
 
 #: warehouse/templates/manage/project/release.html:196
 #, python-format
@@ -6914,8 +7028,9 @@ msgid ""
 "rel=\"noopener\">not be able to re-upload any deleted files using the same "
 "file names</a>."
 msgstr ""
-"Mi komprenas, ke mi <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener\""
-">ne povos realŝuti forviŝitajn dosierojn per la samaj dosiernomoj</a>."
+"Mi komprenas, ke mi <a href=\"%(href)s\" target=\"_blank\" "
+"rel=\"noopener\">ne povos realŝuti forviŝitajn dosierojn per la samaj "
+"dosiernomoj</a>."
 
 #: warehouse/templates/manage/project/releases.html:20
 #, python-format
@@ -7166,14 +7281,14 @@ msgid ""
 msgstr ""
 "Por agordi la priskribon, aŭtoron, ligilojn, klasigilojn kaj aliajn detalojn "
 "pri la projekto «%(project_name)s» por via sekva eldono, uzu la medatatenan "
-"kampon <a href=\"%(pyproject_args_href)s\" rel=\"noopener\" target=\"_blank\""
-"><code>project</code> en via dosiero <code>pyproject.toml</code></a>. "
-"Ĝisdatigo de tiuj kampoj ne ŝanĝos la metadatenojn de malnovaj eldonoj. "
-"Krome, vi <strong>devas</strong> uzi <a href=\"%(twine_docs_href)s\" rel="
-"\"noopener\" target=\"_blank\">Twine</a> por alŝuti viajn dosierojn por "
-"plena subteno de tiuj kampoj. Vidu <a href=\"%(distribution_href)s\" rel="
-"\"noopener\" target=\"_blank\">la Manlibron por Python-Uzantoj pri Pakado</"
-"a> por plia helpo."
+"kampon <a href=\"%(pyproject_args_href)s\" rel=\"noopener\" "
+"target=\"_blank\"><code>project</code> en via dosiero <code>pyproject.toml</"
+"code></a>. Ĝisdatigo de tiuj kampoj ne ŝanĝos la metadatenojn de malnovaj "
+"eldonoj. Krome, vi <strong>devas</strong> uzi <a "
+"href=\"%(twine_docs_href)s\" rel=\"noopener\" target=\"_blank\">Twine</a> "
+"por alŝuti viajn dosierojn por plena subteno de tiuj kampoj. Vidu <a "
+"href=\"%(distribution_href)s\" rel=\"noopener\" target=\"_blank\">la "
+"Manlibron por Python-Uzantoj pri Pakado</a> por plia helpo."
 
 #: warehouse/templates/manage/project/settings.html:85
 msgid "Remove project from organization"
@@ -7327,8 +7442,8 @@ msgid ""
 "Provisional support for <a href=\"%(pep_url)s\">PEP 708</a> \"Alternate "
 "Locations\" Metadata."
 msgstr ""
-"Provizora subteno por metadatenoj pri alternativaj lokoj laŭ <a href=\""
-"%(pep_url)s\">PEP 708</a>."
+"Provizora subteno por metadatenoj pri alternativaj lokoj laŭ <a "
+"href=\"%(pep_url)s\">PEP 708</a>."
 
 #: warehouse/templates/manage/project/settings.html:213
 #, python-format
@@ -7336,8 +7451,8 @@ msgid ""
 "Implementation may change, consider subscribing to <a "
 "href=\"%(pypi_announce_url)s\">pypi-announce</a> to be notified of changes."
 msgstr ""
-"La detaloj povas ŝanĝiĝi; konsideru aboni la dissendoliston <a href=\""
-"%(pypi_announce_url)s\">pypi-announce</a> por ŝanĝoj."
+"La detaloj povas ŝanĝiĝi; konsideru aboni la dissendoliston <a "
+"href=\"%(pypi_announce_url)s\">pypi-announce</a> por ŝanĝoj."
 
 #: warehouse/templates/manage/project/settings.html:220
 #, python-format
@@ -7504,9 +7619,9 @@ msgid ""
 "href=\"%(href)s\">Manage organization members</a> to view all users in the "
 "organization or to invite a user to the organization."
 msgstr ""
-"Aldoni organizaĵan posedanton, administranton aŭ anon al la teamo. <a href=\""
-"%(href)s\">Administru organizaĵajn anojn</a> por vidi ĉiujn uzantojn en la "
-"organizaĵo aŭ inviti uzanton al la organizaĵo."
+"Aldoni organizaĵan posedanton, administranton aŭ anon al la teamo. <a "
+"href=\"%(href)s\">Administru organizaĵajn anojn</a> por vidi ĉiujn uzantojn "
+"en la organizaĵo aŭ inviti uzanton al la organizaĵo."
 
 #: warehouse/templates/manage/team/settings.html:17
 #: warehouse/templates/manage/team/settings.html:24
@@ -7705,8 +7820,8 @@ msgid ""
 "See tutorial on <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">generating distribution archives</a>."
 msgstr ""
-"Legu dokumentaron pri <a href=\"%(href)s\" title=\"%(title)s\" target="
-"\"_blank\" rel=\"noopener\">generado de distribuaj arĥivoj</a>."
+"Legu dokumentaron pri <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">generado de distribuaj arĥivoj</a>."
 
 #: warehouse/templates/packaging/detail.html:434
 msgid "Built Distribution"
@@ -7754,8 +7869,8 @@ msgid ""
 "file(s) are involved if it is not an entirely malicious Project."
 msgstr ""
 "Via resumo inkluzivu ĝeneralan priskribon pri la malica konduto kaj aliajn "
-"trafajn detalojn kiel ekzemple la liston de malica(j) eldono(j) aŭ dosiero(j)"
-", se la projekto ne estas plene malica."
+"trafajn detalojn kiel ekzemple la liston de malica(j) eldono(j) aŭ "
+"dosiero(j), se la projekto ne estas plene malica."
 
 #: warehouse/templates/packaging/submit-malware-observation.html:62
 msgid "Fill with a link to the problematic code lines from"
@@ -7807,8 +7922,8 @@ msgid ""
 "with classifiers beginning with \"Private ::\"."
 msgstr ""
 "Por malhelpi alŝuti pakon al PyPI, uzu la specialan klasigilon «Private :: "
-"Do Not Upload». PyPI ĉiam malakceptos pakon kun klasigilo komenciĝanta per «"
-"Private ::»."
+"Do Not Upload». PyPI ĉiam malakceptos pakon kun klasigilo komenciĝanta per "
+"«Private ::»."
 
 #: warehouse/templates/pages/classifiers.html:32
 msgid "List of classifiers"
@@ -7850,8 +7965,8 @@ msgid ""
 "href=\"#recoverycodes\">recovery codes</a>."
 msgstr ""
 "Ni rekomendas, ke ĉiuj PyPI-uzantoj agordu <em>almenaŭ du</em> subtenatajn "
-"dupaŝajn aŭtentikigajn metodojn kaj faru <a href=\"#recoverycodes\""
-">realirajn kodojn</a>."
+"dupaŝajn aŭtentikigajn metodojn kaj faru <a "
+"href=\"#recoverycodes\">realirajn kodojn</a>."
 
 #: warehouse/templates/pages/help.html:43
 msgid ""
@@ -7909,8 +8024,8 @@ msgid ""
 "title=\"time-based one-time password\">TOTP</abbr>) work? How do I set it up "
 "on PyPI?"
 msgstr ""
-"Kiel funkcias dupaŝa aŭtentikigo per aŭtentikiga programo (<abbr title"
-"=\"tempo-baza unufoja pasvorto\">TOTP</abbr>)? Kiel agordi ĝin ĉe PyPI?"
+"Kiel funkcias dupaŝa aŭtentikigo per aŭtentikiga programo (<abbr "
+"title=\"tempo-baza unufoja pasvorto\">TOTP</abbr>)? Kiel agordi ĝin ĉe PyPI?"
 
 #: warehouse/templates/pages/help.html:66
 msgid ""
@@ -8045,8 +8160,9 @@ msgid ""
 "Why am I getting an \"Invalid or non-existent authentication information.\" "
 "error when uploading files?"
 msgstr ""
-"Kial mi ricevas eraron «Invalid or non-existent authentication information.» "
-"(Ne valida aŭ ne ekzistanta aŭtentikiga informo) dum alŝuto de dosieroj?"
+"Kial mi ricevas eraron «Invalid or non-existent authentication "
+"information.» (Ne valida aŭ ne ekzistanta aŭtentikiga informo) dum alŝuto de "
+"dosieroj?"
 
 #: warehouse/templates/pages/help.html:99
 msgid ""
@@ -8088,8 +8204,8 @@ msgid ""
 "authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>). Can you help me?"
 msgstr ""
-"Estas malfacile starigi dupaŝan aŭtentikigon per aŭtentikigilo (<abbr title"
-"=\"tempo-baza unufoja pasvorto\">TOTP</abbr>). Ĉu vi povas helpi min?"
+"Estas malfacile starigi dupaŝan aŭtentikigon per aŭtentikigilo (<abbr "
+"title=\"tempo-baza unufoja pasvorto\">TOTP</abbr>). Ĉu vi povas helpi min?"
 
 #: warehouse/templates/pages/help.html:106
 msgid "My project says it's in quarantine. What does that mean?"
@@ -8195,8 +8311,8 @@ msgstr ""
 "konsistas el unu aŭ pluraj «dosieroj».</p> <p>«Dosiero», aŭ «pako», ĉe PyPI "
 "estas io elŝutebla kaj instalebla. Pro malsamaj aparatoj, mastrumaj sistemoj "
 "kaj dosierformoj, eldono povas enhavi plurajn dosierojn (pakojn), ekzemple "
-"arĥivo enhavanta fontkodon aŭ duuman <a href=\"%(wheel_href)s\""
-">wheel</a>.</p>"
+"arĥivo enhavanta fontkodon aŭ duuman <a href=\"%(wheel_href)s\">wheel</a>.</"
+"p>"
 
 #: warehouse/templates/pages/help.html:228
 #, python-format
@@ -8363,8 +8479,8 @@ msgstr ""
 "<p>Ĉiuj eventoj de uzantoj de PyPI konserviĝas en la historio pri sekureco "
 "en la kontaj agordoj. Se ekzistas suspektindaj eventoj, faru la jenon:</p> "
 "<ul> <li><a href=\"%(reset_pwd_href)s\">Restarigu vian pasvorton</a></li> "
-"<li>Kontaktu la administrantojn de PyPI pri la evento ĉe <a href=\"mailto"
-":%(admin_email)s\">%(admin_email)s</a></li> </ul>"
+"<li>Kontaktu la administrantojn de PyPI pri la evento ĉe <a href=\"mailto:"
+"%(admin_email)s\">%(admin_email)s</a></li> </ul>"
 
 #: warehouse/templates/pages/help.html:316
 msgid ""
@@ -8410,9 +8526,9 @@ msgid ""
 "password\">TOTP</abbr> standard</a>."
 msgstr ""
 "Uzantoj de PyPI povas ŝalti dupaŝan aŭtentikigon per ajnan aplikaĵo, kiu "
-"subtenas la <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">normon <abbr title=\"tempo-baza unufoja pasvorto\""
-">TOTP</abbr></a>."
+"subtenas la <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">normon <abbr title=\"tempo-baza unufoja pasvorto\">TOTP</"
+"abbr></a>."
 
 #: warehouse/templates/pages/help.html:349
 msgid ""
@@ -8494,8 +8610,8 @@ msgid ""
 "Open an authentication (<abbr title=\"time-based one-time password\">TOTP</"
 "abbr>) application"
 msgstr ""
-"Malfermu aŭtentikigan aplikaĵon (<abbr title=\"tempo-baza unufoja pasvorto\""
-">TOTP</abbr>)"
+"Malfermu aŭtentikigan aplikaĵon (<abbr title=\"tempo-baza unufoja "
+"pasvorto\">TOTP</abbr>)"
 
 #: warehouse/templates/pages/help.html:382
 msgid ""
@@ -8581,9 +8697,10 @@ msgid ""
 "authentication\">WebAuthn</abbr> and PublicKeyCredential</a>, as this is the "
 "standard implemented by PyPI."
 msgstr ""
-"Uzi <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">TTT-legilon subtenantan <abbr title=\"reta aŭtentikigo\">WebAuthn</abbr> "
-"kaj PublicKeyCredential</a>, kiuj estas la normoj subtenataj de PyPI."
+"Uzi <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">TTT-legilon subtenantan <abbr title=\"reta "
+"aŭtentikigo\">WebAuthn</abbr> kaj PublicKeyCredential</a>, kiuj estas la "
+"normoj subtenataj de PyPI."
 
 #: warehouse/templates/pages/help.html:405
 msgid "To be running JavaScript on your browser"
@@ -8635,9 +8752,9 @@ msgid ""
 "li> <li>Click on the \"Set up security device\" button</li> <li>Insert and "
 "touch your USB key, as instructed by your browser</li>"
 msgstr ""
-"<li>Salutu en vian PyPI-konton, iru al agoroj pri via konto, kaj elektu «"
-"Aldoni <abbr title=\"dupaŝan aŭtentikigon\">2PA</abbr> per sekuriga aparto ("
-"ekz. USB-ŝlosilo)»</li> <li>Nomu vian ŝlosilon. Tio necesas, ĉar eblas "
+"<li>Salutu en vian PyPI-konton, iru al agoroj pri via konto, kaj elektu "
+"«Aldoni <abbr title=\"dupaŝan aŭtentikigon\">2PA</abbr> per sekuriga aparto "
+"(ekz. USB-ŝlosilo)»</li> <li>Nomu vian ŝlosilon. Tio necesas, ĉar eblas "
 "aldoni plurajn sekurigajn aparatojn al via konto.</li> <li>Alklaku la "
 "butonon «Agordi sekurigan aparaton»</li> <li>Enmetu kaj tuŝu vian USB-"
 "ŝlosilon, laŭ la instrukcio de via TTT-legilo</li>"
@@ -8690,10 +8807,10 @@ msgid ""
 "authentication\">WebAuthn</abbr> standard</a>, PyPI users will be able to "
 "take advantage of any future developments in this field."
 msgstr ""
-"Ĉar la efektivigo de dupaŝa aŭtentikigo ĉe PyPI sekvas la <a href=\"%(href)"
-"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">normon <abbr "
-"title=\"reta aŭtentikigo\"> WebAuthn</abbr></a>, PyPI-uzantoj povos utiligi "
-"estontajn evoluojn en ĉi tiu kampo."
+"Ĉar la efektivigo de dupaŝa aŭtentikigo ĉe PyPI sekvas la <a "
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">normon <abbr title=\"reta aŭtentikigo\"> WebAuthn</abbr></"
+"a>, PyPI-uzantoj povos utiligi estontajn evoluojn en ĉi tiu kampo."
 
 #: warehouse/templates/pages/help.html:465
 msgid ""
@@ -8701,9 +8818,9 @@ msgid ""
 "or <a href=\"#utfkey\">security device</a>, you can use these codes to log "
 "in to PyPI."
 msgstr ""
-"Se vi perdas vian <a href=\"#totp\">aŭtentikigan aplikaĵon</a> aŭ <a href=\"#"
-"utfkey\">sekurigan aparaton</a>, vi povas uzi tiujn kodojn por saluti al "
-"PyPI."
+"Se vi perdas vian <a href=\"#totp\">aŭtentikigan aplikaĵon</a> aŭ <a "
+"href=\"#utfkey\">sekurigan aparaton</a>, vi povas uzi tiujn kodojn por "
+"saluti al PyPI."
 
 #: warehouse/templates/pages/help.html:468
 msgid ""
@@ -8713,9 +8830,9 @@ msgid ""
 "After using a recovery code to sign in, it becomes inactive."
 msgstr ""
 "Realiraj kodoj estas <strong>por unufoja uzo</strong>. Ili ne anstataŭigas "
-"<a href=\"#totp\">aŭtentikigan programon</a> aŭ <a href=\"#utfkey\""
-">sekurigan aparaton</a>, kaj nur uziĝu por restaŭrado. Post saluto per "
-"realira kodo, la kodo eksvalidiĝas."
+"<a href=\"#totp\">aŭtentikigan programon</a> aŭ <a "
+"href=\"#utfkey\">sekurigan aparaton</a>, kaj nur uziĝu por restaŭrado. Post "
+"saluto per realira kodo, la kodo eksvalidiĝas."
 
 #: warehouse/templates/pages/help.html:474
 msgid "To provision recovery codes:"
@@ -8803,9 +8920,9 @@ msgid ""
 "href=\"%(href)s\">Trusted Publishing</a>, we strongly recommend using "
 "Trusted Publishing instead."
 msgstr ""
-"Se vi eldonas al PyPI el provizanto de kontinua integrado ebliganta <a href="
-"\"%(href)s\">Fidatan Eldonadon</a>, ni rekomendegas uzi Fidatan Eldonadon "
-"anstataŭe."
+"Se vi eldonas al PyPI el provizanto de kontinua integrado ebliganta <a "
+"href=\"%(href)s\">Fidatan Eldonadon</a>, ni rekomendegas uzi Fidatan "
+"Eldonadon anstataŭe."
 
 #: warehouse/templates/pages/help.html:520
 msgid "To make an API token:"
@@ -9159,8 +9276,8 @@ msgid ""
 msgstr ""
 "Ekzemple, <code>readme = \"README.md\"</code> igos la priskribon montriĝi "
 "kiel Markdown, dum <code>readme = \"README.rst\"</code> igos ĝin montriĝi "
-"kiel <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">reStructuredText</a>"
+"kiel <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">reStructuredText</a>"
 
 #: warehouse/templates/pages/help.html:641
 #, python-format
@@ -9189,10 +9306,10 @@ msgstr ""
 "limon de grandoj de alŝutoj (implicite %(max_file_size_mb)s MiB; individuaj "
 "projektoj povas diferenci), ni fojfoje povas pliigi vian limon. Certigu, ke "
 "vi alŝutis almenaŭ unu eldonon de la projekto, kiu estas <em>sub</em> la "
-"limo (sufiĉas <a href=\"%(dev_release_href)s\" title=\"%(title)s\" target="
-"\"_blank\" rel=\"noopener\">eldono de versio por evoluigantoj</a>). Poste, "
-"<a href=\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">raportu la problemeon</a>, nepre menciante la jenon:"
+"limo (sufiĉas <a href=\"%(dev_release_href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">eldono de versio por evoluigantoj</a>). "
+"Poste, <a href=\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">raportu la problemeon</a>, nepre menciante la jenon:"
 
 #: warehouse/templates/pages/help.html:661
 #: warehouse/templates/pages/help.html:683
@@ -9326,7 +9443,8 @@ msgstr "Vi ricevos retmesaĝon kun ligilo por restarigi pasvorton."
 #: warehouse/templates/pages/help.html:733
 msgid ""
 "If you've lost access to your PyPI account or can't fully verify it due to:"
-msgstr "Se vi perdis atingon al via konto ĉe PyPI aŭ ne povas konfirmi ĝin pro:"
+msgstr ""
+"Se vi perdis atingon al via konto ĉe PyPI aŭ ne povas konfirmi ĝin pro:"
 
 #: warehouse/templates/pages/help.html:735
 msgid "Lost access to the email address associated with your account"
@@ -9342,8 +9460,8 @@ msgid ""
 "href=\"#utfkey\">device</a>, and <a href=\"#recoverycodes\">recovery codes</"
 "a>"
 msgstr ""
-"Perdita dupaŝa aŭtentikiga <a href=\"#totp\">programo</a>, <a href=\"#"
-"utfkey\">aparato</a> aŭ <a href=\"#recoverycodes\">realira kodo</a>"
+"Perdita dupaŝa aŭtentikiga <a href=\"#totp\">programo</a>, <a "
+"href=\"#utfkey\">aparato</a> aŭ <a href=\"#recoverycodes\">realira kodo</a>"
 
 #: warehouse/templates/pages/help.html:740
 #, python-format
@@ -9352,8 +9470,8 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">file an issue on our tracker</a> to "
 "request assistance with account recovery."
 msgstr ""
-"V povas <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">raporti problemon per nia spurilo</a> por peti helpon pri "
+"V povas <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">raporti problemon per nia spurilo</a> por peti helpon pri "
 "realiro al la konto."
 
 #: warehouse/templates/pages/help.html:748
@@ -9507,9 +9625,9 @@ msgid ""
 msgstr ""
 "En antaŭa versio de PyPI, eblis al prizorgantoj alŝuti eldonojn al PyPI per "
 "formularo en la TTT-legilo. Ĉi tiun funkcion malrekomendas la nova versio de "
-"PyPI — ni anstataŭe rekomendas al vi <a href=\"%(href)s\" title=\"%(title)s\""
-" target=\"_blank\" rel=\"noopener\">uzi Twine por alŝuti vian projekton al "
-"PyPI</a>."
+"PyPI — ni anstataŭe rekomendas al vi <a href=\"%(href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">uzi Twine por alŝuti "
+"vian projekton al PyPI</a>."
 
 #: warehouse/templates/pages/help.html:808
 msgid ""
@@ -9654,9 +9772,9 @@ msgid ""
 "a>."
 msgstr ""
 "Projektoj povas esti kvarantenigitaj pro diversaj kialoj, ekz. suspekto de "
-"malica agado, trudaĵoj aŭ aliaj malobservoj de la <a href=\"%(tou)s\" target="
-"\"_blank\" rel=\"noopener\">Uzkondiĉoj</a> aŭ la <a href=\"%(aup)s\" target="
-"\"_blank\" rel=\"noopener\">Reguloj pri Akceptebla Uzado</a>."
+"malica agado, trudaĵoj aŭ aliaj malobservoj de la <a href=\"%(tou)s\" "
+"target=\"_blank\" rel=\"noopener\">Uzkondiĉoj</a> aŭ la <a href=\"%(aup)s\" "
+"target=\"_blank\" rel=\"noopener\">Reguloj pri Akceptebla Uzado</a>."
 
 #: warehouse/templates/pages/help.html:891
 msgid ""
@@ -9719,10 +9837,10 @@ msgstr ""
 "La <a href=\"%(packaging_wg_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Laborgrupo pri Pakado</a> estas laborgrupo de la Python "
 "Software Foundation (PSF), kiu celas kvestadon kaj financadon por subteni la "
-"plibonigadaon de pakado de Python. Lastatempe, ĝi <a href=\"%(otf_award_href)"
-"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">ricevis "
-"subvencion el la Open Technology Fund</a>, kies financado ebligas "
-"plisekurigon kaj plialirebligon de Warehouse."
+"plibonigadaon de pakado de Python. Lastatempe, ĝi <a "
+"href=\"%(otf_award_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">ricevis subvencion el la Open Technology Fund</a>, kies "
+"financado ebligas plisekurigon kaj plialirebligon de Warehouse."
 
 #: warehouse/templates/pages/help.html:931
 #, python-format
@@ -9829,13 +9947,13 @@ msgid ""
 "recommend you start here."
 msgstr ""
 "Se vi scipovas Python, plentekstan serĉadon, HTML, SCSS, JavaScript aŭ "
-"SQLAlchemy, do legu nian <a href=\"%(getting_started_href)s\" title=\""
-"%(title)s\" target=\"_blank\" rel=\"noopener\">Gvidilon por Komencantoj </"
-"a>, kaj tralegu la <a href=\"%(issue_tracker_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">problemspurilon</a>. Ni kreis la etikedon "
-"<a href=\"%(good_first_issue_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">«Good first issue» (Bona unua cimo)</a> – ni rekomendas, ke "
-"vi komencu per tio."
+"SQLAlchemy, do legu nian <a href=\"%(getting_started_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Gvidilon por "
+"Komencantoj </a>, kaj tralegu la <a href=\"%(issue_tracker_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">problemspurilon</a>. "
+"Ni kreis la etikedon <a href=\"%(good_first_issue_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">«Good first "
+"issue» (Bona unua cimo)</a> – ni rekomendas, ke vi komencu per tio."
 
 #: warehouse/templates/pages/help.html:970
 #, python-format
@@ -9863,9 +9981,9 @@ msgid ""
 "href=\"%(discourse_forum_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Python packaging forum on Discourse</a>."
 msgstr ""
-"Vi ankaŭ povas sciiĝi pri la evoluadon de la projekto ĉe la <a href=\""
-"%(discourse_forum_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">forumo pri pakado de Python en Discourse</a>."
+"Vi ankaŭ povas sciiĝi pri la evoluadon de la projekto ĉe la <a "
+"href=\"%(discourse_forum_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">forumo pri pakado de Python en Discourse</a>."
 
 #: warehouse/templates/pages/help.html:987
 #, python-format
@@ -9878,12 +9996,13 @@ msgid ""
 "href=\"%(rss_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">RSS</a> feed."
 msgstr ""
-"Ŝanĝoj pri PyPI ĝenerale anonciĝas ĉe kaj la <a href=\"%(mailing_list_href)"
-"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">dissendolisto "
-"«pypi-announce»</a> kaj la <a href=\"%(blog_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">retejo de PyPI</a>. La retejo de PyPI "
-"ankaŭ provizas <a href=\"%(rss_href)s\" title=\"%(title)s\" target=\"_blank\""
-" rel=\"noopener\">RSS </a>-abonfluon."
+"Ŝanĝoj pri PyPI ĝenerale anonciĝas ĉe kaj la <a "
+"href=\"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">dissendolisto «pypi-announce»</a> kaj la <a "
+"href=\"%(blog_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">retejo de PyPI</a>. La retejo de PyPI ankaŭ provizas <a "
+"href=\"%(rss_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">RSS </a>-abonfluon."
 
 #: warehouse/templates/pages/help.html:996
 #, python-format
@@ -10050,8 +10169,8 @@ msgid ""
 "A link to the problematic lines in the project's distributions via <a "
 "href=\"%(href)s\">inspector.pypi.io</a>"
 msgstr ""
-"Hiperligo al la fiaj linioj en la projektaj distribuoj ĉe <a href=\"%(href)"
-"s\">inspector.pypi.io</a>"
+"Hiperligo al la fiaj linioj en la projektaj distribuoj ĉe <a "
+"href=\"%(href)s\">inspector.pypi.io</a>"
 
 #: warehouse/templates/pages/security.html:48
 msgid ""

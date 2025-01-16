@@ -5,6 +5,7 @@ compile-pot:
 	PYTHONPATH=$(PWD) pybabel extract \
 		-F babel.cfg \
 		--omit-header \
+		--ignore-dirs='.* _* *dist*' 'warehouse/migrations/' \
 		--output="warehouse/locale/messages.pot" \
 		warehouse
 
