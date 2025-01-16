@@ -1148,9 +1148,9 @@ msgstr ""
 #: warehouse/templates/manage/organization/settings.html:286
 #: warehouse/templates/manage/project/documentation.html:27
 #: warehouse/templates/manage/project/release.html:182
-#: warehouse/templates/manage/project/settings.html:119
-#: warehouse/templates/manage/project/settings.html:168
-#: warehouse/templates/manage/project/settings.html:389
+#: warehouse/templates/manage/project/settings.html:87
+#: warehouse/templates/manage/project/settings.html:136
+#: warehouse/templates/manage/project/settings.html:394
 #: warehouse/templates/manage/team/settings.html:84
 msgid "Warning"
 msgstr ""
@@ -1517,9 +1517,9 @@ msgstr ""
 #: warehouse/templates/manage/project/roles.html:328
 #: warehouse/templates/manage/project/roles.html:359
 #: warehouse/templates/manage/project/roles.html:380
-#: warehouse/templates/manage/project/settings.html:319
-#: warehouse/templates/manage/project/settings.html:339
-#: warehouse/templates/manage/project/settings.html:359
+#: warehouse/templates/manage/project/settings.html:287
+#: warehouse/templates/manage/project/settings.html:307
+#: warehouse/templates/manage/project/settings.html:327
 #: warehouse/templates/manage/team/roles.html:106
 #: warehouse/templates/manage/team/settings.html:35
 #: warehouse/templates/packaging/submit-malware-observation.html:58
@@ -1813,9 +1813,9 @@ msgstr ""
 #: warehouse/templates/manage/project/history.html:312
 #: warehouse/templates/manage/project/history.html:323
 #: warehouse/templates/manage/project/history.html:334
-#: warehouse/templates/manage/project/settings.html:256
-#: warehouse/templates/manage/project/settings.html:317
-#: warehouse/templates/manage/project/settings.html:323
+#: warehouse/templates/manage/project/settings.html:224
+#: warehouse/templates/manage/project/settings.html:285
+#: warehouse/templates/manage/project/settings.html:291
 #: warehouse/templates/manage/unverified-account.html:112
 msgid "Name"
 msgstr ""
@@ -2738,7 +2738,7 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:331
 #: warehouse/templates/manage/project/release.html:137
 #: warehouse/templates/manage/project/releases.html:178
-#: warehouse/templates/manage/project/settings.html:104
+#: warehouse/templates/manage/project/settings.html:72
 #: warehouse/templates/manage/unverified-account.html:172
 #: warehouse/templates/manage/unverified-account.html:174
 #: warehouse/templates/manage/unverified-account.html:184
@@ -3395,12 +3395,12 @@ msgid "Update password"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:472
-#: warehouse/templates/manage/project/settings.html:75
+#: warehouse/templates/manage/project/settings.html:43
 msgid "API tokens"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:473
-#: warehouse/templates/manage/project/settings.html:76
+#: warehouse/templates/manage/project/settings.html:44
 msgid ""
 "API tokens provide an alternative way to authenticate when uploading "
 "packages to PyPI."
@@ -4607,7 +4607,7 @@ msgstr ""
 #: warehouse/templates/manage/project/publishing.html:275
 #: warehouse/templates/manage/project/publishing.html:357
 #: warehouse/templates/manage/project/roles.html:341
-#: warehouse/templates/manage/project/settings.html:380
+#: warehouse/templates/manage/project/settings.html:348
 #: warehouse/templates/manage/team/roles.html:131
 msgid "Add"
 msgstr ""
@@ -5666,7 +5666,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/roles.html:252
 #: warehouse/templates/manage/project/release.html:106
 #: warehouse/templates/manage/project/releases.html:109
-#: warehouse/templates/manage/project/settings.html:284
+#: warehouse/templates/manage/project/settings.html:252
 msgid "Delete"
 msgstr ""
 
@@ -6063,9 +6063,9 @@ msgstr ""
 #: warehouse/templates/manage/project/history.html:313
 #: warehouse/templates/manage/project/history.html:324
 #: warehouse/templates/manage/project/history.html:335
-#: warehouse/templates/manage/project/settings.html:257
-#: warehouse/templates/manage/project/settings.html:337
-#: warehouse/templates/manage/project/settings.html:343
+#: warehouse/templates/manage/project/settings.html:225
+#: warehouse/templates/manage/project/settings.html:305
+#: warehouse/templates/manage/project/settings.html:311
 msgid "Url"
 msgstr ""
 
@@ -6273,7 +6273,7 @@ msgstr ""
 
 #: warehouse/templates/manage/project/release.html:137
 #: warehouse/templates/manage/project/releases.html:178
-#: warehouse/templates/manage/project/settings.html:104
+#: warehouse/templates/manage/project/settings.html:72
 msgid "Dismiss"
 msgstr ""
 
@@ -6616,51 +6616,23 @@ msgstr ""
 msgid "<a href=\"%(help_url)s\"> (request an increase) </a>"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:43
-#: warehouse/templates/manage/project/settings.html:57
-#: warehouse/templates/manage/project/settings.html:65
-msgid "Archive project"
-msgstr ""
-
 #: warehouse/templates/manage/project/settings.html:48
-msgid ""
-"Archiving a project will block any new uploads. Before doing so, we "
-"recommend publishing a final release with an update to the project's "
-"README to warn the users that the project won't receive further updates, "
-"and to mention any alternative projects they may consider as a "
-"replacement."
-msgstr ""
-
-#: warehouse/templates/manage/project/settings.html:60
-#: warehouse/templates/manage/project/settings.html:71
-msgid "Unarchive project"
-msgstr ""
-
-#: warehouse/templates/manage/project/settings.html:66
-msgid "Archiving a project will block any new file uploads"
-msgstr ""
-
-#: warehouse/templates/manage/project/settings.html:72
-msgid "Unarchiving a project will allow new file uploads"
-msgstr ""
-
-#: warehouse/templates/manage/project/settings.html:80
 #, python-format
 msgid "Create a token for %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:85
+#: warehouse/templates/manage/project/settings.html:53
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add an API "
 "token for %(project_name)s."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:92
+#: warehouse/templates/manage/project/settings.html:60
 msgid "Project description and sidebar"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:94
+#: warehouse/templates/manage/project/settings.html:62
 #, python-format
 msgid ""
 "To set the '%(project_name)s' description, author, links, classifiers, "
@@ -6676,147 +6648,147 @@ msgid ""
 "Python Packaging User Guide</a> for more help."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:117
+#: warehouse/templates/manage/project/settings.html:85
 msgid "Remove project from organization"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:120
+#: warehouse/templates/manage/project/settings.html:88
 msgid "Removing this project from the organization will:"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:124
-#: warehouse/templates/manage/project/settings.html:174
+#: warehouse/templates/manage/project/settings.html:92
+#: warehouse/templates/manage/project/settings.html:142
 #, python-format
 msgid "Remove this project from the '%(organization_name)s' organization."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:127
-#: warehouse/templates/manage/project/settings.html:177
+#: warehouse/templates/manage/project/settings.html:95
+#: warehouse/templates/manage/project/settings.html:145
 #, python-format
 msgid ""
 "Revoke project permissions for teams in the '%(organization_name)s' "
 "organization."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:131
-#: warehouse/templates/manage/project/settings.html:137
+#: warehouse/templates/manage/project/settings.html:99
+#: warehouse/templates/manage/project/settings.html:105
 msgid ""
 "Individual owners and maintainers of the project will retain their "
 "project permissions."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:136
+#: warehouse/templates/manage/project/settings.html:104
 #, python-format
 msgid ""
 "This will remove the project from the '%(organization_name)s' "
 "organization."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:140
+#: warehouse/templates/manage/project/settings.html:108
 msgid "Remove project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:140
-#: warehouse/templates/manage/project/settings.html:211
-#: warehouse/templates/manage/project/settings.html:427
+#: warehouse/templates/manage/project/settings.html:108
+#: warehouse/templates/manage/project/settings.html:179
+#: warehouse/templates/manage/project/settings.html:432
 msgid "Project Name"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:144
+#: warehouse/templates/manage/project/settings.html:112
 msgid "Cannot remove project from organization"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:146
+#: warehouse/templates/manage/project/settings.html:114
 msgid ""
 "Your organization is currently the <strong>sole owner</strong> of the "
 "project. You must add an individual owner to the project before you can "
 "remove the project from your organization."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:162
+#: warehouse/templates/manage/project/settings.html:130
 msgid "Transfer project to another organization"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:164
+#: warehouse/templates/manage/project/settings.html:132
 msgid "Transfer project to an organization"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:169
+#: warehouse/templates/manage/project/settings.html:137
 msgid "Transferring this project will:"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:181
+#: warehouse/templates/manage/project/settings.html:149
 msgid "Revoke your direct Owner role on the project."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:184
+#: warehouse/templates/manage/project/settings.html:152
 msgid ""
 "You will retain Owner permissions on the project through your "
 "organization role."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:189
+#: warehouse/templates/manage/project/settings.html:157
 msgid "Add the project to another organization that you own."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:191
+#: warehouse/templates/manage/project/settings.html:159
 msgid "Add the project to an organization that you own."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:195
+#: warehouse/templates/manage/project/settings.html:163
 msgid "Grant full project permissions to owners of the organization."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:199
+#: warehouse/templates/manage/project/settings.html:167
 msgid ""
 "All other individual owners and maintainers of the project will retain "
 "their project permissions."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:211
+#: warehouse/templates/manage/project/settings.html:179
 msgid "Transfer project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:217
+#: warehouse/templates/manage/project/settings.html:185
 msgid "Cannot transfer project to another organization"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:219
+#: warehouse/templates/manage/project/settings.html:187
 msgid "Cannot transfer project to an organization"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:224
+#: warehouse/templates/manage/project/settings.html:192
 msgid ""
 "Organization owners can transfer the project to organizations that they "
 "own or manage."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:225
+#: warehouse/templates/manage/project/settings.html:193
 msgid "You are not an owner or manager of any other organizations."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:227
+#: warehouse/templates/manage/project/settings.html:195
 msgid ""
 "Project owners can transfer the project to organizations that they own or"
 " manage."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:228
+#: warehouse/templates/manage/project/settings.html:196
 msgid "You are not an owner or manager of any organizations."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:237
+#: warehouse/templates/manage/project/settings.html:205
 msgid "Alternate repository locations"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:241
+#: warehouse/templates/manage/project/settings.html:209
 #, python-format
 msgid ""
 "Provisional support for <a href=\"%(pep_url)s\">PEP 708</a> \"Alternate "
 "Locations\" Metadata."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:245
+#: warehouse/templates/manage/project/settings.html:213
 #, python-format
 msgid ""
 "Implementation may change, consider subscribing to <a "
@@ -6824,55 +6796,86 @@ msgid ""
 "changes."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:252
+#: warehouse/templates/manage/project/settings.html:220
 #, python-format
 msgid "Alternate repository locations for %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:258
+#: warehouse/templates/manage/project/settings.html:226
 msgid "Description"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:277
+#: warehouse/templates/manage/project/settings.html:245
 #, python-format
 msgid "Delete %(name)s from this project."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:285
+#: warehouse/templates/manage/project/settings.html:253
 msgid "Alternate Repository Name"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:300
+#: warehouse/templates/manage/project/settings.html:268
 msgid "There are no alternate repositories for this project, yet."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:304
+#: warehouse/templates/manage/project/settings.html:272
 msgid "Get started by adding an alternate repository below."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:310
+#: warehouse/templates/manage/project/settings.html:278
 msgid "Add alternate repository location"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:357
+#: warehouse/templates/manage/project/settings.html:325
 msgid "Alternate repository description"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:363
-#: warehouse/templates/manage/project/settings.html:374
+#: warehouse/templates/manage/project/settings.html:331
+#: warehouse/templates/manage/project/settings.html:342
 msgid "Description of the purpose or content of the alternate repository."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:387
-#: warehouse/templates/manage/project/settings.html:427
+#: warehouse/templates/manage/project/settings.html:354
+#: warehouse/templates/manage/project/settings.html:371
+#: warehouse/templates/manage/project/settings.html:379
+msgid "Archive project"
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:359
+#, python-format
+msgid ""
+"Archiving a project will prevent any new uploads. Before doing so, we "
+"recommend publishing a final release with an update to the project's "
+"description to warn the users that the project won't receive further "
+"updates, and to mention any alternative projects they may consider as a "
+"replacement. If your project is <a href=\"%(readme_description_href)s\" "
+"rel=\"noopener\" target=\"_blank\">configured to do so</a>, you can "
+"update the project's description by editing the README file."
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:374
+#: warehouse/templates/manage/project/settings.html:385
+msgid "Unarchive project"
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:380
+msgid "Archiving a project will block any new file uploads"
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:386
+msgid "Unarchiving a project will allow new file uploads"
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:392
+#: warehouse/templates/manage/project/settings.html:432
 msgid "Delete project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:390
+#: warehouse/templates/manage/project/settings.html:395
 msgid "Deleting this project will:"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:395
+#: warehouse/templates/manage/project/settings.html:400
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s"
@@ -6883,15 +6886,15 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/project/settings.html:401
+#: warehouse/templates/manage/project/settings.html:406
 msgid "Irreversibly delete the project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:405
+#: warehouse/templates/manage/project/settings.html:410
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:407
+#: warehouse/templates/manage/project/settings.html:412
 msgid ""
 "This user will be able to make new releases under this project name, so "
 "long as the distribution filenames do not match filenames from a "

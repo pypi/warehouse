@@ -96,6 +96,27 @@
   </div>
   <!-- /.modal -->
 
+  {% elif project.lifecycle_status == 'archived' %}
+    <div class="card card-info">
+      <div class="card-header">
+        <h3 class="card-title">
+          <i class="icon fas fa-info-circle"></i> Archived
+        </h3>
+        <div class="card-tools">
+          <span class="time">
+            <i class="fas fa-clock"></i> <time datetime="{{ project.lifecycle_status_changed }}" title="{{ project.lifecycle_status_changed }}">{{ project.lifecycle_status_changed }}</time>
+          </span>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>
+          This project is archived.
+          It should not allow any new uploads unless it's unarchived.
+        </p>
+      </div>
+    </div>
+    <!-- .card -->
+
   {% endif %}
 
 <div class="card card-primary" id="attributes">
@@ -599,13 +620,13 @@
       <div class="float-right">
         <button type="submit" class="btn btn-primary" title="{{ 'Unarchiving requires superuser privileges' if not request.has_permission(Permissions.AdminProjectsWrite) }}" {{ "disabled" if not request.has_permission(Permissions.AdminProjectsWrite) or not can_be_unarchived }}>Unarchive</button>
       </div>
-    </form> 
+    </form>
     <form method="POST" action="{{ request.route_path('admin.project.archive', project_name=project.name) }}">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       <div class="float-right">
         <button type="submit" class="btn btn-primary" title="{{ 'Archiving requires superuser privileges' if not request.has_permission(Permissions.AdminProjectsWrite) }}" {{ "disabled" if not request.has_permission(Permissions.AdminProjectsWrite) or not can_be_archived}}>Archive</button>
       </div>
-    </form> 
+    </form>
   </div>
 </div>
 
