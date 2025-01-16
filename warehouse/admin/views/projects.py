@@ -30,9 +30,11 @@ from warehouse.packaging.tasks import update_release_description
 from warehouse.search.tasks import reindex_project as _reindex_project
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import (
+    archive_project,
     clear_project_quarantine,
     confirm_project,
     remove_project,
+    unarchive_project,
 )
 
 UPLOAD_LIMIT_CAP = ONE_GIB
@@ -736,4 +738,38 @@ def reindex_project(project, request):
     )
     return HTTPSeeOther(
         request.route_path("admin.project.detail", project_name=project.normalized_name)
+    )
+
+
+@view_config(
+    route_name="admin.project.archive",
+    permission=Permissions.AdminProjectsWrite,
+    context=Project,
+    uses_session=True,
+    require_methods=["POST"],
+)
+def archive_project_view(project, request) -> HTTPSeeOther:
+    """
+    Archive a Project. Reversible action.
+    """
+    archive_project(project, request)
+    return HTTPSeeOther(
+        request.route_path("admin.project.detail", project_name=project.name)
+    )
+
+
+@view_config(
+    route_name="admin.project.unarchive",
+    permission=Permissions.AdminProjectsWrite,
+    context=Project,
+    uses_session=True,
+    require_methods=["POST"],
+)
+def unarchive_project_view(project, request) -> HTTPSeeOther:
+    """
+    Unarchive a Project. Reversible action.
+    """
+    unarchive_project(project, request)
+    return HTTPSeeOther(
+        request.route_path("admin.project.detail", project_name=project.name)
     )

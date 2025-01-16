@@ -141,7 +141,13 @@ from warehouse.packaging.models import (
 from warehouse.rate_limiting import IRateLimiter
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import paginate_url_factory
-from warehouse.utils.project import confirm_project, destroy_docs, remove_project
+from warehouse.utils.project import (
+    archive_project,
+    confirm_project,
+    destroy_docs,
+    remove_project,
+    unarchive_project,
+)
 
 
 class ManageAccountMixin:
@@ -3292,3 +3298,37 @@ def manage_project_history(project, request):
 )
 def manage_project_documentation(project, request):
     return {"project": project}
+
+
+@view_config(
+    route_name="manage.project.archive",
+    context=Project,
+    uses_session=True,
+    require_methods=["POST"],
+    permission=Permissions.ProjectsWrite,
+)
+def archive_project_view(project, request) -> HTTPSeeOther:
+    """
+    Archive a Project. Reversible action.
+    """
+    archive_project(project, request)
+    return HTTPSeeOther(
+        request.route_path("manage.project.settings", project_name=project.name)
+    )
+
+
+@view_config(
+    route_name="manage.project.unarchive",
+    context=Project,
+    uses_session=True,
+    require_methods=["POST"],
+    permission=Permissions.ProjectsWrite,
+)
+def unarchive_project_view(project, request) -> HTTPSeeOther:
+    """
+    Unarchive a Project. Reversible action.
+    """
+    unarchive_project(project, request)
+    return HTTPSeeOther(
+        request.route_path("manage.project.settings", project_name=project.name)
+    )
