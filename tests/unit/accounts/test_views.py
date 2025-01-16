@@ -3357,6 +3357,7 @@ class TestManageAccountPublishingViews:
             find_service=pretend.call_recorder(find_service),
             route_url=pretend.stub(),
             POST=MultiDict(),
+            user=pretend.stub(id=pretend.stub()),
             registry=pretend.stub(
                 settings={
                     "github.token": "fake-api-token",
@@ -3525,6 +3526,7 @@ class TestManageAccountPublishingViews:
                 api_token="fake-api-token",
                 route_url=route_url,
                 check_project_name=project_service.check_project_name,
+                user=request.user,
             )
         ]
         assert pending_gitlab_publisher_form_cls.calls == [
@@ -3532,6 +3534,7 @@ class TestManageAccountPublishingViews:
                 request.POST,
                 route_url=route_url,
                 check_project_name=project_service.check_project_name,
+                user=request.user,
             )
         ]
 
@@ -3620,6 +3623,7 @@ class TestManageAccountPublishingViews:
                 api_token="fake-api-token",
                 route_url=pyramid_request.route_url,
                 check_project_name=project_service.check_project_name,
+                user=pyramid_request.user,
             )
         ]
         assert pending_gitlab_publisher_form_cls.calls == [
@@ -3627,6 +3631,7 @@ class TestManageAccountPublishingViews:
                 pyramid_request.POST,
                 route_url=pyramid_request.route_url,
                 check_project_name=project_service.check_project_name,
+                user=pyramid_request.user,
             )
         ]
 
@@ -3752,6 +3757,7 @@ class TestManageAccountPublishingViews:
                 api_token="fake-api-token",
                 route_url=pyramid_request.route_url,
                 check_project_name=project_service.check_project_name,
+                user=pyramid_request.user,
             )
         ]
         assert pending_gitlab_publisher_form_cls.calls == [
@@ -3759,6 +3765,7 @@ class TestManageAccountPublishingViews:
                 pyramid_request.POST,
                 route_url=pyramid_request.route_url,
                 check_project_name=project_service.check_project_name,
+                user=pyramid_request.user,
             )
         ]
 
@@ -3896,6 +3903,7 @@ class TestManageAccountPublishingViews:
                 api_token="fake-api-token",
                 route_url=pyramid_request.route_url,
                 check_project_name=project_service.check_project_name,
+                user=pyramid_request.user,
             )
         ]
         assert pending_gitlab_publisher_form_cls.calls == [
@@ -3903,6 +3911,7 @@ class TestManageAccountPublishingViews:
                 pyramid_request.POST,
                 route_url=pyramid_request.route_url,
                 check_project_name=project_service.check_project_name,
+                user=pyramid_request.user,
             )
         ]
 
@@ -4617,6 +4626,7 @@ class TestManageAccountPublishingViews:
                 api_token="fake-api-token",
                 route_url=pyramid_request.route_url,
                 check_project_name=project_service.check_project_name,
+                user=pyramid_request.user,
             )
         ]
         assert pending_gitlab_publisher_form_cls.calls == [
@@ -4624,6 +4634,7 @@ class TestManageAccountPublishingViews:
                 pyramid_request.POST,
                 route_url=pyramid_request.route_url,
                 check_project_name=project_service.check_project_name,
+                user=pyramid_request.user,
             )
         ]
 

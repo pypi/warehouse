@@ -29,7 +29,13 @@ from warehouse.packaging.interfaces import (
     IFileStorage,
     IProjectService,
     ISimpleStorage,
-    ProjectNameUnavailableReason,
+)
+from warehouse.packaging.models import (
+    ProjectNameUnavailableExisting,
+    ProjectNameUnavailableInvalid,
+    ProjectNameUnavailableProhibited,
+    ProjectNameUnavailableSimilar,
+    ProjectNameUnavailableStdlib,
 )
 from warehouse.packaging.services import (
     B2FileStorage,
@@ -996,44 +1002,59 @@ class TestProjectService:
     def test_check_project_name_invalid(self, name):
         service = ProjectService(session=pretend.stub())
 
-        assert service.check_project_name(name) is ProjectNameUnavailableReason.Invalid
+        assert isinstance(
+            service.check_project_name(name), ProjectNameUnavailableInvalid
+        )
 
     @pytest.mark.parametrize("name", ["uu", "cgi", "nis", "mailcap"])
     def test_check_project_name_stdlib(self, name):
         service = ProjectService(session=pretend.stub())
 
-        assert service.check_project_name(name) is ProjectNameUnavailableReason.Stdlib
+        assert isinstance(
+            service.check_project_name(name), ProjectNameUnavailableStdlib
+        )
 
     def test_check_project_name_already_exists(self, db_session):
         service = ProjectService(session=db_session)
-        ProjectFactory.create(name="foo")
+        project = ProjectFactory.create(name="foo")
 
-        assert (
-            service.check_project_name("foo")
-            is ProjectNameUnavailableReason.AlreadyExists
-        )
-        assert (
-            service.check_project_name("Foo")
-            is ProjectNameUnavailableReason.AlreadyExists
+        unavailable_error = service.check_project_name("foo")
+        assert isinstance(unavailable_error, ProjectNameUnavailableExisting)
+        assert unavailable_error.existing_project == project
+        assert isinstance(
+            service.check_project_name("Foo"),
+            ProjectNameUnavailableExisting,
         )
 
     def test_check_project_name_prohibited(self, db_session):
         service = ProjectService(session=db_session)
         ProhibitedProjectFactory.create(name="foo")
 
-        assert (
-            service.check_project_name("foo") is ProjectNameUnavailableReason.Prohibited
+        assert isinstance(
+            service.check_project_name("foo"), ProjectNameUnavailableProhibited
         )
-        assert (
-            service.check_project_name("Foo") is ProjectNameUnavailableReason.Prohibited
+        assert isinstance(
+            service.check_project_name("Foo"), ProjectNameUnavailableProhibited
         )
 
     def test_check_project_name_too_similar(self, db_session):
         service = ProjectService(session=db_session)
         ProjectFactory.create(name="f00")
 
+        assert isinstance(
+            service.check_project_name("foo"), ProjectNameUnavailableSimilar
+        )
+
+    def test_check_project_name_too_similar_multiple_existing(self, db_session):
+        service = ProjectService(session=db_session)
+        project1 = ProjectFactory.create(name="f00")
+        project2 = ProjectFactory.create(name="f0o")
+
+        unavailable_error = service.check_project_name("foo")
+        assert isinstance(unavailable_error, ProjectNameUnavailableSimilar)
         assert (
-            service.check_project_name("foo") is ProjectNameUnavailableReason.TooSimilar
+            unavailable_error.similar_project == project1
+            or unavailable_error.similar_project == project2
         )
 
     def test_check_project_name_ok(self, db_session):

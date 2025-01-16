@@ -19,7 +19,7 @@ from requests import ConnectionError, HTTPError, Timeout
 from webob.multidict import MultiDict
 
 from warehouse.oidc.forms import activestate
-from warehouse.packaging.interfaces import ProjectNameUnavailableReason
+from warehouse.packaging.models import ProjectNameUnavailableExisting
 
 fake_username = "some-username"
 fake_org_name = "some-org"
@@ -50,6 +50,7 @@ class TestPendingActiveStatePublisherForm:
             MultiDict(data),
             route_url=route_url,
             check_project_name=check_project_name,
+            user=pretend.stub(),
         )
 
         # Test built-in validations
@@ -61,27 +62,43 @@ class TestPendingActiveStatePublisherForm:
         assert form._route_url == route_url
         assert form.validate()
 
-    def test_validate_project_name_already_in_use(self, pyramid_config):
+    @pytest.mark.parametrize("is_project_owner", [True, False])
+    def test_validate_project_name_already_in_use(
+        self, pyramid_config, is_project_owner
+    ):
         route_url = pretend.call_recorder(lambda *args, **kwargs: "")
+        user = pretend.stub()
+        owners = []
+        if is_project_owner:
+            owners.append(user)
 
         def check_project_name(name):
-            return ProjectNameUnavailableReason.AlreadyExists
+            return ProjectNameUnavailableExisting(
+                existing_project=pretend.stub(owners=owners)
+            )
 
         form = activestate.PendingActiveStatePublisherForm(
             route_url=route_url,
             check_project_name=check_project_name,
+            user=user,
         )
 
         field = pretend.stub(data="some-project")
         with pytest.raises(wtforms.validators.ValidationError):
             form.validate_project_name(field)
-        assert route_url.calls == [
-            pretend.call(
-                "manage.project.settings.publishing",
-                project_name="some-project",
-                _query={"provider": {"activestate"}},
-            )
-        ]
+
+        if is_project_owner:
+            # The project settings URL is only shown in the error message if
+            # the user is the owner of the project
+            assert route_url.calls == [
+                pretend.call(
+                    "manage.project.settings.publishing",
+                    project_name="some-project",
+                    _query={"provider": {"activestate"}},
+                )
+            ]
+        else:
+            assert route_url.calls == []
 
 
 class TestActiveStatePublisherForm:
