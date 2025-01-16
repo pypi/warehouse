@@ -28,7 +28,9 @@ FROM static-deps AS static
 # small amount of copying when only `webpack.config.js` is modified.
 COPY warehouse/static/ /opt/warehouse/src/warehouse/static/
 COPY warehouse/admin/static/ /opt/warehouse/src/warehouse/admin/static/
+COPY warehouse/locale/ /opt/warehouse/src/warehouse/locale/
 COPY webpack.config.js /opt/warehouse/src/
+COPY webpack.plugin.localize.js /opt/warehouse/src/
 
 RUN NODE_ENV=production npm run build
 
