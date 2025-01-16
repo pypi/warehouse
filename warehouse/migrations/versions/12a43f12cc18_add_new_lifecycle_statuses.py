@@ -24,6 +24,9 @@ down_revision = "24aa37164e72"
 
 
 def upgrade():
+    op.execute("SET statement_timeout = 60000")
+    op.execute("SET lock_timeout = 120000")
+
     op.sync_enum_values(
         "public",
         "lifecyclestatus",
