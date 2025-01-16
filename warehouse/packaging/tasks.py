@@ -15,17 +15,21 @@ import logging
 import tempfile
 
 from collections import namedtuple
-from itertools import product
 
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
-from google.cloud.bigquery import LoadJobConfig
 from sqlalchemy.orm import joinedload
 
 from warehouse import tasks
 from warehouse.accounts.models import User, WebAuthn
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage
-from warehouse.packaging.models import Description, File, Project, Release
+from warehouse.packaging.models import (
+    Description,
+    File,
+    MissingDatasetFile,
+    Project,
+    Release,
+)
 from warehouse.utils import readme
 from warehouse.utils.row_counter import RowCount
 
@@ -357,90 +361,69 @@ def sync_bigquery_release_files(request):
     # Multiple table names can be specified by separating them with whitespace
     table_names = release_files_table.split()
 
-    for table_name in table_names:
-        table_schema = bq.get_table(table_name).schema
+    missing_files = (
+        request.db.query(MissingDatasetFile)
+        .filter(MissingDatasetFile.processed.is_(False))
+        .limit(10)
+    )
 
-        # Using the schema to populate the data allows us to automatically
-        # set the values to their respective fields rather than assigning
-        # values individually
-        def populate_data_using_schema(file):
-            release = file.release
-            project = release.project
+    for missing_file in missing_files:
+        release_file = missing_file.file
 
-            row_data = dict()
-            for sch in table_schema:
-                # The order of data extraction below is determined based on the
-                # classes that are most recently updated
-                if hasattr(file, sch.name):
-                    field_data = getattr(file, sch.name)
-                elif hasattr(release, sch.name) and sch.name == "description":
-                    field_data = getattr(release, sch.name).raw
-                elif sch.name == "description_content_type":
-                    field_data = getattr(release, "description").content_type
-                elif hasattr(release, sch.name):
-                    field_data = getattr(release, sch.name)
-                elif hasattr(project, sch.name):
-                    field_data = getattr(project, sch.name)
-                else:
-                    field_data = None
+        for table_name in table_names:
+            table_schema = bq.get_table(table_name).schema
 
-                if isinstance(field_data, datetime.datetime):
-                    field_data = field_data.isoformat()
+            # Using the schema to populate the data allows us to automatically
+            # set the values to their respective fields rather than assigning
+            # values individually
+            def populate_data_using_schema(file):
+                release = file.release
+                project = release.project
 
-                # Replace all empty objects to None will ensure
-                # proper checks if a field is nullable or not
-                if not isinstance(field_data, bool) and not field_data:
-                    field_data = None
-
-                if field_data is None and sch.mode == "REPEATED":
-                    row_data[sch.name] = []
-                elif field_data and sch.mode == "REPEATED":
-                    # Currently, some of the metadata fields such as
-                    # the 'platform' tag are incorrectly classified as a
-                    # str instead of a list, hence, this workaround to comply
-                    # with PEP 345 and the Core Metadata specifications.
-                    # This extra check can be removed once
-                    # https://github.com/pypi/warehouse/issues/8257 is fixed
-                    if isinstance(field_data, str):
-                        row_data[sch.name] = [field_data]
+                row_data = dict()
+                for sch in table_schema:
+                    # The order of data extraction below is determined based on the
+                    # classes that are most recently updated
+                    if hasattr(file, sch.name):
+                        field_data = getattr(file, sch.name)
+                    elif hasattr(release, sch.name) and sch.name == "description":
+                        field_data = getattr(release, sch.name).raw
+                    elif sch.name == "description_content_type":
+                        field_data = getattr(release, "description").content_type
+                    elif hasattr(release, sch.name):
+                        field_data = getattr(release, sch.name)
+                    elif hasattr(project, sch.name):
+                        field_data = getattr(project, sch.name)
                     else:
-                        row_data[sch.name] = list(field_data)
-                else:
-                    row_data[sch.name] = field_data
-            row_data["has_signature"] = False
-            return row_data
+                        field_data = None
 
-        for first, second in product("fedcba9876543210", repeat=2):
-            db_release_files = (
-                request.db.query(File.md5_digest)
-                .filter(File.md5_digest.like(f"{first}{second}%"))
-                .yield_per(1000)
-                .all()
-            )
-            db_file_digests = [file.md5_digest for file in db_release_files]
+                    if isinstance(field_data, datetime.datetime):
+                        field_data = field_data.isoformat()
 
-            bq_file_digests = bq.query(
-                "SELECT md5_digest "
-                f"FROM {table_name} "
-                f"WHERE md5_digest LIKE '{first}{second}%'"
-            ).result()
-            bq_file_digests = [row.get("md5_digest") for row in bq_file_digests]
+                    # Replace all empty objects to None will ensure
+                    # proper checks if a field is nullable or not
+                    if not isinstance(field_data, bool) and not field_data:
+                        field_data = None
 
-            md5_diff_list = list(set(db_file_digests) - set(bq_file_digests))[:1000]
-            if not md5_diff_list:
-                # There are no files that need synced to BigQuery
-                continue
+                    if field_data is None and sch.mode == "REPEATED":
+                        row_data[sch.name] = []
+                    elif field_data and sch.mode == "REPEATED":
+                        # Currently, some of the metadata fields such as
+                        # the 'platform' tag are incorrectly classified as a
+                        # str instead of a list, hence, this workaround to comply
+                        # with PEP 345 and the Core Metadata specifications.
+                        # This extra check can be removed once
+                        # https://github.com/pypi/warehouse/issues/8257 is fixed
+                        if isinstance(field_data, str):
+                            row_data[sch.name] = [field_data]
+                        else:
+                            row_data[sch.name] = list(field_data)
+                    else:
+                        row_data[sch.name] = field_data
+                row_data["has_signature"] = False
+                return row_data
 
-            release_files = (
-                request.db.query(File)
-                .join(Release, Release.id == File.release_id)
-                .filter(File.md5_digest.in_(md5_diff_list))
-                .all()
-            )
+            json_rows = [populate_data_using_schema(release_file)]
+            bq.insert_rows_json(table=table_name, json_rows=json_rows)
 
-            json_rows = [populate_data_using_schema(file) for file in release_files]
-
-            bq.load_table_from_json(
-                json_rows, table_name, job_config=LoadJobConfig(schema=table_schema)
-            ).result()
-            break
+        missing_file.processed = True
