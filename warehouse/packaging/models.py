@@ -1140,3 +1140,4 @@ class MissingDatasetFile(db.Model):
 
     file_id: Mapped[UUID] = mapped_column(ForeignKey("release_files.id"))
     file: Mapped[File] = orm.relationship()
+    processed: Mapped[bool] = mapped_column(default=False)
