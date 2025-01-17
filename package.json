@@ -54,7 +54,7 @@
     "postcss-loader": "^8.1.1",
     "rtlcss": "^4.0.0",
     "sass-embedded": "^1.57.1",
-    "sass-loader": "^14.2.1",
+    "sass-loader": "^16.0.4",
     "sharp": "^0.33.5",
     "stylelint": "^16.6.1",
     "stylelint-config-standard-scss": "^14.0.0",
