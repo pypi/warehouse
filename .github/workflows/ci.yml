@@ -45,7 +45,7 @@ jobs:
         include:
           - name: Tests
             command: bin/tests --postgresql-host postgres
-            runs_on: depot-ubuntu-24.04-arm-8
+            runs_on: depot-ubuntu-24.04-arm-4
           - name: Lint
             command: bin/lint
             runs_on: depot-ubuntu-24.04-arm-4
