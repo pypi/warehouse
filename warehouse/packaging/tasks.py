@@ -365,6 +365,7 @@ def sync_bigquery_release_files(request):
         request.db.query(MissingDatasetFile)
         .filter(MissingDatasetFile.processed.is_(None))
         .limit(10)
+        .all()
     )
     for missing_file in missing_files:
         missing_file.processed = False
