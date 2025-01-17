@@ -24,18 +24,16 @@
  *
  * Apply these data attributes to each item in the list to be filtered:
  * - data-filter-list-target="item"
- * - data-filtered-target-[name of filter group in kebab-case e.g. content-type]="[a list joined by '--;--']" (zero or more)
+ * - data-filtered-target-[name of filter group in kebab-case e.g. content-type]='(stringify-ed JSON)' (zero or more)
  */
 import {Controller} from "@hotwired/stimulus";
-import fetchGetText from "warehouse/utils/fetch-gettext";
+import {ngettext} from "../utils/messages-access";
 
 export default class extends Controller {
-  static targets = ["item", "filter", "summary"];
+  static targets = ["item", "filter", "summary", "url"];
   static values = {
     group: String,
   };
-
-  _listSep = "--;--";
 
   mappingItemFilterData = {};
 
@@ -80,14 +78,31 @@ export default class extends Controller {
 
     // show the number of matches and the total number of items
     if (this.hasSummaryTarget) {
-      fetchGetText(
-        "Showing ${shown} of ${total} file.",
-        "Showing ${shown} of ${total} files.",
+      this.summaryTarget.textContent = ngettext(
+        "Showing %1 of %2 file.",
+        "Showing %1 of %2 files.",
         total,
-        {"shown": shown, "total": total})
-        .then((text) => {
-          this.summaryTarget.textContent = text.msg;
-        });
+        shown,
+        total);
+    }
+
+    // Update the direct url to this filter
+    if (this.hasUrlTarget && this.urlTarget) {
+      const searchParams = new URLSearchParams();
+      for (const key in filterData) {
+        for (const value of filterData[key]) {
+          if (value && value.trim()) {
+            searchParams.set(key, [...searchParams.getAll(key), value]);
+          }
+        }
+      }
+
+      const qs = searchParams.toString();
+      const baseUrl = new URL(this.urlTarget.href);
+      if (qs) {
+        baseUrl.search = "?" + qs;
+      }
+      this.urlTarget.textContent = baseUrl.toString();
     }
   }
 
@@ -131,8 +146,7 @@ export default class extends Controller {
         if (!dataAttrValue) {
           console.warn(`Item target at index ${index} does not have a value for data attribute '${dataAttrsKey}'.`);
         }
-        const dataAttrValueSplit = dataAttrValue ? dataAttrValue.split(this._listSep) : [];
-        this.mappingItemFilterData[index][filterKey] = dataAttrValueSplit;
+        this.mappingItemFilterData[index][filterKey] = JSON.parse(dataAttrValue || "[]");
       }
     });
 

@@ -82,8 +82,6 @@ from warehouse.utils.attrs import make_repr
 from warehouse.utils.db.types import bool_false, datetime_now
 
 if typing.TYPE_CHECKING:
-    from packaging.tags import Tag
-
     from warehouse.oidc.models import OIDCPublisher
 
 _MONOTONIC_SEQUENCE = 42
@@ -973,13 +971,9 @@ class File(HasEvents, db.Model):
         return wheel.filename_to_pretty_tags(self.filename)
 
     @property
-    def bdist_tags(self):
-        return bdist_filename_tags(self.filename)
+    def wheel_filters(self):
+        return wheel.filename_to_filters(self.filename)
 
-    @property
-    def bdist_tags_collected(self):
-        result = bdist_collect_tags([self.bdist_tags or []])
-        return result.get("interpreters"), result.get("abis"), result.get("platforms")
 
 class Filename(db.ModelBase):
     __tablename__ = "file_registry"
@@ -1143,26 +1137,3 @@ class AlternateRepository(db.Model):
     name: Mapped[str]
     url: Mapped[str]
     description: Mapped[str]
-
-def bdist_filename_tags(filename: str):
-    """Parse a wheel file name to extract the tags."""
-    _, __, ___, tags = packaging.utils.parse_wheel_filename(filename)
-    return tags
-
-
-def bdist_collect_tags(available: typing.Iterable[frozenset[Tag]]) -> dict[str, list]:
-    interpreters = set()
-    abis = set()
-    platforms = set()
-
-    for tags in available or []:
-        for tag in tags or []:
-            interpreters.add(tag.interpreter)
-            abis.add(tag.abi)
-            platforms.add(tag.platform)
-
-    return {
-        "interpreters": sorted(interpreters),
-        "abis": sorted(abis),
-        "platforms": sorted(platforms),
-    }
