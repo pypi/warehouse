@@ -1133,3 +1133,11 @@ class AlternateRepository(db.Model):
     name: Mapped[str]
     url: Mapped[str]
     description: Mapped[str]
+
+
+class MissingDatasetFile(db.Model):
+    __tablename__ = "missing_dataset_files"
+
+    file_id: Mapped[UUID] = mapped_column(ForeignKey("release_files.id"))
+    file: Mapped[File] = orm.relationship()
+    processed: Mapped[bool] = mapped_column(default=None, nullable=True)
