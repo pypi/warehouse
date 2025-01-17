@@ -668,8 +668,9 @@ def query_recorder(app_config):
 
 
 @pytest.fixture
-def db_request(pyramid_request, db_session):
+def db_request(pyramid_request, db_session, tm):
     pyramid_request.db = db_session
+    pyramid_request.tm = tm
     pyramid_request.flags = admin.flags.Flags(pyramid_request)
     pyramid_request.banned = admin.bans.Bans(pyramid_request)
     pyramid_request.organization_access = True
@@ -734,7 +735,6 @@ def tm():
     # Create a new transaction manager for dependant test cases
     tm = transaction.TransactionManager(explicit=True)
     tm.begin()
-    tm.doom()
 
     yield tm
 
