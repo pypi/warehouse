@@ -371,7 +371,8 @@ def sync_bigquery_release_files(request):
         missing_file.processed = False
 
     # Commit these changes so another task doesn't pick up these files
-    request.db.commit()
+    request.tm.commit()
+    request.tm.begin()
 
     for missing_file in missing_files:
         release_file = missing_file.file
