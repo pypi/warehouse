@@ -375,6 +375,8 @@ def sync_bigquery_release_files(request):
     request.tm.begin()
 
     for missing_file in missing_files:
+        # Add the objects back into the new session
+        request.db.add(missing_file)
         release_file = missing_file.file
 
         for table_name in table_names:
