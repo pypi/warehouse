@@ -1,6 +1,8 @@
 furo
 Sphinx
 sphinx-autobuild
+sphinx-copybutton
 sphinxcontrib-httpdomain
 sphinxcontrib-mermaid
+sphinx-reredirects
 myst-parser

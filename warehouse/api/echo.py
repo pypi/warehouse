@@ -48,7 +48,7 @@ def api_v0_view_config(**kwargs):
 
     # Prevent developers forgetting to set a permission
     if "permission" not in kwargs:  # pragma: no cover (safety check)
-        raise TypeError("`permission` keyword is is required")
+        raise TypeError("`permission` keyword is required")
 
     # Set defaults for API views
     kwargs.update(
@@ -97,6 +97,9 @@ def api_projects_observations(project: Project, request: Request) -> dict:
                     "project": project.name,
                 },
             )
+
+    # Manually add an origin field to the observation for tracking
+    data["origin"] = "api"
 
     project.record_observation(
         request=request,

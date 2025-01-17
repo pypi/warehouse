@@ -20,7 +20,15 @@
   {{ oidc_title() }}
 {% endblock %}
 
+{% macro prefilled_warning() %}
+  <div id="prefilled-warning" class="callout-block callout-block--warning">
+    <h3 class="callout-block__heading">{% trans %}Proceed with caution!{% endtrans %}</h3>
+    <p>{% trans %}Some form fields have been autofilled, please double-check their values before submitting the form.{% endtrans %}</p>
+  </div>
+{% endmacro %}
+
 {% macro github_form(request, github_publisher_form) %}
+    {{ prefilled_warning() if prefilled_provider == "github" }}
     <p>
       {% trans href="https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect" %}
       Read more about GitHub Actions' OpenID Connect support <a href="{{ href }}">here</a>.
@@ -125,6 +133,7 @@
 {% endmacro %}
 
 {% macro gitlab_form(request, gitlab_publisher_form) %}
+    {{ prefilled_warning() if prefilled_provider == "gitlab" }}
     <p>
       {% trans href="https://docs.gitlab.com/ee/ci/secrets/id_token_authentication.html" %}
       Read more about GitLab CI/CD OpenID Connect support <a href="{{ href }}">here</a>.
@@ -212,6 +221,7 @@
 {% endmacro %}
 
 {% macro google_form(request, google_publisher_form) %}
+  {{ prefilled_warning() if prefilled_provider == "google" }}
   <p>
     {% trans href="https://cloud.google.com/iam/docs/service-account-creds" %}
     Read more about Google's OpenID Connect support <a href="{{ href }}">here</a>.
@@ -268,6 +278,7 @@
 {% endmacro %}
 
 {% macro activestate_form(request, activestate_pubisher_form) %}
+  {{ prefilled_warning() if prefilled_provider == "activestate" }}
   <p>
     {% trans href="https://docs.activestate.com/platform/user/oidc/" %}
     Read more about ActiveState's OpenID Connect support <a href="{{ href }}">here</a>.
@@ -398,12 +409,11 @@
            ("ActiveState", activestate_form(request, activestate_publisher_form)),
          ]
       %}
-
       <div class="horizontal-tabs" data-controller="horizontal-tabs" data-horizontal-tabs-index="0">
         <div class="horizontal-tabs__tabbar">
           {% for publisher_name, _ in publishers %}
           {% if not disabled[publisher_name] %}
-          <button data-horizontal-tabs-target="tab" data-action="horizontal-tabs#change" class="tab {{ "is-active" if loop.first else "" }}">
+          <button data-horizontal-tabs-target="{{ 'tab prefilledTab' if publisher_name.lower() == prefilled_provider else 'tab' }}" data-action="horizontal-tabs#change" class="tab {{ "is-active" if loop.first else "" }}">
             {{ publisher_name }}
           </button>
           {% endif %}
@@ -427,5 +437,39 @@
     </section>
   </div>
 </div>
+
+{# Define the modal for constraining environments only if the expected URL params are present -#}
+{% if request.params.constrained_environment_name is defined and request.params.constrained_publisher_id is defined %}
+{% set title = gettext("Constrain environment") %}
+{% set constrained_environment_name = request.params.constrained_environment_name %}
+{% set confirm_name = "constrain_environment" %}
+{% set confirm_button_label = gettext("Constrain environment") %}
+{% set slug = confirm_name.lower().replace(' ', '-') + '-modal' %}
+{% set extra_fields %}
+  <input name="constrained_publisher_id" type="hidden" value="{{ request.params.constrained_publisher_id }}">
+  <input name="constrained_environment_name" type="hidden" value="{{ constrained_environment_name }}">
+{% endset %}
+{% set extra_description %}
+<div>
+  <div>
+    {% trans %}This will restrict the Trusted Publisher's environment to{% endtrans %} <strong>{{ constrained_environment_name }}</strong>.
+  </div>
+
+  <div class="callout-block callout-block--warning">
+    {% trans %}
+    If you currently use multiple environments in your CI/CD workflows, you
+    must either change them all to '{{ constrained_environment_name }}' or register
+    each as a Trusted Publisher.
+    {% endtrans %}
+  </div>
+
+  <ul class="no-bullets no-left-margin">
+    <li><input class="inline-checkbox" type="checkbox" data-action="input->confirm#check" data-confirm-target="checkbox"> {% trans %}I understand that this Trusted Publisher will only allow uploads frow CI/CD workflows running in the '{{ constrained_environment_name }}' environment.{% endtrans %}</li>
+  </ul>
+</div>
+{% endset %}
+{{ confirm_modal(title=title, label=gettext("New Environment Name"), confirm_name="constrained_environment_name", confirm_string=constrained_environment_name, slug=slug, confirm_button_label=confirm_button_label, extra_fields=extra_fields, extra_description=extra_description, warning=False, confirm_string_in_title=False) }}
+{% endif %}
+
 
 {% endblock %}

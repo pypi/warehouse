@@ -63,6 +63,13 @@ def test_includeme():
             traverse="/{username}",
         ),
         pretend.call(
+            "admin.user.submit_email",
+            "/admin/users/{username}/emails/",
+            domain=warehouse,
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
+        ),
+        pretend.call(
             "admin.user.add_email",
             "/admin/users/{username}/add_email/",
             domain=warehouse,
@@ -91,16 +98,25 @@ def test_includeme():
             traverse="/{username}",
         ),
         pretend.call(
-            "admin.user.wipe_factors",
-            "/admin/users/{username}/wipe_factors/",
+            "admin.user.account_recovery.initiate",
+            "/admin/users/{username}/account_recovery/initiate/",
             domain=warehouse,
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",
         ),
         pretend.call(
-            "admin.prohibited_user_names.bulk_add",
-            "/admin/prohibited_user_names/bulk/",
+            "admin.user.account_recovery.cancel",
+            "/admin/users/{username}/account_recovery/cancel/",
             domain=warehouse,
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
+        ),
+        pretend.call(
+            "admin.user.account_recovery.complete",
+            "/admin/users/{username}/account_recovery/complete/",
+            domain=warehouse,
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
         ),
         pretend.call(
             "admin.macaroon.decode_token", "/admin/token/decode", domain=warehouse
@@ -232,6 +248,20 @@ def test_includeme():
             traverse="/{project_name}",
             domain=warehouse,
         ),
+        pretend.call(
+            "admin.project.archive",
+            "/admin/projects/{project_name}/archive/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.project.unarchive",
+            "/admin/projects/{project_name}/unarchive/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
         pretend.call("admin.journals.list", "/admin/journals/", domain=warehouse),
         pretend.call(
             "admin.prohibited_project_names.list",
@@ -256,6 +286,31 @@ def test_includeme():
         pretend.call(
             "admin.prohibited_project_names.release",
             "/admin/prohibited_project_names/release/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.prohibited_user_names.list",
+            "/admin/prohibited_user_names/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.prohibited_user_names.bulk_add",
+            "/admin/prohibited_user_names/bulk/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.prohibited_email_domains.list",
+            "/admin/prohibited_email_domains/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.prohibited_email_domains.add",
+            "/admin/prohibited_email_domains/add/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.prohibited_email_domains.remove",
+            "/admin/prohibited_email_domains/remove/",
             domain=warehouse,
         ),
         pretend.call(

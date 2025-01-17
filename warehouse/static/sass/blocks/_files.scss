@@ -57,5 +57,12 @@
   &__card {
     display: block;
     margin: $quarter-spacing-unit 0;
+
+    small {
+      display: block;
+      margin-top: 4px;
+      margin-bottom: 6px;
+    }
+
   }
 }

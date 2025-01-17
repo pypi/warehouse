@@ -40,8 +40,6 @@ def _format_author(release):
             return None
         author_emails.append(author_email)
 
-    if not author_emails:
-        return None
     return ", ".join(author_emails)
 
 

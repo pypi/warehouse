@@ -379,6 +379,24 @@ class TestDatabaseUserService:
             )
         ]
 
+    def test_add_email_bypass_ratelimit(self, user_service, metrics, remote_addr):
+        resets = pretend.stub()
+        limiter = pretend.stub(
+            hit=pretend.call_recorder(lambda ip: None),
+            test=pretend.call_recorder(lambda ip: False),
+            resets_in=pretend.call_recorder(lambda ip: resets),
+        )
+        user_service.ratelimiters["email.add"] = limiter
+
+        user = UserFactory.create()
+        new_email = user_service.add_email(user.id, "foo@example.com", ratelimit=False)
+
+        assert new_email.email == "foo@example.com"
+        assert not new_email.verified
+        assert limiter.test.calls == []
+        assert limiter.resets_in.calls == []
+        assert metrics.increment.calls == []
+
     def test_update_user(self, user_service):
         user = UserFactory.create()
         new_name, password = "new username", "TestPa@@w0rd"
@@ -567,7 +585,7 @@ class TestDatabaseUserService:
 
     @pytest.mark.parametrize(
         ("last_totp_value", "valid"),
-        ([None, True], ["000000", True], ["000000", False]),
+        [(None, True), ("000000", True), ("000000", False)],
     )
     def test_check_totp_value(self, user_service, monkeypatch, last_totp_value, valid):
         verify_totp = pretend.call_recorder(lambda *a: valid)

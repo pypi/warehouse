@@ -60,8 +60,14 @@ class Permissions(StrEnum):
     AdminOrganizationsRead = "admin:organizations:read"
     AdminOrganizationsWrite = "admin:organizations:write"
 
+    AdminProhibitedEmailDomainsRead = "admin:prohibited-email-domains:read"
+    AdminProhibitedEmailDomainsWrite = "admin:prohibited-email-domains:write"
+
     AdminProhibitedProjectsRead = "admin:prohibited-projects:read"
     AdminProhibitedProjectsWrite = "admin:prohibited-projects:write"
+
+    AdminProhibitedUsernameRead = "admin:prohibited-username:read"
+    AdminProhibitedUsernameWrite = "admin:prohibited-username:write"
 
     AdminProjectsDelete = "admin:projects:delete"
     AdminProjectsRead = "admin:projects:read"
@@ -76,6 +82,9 @@ class Permissions(StrEnum):
 
     AdminUsersRead = "admin:users:read"
     AdminUsersWrite = "admin:users:write"
+
+    AdminUsersEmailWrite = "admin:users:email:write"
+    AdminUsersAccountRecoveryWrite = "admin:users:account-recovery:write"
 
     # API Permissions
     APIEcho = "api:echo"

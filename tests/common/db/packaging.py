@@ -20,6 +20,7 @@ import packaging.utils
 
 from warehouse.observations.models import ObservationKind
 from warehouse.packaging.models import (
+    AlternateRepository,
     Dependency,
     DependencyKind,
     Description,
@@ -27,6 +28,7 @@ from warehouse.packaging.models import (
     JournalEntry,
     ProhibitedProjectName,
     Project,
+    Provenance,
     Release,
     Role,
     RoleInvitation,
@@ -141,6 +143,14 @@ class FileFactory(WarehouseFactory):
     )
 
 
+class ProvenanceFactory(WarehouseFactory):
+    class Meta:
+        model = Provenance
+
+    file = factory.SubFactory(FileFactory)
+    provenance = factory.Faker("json")
+
+
 class FileEventFactory(WarehouseFactory):
     class Meta:
         model = File.Event
@@ -200,3 +210,13 @@ class ProhibitedProjectFactory(WarehouseFactory):
     )
     name = factory.Faker("pystr", max_chars=12)
     prohibited_by = factory.SubFactory(UserFactory)
+
+
+class AlternateRepositoryFactory(WarehouseFactory):
+    class Meta:
+        model = AlternateRepository
+
+    name = factory.Faker("word")
+    url = factory.Faker("uri")
+    description = factory.Faker("text")
+    project = factory.SubFactory(ProjectFactory)

@@ -61,6 +61,13 @@ def includeme(config):
         traverse="/{username}",
     )
     config.add_route(
+        "admin.user.submit_email",
+        "/admin/users/{username}/emails/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
         "admin.user.add_email",
         "/admin/users/{username}/add_email/",
         domain=warehouse,
@@ -89,16 +96,25 @@ def includeme(config):
         traverse="/{username}",
     )
     config.add_route(
-        "admin.user.wipe_factors",
-        "/admin/users/{username}/wipe_factors/",
+        "admin.user.account_recovery.initiate",
+        "/admin/users/{username}/account_recovery/initiate/",
         domain=warehouse,
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{username}",
     )
     config.add_route(
-        "admin.prohibited_user_names.bulk_add",
-        "/admin/prohibited_user_names/bulk/",
+        "admin.user.account_recovery.cancel",
+        "/admin/users/{username}/account_recovery/cancel/",
         domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
+        "admin.user.account_recovery.complete",
+        "/admin/users/{username}/account_recovery/complete/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
     )
 
     # Macaroon related Admin pages
@@ -236,6 +252,20 @@ def includeme(config):
         traverse="/{project_name}",
         domain=warehouse,
     )
+    config.add_route(
+        "admin.project.archive",
+        "/admin/projects/{project_name}/archive/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.project.unarchive",
+        "/admin/projects/{project_name}/unarchive/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
 
     # Journal related Admin pages
     config.add_route("admin.journals.list", "/admin/journals/", domain=warehouse)
@@ -264,6 +294,33 @@ def includeme(config):
     config.add_route(
         "admin.prohibited_project_names.release",
         "/admin/prohibited_project_names/release/",
+        domain=warehouse,
+    )
+    # Prohibited Username related Admin pages
+    config.add_route(
+        "admin.prohibited_user_names.list",
+        "/admin/prohibited_user_names/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.prohibited_user_names.bulk_add",
+        "/admin/prohibited_user_names/bulk/",
+        domain=warehouse,
+    )
+    # Prohibited Email related Admin pages
+    config.add_route(
+        "admin.prohibited_email_domains.list",
+        "/admin/prohibited_email_domains/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.prohibited_email_domains.add",
+        "/admin/prohibited_email_domains/add/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.prohibited_email_domains.remove",
+        "/admin/prohibited_email_domains/remove/",
         domain=warehouse,
     )
 

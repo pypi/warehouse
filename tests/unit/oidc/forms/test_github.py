@@ -18,11 +18,16 @@ from requests import ConnectionError, HTTPError, Timeout
 from webob.multidict import MultiDict
 
 from warehouse.oidc.forms import github
+from warehouse.packaging.interfaces import ProjectNameUnavailableReason
 
 
 class TestPendingGitHubPublisherForm:
     def test_validate(self, monkeypatch):
-        project_factory = []
+        route_url = pretend.stub()
+
+        def check_project_name(name):
+            return None  # Name is available.
+
         data = MultiDict(
             {
                 "owner": "some-owner",
@@ -32,20 +37,46 @@ class TestPendingGitHubPublisherForm:
             }
         )
         form = github.PendingGitHubPublisherForm(
-            MultiDict(data), api_token=pretend.stub(), project_factory=project_factory
+            MultiDict(data),
+            api_token=pretend.stub(),
+            route_url=route_url,
+            check_project_name=check_project_name,
         )
 
         # We're testing only the basic validation here.
         owner_info = {"login": "fake-username", "id": "1234"}
         monkeypatch.setattr(form, "_lookup_owner", lambda o: owner_info)
 
-        assert form._project_factory == project_factory
+        assert form._check_project_name == check_project_name
+        assert form._route_url == route_url
         assert form.validate()
 
-    def test_validate_project_name_already_in_use(self):
-        project_factory = ["some-project"]
+    def test_validate_project_name_already_in_use(self, pyramid_config):
+        route_url = pretend.call_recorder(lambda *args, **kwargs: "")
+
         form = github.PendingGitHubPublisherForm(
-            api_token="fake-token", project_factory=project_factory
+            api_token="fake-token",
+            route_url=route_url,
+            check_project_name=lambda name: ProjectNameUnavailableReason.AlreadyExists,
+        )
+
+        field = pretend.stub(data="some-project")
+        with pytest.raises(wtforms.validators.ValidationError):
+            form.validate_project_name(field)
+        assert route_url.calls == [
+            pretend.call(
+                "manage.project.settings.publishing",
+                project_name="some-project",
+                _query={"provider": {"github"}},
+            )
+        ]
+
+    @pytest.mark.parametrize("reason", list(ProjectNameUnavailableReason))
+    def test_validate_project_name_unavailable(self, reason, pyramid_config):
+        form = github.PendingGitHubPublisherForm(
+            api_token="fake-token",
+            route_url=pretend.call_recorder(lambda *args, **kwargs: ""),
+            check_project_name=lambda name: reason,
         )
 
         field = pretend.stub(data="some-project")
@@ -55,7 +86,7 @@ class TestPendingGitHubPublisherForm:
 
 class TestGitHubPublisherForm:
     @pytest.mark.parametrize(
-        "token, headers",
+        ("token", "headers"),
         [
             (
                 None,
@@ -305,7 +336,7 @@ class TestGitHubPublisherForm:
             form.validate_workflow_filename(field)
 
     @pytest.mark.parametrize(
-        "data, expected",
+        ("data", "expected"),
         [
             ("wu-tang", "wu-tang"),
             ("WU-TANG", "wu-tang"),

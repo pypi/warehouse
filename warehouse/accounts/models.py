@@ -37,7 +37,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from warehouse import db
 from warehouse.authnz import Permissions
 from warehouse.events.models import HasEvents
-from warehouse.observations.models import HasObservers
+from warehouse.observations.models import HasObservations, HasObservers, ObservationKind
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils.attrs import make_repr
 from warehouse.utils.db.types import TZDateTime, bool_false, datetime_now
@@ -72,7 +72,7 @@ class DisableReason(enum.Enum):
     AdminInitiated = "admin initiated"
 
 
-class User(SitemapMixin, HasObservers, HasEvents, db.Model):
+class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
     __tablename__ = "users"
     __table_args__ = (
         CheckConstraint("length(username) <= 50", name="users_valid_username_length"),
@@ -93,6 +93,7 @@ class User(SitemapMixin, HasObservers, HasEvents, db.Model):
     is_active: Mapped[bool_false]
     is_frozen: Mapped[bool_false]
     is_superuser: Mapped[bool_false]
+    is_support: Mapped[bool_false]
     is_moderator: Mapped[bool_false]
     is_psf_staff: Mapped[bool_false]
     is_observer: Mapped[bool_false] = mapped_column(
@@ -134,6 +135,7 @@ class User(SitemapMixin, HasObservers, HasEvents, db.Model):
 
     organization_applications: Mapped[list[OrganizationApplication]] = orm.relationship(
         back_populates="submitted_by",
+        cascade="all, delete-orphan",
     )
 
     organizations: Mapped[list[Organization]] = orm.relationship(
@@ -249,18 +251,30 @@ class User(SitemapMixin, HasObservers, HasEvents, db.Model):
         return not any(
             [
                 self.is_superuser,
+                self.is_support,
                 self.is_moderator,
                 self.is_psf_staff,
                 self.prohibit_password_reset,
             ]
         )
 
+    @property
+    def active_account_recoveries(self):
+        return [
+            observation
+            for observation in self.observations
+            if observation.kind == ObservationKind.AccountRecovery.value[0]
+            and observation.additional["status"] == "initiated"
+        ]
+
     def __principals__(self) -> list[str]:
         principals = [Authenticated, f"user:{self.id}"]
 
         if self.is_superuser:
             principals.append("group:admins")
-        if self.is_moderator or self.is_superuser:
+        if self.is_support:
+            principals.append("group:support")
+        if self.is_moderator or self.is_superuser or self.is_support:
             principals.append("group:moderators")
         if self.is_psf_staff or self.is_superuser:
             principals.append("group:psf_staff")
@@ -281,6 +295,18 @@ class User(SitemapMixin, HasObservers, HasEvents, db.Model):
                 (
                     Permissions.AdminUsersRead,
                     Permissions.AdminUsersWrite,
+                    Permissions.AdminUsersEmailWrite,
+                    Permissions.AdminUsersAccountRecoveryWrite,
+                    Permissions.AdminDashboardSidebarRead,
+                ),
+            ),
+            (
+                Allow,
+                "group:support",
+                (
+                    Permissions.AdminUsersRead,
+                    Permissions.AdminUsersEmailWrite,
+                    Permissions.AdminUsersAccountRecoveryWrite,
                     Permissions.AdminDashboardSidebarRead,
                 ),
             ),
@@ -368,6 +394,9 @@ class ProhibitedEmailDomain(db.Model):
 
     created: Mapped[datetime_now]
     domain: Mapped[str] = mapped_column(unique=True)
+    is_mx_record: Mapped[bool_false] = mapped_column(
+        comment="Prohibit any domains that have this domain as an MX record?"
+    )
     _prohibited_by: Mapped[UUID | None] = mapped_column(
         "prohibited_by",
         PG_UUID(as_uuid=True),

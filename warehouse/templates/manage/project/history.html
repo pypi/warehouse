@@ -291,8 +291,56 @@
     <small>
       {% trans %}Disabled by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.modified_by) }}">{{ event.additional.modified_by }}</a>
     </small>
+
+    {# Display Project Alternate Repository events  #}
+    {% elif event.tag == EventTag.Account.AlternateRepositoryAdd %}
+    <strong>{% trans%}Project alternate repository added{% endtrans %}</strong>
+    <small>
+      {% trans %}Added by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.added_by) }}">{{ event.additional.added_by }}</a>
+    </small>
+    <small>{% trans %}Name{% endtrans %}: {{ event.additional.display_name }}</small>
+    <small>{% trans %}Url{% endtrans %}:
+      <a href="{{ event.additional.link_url }}" rel="nofollow noopener noreferrer" target="_blank">
+        {{ event.additional.link_url }}
+      </a>
+    </small>
+    {% elif event.tag == EventTag.Account.AlternateRepositoryDelete %}
+    <strong>{% trans%}Project alternate repository deleted{% endtrans %}</strong>
+    <small>
+      {% trans %}Deleted by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.deleted_by) }}">{{ event.additional.deleted_by }}</a>
+    </small>
+    <small>{% trans %}Name{% endtrans %}: {{ event.additional.display_name }}</small>
+    <small>{% trans %}Url{% endtrans %}:
+      <a href="{{ event.additional.link_url }}" rel="nofollow noopener noreferrer" target="_blank">
+        {{ event.additional.link_url }}
+      </a>
+    </small>
+    {% elif event.tag == EventTag.Project.AlternateRepositoryAdd %}
+    <strong>{% trans%}Project alternate repository added{% endtrans %}</strong>
+    <small>
+      {% trans %}Added by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.added_by) }}">{{ event.additional.added_by }}</a>
+    </small>
+    <small>{% trans %}Name{% endtrans %}: {{ event.additional.display_name }}</small>
+      <small>{% trans %}Url{% endtrans %}:
+        <a href="{{ event.additional.link_url }}" rel="nofollow noopener noreferrer" target="_blank">
+          {{ event.additional.link_url }}
+        </a>
+      </small>
+    {% elif event.tag == EventTag.Project.AlternateRepositoryDelete %}
+    <strong>{% trans%}Project alternate repository deleted{% endtrans %}</strong>
+    <small>
+      {% trans %}Deleted by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.deleted_by) }}">{{ event.additional.deleted_by }}</a>
+    </small>
+    <small>{% trans %}Name{% endtrans %}: {{ event.additional.display_name }}</small>
+    <small>{% trans %}Url{% endtrans %}:
+      <a href="{{ event.additional.link_url }}" rel="nofollow noopener noreferrer" target="_blank">
+        {{ event.additional.link_url }}
+      </a>
+    </small>
+
+    {# Show the name of tags that are not catered for above #}
     {% else %}
-    <strong>{{ event.tag }}</strong>
+      <strong>{{ event.tag }}</strong>
     {% endif %}
   {%- endmacro %}
 

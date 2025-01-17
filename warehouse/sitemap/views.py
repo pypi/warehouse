@@ -29,6 +29,10 @@ SITEMAP_MAXSIZE = 50000
 Bucket = collections.namedtuple("Bucket", ["name", "modified"])
 
 
+class BucketTooSmallError(ValueError):
+    pass
+
+
 @view_config(
     route_name="index.sitemap.xml",
     renderer="sitemap/index.xml",
@@ -84,15 +88,15 @@ def sitemap_index(request):
         .group_by(User.sitemap_bucket)
         .all()
     )
-    buckets = {}
+    buckets: dict[str, datetime.datetime] = {}
     for b in itertools.chain(projects, users):
         current = buckets.setdefault(b.sitemap_bucket, b.modified)
         if current is None or (b.modified is not None and b.modified > current):
             buckets[b.sitemap_bucket] = b.modified
-    buckets = [Bucket(name=k, modified=v) for k, v in buckets.items()]
-    buckets.sort(key=lambda x: x.name)
+    bucket_list = [Bucket(name=k, modified=v) for k, v in buckets.items()]
+    bucket_list.sort(key=lambda x: x.name)
 
-    return {"buckets": buckets}
+    return {"buckets": bucket_list}
 
 
 @view_config(
@@ -147,7 +151,7 @@ def sitemap_bucket(request):
     # out so that we can adjust our bucket size to spread the URLs out over
     # more buckets.
     if len(urls) > SITEMAP_MAXSIZE:
-        raise ValueError(
+        raise BucketTooSmallError(
             "Too many URLs in the sitemap for bucket: {!r}.".format(
                 request.matchdict["bucket"]
             )

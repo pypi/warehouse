@@ -17,6 +17,7 @@ import xmlrpc.client
 
 from collections import defaultdict
 from contextlib import contextmanager
+from pathlib import Path
 from unittest import mock
 
 import alembic.command
@@ -30,6 +31,7 @@ import webtest as _webtest
 
 from jinja2 import Environment, FileSystemLoader
 from psycopg.errors import InvalidCatalogName
+from pypi_attestations import Attestation, Envelope, Provenance, VerificationMaterial
 from pyramid.i18n import TranslationString
 from pyramid.static import ManifestCacheBuster
 from pyramid_jinja2 import IJinja2Environment
@@ -40,12 +42,16 @@ from sqlalchemy import event
 
 import warehouse
 
-from warehouse import admin, config, email, static
+from warehouse import admin, config, static
 from warehouse.accounts import services as account_services
 from warehouse.accounts.interfaces import ITokenService, IUserService
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
+from warehouse.attestations import services as attestations_services
+from warehouse.attestations.interfaces import IIntegrityService
 from warehouse.email import services as email_services
 from warehouse.email.interfaces import IEmailSender
+from warehouse.helpdesk import services as helpdesk_services
+from warehouse.helpdesk.interfaces import IAdminNotificationService, IHelpDeskService
 from warehouse.macaroons import services as macaroon_services
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.metrics import IMetricsService
@@ -62,6 +68,9 @@ from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionSer
 from .common.db import Session
 from .common.db.accounts import EmailFactory, UserFactory
 from .common.db.ip_addresses import IpAddressFactory
+
+_HERE = Path(__file__).parent.resolve()
+_FIXTURES = _HERE / "_fixtures"
 
 
 @contextmanager
@@ -171,7 +180,10 @@ def pyramid_services(
     project_service,
     github_oidc_service,
     activestate_oidc_service,
+    integrity_service,
     macaroon_service,
+    helpdesk_service,
+    notification_service,
 ):
     services = _Services()
 
@@ -191,7 +203,10 @@ def pyramid_services(
     services.register_service(
         activestate_oidc_service, IOIDCPublisherService, None, name="activestate"
     )
+    services.register_service(integrity_service, IIntegrityService, None)
     services.register_service(macaroon_service, IMacaroonService, None, name="")
+    services.register_service(helpdesk_service, IHelpDeskService, None)
+    services.register_service(notification_service, IAdminNotificationService)
 
     return services
 
@@ -207,6 +222,7 @@ def pyramid_request(pyramid_services, jinja, remote_addr, remote_addr_hashed):
     dummy_request._unauthenticated_userid = None
     dummy_request.user = None
     dummy_request.oidc_publisher = None
+    dummy_request.metrics = dummy_request.find_service(IMetricsService)
 
     dummy_request.registry.registerUtility(jinja, IJinja2Environment, name=".jinja2")
 
@@ -215,6 +231,11 @@ def pyramid_request(pyramid_services, jinja, remote_addr, remote_addr_hashed):
     )
     dummy_request.task = pretend.call_recorder(
         lambda *a, **kw: dummy_request._task_stub
+    )
+    dummy_request.log = pretend.stub(
+        bind=pretend.call_recorder(lambda *args, **kwargs: dummy_request.log),
+        info=pretend.call_recorder(lambda *args, **kwargs: None),
+        error=pretend.call_recorder(lambda *args, **kwargs: None),
     )
 
     def localize(message, **kwargs):
@@ -315,13 +336,17 @@ def get_app_config(database, nondefaults=None):
         "opensearch.url": "https://localhost/warehouse",
         "files.backend": "warehouse.packaging.services.LocalFileStorage",
         "archive_files.backend": "warehouse.packaging.services.LocalArchiveFileStorage",
+        "archive_files.path": "/tmp",
         "simple.backend": "warehouse.packaging.services.LocalSimpleStorage",
         "docs.backend": "warehouse.packaging.services.LocalDocsStorage",
         "sponsorlogos.backend": "warehouse.admin.services.LocalSponsorLogoStorage",
         "billing.backend": "warehouse.subscriptions.services.MockStripeBillingService",
+        "integrity.backend": "warehouse.attestations.services.NullIntegrityService",
         "billing.api_base": "http://stripe:12111",
         "billing.api_version": "2020-08-27",
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
+        "helpdesk.backend": "warehouse.helpdesk.services.ConsoleHelpDeskService",
+        "helpdesk.notification_backend": "warehouse.helpdesk.services.ConsoleHelpDeskService",  # noqa: E501
         "files.url": "http://localhost:7000/",
         "archive_files.url": "http://localhost:7000/archive",
         "sessions.secret": "123456",
@@ -381,15 +406,17 @@ def get_db_session_for_app_config(app_config):
 
 @pytest.fixture(scope="session")
 def app_config(database):
-
     return get_app_config(database)
 
 
 @pytest.fixture(scope="session")
 def app_config_dbsession_from_env(database):
-
     nondefaults = {
-        "warehouse.db_create_session": lambda r: r.environ.get("warehouse.db_session")
+        "warehouse.db_create_session": lambda r: r.environ.get("warehouse.db_session"),
+        "breached_passwords.backend": "warehouse.accounts.services.NullPasswordBreachedService",  # noqa: E501
+        "token.two_factor.secret": "insecure token",
+        # A running redis service is required for functional web sessions
+        "sessions.url": "redis://redis:0/",
     }
 
     return get_app_config(database, nondefaults)
@@ -534,6 +561,25 @@ def activestate_oidc_service(db_session):
 
 
 @pytest.fixture
+def dummy_attestation():
+    return Attestation(
+        version=1,
+        verification_material=VerificationMaterial(
+            certificate="somebase64string", transparency_entries=[dict()]
+        ),
+        envelope=Envelope(
+            statement="somebase64string",
+            signature="somebase64string",
+        ),
+    )
+
+
+@pytest.fixture
+def integrity_service(db_session):
+    return attestations_services.NullIntegrityService(db_session)
+
+
+@pytest.fixture
 def macaroon_service(db_session):
     return macaroon_services.DatabaseMacaroonService(db_session)
 
@@ -552,6 +598,7 @@ def billing_service(app_config):
         api=stripe,
         publishable_key="pk_test_123",
         webhook_secret="whsec_123",
+        domain="localhost",
     )
 
 
@@ -570,6 +617,16 @@ def email_service():
     return email_services.SMTPEmailSender(
         mailer=DummyMailer(), sender="noreply@pypi.dev"
     )
+
+
+@pytest.fixture
+def helpdesk_service():
+    return helpdesk_services.ConsoleHelpDeskService()
+
+
+@pytest.fixture
+def notification_service():
+    return helpdesk_services.ConsoleAdminNotificationService()
 
 
 class QueryRecorder:
@@ -624,7 +681,7 @@ def db_request(pyramid_request, db_session):
 
 
 @pytest.fixture
-def enable_organizations(db_request):
+def _enable_organizations(db_request):
     flag = db_request.db.get(AdminFlag, AdminFlagValue.DISABLE_ORGANIZATIONS.value)
     flag.enabled = False
     yield
@@ -640,7 +697,7 @@ def send_email(pyramid_request, monkeypatch):
         lambda *args, **kwargs: send_email_stub
     )
     pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
-    monkeypatch.setattr(email, "send_email", send_email_stub)
+    monkeypatch.setattr(warehouse.email, "send_email", send_email_stub)
     return send_email_stub
 
 
@@ -673,7 +730,20 @@ class _TestApp(_webtest.TestApp):
 
 
 @pytest.fixture
-def webtest(app_config_dbsession_from_env):
+def tm():
+    # Create a new transaction manager for dependant test cases
+    tm = transaction.TransactionManager(explicit=True)
+    tm.begin()
+    tm.doom()
+
+    yield tm
+
+    # Abort the transaction, leaving database in previous state
+    tm.abort()
+
+
+@pytest.fixture
+def webtest(app_config_dbsession_from_env, remote_addr, tm):
     """
     This fixture yields a test app with an alternative Pyramid configuration,
     injecting the database session and transaction manager into the app.
@@ -689,11 +759,6 @@ def webtest(app_config_dbsession_from_env):
 
     app = app_config_dbsession_from_env.make_wsgi_app()
 
-    # Create a new transaction manager for dependant test cases
-    tm = transaction.TransactionManager(explicit=True)
-    tm.begin()
-    tm.doom()
-
     with get_db_session_for_app_config(app_config_dbsession_from_env) as _db_session:
         # Register the app with the external test environment, telling
         # request.db to use this db_session and use the Transaction manager.
@@ -703,12 +768,10 @@ def webtest(app_config_dbsession_from_env):
                 "warehouse.db_session": _db_session,
                 "tm.active": True,  # disable pyramid_tm
                 "tm.manager": tm,  # pass in our own tm for the app to use
+                "REMOTE_ADDR": remote_addr,  # set the same address for all requests
             },
         )
         yield testapp
-
-    # Abort the transaction, leaving database in previous state
-    tm.abort()
 
 
 class _MockRedis:
@@ -778,5 +841,26 @@ class _MockRedis:
 
 @pytest.fixture
 def mockredis():
-    mock_redis = _MockRedis()
-    yield mock_redis
+    return _MockRedis()
+
+
+@pytest.fixture
+def gitlab_provenance() -> Provenance:
+    """
+    Provenance from
+    https://test.pypi.org/integrity/pep740-sampleproject/1.0.0/pep740_sampleproject-1.0.0.tar.gz/provenance
+    """
+    return Provenance.model_validate_json(
+        (_FIXTURES / "pep740-sampleproject-1.0.0.tar.gz.provenance").read_text()
+    )
+
+
+@pytest.fixture
+def github_provenance() -> Provenance:
+    """
+    Provenance from
+    https://pypi.org/integrity/sampleproject/4.0.0/sampleproject-4.0.0.tar.gz/provenance
+    """
+    return Provenance.model_validate_json(
+        (_FIXTURES / "sampleproject-4.0.0.tar.gz.provenance").read_text()
+    )

@@ -16,13 +16,15 @@
 {% import "admin/utils/pagination.html" as pagination %}
 
 {% set perms_admin_users_write = request.has_permission(Permissions.AdminUsersWrite) %}
+{% set perms_admin_users_email_write = request.has_permission(Permissions.AdminUsersEmailWrite) %}
+{% set perms_admin_users_account_recovery_write = request.has_permission(Permissions.AdminUsersAccountRecoveryWrite) %}
 
-{% macro render_field(label, field, input_id, placeholder=None, class=None) %}
+{% macro render_field(label, field, input_id, placeholder=None, class=None, permission=perms_admin_users_write) %}
 <div class="form-group row{% if field.errors %} has-error{% endif %}">
   <label for="{{ input_id }}" class="col-sm-2 col-form-label">{{ label }}</label>
 
   <div class="col-sm-10">
-    {{ field(id=input_id, class=class, placeholder=placeholder, disabled=(not perms_admin_users_write))}}
+    {{ field(id=input_id, class=class, placeholder=placeholder, disabled=(not permission))}}
 
     {% if field.errors %}
     <div class="help-block">
@@ -35,9 +37,9 @@
 </div>
 {% endmacro %}
 
-{% macro render_checkbox(label, field, input_id, class=None) %}
+{% macro render_checkbox(label, field, input_id, class=None, permission=perms_admin_users_write) %}
 <div class="form-check">
-  {{ field(id=input_id, class=class, disabled=(not perms_admin_users_write))}}
+  {{ field(id=input_id, class=class, disabled=(not permission))}}
   <label for="{{ input_id }}" class="form-check-label">{{ label }}</label>
 </div>
 {% endmacro %}
@@ -71,6 +73,12 @@
           {% if user.date_joined %}
           <p class="text-muted text-center">
             Joined on {{ user.date_joined|format_date() }}
+          </p>
+          {% endif %}
+
+          {% if user.disabled_for %}
+          <p class="text-muted text-center">
+            Password disabled:<br>{{ user.disabled_for.value }}
           </p>
           {% endif %}
         </div>
@@ -109,12 +117,17 @@
             <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#nukeModal" {{ "disabled" if not perms_admin_users_write }}>
               <i class="icon fa fa-bomb"></i> Nuke user
             </button>
-            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#pwresetModal" {{ "disabled" if not perms_admin_users_write }}>
+            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#pwresetModal" {{ "disabled" if user.is_frozen or not perms_admin_users_account_recovery_write }}>
               <i class="fa-solid fa-unlock-keyhole"></i> Reset password
             </button>
-            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#wipeFactorsModal" {{ "disabled" if not perms_admin_users_write }}>
+            {% if not user.active_account_recoveries %}
+            <a href="{{ request.route_path('admin.user.account_recovery.initiate', username=user.username) }}" role="button" class="btn btn-block btn-danger {{ "disabled" if user.is_frozen or not perms_admin_users_account_recovery_write }}">
+              <i class="fa-solid fa-recycle"></i> Start account recovery
+            </a>
+            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#wipeFactorsModal" {{ "disabled" if user.is_frozen or not perms_admin_users_account_recovery_write }}>
               <i class="fa-solid fa-toilet-paper"></i> Wipe 2FA and recovery codes
             </button>
+            {% endif %}
             <div class="modal fade" id="freezeModal" tabindex="-1" role="dialog">
               <form method="POST" action="{{ request.route_path('admin.user.freeze', username=user.username) }}">
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -144,9 +157,13 @@
                       </ul>
                       <hr>
                       <p>
-                        Type the username '{{ user.username }}' to confirm:
+                        Enter username '{{ user.username }}'
+                        <button type="button" class="copy-text" data-copy-text="{{ user.username }}">
+                          <i class="fa fa-copy" aria-hidden="true"></i>
+                        </button>
+                        to confirm:
                       </p>
-                      <input type="text" name="username" placeholder="{{ user.username }}">
+                      <input type="text" name="username" placeholder="{{ user.username }}" autocomplete="off" autocorrect="off" autocapitalize="off">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -185,9 +202,13 @@
                       </ul>
                       <hr>
                       <p>
-                        Type the username '{{ user.username }}' to confirm:
+                        Enter username '{{ user.username }}'
+                        <button type="button" class="copy-text" data-copy-text="{{ user.username }}">
+                          <i class="fa fa-copy" aria-hidden="true"></i>
+                        </button>
+                        to confirm:
                       </p>
-                      <input type="text" name="username" placeholder="{{ user.username }}">
+                      <input type="text" name="username" placeholder="{{ user.username }}" autocomplete="off" autocorrect="off" autocapitalize="off">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -227,7 +248,7 @@
               </form>
             </div>
             <div class="modal fade" id="wipeFactorsModal" tabindex="-1" role="dialog">
-              <form method="POST" action="{{ request.route_path('admin.user.wipe_factors', username=user.username) }}">
+              <form method="POST" action="{{ request.route_path('admin.user.account_recovery.complete', username=user.username) }}">
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
                 <div class="modal-dialog" role="document">
                   <div class="modal-content">
@@ -279,6 +300,134 @@
             </div>
           </div>
         </div>
+      </div>
+
+      {% if user.active_account_recoveries %}
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Account Recovery in Process</h3>
+        </div>
+        <div class="card-body">
+          {% for account_recovery in user.active_account_recoveries %}
+          <div class="row">
+            <div class="col">
+              <table class="table table-hover">
+                <tr>
+                  <th>Initiated</th>
+                  <td>{{ account_recovery.payload["initiated"] }}</td>
+                </tr>
+                <tr>
+                  <th><i class="fa-brands fa-github"></i></th>
+                  <td><a href="{{ account_recovery.payload["support_issue_link"] }}">{{ account_recovery.payload["support_issue_link"] }}</a></td>
+                </tr>
+                <tr>
+                  <th>Project</th>
+                  <td>{{ account_recovery.payload["project_name"] }}</td>
+                </tr>
+                <tr>
+                  <th>Token</th>
+                  <td>
+                    <span>{{ account_recovery.payload["token"] }}</span>
+                    <button type="button"
+                            class="copy-text"
+                            data-copy-text="{{ account_recovery.payload["token"] }}">
+                      <i class="fa fa-copy" aria-hidden="true"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Project URLS</th>
+                  <td>
+                    <ul>
+                      {% for url in account_recovery.payload["repos"] %}
+                      <li>{{ url[0] }}: <a href="{{ url[1] }}" data-check-link-url="{{ request.camo_url(url[1]) }}" ><i class="fa fa-question"></i> {{ url[1] }}</a></li>
+                      {% endfor %}
+                    </ul>
+                  </td>
+                </tr>
+                {% if account_recovery.payload["override_to_email"] %}
+                <tr>
+                  <th>Alternate E-Mail</th>
+                  <td>{{ account_recovery.payload["override_to_email"] }}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                  <th>Actions</th>
+                  <td>
+                    <button type="button" class="btn btn-block btn-primary" data-toggle="modal" data-target="#cancelRecoveryModal" {{ "disabled" if not perms_admin_users_account_recovery_write }}>
+                      Cancel Recovery
+                    </button>
+                    <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#completeRecoveryModal" {{ "disabled" if not perms_admin_users_account_recovery_write }}>
+                      Complete Recovery
+                    </button>
+                  </td>
+                </tr>
+              </table>
+              <div class="modal fade" id="cancelRecoveryModal" tabindex="-1" role="dialog">
+                <form method="POST" action="{{ request.route_path('admin.user.account_recovery.cancel', username=user.username) }}">
+                  <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h4 class="modal-title" id="pwresetModalLabel">Cancel Account Recovery for {{ user.username }}?</h4>
+                        <button type="button" class="close" data-dismiss="modal">
+                          <span>&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <p>
+                          This will cancel the outstanding Account Recovery Request for {{ user.username }}.
+                        </p>
+                      </div>
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                          <button type="submit" class="btn btn-danger">Cancel Recovery</button>
+                        </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+              <div class="modal fade" id="completeRecoveryModal" tabindex="-1" role="dialog">
+                <form method="POST" action="{{ request.route_path('admin.user.account_recovery.complete', username=user.username) }}">
+                  <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h4 class="modal-title" id="pwresetModalLabel">Complete Account Recovery for {{ user.username }}?</h4>
+                        <button type="button" class="close" data-dismiss="modal">
+                          <span>&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <p>
+                          This will complete outstanding Account Recovery Request for {{ user.username }}.
+                        </p>
+                        <hr>
+                        <p>
+                          All recovery codes, 2FA methods, and passwords for {{ user.username }} will be reset.
+                        </p>
+                        <hr>
+                        <p>
+                          Type the username '{{ user.username }}' to confirm:
+                        </p>
+                        <input type="text" name="username" placeholder="{{ user.username }}">
+                      </div>
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                          <button type="submit" class="btn btn-danger">Complete Recovery</button>
+                        </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="card">
         <div class="card-header with-border">
           <h3 class="card-title">Edit User</h3>
         </div>
@@ -286,15 +435,26 @@
           <form class="form-horizontal" method="POST" action="{{ request.current_route_path() }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
-            {% if form.errors.__all__ %}
-              {% for error in form.errors.__all__ %}
+            {% if form.form_errors %}
+              {% for error in form.form_errors %}
               <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
               {% endfor %}
             {% endif %}
 
-            {{ render_field("Name", form.name, "user-name", class="form-control", placeholder="Name") }}
-
             <div class="card">
+              <div class="card-header with-border">
+                <h3 class="card-title">Details</h3>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col">
+                    <div class="form-group">
+                      {{ render_field("Name", form.name, "user-name", class="form-control", placeholder="Name") }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div class="card-header with-border">
                 <h3 class="card-title">Permissions</h3>
               </div>
@@ -303,48 +463,82 @@
                 <div class="row">
                   <div class="col">
                     <div class="form-group">
+                      <span class="badge badge-primary">Status</span>
                       {{ render_checkbox("Active", form.is_active, "is-active") }}
                       {{ render_checkbox("Frozen", form.is_frozen, "is-frozen") }}
-                      {{ render_checkbox("Superuser", form.is_superuser, "is-superuser")}}
-                      {{ render_checkbox("Moderator", form.is_moderator, "is-moderator")}}
-                      {{ render_checkbox("PSF Staff", form.is_psf_staff, "is-psf-staff")}}
                       {{ render_checkbox("Observer", form.is_observer, "is-observer")}}
                     </div>
                   </div>
                   <div class="col">
-                    {{ render_checkbox("Prohibit Password Reset", form.prohibit_password_reset, "prohibit-password-reset")}}
-                    {{ render_checkbox("Hide avatar", form.hide_avatar, "hide-avatar")}}
+                    <div class="form-group">
+                      <span class="badge badge-danger">Roles</span>
+                      {{ render_checkbox("Superuser", form.is_superuser, "is-superuser")}}
+                      {{ render_checkbox("Support", form.is_support, "is-support")}}
+                      {{ render_checkbox("Moderator", form.is_moderator, "is-moderator")}}
+                      {{ render_checkbox("PSF Staff", form.is_psf_staff, "is-psf-staff")}}
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col">
+                    <div class="form-group">
+                      <span class="badge badge-secondary">Flags</span>
+                      {{ render_checkbox("Prohibit Password Reset", form.prohibit_password_reset, "prohibit-password-reset")}}
+                      {{ render_checkbox("Hide avatar", form.hide_avatar, "hide-avatar")}}
+                    </div>
                   </div>
                 </div>
               </div>
-
-              <div class="card-header with-border">
-                <h3 class="card-title">Emails</h3>
+              <div class="card-footer">
+                <div class="form-group">
+                  <div class="col-sm-offset-10 col-sm-2">
+                    <button type="submit" action="user_form" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not perms_admin_users_write }}" {{ "disabled" if not perms_admin_users_write }}>Submit</button>
+                  </div>
+                </div>
               </div>
+            </div>
+          </form>
+        </div>
+      </div>
 
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Emails</h3>
+        </div>
+        <div class="card-body">
+          <form class="form-horizontal" method="POST" action="{{ request.route_path('admin.user.submit_email', username=user.username) }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+
+            {% if form.form_errors %}
+              {% for error in form.form_errors %}
+              <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
+              {% endfor %}
+            {% endif %}
+
+            <div class="card">
               <div class="card-body">
-                {% if form.errors.emails %}
-                  {% for error in form.errors.emails %}
+                {% if emails_form.errors.emails %}
+                  {% for error in emails_form.errors.emails %}
                     <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
                   {% endfor %}
                 {% endif %}
 
-                {% for field in form.emails.entries %}
+                {% for field in emails_form.emails.entries %}
                 <div class="row">
-                  <div class="col-7">
-                    {{ render_field("Email", field.email, "email-" ~ loop.index0, class="form-control", placeholder="Email")}}
+                  <div class="col-sm-7">
+                    {{ render_field("Email", field.email, "email-" ~ loop.index0, class="form-control", placeholder="Email", permission=perms_admin_users_email_write)}}
                   </div>
-                  <div class="col">
-                    {{ render_checkbox("Primary", field.primary, "email-primary-" ~ loop.index0)}}
+                  <div class="col-sm">
+                    {{ render_checkbox("Primary", field.primary, "email-primary-" ~ loop.index0, permission=perms_admin_users_email_write)}}
                   </div>
-                  <div class="col">
-                    {{ render_checkbox("Verified", field.verified, "email-verified-" ~ loop.index0) }}
+                  <div class="col-sm">
+                    {{ render_checkbox("Verified", field.verified, "email-verified-" ~ loop.index0, permission=perms_admin_users_email_write) }}
                   </div>
-                  <div class="col">
-                    {{ render_checkbox("Public", field.public, "email-public-" ~ loop.index0) }}
+                  <div class="col-sm">
+                    {{ render_checkbox("Public", field.public, "email-public-" ~ loop.index0, permission=perms_admin_users_email_write) }}
                   </div>
                   {% if breached_email_count[field.email.data] %}
-                  <div class="col">
+                  <div class="col-sm">
                     Breaches: {{ breached_email_count[field.email.data] }}
                   </div>
                   {% endif %}
@@ -356,57 +550,58 @@
                 </div>
                 {% endfor %}
               </div>
-            </div>
 
-            <div class="card-footer">
-              <div class="form-group">
-                <div class="col-sm-offset-10 col-sm-2">
-                  <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not perms_admin_users_write }}" {{ "disabled" if not perms_admin_users_write }}>Submit</button>
+              <div class="card-footer">
+                <div class="form-group">
+                  <div class="col-sm-offset-10 col-sm-2">
+                    <button type="submit" action="email_form" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not perms_admin_users_email_write }}" {{ "disabled" if not perms_admin_users_email_write }}>Submit</button>
+                  </div>
                 </div>
               </div>
+
             </div>
           </form>
-        </div>
-      </div> <!-- .card -->
 
-      <div class="card">
-        <div class="card-header with-border">
-          <h3 class="card-title">Add a new email</h3>
-        </div>
-        <form class="form-horizontal" method="POST" action="{{ request.route_path('admin.user.add_email', username=user.username) }}">
-          <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-
-          <div class="card-body">
-            {% if add_email_form.errors.__all__ %}
-              {% for error in add_email_form.errors.__all__ %}
-              <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
-              {% endfor %}
-            {% endif %}
-
-            <div class="row">
-              <div class="col-6">
-                {{ render_field("Email", add_email_form.email, "email", class="form-control", placeholder="Email")}}
-              </div>
-              <div class="col">
-                {{ render_checkbox("Primary", add_email_form.primary, "email-primary")}}
-              </div>
-              <div class="col">
-                {{ render_checkbox("Verified", add_email_form.verified, "email-verified") }}
-              </div>
-              <div class="col">
-                {{ render_checkbox("Public", add_email_form.public, "email-public") }}
-              </div>
-            </div>
+          <div class="card-header with-border">
+            <h3 class="card-title">Add a new email</h3>
           </div>
+          <div class="card">
+            <form class="form-horizontal" method="POST" action="{{ request.route_path('admin.user.add_email', username=user.username) }}">
+              <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
-          <div class="card-footer">
-            <div class="form-group">
-              <div class="col-sm-offset-10 col-sm-2">
-                <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not perms_admin_users_write }}" {{ "disabled" if not perms_admin_users_write }}>Submit</button>
+              <div class="card-body">
+                {% if add_email_form.form_errors %}
+                  {% for error in add_email_form.form_errors %}
+                  <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
+                  {% endfor %}
+                {% endif %}
+
+                <div class="row">
+                  <div class="col-sm-7">
+                    {{ render_field("Email", add_email_form.email, "email", class="form-control", placeholder="Email", permission=perms_admin_users_email_write)}}
+                  </div>
+                  <div class="col-sm">
+                    {{ render_checkbox("Primary", add_email_form.primary, "email-primary", permission=perms_admin_users_email_write)}}
+                  </div>
+                  <div class="col-sm">
+                    {{ render_checkbox("Verified", add_email_form.verified, "email-verified", permission=perms_admin_users_email_write) }}
+                  </div>
+                  <div class="col-sm">
+                    {{ render_checkbox("Public", add_email_form.public, "email-public", permission=perms_admin_users_email_write) }}
+                  </div>
+                </div>
               </div>
-            </div>
+
+              <div class="card-footer">
+                <div class="form-group">
+                  <div class="col-sm-offset-10 col-sm-2">
+                    <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not perms_admin_users_email_write }}" {{ "disabled" if not perms_admin_users_email_write }}>Submit</button>
+                  </div>
+                </div>
+              </div>
+            </form>
           </div>
-        </form>
+        </div>
       </div> <!-- .card -->
 
       <div class="card">
@@ -688,10 +883,42 @@
         </div>
       </div> <!-- .card -->
 
+    {% if user.observations %}
+      <div class="card card-warning card-outline">
+        <div class="card-header with-border">
+          <h3 class="card-title">Observations about <code>{{ user.username }}</code></h3>
+        </div>
+        <div class="card-body">
+          <table id="user_observations" class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th scope="col" class="time">Time</th>
+                <th scope="col" class="related">Related</th>
+                <th scope="col" class="kind">Kind</th>
+                <th scope="col" class="summary">Summary</th>
+                <th scope="col" class="payload">Payload</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for observation in user.observations %}
+              <tr>
+                <td>{{ observation.created }}</td>
+                <td>{{ observation.related }}</td>
+                <td>{{ observation.kind_display }}</td>
+                <td>{{ observation.summary }}</td>
+                <td>{{ observation.payload }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div> <!-- .card -->
+    {% endif %}
+
     {% if user.observer.observations %}
       <div class="card">
         <div class="card-header with-border">
-          <h3 class="card-title">Observations</h3>
+          <h3 class="card-title">Admin-submitted Observations</h3>
         </div>
         <div class="card-body">
           <table id="observations" class="table table-striped table-hover">
@@ -719,6 +946,42 @@
         </div>
       </div> <!-- .card -->
     {% endif %}
+
+    {% if submitted_by_journals %}
+      <div class="card card-outline" id="submitted_by_journals">
+        <div class="card-header with-border">
+          <h3 class="card-title">Journals (most recent)</h3>
+        </div>
+        <div class="card-body">
+          <table id="submitted_by_journals" class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th>Submitted Date</th>
+                <th>Project Name</th>
+                <th>Version</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for journal in submitted_by_journals %}
+                <tr>
+                  <td>{{ journal.submitted_date }}</td>
+                  <td>{{ journal.name }}</td>
+                  <td>{{ journal.version }}</td>
+                  <td>{{ journal.action }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="card-footer">
+          <a href="{{ request.route_path('admin.journals.list', _query={"q": "user:" + user.username}) }}"
+             class="btn btn-primary">View all journals for username</a>
+        </div>
+      </div>
+      <!-- .card -->
+    {% endif %}
+
     </div>
   </div>
 {% endblock %}

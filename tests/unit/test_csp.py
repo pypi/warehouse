@@ -165,7 +165,9 @@ class TestCSPTween:
                 "default-src": ["'none'"],
                 "frame-src": ["'none'"],
                 "img-src": ["'self'"],
-            }
+                "connect-src": [],
+            },
+            "camo.url": "http://localhost:9000",
         }
         response = pretend.stub(headers={})
         registry = pretend.stub(settings=settings)
@@ -176,11 +178,13 @@ class TestCSPTween:
         request = pretend.stub(
             path="/admin/",
             find_service=pretend.call_recorder(lambda *args, **kwargs: settings["csp"]),
+            registry=registry,
         )
 
         assert tween(request) is response
         assert response.headers == {
             "Content-Security-Policy": (
+                "connect-src http://localhost:9000; "
                 "default-src 'none'; "
                 "frame-src https://inspector.pypi.io; "
                 "img-src 'self' data:"
@@ -194,7 +198,7 @@ class TestCSPPolicy:
         assert isinstance(policy, collections.defaultdict)
 
     @pytest.mark.parametrize(
-        "existing, incoming, expected",
+        ("existing", "incoming", "expected"),
         [
             (
                 {"foo": ["bar"]},
@@ -241,11 +245,11 @@ def test_includeme():
             {
                 "csp": {
                     "base-uri": ["'self'"],
-                    "block-all-mixed-content": [],
                     "connect-src": [
                         "'self'",
                         "https://api.github.com/repos/",
                         "https://api.github.com/search/issues",
+                        "https://gitlab.com/api/",
                         "https://*.google-analytics.com",
                         "https://*.analytics.google.com",
                         "https://*.googletagmanager.com",

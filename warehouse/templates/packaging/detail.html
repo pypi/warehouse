@@ -35,7 +35,7 @@
   {% set icon = "fab fa-gitlab" %}
 {% elif parsed.netloc == "gitter.im" or parsed.netloc.endswith(".gitter.im") %}
   {% set icon = "fab fa-gitter" %}
-{% elif parsed.netloc in ["discord.com", "discordapp.com", "discord.gg"] or parsed.netloc.endswith(("discord.com", "discordapp.com", "discord.gg")) %}
+{% elif parsed.netloc in ["discord.com", "discordapp.com", "discord.gg"] %}
   {% set icon = "fab fa-discord" %}
 {% elif parsed.netloc == "google.com" or parsed.netloc.endswith(".google.com") %}
   {% set icon = "fab fa-google" %}
@@ -45,9 +45,9 @@
   {% set icon = "fab fa-reddit-alien" %}
 {% elif name.lower().startswith("slack") or parsed.netloc == "slack.com" or parsed.netloc.endswith(".slack.com") %}
   {% set icon = "fab fa-slack" %}
-{% elif parsed.netloc == "twitter.com" or parsed.netloc.endswith(".twitter.com") %}
+{% elif parsed.netloc in ["twitter.com", "x.com"] or parsed.netloc.endswith((".twitter.com", ".x.com")) %}
   {% set icon = "fab fa-twitter" %}
-{% elif parsed.netloc in ["ci.appveyor.com", "circleci.com", "codecov.io", "coveralls.io", "shippable.com", "travis-ci.com", "travis-ci.org"] or parsed.netloc.endswith((".appveyor.com", ".circleci.com", ".codecov.io", ".coveralls.io", ".shippable.com", ".travis-ci.org", ".travis-ci.com")) %}
+{% elif parsed.netloc in ["ci.appveyor.com", "circleci.com", "codecov.io", "coveralls.io", "travis-ci.com", "travis-ci.org"] or parsed.netloc.endswith((".appveyor.com", ".circleci.com", ".codecov.io", ".coveralls.io", ".travis-ci.org", ".travis-ci.com")) %}
   {% set icon = "fas fa-tasks" %}
 {% elif parsed.netloc in ["cheeseshop.python.org", "pypi.io", "pypi.org", "pypi.python.org"] %}
   {% set icon = "fas fa-cube" %}
@@ -114,7 +114,9 @@
           {{ file.filename }}
         </a>
         ({{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}
-        <a href="#copy-hash-modal-{{ file.id }}">{%- trans -%}view hashes{%- endtrans -%}</a>)
+        <a href="#{{ file.filename }}" data-project-tabs-target="tab" data-action="project-tabs#onTabClick">
+          {%- trans -%}view details{%- endtrans -%}
+        </a>)
         <p class="file__meta">
           Uploaded {{ humanize(file.upload_time) }}
           {% for tag in file.pretty_wheel_tags %}
@@ -144,12 +146,19 @@
 {% endblock %}
 
 {% block content %}
-{% if release.github_repo_info_url and release.github_open_issue_info_url %}
+{% if release.verified_github_repo_info_url and release.verified_github_open_issue_info_url %}
 <div class="hidden"
   data-controller="github-repo-stats"
   data-github-repo-stats-github-repo-info-outlet=".github-repo-info"
-  data-github-repo-stats-url-value="{{release.github_repo_info_url}}"
-  data-github-repo-stats-issue-url-value="{{release.github_open_issue_info_url}}">
+  data-github-repo-stats-url-value="{{release.verified_github_repo_info_url}}"
+  data-github-repo-stats-issue-url-value="{{release.verified_github_open_issue_info_url}}">
+</div>
+{% endif %}
+{% if release.verified_gitlab_repository %}
+<div class="hidden"
+  data-controller="gitlab-repo-stats"
+  data-gitlab-repo-stats-gitlab-repo-info-outlet=".gitlab-repo-info"
+  data-gitlab-repo-stats-repository-value="{{release.verified_gitlab_repository}}">
 </div>
 {% endif %}
 
@@ -160,7 +169,7 @@
         {{ release.project.name }} {{ release.version }}
       </h1>
 
-      {% if files %}
+      {% if files and not project.lifecycle_status == "quarantine-enter" %}
       <div data-controller="clipboard">
         <p class="package-header__pip-instructions">
           <span id="pip-command" data-clipboard-target="source">{{ pip_command(release, request.matched_route.name, testPyPI) }}</span>
@@ -174,7 +183,13 @@
     </div>
 
     <div class="package-header__right">
-    {% if release.yanked %}
+    {% if project.lifecycle_status == "quarantine-enter" %}
+      <a class="status-badge status-badge--warn" href="{{ request.route_path('help') }}#project_in_quarantine">
+      <span>
+        {% trans %}This project has been quarantined{% endtrans %}
+      </span>
+      </a>
+    {% elif release.yanked %}
       <a class="status-badge status-badge--bad" href="{{ request.route_path('packaging.project', name=release.project.name) }}">
         <span>
           {% trans %}This release has been yanked{% endtrans %}<br>
@@ -291,7 +306,33 @@
 
         {# Tab: Project description #}
         <div id="description" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="description-tab mobile-description-tab" tabindex="-1">
-          {% if release.yanked and release.yanked_reason %}
+          {% if project.lifecycle_status == "quarantine-enter" %}
+            <div class="callout-block callout-block--warning">
+              <p>{% trans %}This project has been quarantined.{% endtrans %}</p>
+              <p>
+                {% trans %}
+                  PyPI Admins need to review this project before it can be restored.
+                  While in quarantine, the project is not installable by clients,
+                  and cannot be being modified by its maintainers.
+                {% endtrans %}
+              </p>
+              <p>
+                {% trans href=request.route_path('help') + "#project_in_quarantine" %}
+                  Read more in the <a href="{{ href }}">project in quarantine</a> help article.
+                {% endtrans %}
+              </p>
+            </div>
+          {% elif project.lifecycle_status == "archived" %}
+            <div class="callout-block callout-block--warning">
+              <p>{% trans %}This project has been archived.{% endtrans %}</p>
+              <p>
+                {% trans %}
+                  The maintainers of this project have marked this project as archived.
+                  No new releases are expected.
+                {% endtrans %}
+              </p>
+            </div>
+          {% elif release.yanked and release.yanked_reason %}
             <div class="callout-block callout-block--danger">
               <p>{% trans %}Reason this release was yanked:{% endtrans %}</p>
               <p>{{ release.yanked_reason }}</p>
@@ -383,6 +424,7 @@
           <div id="files" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="files-tab mobile-files-tab" tabindex="-1" data-controller="filter-list">
             <h2 class="page-title">{% trans %}Download files{% endtrans %}</h2>
             <p>{% trans href='https://packaging.python.org/tutorials/installing-packages/', title=gettext('External link') %}Download the file for your platform. If you're not sure which to choose, learn more about <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">installing packages</a>.{% endtrans %}</p>
+
             <h3>
               {% trans count=sdists|length %}
                 Source Distribution
@@ -502,8 +544,9 @@
             {% endif %}
           </div>
 
+          {# Tabs: file details #}
           {% for file in files %}
-          {% include "warehouse:templates/includes/hash-modal.html" %}
+          {% include "warehouse:templates/includes/file-details.html" %}
           {% endfor %}
 
         {% endif %}

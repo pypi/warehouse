@@ -14,14 +14,22 @@
 
 /*
   Column that is 50% wide:
-  <div class="col-half"></div>
+  <div class="col-grid">
+    <div class="col-half"></div>
+  </div>
 
-  Column that is 33% wide:
-  <div class="col-third"></div>
+   Column that is 33% wide:
+   <div class="col-grid">
+     <div class="col-third"></div>
+   </div>
 */
 
+.col-grid {
+  @include grid-container;
+}
+
 .col-half {
-  @include span-columns(6);
+  grid-column: span 6;
 
   &:last-of-type {
     margin: 0;
@@ -39,7 +47,7 @@
 }
 
 .col-third {
-  @include span-columns(4);
+  grid-column: span 4;
 
   &:last-of-type {
     margin: 0;

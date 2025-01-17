@@ -13,19 +13,56 @@
 import datetime
 
 import factory
+import faker
 
-from warehouse.accounts.models import Email, User
+from argon2 import PasswordHasher
+
+from warehouse.accounts.models import (
+    Email,
+    ProhibitedEmailDomain,
+    ProhibitedUserName,
+    User,
+)
 
 from .base import WarehouseFactory
+
+fake = faker.Faker()
 
 
 class UserFactory(WarehouseFactory):
     class Meta:
         model = User
 
+    class Params:
+        # Shortcut to create a user with a verified primary email
+        with_verified_primary_email = factory.Trait(
+            email=factory.RelatedFactory(
+                "tests.common.db.accounts.EmailFactory",
+                factory_related_name="user",
+                primary=True,
+                verified=True,
+            )
+        )
+        # Allow passing a cleartext password to the factory
+        # This will be hashed before saving the user.
+        # Usage: UserFactory(clear_pwd="password")
+        clear_pwd = None
+
     username = factory.Faker("pystr", max_chars=12)
     name = factory.Faker("word")
-    password = "!"
+    password = factory.LazyAttribute(
+        # Note: argon2 is used directly here, since it's our "best" hashing algorithm
+        # instead of using `passlib`, since we may wish to replace it.
+        lambda obj: (
+            PasswordHasher(
+                memory_cost=1024,
+                parallelism=6,
+                time_cost=6,
+            ).hash(obj.clear_pwd)
+            if obj.clear_pwd
+            else "!"
+        )
+    )
     is_active = True
     is_superuser = False
     is_moderator = False
@@ -59,3 +96,19 @@ class EmailFactory(WarehouseFactory):
     public = False
     unverify_reason = None
     transient_bounces = 0
+
+
+class ProhibitedEmailDomainFactory(WarehouseFactory):
+    class Meta:
+        model = ProhibitedEmailDomain
+
+    # TODO: Replace when factory_boy supports `unique`.
+    #  See https://github.com/FactoryBoy/factory_boy/pull/997
+    domain = factory.Sequence(lambda _: fake.unique.domain_name())
+
+
+class ProhibitedUsernameFactory(WarehouseFactory):
+    class Meta:
+        model = ProhibitedUserName
+
+    name = factory.Faker("user_name")

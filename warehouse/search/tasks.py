@@ -23,7 +23,6 @@ import sentry_sdk
 from opensearchpy.helpers import parallel_bulk
 from redis.lock import Lock
 from sqlalchemy import func, select, text
-from sqlalchemy.orm import aliased
 from urllib3.util import parse_url
 
 from warehouse import tasks
@@ -36,28 +35,10 @@ from warehouse.packaging.models import (
 )
 from warehouse.packaging.search import Project as ProjectDocument
 from warehouse.search.utils import get_index
-from warehouse.utils.db import windowed_query
 
 
-def _project_docs(db, project_name=None):
-    releases_list = (
-        select(Release.id)
-        .filter(Release.yanked.is_(False), Release.files)
-        .order_by(
-            Release.project_id,
-            Release.is_prerelease.nullslast(),
-            Release._pypi_ordering.desc(),
-        )
-        .distinct(Release.project_id)
-    )
-
-    if project_name:
-        releases_list = releases_list.join(Project).filter(Project.name == project_name)
-
-    releases_list = releases_list.subquery()
-    rlist = aliased(Release, releases_list)
-
-    classifiers = (
+def _project_docs(db, project_name: str | None = None):
+    classifiers_subquery = (
         select(func.array_agg(Classifier.classifier))
         .select_from(ReleaseClassifiers)
         .join(Classifier, Classifier.id == ReleaseClassifiers.trove_id)
@@ -66,11 +47,9 @@ def _project_docs(db, project_name=None):
         .scalar_subquery()
         .label("classifiers")
     )
-
-    release_data = (
+    projects_to_index = (
         select(
             Description.raw.label("description"),
-            Release.version.label("latest_version"),
             Release.author,
             Release.author_email,
             Release.maintainer,
@@ -81,18 +60,32 @@ def _project_docs(db, project_name=None):
             Release.platform,
             Release.download_url,
             Release.created,
-            classifiers,
+            classifiers_subquery,
             Project.normalized_name,
             Project.name,
         )
-        .select_from(rlist)
-        .join(Release, Release.id == rlist.id)
+        .select_from(Release)
         .join(Description)
-        .outerjoin(Release.project)
+        .join(Project)
+        .filter(
+            Release.yanked.is_(False),
+            Release.files.any(),
+            # Filter by project_name if provided
+            Project.name == project_name if project_name else text("TRUE"),
+        )
+        .order_by(
+            Project.name,
+            Release.is_prerelease.nullslast(),
+            Release._pypi_ordering.desc(),
+        )
+        .distinct(Project.name)
+        .execution_options(yield_per=25000)
     )
 
-    for chunk in windowed_query(db, release_data, Project.name, 25000):
-        for release in chunk:
+    results = db.execute(projects_to_index)
+
+    for partition in results.partitions():
+        for release in partition:
             p = ProjectDocument.from_db(release)
             p._index = None
             p.full_clean()

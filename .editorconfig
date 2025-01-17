@@ -7,11 +7,21 @@ end_of_line = lf
 indent_size = 2
 indent_style = space
 insert_final_newline = true
+trim_trailing_whitespace = true
 
 [*.py]
 indent_size = 4
 # handled by black config
 max_line_length = off
 
+[*.md]
+trim_trailing_whitespace = false
+
 [Makefile]
 indent_style = tab
+
+[warehouse/templates/**/*.{html,txt}]
+# our templates do their own left-padding in Jinja comments, ignore
+indent_size = unset
+[LICENSE]
+indent_size = unset

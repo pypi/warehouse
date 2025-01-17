@@ -30,8 +30,11 @@ improve the process:
 Detailed installation instructions
 ----------------------------------
 
-Getting the Warehouse source code
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Get the Warehouse source code
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+First, fork and clone the Warehouse source code to work on it locally.
+
 `Fork <https://docs.github.com/en/get-started/quickstart/fork-a-repo>`_ the repository
 on `GitHub`_ and
 `clone <https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository>`_ it to
@@ -54,25 +57,36 @@ you stay up-to-date with our repository:
     git merge upstream/main
 
 
-Configure the development environment
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Create your development environment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. note::
-   In case you are used to using a virtual environment for Python development:
-   it's unnecessary for Warehouse development. Our Makefile scripts execute all
-   developer actions inside Docker containers.
+   Warehouse development can be done using Makefile scripts which
+   execute all developer actions inside Docker containers. You do
+   not need to create a Python virtual environment.
 
-Verifying Make Installation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Verify that you have Make installed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Verify that you have make installed in your environment
+We use Make to build the docs and the Warehouse site.
+Verify that you have Make installed in your environment.
 
 .. code-block:: console
 
     make --version
 
-If you do not have it installed,
-consult your OS documentation on how to install ``make``.
+If you do not have ``Make`` installed,
+consult your operating system documentation on how to install ``make``.
+
+
+Do you want to build the docs or the Warehouse site?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you wish to build the entire Warehouse site,
+use Docker and follow the instructions below. However, if you are only
+contributing to the user or development documentation, then you can skip
+setting up Docker below and use ``Make`` instead. To build the docs,
+follow the `instructions here <#build-docs>`_.
 
 
 Why Docker?
@@ -188,7 +202,7 @@ application.
    (on Windows by editing the config file found at ``C:\Users\<USER>\AppData\Local\Docker\wsl``).
 
    If you are using Linux, you may need to configure the maximum map count to get
-   the `opensearch` up and running. According to the
+   the ``opensearch`` up and running. According to the
    `documentation <https://opensearch.org/docs/2.15/install-and-configure/install-opensearch/index/#important-settings>`_
    this can be set temporarily:
 
@@ -352,6 +366,10 @@ to a moderator if needed.
 
 All of these users have 2FA enabled via TOTP,
 using the same secret as ``make totp``.
+You can scan the following QR code to add this TOTP secret to your TOTP authenticator:
+
+.. image:: ../_static/warehouse_admin_totp.png
+   :width: 100
 
 They also have the following Recovery Codes generated:
 
@@ -369,7 +387,7 @@ They also have the following Recovery Codes generated:
 Using different accounts will allow you to see different parts of the site,
 and have slightly different experiences.
 
-For example, using `miketheman` will require email verification.
+For example, using ``miketheman`` will require email verification.
 See :ref:`testing-e-mails` for more information on how to see those emails.
 
 Logging in as users without 2FA
@@ -681,7 +699,27 @@ If you want to run a specific test, you can use the ``T`` variable:
 
     T=tests/unit/i18n/test_filters.py make tests
 
-You can add arguments to the test runner by using the ``TESTARGS`` variable:
+
+.. note::
+
+  By default, using the ``T`` variable disables testcase parallelization
+  (due to runner startup time being greater than actual test time). To
+  re-enable parallelization, you can pass explicit ``TESTARGS``:
+
+  .. code-block:: console
+
+    T=tests/unit/i18n/test_filters.py TESTARGS="-n auto" make tests
+
+  It also turns off test coverage reporting because it is almost guaranteed
+  to fail and add test time overhead. To re-enable the coverage report, you
+  can pass explicit ``COVERAGE``:
+
+  .. code-block:: console
+
+    T=tests/unit/i18n/test_filters.py COVERAGE=1 make tests
+
+You can also add arguments to the test runner by using the ``TESTARGS``
+variable:
 
 .. code-block:: console
 
@@ -709,13 +747,17 @@ formatting and linting. You can reformat with:
 
     make reformat
 
+.. _build-docs:
 
 Building documentation
 ----------------------
 
 The Warehouse documentation is stored in the :file:`docs/`
-directory. It is written in `reStructured Text`_ and rendered using
-`Sphinx`_.
+directory with three subdirectories: blog, dev and user.
+Development docs (in the dev directory) are written in
+`reStructured Text`_ and rendered using `Sphinx`_. User docs ``/user``
+are written in markdown and rendered using ``mkdocs``. The blog is
+also written in markdown.
 
 Use :command:`make` to build the documentation. For example:
 

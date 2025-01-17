@@ -62,6 +62,7 @@ from urllib3.util import parse_url
 
 from warehouse import db
 from warehouse.accounts.models import User
+from warehouse.attestations.models import Provenance
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.events.models import HasEvents
@@ -167,6 +168,7 @@ class ProjectFactory:
 class LifecycleStatus(enum.StrEnum):
     QuarantineEnter = "quarantine-enter"
     QuarantineExit = "quarantine-exit"
+    Archived = "archived"
 
 
 class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
@@ -234,6 +236,11 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
         order_by=lambda: Release._pypi_ordering.desc(),
         passive_deletes=True,
     )
+    alternate_repositories: Mapped[list[AlternateRepository]] = orm.relationship(
+        cascade="all, delete-orphan",
+        back_populates="project",
+        passive_deletes=True,
+    )
 
     __table_args__ = (
         CheckConstraint(
@@ -297,6 +304,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                     Permissions.AdminObservationsRead,
                     Permissions.AdminObservationsWrite,
                     Permissions.AdminProhibitedProjectsWrite,
+                    Permissions.AdminProhibitedUsernameWrite,
                     Permissions.AdminProjectsDelete,
                     Permissions.AdminProjectsRead,
                     Permissions.AdminProjectsSetLimit,
@@ -322,25 +330,36 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             (Allow, Authenticated, Permissions.SubmitMalwareObservation),
         ]
 
-        # The project has zero or more OIDC publishers registered to it,
-        # each of which serves as an identity with the ability to upload releases.
-        for publisher in self.oidc_publishers:
-            acls.append((Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload]))
+        if self.lifecycle_status != LifecycleStatus.Archived:
+            # The project has zero or more OIDC publishers registered to it,
+            # each of which serves as an identity with the ability to upload releases
+            # (only if the project is not archived)
+            for publisher in self.oidc_publishers:
+                acls.append(
+                    (Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload])
+                )
 
         # Get all of the users for this project.
-        query = session.query(Role).filter(Role.project == self)
-        query = query.options(orm.lazyload(Role.project))
-        query = query.options(orm.lazyload(Role.user))
+        user_query = (
+            session.query(Role)
+            .filter(Role.project == self)
+            .options(orm.lazyload(Role.project), orm.lazyload(Role.user))
+        )
         permissions = {
             (role.user_id, "Administer" if role.role_name == "Owner" else "Upload")
-            for role in query.all()
+            for role in user_query.all()
         }
 
         # Add all of the team members for this project.
-        query = session.query(TeamProjectRole).filter(TeamProjectRole.project == self)
-        query = query.options(orm.lazyload(TeamProjectRole.project))
-        query = query.options(orm.lazyload(TeamProjectRole.team))
-        for role in query.all():
+        team_query = (
+            session.query(TeamProjectRole)
+            .filter(TeamProjectRole.project == self)
+            .options(
+                orm.lazyload(TeamProjectRole.project),
+                orm.lazyload(TeamProjectRole.team),
+            )
+        )
+        for role in team_query.all():
             permissions |= {
                 (user.id, "Administer" if role.role_name.value == "Owner" else "Upload")
                 for user in role.team.members
@@ -348,29 +367,41 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
 
         # Add all organization owners for this project.
         if self.organization:
-            query = session.query(OrganizationRole).filter(
-                OrganizationRole.organization == self.organization,
-                OrganizationRole.role_name == OrganizationRoleType.Owner,
+            org_query = (
+                session.query(OrganizationRole)
+                .filter(
+                    OrganizationRole.organization == self.organization,
+                    OrganizationRole.role_name == OrganizationRoleType.Owner,
+                )
+                .options(
+                    orm.lazyload(OrganizationRole.organization),
+                    orm.lazyload(OrganizationRole.user),
+                )
             )
-            query = query.options(orm.lazyload(OrganizationRole.organization))
-            query = query.options(orm.lazyload(OrganizationRole.user))
-            permissions |= {(role.user_id, "Administer") for role in query.all()}
+            permissions |= {(role.user_id, "Administer") for role in org_query.all()}
 
         for user_id, permission_name in sorted(permissions, key=lambda x: (x[1], x[0])):
-            if permission_name == "Administer":
-                acls.append(
-                    (
-                        Allow,
-                        f"user:{user_id}",
-                        [
-                            Permissions.ProjectsRead,
-                            Permissions.ProjectsUpload,
-                            Permissions.ProjectsWrite,
-                        ],
-                    )
-                )
+            # Disallow Write permissions for Projects in quarantine, allow Upload
+            if self.lifecycle_status == LifecycleStatus.QuarantineEnter:
+                current_permissions = [
+                    Permissions.ProjectsRead,
+                    Permissions.ProjectsUpload,
+                ]
+            elif permission_name == "Administer":
+                current_permissions = [
+                    Permissions.ProjectsRead,
+                    Permissions.ProjectsUpload,
+                    Permissions.ProjectsWrite,
+                ]
             else:
-                acls.append((Allow, f"user:{user_id}", [Permissions.ProjectsUpload]))
+                current_permissions = [Permissions.ProjectsUpload]
+
+            if self.lifecycle_status == LifecycleStatus.Archived:
+                # Disallow upload permissions for archived projects
+                current_permissions.remove(Permissions.ProjectsUpload)
+
+            if current_permissions:
+                acls.append((Allow, f"user:{user_id}", current_permissions))
         return acls
 
     @property
@@ -399,6 +430,23 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             orm.object_session(self)
             .query(User)
             .join(owner_roles, User.id == owner_roles.c.id)
+            .all()
+        )
+
+    @property
+    def maintainers(self):
+        """Return all users who are maintainers of the project."""
+        maintainer_roles = (
+            orm.object_session(self)
+            .query(User.id)
+            .join(Role.user)
+            .filter(Role.role_name == "Maintainer", Role.project == self)
+            .subquery()
+        )
+        return (
+            orm.object_session(self)
+            .query(User)
+            .join(maintainer_roles, User.id == maintainer_roles.c.id)
             .all()
         )
 
@@ -494,6 +542,7 @@ class ReleaseURL(db.Model):
 
     name: Mapped[str] = mapped_column(String(32))
     url: Mapped[str]
+    verified: Mapped[bool_false]
 
 
 DynamicFieldsEnum = ENUM(
@@ -503,13 +552,15 @@ DynamicFieldsEnum = ENUM(
     "Description",
     "Description-Content-Type",
     "Keywords",
-    "Home-Page",
-    "Download-Url",
+    "Home-Page",  # Deprecated, but technically permitted by PEP 643
+    "Download-Url",  # Deprecated, but technically permitted by PEP 643
     "Author",
     "Author-Email",
     "Maintainer",
     "Maintainer-Email",
     "License",
+    "License-Expression",
+    "License-File",
     "Classifier",
     "Requires-Dist",
     "Requires-Python",
@@ -518,6 +569,12 @@ DynamicFieldsEnum = ENUM(
     "Provides-Extra",
     "Provides-Dist",
     "Obsoletes-Dist",
+    # Although the following are deprecated fields, they are technically
+    # permitted as dynamic by PEP 643
+    # https://github.com/pypa/setuptools/issues/4797#issuecomment-2589514950
+    "Requires",
+    "Provides",
+    "Obsoletes",
     name="release_dynamic_fields",
 )
 
@@ -548,14 +605,33 @@ class Release(HasObservations, db.Model):
     is_prerelease: Mapped[bool_false]
     author: Mapped[str | None]
     author_email: Mapped[str | None]
+    author_email_verified: Mapped[bool_false]
     maintainer: Mapped[str | None]
     maintainer_email: Mapped[str | None]
+    maintainer_email_verified: Mapped[bool_false]
     home_page: Mapped[str | None]
+    home_page_verified: Mapped[bool_false]
     license: Mapped[str | None]
+    license_expression: Mapped[str | None]
+    license_files: Mapped[list[str] | None] = mapped_column(
+        ARRAY(String),
+        comment=(
+            "Array of license filenames. "
+            "Null indicates no License-File(s) were supplied by the uploader."
+        ),
+    )
     summary: Mapped[str | None]
     keywords: Mapped[str | None]
+    keywords_array: Mapped[list[str] | None] = mapped_column(
+        ARRAY(String),
+        comment=(
+            "Array of keywords. Null indicates no keywords were supplied by "
+            "the uploader."
+        ),
+    )
     platform: Mapped[str | None]
     download_url: Mapped[str | None]
+    download_url_verified: Mapped[bool_false]
     _pypi_ordering: Mapped[int | None]
     requires_python: Mapped[str | None] = mapped_column(Text)
     created: Mapped[datetime_now] = mapped_column()
@@ -596,7 +672,7 @@ class Release(HasObservations, db.Model):
     project_urls = association_proxy(
         "_project_urls",
         "url",
-        creator=lambda k, v: ReleaseURL(name=k, url=v),
+        creator=lambda k, v: ReleaseURL(name=k, url=v["url"], verified=v["verified"]),
     )
 
     files: Mapped[list[File]] = orm.relationship(
@@ -651,6 +727,18 @@ class Release(HasObservations, db.Model):
     uploader: Mapped[User] = orm.relationship(User)
     uploaded_via: Mapped[str | None]
 
+    def __getitem__(self, filename: str) -> File:
+        session: orm.Session = orm.object_session(self)  # type: ignore[assignment]
+
+        try:
+            return (
+                session.query(File)
+                .filter(File.release == self, File.filename == filename)
+                .one()
+            )
+        except NoResultFound:
+            raise KeyError from None
+
     @property
     def urls(self):
         _urls = OrderedDict()
@@ -674,17 +762,37 @@ class Release(HasObservations, db.Model):
 
         return _urls
 
-    @staticmethod
-    def get_user_name_and_repo_name(urls):
-        for url in urls:
+    def urls_by_verify_status(self, *, verified: bool):
+        matching_urls = {
+            release_url.url
+            for release_url in self._project_urls.values()  # type: ignore[attr-defined] # noqa: E501
+            if release_url.verified == verified
+        }
+        if self.home_page and self.home_page_verified == verified:
+            matching_urls.add(self.home_page)
+        if self.download_url and self.download_url_verified == verified:
+            matching_urls.add(self.download_url)
+
+        # Filter the output of `Release.urls`, since it has custom logic to de-duplicate
+        # release URLs
+        _urls = OrderedDict()
+        for name, url in self.urls.items():
+            if url in matching_urls:
+                _urls[name] = url
+        return _urls
+
+    def verified_user_name_and_repo_name(
+        self, domains: set[str], reserved_names: typing.Collection[str] | None = None
+    ):
+        for _, url in self.urls_by_verify_status(verified=True).items():
             try:
                 parsed = parse_url(url)
             except LocationParseError:
                 continue
             segments = parsed.path.strip("/").split("/") if parsed.path else []
-            if parsed.netloc in {"github.com", "www.github.com"} and len(segments) >= 2:
+            if parsed.netloc in domains and len(segments) >= 2:
                 user_name, repo_name = segments[:2]
-                if user_name in GITHUB_RESERVED_NAMES:
+                if reserved_names and user_name in reserved_names:
                     continue
                 if repo_name.endswith(".git"):
                     repo_name = repo_name.removesuffix(".git")
@@ -692,19 +800,37 @@ class Release(HasObservations, db.Model):
         return None, None
 
     @property
-    def github_repo_info_url(self):
-        user_name, repo_name = self.get_user_name_and_repo_name(self.urls.values())
+    def verified_github_user_name_and_repo_name(self):
+        return self.verified_user_name_and_repo_name(
+            {"github.com", "www.github.com"}, GITHUB_RESERVED_NAMES
+        )
+
+    @property
+    def verified_github_repo_info_url(self):
+        user_name, repo_name = self.verified_github_user_name_and_repo_name
         if user_name and repo_name:
             return f"https://api.github.com/repos/{user_name}/{repo_name}"
 
     @property
-    def github_open_issue_info_url(self):
-        user_name, repo_name = self.get_user_name_and_repo_name(self.urls.values())
+    def verified_github_open_issue_info_url(self):
+        user_name, repo_name = self.verified_github_user_name_and_repo_name
         if user_name and repo_name:
             return (
                 f"https://api.github.com/search/issues?q=repo:{user_name}/{repo_name}"
                 "+type:issue+state:open&per_page=1"
             )
+
+    @property
+    def verified_gitlab_user_name_and_repo_name(self):
+        return self.verified_user_name_and_repo_name({"gitlab.com", "www.gitlab.com"})
+
+    @property
+    def verified_gitlab_repository(self):
+        user_name, repo_name = self.verified_gitlab_user_name_and_repo_name
+        if user_name and repo_name:
+            return f"{user_name}/{repo_name}"
+
+        return None
 
     @property
     def has_meta(self):
@@ -766,6 +892,9 @@ class File(HasEvents, db.Model):
             Index("release_files_cached_idx", "cached"),
         )
 
+    __parent__ = dotted_navigator("release")
+    __name__ = dotted_navigator("filename")
+
     release_id: Mapped[UUID] = mapped_column(
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
     )
@@ -801,6 +930,13 @@ class File(HasEvents, db.Model):
     metadata_file_unbackfillable: Mapped[bool_false] = mapped_column(
         nullable=True,
         comment="If True, the metadata for the file cannot be backfilled.",
+    )
+
+    # PEP 740
+    provenance: Mapped[Provenance] = orm.relationship(
+        cascade="all, delete-orphan",
+        lazy="joined",
+        passive_deletes=True,
     )
 
     @property
@@ -881,6 +1017,13 @@ class JournalEntry(db.ModelBase):
             Index("journals_version_idx", "version"),
             Index("journals_submitted_by_idx", "submitted_by"),
             Index("journals_submitted_date_id_idx", cls.submitted_date, cls.id),
+            # Composite index for journals to be able to sort by
+            # `submitted_by`, and `submitted_date` in descending order.
+            Index(
+                "journals_submitted_by_and_reverse_date_idx",
+                cls._submitted_by,
+                cls.submitted_date.desc(),
+            ),
         )
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -970,6 +1113,36 @@ class ProjectMacaroonWarningAssociation(db.Model):
         primary_key=True,
     )
 
+
+class AlternateRepository(db.Model):
+    """
+    Store an alternate repository name, url, description for a project.
+    One project can have zero, one, or more alternate repositories.
+
+    For each project, ensures the url and name are unique.
+    Urls must start with http(s).
+    """
+
+    __tablename__ = "alternate_repositories"
+    __table_args__ = (
+        UniqueConstraint("project_id", "url"),
+        UniqueConstraint("project_id", "name"),
+        CheckConstraint(
+            "url ~* '^https?://.+'::text",
+            name="alternate_repository_valid_url",
+        ),
+    )
+
+    __repr__ = make_repr("name", "url")
+
+    project_id: Mapped[UUID] = mapped_column(
+        ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
+    )
+    project: Mapped[Project] = orm.relationship(back_populates="alternate_repositories")
+
+    name: Mapped[str]
+    url: Mapped[str]
+    description: Mapped[str]
 
 def bdist_filename_tags(filename: str):
     """Parse a wheel file name to extract the tags."""

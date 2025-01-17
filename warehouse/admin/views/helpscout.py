@@ -17,6 +17,7 @@ import re
 
 from pyramid.view import view_config
 from pyramid_jinja2 import IJinja2Environment
+from sqlalchemy.sql import func
 
 from warehouse.accounts.models import Email
 
@@ -39,6 +40,7 @@ def validate_helpscout_signature(request):
     uses_session=False,
 )
 def helpscout(request):
+    """Integration for user details in Help Scout UI."""
     if not validate_helpscout_signature(request):
         request.response.status = 403
         return {"Error": "NotAuthorized"}
@@ -46,7 +48,7 @@ def helpscout(request):
     email = (
         request.db.query(Email)
         .where(
-            Email.email.ilike(
+            func.regexp_replace(Email.email, r"\+[^)]*@", "@").ilike(
                 re.sub(
                     r"\+[^)]*@",
                     "@",

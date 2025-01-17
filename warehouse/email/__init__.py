@@ -19,7 +19,7 @@ import pytz
 import sentry_sdk
 
 from celery.schedules import crontab
-from first import first
+from more_itertools import first_true
 from pyramid_mailer.exceptions import BadHeaders, EncodingError, InvalidMessage
 from sqlalchemy.exc import NoResultFound
 
@@ -36,7 +36,9 @@ from warehouse.metrics.interfaces import IMetricsService
 def _compute_recipient(user, email):
     # We want to try and use the user's name, then their username, and finally
     # nothing to display a "Friendly" name for the recipient.
-    return str(Address(first([user.name, user.username], default=""), addr_spec=email))
+    return str(
+        Address(first_true([user.name, user.username], default=""), addr_spec=email)
+    )
 
 
 def _redact_ip(request, email):
@@ -89,6 +91,7 @@ def _send_email_to_user(
     email=None,
     allow_unverified=False,
     repeat_window=None,
+    override_from=None,
 ):
     # If we were not given a specific email object, then we'll default to using
     # the User's primary email address.
@@ -115,12 +118,17 @@ def _send_email_to_user(
             "subject": msg.subject,
             "body_text": msg.body_text,
             "body_html": msg.body_html,
+            "sender": override_from,
         },
         {
             "tag": EventTag.Account.EmailSent,
             "user_id": user.id,
             "additional": {
-                "from_": request.registry.settings.get("mail.sender"),
+                "from_": (
+                    request.registry.settings.get("mail.sender")
+                    if override_from is None
+                    else override_from
+                ),
                 "to": email.email,
                 "subject": msg.subject,
                 "redact_ip": _redact_ip(request, email.email),
@@ -134,6 +142,7 @@ def _email(
     *,
     allow_unverified=False,
     repeat_window=None,
+    override_from=None,
 ):
     """
     This decorator is used to turn an e function into an email sending function!
@@ -190,6 +199,7 @@ def _email(
                     email=email,
                     allow_unverified=allow_unverified,
                     repeat_window=repeat_window,
+                    override_from=override_from,
                 )
                 metrics = request.find_service(IMetricsService, context=None)
                 metrics.increment(
@@ -341,12 +351,20 @@ def send_token_compromised_email_leak(request, user, *, public_url, origin):
 
 
 @_email(
-    "two-factor-not-yet-enabled",
+    "account-recovery-initiated",
     allow_unverified=True,
-    repeat_window=datetime.timedelta(days=14),
+    override_from="support@pypi.org",
 )
-def send_two_factor_not_yet_enabled_email(request, user):
-    return {"username": user.username}
+def send_account_recovery_initiated_email(
+    request, user_and_email, *, project_name, support_issue_link, token
+):
+    user, email = user_and_email
+    return {
+        "user": user,
+        "support_issue_link": support_issue_link,
+        "project_name": project_name,
+        "token": token,
+    }
 
 
 @_email("account-deleted")
@@ -1044,6 +1062,45 @@ def send_api_token_used_in_trusted_publisher_project_email(
         "token_owner_username": token_owner_username,
         "project_name": project_name,
         "token_name": token_name,
+    }
+
+
+@_email("pep625-extension-email")
+def send_pep625_extension_email(request, users, project_name, filename):
+    return {
+        "project_name": project_name,
+        "filename": filename,
+    }
+
+
+@_email("pep625-name-email")
+def send_pep625_name_email(request, users, project_name, filename, normalized_name):
+    return {
+        "project_name": project_name,
+        "filename": filename,
+        "normalized_name": normalized_name,
+    }
+
+
+@_email("pep625-version-email")
+def send_pep625_version_email(
+    request, users, project_name, filename, normalized_version
+):
+    return {
+        "project_name": project_name,
+        "filename": filename,
+        "normalized_version": normalized_version,
+    }
+
+
+@_email("environment-ignored-in-trusted-publisher")
+def send_environment_ignored_in_trusted_publisher_email(
+    request, users, project_name, publisher, environment_name
+):
+    return {
+        "project_name": project_name,
+        "publisher": publisher,
+        "environment_name": environment_name,
     }
 
 

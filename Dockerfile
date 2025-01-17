@@ -1,13 +1,13 @@
 # First things first, we build an image which is where we're going to compile
 # our static assets with. We use this stage in development.
-FROM node:22.4.0-bookworm as static-deps
+FROM node:23.6.0-bookworm AS static-deps
 
 WORKDIR /opt/warehouse/src/
 
 # However, we do want to trigger a reinstall of our node.js dependencies anytime
 # our package.json changes, so we'll ensure that we're copying that into our
 # static container prior to actually installing the npm dependencies.
-COPY package.json package-lock.json .babelrc /opt/warehouse/src/
+COPY package.json package-lock.json babel.config.js /opt/warehouse/src/
 
 # Installing npm dependencies is done as a distinct step and *prior* to copying
 # over our static files so that, you guessed it, we don't invalidate the cache
@@ -19,7 +19,7 @@ RUN --mount=type=cache,target=/root/.npm,sharing=locked \
 
 
 # This is our actual build stage, where we'll compile our static assets.
-FROM static-deps as static
+FROM static-deps AS static
 
 # Actually copy over our static files, we only copy over the static files to
 # save a small amount of space in our image and because we don't need them. We
@@ -28,7 +28,9 @@ FROM static-deps as static
 # small amount of copying when only `webpack.config.js` is modified.
 COPY warehouse/static/ /opt/warehouse/src/warehouse/static/
 COPY warehouse/admin/static/ /opt/warehouse/src/warehouse/admin/static/
+COPY warehouse/locale/ /opt/warehouse/src/warehouse/locale/
 COPY webpack.config.js /opt/warehouse/src/
+COPY webpack.plugin.localize.js /opt/warehouse/src/
 
 RUN NODE_ENV=production npm run build
 
@@ -36,7 +38,7 @@ RUN NODE_ENV=production npm run build
 
 
 # We'll build a light-weight layer along the way with just docs stuff
-FROM python:3.12.4-slim-bookworm as docs
+FROM python:3.12.7-slim-bookworm AS docs
 
 # By default, Docker has special steps to avoid keeping APT caches in the layers, which
 # is good, but in our case, we're going to mount a special cache volume (kept between
@@ -105,7 +107,7 @@ USER docs
 
 # Now we're going to build our actual application, but not the actual production
 # image that it gets deployed into.
-FROM python:3.12.4-slim-bookworm as build
+FROM python:3.12.7-slim-bookworm AS build
 
 # Define whether we're building a production or a development image. This will
 # generally be used to control whether or not we install our development and
@@ -189,7 +191,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 # Now we're going to build our actual application image, which will eventually
 # pull in the static files that were built above.
-FROM python:3.12.4-slim-bookworm
+FROM python:3.12.7-slim-bookworm
 
 # Setup some basic environment variables that are ~never going to change.
 ENV PYTHONUNBUFFERED 1
@@ -234,6 +236,8 @@ COPY --from=static /opt/warehouse/src/warehouse/admin/static/dist/ /opt/warehous
 COPY --from=build /opt/warehouse/ /opt/warehouse/
 COPY . /opt/warehouse/src/
 
+# Pre-cache TLD list
+RUN tldextract --update
 # Load our module to pre-compile as much bytecode as we can easily.
 # Saves time collectively on container boot!
 RUN python -m warehouse
