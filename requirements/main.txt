@@ -994,9 +994,9 @@ lazy-object-proxy==1.10.0 \
     --hash=sha256:edb45bb8278574710e68a6b021599a10ce730d156e5b254941754a9cc0b17d03 \
     --hash=sha256:fec03caabbc6b59ea4a638bee5fce7117be8e99a4103d9d5ad77f15d6f81020c
     # via openapi-spec-validator
-limits==4.0.0 \
-    --hash=sha256:0024ebe5a36c905fcff2d30a8e7680840b75ecdb989db10c526e9fabba529b58 \
-    --hash=sha256:0516cec7c0803e0e1ecd48ad2f75547b85e2be5fb343a24e033f1316f5487e31
+limits==4.0.1 \
+    --hash=sha256:67667e669f570cf7be4e2c2bc52f763b3f93bdf66ea945584360bc1a3f251901 \
+    --hash=sha256:a54f5c058dfc965319ae3ee78faf222294659e371b46d22cd7456761f7e46d5a
     # via -r requirements/main.in
 linehaul==1.0.2 \
     --hash=sha256:4545fee3b54df22c697d204da8668e8fd975afcb28cbb5654865e43491c70ff0 \
@@ -2243,9 +2243,9 @@ stripe==11.4.1 \
     --hash=sha256:7ddd251b622d490fe57d78487855dc9f4d95b1bb113607e81fd377037a133d5a \
     --hash=sha256:8aa47a241de0355c383c916c4ef7273ab666f096a44ee7081e357db4a36f0cce
     # via -r requirements/main.in
-structlog==24.4.0 \
-    --hash=sha256:597f61e80a91cc0749a9fd2a098ed76715a1c8a01f73e336b746504d1aad7610 \
-    --hash=sha256:b27bfecede327a6d2da5fbc96bd859f114ecc398a6389d664f62085ee7ae6fc4
+structlog==25.1.0 \
+    --hash=sha256:2ef2a572e0e27f09664965d31a576afe64e46ac6084ef5cec3c2b8cd6e4e3ad3 \
+    --hash=sha256:843fe4f254540329f380812cbe612e1af5ec5b8172205ae634679cd35a6d6321
     # via -r requirements/main.in
 tenacity==9.0.0 \
     --hash=sha256:807f37ca97d62aa361264d497b0e31e92b8027044942bfa756160d908320d73b \
@@ -2333,9 +2333,9 @@ wcwidth==0.2.13 \
     --hash=sha256:3da69048e4540d84af32131829ff948f1e022c1c6bdb8d6102117aac784f6859 \
     --hash=sha256:72ea0c06399eb286d978fdedb6923a9eb47e1c486ce63e9b4e64fc18303972b5
     # via prompt-toolkit
-webauthn==2.4.0 \
-    --hash=sha256:2bf59646e1ad2aed113d16a1ca90196b45f1c4d160964d6271a181e60d0d03b1 \
-    --hash=sha256:9bb4f95c5d2377f9e1abd156ca5a23cbb5def69ef1ed60a7ab70028cc68b741e
+webauthn==2.5.0 \
+    --hash=sha256:6b3d2e2a5636686829f528227865e19582700d6c107ef0a1256ef150b5bd4599 \
+    --hash=sha256:d978b40bee53a3b283e4a867718ff8269b049c9d66c184eff137338810e98be6
     # via -r requirements/main.in
 webencodings==0.5.1 \
     --hash=sha256:a0af1213f3c2226497a97e2b3aa01a7e4bee4f403f95be16fc9acd2947514a78 \
