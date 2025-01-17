@@ -13,7 +13,6 @@
 import tempfile
 
 from contextlib import contextmanager
-from itertools import product
 
 import pretend
 import pytest
@@ -24,7 +23,7 @@ from wtforms import Field, Form, StringField
 import warehouse.packaging.tasks
 
 from warehouse.accounts.models import WebAuthn
-from warehouse.packaging.models import Description
+from warehouse.packaging.models import Description, MissingDatasetFile
 from warehouse.packaging.tasks import (
     check_file_cache_tasks_outstanding,
     compute_2fa_metrics,
@@ -734,8 +733,8 @@ class TestSyncBigQueryMetadata:
         DependencyFactory.create(release=release, kind=2)
         DependencyFactory.create(release=release, kind=3)
         DependencyFactory.create(release=release, kind=4)
-        load_config = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr("warehouse.packaging.tasks.LoadJobConfig", load_config)
+        missing = MissingDatasetFile(file_id=release_file.id)
+        db_request.db.add(missing)
 
         query = pretend.stub(
             result=pretend.call_recorder(
@@ -743,10 +742,9 @@ class TestSyncBigQueryMetadata:
             )
         )
         get_table = pretend.stub(schema=bq_schema)
-        get_result = pretend.stub(result=lambda: None)
         bigquery = pretend.stub(
             get_table=pretend.call_recorder(lambda t: get_table),
-            load_table_from_json=pretend.call_recorder(lambda *a, **kw: get_result),
+            insert_rows_json=pretend.call_recorder(lambda *a, **kw: None),
             query=pretend.call_recorder(lambda q: query),
         )
 
@@ -765,17 +763,11 @@ class TestSyncBigQueryMetadata:
 
         assert db_request.find_service.calls == [pretend.call(name="gcloud.bigquery")]
         assert bigquery.get_table.calls == expected_get_table_calls
-        assert bigquery.query.calls == [
-            pretend.call(query.format(table))
-            for table in release_files_table.split()
-            for query in [
-                "SELECT md5_digest FROM {} WHERE md5_digest LIKE 'ff%'",
-                "SELECT md5_digest FROM {} WHERE md5_digest LIKE 'fe%'",
-            ]
-        ]
-        assert bigquery.load_table_from_json.calls == [
+        assert bigquery.query.calls == []
+        assert bigquery.insert_rows_json.calls == [
             pretend.call(
-                [
+                table=table,
+                json_rows=[
                     {
                         "metadata_version": None,
                         "name": project.name,
@@ -818,54 +810,11 @@ class TestSyncBigQueryMetadata:
                         "blake2_256_digest": release_file.blake2_256_digest,
                     },
                 ],
-                table,
-                job_config=None,
             )
             for table in release_files_table.split()
         ]
 
-    @pytest.mark.parametrize("bq_schema", [bq_schema])
-    def test_no_diff(self, db_request, monkeypatch, bq_schema):
-        project = ProjectFactory.create()
-        release = ReleaseFactory.create(project=project)
-        release_file = FileFactory.create(
-            release=release, filename=f"foobar-{release.version}.tar.gz"
-        )
-
-        query = pretend.stub(
-            result=pretend.call_recorder(
-                lambda *a, **kw: [{"md5_digest": release_file.md5_digest}]
-            )
-        )
-        get_table = pretend.stub(schema=bq_schema)
-        bigquery = pretend.stub(
-            get_table=pretend.call_recorder(lambda t: get_table),
-            query=pretend.call_recorder(lambda q: query),
-        )
-
-        @pretend.call_recorder
-        def find_service(name=None):
-            if name == "gcloud.bigquery":
-                return bigquery
-            raise LookupError
-
-        db_request.find_service = find_service
-        db_request.registry.settings = {
-            "warehouse.release_files_table": "example.pypi.distributions"
-        }
-
-        sync_bigquery_release_files(db_request)
-
-        assert db_request.find_service.calls == [pretend.call(name="gcloud.bigquery")]
-        assert bigquery.get_table.calls == [pretend.call("example.pypi.distributions")]
-        assert bigquery.query.calls == [
-            pretend.call(
-                "SELECT md5_digest "
-                "FROM example.pypi.distributions "
-                f"WHERE md5_digest LIKE '{first}{second}%'",
-            )
-            for first, second in product("fedcba9876543210", repeat=2)
-        ]
+        assert missing.processed
 
     def test_var_is_none(self):
         request = pretend.stub(

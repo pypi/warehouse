@@ -81,6 +81,10 @@
                 {% endtrans %}
               </p>
             </div>
+          {% elif project.lifecycle_status == "archived" %}
+            <div class="callout-block callout-block--warning">
+              <p>{% trans %}This project has been archived.{% endtrans %}</p>
+            </div>
           {% endif %}
           {% if request.organization_access and project.organization %}
             <div class="organization-snippet organization-snippet--margin-bottom">
