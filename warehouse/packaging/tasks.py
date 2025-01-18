@@ -375,13 +375,17 @@ def sync_bigquery_release_files(request):
     request.tm.commit()
     request.tm.begin()
 
+    table_schemas = {
+        table_name: bq.get_table(table_name).schema for table_name in table_names
+    }
+
     for missing_file in missing_files:
         # Add the objects back into the new session
         request.db.add(missing_file)
         release_file = missing_file.file
 
         for table_name in table_names:
-            table_schema = bq.get_table(table_name).schema
+            table_schema = table_schemas[table_name]
 
             # Using the schema to populate the data allows us to automatically
             # set the values to their respective fields rather than assigning
