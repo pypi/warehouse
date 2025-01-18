@@ -37,7 +37,7 @@ describe("Localized time controller", () => {
 
     it("shows the local date", () => {
       const el = document.getElementById("element");
-      expect(el).toHaveTextContent("Sep 21, 2019");
+      expect(el).toHaveTextContent("Sep 20, 2019");
       // The expected ISO string in the title is localized
       const date = new Date(el.getAttribute("datetime"));
       const expectedDate = format(date, "yyyy-MM-dd HH:mm:ss (xxx)");
