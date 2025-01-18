@@ -439,6 +439,13 @@ def configure(settings=None):
         coercer=int,
         default=500,
     )
+    maybe_set(
+        settings,
+        "sync_release_file_backfill.batch_size",
+        "SYNC_RELEASE_FILE_BACKFILL_BATCH_SIZE",
+        coercer=int,
+        default=10,
+    )
     maybe_set_compound(settings, "billing", "backend", "BILLING_BACKEND")
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
     maybe_set_compound(settings, "archive_files", "backend", "ARCHIVE_FILES_BACKEND")
