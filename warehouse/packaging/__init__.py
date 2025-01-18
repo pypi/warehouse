@@ -199,4 +199,4 @@ def includeme(config):
     config.add_periodic_task(crontab(minute="*/5"), compute_packaging_metrics)
 
     if config.get_settings().get("warehouse.release_files_table"):
-        config.add_periodic_task(crontab(minute="*/5"), sync_bigquery_release_files)
+        config.add_periodic_task(crontab(minute="*"), sync_bigquery_release_files)
