@@ -756,7 +756,8 @@ class TestSyncBigQueryMetadata:
 
         db_request.find_service = find_service
         db_request.registry.settings = {
-            "warehouse.release_files_table": release_files_table
+            "warehouse.release_files_table": release_files_table,
+            "sync_release_file_backfill.batch_size": 10,
         }
 
         sync_bigquery_release_files(db_request)

@@ -357,6 +357,7 @@ def sync_bigquery_release_files(request):
         return
 
     bq = request.find_service(name="gcloud.bigquery")
+    batch_size = request.registry.settings["sync_release_file_backfill.batch_size"]
 
     # Multiple table names can be specified by separating them with whitespace
     table_names = release_files_table.split()
@@ -364,7 +365,7 @@ def sync_bigquery_release_files(request):
     missing_files = (
         request.db.query(MissingDatasetFile)
         .filter(MissingDatasetFile.processed.is_(None))
-        .limit(10)
+        .limit(batch_size)
         .all()
     )
     for missing_file in missing_files:
@@ -374,13 +375,17 @@ def sync_bigquery_release_files(request):
     request.tm.commit()
     request.tm.begin()
 
+    table_schemas = {
+        table_name: bq.get_table(table_name).schema for table_name in table_names
+    }
+
     for missing_file in missing_files:
         # Add the objects back into the new session
         request.db.add(missing_file)
         release_file = missing_file.file
 
         for table_name in table_names:
-            table_schema = bq.get_table(table_name).schema
+            table_schema = table_schemas[table_name]
 
             # Using the schema to populate the data allows us to automatically
             # set the values to their respective fields rather than assigning
