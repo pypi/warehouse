@@ -31,6 +31,10 @@
     "stimulus-autocomplete": "^3.1.0"
   },
   "overrides": {
+    "datatables.net": "^1.13.11",
+    "datatables.net-rowgroup-bs4": "<1.5.1",
+    "datatables.net-searchbuilder": "<1.8.1",
+    "datatables.net-searchpanes": "<2.3.2",
     "sweetalert2": "11.4.8"
   },
   "devDependencies": {
