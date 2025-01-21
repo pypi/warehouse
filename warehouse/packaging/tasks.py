@@ -23,13 +23,7 @@ from warehouse import tasks
 from warehouse.accounts.models import User, WebAuthn
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage
-from warehouse.packaging.models import (
-    Description,
-    File,
-    MissingDatasetFile,
-    Project,
-    Release,
-)
+from warehouse.packaging.models import Description, File, Project, Release
 from warehouse.utils import readme
 from warehouse.utils.row_counter import RowCount
 
@@ -351,93 +345,5 @@ def update_bigquery_release_files(task, request, dist_metadata):
 
 
 @tasks.task(ignore_result=True, acks_late=True)
-def sync_bigquery_release_files(request):
-    release_files_table = request.registry.settings.get("warehouse.release_files_table")
-    if release_files_table is None:
-        return
-
-    bq = request.find_service(name="gcloud.bigquery")
-    batch_size = request.registry.settings["sync_release_file_backfill.batch_size"]
-
-    # Multiple table names can be specified by separating them with whitespace
-    table_names = release_files_table.split()
-
-    missing_files = (
-        request.db.query(MissingDatasetFile)
-        .filter(MissingDatasetFile.processed.is_(None))
-        .limit(batch_size)
-        .all()
-    )
-    for missing_file in missing_files:
-        missing_file.processed = False
-
-    # Commit these changes so another task doesn't pick up these files
-    request.tm.commit()
-    request.tm.begin()
-
-    table_schemas = {
-        table_name: bq.get_table(table_name).schema for table_name in table_names
-    }
-
-    for missing_file in missing_files:
-        # Add the objects back into the new session
-        request.db.add(missing_file)
-        release_file = missing_file.file
-
-        for table_name in table_names:
-            table_schema = table_schemas[table_name]
-
-            # Using the schema to populate the data allows us to automatically
-            # set the values to their respective fields rather than assigning
-            # values individually
-            def populate_data_using_schema(file):
-                release = file.release
-                project = release.project
-
-                row_data = dict()
-                for sch in table_schema:
-                    # The order of data extraction below is determined based on the
-                    # classes that are most recently updated
-                    if hasattr(file, sch.name):
-                        field_data = getattr(file, sch.name)
-                    elif hasattr(release, sch.name) and sch.name == "description":
-                        field_data = getattr(release, sch.name).raw
-                    elif sch.name == "description_content_type":
-                        field_data = getattr(release, "description").content_type
-                    elif hasattr(release, sch.name):
-                        field_data = getattr(release, sch.name)
-                    elif hasattr(project, sch.name):
-                        field_data = getattr(project, sch.name)
-                    else:
-                        field_data = None
-
-                    if isinstance(field_data, datetime.datetime):
-                        field_data = field_data.isoformat()
-
-                    # Replace all empty objects to None will ensure
-                    # proper checks if a field is nullable or not
-                    if not isinstance(field_data, bool) and not field_data:
-                        field_data = None
-
-                    if field_data is None and sch.mode == "REPEATED":
-                        row_data[sch.name] = []
-                    elif field_data and sch.mode == "REPEATED":
-                        # Currently, some of the metadata fields such as
-                        # the 'platform' tag are incorrectly classified as a
-                        # str instead of a list, hence, this workaround to comply
-                        # with PEP 345 and the Core Metadata specifications.
-                        # This extra check can be removed once
-                        # https://github.com/pypi/warehouse/issues/8257 is fixed
-                        if isinstance(field_data, str):
-                            row_data[sch.name] = [field_data]
-                        else:
-                            row_data[sch.name] = list(field_data)
-                    else:
-                        row_data[sch.name] = field_data
-                row_data["has_signature"] = False
-                return row_data
-
-            json_rows = [populate_data_using_schema(release_file)]
-            bq.insert_rows_json(table=table_name, json_rows=json_rows)
-
-        missing_file.processed = True
+def sync_bigquery_release_files(request):  # pragma: no cover
+    pass
