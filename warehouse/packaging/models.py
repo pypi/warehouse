@@ -66,6 +66,7 @@ from warehouse.attestations.models import Provenance
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.events.models import HasEvents
+from warehouse.forklift import metadata
 from warehouse.integrations.vulnerabilities.models import VulnerabilityRecord
 from warehouse.observations.models import HasObservations
 from warehouse.organizations.models import (
@@ -544,35 +545,7 @@ class ReleaseURL(db.Model):
 
 
 DynamicFieldsEnum = ENUM(
-    "Platform",
-    "Supported-Platform",
-    "Summary",
-    "Description",
-    "Description-Content-Type",
-    "Keywords",
-    "Home-Page",  # Deprecated, but technically permitted by PEP 643
-    "Download-Url",  # Deprecated, but technically permitted by PEP 643
-    "Author",
-    "Author-Email",
-    "Maintainer",
-    "Maintainer-Email",
-    "License",
-    "License-Expression",
-    "License-File",
-    "Classifier",
-    "Requires-Dist",
-    "Requires-Python",
-    "Requires-External",
-    "Project-Url",
-    "Provides-Extra",
-    "Provides-Dist",
-    "Obsoletes-Dist",
-    # Although the following are deprecated fields, they are technically
-    # permitted as dynamic by PEP 643
-    # https://github.com/pypa/setuptools/issues/4797#issuecomment-2589514950
-    "Requires",
-    "Provides",
-    "Obsoletes",
+    *metadata.DYNAMIC_FIELDS,
     name="release_dynamic_fields",
 )
 
@@ -750,7 +723,7 @@ class Release(HasObservations, db.Model):
             # avoid duplicating homepage/download links in case the same
             # url is specified in the pkginfo twice (in the Home-page
             # or Download-URL field and again in the Project-URL fields)
-            comp_name = name.casefold().replace("-", "").replace("_", "")
+            comp_name = metadata.normalize_project_url_label(name)
             if comp_name == "homepage" and url == _urls.get("Homepage"):
                 continue
             if comp_name == "downloadurl" and url == _urls.get("Download"):
