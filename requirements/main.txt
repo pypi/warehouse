@@ -515,9 +515,9 @@ deprecated==1.2.15 \
     --hash=sha256:353bc4a8ac4bfc96800ddab349d89c25dec1079f65fd53acdcc1e0b975b21320 \
     --hash=sha256:683e561a90de76239796e6b6feac66b99030d2dd3fcf61ef996330f14bbb9b0d
     # via limits
-disposable-email-domains==0.0.115 \
-    --hash=sha256:25285d539a6fd81926961d5d5edec837cdc8e8371eb6464b01ce384720bd6c63 \
-    --hash=sha256:d622cc7d7f4107939f9fad9add50c6a64e37ad3da3218e6b540aae16af4d0b54
+disposable-email-domains==0.0.116 \
+    --hash=sha256:0b4793f91ebe6f82b24d351635c2bc4515f91c2bba7036497aa3d839c007eb19 \
+    --hash=sha256:10142485396fd8d0bd620004d47544eab7afb1fa37a358ea77d9019c0cf9873f
     # via -r requirements/main.in
 dnspython==2.7.0 \
     --hash=sha256:b4c34b7d10b51bcc3a5071e7b8dee77939f1e878477eeecc965e9835f63c6c86 \
