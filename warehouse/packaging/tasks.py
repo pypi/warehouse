@@ -23,12 +23,7 @@ from warehouse import tasks
 from warehouse.accounts.models import User, WebAuthn
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage
-from warehouse.packaging.models import (
-    Description,
-    File,
-    Project,
-    Release,
-)
+from warehouse.packaging.models import Description, File, Project, Release
 from warehouse.utils import readme
 from warehouse.utils.row_counter import RowCount
 
