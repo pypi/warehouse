@@ -36,9 +36,7 @@ from warehouse.packaging.tasks import (
 from warehouse.utils import readme
 from warehouse.utils.row_counter import compute_row_counts
 
-from ...common.db.classifiers import ClassifierFactory
 from ...common.db.packaging import (
-    DependencyFactory,
     DescriptionFactory,
     FileFactory,
     ProjectFactory,

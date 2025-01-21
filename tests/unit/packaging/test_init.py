@@ -11,7 +11,6 @@
 # limitations under the License.
 
 import pretend
-import pytest
 
 from celery.schedules import crontab
 
