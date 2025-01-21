@@ -14,7 +14,6 @@ import packaging.metadata
 import pytest
 
 from packaging.version import Version
-from sqlalchemy.dialects.postgresql import ENUM
 from webob.multidict import MultiDict
 
 from warehouse.forklift import metadata
