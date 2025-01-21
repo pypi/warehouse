@@ -338,7 +338,6 @@ def test_configure(monkeypatch, settings, environment):
         "warehouse.organizations.max_undecided_organization_applications": 3,
         "reconcile_file_storages.batch_size": 100,
         "metadata_backfill.batch_size": 500,
-        "sync_release_file_backfill.batch_size": 10,
         "gcloud.service_account_info": {},
         "warehouse.forklift.legacy.MAX_FILESIZE_MIB": 100,
         "warehouse.forklift.legacy.MAX_PROJECT_SIZE_GIB": 10,

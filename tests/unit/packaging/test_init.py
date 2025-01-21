@@ -29,14 +29,12 @@ from warehouse.packaging.models import AlternateRepository, File, Project, Relea
 from warehouse.packaging.services import project_service_factory
 from warehouse.packaging.tasks import (
     check_file_cache_tasks_outstanding,
-    sync_bigquery_release_files,
     update_description_html,
 )
 from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 
-@pytest.mark.parametrize("with_bq_sync", [True, False])
-def test_includeme(monkeypatch, with_bq_sync):
+def test_includeme(monkeypatch):
     storage_class = pretend.stub(
         create_service=pretend.call_recorder(lambda *a, **kw: pretend.stub())
     )
@@ -55,8 +53,6 @@ def test_includeme(monkeypatch, with_bq_sync):
         "warehouse.packaging.project_create_user_ratelimit_string": "20 per hour",
         "warehouse.packaging.project_create_ip_ratelimit_string": "40 per hour",
     }
-    if with_bq_sync:
-        settings["warehouse.release_files_table"] = "fizzbuzz"
 
     config = pretend.stub(
         maybe_dotted=lambda dotted: storage_class,
@@ -168,13 +164,6 @@ def test_includeme(monkeypatch, with_bq_sync):
             ],
         ),
     ]
-
-    if with_bq_sync:
-        assert (
-            pretend.call(crontab(minute="*"), sync_bigquery_release_files)
-            in config.add_periodic_task.calls
-        )
-        pass
 
     assert (
         pretend.call(crontab(minute="*/1"), check_file_cache_tasks_outstanding)
