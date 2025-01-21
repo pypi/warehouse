@@ -1145,6 +1145,7 @@ class TestWebAuthn:
                 new_sign_count=1,
                 credential_device_type="single_device",
                 credential_backed_up=False,
+                user_verified=False,
             ),
             remember_device=pretend.stub(data=remember_device),
         )

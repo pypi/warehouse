@@ -351,6 +351,43 @@
 
   <hr>
 
+  <h2>{% trans %}Archive project{% endtrans %}</h2>
+  {% set can_be_archived = not project.lifecycle_status or project.lifecycle_status == "quarantine-exit" %}
+  {% set can_be_unarchived = project.lifecycle_status == "archived" %}
+  <div class="callout-block callout-block--danger" data-controller="archive-confirm">
+  <p>
+    {% trans readme_description_href='https://packaging.python.org/guides/making-a-pypi-friendly-readme/'%}
+    Archiving a project will prevent any new uploads. Before doing so, we
+    recommend publishing a final release with an update to the project's
+    description to warn the users that the project won't receive further updates,
+    and to mention any alternative projects they may consider as a replacement.
+    If your project is
+    <a href="{{ readme_description_href }}" rel="noopener" target="_blank">configured
+    to do so</a>, you can update the project's description by editing the README file.
+    {% endtrans %}
+  </p>
+  </div>
+    <a href="#archive-project" class="button button--primary {{ 'button--disabled' if not can_be_archived }}">
+      {% trans %}Archive project{% endtrans %}
+    </a>
+    <a href="#unarchive-project" class="button button--primary {{ 'button--disabled' if not can_be_unarchived }}">
+      {% trans %}Unarchive project{% endtrans %}
+    </a>
+
+  {% set action = request.route_path('manage.project.archive', project_name=project.name) %}
+  {% set slug = "archive-project" %}
+  {% set title = gettext("Archive project") %}
+  {% set extra_description = gettext("Archiving a project will block any new file uploads") %}
+  {{ confirm_modal(title=title, label=project.name, slug=slug, extra_description=extra_description, action=action, warning=False) }}
+
+  {% set action = request.route_path('manage.project.unarchive', project_name=project.name) %}
+  {% set slug = "unarchive-project" %}
+  {% set title = gettext("Unarchive project") %}
+  {% set extra_description = gettext("Unarchiving a project will allow new file uploads") %}
+  {{ confirm_modal(title=title, label=project.name, slug=slug, extra_description=extra_description, action=action, warning=False) }}
+
+  <hr>
+
   <div class="callout-block callout-block--danger" data-controller="delete-confirm">
     <h3>{% trans %}Delete project{% endtrans %}</h3>
     <p>

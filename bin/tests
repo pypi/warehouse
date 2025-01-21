@@ -1,11 +1,6 @@
 #!/bin/bash
 set -e
 
-# Click requires us to ensure we have a well configured environment to run
-# our click commands. So we'll set our environment to ensure our locale is
-# correct.
-export LC_ALL="${ENCODING:-en_US.UTF-8}"
-export LANG="${ENCODING:-en_US.UTF-8}"
 export COVERAGE_PROCESS_START="$(pwd)/pyproject.toml"
 # PEP 669 introduced sys.monitoring, a lighter-weight way to monitor
 # the execution. Tell coverage to use this

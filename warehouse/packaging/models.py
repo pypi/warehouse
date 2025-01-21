@@ -166,6 +166,7 @@ class ProjectFactory:
 class LifecycleStatus(enum.StrEnum):
     QuarantineEnter = "quarantine-enter"
     QuarantineExit = "quarantine-exit"
+    Archived = "archived"
 
 
 class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
@@ -327,10 +328,14 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             (Allow, Authenticated, Permissions.SubmitMalwareObservation),
         ]
 
-        # The project has zero or more OIDC publishers registered to it,
-        # each of which serves as an identity with the ability to upload releases.
-        for publisher in self.oidc_publishers:
-            acls.append((Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload]))
+        if self.lifecycle_status != LifecycleStatus.Archived:
+            # The project has zero or more OIDC publishers registered to it,
+            # each of which serves as an identity with the ability to upload releases
+            # (only if the project is not archived)
+            for publisher in self.oidc_publishers:
+                acls.append(
+                    (Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload])
+                )
 
         # Get all of the users for this project.
         user_query = (
@@ -376,27 +381,25 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
         for user_id, permission_name in sorted(permissions, key=lambda x: (x[1], x[0])):
             # Disallow Write permissions for Projects in quarantine, allow Upload
             if self.lifecycle_status == LifecycleStatus.QuarantineEnter:
-                acls.append(
-                    (
-                        Allow,
-                        f"user:{user_id}",
-                        [Permissions.ProjectsRead, Permissions.ProjectsUpload],
-                    )
-                )
+                current_permissions = [
+                    Permissions.ProjectsRead,
+                    Permissions.ProjectsUpload,
+                ]
             elif permission_name == "Administer":
-                acls.append(
-                    (
-                        Allow,
-                        f"user:{user_id}",
-                        [
-                            Permissions.ProjectsRead,
-                            Permissions.ProjectsUpload,
-                            Permissions.ProjectsWrite,
-                        ],
-                    )
-                )
+                current_permissions = [
+                    Permissions.ProjectsRead,
+                    Permissions.ProjectsUpload,
+                    Permissions.ProjectsWrite,
+                ]
             else:
-                acls.append((Allow, f"user:{user_id}", [Permissions.ProjectsUpload]))
+                current_permissions = [Permissions.ProjectsUpload]
+
+            if self.lifecycle_status == LifecycleStatus.Archived:
+                # Disallow upload permissions for archived projects
+                current_permissions.remove(Permissions.ProjectsUpload)
+
+            if current_permissions:
+                acls.append((Allow, f"user:{user_id}", current_permissions))
         return acls
 
     @property
@@ -547,8 +550,8 @@ DynamicFieldsEnum = ENUM(
     "Description",
     "Description-Content-Type",
     "Keywords",
-    "Home-Page",
-    "Download-Url",
+    "Home-Page",  # Deprecated, but technically permitted by PEP 643
+    "Download-Url",  # Deprecated, but technically permitted by PEP 643
     "Author",
     "Author-Email",
     "Maintainer",
@@ -564,6 +567,12 @@ DynamicFieldsEnum = ENUM(
     "Provides-Extra",
     "Provides-Dist",
     "Obsoletes-Dist",
+    # Although the following are deprecated fields, they are technically
+    # permitted as dynamic by PEP 643
+    # https://github.com/pypa/setuptools/issues/4797#issuecomment-2589514950
+    "Requires",
+    "Provides",
+    "Obsoletes",
     name="release_dynamic_fields",
 )
 
@@ -1124,3 +1133,11 @@ class AlternateRepository(db.Model):
     name: Mapped[str]
     url: Mapped[str]
     description: Mapped[str]
+
+
+class MissingDatasetFile(db.Model):
+    __tablename__ = "missing_dataset_files"
+
+    file_id: Mapped[UUID] = mapped_column(ForeignKey("release_files.id"))
+    file: Mapped[File] = orm.relationship()
+    processed: Mapped[bool] = mapped_column(default=None, nullable=True)

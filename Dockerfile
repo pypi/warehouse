@@ -28,7 +28,9 @@ FROM static-deps AS static
 # small amount of copying when only `webpack.config.js` is modified.
 COPY warehouse/static/ /opt/warehouse/src/warehouse/static/
 COPY warehouse/admin/static/ /opt/warehouse/src/warehouse/admin/static/
+COPY warehouse/locale/ /opt/warehouse/src/warehouse/locale/
 COPY webpack.config.js /opt/warehouse/src/
+COPY webpack.plugin.localize.js /opt/warehouse/src/
 
 RUN NODE_ENV=production npm run build
 
@@ -36,7 +38,7 @@ RUN NODE_ENV=production npm run build
 
 
 # We'll build a light-weight layer along the way with just docs stuff
-FROM python:3.12.7-slim-bookworm AS docs
+FROM python:3.13.1-slim-bookworm AS docs
 
 # By default, Docker has special steps to avoid keeping APT caches in the layers, which
 # is good, but in our case, we're going to mount a special cache volume (kept between
@@ -105,7 +107,7 @@ USER docs
 
 # Now we're going to build our actual application, but not the actual production
 # image that it gets deployed into.
-FROM python:3.12.7-slim-bookworm AS build
+FROM python:3.13.1-slim-bookworm AS build
 
 # Define whether we're building a production or a development image. This will
 # generally be used to control whether or not we install our development and
@@ -135,7 +137,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
-        build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev \
+        build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev rust-all \
         $(if [ "$DEVEL" = "yes" ]; then echo 'libjpeg-dev'; fi)
 
 # We create an /opt directory with a virtual environment in it to store our
@@ -189,7 +191,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 # Now we're going to build our actual application image, which will eventually
 # pull in the static files that were built above.
-FROM python:3.12.7-slim-bookworm
+FROM python:3.13.1-slim-bookworm
 
 # Setup some basic environment variables that are ~never going to change.
 ENV PYTHONUNBUFFERED 1
@@ -221,7 +223,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
         libpq5 libxml2 libxslt1.1 libcurl4  \
-        $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev vim oathtool'; fi) \
+        $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev vim oathtool rust-all'; fi) \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 

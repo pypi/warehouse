@@ -76,6 +76,8 @@ class PasswordStrengthValidator:
             msg = (
                 results["feedback"]["warning"]
                 if results["feedback"]["warning"]
+                # Note: we can't localize this string because it will be mixed
+                # with other non-localizable strings from zxcvbn
                 else "Password is too easily guessed."
             )
             if results["feedback"]["suggestions"]:
