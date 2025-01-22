@@ -94,9 +94,12 @@ objects, with each object representing a single secret match.
 The keys for each secret match are:
 
 * `token`: The value of the secret match (required)
-* `url`: The public URL where the match was found (optional)
+* `type`: The type of token found (required)
+* `url`: The public URL where the match was found (required)
 
-Additional fields may be provide but will be ignored.
+Currently the only valid value for `type` is `"pypi_api_token"`
+
+Additional fields may be provided but will be ignored.
 
 Example request:
 
@@ -109,6 +112,7 @@ Some-Public-Key-Signature: ...
 [
   {
     "token": "pypi-NMIfyYncKcRALEXAMPLE...",
+    "type": "pypi_api_token",
     "url": "https://github.com/octocat/Hello-World/blob/12345600b9cbe38a219f39a9941c9319b600c002/foo/bar.txt",
   }
 ]
@@ -118,8 +122,8 @@ Status codes:
 
 * `204 No Content` - We acknowledge the request but won't comment on the outcome.
 * `400 Bad Request` - The request was in some way malformed and we are unable
-   to process the report. The token was not disclosed and should be
-   re-submitted.
+   to process the report. The response body will contain a more detailed error
+   message. The token was not disclosed and should be re-submitted.
 
 [PyMacaroon]: https://pymacaroons.readthedocs.io/
 [GitHub secret scanning reporting pattern]: https://docs.github.com/en/code-security/secret-scanning/secret-scanning-partnership-program/secret-scanning-partner-program
