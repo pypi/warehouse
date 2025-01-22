@@ -464,7 +464,7 @@ def file_upload(request):
     # this request, then we'll go ahead and bomb out.
     if request.identity is None:
         request.metrics.increment(
-            "warehouse.upload.failed", tags=["reason:uploads-disabled"]
+            "warehouse.upload.failed", tags=["reason:no-identity"]
         )
         raise _exc_with_message(
             HTTPForbidden,
