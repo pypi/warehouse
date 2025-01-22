@@ -85,7 +85,7 @@ disclosure.
 
 ### Reporting a secret
 
-Route: `POST /_/secrets/disclose-token/`
+Route: `POST /_/secrets/disclose-token`
 
 Accepts a report of one or more arbitrary API tokens, with details on where it
 was located. The message body is a JSON array that contains one or more
@@ -101,7 +101,7 @@ Additional fields may be provide but will be ignored.
 Example request:
 
 ```http
-POST /_/secrets/disclose-token/ HTTP/1.1
+POST /_/secrets/disclose-token HTTP/1.1
 Host: pypi.org
 Some-Public-Key-Identifier: ...
 Some-Public-Key-Signature: ...
