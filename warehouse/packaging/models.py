@@ -168,6 +168,7 @@ class ProjectFactory:
 class LifecycleStatus(enum.StrEnum):
     QuarantineEnter = "quarantine-enter"
     QuarantineExit = "quarantine-exit"
+    Archived = "archived"
 
 
 class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
@@ -329,25 +330,36 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             (Allow, Authenticated, Permissions.SubmitMalwareObservation),
         ]
 
-        # The project has zero or more OIDC publishers registered to it,
-        # each of which serves as an identity with the ability to upload releases.
-        for publisher in self.oidc_publishers:
-            acls.append((Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload]))
+        if self.lifecycle_status != LifecycleStatus.Archived:
+            # The project has zero or more OIDC publishers registered to it,
+            # each of which serves as an identity with the ability to upload releases
+            # (only if the project is not archived)
+            for publisher in self.oidc_publishers:
+                acls.append(
+                    (Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload])
+                )
 
         # Get all of the users for this project.
-        query = session.query(Role).filter(Role.project == self)
-        query = query.options(orm.lazyload(Role.project))
-        query = query.options(orm.lazyload(Role.user))
+        user_query = (
+            session.query(Role)
+            .filter(Role.project == self)
+            .options(orm.lazyload(Role.project), orm.lazyload(Role.user))
+        )
         permissions = {
             (role.user_id, "Administer" if role.role_name == "Owner" else "Upload")
-            for role in query.all()
+            for role in user_query.all()
         }
 
         # Add all of the team members for this project.
-        query = session.query(TeamProjectRole).filter(TeamProjectRole.project == self)
-        query = query.options(orm.lazyload(TeamProjectRole.project))
-        query = query.options(orm.lazyload(TeamProjectRole.team))
-        for role in query.all():
+        team_query = (
+            session.query(TeamProjectRole)
+            .filter(TeamProjectRole.project == self)
+            .options(
+                orm.lazyload(TeamProjectRole.project),
+                orm.lazyload(TeamProjectRole.team),
+            )
+        )
+        for role in team_query.all():
             permissions |= {
                 (user.id, "Administer" if role.role_name.value == "Owner" else "Upload")
                 for user in role.team.members
@@ -355,38 +367,41 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
 
         # Add all organization owners for this project.
         if self.organization:
-            query = session.query(OrganizationRole).filter(
-                OrganizationRole.organization == self.organization,
-                OrganizationRole.role_name == OrganizationRoleType.Owner,
+            org_query = (
+                session.query(OrganizationRole)
+                .filter(
+                    OrganizationRole.organization == self.organization,
+                    OrganizationRole.role_name == OrganizationRoleType.Owner,
+                )
+                .options(
+                    orm.lazyload(OrganizationRole.organization),
+                    orm.lazyload(OrganizationRole.user),
+                )
             )
-            query = query.options(orm.lazyload(OrganizationRole.organization))
-            query = query.options(orm.lazyload(OrganizationRole.user))
-            permissions |= {(role.user_id, "Administer") for role in query.all()}
+            permissions |= {(role.user_id, "Administer") for role in org_query.all()}
 
         for user_id, permission_name in sorted(permissions, key=lambda x: (x[1], x[0])):
             # Disallow Write permissions for Projects in quarantine, allow Upload
             if self.lifecycle_status == LifecycleStatus.QuarantineEnter:
-                acls.append(
-                    (
-                        Allow,
-                        f"user:{user_id}",
-                        [Permissions.ProjectsRead, Permissions.ProjectsUpload],
-                    )
-                )
+                current_permissions = [
+                    Permissions.ProjectsRead,
+                    Permissions.ProjectsUpload,
+                ]
             elif permission_name == "Administer":
-                acls.append(
-                    (
-                        Allow,
-                        f"user:{user_id}",
-                        [
-                            Permissions.ProjectsRead,
-                            Permissions.ProjectsUpload,
-                            Permissions.ProjectsWrite,
-                        ],
-                    )
-                )
+                current_permissions = [
+                    Permissions.ProjectsRead,
+                    Permissions.ProjectsUpload,
+                    Permissions.ProjectsWrite,
+                ]
             else:
-                acls.append((Allow, f"user:{user_id}", [Permissions.ProjectsUpload]))
+                current_permissions = [Permissions.ProjectsUpload]
+
+            if self.lifecycle_status == LifecycleStatus.Archived:
+                # Disallow upload permissions for archived projects
+                current_permissions.remove(Permissions.ProjectsUpload)
+
+            if current_permissions:
+                acls.append((Allow, f"user:{user_id}", current_permissions))
         return acls
 
     @property
@@ -456,10 +471,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
         return (
             orm.object_session(self)
             .query(Release.version, Release.created, Release.is_prerelease)
-            .filter(
-                Release.project == self,
-                Release.yanked.is_(False),
-            )
+            .filter(Release.project == self, Release.yanked.is_(False))
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .first()
         )
@@ -540,8 +552,8 @@ DynamicFieldsEnum = ENUM(
     "Description",
     "Description-Content-Type",
     "Keywords",
-    "Home-Page",
-    "Download-Url",
+    "Home-Page",  # Deprecated, but technically permitted by PEP 643
+    "Download-Url",  # Deprecated, but technically permitted by PEP 643
     "Author",
     "Author-Email",
     "Maintainer",
@@ -557,6 +569,12 @@ DynamicFieldsEnum = ENUM(
     "Provides-Extra",
     "Provides-Dist",
     "Obsoletes-Dist",
+    # Although the following are deprecated fields, they are technically
+    # permitted as dynamic by PEP 643
+    # https://github.com/pypa/setuptools/issues/4797#issuecomment-2589514950
+    "Requires",
+    "Provides",
+    "Obsoletes",
     name="release_dynamic_fields",
 )
 
@@ -617,6 +635,7 @@ class Release(HasObservations, db.Model):
     _pypi_ordering: Mapped[int | None]
     requires_python: Mapped[str | None] = mapped_column(Text)
     created: Mapped[datetime_now] = mapped_column()
+    published: Mapped[bool_true] = mapped_column()
 
     description_id: Mapped[UUID] = mapped_column(
         ForeignKey("release_descriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
@@ -764,7 +783,7 @@ class Release(HasObservations, db.Model):
         return _urls
 
     def verified_user_name_and_repo_name(
-        self, domains: set[str], reserved_names: typing.Sequence[str] | None = None
+        self, domains: set[str], reserved_names: typing.Collection[str] | None = None
     ):
         for _, url in self.urls_by_verify_status(verified=True).items():
             try:
@@ -991,6 +1010,13 @@ class JournalEntry(db.ModelBase):
             Index("journals_version_idx", "version"),
             Index("journals_submitted_by_idx", "submitted_by"),
             Index("journals_submitted_date_id_idx", cls.submitted_date, cls.id),
+            # Composite index for journals to be able to sort by
+            # `submitted_by`, and `submitted_date` in descending order.
+            Index(
+                "journals_submitted_by_and_reverse_date_idx",
+                cls._submitted_by,
+                cls.submitted_date.desc(),
+            ),
         )
 
     id: Mapped[int] = mapped_column(primary_key=True)
