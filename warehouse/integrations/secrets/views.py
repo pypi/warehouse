@@ -55,9 +55,6 @@ def disclose_token(request):
 
     # The documentation for this process is at
     # https://developer.github.com/partnerships/token-scanning/
-
-    body = request.body
-
     key_id = request.headers.get(origin.key_id_header)
     signature = request.headers.get(origin.signature_header)
 
@@ -69,7 +66,7 @@ def disclose_token(request):
         api_token=request.registry.settings.get(origin.api_token),
     )
 
-    if not verifier.verify(payload=body, key_id=key_id, signature=signature):
+    if not verifier.verify(payload=request.body, key_id=key_id, signature=signature):
         metrics.increment(
             f"warehouse.token_leak.{origin.metric_name}.error.payload.verify_error"
         )
