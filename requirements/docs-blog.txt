@@ -331,9 +331,9 @@ mkdocs-get-deps==0.2.0 \
     --hash=sha256:162b3d129c7fad9b19abfdcb9c1458a651628e4b1dea628ac68790fb3061c60c \
     --hash=sha256:2bf11d0b133e77a0dd036abeeb06dec8775e46efa526dc70667d8863eefc6134
     # via mkdocs
-mkdocs-material==9.5.49 \
-    --hash=sha256:3671bb282b4f53a1c72e08adbe04d2481a98f85fed392530051f80ff94a9621d \
-    --hash=sha256:c3c2d8176b18198435d3a3e119011922f3e11424074645c24019c2dcf08a360e
+mkdocs-material==9.5.50 \
+    --hash=sha256:ae5fe16f3d7c9ccd05bb6916a7da7420cf99a9ce5e33debd9d40403a090d5825 \
+    --hash=sha256:f24100f234741f4d423a9d672a909d859668a4f404796be3cf035f10d6050385
     # via -r requirements/docs-blog.in
 mkdocs-material-extensions==1.3.1 \
     --hash=sha256:10c9511cea88f568257f960358a467d12b970e1f7b2c0e5fb2bb48cab1928443 \
