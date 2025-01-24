@@ -21,23 +21,26 @@ from warehouse.packaging.models import File
 from warehouse.utils.cors import _CORS_HEADERS
 
 MIME_TEXT_HTML = "text/html"
+MIME_APPLICATION_JSON = "application/json"
 MIME_PYPI_INTEGRITY_V1_HTML = "application/vnd.pypi.integrity.v1+html"
 MIME_PYPI_INTEGRITY_V1_JSON = "application/vnd.pypi.integrity.v1+json"
 
 
-def _select_content_type(request: Request) -> str:
+def _select_content_type(request: Request) -> str | None:
     offers = request.accept.acceptable_offers(
         [
             # JSON currently has the highest priority.
             MIME_PYPI_INTEGRITY_V1_JSON,
-            MIME_TEXT_HTML,
-            MIME_PYPI_INTEGRITY_V1_HTML,
+            MIME_APPLICATION_JSON,
+            # Ensures that we fall back to the first offer if
+            # the client does not provide an Accept header.
+            "identity",
         ]
     )
 
-    # Default case: JSON.
+    # Client provided an Accept header, but none of the offers matched.
     if not offers:
-        return MIME_PYPI_INTEGRITY_V1_JSON
+        return None
     else:
         return offers[0][0]
 
@@ -63,7 +66,7 @@ def provenance_for_file(file: File, request: Request):
     # Determine our response content-type. For the time being, only the JSON
     # type is accepted.
     request.response.content_type = _select_content_type(request)
-    if request.response.content_type != MIME_PYPI_INTEGRITY_V1_JSON:
+    if not request.response.content_type:
         return HTTPNotAcceptable(json={"message": "Request not acceptable"})
 
     if request.flags.enabled(AdminFlagValue.DISABLE_PEP740):
