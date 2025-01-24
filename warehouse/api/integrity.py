@@ -32,9 +32,6 @@ def _select_content_type(request: Request) -> str | None:
             # JSON currently has the highest priority.
             MIME_PYPI_INTEGRITY_V1_JSON,
             MIME_APPLICATION_JSON,
-            # Ensures that we fall back to the first offer if
-            # the client does not provide an Accept header.
-            "identity",
         ]
     )
 
