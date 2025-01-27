@@ -5222,7 +5222,7 @@ class TestManageProjectRoles:
         )
         db_request.method = "POST"
         db_request.POST = pretend.stub()
-        db_request.remote_addr = "10.10.10.10"
+        db_request.remote_addr = "198.51.100.2"
         db_request.user = owner_1
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
@@ -5376,7 +5376,7 @@ class TestManageProjectRoles:
         )
         db_request.method = "POST"
         db_request.POST = pretend.stub()
-        db_request.remote_addr = "10.10.10.10"
+        db_request.remote_addr = "198.51.100.2"
         db_request.user = owner_1
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
@@ -5435,7 +5435,7 @@ class TestRevokeRoleInvitation:
         )
         db_request.method = "POST"
         db_request.POST = MultiDict({"user_id": user.id, "token": "TOKEN"})
-        db_request.remote_addr = "10.10.10.10"
+        db_request.remote_addr = "198.51.100.2"
         db_request.user = owner_user
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/manage/projects"
@@ -5486,7 +5486,7 @@ class TestRevokeRoleInvitation:
         )
         db_request.method = "POST"
         db_request.POST = MultiDict({"user_id": user.id, "token": "TOKEN"})
-        db_request.remote_addr = "10.10.10.10"
+        db_request.remote_addr = "198.51.100.2"
         db_request.user = owner_user
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/manage/projects"
@@ -5524,7 +5524,7 @@ class TestRevokeRoleInvitation:
         )
         db_request.method = "POST"
         db_request.POST = MultiDict({"user_id": user.id, "token": "TOKEN"})
-        db_request.remote_addr = "10.10.10.10"
+        db_request.remote_addr = "198.51.100.2"
         db_request.user = owner_user
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/manage/projects/roles"
