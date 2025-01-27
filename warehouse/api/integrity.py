@@ -20,9 +20,7 @@ from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import File
 from warehouse.utils.cors import _CORS_HEADERS
 
-MIME_TEXT_HTML = "text/html"
 MIME_APPLICATION_JSON = "application/json"
-MIME_PYPI_INTEGRITY_V1_HTML = "application/vnd.pypi.integrity.v1+html"
 MIME_PYPI_INTEGRITY_V1_JSON = "application/vnd.pypi.integrity.v1+json"
 
 
