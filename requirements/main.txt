@@ -511,9 +511,9 @@ datadog==0.50.2 \
     --hash=sha256:17725774bf2bb0a48f1d096d92707492c187f24ae08960af0b0c2fa97958fd51 \
     --hash=sha256:f3297858564b624efbd9ce43e4ea1c2c21e1f0477ab6d446060b536a1d9e431e
     # via -r requirements/main.in
-deprecated==1.2.15 \
-    --hash=sha256:353bc4a8ac4bfc96800ddab349d89c25dec1079f65fd53acdcc1e0b975b21320 \
-    --hash=sha256:683e561a90de76239796e6b6feac66b99030d2dd3fcf61ef996330f14bbb9b0d
+deprecated==1.2.17 \
+    --hash=sha256:0114a10f0bbb750b90b2c2296c90cf7e9eaeb0abb5cf06c80de2c60138de0a82 \
+    --hash=sha256:69cdc0a751671183f569495e2efb14baee4344b0236342eec29f1fde25d61818
     # via limits
 disposable-email-domains==0.0.117 \
     --hash=sha256:a221c47a83d67c5da54386bd3f404ff2dc9dfd3ee4edf3d5b4ce547493b39b3d \
