@@ -306,6 +306,31 @@ def includeme(config):
             "tcp_keepalive": True,
         }
 
+    if broker_url.startswith("redis"):
+        parsed_url = urllib.parse.urlparse(  # noqa: WH001, going to urlunparse this
+            broker_url
+        )
+        parsed_query = urllib.parse.parse_qs(parsed_url.query)
+
+        celery_transport_options = {
+            "socket_timeout": int,
+        }
+
+        for key, value in parsed_query.copy().items():
+            if key.startswith("ssl_"):
+                continue
+            else:
+                if key in celery_transport_options:
+                    broker_transport_options[key] = celery_transport_options[key](
+                        value[0]
+                    )
+                del parsed_query[key]
+
+        parsed_url = parsed_url._replace(
+            query=urllib.parse.urlencode(parsed_query, doseq=True, safe="/")
+        )
+        broker_url = urllib.parse.urlunparse(parsed_url)
+
     config.registry["celery.app"] = celery.Celery(
         "warehouse", autofinalize=False, set_as_current=False
     )
