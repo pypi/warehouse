@@ -68,7 +68,7 @@ def test_select_content_type(db_request, accept, expected):
 # Backstop; can be removed/changed once this view supports HTML.
 @pytest.mark.parametrize(
     "content_type",
-    [integrity.MIME_TEXT_HTML, integrity.MIME_PYPI_INTEGRITY_V1_HTML],
+    ["text/html", "application/vnd.pypi.integrity.v1+html"],
 )
 def test_provenance_for_file_bad_accept(db_request, content_type):
     db_request.accept = content_type
