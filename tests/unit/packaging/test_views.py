@@ -135,7 +135,7 @@ class TestProjectDetail:
         assert resp is response
         assert release_detail.calls == [pretend.call(release, db_request)]
 
-    def test_with_unpublished(self, monkeypatch, db_request):
+    def test_with_staged(self, monkeypatch, db_request):
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         ReleaseFactory.create(project=project, version="1.1", published=False)
@@ -216,7 +216,7 @@ class TestReleaseDetail:
             )
         ]
 
-        # Add an unpublished version
+        # Add a staged version
         staged_release = ReleaseFactory.create(
             project=project,
             version="5.1",

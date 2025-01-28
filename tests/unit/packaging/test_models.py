@@ -1216,14 +1216,6 @@ class TestRelease:
         assert release in db_request.db.deleted
         assert description in db_request.db.deleted
 
-    def test_published(self, db_request):
-        release = DBReleaseFactory.create()
-        assert release.published
-
-    def test_unpublished(self, db_request):
-        release = DBReleaseFactory.create(published=False)
-        assert not release.published
-
 
 @pytest.mark.parametrize(
     "published",
@@ -1237,7 +1229,7 @@ def test_filter_staged_releases(db_request, published):
     assert db_request.db.query(Release).count() == (1 if published else 0)
 
 
-def test_filter_staged_releases_unpublished(db_request):
+def test_filter_staged_releases_with_staged(db_request):
     DBReleaseFactory.create(published=False)
     assert (
         db_request.db.query(Release).execution_options(include_staged=True).count() == 1

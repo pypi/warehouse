@@ -118,14 +118,14 @@ class TestLatestReleaseFactory:
         db_request.matchdict = {"name": project.normalized_name}
         assert json.latest_release_factory(db_request) == release
 
-    def test_with_unpublished(self, db_request):
+    def test_with_staged(self, db_request):
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         ReleaseFactory.create(project=project, version="2.0", published=False)
         db_request.matchdict = {"name": project.normalized_name}
         assert json.latest_release_factory(db_request) == release
 
-    def test_only_unpublished(self, db_request):
+    def test_only_staged(self, db_request):
         project = ProjectFactory.create()
         ReleaseFactory.create(project=project, version="1.0", published=False)
         db_request.matchdict = {"name": project.normalized_name}
@@ -138,31 +138,31 @@ class TestLatestReleaseFactory:
         ("release0_state", "release1_state", "release2_state", "latest_release"),
         [
             ("published", "published", "published", 2),
-            ("published", "published", "unpublished", 1),
+            ("published", "published", "staged", 1),
             ("published", "published", "yanked", 1),
-            ("published", "unpublished", "published", 2),
-            ("published", "unpublished", "unpublished", 0),
-            ("published", "unpublished", "yanked", 0),
+            ("published", "staged", "published", 2),
+            ("published", "staged", "staged", 0),
+            ("published", "staged", "yanked", 0),
             ("published", "yanked", "published", 2),
-            ("published", "yanked", "unpublished", 0),
+            ("published", "yanked", "staged", 0),
             ("published", "yanked", "yanked", 0),
-            ("unpublished", "published", "published", 2),
-            ("unpublished", "published", "unpublished", 1),
-            ("unpublished", "published", "yanked", 1),
-            ("unpublished", "unpublished", "published", 2),
-            ("unpublished", "unpublished", "unpublished", -1),
-            ("unpublished", "unpublished", "yanked", 2),  # Same endpoint as none yanked
-            ("unpublished", "yanked", "published", 2),
-            ("unpublished", "yanked", "unpublished", 1),
-            ("unpublished", "yanked", "yanked", 2),
+            ("staged", "published", "published", 2),
+            ("staged", "published", "staged", 1),
+            ("staged", "published", "yanked", 1),
+            ("staged", "staged", "published", 2),
+            ("staged", "staged", "staged", -1),
+            ("staged", "staged", "yanked", 2),  # Same endpoint as none yanked
+            ("staged", "yanked", "published", 2),
+            ("staged", "yanked", "staged", 1),
+            ("staged", "yanked", "yanked", 2),
             ("yanked", "published", "published", 2),
-            ("yanked", "published", "unpublished", 1),
+            ("yanked", "published", "staged", 1),
             ("yanked", "published", "yanked", 1),
-            ("yanked", "unpublished", "published", 2),
-            ("yanked", "unpublished", "unpublished", 0),
-            ("yanked", "unpublished", "yanked", 2),
+            ("yanked", "staged", "published", 2),
+            ("yanked", "staged", "staged", 0),
+            ("yanked", "staged", "yanked", 2),
             ("yanked", "yanked", "published", 2),
-            ("yanked", "yanked", "unpublished", 1),
+            ("yanked", "yanked", "staged", 1),
             ("yanked", "yanked", "yanked", 2),
         ],
     )
@@ -183,7 +183,7 @@ class TestLatestReleaseFactory:
                         project=project, version=version, published=True
                     )
                 )
-            elif state == "unpublished":
+            elif state == "staged":
                 releases.append(
                     ReleaseFactory.create(
                         project=project, version=version, published=False
