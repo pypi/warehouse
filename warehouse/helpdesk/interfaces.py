@@ -30,3 +30,15 @@ class IHelpDeskService(Interface):
         """
         Add a tag to a conversation.
         """
+
+
+class IAdminNotificationService(Interface):
+    def create_service(context, request) -> IAdminNotificationService:
+        """
+        Create a new instance of the service.
+        """
+
+    def send_notification(*, payload: dict) -> None:
+        """
+        Send a notification to the webhook service.
+        """

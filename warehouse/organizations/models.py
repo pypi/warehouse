@@ -43,7 +43,7 @@ from warehouse.accounts.models import User
 from warehouse.authnz import Permissions
 from warehouse.events.models import HasEvents
 from warehouse.utils.attrs import make_repr
-from warehouse.utils.db.types import bool_false, datetime_now
+from warehouse.utils.db.types import TZDateTime, bool_false, datetime_now
 
 if typing.TYPE_CHECKING:
     from pyramid.request import Request
@@ -141,6 +141,26 @@ class OrganizationStripeSubscription(db.Model):
 
     organization: Mapped[Organization] = relationship(lazy=False)
     subscription: Mapped[StripeSubscription] = relationship(lazy=False)
+
+
+class OrganizationTermsOfServiceAgreement(db.Model):
+    __tablename__ = "organization_terms_of_service_agreements"
+    __table_args__ = (
+        Index(
+            "organization_terms_of_service_agreements_organization_id_idx",
+            "organization_id",
+        ),
+    )
+
+    __repr__ = make_repr("organization_id")
+
+    organization_id: Mapped[UUID] = mapped_column(
+        ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
+    )
+    agreed: Mapped[datetime.datetime | None] = mapped_column(TZDateTime)
+    notified: Mapped[datetime.datetime | None] = mapped_column(TZDateTime)
+
+    organization: Mapped[Organization] = relationship(lazy=False)
 
 
 class OrganizationStripeCustomer(db.Model):
@@ -302,6 +322,12 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         back_populates="organization",
         viewonly=True,
     )
+    terms_of_service_agreements: Mapped[list[OrganizationTermsOfServiceAgreement]] = (
+        relationship(
+            back_populates="organization",
+            viewonly=True,
+        )
+    )
 
     @property
     def owners(self):
@@ -460,6 +486,14 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
     def active_subscription(self):
         for subscription in self.subscriptions:
             if not subscription.is_restricted:
+                return subscription
+        else:
+            return None
+
+    @property
+    def manageable_subscription(self):
+        for subscription in self.subscriptions:
+            if subscription.is_manageable:
                 return subscription
         else:
             return None

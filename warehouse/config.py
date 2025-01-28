@@ -432,13 +432,6 @@ def configure(settings=None):
         coercer=int,
         default=100,
     )
-    maybe_set(
-        settings,
-        "metadata_backfill.batch_size",
-        "METADATA_BACKFILL_BATCH_SIZE",
-        coercer=int,
-        default=500,
-    )
     maybe_set_compound(settings, "billing", "backend", "BILLING_BACKEND")
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
     maybe_set_compound(settings, "archive_files", "backend", "ARCHIVE_FILES_BACKEND")
@@ -480,6 +473,15 @@ def configure(settings=None):
     maybe_set(settings, "helpscout.app_id", "HELPSCOUT_WAREHOUSE_APP_ID")
     maybe_set(settings, "helpscout.app_secret", "HELPSCOUT_WAREHOUSE_APP_SECRET")
     maybe_set(settings, "helpscout.mailbox_id", "HELPSCOUT_WAREHOUSE_MAILBOX_ID")
+    # Admin notification service settings
+    maybe_set(
+        settings, "helpdesk.notification_backend", "HELPDESK_NOTIFICATION_BACKEND"
+    )
+    maybe_set(
+        settings,
+        "helpdesk.notification_service_url",
+        "HELPDESK_NOTIFICATION_SERVICE_URL",
+    )
 
     # Configure our ratelimiters
     maybe_set(

@@ -311,6 +311,18 @@
       {% trans %}Disabled by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.modified_by) }}">{{ event.additional.modified_by }}</a>
     </small>
 
+    {# Display project archival enter/exit events #}
+    {% elif event.tag == EventTag.Project.ProjectArchiveEnter %}
+    <strong>{% trans %}Project archived{% endtrans %}</strong>
+    <small>
+      {% trans %}Archived by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+    </small>
+    {% elif event.tag == EventTag.Project.ProjectArchiveExit %}
+    <strong>{% trans %}Project unarchived{% endtrans %}</strong>
+    <small>
+      {% trans %}Unarchived by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+    </small>
+
     {# Display Project Alternate Repository events  #}
     {% elif event.tag == EventTag.Account.AlternateRepositoryAdd %}
     <strong>{% trans%}Project alternate repository added{% endtrans %}</strong>

@@ -525,20 +525,20 @@
 
                 {% for field in emails_form.emails.entries %}
                 <div class="row">
-                  <div class="col-7">
+                  <div class="col-sm-7">
                     {{ render_field("Email", field.email, "email-" ~ loop.index0, class="form-control", placeholder="Email", permission=perms_admin_users_email_write)}}
                   </div>
-                  <div class="col">
+                  <div class="col-sm">
                     {{ render_checkbox("Primary", field.primary, "email-primary-" ~ loop.index0, permission=perms_admin_users_email_write)}}
                   </div>
-                  <div class="col">
+                  <div class="col-sm">
                     {{ render_checkbox("Verified", field.verified, "email-verified-" ~ loop.index0, permission=perms_admin_users_email_write) }}
                   </div>
-                  <div class="col">
+                  <div class="col-sm">
                     {{ render_checkbox("Public", field.public, "email-public-" ~ loop.index0, permission=perms_admin_users_email_write) }}
                   </div>
                   {% if breached_email_count[field.email.data] %}
-                  <div class="col">
+                  <div class="col-sm">
                     Breaches: {{ breached_email_count[field.email.data] }}
                   </div>
                   {% endif %}
@@ -577,16 +577,16 @@
                 {% endif %}
 
                 <div class="row">
-                  <div class="col-6">
+                  <div class="col-sm-7">
                     {{ render_field("Email", add_email_form.email, "email", class="form-control", placeholder="Email", permission=perms_admin_users_email_write)}}
                   </div>
-                  <div class="col">
+                  <div class="col-sm">
                     {{ render_checkbox("Primary", add_email_form.primary, "email-primary", permission=perms_admin_users_email_write)}}
                   </div>
-                  <div class="col">
+                  <div class="col-sm">
                     {{ render_checkbox("Verified", add_email_form.verified, "email-verified", permission=perms_admin_users_email_write) }}
                   </div>
-                  <div class="col">
+                  <div class="col-sm">
                     {{ render_checkbox("Public", add_email_form.public, "email-public", permission=perms_admin_users_email_write) }}
                   </div>
                 </div>

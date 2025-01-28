@@ -51,7 +51,7 @@ from warehouse.attestations.interfaces import IIntegrityService
 from warehouse.email import services as email_services
 from warehouse.email.interfaces import IEmailSender
 from warehouse.helpdesk import services as helpdesk_services
-from warehouse.helpdesk.interfaces import IHelpDeskService
+from warehouse.helpdesk.interfaces import IAdminNotificationService, IHelpDeskService
 from warehouse.macaroons import services as macaroon_services
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.metrics import IMetricsService
@@ -183,6 +183,7 @@ def pyramid_services(
     integrity_service,
     macaroon_service,
     helpdesk_service,
+    notification_service,
 ):
     services = _Services()
 
@@ -205,6 +206,7 @@ def pyramid_services(
     services.register_service(integrity_service, IIntegrityService, None)
     services.register_service(macaroon_service, IMacaroonService, None, name="")
     services.register_service(helpdesk_service, IHelpDeskService, None)
+    services.register_service(notification_service, IAdminNotificationService)
 
     return services
 
@@ -229,6 +231,11 @@ def pyramid_request(pyramid_services, jinja, remote_addr, remote_addr_hashed):
     )
     dummy_request.task = pretend.call_recorder(
         lambda *a, **kw: dummy_request._task_stub
+    )
+    dummy_request.log = pretend.stub(
+        bind=pretend.call_recorder(lambda *args, **kwargs: dummy_request.log),
+        info=pretend.call_recorder(lambda *args, **kwargs: None),
+        error=pretend.call_recorder(lambda *args, **kwargs: None),
     )
 
     def localize(message, **kwargs):
@@ -339,6 +346,7 @@ def get_app_config(database, nondefaults=None):
         "billing.api_version": "2020-08-27",
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
         "helpdesk.backend": "warehouse.helpdesk.services.ConsoleHelpDeskService",
+        "helpdesk.notification_backend": "warehouse.helpdesk.services.ConsoleHelpDeskService",  # noqa: E501
         "files.url": "http://localhost:7000/",
         "archive_files.url": "http://localhost:7000/archive",
         "sessions.secret": "123456",
@@ -590,6 +598,7 @@ def billing_service(app_config):
         api=stripe,
         publishable_key="pk_test_123",
         webhook_secret="whsec_123",
+        domain="localhost",
     )
 
 
@@ -613,6 +622,11 @@ def email_service():
 @pytest.fixture
 def helpdesk_service():
     return helpdesk_services.ConsoleHelpDeskService()
+
+
+@pytest.fixture
+def notification_service():
+    return helpdesk_services.ConsoleAdminNotificationService()
 
 
 class QueryRecorder:
@@ -654,8 +668,9 @@ def query_recorder(app_config):
 
 
 @pytest.fixture
-def db_request(pyramid_request, db_session):
+def db_request(pyramid_request, db_session, tm):
     pyramid_request.db = db_session
+    pyramid_request.tm = tm
     pyramid_request.flags = admin.flags.Flags(pyramid_request)
     pyramid_request.banned = admin.bans.Bans(pyramid_request)
     pyramid_request.organization_access = True
@@ -720,7 +735,6 @@ def tm():
     # Create a new transaction manager for dependant test cases
     tm = transaction.TransactionManager(explicit=True)
     tm.begin()
-    tm.doom()
 
     yield tm
 
