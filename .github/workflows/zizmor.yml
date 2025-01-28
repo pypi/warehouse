@@ -27,10 +27,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version-file: '.python-version'
-      - name: Get zizmor
-        run: python -m pip install zizmor
       - name: Run zizmor
-        run: zizmor --format sarif . > results.sarif
+        run: pipx run zizmor --format sarif . > results.sarif
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v3
         with:
