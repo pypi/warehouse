@@ -659,6 +659,7 @@ def file_upload(request):
                 ]
             ),
         )
+
     # Ensure that we have file data in the request.
     if "content" not in request.POST:
         request.metrics.increment("warehouse.upload.failed", tags=["reason:no-file"])
