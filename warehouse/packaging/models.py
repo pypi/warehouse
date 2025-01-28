@@ -1061,7 +1061,7 @@ def ensure_monotonic_journals(config, session, flush_context, instances):
 
 
 @db.listens_for(db.Session, "do_orm_execute")
-def filter_staged_release(config, state: ORMExecuteState):
+def filter_staged_release(_, state: ORMExecuteState):
     if (
         state.is_select
         and not state.is_column_load

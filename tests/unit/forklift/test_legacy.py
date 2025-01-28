@@ -3586,7 +3586,6 @@ class TestFileUpload:
                 else None
             ),
             "uploaded_via_trusted_publisher": not test_with_user,
-            "published": True,
         }
 
         fileadd_event = {
