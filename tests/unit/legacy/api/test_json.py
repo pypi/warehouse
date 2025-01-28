@@ -242,7 +242,6 @@ class TestJSONProject:
     def test_renders(self, pyramid_config, db_request, db_session):
         project = ProjectFactory.create(has_docs=True)
         description_content_type = "text/x-rst"
-        print("NOJ")
         url = "/the/fake/url/"
         project_urls = [
             "url," + url,

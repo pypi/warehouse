@@ -60,6 +60,7 @@ from warehouse.events.tags import EventTag
 from warehouse.forklift import metadata
 from warehouse.forklift.forms import UploadForm, _filetype_extension_mapping
 from warehouse.macaroons.models import Macaroon
+from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
 from warehouse.packaging.metadata_verification import verify_email, verify_url
 from warehouse.packaging.models import (
@@ -888,6 +889,7 @@ def file_upload(request):
                 (Release.project == project)
                 & (Release.canonical_version == canonical_version)
             )
+            .execution_options(include_staged=True)
             .one()
         )
     except MultipleResultsFound:

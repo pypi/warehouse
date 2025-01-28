@@ -5362,6 +5362,7 @@ class TestStagedRelease:
         release = (
             db_request.db.query(Release)
             .filter((Release.project == project) & (Release.version == "1.0"))
+            .execution_options(include_staged=True)
             .one()
         )
 
@@ -5426,8 +5427,7 @@ class TestStagedRelease:
         )
 
         # Create a release and add a file
-        release = ReleaseFactory.create(project=project, version="1.0")
-        release.published = False
+        release = ReleaseFactory.create(project=project, version="1.0", published=False)
         FileFactory.create(release=release, packagetype="bdist_wheel")
 
         filename = "{}-{}.tar.gz".format(
@@ -5579,6 +5579,7 @@ class TestStagedRelease:
         release = (
             db_request.db.query(Release)
             .filter((Release.project == project) & (Release.version == "1.0"))
+            .execution_options(include_staged=True)
             .one()
         )
         assert not release.published
