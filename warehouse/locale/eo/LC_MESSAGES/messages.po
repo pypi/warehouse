@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-12-29 13:51+0200\n"
-"PO-Revision-Date: 2025-01-17 20:50+0000\n"
+"PO-Revision-Date: 2025-01-24 19:37+0000\n"
 "Last-Translator: phlostically <phlostically@mailinator.com>\n"
 "Language-Team: Esperanto <https://hosted.weblate.org/projects/pypa/warehouse/"
 "eo/>\n"
@@ -6623,28 +6623,20 @@ msgid "Disabled by:"
 msgstr "Malŝaltita de:"
 
 #: warehouse/templates/manage/project/history.html:297
-#, fuzzy
-#| msgid "Project name"
 msgid "Project archived"
-msgstr "Nomo de projekto"
+msgstr "Projekto enarĥivigita"
 
 #: warehouse/templates/manage/project/history.html:299
-#, fuzzy
-#| msgid "Archived"
 msgid "Archived by:"
-msgstr "Enarĥivigita"
+msgstr "Enarĥivigita de:"
 
 #: warehouse/templates/manage/project/history.html:302
-#, fuzzy
-#| msgid "Project name"
 msgid "Project unarchived"
-msgstr "Nomo de projekto"
+msgstr "Projekto elarĥivigita"
 
 #: warehouse/templates/manage/project/history.html:304
-#, fuzzy
-#| msgid "Unarchive project"
 msgid "Unarchived by:"
-msgstr "Elarĥivigi projekton"
+msgstr "Elarĥivigita de:"
 
 #: warehouse/templates/manage/project/history.html:309
 #: warehouse/templates/manage/project/history.html:331

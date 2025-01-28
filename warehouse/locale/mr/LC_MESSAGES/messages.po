@@ -2,14 +2,14 @@
 # Copyright (C) 2019 PyPA
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
-# Prachi Joshi <josprachi@yahoo.com>, 2019, 2020, 2022.
+# Prachi Joshi <josprachi@yahoo.com>, 2019, 2020, 2022, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2022-06-28 19:48+0000\n"
-"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"PO-Revision-Date: 2025-01-24 19:37+0000\n"
+"Last-Translator: Prachi Joshi <josprachi@yahoo.com>\n"
 "Language-Team: Marathi <https://hosted.weblate.org/projects/pypa/warehouse/"
 "mr/>\n"
 "Language: mr\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.13.1-dev\n"
+"X-Generator: Weblate 5.10-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:157
@@ -5911,7 +5911,7 @@ msgstr ""
 #: warehouse/templates/manage/team/roles.html:23
 #: warehouse/templates/manage/team/roles.html:28
 msgid "2FA"
-msgstr ""
+msgstr "2FA"
 
 #: warehouse/templates/manage/organization/roles.html:27
 #: warehouse/templates/manage/project/roles.html:27
