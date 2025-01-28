@@ -78,9 +78,9 @@ ddtrace==2.19.1 \
     --hash=sha256:ed9e06f51c97116b7fef5d5768e4defbc42927e4308272f2483ed24ae275e0f3 \
     --hash=sha256:ff2eb2c9054d74c2d072215a3e01348c51915da940de71072ac187538273183c
     # via -r requirements/deploy.in
-deprecated==1.2.15 \
-    --hash=sha256:353bc4a8ac4bfc96800ddab349d89c25dec1079f65fd53acdcc1e0b975b21320 \
-    --hash=sha256:683e561a90de76239796e6b6feac66b99030d2dd3fcf61ef996330f14bbb9b0d
+deprecated==1.2.18 \
+    --hash=sha256:422b6f6d859da6f2ef57857761bfb392480502a64c3028ca9bbe86085d72115d \
+    --hash=sha256:bd5011788200372a32418f888e326a09ff80d0214bd961147cfed01b5c018eec
     # via opentelemetry-api
 envier==0.6.1 \
     --hash=sha256:3309a01bb3d8850c9e7a31a5166d5a836846db2faecb79b9cb32654dd50ca9f9 \
