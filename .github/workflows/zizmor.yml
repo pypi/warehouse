@@ -4,6 +4,8 @@ name: GitHub Actions Security Analysis with Zizmor
 on:
   push:
     branches: ["main"]
+    paths:
+      - '.github/workflows/**'
   pull_request:
     branches: ["*"]
 
@@ -25,8 +27,6 @@ jobs:
           persist-credentials: false
       - name: Setup Python
         uses: actions/setup-python@v5
-        with:
-          python-version-file: '.python-version'
       - name: Run zizmor
         run: pipx run zizmor --format sarif . > results.sarif
       - name: Upload SARIF file
