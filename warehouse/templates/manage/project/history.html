@@ -53,14 +53,6 @@
       <a href="{{ event.additional.publisher_url }}">{{ event.additional.publisher_url }}</a>
     {% endif %}
     </small>
-    <small>
-    {% trans %}Published:{% endtrans %}
-    {% if event.additional.published is defined and event.additional.published is false %}
-      {% trans %}No{% endtrans %}
-    {% else %}
-      {% trans %}Yes{% endtrans %}
-    {% endif %}
-    </small>
     {% elif event.tag == EventTag.Project.ReleaseRemove %}
     <strong>
       {# No link to removed release #}
