@@ -53,10 +53,9 @@ def _simple_detail(project, request):
         .join(Release)
         .filter(Release.project == project)
         # Exclude projects that are in the `quarantine-enter` lifecycle status.
-        # And exclude un-published releases from the index
         .join(Project)
         .filter(
-            Project.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter),
+            Project.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter)
         )
         .all(),
         key=lambda f: (packaging_legacy.version.parse(f.release.version), f.filename),
