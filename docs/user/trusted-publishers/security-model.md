@@ -283,7 +283,7 @@ own security model and considerations.
       access the OIDC token to a bare minimum. This prevents both accidental
       and malicious disclosure.
 
-[played a major role in cyber attacks]: https://verizon.com/dbir
+[played a major role in cyber attacks]: https://therecord.media/cisa-cyberattacks-using-valid-credentials
 
 [Attestations]: /attestations/
 
