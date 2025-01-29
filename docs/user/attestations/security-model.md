@@ -10,10 +10,17 @@ asserted.
 
 The most basic type of attestation (the type enabled by default in
 [`pypa/gh-action-pypi-publish`][gh-action-pypi-publish]) asserts that the
-package was built by an authorized build process such as a particular CI
-provider in a particular code repository. This is primarily designed to protect
-against modification of a package *after* it was built such as while it is
-stored in a package index.
+project was published by an authorized publisher such as a particular CI
+provider in a particular code repository.
+
+This type of attestation has two main purposes:
+
+- It protects against modification of a project *after* it was built,
+  such as while it is stored in a package index or mirror.
+- It allows verifying parties to observe *changes* to the project's Trusted Publisher.
+  For example, a verifying party might observe that a project's new releases
+  are coming from a different Trusted Publisher, indicating that control
+  of the project may have changed hands maliciously.
 
 More advanced types of attestations can assert more things about the package
 such as whether it was tampered with *before* it was built, but these
