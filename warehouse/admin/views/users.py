@@ -27,10 +27,10 @@ from sqlalchemy import or_, select
 from sqlalchemy.orm import joinedload
 
 from warehouse.accounts.interfaces import (
-    IEmailBreachedService,
-    IUserService,
     BurnedRecoveryCode,
+    IEmailBreachedService,
     InvalidRecoveryCode,
+    IUserService,
 )
 from warehouse.accounts.models import (
     DisableReason,
