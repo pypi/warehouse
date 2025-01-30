@@ -562,10 +562,10 @@
             </div>
           </form>
 
-          <div class="card-header with-border">
-            <h3 class="card-title">Add a new email</h3>
-          </div>
           <div class="card">
+            <div class="card-header with-border">
+              <h3 class="card-title">Add a new email</h3>
+            </div>
             <form class="form-horizontal" method="POST" action="{{ request.route_path('admin.user.add_email', username=user.username) }}">
               <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
@@ -598,10 +598,10 @@
                     <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not perms_admin_users_email_write }}" {{ "disabled" if not perms_admin_users_email_write }}>Submit</button>
                   </div>
                 </div>
-              </div>
+              </div> <!-- .card-footer -->
             </form>
           </div>
-        </div>
+        </div> <!-- .card -->
       </div> <!-- .card -->
 
       <div class="card">
@@ -693,6 +693,7 @@
         </div>
 
         <div class="card-body">
+          {% if user.macaroons %}
           <table id="api-tokens" class="table table-hover">
             <thead>
               <tr>
@@ -721,6 +722,9 @@
               {% endfor %}
             </tbody>
           </table>
+          {% else %}
+          No API tokens configured.
+          {% endif %}
         </div>
       </div> <!-- .card -->
 
@@ -756,6 +760,7 @@
         </div>
 
         <div class="card-body">
+          {% if roles %}
           <table class="table table-hover" id="projects">
             <thead>
               <tr>
@@ -774,6 +779,9 @@
             {% endfor %}
             </tbody>
           </table>
+          {% else %}
+          No roles available.
+          {% endif %}
         </div>
       </div> <!-- .card -->
 
