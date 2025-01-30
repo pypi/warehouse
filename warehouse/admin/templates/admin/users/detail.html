@@ -647,25 +647,44 @@
           </div>
         </div>
         {% endif %}
-        {% if user.has_recovery_codes %}
-        <div>
-          <div class="card-header with-border">
-            <h3 class="card-title">Recovery codes</h3>
-          </div>
-          <div class="card-body">
-            <table class="table table-hover">
-              <tr>
-                <th>Generated</th>
-                <th>Remaining</th>
-              </tr>
-              <tr>
-                <td>{{ user.recovery_codes[0].generated }}</td>
-                <td>{{ user.recovery_codes.filter_by(burned=None).all()|length }}</td>
-              </tr>
-            </table>
-          </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Recovery codes</h3>
         </div>
-        {% endif %}
+        <div class="card-body">
+          {% if user.has_recovery_codes %}
+          <table class="table table-hover">
+            <tr>
+              <th>Generated</th>
+              <th>Remaining</th>
+            </tr>
+            <tr>
+              <td>{{ user.recovery_codes[0].generated }}</td>
+              <td>{{ user.recovery_codes.filter_by(burned=None).all()|length }}</td>
+            </tr>
+          </table>
+          <form method="POST" action="{{ request.route_path('admin.user.burn_recovery_codes', username=user.username) }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+            <div class="card">
+              <div class="card-header with-border">
+                <h3 class="card-title">Burn leaked recovery codes</h3>
+              </div>
+              <textarea name="to_burn" placeholder="One or more leaked recovery codes for this user, separated by whitespace or newlines"></textarea>
+              <div class="card-footer">
+                <div class="form-group">
+                  <div class="col-sm-offset-10 col-sm-2">
+                    <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not perms_admin_users_email_write }}" {{ "disabled" if not perms_admin_users_email_write }}>Submit</button>
+                  </div>
+                </div>
+              </div> <!-- .card-footer -->
+            </div> <!-- .card -->
+          </form>
+          {% else %}
+          No recovery codes configured.
+          {% endif %}
+        </div> <!-- .card-body -->
       </div> <!-- .card -->
 
       <div class="card">

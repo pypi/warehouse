@@ -26,7 +26,12 @@ from pyramid.view import view_config
 from sqlalchemy import or_, select
 from sqlalchemy.orm import joinedload
 
-from warehouse.accounts.interfaces import IEmailBreachedService, IUserService
+from warehouse.accounts.interfaces import (
+    IEmailBreachedService,
+    IUserService,
+    BurnedRecoveryCode,
+    InvalidRecoveryCode,
+)
 from warehouse.accounts.models import (
     DisableReason,
     Email,
@@ -592,4 +597,32 @@ def user_recover_account_complete(user: User, request):
         ),
         queue="success",
     )
+    return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
+
+
+@view_config(
+    route_name="admin.user.burn_recovery_codes",
+    require_methods=["POST"],
+    permission=Permissions.AdminUsersWrite,
+    uses_session=True,
+    require_csrf=True,
+    context=User,
+)
+def user_burn_recovery_codes(user, request):
+    codes = request.POST.get("to_burn", "").strip().split()
+    if not codes:
+        request.session.flash("No recovery codes provided", queue="error")
+
+    else:
+        user_service = request.find_service(IUserService, context=None)
+        n_burned = 0
+
+        for code in codes:
+            try:
+                if user_service.check_recovery_code(user.id, code):
+                    n_burned += 1
+            except (BurnedRecoveryCode, InvalidRecoveryCode):
+                pass
+
+        request.session.flash(f"Burned {n_burned} recovery code(s)", queue="success")
     return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
