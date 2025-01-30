@@ -226,6 +226,9 @@ class ManageAccountMixin:
 class ManageUnverifiedAccountViews(ManageAccountMixin):
     @view_config(request_method="GET")
     def manage_unverified_account(self):
+        if self.request.user.has_primary_verified_email:
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
         return {"help_url": self.request.help_url(_anchor="account-recovery")}
 
 
