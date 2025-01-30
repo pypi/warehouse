@@ -619,8 +619,8 @@ def user_burn_recovery_codes(user, request):
 
         for code in codes:
             try:
-                if user_service.check_recovery_code(user.id, code):
-                    n_burned += 1
+                user_service.check_recovery_code(user.id, code)
+                n_burned += 1
             except (BurnedRecoveryCode, InvalidRecoveryCode):
                 pass
 
