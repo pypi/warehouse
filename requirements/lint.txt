@@ -511,9 +511,9 @@ toml==0.10.2 \
     --hash=sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b \
     --hash=sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f
     # via curlylint
-types-awscrt==0.23.6 \
-    --hash=sha256:405bce8c281f9e7c6c92a229225cc0bf10d30729a6a601123213389bd524b8b1 \
-    --hash=sha256:fbf9c221af5607b24bf17f8431217ce8b9a27917139edbc984891eb63fd5a593
+types-awscrt==0.23.8 \
+    --hash=sha256:2141391a8f4d36cf098406c19d9060b34f13a558c22d4aadac250a0c57d12710 \
+    --hash=sha256:d66b3817565769f5311b7e171a3c48d3dbf8a8f9c22f02686c2f003b6559a2a5
     # via botocore-stubs
 types-babel==2.11.0.15 \
     --hash=sha256:282c184c8c9d81e8269212c1b8fa0d39ee88fb8bc43be47980412781c9c85f7e \
