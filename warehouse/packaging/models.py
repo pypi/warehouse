@@ -80,7 +80,7 @@ from warehouse.organizations.models import (
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils import dotted_navigator, wheel
 from warehouse.utils.attrs import make_repr
-from warehouse.utils.db.types import bool_false, datetime_now
+from warehouse.utils.db.types import bool_false, bool_true, datetime_now
 
 if typing.TYPE_CHECKING:
     from warehouse.oidc.models import OIDCPublisher
@@ -606,6 +606,7 @@ class Release(HasObservations, db.Model):
     _pypi_ordering: Mapped[int | None]
     requires_python: Mapped[str | None] = mapped_column(Text)
     created: Mapped[datetime_now] = mapped_column()
+    published: Mapped[bool_true] = mapped_column()
 
     description_id: Mapped[UUID] = mapped_column(
         ForeignKey("release_descriptions.id", onupdate="CASCADE", ondelete="CASCADE"),

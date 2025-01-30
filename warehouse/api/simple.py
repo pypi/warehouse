@@ -50,7 +50,7 @@ def _select_content_type(request: Request) -> str:
         ]
     )
 
-    # Default case, we want to return whatevr we want to return
+    # Default case, we want to return whatever we want to return
     # by default when there is no Accept header.
     if not offers:
         return MIME_TEXT_HTML

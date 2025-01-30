@@ -60,7 +60,6 @@ from warehouse.events.tags import EventTag
 from warehouse.forklift import metadata
 from warehouse.forklift.forms import UploadForm, _filetype_extension_mapping
 from warehouse.macaroons.models import Macaroon
-from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
 from warehouse.packaging.metadata_verification import verify_email, verify_url
 from warehouse.packaging.models import (
@@ -436,16 +435,23 @@ def _sort_releases(request: Request, project: Project):
     permit_duplicate_post_keys=True,
 )
 def file_upload(request):
+    # Log an attempt to upload
+    request.metrics.increment("warehouse.upload.attempt")
+
     # This is a list of warnings that we'll emit *IF* the request is successful.
     warnings = []
 
     # If we're in read-only mode, let upload clients know
     if request.flags.enabled(AdminFlagValue.READ_ONLY):
+        request.metrics.increment("warehouse.upload.failed", tags=["reason:read-only"])
         raise _exc_with_message(
             HTTPForbidden, "Read-only mode: Uploads are temporarily disabled."
         )
 
     if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_UPLOAD):
+        request.metrics.increment(
+            "warehouse.upload.failed", tags=["reason:uploads-disabled"]
+        )
         raise _exc_with_message(
             HTTPForbidden,
             "New uploads are temporarily disabled. "
@@ -454,13 +460,12 @@ def file_upload(request):
             ),
         )
 
-    # Log an attempt to upload
-    metrics = request.find_service(IMetricsService, context=None)
-    metrics.increment("warehouse.upload.attempt")
-
     # Before we do anything, if there isn't an authenticated identity with
     # this request, then we'll go ahead and bomb out.
     if request.identity is None:
+        request.metrics.increment(
+            "warehouse.upload.failed", tags=["reason:no-identity"]
+        )
         raise _exc_with_message(
             HTTPForbidden,
             "Invalid or non-existent authentication information. "
@@ -479,6 +484,9 @@ def file_upload(request):
         #       we might consider a different condition, possibly looking at
         #       User.is_active instead.
         if not (request.user.primary_email and request.user.primary_email.verified):
+            request.metrics.increment(
+                "warehouse.upload.failed", tags=["reason:unverified-email"]
+            )
             raise _exc_with_message(
                 HTTPBadRequest,
                 (
@@ -492,6 +500,7 @@ def file_upload(request):
             ) from None
         # Ensure user has enabled 2FA before they can upload a file.
         if not request.user.has_two_factor:
+            request.metrics.increment("warehouse.upload.failed", tags=["reason:no-2fa"])
             raise _exc_with_message(
                 HTTPBadRequest,
                 (
@@ -522,6 +531,9 @@ def file_upload(request):
     # We require protocol_version 1, it's the only supported version however
     # passing a different version should raise an error.
     if request.POST.get("protocol_version", "1") != "1":
+        request.metrics.increment(
+            "warehouse.upload.failed", tags=["reason:unsupported-protocol-version"]
+        )
         raise _exc_with_message(HTTPBadRequest, "Unknown protocol version.")
 
     # Check if any fields were supplied as a tuple and have become a
@@ -532,6 +544,10 @@ def file_upload(request):
     for field in set(request.POST) - {"content", "gpg_signature"}:
         values = request.POST.getall(field)
         if any(isinstance(value, FieldStorage) for value in values):
+            request.metrics.increment(
+                "warehouse.upload.failed",
+                tags=["reason:field-is-tuple", f"field:{field}"],
+            )
             raise _exc_with_message(HTTPBadRequest, f"{field}: Should not be a tuple.")
 
     # Validate and process the incoming file data.
@@ -568,6 +584,9 @@ def file_upload(request):
         else:
             error_message = f"Error: {form.errors[field_name][0]}"
 
+        request.metrics.increment(
+            "warehouse.upload.failed", tags=["reason:invalid-form-data"]
+        )
         raise _exc_with_message(HTTPBadRequest, error_message)
 
     # Get a validated Metadata object from the form data.
@@ -593,6 +612,9 @@ def file_upload(request):
         # for that field
         error = errors[field_name][0]
         error_msg = str(error)
+        request.metrics.increment(
+            "warehouse.upload.failed", tags=["reason:invalid-metadata"]
+        )
         raise _exc_with_message(
             HTTPBadRequest,
             " ".join(
@@ -606,6 +628,7 @@ def file_upload(request):
 
     # Ensure that we have file data in the request.
     if "content" not in request.POST:
+        request.metrics.increment("warehouse.upload.failed", tags=["reason:no-file"])
         raise _exc_with_message(HTTPBadRequest, "Upload payload does not have a file.")
 
     # Look up the project first before doing anything else, this is so we can
@@ -627,6 +650,9 @@ def file_upload(request):
         # produce a valid API token, but the project lookup above uses (2)
         # and will fail because (1) != (2).
         if not request.user:
+            request.metrics.increment(
+                "warehouse.upload.failed", tags=["reason:non-user-identity"]
+            )
             raise _exc_with_message(
                 HTTPBadRequest,
                 (
@@ -646,8 +672,14 @@ def file_upload(request):
                 form.name.data, request.user, request
             )
         except HTTPException as exc:
+            request.metrics.increment(
+                "warehouse.upload.failed", tags=["reason:project-creation-failed"]
+            )
             raise _exc_with_message(exc.__class__, exc.detail) from None
         except RateLimiterException:
+            request.metrics.increment(
+                "warehouse.upload.failed", tags=["reason:rate-limited"]
+            )
             msg = "Too many new projects created"
             raise _exc_with_message(HTTPTooManyRequests, msg)
 
@@ -682,6 +714,9 @@ def file_upload(request):
                 if reason is None
                 else allowed.msg
             )
+        request.metrics.increment(
+            "warehouse.upload.failed", tags=["reason:permission-denied"]
+        )
         raise _exc_with_message(HTTPForbidden, msg)
 
     # If this is a user identity (i.e: API token) but there exists
@@ -742,6 +777,9 @@ def file_upload(request):
                     "The description failed to render "
                     "in the default format of reStructuredText."
                 )
+            request.metrics.increment(
+                "warehouse.upload.failed", tags=["reason:invalid-description"]
+            )
             raise _exc_with_message(
                 HTTPBadRequest,
                 "{message} See {projecthelp} for more information.".format(
@@ -944,12 +982,17 @@ def file_upload(request):
     filename = request.POST["content"].filename
 
     # Ensure the filename doesn't contain any characters that are too 🌶️spicy🥵
+    # TODO: refactor to accept `request` and emit metrics, or return a list of errors
+    #  and handle them here and emit metrics.
     _validate_filename(filename, filetype=form.filetype.data)
 
     # Check the content type of what is being uploaded
     if not request.POST["content"].type or request.POST["content"].type.startswith(
         "image/"
     ):
+        request.metrics.increment(
+            "warehouse.upload.failed", tags=["reason:invalid-content-type"]
+        )
         raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
 
     # The project may or may not have a file size specified on the project, if
@@ -1016,6 +1059,9 @@ def file_upload(request):
                 if getattr(form, f"{digest_name}_digest").data
             ]
         ):
+            request.metrics.increment(
+                "warehouse.upload.failed", tags=["reason:digest-mismatch"]
+            )
             raise _exc_with_message(
                 HTTPBadRequest,
                 "The digest supplied does not match a digest calculated "
@@ -1028,6 +1074,9 @@ def file_upload(request):
             request.tm.doom()
             return HTTPOk()
         elif is_duplicate is not None:
+            request.metrics.increment(
+                "warehouse.upload.failed", tags=["reason:duplicate-file"]
+            )
             raise _exc_with_message(
                 HTTPBadRequest,
                 # Note: Changing this error message to something that doesn't
@@ -1046,6 +1095,9 @@ def file_upload(request):
         if request.db.query(
             request.db.query(Filename).filter(Filename.filename == filename).exists()
         ).scalar():
+            request.metrics.increment(
+                "warehouse.upload.failed", tags=["reason:filename-reuse"]
+            )
             raise _exc_with_message(
                 HTTPBadRequest,
                 "This filename has already been used, use a "
@@ -1065,6 +1117,9 @@ def file_upload(request):
                 .exists()
             ).scalar()
         ):
+            request.metrics.increment(
+                "warehouse.upload.failed", tags=["reason:duplicate-sdist"]
+            )
             raise _exc_with_message(
                 HTTPBadRequest, "Only one sdist may be uploaded per release."
             )
@@ -1075,6 +1130,13 @@ def file_upload(request):
             form.filetype.data,
         )
         if not _valid:
+            request.metrics.increment(
+                "warehouse.upload.failed",
+                tags=[
+                    "reason:invalid-distribution-file",
+                    f"filetype:{form.filetype.data}",
+                ],
+            )
             raise _exc_with_message(
                 HTTPBadRequest, f"Invalid distribution file. {_msg}"
             )
@@ -1105,6 +1167,13 @@ def file_upload(request):
                         try:
                             zfp.read(target_file)
                         except KeyError:
+                            request.metrics.increment(
+                                "warehouse.upload.failed",
+                                tags=[
+                                    "reason:missing-license-file",
+                                    f"filetype:{form.filetype.data}",
+                                ],
+                            )
                             raise _exc_with_message(
                                 HTTPBadRequest,
                                 f"License-File {license_file} does not exist in "
@@ -1123,6 +1192,10 @@ def file_upload(request):
                     packaging.utils.parse_sdist_filename(filename)
                 )
             except packaging.utils.InvalidSdistFilename:
+                request.metrics.increment(
+                    "warehouse.upload.failed",
+                    tags=["reason:invalid-filename", f"filetype:{form.filetype.data}"],
+                )
                 raise _exc_with_message(
                     HTTPBadRequest,
                     f"Invalid source distribution filename: {filename}",
@@ -1171,6 +1244,13 @@ def file_upload(request):
                 name_from_filename.lower().replace(".", "_").replace("-", "_")
             )
             if (prefix := project.normalized_name.replace("-", "_")) != filename_prefix:
+                request.metrics.increment(
+                    "warehouse.upload.failed",
+                    tags=[
+                        "reason:invalid-filename-normalized",
+                        f"filetype:{form.filetype.data}",
+                    ],
+                )
                 raise _exc_with_message(
                     HTTPBadRequest,
                     f"Start filename for {project.name!r} with {prefix!r}.",
@@ -1190,6 +1270,10 @@ def file_upload(request):
 
             # Make sure that the version in the filename matches the metadata
             if version_from_filename != meta.version:
+                request.metrics.increment(
+                    "warehouse.upload.failed",
+                    tags=["reason:invalid-sdist-filename-version"],
+                )
                 raise _exc_with_message(
                     HTTPBadRequest,
                     f"Version in filename should be {str(meta.version)!r} not "
@@ -1211,6 +1295,13 @@ def file_upload(request):
                         try:
                             tar.getmember(target_file)
                         except KeyError:
+                            request.metrics.increment(
+                                "warehouse.upload.failed",
+                                tags=[
+                                    "reason:missing-license-file",
+                                    f"filetype:{form.filetype.data}",
+                                ],
+                            )
                             raise _exc_with_message(
                                 HTTPBadRequest,
                                 f"License-File {license_file} does not exist in "
@@ -1224,6 +1315,10 @@ def file_upload(request):
                     filename
                 )
             except packaging.utils.InvalidWheelFilename as e:
+                request.metrics.increment(
+                    "warehouse.upload.failed",
+                    tags=["reason:invalid-filename", f"filetype:{form.filetype.data}"],
+                )
                 raise _exc_with_message(
                     HTTPBadRequest,
                     str(e),
@@ -1231,6 +1326,10 @@ def file_upload(request):
 
             for tag in tags:
                 if not _valid_platform_tag(tag.platform):
+                    request.metrics.increment(
+                        "warehouse.upload.failed",
+                        tags=["reason:unsupported-platform-tag"],
+                    )
                     raise _exc_with_message(
                         HTTPBadRequest,
                         f"Binary wheel '{filename}' has an unsupported "
@@ -1238,6 +1337,13 @@ def file_upload(request):
                     )
 
             if (canonical_name := packaging.utils.canonicalize_name(meta.name)) != name:
+                request.metrics.increment(
+                    "warehouse.upload.failed",
+                    tags=[
+                        "reason:invalid-filename-normalized",
+                        f"filetype:{form.filetype.data}",
+                    ],
+                )
                 raise _exc_with_message(
                     HTTPBadRequest,
                     f"Start filename for {project.name!r} with "
@@ -1245,6 +1351,13 @@ def file_upload(request):
                 )
 
             if meta.version != version:
+                request.metrics.increment(
+                    "warehouse.upload.failed",
+                    tags=[
+                        "reason:invalid-filename-version",
+                        f"filetype:{form.filetype.data}",
+                    ],
+                )
                 raise _exc_with_message(
                     HTTPBadRequest,
                     f"Version in filename should be {str(meta.version)!r} not "
@@ -1271,6 +1384,13 @@ def file_upload(request):
                         try:
                             zfp.read(license_filename)
                         except KeyError:
+                            request.metrics.increment(
+                                "warehouse.upload.failed",
+                                tags=[
+                                    "reason:missing-license-file",
+                                    f"filetype:{form.filetype.data}",
+                                ],
+                            )
                             raise _exc_with_message(
                                 HTTPBadRequest,
                                 f"License-File {license_file} does not exist in "
@@ -1287,6 +1407,13 @@ def file_upload(request):
                 with zipfile.ZipFile(temporary_filename) as zfp:
                     wheel_metadata_contents = zfp.read(metadata_filename)
             except KeyError:
+                request.metrics.increment(
+                    "warehouse.upload.failed",
+                    tags=[
+                        "reason:missing-metadata-file",
+                        f"filetype:{form.filetype.data}",
+                    ],
+                )
                 raise _exc_with_message(
                     HTTPBadRequest,
                     "Wheel '{filename}' does not contain the required "
@@ -1322,6 +1449,9 @@ def file_upload(request):
                     Distribution(name=filename, digest=file_hashes["sha256"]),
                 )
             except AttestationUploadError as e:
+                request.metrics.increment(
+                    "warehouse.upload.failed", tags=["reason:invalid-attestations"]
+                )
                 raise _exc_with_message(
                     HTTPBadRequest,
                     f"Invalid attestations supplied during upload: {e}",
@@ -1402,7 +1532,7 @@ def file_upload(request):
             )
 
             # Log successful attestation upload
-            metrics.increment("warehouse.upload.attestations.ok")
+            request.metrics.increment("warehouse.upload.attestations.ok")
 
         # TODO: We need a better answer about how to make this transactional so
         #       this won't take affect until after a commit has happened, for
@@ -1513,7 +1643,9 @@ def file_upload(request):
         request.task(update_bigquery_release_files).delay(dist_metadata)
 
     # Log a successful upload
-    metrics.increment("warehouse.upload.ok", tags=[f"filetype:{form.filetype.data}"])
+    request.metrics.increment(
+        "warehouse.upload.ok", tags=[f"filetype:{form.filetype.data}"]
+    )
 
     # Dispatch our task to sync this to cache as soon as possible
     request.task(sync_file_to_cache).delay(file_.id)

@@ -76,6 +76,8 @@ extra:
       link: https://github.com/pypi
     - icon: fontawesome/brands/mastodon
       link: https://fosstodon.org/@pypi
+    - icon: fontawesome/brands/bluesky
+      link: https://bsky.app/profile/pypi.org
     - icon: fontawesome/brands/twitter
       link: https://twitter.com/pypi
     - icon: material/rss
