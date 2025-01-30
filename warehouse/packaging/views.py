@@ -258,6 +258,7 @@ def release_detail(release, request):
     if short_license and len(short_license) > 100 and short_license == release.license:
         short_license = short_license[:100] + "..."
 
+    license: str | None
     if license_classifiers and short_license:
         license = f"{license_classifiers} ({short_license})"
     else:

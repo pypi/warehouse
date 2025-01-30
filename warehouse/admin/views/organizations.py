@@ -49,7 +49,7 @@ def organization_list(request):
     )
 
     if q:
-        filters = []
+        filters: list = []
         for term in terms:
             # Examples:
             # - search individual words or "whole phrase" in any field
@@ -223,7 +223,7 @@ def organization_applications_list(request):
     ).order_by(OrganizationApplication.normalized_name)
 
     if q:
-        filters = []
+        filters: list = []
         for term in terms:
             # Examples:
             # - search individual words or "whole phrase" in any field

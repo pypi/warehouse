@@ -332,9 +332,10 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
     @property
     def owners(self):
         """Return all users who are owners of the organization."""
+        session = orm.object_session(self)
+        assert session is not None
         owner_roles = (
-            orm.object_session(self)
-            .query(User.id)
+            session.query(User.id)
             .join(OrganizationRole.user)
             .filter(
                 OrganizationRole.role_name == OrganizationRoleType.Owner,
@@ -342,12 +343,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             )
             .subquery()
         )
-        return (
-            orm.object_session(self)
-            .query(User)
-            .join(owner_roles, User.id == owner_roles.c.id)
-            .all()
-        )
+        return session.query(User).join(owner_roles, User.id == owner_roles.c.id).all()
 
     def record_event(self, *, tag, request: Request = None, additional=None):
         """Record organization name in events in case organization is ever deleted."""
@@ -359,6 +355,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
 
     def __acl__(self):
         session = orm.object_session(self)
+        assert session is not None
 
         acls = [
             (

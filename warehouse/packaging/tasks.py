@@ -312,7 +312,7 @@ def update_bigquery_release_files(task, request, dist_metadata):
         # Using the schema to populate the data allows us to automatically
         # set the values to their respective fields rather than assigning
         # values individually
-        json_rows = dict()
+        json_rows: dict = {}
         for sch in table_schema:
             field_data = dist_metadata.get(sch.name, None)
 

@@ -33,6 +33,7 @@ CacheKeys = collections.namedtuple("CacheKeys", ["cache", "purge"])
 def receive_set(attribute, config, target):
     cache_keys = config.registry["cache_keys"]
     session = Session.object_session(target)
+    assert session is not None
     purges = session.info.setdefault("warehouse.legacy.api.xmlrpc.cache.purges", set())
     key_maker = cache_keys[attribute]
     keys = key_maker(target).purge

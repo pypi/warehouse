@@ -217,9 +217,10 @@ class EmailStatus:
         if self._email_message.missing:
             return
 
-        db = object_session(self._email_message)
+        session = object_session(self._email_message)
+        assert session is not None
         email = (
-            db.query(EmailAddress)
+            session.query(EmailAddress)
             .filter(EmailAddress.email == self._email_message.to)
             .first()
         )

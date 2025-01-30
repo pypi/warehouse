@@ -237,6 +237,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
     @property
     def recent_events(self):
         session = orm.object_session(self)
+        assert session is not None
         last_ninety = datetime.datetime.now() - datetime.timedelta(days=90)
         return (
             session.query(User.Event)
