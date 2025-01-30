@@ -102,8 +102,9 @@ class TestManageUnverifiedAccount:
         name = pretend.stub()
         request = pretend.stub(
             find_service=lambda *a, **kw: user_service,
-            user=pretend.stub(name=name),
+            user=pretend.stub(name=name, has_primary_verified_email=False),
             help_url=pretend.call_recorder(lambda *a, **kw: "/the/url"),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the/url"),
         )
         view = views.ManageUnverifiedAccountViews(request)
 
@@ -113,6 +114,27 @@ class TestManageUnverifiedAccount:
         assert request.help_url.calls == [pretend.call(_anchor="account-recovery")]
         assert view.request == request
         assert view.user_service == user_service
+
+    def test_verified_redirects(self):
+        user_service = pretend.stub()
+        user = pretend.stub(
+            id=pretend.stub(),
+            username="username",
+            name="Name",
+            has_primary_verified_email=True,
+        )
+        request = pretend.stub(
+            find_service=lambda *a, **kw: user_service,
+            user=user,
+            help_url=pretend.call_recorder(lambda *a, **kw: "/the/url"),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the/url"),
+        )
+        view = views.ManageUnverifiedAccountViews(request)
+
+        result = view.manage_unverified_account()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the/url"
 
 
 class TestManageAccount:
