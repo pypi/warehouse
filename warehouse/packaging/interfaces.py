@@ -14,6 +14,7 @@ import enum
 
 from zope.interface import Interface
 
+from warehouse.packaging.models import Project
 from warehouse.rate_limiting.interfaces import RateLimiterException
 
 
@@ -75,14 +76,6 @@ class IDocsStorage(Interface):
         """
 
 
-class ProjectNameUnavailableReason(enum.Enum):
-    Invalid = "invalid"
-    Stdlib = "stdlib"
-    AlreadyExists = "already-exists"
-    Prohibited = "prohibited"
-    TooSimilar = "too-similar"
-
-
 class IProjectService(Interface):
     def check_project_name(name):
         """
@@ -96,3 +89,41 @@ class IProjectService(Interface):
         If `creator_is_owner`, a `Role` is also added to the project
         marking `creator` as a project owner.
         """
+
+
+class ProjectNameUnavailableError(Exception):
+    """Base exception for project name unavailability errors."""
+
+    pass
+
+
+class ProjectNameUnavailableInvalid(ProjectNameUnavailableError):
+    """Project name is invalid."""
+
+    pass
+
+
+class ProjectNameUnavailableStdlib(ProjectNameUnavailableError):
+    """Project name conflicts with Python stdlib module."""
+
+    pass
+
+
+class ProjectNameUnavailableExisting(ProjectNameUnavailableError):
+    """Project name conflicts with existing project."""
+
+    def __init__(self, existing_project: Project):
+        self.existing_project: Project = existing_project
+
+
+class ProjectNameUnavailableProhibited(ProjectNameUnavailableError):
+    """Project name is prohibited."""
+
+    pass
+
+
+class ProjectNameUnavailableSimilar(ProjectNameUnavailableError):
+    """Project name is too similar to existing project."""
+
+    def __init__(self, similar_project_name: str):
+        self.similar_project_name: str = similar_project_name
