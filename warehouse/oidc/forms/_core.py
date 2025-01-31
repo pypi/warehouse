@@ -13,7 +13,7 @@ import markupsafe
 import wtforms
 
 from warehouse.i18n import localize as _
-from warehouse.packaging.models import (
+from warehouse.packaging.interfaces import (
     ProjectNameUnavailableExisting,
     ProjectNameUnavailableInvalid,
     ProjectNameUnavailableProhibited,

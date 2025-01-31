@@ -43,18 +43,17 @@ from warehouse.packaging.interfaces import (
     IFileStorage,
     IProjectService,
     ISimpleStorage,
+    ProjectNameUnavailableExisting,
+    ProjectNameUnavailableInvalid,
+    ProjectNameUnavailableProhibited,
+    ProjectNameUnavailableSimilar,
+    ProjectNameUnavailableStdlib,
     TooManyProjectsCreated,
 )
 from warehouse.packaging.models import (
     JournalEntry,
     ProhibitedProjectName,
     Project,
-    ProjectNameUnavailableError,
-    ProjectNameUnavailableExisting,
-    ProjectNameUnavailableInvalid,
-    ProjectNameUnavailableProhibited,
-    ProjectNameUnavailableSimilar,
-    ProjectNameUnavailableStdlib,
     Role,
 )
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter

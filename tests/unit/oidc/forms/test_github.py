@@ -18,7 +18,7 @@ from requests import ConnectionError, HTTPError, Timeout
 from webob.multidict import MultiDict
 
 from warehouse.oidc.forms import github
-from warehouse.packaging.models import (
+from warehouse.packaging.interfaces import (
     ProjectNameUnavailableExisting,
     ProjectNameUnavailableInvalid,
     ProjectNameUnavailableProhibited,

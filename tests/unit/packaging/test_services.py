@@ -29,8 +29,6 @@ from warehouse.packaging.interfaces import (
     IFileStorage,
     IProjectService,
     ISimpleStorage,
-)
-from warehouse.packaging.models import (
     ProjectNameUnavailableExisting,
     ProjectNameUnavailableInvalid,
     ProjectNameUnavailableProhibited,

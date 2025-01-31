@@ -19,7 +19,7 @@ from requests import ConnectionError, HTTPError, Timeout
 from webob.multidict import MultiDict
 
 from warehouse.oidc.forms import activestate
-from warehouse.packaging.models import ProjectNameUnavailableExisting
+from warehouse.packaging.interfaces import ProjectNameUnavailableExisting
 
 fake_username = "some-username"
 fake_org_name = "some-org"

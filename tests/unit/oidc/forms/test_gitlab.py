@@ -17,7 +17,7 @@ import wtforms
 from webob.multidict import MultiDict
 
 from warehouse.oidc.forms import gitlab
-from warehouse.packaging.models import ProjectNameUnavailableExisting
+from warehouse.packaging.interfaces import ProjectNameUnavailableExisting
 
 
 class TestPendingGitLabPublisherForm:
