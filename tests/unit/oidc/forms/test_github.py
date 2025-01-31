@@ -60,15 +60,10 @@ class TestPendingGitHubPublisherForm:
         assert form._user == user
         assert form.validate()
 
-    @pytest.mark.parametrize("is_project_owner", [True, False])
-    def test_validate_project_name_already_in_use(
-        self, pyramid_config, is_project_owner
-    ):
+    def test_validate_project_name_already_in_use_owner(self, pyramid_config):
         route_url = pretend.call_recorder(lambda *args, **kwargs: "")
         user = pretend.stub()
-        owners = []
-        if is_project_owner:
-            owners.append(user)
+        owners = [user]
 
         form = github.PendingGitHubPublisherForm(
             api_token="fake-token",
@@ -83,18 +78,35 @@ class TestPendingGitHubPublisherForm:
         with pytest.raises(wtforms.validators.ValidationError):
             form.validate_project_name(field)
 
-        if is_project_owner:
-            # The project settings URL is only shown in the error message if
-            # the user is the owner of the project
-            assert route_url.calls == [
-                pretend.call(
-                    "manage.project.settings.publishing",
-                    project_name="some-project",
-                    _query={"provider": {"github"}},
-                )
-            ]
-        else:
-            assert route_url.calls == []
+        # The project settings URL is only shown in the error message if
+        # the user is the owner of the project
+        assert route_url.calls == [
+            pretend.call(
+                "manage.project.settings.publishing",
+                project_name="some-project",
+                _query={"provider": {"github"}},
+            )
+        ]
+
+    def test_validate_project_name_already_in_use_not_owner(self, pyramid_config):
+        route_url = pretend.call_recorder(lambda *args, **kwargs: "")
+        user = pretend.stub()
+        owners = []
+
+        form = github.PendingGitHubPublisherForm(
+            api_token="fake-token",
+            route_url=route_url,
+            check_project_name=lambda name: ProjectNameUnavailableExisting(
+                existing_project=pretend.stub(owners=owners)
+            ),
+            user=user,
+        )
+
+        field = pretend.stub(data="some-project")
+        with pytest.raises(wtforms.validators.ValidationError):
+            form.validate_project_name(field)
+
+        assert route_url.calls == []
 
     @pytest.mark.parametrize(
         "reason",
