@@ -30,7 +30,7 @@ import stdlib_list
 
 from packaging.utils import canonicalize_name
 from pyramid.httpexceptions import HTTPBadRequest, HTTPConflict, HTTPForbidden
-from sqlalchemy import exists, func
+from sqlalchemy import exists, func, select
 from zope.interface import implementer
 
 from warehouse.admin.flags import AdminFlagValue
@@ -447,36 +447,34 @@ class ProjectService:
         self.ratelimiters["project.create.user"].hit(creator.id)
         self.ratelimiters["project.create.ip"].hit(request.remote_addr)
 
-    def check_project_name(self, name: str) -> ProjectNameUnavailableError | None:
+    def check_project_name(self, name: str) -> None:
         if not PROJECT_NAME_RE.match(name):
-            return ProjectNameUnavailableInvalid()
+            raise ProjectNameUnavailableInvalid()
 
         # Also check for collisions with Python Standard Library modules.
         if canonicalize_name(name) in STDLIB_PROHIBITED:
-            return ProjectNameUnavailableStdlib()
+            raise ProjectNameUnavailableStdlib()
 
         if (
             existing_project := self.db.query(Project)
             .where(Project.normalized_name == func.normalize_pep426_name(name))
             .first()
         ):
-            return ProjectNameUnavailableExisting(existing_project)
+            raise ProjectNameUnavailableExisting(existing_project)
 
         if self.db.query(
             exists().where(
                 ProhibitedProjectName.name == func.normalize_pep426_name(name)
             )
         ).scalar():
-            return ProjectNameUnavailableProhibited()
+            raise ProjectNameUnavailableProhibited()
 
-        if (
-            similar_project := self.db.query(Project)
-            .where(
+        if similar_project_name := self.db.scalars(
+            select(Project.name).where(
                 func.ultranormalize_name(Project.name) == func.ultranormalize_name(name)
             )
-            .first()
-        ):
-            return ProjectNameUnavailableSimilar(similar_project)
+        ).first():
+            raise ProjectNameUnavailableSimilar(similar_project_name)
 
         return None
 
@@ -498,51 +496,52 @@ class ProjectService:
             ) from None
 
         # Verify that the project name is both valid and currently available.
-        match self.check_project_name(name):
-            case ProjectNameUnavailableInvalid():
-                raise HTTPBadRequest(f"The name {name!r} is invalid.")
-            case ProjectNameUnavailableExisting():
-                # Found existing project with conflicting name.
-                raise HTTPConflict(
-                    (
-                        "The name {name!r} conflicts with an existing project. "
-                        "See {projecthelp} for more information."
-                    ).format(
-                        name=name,
-                        projecthelp=request.help_url(_anchor="project-name"),
-                    ),
-                ) from None
-            case ProjectNameUnavailableProhibited():
-                raise HTTPBadRequest(
-                    (
-                        "The name {name!r} isn't allowed. "
-                        "See {projecthelp} for more information."
-                    ).format(
-                        name=name,
-                        projecthelp=request.help_url(_anchor="project-name"),
-                    ),
-                ) from None
-            case ProjectNameUnavailableSimilar():
-                raise HTTPBadRequest(
-                    (
-                        "The name {name!r} is too similar to an existing project. "
-                        "See {projecthelp} for more information."
-                    ).format(
-                        name=name,
-                        projecthelp=request.help_url(_anchor="project-name"),
-                    ),
-                ) from None
-            case ProjectNameUnavailableStdlib():
-                raise HTTPBadRequest(
-                    (
-                        "The name {name!r} isn't allowed (conflict with Python "
-                        "Standard Library module name). See "
-                        "{projecthelp} for more information."
-                    ).format(
-                        name=name,
-                        projecthelp=request.help_url(_anchor="project-name"),
-                    ),
-                ) from None
+        try:
+            self.check_project_name(name)
+        except ProjectNameUnavailableInvalid:
+            raise HTTPBadRequest(f"The name {name!r} is invalid.")
+        except ProjectNameUnavailableExisting:
+            # Found existing project with conflicting name.
+            raise HTTPConflict(
+                (
+                    "The name {name!r} conflicts with an existing project. "
+                    "See {projecthelp} for more information."
+                ).format(
+                    name=name,
+                    projecthelp=request.help_url(_anchor="project-name"),
+                ),
+            ) from None
+        except ProjectNameUnavailableProhibited:
+            raise HTTPBadRequest(
+                (
+                    "The name {name!r} isn't allowed. "
+                    "See {projecthelp} for more information."
+                ).format(
+                    name=name,
+                    projecthelp=request.help_url(_anchor="project-name"),
+                ),
+            ) from None
+        except ProjectNameUnavailableSimilar:
+            raise HTTPBadRequest(
+                (
+                    "The name {name!r} is too similar to an existing project. "
+                    "See {projecthelp} for more information."
+                ).format(
+                    name=name,
+                    projecthelp=request.help_url(_anchor="project-name"),
+                ),
+            ) from None
+        except ProjectNameUnavailableStdlib:
+            raise HTTPBadRequest(
+                (
+                    "The name {name!r} isn't allowed (conflict with Python "
+                    "Standard Library module name). See "
+                    "{projecthelp} for more information."
+                ).format(
+                    name=name,
+                    projecthelp=request.help_url(_anchor="project-name"),
+                ),
+            ) from None
 
         # The project name is valid: create it and add it
         project = Project(name=name)

@@ -1000,65 +1000,61 @@ class TestProjectService:
     def test_check_project_name_invalid(self, name):
         service = ProjectService(session=pretend.stub())
 
-        assert isinstance(
-            service.check_project_name(name), ProjectNameUnavailableInvalid
-        )
+        with pytest.raises(ProjectNameUnavailableInvalid):
+            service.check_project_name(name)
 
     @pytest.mark.parametrize("name", ["uu", "cgi", "nis", "mailcap"])
     def test_check_project_name_stdlib(self, name):
         service = ProjectService(session=pretend.stub())
 
-        assert isinstance(
-            service.check_project_name(name), ProjectNameUnavailableStdlib
-        )
+        with pytest.raises(ProjectNameUnavailableStdlib):
+            service.check_project_name(name)
 
     def test_check_project_name_already_exists(self, db_session):
         service = ProjectService(session=db_session)
         project = ProjectFactory.create(name="foo")
 
-        unavailable_error = service.check_project_name("foo")
-        assert isinstance(unavailable_error, ProjectNameUnavailableExisting)
-        assert unavailable_error.existing_project == project
-        assert isinstance(
-            service.check_project_name("Foo"),
-            ProjectNameUnavailableExisting,
-        )
+        with pytest.raises(ProjectNameUnavailableExisting) as exc:
+            service.check_project_name("foo")
+        assert exc.value.existing_project == project
+
+        with pytest.raises(ProjectNameUnavailableExisting):
+            service.check_project_name("Foo")
 
     def test_check_project_name_prohibited(self, db_session):
         service = ProjectService(session=db_session)
         ProhibitedProjectFactory.create(name="foo")
 
-        assert isinstance(
-            service.check_project_name("foo"), ProjectNameUnavailableProhibited
-        )
-        assert isinstance(
-            service.check_project_name("Foo"), ProjectNameUnavailableProhibited
-        )
+        with pytest.raises(ProjectNameUnavailableProhibited):
+            service.check_project_name("foo")
+
+        with pytest.raises(ProjectNameUnavailableProhibited):
+            service.check_project_name("Foo")
 
     def test_check_project_name_too_similar(self, db_session):
         service = ProjectService(session=db_session)
         ProjectFactory.create(name="f00")
 
-        assert isinstance(
-            service.check_project_name("foo"), ProjectNameUnavailableSimilar
-        )
+        with pytest.raises(ProjectNameUnavailableSimilar):
+            service.check_project_name("foo")
 
     def test_check_project_name_too_similar_multiple_existing(self, db_session):
         service = ProjectService(session=db_session)
         project1 = ProjectFactory.create(name="f00")
         project2 = ProjectFactory.create(name="f0o")
 
-        unavailable_error = service.check_project_name("foo")
-        assert isinstance(unavailable_error, ProjectNameUnavailableSimilar)
+        with pytest.raises(ProjectNameUnavailableSimilar) as exc:
+            service.check_project_name("foo")
         assert (
-            unavailable_error.similar_project == project1
-            or unavailable_error.similar_project == project2
+            exc.value.similar_project_name == project1.name
+            or exc.value.similar_project_name == project2.name
         )
 
     def test_check_project_name_ok(self, db_session):
         service = ProjectService(session=db_session)
 
-        assert service.check_project_name("foo") is None
+        # Should not raise any exception
+        service.check_project_name("foo")
 
 
 def test_project_service_factory():
