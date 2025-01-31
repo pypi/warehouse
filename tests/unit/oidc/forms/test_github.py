@@ -115,7 +115,7 @@ class TestPendingGitHubPublisherForm:
             ProjectNameUnavailableInvalid(),
             ProjectNameUnavailableStdlib(),
             ProjectNameUnavailableProhibited(),
-            ProjectNameUnavailableSimilar(pretend.stub(name="pkg_name")),
+            ProjectNameUnavailableSimilar(similar_project_name="pkg_name"),
         ],
     )
     def test_validate_project_name_unavailable(self, reason, pyramid_config):

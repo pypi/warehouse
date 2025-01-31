@@ -91,32 +91,39 @@ class IProjectService(Interface):
         """
 
 
-class ProjectNameUnavailableInvalid:
+class ProjectNameUnavailableError(Exception):
+    """Base exception for project name unavailability errors."""
+
     pass
 
 
-class ProjectNameUnavailableStdlib:
+class ProjectNameUnavailableInvalid(ProjectNameUnavailableError):
+    """Project name is invalid."""
+
     pass
 
 
-class ProjectNameUnavailableExisting:
+class ProjectNameUnavailableStdlib(ProjectNameUnavailableError):
+    """Project name conflicts with Python stdlib module."""
+
+    pass
+
+
+class ProjectNameUnavailableExisting(ProjectNameUnavailableError):
+    """Project name conflicts with existing project."""
+
     def __init__(self, existing_project: Project):
         self.existing_project: Project = existing_project
 
 
-class ProjectNameUnavailableProhibited:
+class ProjectNameUnavailableProhibited(ProjectNameUnavailableError):
+    """Project name is prohibited."""
+
     pass
 
 
-class ProjectNameUnavailableSimilar:
-    def __init__(self, similar_project: Project):
-        self.similar_project: Project = similar_project
+class ProjectNameUnavailableSimilar(ProjectNameUnavailableError):
+    """Project name is too similar to existing project."""
 
-
-ProjectNameUnavailableError = (
-    ProjectNameUnavailableInvalid
-    | ProjectNameUnavailableStdlib
-    | ProjectNameUnavailableExisting
-    | ProjectNameUnavailableProhibited
-    | ProjectNameUnavailableSimilar
-)
+    def __init__(self, similar_project_name: str):
+        self.similar_project_name: str = similar_project_name
