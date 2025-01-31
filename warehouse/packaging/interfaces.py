@@ -89,3 +89,34 @@ class IProjectService(Interface):
         If `creator_is_owner`, a `Role` is also added to the project
         marking `creator` as a project owner.
         """
+
+
+class ProjectNameUnavailableInvalid:
+    pass
+
+
+class ProjectNameUnavailableStdlib:
+    pass
+
+
+class ProjectNameUnavailableExisting:
+    def __init__(self, existing_project: Project):
+        self.existing_project: Project = existing_project
+
+
+class ProjectNameUnavailableProhibited:
+    pass
+
+
+class ProjectNameUnavailableSimilar:
+    def __init__(self, similar_project: Project):
+        self.similar_project: Project = similar_project
+
+
+ProjectNameUnavailableError = (
+    ProjectNameUnavailableInvalid
+    | ProjectNameUnavailableStdlib
+    | ProjectNameUnavailableExisting
+    | ProjectNameUnavailableProhibited
+    | ProjectNameUnavailableSimilar
+)
