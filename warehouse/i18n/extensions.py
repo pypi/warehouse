@@ -52,7 +52,7 @@ def _make_newer_gettext(func: t.Callable[[str], str]) -> t.Callable[..., str]:
 
 
 def _make_newer_ngettext(
-    func: t.Callable[[str, str, int], str]
+    func: t.Callable[[str, str, int], str],
 ) -> t.Callable[..., str]:
     """
     Wraps upstream _make_new_ngettext with the try/except for KeyError to
