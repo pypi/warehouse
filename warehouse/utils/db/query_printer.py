@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" Logs the query with the parameters embedded into the query."""
+"""Logs the query with the parameters embedded into the query."""
 
 import logging
 
