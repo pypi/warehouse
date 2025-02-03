@@ -352,8 +352,6 @@
   <hr>
 
   <h2>{% trans %}Archive project{% endtrans %}</h2>
-  {% set can_be_archived = not project.lifecycle_status or project.lifecycle_status == "quarantine-exit" %}
-  {% set can_be_unarchived = project.lifecycle_status == "archived" %}
   <div class="callout-block callout-block--danger" data-controller="archive-confirm">
   <p>
     {% trans readme_description_href='https://packaging.python.org/guides/making-a-pypi-friendly-readme/'%}
@@ -367,24 +365,25 @@
     {% endtrans %}
   </p>
   </div>
-    <a href="#archive-project" class="button button--primary {{ 'button--disabled' if not can_be_archived }}">
-      {% trans %}Archive project{% endtrans %}
-    </a>
-    <a href="#unarchive-project" class="button button--primary {{ 'button--disabled' if not can_be_unarchived }}">
+  {% if project.lifecycle_status == "archived" %}
+    <a href="#unarchive-project" class="button button--primary">
       {% trans %}Unarchive project{% endtrans %}
     </a>
-
-  {% set action = request.route_path('manage.project.archive', project_name=project.name) %}
-  {% set slug = "archive-project" %}
-  {% set title = gettext("Archive project") %}
-  {% set extra_description = gettext("Archiving a project will block any new file uploads") %}
-  {{ confirm_modal(title=title, label=project.name, slug=slug, extra_description=extra_description, action=action, warning=False) }}
-
-  {% set action = request.route_path('manage.project.unarchive', project_name=project.name) %}
-  {% set slug = "unarchive-project" %}
-  {% set title = gettext("Unarchive project") %}
-  {% set extra_description = gettext("Unarchiving a project will allow new file uploads") %}
-  {{ confirm_modal(title=title, label=project.name, slug=slug, extra_description=extra_description, action=action, warning=False) }}
+    {% set action = request.route_path('manage.project.unarchive', project_name=project.name) %}
+    {% set slug = "unarchive-project" %}
+    {% set title = gettext("Unarchive project") %}
+    {% set extra_description = gettext("Unarchiving a project will allow new file uploads.") %}
+    {{ confirm_modal(title=title, label=project.name, slug=slug, extra_description=extra_description, action=action, warning=False) }}
+  {% else %}
+    <a href="#archive-project" class="button button--primary {{ 'button--disabled' if project.lifecycle_status == 'quarantine' }}">
+      {% trans %}Archive project{% endtrans %}
+    </a>
+    {% set action = request.route_path('manage.project.archive', project_name=project.name) %}
+    {% set slug = "archive-project" %}
+    {% set title = gettext("Archive project") %}
+    {% set extra_description = gettext("Archiving a project will block any new file uploads.") %}
+    {{ confirm_modal(title=title, label=project.name, slug=slug, extra_description=extra_description, action=action, warning=False) }}
+  {% endif %}
 
   <hr>
 
