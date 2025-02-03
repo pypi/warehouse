@@ -116,6 +116,13 @@ def includeme(config):
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{username}",
     )
+    config.add_route(
+        "admin.user.burn_recovery_codes",
+        "/admin/users/{username}/burn_recovery_codes/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
 
     # Macaroon related Admin pages
     config.add_route(
