@@ -234,10 +234,7 @@ def evaluate_project_for_quarantine(
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": (
-                        f"*PyPI Admin - Automated Quarantine*\n"
-                        f"*<{project_page}|Project: {project.name}>*"
-                    ),
+                    "text": f"*Auto-Quarantine: <{project_page}|{project.name}>*",
                 },
             },
             {
