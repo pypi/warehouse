@@ -2304,9 +2304,9 @@ tzdata==2025.1 \
     # via
     #   celery
     #   kombu
-ua-parser==1.0.0 \
-    --hash=sha256:5b31133606a781f56692caa11a9671a9f330c22604b3c4957a7ba18c152212d0 \
-    --hash=sha256:a9740f53f4fbb72b7a03d304cae32a2785cafc55e8207efb74877bba17c35324
+ua-parser==1.0.1 \
+    --hash=sha256:b059f2cb0935addea7e551251cbbf42e9a8872f86134163bc1a4f79e0945ffea \
+    --hash=sha256:f9d92bf19d4329019cef91707aecc23c6d65143ad7e29a233f0580fb0d15547d
     # via -r requirements/main.in
 ua-parser-builtins==0.18.0.post1 \
     --hash=sha256:eb4f93504040c3a990a6b0742a2afd540d87d7f9f05fd66e94c101db1564674d
