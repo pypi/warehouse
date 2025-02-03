@@ -11,7 +11,9 @@
 # limitations under the License.
 
 from collections import OrderedDict
+from datetime import datetime, timedelta
 
+import freezegun
 import pretend
 import pytest
 
@@ -571,6 +573,47 @@ class TestProject:
             .count()
             == 0
         )
+
+    def test_in_deletion_window(self, db_session):
+        project = DBProjectFactory.create()
+
+        # Empty project, trivially deletable.
+        assert project.in_deletion_window
+
+        fake_now = datetime(year=2000, month=1, day=1)
+
+        # Releases are all deletable, so the project is deletable.
+        release1 = DBReleaseFactory.create(project=project)
+        DBFileFactory.create(
+            release=release1, upload_time=fake_now, packagetype="bdist_wheel"
+        )
+        DBFileFactory.create(
+            release=release1,
+            upload_time=fake_now - timedelta(hours=1),
+            packagetype="bdist_wheel",
+        )
+
+        release2 = DBReleaseFactory.create(project=project)
+        DBFileFactory.create(
+            release=release2,
+            upload_time=fake_now - timedelta(days=1),
+            packagetype="bdist_wheel",
+        )
+        DBFileFactory.create(
+            release=release2,
+            upload_time=fake_now - timedelta(days=2),
+            packagetype="bdist_wheel",
+        )
+
+        with freezegun.freeze_time(fake_now):
+            assert project.in_deletion_window
+
+        # One release is not deletable, so the entire project is not deletable.
+        release3 = DBReleaseFactory.create(project=project)
+        DBFileFactory.create(release=release3, upload_time=fake_now - timedelta(days=4))
+        with freezegun.freeze_time(fake_now):
+            assert not release3.in_deletion_window
+            assert not project.in_deletion_window
 
 
 class TestDependency:
@@ -1215,6 +1258,43 @@ class TestRelease:
         assert release in db_request.db.deleted
         assert description in db_request.db.deleted
 
+    def test_in_deletion_window(self, db_session):
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(project=project)
+
+        # No files, trivially deletable.
+        assert release.in_deletion_window
+
+        fake_now = datetime(year=2000, month=1, day=1)
+
+        DBFileFactory.create(
+            release=release, upload_time=fake_now, packagetype="bdist_wheel"
+        )
+        DBFileFactory.create(
+            release=release,
+            upload_time=fake_now - timedelta(hours=1),
+            packagetype="bdist_wheel",
+        )
+        DBFileFactory.create(
+            release=release,
+            upload_time=fake_now - timedelta(days=1, hours=1),
+            packagetype="bdist_wheel",
+        )
+
+        with freezegun.freeze_time(fake_now):
+            # All files are deletable, so release is deletable.
+            assert release.in_deletion_window
+
+        DBFileFactory.create(
+            release=release,
+            upload_time=fake_now - timedelta(days=3, hours=1),
+            packagetype="bdist_wheel",
+        )
+
+        with freezegun.freeze_time(fake_now):
+            # One file is not deletable, so the entire release is not deletable.
+            assert not release.in_deletion_window
+
 
 class TestFile:
     def test_requires_python(self, db_session):
@@ -1343,3 +1423,40 @@ class TestFile:
         )
 
         assert rfile.pretty_wheel_tags == ["Source"]
+
+    @pytest.mark.parametrize(
+        ("upload_time", "is_prerelease", "deletable"),
+        [
+            # Deletable at the instant of upload
+            (datetime(year=2000, month=1, day=1), False, True),
+            # Deletable within the normal period
+            (datetime(year=2000, month=1, day=1) - timedelta(hours=1), False, True),
+            (datetime(year=2000, month=1, day=1) - timedelta(days=1), False, True),
+            (datetime(year=2000, month=1, day=1) - timedelta(days=2), False, True),
+            # Not deletable if uploaded 72 hours after the upload time
+            # PEP-753 specifies deletion period is less than 72 hours
+            (datetime(year=2000, month=1, day=1) - timedelta(days=3), False, False),
+            # Deletable when inexplicably uploaded in the future
+            (datetime(year=2000, month=1, day=1) + timedelta(hours=1), False, True),
+            # Not deletable outside of the deletion period
+            (
+                datetime(year=2000, month=1, day=1) - timedelta(days=3, seconds=1),
+                False,
+                False,
+            ),
+            (datetime(year=2000, month=1, day=1) - timedelta(days=4), False, False),
+            # Deletable when it's a prerelease and outside the deletion period
+            (datetime(year=2000, month=1, day=1) - timedelta(days=4), True, False),
+        ],
+    )
+    def test_in_deletion_window(
+        self, db_session, upload_time, is_prerelease, deletable
+    ):
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(project=project, is_prerelease=is_prerelease)
+
+        fake_now = datetime(year=2000, month=1, day=1)
+
+        with freezegun.freeze_time(fake_now):
+            file = DBFileFactory.create(release=release, upload_time=upload_time)
+            assert file.in_deletion_window == deletable
