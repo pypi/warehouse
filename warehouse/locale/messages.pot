@@ -1176,7 +1176,7 @@ msgstr ""
 #: warehouse/templates/manage/project/release.html:182
 #: warehouse/templates/manage/project/settings.html:87
 #: warehouse/templates/manage/project/settings.html:136
-#: warehouse/templates/manage/project/settings.html:394
+#: warehouse/templates/manage/project/settings.html:393
 #: warehouse/templates/manage/team/settings.html:84
 msgid "Warning"
 msgstr ""
@@ -6743,7 +6743,7 @@ msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:108
 #: warehouse/templates/manage/project/settings.html:179
-#: warehouse/templates/manage/project/settings.html:432
+#: warehouse/templates/manage/project/settings.html:431
 msgid "Project Name"
 msgstr ""
 
@@ -6889,12 +6889,12 @@ msgid "Description of the purpose or content of the alternate repository."
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:354
-#: warehouse/templates/manage/project/settings.html:371
 #: warehouse/templates/manage/project/settings.html:379
+#: warehouse/templates/manage/project/settings.html:383
 msgid "Archive project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:359
+#: warehouse/templates/manage/project/settings.html:357
 #, python-format
 msgid ""
 "Archiving a project will prevent any new uploads. Before doing so, we "
@@ -6906,29 +6906,29 @@ msgid ""
 "update the project's description by editing the README file."
 msgstr ""
 
+#: warehouse/templates/manage/project/settings.html:370
 #: warehouse/templates/manage/project/settings.html:374
-#: warehouse/templates/manage/project/settings.html:385
 msgid "Unarchive project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:380
-msgid "Archiving a project will block any new file uploads"
+#: warehouse/templates/manage/project/settings.html:375
+msgid "Unarchiving a project will allow new file uploads."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:386
-msgid "Unarchiving a project will allow new file uploads"
+#: warehouse/templates/manage/project/settings.html:384
+msgid "Archiving a project will block any new file uploads."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:392
-#: warehouse/templates/manage/project/settings.html:432
+#: warehouse/templates/manage/project/settings.html:391
+#: warehouse/templates/manage/project/settings.html:431
 msgid "Delete project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:395
+#: warehouse/templates/manage/project/settings.html:394
 msgid "Deleting this project will:"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:400
+#: warehouse/templates/manage/project/settings.html:399
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s"
@@ -6939,15 +6939,15 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/project/settings.html:406
+#: warehouse/templates/manage/project/settings.html:405
 msgid "Irreversibly delete the project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:410
+#: warehouse/templates/manage/project/settings.html:409
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:412
+#: warehouse/templates/manage/project/settings.html:411
 msgid ""
 "This user will be able to make new releases under this project name, so "
 "long as the distribution filenames do not match filenames from a "
