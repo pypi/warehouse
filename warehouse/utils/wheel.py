@@ -14,8 +14,6 @@ import re
 
 import packaging.utils
 
-# import sentry_sdk
-
 _PLATFORMS = [
     (re.compile(r"^win_(.*?)$"), lambda m: f"Windows {_normalize_arch(m.group(1))}"),
     (re.compile(r"^win32$"), lambda m: "Windows x86"),
@@ -40,6 +38,10 @@ _PLATFORMS = [
         re.compile(r"^macosx_(\d+)_(\d+)_(.*?)$"),
         lambda m: f"macOS {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))}",
     ),
+    (
+        re.compile(r"^android_(\d+)_(.*?)$"),
+        lambda m: f"Android {m.group(1)}+ {_normalize_arch(m.group(2))}",
+    ),
 ]
 
 _ARCHS = {
@@ -49,6 +51,9 @@ _ARCHS = {
     "universal2": "universal2 (ARM64, x86-64)",
     "arm64": "ARM64",
     "armv7l": "ARMv7l",
+    "armeabi_v7a": "ARMv7",
+    "arm64_v8a": "ARMv8",
+    "x86": "x86",
 }
 
 
