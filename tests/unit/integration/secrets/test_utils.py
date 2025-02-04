@@ -663,6 +663,7 @@ def test_analyze_disclosure(monkeypatch, metrics, someorigin):
                 "permissions": "user",
                 "caveats": [],
                 "description": "foo",
+                "origin": "SomeOrigin",
             },
         )
     ]
