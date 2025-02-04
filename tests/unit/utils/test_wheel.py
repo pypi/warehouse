@@ -84,6 +84,22 @@ from warehouse.utils import wheel
         ("foo-0.0.0-jy38-none-any.whl", ["Jython 3.8"]),
         ("foo-0.0.0-garbage-none-any.whl", ["garbage"]),
         ("foo-0.0.0-69-none-any.whl", []),
+        (
+            "foo-0.0.0-py3-none-android_21_armeabi_v7a.whl",
+            ["Android 21+ ARMv7", "Python 3"],
+        ),
+        (
+            "foo-0.0.0-py3-none-android_21_arm64_v8a.whl",
+            ["Android 21+ ARMv8", "Python 3"],
+        ),
+        (
+            "foo-0.0.0-py3-none-android_21_x86.whl",
+            ["Android 21+ x86", "Python 3"],
+        ),
+        (
+            "foo-0.0.0-py3-none-android_21_x86_64.whl",
+            ["Android 21+ x86-64", "Python 3"],
+        ),
     ],
 )
 def test_wheel_to_pretty_tags(filename, expected_tags):

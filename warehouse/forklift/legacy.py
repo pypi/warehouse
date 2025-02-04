@@ -167,11 +167,22 @@ _jointlinux_arches = {
 _manylinux_arches = _jointlinux_arches | {"ppc64"}
 _musllinux_arches = _jointlinux_arches
 
+# PEP 738: Adding Android as a supported platform
+_android_platform_re = re.compile(r"android_(?P<api_level>\d+)_(?P<arch>.*)")
+_android_api_levels = {str(level) for level in range(21, 99)}
+_android_arches = {
+    "armeabi_v7a",
+    "arm64_v8a",
+    "x86",
+    "x86_64",
+}
+
 
 # Actual checking code;
 def _valid_platform_tag(platform_tag):
     if platform_tag in _allowed_platforms:
         return True
+
     m = _macosx_platform_re.match(platform_tag)
     if (
         m
@@ -179,11 +190,21 @@ def _valid_platform_tag(platform_tag):
         and m.group("arch") in _macosx_arches
     ):
         return True
+
     m = _linux_platform_re.match(platform_tag)
     if m and m.group("libc") == "musl":
         return m.group("arch") in _musllinux_arches
     if m and m.group("libc") == "many":
         return m.group("arch") in _manylinux_arches
+
+    m = _android_platform_re.match(platform_tag)
+    if (
+        m
+        and m.group("api_level") in _android_api_levels
+        and m.group("arch") in _android_arches
+    ):
+        return True
+
     return False
 
 

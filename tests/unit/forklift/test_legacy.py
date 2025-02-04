@@ -2732,6 +2732,10 @@ class TestFileUpload:
                 "macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64."
                 "macosx_10_10_intel.macosx_10_10_x86_64"
             ),
+            "android_21_armeabi_v7a",
+            "android_21_arm64_v8a",
+            "android_21_x86",
+            "android_21_x86_64",
         ],
     )
     def test_upload_succeeds_with_wheel(
