@@ -12,6 +12,7 @@
 
 import email.message
 import email.utils
+import string
 import typing
 
 import email_validator
@@ -30,10 +31,41 @@ from packaging.requirements import InvalidRequirement, Requirement
 from trove_classifiers import all_classifiers, deprecated_classifiers
 from webob.multidict import MultiDict
 
-from warehouse.packaging.models import DynamicFieldsEnum
 from warehouse.utils import http
 
 SUPPORTED_METADATA_VERSIONS = {"1.0", "1.1", "1.2", "2.1", "2.2", "2.3", "2.4"}
+
+DYNAMIC_FIELDS = [
+    "Platform",
+    "Supported-Platform",
+    "Summary",
+    "Description",
+    "Description-Content-Type",
+    "Keywords",
+    "Home-Page",  # Deprecated, but technically permitted by PEP 643
+    "Download-Url",  # Deprecated, but technically permitted by PEP 643
+    "Author",
+    "Author-Email",
+    "Maintainer",
+    "Maintainer-Email",
+    "License",
+    "License-Expression",
+    "License-File",
+    "Classifier",
+    "Requires-Dist",
+    "Requires-Python",
+    "Requires-External",
+    "Project-Url",
+    "Provides-Extra",
+    "Provides-Dist",
+    "Obsoletes-Dist",
+    # Although the following are deprecated fields, they are technically
+    # permitted as dynamic by PEP 643
+    # https://github.com/pypa/setuptools/issues/4797#issuecomment-2589514950
+    "Requires",
+    "Provides",
+    "Obsoletes",
+]
 
 # Mapping of fields on a Metadata instance to any limits on the length of that
 # field. Fields without a limit will naturally be unlimited in length.
@@ -241,7 +273,7 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
     for field in {"dynamic"}:
         if (value := getattr(metadata, field)) is not None:
             for key in value:
-                if key not in map(str.lower, DynamicFieldsEnum.enums):
+                if key not in map(str.lower, DYNAMIC_FIELDS):
                     errors.append(
                         InvalidMetadata(
                             _RAW_TO_EMAIL_MAPPING.get(field, field),
@@ -362,3 +394,12 @@ def parse_form_metadata(data: MultiDict) -> Metadata:
     # way this function is implemented, our `TypedDict` can only have valid key
     # names.
     return Metadata.from_raw(typing.cast(RawMetadata, raw))
+
+
+def normalize_project_url_label(label: str) -> str:
+    # Normalize a Project-URL label according to the label normalization
+    # rules in the "Well-Known Project URLs in Metadata" specification:
+    # <https://packaging.python.org/en/latest/specifications/well-known-project-urls/#label-normalization>
+    chars_to_remove = string.punctuation + string.whitespace
+    removal_map = str.maketrans("", "", chars_to_remove)
+    return label.translate(removal_map).lower()
