@@ -6,6 +6,7 @@ set -x
 
 if [ "${READTHEDOCS_PROJECT}" = "warehouse" ]; then
   if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/dev requirements/docs-dev.txt .readthedocs.yaml; then
+    echo "Nothing relevant changed, skipping build...
     exit 183;
   fi
   pip install -r requirements/docs-dev.txt
