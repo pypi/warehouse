@@ -1152,9 +1152,9 @@ lxml==5.3.0 \
     # via
     #   -r requirements/main.in
     #   premailer
-mako==1.3.8 \
-    --hash=sha256:42f48953c7eb91332040ff567eb7eea69b22e7a4affbc5ba8e845e8f730f6627 \
-    --hash=sha256:577b97e414580d3e088d47c2dbbe9594aa7a5146ed2875d4dfa9075af2dd3cc8
+mako==1.3.9 \
+    --hash=sha256:95920acccb578427a9aa38e37a186b1e43156c87260d7ba18ca63aa4c7cbd3a1 \
+    --hash=sha256:b5d65ff3462870feec922dbccf38f6efb44e5714d7b593a656be86663d8600ac
     # via alembic
 markdown-it-py==3.0.0 \
     --hash=sha256:355216845c60bd96232cd8d8c40e8f9765cc86f46880e43a8fd22dc1a1a8cab1 \
