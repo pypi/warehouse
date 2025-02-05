@@ -17,7 +17,7 @@
       <a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'releases' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'releases' %}aria-selected="true"{% endif %}>
         <i class="fa fa-cube" aria-hidden="true"></i>
         {% trans %}Releases{% endtrans %}
-        <span class="badge badge--neutral">{{ project.releases|rejectattr("yanked")|list|length }}</span>
+        <span class="badge badge--neutral">{{ project.active_releases|length }}</span>
       </a>
     </li>
     <li>
