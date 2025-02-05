@@ -2727,6 +2727,16 @@ class TestFileUpload:
             "macosx_11_0_x86_64",
             "macosx_10_15_arm64",
             "macosx_11_10_universal2",
+            "ios_13_0_arm64_iphoneos",
+            "ios_13_0_arm64_iphonesimulator",
+            "ios_13_0_x86_64_iphonesimulator",
+            "ios_15_4_arm64_iphoneos",
+            "ios_15_4_arm64_iphonesimulator",
+            "ios_15_4_x86_64_iphonesimulator",
+            "android_27_armeabi_v7a",
+            "android_27_arm64_v8a",
+            "android_27_x86",
+            "android_27_x86_64",
             # A real tag used by e.g. some numpy wheels
             (
                 "macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64."

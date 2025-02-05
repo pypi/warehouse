@@ -154,6 +154,20 @@ _macosx_major_versions = {
     "15",
 }
 
+_ios_platform_re = re.compile(r"ios_(\d+)_(\d+)_(?P<arch>.*)_(iphoneos|iphonesimulator)")
+_ios_arches = {
+    "arm64",
+    "x86_64",
+}
+
+_android_platform_re = re.compile(r"android_(\d+)_(?P<arch>.*)")
+_android_arches = {
+    "armeabi_v7a",
+    "arm64_v8a",
+    "x86",
+    "x86_64",
+}
+
 # manylinux pep600 and musllinux pep656 are a little more complicated:
 _linux_platform_re = re.compile(r"(?P<libc>(many|musl))linux_(\d+)_(\d+)_(?P<arch>.*)")
 _jointlinux_arches = {
@@ -184,6 +198,12 @@ def _valid_platform_tag(platform_tag):
         return m.group("arch") in _musllinux_arches
     if m and m.group("libc") == "many":
         return m.group("arch") in _manylinux_arches
+    m = _ios_platform_re.match(platform_tag)
+    if m and m.group("arch") in _ios_arches:
+        return True
+    m = _android_platform_re.match(platform_tag)
+    if m and m.group("arch") in _android_arches:
+        return True
     return False
 
 

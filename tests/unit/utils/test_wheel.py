@@ -36,6 +36,46 @@ from warehouse.utils import wheel
             ["CPython 3.7+", "macOS 10.12+ universal2 (ARM64, x86-64)"],
         ),
         (
+            "cryptography-42.0.5-cp313-cp313-android_27_armeabi_v7a.whl",
+            ["Android SDK 27+ ARM EABI v7a", "CPython 3.13"],
+        ),
+        (
+            "cryptography-42.0.5-cp313-cp313-android_27_arm64_v8a.whl",
+            ["Android SDK 27+ ARM64 v8a", "CPython 3.13"],
+        ),
+        (
+            "cryptography-42.0.5-cp313-cp313-android_27_x86.whl",
+            ["Android SDK 27+ x86", "CPython 3.13"],
+        ),
+        (
+            "cryptography-42.0.5-cp313-cp313-android_27_x86_64.whl",
+            ["Android SDK 27+ x86-64", "CPython 3.13"],
+        ),
+        (
+            "cryptography-42.0.5-cp313-abi3-android_16_armeabi_v7a.whl",
+            ["Android SDK 16+ ARM EABI v7a", "CPython 3.13+"],
+        ),
+        (
+            "cryptography-42.0.5-cp313-cp313-iOS_15_6_arm64_iphoneos.whl",
+            ["CPython 3.13", "iOS 15.6+ ARM64 Device"],
+        ),
+        (
+            "cryptography-42.0.5-cp313-cp313-iOS_15_6_arm64_iphonesimulator.whl",
+            ["CPython 3.13", "iOS 15.6+ ARM64 Simulator"],
+        ),
+        (
+            "cryptography-42.0.5-cp313-cp313-iOS_15_6_x86_64_iphonesimulator.whl",
+            ["CPython 3.13", "iOS 15.6+ x86-64 Simulator"],
+        ),
+        (
+            "cryptography-42.0.5-cp313-abi3-iOS_13_0_arm64_iphoneos.whl",
+            ["CPython 3.13+", "iOS 13.0+ ARM64 Device"],
+        ),
+        (
+            "cryptography-42.0.5-cp313-abi3-iOS_13_0_arm64_iphonesimulator.whl",
+            ["CPython 3.13+", "iOS 13.0+ ARM64 Simulator"],
+        ),
+        (
             "pgf-1.0-pp27-pypy_73-manylinux2010_x86_64.whl",
             ["PyPy", "manylinux: glibc 2.12+ x86-64"],
         ),
