@@ -6,7 +6,7 @@ set -x
 
 if [ "${READTHEDOCS_PROJECT}" = "warehouse" ]; then
   if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/dev requirements/docs-dev.txt .readthedocs.yaml; then
-    echo "Nothing relevant changed, skipping build...
+    echo "Nothing relevant changed, skipping build..."
     exit 183;
   fi
   pip install -r requirements/docs-dev.txt
@@ -17,6 +17,7 @@ fi
 
 if [ "${READTHEDOCS_PROJECT}" = "docspypiorg" ]; then
   if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/user requirements/docs-user.txt .readthedocs.yaml docs/mkdocs-user-docs.yml; then
+    echo "Nothing relevant changed, skipping build..."
     exit 183;
   fi
   pip install -r requirements/docs-user.txt
@@ -27,6 +28,7 @@ fi
 
 if [ "${READTHEDOCS_PROJECT}" = "blogpypiorg" ] || [ "${READTHEDOCS_PROJECT}" = "psf-warehouse-private" ]; then
   if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/blog requirements/docs-blog.txt .readthedocs.yaml docs/mkdocs-blog.yml; then
+    echo "Nothing relevant changed, skipping build..."
     exit 183;
   fi
   pip install -r requirements/docs-blog.txt
