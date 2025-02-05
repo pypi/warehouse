@@ -474,6 +474,26 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             .first()
         )
 
+    @property
+    def active_releases(self):
+        return (
+            orm.object_session(self)
+            .query(Release)
+            .filter(Release.project == self, Release.yanked.is_(False))
+            .order_by(Release._pypi_ordering.desc())
+            .all()
+        )
+
+    @property
+    def yanked_releases(self):
+        return (
+            orm.object_session(self)
+            .query(Release)
+            .filter(Release.project == self, Release.yanked.is_(True))
+            .order_by(Release._pypi_ordering.desc())
+            .all()
+        )
+
 
 class DependencyKind(enum.IntEnum):
     requires = 1
