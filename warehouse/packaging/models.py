@@ -79,7 +79,7 @@ from warehouse.organizations.models import (
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils import dotted_navigator, wheel
 from warehouse.utils.attrs import make_repr
-from warehouse.utils.db.types import bool_false, datetime_now
+from warehouse.utils.db.types import bool_false, bool_true, datetime_now
 
 if typing.TYPE_CHECKING:
     from warehouse.oidc.models import OIDCPublisher
@@ -474,6 +474,26 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             .first()
         )
 
+    @property
+    def active_releases(self):
+        return (
+            orm.object_session(self)
+            .query(Release)
+            .filter(Release.project == self, Release.yanked.is_(False))
+            .order_by(Release._pypi_ordering.desc())
+            .all()
+        )
+
+    @property
+    def yanked_releases(self):
+        return (
+            orm.object_session(self)
+            .query(Release)
+            .filter(Release.project == self, Release.yanked.is_(True))
+            .order_by(Release._pypi_ordering.desc())
+            .all()
+        )
+
 
 class DependencyKind(enum.IntEnum):
     requires = 1
@@ -633,6 +653,7 @@ class Release(HasObservations, db.Model):
     _pypi_ordering: Mapped[int | None]
     requires_python: Mapped[str | None] = mapped_column(Text)
     created: Mapped[datetime_now] = mapped_column()
+    published: Mapped[bool_true] = mapped_column()
 
     description_id: Mapped[UUID] = mapped_column(
         ForeignKey("release_descriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
@@ -1133,11 +1154,3 @@ class AlternateRepository(db.Model):
     name: Mapped[str]
     url: Mapped[str]
     description: Mapped[str]
-
-
-class MissingDatasetFile(db.Model):
-    __tablename__ = "missing_dataset_files"
-
-    file_id: Mapped[UUID] = mapped_column(ForeignKey("release_files.id"))
-    file: Mapped[File] = orm.relationship()
-    processed: Mapped[bool] = mapped_column(default=None, nullable=True)

@@ -40,8 +40,11 @@ def _detect_origin(request):
     has_translations=False,
 )
 def disclose_token(request):
+    metrics = request.find_service(IMetricsService, context=None)
+
     # If integrator headers are missing, response will be a 404
     if not (origin := _detect_origin(request)):
+        metrics.increment("warehouse.token_leak.invalid_origin")
         return HTTPNotFound()
 
     # Disclosers calls this API view when they have identified a string matching
@@ -52,12 +55,8 @@ def disclose_token(request):
 
     # The documentation for this process is at
     # https://developer.github.com/partnerships/token-scanning/
-
-    body = request.body
-
     key_id = request.headers.get(origin.key_id_header)
     signature = request.headers.get(origin.signature_header)
-    metrics = request.find_service(IMetricsService, context=None)
 
     verifier = utils.GenericTokenScanningPayloadVerifier(
         session=request.http,
@@ -67,7 +66,10 @@ def disclose_token(request):
         api_token=request.registry.settings.get(origin.api_token),
     )
 
-    if not verifier.verify(payload=body, key_id=key_id, signature=signature):
+    if not verifier.verify(payload=request.body, key_id=key_id, signature=signature):
+        metrics.increment(
+            f"warehouse.token_leak.{origin.metric_name}.error.payload.verify_error"
+        )
         return HTTPBadRequest()
 
     try:
