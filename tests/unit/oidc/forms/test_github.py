@@ -19,11 +19,11 @@ from webob.multidict import MultiDict
 
 from warehouse.oidc.forms import github
 from warehouse.packaging.interfaces import (
-    ProjectNameUnavailableExisting,
-    ProjectNameUnavailableInvalid,
-    ProjectNameUnavailableProhibited,
-    ProjectNameUnavailableSimilar,
-    ProjectNameUnavailableStdlib,
+    ProjectNameUnavailableExistingError,
+    ProjectNameUnavailableInvalidError,
+    ProjectNameUnavailableProhibitedError,
+    ProjectNameUnavailableSimilarError,
+    ProjectNameUnavailableStdlibError,
 )
 
 
@@ -68,7 +68,7 @@ class TestPendingGitHubPublisherForm:
         form = github.PendingGitHubPublisherForm(
             api_token="fake-token",
             route_url=route_url,
-            check_project_name=lambda name: ProjectNameUnavailableExisting(
+            check_project_name=lambda name: ProjectNameUnavailableExistingError(
                 existing_project=pretend.stub(owners=owners)
             ),
             user=user,
@@ -96,7 +96,7 @@ class TestPendingGitHubPublisherForm:
         form = github.PendingGitHubPublisherForm(
             api_token="fake-token",
             route_url=route_url,
-            check_project_name=lambda name: ProjectNameUnavailableExisting(
+            check_project_name=lambda name: ProjectNameUnavailableExistingError(
                 existing_project=pretend.stub(owners=owners)
             ),
             user=user,
@@ -111,11 +111,11 @@ class TestPendingGitHubPublisherForm:
     @pytest.mark.parametrize(
         "reason",
         [
-            ProjectNameUnavailableExisting(pretend.stub(owners=[pretend.stub()])),
-            ProjectNameUnavailableInvalid(),
-            ProjectNameUnavailableStdlib(),
-            ProjectNameUnavailableProhibited(),
-            ProjectNameUnavailableSimilar(similar_project_name="pkg_name"),
+            ProjectNameUnavailableExistingError(pretend.stub(owners=[pretend.stub()])),
+            ProjectNameUnavailableInvalidError(),
+            ProjectNameUnavailableStdlibError(),
+            ProjectNameUnavailableProhibitedError(),
+            ProjectNameUnavailableSimilarError(similar_project_name="pkg_name"),
         ],
     )
     def test_validate_project_name_unavailable(self, reason, pyramid_config):

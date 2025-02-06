@@ -9,13 +9,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from __future__ import annotations
 
-import enum
+import typing
 
 from zope.interface import Interface
 
-from warehouse.packaging.models import Project
 from warehouse.rate_limiting.interfaces import RateLimiterException
+
+if typing.TYPE_CHECKING:
+    from warehouse.packaging.models import Project
 
 
 class TooManyProjectsCreated(RateLimiterException):
@@ -97,32 +100,32 @@ class ProjectNameUnavailableError(Exception):
     pass
 
 
-class ProjectNameUnavailableInvalid(ProjectNameUnavailableError):
+class ProjectNameUnavailableInvalidError(ProjectNameUnavailableError):
     """Project name is invalid."""
 
     pass
 
 
-class ProjectNameUnavailableStdlib(ProjectNameUnavailableError):
+class ProjectNameUnavailableStdlibError(ProjectNameUnavailableError):
     """Project name conflicts with Python stdlib module."""
 
     pass
 
 
-class ProjectNameUnavailableExisting(ProjectNameUnavailableError):
+class ProjectNameUnavailableExistingError(ProjectNameUnavailableError):
     """Project name conflicts with existing project."""
 
     def __init__(self, existing_project: Project):
         self.existing_project: Project = existing_project
 
 
-class ProjectNameUnavailableProhibited(ProjectNameUnavailableError):
+class ProjectNameUnavailableProhibitedError(ProjectNameUnavailableError):
     """Project name is prohibited."""
 
     pass
 
 
-class ProjectNameUnavailableSimilar(ProjectNameUnavailableError):
+class ProjectNameUnavailableSimilarError(ProjectNameUnavailableError):
     """Project name is too similar to existing project."""
 
     def __init__(self, similar_project_name: str):

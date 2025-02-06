@@ -19,7 +19,7 @@ from requests import ConnectionError, HTTPError, Timeout
 from webob.multidict import MultiDict
 
 from warehouse.oidc.forms import activestate
-from warehouse.packaging.interfaces import ProjectNameUnavailableExisting
+from warehouse.packaging.interfaces import ProjectNameUnavailableExistingError
 
 fake_username = "some-username"
 fake_org_name = "some-org"
@@ -68,7 +68,7 @@ class TestPendingActiveStatePublisherForm:
         owners = [user]
 
         def check_project_name(name):
-            return ProjectNameUnavailableExisting(
+            return ProjectNameUnavailableExistingError(
                 existing_project=pretend.stub(owners=owners)
             )
 
@@ -98,7 +98,7 @@ class TestPendingActiveStatePublisherForm:
         owners = []
 
         def check_project_name(name):
-            return ProjectNameUnavailableExisting(
+            return ProjectNameUnavailableExistingError(
                 existing_project=pretend.stub(owners=owners)
             )
 

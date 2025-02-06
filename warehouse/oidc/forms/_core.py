@@ -14,11 +14,11 @@ import wtforms
 
 from warehouse.i18n import localize as _
 from warehouse.packaging.interfaces import (
-    ProjectNameUnavailableExisting,
-    ProjectNameUnavailableInvalid,
-    ProjectNameUnavailableProhibited,
-    ProjectNameUnavailableSimilar,
-    ProjectNameUnavailableStdlib,
+    ProjectNameUnavailableExistingError,
+    ProjectNameUnavailableInvalidError,
+    ProjectNameUnavailableProhibitedError,
+    ProjectNameUnavailableSimilarError,
+    ProjectNameUnavailableStdlibError,
 )
 from warehouse.utils.project import PROJECT_NAME_RE
 
@@ -37,9 +37,9 @@ class PendingPublisherMixin:
         project_name = field.data
 
         match self._check_project_name(project_name):
-            case ProjectNameUnavailableInvalid():
+            case ProjectNameUnavailableInvalidError():
                 raise wtforms.validators.ValidationError(_("Invalid project name"))
-            case ProjectNameUnavailableExisting(existing_project=existing_project):
+            case ProjectNameUnavailableExistingError(existing_project=existing_project):
                 # If the user owns the existing project, the error message includes a
                 # link to the project settings that the user can modify.
                 if self._user in existing_project.owners:
@@ -70,15 +70,15 @@ class PendingPublisherMixin:
                         _("This project already exists.")
                     )
 
-            case ProjectNameUnavailableProhibited():
+            case ProjectNameUnavailableProhibitedError():
                 raise wtforms.validators.ValidationError(
                     _("This project name isn't allowed")
                 )
-            case ProjectNameUnavailableSimilar():
+            case ProjectNameUnavailableSimilarError():
                 raise wtforms.validators.ValidationError(
                     _("This project name is too similar to an existing project")
                 )
-            case ProjectNameUnavailableStdlib():
+            case ProjectNameUnavailableStdlibError():
                 raise wtforms.validators.ValidationError(
                     _(
                         "This project name isn't allowed (conflict with the Python"

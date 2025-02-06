@@ -43,11 +43,11 @@ from warehouse.packaging.interfaces import (
     IFileStorage,
     IProjectService,
     ISimpleStorage,
-    ProjectNameUnavailableExisting,
-    ProjectNameUnavailableInvalid,
-    ProjectNameUnavailableProhibited,
-    ProjectNameUnavailableSimilar,
-    ProjectNameUnavailableStdlib,
+    ProjectNameUnavailableExistingError,
+    ProjectNameUnavailableInvalidError,
+    ProjectNameUnavailableProhibitedError,
+    ProjectNameUnavailableSimilarError,
+    ProjectNameUnavailableStdlibError,
     TooManyProjectsCreated,
 )
 from warehouse.packaging.models import (
@@ -449,32 +449,32 @@ class ProjectService:
 
     def check_project_name(self, name: str) -> None:
         if not PROJECT_NAME_RE.match(name):
-            raise ProjectNameUnavailableInvalid()
+            raise ProjectNameUnavailableInvalidError()
 
         # Also check for collisions with Python Standard Library modules.
         if canonicalize_name(name) in STDLIB_PROHIBITED:
-            raise ProjectNameUnavailableStdlib()
+            raise ProjectNameUnavailableStdlibError()
 
-        if (
-            existing_project := self.db.query(Project)
-            .where(Project.normalized_name == func.normalize_pep426_name(name))
-            .first()
-        ):
-            raise ProjectNameUnavailableExisting(existing_project)
+        if existing_project := self.db.scalars(
+            select(Project).where(
+                Project.normalized_name == func.normalize_pep426_name(name)
+            )
+        ).first():
+            raise ProjectNameUnavailableExistingError(existing_project)
 
         if self.db.query(
             exists().where(
                 ProhibitedProjectName.name == func.normalize_pep426_name(name)
             )
         ).scalar():
-            raise ProjectNameUnavailableProhibited()
+            raise ProjectNameUnavailableProhibitedError()
 
         if similar_project_name := self.db.scalars(
             select(Project.name).where(
                 func.ultranormalize_name(Project.name) == func.ultranormalize_name(name)
             )
         ).first():
-            raise ProjectNameUnavailableSimilar(similar_project_name)
+            raise ProjectNameUnavailableSimilarError(similar_project_name)
 
         return None
 
@@ -498,9 +498,9 @@ class ProjectService:
         # Verify that the project name is both valid and currently available.
         try:
             self.check_project_name(name)
-        except ProjectNameUnavailableInvalid:
+        except ProjectNameUnavailableInvalidError:
             raise HTTPBadRequest(f"The name {name!r} is invalid.")
-        except ProjectNameUnavailableExisting:
+        except ProjectNameUnavailableExistingError:
             # Found existing project with conflicting name.
             raise HTTPConflict(
                 (
@@ -511,7 +511,7 @@ class ProjectService:
                     projecthelp=request.help_url(_anchor="project-name"),
                 ),
             ) from None
-        except ProjectNameUnavailableProhibited:
+        except ProjectNameUnavailableProhibitedError:
             raise HTTPBadRequest(
                 (
                     "The name {name!r} isn't allowed. "
@@ -521,7 +521,7 @@ class ProjectService:
                     projecthelp=request.help_url(_anchor="project-name"),
                 ),
             ) from None
-        except ProjectNameUnavailableSimilar:
+        except ProjectNameUnavailableSimilarError:
             raise HTTPBadRequest(
                 (
                     "The name {name!r} is too similar to an existing project. "
@@ -531,7 +531,7 @@ class ProjectService:
                     projecthelp=request.help_url(_anchor="project-name"),
                 ),
             ) from None
-        except ProjectNameUnavailableStdlib:
+        except ProjectNameUnavailableStdlibError:
             raise HTTPBadRequest(
                 (
                     "The name {name!r} isn't allowed (conflict with Python "

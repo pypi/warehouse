@@ -29,11 +29,11 @@ from warehouse.packaging.interfaces import (
     IFileStorage,
     IProjectService,
     ISimpleStorage,
-    ProjectNameUnavailableExisting,
-    ProjectNameUnavailableInvalid,
-    ProjectNameUnavailableProhibited,
-    ProjectNameUnavailableSimilar,
-    ProjectNameUnavailableStdlib,
+    ProjectNameUnavailableExistingError,
+    ProjectNameUnavailableInvalidError,
+    ProjectNameUnavailableProhibitedError,
+    ProjectNameUnavailableSimilarError,
+    ProjectNameUnavailableStdlibError,
 )
 from warehouse.packaging.services import (
     B2FileStorage,
@@ -1000,42 +1000,42 @@ class TestProjectService:
     def test_check_project_name_invalid(self, name):
         service = ProjectService(session=pretend.stub())
 
-        with pytest.raises(ProjectNameUnavailableInvalid):
+        with pytest.raises(ProjectNameUnavailableInvalidError):
             service.check_project_name(name)
 
     @pytest.mark.parametrize("name", ["uu", "cgi", "nis", "mailcap"])
     def test_check_project_name_stdlib(self, name):
         service = ProjectService(session=pretend.stub())
 
-        with pytest.raises(ProjectNameUnavailableStdlib):
+        with pytest.raises(ProjectNameUnavailableStdlibError):
             service.check_project_name(name)
 
     def test_check_project_name_already_exists(self, db_session):
         service = ProjectService(session=db_session)
         project = ProjectFactory.create(name="foo")
 
-        with pytest.raises(ProjectNameUnavailableExisting) as exc:
+        with pytest.raises(ProjectNameUnavailableExistingError) as exc:
             service.check_project_name("foo")
         assert exc.value.existing_project == project
 
-        with pytest.raises(ProjectNameUnavailableExisting):
+        with pytest.raises(ProjectNameUnavailableExistingError):
             service.check_project_name("Foo")
 
     def test_check_project_name_prohibited(self, db_session):
         service = ProjectService(session=db_session)
         ProhibitedProjectFactory.create(name="foo")
 
-        with pytest.raises(ProjectNameUnavailableProhibited):
+        with pytest.raises(ProjectNameUnavailableProhibitedError):
             service.check_project_name("foo")
 
-        with pytest.raises(ProjectNameUnavailableProhibited):
+        with pytest.raises(ProjectNameUnavailableProhibitedError):
             service.check_project_name("Foo")
 
     def test_check_project_name_too_similar(self, db_session):
         service = ProjectService(session=db_session)
         ProjectFactory.create(name="f00")
 
-        with pytest.raises(ProjectNameUnavailableSimilar):
+        with pytest.raises(ProjectNameUnavailableSimilarError):
             service.check_project_name("foo")
 
     def test_check_project_name_too_similar_multiple_existing(self, db_session):
@@ -1043,7 +1043,7 @@ class TestProjectService:
         project1 = ProjectFactory.create(name="f00")
         project2 = ProjectFactory.create(name="f0o")
 
-        with pytest.raises(ProjectNameUnavailableSimilar) as exc:
+        with pytest.raises(ProjectNameUnavailableSimilarError) as exc:
             service.check_project_name("foo")
         assert (
             exc.value.similar_project_name == project1.name

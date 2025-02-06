@@ -17,7 +17,7 @@ import wtforms
 from webob.multidict import MultiDict
 
 from warehouse.oidc.forms import gitlab
-from warehouse.packaging.interfaces import ProjectNameUnavailableExisting
+from warehouse.packaging.interfaces import ProjectNameUnavailableExistingError
 
 
 class TestPendingGitLabPublisherForm:
@@ -56,7 +56,7 @@ class TestPendingGitLabPublisherForm:
 
         form = gitlab.PendingGitLabPublisherForm(
             route_url=route_url,
-            check_project_name=lambda name: ProjectNameUnavailableExisting(
+            check_project_name=lambda name: ProjectNameUnavailableExistingError(
                 existing_project=pretend.stub(owners=owners)
             ),
             user=user,
@@ -83,7 +83,7 @@ class TestPendingGitLabPublisherForm:
 
         form = gitlab.PendingGitLabPublisherForm(
             route_url=route_url,
-            check_project_name=lambda name: ProjectNameUnavailableExisting(
+            check_project_name=lambda name: ProjectNameUnavailableExistingError(
                 existing_project=pretend.stub(owners=owners)
             ),
             user=user,

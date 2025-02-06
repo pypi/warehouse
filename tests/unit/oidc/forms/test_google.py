@@ -17,7 +17,7 @@ import wtforms
 from webob.multidict import MultiDict
 
 from warehouse.oidc.forms import google
-from warehouse.packaging.interfaces import ProjectNameUnavailableExisting
+from warehouse.packaging.interfaces import ProjectNameUnavailableExistingError
 
 
 class TestPendingGooglePublisherForm:
@@ -53,7 +53,7 @@ class TestPendingGooglePublisherForm:
         route_url = pretend.call_recorder(lambda *args, **kwargs: "my_url")
         form = google.PendingGooglePublisherForm(
             route_url=route_url,
-            check_project_name=lambda name: ProjectNameUnavailableExisting(
+            check_project_name=lambda name: ProjectNameUnavailableExistingError(
                 existing_project=pretend.stub(owners=owners)
             ),
             user=user,
@@ -79,7 +79,7 @@ class TestPendingGooglePublisherForm:
         route_url = pretend.call_recorder(lambda *args, **kwargs: "my_url")
         form = google.PendingGooglePublisherForm(
             route_url=route_url,
-            check_project_name=lambda name: ProjectNameUnavailableExisting(
+            check_project_name=lambda name: ProjectNameUnavailableExistingError(
                 existing_project=pretend.stub(owners=owners)
             ),
             user=user,
