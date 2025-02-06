@@ -66,12 +66,12 @@
       <h2>
         {% if projects %}
           {% trans count=projects|length %}
-            {{ count }} project
+            {{ count }} active project
           {% pluralize %}
-            {{ count }} projects
+            {{ count }} active projects
           {% endtrans %}
         {% else %}
-          {% trans %}No projects{% endtrans %}
+          {% trans %}No active projects{% endtrans %}
         {% endif %}
       </h2>
       <div class="package-list">
@@ -93,6 +93,30 @@
           {% endcsi %}
         {% endif %}
       </div>
+
+      {% if archived_projects %}
+      <h3>
+        {% trans count=archived_projects|length, href=request.route_url('help') %}
+          {{ count }} <a href="{{ href }}#archived-project">archived</a> project
+        {% pluralize %}
+          {{ count }} <a href="{{ href }}#archived-project">archived</a> projects
+        {% endtrans %}
+      </h3>
+      <div class="package-list">
+        {% for project in archived_projects %}
+        <a class="package-snippet" href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
+          <h3 class="package-snippet__title">
+            {{ project.name }}
+            <span class="badge badge--warning">{% trans %}Archived{% endtrans %}</span>
+          </h3>
+          <p class="package-snippet__meta">
+            {% trans release_date=humanize(project.created) %}Last released {{ release_date }}{% endtrans %}
+          </p>
+          <p class="package-snippet__description">{{ project.summary }}</p>
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
     </div>
   </div>
 </div>

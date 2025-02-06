@@ -149,7 +149,11 @@ class TestUserProfile:
 
     def test_returns_user(self, db_request):
         user = UserFactory.create()
-        assert views.profile(user, db_request) == {"user": user, "projects": []}
+        assert views.profile(user, db_request) == {
+            "user": user,
+            "projects": [],
+            "archived_projects": [],
+        }
 
     def test_user_profile_queries_once_for_all_projects(
         self, db_request, query_recorder
@@ -4039,10 +4043,7 @@ class TestManageAccountPublishingViews:
         ]
         assert db_request.session.flash.calls == [
             pretend.call(
-                (
-                    "You can't register more than 3 pending trusted "
-                    "publishers at once."
-                ),
+                ("You can't register more than 3 pending trusted publishers at once."),
                 queue="error",
             )
         ]
