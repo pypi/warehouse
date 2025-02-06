@@ -51,11 +51,15 @@ class TestPendingGooglePublisherForm:
         user = pretend.stub()
         owners = [user]
         route_url = pretend.call_recorder(lambda *args, **kwargs: "my_url")
+
+        def check_project_name(name):
+            raise ProjectNameUnavailableExistingError(
+                existing_project=pretend.stub(owners=owners)
+            )
+
         form = google.PendingGooglePublisherForm(
             route_url=route_url,
-            check_project_name=lambda name: ProjectNameUnavailableExistingError(
-                existing_project=pretend.stub(owners=owners)
-            ),
+            check_project_name=check_project_name,
             user=user,
         )
 
@@ -77,11 +81,15 @@ class TestPendingGooglePublisherForm:
         user = pretend.stub()
         owners = []
         route_url = pretend.call_recorder(lambda *args, **kwargs: "my_url")
+
+        def check_project_name(name):
+            raise ProjectNameUnavailableExistingError(
+                existing_project=pretend.stub(owners=owners)
+            )
+
         form = google.PendingGooglePublisherForm(
             route_url=route_url,
-            check_project_name=lambda name: ProjectNameUnavailableExistingError(
-                existing_project=pretend.stub(owners=owners)
-            ),
+            check_project_name=check_project_name,
             user=user,
         )
 
