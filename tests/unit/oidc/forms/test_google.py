@@ -17,12 +17,13 @@ import wtforms
 from webob.multidict import MultiDict
 
 from warehouse.oidc.forms import google
-from warehouse.packaging.interfaces import ProjectNameUnavailableReason
+from warehouse.packaging.interfaces import ProjectNameUnavailableExistingError
 
 
 class TestPendingGooglePublisherForm:
     def test_validate(self, monkeypatch):
         route_url = pretend.stub()
+        user = pretend.stub()
 
         def check_project_name(name):
             return None  # Name is available.
@@ -35,23 +36,35 @@ class TestPendingGooglePublisherForm:
             }
         )
         form = google.PendingGooglePublisherForm(
-            MultiDict(data), route_url=route_url, check_project_name=check_project_name
+            MultiDict(data),
+            route_url=route_url,
+            check_project_name=check_project_name,
+            user=user,
         )
 
         assert form._check_project_name == check_project_name
         assert form._route_url == route_url
+        assert form._user == user
         assert form.validate()
 
-    def test_validate_project_name_already_in_use(self, pyramid_config):
+    def test_validate_project_name_already_in_use_owner(self, pyramid_config):
+        user = pretend.stub()
+        owners = [user]
         route_url = pretend.call_recorder(lambda *args, **kwargs: "my_url")
         form = google.PendingGooglePublisherForm(
             route_url=route_url,
-            check_project_name=lambda name: ProjectNameUnavailableReason.AlreadyExists,
+            check_project_name=lambda name: ProjectNameUnavailableExistingError(
+                existing_project=pretend.stub(owners=owners)
+            ),
+            user=user,
         )
 
         field = pretend.stub(data="some-project")
         with pytest.raises(wtforms.validators.ValidationError):
             form.validate_project_name(field)
+
+        # The project settings URL is only shown in the error message if
+        # the user is the owner of the project
         assert route_url.calls == [
             pretend.call(
                 "manage.project.settings.publishing",
@@ -59,6 +72,24 @@ class TestPendingGooglePublisherForm:
                 _query={"provider": {"google"}},
             )
         ]
+
+    def test_validate_project_name_already_in_use_not_owner(self, pyramid_config):
+        user = pretend.stub()
+        owners = []
+        route_url = pretend.call_recorder(lambda *args, **kwargs: "my_url")
+        form = google.PendingGooglePublisherForm(
+            route_url=route_url,
+            check_project_name=lambda name: ProjectNameUnavailableExistingError(
+                existing_project=pretend.stub(owners=owners)
+            ),
+            user=user,
+        )
+
+        field = pretend.stub(data="some-project")
+        with pytest.raises(wtforms.validators.ValidationError):
+            form.validate_project_name(field)
+
+        assert route_url.calls == []
 
 
 class TestGooglePublisherForm:
