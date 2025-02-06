@@ -34,10 +34,11 @@ class GooglePublisherBase(wtforms.Form):
 class PendingGooglePublisherForm(GooglePublisherBase, PendingPublisherMixin):
     __params__ = GooglePublisherBase.__params__ + ["project_name"]
 
-    def __init__(self, *args, route_url, check_project_name, **kwargs):
+    def __init__(self, *args, route_url, check_project_name, user, **kwargs):
         super().__init__(*args, **kwargs)
         self._route_url = route_url
         self._check_project_name = check_project_name
+        self._user = user
 
     @property
     def provider(self) -> str:

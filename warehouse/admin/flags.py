@@ -45,21 +45,27 @@ class AdminFlag(db.ModelBase):
 class Flags:
     def __init__(self, request):
         self.request = request
+        self.admin_flags_values = None
+
+    def _fetch_flags(self):
+        if self.admin_flags_values is None:
+            self.admin_flags_values = {
+                f.id: f for f in self.request.db.query(AdminFlag).all()
+            }
+        return self.admin_flags_values
 
     def notifications(self):
-        return (
-            self.request.db.query(AdminFlag)
-            .filter(AdminFlag.enabled.is_(True), AdminFlag.notify.is_(True))
-            .all()
-        )
+        return [
+            flag
+            for flag in self._fetch_flags().values()
+            if flag.enabled and flag.notify
+        ]
 
     def disallow_oidc(self, flag_member=None):
         return self.enabled(flag_member) or self.enabled(AdminFlagValue.DISALLOW_OIDC)
 
     def enabled(self, flag_member):
-        flag = (
-            self.request.db.get(AdminFlag, flag_member.value) if flag_member else None
-        )
+        flag = self._fetch_flags().get(flag_member.value, None) if flag_member else None
         return flag.enabled if flag else False
 
 

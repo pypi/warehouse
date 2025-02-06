@@ -163,7 +163,9 @@ def _create_session(request):
         session.close()
         connection.close()
 
-    # Check if we're in read-only mode
+    # Check if we're in read-only mode. This _cannot_ use the request.flags
+    # request method, as that would lead to a circular call as AdminFlag objects
+    # must be queried from the DB
     from warehouse.admin.flags import AdminFlag, AdminFlagValue
 
     flag = session.get(AdminFlag, AdminFlagValue.READ_ONLY.value)

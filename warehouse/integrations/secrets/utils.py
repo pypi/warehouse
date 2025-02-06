@@ -310,6 +310,7 @@ def _analyze_disclosure(request, disclosure_record, origin):
             ),
             "caveats": database_macaroon.caveats,
             "description": database_macaroon.description,
+            "origin": origin.name,
         },
     )
     metrics.increment(f"warehouse.token_leak.{origin.metric_name}.processed")
