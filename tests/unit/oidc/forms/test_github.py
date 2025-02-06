@@ -65,12 +65,15 @@ class TestPendingGitHubPublisherForm:
         user = pretend.stub()
         owners = [user]
 
+        def check_project_name(name):
+            raise ProjectNameUnavailableExistingError(
+                existing_project=pretend.stub(owners=owners)
+            )
+
         form = github.PendingGitHubPublisherForm(
             api_token="fake-token",
             route_url=route_url,
-            check_project_name=lambda name: ProjectNameUnavailableExistingError(
-                existing_project=pretend.stub(owners=owners)
-            ),
+            check_project_name=check_project_name,
             user=user,
         )
 
@@ -93,12 +96,15 @@ class TestPendingGitHubPublisherForm:
         user = pretend.stub()
         owners = []
 
+        def check_project_name(name):
+            raise ProjectNameUnavailableExistingError(
+                existing_project=pretend.stub(owners=owners)
+            )
+
         form = github.PendingGitHubPublisherForm(
             api_token="fake-token",
             route_url=route_url,
-            check_project_name=lambda name: ProjectNameUnavailableExistingError(
-                existing_project=pretend.stub(owners=owners)
-            ),
+            check_project_name=check_project_name,
             user=user,
         )
 
@@ -119,10 +125,13 @@ class TestPendingGitHubPublisherForm:
         ],
     )
     def test_validate_project_name_unavailable(self, reason, pyramid_config):
+        def check_project_name(name):
+            raise reason
+
         form = github.PendingGitHubPublisherForm(
             api_token="fake-token",
             route_url=pretend.call_recorder(lambda *args, **kwargs: ""),
-            check_project_name=lambda name: reason,
+            check_project_name=check_project_name,
             user=pretend.stub(),
         )
 

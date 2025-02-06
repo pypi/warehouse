@@ -68,7 +68,7 @@ class TestPendingActiveStatePublisherForm:
         owners = [user]
 
         def check_project_name(name):
-            return ProjectNameUnavailableExistingError(
+            raise ProjectNameUnavailableExistingError(
                 existing_project=pretend.stub(owners=owners)
             )
 
@@ -98,7 +98,7 @@ class TestPendingActiveStatePublisherForm:
         owners = []
 
         def check_project_name(name):
-            return ProjectNameUnavailableExistingError(
+            raise ProjectNameUnavailableExistingError(
                 existing_project=pretend.stub(owners=owners)
             )
 

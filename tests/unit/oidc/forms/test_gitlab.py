@@ -54,11 +54,14 @@ class TestPendingGitLabPublisherForm:
         owners = [user]
         route_url = pretend.call_recorder(lambda *args, **kwargs: "my_url")
 
+        def check_project_name(name):
+            raise ProjectNameUnavailableExistingError(
+                existing_project=pretend.stub(owners=owners)
+            )
+
         form = gitlab.PendingGitLabPublisherForm(
             route_url=route_url,
-            check_project_name=lambda name: ProjectNameUnavailableExistingError(
-                existing_project=pretend.stub(owners=owners)
-            ),
+            check_project_name=check_project_name,
             user=user,
         )
 
@@ -81,11 +84,14 @@ class TestPendingGitLabPublisherForm:
         owners = []
         route_url = pretend.call_recorder(lambda *args, **kwargs: "my_url")
 
+        def check_project_name(name):
+            raise ProjectNameUnavailableExistingError(
+                existing_project=pretend.stub(owners=owners)
+            )
+
         form = gitlab.PendingGitLabPublisherForm(
             route_url=route_url,
-            check_project_name=lambda name: ProjectNameUnavailableExistingError(
-                existing_project=pretend.stub(owners=owners)
-            ),
+            check_project_name=check_project_name,
             user=user,
         )
 
