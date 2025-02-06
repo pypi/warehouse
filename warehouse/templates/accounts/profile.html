@@ -63,19 +63,20 @@
     {% endcsi %}
 
     <div class="left-layout__main">
+      {% set project_count = projects|length + archived_projects|length %}
       <h2>
-        {% if projects %}
-          {% trans count=projects|length %}
-            {{ count }} active project
+        {% if project_count %}
+          {% trans count=project_count %}
+            {{ count }} project
           {% pluralize %}
-            {{ count }} active projects
+            {{ count }} projects
           {% endtrans %}
         {% else %}
-          {% trans %}No active projects{% endtrans %}
+          {% trans %}No projects{% endtrans %}
         {% endif %}
       </h2>
       <div class="package-list">
-        {% if projects %}
+        {% if project_count %}
         {% for project in projects %}
         <a class="package-snippet" href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
           <h3 class="package-snippet__title">{{ project.name }}</h3>

@@ -1720,19 +1720,21 @@ msgstr ""
 msgid "Joined %(start_date)s"
 msgstr ""
 
-#: warehouse/templates/accounts/profile.html:68
+#: warehouse/templates/accounts/profile.html:69
+#: warehouse/templates/organizations/profile.html:51
 #, python-format
-msgid "%(count)s active project"
-msgid_plural "%(count)s active projects"
+msgid "%(count)s project"
+msgid_plural "%(count)s projects"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/accounts/profile.html:74
-msgid "No active projects"
+#: warehouse/templates/accounts/profile.html:75
+#: warehouse/templates/organizations/profile.html:57
+msgid "No projects"
 msgstr ""
 
-#: warehouse/templates/accounts/profile.html:83
-#: warehouse/templates/accounts/profile.html:113
+#: warehouse/templates/accounts/profile.html:84
+#: warehouse/templates/accounts/profile.html:114
 #: warehouse/templates/manage/organization/projects.html:48
 #: warehouse/templates/manage/projects.html:37
 #: warehouse/templates/manage/projects.html:87
@@ -1742,19 +1744,19 @@ msgstr ""
 msgid "Last released %(release_date)s"
 msgstr ""
 
-#: warehouse/templates/accounts/profile.html:91
+#: warehouse/templates/accounts/profile.html:92
 #, python-format
 msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgstr ""
 
-#: warehouse/templates/accounts/profile.html:99
+#: warehouse/templates/accounts/profile.html:100
 #, python-format
 msgid "%(count)s <a href=\"%(href)s#archived-project\">archived</a> project"
 msgid_plural "%(count)s <a href=\"%(href)s#archived-project\">archived</a> projects"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/accounts/profile.html:110
+#: warehouse/templates/accounts/profile.html:111
 #: warehouse/templates/manage/projects.html:82
 msgid "Archived"
 msgstr ""
@@ -7080,17 +7082,6 @@ msgstr ""
 #: warehouse/templates/organizations/profile.html:16
 #, python-format
 msgid "Profile of %(orgname)s"
-msgstr ""
-
-#: warehouse/templates/organizations/profile.html:51
-#, python-format
-msgid "%(count)s project"
-msgid_plural "%(count)s projects"
-msgstr[0] ""
-msgstr[1] ""
-
-#: warehouse/templates/organizations/profile.html:57
-msgid "No projects"
 msgstr ""
 
 #: warehouse/templates/organizations/profile.html:73
