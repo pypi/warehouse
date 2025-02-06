@@ -17,16 +17,18 @@ import wtforms
 from webob.multidict import MultiDict
 
 from warehouse.oidc.forms import gitlab
-from warehouse.packaging.interfaces import ProjectNameUnavailableExistingError
+
+from ....common.db.accounts import UserFactory
+from ....common.db.packaging import (
+    ProjectFactory,
+    RoleFactory,
+)
 
 
 class TestPendingGitLabPublisherForm:
-    def test_validate(self, monkeypatch):
+    def test_validate(self, project_service):
         route_url = pretend.stub()
         user = pretend.stub()
-
-        def check_project_name(name):
-            return None  # Name is available.
 
         data = MultiDict(
             {
@@ -39,29 +41,28 @@ class TestPendingGitLabPublisherForm:
         form = gitlab.PendingGitLabPublisherForm(
             MultiDict(data),
             route_url=route_url,
-            check_project_name=check_project_name,
+            check_project_name=project_service.check_project_name,
             user=user,
         )
 
         assert form._route_url == route_url
-        assert form._check_project_name == check_project_name
+        assert form._check_project_name == project_service.check_project_name
         assert form._user == user
         # We're testing only the basic validation here.
         assert form.validate()
 
-    def test_validate_project_name_already_in_use_owner(self, pyramid_config):
-        user = pretend.stub()
-        owners = [user]
+    def test_validate_project_name_already_in_use_owner(
+        self, pyramid_config, project_service
+    ):
         route_url = pretend.call_recorder(lambda *args, **kwargs: "my_url")
 
-        def check_project_name(name):
-            raise ProjectNameUnavailableExistingError(
-                existing_project=pretend.stub(owners=owners)
-            )
+        user = UserFactory.create()
+        project = ProjectFactory.create(name="some-project")
+        RoleFactory.create(user=user, project=project)
 
         form = gitlab.PendingGitLabPublisherForm(
             route_url=route_url,
-            check_project_name=check_project_name,
+            check_project_name=project_service.check_project_name,
             user=user,
         )
 
@@ -79,19 +80,17 @@ class TestPendingGitLabPublisherForm:
             )
         ]
 
-    def test_validate_project_name_already_in_use_not_owner(self, pyramid_config):
-        user = pretend.stub()
-        owners = []
+    def test_validate_project_name_already_in_use_not_owner(
+        self, pyramid_config, project_service
+    ):
         route_url = pretend.call_recorder(lambda *args, **kwargs: "my_url")
 
-        def check_project_name(name):
-            raise ProjectNameUnavailableExistingError(
-                existing_project=pretend.stub(owners=owners)
-            )
+        user = UserFactory.create()
+        ProjectFactory.create(name="some-project")
 
         form = gitlab.PendingGitLabPublisherForm(
             route_url=route_url,
-            check_project_name=check_project_name,
+            check_project_name=project_service.check_project_name,
             user=user,
         )
 
@@ -165,7 +164,7 @@ class TestGitLabPublisherForm:
             {"project": "some", "namespace": "some", "workflow_filepath": ""},
         ],
     )
-    def test_validate_basic_invalid_fields(self, monkeypatch, data):
+    def test_validate_basic_invalid_fields(self, data):
         form = gitlab.GitLabPublisherForm(MultiDict(data))
 
         # We're testing only the basic validation here.
