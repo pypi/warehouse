@@ -42,7 +42,7 @@ _PLATFORMS = [
     ),
     (
         re.compile(r"^android_(\d+)_(.*?)$"),
-        lambda m: f"Android SDK {m.group(1)}+ {_normalize_arch(m.group(2))}",
+        lambda m: f"Android API level {m.group(1)}+ {_normalize_arch(m.group(2))}",
     ),
     (
         re.compile(r"^ios_(\d+)_(\d+)_(.*?)_iphoneos$"),

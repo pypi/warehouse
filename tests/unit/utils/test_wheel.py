@@ -37,23 +37,23 @@ from warehouse.utils import wheel
         ),
         (
             "cryptography-42.0.5-cp313-cp313-android_27_armeabi_v7a.whl",
-            ["Android SDK 27+ ARM EABI v7a", "CPython 3.13"],
+            ["Android API level 27+ ARM EABI v7a", "CPython 3.13"],
         ),
         (
             "cryptography-42.0.5-cp313-cp313-android_27_arm64_v8a.whl",
-            ["Android SDK 27+ ARM64 v8a", "CPython 3.13"],
+            ["Android API level 27+ ARM64 v8a", "CPython 3.13"],
         ),
         (
             "cryptography-42.0.5-cp313-cp313-android_27_x86.whl",
-            ["Android SDK 27+ x86", "CPython 3.13"],
+            ["Android API level 27+ x86", "CPython 3.13"],
         ),
         (
             "cryptography-42.0.5-cp313-cp313-android_27_x86_64.whl",
-            ["Android SDK 27+ x86-64", "CPython 3.13"],
+            ["Android API level 27+ x86-64", "CPython 3.13"],
         ),
         (
             "cryptography-42.0.5-cp313-abi3-android_16_armeabi_v7a.whl",
-            ["Android SDK 16+ ARM EABI v7a", "CPython 3.13+"],
+            ["Android API level 16+ ARM EABI v7a", "CPython 3.13+"],
         ),
         (
             "cryptography-42.0.5-cp313-cp313-iOS_15_6_arm64_iphoneos.whl",
