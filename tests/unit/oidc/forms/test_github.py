@@ -26,14 +26,17 @@ from warehouse.packaging.interfaces import (
     ProjectNameUnavailableStdlibError,
 )
 
+from ....common.db.accounts import UserFactory
+from ....common.db.packaging import (
+    ProjectFactory,
+    RoleFactory,
+)
+
 
 class TestPendingGitHubPublisherForm:
-    def test_validate(self, monkeypatch):
+    def test_validate(self, monkeypatch, project_service):
         route_url = pretend.stub()
         user = pretend.stub()
-
-        def check_project_name(name):
-            return None  # Name is available.
 
         data = MultiDict(
             {
@@ -47,7 +50,7 @@ class TestPendingGitHubPublisherForm:
             MultiDict(data),
             api_token=pretend.stub(),
             route_url=route_url,
-            check_project_name=check_project_name,
+            check_project_name=project_service.check_project_name,
             user=user,
         )
 
@@ -55,25 +58,24 @@ class TestPendingGitHubPublisherForm:
         owner_info = {"login": "fake-username", "id": "1234"}
         monkeypatch.setattr(form, "_lookup_owner", lambda o: owner_info)
 
-        assert form._check_project_name == check_project_name
+        assert form._check_project_name == project_service.check_project_name
         assert form._route_url == route_url
         assert form._user == user
         assert form.validate()
 
-    def test_validate_project_name_already_in_use_owner(self, pyramid_config):
+    def test_validate_project_name_already_in_use_owner(
+        self, pyramid_config, project_service
+    ):
         route_url = pretend.call_recorder(lambda *args, **kwargs: "")
-        user = pretend.stub()
-        owners = [user]
 
-        def check_project_name(name):
-            raise ProjectNameUnavailableExistingError(
-                existing_project=pretend.stub(owners=owners)
-            )
+        user = UserFactory.create()
+        project = ProjectFactory.create(name="some-project")
+        RoleFactory.create(user=user, project=project)
 
         form = github.PendingGitHubPublisherForm(
             api_token="fake-token",
             route_url=route_url,
-            check_project_name=check_project_name,
+            check_project_name=project_service.check_project_name,
             user=user,
         )
 
@@ -91,20 +93,18 @@ class TestPendingGitHubPublisherForm:
             )
         ]
 
-    def test_validate_project_name_already_in_use_not_owner(self, pyramid_config):
+    def test_validate_project_name_already_in_use_not_owner(
+        self, pyramid_config, project_service
+    ):
         route_url = pretend.call_recorder(lambda *args, **kwargs: "")
-        user = pretend.stub()
-        owners = []
 
-        def check_project_name(name):
-            raise ProjectNameUnavailableExistingError(
-                existing_project=pretend.stub(owners=owners)
-            )
+        user = UserFactory.create()
+        ProjectFactory.create(name="some-project")
 
         form = github.PendingGitHubPublisherForm(
             api_token="fake-token",
             route_url=route_url,
-            check_project_name=check_project_name,
+            check_project_name=project_service.check_project_name,
             user=user,
         )
 

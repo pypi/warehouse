@@ -19,7 +19,12 @@ from requests import ConnectionError, HTTPError, Timeout
 from webob.multidict import MultiDict
 
 from warehouse.oidc.forms import activestate
-from warehouse.packaging.interfaces import ProjectNameUnavailableExistingError
+
+from ....common.db.accounts import UserFactory
+from ....common.db.packaging import (
+    ProjectFactory,
+    RoleFactory,
+)
 
 fake_username = "some-username"
 fake_org_name = "some-org"
@@ -32,11 +37,8 @@ _requests = requests
 
 
 class TestPendingActiveStatePublisherForm:
-    def test_validate(self, monkeypatch):
+    def test_validate(self, monkeypatch, project_service):
         route_url = pretend.stub()
-
-        def check_project_name(name):
-            return None
 
         data = MultiDict(
             {
@@ -49,7 +51,7 @@ class TestPendingActiveStatePublisherForm:
         form = activestate.PendingActiveStatePublisherForm(
             MultiDict(data),
             route_url=route_url,
-            check_project_name=check_project_name,
+            check_project_name=project_service.check_project_name,
             user=pretend.stub(),
         )
 
@@ -58,23 +60,22 @@ class TestPendingActiveStatePublisherForm:
 
         monkeypatch.setattr(form, "_lookup_organization", lambda *o: None)
 
-        assert form._check_project_name == check_project_name
+        assert form._check_project_name == project_service.check_project_name
         assert form._route_url == route_url
         assert form.validate()
 
-    def test_validate_project_name_already_in_use_owner(self, pyramid_config):
+    def test_validate_project_name_already_in_use_owner(
+        self, pyramid_config, project_service
+    ):
         route_url = pretend.call_recorder(lambda *args, **kwargs: "")
-        user = pretend.stub()
-        owners = [user]
 
-        def check_project_name(name):
-            raise ProjectNameUnavailableExistingError(
-                existing_project=pretend.stub(owners=owners)
-            )
+        user = UserFactory.create()
+        project = ProjectFactory.create(name="some-project")
+        RoleFactory.create(user=user, project=project)
 
         form = activestate.PendingActiveStatePublisherForm(
             route_url=route_url,
-            check_project_name=check_project_name,
+            check_project_name=project_service.check_project_name,
             user=user,
         )
 
@@ -92,19 +93,17 @@ class TestPendingActiveStatePublisherForm:
             )
         ]
 
-    def test_validate_project_name_already_in_use_not_owner(self, pyramid_config):
+    def test_validate_project_name_already_in_use_not_owner(
+        self, pyramid_config, project_service
+    ):
         route_url = pretend.call_recorder(lambda *args, **kwargs: "")
-        user = pretend.stub()
-        owners = []
 
-        def check_project_name(name):
-            raise ProjectNameUnavailableExistingError(
-                existing_project=pretend.stub(owners=owners)
-            )
+        user = UserFactory.create()
+        ProjectFactory.create(name="some-project")
 
         form = activestate.PendingActiveStatePublisherForm(
             route_url=route_url,
-            check_project_name=check_project_name,
+            check_project_name=project_service.check_project_name,
             user=user,
         )
 
