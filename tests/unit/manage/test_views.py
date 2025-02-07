@@ -6573,6 +6573,8 @@ class TestManageOIDCPublisherViews:
                     "specifier": str(constrained_publisher),
                     "url": publisher.publisher_url(),
                     "submitted_by": db_request.user.username,
+                    "reified_from_pending_publisher": False,
+                    "constrained_from_existing_publisher": True,
                 },
             ),
             pretend.call(
@@ -6672,6 +6674,8 @@ class TestManageOIDCPublisherViews:
                     "specifier": str(constrained_publisher),
                     "url": publisher.publisher_url(),
                     "submitted_by": db_request.user.username,
+                    "reified_from_pending_publisher": False,
+                    "constrained_from_existing_publisher": True,
                 },
             ),
             pretend.call(
@@ -7210,6 +7214,8 @@ class TestManageOIDCPublisherViews:
                     "specifier": "fakespecifier",
                     "url": publisher.publisher_url(),
                     "submitted_by": "some-user",
+                    "reified_from_pending_publisher": False,
+                    "constrained_from_existing_publisher": False,
                 },
             )
         ]
@@ -7361,6 +7367,8 @@ class TestManageOIDCPublisherViews:
                     "specifier": str(publisher),
                     "url": publisher.publisher_url(),
                     "submitted_by": "some-user",
+                    "reified_from_pending_publisher": False,
+                    "constrained_from_existing_publisher": False,
                 },
             )
         ]

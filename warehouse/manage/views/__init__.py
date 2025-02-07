@@ -1557,6 +1557,8 @@ class ManageOIDCPublisherViews:
                 "specifier": str(constrained_publisher),
                 "url": constrained_publisher.publisher_url(),
                 "submitted_by": self.request.user.username,
+                "reified_from_pending_publisher": False,
+                "constrained_from_existing_publisher": True,
             },
         )
 
@@ -1688,6 +1690,8 @@ class ManageOIDCPublisherViews:
                 "specifier": str(publisher),
                 "url": publisher.publisher_url(),
                 "submitted_by": self.request.user.username,
+                "reified_from_pending_publisher": False,
+                "constrained_from_existing_publisher": False,
             },
         )
 
@@ -1800,6 +1804,8 @@ class ManageOIDCPublisherViews:
                 "specifier": str(publisher),
                 "url": publisher.publisher_url(),
                 "submitted_by": self.request.user.username,
+                "reified_from_pending_publisher": False,
+                "constrained_from_existing_publisher": False,
             },
         )
 
@@ -1907,6 +1913,8 @@ class ManageOIDCPublisherViews:
                 "specifier": str(publisher),
                 "url": publisher.publisher_url(),
                 "submitted_by": self.request.user.username,
+                "reified_from_pending_publisher": False,
+                "constrained_from_existing_publisher": False,
             },
         )
 
@@ -2019,6 +2027,8 @@ class ManageOIDCPublisherViews:
                 "specifier": str(publisher),
                 "url": publisher.publisher_url(),
                 "submitted_by": self.request.user.username,
+                "reified_from_pending_publisher": False,
+                "constrained_from_existing_publisher": False,
             },
         )
 
