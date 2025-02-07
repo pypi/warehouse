@@ -25,7 +25,7 @@ from pyramid.httpexceptions import (
     HTTPTooManyRequests,
 )
 from pyramid.view import view_config, view_defaults
-from sqlalchemy import func
+from sqlalchemy import exists, func
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
 from venusian import lift
@@ -1384,6 +1384,29 @@ class ManageOIDCPublisherViews:
                 )
             )
 
+    # Used in `constrain_environment` for GitHub/GitLab publishers
+    def _check_publisher_exists_in_db(
+        self, publisher: GitHubPublisher | GitLabPublisher
+    ) -> bool:
+        if isinstance(publisher, GitHubPublisher):
+            return self.request.db.query(
+                exists().where(
+                    GitHubPublisher.repository_name == publisher.repository_name,
+                    GitHubPublisher.repository_owner == publisher.repository_owner,
+                    GitHubPublisher.workflow_filename == publisher.workflow_filename,
+                    GitHubPublisher.environment == publisher.environment,
+                )
+            ).scalar()
+        else:
+            return self.request.db.query(
+                exists().where(
+                    GitLabPublisher.namespace == publisher.namespace,
+                    GitLabPublisher.project == publisher.project,
+                    GitLabPublisher.workflow_filepath == publisher.workflow_filepath,
+                    GitLabPublisher.environment == publisher.environment,
+                )
+            ).scalar()
+
     @property
     def default_response(self):
         return {
@@ -1479,7 +1502,7 @@ class ManageOIDCPublisherViews:
             )
             return self.default_response
 
-        # First we add the new trusted publisher
+        # First we add the new (constrained) trusted publisher
         if isinstance(publisher, GitHubPublisher):
             constrained_publisher = GitHubPublisher(
                 repository_name=publisher.repository_name,
@@ -1495,10 +1518,20 @@ class ManageOIDCPublisherViews:
                 workflow_filepath=publisher.workflow_filepath,
                 environment=form.constrained_environment_name.data,
             )
-
         else:
             self.request.session.flash(
                 "Can only constrain the environment for GitHub and GitLab publishers",
+                queue="error",
+            )
+            return self.default_response
+
+        # The user might have already manually created the new constrained publisher
+        # before clicking the magic link to constrain the existing publisher.
+        if self._check_publisher_exists_in_db(constrained_publisher):
+            self.request.session.flash(
+                self.request._(
+                    f"{publisher} is already registered with {self.project.name}"
+                ),
                 queue="error",
             )
             return self.default_response
