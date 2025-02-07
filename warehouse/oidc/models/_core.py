@@ -365,6 +365,13 @@ class OIDCPublisherMixin:
             url=url,
         )
 
+    def exists(self, session) -> bool:  # pragma: no cover
+        """
+        Check if the publisher exists in the database
+        """
+        # Only concrete subclasses are constructed.
+        raise NotImplementedError
+
 
 class OIDCPublisher(OIDCPublisherMixin, db.Model):
     __tablename__ = "oidc_publishers"

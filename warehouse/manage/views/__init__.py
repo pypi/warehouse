@@ -25,7 +25,7 @@ from pyramid.httpexceptions import (
     HTTPTooManyRequests,
 )
 from pyramid.view import view_config, view_defaults
-from sqlalchemy import exists, func
+from sqlalchemy import func
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
 from venusian import lift
@@ -1384,29 +1384,6 @@ class ManageOIDCPublisherViews:
                 )
             )
 
-    # Used in `constrain_environment` for GitHub/GitLab publishers
-    def _check_publisher_exists_in_db(
-        self, publisher: GitHubPublisher | GitLabPublisher
-    ) -> bool:
-        if isinstance(publisher, GitHubPublisher):
-            return self.request.db.query(
-                exists().where(
-                    GitHubPublisher.repository_name == publisher.repository_name,
-                    GitHubPublisher.repository_owner == publisher.repository_owner,
-                    GitHubPublisher.workflow_filename == publisher.workflow_filename,
-                    GitHubPublisher.environment == publisher.environment,
-                )
-            ).scalar()
-        else:
-            return self.request.db.query(
-                exists().where(
-                    GitLabPublisher.namespace == publisher.namespace,
-                    GitLabPublisher.project == publisher.project,
-                    GitLabPublisher.workflow_filepath == publisher.workflow_filepath,
-                    GitLabPublisher.environment == publisher.environment,
-                )
-            ).scalar()
-
     @property
     def default_response(self):
         return {
@@ -1527,7 +1504,7 @@ class ManageOIDCPublisherViews:
 
         # The user might have already manually created the new constrained publisher
         # before clicking the magic link to constrain the existing publisher.
-        if self._check_publisher_exists_in_db(constrained_publisher):
+        if constrained_publisher.exists(self.request.db):
             self.request.session.flash(
                 self.request._(
                     f"{publisher} is already registered with {self.project.name}"

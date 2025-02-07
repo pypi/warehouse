@@ -685,6 +685,22 @@ class TestGitHubPublisher:
         else:
             assert identity.environment == publisher.environment
 
+    @pytest.mark.parametrize("exists_in_db", [True, False])
+    def test_exists(self, db_request, exists_in_db):
+        publisher = github.GitHubPublisher(
+            repository_name="repository_name",
+            repository_owner="repository_owner",
+            repository_owner_id="666",
+            workflow_filename="workflow_filename.yml",
+            environment="",
+        )
+
+        if exists_in_db:
+            db_request.db.add(publisher)
+            db_request.db.flush()
+
+        assert publisher.exists(db_request.db) == exists_in_db
+
 
 class TestPendingGitHubPublisher:
     def test_reify_does_not_exist_yet(self, db_request):
