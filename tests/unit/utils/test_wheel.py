@@ -19,6 +19,8 @@ from warehouse.utils import wheel
     ("filename", "expected_tags"),
     [
         ("cryptography-42.0.5.tar.gz", ["Source"]),
+        ("Pillow-2.5.0-py3.4-win-amd64.egg", ["Egg"]),
+        ("Pillow-2.5.0-py3.4-win32.egg", ["Egg"]),
         (
             "cryptography-42.0.5-pp310-pypy310_pp73-win_amd64.whl",
             ["PyPy", "Windows x86-64"],
@@ -30,6 +32,26 @@ from warehouse.utils import wheel
         (
             "cryptography-42.0.5-cp37-abi3-musllinux_1_2_x86_64.whl",
             ["CPython 3.7+", "musllinux: musl 1.2+ x86-64"],
+        ),
+        (
+            "cryptography-42.0.5-cp37-abi3-macosx_10_5_intel.whl",
+            ["CPython 3.7+", "macOS 10.5+ Intel (x86-64, i386)"],
+        ),
+        (
+            "cryptography-42.0.5-cp37-abi3-macosx_10_5_fat.whl",
+            ["CPython 3.7+", "macOS 10.5+ fat (i386, PPC)"],
+        ),
+        (
+            "cryptography-42.0.5-cp37-abi3-macosx_10_5_fat3.whl",
+            ["CPython 3.7+", "macOS 10.5+ fat3 (x86-64, i386, PPC)"],
+        ),
+        (
+            "cryptography-42.0.5-cp37-abi3-macosx_10_5_fat64.whl",
+            ["CPython 3.7+", "macOS 10.5+ fat64 (x86-64, PPC64)"],
+        ),
+        (
+            "cryptography-42.0.5-cp37-abi3-macosx_10_5_universal.whl",
+            ["CPython 3.7+", "macOS 10.5+ universal (x86-64, i386, PPC64, PPC)"],
         ),
         (
             "cryptography-42.0.5-cp37-abi3-macosx_10_12_universal2.whl",
