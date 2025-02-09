@@ -25,7 +25,7 @@ msgstr ""
 "X-Generator: Weblate 5.10-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/views.py:157
+#: warehouse/views.py:158
 msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
@@ -33,7 +33,7 @@ msgstr ""
 "Trebuie să vă verificați adresa de e-mail **primară** înainte de a efectua "
 "această acțiune."
 
-#: warehouse/views.py:173
+#: warehouse/views.py:174
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
@@ -53,7 +53,7 @@ msgstr "Adresa de e-mail nu este validă. Încearcă din nou."
 msgid "The password is invalid. Try again."
 msgstr "Parola nu este validă. Încearcă din nou."
 
-#: warehouse/accounts/forms.py:56
+#: warehouse/accounts/forms.py:57
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -72,11 +72,13 @@ msgstr "Octeții nuli nu sunt permiși."
 msgid "No user found with that username"
 msgstr "Niciun utilizator găsit cu acel nume de utilizator"
 
-#: warehouse/accounts/forms.py:108
+#: warehouse/accounts/forms.py:109
+#, python-brace-format
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "Codul TOTP trebuie să conțină ${totp_length} cifre."
 
-#: warehouse/accounts/forms.py:128
+#: warehouse/accounts/forms.py:129
+#, python-brace-format
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr ""
 
@@ -84,7 +86,7 @@ msgstr ""
 msgid "Choose a username with 50 characters or less."
 msgstr "Alegeți un nume de utilizator cu 50 de caractere sau mai puțin."
 
-#: warehouse/accounts/forms.py:160
+#: warehouse/accounts/forms.py:161
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -97,7 +99,8 @@ msgstr ""
 msgid "Password too long."
 msgstr "Parola este prea lungă."
 
-#: warehouse/accounts/forms.py:210
+#: warehouse/accounts/forms.py:206
+#, python-brace-format
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
@@ -113,13 +116,13 @@ msgstr "Parolele tale nu se potrivesc. Încearcă din nou."
 msgid "The email address is too long. Try again."
 msgstr "Adresa de e-mail prea lungă. Încearcă din nou."
 
-#: warehouse/accounts/forms.py:344
+#: warehouse/accounts/forms.py:345
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Nu puteți utiliza o adresă de e-mail din acest domeniu. Utilizați un alt e-"
 "mail."
 
-#: warehouse/accounts/forms.py:359
+#: warehouse/accounts/forms.py:360
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -127,7 +130,7 @@ msgstr ""
 "Această adresă de e-mail este deja utilizată de acest cont. Utilizați un alt "
 "e-mail."
 
-#: warehouse/accounts/forms.py:370
+#: warehouse/accounts/forms.py:371
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -135,8 +138,8 @@ msgstr ""
 "Această adresă de e-mail este deja utilizată de un alt cont. Utilizați un "
 "alt e-mail."
 
-#: warehouse/accounts/forms.py:410 warehouse/manage/forms.py:139
-#: warehouse/manage/forms.py:741
+#: warehouse/accounts/forms.py:411 warehouse/manage/forms.py:140
+#: warehouse/manage/forms.py:742
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Numele e prea lung. Alegeți un nume cu 100 de caractere sau mai puțin."
 
@@ -164,7 +167,8 @@ msgstr "Codul de recuperare a fost deja folosit."
 msgid "The username isn't valid. Try again."
 msgstr "Numele de utilizator nu este valid. Încercați din nou."
 
-#: warehouse/accounts/views.py:120
+#: warehouse/accounts/views.py:117
+#, python-brace-format
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
@@ -172,7 +176,8 @@ msgstr ""
 "Au existat prea multe încercări de conectare nereușite. Ați fost blocat "
 "pentru {}. Vă rugăm să încercați din nou mai târziu."
 
-#: warehouse/accounts/views.py:137
+#: warehouse/accounts/views.py:138
+#, python-brace-format
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -180,7 +185,8 @@ msgstr ""
 "Prea multe e-mailuri au fost adăugate la acest cont fără a le verifica. "
 "Verificați inboxul și urmați linkurile de verificare. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:149
+#: warehouse/accounts/views.py:150
+#, python-brace-format
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
@@ -204,12 +210,12 @@ msgstr "Deja autentificat"
 msgid "Successful WebAuthn assertion"
 msgstr "Aserțiune WebAuthn cu succes"
 
-#: warehouse/accounts/views.py:609 warehouse/manage/views/__init__.py:877
+#: warehouse/accounts/views.py:610 warehouse/manage/views/__init__.py:881
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Cod de recuperare acceptat. Codul furnizat nu se poate utiliza din nou."
 
-#: warehouse/accounts/views.py:701
+#: warehouse/accounts/views.py:702
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -238,12 +244,12 @@ msgstr "Token nevalid: nu un jeton de resetare a parolei"
 msgid "Invalid token: user not found"
 msgstr "Token nevalid: utilizatorul nu a fost găsit"
 
-#: warehouse/accounts/views.py:862
+#: warehouse/accounts/views.py:863
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Token nevalid: utilizatorul s-a conectat de când a fost solicitat acest jeton"
 
-#: warehouse/accounts/views.py:880
+#: warehouse/accounts/views.py:881
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
@@ -274,7 +280,7 @@ msgstr "E-mailul nu a fost găsit"
 msgid "Email already verified"
 msgstr "E-mailul a fost deja verificat"
 
-#: warehouse/accounts/views.py:977
+#: warehouse/accounts/views.py:978
 msgid "You can now set this email as your primary address"
 msgstr "Acum puteți seta acest e-mail ca adresă principală"
 
@@ -282,7 +288,8 @@ msgstr "Acum puteți seta acest e-mail ca adresă principală"
 msgid "This is your primary address"
 msgstr "Aceasta este adresa dvs. principală"
 
-#: warehouse/accounts/views.py:986
+#: warehouse/accounts/views.py:987
+#, python-brace-format
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr ""
 "Adresa de e-mail ${email_address} a fost verificată. ${confirm_message}."
@@ -315,12 +322,13 @@ msgstr "Invitația la rol nu este validă."
 msgid "Organization invitation no longer exists."
 msgstr "Invitația la rol nu mai există."
 
-#: warehouse/accounts/views.py:1116
+#: warehouse/accounts/views.py:1117
+#, python-brace-format
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "Invitația pentru „${organization_name}” este refuzată."
 
-#: warehouse/accounts/views.py:1179
-#, fuzzy
+#: warehouse/accounts/views.py:1180
+#, fuzzy, python-brace-format
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Acum sunteți ${role} din proiectul „${project_name}”."
@@ -349,16 +357,18 @@ msgstr "Invitația la rol nu este validă."
 msgid "Role invitation no longer exists."
 msgstr "Invitația la rol nu mai există."
 
-#: warehouse/accounts/views.py:1271
+#: warehouse/accounts/views.py:1272
+#, python-brace-format
 msgid "Invitation for '${project_name}' is declined."
 msgstr "Invitația pentru „${project_name}” este refuzată."
 
-#: warehouse/accounts/views.py:1337
+#: warehouse/accounts/views.py:1338
+#, python-brace-format
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Acum sunteți ${role} din proiectul „${project_name}”."
 
-#: warehouse/accounts/views.py:1588 warehouse/accounts/views.py:1831
-#: warehouse/manage/views/__init__.py:1413
+#: warehouse/accounts/views.py:1593 warehouse/accounts/views.py:1836
+#: warehouse/manage/views/__init__.py:1417
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -370,7 +380,7 @@ msgstr ""
 "Înregistrarea unui nou utilizator a fost dezactivată temporar. Consultați "
 "https://pypi.org/help#admin-intervention pentru detalii."
 
-#: warehouse/accounts/views.py:1609
+#: warehouse/accounts/views.py:1614
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -380,20 +390,20 @@ msgstr ""
 "Înregistrarea unui nou utilizator a fost dezactivată temporar. Consultați "
 "https://pypi.org/help#admin-intervention pentru detalii."
 
-#: warehouse/accounts/views.py:1625
+#: warehouse/accounts/views.py:1630
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1638
+#: warehouse/accounts/views.py:1643
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1654 warehouse/manage/views/__init__.py:1582
-#: warehouse/manage/views/__init__.py:1695
-#: warehouse/manage/views/__init__.py:1807
-#: warehouse/manage/views/__init__.py:1917
+#: warehouse/accounts/views.py:1659 warehouse/manage/views/__init__.py:1586
+#: warehouse/manage/views/__init__.py:1699
+#: warehouse/manage/views/__init__.py:1811
+#: warehouse/manage/views/__init__.py:1921
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -404,29 +414,29 @@ msgstr ""
 "Au fost prea multe încercări de conectare nereușite. Încercați din nou mai "
 "târziu."
 
-#: warehouse/accounts/views.py:1665 warehouse/manage/views/__init__.py:1596
-#: warehouse/manage/views/__init__.py:1709
-#: warehouse/manage/views/__init__.py:1821
-#: warehouse/manage/views/__init__.py:1931
+#: warehouse/accounts/views.py:1669 warehouse/manage/views/__init__.py:1599
+#: warehouse/manage/views/__init__.py:1712
+#: warehouse/manage/views/__init__.py:1824
+#: warehouse/manage/views/__init__.py:1934
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1679
+#: warehouse/accounts/views.py:1684
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1706
+#: warehouse/accounts/views.py:1711
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1845 warehouse/accounts/views.py:1858
-#: warehouse/accounts/views.py:1865
+#: warehouse/accounts/views.py:1849 warehouse/accounts/views.py:1862
+#: warehouse/accounts/views.py:1869
 msgid "Invalid publisher ID"
 msgstr ""
 
-#: warehouse/accounts/views.py:1871
+#: warehouse/accounts/views.py:1876
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -434,13 +444,13 @@ msgstr ""
 msgid "Banner Preview"
 msgstr "Previzualizare banner"
 
-#: warehouse/manage/forms.py:419
+#: warehouse/manage/forms.py:420
 #, fuzzy
 #| msgid "Choose a username with 50 characters or less."
 msgid "Choose an organization account name with 50 characters or less."
 msgstr "Alegeți un nume de utilizator cu 50 de caractere sau mai puțin."
 
-#: warehouse/manage/forms.py:427
+#: warehouse/manage/forms.py:428
 #, fuzzy
 #| msgid ""
 #| "The username is invalid. Usernames must be composed of letters, numbers, "
@@ -457,7 +467,7 @@ msgstr ""
 "asemenea, să înceapă și să termine cu o literă sau un număr. Alegeți un alt "
 "nume de utilizator."
 
-#: warehouse/manage/forms.py:450
+#: warehouse/manage/forms.py:451
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -469,7 +479,7 @@ msgstr ""
 "Acest nume de utilizator este deja utilizat de un alt cont. Alegeți un alt "
 "nume de utilizator."
 
-#: warehouse/manage/forms.py:465
+#: warehouse/manage/forms.py:466
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -485,12 +495,12 @@ msgstr ""
 msgid "Select project"
 msgstr "Selectați un proiect"
 
-#: warehouse/manage/forms.py:506 warehouse/oidc/forms/_core.py:23
+#: warehouse/manage/forms.py:506 warehouse/oidc/forms/_core.py:29
 #: warehouse/oidc/forms/gitlab.py:57
 msgid "Specify project name"
 msgstr "Precizați numele proiectului"
 
-#: warehouse/manage/forms.py:509
+#: warehouse/manage/forms.py:510
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
@@ -498,13 +508,13 @@ msgstr ""
 "Începe și se termină cu o literă sau o cifră care conține numai caractere "
 "numerice ASCII și '.', '_' și '-'."
 
-#: warehouse/manage/forms.py:516
+#: warehouse/manage/forms.py:517
 msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr ""
 "Acest nume de proiect a fost deja utilizat. Alegeți un alt nume de proiect."
 
-#: warehouse/manage/forms.py:589
+#: warehouse/manage/forms.py:590
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
@@ -512,7 +522,7 @@ msgstr ""
 "Numele organizației este prea lung. Alegeți un nume de organizație cu 100 de "
 "caractere sau mai puțin."
 
-#: warehouse/manage/forms.py:601
+#: warehouse/manage/forms.py:602
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -524,7 +534,7 @@ msgstr "Numele e prea lung. Alegeți un nume cu 100 de caractere sau mai puțin.
 msgid "The organization URL must start with http:// or https://"
 msgstr "URL-ul organizației trebuie să înceapă cu http:// sau https://"
 
-#: warehouse/manage/forms.py:619
+#: warehouse/manage/forms.py:620
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -532,7 +542,7 @@ msgid ""
 "with 400 characters or less."
 msgstr "Numele e prea lung. Alegeți un nume cu 100 de caractere sau mai puțin."
 
-#: warehouse/manage/forms.py:654
+#: warehouse/manage/forms.py:655
 msgid "You have already submitted the maximum number of "
 msgstr "Ați transmis deja numărul maxim de "
 
@@ -542,13 +552,13 @@ msgstr "Ați transmis deja numărul maxim de "
 msgid "Choose a team name with 50 characters or less."
 msgstr "Alegeți un nume de utilizator cu 50 de caractere sau mai puțin."
 
-#: warehouse/manage/forms.py:690
+#: warehouse/manage/forms.py:691
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:718
+#: warehouse/manage/forms.py:719
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -568,13 +578,13 @@ msgstr "Invitația la rol nu este validă."
 msgid "Specify your alternate repository URL"
 msgstr ""
 
-#: warehouse/manage/forms.py:755
+#: warehouse/manage/forms.py:756
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid "The URL is too long. Choose a URL with 400 characters or less."
 msgstr "Numele e prea lung. Alegeți un nume cu 100 de caractere sau mai puțin."
 
-#: warehouse/manage/forms.py:769
+#: warehouse/manage/forms.py:770
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -582,81 +592,84 @@ msgid ""
 "less."
 msgstr "Numele e prea lung. Alegeți un nume cu 100 de caractere sau mai puțin."
 
-#: warehouse/manage/views/__init__.py:289
+#: warehouse/manage/views/__init__.py:292
 msgid "Account details updated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:319
+#: warehouse/manage/views/__init__.py:323
+#, python-brace-format
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:825
+#: warehouse/manage/views/__init__.py:828
 msgid "Recovery codes already generated"
 msgstr "Coduri de recuperare deja generate"
 
-#: warehouse/manage/views/__init__.py:826
+#: warehouse/manage/views/__init__.py:830
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:935
+#: warehouse/manage/views/__init__.py:938
 msgid "Verify your email to create an API token."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1035
+#: warehouse/manage/views/__init__.py:1038
 msgid "API Token does not exist."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1067
+#: warehouse/manage/views/__init__.py:1070
 msgid "Invalid credentials. Try again"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1186
+#: warehouse/manage/views/__init__.py:1189
 #, fuzzy
 #| msgid "Invalid recovery code."
 msgid "Invalid alternate repository location details"
 msgstr "Cod de recuperare nevalid."
 
-#: warehouse/manage/views/__init__.py:1223
-#, fuzzy
+#: warehouse/manage/views/__init__.py:1227
+#, fuzzy, python-brace-format
 #| msgid "Invalid recovery code."
 msgid "Added alternate repository '${name}'"
 msgstr "Cod de recuperare nevalid."
 
-#: warehouse/manage/views/__init__.py:1257
-#: warehouse/manage/views/__init__.py:2264
-#: warehouse/manage/views/__init__.py:2349
-#: warehouse/manage/views/__init__.py:2450
-#: warehouse/manage/views/__init__.py:2550
+#: warehouse/manage/views/__init__.py:1260
+#: warehouse/manage/views/__init__.py:2267
+#: warehouse/manage/views/__init__.py:2352
+#: warehouse/manage/views/__init__.py:2453
+#: warehouse/manage/views/__init__.py:2553
 msgid "Confirm the request"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1269
+#: warehouse/manage/views/__init__.py:1272
 #, fuzzy
 #| msgid "Invalid recovery code."
 msgid "Invalid alternate repository id"
 msgstr "Cod de recuperare nevalid."
 
-#: warehouse/manage/views/__init__.py:1280
+#: warehouse/manage/views/__init__.py:1283
 #, fuzzy
 #| msgid "Invalid recovery code."
 msgid "Invalid alternate repository for project"
 msgstr "Cod de recuperare nevalid."
 
-#: warehouse/manage/views/__init__.py:1288
+#: warehouse/manage/views/__init__.py:1292
+#, python-brace-format
 msgid ""
 "Could not delete alternate repository - ${confirm} is not the same as "
 "${alt_repo_name}"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1318
+#: warehouse/manage/views/__init__.py:1322
+#, python-brace-format
 msgid "Deleted alternate repository '${name}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1463
+#: warehouse/manage/views/__init__.py:1466
 msgid "The trusted publisher could not be constrained"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1563
+#: warehouse/manage/views/__init__.py:1567
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -668,7 +681,7 @@ msgstr ""
 "Înregistrarea unui nou utilizator a fost dezactivată temporar. Consultați "
 "https://pypi.org/help#admin-intervention pentru detalii."
 
-#: warehouse/manage/views/__init__.py:1676
+#: warehouse/manage/views/__init__.py:1680
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -680,7 +693,7 @@ msgstr ""
 "Înregistrarea unui nou utilizator a fost dezactivată temporar. Consultați "
 "https://pypi.org/help#admin-intervention pentru detalii."
 
-#: warehouse/manage/views/__init__.py:1788
+#: warehouse/manage/views/__init__.py:1792
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -692,7 +705,7 @@ msgstr ""
 "Înregistrarea unui nou utilizator a fost dezactivată temporar. Consultați "
 "https://pypi.org/help#admin-intervention pentru detalii."
 
-#: warehouse/manage/views/__init__.py:1897
+#: warehouse/manage/views/__init__.py:1901
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -704,9 +717,9 @@ msgstr ""
 "Înregistrarea unui nou utilizator a fost dezactivată temporar. Consultați "
 "https://pypi.org/help#admin-intervention pentru detalii."
 
-#: warehouse/manage/views/__init__.py:2132
-#: warehouse/manage/views/__init__.py:2433
-#: warehouse/manage/views/__init__.py:2541
+#: warehouse/manage/views/__init__.py:2136
+#: warehouse/manage/views/__init__.py:2437
+#: warehouse/manage/views/__init__.py:2545
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -718,75 +731,83 @@ msgstr ""
 "Înregistrarea unui nou utilizator a fost dezactivată temporar. Consultați "
 "https://pypi.org/help#admin-intervention pentru detalii."
 
-#: warehouse/manage/views/__init__.py:2276
+#: warehouse/manage/views/__init__.py:2280
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2361
+#: warehouse/manage/views/__init__.py:2365
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2462
+#: warehouse/manage/views/__init__.py:2466
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2562
+#: warehouse/manage/views/__init__.py:2565
 msgid "Could not find file"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2566
+#: warehouse/manage/views/__init__.py:2570
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2716
+#: warehouse/manage/views/__init__.py:2720
+#, python-brace-format
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2823
+#: warehouse/manage/views/__init__.py:2827
+#, python-brace-format
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2890
-#, fuzzy
+#: warehouse/manage/views/__init__.py:2894
+#, fuzzy, python-brace-format
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "Acum sunteți ${role} din proiectul „${project_name}”."
 
-#: warehouse/manage/views/__init__.py:2922
+#: warehouse/manage/views/__init__.py:2926
+#, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2935
-#: warehouse/manage/views/organizations.py:889
+#: warehouse/manage/views/__init__.py:2939
+#: warehouse/manage/views/organizations.py:890
+#, python-brace-format
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:3000
-#: warehouse/manage/views/organizations.py:954
+#: warehouse/manage/views/__init__.py:3004
+#: warehouse/manage/views/organizations.py:955
+#, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:3033
+#: warehouse/manage/views/__init__.py:3036
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:3044
+#: warehouse/manage/views/__init__.py:3047
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:3076
-#: warehouse/manage/views/organizations.py:1141
+#: warehouse/manage/views/__init__.py:3080
+#: warehouse/manage/views/organizations.py:1142
+#, python-brace-format
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:865
+#: warehouse/manage/views/organizations.py:866
+#, python-brace-format
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:876
+#: warehouse/manage/views/organizations.py:877
+#, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -805,26 +826,37 @@ msgstr "Invitația la rol nu este validă."
 msgid "Organization invitation could not be re-sent."
 msgstr "Invitația la rol nu mai există."
 
-#: warehouse/manage/views/organizations.py:1094
-#, fuzzy
+#: warehouse/manage/views/organizations.py:1095
+#, fuzzy, python-brace-format
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
 msgstr "Invitația pentru „${project_name}” este refuzată."
 
-#: warehouse/oidc/forms/_core.py:25 warehouse/oidc/forms/_core.py:35
+#: warehouse/oidc/forms/_core.py:31 warehouse/oidc/forms/_core.py:42
 #: warehouse/oidc/forms/gitlab.py:60 warehouse/oidc/forms/gitlab.py:64
 #, fuzzy
 #| msgid "Invalid recovery code."
 msgid "Invalid project name"
 msgstr "Cod de recuperare nevalid."
 
-#: warehouse/oidc/forms/_core.py:49
+#: warehouse/oidc/forms/_core.py:60
+#, python-brace-format
 msgid ""
 "This project already exists: use the project's publishing settings <a "
 "href='${url}'>here</a> to create a Trusted Publisher for it."
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:59
+#: warehouse/oidc/forms/_core.py:69
+#, fuzzy
+#| msgid ""
+#| "This username is already being used by another account. Choose a "
+#| "different username."
+msgid "This project already exists."
+msgstr ""
+"Acest nume de utilizator este deja utilizat de un alt cont. Alegeți un alt "
+"nume de utilizator."
+
+#: warehouse/oidc/forms/_core.py:74
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -834,25 +866,25 @@ msgstr ""
 "Acest nume de utilizator este deja utilizat de un alt cont. Alegeți un alt "
 "nume de utilizator."
 
-#: warehouse/oidc/forms/_core.py:63
+#: warehouse/oidc/forms/_core.py:78
 msgid "This project name is too similar to an existing project"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:67
+#: warehouse/oidc/forms/_core.py:83
 msgid ""
 "This project name isn't allowed (conflict with the Python standard library "
 "module name)"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:84 warehouse/oidc/forms/_core.py:95
+#: warehouse/oidc/forms/_core.py:99 warehouse/oidc/forms/_core.py:110
 msgid "Specify a publisher ID"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:85 warehouse/oidc/forms/_core.py:96
+#: warehouse/oidc/forms/_core.py:100 warehouse/oidc/forms/_core.py:111
 msgid "Publisher must be specified by ID"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:101
+#: warehouse/oidc/forms/_core.py:116
 #, fuzzy
 #| msgid "Invalid recovery code."
 msgid "Specify an environment name"
@@ -925,7 +957,7 @@ msgstr ""
 msgid "Unknown GitHub user or organization."
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:93
+#: warehouse/oidc/forms/github.py:94
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr ""
 
@@ -933,7 +965,7 @@ msgstr ""
 msgid "Unexpected error from GitHub. Try again."
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:110
+#: warehouse/oidc/forms/github.py:111
 msgid "Unexpected connection error from GitHub. Try again in a few minutes."
 msgstr ""
 
@@ -1357,7 +1389,7 @@ msgstr ""
 #: warehouse/templates/manage/project/release.html:182
 #: warehouse/templates/manage/project/settings.html:87
 #: warehouse/templates/manage/project/settings.html:136
-#: warehouse/templates/manage/project/settings.html:394
+#: warehouse/templates/manage/project/settings.html:393
 #: warehouse/templates/manage/team/settings.html:84
 msgid "Warning"
 msgstr ""
@@ -1883,6 +1915,7 @@ msgstr ""
 #: warehouse/templates/manage/project/roles.html:157
 #: warehouse/templates/manage/project/roles.html:214
 #: warehouse/templates/manage/team/roles.html:61
+#, python-brace-format
 msgid "Avatar for {user} from gravatar.com"
 msgstr ""
 
@@ -3277,6 +3310,7 @@ msgid "Maintainers"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:144
+#, python-brace-format
 msgid "Avatar for {username} from gravatar.com"
 msgstr ""
 
@@ -7099,7 +7133,7 @@ msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:108
 #: warehouse/templates/manage/project/settings.html:179
-#: warehouse/templates/manage/project/settings.html:432
+#: warehouse/templates/manage/project/settings.html:431
 msgid "Project Name"
 msgstr ""
 
@@ -7269,14 +7303,14 @@ msgid "Description of the purpose or content of the alternate repository."
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:354
-#: warehouse/templates/manage/project/settings.html:371
 #: warehouse/templates/manage/project/settings.html:379
+#: warehouse/templates/manage/project/settings.html:383
 #, fuzzy
 #| msgid "Invalid recovery code."
 msgid "Archive project"
 msgstr "Cod de recuperare nevalid."
 
-#: warehouse/templates/manage/project/settings.html:359
+#: warehouse/templates/manage/project/settings.html:357
 #, python-format
 msgid ""
 "Archiving a project will prevent any new uploads. Before doing so, we "
@@ -7288,29 +7322,29 @@ msgid ""
 "the project's description by editing the README file."
 msgstr ""
 
+#: warehouse/templates/manage/project/settings.html:370
 #: warehouse/templates/manage/project/settings.html:374
-#: warehouse/templates/manage/project/settings.html:385
 msgid "Unarchive project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:380
-msgid "Archiving a project will block any new file uploads"
+#: warehouse/templates/manage/project/settings.html:375
+msgid "Unarchiving a project will allow new file uploads."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:386
-msgid "Unarchiving a project will allow new file uploads"
+#: warehouse/templates/manage/project/settings.html:384
+msgid "Archiving a project will block any new file uploads."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:392
-#: warehouse/templates/manage/project/settings.html:432
+#: warehouse/templates/manage/project/settings.html:391
+#: warehouse/templates/manage/project/settings.html:431
 msgid "Delete project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:395
+#: warehouse/templates/manage/project/settings.html:394
 msgid "Deleting this project will:"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:400
+#: warehouse/templates/manage/project/settings.html:399
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s "
@@ -7322,15 +7356,15 @@ msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: warehouse/templates/manage/project/settings.html:406
+#: warehouse/templates/manage/project/settings.html:405
 msgid "Irreversibly delete the project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:410
+#: warehouse/templates/manage/project/settings.html:409
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:412
+#: warehouse/templates/manage/project/settings.html:411
 msgid ""
 "This user will be able to make new releases under this project name, so long "
 "as the distribution filenames do not match filenames from a previously "
