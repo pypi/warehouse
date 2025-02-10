@@ -60,6 +60,11 @@ _ARCHS = {
     "armeabi_v7a": "ARM EABI v7a",
     "arm64_v8a": "ARM64 v8a",
     "x86_64": "x86-64",
+    "intel": "Intel (x86-64, i386)",
+    "fat": "fat (i386, PPC)",
+    "fat3": "fat3 (x86-64, i386, PPC)",
+    "fat64": "fat64 (x86-64, PPC64)",
+    "universal": "universal (x86-64, i386, PPC64, PPC)",
     "universal2": "universal2 (ARM64, x86-64)",
     "arm64": "ARM64",
     "armv7l": "ARMv7l",
@@ -75,7 +80,9 @@ def _format_version(s: str) -> str:
 
 
 def filename_to_pretty_tags(filename: str) -> list[str]:
-    if not filename.endswith(".whl"):
+    if filename.endswith(".egg"):
+        return ["Egg"]
+    elif not filename.endswith(".whl"):
         return ["Source"]
 
     try:

@@ -140,7 +140,7 @@ _macosx_arches = {
     "arm64",
     "intel",
     "fat",
-    "fat32",
+    "fat3",
     "fat64",
     "universal",
     "universal2",

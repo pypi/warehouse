@@ -296,28 +296,28 @@ msgstr ""
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/accounts/views.py:1589 warehouse/accounts/views.py:1832
+#: warehouse/accounts/views.py:1593 warehouse/accounts/views.py:1836
 #: warehouse/manage/views/__init__.py:1417
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help"
 "#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1610
+#: warehouse/accounts/views.py:1614
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1626
+#: warehouse/accounts/views.py:1630
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1639
+#: warehouse/accounts/views.py:1643
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1655 warehouse/manage/views/__init__.py:1586
+#: warehouse/accounts/views.py:1659 warehouse/manage/views/__init__.py:1586
 #: warehouse/manage/views/__init__.py:1699
 #: warehouse/manage/views/__init__.py:1811
 #: warehouse/manage/views/__init__.py:1921
@@ -326,29 +326,29 @@ msgid ""
 "again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:1665 warehouse/manage/views/__init__.py:1599
+#: warehouse/accounts/views.py:1669 warehouse/manage/views/__init__.py:1599
 #: warehouse/manage/views/__init__.py:1712
 #: warehouse/manage/views/__init__.py:1824
 #: warehouse/manage/views/__init__.py:1934
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1680
+#: warehouse/accounts/views.py:1684
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's"
 " admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1707
+#: warehouse/accounts/views.py:1711
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1845 warehouse/accounts/views.py:1858
-#: warehouse/accounts/views.py:1865
+#: warehouse/accounts/views.py:1849 warehouse/accounts/views.py:1862
+#: warehouse/accounts/views.py:1869
 msgid "Invalid publisher ID"
 msgstr ""
 
-#: warehouse/accounts/views.py:1872
+#: warehouse/accounts/views.py:1876
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -384,7 +384,7 @@ msgstr ""
 msgid "Select project"
 msgstr ""
 
-#: warehouse/manage/forms.py:506 warehouse/oidc/forms/_core.py:23
+#: warehouse/manage/forms.py:506 warehouse/oidc/forms/_core.py:29
 #: warehouse/oidc/forms/gitlab.py:57
 msgid "Specify project name"
 msgstr ""
@@ -653,41 +653,45 @@ msgstr ""
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:25 warehouse/oidc/forms/_core.py:35
+#: warehouse/oidc/forms/_core.py:31 warehouse/oidc/forms/_core.py:42
 #: warehouse/oidc/forms/gitlab.py:60 warehouse/oidc/forms/gitlab.py:64
 msgid "Invalid project name"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:50
+#: warehouse/oidc/forms/_core.py:60
 #, python-brace-format
 msgid ""
 "This project already exists: use the project's publishing settings <a "
 "href='${url}'>here</a> to create a Trusted Publisher for it."
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:59
+#: warehouse/oidc/forms/_core.py:69
+msgid "This project already exists."
+msgstr ""
+
+#: warehouse/oidc/forms/_core.py:74
 msgid "This project name isn't allowed"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:63
+#: warehouse/oidc/forms/_core.py:78
 msgid "This project name is too similar to an existing project"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:68
+#: warehouse/oidc/forms/_core.py:83
 msgid ""
 "This project name isn't allowed (conflict with the Python standard "
 "library module name)"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:84 warehouse/oidc/forms/_core.py:95
+#: warehouse/oidc/forms/_core.py:99 warehouse/oidc/forms/_core.py:110
 msgid "Specify a publisher ID"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:85 warehouse/oidc/forms/_core.py:96
+#: warehouse/oidc/forms/_core.py:100 warehouse/oidc/forms/_core.py:111
 msgid "Publisher must be specified by ID"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:101
+#: warehouse/oidc/forms/_core.py:116
 msgid "Specify an environment name"
 msgstr ""
 

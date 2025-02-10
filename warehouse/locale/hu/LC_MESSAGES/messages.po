@@ -23,14 +23,14 @@ msgstr ""
 "X-Generator: Weblate 5.7-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/views.py:157
+#: warehouse/views.py:158
 msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
 msgstr ""
 "mielőtt ezt megtudtnád csinálni, hitelesítsd az **elsődleges email fiókodat."
 
-#: warehouse/views.py:173
+#: warehouse/views.py:174
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
@@ -48,7 +48,7 @@ msgstr "Helytelen email cím. Próbáld újra."
 msgid "The password is invalid. Try again."
 msgstr "Helytelen jelszó. Próbáld újra."
 
-#: warehouse/accounts/forms.py:56
+#: warehouse/accounts/forms.py:57
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -67,11 +67,13 @@ msgstr "A Üres byte-ok használata tilos."
 msgid "No user found with that username"
 msgstr "A megadott felhasználónév nem létezik"
 
-#: warehouse/accounts/forms.py:108
+#: warehouse/accounts/forms.py:109
+#, python-brace-format
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "A TOTP-kód hossza pontossan ${totp_length} számjegyű."
 
-#: warehouse/accounts/forms.py:128
+#: warehouse/accounts/forms.py:129
+#, python-brace-format
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr ""
 
@@ -79,7 +81,7 @@ msgstr ""
 msgid "Choose a username with 50 characters or less."
 msgstr "A felhasználónév név hossza legfeljebb 50 karakter lehet."
 
-#: warehouse/accounts/forms.py:160
+#: warehouse/accounts/forms.py:161
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -92,7 +94,11 @@ msgstr ""
 msgid "Password too long."
 msgstr "Túl hosszú jelszó."
 
-#: warehouse/accounts/forms.py:210
+#: warehouse/accounts/forms.py:206
+#, fuzzy, python-brace-format
+#| msgid ""
+#| "There have been too many unsuccessful login attempts. You have been "
+#| "locked out for ${time}. Please try again later."
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
@@ -108,28 +114,28 @@ msgstr "A jelszavak nem egyeznek. Próbálja újra."
 msgid "The email address is too long. Try again."
 msgstr "Az email cím túl hosszú. Próbálja újra."
 
-#: warehouse/accounts/forms.py:344
+#: warehouse/accounts/forms.py:345
 #, fuzzy
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Nem használhatsz E-mail címet ebből a tartományból. Haszálj egy másik E-mail "
 "címet."
 
-#: warehouse/accounts/forms.py:359
+#: warehouse/accounts/forms.py:360
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
 msgstr "Ezt az e-mail címet már használja ez a fiók. Használjon másik e-mailt."
 
-#: warehouse/accounts/forms.py:370
+#: warehouse/accounts/forms.py:371
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
 msgstr ""
 "Ezt az e-mail címet egy másik fiók már használja. Használjon másik e-mailt."
 
-#: warehouse/accounts/forms.py:410 warehouse/manage/forms.py:139
-#: warehouse/manage/forms.py:741
+#: warehouse/accounts/forms.py:411 warehouse/manage/forms.py:140
+#: warehouse/manage/forms.py:742
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "A név túl hosszú. Válasszon egy nevet, legfeljebb 100 karakterből."
 
@@ -157,7 +163,8 @@ msgstr "Ez a helyreállító kód már használva volt."
 msgid "The username isn't valid. Try again."
 msgstr "A felhasználó név helytelen. Próbálja újra."
 
-#: warehouse/accounts/views.py:120
+#: warehouse/accounts/views.py:117
+#, python-brace-format
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
@@ -165,7 +172,8 @@ msgstr ""
 "Túl sok sikertelen bejelentkezési kísérlet történt. {} ideig ki lett zárva. "
 "Próbálja meg később."
 
-#: warehouse/accounts/views.py:137
+#: warehouse/accounts/views.py:138
+#, python-brace-format
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -173,7 +181,8 @@ msgstr ""
 "Túl sok email cím lett hozzáadva hitelesítés nélkül. Ellenőrizze a beérkező "
 "levelek mappáját, és kövesse az ellenőrző linkeket.(IP: ${ip})"
 
-#: warehouse/accounts/views.py:149
+#: warehouse/accounts/views.py:150
+#, python-brace-format
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
@@ -197,11 +206,11 @@ msgstr "Már hitelesítve"
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:609 warehouse/manage/views/__init__.py:877
+#: warehouse/accounts/views.py:610 warehouse/manage/views/__init__.py:881
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "A helyreállítási kód elfogadva. A mellékelt kód nem használható újra."
 
-#: warehouse/accounts/views.py:701
+#: warehouse/accounts/views.py:702
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -231,12 +240,12 @@ msgstr "Érvénytelen token: nem jelszó-visszaállítási token"
 msgid "Invalid token: user not found"
 msgstr "Érvénytelen token: a felhasználó nem található"
 
-#: warehouse/accounts/views.py:862
+#: warehouse/accounts/views.py:863
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Érvénytelen token: a felhasználó bejelentkezett, amióta ezt a tokent kérték"
 
-#: warehouse/accounts/views.py:880
+#: warehouse/accounts/views.py:881
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
@@ -267,7 +276,7 @@ msgstr "E-mail nem található"
 msgid "Email already verified"
 msgstr "Az e-mail már meg lett erősítve"
 
-#: warehouse/accounts/views.py:977
+#: warehouse/accounts/views.py:978
 msgid "You can now set this email as your primary address"
 msgstr "Most már beállíthatja ezt az e-mailt elsődleges címének"
 
@@ -276,8 +285,8 @@ msgstr "Most már beállíthatja ezt az e-mailt elsődleges címének"
 msgid "This is your primary address"
 msgstr "Ez az elsődleges E-mail címed"
 
-#: warehouse/accounts/views.py:986
-#, fuzzy
+#: warehouse/accounts/views.py:987
+#, fuzzy, python-brace-format
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "E-mail cím ${email_address} ellenőrizve lett. ${confirm_message}."
 
@@ -305,13 +314,13 @@ msgstr "Az adott szervezeti meghívó érvényleten."
 msgid "Organization invitation no longer exists."
 msgstr "A szervezeti meghívó már nem létezik."
 
-#: warehouse/accounts/views.py:1116
-#, fuzzy
+#: warehouse/accounts/views.py:1117
+#, fuzzy, python-brace-format
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "A ${szervezet_neve} elutasította a meghívót."
 
-#: warehouse/accounts/views.py:1179
-#, fuzzy
+#: warehouse/accounts/views.py:1180
+#, fuzzy, python-brace-format
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Mostantól a pozíciód a ${szervezet_neve} szervezetben: ${szerep}."
 
@@ -342,17 +351,19 @@ msgstr "A meghívó a szerephez érvénytelen."
 msgid "Role invitation no longer exists."
 msgstr "A meghívó a szerephez már nem létezik."
 
-#: warehouse/accounts/views.py:1271
+#: warehouse/accounts/views.py:1272
+#, fuzzy, python-brace-format
+#| msgid "Invitation for '${project_name}' is declined."
 msgid "Invitation for '${project_name}' is declined."
 msgstr "A meghívó a ${project_neve}-hez el lett utasítva."
 
-#: warehouse/accounts/views.py:1337
-#, fuzzy
+#: warehouse/accounts/views.py:1338
+#, fuzzy, python-brace-format
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Mostantól új szereped van a ${projekt_neve} projektben: ${szerep}"
 
-#: warehouse/accounts/views.py:1588 warehouse/accounts/views.py:1831
-#: warehouse/manage/views/__init__.py:1413
+#: warehouse/accounts/views.py:1593 warehouse/accounts/views.py:1836
+#: warehouse/manage/views/__init__.py:1417
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -364,7 +375,7 @@ msgstr ""
 "A Megbízható kiadás ideiglenesen le van tiltva. A részletek a https://pypi."
 "org/help#admin-intervention."
 
-#: warehouse/accounts/views.py:1609
+#: warehouse/accounts/views.py:1614
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -372,7 +383,7 @@ msgstr ""
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr "le van tiltva. A részletek a https://pypi.org/help#admin-intervention."
 
-#: warehouse/accounts/views.py:1625
+#: warehouse/accounts/views.py:1630
 #, fuzzy
 msgid ""
 "You must have a verified email in order to register a pending trusted "
@@ -382,15 +393,15 @@ msgstr ""
 "lévő kiadójoz regisztráljon. További információért látogasson el a https://"
 "pypi.org/help#openid-connect honlapra."
 
-#: warehouse/accounts/views.py:1638
+#: warehouse/accounts/views.py:1643
 #, fuzzy
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr "Egyszerre nem regisztrálhat 3 függőben lévő megbízható kiadót."
 
-#: warehouse/accounts/views.py:1654 warehouse/manage/views/__init__.py:1582
-#: warehouse/manage/views/__init__.py:1695
-#: warehouse/manage/views/__init__.py:1807
-#: warehouse/manage/views/__init__.py:1917
+#: warehouse/accounts/views.py:1659 warehouse/manage/views/__init__.py:1586
+#: warehouse/manage/views/__init__.py:1699
+#: warehouse/manage/views/__init__.py:1811
+#: warehouse/manage/views/__init__.py:1921
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -401,15 +412,15 @@ msgstr ""
 "Túl sok sikertelen meghízható kiadó-ként való regisztrálási kísérlet "
 "történt. Próbálja meg később."
 
-#: warehouse/accounts/views.py:1665 warehouse/manage/views/__init__.py:1596
-#: warehouse/manage/views/__init__.py:1709
-#: warehouse/manage/views/__init__.py:1821
-#: warehouse/manage/views/__init__.py:1931
+#: warehouse/accounts/views.py:1669 warehouse/manage/views/__init__.py:1599
+#: warehouse/manage/views/__init__.py:1712
+#: warehouse/manage/views/__init__.py:1824
+#: warehouse/manage/views/__init__.py:1934
 #, fuzzy
 msgid "The trusted publisher could not be registered"
 msgstr "A megbízható kiadó-t nem tudtuk regisztrálni."
 
-#: warehouse/accounts/views.py:1679
+#: warehouse/accounts/views.py:1684
 #, fuzzy
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
@@ -418,17 +429,17 @@ msgstr ""
 "Ez a megbízható kiadó már regisztrálva lett. Kérem lépjen kapcsolatba a PyPI-"
 "nak az adminjaival, ha ez nem volt szándékos."
 
-#: warehouse/accounts/views.py:1706
+#: warehouse/accounts/views.py:1711
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1845 warehouse/accounts/views.py:1858
-#: warehouse/accounts/views.py:1865
+#: warehouse/accounts/views.py:1849 warehouse/accounts/views.py:1862
+#: warehouse/accounts/views.py:1869
 #, fuzzy
 msgid "Invalid publisher ID"
 msgstr "Érvénytelen kiadói azonosító"
 
-#: warehouse/accounts/views.py:1871
+#: warehouse/accounts/views.py:1876
 #, fuzzy
 msgid "Removed trusted publisher for project "
 msgstr "A megbízható kiadó el lett távolítva a projektből. "
@@ -438,13 +449,13 @@ msgstr "A megbízható kiadó el lett távolítva a projektből. "
 msgid "Banner Preview"
 msgstr "A Transzparens előnézete"
 
-#: warehouse/manage/forms.py:419
+#: warehouse/manage/forms.py:420
 #, fuzzy
 #| msgid "Choose a username with 50 characters or less."
 msgid "Choose an organization account name with 50 characters or less."
 msgstr "A szervezet neveének hossza legfeljebb 50 karakter lehet."
 
-#: warehouse/manage/forms.py:427
+#: warehouse/manage/forms.py:428
 #, fuzzy
 #| msgid ""
 #| "The username is invalid. Usernames must be composed of letters, numbers, "
@@ -460,7 +471,7 @@ msgstr ""
 "pontokból, kötőjelekből és aláhúzásból kell állniuk. És betűvel vagy számmal "
 "kell kezdődőnie és befejeződnie. Válasszon egy másik szervezeti nevet."
 
-#: warehouse/manage/forms.py:450
+#: warehouse/manage/forms.py:451
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -472,7 +483,7 @@ msgstr ""
 "Ezt a szervezeti név már egy másik szervezet használja. Válasszon másik "
 "szervezeti nevet."
 
-#: warehouse/manage/forms.py:465
+#: warehouse/manage/forms.py:466
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -489,19 +500,19 @@ msgstr ""
 msgid "Select project"
 msgstr "Projekt kiválasztása"
 
-#: warehouse/manage/forms.py:506 warehouse/oidc/forms/_core.py:23
+#: warehouse/manage/forms.py:506 warehouse/oidc/forms/_core.py:29
 #: warehouse/oidc/forms/gitlab.py:57
 #, fuzzy
 msgid "Specify project name"
 msgstr "Adjon meg egy projekt nevet."
 
-#: warehouse/manage/forms.py:509
+#: warehouse/manage/forms.py:510
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
 
-#: warehouse/manage/forms.py:516
+#: warehouse/manage/forms.py:517
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -512,7 +523,7 @@ msgstr ""
 "Ezt a felhasználónevet már egy másik fiók használja. Válasszon másik "
 "felhasználónevet."
 
-#: warehouse/manage/forms.py:589
+#: warehouse/manage/forms.py:590
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -520,7 +531,7 @@ msgid ""
 "characters or less."
 msgstr "A név túl hosszú. Válasszon egy nevet, legfeljebb 100 karakterből."
 
-#: warehouse/manage/forms.py:601
+#: warehouse/manage/forms.py:602
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -532,7 +543,7 @@ msgstr "A név túl hosszú. Válasszon egy nevet, legfeljebb 100 karakterből."
 msgid "The organization URL must start with http:// or https://"
 msgstr ""
 
-#: warehouse/manage/forms.py:619
+#: warehouse/manage/forms.py:620
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -540,7 +551,7 @@ msgid ""
 "with 400 characters or less."
 msgstr "A név túl hosszú. Válasszon egy nevet, legfeljebb 100 karakterből."
 
-#: warehouse/manage/forms.py:654
+#: warehouse/manage/forms.py:655
 msgid "You have already submitted the maximum number of "
 msgstr ""
 
@@ -550,13 +561,13 @@ msgstr ""
 msgid "Choose a team name with 50 characters or less."
 msgstr "A felhasználónév név hossza legfeljebb 50 karakter lehet."
 
-#: warehouse/manage/forms.py:690
+#: warehouse/manage/forms.py:691
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:718
+#: warehouse/manage/forms.py:719
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -576,13 +587,13 @@ msgstr "A felhasználónév név hossza legfeljebb 50 karakter lehet."
 msgid "Specify your alternate repository URL"
 msgstr ""
 
-#: warehouse/manage/forms.py:755
+#: warehouse/manage/forms.py:756
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid "The URL is too long. Choose a URL with 400 characters or less."
 msgstr "A név túl hosszú. Válasszon egy nevet, legfeljebb 100 karakterből."
 
-#: warehouse/manage/forms.py:769
+#: warehouse/manage/forms.py:770
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -590,84 +601,87 @@ msgid ""
 "less."
 msgstr "A név túl hosszú. Válasszon egy nevet, legfeljebb 100 karakterből."
 
-#: warehouse/manage/views/__init__.py:289
+#: warehouse/manage/views/__init__.py:292
 msgid "Account details updated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:319
+#: warehouse/manage/views/__init__.py:323
+#, python-brace-format
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "E-mail: $ {email_address} hozzáadva - nyissa meg az e-mailjeit, az ellenörző "
 "linkért"
 
-#: warehouse/manage/views/__init__.py:825
+#: warehouse/manage/views/__init__.py:828
 msgid "Recovery codes already generated"
 msgstr "A helyreállítási kódok már le lettek generálva"
 
-#: warehouse/manage/views/__init__.py:826
+#: warehouse/manage/views/__init__.py:830
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "Új helyreállítási kódok generálása érvényteleníti a meglévő kódjait."
 
-#: warehouse/manage/views/__init__.py:935
+#: warehouse/manage/views/__init__.py:938
 msgid "Verify your email to create an API token."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1035
+#: warehouse/manage/views/__init__.py:1038
 msgid "API Token does not exist."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1067
+#: warehouse/manage/views/__init__.py:1070
 msgid "Invalid credentials. Try again"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1186
+#: warehouse/manage/views/__init__.py:1189
 #, fuzzy
 #| msgid "Invalid recovery code."
 msgid "Invalid alternate repository location details"
 msgstr "Hibás helyreállító kód."
 
-#: warehouse/manage/views/__init__.py:1223
-#, fuzzy
+#: warehouse/manage/views/__init__.py:1227
+#, fuzzy, python-brace-format
 #| msgid "Invalid recovery code."
 msgid "Added alternate repository '${name}'"
 msgstr "Hibás helyreállító kód."
 
-#: warehouse/manage/views/__init__.py:1257
-#: warehouse/manage/views/__init__.py:2264
-#: warehouse/manage/views/__init__.py:2349
-#: warehouse/manage/views/__init__.py:2450
-#: warehouse/manage/views/__init__.py:2550
+#: warehouse/manage/views/__init__.py:1260
+#: warehouse/manage/views/__init__.py:2267
+#: warehouse/manage/views/__init__.py:2352
+#: warehouse/manage/views/__init__.py:2453
+#: warehouse/manage/views/__init__.py:2553
 msgid "Confirm the request"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1269
+#: warehouse/manage/views/__init__.py:1272
 #, fuzzy
 #| msgid "Invalid recovery code."
 msgid "Invalid alternate repository id"
 msgstr "Hibás helyreállító kód."
 
-#: warehouse/manage/views/__init__.py:1280
+#: warehouse/manage/views/__init__.py:1283
 #, fuzzy
 #| msgid "Invalid recovery code."
 msgid "Invalid alternate repository for project"
 msgstr "Hibás helyreállító kód."
 
-#: warehouse/manage/views/__init__.py:1288
+#: warehouse/manage/views/__init__.py:1292
+#, python-brace-format
 msgid ""
 "Could not delete alternate repository - ${confirm} is not the same as "
 "${alt_repo_name}"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1318
+#: warehouse/manage/views/__init__.py:1322
+#, python-brace-format
 msgid "Deleted alternate repository '${name}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1463
+#: warehouse/manage/views/__init__.py:1466
 #, fuzzy
 msgid "The trusted publisher could not be constrained"
 msgstr "A megbízható kiadó-t nem tudtuk regisztrálni."
 
-#: warehouse/manage/views/__init__.py:1563
+#: warehouse/manage/views/__init__.py:1567
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -679,7 +693,7 @@ msgstr ""
 "Új felhasználó regisztrációja ideiglenesen le van tiltva. A részletek a "
 "https://pypi.org/help#admin-intervention."
 
-#: warehouse/manage/views/__init__.py:1676
+#: warehouse/manage/views/__init__.py:1680
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -691,7 +705,7 @@ msgstr ""
 "Új felhasználó regisztrációja ideiglenesen le van tiltva. A részletek a "
 "https://pypi.org/help#admin-intervention."
 
-#: warehouse/manage/views/__init__.py:1788
+#: warehouse/manage/views/__init__.py:1792
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -703,7 +717,7 @@ msgstr ""
 "Új felhasználó regisztrációja ideiglenesen le van tiltva. A részletek a "
 "https://pypi.org/help#admin-intervention."
 
-#: warehouse/manage/views/__init__.py:1897
+#: warehouse/manage/views/__init__.py:1901
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -715,9 +729,9 @@ msgstr ""
 "Új felhasználó regisztrációja ideiglenesen le van tiltva. A részletek a "
 "https://pypi.org/help#admin-intervention."
 
-#: warehouse/manage/views/__init__.py:2132
-#: warehouse/manage/views/__init__.py:2433
-#: warehouse/manage/views/__init__.py:2541
+#: warehouse/manage/views/__init__.py:2136
+#: warehouse/manage/views/__init__.py:2437
+#: warehouse/manage/views/__init__.py:2545
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -729,75 +743,84 @@ msgstr ""
 "Új felhasználó regisztrációja ideiglenesen le van tiltva. A részletek a "
 "https://pypi.org/help#admin-intervention."
 
-#: warehouse/manage/views/__init__.py:2276
+#: warehouse/manage/views/__init__.py:2280
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2361
+#: warehouse/manage/views/__init__.py:2365
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2462
+#: warehouse/manage/views/__init__.py:2466
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2562
+#: warehouse/manage/views/__init__.py:2565
 msgid "Could not find file"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2566
+#: warehouse/manage/views/__init__.py:2570
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2716
+#: warehouse/manage/views/__init__.py:2720
+#, python-brace-format
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2823
+#: warehouse/manage/views/__init__.py:2827
+#, python-brace-format
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2890
+#: warehouse/manage/views/__init__.py:2894
+#, python-brace-format
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2922
+#: warehouse/manage/views/__init__.py:2926
+#, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2935
-#: warehouse/manage/views/organizations.py:889
+#: warehouse/manage/views/__init__.py:2939
+#: warehouse/manage/views/organizations.py:890
+#, python-brace-format
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:3000
-#: warehouse/manage/views/organizations.py:954
+#: warehouse/manage/views/__init__.py:3004
+#: warehouse/manage/views/organizations.py:955
+#, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:3033
+#: warehouse/manage/views/__init__.py:3036
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:3044
+#: warehouse/manage/views/__init__.py:3047
 #, fuzzy
 #| msgid "Email already verified"
 msgid "Invitation already expired."
 msgstr "Az e-mail már meg lett erősítve"
 
-#: warehouse/manage/views/__init__.py:3076
-#: warehouse/manage/views/organizations.py:1141
+#: warehouse/manage/views/__init__.py:3080
+#: warehouse/manage/views/organizations.py:1142
+#, python-brace-format
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:865
+#: warehouse/manage/views/organizations.py:866
+#, python-brace-format
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:876
+#: warehouse/manage/views/organizations.py:877
+#, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -812,24 +835,36 @@ msgstr ""
 msgid "Organization invitation could not be re-sent."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1094
+#: warehouse/manage/views/organizations.py:1095
+#, python-brace-format
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:25 warehouse/oidc/forms/_core.py:35
+#: warehouse/oidc/forms/_core.py:31 warehouse/oidc/forms/_core.py:42
 #: warehouse/oidc/forms/gitlab.py:60 warehouse/oidc/forms/gitlab.py:64
 #, fuzzy
 #| msgid "Invalid recovery code."
 msgid "Invalid project name"
 msgstr "Hibás helyreállító kód."
 
-#: warehouse/oidc/forms/_core.py:49
+#: warehouse/oidc/forms/_core.py:60
+#, python-brace-format
 msgid ""
 "This project already exists: use the project's publishing settings <a "
 "href='${url}'>here</a> to create a Trusted Publisher for it."
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:59
+#: warehouse/oidc/forms/_core.py:69
+#, fuzzy
+#| msgid ""
+#| "This username is already being used by another account. Choose a "
+#| "different username."
+msgid "This project already exists."
+msgstr ""
+"Ezt a felhasználónevet már egy másik fiók használja. Válasszon másik "
+"felhasználónevet."
+
+#: warehouse/oidc/forms/_core.py:74
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -839,25 +874,25 @@ msgstr ""
 "Ezt a felhasználónevet már egy másik fiók használja. Válasszon másik "
 "felhasználónevet."
 
-#: warehouse/oidc/forms/_core.py:63
+#: warehouse/oidc/forms/_core.py:78
 msgid "This project name is too similar to an existing project"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:67
+#: warehouse/oidc/forms/_core.py:83
 msgid ""
 "This project name isn't allowed (conflict with the Python standard library "
 "module name)"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:84 warehouse/oidc/forms/_core.py:95
+#: warehouse/oidc/forms/_core.py:99 warehouse/oidc/forms/_core.py:110
 msgid "Specify a publisher ID"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:85 warehouse/oidc/forms/_core.py:96
+#: warehouse/oidc/forms/_core.py:100 warehouse/oidc/forms/_core.py:111
 msgid "Publisher must be specified by ID"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:101
+#: warehouse/oidc/forms/_core.py:116
 #, fuzzy
 msgid "Specify an environment name"
 msgstr "Adjon meg egy projekt nevet."
@@ -929,7 +964,7 @@ msgstr ""
 msgid "Unknown GitHub user or organization."
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:93
+#: warehouse/oidc/forms/github.py:94
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr ""
 
@@ -937,7 +972,7 @@ msgstr ""
 msgid "Unexpected error from GitHub. Try again."
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:110
+#: warehouse/oidc/forms/github.py:111
 msgid "Unexpected connection error from GitHub. Try again in a few minutes."
 msgstr ""
 
@@ -1362,7 +1397,7 @@ msgstr ""
 #: warehouse/templates/manage/project/release.html:182
 #: warehouse/templates/manage/project/settings.html:87
 #: warehouse/templates/manage/project/settings.html:136
-#: warehouse/templates/manage/project/settings.html:394
+#: warehouse/templates/manage/project/settings.html:393
 #: warehouse/templates/manage/team/settings.html:84
 msgid "Warning"
 msgstr ""
@@ -1884,6 +1919,7 @@ msgstr ""
 #: warehouse/templates/manage/project/roles.html:157
 #: warehouse/templates/manage/project/roles.html:214
 #: warehouse/templates/manage/team/roles.html:61
+#, python-brace-format
 msgid "Avatar for {user} from gravatar.com"
 msgstr ""
 
@@ -3270,6 +3306,7 @@ msgid "Maintainers"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:144
+#, python-brace-format
 msgid "Avatar for {username} from gravatar.com"
 msgstr ""
 
@@ -7021,7 +7058,7 @@ msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:108
 #: warehouse/templates/manage/project/settings.html:179
-#: warehouse/templates/manage/project/settings.html:432
+#: warehouse/templates/manage/project/settings.html:431
 msgid "Project Name"
 msgstr ""
 
@@ -7172,13 +7209,13 @@ msgid "Description of the purpose or content of the alternate repository."
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:354
-#: warehouse/templates/manage/project/settings.html:371
 #: warehouse/templates/manage/project/settings.html:379
+#: warehouse/templates/manage/project/settings.html:383
 #, fuzzy
 msgid "Archive project"
 msgstr "Projekt kiválasztása"
 
-#: warehouse/templates/manage/project/settings.html:359
+#: warehouse/templates/manage/project/settings.html:357
 #, python-format
 msgid ""
 "Archiving a project will prevent any new uploads. Before doing so, we "
@@ -7190,29 +7227,29 @@ msgid ""
 "the project's description by editing the README file."
 msgstr ""
 
+#: warehouse/templates/manage/project/settings.html:370
 #: warehouse/templates/manage/project/settings.html:374
-#: warehouse/templates/manage/project/settings.html:385
 msgid "Unarchive project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:380
-msgid "Archiving a project will block any new file uploads"
+#: warehouse/templates/manage/project/settings.html:375
+msgid "Unarchiving a project will allow new file uploads."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:386
-msgid "Unarchiving a project will allow new file uploads"
+#: warehouse/templates/manage/project/settings.html:384
+msgid "Archiving a project will block any new file uploads."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:392
-#: warehouse/templates/manage/project/settings.html:432
+#: warehouse/templates/manage/project/settings.html:391
+#: warehouse/templates/manage/project/settings.html:431
 msgid "Delete project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:395
+#: warehouse/templates/manage/project/settings.html:394
 msgid "Deleting this project will:"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:400
+#: warehouse/templates/manage/project/settings.html:399
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s "
@@ -7223,15 +7260,15 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/project/settings.html:406
+#: warehouse/templates/manage/project/settings.html:405
 msgid "Irreversibly delete the project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:410
+#: warehouse/templates/manage/project/settings.html:409
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:412
+#: warehouse/templates/manage/project/settings.html:411
 msgid ""
 "This user will be able to make new releases under this project name, so long "
 "as the distribution filenames do not match filenames from a previously "
