@@ -45,15 +45,15 @@ POST request with the following fields:
 
     All fields need to be renamed to lowercase and hyphens need to replaced
     by underscores. Additionally, multiple-use fields (like `Classifier`)
-    are pluralized.
-
-    The table below provides examples:
+    are pluralized (e.g. `classifiers`) with some limited exceptions
+    noted below:
 
     | Metadata field | Form field |
     |----------------|------------|
-    | `Description-Content-Type` | `description_content_type` |
-    | `License-File` | `license_files` |
-    | `Classifier` | `classifiers` |
+    | `Platform` | `platform` (**not** `platforms`) |
+    | `Supported-Platform` | `supported_platform` (**not** `supported_platforms`) |
+    | `License-File` | `license_file` (**not** `license_files`) |
+
 
     !!! warning
 
