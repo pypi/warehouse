@@ -154,7 +154,9 @@ _macosx_major_versions = {
     "15",
 }
 
-_ios_platform_re = re.compile(r"ios_(\d+)_(\d+)_(?P<arch>.*)_(iphoneos|iphonesimulator)")
+_ios_platform_re = re.compile(
+    r"ios_(\d+)_(\d+)_(?P<arch>.*)_(iphoneos|iphonesimulator)"
+)
 _ios_arches = {
     "arm64",
     "x86_64",

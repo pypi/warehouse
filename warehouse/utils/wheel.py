@@ -46,11 +46,11 @@ _PLATFORMS = [
     ),
     (
         re.compile(r"^ios_(\d+)_(\d+)_(.*?)_iphoneos$"),
-        lambda m: f"iOS {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))} Device",
+        lambda m: f"iOS {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))} Device",  # noqa: E501
     ),
     (
         re.compile(r"^ios_(\d+)_(\d+)_(.*?)_iphonesimulator$"),
-        lambda m: f"iOS {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))} Simulator",
+        lambda m: f"iOS {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))} Simulator",  # noqa: E501
     ),
 ]
 
