@@ -725,7 +725,7 @@ class Release(HasObservations, db.Model):
             # if they're present both as project URLs and as standalone fields.
             # The deduplication is done with the project label normalization rules
             # adopted with PEP 753.
-            # See https://packaging.python.org/en/latest/specifications/well-known-project-urls/
+            # See https://peps.python.org/pep-0753/
             comp_name = metadata.normalize_project_url_label(name)
             if comp_name == "homepage" and url == _urls.get("Homepage"):
                 continue
