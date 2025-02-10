@@ -721,9 +721,11 @@ class Release(HasObservations, db.Model):
             _urls["Download"] = self.download_url
 
         for name, url in self.project_urls.items():
-            # avoid duplicating homepage/download links in case the same
-            # url is specified in the pkginfo twice (in the Home-page
-            # or Download-URL field and again in the Project-URL fields)
+            # NOTE: This avoids duplicating the homepage and download URL links
+            # if they're present both as project URLs and as standalone fields.
+            # The deduplication is done with the project label normalization rules
+            # adopted with PEP 753.
+            # See https://packaging.python.org/en/latest/specifications/well-known-project-urls/
             comp_name = metadata.normalize_project_url_label(name)
             if comp_name == "homepage" and url == _urls.get("Homepage"):
                 continue
