@@ -151,7 +151,7 @@ class TestUserProfile:
         user = UserFactory.create()
         assert views.profile(user, db_request) == {
             "user": user,
-            "projects": [],
+            "live_projects": [],
             "archived_projects": [],
         }
 
@@ -183,9 +183,26 @@ class TestUserProfile:
             response = views.profile(user, db_request)
 
         assert response["user"] == user
-        assert len(response["projects"]) == 3
+        assert len(response["live_projects"]) == 3
         # Two queries, one for the user (via context), one for their projects
         assert len(query_recorder.queries) == 2
+
+    def test_returns_archived_projects(self, db_request):
+        user = UserFactory.create()
+
+        projects = ProjectFactory.create_batch(3)
+        for project in projects:
+            RoleFactory.create(user=user, project=project)
+            ReleaseFactory.create(project=project)
+
+        archived_project = ProjectFactory.create(lifecycle_status="archived")
+        RoleFactory.create(user=user, project=archived_project)
+        ReleaseFactory.create(project=archived_project)
+
+        resp = views.profile(user, db_request)
+
+        assert len(resp["live_projects"]) == 3
+        assert len(resp["archived_projects"]) == 1
 
 
 class TestAccountsSearch:
