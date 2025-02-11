@@ -93,7 +93,7 @@ COMPRESSION_RATIO_THRESHOLD = 50
 # under this when enqueuing a job to store BigQuery metadata, we truncate the
 # Description field to 40K bytes, which captures up to the 95th percentile of
 # existing descriptions.
-MAX_DESCRIPTION_LENGTH_TO_BIGQUERY = 40000
+MAX_DESCRIPTION_LENGTH_TO_BIGQUERY_IN_BYTES = 40000
 
 # Wheel platform checking
 
@@ -461,7 +461,7 @@ def file_upload(request):
     request.metrics.increment("warehouse.upload.attempt")
 
     # This is a list of warnings that we'll emit *IF* the request is successful.
-    warnings = []
+    warnings: list[str] = []
 
     # If we're in read-only mode, let upload clients know
     if request.flags.enabled(AdminFlagValue.READ_ONLY):
@@ -618,7 +618,7 @@ def file_upload(request):
         meta = metadata.parse(None, form_data=request.POST)
     except* metadata.InvalidMetadata as exc:
         # Turn our list of errors into a mapping of errors, keyed by the field
-        errors = {}
+        errors: dict = {}
         for error in exc.exceptions:
             errors.setdefault(error.field, []).append(error)
 
@@ -1611,7 +1611,10 @@ def file_upload(request):
         "version": str(meta.version),
         "summary": meta.summary,
         "description": (
-            meta.description[:MAX_DESCRIPTION_LENGTH_TO_BIGQUERY]
+            # Truncate the description by bytes and not characters if it is too long
+            meta.description.encode()[
+                :MAX_DESCRIPTION_LENGTH_TO_BIGQUERY_IN_BYTES
+            ].decode("utf-8", "ignore")
             if meta.description is not None
             else None
         ),

@@ -13,10 +13,12 @@
 import base64
 import time
 
+from typing import cast
+
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric.ec import ECDSA
+from cryptography.hazmat.primitives.asymmetric.ec import ECDSA, EllipticCurvePublicKey
 from cryptography.hazmat.primitives.hashes import SHA256
 
 
@@ -124,6 +126,8 @@ class PayloadVerifier:
             loaded_public_key = serialization.load_pem_public_key(
                 data=public_key.encode("utf-8"), backend=default_backend()
             )
+            # Use Type Narrowing to confirm the loaded_public_key is the correct type
+            loaded_public_key = cast(EllipticCurvePublicKey, loaded_public_key)
             loaded_public_key.verify(
                 signature=base64.b64decode(signature),
                 data=payload,
