@@ -12,9 +12,10 @@ In recent years, theft of credentials such as API tokens has [played a major
 role in cyber attacks]. The reason for this is the unfortunate reality that
 managing credentials can be complicated and risky. Trusted Publishing reduces
 this risk by using short-lived tokens instead of long-lived tokens. Short-lived
-tokens are less likely to be misplaced, leaked in logs, or stolen by malware.
-If short-lived tokens are leaked, they only give attackers a narrow time window
-to exploit the leaked token, which minimizes the potential damage.
+tokens are less likely to be misplaced, leaked in logs, or stolen by malware
+since they don't have to be stored. Additionally, if short-lived tokens are
+leaked, they only give attackers a narrow time window to exploit the leaked
+token, which minimizes the potential damage.
 
 However, it is important to still be aware of the kinds of risks that
 Trusted Publishing does not cover. You should think of Trusted Publishing as one
