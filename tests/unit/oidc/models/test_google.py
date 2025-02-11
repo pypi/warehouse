@@ -196,6 +196,19 @@ class TestGooglePublisher:
                 )
             assert str(e.value) == "Check failed for optional claim 'sub'"
 
+    @pytest.mark.parametrize("exists_in_db", [True, False])
+    def test_exists(self, db_request, exists_in_db):
+        publisher = google.GooglePublisher(
+            email="fake@example.com",
+            sub="fakesubject",
+        )
+
+        if exists_in_db:
+            db_request.db.add(publisher)
+            db_request.db.flush()
+
+        assert publisher.exists(db_request.db) == exists_in_db
+
 
 class TestPendingGooglePublisher:
     @pytest.mark.parametrize("sub", ["fakesubject", None])

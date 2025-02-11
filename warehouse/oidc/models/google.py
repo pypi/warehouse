@@ -12,7 +12,7 @@
 
 from typing import Any
 
-from sqlalchemy import ForeignKey, String, UniqueConstraint
+from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Query, mapped_column
 
@@ -104,6 +104,16 @@ class GooglePublisherMixin:
 
     def __str__(self):
         return self.email
+
+    def exists(self, session) -> bool:
+        return session.query(
+            exists().where(
+                and_(
+                    self.__class__.email == self.email,
+                    self.__class__.sub == self.sub,
+                )
+            )
+        ).scalar()
 
 
 class GooglePublisher(GooglePublisherMixin, OIDCPublisher):

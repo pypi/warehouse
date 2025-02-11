@@ -1481,7 +1481,7 @@ class ManageOIDCPublisherViews:
             )
             return self.default_response
 
-        # First we add the new trusted publisher
+        # First we add the new (constrained) trusted publisher
         if isinstance(publisher, GitHubPublisher):
             constrained_publisher = GitHubPublisher(
                 repository_name=publisher.repository_name,
@@ -1497,10 +1497,20 @@ class ManageOIDCPublisherViews:
                 workflow_filepath=publisher.workflow_filepath,
                 environment=form.constrained_environment_name.data,
             )
-
         else:
             self.request.session.flash(
                 "Can only constrain the environment for GitHub and GitLab publishers",
+                queue="error",
+            )
+            return self.default_response
+
+        # The user might have already manually created the new constrained publisher
+        # before clicking the magic link to constrain the existing publisher.
+        if constrained_publisher.exists(self.request.db):
+            self.request.session.flash(
+                self.request._(
+                    f"{publisher} is already registered with {self.project.name}"
+                ),
                 queue="error",
             )
             return self.default_response
@@ -1526,6 +1536,8 @@ class ManageOIDCPublisherViews:
                 "specifier": str(constrained_publisher),
                 "url": constrained_publisher.publisher_url(),
                 "submitted_by": self.request.user.username,
+                "reified_from_pending_publisher": False,
+                "constrained_from_existing_publisher": True,
             },
         )
 
@@ -1657,6 +1669,8 @@ class ManageOIDCPublisherViews:
                 "specifier": str(publisher),
                 "url": publisher.publisher_url(),
                 "submitted_by": self.request.user.username,
+                "reified_from_pending_publisher": False,
+                "constrained_from_existing_publisher": False,
             },
         )
 
@@ -1769,6 +1783,8 @@ class ManageOIDCPublisherViews:
                 "specifier": str(publisher),
                 "url": publisher.publisher_url(),
                 "submitted_by": self.request.user.username,
+                "reified_from_pending_publisher": False,
+                "constrained_from_existing_publisher": False,
             },
         )
 
@@ -1876,6 +1892,8 @@ class ManageOIDCPublisherViews:
                 "specifier": str(publisher),
                 "url": publisher.publisher_url(),
                 "submitted_by": self.request.user.username,
+                "reified_from_pending_publisher": False,
+                "constrained_from_existing_publisher": False,
             },
         )
 
@@ -1988,6 +2006,8 @@ class ManageOIDCPublisherViews:
                 "specifier": str(publisher),
                 "url": publisher.publisher_url(),
                 "submitted_by": self.request.user.username,
+                "reified_from_pending_publisher": False,
+                "constrained_from_existing_publisher": False,
             },
         )
 
