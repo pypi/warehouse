@@ -226,6 +226,9 @@ class ManageAccountMixin:
 class ManageUnverifiedAccountViews(ManageAccountMixin):
     @view_config(request_method="GET")
     def manage_unverified_account(self):
+        if self.request.user.has_primary_verified_email:
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
         return {"help_url": self.request.help_url(_anchor="account-recovery")}
 
 
@@ -946,6 +949,8 @@ class ProvisionMacaroonViews:
 
         response = {**self.default_response}
         if form.validate():
+            macaroon_caveats: list[caveats.Caveat]
+
             if form.validated_scope == "user":
                 recorded_caveats = [{"permissions": form.validated_scope, "version": 1}]
                 macaroon_caveats = [
@@ -2216,7 +2221,7 @@ def manage_project_releases(project, request):
     #       }
     #   }
 
-    version_to_file_counts = {}
+    version_to_file_counts: dict[str, dict[str, int]] = {}
     for version, packagetype, count in filecounts:
         packagetype_to_count = version_to_file_counts.setdefault(version, {})
         packagetype_to_count.setdefault("total", 0)

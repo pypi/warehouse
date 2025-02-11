@@ -434,7 +434,7 @@ def search(request):
         Returns a dictionary, each key being a filter and each value being
         the filter's children.
         """
-        d = {}
+        d: dict[str, dict] = {}
         for list_ in split_list:
             current_level = d
             for part in list_:

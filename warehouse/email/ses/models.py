@@ -20,10 +20,10 @@ from sqlalchemy import Enum, ForeignKey, orm, sql
 from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
 from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.orm.session import object_session
 
 from warehouse import db
 from warehouse.accounts.models import Email as EmailAddress, UnverifyReasons
+from warehouse.utils.db import orm_session_from_obj
 from warehouse.utils.db.types import bool_false, datetime_now
 
 MAX_TRANSIENT_BOUNCES = 5
@@ -217,9 +217,9 @@ class EmailStatus:
         if self._email_message.missing:
             return
 
-        db = object_session(self._email_message)
+        session = orm_session_from_obj(self._email_message)
         email = (
-            db.query(EmailAddress)
+            session.query(EmailAddress)
             .filter(EmailAddress.email == self._email_message.to)
             .first()
         )

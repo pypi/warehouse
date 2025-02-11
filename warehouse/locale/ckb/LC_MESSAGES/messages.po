@@ -16,13 +16,13 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 4.14.1-dev\n"
 
-#: warehouse/views.py:157
+#: warehouse/views.py:158
 msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
 msgstr ""
 
-#: warehouse/views.py:173
+#: warehouse/views.py:174
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
@@ -40,7 +40,7 @@ msgstr "ناونیشانی پۆستی ئەلیکترۆنیەکەت ڕەوا نی
 msgid "The password is invalid. Try again."
 msgstr "وشەی نهێنیەکەت هەڵەیە. دووبارەی بکەوە."
 
-#: warehouse/accounts/forms.py:56
+#: warehouse/accounts/forms.py:57
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -58,11 +58,14 @@ msgstr ""
 msgid "No user found with that username"
 msgstr "هیچ بەکارهێنەرێک نەدۆزراوە بەو نازناوە"
 
-#: warehouse/accounts/forms.py:108
+#: warehouse/accounts/forms.py:109
+#, fuzzy, python-brace-format
+#| msgid "TOTP code must be ${totp_length} digits."
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "‮fzmg"
 
-#: warehouse/accounts/forms.py:128
+#: warehouse/accounts/forms.py:129
+#, python-brace-format
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr ""
 
@@ -70,7 +73,7 @@ msgstr ""
 msgid "Choose a username with 50 characters or less."
 msgstr "نازناوەکەت دیاری بکە کە ٥٠ پیت بێ یاخوود کەمتر."
 
-#: warehouse/accounts/forms.py:160
+#: warehouse/accounts/forms.py:161
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -83,8 +86,8 @@ msgstr ""
 msgid "Password too long."
 msgstr "وشەی نهێنیەکەت زۆر درێژە."
 
-#: warehouse/accounts/forms.py:210
-#, fuzzy
+#: warehouse/accounts/forms.py:206
+#, fuzzy, python-brace-format
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
@@ -102,13 +105,13 @@ msgstr "پاسۆردەکانت وەکوو یەک نین. دووبارەی بکە
 msgid "The email address is too long. Try again."
 msgstr "ناونیشانی پۆستی ئەلیکترۆنیەکەت ڕەوا نیە. دووبارەی بکەوە."
 
-#: warehouse/accounts/forms.py:344
+#: warehouse/accounts/forms.py:345
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "تۆ ناتوانیت ئەو ناونیشانەی پۆستە ئەلیکترۆنیە بەکاربهێنی بەهۆی پاشگرەکەی. "
 "پۆستێکی ئەلیکترۆنی تر بەکاربهێنە."
 
-#: warehouse/accounts/forms.py:359
+#: warehouse/accounts/forms.py:360
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -116,7 +119,7 @@ msgstr ""
 "ئەو پۆستە ئەلیکترۆنیە پێشووتر بەکارهاتووە لەلایەن هەژماری ترەوە. پۆستێکی "
 "ئەلیکترۆنی تر بەکاربهێنە."
 
-#: warehouse/accounts/forms.py:370
+#: warehouse/accounts/forms.py:371
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -124,8 +127,8 @@ msgstr ""
 "ئەو پۆستە ئەلیکترۆنیە بەکارهاتووە لەلایەن هەژمارێکی ترەوە. پۆستێکی "
 "ئەلیکترۆنی تر بەکاربهێنە."
 
-#: warehouse/accounts/forms.py:410 warehouse/manage/forms.py:139
-#: warehouse/manage/forms.py:741
+#: warehouse/accounts/forms.py:411 warehouse/manage/forms.py:140
+#: warehouse/manage/forms.py:742
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "ناوەکەت زۆر درێژە. ناوێک هەڵبژێرە کە ١٠٠ پیت بێت یاخوود کەمتر."
 
@@ -155,8 +158,8 @@ msgstr "کۆدی ‌هێنانەوەکەت پێشووتر بەکارهاتووە
 msgid "The username isn't valid. Try again."
 msgstr "ناونیشانی پۆستی ئەلیکترۆنیەکەت ڕەوا نیە. دووبارەی بکەوە."
 
-#: warehouse/accounts/views.py:120
-#, fuzzy
+#: warehouse/accounts/views.py:117
+#, fuzzy, python-brace-format
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
@@ -164,13 +167,15 @@ msgid ""
 "out for {}. Please try again later."
 msgstr "ژمارەیەکی زۆر چونە ژورەوەی هەڵە ئەنجام درا. دواتر دووبارەی بکەوە."
 
-#: warehouse/accounts/views.py:137
+#: warehouse/accounts/views.py:138
+#, python-brace-format
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
 
-#: warehouse/accounts/views.py:149
+#: warehouse/accounts/views.py:150
+#, python-brace-format
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
@@ -194,12 +199,12 @@ msgstr "پێشووتر ڕەسەنایەتی کراوە"
 msgid "Successful WebAuthn assertion"
 msgstr "جەختکردنەوەیەکی سەرکەوتووی ڕەسەنایەتی پەڕە"
 
-#: warehouse/accounts/views.py:609 warehouse/manage/views/__init__.py:877
+#: warehouse/accounts/views.py:610 warehouse/manage/views/__init__.py:881
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "کۆدی هێنانەوە وەرگیراوە. کۆدی نێردراو ناتوانرێت دووبارە بەکاربهێندرێتەوە."
 
-#: warehouse/accounts/views.py:701
+#: warehouse/accounts/views.py:702
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -228,11 +233,11 @@ msgstr "پولێکی هەڵە: پولێکی گۆرینی وشەی نهێنی ن�
 msgid "Invalid token: user not found"
 msgstr "پولێکی هەڵە: بەکارهێنەر نەدۆزرایەوە"
 
-#: warehouse/accounts/views.py:862
+#: warehouse/accounts/views.py:863
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "پولێکی هەڵە: بەکارهێنەر چۆتەوە ژوورەوە کاتێک ئەو پولە داواکراوە پێشتر"
 
-#: warehouse/accounts/views.py:880
+#: warehouse/accounts/views.py:881
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
@@ -262,7 +267,7 @@ msgstr "پۆستی ئەلیکترۆنی نەدۆزرایەوە"
 msgid "Email already verified"
 msgstr "پۆستی ئەلیکترۆنیەکە پێشووتر پشتراستکراوەتەوە"
 
-#: warehouse/accounts/views.py:977
+#: warehouse/accounts/views.py:978
 msgid "You can now set this email as your primary address"
 msgstr "ئێستا دەتوانیت ئەم ئیمەیڵە وەک ناونیشانی سەرەکی خۆت دابنێیت"
 
@@ -270,7 +275,9 @@ msgstr "ئێستا دەتوانیت ئەم ئیمەیڵە وەک ناونیشا�
 msgid "This is your primary address"
 msgstr "ئەمە ناونیشانی سەرەکی تۆیە"
 
-#: warehouse/accounts/views.py:986
+#: warehouse/accounts/views.py:987
+#, fuzzy, python-brace-format
+#| msgid "Email address ${email_address} verified. ${confirm_message}."
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr ""
 "ناونیشانی ئیمەیڵ ${email_address} پشتڕاستکرایەوە. ${پەیام_دڵنیاکردنەوە}."
@@ -295,11 +302,13 @@ msgstr "بانگهێشتی ڕێکخراوەکە ڕەوا نییە."
 msgid "Organization invitation no longer exists."
 msgstr "بانگهێشتی ڕێکخراو چیتر بوونی نییە."
 
-#: warehouse/accounts/views.py:1116
+#: warehouse/accounts/views.py:1117
+#, python-brace-format
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "بانگهێشتنامە بۆ '${organization_name}' ڕەتکراوەتەوە."
 
-#: warehouse/accounts/views.py:1179
+#: warehouse/accounts/views.py:1180
+#, python-brace-format
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "ئێستا تۆ ${role} ی ڕێکخراوی '${organization_name}'یت."
 
@@ -323,16 +332,18 @@ msgstr "بانگهێشتی ڕۆڵ ڕەوا نییە."
 msgid "Role invitation no longer exists."
 msgstr "بانگهێشتی ڕۆڵ چیتر بوونی نییە."
 
-#: warehouse/accounts/views.py:1271
+#: warehouse/accounts/views.py:1272
+#, python-brace-format
 msgid "Invitation for '${project_name}' is declined."
 msgstr "بانگهێشتنامە بۆ '${project_name}' ڕەتکراوەتەوە."
 
-#: warehouse/accounts/views.py:1337
+#: warehouse/accounts/views.py:1338
+#, python-brace-format
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "ئێستا تۆ ${role} ی پڕۆژەی '${project_name}' ی."
 
-#: warehouse/accounts/views.py:1588 warehouse/accounts/views.py:1831
-#: warehouse/manage/views/__init__.py:1413
+#: warehouse/accounts/views.py:1593 warehouse/accounts/views.py:1836
+#: warehouse/manage/views/__init__.py:1417
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -344,7 +355,7 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/accounts/views.py:1609
+#: warehouse/accounts/views.py:1614
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -354,20 +365,20 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/accounts/views.py:1625
+#: warehouse/accounts/views.py:1630
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1638
+#: warehouse/accounts/views.py:1643
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1654 warehouse/manage/views/__init__.py:1582
-#: warehouse/manage/views/__init__.py:1695
-#: warehouse/manage/views/__init__.py:1807
-#: warehouse/manage/views/__init__.py:1917
+#: warehouse/accounts/views.py:1659 warehouse/manage/views/__init__.py:1586
+#: warehouse/manage/views/__init__.py:1699
+#: warehouse/manage/views/__init__.py:1811
+#: warehouse/manage/views/__init__.py:1921
 #, fuzzy
 #| msgid ""
 #| "There have been too many attempted OpenID Connect registrations. Try "
@@ -377,29 +388,29 @@ msgid ""
 "again later."
 msgstr "زۆر هەوڵی تۆمارکردنی OpenID Connect دراوە. دواتر هه ولٓبه ره وه."
 
-#: warehouse/accounts/views.py:1665 warehouse/manage/views/__init__.py:1596
-#: warehouse/manage/views/__init__.py:1709
-#: warehouse/manage/views/__init__.py:1821
-#: warehouse/manage/views/__init__.py:1931
+#: warehouse/accounts/views.py:1669 warehouse/manage/views/__init__.py:1599
+#: warehouse/manage/views/__init__.py:1712
+#: warehouse/manage/views/__init__.py:1824
+#: warehouse/manage/views/__init__.py:1934
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1679
+#: warehouse/accounts/views.py:1684
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1706
+#: warehouse/accounts/views.py:1711
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1845 warehouse/accounts/views.py:1858
-#: warehouse/accounts/views.py:1865
+#: warehouse/accounts/views.py:1849 warehouse/accounts/views.py:1862
+#: warehouse/accounts/views.py:1869
 msgid "Invalid publisher ID"
 msgstr ""
 
-#: warehouse/accounts/views.py:1871
+#: warehouse/accounts/views.py:1876
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -407,11 +418,11 @@ msgstr ""
 msgid "Banner Preview"
 msgstr "پێشبینی بانەر"
 
-#: warehouse/manage/forms.py:419
+#: warehouse/manage/forms.py:420
 msgid "Choose an organization account name with 50 characters or less."
 msgstr "ناوی ئەکاونتی ڕێکخراوێک هەڵبژێرە کە ٥٠ پیت یان کەمتر بێت."
 
-#: warehouse/manage/forms.py:427
+#: warehouse/manage/forms.py:428
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
@@ -423,7 +434,7 @@ msgstr ""
 "ژمارەیەک دەست پێبکات و کۆتایی پێبێت. ناوی ئەکاونتی ڕێکخراوێکی جیاواز "
 "هەڵبژێرە."
 
-#: warehouse/manage/forms.py:450
+#: warehouse/manage/forms.py:451
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
@@ -431,7 +442,7 @@ msgstr ""
 "ئەم ناوی ئەکاونتی ڕێکخراوە پێشتر بەکارهاتووە. ناوی ئەکاونتی ڕێکخراوێکی "
 "جیاواز هەڵبژێرە."
 
-#: warehouse/manage/forms.py:465
+#: warehouse/manage/forms.py:466
 #, fuzzy
 #| msgid ""
 #| "This organization account name has already been used. Choose a different "
@@ -447,12 +458,12 @@ msgstr ""
 msgid "Select project"
 msgstr "پرۆژە هەڵبژێرە"
 
-#: warehouse/manage/forms.py:506 warehouse/oidc/forms/_core.py:23
+#: warehouse/manage/forms.py:506 warehouse/oidc/forms/_core.py:29
 #: warehouse/oidc/forms/gitlab.py:57
 msgid "Specify project name"
 msgstr "ناوی پڕۆژەکە دیاری بکە"
 
-#: warehouse/manage/forms.py:509
+#: warehouse/manage/forms.py:510
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
@@ -460,19 +471,19 @@ msgstr ""
 "بە پیتێک یان ژمارەیەک دەست پێ بکە و کۆتایی پێ بێنە کە تەنها ژمارەی ASCII و "
 "'.' و '_' و '-' لەخۆدەگرێت."
 
-#: warehouse/manage/forms.py:516
+#: warehouse/manage/forms.py:517
 msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr "ئەم ناوی پڕۆژەیە پێشتر بەکارهاتووە. ناوی پڕۆژەیەکی جیاواز هەڵبژێرە."
 
-#: warehouse/manage/forms.py:589
+#: warehouse/manage/forms.py:590
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
 msgstr ""
 "ناوی ڕێکخراوەکە زۆر درێژە. ناوی ڕێکخراوێک هەڵبژێرە کە ١٠٠ پیت یان کەمتر بێت."
 
-#: warehouse/manage/forms.py:601
+#: warehouse/manage/forms.py:602
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
@@ -483,7 +494,7 @@ msgstr ""
 msgid "The organization URL must start with http:// or https://"
 msgstr ""
 
-#: warehouse/manage/forms.py:619
+#: warehouse/manage/forms.py:620
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
@@ -491,7 +502,7 @@ msgstr ""
 "وەسفی ڕێکخراوەکە زۆر درێژە. وەسفێکی ڕێکخراو هەڵبژێرە کە ٤٠٠ پیت یان کەمتر "
 "بێت."
 
-#: warehouse/manage/forms.py:654
+#: warehouse/manage/forms.py:655
 msgid "You have already submitted the maximum number of "
 msgstr ""
 
@@ -501,13 +512,13 @@ msgstr ""
 msgid "Choose a team name with 50 characters or less."
 msgstr "نازناوەکەت دیاری بکە کە ٥٠ پیت بێ یاخوود کەمتر."
 
-#: warehouse/manage/forms.py:690
+#: warehouse/manage/forms.py:691
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:718
+#: warehouse/manage/forms.py:719
 #, fuzzy
 #| msgid ""
 #| "This project name has already been used. Choose a different project name."
@@ -526,13 +537,13 @@ msgstr "ناوی کۆگاکە دیاری بکە"
 msgid "Specify your alternate repository URL"
 msgstr "ناوی کۆگاکە دیاری بکە"
 
-#: warehouse/manage/forms.py:755
+#: warehouse/manage/forms.py:756
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid "The URL is too long. Choose a URL with 400 characters or less."
 msgstr "ناوەکەت زۆر درێژە. ناوێک هەڵبژێرە کە ١٠٠ پیت بێت یاخوود کەمتر."
 
-#: warehouse/manage/forms.py:769
+#: warehouse/manage/forms.py:770
 #, fuzzy
 #| msgid ""
 #| "The organization description is too long. Choose a organization "
@@ -544,88 +555,91 @@ msgstr ""
 "وەسفی ڕێکخراوەکە زۆر درێژە. وەسفێکی ڕێکخراو هەڵبژێرە کە ٤٠٠ پیت یان کەمتر "
 "بێت."
 
-#: warehouse/manage/views/__init__.py:289
+#: warehouse/manage/views/__init__.py:292
 #, fuzzy
 #| msgid "Account details"
 msgid "Account details updated"
 msgstr "وردەکاری هەژمار"
 
-#: warehouse/manage/views/__init__.py:319
+#: warehouse/manage/views/__init__.py:323
+#, python-brace-format
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "ئیمەیڵ ${email_address} زیادکرا - ئیمەیڵەکەت بپشکنە بۆ بەستەری پشتڕاستکردنەوە"
 
-#: warehouse/manage/views/__init__.py:825
+#: warehouse/manage/views/__init__.py:828
 msgid "Recovery codes already generated"
 msgstr "کۆدەکانی گەڕانەوە کە پێشتر دروستکراون"
 
-#: warehouse/manage/views/__init__.py:826
+#: warehouse/manage/views/__init__.py:830
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "دروستکردنی کۆدی نوێی گەڕانەوە کۆدەکانی ئێستات هەڵدەوەشێنێتەوە."
 
-#: warehouse/manage/views/__init__.py:935
+#: warehouse/manage/views/__init__.py:938
 #, fuzzy
 #| msgid "Verify your email or add a new address."
 msgid "Verify your email to create an API token."
 msgstr "ئیمەیڵەکەت پشتڕاست بکەرەوە یان ناونیشانێکی نوێ زیاد بکە."
 
-#: warehouse/manage/views/__init__.py:1035
+#: warehouse/manage/views/__init__.py:1038
 msgid "API Token does not exist."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1067
+#: warehouse/manage/views/__init__.py:1070
 msgid "Invalid credentials. Try again"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1186
+#: warehouse/manage/views/__init__.py:1189
 #, fuzzy
 #| msgid "Invalid repository name"
 msgid "Invalid alternate repository location details"
 msgstr "ناوی کۆگاکە نادروستە"
 
-#: warehouse/manage/views/__init__.py:1223
-#, fuzzy
+#: warehouse/manage/views/__init__.py:1227
+#, fuzzy, python-brace-format
 #| msgid "Invalid repository name"
 msgid "Added alternate repository '${name}'"
 msgstr "ناوی کۆگاکە نادروستە"
 
-#: warehouse/manage/views/__init__.py:1257
-#: warehouse/manage/views/__init__.py:2264
-#: warehouse/manage/views/__init__.py:2349
-#: warehouse/manage/views/__init__.py:2450
-#: warehouse/manage/views/__init__.py:2550
+#: warehouse/manage/views/__init__.py:1260
+#: warehouse/manage/views/__init__.py:2267
+#: warehouse/manage/views/__init__.py:2352
+#: warehouse/manage/views/__init__.py:2453
+#: warehouse/manage/views/__init__.py:2553
 #, fuzzy
 #| msgid "Confirm Invite"
 msgid "Confirm the request"
 msgstr "بانگێشتنامەکە پەسەند بکە"
 
-#: warehouse/manage/views/__init__.py:1269
+#: warehouse/manage/views/__init__.py:1272
 #, fuzzy
 #| msgid "Invalid repository name"
 msgid "Invalid alternate repository id"
 msgstr "ناوی کۆگاکە نادروستە"
 
-#: warehouse/manage/views/__init__.py:1280
+#: warehouse/manage/views/__init__.py:1283
 #, fuzzy
 #| msgid "Invalid repository name"
 msgid "Invalid alternate repository for project"
 msgstr "ناوی کۆگاکە نادروستە"
 
-#: warehouse/manage/views/__init__.py:1288
+#: warehouse/manage/views/__init__.py:1292
+#, python-brace-format
 msgid ""
 "Could not delete alternate repository - ${confirm} is not the same as "
 "${alt_repo_name}"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1318
+#: warehouse/manage/views/__init__.py:1322
+#, python-brace-format
 msgid "Deleted alternate repository '${name}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1463
+#: warehouse/manage/views/__init__.py:1466
 msgid "The trusted publisher could not be constrained"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1563
+#: warehouse/manage/views/__init__.py:1567
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -637,7 +651,7 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/manage/views/__init__.py:1676
+#: warehouse/manage/views/__init__.py:1680
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -649,7 +663,7 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/manage/views/__init__.py:1788
+#: warehouse/manage/views/__init__.py:1792
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -661,7 +675,7 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/manage/views/__init__.py:1897
+#: warehouse/manage/views/__init__.py:1901
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -673,9 +687,9 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/manage/views/__init__.py:2132
-#: warehouse/manage/views/__init__.py:2433
-#: warehouse/manage/views/__init__.py:2541
+#: warehouse/manage/views/__init__.py:2136
+#: warehouse/manage/views/__init__.py:2437
+#: warehouse/manage/views/__init__.py:2545
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -687,45 +701,47 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/manage/views/__init__.py:2276
+#: warehouse/manage/views/__init__.py:2280
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2361
+#: warehouse/manage/views/__init__.py:2365
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2462
+#: warehouse/manage/views/__init__.py:2466
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2562
+#: warehouse/manage/views/__init__.py:2565
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find file"
 msgstr "نەتوانرا بانگهێشتی ڕۆڵ بدۆزرێتەوە."
 
-#: warehouse/manage/views/__init__.py:2566
+#: warehouse/manage/views/__init__.py:2570
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2716
-#, fuzzy
+#: warehouse/manage/views/__init__.py:2720
+#, fuzzy, python-brace-format
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "بەکارهێنەر '${username}' پێشتر ڕۆڵی ${role_name}ی هەیە بۆ پڕۆژە"
 
-#: warehouse/manage/views/__init__.py:2823
+#: warehouse/manage/views/__init__.py:2827
+#, python-brace-format
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "بەکارهێنەر '${username}' پێشتر ڕۆڵی ${role_name}ی هەیە بۆ پڕۆژە"
 
-#: warehouse/manage/views/__init__.py:2890
-#, fuzzy
+#: warehouse/manage/views/__init__.py:2894
+#, fuzzy, python-brace-format
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "ئێستا تۆ ${role} ی پڕۆژەی '${project_name}' ی."
 
-#: warehouse/manage/views/__init__.py:2922
+#: warehouse/manage/views/__init__.py:2926
+#, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -733,37 +749,42 @@ msgstr ""
 "بەکارهێنەر '${username}' ناونیشانی ئیمەیڵی سەرەکی پشتڕاستکراوەی نییە و "
 "ناتوانرێت وەک ${role_name} بۆ پڕۆژە زیاد بکرێت"
 
-#: warehouse/manage/views/__init__.py:2935
-#: warehouse/manage/views/organizations.py:889
+#: warehouse/manage/views/__init__.py:2939
+#: warehouse/manage/views/organizations.py:890
+#, python-brace-format
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "بەکارهێنەر '${username}' پێشتر بانگهێشتێکی چالاکی هەیە. تکایە دووبارە "
 "هەوڵبدەرەوە."
 
-#: warehouse/manage/views/__init__.py:3000
-#: warehouse/manage/views/organizations.py:954
+#: warehouse/manage/views/__init__.py:3004
+#: warehouse/manage/views/organizations.py:955
+#, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr "بانگهێشتنامە نێردراوە بۆ '${username}'."
 
-#: warehouse/manage/views/__init__.py:3033
+#: warehouse/manage/views/__init__.py:3036
 msgid "Could not find role invitation."
 msgstr "نەتوانرا بانگهێشتی ڕۆڵ بدۆزرێتەوە."
 
-#: warehouse/manage/views/__init__.py:3044
+#: warehouse/manage/views/__init__.py:3047
 msgid "Invitation already expired."
 msgstr "بانگێشتنامە پێشتر بەسەرچووە."
 
-#: warehouse/manage/views/__init__.py:3076
-#: warehouse/manage/views/organizations.py:1141
+#: warehouse/manage/views/__init__.py:3080
+#: warehouse/manage/views/organizations.py:1142
+#, python-brace-format
 msgid "Invitation revoked from '${username}'."
 msgstr "بانگهێشتنامە لە '${username}' هەڵوەشایەوە."
 
-#: warehouse/manage/views/organizations.py:865
+#: warehouse/manage/views/organizations.py:866
+#, python-brace-format
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "بەکارهێنەر '${username}' پێشتر ڕۆڵی ${role_name}ی هەیە بۆ ڕێکخستن"
 
-#: warehouse/manage/views/organizations.py:876
+#: warehouse/manage/views/organizations.py:877
+#, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -782,53 +803,61 @@ msgstr "نەتوانرا بانگهێشتی ڕێکخراو بدۆزرێتەوە.
 msgid "Organization invitation could not be re-sent."
 msgstr "بانگهێشتی ڕێکخراو چیتر بوونی نییە."
 
-#: warehouse/manage/views/organizations.py:1094
-#, fuzzy
+#: warehouse/manage/views/organizations.py:1095
+#, fuzzy, python-brace-format
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
 msgstr "بانگهێشتنامە بۆ '${project_name}' ڕەتکراوەتەوە."
 
-#: warehouse/oidc/forms/_core.py:25 warehouse/oidc/forms/_core.py:35
+#: warehouse/oidc/forms/_core.py:31 warehouse/oidc/forms/_core.py:42
 #: warehouse/oidc/forms/gitlab.py:60 warehouse/oidc/forms/gitlab.py:64
 #, fuzzy
 #| msgid "Invalid repository name"
 msgid "Invalid project name"
 msgstr "ناوی کۆگاکە نادروستە"
 
-#: warehouse/oidc/forms/_core.py:49
+#: warehouse/oidc/forms/_core.py:60
+#, python-brace-format
 msgid ""
 "This project already exists: use the project's publishing settings <a "
 "href='${url}'>here</a> to create a Trusted Publisher for it."
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:59
+#: warehouse/oidc/forms/_core.py:69
+#, fuzzy
+#| msgid ""
+#| "This project name has already been used. Choose a different project name."
+msgid "This project already exists."
+msgstr "ئەم ناوی پڕۆژەیە پێشتر بەکارهاتووە. ناوی پڕۆژەیەکی جیاواز هەڵبژێرە."
+
+#: warehouse/oidc/forms/_core.py:74
 #, fuzzy
 #| msgid ""
 #| "This project name has already been used. Choose a different project name."
 msgid "This project name isn't allowed"
 msgstr "ئەم ناوی پڕۆژەیە پێشتر بەکارهاتووە. ناوی پڕۆژەیەکی جیاواز هەڵبژێرە."
 
-#: warehouse/oidc/forms/_core.py:63
+#: warehouse/oidc/forms/_core.py:78
 msgid "This project name is too similar to an existing project"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:67
+#: warehouse/oidc/forms/_core.py:83
 msgid ""
 "This project name isn't allowed (conflict with the Python standard library "
 "module name)"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:84 warehouse/oidc/forms/_core.py:95
+#: warehouse/oidc/forms/_core.py:99 warehouse/oidc/forms/_core.py:110
 msgid "Specify a publisher ID"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:85 warehouse/oidc/forms/_core.py:96
+#: warehouse/oidc/forms/_core.py:100 warehouse/oidc/forms/_core.py:111
 #, fuzzy
 #| msgid "Provider must be specified by ID"
 msgid "Publisher must be specified by ID"
 msgstr "دابینکەر دەبێت بە ناسنامە دیاری بکرێت"
 
-#: warehouse/oidc/forms/_core.py:101
+#: warehouse/oidc/forms/_core.py:116
 #, fuzzy
 #| msgid "Specify project name"
 msgid "Specify an environment name"
@@ -906,7 +935,7 @@ msgstr "ناوی پەڕگەی وەرکفڵۆ دیاری بکە"
 msgid "Unknown GitHub user or organization."
 msgstr "بەکارهێنەر یان ڕێکخراوی GitHub نەناسراو."
 
-#: warehouse/oidc/forms/github.py:93
+#: warehouse/oidc/forms/github.py:94
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr ""
 "GitHub ئەم کردارەی بە ڕێژەی سنووردار کردووە. چەند خولەکێکی تر دووبارە "
@@ -916,7 +945,7 @@ msgstr ""
 msgid "Unexpected error from GitHub. Try again."
 msgstr "هەڵەیەکی چاوەڕواننەکراو لە GitHub. دووبارە هەوڵبدەرەوە."
 
-#: warehouse/oidc/forms/github.py:110
+#: warehouse/oidc/forms/github.py:111
 #, fuzzy
 #| msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgid "Unexpected connection error from GitHub. Try again in a few minutes."
@@ -1378,7 +1407,7 @@ msgstr "بگۆڕە بۆ وەشانی مۆبایل"
 #: warehouse/templates/manage/project/release.html:182
 #: warehouse/templates/manage/project/settings.html:87
 #: warehouse/templates/manage/project/settings.html:136
-#: warehouse/templates/manage/project/settings.html:394
+#: warehouse/templates/manage/project/settings.html:393
 #: warehouse/templates/manage/team/settings.html:84
 msgid "Warning"
 msgstr "ئاگادارکردنەوە"
@@ -1964,6 +1993,7 @@ msgstr "پڕۆفایلی %(username)s"
 #: warehouse/templates/manage/project/roles.html:157
 #: warehouse/templates/manage/project/roles.html:214
 #: warehouse/templates/manage/team/roles.html:61
+#, python-brace-format
 msgid "Avatar for {user} from gravatar.com"
 msgstr "ئەڤەتار بۆ {user} لە gravatar.com"
 
@@ -3684,6 +3714,8 @@ msgid "Maintainers"
 msgstr "چاککەرەوەکان"
 
 #: warehouse/templates/includes/packaging/project-data.html:144
+#, fuzzy, python-brace-format
+#| msgid "Avatar for {username} from gravatar.com"
 msgid "Avatar for {username} from gravatar.com"
 msgstr "ئاڤاتاری بۆ {ناوی بەکارهێنەر} لە gravatar.com"
 
@@ -7727,7 +7759,7 @@ msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:108
 #: warehouse/templates/manage/project/settings.html:179
-#: warehouse/templates/manage/project/settings.html:432
+#: warehouse/templates/manage/project/settings.html:431
 msgid "Project Name"
 msgstr ""
 
@@ -7882,14 +7914,14 @@ msgid "Description of the purpose or content of the alternate repository."
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:354
-#: warehouse/templates/manage/project/settings.html:371
 #: warehouse/templates/manage/project/settings.html:379
+#: warehouse/templates/manage/project/settings.html:383
 #, fuzzy
 #| msgid "Search projects"
 msgid "Archive project"
 msgstr "گەڕان بەدوای پڕۆژەکاندا"
 
-#: warehouse/templates/manage/project/settings.html:359
+#: warehouse/templates/manage/project/settings.html:357
 #, python-format
 msgid ""
 "Archiving a project will prevent any new uploads. Before doing so, we "
@@ -7901,31 +7933,31 @@ msgid ""
 "the project's description by editing the README file."
 msgstr ""
 
+#: warehouse/templates/manage/project/settings.html:370
 #: warehouse/templates/manage/project/settings.html:374
-#: warehouse/templates/manage/project/settings.html:385
 #, fuzzy
 #| msgid "Search projects"
 msgid "Unarchive project"
 msgstr "گەڕان بەدوای پڕۆژەکاندا"
 
-#: warehouse/templates/manage/project/settings.html:380
-msgid "Archiving a project will block any new file uploads"
+#: warehouse/templates/manage/project/settings.html:375
+msgid "Unarchiving a project will allow new file uploads."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:386
-msgid "Unarchiving a project will allow new file uploads"
+#: warehouse/templates/manage/project/settings.html:384
+msgid "Archiving a project will block any new file uploads."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:392
-#: warehouse/templates/manage/project/settings.html:432
+#: warehouse/templates/manage/project/settings.html:391
+#: warehouse/templates/manage/project/settings.html:431
 msgid "Delete project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:395
+#: warehouse/templates/manage/project/settings.html:394
 msgid "Deleting this project will:"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:400
+#: warehouse/templates/manage/project/settings.html:399
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s "
@@ -7936,15 +7968,15 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/project/settings.html:406
+#: warehouse/templates/manage/project/settings.html:405
 msgid "Irreversibly delete the project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:410
+#: warehouse/templates/manage/project/settings.html:409
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:412
+#: warehouse/templates/manage/project/settings.html:411
 msgid ""
 "This user will be able to make new releases under this project name, so long "
 "as the distribution filenames do not match filenames from a previously "

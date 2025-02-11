@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import datetime
+import typing
 import uuid
 
 import pymacaroons
@@ -170,9 +171,10 @@ class DatabaseMacaroonService:
         # NOTE: This is a bit of a hack: we keep a separate copy of the
         # permissions caveat in the DB, so that we can display scope information
         # in the UI.
-        permissions = {}
+        permissions: dict[str, list[str]] | str = {}
         for caveat in scopes:
             if isinstance(caveat, caveats.ProjectName):
+                permissions = typing.cast(dict[str, list[str]], permissions)
                 projects = permissions.setdefault("projects", [])
                 projects.extend(caveat.normalized_names)
             elif isinstance(caveat, caveats.RequestUser):

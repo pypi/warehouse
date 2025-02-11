@@ -10,24 +10,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Logs the query with the parameters embedded into the query."""
+"""ORM utilities."""
 
-import logging
-
-from sqlalchemy.dialects import postgresql
+from sqlalchemy.orm import Session, object_session
 
 
-def print_query(query) -> None:
+class NoSessionError(Exception):
+    """Raised when there is no active SQLAlchemy session"""
+
+
+def orm_session_from_obj(obj) -> Session:
     """
-    Prints the query with the parameters embedded into the query.
+    Returns the session from the ORM object.
 
-    Useful for development/debugging purposes.
+    Adds guard, but it should never happen.
+    The guard helps with type hinting, as the object_session function
+    returns Optional[Session] type.
     """
-    logging.debug(
-        str(
-            query.compile(
-                dialect=postgresql.dialect(),
-                compile_kwargs={"literal_binds": True},
-            )
-        )
-    )
+    session = object_session(obj)
+    if not session:
+        raise NoSessionError("Object does not have a session")
+    return session
