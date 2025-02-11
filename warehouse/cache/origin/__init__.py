@@ -16,11 +16,10 @@ import operator
 
 from itertools import chain
 
-from sqlalchemy.orm.session import Session
-
 from warehouse import db
 from warehouse.cache.origin.derivers import html_cache_deriver
 from warehouse.cache.origin.interfaces import IOriginCache
+from warehouse.utils.db import orm_session_from_obj
 
 
 @db.listens_for(db.Session, "after_flush")
@@ -139,7 +138,7 @@ def register_origin_cache_keys(config, klass, cache_keys=None, purge_keys=None):
 
 def receive_set(attribute, config, target):
     cache_keys = config.registry["cache_keys"]
-    session = Session.object_session(target)
+    session = orm_session_from_obj(target)
     purges = session.info.setdefault("warehouse.cache.origin.purges", set())
     key_maker = cache_keys[attribute]
     keys = key_maker(target).purge
