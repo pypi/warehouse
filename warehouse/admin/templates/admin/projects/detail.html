@@ -613,20 +613,23 @@
   </div>
 
   <div class="card-footer">
-    {% set can_be_archived = not project.lifecycle_status or project.lifecycle_status == "quarantine-exit" %}
-    {% set can_be_unarchived = project.lifecycle_status == "archived" %}
-    <form method="POST" action="{{ request.route_path('admin.project.unarchive', project_name=project.name) }}">
-      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-      <div class="float-right">
-        <button type="submit" class="btn btn-primary" title="{{ 'Unarchiving requires superuser privileges' if not request.has_permission(Permissions.AdminProjectsWrite) }}" {{ "disabled" if not request.has_permission(Permissions.AdminProjectsWrite) or not can_be_unarchived }}>Unarchive</button>
-      </div>
-    </form>
-    <form method="POST" action="{{ request.route_path('admin.project.archive', project_name=project.name) }}">
-      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-      <div class="float-right">
-        <button type="submit" class="btn btn-primary" title="{{ 'Archiving requires superuser privileges' if not request.has_permission(Permissions.AdminProjectsWrite) }}" {{ "disabled" if not request.has_permission(Permissions.AdminProjectsWrite) or not can_be_archived}}>Archive</button>
-      </div>
-    </form>
+    <div class="float-right">
+      {% if project.lifecycle_status == "archived" %}
+        <form method="POST" action="{{ request.route_path('admin.project.unarchive', project_name=project.name) }}">
+          <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+          <button type="submit" class="btn btn-primary" title="{{ 'Unarchiving requires superuser privileges' if not request.has_permission(Permissions.AdminProjectsWrite) }}" {{ "disabled" if not request.has_permission(Permissions.AdminProjectsWrite) }}>
+            Unarchive project
+          </button>
+        </form>
+      {% else %}
+        <form method="POST" action="{{ request.route_path('admin.project.archive', project_name=project.name) }}">
+          <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+          <button type="submit" class="btn btn-primary {{ 'btn-disabled' if project.lifecycle_status == 'quarantine' }}" title="{{ 'Archiving requires superuser privileges' if not request.has_permission(Permissions.AdminProjectsWrite) }}" {{ "disabled" if not request.has_permission(Permissions.AdminProjectsWrite) }}>
+            Archive project
+          </button>
+        </form>
+      {% endif %}
+    </div>
   </div>
 </div>
 

@@ -572,6 +572,18 @@ class TestProject:
             == 0
         )
 
+    def test_active_and_yanked_releases(self, db_session):
+        project = DBProjectFactory.create()
+        active_release0 = DBReleaseFactory.create(project=project)
+        active_release1 = DBReleaseFactory.create(project=project)
+        yanked_release0 = DBReleaseFactory.create(project=project, yanked=True)
+
+        assert len(project.active_releases) == len([active_release0, active_release1])
+        assert len(project.yanked_releases) == len([yanked_release0])
+        assert len(project.releases) == len(
+            [active_release0, active_release1, yanked_release0]
+        )
+
 
 class TestDependency:
     def test_repr(self, db_session):
