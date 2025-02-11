@@ -22,6 +22,18 @@ Upgrading existing dependencies
 Dependencies are automatically upgraded via `Dependabot pull requests`_, and
 occasionally merged by maintainers.
 
+You can manually upgrade a specific dependency with::
+
+    make deps_upgrade_project P={project_name}
+
+For instance, to upgrade boto3:::
+
+    make deps_upgrade_project P=boto3
+
+To upgrade all dependencies, you can use::
+
+    make deps_upgrade_all
+
 Adding new dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~
 
