@@ -49,4 +49,6 @@ def test_user_profile_project_states(webtest):
     ReleaseFactory.create(project=archived_project)
 
     resp = webtest.get(f"/user/{user.username}/")
+
     assert resp.status_code == HTTPStatus.OK
+    assert "4 projects" in resp.html.h2.text
