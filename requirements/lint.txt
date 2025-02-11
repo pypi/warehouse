@@ -32,13 +32,13 @@ black==25.1.0 \
     --hash=sha256:ea0213189960bda9cf99be5b8c8ce66bb054af5e9e861249cd23471bd7b0b3ba \
     --hash=sha256:f3df5f1bf91d36002b0a75389ca8663510cf0531cca8aa5c1ef695b46d98655f
     # via -r requirements/lint.in
-boto3-stubs==1.35.84 \
-    --hash=sha256:299d1c24ac5d1a545be6b36717b2d95d783685c4a81bbc7a5769a55271e610d6 \
-    --hash=sha256:5091d008906993b3c38dae78abdce323584a6144229a89950012441adaa68f5c
+boto3-stubs==1.36.17 \
+    --hash=sha256:4605dc8c65fdb577a9bfa3f2a320f8de4a8353590035a891584ff05f28991c07 \
+    --hash=sha256:6bdb71f80e50be5dd0b91fcf9852eebdced9217f49b1973d6b30c77c283f7b00
     # via -r requirements/lint.in
-botocore-stubs==1.35.84.post1 \
-    --hash=sha256:bb0d6fb74161944ab61a66ae2d891b780c163e89336f24462d0e8aed5b9ff4b9 \
-    --hash=sha256:ead1b807a3baa77962bc89ab701616425374ba5d31219fb64c2ca090f33090b3
+botocore-stubs==1.36.17 \
+    --hash=sha256:3765d6c236e4aaddcb9d28327fb3b6c6b2ca26054684d6a616859967385c2986 \
+    --hash=sha256:ba25303a022280f50630985a52d254ec6273b4dcc4b89b0548945a1ea14ccb1b
     # via boto3-stubs
 celery-types==0.22.0 \
     --hash=sha256:0ecad2fa5a6eded0a1f919e5e1e381cc2ff0635fe4b21db53b4661b6876d5b30 \
