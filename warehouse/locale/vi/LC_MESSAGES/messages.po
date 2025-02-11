@@ -25,7 +25,7 @@ msgstr ""
 "X-Generator: Weblate 5.9-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/views.py:157
+#: warehouse/views.py:158
 msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
@@ -33,7 +33,7 @@ msgstr ""
 "Bạn phải xác minh địa chỉ **email cá nhân** của bạn trước khi thực hiện hành "
 "động này."
 
-#: warehouse/views.py:173
+#: warehouse/views.py:174
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
@@ -53,7 +53,7 @@ msgstr "Địa chỉ email không hợp lệ. Thử lại."
 msgid "The password is invalid. Try again."
 msgstr "Mật khẩu không hợp lệ. Thử lại."
 
-#: warehouse/accounts/forms.py:56
+#: warehouse/accounts/forms.py:57
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -72,11 +72,13 @@ msgstr "Không được phép sử dụng byte rỗng."
 msgid "No user found with that username"
 msgstr "Không tìm thấy tên người dùng"
 
-#: warehouse/accounts/forms.py:108
+#: warehouse/accounts/forms.py:109
+#, python-brace-format
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "Mã TOTP phải có ${totp_length} dưới dạng chữ số."
 
-#: warehouse/accounts/forms.py:128
+#: warehouse/accounts/forms.py:129
+#, python-brace-format
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr "Mã khôi phục phải là ${recovery_code_length} ký tự."
 
@@ -84,7 +86,7 @@ msgstr "Mã khôi phục phải là ${recovery_code_length} ký tự."
 msgid "Choose a username with 50 characters or less."
 msgstr "Chọn một tên người dùng tối đa 50 ký tự."
 
-#: warehouse/accounts/forms.py:160
+#: warehouse/accounts/forms.py:161
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -97,7 +99,8 @@ msgstr ""
 msgid "Password too long."
 msgstr "Mật khẩu quá dài"
 
-#: warehouse/accounts/forms.py:210
+#: warehouse/accounts/forms.py:206
+#, python-brace-format
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
@@ -113,20 +116,20 @@ msgstr "Mật khẩu của bạn không khớp. Thử lại."
 msgid "The email address is too long. Try again."
 msgstr "Địa chỉ email quá dài. Thử lại."
 
-#: warehouse/accounts/forms.py:344
+#: warehouse/accounts/forms.py:345
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Bạn không thể sử dụng một địa chỉ email từ tên miền này. Sử dụng một email "
 "khác."
 
-#: warehouse/accounts/forms.py:359
+#: warehouse/accounts/forms.py:360
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
 msgstr ""
 "Địa chỉ email này đã được sử dụng bởi tài khoản này. Sử dụng một email khác."
 
-#: warehouse/accounts/forms.py:370
+#: warehouse/accounts/forms.py:371
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -134,8 +137,8 @@ msgstr ""
 "Địa chỉ email này đã được sử dụng bởi một tài khoản khác. Sử dụng một email "
 "khác."
 
-#: warehouse/accounts/forms.py:410 warehouse/manage/forms.py:139
-#: warehouse/manage/forms.py:741
+#: warehouse/accounts/forms.py:411 warehouse/manage/forms.py:140
+#: warehouse/manage/forms.py:742
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Tên quá dài. Chọn một tên có tối đa 100 ký tự."
 
@@ -164,13 +167,15 @@ msgstr "Mã khôi phục đã được dùng."
 msgid "The username isn't valid. Try again."
 msgstr "Tên người dùng không hợp lệ. Vui lòng thử lại."
 
-#: warehouse/accounts/views.py:120
+#: warehouse/accounts/views.py:117
+#, python-brace-format
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
 msgstr "Đăng nhập nhiều lần không thành công. Bạn đã bị khóa. Thử lại sau."
 
-#: warehouse/accounts/views.py:137
+#: warehouse/accounts/views.py:138
+#, python-brace-format
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -178,7 +183,8 @@ msgstr ""
 "Có quá nhiều địa chỉ emails chưa được xác minh được gắn với tài khoản này. "
 "Kiểm tra hộp thư đến của bạn và nhấp vào các đường dẫn kiểm tra. (IP: {ip})"
 
-#: warehouse/accounts/views.py:149
+#: warehouse/accounts/views.py:150
+#, python-brace-format
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
@@ -202,11 +208,11 @@ msgstr "Đã được xác thực"
 msgid "Successful WebAuthn assertion"
 msgstr "Xác nhận WebAuthn thành công"
 
-#: warehouse/accounts/views.py:609 warehouse/manage/views/__init__.py:877
+#: warehouse/accounts/views.py:610 warehouse/manage/views/__init__.py:881
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "Mã khôi phục được chấp nhận. Mã này không thể sử dụng lại."
 
-#: warehouse/accounts/views.py:701
+#: warehouse/accounts/views.py:702
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -235,13 +241,13 @@ msgstr "Mã thông báo không hợp lệ: không phải là mã thông báo đ�
 msgid "Invalid token: user not found"
 msgstr "Mã thông báo không hợp lệ: không tìm thấy người dùng"
 
-#: warehouse/accounts/views.py:862
+#: warehouse/accounts/views.py:863
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Mã thông báo không hợp lệ: người dùng đã đăng nhập từ khi mã thông báo này "
 "được yêu cầu"
 
-#: warehouse/accounts/views.py:880
+#: warehouse/accounts/views.py:881
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
@@ -273,7 +279,7 @@ msgstr "Không tìm thấy email"
 msgid "Email already verified"
 msgstr "Email đã được xác thực"
 
-#: warehouse/accounts/views.py:977
+#: warehouse/accounts/views.py:978
 msgid "You can now set this email as your primary address"
 msgstr "Bây giờ bạn có thể đặt email này làm địa chỉ chính của bạn"
 
@@ -281,7 +287,8 @@ msgstr "Bây giờ bạn có thể đặt email này làm địa chỉ chính c�
 msgid "This is your primary address"
 msgstr "Đây là địa chỉ chính của bạn"
 
-#: warehouse/accounts/views.py:986
+#: warehouse/accounts/views.py:987
+#, python-brace-format
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Địa chỉ email ${email_address} đã được xác thực. ${confirm_message}."
 
@@ -305,12 +312,13 @@ msgstr "Lời mời của tổ chức không hợp lệ."
 msgid "Organization invitation no longer exists."
 msgstr "Lời mời tổ chức không còn tồn tại."
 
-#: warehouse/accounts/views.py:1116
+#: warehouse/accounts/views.py:1117
+#, python-brace-format
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "Lời mời cho '${organization_name}' đã bị từ chối."
 
-#: warehouse/accounts/views.py:1179
-#, fuzzy
+#: warehouse/accounts/views.py:1180
+#, fuzzy, python-brace-format
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Bạn hiện là ${role} của tổ chức '${organization_name}'."
@@ -341,16 +349,18 @@ msgstr "Lời mời vai trò không hợp lệ."
 msgid "Role invitation no longer exists."
 msgstr "Lời mời vai trò không còn tồn tại nữa."
 
-#: warehouse/accounts/views.py:1271
+#: warehouse/accounts/views.py:1272
+#, python-brace-format
 msgid "Invitation for '${project_name}' is declined."
 msgstr "Lời mời cho '${project_name}' không được chấp thuận."
 
-#: warehouse/accounts/views.py:1337
+#: warehouse/accounts/views.py:1338
+#, python-brace-format
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Bạn hiện nắm ${role} của dự án '${project_name}'"
 
-#: warehouse/accounts/views.py:1588 warehouse/accounts/views.py:1831
-#: warehouse/manage/views/__init__.py:1413
+#: warehouse/accounts/views.py:1593 warehouse/accounts/views.py:1836
+#: warehouse/manage/views/__init__.py:1417
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -362,7 +372,7 @@ msgstr ""
 "Đăng ký người dùng mới tạm thời bị vô hiệu hóa. Xem https://pypi.org/"
 "help#admin-intervent để biết chi tiết."
 
-#: warehouse/accounts/views.py:1609
+#: warehouse/accounts/views.py:1614
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -372,20 +382,20 @@ msgstr ""
 "Đăng ký người dùng mới tạm thời bị vô hiệu hóa. Xem https://pypi.org/"
 "help#admin-intervent để biết chi tiết."
 
-#: warehouse/accounts/views.py:1625
+#: warehouse/accounts/views.py:1630
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1638
+#: warehouse/accounts/views.py:1643
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1654 warehouse/manage/views/__init__.py:1582
-#: warehouse/manage/views/__init__.py:1695
-#: warehouse/manage/views/__init__.py:1807
-#: warehouse/manage/views/__init__.py:1917
+#: warehouse/accounts/views.py:1659 warehouse/manage/views/__init__.py:1586
+#: warehouse/manage/views/__init__.py:1699
+#: warehouse/manage/views/__init__.py:1811
+#: warehouse/manage/views/__init__.py:1921
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -394,31 +404,31 @@ msgid ""
 "again later."
 msgstr "Đã có quá nhiều lần thử đăng nhập không thành công. Thử lại sau."
 
-#: warehouse/accounts/views.py:1665 warehouse/manage/views/__init__.py:1596
-#: warehouse/manage/views/__init__.py:1709
-#: warehouse/manage/views/__init__.py:1821
-#: warehouse/manage/views/__init__.py:1931
+#: warehouse/accounts/views.py:1669 warehouse/manage/views/__init__.py:1599
+#: warehouse/manage/views/__init__.py:1712
+#: warehouse/manage/views/__init__.py:1824
+#: warehouse/manage/views/__init__.py:1934
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1679
+#: warehouse/accounts/views.py:1684
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1706
+#: warehouse/accounts/views.py:1711
 msgid "Registered a new pending publisher to create "
 msgstr "Đăng kí một xuất bản mới đang chờ để khởi tạo "
 
-#: warehouse/accounts/views.py:1845 warehouse/accounts/views.py:1858
-#: warehouse/accounts/views.py:1865
+#: warehouse/accounts/views.py:1849 warehouse/accounts/views.py:1862
+#: warehouse/accounts/views.py:1869
 #, fuzzy
 #| msgid "Manage version"
 msgid "Invalid publisher ID"
 msgstr "ID xuất bản không hợp lệ"
 
-#: warehouse/accounts/views.py:1871
+#: warehouse/accounts/views.py:1876
 msgid "Removed trusted publisher for project "
 msgstr "Loại bỏ xuất bản tin cậy khỏi dự án "
 
@@ -426,11 +436,11 @@ msgstr "Loại bỏ xuất bản tin cậy khỏi dự án "
 msgid "Banner Preview"
 msgstr "Bản xem trước"
 
-#: warehouse/manage/forms.py:419
+#: warehouse/manage/forms.py:420
 msgid "Choose an organization account name with 50 characters or less."
 msgstr "Chọn tên tài khoản cho tổ chức, tối đa 50 ký tự."
 
-#: warehouse/manage/forms.py:427
+#: warehouse/manage/forms.py:428
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
@@ -442,7 +452,7 @@ msgstr ""
 "đầu và kết thúc bằng một chữ cái hoặc số. Chọn một tên tài khoản khác cho tổ "
 "chức."
 
-#: warehouse/manage/forms.py:450
+#: warehouse/manage/forms.py:451
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -454,7 +464,7 @@ msgstr ""
 "Tên người dùng này đã được sử dụng bởi một tài khoản khác. Chọn một tên "
 "người dùng khác."
 
-#: warehouse/manage/forms.py:465
+#: warehouse/manage/forms.py:466
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -472,20 +482,20 @@ msgstr ""
 msgid "Select project"
 msgstr "Xóa dự án"
 
-#: warehouse/manage/forms.py:506 warehouse/oidc/forms/_core.py:23
+#: warehouse/manage/forms.py:506 warehouse/oidc/forms/_core.py:29
 #: warehouse/oidc/forms/gitlab.py:57
 #, fuzzy
 #| msgid "Project name"
 msgid "Specify project name"
 msgstr "Tên dự án"
 
-#: warehouse/manage/forms.py:509
+#: warehouse/manage/forms.py:510
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
 
-#: warehouse/manage/forms.py:516
+#: warehouse/manage/forms.py:517
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -496,7 +506,7 @@ msgstr ""
 "Tên người dùng này đã được sử dụng bởi một tài khoản khác. Chọn một tên "
 "người dùng khác."
 
-#: warehouse/manage/forms.py:589
+#: warehouse/manage/forms.py:590
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -504,7 +514,7 @@ msgid ""
 "characters or less."
 msgstr "Tên quá dài. Chọn một tên có tối đa 100 ký tự."
 
-#: warehouse/manage/forms.py:601
+#: warehouse/manage/forms.py:602
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -516,7 +526,7 @@ msgstr "Tên quá dài. Chọn một tên có tối đa 100 ký tự."
 msgid "The organization URL must start with http:// or https://"
 msgstr ""
 
-#: warehouse/manage/forms.py:619
+#: warehouse/manage/forms.py:620
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -524,7 +534,7 @@ msgid ""
 "with 400 characters or less."
 msgstr "Tên quá dài. Chọn một tên có tối đa 100 ký tự."
 
-#: warehouse/manage/forms.py:654
+#: warehouse/manage/forms.py:655
 msgid "You have already submitted the maximum number of "
 msgstr ""
 
@@ -534,13 +544,13 @@ msgstr ""
 msgid "Choose a team name with 50 characters or less."
 msgstr "Chọn một tên người dùng tối đa 50 ký tự."
 
-#: warehouse/manage/forms.py:690
+#: warehouse/manage/forms.py:691
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:718
+#: warehouse/manage/forms.py:719
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -560,13 +570,13 @@ msgstr "Tên dự án"
 msgid "Specify your alternate repository URL"
 msgstr ""
 
-#: warehouse/manage/forms.py:755
+#: warehouse/manage/forms.py:756
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid "The URL is too long. Choose a URL with 400 characters or less."
 msgstr "Tên quá dài. Chọn một tên có tối đa 100 ký tự."
 
-#: warehouse/manage/forms.py:769
+#: warehouse/manage/forms.py:770
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -574,91 +584,94 @@ msgid ""
 "less."
 msgstr "Tên quá dài. Chọn một tên có tối đa 100 ký tự."
 
-#: warehouse/manage/views/__init__.py:289
+#: warehouse/manage/views/__init__.py:292
 #, fuzzy
 #| msgid "Account details"
 msgid "Account details updated"
 msgstr "Chi tiết tài khoản"
 
-#: warehouse/manage/views/__init__.py:319
+#: warehouse/manage/views/__init__.py:323
+#, python-brace-format
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "Đã thêm email ${email_address} - kiểm tra email của bạn để biết liên kết xác "
 "minh"
 
-#: warehouse/manage/views/__init__.py:825
+#: warehouse/manage/views/__init__.py:828
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:826
+#: warehouse/manage/views/__init__.py:830
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:935
+#: warehouse/manage/views/__init__.py:938
 #, fuzzy
 #| msgid "Verify your email or add a new address."
 msgid "Verify your email to create an API token."
 msgstr "Xác minh email của bạn hoặc thêm địa chỉ mới."
 
-#: warehouse/manage/views/__init__.py:1035
+#: warehouse/manage/views/__init__.py:1038
 msgid "API Token does not exist."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1067
+#: warehouse/manage/views/__init__.py:1070
 msgid "Invalid credentials. Try again"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1186
+#: warehouse/manage/views/__init__.py:1189
 #, fuzzy
 #| msgid "Invalid TOTP code."
 msgid "Invalid alternate repository location details"
 msgstr "Mã TOTP không hợp lệ."
 
-#: warehouse/manage/views/__init__.py:1223
-#, fuzzy
+#: warehouse/manage/views/__init__.py:1227
+#, fuzzy, python-brace-format
 #| msgid "Invalid TOTP code."
 msgid "Added alternate repository '${name}'"
 msgstr "Mã TOTP không hợp lệ."
 
-#: warehouse/manage/views/__init__.py:1257
-#: warehouse/manage/views/__init__.py:2264
-#: warehouse/manage/views/__init__.py:2349
-#: warehouse/manage/views/__init__.py:2450
-#: warehouse/manage/views/__init__.py:2550
+#: warehouse/manage/views/__init__.py:1260
+#: warehouse/manage/views/__init__.py:2267
+#: warehouse/manage/views/__init__.py:2352
+#: warehouse/manage/views/__init__.py:2453
+#: warehouse/manage/views/__init__.py:2553
 #, fuzzy
 #| msgid "Confirm form"
 msgid "Confirm the request"
 msgstr "Xác nhận biểu mẫu"
 
-#: warehouse/manage/views/__init__.py:1269
+#: warehouse/manage/views/__init__.py:1272
 #, fuzzy
 #| msgid "Invalid TOTP code."
 msgid "Invalid alternate repository id"
 msgstr "Mã TOTP không hợp lệ."
 
-#: warehouse/manage/views/__init__.py:1280
+#: warehouse/manage/views/__init__.py:1283
 #, fuzzy
 #| msgid "Invalid TOTP code."
 msgid "Invalid alternate repository for project"
 msgstr "Mã TOTP không hợp lệ."
 
-#: warehouse/manage/views/__init__.py:1288
+#: warehouse/manage/views/__init__.py:1292
+#, python-brace-format
 msgid ""
 "Could not delete alternate repository - ${confirm} is not the same as "
 "${alt_repo_name}"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1318
+#: warehouse/manage/views/__init__.py:1322
+#, python-brace-format
 msgid "Deleted alternate repository '${name}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1463
+#: warehouse/manage/views/__init__.py:1466
 #, fuzzy
 #| msgid "Removed trusted publisher for project "
 msgid "The trusted publisher could not be constrained"
 msgstr "Loại bỏ xuất bản tin cậy khỏi dự án "
 
-#: warehouse/manage/views/__init__.py:1563
+#: warehouse/manage/views/__init__.py:1567
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -670,7 +683,7 @@ msgstr ""
 "Đăng ký người dùng mới tạm thời bị vô hiệu hóa. Xem https://pypi.org/"
 "help#admin-intervent để biết chi tiết."
 
-#: warehouse/manage/views/__init__.py:1676
+#: warehouse/manage/views/__init__.py:1680
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -682,7 +695,7 @@ msgstr ""
 "Đăng ký người dùng mới tạm thời bị vô hiệu hóa. Xem https://pypi.org/"
 "help#admin-intervent để biết chi tiết."
 
-#: warehouse/manage/views/__init__.py:1788
+#: warehouse/manage/views/__init__.py:1792
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -694,7 +707,7 @@ msgstr ""
 "Đăng ký người dùng mới tạm thời bị vô hiệu hóa. Xem https://pypi.org/"
 "help#admin-intervent để biết chi tiết."
 
-#: warehouse/manage/views/__init__.py:1897
+#: warehouse/manage/views/__init__.py:1901
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -706,9 +719,9 @@ msgstr ""
 "Đăng ký người dùng mới tạm thời bị vô hiệu hóa. Xem https://pypi.org/"
 "help#admin-intervent để biết chi tiết."
 
-#: warehouse/manage/views/__init__.py:2132
-#: warehouse/manage/views/__init__.py:2433
-#: warehouse/manage/views/__init__.py:2541
+#: warehouse/manage/views/__init__.py:2136
+#: warehouse/manage/views/__init__.py:2437
+#: warehouse/manage/views/__init__.py:2545
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -720,83 +733,91 @@ msgstr ""
 "Đăng ký người dùng mới tạm thời bị vô hiệu hóa. Xem https://pypi.org/"
 "help#admin-intervent để biết chi tiết."
 
-#: warehouse/manage/views/__init__.py:2276
+#: warehouse/manage/views/__init__.py:2280
 #, fuzzy
 #| msgid "Releases"
 msgid "Could not yank release - "
 msgstr "Phát hành"
 
-#: warehouse/manage/views/__init__.py:2361
+#: warehouse/manage/views/__init__.py:2365
 #, fuzzy
 #| msgid "Releases"
 msgid "Could not un-yank release - "
 msgstr "Phát hành"
 
-#: warehouse/manage/views/__init__.py:2462
+#: warehouse/manage/views/__init__.py:2466
 #, fuzzy
 #| msgid "Delete release"
 msgid "Could not delete release - "
 msgstr "Xóa bỏ bản phát hành"
 
-#: warehouse/manage/views/__init__.py:2562
+#: warehouse/manage/views/__init__.py:2565
 msgid "Could not find file"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2566
+#: warehouse/manage/views/__init__.py:2570
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2716
+#: warehouse/manage/views/__init__.py:2720
+#, python-brace-format
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2823
+#: warehouse/manage/views/__init__.py:2827
+#, python-brace-format
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2890
-#, fuzzy
+#: warehouse/manage/views/__init__.py:2894
+#, fuzzy, python-brace-format
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "Bạn hiện nắm ${role} của dự án '${project_name}'"
 
-#: warehouse/manage/views/__init__.py:2922
+#: warehouse/manage/views/__init__.py:2926
+#, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2935
-#: warehouse/manage/views/organizations.py:889
+#: warehouse/manage/views/__init__.py:2939
+#: warehouse/manage/views/organizations.py:890
+#, python-brace-format
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:3000
-#: warehouse/manage/views/organizations.py:954
+#: warehouse/manage/views/__init__.py:3004
+#: warehouse/manage/views/organizations.py:955
+#, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:3033
+#: warehouse/manage/views/__init__.py:3036
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:3044
+#: warehouse/manage/views/__init__.py:3047
 #, fuzzy
 #| msgid "Email already verified"
 msgid "Invitation already expired."
 msgstr "Email đã được xác thực"
 
-#: warehouse/manage/views/__init__.py:3076
-#: warehouse/manage/views/organizations.py:1141
+#: warehouse/manage/views/__init__.py:3080
+#: warehouse/manage/views/organizations.py:1142
+#, python-brace-format
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:865
+#: warehouse/manage/views/organizations.py:866
+#, python-brace-format
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:876
+#: warehouse/manage/views/organizations.py:877
+#, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -815,52 +836,59 @@ msgstr "%(user)s chưa tải lên bất kỳ dự án nào cho PyPI"
 msgid "Organization invitation could not be re-sent."
 msgstr "Lời mời tổ chức không còn tồn tại."
 
-#: warehouse/manage/views/organizations.py:1094
-#, fuzzy
+#: warehouse/manage/views/organizations.py:1095
+#, fuzzy, python-brace-format
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
 msgstr "Lời mời cho '${project_name}' không được chấp thuận."
 
-#: warehouse/oidc/forms/_core.py:25 warehouse/oidc/forms/_core.py:35
+#: warehouse/oidc/forms/_core.py:31 warehouse/oidc/forms/_core.py:42
 #: warehouse/oidc/forms/gitlab.py:60 warehouse/oidc/forms/gitlab.py:64
 #, fuzzy
 #| msgid "Invalid TOTP code."
 msgid "Invalid project name"
 msgstr "Mã TOTP không hợp lệ."
 
-#: warehouse/oidc/forms/_core.py:49
+#: warehouse/oidc/forms/_core.py:60
+#, python-brace-format
 msgid ""
 "This project already exists: use the project's publishing settings <a "
 "href='${url}'>here</a> to create a Trusted Publisher for it."
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:59
+#: warehouse/oidc/forms/_core.py:69
+#, fuzzy
+#| msgid "This project has no releases"
+msgid "This project already exists."
+msgstr "Dự án này không có bản phát hành nào"
+
+#: warehouse/oidc/forms/_core.py:74
 #, fuzzy
 #| msgid "This project has no releases"
 msgid "This project name isn't allowed"
 msgstr "Dự án này không có bản phát hành nào"
 
-#: warehouse/oidc/forms/_core.py:63
+#: warehouse/oidc/forms/_core.py:78
 #, fuzzy
 #| msgid "This project has no releases"
 msgid "This project name is too similar to an existing project"
 msgstr "Dự án này không có bản phát hành nào"
 
-#: warehouse/oidc/forms/_core.py:67
+#: warehouse/oidc/forms/_core.py:83
 msgid ""
 "This project name isn't allowed (conflict with the Python standard library "
 "module name)"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:84 warehouse/oidc/forms/_core.py:95
+#: warehouse/oidc/forms/_core.py:99 warehouse/oidc/forms/_core.py:110
 msgid "Specify a publisher ID"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:85 warehouse/oidc/forms/_core.py:96
+#: warehouse/oidc/forms/_core.py:100 warehouse/oidc/forms/_core.py:111
 msgid "Publisher must be specified by ID"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:101
+#: warehouse/oidc/forms/_core.py:116
 #, fuzzy
 #| msgid "Project name"
 msgid "Specify an environment name"
@@ -936,7 +964,7 @@ msgstr ""
 msgid "Unknown GitHub user or organization."
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:93
+#: warehouse/oidc/forms/github.py:94
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr ""
 
@@ -944,7 +972,7 @@ msgstr ""
 msgid "Unexpected error from GitHub. Try again."
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:110
+#: warehouse/oidc/forms/github.py:111
 msgid "Unexpected connection error from GitHub. Try again in a few minutes."
 msgstr ""
 
@@ -1405,7 +1433,7 @@ msgstr "Chuyển sang phiên bản di động"
 #: warehouse/templates/manage/project/release.html:182
 #: warehouse/templates/manage/project/settings.html:87
 #: warehouse/templates/manage/project/settings.html:136
-#: warehouse/templates/manage/project/settings.html:394
+#: warehouse/templates/manage/project/settings.html:393
 #: warehouse/templates/manage/team/settings.html:84
 msgid "Warning"
 msgstr "Cảnh báo"
@@ -1972,6 +2000,7 @@ msgstr "Hồ sơ của %(username)s"
 #: warehouse/templates/manage/project/roles.html:157
 #: warehouse/templates/manage/project/roles.html:214
 #: warehouse/templates/manage/team/roles.html:61
+#, python-brace-format
 msgid "Avatar for {user} from gravatar.com"
 msgstr "Hình đại diện cho {user} từ gravatar.com"
 
@@ -3693,6 +3722,7 @@ msgid "Maintainers"
 msgstr "Bảo trì"
 
 #: warehouse/templates/includes/packaging/project-data.html:144
+#, python-brace-format
 msgid "Avatar for {username} from gravatar.com"
 msgstr "Avatar cho {username} từ gravatar.com"
 
@@ -8049,7 +8079,7 @@ msgstr "Không có dự án"
 
 #: warehouse/templates/manage/project/settings.html:108
 #: warehouse/templates/manage/project/settings.html:179
-#: warehouse/templates/manage/project/settings.html:432
+#: warehouse/templates/manage/project/settings.html:431
 msgid "Project Name"
 msgstr "Tên dự án"
 
@@ -8226,14 +8256,14 @@ msgid "Description of the purpose or content of the alternate repository."
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:354
-#: warehouse/templates/manage/project/settings.html:371
 #: warehouse/templates/manage/project/settings.html:379
+#: warehouse/templates/manage/project/settings.html:383
 #, fuzzy
 #| msgid "Search projects"
 msgid "Archive project"
 msgstr "Tìm kiếm dự án"
 
-#: warehouse/templates/manage/project/settings.html:359
+#: warehouse/templates/manage/project/settings.html:357
 #, python-format
 msgid ""
 "Archiving a project will prevent any new uploads. Before doing so, we "
@@ -8245,31 +8275,31 @@ msgid ""
 "the project's description by editing the README file."
 msgstr ""
 
+#: warehouse/templates/manage/project/settings.html:370
 #: warehouse/templates/manage/project/settings.html:374
-#: warehouse/templates/manage/project/settings.html:385
 #, fuzzy
 #| msgid "Search projects"
 msgid "Unarchive project"
 msgstr "Tìm kiếm dự án"
 
-#: warehouse/templates/manage/project/settings.html:380
-msgid "Archiving a project will block any new file uploads"
+#: warehouse/templates/manage/project/settings.html:375
+msgid "Unarchiving a project will allow new file uploads."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:386
-msgid "Unarchiving a project will allow new file uploads"
+#: warehouse/templates/manage/project/settings.html:384
+msgid "Archiving a project will block any new file uploads."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:392
-#: warehouse/templates/manage/project/settings.html:432
+#: warehouse/templates/manage/project/settings.html:391
+#: warehouse/templates/manage/project/settings.html:431
 msgid "Delete project"
 msgstr "Xóa dự án"
 
-#: warehouse/templates/manage/project/settings.html:395
+#: warehouse/templates/manage/project/settings.html:394
 msgid "Deleting this project will:"
 msgstr "Xóa dự án này sẽ:"
 
-#: warehouse/templates/manage/project/settings.html:400
+#: warehouse/templates/manage/project/settings.html:399
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s "
@@ -8280,16 +8310,16 @@ msgid_plural ""
 msgstr[0] ""
 "Xóa vĩnh viễn dự án cùng với <a href=\"%(href)s\">%(count)s bản phát hành</a>"
 
-#: warehouse/templates/manage/project/settings.html:406
+#: warehouse/templates/manage/project/settings.html:405
 msgid "Irreversibly delete the project"
 msgstr "Xóa vĩnh viễn dự án"
 
-#: warehouse/templates/manage/project/settings.html:410
+#: warehouse/templates/manage/project/settings.html:409
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 "Cung cấp tên dự án cho <strong>bất kỳ người dùng PyPI</strong> nào khác"
 
-#: warehouse/templates/manage/project/settings.html:412
+#: warehouse/templates/manage/project/settings.html:411
 msgid ""
 "This user will be able to make new releases under this project name, so long "
 "as the distribution filenames do not match filenames from a previously "
