@@ -26,7 +26,7 @@ You can manually upgrade a specific dependency with::
 
     make deps_upgrade_project P={project_name}
 
-For instance, to upgrade boto3:::
+For instance, to upgrade boto3::
 
     make deps_upgrade_project P=boto3
 
