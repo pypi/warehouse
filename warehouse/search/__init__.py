@@ -86,6 +86,7 @@ def includeme(config):
     )
 
     p = parse_url(config.registry.settings["opensearch.url"])
+    assert p.path, "The URL for the OpenSearch instance must include the index name."
     qs = urllib.parse.parse_qs(p.query)
     kwargs = {
         "hosts": [urllib.parse.urlunparse((p.scheme, p.netloc) + ("",) * 4)],

@@ -93,7 +93,7 @@ COMPRESSION_RATIO_THRESHOLD = 50
 # under this when enqueuing a job to store BigQuery metadata, we truncate the
 # Description field to 40K bytes, which captures up to the 95th percentile of
 # existing descriptions.
-MAX_DESCRIPTION_LENGTH_TO_BIGQUERY = 40000
+MAX_DESCRIPTION_LENGTH_TO_BIGQUERY_IN_BYTES = 40000
 
 # Wheel platform checking
 
@@ -154,6 +154,22 @@ _macosx_major_versions = {
     "15",
 }
 
+_ios_platform_re = re.compile(
+    r"ios_(\d+)_(\d+)_(?P<arch>.*)_(iphoneos|iphonesimulator)"
+)
+_ios_arches = {
+    "arm64",
+    "x86_64",
+}
+
+_android_platform_re = re.compile(r"android_(\d+)_(?P<arch>.*)")
+_android_arches = {
+    "armeabi_v7a",
+    "arm64_v8a",
+    "x86",
+    "x86_64",
+}
+
 # manylinux pep600 and musllinux pep656 are a little more complicated:
 _linux_platform_re = re.compile(r"(?P<libc>(many|musl))linux_(\d+)_(\d+)_(?P<arch>.*)")
 _jointlinux_arches = {
@@ -184,6 +200,12 @@ def _valid_platform_tag(platform_tag):
         return m.group("arch") in _musllinux_arches
     if m and m.group("libc") == "many":
         return m.group("arch") in _manylinux_arches
+    m = _ios_platform_re.match(platform_tag)
+    if m and m.group("arch") in _ios_arches:
+        return True
+    m = _android_platform_re.match(platform_tag)
+    if m and m.group("arch") in _android_arches:
+        return True
     return False
 
 
@@ -439,7 +461,7 @@ def file_upload(request):
     request.metrics.increment("warehouse.upload.attempt")
 
     # This is a list of warnings that we'll emit *IF* the request is successful.
-    warnings = []
+    warnings: list[str] = []
 
     # If we're in read-only mode, let upload clients know
     if request.flags.enabled(AdminFlagValue.READ_ONLY):
@@ -596,7 +618,7 @@ def file_upload(request):
         meta = metadata.parse(None, form_data=request.POST)
     except* metadata.InvalidMetadata as exc:
         # Turn our list of errors into a mapping of errors, keyed by the field
-        errors = {}
+        errors: dict = {}
         for error in exc.exceptions:
             errors.setdefault(error.field, []).append(error)
 
@@ -1589,7 +1611,10 @@ def file_upload(request):
         "version": str(meta.version),
         "summary": meta.summary,
         "description": (
-            meta.description[:MAX_DESCRIPTION_LENGTH_TO_BIGQUERY]
+            # Truncate the description by bytes and not characters if it is too long
+            meta.description.encode()[
+                :MAX_DESCRIPTION_LENGTH_TO_BIGQUERY_IN_BYTES
+            ].decode("utf-8", "ignore")
             if meta.description is not None
             else None
         ),

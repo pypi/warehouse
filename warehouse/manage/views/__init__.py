@@ -949,6 +949,8 @@ class ProvisionMacaroonViews:
 
         response = {**self.default_response}
         if form.validate():
+            macaroon_caveats: list[caveats.Caveat]
+
             if form.validated_scope == "user":
                 recorded_caveats = [{"permissions": form.validated_scope, "version": 1}]
                 macaroon_caveats = [
@@ -2239,7 +2241,7 @@ def manage_project_releases(project, request):
     #       }
     #   }
 
-    version_to_file_counts = {}
+    version_to_file_counts: dict[str, dict[str, int]] = {}
     for version, packagetype, count in filecounts:
         packagetype_to_count = version_to_file_counts.setdefault(version, {})
         packagetype_to_count.setdefault("total", 0)
