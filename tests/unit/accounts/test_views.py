@@ -4060,7 +4060,7 @@ class TestManageAccountPublishingViews:
         ]
         assert db_request.session.flash.calls == [
             pretend.call(
-                ("You can't register more than 3 pending trusted publishers at once."),
+                "You can't register more than 3 pending trusted publishers at once.",
                 queue="error",
             )
         ]
