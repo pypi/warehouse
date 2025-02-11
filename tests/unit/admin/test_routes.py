@@ -119,6 +119,13 @@ def test_includeme():
             traverse="/{username}",
         ),
         pretend.call(
+            "admin.user.burn_recovery_codes",
+            "/admin/users/{username}/burn_recovery_codes/",
+            domain=warehouse,
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
+        ),
+        pretend.call(
             "admin.macaroon.decode_token", "/admin/token/decode", domain=warehouse
         ),
         pretend.call(

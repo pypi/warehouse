@@ -1471,3 +1471,57 @@ class TestUserRecoverAccountComplete:
         assert existing_primary_email.verified is True
         assert user.primary_email == override_to_email
         assert user.primary_email.verified is True
+
+
+class TestUserBurnRecoveryCodes:
+    def test_burns_recovery_codes(self, db_request, monkeypatch, user_service):
+        user = UserFactory.create()
+        codes = user_service.generate_recovery_codes(user.id)
+
+        # Burn one code in advance
+        user.recovery_codes[0].burned = datetime.datetime.now(datetime.UTC)
+
+        # Provide all the codes, plus one invalid code
+        db_request.POST["to_burn"] = f"{'\n'.join(codes)}\ninvalid"
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        assert any(not code.burned for code in user.recovery_codes)
+
+        result = views.user_burn_recovery_codes(user, db_request)
+
+        assert all(code.burned for code in user.recovery_codes)
+        assert db_request.session.flash.calls == [
+            pretend.call("Burned 7 recovery code(s)", queue="success")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("admin.user.detail", username=user.username)
+        ]
+        assert result.status_code == 303
+        assert result.location == "/foobar"
+
+    def test_no_recovery_codes_provided(self, db_request, monkeypatch, user_service):
+        user = UserFactory.create()
+        user_service.generate_recovery_codes(user.id)
+
+        db_request.POST["to_burn"] = ""
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        assert all(not code.burned for code in user.recovery_codes)
+
+        result = views.user_burn_recovery_codes(user, db_request)
+
+        assert all(not code.burned for code in user.recovery_codes)
+        assert db_request.session.flash.calls == [
+            pretend.call("No recovery codes provided", queue="error")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("admin.user.detail", username=user.username)
+        ]
+        assert result.status_code == 303
+        assert result.location == "/foobar"

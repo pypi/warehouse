@@ -9,12 +9,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from __future__ import annotations
 
-import enum
+import typing
 
 from zope.interface import Interface
 
 from warehouse.rate_limiting.interfaces import RateLimiterException
+
+if typing.TYPE_CHECKING:
+    from warehouse.packaging.models import Project
 
 
 class TooManyProjectsCreated(RateLimiterException):
@@ -75,14 +79,6 @@ class IDocsStorage(Interface):
         """
 
 
-class ProjectNameUnavailableReason(enum.Enum):
-    Invalid = "invalid"
-    Stdlib = "stdlib"
-    AlreadyExists = "already-exists"
-    Prohibited = "prohibited"
-    TooSimilar = "too-similar"
-
-
 class IProjectService(Interface):
     def check_project_name(name):
         """
@@ -96,3 +92,41 @@ class IProjectService(Interface):
         If `creator_is_owner`, a `Role` is also added to the project
         marking `creator` as a project owner.
         """
+
+
+class ProjectNameUnavailableError(Exception):
+    """Base exception for project name unavailability errors."""
+
+    pass
+
+
+class ProjectNameUnavailableInvalidError(ProjectNameUnavailableError):
+    """Project name is invalid."""
+
+    pass
+
+
+class ProjectNameUnavailableStdlibError(ProjectNameUnavailableError):
+    """Project name conflicts with Python stdlib module."""
+
+    pass
+
+
+class ProjectNameUnavailableExistingError(ProjectNameUnavailableError):
+    """Project name conflicts with existing project."""
+
+    def __init__(self, existing_project: Project):
+        self.existing_project: Project = existing_project
+
+
+class ProjectNameUnavailableProhibitedError(ProjectNameUnavailableError):
+    """Project name is prohibited."""
+
+    pass
+
+
+class ProjectNameUnavailableSimilarError(ProjectNameUnavailableError):
+    """Project name is too similar to existing project."""
+
+    def __init__(self, similar_project_name: str):
+        self.similar_project_name: str = similar_project_name

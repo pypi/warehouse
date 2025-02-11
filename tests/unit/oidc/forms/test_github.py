@@ -18,15 +18,25 @@ from requests import ConnectionError, HTTPError, Timeout
 from webob.multidict import MultiDict
 
 from warehouse.oidc.forms import github
-from warehouse.packaging.interfaces import ProjectNameUnavailableReason
+from warehouse.packaging.interfaces import (
+    ProjectNameUnavailableExistingError,
+    ProjectNameUnavailableInvalidError,
+    ProjectNameUnavailableProhibitedError,
+    ProjectNameUnavailableSimilarError,
+    ProjectNameUnavailableStdlibError,
+)
+
+from ....common.db.accounts import UserFactory
+from ....common.db.packaging import (
+    ProjectFactory,
+    RoleFactory,
+)
 
 
 class TestPendingGitHubPublisherForm:
-    def test_validate(self, monkeypatch):
+    def test_validate(self, monkeypatch, project_service):
         route_url = pretend.stub()
-
-        def check_project_name(name):
-            return None  # Name is available.
+        user = pretend.stub()
 
         data = MultiDict(
             {
@@ -40,29 +50,41 @@ class TestPendingGitHubPublisherForm:
             MultiDict(data),
             api_token=pretend.stub(),
             route_url=route_url,
-            check_project_name=check_project_name,
+            check_project_name=project_service.check_project_name,
+            user=user,
         )
 
         # We're testing only the basic validation here.
         owner_info = {"login": "fake-username", "id": "1234"}
         monkeypatch.setattr(form, "_lookup_owner", lambda o: owner_info)
 
-        assert form._check_project_name == check_project_name
+        assert form._check_project_name == project_service.check_project_name
         assert form._route_url == route_url
+        assert form._user == user
         assert form.validate()
 
-    def test_validate_project_name_already_in_use(self, pyramid_config):
+    def test_validate_project_name_already_in_use_owner(
+        self, pyramid_config, project_service
+    ):
         route_url = pretend.call_recorder(lambda *args, **kwargs: "")
+
+        user = UserFactory.create()
+        project = ProjectFactory.create(name="some-project")
+        RoleFactory.create(user=user, project=project)
 
         form = github.PendingGitHubPublisherForm(
             api_token="fake-token",
             route_url=route_url,
-            check_project_name=lambda name: ProjectNameUnavailableReason.AlreadyExists,
+            check_project_name=project_service.check_project_name,
+            user=user,
         )
 
         field = pretend.stub(data="some-project")
         with pytest.raises(wtforms.validators.ValidationError):
             form.validate_project_name(field)
+
+        # The project settings URL is only shown in the error message if
+        # the user is the owner of the project
         assert route_url.calls == [
             pretend.call(
                 "manage.project.settings.publishing",
@@ -71,12 +93,46 @@ class TestPendingGitHubPublisherForm:
             )
         ]
 
-    @pytest.mark.parametrize("reason", list(ProjectNameUnavailableReason))
+    def test_validate_project_name_already_in_use_not_owner(
+        self, pyramid_config, project_service
+    ):
+        route_url = pretend.call_recorder(lambda *args, **kwargs: "")
+
+        user = UserFactory.create()
+        ProjectFactory.create(name="some-project")
+
+        form = github.PendingGitHubPublisherForm(
+            api_token="fake-token",
+            route_url=route_url,
+            check_project_name=project_service.check_project_name,
+            user=user,
+        )
+
+        field = pretend.stub(data="some-project")
+        with pytest.raises(wtforms.validators.ValidationError):
+            form.validate_project_name(field)
+
+        assert route_url.calls == []
+
+    @pytest.mark.parametrize(
+        "reason",
+        [
+            ProjectNameUnavailableExistingError(pretend.stub(owners=[pretend.stub()])),
+            ProjectNameUnavailableInvalidError(),
+            ProjectNameUnavailableStdlibError(),
+            ProjectNameUnavailableProhibitedError(),
+            ProjectNameUnavailableSimilarError(similar_project_name="pkg_name"),
+        ],
+    )
     def test_validate_project_name_unavailable(self, reason, pyramid_config):
+        def check_project_name(name):
+            raise reason
+
         form = github.PendingGitHubPublisherForm(
             api_token="fake-token",
             route_url=pretend.call_recorder(lambda *args, **kwargs: ""),
-            check_project_name=lambda name: reason,
+            check_project_name=check_project_name,
+            user=pretend.stub(),
         )
 
         field = pretend.stub(data="some-project")

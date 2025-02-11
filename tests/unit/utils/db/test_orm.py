@@ -10,7 +10,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.utils.db.orm import orm_session_from_obj
-from warehouse.utils.db.query_printer import print_query
+import pytest
 
-__all__ = ["orm_session_from_obj", "print_query"]
+from sqlalchemy.orm import object_session
+
+from warehouse.db import Model
+from warehouse.utils.db.orm import NoSessionError, orm_session_from_obj
+
+
+def test_orm_session_from_obj_raises_with_no_session():
+
+    class FakeObject(Model):
+        __tablename__ = "fake_object"
+
+    obj = FakeObject()
+    # Confirm that the object does not have a session with the built-in
+    assert object_session(obj) is None
+
+    with pytest.raises(NoSessionError):
+        orm_session_from_obj(obj)
