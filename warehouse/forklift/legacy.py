@@ -93,7 +93,7 @@ COMPRESSION_RATIO_THRESHOLD = 50
 # under this when enqueuing a job to store BigQuery metadata, we truncate the
 # Description field to 40K bytes, which captures up to the 95th percentile of
 # existing descriptions.
-MAX_DESCRIPTION_LENGTH_TO_BIGQUERY = 40000
+MAX_DESCRIPTION_LENGTH_TO_BIGQUERY_IN_BYTES = 40000
 
 # Wheel platform checking
 
@@ -1611,7 +1611,10 @@ def file_upload(request):
         "version": str(meta.version),
         "summary": meta.summary,
         "description": (
-            meta.description[:MAX_DESCRIPTION_LENGTH_TO_BIGQUERY]
+            # Truncate the description by bytes and not characters if it is too long
+            meta.description.encode()[
+                :MAX_DESCRIPTION_LENGTH_TO_BIGQUERY_IN_BYTES
+            ].decode("utf-8", "ignore")
             if meta.description is not None
             else None
         ),
