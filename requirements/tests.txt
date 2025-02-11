@@ -215,9 +215,9 @@ legacy-cgi==2.6.2 \
     --hash=sha256:9952471ceb304043b104c22d00b4f333cac27a6abe446d8a528fc437cf13c85f \
     --hash=sha256:a7b83afb1baf6ebeb56522537c5943ef9813cf933f6715e88a803f7edbce0bff
     # via webob
-mirakuru==2.5.3 \
-    --hash=sha256:2fab68356fb98fb5358ea3ab65f5e511f34b5a0b16cfd0a0935ef15a3393f025 \
-    --hash=sha256:39b33f8fcdf13764a6cfe936e0feeead3902a161fec438df3be7cce98f7933c6
+mirakuru==2.6.0 \
+    --hash=sha256:0ff7080997e63289dc309d0237e137ca2cfa863b3d26b3d5e8fd4e1c2b2ef659 \
+    --hash=sha256:3256fcf81ef090a30be97a8ce50ff0c178292d7e542866c5fedc5ae6801e3a17
     # via pytest-postgresql
 packaging==24.2 \
     --hash=sha256:09abb1bccd265c01f4a3aa3f7a7db064b36514d2cba19a2f694fe6150451a759 \
