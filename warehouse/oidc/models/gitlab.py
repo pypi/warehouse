@@ -15,7 +15,7 @@ import re
 from typing import Any
 
 from pypi_attestations import GitLabPublisher as GitLabIdentity, Publisher
-from sqlalchemy import ForeignKey, String, UniqueConstraint
+from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Query, mapped_column
 
@@ -273,6 +273,18 @@ class GitLabPublisherMixin:
 
     def __str__(self):
         return self.workflow_filepath
+
+    def exists(self, session) -> bool:
+        return session.query(
+            exists().where(
+                and_(
+                    self.__class__.namespace == self.namespace,
+                    self.__class__.project == self.project,
+                    self.__class__.workflow_filepath == self.workflow_filepath,
+                    self.__class__.environment == self.environment,
+                )
+            )
+        ).scalar()
 
 
 class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):
