@@ -98,6 +98,11 @@ def includeme(config):
                     "handlers": ["primary"],
                     "level": config.registry.settings.get("logging.level", "INFO"),
                 },
+                "celery.app.trace": {
+                    "propagate": False,
+                    "handlers": ["primary"],
+                    "level": config.registry.settings.get("logging.level", "INFO"),
+                },
             },
             "root": {
                 "level": config.registry.settings.get("logging.level", "INFO"),
