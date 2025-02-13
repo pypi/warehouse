@@ -98,6 +98,7 @@ from warehouse.organizations.models import OrganizationRole, OrganizationRoleTyp
 from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import (
     JournalEntry,
+    LifecycleStatus,
     Project,
     Release,
     Role,
@@ -185,6 +186,7 @@ def profile(user, request):
         select(
             Project.name,
             Project.normalized_name,
+            Project.lifecycle_status,
             Release.created,
             Release.summary,
         )
@@ -206,17 +208,28 @@ def profile(user, request):
     )
 
     # Construct the list of projects with their latest releases from query results
-    projects = [
-        {
+    archived_projects = []
+    live_projects = []
+
+    for row in request.db.execute(stmt):
+        project = {
             "name": row.name,
             "normalized_name": row.normalized_name,
+            "lifecycle_status": row.lifecycle_status,
             "created": row.created,
             "summary": row.summary,
         }
-        for row in request.db.execute(stmt)
-    ]
 
-    return {"user": user, "projects": projects}
+        if row.lifecycle_status == LifecycleStatus.Archived:
+            archived_projects.append(project)
+        else:
+            live_projects.append(project)
+
+    return {
+        "user": user,
+        "live_projects": live_projects,
+        "archived_projects": archived_projects,
+    }
 
 
 @view_config(
@@ -1640,8 +1653,7 @@ class ManageAccountPublishingViews:
         if len(self.request.user.pending_oidc_publishers) >= 3:
             self.request.session.flash(
                 self.request._(
-                    "You can't register more than 3 pending trusted "
-                    "publishers at once."
+                    "You can't register more than 3 pending trusted publishers at once."
                 ),
                 queue="error",
             )

@@ -221,7 +221,23 @@ def mint_token(
                 )
 
             # Reify the pending publisher against the newly created project
-            oidc_service.reify_pending_publisher(pending_publisher, new_project)
+            reified_publisher = oidc_service.reify_pending_publisher(
+                pending_publisher, new_project
+            )
+            request.db.flush()  # To get the reified_publisher.id
+            new_project.record_event(
+                tag=EventTag.Project.OIDCPublisherAdded,
+                request=request,
+                additional={
+                    "publisher": reified_publisher.publisher_name,
+                    "id": str(reified_publisher.id),
+                    "specifier": str(reified_publisher),
+                    "url": reified_publisher.publisher_url(),
+                    "submitted_by": "OpenID created token",
+                    "reified_from_pending_publisher": True,
+                    "constrained_from_existing_publisher": False,
+                },
+            )
 
             # Successfully converting a pending publisher into a normal publisher
             # is a positive signal, so we reset the associated ratelimits.

@@ -32,11 +32,13 @@ from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.metrics import IMetricsService
 from warehouse.oidc import errors, views
 from warehouse.oidc.interfaces import IOIDCPublisherService, SignedClaims
+from warehouse.oidc.models import GitHubPublisher
 from warehouse.oidc.views import (
     is_from_reusable_workflow,
     should_send_environment_warning_email,
 )
 from warehouse.packaging import services
+from warehouse.packaging.models import Project
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
 
@@ -446,6 +448,7 @@ def test_mint_token_from_oidc_pending_publisher_ok(
     dummy_github_oidc_jwt,
 ):
     user = UserFactory.create()
+
     pending_publisher = PendingGitHubPublisherFactory.create(
         project_name="does-not-exist",
         added_by=user,
@@ -475,6 +478,25 @@ def test_mint_token_from_oidc_pending_publisher_ok(
         pretend.call(pending_publisher.added_by.id),
         pretend.call(db_request.remote_addr),
     ]
+
+    project = (
+        db_request.db.query(Project)
+        .filter(Project.name == pending_publisher.project_name)
+        .one()
+    )
+    publisher = db_request.db.query(GitHubPublisher).one()
+    event = project.events.where(
+        Project.Event.tag == EventTag.Project.OIDCPublisherAdded
+    ).one()
+    assert event.additional == {
+        "publisher": publisher.publisher_name,
+        "id": str(publisher.id),
+        "specifier": str(publisher),
+        "url": publisher.publisher_url(),
+        "submitted_by": "OpenID created token",
+        "reified_from_pending_publisher": True,
+        "constrained_from_existing_publisher": False,
+    }
 
 
 def test_mint_token_from_pending_trusted_publisher_invalidates_others(
@@ -542,6 +564,25 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
         pretend.call(pending_publisher.added_by.id),
         pretend.call(db_request.remote_addr),
     ]
+
+    project = (
+        db_request.db.query(Project)
+        .filter(Project.name == pending_publisher.project_name)
+        .one()
+    )
+    publisher = db_request.db.query(GitHubPublisher).one()
+    event = project.events.where(
+        Project.Event.tag == EventTag.Project.OIDCPublisherAdded
+    ).one()
+    assert event.additional == {
+        "publisher": publisher.publisher_name,
+        "id": str(publisher.id),
+        "specifier": str(publisher),
+        "url": publisher.publisher_url(),
+        "submitted_by": "OpenID created token",
+        "reified_from_pending_publisher": True,
+        "constrained_from_existing_publisher": False,
+    }
 
 
 @pytest.mark.parametrize(

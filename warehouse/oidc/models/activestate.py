@@ -15,7 +15,7 @@ import urllib
 
 from typing import Any
 
-from sqlalchemy import ForeignKey, String, UniqueConstraint
+from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Query, mapped_column
 
@@ -134,6 +134,18 @@ class ActiveStatePublisherMixin:
 
     def __str__(self) -> str:
         return self.publisher_url()
+
+    def exists(self, session) -> bool:
+        return session.query(
+            exists().where(
+                and_(
+                    self.__class__.organization == self.organization,
+                    self.__class__.activestate_project_name
+                    == self.activestate_project_name,
+                    self.__class__.actor_id == self.actor_id,
+                )
+            )
+        ).scalar()
 
 
 class ActiveStatePublisher(ActiveStatePublisherMixin, OIDCPublisher):
