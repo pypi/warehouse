@@ -142,6 +142,21 @@ services:
       stripe:
         condition: service_started
 
+  tests-daemon:
+    image: warehouse:docker-compose
+    command: pytest -p pytest_hot_reloading.plugin --daemon
+    pull_policy: never
+    environment:
+      ENCODING: "C"
+    volumes: *base_volumes
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      stripe:
+        condition: service_started
+
   files:
     image: warehouse:docker-compose
     pull_policy: never
