@@ -109,16 +109,16 @@ billiard==4.2.1 \
     --hash=sha256:12b641b0c539073fc8d3f5b8b7be998956665c4233c7c1fcd66a7e677c4fb36f \
     --hash=sha256:40b59a4ac8806ba2c2369ea98d876bc6108b051c227baffd928c644d15d8f3cb
     # via celery
-boto3==1.36.17 \
-    --hash=sha256:59bcf0c4b04d9cc36f8b418ad17ab3c4a99a21a175d2fad7096aa21cbe84630b \
-    --hash=sha256:5ecae20e780a3ce9afb3add532b61c466a8cb8960618e4fa565b3883064c1346
+boto3==1.36.20 \
+    --hash=sha256:4a27ffc0543c2a429600542047f00c6a1e95270139d36d8cc636e9cc9a78b835 \
+    --hash=sha256:e132e31232ee107f1c187f566d96863a907433e5bdd8d8928effddd30a96242f
     # via
     #   -r requirements/main.in
     #   celery
     #   kombu
-botocore==1.36.17 \
-    --hash=sha256:069858b2fd693548035d7fd53a774e37e4260fea64e0ac9b8a3aee904f9321df \
-    --hash=sha256:cec13e0a7ce78e71aad0b397581b4e81824c7981ef4c261d2e296d200c399b09
+botocore==1.36.20 \
+    --hash=sha256:0110bf2208e4569659d0ccfca94baa4999501334397987b02712a94493cbf48b \
+    --hash=sha256:3815a05518ff03a8dbc8d5a3c29b95889409a25ac87a282067f6e26fefb7c40a
     # via
     #   boto3
     #   s3transfer
@@ -878,9 +878,9 @@ html5lib==1.1 \
     --hash=sha256:0d78f8fde1c230e99fe37986a60526d7049ed4bf8a9fadbad5f00e22e58e041d \
     --hash=sha256:b2e5b40261e20f354d198eae92afc10d750afb487ed5e50f9c4eaf07c184146f
     # via -r requirements/main.in
-humanize==4.11.0 \
-    --hash=sha256:b53caaec8532bcb2fff70c8826f904c35943f8cecaca29d272d9df38092736c0 \
-    --hash=sha256:e66f36020a2d5a974c504bd2555cf770621dbdbb6d82f94a6857c0b1ea2608be
+humanize==4.12.0 \
+    --hash=sha256:106a7436a2d545d742c147c469716b3a08424aa143a82103630147c489a89f48 \
+    --hash=sha256:87ff7b43591370b12a1d103c9405849d911d4b039ed22d80b718b62c76eec8a3
     # via -r requirements/main.in
 hupper==1.12.1 \
     --hash=sha256:06bf54170ff4ecf4c84ad5f188dee3901173ab449c2608ad05b9bfd6b13e32eb \
