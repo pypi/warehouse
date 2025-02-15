@@ -53,6 +53,7 @@ from warehouse.accounts.models import (
     ProhibitedUserName,
     RecoveryCode,
     User,
+    UserTermsOfServiceEngagement,
     WebAuthn,
 )
 from warehouse.events.tags import EventTag
@@ -630,6 +631,17 @@ class DatabaseUserService:
     def get_password_timestamp(self, user_id):
         user = self.get_user(user_id)
         return user.password_date.timestamp() if user.password_date is not None else 0
+
+    def needs_tos_update(self, user_id, revision):
+        return (
+            self.db.query(UserTermsOfServiceEngagement)
+            .filter(
+                UserTermsOfServiceEngagement.user.id == user_id,
+                UserTermsOfServiceEngagement.revision == revision,
+            )
+            .first()
+            is None
+        )
 
 
 @implementer(ITokenService)

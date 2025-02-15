@@ -1420,6 +1420,21 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     request.session.record_password_timestamp(
         user_service.get_password_timestamp(userid)
     )
+
+    # Check if we need to notify the user of an updated Terms of Service
+    if user_service.needs_tos_update(
+        userid, request.registry.settings.get("terms.revision")
+    ):
+        request.session.flash(
+            request._(
+                'Please review our updated <a href="${tos_url}">Terms of Service</a>.',
+                mapping={
+                    "tos_url": "https://policies.python.org/pypi.org/Terms-of-Service"
+                },
+            ),
+            safe=True,
+        )
+
     return headers
 
 
