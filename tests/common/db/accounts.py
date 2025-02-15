@@ -22,6 +22,7 @@ from warehouse.accounts.models import (
     ProhibitedEmailDomain,
     ProhibitedUserName,
     User,
+    UserTermsOfServiceEngagement,
 )
 
 from .base import WarehouseFactory
@@ -41,6 +42,13 @@ class UserFactory(WarehouseFactory):
                 factory_related_name="user",
                 primary=True,
                 verified=True,
+            )
+        )
+        # Shortcut to create a user with a ToS Agreement
+        with_terms_of_service_agreement = factory.Trait(
+            terms_of_service_engagements=factory.RelatedFactory(
+                "tests.common.db.accounts.UserTermsOfServiceEngagementFactory",
+                factory_related_name="user",
             )
         )
         # Allow passing a cleartext password to the factory
@@ -83,6 +91,19 @@ class UserEventFactory(WarehouseFactory):
         model = User.Event
 
     source = factory.SubFactory(User)
+
+
+class UserTermsOfServiceEngagementFactory(WarehouseFactory):
+    class Meta:
+        model = UserTermsOfServiceEngagement
+
+    revision = "initial"
+    engagement = "agreed"
+    datetime = factory.Faker(
+        "date_time_between_dates",
+        datetime_start=datetime.datetime(2025, 1, 1),
+        datetime_end=datetime.datetime(2025, 2, 19),
+    )
 
 
 class EmailFactory(WarehouseFactory):

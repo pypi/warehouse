@@ -16,7 +16,7 @@ from sqlalchemy.exc import NoResultFound
 from zope.interface import implementer
 
 from warehouse.accounts.interfaces import IUserService
-from warehouse.accounts.models import User
+from warehouse.accounts.models import TermsOfServiceEngagement, User
 from warehouse.email import (
     send_admin_new_organization_approved_email,
     send_admin_new_organization_declined_email,
@@ -36,7 +36,7 @@ from warehouse.organizations.models import (
     OrganizationRoleType,
     OrganizationStripeCustomer,
     OrganizationStripeSubscription,
-    OrganizationTermsOfServiceAgreement,
+    OrganizationTermsOfServiceEngagement,
     Team,
     TeamProjectRole,
     TeamRole,
@@ -536,21 +536,33 @@ class DatabaseOrganizationService:
 
         self.db.delete(organization_project)
 
-    def add_organization_terms_of_service_agreement(
-        self, organization_id, notified=False
+    def record_tos_engagement(
+        self,
+        organization_id,
+        revision,
+        flashed=False,
+        notified=False,
+        viewed=False,
+        agreed=False,
     ):
-        """
-        Add a record of end user agreeing to terms of service,
-        or being notified of a terms of service change.
-        """
-        terms_of_service_agreement = OrganizationTermsOfServiceAgreement(
-            organization_id=organization_id
+        if not any([flashed, notified, viewed, agreed]):
+            raise ValueError(
+                "Must specify engagement type, [flashed, notified, viewed, agreed]"
+            )
+        engagement = {
+            flashed: TermsOfServiceEngagement.Flashed,
+            notified: TermsOfServiceEngagement.Notified,
+            viewed: TermsOfServiceEngagement.Viewed,
+            agreed: TermsOfServiceEngagement.Agreed,
+        }
+        self.db.add(
+            OrganizationTermsOfServiceEngagement(
+                organization_id=organization_id,
+                revision=revision,
+                datetime=datetime.datetime.now(datetime.UTC),
+                engagement=engagement[True],
+            )
         )
-        if notified:
-            terms_of_service_agreement.notified = datetime.datetime.now(tz=datetime.UTC)
-        else:
-            terms_of_service_agreement.agreed = datetime.datetime.now(tz=datetime.UTC)
-        self.db.add(terms_of_service_agreement)
 
     def get_organization_subscription(self, organization_id, subscription_id):
         """

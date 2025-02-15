@@ -52,7 +52,9 @@ from warehouse.accounts.models import (
     Email,
     ProhibitedUserName,
     RecoveryCode,
+    TermsOfServiceEngagement,
     User,
+    UserTermsOfServiceEngagement,
     WebAuthn,
 )
 from warehouse.events.tags import EventTag
@@ -630,6 +632,71 @@ class DatabaseUserService:
     def get_password_timestamp(self, user_id):
         user = self.get_user(user_id)
         return user.password_date.timestamp() if user.password_date is not None else 0
+
+    def needs_tos_update(
+        self, user_id, revision, ignore_flashed=False, ignore_notified=False
+    ):
+        query = self.db.query(UserTermsOfServiceEngagement).filter(
+            UserTermsOfServiceEngagement.user_id == user_id,
+            UserTermsOfServiceEngagement.revision == revision,
+        )
+        engagements = [
+            TermsOfServiceEngagement.Viewed,
+            TermsOfServiceEngagement.Agreed,
+        ]
+        if not ignore_flashed:
+            engagements.append(TermsOfServiceEngagement.Flashed)
+        if not ignore_notified:
+            engagements.append(TermsOfServiceEngagement.Notified)
+
+        first_engagement_all = (
+            query.filter(
+                UserTermsOfServiceEngagement.datetime
+                < datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=30)
+            )
+            .order_by(
+                UserTermsOfServiceEngagement.datetime,
+            )
+            .first()
+        )
+        if first_engagement_all is not None:
+            return False
+
+        first_engagement = query.filter(
+            UserTermsOfServiceEngagement.engagement.in_(engagements)
+        ).first()
+        if first_engagement is None:
+            return True
+
+        return False
+
+    def record_tos_engagement(
+        self,
+        user_id,
+        revision,
+        flashed=False,
+        notified=False,
+        viewed=False,
+        agreed=False,
+    ):
+        if not any([flashed, notified, viewed, agreed]):
+            raise ValueError(
+                "Must specify engagement type, [flashed, notified, viewed, agreed]"
+            )
+        engagement = {
+            flashed: TermsOfServiceEngagement.Flashed,
+            notified: TermsOfServiceEngagement.Notified,
+            viewed: TermsOfServiceEngagement.Viewed,
+            agreed: TermsOfServiceEngagement.Agreed,
+        }
+        self.db.add(
+            UserTermsOfServiceEngagement(
+                user_id=user_id,
+                revision=revision,
+                datetime=datetime.datetime.now(datetime.UTC),
+                engagement=engagement[True],
+            )
+        )
 
 
 @implementer(ITokenService)

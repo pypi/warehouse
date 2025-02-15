@@ -354,6 +354,7 @@ class TestLogin:
             get_user=pretend.call_recorder(lambda userid: user),
             has_two_factor=lambda userid: False,
             get_password_timestamp=lambda userid: 0,
+            needs_tos_update=lambda userid, revision, **kw: False,
         )
         breach_service = pretend.stub(check_password=lambda password, tags=None: False)
 
@@ -432,6 +433,68 @@ class TestLogin:
         assert pyramid_request.session.new_csrf_token.calls == [pretend.call()]
         assert pyramid_request.session.record_auth_timestamp.calls == [pretend.call()]
 
+    def test_post_validate_flash_tos(self, pyramid_request, pyramid_services):
+        user = pretend.stub(
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        user_service = pretend.stub(
+            get_user=pretend.call_recorder(lambda userid: user),
+            find_userid=pretend.call_recorder(lambda username: 1),
+            update_user=lambda *a, **k: None,
+            has_two_factor=lambda userid: False,
+            get_password_timestamp=lambda userid: 0,
+            needs_tos_update=lambda userid, revision, **kw: True,
+            record_tos_engagement=pretend.call_recorder(
+                lambda userid, revision, **kw: None
+            ),
+        )
+        breach_service = pretend.stub(check_password=lambda password, tags=None: False)
+
+        pyramid_services.register_service(user_service, IUserService, None)
+        pyramid_services.register_service(
+            breach_service, IPasswordBreachedService, None
+        )
+
+        pyramid_request.method = "POST"
+
+        pyramid_request.session.record_auth_timestamp = pretend.call_recorder(
+            lambda *args: None
+        )
+        pyramid_request.session.record_password_timestamp = lambda timestamp: None
+        pyramid_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+
+        security_policy = pretend.stub(
+            identity=lambda r: None,
+            remember=lambda r, u, **kw: [],
+            reset=pretend.call_recorder(lambda r: None),
+        )
+        pyramid_request.registry.queryUtility = lambda iface: security_policy
+        pyramid_request.registry.settings = {"terms.revision": "the-revision"}
+
+        form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            username=pretend.stub(data="theuser"),
+            password=pretend.stub(data="password"),
+        )
+        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
+        pyramid_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
+
+        views.login(pyramid_request, _form_class=form_class)
+
+        assert pyramid_request.session.flash.calls == [
+            pretend.call(
+                (
+                    "Please review our updated "
+                    '<a href="/the-redirect">'
+                    "Terms of Service</a>."
+                ),
+                safe=True,
+            )
+        ]
+        assert user_service.record_tos_engagement.calls == [
+            pretend.call(1, "the-revision", flashed=True)
+        ]
+
     @pytest.mark.parametrize(
         # The set of all possible next URLs. Since this set is infinite, we
         # test only a finite set of reasonable URLs.
@@ -450,6 +513,7 @@ class TestLogin:
             update_user=lambda *a, **k: None,
             has_two_factor=lambda userid: False,
             get_password_timestamp=lambda userid: 0,
+            needs_tos_update=lambda userid, revision, **kw: False,
         )
         breach_service = pretend.stub(check_password=lambda password, tags=None: False)
 
@@ -834,6 +898,7 @@ class TestTwoFactor:
             has_recovery_codes=lambda userid: has_recovery_codes,
             check_totp_value=lambda userid, totp_value: True,
             get_password_timestamp=lambda userid: 0,
+            needs_tos_update=lambda userid, revision, **kw: False,
         )
 
         new_session = {}
@@ -1396,6 +1461,7 @@ class TestRecoveryCode:
             has_recovery_codes=lambda userid: True,
             check_recovery_code=lambda userid, recovery_code_value: True,
             get_password_timestamp=lambda userid: 0,
+            needs_tos_update=lambda userid, revision, **kw: False,
         )
 
         new_session = {}
@@ -1674,6 +1740,8 @@ class TestRegister:
                     add_email=add_email,
                     check_password=lambda pw, tags=None: False,
                     get_password_timestamp=lambda uid: 0,
+                    needs_tos_update=(lambda userid, revision, **kw: False),
+                    record_tos_engagement=(lambda uid, revision, **kwargs: None),
                 ),
                 IPasswordBreachedService: pretend.stub(
                     check_password=lambda pw, tags=None: False,
@@ -3271,6 +3339,44 @@ class TestVerifyProjectRole:
             "project_name": project.name,
             "desired_role": "Maintainer",
         }
+
+
+class TestViewTermsOfService:
+    def test_view_terms_of_service_no_user(self):
+        user_service = pretend.stub(
+            record_tos_engagement=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        pyramid_request = pretend.stub(
+            user=None,
+            find_service=lambda *a, **kw: user_service,
+            registry=pretend.stub(settings={"terms.revision": "the-revision"}),
+        )
+        result = views.view_terms_of_service(pyramid_request)
+        assert isinstance(result, HTTPSeeOther)
+        assert (
+            result.headers["Location"]
+            == "https://policies.python.org/pypi.org/Terms-of-Service"
+        )
+        assert user_service.record_tos_engagement.calls == []
+
+    def test_view_terms_of_service(self):
+        user_service = pretend.stub(
+            record_tos_engagement=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        pyramid_request = pretend.stub(
+            user=pretend.stub(id="user-id"),
+            find_service=lambda *a, **kw: user_service,
+            registry=pretend.stub(settings={"terms.revision": "the-revision"}),
+        )
+        result = views.view_terms_of_service(pyramid_request)
+        assert isinstance(result, HTTPSeeOther)
+        assert (
+            result.headers["Location"]
+            == "https://policies.python.org/pypi.org/Terms-of-Service"
+        )
+        assert user_service.record_tos_engagement.calls == [
+            pretend.call("user-id", "the-revision", viewed=True)
+        ]
 
 
 class TestProfileCallout:

@@ -309,6 +309,7 @@ def test_configure(monkeypatch, settings, environment):
 
     expected_settings = {
         "warehouse.env": environment,
+        "terms.revision": "initial",
         "warehouse.commit": "null",
         "site.name": "Warehouse",
         "token.two_factor.max_age": 300,
