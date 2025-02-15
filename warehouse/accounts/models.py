@@ -180,6 +180,15 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
         order_by="Team.name",
     )
 
+    terms_of_service_engagements: Mapped[list[UserTermsOfServiceEngagement]] = (
+        orm.relationship(
+            back_populates="user",
+            cascade="all, delete-orphan",
+            lazy=True,
+            viewonly=True,
+        )
+    )
+
     @property
     def primary_email(self):
         primaries = [x for x in self.emails if x.primary]
@@ -320,6 +329,30 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
 
     def __lt__(self, other):
         return self.username < other.username
+
+
+class UserTermsOfServiceEngagement(db.Model):
+    __tablename__ = "user_terms_of_service_engagements"
+    __table_args__ = (
+        Index(
+            "user_terms_of_service_engagements_user_id_idx",
+            "user_id",
+        ),
+    )
+
+    __repr__ = make_repr("user_id")
+
+    user_id: Mapped[UUID] = mapped_column(
+        ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"),
+    )
+    revision: Mapped[str]
+    viewed: Mapped[datetime.datetime | None] = mapped_column(TZDateTime)
+    agreed: Mapped[datetime.datetime | None] = mapped_column(TZDateTime)
+    notified: Mapped[datetime.datetime | None] = mapped_column(TZDateTime)
+
+    user: Mapped[User] = orm.relationship(
+        lazy=False, back_populates="terms_of_service_engagements"
+    )
 
 
 class WebAuthn(db.Model):
