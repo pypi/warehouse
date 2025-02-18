@@ -32,13 +32,13 @@ black==25.1.0 \
     --hash=sha256:ea0213189960bda9cf99be5b8c8ce66bb054af5e9e861249cd23471bd7b0b3ba \
     --hash=sha256:f3df5f1bf91d36002b0a75389ca8663510cf0531cca8aa5c1ef695b46d98655f
     # via -r requirements/lint.in
-boto3-stubs==1.36.17 \
-    --hash=sha256:4605dc8c65fdb577a9bfa3f2a320f8de4a8353590035a891584ff05f28991c07 \
-    --hash=sha256:6bdb71f80e50be5dd0b91fcf9852eebdced9217f49b1973d6b30c77c283f7b00
+boto3-stubs==1.36.20 \
+    --hash=sha256:04aa881969c20d1992e81a4b4674f2a9b1c5f2b2dbfe5bafae4903264f970fb1 \
+    --hash=sha256:38de70e64a16e141016e0041ef1961b5a07542689cd34e49a0dedf5b43e4ea26
     # via -r requirements/lint.in
-botocore-stubs==1.36.17 \
-    --hash=sha256:3765d6c236e4aaddcb9d28327fb3b6c6b2ca26054684d6a616859967385c2986 \
-    --hash=sha256:ba25303a022280f50630985a52d254ec6273b4dcc4b89b0548945a1ea14ccb1b
+botocore-stubs==1.36.20 \
+    --hash=sha256:08de12df07edb554e81c0126f3e4c3d7cec370d409692b46b729f4b0951edba8 \
+    --hash=sha256:bfc6492e929087ce4a275abe1840c9228c62fbc6641ee799b3c8013a505b2919
     # via boto3-stubs
 celery-types==0.22.0 \
     --hash=sha256:0ecad2fa5a6eded0a1f919e5e1e381cc2ff0635fe4b21db53b4661b6876d5b30 \
@@ -158,9 +158,9 @@ curlylint==0.13.1 \
     --hash=sha256:008b9d160f3920404ac12efb05c0a39e209cb972f9aafd956b79c5f4e2162752 \
     --hash=sha256:9546ea82cdfc9292fd6fe49dca28587164bd315782a209c0a46e013d7f38d2fa
     # via -r requirements/lint.in
-flake8==7.1.1 \
-    --hash=sha256:049d058491e228e03e67b390f311bbf88fce2dbaa8fa673e7aea87b7198b8d38 \
-    --hash=sha256:597477df7860daa5aa0fdd84bf5208a043ab96b8e96ab708770ae0364dd03213
+flake8==7.1.2 \
+    --hash=sha256:1cbc62e65536f65e6d754dfe6f1bada7f5cf392d6f5db3c2b85892466c3e7c1a \
+    --hash=sha256:c586ffd0b41540951ae41af572e6790dbd49fc12b3aa2541685d253d9bd504bd
     # via
     #   -r requirements/lint.in
     #   pep8-naming
