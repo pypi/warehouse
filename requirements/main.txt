@@ -2144,9 +2144,9 @@ securesystemslib==1.2.0 \
     --hash=sha256:34fa63e3296a0540b122a13bf51722ecd015be00c1d2ed45b23442e718920e76 \
     --hash=sha256:fa63abcb1cf4dba4f2df964f623baa45bc39029980d7a0a2119d90731942afc6
     # via tuf
-sentry-sdk==2.21.0 \
-    --hash=sha256:7623cfa9e2c8150948a81ca253b8e2bfe4ce0b96ab12f8cd78e3ac9c490fd92f \
-    --hash=sha256:a6d38e0fb35edda191acf80b188ec713c863aaa5ad8d5798decb8671d02077b6
+sentry-sdk==2.22.0 \
+    --hash=sha256:3d791d631a6c97aad4da7074081a57073126c69487560c6f8bffcf586461de66 \
+    --hash=sha256:b4bf43bb38f547c84b2eadcefbe389b36ef75f3f38253d7a74d6b928c07ae944
     # via -r requirements/main.in
 sigstore==3.6.1 \
     --hash=sha256:b568b16322222e834940acabdc84fbb16c8780874c3c21c6c8dde928dae0f881 \
