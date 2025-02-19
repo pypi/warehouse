@@ -23,6 +23,7 @@ from warehouse.accounts.models import ProhibitedEmailDomain
 from warehouse.manage import forms
 
 from ...common.db.packaging import ProjectFactory
+from common.constants import REMOTE_ADDR
 
 
 class TestCreateRoleForm:
@@ -396,7 +397,7 @@ class TestDeleteTOTPForm:
 
     def test_validate_confirm_password(self):
         request = pretend.stub(
-            remote_addr="1.2.3.4", banned=pretend.stub(by_ip=lambda ip_address: False)
+            remote_addr=REMOTE_ADDR, banned=pretend.stub(by_ip=lambda ip_address: False)
         )
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
@@ -758,7 +759,7 @@ class TestDeleteMacaroonForm:
             find_userid=lambda *a, **kw: 1, check_password=lambda *a, **kw: True
         )
         request = pretend.stub(
-            remote_addr="1.2.3.4", banned=pretend.stub(by_ip=lambda ip_address: False)
+            remote_addr=REMOTE_ADDR, banned=pretend.stub(by_ip=lambda ip_address: False)
         )
         form = forms.DeleteMacaroonForm(
             formdata=MultiDict({"macaroon_id": pretend.stub(), "password": "password"}),
@@ -779,7 +780,7 @@ class TestDeleteMacaroonForm:
             find_userid=lambda *a, **kw: 1, check_password=lambda *a, **kw: True
         )
         request = pretend.stub(
-            remote_addr="1.2.3.4", banned=pretend.stub(by_ip=lambda ip_address: False)
+            remote_addr=REMOTE_ADDR, banned=pretend.stub(by_ip=lambda ip_address: False)
         )
         form = forms.DeleteMacaroonForm(
             formdata=MultiDict(

@@ -22,6 +22,7 @@ from warehouse.ip_addresses.models import IpAddress
 from warehouse.utils import wsgi
 
 from ...common.db.ip_addresses import IpAddressFactory as DBIpAddressFactory
+from common.constants import REMOTE_ADDR
 
 
 class TestProxyFixer:
@@ -32,7 +33,7 @@ class TestProxyFixer:
         environ = {
             "HTTP_WAREHOUSE_TOKEN": "NOPE",
             "HTTP_WAREHOUSE_PROTO": "http",
-            "HTTP_WAREHOUSE_IP": "1.2.3.4",
+            "HTTP_WAREHOUSE_IP": REMOTE_ADDR,
             "HTTP_WAREHOUSE_HOST": "example.com",
         }
         start_response = pretend.stub()
@@ -77,7 +78,7 @@ class TestProxyFixer:
         environ = {
             "HTTP_WAREHOUSE_TOKEN": "1234",
             "HTTP_WAREHOUSE_PROTO": "http",
-            "HTTP_WAREHOUSE_IP": "1.2.3.4",
+            "HTTP_WAREHOUSE_IP": REMOTE_ADDR,
             "HTTP_WAREHOUSE_HASHED_IP": "hashbrowns",
             "HTTP_WAREHOUSE_HOST": "example.com",
             "HTTP_WAREHOUSE_CITY": "Anytown, ST",
@@ -92,7 +93,7 @@ class TestProxyFixer:
         assert app.calls == [
             pretend.call(
                 {
-                    "REMOTE_ADDR": "1.2.3.4",
+                    "REMOTE_ADDR": REMOTE_ADDR,
                     "REMOTE_ADDR_HASHED": "hashbrowns",
                     "HTTP_HOST": "example.com",
                     "GEOIP_CITY": "Anytown, ST",
@@ -122,7 +123,7 @@ class TestProxyFixer:
 
         environ = {
             "HTTP_X_FORWARDED_PROTO": "http",
-            "HTTP_X_FORWARDED_FOR": "1.2.3.4",
+            "HTTP_X_FORWARDED_FOR": REMOTE_ADDR,
             "HTTP_X_FORWARDED_HOST": "example.com",
             "HTTP_SOME_OTHER_HEADER": "woop",
         }
@@ -135,7 +136,7 @@ class TestProxyFixer:
             pretend.call(
                 {
                     "HTTP_SOME_OTHER_HEADER": "woop",
-                    "REMOTE_ADDR": "1.2.3.4",
+                    "REMOTE_ADDR": REMOTE_ADDR,
                     "REMOTE_ADDR_HASHED": remote_addr_salted,
                     "HTTP_HOST": "example.com",
                     "wsgi.url_scheme": "http",
@@ -148,7 +149,7 @@ class TestProxyFixer:
         response = pretend.stub()
         app = pretend.call_recorder(lambda e, s: response)
 
-        environ = {"HTTP_X_FORWARDED_FOR": "1.2.3.4", "HTTP_SOME_OTHER_HEADER": "woop"}
+        environ = {"HTTP_X_FORWARDED_FOR": REMOTE_ADDR, "HTTP_SOME_OTHER_HEADER": "woop"}
         start_response = pretend.stub()
 
         resp = wsgi.ProxyFixer(app, token=None, ip_salt=None, num_proxies=2)(
@@ -181,7 +182,7 @@ class TestProxyFixer:
             pretend.call(
                 {
                     "HTTP_SOME_OTHER_HEADER": "woop",
-                    "REMOTE_ADDR": "1.2.3.4",
+                    "REMOTE_ADDR": REMOTE_ADDR,
                     "REMOTE_ADDR_HASHED": remote_addr_salted,
                     "HTTP_HOST": "example.com",
                     "wsgi.url_scheme": "http",

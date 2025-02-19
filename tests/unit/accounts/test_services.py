@@ -49,7 +49,7 @@ from warehouse.rate_limiting.interfaces import IRateLimiter
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.ip_addresses import IpAddressFactory
-
+from common.constants import REMOTE_ADDR
 
 class TestDatabaseUserService:
     def test_verify_service(self):
@@ -62,7 +62,7 @@ class TestDatabaseUserService:
 
         session = pretend.stub()
         service = services.DatabaseUserService(
-            session, metrics=NullMetrics(), remote_addr=remote_addr
+            session, metrics=NullMetrics(), remote_addr=REMOTE_ADDR
         )
 
         assert service.db is session
@@ -95,7 +95,7 @@ class TestDatabaseUserService:
         service = services.DatabaseUserService(
             session,
             metrics=NullMetrics(),
-            remote_addr=remote_addr,
+            remote_addr=REMOTE_ADDR,
             ratelimiters=ratelimiters,
         )
 
@@ -227,8 +227,8 @@ class TestDatabaseUserService:
             user_service.check_password(user.id, None)
 
         assert excinfo.value.resets_in is resets
-        assert limiter.test.calls == [pretend.call(remote_addr)]
-        assert limiter.resets_in.calls == [pretend.call(remote_addr)]
+        assert limiter.test.calls == [pretend.call(REMOTE_ADDR)]
+        assert limiter.resets_in.calls == [pretend.call(REMOTE_ADDR)]
         assert metrics.increment.calls == [
             pretend.call(
                 "warehouse.authentication.start", tags=["mechanism:check_password"]
@@ -397,8 +397,8 @@ class TestDatabaseUserService:
             user_service.add_email(user.id, user.email)
 
         assert excinfo.value.resets_in is resets
-        assert limiter.test.calls == [pretend.call(remote_addr)]
-        assert limiter.resets_in.calls == [pretend.call(remote_addr)]
+        assert limiter.test.calls == [pretend.call(REMOTE_ADDR)]
+        assert limiter.resets_in.calls == [pretend.call(REMOTE_ADDR)]
         assert metrics.increment.calls == [
             pretend.call(
                 "warehouse.email.add.ratelimited", tags=["ratelimiter:email.add"]
@@ -1165,7 +1165,7 @@ def test_database_login_factory(monkeypatch, pyramid_services, metrics, remote_a
 
     context = pretend.stub()
     request = pretend.stub(
-        db=pretend.stub(), find_service=find_service, remote_addr=remote_addr
+        db=pretend.stub(), find_service=find_service, remote_addr=REMOTE_ADDR
     )
 
     assert services.database_login_factory(context, request) is service_obj
@@ -1173,7 +1173,7 @@ def test_database_login_factory(monkeypatch, pyramid_services, metrics, remote_a
         pretend.call(
             request.db,
             metrics=metrics,
-            remote_addr=remote_addr,
+            remote_addr=REMOTE_ADDR,
             ratelimiters={
                 "global.login": global_login_ratelimiter,
                 "user.login": user_login_ratelimiter,

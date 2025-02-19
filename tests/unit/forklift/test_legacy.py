@@ -66,6 +66,7 @@ from ...common.db.packaging import (
     ReleaseFactory,
     RoleFactory,
 )
+from common.constants import REMOTE_ADDR
 
 
 def _get_tar_testdata(compression_type=""):
@@ -4420,7 +4421,7 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.remote_addr = remote_addr
+        db_request.remote_addr = REMOTE_ADDR
 
         project_service.ratelimiters[failing_limiter] = pretend.stub(
             test=lambda *a, **kw: False,
