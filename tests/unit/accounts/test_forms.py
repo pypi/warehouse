@@ -33,9 +33,13 @@ from warehouse.accounts.models import DisableReason, ProhibitedEmailDomain
 from warehouse.captcha import recaptcha
 from warehouse.events.tags import EventTag
 from warehouse.utils.webauthn import AuthenticationRejectedError
+<<<<<<< HEAD
 
 from ...common.constants import REMOTE_ADDR
 
+=======
+from common.constants import REMOTE_ADDR
+>>>>>>> 70b4da3b7 (WIP)
 
 class TestLoginForm:
     def test_validate(self):

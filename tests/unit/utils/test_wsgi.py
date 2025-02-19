@@ -23,6 +23,7 @@ from warehouse.utils import wsgi
 
 from ...common.constants import REMOTE_ADDR, REMOTE_ADDR_HASHED, REMOTE_ADDR_SALTED
 from ...common.db.ip_addresses import IpAddressFactory as DBIpAddressFactory
+from common.constants import REMOTE_ADDR
 
 
 class TestProxyFixer:
@@ -137,7 +138,11 @@ class TestProxyFixer:
                 {
                     "HTTP_SOME_OTHER_HEADER": "woop",
                     "REMOTE_ADDR": REMOTE_ADDR,
+<<<<<<< HEAD
                     "REMOTE_ADDR_HASHED": REMOTE_ADDR_SALTED,
+=======
+                    "REMOTE_ADDR_HASHED": remote_addr_salted,
+>>>>>>> 70b4da3b7 (WIP)
                     "HTTP_HOST": "example.com",
                     "wsgi.url_scheme": "http",
                 },
@@ -149,10 +154,14 @@ class TestProxyFixer:
         response = pretend.stub()
         app = pretend.call_recorder(lambda e, s: response)
 
+<<<<<<< HEAD
         environ = {
             "HTTP_X_FORWARDED_FOR": REMOTE_ADDR,
             "HTTP_SOME_OTHER_HEADER": "woop",
         }
+=======
+        environ = {"HTTP_X_FORWARDED_FOR": REMOTE_ADDR, "HTTP_SOME_OTHER_HEADER": "woop"}
+>>>>>>> 70b4da3b7 (WIP)
         start_response = pretend.stub()
 
         resp = wsgi.ProxyFixer(app, token=None, ip_salt=None, num_proxies=2)(
@@ -186,7 +195,11 @@ class TestProxyFixer:
                 {
                     "HTTP_SOME_OTHER_HEADER": "woop",
                     "REMOTE_ADDR": REMOTE_ADDR,
+<<<<<<< HEAD
                     "REMOTE_ADDR_HASHED": REMOTE_ADDR_SALTED,
+=======
+                    "REMOTE_ADDR_HASHED": remote_addr_salted,
+>>>>>>> 70b4da3b7 (WIP)
                     "HTTP_HOST": "example.com",
                     "wsgi.url_scheme": "http",
                 },

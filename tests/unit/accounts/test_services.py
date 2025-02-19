@@ -59,7 +59,7 @@ from ...common.db.accounts import (
     UserTermsOfServiceEngagementFactory,
 )
 from ...common.db.ip_addresses import IpAddressFactory
-
+from common.constants import REMOTE_ADDR
 
 class TestDatabaseUserService:
     def test_verify_service(self):
