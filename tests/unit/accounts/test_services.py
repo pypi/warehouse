@@ -53,13 +53,16 @@ from warehouse.metrics import IMetricsService, NullMetrics
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
 from ...common.constants import REMOTE_ADDR
+<<<<<<< HEAD
 from ...common.db.accounts import (
     EmailFactory,
     UserFactory,
     UserTermsOfServiceEngagementFactory,
 )
+=======
+from ...common.db.accounts import EmailFactory, UserFactory
+>>>>>>> d098d3e65 (Reformat and Linting)
 from ...common.db.ip_addresses import IpAddressFactory
-from ...common.constants import REMOTE_ADDR
 
 
 class TestDatabaseUserService:

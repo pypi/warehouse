@@ -23,7 +23,6 @@ from warehouse.utils import wsgi
 
 from ...common.constants import REMOTE_ADDR, REMOTE_ADDR_HASHED, REMOTE_ADDR_SALTED
 from ...common.db.ip_addresses import IpAddressFactory as DBIpAddressFactory
-from ...common.constants import REMOTE_ADDR, REMOTE_ADDR_SALTED, REMOTE_ADDR_HASHED
 
 
 class TestProxyFixer:
@@ -159,13 +158,19 @@ class TestProxyFixer:
         app = pretend.call_recorder(lambda e, s: response)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d098d3e65 (Reformat and Linting)
         environ = {
             "HTTP_X_FORWARDED_FOR": REMOTE_ADDR,
             "HTTP_SOME_OTHER_HEADER": "woop",
         }
+<<<<<<< HEAD
 =======
         environ = {"HTTP_X_FORWARDED_FOR": REMOTE_ADDR, "HTTP_SOME_OTHER_HEADER": "woop"}
 >>>>>>> 70b4da3b7 (WIP)
+=======
+>>>>>>> d098d3e65 (Reformat and Linting)
         start_response = pretend.stub()
 
         resp = wsgi.ProxyFixer(app, token=None, ip_salt=None, num_proxies=2)(

@@ -23,6 +23,9 @@ from warehouse.accounts.interfaces import IUserService
 from warehouse.utils.security_policy import AuthenticationMethod
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d098d3e65 (Reformat and Linting)
 
 from ...common.constants import REMOTE_ADDR
 

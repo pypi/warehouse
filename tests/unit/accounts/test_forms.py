@@ -35,6 +35,9 @@ from warehouse.events.tags import EventTag
 from warehouse.utils.webauthn import AuthenticationRejectedError
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d098d3e65 (Reformat and Linting)
 
 from ...common.constants import REMOTE_ADDR
 

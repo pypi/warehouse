@@ -22,9 +22,13 @@ import warehouse.utils.webauthn as webauthn
 from warehouse.accounts.models import ProhibitedEmailDomain
 from warehouse.manage import forms
 
+<<<<<<< HEAD
 from ...common.constants import REMOTE_ADDR
 from ...common.db.packaging import ProjectFactory
+=======
+>>>>>>> d098d3e65 (Reformat and Linting)
 from ...common.constants import REMOTE_ADDR
+from ...common.db.packaging import ProjectFactory
 
 
 class TestCreateRoleForm:
