@@ -88,8 +88,8 @@ def test_oidc_audience():
 @pytest.mark.parametrize(
     ("token_fixture_name", "service_name"),
     [
-        (DUMMY_GITHUB_OIDC_JWT, "github"),
-        (DUMMY_ACTIVESTATE_OIDC_JWT, "activestate"),
+        ("dummy_github_oidc_jwt", "github"),
+        ("dummy_activestate_oidc_jwt", "activestate"),
     ],
 )
 def test_mint_token_from_oidc_not_enabled(token_fixture_name, service_name, request):
