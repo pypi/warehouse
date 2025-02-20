@@ -2497,8 +2497,9 @@ zope-sqlalchemy==3.1 \
     --hash=sha256:d9c2c3be695c213c5e22b7f7c6a4a214fa8eb5940b033465ba1c10a9d8b346db \
     --hash=sha256:fdc7d65d8da335a34b90fb993e8217ef12808bad3025d2e3a6720db4138e4985
     # via -r requirements/main.in
-zxcvbn==4.4.28 \
-    --hash=sha256:151bd816817e645e9064c354b13544f85137ea3320ca3be1fb6873ea75ef7dc1
+zxcvbn==4.5.0 \
+    --hash=sha256:2b6eed621612ce6d65e6e4c7455b966acee87d0280e257956b1f06ccc66bd5ff \
+    --hash=sha256:70392c0fff39459d7f55d0211151401e79e76fcc6e2c22b61add62900359c7c1
     # via -r requirements/main.in
 
 # The following packages are considered to be unsafe in a requirements file:
