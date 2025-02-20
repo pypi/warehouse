@@ -4398,6 +4398,7 @@ class TestFileUpload:
         db_request,
         project_service,
         failing_limiter,
+        remote_addr,
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -4420,7 +4421,7 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.remote_addr = REMOTE_ADDR
+        db_request.remote_addr = remote_addr
 
         project_service.ratelimiters[failing_limiter] = pretend.stub(
             test=lambda *a, **kw: False,

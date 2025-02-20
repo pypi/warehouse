@@ -74,7 +74,7 @@ def test_compute_recipient(user, address, expected):
         (None, None, "127.0.0.1", True),
     ],
 )
-def test_redact_ip(unauthenticated_userid, user, expected):
+def test_redact_ip(unauthenticated_userid, user, remote_addr, expected):
     user_email = pretend.stub(user_id="the_users_id")
 
     request = pretend.stub(
@@ -85,7 +85,7 @@ def test_redact_ip(unauthenticated_userid, user, expected):
                 filter=lambda a: pretend.stub(one=lambda: user_email)
             )
         ),
-        remote_addr=REMOTE_ADDR,
+        remote_addr=remote_addr,
     )
     assert email._redact_ip(request, user_email) == expected
 
