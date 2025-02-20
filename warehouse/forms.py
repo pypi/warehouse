@@ -19,6 +19,7 @@ from wtforms import Form as BaseForm, StringField
 from wtforms.validators import InputRequired, ValidationError
 from zxcvbn import zxcvbn
 
+from warehouse.constants import MAX_PASSWORD_SIZE
 from warehouse.i18n import KNOWN_LOCALES
 from warehouse.utils.http import is_valid_uri
 
@@ -68,7 +69,9 @@ class PasswordStrengthValidator:
                 raise ValidationError(f"Invalid field name: {fieldname!r}")
 
         # Actually ask zxcvbn to check the strength of the given field's data.
-        results = zxcvbn(field.data, user_inputs=user_inputs)
+        results = zxcvbn(
+            field.data, user_inputs=user_inputs, max_length=MAX_PASSWORD_SIZE
+        )
 
         # Determine if the score is too low, and if it is produce a nice error
         # message, *hopefully* with suggestions to make the password stronger.
