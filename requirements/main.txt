@@ -2234,9 +2234,9 @@ sqlalchemy[asyncio]==2.0.38 \
     #   alembic-postgresql-enum
     #   paginate-sqlalchemy
     #   zope-sqlalchemy
-stdlib-list==0.11.0 \
-    --hash=sha256:8bf8decfffaaf273d4cfeb5bd852b910a00dec1037dcf163576803622bccf597 \
-    --hash=sha256:b74a7b643a77a12637e907f3f62f0ab9f67300bce4014f6b2d3c8b4c8fd63c66
+stdlib-list==0.11.1 \
+    --hash=sha256:9029ea5e3dfde8cd4294cfd4d1797be56a67fc4693c606181730148c3fd1da29 \
+    --hash=sha256:95ebd1d73da9333bba03ccc097f5bac05e3aa03e6822a0c0290f87e1047f1857
     # via -r requirements/main.in
 stripe==11.5.0 \
     --hash=sha256:3b2cd47ed3002328249bff5cacaee38d5e756c3899ab425d3bd07acdaf32534a \
