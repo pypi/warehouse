@@ -878,9 +878,9 @@ html5lib==1.1 \
     --hash=sha256:0d78f8fde1c230e99fe37986a60526d7049ed4bf8a9fadbad5f00e22e58e041d \
     --hash=sha256:b2e5b40261e20f354d198eae92afc10d750afb487ed5e50f9c4eaf07c184146f
     # via -r requirements/main.in
-humanize==4.12.0 \
-    --hash=sha256:106a7436a2d545d742c147c469716b3a08424aa143a82103630147c489a89f48 \
-    --hash=sha256:87ff7b43591370b12a1d103c9405849d911d4b039ed22d80b718b62c76eec8a3
+humanize==4.12.1 \
+    --hash=sha256:1338ba97415c96556758a6e2f65977ed406dddf4620d4c6db9bbdfd07f0f1232 \
+    --hash=sha256:86014ca5c52675dffa1d404491952f1f5bf03b07c175a51891a343daebf01fea
     # via -r requirements/main.in
 hupper==1.12.1 \
     --hash=sha256:06bf54170ff4ecf4c84ad5f188dee3901173ab449c2608ad05b9bfd6b13e32eb \
