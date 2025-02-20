@@ -40,15 +40,13 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.models import DisableReason, ProhibitedEmailDomain
 from warehouse.accounts.services import RECOVERY_CODE_BYTES
 from warehouse.captcha import recaptcha
+from warehouse.constants import MAX_PASSWORD_SIZE
 from warehouse.email import (
     send_password_compromised_email_hibp,
     send_recovery_code_used_email,
 )
 from warehouse.events.tags import EventTag
 from warehouse.i18n import localize as _
-
-# Taken from passlib
-MAX_PASSWORD_SIZE = 4096
 
 # Common messages, set as constants to keep them from drifting.
 INVALID_EMAIL_MESSAGE = _("The email address isn't valid. Try again.")
