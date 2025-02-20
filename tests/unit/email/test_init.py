@@ -26,7 +26,7 @@ from warehouse.email.services import EmailMessage
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.organizations import TeamFactory
-from common.constants import REMOTE_ADDR
+from ...common.constants import REMOTE_ADDR
 
 @pytest.mark.parametrize(
     ("user", "address", "expected"),
@@ -74,7 +74,7 @@ def test_compute_recipient(user, address, expected):
         (None, None, "127.0.0.1", True),
     ],
 )
-def test_redact_ip(unauthenticated_userid, user, remote_addr, expected):
+def test_redact_ip(unauthenticated_userid, user, expected):
     user_email = pretend.stub(user_id="the_users_id")
 
     request = pretend.stub(

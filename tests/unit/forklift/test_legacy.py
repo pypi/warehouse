@@ -66,7 +66,7 @@ from ...common.db.packaging import (
     ReleaseFactory,
     RoleFactory,
 )
-from common.constants import REMOTE_ADDR
+from ...common.constants import REMOTE_ADDR
 
 
 def _get_tar_testdata(compression_type=""):
@@ -4398,7 +4398,6 @@ class TestFileUpload:
         db_request,
         project_service,
         failing_limiter,
-        remote_addr,
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)

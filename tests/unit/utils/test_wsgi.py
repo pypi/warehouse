@@ -22,7 +22,7 @@ from warehouse.ip_addresses.models import IpAddress
 from warehouse.utils import wsgi
 
 from ...common.db.ip_addresses import IpAddressFactory as DBIpAddressFactory
-from common.constants import REMOTE_ADDR
+from ...common.constants import REMOTE_ADDR, REMOTE_ADDR_SALTED, REMOTE_ADDR_HASHED
 
 
 class TestProxyFixer:
@@ -117,7 +117,7 @@ class TestProxyFixer:
         assert resp is response
         assert app.calls == [pretend.call({}, start_response)]
 
-    def test_accepts_x_forwarded_headers(self, remote_addr_salted):
+    def test_accepts_x_forwarded_headers(self):
         response = pretend.stub()
         app = pretend.call_recorder(lambda e, s: response)
 
@@ -137,7 +137,7 @@ class TestProxyFixer:
                 {
                     "HTTP_SOME_OTHER_HEADER": "woop",
                     "REMOTE_ADDR": REMOTE_ADDR,
-                    "REMOTE_ADDR_HASHED": remote_addr_salted,
+                    "REMOTE_ADDR_HASHED": REMOTE_ADDR_SALTED,
                     "HTTP_HOST": "example.com",
                     "wsgi.url_scheme": "http",
                 },
@@ -161,7 +161,7 @@ class TestProxyFixer:
             pretend.call({"HTTP_SOME_OTHER_HEADER": "woop"}, start_response)
         ]
 
-    def test_selects_right_x_forwarded_value(self, remote_addr_salted):
+    def test_selects_right_x_forwarded_value(self):
         response = pretend.stub()
         app = pretend.call_recorder(lambda e, s: response)
 
@@ -183,7 +183,7 @@ class TestProxyFixer:
                 {
                     "HTTP_SOME_OTHER_HEADER": "woop",
                     "REMOTE_ADDR": REMOTE_ADDR,
-                    "REMOTE_ADDR_HASHED": remote_addr_salted,
+                    "REMOTE_ADDR_HASHED": REMOTE_ADDR_SALTED,
                     "HTTP_HOST": "example.com",
                     "wsgi.url_scheme": "http",
                 },
@@ -246,11 +246,11 @@ def test_ip_address_created(db_request):
     assert ip_address.geoip_info == {"city": "Anytown, ST"}
 
 
-def test_remote_addr_hashed(remote_addr_hashed):
-    environ = {"REMOTE_ADDR_HASHED": remote_addr_hashed}
+def test_remote_addr_hashed():
+    environ = {"REMOTE_ADDR_HASHED": REMOTE_ADDR_HASHED}
     request = pretend.stub(environ=environ)
 
-    assert wsgi._remote_addr_hashed(request) == remote_addr_hashed
+    assert wsgi._remote_addr_hashed(request) == REMOTE_ADDR_HASHED
 
 
 def test_remote_addr_hashed_missing():

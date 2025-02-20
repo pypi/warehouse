@@ -40,7 +40,7 @@ from warehouse.oidc.views import (
 from warehouse.packaging import services
 from warehouse.packaging.models import Project
 from warehouse.rate_limiting.interfaces import IRateLimiter
-from common.constants import DUMMY_GITHUB_OIDC_JWT, DUMMY_ACTIVESTATE_OIDC_JWT
+from ...common.constants import DUMMY_GITHUB_OIDC_JWT, DUMMY_ACTIVESTATE_OIDC_JWT
 
 
 def test_ratelimiters():
@@ -193,7 +193,7 @@ def test_mint_token_from_oidc_invalid_payload_malformed_jwt(body):
 
 
 def test_mint_token_from_oidc_jwt_decode_leaky_exception(
-    monkeypatch, dummy_github_oidc_jwt: str
+    monkeypatch
 ):
     class Request:
         def __init__(self):
@@ -309,7 +309,6 @@ def test_mint_token_from_oidc_creates_expected_service(
 
 
 def test_mint_token_from_trusted_publisher_verify_jwt_signature_fails(
-    dummy_github_oidc_jwt,
 ):
     oidc_service = pretend.stub(
         verify_jwt_signature=pretend.call_recorder(lambda token: None),
@@ -337,7 +336,7 @@ def test_mint_token_from_trusted_publisher_verify_jwt_signature_fails(
     ]
 
 
-def test_mint_token_trusted_publisher_lookup_fails(dummy_github_oidc_jwt):
+def test_mint_token_trusted_publisher_lookup_fails():
     claims = pretend.stub()
     message = "some message"
     oidc_service = pretend.stub(
@@ -375,7 +374,7 @@ def test_mint_token_trusted_publisher_lookup_fails(dummy_github_oidc_jwt):
     ]
 
 
-def test_mint_token_duplicate_token(dummy_github_oidc_jwt):
+def test_mint_token_duplicate_token():
     def find_publishers_mockup(_, pending: bool = False):
         if pending is False:
             raise errors.ReusedTokenError("some message")
@@ -407,7 +406,7 @@ def test_mint_token_duplicate_token(dummy_github_oidc_jwt):
 
 
 def test_mint_token_pending_publisher_project_already_exists(
-    db_request, dummy_github_oidc_jwt
+    db_request
 ):
     project = ProjectFactory.create()
     pending_publisher = PendingGitHubPublisherFactory.create(
@@ -445,8 +444,7 @@ def test_mint_token_pending_publisher_project_already_exists(
 
 def test_mint_token_from_oidc_pending_publisher_ok(
     monkeypatch,
-    db_request,
-    dummy_github_oidc_jwt,
+    db_request
 ):
     user = UserFactory.create()
 
@@ -501,7 +499,7 @@ def test_mint_token_from_oidc_pending_publisher_ok(
 
 
 def test_mint_token_from_pending_trusted_publisher_invalidates_others(
-    monkeypatch, db_request, dummy_github_oidc_jwt
+    monkeypatch, db_request
 ):
     time = pretend.stub(time=pretend.call_recorder(lambda: 0))
     monkeypatch.setattr(views, "time", time)
@@ -595,7 +593,7 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
     ],
 )
 def test_mint_token_no_pending_publisher_ok(
-    monkeypatch, db_request, claims_in_token, claims_input, dummy_github_oidc_jwt
+    monkeypatch, db_request, claims_in_token, claims_input
 ):
     time = pretend.stub(time=pretend.call_recorder(lambda: 0))
     monkeypatch.setattr(views, "time", time)
@@ -684,7 +682,7 @@ def test_mint_token_no_pending_publisher_ok(
 
 
 def test_mint_token_warn_constrain_environment(
-    monkeypatch, db_request, dummy_github_oidc_jwt
+    monkeypatch, db_request
 ):
     claims_in_token = {"ref": "someref", "sha": "somesha", "environment": "fakeenv"}
     claims_input = {"ref": "someref", "sha": "somesha"}
@@ -798,8 +796,7 @@ def test_mint_token_warn_constrain_environment(
 
 def test_mint_token_with_prohibited_name_fails(
     monkeypatch,
-    db_request,
-    dummy_github_oidc_jwt,
+    db_request
 ):
     prohibited_project_name = ProhibitedProjectFactory.create()
     user = UserFactory.create()
@@ -841,8 +838,7 @@ def test_mint_token_with_prohibited_name_fails(
 
 def test_mint_token_with_invalid_name_fails(
     monkeypatch,
-    db_request,
-    dummy_github_oidc_jwt,
+    db_request
 ):
     user = UserFactory.create()
     pending_publisher = PendingGitHubPublisherFactory.create(
@@ -917,7 +913,6 @@ def test_mint_token_github_reusable_workflow_metrics(
     claims_in_token,
     is_reusable,
     is_github,
-    dummy_github_oidc_jwt,
     metrics,
 ):
     time = pretend.stub(time=pretend.call_recorder(lambda: 0))

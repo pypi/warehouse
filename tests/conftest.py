@@ -68,8 +68,8 @@ from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionSer
 from .common.db import Session
 from .common.db.accounts import EmailFactory, UserFactory
 from .common.db.ip_addresses import IpAddressFactory
+from .common.constants import REMOTE_ADDR, REMOTE_ADDR_HASHED
 
-from common.constants import REMOTE_ADDR, REMOTE_ADDR_HASHED, REMOTE_ADDR_SALTED
 
 _HERE = Path(__file__).parent.resolve()
 _FIXTURES = _HERE / "_fixtures"
@@ -214,7 +214,7 @@ def pyramid_services(
 
 
 @pytest.fixture
-def pyramid_request(pyramid_services, jinja, remote_addr, remote_addr_hashed):
+def pyramid_request(pyramid_services, jinja):
     pyramid.testing.setUp()
     dummy_request = pyramid.testing.DummyRequest()
     dummy_request.find_service = pyramid_services.find_service
@@ -438,7 +438,7 @@ def db_session(app_config):
 
 
 @pytest.fixture
-def user_service(db_session, metrics, remote_addr):
+def user_service(db_session, metrics):
     return account_services.DatabaseUserService(
         db_session, metrics=metrics, remote_addr=REMOTE_ADDR
     )
@@ -745,7 +745,7 @@ def tm():
 
 
 @pytest.fixture
-def webtest(app_config_dbsession_from_env, remote_addr, tm):
+def webtest(app_config_dbsession_from_env, tm):
     """
     This fixture yields a test app with an alternative Pyramid configuration,
     injecting the database session and transaction manager into the app.

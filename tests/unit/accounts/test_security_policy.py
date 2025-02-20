@@ -21,7 +21,8 @@ from zope.interface.verify import verifyClass
 from warehouse.accounts import UserContext, security_policy
 from warehouse.accounts.interfaces import IUserService
 from warehouse.utils.security_policy import AuthenticationMethod
-from common.constants import REMOTE_ADDR
+from ...common.constants import REMOTE_ADDR
+
 
 class TestBasicAuthSecurityPolicy:
     def test_verify(self):
