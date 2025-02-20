@@ -10,9 +10,9 @@ alembic==1.14.1 \
     # via
     #   -r requirements/main.in
     #   alembic-postgresql-enum
-alembic-postgresql-enum==1.6.1 \
-    --hash=sha256:23b1ab046f47e83b5f304b83be27eb712ace29303539a75b5227463838d1b2db \
-    --hash=sha256:37f08e5721616eace2495ed6262613ae7bb37ba17512dfa377c9a279d3f15265
+alembic-postgresql-enum==1.7.0 \
+    --hash=sha256:1a12a2b25f3f49440f419821888530496511573875438b6e9a08cbcb8a6f006f \
+    --hash=sha256:2a64260f3f1ed96f1bf984f55cb838e5d915693b8478b7b6ffea13cc09184ae0
     # via -r requirements/main.in
 amqp==5.3.1 \
     --hash=sha256:43b3319e1b4e7d1251833a93d672b4af1e40f3d632d479b98661a95f117880a2 \
@@ -878,9 +878,9 @@ html5lib==1.1 \
     --hash=sha256:0d78f8fde1c230e99fe37986a60526d7049ed4bf8a9fadbad5f00e22e58e041d \
     --hash=sha256:b2e5b40261e20f354d198eae92afc10d750afb487ed5e50f9c4eaf07c184146f
     # via -r requirements/main.in
-humanize==4.12.0 \
-    --hash=sha256:106a7436a2d545d742c147c469716b3a08424aa143a82103630147c489a89f48 \
-    --hash=sha256:87ff7b43591370b12a1d103c9405849d911d4b039ed22d80b718b62c76eec8a3
+humanize==4.12.1 \
+    --hash=sha256:1338ba97415c96556758a6e2f65977ed406dddf4620d4c6db9bbdfd07f0f1232 \
+    --hash=sha256:86014ca5c52675dffa1d404491952f1f5bf03b07c175a51891a343daebf01fea
     # via -r requirements/main.in
 hupper==1.12.1 \
     --hash=sha256:06bf54170ff4ecf4c84ad5f188dee3901173ab449c2608ad05b9bfd6b13e32eb \
@@ -2234,9 +2234,9 @@ sqlalchemy[asyncio]==2.0.38 \
     #   alembic-postgresql-enum
     #   paginate-sqlalchemy
     #   zope-sqlalchemy
-stdlib-list==0.11.0 \
-    --hash=sha256:8bf8decfffaaf273d4cfeb5bd852b910a00dec1037dcf163576803622bccf597 \
-    --hash=sha256:b74a7b643a77a12637e907f3f62f0ab9f67300bce4014f6b2d3c8b4c8fd63c66
+stdlib-list==0.11.1 \
+    --hash=sha256:9029ea5e3dfde8cd4294cfd4d1797be56a67fc4693c606181730148c3fd1da29 \
+    --hash=sha256:95ebd1d73da9333bba03ccc097f5bac05e3aa03e6822a0c0290f87e1047f1857
     # via -r requirements/main.in
 stripe==11.5.0 \
     --hash=sha256:3b2cd47ed3002328249bff5cacaee38d5e756c3899ab425d3bd07acdaf32534a \
@@ -2271,9 +2271,9 @@ translationstring==1.4 \
     --hash=sha256:5f4dc4d939573db851c8d840551e1a0fb27b946afe3b95aafc22577eed2d6262 \
     --hash=sha256:bf947538d76e69ba12ab17283b10355a9ecfbc078e6123443f43f2107f6376f3
     # via pyramid
-trove-classifiers==2025.1.15.22 \
-    --hash=sha256:5f19c789d4f17f501d36c94dbbf969fb3e8c2784d008e6f5164dd2c3d6a2b07c \
-    --hash=sha256:90af74358d3a01b3532bc7b3c88d8c6a094c2fd50a563d13d9576179326d7ed9
+trove-classifiers==2025.2.18.16 \
+    --hash=sha256:7f6dfae899f23f04b73bc09e0754d9219a6fc4d6cca6acd62f1850a87ea92262 \
+    --hash=sha256:b1ee2e1668589217d4edf506743e28b1834da128f8a122bad522c02d837006e1
     # via -r requirements/main.in
 tuf==5.1.0 \
     --hash=sha256:1865737bf8e05893ae31b4511617da7f02cf070562fa3c931074d29ef5fb46d7 \
@@ -2497,8 +2497,9 @@ zope-sqlalchemy==3.1 \
     --hash=sha256:d9c2c3be695c213c5e22b7f7c6a4a214fa8eb5940b033465ba1c10a9d8b346db \
     --hash=sha256:fdc7d65d8da335a34b90fb993e8217ef12808bad3025d2e3a6720db4138e4985
     # via -r requirements/main.in
-zxcvbn==4.4.28 \
-    --hash=sha256:151bd816817e645e9064c354b13544f85137ea3320ca3be1fb6873ea75ef7dc1
+zxcvbn==4.5.0 \
+    --hash=sha256:2b6eed621612ce6d65e6e4c7455b966acee87d0280e257956b1f06ccc66bd5ff \
+    --hash=sha256:70392c0fff39459d7f55d0211151401e79e76fcc6e2c22b61add62900359c7c1
     # via -r requirements/main.in
 
 # The following packages are considered to be unsafe in a requirements file:
