@@ -23,7 +23,7 @@ from warehouse.utils import wsgi
 
 from ...common.constants import REMOTE_ADDR, REMOTE_ADDR_HASHED, REMOTE_ADDR_SALTED
 from ...common.db.ip_addresses import IpAddressFactory as DBIpAddressFactory
-from common.constants import REMOTE_ADDR
+from ...common.constants import REMOTE_ADDR, REMOTE_ADDR_SALTED, REMOTE_ADDR_HASHED
 
 
 class TestProxyFixer:
@@ -139,10 +139,14 @@ class TestProxyFixer:
                     "HTTP_SOME_OTHER_HEADER": "woop",
                     "REMOTE_ADDR": REMOTE_ADDR,
 <<<<<<< HEAD
+<<<<<<< HEAD
                     "REMOTE_ADDR_HASHED": REMOTE_ADDR_SALTED,
 =======
                     "REMOTE_ADDR_HASHED": remote_addr_salted,
 >>>>>>> 70b4da3b7 (WIP)
+=======
+                    "REMOTE_ADDR_HASHED": REMOTE_ADDR_SALTED,
+>>>>>>> 773fedcf8 (Replacing Fixtures with Constants)
                     "HTTP_HOST": "example.com",
                     "wsgi.url_scheme": "http",
                 },
@@ -196,10 +200,14 @@ class TestProxyFixer:
                     "HTTP_SOME_OTHER_HEADER": "woop",
                     "REMOTE_ADDR": REMOTE_ADDR,
 <<<<<<< HEAD
+<<<<<<< HEAD
                     "REMOTE_ADDR_HASHED": REMOTE_ADDR_SALTED,
 =======
                     "REMOTE_ADDR_HASHED": remote_addr_salted,
 >>>>>>> 70b4da3b7 (WIP)
+=======
+                    "REMOTE_ADDR_HASHED": REMOTE_ADDR_SALTED,
+>>>>>>> 773fedcf8 (Replacing Fixtures with Constants)
                     "HTTP_HOST": "example.com",
                     "wsgi.url_scheme": "http",
                 },

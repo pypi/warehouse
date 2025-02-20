@@ -22,12 +22,17 @@ from warehouse.accounts import UserContext, security_policy
 from warehouse.accounts.interfaces import IUserService
 from warehouse.utils.security_policy import AuthenticationMethod
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 from ...common.constants import REMOTE_ADDR
 
 =======
 from common.constants import REMOTE_ADDR
 >>>>>>> 70b4da3b7 (WIP)
+=======
+from ...common.constants import REMOTE_ADDR
+
+>>>>>>> 773fedcf8 (Replacing Fixtures with Constants)
 
 class TestBasicAuthSecurityPolicy:
     def test_verify(self):

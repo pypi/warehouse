@@ -40,7 +40,7 @@ from warehouse.oidc.views import (
 from warehouse.packaging import services
 from warehouse.packaging.models import Project
 from warehouse.rate_limiting.interfaces import IRateLimiter
-from common.constants import DUMMY_GITHUB_OIDC_JWT, DUMMY_ACTIVESTATE_OIDC_JWT
+from ...common.constants import DUMMY_GITHUB_OIDC_JWT, DUMMY_ACTIVESTATE_OIDC_JWT
 
 from ...common.constants import DUMMY_ACTIVESTATE_OIDC_JWT, DUMMY_GITHUB_OIDC_JWT
 
@@ -193,7 +193,13 @@ def test_mint_token_from_oidc_invalid_payload_malformed_jwt(body):
         assert err["description"] == "malformed JWT"
 
 
+<<<<<<< HEAD
 def test_mint_token_from_oidc_jwt_decode_leaky_exception(monkeypatch):
+=======
+def test_mint_token_from_oidc_jwt_decode_leaky_exception(
+    monkeypatch
+):
+>>>>>>> 773fedcf8 (Replacing Fixtures with Constants)
     class Request:
         def __init__(self):
             self.response = pretend.stub(status=None)
@@ -307,7 +313,12 @@ def test_mint_token_from_oidc_creates_expected_service(
     assert mint_token.calls == [pretend.call(oidc_service, token, request)]
 
 
+<<<<<<< HEAD
 def test_mint_token_from_trusted_publisher_verify_jwt_signature_fails():
+=======
+def test_mint_token_from_trusted_publisher_verify_jwt_signature_fails(
+):
+>>>>>>> 773fedcf8 (Replacing Fixtures with Constants)
     oidc_service = pretend.stub(
         verify_jwt_signature=pretend.call_recorder(lambda token: None),
     )
@@ -403,7 +414,13 @@ def test_mint_token_duplicate_token():
     }
 
 
+<<<<<<< HEAD
 def test_mint_token_pending_publisher_project_already_exists(db_request):
+=======
+def test_mint_token_pending_publisher_project_already_exists(
+    db_request
+):
+>>>>>>> 773fedcf8 (Replacing Fixtures with Constants)
     project = ProjectFactory.create()
     pending_publisher = PendingGitHubPublisherFactory.create(
         project_name=project.name,
@@ -438,7 +455,14 @@ def test_mint_token_pending_publisher_project_already_exists(db_request):
     assert oidc_service.find_publisher.calls == [pretend.call(claims, pending=True)]
 
 
+<<<<<<< HEAD
 def test_mint_token_from_oidc_pending_publisher_ok(monkeypatch, db_request):
+=======
+def test_mint_token_from_oidc_pending_publisher_ok(
+    monkeypatch,
+    db_request
+):
+>>>>>>> 773fedcf8 (Replacing Fixtures with Constants)
     user = UserFactory.create()
 
     pending_publisher = PendingGitHubPublisherFactory.create(
@@ -674,7 +698,13 @@ def test_mint_token_no_pending_publisher_ok(
     ]
 
 
+<<<<<<< HEAD
 def test_mint_token_warn_constrain_environment(monkeypatch, db_request):
+=======
+def test_mint_token_warn_constrain_environment(
+    monkeypatch, db_request
+):
+>>>>>>> 773fedcf8 (Replacing Fixtures with Constants)
     claims_in_token = {"ref": "someref", "sha": "somesha", "environment": "fakeenv"}
     claims_input = {"ref": "someref", "sha": "somesha"}
     time = pretend.stub(time=pretend.call_recorder(lambda: 0))
@@ -785,7 +815,14 @@ def test_mint_token_warn_constrain_environment(monkeypatch, db_request):
     ]
 
 
+<<<<<<< HEAD
 def test_mint_token_with_prohibited_name_fails(monkeypatch, db_request):
+=======
+def test_mint_token_with_prohibited_name_fails(
+    monkeypatch,
+    db_request
+):
+>>>>>>> 773fedcf8 (Replacing Fixtures with Constants)
     prohibited_project_name = ProhibitedProjectFactory.create()
     user = UserFactory.create()
     PendingGitHubPublisherFactory.create(
@@ -824,7 +861,14 @@ def test_mint_token_with_prohibited_name_fails(monkeypatch, db_request):
         )
 
 
+<<<<<<< HEAD
 def test_mint_token_with_invalid_name_fails(monkeypatch, db_request):
+=======
+def test_mint_token_with_invalid_name_fails(
+    monkeypatch,
+    db_request
+):
+>>>>>>> 773fedcf8 (Replacing Fixtures with Constants)
     user = UserFactory.create()
     pending_publisher = PendingGitHubPublisherFactory.create(
         project_name="-foo-",

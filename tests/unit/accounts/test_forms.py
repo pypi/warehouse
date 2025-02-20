@@ -34,12 +34,17 @@ from warehouse.captcha import recaptcha
 from warehouse.events.tags import EventTag
 from warehouse.utils.webauthn import AuthenticationRejectedError
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 from ...common.constants import REMOTE_ADDR
 
 =======
 from common.constants import REMOTE_ADDR
 >>>>>>> 70b4da3b7 (WIP)
+=======
+from ...common.constants import REMOTE_ADDR
+
+>>>>>>> 773fedcf8 (Replacing Fixtures with Constants)
 
 class TestLoginForm:
     def test_validate(self):
