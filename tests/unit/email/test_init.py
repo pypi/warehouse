@@ -24,9 +24,10 @@ from warehouse.accounts.interfaces import IUserService
 from warehouse.email.interfaces import IEmailSender
 from warehouse.email.services import EmailMessage
 
+from ...common.constants import REMOTE_ADDR
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.organizations import TeamFactory
-from ...common.constants import REMOTE_ADDR
+
 
 @pytest.mark.parametrize(
     ("user", "address", "expected"),

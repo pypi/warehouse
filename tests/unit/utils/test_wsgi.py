@@ -21,8 +21,8 @@ from sqlalchemy.exc import NoResultFound
 from warehouse.ip_addresses.models import IpAddress
 from warehouse.utils import wsgi
 
+from ...common.constants import REMOTE_ADDR, REMOTE_ADDR_HASHED, REMOTE_ADDR_SALTED
 from ...common.db.ip_addresses import IpAddressFactory as DBIpAddressFactory
-from ...common.constants import REMOTE_ADDR, REMOTE_ADDR_SALTED, REMOTE_ADDR_HASHED
 
 
 class TestProxyFixer:
@@ -149,7 +149,10 @@ class TestProxyFixer:
         response = pretend.stub()
         app = pretend.call_recorder(lambda e, s: response)
 
-        environ = {"HTTP_X_FORWARDED_FOR": REMOTE_ADDR, "HTTP_SOME_OTHER_HEADER": "woop"}
+        environ = {
+            "HTTP_X_FORWARDED_FOR": REMOTE_ADDR,
+            "HTTP_SOME_OTHER_HEADER": "woop",
+        }
         start_response = pretend.stub()
 
         resp = wsgi.ProxyFixer(app, token=None, ip_salt=None, num_proxies=2)(

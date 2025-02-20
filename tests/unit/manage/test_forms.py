@@ -22,8 +22,8 @@ import warehouse.utils.webauthn as webauthn
 from warehouse.accounts.models import ProhibitedEmailDomain
 from warehouse.manage import forms
 
-from ...common.db.packaging import ProjectFactory
 from ...common.constants import REMOTE_ADDR
+from ...common.db.packaging import ProjectFactory
 
 
 class TestCreateRoleForm:

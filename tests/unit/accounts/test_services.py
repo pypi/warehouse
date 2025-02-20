@@ -47,9 +47,9 @@ from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService, NullMetrics
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
+from ...common.constants import REMOTE_ADDR
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.ip_addresses import IpAddressFactory
-from ...common.constants import REMOTE_ADDR
 
 
 class TestDatabaseUserService:

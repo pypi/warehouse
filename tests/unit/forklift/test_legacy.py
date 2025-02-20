@@ -66,7 +66,6 @@ from ...common.db.packaging import (
     ReleaseFactory,
     RoleFactory,
 )
-from ...common.constants import REMOTE_ADDR
 
 
 def _get_tar_testdata(compression_type=""):
