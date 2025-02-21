@@ -36,6 +36,7 @@ from zope.interface import implementer
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.email import send_pending_trusted_publisher_invalidated_email
 from warehouse.events.tags import EventTag
+from warehouse.helpdesk.interfaces import IAdminNotificationService
 from warehouse.metrics import IMetricsService
 from warehouse.oidc.models import PendingOIDCPublisher
 from warehouse.packaging.interfaces import (
@@ -48,6 +49,7 @@ from warehouse.packaging.interfaces import (
     ProjectNameUnavailableProhibitedError,
     ProjectNameUnavailableSimilarError,
     ProjectNameUnavailableStdlibError,
+    ProjectNameUnavailableTypoSquattingError,
     TooManyProjectsCreated,
 )
 from warehouse.packaging.models import (
@@ -56,6 +58,7 @@ from warehouse.packaging.models import (
     Project,
     Role,
 )
+from warehouse.packaging.typosnyper import typo_check_name
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.utils.exceptions import DevelopmentModeWarning
 from warehouse.utils.project import PROJECT_NAME_RE
@@ -448,6 +451,12 @@ class ProjectService:
         self.ratelimiters["project.create.ip"].hit(request.remote_addr)
 
     def check_project_name(self, name: str) -> None:
+        """
+        Check if a project name is valid and available.
+
+        This method will raise an exception if the project name is invalid or
+        unavailable for any reason.
+        """
         if not PROJECT_NAME_RE.match(name):
             raise ProjectNameUnavailableInvalidError()
 
@@ -475,6 +484,10 @@ class ProjectService:
             )
         ).first():
             raise ProjectNameUnavailableSimilarError(similar_project_name)
+
+        # Check for typo-squatting.
+        if typo_name := typo_check_name(canonicalize_name(name)):
+            raise ProjectNameUnavailableTypoSquattingError(typo_name)
 
         return None
 
@@ -542,6 +555,26 @@ class ProjectService:
                     projecthelp=request.help_url(_anchor="project-name"),
                 ),
             ) from None
+        # TODO: cover via testing before we go live
+        except ProjectNameUnavailableTypoSquattingError as exc:
+            # Don't yet raise an error here, as we want to allow the
+            # user to proceed with the project creation. We'll log a warning
+            # instead.
+            notification_service = request.find_service(IAdminNotificationService)
+
+            webhook_payload = {
+                "text": (
+                    f"Typo-squatting: {name!r} vs existing project "
+                    f"{exc.existing_project_name!r}"
+                )
+            }
+            notification_service.send_notification(payload=webhook_payload)
+            request.metrics.increment(
+                # TODO: This should be a more specific metric, with tags
+                "something"
+            )
+            # and continue with the project creation
+            pass
 
         # The project name is valid: create it and add it
         project = Project(name=name)
