@@ -37,14 +37,17 @@ describe("Password strength gauge controller", () => {
     application.register("password-strength-gauge", PasswordStrengthGaugeController);
   });
 
-
   describe("initial state", () => {
     describe("the password strength gauge and screen reader text", () => {
-      it("are at 0 level and reading a password empty text", () => {
+      it("are at 0 level and reading a password empty text", async () => {
+
+        const passwordTarget = getByPlaceholderText(document.body, "Your password");
+        fireEvent.input(passwordTarget, { target: { value: "" } });
+
         const gauge = document.getElementById("gauge");
         const ZXCVBN_LEVELS = [0, 1, 2, 3, 4];
         ZXCVBN_LEVELS.forEach(i =>
-          expect(gauge).not.toHaveClass(`password-strength__gauge--${i}`)
+          expect(gauge).not.toHaveClass(`password-strength__gauge--${i}`),
         );
         expect(gauge).not.toHaveAttribute("data-zxcvbn-score");
         expect(gauge.querySelector(".sr-only")).toHaveTextContent("Password field is empty");
@@ -74,8 +77,8 @@ describe("Password strength gauge controller", () => {
     });
 
     describe("that are strong", () => {
-      it("show high score and suggestions on screen reader", () => {
-        window.zxcvbn = jest.fn(() => {
+      it("show high score and suggestions on screen reader", async () => {
+        window.zxcvbn = jest.fn( () => {
           return {
             score: 5,
             feedback: {
@@ -83,6 +86,7 @@ describe("Password strength gauge controller", () => {
             },
           };
         });
+
         const passwordTarget = getByPlaceholderText(document.body, "Your password");
         fireEvent.input(passwordTarget, { target: { value: "the strongest password ever" } });
 

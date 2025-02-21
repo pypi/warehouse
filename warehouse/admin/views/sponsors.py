@@ -23,11 +23,11 @@ from sqlalchemy.exc import NoResultFound
 
 from warehouse.admin.interfaces import ISponsorLogoStorage
 from warehouse.authnz import Permissions
-from warehouse.forms import Form, URIValidator
+from warehouse.forms import URIValidator
 from warehouse.sponsors.models import Sponsor
 
 
-class SponsorForm(Form):
+class SponsorForm(wtforms.Form):
     name = wtforms.fields.StringField(
         validators=[
             wtforms.validators.Length(max=100),

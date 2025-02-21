@@ -12,6 +12,7 @@
 
 import email.message
 import email.utils
+import string
 import typing
 
 import email_validator
@@ -32,8 +33,39 @@ from webob.multidict import MultiDict
 
 from warehouse.utils import http
 
-SUPPORTED_METADATA_VERSIONS = {"1.0", "1.1", "1.2", "2.0", "2.1", "2.2", "2.3"}
+SUPPORTED_METADATA_VERSIONS = {"1.0", "1.1", "1.2", "2.1", "2.2", "2.3", "2.4"}
 
+DYNAMIC_FIELDS = [
+    "Platform",
+    "Supported-Platform",
+    "Summary",
+    "Description",
+    "Description-Content-Type",
+    "Keywords",
+    "Home-Page",  # Deprecated, but technically permitted by PEP 643
+    "Download-Url",  # Deprecated, but technically permitted by PEP 643
+    "Author",
+    "Author-Email",
+    "Maintainer",
+    "Maintainer-Email",
+    "License",
+    "License-Expression",
+    "License-File",
+    "Classifier",
+    "Requires-Dist",
+    "Requires-Python",
+    "Requires-External",
+    "Project-Url",
+    "Provides-Extra",
+    "Provides-Dist",
+    "Obsoletes-Dist",
+    # Although the following are deprecated fields, they are technically
+    # permitted as dynamic by PEP 643
+    # https://github.com/pypa/setuptools/issues/4797#issuecomment-2589514950
+    "Requires",
+    "Provides",
+    "Obsoletes",
+]
 
 # Mapping of fields on a Metadata instance to any limits on the length of that
 # field. Fields without a limit will naturally be unlimited in length.
@@ -76,7 +108,10 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
     errors: list[InvalidMetadata] = []
 
     # We restrict the supported Metadata versions to the ones that we've implemented
-    # support for.
+    # support for. The metadata version is first validated by `packaging` thus adding a
+    # version here does not make is supported unless it is supported by `packaging` as
+    # well. See `packaging.metadata._VALID_METADATA_VERSIONS` for a list of the
+    # supported versions.
     if metadata.metadata_version not in SUPPORTED_METADATA_VERSIONS:
         errors.append(
             InvalidMetadata(
@@ -139,7 +174,7 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
             InvalidMetadata("classifier", f"{classifier!r} is not a valid classifier.")
         )
 
-    # Validate that no deprecated classifers are being used.
+    # Validate that no deprecated classifiers are being used.
     # NOTE: We only check this is we're not doing a backfill, because backfill
     #       operations may legitimately use deprecated classifiers.
     if not backfill:
@@ -233,6 +268,32 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
                         )
                     )
 
+    # Validate that any `dynamic` fields passed are in the allowed list
+    # TODO: This probably should be lifted up to packaging.metadata
+    for field in {"dynamic"}:
+        if (value := getattr(metadata, field)) is not None:
+            for key in value:
+                if key not in map(str.lower, DYNAMIC_FIELDS):
+                    errors.append(
+                        InvalidMetadata(
+                            _RAW_TO_EMAIL_MAPPING.get(field, field),
+                            f"Dynamic field {key!r} is not a valid dynamic field.",
+                        )
+                    )
+
+    # Ensure that License and License-Expression are mutually exclusive
+    # See https://peps.python.org/pep-0639/#deprecate-license-field
+    if metadata.license and metadata.license_expression:
+        errors.append(
+            InvalidMetadata(
+                "license",
+                (
+                    "License is deprecated when License-Expression is present. "
+                    "Only License-Expression should be present."
+                ),
+            )
+        )
+
     # If we've collected any errors, then raise an ExceptionGroup containing them.
     if errors:
         raise ExceptionGroup("invalid metadata", errors)
@@ -242,17 +303,18 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
 _override = {
     "platforms": "platform",
     "supported_platforms": "supported_platform",
+    "license_files": "license_file",
 }
 _FORM_TO_RAW_MAPPING = {_override.get(k, k): k for k in _RAW_TO_EMAIL_MAPPING}
 
 
 def parse_form_metadata(data: MultiDict) -> Metadata:
-    # We construct a RawMetdata using the form data, which we will later pass
+    # We construct a RawMetadata using the form data, which we will later pass
     # to Metadata to get a validated metadata.
     #
-    # NOTE: Form data is very similiar to the email format where the only difference
+    # NOTE: Form data is very similar to the email format where the only difference
     #       between a list and a single value is whether or not the same key is used
-    #       multiple times. Thus we will handle things in a similiar way, always
+    #       multiple times. Thus, we will handle things in a similar way, always
     #       fetching things as a list and then determining what to do based on the
     #       field type and how many values we found.
     #
@@ -332,3 +394,12 @@ def parse_form_metadata(data: MultiDict) -> Metadata:
     # way this function is implemented, our `TypedDict` can only have valid key
     # names.
     return Metadata.from_raw(typing.cast(RawMetadata, raw))
+
+
+def normalize_project_url_label(label: str) -> str:
+    # Normalize a Project-URL label according to the label normalization
+    # rules in the "Well-Known Project URLs in Metadata" specification:
+    # <https://packaging.python.org/en/latest/specifications/well-known-project-urls/#label-normalization>
+    chars_to_remove = string.punctuation + string.whitespace
+    removal_map = str.maketrans("", "", chars_to_remove)
+    return label.translate(removal_map).lower()

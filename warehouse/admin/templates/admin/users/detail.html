@@ -435,8 +435,8 @@
           <form class="form-horizontal" method="POST" action="{{ request.current_route_path() }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
-            {% if form.errors.__all__ %}
-              {% for error in form.errors.__all__ %}
+            {% if form.form_errors %}
+              {% for error in form.form_errors %}
               <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
               {% endfor %}
             {% endif %}
@@ -509,8 +509,8 @@
           <form class="form-horizontal" method="POST" action="{{ request.route_path('admin.user.submit_email', username=user.username) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
-            {% if form.errors.__all__ %}
-              {% for error in form.errors.__all__ %}
+            {% if form.form_errors %}
+              {% for error in form.form_errors %}
               <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
               {% endfor %}
             {% endif %}
@@ -525,20 +525,20 @@
 
                 {% for field in emails_form.emails.entries %}
                 <div class="row">
-                  <div class="col-7">
+                  <div class="col-sm-7">
                     {{ render_field("Email", field.email, "email-" ~ loop.index0, class="form-control", placeholder="Email", permission=perms_admin_users_email_write)}}
                   </div>
-                  <div class="col">
+                  <div class="col-sm">
                     {{ render_checkbox("Primary", field.primary, "email-primary-" ~ loop.index0, permission=perms_admin_users_email_write)}}
                   </div>
-                  <div class="col">
+                  <div class="col-sm">
                     {{ render_checkbox("Verified", field.verified, "email-verified-" ~ loop.index0, permission=perms_admin_users_email_write) }}
                   </div>
-                  <div class="col">
+                  <div class="col-sm">
                     {{ render_checkbox("Public", field.public, "email-public-" ~ loop.index0, permission=perms_admin_users_email_write) }}
                   </div>
                   {% if breached_email_count[field.email.data] %}
-                  <div class="col">
+                  <div class="col-sm">
                     Breaches: {{ breached_email_count[field.email.data] }}
                   </div>
                   {% endif %}
@@ -562,31 +562,31 @@
             </div>
           </form>
 
-          <div class="card-header with-border">
-            <h3 class="card-title">Add a new email</h3>
-          </div>
           <div class="card">
+            <div class="card-header with-border">
+              <h3 class="card-title">Add a new email</h3>
+            </div>
             <form class="form-horizontal" method="POST" action="{{ request.route_path('admin.user.add_email', username=user.username) }}">
               <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
               <div class="card-body">
-                {% if add_email_form.errors.__all__ %}
-                  {% for error in add_email_form.errors.__all__ %}
+                {% if add_email_form.form_errors %}
+                  {% for error in add_email_form.form_errors %}
                   <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
                   {% endfor %}
                 {% endif %}
 
                 <div class="row">
-                  <div class="col-6">
+                  <div class="col-sm-7">
                     {{ render_field("Email", add_email_form.email, "email", class="form-control", placeholder="Email", permission=perms_admin_users_email_write)}}
                   </div>
-                  <div class="col">
+                  <div class="col-sm">
                     {{ render_checkbox("Primary", add_email_form.primary, "email-primary", permission=perms_admin_users_email_write)}}
                   </div>
-                  <div class="col">
+                  <div class="col-sm">
                     {{ render_checkbox("Verified", add_email_form.verified, "email-verified", permission=perms_admin_users_email_write) }}
                   </div>
-                  <div class="col">
+                  <div class="col-sm">
                     {{ render_checkbox("Public", add_email_form.public, "email-public", permission=perms_admin_users_email_write) }}
                   </div>
                 </div>
@@ -598,10 +598,10 @@
                     <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not perms_admin_users_email_write }}" {{ "disabled" if not perms_admin_users_email_write }}>Submit</button>
                   </div>
                 </div>
-              </div>
+              </div> <!-- .card-footer -->
             </form>
           </div>
-        </div>
+        </div> <!-- .card -->
       </div> <!-- .card -->
 
       <div class="card">
@@ -647,25 +647,49 @@
           </div>
         </div>
         {% endif %}
-        {% if user.has_recovery_codes %}
-        <div>
-          <div class="card-header with-border">
-            <h3 class="card-title">Recovery codes</h3>
-          </div>
-          <div class="card-body">
-            <table class="table table-hover">
-              <tr>
-                <th>Generated</th>
-                <th>Remaining</th>
-              </tr>
-              <tr>
-                <td>{{ user.recovery_codes[0].generated }}</td>
-                <td>{{ user.recovery_codes.filter_by(burned=None).all()|length }}</td>
-              </tr>
-            </table>
-          </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Recovery codes</h3>
         </div>
-        {% endif %}
+        <div class="card-body">
+          {% if user.has_recovery_codes %}
+          <table class="table table-hover">
+            <tr>
+              <th>Generated</th>
+              <th>Remaining</th>
+            </tr>
+            <tr>
+              <td>{{ user.recovery_codes[0].generated }}</td>
+              <td>{{ user.recovery_codes.filter_by(burned=None).all()|length }}</td>
+            </tr>
+          </table>
+          <form method="POST" action="{{ request.route_path('admin.user.burn_recovery_codes', username=user.username) }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+            <div class="card">
+              <div class="card-header with-border">
+                <h3 class="card-title">Burn leaked recovery codes</h3>
+              </div>
+              <div class="card-body">
+                <textarea name="to_burn"
+                          placeholder="One or more leaked recovery codes for this user, separated by whitespace or newlines"
+                          class="form-control"
+                ></textarea>
+              </div>
+              <div class="card-footer">
+                <div class="form-group">
+                  <div class="col-sm-offset-10 col-sm-2">
+                    <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not perms_admin_users_email_write }}" {{ "disabled" if not perms_admin_users_email_write }}>Submit</button>
+                  </div>
+                </div>
+              </div> <!-- .card-footer -->
+            </div> <!-- .card -->
+          </form>
+          {% else %}
+          No recovery codes configured.
+          {% endif %}
+        </div> <!-- .card-body -->
       </div> <!-- .card -->
 
       <div class="card">
@@ -674,6 +698,7 @@
         </div>
 
         <div class="card-body">
+          {% if user.macaroons %}
           <table id="api-tokens" class="table table-hover">
             <thead>
               <tr>
@@ -702,6 +727,9 @@
               {% endfor %}
             </tbody>
           </table>
+          {% else %}
+          No API tokens configured.
+          {% endif %}
         </div>
       </div> <!-- .card -->
 
@@ -737,6 +765,7 @@
         </div>
 
         <div class="card-body">
+          {% if roles %}
           <table class="table table-hover" id="projects">
             <thead>
               <tr>
@@ -755,6 +784,9 @@
             {% endfor %}
             </tbody>
           </table>
+          {% else %}
+          No roles available.
+          {% endif %}
         </div>
       </div> <!-- .card -->
 
@@ -883,10 +915,42 @@
         </div>
       </div> <!-- .card -->
 
+    {% if user.observations %}
+      <div class="card card-warning card-outline">
+        <div class="card-header with-border">
+          <h3 class="card-title">Observations about <code>{{ user.username }}</code></h3>
+        </div>
+        <div class="card-body">
+          <table id="user_observations" class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th scope="col" class="time">Time</th>
+                <th scope="col" class="related">Related</th>
+                <th scope="col" class="kind">Kind</th>
+                <th scope="col" class="summary">Summary</th>
+                <th scope="col" class="payload">Payload</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for observation in user.observations %}
+              <tr>
+                <td>{{ observation.created }}</td>
+                <td>{{ observation.related }}</td>
+                <td>{{ observation.kind_display }}</td>
+                <td>{{ observation.summary }}</td>
+                <td>{{ observation.payload }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div> <!-- .card -->
+    {% endif %}
+
     {% if user.observer.observations %}
       <div class="card">
         <div class="card-header with-border">
-          <h3 class="card-title">Observations</h3>
+          <h3 class="card-title">Admin-submitted Observations</h3>
         </div>
         <div class="card-body">
           <table id="observations" class="table table-striped table-hover">

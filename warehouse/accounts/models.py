@@ -40,6 +40,7 @@ from warehouse.events.models import HasEvents
 from warehouse.observations.models import HasObservations, HasObservers, ObservationKind
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils.attrs import make_repr
+from warehouse.utils.db import orm_session_from_obj
 from warehouse.utils.db.types import TZDateTime, bool_false, datetime_now
 
 if TYPE_CHECKING:
@@ -236,7 +237,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
 
     @property
     def recent_events(self):
-        session = orm.object_session(self)
+        session = orm_session_from_obj(self)
         last_ninety = datetime.datetime.now() - datetime.timedelta(days=90)
         return (
             session.query(User.Event)

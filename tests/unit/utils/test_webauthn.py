@@ -114,6 +114,7 @@ def test_verify_assertion_response(monkeypatch):
         new_sign_count=69,
         credential_device_type="single_device",
         credential_backed_up=False,
+        user_verified=False,
     )
     mock_verify_authentication_response = pretend.call_recorder(
         lambda *a, **kw: fake_verified_authentication

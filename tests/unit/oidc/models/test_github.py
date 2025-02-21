@@ -16,7 +16,6 @@ import sqlalchemy
 
 from tests.common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
 from warehouse.oidc import errors
-from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.models import _core, github
 
 
@@ -602,31 +601,6 @@ class TestGitHubPublisher:
         check = github.GitHubPublisher.__optional_verifiable_claims__["environment"]
         assert check(truth, claim, pretend.stub()) is valid
 
-    @pytest.mark.parametrize(
-        ("ref", "sha", "raises"),
-        [
-            ("ref", "sha", False),
-            (None, "sha", False),
-            ("ref", None, False),
-            (None, None, True),
-        ],
-    )
-    def test_github_publisher_verification_policy(self, ref, sha, raises):
-        publisher = github.GitHubPublisher(
-            repository_name="fakerepo",
-            repository_owner="fakeowner",
-            repository_owner_id="fakeid",
-            workflow_filename="fakeworkflow.yml",
-            environment="",
-        )
-        claims = {"ref": ref, "sha": sha}
-
-        if not raises:
-            publisher.publisher_verification_policy(claims)
-        else:
-            with pytest.raises(InvalidPublisherError):
-                publisher.publisher_verification_policy(claims)
-
     def test_github_publisher_duplicates_cant_be_created(self, db_request):
         publisher1 = github.GitHubPublisher(
             repository_name="repository_name",
@@ -651,6 +625,20 @@ class TestGitHubPublisher:
             db_request.db.commit()
 
     @pytest.mark.parametrize(
+        "repository_name",
+        [
+            "repository_name",
+            "Repository_Name",
+        ],
+    )
+    @pytest.mark.parametrize(
+        "repository_owner",
+        [
+            "repository_owner",
+            "Repository_Owner",
+        ],
+    )
+    @pytest.mark.parametrize(
         ("url", "expected"),
         [
             ("https://github.com/repository_owner/repository_name.git", True),
@@ -662,9 +650,43 @@ class TestGitHubPublisher:
             ("https://repository_owner.github.io/repository_name/../malicious", False),
             ("https://repository_owner.github.io/", False),
             ("https://repository_owner.github.io/unrelated_name/", False),
+            ("https://github.com/RePosItory_OwNeR/rePository_Name.git", True),
+            ("https://repository_owner.github.io/RePoSiToRy_NaMe/subpage", True),
         ],
     )
-    def test_github_publisher_verify_url(self, url, expected):
+    def test_github_publisher_verify_url(
+        self, url, expected, repository_name, repository_owner
+    ):
+        publisher = github.GitHubPublisher(
+            repository_name=repository_name,
+            repository_owner=repository_owner,
+            repository_owner_id="666",
+            workflow_filename="workflow_filename.yml",
+            environment="",
+        )
+        assert publisher.verify_url(url) == expected
+
+    @pytest.mark.parametrize("environment", ["", "some-env"])
+    def test_github_publisher_attestation_identity(self, environment):
+        publisher = github.GitHubPublisher(
+            repository_name="repository_name",
+            repository_owner="repository_owner",
+            repository_owner_id="666",
+            workflow_filename="workflow_filename.yml",
+            environment=environment,
+        )
+
+        identity = publisher.attestation_identity
+        assert identity.repository == publisher.repository
+        assert identity.workflow == publisher.workflow_filename
+
+        if not environment:
+            assert identity.environment is None
+        else:
+            assert identity.environment == publisher.environment
+
+    @pytest.mark.parametrize("exists_in_db", [True, False])
+    def test_exists(self, db_request, exists_in_db):
         publisher = github.GitHubPublisher(
             repository_name="repository_name",
             repository_owner="repository_owner",
@@ -672,7 +694,12 @@ class TestGitHubPublisher:
             workflow_filename="workflow_filename.yml",
             environment="",
         )
-        assert publisher.verify_url(url) == expected
+
+        if exists_in_db:
+            db_request.db.add(publisher)
+            db_request.db.flush()
+
+        assert publisher.exists(db_request.db) == exists_in_db
 
 
 class TestPendingGitHubPublisher:

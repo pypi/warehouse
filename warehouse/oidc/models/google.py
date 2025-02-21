@@ -12,7 +12,7 @@
 
 from typing import Any
 
-from sqlalchemy import ForeignKey, String, UniqueConstraint
+from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Query, mapped_column
 
@@ -24,6 +24,8 @@ from warehouse.oidc.models._core import (
     check_claim_binary,
     check_claim_invariant,
 )
+
+GOOGLE_OIDC_ISSUER_URL = "https://accounts.google.com"
 
 
 def _check_sub(
@@ -103,6 +105,16 @@ class GooglePublisherMixin:
     def __str__(self):
         return self.email
 
+    def exists(self, session) -> bool:
+        return session.query(
+            exists().where(
+                and_(
+                    self.__class__.email == self.email,
+                    self.__class__.sub == self.sub,
+                )
+            )
+        ).scalar()
+
 
 class GooglePublisher(GooglePublisherMixin, OIDCPublisher):
     __tablename__ = "google_oidc_publishers"
@@ -123,7 +135,7 @@ class GooglePublisher(GooglePublisherMixin, OIDCPublisher):
 class PendingGooglePublisher(GooglePublisherMixin, PendingOIDCPublisher):
     __tablename__ = "pending_google_oidc_publishers"
     __mapper_args__ = {"polymorphic_identity": "pending_google_oidc_publishers"}
-    __table_args__ = (
+    __table_args__ = (  # type: ignore[assignment]
         UniqueConstraint(
             "email",
             "sub",

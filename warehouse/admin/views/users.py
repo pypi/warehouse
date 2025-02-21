@@ -26,8 +26,12 @@ from pyramid.view import view_config
 from sqlalchemy import or_, select
 from sqlalchemy.orm import joinedload
 
-from warehouse import forms
-from warehouse.accounts.interfaces import IEmailBreachedService, IUserService
+from warehouse.accounts.interfaces import (
+    BurnedRecoveryCode,
+    IEmailBreachedService,
+    InvalidRecoveryCode,
+    IUserService,
+)
 from warehouse.accounts.models import (
     DisableReason,
     Email,
@@ -88,7 +92,7 @@ def user_list(request):
     return {"users": users, "query": q}
 
 
-class EmailForm(forms.Form):
+class EmailForm(wtforms.Form):
     email = wtforms.fields.EmailField(validators=[wtforms.validators.InputRequired()])
     primary = wtforms.fields.BooleanField()
     verified = wtforms.fields.BooleanField()
@@ -96,7 +100,7 @@ class EmailForm(forms.Form):
     unverify_reason = wtforms.fields.StringField(render_kw={"readonly": True})
 
 
-class EmailsForm(forms.Form):
+class EmailsForm(wtforms.Form):
     emails = wtforms.fields.FieldList(wtforms.fields.FormField(EmailForm))
 
     def validate_emails(self, field):
@@ -108,7 +112,7 @@ class EmailsForm(forms.Form):
             )
 
 
-class UserForm(forms.Form):
+class UserForm(wtforms.Form):
     name = wtforms.StringField(
         validators=[wtforms.validators.Optional(), wtforms.validators.Length(max=100)]
     )
@@ -572,7 +576,6 @@ def user_recover_account_complete(user: User, request):
     user.totp_secret = None
     user.webauthn = []
     user.recovery_codes = []
-    _user_reset_password(user, request)
 
     for account_recovery in user.active_account_recoveries:
         account_recovery.additional["status"] = "completed"
@@ -585,6 +588,8 @@ def user_recover_account_complete(user: User, request):
                     email.primary = True
                     email.verified = True
 
+    _user_reset_password(user, request)
+
     request.session.flash(
         (
             "Account Recovery Complete, "
@@ -592,4 +597,32 @@ def user_recover_account_complete(user: User, request):
         ),
         queue="success",
     )
+    return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
+
+
+@view_config(
+    route_name="admin.user.burn_recovery_codes",
+    require_methods=["POST"],
+    permission=Permissions.AdminUsersWrite,
+    uses_session=True,
+    require_csrf=True,
+    context=User,
+)
+def user_burn_recovery_codes(user, request):
+    codes = request.POST.get("to_burn", "").strip().split()
+    if not codes:
+        request.session.flash("No recovery codes provided", queue="error")
+
+    else:
+        user_service = request.find_service(IUserService, context=None)
+        n_burned = 0
+
+        for code in codes:
+            try:
+                user_service.check_recovery_code(user.id, code)
+                n_burned += 1
+            except (BurnedRecoveryCode, InvalidRecoveryCode):
+                pass
+
+        request.session.flash(f"Burned {n_burned} recovery code(s)", queue="success")
     return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))

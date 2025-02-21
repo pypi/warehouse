@@ -12,11 +12,11 @@
 
 import wtforms
 
-from warehouse import forms
+from warehouse.forms import PreventHTMLTagsValidator
 from warehouse.i18n import localize as _
 
 
-class SubmitMalwareObservationForm(forms.Form):
+class SubmitMalwareObservationForm(wtforms.Form):
     """Form to submit details about a Project with Malware"""
 
     inspector_link = wtforms.fields.URLField(
@@ -33,6 +33,7 @@ class SubmitMalwareObservationForm(forms.Form):
         validators=[
             wtforms.validators.InputRequired(),
             wtforms.validators.Length(min=10, max=2000),
+            PreventHTMLTagsValidator(),
         ],
     )
 

@@ -13,8 +13,8 @@ click
 cryptography>=43.0.1
 datadog>=0.19.0
 disposable-email-domains
+dnspython
 email-validator
-first
 forcediphttpsadapter
 github-reserved-names>=1.0.0
 google-cloud-bigquery
@@ -28,11 +28,13 @@ kombu[sqs]>=5.4,<5.5  # https://github.com/jazzband/pip-tools/issues/1577
 limits
 linehaul
 lxml
+more-itertools
 msgpack
 natsort
+nh3
 opensearch-py
 orjson
-packaging>=23.2
+packaging>=24.2
 packaging_legacy
 paginate>=0.5.2
 paginate_sqlalchemy
@@ -40,7 +42,6 @@ passlib>=1.6.4
 platformdirs>=4.2
 premailer
 psycopg[c]
-pycurl
 pydantic
 pyqrcode
 pyramid>=2.0
@@ -61,11 +62,9 @@ requests
 requests-aws4auth
 redis>=2.8.0,<6.0.0
 rfc3986
-rfc8785
 sentry-sdk
 setuptools
-sigstore~=3.3.0
-pypi-attestations==0.0.12
+pypi-attestations==0.0.21
 sqlalchemy[asyncio]>=2.0,<3.0
 stdlib-list
 stripe

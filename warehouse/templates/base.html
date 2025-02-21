@@ -131,7 +131,7 @@
             {% if request.registry.settings.get("ga4.tracking_id") -%}
             data-ga4-id="{{ request.registry.settings['ga4.tracking_id'] }}"
             {% endif %}
-            src="{{ request.static_path('warehouse:static/dist/js/warehouse.js') }}">
+            src="{{ request.static_path('warehouse:static/dist/js/warehouse' + ('' if request.localizer.locale_name == 'en' else '.' + request.localizer.locale_name) + '.js') }}">
     </script>
     {% block extra_js %}
     {% endblock %}
@@ -316,7 +316,7 @@
             <ul>
               <li><a href="https://policies.python.org/python.org/code-of-conduct/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Code of conduct{% endtrans %}</a></li>
               <li><a href="{{ request.route_path('security') }}">{% trans %}Report security issue{% endtrans %}</a></li>
-              <li><a href="https://www.python.org/privacy/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Privacy policy{% endtrans %}</a></li>
+              <li><a href="https://policies.python.org/pypi.org/Privacy-Notice/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Privacy Notice{% endtrans %}</a></li>
               <li><a href="https://policies.python.org/pypi.org/Terms-of-Use/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Terms of Use{% endtrans %}</a></li>
               <li><a href="https://policies.python.org/pypi.org/Acceptable-Use-Policy/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Acceptable Use Policy{% endtrans %}</a></li>
             </ul>

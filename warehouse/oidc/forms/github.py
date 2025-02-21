@@ -16,7 +16,6 @@ import requests
 import sentry_sdk
 import wtforms
 
-from warehouse import forms
 from warehouse.i18n import localize as _
 from warehouse.oidc.forms._core import PendingPublisherMixin
 
@@ -24,7 +23,7 @@ _VALID_GITHUB_REPO = re.compile(r"^[a-zA-Z0-9-_.]+$")
 _VALID_GITHUB_OWNER = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9-]*$")
 
 
-class GitHubPublisherBase(forms.Form):
+class GitHubPublisherBase(wtforms.Form):
     __params__ = ["owner", "repository", "workflow_filename", "environment"]
 
     owner = wtforms.StringField(
@@ -169,10 +168,11 @@ class GitHubPublisherBase(forms.Form):
 class PendingGitHubPublisherForm(GitHubPublisherBase, PendingPublisherMixin):
     __params__ = GitHubPublisherBase.__params__ + ["project_name"]
 
-    def __init__(self, *args, route_url, project_factory, **kwargs):
+    def __init__(self, *args, route_url, check_project_name, user, **kwargs):
         super().__init__(*args, **kwargs)
         self._route_url = route_url
-        self._project_factory = project_factory
+        self._check_project_name = check_project_name
+        self._user = user
 
     @property
     def provider(self) -> str:

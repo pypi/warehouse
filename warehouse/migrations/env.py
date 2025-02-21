@@ -30,7 +30,10 @@ def run_migrations_offline():
     Calls to context.execute() here emit the given string to the
     script output.
     """
-    url = context.config.get_main_option("sqlalchemy.url")
+    options = context.config.get_section(context.config.config_ini_section)
+    if options is None:
+        raise ValueError("No options found in config")
+    url = options.pop("url")
     context.configure(url=url, compare_server_default=True)
 
     with context.begin_transaction():
@@ -45,6 +48,8 @@ def run_migrations_online():
     and associate a connection with the context.
     """
     options = context.config.get_section(context.config.config_ini_section)
+    if options is None:
+        raise ValueError("No options found in config")
     url = options.pop("url")
     connectable = create_engine(url, poolclass=pool.NullPool)
 

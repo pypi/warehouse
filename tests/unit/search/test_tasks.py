@@ -20,7 +20,7 @@ import pytest
 import redis
 import redis.lock
 
-from first import first
+from more_itertools import first_true
 
 import warehouse.search.tasks
 
@@ -63,9 +63,8 @@ def test_project_docs(db_session):
                 "created": p.created,
                 "name": p.name,
                 "normalized_name": p.normalized_name,
-                "latest_version": first(prs, key=lambda r: not r.is_prerelease).version,
-                "description": first(
-                    prs, key=lambda r: not r.is_prerelease
+                "description": first_true(
+                    prs, pred=lambda r: not r.is_prerelease
                 ).description.raw,
             },
         }
@@ -101,9 +100,8 @@ def test_single_project_doc(db_session):
                 "created": p.created,
                 "name": p.name,
                 "normalized_name": p.normalized_name,
-                "latest_version": first(prs, key=lambda r: not r.is_prerelease).version,
-                "description": first(
-                    prs, key=lambda r: not r.is_prerelease
+                "description": first_true(
+                    prs, pred=lambda r: not r.is_prerelease
                 ).description.raw,
             },
         }
@@ -140,9 +138,8 @@ def test_project_docs_empty(db_session):
                 "created": p.created,
                 "name": p.name,
                 "normalized_name": p.normalized_name,
-                "latest_version": first(prs, key=lambda r: not r.is_prerelease).version,
-                "description": first(
-                    prs, key=lambda r: not r.is_prerelease
+                "description": first_true(
+                    prs, pred=lambda r: not r.is_prerelease
                 ).description.raw,
             },
         }

@@ -30,7 +30,6 @@ from pyramid.authorization import Allow, Authenticated
 from pyramid.config import Configurator as _Configurator
 from pyramid.exceptions import HTTPForbidden
 from pyramid.httpexceptions import HTTPBadRequest
-from pyramid.settings import asbool
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
@@ -389,13 +388,6 @@ def configure(settings=None):
     maybe_set(settings, "token.email.secret", "TOKEN_EMAIL_SECRET")
     maybe_set(settings, "token.two_factor.secret", "TOKEN_TWO_FACTOR_SECRET")
     maybe_set(settings, "token.remember_device.secret", "TOKEN_REMEMBER_DEVICE_SECRET")
-    maybe_set(
-        settings,
-        "warehouse.xmlrpc.search.enabled",
-        "WAREHOUSE_XMLRPC_SEARCH",
-        coercer=asbool,
-        default=True,
-    )
     maybe_set_redis(settings, "warehouse.xmlrpc.cache.url", "REDIS_URL", db=4)
     maybe_set(
         settings,
@@ -440,13 +432,6 @@ def configure(settings=None):
         coercer=int,
         default=100,
     )
-    maybe_set(
-        settings,
-        "metadata_backfill.batch_size",
-        "METADATA_BACKFILL_BATCH_SIZE",
-        coercer=int,
-        default=500,
-    )
     maybe_set_compound(settings, "billing", "backend", "BILLING_BACKEND")
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
     maybe_set_compound(settings, "archive_files", "backend", "ARCHIVE_FILES_BACKEND")
@@ -488,6 +473,15 @@ def configure(settings=None):
     maybe_set(settings, "helpscout.app_id", "HELPSCOUT_WAREHOUSE_APP_ID")
     maybe_set(settings, "helpscout.app_secret", "HELPSCOUT_WAREHOUSE_APP_SECRET")
     maybe_set(settings, "helpscout.mailbox_id", "HELPSCOUT_WAREHOUSE_MAILBOX_ID")
+    # Admin notification service settings
+    maybe_set(
+        settings, "helpdesk.notification_backend", "HELPDESK_NOTIFICATION_BACKEND"
+    )
+    maybe_set(
+        settings,
+        "helpdesk.notification_service_url",
+        "HELPDESK_NOTIFICATION_SERVICE_URL",
+    )
 
     # Configure our ratelimiters
     maybe_set(
@@ -525,7 +519,7 @@ def configure(settings=None):
         "warehouse.account.accounts_search_ratelimit_string",
         "ACCOUNTS_SEARCH_RATELIMIT_STRING",
         default="100 per hour",
-    ),
+    )
     maybe_set(
         settings,
         "warehouse.account.password_reset_ratelimit_string",
@@ -555,6 +549,12 @@ def configure(settings=None):
         "warehouse.packaging.project_create_ip_ratelimit_string",
         "PROJECT_CREATE_IP_RATELIMIT_STRING",
         default="40 per hour",
+    )
+    maybe_set(
+        settings,
+        "warehouse.search.ratelimit_string",
+        "SEARCH_RATELIMIT_STRING",
+        default="5 per second",
     )
 
     # OIDC feature flags and settings
@@ -805,6 +805,9 @@ def configure(settings=None):
 
     # Register support for OIDC based authentication
     config.include(".oidc")
+
+    # Register support for attestations
+    config.include(".attestations")
 
     # Register logged-in views
     config.include(".manage")

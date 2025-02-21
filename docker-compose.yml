@@ -160,7 +160,7 @@ services:
   worker:
     image: warehouse:docker-compose
     pull_policy: never
-    command: hupper --shutdown-interval 10 --reload-interval 10 -m celery -A warehouse worker --beat --scheduler redbeat.RedBeatScheduler -l info
+    command: hupper --shutdown-interval 10 --reload-interval 10 -m celery -A warehouse worker --concurrency=1 --beat --scheduler redbeat.RedBeatScheduler -l info
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
       - packages:/var/opt/warehouse/packages
@@ -221,7 +221,8 @@ services:
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
       - ./webpack.config.js:/opt/warehouse/src/webpack.config.js:z
-      - ./.babelrc:/opt/warehouse/src/.babelrc:z
+      - ./webpack.plugin.localize.js:/opt/warehouse/src/webpack.plugin.localize.js:z
+      - ./babel.config.js:/opt/warehouse/src/babel.config.js:z
       - ./.stylelintrc.json:/opt/warehouse/src/.stylelintrc.json:z
       - ./tests/frontend:/opt/warehouse/src/tests/frontend:z
       - ./bin:/opt/warehouse/src/bin:z

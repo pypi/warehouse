@@ -9,26 +9,28 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import hashlib
 import json
+import re
 
 import pretend
 import pytest
-import rfc8785
 
 from pydantic import TypeAdapter
 from pypi_attestations import (
     Attestation,
     AttestationType,
-    GitHubPublisher,
-    GitLabPublisher,
     Provenance,
     VerificationError,
 )
 from sigstore.verify import Verifier
 from zope.interface.verify import verifyClass
 
-from tests.common.db.oidc import GitHubPublisherFactory, GitLabPublisherFactory
+from tests.common.db.oidc import (
+    ActiveStatePublisherFactory,
+    GitHubPublisherFactory,
+    GitLabPublisherFactory,
+    GooglePublisherFactory,
+)
 from tests.common.db.packaging import FileFactory
 from warehouse.attestations import IIntegrityService, services
 from warehouse.attestations.errors import AttestationUploadError
@@ -39,23 +41,18 @@ class TestNullIntegrityService:
     def test_interface_matches(self):
         assert verifyClass(IIntegrityService, services.NullIntegrityService)
 
-    def test_build_provenance(self, db_request, dummy_attestation):
-        db_request.oidc_publisher = pretend.stub(
-            publisher_name="GitHub",
-            repository="fake/fake",
-            workflow_filename="fake.yml",
-            environment="fake",
-        )
+    @pytest.mark.parametrize(
+        "publisher_factory",
+        [GitHubPublisherFactory, GitLabPublisherFactory],
+    )
+    def test_build_provenance(self, db_request, dummy_attestation, publisher_factory):
+        db_request.oidc_publisher = publisher_factory.create()
 
         file = FileFactory.create()
         service = services.NullIntegrityService.create_service(None, db_request)
 
         provenance = service.build_provenance(db_request, file, [dummy_attestation])
         assert isinstance(provenance, DatabaseProvenance)
-        assert (
-            provenance.provenance_digest
-            == hashlib.sha256(rfc8785.dumps(provenance.provenance)).hexdigest()
-        )
         assert provenance.file == file
         assert file.provenance == provenance
 
@@ -94,16 +91,26 @@ class TestIntegrityService:
         ):
             integrity_service.parse_attestations(db_request, pretend.stub())
 
-    def test_parse_attestations_fails_unsupported_publisher(self, db_request):
+    @pytest.mark.parametrize(
+        "publisher_factory",
+        [
+            GooglePublisherFactory,
+            ActiveStatePublisherFactory,
+        ],
+    )
+    def test_parse_attestations_fails_unsupported_publisher(
+        self, db_request, publisher_factory
+    ):
         integrity_service = services.IntegrityService(
             metrics=pretend.stub(), session=db_request.db
         )
-        db_request.oidc_publisher = pretend.stub(
-            supports_attestations=False, publisher_name="fake"
-        )
+        db_request.oidc_publisher = publisher_factory.create()
         with pytest.raises(
             AttestationUploadError,
-            match="Attestations are not currently supported with fake publishers",
+            match=(
+                "Attestations are not currently supported with "
+                f"{db_request.oidc_publisher.publisher_name} publishers"
+            ),
         ):
             integrity_service.parse_attestations(db_request, pretend.stub())
 
@@ -113,7 +120,7 @@ class TestIntegrityService:
             session=db_request.db,
         )
 
-        db_request.oidc_publisher = pretend.stub(supports_attestations=True)
+        db_request.oidc_publisher = pretend.stub(attestation_identity=pretend.stub())
         db_request.POST["attestations"] = "{'malformed-attestation'}"
         with pytest.raises(
             AttestationUploadError,
@@ -126,7 +133,7 @@ class TestIntegrityService:
             in metrics.increment.calls
         )
 
-    def test_parse_attestations_fails_multiple_attestations(
+    def test_parse_attestations_fails_multiple_attestations_exceeds_limit(
         self, metrics, db_request, dummy_attestation
     ):
         integrity_service = services.IntegrityService(
@@ -134,12 +141,16 @@ class TestIntegrityService:
             session=db_request.db,
         )
 
-        db_request.oidc_publisher = pretend.stub(supports_attestations=True)
+        max_attestations = len(services.SUPPORTED_ATTESTATION_TYPES)
+
+        db_request.oidc_publisher = pretend.stub(attestation_identity=pretend.stub())
         db_request.POST["attestations"] = TypeAdapter(list[Attestation]).dump_json(
-            [dummy_attestation, dummy_attestation]
+            [dummy_attestation] * (max_attestations + 1)
         )
         with pytest.raises(
-            AttestationUploadError, match="Only a single attestation per file"
+            AttestationUploadError,
+            match=f"A maximum of {max_attestations} attestations per file are "
+            f"supported",
         ):
             integrity_service.parse_attestations(
                 db_request,
@@ -147,7 +158,49 @@ class TestIntegrityService:
             )
 
         assert (
-            pretend.call("warehouse.upload.attestations.failed_multiple_attestations")
+            pretend.call(
+                "warehouse.upload.attestations.failed_limit_multiple_attestations"
+            )
+            in metrics.increment.calls
+        )
+
+    def test_parse_attestations_fails_multiple_attestations_same_predicate(
+        self, metrics, monkeypatch, db_request, dummy_attestation
+    ):
+        integrity_service = services.IntegrityService(
+            metrics=metrics,
+            session=db_request.db,
+        )
+        max_attestations = len(services.SUPPORTED_ATTESTATION_TYPES)
+        db_request.oidc_publisher = pretend.stub(
+            attestation_identity=pretend.stub(),
+        )
+        db_request.oidc_claims = {"sha": "somesha"}
+        db_request.POST["attestations"] = TypeAdapter(list[Attestation]).dump_json(
+            [dummy_attestation] * max_attestations
+        )
+
+        monkeypatch.setattr(Verifier, "production", lambda: pretend.stub())
+        monkeypatch.setattr(
+            Attestation, "verify", lambda *args: (AttestationType.PYPI_PUBLISH_V1, {})
+        )
+
+        with pytest.raises(
+            AttestationUploadError,
+            match=re.escape(
+                "Multiple attestations for the same file with the same predicate "
+                "type (https://docs.pypi.org/attestations/publish/v1) are not supported"
+            ),
+        ):
+            integrity_service.parse_attestations(
+                db_request,
+                pretend.stub(),
+            )
+
+        assert (
+            pretend.call(
+                "warehouse.upload.attestations.failed_duplicate_predicate_type"
+            )
             in metrics.increment.calls
         )
 
@@ -179,18 +232,16 @@ class TestIntegrityService:
         )
 
         db_request.oidc_publisher = pretend.stub(
-            supports_attestations=True,
-            publisher_verification_policy=pretend.call_recorder(lambda c: None),
+            attestation_identity=pretend.stub(),
         )
         db_request.oidc_claims = {"sha": "somesha"}
         db_request.POST["attestations"] = TypeAdapter(list[Attestation]).dump_json(
             [dummy_attestation]
         )
 
-        def failing_verify(_self, _verifier, _policy, _dist):
+        def failing_verify(_self, _policy, _dist):
             raise verify_exception("error")
 
-        monkeypatch.setattr(Verifier, "production", lambda: pretend.stub())
         monkeypatch.setattr(Attestation, "verify", failing_verify)
 
         with pytest.raises(AttestationUploadError, match=expected_message):
@@ -211,8 +262,7 @@ class TestIntegrityService:
             session=db_request.db,
         )
         db_request.oidc_publisher = pretend.stub(
-            supports_attestations=True,
-            publisher_verification_policy=pretend.call_recorder(lambda c: None),
+            attestation_identity=pretend.stub(),
         )
         db_request.oidc_claims = {"sha": "somesha"}
         db_request.POST["attestations"] = TypeAdapter(list[Attestation]).dump_json(
@@ -247,8 +297,7 @@ class TestIntegrityService:
             session=db_request.db,
         )
         db_request.oidc_publisher = pretend.stub(
-            supports_attestations=True,
-            publisher_verification_policy=pretend.call_recorder(lambda c: None),
+            attestation_identity=pretend.stub(),
         )
         db_request.oidc_claims = {"sha": "somesha"}
         db_request.POST["attestations"] = TypeAdapter(list[Attestation]).dump_json(
@@ -266,37 +315,17 @@ class TestIntegrityService:
         )
         assert attestations == [dummy_attestation]
 
-    def test_build_provenance_fails_unsupported_publisher(
-        self, db_request, dummy_attestation
-    ):
-        integrity_service = services.IntegrityService(
-            metrics=pretend.stub(),
-            session=db_request.db,
-        )
-
-        db_request.oidc_publisher = pretend.stub(publisher_name="not-existing")
-
-        file = FileFactory.create()
-        with pytest.raises(AttestationUploadError, match="Unsupported publisher"):
-            integrity_service.build_provenance(db_request, file, [dummy_attestation])
-
-        # If building provenance fails, nothing is stored or associated with the file
-        assert not file.provenance
-
     @pytest.mark.parametrize(
         "publisher_factory",
-        [
-            GitHubPublisherFactory,
-            GitLabPublisherFactory,
-        ],
+        [GitHubPublisherFactory, GitLabPublisherFactory],
     )
     def test_build_provenance_succeeds(
-        self, db_request, publisher_factory, dummy_attestation
+        self, metrics, db_request, publisher_factory, dummy_attestation
     ):
         db_request.oidc_publisher = publisher_factory.create()
 
         integrity_service = services.IntegrityService(
-            metrics=pretend.stub(),
+            metrics=metrics,
             session=db_request.db,
         )
 
@@ -311,35 +340,17 @@ class TestIntegrityService:
         model = Provenance.model_validate(provenance.provenance)
         assert model.attestation_bundles[0].attestations == [dummy_attestation]
 
-
-def test_publisher_from_oidc_publisher_succeeds_github(db_request):
-    publisher = GitHubPublisherFactory.create()
-
-    attestation_publisher = services._publisher_from_oidc_publisher(publisher)
-    assert isinstance(attestation_publisher, GitHubPublisher)
-    assert attestation_publisher.repository == publisher.repository
-    assert attestation_publisher.workflow == publisher.workflow_filename
-    assert attestation_publisher.environment == publisher.environment
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.attestations.build_provenance.ok")
+        ]
 
 
-def test_publisher_from_oidc_publisher_succeeds_gitlab(db_request):
-    publisher = GitLabPublisherFactory.create()
-
-    attestation_publisher = services._publisher_from_oidc_publisher(publisher)
-    assert isinstance(attestation_publisher, GitLabPublisher)
-    assert attestation_publisher.repository == publisher.project_path
-    assert attestation_publisher.environment == publisher.environment
-
-
-def test_publisher_from_oidc_publisher_fails_unsupported():
-    publisher = pretend.stub(publisher_name="not-existing")
-
-    with pytest.raises(AttestationUploadError):
-        services._publisher_from_oidc_publisher(publisher)
-
-
-def test_extract_attestations_from_request_empty_list(db_request):
-    db_request.oidc_publisher = GitHubPublisherFactory.create()
+@pytest.mark.parametrize(
+    "publisher_factory",
+    [GitHubPublisherFactory, GitLabPublisherFactory],
+)
+def test_extract_attestations_from_request_empty_list(db_request, publisher_factory):
+    db_request.oidc_publisher = publisher_factory.create()
     db_request.POST = {"attestations": json.dumps([])}
 
     with pytest.raises(

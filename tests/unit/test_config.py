@@ -318,7 +318,6 @@ def test_configure(monkeypatch, settings, environment):
         "token.default.max_age": 21600,
         "pythondotorg.host": "https://www.python.org",
         "warehouse.xmlrpc.client.ratelimit_string": "3600 per hour",
-        "warehouse.xmlrpc.search.enabled": True,
         "github.token_scanning_meta_api.url": (
             "https://api.github.com/meta/public_keys/token_scanning"
         ),
@@ -333,11 +332,11 @@ def test_configure(monkeypatch, settings, environment):
         "warehouse.manage.oidc.ip_registration_ratelimit_string": "100 per day",
         "warehouse.packaging.project_create_user_ratelimit_string": "20 per hour",
         "warehouse.packaging.project_create_ip_ratelimit_string": "40 per hour",
+        "warehouse.search.ratelimit_string": "5 per second",
         "oidc.backend": "warehouse.oidc.services.OIDCPublisherService",
         "integrity.backend": "warehouse.attestations.services.IntegrityService",
         "warehouse.organizations.max_undecided_organization_applications": 3,
         "reconcile_file_storages.batch_size": 100,
-        "metadata_backfill.batch_size": 500,
         "gcloud.service_account_info": {},
         "warehouse.forklift.legacy.MAX_FILESIZE_MIB": 100,
         "warehouse.forklift.legacy.MAX_PROJECT_SIZE_GIB": 10,
@@ -434,6 +433,7 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".accounts"),
             pretend.call(".macaroons"),
             pretend.call(".oidc"),
+            pretend.call(".attestations"),
             pretend.call(".manage"),
             pretend.call(".organizations"),
             pretend.call(".subscriptions"),

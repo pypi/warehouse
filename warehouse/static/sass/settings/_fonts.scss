@@ -16,16 +16,6 @@
 
 $base-font-family: "Source Sans 3", "Helvetica", arial, sans-serif;
 $code-font: "Source Code Pro", monospace;
-
-
-/*
-  For bourbon.io.
-  Sets global base em size for the px-to-em and px-to-rem function.
-  This should be the same size as your body font-size.
-  Defaults to 16px, but we want to be a tiny bit larger - 17px.
-*/
-
-$em-base:          17px;
 $base-font-size:   1rem;
 $small-font-size:  0.8rem;
 $input-font-size:  $base-font-size * 1.1;

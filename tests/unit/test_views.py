@@ -12,6 +12,8 @@
 
 import datetime
 
+from pathlib import Path
+
 import opensearchpy
 import pretend
 import pytest
@@ -23,13 +25,16 @@ from pyramid.httpexceptions import (
     HTTPRequestEntityTooLarge,
     HTTPSeeOther,
     HTTPServiceUnavailable,
+    HTTPTooManyRequests,
 )
+from pyramid.response import FileResponse
 from trove_classifiers import sorted_classifiers
 from webob.multidict import MultiDict
 
 from warehouse import views
 from warehouse.errors import WarehouseDenied
 from warehouse.packaging.models import ProjectFactory as DBProjectFactory
+from warehouse.rate_limiting.interfaces import IRateLimiter
 from warehouse.utils.row_counter import compute_row_counts
 from warehouse.views import (
     SecurityKeyGiveaway,
@@ -361,6 +366,23 @@ class TestServiceUnavailableView:
         _assert_has_cors_headers(resp.headers)
 
 
+def test_favicon(pyramid_request):
+    pyramid_request.static_path = pretend.call_recorder(lambda path: f"/static/{path}")
+    # Construct the path to the favicon.ico file relative to the codebase directory
+    codebase_dir = Path(__file__).resolve().parent.parent.parent
+    favicon_path = (
+        codebase_dir / "warehouse" / "static" / "dist" / "images" / "favicon.ico"
+    )
+    # Create a dummy file to test the favicon
+    favicon_path.parent.mkdir(parents=True, exist_ok=True)
+    favicon_path.touch()
+
+    response = views.favicon(pyramid_request)
+
+    assert isinstance(response, FileResponse)
+    assert pyramid_request.response.content_type == "image/x-icon"
+
+
 def test_robotstxt(pyramid_request):
     assert robotstxt(pyramid_request) == {}
     assert pyramid_request.response.content_type == "text/plain"
@@ -476,11 +498,20 @@ def test_csi_sidebar_sponsor_logo():
 
 class TestSearch:
     @pytest.mark.parametrize("page", [None, 1, 5])
-    def test_with_a_query(self, monkeypatch, db_request, metrics, page):
+    def test_with_a_query(
+        self, monkeypatch, pyramid_services, db_request, metrics, page
+    ):
         params = MultiDict({"q": "foo bar"})
         if page is not None:
             params["page"] = page
         db_request.params = params
+
+        fake_rate_limiter = pretend.stub(
+            test=lambda *a: True, hit=lambda *a: True, resets_in=lambda *a: None
+        )
+        pyramid_services.register_service(
+            fake_rate_limiter, IRateLimiter, None, name="search"
+        )
 
         db_request.opensearch = pretend.stub()
         opensearch_query = pretend.stub()
@@ -514,11 +545,20 @@ class TestSearch:
         ]
 
     @pytest.mark.parametrize("page", [None, 1, 5])
-    def test_with_classifiers(self, monkeypatch, db_request, metrics, page):
+    def test_with_classifiers(
+        self, monkeypatch, pyramid_services, db_request, metrics, page
+    ):
         params = MultiDict([("q", "foo bar"), ("c", "foo :: bar"), ("c", "fiz :: buz")])
         if page is not None:
             params["page"] = page
         db_request.params = params
+
+        fake_rate_limiter = pretend.stub(
+            test=lambda *a: True, hit=lambda *a: True, resets_in=lambda *a: None
+        )
+        pyramid_services.register_service(
+            fake_rate_limiter, IRateLimiter, None, name="search"
+        )
 
         opensearch_query = pretend.stub()
         db_request.opensearch = pretend.stub()
@@ -562,6 +602,7 @@ class TestSearch:
         assert page_cls.calls == [
             pretend.call(opensearch_query, url_maker=url_maker, page=page or 1)
         ]
+
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert get_opensearch_query.calls == [
             pretend.call(db_request.opensearch, params.get("q"), "", params.getall("c"))
@@ -570,9 +611,18 @@ class TestSearch:
             pretend.call("warehouse.views.search.results", 1000)
         ]
 
-    def test_returns_404_with_pagenum_too_high(self, monkeypatch, db_request, metrics):
+    def test_returns_404_with_pagenum_too_high(
+        self, monkeypatch, pyramid_services, db_request, metrics
+    ):
         params = MultiDict({"page": 15})
         db_request.params = params
+
+        fake_rate_limiter = pretend.stub(
+            test=lambda *a: True, hit=lambda *a: True, resets_in=lambda *a: None
+        )
+        pyramid_services.register_service(
+            fake_rate_limiter, IRateLimiter, None, name="search"
+        )
 
         opensearch_query = pretend.stub()
         db_request.opensearch = pretend.stub(query=lambda *a, **kw: opensearch_query)
@@ -594,9 +644,18 @@ class TestSearch:
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert metrics.histogram.calls == []
 
-    def test_raises_400_with_pagenum_type_str(self, monkeypatch, db_request, metrics):
+    def test_raises_400_with_pagenum_type_str(
+        self, monkeypatch, pyramid_services, db_request, metrics
+    ):
         params = MultiDict({"page": "abc"})
         db_request.params = params
+
+        fake_rate_limiter = pretend.stub(
+            test=lambda *a: True, hit=lambda *a: True, resets_in=lambda *a: None
+        )
+        pyramid_services.register_service(
+            fake_rate_limiter, IRateLimiter, None, name="search"
+        )
 
         opensearch_query = pretend.stub()
         db_request.opensearch = pretend.stub(query=lambda *a, **kw: opensearch_query)
@@ -615,22 +674,39 @@ class TestSearch:
         assert page_cls.calls == []
         assert metrics.histogram.calls == []
 
-    def test_return_413_when_query_too_long(self, db_request, metrics):
+    def test_return_413_when_query_too_long(
+        self, pyramid_services, db_request, metrics
+    ):
         params = MultiDict({"q": "a" * 1001})
         db_request.params = params
+
+        fake_rate_limiter = pretend.stub(
+            test=lambda *a: True, hit=lambda *a: True, resets_in=lambda *a: None
+        )
+        pyramid_services.register_service(
+            fake_rate_limiter, IRateLimiter, None, name="search"
+        )
 
         with pytest.raises(HTTPRequestEntityTooLarge):
             search(db_request)
 
         assert metrics.increment.calls == [
-            pretend.call("warehouse.views.search.error", tags=["error:query_too_long"])
+            pretend.call("warehouse.search.ratelimiter.hit"),
+            pretend.call("warehouse.views.search.error", tags=["error:query_too_long"]),
         ]
 
     def test_returns_503_when_opensearch_unavailable(
-        self, monkeypatch, db_request, metrics
+        self, monkeypatch, pyramid_services, db_request, metrics
     ):
         params = MultiDict({"page": 15})
         db_request.params = params
+
+        fake_rate_limiter = pretend.stub(
+            test=lambda *a: True, hit=lambda *a: True, resets_in=lambda *a: None
+        )
+        pyramid_services.register_service(
+            fake_rate_limiter, IRateLimiter, None, name="search"
+        )
 
         opensearch_query = pretend.stub()
         db_request.opensearch = pretend.stub(query=lambda *a, **kw: opensearch_query)
@@ -648,8 +724,46 @@ class TestSearch:
             search(db_request)
 
         assert url_maker_factory.calls == [pretend.call(db_request)]
-        assert metrics.increment.calls == [pretend.call("warehouse.views.search.error")]
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.search.ratelimiter.hit"),
+            pretend.call("warehouse.views.search.error"),
+        ]
         assert metrics.histogram.calls == []
+
+    @pytest.mark.parametrize("resets_in", [None, 1, 5])
+    def test_returns_429_when_ratelimited(
+        self, monkeypatch, pyramid_services, db_request, metrics, resets_in
+    ):
+        params = MultiDict({"q": "foo bar"})
+        db_request.params = params
+
+        fake_rate_limiter = pretend.stub(
+            test=lambda *a: False,
+            hit=lambda *a: True,
+            resets_in=lambda *a: (
+                None
+                if resets_in is None
+                else pretend.stub(total_seconds=lambda *a: resets_in)
+            ),
+        )
+        pyramid_services.register_service(
+            fake_rate_limiter, IRateLimiter, None, name="search"
+        )
+
+        with pytest.raises(HTTPTooManyRequests) as exc_info:
+            search(db_request)
+
+        message = (
+            "Your search query could not be performed because there were too "
+            "many requests by the client."
+        )
+        if resets_in is not None:
+            message += f" Limit may reset in {resets_in} seconds."
+
+        assert exc_info.value.args[0] == message
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.search.ratelimiter.exceeded")
+        ]
 
 
 def test_classifiers(db_request):

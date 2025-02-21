@@ -50,18 +50,15 @@ cache_dir = "dev/.mypy_cache"
 [[tool.mypy.overrides]]
 # These modules do not yet have types available.
 module = [
-    "alembic_postgresql_enum.*",
-    "automat.*",
     "bpython.*",  # https://github.com/bpython/bpython/issues/892
     "b2sdk.*",  # https://github.com/Backblaze/b2-sdk-python/issues/148
     "celery.app.backends.*",
     "celery.backends.redis.*",
-    "github_reserved_names.*",
+    "github_reserved_names.*",  # https://github.com/Julian/github-reserved-names/pull/10
     "google.cloud.*",
     "forcediphttpsadapter.*",
     "IPython.*",  # has types, but only installed in dev
-    "linehaul.*",
-    "packaging_legacy.*",
+    "packaging_legacy.*",  # https://github.com/di/packaging_legacy/pull/5
     "paginate.*",
     "paginate_sqlalchemy.*",
     "premailer.*",
@@ -73,11 +70,11 @@ module = [
     "pyramid_rpc.*",
     "pyqrcode.*",
     "requests_aws4auth.*",  # https://github.com/tedder/requests-aws4auth/issues/53
-    "rfc3986.*",
+    "rfc3986.*",  # https://github.com/python-hyper/rfc3986/issues/122
     "transaction.*",
     "ua_parser.*",  # https://github.com/ua-parser/uap-python/issues/110
     "venusian.*",
-    "whitenoise.*",
+    "whitenoise.*",  # https://github.com/evansd/whitenoise/pull/410
     "zope.sqlalchemy.*",
 ]
 ignore_missing_imports = true
@@ -88,6 +85,10 @@ addopts = [
   "--allow-hosts=localhost,::1,stripe",
   "--durations=20",
   "--numprocesses=auto",
+  # Disable ddtrace for tests
+  "-p no:ddtrace",
+  "-p no:ddtrace.pytest_bdd",
+  "-p no:ddtrace.pytest_benchmark",
 ]
 cache_dir = "dev/.pytest_cache"
 testpaths = ["tests/"]
@@ -96,9 +97,7 @@ markers = [
     'functional: Slower running tests which test the entire system is functioning.',
 ]
 filterwarnings = [
-    'ignore::warehouse.admin.services.InsecureStorageWarning',
-    'ignore::warehouse.utils.exceptions.InsecureOIDCPublisherWarning',
-    'ignore::warehouse.packaging.services.InsecureStorageWarning',
+    'ignore::warehouse.utils.exceptions.DevelopmentModeWarning',
     'error:SELECT statement has a cartesian product:sqlalchemy.exc.SAWarning',
 ]
 

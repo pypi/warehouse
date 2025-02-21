@@ -37,14 +37,14 @@
       </div>
     </div>
     {% else %}
-    <div class="col-half">
-      <h1 class="page-title page-title--wsubtitle heading-wsubtitle__heading">{{ title }}</h1>
-      <p>{% trans %}If you lose access to your authentication application or security key(s), you’ll need to use one of these recovery codes to log into your PyPI account. Each code can only be used <strong>once</strong>.{% endtrans %}</p>
-      <p>{% trans %}These codes should <strong>only</strong> be used for account recovery, not for typical logins.{% endtrans %}</p>
-      <p>{% trans %}<strong>Keep these somewhere safe</strong>. If you lose your authentication application or security key(s) and do not have access to these recovery codes, you may permanently lose access to your PyPI account!{% endtrans %}</p>
-    </div>
-    <div class="col-half">
-      <div>
+    <div class="col-grid">
+      <div class="col-half">
+        <h1 class="page-title page-title--wsubtitle heading-wsubtitle__heading">{{ title }}</h1>
+        <p>{% trans %}If you lose access to your authentication application or security key(s), you’ll need to use one of these recovery codes to log into your PyPI account. Each code can only be used <strong>once</strong>.{% endtrans %}</p>
+        <p>{% trans %}These codes should <strong>only</strong> be used for account recovery, not for typical logins.{% endtrans %}</p>
+        <p>{% trans %}<strong>Keep these somewhere safe</strong>. If you lose your authentication application or security key(s) and do not have access to these recovery codes, you may permanently lose access to your PyPI account!{% endtrans %}</p>
+      </div>
+      <div class="col-half">
         <h2>{% trans %}Save your recovery codes{% endtrans %}</h2>
         <div class="recovery-codes">
           <div>

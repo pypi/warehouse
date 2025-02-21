@@ -46,7 +46,7 @@ default:
 	mkdir -p .state
 	touch .state/docker-build-base
 
-.state/docker-build-static: Dockerfile package.json package-lock.json .babelrc
+.state/docker-build-static: Dockerfile package.json package-lock.json babel.config.js
 	# Build our static container for this project.
 	docker compose build --force-rm static
 
@@ -113,6 +113,12 @@ licenses: .state/docker-build-base
 
 deps: .state/docker-build-base
 	docker compose run --rm base bin/deps
+
+deps_upgrade_all: .state/docker-build-base
+	docker compose run --rm base bin/deps-upgrade -a
+
+deps_upgrade_project: .state/docker-build-base
+	docker compose run --rm base bin/deps-upgrade -p $(P)
 
 translations: .state/docker-build-base
 	docker compose run --rm base bin/translations
@@ -181,4 +187,4 @@ purge: stop clean
 stop:
 	docker compose stop
 
-.PHONY: default build serve resetdb initdb shell dbshell tests dev-docs user-docs deps clean purge debug stop compile-pot runmigrations checkdb
+.PHONY: default build serve resetdb initdb shell dbshell tests dev-docs user-docs deps deps_upgrade_all deps_upgrade_project clean purge debug stop compile-pot runmigrations checkdb

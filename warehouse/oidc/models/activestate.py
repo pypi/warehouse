@@ -15,7 +15,7 @@ import urllib
 
 from typing import Any
 
-from sqlalchemy import ForeignKey, String, UniqueConstraint
+from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Query, mapped_column
 
@@ -28,6 +28,8 @@ from warehouse.oidc.models._core import (
     OIDCPublisher,
     PendingOIDCPublisher,
 )
+
+ACTIVESTATE_OIDC_ISSUER_URL = "https://platform.activestate.com/api/v1/oauth/oidc"
 
 _ACTIVESTATE_URL = "https://platform.activestate.com"
 
@@ -133,6 +135,18 @@ class ActiveStatePublisherMixin:
     def __str__(self) -> str:
         return self.publisher_url()
 
+    def exists(self, session) -> bool:
+        return session.query(
+            exists().where(
+                and_(
+                    self.__class__.organization == self.organization,
+                    self.__class__.activestate_project_name
+                    == self.activestate_project_name,
+                    self.__class__.actor_id == self.actor_id,
+                )
+            )
+        ).scalar()
+
 
 class ActiveStatePublisher(ActiveStatePublisherMixin, OIDCPublisher):
     __tablename__ = "activestate_oidc_publishers"
@@ -157,7 +171,7 @@ class ActiveStatePublisher(ActiveStatePublisherMixin, OIDCPublisher):
 class PendingActiveStatePublisher(ActiveStatePublisherMixin, PendingOIDCPublisher):
     __tablename__ = "pending_activestate_oidc_publishers"
     __mapper_args__ = {"polymorphic_identity": "pending_activestate_oidc_publishers"}
-    __table_args__ = (
+    __table_args__ = (  # type: ignore[assignment]
         UniqueConstraint(
             "organization",
             "activestate_project_name",

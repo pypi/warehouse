@@ -20,6 +20,10 @@ from warehouse.admin.flags import AdminFlagValue
 from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models import (
+    ACTIVESTATE_OIDC_ISSUER_URL,
+    GITHUB_OIDC_ISSUER_URL,
+    GITLAB_OIDC_ISSUER_URL,
+    GOOGLE_OIDC_ISSUER_URL,
     ActiveStatePublisher,
     GitHubPublisher,
     GitLabPublisher,
@@ -31,11 +35,6 @@ from warehouse.oidc.models import (
     PendingGooglePublisher,
     PendingOIDCPublisher,
 )
-
-GITHUB_OIDC_ISSUER_URL = "https://token.actions.githubusercontent.com"
-GITLAB_OIDC_ISSUER_URL = "https://gitlab.com"
-GOOGLE_OIDC_ISSUER_URL = "https://accounts.google.com"
-ACTIVESTATE_OIDC_ISSUER_URL = "https://platform.activestate.com/api/v1/oauth/oidc"
 
 OIDC_ISSUER_SERVICE_NAMES = {
     GITHUB_OIDC_ISSUER_URL: "github",

@@ -37,7 +37,7 @@ class StructlogFormatter(logging.Formatter):
                 "event": record.msg,
                 "thread": threading.get_ident(),
             }
-            record.msg = RENDERER(None, None, event_dict)
+            record.msg = RENDERER(None, record.levelname, event_dict)
 
         return super().format(record)
 
@@ -66,7 +66,24 @@ def includeme(config):
                     "formatter": "structlog",
                 },
             },
-            "loggers": {"datadog.dogstatsd": {"level": "ERROR"}},
+            "loggers": {
+                "datadog.dogstatsd": {"level": "ERROR"},
+                "gunicorn": {
+                    "propagate": False,
+                    "handlers": ["primary"],
+                    "level": config.registry.settings.get("logging.level", "INFO"),
+                },
+                "gunicorn.access": {
+                    "propagate": False,
+                    "handlers": ["primary"],
+                    "level": config.registry.settings.get("logging.level", "INFO"),
+                },
+                "gunicorn.server": {
+                    "propagate": False,
+                    "handlers": ["primary"],
+                    "level": config.registry.settings.get("logging.level", "INFO"),
+                },
+            },
             "root": {
                 "level": config.registry.settings.get("logging.level", "INFO"),
                 "handlers": ["primary"],

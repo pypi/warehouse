@@ -23,14 +23,16 @@ jobs:
             command: bin/static_lint
           - name: Static Pipeline
             command: bin/static_pipeline
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: ${{ matrix.name }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+            persist-credentials: false
       - uses: actions/setup-node@v4
         with:
-          node-version: 22.3.0
+          node-version: 23.8.0
           cache: 'npm'
       - name: Install Node dependencies
         run: npm ci

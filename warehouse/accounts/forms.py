@@ -12,10 +12,12 @@
 
 from __future__ import annotations
 
+import contextlib
 import json
 import re
 
 import disposable_email_domains
+import dns.resolver
 import email_validator
 import humanize
 import markupsafe
@@ -38,15 +40,13 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.models import DisableReason, ProhibitedEmailDomain
 from warehouse.accounts.services import RECOVERY_CODE_BYTES
 from warehouse.captcha import recaptcha
+from warehouse.constants import MAX_PASSWORD_SIZE
 from warehouse.email import (
     send_password_compromised_email_hibp,
     send_recovery_code_used_email,
 )
 from warehouse.events.tags import EventTag
 from warehouse.i18n import localize as _
-
-# Taken from passlib
-MAX_PASSWORD_SIZE = 4096
 
 # Common messages, set as constants to keep them from drifting.
 INVALID_EMAIL_MESSAGE = _("The email address isn't valid. Try again.")
@@ -300,6 +300,26 @@ class NewEmailMixin:
                 extractor(mx_host.lower()).registered_domain
                 for _prio, mx_host in resp.mx
             }
+            mx_domains.update({mx_host.lower() for _prio, mx_host in resp.mx})
+
+        # Resolve the returned MX domain's IP address to a PTR record, to a domain
+        all_mx_domains = set()
+        for mx_domain in mx_domains:
+            with contextlib.suppress(
+                dns.resolver.NoAnswer,
+                dns.resolver.NXDOMAIN,
+                dns.resolver.NoNameservers,
+                dns.resolver.LifetimeTimeout,
+            ):
+                mx_ip = dns.resolver.resolve(mx_domain, "A")
+                mx_ptr = dns.resolver.resolve_address(mx_ip[0].address)
+                mx_ptr_domain = extractor(
+                    mx_ptr[0].target.to_text().lower()
+                ).registered_domain
+                all_mx_domains.add(mx_ptr_domain)
+
+        # combine both sets
+        all_mx_domains.update(mx_domains)
 
         if (
             domain in disposable_email_domains.blocklist
@@ -309,7 +329,7 @@ class NewEmailMixin:
                     & (ProhibitedEmailDomain.is_mx_record == False)  # noqa: E712
                 )
                 | exists().where(
-                    (ProhibitedEmailDomain.domain.in_(mx_domains))
+                    (ProhibitedEmailDomain.domain.in_(all_mx_domains))
                     & (ProhibitedEmailDomain.is_mx_record == True)  # noqa: E712
                 )
             ).scalar()
@@ -363,7 +383,7 @@ class HoneypotMixin:
     confirm_form = wtforms.StringField()
 
 
-class UsernameSearchForm(forms.Form):
+class UsernameSearchForm(wtforms.Form):
     username = wtforms.StringField(
         validators=[
             wtforms.validators.InputRequired(),
@@ -379,7 +399,7 @@ class RegistrationForm(  # type: ignore[misc]
     NewEmailMixin,
     NewPasswordMixin,
     HoneypotMixin,
-    forms.Form,
+    wtforms.Form,
 ):
     full_name = wtforms.StringField(
         validators=[
@@ -417,7 +437,7 @@ class RegistrationForm(  # type: ignore[misc]
             raise wtforms.validators.ValidationError("Recaptcha error.")
 
 
-class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
+class LoginForm(PasswordMixin, UsernameMixin, wtforms.Form):
     def __init__(self, *args, user_service, breach_service, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
@@ -458,7 +478,7 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
                 )
 
 
-class _TwoFactorAuthenticationForm(forms.Form):
+class _TwoFactorAuthenticationForm(wtforms.Form):
     def __init__(self, *args, request, user_id, user_service, **kwargs):
         super().__init__(*args, **kwargs)
         self.request = request
@@ -522,7 +542,7 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
         self.validated_credential = validated_credential
 
 
-class ReAuthenticateForm(PasswordMixin, forms.Form):
+class ReAuthenticateForm(PasswordMixin, wtforms.Form):
     __params__ = [
         "username",
         "password",
@@ -580,7 +600,7 @@ class RecoveryCodeAuthenticationForm(
             )
 
 
-class RequestPasswordResetForm(forms.Form):
+class RequestPasswordResetForm(wtforms.Form):
     username_or_email = wtforms.StringField(
         validators=[
             wtforms.validators.InputRequired(),
@@ -610,5 +630,5 @@ class RequestPasswordResetForm(forms.Form):
                 )
 
 
-class ResetPasswordForm(NewPasswordMixin, forms.Form):
+class ResetPasswordForm(NewPasswordMixin, wtforms.Form):
     pass

@@ -23,3 +23,11 @@ authors:
     name: Deb Nicholson
     description: Executive Director, Python Software Foundation (PSF)
     avatar: https://github.com/eximious.png
+  sethmlarson:
+    name: Seth Larson
+    description: Security Developer-in-Residence, Python Software Foundation (PSF)
+    avatar: https://github.com/sethmlarson.png
+  facutuesca:
+    name: Facundo Tuesca
+    description: Senior Engineer, Trail of Bits (Guest Author)
+    avatar: https://github.com/facutuesca.png

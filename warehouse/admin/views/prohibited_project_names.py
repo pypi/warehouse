@@ -57,7 +57,7 @@ def prohibited_project_names(request):
     if q:
         terms = shlex.split(q)
 
-        filters = []
+        filters: list = []
         for term in terms:
             filters.append(
                 ProhibitedProjectName.name.ilike(func.normalize_pep426_name(term))

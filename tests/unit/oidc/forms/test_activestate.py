@@ -20,6 +20,12 @@ from webob.multidict import MultiDict
 
 from warehouse.oidc.forms import activestate
 
+from ....common.db.accounts import UserFactory
+from ....common.db.packaging import (
+    ProjectFactory,
+    RoleFactory,
+)
+
 fake_username = "some-username"
 fake_org_name = "some-org"
 fake_user_info = {"user_id": "some-user-id"}
@@ -30,14 +36,10 @@ fake_gql_user_response = {"data": {"users": [fake_user_info]}}
 _requests = requests
 
 
-def _raise(exception):
-    raise exception
-
-
 class TestPendingActiveStatePublisherForm:
-    def test_validate(self, monkeypatch):
-        project_factory = []
+    def test_validate(self, monkeypatch, project_service):
         route_url = pretend.stub()
+
         data = MultiDict(
             {
                 "organization": "some-org",
@@ -47,7 +49,10 @@ class TestPendingActiveStatePublisherForm:
             }
         )
         form = activestate.PendingActiveStatePublisherForm(
-            MultiDict(data), route_url=route_url, project_factory=project_factory
+            MultiDict(data),
+            route_url=route_url,
+            check_project_name=project_service.check_project_name,
+            user=pretend.stub(),
         )
 
         # Test built-in validations
@@ -55,21 +60,31 @@ class TestPendingActiveStatePublisherForm:
 
         monkeypatch.setattr(form, "_lookup_organization", lambda *o: None)
 
-        assert form._project_factory == project_factory
+        assert form._check_project_name == project_service.check_project_name
         assert form._route_url == route_url
         assert form.validate()
 
-    def test_validate_project_name_already_in_use(self, pyramid_config):
-        project_factory = ["some-project"]
+    def test_validate_project_name_already_in_use_owner(
+        self, pyramid_config, project_service
+    ):
         route_url = pretend.call_recorder(lambda *args, **kwargs: "")
 
+        user = UserFactory.create()
+        project = ProjectFactory.create(name="some-project")
+        RoleFactory.create(user=user, project=project)
+
         form = activestate.PendingActiveStatePublisherForm(
-            route_url=route_url, project_factory=project_factory
+            route_url=route_url,
+            check_project_name=project_service.check_project_name,
+            user=user,
         )
 
         field = pretend.stub(data="some-project")
         with pytest.raises(wtforms.validators.ValidationError):
             form.validate_project_name(field)
+
+        # The project settings URL is only shown in the error message if
+        # the user is the owner of the project
         assert route_url.calls == [
             pretend.call(
                 "manage.project.settings.publishing",
@@ -77,6 +92,26 @@ class TestPendingActiveStatePublisherForm:
                 _query={"provider": {"activestate"}},
             )
         ]
+
+    def test_validate_project_name_already_in_use_not_owner(
+        self, pyramid_config, project_service
+    ):
+        route_url = pretend.call_recorder(lambda *args, **kwargs: "")
+
+        user = UserFactory.create()
+        ProjectFactory.create(name="some-project")
+
+        form = activestate.PendingActiveStatePublisherForm(
+            route_url=route_url,
+            check_project_name=project_service.check_project_name,
+            user=user,
+        )
+
+        field = pretend.stub(data="some-project")
+        with pytest.raises(wtforms.validators.ValidationError):
+            form.validate_project_name(field)
+
+        assert route_url.calls == []
 
 
 class TestActiveStatePublisherForm:
@@ -208,7 +243,7 @@ class TestActiveStatePublisherForm:
         response = pretend.stub(
             status_code=200,
             raise_for_status=pretend.call_recorder(lambda: None),
-            json=lambda: _raise(_requests.exceptions.JSONDecodeError("", "", 0)),
+            json=pretend.raiser(_requests.exceptions.JSONDecodeError("", "", 0)),
             content=b"",
         )
 
@@ -437,7 +472,7 @@ class TestActiveStatePublisherForm:
         response = pretend.stub(
             status_code=200,
             raise_for_status=pretend.call_recorder(lambda: None),
-            json=lambda: _raise(_requests.exceptions.JSONDecodeError("", "", 0)),
+            json=pretend.raiser(_requests.exceptions.JSONDecodeError("", "", 0)),
             content=b"",
         )
 

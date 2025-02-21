@@ -33,11 +33,11 @@
   <div class="heading-wsubtitle heading-wsubtitle--in-content">
     <h2 class="heading-wsubtitle__heading">
       {% if not release.yanked %}
-      {% set releases = project.releases|rejectattr("yanked")|list %}
+      {% set releases = project.active_releases %}
       <a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}">{% trans %}Releases{% endtrans %}</a>
       <span class="badge badge--neutral">{{ releases|length }}</span>
       {% else %}
-      {% set yanked_releases = project.releases|selectattr("yanked")|list %}
+      {% set yanked_releases = project.yanked_releases %}
       <a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}">{% trans %}Yanked releases{% endtrans %}</a>
       <span class="badge badge--neutral">{{ yanked_releases|length }}</span>
       {% endif %}
@@ -93,12 +93,6 @@
                 <a href="{{ request.route_url('packaging.file', path=file.path) }}" class="dropdown__link">
                   <i class="fa fa-download" aria-hidden="true"></i>
                   {% trans %}Download{% endtrans %}
-                </a>
-              </li>
-              <li>
-                <a href="#copy-hash-modal-{{ file.id }}" class="dropdown__link">
-                  <i class="fa fa-hashtag" aria-hidden="true"></i>
-                  {% trans %}View Hashes{% endtrans %}
                 </a>
               </li>
 
@@ -209,9 +203,4 @@
     {{ confirm_button(gettext("Delete release"), gettext("Version"), "delete_version", release.version, additional_attributes="data-delete-confirm-target=button") }}
   </div>
 
-  {% if files %}
-  {% for file in files %}
-  {% include "warehouse:templates/includes/hash-modal.html" %}
-  {% endfor %}
-  {% endif %}
 {% endblock %}

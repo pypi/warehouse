@@ -6,13 +6,15 @@
 # Diego Kluwe de Souza <dikluwe@gmail.com>, 2023.
 # Gaspar De Lima <gaspardelima48@gmail.com>, 2024.
 # Paulo Santos - PJ <pjdsant@gmail.com>, 2024.
+# Carlos Eduardo Porto Da Hora <carlosportomanduca@gmail.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-09-27 17:33+0200\n"
-"PO-Revision-Date: 2024-09-05 01:27+0000\n"
-"Last-Translator: ssantos <ssantos@web.de>\n"
+"PO-Revision-Date: 2024-11-17 07:50+0000\n"
+"Last-Translator: Carlos Eduardo Porto Da Hora <carlosportomanduca@gmail."
+"com>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/pypa/"
 "warehouse/pt/>\n"
 "Language: pt\n"
@@ -20,9 +22,9 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.7.2-rc\n"
+"X-Generator: Weblate 5.9-dev\n"
 
-#: warehouse/views.py:147
+#: warehouse/views.py:158
 msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
@@ -30,26 +32,26 @@ msgstr ""
 "Você precisa verificar o seu endereço de email **principal** antes de "
 "realizar esta ação."
 
-#: warehouse/views.py:163
+#: warehouse/views.py:174
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
 msgstr ""
 "O duplo fator de autenticação deve estar ativado para executar esta ação."
 
-#: warehouse/views.py:299
+#: warehouse/views.py:332
 msgid "Locale updated"
 msgstr "Atualizado localmente"
 
-#: warehouse/accounts/forms.py:52 warehouse/accounts/forms.py:286
+#: warehouse/accounts/forms.py:54 warehouse/accounts/forms.py:292
 msgid "The email address isn't valid. Try again."
 msgstr "O endereço de e-mail não é válido. Tente novamente."
 
-#: warehouse/accounts/forms.py:53
+#: warehouse/accounts/forms.py:55
 msgid "The password is invalid. Try again."
 msgstr "A palavra-passe é inválida. Tente novamente."
 
-#: warehouse/accounts/forms.py:54
+#: warehouse/accounts/forms.py:57
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -59,28 +61,30 @@ msgstr ""
 "por letras, números, pontos, hífenes e sublinhados. E também deve começar e "
 "terminar com uma letra ou número. Escolha um nome de utilizador diferente."
 
-#: warehouse/accounts/forms.py:72
+#: warehouse/accounts/forms.py:74
 msgid "Null bytes are not allowed."
 msgstr "Bytes nulos não são permitidos."
 
-#: warehouse/accounts/forms.py:86
+#: warehouse/accounts/forms.py:88
 msgid "No user found with that username"
 msgstr "Nenhum utilizador encontrado com esse nome de utilizador"
 
-#: warehouse/accounts/forms.py:106
+#: warehouse/accounts/forms.py:109
+#, python-brace-format
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "Código TOTP deve ter ${totp_length} dígitos."
 
-#: warehouse/accounts/forms.py:126
+#: warehouse/accounts/forms.py:129
+#, python-brace-format
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr ""
 "Os códigos de recuperação devem ter ${recovery_code_length} caracteres."
 
-#: warehouse/accounts/forms.py:141
+#: warehouse/accounts/forms.py:143
 msgid "Choose a username with 50 characters or less."
 msgstr "Escolha um nome de utilizador com 50 carateres ou menos."
 
-#: warehouse/accounts/forms.py:158
+#: warehouse/accounts/forms.py:161
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -88,12 +92,13 @@ msgstr ""
 "Este nome de utilizador já está a ser utilizado por outra conta. Escolha um "
 "nome de utilizador diferente."
 
-#: warehouse/accounts/forms.py:172 warehouse/accounts/forms.py:221
-#: warehouse/accounts/forms.py:234
+#: warehouse/accounts/forms.py:174 warehouse/accounts/forms.py:223
+#: warehouse/accounts/forms.py:236
 msgid "Password too long."
 msgstr "Senha grande demais."
 
-#: warehouse/accounts/forms.py:208
+#: warehouse/accounts/forms.py:206
+#, python-brace-format
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
@@ -101,21 +106,21 @@ msgstr ""
 "Ocorreram muitas tentativas para iniciar a sessão sem êxito. Você foi "
 "bloqueado por ${time}. Por favor, tente mais tarde."
 
-#: warehouse/accounts/forms.py:237
+#: warehouse/accounts/forms.py:239
 msgid "Your passwords don't match. Try again."
 msgstr "As suas palavras-passe não coincidem. Tente novamente."
 
-#: warehouse/accounts/forms.py:271
+#: warehouse/accounts/forms.py:273
 msgid "The email address is too long. Try again."
 msgstr "O endereço de e-mail é muito extenso. Tente novamente."
 
-#: warehouse/accounts/forms.py:314
+#: warehouse/accounts/forms.py:345
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Não pode utilizar um endereço de e-mail deste domínio. Utilize um e-mail "
 "diferente."
 
-#: warehouse/accounts/forms.py:325
+#: warehouse/accounts/forms.py:360
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -123,7 +128,7 @@ msgstr ""
 "Este endereço de e-mail já está a ser utilizado por esta conta. Utilize um e-"
 "mail diferente."
 
-#: warehouse/accounts/forms.py:332
+#: warehouse/accounts/forms.py:371
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -131,39 +136,37 @@ msgstr ""
 "Este endereço de e-mail já está a ser utilizado por outra conta. Utilize um "
 "e-mail diferente."
 
-#: warehouse/accounts/forms.py:367 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:411 warehouse/manage/forms.py:140
+#: warehouse/manage/forms.py:742
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "O nome é muito longo. Escolha um nome com 100 carateres ou menos."
 
-#: warehouse/accounts/forms.py:374
-#, fuzzy
-#| msgid "Null bytes are not allowed."
+#: warehouse/accounts/forms.py:417
 msgid "URLs are not allowed in the name field."
-msgstr "Bytes nulos não são permitidos."
+msgstr "URLs não são permitidas no campo de nome"
 
-#: warehouse/accounts/forms.py:463
+#: warehouse/accounts/forms.py:506
 msgid "Invalid TOTP code."
 msgstr "Código de TOTP inválido."
 
-#: warehouse/accounts/forms.py:480
+#: warehouse/accounts/forms.py:523
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Asserção inválida do WebAuthn: Carga incorreta"
 
-#: warehouse/accounts/forms.py:549
+#: warehouse/accounts/forms.py:592
 msgid "Invalid recovery code."
 msgstr "Código de recuperação inválido."
 
-#: warehouse/accounts/forms.py:558
+#: warehouse/accounts/forms.py:601
 msgid "Recovery code has been previously used."
 msgstr "Código de recuperação já utilizado anteriormente."
 
-#: warehouse/accounts/forms.py:588
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
+#: warehouse/accounts/forms.py:631
 msgid "The username isn't valid. Try again."
-msgstr "O endereço de e-mail não é válido. Tente novamente."
+msgstr "O nome de usuário é invalido, tente novamente."
 
-#: warehouse/accounts/views.py:119
+#: warehouse/accounts/views.py:117
+#, python-brace-format
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
@@ -171,7 +174,8 @@ msgstr ""
 "Ocorreram muitas tentativas para iniciar a sessão sem êxito. Você foi "
 "bloqueado por {}. Tente mais tarde."
 
-#: warehouse/accounts/views.py:136
+#: warehouse/accounts/views.py:138
+#, python-brace-format
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -180,7 +184,8 @@ msgstr ""
 "Verifique a sua caixa de entrada e siga as ligações de verificação. (IP: "
 "${ip})"
 
-#: warehouse/accounts/views.py:148
+#: warehouse/accounts/views.py:150
+#, python-brace-format
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
@@ -190,27 +195,27 @@ msgstr ""
 "concluí-las. Verifique a sua caixa de entrada e siga as ligaçõs de "
 "verificação. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:330 warehouse/accounts/views.py:399
-#: warehouse/accounts/views.py:401 warehouse/accounts/views.py:430
-#: warehouse/accounts/views.py:432 warehouse/accounts/views.py:538
+#: warehouse/accounts/views.py:370 warehouse/accounts/views.py:439
+#: warehouse/accounts/views.py:441 warehouse/accounts/views.py:470
+#: warehouse/accounts/views.py:472 warehouse/accounts/views.py:578
 msgid "Invalid or expired two factor login."
 msgstr "Início de sessão de dois fatores inválido ou expirou."
 
-#: warehouse/accounts/views.py:393
+#: warehouse/accounts/views.py:433
 msgid "Already authenticated"
 msgstr "Já está autenticado"
 
-#: warehouse/accounts/views.py:473
+#: warehouse/accounts/views.py:513
 msgid "Successful WebAuthn assertion"
 msgstr "Asserção WebAuthn bem sucedida"
 
-#: warehouse/accounts/views.py:569 warehouse/manage/views/__init__.py:870
+#: warehouse/accounts/views.py:610 warehouse/manage/views/__init__.py:881
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Código de recuperação aceite. O código fornecido não pode ser usado "
 "novamente."
 
-#: warehouse/accounts/views.py:661
+#: warehouse/accounts/views.py:702
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -218,135 +223,141 @@ msgstr ""
 "O registo de novos utilizadores está temporariamente desativado. Consulte "
 "https://pypi.org/help#admin-intervention para mais detalhes."
 
-#: warehouse/accounts/views.py:799
+#: warehouse/accounts/views.py:839
 msgid "Expired token: request a new password reset link"
 msgstr ""
 "Código expirado: peça uma nova hiperligação para reiniciar a palavra-passe"
 
-#: warehouse/accounts/views.py:801
+#: warehouse/accounts/views.py:841
 msgid "Invalid token: request a new password reset link"
 msgstr ""
 "Código inválido: peça uma nova hiperligação para reiniciar a palavra-passe"
 
-#: warehouse/accounts/views.py:803 warehouse/accounts/views.py:904
-#: warehouse/accounts/views.py:1008 warehouse/accounts/views.py:1177
+#: warehouse/accounts/views.py:843 warehouse/accounts/views.py:944
+#: warehouse/accounts/views.py:1048 warehouse/accounts/views.py:1217
 msgid "Invalid token: no token supplied"
 msgstr "Código inválido: o código não foi fornecido"
 
-#: warehouse/accounts/views.py:807
+#: warehouse/accounts/views.py:847
 msgid "Invalid token: not a password reset token"
 msgstr "Código inválido: não é um código para reiniciar a palavra-passe"
 
-#: warehouse/accounts/views.py:812
+#: warehouse/accounts/views.py:852
 msgid "Invalid token: user not found"
 msgstr "Código inválido: utilizador não encontrado"
 
-#: warehouse/accounts/views.py:822
+#: warehouse/accounts/views.py:863
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Código inválido: o utilizador já iniciou sessão desde que o código foi pedido"
 
-#: warehouse/accounts/views.py:840
+#: warehouse/accounts/views.py:881
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
 "Código inválido: a palavra-passe já foi alterada desde o pedido do código"
 
-#: warehouse/accounts/views.py:872
+#: warehouse/accounts/views.py:912
 msgid "You have reset your password"
 msgstr "Redefiniu a sua palavra-passe"
 
-#: warehouse/accounts/views.py:900
+#: warehouse/accounts/views.py:940
 msgid "Expired token: request a new email verification link"
 msgstr "Código expirado: peça uma nova hiperligação de verificação de e-mail"
 
-#: warehouse/accounts/views.py:902
+#: warehouse/accounts/views.py:942
 msgid "Invalid token: request a new email verification link"
 msgstr "Código inválido: peça uma nova hiperligação de verificação de e-mail"
 
-#: warehouse/accounts/views.py:908
+#: warehouse/accounts/views.py:948
 msgid "Invalid token: not an email verification token"
 msgstr "Código inválido: não é um código de verificação de e-mail"
 
-#: warehouse/accounts/views.py:917
+#: warehouse/accounts/views.py:957
 msgid "Email not found"
 msgstr "E-mail não encontrado"
 
-#: warehouse/accounts/views.py:920
+#: warehouse/accounts/views.py:960
 msgid "Email already verified"
 msgstr "E-mail já verificado"
 
-#: warehouse/accounts/views.py:937
+#: warehouse/accounts/views.py:978
 msgid "You can now set this email as your primary address"
 msgstr "Agora pode definir este e-mail como o seu endereço primário"
 
-#: warehouse/accounts/views.py:941
+#: warehouse/accounts/views.py:981
 msgid "This is your primary address"
 msgstr "Este é o seu endereço primário"
 
-#: warehouse/accounts/views.py:946
+#: warehouse/accounts/views.py:987
+#, python-brace-format
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Endereço de e-mail ${email_address} verificado. ${confirm_message}."
 
-#: warehouse/accounts/views.py:1004
+#: warehouse/accounts/views.py:1044
 msgid "Expired token: request a new organization invitation"
 msgstr "Código expirado: solicite um novo convite da organização"
 
-#: warehouse/accounts/views.py:1006
+#: warehouse/accounts/views.py:1046
 msgid "Invalid token: request a new organization invitation"
 msgstr "Código inválido: solicite um novo convite da organização"
 
-#: warehouse/accounts/views.py:1012
+#: warehouse/accounts/views.py:1052
 msgid "Invalid token: not an organization invitation token"
 msgstr "Código inválido: não é um código de convite de organização"
 
-#: warehouse/accounts/views.py:1016
+#: warehouse/accounts/views.py:1056
 msgid "Organization invitation is not valid."
 msgstr "O convite para a organização não é válido."
 
-#: warehouse/accounts/views.py:1025
+#: warehouse/accounts/views.py:1065
 msgid "Organization invitation no longer exists."
 msgstr "O convite para a organização não existe mais."
 
-#: warehouse/accounts/views.py:1076
+#: warehouse/accounts/views.py:1117
+#, python-brace-format
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "O convite para \"${organization_name}\" foi rejeitado."
 
-#: warehouse/accounts/views.py:1139
+#: warehouse/accounts/views.py:1180
+#, python-brace-format
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Agora você é ${role} da organização \"${organization_name}\"."
 
-#: warehouse/accounts/views.py:1173
+#: warehouse/accounts/views.py:1213
 msgid "Expired token: request a new project role invitation"
 msgstr "Código expirado: solicite um novo convite para a função no projeto"
 
-#: warehouse/accounts/views.py:1175
+#: warehouse/accounts/views.py:1215
 msgid "Invalid token: request a new project role invitation"
 msgstr "Código inválido: solicite um novo convite para a função no projeto"
 
-#: warehouse/accounts/views.py:1181
+#: warehouse/accounts/views.py:1221
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Código inválido: não é um código de convite de colaboração"
 
-#: warehouse/accounts/views.py:1185
+#: warehouse/accounts/views.py:1225
 msgid "Role invitation is not valid."
 msgstr "O convite para uma função não é válida."
 
-#: warehouse/accounts/views.py:1200
+#: warehouse/accounts/views.py:1240
 msgid "Role invitation no longer exists."
 msgstr "O convite para uma função não existe mais."
 
-#: warehouse/accounts/views.py:1231
+#: warehouse/accounts/views.py:1272
+#, python-brace-format
 msgid "Invitation for '${project_name}' is declined."
 msgstr "O convite para \"${project_name}\" foi rejeitado."
 
-#: warehouse/accounts/views.py:1297
+#: warehouse/accounts/views.py:1338
+#, fuzzy, python-brace-format
+#| msgid "You are now ${role} of the '${project_name}' project."
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Agora é ${role} do projeto '${nome_do_projeto}'."
 
-#: warehouse/accounts/views.py:1548 warehouse/accounts/views.py:1791
-#: warehouse/manage/views/__init__.py:1249
+#: warehouse/accounts/views.py:1593 warehouse/accounts/views.py:1836
+#: warehouse/manage/views/__init__.py:1417
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -354,13 +365,13 @@ msgstr ""
 "A publicação confiável está temporariamente desativada. Consulte https://"
 "pypi.org/help#admin-intervention para mais detalhes."
 
-#: warehouse/accounts/views.py:1569
+#: warehouse/accounts/views.py:1614
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr ""
 "desativado. Consulte https://pypi.org/help#admin-intervention para mais "
 "pormenores."
 
-#: warehouse/accounts/views.py:1585
+#: warehouse/accounts/views.py:1630
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
@@ -368,15 +379,15 @@ msgstr ""
 "Você deve ter um e-mail verificado para registrar um editor confiável "
 "pendente. Consulte https://pypi.org/help#openid-connect para obter detalhes."
 
-#: warehouse/accounts/views.py:1598
+#: warehouse/accounts/views.py:1643
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 "Não pode registar mais que 3 editores confiáveis pendentes de uma única vez."
 
-#: warehouse/accounts/views.py:1614 warehouse/manage/views/__init__.py:1304
-#: warehouse/manage/views/__init__.py:1417
-#: warehouse/manage/views/__init__.py:1529
-#: warehouse/manage/views/__init__.py:1639
+#: warehouse/accounts/views.py:1659 warehouse/manage/views/__init__.py:1586
+#: warehouse/manage/views/__init__.py:1699
+#: warehouse/manage/views/__init__.py:1811
+#: warehouse/manage/views/__init__.py:1921
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
@@ -384,14 +395,14 @@ msgstr ""
 "Houveram muitas tentativas de registo de editores confiáveis. Tente "
 "novamente mais tarde."
 
-#: warehouse/accounts/views.py:1625 warehouse/manage/views/__init__.py:1318
-#: warehouse/manage/views/__init__.py:1431
-#: warehouse/manage/views/__init__.py:1543
-#: warehouse/manage/views/__init__.py:1653
+#: warehouse/accounts/views.py:1669 warehouse/manage/views/__init__.py:1599
+#: warehouse/manage/views/__init__.py:1712
+#: warehouse/manage/views/__init__.py:1824
+#: warehouse/manage/views/__init__.py:1934
 msgid "The trusted publisher could not be registered"
 msgstr "O editor confiável não pôde ser registado"
 
-#: warehouse/accounts/views.py:1639
+#: warehouse/accounts/views.py:1684
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
@@ -399,16 +410,16 @@ msgstr ""
 "Este editor confiável já foi registado. Entre em contato com os "
 "administradores do PyPI se isto não foi intencional."
 
-#: warehouse/accounts/views.py:1666
+#: warehouse/accounts/views.py:1711
 msgid "Registered a new pending publisher to create "
 msgstr "Registou um novo editor de publicação para criar "
 
-#: warehouse/accounts/views.py:1805 warehouse/accounts/views.py:1818
-#: warehouse/accounts/views.py:1825
+#: warehouse/accounts/views.py:1849 warehouse/accounts/views.py:1862
+#: warehouse/accounts/views.py:1869
 msgid "Invalid publisher ID"
 msgstr "ID de editor inválido"
 
-#: warehouse/accounts/views.py:1831
+#: warehouse/accounts/views.py:1876
 msgid "Removed trusted publisher for project "
 msgstr "Editor confiável removido do projeto "
 
@@ -416,11 +427,11 @@ msgstr "Editor confiável removido do projeto "
 msgid "Banner Preview"
 msgstr "Pré-visualização de banner"
 
-#: warehouse/manage/forms.py:408
+#: warehouse/manage/forms.py:420
 msgid "Choose an organization account name with 50 characters or less."
 msgstr "Escolha um nome com 50 carateres ou menos para a organização."
 
-#: warehouse/manage/forms.py:416
+#: warehouse/manage/forms.py:428
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
@@ -432,7 +443,7 @@ msgstr ""
 "começar e terminar com uma letra ou número. Escolha um nome diferente para a "
 "organização."
 
-#: warehouse/manage/forms.py:439
+#: warehouse/manage/forms.py:451
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
@@ -440,7 +451,7 @@ msgstr ""
 "Esse nome de conta de organização já se encontra em uso. Escolha um nome "
 "diferente para a conta da organização."
 
-#: warehouse/manage/forms.py:454
+#: warehouse/manage/forms.py:466
 #, fuzzy
 #| msgid ""
 #| "This organization account name has already been used. Choose a different "
@@ -449,19 +460,19 @@ msgid ""
 "You have already submitted an application for that name. Choose a different "
 "organization account name."
 msgstr ""
-"Esse nome de conta de organização já se encontra em uso. Escolha um nome "
-"diferente para a conta da organização."
+"Você já submeteu uma aplicação com este nome. Escolha um nome de organização "
+"diferente."
 
-#: warehouse/manage/forms.py:490
+#: warehouse/manage/forms.py:501
 msgid "Select project"
 msgstr "Selecionar projeto"
 
-#: warehouse/manage/forms.py:495 warehouse/oidc/forms/_core.py:23
-#: warehouse/oidc/forms/gitlab.py:44
+#: warehouse/manage/forms.py:506 warehouse/oidc/forms/_core.py:29
+#: warehouse/oidc/forms/gitlab.py:57
 msgid "Specify project name"
 msgstr "Especifique o nome do projeto"
 
-#: warehouse/manage/forms.py:498
+#: warehouse/manage/forms.py:510
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
@@ -469,30 +480,30 @@ msgstr ""
 "Começar e terminar com letra ou número contendo apenas com carácteres ASCII "
 "e '.', '_' e '-'."
 
-#: warehouse/manage/forms.py:505
+#: warehouse/manage/forms.py:517
 msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr ""
 "Esse nome de projeto já está sendo utilizado. Escolha um nome diferente para "
 "o projeto."
 
-#: warehouse/manage/forms.py:576
+#: warehouse/manage/forms.py:590
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
 msgstr "O nome é muito longo. Escolha um nome com 100 caráteres ou menos."
 
-#: warehouse/manage/forms.py:588
+#: warehouse/manage/forms.py:602
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
 msgstr "O URL é muito longo. Escolha um URL com 100 carateres ou menos."
 
-#: warehouse/manage/forms.py:595
+#: warehouse/manage/forms.py:608
 msgid "The organization URL must start with http:// or https://"
 msgstr "A URL da organização deve iniciar com http:// ou https://"
 
-#: warehouse/manage/forms.py:606
+#: warehouse/manage/forms.py:620
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
@@ -500,15 +511,15 @@ msgstr ""
 "A descrição é muito longa. Escolha uma descrição com até 400 caráteres ou "
 "menos."
 
-#: warehouse/manage/forms.py:641
+#: warehouse/manage/forms.py:655
 msgid "You have already submitted the maximum number of "
 msgstr "Alcançou o número máximo de envios para "
 
-#: warehouse/manage/forms.py:671
+#: warehouse/manage/forms.py:684
 msgid "Choose a team name with 50 characters or less."
 msgstr "Escolha um nome para sua equipe com 50 caráteres ou menos."
 
-#: warehouse/manage/forms.py:677
+#: warehouse/manage/forms.py:691
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
@@ -517,55 +528,121 @@ msgstr ""
 "terminar com espaços, virgulas, sublinhado, hífen ou barrinha. Escolha outro "
 "nome."
 
-#: warehouse/manage/forms.py:705
+#: warehouse/manage/forms.py:719
 msgid "This team name has already been used. Choose a different team name."
 msgstr "Este nome de equipe já está em uso. Escolha um nome diferente."
 
-#: warehouse/manage/views/__init__.py:282
+#: warehouse/manage/forms.py:737
+msgid "Specify your alternate repository name"
+msgstr "Especifique o nome de seu repositório alternativo"
+
+#: warehouse/manage/forms.py:751
+msgid "Specify your alternate repository URL"
+msgstr "Especifique a URL de seu repositório alternativo"
+
+#: warehouse/manage/forms.py:756
+msgid "The URL is too long. Choose a URL with 400 characters or less."
+msgstr "A URL é muito longa. Escolha uma URL com 400 caracteres ou menos."
+
+#: warehouse/manage/forms.py:770
+#, fuzzy
+#| msgid ""
+#| "The organization description is too long. Choose a organization "
+#| "description with 400 characters or less."
+msgid ""
+"The description is too long. Choose a description with 400 characters or "
+"less."
+msgstr ""
+"A descrição é muito longa. Escolha uma descrição com até 400 caráteres ou "
+"menos."
+
+#: warehouse/manage/views/__init__.py:292
 msgid "Account details updated"
 msgstr "Pormenores da conta atualizados"
 
-#: warehouse/manage/views/__init__.py:312
+#: warehouse/manage/views/__init__.py:323
+#, python-brace-format
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "E-mail ${email_address} adicionado - procure a hiperligação de verificação "
 "no seu e-mail"
 
-#: warehouse/manage/views/__init__.py:818
+#: warehouse/manage/views/__init__.py:828
 msgid "Recovery codes already generated"
 msgstr "Códigos de recuperação já gerados"
 
-#: warehouse/manage/views/__init__.py:819
+#: warehouse/manage/views/__init__.py:830
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 "A geração dos novos códigos de recuperação invalidará os seus códigos "
 "existentes."
 
-#: warehouse/manage/views/__init__.py:928
+#: warehouse/manage/views/__init__.py:938
 msgid "Verify your email to create an API token."
 msgstr "Verifique o seu e-mail para criar um token de API."
 
-#: warehouse/manage/views/__init__.py:1028
+#: warehouse/manage/views/__init__.py:1038
 msgid "API Token does not exist."
 msgstr "Essa chave de API não existe."
 
-#: warehouse/manage/views/__init__.py:1060
+#: warehouse/manage/views/__init__.py:1070
 msgid "Invalid credentials. Try again"
 msgstr "Credenciais inválidas. Tente novamente"
 
-#: warehouse/manage/views/__init__.py:1285
+#: warehouse/manage/views/__init__.py:1189
+msgid "Invalid alternate repository location details"
+msgstr "Detalhes de localização do repositório alternativo inválidos"
+
+#: warehouse/manage/views/__init__.py:1227
+#, python-brace-format
+msgid "Added alternate repository '${name}'"
+msgstr "repositório alternativo adicionado '${name}'"
+
+#: warehouse/manage/views/__init__.py:1260
+#: warehouse/manage/views/__init__.py:2267
+#: warehouse/manage/views/__init__.py:2352
+#: warehouse/manage/views/__init__.py:2453
+#: warehouse/manage/views/__init__.py:2553
+msgid "Confirm the request"
+msgstr "Confirme a solicitação"
+
+#: warehouse/manage/views/__init__.py:1272
+msgid "Invalid alternate repository id"
+msgstr "ID de repositório alternativo inválido"
+
+#: warehouse/manage/views/__init__.py:1283
+msgid "Invalid alternate repository for project"
+msgstr "Repositório alternativo invalido para o projeto"
+
+#: warehouse/manage/views/__init__.py:1292
+#, python-brace-format
+msgid ""
+"Could not delete alternate repository - ${confirm} is not the same as "
+"${alt_repo_name}"
+msgstr ""
+"Não foi possível deletar o repositório alternativo - ${confirm} não é o "
+"mesmo que ${alt_repo_name}"
+
+#: warehouse/manage/views/__init__.py:1322
+#, python-brace-format
+msgid "Deleted alternate repository '${name}'"
+msgstr "Repositório alternativo '${name}' deletado"
+
+#: warehouse/manage/views/__init__.py:1466
 #, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
+#| msgid "The trusted publisher could not be registered"
+msgid "The trusted publisher could not be constrained"
+msgstr "O editor confiável não pôde ser registado"
+
+#: warehouse/manage/views/__init__.py:1567
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
 msgstr ""
-"O registo de novos utilizadores está temporariamente desativado. Consulte "
-"https://pypi.org/help#admin-intervention para mais detalhes."
+"Publicações confiáveis baseadas em Github estão temporariamente "
+"desabilitadas. Veja https://pypi.org/help#admin-intervention para detalhes."
 
-#: warehouse/manage/views/__init__.py:1398
+#: warehouse/manage/views/__init__.py:1680
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -577,7 +654,7 @@ msgstr ""
 "O registo de novos utilizadores está temporariamente desativado. Consulte "
 "https://pypi.org/help#admin-intervention para mais detalhes."
 
-#: warehouse/manage/views/__init__.py:1510
+#: warehouse/manage/views/__init__.py:1792
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -589,7 +666,7 @@ msgstr ""
 "O registo de novos utilizadores está temporariamente desativado. Consulte "
 "https://pypi.org/help#admin-intervention para mais detalhes."
 
-#: warehouse/manage/views/__init__.py:1619
+#: warehouse/manage/views/__init__.py:1901
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -601,9 +678,9 @@ msgstr ""
 "O registo de novos utilizadores está temporariamente desativado. Consulte "
 "https://pypi.org/help#admin-intervention para mais detalhes."
 
-#: warehouse/manage/views/__init__.py:1854
-#: warehouse/manage/views/__init__.py:2155
-#: warehouse/manage/views/__init__.py:2263
+#: warehouse/manage/views/__init__.py:2136
+#: warehouse/manage/views/__init__.py:2437
+#: warehouse/manage/views/__init__.py:2545
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -611,48 +688,47 @@ msgstr ""
 "Apagar projetos temporariamente desativado. Consulte https://pypi.org/"
 "help#admin-intervention para pormenores."
 
-#: warehouse/manage/views/__init__.py:1986
-#: warehouse/manage/views/__init__.py:2071
-#: warehouse/manage/views/__init__.py:2172
-#: warehouse/manage/views/__init__.py:2272
-msgid "Confirm the request"
-msgstr "Confirme a solicitação"
-
-#: warehouse/manage/views/__init__.py:1998
+#: warehouse/manage/views/__init__.py:2280
 msgid "Could not yank release - "
 msgstr "Não foi possível retirar o lançamento - "
 
-#: warehouse/manage/views/__init__.py:2083
+#: warehouse/manage/views/__init__.py:2365
 msgid "Could not un-yank release - "
 msgstr "Não foi possível desfazer a retirada do lançamento - "
 
-#: warehouse/manage/views/__init__.py:2184
+#: warehouse/manage/views/__init__.py:2466
 msgid "Could not delete release - "
 msgstr "Não foi possível apagar o lançamento - "
 
-#: warehouse/manage/views/__init__.py:2284
+#: warehouse/manage/views/__init__.py:2565
 msgid "Could not find file"
 msgstr "Não foi possível localizar o ficheiro"
 
-#: warehouse/manage/views/__init__.py:2288
+#: warehouse/manage/views/__init__.py:2570
 msgid "Could not delete file - "
 msgstr "Não foi possível apagar o ficheiro - "
 
-#: warehouse/manage/views/__init__.py:2438
+#: warehouse/manage/views/__init__.py:2720
+#, fuzzy, python-brace-format
+#| msgid "Team '${team_name}' already has ${role_name} role for project"
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 "A equipa \"${username}\" já tem a função de ${role_name} para o projeto"
 
-#: warehouse/manage/views/__init__.py:2545
+#: warehouse/manage/views/__init__.py:2827
+#, python-brace-format
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 "O utilizador \"${username}\" já tem a função de ${role_name} para o projeto"
 
-#: warehouse/manage/views/__init__.py:2612
+#: warehouse/manage/views/__init__.py:2894
+#, fuzzy, python-brace-format
+#| msgid "${username} is now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "${username} agora é ${role} do projeto '${nome_do_projeto}'."
 
-#: warehouse/manage/views/__init__.py:2644
+#: warehouse/manage/views/__init__.py:2926
+#, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -660,38 +736,43 @@ msgstr ""
 "O utilizador \"${username}\" não tem um endereço de e-mail principal "
 "verificado e não pode ser adicionado como um ${role_name} para o projeto"
 
-#: warehouse/manage/views/__init__.py:2657
-#: warehouse/manage/views/organizations.py:878
+#: warehouse/manage/views/__init__.py:2939
+#: warehouse/manage/views/organizations.py:890
+#, python-brace-format
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "O utilizador \"${username}\" já tem um convite ativo. Tente novamente mais "
 "tarde."
 
-#: warehouse/manage/views/__init__.py:2722
-#: warehouse/manage/views/organizations.py:943
+#: warehouse/manage/views/__init__.py:3004
+#: warehouse/manage/views/organizations.py:955
+#, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr "Convite enviado para \"${username}\""
 
-#: warehouse/manage/views/__init__.py:2755
+#: warehouse/manage/views/__init__.py:3036
 msgid "Could not find role invitation."
 msgstr "Não foi possível encontrar o convite para uma função."
 
-#: warehouse/manage/views/__init__.py:2766
+#: warehouse/manage/views/__init__.py:3047
 msgid "Invitation already expired."
 msgstr "O convite já expirou."
 
-#: warehouse/manage/views/__init__.py:2798
-#: warehouse/manage/views/organizations.py:1130
+#: warehouse/manage/views/__init__.py:3080
+#: warehouse/manage/views/organizations.py:1142
+#, python-brace-format
 msgid "Invitation revoked from '${username}'."
 msgstr "Convite revogado de \"${username}\"."
 
-#: warehouse/manage/views/organizations.py:854
+#: warehouse/manage/views/organizations.py:866
+#, python-brace-format
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 "O usuário \"${username}\" já tem a função de ${role_name} para a equipe"
 
-#: warehouse/manage/views/organizations.py:865
+#: warehouse/manage/views/organizations.py:877
+#, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -699,107 +780,150 @@ msgstr ""
 "O usuário \"${username}\" não tem um endereço de e-mail principal verificado "
 "e não pode ser adicionado como um ${role_name} para a equipe"
 
-#: warehouse/manage/views/organizations.py:1026
-#: warehouse/manage/views/organizations.py:1068
+#: warehouse/manage/views/organizations.py:1037
+#: warehouse/manage/views/organizations.py:1079
 msgid "Could not find organization invitation."
 msgstr "Não foi possível encontrar o convite para uma equipe."
 
-#: warehouse/manage/views/organizations.py:1036
+#: warehouse/manage/views/organizations.py:1047
 msgid "Organization invitation could not be re-sent."
 msgstr "O convite da organização não pôde ser reenviado."
 
-#: warehouse/manage/views/organizations.py:1083
+#: warehouse/manage/views/organizations.py:1095
+#, fuzzy, python-brace-format
+#| msgid "Expired invitation for '${username}' deleted."
 msgid "Expired invitation for '${username}' deleted."
 msgstr "O convite para \"${project_name}\" expirou e foi apagado."
 
-#: warehouse/oidc/forms/_core.py:25 warehouse/oidc/forms/gitlab.py:46
+#: warehouse/oidc/forms/_core.py:31 warehouse/oidc/forms/_core.py:42
+#: warehouse/oidc/forms/gitlab.py:60 warehouse/oidc/forms/gitlab.py:64
 msgid "Invalid project name"
 msgstr "Nome de projeto inválido"
 
-#: warehouse/oidc/forms/_core.py:46
+#: warehouse/oidc/forms/_core.py:60
+#, fuzzy, python-brace-format
+#| msgid ""
+#| "This project already exists, use the project's publishing settings <a "
+#| "href='${url}'>here</a> to create a Trusted Publisher for it."
 msgid ""
-"This project already exists, use the project's publishing settings <a "
+"This project already exists: use the project's publishing settings <a "
 "href='${url}'>here</a> to create a Trusted Publisher for it."
 msgstr ""
+"Esse projeto já existe, Use as configurações de projetos <a "
+"href='${url}'>Aqui</a> Para criar um Editor Confiável para ele."
 
-#: warehouse/oidc/forms/_core.py:66
+#: warehouse/oidc/forms/_core.py:69
+#, fuzzy
+#| msgid "This project has no releases"
+msgid "This project already exists."
+msgstr "Este projeto não possui lançamentos"
+
+#: warehouse/oidc/forms/_core.py:74
+#, fuzzy
+#| msgid "This project name is already in use"
+msgid "This project name isn't allowed"
+msgstr "Este nome de projeto já está em uso"
+
+#: warehouse/oidc/forms/_core.py:78
+#, fuzzy
+#| msgid ""
+#| "The project name is too similar to an existing project and may be "
+#| "confusable."
+msgid "This project name is too similar to an existing project"
+msgstr ""
+"O nome do projeto é muito semelhante a um projeto existente e pode ser "
+"confundido."
+
+#: warehouse/oidc/forms/_core.py:83
+msgid ""
+"This project name isn't allowed (conflict with the Python standard library "
+"module name)"
+msgstr ""
+
+#: warehouse/oidc/forms/_core.py:99 warehouse/oidc/forms/_core.py:110
 msgid "Specify a publisher ID"
 msgstr "Especifique um ID de editor"
 
-#: warehouse/oidc/forms/_core.py:67
+#: warehouse/oidc/forms/_core.py:100 warehouse/oidc/forms/_core.py:111
 msgid "Publisher must be specified by ID"
 msgstr "O editor deve ser especificado pelo ID"
 
-#: warehouse/oidc/forms/activestate.py:48
+#: warehouse/oidc/forms/_core.py:116
+#, fuzzy
+#| msgid "Specify project name"
+msgid "Specify an environment name"
+msgstr "Especifique o nome do projeto"
+
+#: warehouse/oidc/forms/activestate.py:47
 #, fuzzy
 #| msgid "Null bytes are not allowed."
 msgid "Double dashes are not allowed in the name"
 msgstr "Bytes nulos não são permitidos."
 
-#: warehouse/oidc/forms/activestate.py:55
+#: warehouse/oidc/forms/activestate.py:54
 msgid "Leading or trailing dashes are not allowed in the name"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:79
-#: warehouse/oidc/forms/activestate.py:92
+#: warehouse/oidc/forms/activestate.py:78
+#: warehouse/oidc/forms/activestate.py:91
 #, fuzzy
 #| msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgid "Unexpected error from ActiveState. Try again in a few minutes"
 msgstr "Tempo limite inesperado do GitHub. Tente novamente em alguns minutos."
 
-#: warehouse/oidc/forms/activestate.py:87
-#: warehouse/oidc/forms/activestate.py:103
-#: warehouse/oidc/forms/activestate.py:112
+#: warehouse/oidc/forms/activestate.py:86
+#: warehouse/oidc/forms/activestate.py:102
+#: warehouse/oidc/forms/activestate.py:111
 #, fuzzy
 #| msgid "Unexpected error from GitHub. Try again."
 msgid "Unexpected error from ActiveState. Try again"
 msgstr "Erro inesperado do GitHub. Tente novamente."
 
-#: warehouse/oidc/forms/activestate.py:122
+#: warehouse/oidc/forms/activestate.py:121
 #, fuzzy
 #| msgid "Select an organization account name"
 msgid "Specify ActiveState organization name"
 msgstr "Selecione um nome de conta da organização"
 
-#: warehouse/oidc/forms/activestate.py:130
+#: warehouse/oidc/forms/activestate.py:129
 #, fuzzy
 #| msgid "Specify project name"
 msgid "Specify ActiveState project name"
 msgstr "Especifique o nome do projeto"
 
-#: warehouse/oidc/forms/activestate.py:134
+#: warehouse/oidc/forms/activestate.py:133
 #, fuzzy
 #| msgid "Invalid project name"
 msgid "Invalid ActiveState project name"
 msgstr "Nome de projeto inválido"
 
-#: warehouse/oidc/forms/activestate.py:157
+#: warehouse/oidc/forms/activestate.py:156
 #, fuzzy
 #| msgid "Select an organization account name"
 msgid "ActiveState organization not found"
 msgstr "Selecione um nome de conta da organização"
 
-#: warehouse/oidc/forms/activestate.py:177
+#: warehouse/oidc/forms/activestate.py:176
 msgid "ActiveState actor not found"
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:33
+#: warehouse/oidc/forms/github.py:32
 msgid "Specify GitHub repository owner (username or organization)"
 msgstr "Proprietário do repositório GitHub ( nome ou equipe )"
 
-#: warehouse/oidc/forms/github.py:40
+#: warehouse/oidc/forms/github.py:39
 msgid "Specify repository name"
 msgstr "Nome do repositório"
 
-#: warehouse/oidc/forms/github.py:42
+#: warehouse/oidc/forms/github.py:41
 msgid "Invalid repository name"
 msgstr "Nome de repositório inválido"
 
-#: warehouse/oidc/forms/github.py:49
+#: warehouse/oidc/forms/github.py:48
 msgid "Specify workflow filename"
 msgstr "Nome do arquivo de workflow"
 
-#: warehouse/oidc/forms/github.py:84
+#: warehouse/oidc/forms/github.py:83
 msgid "Unknown GitHub user or organization."
 msgstr "Utilizador ou organização GitHub desconhecido."
 
@@ -807,7 +931,7 @@ msgstr "Utilizador ou organização GitHub desconhecido."
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr "O GitHub limitou a taxa dessa ação. Tente novamente em alguns minutos."
 
-#: warehouse/oidc/forms/github.py:104
+#: warehouse/oidc/forms/github.py:103
 msgid "Unexpected error from GitHub. Try again."
 msgstr "Erro inesperado do GitHub. Tente novamente."
 
@@ -816,55 +940,61 @@ msgid "Unexpected connection error from GitHub. Try again in a few minutes."
 msgstr ""
 "Erro de conexão inesperado do GitHub. Tente novamente em alguns minutos."
 
-#: warehouse/oidc/forms/github.py:121
+#: warehouse/oidc/forms/github.py:120
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgstr "Tempo limite inesperado do GitHub. Tente novamente em alguns minutos."
 
-#: warehouse/oidc/forms/github.py:133
+#: warehouse/oidc/forms/github.py:132
 msgid "Invalid GitHub user or organization name."
 msgstr "Nome de utilizador ou organização inválido do GitHub."
 
-#: warehouse/oidc/forms/github.py:149
+#: warehouse/oidc/forms/github.py:148
 msgid "Workflow name must end with .yml or .yaml"
 msgstr "O nome do fluxo de trabalho deve terminar com .yml ou .yaml"
 
-#: warehouse/oidc/forms/github.py:154
+#: warehouse/oidc/forms/github.py:153
 msgid "Workflow filename must be a filename only, without directories"
 msgstr ""
 "O nome do ficheiro de fluxo de trabalho deve ser apenas um nome de ficheiro, "
 "sem diretórios"
 
-#: warehouse/oidc/forms/gitlab.py:33
+#: warehouse/oidc/forms/gitlab.py:32
+#, fuzzy
+#| msgid "Workflow name must end with .yml or .yaml"
+msgid "Name ends with .git or .atom"
+msgstr "O nome do fluxo de trabalho deve terminar com .yml ou .yaml"
+
+#: warehouse/oidc/forms/gitlab.py:41
 #, fuzzy
 #| msgid "Specify GitHub repository owner (username or organization)"
 msgid "Specify GitLab namespace (username or group/subgroup)"
 msgstr "Proprietário do repositório GitHub ( nome ou equipe )"
 
-#: warehouse/oidc/forms/gitlab.py:37
+#: warehouse/oidc/forms/gitlab.py:46 warehouse/oidc/forms/gitlab.py:50
 #, fuzzy
 #| msgid "Invalid GitHub user or organization name."
 msgid "Invalid GitLab username or group/subgroup name."
 msgstr "Nome de utilizador ou organização inválido do GitHub."
 
-#: warehouse/oidc/forms/gitlab.py:54
+#: warehouse/oidc/forms/gitlab.py:72
 #, fuzzy
 #| msgid "Specify workflow filename"
 msgid "Specify top-level pipeline file path"
 msgstr "Nome do arquivo de workflow"
 
-#: warehouse/oidc/forms/gitlab.py:63
+#: warehouse/oidc/forms/gitlab.py:81
 #, fuzzy
 #| msgid "Invalid project name"
 msgid "Invalid environment name"
 msgstr "Nome de projeto inválido"
 
-#: warehouse/oidc/forms/gitlab.py:78
+#: warehouse/oidc/forms/gitlab.py:96
 #, fuzzy
 #| msgid "Workflow name must end with .yml or .yaml"
 msgid "Top-level pipeline file path must end with .yml or .yaml"
 msgstr "O nome do fluxo de trabalho deve terminar com .yml ou .yaml"
 
-#: warehouse/oidc/forms/gitlab.py:82
+#: warehouse/oidc/forms/gitlab.py:100
 msgid "Top-level pipeline file path cannot start or end with /"
 msgstr ""
 
@@ -872,8 +1002,63 @@ msgstr ""
 msgid "Provide an Inspector link to specific lines of code."
 msgstr ""
 
-#: warehouse/packaging/views.py:212
+#: warehouse/packaging/views.py:352
 msgid "Your report has been recorded. Thank you for your help."
+msgstr ""
+
+#: warehouse/static/js/warehouse/controllers/clipboard_controller.js:32
+msgid "Copied"
+msgstr ""
+
+#: warehouse/static/js/warehouse/controllers/password_breach_controller.js:48
+msgid "Error while validating hashed password, disregard on development"
+msgstr ""
+
+#: warehouse/static/js/warehouse/controllers/password_match_controller.js:32
+#, fuzzy
+#| msgid "Password"
+msgid "Passwords match"
+msgstr "Palavra-passe"
+
+#: warehouse/static/js/warehouse/controllers/password_match_controller.js:36
+#, fuzzy
+#| msgid "Your passwords don't match. Try again."
+msgid "Passwords do not match"
+msgstr "As suas palavras-passe não coincidem. Tente novamente."
+
+#: warehouse/static/js/warehouse/controllers/password_strength_gauge_controller.js:27
+#: warehouse/templates/base.html:30
+msgid "Password field is empty"
+msgstr "O campo da palavra-passe está em branco"
+
+#: warehouse/static/js/warehouse/controllers/password_strength_gauge_controller.js:42
+#, fuzzy
+#| msgid "Password strength:"
+msgid "Password is strong"
+msgstr "Força da palavra-passe:"
+
+#: warehouse/static/js/warehouse/utils/timeago.js:33
+#, fuzzy
+#| msgid "Register"
+msgid "Yesterday"
+msgid_plural "About %1 days ago"
+msgstr[0] "Registar"
+msgstr[1] "Registar"
+
+#: warehouse/static/js/warehouse/utils/timeago.js:37
+msgid "About an hour ago"
+msgid_plural "About %1 hours ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/static/js/warehouse/utils/timeago.js:39
+msgid "About a minute ago"
+msgid_plural "About %1 minutes ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/static/js/warehouse/utils/timeago.js:41
+msgid "Just now"
 msgstr ""
 
 #: warehouse/subscriptions/models.py:35
@@ -942,7 +1127,7 @@ msgstr "Monthy Python - A Cena da Loja de Queijo"
 #: warehouse/templates/base.html:321 warehouse/templates/base.html:331
 #: warehouse/templates/base.html:344
 #: warehouse/templates/includes/accounts/profile-callout.html:18
-#: warehouse/templates/includes/hash-modal.html:23
+#: warehouse/templates/includes/file-details.html:101
 #: warehouse/templates/index.html:100 warehouse/templates/index.html:104
 #: warehouse/templates/manage/account.html:228
 #: warehouse/templates/manage/account.html:234
@@ -952,12 +1137,12 @@ msgstr "Monthy Python - A Cena da Loja de Queijo"
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/manage_base.html:208
-#: warehouse/templates/manage/project/release.html:144
-#: warehouse/templates/manage/project/release.html:200
+#: warehouse/templates/manage/project/release.html:138
+#: warehouse/templates/manage/project/release.html:194
 #: warehouse/templates/manage/project/releases.html:140
 #: warehouse/templates/manage/project/releases.html:179
-#: warehouse/templates/packaging/detail.html:398
 #: warehouse/templates/packaging/detail.html:417
+#: warehouse/templates/packaging/detail.html:437
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:228
@@ -1102,10 +1287,6 @@ msgstr ""
 msgid "Password strength:"
 msgstr "Força da palavra-passe:"
 
-#: warehouse/templates/base.html:30
-msgid "Password field is empty"
-msgstr "O campo da palavra-passe está em branco"
-
 #: warehouse/templates/base.html:39 warehouse/templates/base.html:47
 #: warehouse/templates/includes/current-user-indicator.html:17
 msgid "Main navigation"
@@ -1213,10 +1394,10 @@ msgstr "Mudar para a versão de telemóvel"
 #: warehouse/templates/manage/organization/settings.html:280
 #: warehouse/templates/manage/organization/settings.html:286
 #: warehouse/templates/manage/project/documentation.html:27
-#: warehouse/templates/manage/project/release.html:188
+#: warehouse/templates/manage/project/release.html:182
 #: warehouse/templates/manage/project/settings.html:87
 #: warehouse/templates/manage/project/settings.html:136
-#: warehouse/templates/manage/project/settings.html:208
+#: warehouse/templates/manage/project/settings.html:393
 #: warehouse/templates/manage/team/settings.html:84
 msgid "Warning"
 msgstr "Aviso"
@@ -1363,7 +1544,9 @@ msgid "Report security issue"
 msgstr "Reportar problema de segurança"
 
 #: warehouse/templates/base.html:319
-msgid "Privacy policy"
+#, fuzzy
+#| msgid "Privacy policy"
+msgid "Privacy Notice"
 msgstr "Política de privacidade"
 
 #: warehouse/templates/base.html:320
@@ -1505,8 +1688,8 @@ msgstr "Aprenda a empacotar o seu código Python para o PyPI"
 msgid "Error processing form"
 msgstr "Erro ao processar o formulário"
 
-#: warehouse/templates/accounts/register.html:173
-#: warehouse/templates/accounts/register.html:179
+#: warehouse/templates/accounts/register.html:190
+#: warehouse/templates/accounts/register.html:196
 #: warehouse/templates/accounts/reset-password.html:71
 #: warehouse/templates/accounts/reset-password.html:77
 #: warehouse/templates/manage/account.html:442
@@ -1519,7 +1702,7 @@ msgid "Confirm password to continue"
 msgstr "Confirmar palavra-passe para continuar"
 
 #: warehouse/templates/accounts/login.html:77
-#: warehouse/templates/accounts/register.html:136
+#: warehouse/templates/accounts/register.html:153
 #: warehouse/templates/accounts/reset-password.html:38
 #: warehouse/templates/manage/manage_base.html:408
 #: warehouse/templates/re-auth.html:50
@@ -1529,11 +1712,11 @@ msgstr "Palavra-passe"
 #: warehouse/templates/accounts/login.html:51
 #: warehouse/templates/accounts/login.html:79
 #: warehouse/templates/accounts/recovery-code.html:42
-#: warehouse/templates/accounts/register.html:49
-#: warehouse/templates/accounts/register.html:75
-#: warehouse/templates/accounts/register.html:110
-#: warehouse/templates/accounts/register.html:138
-#: warehouse/templates/accounts/register.html:175
+#: warehouse/templates/accounts/register.html:66
+#: warehouse/templates/accounts/register.html:92
+#: warehouse/templates/accounts/register.html:127
+#: warehouse/templates/accounts/register.html:155
+#: warehouse/templates/accounts/register.html:192
 #: warehouse/templates/accounts/request-password-reset.html:41
 #: warehouse/templates/accounts/reset-password.html:40
 #: warehouse/templates/accounts/reset-password.html:73
@@ -1566,6 +1749,7 @@ msgstr "Palavra-passe"
 #: warehouse/templates/manage/account/token.html:150
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
+#: warehouse/templates/manage/organization/activate_subscription.html:34
 #: warehouse/templates/manage/organization/projects.html:128
 #: warehouse/templates/manage/organization/projects.html:151
 #: warehouse/templates/manage/organization/roles.html:270
@@ -1599,6 +1783,9 @@ msgstr "Palavra-passe"
 #: warehouse/templates/manage/project/roles.html:328
 #: warehouse/templates/manage/project/roles.html:359
 #: warehouse/templates/manage/project/roles.html:380
+#: warehouse/templates/manage/project/settings.html:287
+#: warehouse/templates/manage/project/settings.html:307
+#: warehouse/templates/manage/project/settings.html:327
 #: warehouse/templates/manage/team/roles.html:106
 #: warehouse/templates/manage/team/settings.html:35
 #: warehouse/templates/packaging/submit-malware-observation.html:58
@@ -1703,7 +1890,7 @@ msgstr "Iniciar sessão para %(title)s"
 
 #: warehouse/templates/accounts/login.html:49
 #: warehouse/templates/accounts/profile.html:39
-#: warehouse/templates/accounts/register.html:108
+#: warehouse/templates/accounts/register.html:125
 #: warehouse/templates/email/organization-member-added/body.html:30
 #: warehouse/templates/email/organization-member-invited/body.html:30
 #: warehouse/templates/email/organization-member-removed/body.html:30
@@ -1768,6 +1955,7 @@ msgstr "Perfil de %(username)s"
 #: warehouse/templates/manage/project/roles.html:157
 #: warehouse/templates/manage/project/roles.html:214
 #: warehouse/templates/manage/team/roles.html:61
+#, python-brace-format
 msgid "Avatar for {user} from gravatar.com"
 msgstr "Avatar para {user} do gravatar.com"
 
@@ -1798,7 +1986,7 @@ msgstr "Sem projectos"
 #: warehouse/templates/accounts/profile.html:83
 #: warehouse/templates/manage/organization/projects.html:48
 #: warehouse/templates/manage/projects.html:37
-#: warehouse/templates/manage/projects.html:84
+#: warehouse/templates/manage/projects.html:87
 #: warehouse/templates/manage/team/projects.html:48
 #: warehouse/templates/organizations/profile.html:66
 #, python-format
@@ -1867,47 +2055,93 @@ msgstr "Criar uma conta"
 msgid "Create an account on %(title)s"
 msgstr "Criar uma conta em %(title)s"
 
-#: warehouse/templates/accounts/register.html:47
+#: warehouse/templates/accounts/register.html:35
+#, python-format
+msgid ""
+"Before creating an account on %(title)s, familiarize yourself with the "
+"following guidelines:"
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:38
+#, python-format
+msgid "Do not use %(title)s for any illegal or harmful activities."
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:39
+msgid ""
+"Do not impersonate others or post private information without their consent."
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:40
+msgid ""
+"Be respectful of other users and avoid abusive or discriminatory language."
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:41
+msgid "Do not post spam or distribute malware."
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:42
+#, python-format
+msgid "Do not use %(title)s to conduct security research."
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:45
+#, python-format
+msgid ""
+"For more information, please read the full <a href=\"%(tou)s\" "
+"rel=\"noopener\">Terms of Use</a> and <a href=\"%(aup)s\" "
+"rel=\"noopener\">Acceptable Use Policy</a>."
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:64
 #: warehouse/templates/manage/account.html:139
 #: warehouse/templates/manage/account.html:480
+#: warehouse/templates/manage/project/history.html:313
+#: warehouse/templates/manage/project/history.html:324
+#: warehouse/templates/manage/project/history.html:335
+#: warehouse/templates/manage/project/history.html:346
+#: warehouse/templates/manage/project/settings.html:224
+#: warehouse/templates/manage/project/settings.html:285
+#: warehouse/templates/manage/project/settings.html:291
 #: warehouse/templates/manage/unverified-account.html:112
 msgid "Name"
 msgstr "Nome"
 
-#: warehouse/templates/accounts/register.html:53
+#: warehouse/templates/accounts/register.html:70
 msgid "Your name"
 msgstr "O seu nome"
 
-#: warehouse/templates/accounts/register.html:73
+#: warehouse/templates/accounts/register.html:90
 #: warehouse/templates/manage/account.html:336
 #: warehouse/templates/manage/unverified-account.html:227
 msgid "Email address"
 msgstr "Endereço de e-mail"
 
-#: warehouse/templates/accounts/register.html:79
+#: warehouse/templates/accounts/register.html:96
 #: warehouse/templates/manage/account.html:358
 msgid "Your email address"
 msgstr "O seu endereço de e-mail"
 
-#: warehouse/templates/accounts/register.html:99
+#: warehouse/templates/accounts/register.html:116
 msgid "Confirm form"
 msgstr "Formulário de confirmação"
 
-#: warehouse/templates/accounts/register.html:113
+#: warehouse/templates/accounts/register.html:130
 msgid "Select a username"
 msgstr "Selecione um nome de utilizador"
 
-#: warehouse/templates/accounts/register.html:143
+#: warehouse/templates/accounts/register.html:160
 #: warehouse/templates/accounts/reset-password.html:44
 #: warehouse/templates/manage/account.html:391
 msgid "Show passwords"
 msgstr "Mostrar palavras-passe"
 
-#: warehouse/templates/accounts/register.html:147
+#: warehouse/templates/accounts/register.html:164
 msgid "Select a password"
 msgstr "Selecionar uma palavra-passe"
 
-#: warehouse/templates/accounts/register.html:205
+#: warehouse/templates/accounts/register.html:222
 msgid ""
 "This password appears in a security breach or has been compromised and "
 "cannot be used. Please refer to the <a href=\"/help/#compromised-"
@@ -1917,7 +2151,7 @@ msgstr ""
 "não pode ser usada. Consulte a <a href=\"/help/#compromised-password\">FAQ</"
 "a> para obter mais informações."
 
-#: warehouse/templates/accounts/register.html:214
+#: warehouse/templates/accounts/register.html:231
 msgid "Create account"
 msgstr "Criar conta"
 
@@ -2968,22 +3202,19 @@ msgstr "Descartar esta notificação"
 #: warehouse/templates/includes/flash-messages.html:33
 #: warehouse/templates/includes/flash-messages.html:40
 #: warehouse/templates/includes/flash-messages.html:51
-#: warehouse/templates/includes/hash-modal.html:17
-#: warehouse/templates/includes/hash-modal.html:19
-#: warehouse/templates/includes/hash-modal.html:68
 #: warehouse/templates/includes/session-notifications.html:40
 #: warehouse/templates/manage/account.html:199
 #: warehouse/templates/manage/account.html:201
 #: warehouse/templates/manage/account.html:211
 #: warehouse/templates/manage/manage_base.html:329
 #: warehouse/templates/manage/manage_base.html:331
-#: warehouse/templates/manage/project/release.html:143
+#: warehouse/templates/manage/project/release.html:137
 #: warehouse/templates/manage/project/releases.html:178
 #: warehouse/templates/manage/project/settings.html:72
 #: warehouse/templates/manage/unverified-account.html:172
 #: warehouse/templates/manage/unverified-account.html:174
 #: warehouse/templates/manage/unverified-account.html:184
-#: warehouse/templates/search/results.html:198
+#: warehouse/templates/search/results.html:197
 msgid "Close"
 msgstr "Fechar"
 
@@ -3019,51 +3250,66 @@ msgstr "Configurações da conta"
 msgid "Public profile"
 msgstr "Perfil público"
 
-#: warehouse/templates/includes/flash-messages.html:19
-msgid "Error"
-msgstr "Erro"
+#: warehouse/templates/includes/file-details.html:34
+#, fuzzy
+#| msgid "Account details"
+msgid "File details"
+msgstr "Detalhes da conta"
 
-#: warehouse/templates/includes/flash-messages.html:48
-msgid "Success"
-msgstr "Sucesso"
-
-#: warehouse/templates/includes/hash-modal.html:23
+#: warehouse/templates/includes/file-details.html:45
 #, python-format
-msgid ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Hashes</a> for %(filename)s"
+msgid "Upload date: %(upload_time)s"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Hashes</a> para %(filename)s"
 
-#: warehouse/templates/includes/hash-modal.html:28
+#: warehouse/templates/includes/file-details.html:46
+#, fuzzy, python-format
+#| msgid "Expires: %(exp)s"
+msgid "Size: %(size)s"
+msgstr "Expira: %(exp)s"
+
+#: warehouse/templates/includes/file-details.html:47
+#, python-format
+msgid "Tags: %(tags)s"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:49
+#, python-format
+msgid "Uploaded using Trusted Publishing? %(is_tp)s"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:54
+#, python-format
+msgid "Uploaded via: %(uploaded_via)s"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:62
 #, python-format
 msgid "Hashes for %(filename)s"
 msgstr "Hashes para %(filename)s"
 
-#: warehouse/templates/includes/hash-modal.html:31
+#: warehouse/templates/includes/file-details.html:65
 msgid "Algorithm"
 msgstr "Algoritmo"
 
-#: warehouse/templates/includes/hash-modal.html:32
+#: warehouse/templates/includes/file-details.html:66
 msgid "Hash digest"
 msgstr "Digest de hash"
 
-#: warehouse/templates/includes/hash-modal.html:41
-#: warehouse/templates/includes/hash-modal.html:50
-#: warehouse/templates/includes/hash-modal.html:59
+#: warehouse/templates/includes/file-details.html:75
+#: warehouse/templates/includes/file-details.html:84
+#: warehouse/templates/includes/file-details.html:93
 #: warehouse/templates/manage/account.html:206
 #: warehouse/templates/manage/account/recovery_codes-provision.html:58
 #: warehouse/templates/manage/account/totp-provision.html:57
 #: warehouse/templates/manage/unverified-account.html:179
-#: warehouse/templates/packaging/detail.html:158
+#: warehouse/templates/packaging/detail.html:167
 #: warehouse/templates/pages/classifiers.html:38
 msgid "Copy to clipboard"
 msgstr "Copiar para a área de trabalho"
 
-#: warehouse/templates/includes/hash-modal.html:42
-#: warehouse/templates/includes/hash-modal.html:51
-#: warehouse/templates/includes/hash-modal.html:60
+#: warehouse/templates/includes/file-details.html:76
+#: warehouse/templates/includes/file-details.html:85
+#: warehouse/templates/includes/file-details.html:94
 #: warehouse/templates/manage/account.html:207
 #: warehouse/templates/manage/account/recovery_codes-provision.html:59
 #: warehouse/templates/manage/account/totp-provision.html:58
@@ -3071,6 +3317,26 @@ msgstr "Copiar para a área de trabalho"
 #: warehouse/templates/pages/classifiers.html:39
 msgid "Copy"
 msgstr "Copiar"
+
+#: warehouse/templates/includes/file-details.html:101
+#, fuzzy, python-format
+#| msgid ""
+#| "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+#| "rel=\"noopener\">Hashes</a> for %(filename)s"
+msgid ""
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">See more details on using hashes here.</a>"
+msgstr ""
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">Hashes</a> para %(filename)s"
+
+#: warehouse/templates/includes/flash-messages.html:19
+msgid "Error"
+msgstr "Erro"
+
+#: warehouse/templates/includes/flash-messages.html:48
+msgid "Success"
+msgstr "Sucesso"
 
 #: warehouse/templates/includes/manage-project-button.html:16
 msgid "Manage project"
@@ -3220,110 +3486,131 @@ msgstr "Navegação para gerir %(team)s"
 msgid "Members"
 msgstr "Membros"
 
-#: warehouse/templates/includes/packaging/project-data.html:16
+#: warehouse/templates/includes/packaging/project-data.html:17
 #, fuzzy
 #| msgid "Verified"
 msgid "Verified details"
 msgstr "Verificado"
 
 #: warehouse/templates/includes/packaging/project-data.html:18
-msgid "(What is this?)"
-msgstr ""
+#, fuzzy, python-format
+#| msgid "Released: %(release_date)s"
+msgid "Verified by PyPI on %(release_date)s"
+msgstr "Lançado em: %(release_date)s"
 
 #: warehouse/templates/includes/packaging/project-data.html:21
-msgid "These details have been verified by PyPI"
-msgstr ""
+#, fuzzy, python-format
+#| msgid "Filter by <a href=\"%(href)s\">classifier</a>"
+msgid "These details have been <a href=\"%(href)s\">verified by PyPI</a>"
+msgstr "Filtrar por <a href=\"%(href)s\">classificador</a>"
 
 #: warehouse/templates/includes/packaging/project-data.html:23
-#: warehouse/templates/includes/packaging/project-data.html:140
+#: warehouse/templates/includes/packaging/project-data.html:184
 msgid "Project links"
 msgstr "Ligações do projeto"
 
-#: warehouse/templates/includes/packaging/project-data.html:31
-#, fuzzy, python-format
-#| msgid "Released: %(release_date)s"
-msgid "URL verified by PyPI on %(release_date)s"
-msgstr "Lançado em: %(release_date)s"
-
-#: warehouse/templates/includes/packaging/project-data.html:51
+#: warehouse/templates/includes/packaging/project-data.html:50
 #, fuzzy
 #| msgid "GitHub statistics:"
 msgid "GitHub Statistics"
 msgstr "Estatísticas do GitHub:"
 
-#: warehouse/templates/includes/packaging/project-data.html:57
+#: warehouse/templates/includes/packaging/project-data.html:56
+#: warehouse/templates/includes/packaging/project-data.html:102
 msgid "Repository"
 msgstr "Repositório"
 
-#: warehouse/templates/includes/packaging/project-data.html:64
+#: warehouse/templates/includes/packaging/project-data.html:63
+#: warehouse/templates/includes/packaging/project-data.html:109
 msgid "Stars:"
 msgstr "Estrelas:"
 
-#: warehouse/templates/includes/packaging/project-data.html:72
+#: warehouse/templates/includes/packaging/project-data.html:71
+#: warehouse/templates/includes/packaging/project-data.html:117
 msgid "Forks:"
 msgstr "Bifurcações:"
 
-#: warehouse/templates/includes/packaging/project-data.html:80
+#: warehouse/templates/includes/packaging/project-data.html:79
+#: warehouse/templates/includes/packaging/project-data.html:125
 msgid "Open issues:"
 msgstr "Abrir issues:"
 
-#: warehouse/templates/includes/packaging/project-data.html:88
+#: warehouse/templates/includes/packaging/project-data.html:87
 msgid "Open PRs:"
 msgstr "Abrir PRs:"
 
 #: warehouse/templates/includes/packaging/project-data.html:96
+#, fuzzy
+#| msgid "GitHub statistics:"
+msgid "GitLab Statistics"
+msgstr "Estatísticas do GitHub:"
+
+#: warehouse/templates/includes/packaging/project-data.html:133
+msgid "Open merge requests:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:142
 msgid "Maintainers"
 msgstr "Mantenedores"
 
-#: warehouse/templates/includes/packaging/project-data.html:98
+#: warehouse/templates/includes/packaging/project-data.html:144
+#, python-brace-format
 msgid "Avatar for {username} from gravatar.com"
 msgstr "Avatar para {username} do gravatar.com"
 
-#: warehouse/templates/includes/packaging/project-data.html:113
-#: warehouse/templates/includes/packaging/project-data.html:156
+#: warehouse/templates/includes/packaging/project-data.html:159
+#: warehouse/templates/includes/packaging/project-data.html:200
 msgid "Meta"
 msgstr "Meta"
 
-#: warehouse/templates/includes/packaging/project-data.html:118
-#: warehouse/templates/includes/packaging/project-data.html:168
-#: warehouse/templates/includes/packaging/project-data.html:174
+#: warehouse/templates/includes/packaging/project-data.html:164
+#: warehouse/templates/includes/packaging/project-data.html:225
+#: warehouse/templates/includes/packaging/project-data.html:231
 msgid "Author:"
 msgstr "Autor:"
 
-#: warehouse/templates/includes/packaging/project-data.html:126
-#: warehouse/templates/includes/packaging/project-data.html:181
-#: warehouse/templates/includes/packaging/project-data.html:187
+#: warehouse/templates/includes/packaging/project-data.html:171
+#: warehouse/templates/includes/packaging/project-data.html:238
+#: warehouse/templates/includes/packaging/project-data.html:244
 #: warehouse/templates/pages/help.html:620
 msgid "Maintainer:"
 msgstr "Mantenedor:"
 
-#: warehouse/templates/includes/packaging/project-data.html:137
+#: warehouse/templates/includes/packaging/project-data.html:181
 #, fuzzy
 #| msgid "Unverified"
 msgid "Unverified details"
 msgstr "Não verificado"
 
-#: warehouse/templates/includes/packaging/project-data.html:138
+#: warehouse/templates/includes/packaging/project-data.html:182
 msgid "These details have <b>not</b> been verified by PyPI"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:161
+#: warehouse/templates/includes/packaging/project-data.html:205
+msgid "License Expression:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:210
+msgid "License Expression"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:218
 msgid "License:"
 msgstr "Licença:"
 
-#: warehouse/templates/includes/packaging/project-data.html:195
+#: warehouse/templates/includes/packaging/project-data.html:252
 msgid "Tags"
 msgstr "Etiquetas"
 
-#: warehouse/templates/includes/packaging/project-data.html:207
+#: warehouse/templates/includes/packaging/project-data.html:264
 msgid "Requires:"
 msgstr "Requer:"
 
-#: warehouse/templates/includes/packaging/project-data.html:214
+#: warehouse/templates/includes/packaging/project-data.html:271
 msgid "Provides-Extra:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:224
+#: warehouse/templates/includes/packaging/project-data.html:281
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
@@ -4047,7 +4334,7 @@ msgstr "Atividade recente da conta"
 
 #: warehouse/templates/manage/account.html:780
 #: warehouse/templates/manage/organization/history.html:201
-#: warehouse/templates/manage/project/history.html:304
+#: warehouse/templates/manage/project/history.html:364
 #: warehouse/templates/manage/team/history.html:108
 #: warehouse/templates/manage/unverified-account.html:466
 msgid "Event"
@@ -4056,8 +4343,8 @@ msgstr "Evento"
 #: warehouse/templates/manage/account.html:781
 #: warehouse/templates/manage/organization/history.html:202
 #: warehouse/templates/manage/organization/history.html:211
-#: warehouse/templates/manage/project/history.html:305
-#: warehouse/templates/manage/project/history.html:314
+#: warehouse/templates/manage/project/history.html:365
+#: warehouse/templates/manage/project/history.html:374
 #: warehouse/templates/manage/team/history.html:109
 #: warehouse/templates/manage/team/history.html:118
 #: warehouse/templates/manage/unverified-account.html:467
@@ -4084,7 +4371,7 @@ msgstr "Informações de Localização"
 
 #: warehouse/templates/manage/account.html:795
 #: warehouse/templates/manage/organization/history.html:217
-#: warehouse/templates/manage/project/history.html:320
+#: warehouse/templates/manage/project/history.html:380
 #: warehouse/templates/manage/team/history.html:124
 #: warehouse/templates/manage/unverified-account.html:481
 #, fuzzy
@@ -4171,8 +4458,8 @@ msgstr "Apagar a sua conta no PyPI"
 #: warehouse/templates/manage/organizations.html:120
 #: warehouse/templates/manage/organizations.html:125
 #: warehouse/templates/manage/project/releases.html:88
-#: warehouse/templates/manage/projects.html:103
-#: warehouse/templates/manage/projects.html:107
+#: warehouse/templates/manage/projects.html:106
+#: warehouse/templates/manage/projects.html:110
 #: warehouse/templates/manage/team/projects.html:66
 #: warehouse/templates/manage/team/projects.html:70
 msgid "Manage"
@@ -4215,7 +4502,7 @@ msgstr "gerada em %(generated_datetime)s"
 msgid "%(remaining)s unused"
 msgstr "%(remaining)s não utilizado(s)"
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:49
+#: warehouse/templates/manage/account/recovery_codes-burn.html:50
 #: warehouse/templates/manage/manage_base.html:42
 msgid "Regenerate"
 msgstr "Gerar novamente"
@@ -4417,7 +4704,7 @@ msgstr "Confirme o %(item)s para continuar."
 
 #: warehouse/templates/manage/manage_base.html:366
 #: warehouse/templates/manage/manage_base.html:418
-#: warehouse/templates/manage/organization/activate_subscription.html:32
+#: warehouse/templates/manage/organization/activate_subscription.html:52
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -4489,6 +4776,8 @@ msgstr "Qualquer"
 #: warehouse/templates/manage/project/history.html:137
 #: warehouse/templates/manage/project/history.html:182
 #: warehouse/templates/manage/project/history.html:208
+#: warehouse/templates/manage/project/history.html:311
+#: warehouse/templates/manage/project/history.html:333
 #: warehouse/templates/manage/team/history.html:88
 msgid "Added by:"
 msgstr "Adicionado por:"
@@ -4546,7 +4835,7 @@ msgstr "Convites pendentes"
 #: warehouse/templates/manage/organizations.html:35
 #: warehouse/templates/manage/organizations.html:96
 #: warehouse/templates/manage/projects.html:44
-#: warehouse/templates/manage/projects.html:91
+#: warehouse/templates/manage/projects.html:94
 #: warehouse/templates/manage/team/projects.html:55
 #, python-format
 msgid "Created %(creation_date)s"
@@ -4644,8 +4933,8 @@ msgstr "Criar uma conta"
 #: warehouse/templates/manage/organization/teams.html:63
 #: warehouse/templates/manage/organizations.html:103
 #: warehouse/templates/manage/project/releases.html:94
-#: warehouse/templates/manage/projects.html:115
 #: warehouse/templates/manage/projects.html:118
+#: warehouse/templates/manage/projects.html:121
 #: warehouse/templates/manage/team/projects.html:78
 #: warehouse/templates/manage/team/projects.html:81
 msgid "View"
@@ -4807,31 +5096,37 @@ msgstr "."
 msgid "Sole owner"
 msgstr "Único proprietário"
 
+#: warehouse/templates/manage/projects.html:82
+#, fuzzy
+#| msgid "Search projects"
+msgid "Archived"
+msgstr "Pesquisar por projetos"
+
 #: warehouse/templates/manage/organization/projects.html:66
-#: warehouse/templates/manage/projects.html:102
+#: warehouse/templates/manage/projects.html:105
 #: warehouse/templates/manage/team/projects.html:65
 msgid "Manage this project"
 msgstr "Gerir este projeto"
 
 #: warehouse/templates/manage/organization/projects.html:70
-#: warehouse/templates/manage/projects.html:106
+#: warehouse/templates/manage/projects.html:109
 #: warehouse/templates/manage/team/projects.html:69
 msgid "You are not an owner of this project"
 msgstr "Não é um proprietário deste projeto"
 
 #: warehouse/templates/manage/organization/projects.html:78
-#: warehouse/templates/manage/projects.html:114
+#: warehouse/templates/manage/projects.html:117
 #: warehouse/templates/manage/team/projects.html:77
 msgid "View this project's public page"
 msgstr "Veja a página pública deste projeto"
 
 #: warehouse/templates/manage/organization/projects.html:81
-#: warehouse/templates/manage/projects.html:117
+#: warehouse/templates/manage/projects.html:120
 #: warehouse/templates/manage/team/projects.html:80
 msgid "This project has no releases"
 msgstr "Este projeto não possui lançamentos"
 
-#: warehouse/templates/manage/projects.html:126
+#: warehouse/templates/manage/projects.html:129
 #, python-format
 msgid ""
 "You have not uploaded any projects to PyPI, yet. To learn how to get "
@@ -4986,13 +5281,6 @@ msgstr "Nome de projeto inválido"
 msgid "(optional)"
 msgstr "Motivo (opcional)"
 
-#: warehouse/templates/manage/account/publishing.html:118
-#: warehouse/templates/manage/account/publishing.html:224
-#: warehouse/templates/manage/project/publishing.html:109
-#: warehouse/templates/manage/project/publishing.html:201
-msgid "release"
-msgstr "lançamento"
-
 #: warehouse/templates/manage/account/publishing.html:124
 #: warehouse/templates/manage/project/publishing.html:115
 #, python-format
@@ -5014,6 +5302,7 @@ msgstr ""
 #: warehouse/templates/manage/project/publishing.html:275
 #: warehouse/templates/manage/project/publishing.html:357
 #: warehouse/templates/manage/project/roles.html:341
+#: warehouse/templates/manage/project/settings.html:348
 #: warehouse/templates/manage/team/roles.html:131
 msgid "Add"
 msgstr "Adicionar"
@@ -5055,7 +5344,7 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:187
 #: warehouse/templates/manage/project/documentation.html:35
 #: warehouse/templates/manage/project/publishing.html:164
-#: warehouse/templates/manage/project/release.html:129
+#: warehouse/templates/manage/project/release.html:123
 #: warehouse/templates/pages/stats.html:73
 msgid "Project name"
 msgstr "Nome do projeto"
@@ -5093,6 +5382,12 @@ msgid ""
 "This file should exist in the project configured above (external pipelines "
 "are not supported)."
 msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:224
+#: warehouse/templates/manage/project/publishing.html:109
+#: warehouse/templates/manage/project/publishing.html:201
+msgid "release"
+msgstr "lançamento"
 
 #: warehouse/templates/manage/account/publishing.html:226
 #: warehouse/templates/manage/project/publishing.html:203
@@ -5306,7 +5601,7 @@ msgid ""
 "your account before adding a new publisher."
 msgstr "Não ativou a autenticação de dois fatores na sua conta."
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:34
+#: warehouse/templates/manage/account/recovery_codes-burn.html:35
 msgid ""
 "In order to verify that you have safely stored your recovery codes for use "
 "in the event of a lost 2FA device, submit one of your recovery codes here."
@@ -5315,7 +5610,7 @@ msgstr ""
 "para uso em caso de perda de um aparelho de 2FA, envie um dos seus códigos "
 "de recuperação aqui."
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:39
+#: warehouse/templates/manage/account/recovery_codes-burn.html:40
 msgid ""
 "The recovery code you choose will be considered used and no longer be "
 "available to bypass 2FA."
@@ -5323,7 +5618,7 @@ msgstr ""
 "O código de recuperação escolhido será considerado usado e não estará mais "
 "disponível para ignorar o 2FA."
 
-#: warehouse/templates/manage/account/recovery_codes-burn.html:44
+#: warehouse/templates/manage/account/recovery_codes-burn.html:45
 msgid ""
 "<strong>Forgot to safely store your recovery codes?</strong> You'll need to "
 "generate them again."
@@ -5339,7 +5634,7 @@ msgstr "Códigos de recuperação da conta"
 msgid "Regenerate recovery codes"
 msgstr "Gerar códigos de recuperação novamente"
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:42
+#: warehouse/templates/manage/account/recovery_codes-provision.html:43
 msgid ""
 "If you lose access to your authentication application or security key(s), "
 "you’ll need to use one of these recovery codes to log into your PyPI "
@@ -5349,7 +5644,7 @@ msgstr ""
 "precisará usar um desses códigos de recuperação para entrar na sua conta "
 "PyPI. Cada código só pode ser usado <strong>uma vez</strong>."
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:43
+#: warehouse/templates/manage/account/recovery_codes-provision.html:44
 msgid ""
 "These codes should <strong>only</strong> be used for account recovery, not "
 "for typical logins."
@@ -5357,7 +5652,7 @@ msgstr ""
 "Estes códigos devem <strong>somente</strong> ser usados para a recuperação "
 "de contas, não para inícios de sessão típicos."
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:44
+#: warehouse/templates/manage/account/recovery_codes-provision.html:45
 msgid ""
 "<strong>Keep these somewhere safe</strong>. If you lose your authentication "
 "application or security key(s) and do not have access to these recovery "
@@ -5706,16 +6001,34 @@ msgstr ""
 "funcionarão com o PyPI."
 
 #: warehouse/templates/manage/organization/activate_subscription.html:17
-#: warehouse/templates/manage/organization/activate_subscription.html:21
-#: warehouse/templates/manage/organization/activate_subscription.html:35
+#: warehouse/templates/manage/organization/activate_subscription.html:22
+#: warehouse/templates/manage/organization/activate_subscription.html:54
 msgid "Activate Subscription"
 msgstr "Ativar Assinatura"
 
-#: warehouse/templates/manage/organization/activate_subscription.html:27
+#: warehouse/templates/manage/organization/activate_subscription.html:26
 msgid ""
 "Company accounts require an active subscription. Please enter up-to-date "
 "billing information to enable the account."
 msgstr ""
+
+#: warehouse/templates/manage/organization/activate_subscription.html:33
+#, fuzzy
+#| msgid "Terms of use"
+msgid "Terms of Service"
+msgstr "Termos de utilização"
+
+#: warehouse/templates/manage/organization/activate_subscription.html:37
+#, fuzzy, python-format
+#| msgid ""
+#| "<a href=\"%(user_profile)s\">%(username)s</a> has joined the "
+#| "\"%(organization_name)s\" organization"
+msgid ""
+"I agree to the PyPI <a href=\"%(tos_url)s\">Terms of Service</a> on behalf "
+"of the %(organization_name)s organization."
+msgstr ""
+"<a href=\"%(user_profile)s\">%(username)s</a> juntou-se à organização "
+"\"%(organization_name)s\""
 
 #: warehouse/templates/manage/organization/history.html:20
 #: warehouse/templates/manage/project/history.html:20
@@ -5904,6 +6217,8 @@ msgid "Created by:"
 msgstr "Criado por:"
 
 #: warehouse/templates/manage/organization/history.html:144
+#: warehouse/templates/manage/project/history.html:322
+#: warehouse/templates/manage/project/history.html:344
 #: warehouse/templates/manage/team/history.html:76
 #, fuzzy
 #| msgid "Created by:"
@@ -5953,7 +6268,7 @@ msgid "Revoked by:"
 msgstr "Removido por:"
 
 #: warehouse/templates/manage/organization/history.html:198
-#: warehouse/templates/manage/project/history.html:301
+#: warehouse/templates/manage/project/history.html:361
 #: warehouse/templates/manage/team/history.html:105
 #, fuzzy, python-format
 #| msgid "Security history for %(project_name)s"
@@ -6268,8 +6583,9 @@ msgid "Delete expired invitation for %(user)s"
 msgstr "Revogar convite para %(user)s"
 
 #: warehouse/templates/manage/organization/roles.html:252
-#: warehouse/templates/manage/project/release.html:112
+#: warehouse/templates/manage/project/release.html:106
 #: warehouse/templates/manage/project/releases.html:109
+#: warehouse/templates/manage/project/settings.html:252
 msgid "Delete"
 msgstr "Apagar"
 
@@ -6605,7 +6921,7 @@ msgstr "Ficheiro adicionado à versão <a href=\"%(href)s\">%(version)s</a>"
 
 #: warehouse/templates/manage/project/history.html:94
 #: warehouse/templates/manage/project/history.html:125
-#: warehouse/templates/manage/project/release.html:118
+#: warehouse/templates/manage/project/release.html:112
 msgid "Filename:"
 msgstr "Nome do ficheiro:"
 
@@ -6750,11 +7066,55 @@ msgstr "Requisito de 2FA desativado"
 msgid "Disabled by:"
 msgstr "Desativado por:"
 
-#: warehouse/templates/manage/project/history.html:306
+#: warehouse/templates/manage/project/history.html:297
+#, fuzzy
+#| msgid "Project name"
+msgid "Project archived"
+msgstr "Nome do projeto"
+
+#: warehouse/templates/manage/project/history.html:299
+#, fuzzy
+#| msgid "Search projects"
+msgid "Archived by:"
+msgstr "Pesquisar por projetos"
+
+#: warehouse/templates/manage/project/history.html:302
+#, fuzzy
+#| msgid "Project name"
+msgid "Project unarchived"
+msgstr "Nome do projeto"
+
+#: warehouse/templates/manage/project/history.html:304
+#, fuzzy
+#| msgid "Search projects"
+msgid "Unarchived by:"
+msgstr "Pesquisar por projetos"
+
+#: warehouse/templates/manage/project/history.html:309
+#: warehouse/templates/manage/project/history.html:331
+msgid "Project alternate repository added"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:314
+#: warehouse/templates/manage/project/history.html:325
+#: warehouse/templates/manage/project/history.html:336
+#: warehouse/templates/manage/project/history.html:347
+#: warehouse/templates/manage/project/settings.html:225
+#: warehouse/templates/manage/project/settings.html:305
+#: warehouse/templates/manage/project/settings.html:311
+msgid "Url"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:320
+#: warehouse/templates/manage/project/history.html:342
+msgid "Project alternate repository deleted"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:366
 msgid "Additional info"
 msgstr "Informações adicionais"
 
-#: warehouse/templates/manage/project/history.html:318
+#: warehouse/templates/manage/project/history.html:378
 #: warehouse/templates/manage/team/history.html:122
 msgid "Location info"
 msgstr "Informações de localização"
@@ -6769,14 +7129,14 @@ msgid "Back to projects"
 msgstr "Voltar aos projetos"
 
 #: warehouse/templates/manage/project/manage_project_base.html:70
-#: warehouse/templates/packaging/detail.html:293
+#: warehouse/templates/packaging/detail.html:302
 #, fuzzy
 #| msgid "This project has no releases"
 msgid "This project has been quarantined."
 msgstr "Este projeto não possui lançamentos"
 
 #: warehouse/templates/manage/project/manage_project_base.html:72
-#: warehouse/templates/packaging/detail.html:295
+#: warehouse/templates/packaging/detail.html:304
 msgid ""
 "PyPI Admins need to review this project before it can be restored. While in "
 "quarantine, the project is not installable by clients, and cannot be being "
@@ -6784,7 +7144,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/project/manage_project_base.html:79
-#: warehouse/templates/packaging/detail.html:302
+#: warehouse/templates/packaging/detail.html:311
 #, fuzzy, python-format
 #| msgid ""
 #| "Invitation to join <a href=\"%(href)s\">%(organization_name)s</a> declined"
@@ -6793,6 +7153,13 @@ msgid ""
 msgstr ""
 "Convite para participar <a href=\"%(href)s\">%(organization_name)s</a> "
 "recusado"
+
+#: warehouse/templates/manage/project/manage_project_base.html:86
+#: warehouse/templates/packaging/detail.html:318
+#, fuzzy
+#| msgid "This project has no releases"
+msgid "This project has been archived."
+msgstr "Este projeto não possui lançamentos"
 
 #: warehouse/templates/manage/project/publishing.html:26
 msgid ""
@@ -6827,6 +7194,38 @@ msgstr "Nenhum editor está atualmente configurado."
 #: warehouse/templates/manage/project/publishing.html:401
 msgid "Add a new publisher"
 msgstr "Adicionar um novo editor"
+
+#: warehouse/templates/manage/project/publishing.html:443
+#: warehouse/templates/manage/project/publishing.html:446
+#, fuzzy
+#| msgid "Invalid project name"
+msgid "Constrain environment"
+msgstr "Nome de projeto inválido"
+
+#: warehouse/templates/manage/project/publishing.html:455
+msgid "This will restrict the Trusted Publisher's environment to"
+msgstr ""
+
+#: warehouse/templates/manage/project/publishing.html:459
+#, python-format
+msgid ""
+"If you currently use multiple environments in your CI/CD workflows, you must "
+"either change them all to '%(constrained_environment_name)s' or register "
+"each as a Trusted Publisher."
+msgstr ""
+
+#: warehouse/templates/manage/project/publishing.html:467
+#, python-format
+msgid ""
+"I understand that this Trusted Publisher will only allow uploads frow CI/CD "
+"workflows running in the '%(constrained_environment_name)s' environment."
+msgstr ""
+
+#: warehouse/templates/manage/project/publishing.html:471
+#, fuzzy
+#| msgid "Invalid project name"
+msgid "New Environment Name"
+msgstr "Nome de projeto inválido"
 
 #: warehouse/templates/manage/project/release.html:18
 #, python-format
@@ -6888,25 +7287,21 @@ msgstr "Opções do ficheiro"
 msgid "Download"
 msgstr "Descarregar"
 
-#: warehouse/templates/manage/project/release.html:101
-msgid "View Hashes"
-msgstr "Ver hashes"
-
-#: warehouse/templates/manage/project/release.html:106
+#: warehouse/templates/manage/project/release.html:100
 msgid "Delete file from"
 msgstr "Apagar ficheiro de"
 
-#: warehouse/templates/manage/project/release.html:108
+#: warehouse/templates/manage/project/release.html:102
 msgid "Delete file"
 msgstr "Apagar ficheiro"
 
-#: warehouse/templates/manage/project/release.html:120
+#: warehouse/templates/manage/project/release.html:114
 msgid ""
 "I understand that my users will no longer be able to install this file for "
 "this release of this project."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:121
+#: warehouse/templates/manage/project/release.html:115
 #, python-format
 msgid ""
 "I understand that I will <a href=%(href)s target=\"_blank\" "
@@ -6914,32 +7309,32 @@ msgid ""
 "a> %(filename)s."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:122
-#: warehouse/templates/manage/project/release.html:205
+#: warehouse/templates/manage/project/release.html:116
+#: warehouse/templates/manage/project/release.html:199
 msgid "I understand that I will not be able to undo this."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:123
-#: warehouse/templates/manage/project/release.html:206
+#: warehouse/templates/manage/project/release.html:117
+#: warehouse/templates/manage/project/release.html:200
 msgid ""
 "I understand that the PyPI administrators will not be able to undo this."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:139
+#: warehouse/templates/manage/project/release.html:133
 msgid "Uploading new files"
 msgstr "Enviando novos ficheiros"
 
-#: warehouse/templates/manage/project/release.html:141
+#: warehouse/templates/manage/project/release.html:135
 msgid "No files found"
 msgstr "Nenhum ficheiro encontrado"
 
-#: warehouse/templates/manage/project/release.html:143
+#: warehouse/templates/manage/project/release.html:137
 #: warehouse/templates/manage/project/releases.html:178
 #: warehouse/templates/manage/project/settings.html:72
 msgid "Dismiss"
 msgstr "Descartar"
 
-#: warehouse/templates/manage/project/release.html:144
+#: warehouse/templates/manage/project/release.html:138
 #, python-format
 msgid ""
 "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -6949,17 +7344,17 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Guia de Utilizador "
 "para Empacotamento de Python</a>"
 
-#: warehouse/templates/manage/project/release.html:147
+#: warehouse/templates/manage/project/release.html:141
 msgid "Release settings"
 msgstr "Configurações de lançamento"
 
-#: warehouse/templates/manage/project/release.html:151
-#: warehouse/templates/manage/project/release.html:181
+#: warehouse/templates/manage/project/release.html:145
+#: warehouse/templates/manage/project/release.html:175
 #: warehouse/templates/manage/project/releases.html:123
 msgid "Yank release"
 msgstr "Retirar lançamento"
 
-#: warehouse/templates/manage/project/release.html:154
+#: warehouse/templates/manage/project/release.html:148
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -6988,7 +7383,7 @@ msgstr[1] ""
 "ser ignorado ao instalar na maioria dos cenários comuns.\n"
 "        "
 
-#: warehouse/templates/manage/project/release.html:160
+#: warehouse/templates/manage/project/release.html:154
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -7004,7 +7399,7 @@ msgstr ""
 "maioria dos cenários comuns.\n"
 "        "
 
-#: warehouse/templates/manage/project/release.html:164
+#: warehouse/templates/manage/project/release.html:158
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -7022,7 +7417,7 @@ msgstr ""
 "code>.\n"
 "      "
 
-#: warehouse/templates/manage/project/release.html:167
+#: warehouse/templates/manage/project/release.html:161
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -7034,7 +7429,7 @@ msgstr ""
 "        Para mais informações, consulte a <a href=\"%(href)s\">PEP 592</a>.\n"
 "      "
 
-#: warehouse/templates/manage/project/release.html:174
+#: warehouse/templates/manage/project/release.html:168
 #: warehouse/templates/manage/project/releases.html:126
 #, fuzzy, python-format
 #| msgid ""
@@ -7053,13 +7448,13 @@ msgstr ""
 "<code>%(project_name)s==%(version)s</code>.\n"
 "          "
 
-#: warehouse/templates/manage/project/release.html:178
+#: warehouse/templates/manage/project/release.html:172
 #: warehouse/templates/manage/project/releases.html:130
 msgid "Reason (optional)"
 msgstr "Motivo (opcional)"
 
-#: warehouse/templates/manage/project/release.html:181
-#: warehouse/templates/manage/project/release.html:209
+#: warehouse/templates/manage/project/release.html:175
+#: warehouse/templates/manage/project/release.html:203
 #: warehouse/templates/manage/project/releases.html:23
 #: warehouse/templates/manage/project/releases.html:120
 #: warehouse/templates/manage/project/releases.html:133
@@ -7067,13 +7462,13 @@ msgstr "Motivo (opcional)"
 msgid "Version"
 msgstr "Versão"
 
-#: warehouse/templates/manage/project/release.html:186
-#: warehouse/templates/manage/project/release.html:209
+#: warehouse/templates/manage/project/release.html:180
+#: warehouse/templates/manage/project/release.html:203
 #: warehouse/templates/manage/project/releases.html:136
 msgid "Delete release"
 msgstr "Apagar lançamento"
 
-#: warehouse/templates/manage/project/release.html:190
+#: warehouse/templates/manage/project/release.html:184
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -7100,11 +7495,11 @@ msgstr[1] ""
 "%(count)s ficheiros.\n"
 "      "
 
-#: warehouse/templates/manage/project/release.html:196
+#: warehouse/templates/manage/project/release.html:190
 msgid "Deleting will irreversibly delete this release."
 msgstr "Apagar vai apagar este lançamento irreversivelmente."
 
-#: warehouse/templates/manage/project/release.html:198
+#: warehouse/templates/manage/project/release.html:192
 #: warehouse/templates/manage/project/releases.html:138
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
@@ -7113,7 +7508,7 @@ msgstr ""
 "Você não poderá carregar novamente uma nova distribuição do mesmo tipo com o "
 "mesmo número de versão."
 
-#: warehouse/templates/manage/project/release.html:199
+#: warehouse/templates/manage/project/release.html:193
 #: warehouse/templates/manage/project/releases.html:139
 msgid ""
 "Deletion will break any downstream projects relying on a pinned version of "
@@ -7124,7 +7519,7 @@ msgstr ""
 "versão fixada deste pacote. Como último recurso, trata de questões legais ou "
 "remove lançamentos prejudiciais."
 
-#: warehouse/templates/manage/project/release.html:200
+#: warehouse/templates/manage/project/release.html:194
 #: warehouse/templates/manage/project/releases.html:140
 #, python-format
 msgid ""
@@ -7138,20 +7533,20 @@ msgstr ""
 "<a href=\"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">pós-lançamento</a>."
 
-#: warehouse/templates/manage/project/release.html:202
+#: warehouse/templates/manage/project/release.html:196
 #, python-format
 msgid ""
 "I understand that I am permanently deleting all files for the "
 "%(release_version)s release of this project."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:203
+#: warehouse/templates/manage/project/release.html:197
 msgid ""
 "I understand that my users will no longer be able to install this release of "
 "this project."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:204
+#: warehouse/templates/manage/project/release.html:198
 #, python-format
 msgid ""
 "I understand that I will <a href=\"%(href)s\" target=\"_blank\" "
@@ -7496,7 +7891,7 @@ msgstr "Remover projeto"
 
 #: warehouse/templates/manage/project/settings.html:108
 #: warehouse/templates/manage/project/settings.html:179
-#: warehouse/templates/manage/project/settings.html:246
+#: warehouse/templates/manage/project/settings.html:431
 msgid "Project Name"
 msgstr "Nome do projeto"
 
@@ -7596,16 +7991,120 @@ msgstr "Código inválido: não é um código de convite de colaboração"
 msgid "You are not an owner or manager of any organizations."
 msgstr "%(user)s ainda não enviou nenhum projeto para PyPI"
 
-#: warehouse/templates/manage/project/settings.html:206
-#: warehouse/templates/manage/project/settings.html:246
+#: warehouse/templates/manage/project/settings.html:205
+msgid "Alternate repository locations"
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:209
+#, python-format
+msgid ""
+"Provisional support for <a href=\"%(pep_url)s\">PEP 708</a> \"Alternate "
+"Locations\" Metadata."
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:213
+#, python-format
+msgid ""
+"Implementation may change, consider subscribing to <a "
+"href=\"%(pypi_announce_url)s\">pypi-announce</a> to be notified of changes."
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:220
+#, fuzzy, python-format
+#| msgid "Create a token for %(project_name)s"
+msgid "Alternate repository locations for %(project_name)s"
+msgstr "Criar um token para %(project_name)s"
+
+#: warehouse/templates/manage/project/settings.html:226
+#, fuzzy
+#| msgid "Old description:"
+msgid "Description"
+msgstr "Descrição antiga:"
+
+#: warehouse/templates/manage/project/settings.html:245
+#, fuzzy, python-format
+#| msgid "Remove %(user)s from this project"
+msgid "Delete %(name)s from this project."
+msgstr "Remover %(user)s deste projeto"
+
+#: warehouse/templates/manage/project/settings.html:253
+#, fuzzy
+#| msgid "Repository name"
+msgid "Alternate Repository Name"
+msgstr "Nome de repositório"
+
+#: warehouse/templates/manage/project/settings.html:268
+#, fuzzy
+#| msgid "You are not an owner of this project"
+msgid "There are no alternate repositories for this project, yet."
+msgstr "Não é um proprietário deste projeto"
+
+#: warehouse/templates/manage/project/settings.html:272
+#, fuzzy
+#| msgid "Get started by adding a team member below."
+msgid "Get started by adding an alternate repository below."
+msgstr "Comece adicionando um membro da equipa abaixo."
+
+#: warehouse/templates/manage/project/settings.html:278
+msgid "Add alternate repository location"
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:325
+#, fuzzy
+#| msgid "Organization description"
+msgid "Alternate repository description"
+msgstr "Descrição da organização"
+
+#: warehouse/templates/manage/project/settings.html:331
+#: warehouse/templates/manage/project/settings.html:342
+msgid "Description of the purpose or content of the alternate repository."
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:354
+#: warehouse/templates/manage/project/settings.html:379
+#: warehouse/templates/manage/project/settings.html:383
+#, fuzzy
+#| msgid "Search projects"
+msgid "Archive project"
+msgstr "Pesquisar por projetos"
+
+#: warehouse/templates/manage/project/settings.html:357
+#, python-format
+msgid ""
+"Archiving a project will prevent any new uploads. Before doing so, we "
+"recommend publishing a final release with an update to the project's "
+"description to warn the users that the project won't receive further "
+"updates, and to mention any alternative projects they may consider as a "
+"replacement. If your project is <a href=\"%(readme_description_href)s\" "
+"rel=\"noopener\" target=\"_blank\">configured to do so</a>, you can update "
+"the project's description by editing the README file."
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:370
+#: warehouse/templates/manage/project/settings.html:374
+#, fuzzy
+#| msgid "Search projects"
+msgid "Unarchive project"
+msgstr "Pesquisar por projetos"
+
+#: warehouse/templates/manage/project/settings.html:375
+msgid "Unarchiving a project will allow new file uploads."
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:384
+msgid "Archiving a project will block any new file uploads."
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:391
+#: warehouse/templates/manage/project/settings.html:431
 msgid "Delete project"
 msgstr "Apagar projeto"
 
-#: warehouse/templates/manage/project/settings.html:209
+#: warehouse/templates/manage/project/settings.html:394
 msgid "Deleting this project will:"
 msgstr "Apagar este projeto vai:"
 
-#: warehouse/templates/manage/project/settings.html:214
+#: warehouse/templates/manage/project/settings.html:399
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s "
@@ -7620,17 +8119,17 @@ msgstr[1] ""
 "Irreversivelmente apagar o projeto junto com <a href=\"%(href)s\">%(count)s "
 "lançamentos</a>"
 
-#: warehouse/templates/manage/project/settings.html:220
+#: warehouse/templates/manage/project/settings.html:405
 msgid "Irreversibly delete the project"
 msgstr "Apagar o projeto irreversivelmente"
 
-#: warehouse/templates/manage/project/settings.html:224
+#: warehouse/templates/manage/project/settings.html:409
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 "Disponibilizar o nome do projeto para <strong>qualquer outro utilizador do "
 "PyPI</strong>"
 
-#: warehouse/templates/manage/project/settings.html:226
+#: warehouse/templates/manage/project/settings.html:411
 msgid ""
 "This user will be able to make new releases under this project name, so long "
 "as the distribution filenames do not match filenames from a previously "
@@ -7783,138 +8282,146 @@ msgstr "Perfil de %(orgname)s"
 msgid "%(org)s has not uploaded any projects to PyPI, yet"
 msgstr "%(org)s ainda não carregou nenhum projeto para o PyPI"
 
-#: warehouse/templates/packaging/detail.html:108
-msgid "view hashes"
-msgstr "ver hashes"
+#: warehouse/templates/packaging/detail.html:109
+#, fuzzy
+#| msgid "Unverified"
+msgid "view details"
+msgstr "Não verificado"
 
-#: warehouse/templates/packaging/detail.html:126
+#: warehouse/templates/packaging/detail.html:128
 #, python-format
 msgid "RSS: latest releases for %(project_name)s"
 msgstr "RSS: lançamentos mais recentes para %(project_name)s"
 
-#: warehouse/templates/packaging/detail.html:160
+#: warehouse/templates/packaging/detail.html:169
 msgid "Copy PIP instructions"
 msgstr "Copiar instruções PIP"
 
-#: warehouse/templates/packaging/detail.html:171
+#: warehouse/templates/packaging/detail.html:180
 #, fuzzy
 #| msgid "This project has no releases"
 msgid "This project has been quarantined"
 msgstr "Este projeto não possui lançamentos"
 
-#: warehouse/templates/packaging/detail.html:177
+#: warehouse/templates/packaging/detail.html:186
 msgid "This release has been yanked"
 msgstr "Este lançamento foi retirado"
 
-#: warehouse/templates/packaging/detail.html:183
+#: warehouse/templates/packaging/detail.html:192
 #, python-format
 msgid "Stable version available (%(version)s)"
 msgstr "Versão estável disponível (%(version)s)"
 
-#: warehouse/templates/packaging/detail.html:187
+#: warehouse/templates/packaging/detail.html:196
 #, python-format
 msgid "Newer version available (%(version)s)"
 msgstr "Versão mais nova disponível (%(version)s)"
 
-#: warehouse/templates/packaging/detail.html:191
+#: warehouse/templates/packaging/detail.html:200
 msgid "Latest version"
 msgstr "Versão mais recente"
 
-#: warehouse/templates/packaging/detail.html:196
+#: warehouse/templates/packaging/detail.html:205
 #, python-format
 msgid "Released: %(release_date)s"
 msgstr "Lançado em: %(release_date)s"
 
-#: warehouse/templates/packaging/detail.html:210
+#: warehouse/templates/packaging/detail.html:219
 msgid "No project description provided"
 msgstr "Nenhuma descrição do projeto fornecida"
 
-#: warehouse/templates/packaging/detail.html:223
+#: warehouse/templates/packaging/detail.html:232
 msgid "Navigation"
 msgstr "Navegação"
 
-#: warehouse/templates/packaging/detail.html:224
-#: warehouse/templates/packaging/detail.html:258
+#: warehouse/templates/packaging/detail.html:233
+#: warehouse/templates/packaging/detail.html:267
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr "Navegação para %(project)s"
 
-#: warehouse/templates/packaging/detail.html:227
-#: warehouse/templates/packaging/detail.html:261
+#: warehouse/templates/packaging/detail.html:236
+#: warehouse/templates/packaging/detail.html:270
 msgid "Project description. Focus will be moved to the description."
 msgstr "Descrição do projeto. O foco será movido para a descrição."
 
-#: warehouse/templates/packaging/detail.html:229
-#: warehouse/templates/packaging/detail.html:263
-#: warehouse/templates/packaging/detail.html:313
+#: warehouse/templates/packaging/detail.html:238
+#: warehouse/templates/packaging/detail.html:272
+#: warehouse/templates/packaging/detail.html:332
 msgid "Project description"
 msgstr "Descrição do projeto"
 
-#: warehouse/templates/packaging/detail.html:233
-#: warehouse/templates/packaging/detail.html:273
+#: warehouse/templates/packaging/detail.html:242
+#: warehouse/templates/packaging/detail.html:282
 msgid "Release history. Focus will be moved to the history panel."
 msgstr ""
 "Histórico de lançamentos. O foco será movido para o painel de histórico."
 
-#: warehouse/templates/packaging/detail.html:235
-#: warehouse/templates/packaging/detail.html:275
-#: warehouse/templates/packaging/detail.html:335
+#: warehouse/templates/packaging/detail.html:244
+#: warehouse/templates/packaging/detail.html:284
+#: warehouse/templates/packaging/detail.html:354
 msgid "Release history"
 msgstr "Histórico de lançamentos"
 
-#: warehouse/templates/packaging/detail.html:240
-#: warehouse/templates/packaging/detail.html:280
+#: warehouse/templates/packaging/detail.html:249
+#: warehouse/templates/packaging/detail.html:289
 msgid "Download files. Focus will be moved to the project files."
 msgstr ""
 "Descarregar ficheiros. O foco será movido para os ficheiros de projeto."
 
-#: warehouse/templates/packaging/detail.html:242
-#: warehouse/templates/packaging/detail.html:282
-#: warehouse/templates/packaging/detail.html:397
+#: warehouse/templates/packaging/detail.html:251
+#: warehouse/templates/packaging/detail.html:291
+#: warehouse/templates/packaging/detail.html:416
 msgid "Download files"
 msgstr "Descarregar ficheiros"
 
-#: warehouse/templates/packaging/detail.html:267
+#: warehouse/templates/packaging/detail.html:276
 msgid "Project details. Focus will be moved to the project details."
 msgstr "Detalhes do projeto. O foco será movido aos detalhes do projeto."
 
-#: warehouse/templates/packaging/detail.html:269
-#: warehouse/templates/packaging/detail.html:327
+#: warehouse/templates/packaging/detail.html:278
+#: warehouse/templates/packaging/detail.html:346
 msgid "Project details"
 msgstr "Detalhes do projeto"
 
-#: warehouse/templates/packaging/detail.html:309
-#: warehouse/templates/packaging/detail.html:384
+#: warehouse/templates/packaging/detail.html:320
+msgid ""
+"The maintainers of this project have marked this project as archived. No new "
+"releases are expected."
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:328
+#: warehouse/templates/packaging/detail.html:403
 #, fuzzy
 #| msgid "This release has been yanked"
 msgid "Reason this release was yanked:"
 msgstr "Este lançamento foi retirado"
 
-#: warehouse/templates/packaging/detail.html:320
+#: warehouse/templates/packaging/detail.html:339
 msgid "The author of this package has not provided a project description"
 msgstr "O autor deste pacote não forneceu uma descrição do projeto"
 
-#: warehouse/templates/packaging/detail.html:337
+#: warehouse/templates/packaging/detail.html:356
 msgid "Release notifications"
 msgstr "Notificações de lançamento"
 
-#: warehouse/templates/packaging/detail.html:338
+#: warehouse/templates/packaging/detail.html:357
 msgid "RSS feed"
 msgstr "Feed RSS"
 
-#: warehouse/templates/packaging/detail.html:350
+#: warehouse/templates/packaging/detail.html:369
 msgid "This version"
 msgstr "Esta versão"
 
-#: warehouse/templates/packaging/detail.html:370
+#: warehouse/templates/packaging/detail.html:389
 msgid "pre-release"
 msgstr "Pré-lançamentos"
 
-#: warehouse/templates/packaging/detail.html:375
+#: warehouse/templates/packaging/detail.html:394
 msgid "yanked"
 msgstr "retirado"
 
-#: warehouse/templates/packaging/detail.html:398
+#: warehouse/templates/packaging/detail.html:417
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -7925,17 +8432,17 @@ msgstr ""
 "escolher, saiba mais sobre <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">instalação de pacotes</a>."
 
-#: warehouse/templates/packaging/detail.html:400
+#: warehouse/templates/packaging/detail.html:420
 msgid "Source Distribution"
 msgid_plural "Source Distributions"
 msgstr[0] "Distribuição de Origem"
 msgstr[1] "Distribuições de Origem"
 
-#: warehouse/templates/packaging/detail.html:416
+#: warehouse/templates/packaging/detail.html:436
 msgid "No source distribution files available for this release."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:417
+#: warehouse/templates/packaging/detail.html:437
 #, fuzzy, python-format
 #| msgid ""
 #| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -7948,7 +8455,7 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Guia de Utilizador "
 "para Empacotamento de Python</a>"
 
-#: warehouse/templates/packaging/detail.html:424
+#: warehouse/templates/packaging/detail.html:444
 msgid "Built Distribution"
 msgid_plural "Built Distributions"
 msgstr[0] ""
@@ -10928,101 +11435,107 @@ msgid "Logos"
 msgstr "Logotipos"
 
 #: warehouse/templates/search/results.html:18
-#: warehouse/templates/search/results.html:114
-#: warehouse/templates/search/results.html:211
+#: warehouse/templates/search/results.html:113
+#: warehouse/templates/search/results.html:210
 msgid "Search results"
 msgstr "Resultados da pesquisa"
 
-#: warehouse/templates/search/results.html:40
+#: warehouse/templates/search/results.html:39
 #, python-format
 msgid "Did you mean '<a class=\"link\" href=\"%(link)s\">%(text)s</a>'?"
 msgstr "Quis dizer \"<a class=\"link\" href=\"%(link)s\">%(text)s</a>\"?"
 
-#: warehouse/templates/search/results.html:82
+#: warehouse/templates/search/results.html:81
 msgid "Close panel"
 msgstr "Fechar o painel"
 
-#: warehouse/templates/search/results.html:86
+#: warehouse/templates/search/results.html:85
 #, python-format
 msgid "Filter by <a href=\"%(href)s\">classifier</a>"
 msgstr "Filtrar por <a href=\"%(href)s\">classificador</a>"
 
-#: warehouse/templates/search/results.html:117
+#: warehouse/templates/search/results.html:116
 msgid "Enter a search query, or select a filter from the list of classifiers."
 msgstr ""
 "Insira uma consulta de pesquisa ou selecione um filtro na lista de "
 "classificadores."
 
-#: warehouse/templates/search/results.html:118
+#: warehouse/templates/search/results.html:117
 msgid "Enter a search query, or add a filter by clicking on the button."
 msgstr ""
 "Insira uma consulta de pesquisa ou adicione um filtro clicando no botão."
 
-#: warehouse/templates/search/results.html:119
+#: warehouse/templates/search/results.html:118
 msgid "You can combine searches and classifier filters. Examples:"
 msgstr "Pode combinar pesquisas e filtros de classificador. Exemplos:"
 
-#: warehouse/templates/search/results.html:123
+#: warehouse/templates/search/results.html:122
 msgid "Python 3 compatible projects"
 msgstr "Projetos compatíveis com Python 3"
 
-#: warehouse/templates/search/results.html:128
+#: warehouse/templates/search/results.html:127
 msgid "Sphinx extensions that have a stable/production status"
 msgstr "Extensões Sphinx que têm um estado estável/produção"
 
-#: warehouse/templates/search/results.html:133
+#: warehouse/templates/search/results.html:132
 msgid "Projects related to \"graphics\" with OSI-approved licenses"
 msgstr "Projetos relacionados a \"graphics\" com licenças aprovadas pela OSI"
 
-#: warehouse/templates/search/results.html:150
+#: warehouse/templates/search/results.html:149
 #, python-format
 msgid "<strong>%(count_display)s</strong> project"
 msgid_plural "<strong>%(count_display)s</strong> projects"
 msgstr[0] "<strong>%(count_display)s</strong> projeto"
 msgstr[1] "<strong>%(count_display)s</strong> projetos"
 
-#: warehouse/templates/search/results.html:157
+#: warehouse/templates/search/results.html:156
 #, python-format
 msgid "for \"%(term)s\""
 msgstr "para \"%(term)s\""
 
-#: warehouse/templates/search/results.html:161
+#: warehouse/templates/search/results.html:160
 msgid "with the selected classifier"
 msgid_plural "with the selected classifiers"
 msgstr[0] "com o classificador selecionado"
 msgstr[1] "com os classificadores selecionados"
 
-#: warehouse/templates/search/results.html:177
+#: warehouse/templates/search/results.html:176
 msgid "Order by"
 msgstr "Ordenar por"
 
-#: warehouse/templates/search/results.html:179
+#: warehouse/templates/search/results.html:178
 msgid "Relevance"
 msgstr "Relevância"
 
-#: warehouse/templates/search/results.html:180
+#: warehouse/templates/search/results.html:179
 msgid "Date last updated"
 msgstr "Data da última atualização"
 
-#: warehouse/templates/search/results.html:193
+#: warehouse/templates/search/results.html:192
 msgid "Filter"
 msgstr "Filtro"
 
-#: warehouse/templates/search/results.html:204
+#: warehouse/templates/search/results.html:203
 msgid "Add filter"
 msgstr "Adicionar filtro"
 
-#: warehouse/templates/search/results.html:220
+#: warehouse/templates/search/results.html:219
 #, python-format
 msgid "There were no results for '%(term)s'"
 msgstr "Nenhuma ocorrência para \"%(term)s\""
 
-#: warehouse/templates/search/results.html:222
+#: warehouse/templates/search/results.html:221
 #, python-format
 msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "Não houve ocorrência para filtro '%(filters)s'"
 msgstr[1] "Não houve ocorrências para filtros '%(filters)s'"
+
+#~ msgid "View Hashes"
+#~ msgstr "Ver hashes"
+
+#~ msgid "view hashes"
+#~ msgstr "ver hashes"
 
 #, fuzzy, python-format
 #~| msgid "Profile of %(username)s"
@@ -11253,9 +11766,6 @@ msgstr[1] "Não houve ocorrências para filtros '%(filters)s'"
 #~ msgid "No user found with that username or email"
 #~ msgstr ""
 #~ "Não foi encontrado nenhum utilizador com esse nome de utilizador ou e-mail"
-
-#~ msgid "This project name is already in use"
-#~ msgstr "Este nome de projeto já está em uso"
 
 #, fuzzy, python-format
 #~| msgid ""

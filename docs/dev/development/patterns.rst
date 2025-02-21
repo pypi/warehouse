@@ -22,6 +22,18 @@ Upgrading existing dependencies
 Dependencies are automatically upgraded via `Dependabot pull requests`_, and
 occasionally merged by maintainers.
 
+You can manually upgrade a specific dependency with::
+
+    make deps_upgrade_project P={project_name}
+
+For instance, to upgrade boto3::
+
+    make deps_upgrade_project P=boto3
+
+To upgrade all dependencies, you can use::
+
+    make deps_upgrade_all
+
 Adding new dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -133,6 +145,8 @@ Adding a new service
 3. (Optional) Create other implementations of the interface. For instance, many services in ``warehouse``
    also provide a ``NullService`` version used for development. These Null implementations only
    provide basic functionalities without verifications and reduce the need for stubs in tests.
+   When implementing a warning for using the service, subclass the exception from
+   ``warehouse.utils.exceptions.DevelopmentModeWarning`` to minimize warnings in the test logs.
 
    Any new implementation must implement the complete interface, including all its methods and attributes.
 

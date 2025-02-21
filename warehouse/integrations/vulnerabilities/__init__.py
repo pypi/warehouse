@@ -27,8 +27,8 @@ class VulnerabilityReportRequest:
         vulnerability_id: str,
         advisory_link: str,
         aliases: list[str],
-        details: str,
-        summary: str,
+        details: str | None,
+        summary: str | None,
         fixed_in: list[str],
         withdrawn: str | None,
     ):

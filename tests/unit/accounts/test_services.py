@@ -303,7 +303,33 @@ class TestDatabaseUserService:
             ),
         ]
 
-    def test_check_password_updates(self, user_service):
+    @pytest.mark.parametrize(
+        "password",
+        [
+            (
+                "$argon2id$v=19$m=8,t=1,p=1$"
+                "w/gfo5QSQihFyHlvDcE4pw$Hd4KENg+xDlq2bfeGUEYSieIXXL/c1NfTr0ZkYueO2Y"
+            ),
+            (
+                "$bcrypt-sha256$v=2,t=2b,r=12$"
+                "DqC0lms6x9Dh6XesvIJvVe$hBbYe9JfdjyorOFcS3rv5BhmuSIyXD6"
+            ),
+            "$2b$12$2t/EVU3H9b3c5iR6GdELZOwCoyrT518DgCpNxHbX.S1IxV6eEEDhC",
+            "bcrypt$$2b$12$EhhZDxGr/7HIKYRGMngC.O4sQx68vkaISSnSGZ6s8iOfaGy6l9cma",
+        ],
+    )
+    def test_check_password_updates(self, user_service, password):
+        """
+        This test confirms passlib is actually working,
+        see https://github.com/pypi/warehouse/issues/15454
+        """
+        user = UserFactory.create(password=password)
+
+        assert user_service.check_password(user.id, "password")
+        assert user.password.startswith("$argon2id$v=19$m=1024,t=6,p=6$")
+        assert user_service.check_password(user.id, "password")
+
+    def test_hash_is_upgraded(self, user_service):
         user = UserFactory.create()
         password = user.password
         user_service.hasher = pretend.stub(

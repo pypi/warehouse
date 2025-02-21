@@ -177,7 +177,7 @@
     {% endif %}
 
     {% set disabled = not user.has_burned_recovery_codes or not user.has_primary_verified_email %}
-    {% if not user.has_two_factor %}
+    {% if not disabled and not user.has_two_factor %}
      <div class="callout-block">
         <p>
         {% trans %}
@@ -465,9 +465,9 @@
 {% endmacro %}
 
 {% macro form_errors(form) %}
-  {% if form.errors.__all__ %}
+  {% if form.form_errors %}
   <ul class="form-errors" role="alert">
-    {% for error in form.errors.__all__ %}
+    {% for error in form.form_errors %}
     <li>{{ error }}</li>
     {% endfor %}
   </ul>
