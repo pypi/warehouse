@@ -34,11 +34,13 @@ from warehouse.captcha import recaptcha
 from warehouse.events.tags import EventTag
 from warehouse.utils.webauthn import AuthenticationRejectedError
 
+from ...common.constants import REMOTE_ADDR
+
 
 class TestLoginForm:
     def test_validate(self):
         request = pretend.stub(
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
             banned=pretend.stub(
                 by_ip=lambda ip_address: False,
             ),
@@ -119,7 +121,7 @@ class TestLoginForm:
 
     def test_validate_password_no_user(self):
         request = pretend.stub(
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
             banned=pretend.stub(
                 by_ip=lambda ip_address: False,
             ),
@@ -145,7 +147,7 @@ class TestLoginForm:
 
     def test_validate_password_disabled_for_compromised_pw(self, db_session):
         request = pretend.stub(
-            remote_addr="1.2.3.4", banned=pretend.stub(by_ip=lambda ip_address: False)
+            remote_addr=REMOTE_ADDR, banned=pretend.stub(by_ip=lambda ip_address: False)
         )
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
@@ -176,7 +178,7 @@ class TestLoginForm:
 
     def test_validate_password_ok(self):
         request = pretend.stub(
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
             banned=pretend.stub(
                 by_ip=lambda ip_address: False,
             ),
@@ -216,7 +218,7 @@ class TestLoginForm:
 
     def test_validate_password_notok(self, db_session):
         request = pretend.stub(
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
             banned=pretend.stub(
                 by_ip=lambda ip_address: False,
             ),
@@ -259,7 +261,7 @@ class TestLoginForm:
 
     def test_validate_password_too_many_failed(self):
         request = pretend.stub(
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
             banned=pretend.stub(
                 by_ip=lambda ip_address: False,
             ),
@@ -297,7 +299,7 @@ class TestLoginForm:
 
         user = pretend.stub(id=1)
         request = pretend.stub(
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
             banned=pretend.stub(
                 by_ip=lambda ip_address: False,
             ),
@@ -334,7 +336,7 @@ class TestLoginForm:
 
     def test_validate_password_ok_ip_banned(self):
         request = pretend.stub(
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
             banned=pretend.stub(
                 by_ip=lambda ip_address: True,
             ),
@@ -368,7 +370,7 @@ class TestLoginForm:
 
     def test_validate_password_notok_ip_banned(self, db_session):
         request = pretend.stub(
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
             banned=pretend.stub(
                 by_ip=lambda ip_address: True,
             ),
@@ -980,7 +982,7 @@ class TestTOTPAuthenticationForm:
     def test_validate(self, totp_value):
         user = pretend.stub(record_event=pretend.call_recorder(lambda *a, **kw: None))
         get_user = pretend.call_recorder(lambda userid: user)
-        request = pretend.stub(remote_addr="1.2.3.4")
+        request = pretend.stub(remote_addr=REMOTE_ADDR)
 
         form = forms.TOTPAuthenticationForm(
             formdata=MultiDict({"totp_value": totp_value}),
@@ -1003,7 +1005,7 @@ class TestTOTPAuthenticationForm:
     def test_totp_secret_not_valid(self, pyramid_config, totp_value, expected_error):
         user = pretend.stub(record_event=pretend.call_recorder(lambda *a, **kw: None))
         get_user = pretend.call_recorder(lambda userid: user)
-        request = pretend.stub(remote_addr="1.2.3.4")
+        request = pretend.stub(remote_addr=REMOTE_ADDR)
 
         form = forms.TOTPAuthenticationForm(
             formdata=MultiDict({"totp_value": totp_value}),
@@ -1028,7 +1030,7 @@ class TestTOTPAuthenticationForm:
     ):
         user = pretend.stub(record_event=pretend.call_recorder(lambda *a, **kw: None))
         get_user = pretend.call_recorder(lambda userid: user)
-        request = pretend.stub(remote_addr="1.2.3.4")
+        request = pretend.stub(remote_addr=REMOTE_ADDR)
 
         user_service = pretend.stub(
             check_totp_value=pretend.raiser(exception),
@@ -1163,7 +1165,7 @@ class TestReAuthenticateForm:
 
 class TestRecoveryCodeForm:
     def test_validate(self, monkeypatch):
-        request = pretend.stub(remote_addr="1.2.3.4")
+        request = pretend.stub(remote_addr=REMOTE_ADDR)
         user = pretend.stub(id=pretend.stub(), username="foobar")
         user_service = pretend.stub(
             check_recovery_code=pretend.call_recorder(lambda *a, **kw: True),

@@ -65,6 +65,7 @@ from warehouse.packaging.interfaces import IProjectService
 from warehouse.subscriptions import services as subscription_services
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 
+from .common.constants import REMOTE_ADDR, REMOTE_ADDR_HASHED
 from .common.db import Session
 from .common.db.accounts import EmailFactory, UserFactory
 from .common.db.ip_addresses import IpAddressFactory
@@ -212,12 +213,12 @@ def pyramid_services(
 
 
 @pytest.fixture
-def pyramid_request(pyramid_services, jinja, remote_addr, remote_addr_hashed):
+def pyramid_request(pyramid_services, jinja):
     pyramid.testing.setUp()
     dummy_request = pyramid.testing.DummyRequest()
     dummy_request.find_service = pyramid_services.find_service
-    dummy_request.remote_addr = remote_addr
-    dummy_request.remote_addr_hashed = remote_addr_hashed
+    dummy_request.remote_addr = REMOTE_ADDR
+    dummy_request.remote_addr_hashed = REMOTE_ADDR_HASHED
     dummy_request.authentication_method = pretend.stub()
     dummy_request._unauthenticated_userid = None
     dummy_request.user = None
@@ -436,9 +437,9 @@ def db_session(app_config):
 
 
 @pytest.fixture
-def user_service(db_session, metrics, remote_addr):
+def user_service(db_session, metrics):
     return account_services.DatabaseUserService(
-        db_session, metrics=metrics, remote_addr=remote_addr
+        db_session, metrics=metrics, remote_addr=REMOTE_ADDR
     )
 
 
@@ -743,7 +744,7 @@ def tm():
 
 
 @pytest.fixture
-def webtest(app_config_dbsession_from_env, remote_addr, tm):
+def webtest(app_config_dbsession_from_env, tm):
     """
     This fixture yields a test app with an alternative Pyramid configuration,
     injecting the database session and transaction manager into the app.
@@ -768,7 +769,7 @@ def webtest(app_config_dbsession_from_env, remote_addr, tm):
                 "warehouse.db_session": _db_session,
                 "tm.active": True,  # disable pyramid_tm
                 "tm.manager": tm,  # pass in our own tm for the app to use
-                "REMOTE_ADDR": remote_addr,  # set the same address for all requests
+                "REMOTE_ADDR": REMOTE_ADDR,  # set the same address for all requests
             },
         )
         yield testapp
