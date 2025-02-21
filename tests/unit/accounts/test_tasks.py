@@ -14,10 +14,67 @@ from datetime import datetime, timedelta, timezone
 
 import pretend
 
-from warehouse.accounts.tasks import compute_user_metrics
+from warehouse.accounts import tasks
+from warehouse.accounts.tasks import compute_user_metrics, notify_users_of_tos_update
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.packaging import ProjectFactory, ReleaseFactory
+
+
+def test_notify_users_of_tos_update(db_request, user_service, monkeypatch):
+    db_request.registry.settings = {"terms.revision": "initial"}
+    users_to_notify = UserFactory.create_batch(3, with_verified_primary_email=True)
+    # Users we should not notify because they have already agreed to ToS
+    UserFactory.create_batch(
+        5, with_verified_primary_email=True, with_terms_of_service_agreement=True
+    )
+    # Users we should not notify because they don't have a primary/verified email
+    UserFactory.create_batch(7)
+
+    send_email = pretend.call_recorder(lambda request, user: None)
+    monkeypatch.setattr(tasks, "send_user_terms_of_service_updated", send_email)
+
+    user_service.record_tos_engagement = pretend.call_recorder(
+        lambda user_id, revision, **kw: None
+    )
+
+    notify_users_of_tos_update(db_request)
+
+    assert send_email.calls == [pretend.call(db_request, u) for u in users_to_notify]
+    assert user_service.record_tos_engagement.calls == [
+        pretend.call(u.id, "initial", notified=True) for u in users_to_notify
+    ]
+
+
+def test_notify_users_of_tos_update_does_not_renotify(
+    db_request, user_service, monkeypatch
+):
+    db_request.registry.settings = {"terms.revision": "initial"}
+    users_to_notify = UserFactory.create_batch(3, with_verified_primary_email=True)
+    # Users we should not notify because they have already agreed to ToS
+    UserFactory.create_batch(
+        5, with_verified_primary_email=True, with_terms_of_service_agreement=True
+    )
+    # Users we should not notify because they don't have a primary/verified email
+    UserFactory.create_batch(7)
+
+    send_email = pretend.call_recorder(lambda request, user: None)
+    monkeypatch.setattr(tasks, "send_user_terms_of_service_updated", send_email)
+
+    user_service.record_tos_engagement(users_to_notify[-1].id, "initial", notified=True)
+
+    user_service.record_tos_engagement = pretend.call_recorder(
+        lambda user_id, revision, **kw: None
+    )
+
+    notify_users_of_tos_update(db_request)
+
+    assert send_email.calls == [
+        pretend.call(db_request, u) for u in users_to_notify[:-1]
+    ]
+    assert user_service.record_tos_engagement.calls == [
+        pretend.call(u.id, "initial", notified=True) for u in users_to_notify[:-1]
+    ]
 
 
 def _create_old_users_and_releases():

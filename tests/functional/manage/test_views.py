@@ -57,7 +57,9 @@ class TestManageAccount:
         """A user can log in, and change their password."""
         # create a User
         user = UserFactory.create(
-            with_verified_primary_email=True, clear_pwd="password"
+            with_verified_primary_email=True,
+            with_terms_of_service_agreement=True,
+            clear_pwd="password",
         )
 
         # visit login page

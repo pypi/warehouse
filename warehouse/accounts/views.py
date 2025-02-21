@@ -743,6 +743,11 @@ def register(request, _form_class=RegistrationForm):
         user = user_service.create_user(
             form.username.data, form.full_name.data, form.new_password.data
         )
+        user_service.record_tos_engagement(
+            user.id,
+            request.registry.settings.get("terms.revision"),
+            agreed=True,
+        )
         email = user_service.add_email(user.id, form.email.data, primary=True)
         user.record_event(
             tag=EventTag.Account.AccountCreate,
@@ -1420,7 +1425,44 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     request.session.record_password_timestamp(
         user_service.get_password_timestamp(userid)
     )
+
+    # Check if we need to notify the user of an updated Terms of Service
+    if user_service.needs_tos_update(
+        userid,
+        request.registry.settings.get("terms.revision"),
+        ignore_flashed=True,
+        ignore_notified=True,
+    ):
+        request.session.flash(
+            request._(
+                'Please review our updated <a href="${tos_url}">Terms of Service</a>.',
+                mapping={
+                    "tos_url": request.route_path("accounts.view-terms-of-service")
+                },
+            ),
+            safe=True,
+        )
+        user_service.record_tos_engagement(
+            userid, request.registry.settings.get("terms.revision"), flashed=True
+        )
+
     return headers
+
+
+@view_config(
+    route_name="accounts.view-terms-of-service",
+    uses_session=True,
+    has_translations=False,
+)
+def view_terms_of_service(request):
+    if request.user is not None:
+        user_service = request.find_service(IUserService, context=None)
+        user_service.record_tos_engagement(
+            request.user.id,
+            request.registry.settings.get("terms.revision"),
+            viewed=True,
+        )
+    return HTTPSeeOther("https://policies.python.org/pypi.org/Terms-of-Service")
 
 
 @view_config(

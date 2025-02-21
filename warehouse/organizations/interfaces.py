@@ -166,7 +166,14 @@ class IOrganizationService(Interface):
         Removes an association between the specified organization and project
         """
 
-    def add_organization_terms_of_service_agreement(organization_id, notified=False):
+    def record_tos_engagement(
+        organization_id,
+        revision,
+        flashed=False,
+        notified=False,
+        viewed=False,
+        agreed=False,
+    ):
         """
         Add a record of end user agreeing to terms of service,
         or being notified of a terms of service change.

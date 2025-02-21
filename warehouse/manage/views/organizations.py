@@ -557,8 +557,10 @@ class ManageOrganizationBillingViews:
     def activate_subscription(self):
         form = OrganizationActivateBillingForm(self.request.POST)
         if self.request.method == "POST" and form.validate():
-            self.organization_service.add_organization_terms_of_service_agreement(
-                self.organization.id
+            self.organization_service.record_tos_engagement(
+                self.organization.id,
+                self.request.registry.settings.get("terms.revision"),
+                agreed=True,
             )
             route = self.request.route_path(
                 "manage.organization.subscription",
