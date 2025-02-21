@@ -41,7 +41,7 @@ and establishes terms we need to provide
 to paid
 [Corporate Organizations](https://docs.pypi.org/organization-accounts/pricing-and-payments/#corporate-organizations).
 
-We have worked with our legal team to retain compatibility with the existing
+We have worked with our legal team to retain compatibility with the superseded
 [Terms of Use](https://policies.python.org/pypi.org/Terms-of-Use/)
 while adding as permissive a set of new terms as possible to ensure that PyPI users 
 and the PSF are protected.
