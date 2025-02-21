@@ -201,3 +201,22 @@ def remove_invalid_xml_unicode(value: str | None) -> str | None:
 
 def includeme(config):
     config.add_request_method(_camo_url, name="camo_url")
+
+
+def show_share_image(user_agent: str | None) -> bool:
+    """
+    Whether the og:image meta-tag should be included based on the user-agent
+
+    Used to exclude the image from Slack link-expansion.
+
+    """
+
+    # User agent header not included or empty
+    if not user_agent:
+        return True
+
+    # Don't show the og:image for Slackbot link-expansion requests
+    if user_agent.strip().startswith("Slackbot-LinkExpanding"):
+        return False
+
+    return True
