@@ -41,7 +41,7 @@ from warehouse.packaging import services
 from warehouse.packaging.models import Project
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
-from ...common.constants import DUMMY_GITHUB_OIDC_JWT
+from ...common.constants import DUMMY_ACTIVESTATE_OIDC_JWT, DUMMY_GITHUB_OIDC_JWT
 
 
 def test_ratelimiters():
@@ -86,14 +86,13 @@ def test_oidc_audience():
 
 
 @pytest.mark.parametrize(
-    ("token_fixture_name", "service_name"),
+    ("token", "service_name"),
     [
-        ("dummy_github_oidc_jwt", "github"),
-        ("dummy_activestate_oidc_jwt", "activestate"),
+        (DUMMY_GITHUB_OIDC_JWT, "github"),
+        (DUMMY_ACTIVESTATE_OIDC_JWT, "activestate"),
     ],
 )
-def test_mint_token_from_oidc_not_enabled(token_fixture_name, service_name, request):
-    token = request.getfixturevalue(token_fixture_name)
+def test_mint_token_from_oidc_not_enabled(token, service_name, request):
     request = pretend.stub(
         body=json.dumps({"token": token}),
         response=pretend.stub(status=None),

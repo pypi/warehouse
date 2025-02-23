@@ -14,10 +14,46 @@
 
 REMOTE_ADDR = "1.2.3.4"
 
+"""
+Static output of `hashlib.sha256(remote_addr.encode("utf8")).hexdigest()`
+Created statically to prevent needing to calculate it every run.
+"""
 REMOTE_ADDR_HASHED = "6694f83c9f476da31f5df6bcc520034e7e57d421d247b9d34f49edbfc84a764c"
 
+"""
+Output of `hashlib.sha256((remote_addr + "pepa").encode("utf8")).hexdigest()`
+"""
 REMOTE_ADDR_SALTED = "a69a49383d81404e4b1df297c7baa28e1cd6c4ee1495ed5d0ab165a63a147763"
 
+"""
+    {
+    "jti": "6e67b1cb-2b8d-4be5-91cb-757edb2ec970",
+    "sub": "repo:foo/bar",
+    "aud": "pypi",
+    "ref": "fake",
+    "sha": "fake",
+    "repository": "foo/bar",
+    "repository_owner": "foo",
+    "repository_owner_id": "123",
+    "run_id": "fake",
+    "run_number": "fake",
+    "run_attempt": "1",
+    "repository_id": "fake",
+    "actor_id": "fake",
+    "actor": "foo",
+    "workflow": "fake",
+    "head_ref": "fake",
+    "base_ref": "fake",
+    "event_name": "fake",
+    "ref_type": "fake",
+    "environment": "fake",
+    "job_workflow_ref": "foo/bar/.github/workflows/example.yml@fake",
+    "iss": "https://token.actions.githubusercontent.com",
+    "nbf": 1650663265,
+    "exp": 1650664165,
+    "iat": 1650663865
+    }
+"""
 DUMMY_GITHUB_OIDC_JWT = (
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZTY3YjFjYi0yYjhkLTRiZ"
     "TUtOTFjYi03NTdlZGIyZWM5NzAiLCJzdWIiOiJyZXBvOmZvby9iYXIiLCJhdWQiOiJweXB"
@@ -34,6 +70,28 @@ DUMMY_GITHUB_OIDC_JWT = (
     "C-E"
 )
 
+"""
+    {
+    "jti": "6e67b1cb-2b8d-4be5-91cb-757edb2ec970",
+    "sub": "org:fakeorg:project:fakeproject",
+    "aud": "pypi",
+    "actor_id": "fake",
+    "actor": "foo",
+    "oraganization_id": "7e67b1cb-2b8d-4be5-91cb-757edb2ec970",
+    "organization": "fakeorg",
+    "project_visibility": "private",
+    "project_id": "8e67b1cb-2b8d-4be5-91cb-757edb2ec970",
+    "project_path": "fakeorg/fakeproject",
+    "project": "fakeproject",
+    "builder": "pypi_builder",
+    "ingredient_name": "fakeingredient",
+    "artifact_id": "9e67b1cb-2b8d-4be5-91cb-757edb2ec970",
+    "iss":"https://platform.activestate.com/api/v1/oauth/oidc",
+    "nbf": 1650663265,
+    "exp": 1650664165,
+    "iat": 1650663865
+    }
+"""
 DUMMY_ACTIVESTATE_OIDC_JWT = (
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZTY3YjFjYi0yYjhkLTRi"
     "ZTUtOTFjYi03NTdlZGIyZWM5NzAiLCJzdWIiOiJvcmc6ZmFrZW9yZzpwcm9qZWN0OmZha"

@@ -452,7 +452,7 @@ class TestStripeSubscriptionService:
     def test_verify_service(self):
         assert verifyClass(ISubscriptionService, services.StripeSubscriptionService)
 
-    def test_service_creation(self, remote_addr):
+    def test_service_creation(self):
         session = pretend.stub()
         service = services.StripeSubscriptionService(session)
 

@@ -406,7 +406,7 @@ class TestDatabaseUserService:
             )
         ]
 
-    def test_add_email_bypass_ratelimit(self, user_service, metrics, remote_addr):
+    def test_add_email_bypass_ratelimit(self, user_service, metrics):
         resets = pretend.stub()
         limiter = pretend.stub(
             hit=pretend.call_recorder(lambda ip: None),
