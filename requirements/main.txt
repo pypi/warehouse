@@ -112,10 +112,7 @@ billiard==4.2.1 \
 boto3==1.36.25 \
     --hash=sha256:41fb90a516995946563ec91b9d891e2516c58617e9556d5e86dfa62da3fdebe6 \
     --hash=sha256:a057c19adffb48737c192bdb10f9d85e0d9dcecd21327f51520c15db9022a835
-    # via
-    #   -r requirements/main.in
-    #   celery
-    #   kombu
+    # via -r requirements/main.in
 botocore==1.36.25 \
     --hash=sha256:04c8ff03531e8d92baa8c98d1850bdf01668a805467f4222b65e5325f94aa8af \
     --hash=sha256:3b0a857d2621c336fb82a36cb6da4b6e062d346451ac46d110b074e5e5fd7cfc
@@ -178,7 +175,7 @@ cbor2==5.6.5 \
     --hash=sha256:fde21ac1cf29336a31615a2c469a9cb03cf0add3ae480672d4d38cda467d07fc \
     --hash=sha256:fe11c2eb518c882cfbeed456e7a552e544893c17db66fe5d3230dbeaca6b615c
     # via webauthn
-celery[sqs]==5.4.0 \
+celery[redis]==5.4.0 \
     --hash=sha256:369631eb580cf8c51a82721ec538684994f8277637edde2dfc0dacd73ed97f64 \
     --hash=sha256:504a19140e8d3029d5acad88330c541d4c3f64c789d85f94756762d8bca7e706
     # via
@@ -940,7 +937,7 @@ jsonschema-specifications==2024.10.1 \
     # via
     #   jsonschema
     #   openapi-schema-validator
-kombu[sqs]==5.4.2 \
+kombu[redis]==5.4.2 \
     --hash=sha256:14212f5ccf022fc0a70453bb025a1dcc32782a588c49ea866884047d66e14763 \
     --hash=sha256:eef572dd2fd9fc614b37580e3caeafdd5af46c1eff31e7fba89138cdb406f2cf
     # via
@@ -1631,41 +1628,6 @@ pycparser==2.22 \
     --hash=sha256:491c8be9c040f5390f5bf44a5b07752bd07f56edf992381b05c701439eec10f6 \
     --hash=sha256:c3702b6d3dd8c7abc1afa565d7e63d53a1d0bd86cdc24edd75470f4de499cfcc
     # via cffi
-pycurl==7.45.4 \
-    --hash=sha256:0470bff6cc24d8c2f63c80931aa239463800871609dafc6bcc9ca10f5a12a04e \
-    --hash=sha256:1324a859b50bdb0abdbd5620e42f74240d0b7daf2d5925fa303695d9fc3ece18 \
-    --hash=sha256:13c4b18f44637859f34639493efd297a08670f45e4eec34ab2dcba724e3cb5fc \
-    --hash=sha256:13eb1643ab0bf4fdc539a2cdf1021029b07095d3196c5cee5a4271af268d3d31 \
-    --hash=sha256:236600bfe2cd72efe47333add621286667e8fa027dadf1247349afbf30333e95 \
-    --hash=sha256:247b4af8eab7d04137a7f1a98391930e04ea93dc669b64db5625070fe15f80a3 \
-    --hash=sha256:2548c3291a33c821f0f80bf9989fc43b5d90fb78b534a7015c8419b83c6f5803 \
-    --hash=sha256:26745c6c5ebdccfe8a828ac3fd4e6da6f5d2245696604f04529eb7894a02f4db \
-    --hash=sha256:32c8e237069273f4260b6ae13d1e0f99daae938977016021565dc6e11050e803 \
-    --hash=sha256:3452459668bd01d646385482362b021834a31c036aa1c02acd88924ddeff7d0d \
-    --hash=sha256:4f25d52c97dbca6ebea786f0961b49c1998fa05178abf1964a977c825b3d8ae6 \
-    --hash=sha256:561f88697f7540634b1c750146f37bdc0da367b15f6b4ab2bb780871ee6ab005 \
-    --hash=sha256:57971d7215fc6fdedcfc092f880a59f04f52fcaf2fd329151b931623d7b59a9c \
-    --hash=sha256:587a4891039803b5f48392066f97b7cd5e7e9a166187abb5cb4b4806fdb8fbef \
-    --hash=sha256:688d09ba2c6a0d4a749d192c43422839d73c40c85143c50cc65c944258fe0ba8 \
-    --hash=sha256:731c46e7c0acffaab19f7c2ecc3d9e7ee337500e87b260b4e0b9fae2d90fa133 \
-    --hash=sha256:73df3eb5940a7fbf4cf62f7271e9f23a8e9f80e352c838ee9a8448a70c01d3f5 \
-    --hash=sha256:9940e3234c1ca3d30f27a2202d325dbc25291605c98e9585100a351cacd935e8 \
-    --hash=sha256:9bd493ce598f1dc76c8e50043c47debec27c583fa313a836b2d3667640f875d5 \
-    --hash=sha256:a39f28f031885485325034918386be352036c220ca45625c7e286d3938eb579d \
-    --hash=sha256:acf25cfdaf914db21a2a6e9e274b6d95e3fa2b6018c38f2c58c94b5d8ac3d1b7 \
-    --hash=sha256:b0e38e3eb83b0c891f391853f798fc6a97cb5a86a4a731df0b6320e539ae54ae \
-    --hash=sha256:b485fdaf78553f0b8e1c2803bb7dcbe47a7b47594f846fc7e9d3b94d794cfc89 \
-    --hash=sha256:caec8b634763351dd4e1b729a71542b1e2de885d39710ba8e7202817a381b453 \
-    --hash=sha256:d14f954ecd21a070038d65ef1c6d1d3ab220f952ff703d48313123222097615c \
-    --hash=sha256:d192a48b3cec2e13ad432196b65c22e99620db92feae39c0476635354eff68c6 \
-    --hash=sha256:df5f94c051c5a163fa85064559ca94979575e2da26740ff91c078c50c541c465 \
-    --hash=sha256:e7ae49b88a5d57485fbabef004534225dfe04dc15716a61fae1a0c7f46f2279e \
-    --hash=sha256:f6c0e22052946bbfa25be67f9d1d6639eff10781c89f0cf6f3ff2099273d1bad \
-    --hash=sha256:fd167f73d34beb0cb8064334aee76d9bdd13167b30be6d5d36fb07d0c8223b71 \
-    --hash=sha256:ffd3262f98b8997ad04940061d5ebd8bab2362169b9440939c397e24a4a135b0
-    # via
-    #   celery
-    #   kombu
 pydantic[email]==2.10.6 \
     --hash=sha256:427d664bf0b8a2b34ff5dd0f5a18df00591adcee7198fbd71981054cef37b584 \
     --hash=sha256:ca5daa827cce33de7a42be142548b0096bf05a7e7b365aebfa5f8eeec7128236
@@ -1950,7 +1912,9 @@ redis==5.2.1 \
     --hash=sha256:ee7e1056b9aea0f04c6c2ed59452947f34c4940ee025f5dd83e6a6418b6989e4
     # via
     #   -r requirements/main.in
+    #   celery
     #   celery-redbeat
+    #   kombu
 referencing==0.36.2 \
     --hash=sha256:df2e89862cd09deabbdba16944cc3f10feb6b3e6f18e902f7cc25609a34775aa \
     --hash=sha256:e8699adbbf8b5c7de96d8ffa0eb5c158b3beafce084968e2ea8bb08c6794dcd0
@@ -2307,8 +2271,6 @@ urllib3==2.3.0 \
     # via
     #   -r requirements/main.in
     #   botocore
-    #   celery
-    #   kombu
     #   opensearch-py
     #   requests
     #   sentry-sdk

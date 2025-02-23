@@ -327,7 +327,7 @@ def get_app_config(database, nondefaults=None):
         "warehouse.ip_salt": "insecure salt",
         "camo.url": "http://localhost:9000/",
         "camo.key": "insecure key",
-        "celery.broker_url": "amqp://",
+        "celery.broker_redis_url": "redis://localhost:0/",
         "celery.result_url": "redis://localhost:0/",
         "celery.scheduler_url": "redis://localhost:0/",
         "database.url": database,
