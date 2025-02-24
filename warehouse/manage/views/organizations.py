@@ -52,6 +52,7 @@ from warehouse.manage.forms import (
     CreateOrganizationRoleForm,
     CreateTeamForm,
     OrganizationActivateBillingForm,
+    RequestOrganizationNamespaceForm,
     SaveOrganizationForm,
     SaveOrganizationNameForm,
     TransferOrganizationProjectForm,
@@ -61,7 +62,7 @@ from warehouse.manage.views.view_helpers import (
     user_organizations,
     user_projects,
 )
-from warehouse.organizations import IOrganizationService
+from warehouse.organizations import INamespaceService, IOrganizationService
 from warehouse.organizations.models import (
     Organization,
     OrganizationInvitationStatus,
@@ -843,6 +844,77 @@ class ManageOrganizationProjectsViews:
         )
 
         # Refresh projects list.
+        return HTTPSeeOther(self.request.path)
+
+
+@view_defaults(
+    route_name="manage.organization.namespaces",
+    context=Organization,
+    renderer="manage/organization/namespaces.html",
+    uses_session=True,
+    require_active_organization=True,
+    require_csrf=True,
+    require_methods=False,
+    permission=Permissions.OrganizationsManage,
+    has_translations=True,
+    require_reauth=True,
+)
+class ManageOrganizationNamespacesViews:
+    def __init__(self, organization, request):
+        self.organization = organization
+        self.request = request
+        self.user_service = request.find_service(IUserService, context=None)
+        self.organization_service = request.find_service(
+            IOrganizationService, context=None
+        )
+        self.namespace_service = request.find_service(INamespaceService, context=None)
+
+    @property
+    def default_response(self):
+        return {
+            "organization": self.organization,
+            "request_organization_namespace_form": RequestOrganizationNamespaceForm(
+                self.request.POST,
+                namespace_service=self.namespace_service,
+            ),
+        }
+
+    @view_config(request_method="GET", permission=Permissions.OrganizationsRead)
+    def manage_organization_namespaces(self):
+        return self.default_response
+
+    @view_config(
+        request_method="POST", permission=Permissions.OrganizationNamespaceManage
+    )
+    def request_organization_namespace(self):
+        # Get and validate form from default response.
+        default_response = self.default_response
+        form = default_response["request_organization_namespace_form"]
+        if not form.validate():
+            return default_response
+
+        # Create namespace request
+        namespace = self.namespace_service.request_namespace(
+            organization_id=self.organization.id, name=form.name.data
+        )
+
+        # Record events.
+        self.organization.record_event(
+            tag=EventTag.Organization.NamespaceRequest,
+            request=self.request,
+            additional={
+                "requested_by_user_id": str(self.request.user.id),
+                "namespace_name": namespace.name,
+            },
+        )
+
+        # Display notification message.
+        self.request.session.flash(
+            f"Request namespace {namespace.name!r} in {self.organization.name!r}",
+            queue="success",
+        )
+
+        # Refresh namespace list.
         return HTTPSeeOther(self.request.path)
 
 

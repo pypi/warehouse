@@ -18,7 +18,7 @@ from zope.interface.verify import verifyClass
 from warehouse.accounts.models import User
 from warehouse.events.tags import EventTag
 from warehouse.organizations import services
-from warehouse.organizations.interfaces import IOrganizationService
+from warehouse.organizations.interfaces import INamespaceService, IOrganizationService
 from warehouse.organizations.models import (
     Organization,
     OrganizationInvitation,
@@ -38,6 +38,7 @@ from warehouse.organizations.models import (
 from warehouse.subscriptions.models import StripeSubscription
 
 from ...common.db.organizations import (
+    NamespaceFactory,
     OrganizationApplicationFactory,
     OrganizationFactory,
     OrganizationInvitationFactory,
@@ -916,3 +917,41 @@ class TestDatabaseOrganizationService:
 
         organization_service.delete_team_project_role(team_project_role.id)
         assert organization_service.get_team_role(team_project_role_id) is None
+
+
+def test_database_namespace_factory():
+    db = pretend.stub()
+    context = pretend.stub()
+    request = pretend.stub(db=db)
+
+    service = services.database_namespace_factory(context, request)
+    assert service.db is db
+
+
+class TestDatabaseNamespaceService:
+    def test_verify_service(self):
+        assert verifyClass(INamespaceService, services.DatabaseNamespaceService)
+
+    def test_service_creation(self):
+        session = pretend.stub()
+        service = services.DatabaseNamespaceService(session)
+
+        assert service.db is session
+
+    def test_get_namespace(self, db_session):
+        ns = NamespaceFactory.create()
+        service = services.DatabaseNamespaceService(db_session)
+        assert service.get_namespace(ns.name).id == ns.id
+
+    def test_get_namespace_with_children(self, db_session):
+        ns = NamespaceFactory.create()
+        NamespaceFactory.create(name=f"{ns.name}-child", parent=ns, owner=ns.owner)
+        service = services.DatabaseNamespaceService(db_session)
+        assert service.get_namespace(ns.name).id == ns.id
+
+    def test_request_namespace(self, db_session):
+        org = OrganizationFactory.create()
+        service = services.DatabaseNamespaceService(db_session)
+        ns = service.request_namespace(name="foo", organization_id=org.id)
+        assert ns.name == "foo"
+        assert ns.owner_id == org.id

@@ -93,8 +93,8 @@ msgid ""
 "different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:409 warehouse/manage/forms.py:140
-#: warehouse/manage/forms.py:742
+#: warehouse/accounts/forms.py:409 warehouse/manage/forms.py:141
+#: warehouse/manage/forms.py:778
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 
@@ -361,11 +361,11 @@ msgstr ""
 msgid "Banner Preview"
 msgstr ""
 
-#: warehouse/manage/forms.py:420
+#: warehouse/manage/forms.py:421
 msgid "Choose an organization account name with 50 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:428
+#: warehouse/manage/forms.py:429
 msgid ""
 "The organization account name is invalid. Organization account names must"
 " be composed of letters, numbers, dots, hyphens and underscores. And must"
@@ -373,90 +373,98 @@ msgid ""
 "organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:451
+#: warehouse/manage/forms.py:452
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:466
+#: warehouse/manage/forms.py:467
 msgid ""
 "You have already submitted an application for that name. Choose a "
 "different organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:501
+#: warehouse/manage/forms.py:502
 msgid "Select project"
 msgstr ""
 
-#: warehouse/manage/forms.py:506 warehouse/oidc/forms/_core.py:29
+#: warehouse/manage/forms.py:507 warehouse/oidc/forms/_core.py:29
 #: warehouse/oidc/forms/gitlab.py:57
 msgid "Specify project name"
 msgstr ""
 
-#: warehouse/manage/forms.py:510
+#: warehouse/manage/forms.py:511
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
 
-#: warehouse/manage/forms.py:517
+#: warehouse/manage/forms.py:518
 msgid "This project name has already been used. Choose a different project name."
 msgstr ""
 
-#: warehouse/manage/forms.py:590
+#: warehouse/manage/forms.py:591
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:602
+#: warehouse/manage/forms.py:603
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:608
+#: warehouse/manage/forms.py:609
 msgid "The organization URL must start with http:// or https://"
 msgstr ""
 
-#: warehouse/manage/forms.py:620
+#: warehouse/manage/forms.py:621
 msgid ""
 "The organization description is too long. Choose a organization "
 "description with 400 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:655
+#: warehouse/manage/forms.py:656
 msgid "You have already submitted the maximum number of "
 msgstr ""
 
-#: warehouse/manage/forms.py:684
+#: warehouse/manage/forms.py:685
 msgid "Choose a team name with 50 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:691
+#: warehouse/manage/forms.py:692
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:719
+#: warehouse/manage/forms.py:720
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:737
+#: warehouse/manage/forms.py:742
+msgid "The namespace name is invalid. Namespace must be valid project names."
+msgstr ""
+
+#: warehouse/manage/forms.py:759
+msgid "This namespace has already been requested. Choose a different namespace."
+msgstr ""
+
+#: warehouse/manage/forms.py:773
 msgid "Specify your alternate repository name"
 msgstr ""
 
-#: warehouse/manage/forms.py:751
+#: warehouse/manage/forms.py:787
 msgid "Specify your alternate repository URL"
 msgstr ""
 
-#: warehouse/manage/forms.py:756
+#: warehouse/manage/forms.py:792
 msgid "The URL is too long. Choose a URL with 400 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:770
+#: warehouse/manage/forms.py:806
 msgid ""
 "The description is too long. Choose a description with 400 characters or "
 "less."
@@ -607,13 +615,13 @@ msgid ""
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2961
-#: warehouse/manage/views/organizations.py:893
+#: warehouse/manage/views/organizations.py:965
 #, python-brace-format
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:3026
-#: warehouse/manage/views/organizations.py:958
+#: warehouse/manage/views/organizations.py:1030
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr ""
@@ -627,33 +635,33 @@ msgid "Invitation already expired."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:3102
-#: warehouse/manage/views/organizations.py:1145
+#: warehouse/manage/views/organizations.py:1217
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:869
+#: warehouse/manage/views/organizations.py:941
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:880
+#: warehouse/manage/views/organizations.py:952
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1040
-#: warehouse/manage/views/organizations.py:1082
+#: warehouse/manage/views/organizations.py:1112
+#: warehouse/manage/views/organizations.py:1154
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1050
+#: warehouse/manage/views/organizations.py:1122
 msgid "Organization invitation could not be re-sent."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1098
+#: warehouse/manage/views/organizations.py:1170
 #, python-brace-format
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
@@ -1538,6 +1546,7 @@ msgstr ""
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
 #: warehouse/templates/manage/organization/activate_subscription.html:34
+#: warehouse/templates/manage/organization/namespaces.html:70
 #: warehouse/templates/manage/organization/projects.html:128
 #: warehouse/templates/manage/organization/projects.html:151
 #: warehouse/templates/manage/organization/roles.html:270
@@ -3018,7 +3027,12 @@ msgstr ""
 msgid "Teams"
 msgstr ""
 
-#: warehouse/templates/includes/manage/manage-organization-menu.html:41
+#: warehouse/templates/includes/manage/manage-organization-menu.html:40
+#: warehouse/templates/manage/organization/namespaces.html:25
+msgid "Namespaces"
+msgstr ""
+
+#: warehouse/templates/includes/manage/manage-organization-menu.html:48
 #: warehouse/templates/includes/manage/manage-project-menu.html:37
 #: warehouse/templates/includes/manage/manage-team-menu.html:34
 #: warehouse/templates/manage/account.html:505
@@ -3029,7 +3043,7 @@ msgstr ""
 msgid "Security history"
 msgstr ""
 
-#: warehouse/templates/includes/manage/manage-organization-menu.html:48
+#: warehouse/templates/includes/manage/manage-organization-menu.html:55
 #: warehouse/templates/includes/manage/manage-project-menu.html:57
 #: warehouse/templates/includes/manage/manage-team-menu.html:41
 msgid "Settings"
@@ -3864,7 +3878,7 @@ msgid "Recent account activity"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:780
-#: warehouse/templates/manage/organization/history.html:201
+#: warehouse/templates/manage/organization/history.html:212
 #: warehouse/templates/manage/project/history.html:364
 #: warehouse/templates/manage/team/history.html:108
 #: warehouse/templates/manage/unverified-account.html:466
@@ -3872,8 +3886,8 @@ msgid "Event"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:781
-#: warehouse/templates/manage/organization/history.html:202
-#: warehouse/templates/manage/organization/history.html:211
+#: warehouse/templates/manage/organization/history.html:213
+#: warehouse/templates/manage/organization/history.html:222
 #: warehouse/templates/manage/project/history.html:365
 #: warehouse/templates/manage/project/history.html:374
 #: warehouse/templates/manage/team/history.html:109
@@ -3883,7 +3897,7 @@ msgid "Time"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:782
-#: warehouse/templates/manage/organization/history.html:203
+#: warehouse/templates/manage/organization/history.html:214
 #: warehouse/templates/manage/team/history.html:110
 #: warehouse/templates/manage/unverified-account.html:468
 msgid "Additional Info"
@@ -3895,13 +3909,13 @@ msgid "Date / time"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:793
-#: warehouse/templates/manage/organization/history.html:215
+#: warehouse/templates/manage/organization/history.html:226
 #: warehouse/templates/manage/unverified-account.html:479
 msgid "Location Info"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:795
-#: warehouse/templates/manage/organization/history.html:217
+#: warehouse/templates/manage/organization/history.html:228
 #: warehouse/templates/manage/project/history.html:380
 #: warehouse/templates/manage/team/history.html:124
 #: warehouse/templates/manage/unverified-account.html:481
@@ -4229,7 +4243,7 @@ msgid "Any"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:582
-#: warehouse/templates/manage/organization/history.html:166
+#: warehouse/templates/manage/organization/history.html:177
 #: warehouse/templates/manage/project/history.html:43
 #: warehouse/templates/manage/project/history.html:97
 #: warehouse/templates/manage/project/history.html:137
@@ -4242,7 +4256,7 @@ msgid "Added by:"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:584
-#: warehouse/templates/manage/organization/history.html:171
+#: warehouse/templates/manage/organization/history.html:182
 #: warehouse/templates/manage/project/history.html:62
 #: warehouse/templates/manage/project/history.html:128
 #: warehouse/templates/manage/project/history.html:144
@@ -4280,6 +4294,7 @@ msgstr ""
 msgid "Pending invitations"
 msgstr ""
 
+#: warehouse/templates/manage/organization/namespaces.html:42
 #: warehouse/templates/manage/organization/projects.html:55
 #: warehouse/templates/manage/organizations.html:35
 #: warehouse/templates/manage/organizations.html:96
@@ -4316,6 +4331,7 @@ msgstr ""
 msgid "%(org_type)s"
 msgstr ""
 
+#: warehouse/templates/manage/organization/namespaces.html:38
 #: warehouse/templates/manage/organizations.html:78
 #: warehouse/templates/manage/organizations.html:158
 msgid "Request Submitted"
@@ -5421,56 +5437,65 @@ msgstr ""
 msgid "<a href=\"%(href)s\">%(username)s</a> removed from %(team_name)s team"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:132
+#: warehouse/templates/manage/organization/history.html:126
+#, python-format
+msgid "%(namespace_name)s namespace requested"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:136
 msgid "Registered by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:139
+#: warehouse/templates/manage/organization/history.html:143
 #: warehouse/templates/manage/project/history.html:34
 #: warehouse/templates/manage/team/history.html:71
 msgid "Created by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:144
+#: warehouse/templates/manage/organization/history.html:148
 #: warehouse/templates/manage/project/history.html:322
 #: warehouse/templates/manage/project/history.html:344
 #: warehouse/templates/manage/team/history.html:76
 msgid "Deleted by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:149
+#: warehouse/templates/manage/organization/history.html:153
 #: warehouse/templates/manage/team/history.html:81
 msgid "Renamed by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:154
+#: warehouse/templates/manage/organization/history.html:158
 msgid "Approved by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:159
+#: warehouse/templates/manage/organization/history.html:163
 msgid "Declined by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:176
+#: warehouse/templates/manage/organization/history.html:170
+msgid "Requested by:"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:187
 #: warehouse/templates/manage/project/history.html:151
 #: warehouse/templates/manage/project/history.html:198
 #: warehouse/templates/manage/team/history.html:98
 msgid "Changed by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:181
-#: warehouse/templates/manage/organization/history.html:186
+#: warehouse/templates/manage/organization/history.html:192
+#: warehouse/templates/manage/organization/history.html:197
 #: warehouse/templates/manage/project/history.html:158
 #: warehouse/templates/manage/project/history.html:165
 msgid "Invited by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:191
+#: warehouse/templates/manage/organization/history.html:202
 #: warehouse/templates/manage/project/history.html:172
 msgid "Revoked by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:198
+#: warehouse/templates/manage/organization/history.html:209
 #: warehouse/templates/manage/project/history.html:361
 #: warehouse/templates/manage/team/history.html:105
 #, python-format
@@ -5484,6 +5509,43 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/manage_organization_base.html:57
 msgid "Back to organizations"
+msgstr ""
+
+#: warehouse/templates/manage/organization/namespaces.html:17
+msgid "Organization namespaces"
+msgstr ""
+
+#: warehouse/templates/manage/organization/namespaces.html:21
+#, python-format
+msgid "Manage '%(organization_name)s' namespaces"
+msgstr ""
+
+#: warehouse/templates/manage/organization/namespaces.html:38
+msgid "You will receive an email when the namespace has been approved"
+msgstr ""
+
+#: warehouse/templates/manage/organization/namespaces.html:52
+msgid ""
+"There are no namespaces in your organization, yet. Organization owners "
+"and managers can request new namespaces for the organization."
+msgstr ""
+
+#: warehouse/templates/manage/organization/namespaces.html:63
+msgid "Request namespace"
+msgstr ""
+
+#: warehouse/templates/manage/organization/namespaces.html:69
+msgid "️Namespace"
+msgstr ""
+
+#: warehouse/templates/manage/organization/namespaces.html:80
+msgid ""
+"Owners and managers of this organization can request a namespace for the "
+"organization."
+msgstr ""
+
+#: warehouse/templates/manage/organization/namespaces.html:85
+msgid "Request"
 msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:17

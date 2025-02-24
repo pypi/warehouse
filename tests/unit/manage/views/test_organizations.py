@@ -22,6 +22,7 @@ from webob.multidict import MultiDict
 
 from tests.common.db.accounts import EmailFactory, UserFactory
 from tests.common.db.organizations import (
+    NamespaceFactory,
     OrganizationEventFactory,
     OrganizationFactory,
     OrganizationInvitationFactory,
@@ -3017,3 +3018,93 @@ class TestManageOrganizationHistory:
 
         with pytest.raises(HTTPNotFound):
             assert org_views.manage_organization_history(organization, db_request)
+
+
+class TestManageOrganizationNamespaces:
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_manage_organization_namespaces(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        monkeypatch,
+    ):
+        organization = OrganizationFactory.create()
+        organization.namespaces = [NamespaceFactory.create()]
+
+        db_request.POST = MultiDict()
+
+        view = org_views.ManageOrganizationNamespacesViews(organization, db_request)
+        result = view.manage_organization_namespaces()
+        form = result["request_organization_namespace_form"]
+
+        assert view.request == db_request
+        assert view.organization_service == organization_service
+        assert result == {
+            "organization": organization,
+            "request_organization_namespace_form": form,
+        }
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_request_namespace(
+        self,
+        db_request,
+        pyramid_user,
+        namespace_service,
+        monkeypatch,
+    ):
+        organization = OrganizationFactory.create()
+        organization.namespaces = [NamespaceFactory.create()]
+
+        db_request.POST = MultiDict({"name": "my-ns"})
+
+        OrganizationRoleFactory.create(
+            organization=organization, user=db_request.user, role_name="Owner"
+        )
+
+        def request_namespace(name, *args, **kwargs):
+            ns = NamespaceFactory.create(name=name)
+            organization.namespaces.append(ns)
+            return ns
+
+        monkeypatch.setattr(namespace_service, "request_namespace", request_namespace)
+
+        view = org_views.ManageOrganizationNamespacesViews(organization, db_request)
+        result = view.request_organization_namespace()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == db_request.path
+        assert len(organization.namespaces) == 2
+        assert organization.namespaces[-1].name == "my-ns"
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_request_namespace_invalid(
+        self,
+        db_request,
+        pyramid_user,
+        namespace_service,
+        monkeypatch,
+    ):
+        organization = OrganizationFactory.create()
+        organization.namespaces = [NamespaceFactory.create()]
+
+        OrganizationRoleFactory.create(
+            organization=organization, user=db_request.user, role_name="Owner"
+        )
+
+        db_request.POST = MultiDict({"name": organization.namespaces[0].name})
+
+        view = org_views.ManageOrganizationNamespacesViews(organization, db_request)
+        result = view.request_organization_namespace()
+        form = result["request_organization_namespace_form"]
+
+        assert view.request == db_request
+        assert view.namespace_service == namespace_service
+        assert result == {
+            "organization": organization,
+            "request_organization_namespace_form": form,
+        }
+        assert form.name.errors == [
+            "This namespace has already been requested. Choose a different namespace."
+        ]
+        assert len(organization.namespaces) == 1

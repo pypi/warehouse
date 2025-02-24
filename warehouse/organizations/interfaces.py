@@ -274,3 +274,17 @@ class IOrganizationService(Interface):
         """
         Delete an team project role for a specified team project role id
         """
+
+
+class INamespaceService(Interface):
+    def get_namespace(name):
+        """
+        Return the namespace object that represents the given namespace, or None if
+        there is no namespace for that name.
+        """
+
+    def request_namespace(organization_id, name, is_open=False, is_hidden=False):
+        """
+        Request a new namespace, returning the object that represents this newly
+        requested namespace.
+        """

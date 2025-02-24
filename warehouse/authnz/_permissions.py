@@ -60,6 +60,9 @@ class Permissions(StrEnum):
     AdminOrganizationsRead = "admin:organizations:read"
     AdminOrganizationsWrite = "admin:organizations:write"
 
+    AdminNamespacesRead = "admin:namespaces:read"
+    AdminNamespacesWrite = "admin:namespaces:write"
+
     AdminProhibitedEmailDomainsRead = "admin:prohibited-email-domains:read"
     AdminProhibitedEmailDomainsWrite = "admin:prohibited-email-domains:write"
 
@@ -111,7 +114,11 @@ class Permissions(StrEnum):
     OrganizationProjectsAdd = "organizations:projects:add"
     OrganizationProjectsRemove = "organizations:projects:remove"  # TODO: unused?
     OrganizationTeamsManage = "organizations:teams:manage"
+    OrganizationNamespaceManage = "organizations:namespaces:manage"
     OrganizationTeamsRead = "organizations:teams:read"
+
+    # Namespace Permissions
+    NamespaceProjectsAdd = "namespaces:projects:add"
 
     # Observer Permissions
     SubmitMalwareObservation = "observer:submit-malware-observation"

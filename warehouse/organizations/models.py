@@ -17,11 +17,12 @@ import typing
 
 from uuid import UUID
 
-from pyramid.authorization import Allow
+from pyramid.authorization import Allow, Authenticated
 from pyramid.httpexceptions import HTTPPermanentRedirect
 from sqlalchemy import (
     CheckConstraint,
     Enum,
+    FetchedValue,
     ForeignKey,
     Index,
     UniqueConstraint,
@@ -314,6 +315,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         back_populates="organization",
         order_by=lambda: Team.name.asc(),
     )
+    namespaces: Mapped[list[Namespace]] = orm.relationship(back_populates="owner")
     projects: Mapped[list[Project]] = relationship(
         secondary=OrganizationProject.__table__,
         back_populates="organization",
@@ -401,6 +403,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                 # - Manage billing (Permissions.OrganizationsBillingManage)
                 # - Add project (Permissions.OrganizationProjectsAdd)
                 # - Remove project (Permissions.OrganizationProjectsRemove)
+                # - Request namespaces (OrganizationNamespaceManage)
                 # Disallowed:
                 # - (none)
                 acls.append(
@@ -415,6 +418,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                             Permissions.OrganizationsBillingManage,
                             Permissions.OrganizationProjectsAdd,
                             Permissions.OrganizationProjectsRemove,
+                            Permissions.OrganizationNamespaceManage,
                         ],
                     )
                 )
@@ -428,6 +432,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                 # - Create/delete team and add/remove members (OrganizationTeamsManage)
                 # - Add project (Permissions.OrganizationProjectsAdd)
                 # - Remove project (Permissions.OrganizationProjectsRemove)
+                # - Request namespaces (OrganizationNamespaceManage)
                 acls.append(
                     (
                         Allow,
@@ -445,6 +450,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                 # - View team (Permissions.OrganizationTeamsRead)
                 # - Create/delete team and add/remove members (OrganizationTeamsManage)
                 # - Add project (Permissions.OrganizationProjectsAdd)
+                # - Request namespaces (OrganizationNamespaceManage)
                 # Disallowed:
                 # - Invite/remove organization member (Permissions.OrganizationsManage)
                 # - Manage billing (Permissions.OrganizationsBillingManage)
@@ -458,6 +464,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                             Permissions.OrganizationTeamsRead,
                             Permissions.OrganizationTeamsManage,
                             Permissions.OrganizationProjectsAdd,
+                            Permissions.OrganizationNamespaceManage,
                         ],
                     )
                 )
@@ -473,6 +480,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                 # - Manage billing (Permissions.OrganizationsBillingManage)
                 # - Add project (Permissions.OrganizationProjectsAdd)
                 # - Remove project (Permissions.OrganizationProjectsRemove)
+                # - Request namespaces (OrganizationNamespaceManage)
                 acls.append(
                     (
                         Allow,
@@ -736,3 +744,84 @@ class Team(HasEvents, db.Model):
 
     def __acl__(self):
         return self.organization.__acl__()
+
+
+class Namespace(db.Model):
+    __tablename__ = "project_namespaces"
+    __table_args__ = (
+        CheckConstraint(
+            "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
+            name="project_namespaces_valid_name",
+        ),
+    )
+
+    is_approved: Mapped[bool_false]
+    created: Mapped[datetime_now]
+    name: Mapped[str] = mapped_column(unique=True)
+    normalized_name: Mapped[str] = mapped_column(
+        unique=True,
+        server_default=FetchedValue(),
+        server_onupdate=FetchedValue(),
+    )
+    owner_id = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("organizations.id"),
+        index=True,
+        nullable=False,
+    )
+    owner: Mapped[Organization] = orm.relationship(back_populates="namespaces")
+    _parent_id = mapped_column(
+        "parent_id",
+        PG_UUID(as_uuid=True),
+        ForeignKey("project_namespaces.id"),
+        index=True,
+        nullable=True,
+    )
+    parent: Mapped[Namespace] = orm.relationship()
+    is_open: Mapped[bool_false]
+    is_hidden: Mapped[bool_false]
+
+    def is_project_authorized(self, project):
+        # To determine if a project is "authorized" to be part of this namespace
+        # we need to see if any owners of the project match the owner of this
+        # namespace.
+        for org_project in self.owner.projects:
+            if org_project.normalized_name == project.normalized_name:
+                return True
+
+        # Otherwise, the project is not authorized to be part of this namespace.
+        return False
+
+    def __acl__(self):
+        session = orm_session_from_obj(self)
+        acls = []
+
+        # Namespaces have a strong sense of ownership, unlike projects which can
+        # be owned by many identities, Namespaces can only be owned by a single
+        # identity, and that identity *must* be an organization.
+        #
+        # These are meant to map closely to the OrganizationProjectsAdd
+        # permission, so the same roles that have access to add a project to an
+        # organization also have access to use the name.
+        query = session.query(OrganizationRole).filter(
+            OrganizationRole.organization == self.owner,
+            OrganizationRole.role_name.in_(
+                [OrganizationRoleType.Owner, OrganizationRoleType.Manager]
+            ),
+        )
+        query = query.options(orm.lazyload(OrganizationRole.organization))
+        query = query.join(User).order_by(User.id.asc())
+        for role in sorted(
+            query.all(),
+            key=lambda x: [e.value for e in OrganizationRoleType].index(x.role_name),
+        ):
+            acls.append(
+                (Allow, f"user:{role.user.id}", [Permissions.NamespaceProjectsAdd])
+            )
+
+        # If the Namespace is "open", then any authenticated user is able to
+        # add a Project to this namespace.
+        if self.is_open:
+            acls.append((Allow, Authenticated, [Permissions.NamespaceProjectsAdd]))
+
+        return acls

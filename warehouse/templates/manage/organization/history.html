@@ -121,6 +121,10 @@
       {% trans href=request.route_path('accounts.profile', username=target_user), username=target_user, team_name=event.additional.team_name %}<a href="{{ href }}">{{ username }}</a> removed from {{ team_name }} team{% endtrans %}
     </strong>
 
+    {# Display action for namespace events #}
+    {% elif event.tag == EventTag.Organization.NamespaceRequest %}
+    <strong>{% trans namespace_name=event.additional.namespace_name %}{{ namespace_name }} namespace requested{% endtrans %}</strong>
+
     {% else %}
     <strong>{{ event.tag }}</strong>
     {% endif %}
@@ -157,6 +161,13 @@
     {% set declined_by = get_user(event.additional.declined_by_user_id).username %}
     <small>
       {% trans %}Declined by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=declined_by) }}">{{ declined_by }}</a>
+    </small>
+
+    {# Display acting user for namespace events #}
+    {% elif event.tag == EventTag.Organization.NamespaceRequest %}
+    {% set requested_by = get_user(event.additional.requested_by_user_id).username %}
+    <small>
+      {% trans %}Requested by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=submitted_by) }}">{{ requested_by }}</a>
     </small>
 
     {# Display submitting user for role events #}

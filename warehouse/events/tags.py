@@ -190,6 +190,7 @@ class EventTag:
         TeamProjectRoleRemove = "organization:team_project_role:remove"
         TeamRoleAdd = "organization:team_role:add"
         TeamRoleRemove = "organization:team_role:remove"
+        NamespaceRequest = "organization:namespace_request"
 
     class Team(EventTagEnum):
         """Tags for Organization events.

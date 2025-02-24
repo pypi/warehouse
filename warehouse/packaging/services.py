@@ -34,10 +34,12 @@ from sqlalchemy import exists, func, select
 from zope.interface import implementer
 
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.authnz import Permissions
 from warehouse.email import send_pending_trusted_publisher_invalidated_email
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
 from warehouse.oidc.models import PendingOIDCPublisher
+from warehouse.organizations.models import Namespace
 from warehouse.packaging.interfaces import (
     IDocsStorage,
     IFileStorage,
@@ -455,6 +457,7 @@ class ProjectService:
         if canonicalize_name(name) in STDLIB_PROHIBITED:
             raise ProjectNameUnavailableStdlibError()
 
+        # Check if the project name matches one of the existing names.
         if existing_project := self.db.scalars(
             select(Project).where(
                 Project.normalized_name == func.normalize_pep426_name(name)
@@ -462,6 +465,7 @@ class ProjectService:
         ).first():
             raise ProjectNameUnavailableExistingError(existing_project)
 
+        # Check if the project name matches one of the prohibited names.
         if self.db.query(
             exists().where(
                 ProhibitedProjectName.name == func.normalize_pep426_name(name)
@@ -469,6 +473,7 @@ class ProjectService:
         ).scalar():
             raise ProjectNameUnavailableProhibitedError()
 
+        # Check if the project name is too similiar to an existing project name.
         if similar_project_name := self.db.scalars(
             select(Project.name).where(
                 func.ultranormalize_name(Project.name) == func.ultranormalize_name(name)
@@ -477,6 +482,38 @@ class ProjectService:
             raise ProjectNameUnavailableSimilarError(similar_project_name)
 
         return None
+
+    def check_namespaces(self, request, name: str) -> None:
+        # TODO: This query will (without the first) give us a list of _all_ of
+        #       the namespace reservations that match the desired project name,
+        #       but we filter it down to just the most specific grant.
+        #
+        #       This might be wrong? Rather than using the most specific grant
+        #       we might want to look at _all_ of the grants? Either using all()
+        #       semantics or any() semantics.
+        if ns := self.db.scalars(
+            select(Namespace)
+            .where(
+                (
+                    (Namespace.normalized_name == func.normalize_pep426_name(name))
+                    | func.starts_with(
+                        func.normalize_pep426_name(name),
+                        func.concat(Namespace.normalized_name, "-"),
+                    )
+                )
+                & (Namespace.is_approved == True)  # noqa E712
+            )
+            .order_by(func.length(Namespace.normalized_name).desc())
+        ).first():
+            # If we've found a namespace that matches this, so we'll check to
+            # see if we're allowed to upload to this namespace.
+            if not request.has_permission(Permissions.NamespaceProjectsAdd, ns):
+                raise HTTPForbidden(
+                    (
+                        "The name {name!r} conflicts with a registered namespace which "
+                        "you do not have permission for."
+                    ).format(name=name)
+                )
 
     def create_project(
         self, name, creator, request, *, creator_is_owner=True, ratelimited=True
@@ -542,6 +579,10 @@ class ProjectService:
                     projecthelp=request.help_url(_anchor="project-name"),
                 ),
             ) from None
+
+        # The name is otherwise valid, but we need to check if the name is part
+        # of a namespace.
+        self.check_namespaces(request, name)
 
         # The project name is valid: create it and add it
         project = Project(name=name)

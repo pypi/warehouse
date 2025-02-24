@@ -13,7 +13,7 @@
 import pretend
 import pytest
 
-from pyramid.authorization import Allow
+from pyramid.authorization import Allow, Authenticated
 from pyramid.httpexceptions import HTTPPermanentRedirect
 from pyramid.location import lineage
 
@@ -25,6 +25,7 @@ from warehouse.organizations.models import (
 )
 
 from ...common.db.organizations import (
+    NamespaceFactory as DBNamespaceFactory,
     OrganizationFactory as DBOrganizationFactory,
     OrganizationNameCatalogFactory as DBOrganizationNameCatalogFactory,
     OrganizationRoleFactory as DBOrganizationRoleFactory,
@@ -138,6 +139,7 @@ class TestOrganization:
                         Permissions.OrganizationsBillingManage,
                         Permissions.OrganizationProjectsAdd,
                         Permissions.OrganizationProjectsRemove,
+                        Permissions.OrganizationNamespaceManage,
                     ],
                 ),
                 (
@@ -151,6 +153,7 @@ class TestOrganization:
                         Permissions.OrganizationsBillingManage,
                         Permissions.OrganizationProjectsAdd,
                         Permissions.OrganizationProjectsRemove,
+                        Permissions.OrganizationNamespaceManage,
                     ],
                 ),
             ],
@@ -187,6 +190,7 @@ class TestOrganization:
                         Permissions.OrganizationTeamsRead,
                         Permissions.OrganizationTeamsManage,
                         Permissions.OrganizationProjectsAdd,
+                        Permissions.OrganizationNamespaceManage,
                     ],
                 ),
                 (
@@ -197,6 +201,7 @@ class TestOrganization:
                         Permissions.OrganizationTeamsRead,
                         Permissions.OrganizationTeamsManage,
                         Permissions.OrganizationProjectsAdd,
+                        Permissions.OrganizationNamespaceManage,
                     ],
                 ),
             ],
@@ -355,6 +360,7 @@ class TestTeam:
                         Permissions.OrganizationsBillingManage,
                         Permissions.OrganizationProjectsAdd,
                         Permissions.OrganizationProjectsRemove,
+                        Permissions.OrganizationNamespaceManage,
                     ],
                 ),
                 (
@@ -368,6 +374,7 @@ class TestTeam:
                         Permissions.OrganizationsBillingManage,
                         Permissions.OrganizationProjectsAdd,
                         Permissions.OrganizationProjectsRemove,
+                        Permissions.OrganizationNamespaceManage,
                     ],
                 ),
             ],
@@ -404,6 +411,7 @@ class TestTeam:
                         Permissions.OrganizationTeamsRead,
                         Permissions.OrganizationTeamsManage,
                         Permissions.OrganizationProjectsAdd,
+                        Permissions.OrganizationNamespaceManage,
                     ],
                 ),
                 (
@@ -414,6 +422,7 @@ class TestTeam:
                         Permissions.OrganizationTeamsRead,
                         Permissions.OrganizationTeamsManage,
                         Permissions.OrganizationProjectsAdd,
+                        Permissions.OrganizationNamespaceManage,
                     ],
                 ),
             ],
@@ -491,3 +500,123 @@ class TestTeam:
         )
         assert organization.active_subscription is None
         assert organization.manageable_subscription is None
+
+
+class TestNamespace:
+    def test_acl(self, db_session):
+        organization = DBOrganizationFactory.create()
+        namespace = DBNamespaceFactory.create(owner=organization)
+        owner1 = DBOrganizationRoleFactory.create(organization=organization)
+        owner2 = DBOrganizationRoleFactory.create(organization=organization)
+        DBOrganizationRoleFactory.create(
+            organization=organization, role_name=OrganizationRoleType.BillingManager
+        )
+        DBOrganizationRoleFactory.create(
+            organization=organization, role_name=OrganizationRoleType.BillingManager
+        )
+        account_mgr1 = DBOrganizationRoleFactory.create(
+            organization=organization, role_name=OrganizationRoleType.Manager
+        )
+        account_mgr2 = DBOrganizationRoleFactory.create(
+            organization=organization, role_name=OrganizationRoleType.Manager
+        )
+        DBOrganizationRoleFactory.create(
+            organization=organization, role_name=OrganizationRoleType.Member
+        )
+        DBOrganizationRoleFactory.create(
+            organization=organization, role_name=OrganizationRoleType.Member
+        )
+
+        acls = []
+        for location in lineage(namespace):
+            try:
+                acl = location.__acl__
+            except AttributeError:
+                continue
+
+            if acl and callable(acl):
+                acl = acl()
+
+            acls.extend(acl)
+
+        assert acls == sorted(
+            [
+                (Allow, f"user:{owner1.user.id}", [Permissions.NamespaceProjectsAdd]),
+                (Allow, f"user:{owner2.user.id}", [Permissions.NamespaceProjectsAdd]),
+            ],
+            key=lambda x: x[1],
+        ) + sorted(
+            [
+                (
+                    Allow,
+                    f"user:{account_mgr1.user.id}",
+                    [Permissions.NamespaceProjectsAdd],
+                ),
+                (
+                    Allow,
+                    f"user:{account_mgr2.user.id}",
+                    [Permissions.NamespaceProjectsAdd],
+                ),
+            ],
+            key=lambda x: x[1],
+        )
+
+    def test_acl_open(self, db_session):
+        organization = DBOrganizationFactory.create()
+        namespace = DBNamespaceFactory.create(owner=organization, is_open=True)
+        owner1 = DBOrganizationRoleFactory.create(organization=organization)
+        owner2 = DBOrganizationRoleFactory.create(organization=organization)
+        DBOrganizationRoleFactory.create(
+            organization=organization, role_name=OrganizationRoleType.BillingManager
+        )
+        DBOrganizationRoleFactory.create(
+            organization=organization, role_name=OrganizationRoleType.BillingManager
+        )
+        account_mgr1 = DBOrganizationRoleFactory.create(
+            organization=organization, role_name=OrganizationRoleType.Manager
+        )
+        account_mgr2 = DBOrganizationRoleFactory.create(
+            organization=organization, role_name=OrganizationRoleType.Manager
+        )
+        DBOrganizationRoleFactory.create(
+            organization=organization, role_name=OrganizationRoleType.Member
+        )
+        DBOrganizationRoleFactory.create(
+            organization=organization, role_name=OrganizationRoleType.Member
+        )
+
+        acls = []
+        for location in lineage(namespace):
+            try:
+                acl = location.__acl__
+            except AttributeError:
+                continue
+
+            if acl and callable(acl):
+                acl = acl()
+
+            acls.extend(acl)
+
+        assert acls == sorted(
+            [
+                (Allow, f"user:{owner1.user.id}", [Permissions.NamespaceProjectsAdd]),
+                (Allow, f"user:{owner2.user.id}", [Permissions.NamespaceProjectsAdd]),
+            ],
+            key=lambda x: x[1],
+        ) + sorted(
+            [
+                (
+                    Allow,
+                    f"user:{account_mgr1.user.id}",
+                    [Permissions.NamespaceProjectsAdd],
+                ),
+                (
+                    Allow,
+                    f"user:{account_mgr2.user.id}",
+                    [Permissions.NamespaceProjectsAdd],
+                ),
+            ],
+            key=lambda x: x[1],
+        ) + [
+            (Allow, Authenticated, [Permissions.NamespaceProjectsAdd])
+        ]

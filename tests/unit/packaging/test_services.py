@@ -20,6 +20,7 @@ import botocore.exceptions
 import pretend
 import pytest
 
+from pyramid.httpexceptions import HTTPForbidden
 from zope.interface.verify import verifyClass
 
 import warehouse.packaging.services
@@ -51,7 +52,12 @@ from warehouse.packaging.services import (
     project_service_factory,
 )
 
-from ...common.db.packaging import ProhibitedProjectFactory, ProjectFactory
+from ...common.db.accounts import UserFactory
+from ...common.db.organizations import NamespaceFactory
+from ...common.db.packaging import (
+    ProhibitedProjectFactory,
+    ProjectFactory,
+)
 
 
 class TestLocalFileStorage:
@@ -1055,6 +1061,47 @@ class TestProjectService:
 
         # Should not raise any exception
         service.check_project_name("foo")
+
+    def test_check_namespaces_ok(self, db_session):
+        NamespaceFactory.create(name="foo")
+
+        request = pretend.stub()
+
+        service = ProjectService(session=db_session)
+        service.check_namespaces(request, "bar")
+        service.check_namespaces(request, "bar-foo")
+
+    def test_check_namespaces_no_permissions(
+        self, pyramid_config, db_request, db_session
+    ):
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user, permissive=False)
+
+        NamespaceFactory.create(name="foo")
+
+        service = ProjectService(session=db_session)
+        with pytest.raises(HTTPForbidden):
+            service.check_namespaces(db_request, "foo")
+        with pytest.raises(HTTPForbidden):
+            service.check_namespaces(db_request, "foo-bar")
+        with pytest.raises(HTTPForbidden):
+            service.check_namespaces(db_request, "foo.bar")
+        with pytest.raises(HTTPForbidden):
+            service.check_namespaces(db_request, "Foo-Bar")
+
+    def test_check_namespaces_with_permission(
+        self, pyramid_config, db_request, db_session
+    ):
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user, permissive=True)
+
+        NamespaceFactory.create(name="foo")
+
+        service = ProjectService(session=db_session)
+        service.check_namespaces(db_request, "foo")
+        service.check_namespaces(db_request, "foo-bar")
+        service.check_namespaces(db_request, "foo.bar")
+        service.check_namespaces(db_request, "Foo-Bar")
 
 
 def test_project_service_factory():

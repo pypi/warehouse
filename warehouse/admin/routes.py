@@ -50,6 +50,10 @@ def includeme(config):
         "/admin/organization_applications/{organization_application_id}/decline/",
         domain=warehouse,
     )
+    config.add_route("admin.namespace.list", "/admin/namespaces/", domain=warehouse)
+    config.add_route(
+        "admin.namespace.detail", "/admin/namespaces/{namespace_id}/", domain=warehouse
+    )
 
     # User related Admin pages
     config.add_route("admin.user.list", "/admin/users/", domain=warehouse)

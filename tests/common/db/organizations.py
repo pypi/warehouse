@@ -14,8 +14,10 @@ import datetime
 
 import factory
 import faker
+import packaging.utils
 
 from warehouse.organizations.models import (
+    Namespace,
     Organization,
     OrganizationApplication,
     OrganizationInvitation,
@@ -186,3 +188,18 @@ class TeamProjectRoleFactory(WarehouseFactory):
     role_name = TeamProjectRoleType.Owner
     project = factory.SubFactory(ProjectFactory)
     team = factory.SubFactory(TeamFactory)
+
+
+class NamespaceFactory(WarehouseFactory):
+    class Meta:
+        model = Namespace
+
+    is_approved = True
+    created = factory.Faker(
+        "date_time_between_dates", datetime_start=datetime.datetime(2008, 1, 1)
+    )
+    name = factory.Faker("pystr", max_chars=12)
+    normalized_name = factory.LazyAttribute(
+        lambda o: packaging.utils.canonicalize_name(o.name)
+    )
+    owner = factory.SubFactory(OrganizationFactory)

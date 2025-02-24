@@ -22,6 +22,11 @@ from warehouse.api import simple
 from warehouse.packaging.utils import API_VERSION, _valid_simple_detail_context
 
 from ...common.db.accounts import UserFactory
+from ...common.db.organizations import (
+    NamespaceFactory,
+    OrganizationFactory,
+    OrganizationProjectFactory,
+)
 from ...common.db.packaging import (
     AlternateRepositoryFactory,
     FileFactory,
@@ -221,6 +226,7 @@ class TestSimpleDetail:
             "files": [],
             "versions": [],
             "alternate-locations": [],
+            "namespace": None,
         }
         context = _update_context(context, content_type, renderer_override)
         assert simple.simple_detail(project, db_request) == context
@@ -253,6 +259,92 @@ class TestSimpleDetail:
             "files": [],
             "versions": [],
             "alternate-locations": sorted(al.url for al in als),
+            "namespace": None,
+        }
+        context = _update_context(context, content_type, renderer_override)
+        assert simple.simple_detail(project, db_request) == context
+
+        assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
+        assert db_request.response.content_type == content_type
+        _assert_has_cors_headers(db_request.response.headers)
+
+        if renderer_override is not None:
+            assert db_request.override_renderer == renderer_override
+
+    @pytest.mark.parametrize(
+        ("content_type", "renderer_override"),
+        CONTENT_TYPE_PARAMS,
+    )
+    def test_with_namespaces_authorized(
+        self, db_request, content_type, renderer_override
+    ):
+        db_request.accept = content_type
+        org = OrganizationFactory.create()
+        namespace = NamespaceFactory.create(owner=org)
+        project = ProjectFactory.create(name=f"{namespace.name}-foo")
+        OrganizationProjectFactory.create(organization=org, project=project)
+        db_request.matchdict["name"] = project.normalized_name
+        user = UserFactory.create()
+        je = JournalEntryFactory.create(name=project.name, submitted_by=user)
+        als = [
+            AlternateRepositoryFactory.create(project=project),
+            AlternateRepositoryFactory.create(project=project),
+        ]
+
+        context = {
+            "meta": {"_last-serial": je.id, "api-version": API_VERSION},
+            "name": project.normalized_name,
+            "files": [],
+            "versions": [],
+            "alternate-locations": sorted(al.url for al in als),
+            "namespace": {
+                "prefix": namespace.normalized_name,
+                "open": namespace.is_open,
+                "authorized": True,
+            },
+        }
+        context = _update_context(context, content_type, renderer_override)
+        assert simple.simple_detail(project, db_request) == context
+
+        assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
+        assert db_request.response.content_type == content_type
+        _assert_has_cors_headers(db_request.response.headers)
+
+        if renderer_override is not None:
+            assert db_request.override_renderer == renderer_override
+
+    @pytest.mark.parametrize(
+        ("content_type", "renderer_override"),
+        CONTENT_TYPE_PARAMS,
+    )
+    def test_with_namespaces_not_authorized(
+        self, db_request, content_type, renderer_override
+    ):
+        db_request.accept = content_type
+        org = OrganizationFactory.create()
+        namespace = NamespaceFactory.create(owner=org)
+        project = ProjectFactory.create(name=f"{namespace.name}-foo")
+        project2 = ProjectFactory.create(name=f"{namespace.name}-foo2")
+        OrganizationProjectFactory.create(organization=org, project=project2)
+        db_request.matchdict["name"] = project.normalized_name
+        user = UserFactory.create()
+        je = JournalEntryFactory.create(name=project.name, submitted_by=user)
+        als = [
+            AlternateRepositoryFactory.create(project=project),
+            AlternateRepositoryFactory.create(project=project),
+        ]
+
+        context = {
+            "meta": {"_last-serial": je.id, "api-version": API_VERSION},
+            "name": project.normalized_name,
+            "files": [],
+            "versions": [],
+            "alternate-locations": sorted(al.url for al in als),
+            "namespace": {
+                "prefix": namespace.normalized_name,
+                "open": namespace.is_open,
+                "authorized": False,
+            },
         }
         context = _update_context(context, content_type, renderer_override)
         assert simple.simple_detail(project, db_request) == context
@@ -305,6 +397,7 @@ class TestSimpleDetail:
                 for f in files
             ],
             "alternate-locations": [],
+            "namespace": None,
         }
         context = _update_context(context, content_type, renderer_override)
         assert simple.simple_detail(project, db_request) == context
@@ -357,6 +450,7 @@ class TestSimpleDetail:
                 for f in files
             ],
             "alternate-locations": [],
+            "namespace": None,
         }
         context = _update_context(context, content_type, renderer_override)
         assert simple.simple_detail(project, db_request) == context
@@ -454,6 +548,7 @@ class TestSimpleDetail:
                 for f in files
             ],
             "alternate-locations": [],
+            "namespace": None,
         }
         context = _update_context(context, content_type, renderer_override)
         assert simple.simple_detail(project, db_request) == context
@@ -486,6 +581,7 @@ class TestSimpleDetail:
             "files": [],
             "versions": [],
             "alternate-locations": [],
+            "namespace": None,
         }
         context = _update_context(context, content_type, renderer_override)
 
@@ -606,6 +702,7 @@ class TestSimpleDetail:
                 for f in files
             ],
             "alternate-locations": [],
+            "namespace": None,
         }
         context = _update_context(context, content_type, renderer_override)
 

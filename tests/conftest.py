@@ -59,7 +59,7 @@ from warehouse.oidc import services as oidc_services
 from warehouse.oidc.interfaces import IOIDCPublisherService
 from warehouse.oidc.utils import ACTIVESTATE_OIDC_ISSUER_URL, GITHUB_OIDC_ISSUER_URL
 from warehouse.organizations import services as organization_services
-from warehouse.organizations.interfaces import IOrganizationService
+from warehouse.organizations.interfaces import INamespaceService, IOrganizationService
 from warehouse.packaging import services as packaging_services
 from warehouse.packaging.interfaces import IProjectService
 from warehouse.subscriptions import services as subscription_services
@@ -153,6 +153,7 @@ def pyramid_services(
     email_service,
     metrics,
     organization_service,
+    namespace_service,
     subscription_service,
     token_service,
     user_service,
@@ -171,6 +172,7 @@ def pyramid_services(
     services.register_service(email_service, IEmailSender, None, name="")
     services.register_service(metrics, IMetricsService, None, name="")
     services.register_service(organization_service, IOrganizationService, None, name="")
+    services.register_service(namespace_service, INamespaceService, None, name="")
     services.register_service(subscription_service, ISubscriptionService, None, name="")
     services.register_service(token_service, ITokenService, None, name="password")
     services.register_service(token_service, ITokenService, None, name="email")
@@ -482,6 +484,11 @@ def macaroon_service(db_session):
 @pytest.fixture
 def organization_service(db_session):
     return organization_services.DatabaseOrganizationService(db_session)
+
+
+@pytest.fixture
+def namespace_service(db_session):
+    return organization_services.DatabaseNamespaceService(db_session)
 
 
 @pytest.fixture

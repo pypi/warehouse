@@ -1108,3 +1108,34 @@ class TestCreateTeamForm:
         # NOTE(jleightcap): testing with Regexp validators returns raw LazyString
         # objects in the error dict's values. Just assert on keys.
         assert list(form.errors.keys()) == errors
+
+
+class TestRequestOrganizationNamespaceForm:
+
+    @pytest.mark.parametrize(
+        ("name", "errors", "existing"),
+        [
+            ("", ["name"], False),
+            (" namespace ", ["name"], False),
+            (".namespace", ["name"], False),
+            ("namespace-", ["name"], False),
+            ("namespace", ["name"], True),
+            ("namespace", [], False),
+        ],
+    )
+    def test_validate(self, pyramid_request, name, errors, existing):
+        pyramid_request.POST = MultiDict({"name": name})
+        namespace_service = pretend.stub(
+            get_namespace=lambda name: pretend.stub() if existing else None,
+        )
+
+        form = forms.RequestOrganizationNamespaceForm(
+            pyramid_request.POST,
+            namespace_service=namespace_service,
+        )
+
+        assert form.namespace_service is namespace_service
+        assert not form.validate() if errors else form.validate(), str(form.errors)
+        # NOTE(jleightcap): testing with Regexp validators returns raw LazyString
+        # objects in the error dict's values. Just assert on keys.
+        assert list(form.errors.keys()) == errors
