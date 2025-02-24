@@ -1462,7 +1462,7 @@ def view_terms_of_service(request):
             request.registry.settings.get("terms.revision"),
             viewed=True,
         )
-    return HTTPSeeOther("https://policies.python.org/pypi.org/Terms-of-Service")
+    return HTTPSeeOther("https://policies.python.org/pypi.org/Terms-of-Service/")
 
 
 @view_config(

@@ -3355,7 +3355,7 @@ class TestViewTermsOfService:
         assert isinstance(result, HTTPSeeOther)
         assert (
             result.headers["Location"]
-            == "https://policies.python.org/pypi.org/Terms-of-Service"
+            == "https://policies.python.org/pypi.org/Terms-of-Service/"
         )
         assert user_service.record_tos_engagement.calls == []
 
@@ -3372,7 +3372,7 @@ class TestViewTermsOfService:
         assert isinstance(result, HTTPSeeOther)
         assert (
             result.headers["Location"]
-            == "https://policies.python.org/pypi.org/Terms-of-Service"
+            == "https://policies.python.org/pypi.org/Terms-of-Service/"
         )
         assert user_service.record_tos_engagement.calls == [
             pretend.call("user-id", "the-revision", viewed=True)

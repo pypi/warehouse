@@ -20,7 +20,7 @@ Hello {{ user.username }},
 We're reaching out to inform you that we are rolling out an updated Terms of Service.
 
 Our new Terms of Service document at https://policies.python.org/pypi.org/Terms-of-Service/
-supercedes the Terms of Use at https://policies.python.org/pypi.org/Terms-of-Use/
+supersedes the Terms of Use at https://policies.python.org/pypi.org/Terms-of-Use/
 that you agreed to when initially registering for, or by your continued use of PyPI.
 
 The primary reason for this updated document is to formalize our relationship with
@@ -31,6 +31,6 @@ You may notice a banner on your next login reminding you of these updated terms,
 These terms will take effect for your account on March 26, 2025 and your continued use of PyPI
 after that date constitutes agreement to these new terms.
 
-You can read more on our blog at https://blog.pypi.org/posts/YYYY-MM-DD-terms-of-service/.
+You can read more on our blog at https://blog.pypi.org/posts/2025-02-24-terms-of-service/.
 
 {% endblock %}
