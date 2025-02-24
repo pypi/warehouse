@@ -642,7 +642,10 @@ class DatabaseUserService:
             UserTermsOfServiceEngagement.revision == revision,
         )
 
-        first_engagement_all = (
+        # Find all instances of an engagement with the Terms of Service more than 30
+        # days ago. If we find any, the ToS are already in effect for the user by
+        # default so they do not need to be flashed.
+        engagements_30_days_before_tos_active = (
             query.filter(
                 UserTermsOfServiceEngagement.created
                 < datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=30)
@@ -652,18 +655,18 @@ class DatabaseUserService:
             )
             .first()
         )
-        if first_engagement_all is not None:
+        if engagements_30_days_before_tos_active is not None:
             return False
 
-        engagements = [
-            TermsOfServiceEngagement.Viewed,
-            TermsOfServiceEngagement.Agreed,
-        ]
-
-        first_engagement = query.filter(
-            UserTermsOfServiceEngagement.engagement.in_(engagements)
+        # Find any active engagements with the Terms of Service. If the user has
+        # actively engaged with the updated Terms of Service we skip flashing the
+        # update banner.
+        active_engagements = query.filter(
+            UserTermsOfServiceEngagement.engagement.in_(
+                [TermsOfServiceEngagement.Viewed, TermsOfServiceEngagement.Agreed]
+            )
         ).first()
-        if first_engagement is None:
+        if active_engagements is None:
             return True
 
         return False
