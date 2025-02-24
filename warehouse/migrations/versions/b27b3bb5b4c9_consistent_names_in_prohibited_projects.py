@@ -24,20 +24,26 @@ down_revision = "6cac7b706953"
 
 
 def upgrade():
-    op.execute("""
+    op.execute(
+        """
         ALTER TABLE prohibited_project_names
         RENAME CONSTRAINT blacklist_name_key TO prohibited_project_names_name_key
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         ALTER TABLE prohibited_project_names
         RENAME CONSTRAINT blacklist_pkey TO prohibited_project_names_pkey
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         ALTER TABLE prohibited_project_names
         RENAME CONSTRAINT blacklist_blacklisted_by_fkey TO prohibited_project_names_prohibited_by_fkey
-    """)
+    """
+    )
 
     op.execute(
         """ CREATE OR REPLACE FUNCTION ensure_normalized_prohibited_name()
@@ -50,48 +56,59 @@ def upgrade():
         """
     )
 
-    op.execute("""
+    op.execute(
+        """
         DROP TRIGGER normalize_blacklist ON prohibited_project_names
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TRIGGER normalize_prohibited_project_name
         BEFORE INSERT OR UPDATE ON prohibited_project_names
         FOR EACH ROW EXECUTE FUNCTION public.ensure_normalized_prohibited_name()
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         DROP FUNCTION IF EXISTS public.ensure_normalized_blacklist()
-    """)
+    """
+    )
 
 
 def downgrade():
-    # Rename constraints back
-    op.execute("""
+    op.execute(
+        """
         ALTER TABLE prohibited_project_names
         RENAME CONSTRAINT prohibited_project_names_name_key TO blacklist_name_key
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         ALTER TABLE prohibited_project_names
         RENAME CONSTRAINT prohibited_project_names_pkey TO blacklist_pkey
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         ALTER TABLE prohibited_project_names
         RENAME CONSTRAINT prohibited_project_names_prohibited_by_fkey TO blacklist_blacklisted_by_fkey
-    """)
+    """
+    )
 
-    # Drop new trigger
-    op.execute("""
+    op.execute(
+        """
         DROP TRIGGER normalize_prohibited_project_name ON prohibited_project_names
-    """)
+    """
+    )
 
-    # Recreate original trigger using the existing function
-    op.execute("""
+    op.execute(
+        """
         CREATE TRIGGER normalize_blacklist
         BEFORE INSERT OR UPDATE ON prohibited_project_names
         FOR EACH ROW EXECUTE FUNCTION public.ensure_normalized_blacklist()
-    """)
-
-    # Note: We're keeping both functions to avoid breaking anything
+    """
+    )
