@@ -41,7 +41,8 @@ def upgrade():
     op.execute(
         """
         ALTER TABLE prohibited_project_names
-        RENAME CONSTRAINT blacklist_blacklisted_by_fkey TO prohibited_project_names_prohibited_by_fkey
+        RENAME CONSTRAINT blacklist_blacklisted_by_fkey
+        TO prohibited_project_names_prohibited_by_fkey
     """
     )
 
@@ -95,7 +96,8 @@ def downgrade():
     op.execute(
         """
         ALTER TABLE prohibited_project_names
-        RENAME CONSTRAINT prohibited_project_names_prohibited_by_fkey TO blacklist_blacklisted_by_fkey
+        RENAME CONSTRAINT prohibited_project_names_prohibited_by_fkey
+        TO blacklist_blacklisted_by_fkey
     """
     )
 
