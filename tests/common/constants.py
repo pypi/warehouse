@@ -15,13 +15,13 @@
 REMOTE_ADDR = "1.2.3.4"
 
 """
-Static output of `hashlib.sha256(remote_addr.encode("utf8")).hexdigest()`
+Static output of `hashlib.sha256(REMOTE_ADDR.encode("utf8")).hexdigest()`
 Created statically to prevent needing to calculate it every run.
 """
 REMOTE_ADDR_HASHED = "6694f83c9f476da31f5df6bcc520034e7e57d421d247b9d34f49edbfc84a764c"
 
 """
-Output of `hashlib.sha256((remote_addr + "pepa").encode("utf8")).hexdigest()`
+Output of `hashlib.sha256((REMOTE_ADDR + "pepa").encode("utf8")).hexdigest()`
 """
 REMOTE_ADDR_SALTED = "a69a49383d81404e4b1df297c7baa28e1cd6c4ee1495ed5d0ab165a63a147763"
 
