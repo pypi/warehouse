@@ -640,14 +640,6 @@ class DatabaseUserService:
             UserTermsOfServiceEngagement.user_id == user_id,
             UserTermsOfServiceEngagement.revision == revision,
         )
-        engagements = [
-            TermsOfServiceEngagement.Viewed,
-            TermsOfServiceEngagement.Agreed,
-        ]
-        if not ignore_flashed:
-            engagements.append(TermsOfServiceEngagement.Flashed)
-        if not ignore_notified:
-            engagements.append(TermsOfServiceEngagement.Notified)
 
         first_engagement_all = (
             query.filter(
@@ -661,6 +653,15 @@ class DatabaseUserService:
         )
         if first_engagement_all is not None:
             return False
+
+        engagements = [
+            TermsOfServiceEngagement.Viewed,
+            TermsOfServiceEngagement.Agreed,
+        ]
+        if not ignore_flashed:
+            engagements.append(TermsOfServiceEngagement.Flashed)
+        if not ignore_notified:
+            engagements.append(TermsOfServiceEngagement.Notified)
 
         first_engagement = query.filter(
             UserTermsOfServiceEngagement.engagement.in_(engagements)
