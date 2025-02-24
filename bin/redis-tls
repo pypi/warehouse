@@ -16,4 +16,10 @@ unset REDIS_PORT
 
 # Ensure all clients have a 5-second timeout.
 # Configure the TLS settings for our Redis connection
+# When adding parameters such as socket_timeout,
+# you may need to update the broker url parsing in
+# warehouse/tasks.py to apply them to celery_transport_options
+# See https://docs.celeryq.dev/projects/kombu/en/stable/_modules/kombu/connection.html#Connection
+# and https://docs.celeryq.dev/projects/kombu/en/stable/reference/kombu.transport.redis.html#transport-options
+# for available/allowed arguments/mappings
 REDIS_URL="$REDIS_URL?socket_timeout=5&ssl_cert_reqs=required&ssl_ca_certs=$(python -m certifi)"
