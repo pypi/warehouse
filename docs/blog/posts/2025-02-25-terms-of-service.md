@@ -3,7 +3,7 @@ title: Introducing our new Terms of Service
 description: PyPI is formalizing our policies to help us move forward with new services.
 authors:
   - ewdurbin
-date: 2025-02-24
+date: 2025-02-25
 tags:
   - policies
   - transparency
@@ -48,7 +48,7 @@ and the PSF are protected.
 
 You will notice a banner on login reminding you of these updated terms,
 as well as an email notification to your primary email address if it has been verified.
-These terms will take effect for existing users March 26, 2025 and
+These terms will take effect for existing users March 27, 2025 and
 your continued use of PyPI after that date constitutes agreement to these new terms.
 
 [^1]: 
