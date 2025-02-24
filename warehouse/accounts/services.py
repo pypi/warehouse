@@ -633,9 +633,10 @@ class DatabaseUserService:
         user = self.get_user(user_id)
         return user.password_date.timestamp() if user.password_date is not None else 0
 
-    def needs_tos_update(
-        self, user_id, revision, ignore_flashed=False, ignore_notified=False
-    ):
+    def needs_tos_flash(self, user_id, revision):
+        """
+        Check if we need to flash a ToS update to user on login.
+        """
         query = self.db.query(UserTermsOfServiceEngagement).filter(
             UserTermsOfServiceEngagement.user_id == user_id,
             UserTermsOfServiceEngagement.revision == revision,
@@ -658,10 +659,6 @@ class DatabaseUserService:
             TermsOfServiceEngagement.Viewed,
             TermsOfServiceEngagement.Agreed,
         ]
-        if not ignore_flashed:
-            engagements.append(TermsOfServiceEngagement.Flashed)
-        if not ignore_notified:
-            engagements.append(TermsOfServiceEngagement.Notified)
 
         first_engagement = query.filter(
             UserTermsOfServiceEngagement.engagement.in_(engagements)

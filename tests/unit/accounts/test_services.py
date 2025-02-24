@@ -1056,49 +1056,35 @@ class TestDatabaseUserService:
 
         assert user_service.get_password_timestamp(user.id) == 0
 
-    def test_needs_tos_update_no_engagements(self, user_service):
+    def test_needs_tos_flash_no_engagements(self, user_service):
         user = UserFactory.create()
-        assert user_service.needs_tos_update(user.id, "initial") is True
+        assert user_service.needs_tos_flash(user.id, "initial") is True
 
-    def test_needs_tos_update_ignores_notified(self, user_service):
+    def test_needs_tos_flash_with_passive_engagements(self, user_service):
         user = UserFactory.create()
+        assert user_service.needs_tos_flash(user.id, "initial") is True
+
         user_service.record_tos_engagement(user.id, "initial", notified=True)
-        assert user_service.needs_tos_update(user.id, "initial") is False
-        assert (
-            user_service.needs_tos_update(user.id, "initial", ignore_notified=True)
-            is True
-        )
+        assert user_service.needs_tos_flash(user.id, "initial") is True
 
-    def test_needs_tos_update_ignores_flashed(self, user_service):
-        user = UserFactory.create()
         user_service.record_tos_engagement(user.id, "initial", flashed=True)
-        assert user_service.needs_tos_update(user.id, "initial") is False
-        assert (
-            user_service.needs_tos_update(user.id, "initial", ignore_flashed=True)
-            is True
-        )
+        assert user_service.needs_tos_flash(user.id, "initial") is True
 
-    def test_needs_tos_update_ignores_notified_and_flashed(self, user_service):
+    def test_needs_tos_flash_with_viewed_engagement(self, user_service):
         user = UserFactory.create()
-        user_service.record_tos_engagement(user.id, "initial", notified=True)
-        user_service.record_tos_engagement(user.id, "initial", flashed=True)
-        assert user_service.needs_tos_update(user.id, "initial") is False
-        assert (
-            user_service.needs_tos_update(user.id, "initial", ignore_notified=True)
-            is False
-        )
-        assert (
-            user_service.needs_tos_update(user.id, "initial", ignore_flashed=True)
-            is False
-        )
-        assert (
-            user_service.needs_tos_update(
-                user.id, "initial", ignore_flashed=True, ignore_notified=True
-            )
-            is True
-        )
+        assert user_service.needs_tos_flash(user.id, "initial") is True
 
-    def test_needs_tos_update_if_engaged_more_than_30_days_ago(self, user_service):
+        user_service.record_tos_engagement(user.id, "initial", viewed=True)
+        assert user_service.needs_tos_flash(user.id, "initial") is False
+
+    def test_needs_tos_flash_with_agreed_engagement(self, user_service):
+        user = UserFactory.create()
+        assert user_service.needs_tos_flash(user.id, "initial") is True
+
+        user_service.record_tos_engagement(user.id, "initial", agreed=True)
+        assert user_service.needs_tos_flash(user.id, "initial") is False
+
+    def test_needs_tos_flash_if_engaged_more_than_30_days_ago(self, user_service):
         user = UserFactory.create()
         UserTermsOfServiceEngagementFactory.create(
             user=user,
@@ -1107,11 +1093,7 @@ class TestDatabaseUserService:
             ),
             engagement="notified",
         )
-        assert user_service.needs_tos_update(user.id, "initial") is False
-        assert (
-            user_service.needs_tos_update(user.id, "initial", ignore_notified=True)
-            is False
-        )
+        assert user_service.needs_tos_flash(user.id, "initial") is False
 
     def test_record_tos_engagement_no_valid_kwargs(self, user_service):
         user = UserFactory.create()

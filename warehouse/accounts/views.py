@@ -1427,11 +1427,9 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     )
 
     # Check if we need to notify the user of an updated Terms of Service
-    if user_service.needs_tos_update(
+    if user_service.needs_tos_flash(
         userid,
         request.registry.settings.get("terms.revision"),
-        ignore_flashed=True,
-        ignore_notified=True,
     ):
         request.session.flash(
             request._(

@@ -354,7 +354,7 @@ class TestLogin:
             get_user=pretend.call_recorder(lambda userid: user),
             has_two_factor=lambda userid: False,
             get_password_timestamp=lambda userid: 0,
-            needs_tos_update=lambda userid, revision, **kw: False,
+            needs_tos_flash=lambda userid, revision: False,
         )
         breach_service = pretend.stub(check_password=lambda password, tags=None: False)
 
@@ -443,7 +443,7 @@ class TestLogin:
             update_user=lambda *a, **k: None,
             has_two_factor=lambda userid: False,
             get_password_timestamp=lambda userid: 0,
-            needs_tos_update=lambda userid, revision, **kw: True,
+            needs_tos_flash=lambda userid, revision: True,
             record_tos_engagement=pretend.call_recorder(
                 lambda userid, revision, **kw: None
             ),
@@ -513,7 +513,7 @@ class TestLogin:
             update_user=lambda *a, **k: None,
             has_two_factor=lambda userid: False,
             get_password_timestamp=lambda userid: 0,
-            needs_tos_update=lambda userid, revision, **kw: False,
+            needs_tos_flash=lambda userid, revision: False,
         )
         breach_service = pretend.stub(check_password=lambda password, tags=None: False)
 
@@ -898,7 +898,7 @@ class TestTwoFactor:
             has_recovery_codes=lambda userid: has_recovery_codes,
             check_totp_value=lambda userid, totp_value: True,
             get_password_timestamp=lambda userid: 0,
-            needs_tos_update=lambda userid, revision, **kw: False,
+            needs_tos_flash=lambda userid, revision: False,
         )
 
         new_session = {}
@@ -1461,7 +1461,7 @@ class TestRecoveryCode:
             has_recovery_codes=lambda userid: True,
             check_recovery_code=lambda userid, recovery_code_value: True,
             get_password_timestamp=lambda userid: 0,
-            needs_tos_update=lambda userid, revision, **kw: False,
+            needs_tos_flash=lambda userid, revision: False,
         )
 
         new_session = {}
@@ -1740,7 +1740,7 @@ class TestRegister:
                     add_email=add_email,
                     check_password=lambda pw, tags=None: False,
                     get_password_timestamp=lambda uid: 0,
-                    needs_tos_update=(lambda userid, revision, **kw: False),
+                    needs_tos_flash=(lambda userid, revision: False),
                     record_tos_engagement=(lambda uid, revision, **kwargs: None),
                 ),
                 IPasswordBreachedService: pretend.stub(
