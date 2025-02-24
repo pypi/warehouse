@@ -644,11 +644,11 @@ class DatabaseUserService:
 
         first_engagement_all = (
             query.filter(
-                UserTermsOfServiceEngagement.datetime
+                UserTermsOfServiceEngagement.created
                 < datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=30)
             )
             .order_by(
-                UserTermsOfServiceEngagement.datetime,
+                UserTermsOfServiceEngagement.created,
             )
             .first()
         )
@@ -691,7 +691,7 @@ class DatabaseUserService:
             UserTermsOfServiceEngagement(
                 user_id=user_id,
                 revision=revision,
-                datetime=datetime.datetime.now(datetime.UTC),
+                created=datetime.datetime.now(datetime.UTC),
                 engagement=engagement[True],
             )
         )

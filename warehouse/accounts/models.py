@@ -354,7 +354,7 @@ class UserTermsOfServiceEngagement(db.Model):
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"),
     )
     revision: Mapped[str]
-    datetime: Mapped[datetime.datetime] = mapped_column(TZDateTime)
+    created: Mapped[datetime.datetime] = mapped_column(TZDateTime)
     engagement: Mapped[TermsOfServiceEngagement]
 
     user: Mapped[User] = orm.relationship(

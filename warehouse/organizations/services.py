@@ -559,7 +559,7 @@ class DatabaseOrganizationService:
             OrganizationTermsOfServiceEngagement(
                 organization_id=organization_id,
                 revision=revision,
-                datetime=datetime.datetime.now(datetime.UTC),
+                created=datetime.datetime.now(datetime.UTC),
                 engagement=engagement[True],
             )
         )

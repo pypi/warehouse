@@ -36,7 +36,7 @@ def upgrade():
         "organization_terms_of_service_engagements",
         sa.Column("organization_id", sa.UUID(), nullable=False),
         sa.Column("revision", sa.String(), nullable=False),
-        sa.Column("datetime", TZDateTime(), nullable=False),
+        sa.Column("created", TZDateTime(), nullable=False),
         sa.Column(
             "engagement",
             postgresql.ENUM(
@@ -70,7 +70,7 @@ def upgrade():
         "user_terms_of_service_engagements",
         sa.Column("user_id", sa.UUID(), nullable=False),
         sa.Column("revision", sa.String(), nullable=False),
-        sa.Column("datetime", TZDateTime(), nullable=False),
+        sa.Column("created", TZDateTime(), nullable=False),
         sa.Column(
             "engagement",
             postgresql.ENUM(

@@ -99,7 +99,7 @@ class UserTermsOfServiceEngagementFactory(WarehouseFactory):
 
     revision = "initial"
     engagement = "agreed"
-    datetime = factory.Faker(
+    created = factory.Faker(
         "date_time_between_dates",
         datetime_start=datetime.datetime(2025, 1, 1),
         datetime_end=datetime.datetime(2025, 2, 19),

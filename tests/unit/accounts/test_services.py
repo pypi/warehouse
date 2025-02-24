@@ -1088,7 +1088,7 @@ class TestDatabaseUserService:
         user = UserFactory.create()
         UserTermsOfServiceEngagementFactory.create(
             user=user,
-            datetime=(
+            created=(
                 datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=31)
             ),
             engagement="notified",
