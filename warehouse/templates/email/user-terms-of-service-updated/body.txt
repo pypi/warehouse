@@ -28,7 +28,7 @@ PyPI users, better establish the protections in place for PyPI and its users,
 and to enable us to move forward with new features and services.
 
 You may notice a banner on your next login reminding you of these updated terms,
-These terms will take effect TBD and your continued use of PyPI
+These terms will take effect for your account on March 26, 2025 and your continued use of PyPI
 after that date constitutes agreement to these new terms.
 
 You can read more on our blog at https://blog.pypi.org/posts/YYYY-MM-DD-terms-of-service/.
