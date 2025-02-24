@@ -184,8 +184,9 @@ celery[sqs]==5.4.0 \
     # via
     #   -r requirements/main.in
     #   celery-redbeat
-celery-redbeat==2.2.0 \
-    --hash=sha256:71104729380d4eaefd91a9b7d270ba7851bfff9ad55a43ac8365acbb0c608b77
+celery-redbeat==2.3.2 \
+    --hash=sha256:7d6e41e4b807fafba5d88b98e3d3863f0df95ac3ed1692d70b134c079b936b8b \
+    --hash=sha256:9d61ab6e29f59d676621a846c778a347d5acad22e90fb4386343a4852d4f7ac3
     # via -r requirements/main.in
 certifi==2025.1.31 \
     --hash=sha256:3d5da6925056f6f18f119200434a4780a94263f10d1c21d032a6f6b2baa20651 \
