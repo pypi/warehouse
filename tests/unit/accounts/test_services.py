@@ -1088,9 +1088,7 @@ class TestDatabaseUserService:
         user = UserFactory.create()
         UserTermsOfServiceEngagementFactory.create(
             user=user,
-            created=(
-                datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=31)
-            ),
+            created=(datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=31)),
             engagement="notified",
         )
         assert user_service.needs_tos_flash(user.id, "initial") is False
