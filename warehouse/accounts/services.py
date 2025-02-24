@@ -677,6 +677,10 @@ class DatabaseUserService:
         viewed=False,
         agreed=False,
     ):
+        """
+        Add a record of end user being flashed about, notified of, viewing, or agreeing
+        to a terms of service change.
+        """
         if not any([flashed, notified, viewed, agreed]):
             raise ValueError(
                 "Must specify engagement type, [flashed, notified, viewed, agreed]"
