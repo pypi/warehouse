@@ -101,7 +101,24 @@ def test_includeme(monkeypatch, settings, expected_level):
                         "formatter": "structlog",
                     },
                 },
-                "loggers": {"datadog.dogstatsd": {"level": "ERROR"}},
+                "loggers": {
+                    "datadog.dogstatsd": {"level": "ERROR"},
+                    "gunicorn": {
+                        "propagate": False,
+                        "handlers": ["primary"],
+                        "level": expected_level,
+                    },
+                    "gunicorn.access": {
+                        "propagate": False,
+                        "handlers": ["primary"],
+                        "level": expected_level,
+                    },
+                    "gunicorn.server": {
+                        "propagate": False,
+                        "handlers": ["primary"],
+                        "level": expected_level,
+                    },
+                },
                 "root": {"level": expected_level, "handlers": ["primary"]},
             }
         )
