@@ -70,6 +70,3 @@ INSERT INTO provenance (file_id, provenance)
   FROM release_files
     WHERE release_id = (SELECT id FROM releases WHERE project_id = '4587cc12-e342-4880-9f61-ea4990fb81ea' AND version = '1.2.0')
     AND packagetype = 'bdist_wheel';
-
--- Create TOS "engagements" to keep from spamming logs with periodic task
-INSERT INTO user_terms_of_service_engagements (user_id, revision, datetime, engagement) SELECT id, 'initial', NOW(), 'notified' FROM users;
