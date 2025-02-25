@@ -15,9 +15,48 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy import func
 
 from warehouse import tasks
-from warehouse.accounts.models import Email, User
+from warehouse.accounts.models import (
+    Email,
+    TermsOfServiceEngagement,
+    User,
+    UserTermsOfServiceEngagement,
+)
+from warehouse.accounts.services import IUserService
+from warehouse.email import send_user_terms_of_service_updated
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.models import Release
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def notify_users_of_tos_update(request):
+    user_service = request.find_service(IUserService, context=None)
+    already_notified_subquery = (
+        request.db.query(UserTermsOfServiceEngagement.user_id)
+        .filter(
+            UserTermsOfServiceEngagement.revision
+            == request.registry.settings.get("terms.revision")
+        )
+        .filter(
+            UserTermsOfServiceEngagement.engagement.in_(
+                [TermsOfServiceEngagement.Notified, TermsOfServiceEngagement.Agreed]
+            )
+        )
+        .subquery()
+    )
+    users_to_notify = (
+        request.db.query(User)
+        .outerjoin(Email)
+        .filter(Email.verified == True, Email.primary == True)  # noqa E711
+        .filter(User.id.not_in(already_notified_subquery))
+        .limit(request.registry.settings.get("terms.notification_batch_size"))
+    )
+    for user in users_to_notify:
+        send_user_terms_of_service_updated(request, user)
+        user_service.record_tos_engagement(
+            user.id,
+            request.registry.settings.get("terms.revision"),
+            TermsOfServiceEngagement.Notified,
+        )
 
 
 @tasks.task(ignore_result=True, acks_late=True)

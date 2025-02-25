@@ -249,6 +249,16 @@ class IUserService(Interface):
         was most recently updated
         """
 
+    def record_tos_engagement(
+        user_id,
+        revision,
+        engagement,
+    ):
+        """
+        Add a record of end user being flashed about, notified of, viewing, or agreeing
+        to a terms of service change.
+        """
+
 
 class ITokenService(Interface):
     def dumps(data):
