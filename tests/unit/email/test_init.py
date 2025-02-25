@@ -24,6 +24,7 @@ from warehouse.accounts.interfaces import IUserService
 from warehouse.email.interfaces import IEmailSender
 from warehouse.email.services import EmailMessage
 
+from ...common.constants import REMOTE_ADDR
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.organizations import TeamFactory
 
@@ -66,11 +67,11 @@ def test_compute_recipient(user, address, expected):
 @pytest.mark.parametrize(
     ("unauthenticated_userid", "user", "remote_addr", "expected"),
     [
-        ("the_users_id", None, "1.2.3.4", False),
-        ("some_other_id", None, "1.2.3.4", True),
-        (None, pretend.stub(id="the_users_id"), "1.2.3.4", False),
-        (None, pretend.stub(id="some_other_id"), "1.2.3.4", True),
-        (None, None, "1.2.3.4", False),
+        ("the_users_id", None, REMOTE_ADDR, False),
+        ("some_other_id", None, REMOTE_ADDR, True),
+        (None, pretend.stub(id="the_users_id"), REMOTE_ADDR, False),
+        (None, pretend.stub(id="some_other_id"), REMOTE_ADDR, True),
+        (None, None, REMOTE_ADDR, False),
         (None, None, "127.0.0.1", True),
     ],
 )
