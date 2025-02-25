@@ -33,6 +33,7 @@ from warehouse.organizations.models import (
     Team,
     TeamProjectRole,
     TeamRole,
+    TermsOfServiceEngagement,
 )
 from warehouse.subscriptions.models import StripeSubscription
 
@@ -636,7 +637,7 @@ class TestDatabaseOrganizationService:
             .count()
         )
 
-    def test_record_tos_engagement_no_valid_kwarg(
+    def test_record_tos_engagement_invalid_engagement(
         self, organization_service, db_request
     ):
         organization = OrganizationFactory.create()
@@ -645,38 +646,32 @@ class TestDatabaseOrganizationService:
             organization_service.record_tos_engagement(
                 organization.id,
                 "initial",
+                None,
             )
 
-    def test_record_tos_engagement_agreed(self, organization_service, db_request):
+    @pytest.mark.parametrize(
+        "engagement",
+        [
+            TermsOfServiceEngagement.Flashed,
+            TermsOfServiceEngagement.Notified,
+            TermsOfServiceEngagement.Viewed,
+            TermsOfServiceEngagement.Agreed,
+        ],
+    )
+    def test_record_tos_engagement(self, organization_service, db_request, engagement):
         organization = OrganizationFactory.create()
         assert organization.terms_of_service_engagements == []
         organization_service.record_tos_engagement(
             organization.id,
             "initial",
-            agreed=True,
+            engagement=engagement,
         )
         assert (
             db_request.db.query(OrganizationTermsOfServiceEngagement)
             .filter(
                 OrganizationTermsOfServiceEngagement.organization_id == organization.id,
                 OrganizationTermsOfServiceEngagement.revision == "initial",
-                OrganizationTermsOfServiceEngagement.engagement == "agreed",
-            )
-            .count()
-        ) == 1
-
-    def test_record_tos_engagement_notified(self, organization_service, db_request):
-        organization = OrganizationFactory.create()
-        assert organization.terms_of_service_engagements == []
-        organization_service.record_tos_engagement(
-            organization.id, "initial", notified=True
-        )
-        assert (
-            db_request.db.query(OrganizationTermsOfServiceEngagement)
-            .filter(
-                OrganizationTermsOfServiceEngagement.organization_id == organization.id,
-                OrganizationTermsOfServiceEngagement.revision == "initial",
-                OrganizationTermsOfServiceEngagement.engagement == "notified",
+                OrganizationTermsOfServiceEngagement.engagement == engagement,
             )
             .count()
         ) == 1

@@ -53,7 +53,9 @@ def notify_users_of_tos_update(request):
     for user in users_to_notify:
         send_user_terms_of_service_updated(request, user)
         user_service.record_tos_engagement(
-            user.id, request.registry.settings.get("terms.revision"), notified=True
+            user.id,
+            request.registry.settings.get("terms.revision"),
+            TermsOfServiceEngagement.Notified,
         )
 
 

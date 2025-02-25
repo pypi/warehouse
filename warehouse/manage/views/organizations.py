@@ -68,6 +68,7 @@ from warehouse.organizations.models import (
     OrganizationRole,
     OrganizationRoleType,
     OrganizationType,
+    TermsOfServiceEngagement,
 )
 from warehouse.packaging import IProjectService, Project, Role
 from warehouse.packaging.models import JournalEntry, ProjectFactory
@@ -560,7 +561,7 @@ class ManageOrganizationBillingViews:
             self.organization_service.record_tos_engagement(
                 self.organization.id,
                 self.request.registry.settings.get("terms.revision"),
-                agreed=True,
+                TermsOfServiceEngagement.Agreed,
             )
             route = self.request.route_path(
                 "manage.organization.subscription",

@@ -45,6 +45,7 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
     TooManyPasswordResetRequests,
 )
+from warehouse.accounts.models import TermsOfServiceEngagement
 from warehouse.accounts.views import (
     REMEMBER_DEVICE_COOKIE,
     two_factor_and_totp_validate,
@@ -445,7 +446,7 @@ class TestLogin:
             get_password_timestamp=lambda userid: 0,
             needs_tos_flash=lambda userid, revision: True,
             record_tos_engagement=pretend.call_recorder(
-                lambda userid, revision, **kw: None
+                lambda userid, revision, engagement: None
             ),
         )
         breach_service = pretend.stub(check_password=lambda password, tags=None: False)
@@ -492,7 +493,7 @@ class TestLogin:
             )
         ]
         assert user_service.record_tos_engagement.calls == [
-            pretend.call(1, "the-revision", flashed=True)
+            pretend.call(1, "the-revision", TermsOfServiceEngagement.Flashed)
         ]
 
     @pytest.mark.parametrize(
@@ -1741,7 +1742,7 @@ class TestRegister:
                     check_password=lambda pw, tags=None: False,
                     get_password_timestamp=lambda uid: 0,
                     needs_tos_flash=(lambda userid, revision: False),
-                    record_tos_engagement=(lambda uid, revision, **kwargs: None),
+                    record_tos_engagement=(lambda uid, revision, engagement: None),
                 ),
                 IPasswordBreachedService: pretend.stub(
                     check_password=lambda pw, tags=None: False,
@@ -3375,7 +3376,7 @@ class TestViewTermsOfService:
             == "https://policies.python.org/pypi.org/Terms-of-Service/"
         )
         assert user_service.record_tos_engagement.calls == [
-            pretend.call("user-id", "the-revision", viewed=True)
+            pretend.call("user-id", "the-revision", TermsOfServiceEngagement.Viewed)
         ]
 
 

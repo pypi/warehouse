@@ -539,32 +539,21 @@ class DatabaseOrganizationService:
     def record_tos_engagement(
         self,
         organization_id,
-        revision,
-        flashed=False,
-        notified=False,
-        viewed=False,
-        agreed=False,
-    ):
+        revision: str,
+        engagement: TermsOfServiceEngagement,
+    ) -> None:
         """
         Add a record of end user being flashed about, notified of, viewing, or agreeing
         to a terms of service change on behalf of an organization.
         """
-        if not any([flashed, notified, viewed, agreed]):
-            raise ValueError(
-                "Must specify engagement type, [flashed, notified, viewed, agreed]"
-            )
-        engagement = {
-            flashed: TermsOfServiceEngagement.Flashed,
-            notified: TermsOfServiceEngagement.Notified,
-            viewed: TermsOfServiceEngagement.Viewed,
-            agreed: TermsOfServiceEngagement.Agreed,
-        }
+        if not isinstance(engagement, TermsOfServiceEngagement):
+            raise ValueError(f"{engagement} is not a TermsOfServiceEngagement")
         self.db.add(
             OrganizationTermsOfServiceEngagement(
                 organization_id=organization_id,
                 revision=revision,
                 created=datetime.datetime.now(datetime.UTC),
-                engagement=engagement[True],
+                engagement=engagement,
             )
         )
 

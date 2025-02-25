@@ -169,10 +169,7 @@ class IOrganizationService(Interface):
     def record_tos_engagement(
         organization_id,
         revision,
-        flashed=False,
-        notified=False,
-        viewed=False,
-        agreed=False,
+        engagement,
     ):
         """
         Add a record of end user agreeing to terms of service,

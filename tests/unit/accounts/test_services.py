@@ -45,6 +45,7 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.models import (
     DisableReason,
     ProhibitedUserName,
+    TermsOfServiceEngagement,
     UserTermsOfServiceEngagement,
 )
 from warehouse.events.tags import EventTag
@@ -1064,24 +1065,32 @@ class TestDatabaseUserService:
         user = UserFactory.create()
         assert user_service.needs_tos_flash(user.id, "initial") is True
 
-        user_service.record_tos_engagement(user.id, "initial", notified=True)
+        user_service.record_tos_engagement(
+            user.id, "initial", TermsOfServiceEngagement.Notified
+        )
         assert user_service.needs_tos_flash(user.id, "initial") is True
 
-        user_service.record_tos_engagement(user.id, "initial", flashed=True)
+        user_service.record_tos_engagement(
+            user.id, "initial", TermsOfServiceEngagement.Flashed
+        )
         assert user_service.needs_tos_flash(user.id, "initial") is True
 
     def test_needs_tos_flash_with_viewed_engagement(self, user_service):
         user = UserFactory.create()
         assert user_service.needs_tos_flash(user.id, "initial") is True
 
-        user_service.record_tos_engagement(user.id, "initial", viewed=True)
+        user_service.record_tos_engagement(
+            user.id, "initial", TermsOfServiceEngagement.Viewed
+        )
         assert user_service.needs_tos_flash(user.id, "initial") is False
 
     def test_needs_tos_flash_with_agreed_engagement(self, user_service):
         user = UserFactory.create()
         assert user_service.needs_tos_flash(user.id, "initial") is True
 
-        user_service.record_tos_engagement(user.id, "initial", agreed=True)
+        user_service.record_tos_engagement(
+            user.id, "initial", TermsOfServiceEngagement.Agreed
+        )
         assert user_service.needs_tos_flash(user.id, "initial") is False
 
     def test_needs_tos_flash_if_engaged_more_than_30_days_ago(self, user_service):
@@ -1089,61 +1098,43 @@ class TestDatabaseUserService:
         UserTermsOfServiceEngagementFactory.create(
             user=user,
             created=(datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=31)),
-            engagement="notified",
+            engagement=TermsOfServiceEngagement.Notified,
         )
         assert user_service.needs_tos_flash(user.id, "initial") is False
 
-    def test_record_tos_engagement_no_valid_kwargs(self, user_service):
+    def test_record_tos_engagement_invalid_engagement(self, user_service):
         user = UserFactory.create()
         assert user.terms_of_service_engagements == []
         with pytest.raises(ValueError):  # noqa: PT011
             user_service.record_tos_engagement(
                 user.id,
                 "initial",
+                None,
             )
 
-    def test_record_tos_engagement_agreed(self, user_service, db_request):
+    @pytest.mark.parametrize(
+        "engagement",
+        [
+            TermsOfServiceEngagement.Flashed,
+            TermsOfServiceEngagement.Notified,
+            TermsOfServiceEngagement.Viewed,
+            TermsOfServiceEngagement.Agreed,
+        ],
+    )
+    def test_record_tos_engagement(self, user_service, db_request, engagement):
         user = UserFactory.create()
         assert user.terms_of_service_engagements == []
         user_service.record_tos_engagement(
             user.id,
             "initial",
-            agreed=True,
+            engagement,
         )
         assert (
             db_request.db.query(UserTermsOfServiceEngagement)
             .filter(
                 UserTermsOfServiceEngagement.user_id == user.id,
                 UserTermsOfServiceEngagement.revision == "initial",
-                UserTermsOfServiceEngagement.engagement == "agreed",
-            )
-            .count()
-        ) == 1
-
-    def test_record_tos_engagement_viewed(self, user_service, db_request):
-        user = UserFactory.create()
-        assert user.terms_of_service_engagements == []
-        user_service.record_tos_engagement(user.id, "initial", viewed=True)
-        assert (
-            db_request.db.query(UserTermsOfServiceEngagement)
-            .filter(
-                UserTermsOfServiceEngagement.user_id == user.id,
-                UserTermsOfServiceEngagement.revision == "initial",
-                UserTermsOfServiceEngagement.engagement == "viewed",
-            )
-            .count()
-        ) == 1
-
-    def test_record_tos_engagement_notified(self, user_service, db_request):
-        user = UserFactory.create()
-        assert user.terms_of_service_engagements == []
-        user_service.record_tos_engagement(user.id, "initial", notified=True)
-        assert (
-            db_request.db.query(UserTermsOfServiceEngagement)
-            .filter(
-                UserTermsOfServiceEngagement.user_id == user.id,
-                UserTermsOfServiceEngagement.revision == "initial",
-                UserTermsOfServiceEngagement.engagement == "notified",
+                UserTermsOfServiceEngagement.engagement == engagement,
             )
             .count()
         ) == 1

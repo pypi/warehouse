@@ -16,6 +16,7 @@ import pretend
 import pytest
 
 from warehouse.accounts import tasks
+from warehouse.accounts.models import TermsOfServiceEngagement
 from warehouse.accounts.tasks import compute_user_metrics, notify_users_of_tos_update
 
 from ...common.db.accounts import EmailFactory, UserFactory
@@ -36,14 +37,15 @@ def test_notify_users_of_tos_update(db_request, user_service, monkeypatch):
     monkeypatch.setattr(tasks, "send_user_terms_of_service_updated", send_email)
 
     user_service.record_tos_engagement = pretend.call_recorder(
-        lambda user_id, revision, **kw: None
+        lambda user_id, revision, engagement: None
     )
 
     notify_users_of_tos_update(db_request)
 
     assert send_email.calls == [pretend.call(db_request, u) for u in users_to_notify]
     assert user_service.record_tos_engagement.calls == [
-        pretend.call(u.id, "initial", notified=True) for u in users_to_notify
+        pretend.call(u.id, "initial", TermsOfServiceEngagement.Notified)
+        for u in users_to_notify
     ]
 
 
@@ -61,7 +63,7 @@ def test_notify_users_of_tos_update_respects_batch_size(
     monkeypatch.setattr(tasks, "send_user_terms_of_service_updated", send_email)
 
     user_service.record_tos_engagement = pretend.call_recorder(
-        lambda user_id, revision, **kw: None
+        lambda user_id, revision, engagement: None
     )
 
     notify_users_of_tos_update(db_request)
@@ -72,9 +74,10 @@ def test_notify_users_of_tos_update_respects_batch_size(
     )
     assert (
         user_service.record_tos_engagement.calls
-        == [pretend.call(u.id, "initial", notified=True) for u in users_to_notify][
-            :batch_size
-        ]
+        == [
+            pretend.call(u.id, "initial", TermsOfServiceEngagement.Notified)
+            for u in users_to_notify
+        ][:batch_size]
     )
 
 
@@ -93,10 +96,12 @@ def test_notify_users_of_tos_update_does_not_renotify(
     send_email = pretend.call_recorder(lambda request, user: None)
     monkeypatch.setattr(tasks, "send_user_terms_of_service_updated", send_email)
 
-    user_service.record_tos_engagement(users_to_notify[-1].id, "initial", notified=True)
+    user_service.record_tos_engagement(
+        users_to_notify[-1].id, "initial", TermsOfServiceEngagement.Notified
+    )
 
     user_service.record_tos_engagement = pretend.call_recorder(
-        lambda user_id, revision, **kw: None
+        lambda user_id, revision, engagement: None
     )
 
     notify_users_of_tos_update(db_request)
@@ -105,7 +110,8 @@ def test_notify_users_of_tos_update_does_not_renotify(
         pretend.call(db_request, u) for u in users_to_notify[:-1]
     ]
     assert user_service.record_tos_engagement.calls == [
-        pretend.call(u.id, "initial", notified=True) for u in users_to_notify[:-1]
+        pretend.call(u.id, "initial", TermsOfServiceEngagement.Notified)
+        for u in users_to_notify[:-1]
     ]
 
 

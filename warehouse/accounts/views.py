@@ -59,7 +59,7 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
     TooManyPasswordResetRequests,
 )
-from warehouse.accounts.models import Email, User
+from warehouse.accounts.models import Email, TermsOfServiceEngagement, User
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.cache.origin import origin_cache
@@ -746,7 +746,7 @@ def register(request, _form_class=RegistrationForm):
         user_service.record_tos_engagement(
             user.id,
             request.registry.settings.get("terms.revision"),
-            agreed=True,
+            TermsOfServiceEngagement.Agreed,
         )
         email = user_service.add_email(user.id, form.email.data, primary=True)
         user.record_event(
@@ -1441,7 +1441,9 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
             safe=True,
         )
         user_service.record_tos_engagement(
-            userid, request.registry.settings.get("terms.revision"), flashed=True
+            userid,
+            request.registry.settings.get("terms.revision"),
+            TermsOfServiceEngagement.Flashed,
         )
 
     return headers
@@ -1458,7 +1460,7 @@ def view_terms_of_service(request):
         user_service.record_tos_engagement(
             request.user.id,
             request.registry.settings.get("terms.revision"),
-            viewed=True,
+            TermsOfServiceEngagement.Viewed,
         )
     return HTTPSeeOther("https://policies.python.org/pypi.org/Terms-of-Service/")
 
