@@ -19,6 +19,7 @@ from warehouse.packaging.interfaces import (
     ProjectNameUnavailableProhibitedError,
     ProjectNameUnavailableSimilarError,
     ProjectNameUnavailableStdlibError,
+    ProjectNameUnavailableTypoSquattingError,
 )
 from warehouse.utils.project import PROJECT_NAME_RE
 
@@ -84,6 +85,11 @@ class PendingPublisherMixin:
                     " standard library module name)"
                 )
             )
+        # TODO: Cover with testing and remove pragma
+        except ProjectNameUnavailableTypoSquattingError:  # pragma: no cover
+            # TODO: raise with an appropriate message when we're ready to implement
+            #  or combine with `ProjectNameUnavailableSimilarError`
+            pass
 
     @property
     def provider(self) -> str:  # pragma: no cover
