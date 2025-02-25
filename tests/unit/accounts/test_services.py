@@ -47,6 +47,7 @@ from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService, NullMetrics
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
+from ...common.constants import REMOTE_ADDR
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.ip_addresses import IpAddressFactory
 
@@ -55,14 +56,14 @@ class TestDatabaseUserService:
     def test_verify_service(self):
         assert verifyClass(IUserService, services.DatabaseUserService)
 
-    def test_service_creation(self, monkeypatch, remote_addr):
+    def test_service_creation(self, monkeypatch):
         crypt_context_obj = pretend.stub()
         crypt_context_cls = pretend.call_recorder(lambda **kwargs: crypt_context_obj)
         monkeypatch.setattr(services, "CryptContext", crypt_context_cls)
 
         session = pretend.stub()
         service = services.DatabaseUserService(
-            session, metrics=NullMetrics(), remote_addr=remote_addr
+            session, metrics=NullMetrics(), remote_addr=REMOTE_ADDR
         )
 
         assert service.db is session
@@ -84,7 +85,7 @@ class TestDatabaseUserService:
             )
         ]
 
-    def test_service_creation_ratelimiters(self, monkeypatch, remote_addr):
+    def test_service_creation_ratelimiters(self, monkeypatch):
         crypt_context_obj = pretend.stub()
         crypt_context_cls = pretend.call_recorder(lambda **kwargs: crypt_context_obj)
         monkeypatch.setattr(services, "CryptContext", crypt_context_cls)
@@ -95,7 +96,7 @@ class TestDatabaseUserService:
         service = services.DatabaseUserService(
             session,
             metrics=NullMetrics(),
-            remote_addr=remote_addr,
+            remote_addr=REMOTE_ADDR,
             ratelimiters=ratelimiters,
         )
 
@@ -119,7 +120,7 @@ class TestDatabaseUserService:
             )
         ]
 
-    def test_skips_ip_rate_limiter(self, user_service, metrics, remote_addr):
+    def test_skips_ip_rate_limiter(self, user_service, metrics):
         user = UserFactory.create()
         resets = pretend.stub()
         limiter = pretend.stub(
@@ -214,7 +215,7 @@ class TestDatabaseUserService:
             ),
         ]
 
-    def test_check_password_ip_rate_limited(self, user_service, metrics, remote_addr):
+    def test_check_password_ip_rate_limited(self, user_service, metrics):
         user = UserFactory.create()
         resets = pretend.stub()
         limiter = pretend.stub(
@@ -227,8 +228,8 @@ class TestDatabaseUserService:
             user_service.check_password(user.id, None)
 
         assert excinfo.value.resets_in is resets
-        assert limiter.test.calls == [pretend.call(remote_addr)]
-        assert limiter.resets_in.calls == [pretend.call(remote_addr)]
+        assert limiter.test.calls == [pretend.call(REMOTE_ADDR)]
+        assert limiter.resets_in.calls == [pretend.call(REMOTE_ADDR)]
         assert metrics.increment.calls == [
             pretend.call(
                 "warehouse.authentication.start", tags=["mechanism:check_password"]
@@ -382,7 +383,7 @@ class TestDatabaseUserService:
         assert not new_email2.primary
         assert not new_email2.verified
 
-    def test_add_email_rate_limited(self, user_service, metrics, remote_addr):
+    def test_add_email_rate_limited(self, user_service, metrics):
         resets = pretend.stub()
         limiter = pretend.stub(
             hit=pretend.call_recorder(lambda ip: None),
@@ -397,15 +398,15 @@ class TestDatabaseUserService:
             user_service.add_email(user.id, user.email)
 
         assert excinfo.value.resets_in is resets
-        assert limiter.test.calls == [pretend.call(remote_addr)]
-        assert limiter.resets_in.calls == [pretend.call(remote_addr)]
+        assert limiter.test.calls == [pretend.call(REMOTE_ADDR)]
+        assert limiter.resets_in.calls == [pretend.call(REMOTE_ADDR)]
         assert metrics.increment.calls == [
             pretend.call(
                 "warehouse.email.add.ratelimited", tags=["ratelimiter:email.add"]
             )
         ]
 
-    def test_add_email_bypass_ratelimit(self, user_service, metrics, remote_addr):
+    def test_add_email_bypass_ratelimit(self, user_service, metrics):
         resets = pretend.stub()
         limiter = pretend.stub(
             hit=pretend.call_recorder(lambda ip: None),
@@ -1128,7 +1129,7 @@ class TestTokenService:
         assert token_service.unsafe_load_payload(token) is None
 
 
-def test_database_login_factory(monkeypatch, pyramid_services, metrics, remote_addr):
+def test_database_login_factory(monkeypatch, pyramid_services, metrics):
     service_obj = pretend.stub()
     service_cls = pretend.call_recorder(lambda *a, **kw: service_obj)
     monkeypatch.setattr(services, "DatabaseUserService", service_cls)
@@ -1165,7 +1166,7 @@ def test_database_login_factory(monkeypatch, pyramid_services, metrics, remote_a
 
     context = pretend.stub()
     request = pretend.stub(
-        db=pretend.stub(), find_service=find_service, remote_addr=remote_addr
+        db=pretend.stub(), find_service=find_service, remote_addr=REMOTE_ADDR
     )
 
     assert services.database_login_factory(context, request) is service_obj
@@ -1173,7 +1174,7 @@ def test_database_login_factory(monkeypatch, pyramid_services, metrics, remote_a
         pretend.call(
             request.db,
             metrics=metrics,
-            remote_addr=remote_addr,
+            remote_addr=REMOTE_ADDR,
             ratelimiters={
                 "global.login": global_login_ratelimiter,
                 "user.login": user_login_ratelimiter,
