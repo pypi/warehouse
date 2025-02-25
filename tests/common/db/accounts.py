@@ -21,6 +21,7 @@ from warehouse.accounts.models import (
     Email,
     ProhibitedEmailDomain,
     ProhibitedUserName,
+    TermsOfServiceEngagement,
     User,
     UserTermsOfServiceEngagement,
 )
@@ -98,7 +99,7 @@ class UserTermsOfServiceEngagementFactory(WarehouseFactory):
         model = UserTermsOfServiceEngagement
 
     revision = "initial"
-    engagement = "agreed"
+    engagement = TermsOfServiceEngagement.Agreed
     created = factory.Faker(
         "date_time_between_dates",
         datetime_start=datetime.datetime(2025, 1, 1),
