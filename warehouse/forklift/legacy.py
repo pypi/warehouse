@@ -52,6 +52,7 @@ from warehouse.classifiers.models import Classifier
 from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
 from warehouse.email import (
     send_api_token_used_in_trusted_publisher_project_email,
+    send_pep427_name_email,
     send_pep625_extension_email,
     send_pep625_name_email,
     send_pep625_version_email,
@@ -1370,6 +1371,24 @@ def file_upload(request):
                     HTTPBadRequest,
                     f"Start filename for {project.name!r} with "
                     f"{canonical_name.replace('-', '_')!r}.",
+                )
+
+            # The parse_wheel_filename function does not enforce lowercasing,
+            # and also returns a normalized name, so we must get the original
+            # distribution name from the filename manually
+            name_from_filename, _ = filename.split("-", 1)
+
+            # PEP 427 / PEP 503: Enforcement of project name normalization.
+            # Filenames that do not start with the fully normalized project name
+            # will not be permitted.
+            # https://packaging.python.org/en/latest/specifications/binary-distribution-format/#escaping-and-unicode
+            if name_from_filename != name_from_filename.lower():
+                send_pep427_name_email(
+                    request,
+                    set(project.users),
+                    project_name=project.name,
+                    filename=filename,
+                    normalized_name=project.normalized_name.replace("-", "_"),
                 )
 
             if meta.version != version:
