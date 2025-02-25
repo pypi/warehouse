@@ -66,11 +66,11 @@ def test_compute_recipient(user, address, expected):
 @pytest.mark.parametrize(
     ("unauthenticated_userid", "user", "remote_addr", "expected"),
     [
-        ("the_users_id", None, "1.2.3.4", False),
-        ("some_other_id", None, "1.2.3.4", True),
-        (None, pretend.stub(id="the_users_id"), "1.2.3.4", False),
-        (None, pretend.stub(id="some_other_id"), "1.2.3.4", True),
-        (None, None, "1.2.3.4", False),
+        ("the_users_id", None, "192.0.2.1", False),
+        ("some_other_id", None, "192.0.2.1", True),
+        (None, pretend.stub(id="the_users_id"), "192.0.2.1", False),
+        (None, pretend.stub(id="some_other_id"), "192.0.2.1", True),
+        (None, None, "192.0.2.1", False),
         (None, None, "127.0.0.1", True),
     ],
 )
@@ -143,7 +143,7 @@ class TestSendEmailToUser:
         )
         pyramid_request.user = user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
-        pyramid_request.remote_addr = "10.69.10.69"
+        pyramid_request.remote_addr = "198.51.100.69"
 
         if address is not None:
             address = pretend.stub(email=address, verified=True)

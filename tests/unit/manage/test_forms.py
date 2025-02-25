@@ -394,9 +394,9 @@ class TestDeleteTOTPForm:
     Covers ConfirmPasswordForm
     """
 
-    def test_validate_confirm_password(self):
+    def test_validate_confirm_password(self, remote_addr):
         request = pretend.stub(
-            remote_addr="1.2.3.4", banned=pretend.stub(by_ip=lambda ip_address: False)
+            remote_addr=remote_addr, banned=pretend.stub(by_ip=lambda ip_address: False)
         )
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
@@ -750,7 +750,7 @@ class TestDeleteMacaroonForm:
         assert form.user_service is user_service
         assert form.validate(), str(form.errors)
 
-    def test_validate_macaroon_id_invalid(self):
+    def test_validate_macaroon_id_invalid(self, remote_addr):
         macaroon_service = pretend.stub(
             find_macaroon=pretend.call_recorder(lambda id: None)
         )
@@ -758,7 +758,7 @@ class TestDeleteMacaroonForm:
             find_userid=lambda *a, **kw: 1, check_password=lambda *a, **kw: True
         )
         request = pretend.stub(
-            remote_addr="1.2.3.4", banned=pretend.stub(by_ip=lambda ip_address: False)
+            remote_addr=remote_addr, banned=pretend.stub(by_ip=lambda ip_address: False)
         )
         form = forms.DeleteMacaroonForm(
             formdata=MultiDict({"macaroon_id": pretend.stub(), "password": "password"}),
@@ -771,7 +771,7 @@ class TestDeleteMacaroonForm:
         assert not form.validate()
         assert form.macaroon_id.errors.pop() == "No such macaroon"
 
-    def test_validate_macaroon_id(self):
+    def test_validate_macaroon_id(self, remote_addr):
         macaroon_service = pretend.stub(
             find_macaroon=pretend.call_recorder(lambda id: pretend.stub())
         )
@@ -779,7 +779,7 @@ class TestDeleteMacaroonForm:
             find_userid=lambda *a, **kw: 1, check_password=lambda *a, **kw: True
         )
         request = pretend.stub(
-            remote_addr="1.2.3.4", banned=pretend.stub(by_ip=lambda ip_address: False)
+            remote_addr=remote_addr, banned=pretend.stub(by_ip=lambda ip_address: False)
         )
         form = forms.DeleteMacaroonForm(
             formdata=MultiDict(
