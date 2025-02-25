@@ -13,14 +13,14 @@
 consistent names in prohibited projects
 
 Revision ID: b27b3bb5b4c9
-Revises: 6cac7b706953
+Revises: 2f5dbc74c770
 Create Date: 2025-02-24 19:31:38.064454
 """
 
 from alembic import op
 
 revision = "b27b3bb5b4c9"
-down_revision = "6cac7b706953"
+down_revision = "2f5dbc74c770"
 
 
 def upgrade():
