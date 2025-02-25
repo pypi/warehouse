@@ -21,7 +21,7 @@ In the future, PyPI will require all newly uploaded binary distribution filename
 
 Specifically, your recent upload of '{{ filename }}' is incompatible with the distribution format specification because it does not contain the normalized project name '{{ normalized_name }}'.
 
-In most cases, this can be resolved by upgrading the version of your build tooling to a later version that fully supports the specification and produces compliant filenames.
+In most cases, this can be resolved by upgrading the version of your build tooling to a later version that fully supports the specification and produces compliant filenames. You do not need to remove the file.
 
 If you have questions, you can email admin@pypi.org to communicate with the PyPI administrators.
 
