@@ -148,7 +148,7 @@ class OrganizationTermsOfServiceEngagement(db.Model):
     __tablename__ = "organization_terms_of_service_engagements"
     __table_args__ = (
         Index(
-            "organization_terms_of_service_engagments_org_id_revision_idx",
+            "organization_terms_of_service_engagements_org_id_revision_idx",
             "organization_id",
             "revision",
         ),

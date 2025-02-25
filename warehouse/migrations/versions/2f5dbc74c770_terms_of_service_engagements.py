@@ -61,7 +61,7 @@ def upgrade():
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(
-        "organization_terms_of_service_engagments_org_id_revision_idx",
+        "organization_terms_of_service_engagements_org_id_revision_idx",
         "organization_terms_of_service_engagements",
         ["organization_id", "revision"],
         unique=False,
@@ -142,7 +142,7 @@ def downgrade():
     )
     op.drop_table("user_terms_of_service_engagements")
     op.drop_index(
-        "organization_terms_of_service_engagments_org_id_revision_idx",
+        "organization_terms_of_service_engagements_org_id_revision_idx",
         table_name="organization_terms_of_service_engagements",
     )
     op.drop_table("organization_terms_of_service_engagements")
