@@ -41,6 +41,7 @@ from warehouse.attestations.interfaces import IIntegrityService
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy, metadata
 from warehouse.macaroons import IMacaroonService, caveats, security_policy
+from warehouse.metrics import IMetricsService
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.utils import PublisherTokenContext
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
