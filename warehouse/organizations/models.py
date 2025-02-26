@@ -39,7 +39,7 @@ from sqlalchemy.orm import (
 )
 
 from warehouse import db
-from warehouse.accounts.models import User
+from warehouse.accounts.models import TermsOfServiceEngagement, User
 from warehouse.authnz import Permissions
 from warehouse.events.models import HasEvents
 from warehouse.utils.attrs import make_repr
@@ -144,12 +144,13 @@ class OrganizationStripeSubscription(db.Model):
     subscription: Mapped[StripeSubscription] = relationship(lazy=False)
 
 
-class OrganizationTermsOfServiceAgreement(db.Model):
-    __tablename__ = "organization_terms_of_service_agreements"
+class OrganizationTermsOfServiceEngagement(db.Model):
+    __tablename__ = "organization_terms_of_service_engagements"
     __table_args__ = (
         Index(
-            "organization_terms_of_service_agreements_organization_id_idx",
+            "organization_terms_of_service_engagements_org_id_revision_idx",
             "organization_id",
+            "revision",
         ),
     )
 
@@ -158,10 +159,13 @@ class OrganizationTermsOfServiceAgreement(db.Model):
     organization_id: Mapped[UUID] = mapped_column(
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
     )
-    agreed: Mapped[datetime.datetime | None] = mapped_column(TZDateTime)
-    notified: Mapped[datetime.datetime | None] = mapped_column(TZDateTime)
+    revision: Mapped[str]
+    created: Mapped[datetime.datetime] = mapped_column(TZDateTime)
+    engagement: Mapped[TermsOfServiceEngagement]
 
-    organization: Mapped[Organization] = relationship(lazy=False)
+    organization: Mapped[Organization] = relationship(
+        lazy=False, back_populates="terms_of_service_engagements"
+    )
 
 
 class OrganizationStripeCustomer(db.Model):
@@ -323,7 +327,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         back_populates="organization",
         viewonly=True,
     )
-    terms_of_service_agreements: Mapped[list[OrganizationTermsOfServiceAgreement]] = (
+    terms_of_service_engagements: Mapped[list[OrganizationTermsOfServiceEngagement]] = (
         relationship(
             back_populates="organization",
             viewonly=True,

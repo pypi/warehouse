@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import pretend
+import pytest
 
 from zope.interface.verify import verifyClass
 
@@ -27,11 +28,12 @@ from warehouse.organizations.models import (
     OrganizationRoleType,
     OrganizationStripeCustomer,
     OrganizationStripeSubscription,
-    OrganizationTermsOfServiceAgreement,
+    OrganizationTermsOfServiceEngagement,
     OrganizationType,
     Team,
     TeamProjectRole,
     TeamRole,
+    TermsOfServiceEngagement,
 )
 from warehouse.subscriptions.models import StripeSubscription
 
@@ -635,38 +637,41 @@ class TestDatabaseOrganizationService:
             .count()
         )
 
-    def test_add_organization_terms_of_service_agreement(
+    def test_record_tos_engagement_invalid_engagement(
         self, organization_service, db_request
     ):
         organization = OrganizationFactory.create()
-        assert organization.terms_of_service_agreements == []
-        organization_service.add_organization_terms_of_service_agreement(
-            organization.id
-        )
-        assert (
-            db_request.db.query(OrganizationTermsOfServiceAgreement)
-            .filter(
-                OrganizationTermsOfServiceAgreement.organization_id == organization.id,
-                OrganizationTermsOfServiceAgreement.agreed.isnot(None),
-                OrganizationTermsOfServiceAgreement.notified.is_(None),
+        assert organization.terms_of_service_engagements == []
+        with pytest.raises(ValueError):  # noqa: PT011
+            organization_service.record_tos_engagement(
+                organization.id,
+                "initial",
+                None,
             )
-            .count()
-        ) == 1
 
-    def test_add_organization_terms_of_service_agreement_notified(
-        self, organization_service, db_request
-    ):
+    @pytest.mark.parametrize(
+        "engagement",
+        [
+            TermsOfServiceEngagement.Flashed,
+            TermsOfServiceEngagement.Notified,
+            TermsOfServiceEngagement.Viewed,
+            TermsOfServiceEngagement.Agreed,
+        ],
+    )
+    def test_record_tos_engagement(self, organization_service, db_request, engagement):
         organization = OrganizationFactory.create()
-        assert organization.terms_of_service_agreements == []
-        organization_service.add_organization_terms_of_service_agreement(
-            organization.id, notified=True
+        assert organization.terms_of_service_engagements == []
+        organization_service.record_tos_engagement(
+            organization.id,
+            "initial",
+            engagement=engagement,
         )
         assert (
-            db_request.db.query(OrganizationTermsOfServiceAgreement)
+            db_request.db.query(OrganizationTermsOfServiceEngagement)
             .filter(
-                OrganizationTermsOfServiceAgreement.organization_id == organization.id,
-                OrganizationTermsOfServiceAgreement.agreed.is_(None),
-                OrganizationTermsOfServiceAgreement.notified.isnot(None),
+                OrganizationTermsOfServiceEngagement.organization_id == organization.id,
+                OrganizationTermsOfServiceEngagement.revision == "initial",
+                OrganizationTermsOfServiceEngagement.engagement == engagement,
             )
             .count()
         ) == 1

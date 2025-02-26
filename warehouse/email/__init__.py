@@ -1104,6 +1104,13 @@ def send_environment_ignored_in_trusted_publisher_email(
     }
 
 
+@_email("user-terms-of-service-updated")
+def send_user_terms_of_service_updated(request, user):
+    return {
+        "user": user,
+    }
+
+
 def includeme(config):
     email_sending_class = config.maybe_dotted(config.registry.settings["mail.backend"])
     config.register_service_factory(email_sending_class.create_service, IEmailSender)
