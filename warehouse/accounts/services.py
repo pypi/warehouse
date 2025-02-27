@@ -52,7 +52,9 @@ from warehouse.accounts.models import (
     Email,
     ProhibitedUserName,
     RecoveryCode,
+    TermsOfServiceEngagement,
     User,
+    UserTermsOfServiceEngagement,
     WebAuthn,
 )
 from warehouse.events.tags import EventTag
@@ -630,6 +632,65 @@ class DatabaseUserService:
     def get_password_timestamp(self, user_id):
         user = self.get_user(user_id)
         return user.password_date.timestamp() if user.password_date is not None else 0
+
+    def needs_tos_flash(self, user_id, revision):
+        """
+        Check if we need to flash a ToS update to user on login.
+        """
+        query = self.db.query(UserTermsOfServiceEngagement).filter(
+            UserTermsOfServiceEngagement.user_id == user_id,
+            UserTermsOfServiceEngagement.revision == revision,
+        )
+
+        # Find all instances of an engagement with the Terms of Service more than 30
+        # days ago. If we find any, the ToS are already in effect for the user by
+        # default so they do not need to be flashed.
+        engagements_30_days_before_tos_active = (
+            query.filter(
+                UserTermsOfServiceEngagement.created
+                < datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=30)
+            )
+            .order_by(
+                UserTermsOfServiceEngagement.created,
+            )
+            .first()
+        )
+        if engagements_30_days_before_tos_active is not None:
+            return False
+
+        # Find any active engagements with the Terms of Service. If the user has
+        # actively engaged with the updated Terms of Service we skip flashing the
+        # update banner.
+        active_engagements = query.filter(
+            UserTermsOfServiceEngagement.engagement.in_(
+                [TermsOfServiceEngagement.Viewed, TermsOfServiceEngagement.Agreed]
+            )
+        ).first()
+        if active_engagements is None:
+            return True
+
+        return False
+
+    def record_tos_engagement(
+        self,
+        user_id,
+        revision: str,
+        engagement: TermsOfServiceEngagement,
+    ) -> None:
+        """
+        Add a record of end user being flashed about, notified of, viewing, or agreeing
+        to a terms of service change.
+        """
+        if not isinstance(engagement, TermsOfServiceEngagement):
+            raise ValueError(f"{engagement} is not a TermsOfServiceEngagement")
+        self.db.add(
+            UserTermsOfServiceEngagement(
+                user_id=user_id,
+                revision=revision,
+                created=datetime.datetime.now(datetime.UTC),
+                engagement=engagement,
+            )
+        )
 
 
 @implementer(ITokenService)

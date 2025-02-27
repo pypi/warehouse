@@ -22,6 +22,8 @@ from warehouse.accounts import UserContext, security_policy
 from warehouse.accounts.interfaces import IUserService
 from warehouse.utils.security_policy import AuthenticationMethod
 
+from ...common.constants import REMOTE_ADDR
+
 
 class TestBasicAuthSecurityPolicy:
     def test_verify(self):
@@ -99,12 +101,12 @@ class TestBasicAuthSecurityPolicy:
             pretend.stub(
                 matched_route=None,
                 banned=pretend.stub(by_ip=lambda ip_address: False),
-                remote_addr="1.2.3.4",
+                remote_addr=REMOTE_ADDR,
             ),
             pretend.stub(
                 matched_route=pretend.stub(name="an.invalid.route"),
                 banned=pretend.stub(by_ip=lambda ip_address: False),
-                remote_addr="1.2.3.4",
+                remote_addr=REMOTE_ADDR,
             ),
         ],
     )
@@ -203,7 +205,7 @@ class TestSessionSecurityPolicy:
             add_response_callback=pretend.call_recorder(lambda cb: None),
             matched_route=None,
             banned=pretend.stub(by_ip=lambda ip_address: False),
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
         )
 
         assert policy.identity(request) is None
@@ -237,7 +239,7 @@ class TestSessionSecurityPolicy:
             add_response_callback=pretend.call_recorder(lambda cb: None),
             matched_route=pretend.stub(name=route_name),
             banned=pretend.stub(by_ip=lambda ip_address: False),
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
         )
 
         assert policy.identity(request) is None
@@ -266,7 +268,7 @@ class TestSessionSecurityPolicy:
             add_response_callback=pretend.call_recorder(lambda cb: None),
             matched_route=pretend.stub(name="a.permitted.route"),
             banned=pretend.stub(by_ip=lambda ip_address: False),
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
         )
 
         assert policy.identity(request) is None
@@ -299,7 +301,7 @@ class TestSessionSecurityPolicy:
             matched_route=pretend.stub(name="a.permitted.route"),
             find_service=pretend.call_recorder(lambda i, **kw: user_service),
             banned=pretend.stub(by_ip=lambda ip_address: False),
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
         )
 
         assert policy.identity(request) is None
@@ -345,7 +347,7 @@ class TestSessionSecurityPolicy:
                 flash=pretend.call_recorder(lambda *a, **kw: None),
             ),
             banned=pretend.stub(by_ip=lambda ip_address: False),
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
         )
 
         assert policy.identity(request) is None
@@ -397,7 +399,7 @@ class TestSessionSecurityPolicy:
                 flash=pretend.call_recorder(lambda *a, **kw: None),
             ),
             banned=pretend.stub(by_ip=lambda ip_address: False),
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
         )
 
         assert policy.identity(request) is None
@@ -448,7 +450,7 @@ class TestSessionSecurityPolicy:
                 password_outdated=pretend.call_recorder(lambda ts: False)
             ),
             banned=pretend.stub(by_ip=lambda ip_address: False),
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
         )
 
         assert policy.identity(request).user is user
@@ -493,7 +495,7 @@ class TestSessionSecurityPolicy:
                 password_outdated=pretend.call_recorder(lambda ts: False)
             ),
             banned=pretend.stub(by_ip=lambda ip_address: True),
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
         )
 
         assert policy.identity(request) is None

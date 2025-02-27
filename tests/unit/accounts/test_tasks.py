@@ -13,11 +13,121 @@
 from datetime import datetime, timedelta, timezone
 
 import pretend
+import pytest
 
-from warehouse.accounts.tasks import compute_user_metrics
+from warehouse.accounts import tasks
+from warehouse.accounts.models import TermsOfServiceEngagement
+from warehouse.accounts.tasks import compute_user_metrics, notify_users_of_tos_update
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.packaging import ProjectFactory, ReleaseFactory
+
+
+def test_notify_users_of_tos_update(db_request, user_service, monkeypatch):
+    db_request.registry.settings = {"terms.revision": "initial"}
+    users_to_notify = UserFactory.create_batch(3, with_verified_primary_email=True)
+    # Users we should not notify because they have already agreed to ToS
+    UserFactory.create_batch(
+        5, with_verified_primary_email=True, with_terms_of_service_agreement=True
+    )
+    # Users we should not notify because they don't have a primary/verified email
+    UserFactory.create_batch(7)
+
+    send_email = pretend.call_recorder(lambda request, user: None)
+    monkeypatch.setattr(tasks, "send_user_terms_of_service_updated", send_email)
+
+    user_service.record_tos_engagement = pretend.call_recorder(
+        lambda user_id, revision, engagement: None
+    )
+
+    notify_users_of_tos_update(db_request)
+
+    assert sorted(send_email.calls, key=lambda x: x.args[1]) == sorted(
+        [pretend.call(db_request, u) for u in users_to_notify], key=lambda x: x.args[1]
+    )
+    assert sorted(
+        user_service.record_tos_engagement.calls, key=lambda x: x.args[0]
+    ) == sorted(
+        [
+            pretend.call(u.id, "initial", TermsOfServiceEngagement.Notified)
+            for u in users_to_notify
+        ],
+        key=lambda x: x.args[0],
+    )
+
+
+@pytest.mark.parametrize("batch_size", [0, 10])
+def test_notify_users_of_tos_update_respects_batch_size(
+    db_request, batch_size, user_service, monkeypatch
+):
+    db_request.registry.settings = {
+        "terms.revision": "initial",
+        "terms.notification_batch_size": batch_size,
+    }
+    users_to_notify = UserFactory.create_batch(20, with_verified_primary_email=True)
+
+    send_email = pretend.call_recorder(lambda request, user: None)
+    monkeypatch.setattr(tasks, "send_user_terms_of_service_updated", send_email)
+
+    user_service.record_tos_engagement = pretend.call_recorder(
+        lambda user_id, revision, engagement: None
+    )
+
+    notify_users_of_tos_update(db_request)
+
+    assert sorted(send_email.calls, key=lambda x: x.args[1]) == sorted(
+        [pretend.call(db_request, u) for u in users_to_notify][:batch_size],
+        key=lambda x: x.args[1],
+    )
+    assert sorted(
+        user_service.record_tos_engagement.calls, key=lambda x: x.args[0]
+    ) == sorted(
+        [
+            pretend.call(u.id, "initial", TermsOfServiceEngagement.Notified)
+            for u in users_to_notify
+        ][:batch_size],
+        key=lambda x: x.args[0],
+    )
+
+
+def test_notify_users_of_tos_update_does_not_renotify(
+    db_request, user_service, monkeypatch
+):
+    db_request.registry.settings = {"terms.revision": "initial"}
+    users_to_notify = UserFactory.create_batch(3, with_verified_primary_email=True)
+    # Users we should not notify because they have already agreed to ToS
+    UserFactory.create_batch(
+        5, with_verified_primary_email=True, with_terms_of_service_agreement=True
+    )
+    # Users we should not notify because they don't have a primary/verified email
+    UserFactory.create_batch(7)
+
+    send_email = pretend.call_recorder(lambda request, user: None)
+    monkeypatch.setattr(tasks, "send_user_terms_of_service_updated", send_email)
+
+    user_service.record_tos_engagement(
+        users_to_notify[-1].id, "initial", TermsOfServiceEngagement.Notified
+    )
+
+    user_service.record_tos_engagement = pretend.call_recorder(
+        lambda user_id, revision, engagement: None
+    )
+
+    notify_users_of_tos_update(db_request)
+
+    assert sorted(send_email.calls, key=lambda x: x.args[1]) == sorted(
+        [pretend.call(db_request, u) for u in users_to_notify[:-1]],
+        key=lambda x: x.args[1],
+    )
+    assert sorted(
+        user_service.record_tos_engagement.calls, key=lambda x: x.args[0]
+    ) == sorted(
+        [
+            pretend.call(u.id, "initial", TermsOfServiceEngagement.Notified)
+            for u in users_to_notify[:-1]
+        ],
+        key=lambda x: x.args[0],
+    )
 
 
 def _create_old_users_and_releases():

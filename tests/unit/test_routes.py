@@ -213,6 +213,11 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "accounts.view-terms-of-service",
+            "/account/view-terms-of-service/",
+            domain=warehouse,
+        ),
+        pretend.call(
             "manage.unverified-account", "/manage/unverified-account/", domain=warehouse
         ),
         pretend.call("manage.account", "/manage/account/", domain=warehouse),

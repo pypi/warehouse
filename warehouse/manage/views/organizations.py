@@ -68,6 +68,7 @@ from warehouse.organizations.models import (
     OrganizationRole,
     OrganizationRoleType,
     OrganizationType,
+    TermsOfServiceEngagement,
 )
 from warehouse.packaging import IProjectService, Project, Role
 from warehouse.packaging.models import JournalEntry, ProjectFactory
@@ -557,8 +558,10 @@ class ManageOrganizationBillingViews:
     def activate_subscription(self):
         form = OrganizationActivateBillingForm(self.request.POST)
         if self.request.method == "POST" and form.validate():
-            self.organization_service.add_organization_terms_of_service_agreement(
-                self.organization.id
+            self.organization_service.record_tos_engagement(
+                self.organization.id,
+                self.request.registry.settings.get("terms.revision"),
+                TermsOfServiceEngagement.Agreed,
             )
             route = self.request.route_path(
                 "manage.organization.subscription",

@@ -328,6 +328,20 @@ def configure(settings=None):
         default=Environment.production,
     )
 
+    maybe_set(
+        settings,
+        "terms.revision",
+        "TERMS_REVISION",
+        default="initial",
+    )
+    maybe_set(
+        settings,
+        "terms.notification_batch_size",
+        "TERMS_NOTIFICATION_BATCH_SIZE",
+        int,
+        default=1000,
+    )
+
     # Pull in default configuration from the environment.
     maybe_set(settings, "warehouse.token", "WAREHOUSE_TOKEN")
     maybe_set(settings, "warehouse.ip_salt", "WAREHOUSE_IP_SALT")
