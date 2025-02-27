@@ -26,7 +26,7 @@
       <div class="card card-primary">
         <div class="card-body card-widget widget-user-1">
           <div class="widget-user-header">
-            <h3 class="widget-user-username text-center">{{ organization.name }}</h3>
+            <h3 class="widget-user-username text-center">{{ organization.display_name }}</h3>
           </div>
         </div>
         <div class="card-body">
@@ -48,42 +48,10 @@
     <div class="col-md-9">
       <div class="card">
         <div class="card-header with-border">
-          <h3 class="card-title">Organization Request</h3>
+          <h3 class="card-title">Organization</h3>
         </div>
         <div class="card-body">
           <div class="form-horizontal">
-            <div class="form-group">
-              <label class="col-sm-5 control-label">
-                Approval Status
-              </label>
-              <div class="col-sm-7">
-                {% if organization.is_approved == True %}
-                Approved by <a href="{{ request.route_url('admin.user.detail', username=admin.username) }}">{{ admin.username }}</a><br>
-                {{ organization.date_approved|format_date() }}
-                {% elif organization.is_approved == False %}
-                Declined by <a href="{{ request.route_url('admin.user.detail', username=admin.username) }}">{{ admin.username }}</a><br>
-                {{ organization.date_approved|format_date() }}
-                {% elif user %}
-                Pending request by <a href="{{ request.route_url('admin.user.detail', username=user.username) }}">{{ user.username }}</a><br>
-                {{ organization.created|format_date() }}
-                {% else %}
-                Unknown
-                {% endif %}
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="col-sm-5 control-label">
-                Requesting User
-              </label>
-              <div class="col-sm-7">
-                {% if user %}
-                <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a><br>
-                <a href="mailto:{{ user.email }}">{{ user.email }}</a>
-                {% else %}
-                <i>n/a</i>
-                {% endif %}
-              </div>
-            </div>
             <div class="form-group">
               <label class="col-sm-5 control-label">
                 Organization Account Name
@@ -127,6 +95,95 @@
           </div>
         </div>
       </div>
+
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Projects</h3>
+        </div>
+
+        <div class="card-body">
+          {% if organization.projects %}
+          <table class="table table-hover" id="projects">
+            <thead>
+              <tr>
+                <th>Project Name</th>
+                <th>Total Size</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for project in organization.projects %}
+              <tr>
+                <td><a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">{{ project.name }}</a></td>
+                <td>{{ project.total_size | filesizeformat(binary=True) }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          No projects.
+          {% endif %}
+        </div>
+      </div> <!-- .card -->
+
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Members</h3>
+        </div>
+
+        <div class="card-body">
+          {% if organization.roles %}
+          <table class="table table-hover" id="projects">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Role</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for role in organization.roles %}
+              <tr>
+                <td><a href="{{ request.route_path('admin.user.detail', username=role.user.username) }}">{{ user.username }}</a></td>
+                <td>{{ role.role_name.value }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          No members.
+          {% endif %}
+        </div>
+      </div> <!-- .card -->
+
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Teams</h3>
+        </div>
+
+        <div class="card-body">
+          {% if organization.teams %}
+          <table class="table table-hover" id="projects">
+            <thead>
+              <tr>
+                <th>Team</th>
+                <th>Members</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for team in organization.teams %}
+              <tr>
+                <td>{{ team.name }}</td>
+                <td>{{ team.members|length }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          No teams.
+          {% endif %}
+        </div>
+      </div> <!-- .card -->
+
     </div>
+
   </div>
 {% endblock %}
