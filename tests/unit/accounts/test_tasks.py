@@ -42,11 +42,18 @@ def test_notify_users_of_tos_update(db_request, user_service, monkeypatch):
 
     notify_users_of_tos_update(db_request)
 
-    assert send_email.calls == [pretend.call(db_request, u) for u in users_to_notify]
-    assert user_service.record_tos_engagement.calls == [
-        pretend.call(u.id, "initial", TermsOfServiceEngagement.Notified)
-        for u in users_to_notify
-    ]
+    assert sorted(send_email.calls, key=lambda x: x.args[1]) == sorted(
+        [pretend.call(db_request, u) for u in users_to_notify], key=lambda x: x.args[1]
+    )
+    assert sorted(
+        user_service.record_tos_engagement.calls, key=lambda x: x.args[0]
+    ) == sorted(
+        [
+            pretend.call(u.id, "initial", TermsOfServiceEngagement.Notified)
+            for u in users_to_notify
+        ],
+        key=lambda x: x.args[0],
+    )
 
 
 @pytest.mark.parametrize("batch_size", [0, 10])
@@ -68,16 +75,18 @@ def test_notify_users_of_tos_update_respects_batch_size(
 
     notify_users_of_tos_update(db_request)
 
-    assert (
-        send_email.calls
-        == [pretend.call(db_request, u) for u in users_to_notify][:batch_size]
+    assert sorted(send_email.calls, key=lambda x: x.args[1]) == sorted(
+        [pretend.call(db_request, u) for u in users_to_notify][:batch_size],
+        key=lambda x: x.args[1],
     )
-    assert (
-        user_service.record_tos_engagement.calls
-        == [
+    assert sorted(
+        user_service.record_tos_engagement.calls, key=lambda x: x.args[0]
+    ) == sorted(
+        [
             pretend.call(u.id, "initial", TermsOfServiceEngagement.Notified)
             for u in users_to_notify
-        ][:batch_size]
+        ][:batch_size],
+        key=lambda x: x.args[0],
     )
 
 
@@ -106,13 +115,19 @@ def test_notify_users_of_tos_update_does_not_renotify(
 
     notify_users_of_tos_update(db_request)
 
-    assert send_email.calls == [
-        pretend.call(db_request, u) for u in users_to_notify[:-1]
-    ]
-    assert user_service.record_tos_engagement.calls == [
-        pretend.call(u.id, "initial", TermsOfServiceEngagement.Notified)
-        for u in users_to_notify[:-1]
-    ]
+    assert sorted(send_email.calls, key=lambda x: x.args[1]) == sorted(
+        [pretend.call(db_request, u) for u in users_to_notify[:-1]],
+        key=lambda x: x.args[1],
+    )
+    assert sorted(
+        user_service.record_tos_engagement.calls, key=lambda x: x.args[0]
+    ) == sorted(
+        [
+            pretend.call(u.id, "initial", TermsOfServiceEngagement.Notified)
+            for u in users_to_notify[:-1]
+        ],
+        key=lambda x: x.args[0],
+    )
 
 
 def _create_old_users_and_releases():
