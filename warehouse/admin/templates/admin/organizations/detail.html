@@ -142,7 +142,7 @@
             <tbody>
             {% for role in organization.roles %}
               <tr>
-                <td><a href="{{ request.route_path('admin.user.detail', username=role.user.username) }}">{{ user.username }}</a></td>
+                <td><a href="{{ request.route_path('admin.user.detail', username=role.user.username) }}">{{ role.user.username }}</a></td>
                 <td>{{ role.role_name.value }}</td>
               </tr>
             {% endfor %}
