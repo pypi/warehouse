@@ -6315,7 +6315,7 @@ class TestTrustedPublisherEmails:
                 },
             ),
         ]
-   
+
     def test_pep427_emails(
         self,
         pyramid_request,
@@ -6377,7 +6377,7 @@ class TestTrustedPublisherEmails:
         subject_renderer.assert_(project_name=project_name)
         body_renderer.assert_(project_name=project_name)
         html_renderer.assert_(project_name=project_name)
-        
+
         assert pyramid_request.task.calls == [pretend.call(send_email)]
         assert send_email.delay.calls == [
             pretend.call(
