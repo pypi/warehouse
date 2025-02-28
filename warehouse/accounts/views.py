@@ -297,6 +297,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
         breach_service=breach_service,
         check_password_metrics_tags=["method:auth", "auth_method:login_form"],
     )
+
     if request.method == "POST":
         if form.validate():
             # Get the user id for the given username.
@@ -1536,6 +1537,7 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
         redirect_to = request.route_path("manage.projects")
 
     resp = HTTPSeeOther(redirect_to)
+
     if request.method == "POST" and form.validate():
         request.session.record_auth_timestamp()
         request.session.record_password_timestamp(
