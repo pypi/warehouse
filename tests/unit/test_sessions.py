@@ -12,6 +12,7 @@
 
 import time
 
+import markupsafe
 import msgpack
 import pretend
 import pytest
@@ -204,7 +205,9 @@ class TestSession:
         session = Session()
         assert session._get_flash_queue_key(queue) == expected
 
-    def test_flash_messages(self):
+    def test_flash_messages(self, monkeypatch):
+        _markup = pretend.call_recorder(lambda x: x)
+        monkeypatch.setattr(markupsafe, "Markup", _markup)
         session = Session()
 
         assert session.peek_flash() == []
@@ -213,39 +216,54 @@ class TestSession:
         assert session.pop_flash(queue="foo") == []
 
         session.flash("A Flash Message")
-        assert session.peek_flash() == ["A Flash Message"]
+        assert session.peek_flash() == [{"msg": "A Flash Message", "safe": False}]
         assert session.peek_flash(queue="foo") == []
 
-        session.flash("Another Flash Message", queue="foo")
-        assert session.peek_flash() == ["A Flash Message"]
-        assert session.peek_flash(queue="foo") == ["Another Flash Message"]
+        session.flash("Another Flash Message", queue="foo", safe=True)
+        assert session.peek_flash() == [{"msg": "A Flash Message", "safe": False}]
+        assert session.peek_flash(queue="foo") == [
+            {"msg": "Another Flash Message", "safe": True}
+        ]
 
         session.flash("A Flash Message")
-        assert session.peek_flash() == ["A Flash Message", "A Flash Message"]
-        assert session.peek_flash(queue="foo") == ["Another Flash Message"]
+        assert session.peek_flash() == [
+            {"msg": "A Flash Message", "safe": False},
+            {"msg": "A Flash Message", "safe": False},
+        ]
+        assert session.peek_flash(queue="foo") == [
+            {"msg": "Another Flash Message", "safe": True}
+        ]
 
         session.flash("A Flash Message", allow_duplicate=True)
         assert session.peek_flash() == [
-            "A Flash Message",
-            "A Flash Message",
-            "A Flash Message",
+            {"msg": "A Flash Message", "safe": False},
+            {"msg": "A Flash Message", "safe": False},
+            {"msg": "A Flash Message", "safe": False},
         ]
-        assert session.peek_flash(queue="foo") == ["Another Flash Message"]
+        assert session.peek_flash(queue="foo") == [
+            {"msg": "Another Flash Message", "safe": True}
+        ]
 
         session.flash("A Flash Message", allow_duplicate=False)
         assert session.peek_flash() == [
-            "A Flash Message",
-            "A Flash Message",
-            "A Flash Message",
+            {"msg": "A Flash Message", "safe": False},
+            {"msg": "A Flash Message", "safe": False},
+            {"msg": "A Flash Message", "safe": False},
         ]
-        assert session.peek_flash(queue="foo") == ["Another Flash Message"]
+        assert session.peek_flash(queue="foo") == [
+            {"msg": "Another Flash Message", "safe": True}
+        ]
 
         assert session.pop_flash() == [
             "A Flash Message",
             "A Flash Message",
             "A Flash Message",
         ]
-        assert session.pop_flash(queue="foo") == ["Another Flash Message"]
+        assert session.pop_flash(queue="foo") == [
+            "Another Flash Message",
+        ]
+
+        assert _markup.calls == [pretend.call("Another Flash Message")]
 
         assert session.peek_flash() == []
         assert session.peek_flash(queue="foo") == []

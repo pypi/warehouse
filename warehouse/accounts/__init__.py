@@ -30,7 +30,7 @@ from warehouse.accounts.services import (
     TokenServiceFactory,
     database_login_factory,
 )
-from warehouse.accounts.tasks import compute_user_metrics
+from warehouse.accounts.tasks import compute_user_metrics, notify_users_of_tos_update
 from warehouse.accounts.utils import UserContext
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.macaroons.security_policy import MacaroonSecurityPolicy
@@ -204,3 +204,4 @@ def includeme(config):
 
     # Add a periodic task to generate Account metrics
     config.add_periodic_task(crontab(minute="*/20"), compute_user_metrics)
+    config.add_periodic_task(crontab(minute="*"), notify_users_of_tos_update)

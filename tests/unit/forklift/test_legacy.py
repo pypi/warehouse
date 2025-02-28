@@ -41,6 +41,7 @@ from warehouse.attestations.interfaces import IIntegrityService
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy, metadata
 from warehouse.macaroons import IMacaroonService, caveats, security_policy
+from warehouse.metrics import IMetricsService
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.utils import PublisherTokenContext
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
@@ -2762,8 +2763,12 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = f"{project.name}-{release.version}-cp34-none-{plat}.whl"
-        filebody = _get_whl_testdata(name=project.name, version=release.version)
+        filename = "{}-{}-cp34-none-{}.whl".format(
+            project.normalized_name.replace("-", "_"), release.version, plat
+        )
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version=release.version
+        )
         filestoragehash = _storage_hash(filebody)
 
         pyramid_config.testing_securitypolicy(identity=user)
@@ -3112,15 +3117,20 @@ class TestFileUpload:
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
-        FileFactory.create(
-            release=release,
-            packagetype="sdist",
-            filename=f"{project.name}-{release.version}.tar.gz",
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"),
+            release.version,
         )
+        FileFactory.create(release=release, packagetype="sdist", filename=filename)
         RoleFactory.create(user=user, project=project)
 
-        filename = f"{project.name}-{release.version}-cp34-none-any.whl"
-        filebody = _get_whl_testdata(name=project.name, version=release.version)
+        filename = "{}-{}-cp34-none-any.whl".format(
+            project.normalized_name.replace("-", "_"),
+            release.version,
+        )
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version=release.version
+        )
         filestoragehash = _storage_hash(filebody)
 
         pyramid_config.testing_securitypolicy(identity=user)
@@ -3363,7 +3373,10 @@ class TestFileUpload:
         with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
             zfp.writestr("some_file", "some_data")
 
-        filename = f"{project.name}-{release.version}-cp34-none-any.whl"
+        filename = "{}-{}-cp34-none-any.whl".format(
+            project.normalized_name.replace("-", "_"),
+            release.version,
+        )
         filebody = temp_f.getvalue()
 
         db_request.POST = MultiDict(
@@ -4888,6 +4901,76 @@ class TestFileUpload:
             if not warning_already_sent:
                 assert not warning_exists
 
+    @pytest.mark.parametrize("project_name", ["Some_Thing", "some.thing"])
+    def test_upload_warns_pep427(
+        self,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        metrics,
+        project_service,
+        macaroon_service,
+        project_name,
+    ):
+        project = ProjectFactory.create(name=project_name)
+        owner = UserFactory.create()
+        maintainer = UserFactory.create()
+        RoleFactory.create(user=owner, project=project, role_name="Owner")
+        RoleFactory.create(user=maintainer, project=project, role_name="Maintainer")
+
+        pyramid_config.testing_securitypolicy(identity=owner)
+
+        filename = "{}-{}-py3-none-any.whl".format(project.name, "1.0")
+        data = _get_whl_testdata(name=project.name, version="1.0")
+        digest = hashlib.md5(data).hexdigest()
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0",
+                "filetype": "bdist_wheel",
+                "pyversion": "py3",
+                "md5_digest": digest,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(data),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMacaroonService: macaroon_service,
+            IMetricsService: metrics,
+            IProjectService: project_service,
+        }.get(svc)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(legacy, "send_pep427_name_email", send_email)
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                {owner, maintainer},
+                project_name=project.name,
+                filename=filename,
+                normalized_name="some_thing",
+            ),
+        ]
+
     @pytest.mark.parametrize(
         ("filename", "function_name", "extra_kwargs"),
         [
@@ -5069,8 +5152,12 @@ class TestFileUpload:
                 digest = _ZIP_PKG_MD5
                 data = _ZIP_PKG_TESTDATA
         elif filetype == "bdist_wheel":
-            filename = "{}-{}-py3-none-any.whl".format(project.name, "1.0")
-            data = _get_whl_testdata(name=project.name, version="1.0")
+            filename = "{}-{}-py3-none-any.whl".format(
+                project.normalized_name.replace("-", "_"), "1.0"
+            )
+            data = _get_whl_testdata(
+                name=project.normalized_name.replace("-", "_"), version="1.0"
+            )
             digest = hashlib.md5(data).hexdigest()
             monkeypatch.setattr(
                 legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
@@ -5184,13 +5271,20 @@ class TestFileUpload:
                 data = _ZIP_PKG_TESTDATA
             license_filename = "fake_package-1.0/LICENSE"
         elif filetype == "bdist_wheel":
-            filename = "{}-{}-py3-none-any.whl".format(project.name, "1.0")
-            data = _get_whl_testdata(name=project.name, version="1.0")
+            filename = "{}-{}-py3-none-any.whl".format(
+                project.normalized_name.replace("-", "_"),
+                "1.0",
+            )
+            data = _get_whl_testdata(
+                name=project.normalized_name.replace("-", "_"), version="1.0"
+            )
             digest = hashlib.md5(data).hexdigest()
             monkeypatch.setattr(
                 legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
             )
-            license_filename = f"{project.name}-1.0.dist-info/licenses/LICENSE"
+            license_filename = "{}-1.0.dist-info/licenses/LICENSE".format(
+                project.normalized_name.replace("-", "_")
+            )
 
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
