@@ -10,18 +10,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Merging point for Feb 2025 test
+merge 41e9207fbe5 and 1ce6d45d7ef
 
-Revision ID: b2f6cb22fd84
-Revises: 6cac7b706953
-Create Date: 2025-02-27 18:52:47.817882
+Revision ID: 57b1053998d
+Revises: ('41e9207fbe5', '1ce6d45d7ef')
+Create Date: 2015-06-04 23:13:50.680431
 """
-revision = "b2f6cb22fd84"
 
-# This migration is a reconciliation point between either the snapshot fast track and
-# the classic migration path.
-down_revision = "6cac7b706953"
-snapshot_revision = "dde46c596a6e"
+revision = "57b1053998d"
+down_revision = ("41e9207fbe5", "1ce6d45d7ef")
+
 
 def upgrade():
     pass

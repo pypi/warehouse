@@ -323,51 +323,44 @@ def mock_manifest_cache_buster():
 
 def run_migrations(cfg):
     def load_revisions(self):
-            migration_dir =_HERE.parent / "warehouse" / "migrations"
+        migration_dir =_HERE.parent / "warehouse" / "migrations"
 
-            snapshots_rev = set()
-            for file_path in alembic.script.base.Script._list_py_dir(self, (migration_dir / "snapshot").as_posix()):
-                real_path = os.path.realpath(file_path)
-                filename = os.path.basename(real_path)
-                dir_name = os.path.dirname(real_path)
-                script = alembic.script.base.Script._from_filename(self, dir_name, filename)
-                if script is None:
-                    continue
-                snapshots_rev.add(script.revision)
-                yield script
+        snapshots_rev = set()
+        for file_path in alembic.script.base.Script._list_py_dir(self, (migration_dir / "snapshot").as_posix()):
+            script = alembic.script.base.Script._from_path(self, file_path)
+            if script is None:
+                continue
+            snapshots_rev.add(script.revision)
+            yield script
 
-            pruned_revisions = set()
+        pruned_revisions = set()
 
-            scripts_rev = {}
-            for file_path in alembic.script.base.Script._list_py_dir(self, (migration_dir / "versions").as_posix()):
-                real_path = os.path.realpath(file_path)
-                filename = os.path.basename(real_path)
-                dir_name = os.path.dirname(real_path)
-                script = alembic.script.base.Script._from_filename(self, dir_name, filename)
-                if script is None:
-                    continue
+        scripts_rev = {}
+        for file_path in alembic.script.base.Script._list_py_dir(self, (migration_dir / "versions").as_posix()):
+            script = alembic.script.base.Script._from_path(self, file_path)
+            if script is None:
+                continue
 
-                scripts_rev[script.revision] = script
-                if script.down_revision and any(down_rev in snapshots_rev for down_rev in script.down_revision):
-                    pruned_revisions.update(set(script.down_revision) - snapshots_rev)
+            scripts_rev[script.revision] = script
+            if snapshot_rev := getattr(script.module, "snapshot_revision", None):
+                pruned_revisions.add(script.down_revision)
+                script.down_revision = snapshot_rev
 
-            while pruned_revisions:
-                rev = pruned_revisions.pop()
-                if rev not in scripts_rev:
-                    continue
+        while pruned_revisions:
+            rev = pruned_revisions.pop()
+            if rev not in scripts_rev:
+                continue
 
-                script = scripts_rev[rev]
-                if isinstance(script.down_revision, str):
-                    pruned_revisions.add(script.down_revision)
-                elif script.down_revision:
-                    pruned_revisions.update(set(script.down_revision) - snapshots_rev)
+            script = scripts_rev[rev]
+            if isinstance(script.down_revision, str):
+                pruned_revisions.add(script.down_revision)
+            elif script.down_revision:
+                pruned_revisions.update(set(script.down_revision))
 
-                del scripts_rev[rev]
+            del scripts_rev[rev]
 
-            for script in scripts_rev.values():
-                if script.down_revision:
-                    script.down_revision = tuple(snapshots_rev.intersection(script.down_revision))
-                yield script
+        for script in scripts_rev.values():
+            yield script
 
 
     with mock.patch.object(alembic.script.base.ScriptDirectory, "_load_revisions", load_revisions):
