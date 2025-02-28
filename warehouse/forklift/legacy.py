@@ -1382,13 +1382,14 @@ def file_upload(request):
             # Filenames that do not start with the fully normalized project name
             # will not be permitted.
             # https://packaging.python.org/en/latest/specifications/binary-distribution-format/#escaping-and-unicode
-            if name_from_filename != name_from_filename.lower():
+            normalized_name = project.normalized_name.replace("-", "_")
+            if name_from_filename != normalized_name:
                 send_pep427_name_email(
                     request,
                     set(project.users),
                     project_name=project.name,
                     filename=filename,
-                    normalized_name=project.normalized_name.replace("-", "_"),
+                    normalized_name=normalized_name,
                 )
 
             if meta.version != version:
