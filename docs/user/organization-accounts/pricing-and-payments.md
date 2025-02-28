@@ -14,7 +14,7 @@ title: Pricing and Payments
 
 ### Payment Terms
 
-Invoiced monthly, based on usage. Payment is due upon reciept and will be charged to the billing information on file.
+Invoiced monthly, based on usage. Payment is due upon receipt and will be charged to the billing information on file.
 
 ## Community Organizations
 
