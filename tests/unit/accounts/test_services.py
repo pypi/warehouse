@@ -42,13 +42,22 @@ from warehouse.accounts.interfaces import (
     TooManyEmailsAdded,
     TooManyFailedLogins,
 )
-from warehouse.accounts.models import DisableReason, ProhibitedUserName
+from warehouse.accounts.models import (
+    DisableReason,
+    ProhibitedUserName,
+    TermsOfServiceEngagement,
+    UserTermsOfServiceEngagement,
+)
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService, NullMetrics
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
 from ...common.constants import REMOTE_ADDR
-from ...common.db.accounts import EmailFactory, UserFactory
+from ...common.db.accounts import (
+    EmailFactory,
+    UserFactory,
+    UserTermsOfServiceEngagementFactory,
+)
 from ...common.db.ip_addresses import IpAddressFactory
 
 
@@ -1048,6 +1057,88 @@ class TestDatabaseUserService:
         user.password_date = None
 
         assert user_service.get_password_timestamp(user.id) == 0
+
+    def test_needs_tos_flash_no_engagements(self, user_service):
+        user = UserFactory.create()
+        assert user_service.needs_tos_flash(user.id, "initial") is True
+
+    def test_needs_tos_flash_with_passive_engagements(self, user_service):
+        user = UserFactory.create()
+        assert user_service.needs_tos_flash(user.id, "initial") is True
+
+        user_service.record_tos_engagement(
+            user.id, "initial", TermsOfServiceEngagement.Notified
+        )
+        assert user_service.needs_tos_flash(user.id, "initial") is True
+
+        user_service.record_tos_engagement(
+            user.id, "initial", TermsOfServiceEngagement.Flashed
+        )
+        assert user_service.needs_tos_flash(user.id, "initial") is True
+
+    def test_needs_tos_flash_with_viewed_engagement(self, user_service):
+        user = UserFactory.create()
+        assert user_service.needs_tos_flash(user.id, "initial") is True
+
+        user_service.record_tos_engagement(
+            user.id, "initial", TermsOfServiceEngagement.Viewed
+        )
+        assert user_service.needs_tos_flash(user.id, "initial") is False
+
+    def test_needs_tos_flash_with_agreed_engagement(self, user_service):
+        user = UserFactory.create()
+        assert user_service.needs_tos_flash(user.id, "initial") is True
+
+        user_service.record_tos_engagement(
+            user.id, "initial", TermsOfServiceEngagement.Agreed
+        )
+        assert user_service.needs_tos_flash(user.id, "initial") is False
+
+    def test_needs_tos_flash_if_engaged_more_than_30_days_ago(self, user_service):
+        user = UserFactory.create()
+        UserTermsOfServiceEngagementFactory.create(
+            user=user,
+            created=(datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=31)),
+            engagement=TermsOfServiceEngagement.Notified,
+        )
+        assert user_service.needs_tos_flash(user.id, "initial") is False
+
+    def test_record_tos_engagement_invalid_engagement(self, user_service):
+        user = UserFactory.create()
+        assert user.terms_of_service_engagements == []
+        with pytest.raises(ValueError):  # noqa: PT011
+            user_service.record_tos_engagement(
+                user.id,
+                "initial",
+                None,
+            )
+
+    @pytest.mark.parametrize(
+        "engagement",
+        [
+            TermsOfServiceEngagement.Flashed,
+            TermsOfServiceEngagement.Notified,
+            TermsOfServiceEngagement.Viewed,
+            TermsOfServiceEngagement.Agreed,
+        ],
+    )
+    def test_record_tos_engagement(self, user_service, db_request, engagement):
+        user = UserFactory.create()
+        assert user.terms_of_service_engagements == []
+        user_service.record_tos_engagement(
+            user.id,
+            "initial",
+            engagement,
+        )
+        assert (
+            db_request.db.query(UserTermsOfServiceEngagement)
+            .filter(
+                UserTermsOfServiceEngagement.user_id == user.id,
+                UserTermsOfServiceEngagement.revision == "initial",
+                UserTermsOfServiceEngagement.engagement == engagement,
+            )
+            .count()
+        ) == 1
 
 
 class TestTokenService:

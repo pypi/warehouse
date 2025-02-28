@@ -50,6 +50,9 @@ VALUES
 -- Set TOTP secret to IU7UP3EMIPI7EBPQUUSEHEJUFNBIWOYG for select users
 UPDATE users SET totp_secret = '\x453f47ec8c43d1f205f0a5244391342b428b3b06' WHERE username IN ('ewdurbin', 'di', 'dstufft', 'miketheman');
 
+-- Create Terms of Service Engagements for select users to keep from flashing banner on login
+INSERT INTO user_terms_of_service_engagements (user_id, revision, created, engagement) (SELECT id, 'initial', NOW(), 'agreed' from users where username IN ('ewdurbin', 'di', 'dstufft', 'miketheman'));
+
 -- Make select users owners of 'sampleproject'
 INSERT INTO roles (role_name, user_id, project_id)
   SELECT 'Owner', id, '4587cc12-e342-4880-9f61-ea4990fb81ea'
