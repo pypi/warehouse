@@ -64,9 +64,7 @@ def test_notify_users_of_tos_update_respects_batch_size(
         "terms.revision": "initial",
         "terms.notification_batch_size": batch_size,
     }
-    users_to_notify = UserFactory.create_batch(
-        max(1, batch_size * 2), with_verified_primary_email=True
-    )
+    UserFactory.create_batch(max(1, batch_size * 2), with_verified_primary_email=True)
 
     send_email = pretend.call_recorder(lambda request, user: None)
     monkeypatch.setattr(tasks, "send_user_terms_of_service_updated", send_email)
