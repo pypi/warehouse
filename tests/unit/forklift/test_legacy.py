@@ -4901,6 +4901,7 @@ class TestFileUpload:
             if not warning_already_sent:
                 assert not warning_exists
 
+    @pytest.mark.parametrize("project_name", ["Some_Thing", "some.thing"])
     def test_upload_warns_pep427(
         self,
         monkeypatch,
@@ -4909,8 +4910,9 @@ class TestFileUpload:
         metrics,
         project_service,
         macaroon_service,
+        project_name,
     ):
-        project = ProjectFactory.create(name="Some_Thing")
+        project = ProjectFactory.create(name=project_name)
         owner = UserFactory.create()
         maintainer = UserFactory.create()
         RoleFactory.create(user=owner, project=project, role_name="Owner")
