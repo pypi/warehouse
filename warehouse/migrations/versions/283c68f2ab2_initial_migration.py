@@ -24,7 +24,7 @@ from sqlalchemy.dialects.postgresql import CITEXT
 
 revision = "283c68f2ab2"
 down_revision = None
-# branch_labels = {"full_route"}
+
 
 def upgrade():
     op.execute("CREATE EXTENSION IF NOT EXISTS citext")

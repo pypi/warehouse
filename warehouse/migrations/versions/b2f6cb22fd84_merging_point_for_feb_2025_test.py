@@ -23,6 +23,7 @@ revision = "b2f6cb22fd84"
 down_revision = "6cac7b706953"
 snapshot_revision = "dde46c596a6e"
 
+
 def upgrade():
     pass
 

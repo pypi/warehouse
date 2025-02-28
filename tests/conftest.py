@@ -323,10 +323,12 @@ def mock_manifest_cache_buster():
 
 def run_migrations(cfg):
     def load_revisions(self):
-        migration_dir =_HERE.parent / "warehouse" / "migrations"
+        migration_dir = _HERE.parent / "warehouse" / "migrations"
 
         snapshots_rev = set()
-        for file_path in alembic.script.base.Script._list_py_dir(self, (migration_dir / "snapshot").as_posix()):
+        for file_path in alembic.script.base.Script._list_py_dir(
+            self, (migration_dir / "snapshot").as_posix()
+        ):
             script = alembic.script.base.Script._from_path(self, file_path)
             if script is None:
                 continue
@@ -336,7 +338,9 @@ def run_migrations(cfg):
         pruned_revisions = set()
 
         scripts_rev = {}
-        for file_path in alembic.script.base.Script._list_py_dir(self, (migration_dir / "versions").as_posix()):
+        for file_path in alembic.script.base.Script._list_py_dir(
+            self, (migration_dir / "versions").as_posix()
+        ):
             script = alembic.script.base.Script._from_path(self, file_path)
             if script is None:
                 continue
@@ -362,12 +366,13 @@ def run_migrations(cfg):
         for script in scripts_rev.values():
             yield script
 
-
-    with mock.patch.object(alembic.script.base.ScriptDirectory, "_load_revisions", load_revisions):
+    with mock.patch.object(
+        alembic.script.base.ScriptDirectory, "_load_revisions", load_revisions
+    ):
 
         # Run migrations:
-        # This might harmlessly run multiple times if there are several app config fixtures
-        # in the test session, using the same database.
+        # This might harmlessly run multiple times if there are several app
+        # config fixtures in the test session, using the same database.
         alembic.command.upgrade(cfg.alembic_config(), "head")
 
 

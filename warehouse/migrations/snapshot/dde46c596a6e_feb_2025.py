@@ -12,8 +12,9 @@
 """
 February 2025 snapshot.
 
-This migration is a not a real one, but a snapshot of the DB as of February 2025.
-Previous migrations have been deleted but are accessible using git magic in this directory,
+This migration is more a snapshot of the dev database as in February 2025.
+During the tests, we prefer to avoid paying the cost of running 400 migrations
+instead of just this one.
 
 Revision ID: dde46c596a6e
 Revises: None
@@ -136,20 +137,55 @@ def upgrade():
         ),
         sa.PrimaryKeyConstraint("id"),
     )
-    # Admin flag have been added in different migrations, let's add them all at once here with their latest value
+    # Admin flag have been added in different migrations, let's add them all at once
+    # here with their latest value
     op.execute(
         """
         INSERT INTO admin_flags (id, description, enabled, notify) VALUES
-        ('disallow-new-user-registration', 'Disallow ALL new User registrations', false, false),
-        ('disallow-new-project-registration', 'Disallow ALL new Project registrations', false, false),
-        ('read-only', 'Read-only mode: Any write operations will have no effect', false, true),
-        ('disallow-deletion', 'Disallow ALL project and release deletions', false, false),
+        (
+            'disallow-new-user-registration',
+            'Disallow ALL new User registrations',
+            false,
+            false
+        ),
+        (
+            'disallow-new-project-registration',
+            'Disallow ALL new Project registrations',
+            false,
+            false
+        ),
+        (
+            'read-only',
+            'Read-only mode: Any write operations will have no effect',
+            false,
+            true
+        ),
+        (
+            'disallow-deletion',
+            'Disallow ALL project and release deletions',
+            false,
+            false
+        ),
         ('disallow-new-upload', 'Disallow ALL new uploads', false, false),
-        ('disallow-oidc', 'Disallow ALL OpenID Connect behavior, including authentication', false, false),
-        ('disable-organizations', 'Disallow ALL functionality for Organizations', true, false),
+        (
+            'disallow-oidc',
+            'Disallow ALL OpenID Connect behavior, including authentication',
+            false,
+            false
+        ),
+        (
+            'disable-organizations',
+            'Disallow ALL functionality for Organizations',
+            true,
+            false
+        ),
         ('disallow-github-oidc', 'Disallow the GitHub OIDC provider', false, false),
         ('disallow-google-oidc', 'Disallow the Google OIDC provider', false, false),
-        ('disallow-activestate-oidc', 'Disallow the ActiveState OIDC provider', true, false),
+        (
+            'disallow-activestate-oidc', 'Disallow the ActiveState OIDC provider',
+            true,
+            false
+        ),
         ('disallow-gitlab-oidc', 'Disallow the GitLab OIDC provider', true, false),
         ('disable-pep740', 'Disable PEP 740 support.', false, false)
     """
@@ -224,7 +260,8 @@ def upgrade():
             "id", sa.UUID(), server_default=sa.text("gen_random_uuid()"), nullable=False
         ),
         sa.CheckConstraint(
-            "(is_banned AND ban_reason IS NOT NULL AND ban_date IS NOT NULL)OR (NOT is_banned AND ban_reason IS NULL AND ban_date IS NULL)"
+            "(is_banned AND ban_reason IS NOT NULL AND ban_date IS NOT NULL) "
+            "OR (NOT is_banned AND ban_reason IS NULL AND ban_date IS NULL)"
         ),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("hashed_ip_address"),
@@ -298,7 +335,8 @@ def upgrade():
             sa.Boolean(),
             server_default=sa.text("false"),
             nullable=False,
-            comment="When True, the organization is active and all features are available.",
+            comment="When True, the organization is active and all features are"
+            " available.",
         ),
         sa.Column(
             "created",
@@ -340,7 +378,8 @@ def upgrade():
             "description",
             sa.String(),
             nullable=False,
-            comment="Description of the business or project the organization represents",
+            comment="Description of the business or project the organization"
+            " represents",
         ),
         sa.Column(
             "is_approved",
@@ -735,7 +774,10 @@ def upgrade():
         sa.Column("ordering", sa.Integer(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("classifier"),
-        sa.CheckConstraint("classifier not ilike 'private ::%'", name="ck_disallow_private_top_level_classifier")
+        sa.CheckConstraint(
+            "classifier not ilike 'private ::%'",
+            name="ck_disallow_private_top_level_classifier",
+        ),
     )
     op.create_table(
         "vulnerabilities",
@@ -1349,7 +1391,14 @@ def upgrade():
             postgresql.JSONB(astext_type=sa.Text()),
             server_default=sa.text("'{}'"),
             nullable=False,
-            comment="The list of caveats that were attached to this Macaroon when we generated it. Users can add additional caveats at any time without communicating those additional caveats to us, which would not be reflected in this data, and thus this field must only be used for informational purposes and must not be used during the authorization or authentication process. Older Macaroons may be missing caveats as previously only the legacy permissions caveat were stored.",
+            comment="The list of caveats that were attached to this Macaroon when we"
+            " generated it. Users can add additional caveats at any time"
+            " without communicating those additional caveats to us, which would"
+            " not be reflected in this data, and thus this field must only be"
+            " used for informational purposes and must not be used during the"
+            " authorization or authentication process. Older Macaroons may be"
+            " missing caveats as previously only the legacy permissions caveat"
+            " were stored.",
         ),
         sa.Column("additional", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
         sa.Column("key", sa.LargeBinary(), nullable=False),
@@ -1430,7 +1479,8 @@ def upgrade():
             "description",
             sa.String(),
             nullable=False,
-            comment="Description of the business or project the organization represents",
+            comment="Description of the business or project the organization"
+            " represents",
         ),
         sa.Column(
             "is_approved",
@@ -1824,7 +1874,8 @@ def upgrade():
             "license_files",
             postgresql.ARRAY(sa.String()),
             nullable=True,
-            comment="Array of license filenames. Null indicates no License-File(s) were supplied by the uploader.",
+            comment="Array of license filenames. Null indicates no License-File(s) were"
+            " supplied by the uploader.",
         ),
         sa.Column("summary", sa.String(), nullable=True),
         sa.Column("keywords", sa.String(), nullable=True),
@@ -1832,7 +1883,8 @@ def upgrade():
             "keywords_array",
             postgresql.ARRAY(sa.String()),
             nullable=True,
-            comment="Array of keywords. Null indicates no keywords were supplied by the uploader.",
+            comment="Array of keywords. Null indicates no keywords were supplied by the"
+            " uploader.",
         ),
         sa.Column("platform", sa.String(), nullable=True),
         sa.Column("download_url", sa.String(), nullable=True),
