@@ -19,7 +19,7 @@ This email is notifying you of an upcoming deprecation that we have determined m
 
 In the future, PyPI will require all newly uploaded binary distribution filenames to comply with the <a href="https://packaging.python.org/en/latest/specifications/binary-distribution-format/">binary distribution format</a>. Any binary distributions already uploaded will remain in place as-is and do not need to be updated.
 
-Specifically, your recent upload of '{{ filename }}' is incompatible with the distribution format specification because it does not contain the normalized project name '{{ normalized_name }}'.
+Specifically, your recent upload of '{{ filename }}' is incompatible with the distribution format specification because the filename does not contain the normalized project name '{{ normalized_name }}'.
 
 In most cases, this can be resolved by upgrading the version of your build tooling to a later version that fully supports the specification and produces compliant filenames. You do not need to remove the file.
 
