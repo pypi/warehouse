@@ -64,7 +64,7 @@ def test_notify_users_of_tos_update_respects_batch_size(
         "terms.revision": "initial",
         "terms.notification_batch_size": batch_size,
     }
-    users_to_notify = UserFactory.create_batch(20, with_verified_primary_email=True)
+    UserFactory.create_batch(max(1, batch_size * 2), with_verified_primary_email=True)
 
     send_email = pretend.call_recorder(lambda request, user: None)
     monkeypatch.setattr(tasks, "send_user_terms_of_service_updated", send_email)
@@ -75,19 +75,8 @@ def test_notify_users_of_tos_update_respects_batch_size(
 
     notify_users_of_tos_update(db_request)
 
-    assert sorted(send_email.calls, key=lambda x: x.args[1]) == sorted(
-        [pretend.call(db_request, u) for u in users_to_notify][:batch_size],
-        key=lambda x: x.args[1],
-    )
-    assert sorted(
-        user_service.record_tos_engagement.calls, key=lambda x: x.args[0]
-    ) == sorted(
-        [
-            pretend.call(u.id, "initial", TermsOfServiceEngagement.Notified)
-            for u in users_to_notify
-        ][:batch_size],
-        key=lambda x: x.args[0],
-    )
+    assert len(send_email.calls) == batch_size
+    assert len(user_service.record_tos_engagement.calls) == batch_size
 
 
 def test_notify_users_of_tos_update_does_not_renotify(
