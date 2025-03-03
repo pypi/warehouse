@@ -412,7 +412,7 @@ class TestGitHubPublisherForm:
             ("\n", "Environment name must not contain non-printable characters"),
         ],
     )
-    def test_validate_environment(self, environment, expected, monkeypatch):
+    def test_validate_environment_raises(self, environment, expected, monkeypatch):
         request = pretend.stub(
             localizer=pretend.stub(translate=pretend.call_recorder(lambda ts: ts))
         )
@@ -426,6 +426,13 @@ class TestGitHubPublisherForm:
             form.validate_environment(field)
 
         assert str(e.value).startswith(expected)
+
+    @pytest.mark.parametrize("environment", ["", None])
+    def test_validate_environment_passes(self, environment):
+        field = pretend.stub(data=environment)
+        form = github.GitHubPublisherForm(api_token=pretend.stub())
+
+        assert form.validate_environment(field) is None
 
     @pytest.mark.parametrize(
         ("data", "expected"),
