@@ -412,7 +412,7 @@ below describe the setup process for each supported Trusted Publisher.
         # Install dependencies
         - python -m pip install -U twine
 
-        # Upload to PyPI - add "--repository testpypi" if uploading to TestPyPI
-        # With no token specified, twine will use trusted publishing
+        # Upload to PyPI, add "--repository testpypi" if uploading to TestPyPI
+        # With no token specified, twine will use Trusted Publishing
         - twine upload python_pkg/dist/*
     ```

@@ -189,7 +189,7 @@ Before uploading attestations to the index, please:
         # Install dependencies
         - python -m pip install -U twine
 
-        # Upload to PyPI using trusted publishing, including the generated attestations
+        # Upload to PyPI using Trusted Publishing, including the generated attestations
         # Add "--repository testpypi" if uploading to TestPyPI
         - twine upload  --attestations python_pkg/dist/*
     ```
