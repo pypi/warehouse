@@ -213,14 +213,9 @@ def organization_applications_list(request):
     q = request.params.get("q", "")
     terms = shlex.split(q)
 
-    try:
-        page_num = int(request.params.get("page", 1))
-    except ValueError:
-        raise HTTPBadRequest("'page' must be an integer.") from None
-
     organization_applications_query = request.db.query(
         OrganizationApplication
-    ).order_by(OrganizationApplication.normalized_name)
+    ).order_by(OrganizationApplication.submitted)
 
     if q:
         filters: list = []
@@ -304,15 +299,8 @@ def organization_applications_list(request):
                     organization_applications_query.filter(filter_or_subfilters)
                 )
 
-    organization_applications = SQLAlchemyORMPage(
-        organization_applications_query,
-        page=page_num,
-        items_per_page=25,
-        url_maker=paginate_url_factory(request),
-    )
-
     return {
-        "organization_applications": organization_applications,
+        "organization_applications": organization_applications_query.all(),
         "query": q,
         "terms": terms,
     }
@@ -339,10 +327,22 @@ def organization_application_detail(request):
     if organization_application is None:
         raise HTTPNotFound
 
+    conflicting_applications = (
+        request.db.query(OrganizationApplication)
+        .filter(
+            OrganizationApplication.normalized_name
+            == organization_application.normalized_name
+        )
+        .filter(OrganizationApplication.id != organization_application.id)
+        .order_by(OrganizationApplication.submitted)
+        .all()
+    )
+
     user = user_service.get_user(organization_application.submitted_by_id)
 
     return {
         "organization_application": organization_application,
+        "conflicting_applications": conflicting_applications,
         "user": user,
     }
 
