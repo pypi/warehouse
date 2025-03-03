@@ -17,6 +17,7 @@ import wtforms
 from requests import ConnectionError, HTTPError, Timeout
 from webob.multidict import MultiDict
 
+from warehouse import i18n
 from warehouse.oidc.forms import github
 from warehouse.packaging.interfaces import (
     ProjectNameUnavailableExistingError,
@@ -392,14 +393,55 @@ class TestGitHubPublisherForm:
             form.validate_workflow_filename(field)
 
     @pytest.mark.parametrize(
+        ("environment", "expected"),
+        [
+            ("f" * 256, "Environment name is too long"),
+            (" foo", "Environment name may not start with whitespace"),
+            ("foo ", "Environment name may not end with whitespace"),
+            ("'", "Environment name must not contain non-printable characters"),
+            ('"', "Environment name must not contain non-printable characters"),
+            ("`", "Environment name must not contain non-printable characters"),
+            (",", "Environment name must not contain non-printable characters"),
+            (";", "Environment name must not contain non-printable characters"),
+            ("\\", "Environment name must not contain non-printable characters"),
+            ("\x00", "Environment name must not contain non-printable characters"),
+            ("\x1f", "Environment name must not contain non-printable characters"),
+            ("\x7f", "Environment name must not contain non-printable characters"),
+            ("\t", "Environment name must not contain non-printable characters"),
+            ("\r", "Environment name must not contain non-printable characters"),
+            ("\n", "Environment name must not contain non-printable characters"),
+        ],
+    )
+    def test_validate_environment_raises(self, environment, expected, monkeypatch):
+        request = pretend.stub(
+            localizer=pretend.stub(translate=pretend.call_recorder(lambda ts: ts))
+        )
+        get_current_request = pretend.call_recorder(lambda: request)
+        monkeypatch.setattr(i18n, "get_current_request", get_current_request)
+
+        form = github.GitHubPublisherForm(api_token=pretend.stub())
+        field = pretend.stub(data=environment)
+
+        with pytest.raises(wtforms.validators.ValidationError) as e:
+            form.validate_environment(field)
+
+        assert str(e.value).startswith(expected)
+
+    @pytest.mark.parametrize("environment", ["", None])
+    def test_validate_environment_passes(self, environment):
+        field = pretend.stub(data=environment)
+        form = github.GitHubPublisherForm(api_token=pretend.stub())
+
+        assert form.validate_environment(field) is None
+
+    @pytest.mark.parametrize(
         ("data", "expected"),
         [
-            ("wu-tang", "wu-tang"),
-            ("WU-TANG", "wu-tang"),
-            ("", ""),
-            ("  ", ""),
-            ("\t\r\n", ""),
-            (None, ""),
+            ("wu-tang", "wu-tang"),  # Non-alpha characters are preserved
+            ("WU-TANG", "wu-tang"),  # Alpha characters are lowercased
+            ("Foo   Bar", "foo   bar"),  # Whitespace is preserved
+            ("", ""),  # Empty string is empty string
+            (None, ""),  # None and empty string are equivalent
         ],
     )
     def test_normalized_environment(self, data, expected):
