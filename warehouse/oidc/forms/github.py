@@ -21,6 +21,7 @@ from warehouse.oidc.forms._core import PendingPublisherMixin
 
 _VALID_GITHUB_REPO = re.compile(r"^[a-zA-Z0-9-_.]+$")
 _VALID_GITHUB_OWNER = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9-]*$")
+_INVALID_ENVIRONMENT_CHARS = re.compile(r'[\x00-\x1F\x7F\'"`,;\\]', re.UNICODE)
 
 
 class GitHubPublisherBase(wtforms.Form):
@@ -151,6 +152,35 @@ class GitHubPublisherBase(wtforms.Form):
         if "/" in workflow_filename:
             raise wtforms.validators.ValidationError(
                 _("Workflow filename must be a filename only, without directories")
+            )
+
+    def validate_environment(self, field):
+        environment = field.data
+
+        if not environment:
+            return
+
+        if len(environment) > 255:
+            raise wtforms.validators.ValidationError(
+                _("Environment name is too long (maximum is 255 characters)")
+            )
+
+        if environment.startswith(" "):
+            raise wtforms.validators.ValidationError(
+                _("Environment name may not start with whitespace")
+            )
+
+        if environment.endswith(" "):
+            raise wtforms.validators.ValidationError(
+                _("Environment name may not end with whitespace")
+            )
+
+        if _INVALID_ENVIRONMENT_CHARS.search(environment):
+            raise wtforms.validators.ValidationError(
+                _(
+                    "Environment name must not contain non-printable characters "
+                    'or the characters "\'", """, "`", ",", ";", "\\"'
+                )
             )
 
     @property
