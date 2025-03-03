@@ -419,46 +419,21 @@ class TestOrganizationApplicationList:
     def test_no_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(30),
-            key=lambda o: o.normalized_name,
+            key=lambda o: o.submitted,
         )
         result = views.organization_applications_list(db_request)
 
         assert result == {
-            "organization_applications": organization_applications[:25],
+            "organization_applications": organization_applications,
             "query": "",
             "terms": [],
         }
-
-    @pytest.mark.usefixtures("_enable_organizations")
-    def test_with_page(self, db_request):
-        organization_applications = sorted(
-            OrganizationApplicationFactory.create_batch(30),
-            key=lambda o: o.normalized_name,
-        )
-        db_request.GET["page"] = "2"
-        result = views.organization_applications_list(db_request)
-
-        assert result == {
-            "organization_applications": organization_applications[25:],
-            "query": "",
-            "terms": [],
-        }
-
-    @pytest.mark.usefixtures("_enable_organizations")
-    def test_with_invalid_page(self):
-        request = pretend.stub(
-            flags=pretend.stub(enabled=lambda *a: False),
-            params={"page": "not an integer"},
-        )
-
-        with pytest.raises(HTTPBadRequest):
-            views.organization_applications_list(request)
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_basic_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
+            key=lambda o: o.submitted,
         )
         db_request.GET["q"] = organization_applications[0].name
         result = views.organization_applications_list(db_request)
@@ -471,7 +446,7 @@ class TestOrganizationApplicationList:
     def test_name_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
+            key=lambda o: o.submitted,
         )
         db_request.GET["q"] = f"name:{organization_applications[0].name}"
         result = views.organization_applications_list(db_request)
@@ -484,7 +459,7 @@ class TestOrganizationApplicationList:
     def test_organization_application_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
+            key=lambda o: o.submitted,
         )
         db_request.GET["q"] = (
             f"organization:{organization_applications[0].display_name}"
@@ -504,7 +479,7 @@ class TestOrganizationApplicationList:
     def test_url_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
+            key=lambda o: o.submitted,
         )
         db_request.GET["q"] = f"url:{organization_applications[0].link_url}"
         result = views.organization_applications_list(db_request)
@@ -517,7 +492,7 @@ class TestOrganizationApplicationList:
     def test_description_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
+            key=lambda o: o.submitted,
         )
         db_request.GET["q"] = (
             f"description:'{organization_applications[0].description}'"
@@ -537,7 +512,7 @@ class TestOrganizationApplicationList:
     def test_is_approved_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
+            key=lambda o: o.submitted,
         )
         organization_applications[0].is_approved = True
         organization_applications[1].is_approved = True
@@ -557,7 +532,7 @@ class TestOrganizationApplicationList:
     def test_is_declined_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
+            key=lambda o: o.submitted,
         )
         organization_applications[0].is_approved = True
         organization_applications[1].is_approved = True
@@ -577,7 +552,7 @@ class TestOrganizationApplicationList:
     def test_is_submitted_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
+            key=lambda o: o.submitted,
         )
         organization_applications[0].is_approved = True
         organization_applications[1].is_approved = True
@@ -638,13 +613,13 @@ class TestOrganizationApplicationList:
     def test_is_invalid_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
+            key=lambda o: o.submitted,
         )
         db_request.GET["q"] = "is:not-actually-a-valid-query"
         result = views.organization_applications_list(db_request)
 
         assert result == {
-            "organization_applications": organization_applications[:25],
+            "organization_applications": organization_applications,
             "query": "is:not-actually-a-valid-query",
             "terms": ["is:not-actually-a-valid-query"],
         }
