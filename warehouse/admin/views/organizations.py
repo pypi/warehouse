@@ -327,10 +327,22 @@ def organization_application_detail(request):
     if organization_application is None:
         raise HTTPNotFound
 
+    conflicting_applications = (
+        request.db.query(OrganizationApplication)
+        .filter(
+            OrganizationApplication.normalized_name
+            == organization_application.normalized_name
+        )
+        .filter(OrganizationApplication.id != organization_application.id)
+        .order_by(OrganizationApplication.submitted)
+        .all()
+    )
+
     user = user_service.get_user(organization_application.submitted_by_id)
 
     return {
         "organization_application": organization_application,
+        "conflicting_applications": conflicting_applications,
         "user": user,
     }
 
