@@ -139,7 +139,9 @@ class RoleInvitation(db.Model):
     )
 
     user: Mapped[User] = orm.relationship(lazy=False, back_populates="role_invitations")
-    project: Mapped[Project] = orm.relationship(lazy=False)
+    project: Mapped[Project] = orm.relationship(
+        lazy=False, back_populates="invitations"
+    )
 
 
 class ProjectFactory:
@@ -218,6 +220,9 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
     roles: Mapped[list[Role]] = orm.relationship(
         back_populates="project",
         passive_deletes=True,
+    )
+    invitations: Mapped[list[RoleInvitation]] = orm.relationship(
+        back_populates="project",
     )
     team: Mapped[Team] = orm.relationship(
         secondary=TeamProjectRole.__table__,
