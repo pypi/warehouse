@@ -185,14 +185,11 @@ class GitHubPublisherBase(wtforms.Form):
 
     @property
     def normalized_environment(self):
+        # The only normalization is due to case-insensitivity.
+        #
         # NOTE: We explicitly do not compare `self.environment.data` to None,
-        # since it might also be falsey via an empty string (or might be
-        # only whitespace, which we also treat as a None case).
-        return (
-            self.environment.data.lower()
-            if self.environment.data and not self.environment.data.isspace()
-            else ""
-        )
+        # since it might also be falsey via an empty string.
+        return self.environment.data.lower() if self.environment.data else ""
 
 
 class PendingGitHubPublisherForm(GitHubPublisherBase, PendingPublisherMixin):

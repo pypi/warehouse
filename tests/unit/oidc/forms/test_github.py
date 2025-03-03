@@ -430,12 +430,11 @@ class TestGitHubPublisherForm:
     @pytest.mark.parametrize(
         ("data", "expected"),
         [
-            ("wu-tang", "wu-tang"),
-            ("WU-TANG", "wu-tang"),
-            ("", ""),
-            ("  ", ""),
-            ("\t\r\n", ""),
-            (None, ""),
+            ("wu-tang", "wu-tang"),  # Non-alpha characters are preserved
+            ("WU-TANG", "wu-tang"),  # Alpha characters are lowercased
+            ("Foo   Bar", "foo   bar"),  # Whitespace is preserved
+            ("", ""),  # Empty string is empty string
+            (None, ""),  # None and empty string are equivalent
         ],
     )
     def test_normalized_environment(self, data, expected):
