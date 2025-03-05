@@ -34,16 +34,6 @@ services:
   redis:
     image: redis:7.0
 
-  localstack:
-    image: localstack/localstack:3.5
-    stop_signal: SIGKILL
-    environment:
-      SERVICES: "sqs"
-      LOCALSTACK_HOST: "localstack"
-      LS_LOG: "error"
-    ports:
-      - "4566:4566"
-
   opensearch:
     build:
       context: ./dev/compose/opensearch

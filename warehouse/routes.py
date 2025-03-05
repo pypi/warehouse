@@ -215,6 +215,11 @@ def includeme(config):
         "/account/verify-project-role/",
         domain=warehouse,
     )
+    config.add_route(
+        "accounts.view-terms-of-service",
+        "/account/view-terms-of-service/",
+        domain=warehouse,
+    )
 
     # Management (views for logged-in users)
     config.add_route(

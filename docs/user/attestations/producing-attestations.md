@@ -187,18 +187,11 @@ Before uploading attestations to the index, please:
           aud: pypi
       script:
         # Install dependencies
-        - apt update && apt install -y jq
-        - python -m pip install -U twine id
+        - python -m pip install -U twine
 
-        # Retrieve the OIDC token from GitLab CI/CD, and exchange it for a PyPI API token
-        - oidc_token=$(python -m id pypi)
-        # Replace "https://pypi.org/*" with "https://test.pypi.org/*" if uploading to TestPyPI
-        - resp=$(curl -X POST https://pypi.org/_/oidc/mint-token -d "{\"token\":\"${oidc_token}\"}")
-        - api_token=$(jq --raw-output '.token' <<< "${resp}")
-
-        # Upload to PyPI authenticating via the newly-minted token, including the generated attestations
+        # Upload to PyPI using Trusted Publishing, including the generated attestations
         # Add "--repository testpypi" if uploading to TestPyPI
-        - twine upload --verbose --attestations -u __token__ -p "${api_token}" python_pkg/dist/*
+        - twine upload  --attestations python_pkg/dist/*
     ```
 
     Note how, compared with the [Trusted Publishing workflow][GitLab Trusted Publishing], it has the

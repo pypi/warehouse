@@ -1104,6 +1104,22 @@ def send_environment_ignored_in_trusted_publisher_email(
     }
 
 
+@_email("user-terms-of-service-updated")
+def send_user_terms_of_service_updated(request, user):
+    return {
+        "user": user,
+    }
+
+
+@_email("pep427-name-email")
+def send_pep427_name_email(request, users, project_name, filename, normalized_name):
+    return {
+        "project_name": project_name,
+        "filename": filename,
+        "normalized_name": normalized_name,
+    }
+
+
 def includeme(config):
     email_sending_class = config.maybe_dotted(config.registry.settings["mail.backend"])
     config.register_service_factory(email_sending_class.create_service, IEmailSender)

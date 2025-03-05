@@ -2,7 +2,7 @@
 set -ex
 
 export TMPDIR=$(mktemp -d)
-mkdir -p $TMPDIR/docs
+cp requirements/*.txt $TMPDIR/
 pip-compile -o $TMPDIR/deploy.txt requirements/deploy.in > /dev/null
 pip-compile -o $TMPDIR/main.txt requirements/main.in > /dev/null
 pip-compile -o $TMPDIR/lint.txt requirements/lint.in > /dev/null

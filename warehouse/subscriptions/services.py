@@ -76,7 +76,7 @@ class GenericBillingService:
         """
         return self.api.Customer.create(
             name=name,
-            description=description,
+            description=description[:300],
             metadata={"billing_service": "pypi", "domain": self.domain},
         )
 

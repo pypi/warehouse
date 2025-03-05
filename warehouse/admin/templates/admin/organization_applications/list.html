@@ -13,8 +13,6 @@
 -#}
 {% extends "admin/base.html" %}
 
-{% import "admin/utils/pagination.html" as pagination %}
-
 {% block title %}Organization Applications{% endblock %}
 
 {% block breadcrumb %}
@@ -55,13 +53,14 @@
 
 <div class="card">
   <div class="card-body table-responsive p-0">
-    <table class="table table-hover">
+    <table class="table table-hover" id="organization-applications">
       <thead>
       <tr>
         <th>Account Name</th>
         <th>Organization</th>
         <th>Description</th>
         <th>Type</th>
+        <th>Submitted</th>
         <th>Approval</th>
       </tr>
       </thead>
@@ -77,6 +76,7 @@
         </td>
         <td>{{ organization_application.description }}</td>
         <td>{{ organization_application.orgtype.value }}</td>
+        <td>{{ organization_application.submitted }}</td>
         {% if organization_application.is_approved == True %}
         <td><i class="fa fa-fw fa-check text-green"></i> Approved</td>
         {% elif organization_application.is_approved == False %}
@@ -90,18 +90,5 @@
     </table>
   </div>
 
-  <div class="card-footer">
-    <div class="row">
-      <div class="col-sm-5">
-        {{ pagination.summary(organization_applications) }}
-      </div>
-
-      <div class="col-sm-7">
-        <div class="float-right">
-          {{ pagination.paginate(organization_applications) }}
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 {% endblock content %}

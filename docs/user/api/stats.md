@@ -7,7 +7,7 @@
 
 !!! tip
 
-    An example stats API client can be found at @coopherlees/pypistats.
+    An example stats API client can be found at @cooperlees/pypistats.
 
 ## Routes
 

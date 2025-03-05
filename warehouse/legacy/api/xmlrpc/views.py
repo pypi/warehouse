@@ -212,7 +212,7 @@ class XMLRPCWrappedError(xmlrpc.client.Fault):
 class TypedMapplyViewMapper(MapplyViewMapper):
     def mapply(self, fn, args, kwargs):
         try:
-            validate_call(fn)(*args, **kwargs)
+            return validate_call(fn)(*args, **kwargs)
         except ValidationError as exc:
             raise XMLRPCInvalidParamTypes(
                 "; ".join(
@@ -229,8 +229,6 @@ class TypedMapplyViewMapper(MapplyViewMapper):
                     ]
                 )
             )
-
-        return super().mapply(fn, args, kwargs)
 
 
 @view_config(route_name="xmlrpc.pypi", context=Exception, renderer="xmlrpc")
