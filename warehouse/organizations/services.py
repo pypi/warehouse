@@ -24,8 +24,9 @@ from warehouse.email import (
     send_new_organization_declined_email,
 )
 from warehouse.events.tags import EventTag
-from warehouse.organizations.interfaces import IOrganizationService
+from warehouse.organizations.interfaces import INamespaceService, IOrganizationService
 from warehouse.organizations.models import (
+    Namespace,
     Organization,
     OrganizationApplication,
     OrganizationInvitation,
@@ -779,3 +780,46 @@ class DatabaseOrganizationService:
 
 def database_organization_factory(context, request):
     return DatabaseOrganizationService(request.db)
+
+
+@implementer(INamespaceService)
+class DatabaseNamespaceService:
+    def __init__(self, db_session):
+        self.db = db_session
+
+    def get_namespace(self, name):
+        """
+        Return the namespace object that represents the given namespace, or None if
+        there is no namespace for that name.
+
+        This will return the "parent" namespace, even for sub namespaces.
+        """
+        return (
+            self.db.query(Namespace)
+            .filter(
+                (
+                    (Namespace.normalized_name == func.normalize_pep426_name(name))
+                    | func.starts_with(
+                        func.normalize_pep426_name(name),
+                        func.concat(Namespace.normalized_name, "-"),
+                    )
+                )
+                & (Namespace.parent == None)  # noqa E711
+            )
+            .first()
+        )
+
+    def request_namespace(self, organization_id, name, is_open=False, is_hidden=False):
+        """
+        Request a new namespace, returning the object that represents this newly
+        requested namespace.
+        """
+        ns = Namespace(
+            name=name, owner_id=organization_id, is_open=is_open, is_hidden=is_hidden
+        )
+        self.db.add(ns)
+        return ns
+
+
+def database_namespace_factory(context, request):
+    return DatabaseNamespaceService(request.db)

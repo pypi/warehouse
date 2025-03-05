@@ -54,6 +54,12 @@ def test_includeme():
             "/admin/organization_applications/{organization_application_id}/decline/",
             domain=warehouse,
         ),
+        pretend.call("admin.namespace.list", "/admin/namespaces/", domain=warehouse),
+        pretend.call(
+            "admin.namespace.detail",
+            "/admin/namespaces/{namespace_id}/",
+            domain=warehouse,
+        ),
         pretend.call("admin.user.list", "/admin/users/", domain=warehouse),
         pretend.call(
             "admin.user.detail",

@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import json
+import re
 
 import wtforms
 
@@ -724,6 +725,41 @@ class SaveTeamForm(wtforms.Form):
 
 class CreateTeamForm(SaveTeamForm):
     __params__ = SaveTeamForm.__params__
+
+
+class RequestOrganizationNamespaceForm(wtforms.Form):
+    __params__ = ["name"]
+
+    name = wtforms.StringField(
+        validators=[
+            wtforms.validators.InputRequired(message="Specify namespace name"),
+            # the regexp below must match the CheckConstraint
+            # for the name field in organizations.models.Namespace
+            wtforms.validators.Regexp(
+                r"^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$",
+                flags=re.IGNORECASE,
+                message=_(
+                    "The namespace name is invalid. Namespace must be valid "
+                    "project names."
+                ),
+            ),
+        ]
+    )
+
+    def __init__(self, *args, namespace_service, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.namespace_service = namespace_service
+
+    def validate_name(self, field):
+        # Our name is only valid if there isn't already another namespace by
+        # that name.
+        if self.namespace_service.get_namespace(field.data) is not None:
+            raise wtforms.validators.ValidationError(
+                _(
+                    "This namespace has already been requested. "
+                    "Choose a different namespace."
+                )
+            )
 
 
 class AddAlternateRepositoryForm(wtforms.Form):

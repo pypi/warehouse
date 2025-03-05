@@ -17,8 +17,10 @@ import tempfile
 import packaging_legacy.version
 
 from pyramid_jinja2 import IJinja2Environment
+from sqlalchemy import func
 from sqlalchemy.orm import joinedload
 
+from warehouse.organizations.models import Namespace
 from warehouse.packaging.interfaces import ISimpleStorage
 from warehouse.packaging.models import File, LifecycleStatus, Project, Release
 
@@ -46,6 +48,33 @@ def _simple_index(request, serial):
 
 
 def _simple_detail(project, request):
+    # Get the namespace information for this project.
+    # TODO: The PEP states that if we get multiple matching namespaces, it must
+    #       be the one with the most characters, but does that mean that if orgA
+    #       owns the NS `foo`, and delegates `foo-bar` to orgB, that orgA's grant
+    #       on `foo` does not authorize them to release a package under `foo-bar`?
+    namespace = None
+    if (
+        ns := request.db.query(Namespace)
+        .filter(
+            (
+                (Namespace.normalized_name == project.normalized_name)
+                | func.starts_with(
+                    project.normalized_name,
+                    func.concat(Namespace.normalized_name, "-"),
+                )
+            )
+            & (Namespace.is_approved == True)  # noqa E712
+        )
+        .order_by(func.length(Namespace.normalized_name).desc())
+        .first()
+    ):
+        namespace = {
+            "prefix": ns.normalized_name,
+            "authorized": ns.is_project_authorized(project),
+            "open": ns.is_open,
+        }
+
     # Get all of the files for this project.
     files = sorted(
         request.db.query(File)
@@ -70,6 +99,7 @@ def _simple_detail(project, request):
     return {
         "meta": {"api-version": API_VERSION, "_last-serial": project.last_serial},
         "name": project.normalized_name,
+        "namespace": namespace,
         "versions": versions,
         "alternate-locations": alternate_repositories,
         "files": [

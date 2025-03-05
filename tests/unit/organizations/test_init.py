@@ -15,8 +15,11 @@ import pretend
 from celery.schedules import crontab
 
 from warehouse import organizations
-from warehouse.organizations.interfaces import IOrganizationService
-from warehouse.organizations.services import database_organization_factory
+from warehouse.organizations.interfaces import INamespaceService, IOrganizationService
+from warehouse.organizations.services import (
+    database_namespace_factory,
+    database_organization_factory,
+)
 from warehouse.organizations.tasks import (
     delete_declined_organizations,
     update_organization_invitation_status,
@@ -36,6 +39,7 @@ def test_includeme():
 
     assert config.register_service_factory.calls == [
         pretend.call(database_organization_factory, IOrganizationService),
+        pretend.call(database_namespace_factory, INamespaceService),
     ]
 
     assert config.add_periodic_task.calls == [
