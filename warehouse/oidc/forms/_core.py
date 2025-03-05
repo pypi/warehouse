@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import markupsafe
+import structlog
 import wtforms
 
 from warehouse.i18n import localize as _
@@ -19,8 +20,11 @@ from warehouse.packaging.interfaces import (
     ProjectNameUnavailableProhibitedError,
     ProjectNameUnavailableSimilarError,
     ProjectNameUnavailableStdlibError,
+    ProjectNameUnavailableTypoSquattingError,
 )
 from warehouse.utils.project import PROJECT_NAME_RE
+
+log = structlog.get_logger()
 
 
 class PendingPublisherMixin:
@@ -84,6 +88,18 @@ class PendingPublisherMixin:
                     " standard library module name)"
                 )
             )
+        # TODO: Cover with testing and remove pragma
+        except ProjectNameUnavailableTypoSquattingError as exc:  # pragma: no cover
+            # TODO: raise with an appropriate message when we're ready to implement
+            #  or combine with `ProjectNameUnavailableSimilarError`
+            # TODO: This is an attempt at structlog, since `request.log` isn't in scope.
+            #  We should be able to use `log` instead, but doesn't have the same output
+            log.error(
+                "Typo-squatting error raised but not handled in form validation",
+                check_name=exc.check_name,
+                existing_project_name=exc.existing_project_name,
+            )
+            pass
 
     @property
     def provider(self) -> str:  # pragma: no cover
