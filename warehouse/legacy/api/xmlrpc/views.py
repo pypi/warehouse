@@ -269,8 +269,8 @@ def changelog_since_serial(request, serial: StrictInt):
 
 @xmlrpc_cache_all_projects(method="list_packages_with_serial")
 def list_packages_with_serial(request):
-    serials = request.db.query(Project.name, Project.last_serial).all()
-    return {serial[0]: serial[1] for serial in serials}
+    package_serial_tuples = request.db.query(Project.name, Project.last_serial).all()
+    return dict(package_serial_tuples)
 
 
 # Package querying methods
