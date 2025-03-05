@@ -57,6 +57,11 @@ HTTPError: 400 Client Error: Project size too large. Limit for project 'samplepr
 
 ### Freeing up storage on an existing project
 
+!!! important
+
+    Deleting and yanking are two different actions. Yanking a release or file
+    does **not** free up storage space.
+
 !!! warning
 
     Deleting releases and files from your project is permanent and cannot be undone
