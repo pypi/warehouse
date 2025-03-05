@@ -269,8 +269,15 @@ def changelog_since_serial(request, serial: StrictInt):
 
 @xmlrpc_cache_all_projects(method="list_packages_with_serial")
 def list_packages_with_serial(request):
-    package_serial_tuples = request.db.query(Project.name, Project.last_serial).all()
-    return dict(package_serial_tuples)
+    # Have PostgreSQL create the dictionary directly
+    query = select(
+        func.jsonb_object_agg(Project.name, Project.last_serial).label(
+            "package_serials"
+        )
+    )
+
+    result = request.db.execute(query).scalar()
+    return result or {}
 
 
 # Package querying methods
