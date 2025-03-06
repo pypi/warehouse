@@ -3,7 +3,6 @@ volumes:
   packages:
   packages-archive:
   sponsorlogos:
-  policies:
   caches:
   rstuf-metadata:
   pgdata:
@@ -97,7 +96,6 @@ services:
       - packages:/var/opt/warehouse/packages
       - packages-archive:/var/opt/warehouse/packages-archive
       - sponsorlogos:/var/opt/warehouse/sponsorlogos
-      - policies:/var/opt/warehouse/policies
       - simple:/var/opt/warehouse/simple
       - ./bin:/opt/warehouse/src/bin:z
       - ./requirements:/opt/warehouse/src/requirements:z
