@@ -59,7 +59,7 @@ HTTPError: 400 Client Error: Project size too large. Limit for project 'samplepr
 
 !!! important
 
-    Deleting and yanking are two different actions. Yanking a release or file
+    Deleting and [yanking](./yanking.md) are two different actions. Yanking a release or file
     does **not** free up storage space.
 
 !!! warning

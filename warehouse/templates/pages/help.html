@@ -54,7 +54,6 @@
 {% macro installing() %}{% trans %}How do I install a file (package) from PyPI?{% endtrans %}{% endmacro %}
 {% macro publishing() %}{% trans %}How do I package and publish my code for PyPI?{% endtrans %}{% endmacro %}
 {% macro trove_classifier() %}{% trans %}What's a trove classifier?{% endtrans %}{% endmacro %}
-{% macro yanked() %}{% trans %}What's a "yanked" release?{% endtrans %}{% endmacro %}
 {% macro archived_project() %}{% trans %}What's an archived project?{% endtrans %}{% endmacro %}
 
 {# My Account #}
@@ -86,8 +85,6 @@
 {% macro collaborator_roles() %}{% trans %}What collaborator roles are available for a project on PyPI?{% endtrans %}{% endmacro %}
 {% macro request_ownership() %}{% trans %}How do I become an owner/maintainer of a project on PyPI?{% endtrans %}{% endmacro %}
 {% macro description_content_type() %}{% trans %}How can I upload a project description in a different format?{% endtrans %}{% endmacro %}
-{% macro file_size_limit() %}{% trans %}How do I get a file size limit exemption or increase for my project?{% endtrans %}{% endmacro %}
-{% macro project_size_limit() %}{% trans %}How do I get a total project size limit exemption or increase for my project?{% endtrans %}{% endmacro %}
 {% macro vulnerability_data() %}{% trans %}Where does PyPI get its data on project vulnerabilities from, and how can I correct it?{% endtrans %}{% endmacro %}
 {% macro deletion() %}{% trans %}How can I restore a deleted project, release or file?{% endtrans %}{% endmacro %}
 
@@ -130,7 +127,6 @@
           <li><a href="#installing">{{ installing() }}</a></li>
           <li><a href="#publishing">{{ publishing() }}</a></li>
           <li><a href="#trove-classifier">{{ trove_classifier() }}</a></li>
-          <li><a href="#yanked">{{ yanked() }}</a></li>
           <li><a href="#archived-project">{{ archived_project() }}</a></li>
         </ul>
       </section>
@@ -244,21 +240,14 @@
           {% endtrans %}
         </p>
 
-        <h3 id="yanked">{{ yanked() }}</h3>
-        <p>
-          {% trans href='https://www.python.org/dev/peps/pep-0592/', title=gettext('External link') %}
-          A yanked release is a release that is always ignored by an installer, unless it is the only release that matches a version specifier (using either <code>==</code> or <code>===</code>). See <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><abbr title="Python enhancement proposal">PEP</abbr> 592</a> for more information.
-          {% endtrans %}
-        </p>
-
         <h3 id="archived-project">{{ archived_project() }}</h3>
         <p>
-          {% trans %}
+          {% trans href=request.user_docs_url('/project-management/yanking') %}
           An archived project is a project that is no longer receiving any updates.
           A project maintainer can mark a project as archived to signal to users that future
           updates should not be expected. Archived projects are publicly visible and
           can still be resolved from the index by default, unlike deleted or
-          <a href="#yanked">yanked</a> releases.
+          <a href="{{ href }}">yanked</a> releases.
           {% endtrans %}
         </p>
       </section>
