@@ -792,8 +792,7 @@ def file_upload(request):
         if rendered is None:
             if meta.description_content_type:
                 message = (
-                    "The description failed to render "
-                    "for '{description_content_type}'."
+                    "The description failed to render for '{description_content_type}'."
                 ).format(description_content_type=description_content_type)
             else:
                 message = (
@@ -1048,7 +1047,10 @@ def file_upload(request):
                             name=project.name, limit=file_size_limit // ONE_MIB
                         )
                         + "See "
-                        + request.help_url(_anchor="file-size-limit")
+                        + request.user_docs_url(
+                            "/project-management/storage-limits",
+                            anchor="requesting-a-file-size-limit-increase",
+                        )
                         + " for more information.",
                     )
                 if file_size + project.total_size > project_size_limit:
@@ -1059,7 +1061,10 @@ def file_upload(request):
                             name=project.name, limit=project_size_limit // ONE_GIB
                         )
                         + "See "
-                        + request.help_url(_anchor="project-size-limit"),
+                        + request.user_docs_url(
+                            "/project-management/storage-limits",
+                            anchor="requesting-a-project-size-limit-increase",
+                        ),
                     )
                 fp.write(chunk)
                 for hasher in file_hashes.values():
