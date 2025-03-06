@@ -31,19 +31,15 @@ from warehouse.packaging.typosnyper import typo_check_name
         ("requestz", ("common_typos", "requests")),
     ],
 )
-def test_typo_check_name(name, expected, monkeypatch):
-    # Set known entries in the _TOP_PROJECT_NAMES list
-    # TODO: Replace with a better way to generate corpus
-    monkeypatch.setattr(
-        "warehouse.packaging.typosnyper._TOP_PROJECT_NAMES",
-        {
-            "numpy",
-            "requests",
-            "sphinx",
-            "beautifulsoup4",
-            "jinja2",
-            "python-dateutil",
-        },
-    )
+def test_typo_check_name(name, expected):
+    # Set known entries corpus entries for testing
+    test_names_corpus = {
+        "numpy",
+        "requests",
+        "sphinx",
+        "beautifulsoup4",
+        "jinja2",
+        "python-dateutil",
+    }
 
-    assert typo_check_name(name) == expected
+    assert typo_check_name(name, corpus=test_names_corpus) == expected
