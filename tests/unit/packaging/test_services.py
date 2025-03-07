@@ -34,6 +34,7 @@ from warehouse.packaging.interfaces import (
     ProjectNameUnavailableProhibitedError,
     ProjectNameUnavailableSimilarError,
     ProjectNameUnavailableStdlibError,
+    ProjectNameUnavailableTypoSquattingError,
 )
 from warehouse.packaging.services import (
     B2FileStorage,
@@ -1049,6 +1050,14 @@ class TestProjectService:
             exc.value.similar_project_name == project1.name
             or exc.value.similar_project_name == project2.name
         )
+
+    def test_check_project_name_typosquatting_prohibited(self, db_session):
+        # TODO: Update this test once we have a dynamic TopN approach
+        service = ProjectService(session=db_session)
+        ProhibitedProjectFactory.create(name="numpy")
+
+        with pytest.raises(ProjectNameUnavailableTypoSquattingError):
+            service.check_project_name("numpi")
 
     def test_check_project_name_ok(self, db_session):
         service = ProjectService(session=db_session)

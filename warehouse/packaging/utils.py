@@ -17,6 +17,7 @@ import tempfile
 import packaging_legacy.version
 
 from pyramid_jinja2 import IJinja2Environment
+from sqlalchemy import String, cast, func, select
 from sqlalchemy.orm import joinedload
 
 from warehouse.packaging.interfaces import ISimpleStorage
@@ -26,22 +27,32 @@ API_VERSION = "1.3"
 
 
 def _simple_index(request, serial):
-    # Fetch the name and normalized name for all of our projects
-    projects = (
-        request.db.query(Project.name, Project.normalized_name, Project.last_serial)
-        # Exclude projects that are in the `quarantine-enter` lifecycle status.
-        # Use `is_distinct_from` method here to ensure that we select `NULL` records,
-        # which would otherwise be excluded by the `==` operator.
-        .filter(
-            Project.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter)
+    # Fetch the name and last serial name for all of our projects
+    query = select(
+        func.array(
+            select(
+                func.json_build_object(
+                    cast("name", String),
+                    Project.name,
+                    cast("_last-serial", String),
+                    Project.last_serial,
+                )
+            )
+            # Exclude projects that are in the `quarantine-enter` lifecycle status.
+            # Use `is_distinct_from` method here to ensure that we select `NULL`
+            # records, which would otherwise be excluded by the `==` operator.
+            .filter(
+                Project.lifecycle_status.is_distinct_from(
+                    LifecycleStatus.QuarantineEnter
+                )
+            ).order_by(Project.normalized_name)
         )
-        .order_by(Project.normalized_name)
-        .all()
     )
+    projects = request.db.execute(query).scalar() or []
 
     return {
         "meta": {"api-version": API_VERSION, "_last-serial": serial},
-        "projects": [{"name": p.name, "_last-serial": p.last_serial} for p in projects],
+        "projects": projects,
     }
 
 

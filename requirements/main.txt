@@ -4,9 +4,9 @@
 #
 #    pip-compile --allow-unsafe --generate-hashes --output-file=requirements/main.txt requirements/main.in
 #
-alembic==1.14.1 \
-    --hash=sha256:1acdd7a3a478e208b0503cd73614d5e4c6efafa4e73518bb60e4f2846a37b1c5 \
-    --hash=sha256:496e888245a53adf1498fcab31713a469c65836f8de76e01399aa1c3e90dd213
+alembic==1.15.1 \
+    --hash=sha256:197de710da4b3e91cf66a826a5b31b5d59a127ab41bd0fc42863e2902ce2bbbe \
+    --hash=sha256:e1a1c738577bca1f27e68728c910cd389b9a92152ff91d902da649c192e30c49
     # via
     #   -r requirements/main.in
     #   alembic-postgresql-enum
@@ -534,9 +534,9 @@ deprecated==1.2.18 \
     --hash=sha256:422b6f6d859da6f2ef57857761bfb392480502a64c3028ca9bbe86085d72115d \
     --hash=sha256:bd5011788200372a32418f888e326a09ff80d0214bd961147cfed01b5c018eec
     # via limits
-disposable-email-domains==0.0.118 \
-    --hash=sha256:3d54760264403d54796014ac21deb5ed32737c9a9e06865ae7d924e6ac776bef \
-    --hash=sha256:74e95798af2bbdd799c67fa57495794abd5e7b0d81202710e258f541712a5bfb
+disposable-email-domains==0.0.119 \
+    --hash=sha256:a0e231613475fb2f91afd36aa63dea87902a513bbe8c7a0f05227cb7a979f28e \
+    --hash=sha256:b8212349f4ee964fb02cb9f4623fea1a3c22a0b850d896eb076c45732453a3f2
     # via -r requirements/main.in
 dnspython==2.7.0 \
     --hash=sha256:b4c34b7d10b51bcc3a5071e7b8dee77939f1e878477eeecc965e9835f63c6c86 \
@@ -636,9 +636,9 @@ google-resumable-media==2.7.2 \
     # via
     #   google-cloud-bigquery
     #   google-cloud-storage
-googleapis-common-protos==1.68.0 \
-    --hash=sha256:95d38161f4f9af0d9423eed8fb7b64ffd2568c3464eb542ff02c5bfa1953ab3c \
-    --hash=sha256:aaf179b2f81df26dfadac95def3b16a95064c76a5f45f07e4c68a21bb371c4ac
+googleapis-common-protos==1.69.1 \
+    --hash=sha256:4077f27a6900d5946ee5a369fab9c8ded4c0ef1c6e880458ea2f70c14f7b70d5 \
+    --hash=sha256:e20d2d8dda87da6fe7340afbbdf4f0bcb4c8fae7e6cadf55926c31f946b0b9b1
     # via
     #   google-api-core
     #   grpcio-status
@@ -937,9 +937,9 @@ itsdangerous==2.2.0 \
     --hash=sha256:c6242fc49e35958c8b15141343aa660db5fc54d4f13a1db01a3f5891b98700ef \
     --hash=sha256:e0050c0b7da1eea53ffaf149c0cfbb5c6e2e2b69c4bef22c81fa6eb73e5f6173
     # via -r requirements/main.in
-jinja2==3.1.5 \
-    --hash=sha256:8fefff8dc3034e27bb80d67c671eb8a9bc424c0ef4c0826edbff304cceff43bb \
-    --hash=sha256:aba0f4dc9ed8013c424088f68a5c226f7d6097ed89b246d7749c2ec4175c6adb
+jinja2==3.1.6 \
+    --hash=sha256:0137fb05990d35f1275a587e9aee6d56da821fc83491a0fb838183be43f66d6d \
+    --hash=sha256:85ece4451f492d0c13c5dd7c13a64681a86afae63a5f347908daf103ce6d2f67
     # via
     #   -r requirements/main.in
     #   pyramid-jinja2
@@ -1808,9 +1808,9 @@ pyparsing==3.2.1 \
     --hash=sha256:506ff4f4386c4cec0590ec19e6302d3aedb992fdc02c761e90416f158dacf8e1 \
     --hash=sha256:61980854fd66de3a90028d679a954d5f2623e83144b5afe5ee86f43d762e5f0a
     # via linehaul
-pypi-attestations==0.0.21 \
-    --hash=sha256:25e3604844b4bdf3f0a82703f08ec8882f96be349199a2bea8b34cb9e3864227 \
-    --hash=sha256:e8f5ed3a73d5069dcef1a5e4072085676e0fd1dbbbe7cf3686915c953e51503a
+pypi-attestations==0.0.22 \
+    --hash=sha256:113d0d5ef300abbd7978fa88f41155a1734ccd833684b17844c4d9cb90212420 \
+    --hash=sha256:7055047c8ee550adcdcc12a957e4470afca521ba128ba1a2f9e36a3334b5ba33
     # via -r requirements/main.in
 pyqrcode==1.2.1 \
     --hash=sha256:1b2812775fa6ff5c527977c4cd2ccb07051ca7d0bc0aecf937a43864abe5eff6 \
@@ -2266,9 +2266,9 @@ translationstring==1.4 \
     --hash=sha256:5f4dc4d939573db851c8d840551e1a0fb27b946afe3b95aafc22577eed2d6262 \
     --hash=sha256:bf947538d76e69ba12ab17283b10355a9ecfbc078e6123443f43f2107f6376f3
     # via pyramid
-trove-classifiers==2025.2.18.16 \
-    --hash=sha256:7f6dfae899f23f04b73bc09e0754d9219a6fc4d6cca6acd62f1850a87ea92262 \
-    --hash=sha256:b1ee2e1668589217d4edf506743e28b1834da128f8a122bad522c02d837006e1
+trove-classifiers==2025.3.3.18 \
+    --hash=sha256:215630da61cf8757c373f81b602fc1283ec5a691cf12c5f9f96f11d6ad5fc7f2 \
+    --hash=sha256:3ffcfa90a428adfde1a5d90e3aa1b87fe474c5dbdbf5ccbca74ed69ba83c5ca7
     # via -r requirements/main.in
 tuf==5.1.0 \
     --hash=sha256:1865737bf8e05893ae31b4511617da7f02cf070562fa3c931074d29ef5fb46d7 \

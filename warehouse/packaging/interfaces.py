@@ -130,3 +130,11 @@ class ProjectNameUnavailableSimilarError(ProjectNameUnavailableError):
 
     def __init__(self, similar_project_name: str):
         self.similar_project_name: str = similar_project_name
+
+
+class ProjectNameUnavailableTypoSquattingError(ProjectNameUnavailableError):
+    """Project name is a typo of an existing project."""
+
+    def __init__(self, check_name: str, existing_project_name: str):
+        self.check_name: str = check_name
+        self.existing_project_name: str = existing_project_name
