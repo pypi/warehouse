@@ -1071,6 +1071,10 @@ class ProhibitedProjectName(db.Model):
     )
     prohibited_by: Mapped[User] = orm.relationship()
     comment: Mapped[str] = mapped_column(server_default="")
+    observation_kind: Mapped[str] = mapped_column(
+        nullable=True,
+        comment="If this was created via an observation, the kind of observation",
+    )
 
 
 class ProjectMacaroonWarningAssociation(db.Model):
