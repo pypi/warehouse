@@ -636,9 +636,9 @@ google-resumable-media==2.7.2 \
     # via
     #   google-cloud-bigquery
     #   google-cloud-storage
-googleapis-common-protos==1.69.0 \
-    --hash=sha256:17835fdc4fa8da1d61cfe2d4d5d57becf7c61d4112f8d81c67eaa9d7ce43042d \
-    --hash=sha256:5a46d58af72846f59009b9c4710425b9af2139555c71837081706b213b298187
+googleapis-common-protos==1.69.1 \
+    --hash=sha256:4077f27a6900d5946ee5a369fab9c8ded4c0ef1c6e880458ea2f70c14f7b70d5 \
+    --hash=sha256:e20d2d8dda87da6fe7340afbbdf4f0bcb4c8fae7e6cadf55926c31f946b0b9b1
     # via
     #   google-api-core
     #   grpcio-status
