@@ -110,6 +110,7 @@ from warehouse.oidc.forms import (
     GitLabPublisherForm,
     GooglePublisherForm,
 )
+from warehouse.oidc.forms._core import ConstrainEnvironmentForm
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import (
     ActiveStatePublisher,
@@ -140,11 +141,16 @@ from warehouse.packaging.models import (
 from warehouse.rate_limiting import IRateLimiter
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import paginate_url_factory
-from warehouse.utils.project import confirm_project, destroy_docs, remove_project
+from warehouse.utils.project import (
+    archive_project,
+    confirm_project,
+    destroy_docs,
+    remove_project,
+    unarchive_project,
+)
 
 
 class ManageAccountMixin:
-
     def __init__(self, request):
         self.request = request
         self.user_service = request.find_service(IUserService, context=None)
@@ -218,9 +224,11 @@ class ManageAccountMixin:
 )
 @lift()
 class ManageUnverifiedAccountViews(ManageAccountMixin):
-
     @view_config(request_method="GET")
     def manage_unverified_account(self):
+        if self.request.user.has_primary_verified_email:
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
         return {"help_url": self.request.help_url(_anchor="account-recovery")}
 
 
@@ -236,7 +244,6 @@ class ManageUnverifiedAccountViews(ManageAccountMixin):
 )
 @lift()
 class ManageVerifiedAccountViews(ManageAccountMixin):
-
     @property
     def active_projects(self):
         return user_projects(request=self.request)["projects_sole_owned"]
@@ -942,6 +949,8 @@ class ProvisionMacaroonViews:
 
         response = {**self.default_response}
         if form.validate():
+            macaroon_caveats: list[caveats.Caveat]
+
             if form.validated_scope == "user":
                 recorded_caveats = [{"permissions": form.validated_scope, "version": 1}]
                 macaroon_caveats = [
@@ -1437,6 +1446,132 @@ class ManageOIDCPublisherViews:
 
     @view_config(
         request_method="POST",
+        request_param=ConstrainEnvironmentForm.__params__,
+    )
+    def constrain_environment(self):
+        if self.request.flags.disallow_oidc():
+            self.request.session.flash(
+                (
+                    "Trusted publishing is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+            return self.default_response
+
+        self.metrics.increment("warehouse.oidc.constrain_publisher_environment.attempt")
+
+        form = ConstrainEnvironmentForm(self.request.POST)
+
+        if not form.validate():
+            self.request.session.flash(
+                self.request._("The trusted publisher could not be constrained"),
+                queue="error",
+            )
+            return self.default_response
+
+        publisher = self.request.db.get(
+            OIDCPublisher, form.constrained_publisher_id.data
+        )
+
+        if publisher is None or publisher not in self.project.oidc_publishers:
+            self.request.session.flash(
+                "Invalid publisher for project",
+                queue="error",
+            )
+            return self.default_response
+
+        # First we add the new (constrained) trusted publisher
+        if isinstance(publisher, GitHubPublisher):
+            constrained_publisher = GitHubPublisher(
+                repository_name=publisher.repository_name,
+                repository_owner=publisher.repository_owner,
+                repository_owner_id=publisher.repository_owner_id,
+                workflow_filename=publisher.workflow_filename,
+                environment=form.constrained_environment_name.data,
+            )
+        elif isinstance(publisher, GitLabPublisher):
+            constrained_publisher = GitLabPublisher(
+                namespace=publisher.namespace,
+                project=publisher.project,
+                workflow_filepath=publisher.workflow_filepath,
+                environment=form.constrained_environment_name.data,
+            )
+        else:
+            self.request.session.flash(
+                "Can only constrain the environment for GitHub and GitLab publishers",
+                queue="error",
+            )
+            return self.default_response
+
+        # The user might have already manually created the new constrained publisher
+        # before clicking the magic link to constrain the existing publisher.
+        if constrained_publisher.exists(self.request.db):
+            self.request.session.flash(
+                self.request._(
+                    f"{publisher} is already registered with {self.project.name}"
+                ),
+                queue="error",
+            )
+            return self.default_response
+
+        if publisher.environment != "":
+            self.request.session.flash(
+                "Can only constrain the environment for publishers without an "
+                "environment configured",
+                queue="error",
+            )
+            return self.default_response
+
+        self.request.db.add(constrained_publisher)
+        self.request.db.flush()  # ensure constrained_publisher.id is available
+        self.project.oidc_publishers.append(constrained_publisher)
+
+        self.project.record_event(
+            tag=EventTag.Project.OIDCPublisherAdded,
+            request=self.request,
+            additional={
+                "publisher": constrained_publisher.publisher_name,
+                "id": str(constrained_publisher.id),
+                "specifier": str(constrained_publisher),
+                "url": constrained_publisher.publisher_url(),
+                "submitted_by": self.request.user.username,
+                "reified_from_pending_publisher": False,
+                "constrained_from_existing_publisher": True,
+            },
+        )
+
+        # Then, we remove the old trusted publisher from the project
+        # and, if there are no projects left associated with the publisher,
+        # we delete it entirely.
+        self.project.oidc_publishers.remove(publisher)
+        if len(publisher.projects) == 0:
+            self.request.db.delete(publisher)
+
+        self.project.record_event(
+            tag=EventTag.Project.OIDCPublisherRemoved,
+            request=self.request,
+            additional={
+                "publisher": publisher.publisher_name,
+                "id": str(publisher.id),
+                "specifier": str(publisher),
+                "url": publisher.publisher_url(),
+                "submitted_by": self.request.user.username,
+            },
+        )
+
+        self.request.session.flash(
+            self.request._(
+                f"Trusted publisher for project {self.project.name!r} has been "
+                f"constrained to environment {constrained_publisher.environment!r}"
+            ),
+            queue="success",
+        )
+
+        return HTTPSeeOther(self.request.path)
+
+    @view_config(
+        request_method="POST",
         request_param=GitHubPublisherForm.__params__,
     )
     def add_github_oidc_publisher(self):
@@ -1534,6 +1669,8 @@ class ManageOIDCPublisherViews:
                 "specifier": str(publisher),
                 "url": publisher.publisher_url(),
                 "submitted_by": self.request.user.username,
+                "reified_from_pending_publisher": False,
+                "constrained_from_existing_publisher": False,
             },
         )
 
@@ -1646,6 +1783,8 @@ class ManageOIDCPublisherViews:
                 "specifier": str(publisher),
                 "url": publisher.publisher_url(),
                 "submitted_by": self.request.user.username,
+                "reified_from_pending_publisher": False,
+                "constrained_from_existing_publisher": False,
             },
         )
 
@@ -1753,6 +1892,8 @@ class ManageOIDCPublisherViews:
                 "specifier": str(publisher),
                 "url": publisher.publisher_url(),
                 "submitted_by": self.request.user.username,
+                "reified_from_pending_publisher": False,
+                "constrained_from_existing_publisher": False,
             },
         )
 
@@ -1865,6 +2006,8 @@ class ManageOIDCPublisherViews:
                 "specifier": str(publisher),
                 "url": publisher.publisher_url(),
                 "submitted_by": self.request.user.username,
+                "reified_from_pending_publisher": False,
+                "constrained_from_existing_publisher": False,
             },
         )
 
@@ -2098,7 +2241,7 @@ def manage_project_releases(project, request):
     #       }
     #   }
 
-    version_to_file_counts = {}
+    version_to_file_counts: dict[str, dict[str, int]] = {}
     for version, packagetype, count in filecounts:
         packagetype_to_count = version_to_file_counts.setdefault(version, {})
         packagetype_to_count.setdefault("total", 0)
@@ -3180,3 +3323,37 @@ def manage_project_history(project, request):
 )
 def manage_project_documentation(project, request):
     return {"project": project}
+
+
+@view_config(
+    route_name="manage.project.archive",
+    context=Project,
+    uses_session=True,
+    require_methods=["POST"],
+    permission=Permissions.ProjectsWrite,
+)
+def archive_project_view(project, request) -> HTTPSeeOther:
+    """
+    Archive a Project. Reversible action.
+    """
+    archive_project(project, request)
+    return HTTPSeeOther(
+        request.route_path("manage.project.settings", project_name=project.name)
+    )
+
+
+@view_config(
+    route_name="manage.project.unarchive",
+    context=Project,
+    uses_session=True,
+    require_methods=["POST"],
+    permission=Permissions.ProjectsWrite,
+)
+def unarchive_project_view(project, request) -> HTTPSeeOther:
+    """
+    Unarchive a Project. Reversible action.
+    """
+    unarchive_project(project, request)
+    return HTTPSeeOther(
+        request.route_path("manage.project.settings", project_name=project.name)
+    )

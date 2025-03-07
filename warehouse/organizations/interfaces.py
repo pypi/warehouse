@@ -166,6 +166,16 @@ class IOrganizationService(Interface):
         Removes an association between the specified organization and project
         """
 
+    def record_tos_engagement(
+        organization_id,
+        revision,
+        engagement,
+    ):
+        """
+        Add a record of end user agreeing to terms of service,
+        or being notified of a terms of service change.
+        """
+
     def get_organization_subscription(organization_id, subscription_id):
         """
         Return the organization subscription object that represents the given

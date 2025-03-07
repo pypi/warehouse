@@ -51,6 +51,7 @@ from warehouse.manage.forms import (
     CreateOrganizationApplicationForm,
     CreateOrganizationRoleForm,
     CreateTeamForm,
+    OrganizationActivateBillingForm,
     SaveOrganizationForm,
     SaveOrganizationNameForm,
     TransferOrganizationProjectForm,
@@ -67,6 +68,7 @@ from warehouse.organizations.models import (
     OrganizationRole,
     OrganizationRoleType,
     OrganizationType,
+    TermsOfServiceEngagement,
 )
 from warehouse.packaging import IProjectService, Project, Role
 from warehouse.packaging.models import JournalEntry, ProjectFactory
@@ -554,9 +556,19 @@ class ManageOrganizationBillingViews:
         renderer="manage/organization/activate_subscription.html",
     )
     def activate_subscription(self):
-        # We're not ready for companies to activate their own subscriptions yet.
-        raise HTTPNotFound()
-        # return {"organization": self.organization}
+        form = OrganizationActivateBillingForm(self.request.POST)
+        if self.request.method == "POST" and form.validate():
+            self.organization_service.record_tos_engagement(
+                self.organization.id,
+                self.request.registry.settings.get("terms.revision"),
+                TermsOfServiceEngagement.Agreed,
+            )
+            route = self.request.route_path(
+                "manage.organization.subscription",
+                organization_name=self.organization.normalized_name,
+            )
+            return HTTPSeeOther(route)
+        return {"organization": self.organization, "form": form}
 
     @view_config(route_name="manage.organization.subscription")
     def create_or_manage_subscription(self):
@@ -564,8 +576,10 @@ class ManageOrganizationBillingViews:
         if not self.request.organization_access:
             raise HTTPNotFound()
 
-        if not self.organization.subscriptions:
-            # Create subscription if there are no existing subscription.
+        if not self.organization.manageable_subscription:
+            # Create subscription if there are no manageable subscription.
+            # This occurs if no subscription exists, or all subscriptions have reached
+            # a terminal state of Canceled.
             return self.create_subscription()
         else:
             # Manage subscription if there is an existing subscription.

@@ -1164,7 +1164,6 @@ class TestFileUpload:
         db_request,
         digests,
         macaroon_in_user_context,
-        metrics,
     ):
         monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
 
@@ -1225,7 +1224,6 @@ class TestFileUpload:
         db_request.find_service = pretend.call_recorder(
             lambda svc, name=None, context=None: {
                 IFileStorage: storage_service,
-                IMetricsService: metrics,
             }.get(svc)
         )
         db_request.registry.settings = {
@@ -1238,7 +1236,6 @@ class TestFileUpload:
 
         assert resp.status_code == 200
         assert db_request.find_service.calls == [
-            pretend.call(IMetricsService, context=None),
             pretend.call(IIntegrityService, context=None),
             pretend.call(IFileStorage, name="archive"),
         ]
@@ -1309,7 +1306,7 @@ class TestFileUpload:
                     "license": None,
                     "license_expression": "MIT OR Apache-2.0",
                     "license_files": ["LICENSE.APACHE", "LICENSE.MIT"],
-                    "keywords": ["keyword1", "keyword2"],
+                    "keywords": "keyword1, keyword2",
                     "classifiers": ["Environment :: Other Environment"],
                     "platform": None,
                     "home_page": None,
@@ -1343,7 +1340,7 @@ class TestFileUpload:
             pretend.call(uploaded_file.id),
         ]
 
-        assert metrics.increment.calls == [
+        assert db_request.metrics.increment.calls == [
             pretend.call("warehouse.upload.attempt"),
             pretend.call("warehouse.upload.ok", tags=["filetype:sdist"]),
         ]
@@ -1730,7 +1727,7 @@ class TestFileUpload:
         )
 
     def test_upload_fails_end_of_file_error(
-        self, pyramid_config, db_request, metrics, project_service
+        self, pyramid_config, db_request, project_service
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -1762,7 +1759,6 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
-            IMetricsService: metrics,
             IProjectService: project_service,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
@@ -1924,7 +1920,6 @@ class TestFileUpload:
         self,
         pyramid_config,
         db_request,
-        metrics,
         project_service,
     ):
         user = UserFactory.create()
@@ -1963,7 +1958,6 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
-            IMetricsService: metrics,
             IProjectService: project_service,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
@@ -2250,7 +2244,6 @@ class TestFileUpload:
         monkeypatch,
         pyramid_config,
         db_request,
-        metrics,
         filename,
         filetype,
         project_name,
@@ -2267,7 +2260,6 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
-            IMetricsService: metrics,
         }.get(svc)
         monkeypatch.setattr(
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
@@ -2311,7 +2303,7 @@ class TestFileUpload:
         "filename", ["wutang-6.6.6.tar.gz", "wutang-6.6.6-py3-none-any.whl"]
     )
     def test_upload_fails_with_wrong_filename_version(
-        self, monkeypatch, pyramid_config, db_request, metrics, filename
+        self, monkeypatch, pyramid_config, db_request, filename
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -2324,7 +2316,6 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
-            IMetricsService: metrics,
         }.get(svc)
         monkeypatch.setattr(
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
@@ -2629,7 +2620,6 @@ class TestFileUpload:
         monkeypatch,
         pyramid_config,
         db_request,
-        metrics,
         project_service,
         macaroon_service,
         integrity_service,
@@ -2691,7 +2681,6 @@ class TestFileUpload:
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
             IMacaroonService: macaroon_service,
-            IMetricsService: metrics,
             IProjectService: project_service,
             IIntegrityService: integrity_service,
         }.get(svc)
@@ -2734,11 +2723,28 @@ class TestFileUpload:
             "manylinux_2_17_ppc64le",
             "manylinux_3_0_s390x",
             "musllinux_1_1_x86_64",
-            "macosx_10_6_intel",
+            "macosx_10_5_ppc",
+            "macosx_10_5_ppc64",
+            "macosx_10_5_i386",
+            "macosx_10_5_intel",
+            "macosx_10_5_fat",
+            "macosx_10_5_fat3",
+            "macosx_10_5_fat64",
+            "macosx_10_5_universal",
             "macosx_10_13_x86_64",
             "macosx_11_0_x86_64",
             "macosx_10_15_arm64",
             "macosx_11_10_universal2",
+            "ios_13_0_arm64_iphoneos",
+            "ios_13_0_arm64_iphonesimulator",
+            "ios_13_0_x86_64_iphonesimulator",
+            "ios_15_4_arm64_iphoneos",
+            "ios_15_4_arm64_iphonesimulator",
+            "ios_15_4_x86_64_iphonesimulator",
+            "android_27_armeabi_v7a",
+            "android_27_arm64_v8a",
+            "android_27_x86",
+            "android_27_x86_64",
             # A real tag used by e.g. some numpy wheels
             (
                 "macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64."
@@ -2747,7 +2753,7 @@ class TestFileUpload:
         ],
     )
     def test_upload_succeeds_with_wheel(
-        self, tmpdir, monkeypatch, pyramid_config, db_request, plat, metrics
+        self, tmpdir, monkeypatch, pyramid_config, db_request, plat
     ):
         monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
 
@@ -2757,8 +2763,12 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = f"{project.name}-{release.version}-cp34-none-{plat}.whl"
-        filebody = _get_whl_testdata(name=project.name, version=release.version)
+        filename = "{}-{}-cp34-none-{}.whl".format(
+            project.normalized_name.replace("-", "_"), release.version, plat
+        )
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version=release.version
+        )
         filestoragehash = _storage_hash(filebody)
 
         pyramid_config.testing_securitypolicy(identity=user)
@@ -2793,7 +2803,6 @@ class TestFileUpload:
         db_request.find_service = pretend.call_recorder(
             lambda svc, name=None, context=None: {
                 IFileStorage: storage_service,
-                IMetricsService: metrics,
             }.get(svc)
         )
 
@@ -2805,7 +2814,6 @@ class TestFileUpload:
 
         assert resp.status_code == 200
         assert db_request.find_service.calls == [
-            pretend.call(IMetricsService, context=None),
             pretend.call(IIntegrityService, context=None),
             pretend.call(IFileStorage, name="archive"),
         ]
@@ -2870,7 +2878,7 @@ class TestFileUpload:
             )
         ]
 
-        assert metrics.increment.calls == [
+        assert db_request.metrics.increment.calls == [
             pretend.call("warehouse.upload.attempt"),
             pretend.call("warehouse.upload.ok", tags=["filetype:bdist_wheel"]),
         ]
@@ -2888,7 +2896,6 @@ class TestFileUpload:
         monkeypatch,
         db_request,
         pyramid_config,
-        metrics,
         project_name,
         version,
     ):
@@ -2917,7 +2924,6 @@ class TestFileUpload:
         db_request.find_service = pretend.call_recorder(
             lambda svc, name=None, context=None: {
                 IFileStorage: storage_service,
-                IMetricsService: metrics,
             }.get(svc)
         )
 
@@ -2960,7 +2966,6 @@ class TestFileUpload:
         monkeypatch,
         db_request,
         pyramid_config,
-        metrics,
         project_name,
         filename_prefix,
     ):
@@ -2985,7 +2990,6 @@ class TestFileUpload:
         db_request.find_service = pretend.call_recorder(
             lambda svc, name=None, context=None: {
                 IFileStorage: storage_service,
-                IMetricsService: metrics,
             }.get(svc)
         )
 
@@ -3037,7 +3041,6 @@ class TestFileUpload:
         monkeypatch,
         db_request,
         pyramid_config,
-        metrics,
         project_name,
         filename_prefix,
         version,
@@ -3063,7 +3066,6 @@ class TestFileUpload:
         db_request.find_service = pretend.call_recorder(
             lambda svc, name=None, context=None: {
                 IFileStorage: storage_service,
-                IMetricsService: metrics,
             }.get(svc)
         )
 
@@ -3107,7 +3109,7 @@ class TestFileUpload:
         db_request.db.query(Filename).filter(Filename.filename == filename).one()
 
     def test_upload_succeeds_with_wheel_after_sdist(
-        self, tmpdir, monkeypatch, pyramid_config, db_request, metrics
+        self, tmpdir, monkeypatch, pyramid_config, db_request
     ):
         monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
 
@@ -3115,15 +3117,20 @@ class TestFileUpload:
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
-        FileFactory.create(
-            release=release,
-            packagetype="sdist",
-            filename=f"{project.name}-{release.version}.tar.gz",
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"),
+            release.version,
         )
+        FileFactory.create(release=release, packagetype="sdist", filename=filename)
         RoleFactory.create(user=user, project=project)
 
-        filename = f"{project.name}-{release.version}-cp34-none-any.whl"
-        filebody = _get_whl_testdata(name=project.name, version=release.version)
+        filename = "{}-{}-cp34-none-any.whl".format(
+            project.normalized_name.replace("-", "_"),
+            release.version,
+        )
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version=release.version
+        )
         filestoragehash = _storage_hash(filebody)
 
         pyramid_config.testing_securitypolicy(identity=user)
@@ -3157,7 +3164,6 @@ class TestFileUpload:
         db_request.find_service = pretend.call_recorder(
             lambda svc, name=None, context=None: {
                 IFileStorage: storage_service,
-                IMetricsService: metrics,
             }.get(svc)
         )
 
@@ -3169,7 +3175,6 @@ class TestFileUpload:
 
         assert resp.status_code == 200
         assert db_request.find_service.calls == [
-            pretend.call(IMetricsService, context=None),
             pretend.call(IIntegrityService, context=None),
             pretend.call(IFileStorage, name="archive"),
         ]
@@ -3368,7 +3373,10 @@ class TestFileUpload:
         with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
             zfp.writestr("some_file", "some_data")
 
-        filename = f"{project.name}-{release.version}-cp34-none-any.whl"
+        filename = "{}-{}-cp34-none-any.whl".format(
+            project.normalized_name.replace("-", "_"),
+            release.version,
+        )
         filebody = temp_f.getvalue()
 
         db_request.POST = MultiDict(
@@ -3401,9 +3409,7 @@ class TestFileUpload:
             "400 Wheel .* does not contain the required METADATA file: .*", resp.status
         )
 
-    def test_upload_updates_existing_project_name(
-        self, pyramid_config, db_request, metrics
-    ):
+    def test_upload_updates_existing_project_name(self, pyramid_config, db_request):
         user = UserFactory.create()
         EmailFactory.create(user=user)
         project = ProjectFactory.create(name="Package-Name")
@@ -3435,7 +3441,6 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
-            IMetricsService: metrics,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
 
@@ -3478,7 +3483,6 @@ class TestFileUpload:
         monkeypatch,
         pyramid_config,
         db_request,
-        metrics,
         version,
         expected_version,
         test_with_user,
@@ -3538,7 +3542,6 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
-            IMetricsService: metrics,
         }.get(svc)
 
         record_event = pretend.call_recorder(
@@ -3650,7 +3653,6 @@ class TestFileUpload:
         monkeypatch,
         pyramid_config,
         db_request,
-        metrics,
         integrity_service,
     ):
         from warehouse.events.models import HasEvents
@@ -3707,7 +3709,6 @@ class TestFileUpload:
         db_request.find_service = lambda svc, name=None, context=None: {
             IIntegrityService: integrity_service,
             IFileStorage: storage_service,
-            IMetricsService: metrics,
         }.get(svc)
 
         record_event = pretend.call_recorder(
@@ -3719,7 +3720,8 @@ class TestFileUpload:
         assert resp.status_code == 200
 
         assert (
-            pretend.call("warehouse.upload.attestations.ok") in metrics.increment.calls
+            pretend.call("warehouse.upload.attestations.ok")
+            in db_request.metrics.increment.calls
         )
 
         # The file was created and has an associated provenance object.
@@ -3823,7 +3825,7 @@ class TestFileUpload:
         ],
     )
     def test_new_release_url_verified(
-        self, monkeypatch, pyramid_config, db_request, metrics, url, expected
+        self, monkeypatch, pyramid_config, db_request, url, expected
     ):
         project = ProjectFactory.create()
         publisher = GitHubPublisherFactory.create(projects=[project])
@@ -3873,7 +3875,6 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
-            IMetricsService: metrics,
         }.get(svc)
 
         legacy.file_upload(db_request)
@@ -3894,7 +3895,7 @@ class TestFileUpload:
         ],
     )
     def test_new_release_homepage_download_urls_verified(
-        self, monkeypatch, pyramid_config, db_request, metrics, url, expected
+        self, monkeypatch, pyramid_config, db_request, url, expected
     ):
         project = ProjectFactory.create()
         publisher = GitHubPublisherFactory.create(projects=[project])
@@ -3945,7 +3946,6 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
-            IMetricsService: metrics,
         }.get(svc)
 
         legacy.file_upload(db_request)
@@ -3967,7 +3967,6 @@ class TestFileUpload:
         monkeypatch,
         pyramid_config,
         db_request,
-        metrics,
         home_page_verified,
         download_url_verified,
     ):
@@ -4042,7 +4041,6 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
-            IMetricsService: metrics,
         }.get(svc)
 
         legacy.file_upload(db_request)
@@ -4060,9 +4058,7 @@ class TestFileUpload:
         }
         assert not release_db.urls_by_verify_status(verified=False)
 
-    def test_new_release_email_verified(
-        self, monkeypatch, pyramid_config, db_request, metrics
-    ):
+    def test_new_release_email_verified(self, monkeypatch, pyramid_config, db_request):
         owner = UserFactory.create()
         maintainer = UserFactory.create()
 
@@ -4126,7 +4122,6 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
-            IMetricsService: metrics,
         }.get(svc)
 
         legacy.file_upload(db_request)
@@ -4144,7 +4139,7 @@ class TestFileUpload:
         ],
     )
     def test_upload_succeeds_creates_release_metadata_2_3(
-        self, pyramid_config, db_request, metrics, version, expected_version
+        self, pyramid_config, db_request, version, expected_version
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -4194,7 +4189,6 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
-            IMetricsService: metrics,
         }.get(svc)
 
         resp = legacy.file_upload(db_request)
@@ -4264,7 +4258,7 @@ class TestFileUpload:
         with pytest.raises(IntegrityError):
             db_request.db.commit()
 
-    def test_equivalent_version_one_release(self, pyramid_config, db_request, metrics):
+    def test_equivalent_version_one_release(self, pyramid_config, db_request):
         """
         Test that if a release with a version like '1.0' exists, that a future
         upload with an equivalent version like '1.0.0' will not make a second
@@ -4301,7 +4295,6 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
-            IMetricsService: metrics,
         }.get(svc)
 
         resp = legacy.file_upload(db_request)
@@ -4314,7 +4307,7 @@ class TestFileUpload:
         # Asset that only one release has been created
         assert releases == [release]
 
-    def test_equivalent_canonical_versions(self, pyramid_config, db_request, metrics):
+    def test_equivalent_canonical_versions(self, pyramid_config, db_request):
         """
         Test that if more than one release with equivalent canonical versions
         exists, we use the one that is an exact match
@@ -4351,7 +4344,6 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
-            IMetricsService: metrics,
         }.get(svc)
 
         legacy.file_upload(db_request)
@@ -4360,7 +4352,7 @@ class TestFileUpload:
         assert len(release_b.files.all()) == 1
 
     def test_upload_fails_nonuser_identity_cannot_create_project(
-        self, pyramid_config, db_request, metrics
+        self, pyramid_config, db_request
     ):
         publisher = GitHubPublisherFactory.create()
 
@@ -4386,7 +4378,6 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
-            IMetricsService: metrics,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
 
@@ -4417,7 +4408,6 @@ class TestFileUpload:
         self,
         pyramid_config,
         db_request,
-        metrics,
         project_service,
         failing_limiter,
         remote_addr,
@@ -4452,7 +4442,6 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
-            IMetricsService: metrics,
             IProjectService: project_service,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
@@ -4466,7 +4455,7 @@ class TestFileUpload:
         assert resp.status == ("429 Too many new projects created")
 
     def test_upload_succeeds_creates_project(
-        self, pyramid_config, db_request, metrics, project_service
+        self, pyramid_config, db_request, project_service
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -4493,7 +4482,6 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
-            IMetricsService: metrics,
             IProjectService: project_service,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
@@ -4545,7 +4533,7 @@ class TestFileUpload:
         ]
 
     def test_upload_succeeds_with_gpg_signature_field(
-        self, pyramid_config, db_request, metrics, project_service, monkeypatch
+        self, pyramid_config, db_request, project_service, monkeypatch
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -4573,7 +4561,6 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
-            IMetricsService: metrics,
             IProjectService: project_service,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
@@ -4583,7 +4570,7 @@ class TestFileUpload:
         assert resp.status_code == 200
 
     def test_upload_fails_without_two_factor(
-        self, pyramid_config, db_request, metrics, project_service, monkeypatch
+        self, pyramid_config, db_request, project_service, monkeypatch
     ):
         user = UserFactory.create(totp_secret=None, with_verified_primary_email=True)
 
@@ -4607,7 +4594,6 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
-            IMetricsService: metrics,
             IProjectService: project_service,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
@@ -4648,7 +4634,6 @@ class TestFileUpload:
         db_request,
         emails_verified,
         expected_success,
-        metrics,
         project_service,
     ):
         user = UserFactory.create()
@@ -4677,7 +4662,6 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
-            IMetricsService: metrics,
             IProjectService: project_service,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
@@ -4709,7 +4693,6 @@ class TestFileUpload:
         pyramid_config,
         db_request,
         monkeypatch,
-        metrics,
         project_service,
     ):
         user = UserFactory.create()
@@ -4737,7 +4720,6 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
-            IMetricsService: metrics,
             IProjectService: project_service,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
@@ -4797,7 +4779,6 @@ class TestFileUpload:
         monkeypatch,
         pyramid_config,
         db_request,
-        metrics,
         project_service,
         macaroon_service,
         has_trusted_publisher,
@@ -4883,7 +4864,6 @@ class TestFileUpload:
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
             IMacaroonService: macaroon_service,
-            IMetricsService: metrics,
             IProjectService: project_service,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
@@ -4921,6 +4901,76 @@ class TestFileUpload:
             if not warning_already_sent:
                 assert not warning_exists
 
+    @pytest.mark.parametrize("project_name", ["Some_Thing", "some.thing"])
+    def test_upload_warns_pep427(
+        self,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        metrics,
+        project_service,
+        macaroon_service,
+        project_name,
+    ):
+        project = ProjectFactory.create(name=project_name)
+        owner = UserFactory.create()
+        maintainer = UserFactory.create()
+        RoleFactory.create(user=owner, project=project, role_name="Owner")
+        RoleFactory.create(user=maintainer, project=project, role_name="Maintainer")
+
+        pyramid_config.testing_securitypolicy(identity=owner)
+
+        filename = "{}-{}-py3-none-any.whl".format(project.name, "1.0")
+        data = _get_whl_testdata(name=project.name, version="1.0")
+        digest = hashlib.md5(data).hexdigest()
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0",
+                "filetype": "bdist_wheel",
+                "pyversion": "py3",
+                "md5_digest": digest,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(data),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMacaroonService: macaroon_service,
+            IMetricsService: metrics,
+            IProjectService: project_service,
+        }.get(svc)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(legacy, "send_pep427_name_email", send_email)
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                {owner, maintainer},
+                project_name=project.name,
+                filename=filename,
+                normalized_name="some_thing",
+            ),
+        ]
+
     @pytest.mark.parametrize(
         ("filename", "function_name", "extra_kwargs"),
         [
@@ -4942,7 +4992,6 @@ class TestFileUpload:
         monkeypatch,
         pyramid_config,
         db_request,
-        metrics,
         project_service,
         macaroon_service,
         filename,
@@ -4977,7 +5026,6 @@ class TestFileUpload:
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
             IMacaroonService: macaroon_service,
-            IMetricsService: metrics,
             IProjectService: project_service,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
@@ -5008,7 +5056,6 @@ class TestFileUpload:
         monkeypatch,
         pyramid_config,
         db_request,
-        metrics,
         project_service,
         macaroon_service,
     ):
@@ -5040,7 +5087,6 @@ class TestFileUpload:
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
             IMacaroonService: macaroon_service,
-            IMetricsService: metrics,
             IProjectService: project_service,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
@@ -5081,7 +5127,6 @@ class TestFileUpload:
         self,
         pyramid_config,
         db_request,
-        metrics,
         monkeypatch,
         version,
         expected_version,
@@ -5107,8 +5152,12 @@ class TestFileUpload:
                 digest = _ZIP_PKG_MD5
                 data = _ZIP_PKG_TESTDATA
         elif filetype == "bdist_wheel":
-            filename = "{}-{}-py3-none-any.whl".format(project.name, "1.0")
-            data = _get_whl_testdata(name=project.name, version="1.0")
+            filename = "{}-{}-py3-none-any.whl".format(
+                project.normalized_name.replace("-", "_"), "1.0"
+            )
+            data = _get_whl_testdata(
+                name=project.normalized_name.replace("-", "_"), version="1.0"
+            )
             digest = hashlib.md5(data).hexdigest()
             monkeypatch.setattr(
                 legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
@@ -5145,7 +5194,6 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
-            IMetricsService: metrics,
         }.get(svc)
 
         # PEP625: This is testing .zip sdists, which will trigger a notification
@@ -5197,7 +5245,6 @@ class TestFileUpload:
         self,
         pyramid_config,
         db_request,
-        metrics,
         monkeypatch,
         version,
         expected_version,
@@ -5224,13 +5271,20 @@ class TestFileUpload:
                 data = _ZIP_PKG_TESTDATA
             license_filename = "fake_package-1.0/LICENSE"
         elif filetype == "bdist_wheel":
-            filename = "{}-{}-py3-none-any.whl".format(project.name, "1.0")
-            data = _get_whl_testdata(name=project.name, version="1.0")
+            filename = "{}-{}-py3-none-any.whl".format(
+                project.normalized_name.replace("-", "_"),
+                "1.0",
+            )
+            data = _get_whl_testdata(
+                name=project.normalized_name.replace("-", "_"), version="1.0"
+            )
             digest = hashlib.md5(data).hexdigest()
             monkeypatch.setattr(
                 legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
             )
-            license_filename = f"{project.name}-1.0.dist-info/licenses/LICENSE"
+            license_filename = "{}-1.0.dist-info/licenses/LICENSE".format(
+                project.normalized_name.replace("-", "_")
+            )
 
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -5263,7 +5317,6 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
-            IMetricsService: metrics,
         }.get(svc)
 
         # PEP625: This is testing .zip sdists, which will trigger a notification
@@ -5285,7 +5338,6 @@ class TestFileUpload:
         self,
         pyramid_config,
         db_request,
-        metrics,
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -5325,7 +5377,6 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
-            IMetricsService: metrics,
         }.get(svc)
 
         with pytest.raises(HTTPBadRequest) as excinfo:

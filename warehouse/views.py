@@ -10,9 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
 
 import collections
 import re
+import typing
+
+from pathlib import Path
 
 import opensearchpy
 
@@ -32,6 +36,7 @@ from pyramid.httpexceptions import (
 from pyramid.i18n import make_localizer
 from pyramid.interfaces import ITranslationDirectories
 from pyramid.renderers import render_to_response
+from pyramid.response import FileResponse
 from pyramid.view import (
     exception_view_config,
     forbidden_view_config,
@@ -67,6 +72,9 @@ from warehouse.utils.cors import _CORS_HEADERS
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import OpenSearchPage, paginate_url_factory
 from warehouse.utils.row_counter import RowCount
+
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
 
 JSON_REGEX = r"^/pypi/([^\/]+)\/?([^\/]+)?/json\/?$"
 json_path = re.compile(JSON_REGEX)
@@ -201,6 +209,29 @@ def forbidden_api(exc, request):
 @view_config(context=DatabaseNotAvailableError)
 def service_unavailable(exc, request):
     return httpexception_view(HTTPServiceUnavailable(), request)
+
+
+@view_config(
+    route_name="favicon.ico",
+    decorator=[
+        cache_control(365 * 24 * 60 * 60),  # 1 year
+    ],
+)
+def favicon(request: Request) -> FileResponse:
+    """
+    Return static favicon.ico file
+
+    The favicon path is not known, static files are compressed into a dist/ directory.
+    """
+    favicon_filename = Path(
+        request.static_path("warehouse:static/dist/images/favicon.ico")
+    ).name
+    favicon_path = (
+        Path(__file__).parent / "static" / "dist" / "images" / favicon_filename
+    )
+
+    request.response.content_type = "image/x-icon"
+    return FileResponse(favicon_path, request=request)
 
 
 @view_config(
@@ -403,7 +434,7 @@ def search(request):
         Returns a dictionary, each key being a filter and each value being
         the filter's children.
         """
-        d = {}
+        d: dict[str, dict] = {}
         for list_ in split_list:
             current_level = d
             for part in list_:

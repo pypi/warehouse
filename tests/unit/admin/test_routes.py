@@ -119,6 +119,13 @@ def test_includeme():
             traverse="/{username}",
         ),
         pretend.call(
+            "admin.user.burn_recovery_codes",
+            "/admin/users/{username}/burn_recovery_codes/",
+            domain=warehouse,
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
+        ),
+        pretend.call(
             "admin.macaroon.decode_token", "/admin/token/decode", domain=warehouse
         ),
         pretend.call(
@@ -244,6 +251,20 @@ def test_includeme():
         pretend.call(
             "admin.project.reindex",
             "/admin/projects/{project_name}/reindex/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.project.archive",
+            "/admin/projects/{project_name}/archive/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.project.unarchive",
+            "/admin/projects/{project_name}/unarchive/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}",
             domain=warehouse,

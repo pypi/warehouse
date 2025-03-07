@@ -1,7 +1,5 @@
 # Introduction
 
-<!--[[ preview('user-api-docs') ]]-->
-
 PyPI has several API endpoints and public datasets, each of which is referenced
 in the table of contents for this hierarchy.
 
@@ -117,4 +115,4 @@ As you’ll note, it is just a redirect to the canonical file.
 
 [Index API]: ./index-api.md
 
-[JSON API]: https://warehouse.pypa.io/api-reference/json/
+[JSON API]: ./json.md

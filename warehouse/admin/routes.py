@@ -116,6 +116,13 @@ def includeme(config):
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{username}",
     )
+    config.add_route(
+        "admin.user.burn_recovery_codes",
+        "/admin/users/{username}/burn_recovery_codes/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
 
     # Macaroon related Admin pages
     config.add_route(
@@ -248,6 +255,20 @@ def includeme(config):
     config.add_route(
         "admin.project.reindex",
         "/admin/projects/{project_name}/reindex/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.project.archive",
+        "/admin/projects/{project_name}/archive/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.project.unarchive",
+        "/admin/projects/{project_name}/unarchive/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{project_name}",
         domain=warehouse,

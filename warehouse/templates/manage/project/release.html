@@ -33,11 +33,11 @@
   <div class="heading-wsubtitle heading-wsubtitle--in-content">
     <h2 class="heading-wsubtitle__heading">
       {% if not release.yanked %}
-      {% set releases = project.releases|rejectattr("yanked")|list %}
+      {% set releases = project.active_releases %}
       <a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}">{% trans %}Releases{% endtrans %}</a>
       <span class="badge badge--neutral">{{ releases|length }}</span>
       {% else %}
-      {% set yanked_releases = project.releases|selectattr("yanked")|list %}
+      {% set yanked_releases = project.yanked_releases %}
       <a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}">{% trans %}Yanked releases{% endtrans %}</a>
       <span class="badge badge--neutral">{{ yanked_releases|length }}</span>
       {% endif %}

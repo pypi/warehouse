@@ -77,6 +77,7 @@ def test_routes(warehouse):
         pretend.call("force-status", r"/_force-status/{status:[45]\d\d}/"),
         pretend.call("index", "/", domain=warehouse),
         pretend.call("locale", "/locale/", domain=warehouse),
+        pretend.call("favicon.ico", "/favicon.ico", domain=warehouse),
         pretend.call("robots.txt", "/robots.txt", domain=warehouse),
         pretend.call("opensearch.xml", "/opensearch.xml", domain=warehouse),
         pretend.call("index.sitemap.xml", "/sitemap.xml", domain=warehouse),
@@ -209,6 +210,11 @@ def test_routes(warehouse):
         pretend.call(
             "accounts.verify-project-role",
             "/account/verify-project-role/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "accounts.view-terms-of-service",
+            "/account/view-terms-of-service/",
             domain=warehouse,
         ),
         pretend.call(
@@ -493,6 +499,20 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "manage.project.archive",
+            "/manage/project/{project_name}/archive/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.project.unarchive",
+            "/manage/project/{project_name}/unarchive/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "manage.project.history",
             "/manage/project/{project_name}/history/",
             factory="warehouse.packaging.models:ProjectFactory",
@@ -529,6 +549,11 @@ def test_routes(warehouse):
             "/rss/project/{name}/releases.xml",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "integrations.secrets.disclose-token",
+            "/_/secrets/disclose-token",
             domain=warehouse,
         ),
         pretend.call(
@@ -655,6 +680,9 @@ def test_routes(warehouse):
         pretend.call("/u/{username}/", "/user/{username}/", domain=warehouse),
         pretend.call("/2fa/", "/manage/account/two-factor/", domain=warehouse),
         pretend.call("/p/{name}/", "/project/{name}/", domain=warehouse),
+        pretend.call(
+            "/p/{name}/{version}/", "/project/{name}/{version}/", domain=warehouse
+        ),
         pretend.call("/pypi/{name}/", "/project/{name}/", domain=warehouse),
         pretend.call(
             "/pypi/{name}/{version}/", "/project/{name}/{version}/", domain=warehouse

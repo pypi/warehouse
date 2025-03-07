@@ -232,7 +232,7 @@ These were sourced from our database records and for past projects, are private 
 PyPI does not retain download logs for packages which include IP addresses.
 Download logs are processed by a pipeline which includes GeoIP information reported by our CDN only.
 
-These records were sourced from the [Google BigQuery Public dataset](https://warehouse.pypa.io/api-reference/bigquery-datasets.html) with the following queries:
+These records were sourced from the [Google BigQuery Public dataset](https://docs.pypi.org/api/bigquery/) with the following queries:
 
 ```sql
 SELECT * FROM `bigquery-public-data.pypi.file_downloads`

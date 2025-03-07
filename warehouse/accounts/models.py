@@ -40,6 +40,7 @@ from warehouse.events.models import HasEvents
 from warehouse.observations.models import HasObservations, HasObservers, ObservationKind
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils.attrs import make_repr
+from warehouse.utils.db import orm_session_from_obj
 from warehouse.utils.db.types import TZDateTime, bool_false, datetime_now
 
 if TYPE_CHECKING:
@@ -179,6 +180,15 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
         order_by="Team.name",
     )
 
+    terms_of_service_engagements: Mapped[list[UserTermsOfServiceEngagement]] = (
+        orm.relationship(
+            back_populates="user",
+            cascade="all, delete-orphan",
+            lazy=True,
+            viewonly=True,
+        )
+    )
+
     @property
     def primary_email(self):
         primaries = [x for x in self.emails if x.primary]
@@ -236,7 +246,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
 
     @property
     def recent_events(self):
-        session = orm.object_session(self)
+        session = orm_session_from_obj(self)
         last_ninety = datetime.datetime.now() - datetime.timedelta(days=90)
         return (
             session.query(User.Event)
@@ -319,6 +329,37 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
 
     def __lt__(self, other):
         return self.username < other.username
+
+
+class TermsOfServiceEngagement(enum.Enum):
+    Flashed = "flashed"
+    Notified = "notified"
+    Viewed = "viewed"
+    Agreed = "agreed"
+
+
+class UserTermsOfServiceEngagement(db.Model):
+    __tablename__ = "user_terms_of_service_engagements"
+    __table_args__ = (
+        Index(
+            "user_terms_of_service_engagements_user_id_revision_idx",
+            "user_id",
+            "revision",
+        ),
+    )
+
+    __repr__ = make_repr("user_id")
+
+    user_id: Mapped[UUID] = mapped_column(
+        ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"),
+    )
+    revision: Mapped[str]
+    created: Mapped[datetime.datetime] = mapped_column(TZDateTime)
+    engagement: Mapped[TermsOfServiceEngagement]
+
+    user: Mapped[User] = orm.relationship(
+        lazy=True, back_populates="terms_of_service_engagements"
+    )
 
 
 class WebAuthn(db.Model):

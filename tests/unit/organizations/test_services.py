@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import pretend
+import pytest
 
 from zope.interface.verify import verifyClass
 
@@ -27,10 +28,12 @@ from warehouse.organizations.models import (
     OrganizationRoleType,
     OrganizationStripeCustomer,
     OrganizationStripeSubscription,
+    OrganizationTermsOfServiceEngagement,
     OrganizationType,
     Team,
     TeamProjectRole,
     TeamRole,
+    TermsOfServiceEngagement,
 )
 from warehouse.subscriptions.models import StripeSubscription
 
@@ -633,6 +636,45 @@ class TestDatabaseOrganizationService:
             )
             .count()
         )
+
+    def test_record_tos_engagement_invalid_engagement(
+        self, organization_service, db_request
+    ):
+        organization = OrganizationFactory.create()
+        assert organization.terms_of_service_engagements == []
+        with pytest.raises(ValueError):  # noqa: PT011
+            organization_service.record_tos_engagement(
+                organization.id,
+                "initial",
+                None,
+            )
+
+    @pytest.mark.parametrize(
+        "engagement",
+        [
+            TermsOfServiceEngagement.Flashed,
+            TermsOfServiceEngagement.Notified,
+            TermsOfServiceEngagement.Viewed,
+            TermsOfServiceEngagement.Agreed,
+        ],
+    )
+    def test_record_tos_engagement(self, organization_service, db_request, engagement):
+        organization = OrganizationFactory.create()
+        assert organization.terms_of_service_engagements == []
+        organization_service.record_tos_engagement(
+            organization.id,
+            "initial",
+            engagement=engagement,
+        )
+        assert (
+            db_request.db.query(OrganizationTermsOfServiceEngagement)
+            .filter(
+                OrganizationTermsOfServiceEngagement.organization_id == organization.id,
+                OrganizationTermsOfServiceEngagement.revision == "initial",
+                OrganizationTermsOfServiceEngagement.engagement == engagement,
+            )
+            .count()
+        ) == 1
 
     def test_add_organization_subscription(self, organization_service, db_request):
         organization = OrganizationFactory.create()

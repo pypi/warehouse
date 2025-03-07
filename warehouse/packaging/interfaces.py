@@ -9,10 +9,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from __future__ import annotations
+
+import typing
 
 from zope.interface import Interface
 
 from warehouse.rate_limiting.interfaces import RateLimiterException
+
+if typing.TYPE_CHECKING:
+    from warehouse.packaging.models import Project
 
 
 class TooManyProjectsCreated(RateLimiterException):
@@ -74,6 +80,11 @@ class IDocsStorage(Interface):
 
 
 class IProjectService(Interface):
+    def check_project_name(name):
+        """
+        Check if a project name is valid and available for use.
+        """
+
     def create_project(name, creator, request, *, creator_is_owner=True):
         """
         Creates a new project, recording a user as its creator.
@@ -81,3 +92,49 @@ class IProjectService(Interface):
         If `creator_is_owner`, a `Role` is also added to the project
         marking `creator` as a project owner.
         """
+
+
+class ProjectNameUnavailableError(Exception):
+    """Base exception for project name unavailability errors."""
+
+    pass
+
+
+class ProjectNameUnavailableInvalidError(ProjectNameUnavailableError):
+    """Project name is invalid."""
+
+    pass
+
+
+class ProjectNameUnavailableStdlibError(ProjectNameUnavailableError):
+    """Project name conflicts with Python stdlib module."""
+
+    pass
+
+
+class ProjectNameUnavailableExistingError(ProjectNameUnavailableError):
+    """Project name conflicts with existing project."""
+
+    def __init__(self, existing_project: Project):
+        self.existing_project: Project = existing_project
+
+
+class ProjectNameUnavailableProhibitedError(ProjectNameUnavailableError):
+    """Project name is prohibited."""
+
+    pass
+
+
+class ProjectNameUnavailableSimilarError(ProjectNameUnavailableError):
+    """Project name is too similar to existing project."""
+
+    def __init__(self, similar_project_name: str):
+        self.similar_project_name: str = similar_project_name
+
+
+class ProjectNameUnavailableTypoSquattingError(ProjectNameUnavailableError):
+    """Project name is a typo of an existing project."""
+
+    def __init__(self, check_name: str, existing_project_name: str):
+        self.check_name: str = check_name
+        self.existing_project_name: str = existing_project_name

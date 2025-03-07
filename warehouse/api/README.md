@@ -8,6 +8,6 @@ but do not live under the `/api/*` route namespace.
 They may be refactored to another location at some future point.
 
 We have API endpoints that pre-date the `/api/*` namespace,
-see https://warehouse.pypa.io/api-reference/index.html for more.
+see https://docs.pypi.org/api/ for more.
 
 All APIs under the `/api/*` namespace are JSON-only.

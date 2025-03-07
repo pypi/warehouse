@@ -23,6 +23,7 @@ from pyramid.httpexceptions import HTTPException, HTTPForbidden
 from pyramid.request import Request
 from pyramid.view import view_config
 
+from warehouse.email import send_environment_ignored_in_trusted_publisher_email
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
@@ -31,6 +32,7 @@ from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.errors import InvalidPublisherError, ReusedTokenError
 from warehouse.oidc.interfaces import IOIDCPublisherService, SignedClaims
 from warehouse.oidc.models import GitHubPublisher, OIDCPublisher, PendingOIDCPublisher
+from warehouse.oidc.models.gitlab import GitLabPublisher
 from warehouse.oidc.services import OIDCPublisherService
 from warehouse.oidc.utils import OIDC_ISSUER_ADMIN_FLAGS, OIDC_ISSUER_SERVICE_NAMES
 from warehouse.packaging.interfaces import IProjectService
@@ -219,7 +221,23 @@ def mint_token(
                 )
 
             # Reify the pending publisher against the newly created project
-            oidc_service.reify_pending_publisher(pending_publisher, new_project)
+            reified_publisher = oidc_service.reify_pending_publisher(
+                pending_publisher, new_project
+            )
+            request.db.flush()  # To get the reified_publisher.id
+            new_project.record_event(
+                tag=EventTag.Project.OIDCPublisherAdded,
+                request=request,
+                additional={
+                    "publisher": reified_publisher.publisher_name,
+                    "id": str(reified_publisher.id),
+                    "specifier": str(reified_publisher),
+                    "url": reified_publisher.publisher_url(),
+                    "submitted_by": "OpenID created token",
+                    "reified_from_pending_publisher": True,
+                    "constrained_from_existing_publisher": False,
+                },
+            )
 
             # Successfully converting a pending publisher into a normal publisher
             # is a positive signal, so we reset the associated ratelimits.
@@ -304,6 +322,25 @@ def mint_token(
             },
         )
 
+    # Send a warning email to the owners of the project using the Trusted Publisher if
+    # the TP has no environment configured but the OIDC claims contain one.
+    # The email contains a link to change the TP so that it only accepts the
+    # environment seen in the current OIDC claims.
+    #
+    # Note: currently we only send the email if the Trusted Publisher is used in only
+    # a single project, since multiple projects using the same TP might mean they don't
+    # use a single environment.
+    if len(publisher.projects) == 1 and should_send_environment_warning_email(
+        publisher, claims
+    ):
+        send_environment_ignored_in_trusted_publisher_email(
+            request,
+            set(publisher.projects[0].owners),
+            project_name=publisher.projects[0].name,
+            publisher=publisher,
+            environment_name=claims["environment"],
+        )
+
     # NOTE: This is for temporary metrics collection of GitHub Trusted Publishers
     # that use reusable workflows. Since support for reusable workflows is accidental
     # and not correctly implemented, we need to understand how widely it's being
@@ -331,3 +368,23 @@ def is_from_reusable_workflow(
     # With non-reusable workflows they are the same, so we count reusable
     # workflows by checking if they are different.
     return bool(job_workflow_ref and workflow_ref and job_workflow_ref != workflow_ref)
+
+
+def should_send_environment_warning_email(
+    publisher: OIDCPublisher, claims: SignedClaims
+) -> bool:
+    """
+    Determine if the claims contain an environment but the publisher doesn't
+
+    If the publisher does not have an environment configured but the claims
+    contain one, it means the project can easily improve security by constraining
+    the Trusted Publisher to only that environment.
+
+    This currently only applies to GitHub and GitLab publishers.
+    """
+    if not isinstance(publisher, (GitHubPublisher, GitLabPublisher)):
+        return False
+
+    claims_env = claims.get("environment")
+
+    return publisher.environment == "" and claims_env is not None and claims_env != ""

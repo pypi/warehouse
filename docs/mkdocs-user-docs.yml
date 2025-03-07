@@ -89,8 +89,10 @@ nav:
   - "APIs and Datasets":
       - "api/index.md"
       - "api/index-api.md"
+      - "api/json.md"
       - "api/upload.md"
       - "api/integrity.md"
       - "api/stats.md"
       - "api/bigquery.md"
       - "api/feeds.md"
+      - "api/secrets.md"

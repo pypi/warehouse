@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING, Any, TypedDict, TypeVar, Unpack
 import rfc3986
 import sentry_sdk
 
-from sqlalchemy import ForeignKey, String, orm
+from sqlalchemy import ForeignKey, Index, String, func, orm
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -365,6 +365,13 @@ class OIDCPublisherMixin:
             url=url,
         )
 
+    def exists(self, session) -> bool:  # pragma: no cover
+        """
+        Check if the publisher exists in the database
+        """
+        # Only concrete subclasses are constructed.
+        raise NotImplementedError
+
 
 class OIDCPublisher(OIDCPublisherMixin, db.Model):
     __tablename__ = "oidc_publishers"
@@ -397,6 +404,12 @@ class PendingOIDCPublisher(OIDCPublisherMixin, db.Model):
     )
     added_by: Mapped[User] = orm.relationship(back_populates="pending_oidc_publishers")
 
+    __table_args__ = (
+        Index(
+            "pending_project_name_ultranormalized",
+            func.ultranormalize_name(project_name),
+        ),
+    )
     __mapper_args__ = {
         "polymorphic_identity": "pending_oidc_publishers",
         "polymorphic_on": OIDCPublisherMixin.discriminator,

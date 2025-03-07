@@ -11,9 +11,9 @@ title: Internals and Technical Details
     It's intended primarily for PyPI developers and developers of other
     package indices looking to support similar authentication models.
 
-## How trusted publishing works
+## How Trusted Publishing works
 
-PyPI's trusted publishing functionality is built on top of
+PyPI's Trusted Publishing functionality is built on top of
 [OpenID Connect], or "OIDC" for short.
 
 OIDC gives *services* (like GitHub Actions) a way to *provably identify*
@@ -22,7 +22,7 @@ workflow) can present an *OIDC token* to a third-party service. That
 party service can then verify the token and determine whether it's
 authorized to perform some other action.
 
-In the context of trusted publishing, the machinery is as follows:
+In the context of Trusted Publishing, the machinery is as follows:
 
 * *OIDC identity providers* like GitHub ("providers" for short) generate OIDC
   tokens that contain scoped *claims*, which convey appropriate authorization
@@ -32,11 +32,11 @@ In the context of trusted publishing, the machinery is as follows:
       `octo-org/example`, indicating that the token should be authorized
       to access resources for which `octo-org/example` is a valid repository.
 
-* *Trusted publishers* are pieces of configuration on PyPI that tell PyPI
+* *Trusted Publishers* are pieces of configuration on PyPI that tell PyPI
   *which* OIDC providers to trust, and *when* (i.e., which specific set
   of claims to consider valid).
 
-    * For example, a trusted publisher configuration for GitHub Actions might
+    * For example, a Trusted Publisher configuration for GitHub Actions might
       specify `repo: octo-org/example` with `workflow: release.yml` and
       `environment: pypi`, indicating that a presented OIDC token **must**
       contain exactly those claims to be considered valid.
@@ -50,26 +50,26 @@ In the context of trusted publishing, the machinery is as follows:
   endpoint.
 
     * Token exchange boils down to a matching process between a presented
-      OIDC token and every trusted publisher currently configured on PyPI:
+      OIDC token and every Trusted Publisher currently configured on PyPI:
       the token's signature is first verified (to ensure that it's actually
       coming from the expected provider), and then its claims are matched
-      against zero or more projects with registered trusted publishers.
+      against zero or more projects with registered Trusted Publishers.
 
-      If the OIDC token corresponds to one or more trusted publishers, then
+      If the OIDC token corresponds to one or more Trusted Publishers, then
       a short-lived (15 minute) PyPI API token is issued. This API token
-      is scoped to every project with a matching trusted publisher, meaning
+      is scoped to every project with a matching Trusted Publisher, meaning
       that it can be used to upload to multiple projects (if so configured).
 
-If everything goes correctly, a successful trusted publishing flow results in
+If everything goes correctly, a successful Trusted Publishing flow results in
 a short-lived PyPI API token *without any user interaction*, which in turn
 offers security and ergonomic benefits to PyPI packagers: users no longer
 have to worry about token provisioning or revocation.
 
 ## Q&A
 
-### Why does trusted publishing use a "two-phase" token exchange?
+### Why does Trusted Publishing use a "two-phase" token exchange?
 
-As noted above, trusted publishing uses a "token exchange" mechanism, which
+As noted above, Trusted Publishing uses a "token exchange" mechanism, which
 happens in two phases:
 
 1. The uploading client presents an OIDC token, which PyPI verifies.
@@ -135,12 +135,12 @@ do similar "two-phase" exchange mechanisms.
 
 ### Why is the PyPI project to publisher relationship "many-many"?
 
-If you play around with trusted publishers on PyPI, you'll notice that
+If you play around with Trusted Publishing on PyPI, you'll notice that
 PyPI projects can have multiple publishers, and individual publishers
 can be registered to multiple projects.
 
-This is a "many-many" relationship between PyPI projects and their trusted
-publishers which, like "two-phase" exchange, seems more complicated in
+This is a "many-many" relationship between PyPI projects and their Trusted
+Publishers which, like "two-phase" exchange, seems more complicated in
 principle than necessary.
 
 In practice, this many-many relationship addresses publishing patterns commonly
@@ -152,7 +152,7 @@ used by the Python packaging community:
    workflow, due to tandem releases (e.g., a simultaneous release
    of a library package and its corresponding CLI tool).
 
-   Trusted publishing's design accommodates this use case: maintainers
+   Trusted Publishing's design accommodates this use case: maintainers
    can use the same `release.yml` workflow for all of their packages,
    rather than having to split it up by packages.
 
@@ -173,9 +173,9 @@ used by the Python packaging community:
    builds in a final platform-agnostic publishing step, which could then
    be a single publisher.
 
-   However, in the interest of getting trusted publishers into users' hands
+   However, in the interest of getting Trusted Publishers into users' hands
    without requiring them to make significant unrelated changes to the builds,
-   the trusted publishing feature allows users to register multiple
+   the Trusted Publishing feature allows users to register multiple
    publishers against a single project. Consequently, `sampleproject`
    can be published from both `release-linux.yml` and `release-macos.yml`
    without needing to be refactored into a single `release.yml`.
@@ -184,7 +184,7 @@ used by the Python packaging community:
 
 Some OIDC providers support username changes, so a claim of
 `repository_owner: octo-org` might not necessarily refer to the same `octo-org`
-that a user initially authorized in a trusted publisher configuration.
+that a user initially authorized in a Trusted Publisher configuration.
 
 If a repository owner changes their username or deletes their account, a
 malicious actor may be able to take the freed username and create their
@@ -193,7 +193,7 @@ resurrection attack*.
 
 To solve this issue for GitHub-based publishers, PyPI always checks the
 `repository_owner_id` claim. This claim attests to the ID of the repository
-owner, which is stable and permanent unlike usernames. When a trusted publisher
+owner, which is stable and permanent unlike usernames. When a Trusted Publisher
 is configured, PyPI looks up the configured username's ID and stores it. During
 API token minting, PyPI checks the `repository_owner_id` claim against the
 stored ID and fails if they don't match. Through this process, only the original

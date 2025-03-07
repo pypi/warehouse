@@ -40,12 +40,31 @@ _PLATFORMS = [
         re.compile(r"^macosx_(\d+)_(\d+)_(.*?)$"),
         lambda m: f"macOS {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))}",
     ),
+    (
+        re.compile(r"^android_(\d+)_(.*?)$"),
+        lambda m: f"Android API level {m.group(1)}+ {_normalize_arch(m.group(2))}",
+    ),
+    (
+        re.compile(r"^ios_(\d+)_(\d+)_(.*?)_iphoneos$"),
+        lambda m: f"iOS {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))} Device",  # noqa: E501
+    ),
+    (
+        re.compile(r"^ios_(\d+)_(\d+)_(.*?)_iphonesimulator$"),
+        lambda m: f"iOS {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))} Simulator",  # noqa: E501
+    ),
 ]
 
 _ARCHS = {
     "amd64": "x86-64",
     "aarch64": "ARM64",
+    "armeabi_v7a": "ARM EABI v7a",
+    "arm64_v8a": "ARM64 v8a",
     "x86_64": "x86-64",
+    "intel": "Intel (x86-64, i386)",
+    "fat": "fat (i386, PPC)",
+    "fat3": "fat3 (x86-64, i386, PPC)",
+    "fat64": "fat64 (x86-64, PPC64)",
+    "universal": "universal (x86-64, i386, PPC64, PPC)",
     "universal2": "universal2 (ARM64, x86-64)",
     "arm64": "ARM64",
     "armv7l": "ARMv7l",
@@ -61,7 +80,9 @@ def _format_version(s: str) -> str:
 
 
 def filename_to_pretty_tags(filename: str) -> list[str]:
-    if not filename.endswith(".whl"):
+    if filename.endswith(".egg"):
+        return ["Egg"]
+    elif not filename.endswith(".whl"):
         return ["Source"]
 
     try:

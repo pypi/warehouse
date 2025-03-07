@@ -6,7 +6,7 @@ b2sdk
 Babel
 bcrypt
 boto3
-celery[sqs]>=5.3.5,<5.5
+celery[redis]>=5.3.5,<5.5
 celery-redbeat
 certifi
 click
@@ -24,7 +24,7 @@ html5lib
 humanize
 itsdangerous
 Jinja2>=2.8
-kombu[sqs]>=5.4,<5.5  # https://github.com/jazzband/pip-tools/issues/1577
+kombu[redis]>=5.4,<5.5  # https://github.com/jazzband/pip-tools/issues/1577
 limits
 linehaul
 lxml
@@ -42,7 +42,6 @@ passlib>=1.6.4
 platformdirs>=4.2
 premailer
 psycopg[c]
-pycurl
 pydantic
 pyqrcode
 pyramid>=2.0
@@ -65,7 +64,7 @@ redis>=2.8.0,<6.0.0
 rfc3986
 sentry-sdk
 setuptools
-pypi-attestations==0.0.17
+pypi-attestations==0.0.22
 sqlalchemy[asyncio]>=2.0,<3.0
 stdlib-list
 stripe

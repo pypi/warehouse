@@ -22,8 +22,13 @@ import responses
 from pyramid_retry import RetryableException
 from zope.interface.verify import verifyClass
 
-from warehouse.helpdesk.interfaces import IHelpDeskService
-from warehouse.helpdesk.services import ConsoleHelpDeskService, HelpScoutService
+from warehouse.helpdesk.interfaces import IAdminNotificationService, IHelpDeskService
+from warehouse.helpdesk.services import (
+    ConsoleAdminNotificationService,
+    ConsoleHelpDeskService,
+    HelpScoutService,
+    SlackAdminNotificationService,
+)
 
 
 @pytest.mark.parametrize("service_class", [ConsoleHelpDeskService, HelpScoutService])
@@ -217,3 +222,70 @@ class TestHelpScoutService:
 
         # No PUT call should be made
         assert len(responses.calls) == 1
+
+
+@pytest.mark.parametrize(
+    "service_class", [ConsoleAdminNotificationService, SlackAdminNotificationService]
+)
+class TestAdminNotificationService:
+    """Common tests for the service interface."""
+
+    def test_verify_service_class(self, service_class):
+        assert verifyClass(IAdminNotificationService, service_class)
+
+    def test_create_service(self, service_class):
+        context = None
+        request = pretend.stub(
+            http=pretend.stub(),
+            log=pretend.stub(
+                debug=pretend.call_recorder(lambda msg: None),
+            ),
+            registry=pretend.stub(
+                settings={
+                    "helpdesk.notification_service_url": "https://webhook.example/1234",
+                }
+            ),
+        )
+
+        service = service_class.create_service(context, request)
+        assert isinstance(service, service_class)
+
+
+class TestConsoleAdminNotificationService:
+    def test_send_notification(self, capsys):
+        service = ConsoleAdminNotificationService()
+
+        service.send_notification(payload={"text": "Hello, World!"})
+
+        captured = capsys.readouterr()
+
+        expected = dedent(
+            """\
+            Webhook notification sent
+            payload:
+            {'text': 'Hello, World!'}
+            """
+        )
+        assert captured.out == expected
+
+
+class TestSlackAdminNotificationService:
+    @responses.activate
+    def test_send_notification(self):
+        responses.add(
+            responses.POST,
+            "https://webhook.example/1234",
+            json={"ok": True},
+        )
+
+        service = SlackAdminNotificationService(
+            session=requests.Session(),
+            webhook_url="https://webhook.example/1234",
+        )
+
+        service.send_notification(payload={"text": "Hello, World!"})
+
+        assert len(responses.calls) == 1
+        post_call = responses.calls[0]
+        assert post_call.request.url == "https://webhook.example/1234"
+        assert post_call.response.json() == {"ok": True}

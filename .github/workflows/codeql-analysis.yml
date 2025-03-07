@@ -23,7 +23,7 @@ on:
 jobs:
   analyze:
     name: Analyze
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       actions: read
       contents: read
@@ -45,8 +45,6 @@ jobs:
     - name: Set up Python
       if: matrix.language == 'python'
       uses: actions/setup-python@v5
-      with:
-        python-version-file: '.python-version'
 
     - name: Install dependencies
       # Needed for pycurl

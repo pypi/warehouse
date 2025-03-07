@@ -44,6 +44,11 @@
     font-weight: normal;
   }
 
+  &__wide {
+    margin-bottom: $half-spacing-unit;
+    max-width: unset;
+  }
+
 :where(
   input:not([type]),
   select,

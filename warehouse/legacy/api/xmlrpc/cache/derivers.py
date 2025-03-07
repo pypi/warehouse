@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
+import orjson
 
 from warehouse.legacy.api.xmlrpc.cache import interfaces
 
@@ -31,7 +31,7 @@ def cached_return_view(view, info):
             except LookupError:
                 return view(context, request)
             try:
-                key = json.dumps(request.rpc_args[slice_obj])
+                key = orjson.dumps(request.rpc_args[slice_obj])
                 _tag = tag
                 if arg_index is not None:
                     _tag = tag % (tag_processor(str(request.rpc_args[arg_index])))

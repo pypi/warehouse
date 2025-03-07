@@ -9,13 +9,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import datetime
 
 from sqlalchemy import delete, func, orm, select
 from sqlalchemy.exc import NoResultFound
 from zope.interface import implementer
 
 from warehouse.accounts.interfaces import IUserService
-from warehouse.accounts.models import User
+from warehouse.accounts.models import TermsOfServiceEngagement, User
 from warehouse.email import (
     send_admin_new_organization_approved_email,
     send_admin_new_organization_declined_email,
@@ -35,6 +36,7 @@ from warehouse.organizations.models import (
     OrganizationRoleType,
     OrganizationStripeCustomer,
     OrganizationStripeSubscription,
+    OrganizationTermsOfServiceEngagement,
     Team,
     TeamProjectRole,
     TeamRole,
@@ -533,6 +535,27 @@ class DatabaseOrganizationService:
         )
 
         self.db.delete(organization_project)
+
+    def record_tos_engagement(
+        self,
+        organization_id,
+        revision: str,
+        engagement: TermsOfServiceEngagement,
+    ) -> None:
+        """
+        Add a record of end user being flashed about, notified of, viewing, or agreeing
+        to a terms of service change on behalf of an organization.
+        """
+        if not isinstance(engagement, TermsOfServiceEngagement):
+            raise ValueError(f"{engagement} is not a TermsOfServiceEngagement")
+        self.db.add(
+            OrganizationTermsOfServiceEngagement(
+                organization_id=organization_id,
+                revision=revision,
+                created=datetime.datetime.now(datetime.UTC),
+                engagement=engagement,
+            )
+        )
 
     def get_organization_subscription(self, organization_id, subscription_id):
         """

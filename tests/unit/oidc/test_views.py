@@ -19,8 +19,10 @@ import pytest
 
 from tests.common.db.accounts import UserFactory
 from tests.common.db.oidc import (
+    ActiveStatePublisherFactory,
     GitHubPublisherFactory,
     GitLabPublisherFactory,
+    GooglePublisherFactory,
     PendingGitHubPublisherFactory,
 )
 from tests.common.db.packaging import ProhibitedProjectFactory, ProjectFactory
@@ -29,10 +31,17 @@ from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.metrics import IMetricsService
 from warehouse.oidc import errors, views
-from warehouse.oidc.interfaces import IOIDCPublisherService
-from warehouse.oidc.views import is_from_reusable_workflow
+from warehouse.oidc.interfaces import IOIDCPublisherService, SignedClaims
+from warehouse.oidc.models import GitHubPublisher
+from warehouse.oidc.views import (
+    is_from_reusable_workflow,
+    should_send_environment_warning_email,
+)
 from warehouse.packaging import services
+from warehouse.packaging.models import Project
 from warehouse.rate_limiting.interfaces import IRateLimiter
+
+from ...common.constants import DUMMY_ACTIVESTATE_OIDC_JWT, DUMMY_GITHUB_OIDC_JWT
 
 
 def test_ratelimiters():
@@ -77,14 +86,13 @@ def test_oidc_audience():
 
 
 @pytest.mark.parametrize(
-    ("token_fixture_name", "service_name"),
+    ("token", "service_name"),
     [
-        ("dummy_github_oidc_jwt", "github"),
-        ("dummy_activestate_oidc_jwt", "activestate"),
+        (DUMMY_GITHUB_OIDC_JWT, "github"),
+        (DUMMY_ACTIVESTATE_OIDC_JWT, "activestate"),
     ],
 )
-def test_mint_token_from_oidc_not_enabled(token_fixture_name, service_name, request):
-    token = request.getfixturevalue(token_fixture_name)
+def test_mint_token_from_oidc_not_enabled(token, service_name, request):
     request = pretend.stub(
         body=json.dumps({"token": token}),
         response=pretend.stub(status=None),
@@ -184,9 +192,7 @@ def test_mint_token_from_oidc_invalid_payload_malformed_jwt(body):
         assert err["description"] == "malformed JWT"
 
 
-def test_mint_token_from_oidc_jwt_decode_leaky_exception(
-    monkeypatch, dummy_github_oidc_jwt: str
-):
+def test_mint_token_from_oidc_jwt_decode_leaky_exception(monkeypatch):
     class Request:
         def __init__(self):
             self.response = pretend.stub(status=None)
@@ -194,7 +200,7 @@ def test_mint_token_from_oidc_jwt_decode_leaky_exception(
 
         @property
         def body(self):
-            return json.dumps({"token": dummy_github_oidc_jwt})
+            return json.dumps({"token": DUMMY_GITHUB_OIDC_JWT})
 
         def find_service(self, *a, **kw):
             return pretend.stub(increment=pretend.call_recorder(lambda s: None))
@@ -300,9 +306,7 @@ def test_mint_token_from_oidc_creates_expected_service(
     assert mint_token.calls == [pretend.call(oidc_service, token, request)]
 
 
-def test_mint_token_from_trusted_publisher_verify_jwt_signature_fails(
-    dummy_github_oidc_jwt,
-):
+def test_mint_token_from_trusted_publisher_verify_jwt_signature_fails():
     oidc_service = pretend.stub(
         verify_jwt_signature=pretend.call_recorder(lambda token: None),
     )
@@ -312,7 +316,7 @@ def test_mint_token_from_trusted_publisher_verify_jwt_signature_fails(
         flags=pretend.stub(disallow_oidc=lambda *a: False),
     )
 
-    response = views.mint_token(oidc_service, dummy_github_oidc_jwt, request)
+    response = views.mint_token(oidc_service, DUMMY_GITHUB_OIDC_JWT, request)
     assert request.response.status == 422
     assert response == {
         "message": "Token request failed",
@@ -325,11 +329,11 @@ def test_mint_token_from_trusted_publisher_verify_jwt_signature_fails(
     }
 
     assert oidc_service.verify_jwt_signature.calls == [
-        pretend.call(dummy_github_oidc_jwt)
+        pretend.call(DUMMY_GITHUB_OIDC_JWT)
     ]
 
 
-def test_mint_token_trusted_publisher_lookup_fails(dummy_github_oidc_jwt):
+def test_mint_token_trusted_publisher_lookup_fails():
     claims = pretend.stub()
     message = "some message"
     oidc_service = pretend.stub(
@@ -344,7 +348,7 @@ def test_mint_token_trusted_publisher_lookup_fails(dummy_github_oidc_jwt):
         flags=pretend.stub(disallow_oidc=lambda *a: False),
     )
 
-    response = views.mint_token(oidc_service, dummy_github_oidc_jwt, request)
+    response = views.mint_token(oidc_service, DUMMY_GITHUB_OIDC_JWT, request)
     assert request.response.status == 422
     assert response == {
         "message": "Token request failed",
@@ -359,7 +363,7 @@ def test_mint_token_trusted_publisher_lookup_fails(dummy_github_oidc_jwt):
     }
 
     assert oidc_service.verify_jwt_signature.calls == [
-        pretend.call(dummy_github_oidc_jwt)
+        pretend.call(DUMMY_GITHUB_OIDC_JWT)
     ]
     assert oidc_service.find_publisher.calls == [
         pretend.call(claims, pending=True),
@@ -367,7 +371,7 @@ def test_mint_token_trusted_publisher_lookup_fails(dummy_github_oidc_jwt):
     ]
 
 
-def test_mint_token_duplicate_token(dummy_github_oidc_jwt):
+def test_mint_token_duplicate_token():
     def find_publishers_mockup(_, pending: bool = False):
         if pending is False:
             raise errors.ReusedTokenError("some message")
@@ -385,7 +389,7 @@ def test_mint_token_duplicate_token(dummy_github_oidc_jwt):
         flags=pretend.stub(disallow_oidc=lambda *a: False),
     )
 
-    response = views.mint_token(oidc_service, dummy_github_oidc_jwt, request)
+    response = views.mint_token(oidc_service, DUMMY_GITHUB_OIDC_JWT, request)
     assert request.response.status == 422
     assert response == {
         "message": "Token request failed",
@@ -398,9 +402,7 @@ def test_mint_token_duplicate_token(dummy_github_oidc_jwt):
     }
 
 
-def test_mint_token_pending_publisher_project_already_exists(
-    db_request, dummy_github_oidc_jwt
-):
+def test_mint_token_pending_publisher_project_already_exists(db_request):
     project = ProjectFactory.create()
     pending_publisher = PendingGitHubPublisherFactory.create(
         project_name=project.name,
@@ -417,7 +419,7 @@ def test_mint_token_pending_publisher_project_already_exists(
     )
     db_request.find_service = pretend.call_recorder(lambda *a, **kw: oidc_service)
 
-    resp = views.mint_token(oidc_service, dummy_github_oidc_jwt, db_request)
+    resp = views.mint_token(oidc_service, DUMMY_GITHUB_OIDC_JWT, db_request)
     assert db_request.response.status_code == 422
     assert resp == {
         "message": "Token request failed",
@@ -430,17 +432,14 @@ def test_mint_token_pending_publisher_project_already_exists(
     }
 
     assert oidc_service.verify_jwt_signature.calls == [
-        pretend.call(dummy_github_oidc_jwt)
+        pretend.call(DUMMY_GITHUB_OIDC_JWT)
     ]
     assert oidc_service.find_publisher.calls == [pretend.call(claims, pending=True)]
 
 
-def test_mint_token_from_oidc_pending_publisher_ok(
-    monkeypatch,
-    db_request,
-    dummy_github_oidc_jwt,
-):
+def test_mint_token_from_oidc_pending_publisher_ok(monkeypatch, db_request):
     user = UserFactory.create()
+
     pending_publisher = PendingGitHubPublisherFactory.create(
         project_name="does-not-exist",
         added_by=user,
@@ -448,11 +447,11 @@ def test_mint_token_from_oidc_pending_publisher_ok(
         repository_owner="foo",
         repository_owner_id="123",
         workflow_filename="example.yml",
-        environment="",
+        environment="fake",
     )
 
     db_request.flags.disallow_oidc = lambda f=None: False
-    db_request.body = json.dumps({"token": dummy_github_oidc_jwt})
+    db_request.body = json.dumps({"token": DUMMY_GITHUB_OIDC_JWT})
     db_request.remote_addr = "0.0.0.0"
 
     ratelimiter = pretend.stub(clear=pretend.call_recorder(lambda id: None))
@@ -471,9 +470,28 @@ def test_mint_token_from_oidc_pending_publisher_ok(
         pretend.call(db_request.remote_addr),
     ]
 
+    project = (
+        db_request.db.query(Project)
+        .filter(Project.name == pending_publisher.project_name)
+        .one()
+    )
+    publisher = db_request.db.query(GitHubPublisher).one()
+    event = project.events.where(
+        Project.Event.tag == EventTag.Project.OIDCPublisherAdded
+    ).one()
+    assert event.additional == {
+        "publisher": publisher.publisher_name,
+        "id": str(publisher.id),
+        "specifier": str(publisher),
+        "url": publisher.publisher_url(),
+        "submitted_by": "OpenID created token",
+        "reified_from_pending_publisher": True,
+        "constrained_from_existing_publisher": False,
+    }
+
 
 def test_mint_token_from_pending_trusted_publisher_invalidates_others(
-    monkeypatch, db_request, dummy_github_oidc_jwt
+    monkeypatch, db_request
 ):
     time = pretend.stub(time=pretend.call_recorder(lambda: 0))
     monkeypatch.setattr(views, "time", time)
@@ -486,7 +504,7 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
         repository_owner="foo",
         repository_owner_id="123",
         workflow_filename="example.yml",
-        environment="",
+        environment="fake",
     )
 
     # Create some other pending publishers for the same nonexistent project,
@@ -511,7 +529,7 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
     )
 
     db_request.flags.oidc_enabled = lambda f: False
-    db_request.body = json.dumps({"token": dummy_github_oidc_jwt})
+    db_request.body = json.dumps({"token": DUMMY_GITHUB_OIDC_JWT})
     db_request.remote_addr = "0.0.0.0"
 
     ratelimiter = pretend.stub(clear=pretend.call_recorder(lambda id: None))
@@ -538,6 +556,25 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
         pretend.call(db_request.remote_addr),
     ]
 
+    project = (
+        db_request.db.query(Project)
+        .filter(Project.name == pending_publisher.project_name)
+        .one()
+    )
+    publisher = db_request.db.query(GitHubPublisher).one()
+    event = project.events.where(
+        Project.Event.tag == EventTag.Project.OIDCPublisherAdded
+    ).one()
+    assert event.additional == {
+        "publisher": publisher.publisher_name,
+        "id": str(publisher.id),
+        "specifier": str(publisher),
+        "url": publisher.publisher_url(),
+        "submitted_by": "OpenID created token",
+        "reified_from_pending_publisher": True,
+        "constrained_from_existing_publisher": False,
+    }
+
 
 @pytest.mark.parametrize(
     ("claims_in_token", "claims_input"),
@@ -548,7 +585,7 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
     ],
 )
 def test_mint_token_no_pending_publisher_ok(
-    monkeypatch, db_request, claims_in_token, claims_input, dummy_github_oidc_jwt
+    monkeypatch, db_request, claims_in_token, claims_input
 ):
     time = pretend.stub(time=pretend.call_recorder(lambda: 0))
     monkeypatch.setattr(views, "time", time)
@@ -593,14 +630,14 @@ def test_mint_token_no_pending_publisher_ok(
     monkeypatch.setattr(db_request, "find_service", find_service)
     monkeypatch.setattr(db_request, "domain", "fakedomain")
 
-    response = views.mint_token(oidc_service, dummy_github_oidc_jwt, db_request)
+    response = views.mint_token(oidc_service, DUMMY_GITHUB_OIDC_JWT, db_request)
     assert response == {
         "success": True,
         "token": "raw-macaroon",
     }
 
     assert oidc_service.verify_jwt_signature.calls == [
-        pretend.call(dummy_github_oidc_jwt)
+        pretend.call(DUMMY_GITHUB_OIDC_JWT)
     ]
     assert oidc_service.find_publisher.calls == [
         pretend.call(claims_in_token, pending=True),
@@ -636,11 +673,118 @@ def test_mint_token_no_pending_publisher_ok(
     ]
 
 
-def test_mint_token_with_prohibited_name_fails(
-    monkeypatch,
-    db_request,
-    dummy_github_oidc_jwt,
-):
+def test_mint_token_warn_constrain_environment(monkeypatch, db_request):
+    claims_in_token = {"ref": "someref", "sha": "somesha", "environment": "fakeenv"}
+    claims_input = {"ref": "someref", "sha": "somesha"}
+    time = pretend.stub(time=pretend.call_recorder(lambda: 0))
+    monkeypatch.setattr(views, "time", time)
+    owner = UserFactory.create()
+
+    project = pretend.stub(
+        id="fakeprojectid",
+        name="fakeproject",
+        record_event=pretend.call_recorder(lambda **kw: None),
+        owners=[owner],
+    )
+
+    publisher = GitHubPublisherFactory(environment="")
+    monkeypatch.setattr(publisher.__class__, "projects", [project])
+    publisher.publisher_url = pretend.call_recorder(lambda **kw: "https://fake/url")
+    # NOTE: Can't set __str__ using pretend.stub()
+    monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")
+
+    send_environment_ignored_in_trusted_publisher_email = pretend.call_recorder(
+        lambda *a, **kw: None
+    )
+    monkeypatch.setattr(
+        views,
+        "send_environment_ignored_in_trusted_publisher_email",
+        send_environment_ignored_in_trusted_publisher_email,
+    )
+
+    def _find_publisher(claims, pending=False):
+        if pending:
+            return None
+        else:
+            return publisher
+
+    oidc_service = pretend.stub(
+        verify_jwt_signature=pretend.call_recorder(lambda token: claims_in_token),
+        find_publisher=pretend.call_recorder(_find_publisher),
+    )
+
+    db_macaroon = pretend.stub(description="fakemacaroon")
+    macaroon_service = pretend.stub(
+        create_macaroon=pretend.call_recorder(
+            lambda *a, **kw: ("raw-macaroon", db_macaroon)
+        )
+    )
+
+    def find_service(iface, **kw):
+        if iface == IOIDCPublisherService:
+            return oidc_service
+        elif iface == IMacaroonService:
+            return macaroon_service
+        else:
+            pytest.fail(iface)
+
+    monkeypatch.setattr(db_request, "find_service", find_service)
+    monkeypatch.setattr(db_request, "domain", "fakedomain")
+
+    response = views.mint_token(oidc_service, DUMMY_GITHUB_OIDC_JWT, db_request)
+    assert response == {
+        "success": True,
+        "token": "raw-macaroon",
+    }
+
+    assert oidc_service.verify_jwt_signature.calls == [
+        pretend.call(DUMMY_GITHUB_OIDC_JWT)
+    ]
+    assert oidc_service.find_publisher.calls == [
+        pretend.call(claims_in_token, pending=True),
+        pretend.call(claims_in_token, pending=False),
+    ]
+
+    assert send_environment_ignored_in_trusted_publisher_email.calls == [
+        pretend.call(
+            db_request,
+            {owner},
+            project_name="fakeproject",
+            publisher=publisher,
+            environment_name="fakeenv",
+        ),
+    ]
+
+    assert macaroon_service.create_macaroon.calls == [
+        pretend.call(
+            "fakedomain",
+            f"OpenID token: fakespecifier ({datetime.fromtimestamp(0).isoformat()})",
+            [
+                caveats.OIDCPublisher(
+                    oidc_publisher_id=str(publisher.id),
+                ),
+                caveats.ProjectID(project_ids=["fakeprojectid"]),
+                caveats.Expiration(expires_at=900, not_before=0),
+            ],
+            oidc_publisher_id=str(publisher.id),
+            additional={"oidc": claims_input},
+        )
+    ]
+    assert project.record_event.calls == [
+        pretend.call(
+            tag=EventTag.Project.ShortLivedAPITokenAdded,
+            request=db_request,
+            additional={
+                "expires": 900,
+                "publisher_name": "GitHub",
+                "publisher_url": "https://fake/url",
+                "reusable_workflow_used": False,
+            },
+        )
+    ]
+
+
+def test_mint_token_with_prohibited_name_fails(monkeypatch, db_request):
     prohibited_project_name = ProhibitedProjectFactory.create()
     user = UserFactory.create()
     PendingGitHubPublisherFactory.create(
@@ -654,7 +798,7 @@ def test_mint_token_with_prohibited_name_fails(
     )
 
     db_request.flags.disallow_oidc = lambda f=None: False
-    db_request.body = json.dumps({"token": dummy_github_oidc_jwt})
+    db_request.body = json.dumps({"token": DUMMY_GITHUB_OIDC_JWT})
     db_request.remote_addr = "0.0.0.0"
     db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
 
@@ -679,11 +823,7 @@ def test_mint_token_with_prohibited_name_fails(
         )
 
 
-def test_mint_token_with_invalid_name_fails(
-    monkeypatch,
-    db_request,
-    dummy_github_oidc_jwt,
-):
+def test_mint_token_with_invalid_name_fails(monkeypatch, db_request):
     user = UserFactory.create()
     pending_publisher = PendingGitHubPublisherFactory.create(
         project_name="-foo-",
@@ -696,7 +836,7 @@ def test_mint_token_with_invalid_name_fails(
     )
 
     db_request.flags.disallow_oidc = lambda f=None: False
-    db_request.body = json.dumps({"token": dummy_github_oidc_jwt})
+    db_request.body = json.dumps({"token": DUMMY_GITHUB_OIDC_JWT})
     db_request.remote_addr = "0.0.0.0"
 
     ratelimiter = pretend.stub(clear=pretend.call_recorder(lambda id: None))
@@ -757,7 +897,6 @@ def test_mint_token_github_reusable_workflow_metrics(
     claims_in_token,
     is_reusable,
     is_github,
-    dummy_github_oidc_jwt,
     metrics,
 ):
     time = pretend.stub(time=pretend.call_recorder(lambda: 0))
@@ -804,7 +943,7 @@ def test_mint_token_github_reusable_workflow_metrics(
     monkeypatch.setattr(db_request, "find_service", find_service)
     monkeypatch.setattr(db_request, "domain", "fakedomain")
 
-    views.mint_token(oidc_service, dummy_github_oidc_jwt, db_request)
+    views.mint_token(oidc_service, DUMMY_GITHUB_OIDC_JWT, db_request)
 
     if is_reusable:
         assert metrics.increment.calls == [
@@ -846,3 +985,42 @@ def test_is_from_reusable_workflow(
     publisher = GitHubPublisherFactory() if is_github else GitLabPublisherFactory()
 
     assert is_from_reusable_workflow(publisher, claims) == is_reusable
+
+
+@pytest.mark.parametrize(
+    (
+        "publisher_factory",
+        "publisher_environment",
+        "claims_environment",
+        "should_send",
+    ),
+    [
+        # Should send for GitHub/GitLab publishers with no environment
+        # configured when claims contain an environment
+        (GitHubPublisherFactory, "", "new_env", True),
+        (GitLabPublisherFactory, "", "new_env", True),
+        # Should not send if claims don't have an environent
+        (GitHubPublisherFactory, "", "", False),
+        (GitLabPublisherFactory, "", "", False),
+        # Should not send if publishers already have an environment
+        (GitHubPublisherFactory, "env", "new_env", False),
+        (GitLabPublisherFactory, "env", "new_env", False),
+        # Should not send if publisher is not  GitHub/GitLab
+        (ActiveStatePublisherFactory, None, "new_env", False),
+        (GooglePublisherFactory, None, "new_env", False),
+    ],
+)
+def test_should_send_environment_warning_email(
+    db_request,
+    publisher_factory,
+    publisher_environment,
+    claims_environment,
+    should_send,
+):
+    if publisher_environment is None:
+        publisher = publisher_factory()
+    else:
+        publisher = publisher_factory(environment=publisher_environment)
+
+    claims = SignedClaims({"environment": claims_environment})
+    assert should_send_environment_warning_email(publisher, claims) == should_send

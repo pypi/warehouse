@@ -87,9 +87,9 @@ def _json_data(request, project, release, *, all_releases):
 
     # Map our releases + files into a dictionary that maps each release to a
     # list of all its files.
-    releases = {}
+    releases_and_files: dict[Release, list[File]] = {}
     for r, file_ in release_files:
-        files = releases.setdefault(r, [])
+        files = releases_and_files.setdefault(r, [])
         if file_ is not None:
             files.append(file_)
 
@@ -124,7 +124,7 @@ def _json_data(request, project, release, *, all_releases):
             }
             for f in fs
         ]
-        for r, fs in releases.items()
+        for r, fs in releases_and_files.items()
     }
 
     # Serialize a list of vulnerabilities for this release

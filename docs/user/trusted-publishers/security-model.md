@@ -4,29 +4,56 @@ title: Security Model and Considerations
 
 # Security model and considerations
 
+Trusted Publishing is primarily designed to be a more secure alternative to
+the long-lived API tokens that have traditionally been used for publishing to
+PyPI.
+
+In recent years, theft of credentials such as API tokens has [played a major
+role in cyber attacks]. The reason for this is the unfortunate reality that
+managing credentials can be complicated and risky. Trusted Publishing reduces
+this risk by using short-lived tokens instead of long-lived tokens. Short-lived
+tokens are less likely to be misplaced, leaked in logs, or stolen by malware
+since they don't have to be stored. Additionally, if short-lived tokens are
+leaked, they only give attackers a narrow time window to exploit the leaked
+token, which minimizes the potential damage.
+
+However, it is important to still be aware of the kinds of risks that
+Trusted Publishing does not cover. You should think of Trusted Publishing as one
+tool in the toolbelt for securing packages.
+
 ## General considerations
 
-While more secure than passwords and long-lived API tokens, OIDC publishing
-is not a panacea. In particular:
+* Trusted Publishing uses short-lived API tokens that expire 
+  no more than 15 minutes after the OIDC flow that authorizes them.
+  Just like normal API authentication, Trusted Publishing
+  does not assert the safety of the code or the trustworthiness
+  of its authors.
+ 
+* Trusted Publishing does not address whether the package has been modified
+  before or after it was built. [Attestations] can address those risks.
 
-* Short-lived API tokens are still sensitive material, and should not be
-  disclosed (ideally not at all, but certainly not before they expire).
+* Short-lived API tokens are sensitive material that must be protected from
+  getting stolen or leaked.
 
-* OIDC tokens themselves are sensitive material, and should not be disclosed.
-  OIDC tokens are also short-lived, but an attacker who successfully intercepts
-  one can mint API tokens against it for as long as it lives.
+* OIDC tokens themselves are also sensitive material that must be protected
+  from getting stolen or leaked. OIDC tokens expire quickly, but an attacker who
+  successfully intercepts one can use it to generate API tokens until it
+  expires.
 
-* Configuring a trusted publisher means establishing trust in a particular piece
-  of external state (such as a GitHub Actions workflow); that state **must not**
-  be controllable by untrusted parties.
+* Configuring a Trusted Publisher means trusting an identity provider (IdP),
+  such as GitHub Actions. Trusted Publishing relies on the integrity of that
+  IdP and the actors that are authorized to use it. In practice, this means
+  that users of Trusted Publishing must protect and secure the CI/CD workflows
+  that they register as Trusted Publishers, as weaknesses in those workflows
+  can be equivalent to credential compromise.
 
-In summary: treat your trusted publishers *as if* they were API tokens. If you
+In summary: treat your Trusted Publishers *as if* they are API tokens. If you
 wouldn't let a user or piece of code access your API token, then they shouldn't
-be able to invoke your trusted publisher.
+be able to invoke your Trusted Publisher.
 
 ## Provider-specific considerations
 
-Each trusted publishing provider is its own OIDC identity provider, with its
+Each Trusted Publishing provider is its own OIDC identity provider, with its
 own security model and considerations.
 
 === "GitHub Actions"
@@ -57,7 +84,7 @@ own security model and considerations.
 
     <h3>Considerations</h3>
 
-    * In particular, for trusted publishing with GitHub Actions, you
+    * In particular, for Trusted Publishing with GitHub Actions, you
       **must**:
 
         * Trust the correct username and repository: if you trust a repository
@@ -81,17 +108,17 @@ own security model and considerations.
           This particular risk can be mitigated by using a dedicated environment
           with manual approvers, as described below.
 
-    * Trusted publishers are registered to projects, not to users. This means that
-      removing a user from a PyPI project does **not** remove any trusted publishers
+    * Trusted Publishers are registered to projects, not to users. This means that
+      removing a user from a PyPI project does **not** remove any Trusted Publishers
       that they might have registered, and that you should include a review
-      of any/all trusted publishers as part of "offboarding" a project maintainer.
+      of any/all Trusted Publishers as part of "offboarding" a project maintainer.
 
     PyPI has protections in place to make some attacks against OIDC more difficult
     (like [account resurrection attacks]). However, like all forms of authentication,
     the end user is **fundamentally responsible** for applying it correctly.
 
     In addition to the requirements above, you can do the following to
-    "ratchet down" the scope of your trusted publishing workflows:
+    "ratchet down" the scope of your Trusted Publishing workflows:
 
     * **Use per-job permissions**: The `permissions` key can be defined on the
       workflow level or the job level; the job level is **always more secure**
@@ -135,7 +162,7 @@ own security model and considerations.
 
     <h3>Security Model</h3>
 
-    If a trusted publisher is configured for a given PyPI project, any service
+    If a Trusted Publisher is configured for a given PyPI project, any service
     that uses the configured service account can request an OpenID Connect token
     from Google's identity provider on behalf of that identity. That token can be
     exchanged for a PyPI API token with the ability to publish to the PyPI project.
@@ -144,10 +171,10 @@ own security model and considerations.
 
     <h3>Considerations</h3>
 
-    When using trusted publishing with Google Cloud, you must trust the service account
+    When using Trusted Publishing with Google Cloud, you must trust the service account
     and _any service which uses it as the default ephemeral identity_.
 
-    Specifically, it is not recommened to configure the [default service
+    Specifically, it is not recommended to configure the [default service
     accounts](https://cloud.google.com/iam/docs/service-account-types#default), as
     they are provided by default to every service when they are created.
 
@@ -184,14 +211,14 @@ own security model and considerations.
       repository located at orgA/repo cannot impersonate a repository located at orgB/repo.
     * The claims defined in an OIDC token are *bound to the top-level pipeline*, meaning
       that any pipeline included by the top-level pipeline (usually `.gitlab-ci.yml`)
-      will be able to upload using a trusted publisher that trusts the `.gitlab-ci.yml`
+      will be able to upload using a Trusted Publisher that trusts the `.gitlab-ci.yml`
       pipeline.
     * An OIDC token for a specific repository and pipeline can be generated by anyone
       who has permissions to run that pipeline in the repository's CI/CD.
 
     <h3>Considerations</h3>
 
-    * In particular, for trusted publishing with GitLab CI/CD, you
+    * In particular, for Trusted Publishing with GitLab CI/CD, you
       **must**:
 
         * Trust the correct namespace and repository: if you trust a repository
@@ -219,13 +246,13 @@ own security model and considerations.
             This particular risk can be mitigated by using a dedicated environment
             with manual approvers, as described below.
 
-    * Trusted publishers are registered to projects, not to users. This means that
-      removing a user from a PyPI project does **not** remove any trusted publishers
+    * Trusted Publishers are registered to projects, not to users. This means that
+      removing a user from a PyPI project does **not** remove any Trusted Publishers
       that they might have registered, and that you should include a review
-      of any/all trusted publishers as part of "offboarding" a project maintainer.
+      of any/all Trusted Publishers as part of "offboarding" a project maintainer.
 
     In addition to the requirements above, you can do the following to
-    "ratchet down" the scope of your trusted publishing workflows:
+    "ratchet down" the scope of your Trusted Publishing workflows:
 
     * **[Use a dedicated environment](https://docs.gitlab.com/ee/ci/environments/)**:
       GitLab CI/CD supports "environments", which can be used to isolate secrets to
@@ -257,6 +284,10 @@ own security model and considerations.
       By using a separate build job, you keep the number of steps that can
       access the OIDC token to a bare minimum. This prevents both accidental
       and malicious disclosure.
+
+[played a major role in cyber attacks]: https://therecord.media/cisa-cyberattacks-using-valid-credentials
+
+[Attestations]: /attestations/
 
 [fundamentally dangerous]: https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
 

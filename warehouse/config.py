@@ -328,6 +328,20 @@ def configure(settings=None):
         default=Environment.production,
     )
 
+    maybe_set(
+        settings,
+        "terms.revision",
+        "TERMS_REVISION",
+        default="initial",
+    )
+    maybe_set(
+        settings,
+        "terms.notification_batch_size",
+        "TERMS_NOTIFICATION_BATCH_SIZE",
+        int,
+        default=1000,
+    )
+
     # Pull in default configuration from the environment.
     maybe_set(settings, "warehouse.token", "WAREHOUSE_TOKEN")
     maybe_set(settings, "warehouse.ip_salt", "WAREHOUSE_IP_SALT")
@@ -360,7 +374,6 @@ def configure(settings=None):
         default="https://api.github.com/meta/public_keys/token_scanning",
     )
     maybe_set(settings, "warehouse.downloads_table", "WAREHOUSE_DOWNLOADS_TABLE")
-    maybe_set(settings, "celery.broker_url", "BROKER_URL")
     maybe_set_redis(settings, "celery.broker_redis_url", "REDIS_URL", db=10)
     maybe_set_redis(settings, "celery.result_url", "REDIS_URL", db=12)
     maybe_set_redis(settings, "celery.scheduler_url", "REDIS_URL", db=0)
@@ -432,13 +445,6 @@ def configure(settings=None):
         coercer=int,
         default=100,
     )
-    maybe_set(
-        settings,
-        "metadata_backfill.batch_size",
-        "METADATA_BACKFILL_BATCH_SIZE",
-        coercer=int,
-        default=500,
-    )
     maybe_set_compound(settings, "billing", "backend", "BILLING_BACKEND")
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
     maybe_set_compound(settings, "archive_files", "backend", "ARCHIVE_FILES_BACKEND")
@@ -480,6 +486,15 @@ def configure(settings=None):
     maybe_set(settings, "helpscout.app_id", "HELPSCOUT_WAREHOUSE_APP_ID")
     maybe_set(settings, "helpscout.app_secret", "HELPSCOUT_WAREHOUSE_APP_SECRET")
     maybe_set(settings, "helpscout.mailbox_id", "HELPSCOUT_WAREHOUSE_MAILBOX_ID")
+    # Admin notification service settings
+    maybe_set(
+        settings, "helpdesk.notification_backend", "HELPDESK_NOTIFICATION_BACKEND"
+    )
+    maybe_set(
+        settings,
+        "helpdesk.notification_service_url",
+        "HELPDESK_NOTIFICATION_SERVICE_URL",
+    )
 
     # Configure our ratelimiters
     maybe_set(
