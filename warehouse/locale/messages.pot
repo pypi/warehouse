@@ -837,7 +837,7 @@ msgstr ""
 msgid "Provide an Inspector link to specific lines of code."
 msgstr ""
 
-#: warehouse/packaging/views.py:353
+#: warehouse/packaging/views.py:367
 msgid "Your report has been recorded. Thank you for your help."
 msgstr ""
 
@@ -6210,7 +6210,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/project/manage_project_base.html:86
-#: warehouse/templates/packaging/detail.html:318
+#: warehouse/templates/packaging/detail.html:344
 msgid "This project has been archived."
 msgstr ""
 
