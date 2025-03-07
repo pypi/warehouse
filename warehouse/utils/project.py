@@ -74,7 +74,11 @@ def confirm_project(
 
 
 def prohibit_and_remove_project(
-    project: Project | str, request, comment: str, flash: bool = True
+    project: Project | str,
+    request,
+    comment: str | None = None,
+    observation_kind: str | None = None,
+    flash: bool = True,
 ):
     """
     View helper to prohibit and remove a project.
@@ -84,7 +88,10 @@ def prohibit_and_remove_project(
     # Add our requested prohibition.
     request.db.add(
         ProhibitedProjectName(
-            name=project_name, comment=comment, prohibited_by=request.user
+            name=project_name,
+            comment=comment,
+            observation_kind=observation_kind,
+            prohibited_by=request.user,
         )
     )
     # Go through and delete the project and everything related to it so that
