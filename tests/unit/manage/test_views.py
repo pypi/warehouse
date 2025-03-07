@@ -102,8 +102,9 @@ class TestManageUnverifiedAccount:
         name = pretend.stub()
         request = pretend.stub(
             find_service=lambda *a, **kw: user_service,
-            user=pretend.stub(name=name),
+            user=pretend.stub(name=name, has_primary_verified_email=False),
             help_url=pretend.call_recorder(lambda *a, **kw: "/the/url"),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the/url"),
         )
         view = views.ManageUnverifiedAccountViews(request)
 
@@ -113,6 +114,27 @@ class TestManageUnverifiedAccount:
         assert request.help_url.calls == [pretend.call(_anchor="account-recovery")]
         assert view.request == request
         assert view.user_service == user_service
+
+    def test_verified_redirects(self):
+        user_service = pretend.stub()
+        user = pretend.stub(
+            id=pretend.stub(),
+            username="username",
+            name="Name",
+            has_primary_verified_email=True,
+        )
+        request = pretend.stub(
+            find_service=lambda *a, **kw: user_service,
+            user=user,
+            help_url=pretend.call_recorder(lambda *a, **kw: "/the/url"),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the/url"),
+        )
+        view = views.ManageUnverifiedAccountViews(request)
+
+        result = view.manage_unverified_account()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the/url"
 
 
 class TestManageAccount:
@@ -6551,6 +6573,8 @@ class TestManageOIDCPublisherViews:
                     "specifier": str(constrained_publisher),
                     "url": publisher.publisher_url(),
                     "submitted_by": db_request.user.username,
+                    "reified_from_pending_publisher": False,
+                    "constrained_from_existing_publisher": True,
                 },
             ),
             pretend.call(
@@ -6650,6 +6674,8 @@ class TestManageOIDCPublisherViews:
                     "specifier": str(constrained_publisher),
                     "url": publisher.publisher_url(),
                     "submitted_by": db_request.user.username,
+                    "reified_from_pending_publisher": False,
+                    "constrained_from_existing_publisher": True,
                 },
             ),
             pretend.call(
@@ -6901,7 +6927,7 @@ class TestManageOIDCPublisherViews:
             )
         ]
 
-    def test_constrain_publisher_already_constrained(
+    def test_constrain_publisher_with_nonempty_environment(
         self, monkeypatch, metrics, db_request
     ):
         owner = UserFactory.create()
@@ -6952,6 +6978,81 @@ class TestManageOIDCPublisherViews:
             pretend.call(
                 "Can only constrain the environment for publishers without an "
                 "environment configured",
+                queue="error",
+            )
+        ]
+
+    @pytest.mark.parametrize(
+        ("publisher_class", "publisher_kwargs"),
+        [
+            (
+                GitHubPublisher,
+                {
+                    "repository_name": "some-repository",
+                    "repository_owner": "some-owner",
+                    "repository_owner_id": "666",
+                    "workflow_filename": "some-workflow-filename.yml",
+                },
+            ),
+            (
+                GitLabPublisher,
+                {
+                    "namespace": "some-namespace",
+                    "project": "some-project",
+                    "workflow_filepath": "some-workflow-filename.yml",
+                },
+            ),
+        ],
+    )
+    def test_constrain_environment_publisher_already_exists(
+        self, monkeypatch, metrics, db_request, publisher_class, publisher_kwargs
+    ):
+        owner = UserFactory.create()
+        db_request.user = owner
+
+        # Create unconstrained and constrained versions of the publisher
+        unconstrained = publisher_class(environment="", **publisher_kwargs)
+        constrained = publisher_class(environment="fakeenv", **publisher_kwargs)
+
+        project = ProjectFactory.create(oidc_publishers=[unconstrained, constrained])
+        project.record_event = pretend.call_recorder(lambda *a, **kw: None)
+        RoleFactory.create(user=owner, project=project, role_name="Owner")
+
+        db_request.db.add_all([unconstrained, constrained])
+        db_request.db.flush()  # To get the ids
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {
+                "constrained_publisher_id": str(unconstrained.id),
+                "constrained_environment_name": "fakeenv",
+            }
+        )
+        db_request.find_service = lambda *a, **kw: metrics
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
+        db_request._ = lambda s: s
+
+        view = views.ManageOIDCPublisherViews(project, db_request)
+        default_response = {"_": pretend.stub()}
+        monkeypatch.setattr(
+            views.ManageOIDCPublisherViews, "default_response", default_response
+        )
+
+        assert view.constrain_environment() == default_response
+        assert view.metrics.increment.calls == [
+            pretend.call(
+                "warehouse.oidc.constrain_publisher_environment.attempt",
+            ),
+        ]
+        assert project.record_event.calls == []
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"{unconstrained} is already registered with {project.name}",
                 queue="error",
             )
         ]
@@ -7113,6 +7214,8 @@ class TestManageOIDCPublisherViews:
                     "specifier": "fakespecifier",
                     "url": publisher.publisher_url(),
                     "submitted_by": "some-user",
+                    "reified_from_pending_publisher": False,
+                    "constrained_from_existing_publisher": False,
                 },
             )
         ]
@@ -7264,6 +7367,8 @@ class TestManageOIDCPublisherViews:
                     "specifier": str(publisher),
                     "url": publisher.publisher_url(),
                     "submitted_by": "some-user",
+                    "reified_from_pending_publisher": False,
+                    "constrained_from_existing_publisher": False,
                 },
             )
         ]

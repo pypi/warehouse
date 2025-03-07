@@ -15,7 +15,7 @@ import re
 from typing import Any
 
 from pypi_attestations import GitHubPublisher as GitHubIdentity, Publisher
-from sqlalchemy import ForeignKey, String, UniqueConstraint
+from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Query, mapped_column
 
@@ -287,6 +287,18 @@ class GitHubPublisherMixin:
 
     def __str__(self):
         return self.workflow_filename
+
+    def exists(self, session) -> bool:
+        return session.query(
+            exists().where(
+                and_(
+                    self.__class__.repository_name == self.repository_name,
+                    self.__class__.repository_owner == self.repository_owner,
+                    self.__class__.workflow_filename == self.workflow_filename,
+                    self.__class__.environment == self.environment,
+                )
+            )
+        ).scalar()
 
 
 class GitHubPublisher(GitHubPublisherMixin, OIDCPublisher):

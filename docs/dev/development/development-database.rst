@@ -30,3 +30,19 @@ Now commit the result::
     git checkout -b update_dev_db_dump && \
     git add dev/example.sql.xz && \
     git commit -m "Update development database dump"
+
+
+Connecting to the Development Database
+======================================
+
+To connect to the development database, use the following command::
+
+    make dbshell
+
+This will spawn a one-time container that connects to the database,
+and opens a shell for you to interact with it.
+
+If you want to use another tool from your host machine,
+you can connect to the database using a connection string, like this::
+
+    pgcli postgresql://postgres@localhost:5433/warehouse

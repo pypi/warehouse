@@ -19,7 +19,12 @@ from requests import ConnectionError, HTTPError, Timeout
 from webob.multidict import MultiDict
 
 from warehouse.oidc.forms import activestate
-from warehouse.packaging.interfaces import ProjectNameUnavailableReason
+
+from ....common.db.accounts import UserFactory
+from ....common.db.packaging import (
+    ProjectFactory,
+    RoleFactory,
+)
 
 fake_username = "some-username"
 fake_org_name = "some-org"
@@ -32,11 +37,8 @@ _requests = requests
 
 
 class TestPendingActiveStatePublisherForm:
-    def test_validate(self, monkeypatch):
+    def test_validate(self, monkeypatch, project_service):
         route_url = pretend.stub()
-
-        def check_project_name(name):
-            return None
 
         data = MultiDict(
             {
@@ -49,7 +51,8 @@ class TestPendingActiveStatePublisherForm:
         form = activestate.PendingActiveStatePublisherForm(
             MultiDict(data),
             route_url=route_url,
-            check_project_name=check_project_name,
+            check_project_name=project_service.check_project_name,
+            user=pretend.stub(),
         )
 
         # Test built-in validations
@@ -57,24 +60,31 @@ class TestPendingActiveStatePublisherForm:
 
         monkeypatch.setattr(form, "_lookup_organization", lambda *o: None)
 
-        assert form._check_project_name == check_project_name
+        assert form._check_project_name == project_service.check_project_name
         assert form._route_url == route_url
         assert form.validate()
 
-    def test_validate_project_name_already_in_use(self, pyramid_config):
+    def test_validate_project_name_already_in_use_owner(
+        self, pyramid_config, project_service
+    ):
         route_url = pretend.call_recorder(lambda *args, **kwargs: "")
 
-        def check_project_name(name):
-            return ProjectNameUnavailableReason.AlreadyExists
+        user = UserFactory.create()
+        project = ProjectFactory.create(name="some-project")
+        RoleFactory.create(user=user, project=project)
 
         form = activestate.PendingActiveStatePublisherForm(
             route_url=route_url,
-            check_project_name=check_project_name,
+            check_project_name=project_service.check_project_name,
+            user=user,
         )
 
         field = pretend.stub(data="some-project")
         with pytest.raises(wtforms.validators.ValidationError):
             form.validate_project_name(field)
+
+        # The project settings URL is only shown in the error message if
+        # the user is the owner of the project
         assert route_url.calls == [
             pretend.call(
                 "manage.project.settings.publishing",
@@ -82,6 +92,26 @@ class TestPendingActiveStatePublisherForm:
                 _query={"provider": {"activestate"}},
             )
         ]
+
+    def test_validate_project_name_already_in_use_not_owner(
+        self, pyramid_config, project_service
+    ):
+        route_url = pretend.call_recorder(lambda *args, **kwargs: "")
+
+        user = UserFactory.create()
+        ProjectFactory.create(name="some-project")
+
+        form = activestate.PendingActiveStatePublisherForm(
+            route_url=route_url,
+            check_project_name=project_service.check_project_name,
+            user=user,
+        )
+
+        field = pretend.stub(data="some-project")
+        with pytest.raises(wtforms.validators.ValidationError):
+            form.validate_project_name(field)
+
+        assert route_url.calls == []
 
 
 class TestActiveStatePublisherForm:

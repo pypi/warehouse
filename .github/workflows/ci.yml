@@ -45,8 +45,10 @@ jobs:
         include:
           - name: Tests
             command: bin/tests --postgresql-host postgres
+            runs_on: depot-ubuntu-24.04-arm-4
           - name: Lint
             command: bin/lint
+            runs_on: depot-ubuntu-24.04-arm-4
           - name: User Documentation
             command: bin/user-docs
           - name: Developer Documentation
@@ -57,7 +59,7 @@ jobs:
             command: bin/licenses
           - name: Translations
             command: bin/translations
-    runs-on: depot-ubuntu-24.04-arm
+    runs-on: ${{ (matrix.runs_on != null) && matrix.runs_on || 'depot-ubuntu-24.04-arm' }}
     container:
       image: registry.depot.dev/rltf7cln5v:${{ needs.build.outputs.buildId }}
       env:

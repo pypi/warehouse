@@ -66,6 +66,7 @@ from warehouse.attestations.models import Provenance
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.events.models import HasEvents
+from warehouse.forklift import metadata
 from warehouse.integrations.vulnerabilities.models import VulnerabilityRecord
 from warehouse.observations.models import HasObservations
 from warehouse.organizations.models import (
@@ -79,7 +80,8 @@ from warehouse.organizations.models import (
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils import dotted_navigator, wheel
 from warehouse.utils.attrs import make_repr
-from warehouse.utils.db.types import bool_false, datetime_now
+from warehouse.utils.db import orm_session_from_obj
+from warehouse.utils.db.types import bool_false, bool_true, datetime_now
 
 if typing.TYPE_CHECKING:
     from warehouse.oidc.models import OIDCPublisher
@@ -137,7 +139,9 @@ class RoleInvitation(db.Model):
     )
 
     user: Mapped[User] = orm.relationship(lazy=False, back_populates="role_invitations")
-    project: Mapped[Project] = orm.relationship(lazy=False)
+    project: Mapped[Project] = orm.relationship(
+        lazy=False, back_populates="invitations"
+    )
 
 
 class ProjectFactory:
@@ -217,6 +221,9 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
         back_populates="project",
         passive_deletes=True,
     )
+    invitations: Mapped[list[RoleInvitation]] = orm.relationship(
+        back_populates="project",
+    )
     team: Mapped[Team] = orm.relationship(
         secondary=TeamProjectRole.__table__,
         back_populates="projects",
@@ -257,7 +264,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
     )
 
     def __getitem__(self, version):
-        session = orm.object_session(self)
+        session = orm_session_from_obj(self)
         canonical_version = packaging.utils.canonicalize_version(version)
 
         try:
@@ -288,7 +295,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             raise KeyError from None
 
     def __acl__(self):
-        session = orm.object_session(self)
+        session = orm_session_from_obj(self)
         acls = [
             # TODO: Similar to `warehouse.accounts.models.User.__acl__`, we express the
             #       permissions here in terms of the permissions that the user has on
@@ -417,42 +424,36 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
     @property
     def owners(self):
         """Return all users who are owners of the project."""
+        session = orm_session_from_obj(self)
         owner_roles = (
-            orm.object_session(self)
-            .query(User.id)
+            session.query(User.id)
             .join(Role.user)
             .filter(Role.role_name == "Owner", Role.project == self)
             .subquery()
         )
-        return (
-            orm.object_session(self)
-            .query(User)
-            .join(owner_roles, User.id == owner_roles.c.id)
-            .all()
-        )
+        return session.query(User).join(owner_roles, User.id == owner_roles.c.id).all()
 
     @property
     def maintainers(self):
         """Return all users who are maintainers of the project."""
+        session = orm_session_from_obj(self)
         maintainer_roles = (
-            orm.object_session(self)
-            .query(User.id)
+            session.query(User.id)
             .join(Role.user)
             .filter(Role.role_name == "Maintainer", Role.project == self)
             .subquery()
         )
         return (
-            orm.object_session(self)
-            .query(User)
+            session.query(User)
             .join(maintainer_roles, User.id == maintainer_roles.c.id)
             .all()
         )
 
     @property
     def all_versions(self):
+        session = orm_session_from_obj(self)
         return (
-            orm.object_session(self)
-            .query(
+            session.query(
                 Release.version,
                 Release.created,
                 Release.is_prerelease,
@@ -466,12 +467,32 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
 
     @property
     def latest_version(self):
+        session = orm_session_from_obj(self)
         return (
-            orm.object_session(self)
-            .query(Release.version, Release.created, Release.is_prerelease)
+            session.query(Release.version, Release.created, Release.is_prerelease)
             .filter(Release.project == self, Release.yanked.is_(False))
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .first()
+        )
+
+    @property
+    def active_releases(self):
+        return (
+            orm_session_from_obj(self)
+            .query(Release)
+            .filter(Release.project == self, Release.yanked.is_(False))
+            .order_by(Release._pypi_ordering.desc())
+            .all()
+        )
+
+    @property
+    def yanked_releases(self):
+        return (
+            orm_session_from_obj(self)
+            .query(Release)
+            .filter(Release.project == self, Release.yanked.is_(True))
+            .order_by(Release._pypi_ordering.desc())
+            .all()
         )
 
 
@@ -544,35 +565,7 @@ class ReleaseURL(db.Model):
 
 
 DynamicFieldsEnum = ENUM(
-    "Platform",
-    "Supported-Platform",
-    "Summary",
-    "Description",
-    "Description-Content-Type",
-    "Keywords",
-    "Home-Page",  # Deprecated, but technically permitted by PEP 643
-    "Download-Url",  # Deprecated, but technically permitted by PEP 643
-    "Author",
-    "Author-Email",
-    "Maintainer",
-    "Maintainer-Email",
-    "License",
-    "License-Expression",
-    "License-File",
-    "Classifier",
-    "Requires-Dist",
-    "Requires-Python",
-    "Requires-External",
-    "Project-Url",
-    "Provides-Extra",
-    "Provides-Dist",
-    "Obsoletes-Dist",
-    # Although the following are deprecated fields, they are technically
-    # permitted as dynamic by PEP 643
-    # https://github.com/pypa/setuptools/issues/4797#issuecomment-2589514950
-    "Requires",
-    "Provides",
-    "Obsoletes",
+    *metadata.DYNAMIC_FIELDS,
     name="release_dynamic_fields",
 )
 
@@ -633,6 +626,7 @@ class Release(HasObservations, db.Model):
     _pypi_ordering: Mapped[int | None]
     requires_python: Mapped[str | None] = mapped_column(Text)
     created: Mapped[datetime_now] = mapped_column()
+    published: Mapped[bool_true] = mapped_column()
 
     description_id: Mapped[UUID] = mapped_column(
         ForeignKey("release_descriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
@@ -726,7 +720,7 @@ class Release(HasObservations, db.Model):
     uploaded_via: Mapped[str | None]
 
     def __getitem__(self, filename: str) -> File:
-        session: orm.Session = orm.object_session(self)  # type: ignore[assignment]
+        session = orm_session_from_obj(self)
 
         try:
             return (
@@ -747,10 +741,12 @@ class Release(HasObservations, db.Model):
             _urls["Download"] = self.download_url
 
         for name, url in self.project_urls.items():
-            # avoid duplicating homepage/download links in case the same
-            # url is specified in the pkginfo twice (in the Home-page
-            # or Download-URL field and again in the Project-URL fields)
-            comp_name = name.casefold().replace("-", "").replace("_", "")
+            # NOTE: This avoids duplicating the homepage and download URL links
+            # if they're present both as project URLs and as standalone fields.
+            # The deduplication is done with the project label normalization rules
+            # adopted with PEP 753.
+            # See https://peps.python.org/pep-0753/
+            comp_name = metadata.normalize_project_url_label(name)
             if comp_name == "homepage" and url == _urls.get("Homepage"):
                 continue
             if comp_name == "downloadurl" and url == _urls.get("Download"):
@@ -1079,6 +1075,10 @@ class ProhibitedProjectName(db.Model):
     )
     prohibited_by: Mapped[User] = orm.relationship()
     comment: Mapped[str] = mapped_column(server_default="")
+    observation_kind: Mapped[str] = mapped_column(
+        nullable=True,
+        comment="If this was created via an observation, the kind of observation",
+    )
 
 
 class ProjectMacaroonWarningAssociation(db.Model):

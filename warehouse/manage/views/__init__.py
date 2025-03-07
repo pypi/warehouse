@@ -226,6 +226,9 @@ class ManageAccountMixin:
 class ManageUnverifiedAccountViews(ManageAccountMixin):
     @view_config(request_method="GET")
     def manage_unverified_account(self):
+        if self.request.user.has_primary_verified_email:
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
         return {"help_url": self.request.help_url(_anchor="account-recovery")}
 
 
@@ -946,6 +949,8 @@ class ProvisionMacaroonViews:
 
         response = {**self.default_response}
         if form.validate():
+            macaroon_caveats: list[caveats.Caveat]
+
             if form.validated_scope == "user":
                 recorded_caveats = [{"permissions": form.validated_scope, "version": 1}]
                 macaroon_caveats = [
@@ -1476,7 +1481,7 @@ class ManageOIDCPublisherViews:
             )
             return self.default_response
 
-        # First we add the new trusted publisher
+        # First we add the new (constrained) trusted publisher
         if isinstance(publisher, GitHubPublisher):
             constrained_publisher = GitHubPublisher(
                 repository_name=publisher.repository_name,
@@ -1492,10 +1497,20 @@ class ManageOIDCPublisherViews:
                 workflow_filepath=publisher.workflow_filepath,
                 environment=form.constrained_environment_name.data,
             )
-
         else:
             self.request.session.flash(
                 "Can only constrain the environment for GitHub and GitLab publishers",
+                queue="error",
+            )
+            return self.default_response
+
+        # The user might have already manually created the new constrained publisher
+        # before clicking the magic link to constrain the existing publisher.
+        if constrained_publisher.exists(self.request.db):
+            self.request.session.flash(
+                self.request._(
+                    f"{publisher} is already registered with {self.project.name}"
+                ),
                 queue="error",
             )
             return self.default_response
@@ -1521,6 +1536,8 @@ class ManageOIDCPublisherViews:
                 "specifier": str(constrained_publisher),
                 "url": constrained_publisher.publisher_url(),
                 "submitted_by": self.request.user.username,
+                "reified_from_pending_publisher": False,
+                "constrained_from_existing_publisher": True,
             },
         )
 
@@ -1652,6 +1669,8 @@ class ManageOIDCPublisherViews:
                 "specifier": str(publisher),
                 "url": publisher.publisher_url(),
                 "submitted_by": self.request.user.username,
+                "reified_from_pending_publisher": False,
+                "constrained_from_existing_publisher": False,
             },
         )
 
@@ -1764,6 +1783,8 @@ class ManageOIDCPublisherViews:
                 "specifier": str(publisher),
                 "url": publisher.publisher_url(),
                 "submitted_by": self.request.user.username,
+                "reified_from_pending_publisher": False,
+                "constrained_from_existing_publisher": False,
             },
         )
 
@@ -1871,6 +1892,8 @@ class ManageOIDCPublisherViews:
                 "specifier": str(publisher),
                 "url": publisher.publisher_url(),
                 "submitted_by": self.request.user.username,
+                "reified_from_pending_publisher": False,
+                "constrained_from_existing_publisher": False,
             },
         )
 
@@ -1983,6 +2006,8 @@ class ManageOIDCPublisherViews:
                 "specifier": str(publisher),
                 "url": publisher.publisher_url(),
                 "submitted_by": self.request.user.username,
+                "reified_from_pending_publisher": False,
+                "constrained_from_existing_publisher": False,
             },
         )
 
@@ -2216,7 +2241,7 @@ def manage_project_releases(project, request):
     #       }
     #   }
 
-    version_to_file_counts = {}
+    version_to_file_counts: dict[str, dict[str, int]] = {}
     for version, packagetype, count in filecounts:
         packagetype_to_count = version_to_file_counts.setdefault(version, {})
         packagetype_to_count.setdefault("total", 0)

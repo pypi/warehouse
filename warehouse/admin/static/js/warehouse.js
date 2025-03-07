@@ -198,6 +198,19 @@ if (malwareReportsTable.length) {
   table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
 }
 
+// Organization Applications
+let OrganizationApplicationsTable = $("#organization-applications");
+if (OrganizationApplicationsTable.length) {
+  let table = OrganizationApplicationsTable.DataTable({
+    displayLength: 25,
+    lengthChange: true,
+    order: [[4, "asc"], [0, "asc"]],  // created, alpha name
+    responsive: true,
+  });
+  new $.fn.dataTable.Buttons(table, {buttons: ["copy", "csv", "colvis"]});
+  table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
+}
+
 // Link Checking
 const links = document.querySelectorAll("a[data-check-link-url]");
 links.forEach(function(link){

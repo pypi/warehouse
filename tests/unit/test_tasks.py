@@ -117,9 +117,6 @@ class TestWarehouseTask:
         assert apply_async.calls == [
             pretend.call(
                 task,
-                message_attributes={
-                    "task_name": {"StringValue": None, "DataType": "String"}
-                },
             )
         ]
         assert get_current_request.calls == [pretend.call()]
@@ -142,9 +139,6 @@ class TestWarehouseTask:
         assert apply_async.calls == [
             pretend.call(
                 task,
-                message_attributes={
-                    "task_name": {"StringValue": None, "DataType": "String"}
-                },
             )
         ]
         assert get_current_request.calls == [pretend.call()]
@@ -165,9 +159,6 @@ class TestWarehouseTask:
         args = (pretend.stub(), pretend.stub())
         kwargs = {
             "foo": pretend.stub(),
-            "message_attributes": {
-                "task_name": {"StringValue": None, "DataType": "String"}
-            },
         }
 
         assert task.apply_async(*args, **kwargs) is None
@@ -463,141 +454,37 @@ def test_make_celery_app():
     (
         "env",
         "ssl",
-        "broker_url",
         "broker_redis_url",
         "expected_url",
         "transport_options",
     ),
     [
         (
-            Environment.development,
-            False,
-            "amqp://guest@rabbitmq:5672//",
-            None,
-            "amqp://guest@rabbitmq:5672//",
-            {},
-        ),
-        (
             Environment.production,
             True,
-            "amqp://guest@rabbitmq:5672//",
-            None,
-            "amqp://guest@rabbitmq:5672//",
-            {},
-        ),
-        (
-            Environment.development,
-            False,
-            "sqs://",
-            None,
-            "sqs://",
-            {
-                "client-config": {"tcp_keepalive": True},
-            },
-        ),
-        (
-            Environment.production,
-            True,
-            "sqs://",
-            None,
-            "sqs://",
-            {
-                "client-config": {"tcp_keepalive": True},
-            },
-        ),
-        (
-            Environment.development,
-            False,
-            "sqs://?queue_name_prefix=warehouse",
-            None,
-            "sqs://",
-            {
-                "queue_name_prefix": "warehouse-",
-                "client-config": {"tcp_keepalive": True},
-            },
-        ),
-        (
-            Environment.production,
-            True,
-            "sqs://?queue_name_prefix=warehouse",
-            None,
-            "sqs://",
-            {
-                "queue_name_prefix": "warehouse-",
-                "client-config": {"tcp_keepalive": True},
-            },
-        ),
-        (
-            Environment.development,
-            False,
-            "sqs://?region=us-east-2",
-            None,
-            "sqs://",
-            {
-                "region": "us-east-2",
-                "client-config": {"tcp_keepalive": True},
-            },
-        ),
-        (
-            Environment.production,
-            True,
-            "sqs://?region=us-east-2",
-            None,
-            "sqs://",
-            {
-                "region": "us-east-2",
-                "client-config": {"tcp_keepalive": True},
-            },
-        ),
-        (
-            Environment.development,
-            False,
-            "sqs:///?region=us-east-2&queue_name_prefix=warehouse",
-            None,
-            "sqs://",
-            {
-                "region": "us-east-2",
-                "queue_name_prefix": "warehouse-",
-                "client-config": {"tcp_keepalive": True},
-            },
-        ),
-        (
-            Environment.production,
-            True,
-            "sqs:///?region=us-east-2&queue_name_prefix=warehouse",
-            None,
-            "sqs://",
-            {
-                "region": "us-east-2",
-                "queue_name_prefix": "warehouse-",
-                "client-config": {"tcp_keepalive": True},
-            },
-        ),
-        (
-            Environment.production,
-            True,
-            "sqs:///?region=us-east-2&queue_name_prefix=warehouse",
-            "redis://127.0.0.1:6379/10",
-            "sqs://",
-            {
-                "region": "us-east-2",
-                "queue_name_prefix": "warehouse-",
-                "client-config": {"tcp_keepalive": True},
-            },
-        ),
-        (
-            Environment.production,
-            True,
-            None,
             "redis://127.0.0.1:6379/10",
             "redis://127.0.0.1:6379/10",
             {},
+        ),
+        (
+            Environment.production,
+            True,
+            (
+                "rediss://user:pass@redis.example.com:6379/10"
+                "?socket_timeout=5&irreleveant=0"
+                "&ssl_cert_reqs=required&ssl_ca_certs=/p/a/t/h/cacert.pem"
+            ),
+            (
+                "rediss://user:pass@redis.example.com:6379/10"
+                "?ssl_cert_reqs=required&ssl_ca_certs=/p/a/t/h/cacert.pem"
+            ),
+            {
+                "socket_timeout": 5,
+            },
         ),
     ],
 )
-def test_includeme(
-    env, ssl, broker_url, broker_redis_url, expected_url, transport_options
-):
+def test_includeme(env, ssl, broker_redis_url, expected_url, transport_options):
     registry_dict = {}
     config = pretend.stub(
         action=pretend.call_recorder(lambda *a, **kw: None),
@@ -608,7 +495,6 @@ def test_includeme(
             __setitem__=registry_dict.__setitem__,
             settings={
                 "warehouse.env": env,
-                "celery.broker_url": broker_url,
                 "celery.broker_redis_url": broker_redis_url,
                 "celery.result_url": pretend.stub(),
                 "celery.scheduler_url": pretend.stub(),

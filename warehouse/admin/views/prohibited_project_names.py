@@ -57,7 +57,7 @@ def prohibited_project_names(request):
     if q:
         terms = shlex.split(q)
 
-        filters = []
+        filters: list = []
         for term in terms:
             filters.append(
                 ProhibitedProjectName.name.ilike(func.normalize_pep426_name(term))
@@ -250,7 +250,7 @@ def add_prohibited_project_names(request):
         )
         return HTTPSeeOther(request.route_path("admin.prohibited_project_names.list"))
 
-    prohibit_and_remove_project(project_name, request, comment)
+    prohibit_and_remove_project(project_name, request, comment=comment)
 
     request.session.flash(f"Prohibited Project Name {project_name!r}", queue="success")
 

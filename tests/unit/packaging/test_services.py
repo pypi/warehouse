@@ -29,7 +29,12 @@ from warehouse.packaging.interfaces import (
     IFileStorage,
     IProjectService,
     ISimpleStorage,
-    ProjectNameUnavailableReason,
+    ProjectNameUnavailableExistingError,
+    ProjectNameUnavailableInvalidError,
+    ProjectNameUnavailableProhibitedError,
+    ProjectNameUnavailableSimilarError,
+    ProjectNameUnavailableStdlibError,
+    ProjectNameUnavailableTypoSquattingError,
 )
 from warehouse.packaging.services import (
     B2FileStorage,
@@ -996,50 +1001,69 @@ class TestProjectService:
     def test_check_project_name_invalid(self, name):
         service = ProjectService(session=pretend.stub())
 
-        assert service.check_project_name(name) is ProjectNameUnavailableReason.Invalid
+        with pytest.raises(ProjectNameUnavailableInvalidError):
+            service.check_project_name(name)
 
     @pytest.mark.parametrize("name", ["uu", "cgi", "nis", "mailcap"])
     def test_check_project_name_stdlib(self, name):
         service = ProjectService(session=pretend.stub())
 
-        assert service.check_project_name(name) is ProjectNameUnavailableReason.Stdlib
+        with pytest.raises(ProjectNameUnavailableStdlibError):
+            service.check_project_name(name)
 
     def test_check_project_name_already_exists(self, db_session):
         service = ProjectService(session=db_session)
-        ProjectFactory.create(name="foo")
+        project = ProjectFactory.create(name="foo")
 
-        assert (
+        with pytest.raises(ProjectNameUnavailableExistingError) as exc:
             service.check_project_name("foo")
-            is ProjectNameUnavailableReason.AlreadyExists
-        )
-        assert (
+        assert exc.value.existing_project == project
+
+        with pytest.raises(ProjectNameUnavailableExistingError):
             service.check_project_name("Foo")
-            is ProjectNameUnavailableReason.AlreadyExists
-        )
 
     def test_check_project_name_prohibited(self, db_session):
         service = ProjectService(session=db_session)
         ProhibitedProjectFactory.create(name="foo")
 
-        assert (
-            service.check_project_name("foo") is ProjectNameUnavailableReason.Prohibited
-        )
-        assert (
-            service.check_project_name("Foo") is ProjectNameUnavailableReason.Prohibited
-        )
+        with pytest.raises(ProjectNameUnavailableProhibitedError):
+            service.check_project_name("foo")
+
+        with pytest.raises(ProjectNameUnavailableProhibitedError):
+            service.check_project_name("Foo")
 
     def test_check_project_name_too_similar(self, db_session):
         service = ProjectService(session=db_session)
         ProjectFactory.create(name="f00")
 
+        with pytest.raises(ProjectNameUnavailableSimilarError):
+            service.check_project_name("foo")
+
+    def test_check_project_name_too_similar_multiple_existing(self, db_session):
+        service = ProjectService(session=db_session)
+        project1 = ProjectFactory.create(name="f00")
+        project2 = ProjectFactory.create(name="f0o")
+
+        with pytest.raises(ProjectNameUnavailableSimilarError) as exc:
+            service.check_project_name("foo")
         assert (
-            service.check_project_name("foo") is ProjectNameUnavailableReason.TooSimilar
+            exc.value.similar_project_name == project1.name
+            or exc.value.similar_project_name == project2.name
         )
+
+    def test_check_project_name_typosquatting_prohibited(self, db_session):
+        # TODO: Update this test once we have a dynamic TopN approach
+        service = ProjectService(session=db_session)
+        ProhibitedProjectFactory.create(name="numpy")
+
+        with pytest.raises(ProjectNameUnavailableTypoSquattingError):
+            service.check_project_name("numpi")
 
     def test_check_project_name_ok(self, db_session):
         service = ProjectService(session=db_session)
 
-        assert service.check_project_name("foo") is None
+        # Should not raise any exception
+        service.check_project_name("foo")
 
 
 def test_project_service_factory():

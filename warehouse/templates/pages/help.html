@@ -55,6 +55,7 @@
 {% macro publishing() %}{% trans %}How do I package and publish my code for PyPI?{% endtrans %}{% endmacro %}
 {% macro trove_classifier() %}{% trans %}What's a trove classifier?{% endtrans %}{% endmacro %}
 {% macro yanked() %}{% trans %}What's a "yanked" release?{% endtrans %}{% endmacro %}
+{% macro archived_project() %}{% trans %}What's an archived project?{% endtrans %}{% endmacro %}
 
 {# My Account #}
 {% macro verified_email() %}{% trans %}Why do I need a verified email address?{% endtrans %}{% endmacro %}
@@ -130,6 +131,7 @@
           <li><a href="#publishing">{{ publishing() }}</a></li>
           <li><a href="#trove-classifier">{{ trove_classifier() }}</a></li>
           <li><a href="#yanked">{{ yanked() }}</a></li>
+          <li><a href="#archived-project">{{ archived_project() }}</a></li>
         </ul>
       </section>
 
@@ -248,6 +250,17 @@
         <p>
           {% trans href='https://www.python.org/dev/peps/pep-0592/', title=gettext('External link') %}
           A yanked release is a release that is always ignored by an installer, unless it is the only release that matches a version specifier (using either <code>==</code> or <code>===</code>). See <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><abbr title="Python enhancement proposal">PEP</abbr> 592</a> for more information.
+          {% endtrans %}
+        </p>
+
+        <h3 id="archived-project">{{ archived_project() }}</h3>
+        <p>
+          {% trans %}
+          An archived project is a project that is no longer receiving any updates.
+          A project maintainer can mark a project as archived to signal to users that future
+          updates should not be expected. Archived projects are publicly visible and
+          can still be resolved from the index by default, unlike deleted or
+          <a href="#yanked">yanked</a> releases.
           {% endtrans %}
         </p>
       </section>
@@ -879,10 +892,10 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
 
         <h3 id="project_in_quarantine">{{ project_in_quarantine() }}</h3>
         <p>
-          {% trans tou="https://policies.python.org/pypi.org/Terms-of-Use/", aup="https://policies.python.org/pypi.org/Acceptable-Use-Policy/" %}
+          {% trans tou="https://policies.python.org/pypi.org/Terms-of-Service/", aup="https://policies.python.org/pypi.org/Acceptable-Use-Policy/" %}
             Projects may get placed in quarantine for any number of reasons,
             such as suspicion of malicious activity, spam, or other violations of the
-            <a href="{{ tou }}" target="_blank" rel="noopener">Terms of Use</a>
+            <a href="{{ tou }}" target="_blank" rel="noopener">Terms of Service</a>
             or
             <a href="{{ aup }}" target="_blank" rel="noopener">Acceptable Use Policy</a>.
           {% endtrans %}

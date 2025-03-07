@@ -80,6 +80,10 @@ class MockBillingViews:
                         "mocksub_"
                         + "".join(random.choices(digits + ascii_letters, k=24))
                     ),
+                    "metadata": {
+                        "billing_service": "pypi",
+                        "domain": "localhost",
+                    },
                 },
             },
         }

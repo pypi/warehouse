@@ -196,7 +196,3 @@ def includeme(config):
 
     # Add a periodic task to generate general metrics
     config.add_periodic_task(crontab(minute="*/5"), compute_packaging_metrics)
-
-    # TODO: restore this
-    # if config.get_settings().get("warehouse.release_files_table"):
-    #     config.add_periodic_task(crontab(minute=0), sync_bigquery_release_files)

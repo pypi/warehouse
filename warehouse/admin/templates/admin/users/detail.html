@@ -562,10 +562,10 @@
             </div>
           </form>
 
-          <div class="card-header with-border">
-            <h3 class="card-title">Add a new email</h3>
-          </div>
           <div class="card">
+            <div class="card-header with-border">
+              <h3 class="card-title">Add a new email</h3>
+            </div>
             <form class="form-horizontal" method="POST" action="{{ request.route_path('admin.user.add_email', username=user.username) }}">
               <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
@@ -598,10 +598,10 @@
                     <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not perms_admin_users_email_write }}" {{ "disabled" if not perms_admin_users_email_write }}>Submit</button>
                   </div>
                 </div>
-              </div>
+              </div> <!-- .card-footer -->
             </form>
           </div>
-        </div>
+        </div> <!-- .card -->
       </div> <!-- .card -->
 
       <div class="card">
@@ -647,25 +647,95 @@
           </div>
         </div>
         {% endif %}
-        {% if user.has_recovery_codes %}
-        <div>
-          <div class="card-header with-border">
-            <h3 class="card-title">Recovery codes</h3>
-          </div>
-          <div class="card-body">
-            <table class="table table-hover">
-              <tr>
-                <th>Generated</th>
-                <th>Remaining</th>
-              </tr>
-              <tr>
-                <td>{{ user.recovery_codes[0].generated }}</td>
-                <td>{{ user.recovery_codes.filter_by(burned=None).all()|length }}</td>
-              </tr>
-            </table>
-          </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Recovery codes</h3>
         </div>
-        {% endif %}
+        <div class="card-body">
+          {% if user.has_recovery_codes %}
+          <table class="table table-hover">
+            <tr>
+              <th>Generated</th>
+              <th>Remaining</th>
+            </tr>
+            <tr>
+              <td>{{ user.recovery_codes[0].generated }}</td>
+              <td>{{ user.recovery_codes.filter_by(burned=None).all()|length }}</td>
+            </tr>
+          </table>
+          <form method="POST" action="{{ request.route_path('admin.user.burn_recovery_codes', username=user.username) }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+            <div class="card">
+              <div class="card-header with-border">
+                <h3 class="card-title">Burn leaked recovery codes</h3>
+              </div>
+              <div class="card-body">
+                <textarea name="to_burn"
+                          placeholder="One or more leaked recovery codes for this user, separated by whitespace or newlines"
+                          class="form-control"
+                ></textarea>
+              </div>
+              <div class="card-footer">
+                <div class="form-group">
+                  <div class="col-sm-offset-10 col-sm-2">
+                    <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not perms_admin_users_email_write }}" {{ "disabled" if not perms_admin_users_email_write }}>Submit</button>
+                  </div>
+                </div>
+              </div> <!-- .card-footer -->
+            </div> <!-- .card -->
+          </form>
+          {% else %}
+          No recovery codes configured.
+          {% endif %}
+        </div> <!-- .card-body -->
+      </div> <!-- .card -->
+
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Invitations</h3>
+        </div>
+
+        <div class="card-body">
+          {% if user.role_invitations or user.organization_invitations %}
+          <table id="invitations" class="table table-hover">
+            <thead>
+              <tr>
+                <th scope="col" class="token">Type</th>
+                <th scope="col" class="target">Target</th>
+                <th scope="col" class="status">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for invitation in user.organization_invitations %}
+              <tr>
+                <td>Organization</td>
+                <td>
+                  <a href="{{ request.route_path('admin.organization.detail', organization_id=invitation.organization.id) }}">
+                    {{ invitation.organization.name }}
+                  </a>
+                </td>
+                <td>{{ invitation.invite_status.value }}</td>
+              </tr>
+              {% endfor %}
+              {% for invitation in user.role_invitations %}
+              <tr>
+                <td>Project</td>
+                <td>
+                  <a href="{{ request.route_path('admin.project.detail', project_name=invitation.project.normalized_name) }}">
+                    {{ invitation.project.name }}
+                  </a>
+                </td>
+                <td>{{ invitation.invite_status.value }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          No Invitations.
+          {% endif %}
+        </div>
       </div> <!-- .card -->
 
       <div class="card">
@@ -674,6 +744,7 @@
         </div>
 
         <div class="card-body">
+          {% if user.macaroons %}
           <table id="api-tokens" class="table table-hover">
             <thead>
               <tr>
@@ -702,34 +773,11 @@
               {% endfor %}
             </tbody>
           </table>
+          {% else %}
+          No API tokens configured.
+          {% endif %}
         </div>
       </div> <!-- .card -->
-
-      {% if user.role_invitations %}
-      <div class="card">
-        <div class="card-header with-border">
-          <h3 class="card-title">Project Invitations</h3>
-        </div>
-
-        <div class="card-body">
-          <table class="table table-hover" id="projects">
-            <thead>
-              <tr>
-                <th>Project Name</th>
-              </tr>
-            </thead>
-            <tbody>
-            {% for invitation in user.role_invitations %}
-              <tr>
-                <td><a href="{{ request.route_path('admin.project.detail', project_name=invitation.project.normalized_name) }}">{{ invitation.project.name }}</a></td>
-              </tr>
-            {% endfor %}
-            </tbody>
-          </table>
-        </div>
-
-      </div> <!-- .card -->
-      {% endif %}
 
       <div class="card">
         <div class="card-header with-border">
@@ -737,6 +785,7 @@
         </div>
 
         <div class="card-body">
+          {% if roles %}
           <table class="table table-hover" id="projects">
             <thead>
               <tr>
@@ -755,33 +804,11 @@
             {% endfor %}
             </tbody>
           </table>
+          {% else %}
+          No roles available.
+          {% endif %}
         </div>
       </div> <!-- .card -->
-
-      {% if user.organization_invitations %}
-      <div class="card">
-        <div class="card-header with-border">
-          <h3 class="card-title">Organization Invitations</h3>
-        </div>
-
-        <div class="card-body">
-          <table class="table table-hover" id="organization-invitations">
-            <thead>
-              <tr>
-                <th>Organization Name</th>
-              </tr>
-            </thead>
-            <tbody>
-            {% for invitation in user.organization_invitations %}
-              <tr>
-                <td><a href="{{ request.route_path('admin.organization.detail', organization_id=invitation.organization.id) }}">{{ invitation.organization.name }}</a></td>
-              </tr>
-            {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div> <!-- .card -->
-      {% endif %}
 
       {% if user.organizations %}
       <div class="card">

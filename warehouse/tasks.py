@@ -15,7 +15,6 @@ from __future__ import annotations
 import functools
 import hashlib
 import logging
-import os
 import time
 import typing
 import urllib.parse
@@ -30,7 +29,6 @@ import venusian
 
 from kombu import Queue
 from pyramid.threadlocal import get_current_request
-from urllib3.util import parse_url
 
 from warehouse.config import Environment
 from warehouse.metrics import IMetricsService
@@ -44,9 +42,6 @@ celery.app.backends.BACKEND_ALIASES["rediss"] = (
     "warehouse.tasks:TLSRedisBackend"  # noqa
 )
 
-
-# We need to register that the sqs:// url scheme uses a netloc
-urllib.parse.uses_netloc.append("sqs")
 
 logger = logging.getLogger(__name__)
 
@@ -164,15 +159,6 @@ class WarehouseTask(celery.Task):
         # avoid :(
         request = get_current_request()
 
-        # Add custom SQS MessageAttributes to payload for tracing. Ref:
-        # https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-message-metadata.html
-        kwargs["message_attributes"] = {
-            "task_name": {
-                "StringValue": self.name,
-                "DataType": "String",
-            },
-        }
-
         # If for whatever reason we were unable to get a request we'll just
         # skip this and call the original method to send this immediately.
         if request is None or not hasattr(request, "tm"):
@@ -279,32 +265,32 @@ def includeme(config):
 
     broker_transport_options: dict[str, str | dict] = {}
 
-    broker_url = s.get("celery.broker_url")
-    if broker_url is None:
-        broker_url = s["celery.broker_redis_url"]
+    broker_url = s["celery.broker_redis_url"]
 
-    if broker_url.startswith("sqs://"):
-        parsed_url = parse_url(broker_url)
-        parsed_query = urllib.parse.parse_qs(parsed_url.query)
-        # Celery doesn't handle paths/query arms being passed into the SQS broker,
-        # so we'll just remove them from here.
-        broker_url = urllib.parse.urlunparse(
-            (parsed_url.scheme, parsed_url.netloc) + ("",) * 4
-        )
-        os.environ["BROKER_URL"] = broker_url
+    # Only redis is supported as a broker
+    assert broker_url.startswith("redis")
 
-        if "queue_name_prefix" in parsed_query:
-            broker_transport_options["queue_name_prefix"] = (
-                parsed_query["queue_name_prefix"][0] + "-"
-            )
+    parsed_url = urllib.parse.urlparse(  # noqa: WH001, going to urlunparse this
+        broker_url
+    )
+    parsed_query = urllib.parse.parse_qs(parsed_url.query)
 
-        if "region" in parsed_query:
-            broker_transport_options["region"] = parsed_query["region"][0]
+    celery_transport_options = {
+        "socket_timeout": int,
+    }
 
-        # Add TCP keepalive options to the SQS connection
-        broker_transport_options["client-config"] = {
-            "tcp_keepalive": True,
-        }
+    for key, value in parsed_query.copy().items():
+        if key.startswith("ssl_"):
+            continue
+        else:
+            if key in celery_transport_options:
+                broker_transport_options[key] = celery_transport_options[key](value[0])
+            del parsed_query[key]
+
+    parsed_url = parsed_url._replace(
+        query=urllib.parse.urlencode(parsed_query, doseq=True, safe="/")
+    )
+    broker_url = urllib.parse.urlunparse(parsed_url)
 
     config.registry["celery.app"] = celery.Celery(
         "warehouse", autofinalize=False, set_as_current=False

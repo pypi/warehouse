@@ -30,12 +30,13 @@ import stdlib_list
 
 from packaging.utils import canonicalize_name
 from pyramid.httpexceptions import HTTPBadRequest, HTTPConflict, HTTPForbidden
-from sqlalchemy import exists, func
+from sqlalchemy import exists, func, select
 from zope.interface import implementer
 
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.email import send_pending_trusted_publisher_invalidated_email
 from warehouse.events.tags import EventTag
+from warehouse.helpdesk.interfaces import IAdminNotificationService
 from warehouse.metrics import IMetricsService
 from warehouse.oidc.models import PendingOIDCPublisher
 from warehouse.packaging.interfaces import (
@@ -43,7 +44,12 @@ from warehouse.packaging.interfaces import (
     IFileStorage,
     IProjectService,
     ISimpleStorage,
-    ProjectNameUnavailableReason,
+    ProjectNameUnavailableExistingError,
+    ProjectNameUnavailableInvalidError,
+    ProjectNameUnavailableProhibitedError,
+    ProjectNameUnavailableSimilarError,
+    ProjectNameUnavailableStdlibError,
+    ProjectNameUnavailableTypoSquattingError,
     TooManyProjectsCreated,
 )
 from warehouse.packaging.models import (
@@ -52,6 +58,7 @@ from warehouse.packaging.models import (
     Project,
     Role,
 )
+from warehouse.packaging.typosnyper import typo_check_name
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.utils.exceptions import DevelopmentModeWarning
 from warehouse.utils.project import PROJECT_NAME_RE
@@ -443,32 +450,47 @@ class ProjectService:
         self.ratelimiters["project.create.user"].hit(creator.id)
         self.ratelimiters["project.create.ip"].hit(request.remote_addr)
 
-    def check_project_name(self, name: str) -> ProjectNameUnavailableReason | None:
+    def check_project_name(self, name: str) -> None:
+        """
+        Check if a project name is valid and available.
+
+        This method will raise an exception if the project name is invalid or
+        unavailable for any reason.
+        """
         if not PROJECT_NAME_RE.match(name):
-            return ProjectNameUnavailableReason.Invalid
+            raise ProjectNameUnavailableInvalidError()
 
         # Also check for collisions with Python Standard Library modules.
         if canonicalize_name(name) in STDLIB_PROHIBITED:
-            return ProjectNameUnavailableReason.Stdlib
+            raise ProjectNameUnavailableStdlibError()
 
-        if self.db.query(
-            exists().where(Project.normalized_name == func.normalize_pep426_name(name))
-        ).scalar():
-            return ProjectNameUnavailableReason.AlreadyExists
+        if existing_project := self.db.scalars(
+            select(Project).where(
+                Project.normalized_name == func.normalize_pep426_name(name)
+            )
+        ).first():
+            raise ProjectNameUnavailableExistingError(existing_project)
 
         if self.db.query(
             exists().where(
                 ProhibitedProjectName.name == func.normalize_pep426_name(name)
             )
         ).scalar():
-            return ProjectNameUnavailableReason.Prohibited
+            raise ProjectNameUnavailableProhibitedError()
 
-        if self.db.query(
-            exists().where(
+        if similar_project_name := self.db.scalars(
+            select(Project.name).where(
                 func.ultranormalize_name(Project.name) == func.ultranormalize_name(name)
             )
-        ).scalar():
-            return ProjectNameUnavailableReason.TooSimilar
+        ).first():
+            raise ProjectNameUnavailableSimilarError(similar_project_name)
+
+        # Check for typo-squatting.
+        if typo_check_match := typo_check_name(canonicalize_name(name)):
+            raise ProjectNameUnavailableTypoSquattingError(
+                check_name=typo_check_match[0],
+                existing_project_name=typo_check_match[1],
+            )
 
         return None
 
@@ -490,51 +512,131 @@ class ProjectService:
             ) from None
 
         # Verify that the project name is both valid and currently available.
-        match self.check_project_name(name):
-            case ProjectNameUnavailableReason.Invalid:
-                raise HTTPBadRequest(f"The name {name!r} is invalid.")
-            case ProjectNameUnavailableReason.AlreadyExists:
-                # Found existing project with conflicting name.
-                raise HTTPConflict(
-                    (
-                        "The name {name!r} conflicts with an existing project. "
-                        "See {projecthelp} for more information."
-                    ).format(
-                        name=name,
-                        projecthelp=request.help_url(_anchor="project-name"),
-                    ),
-                ) from None
-            case ProjectNameUnavailableReason.Prohibited:
-                raise HTTPBadRequest(
-                    (
-                        "The name {name!r} isn't allowed. "
-                        "See {projecthelp} for more information."
-                    ).format(
-                        name=name,
-                        projecthelp=request.help_url(_anchor="project-name"),
-                    ),
-                ) from None
-            case ProjectNameUnavailableReason.TooSimilar:
-                raise HTTPBadRequest(
-                    (
-                        "The name {name!r} is too similar to an existing project. "
-                        "See {projecthelp} for more information."
-                    ).format(
-                        name=name,
-                        projecthelp=request.help_url(_anchor="project-name"),
-                    ),
-                ) from None
-            case ProjectNameUnavailableReason.Stdlib:
-                raise HTTPBadRequest(
-                    (
-                        "The name {name!r} isn't allowed (conflict with Python "
-                        "Standard Library module name). See "
-                        "{projecthelp} for more information."
-                    ).format(
-                        name=name,
-                        projecthelp=request.help_url(_anchor="project-name"),
-                    ),
-                ) from None
+        try:
+            self.check_project_name(name)
+        except ProjectNameUnavailableInvalidError:
+            raise HTTPBadRequest(f"The name {name!r} is invalid.")
+        except ProjectNameUnavailableExistingError:
+            # Found existing project with conflicting name.
+            raise HTTPConflict(
+                (
+                    "The name {name!r} conflicts with an existing project. "
+                    "See {projecthelp} for more information."
+                ).format(
+                    name=name,
+                    projecthelp=request.help_url(_anchor="project-name"),
+                ),
+            ) from None
+        except ProjectNameUnavailableProhibitedError:
+            raise HTTPBadRequest(
+                (
+                    "The name {name!r} isn't allowed. "
+                    "See {projecthelp} for more information."
+                ).format(
+                    name=name,
+                    projecthelp=request.help_url(_anchor="project-name"),
+                ),
+            ) from None
+        except ProjectNameUnavailableSimilarError:
+            raise HTTPBadRequest(
+                (
+                    "The name {name!r} is too similar to an existing project. "
+                    "See {projecthelp} for more information."
+                ).format(
+                    name=name,
+                    projecthelp=request.help_url(_anchor="project-name"),
+                ),
+            ) from None
+        except ProjectNameUnavailableStdlibError:
+            raise HTTPBadRequest(
+                (
+                    "The name {name!r} isn't allowed (conflict with Python "
+                    "Standard Library module name). See "
+                    "{projecthelp} for more information."
+                ).format(
+                    name=name,
+                    projecthelp=request.help_url(_anchor="project-name"),
+                ),
+            ) from None
+        except ProjectNameUnavailableTypoSquattingError as exc:
+            # Don't yet raise an error here, as we want to allow the
+            # user to proceed with the project creation. We'll log a warning
+            # instead.
+            request.log.warning(
+                "ProjectNameUnavailableTypoSquattingError",
+                check_name=exc.check_name,
+                existing_project_name=exc.existing_project_name,
+            )
+            # Send notification to Admins for review
+            notification_service = request.find_service(IAdminNotificationService)
+
+            warehouse_domain = request.registry.settings.get("warehouse.domain")
+            new_project_page = request.route_url(
+                "packaging.project",
+                name=name,
+                _host=warehouse_domain,
+            )
+            new_project_text = (
+                f"During `file_upload`, Project Create for "
+                f"*<{new_project_page}|{name}>* was detected as a potential "
+                f"typo by the `{exc.check_name!r}` check."
+            )
+            existing_project_page = request.route_url(
+                "packaging.project",
+                name=exc.existing_project_name,
+                _host=warehouse_domain,
+            )
+            existing_project_text = (
+                f"<{existing_project_page}|Existing project: "
+                f"{exc.existing_project_name}>"
+            )
+
+            webhook_payload = {
+                "blocks": [
+                    {
+                        "type": "header",
+                        "text": {
+                            "type": "plain_text",
+                            "text": "TypoSnyper :warning:",
+                            "emoji": True,
+                        },
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": new_project_text,
+                        },
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": existing_project_text,
+                        },
+                    },
+                    {"type": "divider"},
+                    {
+                        "type": "context",
+                        "elements": [
+                            {
+                                "type": "plain_text",
+                                "text": "Once reviewed/confirmed, "
+                                "react to this message with :white_check_mark:",
+                                "emoji": True,
+                            }
+                        ],
+                    },
+                ]
+            }
+            notification_service.send_notification(payload=webhook_payload)
+
+            request.metrics.increment(
+                "warehouse.packaging.services.create_project.typo_squatting",
+                tags=[f"check_name:{exc.check_name!r}"],
+            )
+            # and continue with the project creation
+            pass
 
         # The project name is valid: create it and add it
         project = Project(name=name)

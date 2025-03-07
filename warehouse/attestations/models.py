@@ -18,7 +18,7 @@ from uuid import UUID
 
 import pypi_attestations
 
-from sqlalchemy import ForeignKey, orm
+from sqlalchemy import ForeignKey, Index, orm
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -51,3 +51,5 @@ class Provenance(db.Model):
     @cached_property
     def as_model(self):
         return pypi_attestations.Provenance.model_validate(self.provenance)
+
+    __table_args__ = (Index("ix_provenance_file_id", file_id),)
