@@ -35,15 +35,14 @@
   {% endif %}
   {% if project.organization %}
   <h6>Owner</h6>
-    <span class="sidebar-section__maintainer">
-      <a href="{{ request.route_path('organizations.profile', organization=project.organization.name) }}" aria-label="{{ project.organization.name }}">
-        <span class="sidebar-section__user-gravatar">
-          <img src="{{ request.static_path('warehouse:static/dist/images/blue-sitemap.png') }}" height="43" alt="organization icon" title="organization icon">        </span>
-        <span class="sidebar-section__user-gravatar-text">
+    <ul class="vertical-tabs__list">
+      <li>
+        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed" href="{{ request.route_path('organizations.profile', organization=project.organization.name) }}" aria-label="{{ project.organization.name }}">
+          <i class="fa fa-sitemap" aria-hidden="true"></i>
           {{ project.organization.display_name }}
-        </span>
-      </a>
-    </span>
+        </a>
+      </li>
+    </ul>
   {% endif %}
 
   {% if release.verified_github_repo_info_url and release.verified_github_open_issue_info_url %}
