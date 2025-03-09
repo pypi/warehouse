@@ -307,6 +307,9 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         viewonly=True,
     )
     roles: Mapped[list[OrganizationRole]] = relationship(back_populates="organization")
+    invitations: Mapped[list[OrganizationInvitation]] = relationship(
+        back_populates="organization"
+    )
     teams: Mapped[list[Team]] = relationship(
         back_populates="organization",
         order_by=lambda: Team.name.asc(),
@@ -596,7 +599,9 @@ class OrganizationInvitation(db.Model):
     user: Mapped[User] = relationship(
         back_populates="organization_invitations", lazy=False
     )
-    organization: Mapped[Organization] = relationship(lazy=False)
+    organization: Mapped[Organization] = relationship(
+        back_populates="invitations", lazy=False
+    )
 
 
 class TeamRoleType(str, enum.Enum):

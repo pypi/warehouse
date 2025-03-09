@@ -274,6 +274,27 @@
       </table>
     </div>
   </div>
+
+  <div class="card-header">Invitations</div>
+  <div class="card-body">
+<div class="table-responsive p-0">
+      <table class="table table-hover table-striped">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for invitation in project.invitations %}
+          <tr>
+            <td><a href="{{ request.route_path('admin.user.detail', username=invitation.user.username) }}">{{ invitation.user.username }}</a></td>
+            <td>{{ invitation.invite_status.value }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+  </div>
 </div> <!-- .card #maintainers -->
 
 <div class="card card-info" id="releases">

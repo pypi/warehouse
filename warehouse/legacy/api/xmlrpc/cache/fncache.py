@@ -10,8 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
-
+import orjson
 import redis
 
 from warehouse.legacy.api.xmlrpc.cache.interfaces import CacheError
@@ -27,7 +26,7 @@ class StubMetricReporter:
 class RedisLru:
     """
     Redis backed LRU cache for functions which return an object which
-    can survive json.dumps() and json.loads() intact
+    can survive orjson.dumps() and orjson.loads() intact
     """
 
     def __init__(self, conn, name="lru", expires=None, metric_reporter=None):
@@ -58,14 +57,16 @@ class RedisLru:
             return None
         if value:
             self.metric_reporter.increment(f"{self.name}.cache.hit")
-            value = json.loads(value)
+            value = orjson.loads(value)
         return value
 
     def add(self, func_name, key, value, tag, expires):
         try:
             self.metric_reporter.increment(f"{self.name}.cache.miss")
             pipeline = self.conn.pipeline()
-            pipeline.hset(self.format_key(func_name, tag), str(key), json.dumps(value))
+            pipeline.hset(
+                self.format_key(func_name, tag), str(key), orjson.dumps(value)
+            )
             ttl = expires if expires else self.expires
             pipeline.expire(self.format_key(func_name, tag), ttl)
             pipeline.execute()

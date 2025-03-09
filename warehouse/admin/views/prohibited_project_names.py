@@ -250,7 +250,7 @@ def add_prohibited_project_names(request):
         )
         return HTTPSeeOther(request.route_path("admin.prohibited_project_names.list"))
 
-    prohibit_and_remove_project(project_name, request, comment)
+    prohibit_and_remove_project(project_name, request, comment=comment)
 
     request.session.flash(f"Prohibited Project Name {project_name!r}", queue="success")
 

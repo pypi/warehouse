@@ -152,6 +152,33 @@
           No members.
           {% endif %}
         </div>
+
+        <div class="card-header with-border">
+          <h3 class="card-title">Invitations</h3>
+        </div>
+
+        <div class="card-body">
+          {% if organization.invitations %}
+          <table class="table table-hover" id="projects">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for role in organization.invitations %}
+              <tr>
+                <td><a href="{{ request.route_path('admin.user.detail', username=role.user.username) }}">{{ role.user.username }}</a></td>
+                <td><i>{{ role.invite_status.value }}</i></td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          No invitations.
+          {% endif %}
+        </div>
       </div> <!-- .card -->
 
       <div class="card">

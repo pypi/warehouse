@@ -419,46 +419,21 @@ class TestOrganizationApplicationList:
     def test_no_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(30),
-            key=lambda o: o.normalized_name,
+            key=lambda o: o.submitted,
         )
         result = views.organization_applications_list(db_request)
 
         assert result == {
-            "organization_applications": organization_applications[:25],
+            "organization_applications": organization_applications,
             "query": "",
             "terms": [],
         }
-
-    @pytest.mark.usefixtures("_enable_organizations")
-    def test_with_page(self, db_request):
-        organization_applications = sorted(
-            OrganizationApplicationFactory.create_batch(30),
-            key=lambda o: o.normalized_name,
-        )
-        db_request.GET["page"] = "2"
-        result = views.organization_applications_list(db_request)
-
-        assert result == {
-            "organization_applications": organization_applications[25:],
-            "query": "",
-            "terms": [],
-        }
-
-    @pytest.mark.usefixtures("_enable_organizations")
-    def test_with_invalid_page(self):
-        request = pretend.stub(
-            flags=pretend.stub(enabled=lambda *a: False),
-            params={"page": "not an integer"},
-        )
-
-        with pytest.raises(HTTPBadRequest):
-            views.organization_applications_list(request)
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_basic_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
+            key=lambda o: o.submitted,
         )
         db_request.GET["q"] = organization_applications[0].name
         result = views.organization_applications_list(db_request)
@@ -471,7 +446,7 @@ class TestOrganizationApplicationList:
     def test_name_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
+            key=lambda o: o.submitted,
         )
         db_request.GET["q"] = f"name:{organization_applications[0].name}"
         result = views.organization_applications_list(db_request)
@@ -484,7 +459,7 @@ class TestOrganizationApplicationList:
     def test_organization_application_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
+            key=lambda o: o.submitted,
         )
         db_request.GET["q"] = (
             f"organization:{organization_applications[0].display_name}"
@@ -504,7 +479,7 @@ class TestOrganizationApplicationList:
     def test_url_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
+            key=lambda o: o.submitted,
         )
         db_request.GET["q"] = f"url:{organization_applications[0].link_url}"
         result = views.organization_applications_list(db_request)
@@ -517,7 +492,7 @@ class TestOrganizationApplicationList:
     def test_description_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
+            key=lambda o: o.submitted,
         )
         db_request.GET["q"] = (
             f"description:'{organization_applications[0].description}'"
@@ -537,7 +512,7 @@ class TestOrganizationApplicationList:
     def test_is_approved_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
+            key=lambda o: o.submitted,
         )
         organization_applications[0].is_approved = True
         organization_applications[1].is_approved = True
@@ -557,7 +532,7 @@ class TestOrganizationApplicationList:
     def test_is_declined_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
+            key=lambda o: o.submitted,
         )
         organization_applications[0].is_approved = True
         organization_applications[1].is_approved = True
@@ -577,7 +552,7 @@ class TestOrganizationApplicationList:
     def test_is_submitted_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
+            key=lambda o: o.submitted,
         )
         organization_applications[0].is_approved = True
         organization_applications[1].is_approved = True
@@ -638,13 +613,13 @@ class TestOrganizationApplicationList:
     def test_is_invalid_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
+            key=lambda o: o.submitted,
         )
         db_request.GET["q"] = "is:not-actually-a-valid-query"
         result = views.organization_applications_list(db_request)
 
         assert result == {
-            "organization_applications": organization_applications[:25],
+            "organization_applications": organization_applications,
             "query": "is:not-actually-a-valid-query",
             "terms": ["is:not-actually-a-valid-query"],
         }
@@ -652,149 +627,70 @@ class TestOrganizationApplicationList:
 
 class TestOrganizationApplicationDetail:
     @pytest.mark.usefixtures("_enable_organizations")
-    def test_detail(self):
-        admin = pretend.stub(
-            id="admin-id",
-            username="admin",
-            name="Admin",
-            public_email="admin@pypi.org",
+    def test_detail(self, db_request):
+        organization_application = OrganizationApplicationFactory.create()
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
         )
-        user = pretend.stub(
-            id="user-id",
-            username="example",
-            name="Example",
-            public_email="webmaster@example.com",
-        )
-        user_service = pretend.stub(
-            get_user=lambda userid, **kw: {admin.id: admin, user.id: user}[userid],
-        )
-        organization_application = pretend.stub(
-            id=pretend.stub(),
-            name="example",
-            display_name="Example",
-            orgtype=pretend.stub(name="Company"),
-            link_url="https://www.example.com/",
-            description=(
-                "This company is for use in illustrative examples in documents "
-                "You may use this company in literature without prior "
-                "coordination or asking for permission."
-            ),
-            is_approved=None,
-            submitted_by_id=user.id,
-            submitted_by=user,
-        )
-        organization_service = pretend.stub(
-            get_organization_application=lambda *a, **kw: organization_application,
-        )
-        request = pretend.stub(
-            flags=pretend.stub(enabled=lambda *a: False),
-            find_service=lambda iface, **kw: {
-                IUserService: user_service,
-                IOrganizationService: organization_service,
-            }[iface],
-            matchdict={"organization_application_id": pretend.stub()},
-        )
-
-        assert views.organization_application_detail(request) == {
-            "user": user,
+        assert views.organization_application_detail(db_request) == {
+            "user": organization_application.submitted_by,
+            "conflicting_applications": [],
             "organization_application": organization_application,
         }
 
     @pytest.mark.usefixtures("_enable_organizations")
-    def test_detail_is_approved_true(self):
-        admin = pretend.stub(
-            id="admin-id",
-            username="admin",
-            name="Admin",
-            public_email="admin@pypi.org",
+    def test_detail_is_approved_true(self, db_request):
+        organization_application = OrganizationApplicationFactory.create(
+            is_approved=True
         )
-        user = pretend.stub(
-            id="user-id",
-            username="example",
-            name="Example",
-            public_email="webmaster@example.com",
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
         )
-        user_service = pretend.stub(
-            get_user=lambda userid, **kw: {admin.id: admin, user.id: user}[userid],
-        )
-        organization_application = pretend.stub(
-            id=pretend.stub(),
-            name="example",
-            display_name="Example",
-            orgtype=pretend.stub(name="Company"),
-            link_url="https://www.example.com/",
-            description=(
-                "This company is for use in illustrative examples in documents "
-                "You may use this company in literature without prior "
-                "coordination or asking for permission."
-            ),
-            is_approved=True,
-            submitted_by_id=user.id,
-            submitted_by=user,
-        )
-        organization_service = pretend.stub(
-            get_organization_application=lambda *a, **kw: organization_application,
-        )
-        request = pretend.stub(
-            flags=pretend.stub(enabled=lambda *a: False),
-            find_service=lambda iface, **kw: {
-                IUserService: user_service,
-                IOrganizationService: organization_service,
-            }[iface],
-            matchdict={"organization_application_id": pretend.stub()},
-        )
-
-        assert views.organization_application_detail(request) == {
-            "user": user,
+        assert views.organization_application_detail(db_request) == {
+            "user": organization_application.submitted_by,
+            "conflicting_applications": [],
             "organization_application": organization_application,
         }
 
     @pytest.mark.usefixtures("_enable_organizations")
-    def test_detail_is_approved_false(self):
-        admin = pretend.stub(
-            id="admin-id",
-            username="admin",
-            name="Admin",
-            public_email="admin@pypi.org",
+    def test_detail_is_approved_false(self, db_request):
+        organization_application = OrganizationApplicationFactory.create(
+            is_approved=False
         )
-        user = pretend.stub(
-            id="user-id",
-            username="example",
-            name="Example",
-            public_email="webmaster@example.com",
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
         )
-        user_service = pretend.stub(
-            get_user=lambda userid, **kw: {admin.id: admin, user.id: user}[userid],
-        )
-        organization_application = pretend.stub(
-            id=pretend.stub(),
-            name="example",
-            display_name="Example",
-            orgtype=pretend.stub(name="Company"),
-            link_url="https://www.example.com/",
-            description=(
-                "This company is for use in illustrative examples in documents "
-                "You may use this company in literature without prior "
-                "coordination or asking for permission."
-            ),
-            is_approved=False,
-            submitted_by_id=user.id,
-            submitted_by=user,
-        )
-        organization_service = pretend.stub(
-            get_organization_application=lambda *a, **kw: organization_application,
-        )
-        request = pretend.stub(
-            flags=pretend.stub(enabled=lambda *a: False),
-            find_service=lambda iface, **kw: {
-                IUserService: user_service,
-                IOrganizationService: organization_service,
-            }[iface],
-            matchdict={"organization_application_id": pretend.stub()},
-        )
+        assert views.organization_application_detail(db_request) == {
+            "user": organization_application.submitted_by,
+            "conflicting_applications": [],
+            "organization_application": organization_application,
+        }
 
-        assert views.organization_application_detail(request) == {
-            "user": user,
+    @pytest.mark.usefixtures("_enable_organizations")
+    @pytest.mark.parametrize(
+        ("name", "conflicts"),
+        [
+            ("pypi", ["PyPI", "pypi"]),
+            ("py-pi", ["Py-PI", "PY-PI"]),
+        ],
+    )
+    def test_detail_conflicting_applications(self, db_request, name, conflicts):
+        organization_application = OrganizationApplicationFactory.create(
+            name=name, is_approved=False
+        )
+        conflicting_applications = sorted(
+            [
+                OrganizationApplicationFactory.create(name=conflict)
+                for conflict in conflicts
+            ],
+            key=lambda o: o.submitted,
+        )
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        assert views.organization_application_detail(db_request) == {
+            "user": organization_application.submitted_by,
+            "conflicting_applications": conflicting_applications,
             "organization_application": organization_application,
         }
 

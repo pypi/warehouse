@@ -11,6 +11,7 @@
 # limitations under the License.
 """
 create Attestations table
+
 Revision ID: 7f0c9f105f44
 Revises: 26455e3712a2
 Create Date: 2024-07-25 15:49:01.993869

@@ -210,6 +210,73 @@ def test_duplicate_file_upload_error(webtest):
     assert "File already exists" in resp.body.decode()
 
 
+def test_typo_check_name_upload_passes(webtest, monkeypatch):
+    """
+    Test not blocking the upload of a release with a typo in the project name,
+    and emits a notification to the admins.
+    """
+    # TODO: Replace with a better way to generate corpus
+    monkeypatch.setattr(
+        "warehouse.packaging.typosnyper._TOP_PROJECT_NAMES",
+        {"wutang", "requests"},
+    )
+
+    # Set up user, credentials
+    user = UserFactory.create(with_verified_primary_email=True, clear_pwd="password")
+    # Construct the macaroon
+    dm = MacaroonFactory.create(
+        user_id=user.id,
+        caveats=[caveats.RequestUser(user_id=str(user.id))],
+    )
+    m = pymacaroons.Macaroon(
+        location="localhost",
+        identifier=str(dm.id),
+        key=dm.key,
+        version=pymacaroons.MACAROON_V2,
+    )
+    for caveat in dm.caveats:
+        m.add_first_party_caveat(caveats.serialize(caveat))
+    serialized_macaroon = f"pypi-{m.serialize()}"
+    credentials = base64.b64encode(f"__token__:{serialized_macaroon}".encode()).decode(
+        "utf-8"
+    )
+
+    # use a dummy file for the upload, the filename/metadata doesn't matter here
+    with open("./tests/functional/_fixtures/sampleproject-3.0.0.tar.gz", "rb") as f:
+        content = f.read()
+
+    # Construct params and upload
+    params = MultiDict(
+        {
+            ":action": "file_upload",
+            "protocol_version": "1",
+            "name": "wutamg",  # Here is the typo
+            "sha256_digest": (
+                "117ed88e5db073bb92969a7545745fd977ee85b7019706dd256a64058f70963d"
+            ),
+            "filetype": "sdist",
+            "metadata_version": "2.1",
+            "version": "3.0.0",
+        }
+    )
+    webtest.post(
+        "/legacy/",
+        headers={"Authorization": f"Basic {credentials}"},
+        params=params,
+        upload_files=[("content", "wutamg-3.0.0.tar.gz", content)],  # and here
+        status=HTTPStatus.OK,
+    )
+
+    assert user.projects
+    assert len(user.projects) == 1
+    project = user.projects[0]
+    assert project.name == "wutamg"  # confirming it passed
+    assert project.releases
+    assert len(project.releases) == 1
+    release = project.releases[0]
+    assert release.version == "3.0.0"
+
+
 def test_invalid_classifier_upload_error(webtest):
     user = UserFactory.create(with_verified_primary_email=True, clear_pwd="password")
 
