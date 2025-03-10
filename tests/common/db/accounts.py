@@ -26,7 +26,7 @@ from warehouse.accounts.models import (
     UserTermsOfServiceEngagement,
 )
 
-from .base import WarehouseFactory
+from .base import UniqueFaker, WarehouseFactory
 
 fake = faker.Faker()
 
@@ -112,7 +112,7 @@ class EmailFactory(WarehouseFactory):
         model = Email
 
     user = factory.SubFactory(UserFactory)
-    email = factory.Faker("safe_email")
+    email = UniqueFaker("safe_email")
     verified = True
     primary = True
     public = False
@@ -133,4 +133,4 @@ class ProhibitedUsernameFactory(WarehouseFactory):
     class Meta:
         model = ProhibitedUserName
 
-    name = factory.Faker("user_name")
+    name = UniqueFaker("user_name")

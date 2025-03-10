@@ -16,14 +16,14 @@ import factory
 
 from warehouse.ip_addresses.models import IpAddress
 
-from .base import WarehouseFactory
+from .base import UniqueFaker, WarehouseFactory
 
 
 class IpAddressFactory(WarehouseFactory):
     class Meta:
         model = IpAddress
 
-    ip_address = factory.Faker("ipv4_private")
+    ip_address = UniqueFaker("ipv4_private")
     hashed_ip_address = factory.LazyAttribute(
         lambda o: hashlib.sha256(o.ip_address.encode("utf8")).hexdigest()
     )

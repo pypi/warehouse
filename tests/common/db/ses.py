@@ -16,7 +16,7 @@ import factory
 
 from warehouse.email.ses.models import EmailMessage, Event, EventTypes
 
-from .base import WarehouseFactory
+from .base import UniqueFaker, WarehouseFactory
 
 
 class EmailMessageFactory(WarehouseFactory):
@@ -29,8 +29,8 @@ class EmailMessageFactory(WarehouseFactory):
         - datetime.timedelta(days=14),
     )
     message_id = factory.Faker("pystr", max_chars=12)
-    from_ = factory.Faker("safe_email")
-    to = factory.Faker("safe_email")
+    from_ = UniqueFaker("safe_email")
+    to = UniqueFaker("safe_email")
     subject = factory.Faker("sentence")
 
 

@@ -21,7 +21,7 @@ from warehouse.subscriptions.models import (
     StripeSubscriptionStatus,
 )
 
-from .base import WarehouseFactory
+from .base import UniqueFaker, WarehouseFactory
 
 
 class StripeCustomerFactory(WarehouseFactory):
@@ -30,7 +30,7 @@ class StripeCustomerFactory(WarehouseFactory):
 
     id = factory.Faker("uuid4", cast_to=None)
     customer_id = factory.Faker("uuid4")
-    billing_email = factory.Faker("safe_email")
+    billing_email = UniqueFaker("safe_email")
 
 
 class StripeSubscriptionProductFactory(WarehouseFactory):
