@@ -1500,6 +1500,7 @@ def profile_public_email(user, request):
 
 @view_config(
     route_name="accounts.reauthenticate",
+    renderer="re-auth.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -1542,8 +1543,11 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
         request.session.record_password_timestamp(
             user_service.get_password_timestamp(request.user.id)
         )
+        return resp
 
-    return resp
+    return {
+        "form": form,
+    }
 
 
 @view_defaults(
