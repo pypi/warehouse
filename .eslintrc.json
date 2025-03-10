@@ -1,0 +1,43 @@
+{
+    "env": {
+      "browser": true,
+      "es6": true,
+      "amd": true,
+      "jquery": true
+    },
+    "ignorePatterns": ["static/js/vendor/zxcvbn.js"],
+    "extends": "eslint:recommended",
+    "parserOptions": {
+      "ecmaVersion": "latest",
+      "sourceType": "module"
+    },
+    "plugins": [
+      "@stylistic/js"
+    ],
+    "rules": {
+        
+    
+
+        
+      "@stylistic/js/comma-dangle": [
+        "error",
+        "always-multiline"
+      ],
+      "@stylistic/js/indent": [
+        "off"
+    
+      ],
+      "@stylistic/js/linebreak-style": [
+        "error",
+        "unix"
+      ],
+      "@stylistic/js/quotes": [
+        "off"
+        
+      ],
+      "@stylistic/js/semi": [
+        "off"
+        
+      ]
+    }
+  }
