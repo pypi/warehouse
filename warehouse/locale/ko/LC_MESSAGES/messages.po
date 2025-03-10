@@ -469,7 +469,7 @@ msgstr ""
 msgid "Select project"
 msgstr "프로젝트를 선택하세요."
 
-#: warehouse/manage/forms.py:506 warehouse/oidc/forms/_core.py:29
+#: warehouse/manage/forms.py:506 warehouse/oidc/forms/_core.py:33
 #: warehouse/oidc/forms/gitlab.py:57
 msgid "Specify project name"
 msgstr "프로젝트 이름을 적어주세요."
@@ -771,12 +771,12 @@ msgstr "조직 초대장을 다시 보낼 수 없습니다."
 msgid "Expired invitation for '${username}' deleted."
 msgstr "만료된 '${username}'의 초대장이 삭제되었습니다."
 
-#: warehouse/oidc/forms/_core.py:31 warehouse/oidc/forms/_core.py:42
+#: warehouse/oidc/forms/_core.py:35 warehouse/oidc/forms/_core.py:46
 #: warehouse/oidc/forms/gitlab.py:60 warehouse/oidc/forms/gitlab.py:64
 msgid "Invalid project name"
 msgstr "잘못된 프로젝트 명입니다."
 
-#: warehouse/oidc/forms/_core.py:60
+#: warehouse/oidc/forms/_core.py:64
 #, python-brace-format
 msgid ""
 "This project already exists: use the project's publishing settings <a "
@@ -785,21 +785,21 @@ msgstr ""
 "이 프로젝트는 이미 존재합니다: 프로젝트의 게시 설정을 사용하여 <a "
 "href='${url}'>여기</a>에서 이를 위한 검증된 게시자를 생성하세요."
 
-#: warehouse/oidc/forms/_core.py:69
+#: warehouse/oidc/forms/_core.py:73
 #, fuzzy
 #| msgid "This project has no releases"
 msgid "This project already exists."
 msgstr "이 프로젝트에는 릴리즈가 없습니다"
 
-#: warehouse/oidc/forms/_core.py:74
+#: warehouse/oidc/forms/_core.py:78
 msgid "This project name isn't allowed"
 msgstr "이 프로젝트 이름은 사용할 수 없습니다"
 
-#: warehouse/oidc/forms/_core.py:78
+#: warehouse/oidc/forms/_core.py:82
 msgid "This project name is too similar to an existing project"
 msgstr "이 프로젝트 이름은 기존 프로젝트와 너무 유사합니다"
 
-#: warehouse/oidc/forms/_core.py:83
+#: warehouse/oidc/forms/_core.py:87
 msgid ""
 "This project name isn't allowed (conflict with the Python standard library "
 "module name)"
@@ -807,15 +807,15 @@ msgstr ""
 "이 프로젝트 이름은 사용할 수 없습니다 (파이썬 표준 라이브러리 모듈 이름과 충"
 "돌)"
 
-#: warehouse/oidc/forms/_core.py:99 warehouse/oidc/forms/_core.py:110
+#: warehouse/oidc/forms/_core.py:115 warehouse/oidc/forms/_core.py:126
 msgid "Specify a publisher ID"
 msgstr "사용자 ID 를 입력하세요"
 
-#: warehouse/oidc/forms/_core.py:100 warehouse/oidc/forms/_core.py:111
+#: warehouse/oidc/forms/_core.py:116 warehouse/oidc/forms/_core.py:127
 msgid "Publisher must be specified by ID"
 msgstr "사용자는 ID로 지정해야 합니다"
 
-#: warehouse/oidc/forms/_core.py:116
+#: warehouse/oidc/forms/_core.py:132
 #, fuzzy
 #| msgid "Specify project name"
 msgid "Specify an environment name"
@@ -860,53 +860,71 @@ msgstr "활성 상태의 조직을 찾을 수 없습니다"
 msgid "ActiveState actor not found"
 msgstr "활동 상태 액터를 찾을 수 없습니다"
 
-#: warehouse/oidc/forms/github.py:32
+#: warehouse/oidc/forms/github.py:33
 msgid "Specify GitHub repository owner (username or organization)"
 msgstr "깃허브 리파지토리 소유자를 입력하세요(이름 혹은 조직)"
 
-#: warehouse/oidc/forms/github.py:39
+#: warehouse/oidc/forms/github.py:40
 msgid "Specify repository name"
 msgstr "리파지토리 이름을 입력하세요"
 
-#: warehouse/oidc/forms/github.py:41
+#: warehouse/oidc/forms/github.py:42
 msgid "Invalid repository name"
 msgstr "잘못된 리포지토리 이름입니다."
 
-#: warehouse/oidc/forms/github.py:48
+#: warehouse/oidc/forms/github.py:49
 msgid "Specify workflow filename"
 msgstr "워크플로우 파일명을 입력하세요"
 
-#: warehouse/oidc/forms/github.py:83
+#: warehouse/oidc/forms/github.py:84
 msgid "Unknown GitHub user or organization."
 msgstr "알 수 없는 깃허브 사용자 혹은 조직."
 
-#: warehouse/oidc/forms/github.py:94
+#: warehouse/oidc/forms/github.py:95
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr "GitHub은 이 작업 횟수가 제한되어 있습니다. 몇 분 후 다시 시도하세요."
 
-#: warehouse/oidc/forms/github.py:103
+#: warehouse/oidc/forms/github.py:104
 msgid "Unexpected error from GitHub. Try again."
 msgstr "알 수 없는 오류가 Github에서 발생했습니다. 다시 시도하세요."
 
-#: warehouse/oidc/forms/github.py:111
+#: warehouse/oidc/forms/github.py:112
 msgid "Unexpected connection error from GitHub. Try again in a few minutes."
 msgstr "깃허브로부터 알 수 없는 연결 에러 발생. 몇 분 후 다시 시도하십시오."
 
-#: warehouse/oidc/forms/github.py:120
+#: warehouse/oidc/forms/github.py:121
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgstr "깃허브에서의 알 수 없는 시간초과. 몇 분 후 다시 시도하세요."
 
-#: warehouse/oidc/forms/github.py:132
+#: warehouse/oidc/forms/github.py:133
 msgid "Invalid GitHub user or organization name."
 msgstr "잘못된 Github 사용자 또는 조직 이름."
 
-#: warehouse/oidc/forms/github.py:148
+#: warehouse/oidc/forms/github.py:149
 msgid "Workflow name must end with .yml or .yaml"
 msgstr "워크플로우 이름은 .yml 혹은 .yaml 로 끝나야 합니다"
 
-#: warehouse/oidc/forms/github.py:153
+#: warehouse/oidc/forms/github.py:154
 msgid "Workflow filename must be a filename only, without directories"
 msgstr "워크플로우 파일명에는 경로가 포함되지 않고 파일 이름만 가능합니다"
+
+#: warehouse/oidc/forms/github.py:165
+msgid "Environment name is too long (maximum is 255 characters)"
+msgstr ""
+
+#: warehouse/oidc/forms/github.py:170
+msgid "Environment name may not start with whitespace"
+msgstr ""
+
+#: warehouse/oidc/forms/github.py:175
+msgid "Environment name may not end with whitespace"
+msgstr ""
+
+#: warehouse/oidc/forms/github.py:181
+msgid ""
+"Environment name must not contain non-printable characters or the characters "
+"\"'\", \"\"\", \"`\", \",\", \";\", \"\\\""
+msgstr ""
 
 #: warehouse/oidc/forms/gitlab.py:32
 msgid "Name ends with .git or .atom"
@@ -3400,106 +3418,106 @@ msgid "These details have been <a href=\"%(href)s\">verified by PyPI</a>"
 msgstr "이 세부 정보는 <a href=\"%(href)s\">PyPI에서 검증되었습니다</a>"
 
 #: warehouse/templates/includes/packaging/project-data.html:23
-#: warehouse/templates/includes/packaging/project-data.html:184
+#: warehouse/templates/includes/packaging/project-data.html:183
 msgid "Project links"
 msgstr "프로젝트 링크"
 
-#: warehouse/templates/includes/packaging/project-data.html:50
+#: warehouse/templates/includes/packaging/project-data.html:49
 msgid "GitHub Statistics"
 msgstr "깃헙 통계"
 
-#: warehouse/templates/includes/packaging/project-data.html:56
-#: warehouse/templates/includes/packaging/project-data.html:102
+#: warehouse/templates/includes/packaging/project-data.html:55
+#: warehouse/templates/includes/packaging/project-data.html:101
 msgid "Repository"
 msgstr "저장소"
 
-#: warehouse/templates/includes/packaging/project-data.html:63
-#: warehouse/templates/includes/packaging/project-data.html:109
+#: warehouse/templates/includes/packaging/project-data.html:62
+#: warehouse/templates/includes/packaging/project-data.html:108
 msgid "Stars:"
 msgstr "별:"
 
-#: warehouse/templates/includes/packaging/project-data.html:71
-#: warehouse/templates/includes/packaging/project-data.html:117
+#: warehouse/templates/includes/packaging/project-data.html:70
+#: warehouse/templates/includes/packaging/project-data.html:116
 msgid "Forks:"
 msgstr "복제:"
 
-#: warehouse/templates/includes/packaging/project-data.html:79
-#: warehouse/templates/includes/packaging/project-data.html:125
+#: warehouse/templates/includes/packaging/project-data.html:78
+#: warehouse/templates/includes/packaging/project-data.html:124
 msgid "Open issues:"
 msgstr "열려있는 이슈들:"
 
-#: warehouse/templates/includes/packaging/project-data.html:87
+#: warehouse/templates/includes/packaging/project-data.html:86
 msgid "Open PRs:"
 msgstr "열려있는 이슈들:"
 
-#: warehouse/templates/includes/packaging/project-data.html:96
+#: warehouse/templates/includes/packaging/project-data.html:95
 msgid "GitLab Statistics"
 msgstr "깃랩 통계"
 
-#: warehouse/templates/includes/packaging/project-data.html:133
+#: warehouse/templates/includes/packaging/project-data.html:132
 msgid "Open merge requests:"
 msgstr "열려 있는 병합 요청:"
 
-#: warehouse/templates/includes/packaging/project-data.html:142
+#: warehouse/templates/includes/packaging/project-data.html:141
 msgid "Maintainers"
 msgstr "관리자"
 
-#: warehouse/templates/includes/packaging/project-data.html:144
+#: warehouse/templates/includes/packaging/project-data.html:143
 #, python-brace-format
 msgid "Avatar for {username} from gravatar.com"
 msgstr "gravatar.com에서 찾은 {username}의 아바타"
 
-#: warehouse/templates/includes/packaging/project-data.html:159
-#: warehouse/templates/includes/packaging/project-data.html:200
+#: warehouse/templates/includes/packaging/project-data.html:158
+#: warehouse/templates/includes/packaging/project-data.html:199
 msgid "Meta"
 msgstr "메타"
 
-#: warehouse/templates/includes/packaging/project-data.html:164
-#: warehouse/templates/includes/packaging/project-data.html:225
-#: warehouse/templates/includes/packaging/project-data.html:231
+#: warehouse/templates/includes/packaging/project-data.html:163
+#: warehouse/templates/includes/packaging/project-data.html:224
+#: warehouse/templates/includes/packaging/project-data.html:230
 msgid "Author:"
 msgstr "작성자:"
 
-#: warehouse/templates/includes/packaging/project-data.html:171
-#: warehouse/templates/includes/packaging/project-data.html:238
-#: warehouse/templates/includes/packaging/project-data.html:244
+#: warehouse/templates/includes/packaging/project-data.html:170
+#: warehouse/templates/includes/packaging/project-data.html:237
+#: warehouse/templates/includes/packaging/project-data.html:243
 #: warehouse/templates/pages/help.html:633
 msgid "Maintainer:"
 msgstr "관리자:"
 
-#: warehouse/templates/includes/packaging/project-data.html:181
+#: warehouse/templates/includes/packaging/project-data.html:180
 msgid "Unverified details"
 msgstr "세부 정보가 확인되지않음"
 
-#: warehouse/templates/includes/packaging/project-data.html:182
+#: warehouse/templates/includes/packaging/project-data.html:181
 msgid "These details have <b>not</b> been verified by PyPI"
 msgstr "이 세부 정보는 PyPI에서 검증되지 <b>않았습니다</b>"
 
-#: warehouse/templates/includes/packaging/project-data.html:205
+#: warehouse/templates/includes/packaging/project-data.html:204
 msgid "License Expression:"
 msgstr "라이센스 표현:"
 
-#: warehouse/templates/includes/packaging/project-data.html:210
+#: warehouse/templates/includes/packaging/project-data.html:209
 msgid "License Expression"
 msgstr "라이센스 표현"
 
-#: warehouse/templates/includes/packaging/project-data.html:218
+#: warehouse/templates/includes/packaging/project-data.html:217
 msgid "License:"
 msgstr "라이센스:"
 
-#: warehouse/templates/includes/packaging/project-data.html:252
+#: warehouse/templates/includes/packaging/project-data.html:251
 msgid "Tags"
 msgstr "태그"
 
-#: warehouse/templates/includes/packaging/project-data.html:264
+#: warehouse/templates/includes/packaging/project-data.html:263
 msgid "Requires:"
 msgstr "요구사항:"
 
-#: warehouse/templates/includes/packaging/project-data.html:271
+#: warehouse/templates/includes/packaging/project-data.html:270
 msgid "Provides-Extra:"
 msgstr "추가 제공:"
 
-#: warehouse/templates/includes/packaging/project-data.html:281
+#: warehouse/templates/includes/packaging/project-data.html:280
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
@@ -6805,7 +6823,7 @@ msgstr ""
 #: warehouse/templates/manage/project/publishing.html:467
 #, python-format
 msgid ""
-"I understand that this Trusted Publisher will only allow uploads frow CI/CD "
+"I understand that this Trusted Publisher will only allow uploads from CI/CD "
 "workflows running in the '%(constrained_environment_name)s' environment."
 msgstr ""
 

@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-12-29 13:51+0200\n"
-"PO-Revision-Date: 2025-02-13 04:11+0000\n"
+"PO-Revision-Date: 2025-03-06 20:50+0000\n"
 "Last-Translator: phlostically <phlostically@mailinator.com>\n"
 "Language-Team: Esperanto <https://hosted.weblate.org/projects/pypa/warehouse/"
 "eo/>\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.10-dev\n"
+"X-Generator: Weblate 5.10.3-dev\n"
 
 #: warehouse/views.py:158
 msgid ""
@@ -339,7 +339,7 @@ msgstr "Vi estas nun ${role} de la projekto '${project_name}'."
 #: warehouse/accounts/views.py:1436
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
-msgstr ""
+msgstr "Bonvolu legi la ĝisdatigitajn <a href=\"${tos_url}\">Uzkondiĉojn</a>."
 
 #: warehouse/accounts/views.py:1648 warehouse/accounts/views.py:1890
 #: warehouse/manage/views/__init__.py:1419
@@ -442,7 +442,7 @@ msgstr ""
 msgid "Select project"
 msgstr "Elekti projekton"
 
-#: warehouse/manage/forms.py:506 warehouse/oidc/forms/_core.py:29
+#: warehouse/manage/forms.py:506 warehouse/oidc/forms/_core.py:33
 #: warehouse/oidc/forms/gitlab.py:57
 msgid "Specify project name"
 msgstr "Specifi nomon de projekto"
@@ -748,12 +748,12 @@ msgstr "Ne eblis resendi inviton al organizaĵo."
 msgid "Expired invitation for '${username}' deleted."
 msgstr "Eksvalidiĝinta Invito por «${username}» estas forviŝita."
 
-#: warehouse/oidc/forms/_core.py:31 warehouse/oidc/forms/_core.py:42
+#: warehouse/oidc/forms/_core.py:35 warehouse/oidc/forms/_core.py:46
 #: warehouse/oidc/forms/gitlab.py:60 warehouse/oidc/forms/gitlab.py:64
 msgid "Invalid project name"
 msgstr "Nevalida projekta nomo"
 
-#: warehouse/oidc/forms/_core.py:60
+#: warehouse/oidc/forms/_core.py:64
 #, python-brace-format
 msgid ""
 "This project already exists: use the project's publishing settings <a "
@@ -762,19 +762,19 @@ msgstr ""
 "Jen jam ekzistanta projekto: uzu la eldonan agordejon de la projekto <a "
 "href='${url}'>ĉi tie</a> por starigi fidatan eldonanton por ĝi."
 
-#: warehouse/oidc/forms/_core.py:69
+#: warehouse/oidc/forms/_core.py:73
 msgid "This project already exists."
 msgstr "Ĉi tiu projekto jam ekzistas."
 
-#: warehouse/oidc/forms/_core.py:74
+#: warehouse/oidc/forms/_core.py:78
 msgid "This project name isn't allowed"
 msgstr "Ĉi tiu nomo ne estas permesata"
 
-#: warehouse/oidc/forms/_core.py:78
+#: warehouse/oidc/forms/_core.py:82
 msgid "This project name is too similar to an existing project"
 msgstr "Ĉi tiu nomo estas tro simila al jam ekzistanta projekto"
 
-#: warehouse/oidc/forms/_core.py:83
+#: warehouse/oidc/forms/_core.py:87
 msgid ""
 "This project name isn't allowed (conflict with the Python standard library "
 "module name)"
@@ -782,15 +782,15 @@ msgstr ""
 "Jen malpermesata projekta nomo (kiu konfliktas kun la nomo de modulo en la "
 "norma biblioteko de Python)"
 
-#: warehouse/oidc/forms/_core.py:99 warehouse/oidc/forms/_core.py:110
+#: warehouse/oidc/forms/_core.py:115 warehouse/oidc/forms/_core.py:126
 msgid "Specify a publisher ID"
 msgstr "Specifu identigilon de eldonanto"
 
-#: warehouse/oidc/forms/_core.py:100 warehouse/oidc/forms/_core.py:111
+#: warehouse/oidc/forms/_core.py:116 warehouse/oidc/forms/_core.py:127
 msgid "Publisher must be specified by ID"
 msgstr "La eldonanto devas esti specifita de identigilo"
 
-#: warehouse/oidc/forms/_core.py:116
+#: warehouse/oidc/forms/_core.py:132
 msgid "Specify an environment name"
 msgstr "Specifi nomon de medio"
 
@@ -833,53 +833,73 @@ msgstr "Organizaĵo ne troviĝis ĉe ActiveState"
 msgid "ActiveState actor not found"
 msgstr "Aganto ĉe ActiveState ne troviĝis"
 
-#: warehouse/oidc/forms/github.py:32
+#: warehouse/oidc/forms/github.py:33
 msgid "Specify GitHub repository owner (username or organization)"
 msgstr "Specifu posedanton de GitHub-deponejo (aŭ salutnomon aŭ organizaĵon)"
 
-#: warehouse/oidc/forms/github.py:39
+#: warehouse/oidc/forms/github.py:40
 msgid "Specify repository name"
 msgstr "Specifu nomon de deponejo"
 
-#: warehouse/oidc/forms/github.py:41
+#: warehouse/oidc/forms/github.py:42
 msgid "Invalid repository name"
 msgstr "Nevalida nomo de deponejo"
 
-#: warehouse/oidc/forms/github.py:48
+#: warehouse/oidc/forms/github.py:49
 msgid "Specify workflow filename"
 msgstr "Specifu nomon de laborflua dosiero"
 
-#: warehouse/oidc/forms/github.py:83
+#: warehouse/oidc/forms/github.py:84
 msgid "Unknown GitHub user or organization."
 msgstr "Nekonata uzanto aŭ organizaĵo ĉe GitHub."
 
-#: warehouse/oidc/forms/github.py:94
+#: warehouse/oidc/forms/github.py:95
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr "GitHub malpermesis trouzadon de tiu ago. Reprovu post kelkaj minutoj."
 
-#: warehouse/oidc/forms/github.py:103
+#: warehouse/oidc/forms/github.py:104
 msgid "Unexpected error from GitHub. Try again."
 msgstr "Neatendita eraro el GitHub. Reprovu."
 
-#: warehouse/oidc/forms/github.py:111
+#: warehouse/oidc/forms/github.py:112
 msgid "Unexpected connection error from GitHub. Try again in a few minutes."
 msgstr "Neatendita konekta eraro el GitHub. Reprovu post kelkaj minutoj."
 
-#: warehouse/oidc/forms/github.py:120
+#: warehouse/oidc/forms/github.py:121
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgstr "Neatendita tempolimo ĉe GitHub. Reprovu post kelkaj minutoj."
 
-#: warehouse/oidc/forms/github.py:132
+#: warehouse/oidc/forms/github.py:133
 msgid "Invalid GitHub user or organization name."
 msgstr "Nevalida nomo de uzanto aŭ organizaĵo ĉe GitHub."
 
-#: warehouse/oidc/forms/github.py:148
+#: warehouse/oidc/forms/github.py:149
 msgid "Workflow name must end with .yml or .yaml"
 msgstr "Nomo de laborfluo devas finiĝi per .yml aŭ .yaml"
 
-#: warehouse/oidc/forms/github.py:153
+#: warehouse/oidc/forms/github.py:154
 msgid "Workflow filename must be a filename only, without directories"
 msgstr "Laborflua dosiernomo devas estis nura dosiernomo, sen dosierujoj"
+
+#: warehouse/oidc/forms/github.py:165
+msgid "Environment name is too long (maximum is 255 characters)"
+msgstr "Nomo de medio estas tro longa (la maksimumo estas 255 skribsignoj)"
+
+#: warehouse/oidc/forms/github.py:170
+msgid "Environment name may not start with whitespace"
+msgstr "Nomo de medio ne povas komenciĝi per spaceto"
+
+#: warehouse/oidc/forms/github.py:175
+msgid "Environment name may not end with whitespace"
+msgstr "Nomo de medio ne povas finiĝi per spaceto"
+
+#: warehouse/oidc/forms/github.py:181
+msgid ""
+"Environment name must not contain non-printable characters or the characters "
+"\"'\", \"\"\", \"`\", \",\", \";\", \"\\\""
+msgstr ""
+"Nomo de medio ne povas enhavi nepreseblan signon nek la signojn «'», «\"», "
+"«`», «,», «;», «\\»"
 
 #: warehouse/oidc/forms/gitlab.py:32
 msgid "Name ends with .git or .atom"
@@ -1992,17 +2012,12 @@ msgid "Do not use %(title)s to conduct security research."
 msgstr "Ne uzu %(title)s por sekureca esplorado."
 
 #: warehouse/templates/accounts/register.html:45
-#, fuzzy, python-format
-#| msgid ""
-#| "For more information, please read the full <a href=\"%(tou)s\" "
-#| "rel=\"noopener\">Terms of Use</a> and <a href=\"%(aup)s\" "
-#| "rel=\"noopener\">Acceptable Use Policy</a>."
+#, python-format
 msgid ""
 "For more information, please read the full <a href=\"%(aup)s\" "
 "rel=\"noopener\">Acceptable Use Policy</a>."
 msgstr ""
-"Por pli da informoj, bonvolu legi la plenajn <a href=\"%(tou)s\" "
-"rel=\"noopener\">Uzkondiĉojn</a> kaj <a href=\"%(aup)s\" "
+"Por pli da informoj, bonvolu legi la plenajn <a href=\"%(aup)s\" "
 "rel=\"noopener\">Regulojn pri Akceptebla Uzado</a>."
 
 #: warehouse/templates/accounts/register.html:50
@@ -2011,6 +2026,7 @@ msgid ""
 "By registering, you agree to the <a href=\"%(tos)s\">PyPI Terms of Service</"
 "a>."
 msgstr ""
+"Registrante vin, vi konsentas la <a href=\"%(tos)s\">Uzkondiĉojn de PyPI</a>."
 
 #: warehouse/templates/accounts/register.html:69
 #: warehouse/templates/manage/account.html:139
@@ -3391,106 +3407,106 @@ msgid "These details have been <a href=\"%(href)s\">verified by PyPI</a>"
 msgstr "Jen detaloj <a href=\"%(href)s\">konfirmitaj de PyPI</a>"
 
 #: warehouse/templates/includes/packaging/project-data.html:23
-#: warehouse/templates/includes/packaging/project-data.html:184
+#: warehouse/templates/includes/packaging/project-data.html:183
 msgid "Project links"
 msgstr "Ligiloj pri la projekto"
 
-#: warehouse/templates/includes/packaging/project-data.html:50
+#: warehouse/templates/includes/packaging/project-data.html:49
 msgid "GitHub Statistics"
 msgstr "Statistikoj ĉe GitHub"
 
-#: warehouse/templates/includes/packaging/project-data.html:56
-#: warehouse/templates/includes/packaging/project-data.html:102
+#: warehouse/templates/includes/packaging/project-data.html:55
+#: warehouse/templates/includes/packaging/project-data.html:101
 msgid "Repository"
 msgstr "Deponejo"
 
-#: warehouse/templates/includes/packaging/project-data.html:63
-#: warehouse/templates/includes/packaging/project-data.html:109
+#: warehouse/templates/includes/packaging/project-data.html:62
+#: warehouse/templates/includes/packaging/project-data.html:108
 msgid "Stars:"
 msgstr "Steloj:"
 
-#: warehouse/templates/includes/packaging/project-data.html:71
-#: warehouse/templates/includes/packaging/project-data.html:117
+#: warehouse/templates/includes/packaging/project-data.html:70
+#: warehouse/templates/includes/packaging/project-data.html:116
 msgid "Forks:"
 msgstr "Forkoj:"
 
-#: warehouse/templates/includes/packaging/project-data.html:79
-#: warehouse/templates/includes/packaging/project-data.html:125
+#: warehouse/templates/includes/packaging/project-data.html:78
+#: warehouse/templates/includes/packaging/project-data.html:124
 msgid "Open issues:"
 msgstr "Malfermitaj problemoj:"
 
-#: warehouse/templates/includes/packaging/project-data.html:87
+#: warehouse/templates/includes/packaging/project-data.html:86
 msgid "Open PRs:"
 msgstr "Malfermitaj tirpetoj:"
 
-#: warehouse/templates/includes/packaging/project-data.html:96
+#: warehouse/templates/includes/packaging/project-data.html:95
 msgid "GitLab Statistics"
 msgstr "Statistikoj ĉe GitHub"
 
-#: warehouse/templates/includes/packaging/project-data.html:133
+#: warehouse/templates/includes/packaging/project-data.html:132
 msgid "Open merge requests:"
 msgstr "Malfermitaj kunigpetoj:"
 
-#: warehouse/templates/includes/packaging/project-data.html:142
+#: warehouse/templates/includes/packaging/project-data.html:141
 msgid "Maintainers"
 msgstr "Prizorgantoj"
 
-#: warehouse/templates/includes/packaging/project-data.html:144
+#: warehouse/templates/includes/packaging/project-data.html:143
 #, python-brace-format
 msgid "Avatar for {username} from gravatar.com"
 msgstr "Avataro de {username} ĉe gravatar.com"
 
-#: warehouse/templates/includes/packaging/project-data.html:159
-#: warehouse/templates/includes/packaging/project-data.html:200
+#: warehouse/templates/includes/packaging/project-data.html:158
+#: warehouse/templates/includes/packaging/project-data.html:199
 msgid "Meta"
 msgstr "Metadateno"
 
-#: warehouse/templates/includes/packaging/project-data.html:164
-#: warehouse/templates/includes/packaging/project-data.html:225
-#: warehouse/templates/includes/packaging/project-data.html:231
+#: warehouse/templates/includes/packaging/project-data.html:163
+#: warehouse/templates/includes/packaging/project-data.html:224
+#: warehouse/templates/includes/packaging/project-data.html:230
 msgid "Author:"
 msgstr "Aŭtoro:"
 
-#: warehouse/templates/includes/packaging/project-data.html:171
-#: warehouse/templates/includes/packaging/project-data.html:238
-#: warehouse/templates/includes/packaging/project-data.html:244
+#: warehouse/templates/includes/packaging/project-data.html:170
+#: warehouse/templates/includes/packaging/project-data.html:237
+#: warehouse/templates/includes/packaging/project-data.html:243
 #: warehouse/templates/pages/help.html:633
 msgid "Maintainer:"
 msgstr "Prizorganto:"
 
-#: warehouse/templates/includes/packaging/project-data.html:181
+#: warehouse/templates/includes/packaging/project-data.html:180
 msgid "Unverified details"
 msgstr "Nekonfirmitaj detaloj"
 
-#: warehouse/templates/includes/packaging/project-data.html:182
+#: warehouse/templates/includes/packaging/project-data.html:181
 msgid "These details have <b>not</b> been verified by PyPI"
 msgstr "Jen detaloj <b>ne</b> konfirmitaj de PyPI"
 
-#: warehouse/templates/includes/packaging/project-data.html:205
+#: warehouse/templates/includes/packaging/project-data.html:204
 msgid "License Expression:"
 msgstr "Licenca esprimo:"
 
-#: warehouse/templates/includes/packaging/project-data.html:210
+#: warehouse/templates/includes/packaging/project-data.html:209
 msgid "License Expression"
 msgstr "Licenco-Esprimo"
 
-#: warehouse/templates/includes/packaging/project-data.html:218
+#: warehouse/templates/includes/packaging/project-data.html:217
 msgid "License:"
 msgstr "Licenco:"
 
-#: warehouse/templates/includes/packaging/project-data.html:252
+#: warehouse/templates/includes/packaging/project-data.html:251
 msgid "Tags"
 msgstr "Etikedoj"
 
-#: warehouse/templates/includes/packaging/project-data.html:264
+#: warehouse/templates/includes/packaging/project-data.html:263
 msgid "Requires:"
 msgstr "Postulas:"
 
-#: warehouse/templates/includes/packaging/project-data.html:271
+#: warehouse/templates/includes/packaging/project-data.html:270
 msgid "Provides-Extra:"
 msgstr "Provides-Extra:"
 
-#: warehouse/templates/includes/packaging/project-data.html:281
+#: warehouse/templates/includes/packaging/project-data.html:280
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
@@ -6823,7 +6839,7 @@ msgstr ""
 #: warehouse/templates/manage/project/publishing.html:467
 #, python-format
 msgid ""
-"I understand that this Trusted Publisher will only allow uploads frow CI/CD "
+"I understand that this Trusted Publisher will only allow uploads from CI/CD "
 "workflows running in the '%(constrained_environment_name)s' environment."
 msgstr ""
 "Mi komprenas, ke tiu Fidata Eldonanto nur permesos alŝutojn el laborfluo de "
@@ -9901,13 +9917,7 @@ msgstr ""
 "kaj provi starigi la aparaton denove."
 
 #: warehouse/templates/pages/help.html:895
-#, fuzzy, python-format
-#| msgid ""
-#| "Projects may get placed in quarantine for any number of reasons, such as "
-#| "suspicion of malicious activity, spam, or other violations of the <a "
-#| "href=\"%(tou)s\" target=\"_blank\" rel=\"noopener\">Terms of Use</a> or "
-#| "<a href=\"%(aup)s\" target=\"_blank\" rel=\"noopener\">Acceptable Use "
-#| "Policy</a>."
+#, python-format
 msgid ""
 "Projects may get placed in quarantine for any number of reasons, such as "
 "suspicion of malicious activity, spam, or other violations of the <a "

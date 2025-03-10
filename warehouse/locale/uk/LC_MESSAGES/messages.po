@@ -24,7 +24,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2025-02-23 18:43+0000\n"
+"PO-Revision-Date: 2025-02-28 15:00+0000\n"
 "Last-Translator: Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "uk/>\n"
@@ -34,7 +34,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.10.1-dev\n"
+"X-Generator: Weblate 5.10.3-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:158
@@ -371,6 +371,8 @@ msgstr "Ви тепер ${role} проєкту '${project_name}'."
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
+"Будь ласка, ознайомтесь із нашими оновленими <a href=\"${tos_url}\">Умовами "
+"надання послуг</a>."
 
 #: warehouse/accounts/views.py:1648 warehouse/accounts/views.py:1890
 #: warehouse/manage/views/__init__.py:1419
@@ -490,7 +492,7 @@ msgstr ""
 msgid "Select project"
 msgstr "Обрати проєкт"
 
-#: warehouse/manage/forms.py:506 warehouse/oidc/forms/_core.py:29
+#: warehouse/manage/forms.py:506 warehouse/oidc/forms/_core.py:33
 #: warehouse/oidc/forms/gitlab.py:57
 msgid "Specify project name"
 msgstr "Вкажіть назву проєкту"
@@ -818,12 +820,12 @@ msgstr "Запрошення в організацію вже не існує."
 msgid "Expired invitation for '${username}' deleted."
 msgstr "Прострочене запрошення для '${username}' видалено."
 
-#: warehouse/oidc/forms/_core.py:31 warehouse/oidc/forms/_core.py:42
+#: warehouse/oidc/forms/_core.py:35 warehouse/oidc/forms/_core.py:46
 #: warehouse/oidc/forms/gitlab.py:60 warehouse/oidc/forms/gitlab.py:64
 msgid "Invalid project name"
 msgstr "Недійсна назва проєкту"
 
-#: warehouse/oidc/forms/_core.py:60
+#: warehouse/oidc/forms/_core.py:64
 #, python-brace-format
 msgid ""
 "This project already exists: use the project's publishing settings <a "
@@ -832,21 +834,21 @@ msgstr ""
 "Цей проєкт вже існує: використовуйте налаштування публікації проєкту <a "
 "href='${url}'>тут</a>, щоб створити Довіреного Видавця для нього."
 
-#: warehouse/oidc/forms/_core.py:69
+#: warehouse/oidc/forms/_core.py:73
 #, fuzzy
 #| msgid "This project has no releases"
 msgid "This project already exists."
 msgstr "Цей проєкт не має публікацій"
 
-#: warehouse/oidc/forms/_core.py:74
+#: warehouse/oidc/forms/_core.py:78
 msgid "This project name isn't allowed"
 msgstr "Ця назва проєкту заборонена"
 
-#: warehouse/oidc/forms/_core.py:78
+#: warehouse/oidc/forms/_core.py:82
 msgid "This project name is too similar to an existing project"
 msgstr "Ця назва проєкту занадто схожа на існуючий проєкт"
 
-#: warehouse/oidc/forms/_core.py:83
+#: warehouse/oidc/forms/_core.py:87
 msgid ""
 "This project name isn't allowed (conflict with the Python standard library "
 "module name)"
@@ -854,15 +856,15 @@ msgstr ""
 "Ця назва проєкту заборонена (конфлікт із назвою модуля стандартної "
 "бібліотеки Python)"
 
-#: warehouse/oidc/forms/_core.py:99 warehouse/oidc/forms/_core.py:110
+#: warehouse/oidc/forms/_core.py:115 warehouse/oidc/forms/_core.py:126
 msgid "Specify a publisher ID"
 msgstr "Вкажіть ідентифікатор видавця"
 
-#: warehouse/oidc/forms/_core.py:100 warehouse/oidc/forms/_core.py:111
+#: warehouse/oidc/forms/_core.py:116 warehouse/oidc/forms/_core.py:127
 msgid "Publisher must be specified by ID"
 msgstr "Видавник має бути вказаний за ідентифікатором"
 
-#: warehouse/oidc/forms/_core.py:116
+#: warehouse/oidc/forms/_core.py:132
 msgid "Specify an environment name"
 msgstr "Вкажіть назву середовища"
 
@@ -906,55 +908,73 @@ msgstr "Організацію ActiveState не знайдено"
 msgid "ActiveState actor not found"
 msgstr "Діяч ActiveState не знайдений"
 
-#: warehouse/oidc/forms/github.py:32
+#: warehouse/oidc/forms/github.py:33
 msgid "Specify GitHub repository owner (username or organization)"
 msgstr "Укажіть власника GitHub репозиторію (ім’я користувача або організацію)"
 
-#: warehouse/oidc/forms/github.py:39
+#: warehouse/oidc/forms/github.py:40
 msgid "Specify repository name"
 msgstr "Вкажіть назву репозиторію"
 
-#: warehouse/oidc/forms/github.py:41
+#: warehouse/oidc/forms/github.py:42
 msgid "Invalid repository name"
 msgstr "Недійсна назва репозиторію"
 
-#: warehouse/oidc/forms/github.py:48
+#: warehouse/oidc/forms/github.py:49
 msgid "Specify workflow filename"
 msgstr "Укажіть назву файлу робочого процесу"
 
-#: warehouse/oidc/forms/github.py:83
+#: warehouse/oidc/forms/github.py:84
 msgid "Unknown GitHub user or organization."
 msgstr "Невідомий користувач або організація в GitHub."
 
-#: warehouse/oidc/forms/github.py:94
+#: warehouse/oidc/forms/github.py:95
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr ""
 "GitHub поставив обмеження по швидкості на цю дію. Повторіть спробу через "
 "кілька хвилин."
 
-#: warehouse/oidc/forms/github.py:103
+#: warehouse/oidc/forms/github.py:104
 msgid "Unexpected error from GitHub. Try again."
 msgstr "Неочікувана помилка від GitHub. Спробуйте знову."
 
-#: warehouse/oidc/forms/github.py:111
+#: warehouse/oidc/forms/github.py:112
 msgid "Unexpected connection error from GitHub. Try again in a few minutes."
 msgstr "Неочікувана помилка зʼєднання. Повторіть спробу через кілька хвилин."
 
-#: warehouse/oidc/forms/github.py:120
+#: warehouse/oidc/forms/github.py:121
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgstr "Неочікуваний тайм-аут. Повторіть спробу через кілька хвилин."
 
-#: warehouse/oidc/forms/github.py:132
+#: warehouse/oidc/forms/github.py:133
 msgid "Invalid GitHub user or organization name."
 msgstr "Недійсне ім’я користувача або організації GitHub."
 
-#: warehouse/oidc/forms/github.py:148
+#: warehouse/oidc/forms/github.py:149
 msgid "Workflow name must end with .yml or .yaml"
 msgstr "Назва робочого процесу повинна закінчуватися на .yml або .yaml"
 
-#: warehouse/oidc/forms/github.py:153
+#: warehouse/oidc/forms/github.py:154
 msgid "Workflow filename must be a filename only, without directories"
 msgstr "Назва файлу робочого процесу має просто файлом, без тек"
+
+#: warehouse/oidc/forms/github.py:165
+msgid "Environment name is too long (maximum is 255 characters)"
+msgstr ""
+
+#: warehouse/oidc/forms/github.py:170
+msgid "Environment name may not start with whitespace"
+msgstr ""
+
+#: warehouse/oidc/forms/github.py:175
+msgid "Environment name may not end with whitespace"
+msgstr ""
+
+#: warehouse/oidc/forms/github.py:181
+msgid ""
+"Environment name must not contain non-printable characters or the characters "
+"\"'\", \"\"\", \"`\", \",\", \";\", \"\\\""
+msgstr ""
 
 #: warehouse/oidc/forms/gitlab.py:32
 msgid "Name ends with .git or .atom"
@@ -1537,10 +1557,8 @@ msgstr "Навігація про використання PyPI"
 
 #: warehouse/templates/base.html:317
 #: warehouse/templates/manage/organization/activate_subscription.html:33
-#, fuzzy
-#| msgid "Terms of use"
 msgid "Terms of Service"
-msgstr "Умови використання"
+msgstr "Умови надання послуг"
 
 #: warehouse/templates/base.html:318
 msgid "Report security issue"
@@ -2124,18 +2142,13 @@ msgid "Do not use %(title)s to conduct security research."
 msgstr "Не використовуйте %(title)s для проведення досліджень у сфері безпеки."
 
 #: warehouse/templates/accounts/register.html:45
-#, fuzzy, python-format
-#| msgid ""
-#| "For more information, please read the full <a href=\"%(tou)s\" "
-#| "rel=\"noopener\">Terms of Use</a> and <a href=\"%(aup)s\" "
-#| "rel=\"noopener\">Acceptable Use Policy</a>."
+#, python-format
 msgid ""
 "For more information, please read the full <a href=\"%(aup)s\" "
 "rel=\"noopener\">Acceptable Use Policy</a>."
 msgstr ""
-"Для отримання додаткової інформації ознайомтеся з повними <a "
-"href=\"%(tou)s\" rel=\"noopener\">Умовами використання</a> та <a "
-"href=\"%(aup)s\" rel=\"noopener\">Політикою прийнятного використання</a>."
+"Аби дізнатися більше, будь ласка, прочитайте <a href=\"%(aup)s\" "
+"rel=\"noopener\">Політику прийнятного використання</a> цілком."
 
 #: warehouse/templates/accounts/register.html:50
 #, python-format
@@ -2143,6 +2156,8 @@ msgid ""
 "By registering, you agree to the <a href=\"%(tos)s\">PyPI Terms of Service</"
 "a>."
 msgstr ""
+"Реєструючись, ви погоджуєтесь із <a href=\"%(tos)s\">Умови надання послуг "
+"PyPI</a>."
 
 #: warehouse/templates/accounts/register.html:69
 #: warehouse/templates/manage/account.html:139
@@ -3708,114 +3723,114 @@ msgid "These details have been <a href=\"%(href)s\">verified by PyPI</a>"
 msgstr "Фільтрувати за <a href=\"%(href)s\">класифікатором</a>"
 
 #: warehouse/templates/includes/packaging/project-data.html:23
-#: warehouse/templates/includes/packaging/project-data.html:184
+#: warehouse/templates/includes/packaging/project-data.html:183
 msgid "Project links"
 msgstr "Посилання проєкту"
 
-#: warehouse/templates/includes/packaging/project-data.html:50
+#: warehouse/templates/includes/packaging/project-data.html:49
 msgid "GitHub Statistics"
 msgstr "Статистика на GitHub"
 
-#: warehouse/templates/includes/packaging/project-data.html:56
-#: warehouse/templates/includes/packaging/project-data.html:102
+#: warehouse/templates/includes/packaging/project-data.html:55
+#: warehouse/templates/includes/packaging/project-data.html:101
 #, fuzzy
 #| msgid "Release history"
 msgid "Repository"
 msgstr "Історія випусків"
 
-#: warehouse/templates/includes/packaging/project-data.html:63
-#: warehouse/templates/includes/packaging/project-data.html:109
+#: warehouse/templates/includes/packaging/project-data.html:62
+#: warehouse/templates/includes/packaging/project-data.html:108
 msgid "Stars:"
 msgstr "Зірочки:"
 
-#: warehouse/templates/includes/packaging/project-data.html:71
-#: warehouse/templates/includes/packaging/project-data.html:117
+#: warehouse/templates/includes/packaging/project-data.html:70
+#: warehouse/templates/includes/packaging/project-data.html:116
 msgid "Forks:"
 msgstr "Форки:"
 
-#: warehouse/templates/includes/packaging/project-data.html:79
-#: warehouse/templates/includes/packaging/project-data.html:125
+#: warehouse/templates/includes/packaging/project-data.html:78
+#: warehouse/templates/includes/packaging/project-data.html:124
 #, fuzzy
 #| msgid "Open issues/PRs:"
 msgid "Open issues:"
 msgstr "Відкриті іш'ю/PR:"
 
-#: warehouse/templates/includes/packaging/project-data.html:87
+#: warehouse/templates/includes/packaging/project-data.html:86
 #, fuzzy
 #| msgid "Open issues/PRs:"
 msgid "Open PRs:"
 msgstr "Відкриті іш'ю/PR:"
 
-#: warehouse/templates/includes/packaging/project-data.html:96
+#: warehouse/templates/includes/packaging/project-data.html:95
 #, fuzzy
 #| msgid "GitHub Statistics"
 msgid "GitLab Statistics"
 msgstr "Статистика на GitHub"
 
-#: warehouse/templates/includes/packaging/project-data.html:133
+#: warehouse/templates/includes/packaging/project-data.html:132
 msgid "Open merge requests:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:142
+#: warehouse/templates/includes/packaging/project-data.html:141
 msgid "Maintainers"
 msgstr "Доглядачі"
 
-#: warehouse/templates/includes/packaging/project-data.html:144
+#: warehouse/templates/includes/packaging/project-data.html:143
 #, python-brace-format
 msgid "Avatar for {username} from gravatar.com"
 msgstr "Аватар {username} із gravatar.com"
 
-#: warehouse/templates/includes/packaging/project-data.html:159
-#: warehouse/templates/includes/packaging/project-data.html:200
+#: warehouse/templates/includes/packaging/project-data.html:158
+#: warehouse/templates/includes/packaging/project-data.html:199
 msgid "Meta"
 msgstr "Мета"
 
-#: warehouse/templates/includes/packaging/project-data.html:164
-#: warehouse/templates/includes/packaging/project-data.html:225
-#: warehouse/templates/includes/packaging/project-data.html:231
+#: warehouse/templates/includes/packaging/project-data.html:163
+#: warehouse/templates/includes/packaging/project-data.html:224
+#: warehouse/templates/includes/packaging/project-data.html:230
 msgid "Author:"
 msgstr "Автор:"
 
-#: warehouse/templates/includes/packaging/project-data.html:171
-#: warehouse/templates/includes/packaging/project-data.html:238
-#: warehouse/templates/includes/packaging/project-data.html:244
+#: warehouse/templates/includes/packaging/project-data.html:170
+#: warehouse/templates/includes/packaging/project-data.html:237
+#: warehouse/templates/includes/packaging/project-data.html:243
 #: warehouse/templates/pages/help.html:633
 msgid "Maintainer:"
 msgstr "Доглядач:"
 
-#: warehouse/templates/includes/packaging/project-data.html:181
+#: warehouse/templates/includes/packaging/project-data.html:180
 msgid "Unverified details"
 msgstr "Непідтверджені подробиці"
 
-#: warehouse/templates/includes/packaging/project-data.html:182
+#: warehouse/templates/includes/packaging/project-data.html:181
 msgid "These details have <b>not</b> been verified by PyPI"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:205
+#: warehouse/templates/includes/packaging/project-data.html:204
 msgid "License Expression:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:210
+#: warehouse/templates/includes/packaging/project-data.html:209
 msgid "License Expression"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:218
+#: warehouse/templates/includes/packaging/project-data.html:217
 msgid "License:"
 msgstr "Ліцензія:"
 
-#: warehouse/templates/includes/packaging/project-data.html:252
+#: warehouse/templates/includes/packaging/project-data.html:251
 msgid "Tags"
 msgstr "Мітки"
 
-#: warehouse/templates/includes/packaging/project-data.html:264
+#: warehouse/templates/includes/packaging/project-data.html:263
 msgid "Requires:"
 msgstr "Потребує:"
 
-#: warehouse/templates/includes/packaging/project-data.html:271
+#: warehouse/templates/includes/packaging/project-data.html:270
 msgid "Provides-Extra:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:281
+#: warehouse/templates/includes/packaging/project-data.html:280
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
@@ -5272,6 +5287,8 @@ msgid ""
 "Approvals for corporate organizations are currently paused while terms of "
 "service and payment are finalized."
 msgstr ""
+"Схвалення організацій корпоративного типу наразі призупинені, доки "
+"узгоджуються умови надання послуг та оплати."
 
 #: warehouse/templates/manage/organizations.html:161
 #, fuzzy, python-format
@@ -6312,13 +6329,13 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/organization/activate_subscription.html:37
-#, fuzzy, python-format
-#| msgid ""
-#| "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
+#, python-format
 msgid ""
 "I agree to the PyPI <a href=\"%(tos_url)s\">Terms of Service</a> on behalf "
 "of the %(organization_name)s organization."
-msgstr "<a href=\"%(href)s\">%(username)s</a> стає %(role_name)s проєкту"
+msgstr ""
+"Я погоджуюсь із <a href=\"%(tos_url)s\">Умовами надання послуг</a> PyPI від "
+"імені організації %(organization_name)s."
 
 #: warehouse/templates/manage/organization/history.html:20
 #: warehouse/templates/manage/project/history.html:20
@@ -7567,9 +7584,13 @@ msgstr ""
 "зареєструвати окремого довіреного видавця для кожного з них."
 
 #: warehouse/templates/manage/project/publishing.html:467
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "I understand that this Trusted Publisher will only allow uploads frow CI/"
+#| "CD workflows running in the '%(constrained_environment_name)s' "
+#| "environment."
 msgid ""
-"I understand that this Trusted Publisher will only allow uploads frow CI/CD "
+"I understand that this Trusted Publisher will only allow uploads from CI/CD "
 "workflows running in the '%(constrained_environment_name)s' environment."
 msgstr ""
 "Я усвідомлюю, що цей довірений видавець дозволятиме лиш відвантаження із "
@@ -11031,11 +11052,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/pages/help.html:895
-#, fuzzy, python-format
-#| msgid ""
-#| "For more information, please read the full <a href=\"%(tou)s\" "
-#| "rel=\"noopener\">Terms of Use</a> and <a href=\"%(aup)s\" "
-#| "rel=\"noopener\">Acceptable Use Policy</a>."
+#, python-format
 msgid ""
 "Projects may get placed in quarantine for any number of reasons, such as "
 "suspicion of malicious activity, spam, or other violations of the <a "
@@ -11043,9 +11060,10 @@ msgid ""
 "<a href=\"%(aup)s\" target=\"_blank\" rel=\"noopener\">Acceptable Use "
 "Policy</a>."
 msgstr ""
-"Для отримання додаткової інформації ознайомтеся з повними <a "
-"href=\"%(tou)s\" rel=\"noopener\">Умовами використання</a> та <a "
-"href=\"%(aup)s\" rel=\"noopener\">Політикою прийнятного використання</a>."
+"Проєкти можуть опинитися в карантині через ряд причин, як-то підозра "
+"шкідництва, спам, або ж інші порушення <a href=\"%(tou)s\" target=\"_blank\" "
+"rel=\"noopener\">Умов надання послуг</a> чи <a href=\"%(aup)s\" "
+"target=\"_blank\" rel=\"noopener\">Політики прийнятного використання</a>."
 
 #: warehouse/templates/pages/help.html:904
 msgid ""
