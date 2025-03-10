@@ -285,7 +285,7 @@ _TYPO_MAP = {
 }
 
 
-def _repeated_characters(project_name: str) -> TypoCheckMatch:
+def _repeated_characters(project_name: str, corpus: set[str]) -> TypoCheckMatch:
     """
     Removes any identical consecutive characters to check for typosquatting
     by repeated characters.
@@ -301,13 +301,13 @@ def _repeated_characters(project_name: str) -> TypoCheckMatch:
             # Build a new name by removing the duplicated character
             deduplicated = project_name[:idx] + project_name[idx + 1 :]
             # If the new name is in the list of popular names, return it
-            if deduplicated in _TOP_PROJECT_NAMES:
+            if deduplicated in corpus:
                 return "repeated_characters", deduplicated
 
     return None
 
 
-def _omitted_characters(project_name: str) -> TypoCheckMatch:
+def _omitted_characters(project_name: str, corpus: set[str]) -> TypoCheckMatch:
     """
     Inserts allowed characters into name to check for typosquatting by omission.
     For example, 'evnt-stream' could be typosquatting 'event-stream'.
@@ -330,13 +330,13 @@ def _omitted_characters(project_name: str) -> TypoCheckMatch:
             # Build new name by inserting the current character in the current position
             constructed = project_name[:idx] + character + project_name[idx:]
             # If the new name is in the list of popular names, return it
-            if constructed in _TOP_PROJECT_NAMES:
+            if constructed in corpus:
                 return "omitted_characters", constructed
 
     return None
 
 
-def _swapped_characters(project_name: str) -> TypoCheckMatch:
+def _swapped_characters(project_name: str, corpus: set[str]) -> TypoCheckMatch:
     """
     Swaps adjacent characters to check for typosquatting by swapped characters.
     For example, 'spihnx' could be typosquatting 'sphinx'.
@@ -352,13 +352,13 @@ def _swapped_characters(project_name: str) -> TypoCheckMatch:
         swapped_string = "".join(char_list)
 
         # If the new name is in the list of popular names, return it
-        if swapped_string in _TOP_PROJECT_NAMES:
+        if swapped_string in corpus:
             return "swapped_characters", swapped_string
 
     return None
 
 
-def _swapped_words(project_name: str) -> TypoCheckMatch:
+def _swapped_words(project_name: str, corpus: set[str]) -> TypoCheckMatch:
     """
     Reorders project_name substrings separated by `-` to look for typosquatting.
     For example, 'stream-event' could be  squatting 'event-stream'.
@@ -381,13 +381,13 @@ def _swapped_words(project_name: str) -> TypoCheckMatch:
         # Join the words using `-` to create a new name
         reconstructed = "-".join(p)
         # If the new name is in the list of popular names, return it
-        if reconstructed in _TOP_PROJECT_NAMES:
+        if reconstructed in corpus:
             return "swapped_words", reconstructed
 
     return None
 
 
-def _common_typos(project_name: str) -> TypoCheckMatch:
+def _common_typos(project_name: str, corpus: set[str]) -> TypoCheckMatch:
     """
     Applies each of the common typos to each of the characters in the given name.
     Checks if each result is in the list of popular names.
@@ -404,18 +404,23 @@ def _common_typos(project_name: str) -> TypoCheckMatch:
                 typo_project_name = "".join(typo_project_name_chars)
 
                 # Check if the new package name is in the list of popular packages
-                if typo_project_name in _TOP_PROJECT_NAMES:
+                if typo_project_name in corpus:
                     return "common_typos", typo_project_name
 
     return None
 
 
-def typo_check_name(project_name: str) -> TypoCheckMatch:
+def typo_check_name(project_name: str, corpus=None) -> TypoCheckMatch:
     """
     Check if the given project name is a typo of another project name.
 
     Runs multiple checks, and if any of them match, returns the matched name.
     """
+    if corpus is None:
+        # Fall back to the static list if not provided
+        corpus = _TOP_PROJECT_NAMES
+
+    # Run each check in order
     for check in (
         _repeated_characters,
         _omitted_characters,
@@ -423,6 +428,6 @@ def typo_check_name(project_name: str) -> TypoCheckMatch:
         _swapped_words,
         _common_typos,
     ):
-        if result := check(project_name):
+        if result := check(project_name, corpus=corpus):
             return result
     return None

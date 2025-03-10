@@ -45,6 +45,7 @@
         <th>Prohibited by</th>
         <th>Prohibited on</th>
         <th>Comment</th>
+        <th>Observation kind</th>
         <th>Actions</th>
       </tr>
       </thead>
@@ -62,6 +63,7 @@
         </td>
         <td>{{ prohibited_project_name.created|format_datetime() }}</td>
         <td>{{ prohibited_project_name.comment }}</td>
+        <td>{{ prohibited_project_name.observation_kind }}</td>
         <td>
           <form method="POST" action="{{ request.route_path('admin.prohibited_project_names.remove') }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
