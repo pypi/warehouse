@@ -29,6 +29,7 @@ from warehouse.packaging.typosnyper import typo_check_name
         ("dateutil-python", ("swapped_words", "python-dateutil")),
         ("numpi", ("common_typos", "numpy")),
         ("requestz", ("common_typos", "requests")),
+        ("python-dateutil", None),  # Pass, swapped_words same as original
     ],
 )
 def test_typo_check_name(name, expected):
