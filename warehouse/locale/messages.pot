@@ -607,13 +607,13 @@ msgid ""
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2961
-#: warehouse/manage/views/organizations.py:893
+#: warehouse/manage/views/organizations.py:902
 #, python-brace-format
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:3026
-#: warehouse/manage/views/organizations.py:958
+#: warehouse/manage/views/organizations.py:967
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr ""
@@ -627,33 +627,33 @@ msgid "Invitation already expired."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:3102
-#: warehouse/manage/views/organizations.py:1145
+#: warehouse/manage/views/organizations.py:1154
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:869
+#: warehouse/manage/views/organizations.py:878
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:880
+#: warehouse/manage/views/organizations.py:889
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1040
-#: warehouse/manage/views/organizations.py:1082
+#: warehouse/manage/views/organizations.py:1049
+#: warehouse/manage/views/organizations.py:1091
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1050
+#: warehouse/manage/views/organizations.py:1059
 msgid "Organization invitation could not be re-sent."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1098
+#: warehouse/manage/views/organizations.py:1107
 #, python-brace-format
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
@@ -1194,9 +1194,9 @@ msgstr ""
 #: warehouse/templates/manage/account.html:841
 #: warehouse/templates/manage/manage_base.html:340
 #: warehouse/templates/manage/manage_base.html:399
-#: warehouse/templates/manage/organization/settings.html:218
-#: warehouse/templates/manage/organization/settings.html:280
-#: warehouse/templates/manage/organization/settings.html:286
+#: warehouse/templates/manage/organization/settings.html:227
+#: warehouse/templates/manage/organization/settings.html:290
+#: warehouse/templates/manage/organization/settings.html:296
 #: warehouse/templates/manage/project/documentation.html:27
 #: warehouse/templates/manage/project/release.html:182
 #: warehouse/templates/manage/project/settings.html:87
@@ -3949,8 +3949,8 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:839
 #: warehouse/templates/manage/account/token.html:166
-#: warehouse/templates/manage/organization/settings.html:216
-#: warehouse/templates/manage/organization/settings.html:278
+#: warehouse/templates/manage/organization/settings.html:225
+#: warehouse/templates/manage/organization/settings.html:288
 #: warehouse/templates/manage/project/publishing.html:25
 #: warehouse/templates/manage/team/settings.html:82
 msgid "Proceed with caution!"
@@ -4297,7 +4297,7 @@ msgstr ""
 msgid "Decline invitation"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:298
+#: warehouse/templates/manage/organization/settings.html:308
 #: warehouse/templates/manage/organizations.html:54
 msgid "Organization Name"
 msgstr ""
@@ -5798,57 +5798,68 @@ msgid "Manage billing"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:214
-#: warehouse/templates/manage/organization/settings.html:241
+#: warehouse/templates/manage/organization/settings.html:250
 msgid "Change organization account name"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:219
+#: warehouse/templates/manage/organization/settings.html:217
+msgid "Renaming organizations is not currently supported."
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:220
+#, python-format
+msgid ""
+"Please contact <a href=%(href)s>PyPI Support</a> if you need to rename "
+"your organization."
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:228
 msgid ""
 "You will not be able to revert to your current account name after you "
 "rename your organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:241
+#: warehouse/templates/manage/organization/settings.html:250
 msgid "Change organization account name for"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:241
+#: warehouse/templates/manage/organization/settings.html:250
 msgid "Current organization account name"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:248
-#: warehouse/templates/manage/organization/settings.html:298
+#: warehouse/templates/manage/organization/settings.html:258
+#: warehouse/templates/manage/organization/settings.html:308
 msgid "Delete organization"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:251
+#: warehouse/templates/manage/organization/settings.html:261
 msgid "Cannot delete organization"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:253
+#: warehouse/templates/manage/organization/settings.html:263
 #, python-format
 msgid "Your organization currently owns %(count)s project."
 msgid_plural "Your organization currently owns %(count)s projects."
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/organization/settings.html:258
+#: warehouse/templates/manage/organization/settings.html:268
 msgid "For each project, you must either:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:260
+#: warehouse/templates/manage/organization/settings.html:270
 msgid "Transfer ownership and remove the project from your organization"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:261
+#: warehouse/templates/manage/organization/settings.html:271
 msgid "Delete the project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:263
+#: warehouse/templates/manage/organization/settings.html:273
 msgid "Before you can delete your organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:269
+#: warehouse/templates/manage/organization/settings.html:279
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> and <a "
@@ -5856,21 +5867,21 @@ msgid ""
 "href=\"%(remove_delete_href)s\">delete project</a>"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:281
+#: warehouse/templates/manage/organization/settings.html:291
 msgid "You will not be able to recover your organization after you delete it."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:288
+#: warehouse/templates/manage/organization/settings.html:298
 msgid ""
 "Your subscription will be cancelled, and you will lose access to the "
 "billing portal."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:290
+#: warehouse/templates/manage/organization/settings.html:300
 msgid "You will lose access to the billing portal."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:292
+#: warehouse/templates/manage/organization/settings.html:302
 #, python-format
 msgid ""
 "Please ensure you have retrieved all invoices from <a "
