@@ -275,10 +275,6 @@ class OrganizationMixin:
         comment="Description of the business or project the organization represents",
     )
 
-    is_approved: Mapped[bool | None] = mapped_column(
-        comment="Status of administrator approval of the request"
-    )
-
 
 # TODO: Determine if this should also utilize SitemapMixin
 class Organization(OrganizationMixin, HasEvents, db.Model):
@@ -505,6 +501,14 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         return f"{site_name} Organization - {self.display_name} ({self.name})"
 
 
+class OrganizationApplicationStatus(str, enum.Enum):
+    Submitted = "submitted"
+    Declined = "declined"
+    Deferred = "deferred"
+    MoreInformationNeeded = "moreinformationneeded"
+    Approved = "approved"
+
+
 class OrganizationApplication(OrganizationMixin, db.Model):
     __tablename__ = "organization_applications"
     __repr__ = make_repr("name")
@@ -523,6 +527,19 @@ class OrganizationApplication(OrganizationMixin, db.Model):
         index=True,
         comment="Datetime the request was submitted",
     )
+    updated: Mapped[datetime.datetime | None] = mapped_column(
+        onupdate=func.now(),
+        comment="Datetime the requests was last_updated",
+    )
+    status: Mapped[enum.Enum] = mapped_column(
+        Enum(
+            OrganizationApplicationStatus,
+            values_callable=lambda x: [e.value for e in x],
+        ),
+        server_default=OrganizationApplicationStatus.Submitted.value,
+        comment="Status of the request",
+    )
+
     organization_id: Mapped[UUID | None] = mapped_column(
         PG_UUID,
         ForeignKey(

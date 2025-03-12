@@ -18,6 +18,7 @@ import faker
 from warehouse.organizations.models import (
     Organization,
     OrganizationApplication,
+    OrganizationApplicationStatus,
     OrganizationInvitation,
     OrganizationNameCatalog,
     OrganizationProject,
@@ -50,7 +51,7 @@ class OrganizationApplicationFactory(WarehouseFactory):
     orgtype = "Community"
     link_url = factory.Faker("uri")
     description = factory.Faker("sentence")
-    is_approved = None
+    status = OrganizationApplicationStatus.Submitted.value
     submitted_by = factory.SubFactory(UserFactory)
     submitted = factory.Faker(
         "date_time_between_dates",
@@ -79,7 +80,6 @@ class OrganizationFactory(WarehouseFactory):
     link_url = factory.Faker("uri")
     description = factory.Faker("sentence")
     is_active = True
-    is_approved = None
     created = factory.Faker(
         "date_time_between_dates",
         datetime_start=datetime.datetime(2020, 1, 1),

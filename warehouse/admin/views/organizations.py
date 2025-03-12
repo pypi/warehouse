@@ -19,11 +19,11 @@ from sqlalchemy import or_
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.authnz import Permissions
-from warehouse.events.tags import EventTag
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
     OrganizationApplication,
+    OrganizationApplicationStatus,
     OrganizationType,
 )
 from warehouse.utils.paginate import paginate_url_factory
@@ -141,65 +141,14 @@ def organization_list(request):
 )
 def organization_detail(request):
     organization_service = request.find_service(IOrganizationService, context=None)
-    user_service = request.find_service(IUserService, context=None)
 
     organization_id = request.matchdict["organization_id"]
     organization = organization_service.get_organization(organization_id)
     if organization is None:
         raise HTTPNotFound
 
-    create_event = (
-        organization.events.filter(
-            Organization.Event.tag == EventTag.Organization.OrganizationCreate
-        )
-        .order_by(Organization.Event.time.desc())
-        .first()
-    )
-    user = (
-        user_service.get_user(create_event.additional["created_by_user_id"])
-        if create_event
-        else None
-    )
-
-    if organization.is_approved is True:
-        approve_event = (
-            organization.events.filter(
-                Organization.Event.tag == EventTag.Organization.OrganizationApprove
-            )
-            .order_by(Organization.Event.time.desc())
-            .first()
-        )
-        approved_by_user_id = (
-            approve_event.additional.get("approved_by_user_id")
-            if approve_event
-            else None
-        )
-        admin = (
-            user_service.get_user(approved_by_user_id) if approved_by_user_id else None
-        )
-    elif organization.is_approved is False:
-        decline_event = (
-            organization.events.filter(
-                Organization.Event.tag == EventTag.Organization.OrganizationDecline
-            )
-            .order_by(Organization.Event.time.desc())
-            .first()
-        )
-        declined_by_user_id = (
-            decline_event.additional.get("declined_by_user_id")
-            if decline_event
-            else None
-        )
-        admin = (
-            user_service.get_user(declined_by_user_id) if declined_by_user_id else None
-        )
-    else:
-        admin = None
-
     return {
-        "admin": admin,
         "organization": organization,
-        "user": user,
     }
 
 
@@ -267,11 +216,20 @@ def organization_applications_list(request):
             elif field == "is":
                 # Add filter for `is_approved` field.
                 if "approved".startswith(value):
-                    filters.append(OrganizationApplication.is_approved.is_(True))
+                    filters.append(
+                        OrganizationApplication.status
+                        == OrganizationApplicationStatus.Approved.value
+                    )
                 elif "declined".startswith(value):
-                    filters.append(OrganizationApplication.is_approved.is_(False))
+                    filters.append(
+                        OrganizationApplication.status
+                        == OrganizationApplicationStatus.Declined.value
+                    )
                 elif "submitted".startswith(value):
-                    filters.append(OrganizationApplication.is_approved.is_(None))
+                    filters.append(
+                        OrganizationApplication.status
+                        == OrganizationApplicationStatus.Submitted.value
+                    )
             else:
                 # Add filter for any field.
                 filters.append(

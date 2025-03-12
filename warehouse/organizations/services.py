@@ -28,6 +28,7 @@ from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
     OrganizationApplication,
+    OrganizationApplicationStatus,
     OrganizationInvitation,
     OrganizationInvitationStatus,
     OrganizationNameCatalog,
@@ -89,7 +90,10 @@ class DatabaseOrganizationService:
         if submitted_by is not None:
             query = query.filter(OrganizationApplication.submitted_by == submitted_by)
         if undecided is True:
-            query = query.filter(OrganizationApplication.is_approved.is_(None))
+            query = query.filter(
+                OrganizationApplication.status
+                == (OrganizationApplicationStatus.Submitted.value)
+            )
         return query.order_by(OrganizationApplication.normalized_name).all()
 
     def find_organizationid(self, name):
@@ -163,7 +167,6 @@ class DatabaseOrganizationService:
             link_url=organization_application.link_url,
             description=organization_application.description,
             is_active=True,
-            is_approved=True,
         )
         self.db.add(organization)
         organization.record_event(
@@ -176,7 +179,7 @@ class DatabaseOrganizationService:
         )
         self.db.flush()  # flush the db now so organization.id is available
 
-        organization_application.is_approved = True
+        organization_application.status = OrganizationApplicationStatus.Approved.value
         organization_application.organization = organization
 
         self.add_catalog_entry(organization.id)
@@ -251,7 +254,7 @@ class DatabaseOrganizationService:
         organization_application = self.get_organization_application(
             organization_application_id
         )
-        organization_application.is_approved = False
+        organization_application.status = OrganizationApplicationStatus.Declined.value
 
         message = request.params.get("message", "")
         send_admin_new_organization_declined_email(
