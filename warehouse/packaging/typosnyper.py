@@ -381,7 +381,7 @@ def _swapped_words(project_name: str, corpus: set[str]) -> TypoCheckMatch:
         # Join the words using `-` to create a new name
         reconstructed = "-".join(p)
         # If the new name is in the list of popular names, return it
-        if reconstructed in corpus:
+        if reconstructed != project_name and reconstructed in corpus:
             return "swapped_words", reconstructed
 
     return None
