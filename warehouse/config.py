@@ -118,6 +118,7 @@ class RootFactory:
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
+                Permissions.AdminOrganizationsWrite,
                 Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedUsernameRead,
@@ -349,6 +350,9 @@ def configure(settings=None):
     maybe_set(settings, "warehouse.domain", "WAREHOUSE_DOMAIN")
     maybe_set(settings, "forklift.domain", "FORKLIFT_DOMAIN")
     maybe_set(settings, "auth.domain", "AUTH_DOMAIN")
+    maybe_set(
+        settings, "userdocs.domain", "USERDOCS_DOMAIN", default="https://docs.pypi.org"
+    )
     maybe_set(settings, "warehouse.legacy_domain", "WAREHOUSE_LEGACY_DOMAIN")
     maybe_set(settings, "site.name", "SITE_NAME", default="Warehouse")
     maybe_set(settings, "aws.key_id", "AWS_ACCESS_KEY_ID")

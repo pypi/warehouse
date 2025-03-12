@@ -179,9 +179,9 @@ factory-boy==3.3.3 \
     --hash=sha256:1c39e3289f7e667c4285433f305f8d506efc2fe9c73aaea4151ebd5cdea394fc \
     --hash=sha256:866862d226128dfac7f2b4160287e899daf54f2612778327dd03d0e2cb1e3d03
     # via -r requirements/tests.in
-faker==36.1.1 \
-    --hash=sha256:7cb2bbd4c8f040e4a340ae4019e9a48b6cf1db6a71bda4e5a61d8d13b7bef28d \
-    --hash=sha256:ad1f1be7fd692ec0256517404a9d7f007ab36ac5d4674082fa72404049725eaa
+faker==37.0.0 \
+    --hash=sha256:2598f78b76710a4ed05e197dda5235be409b4c291ba5c9c7514989cfbc7a5144 \
+    --hash=sha256:d2e4e2a30d459a8ec0ae52a552aa51c48973cb32cf51107dee90f58a8322a880
     # via factory-boy
 freezegun==1.5.1 \
     --hash=sha256:b29dedfcda6d5e8e083ce71b2b542753ad48cfec44037b3fc79702e2980a89e9 \
@@ -246,9 +246,9 @@ psycopg==3.2.5 \
     --hash=sha256:b782130983e5b3de30b4c529623d3687033b4dafa05bb661fc6bf45837ca5879 \
     --hash=sha256:f5f750611c67cb200e85b408882f29265c66d1de7f813add4f8125978bfd70e8
     # via pytest-postgresql
-pytest==8.3.4 \
-    --hash=sha256:50e16d954148559c9a74109af1eaf0c945ba2d8f30f0a3d3335edde19788b6f6 \
-    --hash=sha256:965370d062bce11e73868e0335abac31b4d3de0e82f4007408d242b4f8610761
+pytest==8.3.5 \
+    --hash=sha256:c69214aa47deac29fad6c2a4f590b9c4a9fdb16a403176fe154b79c0b4d4d820 \
+    --hash=sha256:f4efe70cc14e511565ac476b57c279e12a855b11f48f212af1080ef2263d3845
     # via
     #   -r requirements/tests.in
     #   pytest-icdiff
@@ -348,9 +348,9 @@ requests==2.32.3 \
     --hash=sha256:55365417734eb18255590a9ff9eb97e9e1da868d4ccd6402399eaf68af20a760 \
     --hash=sha256:70761cfe03c773ceb22aa2f671b4757976145175cdfca038c02654d061d6dcc6
     # via responses
-responses==0.25.6 \
-    --hash=sha256:9cac8f21e1193bb150ec557875377e41ed56248aed94e4567ed644db564bacf1 \
-    --hash=sha256:eae7ce61a9603004e76c05691e7c389e59652d91e94b419623c12bbfb8e331d8
+responses==0.25.7 \
+    --hash=sha256:8ebae11405d7a5df79ab6fd54277f6f2bc29b2d002d0dd2d5c632594d1ddcedb \
+    --hash=sha256:92ca17416c90fe6b35921f52179bff29332076bb32694c0df02dcac2c6bc043c
     # via -r requirements/tests.in
 six==1.17.0 \
     --hash=sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274 \

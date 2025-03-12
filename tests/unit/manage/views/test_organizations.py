@@ -658,7 +658,35 @@ class TestManageOrganizationSettings:
         assert organization_service.update_organization.calls == []
 
     @pytest.mark.usefixtures("_enable_organizations")
-    def test_save_organization_name(
+    def test_save_organization_name_wrong_confirm(
+        self, db_request, organization_service, monkeypatch
+    ):
+        organization = OrganizationFactory.create(name="foobar")
+        db_request.POST = {
+            "confirm_current_organization_name": organization.name.upper(),
+            "name": "FooBar",
+        }
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        view = org_views.ManageOrganizationSettingsViews(organization, db_request)
+        with pytest.raises(HTTPSeeOther):
+            view.save_organization_name()
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                (
+                    "Could not rename organization - "
+                    "'FOOBAR' is not the same as 'foobar'"
+                ),
+                queue="error",
+            )
+        ]
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_disable_save_organization_name(
         self,
         db_request,
         pyramid_user,
@@ -710,111 +738,148 @@ class TestManageOrganizationSettings:
         )
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            org_views, "send_admin_organization_renamed_email", send_email
-        )
-        monkeypatch.setattr(org_views, "send_organization_renamed_email", send_email)
-        monkeypatch.setattr(
-            org_views, "organization_owners", lambda *a, **kw: [pyramid_user]
-        )
 
         view = org_views.ManageOrganizationSettingsViews(organization, db_request)
         result = view.save_organization_name()
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == (
-            f"/manage/organization/{organization.normalized_name}/settings/#modal-close"
+            f"/manage/organization/{organization.normalized_name}/settings/"
         )
-        assert organization_service.rename_organization.calls == [
-            pretend.call(organization.id, "FooBar")
-        ]
-        assert send_email.calls == [
-            pretend.call(
-                db_request,
-                admin,
-                organization_name="FooBar",
-                previous_organization_name="foobar",
-            ),
-            pretend.call(
-                db_request,
-                {pyramid_user},
-                organization_name="FooBar",
-                previous_organization_name="foobar",
-            ),
-        ]
-
-    @pytest.mark.usefixtures("_enable_organizations")
-    def test_save_organization_name_wrong_confirm(
-        self, db_request, organization_service, monkeypatch
-    ):
-        organization = OrganizationFactory.create(name="foobar")
-        db_request.POST = {
-            "confirm_current_organization_name": organization.name.upper(),
-            "name": "FooBar",
-        }
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-
-        view = org_views.ManageOrganizationSettingsViews(organization, db_request)
-        with pytest.raises(HTTPSeeOther):
-            view.save_organization_name()
-
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                (
-                    "Could not rename organization - "
-                    "'FOOBAR' is not the same as 'foobar'"
-                ),
-                queue="error",
-            )
-        ]
-
-    @pytest.mark.usefixtures("_enable_organizations")
-    def test_save_organization_name_validation_fails(
-        self, db_request, organization_service, monkeypatch
-    ):
-        organization = OrganizationFactory.create(name="foobar")
-        db_request.POST = {
-            "confirm_current_organization_name": organization.name,
-            "name": "FooBar",
-        }
-        db_request.user = pretend.stub()
-
-        def rename_organization(organization_id, organization_name):
-            organization.name = organization_name
-
-        monkeypatch.setattr(
-            organization_service,
-            "rename_organization",
-            pretend.call_recorder(rename_organization),
-        )
-
-        save_organization_obj = pretend.stub()
-        save_organization_cls = pretend.call_recorder(
-            lambda *a, **kw: save_organization_obj
-        )
-        monkeypatch.setattr(org_views, "SaveOrganizationForm", save_organization_cls)
-
-        save_organization_name_obj = pretend.stub(
-            validate=lambda: False, errors=pretend.stub(values=lambda: ["Invalid"])
-        )
-        save_organization_name_cls = pretend.call_recorder(
-            lambda *a, **kw: save_organization_name_obj
-        )
-        monkeypatch.setattr(
-            org_views, "SaveOrganizationNameForm", save_organization_name_cls
-        )
-
-        view = org_views.ManageOrganizationSettingsViews(organization, db_request)
-        result = view.save_organization_name()
-
-        assert result == {
-            **view.default_response,
-            "save_organization_name_form": save_organization_name_obj,
-        }
         assert organization_service.rename_organization.calls == []
+        assert send_email.calls == []
+
+    # When support for renaming orgs is re-introduced
+    # @pytest.mark.usefixtures("_enable_organizations")
+    # def test_save_organization_name(
+    #    self,
+    #    db_request,
+    #    pyramid_user,
+    #    organization_service,
+    #    user_service,
+    #    monkeypatch,
+    # ):
+    #    organization = OrganizationFactory.create(name="foobar")
+    #    db_request.POST = {
+    #        "confirm_current_organization_name": organization.name,
+    #        "name": "FooBar",
+    #    }
+    #    db_request.route_path = pretend.call_recorder(
+    #        lambda *a, organization_name, **kw: (
+    #            f"/manage/organization/{organization_name}/settings/"
+    #        )
+    #    )
+
+    #    def rename_organization(organization_id, organization_name):
+    #        organization.name = organization_name
+
+    #    monkeypatch.setattr(
+    #        organization_service,
+    #        "rename_organization",
+    #        pretend.call_recorder(rename_organization),
+    #    )
+
+    #    admin = None
+    #    monkeypatch.setattr(
+    #        user_service,
+    #        "get_admin_user",
+    #        pretend.call_recorder(lambda *a, **kw: admin),
+    #    )
+
+    #    save_organization_obj = pretend.stub()
+    #    save_organization_cls = pretend.call_recorder(
+    #        lambda *a, **kw: save_organization_obj
+    #    )
+    #    monkeypatch.setattr(org_views, "SaveOrganizationForm", save_organization_cls)
+
+    #    save_organization_name_obj = pretend.stub(
+    #        validate=lambda: True, name=pretend.stub(data=db_request.POST["name"])
+    #    )
+    #    save_organization_name_cls = pretend.call_recorder(
+    #        lambda *a, **kw: save_organization_name_obj
+    #    )
+    #    monkeypatch.setattr(
+    #        org_views, "SaveOrganizationNameForm", save_organization_name_cls
+    #    )
+
+    #    send_email = pretend.call_recorder(lambda *a, **kw: None)
+    #    monkeypatch.setattr(
+    #        org_views, "send_admin_organization_renamed_email", send_email
+    #    )
+    #    monkeypatch.setattr(org_views, "send_organization_renamed_email", send_email)
+    #    monkeypatch.setattr(
+    #        org_views, "organization_owners", lambda *a, **kw: [pyramid_user]
+    #    )
+
+    #    view = org_views.ManageOrganizationSettingsViews(organization, db_request)
+    #    result = view.save_organization_name()
+
+    #    assert isinstance(result, HTTPSeeOther)
+    #    assert result.headers["Location"] == (
+    #        f"/manage/organization/{organization.normalized_name}/settings/#modal-close"
+    #    )
+    #    assert organization_service.rename_organization.calls == [
+    #         pretend.call(organization.id, "FooBar")
+    #    ]
+    #    assert send_email.calls == [
+    #        pretend.call(
+    #            db_request,
+    #            admin,
+    #            organization_name="FooBar",
+    #            previous_organization_name="foobar",
+    #        ),
+    #        pretend.call(
+    #            db_request,
+    #            {pyramid_user},
+    #            organization_name="FooBar",
+    #            previous_organization_name="foobar",
+    #        ),
+    #    ]
+
+    # @pytest.mark.usefixtures("_enable_organizations")
+    # def test_save_organization_name_validation_fails(
+    #    self, db_request, organization_service, monkeypatch
+    # ):
+    #    organization = OrganizationFactory.create(name="foobar")
+    #    db_request.POST = {
+    #        "confirm_current_organization_name": organization.name,
+    #        "name": "FooBar",
+    #    }
+    #    db_request.user = pretend.stub()
+
+    #    def rename_organization(organization_id, organization_name):
+    #        organization.name = organization_name
+
+    #    monkeypatch.setattr(
+    #        organization_service,
+    #        "rename_organization",
+    #        pretend.call_recorder(rename_organization),
+    #    )
+
+    #    save_organization_obj = pretend.stub()
+    #    save_organization_cls = pretend.call_recorder(
+    #        lambda *a, **kw: save_organization_obj
+    #    )
+    #    monkeypatch.setattr(org_views, "SaveOrganizationForm", save_organization_cls)
+
+    #    save_organization_name_obj = pretend.stub(
+    #        validate=lambda: False, errors=pretend.stub(values=lambda: ["Invalid"])
+    #    )
+    #    save_organization_name_cls = pretend.call_recorder(
+    #        lambda *a, **kw: save_organization_name_obj
+    #    )
+    #    monkeypatch.setattr(
+    #        org_views, "SaveOrganizationNameForm", save_organization_name_cls
+    #    )
+
+    #    view = org_views.ManageOrganizationSettingsViews(organization, db_request)
+    #    result = view.save_organization_name()
+
+    #    assert result == {
+    #        **view.default_response,
+    #        "save_organization_name_form": save_organization_name_obj,
+    #    }
+    #    assert organization_service.rename_organization.calls == []
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_delete_organization(

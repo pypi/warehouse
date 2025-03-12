@@ -325,7 +325,7 @@ def get_app_config(database, nondefaults=None):
         "billing.api_version": "2020-08-27",
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
         "helpdesk.backend": "warehouse.helpdesk.services.ConsoleHelpDeskService",
-        "helpdesk.notification_backend": "warehouse.helpdesk.services.ConsoleHelpDeskService",  # noqa: E501
+        "helpdesk.notification_backend": "warehouse.helpdesk.services.ConsoleAdminNotificationService",  # noqa: E501
         "files.url": "http://localhost:7000/",
         "archive_files.url": "http://localhost:7000/archive",
         "sessions.secret": "123456",

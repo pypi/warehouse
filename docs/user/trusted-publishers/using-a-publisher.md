@@ -384,9 +384,8 @@ below describe the setup process for each supported Trusted Publisher.
       [`id_tokens`](https://docs.gitlab.com/ee/ci/yaml/index.html#id_tokens) is used
       to request an OIDC token from GitLab with name `PYPI_ID_TOKEN` and audience
       `pypi`.
-    - This OIDC token is extracted from the CI/CD environment using the
-      [`id`](https://pypi.org/project/id/) package.
-    - The OIDC token is then sent to PyPI in exchange for a PyPI API token, which
+    - Twine is called to upload the package with no token specified.
+      It sends the OIDC token to PyPI in exchange for a PyPI API token, which
       is then used to publish the package using `twine`.
 
     ```yaml
@@ -411,16 +410,9 @@ below describe the setup process for each supported Trusted Publisher.
           aud: pypi
       script:
         # Install dependencies
-        - apt update && apt install -y jq
-        - python -m pip install -U twine id
+        - python -m pip install -U twine
 
-        # Retrieve the OIDC token from GitLab CI/CD, and exchange it for a PyPI API token
-        - oidc_token=$(python -m id PYPI)
-        # Replace "https://pypi.org/*" with "https://test.pypi.org/*" if uploading to TestPyPI
-        - resp=$(curl -X POST https://pypi.org/_/oidc/mint-token -d "{\"token\":\"${oidc_token}\"}")
-        - api_token=$(jq --raw-output '.token' <<< "${resp}")
-
-        # Upload to PyPI authenticating via the newly-minted token
-        # Add "--repository testpypi" if uploading to TestPyPI
-        - twine upload -u __token__ -p "${api_token}" python_pkg/dist/*
+        # Upload to PyPI, add "--repository testpypi" if uploading to TestPyPI
+        # With no token specified, twine will use Trusted Publishing
+        - twine upload python_pkg/dist/*
     ```

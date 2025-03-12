@@ -27,7 +27,6 @@ from warehouse.accounts.models import User
 from warehouse.authnz import Permissions
 from warehouse.email import (
     send_admin_organization_deleted_email,
-    send_admin_organization_renamed_email,
     send_canceled_as_invited_organization_member_email,
     send_new_organization_requested_email,
     send_organization_deleted_email,
@@ -37,7 +36,6 @@ from warehouse.email import (
     send_organization_member_role_changed_email,
     send_organization_project_added_email,
     send_organization_project_removed_email,
-    send_organization_renamed_email,
     send_organization_role_verification_email,
     send_organization_updated_email,
     send_removed_as_organization_member_email,
@@ -359,57 +357,68 @@ class ManageOrganizationSettingsViews:
             error_message="Could not rename organization",
         )
 
-        form = SaveOrganizationNameForm(
-            self.request.POST,
-            organization_service=self.organization_service,
-            organization_id=self.organization.id,
-            user=self.request.user,
+        self.request.session.flash(
+            "Organization names cannot be changed", queue="error"
+        )
+        return HTTPSeeOther(
+            self.request.route_path(
+                "manage.organization.settings",
+                organization_name=self.organization.normalized_name,
+            )
         )
 
-        if form.validate():
-            previous_organization_name = self.organization.name
-            self.organization_service.rename_organization(
-                self.organization.id,
-                form.name.data,
-            )
-            self.organization.record_event(
-                tag=EventTag.Organization.CatalogEntryAdd,
-                request=self.request,
-                additional={"submitted_by_user_id": str(self.request.user.id)},
-            )
-            self.organization.record_event(
-                tag=EventTag.Organization.OrganizationRename,
-                request=self.request,
-                additional={
-                    "previous_organization_name": previous_organization_name,
-                    "renamed_by_user_id": str(self.request.user.id),
-                },
-            )
-            owner_users = set(organization_owners(self.request, self.organization))
-            send_admin_organization_renamed_email(
-                self.request,
-                self.user_service.get_admin_user(),
-                organization_name=self.organization.name,
-                previous_organization_name=previous_organization_name,
-            )
-            send_organization_renamed_email(
-                self.request,
-                owner_users,
-                organization_name=self.organization.name,
-                previous_organization_name=previous_organization_name,
-            )
-            self.request.session.flash(
-                "Organization account name updated", queue="success"
-            )
-            return HTTPSeeOther(
-                self.request.route_path(
-                    "manage.organization.settings",
-                    organization_name=self.organization.normalized_name,
-                )
-                + "#modal-close"
-            )
+        # # When support for renaming orgs is re-introduced
+        # form = SaveOrganizationNameForm(
+        #    self.request.POST,
+        #    organization_service=self.organization_service,
+        #    organization_id=self.organization.id,
+        #    user=self.request.user,
+        # )
 
-        return {**self.default_response, "save_organization_name_form": form}
+        # if form.validate():
+        #    previous_organization_name = self.organization.name
+        #    self.organization_service.rename_organization(
+        #        self.organization.id,
+        #        form.name.data,
+        #    )
+        #    self.organization.record_event(
+        #        tag=EventTag.Organization.CatalogEntryAdd,
+        #        request=self.request,
+        #        additional={"submitted_by_user_id": str(self.request.user.id)},
+        #    )
+        #    self.organization.record_event(
+        #        tag=EventTag.Organization.OrganizationRename,
+        #        request=self.request,
+        #        additional={
+        #            "previous_organization_name": previous_organization_name,
+        #            "renamed_by_user_id": str(self.request.user.id),
+        #        },
+        #    )
+        #    owner_users = set(organization_owners(self.request, self.organization))
+        #    send_admin_organization_renamed_email(
+        #        self.request,
+        #        self.user_service.get_admin_user(),
+        #        organization_name=self.organization.name,
+        #        previous_organization_name=previous_organization_name,
+        #    )
+        #    send_organization_renamed_email(
+        #        self.request,
+        #        owner_users,
+        #        organization_name=self.organization.name,
+        #        previous_organization_name=previous_organization_name,
+        #    )
+        #    self.request.session.flash(
+        #        "Organization account name updated", queue="success"
+        #    )
+        #    return HTTPSeeOther(
+        #        self.request.route_path(
+        #            "manage.organization.settings",
+        #            organization_name=self.organization.normalized_name,
+        #        )
+        #        + "#modal-close"
+        #    )
+
+        # return {**self.default_response, "save_organization_name_form": form}
 
     @view_config(request_method="POST", request_param=["confirm_organization_name"])
     def delete_organization(self):

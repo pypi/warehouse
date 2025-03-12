@@ -248,19 +248,23 @@
 
         <h3 id="yanked">{{ yanked() }}</h3>
         <p>
-          {% trans href='https://www.python.org/dev/peps/pep-0592/', title=gettext('External link') %}
-          A yanked release is a release that is always ignored by an installer, unless it is the only release that matches a version specifier (using either <code>==</code> or <code>===</code>). See <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><abbr title="Python enhancement proposal">PEP</abbr> 592</a> for more information.
+          {% trans href=request.user_docs_url('/project-management/yanking') %}
+          A yanked release is a release that is always ignored by an installer,
+          unless it is the only release that matches a version specifier (using either
+          <code>==</code> or <code>===</code>).
+          See <a href="{{ href }}" title="{{ title }}">the user documentation</a>
+          for more information, including how to yank a release.
           {% endtrans %}
         </p>
 
         <h3 id="archived-project">{{ archived_project() }}</h3>
         <p>
-          {% trans %}
+          {% trans href=request.user_docs_url('/project-management/yanking') %}
           An archived project is a project that is no longer receiving any updates.
           A project maintainer can mark a project as archived to signal to users that future
           updates should not be expected. Archived projects are publicly visible and
           can still be resolved from the index by default, unlike deleted or
-          <a href="#yanked">yanked</a> releases.
+          <a href="{{ href }}">yanked</a> releases.
           {% endtrans %}
         </p>
       </section>
@@ -663,41 +667,36 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
         {% set max_file_size_mb = request.registry.settings.get('warehouse.forklift.legacy.MAX_FILESIZE_MIB') %}
         <p>
           {% trans dev_release_href='https://www.python.org/dev/peps/pep-0440/#developmental-releases', file_issue_href='https://github.com/pypi/support/issues/new?assignees=&labels=limit+request&template=limit-request-file.yml&title=File+Limit+Request%3A+PROJECT_NAME+-+000+MB', title=gettext('External link') %}
-            If you can't upload your project's release to PyPI because you're hitting the upload file size limit ({{ max_file_size_mb }} MiB by default; individual projects may differ),
-            we can sometimes increase your limit. Make sure you've uploaded at least one release
-            for the project that's <em>under</em> the limit
-            (a <a href="{{ dev_release_href }}" title="{{ title }}" target="_blank" rel="noopener">developmental release version number</a> is fine).
-            Then, <a href="{{ file_issue_href }}" title="{{ title }}" target="_blank" rel="noopener">file an issue</a> and tell us:
+            If you can't upload your project's release to PyPI because you're hitting the upload
+            file size limit ({{ max_file_size_mb }} MiB by default; individual projects may differ),
+            we can sometimes increase your limit.
           {% endtrans %}
         </p>
-        <ul>
-          <li>{% trans %}A link to your project on PyPI (or Test PyPI){% endtrans %}</li>
-          <li>{% trans %}The size of your release, in megabytes{% endtrans %}</li>
-          <li>{% trans %}Which index/indexes you need the increase for (PyPI, Test PyPI, or both){% endtrans %}</li>
-          <li>{% trans %}A brief description of your project, including the reason for the additional size.{% endtrans %}</li>
-        </ul>
-        {{ code_of_conduct() }}
+        <p>
+          {% trans href=request.user_docs_url('/project-management/storage-limits/', anchor="requesting-a-file-size-limit-increase") %}
+            See the <a href="{{ href }}">user documentation</a> for more information
+            on requesting a file size limit increase.
+          {% endtrans %}
+        </p>
 
         <h3 id="project-size-limit">{{ project_size_limit() }}</h3>
         <p>
           {% set max_project_size_gb = request.registry.settings.get('warehouse.forklift.legacy.MAX_PROJECT_SIZE_GIB') %}
-          {% trans %}
+          {% trans href=request.user_docs_url('/project-management/storage-limits/', anchor="freeing-up-storage-on-an-existing-project") %}
             If you can't upload your project's release to PyPI because you're
-            hitting the project size limit ({{ max_project_size_gb }} GiB by default; individual projects may differ), first remove any unnecessary
-            releases or individual files to lower your overall project size.
+            hitting the project size limit ({{ max_project_size_gb }} GiB by default;
+            individual projects may differ), first
+            <a href="{{ href }}">remove any unnecessary releases or individual files</a> to lower
+            your overall project size.
           {% endtrans %}
         </p>
         <p>
-          {% trans file_issue_href='https://github.com/pypi/support/issues/new?assignees=&labels=limit+request&template=limit-request-project.yml&title=Project+Limit+Request%3A+PROJECT_NAME+-+00+GB', title=gettext('External link') %}
-            If that is not possible, we can sometimes increase your limit. <a href="{{ file_issue_href }}" title="{{ title }}" target="_blank" rel="noopener">File an issue</a> and tell us:
+          {% trans href=request.user_docs_url('/project-management/storage-limits/', anchor="requesting-a-project-size-limit-increase") %}
+            If that is not possible, we can sometimes increase your limit.
+            See the <a href="{{ href }}">user documentation</a> for more information
+            on requesting a project size limit increase.
           {% endtrans %}
         </p>
-        <ul>
-          <li>{% trans %}A link to your project on PyPI (or Test PyPI){% endtrans %}</li>
-          <li>{% trans %}The total size of your project, in gigabytes{% endtrans %}</li>
-          <li>{% trans %}A brief description of your project, including the reason for the additional size.{% endtrans %}</li>
-        </ul>
-        {{ code_of_conduct() }}
 
         <h3 id="vulnerability-data">{{ vulnerability_data() }}</h3>
         <p>
