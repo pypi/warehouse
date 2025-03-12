@@ -4,9 +4,9 @@
 #
 #    pip-compile --allow-unsafe --generate-hashes --output-file=requirements/lint.txt requirements/lint.in
 #
-attrs==25.1.0 \
-    --hash=sha256:1c97078a80c814273a76b2a298a932eb681c87415c11dee0a6921de7f1b02c3e \
-    --hash=sha256:c75a69e28a550a7e93789579c22aa26b0f5b83b75dc4e08fe092980051e1090a
+attrs==25.2.0 \
+    --hash=sha256:18a06db706db43ac232cce80443fcd9f2500702059ecf53489e3c5a3f417acaf \
+    --hash=sha256:611344ff0a5fed735d86d7784610c84f8126b95e549bcad9ff61b4242f2d386b
     # via curlylint
 black==25.1.0 \
     --hash=sha256:030b9759066a4ee5e5aca28c3c77f9c64789cdd4de8ac1df642c40b708be6171 \
@@ -32,13 +32,13 @@ black==25.1.0 \
     --hash=sha256:ea0213189960bda9cf99be5b8c8ce66bb054af5e9e861249cd23471bd7b0b3ba \
     --hash=sha256:f3df5f1bf91d36002b0a75389ca8663510cf0531cca8aa5c1ef695b46d98655f
     # via -r requirements/lint.in
-boto3-stubs==1.36.25 \
-    --hash=sha256:26fe390d64704ac4ff346d7ab8f0daa817086d7aa66f2c65bbc365381b7a5475 \
-    --hash=sha256:8ebd0e505b5ea8a0e82f9d0cd36f1d10a46fbf10c9c4d970d03b7b02ec326dee
+boto3-stubs==1.37.11 \
+    --hash=sha256:2e62c9613e4961357727c7def0f7cd38dcb6016b8e627e39028e905763f3ea1f \
+    --hash=sha256:57813c537d248941fb1960a889edccba83ea15734fb89967c9fa9f16db4c4454
     # via -r requirements/lint.in
-botocore-stubs==1.36.25 \
-    --hash=sha256:89a6eda494497b01f9e0420b4e1e440d71e40c5f37ed62a6c59038fbfc6f2c49 \
-    --hash=sha256:caf92497433c82166666f034533b39ded32ab7b180b7fedfbf9cf34d2d8521f7
+botocore-stubs==1.37.11 \
+    --hash=sha256:9b89ba9a98eb9f088a5f82c52488013858092777c17b56265574bbf2d21da422 \
+    --hash=sha256:bec458a0d054892cdf82466b4d075f30a36fa03ce34f9becbcace5f36ec674bf
     # via boto3-stubs
 celery-types==0.23.0 \
     --hash=sha256:0cc495b8d7729891b7e070d0ec8d4906d2373209656a6e8b8276fe1ed306af9a \
