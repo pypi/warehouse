@@ -34,6 +34,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     cast,
+    event,
     func,
     or_,
     orm,
@@ -67,6 +68,7 @@ from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.events.models import HasEvents
 from warehouse.forklift import metadata
+from warehouse.helpdesk.interfaces import IAdminNotificationService
 from warehouse.integrations.vulnerabilities.models import VulnerabilityRecord
 from warehouse.observations.models import HasObservations
 from warehouse.organizations.models import (
@@ -76,6 +78,10 @@ from warehouse.organizations.models import (
     OrganizationRoleType,
     Team,
     TeamProjectRole,
+)
+from warehouse.packaging.interfaces import (
+    IProjectService,
+    ProjectNameUnavailableTypoSquattingError,
 )
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils import dotted_navigator, wheel
@@ -493,6 +499,89 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             .filter(Release.project == self, Release.yanked.is_(True))
             .order_by(Release._pypi_ordering.desc())
             .all()
+        )
+
+
+@event.listens_for(Project, "after_insert")
+def receive_after_insert(mapper, connection, project):
+    request = get_current_request()
+    project_service = request.find_service(IProjectService)
+    name = project.name
+    try:
+        project_service.check_project_name_after_insert(name)
+    except ProjectNameUnavailableTypoSquattingError as exc:
+        request.log.warning(
+            "ProjectNameUnavailableTypoSquattingError",
+            check_name=exc.check_name,
+            existing_project_name=exc.existing_project_name,
+        )
+        # Send notification to Admins for review
+        notification_service = request.find_service(IAdminNotificationService)
+
+        warehouse_domain = request.registry.settings.get("warehouse.domain")
+        new_project_page = request.route_url(
+            "packaging.project",
+            name=name,
+            _host=warehouse_domain,
+        )
+        new_project_text = (
+            f"During `file_upload`, Project Create for "
+            f"*<{new_project_page}|{name}>* was detected as a potential "
+            f"typo by the `{exc.check_name!r}` check."
+        )
+        existing_project_page = request.route_url(
+            "packaging.project",
+            name=exc.existing_project_name,
+            _host=warehouse_domain,
+        )
+        existing_project_text = (
+            f"<{existing_project_page}|Existing project: "
+            f"{exc.existing_project_name}>"
+        )
+
+        webhook_payload = {
+            "blocks": [
+                {
+                    "type": "header",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "TypoSnyper :warning:",
+                        "emoji": True,
+                    },
+                },
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": new_project_text,
+                    },
+                },
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": existing_project_text,
+                    },
+                },
+                {"type": "divider"},
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "plain_text",
+                            "text": "Once reviewed/confirmed, "
+                            "react to this message with :white_check_mark:",
+                            "emoji": True,
+                        }
+                    ],
+                },
+            ]
+        }
+        notification_service.send_notification(payload=webhook_payload)
+
+        request.metrics.increment(
+            "warehouse.packaging.services.create_project.typo_squatting",
+            tags=[f"check_name:{exc.check_name!r}"],
         )
 
 
