@@ -62,6 +62,7 @@ from warehouse.manage.views.view_helpers import (
 from warehouse.organizations import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
+    OrganizationApplication,
     OrganizationApplicationStatus,
     OrganizationInvitationStatus,
     OrganizationRole,
@@ -240,6 +241,36 @@ class ManageOrganizationsViews:
             return {"create_organization_application_form": form}
 
         return HTTPSeeOther(self.request.path)
+
+
+@view_defaults(
+    route_name="manage.organizations.application",
+    context=OrganizationApplication,
+    renderer="manage/organization/application.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission=Permissions.OrganizationApplicationsManage,
+    has_translations=True,
+    require_reauth=True,
+)
+class ManageOrganizationApplicationViews:
+    def __init__(self, organization_application, request):
+        self.organization_application = organization_application
+        self.request = request
+        self.user_service = request.find_service(IUserService, context=None)
+
+    @property
+    def default_response(self):
+        return {
+            "organization_application": self.organization_application,
+        }
+
+    @view_config(
+        request_method="GET", permission=Permissions.OrganizationApplicationsManage
+    )
+    def manage_organization_application(self):
+        return self.default_response
 
 
 @view_defaults(

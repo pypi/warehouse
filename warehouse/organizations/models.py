@@ -42,6 +42,7 @@ from warehouse import db
 from warehouse.accounts.models import TermsOfServiceEngagement, User
 from warehouse.authnz import Permissions
 from warehouse.events.models import HasEvents
+from warehouse.observations.models import HasObservations
 from warehouse.utils.attrs import make_repr
 from warehouse.utils.db import orm_session_from_obj
 from warehouse.utils.db.types import TZDateTime, bool_false, datetime_now
@@ -238,6 +239,23 @@ class OrganizationFactory:
                         "organization_name": organization.normalized_name,
                     }
                 )
+            )
+        except NoResultFound:
+            raise KeyError from None
+
+
+class OrganizationApplicationFactory:
+    def __init__(self, request):
+        self.request = request
+
+    def __getitem__(self, organization_application_id):
+        print(organization_application_id)
+        # Try returning organization application with matching id.
+        try:
+            return (
+                self.request.db.query(OrganizationApplication)
+                .filter(OrganizationApplication.id == organization_application_id)
+                .one()
             )
         except NoResultFound:
             raise KeyError from None
@@ -509,7 +527,7 @@ class OrganizationApplicationStatus(str, enum.Enum):
     Approved = "approved"
 
 
-class OrganizationApplication(OrganizationMixin, db.Model):
+class OrganizationApplication(OrganizationMixin, HasObservations, db.Model):
     __tablename__ = "organization_applications"
     __repr__ = make_repr("name")
 
@@ -560,6 +578,16 @@ class OrganizationApplication(OrganizationMixin, db.Model):
 
     def __lt__(self, other: OrganizationApplication) -> bool:
         return self.name < other.name
+
+    def __acl__(self):
+        acls = [
+            (
+                Allow,
+                f"user:{self.submitted_by.id}",
+                (Permissions.OrganizationApplicationsManage,),
+            )
+        ]
+        return acls
 
 
 class OrganizationNameCatalog(db.Model):

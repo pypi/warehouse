@@ -161,8 +161,16 @@
           <p class="organization-snippet__meta">
             {% trans submitted=humanize(organization_application.submitted) %}Submitted {{ submitted }}{% endtrans %}
           </p>
+          {% if organization_application.status == 'declined' %}
+          <small>{% trans %}Declined organization requests will be deleted 30 days after decision.{% endtrans %}</small>
+          {% endif %}
         </div>
         <div class="organization-snippet__buttons">
+          {% if organization_application.status not in ['approved', 'declined'] %}
+            <a class="button button--secondary" href="{{ request.route_path('manage.organizations.application', organization_application_id=organization_application.id) }}" title="{% trans %}Manage this organization request{% endtrans %}">
+              {% trans %}Manage{% endtrans %}
+            </a>
+          {% endif %}
         </div>
       </div>
     </div>

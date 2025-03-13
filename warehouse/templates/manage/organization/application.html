@@ -1,0 +1,54 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "manage/manage_base.html" %}
+
+{% set user = request.user %}
+
+{% set active_tab = 'organizations' %}
+
+{% block title %}{% trans organization_application_name=organization_application.name %}Manage '{{ organization_application_name }}' Organization Request{% endtrans %}{% endblock %}
+
+{% block main %}
+  <h2>{% trans %}Organization request{% endtrans %}</h2>
+
+  <section id="organization-details">
+    <div class="form-group">
+      <span class="form-group__label">{% trans %}Organization account name{% endtrans %}</span>
+      <p class="form-group__text">{{ organization_application.name }}</p>
+    </div>
+    <div class="form-group">
+      <span class="form-group__label">{% trans %}Organization display name{% endtrans %}</span>
+      <p class="form-group__text">{{ organization_application.display_name }}</p>
+    </div>
+    <div class="form-group">
+      <span class="form-group__label">{% trans %}️Organization URL{% endtrans %}</span>
+      <p class="form-group__text">{{ organization_application.link_url }}</p>
+    </div>
+    <div class="form-group">
+      <span class="form-group__label">{% trans %}️Organization description{% endtrans %}</span>
+      <p class="form-group__text">{{ organization_application.description }}</p>
+    </div>
+    <div class="form-group">
+      <span class="form-group__label">{% trans %}️Organization type{% endtrans %}</span>
+      <p class="form-group__text">{{ organization_application.orgtype.value }}</p>
+    </div>
+    <div class="form-group">
+      <span class="form-group__label">{% trans %}Date submitted{% endtrans %}</span>
+      <p class="form-group__text">
+        {{ humanize(organization_application.submitted) }}
+      </p>
+    </div>
+  </section>
+
+{% endblock %}
