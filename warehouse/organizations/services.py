@@ -20,8 +20,10 @@ from warehouse.accounts.models import TermsOfServiceEngagement, User
 from warehouse.email import (
     send_admin_new_organization_approved_email,
     send_admin_new_organization_declined_email,
+    send_admin_new_organization_moreinformationneeded_email,
     send_new_organization_approved_email,
     send_new_organization_declined_email,
+    send_new_organization_moreinformationneeded_email,
 )
 from warehouse.events.tags import EventTag
 from warehouse.organizations.interfaces import IOrganizationService
@@ -244,6 +246,48 @@ class DatabaseOrganizationService:
             self.decline_organization_application(competing_application.id, request)
 
         return organization
+
+    def defer_organization_application(self, organization_application_id, request):
+        """
+        Performs operations necessary to defer an OrganizationApplication
+        """
+        organization_application = self.get_organization_application(
+            organization_application_id
+        )
+        organization_application.status = OrganizationApplicationStatus.Deferred.value
+
+        return organization_application
+
+    def request_more_information(self, organization_application_id, request):
+        """
+        Performs operations necessary to request more information of an
+        OrganizationApplication
+        """
+        user_service = request.find_service(IUserService, context=None)
+
+        organization_application = self.get_organization_application(
+            organization_application_id
+        )
+        organization_application.status = (
+            OrganizationApplicationStatus.MoreInformationNeeded.value
+        )
+
+        message = request.params.get("message", "")
+        send_admin_new_organization_moreinformationneeded_email(
+            request,
+            user_service.get_admin_user(),
+            organization_name=organization_application.name,
+            initiator_username=organization_application.submitted_by.username,
+            message=message,
+        )
+        send_new_organization_moreinformationneeded_email(
+            request,
+            organization_application.submitted_by,
+            organization_name=organization_application.name,
+            message=message,
+        )
+
+        return organization_application
 
     def decline_organization_application(self, organization_application_id, request):
         """

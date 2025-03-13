@@ -276,6 +276,61 @@ class TestDatabaseOrganizationService:
             "redact_ip": True,
         }
 
+    def test_defer_organization_application(self, db_request, organization_service):
+        admin = UserFactory(username="admin", is_superuser=True)
+        db_request.user = admin
+
+        organization_application = OrganizationApplicationFactory.create()
+        organization_service.defer_organization_application(
+            organization_application.id, db_request
+        )
+
+        assert (
+            organization_application.status
+            == OrganizationApplicationStatus.Deferred.value
+        )
+
+    def test_request_more_information_organization_application(
+        self, db_request, organization_service, monkeypatch
+    ):
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            services,
+            "send_admin_new_organization_moreinformationneeded_email",
+            send_email,
+        )
+        monkeypatch.setattr(
+            services, "send_new_organization_moreinformationneeded_email", send_email
+        )
+
+        admin = UserFactory(username="admin", is_superuser=True)
+        db_request.user = admin
+
+        organization_application = OrganizationApplicationFactory.create()
+        organization_service.request_more_information(
+            organization_application.id, db_request
+        )
+
+        assert (
+            organization_application.status
+            == OrganizationApplicationStatus.MoreInformationNeeded.value
+        )
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                admin,
+                organization_name=organization_application.name,
+                initiator_username=organization_application.submitted_by.username,
+                message="",
+            ),
+            pretend.call(
+                db_request,
+                organization_application.submitted_by,
+                organization_name=organization_application.name,
+                message="",
+            ),
+        ]
+
     def test_decline_organization_application(
         self, db_request, organization_service, monkeypatch
     ):
