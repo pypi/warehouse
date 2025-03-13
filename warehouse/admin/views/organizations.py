@@ -178,9 +178,11 @@ def organization_applications_list(request):
             # - desc:word
             # - description:word
             # - description:"whole phrase"
-            # - is:approved
-            # - is:declined
             # - is:submitted
+            # - is:declined
+            # - is:deferred
+            # - is:moreinformationneeded
+            # - is:approved
             # - type:company
             # - type:community
             try:
@@ -214,22 +216,8 @@ def organization_applications_list(request):
                         OrganizationApplication.orgtype == OrganizationType.Community
                     )
             elif field == "is":
-                # Add filter for `is_approved` field.
-                if "approved".startswith(value):
-                    filters.append(
-                        OrganizationApplication.status
-                        == OrganizationApplicationStatus.Approved.value
-                    )
-                elif "declined".startswith(value):
-                    filters.append(
-                        OrganizationApplication.status
-                        == OrganizationApplicationStatus.Declined.value
-                    )
-                elif "submitted".startswith(value):
-                    filters.append(
-                        OrganizationApplication.status
-                        == OrganizationApplicationStatus.Submitted.value
-                    )
+                if value in [e.value for e in OrganizationApplicationStatus]:
+                    filters.append(OrganizationApplication.status == value)
             else:
                 # Add filter for any field.
                 filters.append(
