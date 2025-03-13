@@ -486,7 +486,7 @@ class ProjectService:
 
         return None
 
-    def check_project_name_after_insert(self, name: str) -> None:
+    def check_project_name_after_commit(self, name: str) -> None:
         # Check for typo-squatting.
         if typo_check_match := typo_check_name(canonicalize_name(name)):
             raise ProjectNameUnavailableTypoSquattingError(
