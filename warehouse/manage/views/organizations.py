@@ -62,6 +62,7 @@ from warehouse.manage.views.view_helpers import (
 from warehouse.organizations import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
+    OrganizationApplicationStatus,
     OrganizationInvitationStatus,
     OrganizationRole,
     OrganizationRoleType,
@@ -161,11 +162,6 @@ class ManageOrganizationsViews:
         organizations = self.organization_service.get_organizations_by_user(
             self.request.user.id
         )
-        organizations = [
-            organization
-            for organization in organizations
-            if organization.is_approved is not False
-        ]
 
         return {
             "organization_invites": organization_invites,
@@ -192,7 +188,7 @@ class ManageOrganizationsViews:
                     [
                         app
                         for app in self.request.user.organization_applications
-                        if app.is_approved is None
+                        if app.status != OrganizationApplicationStatus.Approved.value
                     ]
                 )
                 < self.request.registry.settings[
