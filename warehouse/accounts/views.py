@@ -306,8 +306,9 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
 
             # If the user has enabled two-factor authentication and they do not have
             # a valid saved device.
+            _two_factor_remembered = _check_remember_device_token(request, userid)
             two_factor_required = user_service.has_two_factor(userid) and (
-                not _check_remember_device_token(request, userid)
+                not _two_factor_remembered
             )
             if two_factor_required:
                 two_factor_data = {"userid": userid}
@@ -330,8 +331,19 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                 ):
                     redirect_to = request.route_path("manage.projects")
 
+                # Construct necessary two_factor information
+                two_factor_method = (
+                    "remembered-device" if _two_factor_remembered else None
+                )
+                two_factor_label = two_factor_method
+
                 # Actually perform the login routine for our user.
-                headers = _login_user(request, userid)
+                headers = _login_user(
+                    request,
+                    userid,
+                    two_factor_method,
+                    two_factor_label=two_factor_label,
+                )
 
                 # Now that we're logged in we'll want to redirect the user to
                 # either where they were trying to go originally, or to the default
