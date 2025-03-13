@@ -505,6 +505,9 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
 @event.listens_for(Project, "after_insert")
 def receive_after_insert(mapper, connection, project):
     request = get_current_request()
+    if not request:
+        # Can't do anything if there isn't a request
+        return
     project_service = request.find_service(IProjectService)
     name = project.name
     try:
