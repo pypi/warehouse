@@ -137,7 +137,6 @@ def organization_list(request):
     has_translations=True,
     uses_session=True,
     require_csrf=True,
-    require_reauth=True,
 )
 def organization_detail(request):
     organization_service = request.find_service(IOrganizationService, context=None)
@@ -260,7 +259,6 @@ def organization_applications_list(request):
     has_translations=True,
     uses_session=True,
     require_csrf=True,
-    require_reauth=True,
 )
 def organization_application_detail(request):
     organization_service = request.find_service(IOrganizationService, context=None)
@@ -300,7 +298,6 @@ def organization_application_detail(request):
     has_translations=True,
     uses_session=True,
     require_csrf=True,
-    require_reauth=True,
 )
 def organization_application_approve(request):
     organization_service = request.find_service(IOrganizationService, context=None)
@@ -340,7 +337,6 @@ def organization_application_approve(request):
     has_translations=True,
     uses_session=True,
     require_csrf=True,
-    require_reauth=True,
 )
 def organization_application_defer(request):
     organization_service = request.find_service(IOrganizationService, context=None)
@@ -384,7 +380,6 @@ def organization_application_defer(request):
     has_translations=True,
     uses_session=True,
     require_csrf=True,
-    require_reauth=True,
 )
 def organization_application_request_more_information(request):
     organization_service = request.find_service(IOrganizationService, context=None)
@@ -429,7 +424,6 @@ def organization_application_request_more_information(request):
     has_translations=True,
     uses_session=True,
     require_csrf=True,
-    require_reauth=True,
 )
 def organization_application_decline(request):
     organization_service = request.find_service(IOrganizationService, context=None)
