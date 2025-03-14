@@ -558,9 +558,9 @@ email-validator==2.2.0 \
 events==0.5 \
     --hash=sha256:a7286af378ba3e46640ac9825156c93bdba7502174dd696090fdfcd4d80a1abd
     # via opensearch-py
-filelock==3.17.0 \
-    --hash=sha256:533dc2f7ba78dc2f0f531fc6c4940addf7b70a481e269a5a3b93be94ffbe8338 \
-    --hash=sha256:ee4e77401ef576ebb38cd7f13b9b28893194acc20a8e68e18730ba9c0e54660e
+filelock==3.18.0 \
+    --hash=sha256:adbc88eabb99d2fec8c9c1b229b171f18afa655400173ddc653d5d01501fb9f2 \
+    --hash=sha256:c401f4f8377c4464e6db25fff06205fd89bdd83b65eb0488ed1b160f780e21de
     # via tldextract
 forcediphttpsadapter==1.1.0 \
     --hash=sha256:0d224cf6e8e50eb788c9f5994a7afa6d389bac6dbe540b7dfd77a32590ad0153 \
