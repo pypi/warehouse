@@ -537,7 +537,7 @@ def notification_service():
 def query_results_cache_service(mockredis):
     return cache_services.RedisQueryResults(redis_client=mockredis)
 
-  
+
 @pytest.fixture
 def search_service():
     return search_services.NullSearchService()
