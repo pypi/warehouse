@@ -140,12 +140,11 @@ class TestDatabaseOrganizationService:
         )
 
         assert (
-            organization_application.status
-            == OrganizationApplicationStatus.Submitted.value
+            organization_application.status == OrganizationApplicationStatus.Submitted
         )
         assert (
             competing_organization_application.status
-            == OrganizationApplicationStatus.Submitted.value
+            == OrganizationApplicationStatus.Submitted
         )
 
         assert sorted(
@@ -193,14 +192,11 @@ class TestDatabaseOrganizationService:
         )
         assert create_event.additional["redact_ip"] is True
 
-        assert (
-            organization_application.status
-            == OrganizationApplicationStatus.Approved.value
-        )
+        assert organization_application.status == OrganizationApplicationStatus.Approved
         assert organization_application.organization == organization
         assert (
             competing_organization_application.status
-            == OrganizationApplicationStatus.Declined.value
+            == OrganizationApplicationStatus.Declined
         )
         assert competing_organization_application.organization is None
 
@@ -285,10 +281,7 @@ class TestDatabaseOrganizationService:
             organization_application.id, db_request
         )
 
-        assert (
-            organization_application.status
-            == OrganizationApplicationStatus.Deferred.value
-        )
+        assert organization_application.status == OrganizationApplicationStatus.Deferred
 
     def test_request_more_information_organization_application(
         self, db_request, organization_service, monkeypatch
@@ -314,7 +307,7 @@ class TestDatabaseOrganizationService:
         assert len(organization_application.observations) == 1
         assert (
             organization_application.status
-            == OrganizationApplicationStatus.MoreInformationNeeded.value
+            == OrganizationApplicationStatus.MoreInformationNeeded
         )
         assert send_email.calls == [
             pretend.call(
@@ -352,10 +345,7 @@ class TestDatabaseOrganizationService:
             organization_application.id, db_request
         )
 
-        assert (
-            organization_application.status
-            == OrganizationApplicationStatus.Declined.value
-        )
+        assert organization_application.status == OrganizationApplicationStatus.Declined
         assert send_email.calls == [
             pretend.call(
                 db_request,

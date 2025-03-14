@@ -215,7 +215,7 @@ def organization_applications_list(request):
                         OrganizationApplication.orgtype == OrganizationType.Community
                     )
             elif field == "is":
-                if value in [e.value for e in OrganizationApplicationStatus]:
+                if value in OrganizationApplicationStatus:
                     filters.append(OrganizationApplication.status == value)
             else:
                 # Add filter for any field.

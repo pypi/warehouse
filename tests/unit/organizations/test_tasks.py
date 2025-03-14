@@ -110,7 +110,7 @@ class TestDeleteOrganizationApplications:
         # Create an organization_application that's ready for cleanup
         organization_application = OrganizationApplicationFactory.create()
         organization_application.is_active = False
-        organization_application.status = OrganizationApplicationStatus.Declined.value
+        organization_application.status = OrganizationApplicationStatus.Declined
         organization_application.updated = datetime.datetime.now() - datetime.timedelta(
             days=31
         )
@@ -118,7 +118,7 @@ class TestDeleteOrganizationApplications:
         # Create an organization_application that's not ready to be cleaned up yet
         organization_application2 = OrganizationApplicationFactory.create()
         organization_application2.is_active = False
-        organization_application2.status = OrganizationApplicationStatus.Declined.value
+        organization_application2.status = OrganizationApplicationStatus.Declined
         organization_application2.updated = datetime.datetime.now()
 
         assert (

@@ -233,7 +233,7 @@ class TestOrganizationDetail:
                 "coordination or asking for permission."
             ),
             is_active=False,
-            status=OrganizationApplicationStatus.Submitted.value,
+            status=OrganizationApplicationStatus.Submitted,
         )
         organization_service = pretend.stub(
             get_organization=lambda *a, **kw: organization,
@@ -264,7 +264,7 @@ class TestOrganizationDetail:
                 "coordination or asking for permission."
             ),
             is_active=True,
-            status=OrganizationApplicationStatus.Approved.value,
+            status=OrganizationApplicationStatus.Approved,
         )
         organization_service = pretend.stub(
             get_organization=lambda *a, **kw: organization,
@@ -295,7 +295,7 @@ class TestOrganizationDetail:
                 "coordination or asking for permission."
             ),
             is_active=False,
-            status=OrganizationApplicationStatus.Declined.value,
+            status=OrganizationApplicationStatus.Declined,
         )
         organization_service = pretend.stub(
             get_organization=lambda *a, **kw: organization,
@@ -427,21 +427,11 @@ class TestOrganizationApplicationList:
             OrganizationApplicationFactory.create_batch(5),
             key=lambda o: o.submitted,
         )
-        organization_applications[0].status = (
-            OrganizationApplicationStatus.Approved.value
-        )
-        organization_applications[1].status = (
-            OrganizationApplicationStatus.Approved.value
-        )
-        organization_applications[2].status = (
-            OrganizationApplicationStatus.Declined.value
-        )
-        organization_applications[3].status = (
-            OrganizationApplicationStatus.Submitted.value
-        )
-        organization_applications[4].status = (
-            OrganizationApplicationStatus.Submitted.value
-        )
+        organization_applications[0].status = OrganizationApplicationStatus.Approved
+        organization_applications[1].status = OrganizationApplicationStatus.Approved
+        organization_applications[2].status = OrganizationApplicationStatus.Declined
+        organization_applications[3].status = OrganizationApplicationStatus.Submitted
+        organization_applications[4].status = OrganizationApplicationStatus.Submitted
         db_request.GET["q"] = "is:approved"
         result = views.organization_applications_list(db_request)
 
@@ -457,21 +447,11 @@ class TestOrganizationApplicationList:
             OrganizationApplicationFactory.create_batch(5),
             key=lambda o: o.submitted,
         )
-        organization_applications[0].status = (
-            OrganizationApplicationStatus.Approved.value
-        )
-        organization_applications[1].status = (
-            OrganizationApplicationStatus.Approved.value
-        )
-        organization_applications[2].status = (
-            OrganizationApplicationStatus.Declined.value
-        )
-        organization_applications[3].status = (
-            OrganizationApplicationStatus.Submitted.value
-        )
-        organization_applications[4].status = (
-            OrganizationApplicationStatus.Submitted.value
-        )
+        organization_applications[0].status = OrganizationApplicationStatus.Approved
+        organization_applications[1].status = OrganizationApplicationStatus.Approved
+        organization_applications[2].status = OrganizationApplicationStatus.Declined
+        organization_applications[3].status = OrganizationApplicationStatus.Submitted
+        organization_applications[4].status = OrganizationApplicationStatus.Submitted
         db_request.GET["q"] = "is:declined"
         result = views.organization_applications_list(db_request)
 
@@ -487,21 +467,11 @@ class TestOrganizationApplicationList:
             OrganizationApplicationFactory.create_batch(5),
             key=lambda o: o.submitted,
         )
-        organization_applications[0].status = (
-            OrganizationApplicationStatus.Approved.value
-        )
-        organization_applications[1].status = (
-            OrganizationApplicationStatus.Approved.value
-        )
-        organization_applications[2].status = (
-            OrganizationApplicationStatus.Declined.value
-        )
-        organization_applications[3].status = (
-            OrganizationApplicationStatus.Submitted.value
-        )
-        organization_applications[4].status = (
-            OrganizationApplicationStatus.Submitted.value
-        )
+        organization_applications[0].status = OrganizationApplicationStatus.Approved
+        organization_applications[1].status = OrganizationApplicationStatus.Approved
+        organization_applications[2].status = OrganizationApplicationStatus.Declined
+        organization_applications[3].status = OrganizationApplicationStatus.Submitted
+        organization_applications[4].status = OrganizationApplicationStatus.Submitted
         db_request.GET["q"] = "is:submitted"
         result = views.organization_applications_list(db_request)
 
@@ -584,7 +554,7 @@ class TestOrganizationApplicationDetail:
     @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_is_approved_true(self, db_request):
         organization_application = OrganizationApplicationFactory.create(
-            status=OrganizationApplicationStatus.Approved.value
+            status=OrganizationApplicationStatus.Approved
         )
         db_request.matchdict["organization_application_id"] = (
             organization_application.id
@@ -598,7 +568,7 @@ class TestOrganizationApplicationDetail:
     @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_is_approved_false(self, db_request):
         organization_application = OrganizationApplicationFactory.create(
-            status=OrganizationApplicationStatus.Declined.value
+            status=OrganizationApplicationStatus.Declined
         )
         db_request.matchdict["organization_application_id"] = (
             organization_application.id
@@ -619,7 +589,7 @@ class TestOrganizationApplicationDetail:
     )
     def test_detail_conflicting_applications(self, db_request, name, conflicts):
         organization_application = OrganizationApplicationFactory.create(
-            name=name, status=OrganizationApplicationStatus.Declined.value
+            name=name, status=OrganizationApplicationStatus.Declined
         )
         conflicting_applications = sorted(
             [

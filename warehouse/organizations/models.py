@@ -518,7 +518,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         return f"{site_name} Organization - {self.display_name} ({self.name})"
 
 
-class OrganizationApplicationStatus(str, enum.Enum):
+class OrganizationApplicationStatus(enum.StrEnum):
     Submitted = "submitted"
     Declined = "declined"
     Deferred = "deferred"
@@ -553,7 +553,7 @@ class OrganizationApplication(OrganizationMixin, HasObservations, db.Model):
             OrganizationApplicationStatus,
             values_callable=lambda x: [e.value for e in x],
         ),
-        server_default=OrganizationApplicationStatus.Submitted.value,
+        server_default=OrganizationApplicationStatus.Submitted,
         comment="Status of the request",
     )
 

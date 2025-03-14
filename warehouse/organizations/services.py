@@ -95,7 +95,7 @@ class DatabaseOrganizationService:
         if undecided is True:
             query = query.filter(
                 OrganizationApplication.status
-                == (OrganizationApplicationStatus.Submitted.value)
+                == (OrganizationApplicationStatus.Submitted)
             )
         return query.order_by(OrganizationApplication.normalized_name).all()
 
@@ -182,7 +182,7 @@ class DatabaseOrganizationService:
         )
         self.db.flush()  # flush the db now so organization.id is available
 
-        organization_application.status = OrganizationApplicationStatus.Approved.value
+        organization_application.status = OrganizationApplicationStatus.Approved
         organization_application.organization = organization
 
         self.add_catalog_entry(organization.id)
@@ -255,7 +255,7 @@ class DatabaseOrganizationService:
         organization_application = self.get_organization_application(
             organization_application_id
         )
-        organization_application.status = OrganizationApplicationStatus.Deferred.value
+        organization_application.status = OrganizationApplicationStatus.Deferred
 
         return organization_application
 
@@ -270,7 +270,7 @@ class DatabaseOrganizationService:
             organization_application_id
         )
         organization_application.status = (
-            OrganizationApplicationStatus.MoreInformationNeeded.value
+            OrganizationApplicationStatus.MoreInformationNeeded
         )
 
         message = request.params.get("message", "")
@@ -309,7 +309,7 @@ class DatabaseOrganizationService:
         organization_application = self.get_organization_application(
             organization_application_id
         )
-        organization_application.status = OrganizationApplicationStatus.Declined.value
+        organization_application.status = OrganizationApplicationStatus.Declined
 
         message = request.params.get("message", "")
         send_admin_new_organization_declined_email(
