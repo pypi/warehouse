@@ -21,6 +21,7 @@ from pathlib import Path
 from unittest import mock
 
 import alembic.command
+import alembic.script.base
 import click.testing
 import pretend
 import pyramid.testing
@@ -307,6 +308,61 @@ def mock_manifest_cache_buster():
     return MockManifestCacheBuster
 
 
+def run_migrations(cfg):
+    def load_revisions(self):
+        migration_dir = _HERE.parent / "warehouse" / "migrations"
+
+        snapshots_rev = set()
+        for file_path in alembic.script.base.Script._list_py_dir(
+            self, (migration_dir / "snapshot").as_posix()
+        ):
+            script = alembic.script.base.Script._from_path(self, file_path)
+            if script is None:
+                continue
+            snapshots_rev.add(script.revision)
+            yield script
+
+        pruned_revisions = set()
+
+        scripts_rev = {}
+        for file_path in alembic.script.base.Script._list_py_dir(
+            self, (migration_dir / "versions").as_posix()
+        ):
+            script = alembic.script.base.Script._from_path(self, file_path)
+            if script is None:
+                continue
+
+            scripts_rev[script.revision] = script
+            if snapshot_rev := getattr(script.module, "snapshot_revision", None):
+                pruned_revisions.add(script.down_revision)
+                script.down_revision = snapshot_rev
+
+        while pruned_revisions:
+            rev = pruned_revisions.pop()
+            if rev not in scripts_rev:
+                continue
+
+            script = scripts_rev[rev]
+            if isinstance(script.down_revision, str):
+                pruned_revisions.add(script.down_revision)
+            elif script.down_revision:
+                pruned_revisions.update(set(script.down_revision))
+
+            del scripts_rev[rev]
+
+        for script in scripts_rev.values():
+            yield script
+
+    with mock.patch.object(
+        alembic.script.base.ScriptDirectory, "_load_revisions", load_revisions
+    ):
+
+        # Run migrations:
+        # This might harmlessly run multiple times if there are several app
+        # config fixtures in the test session, using the same database.
+        alembic.command.upgrade(cfg.alembic_config(), "head")
+
+
 def get_app_config(database, nondefaults=None):
     settings = {
         "warehouse.prevent_esi": True,
@@ -352,10 +408,7 @@ def get_app_config(database, nondefaults=None):
             with mock.patch.object(static, "whitenoise_add_manifest"):
                 cfg = config.configure(settings=settings)
 
-    # Run migrations:
-    # This might harmlessly run multiple times if there are several app config fixtures
-    # in the test session, using the same database.
-    alembic.command.upgrade(cfg.alembic_config(), "head")
+    run_migrations(cfg)
 
     return cfg
 
