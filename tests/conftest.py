@@ -48,6 +48,8 @@ from warehouse.accounts.interfaces import ITokenService, IUserService
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.attestations import services as attestations_services
 from warehouse.attestations.interfaces import IIntegrityService
+from warehouse.cache import services as cache_services
+from warehouse.cache.interfaces import IQueryResultsCache
 from warehouse.email import services as email_services
 from warehouse.email.interfaces import IEmailSender
 from warehouse.helpdesk import services as helpdesk_services
@@ -165,6 +167,7 @@ def pyramid_services(
     macaroon_service,
     helpdesk_service,
     notification_service,
+    query_results_cache_service,
     search_service,
 ):
     services = _Services()
@@ -189,6 +192,7 @@ def pyramid_services(
     services.register_service(macaroon_service, IMacaroonService, None, name="")
     services.register_service(helpdesk_service, IHelpDeskService, None)
     services.register_service(notification_service, IAdminNotificationService)
+    services.register_service(query_results_cache_service, IQueryResultsCache)
     services.register_service(search_service, ISearchService)
 
     return services
@@ -316,6 +320,7 @@ def get_app_config(database, nondefaults=None):
         "database.url": database,
         "docs.url": "http://docs.example.com/",
         "ratelimit.url": "memory://",
+        "db_results_cache.url": "redis://localhost:0/",
         "opensearch.url": "https://localhost/warehouse",
         "files.backend": "warehouse.packaging.services.LocalFileStorage",
         "archive_files.backend": "warehouse.packaging.services.LocalArchiveFileStorage",
@@ -526,6 +531,11 @@ def helpdesk_service():
 @pytest.fixture
 def notification_service():
     return helpdesk_services.ConsoleAdminNotificationService()
+
+
+@pytest.fixture
+def query_results_cache_service(mockredis):
+    return cache_services.RedisQueryResults(redis_client=mockredis)
 
 
 @pytest.fixture
