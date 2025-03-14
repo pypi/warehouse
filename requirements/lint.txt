@@ -4,9 +4,9 @@
 #
 #    pip-compile --allow-unsafe --generate-hashes --output-file=requirements/lint.txt requirements/lint.in
 #
-attrs==25.2.0 \
-    --hash=sha256:18a06db706db43ac232cce80443fcd9f2500702059ecf53489e3c5a3f417acaf \
-    --hash=sha256:611344ff0a5fed735d86d7784610c84f8126b95e549bcad9ff61b4242f2d386b
+attrs==25.3.0 \
+    --hash=sha256:427318ce031701fea540783410126f03899a97ffc6f61596ad581ac2e40e3bc3 \
+    --hash=sha256:75d7cefc7fb576747b2c81b4442d4d4a1ce0900973527c011d1030fd3bf4af1b
     # via curlylint
 black==25.1.0 \
     --hash=sha256:030b9759066a4ee5e5aca28c3c77f9c64789cdd4de8ac1df642c40b708be6171 \
