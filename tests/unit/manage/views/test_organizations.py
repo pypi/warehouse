@@ -22,6 +22,8 @@ from webob.multidict import MultiDict
 
 from tests.common.db.accounts import EmailFactory, UserFactory
 from tests.common.db.organizations import (
+    OrganizationApplicationFactory,
+    OrganizationApplicationObservationFactory,
     OrganizationEventFactory,
     OrganizationFactory,
     OrganizationInvitationFactory,
@@ -45,6 +47,7 @@ from warehouse.manage.views import organizations as org_views
 from warehouse.organizations import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
+    OrganizationApplicationStatus,
     OrganizationInvitation,
     OrganizationInvitationStatus,
     OrganizationRole,
@@ -53,6 +56,271 @@ from warehouse.organizations.models import (
 )
 from warehouse.packaging import Project
 from warehouse.utils.paginate import paginate_url_factory
+
+
+class TestManageOrganizationApplication:
+    def test_manage_organization_application(self, db_request):
+        _organization_application = OrganizationApplicationFactory.create(
+            status=OrganizationApplicationStatus.Submitted
+        )
+
+        view = org_views.ManageOrganizationApplicationViews(
+            _organization_application, db_request
+        )
+        assert view.manage_organization_application() == {
+            "organization_application": _organization_application,
+            "information_requests": [],
+            "response_forms": {},
+        }
+        assert (
+            _organization_application.status == OrganizationApplicationStatus.Submitted
+        )
+
+    def test_manage_organization_application_response_with_info_requests(
+        self, db_request, organization_service, monkeypatch
+    ):
+        _organization_application = OrganizationApplicationFactory.create(
+            status=OrganizationApplicationStatus.MoreInformationNeeded
+        )
+
+        with freeze_time() as frozen_datetime:
+            _request_for_more_info0 = OrganizationApplicationObservationFactory(
+                related=_organization_application,
+                payload={"message": "we need more information"},
+                created=datetime.datetime.now(datetime.UTC),
+            )
+            frozen_datetime.tick(1.0)
+            _request_for_more_info1 = OrganizationApplicationObservationFactory(
+                related=_organization_application,
+                payload={"message": "we still need more information"},
+                created=datetime.datetime.now(datetime.UTC),
+            )
+
+        view = org_views.ManageOrganizationApplicationViews(
+            _organization_application, db_request
+        )
+        _response = view.manage_organization_application()
+
+        assert (
+            _organization_application.status
+            == OrganizationApplicationStatus.MoreInformationNeeded
+        )
+        assert _response["organization_application"] == _organization_application
+        assert _response["information_requests"] == [
+            _request_for_more_info1,
+            _request_for_more_info0,
+        ]
+        assert len(_response["response_forms"]) == 2
+        assert _request_for_more_info0.id in _response["response_forms"]
+        assert _request_for_more_info1.id in _response["response_forms"]
+
+    def test_manage_organization_application_response_with_info_requests_and_responses(
+        self, db_request, organization_service, monkeypatch
+    ):
+        _organization_application = OrganizationApplicationFactory.create(
+            status=OrganizationApplicationStatus.MoreInformationNeeded
+        )
+
+        with freeze_time() as frozen_datetime:
+            _request_for_more_info0 = OrganizationApplicationObservationFactory(
+                related=_organization_application,
+                payload={"message": "we need more information"},
+                additional={
+                    "response": "you got it",
+                    "response_time": "2025-03-14T15:40:36.485495+00:00",
+                },
+                created=datetime.datetime.now(datetime.UTC),
+            )
+            frozen_datetime.tick(1.0)
+            _request_for_more_info1 = OrganizationApplicationObservationFactory(
+                related=_organization_application,
+                payload={"message": "we still need more information"},
+                created=datetime.datetime.now(datetime.UTC),
+            )
+
+        view = org_views.ManageOrganizationApplicationViews(
+            _organization_application, db_request
+        )
+        _response = view.manage_organization_application()
+
+        assert (
+            _organization_application.status
+            == OrganizationApplicationStatus.MoreInformationNeeded
+        )
+        assert _response["organization_application"] == _organization_application
+        assert _response["information_requests"] == [
+            _request_for_more_info1,
+            _request_for_more_info0,
+        ]
+        assert len(_response["response_forms"]) == 1
+        assert _request_for_more_info1.id in _response["response_forms"]
+
+    def test_manage_organization_application_response_with_all_responded(
+        self, db_request, organization_service
+    ):
+        _organization_application = OrganizationApplicationFactory.create(
+            status=OrganizationApplicationStatus.Submitted
+        )
+
+        with freeze_time() as frozen_datetime:
+            _request_for_more_info0 = OrganizationApplicationObservationFactory(
+                related=_organization_application,
+                payload={"message": "we need more information"},
+                additional={
+                    "response": "you got it",
+                    "response_time": "2025-03-14T15:40:36.485495+00:00",
+                },
+                created=datetime.datetime.now(datetime.UTC),
+            )
+            frozen_datetime.tick(1.0)
+            _request_for_more_info1 = OrganizationApplicationObservationFactory(
+                related=_organization_application,
+                payload={"message": "we still need more information"},
+                additional={
+                    "response": "you got it",
+                    "response_time": "2025-03-14T15:40:36.485495+00:00",
+                },
+                created=datetime.datetime.now(datetime.UTC),
+            )
+
+        view = org_views.ManageOrganizationApplicationViews(
+            _organization_application, db_request
+        )
+        _response = view.manage_organization_application()
+
+        assert (
+            _organization_application.status == OrganizationApplicationStatus.Submitted
+        )
+        assert _response["organization_application"] == _organization_application
+        assert _response["information_requests"] == [
+            _request_for_more_info1,
+            _request_for_more_info0,
+        ]
+        assert len(_response["response_forms"]) == 0
+
+    def test_manage_organization_application_submit_empty(
+        self, db_request, organization_service
+    ):
+        _organization_application = OrganizationApplicationFactory.create(
+            status=OrganizationApplicationStatus.MoreInformationNeeded
+        )
+
+        with freeze_time() as frozen_datetime:
+            _request_for_more_info0 = OrganizationApplicationObservationFactory(
+                related=_organization_application,
+                payload={"message": "we need more information"},
+                additional={
+                    "response": "you got it",
+                    "response_time": "2025-03-14T15:40:36.485495+00:00",
+                },
+                created=datetime.datetime.now(datetime.UTC),
+            )
+            frozen_datetime.tick(1.0)
+            _request_for_more_info1 = OrganizationApplicationObservationFactory(
+                related=_organization_application,
+                payload={"message": "we still need more information"},
+                created=datetime.datetime.now(datetime.UTC),
+            )
+
+        db_request.POST = MultiDict({})
+
+        view = org_views.ManageOrganizationApplicationViews(
+            _organization_application, db_request
+        )
+        _response = view.manage_organization_application_submit()
+
+        assert (
+            _organization_application.status
+            == OrganizationApplicationStatus.MoreInformationNeeded
+        )
+        assert _response["organization_application"] == _organization_application
+        assert _response["information_requests"] == [
+            _request_for_more_info1,
+            _request_for_more_info0,
+        ]
+        assert len(_response["response_forms"]) == 1
+        assert _request_for_more_info1.id in _response["response_forms"]
+
+    def test_manage_organization_application_submit_response(
+        self, db_request, organization_service
+    ):
+        _organization_application = OrganizationApplicationFactory.create(
+            status=OrganizationApplicationStatus.MoreInformationNeeded
+        )
+
+        with freeze_time() as frozen_datetime:
+            OrganizationApplicationObservationFactory(
+                related=_organization_application,
+                payload={"message": "we need more information"},
+                additional={
+                    "response": "you got it",
+                    "response_time": "2025-03-14T15:40:36.485495+00:00",
+                },
+                created=datetime.datetime.now(datetime.UTC),
+            )
+            frozen_datetime.tick(1.0)
+            _request_for_more_info1 = OrganizationApplicationObservationFactory(
+                related=_organization_application,
+                payload={"message": "we still need more information"},
+                created=datetime.datetime.now(datetime.UTC),
+            )
+
+        db_request.POST = MultiDict(
+            {
+                "response_form-id": _request_for_more_info1.id.__str__(),
+                "response": "This is my response",
+            }
+        )
+
+        view = org_views.ManageOrganizationApplicationViews(
+            _organization_application, db_request
+        )
+        _response = view.manage_organization_application_submit()
+
+        assert (
+            _organization_application.status == OrganizationApplicationStatus.Submitted
+        )
+        assert isinstance(_response, HTTPSeeOther)
+        assert _request_for_more_info1.additional["response"] == "This is my response"
+
+    def test_manage_organization_application_submit_response_correct_request(
+        self, db_request, organization_service
+    ):
+        _organization_application = OrganizationApplicationFactory.create(
+            status=OrganizationApplicationStatus.MoreInformationNeeded
+        )
+
+        with freeze_time() as frozen_datetime:
+            OrganizationApplicationObservationFactory(
+                related=_organization_application,
+                payload={"message": "we need more information"},
+                created=datetime.datetime.now(datetime.UTC),
+            )
+            frozen_datetime.tick(1.0)
+            _request_for_more_info1 = OrganizationApplicationObservationFactory(
+                related=_organization_application,
+                payload={"message": "we still need more information"},
+                created=datetime.datetime.now(datetime.UTC),
+            )
+
+        db_request.POST = MultiDict(
+            {
+                "response_form-id": _request_for_more_info1.id.__str__(),
+                "response": "This is my response",
+            }
+        )
+
+        view = org_views.ManageOrganizationApplicationViews(
+            _organization_application, db_request
+        )
+        _response = view.manage_organization_application_submit()
+
+        assert (
+            _organization_application.status
+            == OrganizationApplicationStatus.MoreInformationNeeded
+        )
+        assert isinstance(_response, HTTPSeeOther)
+        assert _request_for_more_info1.additional["response"] == "This is my response"
 
 
 class TestManageOrganizations:

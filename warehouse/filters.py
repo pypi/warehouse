@@ -175,6 +175,10 @@ def is_recent(timestamp):
     return False
 
 
+def parse_isoformat(datestring):
+    return datetime.datetime.fromisoformat(datestring)
+
+
 def format_email(metadata_email: str) -> tuple[str, str]:
     """
     Return the name and email address from a metadata RFC-822 string.

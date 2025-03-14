@@ -15,9 +15,9 @@ import datetime
 from warehouse import tasks
 from warehouse.accounts.interfaces import ITokenService, TokenExpired
 from warehouse.events.tags import EventTag
-from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
-    Organization,
+    OrganizationApplication,
+    OrganizationApplicationStatus,
     OrganizationInvitation,
     OrganizationInvitationStatus,
     OrganizationStripeSubscription,
@@ -60,27 +60,19 @@ def update_organization_invitation_status(request):
 
 
 @tasks.task(ignore_result=True, acks_late=True)
-def delete_declined_organizations(request):
-    organizations = (
-        request.db.query(Organization)
+def delete_declined_organization_applications(request):
+    organization_applications = (
+        request.db.query(OrganizationApplication)
         .filter(
-            Organization.is_active == False,  # noqa: E712
-            Organization.is_approved == False,  # noqa: E712
-            Organization.date_approved
+            OrganizationApplication.status == OrganizationApplicationStatus.Declined,
+            OrganizationApplication.updated
             < (datetime.datetime.now(datetime.UTC) - CLEANUP_AFTER),
         )
         .all()
     )
 
-    for organization in organizations:
-        organization_service = request.find_service(IOrganizationService, context=None)
-        # TODO: Cannot call this after deletion so how exactly do we handle this?
-        organization.record_event(
-            tag=EventTag.Organization.OrganizationDelete,
-            request=request,
-            additional={"deleted_by": "CRON"},
-        )
-        organization_service.delete_organization(organization.id)
+    for organization_application in organization_applications:
+        request.db.delete(organization_application)
 
 
 @tasks.task(ignore_result=True, acks_late=True)

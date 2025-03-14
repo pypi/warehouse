@@ -278,6 +278,13 @@ def test_routes(warehouse):
             "manage.account.token", "/manage/account/token/", domain=warehouse
         ),
         pretend.call(
+            "manage.organizations.application",
+            "/manage/organizations/application/{organization_application_id}/",
+            factory="warehouse.organizations.models:OrganizationApplicationFactory",
+            traverse="/{organization_application_id}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "manage.organizations", "/manage/organizations/", domain=warehouse
         ),
         pretend.call(

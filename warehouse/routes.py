@@ -279,6 +279,13 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route("manage.account.token", "/manage/account/token/", domain=warehouse)
+    config.add_route(
+        "manage.organizations.application",
+        "/manage/organizations/application/{organization_application_id}/",
+        factory="warehouse.organizations.models:OrganizationApplicationFactory",
+        traverse="/{organization_application_id}",
+        domain=warehouse,
+    )
     config.add_route("manage.organizations", "/manage/organizations/", domain=warehouse)
     config.add_route(
         "manage.organization.settings",
