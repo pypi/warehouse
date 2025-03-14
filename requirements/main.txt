@@ -55,9 +55,9 @@ asn1crypto==1.5.1 \
     --hash=sha256:13ae38502be632115abf8a24cbe5f4da52e3b5231990aff31123c805306ccb9c \
     --hash=sha256:db4e40728b728508912cbb3d44f19ce188f218e9eba635821bb4b68564f8fd67
     # via webauthn
-attrs==25.2.0 \
-    --hash=sha256:18a06db706db43ac232cce80443fcd9f2500702059ecf53489e3c5a3f417acaf \
-    --hash=sha256:611344ff0a5fed735d86d7784610c84f8126b95e549bcad9ff61b4242f2d386b
+attrs==25.3.0 \
+    --hash=sha256:427318ce031701fea540783410126f03899a97ffc6f61596ad581ac2e40e3bc3 \
+    --hash=sha256:75d7cefc7fb576747b2c81b4442d4d4a1ce0900973527c011d1030fd3bf4af1b
     # via
     #   cattrs
     #   jsonschema
