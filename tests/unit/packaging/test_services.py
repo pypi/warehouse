@@ -1057,7 +1057,14 @@ class TestProjectService:
         ProhibitedProjectFactory.create(name="numpy")
 
         with pytest.raises(ProjectNameUnavailableTypoSquattingError):
-            service.check_project_name("numpi")
+            service.check_project_name_after_commit("numpi")
+
+    def test_check_project_name_typosquatting_no_typo(self, db_session):
+        # TODO: Update this test once we have a dynamic TopN approach
+        service = ProjectService(session=db_session)
+        ProhibitedProjectFactory.create(name="numpy")
+
+        assert service.check_project_name_after_commit("foobar") is None
 
     def test_check_project_name_ok(self, db_session):
         service = ProjectService(session=db_session)

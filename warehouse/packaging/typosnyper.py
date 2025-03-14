@@ -25,6 +25,16 @@ and the `typomania` Rust project.
 
 from itertools import permutations
 
+from pyramid.threadlocal import get_current_request
+
+from warehouse import db
+from warehouse.helpdesk.interfaces import IAdminNotificationService
+from warehouse.packaging.interfaces import (
+    IProjectService,
+    ProjectNameUnavailableTypoSquattingError,
+)
+from warehouse.packaging.models import Project
+
 # Ensure all checks return a similar type,
 # where the first string is the check name,
 # followed by the matched project name,
@@ -431,3 +441,92 @@ def typo_check_name(project_name: str, corpus=None) -> TypoCheckMatch:
         if result := check(project_name, corpus=corpus):
             return result
     return None
+
+
+@db.listens_for(db.Session, "after_commit")
+def check_typo_after_commit(config, session):
+    # Go through each new object and find any Project instances
+    for obj in session.new:
+        if obj.__class__ == Project:
+            request = get_current_request()
+            if not request:
+                # Can't do anything if there isn't a request
+                return
+            project_service = request.find_service(IProjectService)
+            name = obj.name
+            try:
+                project_service.check_project_name_after_commit(name)
+            except ProjectNameUnavailableTypoSquattingError as exc:
+                request.log.warning(
+                    "ProjectNameUnavailableTypoSquattingError",
+                    check_name=exc.check_name,
+                    existing_project_name=exc.existing_project_name,
+                )
+                # Send notification to Admins for review
+                notification_service = request.find_service(IAdminNotificationService)
+
+                warehouse_domain = request.registry.settings.get("warehouse.domain")
+                new_project_page = request.route_url(
+                    "packaging.project",
+                    name=name,
+                    _host=warehouse_domain,
+                )
+                new_project_text = (
+                    f"During `file_upload`, Project Create for "
+                    f"*<{new_project_page}|{name}>* was detected as a potential "
+                    f"typo by the `{exc.check_name!r}` check."
+                )
+                existing_project_page = request.route_url(
+                    "packaging.project",
+                    name=exc.existing_project_name,
+                    _host=warehouse_domain,
+                )
+                existing_project_text = (
+                    f"<{existing_project_page}|Existing project: "
+                    f"{exc.existing_project_name}>"
+                )
+
+                webhook_payload = {
+                    "blocks": [
+                        {
+                            "type": "header",
+                            "text": {
+                                "type": "plain_text",
+                                "text": "TypoSnyper :warning:",
+                                "emoji": True,
+                            },
+                        },
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": new_project_text,
+                            },
+                        },
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": existing_project_text,
+                            },
+                        },
+                        {"type": "divider"},
+                        {
+                            "type": "context",
+                            "elements": [
+                                {
+                                    "type": "plain_text",
+                                    "text": "Once reviewed/confirmed, "
+                                    "react to this message with :white_check_mark:",
+                                    "emoji": True,
+                                }
+                            ],
+                        },
+                    ]
+                }
+                notification_service.send_notification(payload=webhook_payload)
+
+                request.metrics.increment(
+                    "warehouse.packaging.services.create_project.typo_squatting",
+                    tags=[f"check_name:{exc.check_name!r}"],
+                )

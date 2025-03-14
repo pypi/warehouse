@@ -52,6 +52,8 @@ from warehouse.email import services as email_services
 from warehouse.email.interfaces import IEmailSender
 from warehouse.helpdesk import services as helpdesk_services
 from warehouse.helpdesk.interfaces import IAdminNotificationService, IHelpDeskService
+from warehouse.legacy.api.xmlrpc.cache import services as xmlrpc_services
+from warehouse.legacy.api.xmlrpc.cache.interfaces import IXMLRPCCache
 from warehouse.macaroons import services as macaroon_services
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.metrics import IMetricsService
@@ -163,6 +165,7 @@ def pyramid_services(
     macaroon_service,
     helpdesk_service,
     notification_service,
+    xmlrpccache_service,
 ):
     services = _Services()
 
@@ -186,6 +189,7 @@ def pyramid_services(
     services.register_service(macaroon_service, IMacaroonService, None, name="")
     services.register_service(helpdesk_service, IHelpDeskService, None)
     services.register_service(notification_service, IAdminNotificationService)
+    services.register_service(xmlrpccache_service, IXMLRPCCache)
 
     return services
 
@@ -331,7 +335,7 @@ def get_app_config(database, nondefaults=None):
         "sessions.secret": "123456",
         "sessions.url": "redis://localhost:0/",
         "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
-        "warehouse.xmlrpc.cache.url": "redis://localhost:0/",
+        "warehouse.xmlrpc.cache.url": "null://",
         "terms.revision": "initial",
     }
 
@@ -522,6 +526,14 @@ def helpdesk_service():
 @pytest.fixture
 def notification_service():
     return helpdesk_services.ConsoleAdminNotificationService()
+
+
+@pytest.fixture
+def xmlrpccache_service():
+    def purger(tags):
+        return None
+
+    return xmlrpc_services.NullXMLRPCCache("null://", purger)
 
 
 class QueryRecorder:

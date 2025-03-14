@@ -12,12 +12,15 @@
 
 import pytest
 
+from warehouse.packaging import typosnyper
+from warehouse.packaging.models import Project
 from warehouse.packaging.typosnyper import typo_check_name
 
 
 @pytest.mark.parametrize(
     ("name", "expected"),
     [
+        ("x", None),  # Pass, shorter than 4 characters
         ("numpy", None),  # Pass, no typos, exists
         ("NuMpy", None),  # Pass, same as `numpy` after canonicalization
         ("nuumpy", ("repeated_characters", "numpy")),
@@ -44,3 +47,11 @@ def test_typo_check_name(name, expected):
     }
 
     assert typo_check_name(name, corpus=test_names_corpus) == expected
+
+
+def test_check_typo_after_commit(db_request):
+    project = Project(name="foobar")
+    db_request.db.add(project)
+    db_request.db.commit()
+
+    assert typosnyper.check_typo_after_commit.calls == []
