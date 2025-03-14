@@ -64,6 +64,8 @@ from warehouse.organizations import services as organization_services
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.packaging import services as packaging_services
 from warehouse.packaging.interfaces import IProjectService
+from warehouse.search import services as search_services
+from warehouse.search.interfaces import ISearchService
 from warehouse.subscriptions import services as subscription_services
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 
@@ -166,6 +168,7 @@ def pyramid_services(
     helpdesk_service,
     notification_service,
     query_results_cache_service,
+    search_service,
 ):
     services = _Services()
 
@@ -190,6 +193,7 @@ def pyramid_services(
     services.register_service(helpdesk_service, IHelpDeskService, None)
     services.register_service(notification_service, IAdminNotificationService)
     services.register_service(query_results_cache_service, IQueryResultsCache)
+    services.register_service(search_service, ISearchService)
 
     return services
 
@@ -532,6 +536,11 @@ def notification_service():
 @pytest.fixture
 def query_results_cache_service(mockredis):
     return cache_services.RedisQueryResults(redis_client=mockredis)
+
+  
+@pytest.fixture
+def search_service():
+    return search_services.NullSearchService()
 
 
 class QueryRecorder:
