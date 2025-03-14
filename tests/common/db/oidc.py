@@ -24,7 +24,7 @@ from warehouse.oidc.models import (
 )
 
 from .accounts import UserFactory
-from .base import WarehouseFactory
+from .base import UniqueFaker, WarehouseFactory
 
 
 class GitHubPublisherFactory(WarehouseFactory):
@@ -82,7 +82,7 @@ class GooglePublisherFactory(WarehouseFactory):
         model = GooglePublisher
 
     id = factory.Faker("uuid4", cast_to=None)
-    email = factory.Faker("safe_email")
+    email = UniqueFaker("safe_email")
     sub = factory.Faker("pystr", max_chars=12)
 
 
@@ -92,7 +92,7 @@ class PendingGooglePublisherFactory(WarehouseFactory):
 
     id = factory.Faker("uuid4", cast_to=None)
     project_name = "fake-nonexistent-project"
-    email = factory.Faker("safe_email")
+    email = UniqueFaker("safe_email")
     sub = factory.Faker("pystr", max_chars=12)
     added_by = factory.SubFactory(UserFactory)
 
