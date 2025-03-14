@@ -48,9 +48,7 @@ def test_typo_check_name(name, expected):
     assert typo_check_name(name, corpus=test_names_corpus) == expected
 
 
-def test_check_typo_after_commit(db_request, monkeypatch):
-    # db_request.config.find_service_factory = pretend.raiser(LookupError)
-
+def test_check_typo_after_commit(db_request):
     project = Project(name="foobar")
     db_request.db.add(project)
     db_request.db.commit()
