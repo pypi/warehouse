@@ -360,6 +360,40 @@
           </div>
         </div>
       </div>
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Information Requests</h3>
+        </div>
+        <div class="card-body">
+        {% for information_request in organization_application.information_requests %}
+        <div class="card {% if information_request.additional.response %}card-neutral{% else %}card-warning{% endif %} card-outline direct-chat direct-chat-primary"</div>
+          <div class="card-body">
+            <div class="direct-chat-messages direct-chat-messages-full-height">
+              <div class="direct-chat-msg">
+                <div class="direct-chat-infos clearfix">
+                  <span class="direct-chat-name float-left">{{ information_request.observer.parent.username }} (PyPI)</span>
+                  <span class="direct-chat-timestamp float-right">{{ information_request.created|format_datetime }}</span>
+                </div>
+                <img class="direct-chat-img" src="{{ gravatar(request, information_request.observer.parent.email, size=128) }}" alt="Message User Image">
+                <div class="direct-chat-text preserve-line-breaks">{{ information_request.payload.message }}</div>
+              </div>
+              {% if information_request.additional.response %}
+              <div class="direct-chat-msg right">
+                <div class="direct-chat-infos clearfix">
+                  <span class="direct-chat-name float-right">{{ organization_application.submitted_by.username }}</span>
+                  <span class="direct-chat-timestamp float-left">{{ information_request.additional.response_time|parse_isoformat|format_datetime }}</span>
+                </div>
+                <img class="direct-chat-img" src="{{ gravatar(request, organization_application.submitted_by.email, size=128) }}" alt="Message User Image">
+                <div class="direct-chat-text preserve-line-breaks">{{ information_request.additional.response }}</div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+        </div>
+      </div>
     </div>
+
   </div>
 {% endblock %}

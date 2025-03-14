@@ -26,6 +26,7 @@ from warehouse.email import (
     send_new_organization_moreinformationneeded_email,
 )
 from warehouse.events.tags import EventTag
+from warehouse.observations.models import ObservationKind
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
@@ -273,6 +274,15 @@ class DatabaseOrganizationService:
         )
 
         message = request.params.get("message", "")
+
+        organization_application.record_observation(
+            request=request,
+            actor=request.user,
+            summary="Organization request needs more information",
+            kind=ObservationKind.InformationRequest,
+            payload={"message": message},
+        )
+
         send_admin_new_organization_moreinformationneeded_email(
             request,
             user_service.get_admin_user(),
@@ -284,6 +294,7 @@ class DatabaseOrganizationService:
             request,
             organization_application.submitted_by,
             organization_name=organization_application.name,
+            organization_application_id=organization_application.id,
             message=message,
         )
 

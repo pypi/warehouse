@@ -2149,6 +2149,7 @@ class TestSendNewOrganizationRequestMoreInfoEmail:
             primary_email=pretend.stub(email="email@example.com", verified=True),
         )
         organization_name = "example"
+        organization_application_id = "deadbeef-dead-beef-dead-beefdeadbeef"
         message = "example message"
 
         subject_renderer = pyramid_config.testing_add_renderer(
@@ -2184,11 +2185,13 @@ class TestSendNewOrganizationRequestMoreInfoEmail:
             pyramid_request,
             initiator_user,
             organization_name=organization_name,
+            organization_application_id=organization_application_id,
             message=message,
         )
 
         assert result == {
             "organization_name": organization_name,
+            "organization_application_id": organization_application_id,
             "message": message,
         }
         subject_renderer.assert_(

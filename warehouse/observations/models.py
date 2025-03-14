@@ -123,8 +123,7 @@ class ObservationKind(enum.Enum):
     )
 
     # Organization Applications
-    InformationRequested = ("information_requested", "Information Requested")
-    InformationResponse = ("information_response", "Information Response")
+    InformationRequest = ("information_request", "Information Request")
 
 
 # A reverse-lookup map by the string value stored in the database

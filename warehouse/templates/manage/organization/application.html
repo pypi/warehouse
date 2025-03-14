@@ -51,4 +51,47 @@
     </div>
   </section>
 
+  {% if information_requests %}
+  <section>
+    <h3>Information Requests</h3>
+    {% for information_request in information_requests %}
+    <div class="callout-block callout-block--full-width {% if information_request.additional.response %}callout-block--neutral{% endif %}">
+      <div class="preserve-line-breaks">{{ information_request.payload.message }}</div>
+      <small>From PyPI Staff - {{ humanize(information_request.created) }}</small>
+      <br>
+      <br>
+      {% if information_request.additional.response %}
+      <div class="callout-block callout-block__right callout-block--full-width callout-block--neutral">
+        <div class="preserve-line-breaks">{{ information_request.additional.response }}</div>
+        <small>Your Response {{ humanize(information_request.additional.response_time|parse_isoformat) }}</small>
+      </div>
+      {% elif information_request.id in response_forms %}
+      <form method="POST">
+        <input hidden name="response_form-id" value="{{ information_request.id }}">
+        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+        <div class="form-group">
+          <label class="form-group__label" for="public_email">
+            {% trans %}️Your Response{% endtrans %}
+          </label>
+          <p class="form-group__text">
+            {{ response_forms[information_request.id].response(
+                id="response_form-" + information_request.id.__str__() + "-response",
+                class_="form-group__field",
+                aria_describedby="response_form-" + information_request.id.__str__() + "-errors",
+            ) }}
+          </p>
+          <div id="response_form-{{ information_request.id }}-errors">
+            {{ field_errors(response_forms[information_request.id].response) }}
+          </div>
+        </div>
+        <button type="submit" class="button" title="{% trans %}Submit{% endtrans %}">
+          {% trans %}Submit{% endtrans %}
+        </button>
+      </form>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </section>
+  {% endif %}
+
 {% endblock %}

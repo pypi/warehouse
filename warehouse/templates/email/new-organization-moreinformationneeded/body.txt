@@ -17,4 +17,7 @@
 {% trans organization_name=organization_name %}We need more information to process your request to create a new organization named '{{ organization_name }}'.{% endtrans %}
 
 {{ message|default('') }}
+
+{% trans %}Submit your response on pypi.org{% endtrans %}: {{ request.route_url('manage.organizations.application', organization_application_id=organization_application_id) }}
+
 {% endblock %}

@@ -9,6 +9,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import datetime
+
 from urllib.parse import urljoin
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
@@ -49,6 +51,7 @@ from warehouse.manage.forms import (
     CreateOrganizationApplicationForm,
     CreateOrganizationRoleForm,
     CreateTeamForm,
+    InformationRequestResponseForm,
     OrganizationActivateBillingForm,
     SaveOrganizationForm,
     SaveOrganizationNameForm,
@@ -59,6 +62,7 @@ from warehouse.manage.views.view_helpers import (
     user_organizations,
     user_projects,
 )
+from warehouse.observations.models import Observation
 from warehouse.organizations import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
@@ -252,25 +256,75 @@ class ManageOrganizationsViews:
     require_methods=False,
     permission=Permissions.OrganizationApplicationsManage,
     has_translations=True,
-    require_reauth=True,
 )
 class ManageOrganizationApplicationViews:
     def __init__(self, organization_application, request):
         self.organization_application = organization_application
         self.request = request
-        self.user_service = request.find_service(IUserService, context=None)
-
-    @property
-    def default_response(self):
-        return {
-            "organization_application": self.organization_application,
-        }
 
     @view_config(
         request_method="GET", permission=Permissions.OrganizationApplicationsManage
     )
     def manage_organization_application(self):
-        return self.default_response
+        information_requests = self.organization_application.information_requests
+        return {
+            "organization_application": self.organization_application,
+            "information_requests": information_requests,
+            "response_forms": {
+                information_request.id: InformationRequestResponseForm()
+                for information_request in information_requests
+                if information_request.additional.get("response") is None
+            },
+        }
+
+    @view_config(
+        request_method="POST", permission=Permissions.OrganizationApplicationsManage
+    )
+    def manage_organization_application_submit(self):
+        form = InformationRequestResponseForm(self.request.POST)
+        information_requests = self.organization_application.information_requests
+        if form.validate():
+            data = form.data
+
+            observation = (
+                self.request.db.query(Observation)
+                .filter(Observation.id == self.request.POST.get("response_form-id"))
+                .one()
+            )
+            observation.additional["response"] = data["response"]
+            observation.additional["response_time"] = datetime.datetime.now(
+                datetime.UTC
+            ).isoformat()
+            self.request.db.add(observation)
+
+            # Move status back to Submitted if all information requests have responses
+            if all(
+                [
+                    "response" in information_request.additional
+                    for information_request in information_requests
+                ]
+            ):
+                self.organization_application.status = (
+                    OrganizationApplicationStatus.Submitted
+                )
+
+            self.request.session.flash("Response submitted", queue="success")
+        else:
+            return {
+                "organization_application": self.organization_application,
+                "information_requests": information_requests,
+                "response_forms": {
+                    information_request.id: (
+                        form
+                        if information_request.id.__str__()
+                        == self.request.POST.get("response_form-id")
+                        else InformationRequestResponseForm()
+                    )
+                    for information_request in information_requests
+                    if information_request.additional.get("response") is None
+                },
+            }
+        return HTTPSeeOther(self.request.path)
 
 
 @view_defaults(

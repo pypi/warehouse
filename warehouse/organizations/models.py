@@ -42,7 +42,7 @@ from warehouse import db
 from warehouse.accounts.models import TermsOfServiceEngagement, User
 from warehouse.authnz import Permissions
 from warehouse.events.models import HasEvents
-from warehouse.observations.models import HasObservations
+from warehouse.observations.models import HasObservations, ObservationKind
 from warehouse.utils.attrs import make_repr
 from warehouse.utils.db import orm_session_from_obj
 from warehouse.utils.db.types import TZDateTime, bool_false, datetime_now
@@ -249,7 +249,6 @@ class OrganizationApplicationFactory:
         self.request = request
 
     def __getitem__(self, organization_application_id):
-        print(organization_application_id)
         # Try returning organization application with matching id.
         try:
             return (
@@ -575,6 +574,18 @@ class OrganizationApplication(OrganizationMixin, HasObservations, db.Model):
     organization: Mapped[Organization] = relationship(
         back_populates="application", viewonly=True
     )
+
+    @property
+    def information_requests(self):
+        return sorted(
+            [
+                observation
+                for observation in self.observations
+                if observation.kind == ObservationKind.InformationRequest.value[0]
+            ],
+            key=lambda x: x.created,
+            reverse=True,
+        )
 
     def __lt__(self, other: OrganizationApplication) -> bool:
         return self.name < other.name

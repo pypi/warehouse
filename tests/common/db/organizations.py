@@ -15,6 +15,7 @@ import datetime
 import factory
 import faker
 
+from warehouse.observations.models import ObservationKind
 from warehouse.organizations.models import (
     Organization,
     OrganizationApplication,
@@ -35,6 +36,7 @@ from warehouse.organizations.models import (
 
 from .accounts import UserFactory
 from .base import WarehouseFactory
+from .observations import ObserverFactory
 from .packaging import ProjectFactory
 from .subscriptions import StripeCustomerFactory, StripeSubscriptionFactory
 
@@ -58,6 +60,25 @@ class OrganizationApplicationFactory(WarehouseFactory):
         datetime_start=datetime.datetime(2020, 1, 1),
         datetime_end=datetime.datetime(2022, 1, 1),
     )
+
+
+class OrganizationApplicationObservationFactory(WarehouseFactory):
+    class Meta:
+        model = OrganizationApplication.Observation
+
+    related = factory.SubFactory(OrganizationApplicationFactory)
+    related_name = factory.LazyAttribute(lambda o: repr(o.related))
+    observer = factory.SubFactory(ObserverFactory)
+
+    created = factory.Faker(
+        "date_time_between_dates",
+        datetime_start=datetime.datetime(2020, 1, 1),
+        datetime_end=datetime.datetime(2022, 1, 1),
+    )
+    kind = ObservationKind.InformationRequest.value[0]
+    payload = factory.Faker("json")
+    # TODO: add `observer` field
+    summary = factory.Faker("paragraph")
 
 
 class OrganizationFactory(WarehouseFactory):

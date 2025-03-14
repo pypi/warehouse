@@ -311,6 +311,7 @@ class TestDatabaseOrganizationService:
             organization_application.id, db_request
         )
 
+        assert len(organization_application.observations) == 1
         assert (
             organization_application.status
             == OrganizationApplicationStatus.MoreInformationNeeded.value
@@ -327,6 +328,7 @@ class TestDatabaseOrganizationService:
                 db_request,
                 organization_application.submitted_by,
                 organization_name=organization_application.name,
+                organization_application_id=organization_application.id,
                 message="",
             ),
         ]

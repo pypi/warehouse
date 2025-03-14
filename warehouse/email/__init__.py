@@ -420,11 +420,12 @@ def send_new_organization_declined_email(
 
 @_email("new-organization-moreinformationneeded")
 def send_new_organization_moreinformationneeded_email(
-    request, user, *, organization_name, message=""
+    request, user, *, organization_name, organization_application_id, message=""
 ):
     return {
         "message": message,
         "organization_name": organization_name,
+        "organization_application_id": organization_application_id,
     }
 
 
