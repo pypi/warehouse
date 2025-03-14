@@ -10,18 +10,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import annotations
+import pretend
 
-import typing
-
-from .interfaces import IQueryResultsCache
-from .services import RedisQueryResults
-
-if typing.TYPE_CHECKING:
-    from pyramid.config import Configurator
+from warehouse.cache import includeme
+from warehouse.cache.interfaces import IQueryResultsCache
+from warehouse.cache.services import RedisQueryResults
 
 
-def includeme(config: Configurator) -> None:
-    config.register_service_factory(
-        RedisQueryResults.create_service, IQueryResultsCache
+def test_includeme():
+    config = pretend.stub(
+        register_service_factory=pretend.call_recorder(lambda *a, **k: None)
     )
+
+    includeme(config)
+
+    assert config.register_service_factory.calls == [
+        pretend.call(RedisQueryResults.create_service, IQueryResultsCache)
+    ]

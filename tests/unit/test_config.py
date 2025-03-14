@@ -426,6 +426,7 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".sessions"),
             pretend.call(".cache.http"),
             pretend.call(".cache.origin"),
+            pretend.call(".cache"),
             pretend.call(".email"),
             pretend.call(".accounts"),
             pretend.call(".macaroons"),
