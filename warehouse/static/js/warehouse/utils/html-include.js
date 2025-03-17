@@ -20,7 +20,6 @@ const fetchOptions = {
 
 export default () => {
   // Check if we have an authenticated session
-  console.log(document.cookie);
   let authed = document.cookie.split(";").some(
     v => v.trim().startsWith("user_id__insecure="),
   );
