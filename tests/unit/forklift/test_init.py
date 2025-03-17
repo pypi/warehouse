@@ -73,6 +73,13 @@ def test_includeme(forklift_domain, monkeypatch):
                 view_kw={"has_translations": True},
             ),
             pretend.call(
+                "forklift.robots.txt",
+                "/robots.txt",
+                "forklift.robots.txt",
+                route_kw={"domain": forklift_domain},
+                view_kw={"has_translations": False},
+            ),
+            pretend.call(
                 "forklift.legacy.invalid_request",
                 "/legacy/",
                 "upload.html",
