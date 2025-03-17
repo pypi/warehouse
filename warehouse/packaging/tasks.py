@@ -30,6 +30,7 @@ from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import (
     Dependency,
+    DependencyKind,
     Description,
     File,
     Project,
@@ -407,7 +408,7 @@ def compute_top_dependents_corpus(request: Request) -> dict[str, int]:
         .join(Dependency, Dependency.release_id == recent_releases_cte.c.release_id)
         .where(
             recent_releases_cte.c.rn == 1,  # "latest" release per-project
-            Dependency.kind != 8,  # Exclude legacy project_url dependencies
+            Dependency.kind.in_([DependencyKind.requires_dist, DependencyKind.requires]),
         )
         .cte("parsed_dependencies")
     )
