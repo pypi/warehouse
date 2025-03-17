@@ -71,6 +71,14 @@ def includeme(config):
             view_kw={"has_translations": True},
         )
 
+        config.add_template_view(
+            "forklift.robots.txt",
+            "/robots.txt",
+            "forklift.robots.txt",
+            route_kw={"domain": forklift},
+            view_kw={"has_translations": False},
+        )
+
         # Any call to /legacy/ not handled by another route (e.g. no :action
         # URL parameter, or an invalid :action URL parameter) falls through to
         # this catch-all route.
