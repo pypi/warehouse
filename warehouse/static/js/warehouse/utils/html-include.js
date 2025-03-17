@@ -37,7 +37,6 @@ export default () => {
   // the new fetch() API which returns a Promise.
   elements.forEach((element) => {
     let url = element.getAttribute("data-html-include");
-    console.log(authed, url);
     if (!authed && url.startsWith("/_includes/authed/")) {
       // Don't fetch authed URLs if we aren't authenticated
       return;
