@@ -6,7 +6,7 @@ Disallow: /
 {% else %}
 Disallow: /simple/
 Disallow: /packages/
-Disallow: /_includes/
+Disallow: /_includes/authed/
 Disallow: /pypi/*/json
 Disallow: /pypi/*/*/json
 Disallow: /pypi*?
