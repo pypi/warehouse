@@ -11,4 +11,7 @@ Disallow: /pypi/*/json
 Disallow: /pypi/*/*/json
 Disallow: /pypi*?
 Disallow: /search*
+Disallow: /_/
+Disallow: /integrity/
+Disallow: /admin/
 {% endif %}
