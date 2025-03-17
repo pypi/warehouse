@@ -37,9 +37,20 @@ export default () => {
   // the new fetch() API which returns a Promise.
   elements.forEach((element) => {
     let url = element.getAttribute("data-html-include");
-    if (!authed && url.startsWith("/_includes/authed/")) {
+    if (!authed) {
       // Don't fetch authed URLs if we aren't authenticated
-      return;
+      try {
+        // Attempt to parse as full URL
+        const pathname = new URL(url, "http://example.com").pathname;
+        if (pathname.startsWith("/_includes/authed/")) {
+          return;
+        }
+      } catch (e) {
+        // If parsing fails, assume it's just a path
+        if (url.startsWith("/_includes/authed/")) {
+          return;
+        }
+      }
     }
 
     let p = fetch(url, fetchOptions)
