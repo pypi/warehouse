@@ -106,15 +106,11 @@
     <link rel="alternate" type="application/rss+xml" title="{% trans %}RSS: 40 latest updates{% endtrans %}" href="{{ request.route_path('rss.updates') }}">
     <link rel="alternate" type="application/rss+xml" title="{% trans %}RSS: 40 newest packages{% endtrans %}" href="{{ request.route_path('rss.packages') }}">
     {% block additional_rss %}{% endblock %}
-    {% if self.canonical_url() %}
-    {# Override the canonical URL if we have explicitly set it. #}
-    <link rel="canonical" href="{% block canonical_url %}{% endblock %}">
-    {% else %}
-    {# Otherwise, use the URL to the current matched route as the canonical URL,
+    {# Allow overriding the canonical URL if we have explicitly set it.
+     # Otherwise, use the URL to the current matched route as the canonical URL,
      # which strips anchor tags and query parameters.
      #}
-    <link rel="canonical" href="{{ request.route_url(request.matched_route.name) }}">
-    {% endif %}
+    <link rel="canonical" href="{% block canonical_url %}{{ request.route_url(request.matched_route.name) }}{% endblock %}">
 
     <meta property="og:url" content="{% if request.matched_route %}{{ request.current_route_url() }}{% else %}{{ request.url }}{% endif %}">
     <meta property="og:site_name" content="PyPI">
