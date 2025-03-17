@@ -711,9 +711,20 @@ def test_compute_2fa_metrics(db_request, monkeypatch):
     ]
 
 
-def test_compute_top_dependents_corpus(db_request):
+@pytest.mark.parametrize(
+    ("project_name", "specifier_string"),
+    [
+        (
+            "requests",
+            'requests [security,tests] >= 2.8.1, == 2.8.* ; python_version < "2.7"',
+        ),
+        ("xml.parsers.expat", "xml.parsers.expat (>1.0)"),
+        ("zope.event", "zope.event (==4.5.0)"),
+    ],
+)
+def test_compute_top_dependents_corpus(db_request, project_name, specifier_string):
     # A base project, others depend on it
-    base_proj = ProjectFactory.create()
+    base_proj = ProjectFactory.create(name=project_name)
     # A project with no recent dependents
     leaf_proj = ProjectFactory.create()
 

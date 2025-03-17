@@ -396,11 +396,11 @@ def compute_top_dependents_corpus(request: Request) -> dict[str, int]:
     # 3. Converting to lowercase for normalization
     parsed_dependencies_cte = (
         select(
-            func.lower(
+            func.normalize_pep426_name(
                 # TODO: this isn't perfect, but it's a start.
                 #  A better solution would be to use a proper parser, but we'd need
                 #  to teach Postgres how to parse it.
-                func.regexp_replace(Dependency.specifier, "^([A-Za-z0-9_-]+).*", "\\1")
+                func.regexp_replace(Dependency.specifier, "^([A-Za-z0-9_.-]+).*", "\\1")
             ).label("dependent_name")
         )
         .select_from(recent_releases_cte)
