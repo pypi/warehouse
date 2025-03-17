@@ -1732,18 +1732,18 @@ msgid "Avatar for {user} from gravatar.com"
 msgstr ""
 
 #: warehouse/templates/accounts/profile.html:52
-#: warehouse/templates/organizations/profile.html:37
+#: warehouse/templates/organizations/profile.html:39
 msgid "Date joined"
 msgstr ""
 
 #: warehouse/templates/accounts/profile.html:53
-#: warehouse/templates/organizations/profile.html:38
+#: warehouse/templates/organizations/profile.html:40
 #, python-format
 msgid "Joined %(start_date)s"
 msgstr ""
 
 #: warehouse/templates/accounts/profile.html:71
-#: warehouse/templates/organizations/profile.html:51
+#: warehouse/templates/organizations/profile.html:53
 #, python-format
 msgid "%(count)s project"
 msgid_plural "%(count)s projects"
@@ -1751,7 +1751,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: warehouse/templates/accounts/profile.html:77
-#: warehouse/templates/organizations/profile.html:57
+#: warehouse/templates/organizations/profile.html:59
 msgid "No projects"
 msgstr ""
 
@@ -1761,7 +1761,7 @@ msgstr ""
 #: warehouse/templates/manage/projects.html:37
 #: warehouse/templates/manage/projects.html:87
 #: warehouse/templates/manage/team/projects.html:48
-#: warehouse/templates/organizations/profile.html:66
+#: warehouse/templates/organizations/profile.html:68
 #, python-format
 msgid "Last released %(release_date)s"
 msgstr ""
@@ -4814,7 +4814,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:352
 #: warehouse/templates/manage/project/publishing.html:294
-#: warehouse/templates/organizations/profile.html:30
+#: warehouse/templates/organizations/profile.html:32
 msgid "Organization"
 msgstr ""
 
@@ -7123,7 +7123,7 @@ msgstr ""
 msgid "Profile of %(orgname)s"
 msgstr ""
 
-#: warehouse/templates/organizations/profile.html:73
+#: warehouse/templates/organizations/profile.html:75
 #, python-format
 msgid "%(org)s has not uploaded any projects to PyPI, yet"
 msgstr ""
