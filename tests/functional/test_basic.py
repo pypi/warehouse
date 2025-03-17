@@ -37,6 +37,9 @@ def test_robots_txt(app_config, domain, indexable):
             "Disallow: /pypi/*/*/json\n"
             "Disallow: /pypi*?\n"
             "Disallow: /search*\n"
+            "Disallow: /_/\n"
+            "Disallow: /integrity/\n"
+            "Disallow: /admin/\n"
         )
     else:
         assert body == (
