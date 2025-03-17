@@ -107,7 +107,7 @@ class TestManageAccount:
         change_password_form.submit().follow(status=HTTPStatus.OK)
 
         # Request the JavaScript-enabled flash messages directly to get the message
-        resp = webtest.get("/_includes/flash-messages/", status=HTTPStatus.OK)
+        resp = webtest.get("/_includes/authed/flash-messages/", status=HTTPStatus.OK)
         success_message = resp.html.find("span", {"class": "notification-bar__message"})
         assert success_message.text == "Password updated"
 
