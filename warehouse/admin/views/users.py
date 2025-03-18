@@ -195,7 +195,7 @@ def user_detail(user, request):
             func.count(Release.id),
         )
         .join(Role, Project.id == Role.project_id)
-        .join(Release, Project.id == Release.project_id)
+        .outerjoin(Release, Project.id == Release.project_id)
         .where(Role.user_id == user.id)
         .group_by(
             Project.name,
