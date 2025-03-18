@@ -49,7 +49,7 @@ class RedisQueryResults:
         """Get a cached result by key."""
         result = self.redis_client.get(key)
         # deserialize the value as a JSON object
-        return orjson.loads(result)
+        return orjson.loads(result) if result else None
 
     def set(self, key: str, value) -> None:
         """Set a cached result by key."""
