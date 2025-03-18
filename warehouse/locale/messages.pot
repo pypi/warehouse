@@ -361,6 +361,10 @@ msgstr ""
 msgid "Banner Preview"
 msgstr ""
 
+#: warehouse/manage/forms.py:389
+msgid "Provide your response to the request."
+msgstr ""
+
 #: warehouse/manage/forms.py:430
 msgid "Choose an organization account name with 50 characters or less."
 msgstr ""
@@ -607,13 +611,13 @@ msgid ""
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2961
-#: warehouse/manage/views/organizations.py:983
+#: warehouse/manage/views/organizations.py:979
 #, python-brace-format
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:3026
-#: warehouse/manage/views/organizations.py:1048
+#: warehouse/manage/views/organizations.py:1044
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr ""
@@ -627,33 +631,33 @@ msgid "Invitation already expired."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:3102
-#: warehouse/manage/views/organizations.py:1235
+#: warehouse/manage/views/organizations.py:1231
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:959
+#: warehouse/manage/views/organizations.py:955
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:970
+#: warehouse/manage/views/organizations.py:966
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1130
-#: warehouse/manage/views/organizations.py:1172
+#: warehouse/manage/views/organizations.py:1126
+#: warehouse/manage/views/organizations.py:1168
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1140
+#: warehouse/manage/views/organizations.py:1136
 msgid "Organization invitation could not be re-sent."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1188
+#: warehouse/manage/views/organizations.py:1184
 #, python-brace-format
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
