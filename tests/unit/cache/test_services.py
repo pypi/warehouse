@@ -34,6 +34,12 @@ class TestRedisQueryResults:
 
         assert isinstance(service, RedisQueryResults)
 
+    def test_get_missing(self, query_results_cache_service):
+        # Attempt to get a value that doesn't exist in the cache
+        result = query_results_cache_service.get("missing_key")
+
+        assert result is None
+
     def test_set_get_simple(self, query_results_cache_service):
         # Set a value in the cache
         query_results_cache_service.set("test_key", {"foo": "bar"})
