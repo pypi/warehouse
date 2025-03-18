@@ -386,7 +386,7 @@ class InformationRequestResponseForm(wtforms.Form):
     response = wtforms.TextAreaField(
         validators=[
             wtforms.validators.InputRequired(
-                message="Provide your response to the request."
+                message=_("Provide your response to the request.")
             )
         ]
     )

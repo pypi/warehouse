@@ -80,7 +80,7 @@ def upgrade():
             "updated",
             sa.DateTime(),
             nullable=True,
-            comment="Datetime the requests was last_updated",
+            comment="Datetime the request was last updated",
         ),
     )
     op.drop_column("organization_applications", "is_approved")

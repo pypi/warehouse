@@ -542,7 +542,7 @@ class OrganizationApplication(OrganizationMixin, HasObservations, db.Model):
     )
     updated: Mapped[datetime.datetime | None] = mapped_column(
         onupdate=func.now(),
-        comment="Datetime the requests was last_updated",
+        comment="Datetime the request was last updated",
     )
     status: Mapped[enum.Enum] = mapped_column(
         Enum(

@@ -262,9 +262,7 @@ class ManageOrganizationApplicationViews:
         self.organization_application = organization_application
         self.request = request
 
-    @view_config(
-        request_method="GET", permission=Permissions.OrganizationApplicationsManage
-    )
+    @view_config(request_method="GET")
     def manage_organization_application(self):
         information_requests = self.organization_application.information_requests
         return {
@@ -277,9 +275,7 @@ class ManageOrganizationApplicationViews:
             },
         }
 
-    @view_config(
-        request_method="POST", permission=Permissions.OrganizationApplicationsManage
-    )
+    @view_config(request_method="POST")
     def manage_organization_application_submit(self):
         form = InformationRequestResponseForm(self.request.POST)
         information_requests = self.organization_application.information_requests
