@@ -149,6 +149,16 @@ class TestUserDetail:
         assert result["roles"] == roles
         assert result["emails_form"].emails[0].primary.data
         assert result["submitted_by_journals"] == journal_entries[:5]
+        assert result["user_projects"] == [
+            {
+                "name": project.name,
+                "normalized_name": project.normalized_name,
+                "releases_count": 0,
+                "total_size": 0,
+                "lifecycle_status": None,
+                "role_name": "Owner",
+            }
+        ]
 
     def test_updates_user(self, db_request):
         user = UserFactory.create()

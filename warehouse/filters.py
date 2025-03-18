@@ -203,5 +203,14 @@ def remove_invalid_xml_unicode(value: str | None) -> str | None:
     return "".join(c for c in value if ord(c) >= 32) if value else value
 
 
+def _canonical_url(request, **kwargs):
+    if request.matched_route:
+        try:
+            return request.route_url(request.matched_route.name, **kwargs)
+        except KeyError:
+            pass
+
+
 def includeme(config):
     config.add_request_method(_camo_url, name="camo_url")
+    config.add_request_method(_canonical_url, name="canonical_url")
