@@ -20,14 +20,18 @@ from warehouse.accounts.models import TermsOfServiceEngagement, User
 from warehouse.email import (
     send_admin_new_organization_approved_email,
     send_admin_new_organization_declined_email,
+    send_admin_new_organization_moreinformationneeded_email,
     send_new_organization_approved_email,
     send_new_organization_declined_email,
+    send_new_organization_moreinformationneeded_email,
 )
 from warehouse.events.tags import EventTag
+from warehouse.observations.models import ObservationKind
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
     OrganizationApplication,
+    OrganizationApplicationStatus,
     OrganizationInvitation,
     OrganizationInvitationStatus,
     OrganizationNameCatalog,
@@ -89,7 +93,10 @@ class DatabaseOrganizationService:
         if submitted_by is not None:
             query = query.filter(OrganizationApplication.submitted_by == submitted_by)
         if undecided is True:
-            query = query.filter(OrganizationApplication.is_approved.is_(None))
+            query = query.filter(
+                OrganizationApplication.status
+                == (OrganizationApplicationStatus.Submitted)
+            )
         return query.order_by(OrganizationApplication.normalized_name).all()
 
     def find_organizationid(self, name):
@@ -163,7 +170,6 @@ class DatabaseOrganizationService:
             link_url=organization_application.link_url,
             description=organization_application.description,
             is_active=True,
-            is_approved=True,
         )
         self.db.add(organization)
         organization.record_event(
@@ -176,7 +182,7 @@ class DatabaseOrganizationService:
         )
         self.db.flush()  # flush the db now so organization.id is available
 
-        organization_application.is_approved = True
+        organization_application.status = OrganizationApplicationStatus.Approved
         organization_application.organization = organization
 
         self.add_catalog_entry(organization.id)
@@ -242,6 +248,58 @@ class DatabaseOrganizationService:
 
         return organization
 
+    def defer_organization_application(self, organization_application_id, request):
+        """
+        Performs operations necessary to defer an OrganizationApplication
+        """
+        organization_application = self.get_organization_application(
+            organization_application_id
+        )
+        organization_application.status = OrganizationApplicationStatus.Deferred
+
+        return organization_application
+
+    def request_more_information(self, organization_application_id, request):
+        """
+        Performs operations necessary to request more information of an
+        OrganizationApplication
+        """
+        user_service = request.find_service(IUserService, context=None)
+
+        organization_application = self.get_organization_application(
+            organization_application_id
+        )
+        organization_application.status = (
+            OrganizationApplicationStatus.MoreInformationNeeded
+        )
+
+        message = request.params.get("message", "")
+
+        organization_application.record_observation(
+            request=request,
+            actor=request.user,
+            summary="Organization request needs more information",
+            kind=ObservationKind.InformationRequest,
+            payload={"message": message},
+        )
+
+        send_admin_new_organization_moreinformationneeded_email(
+            request,
+            user_service.get_admin_user(),
+            organization_name=organization_application.name,
+            initiator_username=organization_application.submitted_by.username,
+            message=message,
+        )
+        send_new_organization_moreinformationneeded_email(
+            request,
+            organization_application.submitted_by,
+            organization_name=organization_application.name,
+            organization_application_id=organization_application.id,
+            message=message,
+        )
+
+        return organization_application
+
     def decline_organization_application(self, organization_application_id, request):
         """
         Performs operations necessary to decline an OrganizationApplication
@@ -251,7 +309,7 @@ class DatabaseOrganizationService:
         organization_application = self.get_organization_application(
             organization_application_id
         )
-        organization_application.is_approved = False
+        organization_application.status = OrganizationApplicationStatus.Declined
 
         message = request.params.get("message", "")
         send_admin_new_organization_declined_email(

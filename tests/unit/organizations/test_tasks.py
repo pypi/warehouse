@@ -17,18 +17,20 @@ import pretend
 from warehouse.accounts.interfaces import ITokenService, TokenExpired
 from warehouse.events.tags import EventTag
 from warehouse.organizations.models import (
-    Organization,
+    OrganizationApplication,
+    OrganizationApplicationStatus,
     OrganizationInvitationStatus,
     OrganizationRoleType,
 )
 from warehouse.organizations.tasks import (
-    delete_declined_organizations,
+    delete_declined_organization_applications,
     update_organization_invitation_status,
     update_organziation_subscription_usage_record,
 )
 from warehouse.subscriptions.interfaces import IBillingService
 
 from ...common.db.organizations import (
+    OrganizationApplicationFactory,
     OrganizationFactory,
     OrganizationInvitationFactory,
     OrganizationRoleFactory,
@@ -103,53 +105,53 @@ class TestUpdateInvitationStatus:
         assert organization.record_event.calls == []
 
 
-class TestDeleteOrganizations:
-    def test_delete_declined_organizations(self, db_request):
-        # Create an organization that's ready for cleanup
-        organization = OrganizationFactory.create()
-        organization.is_active = False
-        organization.is_approved = False
-        organization.date_approved = datetime.datetime.now() - datetime.timedelta(
+class TestDeleteOrganizationApplications:
+    def test_delete_declined_organization_applications(self, db_request):
+        # Create an organization_application that's ready for cleanup
+        organization_application = OrganizationApplicationFactory.create()
+        organization_application.is_active = False
+        organization_application.status = OrganizationApplicationStatus.Declined
+        organization_application.updated = datetime.datetime.now() - datetime.timedelta(
             days=31
         )
 
-        # Create an organization that's not ready to be cleaned up yet
-        organization2 = OrganizationFactory.create()
-        organization2.is_active = False
-        organization2.is_approved = False
-        organization2.date_approved = datetime.datetime.now()
+        # Create an organization_application that's not ready to be cleaned up yet
+        organization_application2 = OrganizationApplicationFactory.create()
+        organization_application2.is_active = False
+        organization_application2.status = OrganizationApplicationStatus.Declined
+        organization_application2.updated = datetime.datetime.now()
 
         assert (
-            db_request.db.query(Organization.id)
-            .filter(Organization.id == organization.id)
+            db_request.db.query(OrganizationApplication.id)
+            .filter(OrganizationApplication.id == organization_application.id)
             .count()
             == 1
         )
 
         assert (
-            db_request.db.query(Organization.id)
-            .filter(Organization.id == organization2.id)
+            db_request.db.query(OrganizationApplication.id)
+            .filter(OrganizationApplication.id == organization_application2.id)
             .count()
             == 1
         )
 
-        assert db_request.db.query(Organization).count() == 2
+        assert db_request.db.query(OrganizationApplication).count() == 2
 
-        delete_declined_organizations(db_request)
+        delete_declined_organization_applications(db_request)
 
         assert not (
-            db_request.db.query(Organization.id)
-            .filter(Organization.id == organization.id)
+            db_request.db.query(OrganizationApplication.id)
+            .filter(OrganizationApplication.id == organization_application.id)
             .count()
         )
 
         assert (
-            db_request.db.query(Organization.id)
-            .filter(Organization.id == organization2.id)
+            db_request.db.query(OrganizationApplication.id)
+            .filter(OrganizationApplication.id == organization_application2.id)
             .count()
         )
 
-        assert db_request.db.query(Organization).count() == 1
+        assert db_request.db.query(OrganizationApplication).count() == 1
 
 
 class TestUpdateOrganizationSubscriptionUsage:

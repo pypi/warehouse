@@ -258,6 +258,17 @@ def send_admin_new_organization_declined_email(
     }
 
 
+@_email("admin-new-organization-moreinformationneeded")
+def send_admin_new_organization_moreinformationneeded_email(
+    request, user, *, organization_name, initiator_username, message=""
+):
+    return {
+        "initiator_username": initiator_username,
+        "message": message,
+        "organization_name": organization_name,
+    }
+
+
 @_email("admin-organization-renamed")
 def send_admin_organization_renamed_email(
     request, user, *, organization_name, previous_organization_name
@@ -404,6 +415,17 @@ def send_new_organization_declined_email(
     return {
         "message": message,
         "organization_name": organization_name,
+    }
+
+
+@_email("new-organization-moreinformationneeded")
+def send_new_organization_moreinformationneeded_email(
+    request, user, *, organization_name, organization_application_id, message=""
+):
+    return {
+        "message": message,
+        "organization_name": organization_name,
+        "organization_application_id": organization_application_id,
     }
 
 

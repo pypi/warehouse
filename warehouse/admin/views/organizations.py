@@ -19,11 +19,11 @@ from sqlalchemy import or_
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.authnz import Permissions
-from warehouse.events.tags import EventTag
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
     OrganizationApplication,
+    OrganizationApplicationStatus,
     OrganizationType,
 )
 from warehouse.utils.paginate import paginate_url_factory
@@ -137,69 +137,17 @@ def organization_list(request):
     has_translations=True,
     uses_session=True,
     require_csrf=True,
-    require_reauth=True,
 )
 def organization_detail(request):
     organization_service = request.find_service(IOrganizationService, context=None)
-    user_service = request.find_service(IUserService, context=None)
 
     organization_id = request.matchdict["organization_id"]
     organization = organization_service.get_organization(organization_id)
     if organization is None:
         raise HTTPNotFound
 
-    create_event = (
-        organization.events.filter(
-            Organization.Event.tag == EventTag.Organization.OrganizationCreate
-        )
-        .order_by(Organization.Event.time.desc())
-        .first()
-    )
-    user = (
-        user_service.get_user(create_event.additional["created_by_user_id"])
-        if create_event
-        else None
-    )
-
-    if organization.is_approved is True:
-        approve_event = (
-            organization.events.filter(
-                Organization.Event.tag == EventTag.Organization.OrganizationApprove
-            )
-            .order_by(Organization.Event.time.desc())
-            .first()
-        )
-        approved_by_user_id = (
-            approve_event.additional.get("approved_by_user_id")
-            if approve_event
-            else None
-        )
-        admin = (
-            user_service.get_user(approved_by_user_id) if approved_by_user_id else None
-        )
-    elif organization.is_approved is False:
-        decline_event = (
-            organization.events.filter(
-                Organization.Event.tag == EventTag.Organization.OrganizationDecline
-            )
-            .order_by(Organization.Event.time.desc())
-            .first()
-        )
-        declined_by_user_id = (
-            decline_event.additional.get("declined_by_user_id")
-            if decline_event
-            else None
-        )
-        admin = (
-            user_service.get_user(declined_by_user_id) if declined_by_user_id else None
-        )
-    else:
-        admin = None
-
     return {
-        "admin": admin,
         "organization": organization,
-        "user": user,
     }
 
 
@@ -229,9 +177,11 @@ def organization_applications_list(request):
             # - desc:word
             # - description:word
             # - description:"whole phrase"
-            # - is:approved
-            # - is:declined
             # - is:submitted
+            # - is:declined
+            # - is:deferred
+            # - is:moreinformationneeded
+            # - is:approved
             # - type:company
             # - type:community
             try:
@@ -265,13 +215,8 @@ def organization_applications_list(request):
                         OrganizationApplication.orgtype == OrganizationType.Community
                     )
             elif field == "is":
-                # Add filter for `is_approved` field.
-                if "approved".startswith(value):
-                    filters.append(OrganizationApplication.is_approved.is_(True))
-                elif "declined".startswith(value):
-                    filters.append(OrganizationApplication.is_approved.is_(False))
-                elif "submitted".startswith(value):
-                    filters.append(OrganizationApplication.is_approved.is_(None))
+                if value in OrganizationApplicationStatus:
+                    filters.append(OrganizationApplication.status == value)
             else:
                 # Add filter for any field.
                 filters.append(
@@ -314,7 +259,6 @@ def organization_applications_list(request):
     has_translations=True,
     uses_session=True,
     require_csrf=True,
-    require_reauth=True,
 )
 def organization_application_detail(request):
     organization_service = request.find_service(IOrganizationService, context=None)
@@ -350,12 +294,10 @@ def organization_application_detail(request):
 @view_config(
     route_name="admin.organization_application.approve",
     require_methods=["POST"],
-    renderer="admin/organization_applicationss/approve.html",
     permission=Permissions.AdminOrganizationsWrite,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
-    require_reauth=True,
 )
 def organization_application_approve(request):
     organization_service = request.find_service(IOrganizationService, context=None)
@@ -389,14 +331,99 @@ def organization_application_approve(request):
 
 
 @view_config(
-    route_name="admin.organization_application.decline",
+    route_name="admin.organization_application.defer",
     require_methods=["POST"],
-    renderer="admin/organization_applications/decline.html",
     permission=Permissions.AdminOrganizationsWrite,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
-    require_reauth=True,
+)
+def organization_application_defer(request):
+    organization_service = request.find_service(IOrganizationService, context=None)
+
+    organization_application_id = request.matchdict["organization_application_id"]
+    organization_application = organization_service.get_organization_application(
+        organization_application_id
+    )
+    if organization_application is None:
+        raise HTTPNotFound
+    elif organization_application.name != request.params.get("organization_name"):
+        request.session.flash("Wrong confirmation input", queue="error")
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization_application.detail",
+                organization_application_id=organization_application.id,
+            )
+        )
+
+    organization_service.defer_organization_application(
+        organization_application.id, request
+    )
+
+    request.session.flash(
+        f'Request for "{organization_application.name}" organization deferred',
+        queue="success",
+    )
+
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.organization_application.detail",
+            organization_application_id=organization_application.id,
+        )
+    )
+
+
+@view_config(
+    route_name="admin.organization_application.requestmoreinfo",
+    require_methods=["POST"],
+    permission=Permissions.AdminOrganizationsWrite,
+    has_translations=True,
+    uses_session=True,
+    require_csrf=True,
+)
+def organization_application_request_more_information(request):
+    organization_service = request.find_service(IOrganizationService, context=None)
+
+    organization_application_id = request.matchdict["organization_application_id"]
+    organization_application = organization_service.get_organization_application(
+        organization_application_id
+    )
+    if organization_application is None:
+        raise HTTPNotFound
+    elif organization_application.name != request.params.get("organization_name"):
+        request.session.flash("Wrong confirmation input", queue="error")
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization_application.detail",
+                organization_application_id=organization_application.id,
+            )
+        )
+
+    organization_service.request_more_information(organization_application.id, request)
+
+    request.session.flash(
+        (
+            f'Request for more info from "{organization_application.name}" '
+            "organization sent"
+        ),
+        queue="success",
+    )
+
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.organization_application.detail",
+            organization_application_id=organization_application.id,
+        )
+    )
+
+
+@view_config(
+    route_name="admin.organization_application.decline",
+    require_methods=["POST"],
+    permission=Permissions.AdminOrganizationsWrite,
+    has_translations=True,
+    uses_session=True,
+    require_csrf=True,
 )
 def organization_application_decline(request):
     organization_service = request.find_service(IOrganizationService, context=None)

@@ -243,6 +243,19 @@ def test_localize_datetime(inp, expected):
     ("inp", "expected"),
     [
         (
+            datetime.datetime(2018, 12, 26, 13, 36, 5, 789013).isoformat(),
+            datetime.datetime(2018, 12, 26, 13, 36, 5, 789013),
+        )
+    ],
+)
+def test_parse_isoformat(inp, expected):
+    assert filters.parse_isoformat(inp) == expected
+
+
+@pytest.mark.parametrize(
+    ("inp", "expected"),
+    [
+        (
             1667404296,
             datetime.datetime(2022, 11, 2, 15, 51, 36),
         )
