@@ -314,3 +314,25 @@ def test_remove_invalid_xml_unicode(inp, expected):
     Test that invalid XML unicode characters are removed.
     """
     assert filters.remove_invalid_xml_unicode(inp) == expected
+
+
+def test_canonical_url():
+    request = pretend.stub(
+        matched_route=pretend.stub(name="foo"),
+        route_url=pretend.call_recorder(lambda a: "bar"),
+    )
+    assert filters._canonical_url(request) == "bar"
+    assert request.route_url.calls == [pretend.call("foo")]
+
+
+def test_canonical_url_no_matched_route():
+    request = pretend.stub(matched_route=None)
+    assert filters._canonical_url(request) is None
+
+
+def test_canonical_url_missing_kwargs():
+    request = pretend.stub(
+        matched_route=pretend.stub(name="foo"),
+        route_url=pretend.raiser(KeyError),
+    )
+    assert filters._canonical_url(request) is None
