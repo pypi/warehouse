@@ -14,7 +14,7 @@
 {% extends "email/_base/body.html" %}
 
 {% block content %}
-<p>More information requested to approve <a href="{{ request.route_url('accounts.profile', username=initiator_username) }}">{{ initiator_username }}</a>'s request to create a new organization named '{{ organization_name }}'.</p>
+<p>More information needed to approve <a href="{{ request.route_url('accounts.profile', username=initiator_username) }}">{{ initiator_username }}</a>'s request to create a new organization named '{{ organization_name }}'.</p>
 
 <p>{{ message|default('') }}</p>
 {% endblock %}

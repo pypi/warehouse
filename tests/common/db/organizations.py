@@ -77,7 +77,6 @@ class OrganizationApplicationObservationFactory(WarehouseFactory):
     )
     kind = ObservationKind.InformationRequest.value[0]
     payload = factory.Faker("json")
-    # TODO: add `observer` field
     summary = factory.Faker("paragraph")
 
 

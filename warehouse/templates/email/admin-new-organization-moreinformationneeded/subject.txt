@@ -14,4 +14,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}More information requested to process {{ initiator_username }}'s request to create a new organization named '{{ organization_name }}'{% endblock %}
+{% block subject %}More information needed to process {{ initiator_username }}'s request to create a new organization named '{{ organization_name }}'{% endblock %}

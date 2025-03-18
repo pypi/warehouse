@@ -14,7 +14,7 @@
 {% extends "email/_base/body.txt" %}
 
 {% block content %}
-More information requested to process {{ initiator_username }}'s request to create a new organization named '{{ organization_name }}'.
+More information needed to process {{ initiator_username }}'s request to create a new organization named '{{ organization_name }}'.
 
 {{ message|default('') }}
 {% endblock %}
