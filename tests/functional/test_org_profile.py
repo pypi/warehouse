@@ -10,23 +10,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pretend
+from http import HTTPStatus
 
-from warehouse import banners
+from tests.common.db.organizations import OrganizationFactory
 
 
-def test_includeme():
-    config = pretend.stub(
-        get_settings=lambda: {"warehouse.domain": "pypi"},
-        add_route=pretend.call_recorder(lambda name, route, domain: None),
-    )
-
-    banners.includeme(config)
-
-    assert config.add_route.calls == [
-        pretend.call(
-            "includes.db-banners",
-            "/_includes/unauthed/notification-banners/",
-            domain="pypi",
-        ),
-    ]
+def test_org_profile(webtest):
+    # Create an org
+    org = OrganizationFactory.create()
+    assert org.name
+    # ...and verify that the org's profile page exists
+    resp = webtest.get(f"/org/{org.name}/")
+    assert resp.status_code == HTTPStatus.OK

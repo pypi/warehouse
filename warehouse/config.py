@@ -388,6 +388,7 @@ def configure(settings=None):
     maybe_set(settings, "sentry.transport", "SENTRY_TRANSPORT")
     maybe_set_redis(settings, "sessions.url", "REDIS_URL", db=2)
     maybe_set_redis(settings, "ratelimit.url", "REDIS_URL", db=3)
+    maybe_set_redis(settings, "db_results_cache.url", "REDIS_URL", db=5)
     maybe_set(settings, "captcha.backend", "CAPTCHA_BACKEND")
     maybe_set(settings, "recaptcha.site_key", "RECAPTCHA_SITE_KEY")
     maybe_set(settings, "recaptcha.secret_key", "RECAPTCHA_SECRET_KEY")
@@ -810,6 +811,8 @@ def configure(settings=None):
     # Register our support for http and origin caching
     config.include(".cache.http")
     config.include(".cache.origin")
+    # Register our support for the database results cache
+    config.include(".cache")
 
     # Register support for sending emails
     config.include(".email")

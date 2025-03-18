@@ -10,23 +10,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pretend
-
-from warehouse import banners
+from zope.interface import Interface
 
 
-def test_includeme():
-    config = pretend.stub(
-        get_settings=lambda: {"warehouse.domain": "pypi"},
-        add_route=pretend.call_recorder(lambda name, route, domain: None),
-    )
+class ISearchService(Interface):
+    def create_service(context, request):
+        """
+        Create the service, given the context and request for which it is being
+        created for.
+        """
 
-    banners.includeme(config)
+    def reindex(config, projects_to_update):
+        """
+        Reindexes any projects provided
+        """
 
-    assert config.add_route.calls == [
-        pretend.call(
-            "includes.db-banners",
-            "/_includes/unauthed/notification-banners/",
-            domain="pypi",
-        ),
-    ]
+    def unindex(config, projects_to_delete):
+        """
+        Unindexes any projects provided
+        """

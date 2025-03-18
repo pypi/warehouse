@@ -12,21 +12,18 @@
 
 import pretend
 
-from warehouse import banners
+from warehouse.cache import includeme
+from warehouse.cache.interfaces import IQueryResultsCache
+from warehouse.cache.services import RedisQueryResults
 
 
 def test_includeme():
     config = pretend.stub(
-        get_settings=lambda: {"warehouse.domain": "pypi"},
-        add_route=pretend.call_recorder(lambda name, route, domain: None),
+        register_service_factory=pretend.call_recorder(lambda *a, **k: None)
     )
 
-    banners.includeme(config)
+    includeme(config)
 
-    assert config.add_route.calls == [
-        pretend.call(
-            "includes.db-banners",
-            "/_includes/unauthed/notification-banners/",
-            domain="pypi",
-        ),
+    assert config.register_service_factory.calls == [
+        pretend.call(RedisQueryResults.create_service, IQueryResultsCache)
     ]

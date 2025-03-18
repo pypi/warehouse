@@ -12,21 +12,13 @@
 
 import pretend
 
-from warehouse import banners
+from warehouse.search.services import NullSearchService
 
 
-def test_includeme():
-    config = pretend.stub(
-        get_settings=lambda: {"warehouse.domain": "pypi"},
-        add_route=pretend.call_recorder(lambda name, route, domain: None),
-    )
+class TestSearchService:
+    def test_null_service(self):
+        service = NullSearchService.create_service(pretend.stub(), pretend.stub())
+        config = pretend.stub()
 
-    banners.includeme(config)
-
-    assert config.add_route.calls == [
-        pretend.call(
-            "includes.db-banners",
-            "/_includes/unauthed/notification-banners/",
-            domain="pypi",
-        ),
-    ]
+        assert service.reindex(config, ["foo", "bar"]) is None
+        assert service.unindex(config, ["foo", "bar"]) is None
