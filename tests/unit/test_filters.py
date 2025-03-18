@@ -301,3 +301,36 @@ def test_remove_invalid_xml_unicode(inp, expected):
     Test that invalid XML unicode characters are removed.
     """
     assert filters.remove_invalid_xml_unicode(inp) == expected
+
+
+def test_show_share_image():
+    # Missing user-agent header
+    assert filters.show_share_image(None) is True
+    # Empty user-agent header
+    assert filters.show_share_image("") is True
+
+    # Twitter/X - shows image
+    # https://developer.x.com/en/docs/x-for-websites/cards/guides/troubleshooting-cards#validate_twitterbot
+    assert filters.show_share_image("Twitterbot/1.0") is True
+
+    # Facebook - shows image
+    # https://developers.facebook.com/docs/sharing/webmasters/web-crawlers
+    assert (
+        filters.show_share_image(
+            "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)"
+        )
+        is True
+    )
+    assert filters.show_share_image("facebookexternalhit/1.1") is True
+    assert filters.show_share_image("facebookcatalog/1.0") is True
+
+    # LinkedIn - shows image (https://www.linkedin.com/robots.txt)
+    assert filters.show_share_image("LinkedInBot") is True
+
+    # Slack - don't show image (https://api.slack.com/robots)
+    assert (
+        filters.show_share_image(
+            "Slackbot-LinkExpanding 1.0 (+https://api.slack.com/robots)"
+        )
+        is False
+    )

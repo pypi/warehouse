@@ -115,9 +115,13 @@
     <meta property="og:url" content="{% if request.matched_route %}{{ request.current_route_url() }}{% else %}{{ request.url }}{% endif %}">
     <meta property="og:site_name" content="PyPI">
     <meta property="og:type" content="website">
+    {% if request.user_agent | show_share_image %}
     <meta property="og:image" content="{% block image %}{{ request.static_url('warehouse:static/dist/images/twitter.jpg') }}{% endblock %}">
+    {% endif %}
     <meta property="og:title" content="{{ self.title()|default('Python Package Index') }}">
     <meta property="og:description" content="{{ self.description() }}">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@pypi">
     {% block extra_meta %}{% endblock %}
 
     <link rel="search" type="application/opensearchdescription+xml" title="PyPI" href="{{ request.route_path('opensearch.xml') }}">
