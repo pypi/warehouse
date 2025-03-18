@@ -105,7 +105,6 @@ class OrganizationFactory(WarehouseFactory):
         datetime_start=datetime.datetime(2020, 1, 1),
         datetime_end=datetime.datetime(2022, 1, 1),
     )
-    date_approved = None
 
 
 class OrganizationEventFactory(WarehouseFactory):

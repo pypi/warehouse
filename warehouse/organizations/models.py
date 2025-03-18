@@ -306,10 +306,6 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         index=True,
         comment="Datetime the organization was created.",
     )
-    date_approved: Mapped[datetime.datetime | None] = mapped_column(
-        onupdate=func.now(),
-        comment="Datetime the organization was approved by administrators.",
-    )
     application: Mapped[OrganizationApplication] = relationship(
         back_populates="organization"
     )
