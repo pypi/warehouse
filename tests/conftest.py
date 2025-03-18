@@ -320,7 +320,7 @@ def get_app_config(database, nondefaults=None):
         "database.url": database,
         "docs.url": "http://docs.example.com/",
         "ratelimit.url": "memory://",
-        "db_results_cache.url": "redis://localhost:0/",
+        "db_results_cache.url": "redis://redis:0/",
         "opensearch.url": "https://localhost/warehouse",
         "files.backend": "warehouse.packaging.services.LocalFileStorage",
         "archive_files.backend": "warehouse.packaging.services.LocalArchiveFileStorage",
