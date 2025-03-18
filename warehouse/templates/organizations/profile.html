@@ -15,7 +15,7 @@
 
 {% block title %}{% trans orgname=organization.display_name %}Profile of {{ orgname }}{% endtrans %}{% endblock %}
 
-{% block canonical_url %}{{ request.route_url('organizations.profile', organization=organization.normalized_name) }}{% endblock %}
+{% block canonical_url %}{{ request.canonical_url(organization=organization.normalized_name) }}{% endblock %}
 
 {% block content %}
 <div class="horizontal-section horizontal-section--medium">

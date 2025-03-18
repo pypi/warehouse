@@ -60,6 +60,7 @@
   margin: 15px 0;
   position: relative;
   border-radius: 4px;
+  display: inline-block;
 
   &__dismiss {
     @include dismiss-button;
@@ -90,12 +91,47 @@
     border-radius: 3px 0 0 3px;
   }
 
+  &__right {
+    float: right;
+
+    &::before {
+      width: 0;
+    }
+
+    &::after {
+      content: "";
+      width: 15px;
+      background-color: $primary-color;
+      position: absolute;
+      top: -1px;
+      right: -2px;
+      height: calc(100% + 2px);
+      border-radius: 0 3px 3px 0;
+    }
+  }
+
+  &--full-width {
+    width: 100%;
+  }
+
   &--bottom-margin {
     margin-bottom: $half-spacing-unit;
   }
 
   &--dismissed {
     display: none;
+  }
+
+  &--neutral {
+    border-color: $border-color;
+
+    &::before {
+      background-color: $border-color;
+    }
+
+    &::after {
+      background-color: $border-color;
+    }
   }
 
   &--danger {
