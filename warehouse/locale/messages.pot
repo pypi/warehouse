@@ -2232,15 +2232,16 @@ msgid ""
 "was not approved."
 msgstr ""
 
-#: warehouse/templates/email/new-organization-moreinformationneeded/body.html:17
+#: warehouse/templates/email/new-organization-moreinformationneeded/body.html:18
 #, python-format
 msgid ""
 "We need more information to process your request to create a new "
 "organization named '%(organization_name)s'."
 msgstr ""
 
-#: warehouse/templates/email/new-organization-moreinformationneeded/body.html:21
-msgid "Submit your response on pypi.org"
+#: warehouse/templates/email/new-organization-moreinformationneeded/body.html:22
+#, python-format
+msgid "Submit your response on %(domain)s"
 msgstr ""
 
 #: warehouse/templates/email/new-organization-requested/body.html:17
