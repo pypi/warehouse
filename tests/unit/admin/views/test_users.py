@@ -149,6 +149,16 @@ class TestUserDetail:
         assert result["roles"] == roles
         assert result["emails_form"].emails[0].primary.data
         assert result["submitted_by_journals"] == journal_entries[:5]
+        assert result["user_projects"] == [
+            {
+                "name": project.name,
+                "normalized_name": project.normalized_name,
+                "releases_count": 0,
+                "total_size": 0,
+                "lifecycle_status": None,
+                "role_name": "Owner",
+            }
+        ]
 
     def test_updates_user(self, db_request):
         user = UserFactory.create()
@@ -1477,12 +1487,15 @@ class TestUserBurnRecoveryCodes:
     def test_burns_recovery_codes(self, db_request, monkeypatch, user_service):
         user = UserFactory.create()
         codes = user_service.generate_recovery_codes(user.id)
+        user_service._check_ratelimits = pretend.call_recorder(
+            user_service._check_ratelimits
+        )
 
         # Burn one code in advance
         user.recovery_codes[0].burned = datetime.datetime.now(datetime.UTC)
 
         # Provide all the codes, plus one invalid code
-        db_request.POST["to_burn"] = f"{'\n'.join(codes)}\ninvalid"
+        db_request.POST["to_burn"] = "\n".join(codes) + "\ninvalid"
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -1501,6 +1514,7 @@ class TestUserBurnRecoveryCodes:
         ]
         assert result.status_code == 303
         assert result.location == "/foobar"
+        assert user_service._check_ratelimits.calls == []
 
     def test_no_recovery_codes_provided(self, db_request, monkeypatch, user_service):
         user = UserFactory.create()

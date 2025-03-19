@@ -18,6 +18,9 @@
      {% trans %}Confirm password{% endtrans %}
    {% endblock %}
 
+  {# These pages are not indexed so the canonical URL doesn't matter #}
+  {% block canonical_url %}{% endblock %}
+
   {% block content %}
     {% if testPyPI %}
       {% set title = "TestPyPI" %}

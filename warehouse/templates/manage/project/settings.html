@@ -28,7 +28,7 @@
     {% else %}
       Default ({{  MAX_FILESIZE|filesizeformat(binary=True) }})
     {% endif %}
-    {% trans help_url=request.help_url(_anchor='file-size-limit') %}
+    {% trans help_url=request.user_docs_url("/project-management/storage-limits", anchor="requesting-a-file-size-limit-increase") %}
     <a href="{{ help_url }}"> (request an increase) </a>{% endtrans %}</li>
     <li>Project total size limit:
     {% if project.total_size_limit %}
@@ -36,7 +36,7 @@
     {% else %}
       Default ({{  MAX_PROJECT_SIZE|filesizeformat(binary=True) }})
     {% endif %}
-    {% trans help_url=request.help_url(_anchor='project-size-limit') %}
+    {% trans help_url=request.user_docs_url("/project-management/storage-limits", anchor="requesting-a-project-size-limit-increase") %}
     <a href="{{ help_url }}"> (request an increase) </a>{% endtrans %}</li>
   </ul>
 

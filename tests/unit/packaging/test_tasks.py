@@ -23,11 +23,12 @@ from wtforms import Field, Form, StringField
 import warehouse.packaging.tasks
 
 from warehouse.accounts.models import WebAuthn
-from warehouse.packaging.models import Description
+from warehouse.packaging.models import DependencyKind, Description
 from warehouse.packaging.tasks import (
     check_file_cache_tasks_outstanding,
     compute_2fa_metrics,
     compute_packaging_metrics,
+    compute_top_dependents_corpus,
     sync_file_to_cache,
     update_bigquery_release_files,
     update_description_html,
@@ -37,6 +38,7 @@ from warehouse.utils import readme
 from warehouse.utils.row_counter import compute_row_counts
 
 from ...common.db.packaging import (
+    DependencyFactory,
     DescriptionFactory,
     FileFactory,
     ProjectFactory,
@@ -707,3 +709,55 @@ def test_compute_2fa_metrics(db_request, monkeypatch):
         pretend.call("warehouse.2fa.total_users_with_webauthn_enabled", 1),
         pretend.call("warehouse.2fa.total_users_with_two_factor_enabled", 2),
     ]
+
+
+@pytest.mark.parametrize(
+    ("project_name", "specifier_string"),
+    [
+        (
+            "requests",
+            'requests [security,tests] >= 2.8.1, == 2.8.* ; python_version < "2.7"',
+        ),
+        ("xml.parsers.expat", "xml.parsers.expat (>1.0)"),
+        ("zope.event", "zope.event (==4.5.0)"),
+    ],
+)
+def test_compute_top_dependents_corpus(db_request, project_name, specifier_string):
+    # A base project, others depend on it
+    base_proj = ProjectFactory.create(name=project_name)
+    # A project with no recent dependents
+    leaf_proj = ProjectFactory.create()
+
+    # A Project with multiple Releases, the most recent of which is yanked
+    project_a = ProjectFactory.create()
+    release_a1 = ReleaseFactory.create(project=project_a, version="1.0")
+    release_a2 = ReleaseFactory.create(project=project_a, version="2.0", yanked=True)
+    # Add dependency relationships
+    DependencyFactory.create(
+        release=release_a1, kind=DependencyKind.requires_dist, specifier=base_proj.name
+    )
+    DependencyFactory.create(
+        release=release_a2, kind=DependencyKind.requires_dist, specifier=base_proj.name
+    )
+
+    # A project with an older release depending on leaf_proj, now base_proj instead
+    project_b = ProjectFactory.create()
+    release_b1 = ReleaseFactory.create(project=project_b, version="1.0")
+    release_b2 = ReleaseFactory.create(project=project_b, version="2.0")
+    DependencyFactory.create(
+        release=release_b1, kind=DependencyKind.requires_dist, specifier=leaf_proj.name
+    )
+    DependencyFactory.create(
+        release=release_b2, kind=DependencyKind.requires_dist, specifier=base_proj.name
+    )
+
+    # legacy `project_url` kind, should not be included in corpus
+    legacy_proj = ProjectFactory.create()
+    legacy_release = ReleaseFactory.create(project=legacy_proj, version="1.0")
+    DependencyFactory.create(
+        release=legacy_release, kind=8, specifier="https://example.com"
+    )
+
+    results = compute_top_dependents_corpus(db_request)
+
+    assert results == {base_proj.normalized_name: 2}

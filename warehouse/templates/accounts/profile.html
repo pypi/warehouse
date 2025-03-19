@@ -21,6 +21,8 @@
 {% endif %}
 {% endblock %}
 
+{% block canonical_url %}{{ request.canonical_url(username=user.username) }}{% endblock %}
+
 {% block content %}
 <div class="horizontal-section horizontal-section--medium">
   <div class="left-layout">

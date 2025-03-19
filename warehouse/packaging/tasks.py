@@ -10,22 +10,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import datetime
 import logging
 import tempfile
+import typing
 
 from collections import namedtuple
 
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
+from sqlalchemy import desc, func, nulls_last, select
 from sqlalchemy.orm import joinedload
 
 from warehouse import tasks
 from warehouse.accounts.models import User, WebAuthn
+from warehouse.cache.interfaces import IQueryResultsCache
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage
-from warehouse.packaging.models import Description, File, Project, Release
+from warehouse.packaging.models import (
+    Dependency,
+    DependencyKind,
+    Description,
+    File,
+    Project,
+    Release,
+)
 from warehouse.utils import readme
 from warehouse.utils.row_counter import RowCount
+
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
 
 logger = logging.getLogger(__name__)
 
@@ -342,3 +357,84 @@ def update_bigquery_release_files(task, request, dist_metadata):
         json_rows = [json_rows]
 
         bq.insert_rows_json(table=table_name, json_rows=json_rows)
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def compute_top_dependents_corpus(request: Request) -> dict[str, int]:
+    """
+    Query to collect all dependents from projects' most recent release
+    and rank them by the number of dependents.
+    Store in query results cache for retrieval during `file_upload`.
+    """
+    # Create a CTE with the most recent releases for each project.
+    # Selects each release's ID, project ID, and version, with a row number
+    # partitioned by project and ordered to get the most recent non-yanked releases.
+    recent_releases_cte = (
+        select(
+            Release.id.label("release_id"),
+            Release.project_id,
+            Release.version,
+            func.row_number()
+            .over(
+                partition_by=Release.project_id,
+                order_by=[
+                    nulls_last(
+                        Release.is_prerelease
+                    ),  # False first, True next, nulls last
+                    desc(Release._pypi_ordering),
+                ],
+            )
+            .label("rn"),
+        )
+        .where(Release.yanked.is_(False))
+        .cte("recent_releases")
+    )
+    # Create a CTE that parses dependency names from release_dependencies.
+    #
+    # Extracts normalized dependency names by:
+    # 1. Taking the specifier from release_dependencies
+    # 2. Using regex to extract just the package name portion
+    # 3. Converting to lowercase for normalization
+    parsed_dependencies_cte = (
+        select(
+            func.normalize_pep426_name(
+                # TODO: this isn't perfect, but it's a start.
+                #  A better solution would be to use a proper parser, but we'd need
+                #  to teach Postgres how to parse it.
+                func.regexp_replace(Dependency.specifier, "^([A-Za-z0-9_.-]+).*", "\\1")
+            ).label("dependent_name")
+        )
+        .select_from(recent_releases_cte)
+        .join(Dependency, Dependency.release_id == recent_releases_cte.c.release_id)
+        .where(
+            recent_releases_cte.c.rn == 1,  # "latest" release per-project
+            Dependency.kind.in_(
+                [DependencyKind.requires_dist, DependencyKind.requires]
+            ),
+        )
+        .cte("parsed_dependencies")
+    )
+
+    # Final query that gets the top dependents by count
+    top_dependents_stmt = (
+        select(
+            parsed_dependencies_cte.c.dependent_name,
+            func.count().label("dependent_count"),
+        )
+        .group_by(parsed_dependencies_cte.c.dependent_name)
+        .order_by(desc("dependent_count"), parsed_dependencies_cte.c.dependent_name)
+        .limit(10000)
+    )
+
+    # Execute the query and fetch the constructed object
+    results = request.db.execute(top_dependents_stmt).fetchall()
+    # Result is Rows, so convert to a dicts of "name: count" pairs
+    results = {row.dependent_name: row.dependent_count for row in results}
+
+    # Store the results in the query results cache
+    cache = request.find_service(IQueryResultsCache)
+    cache_key = "top_dependents_corpus"
+    cache.set(cache_key, results)
+    logger.info("Stored `top_dependents_corpus` in query results cache.")
+
+    return results

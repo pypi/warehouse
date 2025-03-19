@@ -28,3 +28,11 @@
 .table th {
   max-width: 30em;
 }
+
+.preserve-line-breaks {
+  white-space: pre-line;
+}
+
+.unset-height {
+  height: unset;
+}

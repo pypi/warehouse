@@ -382,6 +382,16 @@ class DeleteMacaroonForm(UsernameMixin, PasswordMixin, wtforms.Form):
 # /manage/organizations/ forms
 
 
+class InformationRequestResponseForm(wtforms.Form):
+    response = wtforms.TextAreaField(
+        validators=[
+            wtforms.validators.InputRequired(
+                message=_("Provide your response to the request.")
+            )
+        ]
+    )
+
+
 class OrganizationActivateBillingForm(wtforms.Form):
     terms_of_service_agreement = wtforms.BooleanField(
         validators=[

@@ -856,9 +856,7 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 The name {!r} isn't allowed. "
-            "See /the/help/url/ "
-            "for more information."
+            "400 The name {!r} isn't allowed. See /the/help/url/ for more information."
         ).format(name)
 
     @pytest.mark.parametrize(
@@ -1622,29 +1620,25 @@ class TestFileUpload:
             {"md5_digest": "bad"},
             {
                 "sha256_digest": (
-                    "badbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbad"
-                    "badbadb"
+                    "badbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadb"
                 )
             },
             {
                 "md5_digest": "bad",
                 "sha256_digest": (
-                    "badbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbad"
-                    "badbadb"
+                    "badbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadb"
                 ),
             },
             {
                 "md5_digest": _TAR_GZ_PKG_MD5,
                 "sha256_digest": (
-                    "badbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbad"
-                    "badbadb"
+                    "badbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadb"
                 ),
             },
             {
                 "md5_digest": "bad",
                 "sha256_digest": (
-                    "4a8422abcc484a4086bdaa618c65289f749433b07eb433c51c4e37714"
-                    "3ff5fdb"
+                    "4a8422abcc484a4086bdaa618c65289f749433b07eb433c51c4e377143ff5fdb"
                 ),
             },
         ],
@@ -1722,9 +1716,7 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        assert resp.status == (
-            "400 Invalid distribution file. " "File is not a zipfile"
-        )
+        assert resp.status == ("400 Invalid distribution file. File is not a zipfile")
 
     def test_upload_fails_end_of_file_error(
         self, pyramid_config, db_request, project_service
@@ -1769,9 +1761,7 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        assert resp.status == (
-            "400 Invalid distribution file. " "File is not a tarfile"
-        )
+        assert resp.status == ("400 Invalid distribution file. File is not a tarfile")
 
     def test_upload_fails_with_too_large_file(self, pyramid_config, db_request):
         user = UserFactory.create()
@@ -1800,14 +1790,21 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = pretend.call_recorder(
+            lambda *a, **kw: "/the/help/url/"
+        )
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        assert db_request.help_url.calls == [pretend.call(_anchor="file-size-limit")]
+        assert db_request.user_docs_url.calls == [
+            pretend.call(
+                "/project-management/storage-limits",
+                anchor="requesting-a-file-size-limit-increase",
+            )
+        ]
         assert resp.status_code == 400
         assert resp.status == (
             "400 File too large. Limit for project 'foobar' is 100 MB. "
@@ -1847,14 +1844,21 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = pretend.call_recorder(
+            lambda *a, **kw: "/the/help/url/"
+        )
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        assert db_request.help_url.calls == [pretend.call(_anchor="project-size-limit")]
+        assert db_request.user_docs_url.calls == [
+            pretend.call(
+                "/project-management/storage-limits",
+                anchor="requesting-a-project-size-limit-increase",
+            )
+        ]
         assert resp.status_code == 400
         assert resp.status == (
             "400 Project size too large."
@@ -1901,14 +1905,21 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+        db_request.user_docs_url = pretend.call_recorder(
+            lambda *a, **kw: "/the/help/url/"
+        )
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        assert db_request.help_url.calls == [pretend.call(_anchor="project-size-limit")]
+        assert db_request.user_docs_url.calls == [
+            pretend.call(
+                "/project-management/storage-limits",
+                anchor="requesting-a-project-size-limit-increase",
+            )
+        ]
         assert resp.status_code == 400
         assert resp.status == (
             "400 Project size too large."

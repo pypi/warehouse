@@ -37,14 +37,16 @@
         <a href="#" data-input="q" data-append="description:">desc:</a>"open source"
         <br>
         Filters:&nbsp;
-        <div class="btn-group btn-group-sm" role="group" data-input="q" data-state="approval" aria-label="Approval">
-          <button type="button" class="btn btn-secondary {{ 'active' if 'is:submitted' in terms else '' }}" data-approval="is:submitted">Submitted</button>
-          <button type="button" class="btn btn-secondary {{ 'active' if 'is:approved' in terms else '' }}" data-approval="is:approved">Approved</button>
-          <button type="button" class="btn btn-secondary {{ 'active' if 'is:declined' in terms else '' }}" data-approval="is:declined">Declined</button>
+        <div class="btn-group btn-group-sm" role="group" data-input="q" data-state="status" aria-label="Approval">
+          <button type="button" class="btn btn-secondary {{ 'active' if 'is:submitted' in terms else '' }}" data-status="is:submitted">Submitted</button>
+          <button type="button" class="btn btn-secondary {{ 'active' if 'is:deferred' in terms else '' }}" data-status="is:deferred">Deferred</button>
+          <button type="button" class="btn btn-secondary {{ 'active' if 'is:moreinformationneeded' in terms else '' }}" data-status="is:moreinformationneeded">More Info</button>
+          <button type="button" class="btn btn-secondary {{ 'active' if 'is:approved' in terms else '' }}" data-status="is:approved">Approved</button>
+          <button type="button" class="btn btn-secondary {{ 'active' if 'is:declined' in terms else '' }}" data-status="is:declined">Declined</button>
         </div>&nbsp;
-        <div class="btn-group btn-group-sm" role="group" data-input="q" data-state="status" aria-label="Type">
-          <button type="button" class="btn btn-secondary {{ 'active' if 'type:company' in terms else '' }}" data-status="type:company">Company</button>
-          <button type="button" class="btn btn-secondary {{ 'active' if 'type:community' in terms else '' }}" data-status="type:community">Community</button>
+        <div class="btn-group btn-group-sm" role="group" data-input="q" data-state="type" aria-label="Type">
+          <button type="button" class="btn btn-secondary {{ 'active' if 'type:company' in terms else '' }}" data-type="type:company">Company</button>
+          <button type="button" class="btn btn-secondary {{ 'active' if 'type:community' in terms else '' }}" data-type="type:community">Community</button>
         </div>
       </div>
     </form>
@@ -61,7 +63,7 @@
         <th>Description</th>
         <th>Type</th>
         <th>Submitted</th>
-        <th>Approval</th>
+        <th>Status</th>
       </tr>
       </thead>
 
@@ -77,12 +79,18 @@
         <td>{{ organization_application.description }}</td>
         <td>{{ organization_application.orgtype.value }}</td>
         <td>{{ organization_application.submitted }}</td>
-        {% if organization_application.is_approved == True %}
+        {% if organization_application.status == 'approved' %}
         <td><i class="fa fa-fw fa-check text-green"></i> Approved</td>
-        {% elif organization_application.is_approved == False %}
+        {% elif organization_application.status == 'declined' %}
         <td><i class="fa fa-fw fa-times text-red"></i> Declined</td>
-        {% else %}
+        {% elif organization_application.status == 'deferred' %}
+        <td><i class="fa fa-fw fa-stopwatch"></i> Deferred</td>
+        {% elif organization_application.status == 'moreinformationneeded' %}
+        <td><i class="fa fa-fw fa-question text-yellow"></i> Info Needed</td>
+        {% elif organization_application.status == 'submitted' %}
         <td><i class="fa fa-fw"></i> Submitted</td>
+        {% else %}
+        <td><i class="fa fa-fw"></i> {{ organization_application.status.value }}</td>
         {% endif %}
       </tr>
       {% endfor %}

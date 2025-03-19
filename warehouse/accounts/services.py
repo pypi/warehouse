@@ -606,13 +606,14 @@ class DatabaseUserService:
 
         return recovery_codes
 
-    def check_recovery_code(self, user_id, code):
+    def check_recovery_code(self, user_id, code, skip_ratelimits=False):
         self._metrics.increment("warehouse.authentication.recovery_code.start")
 
-        self._check_ratelimits(
-            userid=user_id,
-            tags=["mechanism:check_recovery_code"],
-        )
+        if not skip_ratelimits:
+            self._check_ratelimits(
+                userid=user_id,
+                tags=["mechanism:check_recovery_code"],
+            )
 
         user = self.get_user(user_id)
         stored_recovery_code = self.get_recovery_code(user.id, code)

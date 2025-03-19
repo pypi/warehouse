@@ -5,6 +5,8 @@ WAREHOUSE_ENV=development
 WAREHOUSE_TOKEN=insecuretoken
 WAREHOUSE_IP_SALT="insecure himalayan pink salt"
 
+USERDOCS_DOMAIN="http://localhost:10000"
+
 TERMS_NOTIFICATION_BATCH_SIZE=0
 
 AWS_ACCESS_KEY_ID=foo

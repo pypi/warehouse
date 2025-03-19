@@ -19,6 +19,11 @@ const fetchOptions = {
 };
 
 export default () => {
+  // Check if we have an authenticated session
+  let authed = document.cookie.split(";").some(
+    v => v.trim().startsWith("user_id__insecure="),
+  );
+
   // Each HTML include will generate a promise, which we'll later use to wait
   // on once all the promises have been resolved.
   let promises = [];
@@ -31,7 +36,24 @@ export default () => {
   // data-html-include attribute and replace it's content with that. This uses
   // the new fetch() API which returns a Promise.
   elements.forEach((element) => {
-    let p = fetch(element.getAttribute("data-html-include"), fetchOptions)
+    let url = element.getAttribute("data-html-include");
+    if (!authed) {
+      // Don't fetch authed URLs if we aren't authenticated
+      try {
+        // Attempt to parse as full URL
+        const pathname = new URL(url, "http://example.com").pathname;
+        if (pathname.startsWith("/_includes/authed/")) {
+          return;
+        }
+      } catch (e) {
+        // If parsing fails, assume it's just a path
+        if (url.startsWith("/_includes/authed/")) {
+          return;
+        }
+      }
+    }
+
+    let p = fetch(url, fetchOptions)
       .then(response => {
         if (response.ok) { return response.text(); }
         else { return ""; }

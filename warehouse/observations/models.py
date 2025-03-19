@@ -109,15 +109,21 @@ class ObservationKind(enum.Enum):
     kinds of observations without having to update the database schema.
     """
 
+    # Projects
     IsDependencyConfusion = ("is_dependency_confusion", "Is Dependency Confusion")
     IsMalware = ("is_malware", "Is Malware")
     IsSpam = ("is_spam", "Is Spam")
     SomethingElse = ("something_else", "Something Else")
+
+    # Accounts
     AccountAbuse = ("account_abuse", "Account Abuse")
     AccountRecovery = (
         "account_recovery",
         "Account Recovery",
     )
+
+    # Organization Applications
+    InformationRequest = ("information_request", "Information Request")
 
 
 # A reverse-lookup map by the string value stored in the database

@@ -14,10 +14,24 @@
 #       will go away eventually, once we split forklift out into it's own
 #       project.
 
+from rfc3986 import builder
+
 
 def _help_url(request, **kwargs):
     warehouse_domain = request.registry.settings.get("warehouse.domain")
     return request.route_url("help", _host=warehouse_domain, **kwargs)
+
+
+def _user_docs_url(request, path, anchor: str | None = None):
+    docs_domain = request.registry.settings.get("userdocs.domain")
+    return (
+        builder.URIBuilder()
+        .from_uri(docs_domain)
+        .add_path(path)
+        .add_fragment(anchor)
+        .finalize()
+        .unsplit()
+    )
 
 
 def includeme(config):
@@ -46,6 +60,7 @@ def includeme(config):
     )
 
     config.add_request_method(_help_url, name="help_url")
+    config.add_request_method(_user_docs_url, name="user_docs_url")
 
     if forklift:
         config.add_template_view(
@@ -54,6 +69,14 @@ def includeme(config):
             "upload.html",
             route_kw={"domain": forklift},
             view_kw={"has_translations": True},
+        )
+
+        config.add_template_view(
+            "forklift.robots.txt",
+            "/robots.txt",
+            "forklift.robots.txt",
+            route_kw={"domain": forklift},
+            view_kw={"has_translations": False},
         )
 
         # Any call to /legacy/ not handled by another route (e.g. no :action
