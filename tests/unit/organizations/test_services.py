@@ -119,13 +119,7 @@ class TestDatabaseOrganizationService:
     ):
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
-            services, "send_admin_new_organization_approved_email", send_email
-        )
-        monkeypatch.setattr(
             services, "send_new_organization_approved_email", send_email
-        )
-        monkeypatch.setattr(
-            services, "send_admin_new_organization_declined_email", send_email
         )
         monkeypatch.setattr(
             services, "send_new_organization_declined_email", send_email
@@ -203,24 +197,8 @@ class TestDatabaseOrganizationService:
         assert send_email.calls == [
             pretend.call(
                 db_request,
-                admin,
-                organization_name=organization.name,
-                initiator_username=organization_application.submitted_by.username,
-                message="",
-            ),
-            pretend.call(
-                db_request,
                 organization_application.submitted_by,
                 organization_name=organization.name,
-                message="",
-            ),
-            pretend.call(
-                db_request,
-                admin,
-                organization_name=competing_organization_application.name,
-                initiator_username=(
-                    competing_organization_application.submitted_by.username
-                ),
                 message="",
             ),
             pretend.call(
@@ -288,11 +266,6 @@ class TestDatabaseOrganizationService:
     ):
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
-            services,
-            "send_admin_new_organization_moreinformationneeded_email",
-            send_email,
-        )
-        monkeypatch.setattr(
             services, "send_new_organization_moreinformationneeded_email", send_email
         )
 
@@ -312,13 +285,6 @@ class TestDatabaseOrganizationService:
         assert send_email.calls == [
             pretend.call(
                 db_request,
-                admin,
-                organization_name=organization_application.name,
-                initiator_username=organization_application.submitted_by.username,
-                message="",
-            ),
-            pretend.call(
-                db_request,
                 organization_application.submitted_by,
                 organization_name=organization_application.name,
                 organization_application_id=organization_application.id,
@@ -330,9 +296,6 @@ class TestDatabaseOrganizationService:
         self, db_request, organization_service, monkeypatch
     ):
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            services, "send_admin_new_organization_declined_email", send_email
-        )
         monkeypatch.setattr(
             services, "send_new_organization_declined_email", send_email
         )
@@ -347,13 +310,6 @@ class TestDatabaseOrganizationService:
 
         assert organization_application.status == OrganizationApplicationStatus.Declined
         assert send_email.calls == [
-            pretend.call(
-                db_request,
-                admin,
-                organization_name=organization_application.name,
-                initiator_username=organization_application.submitted_by.username,
-                message="",
-            ),
             pretend.call(
                 db_request,
                 organization_application.submitted_by,

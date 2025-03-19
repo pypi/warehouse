@@ -15,12 +15,8 @@ from sqlalchemy import delete, func, orm, select
 from sqlalchemy.exc import NoResultFound
 from zope.interface import implementer
 
-from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import TermsOfServiceEngagement, User
 from warehouse.email import (
-    send_admin_new_organization_approved_email,
-    send_admin_new_organization_declined_email,
-    send_admin_new_organization_moreinformationneeded_email,
     send_new_organization_approved_email,
     send_new_organization_declined_email,
     send_new_organization_moreinformationneeded_email,
@@ -157,8 +153,6 @@ class DatabaseOrganizationService:
         """
         Performs operations necessary to approve an OrganizationApplication
         """
-        user_service = request.find_service(IUserService, context=None)
-
         organization_application = self.get_organization_application(
             organization_application_id
         )
@@ -227,13 +221,6 @@ class DatabaseOrganizationService:
         )
 
         message = request.params.get("message", "")
-        send_admin_new_organization_approved_email(
-            request,
-            user_service.get_admin_user(),
-            organization_name=organization.name,
-            initiator_username=organization_application.submitted_by.username,
-            message=message,
-        )
         send_new_organization_approved_email(
             request,
             organization_application.submitted_by,
@@ -264,8 +251,6 @@ class DatabaseOrganizationService:
         Performs operations necessary to request more information of an
         OrganizationApplication
         """
-        user_service = request.find_service(IUserService, context=None)
-
         organization_application = self.get_organization_application(
             organization_application_id
         )
@@ -282,14 +267,6 @@ class DatabaseOrganizationService:
             kind=ObservationKind.InformationRequest,
             payload={"message": message},
         )
-
-        send_admin_new_organization_moreinformationneeded_email(
-            request,
-            user_service.get_admin_user(),
-            organization_name=organization_application.name,
-            initiator_username=organization_application.submitted_by.username,
-            message=message,
-        )
         send_new_organization_moreinformationneeded_email(
             request,
             organization_application.submitted_by,
@@ -304,21 +281,12 @@ class DatabaseOrganizationService:
         """
         Performs operations necessary to decline an OrganizationApplication
         """
-        user_service = request.find_service(IUserService, context=None)
-
         organization_application = self.get_organization_application(
             organization_application_id
         )
         organization_application.status = OrganizationApplicationStatus.Declined
 
         message = request.params.get("message", "")
-        send_admin_new_organization_declined_email(
-            request,
-            user_service.get_admin_user(),
-            organization_name=organization_application.name,
-            initiator_username=organization_application.submitted_by.username,
-            message=message,
-        )
         send_new_organization_declined_email(
             request,
             organization_application.submitted_by,
