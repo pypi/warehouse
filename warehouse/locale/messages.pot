@@ -611,13 +611,13 @@ msgid ""
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2961
-#: warehouse/manage/views/organizations.py:979
+#: warehouse/manage/views/organizations.py:967
 #, python-brace-format
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:3026
-#: warehouse/manage/views/organizations.py:1044
+#: warehouse/manage/views/organizations.py:1032
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr ""
@@ -631,33 +631,33 @@ msgid "Invitation already expired."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:3102
-#: warehouse/manage/views/organizations.py:1231
+#: warehouse/manage/views/organizations.py:1219
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:955
+#: warehouse/manage/views/organizations.py:943
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:966
+#: warehouse/manage/views/organizations.py:954
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1126
-#: warehouse/manage/views/organizations.py:1168
+#: warehouse/manage/views/organizations.py:1114
+#: warehouse/manage/views/organizations.py:1156
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1136
+#: warehouse/manage/views/organizations.py:1124
 msgid "Organization invitation could not be re-sent."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1184
+#: warehouse/manage/views/organizations.py:1172
 #, python-brace-format
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
@@ -2134,26 +2134,6 @@ msgstr ""
 msgid "You are receiving this because you are a member of this team."
 msgstr ""
 
-#: warehouse/templates/email/admin-organization-deleted/body.html:27
-#: warehouse/templates/email/organization-deleted/body.html:27
-#, python-format
-msgid "The %(site)s organization \"%(organization_name)s\" has been deleted."
-msgstr ""
-
-#: warehouse/templates/email/admin-organization-deleted/body.html:33
-#: warehouse/templates/email/admin-organization-renamed/body.html:33
-#, python-format
-msgid "You are receiving this because you are a %(site)s administrator."
-msgstr ""
-
-#: warehouse/templates/email/admin-organization-renamed/body.html:27
-#: warehouse/templates/email/organization-renamed/body.html:27
-#, python-format
-msgid ""
-"The %(site)s organization has been renamed from "
-"\"%(previous_organization_name)s\" to \"%(organization_name)s\"."
-msgstr ""
-
 #: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:20
 #, python-format
 msgid ""
@@ -2258,6 +2238,11 @@ msgstr ""
 #: warehouse/templates/email/new-organization-requested/body.html:19
 #: warehouse/templates/manage/organizations.html:158
 msgid "You will receive an email when the organization has been approved"
+msgstr ""
+
+#: warehouse/templates/email/organization-deleted/body.html:27
+#, python-format
+msgid "The %(site)s organization \"%(organization_name)s\" has been deleted."
 msgstr ""
 
 #: warehouse/templates/email/organization-deleted/body.html:31
@@ -2397,6 +2382,13 @@ msgstr ""
 msgid ""
 "The %(site)s project \"%(project_name)s\" has been removed from the "
 "\"%(organization_name)s\" organization."
+msgstr ""
+
+#: warehouse/templates/email/organization-renamed/body.html:27
+#, python-format
+msgid ""
+"The %(site)s organization has been renamed from "
+"\"%(previous_organization_name)s\" to \"%(organization_name)s\"."
 msgstr ""
 
 #: warehouse/templates/email/organization-updated/body.html:31
