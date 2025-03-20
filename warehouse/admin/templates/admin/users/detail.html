@@ -558,6 +558,22 @@
                   </div>
                   {% endif %}
                 </div>
+                <div class="row">
+                  <div class="col">
+                    Domain Status: {{ field.domain_last_status.data }}
+                  </div>
+                  <div class="col">
+                    Last checked: {{ field.domain_last_checked.data }}
+                  </div>
+                  {# TODO: Uncomment after implementing an admin route to run the check and flash, but needs to work for each email #}
+                  {# <div class="col">#}
+                  {# <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#checkDomainModal">#}
+                  {# <i class="fa-solid fa-magnifying-glass"></i>#}
+                  {# Check Domain Now #}
+                  {# </button>#}
+                  {# </div>#}
+                </div>
+                {% if not loop.last %}<hr />{% endif %}
                 {% endfor %}
               </div>
 
