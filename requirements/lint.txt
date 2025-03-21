@@ -656,9 +656,9 @@ zope-schema==7.0.1 \
     # via mypy-zope
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==77.0.1 \
-    --hash=sha256:81a234dff81a82bb52e522c8aef145d0dd4de1fd6de4d3b196d0f77dc2fded26 \
-    --hash=sha256:a1246a1b4178c66d7cf50c9fc6d530fac3f89bc284cf803c7fa878c41b1a03b2
+setuptools==77.0.3 \
+    --hash=sha256:583b361c8da8de57403743e756609670de6fb2345920e36dc5c2d914c319c945 \
+    --hash=sha256:67122e78221da5cf550ddd04cf8742c8fe12094483749a792d56cd669d6cf58c
     # via
     #   types-setuptools
     #   zope-event
