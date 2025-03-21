@@ -17,6 +17,7 @@ from celery.schedules import crontab
 
 from warehouse import accounts
 from warehouse.accounts.interfaces import (
+    IDomainStatusService,
     IEmailBreachedService,
     IPasswordBreachedService,
     ITokenService,
@@ -25,6 +26,7 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.services import (
     HaveIBeenPwnedEmailBreachedService,
     HaveIBeenPwnedPasswordBreachedService,
+    NullDomainStatusService,
     TokenServiceFactory,
     database_login_factory,
 )
@@ -186,6 +188,7 @@ def test_includeme(monkeypatch):
             HaveIBeenPwnedEmailBreachedService.create_service,
             IEmailBreachedService,
         ),
+        pretend.call(NullDomainStatusService.create_service, IDomainStatusService),
         pretend.call(RateLimit("10 per 5 minutes"), IRateLimiter, name="user.login"),
         pretend.call(RateLimit("10 per 5 minutes"), IRateLimiter, name="ip.login"),
         pretend.call(
