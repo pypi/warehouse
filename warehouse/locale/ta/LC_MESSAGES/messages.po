@@ -134,7 +134,7 @@ msgstr ""
 "பயன்படுத்தவும்."
 
 #: warehouse/accounts/forms.py:409 warehouse/manage/forms.py:140
-#: warehouse/manage/forms.py:742
+#: warehouse/manage/forms.py:752
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "பெயர் மிக நீளமானது. 100 எழுத்துக்கள் அல்லது அதற்கும் குறைவான பெயரைத் தேர்வுசெய்க."
 
@@ -422,11 +422,15 @@ msgstr "திட்டத்திற்கான நம்பகமான வ�
 msgid "Banner Preview"
 msgstr "பேனர் முன்னோட்டம்"
 
-#: warehouse/manage/forms.py:420
+#: warehouse/manage/forms.py:389
+msgid "Provide your response to the request."
+msgstr ""
+
+#: warehouse/manage/forms.py:430
 msgid "Choose an organization account name with 50 characters or less."
 msgstr "50 எழுத்துக்கள் அல்லது அதற்கும் குறைவான நிறுவன கணக்கு பெயரைத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:428
+#: warehouse/manage/forms.py:438
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
@@ -437,7 +441,7 @@ msgstr ""
 "ஐபன்கள் மற்றும் அடிக்கோடிட்டுக் காட்டப்பட வேண்டும். மேலும் ஒரு கடிதம் அல்லது எண்ணுடன் தொடங்கி "
 "முடிக்க வேண்டும். வேறு நிறுவன கணக்கு பெயரைத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:451
+#: warehouse/manage/forms.py:461
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
@@ -445,7 +449,7 @@ msgstr ""
 "இந்த நிறுவன கணக்கு பெயர் ஏற்கனவே பயன்படுத்தப்பட்டுள்ளது. வேறு நிறுவன கணக்கு பெயரைத் "
 "தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:466
+#: warehouse/manage/forms.py:476
 msgid ""
 "You have already submitted an application for that name. Choose a different "
 "organization account name."
@@ -453,16 +457,16 @@ msgstr ""
 "அந்த பெயருக்கான விண்ணப்பத்தை நீங்கள் ஏற்கனவே சமர்ப்பித்துள்ளீர்கள். வேறு நிறுவன கணக்கு பெயரைத் "
 "தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:501
+#: warehouse/manage/forms.py:511
 msgid "Select project"
 msgstr "திட்டத்தைத் தேர்ந்தெடுக்கவும்"
 
-#: warehouse/manage/forms.py:506 warehouse/oidc/forms/_core.py:33
+#: warehouse/manage/forms.py:516 warehouse/oidc/forms/_core.py:33
 #: warehouse/oidc/forms/gitlab.py:57
 msgid "Specify project name"
 msgstr "திட்ட பெயரைக் குறிப்பிடவும்"
 
-#: warehouse/manage/forms.py:510
+#: warehouse/manage/forms.py:520
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
@@ -470,12 +474,12 @@ msgstr ""
 "தபஅஇகு எண் மற்றும் '.', '_' மற்றும் '-' ஆகியவற்றைக் கொண்ட ஒரு கடிதம் அல்லது எண்களுடன் "
 "தொடங்கவும் முடிக்கவும்."
 
-#: warehouse/manage/forms.py:517
+#: warehouse/manage/forms.py:527
 msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr "இந்த திட்ட பெயர் ஏற்கனவே பயன்படுத்தப்பட்டுள்ளது. வேறு திட்ட பெயரைத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:590
+#: warehouse/manage/forms.py:600
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
@@ -483,7 +487,7 @@ msgstr ""
 "நிறுவனத்தின் பெயர் மிக நீளமானது. 100 எழுத்துக்கள் அல்லது அதற்கும் குறைவாக ஒரு "
 "நிறுவனத்தின் பெயரைத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:602
+#: warehouse/manage/forms.py:612
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
@@ -491,11 +495,11 @@ msgstr ""
 "அமைப்பு முகவரி மிக நீளமானது. 400 எழுத்துக்கள் அல்லது அதற்கும் குறைவாக ஒரு நிறுவன "
 "முகவரி ஐத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:608
+#: warehouse/manage/forms.py:618
 msgid "The organization URL must start with http:// or https://"
 msgstr "அமைப்பு முகவரி HTTP: // அல்லது https: // உடன் தொடங்க வேண்டும்"
 
-#: warehouse/manage/forms.py:620
+#: warehouse/manage/forms.py:630
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
@@ -503,15 +507,15 @@ msgstr ""
 "அமைப்பு விளக்கம் மிக நீளமானது. 400 எழுத்துக்கள் அல்லது அதற்கும் குறைவான நிறுவன "
 "விளக்கத்தைத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:655
+#: warehouse/manage/forms.py:665
 msgid "You have already submitted the maximum number of "
 msgstr "நீங்கள் ஏற்கனவே அதிகபட்ச எண்ணிக்கையை சமர்ப்பித்துள்ளீர்கள் "
 
-#: warehouse/manage/forms.py:684
+#: warehouse/manage/forms.py:694
 msgid "Choose a team name with 50 characters or less."
 msgstr "50 எழுத்துக்கள் அல்லது அதற்கும் குறைவான குழு பெயரைத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:691
+#: warehouse/manage/forms.py:701
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
@@ -519,24 +523,24 @@ msgstr ""
 "அணியின் பெயர் தவறானது. குழு பெயர்கள் ஒரு இடம், காலம், அடிக்கோடிட்டு, ஐபன் அல்லது ச்லாச் "
 "ஆகியவற்றுடன் தொடங்கவோ முடிவடையவோ முடியாது. வேறு குழு பெயரைத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:719
+#: warehouse/manage/forms.py:729
 msgid "This team name has already been used. Choose a different team name."
 msgstr "இந்த அணியின் பெயர் ஏற்கனவே பயன்படுத்தப்பட்டுள்ளது. வேறு குழு பெயரைத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:737
+#: warehouse/manage/forms.py:747
 msgid "Specify your alternate repository name"
 msgstr "உங்கள் மாற்று களஞ்சிய பெயரைக் குறிப்பிடவும்"
 
-#: warehouse/manage/forms.py:751
+#: warehouse/manage/forms.py:761
 msgid "Specify your alternate repository URL"
 msgstr "உங்கள் மாற்று களஞ்சிய முகவரி ஐக் குறிப்பிடவும்"
 
-#: warehouse/manage/forms.py:756
+#: warehouse/manage/forms.py:766
 msgid "The URL is too long. Choose a URL with 400 characters or less."
 msgstr ""
 "முகவரி மிக நீளமானது. 400 எழுத்துக்கள் அல்லது அதற்கும் குறைவான முகவரி ஐத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:770
+#: warehouse/manage/forms.py:780
 msgid ""
 "The description is too long. Choose a description with 400 characters or "
 "less."
@@ -703,7 +707,7 @@ msgstr ""
 "திட்டத்திற்கான $ {roup_name அச் ஆக சேர்க்க முடியாது"
 
 #: warehouse/manage/views/__init__.py:2961
-#: warehouse/manage/views/organizations.py:902
+#: warehouse/manage/views/organizations.py:967
 #, python-brace-format
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
@@ -712,7 +716,7 @@ msgstr ""
 "மீண்டும் முயற்சிக்கவும்."
 
 #: warehouse/manage/views/__init__.py:3026
-#: warehouse/manage/views/organizations.py:967
+#: warehouse/manage/views/organizations.py:1032
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr "'$ {username}' க்கு அழைப்பு அனுப்பப்பட்டது"
@@ -726,17 +730,17 @@ msgid "Invitation already expired."
 msgstr "அழைப்பு ஏற்கனவே காலாவதியானது."
 
 #: warehouse/manage/views/__init__.py:3102
-#: warehouse/manage/views/organizations.py:1154
+#: warehouse/manage/views/organizations.py:1219
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
 msgstr "அழைப்பிதழ் '$ {username}' இலிருந்து ரத்து செய்யப்பட்டது."
 
-#: warehouse/manage/views/organizations.py:878
+#: warehouse/manage/views/organizations.py:943
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "பயனர் '$ {username}' ஏற்கனவே நிறுவனத்திற்கு $ {role_name} பங்கு உள்ளது"
 
-#: warehouse/manage/views/organizations.py:889
+#: warehouse/manage/views/organizations.py:954
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
@@ -745,16 +749,16 @@ msgstr ""
 "பயனர் '$ {username}' சரிபார்க்கப்பட்ட முதன்மை மின்னஞ்சல் முகவரி இல்லை, மேலும் "
 "நிறுவனத்திற்கு $ {roup_name அச் ஆக சேர்க்க முடியாது"
 
-#: warehouse/manage/views/organizations.py:1049
-#: warehouse/manage/views/organizations.py:1091
+#: warehouse/manage/views/organizations.py:1114
+#: warehouse/manage/views/organizations.py:1156
 msgid "Could not find organization invitation."
 msgstr "நிறுவன அழைப்பிதழைக் கண்டுபிடிக்க முடியவில்லை."
 
-#: warehouse/manage/views/organizations.py:1059
+#: warehouse/manage/views/organizations.py:1124
 msgid "Organization invitation could not be re-sent."
 msgstr "நிறுவன அழைப்பிதழ் மீண்டும் அனுப்ப முடியாது."
 
-#: warehouse/manage/views/organizations.py:1107
+#: warehouse/manage/views/organizations.py:1172
 #, python-brace-format
 msgid "Expired invitation for '${username}' deleted."
 msgstr "'$ {username}' க்கான காலாவதியான அழைப்பு நீக்கப்பட்டது."
@@ -1055,14 +1059,14 @@ msgstr "Monty Python - The Cheese Shop மாதிரிச் சித்த�
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
 #: warehouse/templates/accounts/two-factor.html:55
-#: warehouse/templates/base.html:278 warehouse/templates/base.html:279
-#: warehouse/templates/base.html:280 warehouse/templates/base.html:281
-#: warehouse/templates/base.html:291 warehouse/templates/base.html:292
-#: warehouse/templates/base.html:305 warehouse/templates/base.html:306
-#: warehouse/templates/base.html:308 warehouse/templates/base.html:317
-#: warehouse/templates/base.html:319 warehouse/templates/base.html:320
-#: warehouse/templates/base.html:321 warehouse/templates/base.html:331
-#: warehouse/templates/base.html:344
+#: warehouse/templates/base.html:285 warehouse/templates/base.html:286
+#: warehouse/templates/base.html:287 warehouse/templates/base.html:288
+#: warehouse/templates/base.html:298 warehouse/templates/base.html:299
+#: warehouse/templates/base.html:312 warehouse/templates/base.html:313
+#: warehouse/templates/base.html:315 warehouse/templates/base.html:324
+#: warehouse/templates/base.html:326 warehouse/templates/base.html:327
+#: warehouse/templates/base.html:328 warehouse/templates/base.html:338
+#: warehouse/templates/base.html:351
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/file-details.html:101
 #: warehouse/templates/index.html:100 warehouse/templates/index.html:104
@@ -1073,7 +1077,7 @@ msgstr "Monty Python - The Cheese Shop மாதிரிச் சித்த�
 #: warehouse/templates/manage/account/webauthn-provision.html:28
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
-#: warehouse/templates/manage/manage_base.html:208
+#: warehouse/templates/manage/manage_base.html:211
 #: warehouse/templates/manage/project/release.html:138
 #: warehouse/templates/manage/project/release.html:194
 #: warehouse/templates/manage/project/releases.html:140
@@ -1226,7 +1230,7 @@ msgid "Main navigation"
 msgstr "முதன்மையான வழிசெலுத்தல்"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
-#: warehouse/templates/base.html:275
+#: warehouse/templates/base.html:282
 #: warehouse/templates/includes/current-user-indicator.html:63
 #: warehouse/templates/pages/help.html:119
 #: warehouse/templates/pages/sitemap.html:27
@@ -1308,21 +1312,21 @@ msgstr "ஆர்.எச்.எச்: 40 அண்மைக் கால பு
 msgid "RSS: 40 newest packages"
 msgstr "ஆர்.எச்.எச்: 40 புதிய தொகுப்புகள்"
 
-#: warehouse/templates/base.html:160
+#: warehouse/templates/base.html:167
 msgid "Skip to main content"
 msgstr "முக்கிய உள்ளடக்கத்திற்கு செல்லவும்"
 
-#: warehouse/templates/base.html:163
+#: warehouse/templates/base.html:170
 msgid "Switch to mobile version"
 msgstr "மொபைல் பதிப்பிற்கு மாறவும்"
 
-#: warehouse/templates/base.html:172 warehouse/templates/base.html:181
-#: warehouse/templates/base.html:191
+#: warehouse/templates/base.html:179 warehouse/templates/base.html:188
+#: warehouse/templates/base.html:198
 #: warehouse/templates/includes/flash-messages.html:30
 #: warehouse/templates/includes/session-notifications.html:20
 #: warehouse/templates/manage/account.html:843
-#: warehouse/templates/manage/manage_base.html:340
-#: warehouse/templates/manage/manage_base.html:399
+#: warehouse/templates/manage/manage_base.html:343
+#: warehouse/templates/manage/manage_base.html:402
 #: warehouse/templates/manage/organization/settings.html:227
 #: warehouse/templates/manage/organization/settings.html:290
 #: warehouse/templates/manage/organization/settings.html:296
@@ -1335,12 +1339,12 @@ msgstr "மொபைல் பதிப்பிற்கு மாறவும�
 msgid "Warning"
 msgstr "எச்சரிக்கை"
 
-#: warehouse/templates/base.html:174
+#: warehouse/templates/base.html:181
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
 "நீங்கள் ஆதரிக்கப்படாத உலாவியைப் பயன்படுத்துகிறீர்கள், புதிய பதிப்பிற்கு மேம்படுத்தவும்."
 
-#: warehouse/templates/base.html:183
+#: warehouse/templates/base.html:190
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
@@ -1350,7 +1354,7 @@ msgstr ""
 "இது உண்மையான குறியீட்டை பாதிக்காமல் விநியோக கருவிகள் மற்றும் செயல்முறைகளை முயற்சிக்க "
 "உங்களை அனுமதிக்கிறது."
 
-#: warehouse/templates/base.html:193
+#: warehouse/templates/base.html:200
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
@@ -1358,156 +1362,156 @@ msgstr ""
 "சாவாச்கிரிப்ட் இல்லாமல் சில நற்பொருத்தங்கள் வேலை செய்யாது. நீங்கள் சிக்கல்களை எதிர்கொண்டால் "
 "அதை இயக்க முயற்சிக்கவும்."
 
-#: warehouse/templates/base.html:231 warehouse/templates/base.html:252
+#: warehouse/templates/base.html:238 warehouse/templates/base.html:259
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:43
 msgid "Search PyPI"
 msgstr "பைபியைத் தேடுங்கள்"
 
-#: warehouse/templates/base.html:232 warehouse/templates/base.html:253
+#: warehouse/templates/base.html:239 warehouse/templates/base.html:260
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:46
 msgid "Search projects"
 msgstr "தேடல் திட்டங்கள்"
 
-#: warehouse/templates/base.html:236 warehouse/templates/base.html:257
+#: warehouse/templates/base.html:243 warehouse/templates/base.html:264
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:50
 msgid "Search"
 msgstr "தேடல்"
 
-#: warehouse/templates/base.html:276
+#: warehouse/templates/base.html:283
 msgid "Help navigation"
 msgstr "வழிசெலுத்தலுக்கு உதவுங்கள்"
 
-#: warehouse/templates/base.html:278
+#: warehouse/templates/base.html:285
 msgid "Installing packages"
 msgstr "தொகுப்புகளை நிறுவுதல்"
 
-#: warehouse/templates/base.html:279
+#: warehouse/templates/base.html:286
 msgid "Uploading packages"
 msgstr "தொகுப்புகளை பதிவேற்றுகிறது"
 
-#: warehouse/templates/base.html:280
+#: warehouse/templates/base.html:287
 msgid "User guide"
 msgstr "பயனர் வழிகாட்டி"
 
-#: warehouse/templates/base.html:281
+#: warehouse/templates/base.html:288
 msgid "Project name retention"
 msgstr "திட்ட பெயர் தக்கவைப்பு"
 
-#: warehouse/templates/base.html:282
+#: warehouse/templates/base.html:289
 msgid "FAQs"
 msgstr "கேள்விகள்"
 
-#: warehouse/templates/base.html:288 warehouse/templates/pages/sitemap.html:37
+#: warehouse/templates/base.html:295 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
 msgstr "பைபி பற்றி"
 
-#: warehouse/templates/base.html:289
+#: warehouse/templates/base.html:296
 msgid "About PyPI navigation"
 msgstr "பைபி வழிசெலுத்தல் பற்றி"
 
-#: warehouse/templates/base.html:291
+#: warehouse/templates/base.html:298
 msgid "PyPI Blog"
 msgstr "பூசாரி வலைப்பதிவு"
 
-#: warehouse/templates/base.html:292
+#: warehouse/templates/base.html:299
 msgid "Infrastructure dashboard"
 msgstr "உள்கட்டமைப்பு டாச்போர்டு"
 
-#: warehouse/templates/base.html:293 warehouse/templates/pages/sitemap.html:40
+#: warehouse/templates/base.html:300 warehouse/templates/pages/sitemap.html:40
 #: warehouse/templates/pages/stats.html:16
 msgid "Statistics"
 msgstr "புள்ளிவிவரங்கள்"
 
-#: warehouse/templates/base.html:294
+#: warehouse/templates/base.html:301
 msgid "Logos & trademarks"
 msgstr "லோகோக்கள் மற்றும் வர்த்தக முத்திரைகள்"
 
-#: warehouse/templates/base.html:295
+#: warehouse/templates/base.html:302
 msgid "Our sponsors"
 msgstr "எங்கள் ஒப்புரவாளர்கள்"
 
-#: warehouse/templates/base.html:301
+#: warehouse/templates/base.html:308
 msgid "Contributing to PyPI"
 msgstr "பைபிக்கு பங்களிப்பு"
 
-#: warehouse/templates/base.html:302
+#: warehouse/templates/base.html:309
 msgid "How to contribute navigation"
 msgstr "வழிசெலுத்தலை எவ்வாறு பங்களிப்பது"
 
-#: warehouse/templates/base.html:304
+#: warehouse/templates/base.html:311
 msgid "Bugs and feedback"
 msgstr "பிழைகள் மற்றும் கருத்து"
 
-#: warehouse/templates/base.html:305
+#: warehouse/templates/base.html:312
 msgid "Contribute on GitHub"
 msgstr "கிதுபில் பங்களிப்பு செய்யுங்கள்"
 
-#: warehouse/templates/base.html:306
+#: warehouse/templates/base.html:313
 msgid "Translate PyPI"
 msgstr "பைபியை மொழிபெயர்க்கவும்"
 
-#: warehouse/templates/base.html:307
+#: warehouse/templates/base.html:314
 msgid "Sponsor PyPI"
 msgstr "ஒப்புரவாளர் பைபி"
 
-#: warehouse/templates/base.html:308
+#: warehouse/templates/base.html:315
 msgid "Development credits"
 msgstr "வளர்ச்சி வரவு"
 
-#: warehouse/templates/base.html:314 warehouse/templates/pages/sitemap.html:23
+#: warehouse/templates/base.html:321 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
 msgstr "பைபியைப் பயன்படுத்துதல்"
 
-#: warehouse/templates/base.html:315
+#: warehouse/templates/base.html:322
 msgid "Using PyPI navigation"
 msgstr "பைபி வழிசெலுத்தலைப் பயன்படுத்துதல்"
 
-#: warehouse/templates/base.html:317
+#: warehouse/templates/base.html:324
 #: warehouse/templates/manage/organization/activate_subscription.html:33
 msgid "Terms of Service"
 msgstr "பணி விதிமுறைகள்"
 
-#: warehouse/templates/base.html:318
+#: warehouse/templates/base.html:325
 msgid "Report security issue"
 msgstr "பாதுகாப்பு வெளியீட்டைப் புகாரளிக்கவும்"
 
-#: warehouse/templates/base.html:319
+#: warehouse/templates/base.html:326
 msgid "Code of conduct"
 msgstr "நடத்தை விதிமுறை"
 
-#: warehouse/templates/base.html:320
+#: warehouse/templates/base.html:327
 msgid "Privacy Notice"
 msgstr "தனியுரிமை அறிவிப்பு"
 
-#: warehouse/templates/base.html:321
+#: warehouse/templates/base.html:328
 msgid "Acceptable Use Policy"
 msgstr "ஏற்றுக்கொள்ளக்கூடிய பயன்பாட்டுக் கொள்கை"
 
-#: warehouse/templates/base.html:331
+#: warehouse/templates/base.html:338
 msgid "Status:"
 msgstr "நிலை:"
 
-#: warehouse/templates/base.html:332
+#: warehouse/templates/base.html:339
 msgid "all systems operational"
 msgstr "அனைத்து அமைப்புகளும் செயல்படும்"
 
-#: warehouse/templates/base.html:336
+#: warehouse/templates/base.html:343
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr "பைதான் சமூகத்திற்காக பைதான் சமூகத்தால் உருவாக்கப்பட்டு பராமரிக்கப்படுகிறது."
 
-#: warehouse/templates/base.html:338
+#: warehouse/templates/base.html:345
 msgid "Donate today!"
 msgstr "இன்று நன்கொடை!"
 
-#: warehouse/templates/base.html:345 warehouse/templates/pages/sitemap.html:16
+#: warehouse/templates/base.html:352 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
 msgstr "தள வரைபடம்"
 
-#: warehouse/templates/base.html:351
+#: warehouse/templates/base.html:358
 msgid "Switch to desktop version"
 msgstr "டெச்க்டாப் பதிப்பிற்கு மாறவும்"
 
@@ -1617,19 +1621,19 @@ msgstr "பிழை செயலாக்க படிவம்"
 #: warehouse/templates/accounts/reset-password.html:71
 #: warehouse/templates/accounts/reset-password.html:77
 #: warehouse/templates/manage/account.html:442
-#: warehouse/templates/re-auth.html:18 warehouse/templates/re-auth.html:77
+#: warehouse/templates/re-auth.html:18 warehouse/templates/re-auth.html:80
 msgid "Confirm password"
 msgstr "கடவுச்சொல்லை உறுதிப்படுத்தவும்"
 
-#: warehouse/templates/re-auth.html:30
+#: warehouse/templates/re-auth.html:33
 msgid "Confirm password to continue"
 msgstr "தொடர கடவுச்சொல் உறுதிப்படுத்தவும்"
 
 #: warehouse/templates/accounts/login.html:77
 #: warehouse/templates/accounts/register.html:158
 #: warehouse/templates/accounts/reset-password.html:38
-#: warehouse/templates/manage/manage_base.html:408
-#: warehouse/templates/re-auth.html:50
+#: warehouse/templates/manage/manage_base.html:411
+#: warehouse/templates/re-auth.html:53
 msgid "Password"
 msgstr "கடவுச்சொல்"
 
@@ -1683,11 +1687,11 @@ msgstr "கடவுச்சொல்"
 #: warehouse/templates/manage/organization/settings.html:118
 #: warehouse/templates/manage/organization/settings.html:150
 #: warehouse/templates/manage/organization/teams.html:89
-#: warehouse/templates/manage/organizations.html:187
-#: warehouse/templates/manage/organizations.html:218
-#: warehouse/templates/manage/organizations.html:247
-#: warehouse/templates/manage/organizations.html:272
-#: warehouse/templates/manage/organizations.html:298
+#: warehouse/templates/manage/organizations.html:196
+#: warehouse/templates/manage/organizations.html:227
+#: warehouse/templates/manage/organizations.html:256
+#: warehouse/templates/manage/organizations.html:281
+#: warehouse/templates/manage/organizations.html:307
 #: warehouse/templates/manage/project/publishing.html:46
 #: warehouse/templates/manage/project/publishing.html:61
 #: warehouse/templates/manage/project/publishing.html:83
@@ -1714,27 +1718,27 @@ msgstr "கடவுச்சொல்"
 #: warehouse/templates/manage/team/settings.html:35
 #: warehouse/templates/packaging/submit-malware-observation.html:58
 #: warehouse/templates/packaging/submit-malware-observation.html:71
-#: warehouse/templates/re-auth.html:52
+#: warehouse/templates/re-auth.html:55
 msgid "(required)"
 msgstr "(தேவை)"
 
 #: warehouse/templates/accounts/login.html:84
-#: warehouse/templates/re-auth.html:57
+#: warehouse/templates/re-auth.html:60
 msgid "Your password"
 msgstr "உங்கள் கடவுச்சொல்"
 
 #: warehouse/templates/accounts/login.html:107
-#: warehouse/templates/manage/manage_base.html:411
-#: warehouse/templates/re-auth.html:81
+#: warehouse/templates/manage/manage_base.html:414
+#: warehouse/templates/re-auth.html:84
 msgid "Show password"
 msgstr "கடவுச்சொல்லைக் காட்டு"
 
 #: warehouse/templates/accounts/login.html:111
-#: warehouse/templates/re-auth.html:85
+#: warehouse/templates/re-auth.html:88
 msgid "Forgot password?"
 msgstr "கடவுச்சொல்லை மறந்துவிட்டீர்களா?"
 
-#: warehouse/templates/re-auth.html:89
+#: warehouse/templates/re-auth.html:92
 #, python-format
 msgid ""
 "<b>Tip:</b> you are about to perform a <a href=\"%(href)s\">sensitive "
@@ -1813,7 +1817,7 @@ msgid "Log in to %(title)s"
 msgstr "%(title)s உள்நுழைக"
 
 #: warehouse/templates/accounts/login.html:49
-#: warehouse/templates/accounts/profile.html:39
+#: warehouse/templates/accounts/profile.html:41
 #: warehouse/templates/accounts/register.html:130
 #: warehouse/templates/email/organization-member-added/body.html:30
 #: warehouse/templates/email/organization-member-invited/body.html:30
@@ -1873,7 +1877,7 @@ msgstr ""
 msgid "Profile of %(username)s"
 msgstr "%(username)sுயவிவரம்"
 
-#: warehouse/templates/accounts/profile.html:29
+#: warehouse/templates/accounts/profile.html:31
 #: warehouse/templates/manage/account.html:223
 #: warehouse/templates/manage/organization/roles.html:153
 #: warehouse/templates/manage/organization/roles.html:220
@@ -1884,47 +1888,47 @@ msgstr "%(username)sுயவிவரம்"
 msgid "Avatar for {user} from gravatar.com"
 msgstr "{பயனருக்கான அவதார் fravatar.com இலிருந்து"
 
-#: warehouse/templates/accounts/profile.html:50
-#: warehouse/templates/organizations/profile.html:37
+#: warehouse/templates/accounts/profile.html:52
+#: warehouse/templates/organizations/profile.html:39
 msgid "Date joined"
 msgstr "தேதி இணைந்தது"
 
-#: warehouse/templates/accounts/profile.html:51
-#: warehouse/templates/organizations/profile.html:38
+#: warehouse/templates/accounts/profile.html:53
+#: warehouse/templates/organizations/profile.html:40
 #, python-format
 msgid "Joined %(start_date)s"
 msgstr "இணைந்தது %(start_date)s"
 
-#: warehouse/templates/accounts/profile.html:69
-#: warehouse/templates/organizations/profile.html:51
+#: warehouse/templates/accounts/profile.html:71
+#: warehouse/templates/organizations/profile.html:53
 #, python-format
 msgid "%(count)s project"
 msgid_plural "%(count)s projects"
 msgstr[0] "%(எண்ணிக்கை) திட்டம்"
 msgstr[1] "%(எண்ணிக்கை) திட்டங்கள்"
 
-#: warehouse/templates/accounts/profile.html:75
-#: warehouse/templates/organizations/profile.html:57
+#: warehouse/templates/accounts/profile.html:77
+#: warehouse/templates/organizations/profile.html:59
 msgid "No projects"
 msgstr "திட்டங்கள் இல்லை"
 
-#: warehouse/templates/accounts/profile.html:84
-#: warehouse/templates/accounts/profile.html:114
+#: warehouse/templates/accounts/profile.html:86
+#: warehouse/templates/accounts/profile.html:116
 #: warehouse/templates/manage/organization/projects.html:48
 #: warehouse/templates/manage/projects.html:37
 #: warehouse/templates/manage/projects.html:87
 #: warehouse/templates/manage/team/projects.html:48
-#: warehouse/templates/organizations/profile.html:66
+#: warehouse/templates/organizations/profile.html:68
 #, python-format
 msgid "Last released %(release_date)s"
 msgstr "கடைசியாக வெளியிடப்பட்ட %(release_date)s"
 
-#: warehouse/templates/accounts/profile.html:92
+#: warehouse/templates/accounts/profile.html:94
 #, python-format
 msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgstr "%(user)s எந்தவொரு திட்டத்தையும் PYPI இல் பதிவேற்றவில்லை"
 
-#: warehouse/templates/accounts/profile.html:100
+#: warehouse/templates/accounts/profile.html:102
 #, python-format
 msgid "%(count)s <a href=\"%(href)s#archived-project\">archived</a> project"
 msgid_plural ""
@@ -1932,13 +1936,13 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/accounts/profile.html:111
+#: warehouse/templates/accounts/profile.html:113
 #: warehouse/templates/manage/projects.html:82
 msgid "Archived"
 msgstr "காப்பகப்படுத்தப்பட்டது"
 
 #: warehouse/templates/accounts/recovery-code.html:18
-#: warehouse/templates/manage/manage_base.html:38
+#: warehouse/templates/manage/manage_base.html:41
 msgid "Recovery codes"
 msgstr "மீட்பு குறியீடுகள்"
 
@@ -2334,28 +2338,6 @@ msgstr ""
 msgid "You are receiving this because you are a member of this team."
 msgstr "நீங்கள் இந்த அணியில் உறுப்பினராக இருப்பதால் இதைப் பெறுகிறீர்கள்."
 
-#: warehouse/templates/email/admin-organization-deleted/body.html:27
-#: warehouse/templates/email/organization-deleted/body.html:27
-#, python-format
-msgid "The %(site)s organization \"%(organization_name)s\" has been deleted."
-msgstr "%(தளம்) அமைப்பு \" %(site)s\" நீக்கப்பட்டது."
-
-#: warehouse/templates/email/admin-organization-deleted/body.html:33
-#: warehouse/templates/email/admin-organization-renamed/body.html:33
-#, python-format
-msgid "You are receiving this because you are a %(site)s administrator."
-msgstr "நீங்கள் ஒரு %(தளம்) நிர்வாகி என்பதால் இதைப் பெறுகிறீர்கள்."
-
-#: warehouse/templates/email/admin-organization-renamed/body.html:27
-#: warehouse/templates/email/organization-renamed/body.html:27
-#, python-format
-msgid ""
-"The %(site)s organization has been renamed from "
-"\"%(previous_organization_name)s\" to \"%(organization_name)s\"."
-msgstr ""
-"%(தளம்) அமைப்பு \"%(site)s\" இலிருந்து \"%(previous_organization_name)s\" என்று "
-"மறுபெயரிடப்பட்டுள்ளது."
-
 #: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:20
 #, python-format
 msgid ""
@@ -2458,6 +2440,23 @@ msgstr ""
 "'%(organization_name)s' என்ற புதிய அமைப்பை உருவாக்க உங்கள் கோரிக்கை "
 "அங்கீகரிக்கப்படவில்லை."
 
+#: warehouse/templates/email/new-organization-moreinformationneeded/body.html:18
+#, fuzzy, python-format
+#| msgid ""
+#| "Your request to create a new organization named '%(organization_name)s' "
+#| "was not approved."
+msgid ""
+"We need more information to process your request to create a new "
+"organization named '%(organization_name)s'."
+msgstr ""
+"'%(organization_name)s' என்ற புதிய அமைப்பை உருவாக்க உங்கள் கோரிக்கை "
+"அங்கீகரிக்கப்படவில்லை."
+
+#: warehouse/templates/email/new-organization-moreinformationneeded/body.html:22
+#, python-format
+msgid "Submit your response on %(domain)s"
+msgstr ""
+
 #: warehouse/templates/email/new-organization-requested/body.html:17
 #, python-format
 msgid ""
@@ -2468,10 +2467,14 @@ msgstr ""
 "சமர்ப்பிக்கப்பட்டுள்ளது."
 
 #: warehouse/templates/email/new-organization-requested/body.html:19
-#: warehouse/templates/manage/organizations.html:78
 #: warehouse/templates/manage/organizations.html:158
 msgid "You will receive an email when the organization has been approved"
 msgstr "அமைப்பு அங்கீகரிக்கப்பட்டால் நீங்கள் ஒரு மின்னஞ்சலைப் பெறுவீர்கள்"
+
+#: warehouse/templates/email/organization-deleted/body.html:27
+#, python-format
+msgid "The %(site)s organization \"%(organization_name)s\" has been deleted."
+msgstr "%(தளம்) அமைப்பு \" %(site)s\" நீக்கப்பட்டது."
 
 #: warehouse/templates/email/organization-deleted/body.html:31
 #: warehouse/templates/email/organization-member-added/body.html:38
@@ -2626,6 +2629,15 @@ msgid ""
 "\"%(organization_name)s\" organization."
 msgstr ""
 "%(தள) திட்டம் \"%(site)s\" \"%(project_name)s\" அமைப்பிலிருந்து அகற்றப்பட்டுள்ளன."
+
+#: warehouse/templates/email/organization-renamed/body.html:27
+#, python-format
+msgid ""
+"The %(site)s organization has been renamed from "
+"\"%(previous_organization_name)s\" to \"%(organization_name)s\"."
+msgstr ""
+"%(தளம்) அமைப்பு \"%(site)s\" இலிருந்து \"%(previous_organization_name)s\" என்று "
+"மறுபெயரிடப்பட்டுள்ளது."
 
 #: warehouse/templates/email/organization-updated/body.html:31
 #, python-format
@@ -3135,8 +3147,8 @@ msgstr "இந்த அறிவிப்பை நிராகரிக்க�
 #: warehouse/templates/manage/account.html:199
 #: warehouse/templates/manage/account.html:201
 #: warehouse/templates/manage/account.html:211
-#: warehouse/templates/manage/manage_base.html:329
-#: warehouse/templates/manage/manage_base.html:331
+#: warehouse/templates/manage/manage_base.html:332
+#: warehouse/templates/manage/manage_base.html:334
 #: warehouse/templates/manage/project/release.html:137
 #: warehouse/templates/manage/project/releases.html:178
 #: warehouse/templates/manage/project/settings.html:72
@@ -3152,16 +3164,16 @@ msgid "Admin"
 msgstr "நிர்வாகி"
 
 #: warehouse/templates/includes/current-user-indicator.html:37
-#: warehouse/templates/manage/manage_base.html:239
-#: warehouse/templates/manage/manage_base.html:273
+#: warehouse/templates/manage/manage_base.html:242
+#: warehouse/templates/manage/manage_base.html:276
 #: warehouse/templates/manage/projects.html:18
 #: warehouse/templates/manage/projects.html:62
 msgid "Your projects"
 msgstr "Your திட்டங்கள்"
 
 #: warehouse/templates/includes/current-user-indicator.html:44
-#: warehouse/templates/manage/manage_base.html:246
-#: warehouse/templates/manage/manage_base.html:280
+#: warehouse/templates/manage/manage_base.html:249
+#: warehouse/templates/manage/manage_base.html:283
 #: warehouse/templates/manage/organizations.html:18
 #: warehouse/templates/manage/organizations.html:63
 msgid "Your organizations"
@@ -3170,8 +3182,8 @@ msgstr "உங்கள் நிறுவனங்கள்"
 #: warehouse/templates/includes/current-user-indicator.html:51
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/account/two-factor.html:17
-#: warehouse/templates/manage/manage_base.html:253
-#: warehouse/templates/manage/manage_base.html:287
+#: warehouse/templates/manage/manage_base.html:256
+#: warehouse/templates/manage/manage_base.html:290
 msgid "Account settings"
 msgstr "Account அமைப்புகள்"
 
@@ -3393,8 +3405,8 @@ msgid "Documentation"
 msgstr "ஆவணப்படுத்துதல்"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:51
-#: warehouse/templates/manage/manage_base.html:259
-#: warehouse/templates/manage/manage_base.html:293
+#: warehouse/templates/manage/manage_base.html:262
+#: warehouse/templates/manage/manage_base.html:296
 msgid "Publishing"
 msgstr "வெளியீடு"
 
@@ -3893,13 +3905,13 @@ msgid "None"
 msgstr "எதுவுமில்லை"
 
 #: warehouse/templates/manage/account.html:547
-#: warehouse/templates/manage/manage_base.html:92
+#: warehouse/templates/manage/manage_base.html:95
 #: warehouse/templates/manage/unverified-account.html:270
 msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr "பாதுகாப்பு சாதனம் (<abbr தலைப்பு = \"வலை அங்கீகாரம்\"> வெபாஅ்ன் </abbr>)"
 
 #: warehouse/templates/manage/account.html:549
-#: warehouse/templates/manage/manage_base.html:70
+#: warehouse/templates/manage/manage_base.html:73
 #: warehouse/templates/manage/unverified-account.html:272
 msgid ""
 "Authentication application (<abbr title=\"time-based one-time "
@@ -4355,6 +4367,7 @@ msgstr "உங்கள் PYPI கணக்கை நீக்கு"
 #: warehouse/templates/manage/organizations.html:114
 #: warehouse/templates/manage/organizations.html:120
 #: warehouse/templates/manage/organizations.html:125
+#: warehouse/templates/manage/organizations.html:171
 #: warehouse/templates/manage/project/releases.html:88
 #: warehouse/templates/manage/projects.html:106
 #: warehouse/templates/manage/projects.html:110
@@ -4363,11 +4376,11 @@ msgstr "உங்கள் PYPI கணக்கை நீக்கு"
 msgid "Manage"
 msgstr "நிர்வகிக்கவும்"
 
-#: warehouse/templates/manage/manage_base.html:23
+#: warehouse/templates/manage/manage_base.html:26
 msgid "Two factor authentication (2FA)"
 msgstr "இரண்டு காரணி ஏற்பு (2FA)"
 
-#: warehouse/templates/manage/manage_base.html:25
+#: warehouse/templates/manage/manage_base.html:28
 #, python-format
 msgid ""
 "Two factor authentication adds an additional layer of security to your "
@@ -4378,51 +4391,51 @@ msgstr ""
 "\"%(href)s\"> <abbr தலைப்பு = \"இரண்டு காரணி அங்கீகாரம்\"> 2fa </bbr> </a> பற்றி "
 "மேலும் அறிக. 2FA இயக்கப்பட்டதும், அதை முடக்க முடியாது."
 
-#: warehouse/templates/manage/manage_base.html:29
+#: warehouse/templates/manage/manage_base.html:32
 msgid "Recovery methods enabled"
 msgstr "மீட்பு முறைகள் இயக்கப்பட்டன"
 
-#: warehouse/templates/manage/manage_base.html:32
+#: warehouse/templates/manage/manage_base.html:35
 msgid "Recovery method"
 msgstr "மீட்பு முறை"
 
-#: warehouse/templates/manage/manage_base.html:38
+#: warehouse/templates/manage/manage_base.html:41
 #, python-format
 msgid "generated %(generated_datetime)s"
 msgstr "உருவாக்கப்பட்ட %(generated_datetime)s"
 
-#: warehouse/templates/manage/manage_base.html:38
+#: warehouse/templates/manage/manage_base.html:41
 #, python-format
 msgid "%(remaining)s unused"
 msgstr "%(மீதமுள்ள) பயன்படுத்தப்படாதது"
 
 #: warehouse/templates/manage/account/recovery_codes-burn.html:50
-#: warehouse/templates/manage/manage_base.html:42
+#: warehouse/templates/manage/manage_base.html:45
 msgid "Regenerate"
 msgstr "மீளுருவாக்கம்"
 
-#: warehouse/templates/manage/manage_base.html:52
+#: warehouse/templates/manage/manage_base.html:55
 msgid "Two factor authentication methods enabled"
 msgstr "இரண்டு காரணி அங்கீகார முறைகள் இயக்கப்பட்டன"
 
-#: warehouse/templates/manage/manage_base.html:55
+#: warehouse/templates/manage/manage_base.html:58
 msgid "Two factor method"
 msgstr "இரண்டு காரணி முறை"
 
-#: warehouse/templates/manage/manage_base.html:63
+#: warehouse/templates/manage/manage_base.html:66
 msgid "To remove this 2FA method, you must first add another method."
 msgstr "இந்த 2FA முறையை அகற்ற, நீங்கள் முதலில் மற்றொரு முறையைச் சேர்க்க வேண்டும்."
 
-#: warehouse/templates/manage/manage_base.html:76
-#: warehouse/templates/manage/manage_base.html:96
+#: warehouse/templates/manage/manage_base.html:79
+#: warehouse/templates/manage/manage_base.html:99
 msgid "Cannot remove last 2FA method"
 msgstr "கடைசி 2FA முறையை அகற்ற முடியாது"
 
-#: warehouse/templates/manage/manage_base.html:77
 #: warehouse/templates/manage/manage_base.html:80
-#: warehouse/templates/manage/manage_base.html:97
+#: warehouse/templates/manage/manage_base.html:83
 #: warehouse/templates/manage/manage_base.html:100
-#: warehouse/templates/manage/manage_base.html:575
+#: warehouse/templates/manage/manage_base.html:103
+#: warehouse/templates/manage/manage_base.html:578
 #: warehouse/templates/manage/organization/roles.html:202
 #: warehouse/templates/manage/organization/roles.html:204
 #: warehouse/templates/manage/organization/roles.html:209
@@ -4436,27 +4449,27 @@ msgstr "கடைசி 2FA முறையை அகற்ற முடிய�
 msgid "Remove"
 msgstr "அகற்று"
 
-#: warehouse/templates/manage/manage_base.html:81
+#: warehouse/templates/manage/manage_base.html:84
 msgid "Remove authentication application"
 msgstr "அங்கீகார பயன்பாட்டை அகற்று"
 
-#: warehouse/templates/manage/manage_base.html:82
+#: warehouse/templates/manage/manage_base.html:85
 msgid "Remove application"
 msgstr "பயன்பாட்டை அகற்று"
 
-#: warehouse/templates/manage/manage_base.html:101
+#: warehouse/templates/manage/manage_base.html:104
 msgid "Remove two factor security device"
 msgstr "இரண்டு காரணி பாதுகாப்பு சாதனத்தை அகற்று"
 
-#: warehouse/templates/manage/manage_base.html:102
+#: warehouse/templates/manage/manage_base.html:105
 msgid "Remove device"
 msgstr "சாதனத்தை அகற்று"
 
-#: warehouse/templates/manage/manage_base.html:108
+#: warehouse/templates/manage/manage_base.html:111
 msgid "Device name"
 msgstr "சாதன பெயர்"
 
-#: warehouse/templates/manage/manage_base.html:122
+#: warehouse/templates/manage/manage_base.html:125
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> before adding "
@@ -4465,7 +4478,7 @@ msgstr ""
 "<a href = \"%(href)s\"> உங்கள் கணக்கில் கூடுதல் இரண்டு காரணி அங்கீகார முறைகளைச் "
 "சேர்ப்பதற்கு முன் உங்கள் முதன்மை மின்னஞ்சல் முகவரியை சரிபார்க்கவும்."
 
-#: warehouse/templates/manage/manage_base.html:127
+#: warehouse/templates/manage/manage_base.html:130
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> before enabling "
@@ -4474,7 +4487,7 @@ msgstr ""
 "<a href = \"%(href)s\"> உங்கள் கணக்கில் இரண்டு காரணி அங்கீகாரத்தை இயக்குவதற்கு முன் "
 "உங்கள் முதன்மை மின்னஞ்சல் முகவரியை சரிபார்க்கவும் </a>."
 
-#: warehouse/templates/manage/manage_base.html:138
+#: warehouse/templates/manage/manage_base.html:141
 msgid ""
 "You must generate and safely store recovery codes before adding additional "
 "two factor authentication methods to your account."
@@ -4482,7 +4495,7 @@ msgstr ""
 "உங்கள் கணக்கில் கூடுதல் இரண்டு காரணி அங்கீகார முறைகளைச் சேர்ப்பதற்கு முன் மீட்பு குறியீடுகளை "
 "நீங்கள் உருவாக்கி பாதுகாப்பாக சேமிக்க வேண்டும்."
 
-#: warehouse/templates/manage/manage_base.html:143
+#: warehouse/templates/manage/manage_base.html:146
 msgid ""
 "You must generate and safely store recovery codes before enabling two factor "
 "authentication on your account."
@@ -4490,11 +4503,11 @@ msgstr ""
 "உங்கள் கணக்கில் இரண்டு காரணி அங்கீகாரத்தை இயக்குவதற்கு முன் மீட்பு குறியீடுகளை உருவாக்கி "
 "பாதுகாப்பாக சேமிக்க வேண்டும்."
 
-#: warehouse/templates/manage/manage_base.html:149
+#: warehouse/templates/manage/manage_base.html:152
 msgid "Generate recovery codes"
 msgstr "மீட்பு குறியீடுகளை உருவாக்குங்கள்"
 
-#: warehouse/templates/manage/manage_base.html:158
+#: warehouse/templates/manage/manage_base.html:161
 msgid ""
 "Use a recovery code before adding additional two factor authentication "
 "methods to your account."
@@ -4502,7 +4515,7 @@ msgstr ""
 "உங்கள் கணக்கில் கூடுதல் இரண்டு காரணி அங்கீகார முறைகளைச் சேர்ப்பதற்கு முன் மீட்பு குறியீட்டைப் "
 "பயன்படுத்தவும்."
 
-#: warehouse/templates/manage/manage_base.html:163
+#: warehouse/templates/manage/manage_base.html:166
 msgid ""
 "Use a recovery code before enabling two factor authentication on your "
 "account."
@@ -4510,15 +4523,15 @@ msgstr ""
 "உங்கள் கணக்கில் இரண்டு காரணி அங்கீகாரத்தை இயக்குவதற்கு முன் மீட்பு குறியீட்டைப் பயன்படுத்தவும்."
 
 #: warehouse/templates/manage/account/recovery_codes-burn.html:17
-#: warehouse/templates/manage/manage_base.html:172
+#: warehouse/templates/manage/manage_base.html:175
 msgid "Use a recovery code"
 msgstr "மீட்பு குறியீட்டைப் பயன்படுத்தவும்"
 
-#: warehouse/templates/manage/manage_base.html:183
+#: warehouse/templates/manage/manage_base.html:186
 msgid "You have not enabled two factor authentication on your account."
 msgstr "உங்கள் கணக்கில் இரண்டு காரணி அங்கீகாரத்தை நீங்கள் இயக்கவில்லை."
 
-#: warehouse/templates/manage/manage_base.html:191
+#: warehouse/templates/manage/manage_base.html:194
 msgid ""
 "Add <abbr title=\"two factor authentication\">2FA</abbr> with authentication "
 "application"
@@ -4526,7 +4539,7 @@ msgstr ""
 "அங்கீகார பயன்பாட்டுடன் <abbr தலைப்பு = \"இரண்டு காரணி அங்கீகாரம்\"> 2fa </bbr> ஐச் "
 "சேர்க்கவும்"
 
-#: warehouse/templates/manage/manage_base.html:196
+#: warehouse/templates/manage/manage_base.html:199
 msgid ""
 "Add <abbr title=\"two factor authentication\">2FA</abbr> with security "
 "device (e.g. USB key)"
@@ -4535,7 +4548,7 @@ msgstr ""
 "அங்கீகாரம்\"> 2fa </bbr> ஐச் சேர்க்கவும்"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:37
-#: warehouse/templates/manage/manage_base.html:203
+#: warehouse/templates/manage/manage_base.html:206
 msgid ""
 "Enable JavaScript to set up two factor authentication with a security device "
 "(e.g. USB key)"
@@ -4544,7 +4557,7 @@ msgstr ""
 "சாவாச்கிரிப்டை இயக்கவும்"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:53
-#: warehouse/templates/manage/manage_base.html:208
+#: warehouse/templates/manage/manage_base.html:211
 #, python-format
 msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -4555,58 +4568,58 @@ msgstr ""
 "\"noopener\"> உங்கள் உலாவியை மேம்படுத்தவும் </a> ஒரு பாதுகாப்பு சாதனத்துடன் இரண்டு "
 "காரணி அங்கீகாரத்தை அமைக்கவும் (எ.கா. யூ.எச்.பி விசை)"
 
-#: warehouse/templates/manage/manage_base.html:219
+#: warehouse/templates/manage/manage_base.html:222
 #: warehouse/templates/manage/organization/manage_organization_base.html:28
 #: warehouse/templates/manage/project/manage_project_base.html:28
 #: warehouse/templates/manage/team/manage_team_base.html:28
 msgid "Breadcrumbs"
 msgstr "பிரட்தூள்களில் நனைக்கப்பட்டு"
 
-#: warehouse/templates/manage/manage_base.html:224
+#: warehouse/templates/manage/manage_base.html:227
 #: warehouse/templates/manage/organization/manage_organization_base.html:32
 #: warehouse/templates/manage/project/manage_project_base.html:32
 #: warehouse/templates/manage/team/manage_team_base.html:32
 msgid "Your account"
 msgstr "உங்கள் கணக்கு"
 
-#: warehouse/templates/manage/manage_base.html:234
-#: warehouse/templates/manage/manage_base.html:268
+#: warehouse/templates/manage/manage_base.html:237
+#: warehouse/templates/manage/manage_base.html:271
 msgid "Account navigation"
 msgstr "கணக்கு வழிசெலுத்தல்"
 
-#: warehouse/templates/manage/manage_base.html:341
-#: warehouse/templates/manage/manage_base.html:400
+#: warehouse/templates/manage/manage_base.html:344
+#: warehouse/templates/manage/manage_base.html:403
 msgid "This action cannot be undone!"
 msgstr "இந்த செயலை செயல்தவிர்க்க முடியாது!"
 
-#: warehouse/templates/manage/manage_base.html:353
+#: warehouse/templates/manage/manage_base.html:356
 msgid "Confirm your username to continue."
 msgstr "தொடர உங்கள் பயனர்பெயரை உறுதிப்படுத்தவும்."
 
-#: warehouse/templates/manage/manage_base.html:355
+#: warehouse/templates/manage/manage_base.html:358
 #, python-format
 msgid "Confirm the %(item)s to continue."
 msgstr "தொடர %(item)s உறுதிப்படுத்தவும்."
 
-#: warehouse/templates/manage/manage_base.html:366
-#: warehouse/templates/manage/manage_base.html:418
+#: warehouse/templates/manage/manage_base.html:369
+#: warehouse/templates/manage/manage_base.html:421
 #: warehouse/templates/manage/organization/activate_subscription.html:52
 msgid "Cancel"
 msgstr "ரத்துசெய்"
 
-#: warehouse/templates/manage/manage_base.html:389
+#: warehouse/templates/manage/manage_base.html:392
 msgid "close"
 msgstr "மூடு"
 
-#: warehouse/templates/manage/manage_base.html:405
+#: warehouse/templates/manage/manage_base.html:408
 msgid "Enter your password to continue."
 msgstr "தொடர உங்கள் கடவுச்சொல்லை உள்ளிடவும்."
 
-#: warehouse/templates/manage/manage_base.html:488
+#: warehouse/templates/manage/manage_base.html:491
 msgid "Trusted Publisher Management"
 msgstr "நம்பகமான வெளியீட்டாளர் மேலாண்மை"
 
-#: warehouse/templates/manage/manage_base.html:493
+#: warehouse/templates/manage/manage_base.html:496
 msgid ""
 "OpenID Connect (OIDC) provides a flexible, credential-free mechanism for "
 "delegating publishing authority for a PyPI package to a trusted third party "
@@ -4616,7 +4629,7 @@ msgstr ""
 "PYPI தொகுப்புக்கான வெளியீட்டு அதிகாரத்தை ஒப்படைப்பதற்கான நெகிழ்வான, நற்சான்றிதழ் இல்லாத "
 "பொறிமுறையை வழங்குகிறது."
 
-#: warehouse/templates/manage/manage_base.html:501
+#: warehouse/templates/manage/manage_base.html:504
 msgid ""
 "PyPI users and projects can use trusted publishers to automate their release "
 "processes, without needing to use API tokens or passwords."
@@ -4624,7 +4637,7 @@ msgstr ""
 "பநிஇ டோக்கன்கள் அல்லது கடவுச்சொற்களைப் பயன்படுத்தாமல், PYPI பயனர்கள் மற்றும் திட்டங்கள் "
 "நம்பகமான வெளியீட்டாளர்களை தங்கள் வெளியீட்டு செயல்முறைகளை தானியக்கமாக்க பயன்படுத்தலாம்."
 
-#: warehouse/templates/manage/manage_base.html:508
+#: warehouse/templates/manage/manage_base.html:511
 #, python-format
 msgid ""
 "You can read more about trusted publishers and how to use them <a "
@@ -4633,13 +4646,13 @@ msgstr ""
 "நம்பகமான வெளியீட்டாளர்களைப் பற்றியும் அவற்றை எவ்வாறு பயன்படுத்துவது என்பதையும் <a href = "
 "\"%(href)s\"> இங்கே </a> ஐப் பற்றி மேலும் படிக்கலாம்."
 
-#: warehouse/templates/manage/manage_base.html:546
-#: warehouse/templates/manage/manage_base.html:555
-#: warehouse/templates/manage/manage_base.html:563
+#: warehouse/templates/manage/manage_base.html:549
+#: warehouse/templates/manage/manage_base.html:558
+#: warehouse/templates/manage/manage_base.html:566
 msgid "Any"
 msgstr "ஏதேனும்"
 
-#: warehouse/templates/manage/manage_base.html:582
+#: warehouse/templates/manage/manage_base.html:585
 #: warehouse/templates/manage/organization/history.html:166
 #: warehouse/templates/manage/project/history.html:43
 #: warehouse/templates/manage/project/history.html:97
@@ -4652,7 +4665,7 @@ msgstr "ஏதேனும்"
 msgid "Added by:"
 msgstr "வழங்கியவர்:"
 
-#: warehouse/templates/manage/manage_base.html:584
+#: warehouse/templates/manage/manage_base.html:587
 #: warehouse/templates/manage/organization/history.html:171
 #: warehouse/templates/manage/project/history.html:62
 #: warehouse/templates/manage/project/history.html:128
@@ -4663,24 +4676,24 @@ msgstr "வழங்கியவர்:"
 msgid "Removed by:"
 msgstr "வழங்கியவர்:"
 
-#: warehouse/templates/manage/manage_base.html:586
+#: warehouse/templates/manage/manage_base.html:589
 msgid "Submitted by:"
 msgstr "சமர்ப்பித்தவர்:"
 
-#: warehouse/templates/manage/manage_base.html:589
+#: warehouse/templates/manage/manage_base.html:592
 #: warehouse/templates/manage/project/history.html:247
 msgid "Workflow:"
 msgstr "பணிப்பாய்வு:"
 
-#: warehouse/templates/manage/manage_base.html:591
+#: warehouse/templates/manage/manage_base.html:594
 msgid "Specifier:"
 msgstr "விவரக்குறிப்பு:"
 
-#: warehouse/templates/manage/manage_base.html:594
+#: warehouse/templates/manage/manage_base.html:597
 msgid "Publisher:"
 msgstr "வெளியீட்டாளர்:"
 
-#: warehouse/templates/manage/manage_base.html:596
+#: warehouse/templates/manage/manage_base.html:599
 #: warehouse/templates/manage/project/history.html:52
 #: warehouse/templates/manage/project/history.html:106
 msgid "URL:"
@@ -4715,22 +4728,17 @@ msgstr "அழைப்பை நிராகரிக்கவும்"
 msgid "Organization Name"
 msgstr "அமைப்பு பெயர்"
 
-#: warehouse/templates/manage/organizations.html:76
-#: warehouse/templates/manage/organizations.html:157
+#: warehouse/templates/manage/organizations.html:78
+#: warehouse/templates/manage/organizations.html:152
 #, python-format
 msgid "Organization Type: %(org_type)s"
 msgstr "அமைப்பு வகை: %(org_type)s"
 
-#: warehouse/templates/manage/organizations.html:76
-#: warehouse/templates/manage/organizations.html:157
+#: warehouse/templates/manage/organizations.html:78
+#: warehouse/templates/manage/organizations.html:152
 #, python-format
 msgid "%(org_type)s"
 msgstr "%(org_type)s"
-
-#: warehouse/templates/manage/organizations.html:78
-#: warehouse/templates/manage/organizations.html:158
-msgid "Request Submitted"
-msgstr "சமர்ப்பிக்கப்பட்ட கோரிக்கை"
 
 #: warehouse/templates/manage/organizations.html:81
 #: warehouse/templates/manage/organizations.html:83
@@ -4817,83 +4825,113 @@ msgstr "நீங்கள் இன்னும் பைபியில் உ
 msgid "Pending organization requests"
 msgstr "நிறுவன கோரிக்கைகள் நிலுவையில் உள்ளன"
 
-#: warehouse/templates/manage/organizations.html:145
-msgid ""
-"Approvals for corporate organizations are currently paused while terms of "
-"service and payment are finalized."
-msgstr ""
-"கார்ப்பரேட் அமைப்புகளுக்கான ஒப்புதல்கள் தற்போது இடைநிறுத்தப்பட்டுள்ளன, அதே நேரத்தில் பணி "
-"விதிமுறைகள் மற்றும் கட்டணம் இறுதி செய்யப்படுகின்றன."
+#: warehouse/templates/manage/organizations.html:154
+#, fuzzy
+#| msgid "This organization is not active"
+msgid "This Organization request has been declined"
+msgstr "இந்த அமைப்பு செயலில் இல்லை"
 
-#: warehouse/templates/manage/organizations.html:161
+#: warehouse/templates/manage/organizations.html:154
+#, fuzzy
+#| msgid "Decline"
+msgid "Declined"
+msgstr "வீழ்ச்சி"
+
+#: warehouse/templates/manage/organizations.html:156
+msgid "More information is needed to process this Organization request"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:156
+msgid "More Information Needed"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:158
+msgid "Request Submitted"
+msgstr "சமர்ப்பிக்கப்பட்ட கோரிக்கை"
+
+#: warehouse/templates/manage/organizations.html:162
 #, python-format
 msgid "Submitted %(submitted)s"
 msgstr "சமர்ப்பிக்கப்பட்ட %(submitted)s"
 
-#: warehouse/templates/manage/organizations.html:178
-#: warehouse/templates/manage/organizations.html:329
+#: warehouse/templates/manage/organizations.html:165
+msgid "Declined organization requests will be deleted 30 days after decision."
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:170
+#, fuzzy
+#| msgid "Manage this organization"
+msgid "Manage this organization request"
+msgstr "இந்த அமைப்பை நிர்வகிக்கவும்"
+
+#: warehouse/templates/manage/organizations.html:187
+#: warehouse/templates/manage/organizations.html:338
 msgid "Request a new organization"
 msgstr "புதிய அமைப்பைக் கோருங்கள்"
 
+#: warehouse/templates/manage/organization/application.html:27
 #: warehouse/templates/manage/organization/settings.html:29
-#: warehouse/templates/manage/organizations.html:185
+#: warehouse/templates/manage/organizations.html:194
 msgid "Organization account name"
 msgstr "அமைப்பு கணக்கு பெயர்"
 
-#: warehouse/templates/manage/organizations.html:191
+#: warehouse/templates/manage/organizations.html:200
 msgid "Select an organization account name"
 msgstr "நிறுவன கணக்கு பெயரைத் தேர்ந்தெடுக்கவும்"
 
 #: warehouse/templates/manage/organization/settings.html:32
-#: warehouse/templates/manage/organizations.html:209
+#: warehouse/templates/manage/organizations.html:218
 msgid "This account name is used in URLs on PyPI."
 msgstr "இந்த கணக்கு பெயர் PYPI இல் முகவரி களில் பயன்படுத்தப்படுகிறது."
 
 #: warehouse/templates/manage/organization/settings.html:78
 #: warehouse/templates/manage/organization/settings.html:109
-#: warehouse/templates/manage/organizations.html:210
-#: warehouse/templates/manage/organizations.html:239
-#: warehouse/templates/manage/organizations.html:264
+#: warehouse/templates/manage/organizations.html:219
+#: warehouse/templates/manage/organizations.html:248
+#: warehouse/templates/manage/organizations.html:273
 msgid "For example"
 msgstr "உதாரணமாக"
 
+#: warehouse/templates/manage/organization/application.html:31
 #: warehouse/templates/manage/organization/settings.html:48
-#: warehouse/templates/manage/organizations.html:216
+#: warehouse/templates/manage/organizations.html:225
 msgid "Organization display name"
 msgstr "அமைப்பு காட்சி பெயர்"
 
 #: warehouse/templates/manage/organization/settings.html:55
-#: warehouse/templates/manage/organizations.html:222
+#: warehouse/templates/manage/organizations.html:231
 msgid "Name of your business, product, or project"
 msgstr "உங்கள் வணிகம், தயாரிப்பு அல்லது திட்டத்தின் பெயர்"
 
+#: warehouse/templates/manage/organization/application.html:35
 #: warehouse/templates/manage/organization/settings.html:85
-#: warehouse/templates/manage/organizations.html:245
+#: warehouse/templates/manage/organizations.html:254
 msgid "️Organization URL"
 msgstr "Contraginesionary முகவரி"
 
 #: warehouse/templates/manage/organization/settings.html:92
-#: warehouse/templates/manage/organizations.html:252
+#: warehouse/templates/manage/organizations.html:261
 msgid "URL for your business, product, or project"
 msgstr "உங்கள் வணிகம், தயாரிப்பு அல்லது திட்டத்திற்கான முகவரி"
 
 #: warehouse/templates/manage/organization/settings.html:116
-#: warehouse/templates/manage/organizations.html:270
+#: warehouse/templates/manage/organizations.html:279
 msgid "Organization description"
 msgstr "அமைப்பு விளக்கம்"
 
 #: warehouse/templates/manage/organization/settings.html:123
-#: warehouse/templates/manage/organizations.html:276
+#: warehouse/templates/manage/organizations.html:285
 msgid "Description of your business, product, or project"
 msgstr "உங்கள் வணிகம், தயாரிப்பு அல்லது திட்டத்தின் விளக்கம்"
 
+#: warehouse/templates/manage/organization/application.html:43
 #: warehouse/templates/manage/organization/settings.html:148
-#: warehouse/templates/manage/organizations.html:296
+#: warehouse/templates/manage/organizations.html:305
 msgid "️Organization type"
 msgstr "Cormanication அமைப்பு வகை"
 
 #: warehouse/templates/manage/organization/settings.html:169
-#: warehouse/templates/manage/organizations.html:311
+#: warehouse/templates/manage/organizations.html:320
 msgid ""
 "Companies can create organization accounts as a paid service while community "
 "projects are granted complimentary access."
@@ -4902,11 +4940,11 @@ msgstr ""
 "கட்டண சேவையாக உருவாக்க முடியும்."
 
 #: warehouse/templates/manage/organization/teams.html:104
-#: warehouse/templates/manage/organizations.html:317
+#: warehouse/templates/manage/organizations.html:326
 msgid "Create"
 msgstr "உருவாக்கு"
 
-#: warehouse/templates/manage/organizations.html:321
+#: warehouse/templates/manage/organizations.html:330
 #, python-format
 msgid ""
 "You must first enable <a href=\"%(href)s\">two-factor authentication</a> on "
@@ -4915,15 +4953,15 @@ msgstr ""
 "ஒரு நிறுவனத்தைக் கோருவதற்கு முன் உங்கள் கணக்கில் நீங்கள் முதலில் <a href = \"%(href)s\"> "
 "இரண்டு-காரணி ஏற்பு </a> ஐ இயக்க வேண்டும்."
 
-#: warehouse/templates/manage/organizations.html:331
+#: warehouse/templates/manage/organizations.html:340
 msgid "Your request(s) for a new PyPI organization(s) have been submitted."
 msgstr "புதிய PYPI அமைப்பு (கள்) க்கான உங்கள் கோரிக்கை (கள்) சமர்ப்பிக்கப்பட்டுள்ளன."
 
-#: warehouse/templates/manage/organizations.html:334
+#: warehouse/templates/manage/organizations.html:343
 msgid "You will receive an email when each organization has been approved"
 msgstr "ஒவ்வொரு நிறுவனமும் அங்கீகரிக்கப்பட்டால் நீங்கள் ஒரு மின்னஞ்சலைப் பெறுவீர்கள்"
 
-#: warehouse/templates/manage/organizations.html:334
+#: warehouse/templates/manage/organizations.html:343
 #: warehouse/templates/manage/project/roles.html:146
 #: warehouse/templates/manage/project/roles.html:203
 #: warehouse/templates/manage/project/roles.html:236
@@ -5270,7 +5308,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:352
 #: warehouse/templates/manage/project/publishing.html:294
-#: warehouse/templates/organizations/profile.html:30
+#: warehouse/templates/organizations/profile.html:32
 msgid "Organization"
 msgstr "அமைப்பு"
 
@@ -5801,6 +5839,41 @@ msgid ""
 msgstr ""
 "%(அமைப்பு_பெயர்) அமைப்பின் சார்பாக பைபி <a href = \" %(tos_url)s\"> பணி "
 "விதிமுறைகள் </a> க்கு ஒப்புக்கொள்கிறேன்."
+
+#: warehouse/templates/manage/organization/application.html:20
+#, fuzzy, python-format
+#| msgid "%(organization_name)s organization deleted"
+msgid "Manage '%(organization_application_name)s' Organization Request"
+msgstr "%(அமைப்பு_பெயர்) அமைப்பு நீக்கப்பட்டது"
+
+#: warehouse/templates/manage/organization/application.html:23
+#, fuzzy
+#| msgid "Organization Roles"
+msgid "Organization request"
+msgstr "அமைப்பு பாத்திரங்கள்"
+
+#: warehouse/templates/manage/organization/application.html:39
+#, fuzzy
+#| msgid "Organization description"
+msgid "️Organization description"
+msgstr "அமைப்பு விளக்கம்"
+
+#: warehouse/templates/manage/organization/application.html:47
+#, fuzzy
+#| msgid "Submitted %(submitted)s"
+msgid "Date submitted"
+msgstr "சமர்ப்பிக்கப்பட்ட %(submitted)s"
+
+#: warehouse/templates/manage/organization/application.html:74
+msgid "️Your Response"
+msgstr ""
+
+#: warehouse/templates/manage/organization/application.html:87
+#: warehouse/templates/manage/organization/application.html:88
+#, fuzzy
+#| msgid "Submitted by:"
+msgid "Submit"
+msgstr "சமர்ப்பித்தவர்:"
 
 #: warehouse/templates/manage/organization/history.html:20
 #: warehouse/templates/manage/project/history.html:20
@@ -7820,7 +7893,7 @@ msgstr "அணி பெயர்"
 msgid "Profile of %(orgname)s"
 msgstr "%(orgname)s இன் சுயவிவரம்"
 
-#: warehouse/templates/organizations/profile.html:73
+#: warehouse/templates/organizations/profile.html:75
 #, python-format
 msgid "%(org)s has not uploaded any projects to PyPI, yet"
 msgstr "%(org)s எந்தவொரு திட்டத்தையும் பைபிக்கு பதிவேற்றவில்லை"
@@ -10811,6 +10884,17 @@ msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "'%(filters)s' வடிப்பானுக்கு எந்த முடிவுகளும் இல்லை"
 msgstr[1] "'%(filters)s' வடிப்பான்களுக்கு எந்த முடிவுகளும் இல்லை"
+
+#, python-format
+#~ msgid "You are receiving this because you are a %(site)s administrator."
+#~ msgstr "நீங்கள் ஒரு %(தளம்) நிர்வாகி என்பதால் இதைப் பெறுகிறீர்கள்."
+
+#~ msgid ""
+#~ "Approvals for corporate organizations are currently paused while terms of "
+#~ "service and payment are finalized."
+#~ msgstr ""
+#~ "கார்ப்பரேட் அமைப்புகளுக்கான ஒப்புதல்கள் தற்போது இடைநிறுத்தப்பட்டுள்ளன, அதே நேரத்தில் பணி "
+#~ "விதிமுறைகள் மற்றும் கட்டணம் இறுதி செய்யப்படுகின்றன."
 
 #, python-format
 #~ msgid ""

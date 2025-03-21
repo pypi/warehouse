@@ -138,7 +138,7 @@ msgstr ""
 "khác."
 
 #: warehouse/accounts/forms.py:409 warehouse/manage/forms.py:140
-#: warehouse/manage/forms.py:742
+#: warehouse/manage/forms.py:752
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Tên quá dài. Chọn một tên có tối đa 100 ký tự."
 
@@ -441,11 +441,15 @@ msgstr "Loại bỏ xuất bản tin cậy khỏi dự án "
 msgid "Banner Preview"
 msgstr "Bản xem trước"
 
-#: warehouse/manage/forms.py:420
+#: warehouse/manage/forms.py:389
+msgid "Provide your response to the request."
+msgstr ""
+
+#: warehouse/manage/forms.py:430
 msgid "Choose an organization account name with 50 characters or less."
 msgstr "Chọn tên tài khoản cho tổ chức, tối đa 50 ký tự."
 
-#: warehouse/manage/forms.py:428
+#: warehouse/manage/forms.py:438
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
@@ -457,7 +461,7 @@ msgstr ""
 "đầu và kết thúc bằng một chữ cái hoặc số. Chọn một tên tài khoản khác cho tổ "
 "chức."
 
-#: warehouse/manage/forms.py:451
+#: warehouse/manage/forms.py:461
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -469,7 +473,7 @@ msgstr ""
 "Tên người dùng này đã được sử dụng bởi một tài khoản khác. Chọn một tên "
 "người dùng khác."
 
-#: warehouse/manage/forms.py:466
+#: warehouse/manage/forms.py:476
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -481,26 +485,26 @@ msgstr ""
 "Tên người dùng này đã được sử dụng bởi một tài khoản khác. Chọn một tên "
 "người dùng khác."
 
-#: warehouse/manage/forms.py:501
+#: warehouse/manage/forms.py:511
 #, fuzzy
 #| msgid "Delete project"
 msgid "Select project"
 msgstr "Xóa dự án"
 
-#: warehouse/manage/forms.py:506 warehouse/oidc/forms/_core.py:33
+#: warehouse/manage/forms.py:516 warehouse/oidc/forms/_core.py:33
 #: warehouse/oidc/forms/gitlab.py:57
 #, fuzzy
 #| msgid "Project name"
 msgid "Specify project name"
 msgstr "Tên dự án"
 
-#: warehouse/manage/forms.py:510
+#: warehouse/manage/forms.py:520
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
 
-#: warehouse/manage/forms.py:517
+#: warehouse/manage/forms.py:527
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -511,7 +515,7 @@ msgstr ""
 "Tên người dùng này đã được sử dụng bởi một tài khoản khác. Chọn một tên "
 "người dùng khác."
 
-#: warehouse/manage/forms.py:590
+#: warehouse/manage/forms.py:600
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -519,7 +523,7 @@ msgid ""
 "characters or less."
 msgstr "Tên quá dài. Chọn một tên có tối đa 100 ký tự."
 
-#: warehouse/manage/forms.py:602
+#: warehouse/manage/forms.py:612
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -527,11 +531,11 @@ msgid ""
 "characters or less."
 msgstr "Tên quá dài. Chọn một tên có tối đa 100 ký tự."
 
-#: warehouse/manage/forms.py:608
+#: warehouse/manage/forms.py:618
 msgid "The organization URL must start with http:// or https://"
 msgstr ""
 
-#: warehouse/manage/forms.py:620
+#: warehouse/manage/forms.py:630
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -539,23 +543,23 @@ msgid ""
 "with 400 characters or less."
 msgstr "Tên quá dài. Chọn một tên có tối đa 100 ký tự."
 
-#: warehouse/manage/forms.py:655
+#: warehouse/manage/forms.py:665
 msgid "You have already submitted the maximum number of "
 msgstr ""
 
-#: warehouse/manage/forms.py:684
+#: warehouse/manage/forms.py:694
 #, fuzzy
 #| msgid "Choose a username with 50 characters or less."
 msgid "Choose a team name with 50 characters or less."
 msgstr "Chọn một tên người dùng tối đa 50 ký tự."
 
-#: warehouse/manage/forms.py:691
+#: warehouse/manage/forms.py:701
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:719
+#: warehouse/manage/forms.py:729
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -565,23 +569,23 @@ msgstr ""
 "Tên người dùng này đã được sử dụng bởi một tài khoản khác. Chọn một tên "
 "người dùng khác."
 
-#: warehouse/manage/forms.py:737
+#: warehouse/manage/forms.py:747
 #, fuzzy
 #| msgid "Project name"
 msgid "Specify your alternate repository name"
 msgstr "Tên dự án"
 
-#: warehouse/manage/forms.py:751
+#: warehouse/manage/forms.py:761
 msgid "Specify your alternate repository URL"
 msgstr ""
 
-#: warehouse/manage/forms.py:756
+#: warehouse/manage/forms.py:766
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid "The URL is too long. Choose a URL with 400 characters or less."
 msgstr "Tên quá dài. Chọn một tên có tối đa 100 ký tự."
 
-#: warehouse/manage/forms.py:770
+#: warehouse/manage/forms.py:780
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -788,14 +792,14 @@ msgid ""
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2961
-#: warehouse/manage/views/organizations.py:902
+#: warehouse/manage/views/organizations.py:967
 #, python-brace-format
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:3026
-#: warehouse/manage/views/organizations.py:967
+#: warehouse/manage/views/organizations.py:1032
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr ""
@@ -811,37 +815,37 @@ msgid "Invitation already expired."
 msgstr "Email đã được xác thực"
 
 #: warehouse/manage/views/__init__.py:3102
-#: warehouse/manage/views/organizations.py:1154
+#: warehouse/manage/views/organizations.py:1219
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:878
+#: warehouse/manage/views/organizations.py:943
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:889
+#: warehouse/manage/views/organizations.py:954
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1049
-#: warehouse/manage/views/organizations.py:1091
+#: warehouse/manage/views/organizations.py:1114
+#: warehouse/manage/views/organizations.py:1156
 #, fuzzy
 #| msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgid "Could not find organization invitation."
 msgstr "%(user)s chưa tải lên bất kỳ dự án nào cho PyPI"
 
-#: warehouse/manage/views/organizations.py:1059
+#: warehouse/manage/views/organizations.py:1124
 #, fuzzy
 #| msgid "Organization invitation no longer exists."
 msgid "Organization invitation could not be re-sent."
 msgstr "Lời mời tổ chức không còn tồn tại."
 
-#: warehouse/manage/views/organizations.py:1107
+#: warehouse/manage/views/organizations.py:1172
 #, fuzzy, python-brace-format
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
@@ -1169,14 +1173,14 @@ msgstr "Monty Python - Phác thảo cửa hàng phô mai"
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
 #: warehouse/templates/accounts/two-factor.html:55
-#: warehouse/templates/base.html:278 warehouse/templates/base.html:279
-#: warehouse/templates/base.html:280 warehouse/templates/base.html:281
-#: warehouse/templates/base.html:291 warehouse/templates/base.html:292
-#: warehouse/templates/base.html:305 warehouse/templates/base.html:306
-#: warehouse/templates/base.html:308 warehouse/templates/base.html:317
-#: warehouse/templates/base.html:319 warehouse/templates/base.html:320
-#: warehouse/templates/base.html:321 warehouse/templates/base.html:331
-#: warehouse/templates/base.html:344
+#: warehouse/templates/base.html:285 warehouse/templates/base.html:286
+#: warehouse/templates/base.html:287 warehouse/templates/base.html:288
+#: warehouse/templates/base.html:298 warehouse/templates/base.html:299
+#: warehouse/templates/base.html:312 warehouse/templates/base.html:313
+#: warehouse/templates/base.html:315 warehouse/templates/base.html:324
+#: warehouse/templates/base.html:326 warehouse/templates/base.html:327
+#: warehouse/templates/base.html:328 warehouse/templates/base.html:338
+#: warehouse/templates/base.html:351
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/file-details.html:101
 #: warehouse/templates/index.html:100 warehouse/templates/index.html:104
@@ -1187,7 +1191,7 @@ msgstr "Monty Python - Phác thảo cửa hàng phô mai"
 #: warehouse/templates/manage/account/webauthn-provision.html:28
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
-#: warehouse/templates/manage/manage_base.html:208
+#: warehouse/templates/manage/manage_base.html:211
 #: warehouse/templates/manage/project/release.html:138
 #: warehouse/templates/manage/project/release.html:194
 #: warehouse/templates/manage/project/releases.html:140
@@ -1349,7 +1353,7 @@ msgid "Main navigation"
 msgstr "Điều hướng chính"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
-#: warehouse/templates/base.html:275
+#: warehouse/templates/base.html:282
 #: warehouse/templates/includes/current-user-indicator.html:63
 #: warehouse/templates/pages/help.html:119
 #: warehouse/templates/pages/sitemap.html:27
@@ -1432,21 +1436,21 @@ msgstr "RSS: 40 Cập Nhật mới nhất"
 msgid "RSS: 40 newest packages"
 msgstr "RSS: 40 gói mới nhất"
 
-#: warehouse/templates/base.html:160
+#: warehouse/templates/base.html:167
 msgid "Skip to main content"
 msgstr "Bỏ qua đến nội dung chính"
 
-#: warehouse/templates/base.html:163
+#: warehouse/templates/base.html:170
 msgid "Switch to mobile version"
 msgstr "Chuyển sang phiên bản di động"
 
-#: warehouse/templates/base.html:172 warehouse/templates/base.html:181
-#: warehouse/templates/base.html:191
+#: warehouse/templates/base.html:179 warehouse/templates/base.html:188
+#: warehouse/templates/base.html:198
 #: warehouse/templates/includes/flash-messages.html:30
 #: warehouse/templates/includes/session-notifications.html:20
 #: warehouse/templates/manage/account.html:843
-#: warehouse/templates/manage/manage_base.html:340
-#: warehouse/templates/manage/manage_base.html:399
+#: warehouse/templates/manage/manage_base.html:343
+#: warehouse/templates/manage/manage_base.html:402
 #: warehouse/templates/manage/organization/settings.html:227
 #: warehouse/templates/manage/organization/settings.html:290
 #: warehouse/templates/manage/organization/settings.html:296
@@ -1459,13 +1463,13 @@ msgstr "Chuyển sang phiên bản di động"
 msgid "Warning"
 msgstr "Cảnh báo"
 
-#: warehouse/templates/base.html:174
+#: warehouse/templates/base.html:181
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
 "Bạn đang sử dụng trình duyệt không được hỗ trợ, nâng cấp lên phiên bản mới "
 "hơn."
 
-#: warehouse/templates/base.html:183
+#: warehouse/templates/base.html:190
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
@@ -1475,7 +1479,7 @@ msgstr ""
 "cho phép bạn thử các công cụ và quy trình phân phối mà không ảnh hưởng đến "
 "chỉ mục thực."
 
-#: warehouse/templates/base.html:193
+#: warehouse/templates/base.html:200
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
@@ -1483,167 +1487,167 @@ msgstr ""
 "Một số tính năng có thể không hoạt động mà không cần JavaScript. Hãy thử bật "
 "nó nếu bạn gặp sự cố."
 
-#: warehouse/templates/base.html:231 warehouse/templates/base.html:252
+#: warehouse/templates/base.html:238 warehouse/templates/base.html:259
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:43
 msgid "Search PyPI"
 msgstr "Tìm kiếm PyPI"
 
-#: warehouse/templates/base.html:232 warehouse/templates/base.html:253
+#: warehouse/templates/base.html:239 warehouse/templates/base.html:260
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:46
 msgid "Search projects"
 msgstr "Tìm kiếm dự án"
 
-#: warehouse/templates/base.html:236 warehouse/templates/base.html:257
+#: warehouse/templates/base.html:243 warehouse/templates/base.html:264
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:50
 msgid "Search"
 msgstr "Tìm"
 
-#: warehouse/templates/base.html:276
+#: warehouse/templates/base.html:283
 msgid "Help navigation"
 msgstr "Trợ giúp điều hướng"
 
-#: warehouse/templates/base.html:278
+#: warehouse/templates/base.html:285
 msgid "Installing packages"
 msgstr "Cài đặt gói"
 
-#: warehouse/templates/base.html:279
+#: warehouse/templates/base.html:286
 msgid "Uploading packages"
 msgstr "Tải lên các gói"
 
-#: warehouse/templates/base.html:280
+#: warehouse/templates/base.html:287
 msgid "User guide"
 msgstr "Hướng dẫn sử dụng"
 
-#: warehouse/templates/base.html:281
+#: warehouse/templates/base.html:288
 #, fuzzy
 #| msgid "Project name"
 msgid "Project name retention"
 msgstr "Tên dự án"
 
-#: warehouse/templates/base.html:282
+#: warehouse/templates/base.html:289
 msgid "FAQs"
 msgstr "Câu hỏi thường gặp"
 
-#: warehouse/templates/base.html:288 warehouse/templates/pages/sitemap.html:37
+#: warehouse/templates/base.html:295 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
 msgstr "Về PyPI"
 
-#: warehouse/templates/base.html:289
+#: warehouse/templates/base.html:296
 msgid "About PyPI navigation"
 msgstr "Về điều hướng PyPI"
 
-#: warehouse/templates/base.html:291
+#: warehouse/templates/base.html:298
 msgid "PyPI Blog"
 msgstr ""
 
-#: warehouse/templates/base.html:292
+#: warehouse/templates/base.html:299
 msgid "Infrastructure dashboard"
 msgstr "Bảng điều khiển cơ sở hạ tầng"
 
-#: warehouse/templates/base.html:293 warehouse/templates/pages/sitemap.html:40
+#: warehouse/templates/base.html:300 warehouse/templates/pages/sitemap.html:40
 #: warehouse/templates/pages/stats.html:16
 msgid "Statistics"
 msgstr "Thống kê"
 
-#: warehouse/templates/base.html:294
+#: warehouse/templates/base.html:301
 msgid "Logos & trademarks"
 msgstr ""
 
-#: warehouse/templates/base.html:295
+#: warehouse/templates/base.html:302
 msgid "Our sponsors"
 msgstr "Nhà tài trợ của chúng tôi"
 
-#: warehouse/templates/base.html:301
+#: warehouse/templates/base.html:308
 msgid "Contributing to PyPI"
 msgstr "Góp sức cho PyPI"
 
-#: warehouse/templates/base.html:302
+#: warehouse/templates/base.html:309
 msgid "How to contribute navigation"
 msgstr "Cách đóng góp điều hướng"
 
-#: warehouse/templates/base.html:304
+#: warehouse/templates/base.html:311
 msgid "Bugs and feedback"
 msgstr "Lỗi và phản hồi"
 
-#: warehouse/templates/base.html:305
+#: warehouse/templates/base.html:312
 msgid "Contribute on GitHub"
 msgstr "Đóng góp trên GitHub"
 
-#: warehouse/templates/base.html:306
+#: warehouse/templates/base.html:313
 msgid "Translate PyPI"
 msgstr "Dịch PyPI"
 
-#: warehouse/templates/base.html:307
+#: warehouse/templates/base.html:314
 #, fuzzy
 #| msgid "Search PyPI"
 msgid "Sponsor PyPI"
 msgstr "Tìm kiếm PyPI"
 
-#: warehouse/templates/base.html:308
+#: warehouse/templates/base.html:315
 msgid "Development credits"
 msgstr "Công trạng của các nhà phát triển"
 
-#: warehouse/templates/base.html:314 warehouse/templates/pages/sitemap.html:23
+#: warehouse/templates/base.html:321 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
 msgstr "Sử dụng PyPI"
 
-#: warehouse/templates/base.html:315
+#: warehouse/templates/base.html:322
 msgid "Using PyPI navigation"
 msgstr "Sử dụng điều hướng PyPI"
 
-#: warehouse/templates/base.html:317
+#: warehouse/templates/base.html:324
 #: warehouse/templates/manage/organization/activate_subscription.html:33
 #, fuzzy
 #| msgid "Terms of use"
 msgid "Terms of Service"
 msgstr "Điều khoản sử dụng"
 
-#: warehouse/templates/base.html:318
+#: warehouse/templates/base.html:325
 msgid "Report security issue"
 msgstr "Báo cáo vấn đề bảo mật"
 
-#: warehouse/templates/base.html:319
+#: warehouse/templates/base.html:326
 msgid "Code of conduct"
 msgstr "Quy tắc ứng xử"
 
-#: warehouse/templates/base.html:320
+#: warehouse/templates/base.html:327
 #, fuzzy
 #| msgid "Privacy policy"
 msgid "Privacy Notice"
 msgstr "Chính sách bảo mật"
 
-#: warehouse/templates/base.html:321
+#: warehouse/templates/base.html:328
 msgid "Acceptable Use Policy"
 msgstr ""
 
-#: warehouse/templates/base.html:331
+#: warehouse/templates/base.html:338
 #, fuzzy
 #| msgid "Status: "
 msgid "Status:"
 msgstr "Trạng thái: "
 
-#: warehouse/templates/base.html:332
+#: warehouse/templates/base.html:339
 msgid "all systems operational"
 msgstr "tất cả các hệ thống hoạt động"
 
-#: warehouse/templates/base.html:336
+#: warehouse/templates/base.html:343
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr ""
 "Được phát triển và duy trì bởi cộng đồng Python, dành cho cộng đồng Python."
 
-#: warehouse/templates/base.html:338
+#: warehouse/templates/base.html:345
 msgid "Donate today!"
 msgstr "Quyên góp ngay hôm nay!"
 
-#: warehouse/templates/base.html:345 warehouse/templates/pages/sitemap.html:16
+#: warehouse/templates/base.html:352 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
 msgstr "Sơ đồ trang web"
 
-#: warehouse/templates/base.html:351
+#: warehouse/templates/base.html:358
 msgid "Switch to desktop version"
 msgstr "Chuyển sang phiên bản máy tính để bàn"
 
@@ -1760,11 +1764,11 @@ msgstr "Lỗi xử lý form"
 #: warehouse/templates/accounts/reset-password.html:71
 #: warehouse/templates/accounts/reset-password.html:77
 #: warehouse/templates/manage/account.html:442
-#: warehouse/templates/re-auth.html:18 warehouse/templates/re-auth.html:77
+#: warehouse/templates/re-auth.html:18 warehouse/templates/re-auth.html:80
 msgid "Confirm password"
 msgstr "Xác nhận mật khẩu"
 
-#: warehouse/templates/re-auth.html:30
+#: warehouse/templates/re-auth.html:33
 #, fuzzy
 #| msgid "Enter your password to continue."
 msgid "Confirm password to continue"
@@ -1773,8 +1777,8 @@ msgstr "Nhập mật khẩu của bạn để tiếp tục."
 #: warehouse/templates/accounts/login.html:77
 #: warehouse/templates/accounts/register.html:158
 #: warehouse/templates/accounts/reset-password.html:38
-#: warehouse/templates/manage/manage_base.html:408
-#: warehouse/templates/re-auth.html:50
+#: warehouse/templates/manage/manage_base.html:411
+#: warehouse/templates/re-auth.html:53
 msgid "Password"
 msgstr "Mật khẩu"
 
@@ -1828,11 +1832,11 @@ msgstr "Mật khẩu"
 #: warehouse/templates/manage/organization/settings.html:118
 #: warehouse/templates/manage/organization/settings.html:150
 #: warehouse/templates/manage/organization/teams.html:89
-#: warehouse/templates/manage/organizations.html:187
-#: warehouse/templates/manage/organizations.html:218
-#: warehouse/templates/manage/organizations.html:247
-#: warehouse/templates/manage/organizations.html:272
-#: warehouse/templates/manage/organizations.html:298
+#: warehouse/templates/manage/organizations.html:196
+#: warehouse/templates/manage/organizations.html:227
+#: warehouse/templates/manage/organizations.html:256
+#: warehouse/templates/manage/organizations.html:281
+#: warehouse/templates/manage/organizations.html:307
 #: warehouse/templates/manage/project/publishing.html:46
 #: warehouse/templates/manage/project/publishing.html:61
 #: warehouse/templates/manage/project/publishing.html:83
@@ -1859,27 +1863,27 @@ msgstr "Mật khẩu"
 #: warehouse/templates/manage/team/settings.html:35
 #: warehouse/templates/packaging/submit-malware-observation.html:58
 #: warehouse/templates/packaging/submit-malware-observation.html:71
-#: warehouse/templates/re-auth.html:52
+#: warehouse/templates/re-auth.html:55
 msgid "(required)"
 msgstr "(bắt buộc)"
 
 #: warehouse/templates/accounts/login.html:84
-#: warehouse/templates/re-auth.html:57
+#: warehouse/templates/re-auth.html:60
 msgid "Your password"
 msgstr "Mật khẩu của bạn"
 
 #: warehouse/templates/accounts/login.html:107
-#: warehouse/templates/manage/manage_base.html:411
-#: warehouse/templates/re-auth.html:81
+#: warehouse/templates/manage/manage_base.html:414
+#: warehouse/templates/re-auth.html:84
 msgid "Show password"
 msgstr "Hiển thị mật khẩu"
 
 #: warehouse/templates/accounts/login.html:111
-#: warehouse/templates/re-auth.html:85
+#: warehouse/templates/re-auth.html:88
 msgid "Forgot password?"
 msgstr "Quên mật khẩu?"
 
-#: warehouse/templates/re-auth.html:89
+#: warehouse/templates/re-auth.html:92
 #, python-format
 msgid ""
 "<b>Tip:</b> you are about to perform a <a href=\"%(href)s\">sensitive "
@@ -1956,7 +1960,7 @@ msgid "Log in to %(title)s"
 msgstr "Đăng nhập vào %(title)s"
 
 #: warehouse/templates/accounts/login.html:49
-#: warehouse/templates/accounts/profile.html:39
+#: warehouse/templates/accounts/profile.html:41
 #: warehouse/templates/accounts/register.html:130
 #: warehouse/templates/email/organization-member-added/body.html:30
 #: warehouse/templates/email/organization-member-invited/body.html:30
@@ -2015,7 +2019,7 @@ msgstr "Bạn chưa kích hoạt xác thực hai yếu tố trên tài khoản c
 msgid "Profile of %(username)s"
 msgstr "Hồ sơ của %(username)s"
 
-#: warehouse/templates/accounts/profile.html:29
+#: warehouse/templates/accounts/profile.html:31
 #: warehouse/templates/manage/account.html:223
 #: warehouse/templates/manage/organization/roles.html:153
 #: warehouse/templates/manage/organization/roles.html:220
@@ -2026,56 +2030,56 @@ msgstr "Hồ sơ của %(username)s"
 msgid "Avatar for {user} from gravatar.com"
 msgstr "Hình đại diện cho {user} từ gravatar.com"
 
-#: warehouse/templates/accounts/profile.html:50
-#: warehouse/templates/organizations/profile.html:37
+#: warehouse/templates/accounts/profile.html:52
+#: warehouse/templates/organizations/profile.html:39
 msgid "Date joined"
 msgstr "Ngày tham gia"
 
-#: warehouse/templates/accounts/profile.html:51
-#: warehouse/templates/organizations/profile.html:38
+#: warehouse/templates/accounts/profile.html:53
+#: warehouse/templates/organizations/profile.html:40
 #, fuzzy, python-format
 #| msgid "Joined on %(start_date)s"
 msgid "Joined %(start_date)s"
 msgstr "Tham gia vào %(start_date)s"
 
-#: warehouse/templates/accounts/profile.html:69
-#: warehouse/templates/organizations/profile.html:51
+#: warehouse/templates/accounts/profile.html:71
+#: warehouse/templates/organizations/profile.html:53
 #, fuzzy, python-format
 #| msgid "Your projects"
 msgid "%(count)s project"
 msgid_plural "%(count)s projects"
 msgstr[0] "Dự án của bạn"
 
-#: warehouse/templates/accounts/profile.html:75
-#: warehouse/templates/organizations/profile.html:57
+#: warehouse/templates/accounts/profile.html:77
+#: warehouse/templates/organizations/profile.html:59
 msgid "No projects"
 msgstr "Không có dự án"
 
-#: warehouse/templates/accounts/profile.html:84
-#: warehouse/templates/accounts/profile.html:114
+#: warehouse/templates/accounts/profile.html:86
+#: warehouse/templates/accounts/profile.html:116
 #: warehouse/templates/manage/organization/projects.html:48
 #: warehouse/templates/manage/projects.html:37
 #: warehouse/templates/manage/projects.html:87
 #: warehouse/templates/manage/team/projects.html:48
-#: warehouse/templates/organizations/profile.html:66
+#: warehouse/templates/organizations/profile.html:68
 #, fuzzy, python-format
 #| msgid "Last released on %(release_date)s"
 msgid "Last released %(release_date)s"
 msgstr "Phát hành lần cuối vào %(release_date)s"
 
-#: warehouse/templates/accounts/profile.html:92
+#: warehouse/templates/accounts/profile.html:94
 #, python-format
 msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgstr "%(user)s chưa tải lên bất kỳ dự án nào cho PyPI"
 
-#: warehouse/templates/accounts/profile.html:100
+#: warehouse/templates/accounts/profile.html:102
 #, python-format
 msgid "%(count)s <a href=\"%(href)s#archived-project\">archived</a> project"
 msgid_plural ""
 "%(count)s <a href=\"%(href)s#archived-project\">archived</a> projects"
 msgstr[0] ""
 
-#: warehouse/templates/accounts/profile.html:111
+#: warehouse/templates/accounts/profile.html:113
 #: warehouse/templates/manage/projects.html:82
 #, fuzzy
 #| msgid "Search projects"
@@ -2083,7 +2087,7 @@ msgid "Archived"
 msgstr "Tìm kiếm dự án"
 
 #: warehouse/templates/accounts/recovery-code.html:18
-#: warehouse/templates/manage/manage_base.html:38
+#: warehouse/templates/manage/manage_base.html:41
 #, fuzzy
 #| msgid "Error code"
 msgid "Recovery codes"
@@ -2484,31 +2488,6 @@ msgid "You are receiving this because you are a member of this team."
 msgstr ""
 "Bạn đang nhận được thông tin này bởi vì bạn là một chủ sở hữu của dự án này."
 
-#: warehouse/templates/email/admin-organization-deleted/body.html:27
-#: warehouse/templates/email/organization-deleted/body.html:27
-#, python-format
-msgid "The %(site)s organization \"%(organization_name)s\" has been deleted."
-msgstr ""
-
-#: warehouse/templates/email/admin-organization-deleted/body.html:33
-#: warehouse/templates/email/admin-organization-renamed/body.html:33
-#, fuzzy, python-format
-#| msgid "You are receiving this because you are an owner of this project."
-msgid "You are receiving this because you are a %(site)s administrator."
-msgstr ""
-"Bạn đang nhận được thông tin này bởi vì bạn là một chủ sở hữu của dự án này."
-
-#: warehouse/templates/email/admin-organization-renamed/body.html:27
-#: warehouse/templates/email/organization-renamed/body.html:27
-#, fuzzy, python-format
-#| msgid ""
-#| "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
-msgid ""
-"The %(site)s organization has been renamed from "
-"\"%(previous_organization_name)s\" to \"%(organization_name)s\"."
-msgstr ""
-"<a href=\"%(href)s\">%(username)s</a> bị xóa tư cách %(role_name)s của dự án"
-
 #: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:20
 #, python-format
 msgid ""
@@ -2609,6 +2588,18 @@ msgid ""
 "not approved."
 msgstr ""
 
+#: warehouse/templates/email/new-organization-moreinformationneeded/body.html:18
+#, python-format
+msgid ""
+"We need more information to process your request to create a new "
+"organization named '%(organization_name)s'."
+msgstr ""
+
+#: warehouse/templates/email/new-organization-moreinformationneeded/body.html:22
+#, python-format
+msgid "Submit your response on %(domain)s"
+msgstr ""
+
 #: warehouse/templates/email/new-organization-requested/body.html:17
 #, python-format
 msgid ""
@@ -2617,9 +2608,13 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/new-organization-requested/body.html:19
-#: warehouse/templates/manage/organizations.html:78
 #: warehouse/templates/manage/organizations.html:158
 msgid "You will receive an email when the organization has been approved"
+msgstr ""
+
+#: warehouse/templates/email/organization-deleted/body.html:27
+#, python-format
+msgid "The %(site)s organization \"%(organization_name)s\" has been deleted."
 msgstr ""
 
 #: warehouse/templates/email/organization-deleted/body.html:31
@@ -2801,6 +2796,16 @@ msgstr ""
 msgid ""
 "The %(site)s project \"%(project_name)s\" has been removed from the "
 "\"%(organization_name)s\" organization."
+msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> bị xóa tư cách %(role_name)s của dự án"
+
+#: warehouse/templates/email/organization-renamed/body.html:27
+#, fuzzy, python-format
+#| msgid ""
+#| "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
+msgid ""
+"The %(site)s organization has been renamed from "
+"\"%(previous_organization_name)s\" to \"%(organization_name)s\"."
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> bị xóa tư cách %(role_name)s của dự án"
 
@@ -3409,8 +3414,8 @@ msgstr "Bỏ qua thông báo này"
 #: warehouse/templates/manage/account.html:199
 #: warehouse/templates/manage/account.html:201
 #: warehouse/templates/manage/account.html:211
-#: warehouse/templates/manage/manage_base.html:329
-#: warehouse/templates/manage/manage_base.html:331
+#: warehouse/templates/manage/manage_base.html:332
+#: warehouse/templates/manage/manage_base.html:334
 #: warehouse/templates/manage/project/release.html:137
 #: warehouse/templates/manage/project/releases.html:178
 #: warehouse/templates/manage/project/settings.html:72
@@ -3426,16 +3431,16 @@ msgid "Admin"
 msgstr "Quản trị viên"
 
 #: warehouse/templates/includes/current-user-indicator.html:37
-#: warehouse/templates/manage/manage_base.html:239
-#: warehouse/templates/manage/manage_base.html:273
+#: warehouse/templates/manage/manage_base.html:242
+#: warehouse/templates/manage/manage_base.html:276
 #: warehouse/templates/manage/projects.html:18
 #: warehouse/templates/manage/projects.html:62
 msgid "Your projects"
 msgstr "Dự án của bạn"
 
 #: warehouse/templates/includes/current-user-indicator.html:44
-#: warehouse/templates/manage/manage_base.html:246
-#: warehouse/templates/manage/manage_base.html:280
+#: warehouse/templates/manage/manage_base.html:249
+#: warehouse/templates/manage/manage_base.html:283
 #: warehouse/templates/manage/organizations.html:18
 #: warehouse/templates/manage/organizations.html:63
 msgid "Your organizations"
@@ -3444,8 +3449,8 @@ msgstr ""
 #: warehouse/templates/includes/current-user-indicator.html:51
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/account/two-factor.html:17
-#: warehouse/templates/manage/manage_base.html:253
-#: warehouse/templates/manage/manage_base.html:287
+#: warehouse/templates/manage/manage_base.html:256
+#: warehouse/templates/manage/manage_base.html:290
 msgid "Account settings"
 msgstr "Cài đặt tài khoản"
 
@@ -3678,8 +3683,8 @@ msgid "Documentation"
 msgstr "Tài liệu"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:51
-#: warehouse/templates/manage/manage_base.html:259
-#: warehouse/templates/manage/manage_base.html:293
+#: warehouse/templates/manage/manage_base.html:262
+#: warehouse/templates/manage/manage_base.html:296
 msgid "Publishing"
 msgstr ""
 
@@ -4197,13 +4202,13 @@ msgid "None"
 msgstr "Không"
 
 #: warehouse/templates/manage/account.html:547
-#: warehouse/templates/manage/manage_base.html:92
+#: warehouse/templates/manage/manage_base.html:95
 #: warehouse/templates/manage/unverified-account.html:270
 msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr "Thiết bị bảo mật (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 
 #: warehouse/templates/manage/account.html:549
-#: warehouse/templates/manage/manage_base.html:70
+#: warehouse/templates/manage/manage_base.html:73
 #: warehouse/templates/manage/unverified-account.html:272
 msgid ""
 "Authentication application (<abbr title=\"time-based one-time "
@@ -4710,6 +4715,7 @@ msgstr "Xóa tài khoản PyPI của bạn"
 #: warehouse/templates/manage/organizations.html:114
 #: warehouse/templates/manage/organizations.html:120
 #: warehouse/templates/manage/organizations.html:125
+#: warehouse/templates/manage/organizations.html:171
 #: warehouse/templates/manage/project/releases.html:88
 #: warehouse/templates/manage/projects.html:106
 #: warehouse/templates/manage/projects.html:110
@@ -4718,11 +4724,11 @@ msgstr "Xóa tài khoản PyPI của bạn"
 msgid "Manage"
 msgstr "Quản lý"
 
-#: warehouse/templates/manage/manage_base.html:23
+#: warehouse/templates/manage/manage_base.html:26
 msgid "Two factor authentication (2FA)"
 msgstr "Xác thực hai yếu tố (2FA)"
 
-#: warehouse/templates/manage/manage_base.html:25
+#: warehouse/templates/manage/manage_base.html:28
 #, fuzzy, python-format
 #| msgid ""
 #| "Two factor authentication adds an additional layer of security to your "
@@ -4737,58 +4743,58 @@ msgstr ""
 "bạn. <a href=\"%(href)s\"> Tìm hiểu thêm về <abbr title=\"two factor "
 "authentication\">2FA</abbr></a>."
 
-#: warehouse/templates/manage/manage_base.html:29
+#: warehouse/templates/manage/manage_base.html:32
 #, fuzzy
 #| msgid "Error code"
 msgid "Recovery methods enabled"
 msgstr "Mã lỗi"
 
-#: warehouse/templates/manage/manage_base.html:32
+#: warehouse/templates/manage/manage_base.html:35
 #, fuzzy
 #| msgid "Error code"
 msgid "Recovery method"
 msgstr "Mã lỗi"
 
-#: warehouse/templates/manage/manage_base.html:38
+#: warehouse/templates/manage/manage_base.html:41
 #, fuzzy, python-format
 #| msgid "Last released on %(release_date)s"
 msgid "generated %(generated_datetime)s"
 msgstr "Phát hành lần cuối vào %(release_date)s"
 
-#: warehouse/templates/manage/manage_base.html:38
+#: warehouse/templates/manage/manage_base.html:41
 #, python-format
 msgid "%(remaining)s unused"
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-burn.html:50
-#: warehouse/templates/manage/manage_base.html:42
+#: warehouse/templates/manage/manage_base.html:45
 msgid "Regenerate"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:52
+#: warehouse/templates/manage/manage_base.html:55
 msgid "Two factor authentication methods enabled"
 msgstr "Phương thức xác thực hai yếu tố được kích hoạt"
 
-#: warehouse/templates/manage/manage_base.html:55
+#: warehouse/templates/manage/manage_base.html:58
 msgid "Two factor method"
 msgstr "Phương pháp hai yếu tố"
 
-#: warehouse/templates/manage/manage_base.html:63
+#: warehouse/templates/manage/manage_base.html:66
 msgid "To remove this 2FA method, you must first add another method."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:76
-#: warehouse/templates/manage/manage_base.html:96
+#: warehouse/templates/manage/manage_base.html:79
+#: warehouse/templates/manage/manage_base.html:99
 #, fuzzy
 #| msgid "Cannot remove yourself as owner"
 msgid "Cannot remove last 2FA method"
 msgstr "Không thể xóa vai trò chủ sở hữu của chính bạn"
 
-#: warehouse/templates/manage/manage_base.html:77
 #: warehouse/templates/manage/manage_base.html:80
-#: warehouse/templates/manage/manage_base.html:97
+#: warehouse/templates/manage/manage_base.html:83
 #: warehouse/templates/manage/manage_base.html:100
-#: warehouse/templates/manage/manage_base.html:575
+#: warehouse/templates/manage/manage_base.html:103
+#: warehouse/templates/manage/manage_base.html:578
 #: warehouse/templates/manage/organization/roles.html:202
 #: warehouse/templates/manage/organization/roles.html:204
 #: warehouse/templates/manage/organization/roles.html:209
@@ -4802,27 +4808,27 @@ msgstr "Không thể xóa vai trò chủ sở hữu của chính bạn"
 msgid "Remove"
 msgstr "Bỏ"
 
-#: warehouse/templates/manage/manage_base.html:81
+#: warehouse/templates/manage/manage_base.html:84
 msgid "Remove authentication application"
 msgstr "Xóa ứng dụng xác thực"
 
-#: warehouse/templates/manage/manage_base.html:82
+#: warehouse/templates/manage/manage_base.html:85
 msgid "Remove application"
 msgstr "Xóa ứng dụng"
 
-#: warehouse/templates/manage/manage_base.html:101
+#: warehouse/templates/manage/manage_base.html:104
 msgid "Remove two factor security device"
 msgstr "Loại bỏ thiết bị bảo mật hai yếu tố"
 
-#: warehouse/templates/manage/manage_base.html:102
+#: warehouse/templates/manage/manage_base.html:105
 msgid "Remove device"
 msgstr "Gỡ bỏ thiết bị"
 
-#: warehouse/templates/manage/manage_base.html:108
+#: warehouse/templates/manage/manage_base.html:111
 msgid "Device name"
 msgstr "Tên thiết bị"
 
-#: warehouse/templates/manage/manage_base.html:122
+#: warehouse/templates/manage/manage_base.html:125
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\">Verify your primary email address</a> to add two "
@@ -4834,7 +4840,7 @@ msgstr ""
 "<a href=\"%(href)s\">Xác minh địa chỉ email chính của bạn</a> để bổ sung xác "
 "thực hai yếu tố vào tài khoản của bạn."
 
-#: warehouse/templates/manage/manage_base.html:127
+#: warehouse/templates/manage/manage_base.html:130
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\">Verify your primary email address</a> to add two "
@@ -4846,7 +4852,7 @@ msgstr ""
 "<a href=\"%(href)s\">Xác minh địa chỉ email chính của bạn</a> để bổ sung xác "
 "thực hai yếu tố vào tài khoản của bạn."
 
-#: warehouse/templates/manage/manage_base.html:138
+#: warehouse/templates/manage/manage_base.html:141
 #, fuzzy
 #| msgid "You have not enabled two factor authentication on your account."
 msgid ""
@@ -4854,7 +4860,7 @@ msgid ""
 "two factor authentication methods to your account."
 msgstr "Bạn chưa kích hoạt xác thực hai yếu tố trên tài khoản của mình."
 
-#: warehouse/templates/manage/manage_base.html:143
+#: warehouse/templates/manage/manage_base.html:146
 #, fuzzy
 #| msgid "You have not enabled two factor authentication on your account."
 msgid ""
@@ -4862,13 +4868,13 @@ msgid ""
 "authentication on your account."
 msgstr "Bạn chưa kích hoạt xác thực hai yếu tố trên tài khoản của mình."
 
-#: warehouse/templates/manage/manage_base.html:149
+#: warehouse/templates/manage/manage_base.html:152
 #, fuzzy
 #| msgid "Error code"
 msgid "Generate recovery codes"
 msgstr "Mã lỗi"
 
-#: warehouse/templates/manage/manage_base.html:158
+#: warehouse/templates/manage/manage_base.html:161
 #, fuzzy
 #| msgid "You have not enabled two factor authentication on your account."
 msgid ""
@@ -4876,7 +4882,7 @@ msgid ""
 "methods to your account."
 msgstr "Bạn chưa kích hoạt xác thực hai yếu tố trên tài khoản của mình."
 
-#: warehouse/templates/manage/manage_base.html:163
+#: warehouse/templates/manage/manage_base.html:166
 #, fuzzy
 #| msgid "You have not enabled two factor authentication on your account."
 msgid ""
@@ -4885,19 +4891,19 @@ msgid ""
 msgstr "Bạn chưa kích hoạt xác thực hai yếu tố trên tài khoản của mình."
 
 #: warehouse/templates/manage/account/recovery_codes-burn.html:17
-#: warehouse/templates/manage/manage_base.html:172
+#: warehouse/templates/manage/manage_base.html:175
 #, fuzzy
 #| msgid "Error code"
 msgid "Use a recovery code"
 msgstr "Mã lỗi"
 
-#: warehouse/templates/manage/manage_base.html:183
+#: warehouse/templates/manage/manage_base.html:186
 #, fuzzy
 #| msgid "You have not enabled two factor authentication on your account."
 msgid "You have not enabled two factor authentication on your account."
 msgstr "Bạn chưa kích hoạt xác thực hai yếu tố trên tài khoản của mình."
 
-#: warehouse/templates/manage/manage_base.html:191
+#: warehouse/templates/manage/manage_base.html:194
 #, fuzzy
 #| msgid ""
 #| "Add <abbr title=\"two factor authentication\">2FA</abbr> with "
@@ -4909,7 +4915,7 @@ msgstr ""
 "Thêm <abbr title=\"two factor authentication\"> 2FA </abbr> với ứng dụng xác "
 "thực"
 
-#: warehouse/templates/manage/manage_base.html:196
+#: warehouse/templates/manage/manage_base.html:199
 #, fuzzy
 #| msgid ""
 #| "Add <abbr title=\"two factor authentication\">2FA</abbr> with security "
@@ -4922,7 +4928,7 @@ msgstr ""
 "mật (ví dụ: Khóa USB)"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:37
-#: warehouse/templates/manage/manage_base.html:203
+#: warehouse/templates/manage/manage_base.html:206
 msgid ""
 "Enable JavaScript to set up two factor authentication with a security device "
 "(e.g. USB key)"
@@ -4931,7 +4937,7 @@ msgstr ""
 "khóa USB)"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:53
-#: warehouse/templates/manage/manage_base.html:208
+#: warehouse/templates/manage/manage_base.html:211
 #, python-format
 msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -4942,7 +4948,7 @@ msgstr ""
 "rel=\"noopener\">Nâng cấp trình duyệt của bạn </a> để thiết lập xác thực hai "
 "yếu tố với thiết bị bảo mật (ví dụ: Khóa USB)"
 
-#: warehouse/templates/manage/manage_base.html:219
+#: warehouse/templates/manage/manage_base.html:222
 #: warehouse/templates/manage/organization/manage_organization_base.html:28
 #: warehouse/templates/manage/project/manage_project_base.html:28
 #: warehouse/templates/manage/team/manage_team_base.html:28
@@ -4951,66 +4957,66 @@ msgstr ""
 msgid "Breadcrumbs"
 msgstr "Định vị trên trang"
 
-#: warehouse/templates/manage/manage_base.html:224
+#: warehouse/templates/manage/manage_base.html:227
 #: warehouse/templates/manage/organization/manage_organization_base.html:32
 #: warehouse/templates/manage/project/manage_project_base.html:32
 #: warehouse/templates/manage/team/manage_team_base.html:32
 msgid "Your account"
 msgstr "Tài khoản của bạn"
 
-#: warehouse/templates/manage/manage_base.html:234
-#: warehouse/templates/manage/manage_base.html:268
+#: warehouse/templates/manage/manage_base.html:237
+#: warehouse/templates/manage/manage_base.html:271
 msgid "Account navigation"
 msgstr "Điều hướng tài khoản"
 
-#: warehouse/templates/manage/manage_base.html:341
-#: warehouse/templates/manage/manage_base.html:400
+#: warehouse/templates/manage/manage_base.html:344
+#: warehouse/templates/manage/manage_base.html:403
 msgid "This action cannot be undone!"
 msgstr "Hoạt động này không thể hoàn tác được!"
 
-#: warehouse/templates/manage/manage_base.html:353
+#: warehouse/templates/manage/manage_base.html:356
 msgid "Confirm your username to continue."
 msgstr "Xác nhận tên người dùng của bạn để tiếp tục."
 
-#: warehouse/templates/manage/manage_base.html:355
+#: warehouse/templates/manage/manage_base.html:358
 #, python-format
 msgid "Confirm the %(item)s to continue."
 msgstr "Xác nhận %(item)s để tiếp tục."
 
-#: warehouse/templates/manage/manage_base.html:366
-#: warehouse/templates/manage/manage_base.html:418
+#: warehouse/templates/manage/manage_base.html:369
+#: warehouse/templates/manage/manage_base.html:421
 #: warehouse/templates/manage/organization/activate_subscription.html:52
 msgid "Cancel"
 msgstr "Hủy bỏ"
 
-#: warehouse/templates/manage/manage_base.html:389
+#: warehouse/templates/manage/manage_base.html:392
 msgid "close"
 msgstr "đóng"
 
-#: warehouse/templates/manage/manage_base.html:405
+#: warehouse/templates/manage/manage_base.html:408
 msgid "Enter your password to continue."
 msgstr "Nhập mật khẩu của bạn để tiếp tục."
 
-#: warehouse/templates/manage/manage_base.html:488
+#: warehouse/templates/manage/manage_base.html:491
 #, fuzzy
 #| msgid "Username"
 msgid "Trusted Publisher Management"
 msgstr "Tên người dùng"
 
-#: warehouse/templates/manage/manage_base.html:493
+#: warehouse/templates/manage/manage_base.html:496
 msgid ""
 "OpenID Connect (OIDC) provides a flexible, credential-free mechanism for "
 "delegating publishing authority for a PyPI package to a trusted third party "
 "service, like GitHub Actions."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:501
+#: warehouse/templates/manage/manage_base.html:504
 msgid ""
 "PyPI users and projects can use trusted publishers to automate their release "
 "processes, without needing to use API tokens or passwords."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:508
+#: warehouse/templates/manage/manage_base.html:511
 #, fuzzy, python-format
 #| msgid ""
 #| "To regain access to your account, <a href=\"%(href)s\">reset your "
@@ -5022,13 +5028,13 @@ msgstr ""
 "Để lấy lại quyền truy cập vào tài khoản của bạn, <a href=\"%(href)s\"> đặt "
 "lại mật khẩu </a> trên PyPI."
 
-#: warehouse/templates/manage/manage_base.html:546
-#: warehouse/templates/manage/manage_base.html:555
-#: warehouse/templates/manage/manage_base.html:563
+#: warehouse/templates/manage/manage_base.html:549
+#: warehouse/templates/manage/manage_base.html:558
+#: warehouse/templates/manage/manage_base.html:566
 msgid "Any"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:582
+#: warehouse/templates/manage/manage_base.html:585
 #: warehouse/templates/manage/organization/history.html:166
 #: warehouse/templates/manage/project/history.html:43
 #: warehouse/templates/manage/project/history.html:97
@@ -5041,7 +5047,7 @@ msgstr ""
 msgid "Added by:"
 msgstr "Được thêm bởi:"
 
-#: warehouse/templates/manage/manage_base.html:584
+#: warehouse/templates/manage/manage_base.html:587
 #: warehouse/templates/manage/organization/history.html:171
 #: warehouse/templates/manage/project/history.html:62
 #: warehouse/templates/manage/project/history.html:128
@@ -5052,30 +5058,30 @@ msgstr "Được thêm bởi:"
 msgid "Removed by:"
 msgstr "Xóa bởi:"
 
-#: warehouse/templates/manage/manage_base.html:586
+#: warehouse/templates/manage/manage_base.html:589
 #, fuzzy
 #| msgid "Changed by:"
 msgid "Submitted by:"
 msgstr "Thay đổi bởi:"
 
-#: warehouse/templates/manage/manage_base.html:589
+#: warehouse/templates/manage/manage_base.html:592
 #: warehouse/templates/manage/project/history.html:247
 #, fuzzy
 #| msgid "Your name"
 msgid "Workflow:"
 msgstr "Tên của bạn"
 
-#: warehouse/templates/manage/manage_base.html:591
+#: warehouse/templates/manage/manage_base.html:594
 msgid "Specifier:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:594
+#: warehouse/templates/manage/manage_base.html:597
 #, fuzzy
 #| msgid "Username"
 msgid "Publisher:"
 msgstr "Tên người dùng"
 
-#: warehouse/templates/manage/manage_base.html:596
+#: warehouse/templates/manage/manage_base.html:599
 #: warehouse/templates/manage/project/history.html:52
 #: warehouse/templates/manage/project/history.html:106
 msgid "URL:"
@@ -5118,22 +5124,17 @@ msgstr "Điều hướng chính"
 msgid "Organization Name"
 msgstr "Xác nhận biểu mẫu"
 
-#: warehouse/templates/manage/organizations.html:76
-#: warehouse/templates/manage/organizations.html:157
+#: warehouse/templates/manage/organizations.html:78
+#: warehouse/templates/manage/organizations.html:152
 #, fuzzy, python-format
 #| msgid "Confirm form"
 msgid "Organization Type: %(org_type)s"
 msgstr "Xác nhận biểu mẫu"
 
-#: warehouse/templates/manage/organizations.html:76
-#: warehouse/templates/manage/organizations.html:157
+#: warehouse/templates/manage/organizations.html:78
+#: warehouse/templates/manage/organizations.html:152
 #, python-format
 msgid "%(org_type)s"
-msgstr ""
-
-#: warehouse/templates/manage/organizations.html:78
-#: warehouse/templates/manage/organizations.html:158
-msgid "Request Submitted"
 msgstr ""
 
 #: warehouse/templates/manage/organizations.html:81
@@ -5231,114 +5232,146 @@ msgstr "%(user)s chưa tải lên bất kỳ dự án nào cho PyPI"
 msgid "Pending organization requests"
 msgstr "Tạo một tài khoản"
 
-#: warehouse/templates/manage/organizations.html:145
-msgid ""
-"Approvals for corporate organizations are currently paused while terms of "
-"service and payment are finalized."
+#: warehouse/templates/manage/organizations.html:154
+#, fuzzy
+#| msgid "This project has no releases"
+msgid "This Organization request has been declined"
+msgstr "Dự án này không có bản phát hành nào"
+
+#: warehouse/templates/manage/organizations.html:154
+#, fuzzy
+#| msgid "Changed by:"
+msgid "Declined"
+msgstr "Thay đổi bởi:"
+
+#: warehouse/templates/manage/organizations.html:156
+msgid "More information is needed to process this Organization request"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:161
+#: warehouse/templates/manage/organizations.html:156
+msgid "More Information Needed"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:158
+msgid "Request Submitted"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:162
 #, fuzzy, python-format
 #| msgid "Changed by:"
 msgid "Submitted %(submitted)s"
 msgstr "Thay đổi bởi:"
 
-#: warehouse/templates/manage/organizations.html:178
-#: warehouse/templates/manage/organizations.html:329
+#: warehouse/templates/manage/organizations.html:165
+msgid "Declined organization requests will be deleted 30 days after decision."
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:170
+#, fuzzy
+#| msgid "Create an account"
+msgid "Manage this organization request"
+msgstr "Tạo một tài khoản"
+
+#: warehouse/templates/manage/organizations.html:187
+#: warehouse/templates/manage/organizations.html:338
 #, fuzzy
 #| msgid "Create an account"
 msgid "Request a new organization"
 msgstr "Tạo một tài khoản"
 
+#: warehouse/templates/manage/organization/application.html:27
 #: warehouse/templates/manage/organization/settings.html:29
-#: warehouse/templates/manage/organizations.html:185
+#: warehouse/templates/manage/organizations.html:194
 msgid "Organization account name"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:191
+#: warehouse/templates/manage/organizations.html:200
 msgid "Select an organization account name"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:32
-#: warehouse/templates/manage/organizations.html:209
+#: warehouse/templates/manage/organizations.html:218
 msgid "This account name is used in URLs on PyPI."
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:78
 #: warehouse/templates/manage/organization/settings.html:109
-#: warehouse/templates/manage/organizations.html:210
-#: warehouse/templates/manage/organizations.html:239
-#: warehouse/templates/manage/organizations.html:264
+#: warehouse/templates/manage/organizations.html:219
+#: warehouse/templates/manage/organizations.html:248
+#: warehouse/templates/manage/organizations.html:273
 msgid "For example"
 msgstr ""
 
+#: warehouse/templates/manage/organization/application.html:31
 #: warehouse/templates/manage/organization/settings.html:48
-#: warehouse/templates/manage/organizations.html:216
+#: warehouse/templates/manage/organizations.html:225
 #, fuzzy
 #| msgid "Confirm form"
 msgid "Organization display name"
 msgstr "Xác nhận biểu mẫu"
 
 #: warehouse/templates/manage/organization/settings.html:55
-#: warehouse/templates/manage/organizations.html:222
+#: warehouse/templates/manage/organizations.html:231
 msgid "Name of your business, product, or project"
 msgstr ""
 
+#: warehouse/templates/manage/organization/application.html:35
 #: warehouse/templates/manage/organization/settings.html:85
-#: warehouse/templates/manage/organizations.html:245
+#: warehouse/templates/manage/organizations.html:254
 msgid "️Organization URL"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:92
-#: warehouse/templates/manage/organizations.html:252
+#: warehouse/templates/manage/organizations.html:261
 msgid "URL for your business, product, or project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:116
-#: warehouse/templates/manage/organizations.html:270
+#: warehouse/templates/manage/organizations.html:279
 msgid "Organization description"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:123
-#: warehouse/templates/manage/organizations.html:276
+#: warehouse/templates/manage/organizations.html:285
 msgid "Description of your business, product, or project"
 msgstr ""
 
+#: warehouse/templates/manage/organization/application.html:43
 #: warehouse/templates/manage/organization/settings.html:148
-#: warehouse/templates/manage/organizations.html:296
+#: warehouse/templates/manage/organizations.html:305
 msgid "️Organization type"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:169
-#: warehouse/templates/manage/organizations.html:311
+#: warehouse/templates/manage/organizations.html:320
 msgid ""
 "Companies can create organization accounts as a paid service while community "
 "projects are granted complimentary access."
 msgstr ""
 
 #: warehouse/templates/manage/organization/teams.html:104
-#: warehouse/templates/manage/organizations.html:317
+#: warehouse/templates/manage/organizations.html:326
 #, fuzzy
 #| msgid "Created"
 msgid "Create"
 msgstr "Đã tạo"
 
-#: warehouse/templates/manage/organizations.html:321
+#: warehouse/templates/manage/organizations.html:330
 #, python-format
 msgid ""
 "You must first enable <a href=\"%(href)s\">two-factor authentication</a> on "
 "your account before requesting an organization."
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:331
+#: warehouse/templates/manage/organizations.html:340
 msgid "Your request(s) for a new PyPI organization(s) have been submitted."
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:334
+#: warehouse/templates/manage/organizations.html:343
 msgid "You will receive an email when each organization has been approved"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:334
+#: warehouse/templates/manage/organizations.html:343
 #: warehouse/templates/manage/project/roles.html:146
 #: warehouse/templates/manage/project/roles.html:203
 #: warehouse/templates/manage/project/roles.html:236
@@ -5713,7 +5746,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:352
 #: warehouse/templates/manage/project/publishing.html:294
-#: warehouse/templates/organizations/profile.html:30
+#: warehouse/templates/organizations/profile.html:32
 msgid "Organization"
 msgstr "Tổ chức"
 
@@ -6225,6 +6258,41 @@ msgid ""
 "of the %(organization_name)s organization."
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> trở thành %(role_name)s của dự án"
+
+#: warehouse/templates/manage/organization/application.html:20
+#, fuzzy, python-format
+#| msgid "Manage '%(project_name)s'"
+msgid "Manage '%(organization_application_name)s' Organization Request"
+msgstr "Quản lý '%(project_name)s'"
+
+#: warehouse/templates/manage/organization/application.html:23
+#, fuzzy
+#| msgid "Confirm form"
+msgid "Organization request"
+msgstr "Xác nhận biểu mẫu"
+
+#: warehouse/templates/manage/organization/application.html:39
+#, fuzzy
+#| msgid "Confirm form"
+msgid "️Organization description"
+msgstr "Xác nhận biểu mẫu"
+
+#: warehouse/templates/manage/organization/application.html:47
+#, fuzzy
+#| msgid "Changed by:"
+msgid "Date submitted"
+msgstr "Thay đổi bởi:"
+
+#: warehouse/templates/manage/organization/application.html:74
+msgid "️Your Response"
+msgstr ""
+
+#: warehouse/templates/manage/organization/application.html:87
+#: warehouse/templates/manage/organization/application.html:88
+#, fuzzy
+#| msgid "Changed by:"
+msgid "Submit"
+msgstr "Thay đổi bởi:"
 
 #: warehouse/templates/manage/organization/history.html:20
 #: warehouse/templates/manage/project/history.html:20
@@ -8531,7 +8599,7 @@ msgstr "Tên"
 msgid "Profile of %(orgname)s"
 msgstr "Hồ sơ của %(username)s"
 
-#: warehouse/templates/organizations/profile.html:73
+#: warehouse/templates/organizations/profile.html:75
 #, fuzzy, python-format
 #| msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgid "%(org)s has not uploaded any projects to PyPI, yet"
@@ -11043,6 +11111,13 @@ msgstr ""
 msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] ""
+
+#, fuzzy, python-format
+#~| msgid "You are receiving this because you are an owner of this project."
+#~ msgid "You are receiving this because you are a %(site)s administrator."
+#~ msgstr ""
+#~ "Bạn đang nhận được thông tin này bởi vì bạn là một chủ sở hữu của dự án "
+#~ "này."
 
 #, fuzzy
 #~| msgid "Terms of use"
