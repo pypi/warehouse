@@ -44,7 +44,11 @@ import warehouse
 
 from warehouse import admin, config, static
 from warehouse.accounts import services as account_services
-from warehouse.accounts.interfaces import ITokenService, IUserService
+from warehouse.accounts.interfaces import (
+    IDomainStatusService,
+    ITokenService,
+    IUserService,
+)
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.attestations import services as attestations_services
 from warehouse.attestations.interfaces import IIntegrityService
@@ -169,6 +173,7 @@ def pyramid_services(
     notification_service,
     query_results_cache_service,
     search_service,
+    domain_status_service,
 ):
     services = _Services()
 
@@ -194,6 +199,7 @@ def pyramid_services(
     services.register_service(notification_service, IAdminNotificationService)
     services.register_service(query_results_cache_service, IQueryResultsCache)
     services.register_service(search_service, ISearchService)
+    services.register_service(domain_status_service, IDomainStatusService)
 
     return services
 
@@ -541,6 +547,11 @@ def query_results_cache_service(mockredis):
 @pytest.fixture
 def search_service():
     return search_services.NullSearchService()
+
+
+@pytest.fixture
+def domain_status_service():
+    return account_services.NullDomainStatusService()
 
 
 class QueryRecorder:

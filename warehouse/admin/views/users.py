@@ -28,6 +28,7 @@ from sqlalchemy.orm import joinedload
 
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
+    IDomainStatusService,
     IEmailBreachedService,
     InvalidRecoveryCode,
     IUserService,
@@ -664,4 +665,33 @@ def user_burn_recovery_codes(user, request):
                 pass
 
         request.session.flash(f"Burned {n_burned} recovery code(s)", queue="success")
+    return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
+
+
+@view_config(
+    route_name="admin.user.email_domain_check",
+    require_methods=["POST"],
+    permission=Permissions.AdminUsersEmailWrite,
+    uses_session=True,
+    require_csrf=True,
+    context=User,
+)
+def user_email_domain_check(user, request):
+    """
+    Run a status check on the email domain of the user.
+    """
+    email_address = request.params.get("email_address")
+    email = request.db.scalar(select(Email).where(Email.email == email_address))
+
+    domain_status_service = request.find_service(IDomainStatusService)
+    domain_status = domain_status_service.get_domain_status(email.domain)
+
+    # set the domain status to the email address
+    email.domain_last_checked = datetime.datetime.now(datetime.UTC)
+    email.domain_last_status = domain_status
+    request.db.add(email)
+
+    request.session.flash(
+        f"Domain status check for {email.domain!r} completed", queue="success"
+    )
     return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))

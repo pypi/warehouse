@@ -532,49 +532,45 @@
                     <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
                   {% endfor %}
                 {% endif %}
-
-                {% for field in emails_form.emails.entries %}
-                <div class="row">
-                  <div class="col-sm-7">
-                    {{ render_field("Email", field.email, "email-" ~ loop.index0, class="form-control", placeholder="Email", permission=perms_admin_users_email_write)}}
-                  </div>
-                  <div class="col-sm">
-                    {{ render_checkbox("Primary", field.primary, "email-primary-" ~ loop.index0, permission=perms_admin_users_email_write)}}
-                  </div>
-                  <div class="col-sm">
-                    {{ render_checkbox("Verified", field.verified, "email-verified-" ~ loop.index0, permission=perms_admin_users_email_write) }}
-                  </div>
-                  <div class="col-sm">
-                    {{ render_checkbox("Public", field.public, "email-public-" ~ loop.index0, permission=perms_admin_users_email_write) }}
-                  </div>
-                  {% if breached_email_count[field.email.data] %}
-                  <div class="col-sm">
-                    Breaches: {{ breached_email_count[field.email.data] }}
-                  </div>
-                  {% endif %}
-                  {% if field.unverify_reason.data %}
-                  <div class="col">
-                    <i class="fa fa-times text-red"></i> Unverify Reason: {{ field.unverify_reason.data.value }}
-                  </div>
-                  {% endif %}
-                </div>
                 <div class="row">
                   <div class="col">
-                    Domain Status: {{ field.domain_last_status.data }}
+                    {% for field in emails_form.emails.entries %}
+                      <div class="row">
+                        <div class="col-sm-6">
+                          {{ render_field("Email", field.email, "email-" ~ loop.index0, class="form-control", placeholder="Email", permission=perms_admin_users_email_write) }}
+                        </div>
+                        <div class="col-sm">
+                          {{ render_checkbox("Primary", field.primary, "email-primary-" ~ loop.index0, permission=perms_admin_users_email_write) }}
+                        </div>
+                        <div class="col-sm">
+                          {{ render_checkbox("Verified", field.verified, "email-verified-" ~ loop.index0, permission=perms_admin_users_email_write) }}
+                        </div>
+                        <div class="col-sm">
+                          {{ render_checkbox("Public", field.public, "email-public-" ~ loop.index0, permission=perms_admin_users_email_write) }}
+                        </div>
+                        {% if breached_email_count[field.email.data] %}
+                          <div class="col-sm">Breaches: {{ breached_email_count[field.email.data] }}</div>
+                        {% endif %}
+                        {% if field.unverify_reason.data %}
+                          <div class="col">
+                            <i class="fa fa-times text-red"></i> Unverify Reason: {{ field.unverify_reason.data.value }}
+                          </div>
+                        {% endif %}
+                      </div>
+                      <div class="row">
+                        <div class="col-sm">Domain Status: {{ field.domain_last_status.data }}</div>
+                        <div class="col-sm">Last checked: {{ field.domain_last_checked.data }}</div>
+                        <div class="col-sm-2">
+                          <button type="button"
+                                  class="btn btn-sm btn-info"
+                                  data-toggle="modal"
+                                  data-target="#checkEmailDomain-{{ field.email.id }}">Check now</button>
+                        </div>
+                      </div>
+                      {% if not loop.last %}<hr />{% endif %}
+                    {% endfor %}
                   </div>
-                  <div class="col">
-                    Last checked: {{ field.domain_last_checked.data }}
-                  </div>
-                  {# TODO: Uncomment after implementing an admin route to run the check and flash, but needs to work for each email #}
-                  {# <div class="col">#}
-                  {# <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#checkDomainModal">#}
-                  {# <i class="fa-solid fa-magnifying-glass"></i>#}
-                  {# Check Domain Now #}
-                  {# </button>#}
-                  {# </div>#}
                 </div>
-                {% if not loop.last %}<hr />{% endif %}
-                {% endfor %}
               </div>
 
               <div class="card-footer">
@@ -1063,4 +1059,37 @@
 
     </div>
   </div>
+  {% for email in emails_form.emails.entries %}
+    <div class="modal fade"
+         id="checkEmailDomain-{{ email.id }}-email"
+         tabindex="-1"
+         role="dialog">
+      <form method="POST"
+            action="{{ request.route_path('admin.user.email_domain_check', username=user.username, email_address=email.email) }}">
+        <input name="csrf_token"
+               type="hidden"
+               value="{{ request.session.get_csrf_token() }}">
+        <input name="email_address" type="hidden" value="{{ email.email.data }}">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title" id="checkDomainStatusModalLabel">Check domain status?</h4>
+              <button type="button" class="close" data-dismiss="modal">
+                <span>&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <p>Perform a domain status lookup check and update the database with the results.</p>
+              <p>Check domain for email address:</p>
+              <code>{{ email.email.data }}</code>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-info">Check domain</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  {% endfor %}
 {% endblock %}
