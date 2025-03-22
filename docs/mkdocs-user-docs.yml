@@ -61,6 +61,9 @@ edit_uri: blob/main/docs/user/
 
 nav:
   - "index.md"
+  - "Project Management":
+      - "project-management/storage-limits.md"
+      - "project-management/yanking.md"
   - "Organization Accounts":
       - "organization-accounts/index.md"
       - "organization-accounts/org-acc-faq.md"

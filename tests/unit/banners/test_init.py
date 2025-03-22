@@ -26,7 +26,7 @@ def test_includeme():
     assert config.add_route.calls == [
         pretend.call(
             "includes.db-banners",
-            "/_includes/notification-banners/",
+            "/_includes/unauthed/notification-banners/",
             domain="pypi",
         ),
     ]

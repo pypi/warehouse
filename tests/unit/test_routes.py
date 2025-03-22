@@ -84,65 +84,67 @@ def test_routes(warehouse):
         pretend.call("bucket.sitemap.xml", "/{bucket}.sitemap.xml", domain=warehouse),
         pretend.call(
             "includes.current-user-indicator",
-            "/_includes/current-user-indicator/",
+            "/_includes/authed/current-user-indicator/",
             domain=warehouse,
         ),
         pretend.call(
-            "includes.flash-messages", "/_includes/flash-messages/", domain=warehouse
+            "includes.flash-messages",
+            "/_includes/authed/flash-messages/",
+            domain=warehouse,
         ),
         pretend.call(
             "includes.session-notifications",
-            "/_includes/session-notifications/",
+            "/_includes/authed/session-notifications/",
             domain=warehouse,
         ),
         pretend.call(
             "includes.current-user-profile-callout",
-            "/_includes/current-user-profile-callout/{username}",
+            "/_includes/authed/current-user-profile-callout/{username}",
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",
             domain=warehouse,
         ),
         pretend.call(
             "includes.edit-project-button",
-            "/_includes/edit-project-button/{project_name}",
+            "/_includes/authed/edit-project-button/{project_name}",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}",
             domain=warehouse,
         ),
         pretend.call(
             "includes.profile-actions",
-            "/_includes/profile-actions/{username}",
+            "/_includes/authed/profile-actions/{username}",
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",
             domain=warehouse,
         ),
         pretend.call(
             "includes.profile-public-email",
-            "/_includes/profile-public-email/{username}",
+            "/_includes/authed/profile-public-email/{username}",
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",
             domain=warehouse,
         ),
         pretend.call(
             "includes.sidebar-sponsor-logo",
-            "/_includes/sidebar-sponsor-logo/",
+            "/_includes/unauthed/sidebar-sponsor-logo/",
             domain=warehouse,
         ),
         pretend.call(
             "includes.administer-project-include",
-            "/_includes/administer-project-include/{project_name}",
+            "/_includes/authed/administer-project-include/{project_name}",
             domain=warehouse,
         ),
         pretend.call(
             "includes.administer-user-include",
-            "/_includes/administer-user-include/{user_name}",
+            "/_includes/authed/administer-user-include/{user_name}",
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{user_name}",
             domain=warehouse,
         ),
         pretend.call(
             "includes.submit_malware_report",
-            "/_includes/submit-malware-report/{project_name}",
+            "/_includes/authed/submit-malware-report/{project_name}",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}",
             domain=warehouse,
@@ -276,6 +278,13 @@ def test_routes(warehouse):
         ),
         pretend.call(
             "manage.account.token", "/manage/account/token/", domain=warehouse
+        ),
+        pretend.call(
+            "manage.organizations.application",
+            "/manage/organizations/application/{organization_application_id}/",
+            factory="warehouse.organizations.models:OrganizationApplicationFactory",
+            traverse="/{organization_application_id}",
+            domain=warehouse,
         ),
         pretend.call(
             "manage.organizations", "/manage/organizations/", domain=warehouse

@@ -15,6 +15,8 @@
 
 {% block title %}{% trans orgname=organization.display_name %}Profile of {{ orgname }}{% endtrans %}{% endblock %}
 
+{% block canonical_url %}{{ request.canonical_url(organization=organization.normalized_name) }}{% endblock %}
+
 {% block content %}
 <div class="horizontal-section horizontal-section--medium">
   <div class="tabs-container">

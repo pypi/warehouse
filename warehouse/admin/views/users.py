@@ -23,7 +23,7 @@ import wtforms.validators
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy import or_, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import joinedload
 
 from warehouse.accounts.interfaces import (
@@ -45,7 +45,7 @@ from warehouse.email import (
     send_password_reset_by_admin_email,
 )
 from warehouse.observations.models import ObservationKind
-from warehouse.packaging.models import JournalEntry, Project, Role
+from warehouse.packaging.models import JournalEntry, Project, Release, Role
 from warehouse.utils.paginate import paginate_url_factory
 
 
@@ -185,8 +185,45 @@ def user_detail(user, request):
         .all()
     )
 
+    stmt = (
+        select(
+            Project.name,
+            Project.normalized_name,
+            Project.lifecycle_status,
+            Project.total_size,
+            Role.role_name,
+            func.count(Release.id),
+        )
+        .join(Role, Project.id == Role.project_id)
+        .outerjoin(Release, Project.id == Release.project_id)
+        .where(Role.user_id == user.id)
+        .group_by(
+            Project.name,
+            Project.normalized_name,
+            Project.lifecycle_status,
+            Project.total_size,
+            Role.role_name,
+        )
+        .order_by(Project.normalized_name.asc())
+    )
+
+    user_projects = []
+
+    for row in request.db.execute(stmt):
+        project = {
+            "name": row.name,
+            "normalized_name": row.normalized_name,
+            "lifecycle_status": row.lifecycle_status,
+            "total_size": row.total_size,
+            "role_name": row.role_name,
+            "releases_count": row.count,
+        }
+
+        user_projects.append(project)
+
     return {
         "user": user,
+        "user_projects": user_projects,
         "form": form,
         "emails_form": emails_form,
         "roles": roles,
@@ -619,7 +656,7 @@ def user_burn_recovery_codes(user, request):
 
         for code in codes:
             try:
-                user_service.check_recovery_code(user.id, code)
+                user_service.check_recovery_code(user.id, code, skip_ratelimits=True)
                 n_burned += 1
             except (BurnedRecoveryCode, InvalidRecoveryCode):
                 pass

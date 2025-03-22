@@ -17,6 +17,6 @@ def includeme(config):
     # route to async render banner messages
     config.add_route(
         "includes.db-banners",
-        "/_includes/notification-banners/",
+        "/_includes/unauthed/notification-banners/",
         domain=warehouse,
     )

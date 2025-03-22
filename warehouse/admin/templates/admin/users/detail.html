@@ -97,7 +97,7 @@
             </li>
             <li class="nav-item">
               <a href="#projects" class="nav-link">
-                Projects - Total Owned Size	<span class="float-right badge bg-success">{{ roles | selectattr("role_name", "equalto", "Owner") | sum(attribute="project.total_size") | filesizeformat(binary=True) }}</span>
+                Projects - Total Owned Size	<span class="float-right badge bg-success">{{ user_projects | selectattr("role_name", "equalto", "Owner") | sum(attribute="total_size") | filesizeformat(binary=True) }}</span>
               </a>
             </li>
           </ul>
@@ -192,11 +192,11 @@
                         This will also delete the following projects and their respective releases:
                       </p>
                       <ul>
-                      {% for project in user.projects %}
+                      {% for project in user_projects %}
                         <li>
                           <a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">
                             {{ project.name }}
-                          </a> ({{ project.releases|length }} releases)
+                          </a> ({{ project.releases_count }} releases)
                         </li>
                       {% endfor %}
                       </ul>
@@ -795,11 +795,11 @@
               </tr>
             </thead>
             <tbody>
-            {% for role in roles %}
+            {% for project in user_projects %}
               <tr>
-                <td><a href="{{ request.route_path('admin.project.detail', project_name=role.project.normalized_name) }}">{{ role.project.name }}</a></td>
-                <td>{{ role.role_name }}</td>
-                <td>{{ role.project.total_size | filesizeformat(binary=True) }}</td>
+                <td><a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">{{ project.name }}</a></td>
+                <td>{{ project.role_name }}</td>
+                <td>{{ project.total_size | filesizeformat(binary=True) }}</td>
               </tr>
             {% endfor %}
             </tbody>

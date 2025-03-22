@@ -12,9 +12,13 @@
  # limitations under the License.
 -#}
 {% extends "email/_base/body.txt" %}
+{% set domain = request.registry.settings.get('warehouse.domain') %}
 
 {% block content %}
-{{ initiator_username }}'s new organization named '{{ organization_name }}' has been approved and created.
+{% trans organization_name=organization_name %}We need more information to process your request to create a new organization named '{{ organization_name }}'.{% endtrans %}
 
 {{ message|default('') }}
+
+{% trans domain=domain %}Submit your response on {{ domain }}{% endtrans %}: {{ request.route_url('manage.organizations.application', organization_application_id=organization_application_id) }}
+
 {% endblock %}
