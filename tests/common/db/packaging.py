@@ -107,8 +107,11 @@ class FileFactory(WarehouseFactory):
 
     release = factory.SubFactory(ReleaseFactory)
     python_version = "source"
-    # TODO: Replace when factory_boy supports `unique`. See https://git.io/JM6kx
+
+    # TODO: Replace when factory_boy supports `unique`.
+    #  See https://github.com/FactoryBoy/factory_boy/pull/997
     filename = factory.Sequence(lambda _: fake.unique.file_name())
+
     md5_digest = factory.LazyAttribute(
         lambda o: hashlib.md5(o.filename.encode("utf8")).hexdigest()
     )

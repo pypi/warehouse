@@ -112,7 +112,11 @@ class EmailFactory(WarehouseFactory):
         model = Email
 
     user = factory.SubFactory(UserFactory)
-    email = factory.Faker("safe_email")
+
+    # TODO: Replace when factory_boy supports `unique`.
+    #  See https://github.com/FactoryBoy/factory_boy/pull/997
+    email = factory.Sequence(lambda _: fake.unique.safe_email())
+
     verified = True
     primary = True
     public = False
@@ -133,4 +137,6 @@ class ProhibitedUsernameFactory(WarehouseFactory):
     class Meta:
         model = ProhibitedUserName
 
-    name = factory.Faker("user_name")
+    # TODO: Replace when factory_boy supports `unique`.
+    #  See https://github.com/FactoryBoy/factory_boy/pull/997
+    name = factory.Sequence(lambda _: fake.unique.user_name())
