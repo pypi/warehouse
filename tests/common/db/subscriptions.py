@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import factory
+import faker
 
 from warehouse.subscriptions.models import (
     StripeCustomer,
@@ -21,7 +22,9 @@ from warehouse.subscriptions.models import (
     StripeSubscriptionStatus,
 )
 
-from .base import UniqueFaker, WarehouseFactory
+from .base import WarehouseFactory
+
+fake = faker.Faker()
 
 
 class StripeCustomerFactory(WarehouseFactory):
@@ -30,7 +33,10 @@ class StripeCustomerFactory(WarehouseFactory):
 
     id = factory.Faker("uuid4", cast_to=None)
     customer_id = factory.Faker("uuid4")
-    billing_email = UniqueFaker("safe_email")
+
+    # TODO: Replace when factory_boy supports `unique`.
+    #  See https://github.com/FactoryBoy/factory_boy/pull/997
+    billing_email = factory.Sequence(lambda _: fake.unique.safe_email())
 
 
 class StripeSubscriptionProductFactory(WarehouseFactory):
