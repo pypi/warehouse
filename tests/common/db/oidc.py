@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import factory
+import faker
 
 from warehouse.oidc.models import (
     ActiveStatePublisher,
@@ -25,6 +26,8 @@ from warehouse.oidc.models import (
 
 from .accounts import UserFactory
 from .base import WarehouseFactory
+
+fake = faker.Faker()
 
 
 class GitHubPublisherFactory(WarehouseFactory):
@@ -82,7 +85,11 @@ class GooglePublisherFactory(WarehouseFactory):
         model = GooglePublisher
 
     id = factory.Faker("uuid4", cast_to=None)
-    email = factory.Faker("safe_email")
+
+    # TODO: Replace when factory_boy supports `unique`.
+    #  See https://github.com/FactoryBoy/factory_boy/pull/997
+    email = factory.Sequence(lambda _: fake.unique.safe_email())
+
     sub = factory.Faker("pystr", max_chars=12)
 
 
@@ -92,7 +99,11 @@ class PendingGooglePublisherFactory(WarehouseFactory):
 
     id = factory.Faker("uuid4", cast_to=None)
     project_name = "fake-nonexistent-project"
-    email = factory.Faker("safe_email")
+
+    # TODO: Replace when factory_boy supports `unique`.
+    #  See https://github.com/FactoryBoy/factory_boy/pull/997
+    email = factory.Sequence(lambda _: fake.unique.safe_email())
+
     sub = factory.Faker("pystr", max_chars=12)
     added_by = factory.SubFactory(UserFactory)
 
