@@ -42,7 +42,11 @@ def store_projects_for_project_reindex(config, session, flush_context):
     # a Project to reindex for when the session has been committed.
     for obj in session.new | session.dirty:
         if obj.__class__ == Project:
-            projects_to_update.add(obj)
+            # Un-index archived/quarantined projects
+            if obj.lifecycle_status is None:
+                projects_to_update.add(obj)
+            else:
+                projects_to_delete.add(obj)
         if obj.__class__ == Release:
             projects_to_update.add(obj.project)
 

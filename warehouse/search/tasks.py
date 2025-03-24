@@ -63,6 +63,7 @@ def _project_docs(db, project_name: str | None = None):
             classifiers_subquery,
             Project.normalized_name,
             Project.name,
+            Project.lifecycle_status,
         )
         .select_from(Release)
         .join(Description)
@@ -72,6 +73,8 @@ def _project_docs(db, project_name: str | None = None):
             Release.files.any(),
             # Filter by project_name if provided
             Project.name == project_name if project_name else text("TRUE"),
+            # Don't index archived/quarantined projects
+            Project.lifecycle_status.is_(None),
         )
         .order_by(
             Project.name,

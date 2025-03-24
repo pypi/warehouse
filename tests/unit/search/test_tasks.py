@@ -24,6 +24,7 @@ from more_itertools import first_true
 
 import warehouse.search.tasks
 
+from warehouse.packaging.models import LifecycleStatus
 from warehouse.search.tasks import (
     SearchLock,
     _project_docs,
@@ -55,6 +56,18 @@ def test_project_docs(db_session):
                     python_version="source",
                 )
             ]
+
+    # Create an Archived project which should not be included
+    archived_project = ProjectFactory.create(lifecycle_status=LifecycleStatus.Archived)
+    archived_releases = ReleaseFactory.create_batch(3, project=archived_project)
+    for r in archived_releases:
+        r.files = [
+            FileFactory.create(
+                release=r,
+                filename=f"{p.name}-{r.version}.tar.gz",
+                python_version="source",
+            )
+        ]
 
     assert list(_project_docs(db_session)) == [
         {
