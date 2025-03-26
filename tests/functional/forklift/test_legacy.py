@@ -75,7 +75,14 @@ def test_remove_doc_upload(webtest):
         ("/legacy/", {":action": "file_upload", "protocol_version": "1"}),
     ],
 )
-def test_file_upload(webtest, upload_url, additional_data):
+@pytest.mark.parametrize(
+    "staged_release",
+    [
+        True,
+        False,
+    ],
+)
+def test_file_upload(webtest, upload_url, additional_data, staged_release):
     user = UserFactory.create(with_verified_primary_email=True, clear_pwd="password")
 
     # Construct the macaroon
@@ -118,9 +125,15 @@ def test_file_upload(webtest, upload_url, additional_data):
     params.add("classifiers", "Programming Language :: Python :: 3.10")
     params.add("classifiers", "Programming Language :: Python :: 3.11")
 
+    headers = {
+        "Authorization": f"Basic {credentials}",
+    }
+    if staged_release:
+        headers["X-PyPI-Is-Staged"] = "1"
+
     webtest.post(
         upload_url,
-        headers={"Authorization": f"Basic {credentials}"},
+        headers=headers,
         params=params,
         upload_files=[("content", "sampleproject-3.0.0.tar.gz", content)],
         status=HTTPStatus.OK,
@@ -134,6 +147,116 @@ def test_file_upload(webtest, upload_url, additional_data):
     assert len(project.releases) == 1
     release = project.releases[0]
     assert release.version == "3.0.0"
+    assert release.published != staged_release
+
+
+@pytest.mark.parametrize(
+    "stage_first_file",
+    [
+        True,
+        False,
+    ],
+)
+@pytest.mark.parametrize(
+    "stage_second_file",
+    [
+        True,
+        False,
+    ],
+)
+def test_stage_release(webtest, stage_first_file, stage_second_file):
+    user = UserFactory.create(with_verified_primary_email=True, clear_pwd="password")
+
+    # Construct the macaroon
+    dm = MacaroonFactory.create(
+        user_id=user.id,
+        caveats=[caveats.RequestUser(user_id=str(user.id))],
+    )
+
+    m = pymacaroons.Macaroon(
+        location="localhost",
+        identifier=str(dm.id),
+        key=dm.key,
+        version=pymacaroons.MACAROON_V2,
+    )
+    for caveat in dm.caveats:
+        m.add_first_party_caveat(caveats.serialize(caveat))
+    serialized_macaroon = f"pypi-{m.serialize()}"
+
+    credentials = base64.b64encode(f"__token__:{serialized_macaroon}".encode()).decode(
+        "utf-8"
+    )
+
+    with open("./tests/functional/_fixtures/sampleproject-3.0.0.tar.gz", "rb") as f:
+        first_file = f.read()
+
+    with open(
+        "./tests/functional/_fixtures/sampleproject-3.0.0-py3-none-any.whl", "rb"
+    ) as f:
+        second_file = f.read()
+
+    webtest.post(
+        "/legacy/?:action=file_upload",
+        headers={
+            "Authorization": f"Basic {credentials}",
+            **({"X-PyPI-Is-Staged": "1"} if stage_first_file else {}),
+        },
+        params=MultiDict(
+            {
+                "name": "sampleproject",
+                "sha256_digest": (
+                    "117ed88e5db073bb92969a7545745fd977ee85b7019706dd256a64058f70963d"
+                ),
+                "filetype": "sdist",
+                "metadata_version": "2.1",
+                "version": "3.0.0",
+                "classifiers": "Programming Language :: Python :: 3.11",
+            }
+        ),
+        upload_files=[("content", "sampleproject-3.0.0.tar.gz", first_file)],
+        status=HTTPStatus.OK,
+    )
+
+    assert user.projects
+    assert len(user.projects) == 1
+    project = user.projects[0]
+    assert project.name == "sampleproject"
+    assert project.releases
+    assert len(project.releases) == 1
+    release = project.releases[0]
+
+    assert release.published != stage_first_file
+
+    second_request_status = (
+        HTTPStatus.BAD_REQUEST
+        if stage_second_file and not stage_first_file
+        else HTTPStatus.OK
+    )
+    webtest.post(
+        "/legacy/?:action=file_upload",
+        headers={
+            "Authorization": f"Basic {credentials}",
+            **({"X-PyPI-Is-Staged": "1"} if stage_second_file else {}),
+        },
+        params=MultiDict(
+            {
+                "name": "sampleproject",
+                "sha256_digest": (
+                    "2e52702990c22cf1ce50206606b769fe0dbd5646a32873916144bd5aec5473b3"
+                ),
+                "filetype": "bdist_wheel",
+                "metadata_version": "2.1",
+                "version": "3.0.0",
+                "pyversion": "3.11",
+                "classifiers": "Programming Language :: Python :: 3.11",
+            }
+        ),
+        upload_files=[("content", "sampleproject-3.0.0-py3-none-any.whl", second_file)],
+        status=second_request_status,
+    )
+
+    if second_request_status == HTTPStatus.OK:
+        assert release.published != stage_second_file
 
 
 def test_duplicate_file_upload_error(webtest):
