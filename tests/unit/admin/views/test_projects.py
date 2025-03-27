@@ -970,7 +970,7 @@ class TestProjectArchival:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
-        assert project.lifecycle_status == LifecycleStatus.Archived
+        assert project.lifecycle_status == LifecycleStatus.ArchivedNoindex
         assert db_request.route_path.calls == [
             pretend.call("admin.project.detail", project_name=project.name)
         ]

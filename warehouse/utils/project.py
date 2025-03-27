@@ -216,7 +216,7 @@ def archive_project(project: Project, request) -> None:
         )
         return
 
-    project.lifecycle_status = LifecycleStatus.Archived
+    project.lifecycle_status = LifecycleStatus.ArchivedNoindex
     project.record_event(
         tag=EventTag.Project.ProjectArchiveEnter,
         request=request,
@@ -228,7 +228,10 @@ def archive_project(project: Project, request) -> None:
 
 
 def unarchive_project(project: Project, request) -> None:
-    if project.lifecycle_status != LifecycleStatus.Archived:
+    if project.lifecycle_status not in [
+        LifecycleStatus.Archived,
+        LifecycleStatus.ArchivedNoindex,
+    ]:
         request.session.flash(
             "Can only unarchive an archived project",
             queue="error",
