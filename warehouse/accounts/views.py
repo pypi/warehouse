@@ -220,7 +220,10 @@ def profile(user, request):
             "summary": row.summary,
         }
 
-        if row.lifecycle_status == LifecycleStatus.Archived:
+        if row.lifecycle_status in [
+            LifecycleStatus.Archived,
+            LifecycleStatus.ArchivedNoindex,
+        ]:
             archived_projects.append(project)
         else:
             live_projects.append(project)

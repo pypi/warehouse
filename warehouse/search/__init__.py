@@ -20,7 +20,7 @@ from celery.schedules import crontab
 from urllib3.util import parse_url
 
 from warehouse import db
-from warehouse.packaging.models import Project, Release
+from warehouse.packaging.models import LifecycleStatus, Project, Release
 from warehouse.rate_limiting import IRateLimiter, RateLimit
 from warehouse.search.interfaces import ISearchService
 from warehouse.search.services import SearchService
@@ -42,7 +42,14 @@ def store_projects_for_project_reindex(config, session, flush_context):
     # a Project to reindex for when the session has been committed.
     for obj in session.new | session.dirty:
         if obj.__class__ == Project:
-            projects_to_update.add(obj)
+            # Un-index archived/quarantined projects
+            if obj.lifecycle_status in [
+                LifecycleStatus.QuarantineEnter,
+                LifecycleStatus.ArchivedNoindex,
+            ]:
+                projects_to_delete.add(obj)
+            else:
+                projects_to_update.add(obj)
         if obj.__class__ == Release:
             projects_to_update.add(obj.project)
 
