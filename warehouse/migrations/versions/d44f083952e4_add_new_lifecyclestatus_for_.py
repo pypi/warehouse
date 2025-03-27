@@ -26,23 +26,8 @@ down_revision = "6de76386dbf4"
 
 
 def upgrade():
-    op.sync_enum_values(
-        enum_schema="public",
-        enum_name="lifecyclestatus",
-        new_values=[
-            "quarantine-enter",
-            "quarantine-exit",
-            "archived",
-            "archived-noindex",
-        ],
-        affected_columns=[
-            TableReference(
-                table_schema="public",
-                table_name="projects",
-                column_name="lifecycle_status",
-            )
-        ],
-        enum_values_to_rename=[],
+    op.execute(
+        "ALTER TYPE public.lifecyclestatus ADD VALUE IF NOT EXISTS 'archived-noindex'"
     )
 
 
