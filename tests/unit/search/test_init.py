@@ -22,7 +22,7 @@ from ...common.db.packaging import ProjectFactory, ReleaseFactory
 def test_store_projects(db_request):
     project0 = ProjectFactory.create()
     project1 = ProjectFactory.create()
-    project3 = ProjectFactory.create(lifecycle_status="archived")
+    project3 = ProjectFactory.create(lifecycle_status="archived-noindex")
     release1 = ReleaseFactory.create(project=project1)
     config = pretend.stub()
     session = pretend.stub(

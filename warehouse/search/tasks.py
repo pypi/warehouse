@@ -22,13 +22,14 @@ import sentry_sdk
 
 from opensearchpy.helpers import parallel_bulk
 from redis.lock import Lock
-from sqlalchemy import func, select, text
+from sqlalchemy import func, or_, select, text
 from urllib3.util import parse_url
 
 from warehouse import tasks
 from warehouse.packaging.models import (
     Classifier,
     Description,
+    LifecycleStatus,
     Project,
     Release,
     ReleaseClassifiers,
@@ -74,7 +75,12 @@ def _project_docs(db, project_name: str | None = None):
             # Filter by project_name if provided
             Project.name == project_name if project_name else text("TRUE"),
             # Don't index archived/quarantined projects
-            Project.lifecycle_status.is_(None),
+            or_(
+                Project.lifecycle_status.notin_(
+                    [LifecycleStatus.ArchivedNoindex, LifecycleStatus.QuarantineEnter]
+                ),
+                Project.lifecycle_status.is_(None),
+            ),
         )
         .order_by(
             Project.name,

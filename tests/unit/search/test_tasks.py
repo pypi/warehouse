@@ -58,7 +58,9 @@ def test_project_docs(db_session):
             ]
 
     # Create an Archived project which should not be included
-    archived_project = ProjectFactory.create(lifecycle_status=LifecycleStatus.Archived)
+    archived_project = ProjectFactory.create(
+        lifecycle_status=LifecycleStatus.ArchivedNoindex
+    )
     archived_releases = ReleaseFactory.create_batch(3, project=archived_project)
     for r in archived_releases:
         r.files = [
