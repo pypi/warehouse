@@ -14,10 +14,6 @@
 from pyramid.static import ManifestCacheBuster as _ManifestCacheBuster
 
 
-class UnbustableError(ValueError):
-    pass
-
-
 class ManifestCacheBuster(_ManifestCacheBuster):
     def __init__(self, *args, strict=True, **kwargs):
         super().__init__(*args, **kwargs)
@@ -32,12 +28,3 @@ class ManifestCacheBuster(_ManifestCacheBuster):
             # just fall back to the un-cachebusted path.
             if not self.strict:
                 return subpath, kw
-
-            # We raise an error here even though the one from Pyramid does not.
-            # This is done because we want to be strict that all static files
-            # must be cache busted otherwise it is likely an error of some kind
-            # and should be remedied and without a loud error it's unlikely to
-            # be noticed.
-            raise UnbustableError(
-                f"{subpath} is not able to be cache busted."
-            ) from None
