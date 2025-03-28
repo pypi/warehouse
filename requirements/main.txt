@@ -1009,9 +1009,9 @@ lazy-object-proxy==1.10.0 \
     --hash=sha256:edb45bb8278574710e68a6b021599a10ce730d156e5b254941754a9cc0b17d03 \
     --hash=sha256:fec03caabbc6b59ea4a638bee5fce7117be8e99a4103d9d5ad77f15d6f81020c
     # via openapi-spec-validator
-legacy-cgi==2.6.2 \
-    --hash=sha256:9952471ceb304043b104c22d00b4f333cac27a6abe446d8a528fc437cf13c85f \
-    --hash=sha256:a7b83afb1baf6ebeb56522537c5943ef9813cf933f6715e88a803f7edbce0bff
+legacy-cgi==2.6.3 \
+    --hash=sha256:4c119d6cb8e9d8b6ad7cc0ddad880552c62df4029622835d06dfd18f438a8154 \
+    --hash=sha256:6df2ea5ae14c71ef6f097f8b6372b44f6685283dc018535a75c924564183cdab
     # via webob
 limits==4.4.1 \
     --hash=sha256:9fefa114e58fa3182d64b011cf6e000fe1cc4917cf3e9cbe8f6d4b70e52498d5 \
