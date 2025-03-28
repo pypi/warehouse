@@ -224,6 +224,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
     )
     invitations: Mapped[list[RoleInvitation]] = orm.relationship(
         back_populates="project",
+        passive_deletes=True,
     )
     team: Mapped[Team] = orm.relationship(
         secondary=TeamProjectRole.__table__,
