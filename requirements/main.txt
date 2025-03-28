@@ -1800,9 +1800,9 @@ pyopenssl==25.0.0 \
     # via
     #   sigstore
     #   webauthn
-pyparsing==3.2.1 \
-    --hash=sha256:506ff4f4386c4cec0590ec19e6302d3aedb992fdc02c761e90416f158dacf8e1 \
-    --hash=sha256:61980854fd66de3a90028d679a954d5f2623e83144b5afe5ee86f43d762e5f0a
+pyparsing==3.2.2 \
+    --hash=sha256:2a857aee851f113c2de9d4bfd9061baea478cb0f1c7ca6cbf594942d6d111575 \
+    --hash=sha256:6ab05e1cb111cc72acc8ed811a3ca4c2be2af8d7b6df324347f04fd057d8d793
     # via linehaul
 pypi-attestations==0.0.22 \
     --hash=sha256:113d0d5ef300abbd7978fa88f41155a1734ccd833684b17844c4d9cb90212420 \
@@ -2135,9 +2135,9 @@ securesystemslib==1.2.0 \
     --hash=sha256:34fa63e3296a0540b122a13bf51722ecd015be00c1d2ed45b23442e718920e76 \
     --hash=sha256:fa63abcb1cf4dba4f2df964f623baa45bc39029980d7a0a2119d90731942afc6
     # via tuf
-sentry-sdk==2.23.1 \
-    --hash=sha256:2288320465065f3f056630ce55936426204f96f63f1208edb79e033ed03774db \
-    --hash=sha256:42ef3a6cc1db3d22cb2ab24163d75b23f291ad9892b1a8c44075ce809a32b191
+sentry-sdk==2.24.1 \
+    --hash=sha256:36baa6a1128b9d98d2adc5e9b2f887eff0a6af558fc2b96ed51919042413556d \
+    --hash=sha256:8ba3c29990fa48865b908b3b9dc5ae7fa7e72407c7c9e91303e5206b32d7b8b1
     # via -r requirements/main.in
 sigstore==3.6.1 \
     --hash=sha256:b568b16322222e834940acabdc84fbb16c8780874c3c21c6c8dde928dae0f881 \
@@ -2281,9 +2281,9 @@ typing-extensions==4.12.2 \
     #   pydantic-core
     #   sqlalchemy
     #   stripe
-tzdata==2025.1 \
-    --hash=sha256:24894909e88cdb28bd1636c6887801df64cb485bd593f2fd83ef29075a81d694 \
-    --hash=sha256:7e127113816800496f027041c570f50bcd464a020098a3b6b199517772303639
+tzdata==2025.2 \
+    --hash=sha256:1a403fada01ff9221ca8044d701868fa132215d84beb92242d9acd2147f667a8 \
+    --hash=sha256:b60a638fcc0daffadf82fe0f57e53d06bdec2f36c4df66280ae79bce6bd6f2b9
     # via
     #   celery
     #   kombu

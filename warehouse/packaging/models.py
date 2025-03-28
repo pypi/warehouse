@@ -171,6 +171,7 @@ class LifecycleStatus(enum.StrEnum):
     QuarantineEnter = "quarantine-enter"
     QuarantineExit = "quarantine-exit"
     Archived = "archived"
+    ArchivedNoindex = "archived-noindex"
 
 
 class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
@@ -336,7 +337,10 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             (Allow, Authenticated, Permissions.SubmitMalwareObservation),
         ]
 
-        if self.lifecycle_status != LifecycleStatus.Archived:
+        if self.lifecycle_status not in [
+            LifecycleStatus.Archived,
+            LifecycleStatus.ArchivedNoindex,
+        ]:
             # The project has zero or more OIDC publishers registered to it,
             # each of which serves as an identity with the ability to upload releases
             # (only if the project is not archived)
@@ -402,7 +406,10 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             else:
                 current_permissions = [Permissions.ProjectsUpload]
 
-            if self.lifecycle_status == LifecycleStatus.Archived:
+            if self.lifecycle_status in [
+                LifecycleStatus.Archived,
+                LifecycleStatus.ArchivedNoindex,
+            ]:
                 # Disallow upload permissions for archived projects
                 current_permissions.remove(Permissions.ProjectsUpload)
 

@@ -22,14 +22,17 @@ from ...common.db.packaging import ProjectFactory, ReleaseFactory
 def test_store_projects(db_request):
     project0 = ProjectFactory.create()
     project1 = ProjectFactory.create()
+    project3 = ProjectFactory.create(lifecycle_status="archived-noindex")
     release1 = ReleaseFactory.create(project=project1)
     config = pretend.stub()
-    session = pretend.stub(info={}, new={project0}, dirty=set(), deleted={release1})
+    session = pretend.stub(
+        info={}, new={project0}, dirty={project3}, deleted={release1}
+    )
 
     search.store_projects_for_project_reindex(config, session, pretend.stub())
 
     assert session.info["warehouse.search.project_updates"] == {project0, project1}
-    assert session.info["warehouse.search.project_deletes"] == set()
+    assert session.info["warehouse.search.project_deletes"] == {project3}
 
 
 def test_store_projects_unindex(db_request):
