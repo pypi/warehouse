@@ -355,11 +355,11 @@
   <div class="callout-block callout-block--danger" data-controller="archive-confirm">
   <p>
     {% trans readme_description_href='https://packaging.python.org/guides/making-a-pypi-friendly-readme/'%}
-    Archiving a project will prevent any new uploads. Before doing so, we
-    recommend publishing a final release with an update to the project's
-    description to warn the users that the project won't receive further updates,
-    and to mention any alternative projects they may consider as a replacement.
-    If your project is
+    Archiving a project will prevent any new uploads, and remove the project
+    from PyPI's search results. Before doing so, we recommend publishing a
+    final release with an update to the project's description to warn the users
+    that the project won't receive further updates, and to mention any
+    alternative projects they may consider as a replacement. If your project is
     <a href="{{ readme_description_href }}" rel="noopener" target="_blank">configured
     to do so</a>, you can update the project's description by editing the README file.
     {% endtrans %}
