@@ -75,12 +75,12 @@ const sharedWebpackManifestMap =
     // if the filename matches .js or .js.map, add js/ prefix if not already present
     if (file.name.match(/\.js(\.map)?$/)) {
       if (!file.name.startsWith("js/")) {
-        file.name = `js/${file.name}`; // eslint-disable-line no-param-reassign
+        file.name = `js/${file.name}`;   
       }
     }
     // if the filename matches .css or .css.map, add a prefix of css/
     if (file.name.match(/\.css(\.map)?$/)) {
-      file.name = `css/${file.name}`; // eslint-disable-line no-param-reassign
+      file.name = `css/${file.name}`;   
     }
     return file;
   };
