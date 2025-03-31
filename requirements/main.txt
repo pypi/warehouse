@@ -964,9 +964,9 @@ jsonschema-specifications==2024.10.1 \
     # via
     #   jsonschema
     #   openapi-schema-validator
-kombu[redis]==5.4.2 \
-    --hash=sha256:14212f5ccf022fc0a70453bb025a1dcc32782a588c49ea866884047d66e14763 \
-    --hash=sha256:eef572dd2fd9fc614b37580e3caeafdd5af46c1eff31e7fba89138cdb406f2cf
+kombu[redis]==5.5.2 \
+    --hash=sha256:2dd27ec84fd843a4e0a7187424313f87514b344812cb98c25daddafbb6a7ff0e \
+    --hash=sha256:40f3674ed19603b8a771b6c74de126dbf8879755a0337caac6602faa82d539cd
     # via
     #   -r requirements/main.in
     #   celery
