@@ -85,9 +85,9 @@ importlib-metadata==8.6.1 \
     --hash=sha256:02a89390c1e15fdfdc0d7c6b25cb3e62650d0494005c97d6f148bf5b9787525e \
     --hash=sha256:310b41d755445d74569f993ccfc22838295d9fe005425094fad953d7f15c8580
     # via opentelemetry-api
-legacy-cgi==2.6.2 \
-    --hash=sha256:9952471ceb304043b104c22d00b4f333cac27a6abe446d8a528fc437cf13c85f \
-    --hash=sha256:a7b83afb1baf6ebeb56522537c5943ef9813cf933f6715e88a803f7edbce0bff
+legacy-cgi==2.6.3 \
+    --hash=sha256:4c119d6cb8e9d8b6ad7cc0ddad880552c62df4029622835d06dfd18f438a8154 \
+    --hash=sha256:6df2ea5ae14c71ef6f097f8b6372b44f6685283dc018535a75c924564183cdab
     # via ddtrace
 opentelemetry-api==1.31.1 \
     --hash=sha256:137ad4b64215f02b3000a0292e077641c8611aab636414632a9b9068593b7e91 \
