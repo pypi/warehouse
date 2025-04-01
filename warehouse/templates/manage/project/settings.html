@@ -372,7 +372,7 @@
     {% set action = request.route_path('manage.project.unarchive', project_name=project.name) %}
     {% set slug = "unarchive-project" %}
     {% set title = gettext("Unarchive project") %}
-    {% set extra_description = gettext("Unarchiving a project will allow new file uploads.") %}
+    {% set extra_description = gettext("Unarchiving a project will allow new file uploads and add the project to the search index.") %}
     {{ confirm_modal(title=title, label=project.name, slug=slug, extra_description=extra_description, action=action, warning=False) }}
   {% else %}
     <a href="#archive-project" class="button button--primary {{ 'button--disabled' if project.lifecycle_status == 'quarantine' }}">
@@ -381,7 +381,7 @@
     {% set action = request.route_path('manage.project.archive', project_name=project.name) %}
     {% set slug = "archive-project" %}
     {% set title = gettext("Archive project") %}
-    {% set extra_description = gettext("Archiving a project will block any new file uploads.") %}
+    {% set extra_description = gettext("Archiving a project will block any new file uploads and remove the project from the search index.") %}
     {{ confirm_modal(title=title, label=project.name, slug=slug, extra_description=extra_description, action=action, warning=False) }}
   {% endif %}
 
