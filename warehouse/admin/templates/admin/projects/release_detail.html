@@ -83,6 +83,7 @@
           <th>Python Version</th>
           <th>Uploaded via</th>
           <th>Trusted Publisher?</th>
+          <th>Inspector</th>
         </tr>
         </thead>
         <tbody>
@@ -98,6 +99,9 @@
             {% else %}
               <i class="fa fa-fw fa-times text-red"></i>
             {% endif %}
+          </td>
+          <td>
+            <a href="https://inspector.pypi.io/project/{{ release.project.normalized_name }}/{{ release.version }}/packages/{{ file.path }}/">🕵️</a>
           </td>
         </tr>
         {% endfor %}
