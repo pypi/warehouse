@@ -354,9 +354,9 @@ super-collections==0.5.3 \
     --hash=sha256:907d35b25dc4070910e8254bf2f5c928348af1cf8a1f1e8259e06c666e902cff \
     --hash=sha256:94c1ec96c0a0d5e8e7d389ed8cde6882ac246940507c5e6b86e91945c2968d46
     # via mkdocs-macros-plugin
-termcolor==2.5.0 \
-    --hash=sha256:37b17b5fc1e604945c2642c872a3764b5d547a48009871aea3edd3afa180afb8 \
-    --hash=sha256:998d8d27da6d48442e8e1f016119076b690d962507531df4890fcd2db2ef8a6f
+termcolor==3.0.0 \
+    --hash=sha256:0cd855c8716383f152ad02bbb39841d6e4694538ff5d424088e56c8b81fde525 \
+    --hash=sha256:fdfdc9f2bdb71c69fbbbaeb7ceae3afef0461076dd2ee265bf7b7c49ddb05ebb
     # via mkdocs-macros-plugin
 urllib3==2.3.0 \
     --hash=sha256:1cee9ad369867bfdbbb48b7dd50374c0967a0bb7710050facf0dd6911440e3df \
