@@ -211,6 +211,35 @@ if (OrganizationApplicationsTable.length) {
   table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
 }
 
+let organizationApplicationTurboModeSwitch = document.getElementById("organizationApplicationTurboMode");
+if (organizationApplicationTurboModeSwitch !== "undefined") {
+  let organizationApplicationTurboModeEnabled = JSON.parse(localStorage.getItem("organizationApplicationTurboModeEnabled") || false);
+  organizationApplicationTurboModeSwitch.addEventListener("click", (event) => {
+    localStorage.setItem("organizationApplicationTurboModeEnabled", event.target.checked);
+    document.querySelectorAll("input[name=organization_applications_turbo_mode]").forEach(function(input) {
+      input.value = event.target.checked;
+    });
+  });
+  organizationApplicationTurboModeSwitch.checked = organizationApplicationTurboModeEnabled;
+  document.querySelectorAll("input[name=organization_applications_turbo_mode]").forEach(function(input) {
+    input.value = organizationApplicationTurboModeEnabled;
+  });
+  if (organizationApplicationTurboModeEnabled) {
+    [...document.querySelectorAll(".alert-dismissible")].forEach(function(alertElem) {
+      setTimeout(function() {alertElem.getElementsByTagName("button")[0].click();}, 1000);
+    });
+  }
+}
+
+let requestMoreInformationEmailTemplateButton = document.getElementById("requestMoreInformationEmailTemplateButton");
+if (requestMoreInformationEmailTemplateButton !== "undefined") {
+  requestMoreInformationEmailTemplateButton.addEventListener("click", () => {
+    let requestMoreInfoModalMessage = document.getElementById("requestMoreInfoModalMessage");
+    let requestMoreInformationEmailTemplate = document.getElementById("requestMoreInformationEmailTemplate");
+    requestMoreInfoModalMessage.value = requestMoreInformationEmailTemplate.innerHTML.trim().replaceAll("\n", " ").replace(/\s(\s+)\s/g, " ");
+  });
+}
+
 // Link Checking
 const links = document.querySelectorAll("a[data-check-link-url]");
 links.forEach(function(link){
@@ -247,23 +276,3 @@ links.forEach(function(link){
       reportLine.element.firstChild.classList.add("text-red");
     });
 });
-
-let organizationApplicationTurboModeSwitch = document.getElementById("organizationApplicationTurboMode");
-if (organizationApplicationTurboModeSwitch !== "undefined") {
-  let organizationApplicationTurboModeEnabled = JSON.parse(localStorage.getItem("organizationApplicationTurboModeEnabled") || false);
-  organizationApplicationTurboModeSwitch.addEventListener("click", (event) => {
-    localStorage.setItem("organizationApplicationTurboModeEnabled", event.target.checked);
-    document.querySelectorAll("input[name=organization_applications_turbo_mode]").forEach(function(input) {
-      input.value = event.target.checked;
-    });
-  });
-  organizationApplicationTurboModeSwitch.checked = organizationApplicationTurboModeEnabled;
-  document.querySelectorAll("input[name=organization_applications_turbo_mode]").forEach(function(input) {
-    input.value = organizationApplicationTurboModeEnabled;
-  });
-  if (organizationApplicationTurboModeEnabled) {
-    [...document.querySelectorAll(".alert-dismissible")].forEach(function(alertElem) {
-      setTimeout(function() {alertElem.getElementsByTagName("button")[0].click();}, 1000);
-    });
-  }
-}
