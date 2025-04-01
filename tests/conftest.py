@@ -49,6 +49,8 @@ from warehouse.accounts.interfaces import ITokenService, IUserService
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.attestations import services as attestations_services
 from warehouse.attestations.interfaces import IIntegrityService
+from warehouse.cache import services as cache_services
+from warehouse.cache.interfaces import IQueryResultsCache
 from warehouse.email import services as email_services
 from warehouse.email.interfaces import IEmailSender
 from warehouse.helpdesk import services as helpdesk_services
@@ -63,9 +65,12 @@ from warehouse.organizations import services as organization_services
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.packaging import services as packaging_services
 from warehouse.packaging.interfaces import IProjectService
+from warehouse.search import services as search_services
+from warehouse.search.interfaces import ISearchService
 from warehouse.subscriptions import services as subscription_services
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 
+from .common.constants import REMOTE_ADDR, REMOTE_ADDR_HASHED
 from .common.db import Session
 from .common.db.accounts import EmailFactory, UserFactory
 from .common.db.ip_addresses import IpAddressFactory
@@ -121,28 +126,6 @@ def metrics():
 
 
 @pytest.fixture
-def remote_addr():
-    return "1.2.3.4"
-
-
-@pytest.fixture
-def remote_addr_hashed():
-    """
-    Static output of `hashlib.sha256(remote_addr.encode("utf8")).hexdigest()`
-    Created statically to prevent needing to calculate it every run.
-    """
-    return "6694f83c9f476da31f5df6bcc520034e7e57d421d247b9d34f49edbfc84a764c"
-
-
-@pytest.fixture
-def remote_addr_salted():
-    """
-    Output of `hashlib.sha256((remote_addr + "pepa").encode("utf8")).hexdigest()`
-    """
-    return "a69a49383d81404e4b1df297c7baa28e1cd6c4ee1495ed5d0ab165a63a147763"
-
-
-@pytest.fixture
 def jinja():
     dir_name = os.path.join(os.path.dirname(warehouse.__file__))
 
@@ -185,6 +168,8 @@ def pyramid_services(
     macaroon_service,
     helpdesk_service,
     notification_service,
+    query_results_cache_service,
+    search_service,
 ):
     services = _Services()
 
@@ -208,17 +193,19 @@ def pyramid_services(
     services.register_service(macaroon_service, IMacaroonService, None, name="")
     services.register_service(helpdesk_service, IHelpDeskService, None)
     services.register_service(notification_service, IAdminNotificationService)
+    services.register_service(query_results_cache_service, IQueryResultsCache)
+    services.register_service(search_service, ISearchService)
 
     return services
 
 
 @pytest.fixture
-def pyramid_request(pyramid_services, jinja, remote_addr, remote_addr_hashed):
+def pyramid_request(pyramid_services, jinja):
     pyramid.testing.setUp()
     dummy_request = pyramid.testing.DummyRequest()
     dummy_request.find_service = pyramid_services.find_service
-    dummy_request.remote_addr = remote_addr
-    dummy_request.remote_addr_hashed = remote_addr_hashed
+    dummy_request.remote_addr = REMOTE_ADDR
+    dummy_request.remote_addr_hashed = REMOTE_ADDR_HASHED
     dummy_request.authentication_method = pretend.stub()
     dummy_request._unauthenticated_userid = None
     dummy_request.user = None
@@ -383,12 +370,13 @@ def get_app_config(database, nondefaults=None):
         "warehouse.ip_salt": "insecure salt",
         "camo.url": "http://localhost:9000/",
         "camo.key": "insecure key",
-        "celery.broker_url": "amqp://",
+        "celery.broker_redis_url": "redis://localhost:0/",
         "celery.result_url": "redis://localhost:0/",
         "celery.scheduler_url": "redis://localhost:0/",
         "database.url": database,
         "docs.url": "http://docs.example.com/",
         "ratelimit.url": "memory://",
+        "db_results_cache.url": "redis://redis:0/",
         "opensearch.url": "https://localhost/warehouse",
         "files.backend": "warehouse.packaging.services.LocalFileStorage",
         "archive_files.backend": "warehouse.packaging.services.LocalArchiveFileStorage",
@@ -402,13 +390,14 @@ def get_app_config(database, nondefaults=None):
         "billing.api_version": "2020-08-27",
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
         "helpdesk.backend": "warehouse.helpdesk.services.ConsoleHelpDeskService",
-        "helpdesk.notification_backend": "warehouse.helpdesk.services.ConsoleHelpDeskService",  # noqa: E501
+        "helpdesk.notification_backend": "warehouse.helpdesk.services.ConsoleAdminNotificationService",  # noqa: E501
         "files.url": "http://localhost:7000/",
         "archive_files.url": "http://localhost:7000/archive",
         "sessions.secret": "123456",
         "sessions.url": "redis://localhost:0/",
         "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
         "warehouse.xmlrpc.cache.url": "redis://localhost:0/",
+        "terms.revision": "initial",
     }
 
     if nondefaults:
@@ -489,9 +478,9 @@ def db_session(app_config):
 
 
 @pytest.fixture
-def user_service(db_session, metrics, remote_addr):
+def user_service(db_session, metrics):
     return account_services.DatabaseUserService(
-        db_session, metrics=metrics, remote_addr=remote_addr
+        db_session, metrics=metrics, remote_addr=REMOTE_ADDR
     )
 
 
@@ -512,91 +501,6 @@ def github_oidc_service(db_session):
         pretend.stub(),
         pretend.stub(),
         pretend.stub(),
-    )
-
-
-@pytest.fixture
-def dummy_github_oidc_jwt():
-    # {
-    #  "jti": "6e67b1cb-2b8d-4be5-91cb-757edb2ec970",
-    #  "sub": "repo:foo/bar",
-    #  "aud": "pypi",
-    #  "ref": "fake",
-    #  "sha": "fake",
-    #  "repository": "foo/bar",
-    #  "repository_owner": "foo",
-    #  "repository_owner_id": "123",
-    #  "run_id": "fake",
-    #  "run_number": "fake",
-    #  "run_attempt": "1",
-    #  "repository_id": "fake",
-    #  "actor_id": "fake",
-    #  "actor": "foo",
-    #  "workflow": "fake",
-    #  "head_ref": "fake",
-    #  "base_ref": "fake",
-    #  "event_name": "fake",
-    #  "ref_type": "fake",
-    #  "environment": "fake",
-    #  "job_workflow_ref": "foo/bar/.github/workflows/example.yml@fake",
-    #  "iss": "https://token.actions.githubusercontent.com",
-    #  "nbf": 1650663265,
-    #  "exp": 1650664165,
-    #  "iat": 1650663865
-    # }
-    return (
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZTY3YjFjYi0yYjhkLTRiZ"
-        "TUtOTFjYi03NTdlZGIyZWM5NzAiLCJzdWIiOiJyZXBvOmZvby9iYXIiLCJhdWQiOiJweXB"
-        "pIiwicmVmIjoiZmFrZSIsInNoYSI6ImZha2UiLCJyZXBvc2l0b3J5IjoiZm9vL2JhciIsI"
-        "nJlcG9zaXRvcnlfb3duZXIiOiJmb28iLCJyZXBvc2l0b3J5X293bmVyX2lkIjoiMTIzIiw"
-        "icnVuX2lkIjoiZmFrZSIsInJ1bl9udW1iZXIiOiJmYWtlIiwicnVuX2F0dGVtcHQiOiIxI"
-        "iwicmVwb3NpdG9yeV9pZCI6ImZha2UiLCJhY3Rvcl9pZCI6ImZha2UiLCJhY3RvciI6ImZ"
-        "vbyIsIndvcmtmbG93IjoiZmFrZSIsImhlYWRfcmVmIjoiZmFrZSIsImJhc2VfcmVmIjoiZ"
-        "mFrZSIsImV2ZW50X25hbWUiOiJmYWtlIiwicmVmX3R5cGUiOiJmYWtlIiwiZW52aXJvbm1"
-        "lbnQiOiJmYWtlIiwiam9iX3dvcmtmbG93X3JlZiI6ImZvby9iYXIvLmdpdGh1Yi93b3JrZ"
-        "mxvd3MvZXhhbXBsZS55bWxAZmFrZSIsImlzcyI6Imh0dHBzOi8vdG9rZW4uYWN0aW9ucy5"
-        "naXRodWJ1c2VyY29udGVudC5jb20iLCJuYmYiOjE2NTA2NjMyNjUsImV4cCI6MTY1MDY2N"
-        "DE2NSwiaWF0IjoxNjUwNjYzODY1fQ.f-FMv5FF5sdxAWeUilYDt9NoE7Et0vbdNhK32c2o"
-        "C-E"
-    )
-
-
-@pytest.fixture
-def dummy_activestate_oidc_jwt():
-    # {
-    #   "jti": "6e67b1cb-2b8d-4be5-91cb-757edb2ec970",
-    #   "sub": "org:fakeorg:project:fakeproject",
-    #   "aud": "pypi",
-    #   "actor_id": "fake",
-    #   "actor": "foo",
-    #   "oraganization_id": "7e67b1cb-2b8d-4be5-91cb-757edb2ec970",
-    #   "organization": "fakeorg",
-    #   "project_visibility": "private",
-    #   "project_id": "8e67b1cb-2b8d-4be5-91cb-757edb2ec970",
-    #   "project_path": "fakeorg/fakeproject",
-    #   "project": "fakeproject",
-    #   "builder": "pypi_builder",
-    #   "ingredient_name": "fakeingredient",
-    #   "artifact_id": "9e67b1cb-2b8d-4be5-91cb-757edb2ec970",
-    #   "iss":"https://platform.activestate.com/api/v1/oauth/oidc",
-    #   "nbf": 1650663265,
-    #   "exp": 1650664165,
-    #   "iat": 1650663865
-    # }
-    return (
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZTY3YjFjYi0yYjhkLTRi"
-        "ZTUtOTFjYi03NTdlZGIyZWM5NzAiLCJzdWIiOiJvcmc6ZmFrZW9yZzpwcm9qZWN0OmZha"
-        "2Vwcm9qZWN0IiwiYXVkIjoicHlwaSIsImFjdG9yX2lkIjoiZmFrZSIsImFjdG9yIjoiZm"
-        "9vIiwib3JhZ2FuaXphdGlvbl9pZCI6IjdlNjdiMWNiLTJiOGQtNGJlNS05MWNiLTc1N2V"
-        "kYjJlYzk3MCIsIm9yZ2FuaXphdGlvbiI6ImZha2VvcmciLCJwcm9qZWN0X3Zpc2liaWxp"
-        "dHkiOiJwcml2YXRlIiwicHJvamVjdF9pZCI6IjhlNjdiMWNiLTJiOGQtNGJlNS05MWNiL"
-        "Tc1N2VkYjJlYzk3MCIsInByb2plY3RfcGF0aCI6ImZha2VvcmcvZmFrZXByb2plY3QiLC"
-        "Jwcm9qZWN0IjoiZmFrZXByb2plY3QiLCJidWlsZGVyIjoicHlwaV9idWlsZGVyIiwiaW5"
-        "ncmVkaWVudF9uYW1lIjoiZmFrZWluZ3JlZGllbnQiLCJhcnRpZmFjdF9pZCI6IjllNjdi"
-        "MWNiLTJiOGQtNGJlNS05MWNiLTc1N2VkYjJlYzk3MCIsImlzcyI6Imh0dHBzOi8vcGxhd"
-        "GZvcm0uYWN0aXZlc3RhdGUuY29tL2FwaS92MS9vYXV0aC9vaWRjIiwibmJmIjoxNjUwNj"
-        "YzMjY1LCJleHAiOjE2NTA2NjQxNjUsImlhdCI6MTY1MDY2Mzg2NX0.R4q-vWAFXHrBSBK"
-        "AZuHHIsGOkqlirPxEtLfjLIDiLr0"
     )
 
 
@@ -680,6 +584,16 @@ def helpdesk_service():
 @pytest.fixture
 def notification_service():
     return helpdesk_services.ConsoleAdminNotificationService()
+
+
+@pytest.fixture
+def query_results_cache_service(mockredis):
+    return cache_services.RedisQueryResults(redis_client=mockredis)
+
+
+@pytest.fixture
+def search_service():
+    return search_services.NullSearchService()
 
 
 class QueryRecorder:
@@ -796,7 +710,7 @@ def tm():
 
 
 @pytest.fixture
-def webtest(app_config_dbsession_from_env, remote_addr, tm):
+def webtest(app_config_dbsession_from_env, tm):
     """
     This fixture yields a test app with an alternative Pyramid configuration,
     injecting the database session and transaction manager into the app.
@@ -821,7 +735,7 @@ def webtest(app_config_dbsession_from_env, remote_addr, tm):
                 "warehouse.db_session": _db_session,
                 "tm.active": True,  # disable pyramid_tm
                 "tm.manager": tm,  # pass in our own tm for the app to use
-                "REMOTE_ADDR": remote_addr,  # set the same address for all requests
+                "REMOTE_ADDR": REMOTE_ADDR,  # set the same address for all requests
             },
         )
         yield testapp

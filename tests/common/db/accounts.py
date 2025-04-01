@@ -21,7 +21,9 @@ from warehouse.accounts.models import (
     Email,
     ProhibitedEmailDomain,
     ProhibitedUserName,
+    TermsOfServiceEngagement,
     User,
+    UserTermsOfServiceEngagement,
 )
 
 from .base import WarehouseFactory
@@ -41,6 +43,13 @@ class UserFactory(WarehouseFactory):
                 factory_related_name="user",
                 primary=True,
                 verified=True,
+            )
+        )
+        # Shortcut to create a user with a ToS Agreement
+        with_terms_of_service_agreement = factory.Trait(
+            terms_of_service_engagements=factory.RelatedFactory(
+                "tests.common.db.accounts.UserTermsOfServiceEngagementFactory",
+                factory_related_name="user",
             )
         )
         # Allow passing a cleartext password to the factory
@@ -85,12 +94,29 @@ class UserEventFactory(WarehouseFactory):
     source = factory.SubFactory(User)
 
 
+class UserTermsOfServiceEngagementFactory(WarehouseFactory):
+    class Meta:
+        model = UserTermsOfServiceEngagement
+
+    revision = "initial"
+    engagement = TermsOfServiceEngagement.Agreed
+    created = factory.Faker(
+        "date_time_between_dates",
+        datetime_start=datetime.datetime(2025, 1, 1),
+        datetime_end=datetime.datetime(2025, 2, 19),
+    )
+
+
 class EmailFactory(WarehouseFactory):
     class Meta:
         model = Email
 
     user = factory.SubFactory(UserFactory)
-    email = factory.Faker("safe_email")
+
+    # TODO: Replace when factory_boy supports `unique`.
+    #  See https://github.com/FactoryBoy/factory_boy/pull/997
+    email = factory.Sequence(lambda _: fake.unique.safe_email())
+
     verified = True
     primary = True
     public = False
@@ -111,4 +137,6 @@ class ProhibitedUsernameFactory(WarehouseFactory):
     class Meta:
         model = ProhibitedUserName
 
-    name = factory.Faker("user_name")
+    # TODO: Replace when factory_boy supports `unique`.
+    #  See https://github.com/FactoryBoy/factory_boy/pull/997
+    name = factory.Sequence(lambda _: fake.unique.user_name())

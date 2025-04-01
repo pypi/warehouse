@@ -25,6 +25,9 @@ def test_includeme(forklift_domain, monkeypatch):
     _help_url = pretend.stub()
     monkeypatch.setattr(forklift, "_help_url", _help_url)
 
+    _user_docs_url = pretend.stub()
+    monkeypatch.setattr(forklift, "_user_docs_url", _user_docs_url)
+
     config = pretend.stub(
         get_settings=lambda: settings,
         include=pretend.call_recorder(lambda n: None),
@@ -56,7 +59,10 @@ def test_includeme(forklift_domain, monkeypatch):
         ),
     ]
 
-    assert config.add_request_method.calls == [pretend.call(_help_url, name="help_url")]
+    assert config.add_request_method.calls == [
+        pretend.call(_help_url, name="help_url"),
+        pretend.call(_user_docs_url, name="user_docs_url"),
+    ]
     if forklift_domain:
         assert config.add_template_view.calls == [
             pretend.call(
@@ -65,6 +71,13 @@ def test_includeme(forklift_domain, monkeypatch):
                 "upload.html",
                 route_kw={"domain": forklift_domain},
                 view_kw={"has_translations": True},
+            ),
+            pretend.call(
+                "forklift.robots.txt",
+                "/robots.txt",
+                "forklift.robots.txt",
+                route_kw={"domain": forklift_domain},
+                view_kw={"has_translations": False},
             ),
             pretend.call(
                 "forklift.legacy.invalid_request",
@@ -90,3 +103,16 @@ def test_help_url():
     assert request.route_url.calls == [
         pretend.call("help", _host=warehouse_domain, _anchor="foo")
     ]
+
+
+def test_user_docs_url():
+    docs_domain = "http://example.com"
+    request = pretend.stub(
+        registry=pretend.stub(settings={"userdocs.domain": docs_domain}),
+    )
+
+    assert forklift._user_docs_url(request, "/foo") == f"{docs_domain}/foo"
+    assert (
+        forklift._user_docs_url(request, "/foo", anchor="bar")
+        == f"{docs_domain}/foo#bar"
+    )

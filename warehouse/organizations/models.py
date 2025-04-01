@@ -39,10 +39,12 @@ from sqlalchemy.orm import (
 )
 
 from warehouse import db
-from warehouse.accounts.models import User
+from warehouse.accounts.models import TermsOfServiceEngagement, User
 from warehouse.authnz import Permissions
 from warehouse.events.models import HasEvents
+from warehouse.observations.models import HasObservations, ObservationKind
 from warehouse.utils.attrs import make_repr
+from warehouse.utils.db import orm_session_from_obj
 from warehouse.utils.db.types import TZDateTime, bool_false, datetime_now
 
 if typing.TYPE_CHECKING:
@@ -143,12 +145,13 @@ class OrganizationStripeSubscription(db.Model):
     subscription: Mapped[StripeSubscription] = relationship(lazy=False)
 
 
-class OrganizationTermsOfServiceAgreement(db.Model):
-    __tablename__ = "organization_terms_of_service_agreements"
+class OrganizationTermsOfServiceEngagement(db.Model):
+    __tablename__ = "organization_terms_of_service_engagements"
     __table_args__ = (
         Index(
-            "organization_terms_of_service_agreements_organization_id_idx",
+            "organization_terms_of_service_engagements_org_id_revision_idx",
             "organization_id",
+            "revision",
         ),
     )
 
@@ -157,10 +160,13 @@ class OrganizationTermsOfServiceAgreement(db.Model):
     organization_id: Mapped[UUID] = mapped_column(
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
     )
-    agreed: Mapped[datetime.datetime | None] = mapped_column(TZDateTime)
-    notified: Mapped[datetime.datetime | None] = mapped_column(TZDateTime)
+    revision: Mapped[str]
+    created: Mapped[datetime.datetime] = mapped_column(TZDateTime)
+    engagement: Mapped[TermsOfServiceEngagement]
 
-    organization: Mapped[Organization] = relationship(lazy=False)
+    organization: Mapped[Organization] = relationship(
+        lazy=False, back_populates="terms_of_service_engagements"
+    )
 
 
 class OrganizationStripeCustomer(db.Model):
@@ -238,6 +244,22 @@ class OrganizationFactory:
             raise KeyError from None
 
 
+class OrganizationApplicationFactory:
+    def __init__(self, request):
+        self.request = request
+
+    def __getitem__(self, organization_application_id):
+        # Try returning organization application with matching id.
+        try:
+            return (
+                self.request.db.query(OrganizationApplication)
+                .filter(OrganizationApplication.id == organization_application_id)
+                .one()
+            )
+        except NoResultFound:
+            raise KeyError from None
+
+
 class OrganizationMixin:
     @declared_attr
     def __table_args__(cls):  # noqa: N805
@@ -270,10 +292,6 @@ class OrganizationMixin:
         comment="Description of the business or project the organization represents",
     )
 
-    is_approved: Mapped[bool | None] = mapped_column(
-        comment="Status of administrator approval of the request"
-    )
-
 
 # TODO: Determine if this should also utilize SitemapMixin
 class Organization(OrganizationMixin, HasEvents, db.Model):
@@ -288,10 +306,6 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         index=True,
         comment="Datetime the organization was created.",
     )
-    date_approved: Mapped[datetime.datetime | None] = mapped_column(
-        onupdate=func.now(),
-        comment="Datetime the organization was approved by administrators.",
-    )
     application: Mapped[OrganizationApplication] = relationship(
         back_populates="organization"
     )
@@ -302,6 +316,9 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         viewonly=True,
     )
     roles: Mapped[list[OrganizationRole]] = relationship(back_populates="organization")
+    invitations: Mapped[list[OrganizationInvitation]] = relationship(
+        back_populates="organization"
+    )
     teams: Mapped[list[Team]] = relationship(
         back_populates="organization",
         order_by=lambda: Team.name.asc(),
@@ -322,7 +339,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         back_populates="organization",
         viewonly=True,
     )
-    terms_of_service_agreements: Mapped[list[OrganizationTermsOfServiceAgreement]] = (
+    terms_of_service_engagements: Mapped[list[OrganizationTermsOfServiceEngagement]] = (
         relationship(
             back_populates="organization",
             viewonly=True,
@@ -332,9 +349,9 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
     @property
     def owners(self):
         """Return all users who are owners of the organization."""
+        session = orm_session_from_obj(self)
         owner_roles = (
-            orm.object_session(self)
-            .query(User.id)
+            session.query(User.id)
             .join(OrganizationRole.user)
             .filter(
                 OrganizationRole.role_name == OrganizationRoleType.Owner,
@@ -342,12 +359,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             )
             .subquery()
         )
-        return (
-            orm.object_session(self)
-            .query(User)
-            .join(owner_roles, User.id == owner_roles.c.id)
-            .all()
-        )
+        return session.query(User).join(owner_roles, User.id == owner_roles.c.id).all()
 
     def record_event(self, *, tag, request: Request = None, additional=None):
         """Record organization name in events in case organization is ever deleted."""
@@ -358,7 +370,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         )
 
     def __acl__(self):
-        session = orm.object_session(self)
+        session = orm_session_from_obj(self)
 
         acls = [
             (
@@ -502,7 +514,15 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         return f"{site_name} Organization - {self.display_name} ({self.name})"
 
 
-class OrganizationApplication(OrganizationMixin, db.Model):
+class OrganizationApplicationStatus(enum.StrEnum):
+    Submitted = "submitted"
+    Declined = "declined"
+    Deferred = "deferred"
+    MoreInformationNeeded = "moreinformationneeded"
+    Approved = "approved"
+
+
+class OrganizationApplication(OrganizationMixin, HasObservations, db.Model):
     __tablename__ = "organization_applications"
     __repr__ = make_repr("name")
 
@@ -520,6 +540,19 @@ class OrganizationApplication(OrganizationMixin, db.Model):
         index=True,
         comment="Datetime the request was submitted",
     )
+    updated: Mapped[datetime.datetime | None] = mapped_column(
+        onupdate=func.now(),
+        comment="Datetime the request was last updated",
+    )
+    status: Mapped[enum.Enum] = mapped_column(
+        Enum(
+            OrganizationApplicationStatus,
+            values_callable=lambda x: [e.value for e in x],
+        ),
+        server_default=OrganizationApplicationStatus.Submitted,
+        comment="Status of the request",
+    )
+
     organization_id: Mapped[UUID | None] = mapped_column(
         PG_UUID,
         ForeignKey(
@@ -538,8 +571,30 @@ class OrganizationApplication(OrganizationMixin, db.Model):
         back_populates="application", viewonly=True
     )
 
+    @property
+    def information_requests(self):
+        return sorted(
+            [
+                observation
+                for observation in self.observations
+                if observation.kind == ObservationKind.InformationRequest.value[0]
+            ],
+            key=lambda x: x.created,
+            reverse=True,
+        )
+
     def __lt__(self, other: OrganizationApplication) -> bool:
         return self.name < other.name
+
+    def __acl__(self):
+        acls = [
+            (
+                Allow,
+                f"user:{self.submitted_by.id}",
+                (Permissions.OrganizationApplicationsManage,),
+            )
+        ]
+        return acls
 
 
 class OrganizationNameCatalog(db.Model):
@@ -596,7 +651,9 @@ class OrganizationInvitation(db.Model):
     user: Mapped[User] = relationship(
         back_populates="organization_invitations", lazy=False
     )
-    organization: Mapped[Organization] = relationship(lazy=False)
+    organization: Mapped[Organization] = relationship(
+        back_populates="invitations", lazy=False
+    )
 
 
 class TeamRoleType(str, enum.Enum):

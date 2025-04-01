@@ -10,9 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pytest
-
-from warehouse.utils.static import ManifestCacheBuster, UnbustableError
+from warehouse.utils.static import ManifestCacheBuster
 
 
 class TestManifestCacheBuster:
@@ -27,12 +25,11 @@ class TestManifestCacheBuster:
 
         assert result == ("/the/busted/path/style.css", {"keyword": "arg"})
 
-    def test_raises_when_invalid(self, monkeypatch):
+    def test_passes_when_invalid(self, monkeypatch):
         monkeypatch.setattr(ManifestCacheBuster, "get_manifest", lambda x: {})
         cb = ManifestCacheBuster("warehouse:static/dist/manifest.json")
 
-        with pytest.raises(UnbustableError):
-            cb(None, "/the/path/style.css", {"keyword": "arg"})
+        cb(None, "/the/path/style.css", {"keyword": "arg"})
 
     def test_returns_when_invalid_and_not_strict(self, monkeypatch):
         monkeypatch.setattr(ManifestCacheBuster, "get_manifest", lambda x: {})

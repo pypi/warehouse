@@ -97,7 +97,7 @@
             </li>
             <li class="nav-item">
               <a href="#projects" class="nav-link">
-                Projects - Total Owned Size	<span class="float-right badge bg-success">{{ roles | selectattr("role_name", "equalto", "Owner") | sum(attribute="project.total_size") | filesizeformat(binary=True) }}</span>
+                Projects - Total Owned Size	<span class="float-right badge bg-success">{{ user_projects | selectattr("role_name", "equalto", "Owner") | sum(attribute="total_size") | filesizeformat(binary=True) }}</span>
               </a>
             </li>
           </ul>
@@ -192,11 +192,11 @@
                         This will also delete the following projects and their respective releases:
                       </p>
                       <ul>
-                      {% for project in user.projects %}
+                      {% for project in user_projects %}
                         <li>
                           <a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">
                             {{ project.name }}
-                          </a> ({{ project.releases|length }} releases)
+                          </a> ({{ project.releases_count }} releases)
                         </li>
                       {% endfor %}
                       </ul>
@@ -694,6 +694,52 @@
 
       <div class="card">
         <div class="card-header with-border">
+          <h3 class="card-title">Invitations</h3>
+        </div>
+
+        <div class="card-body">
+          {% if user.role_invitations or user.organization_invitations %}
+          <table id="invitations" class="table table-hover">
+            <thead>
+              <tr>
+                <th scope="col" class="token">Type</th>
+                <th scope="col" class="target">Target</th>
+                <th scope="col" class="status">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for invitation in user.organization_invitations %}
+              <tr>
+                <td>Organization</td>
+                <td>
+                  <a href="{{ request.route_path('admin.organization.detail', organization_id=invitation.organization.id) }}">
+                    {{ invitation.organization.name }}
+                  </a>
+                </td>
+                <td>{{ invitation.invite_status.value }}</td>
+              </tr>
+              {% endfor %}
+              {% for invitation in user.role_invitations %}
+              <tr>
+                <td>Project</td>
+                <td>
+                  <a href="{{ request.route_path('admin.project.detail', project_name=invitation.project.normalized_name) }}">
+                    {{ invitation.project.name }}
+                  </a>
+                </td>
+                <td>{{ invitation.invite_status.value }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          No Invitations.
+          {% endif %}
+        </div>
+      </div> <!-- .card -->
+
+      <div class="card">
+        <div class="card-header with-border">
           <h3 class="card-title">API Tokens</h3>
         </div>
 
@@ -733,32 +779,6 @@
         </div>
       </div> <!-- .card -->
 
-      {% if user.role_invitations %}
-      <div class="card">
-        <div class="card-header with-border">
-          <h3 class="card-title">Project Invitations</h3>
-        </div>
-
-        <div class="card-body">
-          <table class="table table-hover" id="projects">
-            <thead>
-              <tr>
-                <th>Project Name</th>
-              </tr>
-            </thead>
-            <tbody>
-            {% for invitation in user.role_invitations %}
-              <tr>
-                <td><a href="{{ request.route_path('admin.project.detail', project_name=invitation.project.normalized_name) }}">{{ invitation.project.name }}</a></td>
-              </tr>
-            {% endfor %}
-            </tbody>
-          </table>
-        </div>
-
-      </div> <!-- .card -->
-      {% endif %}
-
       <div class="card">
         <div class="card-header with-border">
           <h3 class="card-title">Projects</h3>
@@ -775,11 +795,11 @@
               </tr>
             </thead>
             <tbody>
-            {% for role in roles %}
+            {% for project in user_projects %}
               <tr>
-                <td><a href="{{ request.route_path('admin.project.detail', project_name=role.project.normalized_name) }}">{{ role.project.name }}</a></td>
-                <td>{{ role.role_name }}</td>
-                <td>{{ role.project.total_size | filesizeformat(binary=True) }}</td>
+                <td><a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">{{ project.name }}</a></td>
+                <td>{{ project.role_name }}</td>
+                <td>{{ project.total_size | filesizeformat(binary=True) }}</td>
               </tr>
             {% endfor %}
             </tbody>
@@ -789,31 +809,6 @@
           {% endif %}
         </div>
       </div> <!-- .card -->
-
-      {% if user.organization_invitations %}
-      <div class="card">
-        <div class="card-header with-border">
-          <h3 class="card-title">Organization Invitations</h3>
-        </div>
-
-        <div class="card-body">
-          <table class="table table-hover" id="organization-invitations">
-            <thead>
-              <tr>
-                <th>Organization Name</th>
-              </tr>
-            </thead>
-            <tbody>
-            {% for invitation in user.organization_invitations %}
-              <tr>
-                <td><a href="{{ request.route_path('admin.organization.detail', organization_id=invitation.organization.id) }}">{{ invitation.organization.name }}</a></td>
-              </tr>
-            {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div> <!-- .card -->
-      {% endif %}
 
       {% if user.organizations %}
       <div class="card">

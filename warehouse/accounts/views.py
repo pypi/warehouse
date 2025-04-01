@@ -59,7 +59,7 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
     TooManyPasswordResetRequests,
 )
-from warehouse.accounts.models import Email, User
+from warehouse.accounts.models import Email, TermsOfServiceEngagement, User
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.cache.origin import origin_cache
@@ -98,6 +98,7 @@ from warehouse.organizations.models import OrganizationRole, OrganizationRoleTyp
 from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import (
     JournalEntry,
+    LifecycleStatus,
     Project,
     Release,
     Role,
@@ -185,6 +186,7 @@ def profile(user, request):
         select(
             Project.name,
             Project.normalized_name,
+            Project.lifecycle_status,
             Release.created,
             Release.summary,
         )
@@ -206,17 +208,31 @@ def profile(user, request):
     )
 
     # Construct the list of projects with their latest releases from query results
-    projects = [
-        {
+    archived_projects = []
+    live_projects = []
+
+    for row in request.db.execute(stmt):
+        project = {
             "name": row.name,
             "normalized_name": row.normalized_name,
+            "lifecycle_status": row.lifecycle_status,
             "created": row.created,
             "summary": row.summary,
         }
-        for row in request.db.execute(stmt)
-    ]
 
-    return {"user": user, "projects": projects}
+        if row.lifecycle_status in [
+            LifecycleStatus.Archived,
+            LifecycleStatus.ArchivedNoindex,
+        ]:
+            archived_projects.append(project)
+        else:
+            live_projects.append(project)
+
+    return {
+        "user": user,
+        "live_projects": live_projects,
+        "archived_projects": archived_projects,
+    }
 
 
 @view_config(
@@ -293,8 +309,9 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
 
             # If the user has enabled two-factor authentication and they do not have
             # a valid saved device.
+            _two_factor_remembered = _check_remember_device_token(request, userid)
             two_factor_required = user_service.has_two_factor(userid) and (
-                not _check_remember_device_token(request, userid)
+                not _two_factor_remembered
             )
             if two_factor_required:
                 two_factor_data = {"userid": userid}
@@ -317,8 +334,19 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                 ):
                     redirect_to = request.route_path("manage.projects")
 
+                # Construct necessary two_factor information
+                two_factor_method = (
+                    "remembered-device" if _two_factor_remembered else None
+                )
+                two_factor_label = two_factor_method
+
                 # Actually perform the login routine for our user.
-                headers = _login_user(request, userid)
+                headers = _login_user(
+                    request,
+                    userid,
+                    two_factor_method,
+                    two_factor_label=two_factor_label,
+                )
 
                 # Now that we're logged in we'll want to redirect the user to
                 # either where they were trying to go originally, or to the default
@@ -729,6 +757,11 @@ def register(request, _form_class=RegistrationForm):
         email_limiter = request.find_service(IRateLimiter, name="email.verify")
         user = user_service.create_user(
             form.username.data, form.full_name.data, form.new_password.data
+        )
+        user_service.record_tos_engagement(
+            user.id,
+            request.registry.settings.get("terms.revision"),
+            TermsOfServiceEngagement.Agreed,
         )
         email = user_service.add_email(user.id, form.email.data, primary=True)
         user.record_event(
@@ -1407,7 +1440,44 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     request.session.record_password_timestamp(
         user_service.get_password_timestamp(userid)
     )
+
+    # Check if we need to notify the user of an updated Terms of Service
+    if user_service.needs_tos_flash(
+        userid,
+        request.registry.settings.get("terms.revision"),
+    ):
+        request.session.flash(
+            request._(
+                'Please review our updated <a href="${tos_url}">Terms of Service</a>.',
+                mapping={
+                    "tos_url": request.route_path("accounts.view-terms-of-service")
+                },
+            ),
+            safe=True,
+        )
+        user_service.record_tos_engagement(
+            userid,
+            request.registry.settings.get("terms.revision"),
+            TermsOfServiceEngagement.Flashed,
+        )
+
     return headers
+
+
+@view_config(
+    route_name="accounts.view-terms-of-service",
+    uses_session=True,
+    has_translations=False,
+)
+def view_terms_of_service(request):
+    if request.user is not None:
+        user_service = request.find_service(IUserService, context=None)
+        user_service.record_tos_engagement(
+            request.user.id,
+            request.registry.settings.get("terms.revision"),
+            TermsOfServiceEngagement.Viewed,
+        )
+    return HTTPSeeOther("https://policies.python.org/pypi.org/Terms-of-Service/")
 
 
 @view_config(
@@ -1640,8 +1710,7 @@ class ManageAccountPublishingViews:
         if len(self.request.user.pending_oidc_publishers) >= 3:
             self.request.session.flash(
                 self.request._(
-                    "You can't register more than 3 pending trusted "
-                    "publishers at once."
+                    "You can't register more than 3 pending trusted publishers at once."
                 ),
                 queue="error",
             )

@@ -105,6 +105,7 @@ class Permissions(StrEnum):
     ProjectsWrite = "projects:write"  # TODO: Worth splitting out ProjectDelete?
 
     # Organization Permissions
+    OrganizationApplicationsManage = "organizations:applications:manage"
     OrganizationsManage = "organizations:manage"
     OrganizationsBillingManage = "organizations:billing:manage"
     OrganizationsRead = "organizations:read"

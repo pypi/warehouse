@@ -52,6 +52,7 @@ from warehouse.classifiers.models import Classifier
 from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
 from warehouse.email import (
     send_api_token_used_in_trusted_publisher_project_email,
+    send_pep427_name_email,
     send_pep625_extension_email,
     send_pep625_name_email,
     send_pep625_version_email,
@@ -93,7 +94,7 @@ COMPRESSION_RATIO_THRESHOLD = 50
 # under this when enqueuing a job to store BigQuery metadata, we truncate the
 # Description field to 40K bytes, which captures up to the 95th percentile of
 # existing descriptions.
-MAX_DESCRIPTION_LENGTH_TO_BIGQUERY = 40000
+MAX_DESCRIPTION_LENGTH_TO_BIGQUERY_IN_BYTES = 40000
 
 # Wheel platform checking
 
@@ -140,7 +141,7 @@ _macosx_arches = {
     "arm64",
     "intel",
     "fat",
-    "fat32",
+    "fat3",
     "fat64",
     "universal",
     "universal2",
@@ -152,6 +153,22 @@ _macosx_major_versions = {
     "13",
     "14",
     "15",
+}
+
+_ios_platform_re = re.compile(
+    r"ios_(\d+)_(\d+)_(?P<arch>.*)_(iphoneos|iphonesimulator)"
+)
+_ios_arches = {
+    "arm64",
+    "x86_64",
+}
+
+_android_platform_re = re.compile(r"android_(\d+)_(?P<arch>.*)")
+_android_arches = {
+    "armeabi_v7a",
+    "arm64_v8a",
+    "x86",
+    "x86_64",
 }
 
 # manylinux pep600 and musllinux pep656 are a little more complicated:
@@ -184,6 +201,12 @@ def _valid_platform_tag(platform_tag):
         return m.group("arch") in _musllinux_arches
     if m and m.group("libc") == "many":
         return m.group("arch") in _manylinux_arches
+    m = _ios_platform_re.match(platform_tag)
+    if m and m.group("arch") in _ios_arches:
+        return True
+    m = _android_platform_re.match(platform_tag)
+    if m and m.group("arch") in _android_arches:
+        return True
     return False
 
 
@@ -439,7 +462,7 @@ def file_upload(request):
     request.metrics.increment("warehouse.upload.attempt")
 
     # This is a list of warnings that we'll emit *IF* the request is successful.
-    warnings = []
+    warnings: list[str] = []
 
     # If we're in read-only mode, let upload clients know
     if request.flags.enabled(AdminFlagValue.READ_ONLY):
@@ -596,7 +619,7 @@ def file_upload(request):
         meta = metadata.parse(None, form_data=request.POST)
     except* metadata.InvalidMetadata as exc:
         # Turn our list of errors into a mapping of errors, keyed by the field
-        errors = {}
+        errors: dict = {}
         for error in exc.exceptions:
             errors.setdefault(error.field, []).append(error)
 
@@ -769,8 +792,7 @@ def file_upload(request):
         if rendered is None:
             if meta.description_content_type:
                 message = (
-                    "The description failed to render "
-                    "for '{description_content_type}'."
+                    "The description failed to render for '{description_content_type}'."
                 ).format(description_content_type=description_content_type)
             else:
                 message = (
@@ -1025,7 +1047,10 @@ def file_upload(request):
                             name=project.name, limit=file_size_limit // ONE_MIB
                         )
                         + "See "
-                        + request.help_url(_anchor="file-size-limit")
+                        + request.user_docs_url(
+                            "/project-management/storage-limits",
+                            anchor="requesting-a-file-size-limit-increase",
+                        )
                         + " for more information.",
                     )
                 if file_size + project.total_size > project_size_limit:
@@ -1036,7 +1061,10 @@ def file_upload(request):
                             name=project.name, limit=project_size_limit // ONE_GIB
                         )
                         + "See "
-                        + request.help_url(_anchor="project-size-limit"),
+                        + request.user_docs_url(
+                            "/project-management/storage-limits",
+                            anchor="requesting-a-project-size-limit-increase",
+                        ),
                     )
                 fp.write(chunk)
                 for hasher in file_hashes.values():
@@ -1350,6 +1378,25 @@ def file_upload(request):
                     f"{canonical_name.replace('-', '_')!r}.",
                 )
 
+            # The parse_wheel_filename function does not enforce lowercasing,
+            # and also returns a normalized name, so we must get the original
+            # distribution name from the filename manually
+            name_from_filename, _ = filename.split("-", 1)
+
+            # PEP 427 / PEP 503: Enforcement of project name normalization.
+            # Filenames that do not start with the fully normalized project name
+            # will not be permitted.
+            # https://packaging.python.org/en/latest/specifications/binary-distribution-format/#escaping-and-unicode
+            normalized_name = project.normalized_name.replace("-", "_")
+            if name_from_filename != normalized_name:
+                send_pep427_name_email(
+                    request,
+                    set(project.users),
+                    project_name=project.name,
+                    filename=filename,
+                    normalized_name=normalized_name,
+                )
+
             if meta.version != version:
                 request.metrics.increment(
                     "warehouse.upload.failed",
@@ -1589,7 +1636,10 @@ def file_upload(request):
         "version": str(meta.version),
         "summary": meta.summary,
         "description": (
-            meta.description[:MAX_DESCRIPTION_LENGTH_TO_BIGQUERY]
+            # Truncate the description by bytes and not characters if it is too long
+            meta.description.encode()[
+                :MAX_DESCRIPTION_LENGTH_TO_BIGQUERY_IN_BYTES
+            ].decode("utf-8", "ignore")
             if meta.description is not None
             else None
         ),

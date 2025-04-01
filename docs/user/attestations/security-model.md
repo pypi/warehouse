@@ -4,6 +4,29 @@ title: Security Model and Considerations
 
 # Security model and considerations
 
+Since attestations are a framework for asserting certain facts about a package,
+the security model of attestations depends on which types of facts are being
+asserted.
+
+The most basic type of attestation (the type enabled by default in
+[`pypa/gh-action-pypi-publish`][gh-action-pypi-publish]) asserts that the
+project was published by an authorized publisher such as a particular CI
+provider in a particular code repository.
+
+This type of attestation has two main purposes:
+
+- It protects against modification of a project *after* it was built,
+  such as while it is stored in a package index or mirror.
+- It allows verifying parties to observe *changes* to the project's Trusted Publisher.
+  For example, a verifying party might observe that a project's new releases
+  are coming from a different Trusted Publisher, indicating that control
+  of the project may have changed hands maliciously.
+
+More advanced types of attestations can assert more things about the package
+such as whether it was tampered with *before* it was built, but these
+attestations require specialized build processes and are rarer as a result. See
+"[What about reproducible builds?]" in the SLSA FAQ.
+
 ## General considerations
 
 PyPI's support for attestations is built on top of a combination
@@ -14,27 +37,27 @@ See below for security considerations for each.
 
 !!! note
 
-    TL;DR: An attestation will tell you **who** produced a
-    PyPI package, but not **whether** you should trust them.
+    TL;DR: An attestation will tell you **where** a PyPI package came from, but
+    not **whether** you should trust it.
 
 Like with all signing schemes, it's tempting to treat the *presence* of
 an attestation as proof of a package's *trustworthiness*.
 
-However, this is **not** what an attestation (or any kind of signature)
-conveys. At its core, a valid signature for some identity conveys a
-proof of **authenticity**: if the signature is verifiable against a key,
-then we know that the identity that controls that key produced the signature
-and is saying *something* about the signed-over data.
+However, this is **not** what an attestation (or any kind of signature) conveys.
+At its core, a valid signature for an identity on a package conveys a proof of
+access to that identity while the package was built.
 
-In other words: a valid signature asserts **authenticity**, but it does **not**
-tell the verifying party (e.g., a user installing packages from PyPI) **whether**
-they should trust the identity that holds the key.
+In other words: a valid signature does **not** tell the verifying party (e.g., a
+user installing packages from PyPI) **whether** they should trust the identity
+that holds the key or whether they should trust that malicious/vulnerable code
+was added before or during the build.
 
 As a concrete example: PyPI serves `sampleproject-4.0.0.tar.gz`, which is
 [attested] by [pypa/sampleproject] on GitHub. This is a proof that
-`sampleproject-4.0.0.tar.gz` is authentic for that identity, but it does **not**
-tell the user **whether** they should trust [pypa/sampleproject]. To determine
-trust, the user *must* make a trust decision about [pypa/sampleproject].
+`sampleproject-4.0.0.tar.gz` came from that identity unmodified, but it does
+**not** tell the user **whether** they should trust [pypa/sampleproject]. To
+determine trust, the user *must* make a trust decision about
+[pypa/sampleproject].
 
 This trust decision can have a time dimension: a user might decide to trust
 [pypa/sampleproject] because it was the first identity seen for the
@@ -115,6 +138,10 @@ verifiable*.
 PyPI's attestations feature makes full use of these trust-reduction techniques:
 attestations are not considered verified unless they include an inclusion proof
 from Rekor, as well as an inclusion proof from Fulcio's CT log.
+
+[gh-action-pypi-publish]: https://github.com/pypa/gh-action-pypi-publish
+
+[What about reproducible builds?]: https://slsa.dev/spec/v1.0/faq#q-what-about-reproducible-builds
 
 [Trusted Publishing]: /trusted-publishers/
 

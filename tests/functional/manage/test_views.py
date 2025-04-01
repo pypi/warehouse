@@ -57,7 +57,9 @@ class TestManageAccount:
         """A user can log in, and change their password."""
         # create a User
         user = UserFactory.create(
-            with_verified_primary_email=True, clear_pwd="password"
+            with_verified_primary_email=True,
+            with_terms_of_service_agreement=True,
+            clear_pwd="password",
         )
 
         # visit login page
@@ -105,7 +107,7 @@ class TestManageAccount:
         change_password_form.submit().follow(status=HTTPStatus.OK)
 
         # Request the JavaScript-enabled flash messages directly to get the message
-        resp = webtest.get("/_includes/flash-messages/", status=HTTPStatus.OK)
+        resp = webtest.get("/_includes/authed/flash-messages/", status=HTTPStatus.OK)
         success_message = resp.html.find("span", {"class": "notification-bar__message"})
         assert success_message.text == "Password updated"
 

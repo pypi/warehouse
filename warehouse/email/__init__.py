@@ -222,62 +222,6 @@ def _email(
     return inner
 
 
-# Email templates for administrators.
-
-
-@_email("admin-new-organization-requested")
-def send_admin_new_organization_requested_email(
-    request, user, *, organization_name, initiator_username, organization_id
-):
-    return {
-        "initiator_username": initiator_username,
-        "organization_id": organization_id,
-        "organization_name": organization_name,
-    }
-
-
-@_email("admin-new-organization-approved")
-def send_admin_new_organization_approved_email(
-    request, user, *, organization_name, initiator_username, message=""
-):
-    return {
-        "initiator_username": initiator_username,
-        "message": message,
-        "organization_name": organization_name,
-    }
-
-
-@_email("admin-new-organization-declined")
-def send_admin_new_organization_declined_email(
-    request, user, *, organization_name, initiator_username, message=""
-):
-    return {
-        "initiator_username": initiator_username,
-        "message": message,
-        "organization_name": organization_name,
-    }
-
-
-@_email("admin-organization-renamed")
-def send_admin_organization_renamed_email(
-    request, user, *, organization_name, previous_organization_name
-):
-    return {
-        "organization_name": organization_name,
-        "previous_organization_name": previous_organization_name,
-    }
-
-
-@_email("admin-organization-deleted")
-def send_admin_organization_deleted_email(request, user, *, organization_name):
-    return {
-        "organization_name": organization_name,
-    }
-
-
-# Email templates for users.
-
-
 @_email("password-reset", allow_unverified=True)
 def send_password_reset_email(request, user_and_email):
     user, _ = user_and_email
@@ -404,6 +348,17 @@ def send_new_organization_declined_email(
     return {
         "message": message,
         "organization_name": organization_name,
+    }
+
+
+@_email("new-organization-moreinformationneeded")
+def send_new_organization_moreinformationneeded_email(
+    request, user, *, organization_name, organization_application_id, message=""
+):
+    return {
+        "message": message,
+        "organization_name": organization_name,
+        "organization_application_id": organization_application_id,
     }
 
 
@@ -1101,6 +1056,22 @@ def send_environment_ignored_in_trusted_publisher_email(
         "project_name": project_name,
         "publisher": publisher,
         "environment_name": environment_name,
+    }
+
+
+@_email("user-terms-of-service-updated")
+def send_user_terms_of_service_updated(request, user):
+    return {
+        "user": user,
+    }
+
+
+@_email("pep427-name-email")
+def send_pep427_name_email(request, users, project_name, filename, normalized_name):
+    return {
+        "project_name": project_name,
+        "filename": filename,
+        "normalized_name": normalized_name,
     }
 
 

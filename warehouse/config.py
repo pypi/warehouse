@@ -118,6 +118,7 @@ class RootFactory:
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
+                Permissions.AdminOrganizationsWrite,
                 Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedUsernameRead,
@@ -328,6 +329,20 @@ def configure(settings=None):
         default=Environment.production,
     )
 
+    maybe_set(
+        settings,
+        "terms.revision",
+        "TERMS_REVISION",
+        default="initial",
+    )
+    maybe_set(
+        settings,
+        "terms.notification_batch_size",
+        "TERMS_NOTIFICATION_BATCH_SIZE",
+        int,
+        default=1000,
+    )
+
     # Pull in default configuration from the environment.
     maybe_set(settings, "warehouse.token", "WAREHOUSE_TOKEN")
     maybe_set(settings, "warehouse.ip_salt", "WAREHOUSE_IP_SALT")
@@ -335,6 +350,9 @@ def configure(settings=None):
     maybe_set(settings, "warehouse.domain", "WAREHOUSE_DOMAIN")
     maybe_set(settings, "forklift.domain", "FORKLIFT_DOMAIN")
     maybe_set(settings, "auth.domain", "AUTH_DOMAIN")
+    maybe_set(
+        settings, "userdocs.domain", "USERDOCS_DOMAIN", default="https://docs.pypi.org"
+    )
     maybe_set(settings, "warehouse.legacy_domain", "WAREHOUSE_LEGACY_DOMAIN")
     maybe_set(settings, "site.name", "SITE_NAME", default="Warehouse")
     maybe_set(settings, "aws.key_id", "AWS_ACCESS_KEY_ID")
@@ -360,7 +378,6 @@ def configure(settings=None):
         default="https://api.github.com/meta/public_keys/token_scanning",
     )
     maybe_set(settings, "warehouse.downloads_table", "WAREHOUSE_DOWNLOADS_TABLE")
-    maybe_set(settings, "celery.broker_url", "BROKER_URL")
     maybe_set_redis(settings, "celery.broker_redis_url", "REDIS_URL", db=10)
     maybe_set_redis(settings, "celery.result_url", "REDIS_URL", db=12)
     maybe_set_redis(settings, "celery.scheduler_url", "REDIS_URL", db=0)
@@ -371,6 +388,7 @@ def configure(settings=None):
     maybe_set(settings, "sentry.transport", "SENTRY_TRANSPORT")
     maybe_set_redis(settings, "sessions.url", "REDIS_URL", db=2)
     maybe_set_redis(settings, "ratelimit.url", "REDIS_URL", db=3)
+    maybe_set_redis(settings, "db_results_cache.url", "REDIS_URL", db=5)
     maybe_set(settings, "captcha.backend", "CAPTCHA_BACKEND")
     maybe_set(settings, "recaptcha.site_key", "RECAPTCHA_SITE_KEY")
     maybe_set(settings, "recaptcha.secret_key", "RECAPTCHA_SECRET_KEY")
@@ -685,6 +703,7 @@ def configure(settings=None):
     filters.setdefault(
         "remove_invalid_xml_unicode", "warehouse.filters:remove_invalid_xml_unicode"
     )
+    filters.setdefault("parse_isoformat", "warehouse.filters:parse_isoformat")
 
     # We also want to register some global functions for Jinja
     jglobals = config.get_settings().setdefault("jinja2.globals", {})
@@ -793,6 +812,8 @@ def configure(settings=None):
     # Register our support for http and origin caching
     config.include(".cache.http")
     config.include(".cache.origin")
+    # Register our support for the database results cache
+    config.include(".cache")
 
     # Register support for sending emails
     config.include(".email")
