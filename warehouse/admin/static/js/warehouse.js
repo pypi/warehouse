@@ -247,3 +247,23 @@ links.forEach(function(link){
       reportLine.element.firstChild.classList.add("text-red");
     });
 });
+
+let organizationApplicationTurboModeSwitch = document.getElementById("organizationApplicationTurboMode");
+if (organizationApplicationTurboModeSwitch !== "undefined") {
+  let organizationApplicationTurboModeEnabled = JSON.parse(localStorage.getItem("organizationApplicationTurboModeEnabled") || false);
+  organizationApplicationTurboModeSwitch.addEventListener("click", (event) => {
+    localStorage.setItem("organizationApplicationTurboModeEnabled", event.target.checked);
+    document.querySelectorAll("input[name=organization_applications_turbo_mode]").forEach(function(input) {
+      input.value = event.target.checked;
+    });
+  });
+  organizationApplicationTurboModeSwitch.checked = organizationApplicationTurboModeEnabled;
+  document.querySelectorAll("input[name=organization_applications_turbo_mode]").forEach(function(input) {
+    input.value = organizationApplicationTurboModeEnabled;
+  });
+  if (organizationApplicationTurboModeEnabled) {
+    [...document.querySelectorAll(".alert-dismissible")].forEach(function(alertElem) {
+      setTimeout(function() {alertElem.getElementsByTagName("button")[0].click();}, 1000);
+    });
+  }
+}
