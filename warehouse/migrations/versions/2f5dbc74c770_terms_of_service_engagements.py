@@ -13,7 +13,7 @@
 terms of service engagements
 
 Revision ID: 2f5dbc74c770
-Revises: 6cac7b706953
+Revises: b2f6cb22fd84
 Create Date: 2025-02-20 13:35:44.331611
 """
 
@@ -25,7 +25,7 @@ from sqlalchemy.dialects import postgresql
 from warehouse.utils.db.types import TZDateTime
 
 revision = "2f5dbc74c770"
-down_revision = "6cac7b706953"
+down_revision = "b2f6cb22fd84"
 
 
 def upgrade():
