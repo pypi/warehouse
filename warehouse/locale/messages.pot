@@ -7020,11 +7020,15 @@ msgid "Unarchive project"
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:375
-msgid "Unarchiving a project will allow new file uploads."
+msgid ""
+"Unarchiving a project will allow new file uploads and add the project to "
+"the search index."
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:384
-msgid "Archiving a project will block any new file uploads."
+msgid ""
+"Archiving a project will block any new file uploads and remove the "
+"project from the search index."
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:391
