@@ -347,7 +347,7 @@
                 Organization URL <i class="fa-solid fa-arrow-up-right-from-square"></i>
               </label>
               <div class="col-sm-7">
-                <a href="{{ organization_application.link_url }}" rel="nofollow noopener noreferrer" target="_blank"><input class="form-control" value="{{ organization_application.link_url }}" readonly></a>
+                <a href="{{ organization_application.link_url }}" rel="nofollow noopener noreferrer" target="_blank" data-check-link-url="{{ request.camo_url(organization_application.link_url) }}"><input class="form-control" value="{{ organization_application.link_url }}" readonly></a>
               </div>
             </div>
             <div class="form-group">
