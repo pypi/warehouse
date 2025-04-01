@@ -277,10 +277,12 @@
       </div>
     </div>
 
+    {% set information_requests = organization_application.information_requests %}
+    {% set outstanding_information_requests = organization_application.information_requests|selectattr("additional", "defined")|map(attribute="additional")|selectattr("response", "undefined")|list %}
     <div class="col-md-9">
       <div class="card">
         <div class="card-header with-border">
-          <h3 class="card-title">Organization Request</h3>
+          <h3 class="card-title">Organization Request{% if information_requests %}{% if outstanding_information_requests %}  <i class="fa-solid fa-envelope text-info"></i>{% else %}  <i class="fa-solid fa-envelope-open text-green"></i><i class="fa-solid fa-reply text-green"></i>{% endif %}{% endif %}</h3>
         </div>
         <div class="card-body">
           <div class="form-horizontal">
@@ -374,7 +376,7 @@
           <h3 class="card-title">Information Requests</h3>
         </div>
         <div class="card-body">
-        {% for information_request in organization_application.information_requests %}
+        {% for information_request in information_requests %}
         <div class="card {% if information_request.additional.response %}card-neutral{% else %}card-warning{% endif %} card-outline direct-chat direct-chat-primary"</div>
           <div class="card-body">
             <div class="direct-chat-messages unset-height">

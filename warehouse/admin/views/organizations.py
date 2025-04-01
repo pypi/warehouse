@@ -16,6 +16,7 @@ from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy import or_
+from sqlalchemy.orm import joinedload
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.authnz import Permissions
@@ -264,6 +265,10 @@ def organization_applications_list(request):
                 organization_applications_query = (
                     organization_applications_query.filter(filter_or_subfilters)
                 )
+
+    organization_applications_query = organization_applications_query.options(
+        joinedload(OrganizationApplication.observations)
+    )
 
     return {
         "organization_applications": organization_applications_query.all(),
