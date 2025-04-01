@@ -397,9 +397,9 @@ pycparser==2.22 \
     --hash=sha256:491c8be9c040f5390f5bf44a5b07752bd07f56edf992381b05c701439eec10f6 \
     --hash=sha256:c3702b6d3dd8c7abc1afa565d7e63d53a1d0bd86cdc24edd75470f4de499cfcc
     # via cffi
-pyflakes==3.3.1 \
-    --hash=sha256:8752eee11d4ef3a4be642d774863047864b47406cba906fabf8dd892cf98d5b3 \
-    --hash=sha256:af4d63344d478524956e9950a9ae11da51414622479b8c148647fe9722e96837
+pyflakes==3.3.2 \
+    --hash=sha256:5039c8339cbb1944045f4ee5466908906180f13cc99cc9949348d10f82a5c32a \
+    --hash=sha256:6dfd61d87b97fba5dcfaaf781171ac16be16453be6d816147989e7f6e6a9576b
     # via flake8
 pyupgrade==3.19.1 \
     --hash=sha256:8c5b0bfacae5ff30fa136a53eb7f22c34ba007450d4099e9da8089dabb9e67c9 \
