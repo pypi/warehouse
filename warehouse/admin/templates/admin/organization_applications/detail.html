@@ -99,7 +99,10 @@
                     </div>
                     <div class="modal-body">
                       <p>
-                        This will approve <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>'s request for a new organization named <strong>{{ organization_application.name }}</strong>.
+                        This will approve <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>'s request for a new organization named <strong>{{ organization_application.name }}</strong>
+                        <button type="button" class="copy-text" data-copy-text="{{ organization_application.name }}">
+                          <i class="fa fa-copy" aria-hidden="true"></i>
+                        </button>.
                       </p>
                       <div class="form-group">
                         <label for="approveModalOrganizationName">
@@ -228,6 +231,9 @@
                     <div class="modal-body">
                       <p>
                         This will decline <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>'s request for a new organization named <strong>{{ organization_application.name }}</strong>.
+                        <button type="button" class="copy-text" data-copy-text="{{ organization_application.name }}">
+                          <i class="fa fa-copy" aria-hidden="true"></i>
+                        </button>.
                       </p>
                       <div class="form-group">
                         <label for="declineModalOrganizationName">
