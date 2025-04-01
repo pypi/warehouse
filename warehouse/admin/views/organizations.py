@@ -29,6 +29,27 @@ from warehouse.organizations.models import (
 from warehouse.utils.paginate import paginate_url_factory
 
 
+def _turbo_mode(request):
+    next_organization_application = (
+        request.db.query(OrganizationApplication)
+        .filter(OrganizationApplication.status == "submitted")
+        .order_by(OrganizationApplication.submitted)
+        .first()
+    )
+    if next_organization_application:
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization_application.detail",
+                organization_application_id=next_organization_application.id,
+            )
+        )
+    else:
+        request.session.flash(
+            "No more Organization Applications to review!", queue="success"
+        )
+        return HTTPSeeOther(request.route_path("admin.dashboard"))
+
+
 @view_config(
     route_name="admin.organization.list",
     renderer="admin/organizations/list.html",
@@ -325,6 +346,9 @@ def organization_application_approve(request):
         f'Request for "{organization.name}" organization approved', queue="success"
     )
 
+    if request.params.get("organization_applications_turbo_mode") == "true":
+        return _turbo_mode(request)
+
     return HTTPSeeOther(
         request.route_path("admin.organization.detail", organization_id=organization.id)
     )
@@ -347,14 +371,6 @@ def organization_application_defer(request):
     )
     if organization_application is None:
         raise HTTPNotFound
-    elif organization_application.name != request.params.get("organization_name"):
-        request.session.flash("Wrong confirmation input", queue="error")
-        return HTTPSeeOther(
-            request.route_path(
-                "admin.organization_application.detail",
-                organization_application_id=organization_application.id,
-            )
-        )
 
     organization_service.defer_organization_application(
         organization_application.id, request
@@ -364,6 +380,9 @@ def organization_application_defer(request):
         f'Request for "{organization_application.name}" organization deferred',
         queue="success",
     )
+
+    if request.params.get("organization_applications_turbo_mode") == "true":
+        return _turbo_mode(request)
 
     return HTTPSeeOther(
         request.route_path(
@@ -390,14 +409,6 @@ def organization_application_request_more_information(request):
     )
     if organization_application is None:
         raise HTTPNotFound
-    elif organization_application.name != request.params.get("organization_name"):
-        request.session.flash("Wrong confirmation input", queue="error")
-        return HTTPSeeOther(
-            request.route_path(
-                "admin.organization_application.detail",
-                organization_application_id=organization_application.id,
-            )
-        )
 
     organization_service.request_more_information(organization_application.id, request)
 
@@ -408,6 +419,9 @@ def organization_application_request_more_information(request):
         ),
         queue="success",
     )
+
+    if request.params.get("organization_applications_turbo_mode") == "true":
+        return _turbo_mode(request)
 
     return HTTPSeeOther(
         request.route_path(
@@ -451,6 +465,9 @@ def organization_application_decline(request):
         f'Request for "{organization_application.name}" organization declined',
         queue="success",
     )
+
+    if request.params.get("organization_applications_turbo_mode") == "true":
+        return _turbo_mode(request)
 
     return HTTPSeeOther(
         request.route_path(
