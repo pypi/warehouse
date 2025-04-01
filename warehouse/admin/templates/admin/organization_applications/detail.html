@@ -147,15 +147,6 @@
                       <p>
                         This will defer <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>'s request for a new organization named <strong>{{ organization_application.name }}</strong>.
                       </p>
-                      <div class="form-group">
-                        <label for="deferModalOrganizationName">
-                          Organization Name
-                        </label>
-                        <input type="text" id="deferModalOrganizationName" class="form-control" aria-describedby="deferModalOrganizationNameHelpBlock" name="organization_name" placeholder="{{ organization_application.name }}" required>
-                        <span id="deferModalOrganizationNameHelpBlock">
-                          Type the organization name "{{ organization_application.name }}" to confirm you are <strong>deferring</strong> the request.
-                        </span>
-                      </div>
                     </div>
                     <div class="modal-footer justify-content-between">
                       <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -185,15 +176,6 @@
                       <p>
                         This will request more information for <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>'s request for a new organization named <strong>{{ organization_application.name }}</strong>.
                       </p>
-                      <div class="form-group">
-                        <label for="requestMoreInfoModalOrganizationName">
-                          Organization Name
-                        </label>
-                        <input type="text" id="requestMoreInfoModalOrganizationName" class="form-control" aria-describedby="requestMoreInfoModalOrganizationNameHelpBlock" name="organization_name" placeholder="{{ organization_application.name }}" required>
-                        <span id="requestMoreInfoModalOrganizationNameHelpBlock">
-                          Type the organization name "{{ organization_application.name }}" to confirm you are <strong>requesting more information</strong> for this request.
-                        </span>
-                      </div>
                       <div class="form-group">
                         <label for="requestMoreInfoModalMessage">
                           Message

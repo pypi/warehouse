@@ -347,14 +347,6 @@ def organization_application_defer(request):
     )
     if organization_application is None:
         raise HTTPNotFound
-    elif organization_application.name != request.params.get("organization_name"):
-        request.session.flash("Wrong confirmation input", queue="error")
-        return HTTPSeeOther(
-            request.route_path(
-                "admin.organization_application.detail",
-                organization_application_id=organization_application.id,
-            )
-        )
 
     organization_service.defer_organization_application(
         organization_application.id, request
@@ -390,14 +382,6 @@ def organization_application_request_more_information(request):
     )
     if organization_application is None:
         raise HTTPNotFound
-    elif organization_application.name != request.params.get("organization_name"):
-        request.session.flash("Wrong confirmation input", queue="error")
-        return HTTPSeeOther(
-            request.route_path(
-                "admin.organization_application.detail",
-                organization_application_id=organization_application.id,
-            )
-        )
 
     organization_service.request_more_information(organization_application.id, request)
 
