@@ -166,7 +166,7 @@
 
             <div class="modal fade" id="requestMoreInfoModal" tabindex="-1" role="dialog">
               <form method="POST" action="{{ request.route_path('admin.organization_application.requestmoreinfo', organization_application_id=organization_application.id) }}">
-                <div id="requestMoreInformationEmailTemplate">
+                <div class="hidden" id="requestMoreInformationEmailTemplate">
                     Hello {{ organization_application.submitted_by.username }}!
                     We'd be happy to approve this organization request,
                     but ask that you first add an @{% with parsed = organization_application.link_url|urlparse %}{{ parsed.host }}{% endwith %}
