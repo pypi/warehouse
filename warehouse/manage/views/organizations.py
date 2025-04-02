@@ -28,7 +28,6 @@ from warehouse.accounts.interfaces import ITokenService, IUserService, TokenExpi
 from warehouse.accounts.models import User
 from warehouse.authnz import Permissions
 from warehouse.email import (
-    send_admin_organization_deleted_email,
     send_canceled_as_invited_organization_member_email,
     send_new_organization_requested_email,
     send_organization_deleted_email,
@@ -472,12 +471,6 @@ class ManageOrganizationSettingsViews:
         #        },
         #    )
         #    owner_users = set(organization_owners(self.request, self.organization))
-        #    send_admin_organization_renamed_email(
-        #        self.request,
-        #        self.user_service.get_admin_user(),
-        #        organization_name=self.organization.name,
-        #        previous_organization_name=previous_organization_name,
-        #    )
         #    send_organization_renamed_email(
         #        self.request,
         #        owner_users,
@@ -529,11 +522,6 @@ class ManageOrganizationSettingsViews:
 
         self.organization_service.delete_organization(self.organization.id)
 
-        send_admin_organization_deleted_email(
-            self.request,
-            self.user_service.get_admin_user(),
-            organization_name=self.organization.name,
-        )
         send_organization_deleted_email(
             self.request,
             owner_users,

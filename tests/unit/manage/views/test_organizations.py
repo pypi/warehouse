@@ -1071,9 +1071,6 @@ class TestManageOrganizationSettings:
     #    )
 
     #    send_email = pretend.call_recorder(lambda *a, **kw: None)
-    #    monkeypatch.setattr(
-    #        org_views, "send_admin_organization_renamed_email", send_email
-    #    )
     #    monkeypatch.setattr(org_views, "send_organization_renamed_email", send_email)
     #    monkeypatch.setattr(
     #        org_views, "organization_owners", lambda *a, **kw: [pyramid_user]
@@ -1090,12 +1087,6 @@ class TestManageOrganizationSettings:
     #         pretend.call(organization.id, "FooBar")
     #    ]
     #    assert send_email.calls == [
-    #        pretend.call(
-    #            db_request,
-    #            admin,
-    #            organization_name="FooBar",
-    #            previous_organization_name="foobar",
-    #        ),
     #        pretend.call(
     #            db_request,
     #            {pyramid_user},
@@ -1178,9 +1169,6 @@ class TestManageOrganizationSettings:
         )
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            org_views, "send_admin_organization_deleted_email", send_email
-        )
         monkeypatch.setattr(org_views, "send_organization_deleted_email", send_email)
         monkeypatch.setattr(
             org_views, "organization_owners", lambda *a, **kw: [pyramid_user]
@@ -1195,11 +1183,6 @@ class TestManageOrganizationSettings:
             pretend.call(organization.id)
         ]
         assert send_email.calls == [
-            pretend.call(
-                db_request,
-                admin,
-                organization_name=organization.name,
-            ),
             pretend.call(
                 db_request,
                 {pyramid_user},
@@ -1291,9 +1274,6 @@ class TestManageOrganizationSettings:
         )
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            org_views, "send_admin_organization_deleted_email", send_email
-        )
         monkeypatch.setattr(org_views, "send_organization_deleted_email", send_email)
         monkeypatch.setattr(
             org_views, "organization_owners", lambda *a, **kw: [pyramid_user]
@@ -1308,11 +1288,6 @@ class TestManageOrganizationSettings:
             pretend.call(organization.id)
         ]
         assert send_email.calls == [
-            pretend.call(
-                db_request,
-                admin,
-                organization_name=organization.name,
-            ),
             pretend.call(
                 db_request,
                 {pyramid_user},

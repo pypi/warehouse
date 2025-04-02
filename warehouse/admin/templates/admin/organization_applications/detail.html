@@ -86,6 +86,7 @@
             <div class="modal fade" id="approveModal" tabindex="-1" role="dialog">
               <form method="POST" action="{{ request.route_path('admin.organization_application.approve', organization_application_id=organization_application.id) }}">
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <input name="organization_applications_turbo_mode" type="hidden" value=0>
                 <div class="modal-dialog" role="document">
                   <div class="modal-content">
                     <div class="modal-header">
@@ -98,7 +99,10 @@
                     </div>
                     <div class="modal-body">
                       <p>
-                        This will approve <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>'s request for a new organization named <strong>{{ organization_application.name }}</strong>.
+                        This will approve <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>'s request for a new organization named <strong>{{ organization_application.name }}</strong>
+                        <button type="button" class="copy-text" data-copy-text="{{ organization_application.name }}">
+                          <i class="fa fa-copy" aria-hidden="true"></i>
+                        </button>.
                       </p>
                       <div class="form-group">
                         <label for="approveModalOrganizationName">
@@ -133,6 +137,7 @@
             <div class="modal fade" id="deferModal" tabindex="-1" role="dialog">
               <form method="POST" action="{{ request.route_path('admin.organization_application.defer', organization_application_id=organization_application.id) }}">
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <input name="organization_applications_turbo_mode" type="hidden" value=0>
                 <div class="modal-dialog" role="document">
                   <div class="modal-content">
                     <div class="modal-header">
@@ -147,15 +152,6 @@
                       <p>
                         This will defer <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>'s request for a new organization named <strong>{{ organization_application.name }}</strong>.
                       </p>
-                      <div class="form-group">
-                        <label for="deferModalOrganizationName">
-                          Organization Name
-                        </label>
-                        <input type="text" id="deferModalOrganizationName" class="form-control" aria-describedby="deferModalOrganizationNameHelpBlock" name="organization_name" placeholder="{{ organization_application.name }}" required>
-                        <span id="deferModalOrganizationNameHelpBlock">
-                          Type the organization name "{{ organization_application.name }}" to confirm you are <strong>deferring</strong> the request.
-                        </span>
-                      </div>
                     </div>
                     <div class="modal-footer justify-content-between">
                       <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -170,7 +166,16 @@
 
             <div class="modal fade" id="requestMoreInfoModal" tabindex="-1" role="dialog">
               <form method="POST" action="{{ request.route_path('admin.organization_application.requestmoreinfo', organization_application_id=organization_application.id) }}">
+                <div class="hidden" id="requestMoreInformationEmailTemplate">
+                    Hello {{ organization_application.submitted_by.username }}!
+                    We'd be happy to approve this organization request,
+                    but ask that you first add an @{% with parsed = organization_application.link_url|urlparse %}{{ parsed.host }}{% endwith %}
+                    email address to your PyPI account,
+                    complete the verification,
+                    and respond using the linked form.
+                </div>
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <input name="organization_applications_turbo_mode" type="hidden" value=0>
                 <div class="modal-dialog" role="document">
                   <div class="modal-content">
                     <div class="modal-header">
@@ -186,19 +191,13 @@
                         This will request more information for <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>'s request for a new organization named <strong>{{ organization_application.name }}</strong>.
                       </p>
                       <div class="form-group">
-                        <label for="requestMoreInfoModalOrganizationName">
-                          Organization Name
-                        </label>
-                        <input type="text" id="requestMoreInfoModalOrganizationName" class="form-control" aria-describedby="requestMoreInfoModalOrganizationNameHelpBlock" name="organization_name" placeholder="{{ organization_application.name }}" required>
-                        <span id="requestMoreInfoModalOrganizationNameHelpBlock">
-                          Type the organization name "{{ organization_application.name }}" to confirm you are <strong>requesting more information</strong> for this request.
-                        </span>
+                        <button type="button" class="btn btn-outline-primary" id="requestMoreInformationEmailTemplateButton">Add Org Email</button>
                       </div>
                       <div class="form-group">
                         <label for="requestMoreInfoModalMessage">
                           Message
                         </label>
-                        <textarea id="requestMoreInfoModalMessage" class="form-control" name="message" placeholder="Information you are requesting"></textarea>
+                        <textarea id="requestMoreInfoModalMessage" class="form-control" name="message" placeholder="Information you are requesting" rows=16></textarea>
                         <span id="requestMoreInfoModalMessageHelpBlock">
                           This message will be included in the notification email.
                         </span>
@@ -218,6 +217,7 @@
             <div class="modal fade" id="declineModal" tabindex="-1" role="dialog">
               <form method="POST" action="{{ request.route_path('admin.organization_application.decline', organization_application_id=organization_application.id) }}">
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <input name="organization_applications_turbo_mode" type="hidden" value=0>
                 <div class="modal-dialog" role="document">
                   <div class="modal-content">
                     <div class="modal-header">
@@ -231,6 +231,9 @@
                     <div class="modal-body">
                       <p>
                         This will decline <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>'s request for a new organization named <strong>{{ organization_application.name }}</strong>.
+                        <button type="button" class="copy-text" data-copy-text="{{ organization_application.name }}">
+                          <i class="fa fa-copy" aria-hidden="true"></i>
+                        </button>.
                       </p>
                       <div class="form-group">
                         <label for="declineModalOrganizationName">
@@ -263,6 +266,12 @@
             </div>
 
             {% endif %}
+          </div>
+          <div class="form-group">
+            <div class="custom-control custom-switch">
+              <input type="checkbox" class="custom-control-input" id="organizationApplicationTurboMode">
+              <label class="custom-control-label" for="organizationApplicationTurboMode">Turbo Mode</label>
+            </div>
           </div>
         </div>
       </div>
@@ -338,7 +347,7 @@
                 Organization URL <i class="fa-solid fa-arrow-up-right-from-square"></i>
               </label>
               <div class="col-sm-7">
-                <a href="{{ organization_application.link_url }}" rel="nofollow noopener noreferrer" target="_blank"><input class="form-control" value="{{ organization_application.link_url }}" readonly></a>
+                <a href="{{ organization_application.link_url }}" rel="nofollow noopener noreferrer" target="_blank" data-check-link-url="{{ request.camo_url(organization_application.link_url) }}"><input class="form-control" value="{{ organization_application.link_url }}" readonly></a>
               </div>
             </div>
             <div class="form-group">
