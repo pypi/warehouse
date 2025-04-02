@@ -20,6 +20,7 @@ from sqlalchemy.orm import joinedload
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.authnz import Permissions
+from warehouse.manage.forms import OrganizationNameMixin, SaveOrganizationForm
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
@@ -277,6 +278,13 @@ def organization_applications_list(request):
     }
 
 
+class OrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationForm):
+    def __init__(self, *args, organization_service, user, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.organization_service = organization_service
+        self.user = user
+
+
 @view_config(
     route_name="admin.organization_application.detail",
     require_methods=False,
@@ -297,6 +305,21 @@ def organization_application_detail(request):
     if organization_application is None:
         raise HTTPNotFound
 
+    form = OrganizationApplicationForm(
+        request.POST if request.method == "POST" else None,
+        organization_application,
+        organization_service=organization_service,
+        user=request.user,
+    )
+
+    if request.method == "POST" and form.validate():
+        form.populate_obj(organization_application)
+        request.session.flash(
+            f"Application for {organization_application.name!r} updated",
+            queue="success",
+        )
+        return HTTPSeeOther(location=request.current_route_path())
+
     conflicting_applications = (
         request.db.query(OrganizationApplication)
         .filter(
@@ -312,6 +335,7 @@ def organization_application_detail(request):
 
     return {
         "organization_application": organization_application,
+        "form": form,
         "conflicting_applications": conflicting_applications,
         "user": user,
     }

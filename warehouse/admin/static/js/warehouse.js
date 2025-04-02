@@ -240,6 +240,13 @@ if (requestMoreInformationEmailTemplateButton !== "undefined") {
   });
 }
 
+let editModalForm = document.getElementById("editModalForm");
+if (editModalForm !== "undefined") {
+  if (editModalForm.classList.contains("edit-form-errors")) {
+    document.getElementById("editModalButton").click();
+  }
+}
+
 // Link Checking
 const links = document.querySelectorAll("a[data-check-link-url]");
 links.forEach(function(link){
