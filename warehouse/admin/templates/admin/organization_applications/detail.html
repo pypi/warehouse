@@ -62,19 +62,6 @@
           <div class="form-group">
             <button
               type="button"
-              class="btn btn-warning btn-block"
-              id="editModalButton"
-              data-toggle="modal"
-              data-target="#editModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) or organization_application.status.value in ['approved', 'declined'] }}
-              title="Edit organization request"
-            >
-              <i class="fa-solid fa-pen-to-square"></i> Edit
-            </button>
-          </div>
-
-          <div class="form-group">
-            <button
-              type="button"
               class="btn btn-primary btn-block"
               data-toggle="modal"
               data-target="#approveModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) or organization_application.status.value in ['approved', 'declined'] }}
@@ -136,8 +123,8 @@
                     </div>
                     <div class="modal-footer justify-content-between">
                       <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                      <button type="submit" class="btn btn-primary">
-                        <i class="icon fa fa-edit"></i> Approve organization request
+                      <button type="submit" class="btn btn-warning">
+                        <i class="icon fa fa-edit"></i> Update Application
                       </button>
                     </div>
                   </div>
@@ -335,6 +322,20 @@
               <label class="custom-control-label" for="organizationApplicationTurboMode">Turbo Mode</label>
             </div>
           </div>
+          {% if request.user.is_superuser %}
+          <div class="form-group">
+            <button
+              type="button"
+              class="btn btn-warning btn-block"
+              id="editModalButton"
+              data-toggle="modal"
+              data-target="#editModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) or organization_application.status.value in ['approved', 'declined'] }}
+              title="Edit organization request"
+            >
+              <i class="fa-solid fa-pen-to-square"></i> Edit
+            </button>
+          </div>
+          {% endif %}
         </div>
       </div>
     </div>
