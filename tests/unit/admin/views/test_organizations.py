@@ -14,6 +14,7 @@ import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
+from webob.multidict import MultiDict
 
 from warehouse.admin.views import organizations as views
 from warehouse.organizations.interfaces import IOrganizationService
@@ -545,11 +546,63 @@ class TestOrganizationApplicationDetail:
         db_request.matchdict["organization_application_id"] = (
             organization_application.id
         )
-        assert views.organization_application_detail(db_request) == {
-            "user": organization_application.submitted_by,
-            "conflicting_applications": [],
-            "organization_application": organization_application,
-        }
+        result = views.organization_application_detail(db_request)
+        assert result["user"] == organization_application.submitted_by
+        assert result["form"].name.data == organization_application.name
+        assert result["conflicting_applications"] == []
+        assert result["organization_application"] == organization_application
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_detail_edit(self, db_request):
+        organization_application = OrganizationApplicationFactory.create()
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+
+        new_org_name = f"New-Org-Name-{organization_application.name}"
+        db_request.method = "POST"
+        db_request.POST["name"] = new_org_name
+        db_request.POST["description"] = organization_application.description
+        db_request.POST["display_name"] = organization_application.display_name
+        db_request.POST["link_url"] = organization_application.link_url
+        db_request.POST["orgtype"] = organization_application.orgtype
+        db_request.POST = MultiDict(db_request.POST)
+
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        db_request.current_route_path = lambda *a, **kw: "/the/url/"
+
+        result = views.organization_application_detail(db_request)
+
+        assert result.status_code == 303
+        assert result.location == "/the/url/"
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Application for {organization_application.name!r} updated",
+                queue="success",
+            )
+        ]
+
+        assert organization_application.name == new_org_name
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_detail_edit_invalid(self, db_request):
+        existing_organization = OrganizationFactory.create()
+        organization_application = OrganizationApplicationFactory.create()
+
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        db_request.method = "POST"
+        db_request.POST["name"] = existing_organization.name
+        db_request.POST = MultiDict(db_request.POST)
+
+        result = views.organization_application_detail(db_request)
+
+        assert result["user"] == organization_application.submitted_by
+        assert result["form"].name.data == existing_organization.name
+        assert result["form"].name.errors != []
+        assert result["conflicting_applications"] == []
+        assert result["organization_application"] == organization_application
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_is_approved_true(self, db_request):
@@ -559,11 +612,11 @@ class TestOrganizationApplicationDetail:
         db_request.matchdict["organization_application_id"] = (
             organization_application.id
         )
-        assert views.organization_application_detail(db_request) == {
-            "user": organization_application.submitted_by,
-            "conflicting_applications": [],
-            "organization_application": organization_application,
-        }
+        result = views.organization_application_detail(db_request)
+        assert result["user"] == organization_application.submitted_by
+        assert result["form"].name.data == organization_application.name
+        assert result["conflicting_applications"] == []
+        assert result["organization_application"] == organization_application
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_is_approved_false(self, db_request):
@@ -573,11 +626,11 @@ class TestOrganizationApplicationDetail:
         db_request.matchdict["organization_application_id"] = (
             organization_application.id
         )
-        assert views.organization_application_detail(db_request) == {
-            "user": organization_application.submitted_by,
-            "conflicting_applications": [],
-            "organization_application": organization_application,
-        }
+        result = views.organization_application_detail(db_request)
+        assert result["user"] == organization_application.submitted_by
+        assert result["form"].name.data == organization_application.name
+        assert result["conflicting_applications"] == []
+        assert result["organization_application"] == organization_application
 
     @pytest.mark.usefixtures("_enable_organizations")
     @pytest.mark.parametrize(
@@ -601,11 +654,11 @@ class TestOrganizationApplicationDetail:
         db_request.matchdict["organization_application_id"] = (
             organization_application.id
         )
-        assert views.organization_application_detail(db_request) == {
-            "user": organization_application.submitted_by,
-            "conflicting_applications": conflicting_applications,
-            "organization_application": organization_application,
-        }
+        result = views.organization_application_detail(db_request)
+        assert result["user"] == organization_application.submitted_by
+        assert result["form"].name.data == organization_application.name
+        assert result["conflicting_applications"] == conflicting_applications
+        assert result["organization_application"] == organization_application
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_not_found(self):

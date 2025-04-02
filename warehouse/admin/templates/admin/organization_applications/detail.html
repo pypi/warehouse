@@ -20,6 +20,23 @@
   <li class="breadcrumb-item active">{{ organization_application.name }}</li>
 {% endblock %}
 
+{% macro render_field(label, field, input_id, placeholder=None, class=None) %}
+<div class="form-group{% if field.errors %} has-error{% endif %}">
+  <label>
+    {{ label }}
+  </label>
+  {{ field(id=input_id, class=class, placeholder=placeholder) }}
+
+  {% if field.errors %}
+  <div class="help-block">
+  {% for error in field.errors %}
+    <div class="text-red">{{ error }}</div>
+  {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endmacro %}
+
 {% block content %}
   <div class="row">
     <div class="col-md-3">
@@ -27,6 +44,7 @@
         <div class="card-body card-widget widget-user-1">
           <div class="widget-user-header">
             <h3 class="widget-user-username text-center">{{ organization_application.name }}</h3>
+            <h6 class="widget-user-username text-center">{{ organization_application.display_name }}</h6>
           </div>
         </div>
         <div class="card-body">
@@ -41,6 +59,19 @@
           <h2 class="card-title">Actions</h2>
         </div>
         <div class="card-body">
+          <div class="form-group">
+            <button
+              type="button"
+              class="btn btn-warning btn-block"
+              id="editModalButton"
+              data-toggle="modal"
+              data-target="#editModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) or organization_application.status.value in ['approved', 'declined'] }}
+              title="Edit organization request"
+            >
+              <i class="fa-solid fa-pen-to-square"></i> Edit
+            </button>
+          </div>
+
           <div class="form-group">
             <button
               type="button"
@@ -83,6 +114,37 @@
             </button>
 
             {% if user %}
+            <div class="modal fade" id="editModal" tabindex="-1" role="dialog">
+              <form method="POST" action="{{ request.current_route_path() }}" id="editModalForm" class="{% if form.errors %}edit-form-errors{% endif %}">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title" id="editModalLabel">
+                        Edit {{ organization_application.name }}?
+                      </h4>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      {{ render_field("Organization Display Name", form.display_name, "organization-display-name", class="form-control") }}
+                      {{ render_field("Organization Name", form.name, "organization-name", class="form-control") }}
+                      {{ render_field("Organization URL", form.link_url, "organization-link-url", class="form-control") }}
+                      {{ render_field("Organization Description", form.description, "organization-description", class="form-control") }}
+                      {{ render_field("Organization Type", form.orgtype, "organization-type", class="form-control") }}
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-primary">
+                        <i class="icon fa fa-edit"></i> Approve organization request
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+
             <div class="modal fade" id="approveModal" tabindex="-1" role="dialog">
               <form method="POST" action="{{ request.route_path('admin.organization_application.approve', organization_application_id=organization_application.id) }}">
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -169,7 +231,7 @@
                 <div class="hidden" id="requestMoreInformationEmailTemplate">
                     Hello {{ organization_application.submitted_by.username }}!
                     We'd be happy to approve this organization request,
-                    but ask that you first add an @{% with parsed = organization_application.link_url|urlparse %}{{ parsed.host }}{% endwith %}
+                    but ask that you first add an @{% with parsed = organization_application.link_url|urlparse %}{% if parsed.host %}{{ parsed.host.lstrip("www.") }}{% else %}NONE{% endif %}{% endwith %}
                     email address to your PyPI account,
                     complete the verification,
                     and respond using the linked form.
@@ -277,10 +339,12 @@
       </div>
     </div>
 
+    {% set information_requests = organization_application.information_requests %}
+    {% set outstanding_information_requests = organization_application.information_requests|selectattr("additional", "defined")|map(attribute="additional")|selectattr("response", "undefined")|list %}
     <div class="col-md-9">
       <div class="card">
         <div class="card-header with-border">
-          <h3 class="card-title">Organization Request</h3>
+          <h3 class="card-title">Organization Request{% if information_requests %}{% if outstanding_information_requests %}  <i class="fa-solid fa-envelope text-info"></i>{% else %}  <i class="fa-solid fa-envelope-open text-green"></i><i class="fa-solid fa-reply text-green"></i>{% endif %}{% endif %}</h3>
         </div>
         <div class="card-body">
           <div class="form-horizontal">
@@ -374,7 +438,7 @@
           <h3 class="card-title">Information Requests</h3>
         </div>
         <div class="card-body">
-        {% for information_request in organization_application.information_requests %}
+        {% for information_request in information_requests %}
         <div class="card {% if information_request.additional.response %}card-neutral{% else %}card-warning{% endif %} card-outline direct-chat direct-chat-primary"</div>
           <div class="card-body">
             <div class="direct-chat-messages unset-height">

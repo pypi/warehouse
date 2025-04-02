@@ -69,8 +69,11 @@
 
       <tbody>
       {% for organization_application in organization_applications %}
+      {% set information_requests = organization_application.information_requests %}
+      {% set outstanding_information_requests = organization_application.information_requests|selectattr("additional", "defined")|map(attribute="additional")|selectattr("response", "undefined")|list %}
       <tr>
         <td>
+          {% if information_requests %}{% if outstanding_information_requests %}  <i class="fa-solid fa-envelope text-info"></i>{% else %}  <i class="fa-solid fa-envelope-open text-green"></i><i class="fa-solid fa-reply text-green"></i>{% endif %}{% endif %}
           <a href="{{ request.route_path('admin.organization_application.detail', organization_application_id=organization_application.id) }}">{{ organization_application.name }}</a>
         </td>
         <td>
