@@ -114,7 +114,7 @@ class TestManageAccount:
 
 class TestManageOrganizations:
     @pytest.mark.usefixtures("_enable_organizations")
-    def test_create_organization(
+    def test_create_organization_application(
         self,
         pyramid_services,
         user_service,
@@ -143,6 +143,8 @@ class TestManageOrganizations:
                     "language, and to support and facilitate the growth of a "
                     "diverse and international community of Python programmers"
                 ),
+                "usage": ("We plan to host projects owned by the PSF"),
+                "membership_size": "2-5",
             }
         )
         db_request.registry.settings[

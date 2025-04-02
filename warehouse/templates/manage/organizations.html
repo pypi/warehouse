@@ -191,7 +191,7 @@
       {{ form_errors(create_organization_application_form) }}
       <div class="form-group">
         <label for="name" class="form-group__label">
-          {% trans %}Organization account name{% endtrans %}
+          {% trans %}Organization Account Name{% endtrans %}
           {% if create_organization_application_form.name.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
@@ -222,7 +222,7 @@
 
       <div class="form-group">
         <label for="display_name" class="form-group__label">
-          {% trans %}Organization display name{% endtrans %}
+          {% trans %}Organization Display Name{% endtrans %}
           {% if create_organization_application_form.display_name.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
@@ -276,7 +276,7 @@
 
       <div class="form-group">
         <label for="description" class="form-group__label">
-          {% trans %}Organization description{% endtrans %}
+          {% trans %}Organization Description{% endtrans %}
           {% if create_organization_application_form.description.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
@@ -302,7 +302,62 @@
 
       <div class="form-group">
         <label class="form-group__label" for="orgtype">
-          {% trans %}️Organization type{% endtrans %}
+          {% trans %}️Organization Membership Size{% endtrans %}
+          {% if create_organization_application_form.membership_size.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+        </label>
+        <p class="form-group__text">
+          {{ create_organization_application_form.membership_size(
+            class_="form-group__field",
+            aria_describedby="membership_size-errors",
+          ) }}
+        </p>
+        <div id="membership_size-errors">
+          {{ field_errors(create_organization_application_form.membership_size) }}
+        </div>
+        <p class="form-group__help-text">
+          {% trans %}
+            Estimated number of PyPI Users you anticipate joining this Organization.
+            <b>Not</b> the number of people in your organization.
+          {% endtrans %}
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label for="usage" class="form-group__label">
+          {% trans %}Anticipated Usage{% endtrans %}
+          {% if create_organization_application_form.usage.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+        </label>
+        {{ create_organization_application_form.usage(
+          placeholder=gettext("Description how you plan to use PyPI Organizations features"),
+          autocomplete="off",
+          autocapitalize="off",
+          spellcheck="true",
+          class_="form-group__field",
+          aria_describedby="usage-errors",
+        ) }}
+        <div id="usage-errors">
+          {% if create_organization_application_form.usage.errors %}
+          <ul class="form-errors" role="alert">
+            {% for error in create_organization_application_form.usage.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        <p class="form-group__help-text">
+          {% trans %}
+            Tell us a little bit about how you plan to use PyPI Organizations features.
+          {% endtrans %}
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-group__label" for="orgtype">
+          {% trans %}️Organization Type{% endtrans %}
           {% if create_organization_application_form.orgtype.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
