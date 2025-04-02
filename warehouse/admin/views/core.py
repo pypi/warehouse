@@ -15,6 +15,13 @@ from sqlalchemy import func
 
 from warehouse.authnz import Permissions
 from warehouse.observations.models import Observation, ObservationKind
+from warehouse.organizations.models import (
+    Organization,
+    OrganizationApplication,
+    OrganizationRole,
+    OrganizationType,
+)
+from warehouse.subscriptions.models import StripeSubscription, StripeSubscriptionStatus
 
 
 @view_config(
@@ -36,4 +43,64 @@ def dashboard(request):
     else:
         malware_reports_count = None
 
-    return {"malware_reports_count": malware_reports_count}
+    organizations_count = (
+        request.db.query(Organization.orgtype, func.count(Organization.id))
+        .group_by(Organization.orgtype)
+        .all()
+    )
+    organizations_count = {k.value: v for k, v in organizations_count}
+    organizations_count["Total"] = sum([v for k, v in organizations_count.items()])
+
+    organization_applications_count = (
+        request.db.query(
+            OrganizationApplication.status, func.count(OrganizationApplication.id)
+        )
+        .group_by(OrganizationApplication.status)
+        .all()
+    )
+    organization_applications_count = {
+        k.value: v for k, v in organization_applications_count
+    }
+    organization_applications_count["Total"] = sum(
+        [v for k, v in organization_applications_count.items()]
+    )
+
+    active_company_organizations = (
+        request.db.query(func.count(Organization.id))
+        .filter(Organization.orgtype == OrganizationType.Company)
+        .filter(
+            Organization.subscriptions.any(
+                StripeSubscription.status.in_(
+                    (
+                        StripeSubscriptionStatus.Active.value,
+                        StripeSubscriptionStatus.Trialing.value,
+                    )
+                )
+            )
+        )
+        .scalar()
+    )
+    active_company_organization_users = (
+        request.db.query(func.count(OrganizationRole.id))
+        .join(Organization)
+        .filter(Organization.orgtype == OrganizationType.Company)
+        .filter(
+            Organization.subscriptions.any(
+                StripeSubscription.status.in_(
+                    (
+                        StripeSubscriptionStatus.Active.value,
+                        StripeSubscriptionStatus.Trialing.value,
+                    )
+                )
+            )
+        )
+        .scalar()
+    )
+
+    return {
+        "malware_reports_count": malware_reports_count,
+        "organizations_count": organizations_count,
+        "organization_applications_count": organization_applications_count,
+        "active_company_organizations": active_company_organizations,
+        "active_company_organization_users": active_company_organization_users,
+    }
