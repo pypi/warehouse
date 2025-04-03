@@ -100,6 +100,16 @@
                 Projects - Total Owned Size	<span class="float-right badge bg-success">{{ user_projects | selectattr("role_name", "equalto", "Owner") | sum(attribute="total_size") | filesizeformat(binary=True) }}</span>
               </a>
             </li>
+            <li class="nav-item">
+              <a href="#organizations" class="nav-link">
+                Organizations <span class="float-right badge bg-info">{{ user.organizations | length }}</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#orgapps" class="nav-link">
+                Org Applications <span class="float-right badge bg-info">{{ user.organization_applications | length }}</span>
+              </a>
+            </li>
           </ul>
         </div>
 
@@ -836,6 +846,32 @@
         </div>
       </div> <!-- .card -->
       {% endif %}
+
+      {% if user.organization_applications %}
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Organization Applications</h3>
+        </div>
+
+        <div class="card-body">
+          <table class="table table-hover" id="orgapps">
+            <thead>
+              <tr>
+                <th>Organization Application Name</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for application in user.organization_applications %}
+              <tr>
+                <td><a href="{{ request.route_path('admin.organization_application.detail', organization_application_id=application.id) }}">{{ application.name }}</a></td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div> <!-- .card -->
+      {% endif %}
+
 
       <div class="card">
         <div class="card-header with-border">
