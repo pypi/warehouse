@@ -65,7 +65,14 @@ class IOrganizationService(Interface):
         """
 
     def add_organization_application(
-        name, display_name, orgtype, link_url, description, submitted_by
+        name,
+        display_name,
+        orgtype,
+        link_url,
+        description,
+        usage,
+        membership_size,
+        submitted_by,
     ):
         """
         Accepts a organization object, and attempts to create an organization with those

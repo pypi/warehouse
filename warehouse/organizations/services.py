@@ -131,7 +131,15 @@ class DatabaseOrganizationService:
         )
 
     def add_organization_application(
-        self, name, display_name, orgtype, link_url, description, submitted_by
+        self,
+        name,
+        display_name,
+        orgtype,
+        link_url,
+        description,
+        usage,
+        membership_size,
+        submitted_by,
     ):
         """
         Accepts organization application details, creates an OrganizationApplication
@@ -143,6 +151,8 @@ class DatabaseOrganizationService:
             orgtype=orgtype,
             link_url=link_url,
             description=description,
+            usage=usage,
+            membership_size=membership_size,
             submitted_by=submitted_by,
         )
         self.db.add(organization_application)
