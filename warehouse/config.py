@@ -461,6 +461,7 @@ def configure(settings=None):
     maybe_set_compound(settings, "metrics", "backend", "METRICS_BACKEND")
     maybe_set_compound(settings, "breached_emails", "backend", "BREACHED_EMAILS")
     maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
+    maybe_set_compound(settings, "domain_status", "backend", "DOMAIN_STATUS_BACKEND")
     maybe_set(
         settings,
         "oidc.backend",

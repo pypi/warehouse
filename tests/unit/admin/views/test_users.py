@@ -1539,3 +1539,26 @@ class TestUserBurnRecoveryCodes:
         ]
         assert result.status_code == 303
         assert result.location == "/foobar"
+
+
+class TestUserEmailDomainCheck:
+    def test_user_email_domain_check(self, db_request):
+        user = UserFactory.create(with_verified_primary_email=True)
+        db_request.POST["email_address"] = user.primary_email.email
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.user_email_domain_check(user, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foobar"
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Domain status check for '{user.primary_email.domain}' completed",
+                queue="success",
+            )
+        ]
+        assert user.primary_email.domain_last_checked is not None
+        assert user.primary_email.domain_last_status == ["active"]

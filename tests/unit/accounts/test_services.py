@@ -30,6 +30,7 @@ import warehouse.utils.webauthn as webauthn
 from warehouse.accounts import services
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
+    IDomainStatusService,
     IEmailBreachedService,
     InvalidRecoveryCode,
     IPasswordBreachedService,
@@ -1635,3 +1636,79 @@ class TestNullEmailBreachedService:
 
         assert isinstance(svc, services.NullEmailBreachedService)
         assert svc.get_email_breach_count("foo@example.com") == 0
+
+
+class TestNullDomainStatusService:
+    def test_verify_service(self):
+        assert verifyClass(IDomainStatusService, services.NullDomainStatusService)
+
+    def test_get_domain_status(self):
+        svc = services.NullDomainStatusService()
+        assert svc.get_domain_status("example.com") == ["active"]
+
+    def test_factory(self):
+        context = pretend.stub()
+        request = pretend.stub()
+        svc = services.NullDomainStatusService.create_service(context, request)
+
+        assert isinstance(svc, services.NullDomainStatusService)
+        assert svc.get_domain_status("example.com") == ["active"]
+
+
+class TestDomainrDomainStatusService:
+    def test_verify_service(self):
+        assert verifyClass(IDomainStatusService, services.DomainrDomainStatusService)
+
+    def test_successful_domain_status_check(self):
+        response = pretend.stub(
+            json=lambda: {
+                "status": [{"domain": "example.com", "status": "undelegated inactive"}]
+            },
+            raise_for_status=lambda: None,
+        )
+        session = pretend.stub(get=pretend.call_recorder(lambda *a, **kw: response))
+        svc = services.DomainrDomainStatusService(
+            session=session, client_id="some_client_id"
+        )
+
+        assert svc.get_domain_status("example.com") == ["undelegated", "inactive"]
+        assert session.get.calls == [
+            pretend.call(
+                "https://api.domainr.com/v2/status",
+                params={"client_id": "some_client_id", "domain": "example.com"},
+                timeout=5,
+            )
+        ]
+
+    def test_domainr_exception_returns_empty(self):
+        class DomainrException(requests.HTTPError):
+            def __init__(self):
+                self.response = pretend.stub(status_code=400)
+
+        response = pretend.stub(raise_for_status=pretend.raiser(DomainrException))
+        session = pretend.stub(get=pretend.call_recorder(lambda *a, **kw: response))
+        svc = services.DomainrDomainStatusService(
+            session=session, client_id="some_client_id"
+        )
+
+        assert svc.get_domain_status("example.com") == []
+        assert session.get.calls == [
+            pretend.call(
+                "https://api.domainr.com/v2/status",
+                params={"client_id": "some_client_id", "domain": "example.com"},
+                timeout=5,
+            )
+        ]
+
+    def test_factory(self):
+        context = pretend.stub()
+        request = pretend.stub(
+            http=pretend.stub(),
+            registry=pretend.stub(
+                settings={"domain_status.client_id": "some_client_id"}
+            ),
+        )
+        svc = services.DomainrDomainStatusService.create_service(context, request)
+
+        assert svc._http is request.http
+        assert svc.client_id == "some_client_id"

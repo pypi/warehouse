@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import collections
 import datetime
 import functools
@@ -18,6 +20,7 @@ import http
 import logging
 import os
 import secrets
+import typing
 import urllib.parse
 
 import passlib.exc
@@ -35,6 +38,7 @@ import warehouse.utils.webauthn as webauthn
 
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
+    IDomainStatusService,
     IEmailBreachedService,
     InvalidRecoveryCode,
     IPasswordBreachedService,
@@ -61,6 +65,9 @@ from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
+
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
 
 logger = logging.getLogger(__name__)
 
@@ -962,3 +969,43 @@ class NullEmailBreachedService:
     def get_email_breach_count(self, email):
         # This service allows *every* email as a non-breached email.
         return 0
+
+
+@implementer(IDomainStatusService)
+class NullDomainStatusService:
+    @classmethod
+    def create_service(cls, _context, _request):
+        return cls()
+
+    def get_domain_status(self, _domain: str) -> list[str]:
+        return ["active"]
+
+
+@implementer(IDomainStatusService)
+class DomainrDomainStatusService:
+    def __init__(self, session, client_id):
+        self._http = session
+        self.client_id = client_id
+
+    @classmethod
+    def create_service(cls, _context, request: Request) -> DomainrDomainStatusService:
+        domainr_client_id = request.registry.settings.get("domain_status.client_id")
+        return cls(session=request.http, client_id=domainr_client_id)
+
+    def get_domain_status(self, domain: str) -> list[str]:
+        """
+        Check if a domain is available or not.
+        See https://domainr.com/docs/api/v2/status
+        """
+        try:
+            resp = self._http.get(
+                "https://api.domainr.com/v2/status",
+                params={"client_id": self.client_id, "domain": domain},
+                timeout=5,
+            )
+            resp.raise_for_status()
+        except requests.RequestException as exc:
+            logger.warning("Error contacting Domainr: %r", exc)
+            return []
+
+        return resp.json()["status"][0]["status"].split()

@@ -91,3 +91,6 @@ HELPDESK_BACKEND="warehouse.helpdesk.services.ConsoleHelpDeskService"
 
 # HELPDESK_NOTIFICATION_SERVICE_URL="https://..."
 HELPDESK_NOTIFICATION_BACKEND="warehouse.helpdesk.services.ConsoleAdminNotificationService"
+
+# Example of Domain Status configuration
+# DOMAIN_STATUS_BACKEND="warehouse.accounts.services.DomainrDomainStatusService client_id=some_client_id"

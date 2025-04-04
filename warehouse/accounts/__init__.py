@@ -13,6 +13,7 @@
 from celery.schedules import crontab
 
 from warehouse.accounts.interfaces import (
+    IDomainStatusService,
     IEmailBreachedService,
     IPasswordBreachedService,
     ITokenService,
@@ -25,6 +26,7 @@ from warehouse.accounts.security_policy import (
 from warehouse.accounts.services import (
     HaveIBeenPwnedEmailBreachedService,
     HaveIBeenPwnedPasswordBreachedService,
+    NullDomainStatusService,
     NullEmailBreachedService,
     NullPasswordBreachedService,
     TokenServiceFactory,
@@ -129,6 +131,14 @@ def includeme(config):
     )
     config.register_service_factory(
         breached_email_class.create_service, IEmailBreachedService
+    )
+
+    # Register our domain status service.
+    domain_status_class = config.maybe_dotted(
+        config.registry.settings.get("domain_status.backend", NullDomainStatusService)
+    )
+    config.register_service_factory(
+        domain_status_class.create_service, IDomainStatusService
     )
 
     # Register our security policies.
