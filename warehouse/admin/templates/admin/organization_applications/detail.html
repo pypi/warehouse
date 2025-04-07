@@ -451,7 +451,7 @@
           <h4 class="card-title">User Organizations</h4>
         </div>
         <div class="card-body">
-          {% for organization_role in user.organization_roles|sort() %}
+          {% for organization_role in user.organization_roles|sort(attribute='role_name.value', reverse=True) %}
           <div><a href="{{ request.route_path('admin.organization.detail', organization_id=organization_role.organization.id) }}">{{ organization_role.organization.name }}</a> - {{ organization_role.role_name.value }}</div>
           {% else %}
           <i>none!</i>
