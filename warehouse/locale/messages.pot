@@ -952,7 +952,6 @@ msgid "Monty Python - The Cheese Shop Sketch"
 msgstr ""
 
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
-#: warehouse/templates/500.html:29
 #: warehouse/templates/accounts/two-factor.html:55
 #: warehouse/templates/base.html:286 warehouse/templates/base.html:287
 #: warehouse/templates/base.html:288 warehouse/templates/base.html:289
@@ -1080,19 +1079,15 @@ msgstr ""
 msgid "Check our status page"
 msgstr ""
 
-#: warehouse/templates/500.html:29
-msgid "View Python Status on Twitter"
-msgstr ""
-
-#: warehouse/templates/500.html:32
+#: warehouse/templates/500.html:31
 msgid "Error code 500"
 msgstr ""
 
-#: warehouse/templates/500.html:36
+#: warehouse/templates/500.html:35
 msgid "Rely on PyPI to get your job done?"
 msgstr ""
 
-#: warehouse/templates/500.html:37
+#: warehouse/templates/500.html:36
 msgid ""
 "Consider <a href=\"https://github.com/pypi/warehouse\" target=\"_blank\" "
 "rel=\"noopener\"> contributing </a> or <a "
