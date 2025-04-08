@@ -101,6 +101,7 @@ def _connect_src_settings(config) -> list:
         "https://*.google-analytics.com",
         "https://*.analytics.google.com",
         "https://*.googletagmanager.com",
+        "https://analytics.python.org",
         "fastly-insights.com",
         "*.fastly-insights.com",
         "*.ethicalads.io",
@@ -137,6 +138,7 @@ def _script_src_settings(config) -> list:
         "https://*.googletagmanager.com",
         "https://www.google-analytics.com",  # Remove when disabling UA
         "https://ssl.google-analytics.com",  # Remove when disabling UA
+        "https://analytics.python.org",
         "*.fastly-insights.com",
         "*.ethicalads.io",
         # Hash for v1.4.0 of ethicalads.min.js

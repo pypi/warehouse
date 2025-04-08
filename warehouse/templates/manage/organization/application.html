@@ -44,6 +44,14 @@
       <p class="form-group__text">{{ organization_application.orgtype.value }}</p>
     </div>
     <div class="form-group">
+      <span class="form-group__label">{% trans %}️Organization membership size{% endtrans %}</span>
+      <p class="form-group__text">{{ organization_application.membership_size.value if organization_application.membership_size else "" }}</p>
+    </div>
+    <div class="form-group">
+      <span class="form-group__label">{% trans %}️Anticipated usage{% endtrans %}</span>
+      <p class="form-group__text">{{ organization_application.usage if organization_application.usage else "" }}</p>
+    </div>
+    <div class="form-group">
       <span class="form-group__label">{% trans %}Date submitted{% endtrans %}</span>
       <p class="form-group__text">
         {{ humanize(organization_application.submitted) }}

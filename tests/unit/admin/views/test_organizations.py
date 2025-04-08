@@ -14,8 +14,8 @@ import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
+from webob.multidict import MultiDict
 
-from warehouse.accounts.interfaces import IUserService
 from warehouse.admin.views import organizations as views
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
@@ -23,6 +23,7 @@ from warehouse.organizations.models import (
     OrganizationType,
 )
 
+from ....common.db.accounts import UserFactory
 from ....common.db.organizations import (
     OrganizationApplicationFactory,
     OrganizationFactory,
@@ -545,11 +546,63 @@ class TestOrganizationApplicationDetail:
         db_request.matchdict["organization_application_id"] = (
             organization_application.id
         )
-        assert views.organization_application_detail(db_request) == {
-            "user": organization_application.submitted_by,
-            "conflicting_applications": [],
-            "organization_application": organization_application,
-        }
+        result = views.organization_application_detail(db_request)
+        assert result["user"] == organization_application.submitted_by
+        assert result["form"].name.data == organization_application.name
+        assert result["conflicting_applications"] == []
+        assert result["organization_application"] == organization_application
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_detail_edit(self, db_request):
+        organization_application = OrganizationApplicationFactory.create()
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+
+        new_org_name = f"New-Org-Name-{organization_application.name}"
+        db_request.method = "POST"
+        db_request.POST["name"] = new_org_name
+        db_request.POST["description"] = organization_application.description
+        db_request.POST["display_name"] = organization_application.display_name
+        db_request.POST["link_url"] = organization_application.link_url
+        db_request.POST["orgtype"] = organization_application.orgtype
+        db_request.POST = MultiDict(db_request.POST)
+
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        db_request.current_route_path = lambda *a, **kw: "/the/url/"
+
+        result = views.organization_application_detail(db_request)
+
+        assert result.status_code == 303
+        assert result.location == "/the/url/"
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Application for {organization_application.name!r} updated",
+                queue="success",
+            )
+        ]
+
+        assert organization_application.name == new_org_name
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_detail_edit_invalid(self, db_request):
+        existing_organization = OrganizationFactory.create()
+        organization_application = OrganizationApplicationFactory.create()
+
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        db_request.method = "POST"
+        db_request.POST["name"] = existing_organization.name
+        db_request.POST = MultiDict(db_request.POST)
+
+        result = views.organization_application_detail(db_request)
+
+        assert result["user"] == organization_application.submitted_by
+        assert result["form"].name.data == existing_organization.name
+        assert result["form"].name.errors != []
+        assert result["conflicting_applications"] == []
+        assert result["organization_application"] == organization_application
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_is_approved_true(self, db_request):
@@ -559,11 +612,11 @@ class TestOrganizationApplicationDetail:
         db_request.matchdict["organization_application_id"] = (
             organization_application.id
         )
-        assert views.organization_application_detail(db_request) == {
-            "user": organization_application.submitted_by,
-            "conflicting_applications": [],
-            "organization_application": organization_application,
-        }
+        result = views.organization_application_detail(db_request)
+        assert result["user"] == organization_application.submitted_by
+        assert result["form"].name.data == organization_application.name
+        assert result["conflicting_applications"] == []
+        assert result["organization_application"] == organization_application
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_is_approved_false(self, db_request):
@@ -573,11 +626,11 @@ class TestOrganizationApplicationDetail:
         db_request.matchdict["organization_application_id"] = (
             organization_application.id
         )
-        assert views.organization_application_detail(db_request) == {
-            "user": organization_application.submitted_by,
-            "conflicting_applications": [],
-            "organization_application": organization_application,
-        }
+        result = views.organization_application_detail(db_request)
+        assert result["user"] == organization_application.submitted_by
+        assert result["form"].name.data == organization_application.name
+        assert result["conflicting_applications"] == []
+        assert result["organization_application"] == organization_application
 
     @pytest.mark.usefixtures("_enable_organizations")
     @pytest.mark.parametrize(
@@ -601,11 +654,11 @@ class TestOrganizationApplicationDetail:
         db_request.matchdict["organization_application_id"] = (
             organization_application.id
         )
-        assert views.organization_application_detail(db_request) == {
-            "user": organization_application.submitted_by,
-            "conflicting_applications": conflicting_applications,
-            "organization_application": organization_application,
-        }
+        result = views.organization_application_detail(db_request)
+        assert result["user"] == organization_application.submitted_by
+        assert result["form"].name.data == organization_application.name
+        assert result["conflicting_applications"] == conflicting_applications
+        assert result["organization_application"] == organization_application
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_not_found(self):
@@ -622,100 +675,156 @@ class TestOrganizationApplicationDetail:
             views.organization_application_detail(request)
 
 
+def _organization_application_routes(
+    route_name, organization_application_id=None, organization_id=None
+):
+    if route_name == "admin.organization_application.detail":
+        return f"/admin/organization_applications/{organization_application_id}/"
+    elif route_name == "admin.organization.detail":
+        return f"/admin/organizations/{organization_id}/"
+    elif route_name == "admin.dashboard":
+        return "/admin/"
+    else:
+        raise ValueError("No dummy route found")
+
+
 class TestActions:
     @pytest.mark.usefixtures("_enable_organizations")
-    def test_approve(self, monkeypatch):
-        admin = pretend.stub(
-            id="admin-id",
-            username="admin",
-            name="Admin",
-            public_email="admin@pypi.org",
+    def test_approve(self, db_request):
+        admin = UserFactory.create()
+        user = UserFactory.create()
+        organization_application = OrganizationApplicationFactory.create(
+            name="example", submitted_by=user
         )
-        user = pretend.stub(
-            id="user-id",
-            username="example",
-            name="Example",
-            public_email="webmaster@example.com",
-        )
-        user_service = pretend.stub(
-            get_admin_user=lambda *a, **kw: [admin],
-            get_user=lambda userid, **kw: {admin.id: admin, user.id: user}[userid],
-        )
-        organization = pretend.stub(
-            id="fizzbuzz", name="example", record_event=lambda *a, **kw: None
-        )
-        organization_application = pretend.stub(
-            id="wizzbang", name="example", submitted_by=user, submitted_by_id=user.id
-        )
+        organization = OrganizationFactory.create(name="example")
+
         organization_service = pretend.stub(
             get_organization_application=lambda *a, **kw: organization_application,
             approve_organization_application=pretend.call_recorder(
                 lambda *a, **kw: organization
             ),
         )
-        organization_detail_location = (f"/admin/organizations/{organization.id}/",)
-        message = pretend.stub()
-        request = pretend.stub(
-            flags=pretend.stub(enabled=lambda *a: False),
-            find_service=lambda iface, **kw: {
-                IUserService: user_service,
-                IOrganizationService: organization_service,
-            }[iface],
-            matchdict={"organization_application_id": organization_application.id},
-            params={"organization_name": organization.name, "message": message},
-            route_path=lambda *a, **kw: organization_detail_location,
-            session=pretend.stub(
-                flash=pretend.call_recorder(lambda *a, **kw: None),
-            ),
-            remote_addr="0.0.0.0",
-            user=admin,
-        )
 
-        result = views.organization_application_approve(request)
+        db_request.matchdict = {
+            "organization_application_id": organization_application.id
+        }
+        db_request.params = {
+            "organization_name": organization_application.name,
+            "message": "Welcome!",
+        }
+        db_request.user = admin
+        db_request.route_path = pretend.call_recorder(_organization_application_routes)
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context: organization_service
+        )
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+
+        result = views.organization_application_approve(db_request)
 
         assert organization_service.approve_organization_application.calls == [
-            pretend.call(organization_application.id, request),
+            pretend.call(organization_application.id, db_request),
         ]
-        assert request.session.flash.calls == [
+        assert db_request.session.flash.calls == [
             pretend.call(
-                f'Request for "{organization.name}" organization approved',
+                f'Request for "{organization_application.name}" organization approved',
                 queue="success",
             ),
         ]
         assert result.status_code == 303
-        assert result.location == organization_detail_location
+        assert result.location == f"/admin/organizations/{organization.id}/"
 
     @pytest.mark.usefixtures("_enable_organizations")
-    def test_approve_wrong_confirmation_input(self, monkeypatch):
-        user_service = pretend.stub()
-        organization_application = pretend.stub(id=pretend.stub(), name=pretend.stub())
+    def test_approve_turbo_mode(self, db_request):
+        admin = UserFactory.create()
+        user = UserFactory.create()
+        organization_application = OrganizationApplicationFactory.create(
+            name="example", submitted_by=user
+        )
+        organization = OrganizationFactory.create(name="example")
+
+        def _approve(*a, **kw):
+            db_request.db.delete(organization_application)
+            return organization
+
         organization_service = pretend.stub(
             get_organization_application=lambda *a, **kw: organization_application,
+            approve_organization_application=pretend.call_recorder(_approve),
         )
-        organization_application_detail_location = (
-            f"/admin/organization_applications/{organization_application.id}/",
+
+        db_request.matchdict = {
+            "organization_application_id": organization_application.id
+        }
+        db_request.params = {
+            "organization_name": organization_application.name,
+            "message": "Welcome!",
+            "organization_applications_turbo_mode": "true",
+        }
+        db_request.user = admin
+        db_request.route_path = pretend.call_recorder(_organization_application_routes)
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context: organization_service
         )
-        request = pretend.stub(
-            flags=pretend.stub(enabled=lambda *a: False),
-            find_service=lambda iface, **kw: {
-                IUserService: user_service,
-                IOrganizationService: organization_service,
-            }[iface],
-            matchdict={"organization_application_id": organization_application.id},
-            params={"organization_name": pretend.stub()},
-            route_path=lambda *a, **kw: organization_application_detail_location,
-            session=pretend.stub(
-                flash=pretend.call_recorder(lambda *a, **kw: None),
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+
+        result = views.organization_application_approve(db_request)
+
+        assert organization_service.approve_organization_application.calls == [
+            pretend.call(organization_application.id, db_request),
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f'Request for "{organization_application.name}" organization approved',
+                queue="success",
+            ),
+            pretend.call(
+                "No more Organization Applications to review!",
+                queue="success",
+            ),
+        ]
+        assert result.status_code == 303
+        assert result.location == "/admin/"
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_approve_wrong_confirmation_input(self, db_request):
+        admin = UserFactory.create()
+        user = UserFactory.create()
+        organization_application = OrganizationApplicationFactory.create(
+            name="example", submitted_by=user
+        )
+        organization = OrganizationFactory.create(name="example")
+
+        organization_service = pretend.stub(
+            get_organization_application=lambda *a, **kw: organization_application,
+            approve_organization_application=pretend.call_recorder(
+                lambda *a, **kw: organization
             ),
         )
 
-        result = views.organization_application_approve(request)
+        db_request.matchdict = {
+            "organization_application_id": organization_application.id
+        }
+        db_request.params = {"organization_name": "incorrect", "message": "Welcome!"}
+        db_request.user = admin
+        db_request.route_path = pretend.call_recorder(_organization_application_routes)
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context: organization_service
+        )
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
 
-        assert request.session.flash.calls == [
-            pretend.call("Wrong confirmation input", queue="error"),
+        result = views.organization_application_approve(db_request)
+
+        assert organization_service.approve_organization_application.calls == []
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Wrong confirmation input",
+                queue="error",
+            ),
         ]
         assert result.status_code == 303
-        assert result.location == organization_application_detail_location
+        assert (
+            result.location
+            == f"/admin/organization_applications/{organization_application.id}/"
+        )
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_approve_not_found(self):
@@ -732,99 +841,90 @@ class TestActions:
             views.organization_application_approve(request)
 
     @pytest.mark.usefixtures("_enable_organizations")
-    def test_defer(self, monkeypatch):
-        admin = pretend.stub(
-            id="admin-id",
-            username="admin",
-            name="Admin",
-            public_email="admin@pypi.org",
-        )
-        user = pretend.stub(
-            id="user-id",
-            username="example",
-            name="Example",
-            public_email="webmaster@example.com",
-        )
-        user_service = pretend.stub(
-            get_admin_user=lambda *a, **kw: [admin],
-            get_user=lambda userid, **kw: {admin.id: admin, user.id: user}[userid],
+    def test_defer(self, db_request):
+        admin = UserFactory.create()
+        user = UserFactory.create()
+        organization_application = OrganizationApplicationFactory.create(
+            name="example", submitted_by=user
         )
 
-        organization_application = pretend.stub(
-            id="wizzbang", name="example", submitted_by=user, submitted_by_id=user.id
-        )
         organization_service = pretend.stub(
             get_organization_application=lambda *a, **kw: organization_application,
             defer_organization_application=pretend.call_recorder(
                 lambda *a, **kw: organization_application
             ),
         )
-        organization_application_detail_location = (
-            f"/admin/organization_applications/{organization_application.id}/",
-        )
-        request = pretend.stub(
-            flags=pretend.stub(enabled=lambda *a: False),
-            find_service=lambda iface, **kw: {
-                IUserService: user_service,
-                IOrganizationService: organization_service,
-            }[iface],
-            matchdict={"organization_application_id": organization_application.id},
-            params={
-                "organization_name": organization_application.name,
-            },
-            route_path=lambda *a, **kw: organization_application_detail_location,
-            session=pretend.stub(
-                flash=pretend.call_recorder(lambda *a, **kw: None),
-            ),
-            remote_addr="0.0.0.0",
-            user=admin,
-        )
 
-        result = views.organization_application_defer(request)
+        db_request.matchdict = {
+            "organization_application_id": organization_application.id
+        }
+        db_request.params = {}
+        db_request.user = admin
+        db_request.route_path = pretend.call_recorder(_organization_application_routes)
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context: organization_service
+        )
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+
+        result = views.organization_application_defer(db_request)
 
         assert organization_service.defer_organization_application.calls == [
-            pretend.call(organization_application.id, request),
+            pretend.call(organization_application.id, db_request),
         ]
-        assert request.session.flash.calls == [
+        assert db_request.session.flash.calls == [
             pretend.call(
                 f'Request for "{organization_application.name}" organization deferred',
                 queue="success",
             ),
         ]
         assert result.status_code == 303
-        assert result.location == organization_application_detail_location
+        assert (
+            result.location
+            == f"/admin/organization_applications/{organization_application.id}/"
+        )
 
     @pytest.mark.usefixtures("_enable_organizations")
-    def test_defer_wrong_confirmation_input(self, monkeypatch):
-        user_service = pretend.stub()
-        organization_application = pretend.stub(id=pretend.stub(), name=pretend.stub())
+    def test_defer_turbo_mode(self, db_request):
+        admin = UserFactory.create()
+        user = UserFactory.create()
+        organization_application = OrganizationApplicationFactory.create(
+            name="example", submitted_by=user
+        )
+
         organization_service = pretend.stub(
             get_organization_application=lambda *a, **kw: organization_application,
-        )
-        organization_application_detail_location = (
-            f"/admin/organization_applications/{organization_application.id}/",
-        )
-        request = pretend.stub(
-            flags=pretend.stub(enabled=lambda *a: False),
-            find_service=lambda iface, **kw: {
-                IUserService: user_service,
-                IOrganizationService: organization_service,
-            }[iface],
-            matchdict={"organization_application_id": organization_application.id},
-            params={"organization_name": pretend.stub()},
-            route_path=lambda *a, **kw: organization_application_detail_location,
-            session=pretend.stub(
-                flash=pretend.call_recorder(lambda *a, **kw: None),
+            defer_organization_application=pretend.call_recorder(
+                lambda *a, **kw: organization_application
             ),
         )
 
-        result = views.organization_application_defer(request)
+        db_request.matchdict = {
+            "organization_application_id": organization_application.id
+        }
+        db_request.params = {"organization_applications_turbo_mode": "true"}
+        db_request.user = admin
+        db_request.route_path = pretend.call_recorder(_organization_application_routes)
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context: organization_service
+        )
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
 
-        assert request.session.flash.calls == [
-            pretend.call("Wrong confirmation input", queue="error"),
+        result = views.organization_application_defer(db_request)
+
+        assert organization_service.defer_organization_application.calls == [
+            pretend.call(organization_application.id, db_request),
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f'Request for "{organization_application.name}" organization deferred',
+                queue="success",
+            ),
         ]
         assert result.status_code == 303
-        assert result.location == organization_application_detail_location
+        assert (
+            result.location
+            == f"/admin/organization_applications/{organization_application.id}/"
+        )
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_defer_not_found(self):
@@ -841,62 +941,37 @@ class TestActions:
             views.organization_application_defer(request)
 
     @pytest.mark.usefixtures("_enable_organizations")
-    def test_request_more_information(self, monkeypatch):
-        admin = pretend.stub(
-            id="admin-id",
-            username="admin",
-            name="Admin",
-            public_email="admin@pypi.org",
-        )
-        user = pretend.stub(
-            id="user-id",
-            username="example",
-            name="Example",
-            public_email="webmaster@example.com",
-        )
-        user_service = pretend.stub(
-            get_admin_user=lambda *a, **kw: [admin],
-            get_user=lambda userid, **kw: {admin.id: admin, user.id: user}[userid],
+    def test_request_more_information(self, db_request):
+        admin = UserFactory.create()
+        user = UserFactory.create()
+        organization_application = OrganizationApplicationFactory.create(
+            name="example", submitted_by=user
         )
 
-        organization_application = pretend.stub(
-            id="wizzbang", name="example", submitted_by=user, submitted_by_id=user.id
-        )
         organization_service = pretend.stub(
             get_organization_application=lambda *a, **kw: organization_application,
             request_more_information=pretend.call_recorder(
                 lambda *a, **kw: organization_application
             ),
         )
-        organization_application_detail_location = (
-            f"/admin/organization_applications/{organization_application.id}/",
-        )
-        message = pretend.stub()
-        request = pretend.stub(
-            flags=pretend.stub(enabled=lambda *a: False),
-            find_service=lambda iface, **kw: {
-                IUserService: user_service,
-                IOrganizationService: organization_service,
-            }[iface],
-            matchdict={"organization_application_id": organization_application.id},
-            params={
-                "organization_name": organization_application.name,
-                "message": message,
-            },
-            route_path=lambda *a, **kw: organization_application_detail_location,
-            session=pretend.stub(
-                flash=pretend.call_recorder(lambda *a, **kw: None),
-            ),
-            remote_addr="0.0.0.0",
-            user=admin,
-        )
 
-        result = views.organization_application_request_more_information(request)
+        db_request.matchdict = {
+            "organization_application_id": organization_application.id
+        }
+        db_request.params = {"message": "Welcome!"}
+        db_request.user = admin
+        db_request.route_path = pretend.call_recorder(_organization_application_routes)
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context: organization_service
+        )
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+
+        result = views.organization_application_request_more_information(db_request)
 
         assert organization_service.request_more_information.calls == [
-            pretend.call(organization_application.id, request),
+            pretend.call(organization_application.id, db_request),
         ]
-        assert request.session.flash.calls == [
+        assert db_request.session.flash.calls == [
             pretend.call(
                 (
                     f'Request for more info from "{organization_application.name}" '
@@ -906,39 +981,59 @@ class TestActions:
             ),
         ]
         assert result.status_code == 303
-        assert result.location == organization_application_detail_location
+        assert (
+            result.location
+            == f"/admin/organization_applications/{organization_application.id}/"
+        )
 
     @pytest.mark.usefixtures("_enable_organizations")
-    def test_request_more_information_for_wrong_confirmation_input(self, monkeypatch):
-        user_service = pretend.stub()
-        organization_application = pretend.stub(id=pretend.stub(), name=pretend.stub())
+    def test_request_more_information_turbo_mode(self, db_request):
+        admin = UserFactory.create()
+        user = UserFactory.create()
+        organization_application = OrganizationApplicationFactory.create(
+            name="example", submitted_by=user
+        )
+
         organization_service = pretend.stub(
             get_organization_application=lambda *a, **kw: organization_application,
-        )
-        organization_application_detail_location = (
-            f"/admin/organization_applications/{organization_application.id}/",
-        )
-        request = pretend.stub(
-            flags=pretend.stub(enabled=lambda *a: False),
-            find_service=lambda iface, **kw: {
-                IUserService: user_service,
-                IOrganizationService: organization_service,
-            }[iface],
-            matchdict={"organization_application_id": organization_application.id},
-            params={"organization_name": pretend.stub()},
-            route_path=lambda *a, **kw: organization_application_detail_location,
-            session=pretend.stub(
-                flash=pretend.call_recorder(lambda *a, **kw: None),
+            request_more_information=pretend.call_recorder(
+                lambda *a, **kw: organization_application
             ),
         )
 
-        result = views.organization_application_request_more_information(request)
+        db_request.matchdict = {
+            "organization_application_id": organization_application.id
+        }
+        db_request.params = {
+            "message": "Welcome!",
+            "organization_applications_turbo_mode": "true",
+        }
+        db_request.user = admin
+        db_request.route_path = pretend.call_recorder(_organization_application_routes)
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context: organization_service
+        )
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
 
-        assert request.session.flash.calls == [
-            pretend.call("Wrong confirmation input", queue="error"),
+        result = views.organization_application_request_more_information(db_request)
+
+        assert organization_service.request_more_information.calls == [
+            pretend.call(organization_application.id, db_request),
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                (
+                    f'Request for more info from "{organization_application.name}" '
+                    "organization sent"
+                ),
+                queue="success",
+            ),
         ]
         assert result.status_code == 303
-        assert result.location == organization_application_detail_location
+        assert (
+            result.location
+            == f"/admin/organization_applications/{organization_application.id}/"
+        )
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_request_more_information_for_not_found(self):
@@ -955,101 +1050,134 @@ class TestActions:
             views.organization_application_request_more_information(request)
 
     @pytest.mark.usefixtures("_enable_organizations")
-    def test_decline(self, monkeypatch):
-        admin = pretend.stub(
-            id="admin-id",
-            username="admin",
-            name="Admin",
-            public_email="admin@pypi.org",
-        )
-        user = pretend.stub(
-            id="user-id",
-            username="example",
-            name="Example",
-            public_email="webmaster@example.com",
-        )
-        user_service = pretend.stub(
-            get_admin_user=lambda *a, **kw: [admin],
-            get_user=lambda userid, **kw: {admin.id: admin, user.id: user}[userid],
+    def test_decline(self, db_request):
+        admin = UserFactory.create()
+        user = UserFactory.create()
+        organization_application = OrganizationApplicationFactory.create(
+            name="example", submitted_by=user
         )
 
-        organization_application = pretend.stub(
-            id="wizzbang", name="example", submitted_by=user, submitted_by_id=user.id
-        )
         organization_service = pretend.stub(
             get_organization_application=lambda *a, **kw: organization_application,
             decline_organization_application=pretend.call_recorder(
                 lambda *a, **kw: organization_application
             ),
         )
-        organization_application_detail_location = (
-            f"/admin/organization_applications/{organization_application.id}/",
-        )
-        message = pretend.stub()
-        request = pretend.stub(
-            flags=pretend.stub(enabled=lambda *a: False),
-            find_service=lambda iface, **kw: {
-                IUserService: user_service,
-                IOrganizationService: organization_service,
-            }[iface],
-            matchdict={"organization_application_id": organization_application.id},
-            params={
-                "organization_name": organization_application.name,
-                "message": message,
-            },
-            route_path=lambda *a, **kw: organization_application_detail_location,
-            session=pretend.stub(
-                flash=pretend.call_recorder(lambda *a, **kw: None),
-            ),
-            remote_addr="0.0.0.0",
-            user=admin,
-        )
 
-        result = views.organization_application_decline(request)
+        db_request.matchdict = {
+            "organization_application_id": organization_application.id
+        }
+        db_request.params = {
+            "organization_name": organization_application.name,
+            "message": "Sorry!",
+        }
+        db_request.user = admin
+        db_request.route_path = pretend.call_recorder(_organization_application_routes)
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context: organization_service
+        )
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+
+        result = views.organization_application_decline(db_request)
 
         assert organization_service.decline_organization_application.calls == [
-            pretend.call(organization_application.id, request),
+            pretend.call(organization_application.id, db_request),
         ]
-        assert request.session.flash.calls == [
+        assert db_request.session.flash.calls == [
             pretend.call(
                 f'Request for "{organization_application.name}" organization declined',
                 queue="success",
             ),
         ]
         assert result.status_code == 303
-        assert result.location == organization_application_detail_location
+        assert (
+            result.location
+            == f"/admin/organization_applications/{organization_application.id}/"
+        )
 
     @pytest.mark.usefixtures("_enable_organizations")
-    def test_decline_wrong_confirmation_input(self, monkeypatch):
-        user_service = pretend.stub()
-        organization_application = pretend.stub(id=pretend.stub(), name=pretend.stub())
+    def test_decline_turbo_mode(self, db_request):
+        admin = UserFactory.create()
+        user = UserFactory.create()
+        organization_application = OrganizationApplicationFactory.create(
+            name="example", submitted_by=user
+        )
+
         organization_service = pretend.stub(
             get_organization_application=lambda *a, **kw: organization_application,
-        )
-        organization_application_detail_location = (
-            f"/admin/organization_applications/{organization_application.id}/",
-        )
-        request = pretend.stub(
-            flags=pretend.stub(enabled=lambda *a: False),
-            find_service=lambda iface, **kw: {
-                IUserService: user_service,
-                IOrganizationService: organization_service,
-            }[iface],
-            matchdict={"organization_application_id": organization_application.id},
-            params={"organization_name": pretend.stub()},
-            route_path=lambda *a, **kw: organization_application_detail_location,
-            session=pretend.stub(
-                flash=pretend.call_recorder(lambda *a, **kw: None),
+            decline_organization_application=pretend.call_recorder(
+                lambda *a, **kw: organization_application
             ),
         )
 
-        result = views.organization_application_decline(request)
+        db_request.matchdict = {
+            "organization_application_id": organization_application.id
+        }
+        db_request.params = {
+            "organization_name": organization_application.name,
+            "message": "Sorry!",
+            "organization_applications_turbo_mode": "true",
+        }
+        db_request.user = admin
+        db_request.route_path = pretend.call_recorder(_organization_application_routes)
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context: organization_service
+        )
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
 
-        assert request.session.flash.calls == [
+        result = views.organization_application_decline(db_request)
+
+        assert organization_service.decline_organization_application.calls == [
+            pretend.call(organization_application.id, db_request),
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f'Request for "{organization_application.name}" organization declined',
+                queue="success",
+            ),
+        ]
+        assert result.status_code == 303
+        assert (
+            result.location
+            == f"/admin/organization_applications/{organization_application.id}/"
+        )
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_decline_wrong_confirmation_input(self, db_request):
+        admin = UserFactory.create()
+        user = UserFactory.create()
+        organization_application = OrganizationApplicationFactory.create(
+            name="example", submitted_by=user
+        )
+
+        organization_service = pretend.stub(
+            get_organization_application=lambda *a, **kw: organization_application,
+            decline_organization_application=pretend.call_recorder(
+                lambda *a, **kw: organization_application
+            ),
+        )
+
+        db_request.matchdict = {
+            "organization_application_id": organization_application.id
+        }
+        db_request.params = {"organization_name": "incorrect", "message": "Welcome!"}
+        db_request.user = admin
+        db_request.route_path = pretend.call_recorder(_organization_application_routes)
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context: organization_service
+        )
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+
+        result = views.organization_application_decline(db_request)
+
+        assert db_request.session.flash.calls == [
             pretend.call("Wrong confirmation input", queue="error"),
         ]
         assert result.status_code == 303
-        assert result.location == organization_application_detail_location
+        assert (
+            result.location
+            == f"/admin/organization_applications/{organization_application.id}/"
+        )
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_decline_not_found(self):

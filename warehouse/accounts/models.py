@@ -29,7 +29,7 @@ from sqlalchemy import (
     select,
     sql,
 )
-from sqlalchemy.dialects.postgresql import CITEXT, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import ARRAY, CITEXT, UUID as PG_UUID
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column
@@ -423,6 +423,15 @@ class Email(db.ModelBase):
     # Deliverability information
     unverify_reason: Mapped[UnverifyReasons | None]
     transient_bounces: Mapped[int] = mapped_column(server_default=sql.text("0"))
+
+    # Domain validation information
+    domain_last_checked: Mapped[datetime.datetime | None] = mapped_column(
+        comment="Last time domain was checked with the domain validation service.",
+    )
+    domain_last_status: Mapped[list[str] | None] = mapped_column(
+        ARRAY(String),
+        comment="Status strings returned by the domain validation service.",
+    )
 
     @property
     def domain(self):

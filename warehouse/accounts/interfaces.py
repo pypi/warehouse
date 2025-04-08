@@ -298,3 +298,10 @@ class IEmailBreachedService(Interface):
         """
         Returns count of times the email appears in verified breaches.
         """
+
+
+class IDomainStatusService(Interface):
+    def get_domain_status(domain: str) -> list[str]:
+        """
+        Returns a list of status strings for the given domain.
+        """

@@ -74,6 +74,7 @@ nav:
           - "organization-accounts/actions/project-actions.md"
           - "organization-accounts/actions/team-actions.md"
       - "organization-accounts/pricing-and-payments.md"
+      - "organization-accounts/support.md"
   - "Trusted Publishers":
       - "trusted-publishers/index.md"
       - "trusted-publishers/adding-a-publisher.md"

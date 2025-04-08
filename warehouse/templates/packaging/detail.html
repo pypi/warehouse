@@ -313,7 +313,7 @@
                 {% endtrans %}
               </p>
             </div>
-          {% elif project.lifecycle_status == "archived" %}
+          {% elif project.lifecycle_status in ["archived", "archived-noindex"] %}
             <div class="callout-block callout-block--warning">
               <p>{% trans %}This project has been archived.{% endtrans %}</p>
               <p>
