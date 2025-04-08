@@ -449,14 +449,6 @@ class TestPEP740AttestationViewer:
         )
 
 
-class TestReportMalwareButton:
-    def test_report_malware_button(self):
-        project = pretend.stub()
-        assert views.includes_submit_malware_observation(project, pretend.stub()) == {
-            "project": project
-        }
-
-
 class TestProjectSubmitMalwareObservation:
     def test_get_render_form(self, pyramid_request):
         project = pretend.stub()
