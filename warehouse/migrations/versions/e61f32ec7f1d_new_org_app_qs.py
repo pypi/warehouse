@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-text
+Add new questions to the organization application.
 
 Revision ID: e61f32ec7f1d
 Revises: d44f083952e4
