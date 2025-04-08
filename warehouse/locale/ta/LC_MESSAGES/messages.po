@@ -133,8 +133,8 @@ msgstr ""
 "இந்த மின்னஞ்சல் முகவரி ஏற்கனவே மற்றொரு கணக்கால் பயன்படுத்தப்படுகிறது. வேறு மின்னஞ்சலைப் "
 "பயன்படுத்தவும்."
 
-#: warehouse/accounts/forms.py:409 warehouse/manage/forms.py:140
-#: warehouse/manage/forms.py:752
+#: warehouse/accounts/forms.py:409 warehouse/manage/forms.py:141
+#: warehouse/manage/forms.py:783
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "பெயர் மிக நீளமானது. 100 எழுத்துக்கள் அல்லது அதற்கும் குறைவான பெயரைத் தேர்வுசெய்க."
 
@@ -191,26 +191,26 @@ msgstr ""
 "கோரப்பட்டுள்ளன. உங்கள் இன்பாக்ஸைச் சரிபார்த்து, சரிபார்ப்பு இணைப்புகளைப் பின்பற்றவும். (IP: "
 "${ip})"
 
-#: warehouse/accounts/views.py:395 warehouse/accounts/views.py:464
-#: warehouse/accounts/views.py:466 warehouse/accounts/views.py:495
-#: warehouse/accounts/views.py:497 warehouse/accounts/views.py:603
+#: warehouse/accounts/views.py:398 warehouse/accounts/views.py:467
+#: warehouse/accounts/views.py:469 warehouse/accounts/views.py:498
+#: warehouse/accounts/views.py:500 warehouse/accounts/views.py:606
 msgid "Invalid or expired two factor login."
 msgstr "தவறான அல்லது காலாவதியான இரண்டு காரணி உள்நுழைவு."
 
-#: warehouse/accounts/views.py:458
+#: warehouse/accounts/views.py:461
 msgid "Already authenticated"
 msgstr "ஏற்கனவே அங்கீகரிக்கப்பட்டது"
 
-#: warehouse/accounts/views.py:538
+#: warehouse/accounts/views.py:541
 msgid "Successful WebAuthn assertion"
 msgstr "வெற்றிகரமான இணைய அங்கீகரிப்பு(Web Authentication ) வலியுறுத்தல்"
 
-#: warehouse/accounts/views.py:635 warehouse/manage/views/__init__.py:881
+#: warehouse/accounts/views.py:638 warehouse/manage/views/__init__.py:881
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "மீட்பு குறியீடு ஏற்றுக்கொள்ளப்பட்டது. வழங்கப்பட்ட குறியீட்டை மீண்டும் பயன்படுத்த முடியாது."
 
-#: warehouse/accounts/views.py:727
+#: warehouse/accounts/views.py:730
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -218,144 +218,144 @@ msgstr ""
 "புதிய பயனர்(user) பதிவு தற்காலிகமாக முடக்கப்பட்டுள்ளது. விவரங்களுக்கு https://pypi."
 "org/help#admin-intervention ஐப் பார்க்கவும்."
 
-#: warehouse/accounts/views.py:869
+#: warehouse/accounts/views.py:872
 msgid "Expired token: request a new password reset link"
 msgstr ""
 "காலாவதியான டோக்கன்: புதிய கடவுச்சொல்(Password) மீட்டமைப்பு(reset) இணைப்பைக்(link) "
 "கோரவும்"
 
-#: warehouse/accounts/views.py:871
+#: warehouse/accounts/views.py:874
 msgid "Invalid token: request a new password reset link"
 msgstr ""
 "தவறான டோக்கன்: புதிய கடவுச்சொல்(password) மீட்டமைப்பு(reset) இணைப்பைக்(link) கோரவும்"
 
-#: warehouse/accounts/views.py:873 warehouse/accounts/views.py:974
-#: warehouse/accounts/views.py:1078 warehouse/accounts/views.py:1247
+#: warehouse/accounts/views.py:876 warehouse/accounts/views.py:977
+#: warehouse/accounts/views.py:1081 warehouse/accounts/views.py:1250
 msgid "Invalid token: no token supplied"
 msgstr "தவறான டோக்கன்: டோக்கன் வழங்கப்படவில்லை"
 
-#: warehouse/accounts/views.py:877
+#: warehouse/accounts/views.py:880
 msgid "Invalid token: not a password reset token"
 msgstr "தவறான டோக்கன்: கடவுச்சொல்(password) மீட்டமைப்பு(reset) டோக்கன் அல்ல"
 
-#: warehouse/accounts/views.py:882
+#: warehouse/accounts/views.py:885
 msgid "Invalid token: user not found"
 msgstr "தவறான டோக்கன்: பயனர்(user) கிடைக்கவில்லை(not found)"
 
-#: warehouse/accounts/views.py:893
+#: warehouse/accounts/views.py:896
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "தவறான டோக்கன்: இந்த டோக்கன் கோரப்பட்டதால் பயனர் உள்நுழைந்துள்ளார்"
 
-#: warehouse/accounts/views.py:911
+#: warehouse/accounts/views.py:914
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "தவறான டோக்கன்: இந்த டோக்கன் கோரப்பட்டதிலிருந்து கடவுச்சொல் ஏற்கனவே மாற்றப்பட்டுள்ளது"
 
-#: warehouse/accounts/views.py:942
+#: warehouse/accounts/views.py:945
 msgid "You have reset your password"
 msgstr "உங்கள் கடவுச்சொல்லை மீட்டமைத்துவிட்டீர்கள்"
 
-#: warehouse/accounts/views.py:970
+#: warehouse/accounts/views.py:973
 msgid "Expired token: request a new email verification link"
 msgstr "காலாவதியான டோக்கன்: புதிய மின்னஞ்சல் சரிபார்ப்பு இணைப்பைக் கோருங்கள்"
 
-#: warehouse/accounts/views.py:972
+#: warehouse/accounts/views.py:975
 msgid "Invalid token: request a new email verification link"
 msgstr "தவறான அடையாளச் சின்னம்: புதிய மின்னஞ்சல் சரிபார்ப்பு இணைப்பைக் கோருங்கள்"
 
-#: warehouse/accounts/views.py:978
+#: warehouse/accounts/views.py:981
 msgid "Invalid token: not an email verification token"
 msgstr "தவறான அடையாளச் சின்னம்: மின்னஞ்சல் சரிபார்ப்பு அடையாளச் சின்னமல்ல"
 
-#: warehouse/accounts/views.py:987
+#: warehouse/accounts/views.py:990
 msgid "Email not found"
 msgstr "மின்னஞ்சல் கிடைக்கவில்லை"
 
-#: warehouse/accounts/views.py:990
+#: warehouse/accounts/views.py:993
 msgid "Email already verified"
 msgstr "மின்னஞ்சல் ஏற்கனவே சரிபார்க்கப்பட்டது"
 
-#: warehouse/accounts/views.py:1008
+#: warehouse/accounts/views.py:1011
 msgid "You can now set this email as your primary address"
 msgstr "நீங்கள் இப்போது இந்த மின்னஞ்சலை உங்கள் முதன்மை முகவரியாக அமைக்கலாம்"
 
-#: warehouse/accounts/views.py:1011
+#: warehouse/accounts/views.py:1014
 msgid "This is your primary address"
 msgstr "இது உங்கள் முதன்மை முகவரி"
 
-#: warehouse/accounts/views.py:1017
+#: warehouse/accounts/views.py:1020
 #, python-brace-format
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "மின்னஞ்சல் முகவரி ${email_address} சரிபார்க்கப்பட்டது. ${confirm_message}."
 
-#: warehouse/accounts/views.py:1074
+#: warehouse/accounts/views.py:1077
 msgid "Expired token: request a new organization invitation"
 msgstr ""
 "காலாவதியான டோக்கன்: புதிய அமைப்பு (organization) அழைப்பை(invitation) கோரவும்"
 
-#: warehouse/accounts/views.py:1076
+#: warehouse/accounts/views.py:1079
 msgid "Invalid token: request a new organization invitation"
 msgstr "தவறான அடையாளச் சின்னம்: புதிய அமைப்பு அழைப்பை கோருங்கள்"
 
-#: warehouse/accounts/views.py:1082
+#: warehouse/accounts/views.py:1085
 msgid "Invalid token: not an organization invitation token"
 msgstr "செல்லாத கடவு குறியீடு: ஒரு அமைப்பின் அழைப்பிதழுக்கானா கடவு குறியீடு அல்ல"
 
-#: warehouse/accounts/views.py:1086
+#: warehouse/accounts/views.py:1089
 msgid "Organization invitation is not valid."
 msgstr "நிறுவன அழைப்பு செல்லாது."
 
-#: warehouse/accounts/views.py:1095
+#: warehouse/accounts/views.py:1098
 msgid "Organization invitation no longer exists."
 msgstr "நிறுவன அழைப்பு இனி இல்லை."
 
-#: warehouse/accounts/views.py:1147
+#: warehouse/accounts/views.py:1150
 #, python-brace-format
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "'${organization_name}' -க்கான அழைப்பு நிராகரிக்கப்பட்டது."
 
-#: warehouse/accounts/views.py:1210
+#: warehouse/accounts/views.py:1213
 #, python-brace-format
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "நீங்கள் இனிமேல் '${organization_name}' நிறுவனத்தின் ${role}."
 
-#: warehouse/accounts/views.py:1243
+#: warehouse/accounts/views.py:1246
 msgid "Expired token: request a new project role invitation"
 msgstr "காலாவதியான கடவு குறியீடு: திட்டபணியின் புதிய பங்களிப்பிற்கானா அழைப்பை கோரவும்"
 
-#: warehouse/accounts/views.py:1245
+#: warehouse/accounts/views.py:1248
 msgid "Invalid token: request a new project role invitation"
 msgstr "செல்லாத கடவு குறியீடு: திட்டபணியின் புதிய பங்களிப்பிற்கானா அழைப்பை கோரவும்"
 
-#: warehouse/accounts/views.py:1251
+#: warehouse/accounts/views.py:1254
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "செல்லாத கடவு குறியீடு: ஒத்துழைப்பிற்கானா அழைப்பு கடவு குறியீடு அல்ல"
 
-#: warehouse/accounts/views.py:1255
+#: warehouse/accounts/views.py:1258
 msgid "Role invitation is not valid."
 msgstr "பங்கு அழைப்பு மதிப்பில்லாத."
 
-#: warehouse/accounts/views.py:1270
+#: warehouse/accounts/views.py:1273
 msgid "Role invitation no longer exists."
 msgstr "பங்கு அழைப்பு இனி இல்லை."
 
-#: warehouse/accounts/views.py:1302
+#: warehouse/accounts/views.py:1305
 #, python-brace-format
 msgid "Invitation for '${project_name}' is declined."
 msgstr "'${project_name}' -க்கான அழைப்பு நிராகரிக்கப்பட்டது."
 
-#: warehouse/accounts/views.py:1368
+#: warehouse/accounts/views.py:1371
 #, python-brace-format
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "நீங்கள் இனிமேல் '${project_name}' திட்டப்பணியின் ${role}."
 
-#: warehouse/accounts/views.py:1448
+#: warehouse/accounts/views.py:1451
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
-#: warehouse/accounts/views.py:1660 warehouse/accounts/views.py:1902
+#: warehouse/accounts/views.py:1663 warehouse/accounts/views.py:1905
 #: warehouse/manage/views/__init__.py:1419
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
@@ -364,11 +364,11 @@ msgstr ""
 "நம்பகமான வெளியீடு தற்காலிகமாக முடக்கப்பட்டுள்ளது. விவரங்களுக்கு https://pypi.org/"
 "help#admin- தலையீட்டைக் காண்க."
 
-#: warehouse/accounts/views.py:1681
+#: warehouse/accounts/views.py:1684
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr "முடக்கப்பட்டது. விவரங்களுக்கு https://pypi.org/help#admin- தலையீட்டைக் காண்க."
 
-#: warehouse/accounts/views.py:1697
+#: warehouse/accounts/views.py:1700
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
@@ -376,12 +376,12 @@ msgstr ""
 "நிலுவையில் உள்ள நம்பகமான வெளியீட்டாளரை பதிவு செய்ய உங்களிடம் சரிபார்க்கப்பட்ட மின்னஞ்சல் "
 "இருக்க வேண்டும். விவரங்களுக்கு https://pypi.org/help#openid-connect ஐப் பார்க்கவும்."
 
-#: warehouse/accounts/views.py:1710
+#: warehouse/accounts/views.py:1713
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 "நம்பகமான 3 க்கும் மேற்பட்ட நம்பகமான வெளியீட்டாளர்களை ஒரே நேரத்தில் பதிவு செய்ய முடியாது."
 
-#: warehouse/accounts/views.py:1725 warehouse/manage/views/__init__.py:1600
+#: warehouse/accounts/views.py:1728 warehouse/manage/views/__init__.py:1600
 #: warehouse/manage/views/__init__.py:1715
 #: warehouse/manage/views/__init__.py:1829
 #: warehouse/manage/views/__init__.py:1941
@@ -390,14 +390,14 @@ msgid ""
 "again later."
 msgstr "நம்பகமான வெளியீட்டாளர் பதிவுகள் பல முயற்சித்துள்ளன. பின்னர் மீண்டும் முயற்சிக்கவும்."
 
-#: warehouse/accounts/views.py:1735 warehouse/manage/views/__init__.py:1613
+#: warehouse/accounts/views.py:1738 warehouse/manage/views/__init__.py:1613
 #: warehouse/manage/views/__init__.py:1728
 #: warehouse/manage/views/__init__.py:1842
 #: warehouse/manage/views/__init__.py:1954
 msgid "The trusted publisher could not be registered"
 msgstr "நம்பகமான வெளியீட்டாளரை பதிவு செய்ய முடியவில்லை"
 
-#: warehouse/accounts/views.py:1750
+#: warehouse/accounts/views.py:1753
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
@@ -405,16 +405,16 @@ msgstr ""
 "இந்த நம்பகமான வெளியீட்டாளர் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளார். இது வேண்டுமென்றே இல்லாவிட்டால் "
 "தயவுசெய்து பைபியின் நிர்வாகிகளை தொடர்பு கொள்ளவும்."
 
-#: warehouse/accounts/views.py:1777
+#: warehouse/accounts/views.py:1780
 msgid "Registered a new pending publisher to create "
 msgstr "உருவாக்க நிலுவையில் உள்ள புதிய வெளியீட்டாளரை பதிவு செய்தது "
 
-#: warehouse/accounts/views.py:1915 warehouse/accounts/views.py:1928
-#: warehouse/accounts/views.py:1935
+#: warehouse/accounts/views.py:1918 warehouse/accounts/views.py:1931
+#: warehouse/accounts/views.py:1938
 msgid "Invalid publisher ID"
 msgstr "தவறான வெளியீட்டாளர் ஐடி"
 
-#: warehouse/accounts/views.py:1942
+#: warehouse/accounts/views.py:1945
 msgid "Removed trusted publisher for project "
 msgstr "திட்டத்திற்கான நம்பகமான வெளியீட்டாளர் அகற்றப்பட்டார் "
 
@@ -422,15 +422,15 @@ msgstr "திட்டத்திற்கான நம்பகமான வ�
 msgid "Banner Preview"
 msgstr "பேனர் முன்னோட்டம்"
 
-#: warehouse/manage/forms.py:389
+#: warehouse/manage/forms.py:390
 msgid "Provide your response to the request."
 msgstr ""
 
-#: warehouse/manage/forms.py:430
+#: warehouse/manage/forms.py:431
 msgid "Choose an organization account name with 50 characters or less."
 msgstr "50 எழுத்துக்கள் அல்லது அதற்கும் குறைவான நிறுவன கணக்கு பெயரைத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:438
+#: warehouse/manage/forms.py:439
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
@@ -441,7 +441,7 @@ msgstr ""
 "ஐபன்கள் மற்றும் அடிக்கோடிட்டுக் காட்டப்பட வேண்டும். மேலும் ஒரு கடிதம் அல்லது எண்ணுடன் தொடங்கி "
 "முடிக்க வேண்டும். வேறு நிறுவன கணக்கு பெயரைத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:461
+#: warehouse/manage/forms.py:462
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
@@ -449,7 +449,7 @@ msgstr ""
 "இந்த நிறுவன கணக்கு பெயர் ஏற்கனவே பயன்படுத்தப்பட்டுள்ளது. வேறு நிறுவன கணக்கு பெயரைத் "
 "தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:476
+#: warehouse/manage/forms.py:477
 msgid ""
 "You have already submitted an application for that name. Choose a different "
 "organization account name."
@@ -457,16 +457,16 @@ msgstr ""
 "அந்த பெயருக்கான விண்ணப்பத்தை நீங்கள் ஏற்கனவே சமர்ப்பித்துள்ளீர்கள். வேறு நிறுவன கணக்கு பெயரைத் "
 "தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:511
+#: warehouse/manage/forms.py:512
 msgid "Select project"
 msgstr "திட்டத்தைத் தேர்ந்தெடுக்கவும்"
 
-#: warehouse/manage/forms.py:516 warehouse/oidc/forms/_core.py:33
+#: warehouse/manage/forms.py:517 warehouse/oidc/forms/_core.py:33
 #: warehouse/oidc/forms/gitlab.py:57
 msgid "Specify project name"
 msgstr "திட்ட பெயரைக் குறிப்பிடவும்"
 
-#: warehouse/manage/forms.py:520
+#: warehouse/manage/forms.py:521
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
@@ -474,12 +474,12 @@ msgstr ""
 "தபஅஇகு எண் மற்றும் '.', '_' மற்றும் '-' ஆகியவற்றைக் கொண்ட ஒரு கடிதம் அல்லது எண்களுடன் "
 "தொடங்கவும் முடிக்கவும்."
 
-#: warehouse/manage/forms.py:527
+#: warehouse/manage/forms.py:528
 msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr "இந்த திட்ட பெயர் ஏற்கனவே பயன்படுத்தப்பட்டுள்ளது. வேறு திட்ட பெயரைத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:600
+#: warehouse/manage/forms.py:601
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
@@ -487,7 +487,7 @@ msgstr ""
 "நிறுவனத்தின் பெயர் மிக நீளமானது. 100 எழுத்துக்கள் அல்லது அதற்கும் குறைவாக ஒரு "
 "நிறுவனத்தின் பெயரைத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:612
+#: warehouse/manage/forms.py:613
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
@@ -495,11 +495,11 @@ msgstr ""
 "அமைப்பு முகவரி மிக நீளமானது. 400 எழுத்துக்கள் அல்லது அதற்கும் குறைவாக ஒரு நிறுவன "
 "முகவரி ஐத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:618
+#: warehouse/manage/forms.py:619
 msgid "The organization URL must start with http:// or https://"
 msgstr "அமைப்பு முகவரி HTTP: // அல்லது https: // உடன் தொடங்க வேண்டும்"
 
-#: warehouse/manage/forms.py:630
+#: warehouse/manage/forms.py:631
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
@@ -507,15 +507,26 @@ msgstr ""
 "அமைப்பு விளக்கம் மிக நீளமானது. 400 எழுத்துக்கள் அல்லது அதற்கும் குறைவான நிறுவன "
 "விளக்கத்தைத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:665
+#: warehouse/manage/forms.py:674
+#, fuzzy
+#| msgid ""
+#| "The description is too long. Choose a description with 400 characters or "
+#| "less."
+msgid ""
+"We don't need to know quite that much :), limit your usage description to "
+"1024 characters or less."
+msgstr ""
+"விளக்கம் மிக நீளமானது. 400 எழுத்துக்கள் அல்லது அதற்கும் குறைவான விளக்கத்தைத் தேர்வுசெய்க."
+
+#: warehouse/manage/forms.py:696
 msgid "You have already submitted the maximum number of "
 msgstr "நீங்கள் ஏற்கனவே அதிகபட்ச எண்ணிக்கையை சமர்ப்பித்துள்ளீர்கள் "
 
-#: warehouse/manage/forms.py:694
+#: warehouse/manage/forms.py:725
 msgid "Choose a team name with 50 characters or less."
 msgstr "50 எழுத்துக்கள் அல்லது அதற்கும் குறைவான குழு பெயரைத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:701
+#: warehouse/manage/forms.py:732
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
@@ -523,24 +534,24 @@ msgstr ""
 "அணியின் பெயர் தவறானது. குழு பெயர்கள் ஒரு இடம், காலம், அடிக்கோடிட்டு, ஐபன் அல்லது ச்லாச் "
 "ஆகியவற்றுடன் தொடங்கவோ முடிவடையவோ முடியாது. வேறு குழு பெயரைத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:729
+#: warehouse/manage/forms.py:760
 msgid "This team name has already been used. Choose a different team name."
 msgstr "இந்த அணியின் பெயர் ஏற்கனவே பயன்படுத்தப்பட்டுள்ளது. வேறு குழு பெயரைத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:747
+#: warehouse/manage/forms.py:778
 msgid "Specify your alternate repository name"
 msgstr "உங்கள் மாற்று களஞ்சிய பெயரைக் குறிப்பிடவும்"
 
-#: warehouse/manage/forms.py:761
+#: warehouse/manage/forms.py:792
 msgid "Specify your alternate repository URL"
 msgstr "உங்கள் மாற்று களஞ்சிய முகவரி ஐக் குறிப்பிடவும்"
 
-#: warehouse/manage/forms.py:766
+#: warehouse/manage/forms.py:797
 msgid "The URL is too long. Choose a URL with 400 characters or less."
 msgstr ""
 "முகவரி மிக நீளமானது. 400 எழுத்துக்கள் அல்லது அதற்கும் குறைவான முகவரி ஐத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:780
+#: warehouse/manage/forms.py:811
 msgid ""
 "The description is too long. Choose a description with 400 characters or "
 "less."
@@ -707,7 +718,7 @@ msgstr ""
 "திட்டத்திற்கான $ {roup_name அச் ஆக சேர்க்க முடியாது"
 
 #: warehouse/manage/views/__init__.py:2961
-#: warehouse/manage/views/organizations.py:967
+#: warehouse/manage/views/organizations.py:971
 #, python-brace-format
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
@@ -716,7 +727,7 @@ msgstr ""
 "மீண்டும் முயற்சிக்கவும்."
 
 #: warehouse/manage/views/__init__.py:3026
-#: warehouse/manage/views/organizations.py:1032
+#: warehouse/manage/views/organizations.py:1036
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr "'$ {username}' க்கு அழைப்பு அனுப்பப்பட்டது"
@@ -730,17 +741,17 @@ msgid "Invitation already expired."
 msgstr "அழைப்பு ஏற்கனவே காலாவதியானது."
 
 #: warehouse/manage/views/__init__.py:3102
-#: warehouse/manage/views/organizations.py:1219
+#: warehouse/manage/views/organizations.py:1223
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
 msgstr "அழைப்பிதழ் '$ {username}' இலிருந்து ரத்து செய்யப்பட்டது."
 
-#: warehouse/manage/views/organizations.py:943
+#: warehouse/manage/views/organizations.py:947
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "பயனர் '$ {username}' ஏற்கனவே நிறுவனத்திற்கு $ {role_name} பங்கு உள்ளது"
 
-#: warehouse/manage/views/organizations.py:954
+#: warehouse/manage/views/organizations.py:958
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
@@ -749,16 +760,16 @@ msgstr ""
 "பயனர் '$ {username}' சரிபார்க்கப்பட்ட முதன்மை மின்னஞ்சல் முகவரி இல்லை, மேலும் "
 "நிறுவனத்திற்கு $ {roup_name அச் ஆக சேர்க்க முடியாது"
 
-#: warehouse/manage/views/organizations.py:1114
-#: warehouse/manage/views/organizations.py:1156
+#: warehouse/manage/views/organizations.py:1118
+#: warehouse/manage/views/organizations.py:1160
 msgid "Could not find organization invitation."
 msgstr "நிறுவன அழைப்பிதழைக் கண்டுபிடிக்க முடியவில்லை."
 
-#: warehouse/manage/views/organizations.py:1124
+#: warehouse/manage/views/organizations.py:1128
 msgid "Organization invitation could not be re-sent."
 msgstr "நிறுவன அழைப்பிதழ் மீண்டும் அனுப்ப முடியாது."
 
-#: warehouse/manage/views/organizations.py:1172
+#: warehouse/manage/views/organizations.py:1176
 #, python-brace-format
 msgid "Expired invitation for '${username}' deleted."
 msgstr "'$ {username}' க்கான காலாவதியான அழைப்பு நீக்கப்பட்டது."
@@ -1057,16 +1068,15 @@ msgid "Monty Python - The Cheese Shop Sketch"
 msgstr "Monty Python - The Cheese Shop மாதிரிச் சித்திரம்"
 
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
-#: warehouse/templates/500.html:29
 #: warehouse/templates/accounts/two-factor.html:55
-#: warehouse/templates/base.html:285 warehouse/templates/base.html:286
-#: warehouse/templates/base.html:287 warehouse/templates/base.html:288
-#: warehouse/templates/base.html:298 warehouse/templates/base.html:299
-#: warehouse/templates/base.html:312 warehouse/templates/base.html:313
-#: warehouse/templates/base.html:315 warehouse/templates/base.html:324
-#: warehouse/templates/base.html:326 warehouse/templates/base.html:327
-#: warehouse/templates/base.html:328 warehouse/templates/base.html:338
-#: warehouse/templates/base.html:351
+#: warehouse/templates/base.html:286 warehouse/templates/base.html:287
+#: warehouse/templates/base.html:288 warehouse/templates/base.html:289
+#: warehouse/templates/base.html:299 warehouse/templates/base.html:300
+#: warehouse/templates/base.html:313 warehouse/templates/base.html:314
+#: warehouse/templates/base.html:316 warehouse/templates/base.html:325
+#: warehouse/templates/base.html:327 warehouse/templates/base.html:328
+#: warehouse/templates/base.html:329 warehouse/templates/base.html:339
+#: warehouse/templates/base.html:352
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/file-details.html:101
 #: warehouse/templates/index.html:100 warehouse/templates/index.html:104
@@ -1088,63 +1098,63 @@ msgstr "Monty Python - The Cheese Shop மாதிரிச் சித்த�
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:230
 #: warehouse/templates/pages/help.html:237
-#: warehouse/templates/pages/help.html:282
-#: warehouse/templates/pages/help.html:286
-#: warehouse/templates/pages/help.html:343
-#: warehouse/templates/pages/help.html:365
-#: warehouse/templates/pages/help.html:370
-#: warehouse/templates/pages/help.html:375
-#: warehouse/templates/pages/help.html:377
-#: warehouse/templates/pages/help.html:382
+#: warehouse/templates/pages/help.html:283
+#: warehouse/templates/pages/help.html:287
+#: warehouse/templates/pages/help.html:344
+#: warehouse/templates/pages/help.html:366
+#: warehouse/templates/pages/help.html:371
+#: warehouse/templates/pages/help.html:376
+#: warehouse/templates/pages/help.html:378
 #: warehouse/templates/pages/help.html:383
 #: warehouse/templates/pages/help.html:384
-#: warehouse/templates/pages/help.html:388
-#: warehouse/templates/pages/help.html:421
-#: warehouse/templates/pages/help.html:423
-#: warehouse/templates/pages/help.html:426
-#: warehouse/templates/pages/help.html:462
-#: warehouse/templates/pages/help.html:467
-#: warehouse/templates/pages/help.html:473
-#: warehouse/templates/pages/help.html:552
-#: warehouse/templates/pages/help.html:584
-#: warehouse/templates/pages/help.html:590
-#: warehouse/templates/pages/help.html:593
-#: warehouse/templates/pages/help.html:595
-#: warehouse/templates/pages/help.html:604
-#: warehouse/templates/pages/help.html:626
-#: warehouse/templates/pages/help.html:633
-#: warehouse/templates/pages/help.html:651
-#: warehouse/templates/pages/help.html:658
-#: warehouse/templates/pages/help.html:669
-#: warehouse/templates/pages/help.html:703
-#: warehouse/templates/pages/help.html:708
-#: warehouse/templates/pages/help.html:730
-#: warehouse/templates/pages/help.html:752
-#: warehouse/templates/pages/help.html:766
-#: warehouse/templates/pages/help.html:775
-#: warehouse/templates/pages/help.html:787
-#: warehouse/templates/pages/help.html:798
-#: warehouse/templates/pages/help.html:803
-#: warehouse/templates/pages/help.html:811
-#: warehouse/templates/pages/help.html:822
-#: warehouse/templates/pages/help.html:867
-#: warehouse/templates/pages/help.html:875
-#: warehouse/templates/pages/help.html:923
-#: warehouse/templates/pages/help.html:928
-#: warehouse/templates/pages/help.html:933
-#: warehouse/templates/pages/help.html:943
-#: warehouse/templates/pages/help.html:952
-#: warehouse/templates/pages/help.html:966
-#: warehouse/templates/pages/help.html:974
-#: warehouse/templates/pages/help.html:982
-#: warehouse/templates/pages/help.html:990
-#: warehouse/templates/pages/help.html:999
-#: warehouse/templates/pages/help.html:1018
-#: warehouse/templates/pages/help.html:1033
+#: warehouse/templates/pages/help.html:385
+#: warehouse/templates/pages/help.html:389
+#: warehouse/templates/pages/help.html:422
+#: warehouse/templates/pages/help.html:424
+#: warehouse/templates/pages/help.html:427
+#: warehouse/templates/pages/help.html:463
+#: warehouse/templates/pages/help.html:468
+#: warehouse/templates/pages/help.html:474
+#: warehouse/templates/pages/help.html:553
+#: warehouse/templates/pages/help.html:585
+#: warehouse/templates/pages/help.html:591
+#: warehouse/templates/pages/help.html:594
+#: warehouse/templates/pages/help.html:596
+#: warehouse/templates/pages/help.html:605
+#: warehouse/templates/pages/help.html:627
+#: warehouse/templates/pages/help.html:634
+#: warehouse/templates/pages/help.html:652
+#: warehouse/templates/pages/help.html:659
+#: warehouse/templates/pages/help.html:670
+#: warehouse/templates/pages/help.html:704
+#: warehouse/templates/pages/help.html:709
+#: warehouse/templates/pages/help.html:731
+#: warehouse/templates/pages/help.html:753
+#: warehouse/templates/pages/help.html:767
+#: warehouse/templates/pages/help.html:776
+#: warehouse/templates/pages/help.html:788
+#: warehouse/templates/pages/help.html:799
+#: warehouse/templates/pages/help.html:804
+#: warehouse/templates/pages/help.html:812
+#: warehouse/templates/pages/help.html:823
+#: warehouse/templates/pages/help.html:868
+#: warehouse/templates/pages/help.html:876
+#: warehouse/templates/pages/help.html:924
+#: warehouse/templates/pages/help.html:929
+#: warehouse/templates/pages/help.html:934
+#: warehouse/templates/pages/help.html:944
+#: warehouse/templates/pages/help.html:953
+#: warehouse/templates/pages/help.html:967
+#: warehouse/templates/pages/help.html:975
+#: warehouse/templates/pages/help.html:983
+#: warehouse/templates/pages/help.html:991
+#: warehouse/templates/pages/help.html:1000
+#: warehouse/templates/pages/help.html:1019
 #: warehouse/templates/pages/help.html:1034
 #: warehouse/templates/pages/help.html:1035
 #: warehouse/templates/pages/help.html:1036
-#: warehouse/templates/pages/help.html:1041
+#: warehouse/templates/pages/help.html:1037
+#: warehouse/templates/pages/help.html:1042
 #: warehouse/templates/pages/sponsors.html:33
 #: warehouse/templates/pages/sponsors.html:37
 #: warehouse/templates/pages/sponsors.html:41
@@ -1188,19 +1198,15 @@ msgstr ""
 msgid "Check our status page"
 msgstr "எங்கள் நிலை பக்கத்தைப் பாருங்கள்"
 
-#: warehouse/templates/500.html:29
-msgid "View Python Status on Twitter"
-msgstr "ட்விட்டரில் பைதான் நிலையைப் பார்க்கவும்"
-
-#: warehouse/templates/500.html:32
+#: warehouse/templates/500.html:31
 msgid "Error code 500"
 msgstr "பிழை குறியீடு 500"
 
-#: warehouse/templates/500.html:36
+#: warehouse/templates/500.html:35
 msgid "Rely on PyPI to get your job done?"
 msgstr "உங்கள் வேலையைச் செய்ய PyPI ஐ நம்பவா?"
 
-#: warehouse/templates/500.html:37
+#: warehouse/templates/500.html:36
 msgid ""
 "Consider <a href=\"https://github.com/pypi/warehouse\" target=\"_blank\" "
 "rel=\"noopener\"> contributing </a> or <a href=\"https://psfmember.org/"
@@ -1230,7 +1236,7 @@ msgid "Main navigation"
 msgstr "முதன்மையான வழிசெலுத்தல்"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
-#: warehouse/templates/base.html:282
+#: warehouse/templates/base.html:283
 #: warehouse/templates/includes/current-user-indicator.html:63
 #: warehouse/templates/pages/help.html:119
 #: warehouse/templates/pages/sitemap.html:27
@@ -1312,16 +1318,16 @@ msgstr "ஆர்.எச்.எச்: 40 அண்மைக் கால பு
 msgid "RSS: 40 newest packages"
 msgstr "ஆர்.எச்.எச்: 40 புதிய தொகுப்புகள்"
 
-#: warehouse/templates/base.html:167
+#: warehouse/templates/base.html:168
 msgid "Skip to main content"
 msgstr "முக்கிய உள்ளடக்கத்திற்கு செல்லவும்"
 
-#: warehouse/templates/base.html:170
+#: warehouse/templates/base.html:171
 msgid "Switch to mobile version"
 msgstr "மொபைல் பதிப்பிற்கு மாறவும்"
 
-#: warehouse/templates/base.html:179 warehouse/templates/base.html:188
-#: warehouse/templates/base.html:198
+#: warehouse/templates/base.html:180 warehouse/templates/base.html:189
+#: warehouse/templates/base.html:199
 #: warehouse/templates/includes/flash-messages.html:30
 #: warehouse/templates/includes/session-notifications.html:20
 #: warehouse/templates/manage/account.html:843
@@ -1339,12 +1345,12 @@ msgstr "மொபைல் பதிப்பிற்கு மாறவும�
 msgid "Warning"
 msgstr "எச்சரிக்கை"
 
-#: warehouse/templates/base.html:181
+#: warehouse/templates/base.html:182
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
 "நீங்கள் ஆதரிக்கப்படாத உலாவியைப் பயன்படுத்துகிறீர்கள், புதிய பதிப்பிற்கு மேம்படுத்தவும்."
 
-#: warehouse/templates/base.html:190
+#: warehouse/templates/base.html:191
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
@@ -1354,7 +1360,7 @@ msgstr ""
 "இது உண்மையான குறியீட்டை பாதிக்காமல் விநியோக கருவிகள் மற்றும் செயல்முறைகளை முயற்சிக்க "
 "உங்களை அனுமதிக்கிறது."
 
-#: warehouse/templates/base.html:200
+#: warehouse/templates/base.html:201
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
@@ -1362,156 +1368,156 @@ msgstr ""
 "சாவாச்கிரிப்ட் இல்லாமல் சில நற்பொருத்தங்கள் வேலை செய்யாது. நீங்கள் சிக்கல்களை எதிர்கொண்டால் "
 "அதை இயக்க முயற்சிக்கவும்."
 
-#: warehouse/templates/base.html:238 warehouse/templates/base.html:259
+#: warehouse/templates/base.html:239 warehouse/templates/base.html:260
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:43
 msgid "Search PyPI"
 msgstr "பைபியைத் தேடுங்கள்"
 
-#: warehouse/templates/base.html:239 warehouse/templates/base.html:260
+#: warehouse/templates/base.html:240 warehouse/templates/base.html:261
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:46
 msgid "Search projects"
 msgstr "தேடல் திட்டங்கள்"
 
-#: warehouse/templates/base.html:243 warehouse/templates/base.html:264
+#: warehouse/templates/base.html:244 warehouse/templates/base.html:265
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:50
 msgid "Search"
 msgstr "தேடல்"
 
-#: warehouse/templates/base.html:283
+#: warehouse/templates/base.html:284
 msgid "Help navigation"
 msgstr "வழிசெலுத்தலுக்கு உதவுங்கள்"
 
-#: warehouse/templates/base.html:285
+#: warehouse/templates/base.html:286
 msgid "Installing packages"
 msgstr "தொகுப்புகளை நிறுவுதல்"
 
-#: warehouse/templates/base.html:286
+#: warehouse/templates/base.html:287
 msgid "Uploading packages"
 msgstr "தொகுப்புகளை பதிவேற்றுகிறது"
 
-#: warehouse/templates/base.html:287
+#: warehouse/templates/base.html:288
 msgid "User guide"
 msgstr "பயனர் வழிகாட்டி"
 
-#: warehouse/templates/base.html:288
+#: warehouse/templates/base.html:289
 msgid "Project name retention"
 msgstr "திட்ட பெயர் தக்கவைப்பு"
 
-#: warehouse/templates/base.html:289
+#: warehouse/templates/base.html:290
 msgid "FAQs"
 msgstr "கேள்விகள்"
 
-#: warehouse/templates/base.html:295 warehouse/templates/pages/sitemap.html:37
+#: warehouse/templates/base.html:296 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
 msgstr "பைபி பற்றி"
 
-#: warehouse/templates/base.html:296
+#: warehouse/templates/base.html:297
 msgid "About PyPI navigation"
 msgstr "பைபி வழிசெலுத்தல் பற்றி"
 
-#: warehouse/templates/base.html:298
+#: warehouse/templates/base.html:299
 msgid "PyPI Blog"
 msgstr "பூசாரி வலைப்பதிவு"
 
-#: warehouse/templates/base.html:299
+#: warehouse/templates/base.html:300
 msgid "Infrastructure dashboard"
 msgstr "உள்கட்டமைப்பு டாச்போர்டு"
 
-#: warehouse/templates/base.html:300 warehouse/templates/pages/sitemap.html:40
+#: warehouse/templates/base.html:301 warehouse/templates/pages/sitemap.html:40
 #: warehouse/templates/pages/stats.html:16
 msgid "Statistics"
 msgstr "புள்ளிவிவரங்கள்"
 
-#: warehouse/templates/base.html:301
+#: warehouse/templates/base.html:302
 msgid "Logos & trademarks"
 msgstr "லோகோக்கள் மற்றும் வர்த்தக முத்திரைகள்"
 
-#: warehouse/templates/base.html:302
+#: warehouse/templates/base.html:303
 msgid "Our sponsors"
 msgstr "எங்கள் ஒப்புரவாளர்கள்"
 
-#: warehouse/templates/base.html:308
+#: warehouse/templates/base.html:309
 msgid "Contributing to PyPI"
 msgstr "பைபிக்கு பங்களிப்பு"
 
-#: warehouse/templates/base.html:309
+#: warehouse/templates/base.html:310
 msgid "How to contribute navigation"
 msgstr "வழிசெலுத்தலை எவ்வாறு பங்களிப்பது"
 
-#: warehouse/templates/base.html:311
+#: warehouse/templates/base.html:312
 msgid "Bugs and feedback"
 msgstr "பிழைகள் மற்றும் கருத்து"
 
-#: warehouse/templates/base.html:312
+#: warehouse/templates/base.html:313
 msgid "Contribute on GitHub"
 msgstr "கிதுபில் பங்களிப்பு செய்யுங்கள்"
 
-#: warehouse/templates/base.html:313
+#: warehouse/templates/base.html:314
 msgid "Translate PyPI"
 msgstr "பைபியை மொழிபெயர்க்கவும்"
 
-#: warehouse/templates/base.html:314
+#: warehouse/templates/base.html:315
 msgid "Sponsor PyPI"
 msgstr "ஒப்புரவாளர் பைபி"
 
-#: warehouse/templates/base.html:315
+#: warehouse/templates/base.html:316
 msgid "Development credits"
 msgstr "வளர்ச்சி வரவு"
 
-#: warehouse/templates/base.html:321 warehouse/templates/pages/sitemap.html:23
+#: warehouse/templates/base.html:322 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
 msgstr "பைபியைப் பயன்படுத்துதல்"
 
-#: warehouse/templates/base.html:322
+#: warehouse/templates/base.html:323
 msgid "Using PyPI navigation"
 msgstr "பைபி வழிசெலுத்தலைப் பயன்படுத்துதல்"
 
-#: warehouse/templates/base.html:324
+#: warehouse/templates/base.html:325
 #: warehouse/templates/manage/organization/activate_subscription.html:33
 msgid "Terms of Service"
 msgstr "பணி விதிமுறைகள்"
 
-#: warehouse/templates/base.html:325
+#: warehouse/templates/base.html:326
 msgid "Report security issue"
 msgstr "பாதுகாப்பு வெளியீட்டைப் புகாரளிக்கவும்"
 
-#: warehouse/templates/base.html:326
+#: warehouse/templates/base.html:327
 msgid "Code of conduct"
 msgstr "நடத்தை விதிமுறை"
 
-#: warehouse/templates/base.html:327
+#: warehouse/templates/base.html:328
 msgid "Privacy Notice"
 msgstr "தனியுரிமை அறிவிப்பு"
 
-#: warehouse/templates/base.html:328
+#: warehouse/templates/base.html:329
 msgid "Acceptable Use Policy"
 msgstr "ஏற்றுக்கொள்ளக்கூடிய பயன்பாட்டுக் கொள்கை"
 
-#: warehouse/templates/base.html:338
+#: warehouse/templates/base.html:339
 msgid "Status:"
 msgstr "நிலை:"
 
-#: warehouse/templates/base.html:339
+#: warehouse/templates/base.html:340
 msgid "all systems operational"
 msgstr "அனைத்து அமைப்புகளும் செயல்படும்"
 
-#: warehouse/templates/base.html:343
+#: warehouse/templates/base.html:344
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr "பைதான் சமூகத்திற்காக பைதான் சமூகத்தால் உருவாக்கப்பட்டு பராமரிக்கப்படுகிறது."
 
-#: warehouse/templates/base.html:345
+#: warehouse/templates/base.html:346
 msgid "Donate today!"
 msgstr "இன்று நன்கொடை!"
 
-#: warehouse/templates/base.html:352 warehouse/templates/pages/sitemap.html:16
+#: warehouse/templates/base.html:353 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
 msgstr "தள வரைபடம்"
 
-#: warehouse/templates/base.html:358
+#: warehouse/templates/base.html:359
 msgid "Switch to desktop version"
 msgstr "டெச்க்டாப் பதிப்பிற்கு மாறவும்"
 
@@ -1692,6 +1698,8 @@ msgstr "கடவுச்சொல்"
 #: warehouse/templates/manage/organizations.html:256
 #: warehouse/templates/manage/organizations.html:281
 #: warehouse/templates/manage/organizations.html:307
+#: warehouse/templates/manage/organizations.html:331
+#: warehouse/templates/manage/organizations.html:362
 #: warehouse/templates/manage/project/publishing.html:46
 #: warehouse/templates/manage/project/publishing.html:61
 #: warehouse/templates/manage/project/publishing.html:83
@@ -3498,7 +3506,7 @@ msgstr "ஆசிரியர்:"
 #: warehouse/templates/includes/packaging/project-data.html:170
 #: warehouse/templates/includes/packaging/project-data.html:237
 #: warehouse/templates/includes/packaging/project-data.html:243
-#: warehouse/templates/pages/help.html:637
+#: warehouse/templates/pages/help.html:638
 msgid "Maintainer:"
 msgstr "பராமரிப்பாளர்:"
 
@@ -4865,14 +4873,14 @@ msgid "Manage this organization request"
 msgstr "இந்த அமைப்பை நிர்வகிக்கவும்"
 
 #: warehouse/templates/manage/organizations.html:187
-#: warehouse/templates/manage/organizations.html:338
+#: warehouse/templates/manage/organizations.html:393
 msgid "Request a new organization"
 msgstr "புதிய அமைப்பைக் கோருங்கள்"
 
-#: warehouse/templates/manage/organization/application.html:27
-#: warehouse/templates/manage/organization/settings.html:29
 #: warehouse/templates/manage/organizations.html:194
-msgid "Organization account name"
+#, fuzzy
+#| msgid "Organization account name"
+msgid "Organization Account Name"
 msgstr "அமைப்பு கணக்கு பெயர்"
 
 #: warehouse/templates/manage/organizations.html:200
@@ -4892,10 +4900,10 @@ msgstr "இந்த கணக்கு பெயர் PYPI இல் முக
 msgid "For example"
 msgstr "உதாரணமாக"
 
-#: warehouse/templates/manage/organization/application.html:31
-#: warehouse/templates/manage/organization/settings.html:48
 #: warehouse/templates/manage/organizations.html:225
-msgid "Organization display name"
+#, fuzzy
+#| msgid "Organization display name"
+msgid "Organization Display Name"
 msgstr "அமைப்பு காட்சி பெயர்"
 
 #: warehouse/templates/manage/organization/settings.html:55
@@ -4914,9 +4922,10 @@ msgstr "Contraginesionary முகவரி"
 msgid "URL for your business, product, or project"
 msgstr "உங்கள் வணிகம், தயாரிப்பு அல்லது திட்டத்திற்கான முகவரி"
 
-#: warehouse/templates/manage/organization/settings.html:116
 #: warehouse/templates/manage/organizations.html:279
-msgid "Organization description"
+#, fuzzy
+#| msgid "Organization description"
+msgid "Organization Description"
 msgstr "அமைப்பு விளக்கம்"
 
 #: warehouse/templates/manage/organization/settings.html:123
@@ -4924,14 +4933,39 @@ msgstr "அமைப்பு விளக்கம்"
 msgid "Description of your business, product, or project"
 msgstr "உங்கள் வணிகம், தயாரிப்பு அல்லது திட்டத்தின் விளக்கம்"
 
-#: warehouse/templates/manage/organization/application.html:43
-#: warehouse/templates/manage/organization/settings.html:148
 #: warehouse/templates/manage/organizations.html:305
-msgid "️Organization type"
+#, fuzzy
+#| msgid "Organization description"
+msgid "️Organization Membership Size"
+msgstr "அமைப்பு விளக்கம்"
+
+#: warehouse/templates/manage/organizations.html:320
+msgid ""
+"Estimated number of PyPI Users you anticipate joining this Organization. "
+"<b>Not</b> the number of people in your organization."
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:329
+msgid "Anticipated Usage"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:335
+msgid "Description how you plan to use PyPI Organizations features"
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:352
+msgid ""
+"Tell us a little bit about how you plan to use PyPI Organizations features."
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:360
+#, fuzzy
+#| msgid "️Organization type"
+msgid "️Organization Type"
 msgstr "Cormanication அமைப்பு வகை"
 
 #: warehouse/templates/manage/organization/settings.html:169
-#: warehouse/templates/manage/organizations.html:320
+#: warehouse/templates/manage/organizations.html:375
 msgid ""
 "Companies can create organization accounts as a paid service while community "
 "projects are granted complimentary access."
@@ -4940,11 +4974,11 @@ msgstr ""
 "கட்டண சேவையாக உருவாக்க முடியும்."
 
 #: warehouse/templates/manage/organization/teams.html:104
-#: warehouse/templates/manage/organizations.html:326
+#: warehouse/templates/manage/organizations.html:381
 msgid "Create"
 msgstr "உருவாக்கு"
 
-#: warehouse/templates/manage/organizations.html:330
+#: warehouse/templates/manage/organizations.html:385
 #, python-format
 msgid ""
 "You must first enable <a href=\"%(href)s\">two-factor authentication</a> on "
@@ -4953,15 +4987,15 @@ msgstr ""
 "ஒரு நிறுவனத்தைக் கோருவதற்கு முன் உங்கள் கணக்கில் நீங்கள் முதலில் <a href = \"%(href)s\"> "
 "இரண்டு-காரணி ஏற்பு </a> ஐ இயக்க வேண்டும்."
 
-#: warehouse/templates/manage/organizations.html:340
+#: warehouse/templates/manage/organizations.html:395
 msgid "Your request(s) for a new PyPI organization(s) have been submitted."
 msgstr "புதிய PYPI அமைப்பு (கள்) க்கான உங்கள் கோரிக்கை (கள்) சமர்ப்பிக்கப்பட்டுள்ளன."
 
-#: warehouse/templates/manage/organizations.html:343
+#: warehouse/templates/manage/organizations.html:398
 msgid "You will receive an email when each organization has been approved"
 msgstr "ஒவ்வொரு நிறுவனமும் அங்கீகரிக்கப்பட்டால் நீங்கள் ஒரு மின்னஞ்சலைப் பெறுவீர்கள்"
 
-#: warehouse/templates/manage/organizations.html:343
+#: warehouse/templates/manage/organizations.html:398
 #: warehouse/templates/manage/project/roles.html:146
 #: warehouse/templates/manage/project/roles.html:203
 #: warehouse/templates/manage/project/roles.html:236
@@ -5852,24 +5886,49 @@ msgstr "%(அமைப்பு_பெயர்) அமைப்பு நீக
 msgid "Organization request"
 msgstr "அமைப்பு பாத்திரங்கள்"
 
+#: warehouse/templates/manage/organization/application.html:27
+#: warehouse/templates/manage/organization/settings.html:29
+msgid "Organization account name"
+msgstr "அமைப்பு கணக்கு பெயர்"
+
+#: warehouse/templates/manage/organization/application.html:31
+#: warehouse/templates/manage/organization/settings.html:48
+msgid "Organization display name"
+msgstr "அமைப்பு காட்சி பெயர்"
+
 #: warehouse/templates/manage/organization/application.html:39
 #, fuzzy
 #| msgid "Organization description"
 msgid "️Organization description"
 msgstr "அமைப்பு விளக்கம்"
 
+#: warehouse/templates/manage/organization/application.html:43
+#: warehouse/templates/manage/organization/settings.html:148
+msgid "️Organization type"
+msgstr "Cormanication அமைப்பு வகை"
+
 #: warehouse/templates/manage/organization/application.html:47
+#, fuzzy
+#| msgid "Organization description"
+msgid "️Organization membership size"
+msgstr "அமைப்பு விளக்கம்"
+
+#: warehouse/templates/manage/organization/application.html:51
+msgid "️Anticipated usage"
+msgstr ""
+
+#: warehouse/templates/manage/organization/application.html:55
 #, fuzzy
 #| msgid "Submitted %(submitted)s"
 msgid "Date submitted"
 msgstr "சமர்ப்பிக்கப்பட்ட %(submitted)s"
 
-#: warehouse/templates/manage/organization/application.html:74
+#: warehouse/templates/manage/organization/application.html:82
 msgid "️Your Response"
 msgstr ""
 
-#: warehouse/templates/manage/organization/application.html:87
-#: warehouse/templates/manage/organization/application.html:88
+#: warehouse/templates/manage/organization/application.html:95
+#: warehouse/templates/manage/organization/application.html:96
 #, fuzzy
 #| msgid "Submitted by:"
 msgid "Submit"
@@ -6405,6 +6464,10 @@ msgstr "நிறுவனத்தின் கணக்கு பெயரை 
 #: warehouse/templates/manage/team/settings.html:64
 msgid "Date created"
 msgstr "தேதி உருவாக்கப்பட்டது"
+
+#: warehouse/templates/manage/organization/settings.html:116
+msgid "Organization description"
+msgstr "அமைப்பு விளக்கம்"
 
 #: warehouse/templates/manage/organization/settings.html:175
 #, python-format
@@ -7329,7 +7392,7 @@ msgid "Project Roles"
 msgstr "திட்ட பாத்திரங்கள்"
 
 #: warehouse/templates/manage/project/roles.html:46
-#: warehouse/templates/pages/help.html:636
+#: warehouse/templates/pages/help.html:637
 msgid "There are two possible roles for collaborators:"
 msgstr "ஒத்துழைப்பாளர்களுக்கு இரண்டு சாத்தியமான பாத்திரங்கள் உள்ளன:"
 
@@ -7695,15 +7758,24 @@ msgid "Archive project"
 msgstr "காப்பக திட்டம்"
 
 #: warehouse/templates/manage/project/settings.html:357
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "Archiving a project will prevent any new uploads. Before doing so, we "
+#| "recommend publishing a final release with an update to the project's "
+#| "description to warn the users that the project won't receive further "
+#| "updates, and to mention any alternative projects they may consider as a "
+#| "replacement. If your project is <a href=\"%(readme_description_href)s\" "
+#| "rel=\"noopener\" target=\"_blank\">configured to do so</a>, you can "
+#| "update the project's description by editing the README file."
 msgid ""
-"Archiving a project will prevent any new uploads. Before doing so, we "
-"recommend publishing a final release with an update to the project's "
-"description to warn the users that the project won't receive further "
-"updates, and to mention any alternative projects they may consider as a "
-"replacement. If your project is <a href=\"%(readme_description_href)s\" "
-"rel=\"noopener\" target=\"_blank\">configured to do so</a>, you can update "
-"the project's description by editing the README file."
+"Archiving a project will prevent any new uploads, and remove the project "
+"from PyPI's search results. Before doing so, we recommend publishing a final "
+"release with an update to the project's description to warn the users that "
+"the project won't receive further updates, and to mention any alternative "
+"projects they may consider as a replacement. If your project is <a "
+"href=\"%(readme_description_href)s\" rel=\"noopener\" "
+"target=\"_blank\">configured to do so</a>, you can update the project's "
+"description by editing the README file."
 msgstr ""
 "ஒரு திட்டத்தை காப்பகப்படுத்துவது புதிய பதிவேற்றங்களைத் தடுக்கும். அவ்வாறு செய்வதற்கு முன், "
 "திட்டத்தின் விளக்கத்திற்கான புதுப்பிப்புடன் இறுதி வெளியீட்டை வெளியிட பரிந்துரைக்கிறோம். "
@@ -7717,11 +7789,15 @@ msgid "Unarchive project"
 msgstr "Unarchible திட்டம்"
 
 #: warehouse/templates/manage/project/settings.html:375
-msgid "Unarchiving a project will allow new file uploads."
+msgid ""
+"Unarchiving a project will allow new file uploads and add the project to the "
+"search index."
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:384
-msgid "Archiving a project will block any new file uploads."
+msgid ""
+"Archiving a project will block any new file uploads and remove the project "
+"from the search index."
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:391
@@ -8503,22 +8579,22 @@ msgid "My Account"
 msgstr "எனது கணக்கு"
 
 #: warehouse/templates/pages/help.html:158
-#: warehouse/templates/pages/help.html:581
+#: warehouse/templates/pages/help.html:582
 msgid "Integrating"
 msgstr "ஒருங்கிணைத்தல்"
 
 #: warehouse/templates/pages/help.html:169
-#: warehouse/templates/pages/help.html:618
+#: warehouse/templates/pages/help.html:619
 msgid "Administration of projects on PyPI"
 msgstr "PYPI இல் திட்டங்களின் நிர்வாகம்"
 
 #: warehouse/templates/pages/help.html:185
-#: warehouse/templates/pages/help.html:726
+#: warehouse/templates/pages/help.html:727
 msgid "Troubleshooting"
 msgstr "சரிசெய்தல்"
 
 #: warehouse/templates/pages/help.html:204
-#: warehouse/templates/pages/help.html:919
+#: warehouse/templates/pages/help.html:920
 msgid "About"
 msgstr "பற்றி"
 
@@ -8625,14 +8701,15 @@ msgid ""
 "project maintainer can mark a project as archived to signal to users that "
 "future updates should not be expected. Archived projects are publicly "
 "visible and can still be resolved from the index by default, unlike deleted "
-"or <a href=\"%(href)s\">yanked</a> releases."
+"or <a href=\"%(href)s\">yanked</a> releases. An archived project cannot make "
+"new releases and will not appear in PyPI's search results."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:273
+#: warehouse/templates/pages/help.html:274
 msgid "My account"
 msgstr "எனது கணக்கு"
 
-#: warehouse/templates/pages/help.html:276
+#: warehouse/templates/pages/help.html:277
 msgid ""
 "Currently, PyPI requires a verified email address to perform the following "
 "operations:"
@@ -8640,15 +8717,15 @@ msgstr ""
 "தற்போது, பின்வரும் செயல்பாடுகளைச் செய்ய PYPI க்கு சரிபார்க்கப்பட்ட மின்னஞ்சல் முகவரி "
 "தேவைப்படுகிறது:"
 
-#: warehouse/templates/pages/help.html:278
+#: warehouse/templates/pages/help.html:279
 msgid "Register a new project."
 msgstr "புதிய திட்டத்தை பதிவு செய்யுங்கள்."
 
-#: warehouse/templates/pages/help.html:279
+#: warehouse/templates/pages/help.html:280
 msgid "Upload a new version or file."
 msgstr "புதிய பதிப்பு அல்லது கோப்பைப் பதிவேற்றவும்."
 
-#: warehouse/templates/pages/help.html:281
+#: warehouse/templates/pages/help.html:282
 msgid ""
 "The list of activities that require a verified email address is likely to "
 "grow over time."
@@ -8656,7 +8733,7 @@ msgstr ""
 "சரிபார்க்கப்பட்ட மின்னஞ்சல் முகவரி தேவைப்படும் நடவடிக்கைகளின் பட்டியல் காலப்போக்கில் வளர "
 "வாய்ப்புள்ளது."
 
-#: warehouse/templates/pages/help.html:282
+#: warehouse/templates/pages/help.html:283
 #, python-format
 msgid ""
 "This policy will allow us to enforce a key policy of <a href=\"%(href)s\" "
@@ -8670,7 +8747,7 @@ msgstr ""
 "தானியங்கு பாணியில் பல கணக்குகளை உருவாக்க ச்பேம் தாக்குதல்களின் நம்பகத்தன்மையையும் இது "
 "குறைக்கிறது."
 
-#: warehouse/templates/pages/help.html:283
+#: warehouse/templates/pages/help.html:284
 #, python-format
 msgid ""
 "You can manage your account's email addresses in your <a "
@@ -8682,7 +8759,7 @@ msgstr ""
 "a> இல் நிர்வகிக்கலாம். இந்தக் கொள்கையை அமல்படுத்தத் தொடங்குவதற்கு முன்பு, கடந்த காலத்தில் "
 "பதிவுசெய்த பயனர்களுக்கு புதிய உறுதிப்படுத்தல் மின்னஞ்சலை அனுப்பவும் இது அனுமதிக்கிறது."
 
-#: warehouse/templates/pages/help.html:286
+#: warehouse/templates/pages/help.html:287
 #, python-format
 msgid ""
 "<p> PyPI itself has not suffered a breach. This is a protective measure to "
@@ -8727,7 +8804,7 @@ msgstr ""
 "\"%(reset_pwd_href)s வரை பிபிக்கு உள்நுழைய முடியாது\" > உங்கள் கடவுச்சொல்லை "
 "மீட்டமைக்கவும் </a>. </p>"
 
-#: warehouse/templates/pages/help.html:321
+#: warehouse/templates/pages/help.html:322
 #, python-format
 msgid ""
 "<p> All PyPI user events are stored under security history in account "
@@ -8743,7 +8820,7 @@ msgstr ""
 "%(admin_email)s\">%(admin_email)s </a> </li> </ul> இல் நிகழ்வைப் பற்றி பைபி "
 "நிர்வாகிகளைத் தொடர்பு கொள்ளுங்கள்"
 
-#: warehouse/templates/pages/help.html:333
+#: warehouse/templates/pages/help.html:334
 msgid ""
 "<p> A PyPI API token linked to your account was posted on a public website. "
 "It was automatically revoked, but before regenerating a new one, please "
@@ -8757,7 +8834,7 @@ msgstr ""
 "<A href = \"#சந்தேகத்திற்கிடமான-செயல்பாடு\"> சந்தேகத்திற்கிடமான செயல்பாடு </a> "
 "பிரிவு கூட பொருந்தும். </p>"
 
-#: warehouse/templates/pages/help.html:343
+#: warehouse/templates/pages/help.html:344
 msgid ""
 "<p> Two-factor authentication (2FA) makes your account more secure by "
 "requiring two things in order to log in: <em>something you know</em> and "
@@ -8779,7 +8856,7 @@ msgstr ""
 "strong> உங்கள் PYPI கணக்கில். </p> <p> வலை உள்நுழைவு செயல்பாட்டின் போது, பயனர்கள் தங்கள் "
 "அடையாள சரிபார்ப்பின் இரண்டாவது முறையை வழங்குமாறு கேட்கப்படுவார்கள். </p>"
 
-#: warehouse/templates/pages/help.html:365
+#: warehouse/templates/pages/help.html:366
 #, python-format
 msgid ""
 "PyPI users can set up two-factor authentication using any authentication "
@@ -8792,7 +8869,7 @@ msgstr ""
 "பயன்பாட்டையும் பயன்படுத்தி இரண்டு காரணி அங்கீகாரத்தை அமைக்கலாம் = \"நேர அடிப்படையிலான "
 "ஒரு முறை கடவுச்சொல்\"> totp </bbr> தரநிலை </a>."
 
-#: warehouse/templates/pages/help.html:366
+#: warehouse/templates/pages/help.html:367
 msgid ""
 "<abbr title=\"time-based one-time password\">TOTP</abbr> authentication "
 "applications generate a regularly changing authentication code to use when "
@@ -8802,7 +8879,7 @@ msgstr ""
 "பயன்பாடுகள் உங்கள் கணக்கில் உள்நுழையும்போது பயன்படுத்த தொடர்ந்து மாற்றும் அங்கீகாரக் குறியீட்டை "
 "உருவாக்குகின்றன."
 
-#: warehouse/templates/pages/help.html:367
+#: warehouse/templates/pages/help.html:368
 msgid ""
 "Because <abbr title=\"time-based one-time password\">TOTP</abbr> is an open "
 "standard, there are many applications that are compatible with your PyPI "
@@ -8812,7 +8889,7 @@ msgstr ""
 "திறந்த தரநிலை என்பதால், உங்கள் PYPI கணக்குடன் இணக்கமான பல பயன்பாடுகள் உள்ளன. பிரபலமான "
 "பயன்பாடுகள் பின்வருமாறு:"
 
-#: warehouse/templates/pages/help.html:370
+#: warehouse/templates/pages/help.html:371
 #, python-format
 msgid ""
 "Google Authenticator for <a href=\"%(android_href)s\" title=\"%(title)s\" "
@@ -8823,14 +8900,14 @@ msgstr ""
 "வெற்று\" rel = \"noopener\"> ஆண்ட்ராய்டு </a> அல்லது <a href = \"%(title)s "
 "\"தலைப்பு =\"%(ios_href)s \"இலக்கு =\" _ வெற்று \"rel =\" noopener \"> ஐஇமு </a>"
 
-#: warehouse/templates/pages/help.html:373
-#: warehouse/templates/pages/help.html:375
-#: warehouse/templates/pages/help.html:380
-#: warehouse/templates/pages/help.html:382
+#: warehouse/templates/pages/help.html:374
+#: warehouse/templates/pages/help.html:376
+#: warehouse/templates/pages/help.html:381
+#: warehouse/templates/pages/help.html:383
 msgid "(proprietary)"
 msgstr "(தனியுரிம)"
 
-#: warehouse/templates/pages/help.html:377
+#: warehouse/templates/pages/help.html:378
 #, python-format
 msgid ""
 "Duo Mobile for <a href=\"%(android_href)s\" title=\"%(title)s\" "
@@ -8841,12 +8918,12 @@ msgstr ""
 "வெற்று\" rel = \"noopener\"> ஆண்ட்ராய்டு </a> அல்லது <a href = \"%(title)s "
 "\"தலைப்பு =\"%(ios_href)s \"இலக்கு =\" _ வெற்று \"rel =\" noopener \"> ஐஇமு </a>"
 
-#: warehouse/templates/pages/help.html:383
 #: warehouse/templates/pages/help.html:384
+#: warehouse/templates/pages/help.html:385
 msgid "(open source)"
 msgstr "(திறந்த மூல)"
 
-#: warehouse/templates/pages/help.html:388
+#: warehouse/templates/pages/help.html:389
 #, python-format
 msgid ""
 "Some password managers (e.g. <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -8859,7 +8936,7 @@ msgstr ""
 "குறியீடுகளையும் உருவாக்கலாம். பாதுகாப்பு காரணங்களுக்காக, ஒரு கணக்கிற்கு ஒரு விண்ணப்பத்தை "
 "அமைக்க மட்டுமே PYPI உங்களை அனுமதிக்கிறது."
 
-#: warehouse/templates/pages/help.html:396
+#: warehouse/templates/pages/help.html:397
 msgid ""
 "To set up <abbr title=\"two factor authentication\">2FA</abbr> with an "
 "authentication application:"
@@ -8867,7 +8944,7 @@ msgstr ""
 "அங்கீகார பயன்பாட்டுடன் <abbr தலைப்பு = \"இரண்டு காரணி அங்கீகாரம்\"> 2fa </abbr> ஐ "
 "அமைக்க:"
 
-#: warehouse/templates/pages/help.html:398
+#: warehouse/templates/pages/help.html:399
 msgid ""
 "Open an authentication (<abbr title=\"time-based one-time password\">TOTP</"
 "abbr>) application"
@@ -8875,7 +8952,7 @@ msgstr ""
 "அங்கீகாரத்தைத் திறக்கவும் (<abbr தலைப்பு = \"நேர அடிப்படையிலான ஒரு முறை கடவுச்சொல்\"> "
 "TOTP </abbr>) பயன்பாடு"
 
-#: warehouse/templates/pages/help.html:399
+#: warehouse/templates/pages/help.html:400
 msgid ""
 "Log in to your PyPI account, go to your account settings, and choose \"Add "
 "<abbr title=\"two factor authentication\">2FA</abbr> with authentication "
@@ -8884,7 +8961,7 @@ msgstr ""
 "உங்கள் PYPI கணக்கில் உள்நுழைந்து, உங்கள் கணக்கு அமைப்புகளுக்குச் சென்று, \"அங்கீகார "
 "பயன்பாட்டுடன் <ABBR தலைப்பு =\" இரண்டு காரணி ஏற்பு \"> 2fa </bbr> ஐத் தேர்வுசெய்க\""
 
-#: warehouse/templates/pages/help.html:400
+#: warehouse/templates/pages/help.html:401
 msgid ""
 "PyPI will generate a secret key, specific to your account. This is displayed "
 "as a QR code, and as a text code."
@@ -8892,7 +8969,7 @@ msgstr ""
 "உங்கள் கணக்கிற்கு குறிப்பிட்ட ஒரு ரகசிய விசையை PYPI உருவாக்கும். இது QR குறியீடாகவும், "
 "உரைக் குறியீடாகவும் காட்டப்படும்."
 
-#: warehouse/templates/pages/help.html:401
+#: warehouse/templates/pages/help.html:402
 msgid ""
 "Scan the QR code with your authentication application, or type it in "
 "manually. The method of input will depend on the application you have chosen."
@@ -8900,7 +8977,7 @@ msgstr ""
 "உங்கள் அங்கீகார பயன்பாட்டுடன் QR குறியீட்டை ச்கேன் செய்யுங்கள் அல்லது கைமுறையாக தட்டச்சு "
 "செய்க. உள்ளீட்டு முறை நீங்கள் தேர்ந்தெடுத்த பயன்பாட்டைப் பொறுத்தது."
 
-#: warehouse/templates/pages/help.html:402
+#: warehouse/templates/pages/help.html:403
 msgid ""
 "Your application will generate an authentication code - use this to verify "
 "your set-up on PyPI"
@@ -8908,7 +8985,7 @@ msgstr ""
 "உங்கள் பயன்பாடு அங்கீகாரக் குறியீட்டை உருவாக்கும் - PYPI இல் உங்கள் அமைப்பை சரிபார்க்க இதைப் "
 "பயன்படுத்தவும்"
 
-#: warehouse/templates/pages/help.html:405
+#: warehouse/templates/pages/help.html:406
 msgid ""
 "The PyPI server and your application now share your PyPI secret key, "
 "allowing your application to generate valid authentication codes for your "
@@ -8917,25 +8994,25 @@ msgstr ""
 "PYPI சேவையகம் மற்றும் உங்கள் பயன்பாடு இப்போது உங்கள் PYPI ரகசிய விசையைப் பகிரவும், உங்கள் "
 "PYPI கணக்கிற்கான சரியான அங்கீகார குறியீடுகளை உருவாக்க உங்கள் பயன்பாட்டை அனுமதிக்கிறது."
 
-#: warehouse/templates/pages/help.html:407
-#: warehouse/templates/pages/help.html:449
+#: warehouse/templates/pages/help.html:408
+#: warehouse/templates/pages/help.html:450
 msgid "Next time you log in to PyPI you'll need to:"
 msgstr "அடுத்த முறை நீங்கள் PYPI இல் உள்நுழைய வேண்டும்:"
 
-#: warehouse/templates/pages/help.html:409
-#: warehouse/templates/pages/help.html:501
+#: warehouse/templates/pages/help.html:410
+#: warehouse/templates/pages/help.html:502
 msgid "Provide your username and password, as normal"
 msgstr "உங்கள் பயனர்பெயர் மற்றும் கடவுச்சொல்லை பொதுவாக வழங்கவும்"
 
-#: warehouse/templates/pages/help.html:410
+#: warehouse/templates/pages/help.html:411
 msgid "Open your authentication application to generate an authentication code"
 msgstr "அங்கீகாரக் குறியீட்டை உருவாக்க உங்கள் அங்கீகார பயன்பாட்டைத் திறக்கவும்"
 
-#: warehouse/templates/pages/help.html:411
+#: warehouse/templates/pages/help.html:412
 msgid "Use this code to finish logging into PyPI"
 msgstr "PYPI இல் உள்நுழைவதை முடிக்க இந்த குறியீட்டைப் பயன்படுத்தவும்"
 
-#: warehouse/templates/pages/help.html:417
+#: warehouse/templates/pages/help.html:418
 msgid ""
 "A security device is a USB key or <a href=\"#utfdevices\">other device</a> "
 "that generates a one-time password and sends that password to the browser. "
@@ -8945,13 +9022,13 @@ msgstr ""
 "</a> ஒரு முறை கடவுச்சொல்லை உருவாக்கி அந்த கடவுச்சொல்லை உலாவிக்கு அனுப்புகிறது. இந்த "
 "கடவுச்சொல்லை ஒரு பயனராக அங்கீகரிக்க PYPI ஆல் பயன்படுத்தப்படுகிறது."
 
-#: warehouse/templates/pages/help.html:419
+#: warehouse/templates/pages/help.html:420
 msgid ""
 "To set up two-factor authentication with a <em>USB key</em>, you'll need:"
 msgstr ""
 "<em> யூ.எச்.பி விசை </em> உடன் இரண்டு காரணி அங்கீகாரத்தை அமைக்க, உங்களுக்கு தேவை:"
 
-#: warehouse/templates/pages/help.html:421
+#: warehouse/templates/pages/help.html:422
 #, python-format
 msgid ""
 "To use a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -8963,11 +9040,11 @@ msgstr ""
 "\"noopener\"> உலாவி <abbr தலைப்பு = \"வலை அங்கீகாரத்தை\"> வெப்அத்ன் </abbr > மற்றும் "
 "பப்ளிக் கிகிரிடென்சியல் </a>, இது PYPI ஆல் செயல்படுத்தப்பட்ட தரமாகும்."
 
-#: warehouse/templates/pages/help.html:422
+#: warehouse/templates/pages/help.html:423
 msgid "To be running JavaScript on your browser"
 msgstr "உங்கள் உலாவியில் சாவாச்கிரிப்டை இயக்க வேண்டும்"
 
-#: warehouse/templates/pages/help.html:423
+#: warehouse/templates/pages/help.html:424
 #, python-format
 msgid ""
 "To use a USB key that adheres to the <a href=\"%(href)s\" "
@@ -8977,7 +9054,7 @@ msgstr ""
 "<A href = \"%(href)s\" தலைப்பு = \"%(title)s\" இலக்கு = \"_ வெற்று\" rel = "
 "\"noopener\"> fido U2f விவரக்குறிப்பு </a>"
 
-#: warehouse/templates/pages/help.html:426
+#: warehouse/templates/pages/help.html:427
 #, python-format
 msgid ""
 "Popular keys include <a href=\"%(yubikey_href)s\" title=\"%(title)s\" "
@@ -8990,7 +9067,7 @@ msgstr ""
 "இலக்கு = \"_ வெற்று\" rel = \"noopener\"> yubikey </a>, <a href = "
 "\"%(titan_href)s . \"_ பிளாங்க்\" rel = \"noopener\"> தீடிச் </a>."
 
-#: warehouse/templates/pages/help.html:433
+#: warehouse/templates/pages/help.html:434
 msgid ""
 "Note that some older Yubico USB keys <strong>do not follow the FIDO "
 "specification</strong>, and will therefore not work with PyPI"
@@ -8998,11 +9075,11 @@ msgstr ""
 "சில பழைய யூபிகோ யூ.எச்.பி விசைகள் <strong> ஃபிடோ விவரக்குறிப்பைப் பின்பற்ற வேண்டாம் </"
 "strong>, எனவே PYPI உடன் வேலை செய்யாது"
 
-#: warehouse/templates/pages/help.html:438
+#: warehouse/templates/pages/help.html:439
 msgid "Follow these steps:"
 msgstr "இந்த படிகளைப் பின்பற்றவும்:"
 
-#: warehouse/templates/pages/help.html:440
+#: warehouse/templates/pages/help.html:441
 msgid ""
 "<li>Log in to your PyPI account, go to your account settings, and choose "
 "\"Add <abbr title=\"two factor authentication\">2FA</abbr> with security "
@@ -9017,7 +9094,7 @@ msgstr ""
 "இது தேவை, ஏனெனில் உங்கள் கணக்கில் ஒன்றுக்கு மேற்பட்ட பாதுகாப்பு சாதனங்களைச் சேர்க்க "
 "முடியும். உங்கள் உலாவியால் </li>"
 
-#: warehouse/templates/pages/help.html:447
+#: warehouse/templates/pages/help.html:448
 msgid ""
 "Once complete, your USB key will be registered to your PyPI account and can "
 "be used during the log in process."
@@ -9025,7 +9102,7 @@ msgstr ""
 "முடிந்ததும், உங்கள் யூ.எச்.பி விசை உங்கள் PYPI கணக்கில் பதிவு செய்யப்படும், மேலும் பதிவின் "
 "போது பயன்படுத்தலாம்."
 
-#: warehouse/templates/pages/help.html:451
+#: warehouse/templates/pages/help.html:452
 msgid ""
 "<li>Provide your username and password, as normal</li> <li>Insert and touch "
 "your USB key to finish logging into PyPI</li>"
@@ -9033,7 +9110,7 @@ msgstr ""
 "<li> உங்கள் பயனர்பெயர் மற்றும் கடவுச்சொல்லை பொதுவாக வழங்கவும் </li> <li> பைபியில் "
 "உள்நுழைவதை முடிக்க உங்கள் யூ.எச்.பி விசையைச் செருகவும் தொடவும் </li>"
 
-#: warehouse/templates/pages/help.html:462
+#: warehouse/templates/pages/help.html:463
 #, python-format
 msgid ""
 "There is a growing ecosystem of <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -9044,7 +9121,7 @@ msgstr ""
 "\"noopener\"> ஃபிடோ இணக்கமான சாதனங்கள் </a> இன் வளர்ந்து வரும் சுற்றுச்சூழல் அமைப்பு "
 "உள்ளது, எனவே முடியும் பைபியுடன் பயன்படுத்தப்பட வேண்டும்."
 
-#: warehouse/templates/pages/help.html:467
+#: warehouse/templates/pages/help.html:468
 #, python-format
 msgid ""
 "Emerging solutions include biometric (facial and fingerprint) scanners and "
@@ -9057,7 +9134,7 @@ msgstr ""
 "இலக்கு = \"_ வெற்று\" rel = \"noopener\"> மொபைல் போன்கள் பாதுகாப்பு சாதனங்களாக "
 "செயல்பட வேண்டும் </a>."
 
-#: warehouse/templates/pages/help.html:473
+#: warehouse/templates/pages/help.html:474
 #, python-format
 msgid ""
 "As PyPI's two-factor implementation follows the <a href=\"%(href)s\" "
@@ -9070,7 +9147,7 @@ msgstr ""
 "தரநிலை </a>, PYPI பயனர்கள் இந்த துறையில் எதிர்கால முன்னேற்றங்களைப் பயன்படுத்திக் கொள்ள "
 "முடியும்."
 
-#: warehouse/templates/pages/help.html:482
+#: warehouse/templates/pages/help.html:483
 msgid ""
 "If you lose access to your <a href=\"#totp\">authentication application</a> "
 "or <a href=\"#utfkey\">security device</a>, you can use these codes to log "
@@ -9080,7 +9157,7 @@ msgstr ""
 "பாதுகாப்பு சாதனம் </a> க்கான அணுகலை நீங்கள் இழந்தால், இந்த குறியீடுகளைப் பயன்படுத்தி PYPI "
 "இல் உள்நுழையலாம்."
 
-#: warehouse/templates/pages/help.html:485
+#: warehouse/templates/pages/help.html:486
 msgid ""
 "Recovery codes are <strong>one time use</strong>. They are not a substitute "
 "for an <a href=\"#totp\">authentication application</a> or a <a "
@@ -9092,11 +9169,11 @@ msgstr ""
 "சாதனம் </a> க்கு மாற்றாக இல்லை, மேலும் மீட்புக்கு மட்டுமே பயன்படுத்தப்பட வேண்டும். உள்நுழைய "
 "மீட்புக் குறியீட்டைப் பயன்படுத்திய பிறகு, அது செயலற்றதாகிவிடும்."
 
-#: warehouse/templates/pages/help.html:491
+#: warehouse/templates/pages/help.html:492
 msgid "To provision recovery codes:"
 msgstr "மீட்பு குறியீடுகளை வழங்க:"
 
-#: warehouse/templates/pages/help.html:493
+#: warehouse/templates/pages/help.html:494
 msgid ""
 "Log in to your PyPI account, go to your account settings, and choose "
 "\"Generate recovery codes\""
@@ -9104,7 +9181,7 @@ msgstr ""
 "உங்கள் PYPI கணக்கில் உள்நுழைந்து, உங்கள் கணக்கு அமைப்புகளுக்குச் சென்று, \"மீட்பு "
 "குறியீடுகளை உருவாக்கு\" என்பதைத் தேர்வுசெய்க"
 
-#: warehouse/templates/pages/help.html:494
+#: warehouse/templates/pages/help.html:495
 msgid ""
 "Securely store the displayed recovery codes! Consider printing them out and "
 "storing them in a safe location or saving them in a password manager."
@@ -9113,7 +9190,7 @@ msgstr ""
 "பாதுகாப்பான இடத்தில் சேமித்து வைப்பது அல்லது கடவுச்சொல் நிர்வாகியில் சேமிப்பது "
 "ஆகியவற்றைக் கவனியுங்கள்."
 
-#: warehouse/templates/pages/help.html:497
+#: warehouse/templates/pages/help.html:498
 msgid ""
 "If you lose access to your stored recovery codes or use all of them, you can "
 "get new ones by selecting \"Regenerate recovery codes\" in your account "
@@ -9123,11 +9200,11 @@ msgstr ""
 "பயன்படுத்தினால், உங்கள் கணக்கு அமைப்புகளில் \"மீளுருவாக்கம் மீட்புக் குறியீடுகளை\" "
 "தேர்ந்தெடுப்பதன் மூலம் புதியவற்றைப் பெறலாம்."
 
-#: warehouse/templates/pages/help.html:499
+#: warehouse/templates/pages/help.html:500
 msgid "To sign in with a recovery code:"
 msgstr "மீட்பு குறியீட்டில் உள்நுழைய:"
 
-#: warehouse/templates/pages/help.html:502
+#: warehouse/templates/pages/help.html:503
 msgid ""
 "When prompted for two-factor authentication, select \"Login using recovery "
 "codes\""
@@ -9135,14 +9212,14 @@ msgstr ""
 "இரண்டு காரணி அங்கீகாரத்திற்கு கேட்கப்படும்போது, \"மீட்பு குறியீடுகளைப் பயன்படுத்தி "
 "உள்நுழைக\" என்பதைத் தேர்ந்தெடுக்கவும்"
 
-#: warehouse/templates/pages/help.html:503
+#: warehouse/templates/pages/help.html:504
 msgid ""
 "As each code can be used only once, you might want to mark the code as used"
 msgstr ""
 "ஒவ்வொரு குறியீட்டையும் ஒரு முறை மட்டுமே பயன்படுத்த முடியும் என்பதால், நீங்கள் பயன்படுத்திய "
 "குறியீட்டைக் குறிக்க விரும்பலாம்"
 
-#: warehouse/templates/pages/help.html:504
+#: warehouse/templates/pages/help.html:505
 msgid ""
 "If you have few recovery codes remaining, you may also want to generate a "
 "new set using the \"Regenerate recovery codes\" button in your account "
@@ -9151,7 +9228,7 @@ msgstr ""
 "உங்களிடம் சில மீட்பு குறியீடுகள் மீதமுள்ளிருந்தால், உங்கள் கணக்கு அமைப்புகளில் \"மீளுருவாக்கம் "
 "மீட்பு குறியீடுகள்\" பொத்தானைப் பயன்படுத்தி புதிய தொகுப்பை உருவாக்க விரும்பலாம்."
 
-#: warehouse/templates/pages/help.html:510
+#: warehouse/templates/pages/help.html:511
 msgid ""
 "API tokens are used to authenticate when <strong>uploading packages</strong> "
 "to PyPI."
@@ -9159,7 +9236,7 @@ msgstr ""
 "<strong> தொகுப்புகள் </strong> ஐ PYPI க்கு பதிவேற்றும்போது அங்கீகரிக்க பநிஇ டோக்கன்கள் "
 "பயன்படுத்தப்படுகின்றன."
 
-#: warehouse/templates/pages/help.html:515
+#: warehouse/templates/pages/help.html:516
 msgid ""
 "You can create a token for an entire PyPI account, in which case, the token "
 "will work for all projects associated with that account. Alternatively, you "
@@ -9169,7 +9246,7 @@ msgstr ""
 "தொடர்புடைய அனைத்து திட்டங்களுக்கும் கிள்ளாக்கு வேலை செய்யும். மாற்றாக, நீங்கள் ஒரு டோக்கனின் "
 "நோக்கத்தை ஒரு குறிப்பிட்ட திட்டத்திற்கு மட்டுப்படுத்தலாம்."
 
-#: warehouse/templates/pages/help.html:522
+#: warehouse/templates/pages/help.html:523
 msgid ""
 "When using an API token from a CI provider, we recommend scoping the token "
 "down to the minimum necessary projects."
@@ -9177,7 +9254,7 @@ msgstr ""
 "தொஒ வழங்குநரிடமிருந்து பநிஇ கிள்ளாக்கைப் பயன்படுத்தும் போது, டோக்கனை குறைந்தபட்ச "
 "தேவையான திட்டங்களுக்கு ச்கோப் செய்ய பரிந்துரைக்கிறோம்."
 
-#: warehouse/templates/pages/help.html:529
+#: warehouse/templates/pages/help.html:530
 #, python-format
 msgid ""
 "If you are publishing to PyPI from a CI provider that supports <a "
@@ -9188,20 +9265,20 @@ msgstr ""
 "நீங்கள் PYPI க்கு வெளியிடுகிறீர்கள் என்றால், அதற்கு பதிலாக நம்பகமான வெளியீட்டைப் பயன்படுத்த "
 "நாங்கள் கடுமையாக பரிந்துரைக்கிறோம்."
 
-#: warehouse/templates/pages/help.html:537
+#: warehouse/templates/pages/help.html:538
 msgid "To make an API token:"
 msgstr "ஒரு பநிஇ கிள்ளாக்கு செய்ய:"
 
-#: warehouse/templates/pages/help.html:540
+#: warehouse/templates/pages/help.html:541
 msgid "Verify your email address"
 msgstr "உங்கள் மின்னஞ்சல் முகவரியை சரிபார்க்கவும்"
 
-#: warehouse/templates/pages/help.html:540
+#: warehouse/templates/pages/help.html:541
 #, python-format
 msgid "(check your <a href=\"%(href)s\">account settings</a>)"
 msgstr "(உங்கள் <a href = \"%(href)s\"> கணக்கு அமைப்புகளை சரிபார்க்கவும் </a>)"
 
-#: warehouse/templates/pages/help.html:541
+#: warehouse/templates/pages/help.html:542
 #, python-format
 msgid ""
 "In your <a href=\"%(href)s\">account settings</a>, go to the API tokens "
@@ -9210,22 +9287,22 @@ msgstr ""
 "உங்கள் <a href = \"%(href)s\"> கணக்கு அமைப்புகள் </a> இல், பநிஇ டோக்கன்ச் பிரிவுக்குச் "
 "சென்று \"பநிஇ டோக்கனைச் சேர்\" என்பதைத் தேர்ந்தெடுக்கவும்"
 
-#: warehouse/templates/pages/help.html:544
+#: warehouse/templates/pages/help.html:545
 msgid "To use an API token:"
 msgstr "பநிஇ கிள்ளாக்கைப் பயன்படுத்த:"
 
-#: warehouse/templates/pages/help.html:547
+#: warehouse/templates/pages/help.html:548
 msgid "Set your username to <code>__token__</code>"
 msgstr "உங்கள் பயனர்பெயரை <குறியீடு> __ கிள்ளாக்கு __ </code> என அமைக்கவும்"
 
-#: warehouse/templates/pages/help.html:548
+#: warehouse/templates/pages/help.html:549
 msgid ""
 "Set your password to the token value, including the <code>pypi-</code> prefix"
 msgstr ""
 "<code> PYPI-</code> முன்னொட்டு உள்ளிட்ட கிள்ளாக்கு மதிப்புக்கு உங்கள் கடவுச்சொல்லை "
 "அமைக்கவும்"
 
-#: warehouse/templates/pages/help.html:552
+#: warehouse/templates/pages/help.html:553
 #, python-format
 msgid ""
 "Where you edit or add these values will depend on your individual use case. "
@@ -9243,7 +9320,7 @@ msgstr ""
 "\"%(title)s\" இலக்கு = \"_ வெற்று\" rel = \"noopener\"> < குறியீடு> .travis.yml "
 "</code> நீங்கள் டிராவிசைப் பயன்படுத்துகிறீர்கள் என்றால் </a>)."
 
-#: warehouse/templates/pages/help.html:556
+#: warehouse/templates/pages/help.html:557
 msgid ""
 "Advanced users may wish to inspect their token by decoding it with base64, "
 "and checking the output against the unique identifier displayed on PyPI."
@@ -9252,7 +9329,7 @@ msgstr ""
 "விரும்பலாம், மேலும் PYPI இல் காட்டப்படும் தனித்துவமான அடையாளங்காட்டிக்கு எதிராக "
 "வெளியீட்டைச் சரிபார்க்கிறார்கள்."
 
-#: warehouse/templates/pages/help.html:560
+#: warehouse/templates/pages/help.html:561
 msgid ""
 "<p>PyPI asks you to confirm your password before you want to perform a "
 "<i>sensitive action</i>. Sensitive actions include things like adding or "
@@ -9270,11 +9347,11 @@ msgstr ""
 "உறுதிப்படுத்தியதால். </p> <p> <strong> உங்கள் தனிப்பட்ட, கடவுச்சொல் பாதுகாக்கப்பட்ட "
 "கணினியில் மட்டுமே இதுபோன்ற செயல்களைச் செய்ய நாங்கள் கடுமையாக பரிந்துரைக்கிறோம்."
 
-#: warehouse/templates/pages/help.html:567
+#: warehouse/templates/pages/help.html:568
 msgid "PyPI does not currently support changing a username."
 msgstr "பயனர்பெயரை மாற்ற பைபி தற்போது ஆதரிக்கவில்லை."
 
-#: warehouse/templates/pages/help.html:568
+#: warehouse/templates/pages/help.html:569
 msgid ""
 "Instead, you can create a new account with the desired username, add the new "
 "account as a maintainer of all the projects your old account owns, and then "
@@ -9284,7 +9361,7 @@ msgstr ""
 "கணக்கை உங்கள் பழைய கணக்கில் வைத்திருக்கும் அனைத்து திட்டங்களையும் பராமரிப்பவராக சேர்க்கலாம், "
 "பின்னர் பழைய கணக்கை நீக்கலாம், இது அதே விளைவைக் கொண்டிருக்கும்."
 
-#: warehouse/templates/pages/help.html:572
+#: warehouse/templates/pages/help.html:573
 #, python-format
 msgid ""
 "PyPI users and projects can use <a href=\"%(docs)s\">Trusted Publishers</a> "
@@ -9296,15 +9373,15 @@ msgstr ""
 "அதிகாரத்தை பிரதிநிதித்துவப்படுத்தலாம், பநிஇ டோக்கன்களைப் பயன்படுத்த வேண்டிய அவசியத்தை "
 "நீக்குகிறது."
 
-#: warehouse/templates/pages/help.html:584
+#: warehouse/templates/pages/help.html:585
 msgid "Yes, including RSS feeds of new packages and new releases."
 msgstr "ஆம், புதிய தொகுப்புகள் மற்றும் புதிய வெளியீடுகளின் ஆர்எச்எச் ஊட்டங்கள் உட்பட."
 
-#: warehouse/templates/pages/help.html:584
+#: warehouse/templates/pages/help.html:585
 msgid "See the API reference."
 msgstr "பநிஇ குறிப்பைக் காண்க."
 
-#: warehouse/templates/pages/help.html:587
+#: warehouse/templates/pages/help.html:588
 #, python-format
 msgid ""
 "If you need to run your own mirror of PyPI, the <a "
@@ -9316,7 +9393,7 @@ msgstr ""
 "BandersNatch திட்டம் </a> பரிந்துரைக்கப்பட்ட தீர்வாகும். ஒரு பைபி கண்ணாடியின் சேமிப்பக "
 "தேவைகள் 1 டெராபைட்டை தாண்டி வளரும் என்பதை நினைவில் கொள்க!"
 
-#: warehouse/templates/pages/help.html:590
+#: warehouse/templates/pages/help.html:591
 #, python-format
 msgid ""
 "You can subscribe to the <a href=\"%(rss_href)s\" title=\"%(title)s\" "
@@ -9333,7 +9410,7 @@ msgstr ""
 "பாதிப்புகளுக்கான விரிவான கண்காணிப்பு மற்றும் அறிவிப்புகளை வழங்குகின்றன. noopener \"> "
 "github apps </a>."
 
-#: warehouse/templates/pages/help.html:593
+#: warehouse/templates/pages/help.html:594
 #, python-format
 msgid ""
 "You can analyze PyPI project/package metadata and <a href=\"%(href)s\" "
@@ -9345,7 +9422,7 @@ msgstr ""
 "புள்ளிவிவரங்களைப் பதிவிறக்குங்கள் </a> எங்கள் பொது வழியாக பகுப்பாய்வு செய்யலாம் Google "
 "Bigquery இல் தரவுத்தொகுப்பு."
 
-#: warehouse/templates/pages/help.html:595
+#: warehouse/templates/pages/help.html:596
 #, python-format
 msgid ""
 "<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -9369,7 +9446,7 @@ msgstr ""
 "=\"%(other_factors_href)s \"இலக்கு =\" _ வெற்று \"rel =\" noopener \"> பிற "
 "தொடர்புடையது காரணிகள் </a>."
 
-#: warehouse/templates/pages/help.html:604
+#: warehouse/templates/pages/help.html:605
 #, python-format
 msgid ""
 "For recent statistics on uptime and performance, see <a href=\"%(href)s\" "
@@ -9379,7 +9456,7 @@ msgstr ""
 "\"%(href)s\" தலைப்பு = \"%(title)s\" இலக்கு = \"_ வெற்று\" rel = \"noopener\"> "
 "எங்கள் நிலை பக்கம் </a> ஐப் பார்க்கவும்."
 
-#: warehouse/templates/pages/help.html:607
+#: warehouse/templates/pages/help.html:608
 msgid ""
 "For each package hosted on PyPI, there are corresponding hashes for that "
 "file. These hashes can be used to verify that the file you are downloading "
@@ -9395,7 +9472,7 @@ msgstr ""
 "பிரிவில் அல்லது சாதொபொகு பநிஇ இலிருந்து பெறலாம். ஆச்களை உருவாக்குவதற்கான "
 "எடுத்துக்காட்டு இங்கே:"
 
-#: warehouse/templates/pages/help.html:614
+#: warehouse/templates/pages/help.html:615
 msgid ""
 "In practice, it would only be necessary to verify one of the hashes. It is "
 "not recommended to use the MD5 hash because of known security issues with "
@@ -9405,7 +9482,7 @@ msgstr ""
 "பாதுகாப்பு சிக்கல்கள் காரணமாக MD5 HASH ஐப் பயன்படுத்த பரிந்துரைக்கப்படவில்லை. இந்த ஆச் "
 "பின்னோக்கி பொருந்தக்கூடிய தன்மைக்கு மட்டுமே வழங்கப்படுகிறது."
 
-#: warehouse/templates/pages/help.html:621
+#: warehouse/templates/pages/help.html:622
 #, python-format
 msgid ""
 "PyPI does not support publishing private packages. If you need to publish "
@@ -9416,7 +9493,7 @@ msgstr ""
 "தொகுப்பு குறியீட்டில் வெளியிட வேண்டும் என்றால், பரிந்துரைக்கப்பட்ட தீர்வு <a href = "
 "\"%(href)s\"> devpi திட்டம் </a> இன் சொந்த வரிசைப்படுத்தலை இயக்குவதாகும்."
 
-#: warehouse/templates/pages/help.html:624
+#: warehouse/templates/pages/help.html:625
 msgid ""
 "Your publishing tool may return an error that your new project can't be "
 "created with your desired name, despite no evidence of a project or release "
@@ -9427,7 +9504,7 @@ msgstr ""
 "வெளியீட்டு கருவி திருப்பித் தரக்கூடும், பைபியில் அதே பெயரை ஒரு திட்டத்தின் எந்த ஆதாரமும் "
 "அல்லது வெளியிட்டாலும். தற்போது, இது ஏற்படக்கூடிய நான்கு முதன்மை காரணங்கள் உள்ளன:"
 
-#: warehouse/templates/pages/help.html:626
+#: warehouse/templates/pages/help.html:627
 #, python-format
 msgid ""
 "The project name conflicts with a <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -9437,14 +9514,14 @@ msgstr ""
 "திட்டத்தின் பெயர் ஒரு <a href = \"%(href)s\" தலைப்பு = \"%(title)s\" இலக்கு = \"_ "
 "வெற்று\" rel = \"noopener\"> பைதான் நிலையான நூலகம் </a> தொகுதி 2.5 முதல் தற்போது."
 
-#: warehouse/templates/pages/help.html:627
+#: warehouse/templates/pages/help.html:628
 msgid ""
 "The project name is too similar to an existing project and may be confusable."
 msgstr ""
 "திட்டத்தின் பெயர் ஏற்கனவே இருக்கும் திட்டத்திற்கு மிகவும் ஒத்திருக்கிறது மற்றும் "
 "குழப்பமானதாக இருக்கலாம்."
 
-#: warehouse/templates/pages/help.html:628
+#: warehouse/templates/pages/help.html:629
 #, python-format
 msgid ""
 "The project name has been explicitly prohibited by the PyPI administrators. "
@@ -9457,7 +9534,7 @@ msgstr ""
 "க்கான பொதுவான எழுத்துப்பிழையாகும், மேலும் தீங்கிழைக்கும் தொகுப்புடன் பயனரை "
 "ஆச்சரியப்படுத்தக்கூடாது."
 
-#: warehouse/templates/pages/help.html:629
+#: warehouse/templates/pages/help.html:630
 msgid ""
 "The project name has been registered by another user, but no releases have "
 "been created."
@@ -9465,12 +9542,12 @@ msgstr ""
 "திட்டத்தின் பெயர் மற்றொரு பயனரால் பதிவு செய்யப்பட்டுள்ளது, ஆனால் வெளியீடுகள் எதுவும் "
 "உருவாக்கப்படவில்லை."
 
-#: warehouse/templates/pages/help.html:629
+#: warehouse/templates/pages/help.html:630
 #, python-format
 msgid "See <a href=\"%(href)s\">%(anchor_text)s</a>"
 msgstr "<A href = \"%(href)s\">%(anchor_text)s </a> ஐப் பார்க்கவும்"
 
-#: warehouse/templates/pages/help.html:633
+#: warehouse/templates/pages/help.html:634
 #, python-format
 msgid ""
 "Follow the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -9481,7 +9558,7 @@ msgstr ""
 "\"noopener\"> \"பெயர் பரிமாற்றத்தை எவ்வாறு கோருவது\" </a> <abbr தலைப்பின் பிரிவு = "
 "\"பைதான் மேம்பாட்டு திட்டம்\"> பெப் </abbr> 541."
 
-#: warehouse/templates/pages/help.html:637
+#: warehouse/templates/pages/help.html:638
 msgid ""
 "Can upload releases for a package. Cannot add collaborators. Cannot delete "
 "files, releases, or the project."
@@ -9489,11 +9566,11 @@ msgstr ""
 "ஒரு தொகுப்புக்கான வெளியீடுகளை பதிவேற்றலாம். ஒத்துழைப்பாளர்களைச் சேர்க்க முடியாது. "
 "கோப்புகள், வெளியீடுகள் அல்லது திட்டத்தை நீக்க முடியாது."
 
-#: warehouse/templates/pages/help.html:638
+#: warehouse/templates/pages/help.html:639
 msgid "Owner:"
 msgstr "உரிமையாளர்:"
 
-#: warehouse/templates/pages/help.html:638
+#: warehouse/templates/pages/help.html:639
 msgid ""
 "Can upload releases. Can add other collaborators. Can delete files, "
 "releases, or the entire project."
@@ -9501,7 +9578,7 @@ msgstr ""
 "வெளியீடுகளை பதிவேற்ற முடியும். மற்ற ஒத்துழைப்பாளர்களைச் சேர்க்கலாம். கோப்புகள், வெளியீடுகள் "
 "அல்லது முழு திட்டத்தையும் நீக்கலாம்."
 
-#: warehouse/templates/pages/help.html:641
+#: warehouse/templates/pages/help.html:642
 msgid ""
 "Only the current owners of a project have the ability to add new owners or "
 "maintainers. If you need to request ownership, you should contact the "
@@ -9515,7 +9592,7 @@ msgstr ""
 "உரிமையாளர்கள் தங்கள் தொடர்பு விவரங்களை திட்டப் பக்கத்தில் உள்ள 'மேவு' விவரங்களின் "
 "'ஆசிரியர்' துறையில் வழங்குகிறார்கள்."
 
-#: warehouse/templates/pages/help.html:642
+#: warehouse/templates/pages/help.html:643
 #, python-format
 msgid ""
 "If the owner is unresponsive, see <a href=\"%(href)s\">%(anchor_text)s</a>"
@@ -9523,7 +9600,7 @@ msgstr ""
 "உரிமையாளர் பதிலளிக்கவில்லை என்றால், <a href = \"%(href)s\">%(anchor_text)s </a> "
 "ஐப் பார்க்கவும்"
 
-#: warehouse/templates/pages/help.html:646
+#: warehouse/templates/pages/help.html:647
 msgid ""
 "When using <code>pyproject.toml</code> for project metadata, you can use the "
 "extension of the <code>readme</code> field value to control how PyPI renders "
@@ -9533,7 +9610,7 @@ msgstr ""
 "விளக்கத்தை PYPI எவ்வாறு வழங்குகிறது என்பதைக் கட்டுப்படுத்த <குறியீடு> ரீட்மே </code> புல "
 "மதிப்பின் நீட்டிப்பைப் பயன்படுத்தலாம்."
 
-#: warehouse/templates/pages/help.html:651
+#: warehouse/templates/pages/help.html:652
 #, python-format
 msgid ""
 "For example, <code>readme = \"README.md\"</code> will render the description "
@@ -9546,7 +9623,7 @@ msgstr ""
 "\"%( href) S \"தலைப்பு =\"%(href)s \"இலக்கு =\" _ வெற்று \"rel =\" noopener \"> "
 "மறுசீரமைப்பு செய்யப்பட்ட டெக்ச்ட் </a>"
 
-#: warehouse/templates/pages/help.html:658
+#: warehouse/templates/pages/help.html:659
 #, python-format
 msgid ""
 "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -9557,7 +9634,7 @@ msgstr ""
 "\"%(title)s\" இலக்கு = \"_ வெற்று\" rel = \"noopener\"> பைதான் பேக்கேசிங் பயனர் "
 "கையேடு </a> ஐப் பார்க்கவும்."
 
-#: warehouse/templates/pages/help.html:669
+#: warehouse/templates/pages/help.html:670
 #, fuzzy, python-format
 #| msgid ""
 #| "If you can't upload your project's release to PyPI because you're hitting "
@@ -9574,14 +9651,14 @@ msgstr ""
 "வேறுபடலாம்), முதலில் உங்கள் ஒட்டுமொத்த திட்ட அளவைக் குறைக்க தேவையற்ற வெளியீடுகள் அல்லது "
 "தனிப்பட்ட கோப்புகளை அகற்றவும் ."
 
-#: warehouse/templates/pages/help.html:676
+#: warehouse/templates/pages/help.html:677
 #, python-format
 msgid ""
 "See the <a href=\"%(href)s\">user documentation</a> for more information on "
 "requesting a file size limit increase."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:685
+#: warehouse/templates/pages/help.html:686
 #, fuzzy, python-format
 #| msgid ""
 #| "If you can't upload your project's release to PyPI because you're hitting "
@@ -9599,7 +9676,7 @@ msgstr ""
 "வேறுபடலாம்), முதலில் உங்கள் ஒட்டுமொத்த திட்ட அளவைக் குறைக்க தேவையற்ற வெளியீடுகள் அல்லது "
 "தனிப்பட்ட கோப்புகளை அகற்றவும் ."
 
-#: warehouse/templates/pages/help.html:694
+#: warehouse/templates/pages/help.html:695
 #, fuzzy, python-format
 #| msgid ""
 #| "If that is not possible, we can sometimes increase your limit. <a "
@@ -9614,7 +9691,7 @@ msgstr ""
 "\"%(file_issue_href)s\" தலைப்பு = \"%(title)s\" இலக்கு = \"_ வெற்று\" rel = "
 "\"noopener\"> ஒரு சிக்கலைத் தாக்கல் </a> எங்களிடம் கூறுங்கள்:"
 
-#: warehouse/templates/pages/help.html:703
+#: warehouse/templates/pages/help.html:704
 #, python-format
 msgid ""
 "PyPI receives reports on vulnerabilities in the packages hosted on it from "
@@ -9630,7 +9707,7 @@ msgstr ""
 "\"noopener\"> பைதான் பேக்கேசிங் அறிவுரை தரவுத்தளம் </a> இலிருந்து பாதிப்புகளை "
 "உட்கொள்கிறது."
 
-#: warehouse/templates/pages/help.html:708
+#: warehouse/templates/pages/help.html:709
 #, python-format
 msgid ""
 "If you believe vulnerability data for your project is invalid or incorrect, "
@@ -9641,7 +9718,7 @@ msgstr ""
 "href = \"%(file_issue_href)s\" தலைப்பு = \"%(title)s\" இலக்கு = \"_ வெற்று\" "
 "rel = \"noopener\"> ஒரு சிக்கலைக் கோப்பு </a > விவரங்களுடன்."
 
-#: warehouse/templates/pages/help.html:715
+#: warehouse/templates/pages/help.html:716
 msgid ""
 "Deletion of a project, release or file on PyPI is permanent and "
 "irreversable, without exception. Deletion of a project makes it "
@@ -9656,7 +9733,7 @@ msgstr ""
 "கோப்புகள் <a href = \"#கோப்பு-பெயர்-பயிற்சி\"> மீண்டும் பதிவேற்ற முடியாது </a>. "
 "நீக்கப்பட்ட திட்டங்கள், வெளியீடுகள் அல்லது கோப்புகளை PYPI நிர்வாகிகளால் மீட்டெடுக்க முடியாது."
 
-#: warehouse/templates/pages/help.html:730
+#: warehouse/templates/pages/help.html:731
 #, python-format
 msgid ""
 "PyPI will reject uploads if the package description fails to render. You may "
@@ -9667,7 +9744,7 @@ msgstr ""
 "\"%(href)s\" தலைப்பு = \"%(title)s\"> செல்லுபடியாகும் விளக்கத்தை உள்நாட்டில் "
 "சரிபார்க்க ட்வின் காசோலை கட்டளையைப் பயன்படுத்தலாம்."
 
-#: warehouse/templates/pages/help.html:736
+#: warehouse/templates/pages/help.html:737
 msgid ""
 "If you've forgotten your PyPI password, but you remember your email address "
 "or username, follow these steps to reset your password:"
@@ -9675,38 +9752,38 @@ msgstr ""
 "உங்கள் PYPI கடவுச்சொல்லை நீங்கள் மறந்துவிட்டால், ஆனால் உங்கள் மின்னஞ்சல் முகவரி அல்லது "
 "பயனர்பெயரை நினைவில் வைத்திருந்தால், உங்கள் கடவுச்சொல்லை மீட்டமைக்க இந்த படிகளைப் பின்பற்றவும்:"
 
-#: warehouse/templates/pages/help.html:738
+#: warehouse/templates/pages/help.html:739
 #, python-format
 msgid "Go to <a href=\"%(href)s\">reset your password</a>."
 msgstr "<A href = \"%(href)s\"> உங்கள் கடவுச்சொல்லை மீட்டமைக்க </a>."
 
-#: warehouse/templates/pages/help.html:739
+#: warehouse/templates/pages/help.html:740
 msgid ""
 "Enter the email address or username you used for PyPI and submit the form."
 msgstr ""
 "PYPI க்கு நீங்கள் பயன்படுத்திய மின்னஞ்சல் முகவரி அல்லது பயனர்பெயரை உள்ளிட்டு படிவத்தை "
 "சமர்ப்பிக்கவும்."
 
-#: warehouse/templates/pages/help.html:740
+#: warehouse/templates/pages/help.html:741
 msgid "You'll receive an email with a password reset link."
 msgstr "கடவுச்சொல் மீட்டமைப்பு இணைப்புடன் மின்னஞ்சலைப் பெறுவீர்கள்."
 
-#: warehouse/templates/pages/help.html:745
+#: warehouse/templates/pages/help.html:746
 msgid ""
 "If you've lost access to your PyPI account or can't fully verify it due to:"
 msgstr ""
 "உங்கள் PYPI கணக்கிற்கான அணுகலை நீங்கள் இழந்திருந்தால் அல்லது அதை முழுமையாக சரிபார்க்க "
 "முடியாது என்றால்:"
 
-#: warehouse/templates/pages/help.html:747
+#: warehouse/templates/pages/help.html:748
 msgid "Lost access to the email address associated with your account"
 msgstr "உங்கள் கணக்குடன் தொடர்புடைய மின்னஞ்சல் முகவரிக்கு அணுகலை இழந்தது"
 
-#: warehouse/templates/pages/help.html:748
+#: warehouse/templates/pages/help.html:749
 msgid "Accidentally registered with an email address you cannot verify"
 msgstr "நீங்கள் சரிபார்க்க முடியாத மின்னஞ்சல் முகவரியுடன் தற்செயலாக பதிவு செய்யப்பட்டுள்ளது"
 
-#: warehouse/templates/pages/help.html:749
+#: warehouse/templates/pages/help.html:750
 msgid ""
 "Lost two-factor authentication <a href=\"#totp\">application</a>, <a "
 "href=\"#utfkey\">device</a>, and <a href=\"#recoverycodes\">recovery codes</"
@@ -9716,7 +9793,7 @@ msgstr ""
 "\"#utfkey\"> சாதனம் </a>, மற்றும் <a href = \"#மீட்பு குறியீடுகள்\"> மீட்பு குறியீடுகள் "
 "</a >"
 
-#: warehouse/templates/pages/help.html:752
+#: warehouse/templates/pages/help.html:753
 #, python-format
 msgid ""
 "You can proceed to <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -9727,13 +9804,13 @@ msgstr ""
 "\"%(href)s\" தலைப்பு = \"%(title)s\" இலக்கு = \"_ வெற்று\" rel = \"noopener\"> "
 "ஒரு சிக்கலை தாக்கல் செய்யலாம் மீட்பு."
 
-#: warehouse/templates/pages/help.html:760
+#: warehouse/templates/pages/help.html:761
 msgid "Ensure that your API Token is valid and has not been revoked."
 msgstr ""
 "உங்கள் பநிஇ கிள்ளாக்கு செல்லுபடியாகும் மற்றும் ரத்து செய்யப்படவில்லை என்பதை "
 "உறுதிப்படுத்தவும்."
 
-#: warehouse/templates/pages/help.html:761
+#: warehouse/templates/pages/help.html:762
 msgid ""
 "Ensure that your API Token is <a href=\"#apitoken\">properly formatted</a> "
 "and does not contain any trailing characters such as newlines."
@@ -9741,13 +9818,13 @@ msgstr ""
 "உங்கள் பநிஇ கிள்ளாக்கு <a href = \"#apitoken\"> சரியாக வடிவமைக்கப்பட்டுள்ளது என்பதை "
 "உறுதிப்படுத்தவும் </a> மற்றும் புதிய லைன்ச் போன்ற எந்தவொரு கதாபாத்திரங்களும் இல்லை."
 
-#: warehouse/templates/pages/help.html:762
+#: warehouse/templates/pages/help.html:763
 msgid "Ensure that the username you are using is <code>__token__</code>."
 msgstr ""
 "நீங்கள் பயன்படுத்தும் பயனர்பெயர் <குறியீடு> __ கிள்ளாக்கு __ </code> என்பதை "
 "உறுதிப்படுத்தவும்."
 
-#: warehouse/templates/pages/help.html:764
+#: warehouse/templates/pages/help.html:765
 msgid ""
 "Remember that PyPI and TestPyPI each require you to create an account, so "
 "your credentials may be different."
@@ -9755,7 +9832,7 @@ msgstr ""
 "PYPI மற்றும் TestPypi ஒவ்வொன்றும் நீங்கள் ஒரு கணக்கை உருவாக்க வேண்டும் என்பதை நினைவில் "
 "கொள்ளுங்கள், எனவே உங்கள் சான்றுகள் வித்தியாசமாக இருக்கலாம்."
 
-#: warehouse/templates/pages/help.html:766
+#: warehouse/templates/pages/help.html:767
 #, python-format
 msgid ""
 "If you're using Windows and trying to paste your token in the Command Prompt "
@@ -9773,7 +9850,7 @@ msgstr ""
 "\"%(title)s\" இலக்கு = \"_ வெற்று\" rel = \"noopener\"> அறியப்பட்ட வெளியீடு </a> "
 "பைத்தானின் <குறியீடு> GetPass </code> தொகுதி."
 
-#: warehouse/templates/pages/help.html:775
+#: warehouse/templates/pages/help.html:776
 #, python-format
 msgid ""
 "Transport Layer Security, or TLS, is part of how we make sure connections "
@@ -9793,7 +9870,7 @@ msgstr ""
 "\"%(reason_href)s\" தலைப்பு = \"%(title)s\" இலக்கு = \"_ வெற்று\" rel = "
 "\"noopener\"> PSF வலைப்பதிவில் ஏன் என்பதை அறிக </a>."
 
-#: warehouse/templates/pages/help.html:782
+#: warehouse/templates/pages/help.html:783
 #, python-format
 msgid ""
 "If you are having trouble with <code>%(command)s</code> and get a <code>No "
@@ -9804,7 +9881,7 @@ msgstr ""
 "வழங்கல் இல்லை </code> அல்லது <code> முகவரி </code> பிழையைப் பெற முடியவில்லை, "
 "<குறியீட்டைச் சேர்க்க முயற்சிக்கவும் > -v </code> மேலும் தகவல்களைப் பெற கட்டளைக்கு:"
 
-#: warehouse/templates/pages/help.html:784
+#: warehouse/templates/pages/help.html:785
 msgid ""
 "If you see an error like <code>There was a problem confirming the ssl "
 "certificate</code> or <code>tlsv1 alert protocol version</code> or "
@@ -9815,7 +9892,7 @@ msgstr ""
 "எச்சரிக்கை நெறிமுறை பதிப்பு </code> அல்லது <code> TLSV1_ALERT_PROTOCOL_VERSION </"
 "code> புதிய டி.எல்.எச் உதவி நூலகத்துடன்."
 
-#: warehouse/templates/pages/help.html:785
+#: warehouse/templates/pages/help.html:786
 msgid ""
 "The specific steps you need to take will depend on your operating system "
 "version, where your installation of Python originated (python.org, your OS "
@@ -9827,7 +9904,7 @@ msgstr ""
 "விநியோகச்தர்), மற்றும் பைத்தானின் நிறுவப்பட்ட பதிப்புகள், <code> செட்டப்டூல்ச் </குறியீடு "
 ">, மற்றும் <code> பிப் </code>."
 
-#: warehouse/templates/pages/help.html:787
+#: warehouse/templates/pages/help.html:788
 #, python-format
 msgid ""
 "For help, go to <a href=\"%(irc_href)s\" title=\"%(title)s\" "
@@ -9845,7 +9922,7 @@ msgstr ""
 "விவாதிக்கவும், உங்கள் OS மற்றும் நிறுவல் விவரங்கள் உட்பட மற்றும் சொற்பொழிவு குறித்து "
 "விவாதிக்கவும் <code>%(discourse_href)s </code> இன் வெளியீடு."
 
-#: warehouse/templates/pages/help.html:798
+#: warehouse/templates/pages/help.html:799
 #, python-format
 msgid ""
 "We take <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -9856,7 +9933,7 @@ msgstr ""
 "= \"noopener\"> அணுகல் </a> மிகவும் தீவிரமாக எடுத்துக்கொள்கிறோம், மேலும் வலைத்தளத்தைப் "
 "பயன்படுத்த எளிதாக்க விரும்புகிறோம் எல்லோரும்."
 
-#: warehouse/templates/pages/help.html:803
+#: warehouse/templates/pages/help.html:804
 #, python-format
 msgid ""
 "If you are experiencing an accessibility problem, <a href=\"%(href)s\" "
@@ -9868,7 +9945,7 @@ msgstr ""
 "எங்களுக்கு புகாரளிக்கவும் எனவே உங்களுக்கும் மற்றவர்களுக்கும் சிக்கலை சரிசெய்ய நாங்கள் "
 "முயற்சி செய்யலாம்."
 
-#: warehouse/templates/pages/help.html:811
+#: warehouse/templates/pages/help.html:812
 #, python-format
 msgid ""
 "In a previous version of PyPI, it used to be possible for maintainers to "
@@ -9883,7 +9960,7 @@ msgstr ""
 "\"%(title)s\" இலக்கு = \"_ வெற்று\" rel = \"noopener\"> கயிறைப் பயன்படுத்தவும் "
 "உங்கள் திட்டத்தை பைபி </a> இல் பதிவேற்றவும்."
 
-#: warehouse/templates/pages/help.html:820
+#: warehouse/templates/pages/help.html:821
 msgid ""
 "Spammers return to PyPI with some regularity hoping to place their Search "
 "Engine Optimized phishing, scam, and click-farming content on the site. "
@@ -9896,7 +9973,7 @@ msgstr ""
 "நீண்ட விளக்கம் மற்றும் திட்டங்கள் தொடர்பான பிற தரவுகளை குறியீடாக்க அனுமதிக்கிறது மற்றும் "
 "பொதுவாக திடமான தேடல் நற்பெயரைக் கொண்டிருப்பதால், இது ஒரு முதன்மையான இலக்காகும்."
 
-#: warehouse/templates/pages/help.html:822
+#: warehouse/templates/pages/help.html:823
 #, python-format
 msgid ""
 "When the PyPI administrators are overwhelmed by spam <strong>or</strong> "
@@ -9912,23 +9989,23 @@ msgstr ""
 "\"%(title)s\" இலக்கு = \"_ வெற்று\" rel = \"noopener\"> எங்கள் நிலை பக்கம் </a> "
 "மேலும் விவரங்களுக்கு சரிபார்க்கவும் தலையீட்டிற்கான பகுத்தறிவுடன் இது."
 
-#: warehouse/templates/pages/help.html:831
+#: warehouse/templates/pages/help.html:832
 msgid "PyPI will return these errors for one of these reasons:"
 msgstr "இந்த காரணங்களில் ஒன்றிற்காக இந்த பிழைகளை பைபி திருப்பித் தரும்:"
 
-#: warehouse/templates/pages/help.html:833
+#: warehouse/templates/pages/help.html:834
 msgid "Filename has been used and file exists"
 msgstr "கோப்பு பெயர் பயன்படுத்தப்பட்டு கோப்பு உள்ளது"
 
-#: warehouse/templates/pages/help.html:834
+#: warehouse/templates/pages/help.html:835
 msgid "Filename has been used but file no longer exists"
 msgstr "கோப்பு பெயர் பயன்படுத்தப்பட்டுள்ளது, ஆனால் கோப்பு இனி இல்லை"
 
-#: warehouse/templates/pages/help.html:835
+#: warehouse/templates/pages/help.html:836
 msgid "A file with the exact same content exists"
 msgstr "அதே உள்ளடக்கத்துடன் கூடிய கோப்பு உள்ளது"
 
-#: warehouse/templates/pages/help.html:838
+#: warehouse/templates/pages/help.html:839
 msgid ""
 "PyPI does not allow for a filename to be reused, even once a project has "
 "been deleted and recreated."
@@ -9936,7 +10013,7 @@ msgstr ""
 "ஒரு திட்டம் நீக்கப்பட்டு மீண்டும் உருவாக்கப்பட்டதும் கூட, ஒரு கோப்பு பெயரை மீண்டும் பயன்படுத்த "
 "பைபி அனுமதிக்காது."
 
-#: warehouse/templates/pages/help.html:844
+#: warehouse/templates/pages/help.html:845
 msgid ""
 "A distribution filename on PyPI consists of the combination of project name, "
 "version number, and distribution type."
@@ -9944,7 +10021,7 @@ msgstr ""
 "PYPI இல் ஒரு விநியோக கோப்பு பெயர் திட்ட பெயர், பதிப்பு எண் மற்றும் விநியோக வகை "
 "ஆகியவற்றின் கலவையைக் கொண்டுள்ளது."
 
-#: warehouse/templates/pages/help.html:850
+#: warehouse/templates/pages/help.html:851
 msgid ""
 "This ensures that a given distribution for a given release for a given "
 "project will always resolve to the same file, and cannot be surreptitiously "
@@ -9955,7 +10032,7 @@ msgstr ""
 "கோப்பைத் தீர்க்கும் என்பதை இது உறுதி செய்கிறது, மேலும் திட்டங்கள் பராமரிப்பாளர் அல்லது "
 "தீங்கிழைக்கும் கட்சியால் ஒரு நாள் மறைமுகமாக மாற்ற முடியாது (அதை அகற்ற முடியும்)."
 
-#: warehouse/templates/pages/help.html:858
+#: warehouse/templates/pages/help.html:859
 msgid ""
 "To avoid this situation in most cases, you will need to change the version "
 "number to one that you haven't previously uploaded to PyPI, rebuild the "
@@ -9965,7 +10042,7 @@ msgstr ""
 "பதிப்பு எண்ணை மாற்ற வேண்டும், விநியோகத்தை மீண்டும் கட்டியெழுப்பவும், பின்னர் புதிய "
 "விநியோகத்தை பதிவேற்றவும் வேண்டும்."
 
-#: warehouse/templates/pages/help.html:867
+#: warehouse/templates/pages/help.html:868
 #, python-format
 msgid ""
 "If you would like to request a new trove classifier file a pull request on "
@@ -9977,7 +10054,7 @@ msgstr ""
 "\"noopener\"> <குறியீடு> PYPA/TROVE- கிளாசிஃபையர்கள் </code> திட்டம் </a>. இது ஏன் "
 "முக்கியமானது என்பதற்கான சுருக்கமான நியாயத்தை சேர்க்க மறக்காதீர்கள்."
 
-#: warehouse/templates/pages/help.html:875
+#: warehouse/templates/pages/help.html:876
 #, python-format
 msgid ""
 "If you're experiencing an issue with PyPI itself, we welcome "
@@ -9994,7 +10071,7 @@ msgstr ""
 "மட்டுமே என்பதை நினைவில் கொள்க. ஒரு புதிய சிக்கலை எழுதுவதற்கு முன், இதேபோன்ற சிக்கல் "
 "ஏற்கனவே இல்லை என்பதை முதலில் சரிபார்க்கவும்."
 
-#: warehouse/templates/pages/help.html:882
+#: warehouse/templates/pages/help.html:883
 msgid ""
 "If you are having an issue is with a specific package installed from PyPI, "
 "you should reach out to the maintainers of that project directly instead."
@@ -10002,7 +10079,7 @@ msgstr ""
 "PYPI இலிருந்து நிறுவப்பட்ட ஒரு குறிப்பிட்ட தொகுப்புடன் உங்களுக்கு சிக்கல் இருந்தால், "
 "அதற்கு பதிலாக அந்த திட்டத்தின் பராமரிப்பாளர்களை நீங்கள் அணுக வேண்டும்."
 
-#: warehouse/templates/pages/help.html:887
+#: warehouse/templates/pages/help.html:888
 msgid ""
 "If you are having issues while setting up a <abbr title=\"time-based one-"
 "time password\">TOTP</abbr> device, it may be because your device time is "
@@ -10014,7 +10091,7 @@ msgstr ""
 "அப்பாற்பட்டதாக இருக்கலாம். உங்கள் சாதனத்தின் நேரம் தானாகவே அமைக்கப்பட்டுள்ளதா என்பதைச் "
 "சரிபார்க்கவும், மீண்டும் சாதனத்தை அமைக்க முயற்சிக்கவும்."
 
-#: warehouse/templates/pages/help.html:894
+#: warehouse/templates/pages/help.html:895
 #, fuzzy, python-format
 #| msgid ""
 #| "Projects may get placed in quarantine for any number of reasons, such as "
@@ -10035,7 +10112,7 @@ msgstr ""
 "வெற்று\" rel = \"noopener\"> ஏற்றுக்கொள்ளக்கூடிய பயன்பாட்டுக் கொள்கை </a> ஐப் "
 "பயன்படுத்தவும்."
 
-#: warehouse/templates/pages/help.html:903
+#: warehouse/templates/pages/help.html:904
 msgid ""
 "While in quarantine, the project is not installable by clients, and cannot "
 "be being modified by its maintainers. PyPI Administrators will need to "
@@ -10045,7 +10122,7 @@ msgstr ""
 "அதன் பராமரிப்பாளர்களால் மாற்றப்பட முடியாது. PYPI நிர்வாகிகள் இந்த திட்டத்தை "
 "மீட்டெடுப்பதற்கு முன்பு அதை மதிப்பாய்வு செய்ய வேண்டும்."
 
-#: warehouse/templates/pages/help.html:910
+#: warehouse/templates/pages/help.html:911
 #, python-format
 msgid ""
 "If you believe your project has mistakenly been flagged for quarantine, "
@@ -10056,7 +10133,7 @@ msgstr ""
 "விவரங்களுடனும் <a href = \"%(mailto)s\"> security@pypi.org </a> வழியாக பைபியை "
 "தொடர்பு கொள்ளவும்."
 
-#: warehouse/templates/pages/help.html:923
+#: warehouse/templates/pages/help.html:924
 #, python-format
 msgid ""
 "PyPI is powered by the Warehouse project; <a href=\"%(href)s\" "
@@ -10070,7 +10147,7 @@ msgstr ""
 "பைதான் பேக்கேசிங் அதிகாரத்தின் குடையின் கீழ் உருவாக்கப்பட்ட ஒரு திறந்த மூல திட்டமாகும் "
 "(PYPA) மற்றும் பைதான் பேக்கேசிங் பணிக்குழு (பேக்கேசிங் டபிள்யூசி) ஆதரிக்கிறது."
 
-#: warehouse/templates/pages/help.html:928
+#: warehouse/templates/pages/help.html:929
 #, python-format
 msgid ""
 "The <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -10082,7 +10159,7 @@ msgstr ""
 "\"noopener\"> பைபா </a> என்பது டெவலப்பர்களின் சுயாதீனமான குழு பைதான் பேக்கேசிங் "
 "தொடர்பான பல முக்கிய திட்டங்கள்."
 
-#: warehouse/templates/pages/help.html:933
+#: warehouse/templates/pages/help.html:934
 #, python-format
 msgid ""
 "The <a href=\"%(packaging_wg_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -10101,7 +10178,7 @@ msgstr ""
 "தொழில்நுட்ப நிதியிலிருந்து ஒரு விருதைப் பெற்றது </a> யாருடைய பொருள் "
 "செயல்படுத்தப்படுகிறது கிடங்கின் பாதுகாப்பு மற்றும் அணுகலை மேம்படுத்த உருவாக்குபவர்கள்."
 
-#: warehouse/templates/pages/help.html:943
+#: warehouse/templates/pages/help.html:944
 #, python-format
 msgid ""
 "PyPI is powered by <a href=\"%(warehouse_href)s\" title=\"%(title)s\" "
@@ -10114,7 +10191,7 @@ msgstr ""
 "சேவைகளால் இயக்கப்படுகிறது எங்கள் <a href = \"%(sponsors_href)s\"> தாராளமான "
 "ஒப்புரவாளர்கள் </a>."
 
-#: warehouse/templates/pages/help.html:950
+#: warehouse/templates/pages/help.html:951
 msgid ""
 "As of April 16, 2018, PyPI.org is at \"production\" status, meaning that it "
 "has moved out of beta and replaced the old site (pypi.python.org). It is now "
@@ -10125,7 +10202,7 @@ msgstr ""
 "வலுவானது, சோதிக்கப்பட்டது மற்றும் எதிர்பார்க்கப்படும் உலாவி மற்றும் பநிஇ போக்குவரத்திற்கு "
 "தயாராக உள்ளது."
 
-#: warehouse/templates/pages/help.html:952
+#: warehouse/templates/pages/help.html:953
 #, python-format
 msgid ""
 "PyPI is heavily cached and distributed via <abbr title=\"content delivery "
@@ -10154,7 +10231,7 @@ msgstr ""
 "= \"%(title)s\"> கண்ணாடி </a> அல்லது ஒரு <a href = \"%(mirror_href)s\"> தனியார் "
 "குறியீட்டு </a ஐக் கவனியுங்கள் >."
 
-#: warehouse/templates/pages/help.html:966
+#: warehouse/templates/pages/help.html:967
 #, python-format
 msgid ""
 "We have a huge amount of work to do to continue to maintain and improve PyPI "
@@ -10165,11 +10242,11 @@ msgstr ""
 "(<a href = \"%(href)s\" தலைப்பு = \"%(title)s\" இலக்கு = \"_ வெற்று\" rel = "
 "\"noopener\" > கிடங்கு திட்டம் </a>)."
 
-#: warehouse/templates/pages/help.html:971
+#: warehouse/templates/pages/help.html:972
 msgid "Financial:"
 msgstr "நிதி:"
 
-#: warehouse/templates/pages/help.html:971
+#: warehouse/templates/pages/help.html:972
 #, python-format
 msgid ""
 "We would deeply appreciate <a href=\"%(href)s\">your donations to fund "
@@ -10178,11 +10255,11 @@ msgstr ""
 "மேம்பாடு மற்றும் பராமரிப்புக்கு நிதியளிப்பதற்கான உங்கள் நன்கொடைகளை </a> </a> க்கு <ஒரு "
 "href = \"%(href)s\"> நாங்கள் ஆழமாக பாராட்டுகிறோம்."
 
-#: warehouse/templates/pages/help.html:972
+#: warehouse/templates/pages/help.html:973
 msgid "Development:"
 msgstr "வளர்ச்சி:"
 
-#: warehouse/templates/pages/help.html:972
+#: warehouse/templates/pages/help.html:973
 msgid ""
 "Warehouse is open source, and we would love to see some new faces working on "
 "the project. You <strong>do not</strong> need to be an experienced open-"
@@ -10194,7 +10271,7 @@ msgstr ""
 "டெவலப்பராக இருக்க வேண்டும்-உண்மையில், உங்கள் முதல் திறந்த மூல இழுக்கும் கோரிக்கையை "
 "உருவாக்க உங்களுக்கு உதவ நாங்கள் விரும்புகிறோம்!"
 
-#: warehouse/templates/pages/help.html:974
+#: warehouse/templates/pages/help.html:975
 #, python-format
 msgid ""
 "If you have skills in Python, Full-Text Search, HTML, SCSS, JavaScript, or "
@@ -10215,7 +10292,7 @@ msgstr ""
 "\"%(good_first_issue_href)s\" இலக்கு = \"_ வெற்று\" rel = \"noopener\"> 'நல்ல "
 "முதல் வெளியீடு' </a> சிட்டை - நாங்கள் உங்களுக்கு பரிந்துரைக்கிறோம் இங்கே தொடங்கவும்."
 
-#: warehouse/templates/pages/help.html:982
+#: warehouse/templates/pages/help.html:983
 #, python-format
 msgid ""
 "Issues are grouped into <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -10230,11 +10307,11 @@ msgstr ""
 "நீங்கள் ஆர்வமாக இருந்தால், ஒரு கருத்தை இடுங்கள், பங்களிப்பு செயல்முறையின் மூலம் நாங்கள் "
 "உங்களுக்கு வழிகாட்ட முடியும்."
 
-#: warehouse/templates/pages/help.html:989
+#: warehouse/templates/pages/help.html:990
 msgid "Stay updated:"
 msgstr "புதுப்பிக்கப்பட்டு:"
 
-#: warehouse/templates/pages/help.html:990
+#: warehouse/templates/pages/help.html:991
 #, python-format
 msgid ""
 "You can also follow the ongoing development of the project on the <a "
@@ -10245,7 +10322,7 @@ msgstr ""
 "வெற்று\" ரெல் = \"நூபனர்\"> சொற்பொழிவு குறித்த பைதான் பேக்கேசிங் மன்றம் </ இல் திட்டத்தின் "
 "தற்போதைய வளர்ச்சியையும் நீங்கள் பின்பற்றலாம் a>."
 
-#: warehouse/templates/pages/help.html:999
+#: warehouse/templates/pages/help.html:1000
 #, python-format
 msgid ""
 "Changes to PyPI are generally announced on both the <a "
@@ -10263,7 +10340,7 @@ msgstr ""
 "வலைப்பதிவு </a>. PYPI வலைப்பதிவில் <a href = \"%(rss_href)s\" தலைப்பு = "
 "\"%(title)s\" இலக்கு = \"_ வெற்று\" rel = \"noopener\"> rss </a> ஊட்டமும் உள்ளது."
 
-#: warehouse/templates/pages/help.html:1008
+#: warehouse/templates/pages/help.html:1009
 #, python-format
 msgid ""
 "All traffic is routed through our global CDN, which lists their public IP "
@@ -10273,7 +10350,7 @@ msgstr ""
 "அவர்களின் பொது ஐபி முகவரிகளை இங்கே பட்டியலிடுகிறது: <a href = "
 "\"%(href)s\">%(href)s </a>."
 
-#: warehouse/templates/pages/help.html:1009
+#: warehouse/templates/pages/help.html:1010
 #, python-format
 msgid ""
 "More information about this list can be found here: <a "
@@ -10282,7 +10359,7 @@ msgstr ""
 "இந்த பட்டியலைப் பற்றிய கூடுதல் தகவல்களை இங்கே காணலாம்: <a href = "
 "\"%(href)s\">%(href)s </a>."
 
-#: warehouse/templates/pages/help.html:1013
+#: warehouse/templates/pages/help.html:1014
 msgid ""
 "When Warehouse's maintainers are deploying new features, at first we mark "
 "them with a small \"beta feature\" symbol to tell you: this should probably "
@@ -10293,11 +10370,11 @@ msgstr ""
 "வேலை செய்ய வேண்டும், ஆனால் இது மற்ற தள செயல்பாடுகளை விட புதியது மற்றும் குறைவாக "
 "சோதிக்கப்படுகிறது."
 
-#: warehouse/templates/pages/help.html:1014
+#: warehouse/templates/pages/help.html:1015
 msgid "Currently, no features are in beta."
 msgstr "தற்போது, எந்த அம்சங்களும் பீட்டாவில் இல்லை."
 
-#: warehouse/templates/pages/help.html:1018
+#: warehouse/templates/pages/help.html:1019
 #, python-format
 msgid ""
 "\"PyPI\" should be pronounced like \"pie pea eye\", specifically with the "
@@ -10311,39 +10388,39 @@ msgstr ""
 "தலைப்பு = \"%(title)s\"> பைபி </a> திட்டத்துடன் குழப்பத்தை குறைக்கிறது, இது பைத்தான் "
 "மொழியின் பிரபலமான மாற்று செயல்படுத்தலாகும்."
 
-#: warehouse/templates/pages/help.html:1030
+#: warehouse/templates/pages/help.html:1031
 msgid "Resources"
 msgstr "வளங்கள்"
 
-#: warehouse/templates/pages/help.html:1031
+#: warehouse/templates/pages/help.html:1032
 msgid "Looking for something else? Perhaps these links will help:"
 msgstr "வேறு ஏதாவது தேடுகிறீர்களா? ஒருவேளை இந்த இணைப்புகள் உதவும்:"
 
-#: warehouse/templates/pages/help.html:1033
+#: warehouse/templates/pages/help.html:1034
 msgid "Python Packaging User Guide"
 msgstr "பைதான் பேக்கேசிங் பயனர் கையேடு"
 
-#: warehouse/templates/pages/help.html:1034
+#: warehouse/templates/pages/help.html:1035
 msgid "Python documentation"
 msgstr "பைதான் ஆவணம்"
 
-#: warehouse/templates/pages/help.html:1035
+#: warehouse/templates/pages/help.html:1036
 msgid "(main Python website)"
 msgstr "(பிரதான பைதான் வலைத்தளம்)"
 
-#: warehouse/templates/pages/help.html:1036
+#: warehouse/templates/pages/help.html:1037
 msgid "Python community page"
 msgstr "பைதான் சமூக பக்கம்"
 
-#: warehouse/templates/pages/help.html:1036
+#: warehouse/templates/pages/help.html:1037
 msgid "(lists IRC channels, mailing lists, etc.)"
 msgstr "(ஐ.ஆர்.சி சேனல்கள், அஞ்சல் பட்டியல்கள் போன்றவை பட்டியலிடுகின்றன)"
 
-#: warehouse/templates/pages/help.html:1039
+#: warehouse/templates/pages/help.html:1040
 msgid "Contact"
 msgstr "தொடர்பு"
 
-#: warehouse/templates/pages/help.html:1041
+#: warehouse/templates/pages/help.html:1042
 #, python-format
 msgid ""
 "The <a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -10884,6 +10961,9 @@ msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "'%(filters)s' வடிப்பானுக்கு எந்த முடிவுகளும் இல்லை"
 msgstr[1] "'%(filters)s' வடிப்பான்களுக்கு எந்த முடிவுகளும் இல்லை"
+
+#~ msgid "View Python Status on Twitter"
+#~ msgstr "ட்விட்டரில் பைதான் நிலையைப் பார்க்கவும்"
 
 #, python-format
 #~ msgid "You are receiving this because you are a %(site)s administrator."
