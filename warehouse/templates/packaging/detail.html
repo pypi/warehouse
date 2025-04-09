@@ -258,9 +258,11 @@
         {% include "warehouse:templates/includes/packaging/project-data.html" %}
         {% set include_sponsor_logos = project.organization.orgtype != OrganizationType.Company %}
         {% include "warehouse:templates/includes/sidebar-sponsor-logo.html" %}
-        {% csi request.route_url("includes.submit_malware_report", project_name=project.name) %}
-        {% endcsi %}
-
+        <div class="sidebar-section">
+          <a class="button button--full-width button--warning"
+             href="{{ request.route_url("packaging.project.submit_malware_observation", name=project.name) }}"
+             role="button">{% trans %}Report project as malware{% endtrans %}</a>
+        </div>
       </div>
       <div class="vertical-tabs__panel">
         <!-- mobile menu -->
