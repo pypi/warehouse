@@ -27,6 +27,7 @@ from warehouse.accounts.forms import (
 )
 from warehouse.i18n import localize as _
 from warehouse.organizations.models import (
+    OrganizationMembershipSize,
     OrganizationRoleType,
     OrganizationType,
     TeamProjectRoleType,
@@ -635,6 +636,7 @@ class SaveOrganizationForm(wtforms.Form):
     )
     orgtype = wtforms.SelectField(
         choices=[("Company", "Company"), ("Community", "Community")],
+        default=None,
         coerce=OrganizationType,
         validators=[
             wtforms.validators.InputRequired(message="Select organization type"),
@@ -646,6 +648,35 @@ class CreateOrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationF
     __params__ = ["name"] + SaveOrganizationForm.__params__
 
     _max_apps = wtforms.IntegerField()
+
+    membership_size = wtforms.SelectField(
+        choices=[(size.value, size.value) for size in OrganizationMembershipSize],
+        default=None,
+        coerce=OrganizationMembershipSize,
+        validators=[
+            wtforms.validators.InputRequired(
+                message="Select organization membership size"
+            ),
+        ],
+    )
+
+    usage = wtforms.TextAreaField(
+        validators=[
+            wtforms.validators.Length(
+                min=32,
+                message=(
+                    "Tell us a little more about how you plan to use PyPI Organizations"
+                ),
+            ),
+            wtforms.validators.Length(
+                max=1024,
+                message=_(
+                    "We don't need to know quite that much :), "
+                    "limit your usage description to 1024 characters or less."
+                ),
+            ),
+        ]
+    )
 
     def __init__(
         self, *args, organization_service, user, max_applications=None, **kwargs

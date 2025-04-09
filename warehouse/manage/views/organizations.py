@@ -192,7 +192,11 @@ class ManageOrganizationsViews:
                     [
                         app
                         for app in self.request.user.organization_applications
-                        if app.status != OrganizationApplicationStatus.Approved
+                        if app.status
+                        not in (
+                            OrganizationApplicationStatus.Approved,
+                            OrganizationApplicationStatus.Declined,
+                        )
                     ]
                 )
                 < self.request.registry.settings[

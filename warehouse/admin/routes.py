@@ -88,6 +88,13 @@ def includeme(config):
         traverse="/{username}",
     )
     config.add_route(
+        "admin.user.email_domain_check",
+        "/admin/users/{username}/email_domain_check/",
+        factory="warehouse.accounts.models:UserFactory",
+        domain=warehouse,
+        traverse="/{username}",
+    )
+    config.add_route(
         "admin.user.delete",
         "/admin/users/{username}/delete/",
         domain=warehouse,

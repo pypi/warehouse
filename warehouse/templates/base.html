@@ -148,6 +148,7 @@
     {% if request.registry.settings.get("ga4.tracking_id") -%}
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ request.registry.settings['ga4.tracking_id'] }}"></script>
     {% endif -%}
+    <script defer data-domain="pypi.org" src="https://analytics.python.org/js/script.js"></script>
     <script defer src="https://www.fastly-insights.com/insights.js?k=6a52360a-f306-421e-8ed5-7417d0d4a4e9&dnt=true"></script>
     <script async
         src="https://media.ethicalads.io/media/client/v1.4.0/ethicalads.min.js"
