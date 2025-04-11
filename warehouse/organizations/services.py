@@ -326,6 +326,10 @@ class DatabaseOrganizationService:
                 )
                 .one()
             )
+            if catalog_entry.organization_id != organization.id:
+                raise ValueError(
+                    f'Organization name "{organization.normalized_name}" has been used'
+                )
         except NoResultFound:
             self.db.add(catalog_entry)
 

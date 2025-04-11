@@ -152,6 +152,7 @@ class TestOrganization:
                 (
                     Permissions.AdminOrganizationsRead,
                     Permissions.AdminOrganizationsWrite,
+                    Permissions.AdminOrganizationsNameWrite,
                 ),
             ),
             (Allow, "group:moderators", Permissions.AdminOrganizationsRead),
@@ -369,6 +370,7 @@ class TestTeam:
                 (
                     Permissions.AdminOrganizationsRead,
                     Permissions.AdminOrganizationsWrite,
+                    Permissions.AdminOrganizationsNameWrite,
                 ),
             ),
             (Allow, "group:moderators", Permissions.AdminOrganizationsRead),

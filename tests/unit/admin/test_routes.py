@@ -35,6 +35,11 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            "admin.organization.rename",
+            "/admin/organizations/{organization_id}/rename/",
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.organization_application.list",
             "/admin/organization_applications/",
             domain=warehouse,

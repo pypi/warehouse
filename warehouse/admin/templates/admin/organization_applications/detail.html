@@ -149,19 +149,7 @@
                     <div class="modal-body">
                       <p>
                         This will approve <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>'s request for a new organization named <strong>{{ organization_application.name }}</strong>
-                        <button type="button" class="copy-text" data-copy-text="{{ organization_application.name }}">
-                          <i class="fa fa-copy" aria-hidden="true"></i>
-                        </button>.
                       </p>
-                      <div class="form-group">
-                        <label for="approveModalOrganizationName">
-                          Organization Name
-                        </label>
-                        <input type="text" id="approveModalOrganizationName" class="form-control" aria-describedby="approveModalOrganizationNameHelpBlock" name="organization_name" placeholder="{{ organization_application.name }}" required>
-                        <span id="approveModalOrganizationNameHelpBlock">
-                          Type the organization name "{{ organization_application.name }}" to confirm you are <strong>approving</strong> the request.
-                        </span>
-                      </div>
                       <div class="form-group">
                         <label for="approveModalMessage">
                           Message
@@ -280,19 +268,7 @@
                     <div class="modal-body">
                       <p>
                         This will decline <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>'s request for a new organization named <strong>{{ organization_application.name }}</strong>.
-                        <button type="button" class="copy-text" data-copy-text="{{ organization_application.name }}">
-                          <i class="fa fa-copy" aria-hidden="true"></i>
-                        </button>.
                       </p>
-                      <div class="form-group">
-                        <label for="declineModalOrganizationName">
-                          Organization Name
-                        </label>
-                        <input type="text" id="declineModalOrganizationName" class="form-control" aria-describedby="declineModalOrganizationNameHelpBlock" name="organization_name" placeholder="{{ organization_application.name }}" required>
-                        <span id="declineModalOrganizationNameHelpBlock">
-                          Type the organization name "{{ organization_application.name }}" to confirm you are <strong>declining</strong> the request.
-                        </span>
-                      </div>
                       <div class="form-group">
                         <label for="declineModalMessage">
                           Message
