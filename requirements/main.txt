@@ -201,9 +201,9 @@ cbor2==5.6.5 \
     --hash=sha256:fde21ac1cf29336a31615a2c469a9cb03cf0add3ae480672d4d38cda467d07fc \
     --hash=sha256:fe11c2eb518c882cfbeed456e7a552e544893c17db66fe5d3230dbeaca6b615c
     # via webauthn
-celery[redis]==5.4.0 \
-    --hash=sha256:369631eb580cf8c51a82721ec538684994f8277637edde2dfc0dacd73ed97f64 \
-    --hash=sha256:504a19140e8d3029d5acad88330c541d4c3f64c789d85f94756762d8bca7e706
+celery[redis]==5.5.1 \
+    --hash=sha256:2af9109a10fe28155044f4c387ce0e5e7f1fc89f9584cfb4b0df94f99a5fedc7 \
+    --hash=sha256:9f4f9e57e36000c097c1b6f7a8ab29814b82771e5439836f83915823809729c8
     # via
     #   -r requirements/main.in
     #   celery-redbeat
@@ -2307,9 +2307,7 @@ typing-extensions==4.13.2 \
 tzdata==2025.2 \
     --hash=sha256:1a403fada01ff9221ca8044d701868fa132215d84beb92242d9acd2147f667a8 \
     --hash=sha256:b60a638fcc0daffadf82fe0f57e53d06bdec2f36c4df66280ae79bce6bd6f2b9
-    # via
-    #   celery
-    #   kombu
+    # via kombu
 ua-parser==1.0.1 \
     --hash=sha256:b059f2cb0935addea7e551251cbbf42e9a8872f86134163bc1a4f79e0945ffea \
     --hash=sha256:f9d92bf19d4329019cef91707aecc23c6d65143ad7e29a233f0580fb0d15547d
