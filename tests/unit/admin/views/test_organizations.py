@@ -328,6 +328,73 @@ class TestOrganizationDetail:
             views.organization_detail(request)
 
 
+class TestOrganizationActions:
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_rename_not_found(self, db_request):
+        admin = UserFactory.create()
+
+        db_request.matchdict = {
+            "organization_id": "deadbeef-dead-beef-dead-beefdeadbeef"
+        }
+        db_request.params = {
+            "new_organization_name": "widget",
+        }
+        db_request.user = admin
+        db_request.route_path = pretend.call_recorder(_organization_application_routes)
+
+        with pytest.raises(HTTPNotFound):
+            views.organization_rename(db_request)
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_rename(self, db_request):
+        admin = UserFactory.create()
+        organization = OrganizationFactory.create(name="example")
+
+        db_request.matchdict = {"organization_id": organization.id}
+        db_request.params = {
+            "new_organization_name": "widget",
+        }
+        db_request.user = admin
+        db_request.route_path = pretend.call_recorder(_organization_application_routes)
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+
+        result = views.organization_rename(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                '"example" organization renamed "widget"',
+                queue="success",
+            ),
+        ]
+        assert result.status_code == 303
+        assert result.location == f"/admin/organizations/{organization.id}/"
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_rename_fails_on_conflict(self, db_request):
+        admin = UserFactory.create()
+        organization = OrganizationFactory.create(name="widget")
+        organization = OrganizationFactory.create(name="example")
+
+        db_request.matchdict = {"organization_id": organization.id}
+        db_request.params = {
+            "new_organization_name": "widget",
+        }
+        db_request.user = admin
+        db_request.route_path = pretend.call_recorder(_organization_application_routes)
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+
+        result = views.organization_rename(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                'Organization name "widget" has been used',
+                queue="error",
+            ),
+        ]
+        assert result.status_code == 303
+        assert result.location == f"/admin/organizations/{organization.id}/"
+
+
 class TestOrganizationApplicationList:
     @pytest.mark.usefixtures("_enable_organizations")
     def test_no_query(self, db_request):
@@ -688,7 +755,7 @@ def _organization_application_routes(
         raise ValueError("No dummy route found")
 
 
-class TestActions:
+class TestOrganizationApplicationActions:
     @pytest.mark.usefixtures("_enable_organizations")
     def test_approve(self, db_request):
         admin = UserFactory.create()

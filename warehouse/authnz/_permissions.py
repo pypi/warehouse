@@ -59,6 +59,7 @@ class Permissions(StrEnum):
 
     AdminOrganizationsRead = "admin:organizations:read"
     AdminOrganizationsWrite = "admin:organizations:write"
+    AdminOrganizationsNameWrite = "admin:organizations:name:write"
 
     AdminProhibitedEmailDomainsRead = "admin:prohibited-email-domains:read"
     AdminProhibitedEmailDomainsWrite = "admin:prohibited-email-domains:write"
