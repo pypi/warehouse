@@ -785,48 +785,6 @@ class TestActions:
         assert result.location == "/admin/"
 
     @pytest.mark.usefixtures("_enable_organizations")
-    def test_approve_wrong_confirmation_input(self, db_request):
-        admin = UserFactory.create()
-        user = UserFactory.create()
-        organization_application = OrganizationApplicationFactory.create(
-            name="example", submitted_by=user
-        )
-        organization = OrganizationFactory.create(name="example")
-
-        organization_service = pretend.stub(
-            get_organization_application=lambda *a, **kw: organization_application,
-            approve_organization_application=pretend.call_recorder(
-                lambda *a, **kw: organization
-            ),
-        )
-
-        db_request.matchdict = {
-            "organization_application_id": organization_application.id
-        }
-        db_request.params = {"organization_name": "incorrect", "message": "Welcome!"}
-        db_request.user = admin
-        db_request.route_path = pretend.call_recorder(_organization_application_routes)
-        db_request.find_service = pretend.call_recorder(
-            lambda iface, context: organization_service
-        )
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-
-        result = views.organization_application_approve(db_request)
-
-        assert organization_service.approve_organization_application.calls == []
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "Wrong confirmation input",
-                queue="error",
-            ),
-        ]
-        assert result.status_code == 303
-        assert (
-            result.location
-            == f"/admin/organization_applications/{organization_application.id}/"
-        )
-
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_approve_not_found(self):
         organization_service = pretend.stub(
             get_organization_application=lambda *a, **kw: None,
@@ -1135,43 +1093,6 @@ class TestActions:
                 f'Request for "{organization_application.name}" organization declined',
                 queue="success",
             ),
-        ]
-        assert result.status_code == 303
-        assert (
-            result.location
-            == f"/admin/organization_applications/{organization_application.id}/"
-        )
-
-    @pytest.mark.usefixtures("_enable_organizations")
-    def test_decline_wrong_confirmation_input(self, db_request):
-        admin = UserFactory.create()
-        user = UserFactory.create()
-        organization_application = OrganizationApplicationFactory.create(
-            name="example", submitted_by=user
-        )
-
-        organization_service = pretend.stub(
-            get_organization_application=lambda *a, **kw: organization_application,
-            decline_organization_application=pretend.call_recorder(
-                lambda *a, **kw: organization_application
-            ),
-        )
-
-        db_request.matchdict = {
-            "organization_application_id": organization_application.id
-        }
-        db_request.params = {"organization_name": "incorrect", "message": "Welcome!"}
-        db_request.user = admin
-        db_request.route_path = pretend.call_recorder(_organization_application_routes)
-        db_request.find_service = pretend.call_recorder(
-            lambda iface, context: organization_service
-        )
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
-
-        result = views.organization_application_decline(db_request)
-
-        assert db_request.session.flash.calls == [
-            pretend.call("Wrong confirmation input", queue="error"),
         ]
         assert result.status_code == 303
         assert (

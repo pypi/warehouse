@@ -358,14 +358,6 @@ def organization_application_approve(request):
     )
     if organization_application is None:
         raise HTTPNotFound
-    elif organization_application.name != request.params.get("organization_name"):
-        request.session.flash("Wrong confirmation input", queue="error")
-        return HTTPSeeOther(
-            request.route_path(
-                "admin.organization_application.detail",
-                organization_application_id=organization_application.id,
-            )
-        )
 
     organization = organization_service.approve_organization_application(
         organization_application.id, request
@@ -477,14 +469,6 @@ def organization_application_decline(request):
     )
     if organization_application is None:
         raise HTTPNotFound
-    elif organization_application.name != request.params.get("organization_name"):
-        request.session.flash("Wrong confirmation input", queue="error")
-        return HTTPSeeOther(
-            request.route_path(
-                "admin.organization_application.detail",
-                organization_application_id=organization_application.id,
-            )
-        )
 
     organization_service.decline_organization_application(
         organization_application.id, request
