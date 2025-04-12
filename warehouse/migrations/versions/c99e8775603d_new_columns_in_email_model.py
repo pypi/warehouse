@@ -17,7 +17,6 @@ Create Date: 2025-04-12 18:45:40.713109
 
 """
 from collections.abc import Sequence
-from typing import Union
 
 import sqlalchemy as sa
 
@@ -40,7 +39,7 @@ def upgrade() -> None:
     # Populate data
     op.execute(
         """
-        UPDATE user_emails 
+        UPDATE user_emails
         SET normalized_email = LOWER(email),
             domain = LOWER(SPLIT_PART(email, '@', 2))
     """
