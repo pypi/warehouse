@@ -61,6 +61,7 @@ from warehouse.accounts.models import (
     UserTermsOfServiceEngagement,
     WebAuthn,
 )
+from warehouse.filters import get_normalized_email, get_email_domain
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
@@ -300,8 +301,12 @@ class DatabaseUserService:
         if primary is None:
             primary = True if user.primary_email is None else False
 
+        normalized_email = get_normalized_email(email_address)
+        domain = get_email_domain(email_address)
         email = Email(
             email=email_address,
+            normalized_email=normalized_email,
+            domain=domain,
             user=user,
             primary=primary,
             verified=verified,

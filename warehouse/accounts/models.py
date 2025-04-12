@@ -416,6 +416,8 @@ class Email(db.ModelBase):
     )
     user: Mapped[User] = orm.relationship(back_populates="emails")
     email: Mapped[str] = mapped_column(String(length=254))
+    normalized_email: Mapped[CITEXT] = mapped_column(CITEXT)
+    domain: Mapped[CITEXT] = mapped_column(CITEXT)
     primary: Mapped[bool]
     verified: Mapped[bool]
     public: Mapped[bool_false]
@@ -432,10 +434,6 @@ class Email(db.ModelBase):
         ARRAY(String),
         comment="Status strings returned by the domain validation service.",
     )
-
-    @property
-    def domain(self):
-        return self.email.split("@")[-1].lower()
 
 
 class ProhibitedEmailDomain(db.Model):

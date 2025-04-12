@@ -763,7 +763,7 @@ def register(request, _form_class=RegistrationForm):
             request.registry.settings.get("terms.revision"),
             TermsOfServiceEngagement.Agreed,
         )
-        email = user_service.add_email(user.id, form.email.data, primary=True)
+        email = user_service.add_email(user.id, form.email.data, primary=True, ratelimit=False)
         user.record_event(
             tag=EventTag.Account.AccountCreate,
             request=request,

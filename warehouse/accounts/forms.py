@@ -37,6 +37,7 @@ from warehouse.accounts.interfaces import (
     NoRecoveryCodes,
     TooManyFailedLogins,
 )
+from warehouse.filters import get_normalized_email
 from warehouse.accounts.models import DisableReason, ProhibitedEmailDomain
 from warehouse.accounts.services import RECOVERY_CODE_BYTES
 from warehouse.captcha import recaptcha
@@ -346,7 +347,7 @@ class NewEmailMixin:
             )
 
         # Check if this email address is already in use
-        userid = self.user_service.find_userid_by_email(field.data)
+        userid = self.user_service.find_userid_by_email(get_normalized_email(field.data))
 
         if userid and userid == self.user_id:
             self.request.metrics.increment(
