@@ -45,6 +45,7 @@ from warehouse.email import (
     send_account_recovery_initiated_email,
     send_password_reset_by_admin_email,
 )
+from warehouse.filters import get_email_domain, get_normalized_email
 from warehouse.observations.models import ObservationKind
 from warehouse.packaging.models import JournalEntry, Project, Release, Role
 from warehouse.utils.paginate import paginate_url_factory
@@ -101,6 +102,8 @@ class EmailForm(wtforms.Form):
     unverify_reason = wtforms.fields.StringField(render_kw={"readonly": True})
     domain_last_checked = wtforms.fields.DateTimeField(render_kw={"readonly": True})
     domain_last_status = wtforms.fields.StringField(render_kw={"readonly": True})
+    normalized_email = wtforms.fields.StringField(render_kw={"readonly": True})
+    domain = wtforms.fields.StringField(render_kw={"readonly": True})
 
 
 class EmailsForm(wtforms.Form):
@@ -288,6 +291,8 @@ def user_add_email(user, request):
 
         email = Email(
             email=form.email.data,
+            normalized_email=get_normalized_email(form.email.data),
+            domain=get_email_domain(form.email.data),
             user=user,
             primary=form.primary.data,
             verified=form.verified.data,

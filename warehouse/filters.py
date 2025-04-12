@@ -192,6 +192,7 @@ def format_email(metadata_email: str) -> tuple[str, str]:
         emails.append((name, email))
     return emails[0][0], emails[0][1]
 
+
 def get_normalized_email(email: str) -> str:
     """
     Normalize the email address by lowercasing it and stripping whitespace.
@@ -207,6 +208,7 @@ def get_email_domain(email: str) -> str:
         return email.split("@")[1].lower()
     except IndexError:
         return ""
+
 
 def remove_invalid_xml_unicode(value: str | None) -> str | None:
     """

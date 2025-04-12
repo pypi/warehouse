@@ -16,40 +16,43 @@ Revises: 4f8982e60deb
 Create Date: 2025-04-12 18:45:40.713109
 
 """
-from typing import Sequence, Union
+from collections.abc import Sequence
+from typing import Union
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 from sqlalchemy.dialects.postgresql import CITEXT
 
 # revision identifiers, used by Alembic.
 revision = "c99e8775603d"
 down_revision = "4f8982e60deb"
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
     """Upgrade schema."""
     # Add columns
-    op.add_column('user_emails', sa.Column('normalized_email', CITEXT()))
-    op.add_column('user_emails', sa.Column('domain', CITEXT()))
+    op.add_column("user_emails", sa.Column("normalized_email", CITEXT()))
+    op.add_column("user_emails", sa.Column("domain", CITEXT()))
 
     # Populate data
-    op.execute("""
+    op.execute(
+        """
         UPDATE user_emails 
         SET normalized_email = LOWER(email),
             domain = LOWER(SPLIT_PART(email, '@', 2))
-    """)
+    """
+    )
 
     # Add constraints
-    op.alter_column('user_emails', 'normalized_email', nullable=False)
-    op.alter_column('user_emails', 'domain', nullable=False)
+    op.alter_column("user_emails", "normalized_email", nullable=False)
+    op.alter_column("user_emails", "domain", nullable=False)
 
 
 def downgrade() -> None:
     """Downgrade schema."""
     # Drop columns
-    op.drop_column('user_emails', 'domain')
-    op.drop_column('user_emails', 'normalized_email')
+    op.drop_column("user_emails", "domain")
+    op.drop_column("user_emails", "normalized_email")

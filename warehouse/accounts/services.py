@@ -61,8 +61,8 @@ from warehouse.accounts.models import (
     UserTermsOfServiceEngagement,
     WebAuthn,
 )
-from warehouse.filters import get_normalized_email, get_email_domain
 from warehouse.events.tags import EventTag
+from warehouse.filters import get_email_domain, get_normalized_email
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
