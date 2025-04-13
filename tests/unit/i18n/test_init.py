@@ -126,6 +126,24 @@ def test_when_locale_is_missing(monkeypatch):
             ),
             "fake-locale-best-match",
         ),
+        (
+            pretend.stub(
+                params={}, cookies={}, _LOCALE_="garbage", accept_language=None
+            ),
+            None,
+        ),
+        (
+            pretend.stub(
+                params={"_LOCALE_": "garbage"}, cookies={}, accept_language=None
+            ),
+            None,
+        ),
+        (
+            pretend.stub(
+                params={}, cookies={"_LOCALE_": "garbage"}, accept_language=None
+            ),
+            None,
+        ),
     ],
 )
 def test_negotiate_locale(monkeypatch, req, expected):
