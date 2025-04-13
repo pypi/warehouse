@@ -106,29 +106,48 @@ def test_when_locale_is_missing(monkeypatch):
     assert i18n._locale(request) is locale_obj
 
 
-def test_negotiate_locale(monkeypatch):
-    request = pretend.stub(_LOCALE_="fake-locale-attr")
-    assert i18n._negotiate_locale(request) == "fake-locale-attr"
-
-    request = pretend.stub(params={"_LOCALE_": "fake-locale-param"})
-    assert i18n._negotiate_locale(request) == "fake-locale-param"
-
-    request = pretend.stub(params={}, cookies={"_LOCALE_": "fake-locale-cookie"})
-    assert i18n._negotiate_locale(request) == "fake-locale-cookie"
-
-    request = pretend.stub(params={}, cookies={}, accept_language=None)
-    default_locale_negotiator = pretend.call_recorder(lambda r: "fake-locale-default")
-    monkeypatch.setattr(i18n, "default_locale_negotiator", default_locale_negotiator)
-    assert i18n._negotiate_locale(request) == "fake-locale-default"
-
-    request = pretend.stub(
-        params={},
-        cookies={},
-        accept_language=pretend.stub(
-            best_match=pretend.call_recorder(lambda *a, **kw: "fake-locale-best-match")
+@pytest.mark.parametrize(
+    ("req", "expected"),
+    [
+        (pretend.stub(_LOCALE_="eo", accept_language=None), "eo"),
+        (pretend.stub(params={"_LOCALE_": "eo"}, accept_language=None), "eo"),
+        (
+            pretend.stub(params={}, cookies={"_LOCALE_": "eo"}, accept_language=None),
+            "eo",
         ),
-    )
-    assert i18n._negotiate_locale(request) == "fake-locale-best-match"
+        (pretend.stub(params={}, cookies={}, accept_language=None), None),
+        (
+            pretend.stub(
+                params={},
+                cookies={},
+                accept_language=pretend.stub(
+                    best_match=lambda *a, **kw: "fake-locale-best-match"
+                ),
+            ),
+            "fake-locale-best-match",
+        ),
+        (
+            pretend.stub(
+                params={}, cookies={}, _LOCALE_="garbage", accept_language=None
+            ),
+            None,
+        ),
+        (
+            pretend.stub(
+                params={"_LOCALE_": "garbage"}, cookies={}, accept_language=None
+            ),
+            None,
+        ),
+        (
+            pretend.stub(
+                params={}, cookies={"_LOCALE_": "garbage"}, accept_language=None
+            ),
+            None,
+        ),
+    ],
+)
+def test_negotiate_locale(monkeypatch, req, expected):
+    assert i18n._negotiate_locale(req) == expected
 
 
 def test_localize(monkeypatch):
