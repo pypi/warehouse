@@ -42,7 +42,7 @@ with no unauthorized actions taken as a result of the issue.
 - 2025-04-14 18:39 UTC
     Hot fix deployed and live on PyPI.
 - 2025-04-14 19:06 UTC
-    Complete security audit complete, validating that only two instances of this had
+    Security audit complete, validating that only two instances of this had
     occurred, with no unauthorized actions taken as a result of the persisted
     privileges.
 
@@ -65,7 +65,7 @@ In total, this incident was resolved in 2 hours and 2 minutes from the time of r
 
 ## Response
 
-Given that this is an otherwise straightforward bug, I though I would take a moment
+Given that this is an otherwise straightforward bug, I thought I would take a moment
 to share how the issue was validated as well as how we audited.
 I've replaced the specific organization, team, and user strings below,
 but otherwise all of this is copied and pasted from the terminal session used
@@ -73,7 +73,7 @@ as I worked this report.
 
 I spun up a local development environment of
 [pypi/warehouse](https://github.com/pypi/warehouse)
-from the current `main` branch locally and followed the reporters steps to reproduce:
+from the current `main` branch locally and followed the reporter's steps to reproduce:
 
 > The basic reproduce steps were:
 > 
@@ -100,7 +100,7 @@ if this was actively impacting any other organizations:
 warehouse=> select
   o.name as organization,
   t.name as team_name,
-  u.userhame as user,
+  u.username as user,
   tr. role_name as team_role,
   ors. role_name as organization role
 from
@@ -127,7 +127,7 @@ The reporter made clear that they had already resolved the instance from their t
 
 I drafted a notice to the five users with role `Owner` on the impacted Organization, 
 and took a moment to realize that this was our first time emailing Organization
-Owners a group, and that we needed to account for the fact that Users on PyPI
+Owners as a group, and that we needed to account for the fact that Users on PyPI
 do not necessarily already know one-another's email addresses, as it is not required
 to invite them to a Project or Organization. A quick gut-check in the PyPI Moderators
 channel validated my plan to `Bcc:` all the Owners rather than `To:` them as a
