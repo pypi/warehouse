@@ -28,7 +28,7 @@ with no unauthorized actions taken as a result of the issue.
     and reported it according to our [Security Policy](https://pypi.org/security/)
     to <security@pypi.org>.
 - 2025-04-14 17:02 UTC
-    PyPI Security acknowledges reciept.
+    PyPI Security acknowledges receipt.
 - 2025-04-14 17:22 UTC
     PyPI Security validates the report as a true finding.
 - 2025-04-14 17:58 UTC
@@ -36,7 +36,7 @@ with no unauthorized actions taken as a result of the issue.
 - 2025-04-14 18:30 UTC
     PyPI Security removes invalid Team Membership and notifies the owners of the only
     other actively impacted Organization.
-    @EWDurbin opens [public PR](https://github.com/pypi/warehouse/pull/17957) with fix.
+    [public PR](https://github.com/pypi/warehouse/pull/17957) opened with fix.
 - 2025-04-14 18:33 UTC
     Hot fix is merged.
 - 2025-04-14 18:39 UTC
@@ -128,7 +128,7 @@ The reporter made clear that they had already resolved the instance from their t
 I drafted a notice to the five users with role `Owner` on the impacted Organization, 
 and took a moment to realize that this was our first time emailing Organization
 Owners a group, and that we needed to account for the fact that Users on PyPI
-do not necessarily already know one anothers email addresses, as it is not required
+do not necessarily already know one-another's email addresses, as it is not required
 to invite them to a Project or Organization. A quick gut-check in the PyPI Moderators
 channel validated my plan to `Bcc:` all the Owners rather than `To:` them as a
 group.[^3]
@@ -209,7 +209,7 @@ They have been contributing to keeping PyPI online, available, and
 secure since 2013._
 
 [^1]:
-    As of writing, there are 6,682 remainging Organization Requests to review.
+    As of writing, there are 6,682 remaining Organization Requests to review.
 
 [^2]:
     It also showed me that our modeling could certainly be improved.
