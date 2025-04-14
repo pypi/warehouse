@@ -185,9 +185,7 @@ no other Organizations had found this problem before without letting us know.
 
 ## Thanks
 
-First and foremost, thanks to our reporter for finding and reporting this issue.
-
-TODO: Credit? awaiting response from reporter
+First and foremost, thanks to our reporter[^4] for finding and reporting this issue.
 
 We are grateful for the entire community of security researchers and users who
 find and report security issues to PyPI in accordance with our
@@ -221,3 +219,6 @@ secure since 2013._
     Another thing to work on moving forward. We recently added some "in-app" messaging
     for PyPI Admins and Support to contact users regarding Organization Requests,
     which could be useful for group communication with Organization Owners.
+
+[^4]:
+    We are awaiting consent from the reporter to credit them.
