@@ -438,6 +438,35 @@ class TestDatabaseOrganizationService:
             is None
         )
 
+    def test_delete_organization_role_deletes_team_roles(
+        self, organization_service, user_service
+    ):
+        user = UserFactory.create()
+        organization = OrganizationFactory.create()
+        organization_role = OrganizationRoleFactory.create(
+            organization=organization, user=user
+        )
+        team = TeamFactory.create(organization=organization)
+        TeamRoleFactory.create(team=team, user=user)
+
+        organization_service.delete_organization_role(organization_role.id)
+
+        assert (
+            organization_service.get_organization_role_by_user(
+                organization_role.organization_id,
+                user.id,
+            )
+            is None
+        )
+
+        assert (
+            organization_service.get_organization_team_roles_by_user(
+                organization.id,
+                user.id,
+            )
+            == []
+        )
+
     def test_get_organization_invite(self, organization_service):
         organization_invite = OrganizationInvitationFactory.create()
 
