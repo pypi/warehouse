@@ -55,7 +55,7 @@ and was mitigated April 14, 2025.
 
 PyPI Organizations are quickly seeing more use as we (finally) exit our public beta
 period. In the last month we have gone from 70 Community Organization beta testers
-to 1,935 active Organizations[^1], so it is little surprise that we are surfacing a few
+to 1,935 active Organizations[^1], so it is of little surprise that we are surfacing a few
 more issues as a result.
 
 Thanks to PyPI's strong test coverage identifying and validating the issue was rather
