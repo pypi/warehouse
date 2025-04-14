@@ -391,6 +391,11 @@ class DatabaseOrganizationService:
         """
         role = self.get_organization_role(organization_role_id)
 
+        for team_role in self.get_organization_team_roles_by_user(
+            role.organization.id, role.user_id
+        ):
+            self.db.delete(team_role)
+
         self.db.delete(role)
 
     def get_organization_invite(self, organization_invite_id):
@@ -706,6 +711,16 @@ class DatabaseOrganizationService:
             .join(TeamRole, TeamRole.team_id == Team.id)
             .filter(TeamRole.user_id == user_id)
             .order_by(Team.name)
+            .all()
+        )
+
+    def get_organization_team_roles_by_user(self, organization_id, user_id):
+        return (
+            self.db.query(TeamRole)
+            .join(Team, Team.id == TeamRole.team_id)
+            .filter(
+                TeamRole.user_id == user_id, Team.organization_id == organization_id
+            )
             .all()
         )
 
