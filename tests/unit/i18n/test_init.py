@@ -150,6 +150,13 @@ def test_when_locale_is_missing(monkeypatch):
             ),
             "he",
         ),
+        (
+            pretend.stub(
+                _LOCALE_="garbage",
+                accept_language=AcceptLanguageValidHeader(header_value="xx"),
+            ),
+            None,
+        ),
     ],
 )
 def test_negotiate_locale(monkeypatch, req, expected):
