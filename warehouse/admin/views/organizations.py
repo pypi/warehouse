@@ -175,6 +175,45 @@ def organization_detail(request):
 
 
 @view_config(
+    route_name="admin.organization.rename",
+    require_methods=["POST"],
+    permission=Permissions.AdminOrganizationsNameWrite,
+    has_translations=True,
+    uses_session=True,
+    require_csrf=True,
+)
+def organization_rename(request):
+    organization_service = request.find_service(IOrganizationService, context=None)
+
+    organization_id = request.matchdict["organization_id"]
+    organization = organization_service.get_organization(organization_id)
+    if organization is None:
+        raise HTTPNotFound
+
+    old_organization_name = organization.name
+    new_organization_name = request.params.get("new_organization_name")
+
+    try:
+        organization_service.rename_organization(organization_id, new_organization_name)
+    except ValueError as exc:
+        request.session.flash(exc.args[0], queue="error")
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
+    request.session.flash(
+        f'"{old_organization_name}" organization renamed "{new_organization_name}"',
+        queue="success",
+    )
+
+    return HTTPSeeOther(
+        request.route_path("admin.organization.detail", organization_id=organization.id)
+    )
+
+
+@view_config(
     route_name="admin.organization_application.list",
     renderer="admin/organization_applications/list.html",
     permission=Permissions.AdminOrganizationsRead,
@@ -358,14 +397,6 @@ def organization_application_approve(request):
     )
     if organization_application is None:
         raise HTTPNotFound
-    elif organization_application.name != request.params.get("organization_name"):
-        request.session.flash("Wrong confirmation input", queue="error")
-        return HTTPSeeOther(
-            request.route_path(
-                "admin.organization_application.detail",
-                organization_application_id=organization_application.id,
-            )
-        )
 
     organization = organization_service.approve_organization_application(
         organization_application.id, request
@@ -477,14 +508,6 @@ def organization_application_decline(request):
     )
     if organization_application is None:
         raise HTTPNotFound
-    elif organization_application.name != request.params.get("organization_name"):
-        request.session.flash("Wrong confirmation input", queue="error")
-        return HTTPSeeOther(
-            request.route_path(
-                "admin.organization_application.detail",
-                organization_application_id=organization_application.id,
-            )
-        )
 
     organization_service.decline_organization_application(
         organization_application.id, request

@@ -379,6 +379,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                 (
                     Permissions.AdminOrganizationsRead,
                     Permissions.AdminOrganizationsWrite,
+                    Permissions.AdminOrganizationsNameWrite,
                 ),
             ),
             (Allow, "group:moderators", Permissions.AdminOrganizationsRead),
@@ -628,6 +629,10 @@ class OrganizationNameCatalog(db.Model):
             "normalized_name",
             "organization_id",
             name="_organization_name_catalog_normalized_name_organization_uc",
+        ),
+        UniqueConstraint(
+            "normalized_name",
+            name="_organization_name_catalog_normalized_name_uc",
         ),
     )
 

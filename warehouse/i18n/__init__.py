@@ -80,24 +80,17 @@ def _locale(request):
 
 
 def _negotiate_locale(request):
-    locale_name = getattr(request, LOCALE_ATTR, None)
-    if locale_name is not None:
-        return locale_name
-
-    locale_name = request.params.get(LOCALE_ATTR)
-    if locale_name is not None:
-        return locale_name
-
-    locale_name = request.cookies.get(LOCALE_ATTR)
-    if locale_name is not None:
-        return locale_name
-
     if not request.accept_language:
-        return default_locale_negotiator(request)
+        locale_name = default_locale_negotiator(request)
+        if locale_name in KNOWN_LOCALES:
+            return locale_name
+    else:
+        return request.accept_language.best_match(
+            tuple(KNOWN_LOCALES.keys()),
+            default_match=default_locale_negotiator(request),
+        )
 
-    return request.accept_language.best_match(
-        tuple(KNOWN_LOCALES.keys()), default_match=default_locale_negotiator(request)
-    )
+    return None
 
 
 def _localize(request, message, **kwargs):
