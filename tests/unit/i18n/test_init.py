@@ -121,11 +121,9 @@ def test_when_locale_is_missing(monkeypatch):
             pretend.stub(
                 params={},
                 cookies={},
-                accept_language=pretend.stub(
-                    best_match=lambda *a, **kw: "fake-locale-best-match"
-                ),
+                accept_language=AcceptLanguageValidHeader(header_value="eo"),
             ),
-            "fake-locale-best-match",
+            "eo",
         ),
         (
             pretend.stub(
