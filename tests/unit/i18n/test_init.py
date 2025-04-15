@@ -15,6 +15,7 @@ import pytest
 
 from pyramid import viewderivers
 from pyramid.i18n import Localizer
+from webob.acceptparse import AcceptLanguageValidHeader
 
 from warehouse import i18n
 from warehouse.i18n.extensions import FallbackInternationalizationExtension
@@ -120,11 +121,9 @@ def test_when_locale_is_missing(monkeypatch):
             pretend.stub(
                 params={},
                 cookies={},
-                accept_language=pretend.stub(
-                    best_match=lambda *a, **kw: "fake-locale-best-match"
-                ),
+                accept_language=AcceptLanguageValidHeader(header_value="eo"),
             ),
-            "fake-locale-best-match",
+            "eo",
         ),
         (
             pretend.stub(
@@ -141,6 +140,20 @@ def test_when_locale_is_missing(monkeypatch):
         (
             pretend.stub(
                 params={}, cookies={"_LOCALE_": "garbage"}, accept_language=None
+            ),
+            None,
+        ),
+        (
+            pretend.stub(
+                _LOCALE_="he",
+                accept_language=AcceptLanguageValidHeader(header_value="eo"),
+            ),
+            "he",
+        ),
+        (
+            pretend.stub(
+                _LOCALE_="garbage",
+                accept_language=AcceptLanguageValidHeader(header_value="xx"),
             ),
             None,
         ),

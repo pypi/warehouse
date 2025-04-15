@@ -80,15 +80,12 @@ def _locale(request):
 
 
 def _negotiate_locale(request):
-    if not request.accept_language:
-        locale_name = default_locale_negotiator(request)
-        if locale_name in KNOWN_LOCALES:
-            return locale_name
-    else:
-        return request.accept_language.best_match(
-            tuple(KNOWN_LOCALES.keys()),
-            default_match=default_locale_negotiator(request),
-        )
+    locale_name = default_locale_negotiator(request)
+    if locale_name in KNOWN_LOCALES:
+        return locale_name
+
+    if request.accept_language:
+        return request.accept_language.best_match(tuple(KNOWN_LOCALES.keys()))
 
     return None
 
