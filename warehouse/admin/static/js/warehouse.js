@@ -212,7 +212,7 @@ if (OrganizationApplicationsTable.length) {
 }
 
 let organizationApplicationTurboModeSwitch = document.getElementById("organizationApplicationTurboMode");
-if (organizationApplicationTurboModeSwitch !== "undefined") {
+if (organizationApplicationTurboModeSwitch !== null) {
   let organizationApplicationTurboModeEnabled = JSON.parse(localStorage.getItem("organizationApplicationTurboModeEnabled") || false);
   organizationApplicationTurboModeSwitch.addEventListener("click", (event) => {
     localStorage.setItem("organizationApplicationTurboModeEnabled", event.target.checked);
@@ -232,7 +232,7 @@ if (organizationApplicationTurboModeSwitch !== "undefined") {
 }
 
 let requestMoreInformationEmailTemplateButton = document.getElementById("requestMoreInformationEmailTemplateButton");
-if (requestMoreInformationEmailTemplateButton !== "undefined") {
+if (requestMoreInformationEmailTemplateButton !== null) {
   requestMoreInformationEmailTemplateButton.addEventListener("click", () => {
     let requestMoreInfoModalMessage = document.getElementById("requestMoreInfoModalMessage");
     let requestMoreInformationEmailTemplate = document.getElementById("requestMoreInformationEmailTemplate");
@@ -241,7 +241,7 @@ if (requestMoreInformationEmailTemplateButton !== "undefined") {
 }
 
 let editModalForm = document.getElementById("editModalForm");
-if (editModalForm !== "undefined") {
+if (editModalForm !== null) {
   if (editModalForm.classList.contains("edit-form-errors")) {
     document.getElementById("editModalButton").click();
   }
