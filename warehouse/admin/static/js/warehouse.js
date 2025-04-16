@@ -277,7 +277,6 @@ links.forEach(function(link){
       let responseText = "";
       response.text().then((text) => {
         responseText = text;
-        console.log(response.status, responseText);
         if (response.status === 400 && responseText === "Unsupported content-type returned\n") {
           reportLine.element.firstChild.classList.remove("fa-question");
           reportLine.element.firstChild.classList.add("fa-check");
@@ -289,13 +288,10 @@ links.forEach(function(link){
           reportLine.element.firstChild.classList.add("fa-times");
           reportLine.element.firstChild.classList.add("text-red");
         }
-        console.log(reportLine);
       });
     })
     .catch(function(error) {
       reportLine.status = -1;
-      console.log(error);
-      console.log(reportLine);
       reportLine.element.firstChild.classList.remove("fa-question");
       reportLine.element.firstChild.classList.add("fa-times");
       reportLine.element.firstChild.classList.add("text-red");
