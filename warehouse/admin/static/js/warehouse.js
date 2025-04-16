@@ -231,13 +231,31 @@ if (organizationApplicationTurboModeSwitch !== null) {
   }
 }
 
-let requestMoreInformationEmailTemplateButton = document.getElementById("requestMoreInformationEmailTemplateButton");
-if (requestMoreInformationEmailTemplateButton !== null) {
-  requestMoreInformationEmailTemplateButton.addEventListener("click", () => {
-    let requestMoreInfoModalMessage = document.getElementById("requestMoreInfoModalMessage");
-    let requestMoreInformationEmailTemplate = document.getElementById("requestMoreInformationEmailTemplate");
-    requestMoreInfoModalMessage.value = requestMoreInformationEmailTemplate.innerHTML.trim().replaceAll("\n", " ").replace(/\s(\s+)\s/g, " ");
-  });
+const savedReplyButtons = document.querySelectorAll(".saved-reply-button");
+
+if (savedReplyButtons.length > 0) {
+  const requestMoreInfoModalMessage = document.getElementById("requestMoreInfoModalMessage");
+
+  if (requestMoreInfoModalMessage) {
+    savedReplyButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        const templateId = button.dataset.template;
+
+        if (templateId) {
+          const templateElement = document.getElementById(templateId);
+
+          if (templateElement) {
+            const templateContent = templateElement.innerHTML;
+            const cleanedContent = templateContent
+              .trim()
+              .replace(/\n/g, " ")
+              .replace(/\s{2,}/g, " ");
+            requestMoreInfoModalMessage.value = cleanedContent;
+          }
+        }
+      });
+    });
+  }
 }
 
 let editModalForm = document.getElementById("editModalForm");
@@ -259,7 +277,6 @@ links.forEach(function(link){
       let responseText = "";
       response.text().then((text) => {
         responseText = text;
-        console.log(response.status, responseText);
         if (response.status === 400 && responseText === "Unsupported content-type returned\n") {
           reportLine.element.firstChild.classList.remove("fa-question");
           reportLine.element.firstChild.classList.add("fa-check");
@@ -271,13 +288,10 @@ links.forEach(function(link){
           reportLine.element.firstChild.classList.add("fa-times");
           reportLine.element.firstChild.classList.add("text-red");
         }
-        console.log(reportLine);
       });
     })
-    .catch(function(error) {
+    .catch(() => {
       reportLine.status = -1;
-      console.log(error);
-      console.log(reportLine);
       reportLine.element.firstChild.classList.remove("fa-question");
       reportLine.element.firstChild.classList.add("fa-times");
       reportLine.element.firstChild.classList.add("text-red");
