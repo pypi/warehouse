@@ -231,7 +231,7 @@ if (organizationApplicationTurboModeSwitch !== null) {
   }
 }
 
-const savedReplyButtons = document.querySelectorAll('.saved-reply-button');
+const savedReplyButtons = document.querySelectorAll(".saved-reply-button");
 
 if (savedReplyButtons.length > 0) {
   const requestMoreInfoModalMessage = document.getElementById("requestMoreInfoModalMessage");
@@ -290,7 +290,7 @@ links.forEach(function(link){
         }
       });
     })
-    .catch(function(error) {
+    .catch(() => {
       reportLine.status = -1;
       reportLine.element.firstChild.classList.remove("fa-question");
       reportLine.element.firstChild.classList.add("fa-times");
