@@ -961,7 +961,7 @@ msgstr "Top-úroveň potrubia súbor cesta nemôže začať alebo skončiť s /"
 msgid "Provide an Inspector link to specific lines of code."
 msgstr "Poskytnite inšpektorový odkaz na konkrétne linky kódu."
 
-#: warehouse/packaging/views.py:353
+#: warehouse/packaging/views.py:342
 msgid "Your report has been recorded. Thank you for your help."
 msgstr "Vaša správa bola zaznamenaná. Ďakujeme za vašu pomoc."
 
@@ -1078,14 +1078,14 @@ msgstr "Monty Python - Náčrt syrárne"
 
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/accounts/two-factor.html:55
-#: warehouse/templates/base.html:286 warehouse/templates/base.html:287
-#: warehouse/templates/base.html:288 warehouse/templates/base.html:289
-#: warehouse/templates/base.html:299 warehouse/templates/base.html:300
-#: warehouse/templates/base.html:313 warehouse/templates/base.html:314
-#: warehouse/templates/base.html:316 warehouse/templates/base.html:325
-#: warehouse/templates/base.html:327 warehouse/templates/base.html:328
-#: warehouse/templates/base.html:329 warehouse/templates/base.html:339
-#: warehouse/templates/base.html:352
+#: warehouse/templates/base.html:274 warehouse/templates/base.html:275
+#: warehouse/templates/base.html:276 warehouse/templates/base.html:277
+#: warehouse/templates/base.html:287 warehouse/templates/base.html:288
+#: warehouse/templates/base.html:301 warehouse/templates/base.html:302
+#: warehouse/templates/base.html:304 warehouse/templates/base.html:313
+#: warehouse/templates/base.html:315 warehouse/templates/base.html:316
+#: warehouse/templates/base.html:317 warehouse/templates/base.html:327
+#: warehouse/templates/base.html:340
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/file-details.html:101
 #: warehouse/templates/index.html:100 warehouse/templates/index.html:104
@@ -1101,8 +1101,8 @@ msgstr "Monty Python - Náčrt syrárne"
 #: warehouse/templates/manage/project/release.html:194
 #: warehouse/templates/manage/project/releases.html:140
 #: warehouse/templates/manage/project/releases.html:179
-#: warehouse/templates/packaging/detail.html:417
-#: warehouse/templates/packaging/detail.html:437
+#: warehouse/templates/packaging/detail.html:419
+#: warehouse/templates/packaging/detail.html:439
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:230
@@ -1247,7 +1247,7 @@ msgid "Main navigation"
 msgstr "Hlavná navigácia"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
-#: warehouse/templates/base.html:283
+#: warehouse/templates/base.html:271
 #: warehouse/templates/includes/current-user-indicator.html:63
 #: warehouse/templates/pages/help.html:119
 #: warehouse/templates/pages/sitemap.html:27
@@ -1328,16 +1328,16 @@ msgstr "RSS: 40 najnovších aktualizácií"
 msgid "RSS: 40 newest packages"
 msgstr "RSS: 40 najnovších balíčkov"
 
-#: warehouse/templates/base.html:168
+#: warehouse/templates/base.html:156
 msgid "Skip to main content"
 msgstr "Preskočiť na hlavný obsah"
 
-#: warehouse/templates/base.html:171
+#: warehouse/templates/base.html:159
 msgid "Switch to mobile version"
 msgstr "Prepnúť na mobilnú verziu"
 
-#: warehouse/templates/base.html:180 warehouse/templates/base.html:189
-#: warehouse/templates/base.html:199
+#: warehouse/templates/base.html:168 warehouse/templates/base.html:177
+#: warehouse/templates/base.html:187
 #: warehouse/templates/includes/flash-messages.html:30
 #: warehouse/templates/includes/session-notifications.html:20
 #: warehouse/templates/manage/account.html:843
@@ -1355,11 +1355,11 @@ msgstr "Prepnúť na mobilnú verziu"
 msgid "Warning"
 msgstr "Upozornenie"
 
-#: warehouse/templates/base.html:182
+#: warehouse/templates/base.html:170
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr "Používate nepodporovaný prehliadač, inovujte na novšiu verziu."
 
-#: warehouse/templates/base.html:191
+#: warehouse/templates/base.html:179
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
@@ -1369,7 +1369,7 @@ msgstr ""
 "umožňuje vyskúšať distribučné nástroje a procesy bez ovplyvnenia skutočného "
 "indexu."
 
-#: warehouse/templates/base.html:201
+#: warehouse/templates/base.html:189
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
@@ -1377,158 +1377,158 @@ msgstr ""
 "Niektoré funkcie nemusia fungovať bez JavaScriptu. Ak narazíte na problémy, "
 "skúste ho povoliť."
 
-#: warehouse/templates/base.html:239 warehouse/templates/base.html:260
+#: warehouse/templates/base.html:227 warehouse/templates/base.html:248
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:43
 msgid "Search PyPI"
 msgstr "Hľadať PyPI"
 
-#: warehouse/templates/base.html:240 warehouse/templates/base.html:261
+#: warehouse/templates/base.html:228 warehouse/templates/base.html:249
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:46
 msgid "Search projects"
 msgstr "Hľadt v projektoch"
 
-#: warehouse/templates/base.html:244 warehouse/templates/base.html:265
+#: warehouse/templates/base.html:232 warehouse/templates/base.html:253
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:50
 msgid "Search"
 msgstr "Hľadať"
 
-#: warehouse/templates/base.html:284
+#: warehouse/templates/base.html:272
 msgid "Help navigation"
 msgstr "Navigácia pomocníka"
 
-#: warehouse/templates/base.html:286
+#: warehouse/templates/base.html:274
 msgid "Installing packages"
 msgstr "Inštalovanie balíčkov"
 
-#: warehouse/templates/base.html:287
+#: warehouse/templates/base.html:275
 msgid "Uploading packages"
 msgstr "Nahrávanie balíčkov"
 
-#: warehouse/templates/base.html:288
+#: warehouse/templates/base.html:276
 msgid "User guide"
 msgstr "Užívateľská príručka"
 
-#: warehouse/templates/base.html:289
+#: warehouse/templates/base.html:277
 msgid "Project name retention"
 msgstr "Zachovanie názvu projektu"
 
-#: warehouse/templates/base.html:290
+#: warehouse/templates/base.html:278
 msgid "FAQs"
 msgstr "FAQ"
 
-#: warehouse/templates/base.html:296 warehouse/templates/pages/sitemap.html:37
+#: warehouse/templates/base.html:284 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
 msgstr "O PyPI"
 
-#: warehouse/templates/base.html:297
+#: warehouse/templates/base.html:285
 msgid "About PyPI navigation"
 msgstr "O PyPI navigácii"
 
-#: warehouse/templates/base.html:299
+#: warehouse/templates/base.html:287
 msgid "PyPI Blog"
 msgstr "PyPI Blog"
 
-#: warehouse/templates/base.html:300
+#: warehouse/templates/base.html:288
 msgid "Infrastructure dashboard"
 msgstr "Prehľad infraštruktúry"
 
-#: warehouse/templates/base.html:301 warehouse/templates/pages/sitemap.html:40
+#: warehouse/templates/base.html:289 warehouse/templates/pages/sitemap.html:40
 #: warehouse/templates/pages/stats.html:16
 msgid "Statistics"
 msgstr "Štatistika"
 
-#: warehouse/templates/base.html:302
+#: warehouse/templates/base.html:290
 msgid "Logos & trademarks"
 msgstr "Logá a ochranné známky"
 
-#: warehouse/templates/base.html:303
+#: warehouse/templates/base.html:291
 msgid "Our sponsors"
 msgstr "Naši sponzory"
 
-#: warehouse/templates/base.html:309
+#: warehouse/templates/base.html:297
 msgid "Contributing to PyPI"
 msgstr "Prispievanie do PyPI"
 
-#: warehouse/templates/base.html:310
+#: warehouse/templates/base.html:298
 msgid "How to contribute navigation"
 msgstr "Ako prispieť do navigácie"
 
-#: warehouse/templates/base.html:312
+#: warehouse/templates/base.html:300
 msgid "Bugs and feedback"
 msgstr "Chyby a spätná väzba"
 
-#: warehouse/templates/base.html:313
+#: warehouse/templates/base.html:301
 msgid "Contribute on GitHub"
 msgstr "Prispieť na GitHub"
 
-#: warehouse/templates/base.html:314
+#: warehouse/templates/base.html:302
 msgid "Translate PyPI"
 msgstr "Preložiť PyPI"
 
-#: warehouse/templates/base.html:315
+#: warehouse/templates/base.html:303
 msgid "Sponsor PyPI"
 msgstr "Sponzori PyPI"
 
-#: warehouse/templates/base.html:316
+#: warehouse/templates/base.html:304
 msgid "Development credits"
 msgstr "Vývojové kredity"
 
-#: warehouse/templates/base.html:322 warehouse/templates/pages/sitemap.html:23
+#: warehouse/templates/base.html:310 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
 msgstr "Použitie PyPI"
 
-#: warehouse/templates/base.html:323
+#: warehouse/templates/base.html:311
 msgid "Using PyPI navigation"
 msgstr "Používanie navigácie PyPI"
 
-#: warehouse/templates/base.html:325
+#: warehouse/templates/base.html:313
 #: warehouse/templates/manage/organization/activate_subscription.html:33
 #, fuzzy
 #| msgid "Terms of Use"
 msgid "Terms of Service"
 msgstr "Podmienky použitia"
 
-#: warehouse/templates/base.html:326
+#: warehouse/templates/base.html:314
 msgid "Report security issue"
 msgstr "Nahlásiť bezpečnostný problém"
 
-#: warehouse/templates/base.html:327
+#: warehouse/templates/base.html:315
 msgid "Code of conduct"
 msgstr "Kódex správania"
 
-#: warehouse/templates/base.html:328
+#: warehouse/templates/base.html:316
 msgid "Privacy Notice"
 msgstr "Ochrana osobných údajov"
 
-#: warehouse/templates/base.html:329
+#: warehouse/templates/base.html:317
 msgid "Acceptable Use Policy"
 msgstr "Zásady prijateľného používania"
 
-#: warehouse/templates/base.html:339
+#: warehouse/templates/base.html:327
 msgid "Status:"
 msgstr "Stav:"
 
-#: warehouse/templates/base.html:340
+#: warehouse/templates/base.html:328
 msgid "all systems operational"
 msgstr "všetky systémy funkčné"
 
-#: warehouse/templates/base.html:344
+#: warehouse/templates/base.html:332
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr "Vyvinuté a udržiavané komunitou Python pre komunitu Python."
 
-#: warehouse/templates/base.html:346
+#: warehouse/templates/base.html:334
 msgid "Donate today!"
 msgstr "Prispieť dnes!"
 
-#: warehouse/templates/base.html:353 warehouse/templates/pages/sitemap.html:16
+#: warehouse/templates/base.html:341 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
 msgstr "Mapa stránok"
 
-#: warehouse/templates/base.html:359
+#: warehouse/templates/base.html:347
 msgid "Switch to desktop version"
 msgstr "Prepnúť na desktop verziu"
 
@@ -3595,10 +3595,6 @@ msgstr "Poskytuje-Extra:"
 #: warehouse/templates/pages/sitemap.html:39
 msgid "Classifiers"
 msgstr "Klasifikátory"
-
-#: warehouse/templates/includes/packaging/submit-malware-report.html:18
-msgid "Report project as malware"
-msgstr "Správa projektu ako malware"
 
 #: warehouse/templates/manage/account.html:33
 #: warehouse/templates/manage/unverified-account.html:30
@@ -7012,12 +7008,12 @@ msgid "Back to projects"
 msgstr "Späť k projektom"
 
 #: warehouse/templates/manage/project/manage_project_base.html:70
-#: warehouse/templates/packaging/detail.html:302
+#: warehouse/templates/packaging/detail.html:304
 msgid "This project has been quarantined."
 msgstr "Tento projekt bol karanténe."
 
 #: warehouse/templates/manage/project/manage_project_base.html:72
-#: warehouse/templates/packaging/detail.html:304
+#: warehouse/templates/packaging/detail.html:306
 msgid ""
 "PyPI Admins need to review this project before it can be restored. While in "
 "quarantine, the project is not installable by clients, and cannot be being "
@@ -7028,14 +7024,14 @@ msgstr ""
 "ich upravovať."
 
 #: warehouse/templates/manage/project/manage_project_base.html:79
-#: warehouse/templates/packaging/detail.html:311
+#: warehouse/templates/packaging/detail.html:313
 #, python-format
 msgid ""
 "Read more in the <a href=\"%(href)s\">project in quarantine</a> help article."
 msgstr "Čítajte viac v <a href=\"%(href)s\">project v karanténe</a> Pomocník."
 
 #: warehouse/templates/manage/project/manage_project_base.html:86
-#: warehouse/templates/packaging/detail.html:318
+#: warehouse/templates/packaging/detail.html:320
 #, fuzzy
 #| msgid "This project has been quarantined."
 msgid "This project has been archived."
@@ -8124,89 +8120,93 @@ msgid "Navigation"
 msgstr "Navigácia"
 
 #: warehouse/templates/packaging/detail.html:233
-#: warehouse/templates/packaging/detail.html:267
+#: warehouse/templates/packaging/detail.html:269
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr "Navigácia pre %(project)s"
 
 #: warehouse/templates/packaging/detail.html:236
-#: warehouse/templates/packaging/detail.html:270
+#: warehouse/templates/packaging/detail.html:272
 msgid "Project description. Focus will be moved to the description."
 msgstr "Popis projektu. Zameranie sa presunie na popis."
 
 #: warehouse/templates/packaging/detail.html:238
-#: warehouse/templates/packaging/detail.html:272
-#: warehouse/templates/packaging/detail.html:332
+#: warehouse/templates/packaging/detail.html:274
+#: warehouse/templates/packaging/detail.html:334
 msgid "Project description"
 msgstr "Popis projektu"
 
 #: warehouse/templates/packaging/detail.html:242
-#: warehouse/templates/packaging/detail.html:282
+#: warehouse/templates/packaging/detail.html:284
 msgid "Release history. Focus will be moved to the history panel."
 msgstr "História vydania. Zameranie sa presunie na panel histórie."
 
 #: warehouse/templates/packaging/detail.html:244
-#: warehouse/templates/packaging/detail.html:284
-#: warehouse/templates/packaging/detail.html:354
+#: warehouse/templates/packaging/detail.html:286
+#: warehouse/templates/packaging/detail.html:356
 msgid "Release history"
 msgstr "História vydania"
 
 #: warehouse/templates/packaging/detail.html:249
-#: warehouse/templates/packaging/detail.html:289
+#: warehouse/templates/packaging/detail.html:291
 msgid "Download files. Focus will be moved to the project files."
 msgstr "Stiahnite si súbory. Zameranie sa presunie na súbory projektu."
 
 #: warehouse/templates/packaging/detail.html:251
-#: warehouse/templates/packaging/detail.html:291
-#: warehouse/templates/packaging/detail.html:416
+#: warehouse/templates/packaging/detail.html:293
+#: warehouse/templates/packaging/detail.html:418
 msgid "Download files"
 msgstr "Stiahnite si súbory"
 
-#: warehouse/templates/packaging/detail.html:276
+#: warehouse/templates/packaging/detail.html:264
+msgid "Report project as malware"
+msgstr "Správa projektu ako malware"
+
+#: warehouse/templates/packaging/detail.html:278
 msgid "Project details. Focus will be moved to the project details."
 msgstr "Podrobnosti projektu. Zameranie sa presunie na detaily projektu."
 
-#: warehouse/templates/packaging/detail.html:278
-#: warehouse/templates/packaging/detail.html:346
+#: warehouse/templates/packaging/detail.html:280
+#: warehouse/templates/packaging/detail.html:348
 msgid "Project details"
 msgstr "Podrobnosti projektu"
 
-#: warehouse/templates/packaging/detail.html:320
+#: warehouse/templates/packaging/detail.html:322
 msgid ""
 "The maintainers of this project have marked this project as archived. No new "
 "releases are expected."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:328
-#: warehouse/templates/packaging/detail.html:403
+#: warehouse/templates/packaging/detail.html:330
+#: warehouse/templates/packaging/detail.html:405
 msgid "Reason this release was yanked:"
 msgstr "Dôvod, prečo bola táto verzia pretiahnutá:"
 
-#: warehouse/templates/packaging/detail.html:339
+#: warehouse/templates/packaging/detail.html:341
 msgid "The author of this package has not provided a project description"
 msgstr "Autor tohto balíka neposkytol popis projektu"
 
-#: warehouse/templates/packaging/detail.html:356
+#: warehouse/templates/packaging/detail.html:358
 msgid "Release notifications"
 msgstr "Upozornenia na vydanie"
 
-#: warehouse/templates/packaging/detail.html:357
+#: warehouse/templates/packaging/detail.html:359
 msgid "RSS feed"
 msgstr "RSS zdroj"
 
-#: warehouse/templates/packaging/detail.html:369
+#: warehouse/templates/packaging/detail.html:371
 msgid "This version"
 msgstr "Táto verzia"
 
-#: warehouse/templates/packaging/detail.html:389
+#: warehouse/templates/packaging/detail.html:391
 msgid "pre-release"
 msgstr "predbežné vydanie"
 
-#: warehouse/templates/packaging/detail.html:394
+#: warehouse/templates/packaging/detail.html:396
 msgid "yanked"
 msgstr "trhol"
 
-#: warehouse/templates/packaging/detail.html:417
+#: warehouse/templates/packaging/detail.html:419
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -8217,18 +8217,18 @@ msgstr ""
 "prečítajte si viac o <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">inštalácii balíkov</a>."
 
-#: warehouse/templates/packaging/detail.html:420
+#: warehouse/templates/packaging/detail.html:422
 msgid "Source Distribution"
 msgid_plural "Source Distributions"
 msgstr[0] "Distribúcia zdroja"
 msgstr[1] "Distribúcie zdrojov"
 msgstr[2] "Distribúcie zdrojov"
 
-#: warehouse/templates/packaging/detail.html:436
+#: warehouse/templates/packaging/detail.html:438
 msgid "No source distribution files available for this release."
 msgstr "Pre toto vydanie nie sú dostupné žiadne zdrojové distribučné súbory."
 
-#: warehouse/templates/packaging/detail.html:437
+#: warehouse/templates/packaging/detail.html:439
 #, python-format
 msgid ""
 "See tutorial on <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -8237,7 +8237,7 @@ msgstr ""
 "Pozrite si návod na <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">generovanie archívov distribúcie</a>."
 
-#: warehouse/templates/packaging/detail.html:444
+#: warehouse/templates/packaging/detail.html:446
 msgid "Built Distribution"
 msgid_plural "Built Distributions"
 msgstr[0] "Postavená distribúcia"
