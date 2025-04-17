@@ -98,9 +98,6 @@ def _connect_src_settings(config) -> list:
         "https://api.github.com/repos/",
         "https://api.github.com/search/issues",
         "https://gitlab.com/api/",
-        "https://*.google-analytics.com",
-        "https://*.analytics.google.com",
-        "https://*.googletagmanager.com",
         "https://analytics.python.org",
         "fastly-insights.com",
         "*.fastly-insights.com",
@@ -135,9 +132,6 @@ def _connect_src_settings(config) -> list:
 def _script_src_settings(config) -> list:
     settings = [
         SELF,
-        "https://*.googletagmanager.com",
-        "https://www.google-analytics.com",  # Remove when disabling UA
-        "https://ssl.google-analytics.com",  # Remove when disabling UA
         "https://analytics.python.org",
         "*.fastly-insights.com",
         "*.ethicalads.io",
@@ -177,8 +171,6 @@ def includeme(config):
                 "img-src": [
                     SELF,
                     config.registry.settings["camo.url"],
-                    "https://*.google-analytics.com",
-                    "https://*.googletagmanager.com",
                     "*.fastly-insights.com",
                     "*.ethicalads.io",
                     "ethicalads.blob.core.windows.net",
