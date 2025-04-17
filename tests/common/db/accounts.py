@@ -25,6 +25,7 @@ from warehouse.accounts.models import (
     User,
     UserTermsOfServiceEngagement,
 )
+from warehouse.filters import get_email_domain, get_normalized_email
 
 from .base import WarehouseFactory
 
@@ -116,6 +117,10 @@ class EmailFactory(WarehouseFactory):
     # TODO: Replace when factory_boy supports `unique`.
     #  See https://github.com/FactoryBoy/factory_boy/pull/997
     email = factory.Sequence(lambda _: fake.unique.safe_email())
+    normalized_email = factory.LazyAttribute(
+        lambda obj: get_normalized_email(obj.email)
+    )
+    domain = factory.LazyAttribute(lambda obj: get_email_domain(obj.email))
 
     verified = True
     primary = True
