@@ -216,6 +216,11 @@
                     Upon reviewing this organization application request, we were unable to find a related organization at the provided URL ({{ organization_application.link_url  }}).
                     Please let us know if there is an updated URL we should use instead, otherwise we will decline this request.
                 </div>
+                <div class="hidden" id="UnverifiableURLTemplate">
+                    Hello {{ organization_application.submitted_by.username }}!
+                    Upon reviewing this organization application request, we were unable to determine your affiliation with the provided URL ({{ organization_application.link_url  }}).
+                    Please let us know if there is some other way for us to verify this, otherwise we will decline this request.
+                </div>
                 <div class="hidden" id="ShouldBeCompanyTemplate">
                     Hello {{ organization_application.submitted_by.username }}!
                     We’re reviewing your organization request and noticed that you might be a better fit for a Company organization.
@@ -241,6 +246,7 @@
                       <div class="form-group">
                         <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="AddOrgEmailTemplate">Add Org Email</button>
                         <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="BadURLTemplate">Bad URL</button>
+                        <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="UnverifiableURLTemplate">Unverifiable URL</button>
                         <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="ShouldBeCompanyTemplate">Should Be Company</button>
                       </div>
                       <div class="form-group">
