@@ -206,7 +206,7 @@
                 <div class="hidden" id="AddOrgEmailTemplate">
                     Hello {{ organization_application.submitted_by.username }}!
                     We'd be happy to approve this organization request,
-                    but ask that you first add an @{% with parsed = organization_application.link_url|urlparse %}{% if parsed.host %}{{ parsed.host.lstrip("www.") }}{% else %}NONE{% endif %}{% endwith %}
+                    but ask that you first add an @{% with parsed = organization_application.link_url|urlparse %}{% if parsed.host %}{{ parsed.host[4:] if parsed.host.startswith('www.') else parsed.host }}{% else %}NONE{% endif %}{% endwith %}
                     email address to your PyPI account,
                     complete the verification,
                     and respond using the linked form.
