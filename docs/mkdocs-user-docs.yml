@@ -3,6 +3,7 @@ docs_dir: user
 site_dir: user-site
 plugins:
   - search
+  - material-plausible
   - macros:
       module_name: user/main
       j2_block_start_string: "<!--[[%"
@@ -50,6 +51,10 @@ theme:
 extra_css:
   - stylesheets/extra.css
 extra:
+  analytics:
+    provider: plausible
+    domain: docs.pypi.org
+    src: https://analytics.python.org/js/script.outbound-links.js
   homepage: https://pypi.org
   social:
     - icon: fontawesome/brands/github

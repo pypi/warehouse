@@ -206,7 +206,7 @@
                 <div class="hidden" id="AddOrgEmailTemplate">
                     Hello {{ organization_application.submitted_by.username }}!
                     We'd be happy to approve this organization request,
-                    but ask that you first add an @{% with parsed = organization_application.link_url|urlparse %}{% if parsed.host %}{{ parsed.host.lstrip("www.") }}{% else %}NONE{% endif %}{% endwith %}
+                    but ask that you first add an @{% with parsed = organization_application.link_url|urlparse %}{% if parsed.host %}{{ parsed.host[4:] if parsed.host.startswith('www.') else parsed.host }}{% else %}NONE{% endif %}{% endwith %}
                     email address to your PyPI account,
                     complete the verification,
                     and respond using the linked form.
@@ -216,11 +216,23 @@
                     Upon reviewing this organization application request, we were unable to find a related organization at the provided URL ({{ organization_application.link_url  }}).
                     Please let us know if there is an updated URL we should use instead, otherwise we will decline this request.
                 </div>
+                <div class="hidden" id="UnverifiableURLTemplate">
+                    Hello {{ organization_application.submitted_by.username }}!
+                    Upon reviewing this organization application request, we were unable to determine your affiliation with the provided URL ({{ organization_application.link_url  }}).
+                    Please let us know if there is some other way for us to verify this, otherwise we will decline this request.
+                </div>
                 <div class="hidden" id="ShouldBeCompanyTemplate">
                     Hello {{ organization_application.submitted_by.username }}!
                     We’re reviewing your organization request and noticed that you might be a better fit for a Company organization.
                     We can proceed with this request, but would need to change the name to suit, "{{ organization_application.name }}-community" or "{{ organization_application.name }}-opensource".
                     Let us know if you’d like to do that, or switch this to a Company Organization request.
+                </div>
+                <div class="hidden" id="ReasonForApplicationTemplate">
+                    Hello {{ organization_application.submitted_by.username }}!
+                    We'd be happy to approve this organization request, but we need some more information first.
+                    We noticed that you don't have an existing project on PyPI yet.
+                    Since you don't have a project already, we need to know what your reason for applying for a PyPI Org account is and how having a PyPI Org account might help you.
+                    Let us know and we will go from there, thanks!
                 </div>
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
                 <input name="organization_applications_turbo_mode" type="hidden" value=0>
@@ -241,7 +253,9 @@
                       <div class="form-group">
                         <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="AddOrgEmailTemplate">Add Org Email</button>
                         <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="BadURLTemplate">Bad URL</button>
+                        <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="UnverifiableURLTemplate">Unverifiable URL</button>
                         <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="ShouldBeCompanyTemplate">Should Be Company</button>
+                        <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="ReasonForApplicationTemplate">Reason For Application</button>
                       </div>
                       <div class="form-group">
                         <label for="requestMoreInfoModalMessage">
@@ -400,6 +414,14 @@
             </div>
             <div class="form-group">
               <label class="col-12 control-label">
+                Organization Type
+              </label>
+              <div class="col-12">
+                <input class="form-control" value="{{ organization_application.orgtype.value }}" readonly>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-12 control-label">
                 Organization Description
               </label>
               <div class="col-12">
@@ -420,14 +442,6 @@
               </label>
               <div class="col-12">
                 <input class="form-control" value="{{ organization_application.usage }}" readonly>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="col-12 control-label">
-                Organization Type
-              </label>
-              <div class="col-12">
-                <input class="form-control" value="{{ organization_application.orgtype.value }}" readonly>
               </div>
             </div>
           </div>
