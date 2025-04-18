@@ -963,7 +963,7 @@ msgstr "உயர்மட்ட பைப்லைன் கோப்பு ப
 msgid "Provide an Inspector link to specific lines of code."
 msgstr "குறியீட்டின் குறிப்பிட்ட வரிகளுக்கு இன்ச்பெக்டர் இணைப்பை வழங்கவும்."
 
-#: warehouse/packaging/views.py:353
+#: warehouse/packaging/views.py:342
 msgid "Your report has been recorded. Thank you for your help."
 msgstr "உங்கள் அறிக்கை பதிவு செய்யப்பட்டுள்ளது. உங்கள் உதவிக்கு நன்றி."
 
@@ -1069,14 +1069,14 @@ msgstr "Monty Python - The Cheese Shop மாதிரிச் சித்த�
 
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/accounts/two-factor.html:55
-#: warehouse/templates/base.html:286 warehouse/templates/base.html:287
-#: warehouse/templates/base.html:288 warehouse/templates/base.html:289
-#: warehouse/templates/base.html:299 warehouse/templates/base.html:300
-#: warehouse/templates/base.html:313 warehouse/templates/base.html:314
-#: warehouse/templates/base.html:316 warehouse/templates/base.html:325
-#: warehouse/templates/base.html:327 warehouse/templates/base.html:328
-#: warehouse/templates/base.html:329 warehouse/templates/base.html:339
-#: warehouse/templates/base.html:352
+#: warehouse/templates/base.html:274 warehouse/templates/base.html:275
+#: warehouse/templates/base.html:276 warehouse/templates/base.html:277
+#: warehouse/templates/base.html:287 warehouse/templates/base.html:288
+#: warehouse/templates/base.html:301 warehouse/templates/base.html:302
+#: warehouse/templates/base.html:304 warehouse/templates/base.html:313
+#: warehouse/templates/base.html:315 warehouse/templates/base.html:316
+#: warehouse/templates/base.html:317 warehouse/templates/base.html:327
+#: warehouse/templates/base.html:340
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/file-details.html:101
 #: warehouse/templates/index.html:100 warehouse/templates/index.html:104
@@ -1092,8 +1092,8 @@ msgstr "Monty Python - The Cheese Shop மாதிரிச் சித்த�
 #: warehouse/templates/manage/project/release.html:194
 #: warehouse/templates/manage/project/releases.html:140
 #: warehouse/templates/manage/project/releases.html:179
-#: warehouse/templates/packaging/detail.html:417
-#: warehouse/templates/packaging/detail.html:437
+#: warehouse/templates/packaging/detail.html:419
+#: warehouse/templates/packaging/detail.html:439
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:230
@@ -1236,7 +1236,7 @@ msgid "Main navigation"
 msgstr "முதன்மையான வழிசெலுத்தல்"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
-#: warehouse/templates/base.html:283
+#: warehouse/templates/base.html:271
 #: warehouse/templates/includes/current-user-indicator.html:63
 #: warehouse/templates/pages/help.html:119
 #: warehouse/templates/pages/sitemap.html:27
@@ -1318,16 +1318,16 @@ msgstr "ஆர்.எச்.எச்: 40 அண்மைக் கால பு
 msgid "RSS: 40 newest packages"
 msgstr "ஆர்.எச்.எச்: 40 புதிய தொகுப்புகள்"
 
-#: warehouse/templates/base.html:168
+#: warehouse/templates/base.html:156
 msgid "Skip to main content"
 msgstr "முக்கிய உள்ளடக்கத்திற்கு செல்லவும்"
 
-#: warehouse/templates/base.html:171
+#: warehouse/templates/base.html:159
 msgid "Switch to mobile version"
 msgstr "மொபைல் பதிப்பிற்கு மாறவும்"
 
-#: warehouse/templates/base.html:180 warehouse/templates/base.html:189
-#: warehouse/templates/base.html:199
+#: warehouse/templates/base.html:168 warehouse/templates/base.html:177
+#: warehouse/templates/base.html:187
 #: warehouse/templates/includes/flash-messages.html:30
 #: warehouse/templates/includes/session-notifications.html:20
 #: warehouse/templates/manage/account.html:843
@@ -1345,12 +1345,12 @@ msgstr "மொபைல் பதிப்பிற்கு மாறவும�
 msgid "Warning"
 msgstr "எச்சரிக்கை"
 
-#: warehouse/templates/base.html:182
+#: warehouse/templates/base.html:170
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
 "நீங்கள் ஆதரிக்கப்படாத உலாவியைப் பயன்படுத்துகிறீர்கள், புதிய பதிப்பிற்கு மேம்படுத்தவும்."
 
-#: warehouse/templates/base.html:191
+#: warehouse/templates/base.html:179
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
@@ -1360,7 +1360,7 @@ msgstr ""
 "இது உண்மையான குறியீட்டை பாதிக்காமல் விநியோக கருவிகள் மற்றும் செயல்முறைகளை முயற்சிக்க "
 "உங்களை அனுமதிக்கிறது."
 
-#: warehouse/templates/base.html:201
+#: warehouse/templates/base.html:189
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
@@ -1368,156 +1368,156 @@ msgstr ""
 "சாவாச்கிரிப்ட் இல்லாமல் சில நற்பொருத்தங்கள் வேலை செய்யாது. நீங்கள் சிக்கல்களை எதிர்கொண்டால் "
 "அதை இயக்க முயற்சிக்கவும்."
 
-#: warehouse/templates/base.html:239 warehouse/templates/base.html:260
+#: warehouse/templates/base.html:227 warehouse/templates/base.html:248
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:43
 msgid "Search PyPI"
 msgstr "பைபியைத் தேடுங்கள்"
 
-#: warehouse/templates/base.html:240 warehouse/templates/base.html:261
+#: warehouse/templates/base.html:228 warehouse/templates/base.html:249
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:46
 msgid "Search projects"
 msgstr "தேடல் திட்டங்கள்"
 
-#: warehouse/templates/base.html:244 warehouse/templates/base.html:265
+#: warehouse/templates/base.html:232 warehouse/templates/base.html:253
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:50
 msgid "Search"
 msgstr "தேடல்"
 
-#: warehouse/templates/base.html:284
+#: warehouse/templates/base.html:272
 msgid "Help navigation"
 msgstr "வழிசெலுத்தலுக்கு உதவுங்கள்"
 
-#: warehouse/templates/base.html:286
+#: warehouse/templates/base.html:274
 msgid "Installing packages"
 msgstr "தொகுப்புகளை நிறுவுதல்"
 
-#: warehouse/templates/base.html:287
+#: warehouse/templates/base.html:275
 msgid "Uploading packages"
 msgstr "தொகுப்புகளை பதிவேற்றுகிறது"
 
-#: warehouse/templates/base.html:288
+#: warehouse/templates/base.html:276
 msgid "User guide"
 msgstr "பயனர் வழிகாட்டி"
 
-#: warehouse/templates/base.html:289
+#: warehouse/templates/base.html:277
 msgid "Project name retention"
 msgstr "திட்ட பெயர் தக்கவைப்பு"
 
-#: warehouse/templates/base.html:290
+#: warehouse/templates/base.html:278
 msgid "FAQs"
 msgstr "கேள்விகள்"
 
-#: warehouse/templates/base.html:296 warehouse/templates/pages/sitemap.html:37
+#: warehouse/templates/base.html:284 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
 msgstr "பைபி பற்றி"
 
-#: warehouse/templates/base.html:297
+#: warehouse/templates/base.html:285
 msgid "About PyPI navigation"
 msgstr "பைபி வழிசெலுத்தல் பற்றி"
 
-#: warehouse/templates/base.html:299
+#: warehouse/templates/base.html:287
 msgid "PyPI Blog"
 msgstr "பூசாரி வலைப்பதிவு"
 
-#: warehouse/templates/base.html:300
+#: warehouse/templates/base.html:288
 msgid "Infrastructure dashboard"
 msgstr "உள்கட்டமைப்பு டாச்போர்டு"
 
-#: warehouse/templates/base.html:301 warehouse/templates/pages/sitemap.html:40
+#: warehouse/templates/base.html:289 warehouse/templates/pages/sitemap.html:40
 #: warehouse/templates/pages/stats.html:16
 msgid "Statistics"
 msgstr "புள்ளிவிவரங்கள்"
 
-#: warehouse/templates/base.html:302
+#: warehouse/templates/base.html:290
 msgid "Logos & trademarks"
 msgstr "லோகோக்கள் மற்றும் வர்த்தக முத்திரைகள்"
 
-#: warehouse/templates/base.html:303
+#: warehouse/templates/base.html:291
 msgid "Our sponsors"
 msgstr "எங்கள் ஒப்புரவாளர்கள்"
 
-#: warehouse/templates/base.html:309
+#: warehouse/templates/base.html:297
 msgid "Contributing to PyPI"
 msgstr "பைபிக்கு பங்களிப்பு"
 
-#: warehouse/templates/base.html:310
+#: warehouse/templates/base.html:298
 msgid "How to contribute navigation"
 msgstr "வழிசெலுத்தலை எவ்வாறு பங்களிப்பது"
 
-#: warehouse/templates/base.html:312
+#: warehouse/templates/base.html:300
 msgid "Bugs and feedback"
 msgstr "பிழைகள் மற்றும் கருத்து"
 
-#: warehouse/templates/base.html:313
+#: warehouse/templates/base.html:301
 msgid "Contribute on GitHub"
 msgstr "கிதுபில் பங்களிப்பு செய்யுங்கள்"
 
-#: warehouse/templates/base.html:314
+#: warehouse/templates/base.html:302
 msgid "Translate PyPI"
 msgstr "பைபியை மொழிபெயர்க்கவும்"
 
-#: warehouse/templates/base.html:315
+#: warehouse/templates/base.html:303
 msgid "Sponsor PyPI"
 msgstr "ஒப்புரவாளர் பைபி"
 
-#: warehouse/templates/base.html:316
+#: warehouse/templates/base.html:304
 msgid "Development credits"
 msgstr "வளர்ச்சி வரவு"
 
-#: warehouse/templates/base.html:322 warehouse/templates/pages/sitemap.html:23
+#: warehouse/templates/base.html:310 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
 msgstr "பைபியைப் பயன்படுத்துதல்"
 
-#: warehouse/templates/base.html:323
+#: warehouse/templates/base.html:311
 msgid "Using PyPI navigation"
 msgstr "பைபி வழிசெலுத்தலைப் பயன்படுத்துதல்"
 
-#: warehouse/templates/base.html:325
+#: warehouse/templates/base.html:313
 #: warehouse/templates/manage/organization/activate_subscription.html:33
 msgid "Terms of Service"
 msgstr "பணி விதிமுறைகள்"
 
-#: warehouse/templates/base.html:326
+#: warehouse/templates/base.html:314
 msgid "Report security issue"
 msgstr "பாதுகாப்பு வெளியீட்டைப் புகாரளிக்கவும்"
 
-#: warehouse/templates/base.html:327
+#: warehouse/templates/base.html:315
 msgid "Code of conduct"
 msgstr "நடத்தை விதிமுறை"
 
-#: warehouse/templates/base.html:328
+#: warehouse/templates/base.html:316
 msgid "Privacy Notice"
 msgstr "தனியுரிமை அறிவிப்பு"
 
-#: warehouse/templates/base.html:329
+#: warehouse/templates/base.html:317
 msgid "Acceptable Use Policy"
 msgstr "ஏற்றுக்கொள்ளக்கூடிய பயன்பாட்டுக் கொள்கை"
 
-#: warehouse/templates/base.html:339
+#: warehouse/templates/base.html:327
 msgid "Status:"
 msgstr "நிலை:"
 
-#: warehouse/templates/base.html:340
+#: warehouse/templates/base.html:328
 msgid "all systems operational"
 msgstr "அனைத்து அமைப்புகளும் செயல்படும்"
 
-#: warehouse/templates/base.html:344
+#: warehouse/templates/base.html:332
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr "பைதான் சமூகத்திற்காக பைதான் சமூகத்தால் உருவாக்கப்பட்டு பராமரிக்கப்படுகிறது."
 
-#: warehouse/templates/base.html:346
+#: warehouse/templates/base.html:334
 msgid "Donate today!"
 msgstr "இன்று நன்கொடை!"
 
-#: warehouse/templates/base.html:353 warehouse/templates/pages/sitemap.html:16
+#: warehouse/templates/base.html:341 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
 msgstr "தள வரைபடம்"
 
-#: warehouse/templates/base.html:359
+#: warehouse/templates/base.html:347
 msgid "Switch to desktop version"
 msgstr "டெச்க்டாப் பதிப்பிற்கு மாறவும்"
 
@@ -3548,10 +3548,6 @@ msgstr "வழங்குகிறது-எக்ச்ட்ரா:"
 #: warehouse/templates/pages/sitemap.html:39
 msgid "Classifiers"
 msgstr "வகைப்படுத்திகள்"
-
-#: warehouse/templates/includes/packaging/submit-malware-report.html:18
-msgid "Report project as malware"
-msgstr "Report திட்டம் அச் malware"
 
 #: warehouse/templates/manage/account.html:33
 #: warehouse/templates/manage/unverified-account.html:30
@@ -6919,12 +6915,12 @@ msgid "Back to projects"
 msgstr "திட்டங்களுக்குத் திரும்பு"
 
 #: warehouse/templates/manage/project/manage_project_base.html:70
-#: warehouse/templates/packaging/detail.html:302
+#: warehouse/templates/packaging/detail.html:304
 msgid "This project has been quarantined."
 msgstr "இந்த திட்டம் தனிமைப்படுத்தப்பட்டுள்ளது."
 
 #: warehouse/templates/manage/project/manage_project_base.html:72
-#: warehouse/templates/packaging/detail.html:304
+#: warehouse/templates/packaging/detail.html:306
 msgid ""
 "PyPI Admins need to review this project before it can be restored. While in "
 "quarantine, the project is not installable by clients, and cannot be being "
@@ -6935,7 +6931,7 @@ msgstr ""
 "அதன் பராமரிப்பாளர்களால் மாற்றப்பட முடியாது."
 
 #: warehouse/templates/manage/project/manage_project_base.html:79
-#: warehouse/templates/packaging/detail.html:311
+#: warehouse/templates/packaging/detail.html:313
 #, python-format
 msgid ""
 "Read more in the <a href=\"%(href)s\">project in quarantine</a> help article."
@@ -6944,7 +6940,7 @@ msgstr ""
 "வாசிக்க."
 
 #: warehouse/templates/manage/project/manage_project_base.html:86
-#: warehouse/templates/packaging/detail.html:318
+#: warehouse/templates/packaging/detail.html:320
 msgid "This project has been archived."
 msgstr "இந்த திட்டம் காப்பகப்படுத்தப்பட்டுள்ளது."
 
@@ -8023,54 +8019,58 @@ msgid "Navigation"
 msgstr "வானோடல்"
 
 #: warehouse/templates/packaging/detail.html:233
-#: warehouse/templates/packaging/detail.html:267
+#: warehouse/templates/packaging/detail.html:269
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr "%(project)s வழிசெலுத்தல்"
 
 #: warehouse/templates/packaging/detail.html:236
-#: warehouse/templates/packaging/detail.html:270
+#: warehouse/templates/packaging/detail.html:272
 msgid "Project description. Focus will be moved to the description."
 msgstr "திட்ட விளக்கம். கவனம் விளக்கத்திற்கு நகர்த்தப்படும்."
 
 #: warehouse/templates/packaging/detail.html:238
-#: warehouse/templates/packaging/detail.html:272
-#: warehouse/templates/packaging/detail.html:332
+#: warehouse/templates/packaging/detail.html:274
+#: warehouse/templates/packaging/detail.html:334
 msgid "Project description"
 msgstr "திட்ட விளக்கம்"
 
 #: warehouse/templates/packaging/detail.html:242
-#: warehouse/templates/packaging/detail.html:282
+#: warehouse/templates/packaging/detail.html:284
 msgid "Release history. Focus will be moved to the history panel."
 msgstr "வெளியீட்டு வரலாறு. கவனம் வரலாற்றுக் குழுவுக்கு மாற்றப்படும்."
 
 #: warehouse/templates/packaging/detail.html:244
-#: warehouse/templates/packaging/detail.html:284
-#: warehouse/templates/packaging/detail.html:354
+#: warehouse/templates/packaging/detail.html:286
+#: warehouse/templates/packaging/detail.html:356
 msgid "Release history"
 msgstr "வெளியீட்டு வரலாறு"
 
 #: warehouse/templates/packaging/detail.html:249
-#: warehouse/templates/packaging/detail.html:289
+#: warehouse/templates/packaging/detail.html:291
 msgid "Download files. Focus will be moved to the project files."
 msgstr "கோப்புகளைப் பதிவிறக்கவும். கவனம் திட்டக் கோப்புகளுக்கு நகர்த்தப்படும்."
 
 #: warehouse/templates/packaging/detail.html:251
-#: warehouse/templates/packaging/detail.html:291
-#: warehouse/templates/packaging/detail.html:416
+#: warehouse/templates/packaging/detail.html:293
+#: warehouse/templates/packaging/detail.html:418
 msgid "Download files"
 msgstr "கோப்புகளைப் பதிவிறக்கவும்"
 
-#: warehouse/templates/packaging/detail.html:276
+#: warehouse/templates/packaging/detail.html:264
+msgid "Report project as malware"
+msgstr "Report திட்டம் அச் malware"
+
+#: warehouse/templates/packaging/detail.html:278
 msgid "Project details. Focus will be moved to the project details."
 msgstr "திட்ட விவரங்கள். கவனம் திட்ட விவரங்களுக்கு நகர்த்தப்படும்."
 
-#: warehouse/templates/packaging/detail.html:278
-#: warehouse/templates/packaging/detail.html:346
+#: warehouse/templates/packaging/detail.html:280
+#: warehouse/templates/packaging/detail.html:348
 msgid "Project details"
 msgstr "திட்ட விவரங்கள்"
 
-#: warehouse/templates/packaging/detail.html:320
+#: warehouse/templates/packaging/detail.html:322
 msgid ""
 "The maintainers of this project have marked this project as archived. No new "
 "releases are expected."
@@ -8078,36 +8078,36 @@ msgstr ""
 "இந்த திட்டத்தின் பராமரிப்பாளர்கள் இந்த திட்டத்தை காப்பகப்படுத்தப்பட்டதாகக் குறித்துள்ளனர். "
 "புதிய வெளியீடுகள் எதுவும் எதிர்பார்க்கப்படவில்லை."
 
-#: warehouse/templates/packaging/detail.html:328
-#: warehouse/templates/packaging/detail.html:403
+#: warehouse/templates/packaging/detail.html:330
+#: warehouse/templates/packaging/detail.html:405
 msgid "Reason this release was yanked:"
 msgstr "இந்த வெளியீடு அசைக்கப்பட்டது காரணம்:"
 
-#: warehouse/templates/packaging/detail.html:339
+#: warehouse/templates/packaging/detail.html:341
 msgid "The author of this package has not provided a project description"
 msgstr "இந்த தொகுப்பின் ஆசிரியர் திட்ட விளக்கத்தை வழங்கவில்லை"
 
-#: warehouse/templates/packaging/detail.html:356
+#: warehouse/templates/packaging/detail.html:358
 msgid "Release notifications"
 msgstr "அறிவிப்புகளை வெளியிடுங்கள்"
 
-#: warehouse/templates/packaging/detail.html:357
+#: warehouse/templates/packaging/detail.html:359
 msgid "RSS feed"
 msgstr "RSS ஊட்டம்"
 
-#: warehouse/templates/packaging/detail.html:369
+#: warehouse/templates/packaging/detail.html:371
 msgid "This version"
 msgstr "இந்த பதிப்பு"
 
-#: warehouse/templates/packaging/detail.html:389
+#: warehouse/templates/packaging/detail.html:391
 msgid "pre-release"
 msgstr "முன் வெளியீடு"
 
-#: warehouse/templates/packaging/detail.html:394
+#: warehouse/templates/packaging/detail.html:396
 msgid "yanked"
 msgstr "yanked"
 
-#: warehouse/templates/packaging/detail.html:417
+#: warehouse/templates/packaging/detail.html:419
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -8118,17 +8118,17 @@ msgstr ""
 "தெரியாவிட்டால், <a href = \"%(href)s\" தலைப்பு = \"%(title)s\" இலக்கு = \"_ "
 "வெற்று\" rel = \"noopener\"> தொகுப்புகளை நிறுவுதல் </a> ."
 
-#: warehouse/templates/packaging/detail.html:420
+#: warehouse/templates/packaging/detail.html:422
 msgid "Source Distribution"
 msgid_plural "Source Distributions"
 msgstr[0] "மூல வழங்கல்"
 msgstr[1] "மூல வழங்கல்"
 
-#: warehouse/templates/packaging/detail.html:436
+#: warehouse/templates/packaging/detail.html:438
 msgid "No source distribution files available for this release."
 msgstr "இந்த வெளியீட்டிற்கு மூல விநியோக கோப்புகள் எதுவும் கிடைக்கவில்லை."
 
-#: warehouse/templates/packaging/detail.html:437
+#: warehouse/templates/packaging/detail.html:439
 #, python-format
 msgid ""
 "See tutorial on <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -8137,7 +8137,7 @@ msgstr ""
 "<A href = \"%(href)s\" தலைப்பு = \"%(title)s\" இலக்கு = \"_ வெற்று\" rel = "
 "\"noopener\"> விநியோக காப்பகங்களை உருவாக்குதல் </a> இல் டுடோரியலைப் பார்க்கவும்."
 
-#: warehouse/templates/packaging/detail.html:444
+#: warehouse/templates/packaging/detail.html:446
 msgid "Built Distribution"
 msgid_plural "Built Distributions"
 msgstr[0] "கட்டப்பட்ட வழங்கல்"
