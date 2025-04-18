@@ -305,7 +305,7 @@ class TestDatabaseOrganizationService:
         db_request.user = admin
 
         organization_application = OrganizationApplicationFactory.create()
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError):  # noqa
             organization_service.request_more_information(
                 organization_application.id, db_request
             )
