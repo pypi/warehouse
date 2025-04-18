@@ -1075,6 +1075,44 @@ class TestOrganizationApplicationActions:
             views.organization_application_request_more_information(request)
 
     @pytest.mark.usefixtures("_enable_organizations")
+    def test_request_more_information_no_message(self, db_request):
+        admin = UserFactory.create()
+        user = UserFactory.create()
+        organization_application = OrganizationApplicationFactory.create(
+            name="example", submitted_by=user
+        )
+
+        organization_service = pretend.stub(
+            get_organization_application=lambda *a, **kw: organization_application,
+            request_more_information=pretend.call_recorder(pretend.raiser(ValueError)),
+        )
+
+        db_request.matchdict = {
+            "organization_application_id": organization_application.id
+        }
+        db_request.params = {}
+        db_request.user = admin
+        db_request.route_path = pretend.call_recorder(_organization_application_routes)
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context: organization_service
+        )
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+
+        result = views.organization_application_request_more_information(db_request)
+
+        assert organization_service.request_more_information.calls == [
+            pretend.call(organization_application.id, db_request),
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call("No message provided", queue="error"),
+        ]
+        assert result.status_code == 303
+        assert (
+            result.location
+            == f"/admin/organization_applications/{organization_application.id}/"
+        )
+
+    @pytest.mark.usefixtures("_enable_organizations")
     def test_decline(self, db_request):
         admin = UserFactory.create()
         user = UserFactory.create()
