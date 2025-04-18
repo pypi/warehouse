@@ -470,18 +470,22 @@ def organization_application_request_more_information(request):
     if organization_application is None:
         raise HTTPNotFound
 
-    organization_service.request_more_information(organization_application.id, request)
+    try:
+        organization_service.request_more_information(
+            organization_application.id, request
+        )
+        request.session.flash(
+            (
+                f'Request for more info from "{organization_application.name}" '
+                "organization sent"
+            ),
+            queue="success",
+        )
 
-    request.session.flash(
-        (
-            f'Request for more info from "{organization_application.name}" '
-            "organization sent"
-        ),
-        queue="success",
-    )
-
-    if request.params.get("organization_applications_turbo_mode") == "true":
-        return _turbo_mode(request)
+        if request.params.get("organization_applications_turbo_mode") == "true":
+            return _turbo_mode(request)
+    except ValueError:
+        request.session.flash("No message provided", queue="error")
 
     return HTTPSeeOther(
         request.route_path(

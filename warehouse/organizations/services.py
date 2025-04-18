@@ -270,6 +270,9 @@ class DatabaseOrganizationService:
 
         message = request.params.get("message", "")
 
+        if not message:
+            raise ValueError
+
         organization_application.record_observation(
             request=request,
             actor=request.user,

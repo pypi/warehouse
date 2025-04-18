@@ -275,11 +275,17 @@ $(document).ready(function() {
     document.onkeyup = function(){};
   }
   function hotKeys(e) {
-    console.log(e);
     if (keyBindings.has(String(e.which))) {
       unbindHotKeys();
-      $(keyBindings.get(String(e.which))).modal("show");
-      $(keyBindings.get(String(e.which))).on("hidden.bs.modal", bindHotKeys);
+      const targetModal = $(keyBindings.get(String(e.which)));
+      targetModal.one("shown.bs.modal", function () {
+        const firstFocusableElement = $(this).find("input:visible, textarea:visible").first();
+        if (firstFocusableElement.length) {
+          firstFocusableElement.focus();
+        }
+      });
+      targetModal.modal("show");
+      targetModal.on("hidden.bs.modal", bindHotKeys);
     }
   }
   modalHotKeyBindings.forEach(function(modalHotKeyBinding) {
@@ -287,10 +293,10 @@ $(document).ready(function() {
       keyBindings.set(modalHotKeyBinding.dataset.hotkeyBinding, modalHotKeyBinding.dataset.target);
     }
   });
-  const inputs = document.querySelectorAll("input");
-  inputs.forEach(function(input) {
-    input.addEventListener("focusin", unbindHotKeys);
-    input.addEventListener("focusout", bindHotKeys);
+  const focusable = document.querySelectorAll("input, textarea");
+  focusable.forEach(function(element) {
+    element.addEventListener("focusin", unbindHotKeys);
+    element.addEventListener("focusout", bindHotKeys);
   });
   bindHotKeys();
 });
