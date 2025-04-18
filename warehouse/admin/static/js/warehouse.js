@@ -278,8 +278,8 @@ $(document).ready(function() {
     if (keyBindings.has(String(e.which))) {
       unbindHotKeys();
       const targetModal = $(keyBindings.get(String(e.which)));
-      targetModal.one('shown.bs.modal', function () {
-        const firstFocusableElement = $(this).find('input:visible, textarea:visible').first();
+      targetModal.one("shown.bs.modal", function () {
+        const firstFocusableElement = $(this).find("input:visible, textarea:visible").first();
         if (firstFocusableElement.length) {
           firstFocusableElement.focus();
         }
