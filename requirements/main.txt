@@ -1986,7 +1986,6 @@ requests==2.32.3 \
     #   sigstore
     #   stripe
     #   tldextract
-    #   tuf
 requests-aws4auth==1.3.1 \
     --hash=sha256:2969b5379ae6e60ee666638caf6cb94a32d67033f6bfcf0d50c95cd5474f2419 \
     --hash=sha256:b6ad4882310e03ba2538ebf94d1f001ca9feabc5c52618539cf1eb6d5af76791
@@ -2162,9 +2161,9 @@ sentry-sdk==2.26.1 \
     --hash=sha256:759e019c41551a21519a95e6cef6d91fb4af1054761923dadaee2e6eca9c02c7 \
     --hash=sha256:e99390e3f217d13ddcbaeaed08789f1ca614d663b345b9da42e35ad6b60d696a
     # via -r requirements/main.in
-sigstore==3.6.1 \
-    --hash=sha256:b568b16322222e834940acabdc84fbb16c8780874c3c21c6c8dde928dae0f881 \
-    --hash=sha256:ee60fdc9236fd6709271ad53b44027461360c3fde155d2af15482e4c451ff865
+sigstore==3.6.2 \
+    --hash=sha256:46dd3a142ea24ba2dc184239aee7c2a2d5efa0697bd2c8ac99df78bb386778b3 \
+    --hash=sha256:ed3a9bd12fecbb9d1028baddc257abbc87548275755457a063f310e5c758baf6
     # via pypi-attestations
 sigstore-protobuf-specs==0.3.2 \
     --hash=sha256:50c99fa6747a3a9c5c562a43602cf76df0b199af28f0e9d4319b6775630425ea \
@@ -2289,9 +2288,9 @@ trove-classifiers==2025.3.19.19 \
     --hash=sha256:5fc02770ecd81588a605ac98b9d85d50a5a3f9daa30af2a6b1361a1999d75d07 \
     --hash=sha256:98e9d396fe908d5f43b7454fa4c43d17cd0fdadf046f45fb38a5e3af8d959ecd
     # via -r requirements/main.in
-tuf==5.1.0 \
-    --hash=sha256:1865737bf8e05893ae31b4511617da7f02cf070562fa3c931074d29ef5fb46d7 \
-    --hash=sha256:6494848d2720ced600e0d7ee23b4986623ddad1148ad8e54ffe308db18b762fe
+tuf==6.0.0 \
+    --hash=sha256:458f663a233d95cc76dde0e1a3d01796516a05ce2781fefafebe037f7729601a \
+    --hash=sha256:9eed0f7888c5fff45dc62164ff243a05d47fb8a3208035eb268974287e0aee8d
     # via sigstore
 typing-extensions==4.13.2 \
     --hash=sha256:a439e7c04b49fec3e5d3e2beaa21755cadbbdc391694e28ccdd36ca4a1408f8c \
@@ -2324,6 +2323,7 @@ urllib3==2.4.0 \
     #   opensearch-py
     #   requests
     #   sentry-sdk
+    #   tuf
 venusian==3.1.1 \
     --hash=sha256:0845808a985976acbceaa1fbb871c7fac4fb28ae75453232970e9c2c2866dbf4 \
     --hash=sha256:534fb3b355669283eb3954581931e5d1d071fce61d029d58f3219a5e3a6f0c41
