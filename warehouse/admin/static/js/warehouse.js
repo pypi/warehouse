@@ -287,10 +287,10 @@ $(document).ready(function() {
       keyBindings.set(modalHotKeyBinding.dataset.hotkeyBinding, modalHotKeyBinding.dataset.target);
     }
   });
-  const inputs = document.querySelectorAll("input");
-  inputs.forEach(function(input) {
-    input.addEventListener("focusin", unbindHotKeys);
-    input.addEventListener("focusout", bindHotKeys);
+  const focusable = document.querySelectorAll("input, textarea");
+  focusable.forEach(function(element) {
+    element.addEventListener("focusin", unbindHotKeys);
+    element.addEventListener("focusout", bindHotKeys);
   });
   bindHotKeys();
 });
