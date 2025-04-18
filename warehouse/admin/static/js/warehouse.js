@@ -292,7 +292,7 @@ $(document).ready(function() {
     input.addEventListener("focusin", unbindHotKeys);
     input.addEventListener("focusout", bindHotKeys);
   });
-  document.onkeyup = bindHotKeys;
+  bindHotKeys();
 });
 
 // Link Checking
