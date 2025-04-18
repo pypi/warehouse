@@ -438,6 +438,35 @@ class TestDatabaseOrganizationService:
             is None
         )
 
+    def test_delete_organization_role_deletes_team_roles(
+        self, organization_service, user_service
+    ):
+        user = UserFactory.create()
+        organization = OrganizationFactory.create()
+        organization_role = OrganizationRoleFactory.create(
+            organization=organization, user=user
+        )
+        team = TeamFactory.create(organization=organization)
+        TeamRoleFactory.create(team=team, user=user)
+
+        organization_service.delete_organization_role(organization_role.id)
+
+        assert (
+            organization_service.get_organization_role_by_user(
+                organization_role.organization_id,
+                user.id,
+            )
+            is None
+        )
+
+        assert (
+            organization_service.get_organization_team_roles_by_user(
+                organization.id,
+                user.id,
+            )
+            == []
+        )
+
     def test_get_organization_invite(self, organization_service):
         organization_invite = OrganizationInvitationFactory.create()
 
@@ -623,6 +652,51 @@ class TestDatabaseOrganizationService:
             )
             .count()
         )
+
+    def test_rename_organization_back(self, organization_service, db_request):
+        organization = OrganizationFactory.create()
+        original_name = organization.name
+
+        organization_service.rename_organization(organization.id, "some_new_name")
+        assert organization.name == "some_new_name"
+
+        db_organization = organization_service.get_organization(organization.id)
+        assert db_organization.name == "some_new_name"
+
+        organization_service.db.flush()
+        assert (
+            db_request.db.query(OrganizationNameCatalog)
+            .filter(
+                OrganizationNameCatalog.normalized_name == organization.normalized_name
+            )
+            .count()
+        ) == 1
+
+        organization_service.rename_organization(organization.id, original_name)
+        assert organization.name == original_name
+
+        db_organization = organization_service.get_organization(organization.id)
+        assert db_organization.name == original_name
+
+        organization_service.db.flush()
+        assert (
+            db_request.db.query(OrganizationNameCatalog)
+            .filter(
+                OrganizationNameCatalog.normalized_name == organization.normalized_name
+            )
+            .count()
+        ) == 1
+
+    def test_rename_fails_if_entry_exists_for_another_org(
+        self, organization_service, db_request
+    ):
+        conflicting_org = OrganizationFactory.create()
+        organization = OrganizationFactory.create()
+
+        with pytest.raises(ValueError):  # noqa: PT011
+            organization_service.rename_organization(
+                organization.id, conflicting_org.name
+            )
 
     def test_update_organization(self, organization_service, db_request):
         organization = OrganizationFactory.create()
