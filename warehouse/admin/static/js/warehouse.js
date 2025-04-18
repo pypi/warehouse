@@ -265,6 +265,36 @@ if (editModalForm !== null) {
   }
 }
 
+$(document).ready(function() {
+  const modalHotKeyBindings = document.querySelectorAll("button[data-hotkey-binding]");
+  var keyBindings = new Map();
+  function bindHotKeys() {
+    document.onkeyup = hotKeys;
+  }
+  function unbindHotKeys() {
+    document.onkeyup = function(){};
+  }
+  function hotKeys(e) {
+    console.log(e);
+    if (keyBindings.has(String(e.which))) {
+      unbindHotKeys();
+      $(keyBindings.get(String(e.which))).modal("show");
+      $(keyBindings.get(String(e.which))).on("hidden.bs.modal", bindHotKeys);
+    }
+  }
+  modalHotKeyBindings.forEach(function(modalHotKeyBinding) {
+    if (! modalHotKeyBinding.disabled) {
+      keyBindings.set(modalHotKeyBinding.dataset.hotkeyBinding, modalHotKeyBinding.dataset.target);
+    }
+  });
+  const inputs = document.querySelectorAll("input");
+  inputs.forEach(function(input) {
+    input.addEventListener("focusin", unbindHotKeys);
+    input.addEventListener("focusout", bindHotKeys);
+  });
+  document.onkeyup = bindHotKeys;
+});
+
 // Link Checking
 const links = document.querySelectorAll("a[data-check-link-url]");
 links.forEach(function(link){

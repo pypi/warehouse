@@ -64,6 +64,7 @@
               type="button"
               class="btn btn-primary btn-block"
               data-toggle="modal"
+              data-hotkey-binding=65
               data-target="#approveModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) or organization_application.status.value in ['approved', 'declined'] }}
               title="Approve organization request"
             >
@@ -74,6 +75,7 @@
               type="button"
               class="btn btn-info btn-block"
               data-toggle="modal"
+              data-hotkey-binding=82
               data-target="#requestMoreInfoModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) or organization_application.status.value in ['approved', 'declined'] }}
               title="Request more information on this organization request"
             >
@@ -84,6 +86,7 @@
               type="button"
               class="btn btn-danger btn-block"
               data-toggle="modal"
+              data-hotkey-binding=49
               data-target="#declineModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) or organization_application.status.value in ['approved', 'declined'] }}
               title="Decline organization request"
             >
@@ -94,6 +97,7 @@
               type="button"
               class="btn btn-secondary btn-block"
               data-toggle="modal"
+              data-hotkey-binding=68
               data-target="#deferModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) or organization_application.status in ['deferred', 'approved', 'declined'] }}
               title="Defer organization request"
             >
@@ -261,7 +265,7 @@
                         <label for="requestMoreInfoModalMessage">
                           Message
                         </label>
-                        <textarea id="requestMoreInfoModalMessage" class="form-control" name="message" placeholder="Information you are requesting" rows=16></textarea>
+                        <textarea id="requestMoreInfoModalMessage" class="form-control" name="message" placeholder="Information you are requesting" rows=8></textarea>
                         <span id="requestMoreInfoModalMessageHelpBlock">
                           This message will be included in the notification email.
                         </span>
