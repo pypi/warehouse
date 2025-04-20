@@ -3,6 +3,7 @@
 import datetime
 import json
 import uuid
+import pyramid.renderers
 
 from types import SimpleNamespace
 
@@ -3982,9 +3983,6 @@ class TestReAuthentication:
 
         # Inject password error through query params
         password_errors = ["The password is invalid. Try again."]
-        # pyramid_request.params = {
-        #     "errors": json.dumps({"password": password_errors})
-        # }
 
         form_obj = pretend.stub(
             next_route=pretend.stub(data=next_route),
@@ -4004,9 +4002,6 @@ class TestReAuthentication:
 
         _ = views.reauthenticate(pyramid_request, _form_class=form_class)
 
-        # assert pyramid_request.session.record_auth_timestamp.calls == (
-        #     [pretend.call()] if next_route is not None else []
-        # )
         assert form_class.calls == [
             pretend.call(
                 pyramid_request.POST,
@@ -4023,7 +4018,7 @@ class TestReAuthentication:
                 ],
             )
         ]
-        # assert form_obj.password.errors == password_errors
+
 
     def test_reauth_no_user(self, monkeypatch, pyramid_request):
         pyramid_request.user = None
