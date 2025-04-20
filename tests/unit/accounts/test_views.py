@@ -3423,12 +3423,14 @@ class TestReAuthentication:
         pyramid_request.matched_route = pretend.stub(name=pretend.stub())
         pyramid_request.matchdict = {"foo": "bar"}
         pyramid_request.GET = pretend.stub(mixed=lambda: {"baz": "bar"})
+        pyramid_request.params = {}
 
         form_obj = pretend.stub(
             next_route=pretend.stub(data=next_route),
             next_route_matchdict=pretend.stub(data="{}"),
             next_route_query=pretend.stub(data="{}"),
             validate=lambda: True,
+            password=pretend.stub(errors=[]),
         )
         form_class = pretend.call_recorder(lambda d, **kw: form_obj)
 
