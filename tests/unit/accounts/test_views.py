@@ -3,7 +3,6 @@
 import datetime
 import json
 import uuid
-import pyramid.renderers
 
 from types import SimpleNamespace
 
@@ -3965,7 +3964,9 @@ class TestReAuthentication:
         ]
 
     @pytest.mark.parametrize("next_route", [None, "/manage/accounts", "/projects/"])
-    def test_reauth_with_password_error_in_query(self, monkeypatch, pyramid_request, pyramid_services, next_route):
+    def test_reauth_with_password_error_in_query(
+        self, monkeypatch, pyramid_request, pyramid_services, next_route
+    ):
         user_service = pretend.stub(get_password_timestamp=lambda uid: 0)
         response = pretend.stub()
 
@@ -3974,7 +3975,9 @@ class TestReAuthentication:
         pyramid_services.register_service(user_service, IUserService, None)
 
         pyramid_request.route_path = lambda *args, **kwargs: pretend.stub()
-        pyramid_request.session.record_auth_timestamp = pretend.call_recorder(lambda *args: None)
+        pyramid_request.session.record_auth_timestamp = pretend.call_recorder(
+            lambda *args: None
+        )
         pyramid_request.session.record_password_timestamp = lambda ts: None
         pyramid_request.user = pretend.stub(id=pretend.stub(), username=pretend.stub())
         pyramid_request.matched_route = pretend.stub(name=pretend.stub())
@@ -4018,7 +4021,6 @@ class TestReAuthentication:
                 ],
             )
         ]
-
 
     def test_reauth_no_user(self, monkeypatch, pyramid_request):
         pyramid_request.user = None
