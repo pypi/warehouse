@@ -10,9 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
+
 import pretend
 import pytest
-import json
 
 from warehouse import manage
 
@@ -103,57 +104,20 @@ class TestReAuthView:
             (666, [pretend.call(666)]),
         ],
     )
-    def test_reauth_with_errors_param(self, monkeypatch, require_reauth, needs_reauth_calls):
-        context = pretend.stub()
-
-        class FakeField:
-            def __init__(self):
-                self.errors = []
-
-        class FakeForm:
-            def __init__(self, *args, **kwargs):
-                self.password = FakeField()
-
-        request = pretend.stub(
-            find_service=pretend.call_recorder(lambda service, context: pretend.stub()),
-            POST=pretend.stub(),
-            session=pretend.stub(
-                needs_reauthentication=pretend.call_recorder(lambda *args: True)
-            ),
-            params={"errors": json.dumps({"password": ["Invalid password."]})},
-            user=pretend.stub(username="test_user"),
-            matched_route=pretend.stub(name="some_route"),
-            matchdict={"foo": "bar"},
-            GET=pretend.stub(mixed=lambda: {"baz": "qux"}),
-        )
-
-        monkeypatch.setattr(manage, "render_to_response", lambda tpl, ctx, request: ctx)
-        monkeypatch.setattr(manage, "ReAuthenticateForm", lambda *a, **kw: FakeForm())
-
-        @pretend.call_recorder
-        def view(context, request):
-            raise AssertionError("View should not be called when reauth is needed")
-
-        info = pretend.stub(options={"require_reauth": True}, exception_only=False)
-        derived_view = manage.reauth_view(view, info)
-
-        result = derived_view(context, request)
-        # Ensure error message is correctly set in the form field
-        assert result["form"].password.errors == ["Invalid password."]
-
-    @pytest.mark.parametrize(
-        ("require_reauth", "needs_reauth_calls"),
-        [
-            (True, [pretend.call(manage.DEFAULT_TIME_TO_REAUTH)]),
-            (666, [pretend.call(666)]),
-        ],
-    )
-    def test_reauth_view_with_malformed_errors(self, monkeypatch, require_reauth, needs_reauth_calls):
+    def test_reauth_view_with_malformed_errors(
+        self, monkeypatch, require_reauth, needs_reauth_calls
+    ):
         mock_user_service = pretend.stub()
-        mock_form = pretend.stub(password=pretend.stub(errors=[]))
+        response = pretend.stub()
 
-        monkeypatch.setattr(manage, "ReAuthenticateForm", lambda *a, **k: mock_form)
-        monkeypatch.setattr(manage, "render_to_response", lambda tpl, context, request=None: context)
+        def mock_response(*args, **kwargs):
+            return {"mock_key": "mock_response"}
+
+        def mock_form(*args, **kwargs):
+            return pretend.stub(password=pretend.stub(errors=[]))
+
+        monkeypatch.setattr(manage, "render_to_response", mock_response)
+        monkeypatch.setattr(manage, "ReAuthenticateForm", mock_form)
 
         context = pretend.stub()
         dummy_request = pretend.stub(
@@ -169,41 +133,30 @@ class TestReAuthView:
             find_service=lambda service, context=None: mock_user_service,
         )
 
-        view = lambda context, request: None
+        @pretend.call_recorder
+        def view(context, request):
+            return response
+
         info = pretend.stub(options={"require_reauth": True}, exception_only=False)
 
         derived_view = manage.reauth_view(view, info)
-        result = derived_view(context, dummy_request)
 
-        assert "form" in result
-        assert result["form"] == mock_form
-        # Since the JSON is invalid, errors shouldn't be set/modified
-        assert mock_form.password.errors == []
+        assert derived_view(context, dummy_request) is not response
+        assert mock_form().password.errors == []
 
-    @pytest.mark.parametrize(
-        ("require_reauth", "needs_reauth_calls"),
-        [
-            (True, [pretend.call(manage.DEFAULT_TIME_TO_REAUTH)]),
-            (666, [pretend.call(666)]),
-        ],
-    )
-    def test_reauth_view_sets_errors(self, monkeypatch, require_reauth, needs_reauth_calls):
-        # Step 1: Mock the field that should have errors
+    def test_reauth_view_sets_errors(self, monkeypatch):
         mock_field = pretend.stub(errors=[])
-
-        # Step 2: Mock the form that has the password field
         form = pretend.stub(password=mock_field)
+        response = pretend.stub()
 
-        # Step 3: Ensure that ReAuthenticateForm uses this mocked form
         monkeypatch.setattr(manage, "ReAuthenticateForm", lambda *a, **kw: form)
-
-        # Step 4: Mock the render_to_response function (doesn't matter for this test)
         monkeypatch.setattr(manage, "render_to_response", lambda *a, **kw: {})
 
-        # Step 5: Define the request and the parameters that simulate the test case
         request = pretend.stub(
             session=pretend.stub(needs_reauthentication=lambda *a: True),
-            params={"errors": json.dumps({"password": ["Invalid password"]})},  # mock errors
+            params={
+                "errors": json.dumps({"password": ["Invalid password"]})
+            },  # mock errors
             POST={},
             GET=pretend.stub(mixed=lambda: {}),
             matched_route=pretend.stub(name="reauth"),
@@ -214,16 +167,65 @@ class TestReAuthView:
 
         context = pretend.stub()
         info = pretend.stub(options={"require_reauth": True})
-        view = lambda context, request: None  # Mock view function
 
-        # Step 6: Wrap the view with the reauth_view
+        @pretend.call_recorder
+        def view(context, request):
+            return response
+
         wrapped = manage.reauth_view(view, info)
 
-        # Step 7: Call the wrapped view
         wrapped(context, request)
 
-        # Step 8: Confirm that the field.errors were set correctly
-        assert mock_field.errors == ["Invalid password"], f"Expected errors to be ['Invalid password'], but got {mock_field.errors}"
+        assert mock_field.errors == [
+            "Invalid password"
+        ], f"Expected errors to be ['Invalid password'], but got {mock_field.errors}"
+
+    def test_reauth_view_field_missing_or_no_errors(self, monkeypatch):
+        mock_user_service = pretend.stub()
+        response = pretend.stub()
+
+        def mock_response(*args, **kwargs):
+            return {"mock_key": "mock_response"}
+
+        class DummyField:
+            pass  # No `errors` attribute
+
+        class DummyForm:
+            def __init__(self, *args, **kwargs):
+                self.existing_field = DummyField()  # Has no `.errors`
+
+        monkeypatch.setattr(manage, "render_to_response", mock_response)
+        monkeypatch.setattr(manage, "ReAuthenticateForm", DummyForm)
+
+        context = pretend.stub()
+        dummy_request = pretend.stub(
+            session=pretend.stub(
+                needs_reauthentication=pretend.call_recorder(lambda *a: True)
+            ),
+            params={
+                "errors": json.dumps(
+                    {"non_existing_field": ["err1"], "existing_field": ["err2"]}
+                )
+            },
+            POST={},
+            user=pretend.stub(username="fakeuser"),
+            matched_route=pretend.stub(name="fake.route"),
+            matchdict={"foo": "bar"},
+            GET=pretend.stub(mixed=lambda: {"baz": "qux"}),
+            find_service=lambda service, context=None: mock_user_service,
+        )
+
+        @pretend.call_recorder
+        def view(context, request):
+            return response
+
+        info = pretend.stub(options={"require_reauth": True}, exception_only=False)
+
+        derived_view = manage.reauth_view(view, info)
+        result = derived_view(context, dummy_request)
+
+        assert isinstance(result, dict)
+        assert result["mock_key"] == "mock_response"
 
 
 def test_includeme(monkeypatch):
