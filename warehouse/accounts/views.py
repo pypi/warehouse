@@ -1558,9 +1558,9 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
     else:
         # Inject password errors into query if validation failed
         if form.password.errors:
-            next_route_query["errors"] = json.dumps({
-                "password": [str(e) for e in form.password.errors]
-            })
+            next_route_query["errors"] = json.dumps(
+                {"password": [str(e) for e in form.password.errors]}
+            )
 
     redirect_to = request.route_path(
         next_route,
