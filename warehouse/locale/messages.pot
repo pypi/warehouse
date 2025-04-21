@@ -954,13 +954,12 @@ msgstr ""
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/accounts/two-factor.html:55
 #: warehouse/templates/base.html:274 warehouse/templates/base.html:275
-#: warehouse/templates/base.html:276 warehouse/templates/base.html:277
-#: warehouse/templates/base.html:287 warehouse/templates/base.html:288
-#: warehouse/templates/base.html:301 warehouse/templates/base.html:302
-#: warehouse/templates/base.html:304 warehouse/templates/base.html:313
-#: warehouse/templates/base.html:315 warehouse/templates/base.html:316
-#: warehouse/templates/base.html:317 warehouse/templates/base.html:327
-#: warehouse/templates/base.html:340
+#: warehouse/templates/base.html:277 warehouse/templates/base.html:287
+#: warehouse/templates/base.html:288 warehouse/templates/base.html:301
+#: warehouse/templates/base.html:302 warehouse/templates/base.html:304
+#: warehouse/templates/base.html:313 warehouse/templates/base.html:315
+#: warehouse/templates/base.html:316 warehouse/templates/base.html:317
+#: warehouse/templates/base.html:327 warehouse/templates/base.html:340
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/file-details.html:101
 #: warehouse/templates/index.html:100 warehouse/templates/index.html:104
@@ -1259,11 +1258,11 @@ msgid "Uploading packages"
 msgstr ""
 
 #: warehouse/templates/base.html:276
-msgid "User guide"
+msgid "User documentation"
 msgstr ""
 
 #: warehouse/templates/base.html:277
-msgid "Project name retention"
+msgid "User guide"
 msgstr ""
 
 #: warehouse/templates/base.html:278
