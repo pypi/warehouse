@@ -12,7 +12,7 @@
 import datetime
 
 from sqlalchemy import delete, func, orm, select
-from sqlalchemy.exc import NoResultFound
+from sqlalchemy.exc import IntegrityError, NoResultFound
 from zope.interface import implementer
 
 from warehouse.accounts.models import TermsOfServiceEngagement, User
@@ -524,8 +524,11 @@ class DatabaseOrganizationService:
         organization = self.get_organization(organization_id)
         organization.name = name
 
-        self.db.flush()  # flush db now so organization.normalized_name available
-        self.add_catalog_entry(organization_id)
+        try:
+            self.db.flush()  # flush db now so organization.normalized_name available
+            self.add_catalog_entry(organization_id)
+        except IntegrityError:
+            raise ValueError(f'Organization name "{name}" has been used')
 
         return organization
 
