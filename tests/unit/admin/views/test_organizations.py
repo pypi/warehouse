@@ -372,7 +372,7 @@ class TestOrganizationActions:
     @pytest.mark.usefixtures("_enable_organizations")
     def test_rename_fails_on_conflict(self, db_request):
         admin = UserFactory.create()
-        organization = OrganizationFactory.create(name="widget")
+        OrganizationFactory.create(name="widget")
         organization = OrganizationFactory.create(name="example")
 
         db_request.matchdict = {"organization_id": organization.id}

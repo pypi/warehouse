@@ -708,7 +708,7 @@ class TestDatabaseOrganizationService:
             .count()
         ) == 1
 
-    def test_rename_fails_if_entry_exists_for_another_org(
+    def test_rename_fails_if_organization_name_in_use(
         self, organization_service, db_request
     ):
         conflicting_org = OrganizationFactory.create()
@@ -718,6 +718,17 @@ class TestDatabaseOrganizationService:
             organization_service.rename_organization(
                 organization.id, conflicting_org.name
             )
+
+    def test_rename_fails_if_organization_name_previously_used(
+        self, organization_service, db_request
+    ):
+        conflicting_org = OrganizationFactory.create()
+        original_name = conflicting_org.name
+        organization_service.rename_organization(conflicting_org.id, "some_new_name")
+        organization = OrganizationFactory.create()
+
+        with pytest.raises(ValueError):  # noqa: PT011
+            organization_service.rename_organization(organization.id, original_name)
 
     def test_update_organization(self, organization_service, db_request):
         organization = OrganizationFactory.create()
