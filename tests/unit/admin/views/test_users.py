@@ -1542,7 +1542,7 @@ class TestUserBurnRecoveryCodes:
 
 
 class TestUserEmailDomainCheck:
-    def test_user_email_domain_check(self, db_request):
+    def test_user_email_domain_check(self, db_request, domain_status_service):
         user = UserFactory.create(with_verified_primary_email=True)
         db_request.POST["email_address"] = user.primary_email.email
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
@@ -1562,3 +1562,12 @@ class TestUserEmailDomainCheck:
         ]
         assert user.primary_email.domain_last_checked is not None
         assert user.primary_email.domain_last_status == ["active"]
+
+        # Total calls
+        assert domain_status_service.get_domain_status.call_count == 1
+        # most recent return value
+        assert domain_status_service.get_domain_status.spy_return == ["active"]
+        # all return values
+        assert domain_status_service.get_domain_status.spy_return_list == [["active"]]
+        # most recent exception
+        assert domain_status_service.get_domain_status.spy_exception is None
