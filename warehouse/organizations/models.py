@@ -22,6 +22,7 @@ from pyramid.httpexceptions import HTTPPermanentRedirect
 from sqlalchemy import (
     CheckConstraint,
     Enum,
+    FetchedValue,
     ForeignKey,
     Index,
     UniqueConstraint,
@@ -276,10 +277,6 @@ class OrganizationMixin:
 
     name: Mapped[str] = mapped_column(comment="The account name used in URLS")
 
-    @declared_attr
-    def normalized_name(cls):  # noqa: N805
-        return column_property(func.normalize_pep426_name(cls.name))
-
     display_name: Mapped[str] = mapped_column(comment="Display name used in UI")
     orgtype: Mapped[enum.Enum] = mapped_column(
         Enum(OrganizationType, values_callable=lambda x: [e.value for e in x]),
@@ -299,6 +296,11 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
 
     __repr__ = make_repr("name")
 
+    normalized_name: Mapped[str] = mapped_column(
+        unique=True,
+        server_default=FetchedValue(),
+        server_onupdate=FetchedValue(),
+    )
     is_active: Mapped[bool_false] = mapped_column(
         comment="When True, the organization is active and all features are available.",
     )
@@ -379,6 +381,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                 (
                     Permissions.AdminOrganizationsRead,
                     Permissions.AdminOrganizationsWrite,
+                    Permissions.AdminOrganizationsNameWrite,
                 ),
             ),
             (Allow, "group:moderators", Permissions.AdminOrganizationsRead),
@@ -537,6 +540,10 @@ class OrganizationApplication(OrganizationMixin, HasObservations, db.Model):
     __tablename__ = "organization_applications"
     __repr__ = make_repr("name")
 
+    @declared_attr
+    def normalized_name(cls):  # noqa: N805
+        return column_property(func.normalize_pep426_name(cls.name))
+
     submitted_by_id: Mapped[UUID] = mapped_column(
         PG_UUID,
         ForeignKey(
@@ -628,6 +635,10 @@ class OrganizationNameCatalog(db.Model):
             "normalized_name",
             "organization_id",
             name="_organization_name_catalog_normalized_name_organization_uc",
+        ),
+        UniqueConstraint(
+            "normalized_name",
+            name="_organization_name_catalog_normalized_name_uc",
         ),
     )
 

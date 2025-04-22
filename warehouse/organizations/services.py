@@ -12,7 +12,7 @@
 import datetime
 
 from sqlalchemy import delete, func, orm, select
-from sqlalchemy.exc import NoResultFound
+from sqlalchemy.exc import IntegrityError, NoResultFound
 from zope.interface import implementer
 
 from warehouse.accounts.models import TermsOfServiceEngagement, User
@@ -270,6 +270,9 @@ class DatabaseOrganizationService:
 
         message = request.params.get("message", "")
 
+        if not message:
+            raise ValueError
+
         organization_application.record_observation(
             request=request,
             actor=request.user,
@@ -326,6 +329,10 @@ class DatabaseOrganizationService:
                 )
                 .one()
             )
+            if catalog_entry.organization_id != organization.id:
+                raise ValueError(
+                    f'Organization name "{organization.normalized_name}" has been used'
+                )
         except NoResultFound:
             self.db.add(catalog_entry)
 
@@ -386,6 +393,11 @@ class DatabaseOrganizationService:
         Delete an organization role for a specified organization role id
         """
         role = self.get_organization_role(organization_role_id)
+
+        for team_role in self.get_organization_team_roles_by_user(
+            role.organization.id, role.user_id
+        ):
+            self.db.delete(team_role)
 
         self.db.delete(role)
 
@@ -512,8 +524,11 @@ class DatabaseOrganizationService:
         organization = self.get_organization(organization_id)
         organization.name = name
 
-        self.db.flush()  # flush db now so organization.normalized_name available
-        self.add_catalog_entry(organization_id)
+        try:
+            self.db.flush()  # flush db now so organization.normalized_name available
+            self.add_catalog_entry(organization_id)
+        except IntegrityError:
+            raise ValueError(f'Organization name "{name}" has been used')
 
         return organization
 
@@ -702,6 +717,16 @@ class DatabaseOrganizationService:
             .join(TeamRole, TeamRole.team_id == Team.id)
             .filter(TeamRole.user_id == user_id)
             .order_by(Team.name)
+            .all()
+        )
+
+    def get_organization_team_roles_by_user(self, organization_id, user_id):
+        return (
+            self.db.query(TeamRole)
+            .join(Team, Team.id == TeamRole.team_id)
+            .filter(
+                TeamRole.user_id == user_id, Team.organization_id == organization_id
+            )
             .all()
         )
 

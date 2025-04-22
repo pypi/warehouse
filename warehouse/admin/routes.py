@@ -29,6 +29,11 @@ def includeme(config):
         "/admin/organizations/{organization_id}/",
         domain=warehouse,
     )
+    config.add_route(
+        "admin.organization.rename",
+        "/admin/organizations/{organization_id}/rename/",
+        domain=warehouse,
+    )
 
     config.add_route(
         "admin.organization_application.list",

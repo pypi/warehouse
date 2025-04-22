@@ -132,13 +132,6 @@ def includeme(config):
         traverse="/{user_name}",
         domain=warehouse,
     )
-    config.add_route(
-        "includes.submit_malware_report",
-        "/_includes/authed/submit-malware-report/{project_name}",
-        factory="warehouse.packaging.models:ProjectFactory",
-        traverse="/{project_name}",
-        domain=warehouse,
-    )
 
     # Classifier Routes
     config.add_route("classifiers", "/classifiers/", domain=warehouse)

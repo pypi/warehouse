@@ -572,6 +572,7 @@ def test_root_factory_access_control_list():
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
                 Permissions.AdminOrganizationsWrite,
+                Permissions.AdminOrganizationsNameWrite,
                 Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedEmailDomainsWrite,
                 Permissions.AdminProhibitedProjectsRead,
