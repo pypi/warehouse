@@ -20,6 +20,7 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSee
 from sqlalchemy.orm import joinedload
 from webob.multidict import MultiDict, NoVars
 
+from warehouse.accounts import IDomainStatusService
 from warehouse.accounts.interfaces import IEmailBreachedService, IUserService
 from warehouse.accounts.models import (
     DisableReason,
@@ -1542,13 +1543,15 @@ class TestUserBurnRecoveryCodes:
 
 
 class TestUserEmailDomainCheck:
-    def test_user_email_domain_check(self, db_request, domain_status_service):
+    def test_user_email_domain_check(self, db_request, domain_status_service, mocker):
         user = UserFactory.create(with_verified_primary_email=True)
         db_request.POST["email_address"] = user.primary_email.email
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
+
+        spied_req = mocker.spy(db_request, "find_service")
 
         result = views.user_email_domain_check(user, db_request)
 
@@ -1571,3 +1574,5 @@ class TestUserEmailDomainCheck:
         assert domain_status_service.get_domain_status.spy_return_list == [["active"]]
         # most recent exception
         assert domain_status_service.get_domain_status.spy_exception is None
+
+        spied_req.assert_called_once_with(IDomainStatusService)
