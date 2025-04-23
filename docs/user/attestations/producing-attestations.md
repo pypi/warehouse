@@ -217,7 +217,7 @@ Before uploading attestations to the index, please:
     ```
 
     If the above is run within a Google Cloud service with a [workload identity]
-    (such as Cloud Build, Compute Engine, etc) , it will use the [ambient
+    (such as Cloud Build, Compute Engine, etc.), it will use the [ambient
     identity] of the service that invoked it.
 
     See [pypi-attestations' documentation] for usage as a Python library.
