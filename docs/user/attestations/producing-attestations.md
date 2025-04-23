@@ -203,6 +203,25 @@ Before uploading attestations to the index, please:
       generated attestations from it.
     - The publish job now calls `twine` passing the `--attestations` flag, to enable attestation upload.
 
+=== "Google Cloud"
+
+    [`pypi-attestations`][pypi-attestations] is a convenience library and CLI
+    for generating and interacting with attestation objects. You can use
+    either interface to produce attestations.
+
+    For example, to generate attestations for all distributions in `dist/`:
+
+    ```bash
+    python -m pip install pypi-attestations
+    python -m pypi_attestations sign dist/*
+    ```
+
+    If the above is run within a Google Cloud service with a [workload identity]
+    (such as Cloud Build, Compute Engine, etc.), it will use the [ambient
+    identity] of the service that invoked it.
+
+    See [pypi-attestations' documentation] for usage as a Python library.
+
 
 [Trusted Publishing]: /trusted-publishers/
 
@@ -228,3 +247,4 @@ Before uploading attestations to the index, please:
 
 [GitLab Trusted Publishing]: /trusted-publishers/using-a-publisher/#gitlab-cicd
 [Linux Foundation Immutable Record notice]: https://lfprojects.org/policies/hosted-project-tools-immutable-records/
+[workload identity]: https://cloud.google.com/iam/docs/workload-identity-federation
