@@ -17,7 +17,11 @@ import pytest
 
 from warehouse.accounts import tasks
 from warehouse.accounts.models import TermsOfServiceEngagement
-from warehouse.accounts.tasks import compute_user_metrics, notify_users_of_tos_update
+from warehouse.accounts.tasks import (
+    batch_update_email_domain_status,
+    compute_user_metrics,
+    notify_users_of_tos_update,
+)
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.packaging import ProjectFactory, ReleaseFactory
@@ -192,3 +196,40 @@ def test_compute_user_metrics(db_request, metrics):
             ],
         ),
     ]
+
+
+def test_update_email_domain_status(db_request, domain_status_service, mocker):
+    """
+    Test that the batch update performs the correct queries and updates
+    """
+    never_checked = EmailFactory.create(
+        email="me@never-checked.com", domain_last_checked=None
+    )
+    over_threshold = EmailFactory.create(
+        email="me@over-threshold.com",
+        domain_last_checked=datetime.now(tz=timezone.utc) - timedelta(days=90),
+    )
+    on_threshold = EmailFactory.create(
+        email="me@on-threshold.com",
+        domain_last_checked=datetime.now(tz=timezone.utc) - timedelta(days=30),
+    )
+    under_threshold = EmailFactory.create(
+        email="me@under-threshold.com",
+        domain_last_checked=datetime.now(tz=timezone.utc) - timedelta(days=1),
+    )
+
+    batch_update_email_domain_status(db_request)
+
+    assert domain_status_service.get_domain_status.call_count == 3
+    domain_status_service.get_domain_status.assert_has_calls(
+        [
+            mocker.call(never_checked.domain),
+            mocker.call(over_threshold.domain),
+            mocker.call(on_threshold.domain),
+        ]
+    )
+
+    assert never_checked.domain_last_status == ["active"]
+    assert over_threshold.domain_last_status == ["active"]
+    assert on_threshold.domain_last_status == ["active"]
+    assert under_threshold.domain_last_status is None  # no default, not updated

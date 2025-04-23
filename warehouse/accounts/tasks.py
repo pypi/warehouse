@@ -10,9 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import datetime, timedelta, timezone
+from __future__ import annotations
 
-from sqlalchemy import func
+import typing
+
+from datetime import UTC, datetime, timedelta, timezone
+
+from sqlalchemy import func, nullsfirst, or_, select
 
 from warehouse import tasks
 from warehouse.accounts.models import (
@@ -22,9 +26,13 @@ from warehouse.accounts.models import (
     UserTermsOfServiceEngagement,
 )
 from warehouse.accounts.services import IUserService
+from warehouse.accounts.utils import update_email_domain_status
 from warehouse.email import send_user_terms_of_service_updated
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.models import Release
+
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
 
 
 @tasks.task(ignore_result=True, acks_late=True)
@@ -136,3 +144,32 @@ def compute_user_metrics(request):
             "primary:true",
         ],
     )
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def batch_update_email_domain_status(request: Request) -> None:
+    """
+    Update the email domain status for any checked over 30 days ago.
+
+    30 days is roughly the time between a domain's expiration
+    and when it enters a renewal grace period.
+    Each TLD may express their own grace period, 30 days is an estimate
+    of time before the registrar is likely to sell it.
+    """
+    stmt = (
+        select(Email)
+        .where(
+            # TODO: After completely backfilled, remove the `or_` for None
+            or_(
+                Email.domain_last_checked.is_(None),
+                Email.domain_last_checked < datetime.now(tz=UTC) - timedelta(days=30),
+            )
+        )
+        .order_by(nullsfirst(Email.domain_last_checked.asc()))
+        .limit(10_000)
+    )
+    # Run in batches to avoid too much memory usage, API rate limits
+    stmt = stmt.execution_options(yield_per=1_000)
+
+    for email in request.db.scalars(stmt):
+        update_email_domain_status(email, request)

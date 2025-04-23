@@ -32,7 +32,11 @@ from warehouse.accounts.services import (
     TokenServiceFactory,
     database_login_factory,
 )
-from warehouse.accounts.tasks import compute_user_metrics, notify_users_of_tos_update
+from warehouse.accounts.tasks import (
+    batch_update_email_domain_status,
+    compute_user_metrics,
+    notify_users_of_tos_update,
+)
 from warehouse.accounts.utils import UserContext
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.macaroons.security_policy import MacaroonSecurityPolicy
@@ -215,3 +219,5 @@ def includeme(config):
     # Add a periodic task to generate Account metrics
     config.add_periodic_task(crontab(minute="*/20"), compute_user_metrics)
     config.add_periodic_task(crontab(minute="*"), notify_users_of_tos_update)
+    # TODO: After initial backfill, this can be done less frequently
+    config.add_periodic_task(crontab(minute="*/5"), batch_update_email_domain_status)
