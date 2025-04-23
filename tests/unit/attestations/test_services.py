@@ -43,7 +43,7 @@ class TestNullIntegrityService:
 
     @pytest.mark.parametrize(
         "publisher_factory",
-        [GitHubPublisherFactory, GitLabPublisherFactory],
+        [GitHubPublisherFactory, GitLabPublisherFactory, GooglePublisherFactory],
     )
     def test_build_provenance(self, db_request, dummy_attestation, publisher_factory):
         db_request.oidc_publisher = publisher_factory.create()
@@ -94,7 +94,6 @@ class TestIntegrityService:
     @pytest.mark.parametrize(
         "publisher_factory",
         [
-            GooglePublisherFactory,
             ActiveStatePublisherFactory,
         ],
     )
@@ -317,7 +316,7 @@ class TestIntegrityService:
 
     @pytest.mark.parametrize(
         "publisher_factory",
-        [GitHubPublisherFactory, GitLabPublisherFactory],
+        [GitHubPublisherFactory, GitLabPublisherFactory, GooglePublisherFactory],
     )
     def test_build_provenance_succeeds(
         self, metrics, db_request, publisher_factory, dummy_attestation
@@ -347,7 +346,7 @@ class TestIntegrityService:
 
 @pytest.mark.parametrize(
     "publisher_factory",
-    [GitHubPublisherFactory, GitLabPublisherFactory],
+    [GitHubPublisherFactory, GitLabPublisherFactory, GooglePublisherFactory],
 )
 def test_extract_attestations_from_request_empty_list(db_request, publisher_factory):
     db_request.oidc_publisher = publisher_factory.create()
