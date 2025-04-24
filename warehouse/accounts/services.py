@@ -1008,4 +1008,8 @@ class DomainrDomainStatusService:
             logger.warning("Error contacting Domainr: %r", exc)
             return None
 
+        if errors := resp.json().get("errors"):
+            logger.warning("Error from Domainr: %r", errors)
+            return None
+
         return resp.json()["status"][0]["status"].split()
