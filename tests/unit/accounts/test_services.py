@@ -1691,7 +1691,7 @@ class TestDomainrDomainStatusService:
             session=session, client_id="some_client_id"
         )
 
-        assert svc.get_domain_status("example.com") == []
+        assert svc.get_domain_status("example.com") is None
         assert session.get.calls == [
             pretend.call(
                 "https://api.domainr.com/v2/status",
