@@ -1700,6 +1700,34 @@ class TestDomainrDomainStatusService:
             )
         ]
 
+    def test_domainr_response_contains_errors_returns_none(self):
+        response = pretend.stub(
+            json=lambda: {
+                "status": [],
+                "errors": [
+                    {
+                        "code": 400,
+                        "detail": "unknown zone: ocm",
+                        "message": "Bad request",
+                    }
+                ],
+            },
+            raise_for_status=lambda: None,
+        )
+        session = pretend.stub(get=pretend.call_recorder(lambda *a, **kw: response))
+        svc = services.DomainrDomainStatusService(
+            session=session, client_id="some_client_id"
+        )
+
+        assert svc.get_domain_status("example.ocm") is None
+        assert session.get.calls == [
+            pretend.call(
+                "https://api.domainr.com/v2/status",
+                params={"client_id": "some_client_id", "domain": "example.ocm"},
+                timeout=5,
+            )
+        ]
+
     def test_factory(self):
         context = pretend.stub()
         request = pretend.stub(
