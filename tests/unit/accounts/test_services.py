@@ -1704,11 +1704,13 @@ class TestDomainrDomainStatusService:
         response = pretend.stub(
             json=lambda: {
                 "status": [],
-                "errors": [{
-                    "code": 400,
-                    "detail": "unknown zone: ocm",
-                    "message": "Bad request"
-                }],
+                "errors": [
+                    {
+                        "code": 400,
+                        "detail": "unknown zone: ocm",
+                        "message": "Bad request",
+                    }
+                ],
             },
             raise_for_status=lambda: None,
         )
