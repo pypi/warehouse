@@ -159,7 +159,7 @@
               Publication detail:
               <ul>
                 <li>Token Issuer: <code>{{ viewer.issuer }}</code></li>
-                {% if viewer.publisher.kind == 'Google' %}
+                {% if viewer.publisher.kind == "Google" %}
                 <li>Service Account: <code>{{ viewer.publisher.email }}</code></li>
                 {% endif %}
                 {% if viewer.environment %}
