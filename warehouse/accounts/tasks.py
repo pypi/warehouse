@@ -149,7 +149,7 @@ def compute_user_metrics(request):
 @tasks.task(ignore_result=True, acks_late=True)
 def batch_update_email_domain_status(request: Request) -> None:
     """
-    Update the email domain status for any checked over 30 days ago.
+    Update the email domain status for any domain last checked over 30 days ago.
 
     30 days is roughly the time between a domain's expiration
     and when it enters a renewal grace period.

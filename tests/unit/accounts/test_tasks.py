@@ -233,3 +233,18 @@ def test_update_email_domain_status(db_request, domain_status_service, mocker):
     assert over_threshold.domain_last_status == ["active"]
     assert on_threshold.domain_last_status == ["active"]
     assert under_threshold.domain_last_status is None  # no default, not updated
+
+
+def test_update_email_domain_status_does_not_update_if_not_needed(
+    db_request, domain_status_service, mocker
+):
+    mocker.patch.object(domain_status_service, "get_domain_status", return_value=None)
+
+    fail_check = EmailFactory.create()
+
+    batch_update_email_domain_status(db_request)
+
+    domain_status_service.get_domain_status.assert_called_once_with(fail_check.domain)
+
+    assert fail_check.domain_last_checked is None
+    assert fail_check.domain_last_status is None

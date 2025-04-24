@@ -301,7 +301,7 @@ class IEmailBreachedService(Interface):
 
 
 class IDomainStatusService(Interface):
-    def get_domain_status(domain: str) -> list[str]:
+    def get_domain_status(domain: str) -> list[str] | None:
         """
         Returns a list of status strings for the given domain.
         """

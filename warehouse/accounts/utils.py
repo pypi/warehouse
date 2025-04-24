@@ -58,10 +58,10 @@ def update_email_domain_status(email: Email, request: Request) -> None:
     Update the domain status of the given email address.
     """
     domain_status_service = request.find_service(IDomainStatusService)
-    domain_status = domain_status_service.get_domain_status(email.domain)
 
-    email.domain_last_checked = datetime.datetime.now(datetime.UTC)
-    email.domain_last_status = domain_status
-    request.db.add(email)
+    if domain_status := domain_status_service.get_domain_status(email.domain):
+        email.domain_last_checked = datetime.datetime.now(datetime.UTC)
+        email.domain_last_status = domain_status
+        request.db.add(email)
 
     return None
