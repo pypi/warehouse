@@ -427,6 +427,7 @@ class Email(db.ModelBase):
     # Domain validation information
     domain_last_checked: Mapped[datetime.datetime | None] = mapped_column(
         comment="Last time domain was checked with the domain validation service.",
+        index=True,
     )
     domain_last_status: Mapped[list[str] | None] = mapped_column(
         ARRAY(String),

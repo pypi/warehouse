@@ -28,7 +28,6 @@ from sqlalchemy.orm import joinedload
 
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
-    IDomainStatusService,
     IEmailBreachedService,
     InvalidRecoveryCode,
     IUserService,
@@ -40,6 +39,7 @@ from warehouse.accounts.models import (
     ProhibitedUserName,
     User,
 )
+from warehouse.accounts.utils import update_email_domain_status
 from warehouse.authnz import Permissions
 from warehouse.email import (
     send_account_recovery_initiated_email,
@@ -683,13 +683,7 @@ def user_email_domain_check(user, request):
     email_address = request.params.get("email_address")
     email = request.db.scalar(select(Email).where(Email.email == email_address))
 
-    domain_status_service = request.find_service(IDomainStatusService)
-    domain_status = domain_status_service.get_domain_status(email.domain)
-
-    # set the domain status to the email address
-    email.domain_last_checked = datetime.datetime.now(datetime.UTC)
-    email.domain_last_status = domain_status
-    request.db.add(email)
+    update_email_domain_status(email, request)
 
     request.session.flash(
         f"Domain status check for {email.domain!r} completed", queue="success"
