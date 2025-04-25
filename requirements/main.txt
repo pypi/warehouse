@@ -66,9 +66,9 @@ automat==25.4.16 \
     --hash=sha256:0017591a5477066e90d26b0e696ddc143baafd87b588cfac8100bc6be9634de0 \
     --hash=sha256:04e9bce696a8d5671ee698005af6e5a9fa15354140a87f4870744604dcdd3ba1
     # via -r requirements/main.in
-b2sdk==2.8.0 \
-    --hash=sha256:770ba282e64b9f288f7255358108d0771a6329a260ddc66a4688ae328bd9ec76 \
-    --hash=sha256:e5a75b20b37b45d17fdb7fae491c8bb5d8adac67d99383cda3506f6b10c96710
+b2sdk==2.8.1 \
+    --hash=sha256:0fac6559f9b8ac0bc603b86ae5367724099cde8975efd7a3dd3fb33e21085eb4 \
+    --hash=sha256:f75d9980259a42915228c3deee475b2b7d5bc252d8c3228a8c3727ad9c68a343
     # via -r requirements/main.in
 babel==2.17.0 \
     --hash=sha256:0c54cffb19f690cdcc52a3b50bcbf71e07a808d1c80d549f2459b9d2cf0afb9d \
@@ -958,9 +958,9 @@ jsonschema-path==0.3.4 \
     # via
     #   openapi-core
     #   openapi-spec-validator
-jsonschema-specifications==2024.10.1 \
-    --hash=sha256:0f38b83639958ce1152d02a7f062902c41c8fd20d558b0c34344292d417ae272 \
-    --hash=sha256:a09a0680616357d9a0ecf05c12ad234479f549239d0f5b55f3deea67475da9bf
+jsonschema-specifications==2025.4.1 \
+    --hash=sha256:4653bffbd6584f7de83a67e0d620ef16900b390ddc7939d56684d6c81e33f1af \
+    --hash=sha256:630159c9f4dbea161a6a2205c3011cc4f18ff381b189fff48bb39b9bf26ae608
     # via
     #   jsonschema
     #   openapi-schema-validator
@@ -1013,9 +1013,9 @@ legacy-cgi==2.6.3 \
     --hash=sha256:4c119d6cb8e9d8b6ad7cc0ddad880552c62df4029622835d06dfd18f438a8154 \
     --hash=sha256:6df2ea5ae14c71ef6f097f8b6372b44f6685283dc018535a75c924564183cdab
     # via webob
-limits==4.7.3 \
-    --hash=sha256:3e0bc4fd3b45ea475906385a11ff63b0367c783a19323b9edd914e7352c671ef \
-    --hash=sha256:993b9cda18c63e64760756f66190157e641b60919626a2690ca3133e1ed00644
+limits==5.1.0 \
+    --hash=sha256:b298e4af0b47997da03cbeee9df027ddc2328f8630546125e81083bb56311827 \
+    --hash=sha256:f368d4572ac3ef8190cb8b9911ed481175a0b4189894a63cac95cae39ebeb147
     # via -r requirements/main.in
 linehaul==1.0.2 \
     --hash=sha256:4545fee3b54df22c697d204da8668e8fd975afcb28cbb5654865e43491c70ff0 \
@@ -1247,9 +1247,9 @@ mdurl==0.1.2 \
     --hash=sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8 \
     --hash=sha256:bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba
     # via markdown-it-py
-more-itertools==10.6.0 \
-    --hash=sha256:2cd7fad1009c31cc9fb6a035108509e6547547a7a738374f10bd49a09eb3ee3b \
-    --hash=sha256:6eb054cb4b6db1473f6e15fcc676a08e4732548acd47c708f0e179c2c7c01e89
+more-itertools==10.7.0 \
+    --hash=sha256:9fddd5403be01a94b204faadcff459ec3568cf110265d3c54323e1e866ad29d3 \
+    --hash=sha256:d43980384673cb07d2f7d2d918c616b30c659c089ee23953f601d6609c67510e
     # via
     #   -r requirements/main.in
     #   cssutils
@@ -2157,9 +2157,9 @@ securesystemslib==1.3.0 \
     --hash=sha256:5b53e5989289d97fa42ed7fde1b4bad80985f15dba8c774c043b395a90c908e5 \
     --hash=sha256:8cbb277513444d9828016fe09eaa4a6fe25468e4bf411995c0542c6d2102af83
     # via tuf
-sentry-sdk==2.26.1 \
-    --hash=sha256:759e019c41551a21519a95e6cef6d91fb4af1054761923dadaee2e6eca9c02c7 \
-    --hash=sha256:e99390e3f217d13ddcbaeaed08789f1ca614d663b345b9da42e35ad6b60d696a
+sentry-sdk==2.27.0 \
+    --hash=sha256:90f4f883f9eff294aff59af3d58c2d1b64e3927b28d5ada2b9b41f5aeda47daf \
+    --hash=sha256:c58935bfff8af6a0856d37e8adebdbc7b3281c2b632ec823ef03cd108d216ff0
     # via -r requirements/main.in
 sigstore==3.6.2 \
     --hash=sha256:46dd3a142ea24ba2dc184239aee7c2a2d5efa0697bd2c8ac99df78bb386778b3 \
@@ -2514,9 +2514,9 @@ zxcvbn==4.5.0 \
     # via -r requirements/main.in
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==79.0.0 \
-    --hash=sha256:9828422e7541213b0aacb6e10bbf9dd8febeaa45a48570e09b6d100e063fc9f9 \
-    --hash=sha256:b9ab3a104bedb292323f53797b00864e10e434a3ab3906813a7169e4745b912a
+setuptools==79.0.1 \
+    --hash=sha256:128ce7b8f33c3079fd1b067ecbb4051a66e8526e7b65f6cec075dfc650ddfa88 \
+    --hash=sha256:e147c0549f27767ba362f9da434eab9c5dc0045d5304feb602a0af001089fc51
     # via
     #   -r requirements/main.in
     #   pyramid
