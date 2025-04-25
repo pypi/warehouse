@@ -292,12 +292,12 @@ class NewEmailMixin:
 
         # Check if the domain is valid
         extractor = TLDExtract(suffix_list_urls=())  # Updated during image build
-        domain = extractor(resp.domain.lower()).registered_domain
+        domain = extractor(resp.domain.lower()).top_domain_under_public_suffix
 
         mx_domains = set()
         if hasattr(resp, "mx") and resp.mx:
             mx_domains = {
-                extractor(mx_host.lower()).registered_domain
+                extractor(mx_host.lower()).top_domain_under_public_suffix
                 for _prio, mx_host in resp.mx
             }
             mx_domains.update({mx_host.lower() for _prio, mx_host in resp.mx})
@@ -315,7 +315,7 @@ class NewEmailMixin:
                 mx_ptr = dns.resolver.resolve_address(mx_ip[0].address)
                 mx_ptr_domain = extractor(
                     mx_ptr[0].target.to_text().lower()
-                ).registered_domain
+                ).top_domain_under_public_suffix
                 all_mx_domains.add(mx_ptr_domain)
 
         # combine both sets

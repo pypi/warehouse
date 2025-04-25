@@ -69,7 +69,7 @@ def add_prohibited_email_domain(request):
         raise HTTPSeeOther(request.route_path("admin.prohibited_email_domains.list"))
     # validate that the domain is valid
     extractor = TLDExtract(suffix_list_urls=())  # Updated during image build
-    registered_domain = extractor(email_domain).registered_domain
+    registered_domain = extractor(email_domain).top_domain_under_public_suffix
     if not registered_domain:
         request.session.flash(f"Invalid domain name '{email_domain}'", queue="error")
         raise HTTPSeeOther(request.route_path("admin.prohibited_email_domains.list"))
