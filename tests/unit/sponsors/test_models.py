@@ -15,10 +15,7 @@ from ...common.db.sponsors import SponsorFactory
 
 def test_sponsor_color_logo_img_tag(db_request):
     sponsor = SponsorFactory.create()
-    expected = (
-        f'<img src="{sponsor.color_logo_url}"'
-        + f' alt="{sponsor.name}" loading="lazy">'
-    )
+    expected = f'<img src="{sponsor.color_logo_url}" alt="" loading="lazy">'
     assert sponsor.color_logo_img == expected
 
 
@@ -26,7 +23,7 @@ def test_sponsor_white_logo_img_tag(db_request):
     sponsor = SponsorFactory.create()
     expected = (
         f'<img class="sponsors__image" src="{sponsor.white_logo_url}"'
-        + f' alt="{sponsor.name}" loading="lazy">'
+        + ' alt="" loading="lazy">'
     )
     assert sponsor.white_logo_img == expected
 
