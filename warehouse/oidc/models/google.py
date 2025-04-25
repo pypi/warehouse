@@ -12,6 +12,7 @@
 
 from typing import Any
 
+from pypi_attestations import GooglePublisher as GoogleIdentity, Publisher
 from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Query, mapped_column
@@ -92,6 +93,10 @@ class GooglePublisherMixin:
 
     def publisher_url(self, claims=None):
         return None
+
+    @property
+    def attestation_identity(self) -> Publisher | None:
+        return GoogleIdentity(email=self.email)
 
     def stored_claims(self, claims=None):
         return {}

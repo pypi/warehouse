@@ -550,8 +550,10 @@ def search_service():
 
 
 @pytest.fixture
-def domain_status_service():
-    return account_services.NullDomainStatusService()
+def domain_status_service(mocker):
+    service = account_services.NullDomainStatusService()
+    mocker.spy(service, "get_domain_status")
+    return service
 
 
 class QueryRecorder:

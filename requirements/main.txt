@@ -1816,9 +1816,9 @@ pyparsing==3.2.3 \
     --hash=sha256:a749938e02d6fd0b59b356ca504a24982314bb090c383e3cf201c95ef7e2bfcf \
     --hash=sha256:b9c13f1ab8b3b542f72e28f634bad4de758ab3ce4546e4301970ad6fa77c38be
     # via linehaul
-pypi-attestations==0.0.23 \
-    --hash=sha256:2eb89bf121d983ad58dcee70a550982bb2221b0c447b191a9291c9841c7f1ed6 \
-    --hash=sha256:f8530f4d0aa2aab335130b9ba1cfbadc06b118c73a3836fa74d00b94c4678163
+pypi-attestations==0.0.25 \
+    --hash=sha256:5afd0fb151445b9ad154b5a41a7097b010d881e994173022033e913eab36a974 \
+    --hash=sha256:9f62b34c35b481e5931979f3f222340001041127bd82945b36e34b198075d331
     # via -r requirements/main.in
 pyqrcode==1.2.1 \
     --hash=sha256:1b2812775fa6ff5c527977c4cd2ccb07051ca7d0bc0aecf937a43864abe5eff6 \
@@ -2267,9 +2267,9 @@ text-unidecode==1.3 \
     --hash=sha256:1311f10e8b895935241623731c2ba64f4c455287888b18189350b67134a822e8 \
     --hash=sha256:bad6603bb14d279193107714b288be206cac565dfa49aa5b105294dd5c4aab93
     # via python-slugify
-tldextract==5.2.0 \
-    --hash=sha256:59509cbf99628c9440f4d19d3a1fd8488d50297ea23879c136576263c5a04eba \
-    --hash=sha256:c3a8c4daf2c25a57f54d6ef6762aeac7eff5ac3da04cdb607130be757b8457ab
+tldextract==5.3.0 \
+    --hash=sha256:b3d2b70a1594a0ecfa6967d57251527d58e00bb5a91a74387baa0d87a0678609 \
+    --hash=sha256:f70f31d10b55c83993f55e91ecb7c5d84532a8972f22ec578ecfbe5ea2292db2
     # via -r requirements/main.in
 transaction==5.0 \
     --hash=sha256:106e7bd782bcc0cb5119fc9225b0c9a71dfc53adb938be905223adaef22b1174 \
