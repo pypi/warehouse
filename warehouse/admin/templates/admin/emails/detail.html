@@ -93,7 +93,12 @@
             <dd>{{ email.from_ }}</dd>
 
             <dt>To</dt>
-            <dd>{{ email.to }}</dd>
+            <dd>
+              {{ email.to }}
+              <a href="{{ request.route_path('admin.user.list', _query={'q': 'email:' + email.to}) }}">
+                <i class="fa-solid fa-magnifying-glass"></i>
+              </a>
+            </dd>
 
             <dt>Subject</dt>
             <dd>{{ email.subject }}</dd>
