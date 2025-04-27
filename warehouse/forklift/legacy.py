@@ -742,6 +742,22 @@ def file_upload(request):
         )
         raise _exc_with_message(HTTPForbidden, msg)
 
+    # If organization owned project, check if the organization is active.
+    # Inactive organizations cannot upload new releases to their projects.
+    if project.organization and not project.organization.good_standing:
+        request.metrics.increment(
+            "warehouse.upload.failed", tags=["reason:org-not-active"]
+        )
+        raise _exc_with_message(
+            HTTPBadRequest,
+            (
+                "Organization account owning this project is inactive. "
+                "This may be due to inactive billing for Company Organizations, "
+                "or administrator intervention for Community Organizations. "
+                "Please contact support+orgs@pypi.org."
+            ),
+        )
+
     # If this is a user identity (i.e: API token) but there exists
     # a trusted publisher for this project, send an email warning that an
     # API token was used to upload a project where Trusted Publishing is configured.
