@@ -617,6 +617,7 @@ class TestOrganizationApplicationDetail:
         assert result["user"] == organization_application.submitted_by
         assert result["form"].name.data == organization_application.name
         assert result["conflicting_applications"] == []
+        assert result["conflicting_namespace_prefixes"] == []
         assert result["organization_application"] == organization_application
 
     @pytest.mark.usefixtures("_enable_organizations")
@@ -669,6 +670,7 @@ class TestOrganizationApplicationDetail:
         assert result["form"].name.data == existing_organization.name
         assert result["form"].name.errors != []
         assert result["conflicting_applications"] == []
+        assert result["conflicting_namespace_prefixes"] == []
         assert result["organization_application"] == organization_application
 
     @pytest.mark.usefixtures("_enable_organizations")
@@ -683,6 +685,7 @@ class TestOrganizationApplicationDetail:
         assert result["user"] == organization_application.submitted_by
         assert result["form"].name.data == organization_application.name
         assert result["conflicting_applications"] == []
+        assert result["conflicting_namespace_prefixes"] == []
         assert result["organization_application"] == organization_application
 
     @pytest.mark.usefixtures("_enable_organizations")
@@ -697,17 +700,25 @@ class TestOrganizationApplicationDetail:
         assert result["user"] == organization_application.submitted_by
         assert result["form"].name.data == organization_application.name
         assert result["conflicting_applications"] == []
+        assert result["conflicting_namespace_prefixes"] == []
         assert result["organization_application"] == organization_application
 
     @pytest.mark.usefixtures("_enable_organizations")
     @pytest.mark.parametrize(
-        ("name", "conflicts"),
+        ("name", "conflicts", "conflicting_prefixes", "not_conflicting"),
         [
-            ("pypi", ["PyPI", "pypi"]),
-            ("py-pi", ["Py-PI", "PY-PI"]),
+            (
+                "pypi",
+                ["PyPI", "pypi"],
+                ["pypi-common", "PyPi_rocks", "pypi-team-garbage"],
+                ["py-pi"],
+            ),
+            ("py-pi", ["Py-PI", "PY-PI"], ["py", "py-pi_dot-com"], ["pypi"]),
         ],
     )
-    def test_detail_conflicting_applications(self, db_request, name, conflicts):
+    def test_detail_conflicting_applications(
+        self, db_request, name, conflicts, conflicting_prefixes, not_conflicting
+    ):
         organization_application = OrganizationApplicationFactory.create(
             name=name, status=OrganizationApplicationStatus.Declined
         )
@@ -718,6 +729,14 @@ class TestOrganizationApplicationDetail:
             ],
             key=lambda o: o.submitted,
         )
+        conflicting_prefix_applications = sorted(
+            [
+                OrganizationApplicationFactory.create(name=conflict)
+                for conflict in conflicting_prefixes
+            ],
+            key=lambda o: o.submitted,
+        )
+        [OrganizationApplicationFactory.create(name=name) for name in not_conflicting]
         db_request.matchdict["organization_application_id"] = (
             organization_application.id
         )
@@ -725,6 +744,13 @@ class TestOrganizationApplicationDetail:
         assert result["user"] == organization_application.submitted_by
         assert result["form"].name.data == organization_application.name
         assert result["conflicting_applications"] == conflicting_applications
+        assert result["conflicting_namespace_prefixes"] == [
+            conflict
+            for conflict in sorted(
+                conflicting_applications + conflicting_prefix_applications,
+                key=lambda o: o.submitted,
+            )
+        ]
         assert result["organization_application"] == organization_application
 
     @pytest.mark.usefixtures("_enable_organizations")

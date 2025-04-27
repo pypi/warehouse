@@ -388,10 +388,31 @@
               </label>
               <div class="col-12">
                 <table class="table">
-                  <tr><th>Application</th><th>Submitted</th><th>Requestor</th></tr>
+                  <tr><th>Application</th><th>Status</th><th>Submitted</th><th>Requestor</th></tr>
                   {% for application in conflicting_applications %}
                     <tr>
                       <td><a target="_blank" href="{{ request.route_url('admin.organization_application.detail', organization_application_id=application.id) }}">{{ application.name }}</a></td>
+                      <td>{{ application.status }}</td>
+                      <td>{{ application.submitted|format_date() }}</td>
+                      <td><a target="_blank" href="{{ request.route_url('admin.user.detail', username=application.submitted_by.username) }}">{{ application.submitted_by.username }}</a></td>
+                    </tr>
+                  {% endfor %}
+                </table>
+              </div>
+            </div>
+            {% endif %}
+            {% if conflicting_namespace_prefixes %}
+            <div class="form-group">
+              <label class="col-12 control-label">
+                Conflicting Prefixes <i class="fa fa-clipboard-question text-orange"></i>
+              </label>
+              <div class="col-12">
+                <table class="table">
+                  <tr><th>Application</th><th>Status</th><th>Submitted</th><th>Requestor</th></tr>
+                  {% for application in conflicting_namespace_prefixes %}
+                    <tr>
+                      <td><a target="_blank" href="{{ request.route_url('admin.organization_application.detail', organization_application_id=application.id) }}">{{ application.name }}</a></td>
+                      <td>{{ application.status }}</td>
                       <td>{{ application.submitted|format_date() }}</td>
                       <td><a target="_blank" href="{{ request.route_url('admin.user.detail', username=application.submitted_by.username) }}">{{ application.submitted_by.username }}</a></td>
                     </tr>

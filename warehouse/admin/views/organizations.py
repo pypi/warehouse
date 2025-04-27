@@ -370,12 +370,39 @@ def organization_application_detail(request):
         .all()
     )
 
+    parts = organization_application.normalized_name.split("-")
+    conflicting_namespace_prefixes = (
+        request.db.query(OrganizationApplication)
+        .filter(
+            or_(
+                *(
+                    [
+                        OrganizationApplication.normalized_name == parts[0],
+                        OrganizationApplication.normalized_name.startswith(
+                            parts[0] + "-"
+                        ),
+                    ]
+                    + [
+                        OrganizationApplication.normalized_name.startswith(
+                            "-".join(parts[: i + 1])
+                        )
+                        for i in range(1, len(parts))
+                    ]
+                )
+            )
+        )
+        .filter(OrganizationApplication.id != organization_application.id)
+        .order_by(OrganizationApplication.submitted)
+        .all()
+    )
+
     user = user_service.get_user(organization_application.submitted_by_id)
 
     return {
         "organization_application": organization_application,
         "form": form,
         "conflicting_applications": conflicting_applications,
+        "conflicting_namespace_prefixes": conflicting_namespace_prefixes,
         "user": user,
     }
 
