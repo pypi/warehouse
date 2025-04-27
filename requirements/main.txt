@@ -517,6 +517,7 @@ cryptography==44.0.2 \
     #   pypi-attestations
     #   rfc3161-client
     #   sigstore
+    #   social-auth-core
     #   webauthn
 cssselect==1.3.0 \
     --hash=sha256:56d1bf3e198080cc1667e137bc51de9cadfca259f03c2d4e09037b3e01e30f0d \
@@ -530,6 +531,12 @@ datadog==0.51.0 \
     --hash=sha256:3279534f831ae0b4ae2d8ce42ef038b4ab38e667d7ed6ff7437982d7a0cf5250 \
     --hash=sha256:a9764f091c96af4e0996d4400b168fc5fba380f911d6d672c9dcd4773e29ea3f
     # via -r requirements/main.in
+defusedxml==0.7.1 \
+    --hash=sha256:1bb3032db185915b62d7c6209c5a8792be6a32ab2fedacc84e01b52c51aa3e69 \
+    --hash=sha256:a352e7e428770286cc899e2542b6cdaedb2b4953ff269a210103ec58f6198a61
+    # via
+    #   python3-openid
+    #   social-auth-core
 deprecated==1.2.18 \
     --hash=sha256:422b6f6d859da6f2ef57857761bfb392480502a64c3028ca9bbe86085d72115d \
     --hash=sha256:bd5011788200372a32418f888e326a09ff80d0214bd961147cfed01b5c018eec
@@ -1458,6 +1465,12 @@ nh3==0.2.21 \
     # via
     #   -r requirements/main.in
     #   readme-renderer
+oauthlib==3.2.2 \
+    --hash=sha256:8139f29aac13e25d502680e9e19963e83f16838d48a0d71c287fe40e7067fbca \
+    --hash=sha256:9859c40929662bec5d64f34d01c99e093149682a3f38915dc0655d5a633dd918
+    # via
+    #   requests-oauthlib
+    #   social-auth-core
 openapi-core==0.19.5 \
     --hash=sha256:421e753da56c391704454e66afe4803a290108590ac8fa6f4a4487f4ec11f2d3 \
     --hash=sha256:ef7210e83a59394f46ce282639d8d26ad6fc8094aa904c9c16eb1bac8908911f
@@ -1790,6 +1803,7 @@ pyjwt[crypto]==2.10.1 \
     #   -r requirements/main.in
     #   pyjwt
     #   sigstore
+    #   social-auth-core
 pymacaroons==0.13.0 \
     --hash=sha256:1e6bba42a5f66c245adf38a5a4006a99dcc06a0703786ea636098667d42903b8 \
     --hash=sha256:3e14dff6a262fdbf1a15e769ce635a8aea72e6f8f91e408f9a97166c53b91907
@@ -1883,6 +1897,10 @@ python-slugify==8.0.4 \
     --hash=sha256:276540b79961052b66b7d116620b36518847f52d5fd9e3a70164fc8c50faa6b8 \
     --hash=sha256:59202371d1d05b54a9e7720c5e038f928f45daaffe41dd10822f3907b937c856
     # via -r requirements/main.in
+python3-openid==3.2.0 \
+    --hash=sha256:33fbf6928f401e0b790151ed2b5290b02545e8775f982485205a066f874aaeaf \
+    --hash=sha256:6626f771e0417486701e0b4daff762e7212e820ca5b29fcc0d05f6f8736dfa6b
+    # via social-auth-core
 pytz==2025.2 \
     --hash=sha256:360b9e3dbb49a209c21ad61809c7fb453643e048b38924c765813546746e81c3 \
     --hash=sha256:5ddf76296dd8c44c26eb8f4b6f35488f3ccbf6fbbd7adee0b7262d43f0ec2f00
@@ -1983,7 +2001,9 @@ requests==2.32.3 \
     #   pypi-attestations
     #   requests-aws4auth
     #   requests-file
+    #   requests-oauthlib
     #   sigstore
+    #   social-auth-core
     #   stripe
     #   tldextract
 requests-aws4auth==1.3.1 \
@@ -1994,6 +2014,10 @@ requests-file==2.1.0 \
     --hash=sha256:0f549a3f3b0699415ac04d167e9cb39bccfb730cb832b4d20be3d9867356e658 \
     --hash=sha256:cf270de5a4c5874e84599fc5778303d496c10ae5e870bfa378818f35d21bda5c
     # via tldextract
+requests-oauthlib==2.0.0 \
+    --hash=sha256:7dd8a5c40426b779b0868c404bdef9768deccf22749cde15852df527e6269b36 \
+    --hash=sha256:b3dffaebd884d8cd778494369603a9e7b58d29111bf6b41bdc2dcd87203af4e9
+    # via social-auth-core
 rfc3161-client==1.0.1 \
     --hash=sha256:081211a1b602b6dff7feb314d39ca2229c8db4e8cf55eef0c35b460470f4b2bb \
     --hash=sha256:0d3db059fe08d8b6b06aff89e133fcc352ffea1a1dafadb116dda9dae59d0689 \
@@ -2183,6 +2207,23 @@ six==1.17.0 \
     #   pymacaroons
     #   python-dateutil
     #   rfc3339-validator
+    #   social-auth-app-pyramid
+    #   social-auth-storage-sqlalchemy
+social-auth-app-pyramid==2.0.0 \
+    --hash=sha256:1bf21f0ff51a338cd6ca944d49509d042903dbae76b51bd54ce6c44eea9906b4 \
+    --hash=sha256:6f3a0f35ad0d226c7d23bec1e17790e36a7758aed3946a79cd94e1f917a6dbe0
+    # via -r requirements/main.in
+social-auth-core==4.6.0 \
+    --hash=sha256:6d940c458c529d3689f2ceca2d944911a4b02d76e82d154688d1d3f75f12d168 \
+    --hash=sha256:ecf9ae1e2e5bb52741cedcaede943fe89a8ada23f9aad018f350d4839a9d3a90
+    # via
+    #   social-auth-app-pyramid
+    #   social-auth-storage-sqlalchemy
+social-auth-storage-sqlalchemy==1.1.0 \
+    --hash=sha256:0f408106bacf22794628e42d95e104f29044cf21e7b894c3913e76d2ec0eaa3b \
+    --hash=sha256:3598835f33719e76a846eac69f1f49820f4f2c8edc86cc6479d5099457ec6121 \
+    --hash=sha256:6ccfe0502e07086eccdb606875106d7e2a29b9804d3c7b31d0f53ba6a50e8e29
+    # via social-auth-app-pyramid
 sqlalchemy[asyncio]==2.0.40 \
     --hash=sha256:00a494ea6f42a44c326477b5bee4e0fc75f6a80c01570a32b57e89cf0fbef85a \
     --hash=sha256:0bb933a650323e476a2e4fbef8997a10d0003d4da996aad3fd7873e962fdde4d \
@@ -2246,6 +2287,7 @@ sqlalchemy[asyncio]==2.0.40 \
     #   alembic
     #   alembic-postgresql-enum
     #   paginate-sqlalchemy
+    #   social-auth-storage-sqlalchemy
     #   zope-sqlalchemy
 stdlib-list==0.11.1 \
     --hash=sha256:9029ea5e3dfde8cd4294cfd4d1797be56a67fc4693c606181730148c3fd1da29 \

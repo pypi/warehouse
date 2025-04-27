@@ -71,6 +71,7 @@ module = [
     "pyqrcode.*",
     "requests_aws4auth.*",  # https://github.com/tedder/requests-aws4auth/issues/53
     "rfc3986.*",  # https://github.com/python-hyper/rfc3986/issues/122
+    "social_pyramid.models",
     "transaction.*",
     "ua_parser.*",  # https://github.com/ua-parser/uap-python/issues/110
     "venusian.*",
