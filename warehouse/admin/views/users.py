@@ -10,8 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import datetime
 import shlex
+import typing
 
 from collections import defaultdict
 from secrets import token_urlsafe
@@ -48,6 +51,9 @@ from warehouse.email import (
 from warehouse.observations.models import ObservationKind
 from warehouse.packaging.models import JournalEntry, Project, Release, Role
 from warehouse.utils.paginate import paginate_url_factory
+
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
 
 
 @view_config(
@@ -298,6 +304,35 @@ def user_add_email(user, request):
             f"Added email for user {user.username!r}", queue="success"
         )
 
+    return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
+
+
+@view_config(
+    route_name="admin.user.delete_email",
+    require_methods=["POST"],
+    permission=Permissions.AdminUsersEmailWrite,
+    uses_session=True,
+    require_csrf=True,
+    context=User,
+)
+def user_email_delete(user: User, request: Request) -> HTTPSeeOther:
+    email = request.db.scalar(
+        select(Email).where(Email.email == request.POST.get("email_address"))
+    )
+    if not email:
+        request.session.flash("Email not found", queue="error")
+        return HTTPSeeOther(
+            request.route_path("admin.user.detail", username=user.username)
+        )
+
+    if email not in user.emails:
+        request.session.flash("Email not associated with user", queue="error")
+        return HTTPSeeOther(
+            request.route_path("admin.user.detail", username=user.username)
+        )
+
+    request.db.delete(email)
+    request.session.flash(f"Email address {email.email!r} deleted", queue="success")
     return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
 
 

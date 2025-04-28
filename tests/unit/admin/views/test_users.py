@@ -1562,3 +1562,61 @@ class TestUserEmailDomainCheck:
         ]
         assert user.primary_email.domain_last_checked is not None
         assert user.primary_email.domain_last_status == ["active"]
+
+
+class TestUserEmailDelete:
+    def test_user_email_delete(self, db_request):
+        user = UserFactory.create(with_verified_primary_email=True)
+        email = EmailFactory.create(user=user, primary=False, verified=False)
+
+        db_request.POST["email_address"] = email.email
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.user_email_delete(user, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foobar"
+        assert db_request.session.flash.calls == [
+            pretend.call(f"Email address '{email.email}' deleted", queue="success")
+        ]
+        assert email.email not in user.emails
+
+    def test_user_email_delete_not_found(self, db_request):
+        user = UserFactory.create(with_verified_primary_email=True)
+
+        db_request.POST["email_address"] = "something@nonexistent.com"
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.user_email_delete(user, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foobar"
+        assert db_request.session.flash.calls == [
+            pretend.call("Email not found", queue="error")
+        ]
+
+    def test_user_email_not_associated_with_user_fails(self, db_request):
+        user = UserFactory.create(with_verified_primary_email=True)
+        email = EmailFactory.create(user=user, primary=False, verified=False)
+        other_user = UserFactory.create()
+
+        db_request.POST["email_address"] = email.email
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.user_email_delete(other_user, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foobar"
+        assert db_request.session.flash.calls == [
+            pretend.call("Email not associated with user", queue="error")
+        ]
+        assert email in user.emails
