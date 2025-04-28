@@ -556,6 +556,12 @@
                             <i class="fa fa-times text-red"></i> Unverify Reason: {{ field.unverify_reason.data.value }}
                           </div>
                         {% endif %}
+                        <button type="button"
+                                class="btn btn-sm btn-danger"
+                                data-toggle="modal"
+                                data-target="#deleteEmail-{{ field.email.id }}">
+                          <i class="fa fa-trash"></i>
+                        </button>
                       </div>
                       <div class="row">
                         <div class="col-sm">Domain Status: {{ field.domain_last_status.data }}</div>
@@ -1091,5 +1097,38 @@
         </div>
       </form>
     </div>
+
+    <div class="modal fade"
+         id="deleteEmail-{{ email.id }}-email"
+          tabindex="-1"
+          role="dialog">
+      <form method="POST"
+            action="{{ request.route_path('admin.user.delete_email', username=user.username, email_address=email.email.data) }}">
+        <input name="csrf_token"
+               type="hidden"
+               value="{{ request.session.get_csrf_token() }}">
+        <input name="email_address" type="hidden" value="{{ email.email.data }}">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title" id="deleteEmailModalLabel">Delete email?</h4>
+              <button type="button" class="close" data-dismiss="modal">
+                <span>&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <p>Are you sure you want to delete this email address?</p>
+              <p>Email address:</p>
+              <code>{{ email.email.data }}</code>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-danger">Delete</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
   {% endfor %}
 {% endblock %}
