@@ -377,9 +377,9 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             # Organization is active.
             self.is_active
             # Organization has active subscription if it is a Company.
-            and (
-                self.orgtype != OrganizationType.Company
-                or self.active_subscription is not None
+            and not (
+                self.orgtype == OrganizationType.Company
+                and self.active_subscription is None
             )
         )
 
