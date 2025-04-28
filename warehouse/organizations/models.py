@@ -371,6 +371,18 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             additional={"organization_name": self.name, **additional},
         )
 
+    @property
+    def good_standing(self):
+        return (
+            # Organization is active.
+            self.is_active
+            # Organization has active subscription if it is a Company.
+            and not (
+                self.orgtype == OrganizationType.Company
+                and self.active_subscription is None
+            )
+        )
+
     def __acl__(self):
         session = orm_session_from_obj(self)
 

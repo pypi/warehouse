@@ -67,8 +67,10 @@ def organization_list(request):
     except ValueError:
         raise HTTPBadRequest("'page' must be an integer.") from None
 
-    organizations_query = request.db.query(Organization).order_by(
-        Organization.normalized_name
+    organizations_query = (
+        request.db.query(Organization)
+        .options(joinedload(Organization.subscriptions))
+        .order_by(Organization.normalized_name)
     )
 
     if q:

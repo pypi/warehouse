@@ -23,6 +23,7 @@ from warehouse.organizations.models import (
     OrganizationStripeSubscription,
 )
 from warehouse.subscriptions.interfaces import IBillingService
+from warehouse.subscriptions.models import StripeSubscriptionStatus
 
 CLEANUP_AFTER = datetime.timedelta(days=30)
 
@@ -82,8 +83,11 @@ def update_organziation_subscription_usage_record(request):
 
     # Call the Billing API to update the usage record of this subscription item
     for org_subscription in organization_subscriptions:
-        billing_service = request.find_service(IBillingService, context=None)
-        billing_service.create_or_update_usage_record(
-            org_subscription.subscription.subscription_item.subscription_item_id,
-            len(org_subscription.organization.users),
-        )
+        if org_subscription.subscription.status not in (
+            StripeSubscriptionStatus.Canceled,
+        ):
+            billing_service = request.find_service(IBillingService, context=None)
+            billing_service.create_or_update_usage_record(
+                org_subscription.subscription.subscription_item.subscription_item_id,
+                len(org_subscription.organization.users),
+            )
