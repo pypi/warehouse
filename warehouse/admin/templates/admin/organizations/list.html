@@ -61,7 +61,9 @@
         <th>Organization</th>
         <th>Description</th>
         <th>Type</th>
-        <th><i class="fa fa-fw"></i> Status</th>
+        <th>Status</th>
+        <th>Subscription</th>
+        <th>Good Standing</th>
       </tr>
       </thead>
 
@@ -80,6 +82,11 @@
         <td><i class="fa fa-fw fa-check text-green"></i> Active</td>
         {% else %}
         <td><i class="fa fa-fw fa-times text-red"></i> Inactive</td>
+        {% endif %}
+        {% if organization.good_standing %}
+        <td><i class="fa fa-fw fa-check text-green"></i> Yes</td>
+        {% else %}
+        <td><i class="fa fa-fw fa-times text-red"></i> No</td>
         {% endif %}
       </tr>
       {% endfor %}

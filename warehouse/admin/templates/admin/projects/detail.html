@@ -193,6 +193,34 @@
   </div>
 </div> <!-- .card #attributes -->
 
+{% if project.organization %}
+<div class="card card-secondary" id="maintainers">
+  <div class="card-header">Organization</div>
+  <div class="card-body">
+    <div class="table-responsive p-0">
+      <table class="table table-hover table-striped">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Account Name</th>
+            <th>Active</th>
+            <th>Good Standing</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="{{ request.route_path('admin.organization.detail', organization_id=project.organization.id) }}">{{ project.organization.display_name }}</a></td>
+            <td>{{ project.organization.name }}</td>
+            <td>{{ project.organization.is_active }}</td>
+            <td>{{ project.organization.good_standing }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endif %}
+
 <div class="card card-secondary" id="maintainers">
   <div class="card-header">Maintainers</div>
   <div class="card-body">
@@ -274,28 +302,31 @@
       </table>
     </div>
   </div>
+</div>
 
+<div class="card card-secondary" id="invitations">
   <div class="card-header">Invitations</div>
   <div class="card-body">
-<div class="table-responsive p-0">
-      <table class="table table-hover table-striped">
-        <thead>
-          <tr>
-            <th>Username</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for invitation in project.invitations %}
-          <tr>
-            <td><a href="{{ request.route_path('admin.user.detail', username=invitation.user.username) }}">{{ invitation.user.username }}</a></td>
-            <td>{{ invitation.invite_status.value }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  <div class="table-responsive p-0">
+        <table class="table table-hover table-striped">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for invitation in project.invitations %}
+            <tr>
+              <td><a href="{{ request.route_path('admin.user.detail', username=invitation.user.username) }}">{{ invitation.user.username }}</a></td>
+              <td>{{ invitation.invite_status.value }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
   </div>
-</div> <!-- .card #maintainers -->
+</div>
 
 <div class="card card-info" id="releases">
   <div class="card-header">Releases</div>
