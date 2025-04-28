@@ -1600,23 +1600,3 @@ class TestUserEmailDelete:
         assert db_request.session.flash.calls == [
             pretend.call("Email not found", queue="error")
         ]
-
-    def test_user_email_not_associated_with_user_fails(self, db_request):
-        user = UserFactory.create(with_verified_primary_email=True)
-        email = EmailFactory.create(user=user, primary=False, verified=False)
-        other_user = UserFactory.create()
-
-        db_request.POST["email_address"] = email.email
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-
-        result = views.user_email_delete(other_user, db_request)
-
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/foobar"
-        assert db_request.session.flash.calls == [
-            pretend.call("Email not associated with user", queue="error")
-        ]
-        assert email in user.emails

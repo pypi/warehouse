@@ -317,16 +317,12 @@ def user_add_email(user, request):
 )
 def user_email_delete(user: User, request: Request) -> HTTPSeeOther:
     email = request.db.scalar(
-        select(Email).where(Email.email == request.POST.get("email_address"))
+        select(Email).where(
+            Email.email == request.POST.get("email_address"), Email.user == user
+        )
     )
     if not email:
         request.session.flash("Email not found", queue="error")
-        return HTTPSeeOther(
-            request.route_path("admin.user.detail", username=user.username)
-        )
-
-    if email not in user.emails:
-        request.session.flash("Email not associated with user", queue="error")
         return HTTPSeeOther(
             request.route_path("admin.user.detail", username=user.username)
         )
