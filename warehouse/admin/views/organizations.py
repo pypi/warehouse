@@ -15,7 +15,7 @@ import shlex
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy import or_
+from sqlalchemy import desc, func, or_
 from sqlalchemy.orm import joinedload
 
 from warehouse.accounts.interfaces import IUserService
@@ -361,14 +361,36 @@ def organization_application_detail(request):
         )
         return HTTPSeeOther(location=request.current_route_path())
 
+    parts = organization_application.normalized_name.split("-")
     conflicting_applications = (
         request.db.query(OrganizationApplication)
         .filter(
-            OrganizationApplication.normalized_name
-            == organization_application.normalized_name
+            or_(
+                *(
+                    [
+                        OrganizationApplication.normalized_name == parts[0],
+                        OrganizationApplication.normalized_name.startswith(
+                            parts[0] + "-"
+                        ),
+                    ]
+                    + [
+                        OrganizationApplication.normalized_name.startswith(
+                            "-".join(parts[: i + 1])
+                        )
+                        for i in range(1, len(parts))
+                    ]
+                )
+            )
         )
         .filter(OrganizationApplication.id != organization_application.id)
-        .order_by(OrganizationApplication.submitted)
+        .order_by(
+            desc(
+                func.similarity(
+                    OrganizationApplication.normalized_name,
+                    organization_application.normalized_name,
+                )
+            )
+        )
         .all()
     )
 

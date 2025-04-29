@@ -701,30 +701,38 @@ class TestOrganizationApplicationDetail:
 
     @pytest.mark.usefixtures("_enable_organizations")
     @pytest.mark.parametrize(
-        ("name", "conflicts"),
+        ("name", "conflicts", "conflicting_prefixes", "not_conflicting"),
         [
-            ("pypi", ["PyPI", "pypi"]),
-            ("py-pi", ["Py-PI", "PY-PI"]),
+            (
+                "pypi",
+                ["PyPI", "pypi"],
+                ["pypi-common", "PyPi_rocks", "pypi-team-garbage"],
+                ["py-pi"],
+            ),
+            ("py-pi", ["Py-PI", "PY-PI"], ["py", "py-pi_dot-com"], ["pypi"]),
         ],
     )
-    def test_detail_conflicting_applications(self, db_request, name, conflicts):
+    def test_detail_conflicting_applications(
+        self, db_request, name, conflicts, conflicting_prefixes, not_conflicting
+    ):
         organization_application = OrganizationApplicationFactory.create(
             name=name, status=OrganizationApplicationStatus.Declined
         )
         conflicting_applications = sorted(
             [
                 OrganizationApplicationFactory.create(name=conflict)
-                for conflict in conflicts
+                for conflict in conflicts + conflicting_prefixes
             ],
             key=lambda o: o.submitted,
         )
+        [OrganizationApplicationFactory.create(name=name) for name in not_conflicting]
         db_request.matchdict["organization_application_id"] = (
             organization_application.id
         )
         result = views.organization_application_detail(db_request)
         assert result["user"] == organization_application.submitted_by
         assert result["form"].name.data == organization_application.name
-        assert result["conflicting_applications"] == conflicting_applications
+        assert set(result["conflicting_applications"]) == set(conflicting_applications)
         assert result["organization_application"] == organization_application
 
     @pytest.mark.usefixtures("_enable_organizations")
