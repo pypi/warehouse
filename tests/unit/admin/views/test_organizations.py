@@ -617,7 +617,6 @@ class TestOrganizationApplicationDetail:
         assert result["user"] == organization_application.submitted_by
         assert result["form"].name.data == organization_application.name
         assert result["conflicting_applications"] == []
-        assert result["conflicting_namespace_prefixes"] == []
         assert result["organization_application"] == organization_application
 
     @pytest.mark.usefixtures("_enable_organizations")
@@ -670,7 +669,6 @@ class TestOrganizationApplicationDetail:
         assert result["form"].name.data == existing_organization.name
         assert result["form"].name.errors != []
         assert result["conflicting_applications"] == []
-        assert result["conflicting_namespace_prefixes"] == []
         assert result["organization_application"] == organization_application
 
     @pytest.mark.usefixtures("_enable_organizations")
@@ -685,7 +683,6 @@ class TestOrganizationApplicationDetail:
         assert result["user"] == organization_application.submitted_by
         assert result["form"].name.data == organization_application.name
         assert result["conflicting_applications"] == []
-        assert result["conflicting_namespace_prefixes"] == []
         assert result["organization_application"] == organization_application
 
     @pytest.mark.usefixtures("_enable_organizations")
@@ -700,7 +697,6 @@ class TestOrganizationApplicationDetail:
         assert result["user"] == organization_application.submitted_by
         assert result["form"].name.data == organization_application.name
         assert result["conflicting_applications"] == []
-        assert result["conflicting_namespace_prefixes"] == []
         assert result["organization_application"] == organization_application
 
     @pytest.mark.usefixtures("_enable_organizations")
@@ -725,14 +721,7 @@ class TestOrganizationApplicationDetail:
         conflicting_applications = sorted(
             [
                 OrganizationApplicationFactory.create(name=conflict)
-                for conflict in conflicts
-            ],
-            key=lambda o: o.submitted,
-        )
-        conflicting_prefix_applications = sorted(
-            [
-                OrganizationApplicationFactory.create(name=conflict)
-                for conflict in conflicting_prefixes
+                for conflict in conflicts + conflicting_prefixes
             ],
             key=lambda o: o.submitted,
         )
@@ -743,14 +732,7 @@ class TestOrganizationApplicationDetail:
         result = views.organization_application_detail(db_request)
         assert result["user"] == organization_application.submitted_by
         assert result["form"].name.data == organization_application.name
-        assert result["conflicting_applications"] == conflicting_applications
-        assert result["conflicting_namespace_prefixes"] == [
-            conflict
-            for conflict in sorted(
-                conflicting_applications + conflicting_prefix_applications,
-                key=lambda o: o.submitted,
-            )
-        ]
+        assert set(result["conflicting_applications"]) == set(conflicting_applications)
         assert result["organization_application"] == organization_application
 
     @pytest.mark.usefixtures("_enable_organizations")
