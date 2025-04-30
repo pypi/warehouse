@@ -65,9 +65,9 @@ RUN set -x \
 # our $PATH to refer to it first.
 ENV PATH="/opt/warehouse/bin:${PATH}"
 
-# Next, we want to update pip and wheel inside of this virtual
-# environment to ensure that we have the latest versions of them.
-RUN pip --no-cache-dir --disable-pip-version-check install --upgrade pip wheel
+# Next, we want to update pip inside of this virtual
+# environment to ensure that we have the latest version.
+RUN pip --no-cache-dir --disable-pip-version-check install --upgrade pip
 
 # We copy this into the docker container prior to copying in the rest of our
 # application so that we can skip installing requirements if the only thing
@@ -146,9 +146,9 @@ RUN set -x \
 # our $PATH to refer to it first.
 ENV PATH="/opt/warehouse/bin:${PATH}"
 
-# Next, we want to update pip and wheel inside of this virtual
-# environment to ensure that we have the latest versions of them.
-RUN pip --no-cache-dir --disable-pip-version-check install --upgrade pip wheel
+# Next, we want to update pip inside of this virtual
+# environment to ensure that we have the latest version.
+RUN pip --no-cache-dir --disable-pip-version-check install --upgrade pip
 
 # We copy this into the docker container prior to copying in the rest of our
 # application so that we can skip installing requirements if the only thing
