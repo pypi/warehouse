@@ -575,7 +575,6 @@ types-setuptools==80.0.0.20250429 \
     --hash=sha256:9bbcdcea88d1fda4b0f1371488333f606c78a8b10154a42530ed926ecf3242cb \
     --hash=sha256:a4de44f1110f531e7f9453d72999437a1caa6052609e2c7c859dd6613ab0d593
     # via
-    #   -r requirements/lint.in
     #   types-babel
     #   types-cffi
 types-stripe==3.5.2.20240106 \
