@@ -21,7 +21,6 @@ types-python-slugify
 types-pytz
 types-redis
 types-requests==2.32.0.20250328
-types-setuptools
 types-stripe
 types-WTForms
 types-WebOb
