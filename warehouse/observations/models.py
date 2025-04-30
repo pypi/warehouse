@@ -111,6 +111,7 @@ class ObservationKind(enum.Enum):
         "account_recovery",
         "Account Recovery",
     )
+    EmailUnverified = ("email_unverified", "Email Unverified")
 
     # Organization Applications
     InformationRequest = ("information_request", "Information Request")
