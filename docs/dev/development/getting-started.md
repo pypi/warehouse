@@ -573,10 +573,11 @@ make shell
 
 The interactive shell will have the following variables defined in it:
 
-| Variable | Description                                                                                       |
-|----------|---------------------------------------------------------------------------------------------------|
-| config   | The Pyramid `Configurator` object which has already been configured by Warehouse.                 |
-| db       | The SQLAlchemy ORM `Session` object which has already been configured to connect to the database. |
+| Variable   | Description                                                                                                                                                                     |
+|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `config`   | The Pyramid `Configurator` object which has already been configured by Warehouse.                                                                                               |
+| `db`       | The SQLAlchemy ORM `Session` object which has already been configured to connect to the database.                                                                               |
+| `request`  | A dummy Pyramid ``Request`` object which has already been configured to provide a request-like object. **Does not autocommit**, call ``request.db.commit()`` to commit changes. |
 
 To use the `db` object in the interactive shell, import the class you're
 planning to use. For example, if I wanted to use the User object, I would
