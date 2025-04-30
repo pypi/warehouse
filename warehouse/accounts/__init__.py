@@ -36,6 +36,7 @@ from warehouse.accounts.tasks import (
     batch_update_email_domain_status,
     compute_user_metrics,
     notify_users_of_tos_update,
+    unverify_emails_with_expired_domains,
 )
 from warehouse.accounts.utils import UserContext
 from warehouse.admin.flags import AdminFlagValue
@@ -221,3 +222,6 @@ def includeme(config):
     config.add_periodic_task(crontab(minute="*"), notify_users_of_tos_update)
     # TODO: After initial backfill, this can be done less frequently
     config.add_periodic_task(crontab(minute="*/5"), batch_update_email_domain_status)
+    config.add_periodic_task(
+        crontab(minute="0", hour="*"), unverify_emails_with_expired_domains
+    )
