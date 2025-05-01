@@ -41,7 +41,7 @@ paginate_sqlalchemy
 passlib>=1.6.4
 platformdirs>=4.2
 premailer
-psycopg[c]
+psycopg[binary]
 pydantic
 pyqrcode-binary
 pyramid>=2.0
