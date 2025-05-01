@@ -1820,9 +1820,8 @@ pypi-attestations==0.0.25 \
     --hash=sha256:5afd0fb151445b9ad154b5a41a7097b010d881e994173022033e913eab36a974 \
     --hash=sha256:9f62b34c35b481e5931979f3f222340001041127bd82945b36e34b198075d331
     # via -r requirements/main.in
-pyqrcode==1.2.1 \
-    --hash=sha256:1b2812775fa6ff5c527977c4cd2ccb07051ca7d0bc0aecf937a43864abe5eff6 \
-    --hash=sha256:fdbf7634733e56b72e27f9bce46e4550b75a3a2c420414035cae9d9d26b234d5
+pyqrcode-binary==1.2.1 \
+    --hash=sha256:6d330e6886fd29b6673bca0d2e775bd4499b83bd7d555942f92f7c34603ce558
     # via -r requirements/main.in
 pyramid==2.0.2 \
     --hash=sha256:2e6585ac55c147f0a51bc00dadf72075b3bdd9a871b332ff9e5e04117ccd76fa \
