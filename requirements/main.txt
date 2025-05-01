@@ -902,9 +902,9 @@ html5lib==1.1 \
     --hash=sha256:0d78f8fde1c230e99fe37986a60526d7049ed4bf8a9fadbad5f00e22e58e041d \
     --hash=sha256:b2e5b40261e20f354d198eae92afc10d750afb487ed5e50f9c4eaf07c184146f
     # via -r requirements/main.in
-humanize==4.12.2 \
-    --hash=sha256:ce0715740e9caacc982bb89098182cf8ded3552693a433311c6a4ce6f4e12a2c \
-    --hash=sha256:e4e44dced598b7e03487f3b1c6fd5b1146c30ea55a110e71d5d4bca3e094259e
+humanize==4.12.3 \
+    --hash=sha256:2cbf6370af06568fa6d2da77c86edb7886f3160ecd19ee1ffef07979efc597f6 \
+    --hash=sha256:8430be3a615106fdfceb0b2c1b41c4c98c6b0fc5cc59663a5539b111dd325fb0
     # via -r requirements/main.in
 hupper==1.12.1 \
     --hash=sha256:06bf54170ff4ecf4c84ad5f188dee3901173ab449c2608ad05b9bfd6b13e32eb \
@@ -1644,12 +1644,12 @@ protobuf==5.29.3 \
     #   googleapis-common-protos
     #   grpcio-status
     #   proto-plus
-psycopg[c]==3.2.6 \
-    --hash=sha256:16fa094efa2698f260f2af74f3710f781e4a6f226efe9d1fd0c37f384639ed8a \
-    --hash=sha256:f3ff5488525890abb0566c429146add66b329e20d6d4835662b920cbbf90ac58
+psycopg[c]==3.2.7 \
+    --hash=sha256:9afa609c7ebf139827a38c0bf61be9c024a3ed743f56443de9d38e1efc260bf3 \
+    --hash=sha256:d39747d2d5b9658b69fa462ad21d31f1ba4a5722ad1d0cb952552bc0b4125451
     # via -r requirements/main.in
-psycopg-c==3.2.6 \
-    --hash=sha256:b5fd4ce70f82766a122ca5076a36c4d5818eaa9df9bf76870bc83a064ffaed3a
+psycopg-c==3.2.7 \
+    --hash=sha256:14455cf71ed29fdfa725c550f8c58056a852bb27b55eb59e3a0f127ca92751a3
     # via psycopg
 pyasn1==0.6.1 \
     --hash=sha256:0d632f46f2ba09143da3a8afe9e33fb6f92fa2320ab7e886e2d0f7672af84629 \
@@ -1820,9 +1820,8 @@ pypi-attestations==0.0.25 \
     --hash=sha256:5afd0fb151445b9ad154b5a41a7097b010d881e994173022033e913eab36a974 \
     --hash=sha256:9f62b34c35b481e5931979f3f222340001041127bd82945b36e34b198075d331
     # via -r requirements/main.in
-pyqrcode==1.2.1 \
-    --hash=sha256:1b2812775fa6ff5c527977c4cd2ccb07051ca7d0bc0aecf937a43864abe5eff6 \
-    --hash=sha256:fdbf7634733e56b72e27f9bce46e4550b75a3a2c420414035cae9d9d26b234d5
+pyqrcode-binary==1.2.1 \
+    --hash=sha256:6d330e6886fd29b6673bca0d2e775bd4499b83bd7d555942f92f7c34603ce558
     # via -r requirements/main.in
 pyramid==2.0.2 \
     --hash=sha256:2e6585ac55c147f0a51bc00dadf72075b3bdd9a871b332ff9e5e04117ccd76fa \
@@ -2514,11 +2513,10 @@ zxcvbn==4.5.0 \
     # via -r requirements/main.in
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==80.0.0 \
-    --hash=sha256:a38f898dcd6e5380f4da4381a87ec90bd0a7eec23d204a5552e80ee3cab6bd27 \
-    --hash=sha256:c40a5b3729d58dd749c0f08f1a07d134fb8a0a3d7f87dc33e7c5e1f762138650
+setuptools==80.1.0 \
+    --hash=sha256:2e308396e1d83de287ada2c2fd6e64286008fe6aca5008e0b6a8cb0e2c86eedd \
+    --hash=sha256:ea0e7655c05b74819f82e76e11a85b31779fee7c4969e82f72bab0664e8317e4
     # via
-    #   -r requirements/main.in
     #   pyramid
     #   repoze-sendmail
     #   zope-deprecation
