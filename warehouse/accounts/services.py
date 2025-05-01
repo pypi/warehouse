@@ -1009,7 +1009,9 @@ class DomainrDomainStatusService:
             return None
 
         if errors := resp.json().get("errors"):
-            logger.warning("Error from Domainr: %r", errors)
+            logger.warning(
+                {"status": "Error from Domainr", "errors": errors, "domain": domain}
+            )
             return None
 
         return resp.json()["status"][0]["status"].split()
