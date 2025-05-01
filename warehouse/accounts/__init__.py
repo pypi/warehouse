@@ -219,5 +219,6 @@ def includeme(config):
     # Add a periodic task to generate Account metrics
     config.add_periodic_task(crontab(minute="*/20"), compute_user_metrics)
     config.add_periodic_task(crontab(minute="*"), notify_users_of_tos_update)
-    # TODO: After initial backfill, this can be done less frequently
-    config.add_periodic_task(crontab(minute="*/5"), batch_update_email_domain_status)
+    config.add_periodic_task(
+        crontab(minute="0", hour=4), batch_update_email_domain_status
+    )
