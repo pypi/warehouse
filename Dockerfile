@@ -67,7 +67,7 @@ ENV PATH="/opt/warehouse/bin:${PATH}"
 
 # Next, we want to update pip inside of this virtual
 # environment to ensure that we have the latest version.
-RUN pip --no-cache-dir --disable-pip-version-check install --upgrade pip
+RUN pip --no-cache-dir --disable-pip-version-check install --upgrade pip==25.0.1
 
 # We copy this into the docker container prior to copying in the rest of our
 # application so that we can skip installing requirements if the only thing
@@ -148,7 +148,7 @@ ENV PATH="/opt/warehouse/bin:${PATH}"
 
 # Next, we want to update pip inside of this virtual
 # environment to ensure that we have the latest version.
-RUN pip --no-cache-dir --disable-pip-version-check install --upgrade pip
+RUN pip --no-cache-dir --disable-pip-version-check install --upgrade pip==25.0.1
 
 # We copy this into the docker container prior to copying in the rest of our
 # application so that we can skip installing requirements if the only thing
