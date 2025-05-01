@@ -6,6 +6,8 @@ volumes:
   policies:
   caches:
   rstuf-metadata:
+  pgdata:
+  cachedata:
 
 services:
   db:
@@ -21,6 +23,7 @@ services:
       interval: 1s
       start_period: 10s
     volumes:
+      - pgdata:/var/lib/postgresql/data
       - ./dev/db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:z
       - ./dev/example.sql.xz:/example.sql.xz:z
       - ./dev/db/post-migrations.sql:/post-migrations.sql:z
@@ -33,6 +36,8 @@ services:
 
   redis:
     image: redis:7.0
+    volumes:
+      - cachedata:/data
 
   opensearch:
     build:
