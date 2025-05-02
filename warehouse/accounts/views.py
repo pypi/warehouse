@@ -800,9 +800,38 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
         if user is None:
             user = user_service.get_user_by_email(form.username_or_email.data)
         if user is not None:
-            email = first_true(
-                user.emails, pred=lambda e: e.email == form.username_or_email.data
+            verified_email = first_true(
+                user.emails,
+                pred=lambda e: e.email == form.username_or_email.data and e.verified,
             )
+
+            if not verified_email:
+                # If the user is found but the email is not verified,
+                # tell the user to contact support instead
+                if unverified_email := first_true(
+                    user.emails,
+                    pred=lambda e: e.email == form.username_or_email.data,
+                ):
+                    user.record_event(
+                        tag=EventTag.Account.PasswordResetAttempt,
+                        request=request,
+                    )
+                    request.log.warning(
+                        "User requested password reset for unverified email",
+                        username=user.username,
+                        email_address=unverified_email.email,
+                    )
+                    request.session.flash(
+                        request._(
+                            "Email address '${email}' is not verified. "
+                            "Contact PyPI support for assistance.",
+                            mapping={"email": unverified_email.email},
+                        ),
+                        queue="error",
+                    )
+                    return HTTPSeeOther(
+                        request.route_path("accounts.request-password-reset")
+                    )
         else:
             token_service = request.find_service(ITokenService, name="password")
             n_hours = token_service.max_age // 60 // 60
@@ -816,7 +845,7 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
             )
 
         if user.can_reset_password:
-            send_password_reset_email(request, (user, email))
+            send_password_reset_email(request, (user, verified_email))
             user.record_event(
                 tag=EventTag.Account.PasswordResetRequest,
                 request=request,

@@ -2169,6 +2169,34 @@ class TestRequestPasswordReset:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
+    def test_unverified_email_is_rejected(self, db_request, mocker):
+        unverified_email = EmailFactory(verified=False)
+
+        # Prevent form's validation from checking deliverability
+        mock_form_validation = mocker.patch(
+            "warehouse.accounts.forms."
+            "RequestPasswordResetForm.validate_username_or_email",
+            autospec=True,
+            return_value=True,
+        )
+        # Spy on the flash method to check if it was called
+        mock_spy_flash = mocker.spy(db_request.session, "flash")
+
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"username_or_email": unverified_email.email})
+        db_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
+
+        result = views.request_password_reset(db_request)
+
+        mock_form_validation.assert_called_once()
+        mock_spy_flash.assert_called_once_with(
+            f"Email address '{unverified_email.email}' is not verified. "
+            "Contact PyPI support for assistance.",
+            queue="error",
+        )
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
 
 class TestResetPassword:
     @pytest.mark.parametrize("dates_utc", [True, False])
