@@ -365,7 +365,7 @@
     {% endtrans %}
   </p>
   </div>
-  {% if project.lifecycle_status == "archived" %}
+  {% if project.lifecycle_status in ["archived", "archived-noindex"] %}
     <a href="#unarchive-project" class="button button--primary">
       {% trans %}Unarchive project{% endtrans %}
     </a>
