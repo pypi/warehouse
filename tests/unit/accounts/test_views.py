@@ -1906,7 +1906,7 @@ class TestRequestPasswordReset:
         stub_user = pretend.stub(
             id=uuid.uuid4(),
             email="foo@example.com",
-            emails=[pretend.stub(email="foo@example.com")],
+            emails=[pretend.stub(email="foo@example.com", verified=True)],
             can_reset_password=True,
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
@@ -1977,8 +1977,8 @@ class TestRequestPasswordReset:
             id=uuid.uuid4(),
             email="foo@example.com",
             emails=[
-                pretend.stub(email="foo@example.com"),
-                pretend.stub(email="other@example.com"),
+                pretend.stub(email="foo@example.com", verified=True),
+                pretend.stub(email="other@example.com", verified=True),
             ],
             can_reset_password=True,
             record_event=pretend.call_recorder(lambda *a, **kw: None),
@@ -2055,7 +2055,7 @@ class TestRequestPasswordReset:
         stub_user = pretend.stub(
             id=uuid.uuid4(),
             email="foo@example.com",
-            emails=[pretend.stub(email="foo@example.com")],
+            emails=[pretend.stub(email="foo@example.com", verified=True)],
             can_reset_password=True,
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )

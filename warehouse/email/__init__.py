@@ -222,7 +222,7 @@ def _email(
     return inner
 
 
-@_email("password-reset", allow_unverified=True)
+@_email("password-reset")
 def send_password_reset_email(request, user_and_email):
     user, _ = user_and_email
     token_service = request.find_service(ITokenService, name="password")

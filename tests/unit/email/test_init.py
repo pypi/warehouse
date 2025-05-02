@@ -535,17 +535,14 @@ class TestSendEmail:
 
 class TestSendPasswordResetEmail:
     @pytest.mark.parametrize(
-        ("verified", "email_addr"),
+        "email_addr",
         [
-            (True, None),
-            (False, None),
-            (True, "other@example.com"),
-            (False, "other@example.com"),
+            None,
+            "other@example.com",
         ],
     )
     def test_send_password_reset_email(
         self,
-        verified,
         email_addr,
         pyramid_request,
         pyramid_config,
@@ -556,7 +553,7 @@ class TestSendPasswordResetEmail:
         stub_user = pretend.stub(
             id="id",
             email="email@example.com",
-            primary_email=pretend.stub(email="email@example.com", verified=verified),
+            primary_email=pretend.stub(email="email@example.com", verified=True),
             username="username_value",
             name="name_value",
             last_login="last_login",
@@ -565,7 +562,7 @@ class TestSendPasswordResetEmail:
         if email_addr is None:
             stub_email = None
         else:
-            stub_email = pretend.stub(email=email_addr, verified=verified)
+            stub_email = pretend.stub(email=email_addr, verified=True)
         pyramid_request.method = "POST"
         token_service.dumps = pretend.call_recorder(lambda a: "TOKEN")
 
@@ -654,7 +651,7 @@ class TestSendPasswordResetEmail:
                 "warehouse.emails.scheduled",
                 tags=[
                     "template_name:password-reset",
-                    "allow_unverified:True",
+                    "allow_unverified:False",
                     "repeat_window:none",
                 ],
             )
