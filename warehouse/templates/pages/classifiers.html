@@ -27,6 +27,14 @@
       To read the original classifier specification, refer to <a href="{{ pep301_href }}" title="{{ title }}" target="_blank" rel="noopener"><abbr title="Python enhancement proposal">PEP</abbr> 301</a>.
       {% endtrans %}
     </p>
+
+    <div class="callout-block callout-block--info">
+      <p>
+        {% trans spdx_link='https://spdx.org/licenses/', pep639_link='https://peps.python.org/pep-0639/', license_field_link='https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license', title=gettext('External link') %}
+        Classifiers starting with <code>License ::</code> are deprecated. Instead, use the <a href="{{ license_field_link }}" title="{{ title }}" target="_blank" rel="noopener"><code>license</code> field</a> in your <code>pyproject.toml</code> with an <a href="{{ spdx_link }}" title="{{ title }}" target="_blank" rel="noopener">SPDX license expression</a> as specified in <a href="{{ pep639_link }}" title="{{ title }}" target="_blank" rel="noopener">PEP 639</a>.
+        {% endtrans %}
+      </p>
+    </div>
     <p>{% trans %}To prevent a package from being uploaded to PyPI, use the special "Private :: Do Not Upload" classifier. PyPI will always reject packages with classifiers beginning with "Private ::".{% endtrans %}</p>
 
     <h2>{% trans %}List of classifiers{% endtrans %}</h2>
