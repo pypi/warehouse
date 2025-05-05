@@ -100,6 +100,13 @@ def includeme(config):
         traverse="/{username}",
     )
     config.add_route(
+        "admin.user.delete_email",
+        "/admin/users/{username}/delete_email/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
         "admin.user.delete",
         "/admin/users/{username}/delete/",
         domain=warehouse,

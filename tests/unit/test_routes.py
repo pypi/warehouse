@@ -89,7 +89,7 @@ def test_routes(warehouse):
         ),
         pretend.call(
             "includes.flash-messages",
-            "/_includes/authed/flash-messages/",
+            "/_includes/unauthed/flash-messages/",
             domain=warehouse,
         ),
         pretend.call(

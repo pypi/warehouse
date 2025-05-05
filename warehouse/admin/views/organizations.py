@@ -15,7 +15,7 @@ import shlex
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy import or_
+from sqlalchemy import desc, func, or_
 from sqlalchemy.orm import joinedload
 
 from warehouse.accounts.interfaces import IUserService
@@ -67,8 +67,10 @@ def organization_list(request):
     except ValueError:
         raise HTTPBadRequest("'page' must be an integer.") from None
 
-    organizations_query = request.db.query(Organization).order_by(
-        Organization.normalized_name
+    organizations_query = (
+        request.db.query(Organization)
+        .options(joinedload(Organization.subscriptions))
+        .order_by(Organization.normalized_name)
     )
 
     if q:
@@ -359,14 +361,36 @@ def organization_application_detail(request):
         )
         return HTTPSeeOther(location=request.current_route_path())
 
+    parts = organization_application.normalized_name.split("-")
     conflicting_applications = (
         request.db.query(OrganizationApplication)
         .filter(
-            OrganizationApplication.normalized_name
-            == organization_application.normalized_name
+            or_(
+                *(
+                    [
+                        OrganizationApplication.normalized_name == parts[0],
+                        OrganizationApplication.normalized_name.startswith(
+                            parts[0] + "-"
+                        ),
+                    ]
+                    + [
+                        OrganizationApplication.normalized_name.startswith(
+                            "-".join(parts[: i + 1])
+                        )
+                        for i in range(1, len(parts))
+                    ]
+                )
+            )
         )
         .filter(OrganizationApplication.id != organization_application.id)
-        .order_by(OrganizationApplication.submitted)
+        .order_by(
+            desc(
+                func.similarity(
+                    OrganizationApplication.normalized_name,
+                    organization_application.normalized_name,
+                )
+            )
+        )
         .all()
     )
 
@@ -470,18 +494,22 @@ def organization_application_request_more_information(request):
     if organization_application is None:
         raise HTTPNotFound
 
-    organization_service.request_more_information(organization_application.id, request)
+    try:
+        organization_service.request_more_information(
+            organization_application.id, request
+        )
+        request.session.flash(
+            (
+                f'Request for more info from "{organization_application.name}" '
+                "organization sent"
+            ),
+            queue="success",
+        )
 
-    request.session.flash(
-        (
-            f'Request for more info from "{organization_application.name}" '
-            "organization sent"
-        ),
-        queue="success",
-    )
-
-    if request.params.get("organization_applications_turbo_mode") == "true":
-        return _turbo_mode(request)
+        if request.params.get("organization_applications_turbo_mode") == "true":
+            return _turbo_mode(request)
+    except ValueError:
+        request.session.flash("No message provided", queue="error")
 
     return HTTPSeeOther(
         request.route_path(

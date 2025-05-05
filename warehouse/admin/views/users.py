@@ -10,8 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import datetime
 import shlex
+import typing
 
 from collections import defaultdict
 from secrets import token_urlsafe
@@ -28,7 +31,6 @@ from sqlalchemy.orm import joinedload
 
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
-    IDomainStatusService,
     IEmailBreachedService,
     InvalidRecoveryCode,
     IUserService,
@@ -40,6 +42,7 @@ from warehouse.accounts.models import (
     ProhibitedUserName,
     User,
 )
+from warehouse.accounts.utils import update_email_domain_status
 from warehouse.authnz import Permissions
 from warehouse.email import (
     send_account_recovery_initiated_email,
@@ -48,6 +51,9 @@ from warehouse.email import (
 from warehouse.observations.models import ObservationKind
 from warehouse.packaging.models import JournalEntry, Project, Release, Role
 from warehouse.utils.paginate import paginate_url_factory
+
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
 
 
 @view_config(
@@ -298,6 +304,31 @@ def user_add_email(user, request):
             f"Added email for user {user.username!r}", queue="success"
         )
 
+    return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
+
+
+@view_config(
+    route_name="admin.user.delete_email",
+    require_methods=["POST"],
+    permission=Permissions.AdminUsersEmailWrite,
+    uses_session=True,
+    require_csrf=True,
+    context=User,
+)
+def user_email_delete(user: User, request: Request) -> HTTPSeeOther:
+    email = request.db.scalar(
+        select(Email).where(
+            Email.email == request.POST.get("email_address"), Email.user == user
+        )
+    )
+    if not email:
+        request.session.flash("Email not found", queue="error")
+        return HTTPSeeOther(
+            request.route_path("admin.user.detail", username=user.username)
+        )
+
+    request.db.delete(email)
+    request.session.flash(f"Email address {email.email!r} deleted", queue="success")
     return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
 
 
@@ -683,13 +714,7 @@ def user_email_domain_check(user, request):
     email_address = request.params.get("email_address")
     email = request.db.scalar(select(Email).where(Email.email == email_address))
 
-    domain_status_service = request.find_service(IDomainStatusService)
-    domain_status = domain_status_service.get_domain_status(email.domain)
-
-    # set the domain status to the email address
-    email.domain_last_checked = datetime.datetime.now(datetime.UTC)
-    email.domain_last_status = domain_status
-    request.db.add(email)
+    update_email_domain_status(email, request)
 
     request.session.flash(
         f"Domain status check for {email.domain!r} completed", queue="success"

@@ -61,6 +61,12 @@ from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_releas
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.classifiers import ClassifierFactory
 from ...common.db.oidc import GitHubPublisherFactory
+from ...common.db.organizations import (
+    OrganizationFactory,
+    OrganizationProjectFactory,
+    OrganizationRoleFactory,
+    OrganizationStripeSubscriptionFactory,
+)
 from ...common.db.packaging import (
     FileFactory,
     ProjectFactory,
@@ -5402,6 +5408,193 @@ class TestFileUpload:
             "See https://packaging.python.org/specifications/core-metadata "
             "for more information."
         )
+
+    def test_upload_for_organization_owned_project_succeeds(
+        self, pyramid_config, db_request, monkeypatch
+    ):
+        organization = OrganizationFactory.create(orgtype="Community")
+        user = UserFactory.create(with_verified_primary_email=True)
+        OrganizationRoleFactory.create(organization=organization, user=user)
+        project = OrganizationProjectFactory.create(organization=organization).project
+        version = "1.0.0"
+
+        filename = (
+            f"{project.normalized_name.replace('-', '_')}-{version}-py3-none-any.whl"
+        )
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version=version
+        )
+
+        @pretend.call_recorder
+        def storage_service_store(path, file_path, *, meta):
+            with open(file_path, "rb") as fp:
+                if file_path.endswith(".metadata"):
+                    assert fp.read() == b"Fake metadata"
+                else:
+                    assert fp.read() == filebody
+
+        storage_service = pretend.stub(store=storage_service_store)
+
+        db_request.find_service = pretend.call_recorder(
+            lambda svc, name=None, context=None: {
+                IFileStorage: storage_service,
+            }.get(svc)
+        )
+
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0.0",
+                "filetype": "bdist_wheel",
+                "pyversion": "py3",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+    def test_upload_for_company_organization_owned_project_fails_without_subscription(
+        self, pyramid_config, db_request, monkeypatch
+    ):
+        organization = OrganizationFactory.create(orgtype="Company")
+        user = UserFactory.create(with_verified_primary_email=True)
+        OrganizationRoleFactory.create(organization=organization, user=user)
+        project = OrganizationProjectFactory.create(organization=organization).project
+        version = "1.0.0"
+
+        filename = (
+            f"{project.normalized_name.replace('-', '_')}-{version}-py3-none-any.whl"
+        )
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version=version
+        )
+
+        @pretend.call_recorder
+        def storage_service_store(path, file_path, *, meta):
+            with open(file_path, "rb") as fp:
+                if file_path.endswith(".metadata"):
+                    assert fp.read() == b"Fake metadata"
+                else:
+                    assert fp.read() == filebody
+
+        storage_service = pretend.stub(store=storage_service_store)
+
+        db_request.find_service = pretend.call_recorder(
+            lambda svc, name=None, context=None: {
+                IFileStorage: storage_service,
+            }.get(svc)
+        )
+
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0.0",
+                "filetype": "bdist_wheel",
+                "pyversion": "py3",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status == (
+            "400 Organization account owning this project is inactive. "
+            "This may be due to inactive billing for Company Organizations, "
+            "or administrator intervention for Community Organizations. "
+            "Please contact support+orgs@pypi.org."
+        )
+
+    def test_upload_for_company_organization_owned_project_suceeds_with_subscription(
+        self, pyramid_config, db_request, monkeypatch
+    ):
+        organization = OrganizationFactory.create(orgtype="Company")
+        user = UserFactory.create(with_verified_primary_email=True)
+        OrganizationRoleFactory.create(organization=organization, user=user)
+        OrganizationStripeSubscriptionFactory.create(organization=organization)
+        project = OrganizationProjectFactory.create(organization=organization).project
+        version = "1.0.0"
+
+        filename = (
+            f"{project.normalized_name.replace('-', '_')}-{version}-py3-none-any.whl"
+        )
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version=version
+        )
+
+        @pretend.call_recorder
+        def storage_service_store(path, file_path, *, meta):
+            with open(file_path, "rb") as fp:
+                if file_path.endswith(".metadata"):
+                    assert fp.read() == b"Fake metadata"
+                else:
+                    assert fp.read() == filebody
+
+        storage_service = pretend.stub(store=storage_service_store)
+
+        db_request.find_service = pretend.call_recorder(
+            lambda svc, name=None, context=None: {
+                IFileStorage: storage_service,
+            }.get(svc)
+        )
+
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0.0",
+                "filetype": "bdist_wheel",
+                "pyversion": "py3",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
 
 
 def test_submit(pyramid_request):

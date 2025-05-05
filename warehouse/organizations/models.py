@@ -22,6 +22,7 @@ from pyramid.httpexceptions import HTTPPermanentRedirect
 from sqlalchemy import (
     CheckConstraint,
     Enum,
+    FetchedValue,
     ForeignKey,
     Index,
     UniqueConstraint,
@@ -276,10 +277,6 @@ class OrganizationMixin:
 
     name: Mapped[str] = mapped_column(comment="The account name used in URLS")
 
-    @declared_attr
-    def normalized_name(cls):  # noqa: N805
-        return column_property(func.normalize_pep426_name(cls.name))
-
     display_name: Mapped[str] = mapped_column(comment="Display name used in UI")
     orgtype: Mapped[enum.Enum] = mapped_column(
         Enum(OrganizationType, values_callable=lambda x: [e.value for e in x]),
@@ -299,6 +296,11 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
 
     __repr__ = make_repr("name")
 
+    normalized_name: Mapped[str] = mapped_column(
+        unique=True,
+        server_default=FetchedValue(),
+        server_onupdate=FetchedValue(),
+    )
     is_active: Mapped[bool_false] = mapped_column(
         comment="When True, the organization is active and all features are available.",
     )
@@ -367,6 +369,18 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             tag=tag,
             request=request,
             additional={"organization_name": self.name, **additional},
+        )
+
+    @property
+    def good_standing(self):
+        return (
+            # Organization is active.
+            self.is_active
+            # Organization has active subscription if it is a Company.
+            and not (
+                self.orgtype == OrganizationType.Company
+                and self.active_subscription is None
+            )
         )
 
     def __acl__(self):
@@ -537,6 +551,10 @@ class OrganizationMembershipSize(enum.StrEnum):
 class OrganizationApplication(OrganizationMixin, HasObservations, db.Model):
     __tablename__ = "organization_applications"
     __repr__ = make_repr("name")
+
+    @declared_attr
+    def normalized_name(cls):  # noqa: N805
+        return column_property(func.normalize_pep426_name(cls.name))
 
     submitted_by_id: Mapped[UUID] = mapped_column(
         PG_UUID,

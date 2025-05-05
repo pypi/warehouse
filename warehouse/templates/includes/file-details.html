@@ -27,6 +27,13 @@
     <code>{{ publ.workflow_filepath }}</code> on {{ publ.repository }}
   </a>
 </p>
+{% elif publ.kind == "Google" %}
+<p>
+  Publisher: <span>
+    <i class="fa-brands fa-google" aria-hidden="true"></i>
+    <code>{{ publ.email }}</code>
+  </span>
+</p>
 {% endif %}
 {%- endmacro %}
 
@@ -136,6 +143,7 @@
                 <li>Sigstore transparency entry: <a href="https://search.sigstore.dev/?logIndex={{ viewer.transparency_entry.logIndex }}">{{ viewer.transparency_entry.logIndex }}</a> </li>
                 <li>Sigstore integration time: {{ humanize(viewer.transparency_entry.integratedTime | int | ctime, time="true") }} </li>
               </ul>
+              {% if bundle.publisher.repository %}
               Source repository:
               <ul>
                 <li>Permalink: <a href="{{ viewer.permalink_with_digest }}">
@@ -147,16 +155,26 @@
                 <li>Owner: <a href="{{ viewer.owner }}">{{ viewer.owner }}</a></li>
                 <li>Access: <code>{{ viewer.access }}</code></li>
               </ul>
+              {% endif %}
               Publication detail:
               <ul>
                 <li>Token Issuer: <code>{{ viewer.issuer }}</code></li>
+                {% if viewer.publisher.kind == "Google" %}
+                <li>Service Account: <code>{{ viewer.publisher.email }}</code></li>
+                {% endif %}
+                {% if viewer.environment %}
                 <li>Runner Environment: <code>{{ viewer.environment }}</code></li>
+                {% endif %}
+                {% if viewer.workflow_filename and viewer.build_digest %}
                 <li>Publication workflow:
                   <a href="{{ viewer.workflow_url }}">
                     <code>{{ viewer.workflow_filename }}@{{ viewer.build_digest }}</code>
                   </a>
                 </li>
+                {% endif %}
+                {% if viewer.trigger %}
                 <li>Trigger Event: <code>{{ viewer.trigger }}</code></li>
+                {% endif %}
               </ul>
           </li>
           {% endfor %}

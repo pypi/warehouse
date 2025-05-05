@@ -65,12 +65,10 @@ RUN set -x \
 # our $PATH to refer to it first.
 ENV PATH="/opt/warehouse/bin:${PATH}"
 
-# Next, we want to update pip, setuptools, and wheel inside of this virtual
-# environment to ensure that we have the latest versions of them.
-# TODO: We use --require-hashes in our requirements files, but not here, making
-#       the ones in the requirements files kind of a moot point. We should
-#       probably pin these too, and update them as we do anything else.
-RUN pip --no-cache-dir --disable-pip-version-check install --upgrade pip setuptools wheel
+# Next, we want to update pip inside of this virtual
+# environment to ensure that we have the latest version.
+# Pinned due to https://github.com/jazzband/pip-tools/issues/2176
+RUN pip --no-cache-dir --disable-pip-version-check install --upgrade pip==25.0.1
 
 # We copy this into the docker container prior to copying in the rest of our
 # application so that we can skip installing requirements if the only thing
@@ -84,7 +82,7 @@ COPY requirements /tmp/requirements
 RUN --mount=type=cache,target=/root/.cache/pip \
     set -x \
     && pip --disable-pip-version-check \
-            install --no-deps \
+            install --no-deps --only-binary :all: \
             -r /tmp/requirements/docs-dev.txt \
             -r /tmp/requirements/docs-user.txt \
             -r /tmp/requirements/docs-blog.txt \
@@ -149,12 +147,10 @@ RUN set -x \
 # our $PATH to refer to it first.
 ENV PATH="/opt/warehouse/bin:${PATH}"
 
-# Next, we want to update pip, setuptools, and wheel inside of this virtual
-# environment to ensure that we have the latest versions of them.
-# TODO: We use --require-hashes in our requirements files, but not here, making
-#       the ones in the requirements files kind of a moot point. We should
-#       probably pin these too, and update them as we do anything else.
-RUN pip --no-cache-dir --disable-pip-version-check install --upgrade pip setuptools wheel
+# Next, we want to update pip inside of this virtual
+# environment to ensure that we have the latest version.
+# Pinned due to https://github.com/jazzband/pip-tools/issues/2176
+RUN pip --no-cache-dir --disable-pip-version-check install --upgrade pip==25.0.1
 
 # We copy this into the docker container prior to copying in the rest of our
 # application so that we can skip installing requirements if the only thing
@@ -178,7 +174,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 RUN --mount=type=cache,target=/root/.cache/pip \
     set -x \
     && pip --disable-pip-version-check \
-            install --no-deps \
+            install --no-deps --only-binary :all: \
                     -r /tmp/requirements/deploy.txt \
                     -r /tmp/requirements/main.txt \
                     $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt'; fi) \

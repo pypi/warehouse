@@ -992,7 +992,7 @@ class DomainrDomainStatusService:
         domainr_client_id = request.registry.settings.get("domain_status.client_id")
         return cls(session=request.http, client_id=domainr_client_id)
 
-    def get_domain_status(self, domain: str) -> list[str]:
+    def get_domain_status(self, domain: str) -> list[str] | None:
         """
         Check if a domain is available or not.
         See https://domainr.com/docs/api/v2/status
@@ -1006,6 +1006,12 @@ class DomainrDomainStatusService:
             resp.raise_for_status()
         except requests.RequestException as exc:
             logger.warning("Error contacting Domainr: %r", exc)
-            return []
+            return None
+
+        if errors := resp.json().get("errors"):
+            logger.warning(
+                {"status": "Error from Domainr", "errors": errors, "domain": domain}
+            )
+            return None
 
         return resp.json()["status"][0]["status"].split()

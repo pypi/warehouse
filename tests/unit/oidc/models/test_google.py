@@ -209,6 +209,11 @@ class TestGooglePublisher:
 
         assert publisher.exists(db_request.db) == exists_in_db
 
+    def test_google_publisher_attestation_identity(self):
+        publisher = google.GooglePublisher(email="wu@tang.net")
+        identity = publisher.attestation_identity
+        assert identity.email == publisher.email
+
 
 class TestPendingGooglePublisher:
     @pytest.mark.parametrize("sub", ["fakesubject", None])

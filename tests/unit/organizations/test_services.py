@@ -271,6 +271,7 @@ class TestDatabaseOrganizationService:
 
         admin = UserFactory(username="admin", is_superuser=True)
         db_request.user = admin
+        db_request.params["message"] = "some message"
 
         organization_application = OrganizationApplicationFactory.create()
         organization_service.request_more_information(
@@ -288,9 +289,29 @@ class TestDatabaseOrganizationService:
                 organization_application.submitted_by,
                 organization_name=organization_application.name,
                 organization_application_id=organization_application.id,
-                message="",
+                message="some message",
             ),
         ]
+
+    def test_request_more_information_organization_application_no_message(
+        self, db_request, organization_service, monkeypatch
+    ):
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            services, "send_new_organization_moreinformationneeded_email", send_email
+        )
+
+        admin = UserFactory(username="admin", is_superuser=True)
+        db_request.user = admin
+
+        organization_application = OrganizationApplicationFactory.create()
+        with pytest.raises(ValueError):  # noqa
+            organization_service.request_more_information(
+                organization_application.id, db_request
+            )
+
+        assert len(organization_application.observations) == 0
+        assert send_email.calls == []
 
     def test_decline_organization_application(
         self, db_request, organization_service, monkeypatch
@@ -687,7 +708,7 @@ class TestDatabaseOrganizationService:
             .count()
         ) == 1
 
-    def test_rename_fails_if_entry_exists_for_another_org(
+    def test_rename_fails_if_organization_name_in_use(
         self, organization_service, db_request
     ):
         conflicting_org = OrganizationFactory.create()
@@ -697,6 +718,17 @@ class TestDatabaseOrganizationService:
             organization_service.rename_organization(
                 organization.id, conflicting_org.name
             )
+
+    def test_rename_fails_if_organization_name_previously_used(
+        self, organization_service, db_request
+    ):
+        conflicting_org = OrganizationFactory.create()
+        original_name = conflicting_org.name
+        organization_service.rename_organization(conflicting_org.id, "some_new_name")
+        organization = OrganizationFactory.create()
+
+        with pytest.raises(ValueError):  # noqa: PT011
+            organization_service.rename_organization(organization.id, original_name)
 
     def test_update_organization(self, organization_service, db_request):
         organization = OrganizationFactory.create()

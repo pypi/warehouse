@@ -372,7 +372,7 @@ class TestOrganizationActions:
     @pytest.mark.usefixtures("_enable_organizations")
     def test_rename_fails_on_conflict(self, db_request):
         admin = UserFactory.create()
-        organization = OrganizationFactory.create(name="widget")
+        OrganizationFactory.create(name="widget")
         organization = OrganizationFactory.create(name="example")
 
         db_request.matchdict = {"organization_id": organization.id}
@@ -701,30 +701,38 @@ class TestOrganizationApplicationDetail:
 
     @pytest.mark.usefixtures("_enable_organizations")
     @pytest.mark.parametrize(
-        ("name", "conflicts"),
+        ("name", "conflicts", "conflicting_prefixes", "not_conflicting"),
         [
-            ("pypi", ["PyPI", "pypi"]),
-            ("py-pi", ["Py-PI", "PY-PI"]),
+            (
+                "pypi",
+                ["PyPI", "pypi"],
+                ["pypi-common", "PyPi_rocks", "pypi-team-garbage"],
+                ["py-pi"],
+            ),
+            ("py-pi", ["Py-PI", "PY-PI"], ["py", "py-pi_dot-com"], ["pypi"]),
         ],
     )
-    def test_detail_conflicting_applications(self, db_request, name, conflicts):
+    def test_detail_conflicting_applications(
+        self, db_request, name, conflicts, conflicting_prefixes, not_conflicting
+    ):
         organization_application = OrganizationApplicationFactory.create(
             name=name, status=OrganizationApplicationStatus.Declined
         )
         conflicting_applications = sorted(
             [
                 OrganizationApplicationFactory.create(name=conflict)
-                for conflict in conflicts
+                for conflict in conflicts + conflicting_prefixes
             ],
             key=lambda o: o.submitted,
         )
+        [OrganizationApplicationFactory.create(name=name) for name in not_conflicting]
         db_request.matchdict["organization_application_id"] = (
             organization_application.id
         )
         result = views.organization_application_detail(db_request)
         assert result["user"] == organization_application.submitted_by
         assert result["form"].name.data == organization_application.name
-        assert result["conflicting_applications"] == conflicting_applications
+        assert set(result["conflicting_applications"]) == set(conflicting_applications)
         assert result["organization_application"] == organization_application
 
     @pytest.mark.usefixtures("_enable_organizations")
@@ -1073,6 +1081,44 @@ class TestOrganizationApplicationActions:
 
         with pytest.raises(HTTPNotFound):
             views.organization_application_request_more_information(request)
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_request_more_information_no_message(self, db_request):
+        admin = UserFactory.create()
+        user = UserFactory.create()
+        organization_application = OrganizationApplicationFactory.create(
+            name="example", submitted_by=user
+        )
+
+        organization_service = pretend.stub(
+            get_organization_application=lambda *a, **kw: organization_application,
+            request_more_information=pretend.call_recorder(pretend.raiser(ValueError)),
+        )
+
+        db_request.matchdict = {
+            "organization_application_id": organization_application.id
+        }
+        db_request.params = {}
+        db_request.user = admin
+        db_request.route_path = pretend.call_recorder(_organization_application_routes)
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context: organization_service
+        )
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+
+        result = views.organization_application_request_more_information(db_request)
+
+        assert organization_service.request_more_information.calls == [
+            pretend.call(organization_application.id, db_request),
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call("No message provided", queue="error"),
+        ]
+        assert result.status_code == 303
+        assert (
+            result.location
+            == f"/admin/organization_applications/{organization_application.id}/"
+        )
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_decline(self, db_request):

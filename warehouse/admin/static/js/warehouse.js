@@ -265,6 +265,42 @@ if (editModalForm !== null) {
   }
 }
 
+$(document).ready(function() {
+  const modalHotKeyBindings = document.querySelectorAll("button[data-hotkey-binding]");
+  var keyBindings = new Map();
+  function bindHotKeys() {
+    document.onkeyup = hotKeys;
+  }
+  function unbindHotKeys() {
+    document.onkeyup = function(){};
+  }
+  function hotKeys(e) {
+    if (keyBindings.has(String(e.which))) {
+      unbindHotKeys();
+      const targetModal = $(keyBindings.get(String(e.which)));
+      targetModal.one("shown.bs.modal", function () {
+        const firstFocusableElement = $(this).find("input:visible, textarea:visible").first();
+        if (firstFocusableElement.length) {
+          firstFocusableElement.focus();
+        }
+      });
+      targetModal.modal("show");
+      targetModal.on("hidden.bs.modal", bindHotKeys);
+    }
+  }
+  modalHotKeyBindings.forEach(function(modalHotKeyBinding) {
+    if (! modalHotKeyBinding.disabled) {
+      keyBindings.set(modalHotKeyBinding.dataset.hotkeyBinding, modalHotKeyBinding.dataset.target);
+    }
+  });
+  const focusable = document.querySelectorAll("input, textarea");
+  focusable.forEach(function(element) {
+    element.addEventListener("focusin", unbindHotKeys);
+    element.addEventListener("focusout", bindHotKeys);
+  });
+  bindHotKeys();
+});
+
 // Link Checking
 const links = document.querySelectorAll("a[data-check-link-url]");
 links.forEach(function(link){
