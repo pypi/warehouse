@@ -3505,7 +3505,7 @@ class TestManageAccountPublishingViews:
                 return metrics
             if iface is IProjectService:
                 return project_service
-            return pretend.stub()
+            pytest.fail(f"Unexpected service requested: {iface}")
 
         request = pretend.stub(
             find_service=pretend.call_recorder(find_service),

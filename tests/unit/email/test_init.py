@@ -491,7 +491,7 @@ class TestSendEmail:
             @staticmethod
             @pretend.call_recorder
             def retry(exc):
-                raise celery.exceptions.Retry
+                pytest.fail("retry should not be called")
 
         sender, task = FakeMailSender(), Task()
         request = pretend.stub(find_service=lambda *a, **kw: sender)

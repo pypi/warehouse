@@ -184,7 +184,7 @@ class FakeESIndices:
                 elif action == "remove":
                     self.remove_alias(values["alias"], values["index"])
                 else:
-                    raise ValueError(f"Unknown action: {action!r}.")
+                    pytest.fail(f"Unknown action: {action!r}.")
 
 
 class FakeESClient:

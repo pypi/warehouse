@@ -541,7 +541,7 @@ class TestUpdateBigQueryMetadata:
         def find_service(name=None):
             if name == "gcloud.bigquery":
                 return bigquery
-            raise LookupError
+            pytest.fail(f"Unexpected service name: {name}")
 
         db_request.find_service = find_service
         db_request.registry.settings = {
