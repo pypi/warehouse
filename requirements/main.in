@@ -19,7 +19,6 @@ forcediphttpsadapter
 github-reserved-names>=1.0.0
 google-cloud-bigquery
 google-cloud-storage
-grpclib>=0.4.8rc1  # https://github.com/vmagamedov/grpclib/pull/188
 hiredis
 html5lib
 humanize

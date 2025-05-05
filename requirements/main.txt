@@ -783,12 +783,10 @@ grpcio-status==1.71.0 \
     --hash=sha256:11405fed67b68f406b3f3c7c5ae5104a79d2d309666d10d61b152e91d28fb968 \
     --hash=sha256:843934ef8c09e3e858952887467f8256aac3910c55f077a359a65b2b3cde3e68
     # via google-api-core
-grpclib==0.4.8rc2 \
-    --hash=sha256:46dfd0b39f548e3d0881e82bc691ee3a9eaca98170d1715f8db7fd1d6c0d0652 \
-    --hash=sha256:d7ddef43b9ac214ec52770f298f2c244786e038899a73dfe03943995306650bb
-    # via
-    #   -r requirements/main.in
-    #   betterproto
+grpclib==0.4.8 \
+    --hash=sha256:a5047733a7acc1c1cee6abf3c841c7c6fab67d2844a45a853b113fa2e6cd2654 \
+    --hash=sha256:d8823763780ef94fed8b2c562f7485cf0bbee15fc7d065a640673667f7719c9a
+    # via betterproto
 h2==4.2.0 \
     --hash=sha256:479a53ad425bb29af087f3458a61d30780bc818e4ebcf01f0b536ba916462ed0 \
     --hash=sha256:c8a52129695e88b1a0578d8d2cc6842bbd79128ac685463b887ee278126ad01f
