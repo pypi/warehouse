@@ -39,4 +39,18 @@ class TestLocale:
         # Fetch the client-side includes and confirm the flash notice
         resp = webtest.get("/_includes/unauthed/flash-messages/", status=HTTPStatus.OK)
         success_message = resp.html.find("span", {"class": "notification-bar__message"})
-        assert success_message.text == "Se actualizó la configuración de idioma"
+        assert success_message.text != "Locale updated"  # Value in Spanish, and may change
+
+        # Switch back to English
+        resp = webtest.get(
+            "/locale/?locale=en",
+            params={"locale_id": "en"},
+            status=HTTPStatus.SEE_OTHER,
+        )
+        assert f"{LOCALE_ATTR}=en; Path=/" in resp.headers.getall("Set-Cookie")
+        next_page = resp.follow(status=HTTPStatus.OK)
+        assert next_page.html.find("html").attrs["lang"] == "en"
+        # Fetch the client-side includes and confirm the flash notice
+        resp = webtest.get("/_includes/unauthed/flash-messages/", status=HTTPStatus.OK)
+        success_message = resp.html.find("span", {"class": "notification-bar__message"})
+        assert success_message.text == "Locale updated"
