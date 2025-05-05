@@ -59,6 +59,9 @@ def test_listens_for(monkeypatch):
     def handler(config):
         pass
 
+    # Ensure the function is called
+    handler(None)
+
     assert venusian_attach.calls == [
         pretend.call(handler, mock.ANY, category="warehouse")
     ]

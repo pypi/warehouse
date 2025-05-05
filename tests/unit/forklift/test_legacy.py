@@ -145,7 +145,11 @@ class TestExcWithMessage:
 
 
 def test_construct_dependencies():
-    types = {"requires": DependencyKind.requires, "provides": DependencyKind.provides}
+    types = {
+        "requires": DependencyKind.requires,
+        "provides": DependencyKind.provides,
+        "requires_dist": DependencyKind.requires_dist,
+    }
 
     meta = metadata.Metadata.from_raw(
         {
