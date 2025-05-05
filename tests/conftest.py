@@ -597,6 +597,7 @@ def query_recorder(app_config):
         yield recorder
     finally:
         event.remove(engine, "before_cursor_execute", recorder.record)
+        recorder.clear()
 
 
 @pytest.fixture
