@@ -39,7 +39,7 @@ class TestLocale:
         # Fetch the client-side includes and confirm the flash notice
         resp = webtest.get("/_includes/unauthed/flash-messages/", status=HTTPStatus.OK)
         success_message = resp.html.find("span", {"class": "notification-bar__message"})
-        assert success_message.text != "Locale updated"  # Value in Spanish, and may change
+        assert success_message.text != "Locale updated"  # Value in Spanish, may change
 
         # Switch back to English
         resp = webtest.get(
