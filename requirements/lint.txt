@@ -377,9 +377,9 @@ pathspec==0.12.1 \
     # via
     #   black
     #   curlylint
-pep8-naming==0.15.0 \
-    --hash=sha256:2ce36937ff0421d871a634f4a0c2af06f994fe22c9055ea9813ca72d562754da \
-    --hash=sha256:a637ee5144f7585c800b1fc6eeb996fa35a2ef0f2690880a9e1b29cb9f6e8359
+pep8-naming==0.15.1 \
+    --hash=sha256:eb63925e7fd9e028c7f7ee7b1e413ec03d1ee5de0e627012102ee0222c273c86 \
+    --hash=sha256:f6f4a499aba2deeda93c1f26ccc02f3da32b035c8b2db9696b730ef2c9639d29
     # via -r requirements/lint.in
 platformdirs==4.3.7 \
     --hash=sha256:a03875334331946f13c549dbd8f4bac7a13a50a895a0eb1e8c6a8ace80d40a94 \
