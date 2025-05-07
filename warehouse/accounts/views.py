@@ -74,6 +74,7 @@ from warehouse.email import (
     send_organization_member_invite_declined_email,
     send_password_change_email,
     send_password_reset_email,
+    send_password_reset_unverified_email,
     send_recovery_code_reminder_email,
 )
 from warehouse.events.tags import EventTag
@@ -795,23 +796,31 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
     user_service = request.find_service(IUserService, context=None)
     form = _form_class(request.POST, user_service=user_service)
     if request.method == "POST" and form.validate():
-        user = user_service.get_user_by_username(form.username_or_email.data)
+        form_field_input = form.username_or_email.data
+
+        user = user_service.get_user_by_username(form_field_input)
 
         if user is None:
-            user = user_service.get_user_by_email(form.username_or_email.data)
+            user = user_service.get_user_by_email(form_field_input)
         if user is not None:
-            verified_email = first_true(
-                user.emails,
-                pred=lambda e: e.email == form.username_or_email.data and e.verified,
-            )
-
-            if not verified_email:
-                # If the user is found but the email is not verified,
-                # tell the user to contact support instead
-                if unverified_email := first_true(
+            # Resolve the email, if input an email address
+            verified_email = None
+            if "@" in form_field_input:
+                verified_email = first_true(
                     user.emails,
-                    pred=lambda e: e.email == form.username_or_email.data,
-                ):
+                    pred=lambda e: e.email == form_field_input and e.verified,
+                )
+
+                if not verified_email:
+                    # No verified email, log the attempt, ping the rate limit,
+                    # notify to the email as to why no reset, return generic response.
+                    unverified_email = first_true(
+                        user.emails,
+                        pred=lambda e: e.email == form_field_input and not e.verified,
+                    )
+                    send_password_reset_unverified_email(
+                        request, (user, unverified_email)
+                    )
                     user.record_event(
                         tag=EventTag.Account.PasswordResetAttempt,
                         request=request,
@@ -821,17 +830,12 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
                         username=user.username,
                         email_address=unverified_email.email,
                     )
-                    request.session.flash(
-                        request._(
-                            "Email address '${email}' is not verified. "
-                            "Contact PyPI support for assistance.",
-                            mapping={"email": unverified_email.email},
-                        ),
-                        queue="error",
-                    )
-                    return HTTPSeeOther(
-                        request.route_path("accounts.request-password-reset")
-                    )
+                    user_service.ratelimiters["password.reset"].hit(user.id)
+
+                    token_service = request.find_service(ITokenService, name="password")
+                    n_hours = token_service.max_age // 60 // 60
+                    return {"n_hours": n_hours}
+
         else:
             token_service = request.find_service(ITokenService, name="password")
             n_hours = token_service.max_age // 60 // 60

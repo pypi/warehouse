@@ -246,6 +246,20 @@ def send_password_reset_email(request, user_and_email):
     }
 
 
+@_email("password-reset-unverified", allow_unverified=True)
+def send_password_reset_unverified_email(_request, user_and_email):
+    """
+    This email is sent to users who have not verified their email address
+    when they request a password reset. It is sent to the email address
+    they provided, which may not be their primary email address.
+    """
+    user, email = user_and_email
+
+    return {
+        "email": email,
+    }
+
+
 @_email("verify-email", allow_unverified=True)
 def send_email_verification_email(request, user_and_email):
     user, email = user_and_email

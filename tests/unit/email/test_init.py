@@ -657,6 +657,33 @@ class TestSendPasswordResetEmail:
             )
         ]
 
+    def test_unverified_email_sends_alt_notice(self, pyramid_config, db_request):
+        unverified_email = EmailFactory.create(verified=False)
+
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/password-reset-unverified/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/password-reset-unverified/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/password-reset-unverified/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
+
+        result = email.send_password_reset_unverified_email(
+            db_request, (unverified_email.user, unverified_email)
+        )
+
+        assert result == {
+            "email": unverified_email,
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(email=unverified_email)
+        html_renderer.assert_(email=unverified_email)
+
 
 class TestEmailVerificationEmail:
     def test_email_verification_email(

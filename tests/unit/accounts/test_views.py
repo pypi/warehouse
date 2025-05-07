@@ -1849,8 +1849,8 @@ class TestRequestPasswordReset:
     ):
         stub_user = pretend.stub(
             id=pretend.stub(),
-            username=pretend.stub(),
-            emails=[pretend.stub(email="foo@example.com")],
+            username="username_value",
+            emails=[pretend.stub(email="foo@example.com", verified=True)],
             can_reset_password=True,
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
@@ -2105,8 +2105,8 @@ class TestRequestPasswordReset:
     ):
         stub_user = pretend.stub(
             id=pretend.stub(),
-            username=pretend.stub(),
-            emails=[pretend.stub(email="foo@example.com")],
+            username="username_value",
+            emails=[pretend.stub(email="foo@example.com", verified=True)],
             can_reset_password=False,
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
@@ -2169,9 +2169,14 @@ class TestRequestPasswordReset:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    def test_unverified_email_is_rejected(self, db_request, mocker):
+    def test_unverified_email_sends_alt_notice(self, db_request, mocker):
         unverified_email = EmailFactory(verified=False)
 
+        mock_send_email = mocker.patch(
+            "warehouse.accounts.views.send_password_reset_unverified_email",
+            autospec=True,
+            return_value=None,
+        )
         # Prevent form's validation from checking deliverability
         mock_form_validation = mocker.patch(
             "warehouse.accounts.forms."
@@ -2179,23 +2184,24 @@ class TestRequestPasswordReset:
             autospec=True,
             return_value=True,
         )
-        # Spy on the flash method to check if it was called
-        mock_spy_flash = mocker.spy(db_request.session, "flash")
 
         db_request.method = "POST"
         db_request.POST = MultiDict({"username_or_email": unverified_email.email})
-        db_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
 
         result = views.request_password_reset(db_request)
 
+        assert result == {"n_hours": 6}
         mock_form_validation.assert_called_once()
-        mock_spy_flash.assert_called_once_with(
-            f"Email address '{unverified_email.email}' is not verified. "
-            "Contact PyPI support for assistance.",
-            queue="error",
+        mock_send_email.assert_called_once_with(
+            db_request, (unverified_email.user, unverified_email)
         )
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.log.warning.calls == [
+            pretend.call(
+                "User requested password reset for unverified email",
+                username=unverified_email.user.username,
+                email_address=unverified_email.email,
+            )
+        ]
 
 
 class TestResetPassword:
