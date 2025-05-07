@@ -677,12 +677,10 @@ class TestSendPasswordResetEmail:
             db_request, (unverified_email.user, unverified_email)
         )
 
-        assert result == {
-            "email": unverified_email,
-        }
+        assert result == {}
         subject_renderer.assert_()
-        body_renderer.assert_(email=unverified_email)
-        html_renderer.assert_(email=unverified_email)
+        body_renderer.assert_()
+        html_renderer.assert_()
 
 
 class TestEmailVerificationEmail:
