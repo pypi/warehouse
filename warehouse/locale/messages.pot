@@ -1541,8 +1541,8 @@ msgstr ""
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
 #: warehouse/templates/manage/organization/activate_subscription.html:34
-#: warehouse/templates/manage/organization/projects.html:128
-#: warehouse/templates/manage/organization/projects.html:151
+#: warehouse/templates/manage/organization/projects.html:129
+#: warehouse/templates/manage/organization/projects.html:160
 #: warehouse/templates/manage/organization/roles.html:270
 #: warehouse/templates/manage/organization/roles.html:291
 #: warehouse/templates/manage/organization/settings.html:50
@@ -5617,15 +5617,15 @@ msgid ""
 "project to the organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:127
+#: warehouse/templates/manage/organization/projects.html:128
 msgid "️Name of existing project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:134
+#: warehouse/templates/manage/organization/projects.html:135
 msgid "You do not own any projects that you can add to this organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:141
+#: warehouse/templates/manage/organization/projects.html:142
 msgid ""
 "Owners or managers of this organization can transfer a project that they "
 "own to this organization if the project has not been added to another "
@@ -5633,21 +5633,25 @@ msgid ""
 "be transferred from the project settings page."
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:146
+#: warehouse/templates/manage/organization/projects.html:147
 msgid "Transfer existing project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:150
+#: warehouse/templates/manage/organization/projects.html:151
+msgid "The Organization does not have any active subscription."
+msgstr ""
+
+#: warehouse/templates/manage/organization/projects.html:159
 msgid "️Name of new project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:161
+#: warehouse/templates/manage/organization/projects.html:170
 msgid ""
 "Owners of this organization can create an empty project and add it to the"
 " organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:166
+#: warehouse/templates/manage/organization/projects.html:175
 msgid "Create and add new project"
 msgstr ""
 
