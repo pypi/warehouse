@@ -501,6 +501,33 @@
 
   <hr>
 
+  <section id="account-associations">
+    <h2>{% trans %}Third-Party Account Associations{% endtrans %}</h2>
+    <p>
+      {% trans %}
+      Associating Third-Party Accounts with your PyPI User provides a mechanism for PyPI Support and Administrators
+      to validate your identity in the event that you lose access to your email, 2FA, or recovery codes.
+      {% endtrans %}
+    </p>
+    <p>
+      {% trans %}
+      These associations <b>do not permit login to PyPI</b> and are <i>only</i> used for verification.
+      {% endtrans %}
+    </p>
+
+    {% for provider in social_auth_providers_available %}
+    
+    {% endfor %}
+
+    <a href="#" class="button button--primary"><i class="fa-brands fa-github"></i> GitHub</a>
+    <a href="#" class="button button--primary"><i class="fa-brands fa-gitlab"></i> GitLab</a>
+    <a href="#" class="button button--primary"><i class="fa-brands fa-bitbucket"></i> Bitbucket</a>
+    <a href="#" class="button button--primary"><i class="fa-solid fa-mug-saucer"></i> Gitea</a>
+    
+  </section>
+
+  <hr>
+
   <section id="account-events">
     <h2>{% trans %}Security history{% endtrans %}</h2>
 
