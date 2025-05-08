@@ -80,7 +80,9 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
-        "includes.flash-messages", "/_includes/authed/flash-messages/", domain=warehouse
+        "includes.flash-messages",
+        "/_includes/unauthed/flash-messages/",
+        domain=warehouse,
     )
     config.add_route(
         "includes.session-notifications",

@@ -1239,7 +1239,7 @@ msgstr "Monty Python, le sketch de la fromagerie"
 #: warehouse/templates/base.html:317 warehouse/templates/base.html:327
 #: warehouse/templates/base.html:340
 #: warehouse/templates/includes/accounts/profile-callout.html:18
-#: warehouse/templates/includes/file-details.html:101
+#: warehouse/templates/includes/file-details.html:108
 #: warehouse/templates/index.html:100 warehouse/templates/index.html:104
 #: warehouse/templates/manage/account.html:228
 #: warehouse/templates/manage/account.html:234
@@ -3591,53 +3591,53 @@ msgstr "Paramètres du compte"
 msgid "Public profile"
 msgstr "Profil public"
 
-#: warehouse/templates/includes/file-details.html:34
+#: warehouse/templates/includes/file-details.html:41
 #, fuzzy
 #| msgid "Account details"
 msgid "File details"
 msgstr "Détails du compte"
 
-#: warehouse/templates/includes/file-details.html:45
+#: warehouse/templates/includes/file-details.html:52
 #, python-format
 msgid "Upload date: %(upload_time)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:46
+#: warehouse/templates/includes/file-details.html:53
 #, python-format
 msgid "Size: %(size)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:47
+#: warehouse/templates/includes/file-details.html:54
 #, python-format
 msgid "Tags: %(tags)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:49
+#: warehouse/templates/includes/file-details.html:56
 #, python-format
 msgid "Uploaded using Trusted Publishing? %(is_tp)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:54
+#: warehouse/templates/includes/file-details.html:61
 #, python-format
 msgid "Uploaded via: %(uploaded_via)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:62
+#: warehouse/templates/includes/file-details.html:69
 #, python-format
 msgid "Hashes for %(filename)s"
 msgstr "Hachages pour %(filename)s"
 
-#: warehouse/templates/includes/file-details.html:65
+#: warehouse/templates/includes/file-details.html:72
 msgid "Algorithm"
 msgstr "Algorithme"
 
-#: warehouse/templates/includes/file-details.html:66
+#: warehouse/templates/includes/file-details.html:73
 msgid "Hash digest"
 msgstr "Empreinte de hachage"
 
-#: warehouse/templates/includes/file-details.html:75
-#: warehouse/templates/includes/file-details.html:84
-#: warehouse/templates/includes/file-details.html:93
+#: warehouse/templates/includes/file-details.html:82
+#: warehouse/templates/includes/file-details.html:91
+#: warehouse/templates/includes/file-details.html:100
 #: warehouse/templates/manage/account.html:206
 #: warehouse/templates/manage/account/recovery_codes-provision.html:58
 #: warehouse/templates/manage/account/totp-provision.html:57
@@ -3647,9 +3647,9 @@ msgstr "Empreinte de hachage"
 msgid "Copy to clipboard"
 msgstr "Copier dans le presse-papiers"
 
-#: warehouse/templates/includes/file-details.html:76
-#: warehouse/templates/includes/file-details.html:85
-#: warehouse/templates/includes/file-details.html:94
+#: warehouse/templates/includes/file-details.html:83
+#: warehouse/templates/includes/file-details.html:92
+#: warehouse/templates/includes/file-details.html:101
 #: warehouse/templates/manage/account.html:207
 #: warehouse/templates/manage/account/recovery_codes-provision.html:59
 #: warehouse/templates/manage/account/totp-provision.html:58
@@ -3658,7 +3658,7 @@ msgstr "Copier dans le presse-papiers"
 msgid "Copy"
 msgstr "Copier"
 
-#: warehouse/templates/includes/file-details.html:101
+#: warehouse/templates/includes/file-details.html:108
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "

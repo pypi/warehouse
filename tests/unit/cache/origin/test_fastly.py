@@ -211,6 +211,33 @@ class TestFastlyCache:
             ),
         }
 
+    def test_override_ttl_on_response(self):
+        request = pretend.stub()
+        response = pretend.stub(headers={}, override_ttl=6969)
+
+        cacher = fastly.FastlyCache(
+            api_endpoint=None,
+            api_connect_via=None,
+            api_key=None,
+            service_id=None,
+            purger=None,
+        )
+        cacher.cache(
+            ["abc", "defg"],
+            request,
+            response,
+            seconds=9123,
+            stale_while_revalidate=4567,
+            stale_if_error=2276,
+        )
+
+        assert response.headers == {
+            "Surrogate-Key": "abc defg",
+            "Surrogate-Control": (
+                "max-age=6969, stale-while-revalidate=4567, stale-if-error=2276"
+            ),
+        }
+
     def test_multiple_calls_to_cache_dont_overwrite_surrogate_keys(self):
         request = pretend.stub()
         response = pretend.stub(headers={})

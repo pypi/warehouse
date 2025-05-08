@@ -96,7 +96,7 @@
   </div>
   <!-- /.modal -->
 
-  {% elif project.lifecycle_status == 'archived' %}
+  {% elif project.lifecycle_status in ["archived", "archived-noindex"] %}
     <div class="card card-info">
       <div class="card-header">
         <h3 class="card-title">
@@ -666,7 +666,7 @@
 
   <div class="card-footer">
     <div class="float-right">
-      {% if project.lifecycle_status == "archived" %}
+      {% if project.lifecycle_status in ["archived", "archived-noindex"] %}
         <form method="POST" action="{{ request.route_path('admin.project.unarchive', project_name=project.name) }}">
           <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
           <button type="submit" class="btn btn-primary" title="{{ 'Unarchiving requires superuser privileges' if not request.has_permission(Permissions.AdminProjectsWrite) }}" {{ "disabled" if not request.has_permission(Permissions.AdminProjectsWrite) }}>
