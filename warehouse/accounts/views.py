@@ -798,49 +798,41 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
     if request.method == "POST" and form.validate():
         form_field_input = form.username_or_email.data
 
+        requested_email = None
         user = user_service.get_user_by_username(form_field_input)
 
-        if user is None:
-            user = user_service.get_user_by_email(form_field_input)
-        if user is not None:
-            # Resolve the email, if input an email address
-            verified_email = None
-            if "@" in form_field_input:
-                verified_email = first_true(
-                    user.emails,
-                    pred=lambda e: e.email == form_field_input and e.verified,
-                )
-
-                if not verified_email:
-                    # No verified email, log the attempt, ping the rate limit,
-                    # notify to the email as to why no reset, return generic response.
-                    unverified_email = first_true(
-                        user.emails,
-                        pred=lambda e: e.email == form_field_input and not e.verified,
-                    )
-                    send_password_reset_unverified_email(
-                        request, (user, unverified_email)
-                    )
-                    user.record_event(
-                        tag=EventTag.Account.PasswordResetAttempt,
-                        request=request,
-                    )
-                    request.log.warning(
-                        "User requested password reset for unverified email",
-                        username=user.username,
-                        email_address=unverified_email.email,
-                    )
-                    user_service.ratelimiters["password.reset"].hit(user.id)
-
-                    token_service = request.find_service(ITokenService, name="password")
-                    n_hours = token_service.max_age // 60 // 60
-                    return {"n_hours": n_hours}
-
+        if user:
+            requested_email = user.primary_email
         else:
+            if user := user_service.get_user_by_email(form_field_input):
+                requested_email = first_true(
+                    user.emails,
+                    pred=lambda e: e.email == form_field_input,
+                )
+            else:
+                # We could not find the user by username nor email.
+                # Return a response as if we did, to avoid leaking registered emails.
+                token_service = request.find_service(ITokenService, name="password")
+                n_hours = token_service.max_age // 60 // 60
+                return {"n_hours": n_hours}
+
+        if requested_email and not requested_email.verified:
+            # No verified email, log the attempt, ping the rate limit,
+            # notify to the email as to why no reset, return generic response.
+            send_password_reset_unverified_email(request, (user, requested_email))
+            user.record_event(
+                tag=EventTag.Account.PasswordResetAttempt,
+                request=request,
+            )
+            request.log.warning(
+                "User requested password reset for unverified email",
+                username=user.username,
+                email_address=requested_email.email,
+            )
+            user_service.ratelimiters["password.reset"].hit(user.id)
+
             token_service = request.find_service(ITokenService, name="password")
             n_hours = token_service.max_age // 60 // 60
-            # We could not find the user by username nor email.
-            # Return a response as if we did, to avoid leaking registered emails.
             return {"n_hours": n_hours}
 
         if not user_service.ratelimiters["password.reset"].test(user.id):
@@ -849,7 +841,7 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
             )
 
         if user.can_reset_password:
-            send_password_reset_email(request, (user, verified_email))
+            send_password_reset_email(request, (user, requested_email))
             user.record_event(
                 tag=EventTag.Account.PasswordResetRequest,
                 request=request,

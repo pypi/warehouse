@@ -1845,18 +1845,22 @@ class TestRequestPasswordReset:
         ]
 
     def test_request_password_reset(
-        self, monkeypatch, pyramid_request, pyramid_config, user_service, token_service
+        self,
+        monkeypatch,
+        pyramid_request,
+        user_service,
+        token_service,
+        mocker,
     ):
-        stub_user = pretend.stub(
-            id=pretend.stub(),
-            username="username_value",
-            emails=[pretend.stub(email="foo@example.com", verified=True)],
-            can_reset_password=True,
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        user = UserFactory.create(with_verified_primary_email=True)
+        mock_record_event = mocker.patch(
+            "warehouse.accounts.models.HasEvents.record_event",
+            autospec=True,
+            return_value=True,
         )
         pyramid_request.method = "POST"
         token_service.dumps = pretend.call_recorder(lambda a: "TOK")
-        user_service.get_user_by_username = pretend.call_recorder(lambda a: stub_user)
+        user_service.get_user_by_username = pretend.call_recorder(lambda a: user)
         pyramid_request.find_service = pretend.call_recorder(
             lambda interface, **kw: {
                 IUserService: user_service,
@@ -1864,7 +1868,7 @@ class TestRequestPasswordReset:
             }[interface]
         )
         form_obj = pretend.stub(
-            username_or_email=pretend.stub(data=stub_user.username),
+            username_or_email=pretend.stub(data=user.username),
             validate=pretend.call_recorder(lambda: True),
         )
         form_class = pretend.call_recorder(lambda d, user_service: form_obj)
@@ -1879,9 +1883,7 @@ class TestRequestPasswordReset:
         result = views.request_password_reset(pyramid_request, _form_class=form_class)
 
         assert result == {"n_hours": n_hours}
-        assert user_service.get_user_by_username.calls == [
-            pretend.call(stub_user.username)
-        ]
+        assert user_service.get_user_by_username.calls == [pretend.call(user.username)]
         assert pyramid_request.find_service.calls == [
             pretend.call(IUserService, context=None),
             pretend.call(ITokenService, name="password"),
@@ -1891,14 +1893,13 @@ class TestRequestPasswordReset:
             pretend.call(pyramid_request.POST, user_service=user_service)
         ]
         assert send_password_reset_email.calls == [
-            pretend.call(pyramid_request, (stub_user, None))
+            pretend.call(pyramid_request, (user, user.primary_email))
         ]
-        assert stub_user.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Account.PasswordResetRequest,
-                request=pyramid_request,
-            )
-        ]
+        mock_record_event.assert_called_once_with(
+            user,
+            tag=EventTag.Account.PasswordResetRequest,
+            request=pyramid_request,
+        )
 
     def test_request_password_reset_with_email(
         self, monkeypatch, pyramid_request, pyramid_config, user_service, token_service
@@ -2100,26 +2101,26 @@ class TestRequestPasswordReset:
             pretend.call(stub_user.id)
         ]
 
-    def test_password_reset_prohibited(
-        self, monkeypatch, pyramid_request, pyramid_config, user_service
-    ):
-        stub_user = pretend.stub(
-            id=pretend.stub(),
-            username="username_value",
-            emails=[pretend.stub(email="foo@example.com", verified=True)],
-            can_reset_password=False,
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
+    def test_password_reset_prohibited(self, pyramid_request, user_service, mocker):
+        user = UserFactory.create(
+            with_verified_primary_email=True,
+            prohibit_password_reset=True,
+        )
+        mock_record_event = mocker.patch(
+            "warehouse.accounts.models.HasEvents.record_event",
+            autospec=True,
+            return_value=True,
         )
         pyramid_request.method = "POST"
         pyramid_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
-        user_service.get_user_by_username = pretend.call_recorder(lambda a: stub_user)
+        user_service.get_user_by_username = pretend.call_recorder(lambda a: user)
         pyramid_request.find_service = pretend.call_recorder(
             lambda interface, **kw: {
                 IUserService: user_service,
             }[interface]
         )
         form_obj = pretend.stub(
-            username_or_email=pretend.stub(data=stub_user.username),
+            username_or_email=pretend.stub(data=user.username),
             validate=pretend.call_recorder(lambda: True),
         )
         form_class = pretend.call_recorder(lambda d, user_service: form_obj)
@@ -2132,12 +2133,11 @@ class TestRequestPasswordReset:
         ]
         assert result.headers["Location"] == "/the-redirect"
 
-        assert stub_user.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Account.PasswordResetAttempt,
-                request=pyramid_request,
-            )
-        ]
+        mock_record_event.assert_called_once_with(
+            user,
+            tag=EventTag.Account.PasswordResetAttempt,
+            request=pyramid_request,
+        )
 
     def test_password_reset_with_nonexistent_email(
         self, monkeypatch, pyramid_request, pyramid_config, user_service, token_service
@@ -2169,8 +2169,20 @@ class TestRequestPasswordReset:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    def test_unverified_email_sends_alt_notice(self, db_request, mocker):
+    @pytest.mark.parametrize(
+        "user_input",
+        [
+            "email",
+            "username",
+        ],
+    )
+    def test_unverified_email_sends_alt_notice(self, db_request, mocker, user_input):
         unverified_email = EmailFactory(verified=False)
+
+        form_input = {
+            "email": unverified_email.email,
+            "username": unverified_email.user.username,
+        }.get(user_input)
 
         mock_send_email = mocker.patch(
             "warehouse.accounts.views.send_password_reset_unverified_email",
@@ -2186,7 +2198,7 @@ class TestRequestPasswordReset:
         )
 
         db_request.method = "POST"
-        db_request.POST = MultiDict({"username_or_email": unverified_email.email})
+        db_request.POST = MultiDict({"username_or_email": form_input})
 
         result = views.request_password_reset(db_request)
 

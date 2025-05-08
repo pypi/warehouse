@@ -14,4 +14,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}{% trans %}Password reset request{% endtrans %}{% endblock %}
+{% block subject %}{% trans %}Password reset requested for unverified email{% endtrans %}{% endblock %}
