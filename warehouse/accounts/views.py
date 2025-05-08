@@ -1541,24 +1541,34 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
         ],
     )
 
-    if form.next_route.data and form.next_route_matchdict.data:
-        redirect_to = request.route_path(
-            form.next_route.data,
-            **json.loads(form.next_route_matchdict.data)
-            | dict(_query=json.loads(form.next_route_query.data)),
-        )
-    else:
-        redirect_to = request.route_path("manage.projects")
+    next_route = form.next_route.data or "manage.projects"
+    next_route_matchdict = json.loads(form.next_route_matchdict.data or "{}")
+    next_route_query = json.loads(form.next_route_query.data or "{}")
 
-    resp = HTTPSeeOther(redirect_to)
+    is_valid = form.validate()
 
-    if request.method == "POST" and form.validate():
+    # Ensure errors don't persist across successful validations
+    next_route_query.pop("errors", None)
+
+    if request.method == "POST" and is_valid:
         request.session.record_auth_timestamp()
         request.session.record_password_timestamp(
             user_service.get_password_timestamp(request.user.id)
         )
+    else:
+        # Inject password errors into query if validation failed
+        if form.password.errors:
+            next_route_query["errors"] = json.dumps(
+                {"password": [str(e) for e in form.password.errors]}
+            )
 
-    return resp
+    redirect_to = request.route_path(
+        next_route,
+        **next_route_matchdict,
+        _query=next_route_query,
+    )
+
+    return HTTPSeeOther(redirect_to)
 
 
 @view_defaults(

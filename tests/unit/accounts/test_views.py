@@ -3423,12 +3423,14 @@ class TestReAuthentication:
         pyramid_request.matched_route = pretend.stub(name=pretend.stub())
         pyramid_request.matchdict = {"foo": "bar"}
         pyramid_request.GET = pretend.stub(mixed=lambda: {"baz": "bar"})
+        pyramid_request.params = {}
 
         form_obj = pretend.stub(
             next_route=pretend.stub(data=next_route),
             next_route_matchdict=pretend.stub(data="{}"),
             next_route_query=pretend.stub(data="{}"),
             validate=lambda: True,
+            password=pretend.stub(errors=[]),
         )
         form_class = pretend.call_recorder(lambda d, **kw: form_obj)
 
@@ -3443,6 +3445,65 @@ class TestReAuthentication:
         assert pyramid_request.session.record_auth_timestamp.calls == (
             [pretend.call()] if next_route is not None else []
         )
+        assert form_class.calls == [
+            pretend.call(
+                pyramid_request.POST,
+                request=pyramid_request,
+                username=pyramid_request.user.username,
+                next_route=pyramid_request.matched_route.name,
+                next_route_matchdict=json.dumps(pyramid_request.matchdict),
+                next_route_query=json.dumps(pyramid_request.GET.mixed()),
+                action="reauthenticate",
+                user_service=user_service,
+                check_password_metrics_tags=[
+                    "method:reauth",
+                    "auth_method:reauthenticate_form",
+                ],
+            )
+        ]
+
+    @pytest.mark.parametrize("next_route", [None, "/manage/accounts", "/projects/"])
+    def test_reauth_with_password_error_in_query(
+        self, monkeypatch, pyramid_request, pyramid_services, next_route
+    ):
+        user_service = pretend.stub(get_password_timestamp=lambda uid: 0)
+        response = pretend.stub()
+
+        monkeypatch.setattr(views, "HTTPSeeOther", lambda url: response)
+
+        pyramid_services.register_service(user_service, IUserService, None)
+
+        pyramid_request.route_path = lambda *args, **kwargs: pretend.stub()
+        pyramid_request.session.record_auth_timestamp = pretend.call_recorder(
+            lambda *args: None
+        )
+        pyramid_request.session.record_password_timestamp = lambda ts: None
+        pyramid_request.user = pretend.stub(id=pretend.stub(), username=pretend.stub())
+        pyramid_request.matched_route = pretend.stub(name=pretend.stub())
+        pyramid_request.matchdict = {"foo": "bar"}
+        pyramid_request.GET = pretend.stub(mixed=lambda: {"baz": "bar"})
+
+        # Inject password error through query params
+        password_errors = ["The password is invalid. Try again."]
+
+        form_obj = pretend.stub(
+            next_route=pretend.stub(data=next_route),
+            next_route_matchdict=pretend.stub(data="{}"),
+            next_route_query=pretend.stub(data="{}"),
+            validate=lambda: False,  # Simulate form validation failure
+            password=pretend.stub(errors=password_errors),
+        )
+
+        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
+
+        if next_route is not None:
+            pyramid_request.method = "POST"
+            pyramid_request.POST["next_route"] = next_route
+            pyramid_request.POST["next_route_matchdict"] = "{}"
+            pyramid_request.POST["next_route_query"] = "{}"
+
+        _ = views.reauthenticate(pyramid_request, _form_class=form_class)
+
         assert form_class.calls == [
             pretend.call(
                 pyramid_request.POST,

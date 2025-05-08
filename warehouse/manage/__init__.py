@@ -35,7 +35,6 @@ def reauth_view(view, info):
         def wrapped(context, request):
             if request.session.needs_reauthentication(time_to_reauth):
                 user_service = request.find_service(IUserService, context=None)
-
                 form = ReAuthenticateForm(
                     request.POST,
                     request=request,
@@ -45,6 +44,17 @@ def reauth_view(view, info):
                     next_route_query=json.dumps(request.GET.mixed()),
                     user_service=user_service,
                 )
+                errors_param = request.params.get("errors")
+                if errors_param:
+                    try:
+                        parsed_errors = json.loads(errors_param)
+                        for field_name, messages in parsed_errors.items():
+                            field = getattr(form, field_name, None)
+                            if field is not None and hasattr(field, "errors"):
+                                field.errors = list(messages)
+                    except (ValueError, TypeError):
+                        # log or ignore bad JSON
+                        pass
 
                 return render_to_response(
                     "re-auth.html",
