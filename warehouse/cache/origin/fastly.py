@@ -77,6 +77,10 @@ class FastlyCache:
         stale_while_revalidate=None,
         stale_if_error=None,
     ):
+        override_ttl = None
+        if hasattr(response, "override_ttl"):
+            override_ttl = response.override_ttl
+
         existing_keys = set(response.headers.get("Surrogate-Key", "").split())
 
         response.headers["Surrogate-Key"] = " ".join(sorted(set(keys) | existing_keys))
@@ -84,7 +88,10 @@ class FastlyCache:
         values = []
 
         if seconds is not None:
-            values.append(f"max-age={seconds}")
+            if override_ttl is not None:
+                values.append(f"max-age={override_ttl}")
+            else:
+                values.append(f"max-age={seconds}")
 
         if stale_while_revalidate is not None:
             values.append(f"stale-while-revalidate={stale_while_revalidate}")
