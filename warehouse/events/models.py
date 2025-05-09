@@ -42,6 +42,8 @@ class GeoIPInfo:
     country_code: str | None = None
     country_name: str | None = None
     region: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
 
     @property
     def _city(self) -> str:
