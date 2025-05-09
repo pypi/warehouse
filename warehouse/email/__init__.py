@@ -222,7 +222,7 @@ def _email(
     return inner
 
 
-@_email("password-reset", allow_unverified=True)
+@_email("password-reset")
 def send_password_reset_email(request, user_and_email):
     user, _ = user_and_email
     token_service = request.find_service(ITokenService, name="password")
@@ -244,6 +244,17 @@ def send_password_reset_email(request, user_and_email):
         "username": user.username,
         "n_hours": token_service.max_age // 60 // 60,
     }
+
+
+@_email("password-reset-unverified", allow_unverified=True)
+def send_password_reset_unverified_email(_request, _user_and_email):
+    """
+    This email is sent to users who have not verified their email address
+    when they request a password reset. It is sent to the email address
+    they provided, which may not be their primary email address.
+    """
+    # No params are used in the template, return an empty dict
+    return {}
 
 
 @_email("verify-email", allow_unverified=True)
