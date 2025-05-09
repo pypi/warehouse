@@ -61,6 +61,10 @@ extra:
       link: https://github.com/pypi
     - icon: fontawesome/brands/twitter
       link: https://twitter.com/pypi
+    - icon: fontawesome/brands/mastodon
+      link: https://fosstodon.org/@pypi
+    - icon: fontawesome/brands/bluesky
+      link: https://bsky.app/profile/pypi.org
 repo_url: https://github.com/pypi/warehouse
 edit_uri: blob/main/docs/user/
 
