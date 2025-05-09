@@ -190,8 +190,8 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 FROM python:3.13.2-slim-bookworm
 
 # Setup some basic environment variables that are ~never going to change.
-ENV PYTHONUNBUFFERED 1
-ENV PYTHONPATH /opt/warehouse/src/
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/opt/warehouse/src/
 ENV PATH="/opt/warehouse/bin:${PATH}"
 
 WORKDIR /opt/warehouse/src/
