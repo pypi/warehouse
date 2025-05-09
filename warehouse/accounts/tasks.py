@@ -159,17 +159,14 @@ def batch_update_email_domain_status(request: Request) -> None:
     stmt = (
         select(Email)
         .where(
-            # TODO: After completely backfilled, remove the `or_` for None
             or_(
                 Email.domain_last_checked.is_(None),
                 Email.domain_last_checked < datetime.now(tz=UTC) - timedelta(days=30),
             )
         )
         .order_by(nullsfirst(Email.domain_last_checked.asc()))
-        .limit(10_000)
+        .limit(1_000)
     )
-    # Run in batches to avoid too much memory usage, API rate limits
-    stmt = stmt.execution_options(yield_per=1_000)
 
     for email in request.db.scalars(stmt):
         update_email_domain_status(email, request)

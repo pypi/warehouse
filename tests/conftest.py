@@ -228,6 +228,7 @@ def pyramid_request(pyramid_services, jinja):
     dummy_request.log = pretend.stub(
         bind=pretend.call_recorder(lambda *args, **kwargs: dummy_request.log),
         info=pretend.call_recorder(lambda *args, **kwargs: None),
+        warning=pretend.call_recorder(lambda *args, **kwargs: None),
         error=pretend.call_recorder(lambda *args, **kwargs: None),
     )
 

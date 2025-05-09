@@ -363,9 +363,9 @@ mypy-zope==1.0.11 \
     --hash=sha256:1c95e49e9dcdf070a0858f067dac55e8e4e47519fdc15dfdab9b7eee273a0e01 \
     --hash=sha256:4395d716b43ab89916edf6d0b5761655b4d4a43b2692fce806bbd733829977ee
     # via -r requirements/lint.in
-packaging==24.2 \
-    --hash=sha256:09abb1bccd265c01f4a3aa3f7a7db064b36514d2cba19a2f694fe6150451a759 \
-    --hash=sha256:c228a6dc5e932d346bc5739379109d49e8853dd8223571c7c5b55260edc0b97f
+packaging==25.0 \
+    --hash=sha256:29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484 \
+    --hash=sha256:d443872c98d677bf60f6a1f2f8c1cb748e8fe762d2bf9d3148b5599295b0fc4f
     # via black
 parsy==1.1.0 \
     --hash=sha256:25bd5cea2954950ebbfdf71f8bdaf7fd45a5df5325fd36a1064be2204d9d4c94 \
@@ -377,9 +377,9 @@ pathspec==0.12.1 \
     # via
     #   black
     #   curlylint
-pep8-naming==0.14.1 \
-    --hash=sha256:1ef228ae80875557eb6c1549deafed4dabbf3261cfcafa12f773fe0db9be8a36 \
-    --hash=sha256:63f514fc777d715f935faf185dedd679ab99526a7f2f503abb61587877f7b1c5
+pep8-naming==0.15.0 \
+    --hash=sha256:2ce36937ff0421d871a634f4a0c2af06f994fe22c9055ea9813ca72d562754da \
+    --hash=sha256:a637ee5144f7585c800b1fc6eeb996fa35a2ef0f2690880a9e1b29cb9f6e8359
     # via -r requirements/lint.in
 platformdirs==4.3.7 \
     --hash=sha256:a03875334331946f13c549dbd8f4bac7a13a50a895a0eb1e8c6a8ace80d40a94 \
@@ -571,11 +571,10 @@ types-s3transfer==0.12.0 \
     --hash=sha256:101bbc5b7f00b71512374df881f480fc6bf63c948b5098ab024bf3370fbfb0e8 \
     --hash=sha256:f8f59201481e904362873bf0be3267f259d60ad946ebdfcb847d092a1fa26f98
     # via boto3-stubs
-types-setuptools==79.0.0.20250422 \
-    --hash=sha256:55238c0b18cdc08dd26c32d6d8385ca1ea59b93dde760dae96d15868b7911990 \
-    --hash=sha256:9c9f699a5914d2ed97f02ee749fb2c7bc2898f8dad03b5dd74b74d4f80e29972
+types-setuptools==80.0.0.20250429 \
+    --hash=sha256:9bbcdcea88d1fda4b0f1371488333f606c78a8b10154a42530ed926ecf3242cb \
+    --hash=sha256:a4de44f1110f531e7f9453d72999437a1caa6052609e2c7c859dd6613ab0d593
     # via
-    #   -r requirements/lint.in
     #   types-babel
     #   types-cffi
 types-stripe==3.5.2.20240106 \
@@ -656,9 +655,9 @@ zope-schema==7.0.1 \
     # via mypy-zope
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==79.0.1 \
-    --hash=sha256:128ce7b8f33c3079fd1b067ecbb4051a66e8526e7b65f6cec075dfc650ddfa88 \
-    --hash=sha256:e147c0549f27767ba362f9da434eab9c5dc0045d5304feb602a0af001089fc51
+setuptools==80.1.0 \
+    --hash=sha256:2e308396e1d83de287ada2c2fd6e64286008fe6aca5008e0b6a8cb0e2c86eedd \
+    --hash=sha256:ea0e7655c05b74819f82e76e11a85b31779fee7c4969e82f72bab0664e8317e4
     # via
     #   types-setuptools
     #   zope-event

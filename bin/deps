@@ -7,6 +7,7 @@ pip-compile -o $TMPDIR/deploy.txt requirements/deploy.in > /dev/null
 pip-compile -o $TMPDIR/main.txt requirements/main.in > /dev/null
 pip-compile -o $TMPDIR/lint.txt requirements/lint.in > /dev/null
 pip-compile -o $TMPDIR/tests.txt requirements/tests.in > /dev/null
+pip-compile -o $TMPDIR/dev.txt requirements/dev.in > /dev/null
 pip-compile -o $TMPDIR/docs-dev.txt requirements/docs-dev.in > /dev/null
 pip-compile -o $TMPDIR/docs-user.txt requirements/docs-user.in > /dev/null
 pip-compile -o $TMPDIR/docs-blog.txt requirements/docs-blog.in > /dev/null
@@ -14,6 +15,7 @@ python bin/depchecker.py $TMPDIR/deploy.txt requirements/deploy.txt
 python bin/depchecker.py $TMPDIR/main.txt requirements/main.txt
 python bin/depchecker.py $TMPDIR/lint.txt requirements/lint.txt
 python bin/depchecker.py $TMPDIR/tests.txt requirements/tests.txt
+python bin/depchecker.py $TMPDIR/dev.txt requirements/dev.txt
 python bin/depchecker.py $TMPDIR/docs-dev.txt requirements/docs-dev.txt
 python bin/depchecker.py $TMPDIR/docs-user.txt requirements/docs-user.txt
 python bin/depchecker.py $TMPDIR/docs-blog.txt requirements/docs-blog.txt

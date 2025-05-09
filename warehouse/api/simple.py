@@ -78,6 +78,7 @@ def simple_index(request):
     # to return the correct content types.
     request.response.content_type = _select_content_type(request)
     if request.response.content_type == MIME_PYPI_SIMPLE_V1_JSON:
+        request.response.override_ttl = 30 * 60  # 30 minutes
         request.override_renderer = "json"
 
     # Apply CORS headers.
