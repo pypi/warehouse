@@ -35,6 +35,8 @@ GEOIP_FIELDS = {
     "country_name": "COUNTRY_NAME",
     "region": "REGION",
     "city": "CITY",
+    "latitude": "LATITUDE",
+    "longitude": "LONGITUDE",
 }
 
 
