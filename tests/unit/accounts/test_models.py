@@ -19,6 +19,7 @@ from pyramid.authorization import Authenticated
 
 from warehouse.accounts.models import Email, RecoveryCode, User, UserFactory, WebAuthn
 from warehouse.authnz import Permissions
+from warehouse.filters import get_email_domain, get_normalized_email
 from warehouse.utils.security_policy import principals_for
 
 from ...common.db.accounts import (
@@ -61,7 +62,14 @@ class TestUserFactory:
         user = DBUserFactory.create()
 
         if email:
-            e = Email(email=email, user=user, primary=True, verified=verified)
+            e = Email(
+                email=email,
+                user=user,
+                normalized_email=get_normalized_email(email),
+                domain=get_email_domain(email),
+                primary=True,
+                verified=verified,
+            )
             db_session.add(e)
             db_session.flush()
 
