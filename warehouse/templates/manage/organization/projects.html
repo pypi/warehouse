@@ -111,9 +111,9 @@
           {% trans %}️New or existing project?{% endtrans %}
         </label>
         {% for subfield in add_organization_project_form.add_existing_project %}
-        {{ subfield(data_target=".radio-toggle-" + loop.index|string) }}
-        {{ subfield.label }}
-        {% endfor %}
+    {%set is_existing = subfield.data == 'true' %} {% set should_disable =
+    is_existing and not organization.active_subscription %} {{ subfield(data_target=".radio-toggle-" + loop.index|string,
+    disabled=should_disable) }} {{ subfield.label }} {% endfor %}
         <div id="add-existing-project-errors">
           {{ field_errors(add_organization_project_form.add_existing_project) }}
         </div>
@@ -122,6 +122,7 @@
         </p>
         <p class="form-group__text"></p>
       {# end radio buttons #}
+      {% if organization.active_subscription %}
       <div class="form-group radio-toggle radio-toggle-1">
         <label class="form-group__label" for="project">
           {% trans %}️Name of existing project{% endtrans %}
@@ -144,6 +145,14 @@
         </p>
       </div>
       <input value="{% trans %}Transfer existing project{% endtrans %}" class="button button--primary radio-toggle radio-toggle-1" type="submit">
+      {% else %}
+      <div class="form-group radio-toggle radio-toggle-1">
+        <div class="form-errors" role="alert">
+          {% trans %}The Organization does not have any active
+          subscription.{%endtrans %}
+        </div>
+      </div>
+      {% endif %}
 
       <div class="form-group radio-toggle radio-toggle-2">
         <label class="form-group__label" for="project">
