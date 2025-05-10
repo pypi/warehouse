@@ -31,7 +31,7 @@ export default class extends Controller {
         this._lastCheckedPassword = this.passwordTarget.value;
         return this.checkPassword(this.passwordTarget.value).catch(
           e => {
-            console.error(e);  // eslint-disable-line no-console
+            console.error(e);    
             this.hideMessage();  // default to hiding the message on errors
           },
         );
@@ -46,7 +46,7 @@ export default class extends Controller {
     let response = await fetch(this.getURL(hex));
     if (response.ok === false) {
       const msgText = gettext("Error while validating hashed password, disregard on development");
-      console.error(`${msgText}: ${response.status} ${response.statusText}`);  // eslint-disable-line no-console
+      console.error(`${msgText}: ${response.status} ${response.statusText}`);    
     } else {
       let text = await response.text();
       this.parseResponse(text, hex);
