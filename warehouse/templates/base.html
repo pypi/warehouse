@@ -273,8 +273,8 @@
             <ul>
               <li><a href="https://packaging.python.org/tutorials/installing-packages/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Installing packages{% endtrans %}</a></li>
               <li><a href="https://packaging.python.org/tutorials/packaging-projects/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Uploading packages{% endtrans %}</a></li>
+              <li><a href="{{ request.user_docs_url('/') }}">{% trans %}User documentation{% endtrans %}</a></li>
               <li><a href="https://packaging.python.org/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}User guide{% endtrans %}</a></li>
-              <li><a href="https://www.python.org/dev/peps/pep-0541/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Project name retention{% endtrans %}</a></li>
               <li><a href="{{ request.route_path('help')}}">{% trans %}FAQs{% endtrans %}</a></li>
             </ul>
           </nav>
