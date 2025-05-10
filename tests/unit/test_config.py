@@ -288,7 +288,7 @@ def test_configure(monkeypatch, settings, environment):
         whitenoise_serve_static=pretend.call_recorder(lambda *a, **kw: None),
         whitenoise_add_files=pretend.call_recorder(lambda *a, **kw: None),
         whitenoise_add_manifest=pretend.call_recorder(lambda *a, **kw: None),
-        scan=pretend.call_recorder(lambda categories, ignore: None),
+        scan=pretend.call_recorder(lambda categories, ignore=False: None),
         commit=pretend.call_recorder(lambda: None),
         add_view_deriver=pretend.call_recorder(lambda *a, **kw: None),
     )
@@ -429,6 +429,7 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".cache"),
             pretend.call(".email"),
             pretend.call(".accounts"),
+            pretend.call("social_pyramid"),
             pretend.call(".macaroons"),
             pretend.call(".oidc"),
             pretend.call(".attestations"),
@@ -520,6 +521,7 @@ def test_configure(monkeypatch, settings, environment):
         pretend.call(
             categories=(
                 "pyramid",
+                "social_pyramid",
                 "warehouse",
             ),
             ignore=["warehouse.migrations.env", "warehouse.celery", "warehouse.wsgi"],

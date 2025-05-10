@@ -32,9 +32,11 @@ from pyramid.exceptions import HTTPForbidden
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
+from social_pyramid.models import init_social
 
 from warehouse.authnz import Permissions
 from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
+from warehouse.db import ModelBase, Session, metadata
 from warehouse.utils.static import ManifestCacheBuster
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
@@ -821,6 +823,14 @@ def configure(settings=None):
     # Register our authentication support.
     config.include(".accounts")
 
+    # https://python-social-auth.readthedocs.io/en/latest/configuration/settings.html
+    config.include("social_pyramid")
+    config.registry.settings["SOCIAL_AUTH_USER_MODEL"] = (
+        "warehouse.accounts.models.User"
+    )
+    if "social_auth_usersocialauth" not in metadata.tables:
+        init_social(config, ModelBase, Session)
+
     # Register support for Macaroon based authentication
     config.include(".macaroons")
 
@@ -951,6 +961,7 @@ def configure(settings=None):
     config.scan(
         categories=(
             "pyramid",
+            "social_pyramid",
             "warehouse",
         ),
         ignore=["warehouse.migrations.env", "warehouse.celery", "warehouse.wsgi"],
