@@ -53,6 +53,7 @@ plugins:
       # consider https://github.com/mkdocs/mkdocs-redirects
       post_url_format: "posts/{file}"
   - material-plausible
+  - privacy
   - rss:
       abstract_chars_count: -1
       categories:
