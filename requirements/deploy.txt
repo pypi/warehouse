@@ -89,9 +89,9 @@ legacy-cgi==2.6.3 \
     --hash=sha256:4c119d6cb8e9d8b6ad7cc0ddad880552c62df4029622835d06dfd18f438a8154 \
     --hash=sha256:6df2ea5ae14c71ef6f097f8b6372b44f6685283dc018535a75c924564183cdab
     # via ddtrace
-opentelemetry-api==1.32.1 \
-    --hash=sha256:a5be71591694a4d9195caf6776b055aa702e964d961051a0715d05f8632c32fb \
-    --hash=sha256:bbd19f14ab9f15f0e85e43e6a958aa4cb1f36870ee62b7fd205783a112012724
+opentelemetry-api==1.33.0 \
+    --hash=sha256:158df154f628e6615b65fdf6e59f99afabea7213e72c5809dd4adf06c0d997cd \
+    --hash=sha256:cc4380fd2e6da7dcb52a828ea81844ed1f4f2eb638ca3c816775109d93d58ced
     # via ddtrace
 packaging==25.0 \
     --hash=sha256:29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484 \
