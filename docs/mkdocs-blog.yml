@@ -53,6 +53,7 @@ plugins:
       # consider https://github.com/mkdocs/mkdocs-redirects
       post_url_format: "posts/{file}"
   - material-plausible
+  - privacy
   - rss:
       abstract_chars_count: -1
       categories:
@@ -68,8 +69,7 @@ plugins:
       length: 20
       match_path: "posts/.*"
   - search
-  - tags:
-      tags_file: tags.md
+  - tags
 extra:
   homepage: https://pypi.org
   social:
