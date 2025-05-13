@@ -24,9 +24,9 @@ cairocffi==1.7.1 \
     --hash=sha256:2e48ee864884ec4a3a34bfa8c9ab9999f688286eb714a15a43ec9d068c36557b \
     --hash=sha256:9803a0e11f6c962f3b0ae2ec8ba6ae45e957a146a004697a1ac1bbf16b073b3f
     # via cairosvg
-cairosvg==2.7.1 \
-    --hash=sha256:432531d72347291b9a9ebfb6777026b607563fd8719c46ee742db0aef7271ba0 \
-    --hash=sha256:8a5222d4e6c3f86f1f7046b63246877a63b49923a1cd202184c3a634ef546b3b
+cairosvg==2.8.0 \
+    --hash=sha256:d60fe75c238ffba3f8e21e06dad8727ecd2bcef8d3d55fc11f9286c08c5cc710 \
+    --hash=sha256:f15836feea67a680f79938edf2efdd162793526b0b1cc2fd9ec257ebeafe2946
     # via -r requirements/docs-blog.in
 certifi==2025.4.26 \
     --hash=sha256:0a816057ea3cdefcef70270d2c515e4506bbc954f417fa5ade2021213bb8f0c6 \
