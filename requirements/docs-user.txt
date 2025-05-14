@@ -345,9 +345,9 @@ pyyaml==6.0.2 \
     #   mkdocs-macros-plugin
     #   pymdown-extensions
     #   pyyaml-env-tag
-pyyaml-env-tag==0.1 \
-    --hash=sha256:70092675bda14fdec33b31ba77e7543de9ddc88f2e5b99160396572d11525bdb \
-    --hash=sha256:af31106dec8a4d68c60207c1886031cbf839b68aa7abccdb19868200532c2069
+pyyaml-env-tag==1.1 \
+    --hash=sha256:17109e1a528561e32f026364712fee1264bc2ea6715120891174ed1b980d2e04 \
+    --hash=sha256:2eb38b75a2d21ee0475d6d97ec19c63287a7e140231e4214969d0eac923cd7ff
     # via mkdocs
 requests==2.32.3 \
     --hash=sha256:55365417734eb18255590a9ff9eb97e9e1da868d4ccd6402399eaf68af20a760 \
