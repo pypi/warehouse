@@ -43,22 +43,6 @@ RUN NODE_ENV=production npm run build
 # We'll build a light-weight layer along the way with just docs stuff
 FROM python:${PYTHON_IMAGE_VERSION} AS docs
 
-# By default, Docker has special steps to avoid keeping APT caches in the layers, which
-# is good, but in our case, we're going to mount a special cache volume (kept between
-# builds), so we WANT the cache to persist.
-RUN set -eux; \
-    rm -f /etc/apt/apt.conf.d/docker-clean; \
-    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache;
-
-# Install System level build requirements, this is done before
-# everything else because these are rarely ever going to change.
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    set -x \
-    && apt-get update \
-    && apt-get install --no-install-recommends -y \
-        build-essential git libcairo2-dev libfreetype6-dev libjpeg-dev libpng-dev libz-dev
-
 # We create an /opt directory with a virtual environment in it to store our
 # application in.
 RUN set -x \
@@ -123,23 +107,6 @@ ARG CI=no
 # as the warehouse shell interpreter,
 # i.e. 'docker compose run --rm web python -m warehouse shell --type=ipython')
 ARG IPYTHON=no
-
-# By default, Docker has special steps to avoid keeping APT caches in the layers, which
-# is good, but in our case, we're going to mount a special cache volume (kept between
-# builds), so we WANT the cache to persist.
-RUN set -eux; \
-    rm -f /etc/apt/apt.conf.d/docker-clean; \
-    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache;
-
-# Install System level Warehouse build requirements, this is done before
-# everything else because these are rarely ever going to change.
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    set -x \
-    && apt-get update \
-    && apt-get install --no-install-recommends -y \
-        build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev \
-        $(if [ "$DEVEL" = "yes" ]; then echo 'libjpeg-dev'; fi)
 
 # We create an /opt directory with a virtual environment in it to store our
 # application in.
@@ -208,23 +175,15 @@ ARG DEVEL=no
 # as well for the matrix!
 ARG CI=no
 
-# This is a work around because otherwise postgresql-client bombs out trying
-# to create symlinks to these directories.
-RUN set -x \
-    && mkdir -p /usr/share/man/man1 \
-    && mkdir -p /usr/share/man/man7
-
 # Install System level Warehouse requirements, this is done before everything
 # else because these are rarely ever going to change.
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    set -x \
-    && apt-get update \
-    && apt-get install --no-install-recommends -y \
-        libpq5 libxml2 libxslt1.1 libcurl4  \
-        $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev vim oathtool'; fi) \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN set -x \
+    && if [ "$DEVEL" = "yes" ]; then \
+        apt-get update \
+        && apt-get install --no-install-recommends -y postgresql-client \
+        && apt-get clean \
+        && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*; \
+    fi
 
 # Copy the directory into the container, this is done last so that changes to
 # Warehouse itself require the least amount of layers being invalidated from
