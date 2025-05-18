@@ -188,7 +188,7 @@ ARG CI=no
 RUN set -x \
     && if [ "$DEVEL" = "yes" ]; then \
         apt-get update \
-        && apt-get install --no-install-recommends -y postgresql-client \
+        && apt-get install --no-install-recommends -y build-essential postgresql-client \
         && apt-get clean \
         && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*; \
     fi
