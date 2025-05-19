@@ -5,6 +5,8 @@ on:
     - cron: '0 13 * * *'  # once a day at around 9am eastern
   workflow_dispatch:
 
+permissions: {}
+
 jobs:
   build:
     # TODO: Should we test on other platforms like Windows and Mac?
