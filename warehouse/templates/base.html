@@ -39,6 +39,7 @@
   <nav class="horizontal-menu horizontal-menu--light horizontal-menu--tall hide-on-tablet" aria-label="{% trans %}Main navigation{% endtrans %}">
     <ul>
       <li class="horizontal-menu__item"><a href="{{ request.route_path('help') }}" class="horizontal-menu__link">{% trans %}Help{% endtrans %}</a></li>
+      <li class="horizontal-menu__item"><a href="{{ request.user_docs_url('/') }}" class="horizontal-menu__link">{% trans %}Docs{% endtrans %}</a></li>
       <li class="horizontal-menu__item"><a href="{{ request.route_path('sponsors') }}" class="horizontal-menu__link">{% trans %}Sponsors{% endtrans %}</a></li>
       <li class="horizontal-menu__item"><a href="{{ request.route_path('accounts.login') }}" class="horizontal-menu__link">{% trans %}Log in{% endtrans %}</a></li>
       <li class="horizontal-menu__item"><a href="{{ request.route_path('accounts.register') }}" class="horizontal-menu__link">{% trans %}Register{% endtrans %}</a></li>
