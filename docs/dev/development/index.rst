@@ -38,6 +38,7 @@ Get involved or find help using:
     cloud
     email
     token-scanning
+    documentation
 
 .. _`GitHub`: https://github.com/pypi/warehouse
 .. _`"What to put in your bug report"`: https://www.contribution-guide.org/#what-to-put-in-your-bug-report
