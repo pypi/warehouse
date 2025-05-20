@@ -83,3 +83,42 @@ To run a local development server, you can use ``docker compose``:
 Once running, you can visit a local build of the user documentation at `localhost:10000`_.
 
 .. _localhost\:10000: http://localhost:10000
+
+PyPI blog
+=========
+
+The PyPI blog is hosted at `blog.pypi.org`_. Like the user documentation,
+it's written in `Markdown`_ and built using `MkDocs`_.
+
+.. _blog.pypi.org: https://blog.pypi.org
+
+.. _blog-layout:
+
+Layout
+------
+
+The blog is located in the ``docs/blog`` directory.
+
+.. _blog-local-dev:
+
+Local development
+-----------------
+
+To run a single local build of the blog, you can use the ``blog``
+Makefile target:
+
+.. code-block:: console
+
+    make blog
+
+That will produce a local build under ``docs/blog-site/``.
+
+To run a local development server, you can use ``docker compose``:
+
+.. code-block:: console
+
+    docker compose up blog
+
+Once running, you can visit a local build of the blog at `localhost:10001`_.
+
+.. _localhost\:10001: http://localhost:10001
