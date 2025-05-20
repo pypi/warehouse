@@ -6,10 +6,13 @@ Developer documentation
 =======================
 
 The developer documentation is hosted at `warehouse.pypa.io`_. It's written in
-`reStructuredText`_ and built using `Sphinx`_.
+`reStructuredText`_ or `Markdown`_ (via `MyST`_) and built using
+`Sphinx`_.
 
 .. _warehouse.pypa.io: https://warehouse.pypa.io
 .. _reStructuredText: https://docutils.sourceforge.io/rst.html
+.. _Markdown: https://www.markdownguide.org/
+.. _MyST: https://myst-parser.readthedocs.io/en/latest/
 .. _Sphinx: https://www.sphinx-doc.org/
 
 .. _dev-docs-layout:
@@ -50,7 +53,6 @@ The user documentation is hosted at `docs.pypi.org`_. It's written in
 `Markdown`_ and built using `MkDocs`_.
 
 .. _docs.pypi.org: https://docs.pypi.org
-.. _Markdown: https://www.markdownguide.org/
 .. _MkDocs: https://www.mkdocs.org/
 
 .. _user-docs-layout:
