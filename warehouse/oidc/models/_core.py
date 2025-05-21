@@ -13,7 +13,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, TypedDict, TypeVar, Unpack
+from typing import TYPE_CHECKING, Any, Self, TypedDict, TypeVar, Unpack
 
 import rfc3986
 import sentry_sdk
@@ -174,20 +174,10 @@ class OIDCPublisherMixin:
     # but there are a few problems: those claim sets don't map to their
     # "equivalent" column (only to an instantiated property), and may not
     # even have an "equivalent" column.
-    __lookup_strategies__: list = []
 
     @classmethod
-    def lookup_by_claims(cls, session, signed_claims: SignedClaims):
-        for lookup in cls.__lookup_strategies__:
-            query = lookup(cls, signed_claims)
-            if not query:
-                # We might not build a query if we know the claim set can't
-                # satisfy it. If that's the case, then we skip.
-                continue
-
-            if publisher := query.with_session(session).one_or_none():
-                return publisher
-        raise InvalidPublisherError("All lookup strategies exhausted")
+    def lookup_by_claims(cls, session, signed_claims: SignedClaims) -> Self:
+        raise NotImplementedError
 
     @classmethod
     def all_known_claims(cls) -> set[str]:

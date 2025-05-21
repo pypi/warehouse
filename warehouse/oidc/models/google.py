@@ -10,13 +10,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any
+from typing import Any, Self
 
 from pypi_attestations import GooglePublisher as GoogleIdentity, Publisher
 from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Query, mapped_column
 
+from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models._core import (
     CheckClaimCallable,
@@ -68,20 +69,20 @@ class GooglePublisherMixin:
 
     __unchecked_claims__ = {"azp", "google"}
 
-    @staticmethod
-    def __lookup_all__(klass, signed_claims: SignedClaims) -> Query | None:
-        return Query(klass).filter_by(
-            email=signed_claims["email"], sub=signed_claims["sub"]
-        )
+    @classmethod
+    def lookup_by_claims(cls, session, signed_claims: SignedClaims) -> Self:
+        query: Query = Query(cls).filter_by(email=signed_claims["email"])
+        publishers = query.with_session(session).all()
 
-    @staticmethod
-    def __lookup_no_sub__(klass, signed_claims: SignedClaims) -> Query | None:
-        return Query(klass).filter_by(email=signed_claims["email"], sub="")
+        if sub := signed_claims.get("sub"):
+            specific_publishers = [p for p in publishers if p.sub == sub]
+            if specific_publishers:
+                return specific_publishers[0]
 
-    __lookup_strategies__ = [
-        __lookup_all__,
-        __lookup_no_sub__,
-    ]
+        general_publishers = [p for p in publishers if p.sub == ""]
+        if general_publishers:
+            return general_publishers[0]
+        raise InvalidPublisherError("Publisher with matching claims was not found")
 
     @property
     def publisher_name(self):
