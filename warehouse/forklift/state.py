@@ -112,6 +112,7 @@ def build_file_upload_session():
         pass
 
     @pending.upon(FileUploadSessionController._complete).to(complete)
+    @processing.upon(FileUploadSessionController._complete).to(complete)
     def _complete(
         controller: FileUploadSessionController, file_upload_session: FileUploadSession
     ) -> None:
@@ -120,6 +121,7 @@ def build_file_upload_session():
     @pending.upon(FileUploadSessionController.action_cancel).to(canceled)
     @processing.upon(FileUploadSessionController.action_cancel).to(canceled)
     @complete.upon(FileUploadSessionController.action_cancel).to(canceled)
+    @error.upon(FileUploadSessionController.action_cancel).to(canceled)
     def action_cancel(
         controller: FileUploadSessionController, file_upload_session: FileUploadSession
     ) -> None:
@@ -203,8 +205,12 @@ class UploadSession:
         return new_file_upload_session
 
     @property
+    def has_errors(self):
+        return len(self.notices) > 0
+
+    @property
     def can_publish(self):
-        return True
+        return not self.has_errors
 
     @property
     def session_token(self):
@@ -239,8 +245,14 @@ class UploadSessionController(Protocol):
     def _publish(self) -> None:
         "The Upload Session was published"
 
+    def _clear_errors(self) -> None:
+        "The Upload Session was revalidated"
+
     def _error(self, notice) -> None:
         "The Upload Session encountered an error"
+
+    def _revalidate(self) -> None:
+        "The Upload Session should be revalidated"
 
 
 def build_upload_session():
@@ -288,6 +300,19 @@ def build_upload_session():
         controller: UploadSessionController, upload_session: UploadSession
     ):
         pass
+
+    @error.upon(UploadSessionController._clear_errors).to(pending)
+    def _clear_errors(
+        controller: UploadSessionController, upload_session: UploadSession, notice: str
+    ):
+        pass
+
+    @error.upon(UploadSessionController._revalidate).loop()
+    def _revalidate(
+        controller: UploadSessionController, upload_session: UploadSession, notice: str
+    ):
+        if not upload_session.has_errors:
+            controller._clear_errors()
 
     @pending.upon(UploadSessionController._error).to(error)
     def _error(
