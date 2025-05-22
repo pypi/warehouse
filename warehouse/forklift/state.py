@@ -85,7 +85,8 @@ class FileUploadSession:
 
 
 class FileUploadSessionController(Protocol):
-    def serialize(self) -> dict[str, Any]: ...
+    def serialize(self) -> dict[str, Any]:
+        "Serialize the machine"
 
     def action_ready(self) -> None:
         "The File Upload Session was marked as ready"
@@ -306,6 +307,7 @@ class UploadSession:
 
 class UploadSessionController(Protocol):
     def create_file_upload_session(
+        self,
         filename: str,
         size: int,
         hashes: dict[str, str],
@@ -335,7 +337,8 @@ class UploadSessionController(Protocol):
     def _revalidate(self) -> None:
         "The Upload Session should be revalidated"
 
-    def serialize(self) -> dict[str, Any]: ...
+    def serialize(self) -> dict[str, Any]:
+        "Serialize the machine"
 
 
 def build_upload_session():
