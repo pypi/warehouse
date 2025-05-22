@@ -17,6 +17,7 @@
 
 import dataclasses
 import datetime
+import uuid
 
 from hashlib import sha256
 from typing import Any, Protocol
@@ -24,19 +25,55 @@ from typing import Any, Protocol
 import automat
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(kw_only=True)
 class FileUploadMechanism:
     name: str
     requires_processing: bool
 
+    def prepare(self, file_upload_session_id):
+        return {}
+
+
+@dataclasses.dataclass(kw_only=True)
+class HttpPostApplicationOctetFileUploadMechanism(FileUploadMechanism):
+    name: str = "http-post-application-octet-stream"
+    requires_processing: bool = False
+
+    def prepare(self, file_upload_session_id):
+        return {
+            "upload-url": "http://example.com/upload/{file_upload_session_id}",
+        }
+
+
+UPLOAD_MECHANISMS = {
+    "http-post-application-octet-stream": HttpPostApplicationOctetFileUploadMechanism()
+}
+
 
 @dataclasses.dataclass
 class FileUploadSession:
+    filename: str
+    size: int
+    hashes: dict[str, str]
+    metadata: str
     mechanism: FileUploadMechanism
 
-    expiration: datetime.datetime
-    notices: list[str]
-    mechanism_details: dict[Any, Any]
+    _upload_session_id = uuid.UUID
+
+    expiration: datetime.datetime = dataclasses.field(
+        default_factory=lambda: datetime.datetime.now(datetime.UTC)
+        + datetime.timedelta(hours=1)
+    )
+    notices: list[str] = dataclasses.field(default_factory=list)
+    mechanism_details: dict[Any, Any] = dataclasses.field(default_factory=dict)
+    _id: uuid.UUID = dataclasses.field(default_factory=uuid.uuid4)
+
+    def prepare(self):
+        if self.mechanism:
+            if not self.mechanism_details:
+                self.mechanism_details = self.mechanism.prepare(self._id)
+        else:
+            raise RuntimeError("Mechanism not configured")
 
 
 class FileUploadSessionController(Protocol):
@@ -60,7 +97,6 @@ class FileUploadSessionController(Protocol):
 
 
 def build_file_upload_session():
-
     builder = automat.TypeMachineBuilder(FileUploadSessionController, FileUploadSession)
 
     pending = builder.state("pending")
@@ -132,10 +168,39 @@ class UploadSession:
     version: str
     file_upload_sessions: list[FileUploadSession]
 
-    expiration: datetime.datetime
     notices: list[str]
 
     nonce: str = ""
+    expiration: datetime.datetime = dataclasses.field(
+        default_factory=lambda: datetime.datetime.now(datetime.UTC)
+        + datetime.timedelta(days=1)
+    )
+    _token: str | None = None
+    _id: uuid.UUID = dataclasses.field(default_factory=uuid.uuid4)
+
+    def create_file_upload_session(
+        self,
+        filename: str,
+        size: int,
+        hashes: dict[str, str],
+        metadata: str,
+        mechanism: str,
+    ):
+        _mechanism = UPLOAD_MECHANISMS.get(mechanism)
+        if _mechanism is None:
+            raise KeyError(f'No mechanism "{mechanism}" available.')
+        new_file_upload_session = FileUploadSessionFactory(
+            FileUploadSession(
+                filename=filename,
+                size=size,
+                hashes=hashes,
+                metadata=metadata,
+                mechanism=_mechanism,
+            )
+        )
+        new_file_upload_session.prepare()
+        self.file_upload_sessions.append(new_file_upload_session)
+        return new_file_upload_session
 
     @property
     def can_publish(self):
@@ -143,14 +208,25 @@ class UploadSession:
 
     @property
     def session_token(self):
-        h = sha256()
-        h.update(self.name.encode())
-        h.update(self.version.encode())
-        h.update(self.nonce.encode())
-        return h.hexdigest()
+        if self._token is None:
+            h = sha256()
+            h.update(self.name.encode())
+            h.update(self.version.encode())
+            h.update(self.nonce.encode())
+            self._token = h.hexdigest()
+        return self._token
 
 
 class UploadSessionController(Protocol):
+    def create_file_upload_session(
+        filename: str,
+        size: int,
+        hashes: dict[str, str],
+        metadata: str,
+        mechanism: str,
+    ) -> None:
+        "Create a new File Upload Session associated with this Upload Session"
+
     def action_publish(self) -> None:
         "The Upload Session was marked as published"
 
@@ -174,6 +250,28 @@ def build_upload_session():
     published = builder.state("published")
     error = builder.state("error")
     canceled = builder.state("canceled")
+
+    @pending.upon(UploadSessionController.create_file_upload_session).loop()
+    @error.upon(UploadSessionController.create_file_upload_session).loop()
+    def create_file_upload_session(
+        controller: UploadSessionController,
+        upload_session: UploadSession,
+        filename: str,
+        size: int,
+        hashes: dict[str, str],
+        metadata: str,
+        mechanism: str,
+    ):
+        try:
+            return upload_session.create_file_upload_session(
+                filename=filename,
+                size=size,
+                hashes=hashes,
+                metadata=metadata,
+                mechanism=mechanism,
+            )
+        except KeyError as e:
+            controller._error(e)
 
     @pending.upon(UploadSessionController.action_publish).loop()
     def action_publish(
