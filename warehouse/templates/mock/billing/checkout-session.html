@@ -1,33 +1,45 @@
-{# SPDX-License-Identifier: Apache-2.0 -#}
-
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
 {% extends "base.html" %}
-
 {% block title %}PyPI{% endblock %}
-
 {% block content %}
-<div class="horizontal-section">
-  <div class="site-container">
-    <h1 class="page-title">Subscribe to PyPI</h1>
-    <p>
-      This is a local mock of the billing checkout page where users enter their billing information. Please click <strong>Subscribe</strong> below to simulate a successful payment or <strong>Cancel</strong> to return to the previous page.
-    </p>
-    <form method="POST" action="{{ request.route_path('mock.billing.trigger-checkout-session-completed', organization_name=organization.normalized_name) }}">
-      <div class="form-group">
-        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-        <a class="button" href="{{ request.route_path('manage.organizations') }}">Cancel</a>
-        <button class="button button--primary">Subscribe</button>
+  <div class="horizontal-section">
+    <div class="site-container">
+      <h1 class="page-title">Subscribe to PyPI</h1>
+      <p>
+        This is a local mock of the billing checkout page where users enter their billing information. Please click <strong>Subscribe</strong> below to simulate a successful payment or <strong>Cancel</strong> to return to the previous page.
+      </p>
+      <form method="post"
+            action="{{ request.route_path('mock.billing.trigger-checkout-session-completed', organization_name=organization.normalized_name) }}">
+        <div class="form-group">
+          <input name="csrf_token"
+                 type="hidden"
+                 value="{{ request.session.get_csrf_token() }}">
+          <a class="button"
+             href="{{ request.route_path('manage.organizations') }}">Cancel</a>
+          <button class="button button--primary">Subscribe</button>
+        </div>
+      </form>
+      <hr>
+      <h2>Screenshot of billing checkout page</h2>
+      <p>
+        When connected to the third-party billing provider, the billing checkout page will look like the screenshot below.
+      </p>
+      <div class="callout-block">
+        <img src="{{ request.static_path('warehouse:static/dist/images/billing-checkout.png') }}"
+             alt="Screenshot of billing checkout page">
       </div>
-    </form>
-
-    <hr>
-
-    <h2>Screenshot of billing checkout page</h2>
-    <p>
-      When connected to the third-party billing provider, the billing checkout page will look like the screenshot below.
-    </p>
-    <div class="callout-block">
-      <img src="{{ request.static_path('warehouse:static/dist/images/billing-checkout.png') }}" alt="Screenshot of billing checkout page">
     </div>
   </div>
-</div>
 {% endblock %}

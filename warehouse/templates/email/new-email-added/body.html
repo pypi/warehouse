@@ -1,9 +1,10 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "email/_base/body.html" %}
-
 {% block content %}
-<p>{% trans username=username, new_email_address=new_email_address %}Hello, {{ username }}. A new email '{{ new_email_address }}' has been added to your account.{% endtrans %}</p>
-
-<p>{% trans href='mailto:admin@pypi.org', new_email_address='admin@pypi.org' %}If you did not make this change, you can email <a href="{{ href }}">{{ new_email_address }}</a> to communicate with the PyPI administrators.{% endtrans %}</p>
+  <p>
+    {% trans username=username, new_email_address=new_email_address %}Hello, {{ username }}. A new email '{{ new_email_address }}' has been added to your account.{% endtrans %}
+  </p>
+  <p>
+    {% trans href='mailto:admin@pypi.org', new_email_address='admin@pypi.org' %}If you did not make this change, you can email <a href="{{ href }}">{{ new_email_address }}</a> to communicate with the PyPI administrators.{% endtrans %}
+  </p>
 {% endblock %}

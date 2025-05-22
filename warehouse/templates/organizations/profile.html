@@ -1,45 +1,40 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "base.html" %}
-
-{% block title %}{% trans orgname=organization.display_name %}Profile of {{ orgname }}{% endtrans %}{% endblock %}
-
+{% block title %}
+  {% trans orgname=organization.display_name %}Profile of {{ orgname }}{% endtrans %}
+{% endblock %}
 {% block canonical_url %}{{ request.canonical_url(organization=organization.normalized_name) }}{% endblock %}
-
 {% block content %}
-<div class="horizontal-section horizontal-section--medium">
-  <div class="tabs-container">
-    <div class="vertical-tabs">
-      <div class="vertical-tabs__tabs">
-        <div class="sidebar-section">
-          {% if organization.display_name %}
-          <h1 class="author-profile__name">{{ organization.display_name }}</h1>
-          {% endif %}
-          <div class="author-profile__meta">
-            <div class="author-profile__metadiv">
-              <i class="fa fa-sitemap" aria-hidden="true"></i>
-              <span class="sr-only">{% trans %}Organization{% endtrans %}</span>
-              &nbsp;&nbsp;
-              <span class="break">{{ organization.name }}</span>
+  <div class="horizontal-section horizontal-section--medium">
+    <div class="tabs-container">
+      <div class="vertical-tabs">
+        <div class="vertical-tabs__tabs">
+          <div class="sidebar-section">
+            {% if organization.display_name %}<h1 class="author-profile__name">{{ organization.display_name }}</h1>{% endif %}
+            <div class="author-profile__meta">
+              <div class="author-profile__metadiv">
+                <i class="fa fa-sitemap" aria-hidden="true"></i>
+                <span class="sr-only">{% trans %}Organization{% endtrans %}</span>
+                &nbsp;&nbsp;
+                <span class="break">{{ organization.name }}</span>
+              </div>
+              {% if organization.date_approved %}
+                <div class="author-profile__metadiv">
+                  <i class="fa fa-calendar-alt" aria-hidden="true"></i>
+                  <span class="sr-only">{% trans %}Date joined{% endtrans %}</span>
+                  &nbsp;&nbsp;{% trans start_date=humanize(organization.date_approved) %}Joined {{ start_date }}{% endtrans %}
+                </div>
+              {% endif %}
             </div>
-            {% if organization.date_approved %}
-            <div class="author-profile__metadiv">
-              <i class="fa fa-calendar-alt" aria-hidden="true"></i>
-              <span class="sr-only">{% trans %}Date joined{% endtrans %}</span>
-              &nbsp;&nbsp;{% trans start_date=humanize(organization.date_approved) %}Joined {{ start_date }}{% endtrans %}
-            </div>
-            {% endif %}
           </div>
+          {% set include_sponsor_logos = organization.orgtype != OrganizationType.Company %}
+          {% include "warehouse:templates/includes/sidebar-sponsor-logo.html" %}
         </div>
-        {% set include_sponsor_logos = organization.orgtype != OrganizationType.Company %}
-        {% include "warehouse:templates/includes/sidebar-sponsor-logo.html" %}
-      </div>
-
-      {% set projects_with_releases = organization.projects|selectattr("latest_version")|list %}
-      <div class="vertical-tabs__panel">
-        <h2>
-          {% if organization.projects %}
-            {% trans count=projects_with_releases|length %}
+        {% set projects_with_releases = organization.projects|selectattr("latest_version")|list %}
+        <div class="vertical-tabs__panel">
+          <h2>
+            {% if organization.projects %}
+              {% trans count=projects_with_releases|length %}
               {{ count }} project
             {% pluralize %}
               {{ count }} projects
@@ -50,18 +45,21 @@
         </h2>
         <div class="package-list">
           {% if projects_with_releases %}
-          {% for project in projects_with_releases %}
-          <a class="package-snippet" href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
-            <h3 class="package-snippet__title">{{ project.name }}</h3>
-            <p class="package-snippet__meta">
-              {% trans release_date=humanize(project.latest_version.created) %}Last released {{ release_date }}{% endtrans %}
-            </p>
-            <p class="package-snippet__description">{{ project.latest_version.summary }}</p>
-          </a>
-          {% endfor %}
+            {% for project in projects_with_releases %}
+              <a class="package-snippet"
+                 href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
+                <h3 class="package-snippet__title">{{ project.name }}</h3>
+                <p class="package-snippet__meta">
+                  {% trans release_date=humanize(project.latest_version.created) %}Last released {{ release_date }}{% endtrans %}
+                </p>
+                <p class="package-snippet__description">{{ project.latest_version.summary }}</p>
+              </a>
+            {% endfor %}
           {% else %}
             <div class="callout-block no-top-margin">
-              <p>{% trans org=organization.display_name|default(organization.name, true) %}{{ org }} has not uploaded any projects to PyPI, yet{% endtrans %}</p>
+              <p>
+                {% trans org=organization.display_name|default(organization.name, true) %}{{ org }} has not uploaded any projects to PyPI, yet{% endtrans %}
+              </p>
             </div>
           {% endif %}
         </div>
@@ -69,6 +67,4 @@
     </div>
   </div>
 </div>
-
-
 {% endblock %}

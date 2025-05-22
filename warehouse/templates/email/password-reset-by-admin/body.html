@@ -1,26 +1,20 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "email/_base/body.html" %}
-
-
 {% block content %}
-<h3>What?</h3>
-<p>
-  PyPI administrators have have initiated a password reset for your account.
-  You will no longer be able to log in to PyPI with your existing password.
-</p>
-
-<h3>What should I do?</h3>
-<p>
-  To regain access to your account,
-  <a href="{{ request.route_url('accounts.request-password-reset', _host=request.registry.settings.get('warehouse.domain')) }}">reset your password</a>
-  on PyPI.
-</p>
-
-
-<h3>How can I contact you?</h3>
-<p>
-  For more information, you can email admin@pypi.org to communicate with
-  the PyPI administrators.
-</p>
+  <h3>What?</h3>
+  <p>
+    PyPI administrators have have initiated a password reset for your account.
+    You will no longer be able to log in to PyPI with your existing password.
+  </p>
+  <h3>What should I do?</h3>
+  <p>
+    To regain access to your account,
+    <a href="{{ request.route_url('accounts.request-password-reset', _host=request.registry.settings.get('warehouse.domain') ) }}">reset your password</a>
+    on PyPI.
+  </p>
+  <h3>How can I contact you?</h3>
+  <p>
+    For more information, you can email admin@pypi.org to communicate with
+    the PyPI administrators.
+  </p>
 {% endblock %}

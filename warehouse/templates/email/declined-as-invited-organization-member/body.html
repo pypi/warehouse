@@ -1,14 +1,10 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "email/_base/body.html" %}
-
 {% block content %}
-<p>
-  {% trans organization_name=organization_name %}You have declined an invitation to join the "{{ organization_name }}" organization{% endtrans %}.
-</p>
+  <p>
+    {% trans organization_name=organization_name %}You have declined an invitation to join the "{{ organization_name }}" organization{% endtrans %}.
+  </p>
 {% endblock %}
-
-
 {% block reason %}
-{% trans %}You are receiving this because you were invited to join this organization.{% endtrans %}
+  {% trans %}You are receiving this because you were invited to join this organization.{% endtrans %}
 {% endblock %}
