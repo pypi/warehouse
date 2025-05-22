@@ -249,7 +249,7 @@ class UploadSession:
     def serialize(self):
         return {
             "mechanisms": [UPLOAD_MECHANISMS.keys()],
-            "session-token": self._token,
+            "session-token": self.session_token,
             "valid-for": max(
                 0, (self.expiration - datetime.datetime.now(datetime.UTC)).seconds
             ),
@@ -298,7 +298,7 @@ class UploadSession:
     def session_token(self):
         if self._token is None:
             h = sha256()
-            h.update(self.name.encode())
+            h.update(self.project.encode())
             h.update(self.version.encode())
             h.update(self.nonce.encode())
             self._token = h.hexdigest()
