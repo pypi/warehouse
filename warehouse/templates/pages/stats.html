@@ -1,81 +1,84 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "base.html" %}
-
-{% block title %}{% trans %}Statistics{% endtrans %}{% endblock %}
-
+{% block title %}
+  {% trans %}Statistics{% endtrans %}
+{% endblock %}
 {% block content %}
-<div class="horizontal-section">
-  <div class="narrow-container">
-    <h1 class="page-title">{% trans %}PyPI statistics{% endtrans %}</h1>
-    <p>
-      {% trans %}
+  <div class="horizontal-section">
+    <div class="narrow-container">
+      <h1 class="page-title">{% trans %}PyPI statistics{% endtrans %}</h1>
+      <p>
+        {% trans %}
         We all love stats, so here are some useful statistics about PyPI.
       {% endtrans %}
     </p>
-
     <h2>{% trans %}First-party statistics{% endtrans %}</h2>
     <p>
       {% trans %}
-        These statistics are provided directly by PyPI.
-      {% endtrans %}
-    </p>
-    <ul>
-      <li>
-        <a href="https://docs.pypi.org/api/bigquery/">
-          {% trans %}PyPI provides public datasets, including download statistics and metadata via BigQuery{% endtrans %}
-        </a>
-      </li>
-      <li>
-        <a href="https://p.datadoghq.com/sb/7dc8b3250-85dcf667bd">
-          {% trans %}PyPI provides a public dashboard with statistics on usage and performance{% endtrans %}
-        </a>
-      </li>
-    </ul>
-
-    <h2>{% trans %}Third-party statistics{% endtrans %}</h2>
-    <p>
-      {% trans %}
-        These statistics are provided by other third-party services unaffiliated with PyPI.
-      {% endtrans %}
-    </p>
-    <ul>
-      <li><a href="https://libraries.io/pypi">https://libraries.io/pypi</a></li>
-      <li><a href="https://pypistats.org/">https://pypistats.org/</a></li>
-      <li><a href="https://deps.dev/">https://deps.dev/</a></li>
-      <li><a href="https://clickpy.clickhouse.com/">https://clickpy.clickhouse.com/</a></li>
-    </ul>
-
-    <h2>{% trans %}Top projects by total package size{% endtrans %}</h2>
-    <p>
-      {% trans %}
-        Here is a list of the top 100 projects based on the sum of their
-        packages' sizes (in bytes). This page is cached for 24 hours, so don't
-        expect the numbers to be realtime.
-      {% endtrans %}
-    </p>
-
-    <table class="table">
-      <caption class="sr-only">{% trans %}Statistics by project{% endtrans %}</caption>
-      <thead>
-        <tr>
-          <th scope="col">{% trans %}Project name{% endtrans %}</th>
-          <th scope="col">{% trans %}Sum of release files (bytes){% endtrans %}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th scope="row">{% trans %}All of PyPI{% endtrans %}</th>
-          <td>{{ total_packages_size|filesizeformat() }}</td>
-        </tr>
-        {% for pkg_name, pkg_data in top_packages.items() %}
-        <tr>
-          <th scope="row">{{ pkg_name }}</th>
-          <td>{{ pkg_data["size"]|filesizeformat() }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+      These statistics are provided directly by PyPI.
+    {% endtrans %}
+  </p>
+  <ul>
+    <li>
+      <a href="https://docs.pypi.org/api/bigquery/">
+        {% trans %}PyPI provides public datasets, including download statistics and metadata via BigQuery{% endtrans %}
+      </a>
+    </li>
+    <li>
+      <a href="https://p.datadoghq.com/sb/7dc8b3250-85dcf667bd">
+        {% trans %}PyPI provides a public dashboard with statistics on usage and performance{% endtrans %}
+      </a>
+    </li>
+  </ul>
+  <h2>{% trans %}Third-party statistics{% endtrans %}</h2>
+  <p>
+    {% trans %}
+    These statistics are provided by other third-party services unaffiliated with PyPI.
+  {% endtrans %}
+</p>
+<ul>
+  <li>
+    <a href="https://libraries.io/pypi">https://libraries.io/pypi</a>
+  </li>
+  <li>
+    <a href="https://pypistats.org/">https://pypistats.org/</a>
+  </li>
+  <li>
+    <a href="https://deps.dev/">https://deps.dev/</a>
+  </li>
+  <li>
+    <a href="https://clickpy.clickhouse.com/">https://clickpy.clickhouse.com/</a>
+  </li>
+</ul>
+<h2>{% trans %}Top projects by total package size{% endtrans %}</h2>
+<p>
+  {% trans %}
+  Here is a list of the top 100 projects based on the sum of their
+  packages' sizes (in bytes). This page is cached for 24 hours, so don't
+  expect the numbers to be realtime.
+{% endtrans %}
+</p>
+<table class="table">
+  <caption class="sr-only">{% trans %}Statistics by project{% endtrans %}</caption>
+  <thead>
+    <tr>
+      <th scope="col">{% trans %}Project name{% endtrans %}</th>
+      <th scope="col">{% trans %}Sum of release files (bytes){% endtrans %}</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">{% trans %}All of PyPI{% endtrans %}</th>
+      <td>{{ total_packages_size|filesizeformat() }}</td>
+    </tr>
+    {% for pkg_name, pkg_data in top_packages.items() %}
+      <tr>
+        <th scope="row">{{ pkg_name }}</th>
+        <td>{{ pkg_data["size"]|filesizeformat() }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
 </div>
 {% endblock %}

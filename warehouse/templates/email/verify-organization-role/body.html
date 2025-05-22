@@ -1,25 +1,15 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "email/_base/body.html" %}
-
 {% block content %}
-<p>
-  {% trans initiator_username=initiator_username, initiator_user_profile=request.route_url('accounts.profile', username=initiator_username), organization_name=organization_name %}<a href="{{ initiator_user_profile }}">{{ initiator_username }}</a> has invited you to join the "{{ organization_name }}" organization{% endtrans %}.
-</p>
-
-<p>
-  {% trans href=request.route_url('accounts.verify-organization-role', _query={'token': token}) %}If you wish to proceed, follow <a href="{{ href }}">this link</a> to accept or decline this invitation.{% endtrans %}
-</p>
-
-<p>
-  {% trans %}Otherwise, you can safely ignore this email.{% endtrans %}
-</p>
-
-<p>
-  {% trans n_hours=n_hours %}This link will expire in {{ n_hours }} hours.{% endtrans %}
-</p>
+  <p>
+    {% trans initiator_username=initiator_username, initiator_user_profile=request.route_url('accounts.profile', username=initiator_username), organization_name=organization_name %}<a href="{{ initiator_user_profile }}">{{ initiator_username }}</a> has invited you to join the "{{ organization_name }}" organization{% endtrans %}.
+  </p>
+  <p>
+    {% trans href=request.route_url('accounts.verify-organization-role', _query={'token': token}) %}If you wish to proceed, follow <a href="{{ href }}">this link</a> to accept or decline this invitation.{% endtrans %}
+  </p>
+  <p>{% trans %}Otherwise, you can safely ignore this email.{% endtrans %}</p>
+  <p>{% trans n_hours=n_hours %}This link will expire in {{ n_hours }} hours.{% endtrans %}</p>
 {% endblock %}
-
 {% block reason %}
-{% trans %}You are receiving this because you were invited to join this organization.{% endtrans %}
+  {% trans %}You are receiving this because you were invited to join this organization.{% endtrans %}
 {% endblock %}

@@ -31,7 +31,7 @@
       <tbody>
       {% for flag in flags %}
       <tr>
-        <form method="POST" action="{{ request.route_path('admin.flags.edit') }}">
+        <form method="post" action="{{ request.route_path('admin.flags.edit') }}">
           <input name="csrf_token" type="hidden" value="{{ csrf_token }}">
           <input name="id" type="hidden" value="{{ flag.id }}">
           <td><code>{{ flag.id }}</code></td>

@@ -1,14 +1,16 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "email/_base/body.html" %}
-
-
 {% block content %}
-<p>{% trans username=username %}Someone, perhaps you, has made a password reset request for your PyPI account '{{ username }}'.{% endtrans %}</p>
-
-<p>{% trans href=request.route_url('accounts.reset-password', _query={'token': token}) %}If you wish to proceed with this request, <a href="{{ href }}">click to reset your password</a>.{% endtrans %}</p>
-
-<p>{% trans n_hours=n_hours %}This link will expire in {{ n_hours }} hour.{% pluralize %}This link will expire in {{ n_hours }} hours.{% endtrans %}</p>
-
-<p>{% trans %}If you did not make this request, you can safely ignore this email.{% endtrans %}</p>
+  <p>
+    {% trans username=username %}Someone, perhaps you, has made a password reset request for your PyPI account '{{ username }}'.{% endtrans %}
+  </p>
+  <p>
+    {% trans href=request.route_url('accounts.reset-password', _query={'token': token}) %}If you wish to proceed with this request, <a href="{{ href }}">click to reset your password</a>.{% endtrans %}
+  </p>
+  <p>
+    {% trans n_hours=n_hours %}This link will expire in {{ n_hours }} hour.
+  {% pluralize %}
+    This link will expire in {{ n_hours }} hours.{% endtrans %}
+  </p>
+  <p>{% trans %}If you did not make this request, you can safely ignore this email.{% endtrans %}</p>
 {% endblock %}

@@ -1,50 +1,61 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "base.html" %}
-{% block title %}{% trans %}Security{% endtrans %}{% endblock %}
-
+{% block title %}
+  {% trans %}Security{% endtrans %}
+{% endblock %}
 {% block content %}
   <div class="horizontal-section">
     <div class="narrow-container">
       <h1 class="page-title">{% trans %}Reporting a security issue{% endtrans %}</h1>
-
       <p>{% trans %}We take security very seriously and ask that you follow our security policy carefully.{% endtrans %}</p>
       <div class="callout-block callout-block--danger">
-        <p><strong>{% trans %}Important!{% endtrans %}</strong> {% trans %}If you believe you've identified a security issue with PyPI, <strong>DO NOT</strong> report the issue in any public forum, including (but not limited to):{% endtrans %}</p>
-
+        <p>
+          <strong>{% trans %}Important!{% endtrans %}</strong> {% trans %}If you believe you've identified a security issue with PyPI, <strong>DO NOT</strong> report the issue in any public forum, including (but not limited to):{% endtrans %}
+        </p>
         <ul class="unstyled">
-          <li><i class="fa fa-times danger" aria-hidden="true"></i> {% trans %}Our GitHub issue tracker{% endtrans %}</li>
-          <li><i class="fa fa-times danger" aria-hidden="true"></i> {% trans %}Official or unofficial chat channels{% endtrans %}</li>
-          <li><i class="fa fa-times danger" aria-hidden="true"></i> {% trans %}Official or unofficial mailing lists{% endtrans %}</li>
+          <li>
+            <i class="fa fa-times danger" aria-hidden="true"></i> {% trans %}Our GitHub issue tracker{% endtrans %}
+          </li>
+          <li>
+            <i class="fa fa-times danger" aria-hidden="true"></i> {% trans %}Official or unofficial chat channels{% endtrans %}
+          </li>
+          <li>
+            <i class="fa fa-times danger" aria-hidden="true"></i> {% trans %}Official or unofficial mailing lists{% endtrans %}
+          </li>
         </ul>
       </div>
-
       <br>
-
       <h2>{% trans %}If you've identified a security issue with a project hosted on PyPI{% endtrans %}</h2>
       <p>
         {% trans %}
-          Login to your PyPI account, then visit the project's page on PyPI.
-          At the bottom of the sidebar, click <strong>Report project as malware</strong>.
-          Supply the following details in the form:
-        {% endtrans %}
-      </p>
-      <ul>
-          <li>{% trans %}A URL to the project in question{% endtrans %}</li>
-          <li>{% trans %}An explanation of what makes the project a security issue{% endtrans %}</li>
-          <li>{% trans href='https://inspector.pypi.io/' %}A link to the problematic lines in the project's distributions via <a href="{{ href }}">inspector.pypi.io</a>{% endtrans %}</li>
-      </ul>
-      <p>{% trans %}Valid malware reports may include examples of typo-squatting, dependency confusion, data exfiltration, obfuscation, command/control, etc.{% endtrans %}</p>
-
-      <h2>{% trans %}If you've identified a security issue with PyPI itself (not a project hosted on PyPI){% endtrans %}</h2>
-      <p>{% trans href='mailto:security@pypi.org' %}Email <a href="{{ href }}">security@pypi.org</a>, providing as much relevant information as possible, including reproducing steps.{% endtrans %}</p>
-
-      <h2>{% trans %}What happens next?{% endtrans %}</h2>
-      <p>{% trans %}Once you've submitted an issue via email, you should receive an acknowledgment within 48 hours.{% endtrans %}</p>
-      <p>{% trans %}Depending on the action to be taken, you may receive further follow-up emails.{% endtrans %}</p>
-
-      <br>
-      <p><i>{% trans %}This security policy was last updated on March 2024.{% endtrans %}</i></p>
-    </div>
+        Login to your PyPI account, then visit the project's page on PyPI.
+        At the bottom of the sidebar, click <strong>Report project as malware</strong>.
+        Supply the following details in the form:
+      {% endtrans %}
+    </p>
+    <ul>
+      <li>{% trans %}A URL to the project in question{% endtrans %}</li>
+      <li>{% trans %}An explanation of what makes the project a security issue{% endtrans %}</li>
+      <li>
+        {% trans href='https://inspector.pypi.io/' %}A link to the problematic lines in the project's distributions via <a href="{{ href }}">inspector.pypi.io</a>{% endtrans %}
+      </li>
+    </ul>
+    <p>
+      {% trans %}Valid malware reports may include examples of typo-squatting, dependency confusion, data exfiltration, obfuscation, command/control, etc.{% endtrans %}
+    </p>
+    <h2>{% trans %}If you've identified a security issue with PyPI itself (not a project hosted on PyPI){% endtrans %}</h2>
+    <p>
+      {% trans href='mailto:security@pypi.org' %}Email <a href="{{ href }}">security@pypi.org</a>, providing as much relevant information as possible, including reproducing steps.{% endtrans %}
+    </p>
+    <h2>{% trans %}What happens next?{% endtrans %}</h2>
+    <p>
+      {% trans %}Once you've submitted an issue via email, you should receive an acknowledgment within 48 hours.{% endtrans %}
+    </p>
+    <p>{% trans %}Depending on the action to be taken, you may receive further follow-up emails.{% endtrans %}</p>
+    <br>
+    <p>
+      <i>{% trans %}This security policy was last updated on March 2024.{% endtrans %}</i>
+    </p>
   </div>
+</div>
 {% endblock %}

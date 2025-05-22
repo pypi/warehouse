@@ -1,29 +1,24 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "email/_base/body.html" %}
-
-
 {% block content %}
+  <p>
+    {% trans username=username %}
+    We noticed you recently logged into your PyPI account <strong>{{ username
+    }}</strong>, which has two-factor authentication enabled, but haven't generated
+    recovery codes for this account.
+  {% endtrans %}
+</p>
 <p>
-{% trans username=username %}
-We noticed you recently logged into your PyPI account <strong>{{ username
-}}</strong>, which has two-factor authentication enabled, but haven't generated
-recovery codes for this account.
+  {% trans %}
+  If you lose your authentication application or security key(s) and do not have
+  access to these recovery codes, you may permanently lose access to your PyPI
+  account!
 {% endtrans %}
 </p>
-
 <p>
-{% trans %}
-If you lose your authentication application or security key(s) and do not have
-access to these recovery codes, you may permanently lose access to your PyPI
-account!
-{% endtrans %}
-</p>
-
-<p>
-{% trans href=request.route_url("manage.account.recovery-codes.generate") %}
-You can generate recovery codes for your account here:
-<a href="{{ href }}">{{ href }}</a>
+  {% trans href=request.route_url("manage.account.recovery-codes.generate") %}
+  You can generate recovery codes for your account here:
+  <a href="{{ href }}">{{ href }}</a>
 {% endtrans %}
 </p>
 {% endblock %}
