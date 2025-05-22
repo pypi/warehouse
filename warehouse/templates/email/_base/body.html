@@ -11,13 +11,16 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-
 <!DOCTYPE html>
-<html>
+{# djlint:off H030,H031 #}
+<html lang="en">
+  {# djlint:on #}
   <head>
+    <title>
+      {% block title %}{% endblock %}
+    </title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-
     <style>
       p.footer {
         font-size: small;
@@ -29,15 +32,13 @@
     </style>
   </head>
   <body>
-    {% block content %}
-    {% endblock %}
-
+    {% block content %}{% endblock %}
     {% if self.reason()|trim %}
-    <p class="footer">
-        —<br>
-        {% block reason %}
-        {% endblock %}
-    </p>
+      <p class="footer">
+        —
+        <br>
+        {% block reason %}{% endblock %}
+      </p>
     {% endif %}
   </body>
 </html>

@@ -12,9 +12,7 @@
 # limitations under the License.
 -#}
 {% extends "email/_base/body.html" %}
-
 {% set domain = request.registry.settings.get('warehouse.domain') %}
-
 {% block content %}
   <p>
     This email is notifying you of an upcoming deprecation that we have

@@ -11,44 +11,40 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-
 {% macro paginate(page) -%}
-{% if page.items and page.page_count > 1 %}
-{% set map = page.link_map() %}
-<div class="button-group button-group--pagination">
-    {# previous button #}
-    {% if map.current_page.value == map.first_page.number %}
-  <a class="button button-group__button button--disabled">{% trans %}Previous{% endtrans %}</a>
-    {% else %}
-    <a href="{{ map.previous_page.href }}" class="button button-group__button">{% trans %}Previous{% endtrans %}</a>
-    {% endif %}
-
-    {# show first page button - special case #}
-    {% if map.current_page.value > map.first_page.number + map.radius %}
-    <a href="{{ map.first_page.href }}" class="button button-group__button">{{ map.first_page.number }}</a>
-    {% endif %}
-
-    {% for p in map.range_pages %}
-    {% if p.type == 'current_page' %}
-    <span class="button button-group__button button--primary">{{ p.number }}</span>
-    {% elif p.type == 'page' %}
-    <a href="{{ p.href }}" class="button button-group__button">{{ p.number }}</a>
-    {% elif p.type == 'span' %}
-    <span class="button button-group__button">...</span>
-    {% endif %}
-    {% endfor %}
-
-    {# show last page button - special case #}
-    {% if map.current_page.value < map.last_page.number - map.radius %}
-    <a href="{{ map.last_page.href }}" class="button button-group__button">{{ map.last_page.number }}</a>
-    {% endif %}
-
-    {# "next" button #}
-    {% if map.current_page.value == map.last_page.number %}
-    <a class="button button-group__button button--disabled">{% trans %}Next{% endtrans %}</a>
-    {% else %}
-    <a href="{{ map.next_page.href }}" class="button button-group__button">{% trans %}Next{% endtrans %}</a>
-    {% endif %}
-</div>
-{% endif %}
+  {% if page.items and page.page_count > 1 %}
+    {% set map = page.link_map() %}
+    <div class="button-group button-group--pagination">
+      {# previous button #}
+      {% if map.current_page.value == map.first_page.number %}
+        <a class="button button-group__button button--disabled">{% trans %}Previous{% endtrans %}</a>
+      {% else %}
+        <a href="{{ map.previous_page.href }}"
+           class="button button-group__button">{% trans %}Previous{% endtrans %}</a>
+      {% endif %}
+      {# show first page button - special case #}
+      {% if map.current_page.value > map.first_page.number + map.radius %}
+        <a href="{{ map.first_page.href }}" class="button button-group__button">{{ map.first_page.number }}</a>
+      {% endif %}
+      {% for p in map.range_pages %}
+        {% if p.type == 'current_page' %}
+          <span class="button button-group__button button--primary">{{ p.number }}</span>
+        {% elif p.type == 'page' %}
+          <a href="{{ p.href }}" class="button button-group__button">{{ p.number }}</a>
+        {% elif p.type == 'span' %}
+          <span class="button button-group__button">...</span>
+        {% endif %}
+      {% endfor %}
+      {# show last page button - special case #}
+      {% if map.current_page.value < map.last_page.number - map.radius %}
+        <a href="{{ map.last_page.href }}" class="button button-group__button">{{ map.last_page.number }}</a>
+      {% endif %}
+      {# "next" button #}
+      {% if map.current_page.value == map.last_page.number %}
+        <a class="button button-group__button button--disabled">{% trans %}Next{% endtrans %}</a>
+      {% else %}
+        <a href="{{ map.next_page.href }}" class="button button-group__button">{% trans %}Next{% endtrans %}</a>
+      {% endif %}
+    </div>
+  {% endif %}
 {%- endmacro %}
