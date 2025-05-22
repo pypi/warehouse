@@ -41,7 +41,7 @@ class HttpPostApplicationOctetFileUploadMechanism(FileUploadMechanism):
 
     def prepare(self, file_upload_session_id):
         return {
-            "upload-url": "http://example.com/upload/{file_upload_session_id}",
+            "upload-url": f"http://example.com/upload/{file_upload_session_id}",
         }
 
 
@@ -50,7 +50,7 @@ UPLOAD_MECHANISMS = {
 }
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(kw_only=True)
 class FileUploadSession:
     filename: str
     size: int
@@ -68,6 +68,14 @@ class FileUploadSession:
     mechanism_details: dict[Any, Any] = dataclasses.field(default_factory=dict)
     _id: uuid.UUID = dataclasses.field(default_factory=uuid.uuid4)
 
+    def serialize(self) -> dict[str, Any]:
+        return {
+            "valid-for": max(
+                0, (self.expiration - datetime.datetime.now(datetime.UTC)).seconds
+            ),
+            "mechanism": {self.mechanism.name: self.mechanism_details},
+        }
+
     def prepare(self):
         if self.mechanism:
             if not self.mechanism_details:
@@ -77,6 +85,8 @@ class FileUploadSession:
 
 
 class FileUploadSessionController(Protocol):
+    def serialize(self) -> dict[str, Any]: ...
+
     def action_ready(self) -> None:
         "The File Upload Session was marked as ready"
 
@@ -85,6 +95,9 @@ class FileUploadSessionController(Protocol):
 
     def action_extend(self, seconds: int) -> None:
         "The File Upload Session was requested to be extended"
+
+    def prepare(self) -> None:
+        "Prepare the File Upload Session for upload"
 
     def _process(self) -> None:
         "The File Upload Session is processing a ready file upload"
@@ -104,6 +117,57 @@ def build_file_upload_session():
     complete = builder.state("complete")
     error = builder.state("error")
     canceled = builder.state("canceled")
+
+    @pending.upon(FileUploadSessionController.serialize).loop()
+    def serialize_pending(
+        controller: FileUploadSessionController, file_upload_session: FileUploadSession
+    ):
+        return (
+            file_upload_session.filename,
+            file_upload_session.serialize() | {"status": "pending"},
+        )
+
+    @processing.upon(FileUploadSessionController.serialize).loop()
+    def serialize_processing(
+        controller: FileUploadSessionController, file_upload_session: FileUploadSession
+    ):
+        return (
+            file_upload_session.filename,
+            file_upload_session.serialize() | {"status": "processing"},
+        )
+
+    @complete.upon(FileUploadSessionController.serialize).loop()
+    def serialize_complete(
+        controller: FileUploadSessionController, file_upload_session: FileUploadSession
+    ):
+        return (
+            file_upload_session.filename,
+            file_upload_session.serialize() | {"status": "complete"},
+        )
+
+    @error.upon(FileUploadSessionController.serialize).loop()
+    def serialize_error(
+        controller: FileUploadSessionController, file_upload_session: FileUploadSession
+    ):
+        return (
+            file_upload_session.filename,
+            file_upload_session.serialize() | {"status": "error"},
+        )
+
+    @canceled.upon(FileUploadSessionController.serialize).loop()
+    def serialize_canceled(
+        controller: FileUploadSessionController, file_upload_session: FileUploadSession
+    ):
+        return (
+            file_upload_session.filename,
+            file_upload_session.serialize() | {"status": "canceled"},
+        )
+
+    @pending.upon(FileUploadSessionController.prepare).loop()
+    def prepare(
+        controller: FileUploadSessionController, file_upload_session: FileUploadSession
+    ) -> None:
+        file_upload_session.prepare()
 
     @pending.upon(FileUploadSessionController._process).to(processing)
     def _process(
@@ -164,21 +228,38 @@ def build_file_upload_session():
 FileUploadSessionFactory = build_file_upload_session()
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(kw_only=True)
 class UploadSession:
     project: str
     version: str
-    file_upload_sessions: list[FileUploadSession]
-
-    notices: list[str]
 
     nonce: str = ""
+    file_upload_sessions: list[FileUploadSession] = dataclasses.field(
+        default_factory=list
+    )
+    notices: list[str] = dataclasses.field(default_factory=list)
     expiration: datetime.datetime = dataclasses.field(
         default_factory=lambda: datetime.datetime.now(datetime.UTC)
         + datetime.timedelta(days=1)
     )
     _token: str | None = None
     _id: uuid.UUID = dataclasses.field(default_factory=uuid.uuid4)
+
+    def serialize(self):
+        return {
+            "mechanisms": [UPLOAD_MECHANISMS.keys()],
+            "session-token": self._token,
+            "valid-for": max(
+                0, (self.expiration - datetime.datetime.now(datetime.UTC)).seconds
+            ),
+            "files": dict(
+                [
+                    file_upload_session.serialize()
+                    for file_upload_session in self.file_upload_sessions
+                ]
+            ),
+            "notices": self.notices,
+        }
 
     def create_file_upload_session(
         self,
@@ -254,6 +335,8 @@ class UploadSessionController(Protocol):
     def _revalidate(self) -> None:
         "The Upload Session should be revalidated"
 
+    def serialize(self) -> dict[str, Any]: ...
+
 
 def build_upload_session():
     builder = automat.TypeMachineBuilder(UploadSessionController, UploadSession)
@@ -262,6 +345,30 @@ def build_upload_session():
     published = builder.state("published")
     error = builder.state("error")
     canceled = builder.state("canceled")
+
+    @pending.upon(UploadSessionController.serialize).loop()
+    def serialize_pending(
+        controller: UploadSessionController, upload_session: UploadSession
+    ):
+        return upload_session.serialize() | {"status": "pending"}
+
+    @published.upon(UploadSessionController.serialize).loop()
+    def serialize_published(
+        controller: UploadSessionController, upload_session: UploadSession
+    ):
+        return upload_session.serialize() | {"status": "published"}
+
+    @error.upon(UploadSessionController.serialize).loop()
+    def serialize_error(
+        controller: UploadSessionController, upload_session: UploadSession
+    ):
+        return upload_session.serialize() | {"status": "error"}
+
+    @canceled.upon(UploadSessionController.serialize).loop()
+    def serialize_canceled(
+        controller: UploadSessionController, upload_session: UploadSession
+    ):
+        return upload_session.serialize() | {"status": "canceled"}
 
     @pending.upon(UploadSessionController.create_file_upload_session).loop()
     @error.upon(UploadSessionController.create_file_upload_session).loop()
@@ -341,3 +448,17 @@ def build_upload_session():
 
 
 UploadSessionFactory = build_upload_session()
+
+if __name__ == "__main__":
+    from pprint import pprint
+
+    upload_session = UploadSessionFactory(
+        UploadSession(project="wutang", version="6.6.69")
+    )
+    pprint(upload_session.serialize())
+    file_upload_session = upload_session.create_file_upload_session(
+        "wutang-6.6.69.tar.gz", 420, {}, "", "http-post-application-octet-stream"
+    )
+    pprint(upload_session.serialize())
+    file_upload_session.action_ready()
+    pprint(upload_session.serialize())
