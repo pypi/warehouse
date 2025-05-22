@@ -11,12 +11,12 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-
 {% if request.has_permission(Permissions.AdminUsersRead) %}
-<div class="admin-include split-layout split-layout--middle">
-  <span><b>Admin tools</b></span>
-  <div>
-    <a href="{{ request.route_path('admin.user.detail', username=user.username) }}" class="button button--small button--primary package-description__edit-button">View user in admin</a>
+  <div class="admin-include split-layout split-layout--middle">
+    <span><b>Admin tools</b></span>
+    <div>
+      <a href="{{ request.route_path('admin.user.detail', username=user.username) }}"
+         class="button button--small button--primary package-description__edit-button">View user in admin</a>
+    </div>
   </div>
-</div>
 {% endif %}
