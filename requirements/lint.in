@@ -1,6 +1,6 @@
+djlint
 flake8
 flake8-pytest-style
-curlylint
 pep8-naming
 black==25.1.0
 isort>=5.13.1
