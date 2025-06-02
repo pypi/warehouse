@@ -974,9 +974,9 @@ jsonschema-specifications==2025.4.1 \
     # via
     #   jsonschema
     #   openapi-schema-validator
-kombu[redis]==5.5.3 \
-    --hash=sha256:021a0e11fcfcd9b0260ef1fb64088c0e92beb976eb59c1dfca7ddd4ad4562ea2 \
-    --hash=sha256:5b0dbceb4edee50aa464f59469d34b97864be09111338cfb224a10b6a163909b
+kombu[redis]==5.5.4 \
+    --hash=sha256:886600168275ebeada93b888e831352fe578168342f0d1d5833d88ba0d847363 \
+    --hash=sha256:a12ed0557c238897d8e518f1d1fdf84bd1516c5e305af2dacd85c2015115feb8
     # via
     #   -r requirements/main.in
     #   celery
@@ -1551,6 +1551,7 @@ packaging==25.0 \
     #   -r requirements/main.in
     #   forcediphttpsadapter
     #   google-cloud-bigquery
+    #   kombu
     #   limits
     #   linehaul
     #   packaging-legacy
