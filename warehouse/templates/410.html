@@ -1,9 +1,9 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "error-base-with-search.html" %}
-
-{% block title %}{% trans %}Page removed (410){% endtrans %}{% endblock %}
-
-{% block error_heading %}{% trans %}The page you are looking for has been removed{% endtrans %}{% endblock %}
-
+{% block title %}
+  {% trans %}Page removed (410){% endtrans %}
+{% endblock %}
+{% block error_heading %}
+  {% trans %}The page you are looking for has been removed{% endtrans %}
+{% endblock %}
 {% block error_code %}410{% endblock %}

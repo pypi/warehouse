@@ -1,11 +1,8 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "confirm-action.html" %}
-
 {% block title %}
-    {% trans %}Confirm Organization Invite{% endtrans %}
+  {% trans %}Confirm Organization Invite{% endtrans %}
 {% endblock %}
-
 {% block prompt %}
   {% if request.user.has_two_factor %}
     {{ super() }}
@@ -13,27 +10,34 @@
     <!-- Content hidden -->
   {% endif %}
 {% endblock %}
-
 {% block main %}
-{% if request.user.has_two_factor %}
-<form method="POST">
-  <div class="form-group">
-    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-    <span class="form-group__text">
-      {% trans organization_name=organization_name, role_name=desired_role %}
-      Would you like to accept this invitation to join '{{ organization_name }}' as an organization {{ role_name }}?
-      {% endtrans %}
-    </span>
-  </div>
-  <div>
-    <input name="accept" type="submit" value="{% trans %}Accept{% endtrans %}" class="button button--primary">
-    <input name="decline" type="submit" value="{% trans %}Decline{% endtrans %}" class="button">
-  </div>
-</form>
-{% else %}{# user has not enabled 2FA #}
-{% trans href=request.route_path('manage.account.two-factor') %}
-You must first enable <a href="{{ href }}">two-factor authentication</a> on your account before accepting an invitation to join an organization.
+  {% if request.user.has_two_factor %}
+    <form method="post">
+      <div class="form-group">
+        <input name="csrf_token"
+               type="hidden"
+               value="{{ request.session.get_csrf_token() }}">
+        <span class="form-group__text">
+          {% trans organization_name=organization_name, role_name=desired_role %}
+          Would you like to accept this invitation to join '{{ organization_name }}' as an organization {{ role_name }}?
+        {% endtrans %}
+      </span>
+    </div>
+    <div>
+      <input name="accept"
+             type="submit"
+             value="{% trans %}Accept{% endtrans %}"
+             class="button button--primary">
+      <input name="decline"
+             type="submit"
+             value="{% trans %}Decline{% endtrans %}"
+             class="button">
+    </div>
+  </form>
+{% else %}
+  {# user has not enabled 2FA #}
+  {% trans href=request.route_path('manage.account.two-factor') %}
+  You must first enable <a href="{{ href }}">two-factor authentication</a> on your account before accepting an invitation to join an organization.
 {% endtrans %}
 {% endif %}
-
 {% endblock %}

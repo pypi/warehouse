@@ -26,7 +26,7 @@
 
 {% block content %}
 {% if request.has_permission(Permissions.AdminEmailsWrite) %}
-<form method="POST" action={{ request.route_path('admin.emails.mass') }} enctype="multipart/form-data">
+<form method="post" action={{ request.route_path('admin.emails.mass') }} enctype="multipart/form-data">
   <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
   <div class="card card-primary card-outline">
     <div class="card-header">

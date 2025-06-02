@@ -1,31 +1,32 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "base.html" %}
-
 {% block title %}{{ super() }}{% endblock %}
-
 {% block body %}
-{% if project_name %}
-{% csi request.route_path("includes.administer-project-include", project_name=project_name) %}
-{% endcsi %}
+  {% if project_name %}
+    {% csi request.route_path("includes.administer-project-include", project_name=project_name) %}
+  {% endcsi %}
 {% endif %}
 <div class="viewport-section viewport-section--dark">
   <div class="viewport-section__content">
-    <a href="/">
-      <img alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
+    <a href="{{ request.route_path('index') }}">
+      <img alt="{{ request.registry.settings['site.name'] }}"
+           src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
     </a>
-    <h1 class="viewport-section__heading">{% block error_heading %}{% endblock %}</h1>
-
-    {% block error_search %}{% endblock error_search %}
-
+    <h1 class="viewport-section__heading">
+      {% block error_heading %}{% endblock %}
+    </h1>
+    {% block error_search %}
+    {% endblock error_search %}
     {% block error_text %}
-    <div class="viewport-section__text">
-      <p>
-        <strong>{% trans %}Error code{% endtrans %} {% block error_code %}{% endblock %}</strong>
-        <br>
-        <a href="/">{% trans %}Back to the homepage{% endtrans %}</a>
-      </p>
-    </div>
+      <div class="viewport-section__text">
+        <p>
+          <strong>{% trans %}Error code{% endtrans %}
+            {% block error_code %}{% endblock %}
+          </strong>
+          <br>
+          <a href="{{ request.route_path('index') }}">{% trans %}Back to the homepage{% endtrans %}</a>
+        </p>
+      </div>
     {% endblock error_text %}
   </div>
 </div>

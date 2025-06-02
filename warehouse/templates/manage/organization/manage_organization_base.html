@@ -1,47 +1,39 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "manage/manage_base.html" %}
-
 {% set user = request.user %}
 {% set organizations = user.organizations %}
 {% set active_tab = active_tab|default('collaborators') %}
-
-{% block title %}{% trans organization_name=organization.name %}Manage '{{ organization_name }}'{% endtrans %}{% endblock %}
-
+{% block title %}
+  {% trans organization_name=organization.name %}Manage '{{ organization_name }}'{% endtrans %}
+{% endblock %}
 {# Hide mobile search on manager pages #}
 {% block mobile_search %}{% endblock %}
-
 {% block content %}
   <div class="tabs-container">
     {% block breadcrumbs %}
-    <nav aria-label="{% trans %}Breadcrumbs{% endtrans %}" class="breadcrumbs">
-      <ul>
-        <li class="breadcrumbs__breadcrumb">
-          <a href="{{ request.route_path('manage.organizations') }}">
-            {% trans %}Your account{% endtrans %}
-          </a>
-        </li>
-
-        {# Last breadcrumb can be overriden #}
-        {% block breadcrumb %}
-        <li class="breadcrumbs__breadcrumb">
-          <i class="fa fa-sm fa-sitemap" aria-hidden="true"></i>
-          {{ organization.name }}
-        </li>
-        {% endblock %}
-      </ul>
-    </nav>
+      <nav aria-label="{% trans %}Breadcrumbs{% endtrans %}" class="breadcrumbs">
+        <ul>
+          <li class="breadcrumbs__breadcrumb">
+            <a href="{{ request.route_path('manage.organizations') }}">{% trans %}Your account{% endtrans %}</a>
+          </li>
+          {# Last breadcrumb can be overriden #}
+          {% block breadcrumb %}
+            <li class="breadcrumbs__breadcrumb">
+              <i class="fa fa-sm fa-sitemap" aria-hidden="true"></i>
+              {{ organization.name }}
+            </li>
+          {% endblock %}
+        </ul>
+      </nav>
     {% endblock %}
-
     <div class="vertical-tabs">
       <div class="vertical-tabs__tabs">
-        <div class="sidebar-section">
-          {% include "warehouse:templates/includes/manage/manage-organization-menu.html" %}
-        </div>
+        <div class="sidebar-section">{% include "warehouse:templates/includes/manage/manage-organization-menu.html" %}</div>
       </div>
       <div class="vertical-tabs__panel">
         <!-- mobile nav -->
-        <a href="{{ request.route_path('manage.organizations') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border">
+        <a href="{{ request.route_path('manage.organizations') }}"
+           class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border">
           <i class="fa fa-arrow-left" aria-hidden="true"></i>
           {% trans %}Back to organizations{% endtrans %}
         </a>
@@ -56,7 +48,6 @@
           {% with mode="mobile" %}
             {% include "warehouse:templates/includes/manage/manage-organization-menu.html" %}
           {% endwith %}
-
           {% block main %}{% endblock %}
         </div>
         {% block mobile_tabs_bottom %}{% endblock %}

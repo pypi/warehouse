@@ -1,117 +1,110 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "base.html" %}
-
-{% block title %}{% trans username=user.username %}Profile of {{ username }}{% endtrans %}{% endblock %}
-
-{% block extra_meta %}
-{% if user.date_joined|is_recent %}
-<meta name="googlebot" content="noindex">
-{% endif %}
+{% block title %}
+  {% trans username=user.username %}Profile of {{ username }}{% endtrans %}
 {% endblock %}
-
+{% block extra_meta %}
+  {% if user.date_joined|is_recent %}<meta name="googlebot" content="noindex">{% endif %}
+{% endblock %}
 {% block canonical_url %}{{ request.canonical_url(username=user.username) }}{% endblock %}
-
 {% block content %}
-<div class="horizontal-section horizontal-section--medium">
-  <div class="left-layout">
-    <div class="left-layout__sidebar">
-      <div class="author-profile">
-        {% set alt = gettext("Avatar for {user} from gravatar.com").format(user=user.name|default(user.username, true)) %}
-        {% set email = 'hidden@pypi.org' if user.hide_avatar else user.email %}
-        <img src="{{ gravatar(request, email, size=225) }}" alt="{{ alt }}" title="{{ alt }}">
-        <div class="author-profile__info">
-          {% if user.name %}
-          <h1 class="author-profile__name">{{ user.name }}</h1>
-          {% endif %}
-          <div class="author-profile__meta">
-            <div class="author-profile__metadiv">
-              <i class="fa fa-user-circle" aria-hidden="true"></i>
-              <span class="sr-only">{% trans %}Username{% endtrans %}</span>
-              &nbsp;&nbsp;
-              <span class="break">{{ user.username }}</span>
-            </div>
-            {% if user.public_email %}
-            {% csi request.route_url("includes.profile-public-email", username=user.username), 'div class="author-profile__metadiv"' %}
-            {% endcsi %}
+  <div class="horizontal-section horizontal-section--medium">
+    <div class="left-layout">
+      <div class="left-layout__sidebar">
+        <div class="author-profile">
+          {% set alt = gettext("Avatar for {user} from gravatar.com").format(user=user.name|default(user.username, true)) %}
+          {% set email = 'hidden@pypi.org' if user.hide_avatar else user.email %}
+          <img src="{{ gravatar(request, email, size=225) }}"
+               alt="{{ alt }}"
+               title="{{ alt }}">
+          <div class="author-profile__info">
+            {% if user.name %}<h1 class="author-profile__name">{{ user.name }}</h1>{% endif %}
+            <div class="author-profile__meta">
+              <div class="author-profile__metadiv">
+                <i class="fa fa-user-circle" aria-hidden="true"></i>
+                <span class="sr-only">{% trans %}Username{% endtrans %}</span>
+                &nbsp;&nbsp;
+                <span class="break">{{ user.username }}</span>
+              </div>
+              {% if user.public_email %}
+                {% csi request.route_url("includes.profile-public-email", username=user.username), 'div class="author-profile__metadiv"' %}
+              {% endcsi %}
             {% endif %}
             {% if user.date_joined %}
-            <div class="author-profile__metadiv">
-              <i class="fa fa-calendar-alt" aria-hidden="true"></i>
-              <span class="sr-only">{% trans %}Date joined{% endtrans %}</span>
-              &nbsp;&nbsp;{% trans start_date=humanize(user.date_joined) %}Joined {{ start_date }}{% endtrans %}
-            </div>
+              <div class="author-profile__metadiv">
+                <i class="fa fa-calendar-alt" aria-hidden="true"></i>
+                <span class="sr-only">{% trans %}Date joined{% endtrans %}</span>
+                &nbsp;&nbsp;{% trans start_date=humanize(user.date_joined) %}Joined {{ start_date }}{% endtrans %}
+              </div>
             {% endif %}
           </div>
           {% csi request.route_path("includes.profile-actions", username=user.username) %}
-          {% endcsi %}
-        </div>
-
+        {% endcsi %}
       </div>
-    </div>
-
-    {% csi request.route_path("includes.administer-user-include", user_name=user.username) %}
-    {% endcsi %}
-
-    <div class="left-layout__main">
-      {% set project_count = live_projects|length + archived_projects|length %}
-      <h2>
-        {% if project_count %}
-          {% trans count=project_count %}
-            {{ count }} project
-          {% pluralize %}
-            {{ count }} projects
-          {% endtrans %}
-        {% else %}
-          {% trans %}No projects{% endtrans %}
-        {% endif %}
-      </h2>
-      <div class="package-list">
-        {% if project_count %}
-        {% for project in live_projects %}
-        <a class="package-snippet" href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
-          <h3 class="package-snippet__title">{{ project.name }}</h3>
-          <p class="package-snippet__meta">
-            {% trans release_date=humanize(project.created) %}Last released {{ release_date }}{% endtrans %}
-          </p>
-          <p class="package-snippet__description">{{ project.summary }}</p>
-        </a>
-        {% endfor %}
-        {% else %}
-          {% csi request.route_url("includes.current-user-profile-callout", username=user.username) %}
-          <div class="callout-block no-top-margin">
-            <p>{% trans user=user.name|default(user.username, true) %}{{ user }} has not uploaded any projects to PyPI, yet{% endtrans %}</p>
-          </div>
-          {% endcsi %}
-        {% endif %}
-      </div>
-
-      {% if archived_projects %}
-      <h3>
-        {% trans count=archived_projects|length, href=request.route_url('help') %}
-          {{ count }} <a href="{{ href }}#archived-project">archived</a> project
-        {% pluralize %}
-          {{ count }} <a href="{{ href }}#archived-project">archived</a> projects
-        {% endtrans %}
-      </h3>
-      <div class="package-list">
-        {% for project in archived_projects %}
-        <a class="package-snippet" href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
-          <h3 class="package-snippet__title">
-            {{ project.name }}
-            <span class="badge badge--warning">{% trans %}Archived{% endtrans %}</span>
-          </h3>
-          <p class="package-snippet__meta">
-            {% trans release_date=humanize(project.created) %}Last released {{ release_date }}{% endtrans %}
-          </p>
-          <p class="package-snippet__description">{{ project.summary }}</p>
-        </a>
-        {% endfor %}
-      </div>
-      {% endif %}
     </div>
   </div>
+  {% csi request.route_path("includes.administer-user-include", user_name=user.username) %}
+{% endcsi %}
+<div class="left-layout__main">
+  {% set project_count = live_projects|length + archived_projects|length %}
+  <h2>
+    {% if project_count %}
+      {% trans count=project_count %}
+      {{ count }} project
+    {% pluralize %}
+      {{ count }} projects
+    {% endtrans %}
+  {% else %}
+    {% trans %}No projects{% endtrans %}
+  {% endif %}
+</h2>
+<div class="package-list">
+  {% if project_count %}
+    {% for project in live_projects %}
+      <a class="package-snippet"
+         href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
+        <h3 class="package-snippet__title">{{ project.name }}</h3>
+        <p class="package-snippet__meta">
+          {% trans release_date=humanize(project.created) %}Last released {{ release_date }}{% endtrans %}
+        </p>
+        <p class="package-snippet__description">{{ project.summary }}</p>
+      </a>
+    {% endfor %}
+  {% else %}
+    {% csi request.route_url("includes.current-user-profile-callout", username=user.username) %}
+    <div class="callout-block no-top-margin">
+      <p>
+        {% trans user=user.name|default(user.username, true) %}{{ user }} has not uploaded any projects to PyPI, yet{% endtrans %}
+      </p>
+    </div>
+  {% endcsi %}
+{% endif %}
 </div>
-
-
+{% if archived_projects %}
+  <h3>
+    {% trans count=archived_projects|length, href=request.route_url('help') %}
+    {{ count }} <a href="{{ href }}#archived-project">archived</a> project
+  {% pluralize %}
+    {{ count }} <a href="{{ href }}#archived-project">archived</a> projects
+  {% endtrans %}
+</h3>
+<div class="package-list">
+  {% for project in archived_projects %}
+    <a class="package-snippet"
+       href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
+      <h3 class="package-snippet__title">
+        {{ project.name }}
+        <span class="badge badge--warning">{% trans %}Archived{% endtrans %}</span>
+      </h3>
+      <p class="package-snippet__meta">
+        {% trans release_date=humanize(project.created) %}Last released {{ release_date }}{% endtrans %}
+      </p>
+      <p class="package-snippet__description">{{ project.summary }}</p>
+    </a>
+  {% endfor %}
+</div>
+{% endif %}
+</div>
+</div>
+</div>
 {% endblock %}

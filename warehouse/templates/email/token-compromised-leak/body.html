@@ -1,54 +1,51 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "email/_base/body.html" %}
-
-{% set site_name=request.registry.settings["site.name"] %}
-
+{% set site_name = request.registry.settings["site.name"] %}
 {% block content %}
-<h3>What?</h3>
-<p>
-  A third party ({{ origin.name }}) has informed us that a {{ site_name }} API token
-  associated with your account "{{ username }}" was found to be accessible at the
-  following public URL. We have automatically revoked this token.
-</p>
-
-<p><a href="{{ public_url }}">{{ public_url }}</a></p>
-
-<h3>What should I do?</h3>
-<p>
-  First, we recommend that you inspect the public page where the token
-  appeared. Please investigate whether this is the result of an error on your side or if
-  someone else acquired and published your token.
-</p>
-<p>
-  If the token was not published by you, it means it was stolen, either from you or from
-  someone with access to your account on {{ site_name }}. We urge you to take all the
-  necessary steps to secure all your credentials.
-</p>
-<p>
-  Once you have taken the applicable steps to ensure the token will not become public
-  again, you're welcome to generate a new one. Log into your account and head to your
-  profile page to create a new API token. You will need to update your existing
-  integrations with the new token.
-</p>
-<p>
-  Lastly, please review the releases of all your packages. You should make
-  sure a third party did not use your publicly accessible token to impersonate
-  you and release a malicious package.
-</p>
-<h3>How do you know this?</h3>
-<p>
-  This is an automated message. Our partner {{ origin.name }} analyzes all the data it
-  receives for unintentional {{ site_name }} token publications and warns us every time
-  it finds one. We check every disclosure we recieve and take action when the token
-  appears
-  valid.
-</p>
-<p>
-  For more information, see our
-  <a href="{{ request.help_url(_anchor='compromised-token') }}">FAQ</a>.
-  For help, you can email
-  <a href="mailto:admin@pypi.org">admin@pypi.org</a> to communicate with the PyPI
-  administrators.
-</p>
+  <h3>What?</h3>
+  <p>
+    A third party ({{ origin.name }}) has informed us that a {{ site_name }} API token
+    associated with your account "{{ username }}" was found to be accessible at the
+    following public URL. We have automatically revoked this token.
+  </p>
+  <p>
+    <a href="{{ public_url }}">{{ public_url }}</a>
+  </p>
+  <h3>What should I do?</h3>
+  <p>
+    First, we recommend that you inspect the public page where the token
+    appeared. Please investigate whether this is the result of an error on your side or if
+    someone else acquired and published your token.
+  </p>
+  <p>
+    If the token was not published by you, it means it was stolen, either from you or from
+    someone with access to your account on {{ site_name }}. We urge you to take all the
+    necessary steps to secure all your credentials.
+  </p>
+  <p>
+    Once you have taken the applicable steps to ensure the token will not become public
+    again, you're welcome to generate a new one. Log into your account and head to your
+    profile page to create a new API token. You will need to update your existing
+    integrations with the new token.
+  </p>
+  <p>
+    Lastly, please review the releases of all your packages. You should make
+    sure a third party did not use your publicly accessible token to impersonate
+    you and release a malicious package.
+  </p>
+  <h3>How do you know this?</h3>
+  <p>
+    This is an automated message. Our partner {{ origin.name }} analyzes all the data it
+    receives for unintentional {{ site_name }} token publications and warns us every time
+    it finds one. We check every disclosure we recieve and take action when the token
+    appears
+    valid.
+  </p>
+  <p>
+    For more information, see our
+    <a href="{{ request.help_url(_anchor='compromised-token') }}">FAQ</a>.
+    For help, you can email
+    <a href="mailto:admin@pypi.org">admin@pypi.org</a> to communicate with the PyPI
+    administrators.
+  </p>
 {% endblock %}

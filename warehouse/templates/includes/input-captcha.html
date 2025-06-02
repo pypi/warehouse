@@ -1,21 +1,20 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% macro captcha_html(request, form) -%}
   {% set captcha_svc = request.find_service(name="captcha") %}
   {% if captcha_svc.enabled %}
-  <div class="{{ captcha_svc.class_name }}" data-sitekey="{{ captcha_svc.site_key }}"></div>
+    <div class="{{ captcha_svc.class_name }}"
+         data-sitekey="{{ captcha_svc.site_key }}"></div>
     {% if form.g_recaptcha_response.errors %}
-    <ul class="form-errors">
-      {% for error in form.g_recaptcha_response.errors %}
-      <li>{{ error }}</li>
-      {% endfor %}
-    </ul>
+      <ul class="form-errors">
+        {% for error in form.g_recaptcha_response.errors %}<li>{{ error }}</li>{% endfor %}
+      </ul>
     {% endif %}
   {% endif %}
 {%- endmacro %}
-
 {% macro captcha_src(request) -%}
   {% if request.find_service(name="captcha").enabled %}
-    <script src="{{ request.find_service(name="captcha").script_src_url }}" async defer></script>
+    <script src="{{ request.find_service(name="captcha").script_src_url }}"
+            async
+            defer></script>
   {% endif %}
 {%- endmacro %}

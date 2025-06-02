@@ -1,39 +1,59 @@
-{# SPDX-License-Identifier: Apache-2.0 -#}
-
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
 {% if request.user %}
   {% if not request.user.primary_email.verified %}
-  <div class="notification-bar notification-bar--warning" role="status">
-    <span class="notification-bar__icon">
-      <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-      <span class="sr-only">{% trans %}Warning{% endtrans %}</span>
-    </span>
-    <span class="notification-bar__message">
-      {% if request.user.primary_email %}
-      {% trans email_address=request.user.primary_email.email %}Your primary email address ({{ email_address }}) is unverified.{% endtrans %}
-      {% else %}
-      {% trans %}You do not have a primary email address.{% endtrans %}
-      {% endif %}
-      <a href="{{ request.route_path('manage.account', _anchor="account-emails") }}">
-        {% trans %}Verify your email or add a new address.{% endtrans %}
-      </a>
-    </span>
-  </div>
+    <div class="notification-bar notification-bar--warning" role="status">
+      <span class="notification-bar__icon">
+        <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+        <span class="sr-only">{% trans %}Warning{% endtrans %}</span>
+      </span>
+      <span class="notification-bar__message">
+        {% if request.user.primary_email %}
+          {% trans email_address=request.user.primary_email.email %}Your primary email address ({{ email_address }}) is unverified.{% endtrans %}
+        {% else %}
+          {% trans %}You do not have a primary email address.{% endtrans %}
+        {% endif %}
+        <a href="{{ request.route_path('manage.account', _anchor="account-emails") }}">
+          {% trans %}Verify your email or add a new address.{% endtrans %}
+        </a>
+      </span>
+    </div>
   {% elif request.referrer and not request.referrer.endswith(request.route_path('manage.account.two-factor')) and not request.user.has_two_factor %}
-  <div class="notification-bar notification-bar--dismissable" data-controller="notification" data-notification-target="notification">
-    <span class="notification-bar__message">
-      {% trans href=request.route_path('manage.account.two-factor') %}
+    <div class="notification-bar notification-bar--dismissable"
+         data-controller="notification"
+         data-notification-target="notification">
+      <span class="notification-bar__message">
+        {% trans href=request.route_path('manage.account.two-factor') %}
         Two factor authentication is available, <a href="{{ href }}">enable it now for your account.</a>
       {% endtrans %}
     </span>
-    <button type="button" title="Dismiss this notification" data-notification-target="dismissButton" data-action="click->notification#dismiss" class="notification-bar__dismiss" aria-label="{% trans %}Close{% endtrans %}"><i class="fa fa-times" aria-hidden="true"></i></button>
+    <button type="button"
+            title="Dismiss this notification"
+            data-notification-target="dismissButton"
+            data-action="click->notification#dismiss"
+            class="notification-bar__dismiss"
+            aria-label="{% trans %}Close{% endtrans %}">
+      <i class="fa fa-times" aria-hidden="true"></i>
+    </button>
   </div>
-  {% elif request.referrer and not request.referrer.endswith(request.route_path('manage.account.two-factor')) and not request.user.has_recovery_codes %}
+{% elif request.referrer and not request.referrer.endswith(request.route_path('manage.account.two-factor')) and not request.user.has_recovery_codes %}
   <div class="notification-bar notification-bar--warning">
     <span class="notification-bar__message">
       {% trans href=request.route_path('manage.account.two-factor') %}
-        Two-factor recovery codes are available, <a href="{{ href }}">generate them now for your account.</a>
-      {% endtrans %}
-    </span>
-  </div>
-  {% endif %}
+      Two-factor recovery codes are available, <a href="{{ href }}">generate them now for your account.</a>
+    {% endtrans %}
+  </span>
+</div>
+{% endif %}
 {% endif %}

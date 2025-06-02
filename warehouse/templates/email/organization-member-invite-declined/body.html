@@ -1,16 +1,11 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "email/_base/body.html" %}
-
-
 {% block content %}
-<p>
-  {% trans username=username, user_profile=request.route_url('accounts.profile', username=username), organization_name=organization_name %}<a href="{{ user_profile }}">{{ username }}</a> has declined an invitation to join the "{{ organization_name }}" organization{% endtrans %}.
-</p>
-<p>{{ message|default('') }}</p>
+  <p>
+    {% trans username=username, user_profile=request.route_url('accounts.profile', username=username), organization_name=organization_name %}<a href="{{ user_profile }}">{{ username }}</a> has declined an invitation to join the "{{ organization_name }}" organization{% endtrans %}.
+  </p>
+  <p>{{ message|default("") }}</p>
 {% endblock %}
-
-
 {% block reason %}
-{% trans %}You are receiving this because you are an owner of this organization.{% endtrans %}
+  {% trans %}You are receiving this because you are an owner of this organization.{% endtrans %}
 {% endblock %}

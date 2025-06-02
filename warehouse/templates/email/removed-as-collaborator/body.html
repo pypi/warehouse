@@ -1,14 +1,9 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "email/_base/body.html" %}
-
 {% set site = request.registry.settings["site.name"] %}
-
 {% block content %}
-<p>You have been removed as collaborator by {{ submitter }} from {{ project }} on {{ site }}.</p>
+  <p>You have been removed as collaborator by {{ submitter }} from {{ project }} on {{ site }}.</p>
 {% endblock %}
-
-
 {% block reason %}
-You are receiving this because you were removed as a collaborator by {{ submitter }} from {{ project }}.
+  You are receiving this because you were removed as a collaborator by {{ submitter }} from {{ project }}.
 {% endblock %}

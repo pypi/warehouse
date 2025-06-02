@@ -1,122 +1,113 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "manage_team_base.html" %}
-
 {% import "warehouse:templates/includes/pagination.html" as pagination %}
-
-{% set active_tab = 'history' %}
-
-{% block title %}{% trans source_name=team.name %}'{{ source_name }}' security history{% endtrans %}{% endblock %}
-
+{% set active_tab = "history" %}
+{% block title %}
+  {% trans source_name=team.name %}'{{ source_name }}' security history{% endtrans %}
+{% endblock %}
 {% block main %}
   <h2>{% trans %}Security history{% endtrans %}</h2>
-
-  <p>{% trans %}Each time you (or your collaborators) perform a security action related to this team, the action is recorded and displayed here.{% endtrans %}</p>
-
+  <p>
+    {% trans %}Each time you (or your collaborators) perform a security action related to this team, the action is recorded and displayed here.{% endtrans %}
+  </p>
   {% macro event_summary(event) -%}
     {# Keep in sync with: warehouse/events/tags.py #}
-
     {# Display action for team events #}
     {% if event.tag == EventTag.Team.TeamCreate %}
-    <strong>{% trans team_name=event.additional.team_name %}{{ team_name }} team created{% endtrans %}</strong>
+      <strong>{% trans team_name=event.additional.team_name %}{{ team_name }} team created{% endtrans %}</strong>
     {% elif event.tag == EventTag.Team.TeamDelete %}
-    <strong>{% trans team_name=event.additional.team_name %}{{ team_name }} team deleted{% endtrans %}</strong>
+      <strong>{% trans team_name=event.additional.team_name %}{{ team_name }} team deleted{% endtrans %}</strong>
     {% elif event.tag == EventTag.Team.TeamRename %}
-    <strong>{% trans team_name=event.additional.team_name, previous_team_name=event.additional.previous_team_name %}{{ previous_team_name }} team renamed to {{ team_name }}{% endtrans %}</strong>
-
-    {# Display action for team project role events #}
+      <strong>{% trans team_name=event.additional.team_name, previous_team_name=event.additional.previous_team_name %}{{ previous_team_name }} team renamed to {{ team_name }}{% endtrans %}</strong>
+      {# Display action for team project role events #}
     {% elif event.tag == EventTag.Team.TeamProjectRoleAdd %}
-    <strong>
-      {% trans team_name=event.additional.team_name, role_name=event.additional.role_name|lower, href=request.route_path('packaging.project', name=event.additional.project_name|canonicalize_name), project_name=event.additional.project_name %}{{ team_name }} team added as project {{ role_name }} for <a href="{{ href }}">{{ project_name }}</a>{% endtrans %}
-    </strong>
+      <strong>
+        {% trans team_name=event.additional.team_name, role_name=event.additional.role_name|lower, href=request.route_path('packaging.project', name=event.additional.project_name|canonicalize_name), project_name=event.additional.project_name %}{{ team_name }} team added as project {{ role_name }} for <a href="{{ href }}">{{ project_name }}</a>{% endtrans %}
+      </strong>
     {% elif event.tag == EventTag.Team.TeamProjectRoleRemove %}
-    <strong>
-      {% trans team_name=event.additional.team_name, role_name=event.additional.role_name|lower, href=request.route_path('packaging.project', name=event.additional.project_name|canonicalize_name), project_name=event.additional.project_name %}{{ team_name }} team removed as project {{ role_name }} for <a href="{{ href }}">{{ project_name }}</a>{% endtrans %}
-    </strong>
+      <strong>
+        {% trans team_name=event.additional.team_name, role_name=event.additional.role_name|lower, href=request.route_path('packaging.project', name=event.additional.project_name|canonicalize_name), project_name=event.additional.project_name %}{{ team_name }} team removed as project {{ role_name }} for <a href="{{ href }}">{{ project_name }}</a>{% endtrans %}
+      </strong>
     {% elif event.tag == EventTag.Team.TeamProjectRoleChange %}
-    <strong>
-      {% trans team_name=event.additional.team_name, role_name=event.additional.role_name|lower, href=request.route_path('packaging.project', name=event.additional.project_name|canonicalize_name), project_name=event.additional.project_name %}{{ team_name }} team changed to project {{ role_name }} for <a href="{{ href }}">{{ project_name }}</a>{% endtrans %}
-    </strong>
-
-    {# Display action for team role events #}
+      <strong>
+        {% trans team_name=event.additional.team_name, role_name=event.additional.role_name|lower, href=request.route_path('packaging.project', name=event.additional.project_name|canonicalize_name), project_name=event.additional.project_name %}{{ team_name }} team changed to project {{ role_name }} for <a href="{{ href }}">{{ project_name }}</a>{% endtrans %}
+      </strong>
+      {# Display action for team role events #}
     {% elif event.tag == EventTag.Team.TeamRoleAdd %}
-    {% set target_user = get_user(event.additional.target_user_id).username %}
-    <strong>
-      {% trans href=request.route_path('accounts.profile', username=target_user), username=target_user, team_name=event.additional.team_name %}<a href="{{ href }}">{{ username }}</a> added to {{ team_name }} team{% endtrans %}
-    </strong>
+      {% set target_user = get_user(event.additional.target_user_id).username %}
+      <strong>
+        {% trans href=request.route_path('accounts.profile', username=target_user), username=target_user, team_name=event.additional.team_name %}<a href="{{ href }}">{{ username }}</a> added to {{ team_name }} team{% endtrans %}
+      </strong>
     {% elif event.tag == EventTag.Team.TeamRoleRemove %}
-    <strong>
-      {% trans href=request.route_path('accounts.profile', username=target_user), username=target_user, team_name=event.additional.team_name %}<a href="{{ href }}">{{ username }}</a> removed from {{ team_name }} team{% endtrans %}
-    </strong>
-
+      <strong>
+        {% trans href=request.route_path('accounts.profile', username=target_user), username=target_user, team_name=event.additional.team_name %}<a href="{{ href }}">{{ username }}</a> removed from {{ team_name }} team{% endtrans %}
+      </strong>
     {% else %}
-    <strong>{{ event.tag }}</strong>
+      <strong>{{ event.tag }}</strong>
     {% endif %}
-
     {# Display acting user for team events #}
     {% if event.tag.endswith(":create") %}
-    {% set created_by = get_user(event.additional.created_by_user_id).username %}
-    <small>
-      {% trans %}Created by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=created_by) }}">{{ created_by }}</a>
-    </small>
+      {% set created_by = get_user(event.additional.created_by_user_id).username %}
+      <small>
+        {% trans %}Created by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=created_by) }}">{{ created_by }}</a>
+      </small>
     {% elif event.tag.endswith(":delete") %}
-    {% set deleted_by = get_user(event.additional.deleted_by_user_id).username %}
-    <small>
-      {% trans %}Deleted by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=deleted_by) }}">{{ deleted_by }}</a>
-    </small>
+      {% set deleted_by = get_user(event.additional.deleted_by_user_id).username %}
+      <small>
+        {% trans %}Deleted by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=deleted_by) }}">{{ deleted_by }}</a>
+      </small>
     {% elif event.tag.endswith(":rename") %}
-    {% set renamed_by = get_user(event.additional.renamed_by_user_id).username %}
-    <small>
-      {% trans %}Renamed by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=renamed_by) }}">{{ renamed_by }}</a>
-    </small>
-
-    {# Display submitting user for role events #}
+      {% set renamed_by = get_user(event.additional.renamed_by_user_id).username %}
+      <small>
+        {% trans %}Renamed by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=renamed_by) }}">{{ renamed_by }}</a>
+      </small>
+      {# Display submitting user for role events #}
     {% elif event.tag.endswith(":add") %}
-    {% set submitted_by = get_user(event.additional.submitted_by_user_id).username %}
-    <small>
-      {% trans %}Added by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=submitted_by) }}">{{ submitted_by }}</a>
-    </small>
+      {% set submitted_by = get_user(event.additional.submitted_by_user_id).username %}
+      <small>
+        {% trans %}Added by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=submitted_by) }}">{{ submitted_by }}</a>
+      </small>
     {% elif event.tag.endswith(":remove") %}
-    {% set submitted_by = get_user(event.additional.submitted_by_user_id).username %}
-    <small>
-      {% trans %}Removed by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=submitted_by) }}">{{ submitted_by }}</a>
-    </small>
+      {% set submitted_by = get_user(event.additional.submitted_by_user_id).username %}
+      <small>
+        {% trans %}Removed by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=submitted_by) }}">{{ submitted_by }}</a>
+      </small>
     {% elif event.tag.endswith(":change") %}
-    {% set submitted_by = get_user(event.additional.submitted_by_user_id).username %}
-    <small>
-      {% trans %}Changed by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=submitted_by) }}">{{ submitted_by }}</a>
-    </small>
+      {% set submitted_by = get_user(event.additional.submitted_by_user_id).username %}
+      <small>
+        {% trans %}Changed by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=submitted_by) }}">{{ submitted_by }}</a>
+      </small>
     {% endif %}
   {%- endmacro %}
-
   {% if events %}
-  <table class="table table--security-logs">
-    <caption class="sr-only">{% trans source_name=team.name %}Security history for {{ source_name }}{% endtrans %}</caption>
-    <thead>
-      <tr>
-        <th scope="col">{% trans %}Event{% endtrans %}</th>
-        <th scope="col">{% trans %}Time{% endtrans %}</th>
-        <th scope="col">{% trans %}Additional Info{% endtrans %}</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for event in events %}
-      <tr>
-        <td>{{ event_summary(event) }}</td>
-        <td>
-          <span class="table__mobile-label">{% trans %}Time{% endtrans %}</span>
-          {{ humanize(event.time, time="true") }}
-        </td>
-        <td>
-          <span class="table__mobile-label">{% trans %}Location info{% endtrans %}</span>
-          {{ "Redacted" if event.additional.redact_ip else event.location_info }}<br>
-          <span class="table__mobile-label">{% trans %}Device Info{% endtrans %}</span>
-          {{ event.user_agent_info }}
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  {{ pagination.paginate(events) }}
+    <table class="table table--security-logs">
+      <caption class="sr-only">{% trans source_name=team.name %}Security history for {{ source_name }}{% endtrans %}</caption>
+      <thead>
+        <tr>
+          <th scope="col">{% trans %}Event{% endtrans %}</th>
+          <th scope="col">{% trans %}Time{% endtrans %}</th>
+          <th scope="col">{% trans %}Additional Info{% endtrans %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for event in events %}
+          <tr>
+            <td>{{ event_summary(event) }}</td>
+            <td>
+              <span class="table__mobile-label">{% trans %}Time{% endtrans %}</span>
+              {{ humanize(event.time, time="true") }}
+            </td>
+            <td>
+              <span class="table__mobile-label">{% trans %}Location info{% endtrans %}</span>
+              {{ "Redacted" if event.additional.redact_ip else event.location_info }}
+              <br>
+              <span class="table__mobile-label">{% trans %}Device Info{% endtrans %}</span>
+              {{ event.user_agent_info }}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {{ pagination.paginate(events) }}
   {% endif %}
 {% endblock %}

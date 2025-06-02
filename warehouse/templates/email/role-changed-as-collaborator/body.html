@@ -1,21 +1,16 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "email/_base/body.html" %}
-
 {% set site = request.registry.settings["site.name"] %}
-
 {% block content %}
-<p>
-  Your role in the {{ project }} project has been changed by {{ submitter }}.
-
-  {% if role == 'Owner' %}
-  As project <strong>Owner</strong>, you now have permissions to administer the project. You can add other collaborators, upload releases and delete files, releases or the entire project.
-  {% elif role == 'Maintainer' %}
-  As project <strong>Maintainer</strong>, you now have permissions to upload releases for the project. You can upload releases but cannot add collaborators, delete files, releases or the project.
-  {% endif %}
-</p>
+  <p>
+    Your role in the {{ project }} project has been changed by {{ submitter }}.
+    {% if role == 'Owner' %}
+      As project <strong>Owner</strong>, you now have permissions to administer the project. You can add other collaborators, upload releases and delete files, releases or the entire project.
+    {% elif role == 'Maintainer' %}
+      As project <strong>Maintainer</strong>, you now have permissions to upload releases for the project. You can upload releases but cannot add collaborators, delete files, releases or the project.
+    {% endif %}
+  </p>
 {% endblock %}
-
 {% block reason %}
-You are receiving this because your role was changed by {{ submitter }} on the {{ project }} project.
+  You are receiving this because your role was changed by {{ submitter }} on the {{ project }} project.
 {% endblock %}

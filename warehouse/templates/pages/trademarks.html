@@ -1,40 +1,48 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "base.html" %}
-{% block title %}{% trans %}Trademarks{% endtrans %}{% endblock %}
-
+{% block title %}
+  {% trans %}Trademarks{% endtrans %}
+{% endblock %}
 {% block content %}
   <div class="horizontal-section">
     <div class="narrow-container">
       <h1 class="page-title">{% trans %}PyPI Trademarks{% endtrans %}</h1>
-      <div>
-        {{ trademarks(long=True) }}
-      </div>
+      <div>{{ trademarks(long=True) }}</div>
       <h2>{% trans %}Wordmarks{% endtrans %}</h2>
       "<b>PyPI</b>"
       <p>
         <br>
-        {% trans %}USPTO Registration Number{% endtrans %} 5608450<br>
-        {% trans %}International Registration Number{% endtrans %} 1384149<br>
+        {% trans %}USPTO Registration Number{% endtrans %} 5608450
+        <br>
+        {% trans %}International Registration Number{% endtrans %} 1384149
+        <br>
       </p>
       "<b>Python Package Index</b>"
       <p>
         <br>
-        {% trans %}USPTO Registration Number{% endtrans %} 5764496<br>
-        {% trans %}International Registration Number{% endtrans %} 1382296<br>
+        {% trans %}USPTO Registration Number{% endtrans %} 5764496
+        <br>
+        {% trans %}International Registration Number{% endtrans %} 1382296
+        <br>
       </p>
       <h2>{% trans %}Logos{% endtrans %}</h2>
-      <img alt="" src="{{ request.static_path('warehouse:static/dist/images/logo-large.svg') }}">
+      <img alt=""
+           src="{{ request.static_path('warehouse:static/dist/images/logo-large.svg') }}">
       <p>
         <br>
-        {% trans %}USPTO Registration Number{% endtrans %} 5764496<br>
-        {% trans %}International Registration Number{% endtrans %} 1382296<br>
+        {% trans %}USPTO Registration Number{% endtrans %} 5764496
+        <br>
+        {% trans %}International Registration Number{% endtrans %} 1382296
+        <br>
       </p>
-      <img alt="" src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
+      <img alt=""
+           src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
       <p>
         <br>
-        {% trans %}USPTO Registration Number{% endtrans %} 5752245<br>
-        {% trans %}International Registration Number{% endtrans %} 1381492<br>
+        {% trans %}USPTO Registration Number{% endtrans %} 5752245
+        <br>
+        {% trans %}International Registration Number{% endtrans %} 1381492
+        <br>
       </p>
     </div>
   </div>

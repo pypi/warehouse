@@ -1,13 +1,9 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "email/_base/body.html" %}
-
 {% set site = request.registry.settings["site.name"] %}
-
 {% block content %}
   {% trans role=role, site=site, project=project, submitter=submitter %}Your team was removed from the {{ site }} project {{ project }} by {{ submitter }}.{% endtrans %}
 {% endblock %}
-
 {% block reason %}
-{% trans submitter=submitter, site=site %}You are receiving this because your team was removed by {{ submitter }} from a project on {{ site }}.{% endtrans %}
+  {% trans submitter=submitter, site=site %}You are receiving this because your team was removed by {{ submitter }} from a project on {{ site }}.{% endtrans %}
 {% endblock %}

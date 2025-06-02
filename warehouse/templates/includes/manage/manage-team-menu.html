@@ -1,31 +1,38 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 <nav aria-label="{% trans team=team.normalized_name %}Navigation for managing {{ team }}{% endtrans %}">
   <ul class="vertical-tabs__list">
     <li>
-      <a href="{{ request.route_path('manage.team.projects', organization_name=team.organization.normalized_name, team_name=team.normalized_name) }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'projects' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'projects' %}aria-selected="true"{% endif %}>
+      <a href="{{ request.route_path('manage.team.projects', organization_name=team.organization.normalized_name, team_name=team.normalized_name) }}"
+         class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'projects' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}"
+         {% if active_tab == 'projects' %}aria-selected="true"{% endif %}>
         <i class="fa fa-lg fa-cubes" aria-hidden="true"></i>
         {% trans %}Projects{% endtrans %}
         <span class="badge badge--neutral">{{ team.projects|length }}</span>
       </a>
     </li>
     <li>
-      <a href="{{ request.route_path('manage.team.roles', organization_name=team.organization.normalized_name, team_name=team.normalized_name) }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'members' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'members' %}aria-selected="true"{% endif %}>
+      <a href="{{ request.route_path('manage.team.roles', organization_name=team.organization.normalized_name, team_name=team.normalized_name) }}"
+         class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'members' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}"
+         {% if active_tab == 'members' %}aria-selected="true"{% endif %}>
         <i class="fa fa-user" aria-hidden="true"></i>
         {% trans %}Members{% endtrans %}
         <span class="badge badge--neutral">{{ team.members|length }}</span>
       </a>
     </li>
     {% if request.has_permission(Permissions.OrganizationTeamsManage) %}
-    <li>
-      <a href="{{ request.route_path('manage.team.history', organization_name=team.organization.normalized_name, team_name=team.normalized_name) }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'history' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'history' %}aria-selected="true"{% endif %}>
-        <i class="fa fa-history" aria-hidden="true"></i>
-        {% trans %}Security history{% endtrans %}
-      </a>
-    </li>
+      <li>
+        <a href="{{ request.route_path('manage.team.history', organization_name=team.organization.normalized_name, team_name=team.normalized_name) }}"
+           class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'history' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}"
+           {% if active_tab == 'history' %}aria-selected="true"{% endif %}>
+          <i class="fa fa-history" aria-hidden="true"></i>
+          {% trans %}Security history{% endtrans %}
+        </a>
+      </li>
     {% endif %}
     <li>
-      <a href="{{ request.route_path('manage.team.settings', organization_name=team.organization.normalized_name, team_name=team.normalized_name) }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'settings' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'settings' %}aria-selected="true"{% endif %}>
+      <a href="{{ request.route_path('manage.team.settings', organization_name=team.organization.normalized_name, team_name=team.normalized_name) }}"
+         class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'settings' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}"
+         {% if active_tab == 'settings' %}aria-selected="true"{% endif %}>
         <i class="fa fa-wrench" aria-hidden="true"></i>
         {% trans %}Settings{% endtrans %}
       </a>

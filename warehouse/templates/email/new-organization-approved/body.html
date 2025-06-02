@@ -1,11 +1,9 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "email/_base/body.html" %}
-
 {% block content %}
-<p>{% trans organization_name=organization_name %}Your new organization named '{{ organization_name }}' has been approved and created.{% endtrans %}</p>
-
-{% trans %}You are the owner of the new organization and can log in to manage organization projects, collaborators, teams, or settings.{% endtrans %}
-
-<p>{{ message }}</p>
+  <p>
+    {% trans organization_name=organization_name %}Your new organization named '{{ organization_name }}' has been approved and created.{% endtrans %}
+  </p>
+  {% trans %}You are the owner of the new organization and can log in to manage organization projects, collaborators, teams, or settings.{% endtrans %}
+  <p>{{ message }}</p>
 {% endblock %}

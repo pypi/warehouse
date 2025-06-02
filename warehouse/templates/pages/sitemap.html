@@ -1,36 +1,54 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "base.html" %}
-
-{% block title %}{% trans %}Site map{% endtrans %}{% endblock %}
-
+{% block title %}
+  {% trans %}Site map{% endtrans %}
+{% endblock %}
 {% block content %}
-<div class="horizontal-section">
-  <div class="narrow-container">
-    <h1 class="page-title">{% trans %}PyPI site map{% endtrans %}</h1>
-
-    <h2 class="no-top-padding">{% trans %}Using PyPI{% endtrans %}</h2>
-    <ul>
-      <li><a href="{{ request.route_path('index') }}">{% trans %}PyPI home{% endtrans %}</a></li>
-      <li><a href="{{ request.route_path('search') }}">{% trans %}Search and filter projects{% endtrans %}</a></li>
-      <li><a href="{{ request.route_path('help') }}">{% trans %}Help{% endtrans %}</a></li>
-    </ul>
-
-    <h2>{% trans %}Authentication{% endtrans %}</h2>
-    <ul>
-      <li><a href="{{ request.route_url('accounts.login') }}">{% trans %}Login{% endtrans %}</a></li>
-      <li><a href="{{ request.route_url('accounts.register') }}">{% trans %}Register{% endtrans %}</a></li>
-      <li><a href="{{ request.route_url('accounts.request-password-reset') }}">{% trans %}Reset your password{% endtrans %}</a></li>
-    </ul>
-
-    <h2>{% trans %}About PyPI{% endtrans %}</h2>
-    <ul>
-      <li><a href="{{ request.route_path('classifiers') }}">{% trans %}Classifiers{% endtrans %}</a></li>
-      <li><a href="{{ request.route_path('stats') }}">{% trans %}Statistics{% endtrans %}</a></li>
-      <li><a href="{{ request.route_path('sponsors') }}">{% trans %}Sponsors{% endtrans %}</a></li>
-      <li><a href="{{ request.route_path('security') }}">{% trans %}Security policy{% endtrans %}</a></li>
-      <li><a href="{{ request.route_url('trademarks') }}">{% trans %}PyPI Trademarks{% endtrans %}</a></li>
-    </ul>
+  <div class="horizontal-section">
+    <div class="narrow-container">
+      <h1 class="page-title">{% trans %}PyPI site map{% endtrans %}</h1>
+      <h2 class="no-top-padding">{% trans %}Using PyPI{% endtrans %}</h2>
+      <ul>
+        <li>
+          <a href="{{ request.route_path('index') }}">{% trans %}PyPI home{% endtrans %}</a>
+        </li>
+        <li>
+          <a href="{{ request.route_path('search') }}">{% trans %}Search and filter projects{% endtrans %}</a>
+        </li>
+        <li>
+          <a href="{{ request.route_path('help') }}">{% trans %}Help{% endtrans %}</a>
+        </li>
+      </ul>
+      <h2>{% trans %}Authentication{% endtrans %}</h2>
+      <ul>
+        <li>
+          <a href="{{ request.route_url('accounts.login') }}">{% trans %}Login{% endtrans %}</a>
+        </li>
+        <li>
+          <a href="{{ request.route_url('accounts.register') }}">{% trans %}Register{% endtrans %}</a>
+        </li>
+        <li>
+          <a href="{{ request.route_url('accounts.request-password-reset') }}">{% trans %}Reset your password{% endtrans %}</a>
+        </li>
+      </ul>
+      <h2>{% trans %}About PyPI{% endtrans %}</h2>
+      <ul>
+        <li>
+          <a href="{{ request.route_path('classifiers') }}">{% trans %}Classifiers{% endtrans %}</a>
+        </li>
+        <li>
+          <a href="{{ request.route_path('stats') }}">{% trans %}Statistics{% endtrans %}</a>
+        </li>
+        <li>
+          <a href="{{ request.route_path('sponsors') }}">{% trans %}Sponsors{% endtrans %}</a>
+        </li>
+        <li>
+          <a href="{{ request.route_path('security') }}">{% trans %}Security policy{% endtrans %}</a>
+        </li>
+        <li>
+          <a href="{{ request.route_url('trademarks') }}">{% trans %}PyPI Trademarks{% endtrans %}</a>
+        </li>
+      </ul>
+    </div>
   </div>
-</div>
 {% endblock %}

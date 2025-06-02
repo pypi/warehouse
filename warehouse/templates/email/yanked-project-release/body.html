@@ -1,23 +1,21 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "email/_base/body.html" %}
-
 {% block content %}
-<p>
-  The {{ project }} release {{ release }} released on {{ release_date }} has been yanked.
-  <ul>
-    <li><strong>Yanked by:</strong> {{ submitter }} with a role: {{ submitter_role }}.</li>
-    <li><strong>Reason:</strong> {{ yanked_reason if yanked_reason else 'None provided' }}</li>
-  </ul>
-</p>
-
-<p>
-  If you have questions or concerns, you can email <a href="mailto:admin@pypi.org">admin@pypi.org</a> to communicate with the PyPI administrators.
-</p>
+  <p>
+    The {{ project }} release {{ release }} released on {{ release_date }} has been yanked.
+    <ul>
+      <li>
+        <strong>Yanked by:</strong> {{ submitter }} with a role: {{ submitter_role }}.
+      </li>
+      <li>
+        <strong>Reason:</strong> {{ yanked_reason if yanked_reason else 'None provided' }}
+      </li>
+    </ul>
+  </p>
+  <p>
+    If you have questions or concerns, you can email <a href="mailto:admin@pypi.org">admin@pypi.org</a> to communicate with the PyPI administrators.
+  </p>
 {% endblock %}
-
 {% block reason %}
-<p>
-  You are receiving this because you are {{ recipient_role_descr }} of this project.
-</p>
+  <p>You are receiving this because you are {{ recipient_role_descr }} of this project.</p>
 {% endblock %}
