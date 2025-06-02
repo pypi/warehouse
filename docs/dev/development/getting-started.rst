@@ -536,6 +536,21 @@ Errors when executing ``make initdb``
   opensearch wants a lot of memory (Dustin gives warehouse ~4GB locally).
   Refer to the tip under :ref:`running-warehouse-containers` section for more details.
 
+* If ``make initdb`` fails with an error like::
+
+    A fatal error has been detected by the Java Runtime Environment:
+    SIGILL (0x4) at pc=0x0000f819dfc67c5c, pid=25, tid=26
+
+  while building the ``warehouse-opensearch`` image, this is a known issue
+  with OpenSearch in Apple M4 processors. A workaround (described in
+  `this comment <https://github.com/elastic/elasticsearch/issues/118583#issuecomment-2567270484>`_)
+  is to add the following line to ``dev/compose/opensearch/Dockerfile.yml`` (after
+  the FROM line):
+
+  .. code-block:: docker
+
+     ENV _JAVA_OPTIONS=-XX:UseSVE=0
+
 
 "no space left on device" when using ``docker compose``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
