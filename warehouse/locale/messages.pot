@@ -1034,6 +1034,7 @@ msgstr ""
 #: warehouse/templates/pages/help.html:980
 #: warehouse/templates/pages/help.html:989
 #: warehouse/templates/pages/help.html:1008
+#: warehouse/templates/pages/help.html:1023
 #: warehouse/templates/pages/help.html:1024
 #: warehouse/templates/pages/help.html:1025
 #: warehouse/templates/pages/help.html:1026
