@@ -9,7 +9,9 @@ for fn in $(find . -type f \( \
             -name "*.scss" -o \
           ! -name "*.min.js" \
             -name "*.js" \) \
+          ! -path "./.cache*" \
           ! -path "./.state*" \
+          ! -path "./.venv*" \
           ! -path "./docs*" \
           ! -path "./htmlcov*" \
           ! -path "./node_modules*" \
@@ -18,7 +20,7 @@ for fn in $(find . -type f \( \
           ! -path "./warehouse/static/html*" \
           ! -path "./warehouse/static/js/vendor*"); do
     # Check for license in first 5 lines (allows for shebang, encoding and handles comment character in various languages)
-    if [[ ! "$(head -5 $fn | grep "^ *\(#\|\*\|\/\/\) .* License\(d*\)")" ]]; then
+    if [[ ! "$(head -5 $fn | grep "^ *\(#\|\*\|\/\/\|\/\*\|{#\).*License")" ]]; then
         echo $fn is missing a license
         EXIT_CODE=1
     fi

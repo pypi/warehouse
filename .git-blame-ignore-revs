@@ -1,0 +1,5 @@
+# .git-blame-ignore-revs
+# Reformatted codebase with black (#3367)
+40fbc32fef7c7ffe41cd18f3f8951578555db1aa
+# Collapsed license headers across codebase (#18217)
+f59df186dc62274b5831a72f639a1e92bbe3f94c
