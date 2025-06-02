@@ -201,9 +201,9 @@ cbor2==5.6.5 \
     --hash=sha256:fde21ac1cf29336a31615a2c469a9cb03cf0add3ae480672d4d38cda467d07fc \
     --hash=sha256:fe11c2eb518c882cfbeed456e7a552e544893c17db66fe5d3230dbeaca6b615c
     # via webauthn
-celery[redis]==5.5.2 \
-    --hash=sha256:4d6930f354f9d29295425d7a37261245c74a32807c45d764bedc286afd0e724e \
-    --hash=sha256:54425a067afdc88b57cd8d94ed4af2ffaf13ab8c7680041ac2c4ac44357bdf4c
+celery[redis]==5.5.3 \
+    --hash=sha256:0b5761a07057acee94694464ca482416b959568904c9dfa41ce8413a7d65d525 \
+    --hash=sha256:6c972ae7968c2b5281227f01c3a3f984037d21c5129d07bf3550cc2afc6b10a5
     # via
     #   -r requirements/main.in
     #   celery-redbeat
@@ -2001,7 +2001,6 @@ redis==5.2.1 \
     --hash=sha256:ee7e1056b9aea0f04c6c2ed59452947f34c4940ee025f5dd83e6a6418b6989e4
     # via
     #   -r requirements/main.in
-    #   celery
     #   celery-redbeat
     #   kombu
 referencing==0.36.2 \
