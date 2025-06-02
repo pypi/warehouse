@@ -536,6 +536,21 @@ Errors when executing ``make initdb``
   opensearch wants a lot of memory (Dustin gives warehouse ~4GB locally).
   Refer to the tip under :ref:`running-warehouse-containers` section for more details.
 
+* If ``make initdb`` fails with an error like::
+
+    A fatal error has been detected by the Java Runtime Environment:
+    SIGILL (0x4) at pc=0x0000f819dfc67c5c, pid=25, tid=26
+
+  while building the ``warehouse-opensearch`` image, this is a known issue
+  with OpenSearch in Apple M4 processors. A workaround (described in
+  `this comment <https://github.com/elastic/elasticsearch/issues/118583#issuecomment-2567270484>`_)
+  is to add the following line to ``dev/compose/opensearch/Dockerfile.yml`` (after
+  the FROM line):
+
+  .. code-block:: docker
+
+     ENV _JAVA_OPTIONS=-XX:UseSVE=0
+
 
 "no space left on device" when using ``docker compose``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -746,38 +761,6 @@ formatting and linting. You can reformat with:
 .. code-block:: console
 
     make reformat
-
-.. _build-docs:
-
-Building documentation
-----------------------
-
-The Warehouse documentation is stored in the :file:`docs/`
-directory with three subdirectories: blog, dev and user.
-Development docs (in the dev directory) are written in
-`reStructured Text`_ and rendered using `Sphinx`_. User docs ``/user``
-are written in markdown and rendered using ``mkdocs``. The blog is
-also written in markdown.
-
-Use :command:`make` to build the documentation. For example:
-
-.. code-block:: console
-
-    make user-docs dev-docs
-
-The HTML index for the user documentation can now be found at
-:file:`docs/user-site/index.html`, and the index for the developer
-documentation at :file:`docs/dev/_build/html/index.html`.
-
-Building the docs requires Python 3.8. If it is not installed, the
-:command:`make` command will give the following error message:
-
-.. code-block:: console
-
-  make: python3.8: Command not found
-  Makefile:53: recipe for target '.state/env/pyvenv.cfg' failed
-  make: *** [.state/env/pyvenv.cfg] Error 127
-
 
 .. _building-translations:
 
