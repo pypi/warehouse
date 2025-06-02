@@ -151,9 +151,9 @@ cachetools==5.5.2 \
     # via
     #   google-auth
     #   premailer
-cattrs==24.1.3 \
-    --hash=sha256:981a6ef05875b5bb0c7fb68885546186d306f10f0f6718fe9b96c226e68821ff \
-    --hash=sha256:adf957dddd26840f27ffbd060a6c4dd3b2192c5b7c2c0525ef1bd8131d8a83f5
+cattrs==25.1.0 \
+    --hash=sha256:3bf01e9592b38a49bdae47a26385583f000c98862d0efcda2c03a508b02b95b8 \
+    --hash=sha256:b07bd2082298f8915d53ed7254c4c34d90995d4a79467b7df7bbd544eef532f1
     # via linehaul
 cbor2==5.6.5 \
     --hash=sha256:3038523b8fc7de312bb9cdcbbbd599987e64307c4db357cd2030c472a6c7d468 \
@@ -2347,6 +2347,7 @@ typing-extensions==4.13.2 \
     --hash=sha256:e6c81219bd689f51865d9e372991c540bda33a0379d5573cddb9a3a23f7caaef
     # via
     #   alembic
+    #   cattrs
     #   limits
     #   openapi-core
     #   pydantic
