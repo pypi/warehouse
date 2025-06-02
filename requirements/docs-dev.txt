@@ -355,9 +355,9 @@ sphinx-copybutton==0.5.2 \
     --hash=sha256:4cf17c82fb9646d1bc9ca92ac280813a3b605d8c421225fd9913154103ee1fbd \
     --hash=sha256:fb543fd386d917746c9a2c50360c7905b605726b9355cd26e9974857afeae06e
     # via -r requirements/docs-dev.in
-sphinx-reredirects==0.1.6 \
-    --hash=sha256:c491cba545f67be9697508727818d8626626366245ae64456fe29f37e9bbea64 \
-    --hash=sha256:efd50c766fbc5bf40cd5148e10c00f2c00d143027de5c5e48beece93cc40eeea
+sphinx-reredirects==1.0.0 \
+    --hash=sha256:1d0102710a8f633c6c885f940f440f7195ada675c1739976f0135790747dea06 \
+    --hash=sha256:7c9bada9f1330489fcf4c7297a2d6da2a49ca4877d3f42d1388ae1de1019bf5c
     # via -r requirements/docs-dev.in
 sphinxcontrib-applehelp==2.0.0 \
     --hash=sha256:2f29ef331735ce958efa4734873f084941970894c6090408b079c61b2e1c06d1 \
