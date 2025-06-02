@@ -322,9 +322,9 @@ sniffio==1.3.1 \
     --hash=sha256:2f6da418d1f1e0fddd844478f41680e794e6051915791a034ff65e5f100525a2 \
     --hash=sha256:f4324edc670a0f49750a81b895f35c3adb843cca46f0530f79fc1babb23789dc
     # via anyio
-snowballstemmer==3.0.0.1 \
-    --hash=sha256:1d09493a5ecc85fb5b433674e9c83fcd41c6739b6979ce4b54e81a40ec078342 \
-    --hash=sha256:d1cdabc06fb492e80620d9e2c44d39e67cfda290b2aaef8718b0691079443b10
+snowballstemmer==3.0.1 \
+    --hash=sha256:6cd7b3897da8d6c9ffb968a6781fa6532dce9c3618a4b127d920dab764a19064 \
+    --hash=sha256:6d5eeeec8e9f84d4d56b847692bacf79bc2c8e90c7f80ca4444ff8b6f2e52895
     # via sphinx
 soupsieve==2.7 \
     --hash=sha256:6e60cc5c1ffaf1cebcc12e8188320b72071e922c2e897f737cadce79ad5d30c4 \
