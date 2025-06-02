@@ -747,38 +747,6 @@ formatting and linting. You can reformat with:
 
     make reformat
 
-.. _build-docs:
-
-Building documentation
-----------------------
-
-The Warehouse documentation is stored in the :file:`docs/`
-directory with three subdirectories: blog, dev and user.
-Development docs (in the dev directory) are written in
-`reStructured Text`_ and rendered using `Sphinx`_. User docs ``/user``
-are written in markdown and rendered using ``mkdocs``. The blog is
-also written in markdown.
-
-Use :command:`make` to build the documentation. For example:
-
-.. code-block:: console
-
-    make user-docs dev-docs
-
-The HTML index for the user documentation can now be found at
-:file:`docs/user-site/index.html`, and the index for the developer
-documentation at :file:`docs/dev/_build/html/index.html`.
-
-Building the docs requires Python 3.8. If it is not installed, the
-:command:`make` command will give the following error message:
-
-.. code-block:: console
-
-  make: python3.8: Command not found
-  Makefile:53: recipe for target '.state/env/pyvenv.cfg' failed
-  make: *** [.state/env/pyvenv.cfg] Error 127
-
-
 .. _building-translations:
 
 Building translations
