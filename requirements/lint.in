@@ -25,3 +25,4 @@ types-stripe
 types-WTForms
 types-WebOb
 types-zxcvbn
+zizmor==1.7.0
