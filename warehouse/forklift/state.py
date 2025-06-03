@@ -248,7 +248,7 @@ class UploadSession:
 
     def serialize(self):
         return {
-            "mechanisms": [UPLOAD_MECHANISMS.keys()],
+            "mechanisms": list(UPLOAD_MECHANISMS.keys()),
             "session-token": self.session_token,
             "valid-for": max(
                 0, (self.expiration - datetime.datetime.now(datetime.UTC)).seconds
@@ -292,7 +292,12 @@ class UploadSession:
 
     @property
     def can_publish(self):
-        return not self.has_errors
+        return not any(
+            [
+                upload_session.serialize()["state"] in ["error", "pending"]
+                for upload_session in self.file_upload_sessions
+            ]
+        )
 
     @property
     def session_token(self):
@@ -453,15 +458,18 @@ def build_upload_session():
 UploadSessionFactory = build_upload_session()
 
 if __name__ == "__main__":
-    from pprint import pprint
+    import json
 
     upload_session = UploadSessionFactory(
         UploadSession(project="wutang", version="6.6.69")
     )
-    pprint(upload_session.serialize())
+    print(upload_session.can_publish)
+    print(json.dumps(upload_session.serialize()))
     file_upload_session = upload_session.create_file_upload_session(
         "wutang-6.6.69.tar.gz", 420, {}, "", "http-post-application-octet-stream"
     )
-    pprint(upload_session.serialize())
+    print(upload_session.can_publish)
+    print(json.dumps(upload_session.serialize()))
     file_upload_session.action_ready()
-    pprint(upload_session.serialize())
+    print(upload_session.can_publish)
+    print(json.dumps(upload_session.serialize()))
