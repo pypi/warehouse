@@ -54,13 +54,6 @@ def test_check_sub(claim):
 
 
 class TestGitLabPublisher:
-    def test_lookup_strategies(self):
-        assert (
-            len(gitlab.GitLabPublisher.__lookup_strategies__)
-            == len(gitlab.PendingGitLabPublisher.__lookup_strategies__)
-            == 2
-        )
-
     @pytest.mark.parametrize("environment", [None, "some_environment"])
     def test_lookup_fails_invalid_ci_config_ref_uri(self, environment):
         signed_claims = {
@@ -73,7 +66,8 @@ class TestGitLabPublisher:
 
         # The `ci_config_ref_uri` is malformed, so no queries are performed.
         with pytest.raises(
-            errors.InvalidPublisherError, match="All lookup strategies exhausted"
+            errors.InvalidPublisherError,
+            match="Could not extract workflow filename from OIDC claims",
         ):
             gitlab.GitLabPublisher.lookup_by_claims(pretend.stub(), signed_claims)
 
@@ -120,6 +114,15 @@ class TestGitLabPublisher:
                 ).workflow_filepath
                 == workflow_filepath
             )
+
+    def test_lookup_no_matching_publisher(self, db_request):
+        signed_claims = {
+            "project_path": "foo/bar",
+            "ci_config_ref_uri": ("gitlab.com/foo/bar//.gitlab-ci.yml@refs/heads/main"),
+        }
+        with pytest.raises(errors.InvalidPublisherError) as e:
+            gitlab.GitLabPublisher.lookup_by_claims(db_request.db, signed_claims)
+        assert str(e.value) == "Publisher with matching claims was not found"
 
     def test_gitlab_publisher_all_known_claims(self):
         assert gitlab.GitLabPublisher.all_known_claims() == {

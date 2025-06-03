@@ -86,13 +86,6 @@ def test_check_sub(claim):
 
 
 class TestGitHubPublisher:
-    def test_lookup_strategies(self):
-        assert (
-            len(github.GitHubPublisher.__lookup_strategies__)
-            == len(github.PendingGitHubPublisher.__lookup_strategies__)
-            == 2
-        )
-
     @pytest.mark.parametrize("environment", [None, "some_environment"])
     def test_lookup_fails_invalid_workflow_ref(self, environment):
         signed_claims = {
@@ -106,7 +99,8 @@ class TestGitHubPublisher:
 
         # The `job_workflow_ref` is malformed, so no queries are performed.
         with pytest.raises(
-            errors.InvalidPublisherError, match="All lookup strategies exhausted"
+            errors.InvalidPublisherError,
+            match="Could not job extract workflow filename from OIDC claims",
         ):
             github.GitHubPublisher.lookup_by_claims(pretend.stub(), signed_claims)
 
@@ -154,6 +148,28 @@ class TestGitHubPublisher:
                 ).workflow_filename
                 == workflow
             )
+
+    def test_lookup_no_matching_publishers(self, db_request):
+        GitHubPublisherFactory(
+            id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            repository_owner="foo",
+            repository_name="bar",
+            repository_owner_id="1234",
+            workflow_filename="release.yml",
+            environment="environment",
+        )
+        signed_claims = {
+            "repository": "foo/bar",
+            "job_workflow_ref": (
+                "foo/bar/.github/workflows/release.yml@refs/heads/main"
+            ),
+            "repository_owner_id": "1234",
+            "environment": "another_environment",
+        }
+
+        with pytest.raises(errors.InvalidPublisherError) as e:
+            github.GitHubPublisher.lookup_by_claims(db_request.db, signed_claims)
+        assert str(e.value) == "Publisher with matching claims was not found"
 
     def test_github_publisher_all_known_claims(self):
         assert github.GitHubPublisher.all_known_claims() == {

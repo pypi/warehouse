@@ -33,9 +33,8 @@ def test_check_claim_invariant():
 
 class TestOIDCPublisher:
     def test_lookup_by_claims_raises(self):
-        with pytest.raises(errors.InvalidPublisherError) as e:
+        with pytest.raises(NotImplementedError):
             _core.OIDCPublisher.lookup_by_claims(pretend.stub(), pretend.stub())
-        assert str(e.value) == "All lookup strategies exhausted"
 
     def test_oidc_publisher_not_default_verifiable(self):
         publisher = _core.OIDCPublisher(projects=[])
