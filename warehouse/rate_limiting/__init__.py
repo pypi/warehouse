@@ -11,6 +11,7 @@ from limits import parse_many
 from limits.storage import storage_from_string
 from limits.strategies import MovingWindowRateLimiter
 from more_itertools import first_true
+from pyramid.httpexceptions import HTTPTooManyRequests
 from zope.interface import implementer
 
 from warehouse.metrics import IMetricsService
@@ -152,7 +153,37 @@ class RateLimit:
         )
 
 
+def ratelimit_tween_factory(handler, registry):
+    def ratelimit_tween(request):
+        ratelimiter = request.find_service(
+            IRateLimiter, name="ip.requests", context=None
+        )
+        metrics = request.find_service(IMetricsService, context=None)
+
+        if not ratelimiter.test(request.remote_addr):
+            metrics.increment("warehouse.ratelimited", tags=["ratelimiter:ip.requests"])
+            return HTTPTooManyRequests(
+                "Your IP has issued too many requests reaching the PyPI backends."
+            )
+
+        ratelimiter.hit(request.remote_addr)
+
+        response = handler(request)
+        return response
+
+    return ratelimit_tween
+
+
 def includeme(config):
     config.registry["ratelimiter.storage"] = storage_from_string(
         config.registry.settings["ratelimit.url"]
     )
+
+    ip_requests_ratelimit_string = config.registry.settings.get(
+        "warehouse.ip_requests_ratelimit_string"
+    )
+    if ip_requests_ratelimit_string is not None:
+        config.register_service_factory(
+            RateLimit(ip_requests_ratelimit_string), IRateLimiter, name="ip.requests"
+        )
+        config.add_tween("warehouse.rate_limiting.ratelimit_tween_factory")
