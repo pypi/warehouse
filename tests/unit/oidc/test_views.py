@@ -624,6 +624,7 @@ def test_mint_token_no_pending_publisher_ok(
     assert response == {
         "success": True,
         "token": "raw-macaroon",
+        "expires": 900,
     }
 
     assert oidc_service.verify_jwt_signature.calls == [
@@ -725,6 +726,7 @@ def test_mint_token_warn_constrain_environment(monkeypatch, db_request):
     assert response == {
         "success": True,
         "token": "raw-macaroon",
+        "expires": 900,
     }
 
     assert oidc_service.verify_jwt_signature.calls == [
