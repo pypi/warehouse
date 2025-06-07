@@ -340,7 +340,7 @@ def mint_token(
         metrics = request.find_service(IMetricsService, context=None)
         metrics.increment("warehouse.oidc.mint_token.github_reusable_workflow")
 
-    return {"success": True, "token": serialized}
+    return {"success": True, "token": serialized, "expires": expires_at}
 
 
 def is_from_reusable_workflow(
