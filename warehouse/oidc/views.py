@@ -39,6 +39,7 @@ class JsonResponse(TypedDict, total=False):
     message: str | None
     errors: list[Error] | None
     token: StrictStr | None
+    expiration: int | None
     success: bool | None
 
 
