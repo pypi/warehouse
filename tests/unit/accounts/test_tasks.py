@@ -264,3 +264,7 @@ def test_unverify_emails_with_expired_domains(db_request, user_service):
 
     # Confirm that the observation was added to the "actor"
     assert admin_user.observer.observations[-1].kind == "email_unverified"
+
+    assert db_request.metrics.gauge.calls == [
+        pretend.call("warehouse.emails.unverified", 1, tags=["reason:domain_expired"])
+    ]
