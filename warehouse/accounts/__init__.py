@@ -211,8 +211,8 @@ def includeme(config):
     config.add_periodic_task(crontab(minute="*/20"), compute_user_metrics)
     config.add_periodic_task(crontab(minute="*"), notify_users_of_tos_update)
     config.add_periodic_task(
-        crontab(minute="0", hour=4), batch_update_email_domain_status
+        crontab(minute=0, hour=4), batch_update_email_domain_status
     )
     config.add_periodic_task(
-        crontab(minute="0", hour="*"), unverify_emails_with_expired_domains
+        crontab(minute=15, hour=4), unverify_emails_with_expired_domains
     )
