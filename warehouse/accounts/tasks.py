@@ -211,6 +211,8 @@ def unverify_emails_with_expired_domains(request: Request) -> None:
 
         request.db.add(email)
 
-    request.metrics.gauge(
-        "warehouse.emails.unverified", len(results), tags=["reason:domain_expired"]
+    request.metrics.increment(
+        "warehouse.emails.unverified",
+        value=len(results),
+        tags=["reason:domain_expired"],
     )
