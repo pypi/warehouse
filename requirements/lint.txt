@@ -361,9 +361,9 @@ mypy-extensions==1.1.0 \
     # via
     #   black
     #   mypy
-mypy-zope==1.0.11 \
-    --hash=sha256:1c95e49e9dcdf070a0858f067dac55e8e4e47519fdc15dfdab9b7eee273a0e01 \
-    --hash=sha256:4395d716b43ab89916edf6d0b5761655b4d4a43b2692fce806bbd733829977ee
+mypy-zope==1.0.12 \
+    --hash=sha256:d6f8f99eb5644885553b4ec7afc8d68f5daf412c9bf238ec3c36b65d97df6cbe \
+    --hash=sha256:f2ecf169f886fbc266e9339db0c2f3818528a7536b9bb4f5ece1d5854dc2f27c
     # via -r requirements/lint.in
 packaging==25.0 \
     --hash=sha256:29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484 \
@@ -515,9 +515,9 @@ toml==0.10.2 \
     --hash=sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b \
     --hash=sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f
     # via curlylint
-types-awscrt==0.26.1 \
-    --hash=sha256:176d320a26990efc057d4bf71396e05be027c142252ac48cc0d87aaea0704280 \
-    --hash=sha256:aca96f889b3745c0e74f42f08f277fed3bf6e9baa2cf9b06a36f78d77720e504
+types-awscrt==0.27.2 \
+    --hash=sha256:49a045f25bbd5ad2865f314512afced933aed35ddbafc252e2268efa8a787e4e \
+    --hash=sha256:acd04f57119eb15626ab0ba9157fc24672421de56e7bd7b9f61681fedee44e91
     # via botocore-stubs
 types-babel==2.11.0.15 \
     --hash=sha256:282c184c8c9d81e8269212c1b8fa0d39ee88fb8bc43be47980412781c9c85f7e \
@@ -565,9 +565,9 @@ types-redis==4.6.0.20241004 \
     --hash=sha256:5f17d2b3f9091ab75384153bfa276619ffa1cf6a38da60e10d5e6749cc5b902e \
     --hash=sha256:ef5da68cb827e5f606c8f9c0b49eeee4c2669d6d97122f301d3a55dc6a63f6ed
     # via -r requirements/lint.in
-types-requests==2.32.0.20250602 \
-    --hash=sha256:ee603aeefec42051195ae62ca7667cd909a2f8128fdf8aad9e8a5219ecfab3bf \
-    --hash=sha256:f4f335f87779b47ce10b8b8597b409130299f6971ead27fead4fe7ba6ea3e726
+types-requests==2.32.4.20250611 \
+    --hash=sha256:741c8777ed6425830bf51e54d6abe245f79b4dcb9019f1622b773463946bf826 \
+    --hash=sha256:ad2fe5d3b0cb3c2c902c8815a70e7fb2302c4b8c1f77bdcd738192cdb3878072
     # via -r requirements/lint.in
 types-s3transfer==0.13.0 \
     --hash=sha256:203dadcb9865c2f68fb44bc0440e1dc05b79197ba4a641c0976c26c9af75ef52 \
@@ -583,9 +583,9 @@ types-stripe==3.5.2.20240106 \
     --hash=sha256:63a36958f0dc4a71685b027f0b6d807ff197ee337135ac19a0f8b6132365ca52 \
     --hash=sha256:9ea7bc9b9889a3d8606114c52dcc70a8fc62d44a46da4bc5ee19f0d463674bb8
     # via -r requirements/lint.in
-types-webob==1.8.0.20250319 \
-    --hash=sha256:4a64ffb72af06e2ec1d0f6798e6ecbb5fcba8283b771eb70af67f9f399a78fad \
-    --hash=sha256:6948384355b31a5313666c6f9b67c0922185128dfc751ceeda3108b7fb183a2c
+types-webob==1.8.0.20250522 \
+    --hash=sha256:ad08df93fd62ec70940bb71a1149538086ebca25201696e2cf3c2c10a11797f3 \
+    --hash=sha256:ed1e3413d4fce775f2dc390b9034533405f2572fe519b0c4c714d4df847ba78f
     # via -r requirements/lint.in
 types-wtforms==3.2.1.20250602 \
     --hash=sha256:4e399ce7a05811715c3352afc7d1650156da6ca5b07fda8952e77a88a5f89c1f \
