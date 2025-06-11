@@ -95,7 +95,7 @@ jobs:
       packages: read
     services:
       postgres:
-        image: ${{ (matrix.name == 'Tests') && 'postgres:16.1' || '' }}
+        image: ${{ (matrix.name == 'Tests') && 'postgres:17.5' || '' }}
         ports:
           - 5432:5432
         env:
@@ -138,7 +138,7 @@ jobs:
       packages: read
     services:
       postgres:
-        image: postgres:16.1
+        image: postgres:17.5
         ports:
         - 5432:5432
         env:
