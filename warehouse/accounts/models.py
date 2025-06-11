@@ -391,6 +391,7 @@ class UnverifyReasons(enum.Enum):
     SpamComplaint = "spam complaint"
     HardBounce = "hard bounce"
     SoftBounce = "soft bounce"
+    DomainInvalid = "domain status invalid"
 
 
 class Email(db.ModelBase):
