@@ -52,11 +52,18 @@ RUN set -eux; \
 
 # Install System level build requirements, this is done before everything else
 # because these are rarely ever going to change.
+# Usages:
+#  - build-essential: make
+#  - git: mkdocs plugin uses this for created/updated
+#  - libcairo2: mkdocs uses cairosvg
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     set -x \
     && apt-get update \
-    && apt-get install --no-install-recommends -y build-essential \
+    && apt-get install --no-install-recommends -y \
+       build-essential \
+       git \
+       libcairo2 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -201,12 +208,19 @@ RUN set -eux; \
 
 # Install System level Warehouse requirements, this is done before everything
 # else because these are rarely ever going to change.
+# Usages:
+#  - build-essential: make
+#  - postgresql-client: make initdb and friends
+#  - oathtool: make totp
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     set -x \
     && if [ "$DEVEL" = "yes" ]; then \
         apt-get update \
-        && apt-get install --no-install-recommends -y build-essential postgresql-client \
+        && apt-get install --no-install-recommends -y \
+           build-essential \
+           postgresql-client \
+           oathtool \
         && apt-get clean \
         && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*; \
     fi
