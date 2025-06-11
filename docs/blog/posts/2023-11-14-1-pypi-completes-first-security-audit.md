@@ -7,6 +7,9 @@ date: 2023-11-14T00:00:00
 tags:
   - security
   - transparency
+links:
+  - posts/2023-11-14-2-security-audit-remediation-warehouse.md
+  - posts/2023-11-14-3-security-audit-remediation-cabotage.md
 ---
 
 _This is part one in a three-part series. See [part two here](2023-11-14-2-security-audit-remediation-warehouse.md), and [part three here](2023-11-14-3-security-audit-remediation-cabotage.md)_
