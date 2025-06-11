@@ -68,8 +68,7 @@ plugins:
       length: 20
       match_path: "posts/.*"
   - search
-  - tags:
-      tags_file: tags.md
+  - tags
 extra:
   homepage: https://pypi.org
   social:

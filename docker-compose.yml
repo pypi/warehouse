@@ -11,7 +11,7 @@ volumes:
 
 services:
   db:
-    image: postgres:16.1
+    image: postgres:17.5
     ports:
       # 5432 may already in use by another PostgreSQL on host
       - "5433:5432"
@@ -226,7 +226,7 @@ services:
       - caches:/opt/warehouse/src/.stylelintcache
 
   maildev:
-    image: maildev/maildev:2.1.0
+    image: maildev/maildev:2.2.1
     ports:
       - "1080:1080"
       - "1025:1025"

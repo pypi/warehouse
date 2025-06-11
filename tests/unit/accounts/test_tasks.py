@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from datetime import datetime, timedelta, timezone
 
@@ -16,11 +6,12 @@ import pretend
 import pytest
 
 from warehouse.accounts import tasks
-from warehouse.accounts.models import TermsOfServiceEngagement
+from warehouse.accounts.models import TermsOfServiceEngagement, UnverifyReasons
 from warehouse.accounts.tasks import (
     batch_update_email_domain_status,
     compute_user_metrics,
     notify_users_of_tos_update,
+    unverify_emails_with_expired_domains,
 )
 
 from ...common.db.accounts import EmailFactory, UserFactory
@@ -248,3 +239,34 @@ def test_update_email_domain_status_does_not_update_if_not_needed(
 
     assert fail_check.domain_last_checked is None
     assert fail_check.domain_last_status is None
+
+
+def test_unverify_emails_with_expired_domains(db_request, user_service):
+    """
+    Test that the unverify_emails_with_expired_domains task works as expected.
+    """
+    # ensure an admin user exists
+    admin_user = UserFactory.create(username="admin")
+
+    expired_email = EmailFactory.create(domain_last_status=["undelegated"])
+    non_expired_email = EmailFactory.create(domain_last_status=["active"])
+
+    unverify_emails_with_expired_domains(db_request)
+
+    # Check that the expired email is now unverified and observation added
+    assert expired_email.verified is False
+    assert expired_email.unverify_reason == UnverifyReasons.DomainInvalid
+    assert expired_email.user.observations[-1].kind == "email_unverified"
+
+    # Check that the non-expired email is still verified, and no observation added
+    assert non_expired_email.verified is True
+    assert len(non_expired_email.user.observations) == 0
+
+    # Confirm that the observation was added to the "actor"
+    assert admin_user.observer.observations[-1].kind == "email_unverified"
+
+    assert db_request.metrics.increment.calls == [
+        pretend.call(
+            "warehouse.emails.unverified", value=1, tags=["reason:domain_expired"]
+        )
+    ]
