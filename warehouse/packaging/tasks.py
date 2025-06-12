@@ -346,7 +346,7 @@ def update_bigquery_release_files(task, request, dist_metadata):
                 json_rows[sch.name] = field_data
         json_rows = [json_rows]
 
-        bq.insert_rows_json(table=table_name, json_rows=json_rows)
+        bq.insert_rows_json(table=table_name, json_rows=json_rows, timeout=5)
 
 
 @tasks.task(ignore_result=True, acks_late=True)

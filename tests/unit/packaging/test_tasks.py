@@ -651,6 +651,7 @@ class TestUpdateBigQueryMetadata:
                         "blake2_256_digest": release_file.blake2_256_digest,
                     },
                 ],
+                timeout=5,
             )
             for table in release_files_table.split()
         ]
