@@ -33,5 +33,21 @@ def test_cli_no_settings(monkeypatch, cli):
 
     result = cli.invoke(warehouse.cli.warehouse, ["cli-test-command"])
 
+    assert result.exit_code == 2
+    assert configure.calls == []
+
+
+def test_cli_help(monkeypatch, cli):
+    config = pretend.stub()
+    configure = pretend.call_recorder(lambda: config)
+    monkeypatch.setattr(warehouse.cli, "LazyConfig", configure)
+
+    @warehouse.cli.warehouse.command()
+    @click.pass_obj
+    def cli_test_command(obj):
+        assert obj is config
+
+    result = cli.invoke(warehouse.cli.warehouse, ["db", "-h"])
+
     assert result.exit_code == 0
     assert configure.calls == [pretend.call()]
