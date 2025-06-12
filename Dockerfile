@@ -238,4 +238,4 @@ COPY . /opt/warehouse/src/
 RUN tldextract --update
 # Load our module to pre-compile as much bytecode as we can easily.
 # Saves time collectively on container boot!
-RUN python -m warehouse
+RUN python -m warehouse -h
