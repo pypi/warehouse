@@ -136,7 +136,7 @@ def confirm_prohibited_project_names(request):
 
 @view_config(
     route_name="admin.prohibited_project_names.release",
-    permission=Permissions.AdminProhibitedProjectsWrite,
+    permission=Permissions.AdminProhibitedProjectsRelease,
     request_method="POST",
     uses_session=True,
     require_methods=False,
