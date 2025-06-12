@@ -112,7 +112,8 @@ class FileFactory(WarehouseFactory):
         lambda o: hashlib.blake2b(o.filename.encode("utf8"), digest_size=32).hexdigest()
     )
     upload_time = factory.Faker(
-        "date_time_between_dates", datetime_start=datetime.datetime(2008, 1, 1)
+        "date_time_between_dates",
+        datetime_start=datetime.datetime(2008, 1, 1),
     )
     path = factory.LazyAttribute(
         lambda o: "/".join(
