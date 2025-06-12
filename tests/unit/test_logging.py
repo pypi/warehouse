@@ -108,6 +108,26 @@ def test_includeme(monkeypatch, settings, expected_level):
                         "handlers": ["primary"],
                         "level": expected_level,
                     },
+                    "celery": {
+                        "propagate": False,
+                        "handlers": ["primary"],
+                        "level": expected_level,
+                    },
+                    "celery.task": {
+                        "propagate": False,
+                        "handlers": ["primary"],
+                        "level": expected_level,
+                    },
+                    "celery.worker": {
+                        "propagate": False,
+                        "handlers": ["primary"],
+                        "level": expected_level,
+                    },
+                    "celery.app.trace": {
+                        "propagate": False,
+                        "handlers": ["primary"],
+                        "level": expected_level,
+                    },
                 },
                 "root": {"level": expected_level, "handlers": ["primary"]},
             }
