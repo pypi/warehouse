@@ -301,10 +301,16 @@ class SessionFactory:
             )
 
             # Send our session cookie to the client
+            # NOTE: The lack of a max_age here. This sends the cookie with:
+            #  > Expires: Session
+            # This will allow effectively allow the cookie to live indefinitely,
+            # as long as the user has interacted with the session _before_ the
+            # session key expieres in redis.
+            # Once the session key has expired in redis, the session will be marked
+            # as invalid and will not authenticate the account.
             response.set_cookie(
                 self.cookie_name,
                 self.signer.sign(request.session.sid.encode("utf8")),
-                max_age=self.max_age,
                 httponly=True,
                 secure=request.scheme == "https",
                 samesite=b"lax",
