@@ -1,67 +1,65 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "base.html" %}
-
 {% block title %}
-  {% if form and form.errors %}{% trans %}Error processing form{% endtrans %} –{% endif %}
+  {% if form and form.errors %}
+    {% trans %}Error processing form{% endtrans %} –
+  {% endif %}
   {% trans %}Recovery codes{% endtrans %}
 {% endblock %}
-
 {% block content %}
   <div class="horizontal-section">
     <div class="site-container">
       <h1 class="page-title">{% trans %}Login using recovery codes{% endtrans %}</h1>
       <div class="twofa-login__method">
-        <form method="POST" action="{{ request.current_route_path() }}">
-          <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+        <form method="post" action="{{ request.current_route_path() }}">
+          <input name="csrf_token"
+                 type="hidden"
+                 value="{{ request.session.get_csrf_token() }}">
           <input name="method" type="hidden" value="recovery-code">
-
           {% if form.form_errors %}
-          <ul class="form-errors" role="alert">
-            {% for error in form.form_errors %}
-            <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
+            <ul class="form-errors" role="alert">
+              {% for error in form.form_errors %}<li>{{ error }}</li>{% endfor %}
+            </ul>
           {% endif %}
-
           <div class="form-group">
             <label for="recovery_code_value" class="form-group__label">
               {% trans %}Enter recovery code{% endtrans %}
               {% if form.recovery_code_value.flags.required %}
-              <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+                <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
               {% endif %}
             </label>
-            {{ form.recovery_code_value(
-              autocapitalize="off",
-              spellcheck="false",
-              required="required",
-              pattern="[0-9a-f]{16}",
-              class_="form-group__field",
-              autocomplete="off",
-              aria_describedby="recovery_code-errors",
-              aria_label="16 character hexadecimal",
-            ) }}
+            {{ form.recovery_code_value(autocapitalize="off",
+                        spellcheck="false",
+                        required="required",
+                        pattern="[0-9a-f]{16}",
+                        class_="form-group__field",
+                        autocomplete="off",
+                        aria_describedby="recovery_code-errors",
+                        aria_label="16 character hexadecimal",) }}
             {% if form.recovery_code_value.errors %}
-            <ul id="recovery_code-errors" class="form-errors" role="alert">
-              {% for error in form.recovery_code_value.errors %}
-              <li>{{ error }}</li>
-              {% endfor %}
-            </ul>
+              <ul id="recovery_code-errors" class="form-errors" role="alert">
+                {% for error in form.recovery_code_value.errors %}<li>{{ error }}</li>{% endfor %}
+              </ul>
             {% endif %}
             <p class="form-group__help-text">
-                {% trans %}Recovery codes are 16 character hexadecimal strings comprised of lowercase <code>a-z</code> and digits <code>0-9</code> (e.g., <code>badc0ffee0ddf00d</code>).{% endtrans %}
+              {% trans %}Recovery codes are 16 character hexadecimal strings comprised of lowercase <code>a-z</code> and digits <code>0-9</code> (e.g., <code>badc0ffee0ddf00d</code>).{% endtrans %}
             </p>
           </div>
           <div class="form-group">
-            <input type="submit" value="{% trans %}Verify{% endtrans %}" class="button button--primary">
+            <input type="submit"
+                   value="{% trans %}Verify{% endtrans %}"
+                   class="button button--primary">
           </div>
-
-          <p>{% trans %}PyPI allows for generating recovery codes to be stored securely offline in the event that your device or application is lost. Enter one of these codes in the form to verify your identity. Once used, the recovery code will no longer be valid.{% endtrans %}</p>
+          <p>
+            {% trans %}PyPI allows for generating recovery codes to be stored securely offline in the event that your device or application is lost. Enter one of these codes in the form to verify your identity. Once used, the recovery code will no longer be valid.{% endtrans %}
+          </p>
           {% trans href='/help/#recovery_code' %}
-          <p>Not working? <a href="{{ href }}">Get help</a>.</p>
-          {% endtrans %}
-        </form>
-      </div>
+          <p>
+            Not working? <a href="{{ href }}">Get help</a>.
+          </p>
+        {% endtrans %}
+      </form>
     </div>
   </div>
+</div>
 {% endblock %}

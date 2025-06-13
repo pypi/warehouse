@@ -1,16 +1,12 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "manage/manage_base.html" %}
-
 {% set user = request.user %}
-
-{% set active_tab = 'organizations' %}
-
-{% block title %}{% trans organization_application_name=organization_application.name %}Manage '{{ organization_application_name }}' Organization Request{% endtrans %}{% endblock %}
-
+{% set active_tab = "organizations" %}
+{% block title %}
+  {% trans organization_application_name=organization_application.name %}Manage '{{ organization_application_name }}' Organization Request{% endtrans %}
+{% endblock %}
 {% block main %}
   <h2>{% trans %}Organization request{% endtrans %}</h2>
-
   <section id="organization-details">
     <div class="form-group">
       <span class="form-group__label">{% trans %}Organization account name{% endtrans %}</span>
@@ -34,7 +30,9 @@
     </div>
     <div class="form-group">
       <span class="form-group__label">{% trans %}️Organization membership size{% endtrans %}</span>
-      <p class="form-group__text">{{ organization_application.membership_size.value if organization_application.membership_size else "" }}</p>
+      <p class="form-group__text">
+        {{ organization_application.membership_size.value if organization_application.membership_size else "" }}
+      </p>
     </div>
     <div class="form-group">
       <span class="form-group__label">{% trans %}️Anticipated usage{% endtrans %}</span>
@@ -42,53 +40,46 @@
     </div>
     <div class="form-group">
       <span class="form-group__label">{% trans %}Date submitted{% endtrans %}</span>
-      <p class="form-group__text">
-        {{ humanize(organization_application.submitted) }}
-      </p>
+      <p class="form-group__text">{{ humanize(organization_application.submitted) }}</p>
     </div>
   </section>
-
   {% if information_requests %}
-  <section>
-    <h3>Information Requests</h3>
-    {% for information_request in information_requests %}
-    <div class="callout-block callout-block--full-width {% if information_request.additional.response %}callout-block--neutral{% endif %}">
-      <div class="preserve-line-breaks">{{ information_request.payload.message }}</div>
-      <small>From PyPI Staff - {{ humanize(information_request.created) }}</small>
-      <br>
-      <br>
-      {% if information_request.additional.response %}
-      <div class="callout-block callout-block__right callout-block--full-width callout-block--neutral">
-        <div class="preserve-line-breaks">{{ information_request.additional.response }}</div>
-        <small>Your Response {{ humanize(information_request.additional.response_time|parse_isoformat) }}</small>
-      </div>
-      {% elif information_request.id in response_forms %}
-      <form method="POST">
-        <input hidden name="response_form-id" value="{{ information_request.id }}">
-        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-        <div class="form-group">
-          <label class="form-group__label" for="public_email">
-            {% trans %}️Your Response{% endtrans %}
-          </label>
-          <p class="form-group__text">
-            {{ response_forms[information_request.id].response(
-                id="response_form-" + information_request.id.__str__() + "-response",
-                class_="form-group__field",
-                aria_describedby="response_form-" + information_request.id.__str__() + "-errors",
-            ) }}
-          </p>
-          <div id="response_form-{{ information_request.id }}-errors">
-            {{ field_errors(response_forms[information_request.id].response) }}
-          </div>
+    <section>
+      <h3>Information Requests</h3>
+      {% for information_request in information_requests %}
+        <div class="callout-block callout-block--full-width {% if information_request.additional.response %}callout-block--neutral{% endif %}">
+          <div class="preserve-line-breaks">{{ information_request.payload.message }}</div>
+          <small>From PyPI Staff - {{ humanize(information_request.created) }}</small>
+          <br>
+          <br>
+          {% if information_request.additional.response %}
+            <div class="callout-block callout-block__right callout-block--full-width callout-block--neutral">
+              <div class="preserve-line-breaks">{{ information_request.additional.response }}</div>
+              <small>Your Response {{ humanize(information_request.additional.response_time|parse_isoformat) }}</small>
+            </div>
+          {% elif information_request.id in response_forms %}
+            <form method="post">
+              <input hidden name="response_form-id" value="{{ information_request.id }}">
+              <input name="csrf_token"
+                     type="hidden"
+                     value="{{ request.session.get_csrf_token() }}">
+              <div class="form-group">
+                <label class="form-group__label" for="public_email">{% trans %}️Your Response{% endtrans %}</label>
+                <p class="form-group__text">
+                  {{ response_forms[information_request.id].response(id="response_form-" + information_request.id.__str__() + "-response",
+                  class_="form-group__field",
+                  aria_describedby="response_form-" + information_request.id.__str__() + "-errors",
+                  ) }}
+                </p>
+                <div id="response_form-{{ information_request.id }}-errors">
+                  {{ field_errors(response_forms[information_request.id].response) }}
+                </div>
+              </div>
+              <button type="submit" class="button" title="{% trans %}Submit{% endtrans %}">{% trans %}Submit{% endtrans %}</button>
+            </form>
+          {% endif %}
         </div>
-        <button type="submit" class="button" title="{% trans %}Submit{% endtrans %}">
-          {% trans %}Submit{% endtrans %}
-        </button>
-      </form>
-      {% endif %}
-    </div>
-    {% endfor %}
-  </section>
+      {% endfor %}
+    </section>
   {% endif %}
-
 {% endblock %}

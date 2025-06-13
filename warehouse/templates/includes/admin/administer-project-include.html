@@ -1,36 +1,67 @@
-{# SPDX-License-Identifier: Apache-2.0 -#}
-
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
 {% if request.has_permission(Permissions.AdminProjectsRead) %}
-<div class="admin-include">
-  <div class="split-layout split-layout--middle">
-    <span><b>Admin tools for project: <code>{{ project_name }}</code></b></span>
+  <div class="admin-include">
+    <div class="split-layout split-layout--middle">
+      <span><b>Admin tools for project: <code>{{ project_name }}</code></b></span>
+      <div>
+        <a href="{{ request.route_path('admin.project.detail', project_name=project_name) }}"
+           class="button button--small button--primary package-description__edit-button"
+           {{ "" if project else "disabled" }}>View project in admin</a>
+        {% if prohibited %}
+          <a href="{{ request.route_path('admin.prohibited_project_names.list', _query={'q': project_name}) }}"
+             class="button button--small button--secondary package-description__edit-button">🚫 Prohibited</a>
+        {% else %}
+          <form class="form-inline"
+                method="get"
+                action="{{ request.route_path('admin.prohibited_project_names.add') }}">
+            <input name="project" type="hidden" value="{{ project_name }}">
+            <input name="comment"
+                   type="hidden"
+                   value="dependency confusion"
+                   id="prohibitedComment">
+            <button type="submit"
+                    class="button button--small button--warning"
+                    title="{{ "Submitting requires superuser privileges" if not request.has_permission(Permissions.AdminProhibitedProjectsWrite) }}"
+                    {{ "disabled" if not request.has_permission(Permissions.AdminProhibitedProjectsWrite) or prohibited }}>Remove project as dep confusion
+            </button>
+          </form>
+          <form class="form-inline"
+                method="get"
+                action="{{ request.route_path('admin.prohibited_project_names.add') }}">
+            <input name="project" type="hidden" value="{{ project_name }}">
+            <input name="comment" type="hidden" value="malware" id="prohibitedComment">
+            <button type="submit"
+                    class="button button--small button--danger"
+                    title="{{ "Submitting requires superuser privileges" if not request.has_permission(Permissions.AdminProhibitedProjectsWrite) }}"
+                    {{ "disabled" if not request.has_permission(Permissions.AdminProhibitedProjectsWrite) or prohibited }}>Remove project as malware
+            </button>
+          </form>
+        {% endif %}
+        <a href="https://inspector.pypi.io/project/{{ project_name }}/"
+           class="button button--small button--tertiary package-description__edit-button">🕵️ Inspect</a>
+      </div>
+    </div>
     <div>
-      <a href="{{ request.route_path('admin.project.detail', project_name=project_name) }}" class="button button--small button--primary package-description__edit-button" {{ "" if project else "disabled" }}>View project in admin</a>
-      {% if prohibited %}
-      <a href="{{ request.route_path('admin.prohibited_project_names.list', _query={'q': project_name}) }}" class="button button--small button--secondary package-description__edit-button">🚫 Prohibited</a>
-      {% else %}
-      <form class="form-inline" method="get" action="{{ request.route_path('admin.prohibited_project_names.add') }}">
-        <input name="project" type="hidden" value="{{ project_name }}">
-        <input name="comment" type="hidden" value="dependency confusion" id="prohibitedComment">
-        <button type="submit" class="button button--small button--warning" title="{{ "Submitting requires superuser privileges" if not request.has_permission(Permissions.AdminProhibitedProjectsWrite) }}"  {{ "disabled" if not request.has_permission(Permissions.AdminProhibitedProjectsWrite) or prohibited }}>Remove project as dep confusion</button>
-      </form>
-      <form class="form-inline" method="GET" action="{{ request.route_path('admin.prohibited_project_names.add') }}">
-        <input name="project" type="hidden" value="{{ project_name }}">
-        <input name="comment" type="hidden" value="malware" id="prohibitedComment">
-        <button type="submit" class="button button--small button--danger" title="{{ "Submitting requires superuser privileges" if not request.has_permission(Permissions.AdminProhibitedProjectsWrite) }}"  {{ "disabled" if not request.has_permission(Permissions.AdminProhibitedProjectsWrite) or prohibited }}>Remove project as malware</button>
-      </form>
+      {% if collisions %}
+        <b>Ultranormalization collisions:
+          {% for collision in collisions %}
+            <code><a href="{{ request.route_path('admin.project.detail', project_name=collision) }}">{{ collision }}</a></code>
+            {% if not loop.last %},{% endif %}
+          {% endfor %}
+        </b>
       {% endif %}
-      <a href="https://inspector.pypi.io/project/{{ project_name }}/" class="button button--small button--tertiary package-description__edit-button">🕵️ Inspect</a>
     </div>
   </div>
-  <div>
-    {% if collisions %}
-    <b>Ultranormalization collisions:
-      {% for collision in collisions %}
-        <code><a href="{{ request.route_path('admin.project.detail', project_name=collision) }}">{{ collision }}</a></code>{% if not loop.last %}, {% endif %}
-      {% endfor %}
-    </b>
-    {% endif %}
-  </div>
-</div>
 {% endif %}

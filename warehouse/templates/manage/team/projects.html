@@ -1,84 +1,80 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "manage_team_base.html" %}
-
 {% set user = request.user %}
 {% set title = gettext("Team projects") %}
-
-{% set active_tab = 'projects' %}
-
-{% block title %}{% trans team_name=team.name %}Manage '{{ team_name }}' projects{% endtrans %}{% endblock %}
-
+{% set active_tab = "projects" %}
+{% block title %}
+  {% trans team_name=team.name %}Manage '{{ team_name }}' projects{% endtrans %}
+{% endblock %}
 {% block main %}
   <h2>
     {% trans %}Projects{% endtrans %}
     <span class="badge badge--neutral">{{ active_projects|length }}</span>
   </h2>
-
   <div class="package-list">
     {% set user_has_two_factor = request.user.has_two_factor %}
     {% for project in active_projects %}
-    {% set release = project.releases[0] if project.releases else None %}
-    <div class="package-snippet">
-      <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
-        <div>
-          <h3 class="package-snippet__title">{{ project.name }}
-            {% if project.organization %}
-            <a href="{{ request.route_path('manage.organization.projects', organization_name=project.organization.normalized_name) }}" class="badge">
-              <i class="fa fa-sitemap" aria-hidden="true"></i>{{ project.organization.name }}
-            </a>
+      {% set release = project.releases[0] if project.releases else None %}
+      <div class="package-snippet">
+        <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
+          <div>
+            <h3 class="package-snippet__title">
+              {{ project.name }}
+              {% if project.organization %}
+                <a href="{{ request.route_path('manage.organization.projects', organization_name=project.organization.normalized_name) }}"
+                   class="badge">
+                  <i class="fa fa-sitemap" aria-hidden="true"></i>{{ project.organization.name }}
+                </a>
+              {% endif %}
+              {% if project.name in projects_sole_owned %}
+                <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name) }}"
+                   class="badge badge--warning">{% trans %}Sole owner{% endtrans %}</a>
+              {% endif %}
+            </h3>
+            {% if release %}
+              <p class="package-snippet__meta">
+                {% trans release_date=humanize(release.created) %}Last released {{ release_date }}{% endtrans %}
+              </p>
+              <p class="package-snippet__description">{{ release.summary }}</p>
+            {% else %}
+              <p class="package-snippet__meta">
+                {% trans creation_date=humanize(project.created) %}Created {{ creation_date }}{% endtrans %}
+              </p>
             {% endif %}
-            {% if project.name in projects_sole_owned %}
-            <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name) }}" class="badge badge--warning">{% trans %}Sole owner{% endtrans %}</a>
+          </div>
+          <div class="package-snippet__buttons">
+            {% if project.name in projects_owned %}
+              <a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name) }}"
+                 class="button button--primary"
+                 title="{% trans %}Manage this project{% endtrans %}">{% trans %}Manage{% endtrans %}</a>
+            {% else %}
+              {# Show disabled button #}
+              <button class="button button--primary"
+                      disabled
+                      title="{% trans %}You are not an owner of this project{% endtrans %}">
+                {% trans %}Manage{% endtrans %}
+              </button>
             {% endif %}
-          </h3>
-          {% if release %}
-          <p class="package-snippet__meta">
-            {% trans release_date=humanize(release.created) %}Last released {{ release_date }}{% endtrans %}
-          </p>
-          <p class="package-snippet__description">
-            {{ release.summary }}
-          </p>
-          {% else %}
-          <p class="package-snippet__meta">
-            {% trans creation_date=humanize(project.created) %}Created {{ creation_date }}{% endtrans %}
-          </p>
-          {% endif %}
-        </div>
-        <div class="package-snippet__buttons">
-
-          {% if project.name in projects_owned %}
-            <a
-            href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name) }}"
-            class="button button--primary"
-            title="{% trans %}Manage this project{% endtrans %}"
-            >{% trans %}Manage{% endtrans %}</a>
-          {% else %}
-          {# Show disabled button #}
-          <button class="button button--primary" disabled title="{% trans %}You are not an owner of this project{% endtrans %}">
-            {% trans %}Manage{% endtrans %}
-          </button>
-          {% endif %}
-          {% if project.releases %}
-          <a
-            href="{{ request.route_path('packaging.project', name=project.normalized_name) }}"
-            class="button"
-            title="{% trans %}View this project's public page{% endtrans %}"
-            >{% trans %}View{% endtrans %}</a>
-          {% else %}
-          <button class="button" disabled title="{% trans %}This project has no releases{% endtrans %}" >
-            {% trans %}View{% endtrans %}
-          </button>
-          {% endif %}
+            {% if project.releases %}
+              <a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}"
+                 class="button"
+                 title="{% trans %}View this project's public page{% endtrans %}">{% trans %}View{% endtrans %}</a>
+            {% else %}
+              <button class="button"
+                      disabled
+                      title="{% trans %}This project has no releases{% endtrans %}">
+                {% trans %}View{% endtrans %}
+              </button>
+            {% endif %}
+          </div>
         </div>
       </div>
-    </div>
     {% else %}
-    <div class="callout-block no-top-margin">
-      <p>
-        {% trans %}This team does not have admin or upload permissions for any projects, yet. Get started by configuring collaborators for a project in your organization.{% endtrans %}
-      </p>
-    </div>
+      <div class="callout-block no-top-margin">
+        <p>
+          {% trans %}This team does not have admin or upload permissions for any projects, yet. Get started by configuring collaborators for a project in your organization.{% endtrans %}
+        </p>
+      </div>
     {% endfor %}
   </div>
 {% endblock %}

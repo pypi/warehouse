@@ -1,46 +1,48 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "manage_organization_base.html" %}
-
 {% block title %}
   {% trans %}Activate Subscription{% endtrans %}
 {% endblock %}
-
-
 {% block main %}
   <h2>{% trans %}Activate Subscription{% endtrans %}</h2>
-  <form method="POST" data-controller="organization-terms-of-service-accepted">
+  <form method="post"
+        data-controller="organization-terms-of-service-accepted">
     <div class="form-group__wide">
       <p class="form-group__text">
         {% trans %}Company accounts require an active subscription. Please enter up-to-date billing information to enable the account.{% endtrans %}
       </p>
     </div>
-    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+    <input name="csrf_token"
+           type="hidden"
+           value="{{ request.session.get_csrf_token() }}">
     {{ form_errors(form) }}
     <div class="form-group__wide">
       <label for="terms_of_service_agreement" class="form-group__label">
         {% trans %}Terms of Service{% endtrans %}
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
       </label>
-      <input type="checkbox" name="terms_of_service_agreement" data-action="input->organization-terms-of-service-accepted#checkTermsOfServiceAccepted" data-organization-terms-of-service-accepted-target="termsOfServiceAccepted" />
+      <input type="checkbox"
+             name="terms_of_service_agreement"
+             data-action="input->organization-terms-of-service-accepted#checkTermsOfServiceAccepted"
+             data-organization-terms-of-service-accepted-target="termsOfServiceAccepted" />
       {% trans tos_url="https://policies.python.org/pypi.org/Terms-of-Service/", organization_name=organization.display_name %}
-        I agree to the PyPI <a href="{{ tos_url }}">Terms of Service</a> on behalf of the {{ organization_name }} organization.
-      {% endtrans %}
-      <div id="display-terms-of-service-agreement-errors">
-        {% if form.terms_of_service_agreement.errors %}
+      I agree to the PyPI <a href="{{ tos_url }}">Terms of Service</a> on behalf of the {{ organization_name }} organization.
+    {% endtrans %}
+    <div id="display-terms-of-service-agreement-errors">
+      {% if form.terms_of_service_agreement.errors %}
         <ul class="form-errors" role="alert">
-          {% for error in form.terms_of_service_agreement.errors %}
-          <li>{{ error }}</li>
-          {% endfor %}
+          {% for error in form.terms_of_service_agreement.errors %}<li>{{ error }}</li>{% endfor %}
         </ul>
-        {% endif %}
-      </div>
+      {% endif %}
     </div>
-    <div class="form-group__wide">
-      <a href="{{ request.route_path('manage.organizations') }}" class="button">
-        {% trans %}Cancel{% endtrans %}
-      </a>
-      <input value="{% trans %}Activate Subscription{% endtrans %}" class="button button--primary" type="submit" data-organization-terms-of-service-accepted-target="submit">
-    </div>
-  </form>
+  </div>
+  <div class="form-group__wide">
+    <a href="{{ request.route_path('manage.organizations') }}"
+       class="button">{% trans %}Cancel{% endtrans %}</a>
+    <input value="{% trans %}Activate Subscription{% endtrans %}"
+           class="button button--primary"
+           type="submit"
+           data-organization-terms-of-service-accepted-target="submit">
+  </div>
+</form>
 {% endblock %}
