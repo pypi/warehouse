@@ -8,14 +8,6 @@ from warehouse.oidc import errors
 from warehouse.oidc.models import _core, google
 
 
-def test_lookup_strategies():
-    assert (
-        len(google.GooglePublisher.__lookup_strategies__)
-        == len(google.PendingGooglePublisher.__lookup_strategies__)
-        == 2
-    )
-
-
 class TestGooglePublisher:
     def test_publisher_name(self):
         publisher = google.GooglePublisher(email="fake@example.com")
@@ -184,6 +176,16 @@ class TestGooglePublisher:
                     signed_claims=signed_claims, publisher_service=pretend.stub()
                 )
             assert str(e.value) == "Check failed for optional claim 'sub'"
+
+    def test_lookup_no_matching_publishers(self, db_request):
+        signed_claims = {
+            "email": "fake@example.com",
+            "email_verified": True,
+        }
+
+        with pytest.raises(errors.InvalidPublisherError) as e:
+            google.GooglePublisher.lookup_by_claims(db_request.db, signed_claims)
+        assert str(e.value) == "Publisher with matching claims was not found"
 
     @pytest.mark.parametrize("exists_in_db", [True, False])
     def test_exists(self, db_request, exists_in_db):
