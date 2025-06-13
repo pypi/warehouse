@@ -3,3 +3,5 @@
 40fbc32fef7c7ffe41cd18f3f8951578555db1aa
 # Collapsed license headers across codebase (#18217)
 f59df186dc62274b5831a72f639a1e92bbe3f94c
+# Reformatted templates with djlint (#18266)
+65f7039c1273ad54163cc3d4e01dc0803c87931a
