@@ -12,13 +12,15 @@
     <h1>Links for {{ name }}</h1>
     {% for file in files -%}
       <a href="{{ file.url }}#sha256={{ file.hashes.sha256 }}"
-         {% if file.get('requires-python') %}data-requires-python="{{ file['requires-python'] }}"{% endif %}
-         {% if file.yanked %}data-yanked="{% if file.yanked is string %}{{ file.yanked }}{% endif %}
-         "
-         {% endif %}
-         {% if file['core-metadata'] %}data-dist-info-metadata="sha256={{ file['core-metadata']['sha256'] }}" data-core-metadata="sha256={{ file['core-metadata']['sha256'] }}"{% endif %}
-         {% if file.get('provenance') %}data-provenance="{{ file['provenance'] }}"{% endif %}>{{ file.filename }}</a>
-      <br />
+        {% if file.get('requires-python') %}data-requires-python="{{ file['requires-python'] }}"{% endif %}
+        {% if file.yanked %}data-yanked="{% if file.yanked is string %}{{ file.yanked }}{% endif %}
+        "
+      {% endif %}
+      {% if file['core-metadata'] %}data-dist-info-metadata="sha256={{ file['core-metadata']['sha256'] }}" data-core-metadata="sha256={{ file['core-metadata']['sha256'] }}"{% endif %}
+      {# djlint:off #}
+      {# TODO: Disabled is due to some clients not parsing **HTML**. See https://github.com/pypi/warehouse/issues/18275 #}
+         {% if file.get('provenance') %}data-provenance="{{ file['provenance'] }}"{% endif %}>{{ file.filename }}</a><br />
+      {# djlint:on #}
     {% endfor -%}
   </body>
 </html>
