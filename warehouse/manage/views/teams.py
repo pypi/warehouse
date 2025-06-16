@@ -47,7 +47,7 @@ from warehouse.utils.paginate import paginate_url_factory
 @view_defaults(
     route_name="manage.team.settings",
     context=Team,
-    renderer="manage/team/settings.html",
+    renderer="warehouse:templates/manage/team/settings.html",
     uses_session=True,
     require_active_organization=True,
     require_csrf=True,
@@ -181,7 +181,7 @@ class ManageTeamSettingsViews:
 @view_defaults(
     route_name="manage.team.projects",
     context=Team,
-    renderer="manage/team/projects.html",
+    renderer="warehouse:templates/manage/team/projects.html",
     uses_session=True,
     require_active_organization=True,
     require_csrf=True,
@@ -225,7 +225,7 @@ class ManageTeamProjectsViews:
 @view_defaults(
     route_name="manage.team.roles",
     context=Team,
-    renderer="manage/team/roles.html",
+    renderer="warehouse:templates/manage/team/roles.html",
     uses_session=True,
     require_active_organization=True,
     require_csrf=True,
@@ -439,7 +439,7 @@ class ManageTeamRolesViews:
 @view_config(
     route_name="manage.team.history",
     context=Team,
-    renderer="manage/team/history.html",
+    renderer="warehouse:templates/manage/team/history.html",
     uses_session=True,
     permission=Permissions.OrganizationTeamsManage,
     has_translations=True,
