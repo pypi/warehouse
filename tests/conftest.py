@@ -349,6 +349,9 @@ def get_app_config(database, nondefaults=None):
         "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
         "warehouse.xmlrpc.cache.url": "redis://localhost:0/",
         "terms.revision": "initial",
+        "oidc.jwk_cache_url": "redis://localhost:0/",
+        "warehouse.oidc.audience": "pypi",
+        "oidc.backend": "warehouse.oidc.services.NullOIDCPublisherService",
     }
 
     if nondefaults:
