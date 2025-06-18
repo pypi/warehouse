@@ -211,9 +211,9 @@ celery-redbeat==2.3.2 \
     --hash=sha256:7d6e41e4b807fafba5d88b98e3d3863f0df95ac3ed1692d70b134c079b936b8b \
     --hash=sha256:9d61ab6e29f59d676621a846c778a347d5acad22e90fb4386343a4852d4f7ac3
     # via -r requirements/main.in
-certifi==2025.4.26 \
-    --hash=sha256:0a816057ea3cdefcef70270d2c515e4506bbc954f417fa5ade2021213bb8f0c6 \
-    --hash=sha256:30350364dfe371162649852c63336a15c70c6510c2ad5015b21c2345311805f3
+certifi==2025.6.15 \
+    --hash=sha256:2e0c7ce7cb5d8f8634ca55d2ba7e6ec2689a2fd6537d8dec1296a477a4910057 \
+    --hash=sha256:d747aa5a8b9bbbb1bb8c22bb13e22bd1f18e9796defa16bab421f7f7a317323b
     # via
     #   -r requirements/main.in
     #   opensearch-py
