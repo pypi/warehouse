@@ -14,6 +14,7 @@ import re
 
 from typing import Any, Self
 
+from more_itertools import first_true
 from pypi_attestations import GitLabPublisher as GitLabIdentity, Publisher
 from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists
 from sqlalchemy.dialects.postgresql import UUID
@@ -196,15 +197,15 @@ class GitLabPublisherMixin:
         cls, publishers: list[Self], environment: str | None
     ) -> Self | None:
         if environment:
-            specific_publishers = [
-                p for p in publishers if p.environment == environment.lower()
-            ]
-            if specific_publishers:
-                return specific_publishers[0]
+            if specific_publisher := first_true(
+                publishers, pred=lambda p: p.environment == environment.lower()
+            ):
+                return specific_publisher
 
-        general_publishers = [p for p in publishers if p.environment == ""]
-        if general_publishers:
-            return general_publishers[0]
+        if general_publisher := first_true(
+            publishers, pred=lambda p: p.environment == ""
+        ):
+            return general_publisher
 
         return None
 

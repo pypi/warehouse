@@ -12,6 +12,7 @@
 
 from typing import Any, Self
 
+from more_itertools import first_true
 from pypi_attestations import GooglePublisher as GoogleIdentity, Publisher
 from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists
 from sqlalchemy.dialects.postgresql import UUID
@@ -75,13 +76,14 @@ class GooglePublisherMixin:
         publishers = query.with_session(session).all()
 
         if sub := signed_claims.get("sub"):
-            specific_publishers = [p for p in publishers if p.sub == sub]
-            if specific_publishers:
-                return specific_publishers[0]
+            if specific_publisher := first_true(
+                publishers, pred=lambda p: p.sub == sub
+            ):
+                return specific_publisher
 
-        general_publishers = [p for p in publishers if p.sub == ""]
-        if general_publishers:
-            return general_publishers[0]
+        if general_publisher := first_true(publishers, pred=lambda p: p.sub == ""):
+            return general_publisher
+
         raise InvalidPublisherError("Publisher with matching claims was not found")
 
     @property
