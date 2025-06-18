@@ -162,19 +162,12 @@ class OIDCPublisherMixin:
     # required and optional attributes, and thus can't be naively looked
     # up from a raw claim set.
     #
-    # Each subclass should explicitly override this list to contain
-    # class methods that take a `SignedClaims` and return a SQLAlchemy
-    # expression that, when queried, should produce exactly one or no result.
-    # This list should be ordered by specificity, e.g. selecting for the
-    # expression with the most optional constraints first, and ending with
-    # the expression with only required constraints.
+    # Each subclass should explicitly override this method, which takes
+    # a set of claims (`SignedClaims`) and returns a Publisher.
+    # In case that multiple publishers satisfy the given claims, the
+    # most specific publisher should be the one returned, i.e. the one with
+    # the most optional constraints satisfied.
     #
-    # TODO(ww): In principle this list is computable directly from
-    # `__required_verifiable_claims__` and `__optional_verifiable_claims__`,
-    # but there are a few problems: those claim sets don't map to their
-    # "equivalent" column (only to an instantiated property), and may not
-    # even have an "equivalent" column.
-
     @classmethod
     def lookup_by_claims(cls, session, signed_claims: SignedClaims) -> Self:
         raise NotImplementedError
@@ -234,7 +227,7 @@ class OIDCPublisherMixin:
                 with sentry_sdk.new_scope() as scope:
                     scope.fingerprint = [claim_name]
                     sentry_sdk.capture_message(
-                        f"JWT for {cls.__name__} is missing claim: " f"{claim_name}"
+                        f"JWT for {cls.__name__} is missing claim: {claim_name}"
                     )
                 raise InvalidPublisherError(f"Missing claim {claim_name!r}")
 
