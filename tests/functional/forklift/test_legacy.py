@@ -21,11 +21,21 @@ import pytest
 
 from webob.multidict import MultiDict
 
-from tests.common.db.oidc import GitHubPublisherFactory
+from tests.common.db.oidc import (
+    ActiveStatePublisherFactory,
+    GitHubPublisherFactory,
+    GitLabPublisherFactory,
+    GooglePublisherFactory,
+)
 from tests.common.db.packaging import ProjectFactory, RoleFactory
 from warehouse.macaroons import caveats
 
-from ...common.constants import DUMMY_GITHUB_OIDC_JWT
+from ...common.constants import (
+    DUMMY_ACTIVESTATE_OIDC_JWT,
+    DUMMY_GITHUB_OIDC_JWT,
+    DUMMY_GITLAB_OIDC_JWT,
+    DUMMY_GOOGLE_OIDC_JWT,
+)
 from ...common.db.accounts import UserFactory
 from ...common.db.macaroons import MacaroonFactory
 
@@ -424,8 +434,37 @@ def test_provenance_upload(webtest):
             },
             DUMMY_GITHUB_OIDC_JWT,
         ),
+        (
+            ActiveStatePublisherFactory,
+            {
+                "organization": "fakeorg",
+                "activestate_project_name": "fakeproject",
+                "actor": "foo",
+                "actor_id": "fake",
+            },
+            DUMMY_ACTIVESTATE_OIDC_JWT,
+        ),
+        (
+            GitLabPublisherFactory,
+            {
+                "namespace": "foo",
+                "project": "bar",
+                "workflow_filepath": ".gitlab-ci.yml",
+                "environment": "",
+            },
+            DUMMY_GITLAB_OIDC_JWT,
+        ),
+        (
+            GooglePublisherFactory,
+            {
+                "email": "user@example.com",
+                "sub": "111260650121185072906",
+            },
+            DUMMY_GOOGLE_OIDC_JWT,
+        ),
     ],
 )
+@pytest.mark.usefixtures("_enable_all_oidc_providers")
 def test_trusted_publisher_upload_ok(
     webtest, publisher_factory, publisher_data, oidc_jwt
 ):
@@ -436,6 +475,7 @@ def test_trusted_publisher_upload_ok(
         projects=[project],
         **publisher_data,
     )
+
     response = webtest.post_json(
         "/_/oidc/mint-token",
         params={
@@ -488,8 +528,37 @@ def test_trusted_publisher_upload_ok(
             },
             DUMMY_GITHUB_OIDC_JWT,
         ),
+        (
+            ActiveStatePublisherFactory,
+            {
+                "organization": "wrong",
+                "activestate_project_name": "fakeproject",
+                "actor": "foo",
+                "actor_id": "fake",
+            },
+            DUMMY_ACTIVESTATE_OIDC_JWT,
+        ),
+        (
+            GitLabPublisherFactory,
+            {
+                "namespace": "wrong",
+                "project": "bar",
+                "workflow_filepath": ".gitlab-ci.yml",
+                "environment": "fake",
+            },
+            DUMMY_GITLAB_OIDC_JWT,
+        ),
+        (
+            GooglePublisherFactory,
+            {
+                "email": "wrong@example.com",
+                "sub": "111260650121185072906",
+            },
+            DUMMY_GOOGLE_OIDC_JWT,
+        ),
     ],
 )
+@pytest.mark.usefixtures("_enable_all_oidc_providers")
 def test_trusted_publisher_upload_fails_wrong_publisher(
     webtest, publisher_factory, publisher_data, oidc_jwt
 ):
