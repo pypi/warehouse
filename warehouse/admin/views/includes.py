@@ -9,7 +9,7 @@ from warehouse.packaging.models import ProhibitedProjectName, Project
 
 @view_config(
     route_name="includes.administer-project-include",
-    renderer="includes/admin/administer-project-include.html",
+    renderer="warehouse:templates/includes/admin/administer-project-include.html",
     uses_session=True,
 )
 def administer_project_include(request):
@@ -47,7 +47,7 @@ def administer_project_include(request):
 @view_config(
     route_name="includes.administer-user-include",
     context=User,
-    renderer="includes/admin/administer-user-include.html",
+    renderer="warehouse:templates/includes/admin/administer-user-include.html",
     uses_session=True,
 )
 def administer_user_include(user, request):

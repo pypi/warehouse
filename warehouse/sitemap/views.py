@@ -25,7 +25,7 @@ class BucketTooSmallError(ValueError):
 
 @view_config(
     route_name="index.sitemap.xml",
-    renderer="sitemap/index.xml",
+    renderer="warehouse:templates/sitemap/index.xml",
     decorator=[
         cache_control(1 * 60 * 60),  # 1 hour
         origin_cache(
@@ -91,7 +91,7 @@ def sitemap_index(request):
 
 @view_config(
     route_name="bucket.sitemap.xml",
-    renderer="sitemap/bucket.xml",
+    renderer="warehouse:templates/sitemap/bucket.xml",
     decorator=[
         cache_control(1 * 60 * 60),  # 1 hour
         origin_cache(

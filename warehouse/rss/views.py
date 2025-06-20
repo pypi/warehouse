@@ -35,7 +35,7 @@ def _format_author(release):
 
 @view_config(
     route_name="rss.updates",
-    renderer="rss/updates.xml",
+    renderer="warehouse:templates/rss/updates.xml",
     decorator=[
         origin_cache(
             1 * 24 * 60 * 60,  # 1 day
@@ -62,7 +62,7 @@ def rss_updates(request):
 
 @view_config(
     route_name="rss.packages",
-    renderer="rss/packages.xml",
+    renderer="warehouse:templates/rss/packages.xml",
     decorator=[
         origin_cache(
             1 * 24 * 60 * 60,  # 1 day
@@ -92,7 +92,7 @@ def rss_packages(request):
 @view_config(
     route_name="rss.project.releases",
     context=Project,
-    renderer="rss/project_releases.xml",
+    renderer="warehouse:templates/rss/project_releases.xml",
     decorator=[
         origin_cache(
             1 * 24 * 60 * 60, stale_if_error=5 * 24 * 60 * 60  # 1 day, 5 days stale
