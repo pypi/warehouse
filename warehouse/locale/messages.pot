@@ -1239,16 +1239,19 @@ msgstr ""
 msgid "Search PyPI"
 msgstr ""
 
-#: warehouse/templates/base.html:257 warehouse/templates/base.html:289
-#: warehouse/templates/error-base-with-search.html:13
-#: warehouse/templates/index.html:35
-msgid "Search projects"
+#: warehouse/templates/base.html:257 warehouse/templates/index.html:35
+msgid "Type '/' to search projects"
 msgstr ""
 
 #: warehouse/templates/base.html:268 warehouse/templates/base.html:297
 #: warehouse/templates/error-base-with-search.html:19
 #: warehouse/templates/index.html:44
 msgid "Search"
+msgstr ""
+
+#: warehouse/templates/base.html:289
+#: warehouse/templates/error-base-with-search.html:13
+msgid "Search projects"
 msgstr ""
 
 #: warehouse/templates/base.html:315
