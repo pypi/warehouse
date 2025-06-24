@@ -339,6 +339,9 @@ def get_app_config(database, nondefaults=None):
         "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
         "warehouse.xmlrpc.cache.url": "redis://localhost:0/",
         "terms.revision": "initial",
+        "oidc.jwk_cache_url": "redis://localhost:0/",
+        "warehouse.oidc.audience": "pypi",
+        "oidc.backend": "warehouse.oidc.services.NullOIDCPublisherService",
     }
 
     if nondefaults:
@@ -597,6 +600,28 @@ def db_request(pyramid_request, db_session, tm):
         hashed_ip_address=pyramid_request.remote_addr_hashed,
     )
     return pyramid_request
+
+
+@pytest.fixture
+def _enable_all_oidc_providers(webtest):
+    flags = (
+        AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
+        AdminFlagValue.DISALLOW_GITLAB_OIDC,
+        AdminFlagValue.DISALLOW_GITHUB_OIDC,
+        AdminFlagValue.DISALLOW_GOOGLE_OIDC,
+    )
+    original_flag_values = {}
+    db_sess = webtest.extra_environ["warehouse.db_session"]
+
+    for flag in flags:
+        flag_db = db_sess.get(AdminFlag, flag.value)
+        original_flag_values[flag] = flag_db.enabled
+        flag_db.enabled = False
+    yield
+
+    for flag in flags:
+        flag_db = db_sess.get(AdminFlag, flag.value)
+        flag_db.enabled = original_flag_values[flag]
 
 
 @pytest.fixture

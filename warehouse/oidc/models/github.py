@@ -2,8 +2,9 @@
 
 import re
 
-from typing import Any
+from typing import Any, Self
 
+from more_itertools import first_true
 from pypi_attestations import GitHubPublisher as GitHubIdentity, Publisher
 from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists
 from sqlalchemy.dialects.postgresql import UUID
@@ -182,49 +183,50 @@ class GitHubPublisherMixin:
         "ref_protected",
     }
 
-    @staticmethod
-    def __lookup_all__(klass, signed_claims: SignedClaims) -> Query | None:
-        # This lookup requires the environment claim to be present;
-        # if it isn't, bail out early.
-        if not (environment := signed_claims.get("environment")):
-            return None
+    # Get the most specific publisher from a list of publishers,
+    # where publishers constrained with an environment are more
+    # specific than publishers not constrained on environment.
+    @classmethod
+    def _get_publisher_for_environment(
+        cls, publishers: list[Self], environment: str | None
+    ) -> Self | None:
+        if environment:
+            if specific_publisher := first_true(
+                publishers, pred=lambda p: p.environment == environment.lower()
+            ):
+                return specific_publisher
 
+        if general_publisher := first_true(
+            publishers, pred=lambda p: p.environment == ""
+        ):
+            return general_publisher
+
+        return None
+
+    @classmethod
+    def lookup_by_claims(cls, session, signed_claims: SignedClaims) -> Self:
         repository = signed_claims["repository"]
         repository_owner, repository_name = repository.split("/", 1)
-        workflow_ref = signed_claims["job_workflow_ref"]
+        job_workflow_ref = signed_claims["job_workflow_ref"]
+        environment = signed_claims.get("environment")
 
-        if not (workflow_filename := _extract_workflow_filename(workflow_ref)):
-            return None
+        if not (job_workflow_filename := _extract_workflow_filename(job_workflow_ref)):
+            raise InvalidPublisherError(
+                "Could not job extract workflow filename from OIDC claims"
+            )
 
-        return Query(klass).filter_by(
+        query: Query = Query(cls).filter_by(
             repository_name=repository_name,
             repository_owner=repository_owner,
             repository_owner_id=signed_claims["repository_owner_id"],
-            environment=environment.lower(),
-            workflow_filename=workflow_filename,
+            workflow_filename=job_workflow_filename,
         )
+        publishers = query.with_session(session).all()
 
-    @staticmethod
-    def __lookup_no_environment__(klass, signed_claims: SignedClaims) -> Query | None:
-        repository = signed_claims["repository"]
-        repository_owner, repository_name = repository.split("/", 1)
-        workflow_ref = signed_claims["job_workflow_ref"]
-
-        if not (workflow_filename := _extract_workflow_filename(workflow_ref)):
-            return None
-
-        return Query(klass).filter_by(
-            repository_name=repository_name,
-            repository_owner=repository_owner,
-            repository_owner_id=signed_claims["repository_owner_id"],
-            environment="",
-            workflow_filename=workflow_filename,
-        )
-
-    __lookup_strategies__ = [
-        __lookup_all__,
-        __lookup_no_environment__,
-    ]
+        if publisher := cls._get_publisher_for_environment(publishers, environment):
+            return publisher
+        else:
+            raise InvalidPublisherError("Publisher with matching claims was not found")
 
     @property
     def _workflow_slug(self):
