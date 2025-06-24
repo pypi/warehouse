@@ -19,7 +19,7 @@ if typing.TYPE_CHECKING:
 
 @view_config(
     route_name="admin.ip_address.list",
-    renderer="admin/ip_addresses/list.html",
+    renderer="warehouse.admin:templates/admin/ip_addresses/list.html",
     permission=Permissions.AdminIpAddressesRead,
     uses_session=True,
 )
@@ -46,7 +46,7 @@ def ip_address_list(request: Request) -> dict[str, SQLAlchemyORMPage[IpAddress] 
 
 @view_config(
     route_name="admin.ip_address.detail",
-    renderer="admin/ip_addresses/detail.html",
+    renderer="warehouse.admin:templates/admin/ip_addresses/detail.html",
     permission=Permissions.AdminIpAddressesRead,
     uses_session=True,
 )

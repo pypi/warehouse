@@ -13,7 +13,7 @@ from warehouse.forms import URIValidator
 
 @view_config(
     route_name="admin.banner.list",
-    renderer="admin/banners/list.html",
+    renderer="warehouse.admin:templates/admin/banners/list.html",
     permission=Permissions.AdminBannerRead,
     request_method="GET",
     uses_session=True,
@@ -25,7 +25,7 @@ def banner_list(request):
 
 @view_config(
     route_name="admin.banner.edit",
-    renderer="admin/banners/edit.html",
+    renderer="warehouse.admin:templates/admin/banners/edit.html",
     permission=Permissions.AdminBannerRead,
     request_method="GET",
     uses_session=True,
@@ -34,7 +34,7 @@ def banner_list(request):
 )
 @view_config(
     route_name="admin.banner.edit",
-    renderer="admin/banners/edit.html",
+    renderer="warehouse.admin:templates/admin/banners/edit.html",
     permission=Permissions.AdminBannerWrite,
     request_method="POST",
     uses_session=True,
@@ -60,7 +60,7 @@ def edit_banner(request):
 
 @view_config(
     route_name="admin.banner.create",
-    renderer="admin/banners/edit.html",
+    renderer="warehouse.admin:templates/admin/banners/edit.html",
     permission=Permissions.AdminBannerRead,
     request_method="GET",
     uses_session=True,
@@ -69,7 +69,7 @@ def edit_banner(request):
 )
 @view_config(
     route_name="admin.banner.create",
-    renderer="admin/banners/edit.html",
+    renderer="warehouse.admin:templates/admin/banners/edit.html",
     permission=Permissions.AdminBannerWrite,
     request_method="POST",
     uses_session=True,
@@ -124,7 +124,7 @@ def delete_banner(request):
     uses_session=True,
     require_csrf=True,
     has_translations=True,
-    renderer="admin/banners/preview.html",
+    renderer="warehouse.admin:templates/admin/banners/preview.html",
 )
 def preview_banner(request):
     id_ = request.matchdict["banner_id"]

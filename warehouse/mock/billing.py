@@ -34,14 +34,14 @@ class MockBillingViews:
 
     @view_config(
         route_name="mock.billing.checkout-session",
-        renderer="mock/billing/checkout-session.html",
+        renderer="warehouse:templates/mock/billing/checkout-session.html",
     )
     def mock_checkout_session(self):
         return {"organization": self.organization}
 
     @view_config(
         route_name="mock.billing.portal-session",
-        renderer="mock/billing/portal-session.html",
+        renderer="warehouse:templates/mock/billing/portal-session.html",
     )
     def mock_portal_session(self):
         return {"organization": self.organization}

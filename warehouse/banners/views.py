@@ -9,7 +9,7 @@ from warehouse.banners.models import Banner
 
 @view_config(
     route_name="includes.db-banners",
-    renderer="includes/banner-messages.html",
+    renderer="warehouse:templates/includes/banner-messages.html",
     uses_session=True,
     has_translations=True,
 )

@@ -20,7 +20,7 @@ from warehouse.utils.paginate import paginate_url_factory
 
 @view_config(
     route_name="admin.emails.list",
-    renderer="admin/emails/list.html",
+    renderer="warehouse.admin:templates/admin/emails/list.html",
     permission=Permissions.AdminEmailsRead,
     request_method="GET",
     uses_session=True,
@@ -111,7 +111,7 @@ def email_mass(request):
 
 @view_config(
     route_name="admin.emails.detail",
-    renderer="admin/emails/detail.html",
+    renderer="warehouse.admin:templates/admin/emails/detail.html",
     permission=Permissions.AdminEmailsRead,
     request_method="GET",
     uses_session=True,
