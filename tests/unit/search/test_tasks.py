@@ -176,7 +176,7 @@ class FakeESIndices:
         if not self.aliases[name]:
             del self.aliases[name]
 
-    def update_aliases(self, body):
+    def update_aliases(self, *, body):
         for items in body["actions"]:
             for action, values in items.items():
                 if action == "add":
