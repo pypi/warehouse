@@ -31,13 +31,14 @@
 # Alexis <alexis.challande@trailofbits.com>, 2024.
 # Mohamed Brahimi <momohb2007@gmail.com>, 2025.
 # Luc SIGIER <lucsigier@gmail.com>, 2025.
+# Laurent FAVOLE <lfavole@users.noreply.hosted.weblate.org>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2025-03-12 17:48+0000\n"
-"Last-Translator: Luc SIGIER <lucsigier@gmail.com>\n"
+"PO-Revision-Date: 2025-06-24 17:14+0000\n"
+"Last-Translator: Laurent FAVOLE <lfavole@users.noreply.hosted.weblate.org>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/pypa/warehouse/fr/"
 ">\n"
 "Language: fr\n"
@@ -45,7 +46,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.10.3-dev\n"
+"X-Generator: Weblate 5.13-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:148
@@ -469,7 +470,7 @@ msgstr "Aperçu de la bannière"
 
 #: warehouse/manage/forms.py:380
 msgid "Provide your response to the request."
-msgstr ""
+msgstr "Donnez votre réponse à la requête."
 
 #: warehouse/manage/forms.py:421
 msgid "Choose an organization account name with 50 characters or less."
@@ -556,16 +557,12 @@ msgstr ""
 "d’au plus 400 caractères."
 
 #: warehouse/manage/forms.py:664
-#, fuzzy
-#| msgid ""
-#| "The description is too long. Choose a description with 400 characters or "
-#| "less."
 msgid ""
 "We don't need to know quite that much :), limit your usage description to "
 "1024 characters or less."
 msgstr ""
-"La description est trop longue. Choisissez une description d’au plus 400 "
-"caractères."
+"Nous n'avons pas besoin d'en savoir autant :), limitez votre description à 1 "
+"024 caractères ou moins."
 
 #: warehouse/manage/forms.py:686
 msgid "You have already submitted the maximum number of "
@@ -877,10 +874,8 @@ msgid "Publisher must be specified by ID"
 msgstr "L'auteur doit être spécifié par son identifiant"
 
 #: warehouse/oidc/forms/_core.py:123
-#, fuzzy
-#| msgid "Specify project name"
 msgid "Specify an environment name"
-msgstr "Spécifiez le nom du projet"
+msgstr "Spécifiez un nom d'environnement"
 
 #: warehouse/oidc/forms/activestate.py:37
 msgid "Double dashes are not allowed in the name"
@@ -983,14 +978,19 @@ msgstr ""
 #: warehouse/oidc/forms/github.py:155
 msgid "Environment name is too long (maximum is 255 characters)"
 msgstr ""
+"Le nom de l'environnement est trop long (le maximum est de 255 caractères)"
 
 #: warehouse/oidc/forms/github.py:160
 msgid "Environment name may not start with whitespace"
 msgstr ""
+"Le nom de l'environnement ne peut pas commencer par des caractères "
+"d'espacement"
 
 #: warehouse/oidc/forms/github.py:165
 msgid "Environment name may not end with whitespace"
 msgstr ""
+"Le nom de l'environnement ne peut pas se terminer par des caractères "
+"d'espacement"
 
 #: warehouse/oidc/forms/github.py:171
 msgid ""

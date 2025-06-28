@@ -34,13 +34,14 @@
 # Soyoung Kang <studydatawithme@gmail.com>, 2024.
 # alpakaka0o0 <alpakaka000808@gmail.com>, 2024.
 # semi-yu <urban.manul.1919@gmail.com>, 2024.
+# 이하준 <limelemonhj@gmail.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2025-03-19 11:38+0000\n"
-"Last-Translator: Junwon Lee <cpprhtn@naver.com>\n"
+"PO-Revision-Date: 2025-06-28 11:17+0000\n"
+"Last-Translator: 이하준 <limelemonhj@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/pypa/warehouse/ko/"
 ">\n"
 "Language: ko\n"
@@ -48,7 +49,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.11-dev\n"
+"X-Generator: Weblate 5.13-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:148
@@ -1013,16 +1014,16 @@ msgstr[0] "등록자:"
 #: warehouse/static/js/warehouse/utils/timeago.js:26
 msgid "About an hour ago"
 msgid_plural "About %1 hours ago"
-msgstr[0] ""
+msgstr[0] "약 %1 시간 전"
 
 #: warehouse/static/js/warehouse/utils/timeago.js:28
 msgid "About a minute ago"
 msgid_plural "About %1 minutes ago"
-msgstr[0] ""
+msgstr[0] "약 %1분전"
 
 #: warehouse/static/js/warehouse/utils/timeago.js:30
 msgid "Just now"
-msgstr ""
+msgstr "방금"
 
 #: warehouse/subscriptions/models.py:25
 #: warehouse/templates/manage/project/history.html:209
@@ -1219,13 +1220,6 @@ msgid "Rely on PyPI to get your job done?"
 msgstr "업무를 수행하는데 PyPI를 필요로 하십니까?"
 
 #: warehouse/templates/500.html:32
-#, fuzzy
-#| msgid ""
-#| "Consider <a href=\"https://github.com/pypi/warehouse\" target=\"_blank\" "
-#| "rel=\"noopener\"> contributing </a> or <a href=\"https://psfmember.org/"
-#| "civicrm/contribute/transact?reset=1&id=13\" target=\"_blank\" "
-#| "rel=\"noopener\"> donating </a> to help us build a more stable and secure "
-#| "platform."
 msgid ""
 "Consider <a href=\"https://github.com/pypi/warehouse\" target=\"_blank\" "
 "rel=\"noopener\">contributing</a> or <a href=\"https://psfmember.org/civicrm/"
@@ -1233,10 +1227,11 @@ msgid ""
 "rel=\"noopener\">donating</a> to help us build a more stable and secure "
 "platform."
 msgstr ""
-"보다 안정적이고 안전한 플랫폼을 만드는데 <a href=\"https://github.com/pypi/"
-"warehouse\" target=\"_blank\" rel=\"noopener\">기여하거나</a>, <a "
-"href=\"https://psfmember.org/civicrm/contribute/transact?reset=1&id=13\" "
-"target=\"_blank\" rel=\"noopener\">후원</a>하는 것을 고려해보세요."
+"보다 안정적이고 안전한 플랫폼을 만드는데 <a href="
+"\"https://github.com/pypi/warehouse\" target=\"_blank\" rel=\"noopener\""
+">기여하거나</a>, <a href="
+"\"https://psfmember.org/civicrm/contribute/transact?reset=1&id=13\" target="
+"\"_blank\" rel=\"noopener\">후원</a>하는 것을 고려해보세요."
 
 #: warehouse/templates/base.html:13
 msgid ""
@@ -1265,7 +1260,7 @@ msgstr "도움말"
 
 #: warehouse/templates/base.html:36
 msgid "Docs"
-msgstr ""
+msgstr "문서"
 
 #: warehouse/templates/base.html:40 warehouse/templates/base.html:71
 #: warehouse/templates/includes/current-user-indicator.html:83
@@ -1397,10 +1392,8 @@ msgid "Search PyPI"
 msgstr "PyPI 검색"
 
 #: warehouse/templates/base.html:257 warehouse/templates/index.html:35
-#, fuzzy
-#| msgid "Search projects"
 msgid "Type '/' to search projects"
-msgstr "프로젝트 검색"
+msgstr "프로젝트 검색을 하려면 '/'을 입력하세요"
 
 #: warehouse/templates/base.html:268 warehouse/templates/base.html:297
 #: warehouse/templates/error-base-with-search.html:19
@@ -1504,8 +1497,6 @@ msgstr "PyPI 내비게이션 사용하기"
 
 #: warehouse/templates/base.html:414
 #: warehouse/templates/manage/organization/activate_subscription.html:21
-#, fuzzy
-#| msgid "Terms of Use"
 msgid "Terms of Service"
 msgstr "이용 약관"
 
@@ -1961,14 +1952,12 @@ msgstr "%(user)s 사용자는 아직 PyPI에 프로젝트를 등록하지 않았
 msgid "%(count)s <a href=\"%(href)s#archived-project\">archived</a> project"
 msgid_plural ""
 "%(count)s <a href=\"%(href)s#archived-project\">archived</a> projects"
-msgstr[0] ""
+msgstr[0] "보관된 <a href=\"%(href)s#archived-project\">프로젝트: </a> %(count)s개"
 
 #: warehouse/templates/accounts/profile.html:97
 #: warehouse/templates/manage/projects.html:80
-#, fuzzy
-#| msgid "Search projects"
 msgid "Archived"
-msgstr "프로젝트 검색"
+msgstr "보관됨"
 
 #: warehouse/templates/accounts/recovery-code.html:7
 #: warehouse/templates/manage/manage_base.html:27
@@ -2012,11 +2001,9 @@ msgstr ""
 "서 본인을 인증하세요. 사용 된 복구 코드는 더 이상 유효하지 않습니다."
 
 #: warehouse/templates/accounts/recovery-code.html:56
-#, fuzzy, python-format
-#| msgid "<p>Not working? <a href=\"%(href)s\">Get help</a>.</p>"
+#, python-format
 msgid "<p> Not working? <a href=\"%(href)s\">Get help</a>. </p>"
-msgstr ""
-"<p>작동하지 않고있나요? <a href=\"%(href)s\">도움을 받아보세요</a>.</p>"
+msgstr "<p>작동하지 않나요? <a href=\"%(href)s\">도움을 받아보세요</a>.</p>"
 
 #: warehouse/templates/accounts/register.html:7
 msgid "Create an account"
@@ -2061,24 +2048,21 @@ msgid "Do not use %(title)s to conduct security research."
 msgstr "%(title)s를 보안 연구에 사용하지 마십시오."
 
 #: warehouse/templates/accounts/register.html:31
-#, fuzzy, python-format
-#| msgid ""
-#| "For more information, please read the full <a href=\"%(tou)s\" "
-#| "rel=\"noopener\">Terms of Use</a> and <a href=\"%(aup)s\" "
-#| "rel=\"noopener\">Acceptable Use Policy</a>."
+#, python-format
 msgid ""
 "For more information, please read the full <a href=\"%(aup)s\" "
 "rel=\"noopener\">Acceptable Use Policy</a>."
 msgstr ""
-"자세한 내용은 전체 <a href=\"%(tou)s\" rel=\"noopener\">이용 약관</a> 및 <a "
-"href=\"%(aup)s\" rel=\"noopener\">허용 사용 정책</a>을 읽어보십시오."
+"자세한 내용은 <a href=\"%(tou)s\" rel=\"noopener\">이용 약관</a> 및 <a href="
+"\"%(aup)s\" rel=\"noopener\">허용 사용 정책</a>을 참고하세요."
 
 #: warehouse/templates/accounts/register.html:36
 #, python-format
 msgid ""
 "By registering, you agree to the <a href=\"%(tos)s\">PyPI Terms of Service</"
 "a>."
-msgstr ""
+msgstr "회원가입을 진행하면 <a href=\"%(tos)s\">PyPI 서비스 이용 약관</a>에 동의하는 "
+"것으로 간주됩니다."
 
 #: warehouse/templates/accounts/register.html:55
 #: warehouse/templates/manage/account.html:149
@@ -2162,16 +2146,11 @@ msgid "Reset email sent"
 msgstr "재설정 이메일 발송"
 
 #: warehouse/templates/accounts/request-password-reset.html:41
-#, fuzzy
-#| msgid ""
-#| "If you submitted a valid username or email address, an email has been "
-#| "sent to your registered email address."
 msgid ""
 "If you submitted a valid username or verified email address, an email has "
 "been sent to your registered email address."
-msgstr ""
-"유효한 사용자 이름 또는 이메일 주소를 제출한 경우 등록된 이메일 주소로 이메일"
-"이 전송되었습니다."
+msgstr "유효한 사용자 이름 또는 이메일 주소를 제출한 경우 등록된 이메일 주소로 "
+"이메일이 전송되었습니다."
 
 #: warehouse/templates/accounts/request-password-reset.html:44
 #, python-format
