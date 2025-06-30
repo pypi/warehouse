@@ -390,7 +390,9 @@ class TestReindex:
                 index="warehouse-cbcbcbcbcb",
             )
         ]
-        assert es_client.indices.delete.calls == [pretend.call("warehouse-aaaaaaaaaa")]
+        assert es_client.indices.delete.calls == [
+            pretend.call(index="warehouse-aaaaaaaaaa")
+        ]
         assert es_client.indices.aliases == {"warehouse": ["warehouse-cbcbcbcbcb"]}
         assert es_client.indices.put_settings.calls == [
             pretend.call(
