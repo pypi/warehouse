@@ -7546,6 +7546,90 @@ class TestManageOIDCPublisherViews:
             )
         ]
 
+    def test_add_oidc_publisher_already_registered_after_normalization(
+        self, monkeypatch, db_request
+    ):
+        publisher = GitHubPublisher(
+            repository_name="some-repository",
+            repository_owner="some-owner",
+            repository_owner_id="666",
+            workflow_filename="some-workflow-filename.yml",
+            environment="some-environment",
+        )
+        post_body = MultiDict(
+            {
+                "owner": "some-owner",
+                "repository": "some-repository",
+                "workflow_filename": "some-workflow-filename.yml",
+                "environment": "SOME-environment",
+            }
+        )
+        db_request.user = UserFactory.create()
+        EmailFactory(user=db_request.user, verified=True, primary=True)
+        db_request.db.add(publisher)
+        db_request.db.flush()  # To get it in the DB
+
+        project = pretend.stub(
+            name="fakeproject",
+            oidc_publishers=[publisher],
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
+
+        db_request.registry = pretend.stub(
+            settings={
+                "github.token": "fake-api-token",
+            }
+        )
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.POST = post_body
+
+        view = views.ManageOIDCPublisherViews(project, db_request)
+        monkeypatch.setattr(
+            views.GitHubPublisherForm,
+            "_lookup_owner",
+            lambda *a: {"login": "some-owner", "id": "some-owner-id"},
+        )
+
+        monkeypatch.setattr(
+            view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
+        )
+        monkeypatch.setattr(
+            view, "_check_ratelimits", pretend.call_recorder(lambda: None)
+        )
+
+        assert view.add_github_oidc_publisher() == {
+            "disabled": {
+                "GitHub": False,
+                "GitLab": False,
+                "Google": False,
+                "ActiveState": False,
+            },
+            "project": project,
+            "github_publisher_form": view.github_publisher_form,
+            "gitlab_publisher_form": view.gitlab_publisher_form,
+            "google_publisher_form": view.google_publisher_form,
+            "activestate_publisher_form": view.activestate_publisher_form,
+            "prefilled_provider": view.prefilled_provider,
+        }
+        assert view.metrics.increment.calls == [
+            pretend.call(
+                "warehouse.oidc.add_publisher.attempt",
+                tags=["publisher:GitHub"],
+            ),
+        ]
+        assert project.record_event.calls == []
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"{str(publisher)} is already registered with fakeproject",
+                queue="error",
+            )
+        ]
+
     @pytest.mark.parametrize(
         ("view_name", "publisher_name"),
         [
