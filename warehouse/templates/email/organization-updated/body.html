@@ -1,76 +1,65 @@
-{#
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
--#}
+{# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "email/_base/body.html" %}
-
 {% set site = request.registry.settings["site.name"] %}
-
 {% block extra_style %}
-dl.update-details dt {
+  dl.update-details dt {
   font-weight: bold;
   margin-top: 0.5em;
-}
-dl.update-details dd {
+  }
+  dl.update-details dd {
   margin-left: 0;
-}
+  }
 {% endblock %}
-
-
 {% block content %}
-<p>
-  {% trans organization_name=organization_name, site=site %}The {{ site }} organization "{{ organization_name }}" has been updated.{% endtrans %}
-</p>
-
-<dl class="update-details">
-{% if organization_display_name != previous_organization_display_name %}
-  <dt>{% trans %}Old display name:{% endtrans %}</dt>
-  <dd>{{ previous_organization_display_name }}</dd>
-
-  <dt>{% trans %}New display name:{% endtrans %}</dt>
-  <dd>{{ organization_display_name }}</dd>
-  {% endif %}
-
-{% if organization_link_url != previous_organization_link_url %}
-  <dt>{% trans %}Old URL:{% endtrans %}</dt>
-  <dd>{{ previous_organization_link_url }}</dd>
-
-  <dt>{% trans %}New URL:{% endtrans %}</dt>
-  <dd>{{ organization_link_url }}</dd>
-  {% endif %}
-
-{% if organization_description != previous_organization_description %}
-  <dt>{% trans %}Old description:{% endtrans %}</dt>
-  <dd>{{ previous_organization_description }}</dd>
-
-  <dt>{% trans %}New description:{% endtrans %}</dt>
-  <dd>{{ organization_description }}</dd>
-  {% endif %}
-
-{% if organization_orgtype != previous_organization_orgtype %}
-  <dt>{% trans %}Old organization type:{% endtrans %}</dt>
-  <dd>{{ previous_organization_orgtype }}</dd>
-
-  <dt>{% trans %}New organization type:{% endtrans %}</dt>
-  <dd>{{ organization_orgtype }}</dd>
-  {% endif %}
-</dl>
-
-<p>
-  {% trans email_address="admin@pypi.org", site=site %}If this was a mistake, you can email <a href="mailto:{{ email_address }}">{{ email_address }}</a> to communicate with the {{ site }} administrators.{% endtrans %}
-</p>
+  <p>
+    {% trans organization_name=organization_name, site=site %}The {{ site }} organization "{{ organization_name }}" has been updated.{% endtrans %}
+  </p>
+  <dl class="update-details">
+    {% if organization_display_name != previous_organization_display_name %}
+      <dt>{% trans %}Old display name:{% endtrans %}</dt>
+      <dd>
+        {{ previous_organization_display_name }}
+      </dd>
+      <dt>{% trans %}New display name:{% endtrans %}</dt>
+      <dd>
+        {{ organization_display_name }}
+      </dd>
+    {% endif %}
+    {% if organization_link_url != previous_organization_link_url %}
+      <dt>{% trans %}Old URL:{% endtrans %}</dt>
+      <dd>
+        {{ previous_organization_link_url }}
+      </dd>
+      <dt>{% trans %}New URL:{% endtrans %}</dt>
+      <dd>
+        {{ organization_link_url }}
+      </dd>
+    {% endif %}
+    {% if organization_description != previous_organization_description %}
+      <dt>{% trans %}Old description:{% endtrans %}</dt>
+      <dd>
+        {{ previous_organization_description }}
+      </dd>
+      <dt>{% trans %}New description:{% endtrans %}</dt>
+      <dd>
+        {{ organization_description }}
+      </dd>
+    {% endif %}
+    {% if organization_orgtype != previous_organization_orgtype %}
+      <dt>{% trans %}Old organization type:{% endtrans %}</dt>
+      <dd>
+        {{ previous_organization_orgtype }}
+      </dd>
+      <dt>{% trans %}New organization type:{% endtrans %}</dt>
+      <dd>
+        {{ organization_orgtype }}
+      </dd>
+    {% endif %}
+  </dl>
+  <p>
+    {% trans email_address="admin@pypi.org", site=site %}If this was a mistake, you can email <a href="mailto:{{ email_address }}">{{ email_address }}</a> to communicate with the {{ site }} administrators.{% endtrans %}
+  </p>
 {% endblock %}
-
-
 {% block reason %}
-{% trans %}You are receiving this because you are an owner of this organization.{% endtrans %}
+  {% trans %}You are receiving this because you are an owner of this organization.{% endtrans %}
 {% endblock %}

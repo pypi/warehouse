@@ -11,29 +11,22 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-
 {% extends "base.html" %}
-
 {% block title %}PyPI{% endblock %}
-
 {% block content %}
-<div class="horizontal-section">
-  <div class="site-container">
-    <h1 class="page-title">Manage billing</h1>
-    <p>
-      This is a local mock of the billing portal page where users view or update their billing information.
-    </p>
-    <a class="button button--primary" href="{{ request.route_path('manage.organization.settings', organization_name=organization.normalized_name) }}">Return to PyPI</a>
-
-    <hr>
-
-    <h2>Screenshot of billing portal page</h2>
-    <p>
-      When connected to the third-party billing provider, the billing portal page will look like the screenshot below. 
-    </p>
-    <div class="callout-block">
-      <img src="{{ request.static_path('warehouse:static/dist/images/billing-portal.png') }}" alt="Screenshot of billing portal page">
+  <div class="horizontal-section">
+    <div class="site-container">
+      <h1 class="page-title">Manage billing</h1>
+      <p>This is a local mock of the billing portal page where users view or update their billing information.</p>
+      <a class="button button--primary"
+         href="{{ request.route_path('manage.organization.settings', organization_name=organization.normalized_name) }}">Return to PyPI</a>
+      <hr>
+      <h2>Screenshot of billing portal page</h2>
+      <p>When connected to the third-party billing provider, the billing portal page will look like the screenshot below.</p>
+      <div class="callout-block">
+        <img src="{{ request.static_path('warehouse:static/dist/images/billing-portal.png') }}"
+             alt="Screenshot of billing portal page">
+      </div>
     </div>
   </div>
-</div>
 {% endblock %}

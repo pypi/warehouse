@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import json
 
@@ -542,10 +532,23 @@ class TransferOrganizationProjectForm(wtforms.Form):
         ],
     )
 
+    def validate_organization(self, field):
+        if self.organization.data in self.disabled_organizations:
+            raise wtforms.validators.ValidationError(
+                _("Cannot transfer to Company Organization with inactive billing")
+            )
+
     def __init__(self, *args, organization_choices, **kwargs):
         super().__init__(*args, **kwargs)
         self.organization.choices += [
-            (name, name) for name in sorted(organization_choices)
+            (
+                str(org.id),
+                f"{org.name} (Billing inactive)" if not org.good_standing else org.name,
+            )
+            for org in sorted(organization_choices, key=lambda x: x.name)
+        ]
+        self.disabled_organizations = [
+            str(org.id) for org in organization_choices if not org.good_standing
         ]
 
 

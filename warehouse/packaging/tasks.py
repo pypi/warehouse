@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
 
@@ -322,7 +312,7 @@ def update_bigquery_release_files(task, request, dist_metadata):
     table_names = release_files_table.split()
 
     for table_name in table_names:
-        table_schema = bq.get_table(table_name).schema
+        table_schema = bq.get_table(table_name, timeout=5.0, retry=None).schema
 
         # Using the schema to populate the data allows us to automatically
         # set the values to their respective fields rather than assigning
@@ -356,7 +346,9 @@ def update_bigquery_release_files(task, request, dist_metadata):
                 json_rows[sch.name] = field_data
         json_rows = [json_rows]
 
-        bq.insert_rows_json(table=table_name, json_rows=json_rows)
+        bq.insert_rows_json(
+            table=table_name, json_rows=json_rows, timeout=5.0, retry=None
+        )
 
 
 @tasks.task(ignore_result=True, acks_late=True)

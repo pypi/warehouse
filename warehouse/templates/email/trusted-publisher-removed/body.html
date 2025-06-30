@@ -1,58 +1,37 @@
-{#
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
--#}
+{# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "email/_base/body.html" %}
-
-
 {% block content %}
-<p>
-  PyPI user <strong>{{ username }}</strong> has removed a trusted
-  publisher from a project (<strong>{{project_name}}</strong>) that you manage.
-</p>
-
-<p>
-  Publisher information:
-  <ul>
-    <li>Publisher name: {{ publisher.publisher_name }}</li>
-    {% if publisher.publisher_name == "GitHub" %}
-      <li>Workflow: {{ publisher }}</li>
-      <li>Owner: {{ publisher.repository_owner }}</li>
-      <li>Repository: {{ publisher.repository_name }}</li>
-      {% if publisher.environment %}
-        <li>Environment: {{ publisher.environment }}</li>
+  <p>
+    PyPI user <strong>{{ username }}</strong> has removed a trusted
+    publisher from a project (<strong>{{ project_name }}</strong>) that you manage.
+  </p>
+  <p>
+    Publisher information:
+    <ul>
+      <li>Publisher name: {{ publisher.publisher_name }}</li>
+      {% if publisher.publisher_name == "GitHub" %}
+        <li>Workflow: {{ publisher }}</li>
+        <li>Owner: {{ publisher.repository_owner }}</li>
+        <li>Repository: {{ publisher.repository_name }}</li>
+        {% if publisher.environment %}<li>Environment: {{ publisher.environment }}</li>{% endif %}
+      {% elif publisher.publisher_name == "Google" %}
+        <li>Email: {{ publisher.email }}</li>
+        {% if publisher.sub %}<li>Subject: {{ publisher.sub }}</li>{% endif %}
+      {% elif publisher.publisher_name == "ActiveState" %}
+        <li>ActiveState Project URL: {{ publisher.publisher_url }}</li>
+        <li>Organization: {{ publisher.organization }}</li>
+        <li>ActiveState Project name: {{ publisher.activestate_project_name }}</li>
+        <li>Actor: {{ publisher.actor }}</li>
       {% endif %}
-    {% elif publisher.publisher_name == "Google" %}
-      <li>Email: {{ publisher.email }}</li>
-      {% if publisher.sub %}
-        <li>Subject: {{ publisher.sub }}</li>
-      {% endif %}
-    {% elif publisher.publisher_name == "ActiveState" %}
-      <li>ActiveState Project URL: {{ publisher.publisher_url }}</li>
-      <li>Organization: {{ publisher.organization }}</li>
-      <li>ActiveState Project name: {{ publisher.activestate_project_name }}</li>
-      <li>Actor: {{ publisher.actor }}</li>
-    {% endif %}
-  </ul>
-</p>
-
-<p>
-  If you did not make this change and you think it was made in error, you can
-  check the "Security history" tab on the project's page.
-</p>
-
-<p>
-  If you are unable to revert the change and need to do so, you can email
-  <a href="mailto:admin@pypi.org">admin@pypi.org</a> to communicate with the PyPI
-  administrators.
-</p>
+    </ul>
+  </p>
+  <p>
+    If you did not make this change and you think it was made in error, you can
+    check the "Security history" tab on the project's page.
+  </p>
+  <p>
+    If you are unable to revert the change and need to do so, you can email
+    <a href="mailto:admin@pypi.org">admin@pypi.org</a> to communicate with the PyPI
+    administrators.
+  </p>
 {% endblock %}

@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import binascii
 import os
@@ -205,8 +195,9 @@ def reindex(self, request):
                     to_delete.add(name)
                     actions.append({"remove": {"index": name, "alias": index_base}})
                 actions.append({"add": {"index": new_index_name, "alias": index_base}})
-                client.indices.update_aliases({"actions": actions})
-                client.indices.delete(",".join(to_delete))
+                client.indices.update_aliases(body={"actions": actions})
+                for index_to_delete in to_delete:
+                    client.indices.delete(index=index_to_delete)
             else:
                 client.indices.put_alias(name=index_base, index=new_index_name)
     except redis.exceptions.LockError as exc:

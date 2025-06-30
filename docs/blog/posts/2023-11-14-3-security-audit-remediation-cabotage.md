@@ -8,6 +8,9 @@ tags:
   - security
   - transparency
   - infrastructure
+links:
+  - posts/2023-11-14-1-pypi-completes-first-security-audit.md
+  - posts/2023-11-14-2-security-audit-remediation-warehouse.md
 ---
 
 _This is part three in a three-part series.

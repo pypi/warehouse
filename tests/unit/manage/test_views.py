@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import base64
 import datetime
@@ -2677,7 +2667,7 @@ class TestManageProjectSettings:
             "add_alternate_repository_form_class": form,
         }
         assert view.transfer_organization_project_form_class.calls == [
-            pretend.call(organization_choices={"owned-org"})
+            pretend.call(organization_choices={organization_owned})
         ]
 
     def test_manage_project_settings_in_organization_owned(self, monkeypatch):
@@ -2709,7 +2699,7 @@ class TestManageProjectSettings:
             "add_alternate_repository_form_class": form,
         }
         assert view.transfer_organization_project_form_class.calls == [
-            pretend.call(organization_choices={"managed-org"})
+            pretend.call(organization_choices={organization_managed})
         ]
 
     def test_add_alternate_repository(self, monkeypatch, db_request):
@@ -3288,7 +3278,7 @@ class TestManageProjectSettings:
 
         db_request.POST = MultiDict(
             {
-                "organization": organization.normalized_name,
+                "organization": str(organization.id),
                 "confirm_transfer_organization_project_name": project.name,
             }
         )
@@ -3382,7 +3372,7 @@ class TestManageProjectSettings:
 
         db_request.POST = MultiDict(
             {
-                "organization": organization.normalized_name,
+                "organization": str(organization.id),
                 "confirm_transfer_organization_project_name": project.name,
             }
         )
@@ -3493,7 +3483,7 @@ class TestManageProjectSettings:
 
         db_request.POST = MultiDict(
             {
-                "organization": organization.normalized_name,
+                "organization": str(organization.id),
                 "confirm_transfer_organization_project_name": project.name,
             }
         )
@@ -3557,7 +3547,9 @@ class TestManageProjectSettings:
             pretend.call("manage.project.settings", project_name="foo")
         ]
         assert transfer_organization_project_form_class.calls == [
-            pretend.call(db_request.POST, organization_choices={"bar-owned", "baz"})
+            pretend.call(
+                db_request.POST, organization_choices={organization, organization_owned}
+            )
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
@@ -3591,7 +3583,7 @@ class TestManageProjectSettings:
 
         db_request.POST = MultiDict(
             {
-                "organization": organization.normalized_name,
+                "organization": str(organization.id),
                 "confirm_transfer_organization_project_name": project.name,
             }
         )
@@ -3655,7 +3647,10 @@ class TestManageProjectSettings:
             pretend.call("manage.project.settings", project_name="foo")
         ]
         assert transfer_organization_project_form_class.calls == [
-            pretend.call(db_request.POST, organization_choices={"bar-managed", "baz"})
+            pretend.call(
+                db_request.POST,
+                organization_choices={organization_managed, organization},
+            )
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"

@@ -1,42 +1,32 @@
-{#
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
--#}
+{# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "base.html" %}
-
 {% block title %}{{ super() }}{% endblock %}
-
 {% block body %}
-{% if project_name %}
-{% csi request.route_path("includes.administer-project-include", project_name=project_name) %}
-{% endcsi %}
+  {% if project_name %}
+    {% csi request.route_path("includes.administer-project-include", project_name=project_name) %}
+  {% endcsi %}
 {% endif %}
 <div class="viewport-section viewport-section--dark">
   <div class="viewport-section__content">
-    <a href="/">
-      <img alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
+    <a href="{{ request.route_path('index') }}">
+      <img alt="{{ request.registry.settings['site.name'] }}"
+           src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
     </a>
-    <h1 class="viewport-section__heading">{% block error_heading %}{% endblock %}</h1>
-
-    {% block error_search %}{% endblock error_search %}
-
+    <h1 class="viewport-section__heading">
+      {% block error_heading %}{% endblock %}
+    </h1>
+    {% block error_search %}
+    {% endblock error_search %}
     {% block error_text %}
-    <div class="viewport-section__text">
-      <p>
-        <strong>{% trans %}Error code{% endtrans %} {% block error_code %}{% endblock %}</strong>
-        <br>
-        <a href="/">{% trans %}Back to the homepage{% endtrans %}</a>
-      </p>
-    </div>
+      <div class="viewport-section__text">
+        <p>
+          <strong>{% trans %}Error code{% endtrans %}
+            {% block error_code %}{% endblock %}
+          </strong>
+          <br>
+          <a href="{{ request.route_path('index') }}">{% trans %}Back to the homepage{% endtrans %}</a>
+        </p>
+      </div>
     {% endblock error_text %}
   </div>
 </div>

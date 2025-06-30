@@ -1,114 +1,95 @@
-{#
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
--#}
+{# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "base.html" %}
-
 {% block title %}
-  {% if form.errors %}{% trans %}Error processing form{% endtrans %} -{% endif %}
+  {% if form.errors %}
+    {% trans %}Error processing form{% endtrans %} -
+  {% endif %}
   {% trans %}Log in{% endtrans %}
 {% endblock %}
-
 {% block content %}
   {% if testPyPI %}
     {% set title = "TestPyPI" %}
   {% else %}
     {% set title = "PyPI" %}
   {% endif %}
-
   <div class="horizontal-section">
     <div class="site-container">
       <h1 class="page-title">{% trans title=title %}Log in to {{ title }}{% endtrans %}</h1>
-
-      <form method="POST" action="{{ request.current_route_path() }}" id="login-form">
-        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-
-        {% if redirect.data %}
-        <input name="{{ redirect.field }}" type="hidden" value="{{ redirect.data }}">
-        {% endif %}
-
+      <form method="post"
+            action="{{ request.current_route_path() }}"
+            id="login-form">
+        <input name="csrf_token"
+               type="hidden"
+               value="{{ request.session.get_csrf_token() }}">
+        {% if redirect.data %}<input name="{{ redirect.field }}" type="hidden" value="{{ redirect.data }}">{% endif %}
         {% if form.form_errors %}
-        <ul class="form-errors" role="alert">
-          {% for error in form.form_errors %}
-          <li>{{ error }}</li>
-          {% endfor %}
-        </ul>
+          <ul class="form-errors" role="alert">
+            {% for error in form.form_errors %}<li>{{ error }}</li>{% endfor %}
+          </ul>
         {% endif %}
-
         <div class="form-group">
           <label for="username" class="form-group__label">
             {% trans %}Username{% endtrans %}
             {% if form.username.flags.required %}
-            <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+              <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
             {% endif %}
           </label>
-          {{ form.username(
-              placeholder=gettext("Your username"),
-              autocapitalize="off",
-              autocomplete="username",
-              spellcheck="false",
-              required="required",
-              class_="form-group__field",
-              aria_describedby="username-errors",
+          {{ form.username(placeholder=gettext("Your username") ,
+          autocapitalize="off",
+          autocomplete="username",
+          spellcheck="false",
+          required="required",
+          class_="form-group__field",
+          aria_describedby="username-errors",
           ) }}
           <div id="username-errors">
             {% if form.username.errors %}
-            <ul class="form-errors" role="alert">
-              {% for error in form.username.errors %}
-              <li>{{ error }}</li>
-              {% endfor %}
-            </ul>
+              <ul class="form-errors" role="alert">
+                {% for error in form.username.errors %}<li>{{ error }}</li>{% endfor %}
+              </ul>
             {% endif %}
           </div>
         </div>
-
         <div data-controller="password" class="form-group">
           <div>
             <label for="password" class="form-group__label">
               {% trans %}Password{% endtrans %}
               {% if form.password.flags.required %}
-              <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+                <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
               {% endif %}
             </label>
           </div>
-          {{ form.password(
-            placeholder=gettext("Your password"),
-            required="required",
-            class_="form-group__field",
-            autocomplete="current-password",
-            spellcheck="false", data_password_target="password",
-            aria_describedby="password-errors",
+          {{ form.password(placeholder=gettext("Your password") ,
+          required="required",
+          class_="form-group__field",
+          autocomplete="current-password",
+          spellcheck="false", data_password_target="password",
+          aria_describedby="password-errors",
           ) }}
           <div id="password-errors">
             {% if form.password.errors %}
-            <ul class="form-errors" role="alert">
-              {% for error in form.password.errors %}
-              <li>{{ error }}</li>
-              {% endfor %}
-            </ul>
+              <ul class="form-errors" role="alert">
+                {% for error in form.password.errors %}<li>{{ error }}</li>{% endfor %}
+              </ul>
             {% endif %}
           </div>
           <div class="form-group">
             <div class="split-layout margin-top--large margin-bottom--large">
               <div>
-                <input type="submit" value="{% trans %}Log in{% endtrans %}" class="button button--primary">
+                <input type="submit"
+                       value="{% trans %}Log in{% endtrans %}"
+                       class="button button--primary">
               </div>
               <label for="show-password">
-                <input data-action="change->password#togglePasswords" data-password-target="showPassword"
-                  id="show-password" type="checkbox">&nbsp;{% trans %}Show password{% endtrans %}
+                <input data-action="change->password#togglePasswords"
+                       data-password-target="showPassword"
+                       id="show-password"
+                       type="checkbox">
+                &nbsp;{% trans %}Show password{% endtrans %}
               </label>
             </div>
             <span>
-              <a href="{{request.route_url('accounts.request-password-reset')}}">{% trans %}Forgot password?{% endtrans %}</a>
+              <a href="{{ request.route_url('accounts.request-password-reset') }}">{% trans %}Forgot password?{% endtrans %}</a>
             </span>
           </div>
         </div>
