@@ -2,7 +2,7 @@
 
 import urllib
 
-from typing import Any
+from typing import Any, Self
 
 from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists
 from sqlalchemy.dialects.postgresql import UUID
@@ -81,18 +81,6 @@ class ActiveStatePublisherMixin:
         "project_visibility",
     }
 
-    @staticmethod
-    def __lookup_all__(klass, signed_claims: SignedClaims):
-        return Query(klass).filter_by(
-            organization=signed_claims["organization"],
-            activestate_project_name=signed_claims["project"],
-            actor_id=signed_claims["actor_id"],
-        )
-
-    __lookup_strategies__ = [
-        __lookup_all__,
-    ]
-
     @property
     def sub(self) -> str:
         return f"org:{self.organization}:project:{self.activestate_project_name}"
@@ -135,6 +123,17 @@ class ActiveStatePublisherMixin:
                 )
             )
         ).scalar()
+
+    @classmethod
+    def lookup_by_claims(cls, session, signed_claims: SignedClaims) -> Self:
+        query: Query = Query(cls).filter_by(
+            organization=signed_claims["organization"],
+            activestate_project_name=signed_claims["project"],
+            actor_id=signed_claims["actor_id"],
+        )
+        if publisher := query.with_session(session).one_or_none():
+            return publisher
+        raise InvalidPublisherError("Publisher with matching claims was not found")
 
 
 class ActiveStatePublisher(ActiveStatePublisherMixin, OIDCPublisher):
