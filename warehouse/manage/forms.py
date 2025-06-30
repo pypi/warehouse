@@ -532,10 +532,23 @@ class TransferOrganizationProjectForm(wtforms.Form):
         ],
     )
 
+    def validate_organization(self, field):
+        if self.organization.data in self.disabled_organizations:
+            raise wtforms.validators.ValidationError(
+                _("Cannot transfer to Company Organization with inactive billing")
+            )
+
     def __init__(self, *args, organization_choices, **kwargs):
         super().__init__(*args, **kwargs)
         self.organization.choices += [
-            (name, name) for name in sorted(organization_choices)
+            (
+                str(org.id),
+                f"{org.name} (Billing inactive)" if not org.good_standing else org.name,
+            )
+            for org in sorted(organization_choices, key=lambda x: x.name)
+        ]
+        self.disabled_organizations = [
+            str(org.id) for org in organization_choices if not org.good_standing
         ]
 
 
