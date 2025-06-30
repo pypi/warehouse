@@ -196,7 +196,8 @@ def reindex(self, request):
                     actions.append({"remove": {"index": name, "alias": index_base}})
                 actions.append({"add": {"index": new_index_name, "alias": index_base}})
                 client.indices.update_aliases(body={"actions": actions})
-                client.indices.delete(",".join(to_delete))
+                for index_to_delete in to_delete:
+                    client.indices.delete(index=index_to_delete)
             else:
                 client.indices.put_alias(name=index_base, index=new_index_name)
     except redis.exceptions.LockError as exc:
