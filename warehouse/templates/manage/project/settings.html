@@ -157,8 +157,10 @@
       </p>
       {% set action = request.route_path('manage.project.transfer_organization_project', project_name=project.normalized_name) %}
       {% set extra_fields %}
-        <label for="transfer-project-modal-organization">Organization account name</label>
-        <select id="transfer-project-modal-organization" class="form-group__field">
+        <label for="transfer_organization_project_name-modal-organization">Organization account name</label>
+        <select id="transfer_organization_project_name-modal-organization"
+                name="organization"
+                class="form-group__field">
           {% for option in transfer_organization_project_form.organization %}
             {% if option.data in transfer_organization_project_form.disabled_organizations %}
               {{ option(disabled="") }}
