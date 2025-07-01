@@ -1,125 +1,131 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "manage_team_base.html" %}
-
-{% set active_tab = 'members' %}
-
-{% block title %}{% trans team_name=team.name %}Manage members of '{{ team_name }}'{% endtrans %}{% endblock %}
-
+{% set active_tab = "members" %}
+{% block title %}
+  {% trans team_name=team.name %}Manage members of '{{ team_name }}'{% endtrans %}
+{% endblock %}
 {% macro two_factor_badge(user) -%}
   {% if user.has_two_factor %}
-  <span class="badge badge--success" title="{% trans %}2FA enabled{% endtrans %}">
-    {% trans %}2FA{% endtrans %}
-    <i class="fa fa-check" aria-hidden="true"></i>
-  </span>
+    <span class="badge badge--success"
+          title="{% trans %}2FA enabled{% endtrans %}">
+      {% trans %}2FA{% endtrans %}
+      <i class="fa fa-check" aria-hidden="true"></i>
+    </span>
   {% else %}
-  <span class="badge badge--danger" title="{% trans %}2FA disabled{% endtrans %}">
-    {% trans %}2FA{% endtrans %}
-    <i class="fa fa-times" aria-hidden="true"></i>
-  </span>
+    <span class="badge badge--danger"
+          title="{% trans %}2FA disabled{% endtrans %}">
+      {% trans %}2FA{% endtrans %}
+      <i class="fa fa-times" aria-hidden="true"></i>
+    </span>
   {% endif %}
 {% endmacro %}
-
 {% block main %}
   <h2>
     {% trans %}Members{% endtrans %}
     <span class="badge badge--neutral">{{ team.members|length }}</span>
   </h2>
-
   {% if roles %}
-  {% if request.has_permission(Permissions.OrganizationTeamsManage) %}
-  <p>
-    {% trans %}Use this page to manage which organization users are members of this team.{% endtrans %}
-  </p>
-  {% endif %}
-  <table class="table table--collaborators">
-    <caption class="sr-only">{% trans organization_name=team.organization.name %}Users who can manage {{ organization_name }}{% endtrans %}</caption>
-
-    <thead>
-      <tr>
-        <th scope="col">{% trans %}User{% endtrans %}</th>
-        <th scope="col" class="table__align-right"></th>
-      </tr>
-    </thead>
-
-    <tbody>
-    {% for role in roles|sort(attribute="user.username") %}
-      <tr>
-        <th scope="row">
-          <a href="{{ request.route_path('accounts.profile', username=role.user.username) }}" class="table__user-details">
-            {% set alt = gettext("Avatar for {user} from gravatar.com").format(user=role.user.name|default(role.user.username, true)) %}
-            <span class="table__user-gravatar">
-              <img src="{{ gravatar(request, role.user.email, size=50) }}" height="50" width="50" alt="{{ alt }}">
-            </span>
-            <span class="table__user-text">
-              <strong>{{ role.user.username }}</strong>
-              {% if role.user.name %}
-                <br><span>{{ role.user.name }}</span>
+    {% if request.has_permission(Permissions.OrganizationTeamsManage) %}
+      <p>{% trans %}Use this page to manage which organization users are members of this team.{% endtrans %}</p>
+    {% endif %}
+    <table class="table table--collaborators">
+      <caption class="sr-only">{% trans organization_name=team.organization.name %}Users who can manage {{ organization_name }}{% endtrans %}</caption>
+      <thead>
+        <tr>
+          <th scope="col">{% trans %}User{% endtrans %}</th>
+          <th scope="col" class="table__align-right"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for role in roles|sort(attribute="user.username") %}
+          <tr>
+            <th scope="row">
+              <a href="{{ request.route_path('accounts.profile', username=role.user.username) }}"
+                 class="table__user-details">
+                {% set alt = gettext("Avatar for {user} from gravatar.com").format(user=role.user.name|default(role.user.username, true)) %}
+                <span class="table__user-gravatar">
+                  <img src="{{ gravatar(request, role.user.email, size=50) }}"
+                       height="50"
+                       width="50"
+                       alt="{{ alt }}">
+                </span>
+                <span class="table__user-text">
+                  <strong>{{ role.user.username }}</strong>
+                  {% if role.user.name %}
+                    <br>
+                    <span>{{ role.user.name }}</span>
+                  {% endif %}
+                </span>
+              </a>
+            </th>
+            <td class="table__align-right">
+              {% if not request.has_permission(Permissions.OrganizationTeamsManage) and request.user.username != role.user.username %}
+                <button type="submit"
+                        class="button"
+                        title="{% trans %}Cannot remove other people from the team{% endtrans %}"
+                        disabled>{% trans %}Remove{% endtrans %}</button>
+              {% else %}
+                {% set extra_fields %}
+                  <input type="hidden" name="role_id" value="{{ role.id }}">
+                {% endset %}
+                {% set extra_description %}
+                  {% trans user=('yourself' if request.user.username == role.user.username else role.user.username) %}Remove {{ user }} from this team{% endtrans %}
+                {% endset %}
+                {% set tooltip %}
+                  {% trans user=('yourself' if request.user.username == role.user.username else role.user.username) %}Remove {{ user }} from this team{% endtrans %}
+                {% endset %}
+                {{ confirm_button(gettext("Remove") , gettext("Username"), "remove-" + role.id|string, gettext(role.user.username), extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('manage.team.delete_role', organization_name=team.organization.normalized_name, team_name=team.normalized_name), warning=False, modifier="--primary", tooltip=tooltip) }}
               {% endif %}
-            </span>
-          </a>
-        </th>
-        <td class="table__align-right">
-          {% if not request.has_permission(Permissions.OrganizationTeamsManage) and request.user.username != role.user.username %}
-            <button type="submit" class="button" title="{% trans %}Cannot remove other people from the team{% endtrans %}" disabled>{% trans %}Remove{% endtrans %}</button>
-          {% else %}
-            {% set extra_fields %}<input type="hidden" name="role_id" value="{{ role.id }}">{% endset %}
-            {% set extra_description %}{% trans user=('yourself' if request.user.username == role.user.username else role.user.username) %}Remove {{ user }} from this team{% endtrans %}{% endset %}
-            {% set tooltip %}{% trans user=('yourself' if request.user.username == role.user.username else role.user.username) %}Remove {{ user }} from this team{% endtrans %}{% endset %}
-            {{ confirm_button(gettext("Remove"), gettext("Username"), "remove-" + role.id|string, gettext(role.user.username), extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('manage.team.delete_role', organization_name=team.organization.normalized_name, team_name=team.normalized_name), warning=False, modifier="--primary", tooltip=tooltip) }}
-          {% endif %}
-          </td>
-      </tr>
-    {% endfor %}
-    </tbody>
-  </table>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   {% else %}
-  <div class="callout-block no-top-margin">
-    <p>
-      {% trans %}There are no members in this team, yet.{% endtrans %}
-      {% if request.has_permission(Permissions.OrganizationTeamsManage) %}
-      {% trans %}Get started by adding a team member below.{% endtrans %}
-      {% endif %}
-    </p>
-  </div>
-  {% endif %}
-
-  {% if request.has_permission(Permissions.OrganizationTeamsManage) %}
-  <h3>{% trans %}Add member{% endtrans %}</h3>
-  <form method="POST">
-    <div class="form-group">
-      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-      <label for="username" class="form-group__label">
-        {% trans %}User{% endtrans %}
-        {% if form.username.flags.required %}
-        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+    <div class="callout-block no-top-margin">
+      <p>
+        {% trans %}There are no members in this team, yet.{% endtrans %}
+        {% if request.has_permission(Permissions.OrganizationTeamsManage) %}
+          {% trans %}Get started by adding a team member below.{% endtrans %}
         {% endif %}
-      </label>
-      {{ form.username(
-        placeholder=gettext("Username"),
+      </p>
+    </div>
+  {% endif %}
+  {% if request.has_permission(Permissions.OrganizationTeamsManage) %}
+    <h3>{% trans %}Add member{% endtrans %}</h3>
+    <form method="post">
+      <div class="form-group">
+        <input name="csrf_token"
+               type="hidden"
+               value="{{ request.session.get_csrf_token() }}">
+        <label for="username" class="form-group__label">
+          {% trans %}User{% endtrans %}
+          {% if form.username.flags.required %}
+            <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+        </label>
+        {{ form.username(placeholder=gettext("Username") ,
         list="organization-users",
         autocomplete="off",
         autocapitalize="off",
         spellcheck="false",
         class_="form-group__field",
         aria_describedby="user-errors",
-      ) }}
-      <datalist id="organization-users">
-        {% for username in form.user_choices %}
-        <option value="{{ username }}">{{ username }}</option>
-        {% endfor %}
-      </datalist>
-      <div id="user-errors">
-        {{ field_errors(form.username) }}
+        ) }}
+        <datalist id="organization-users">
+          {% for username in form.user_choices %}<option value="{{ username }}">{{ username }}</option>{% endfor %}
+        </datalist>
+        <div id="user-errors">{{ field_errors(form.username) }}</div>
+        <p class="form-group__help-text">
+          {% trans href=request.route_path('manage.organization.roles', organization_name=team.organization.normalized_name) %}Add an organization owner, manager, or member to the team. <a href="{{ href }}">Manage organization members</a> to view all users in the organization or to invite a user to the organization.{% endtrans %}
+        </p>
       </div>
-      <p class="form-group__help-text">
-        {% trans href=request.route_path('manage.organization.roles', organization_name=team.organization.normalized_name) %}Add an organization owner, manager, or member to the team. <a href="{{ href }}">Manage organization members</a> to view all users in the organization or to invite a user to the organization.{% endtrans %}
-      </p>
-    </div>
-    <div class="form-group">
-      <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary">
-    </div>
-  </form>
+      <div class="form-group">
+        <input type="submit"
+               value="{% trans %}Add{% endtrans %}"
+               class="button button--primary">
+      </div>
+    </form>
   {% endif %}
   <br>
 {% endblock %}

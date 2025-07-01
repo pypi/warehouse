@@ -1,11 +1,9 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta name="pypi:repository-version" content="{{ meta['api-version'] }}">
-    {% for alt_repo in alternate_locations %}
-    <meta name="pypi:alternate-locations" content="{{ alt_repo }}">
-    {% endfor %}
+    {% for alt_repo in alternate_locations %}<meta name="pypi:alternate-locations" content="{{ alt_repo }}">{% endfor %}
     <title>Links for {{ name }}</title>
   </head>
   <body>

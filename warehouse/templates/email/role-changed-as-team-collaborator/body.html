@@ -1,23 +1,18 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "email/_base/body.html" %}
-
 {% set site = request.registry.settings["site.name"] %}
-
 {% block content %}
-<p>
-  {% trans project=project, submitter=submitter %}Your team's role for the {{ project }} project has been changed by {{ submitter }}.{% endtrans %}
-</p>
-
-<p>
-  {% if role == 'Owner' %}
-  {% trans %}Your team now has permissions to administer the project. You can add other collaborators, upload releases and delete files, releases or the entire project.{% endtrans %}
-  {% elif role == 'Maintainer' %}
-  {% trans %}Your team now has permissions to upload releases for the project. You can upload releases but cannot add collaborators, delete files, releases or the project.{% endtrans %}
-  {% endif %}
-</p>
+  <p>
+    {% trans project=project, submitter=submitter %}Your team's role for the {{ project }} project has been changed by {{ submitter }}.{% endtrans %}
+  </p>
+  <p>
+    {% if role == 'Owner' %}
+      {% trans %}Your team now has permissions to administer the project. You can add other collaborators, upload releases and delete files, releases or the entire project.{% endtrans %}
+    {% elif role == 'Maintainer' %}
+      {% trans %}Your team now has permissions to upload releases for the project. You can upload releases but cannot add collaborators, delete files, releases or the project.{% endtrans %}
+    {% endif %}
+  </p>
 {% endblock %}
-
 {% block reason %}
-{% trans project=project, submitter=submitter %}You are receiving this because your team's role was changed by {{ submitter }} for the {{ project }} project.{% endtrans %}
+  {% trans project=project, submitter=submitter %}You are receiving this because your team's role was changed by {{ submitter }} for the {{ project }} project.{% endtrans %}
 {% endblock %}

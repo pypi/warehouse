@@ -312,7 +312,7 @@ def update_bigquery_release_files(task, request, dist_metadata):
     table_names = release_files_table.split()
 
     for table_name in table_names:
-        table_schema = bq.get_table(table_name).schema
+        table_schema = bq.get_table(table_name, timeout=5.0, retry=None).schema
 
         # Using the schema to populate the data allows us to automatically
         # set the values to their respective fields rather than assigning
@@ -346,7 +346,9 @@ def update_bigquery_release_files(task, request, dist_metadata):
                 json_rows[sch.name] = field_data
         json_rows = [json_rows]
 
-        bq.insert_rows_json(table=table_name, json_rows=json_rows)
+        bq.insert_rows_json(
+            table=table_name, json_rows=json_rows, timeout=5.0, retry=None
+        )
 
 
 @tasks.task(ignore_result=True, acks_late=True)

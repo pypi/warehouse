@@ -1,97 +1,87 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "manage_organization_base.html" %}
-
 {% set user = request.user %}
 {% set title = gettext("Organization teams") %}
-
-{% set active_tab = 'teams' %}
-
-{% block title %}{% trans organization_name=organization.name %}Manage '{{ organization_name }}' teams{% endtrans %}{% endblock %}
-
+{% set active_tab = "teams" %}
+{% block title %}
+  {% trans organization_name=organization.name %}Manage '{{ organization_name }}' teams{% endtrans %}
+{% endblock %}
 {% block main %}
   <h2>
     {% trans %}Teams{% endtrans %}
     <span class="badge badge--neutral">{{ organization.teams|length }}</span>
   </h2>
-
   <div class="team-list">
     {% for team in organization.teams %}
-    <div class="team-snippet">
-      <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
-        <div>
-          <h3 class="team-snippet__title">{{ team.name }}
-            {% if request.user in team.members %}
-            <a href="{{ request.route_path('manage.team.roles', organization_name=organization.normalized_name, team_name=team.normalized_name) }}" class="badge">
-              Member
-            </a>
-            {% endif %}
-          </h3>
-          <p class="team-snippet__meta">
-            {% trans member_count=team.members|length %}
-            {{ member_count }} member
+      <div class="team-snippet">
+        <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
+          <div>
+            <h3 class="team-snippet__title">
+              {{ team.name }}
+              {% if request.user in team.members %}
+                <a href="{{ request.route_path('manage.team.roles', organization_name=organization.normalized_name, team_name=team.normalized_name) }}"
+                   class="badge">Member</a>
+              {% endif %}
+            </h3>
+            <p class="team-snippet__meta">
+              {% trans member_count=team.members|length %}
+              {{ member_count }} member
             {% pluralize %}
-            {{ member_count }} members
+              {{ member_count }} members
             {% endtrans %}
           </p>
         </div>
         <div class="team-snippet__buttons">
           {% if request.has_permission(Permissions.OrganizationTeamsManage) %}
-          {# Show manage button #}
-          <a
-            href="{{ request.route_path('manage.team.settings', organization_name=organization.normalized_name, team_name=team.normalized_name) }}"
-            class="button button--primary"
-            title="{% trans %}Manage this team{% endtrans %}"
-          >{% trans %}Manage{% endtrans %}</a>
+            {# Show manage button #}
+            <a href="{{ request.route_path('manage.team.settings', organization_name=organization.normalized_name, team_name=team.normalized_name) }}"
+               class="button button--primary"
+               title="{% trans %}Manage this team{% endtrans %}">{% trans %}Manage{% endtrans %}</a>
           {% else %}
-          {# Show view button #}
-          <a
-            href="{{ request.route_path('manage.team.projects', organization_name=organization.normalized_name, team_name=team.normalized_name) }}"
-            class="button"
-            title="{% trans %}View this team{% endtrans %}"
-          >{% trans %}View{% endtrans %}</a>
+            {# Show view button #}
+            <a href="{{ request.route_path('manage.team.projects', organization_name=organization.normalized_name, team_name=team.normalized_name) }}"
+               class="button"
+               title="{% trans %}View this team{% endtrans %}">{% trans %}View{% endtrans %}</a>
           {% endif %}
         </div>
       </div>
     </div>
-    {% else %}
-      <div class="callout-block no-top-margin">
-        <p>
-          {% trans %}There are no teams in your organization, yet. Organization owners and managers can create new teams for the organization.{% endtrans %}
-        </p>
-      </div>
-    {% endfor %}
-  </div>
-
-  {% if request.has_permission(Permissions.OrganizationTeamsManage) %}
+  {% else %}
+    <div class="callout-block no-top-margin">
+      <p>
+        {% trans %}There are no teams in your organization, yet. Organization owners and managers can create new teams for the organization.{% endtrans %}
+      </p>
+    </div>
+  {% endfor %}
+</div>
+{% if request.has_permission(Permissions.OrganizationTeamsManage) %}
   <hr>
-
   {{ form_error_anchor(create_team_form) }}
   <section id="add-organization-team">
     <h2 class="sub-title">{% trans %}Create new team{% endtrans %}</h2>
-    <form method="POST">
-      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+    <form method="post">
+      <input name="csrf_token"
+             type="hidden"
+             value="{{ request.session.get_csrf_token() }}">
       {{ form_errors(create_team_form) }}
       <div class="form-group">
         <label class="form-group__label" for="project">
           {% trans %}️Team name{% endtrans %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
         </label>
-        {{ create_team_form.name(
-          class_="form-group__field",
-          aria_describedby="name-errors",
-        ) }}
-        <div id="existing-team-name-errors">
-          {{ field_errors(create_team_form.name) }}
-        </div>
+        {{ create_team_form.name(class_="form-group__field",
+                aria_describedby="name-errors",) }}
+        <div id="existing-team-name-errors">{{ field_errors(create_team_form.name) }}</div>
         <p class="form-group__help-text">
           {% trans %}
           Owners and managers of this organization can create a team for the organization and manage team members, team projects, and team settings.
-          {% endtrans %}
-        </p>
-      </div>
-      <input value="{% trans %}Create{% endtrans %}" class="button button--primary" type="submit">
-    </form>
-  </section>
-  {% endif %}
+        {% endtrans %}
+      </p>
+    </div>
+    <input value="{% trans %}Create{% endtrans %}"
+           class="button button--primary"
+           type="submit">
+  </form>
+</section>
+{% endif %}
 {% endblock %}

@@ -1,23 +1,17 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "base.html" %}
-
 {% block title %}
   {% trans %}Confirm Action{% endtrans %}
 {% endblock %}
-
 {% block content %}
-
-<div class="horizontal-section">
-  <div class="site-container">
-    <h1 class="page-title">
-      {% block prompt %}
-        {% trans %}Are you sure?{% endtrans %}
-      {% endblock %}
-    </h1>
-
-    {% block main %}{% endblock %}
+  <div class="horizontal-section">
+    <div class="site-container">
+      <h1 class="page-title">
+        {% block prompt %}
+          {% trans %}Are you sure?{% endtrans %}
+        {% endblock %}
+      </h1>
+      {% block main %}{% endblock %}
+    </div>
   </div>
-</div>
-
 {% endblock %}

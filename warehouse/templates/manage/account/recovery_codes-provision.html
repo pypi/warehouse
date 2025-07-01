@@ -1,72 +1,82 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "manage/manage_base.html" %}
-
 {% set user = request.user %}
 {% set title = gettext("Account recovery codes") %}
-
-{% set active_tab = 'account' %}
-
-{% block title %}
-  {{ title }}
-{% endblock %}
-
+{% set active_tab = "account" %}
+{% block title %}{{ title }}{% endblock %}
 {# Hide mobile search on manager pages #}
 {% block mobile_search %}{% endblock %}
-
 {% block content %}
-<div class="horizontal-section">
-  <div class="site-container">
-    {% if recovery_codes is none %}
-    <div>
-      <div class="callout-block callout-block--warning">
-        <p><strong>{{ _error }}</strong></p>
-        <p>{{ _message }}</p>
-        <a href="{{ request.route_path('manage.account.recovery-codes.regenerate') }}" class="button button--secondary">{% trans %}Regenerate recovery codes{% endtrans %}</a>
-      </div>
-    </div>
-    {% else %}
-    <div class="col-grid">
-      <div class="col-half">
-        <h1 class="page-title page-title--wsubtitle heading-wsubtitle__heading">{{ title }}</h1>
-        <p>{% trans %}If you lose access to your authentication application or security key(s), you’ll need to use one of these recovery codes to log into your PyPI account. Each code can only be used <strong>once</strong>.{% endtrans %}</p>
-        <p>{% trans %}These codes should <strong>only</strong> be used for account recovery, not for typical logins.{% endtrans %}</p>
-        <p>{% trans %}<strong>Keep these somewhere safe</strong>. If you lose your authentication application or security key(s) and do not have access to these recovery codes, you may permanently lose access to your PyPI account!{% endtrans %}</p>
-      </div>
-      <div class="col-half">
-        <h2>{% trans %}Save your recovery codes{% endtrans %}</h2>
-        <div class="recovery-codes">
-          <div>
-            <div class="recovery-codes__-codes" data-controller="clipboard">
-              <ul>
-                {% for recovery_code in recovery_codes %}
-                <li><code>{{ recovery_code }}</code></li>
-                {% endfor %}
-              </ul>
-              <span hidden data-clipboard-target="source">{{ 'PyPI recovery codes\n' + recovery_codes|join('\n') }}</span>
-              <button class="button button-secondary copy-tooltip copy-tooltip-w" data-action="clipboard#copy" data-clipboard-target="tooltip" data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
-                {% trans %}Copy{% endtrans %}
-              </button>
-              {% set _sitename = "TestPyPI" if testPyPI else "PyPI" %}
-              {% set _recovery_codes_filename = _sitename + "-Recovery-Codes-" + request.user.username + "-" + request.user.recovery_codes[0].generated.isoformat() + ".txt" %}
-              <a href="data:text/plain;,{{ recovery_codes|join('%0A') }}" download="{{ _recovery_codes_filename }}" class="button button-secondary" data-tooltip-label="{% trans %}Download as file{% endtrans %}">
-                {% trans %}Save{% endtrans %}&nbsp;<span class="fa fa-download"></span>
-              </a>
-              <a href="{{ request.route_path('manage.account.recovery-codes.burn') }}" class="button  button--primary">
-                {% trans %}Continue{% endtrans %}
-              </a>
-              {% set custom_warning_text %}
-                <p><strong>{% trans %}These codes will not be visible again.{% endtrans %}</strong></p>
-              {% endset %}
-              {% set extra_description %}
-                <p>{% trans %}Ensure that you have securely stored them before continuing.{% endtrans %}</p>
-              {% endset %}
+  <div class="horizontal-section">
+    <div class="site-container">
+      {% if recovery_codes is none %}
+        <div>
+          <div class="callout-block callout-block--warning">
+            <p>
+              <strong>{{ _error }}</strong>
+            </p>
+            <p>{{ _message }}</p>
+            <a href="{{ request.route_path('manage.account.recovery-codes.regenerate') }}"
+               class="button button--secondary">{% trans %}Regenerate recovery codes{% endtrans %}</a>
+          </div>
+        </div>
+      {% else %}
+        <div class="col-grid">
+          <div class="col-half">
+            <h1 class="page-title page-title--wsubtitle heading-wsubtitle__heading">{{ title }}</h1>
+            <p>
+              {% trans %}If you lose access to your authentication application or security key(s), you’ll need to use one of these recovery codes to log into your PyPI account. Each code can only be used <strong>once</strong>.{% endtrans %}
+            </p>
+            <p>
+              {% trans %}These codes should <strong>only</strong> be used for account recovery, not for typical logins.{% endtrans %}
+            </p>
+            <p>
+              {% trans %}<strong>Keep these somewhere safe</strong>. If you lose your authentication application or security key(s) and do not have access to these recovery codes, you may permanently lose access to your PyPI account!{% endtrans %}
+            </p>
+          </div>
+          <div class="col-half">
+            <h2>{% trans %}Save your recovery codes{% endtrans %}</h2>
+            <div class="recovery-codes">
+              <div>
+                <div class="recovery-codes__-codes" data-controller="clipboard">
+                  <ul>
+                    {% for recovery_code in recovery_codes %}
+                      <li>
+                        <code>{{ recovery_code }}</code>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                  <span hidden data-clipboard-target="source">{{ 'PyPI recovery codes\n' + recovery_codes|join("\n") }}</span>
+                  <button class="button button-secondary copy-tooltip copy-tooltip-w"
+                          data-action="clipboard#copy"
+                          data-clipboard-target="tooltip"
+                          data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
+                    {% trans %}Copy{% endtrans %}
+                  </button>
+                  {% set _sitename = "TestPyPI" if testPyPI else "PyPI" %}
+                  {% set _recovery_codes_filename = _sitename + "-Recovery-Codes-" + request.user.username + "-" + request.user.recovery_codes[0].generated.isoformat() + ".txt" %}
+                  <a href="data:text/plain;,{{ recovery_codes|join("%0A") }}"
+                     download="{{ _recovery_codes_filename }}"
+                     class="button button-secondary"
+                     data-tooltip-label="{% trans %}Download as file{% endtrans %}">
+                    {% trans %}Save{% endtrans %}&nbsp;<span class="fa fa-download"></span>
+                  </a>
+                  <a href="{{ request.route_path('manage.account.recovery-codes.burn') }}"
+                     class="button  button--primary">{% trans %}Continue{% endtrans %}</a>
+                  {% set custom_warning_text %}
+                    <p>
+                      <strong>{% trans %}These codes will not be visible again.{% endtrans %}</strong>
+                    </p>
+                  {% endset %}
+                  {% set extra_description %}
+                    <p>{% trans %}Ensure that you have securely stored them before continuing.{% endtrans %}</p>
+                  {% endset %}
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      {% endif %}
     </div>
-    {% endif %}
   </div>
-</div>
 {% endblock %}

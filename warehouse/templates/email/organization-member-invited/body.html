@@ -1,34 +1,33 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "email/_base/body.html" %}
-
 {% set site = request.registry.settings["site.name"] %}
-
 {% block extra_style %}
-ul.member-details {
-    list-style-type: none;
-}
+  ul.member-details {
+  list-style-type: none;
+  }
 {% endblock %}
-
-
 {% block content %}
-<p>
-  {% trans username=username, user_profile=request.route_url('accounts.profile', username=username), organization_name=organization_name %}<a href="{{ user_profile }}">{{ username }}</a> has been invited to join the "{{ organization_name }}" organization{% endtrans %}:
-
-  <ul class="member-details">
-    <li><strong>{% trans %}Username{% endtrans %}</strong>: {{ username }}</li>
-    <li><strong>{% trans %}Role{% endtrans %}</strong>: {{ desired_role }}</li>
-    <li><strong>{% trans %}Member of{% endtrans %}</strong>: {{ organization_name }}</li>
-    <li><strong>{% trans %}Invited by{% endtrans %}</strong>: {{ initiator_username }}</li>
-  </ul>
-</p>
-
-<p>
-  {% trans email_address="admin@pypi.org", site=site %}If this was a mistake, you can email <a href="mailto:{{ email_address }}">{{ email_address }}</a> to communicate with the {{ site }} administrators.{% endtrans %}
-</p>
+  <p>
+    {% trans username=username, user_profile=request.route_url('accounts.profile', username=username), organization_name=organization_name %}<a href="{{ user_profile }}">{{ username }}</a> has been invited to join the "{{ organization_name }}" organization{% endtrans %}:
+    <ul class="member-details">
+      <li>
+        <strong>{% trans %}Username{% endtrans %}</strong>: {{ username }}
+      </li>
+      <li>
+        <strong>{% trans %}Role{% endtrans %}</strong>: {{ desired_role }}
+      </li>
+      <li>
+        <strong>{% trans %}Member of{% endtrans %}</strong>: {{ organization_name }}
+      </li>
+      <li>
+        <strong>{% trans %}Invited by{% endtrans %}</strong>: {{ initiator_username }}
+      </li>
+    </ul>
+  </p>
+  <p>
+    {% trans email_address="admin@pypi.org", site=site %}If this was a mistake, you can email <a href="mailto:{{ email_address }}">{{ email_address }}</a> to communicate with the {{ site }} administrators.{% endtrans %}
+  </p>
 {% endblock %}
-
-
 {% block reason %}
-{% trans %}You are receiving this because you are an owner of this organization.{% endtrans %}
+  {% trans %}You are receiving this because you are an owner of this organization.{% endtrans %}
 {% endblock %}

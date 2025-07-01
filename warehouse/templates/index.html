@@ -1,96 +1,110 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "base.html" %}
-
+{# djlint:off #}
 {% block title_base %}{{ request.registry.settings['site.name'] }} · {% trans %}The Python Package Index{% endtrans %}{% endblock %}
-
+{# djlint:on #}
 {% block brand %}
-<div>
-  <a class="site-header__logo" href="{{ request.route_path('index') }}">
-    <img alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
-  </a>
-</div>
-{% endblock %}
-
-{% block mobile_search %}{% endblock %}
-
-{% block content %}
-
-{% if testPyPI %}
-  {% set banner = _("Test Python package publishing with the Test Python Package Index") %}
-{% elif devPyPI %}
-  {% set banner = _("Develop the codebase behind PyPI with the Dev Python Package Index") %}
-{% else %}
-  {% set banner = _("Find, install and publish Python packages with the Python Package Index") %}
-{% endif %}
-
-<div class="banner">
-  <div class="homepage-banner">
-    <h1 class="homepage-banner__title">{{ banner }}</h1>
-
-    <form class="search-form search-form--large search-form--fullwidth" action="{{ request.route_path('search') }}" role="search">
-      <label for="search" class="sr-only">{% trans %}Search PyPI{% endtrans %}</label>
-
-      <!-- The following input is intentionally not autofocused, see https://github.com/pypi/warehouse/issues/6088 for more details -->
-      <input id="search" class="search-form__search large-input" type="text" name="q" placeholder="{% trans %}Search projects{% endtrans %}" autocomplete="off" autocapitalize="off" spellcheck="false" data-controller="search-focus" data-action="keydown@window->search-focus#focusSearchField" data-search-focus-target="searchField">
-
-      <button type="submit" class="search-form__button">
-        <i class="fa fa-search" aria-hidden="true"></i>
-        <span class="sr-only">{% trans %}Search{% endtrans %}</span>
-      </button>
-    </form>
-
-    <p class="homepage-banner__browse">{% trans href=request.route_path('search') %}Or <a href="{{ href }}">browse projects</a>{% endtrans %}</p>
+  <div>
+    <a class="site-header__logo" href="{{ request.route_path('index') }}">
+      <img alt="{{ request.registry.settings['site.name'] }}"
+           src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
+    </a>
   </div>
-</div>
-
-<div class="horizontal-section horizontal-section--grey horizontal-section--thin horizontal-section--statistics">
-  <div class="statistics-bar">
-    <p class="statistics-bar__statistic">
-    {% trans num_projects=num_projects, num_projects_formatted=num_projects|format_number %}
-      {{ num_projects_formatted }} project
-    {% pluralize num_projects %}
-      {{ num_projects_formatted }} projects
-    {% endtrans %}
+{% endblock %}
+{% block mobile_search %}{% endblock %}
+{% block content %}
+  {% if testPyPI %}
+    {% set banner = _("Test Python package publishing with the Test Python Package Index") %}
+  {% elif devPyPI %}
+    {% set banner = _("Develop the codebase behind PyPI with the Dev Python Package Index") %}
+  {% else %}
+    {% set banner = _("Find, install and publish Python packages with the Python Package Index") %}
+  {% endif %}
+  <div class="banner">
+    <div class="homepage-banner">
+      <h1 class="homepage-banner__title">{{ banner }}</h1>
+      <form class="search-form search-form--large search-form--fullwidth"
+            action="{{ request.route_path('search') }}"
+            role="search">
+        <label for="search" class="sr-only">{% trans %}Search PyPI{% endtrans %}</label>
+        <!-- The following input is intentionally not autofocused, see https://github.com/pypi/warehouse/issues/6088 for more details -->
+        <input id="search"
+               class="search-form__search large-input"
+               type="text"
+               name="q"
+               placeholder="{% trans %}Type '/' to search projects{% endtrans %}"
+               autocomplete="off"
+               autocapitalize="off"
+               spellcheck="false"
+               data-controller="search-focus"
+               data-action="keydown@window->search-focus#focusSearchField"
+               data-search-focus-target="searchField">
+        <button type="submit" class="search-form__button">
+          <i class="fa fa-search" aria-hidden="true"></i>
+          <span class="sr-only">{% trans %}Search{% endtrans %}</span>
+        </button>
+      </form>
+      <p class="homepage-banner__browse">
+        {% trans href=request.route_path('search') %}Or <a href="{{ href }}">browse projects</a>{% endtrans %}
+      </p>
+    </div>
+  </div>
+  <div class="horizontal-section horizontal-section--grey horizontal-section--thin horizontal-section--statistics">
+    <div class="statistics-bar">
+      <p class="statistics-bar__statistic">
+        {% trans num_projects=num_projects, num_projects_formatted=num_projects|format_number %}
+        {{ num_projects_formatted }} project
+      {% pluralize num_projects %}
+        {{ num_projects_formatted }} projects
+      {% endtrans %}
     </p>
     <p class="statistics-bar__statistic">
-    {% trans num_releases=num_releases, num_releases_formatted=num_releases|format_number %}
+      {% trans num_releases=num_releases, num_releases_formatted=num_releases|format_number %}
       {{ num_releases_formatted }} release
     {% pluralize num_releases %}
       {{ num_releases_formatted }} releases
     {% endtrans %}
-    </p>
-    <p class="statistics-bar__statistic">
+  </p>
+  <p class="statistics-bar__statistic">
     {% trans num_files=num_files, num_files_formatted=num_files|format_number %}
-      {{ num_files_formatted }} file
-    {% pluralize num_files %}
-      {{ num_files_formatted }} files
-    {% endtrans %}
-    </p>
-    <p class="statistics-bar__statistic">
-    {% trans num_users=num_users, num_users_formatted=num_users|format_number %}
-      {{ num_users_formatted }} user
-    {% pluralize num_users %}
-      {{ num_users_formatted }} users
-    {% endtrans %}
-    </p>
-  </div>
+    {{ num_files_formatted }} file
+  {% pluralize num_files %}
+    {{ num_files_formatted }} files
+  {% endtrans %}
+</p>
+<p class="statistics-bar__statistic">
+  {% trans num_users=num_users, num_users_formatted=num_users|format_number %}
+  {{ num_users_formatted }} user
+{% pluralize num_users %}
+  {{ num_users_formatted }} users
+{% endtrans %}
+</p>
 </div>
-
+</div>
 <div class="horizontal-section">
   <div class="about-pypi">
     <div class="about-pypi__logo">
-      <img alt="" src="{{ request.static_path('warehouse:static/dist/images/logo-large.svg') }}" loading="lazy">
+      <img alt=""
+           src="{{ request.static_path('warehouse:static/dist/images/logo-large.svg') }}"
+           loading="lazy">
     </div>
     <div class="about-pypi__text">
-      <p class="lede-paragraph">{% trans %}The Python Package Index (PyPI) is a repository of software for the Python programming language.{% endtrans %}</p>
+      <p class="lede-paragraph">
+        {% trans %}The Python Package Index (PyPI) is a repository of software for the Python programming language.{% endtrans %}
+      </p>
       <p>
         {% trans %}PyPI helps you find and install software developed and shared by the Python community.{% endtrans %}
-        <a href="https://packaging.python.org/tutorials/installing-packages/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Learn about installing packages{% endtrans %}</a>.
+        <a href="https://packaging.python.org/tutorials/installing-packages/"
+           title="{% trans %}External link{% endtrans %}"
+           target="_blank"
+           rel="noopener">{% trans %}Learn about installing packages{% endtrans %}</a>.
       </p>
       <p>
         {% trans %}Package authors use PyPI to distribute their software.{% endtrans %}
-        <a href="https://packaging.python.org/tutorials/packaging-projects/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Learn how to package your Python code for PyPI{% endtrans %}</a>.
+        <a href="https://packaging.python.org/tutorials/packaging-projects/"
+           title="{% trans %}External link{% endtrans %}"
+           target="_blank"
+           rel="noopener">{% trans %}Learn how to package your Python code for PyPI{% endtrans %}</a>.
       </p>
     </div>
   </div>

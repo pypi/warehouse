@@ -66,10 +66,10 @@
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
             <input name="project_name" type="hidden" value="{{ prohibited_project_name.name }}">
             <input name="next" type="hidden" value="{{ request.current_route_path() }}">
-            <button type="submit" class="btn btn-link" title="{{ 'Submitting requires superuser privileges' if not request.has_permission(Permissions.AdminProhibitedProjectsWrite) }}" {{ "disabled" if not request.has_permission(Permissions.AdminProhibitedProjectsWrite) }}>
+            <button type="submit" class="btn btn-link" title="{{ 'Submitting requires additional privileges' if not request.has_permission(Permissions.AdminProhibitedProjectsRelease) }}" {{ "disabled" if not request.has_permission(Permissions.AdminProhibitedProjectsRelease) }}>
               <i class="fa fa-hands"></i>
             </button>
-            <input name="username" type="text" {{ "disabled" if not request.has_permission(Permissions.AdminProhibitedProjectsWrite) }}>
+            <input name="username" type="text" {{ "disabled" if not request.has_permission(Permissions.AdminProhibitedProjectsRelease) }}>
           </form>
         </td>
       </tr>

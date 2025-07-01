@@ -1,12 +1,10 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "email/_base/body.html" %}
-
 {% block content %}
-<p>
+  <p>
     You registered a pending trusted publisher for a project
     (<strong>{{ project_name }}</strong>), but someone else has invalidated your
     pending publisher by creating the project, or one with a conflicting name,
     before you did.
-</p>
+  </p>
 {% endblock %}
