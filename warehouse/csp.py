@@ -155,7 +155,11 @@ def includeme(config):
                 "connect-src": _connect_src_settings(config),
                 "default-src": [NONE],
                 "font-src": [SELF, "fonts.gstatic.com"],
-                "form-action": [SELF, "https://checkout.stripe.com"],
+                "form-action": [
+                    SELF,
+                    "https://checkout.stripe.com",
+                    "https://billing.stripe.com",
+                ],
                 "frame-ancestors": [NONE],
                 "frame-src": [NONE],
                 "img-src": [
