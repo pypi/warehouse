@@ -399,9 +399,9 @@ click-didyoumean==0.3.1 \
     --hash=sha256:4f82fdff0dbe64ef8ab2279bd6aa3f6a99c3b28c05aa09cbfc07c9d7fbb5a463 \
     --hash=sha256:5c4bb6007cfea5f2fd6583a2fb6701a22a41eb98957e63d0fac41c10e7c3117c
     # via celery
-click-plugins==1.1.1 \
-    --hash=sha256:46ab999744a9d831159c3411bb0c79346d94a444df9a3a3742e9ed63645f264b \
-    --hash=sha256:5d262006d3222f5057fd81e1623d4443e41dcda5dc815c06b442aa3c02889fc8
+click-plugins==1.1.1.2 \
+    --hash=sha256:008d65743833ffc1f5417bf0e78e8d2c23aab04d9745ba817bd3e71b0feb6aa6 \
+    --hash=sha256:d7af3984a99d243c131aa1a828331e7630f4a88a9741fd05c927b204bcf92261
     # via celery
 click-repl==0.3.0 \
     --hash=sha256:17849c23dba3d667247dc4defe1757fff98694e90fe37474f3feebb69ced26a9 \
