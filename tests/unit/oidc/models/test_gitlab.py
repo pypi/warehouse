@@ -71,6 +71,59 @@ class TestGitLabPublisher:
         ):
             gitlab.GitLabPublisher.lookup_by_claims(pretend.stub(), signed_claims)
 
+    @pytest.mark.parametrize("environment", ["SomeEnvironment", "SOME_ENVIRONMENT"])
+    def test_lookup_succeeds_with_non_lowercase_environment(
+        self, db_request, environment
+    ):
+        # Test that we find a matching publisher when the environment claims match
+        # If we incorrectly normalized the incoming capitalized claim, we wouldn't
+        # find the matching publisher.
+        stored_publisher = GitLabPublisherFactory(
+            id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            namespace="foo",
+            project="bar",
+            workflow_filepath=".gitlab-ci.yml",
+            environment=environment,
+        )
+
+        signed_claims = {
+            "project_path": "foo/bar",
+            "ci_config_ref_uri": ("gitlab.com/foo/bar//.gitlab-ci.yml@refs/heads/main"),
+            "environment": environment,
+        }
+
+        publisher = gitlab.GitLabPublisher.lookup_by_claims(
+            db_request.db, signed_claims
+        )
+
+        assert publisher.id == stored_publisher.id
+        assert publisher.environment == environment
+
+    @pytest.mark.parametrize("environment", ["SomeEnvironment", "SOME_ENVIRONMENT"])
+    def test_lookup_is_case_sensitive_for_environment(self, db_request, environment):
+        # Test that we don't find a matching publisher when the environment claims don't
+        # exactly match.
+        # If we incorrectly normalized the incoming capitalized claim, we would match
+        # a publisher that has a different environment.
+        GitLabPublisherFactory(
+            id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            namespace="foo",
+            project="bar",
+            workflow_filepath=".gitlab-ci.yml",
+            # stored environment is all lowercase, doesn't match incoming claims
+            environment=environment.lower(),
+        )
+
+        signed_claims = {
+            "project_path": "foo/bar",
+            "ci_config_ref_uri": ("gitlab.com/foo/bar//.gitlab-ci.yml@refs/heads/main"),
+            "environment": environment,
+        }
+
+        with pytest.raises(errors.InvalidPublisherError) as e:
+            gitlab.GitLabPublisher.lookup_by_claims(db_request.db, signed_claims)
+        assert str(e.value) == "Publisher with matching claims was not found"
+
     @pytest.mark.parametrize("environment", ["", "some_environment"])
     @pytest.mark.parametrize(
         ("workflow_filepath_a", "workflow_filepath_b"),
