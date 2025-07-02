@@ -151,7 +151,7 @@ def incomplete_password_resets(exc, request):
 @view_config(
     route_name="accounts.profile",
     context=User,
-    renderer="accounts/profile.html",
+    renderer="warehouse:templates/accounts/profile.html",
     decorator=[
         origin_cache(1 * 24 * 60 * 60, stale_if_error=1 * 24 * 60 * 60)  # 1 day each.
     ],
@@ -228,7 +228,7 @@ def profile(user, request):
 
 @view_config(
     route_name="accounts.search",
-    renderer="api/account_search.html",
+    renderer="warehouse:templates/api/account_search.html",
     uses_session=True,
 )
 def accounts_search(request) -> dict[str, list[User]]:
@@ -266,7 +266,7 @@ def accounts_search(request) -> dict[str, list[User]]:
 
 @view_config(
     route_name="accounts.login",
-    renderer="accounts/login.html",
+    renderer="warehouse:templates/accounts/login.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -370,7 +370,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
 
 @view_config(
     route_name="accounts.two-factor",
-    renderer="accounts/two-factor.html",
+    renderer="warehouse:templates/accounts/two-factor.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -580,7 +580,7 @@ def _remember_device(request, response, userid, two_factor_method) -> None:
 
 @view_config(
     route_name="accounts.recovery-code",
-    renderer="accounts/recovery-code.html",
+    renderer="warehouse:templates/accounts/recovery-code.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -640,7 +640,7 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
 
 @view_config(
     route_name="accounts.logout",
-    renderer="accounts/logout.html",
+    renderer="warehouse:templates/accounts/logout.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -701,7 +701,7 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
 
 @view_config(
     route_name="accounts.register",
-    renderer="accounts/register.html",
+    renderer="warehouse:templates/accounts/register.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -773,7 +773,7 @@ def register(request, _form_class=RegistrationForm):
 
 @view_config(
     route_name="accounts.request-password-reset",
-    renderer="accounts/request-password-reset.html",
+    renderer="warehouse:templates/accounts/request-password-reset.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -862,7 +862,7 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
 
 @view_config(
     route_name="accounts.reset-password",
-    renderer="accounts/reset-password.html",
+    renderer="warehouse:templates/accounts/reset-password.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -1070,7 +1070,7 @@ def _get_two_factor_data(request, _redirect_to="/"):
 
 @view_config(
     route_name="accounts.verify-organization-role",
-    renderer="accounts/organization-invite-confirmation.html",
+    renderer="warehouse:templates/accounts/organization-invite-confirmation.html",
     require_methods=False,
     uses_session=True,
     permission=Permissions.AccountVerifyOrgRole,
@@ -1240,7 +1240,7 @@ def verify_organization_role(request):
 
 @view_config(
     route_name="accounts.verify-project-role",
-    renderer="accounts/invite-confirmation.html",
+    renderer="warehouse:templates/accounts/invite-confirmation.html",
     require_methods=False,
     uses_session=True,
     permission=Permissions.AccountVerifyProjectRole,
@@ -1498,7 +1498,7 @@ def view_terms_of_service(request):
 @view_config(
     route_name="includes.current-user-profile-callout",
     context=User,
-    renderer="includes/accounts/profile-callout.html",
+    renderer="warehouse:templates/includes/accounts/profile-callout.html",
     uses_session=True,
     has_translations=True,
 )
@@ -1509,7 +1509,7 @@ def profile_callout(user, request):
 @view_config(
     route_name="includes.profile-actions",
     context=User,
-    renderer="includes/accounts/profile-actions.html",
+    renderer="warehouse:templates/includes/accounts/profile-actions.html",
     uses_session=True,
     has_translations=True,
 )
@@ -1520,7 +1520,7 @@ def edit_profile_button(user, request):
 @view_config(
     route_name="includes.profile-public-email",
     context=User,
-    renderer="includes/accounts/profile-public-email.html",
+    renderer="warehouse:templates/includes/accounts/profile-public-email.html",
     uses_session=True,
     has_translations=True,
 )
@@ -1578,7 +1578,7 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
 
 @view_defaults(
     route_name="manage.account.publishing",
-    renderer="manage/account/publishing.html",
+    renderer="warehouse:templates/manage/account/publishing.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,

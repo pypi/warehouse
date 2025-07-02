@@ -9,7 +9,7 @@ from warehouse.authnz import Permissions
 
 @view_config(
     route_name="admin.flags",
-    renderer="admin/flags/index.html",
+    renderer="warehouse.admin:templates/admin/flags/index.html",
     permission=Permissions.AdminFlagsRead,
     request_method="GET",
     uses_session=True,

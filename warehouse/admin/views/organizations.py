@@ -44,7 +44,7 @@ def _turbo_mode(request):
 
 @view_config(
     route_name="admin.organization.list",
-    renderer="admin/organizations/list.html",
+    renderer="warehouse.admin:templates/admin/organizations/list.html",
     permission=Permissions.AdminOrganizationsRead,
     uses_session=True,
 )
@@ -147,7 +147,7 @@ def organization_list(request):
 @view_config(
     route_name="admin.organization.detail",
     require_methods=False,
-    renderer="admin/organizations/detail.html",
+    renderer="warehouse.admin:templates/admin/organizations/detail.html",
     permission=Permissions.AdminOrganizationsRead,
     has_translations=True,
     uses_session=True,
@@ -207,7 +207,7 @@ def organization_rename(request):
 
 @view_config(
     route_name="admin.organization_application.list",
-    renderer="admin/organization_applications/list.html",
+    renderer="warehouse.admin:templates/admin/organization_applications/list.html",
     permission=Permissions.AdminOrganizationsRead,
     uses_session=True,
 )
@@ -319,7 +319,7 @@ class OrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationForm):
 @view_config(
     route_name="admin.organization_application.detail",
     require_methods=False,
-    renderer="admin/organization_applications/detail.html",
+    renderer="warehouse.admin:templates/admin/organization_applications/detail.html",
     permission=Permissions.AdminOrganizationsRead,
     has_translations=True,
     uses_session=True,
