@@ -157,12 +157,22 @@
       </p>
       {% set action = request.route_path('manage.project.transfer_organization_project', project_name=project.normalized_name) %}
       {% set extra_fields %}
-        <label for="transfer-project-modal-organization">Organization account name</label>
-        {{ transfer_organization_project_form.organization(id="transfer-project-modal-organization", class_="form-group__field") }}
+        <label for="transfer_organization_project_name-modal-organization">Organization account name</label>
+        <select id="transfer_organization_project_name-modal-organization"
+                name="organization"
+                class="form-group__field">
+          {% for option in transfer_organization_project_form.organization %}
+            {% if option.data in transfer_organization_project_form.disabled_organizations %}
+              {{ option(disabled="") }}
+            {% else %}
+              {{ option }}
+            {% endif %}
+          {% endfor %}
+        </select>
       {% endset %}
       {% set extra_description %}
         <p>
-          This will transfer the project to the organization that you select below. You can transfer the project to organizations that you own.
+          This will transfer the project to the organization that you select below. You can transfer the project to organizations that you own. Company organizations must have an active subscription in order to receive project transfers.
         </p>
       {% endset %}
       {{ confirm_button(gettext("Transfer project") , gettext("Project Name"), "transfer_organization_project_name", project.name, action=action, extra_fields=extra_fields, extra_description=extra_description) }}
