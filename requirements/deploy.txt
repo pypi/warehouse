@@ -70,7 +70,7 @@ ddtrace==3.9.3 \
     --hash=sha256:f8aed9f3f4d7db0e8d4e5d3586a4d64535dc2a33861534aaf7b855377c3f959a \
     --hash=sha256:fd88fbf82405c18acdfcf3dde28032caae16ae8c4fe3f52558866e6bf0533b7b \
     --hash=sha256:fec2d68b718d0f00f164b5ef4c803b89f7e1d0073c27f6e785c0de424db90e79
-    # via -r deploy.in
+    # via -r requirements/deploy.in
 envier==0.6.1 \
     --hash=sha256:3309a01bb3d8850c9e7a31a5166d5a836846db2faecb79b9cb32654dd50ca9f9 \
     --hash=sha256:73609040a76be48bbcb97074d9969666484aa0de706183a6e9ef773156a8a6a9
@@ -78,7 +78,7 @@ envier==0.6.1 \
 gunicorn==23.0.0 \
     --hash=sha256:ec400d38950de4dfd418cff8328b2c8faed0edb0d517d3394e457c317908ca4d \
     --hash=sha256:f014447a0101dc57e294f6c18ca6b40227a4c90e9bdb586042628030cba004ec
-    # via -r deploy.in
+    # via -r requirements/deploy.in
 importlib-metadata==8.7.0 \
     --hash=sha256:d13b81ad223b890aa16c5471f2ac3056cf76c5f10f82d6f9292f0b415f389000 \
     --hash=sha256:e5dd1551894c77868a30651cef00984d50e1002d06942a7101d34870c5f02afd
