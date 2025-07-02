@@ -250,7 +250,11 @@ def test_includeme():
                     ],
                     "default-src": ["'none'"],
                     "font-src": ["'self'", "fonts.gstatic.com"],
-                    "form-action": ["'self'", "https://checkout.stripe.com"],
+                    "form-action": [
+                        "'self'",
+                        "https://checkout.stripe.com",
+                        "https://billing.stripe.com",
+                    ],
                     "frame-ancestors": ["'none'"],
                     "frame-src": ["'none'"],
                     "img-src": [
