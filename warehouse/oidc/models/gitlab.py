@@ -188,7 +188,7 @@ class GitLabPublisherMixin:
     ) -> Self | None:
         if environment:
             if specific_publisher := first_true(
-                publishers, pred=lambda p: p.environment == environment.lower()
+                publishers, pred=lambda p: p.environment == environment
             ):
                 return specific_publisher
 
