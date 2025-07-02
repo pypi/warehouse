@@ -1,18 +1,14 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "email/_base/body.html" %}
-
-
 {% block content %}
-<p>
-{% trans username=username %}
-A recovery code for your PyPI account <strong>{{ username }}</strong> has been used.
-{% endtrans %}
+  <p>
+    {% trans username=username %}
+    A recovery code for your PyPI account <strong>{{ username }}</strong> has been used.
+  {% endtrans %}
 </p>
-
 <p>
-{% trans href='mailto:admin@pypi.org', email_address='admin@pypi.org' %}
-If you did not make this change, you can email <a href="{{ href }}">{{ email_address }}</a> to communicate with the PyPI administrators.
+  {% trans href='mailto:admin@pypi.org', email_address='admin@pypi.org' %}
+  If you did not make this change, you can email <a href="{{ href }}">{{ email_address }}</a> to communicate with the PyPI administrators.
 {% endtrans %}
 </p>
 {% endblock %}

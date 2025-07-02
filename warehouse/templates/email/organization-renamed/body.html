@@ -1,27 +1,19 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "email/_base/body.html" %}
-
 {% set site = request.registry.settings["site.name"] %}
-
 {% block extra_style %}
-ul.member-details {
-    list-style-type: none;
-}
+  ul.member-details {
+  list-style-type: none;
+  }
 {% endblock %}
-
-
 {% block content %}
-<p>
-  {% trans organization_name=organization_name, previous_organization_name=previous_organization_name, site=site %}The {{ site }} organization has been renamed from "{{ previous_organization_name }}" to "{{ organization_name }}".{% endtrans %}
-</p>
-
-<p>
-  {% trans email_address="admin@pypi.org", site=site %}If this was a mistake, you can email <a href="mailto:{{ email_address }}">{{ email_address }}</a> to communicate with the {{ site }} administrators.{% endtrans %}
-</p>
+  <p>
+    {% trans organization_name=organization_name, previous_organization_name=previous_organization_name, site=site %}The {{ site }} organization has been renamed from "{{ previous_organization_name }}" to "{{ organization_name }}".{% endtrans %}
+  </p>
+  <p>
+    {% trans email_address="admin@pypi.org", site=site %}If this was a mistake, you can email <a href="mailto:{{ email_address }}">{{ email_address }}</a> to communicate with the {{ site }} administrators.{% endtrans %}
+  </p>
 {% endblock %}
-
-
 {% block reason %}
-{% trans %}You are receiving this because you are an owner of this organization.{% endtrans %}
+  {% trans %}You are receiving this because you are an owner of this organization.{% endtrans %}
 {% endblock %}

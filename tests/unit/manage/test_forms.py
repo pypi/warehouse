@@ -13,6 +13,7 @@ from warehouse.accounts.models import ProhibitedEmailDomain
 from warehouse.manage import forms
 
 from ...common.constants import REMOTE_ADDR
+from ...common.db.organizations import OrganizationFactory
 from ...common.db.packaging import ProjectFactory
 
 
@@ -1008,25 +1009,30 @@ class TestAddOrganizationProjectForm:
 
 
 class TestTransferOrganizationProjectForm:
-    @pytest.mark.parametrize(
-        ("organization", "organization_choices", "errors"),
-        [
-            ("", [], {"organization": ["Select organization"]}),
-            ("", ["organization"], {"organization": ["Select organization"]}),
-            ("organization", ["organization"], {}),
-        ],
-    )
-    def test_validate(
-        self, pyramid_request, organization, organization_choices, errors
-    ):
-        pyramid_request.POST = MultiDict({"organization": organization})
+    def test_validate(self, pyramid_request):
+        organization = OrganizationFactory()
+        pyramid_request.POST = MultiDict({"organization": organization.id})
 
         form = forms.TransferOrganizationProjectForm(
-            pyramid_request.POST, organization_choices=organization_choices
+            pyramid_request.POST, organization_choices=[organization]
         )
 
-        assert not form.validate() if errors else form.validate(), str(form.errors)
-        assert form.errors == errors
+        assert form.validate()
+
+    def test_rejects_inactive_company(self, pyramid_request):
+        organization = OrganizationFactory(orgtype="Company")
+        pyramid_request.POST = MultiDict({"organization": organization.id})
+
+        form = forms.TransferOrganizationProjectForm(
+            pyramid_request.POST, organization_choices=[organization]
+        )
+
+        assert not form.validate()
+        assert form.errors == {
+            "organization": [
+                "Cannot transfer to Company Organization with inactive billing"
+            ]
+        }
 
 
 class TestCreateOrganizationRoleForm:

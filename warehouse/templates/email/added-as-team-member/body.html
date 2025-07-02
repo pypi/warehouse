@@ -1,14 +1,10 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "email/_base/body.html" %}
-
 {% block content %}
-<p>
-  {% trans organization_name=organization_name, team_name=team_name, submitter=submitter, submitter_profile=request.route_url('accounts.profile', username=submitter) %}You have been added as a member of the "{{ team_name }}" team in the "{{ organization_name }}" organization by <a href="{{ submitter_profile }}">{{ submitter }}</a>.{% endtrans %}
-</p>
+  <p>
+    {% trans organization_name=organization_name, team_name=team_name, submitter=submitter, submitter_profile=request.route_url('accounts.profile', username=submitter) %}You have been added as a member of the "{{ team_name }}" team in the "{{ organization_name }}" organization by <a href="{{ submitter_profile }}">{{ submitter }}</a>.{% endtrans %}
+  </p>
 {% endblock %}
-
-
 {% block reason %}
-{% trans %}You are receiving this because you are a member of this team.{% endtrans %}
+  {% trans %}You are receiving this because you are a member of this team.{% endtrans %}
 {% endblock %}

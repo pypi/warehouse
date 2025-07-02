@@ -500,13 +500,13 @@ class TestUpdateBigQueryMetadata:
         [
             (
                 "example.pypi.distributions",
-                [pretend.call("example.pypi.distributions")],
+                [pretend.call("example.pypi.distributions", timeout=5.0, retry=None)],
             ),
             (
                 "example.pypi.distributions some.other.table",
                 [
-                    pretend.call("example.pypi.distributions"),
-                    pretend.call("some.other.table"),
+                    pretend.call("example.pypi.distributions", timeout=5.0, retry=None),
+                    pretend.call("some.other.table", timeout=5.0, retry=None),
                 ],
             ),
         ],
@@ -533,7 +533,7 @@ class TestUpdateBigQueryMetadata:
 
         get_table = pretend.stub(schema=bq_schema)
         bigquery = pretend.stub(
-            get_table=pretend.call_recorder(lambda t: get_table),
+            get_table=pretend.call_recorder(lambda *a, **kw: get_table),
             insert_rows_json=pretend.call_recorder(lambda *a, **kw: []),
         )
 
@@ -651,6 +651,8 @@ class TestUpdateBigQueryMetadata:
                         "blake2_256_digest": release_file.blake2_256_digest,
                     },
                 ],
+                timeout=5.0,
+                retry=None,
             )
             for table in release_files_table.split()
         ]

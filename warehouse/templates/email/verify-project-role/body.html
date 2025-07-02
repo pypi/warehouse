@@ -1,13 +1,12 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "email/_base/body.html" %}
-
 {% block content %}
-<p><a href="{{ request.route_url('accounts.profile', username=initiator_username) }}">{{ initiator_username }}</a> has invited you (<code>{{ email_address }}</code>) to join their PyPI project "<a href="{{ request.route_url('packaging.project', name=project_name)}}">{{ project_name }}</a>".</p>
-
-<p>If you wish to proceed, <a href="{{ request.route_url('accounts.verify-project-role', _query={'token': token}) }}">follow this link to accept or reject this invitation</a></p>
-
-<p>Otherwise, you can safely ignore this email.</p>
-
-<p>This link will expire in {{ n_hours }} hours.</p>
+  <p>
+    <a href="{{ request.route_url('accounts.profile', username=initiator_username) }}">{{ initiator_username }}</a> has invited you (<code>{{ email_address }}</code>) to join their PyPI project "<a href="{{ request.route_url('packaging.project', name=project_name) }}">{{ project_name }}</a>".
+  </p>
+  <p>
+    If you wish to proceed, <a href="{{ request.route_url('accounts.verify-project-role', _query={'token': token}) }}">follow this link to accept or reject this invitation</a>
+  </p>
+  <p>Otherwise, you can safely ignore this email.</p>
+  <p>This link will expire in {{ n_hours }} hours.</p>
 {% endblock %}

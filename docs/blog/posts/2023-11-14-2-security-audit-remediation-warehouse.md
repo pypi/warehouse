@@ -7,6 +7,9 @@ date: 2023-11-14T00:00:01
 tags:
   - security
   - transparency
+links:
+  - posts/2023-11-14-1-pypi-completes-first-security-audit.md
+  - posts/2023-11-14-3-security-audit-remediation-cabotage.md
 ---
 
 _This is part two in a three-part series. See [part one here](2023-11-14-1-pypi-completes-first-security-audit.md), and [part three here](2023-11-14-3-security-audit-remediation-cabotage.md)_.

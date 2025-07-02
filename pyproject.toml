@@ -28,10 +28,21 @@ exclude_lines = [
   "if (typing\\.)?TYPE_CHECKING:",
 ]
 
-[tool.curlylint]
-include = '\.(html|jinja|txt)$'
-# For jinja's i18n extension:
-template_tags = [['trans', 'pluralize', 'endtrans']]
+[tool.djlint]
+# https://www.djlint.com/docs/configuration/
+indent = 2
+profile = "jinja"
+use_gitignore = true
+# The Simple API templates have structures that are relied upon.
+extend_exclude = "warehouse/templates/api/simple/*"
+# TODO: Evaluate which `img` tags can get height/width attributes and remove H006.
+# H006: <img> tag should have `height` and `width` attributes.
+# TODO: Convert single quotes to double quotes and remove T002 from ignore.
+# T002: Double quotes should be used in tags. Ex {% extends "this.html" %}
+# TODO: Add endblock names everywhere and remove T003 from ignore.
+# T003: Endblock should have name. Ex: {% endblock body %}.
+# T028: Handled by warehouse config. See: https://github.com/pypi/warehouse/pull/14709
+ignore = "H006,T002,T003,T028"
 
 [tool.isort]
 profile = 'black'

@@ -1,16 +1,9 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "manage/manage_base.html" %}
-
 {% set user = request.user %}
 {% set title = gettext("Account settings") %}
-
-{% set active_tab = 'account' %}
-
-{% block title %}
-  {{ title }}
-{% endblock %}
-
+{% set active_tab = "account" %}
+{% block title %}{{ title }}{% endblock %}
 {% block main %}
   <h1 class="page-title">{{ title }}</h1>
   {{ twofa_section() }}

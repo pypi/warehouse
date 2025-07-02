@@ -217,9 +217,11 @@ class HasEvents:
                     additional["user_agent_info"] = {
                         "installer": "Browser",
                         # See https://github.com/pypi/linehaul-cloud-function/issues/203
-                        "device": parsed_user_agent["device"]["family"],  # type: ignore[index] # noqa: E501
-                        "os": parsed_user_agent["os"]["family"],  # type: ignore[index]
-                        "user_agent": parsed_user_agent["user_agent"]["family"],  # type: ignore[index] # noqa: E501
+                        "device": parsed_user_agent["device"]["family"],  # noqa: E501
+                        "os": parsed_user_agent["os"]["family"],
+                        "user_agent": parsed_user_agent["user_agent"][
+                            "family"
+                        ],  # noqa: E501
                     }
                 else:
                     additional = additional or {}

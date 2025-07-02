@@ -1,1042 +1,1508 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "base.html" %}
-
 {% macro code_of_conduct() %}
   <div class="callout-block">
     <p>
       <strong>{% trans %}Note:{% endtrans %}</strong>
       {% trans href='https://github.com/pypa/.github/blob/main/CODE_OF_CONDUCT.md', title=gettext('External link') %}
-        All users submitting feedback, reporting issues or contributing to Warehouse are expected to follow the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">PSF Code of Conduct</a>.
-      {% endtrans %}
-    </p>
-  </div>
+      All users submitting feedback, reporting issues or contributing to Warehouse are expected to follow the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">PSF Code of Conduct</a>.
+    {% endtrans %}
+  </p>
+</div>
 {% endmacro %}
-
 {% macro twoFA_backup(method) %}
   <div class="callout-block">
     <p>
       <strong>{% trans %}Note:{% endtrans %}</strong>
       {% trans method=method %}
-        If you lose your {{ method }} and can no longer log in, you may <strong>permanently lose access to your account</strong>.
-        You should generate and securely store <a href="#recoverycodes">recovery codes</a> to regain access in that event..
-      {% endtrans %}
-    </p>
-    <p>
-      {% trans %}
-        We recommend that all PyPI users set up <em>at least two</em> supported two-factor authentication methods
-        and provision <a href="#recoverycodes">recovery codes</a>.
-      {% endtrans %}
-    </p>
-    <p>
-      {% trans %}
-        If you've lost access to all two factor methods for your account and do not have <a href="#recoverycodes">recovery codes</a>,
-        you can request help <a href="#account-recovery">with account recovery</a>.
-      {% endtrans %}
-    </p>
-  </div>
+      If you lose your {{ method }} and can no longer log in, you may <strong>permanently lose access to your account</strong>.
+      You should generate and securely store <a href="#recoverycodes">recovery codes</a> to regain access in that event..
+    {% endtrans %}
+  </p>
+  <p>
+    {% trans %}
+    We recommend that all PyPI users set up <em>at least two</em> supported two-factor authentication methods
+    and provision <a href="#recoverycodes">recovery codes</a>.
+  {% endtrans %}
+</p>
+<p>
+  {% trans %}
+  If you've lost access to all two factor methods for your account and do not have <a href="#recoverycodes">recovery codes</a>,
+  you can request help <a href="#account-recovery">with account recovery</a>.
+{% endtrans %}
+</p>
+</div>
 {% endmacro %}
-
 {# define macros for FAQ to use them as headers and in TOC #}
 {# Basics #}
-{% macro packages() %}{% trans %}What's a package, project, or release?{% endtrans %}{% endmacro %}
-{% macro installing() %}{% trans %}How do I install a file (package) from PyPI?{% endtrans %}{% endmacro %}
-{% macro publishing() %}{% trans %}How do I package and publish my code for PyPI?{% endtrans %}{% endmacro %}
-{% macro trove_classifier() %}{% trans %}What's a trove classifier?{% endtrans %}{% endmacro %}
-{% macro yanked() %}{% trans %}What's a "yanked" release?{% endtrans %}{% endmacro %}
-{% macro archived_project() %}{% trans %}What's an archived project?{% endtrans %}{% endmacro %}
-
+{% macro packages() %}
+  {% trans %}What's a package, project, or release?{% endtrans %}
+{% endmacro %}
+{% macro installing() %}
+  {% trans %}How do I install a file (package) from PyPI?{% endtrans %}
+{% endmacro %}
+{% macro publishing() %}
+  {% trans %}How do I package and publish my code for PyPI?{% endtrans %}
+{% endmacro %}
+{% macro trove_classifier() %}
+  {% trans %}What's a trove classifier?{% endtrans %}
+{% endmacro %}
+{% macro yanked() %}
+  {% trans %}What's a "yanked" release?{% endtrans %}
+{% endmacro %}
+{% macro archived_project() %}
+  {% trans %}What's an archived project?{% endtrans %}
+{% endmacro %}
 {# My Account #}
-{% macro verified_email() %}{% trans %}Why do I need a verified email address?{% endtrans %}{% endmacro %}
-{% macro compromised_password() %}{% trans %}Why is PyPI telling me my password is compromised?{% endtrans %}{% endmacro %}
-{% macro suspicious_activity() %}{% trans %}What should I do if I notice suspicious activity on my account?{% endtrans %}{% endmacro %}
-{% macro compromised_token() %}{% trans %}Why is PyPI telling me my API token is compromised?{% endtrans %}{% endmacro %}
-{% macro twoFA() %}{% trans %}What is two-factor authentication and how does it work on PyPI?{% endtrans %}{% endmacro %}
-{% macro totp() %}{% trans %}How does two-factor authentication with an authentication application (<abbr title="time-based one-time password">TOTP</abbr>) work? How do I set it up on PyPI?{% endtrans %}{% endmacro %}
-{% macro utfkey() %}{% trans %}How does two-factor authentication with a security device (e.g. USB key) work? How do I set it up on PyPI?{% endtrans %}{% endmacro %}
-{% macro utfdevices() %}{% trans %}What devices (other than a USB key) can I use as a security device?{% endtrans %}{% endmacro %}
-{% macro recoverycodes() %}{% trans %}How does two-factor authentication with a recovery code work? How do I set it up on PyPI?{% endtrans %}{% endmacro %}
-{% macro apitoken() %}{% trans %}How can I use API tokens to authenticate with PyPI?{% endtrans %}{% endmacro %}
-{% macro sensitiveactions() %}{% trans %}Why do certain actions require me to confirm my password?{% endtrans %}{% endmacro %}
-{% macro username_change() %}{% trans %}How do I change my PyPI username?{% endtrans %}{% endmacro %}
-{% macro trusted_publishers() %}{% trans %}How can I use Trusted Publishers to publish to PyPI?{% endtrans %}{% endmacro %}
-
+{% macro verified_email() %}
+  {% trans %}Why do I need a verified email address?{% endtrans %}
+{% endmacro %}
+{% macro compromised_password() %}
+  {% trans %}Why is PyPI telling me my password is compromised?{% endtrans %}
+{% endmacro %}
+{% macro suspicious_activity() %}
+  {% trans %}What should I do if I notice suspicious activity on my account?{% endtrans %}
+{% endmacro %}
+{% macro compromised_token() %}
+  {% trans %}Why is PyPI telling me my API token is compromised?{% endtrans %}
+{% endmacro %}
+{% macro twoFA() %}
+  {% trans %}What is two-factor authentication and how does it work on PyPI?{% endtrans %}
+{% endmacro %}
+{% macro totp() %}
+  {% trans %}How does two-factor authentication with an authentication application (<abbr title="time-based one-time password">TOTP</abbr>) work? How do I set it up on PyPI?{% endtrans %}
+{% endmacro %}
+{% macro utfkey() %}
+  {% trans %}How does two-factor authentication with a security device (e.g. USB key) work? How do I set it up on PyPI?{% endtrans %}
+{% endmacro %}
+{% macro utfdevices() %}
+  {% trans %}What devices (other than a USB key) can I use as a security device?{% endtrans %}
+{% endmacro %}
+{% macro recoverycodes() %}
+  {% trans %}How does two-factor authentication with a recovery code work? How do I set it up on PyPI?{% endtrans %}
+{% endmacro %}
+{% macro apitoken() %}
+  {% trans %}How can I use API tokens to authenticate with PyPI?{% endtrans %}
+{% endmacro %}
+{% macro sensitiveactions() %}
+  {% trans %}Why do certain actions require me to confirm my password?{% endtrans %}
+{% endmacro %}
+{% macro username_change() %}
+  {% trans %}How do I change my PyPI username?{% endtrans %}
+{% endmacro %}
+{% macro trusted_publishers() %}
+  {% trans %}How can I use Trusted Publishers to publish to PyPI?{% endtrans %}
+{% endmacro %}
 {# Integrating #}
-{% macro APIs() %}{% trans %}Does PyPI have APIs I can use?{% endtrans %}{% endmacro %}
-{% macro mirroring() %}{% trans %}How can I run a mirror of PyPI?{% endtrans %}{% endmacro %}
-{% macro project_release_notifications() %}{% trans %}How do I get notified when a new version of a project is released?{% endtrans %}{% endmacro %}
-{% macro statistics() %}{% trans %}Where can I see statistics about PyPI, downloads, and project/package usage?{% endtrans %}{% endmacro %}
-{% macro verify_hashes() %}{% trans %}What are the file hashes used for, and how can I verify them?{% endtrans %}{% endmacro %}
-
+{% macro APIs() %}
+  {% trans %}Does PyPI have APIs I can use?{% endtrans %}
+{% endmacro %}
+{% macro mirroring() %}
+  {% trans %}How can I run a mirror of PyPI?{% endtrans %}
+{% endmacro %}
+{% macro project_release_notifications() %}
+  {% trans %}How do I get notified when a new version of a project is released?{% endtrans %}
+{% endmacro %}
+{% macro statistics() %}
+  {% trans %}Where can I see statistics about PyPI, downloads, and project/package usage?{% endtrans %}
+{% endmacro %}
+{% macro verify_hashes() %}
+  {% trans %}What are the file hashes used for, and how can I verify them?{% endtrans %}
+{% endmacro %}
 {# Administration of projects on PyPI #}
-{% macro private_indices() %}{% trans %}How can I publish my private packages to PyPI?{% endtrans %}{% endmacro %}
-{% macro project_name() %}{% trans %}Why isn't my desired project name available?{% endtrans %}{% endmacro %}
-{% macro project_name_claim() %}{% trans %}How do I claim an abandoned or previously registered project name?{% endtrans %}{% endmacro %}
-{% macro collaborator_roles() %}{% trans %}What collaborator roles are available for a project on PyPI?{% endtrans %}{% endmacro %}
-{% macro request_ownership() %}{% trans %}How do I become an owner/maintainer of a project on PyPI?{% endtrans %}{% endmacro %}
-{% macro description_content_type() %}{% trans %}How can I upload a project description in a different format?{% endtrans %}{% endmacro %}
-{% macro file_size_limit() %}{% trans %}How do I get a file size limit exemption or increase for my project?{% endtrans %}{% endmacro %}
-{% macro project_size_limit() %}{% trans %}How do I get a total project size limit exemption or increase for my project?{% endtrans %}{% endmacro %}
-{% macro vulnerability_data() %}{% trans %}Where does PyPI get its data on project vulnerabilities from, and how can I correct it?{% endtrans %}{% endmacro %}
-{% macro deletion() %}{% trans %}How can I restore a deleted project, release or file?{% endtrans %}{% endmacro %}
-
+{% macro private_indices() %}
+  {% trans %}How can I publish my private packages to PyPI?{% endtrans %}
+{% endmacro %}
+{% macro project_name() %}
+  {% trans %}Why isn't my desired project name available?{% endtrans %}
+{% endmacro %}
+{% macro project_name_claim() %}
+  {% trans %}How do I claim an abandoned or previously registered project name?{% endtrans %}
+{% endmacro %}
+{% macro collaborator_roles() %}
+  {% trans %}What collaborator roles are available for a project on PyPI?{% endtrans %}
+{% endmacro %}
+{% macro request_ownership() %}
+  {% trans %}How do I become an owner/maintainer of a project on PyPI?{% endtrans %}
+{% endmacro %}
+{% macro description_content_type() %}
+  {% trans %}How can I upload a project description in a different format?{% endtrans %}
+{% endmacro %}
+{% macro file_size_limit() %}
+  {% trans %}How do I get a file size limit exemption or increase for my project?{% endtrans %}
+{% endmacro %}
+{% macro project_size_limit() %}
+  {% trans %}How do I get a total project size limit exemption or increase for my project?{% endtrans %}
+{% endmacro %}
+{% macro vulnerability_data() %}
+  {% trans %}Where does PyPI get its data on project vulnerabilities from, and how can I correct it?{% endtrans %}
+{% endmacro %}
+{% macro deletion() %}
+  {% trans %}How can I restore a deleted project, release or file?{% endtrans %}
+{% endmacro %}
 {# Troubleshooting #}
-{% macro description_render_failure() %}{% trans %}Why am I getting "the description failed to render" error?{% endtrans %}{% endmacro %}
-{% macro uploading() %}{% trans %}Why can't I manually upload files to PyPI, through the browser interface?{% endtrans %}{% endmacro %}
-{% macro login_problem() %}{% trans %}I forgot my PyPI password. Can you help me?{% endtrans %}{% endmacro %}
-{% macro account_recovery() %}{% trans %}I've lost access to my PyPI account. Can you help me?{% endtrans %}{% endmacro %}
-{% macro invalid_auth() %}{% trans %}Why am I getting an "Invalid or non-existent authentication information." error when uploading files?{% endtrans %}{% endmacro %}
-{% macro tls_deprecation() %}{% trans %}Why am I getting "No matching distribution found" or "Could not fetch URL" errors during <code>pip install</code>?{% endtrans %}{% endmacro %}
-{% macro accessibility() %}{% trans %}I am having trouble using the PyPI website. Can you help me?{% endtrans %}{% endmacro %}
-{% macro admin_intervention() %}{% trans %}Why did my package or user registration get blocked?{% endtrans %}{% endmacro %}
-{% macro file_name_reuse() %}{% trans %}Why am I getting a "Filename or contents already exists" or "Filename has been previously used" error?{% endtrans %}{% endmacro %}
-{% macro new_classifier() %}{% trans %}How do I request a new trove classifier?{% endtrans %}{% endmacro %}
-{% macro feedback() %}{% trans %}Where can I report a bug or provide feedback about PyPI?{% endtrans %}{% endmacro %}
-{% macro totp_trouble() %}{% trans %}I'm having trouble setting up two factor authentication with an authentication application (<abbr title="time-based one-time password">TOTP</abbr>). Can you help me?{% endtrans %}{% endmacro %}
-{% macro project_in_quarantine() %}{% trans %}My project says it's in quarantine. What does that mean?{% endtrans %}{% endmacro %}
-
+{% macro description_render_failure() %}
+  {% trans %}Why am I getting "the description failed to render" error?{% endtrans %}
+{% endmacro %}
+{% macro uploading() %}
+  {% trans %}Why can't I manually upload files to PyPI, through the browser interface?{% endtrans %}
+{% endmacro %}
+{% macro login_problem() %}
+  {% trans %}I forgot my PyPI password. Can you help me?{% endtrans %}
+{% endmacro %}
+{% macro account_recovery() %}
+  {% trans %}I've lost access to my PyPI account. Can you help me?{% endtrans %}
+{% endmacro %}
+{% macro invalid_auth() %}
+  {% trans %}Why am I getting an "Invalid or non-existent authentication information." error when uploading files?{% endtrans %}
+{% endmacro %}
+{% macro tls_deprecation() %}
+  {% trans %}Why am I getting "No matching distribution found" or "Could not fetch URL" errors during <code>pip install</code>?{% endtrans %}
+{% endmacro %}
+{% macro accessibility() %}
+  {% trans %}I am having trouble using the PyPI website. Can you help me?{% endtrans %}
+{% endmacro %}
+{% macro admin_intervention() %}
+  {% trans %}Why did my package or user registration get blocked?{% endtrans %}
+{% endmacro %}
+{% macro file_name_reuse() %}
+  {% trans %}Why am I getting a "Filename or contents already exists" or "Filename has been previously used" error?{% endtrans %}
+{% endmacro %}
+{% macro new_classifier() %}
+  {% trans %}How do I request a new trove classifier?{% endtrans %}
+{% endmacro %}
+{% macro feedback() %}
+  {% trans %}Where can I report a bug or provide feedback about PyPI?{% endtrans %}
+{% endmacro %}
+{% macro totp_trouble() %}
+  {% trans %}I'm having trouble setting up two factor authentication with an authentication application (<abbr title="time-based one-time password">TOTP</abbr>). Can you help me?{% endtrans %}
+{% endmacro %}
+{% macro project_in_quarantine() %}
+  {% trans %}My project says it's in quarantine. What does that mean?{% endtrans %}
+{% endmacro %}
 {# About #}
-{% macro maintainers() %}{% trans %}Who maintains PyPI?{% endtrans %}{% endmacro %}
-{% macro sponsors() %}{% trans %}What powers PyPI?{% endtrans %}{% endmacro %}
-{% macro availability() %}{% trans %}Can I depend on PyPI being available?{% endtrans %}{% endmacro %}
-{% macro contributing() %}{% trans %}How can I contribute to PyPI?{% endtrans %}{% endmacro %}
-{% macro upcoming_changes() %}{% trans %}How do I keep up with upcoming changes to PyPI?{% endtrans %}{% endmacro %}
-{% macro ips() %}{% trans %}How can I get a list of PyPI's IP addresses?{% endtrans %}{% endmacro %}
-{% macro beta_badge() %}{% trans %}What does the "beta feature" badge mean? What are Warehouse's current beta features?{% endtrans %}{% endmacro %}
-{% macro pronunciation() %}{% trans %}How do I pronounce "PyPI"?{% endtrans %}{% endmacro %}
-
-{% block title %}{% trans %}Help{% endtrans %}{% endblock %}
-
+{% macro maintainers() %}
+  {% trans %}Who maintains PyPI?{% endtrans %}
+{% endmacro %}
+{% macro sponsors() %}
+  {% trans %}What powers PyPI?{% endtrans %}
+{% endmacro %}
+{% macro availability() %}
+  {% trans %}Can I depend on PyPI being available?{% endtrans %}
+{% endmacro %}
+{% macro contributing() %}
+  {% trans %}How can I contribute to PyPI?{% endtrans %}
+{% endmacro %}
+{% macro upcoming_changes() %}
+  {% trans %}How do I keep up with upcoming changes to PyPI?{% endtrans %}
+{% endmacro %}
+{% macro ips() %}
+  {% trans %}How can I get a list of PyPI's IP addresses?{% endtrans %}
+{% endmacro %}
+{% macro beta_badge() %}
+  {% trans %}What does the "beta feature" badge mean? What are Warehouse's current beta features?{% endtrans %}
+{% endmacro %}
+{% macro pronunciation() %}
+  {% trans %}How do I pronounce "PyPI"?{% endtrans %}
+{% endmacro %}
+{% block title %}
+  {% trans %}Help{% endtrans %}
+{% endblock %}
 {% block content %}
   <div class="horizontal-section">
     <div class="narrow-container">
       <h1 class="page-title">{% trans %}Common questions{% endtrans %}</h1>
-
       <section class="faq-group faq-group--list">
-        <h2 class="faq-group__first"><a href="#basics">{% trans %}Basics{% endtrans %}</a></h2>
+        <h2 class="faq-group__first">
+          <a href="#basics">{% trans %}Basics{% endtrans %}</a>
+        </h2>
         <ul>
-          <li><a href="#packages">{{ packages() }}</a></li>
-          <li><a href="#installing">{{ installing() }}</a></li>
-          <li><a href="#publishing">{{ publishing() }}</a></li>
-          <li><a href="#trove-classifier">{{ trove_classifier() }}</a></li>
-          <li><a href="#yanked">{{ yanked() }}</a></li>
-          <li><a href="#archived-project">{{ archived_project() }}</a></li>
+          <li>
+            <a href="#packages">{{ packages() }}</a>
+          </li>
+          <li>
+            <a href="#installing">{{ installing() }}</a>
+          </li>
+          <li>
+            <a href="#publishing">{{ publishing() }}</a>
+          </li>
+          <li>
+            <a href="#trove-classifier">{{ trove_classifier() }}</a>
+          </li>
+          <li>
+            <a href="#yanked">{{ yanked() }}</a>
+          </li>
+          <li>
+            <a href="#archived-project">{{ archived_project() }}</a>
+          </li>
         </ul>
       </section>
-
       <section class="faq-group faq-group--list">
-        <h2><a href="#my-account">{% trans %}My Account{% endtrans %}</a></h2>
+        <h2>
+          <a href="#my-account">{% trans %}My Account{% endtrans %}</a>
+        </h2>
         <ul>
-          <li><a href="#verified-email">{{ verified_email() }}</a></li>
-          <li><a href="#compromised-password">{{ compromised_password() }}</a></li>
-          <li><a href="#suspicious-activity">{{ suspicious_activity() }}</a></li>
-          <li><a href="#compromised-token">{{ compromised_token() }}</a></li>
-          <li><a href="#twofa">{{ twoFA() }}</a></li>
-          <li><a href="#totp">{{ totp() }}</a></li>
-          <li><a href="#utfkey">{{ utfkey() }}</a></li>
-          <li><a href="#utfdevices">{{ utfdevices() }}</a></li>
-          <li><a href="#recoverycodes">{{ recoverycodes() }}</a></li>
-          <li><a href="#apitoken">{{ apitoken() }}</a></li>
-          <li><a href="#sensitiveactions">{{ sensitiveactions() }}</a></li>
-          <li><a href="#username-change">{{ username_change() }}</a></li>
-          <li><a href="#trusted-publishers">{{ trusted_publishers() }}</a></li>
+          <li>
+            <a href="#verified-email">{{ verified_email() }}</a>
+          </li>
+          <li>
+            <a href="#compromised-password">{{ compromised_password() }}</a>
+          </li>
+          <li>
+            <a href="#suspicious-activity">{{ suspicious_activity() }}</a>
+          </li>
+          <li>
+            <a href="#compromised-token">{{ compromised_token() }}</a>
+          </li>
+          <li>
+            <a href="#twofa">{{ twoFA() }}</a>
+          </li>
+          <li>
+            <a href="#totp">{{ totp() }}</a>
+          </li>
+          <li>
+            <a href="#utfkey">{{ utfkey() }}</a>
+          </li>
+          <li>
+            <a href="#utfdevices">{{ utfdevices() }}</a>
+          </li>
+          <li>
+            <a href="#recoverycodes">{{ recoverycodes() }}</a>
+          </li>
+          <li>
+            <a href="#apitoken">{{ apitoken() }}</a>
+          </li>
+          <li>
+            <a href="#sensitiveactions">{{ sensitiveactions() }}</a>
+          </li>
+          <li>
+            <a href="#username-change">{{ username_change() }}</a>
+          </li>
+          <li>
+            <a href="#trusted-publishers">{{ trusted_publishers() }}</a>
+          </li>
         </ul>
       </section>
-
       <section class="faq-group faq-group--list">
-        <h2><a href="#integrating">{% trans %}Integrating{% endtrans %}</a></h2>
+        <h2>
+          <a href="#integrating">{% trans %}Integrating{% endtrans %}</a>
+        </h2>
         <ul>
-          <li><a href="#APIs">{{ APIs() }}</a></li>
-          <li><a href="#mirroring">{{ mirroring() }}</a></li>
-          <li><a href="#project-release-notifications">{{ project_release_notifications() }}</a></li>
-          <li><a href="#statistics">{{ statistics() }}</a></li>
-          <li><a href="#verify-hashes">{{ verify_hashes() }}</a></li>
+          <li>
+            <a href="#APIs">{{ APIs() }}</a>
+          </li>
+          <li>
+            <a href="#mirroring">{{ mirroring() }}</a>
+          </li>
+          <li>
+            <a href="#project-release-notifications">{{ project_release_notifications() }}</a>
+          </li>
+          <li>
+            <a href="#statistics">{{ statistics() }}</a>
+          </li>
+          <li>
+            <a href="#verify-hashes">{{ verify_hashes() }}</a>
+          </li>
         </ul>
       </section>
-
       <section class="faq-group faq-group--list">
-        <h2><a href="#administration">{% trans %}Administration of projects on PyPI{% endtrans %}</a></h2>
+        <h2>
+          <a href="#administration">{% trans %}Administration of projects on PyPI{% endtrans %}</a>
+        </h2>
         <ul>
-          <li><a href="#private-indices">{{ private_indices() }}</a></li>
-          <li><a href="#project-name">{{ project_name() }}</a></li>
-          <li><a href="#project-name-claim">{{ project_name_claim() }}</a></li>
-          <li><a href="#collaborator-roles">{{ collaborator_roles() }}</a></li>
-          <li><a href="#request-ownership">{{ request_ownership() }}</a></li>
-          <li><a href="#description-content-type">{{ description_content_type() }}</a></li>
-          <li><a href="#file-size-limit">{{ file_size_limit() }}</a></li>
-          <li><a href="#project-size-limit">{{ project_size_limit() }}</a></li>
-          <li><a href="#vulnerability-data">{{ vulnerability_data() }}</a></li>
-          <li><a href="#deletion">{{ deletion() }}</a></li>
+          <li>
+            <a href="#private-indices">{{ private_indices() }}</a>
+          </li>
+          <li>
+            <a href="#project-name">{{ project_name() }}</a>
+          </li>
+          <li>
+            <a href="#project-name-claim">{{ project_name_claim() }}</a>
+          </li>
+          <li>
+            <a href="#collaborator-roles">{{ collaborator_roles() }}</a>
+          </li>
+          <li>
+            <a href="#request-ownership">{{ request_ownership() }}</a>
+          </li>
+          <li>
+            <a href="#description-content-type">{{ description_content_type() }}</a>
+          </li>
+          <li>
+            <a href="#file-size-limit">{{ file_size_limit() }}</a>
+          </li>
+          <li>
+            <a href="#project-size-limit">{{ project_size_limit() }}</a>
+          </li>
+          <li>
+            <a href="#vulnerability-data">{{ vulnerability_data() }}</a>
+          </li>
+          <li>
+            <a href="#deletion">{{ deletion() }}</a>
+          </li>
         </ul>
       </section>
-
       <section class="faq-group faq-group--list">
-        <h2><a href="#troubleshooting">{% trans %}Troubleshooting{% endtrans %}</a></h2>
+        <h2>
+          <a href="#troubleshooting">{% trans %}Troubleshooting{% endtrans %}</a>
+        </h2>
         <ul>
-          <li><a href="#description-render-failure">{{ description_render_failure() }}</a></li>
-          <li><a href="#uploading">{{ uploading() }}</a></li>
-          <li><a href="#login-problem">{{ login_problem() }}</a></li>
-          <li><a href="#account-recovery">{{ account_recovery() }}</a></li>
-          <li><a href="#invalid-auth">{{ invalid_auth() }}</a></li>
-          <li><a href="#tls-deprecation">{{ tls_deprecation() }}</a></li>
-          <li><a href="#accessibility">{{ accessibility() }}</a></li>
-          <li><a href="#admin-intervention">{{ admin_intervention() }}</a></li>
-          <li><a href="#file-name-reuse">{{ file_name_reuse() }}</a></li>
-          <li><a href="#new-classifier">{{ new_classifier() }}</a></li>
-          <li><a href="#feedback">{{ feedback() }}</a></li>
-          <li><a href="#totp_trouble">{{ totp_trouble() }}</a></li>
-          <li><a href="#project_in_quarantine">{{ project_in_quarantine() }}</a></li>
+          <li>
+            <a href="#description-render-failure">{{ description_render_failure() }}</a>
+          </li>
+          <li>
+            <a href="#uploading">{{ uploading() }}</a>
+          </li>
+          <li>
+            <a href="#login-problem">{{ login_problem() }}</a>
+          </li>
+          <li>
+            <a href="#account-recovery">{{ account_recovery() }}</a>
+          </li>
+          <li>
+            <a href="#invalid-auth">{{ invalid_auth() }}</a>
+          </li>
+          <li>
+            <a href="#tls-deprecation">{{ tls_deprecation() }}</a>
+          </li>
+          <li>
+            <a href="#accessibility">{{ accessibility() }}</a>
+          </li>
+          <li>
+            <a href="#admin-intervention">{{ admin_intervention() }}</a>
+          </li>
+          <li>
+            <a href="#file-name-reuse">{{ file_name_reuse() }}</a>
+          </li>
+          <li>
+            <a href="#new-classifier">{{ new_classifier() }}</a>
+          </li>
+          <li>
+            <a href="#feedback">{{ feedback() }}</a>
+          </li>
+          <li>
+            <a href="#totp_trouble">{{ totp_trouble() }}</a>
+          </li>
+          <li>
+            <a href="#project_in_quarantine">{{ project_in_quarantine() }}</a>
+          </li>
         </ul>
       </section>
-
       <section class="faq-group faq-group--list">
-        <h2><a href="#about">{% trans %}About{% endtrans %}</a></h2>
+        <h2>
+          <a href="#about">{% trans %}About{% endtrans %}</a>
+        </h2>
         <ul>
-          <li><a href="#maintainers">{{ maintainers() }}</a></li>
-          <li><a href="#sponsors">{{ sponsors() }}</a></li>
-          <li><a href="#availability">{{ availability() }}</a></li>
-          <li><a href="#contributing">{{ contributing() }}</a></li>
-          <li><a href="#upcoming-changes">{{ upcoming_changes() }}</a></li>
-          <li><a href="#ips">{{ ips() }}</a></li>
-          <li><a href="#beta-badge">{{ beta_badge() }}</a></li>
-          <li><a href="#pronunciation">{{ pronunciation() }}</a></li>
+          <li>
+            <a href="#maintainers">{{ maintainers() }}</a>
+          </li>
+          <li>
+            <a href="#sponsors">{{ sponsors() }}</a>
+          </li>
+          <li>
+            <a href="#availability">{{ availability() }}</a>
+          </li>
+          <li>
+            <a href="#contributing">{{ contributing() }}</a>
+          </li>
+          <li>
+            <a href="#upcoming-changes">{{ upcoming_changes() }}</a>
+          </li>
+          <li>
+            <a href="#ips">{{ ips() }}</a>
+          </li>
+          <li>
+            <a href="#beta-badge">{{ beta_badge() }}</a>
+          </li>
+          <li>
+            <a href="#pronunciation">{{ pronunciation() }}</a>
+          </li>
         </ul>
       </section>
-
       <section class="faq-group" id="basics">
         <h2 class="faq-title" id="Basics">{% trans %}Basics{% endtrans %}</h2>
-
         <h3 id="packages">{{ packages() }}</h3>
         {% trans requests_href='https://pypi.org/project/requests/', wheel_href='https://pypi.org/project/wheel/#files' %}
-          <p>We use a number of terms to describe software available on PyPI, like "project", "release", "file", and "package". Sometimes those terms are confusing because they're used to describe different things in other contexts. Here's how we use them on PyPI:</p>
-          <p>A "project" on PyPI is the name of a collection of releases and files, and information about them. Projects on PyPI are made and shared by other members of the Python community so that you can use them.</p>
-          <p>A "release" on PyPI is a specific version of a project. For example, the <a href="{{ requests_href }}">requests</a> project has many releases, like "requests 2.10" and "requests 1.2.1". A release consists of one or more "files".</p>
-          <p>A "file", also known as a "package", on PyPI is something that you can download and install. Because of different hardware, operating systems, and file formats, a release may have several files (packages), like an archive containing source code or a binary <a href="{{ wheel_href }}">wheel</a>.</p>
-        {% endtrans %}
-
-        <h3 id="installing">{{ installing() }}</h3>
         <p>
-          {% trans installation_href='https://packaging.python.org/tutorials/installing-packages/', user_guide_href='https://packaging.python.org/', title=gettext('External link') %}
-          To learn how to install a file from PyPI, visit the <a href="{{ installation_href }}" title="{{ title }}" target="_blank" rel="noopener">installation tutorial</a> on the <a href="{{ user_guide_href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a>.
-          {% endtrans %}
-        </p>
-
-        <h3 id="publishing">{{ publishing() }}</h3>
-        <p>
-          {% trans packaging_tutorial_href='https://packaging.python.org/distributing/', user_guide_href='https://packaging.python.org', title=gettext('External link') %}
-          For full instructions on configuring, packaging and distributing your Python project, refer to the <a href="{{ packaging_tutorial_href }}" title="{{ title }}" target="_blank" rel="noopener">packaging tutorial</a> on the <a href="{{ user_guide_href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a>.
-          {% endtrans %}
-        </p>
-
-        <h3 id="trove-classifier">{{ trove_classifier() }}</h3>
-        <p>
-          {% trans href=request.route_path('classifiers') %}
-          Classifiers are used to categorize projects on PyPI. See <a href="{{ href }}">the classifiers page</a> for more information, as well as a list of valid classifiers.
-          {% endtrans %}
-        </p>
-
-        <h3 id="yanked">{{ yanked() }}</h3>
-        <p>
-          {% trans href=request.user_docs_url('/project-management/yanking') %}
-          A yanked release is a release that is always ignored by an installer,
-          unless it is the only release that matches a version specifier (using either
-          <code>==</code> or <code>===</code>).
-          See <a href="{{ href }}" title="{{ title }}">the user documentation</a>
-          for more information, including how to yank a release.
-          {% endtrans %}
-        </p>
-
-        <h3 id="archived-project">{{ archived_project() }}</h3>
-        <p>
-          {% trans href=request.user_docs_url('/project-management/yanking') %}
-          An archived project is a project that is no longer receiving any updates.
-          A project maintainer can mark a project as archived to signal to users that future
-          updates should not be expected. Archived projects are publicly visible and
-          can still be resolved from the index by default, unlike deleted or
-          <a href="{{ href }}">yanked</a> releases. An archived project cannot
-          make new releases and will not appear in PyPI's search results.
-          {% endtrans %}
-        </p>
-      </section>
-
-      <section class="faq-group" id="my-account">
-        <h2>{% trans %}My account{% endtrans %}</h2>
-
-        <h3 id="verified-email">{{ verified_email() }}</h3>
-        <p>{% trans %}Currently, PyPI requires a verified email address to perform the following operations:{% endtrans %}</p>
-        <ul>
-          <li>{% trans %}Register a new project.{% endtrans %}</li>
-          <li>{% trans %}Upload a new version or file.{% endtrans %}</li>
-        </ul>
-        <p>{% trans %}The list of activities that require a verified email address is likely to grow over time.{% endtrans %}</p>
-        <p>{% trans href='https://www.python.org/dev/peps/pep-0541/', title=gettext('External link') %}This policy will allow us to enforce a key policy of <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><abbr title="Python enhancement proposal">PEP</abbr> 541</a> regarding maintainer reachability. It also reduces the viability of spam attacks to create many accounts in an automated fashion.{% endtrans %}</p>
-        <p>{% trans href=request.route_path('manage.account') %}You can manage your account's email addresses in your <a href="{{ href }}">account settings</a>. This also allows for sending a new confirmation email for users who signed up in the past, before we began enforcing this policy.{% endtrans %}</p>
-
-        <h3 id="compromised-password">{{ compromised_password() }}</h3>
-        {% trans credential_stuffing_href='https://www.owasp.org/index.php/Credential_stuffing', haveibeenpwned_href='https://haveibeenpwned.com/API/v2#SearchingPwnedPasswordsByRange', reset_pwd_href=request.route_url('accounts.request-password-reset'), title=gettext('External link') %}
-          <p>
-            PyPI itself has not suffered a breach. This is a protective measure to reduce the risk of
-            <a href="{{ credential_stuffing_href }}" title="{{ title }}" target="_blank" rel="noopener">credential stuffing</a>
-            attacks against PyPI and its users.
-          </p>
-          <p>
-            Each time a user supplies a password — while registering, authenticating,
-            or updating their password — PyPI securely checks whether that password
-            has appeared in public data breaches.
-          </p>
-          <p>
-            During each of these processes, PyPI generates a SHA-1 hash of the supplied password
-            and uses the first five (5) characters of the hash to check the
-            <a href="{{ haveibeenpwned_href }}" title="{{ title }}" target="_blank" rel="noopener">Have I Been Pwned API</a>
-            and determine if the password has been previously compromised.
-            The plaintext password is never stored by PyPI or submitted to the Have I Been Pwned API.
-          </p>
-          <p>
-            PyPI will not allow such passwords to be used when setting a password
-            at registration or updating your password.
-          </p>
-          <p>
-            If you receive an error message saying that "This password appears
-            in a breach or has been compromised and cannot be used",
-            you should change it all other places that you use it as soon as possible.
-          </p>
-          <p>
-            If you have received this error while attempting to log in or upload to PyPI,
-            then your password has been reset, and you cannot log in to PyPI until you
-            <a href="{{ reset_pwd_href }}">reset your password</a>.
-          </p>
-        {% endtrans %}
-
-        <h3 id="suspicious-activity">{{ suspicious_activity() }}</h3>
-        {% trans reset_pwd_href=request.route_url('accounts.request-password-reset'), admin_email='admin@pypi.org'%}
-          <p>
-            All PyPI user events are stored under security history in account settings.
-            If there are any events that seem suspicious, take the following steps:
-          </p>
-            <ul>
-              <li><a href="{{ reset_pwd_href }}">Reset your password</a></li>
-              <li>Contact the PyPI admins about the event at <a href="mailto:{{ admin_email }}">{{ admin_email }}</a></li>
-            </ul>
-        {% endtrans %}
-
-        <h3 id="compromised-token">{{ compromised_token() }}</h3>
-        {% trans %}
-          <p>
-            A PyPI API token linked to your account was posted on a public website.
-            It was automatically revoked, but before regenerating a new one, please check the email
-            you received and attempt to determine the cause.
-            The <a href="#suspicious-activity">suspicious activity</a> section applies too.
-          </p>
-        {% endtrans %}
-
-        <h3 id="twofa">{{ twoFA() }}</h3>
-        {% trans href='https://discuss.python.org/t/pypi-security-work-multifactor-auth-progress-help-needed/1042', title=gettext('External link') %}
-          <p>
-            Two-factor authentication (2FA) makes your account more secure by
-            requiring two things in order to log in: <em>something you know</em>
-            and <em>something you own</em>.
-          </p>
-          <p>
-            In PyPI's case, "something you know" is your username and password,
-            while "something you own" can be
-            <a href="#totp">an application to generate a temporary code</a>,
-            or a <a href="#utfkey">security device</a> (most commonly a USB key).
-          </p>
-          <p>
-            Two-factor authentication <strong>is required</strong> on your PyPI account.
-          </p>
-          <p>
-            During the web login process, users will be asked to provide
-            their second method of identity verification.
-          </p>
-        {% endtrans %}
-
-        <h3 id="totp">{{ totp() }}</h3>
-        <p>{% trans href='https://en.wikipedia.org/wiki/Time-based_One-time_Password_algorithm', title=gettext('External link') %}PyPI users can set up two-factor authentication using any authentication application that supports the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><abbr title="time-based one-time password">TOTP</abbr> standard</a>.{% endtrans %}</p>
-        <p>{% trans %}<abbr title="time-based one-time password">TOTP</abbr> authentication applications generate a regularly changing authentication code to use when logging into your account.{% endtrans %}</p>
-        <p>{% trans %}Because <abbr title="time-based one-time password">TOTP</abbr> is an open standard, there are many applications that are compatible with your PyPI account. Popular applications include:{% endtrans %}</p>
-        <ul>
-          <li>
-            {% trans android_href='https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2', ios_href='https://itunes.apple.com/app/google-authenticator/id388497605', title=gettext('External link') %}
-            Google Authenticator for <a href="{{ android_href }}" title="{{ title }}" target="_blank" rel="noopener">Android</a> or <a href="{{ ios_href }}" title="{{ title }}" target="_blank" rel="noopener">iOS</a>
-            {% endtrans %}
-            {% trans %}(proprietary){% endtrans %}
-          </li>
-          <li><a href="https://www.microsoft.com/en-us/account/authenticator" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">Microsoft Authenticator</a> {% trans %}(proprietary){% endtrans %}</li>
-          <li>
-            {% trans android_href='https://play.google.com/store/apps/details?id=com.duosecurity.duomobile', ios_href='https://itunes.apple.com/app/duo-mobile/id422663827', title=gettext('External link') %}
-            Duo Mobile for <a href="{{ android_href }}" title="{{ title }}" target="_blank" rel="noopener">Android</a> or <a href="{{ ios_href }}" title="{{ title }}" target="_blank" rel="noopener">iOS</a>
-            {% endtrans %}
-            {% trans %}(proprietary){% endtrans %}
-          </li>
-          <li><a href="https://authy.com/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">Authy</a> {% trans %}(proprietary){% endtrans %}</li>
-          <li><a href="https://play.google.com/store/apps/details?id=org.liberty.android.freeotpplus" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">FreeOTP+</a> {% trans %}(open source){% endtrans %}</li>
-          <li><a href="https://freeotp.github.io/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">FreeOTP</a> {% trans %}(open source){% endtrans %}</li>
-        </ul>
-
-        <p>
-          {% trans href='https://1password.com/', title=gettext('External link') %}
-            Some password managers
-            (e.g. <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">1Password</a>)
-            can also generate authentication codes. For security reasons,
-            PyPI only allows you to set up one application per account.
-          {% endtrans %}
-        </p>
-
-        <p><strong>{% trans %}To set up <abbr title="two factor authentication">2FA</abbr> with an authentication application:{% endtrans %}</strong></p>
-        <ol>
-          <li>{% trans %}Open an authentication (<abbr title="time-based one-time password">TOTP</abbr>) application{% endtrans %}</li>
-          <li>{% trans %}Log in to your PyPI account, go to your account settings, and choose "Add <abbr title="two factor authentication">2FA</abbr> with authentication application"{% endtrans %}</li>
-          <li>{% trans %}PyPI will generate a secret key, specific to your account. This is displayed as a QR code, and as a text code.{% endtrans %}</li>
-          <li>{% trans %}Scan the QR code with your authentication application, or type it in manually. The method of input will depend on the application you have chosen.{% endtrans %}</li>
-          <li>{% trans %}Your application will generate an authentication code - use this to verify your set-up on PyPI{% endtrans %}</li>
-        </ol>
-
-        <p>{% trans %}The PyPI server and your application now share your PyPI secret key, allowing your application to generate valid authentication codes for your PyPI account.{% endtrans %}</p>
-
-        <p><strong>{% trans %}Next time you log in to PyPI you'll need to:{% endtrans %}</strong></p>
-        <ol>
-          <li>{% trans %}Provide your username and password, as normal{% endtrans %}</li>
-          <li>{% trans %}Open your authentication application to generate an authentication code{% endtrans %}</li>
-          <li>{% trans %}Use this code to finish logging into PyPI{% endtrans %}</li>
-        </ol>
-
-        {{ twoFA_backup("authentication application") }}
-
-        <h3 id="utfkey">{{ utfkey() }}</h3>
-        <p>{% trans %}A security device is a USB key or <a href="#utfdevices">other device</a> that generates a one-time password and sends that password to the browser. This password is then used by PyPI to authenticate you as a user.{% endtrans %}</p>
-
-        <p><strong>{% trans %}To set up two-factor authentication with a <em>USB key</em>, you'll need:{% endtrans %}</strong></p>
-        <ul>
-          <li>{% trans href='https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility', title=gettext('External link') %}To use a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">browser that supports <abbr title="web authentication">WebAuthn</abbr> and PublicKeyCredential</a>, as this is the standard implemented by PyPI.{% endtrans %}</li>
-          <li>{% trans %}To be running JavaScript on your browser{% endtrans %}</li>
-          <li>{% trans href='https://fidoalliance.org/specifications/download/', title=gettext('External link') %}To use a USB key that adheres to the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">FIDO U2F specification</a>:{% endtrans %}
-            <ul>
-              <li>
-                {% trans yubikey_href='https://www.yubico.com/', titan_href='https://cloud.google.com/titan-security-key/', thetis_href='https://thetis.io/', title=gettext('External link') %}
-                Popular keys include
-                <a href="{{ yubikey_href }}" title="{{ title }}" target="_blank" rel="noopener">Yubikey</a>,
-                <a href="{{ titan_href }}" title="{{ title }}" target="_blank" rel="noopener">Google Titan</a> and
-                <a href="{{ thetis_href }}" title="{{ title }}" target="_blank" rel="noopener">Thetis</a>.
-                {% endtrans %}
-              </li>
-              <li>{% trans %}Note that some older Yubico USB keys <strong>do not follow the FIDO specification</strong>, and will therefore not work with PyPI{% endtrans %}</li>
-            </ul>
-          </li>
-        </ul>
-
-        <p>{% trans %}Follow these steps:{% endtrans %}</p>
-        <ol>
-          {% trans %}
-          <li>Log in to your PyPI account, go to your account settings, and choose "Add <abbr title="two factor authentication">2FA</abbr> with security device (e.g. USB key)"</li>
-          <li>Give your key a name. This is necessary because it's possible to add more than one security device to your account.</li>
-          <li>Click on the "Set up security device" button</li>
-          <li>Insert and touch your USB key, as instructed by your browser</li>
-          {% endtrans %}
-        </ol>
-        <p>{% trans %}Once complete, your USB key will be registered to your PyPI account and can be used during the log in process.{% endtrans %}</p>
-
-        <p><strong>{% trans %}Next time you log in to PyPI you'll need to:{% endtrans %}</strong></p>
-        <ol>
-          {% trans %}
-          <li>Provide your username and password, as normal</li>
-          <li>Insert and touch your USB key to finish logging into PyPI</li>
-          {% endtrans %}
-        </ol>
-
-        {{ twoFA_backup("security device") }}
-
-        <h3 id="utfdevices">{{ utfdevices() }}</h3>
-
-        <p>
-          {% trans href='https://fidoalliance.org/certification/fido-certified-products/', title=gettext('External link') %}
-            There is a growing ecosystem of <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">devices that are FIDO compliant</a>, and can therefore be used with PyPI.
-          {% endtrans %}
+          We use a number of terms to describe software available on PyPI, like "project", "release", "file", and "package". Sometimes those terms are confusing because they're used to describe different things in other contexts. Here's how we use them on PyPI:
         </p>
         <p>
-          {% trans href='https://fidoalliance.org/news-your-google-android-7-phone-is-now-a-fido2-security-key/', title=gettext('External link') %}
-            Emerging solutions include biometric (facial and fingerprint) scanners and FIDO compatible credit cards.
-            There is also growing support for <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">mobile phones to act as security devices</a>.
-          {% endtrans %}
+          A "project" on PyPI is the name of a collection of releases and files, and information about them. Projects on PyPI are made and shared by other members of the Python community so that you can use them.
         </p>
         <p>
-          {% trans href='https://www.w3.org/TR/webauthn/', title=gettext('External link') %}
-            As PyPI's two-factor implementation follows the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><abbr title="web authentication">WebAuthn</abbr> standard</a>,
-            PyPI users will be able to take advantage of any future developments in this field.
-          {% endtrans %}
-        </p>
-
-        <h3 id="recoverycodes">{{ recoverycodes() }}</h3>
-
-        <p>
-          {% trans %}If you lose access to your <a href="#totp">authentication application</a> or <a href="#utfkey">security device</a>, you can use these codes to log in to PyPI.{% endtrans %}
+          A "release" on PyPI is a specific version of a project. For example, the <a href="{{ requests_href }}">requests</a> project has many releases, like "requests 2.10" and "requests 1.2.1". A release consists of one or more "files".
         </p>
         <p>
-          {% trans %}
-            Recovery codes are <strong>one time use</strong>. They are not a substitute for an <a href="#totp">authentication application</a> or a <a href="#utfkey">security device</a>
-            and should only be used for recovery. After using a recovery code to sign in, it becomes inactive.
-          {% endtrans %}
+          A "file", also known as a "package", on PyPI is something that you can download and install. Because of different hardware, operating systems, and file formats, a release may have several files (packages), like an archive containing source code or a binary <a href="{{ wheel_href }}">wheel</a>.
         </p>
-
-        <p><strong>{% trans %}To provision recovery codes:{% endtrans %}</strong></p>
-        <ol>
-          <li>{% trans %}Log in to your PyPI account, go to your account settings, and choose "Generate recovery codes"{% endtrans %}</li>
-          <li>{% trans %}Securely store the displayed recovery codes! Consider printing them out and storing them in a safe location or saving them in a password manager.{% endtrans %}</li>
-        </ol>
-
-        <p>{% trans %}If you lose access to your stored recovery codes or use all of them, you can get new ones by selecting "Regenerate recovery codes" in your account settings.{% endtrans %}</p>
-
-        <p><strong>{% trans %}To sign in with a recovery code:{% endtrans %}</strong></p>
-        <ol>
-          <li>{% trans %}Provide your username and password, as normal{% endtrans %}</li>
-          <li>{% trans %}When prompted for two-factor authentication, select "Login using recovery codes"{% endtrans %}</li>
-          <li>{% trans %}As each code can be used only once, you might want to mark the code as used{% endtrans %}</li>
-          <li>{% trans %}If you have few recovery codes remaining, you may also want to generate a new set using the "Regenerate recovery codes" button in your account settings.{% endtrans %}</li>
-        </ol>
-
-        <h3 id="apitoken">{{ apitoken() }}</h3>
-
-        <p>
-          {% trans %}
-          API tokens are used to authenticate when <strong>uploading packages</strong> to PyPI.
-          {% endtrans %}
-        </p>
-        <p>
-          {% trans %}
-          You can create a token for an entire PyPI account, in which case, the token will work
-          for all projects associated with that account. Alternatively, you can limit a token's
-          scope to a specific project.
-          {% endtrans %}
-        </p>
-        <p>
-          {% trans %}
-          When using an API token from a CI provider, we recommend
-          scoping the token down to the minimum necessary projects.
-          {% endtrans %}
-        </p>
-        <p>
-          <strong>
-            {% trans href='#trusted-publishers' %}
-            If you are publishing to PyPI from a CI provider that supports
-            <a href="{{ href }}">Trusted Publishing</a>, we strongly recommend
-            using Trusted Publishing instead.
-            {% endtrans %}
-          </strong>
-        </p>
-
-        <p>{% trans %}To make an API token:{% endtrans %}</p>
-
-        <ul>
-          <li><a href="#verified-email">{% trans %}Verify your email address{% endtrans %}</a> {% trans href=request.route_path('manage.account') %}(check your <a href="{{ href }}">account settings</a>){% endtrans %}</li>
-          <li>{% trans href=request.route_path('manage.account') %}In your <a href="{{ href }}">account settings</a>, go to the API tokens section and select "Add API token"{% endtrans %}</li>
-        </ul>
-
-        <p>{% trans %}To use an API token:{% endtrans %}</p>
-
-        <ul>
-          <li>{% trans %}Set your username to <code>__token__</code>{% endtrans %}</li>
-          <li>{% trans %}Set your password to the token value, including the <code>pypi-</code> prefix{% endtrans %}</li>
-        </ul>
-
-        <p>
-          {% trans pypirc_href='https://packaging.python.org/guides/distributing-packages-using-setuptools/#create-an-account', travis_href='https://docs.travis-ci.com/user/deployment/pypi/', title=gettext('External link') %}
-          Where you edit or add these values will depend on your individual use case. For example, some users may need to edit <a href="{{ pypirc_href }}" title="{{ title }}" target="_blank" rel="noopener">their <code>.pypirc</code> file</a>, while others may need to update their CI configuration file (e.g. <a href="{{ travis_href }}" title="{{ title }}" target="_blank" rel="noopener"><code>.travis.yml</code> if you are using Travis</a>).
-          {% endtrans %}
-        </p>
-        <p>{% trans %}Advanced users may wish to inspect their token by decoding it with base64, and checking the output against the unique identifier displayed on PyPI.{% endtrans %}</p>
-
-        <h3 id="sensitiveactions">{{ sensitiveactions() }}</h3>
-
-        {% trans %}
-          <p>PyPI asks you to confirm your password before you want to perform a <i>sensitive action</i>. Sensitive actions include things like adding or removing maintainers, deleting distributions, generating API tokens, and setting up two-factor authentication.</p>
-          <p>You'll only have to re-confirm your password if it's been more than an hour since you last confirmed it.</p>
-          <p><strong>We strongly recommend you only perform such actions on your personal, password-protected computer.</strong></p>
-        {% endtrans %}
-
-        <h3 id="username-change">{{ username_change() }}</h3>
-        <p>{% trans %}PyPI does not currently support changing a username.{% endtrans %}</p>
-        <p>{% trans %}Instead, you can create a new account with the desired username, add the new account as a maintainer of all the projects your old account owns, and then delete the old account, which will have the same effect.{% endtrans %}</p>
-
-        <h3 id="trusted-publishers">{{ trusted_publishers() }}</h3>
-        <p>
-          {% trans docs="https://docs.pypi.org/trusted-publishers/" %}
-          PyPI users and projects can use <a href="{{ docs}}">Trusted Publishers</a> to delegate
-          publishing authority for a PyPI package to a trusted third party service, eliminating
-          the need to use API tokens.
-          {% endtrans %}
-        </p>
-      </section>
-
-      <section class="faq-group" id="integrating">
-        <h2>{% trans %}Integrating{% endtrans %}</h2>
-
-        <h3 id="APIs">{{ APIs() }}</h3>
-        <p>{% trans %}Yes, including RSS feeds of new packages and new releases.{% endtrans %} <a href="https://docs.pypi.org/api/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}See the API reference.{% endtrans %}</a></p>
-
-        <h3 id="mirroring">{{ mirroring() }}</h3>
-        <p>{% trans href='https://pypi.org/project/bandersnatch/' %}If you need to run your own mirror of PyPI, the <a href="{{ href }}">bandersnatch project</a> is the recommended solution. Note that the storage requirements for a PyPI mirror would exceed 1 terabyte—and growing!{% endtrans %}</p>
-
-        <h3 id="project-release-notifications">{{ project_release_notifications() }}</h3>
-        <p>{% trans href='https://github.com/marketplace?category=dependency-management&query=python', title=gettext('External link'), rss_href='https://docs.pypi.org/api/feeds/#project-releases-feed' %}You can subscribe to the <a href="{{ rss_href }}" title="{{ title }}" target="_blank" rel="noopener">project releases RSS feed</a>. Additionally, there are several third-party services that offer comprehensive monitoring and notifications for project releases and vulnerabilities listed as <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">GitHub apps</a>.{% endtrans %}</p>
-
-        <h3 id="statistics">{{ statistics() }}</h3>
-        <p>{% trans href='https://packaging.python.org/guides/analyzing-pypi-package-downloads/', title=gettext('External link') %}You can analyze PyPI project/package metadata and <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">download usage statistics</a> via our public dataset on Google BigQuery.{% endtrans %}</p>
-        <p>
-          {% trans libs_io_href='https://libraries.io/pypi', libs_io_example_href='https://libraries.io/pypi/twine/', libs_io_api_href='https://libraries.io/api', in_progress_href='https://github.com/librariesio/bibliothecary/issues/415', other_factors_href='https://docs.libraries.io/overview#sourcerank', title=gettext('External link') %}
-          <a href="{{ libs_io_href }}" title="{{ title }}" target="_blank" rel="noopener">Libraries.io provides statistics for PyPI projects</a>
-          (<a href="{{ libs_io_example_href }}" title="{{ title }}" target="_blank" rel="noopener">example</a>,
-          <a href="{{ libs_io_api_href }}" title="{{ title }}" target="_blank" rel="noopener">API</a>)
-          including GitHub stars and forks, dependency tracking
-          (<a href="{{ in_progress_href }}" title="{{ title }}" target="_blank" rel="noopener">in progress</a>),
-          and <a href="{{ other_factors_href }}" title="{{ title }}" target="_blank" rel="noopener">other relevant factors</a>.
-          {% endtrans %}
-        </p>
-        <p>{% trans href='https://status.python.org/', title=gettext('External link') %}For recent statistics on uptime and performance, see <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">our status page</a>.{% endtrans %}</p>
-
-        <h3 id="verify-hashes">{{ verify_hashes() }}</h3>
-        <p>{% trans %}For each package hosted on PyPI, there are corresponding hashes for that file. These hashes can be used to verify that the file you are downloading is the same one that the project maintainer uploaded. This is especially useful if downloading packages from a mirror. The hashes can be obtained from the project page in the "Download Files" section or from the JSON API. Here is an example of generating the hashes:{% endtrans %}</p>
-        <pre class="code-block">import hashlib
+      {% endtrans %}
+      <h3 id="installing">{{ installing() }}</h3>
+      <p>
+        {% trans installation_href='https://packaging.python.org/tutorials/installing-packages/', user_guide_href='https://packaging.python.org/', title=gettext('External link') %}
+        To learn how to install a file from PyPI, visit the <a href="{{ installation_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">installation tutorial</a> on the <a href="{{ user_guide_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">Python Packaging User Guide</a>.
+      {% endtrans %}
+    </p>
+    <h3 id="publishing">{{ publishing() }}</h3>
+    <p>
+      {% trans packaging_tutorial_href='https://packaging.python.org/distributing/', user_guide_href='https://packaging.python.org', title=gettext('External link') %}
+      For full instructions on configuring, packaging and distributing your Python project, refer to the <a href="{{ packaging_tutorial_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">packaging tutorial</a> on the <a href="{{ user_guide_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">Python Packaging User Guide</a>.
+    {% endtrans %}
+  </p>
+  <h3 id="trove-classifier">{{ trove_classifier() }}</h3>
+  <p>
+    {% trans href=request.route_path('classifiers') %}
+    Classifiers are used to categorize projects on PyPI. See <a href="{{ href }}">the classifiers page</a> for more information, as well as a list of valid classifiers.
+  {% endtrans %}
+</p>
+<h3 id="yanked">{{ yanked() }}</h3>
+<p>
+  {% trans href=request.user_docs_url('/project-management/yanking') %}
+  A yanked release is a release that is always ignored by an installer,
+  unless it is the only release that matches a version specifier (using either
+  <code>==</code> or <code>===</code>).
+  See <a href="{{ href }}" title="{{ title }}">the user documentation</a>
+  for more information, including how to yank a release.
+{% endtrans %}
+</p>
+<h3 id="archived-project">{{ archived_project() }}</h3>
+<p>
+  {% trans href=request.user_docs_url('/project-management/yanking') %}
+  An archived project is a project that is no longer receiving any updates.
+  A project maintainer can mark a project as archived to signal to users that future
+  updates should not be expected. Archived projects are publicly visible and
+  can still be resolved from the index by default, unlike deleted or
+  <a href="{{ href }}">yanked</a> releases. An archived project cannot
+  make new releases and will not appear in PyPI's search results.
+{% endtrans %}
+</p>
+</section>
+<section class="faq-group" id="my-account">
+  <h2>{% trans %}My account{% endtrans %}</h2>
+  <h3 id="verified-email">{{ verified_email() }}</h3>
+  <p>{% trans %}Currently, PyPI requires a verified email address to perform the following operations:{% endtrans %}</p>
+  <ul>
+    <li>{% trans %}Register a new project.{% endtrans %}</li>
+    <li>{% trans %}Upload a new version or file.{% endtrans %}</li>
+  </ul>
+  <p>
+    {% trans %}The list of activities that require a verified email address is likely to grow over time.{% endtrans %}
+  </p>
+  <p>
+    {% trans href='https://www.python.org/dev/peps/pep-0541/', title=gettext('External link') %}This policy will allow us to enforce a key policy of <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><abbr title="Python enhancement proposal">PEP</abbr> 541</a> regarding maintainer reachability. It also reduces the viability of spam attacks to create many accounts in an automated fashion.{% endtrans %}
+  </p>
+  <p>
+    {% trans href=request.route_path('manage.account') %}You can manage your account's email addresses in your <a href="{{ href }}">account settings</a>. This also allows for sending a new confirmation email for users who signed up in the past, before we began enforcing this policy.{% endtrans %}
+  </p>
+  <h3 id="compromised-password">{{ compromised_password() }}</h3>
+  {% trans credential_stuffing_href='https://www.owasp.org/index.php/Credential_stuffing', haveibeenpwned_href='https://haveibeenpwned.com/API/v2#SearchingPwnedPasswordsByRange', reset_pwd_href=request.route_url('accounts.request-password-reset'), title=gettext('External link') %}
+  <p>
+    PyPI itself has not suffered a breach. This is a protective measure to reduce the risk of
+    <a href="{{ credential_stuffing_href }}"
+       title="{{ title }}"
+       target="_blank"
+       rel="noopener">credential stuffing</a>
+    attacks against PyPI and its users.
+  </p>
+  <p>
+    Each time a user supplies a password — while registering, authenticating,
+    or updating their password — PyPI securely checks whether that password
+    has appeared in public data breaches.
+  </p>
+  <p>
+    During each of these processes, PyPI generates a SHA-1 hash of the supplied password
+    and uses the first five (5) characters of the hash to check the
+    <a href="{{ haveibeenpwned_href }}"
+       title="{{ title }}"
+       target="_blank"
+       rel="noopener">Have I Been Pwned API</a>
+    and determine if the password has been previously compromised.
+    The plaintext password is never stored by PyPI or submitted to the Have I Been Pwned API.
+  </p>
+  <p>
+    PyPI will not allow such passwords to be used when setting a password
+    at registration or updating your password.
+  </p>
+  <p>
+    If you receive an error message saying that "This password appears
+    in a breach or has been compromised and cannot be used",
+    you should change it all other places that you use it as soon as possible.
+  </p>
+  <p>
+    If you have received this error while attempting to log in or upload to PyPI,
+    then your password has been reset, and you cannot log in to PyPI until you
+    <a href="{{ reset_pwd_href }}">reset your password</a>.
+  </p>
+{% endtrans %}
+<h3 id="suspicious-activity">{{ suspicious_activity() }}</h3>
+{% trans reset_pwd_href=request.route_url('accounts.request-password-reset'), admin_email='admin@pypi.org' %}
+<p>
+  All PyPI user events are stored under security history in account settings.
+  If there are any events that seem suspicious, take the following steps:
+</p>
+<ul>
+  <li>
+    <a href="{{ reset_pwd_href }}">Reset your password</a>
+  </li>
+  <li>
+    Contact the PyPI admins about the event at <a href="mailto:{{ admin_email }}">{{ admin_email }}</a>
+  </li>
+</ul>
+{% endtrans %}
+<h3 id="compromised-token">{{ compromised_token() }}</h3>
+{% trans %}
+<p>
+  A PyPI API token linked to your account was posted on a public website.
+  It was automatically revoked, but before regenerating a new one, please check the email
+  you received and attempt to determine the cause.
+  The <a href="#suspicious-activity">suspicious activity</a> section applies too.
+</p>
+{% endtrans %}
+<h3 id="twofa">{{ twoFA() }}</h3>
+{% trans href='https://discuss.python.org/t/pypi-security-work-multifactor-auth-progress-help-needed/1042', title=gettext('External link') %}
+<p>
+  Two-factor authentication (2FA) makes your account more secure by
+  requiring two things in order to log in: <em>something you know</em>
+  and <em>something you own</em>.
+</p>
+<p>
+  In PyPI's case, "something you know" is your username and password,
+  while "something you own" can be
+  <a href="#totp">an application to generate a temporary code</a>,
+  or a <a href="#utfkey">security device</a> (most commonly a USB key).
+</p>
+<p>
+  Two-factor authentication <strong>is required</strong> on your PyPI account.
+</p>
+<p>
+  During the web login process, users will be asked to provide
+  their second method of identity verification.
+</p>
+{% endtrans %}
+<h3 id="totp">{{ totp() }}</h3>
+<p>
+  {% trans href='https://en.wikipedia.org/wiki/Time-based_One-time_Password_algorithm', title=gettext('External link') %}PyPI users can set up two-factor authentication using any authentication application that supports the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><abbr title="time-based one-time password">TOTP</abbr> standard</a>.{% endtrans %}
+</p>
+<p>
+  {% trans %}<abbr title="time-based one-time password">TOTP</abbr> authentication applications generate a regularly changing authentication code to use when logging into your account.{% endtrans %}
+</p>
+<p>
+  {% trans %}Because <abbr title="time-based one-time password">TOTP</abbr> is an open standard, there are many applications that are compatible with your PyPI account. Popular applications include:{% endtrans %}
+</p>
+<ul>
+  <li>
+    {% trans android_href='https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2', ios_href='https://itunes.apple.com/app/google-authenticator/id388497605', title=gettext('External link') %}
+    Google Authenticator for <a href="{{ android_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">Android</a> or <a href="{{ ios_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">iOS</a>
+  {% endtrans %}
+  {% trans %}(proprietary){% endtrans %}
+</li>
+<li>
+  <a href="https://www.microsoft.com/en-us/account/authenticator"
+     title="{% trans %}External link{% endtrans %}"
+     target="_blank"
+     rel="noopener">Microsoft Authenticator</a> {% trans %}(proprietary){% endtrans %}
+</li>
+<li>
+  {% trans android_href='https://play.google.com/store/apps/details?id=com.duosecurity.duomobile', ios_href='https://itunes.apple.com/app/duo-mobile/id422663827', title=gettext('External link') %}
+  Duo Mobile for <a href="{{ android_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">Android</a> or <a href="{{ ios_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">iOS</a>
+{% endtrans %}
+{% trans %}(proprietary){% endtrans %}
+</li>
+<li>
+  <a href="https://authy.com/"
+     title="{% trans %}External link{% endtrans %}"
+     target="_blank"
+     rel="noopener">Authy</a> {% trans %}(proprietary){% endtrans %}
+</li>
+<li>
+  <a href="https://play.google.com/store/apps/details?id=org.liberty.android.freeotpplus"
+     title="{% trans %}External link{% endtrans %}"
+     target="_blank"
+     rel="noopener">FreeOTP+</a> {% trans %}(open source){% endtrans %}
+</li>
+<li>
+  <a href="https://freeotp.github.io/"
+     title="{% trans %}External link{% endtrans %}"
+     target="_blank"
+     rel="noopener">FreeOTP</a> {% trans %}(open source){% endtrans %}
+</li>
+</ul>
+<p>
+  {% trans href='https://1password.com/', title=gettext('External link') %}
+  Some password managers
+  (e.g. <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">1Password</a>)
+  can also generate authentication codes. For security reasons,
+  PyPI only allows you to set up one application per account.
+{% endtrans %}
+</p>
+<p>
+  <strong>{% trans %}To set up <abbr title="two factor authentication">2FA</abbr> with an authentication application:{% endtrans %}</strong>
+</p>
+<ol>
+  <li>
+    {% trans %}Open an authentication (<abbr title="time-based one-time password">TOTP</abbr>) application{% endtrans %}
+  </li>
+  <li>
+    {% trans %}Log in to your PyPI account, go to your account settings, and choose "Add <abbr title="two factor authentication">2FA</abbr> with authentication application"{% endtrans %}
+  </li>
+  <li>
+    {% trans %}PyPI will generate a secret key, specific to your account. This is displayed as a QR code, and as a text code.{% endtrans %}
+  </li>
+  <li>
+    {% trans %}Scan the QR code with your authentication application, or type it in manually. The method of input will depend on the application you have chosen.{% endtrans %}
+  </li>
+  <li>
+    {% trans %}Your application will generate an authentication code - use this to verify your set-up on PyPI{% endtrans %}
+  </li>
+</ol>
+<p>
+  {% trans %}The PyPI server and your application now share your PyPI secret key, allowing your application to generate valid authentication codes for your PyPI account.{% endtrans %}
+</p>
+<p>
+  <strong>{% trans %}Next time you log in to PyPI you'll need to:{% endtrans %}</strong>
+</p>
+<ol>
+  <li>{% trans %}Provide your username and password, as normal{% endtrans %}</li>
+  <li>{% trans %}Open your authentication application to generate an authentication code{% endtrans %}</li>
+  <li>{% trans %}Use this code to finish logging into PyPI{% endtrans %}</li>
+</ol>
+{{ twoFA_backup("authentication application") }}
+<h3 id="utfkey">{{ utfkey() }}</h3>
+<p>
+  {% trans %}A security device is a USB key or <a href="#utfdevices">other device</a> that generates a one-time password and sends that password to the browser. This password is then used by PyPI to authenticate you as a user.{% endtrans %}
+</p>
+<p>
+  <strong>{% trans %}To set up two-factor authentication with a <em>USB key</em>, you'll need:{% endtrans %}</strong>
+</p>
+<ul>
+  <li>
+    {% trans href='https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility', title=gettext('External link') %}To use a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">browser that supports <abbr title="web authentication">WebAuthn</abbr> and PublicKeyCredential</a>, as this is the standard implemented by PyPI.{% endtrans %}
+  </li>
+  <li>{% trans %}To be running JavaScript on your browser{% endtrans %}</li>
+  <li>
+    {% trans href='https://fidoalliance.org/specifications/download/', title=gettext('External link') %}To use a USB key that adheres to the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">FIDO U2F specification</a>:{% endtrans %}
+    <ul>
+      <li>
+        {% trans yubikey_href='https://www.yubico.com/', titan_href='https://cloud.google.com/titan-security-key/', thetis_href='https://thetis.io/', title=gettext('External link') %}
+        Popular keys include
+        <a href="{{ yubikey_href }}"
+           title="{{ title }}"
+           target="_blank"
+           rel="noopener">Yubikey</a>,
+        <a href="{{ titan_href }}"
+           title="{{ title }}"
+           target="_blank"
+           rel="noopener">Google Titan</a> and
+        <a href="{{ thetis_href }}"
+           title="{{ title }}"
+           target="_blank"
+           rel="noopener">Thetis</a>.
+      {% endtrans %}
+    </li>
+    <li>
+      {% trans %}Note that some older Yubico USB keys <strong>do not follow the FIDO specification</strong>, and will therefore not work with PyPI{% endtrans %}
+    </li>
+  </ul>
+</li>
+</ul>
+<p>{% trans %}Follow these steps:{% endtrans %}</p>
+<ol>
+  {% trans %}
+  <li>
+    Log in to your PyPI account, go to your account settings, and choose "Add <abbr title="two factor authentication">2FA</abbr> with security device (e.g. USB key)"
+  </li>
+  <li>
+    Give your key a name. This is necessary because it's possible to add more than one security device to your account.
+  </li>
+  <li>Click on the "Set up security device" button</li>
+  <li>Insert and touch your USB key, as instructed by your browser</li>
+{% endtrans %}
+</ol>
+<p>
+  {% trans %}Once complete, your USB key will be registered to your PyPI account and can be used during the log in process.{% endtrans %}
+</p>
+<p>
+  <strong>{% trans %}Next time you log in to PyPI you'll need to:{% endtrans %}</strong>
+</p>
+<ol>
+  {% trans %}
+  <li>Provide your username and password, as normal</li>
+  <li>Insert and touch your USB key to finish logging into PyPI</li>
+{% endtrans %}
+</ol>
+{{ twoFA_backup("security device") }}
+<h3 id="utfdevices">{{ utfdevices() }}</h3>
+<p>
+  {% trans href='https://fidoalliance.org/certification/fido-certified-products/', title=gettext('External link') %}
+  There is a growing ecosystem of <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">devices that are FIDO compliant</a>, and can therefore be used with PyPI.
+{% endtrans %}
+</p>
+<p>
+  {% trans href='https://fidoalliance.org/news-your-google-android-7-phone-is-now-a-fido2-security-key/', title=gettext('External link') %}
+  Emerging solutions include biometric (facial and fingerprint) scanners and FIDO compatible credit cards.
+  There is also growing support for <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">mobile phones to act as security devices</a>.
+{% endtrans %}
+</p>
+<p>
+  {% trans href='https://www.w3.org/TR/webauthn/', title=gettext('External link') %}
+  As PyPI's two-factor implementation follows the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><abbr title="web authentication">WebAuthn</abbr> standard</a>,
+  PyPI users will be able to take advantage of any future developments in this field.
+{% endtrans %}
+</p>
+<h3 id="recoverycodes">{{ recoverycodes() }}</h3>
+<p>
+  {% trans %}If you lose access to your <a href="#totp">authentication application</a> or <a href="#utfkey">security device</a>, you can use these codes to log in to PyPI.{% endtrans %}
+</p>
+<p>
+  {% trans %}
+  Recovery codes are <strong>one time use</strong>. They are not a substitute for an <a href="#totp">authentication application</a> or a <a href="#utfkey">security device</a>
+  and should only be used for recovery. After using a recovery code to sign in, it becomes inactive.
+{% endtrans %}
+</p>
+<p>
+  <strong>{% trans %}To provision recovery codes:{% endtrans %}</strong>
+</p>
+<ol>
+  <li>
+    {% trans %}Log in to your PyPI account, go to your account settings, and choose "Generate recovery codes"{% endtrans %}
+  </li>
+  <li>
+    {% trans %}Securely store the displayed recovery codes! Consider printing them out and storing them in a safe location or saving them in a password manager.{% endtrans %}
+  </li>
+</ol>
+<p>
+  {% trans %}If you lose access to your stored recovery codes or use all of them, you can get new ones by selecting "Regenerate recovery codes" in your account settings.{% endtrans %}
+</p>
+<p>
+  <strong>{% trans %}To sign in with a recovery code:{% endtrans %}</strong>
+</p>
+<ol>
+  <li>{% trans %}Provide your username and password, as normal{% endtrans %}</li>
+  <li>{% trans %}When prompted for two-factor authentication, select "Login using recovery codes"{% endtrans %}</li>
+  <li>{% trans %}As each code can be used only once, you might want to mark the code as used{% endtrans %}</li>
+  <li>
+    {% trans %}If you have few recovery codes remaining, you may also want to generate a new set using the "Regenerate recovery codes" button in your account settings.{% endtrans %}
+  </li>
+</ol>
+<h3 id="apitoken">{{ apitoken() }}</h3>
+<p>
+  {% trans %}
+  API tokens are used to authenticate when <strong>uploading packages</strong> to PyPI.
+{% endtrans %}
+</p>
+<p>
+  {% trans %}
+  You can create a token for an entire PyPI account, in which case, the token will work
+  for all projects associated with that account. Alternatively, you can limit a token's
+  scope to a specific project.
+{% endtrans %}
+</p>
+<p>
+  {% trans %}
+  When using an API token from a CI provider, we recommend
+  scoping the token down to the minimum necessary projects.
+{% endtrans %}
+</p>
+<p>
+  <strong>
+    {% trans href='#trusted-publishers' %}
+    If you are publishing to PyPI from a CI provider that supports
+    <a href="{{ href }}">Trusted Publishing</a>, we strongly recommend
+    using Trusted Publishing instead.
+  {% endtrans %}
+</strong>
+</p>
+<p>{% trans %}To make an API token:{% endtrans %}</p>
+<ul>
+  <li>
+    <a href="#verified-email">{% trans %}Verify your email address{% endtrans %}</a> {% trans href=request.route_path('manage.account') %}(check your <a href="{{ href }}">account settings</a>){% endtrans %}
+  </li>
+  <li>
+    {% trans href=request.route_path('manage.account') %}In your <a href="{{ href }}">account settings</a>, go to the API tokens section and select "Add API token"{% endtrans %}
+  </li>
+</ul>
+<p>{% trans %}To use an API token:{% endtrans %}</p>
+<ul>
+  <li>
+    {% trans %}Set your username to <code>__token__</code>{% endtrans %}
+  </li>
+  <li>
+    {% trans %}Set your password to the token value, including the <code>pypi-</code> prefix{% endtrans %}
+  </li>
+</ul>
+<p>
+  {% trans pypirc_href='https://packaging.python.org/guides/distributing-packages-using-setuptools/#create-an-account', travis_href='https://docs.travis-ci.com/user/deployment/pypi/', title=gettext('External link') %}
+  Where you edit or add these values will depend on your individual use case. For example, some users may need to edit <a href="{{ pypirc_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">their <code>.pypirc</code> file</a>, while others may need to update their CI configuration file (e.g. <a href="{{ travis_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener"><code>.travis.yml</code> if you are using Travis</a>).
+{% endtrans %}
+</p>
+<p>
+  {% trans %}Advanced users may wish to inspect their token by decoding it with base64, and checking the output against the unique identifier displayed on PyPI.{% endtrans %}
+</p>
+<h3 id="sensitiveactions">{{ sensitiveactions() }}</h3>
+{% trans %}
+<p>
+  PyPI asks you to confirm your password before you want to perform a <i>sensitive action</i>. Sensitive actions include things like adding or removing maintainers, deleting distributions, generating API tokens, and setting up two-factor authentication.
+</p>
+<p>You'll only have to re-confirm your password if it's been more than an hour since you last confirmed it.</p>
+<p>
+  <strong>We strongly recommend you only perform such actions on your personal, password-protected computer.</strong>
+</p>
+{% endtrans %}
+<h3 id="username-change">{{ username_change() }}</h3>
+<p>{% trans %}PyPI does not currently support changing a username.{% endtrans %}</p>
+<p>
+  {% trans %}Instead, you can create a new account with the desired username, add the new account as a maintainer of all the projects your old account owns, and then delete the old account, which will have the same effect.{% endtrans %}
+</p>
+<h3 id="trusted-publishers">{{ trusted_publishers() }}</h3>
+<p>
+  {% trans docs="https://docs.pypi.org/trusted-publishers/" %}
+  PyPI users and projects can use <a href="{{ docs }}">Trusted Publishers</a> to delegate
+  publishing authority for a PyPI package to a trusted third party service, eliminating
+  the need to use API tokens.
+{% endtrans %}
+</p>
+</section>
+<section class="faq-group" id="integrating">
+  <h2>{% trans %}Integrating{% endtrans %}</h2>
+  <h3 id="APIs">{{ APIs() }}</h3>
+  <p>
+    {% trans %}Yes, including RSS feeds of new packages and new releases.{% endtrans %} <a href="https://docs.pypi.org/api/"
+    title="{% trans %}External link{% endtrans %}"
+    target="_blank"
+    rel="noopener">{% trans %}See the API reference.{% endtrans %}</a>
+  </p>
+  <h3 id="mirroring">{{ mirroring() }}</h3>
+  <p>
+    {% trans href='https://pypi.org/project/bandersnatch/' %}If you need to run your own mirror of PyPI, the <a href="{{ href }}">bandersnatch project</a> is the recommended solution. Note that the storage requirements for a PyPI mirror would exceed 1 terabyte—and growing!{% endtrans %}
+  </p>
+  <h3 id="project-release-notifications">{{ project_release_notifications() }}</h3>
+  <p>
+    {% trans href='https://github.com/marketplace?category=dependency-management&query=python', title=gettext('External link'), rss_href='https://docs.pypi.org/api/feeds/#project-releases-feed' %}You can subscribe to the <a href="{{ rss_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">project releases RSS feed</a>. Additionally, there are several third-party services that offer comprehensive monitoring and notifications for project releases and vulnerabilities listed as <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">GitHub apps</a>.{% endtrans %}
+  </p>
+  <h3 id="statistics">{{ statistics() }}</h3>
+  <p>
+    {% trans href='https://packaging.python.org/guides/analyzing-pypi-package-downloads/', title=gettext('External link') %}You can analyze PyPI project/package metadata and <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">download usage statistics</a> via our public dataset on Google BigQuery.{% endtrans %}
+  </p>
+  <p>
+    {% trans libs_io_href='https://libraries.io/pypi', libs_io_example_href='https://libraries.io/pypi/twine/', libs_io_api_href='https://libraries.io/api', in_progress_href='https://github.com/librariesio/bibliothecary/issues/415', other_factors_href='https://docs.libraries.io/overview#sourcerank', title=gettext('External link') %}
+    <a href="{{ libs_io_href }}"
+       title="{{ title }}"
+       target="_blank"
+       rel="noopener">Libraries.io provides statistics for PyPI projects</a>
+    (<a href="{{ libs_io_example_href }}"
+   title="{{ title }}"
+   target="_blank"
+   rel="noopener">example</a>,
+    <a href="{{ libs_io_api_href }}"
+       title="{{ title }}"
+       target="_blank"
+       rel="noopener">API</a>)
+    including GitHub stars and forks, dependency tracking
+    (<a href="{{ in_progress_href }}"
+   title="{{ title }}"
+   target="_blank"
+   rel="noopener">in progress</a>),
+    and <a href="{{ other_factors_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">other relevant factors</a>.
+  {% endtrans %}
+</p>
+<p>
+  {% trans href='https://status.python.org/', title=gettext('External link') %}For recent statistics on uptime and performance, see <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">our status page</a>.{% endtrans %}
+</p>
+<h3 id="verify-hashes">{{ verify_hashes() }}</h3>
+<p>
+  {% trans %}For each package hosted on PyPI, there are corresponding hashes for that file. These hashes can be used to verify that the file you are downloading is the same one that the project maintainer uploaded. This is especially useful if downloading packages from a mirror. The hashes can be obtained from the project page in the "Download Files" section or from the JSON API. Here is an example of generating the hashes:{% endtrans %}
+</p>
+<pre class="code-block">import hashlib
 with open("file-path-to-verify", "rb") as f:
     file_contents = f.read()
 blake2b_hash = hashlib.blake2b(file_contents, digest_size=32).hexdigest()
 sha256_hash = hashlib.sha256(file_contents).hexdigest()
 print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
-        <p>{% trans %}In practice, it would only be necessary to verify one of the hashes. It is not recommended to use the MD5 hash because of known security issues with the MD5 algorithm. This hash is provided for backwards compatibility only.{% endtrans %}</p>
-      </section>
-
-      <section class="faq-group" id="administration">
-        <h2>{% trans %}Administration of projects on PyPI{% endtrans %}</h2>
-
-        <h3 id="private-indices">{{ private_indices() }}</h3>
-        <p>{% trans href='https://pypi.org/project/devpi/' %}PyPI does not support publishing private packages. If you need to publish your private package to a package index, the recommended solution is to run your own deployment of the <a href="{{ href }}">devpi project</a>.{% endtrans %}</p>
-
-        <h3 id="project-name">{{ project_name() }}</h3>
-        <p>{% trans %}Your publishing tool may return an error that your new project can't be created with your desired name, despite no evidence of a project or release of the same name on PyPI. Currently, there are four primary reasons this may occur:{% endtrans %}</p>
-        <ul>
-          <li>{% trans href='https://docs.python.org/3/library/index.html', title=gettext('External link') %}The project name conflicts with a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Standard Library</a> module from any major version from 2.5 to present.{% endtrans %}</li>
-          <li>{% trans %}The project name is too similar to an existing project and may be confusable.{% endtrans %}</li>
-          <li>{% trans incorrect_code='pip install requirements.txt', correct_code='pip install -r requirements.txt' %}The project name has been explicitly prohibited by the PyPI administrators. For example, <code>{{ incorrect_code }}</code> is a common typo for <code>{{ correct_code }}</code>, and should not surprise the user with a malicious package.{% endtrans %}</li>
-          <li>{% trans %}The project name has been registered by another user, but no releases have been created.{% endtrans %}{% trans href='#project-name-claim', anchor_text=project_name_claim() %}See <a href="{{ href }}">{{ anchor_text }}</a>{% endtrans %}</li>
-        </ul>
-
-        <h3 id="project-name-claim">{{ project_name_claim() }}</h3>
-        <p>{% trans href='https://www.python.org/dev/peps/pep-0541/#how-to-request-a-name-transfer', title=gettext('External link') %}Follow the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">"How to request a name transfer"</a> section of <abbr title="Python enhancement proposal">PEP</abbr> 541.{% endtrans %}</p>
-
-        <h3 id="collaborator-roles">{{ collaborator_roles() }}</h3>
-        <p>{% trans %}There are two possible roles for collaborators:{% endtrans %}</p>
-        <p><strong>{% trans %}Maintainer:{% endtrans %}</strong> {% trans %}Can upload releases for a package. Cannot add collaborators. Cannot delete files, releases, or the project.{% endtrans %}</p>
-        <p><strong>{% trans %}Owner:{% endtrans %}</strong> {% trans %}Can upload releases. Can add other collaborators. Can delete files, releases, or the entire project.{% endtrans %}</p>
-
-        <h3 id="request-ownership">{{ request_ownership() }}</h3>
-        <p>{% trans %}Only the current owners of a project have the ability to add new owners or maintainers. If you need to request ownership, you should contact the current owner(s) of the project directly. Many project owners provide their contact details in the 'Author' field of the 'Meta' details on the project page.{% endtrans %}</p>
-        <p>{% trans href='#project-name-claim', anchor_text=project_name_claim() %}If the owner is unresponsive, see <a href="{{ href }}">{{ anchor_text }}</a>{% endtrans %}</p>
-
-        <h3 id="description-content-type">{{ description_content_type() }}</h3>
-        <p>
-          {% trans %}
-          When using <code>pyproject.toml</code> for project metadata, you can use the extension of the <code>readme</code> field value to control how PyPI renders your description.
-          {% endtrans %}
-        </p>
-        <p>
-          {% trans href='https://docutils.sourceforge.io/rst.html', title=gettext('External link') %}
-          For example, <code>readme = "README.md"</code> will render the description as Markdown,
-          while <code>readme = "README.rst"</code> will render it as
-          <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">reStructuredText</a>
-          {% endtrans %}
-        </p>
-        <p>
-          {% trans href='https://packaging.python.org/guides/making-a-pypi-friendly-readme/', title=gettext('External link') %}
-          Refer to the
-          <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a>
-          for details on the available formats.
-          {% endtrans %}
-        </p>
-        <p>For how to check a description for validity, see also: <a href="#description-render-failure">{{ description_render_failure() }}</a></p>
-
-        <h3 id="file-size-limit">{{ file_size_limit() }}</h3>
-        {% set max_file_size_mb = request.registry.settings.get('warehouse.forklift.legacy.MAX_FILESIZE_MIB') %}
-        <p>
-          {% trans dev_release_href='https://www.python.org/dev/peps/pep-0440/#developmental-releases', file_issue_href='https://github.com/pypi/support/issues/new?assignees=&labels=limit+request&template=limit-request-file.yml&title=File+Limit+Request%3A+PROJECT_NAME+-+000+MB', title=gettext('External link') %}
-            If you can't upload your project's release to PyPI because you're hitting the upload
-            file size limit ({{ max_file_size_mb }} MiB by default; individual projects may differ),
-            we can sometimes increase your limit.
-          {% endtrans %}
-        </p>
-        <p>
-          {% trans href=request.user_docs_url('/project-management/storage-limits/', anchor="requesting-a-file-size-limit-increase") %}
-            See the <a href="{{ href }}">user documentation</a> for more information
-            on requesting a file size limit increase.
-          {% endtrans %}
-        </p>
-
-        <h3 id="project-size-limit">{{ project_size_limit() }}</h3>
-        <p>
-          {% set max_project_size_gb = request.registry.settings.get('warehouse.forklift.legacy.MAX_PROJECT_SIZE_GIB') %}
-          {% trans href=request.user_docs_url('/project-management/storage-limits/', anchor="freeing-up-storage-on-an-existing-project") %}
-            If you can't upload your project's release to PyPI because you're
-            hitting the project size limit ({{ max_project_size_gb }} GiB by default;
-            individual projects may differ), first
-            <a href="{{ href }}">remove any unnecessary releases or individual files</a> to lower
-            your overall project size.
-          {% endtrans %}
-        </p>
-        <p>
-          {% trans href=request.user_docs_url('/project-management/storage-limits/', anchor="requesting-a-project-size-limit-increase") %}
-            If that is not possible, we can sometimes increase your limit.
-            See the <a href="{{ href }}">user documentation</a> for more information
-            on requesting a project size limit increase.
-          {% endtrans %}
-        </p>
-
-        <h3 id="vulnerability-data">{{ vulnerability_data() }}</h3>
-        <p>
-          {% trans osv_href='https://osv.dev/', title=gettext('External link'), vulns_href='https://github.com/pypa/advisory-database' %}
-          PyPI receives reports on vulnerabilities in the packages hosted on it from the <a href="{{ osv_href }}" title="{{ title }}" target="_blank" rel="noopener">Open Source Vulnerabilities project</a>, which in turn ingests vulnerabilities from the <a href="{{ vulns_href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging Advisory Database</a>.
-          {% endtrans %}
-        </p>
-        <p>
-          {% trans file_issue_href='https://github.com/pypa/advisory-database/issues', title=gettext('External link') %}
-            If you believe vulnerability data for your project is invalid or incorrect, <a href="{{ file_issue_href }}" title="{{ title }}" target="_blank" rel="noopener">file an issue</a> with details.
-          {% endtrans %}
-        </p>
-
-        <h3 id="deletion">{{ deletion() }}</h3>
-        <p>
-          {% trans %}
-          Deletion of a project, release or file on PyPI is permanent and irreversable, without exception.
-          Deletion of a project makes it uninstallable, and releases the project name for use by any other PyPI user.
-          Deleted files <a href="#file-name-reuse">cannot be re-uploaded</a>.
-          Deleted projects, releases or files cannot be restored by PyPI administrators.
-          {% endtrans %}
-        </p>
-
-      </section>
-
-      <section class="faq-group" id="troubleshooting">
-        <h2>{% trans %}Troubleshooting{% endtrans %}</h2>
-
-        <h3 id="description-render-failure">{{ description_render_failure() }}</h3>
-        <p>
-          {% trans href='https://twine.readthedocs.io/#twine-check', title=gettext('External link') %}
-            PyPI will reject uploads if the package description fails to render. You may <a href="{{ href }}" title="{{ title }}">use twine's check command</a> to locally check a description for validity.
-          {% endtrans %}
-        </p>
-
-        <h3 id="login-problem">{{ login_problem() }}</h3>
-        <p>{% trans %}If you've forgotten your PyPI password, but you remember your email address or username, follow these steps to reset your password:{% endtrans %}</p>
-        <ol>
-          <li>{% trans href=request.route_path('accounts.reset-password') %}Go to <a href="{{ href }}">reset your password</a>.{% endtrans %}</li>
-          <li>{% trans %}Enter the email address or username you used for PyPI and submit the form.{% endtrans %}</li>
-          <li>{% trans %}You'll receive an email with a password reset link.{% endtrans %}</li>
-        </ol>
-        {{ code_of_conduct() }}
-
-        <h3 id="account-recovery">{{ account_recovery() }}</h3>
-        <p>{% trans %}If you've lost access to your PyPI account or can't fully verify it due to:{% endtrans %}</p>
-        <ul>
-          <li>{% trans %}Lost access to the email address associated with your account{% endtrans %}</li>
-          <li>{% trans %}Accidentally registered with an email address you cannot verify{% endtrans %}</li>
-          <li>{% trans %}Lost two-factor authentication <a href="#totp">application</a>, <a href="#utfkey">device</a>, and <a href="#recoverycodes">recovery codes</a>{% endtrans %}</li>
-        </ul>
-        <p>
-          {% trans href='https://github.com/pypi/support/issues/new?assignees=&labels=account-recovery&template=account-recovery.yml&title=Account+recovery+request', title=gettext('External link') %}
-            You can proceed to <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">file an issue on our tracker</a> to request assistance with account recovery.
-          {% endtrans %}
-        </p>
-        {{ code_of_conduct() }}
-
-        <h3 id="invalid-auth">{{ invalid_auth() }}</h3>
-        <ol>
-          <li>{% trans %}Ensure that your API Token is valid and has not been revoked.{% endtrans %}</li>
-          <li>{% trans %}Ensure that your API Token is <a href="#apitoken">properly formatted</a> and does not contain any trailing characters such as newlines.{% endtrans %}</li>
-          <li>{% trans %}Ensure that the username you are using is <code>__token__</code>.{% endtrans %}</li>
-        </ol>
-        <p>{% trans %}Remember that PyPI and TestPyPI each require you to create an account, so your credentials may be different.{% endtrans %}</p>
-        <p>
-          {% trans href='https://bugs.python.org/issue37426', title=gettext('External link') %}
-            If you're using Windows and trying to paste your token in the Command Prompt or PowerShell, note that Ctrl-V and Shift+Insert won't work.
-            Instead, you can use "Edit > Paste" from the window menu, or enable "Use Ctrl+Shift+C/V as Copy/Paste" in "Properties".
-            This is a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">known issue</a> with Python's <code>getpass</code> module.
-          {% endtrans %}
-        </p>
-
-        <h3 id="tls-deprecation">{{ tls_deprecation() }}</h3>
-        <p>
-          {% trans announcement_href='https://mail.python.org/pipermail/python-announce-list/2018-April/011885.html', reason_href='https://pyfound.blogspot.com/2017/01/time-to-upgrade-your-python-tls-v12.html', title=gettext('External link') %}
-            Transport Layer Security, or TLS, is part of how we make sure connections between your computer and PyPI are private and secure.
-            It's a cryptographic protocol that's had several versions over time.
-            PyPI <a href="{{ announcement_href }}" title="{{ title }}" target="_blank" rel="noopener">turned off support for TLS versions 1.0 and 1.1</a>
-            in April 2018. <a href="{{ reason_href }}" title="{{ title }}" target="_blank" rel="noopener">Learn why on the PSF blog</a>.
-          {% endtrans %}
-        </p>
-        <p>{% trans command='pip install' %}If you are having trouble with <code>{{ command }}</code> and get a <code>No matching distribution found</code> or <code>Could not fetch URL</code> error, try adding <code>-v</code> to the command to get more information:{% endtrans %}</p>
-        <p><code>pip install --upgrade -v pip</code></p>
-        <p>{% trans %}If you see an error like <code>There was a problem confirming the ssl certificate</code> or <code>tlsv1 alert protocol version</code> or <code>TLSV1_ALERT_PROTOCOL_VERSION</code>, you need to be connecting to PyPI with a newer TLS support library.{% endtrans %}</p>
-        <p>{% trans %}The specific steps you need to take will depend on your operating system version, where your installation of Python originated (python.org, your OS vendor, or an intermediate distributor), and the installed versions of Python, <code>setuptools</code>, and <code>pip</code>.{% endtrans %}</p>
-        <p>
-          {% trans irc_href='https://web.libera.chat/#pypa', issue_tracker_href='https://github.com/pypa/packaging-problems/issues', discourse_href='https://discuss.python.org/c/packaging/14', title=gettext('External link'), command='pip install --upgrade -vvv pip' %}
-            For help, go to <a href="{{ irc_href }}" title="{{ title }}" target="_blank" rel="noopener">the <code>#pypa</code> IRC channel on Libera</a>,
-            file an issue at <a href="{{ issue_tracker_href }}" title="{{ title }}" target="_blank" rel="noopener">pypa/packaging-problems/issues</a>,
-            or <a href="{{ discourse_href }}" title="{{ title }}" target="_blank" rel="noopener">discuss on the Discourse</a>,
-            including your OS and installation details and the output of <code>{{ command }}</code>.
-          {% endtrans %}
-        </p>
-        {{ code_of_conduct() }}
-
-        <h3 id="accessibility">{{ accessibility() }}</h3>
-        <p>
-          {% trans href='https://en.wikipedia.org/wiki/Web_accessibility', title=gettext('External link') %}
-            We take <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">accessibility</a> very seriously and want to make the website easy to use for everyone.
-          {% endtrans %}
-        </p>
-        <p>
-          {% trans href='https://github.com/pypi/warehouse/issues', title=gettext('External link') %}
-            If you are experiencing an accessibility problem, <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">report it to us on GitHub</a>, so we can try to fix the problem, for you and others.
-          {% endtrans %}
-        </p>
-        {{ code_of_conduct() }}
-
-        <h3 id="uploading">{{ uploading() }}</h3>
-        <p>
-          {% trans href='https://packaging.python.org/guides/distributing-packages-using-setuptools/#uploading-your-project-to-pypi', title=gettext('External link') %}
-            In a previous version of PyPI, it used to be possible for maintainers
-            to upload releases to PyPI using a form in the web browser.
-            This feature was deprecated with the new version of PyPI – we instead
-            recommend that you <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">use twine to upload your project to PyPI</a>.
-          {% endtrans %}
-        </p>
-
-        <h3 id="admin-intervention">{{ admin_intervention() }}</h3>
-        <p>{% trans %}Spammers return to PyPI with some regularity hoping to place their Search Engine Optimized phishing, scam, and click-farming content on the site. Since PyPI allows for indexing of the Long Description and other data related to projects and has a generally solid search reputation, it is a prime target.{% endtrans %}</p>
-        <p>
-          {% trans href='https://status.python.org', title=gettext('External link') %}
-            When the PyPI administrators are overwhelmed by spam <strong>or</strong> determine that there is some other threat to PyPI,
-            new user registration and/or new project registration may be disabled.
-            Check <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">our status page</a> for more details,
-            as we'll likely have updated it with reasoning for the intervention.
-          {% endtrans %}
-        </p>
-
-        <h3 id="file-name-reuse">{{ file_name_reuse() }}</h3>
-        <p>{% trans %}PyPI will return these errors for one of these reasons:{% endtrans %}</p>
-        <ul>
-          <li>{% trans %}Filename has been used and file exists{% endtrans %}</li>
-          <li>{% trans %}Filename has been used but file no longer exists{% endtrans %}</li>
-          <li>{% trans %}A file with the exact same content exists{% endtrans %}</li>
-        </ul>
-        <p>
-          {% trans %}
-            PyPI does not allow for a filename to be reused, even once a
-            project has been deleted and recreated.
-          {% endtrans %}
-        </p>
-        <p>
-          {% trans %}
-            A distribution filename on PyPI consists of the combination of
-            project name, version number, and distribution type.
-          {% endtrans %}
-        </p>
-        <p>
-          {% trans %}
-            This ensures that a given distribution for a given release for a
-            given project will always resolve to the same file, and cannot be
-            surreptitiously changed one day by the projects maintainer or a
-            malicious party (it can only be removed).
-          {% endtrans %}
-        </p>
-        <p>
-          {% trans %}
-            To avoid this situation in most cases, you will need to change the
-            version number to one that you haven't previously uploaded to PyPI,
-            rebuild the distribution, and then upload the new distribution.
-          {% endtrans %}
-        </p>
-
-        <h3 id="new-classifier">{{ new_classifier() }}</h3>
-        <p>
-          {% trans href='https://github.com/pypa/trove-classifiers/', title=gettext('External link') %}
-          If you would like to request a new trove classifier file a pull request on the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><code>pypa/trove-classifiers</code> project</a>. Be sure to include a brief justification of why it is important.
-          {% endtrans %}
-        </p>
-        {{ code_of_conduct() }}
-
-        <h3 id="feedback">{{ feedback() }}</h3>
-        <p>
-          {% trans href='https://github.com/pypi/warehouse/issues', title=gettext('External link') %}
-            If you're experiencing an issue with PyPI itself, we welcome <strong>constructive</strong> feedback and bug reports
-            via our <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">issue tracker</a>.
-            Please note that this tracker is only for issues with the software that runs PyPI.
-            Before writing a new issue, first check that a similar issue does not already exist.
-          {% endtrans %}
-        </p>
-        <p>{% trans %}If you are having an issue is with a specific package installed from PyPI, you should reach out to the maintainers of that project directly instead.{% endtrans %}</p>
-        {{ code_of_conduct() }}
-
-        <h3 id="totp_trouble">{{ totp_trouble() }}</h3>
-        <p>
-          {% trans %}
-          If you are having issues while setting up a <abbr title="time-based one-time password">TOTP</abbr> device, it may be because your device time is out of sync. Please check that the time on your device is set automatically, and try setting up the device again.
-          {% endtrans %}
-        </p>
-
-        <h3 id="project_in_quarantine">{{ project_in_quarantine() }}</h3>
-        <p>
-          {% trans tou="https://policies.python.org/pypi.org/Terms-of-Service/", aup="https://policies.python.org/pypi.org/Acceptable-Use-Policy/" %}
-            Projects may get placed in quarantine for any number of reasons,
-            such as suspicion of malicious activity, spam, or other violations of the
-            <a href="{{ tou }}" target="_blank" rel="noopener">Terms of Service</a>
-            or
-            <a href="{{ aup }}" target="_blank" rel="noopener">Acceptable Use Policy</a>.
-          {% endtrans %}
-        </p>
-        <p>
-          {% trans %}
-            While in quarantine, the project is not installable by clients,
-            and cannot be being modified by its maintainers.
-            PyPI Administrators will need to review this project before it can be restored.
-          {% endtrans %}
-        </p>
-        <p>
-          {% trans mailto="mailto:security@pypi.org" %}
-            If you believe your project has mistakenly been flagged for quarantine,
-            contact PyPI via <a href="{{ mailto }}">security@pypi.org</a>
-            with any details.
-          {% endtrans %}
-        </p>
-      </section>
-
-      <section class="faq-group" id="about">
-        <h2>{% trans %}About{% endtrans %}</h2>
-
-        <h3 id="maintainers">{{ maintainers() }}</h3>
-        <p>
-          {% trans href='https://warehouse.pypa.io/', title=gettext('External link') %}
-          PyPI is powered by the Warehouse project; <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Warehouse</a> is an open source project developed under the umbrella of the Python Packaging Authority (PyPA) and supported by the Python Packaging Working Group (PackagingWG).
-          {% endtrans %}
-        </p>
-        <p>
-          {% trans href='https://www.pypa.io/', title=gettext('External link') %}
-            The <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">PyPA</a> is an independent group of developers whose goal is to improve and maintain many of the core projects related to Python packaging.
-          {% endtrans %}
-        </p>
-        <p>
-          {% trans packaging_wg_href='https://wiki.python.org/psf/PackagingWG', otf_award_href='https://pyfound.blogspot.com/2019/03/commencing-security-accessibility-and.html', title=gettext('External link') %}
-            The <a href="{{ packaging_wg_href }}" title="{{ title }}" target="_blank" rel="noopener">PackagingWG</a>
-            is a working group of the Python Software Foundation (PSF) whose goal is to raise and disburse funds to support the ongoing improvement of Python packaging.
-            Most recently it <a href="{{ otf_award_href }}" title="{{ title }}" target="_blank" rel="noopener">secured an award from the Open Technology Fund</a>
-            whose funding is enabling developers to improve Warehouse's security and accessibility.
-          {% endtrans %}
-        </p>
-
-        <h3 id="sponsors">{{ sponsors() }}</h3>
-        <p>
-          {% trans warehouse_href='https://warehouse.pypa.io/', sponsors_href=request.route_path('sponsors'), title=gettext('External link') %}
-            PyPI is powered by <a href="{{ warehouse_href }}" title="{{ title }}" target="_blank" rel="noopener">Warehouse</a>
-            and by a variety of tools and services provided by our <a href="{{ sponsors_href }}">generous sponsors</a>.
-          {% endtrans %}
-        </p>
-
-        <h3 id="availability">{{ availability() }}</h3>
-        <p>{% trans %}As of April 16, 2018, PyPI.org is at "production" status, meaning that it has moved out of beta and replaced the old site (pypi.python.org). It is now robust, tested, and ready for expected browser and API traffic.{% endtrans %}</p>
-        <p>
-          {% trans fastly_href='https://www.fastly.com/', status_page_href='https://status.python.org/', mirror_href='#mirroring', private_index_href='#private-indices', title=gettext('External link') %}
-          PyPI is heavily cached and distributed via <abbr title="content delivery network">CDN</abbr> thanks to our sponsor
-          <a href="{{ fastly_href }}" title="{{ title }}" target="_blank" rel="noopener">Fastly</a>
-          and thus is generally available globally. However, the site is mostly maintained by volunteers,
-          we do not provide any specific Service Level Agreement,
-          and as could be expected for a giant distributed system, things can and sometimes do go wrong.
-          See <a href="{{ status_page_href }}" title="{{ title }}" target="_blank" rel="noopener">our status page</a>
-          for current and past outages and incidents. If you have high availability requirements for your package index,
-          consider either a <a href="{{ mirror_href }}">mirror</a> or a <a href="{{ private_index_href }}">private index</a>.
-          {% endtrans %}
-        </p>
-
-        <h3 id="contributing">{{ contributing() }}</h3>
-        <p>
-          {% trans href='https://warehouse.pypa.io/', title=gettext('External link') %}
-            We have a huge amount of work to do to continue to maintain and improve PyPI
-            (also known as <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">the Warehouse project</a>).
-          {% endtrans %}
-        </p>
-        <p><strong>{% trans %}Financial:{% endtrans %}</strong> {% trans href='https://donate.pypi.org/' %}We would deeply appreciate <a href="{{ href }}">your donations to fund development and maintenance</a>.{% endtrans %}</p>
-        <p><strong>{% trans %}Development:{% endtrans %}</strong> {% trans %}Warehouse is open source, and we would love to see some new faces working on the project. You <strong>do not</strong> need to be an experienced open-source developer to make a contribution – in fact, we'd love to help you make your first open source pull request!{% endtrans %}</p>
-        <p>
-          {% trans getting_started_href='https://warehouse.pypa.io/development/getting-started/', issue_tracker_href='https://github.com/pypi/warehouse/issues', good_first_issue_href='https://github.com/pypi/warehouse/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22', title=gettext('External link') %}
-          If you have skills in Python, Full-Text Search, HTML, SCSS, JavaScript, or SQLAlchemy then skim our
-          <a href="{{ getting_started_href }}" title="{{ title }}" target="_blank" rel="noopener">"Getting started" guide</a>,
-          then take a look at the <a href="{{ issue_tracker_href }}" title="{{ title }}" target="_blank" rel="noopener">issue tracker</a>.
-          We've created a <a href="{{ good_first_issue_href }}" title="{{ title }}" target="_blank" rel="noopener">'Good first issue'</a> label – we recommend you start here.
-          {% endtrans %}
-        </p>
-        <p>
-          {% trans href='https://github.com/pypi/warehouse/milestones', title=gettext('External link') %}
-            Issues are grouped into <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">milestones</a>;
-            working on issues in the current milestone is a great way to help push the project forward.
-            If you're interested in working on a particular issue, leave a comment, and we can guide you through the contribution process.
-          {% endtrans %}
-        </p>
-        <p>
-          <strong>{% trans %}Stay updated:{% endtrans %}</strong>
-          {% trans discourse_forum_href='https://discuss.python.org/c/packaging', title=gettext('External link') %}
-            You can also follow the ongoing development of the project on the
-            <a href="{{ discourse_forum_href }}" title="{{ title }}" target="_blank" rel="noopener">Python packaging forum on Discourse</a>.
-          {% endtrans %}
-        </p>
-        {{ code_of_conduct() }}
-
-        <h3 id="upcoming-changes">{{ upcoming_changes() }}</h3>
-        <p>
-          {% trans mailing_list_href='https://mail.python.org/mailman3/lists/pypi-announce.python.org/', blog_href='https://blog.pypi.org', rss_href='https://blog.pypi.org/feed_rss_created.xml', title=gettext('External link') %}
-          Changes to PyPI are generally announced on both the
-          <a href="{{ mailing_list_href }}" title="{{ title }}" target="_blank" rel="noopener">pypi-announce mailing list</a>
-          and the <a href="{{ blog_href }}" title="{{ title }}" target="_blank" rel="noopener">PyPI blog</a>.
-          The PyPI blog also has an <a href="{{ rss_href }}" title="{{ title }}" target="_blank" rel="noopener">RSS</a> feed.
-          {% endtrans %}
-        </p>
-
-        <h3 id="ips">{{ ips() }}</h3>
-        <p>{% trans href="https://api.fastly.com/public-ip-list" %}All traffic is routed through our global CDN, which lists their public IP addresses here: <a href="{{ href }}">{{ href }}</a>.{% endtrans %}</p>
-        <p>{% trans href="https://docs.fastly.com/en/guides/accessing-fastlys-ip-ranges" %}More information about this list can be found here: <a href="{{ href }}">{{ href }}</a>.{% endtrans %}</p>
-
-
-        <h3 id="beta-badge">{{ beta_badge() }}</h3>
-        <p>{% trans %}When Warehouse's maintainers are deploying new features, at first we mark them with a small "beta feature" symbol to tell you: this should probably work fine, but it's new and less tested than other site functionality.{% endtrans %}</p>
-        <p>{% trans %}Currently, no features are in beta.{% endtrans %}</p>
-
-        <h3 id="pronunciation">{{ pronunciation() }}</h3>
-        <p>
-          {% trans href='https://pypy.org/', title=gettext('External link') %}
-            "PyPI" should be pronounced like "pie pea eye", specifically with the "PI" pronounced as individual letters, rather as a single sound.
-            This minimizes confusion with the <a href="{{ href }}" title="{{ title }}">PyPy</a> project, which is a popular alternative implementation of the Python language.
-          {% endtrans %}
-        </p>
-
-      </section>
-    </div>
-  </div>
-
-  <div class="horizontal-section horizontal-section--grey">
-    <div class="narrow-container">
-      <h3>{% trans %}Resources{% endtrans %}</h3>
-      <p>{% trans %}Looking for something else? Perhaps these links will help:{% endtrans %}</p>
-      <ul>
-        <li><a href="{{ request.user_docs_url('/') }}" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}PyPI User Documentation{% endtrans %}</a></li>
-        <li><a href="https://packaging.python.org" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Python Packaging User Guide{% endtrans %}</a></li>
-        <li><a href="https://docs.python.org" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Python documentation{% endtrans %}</a></li>
-        <li><a href="https://python.org/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">Python.org</a> {% trans %}(main Python website){% endtrans %}</li>
-        <li><a href="https://python.org/community/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Python community page{% endtrans %}</a> {% trans %}(lists IRC channels, mailing lists, etc.){% endtrans %}</li>
-      </ul>
-
-      <h3>{% trans %}Contact{% endtrans %}</h3>
-      <p>
-        {% trans pypa_href='https://pypa.io', irc_href='https://web.libera.chat/#pypa', discourse_href='https://discuss.python.org/c/packaging/14', title=gettext('External link') %}
-          The <a href="{{ pypa_href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging Authority (PyPA)</a>
-          is a working group who work together to improve Python packaging. If you'd like to get in touch with a core packaging developer,
-          use <a href="{{ irc_href }}" title="{{ title }}" target="_blank" rel="noopener">#pypa on IRC (Libera)</a>,
-          or <a href="{{ discourse_href }}" title="{{ title }}" target="_blank" rel="noopener">browse the online board</a>.
-        {% endtrans %}
-      </p>
-
-    </div>
-  </div>
+<p>
+  {% trans %}In practice, it would only be necessary to verify one of the hashes. It is not recommended to use the MD5 hash because of known security issues with the MD5 algorithm. This hash is provided for backwards compatibility only.{% endtrans %}
+</p>
+</section>
+<section class="faq-group" id="administration">
+  <h2>{% trans %}Administration of projects on PyPI{% endtrans %}</h2>
+  <h3 id="private-indices">{{ private_indices() }}</h3>
+  <p>
+    {% trans href='https://pypi.org/project/devpi/' %}PyPI does not support publishing private packages. If you need to publish your private package to a package index, the recommended solution is to run your own deployment of the <a href="{{ href }}">devpi project</a>.{% endtrans %}
+  </p>
+  <h3 id="project-name">{{ project_name() }}</h3>
+  <p>
+    {% trans %}Your publishing tool may return an error that your new project can't be created with your desired name, despite no evidence of a project or release of the same name on PyPI. Currently, there are four primary reasons this may occur:{% endtrans %}
+  </p>
+  <ul>
+    <li>
+      {% trans href='https://docs.python.org/3/library/index.html', title=gettext('External link') %}The project name conflicts with a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Standard Library</a> module from any major version from 2.5 to present.{% endtrans %}
+    </li>
+    <li>{% trans %}The project name is too similar to an existing project and may be confusable.{% endtrans %}</li>
+    <li>
+      {% trans incorrect_code='pip install requirements.txt', correct_code='pip install -r requirements.txt' %}The project name has been explicitly prohibited by the PyPI administrators. For example, <code>{{ incorrect_code }}</code> is a common typo for <code>{{ correct_code }}</code>, and should not surprise the user with a malicious package.{% endtrans %}
+    </li>
+    <li>
+      {% trans %}The project name has been registered by another user, but no releases have been created.{% endtrans %}{% trans href='#project-name-claim', anchor_text=project_name_claim() %}See <a href="{{ href }}">{{ anchor_text }}</a>{% endtrans %}
+    </li>
+  </ul>
+  <h3 id="project-name-claim">{{ project_name_claim() }}</h3>
+  <p>
+    {% trans href='https://www.python.org/dev/peps/pep-0541/#how-to-request-a-name-transfer', title=gettext('External link') %}Follow the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">"How to request a name transfer"</a> section of <abbr title="Python enhancement proposal">PEP</abbr> 541.{% endtrans %}
+  </p>
+  <h3 id="collaborator-roles">{{ collaborator_roles() }}</h3>
+  <p>{% trans %}There are two possible roles for collaborators:{% endtrans %}</p>
+  <p>
+    <strong>{% trans %}Maintainer:{% endtrans %}</strong> {% trans %}Can upload releases for a package. Cannot add collaborators. Cannot delete files, releases, or the project.{% endtrans %}
+  </p>
+  <p>
+    <strong>{% trans %}Owner:{% endtrans %}</strong> {% trans %}Can upload releases. Can add other collaborators. Can delete files, releases, or the entire project.{% endtrans %}
+  </p>
+  <h3 id="request-ownership">{{ request_ownership() }}</h3>
+  <p>
+    {% trans %}Only the current owners of a project have the ability to add new owners or maintainers. If you need to request ownership, you should contact the current owner(s) of the project directly. Many project owners provide their contact details in the 'Author' field of the 'Meta' details on the project page.{% endtrans %}
+  </p>
+  <p>
+    {% trans href='#project-name-claim', anchor_text=project_name_claim() %}If the owner is unresponsive, see <a href="{{ href }}">{{ anchor_text }}</a>{% endtrans %}
+  </p>
+  <h3 id="description-content-type">{{ description_content_type() }}</h3>
+  <p>
+    {% trans %}
+    When using <code>pyproject.toml</code> for project metadata, you can use the extension of the <code>readme</code> field value to control how PyPI renders your description.
+  {% endtrans %}
+</p>
+<p>
+  {% trans href='https://docutils.sourceforge.io/rst.html', title=gettext('External link') %}
+  For example, <code>readme = "README.md"</code> will render the description as Markdown,
+  while <code>readme = "README.rst"</code> will render it as
+  <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">reStructuredText</a>
+{% endtrans %}
+</p>
+<p>
+  {% trans href='https://packaging.python.org/guides/making-a-pypi-friendly-readme/', title=gettext('External link') %}
+  Refer to the
+  <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a>
+  for details on the available formats.
+{% endtrans %}
+</p>
+<p>
+  For how to check a description for validity, see also: <a href="#description-render-failure">{{ description_render_failure() }}</a>
+</p>
+<h3 id="file-size-limit">{{ file_size_limit() }}</h3>
+{% set max_file_size_mb = request.registry.settings.get('warehouse.forklift.legacy.MAX_FILESIZE_MIB') %}
+<p>
+  {% trans dev_release_href='https://www.python.org/dev/peps/pep-0440/#developmental-releases', file_issue_href='https://github.com/pypi/support/issues/new?assignees=&labels=limit+request&template=limit-request-file.yml&title=File+Limit+Request%3A+PROJECT_NAME+-+000+MB', title=gettext('External link') %}
+  If you can't upload your project's release to PyPI because you're hitting the upload
+  file size limit ({{ max_file_size_mb }} MiB by default; individual projects may differ),
+  we can sometimes increase your limit.
+{% endtrans %}
+</p>
+<p>
+  {% trans href=request.user_docs_url('/project-management/storage-limits/', anchor="requesting-a-file-size-limit-increase") %}
+  See the <a href="{{ href }}">user documentation</a> for more information
+  on requesting a file size limit increase.
+{% endtrans %}
+</p>
+<h3 id="project-size-limit">{{ project_size_limit() }}</h3>
+<p>
+  {% set max_project_size_gb = request.registry.settings.get('warehouse.forklift.legacy.MAX_PROJECT_SIZE_GIB') %}
+  {% trans href=request.user_docs_url('/project-management/storage-limits/', anchor="freeing-up-storage-on-an-existing-project") %}
+  If you can't upload your project's release to PyPI because you're
+  hitting the project size limit ({{ max_project_size_gb }} GiB by default;
+  individual projects may differ), first
+  <a href="{{ href }}">remove any unnecessary releases or individual files</a> to lower
+  your overall project size.
+{% endtrans %}
+</p>
+<p>
+  {% trans href=request.user_docs_url('/project-management/storage-limits/', anchor="requesting-a-project-size-limit-increase") %}
+  If that is not possible, we can sometimes increase your limit.
+  See the <a href="{{ href }}">user documentation</a> for more information
+  on requesting a project size limit increase.
+{% endtrans %}
+</p>
+<h3 id="vulnerability-data">{{ vulnerability_data() }}</h3>
+<p>
+  {% trans osv_href='https://osv.dev/', title=gettext('External link'), vulns_href='https://github.com/pypa/advisory-database' %}
+  PyPI receives reports on vulnerabilities in the packages hosted on it from the <a href="{{ osv_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">Open Source Vulnerabilities project</a>, which in turn ingests vulnerabilities from the <a href="{{ vulns_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">Python Packaging Advisory Database</a>.
+{% endtrans %}
+</p>
+<p>
+  {% trans file_issue_href='https://github.com/pypa/advisory-database/issues', title=gettext('External link') %}
+  If you believe vulnerability data for your project is invalid or incorrect, <a href="{{ file_issue_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">file an issue</a> with details.
+{% endtrans %}
+</p>
+<h3 id="deletion">{{ deletion() }}</h3>
+<p>
+  {% trans %}
+  Deletion of a project, release or file on PyPI is permanent and irreversable, without exception.
+  Deletion of a project makes it uninstallable, and releases the project name for use by any other PyPI user.
+  Deleted files <a href="#file-name-reuse">cannot be re-uploaded</a>.
+  Deleted projects, releases or files cannot be restored by PyPI administrators.
+{% endtrans %}
+</p>
+</section>
+<section class="faq-group" id="troubleshooting">
+  <h2>{% trans %}Troubleshooting{% endtrans %}</h2>
+  <h3 id="description-render-failure">{{ description_render_failure() }}</h3>
+  <p>
+    {% trans href='https://twine.readthedocs.io/#twine-check', title=gettext('External link') %}
+    PyPI will reject uploads if the package description fails to render. You may <a href="{{ href }}" title="{{ title }}">use twine's check command</a> to locally check a description for validity.
+  {% endtrans %}
+</p>
+<h3 id="login-problem">{{ login_problem() }}</h3>
+<p>
+  {% trans %}If you've forgotten your PyPI password, but you remember your email address or username, follow these steps to reset your password:{% endtrans %}
+</p>
+<ol>
+  <li>
+    {% trans href=request.route_path('accounts.reset-password') %}Go to <a href="{{ href }}">reset your password</a>.{% endtrans %}
+  </li>
+  <li>{% trans %}Enter the email address or username you used for PyPI and submit the form.{% endtrans %}</li>
+  <li>{% trans %}You'll receive an email with a password reset link.{% endtrans %}</li>
+</ol>
+{{ code_of_conduct() }}
+<h3 id="account-recovery">{{ account_recovery() }}</h3>
+<p>{% trans %}If you've lost access to your PyPI account or can't fully verify it due to:{% endtrans %}</p>
+<ul>
+  <li>{% trans %}Lost access to the email address associated with your account{% endtrans %}</li>
+  <li>{% trans %}Accidentally registered with an email address you cannot verify{% endtrans %}</li>
+  <li>
+    {% trans %}Lost two-factor authentication <a href="#totp">application</a>, <a href="#utfkey">device</a>, and <a href="#recoverycodes">recovery codes</a>{% endtrans %}
+  </li>
+</ul>
+<p>
+  {% trans href='https://github.com/pypi/support/issues/new?assignees=&labels=account-recovery&template=account-recovery.yml&title=Account+recovery+request', title=gettext('External link') %}
+  You can proceed to <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">file an issue on our tracker</a> to request assistance with account recovery.
+{% endtrans %}
+</p>
+{{ code_of_conduct() }}
+<h3 id="invalid-auth">{{ invalid_auth() }}</h3>
+<ol>
+  <li>{% trans %}Ensure that your API Token is valid and has not been revoked.{% endtrans %}</li>
+  <li>
+    {% trans %}Ensure that your API Token is <a href="#apitoken">properly formatted</a> and does not contain any trailing characters such as newlines.{% endtrans %}
+  </li>
+  <li>
+    {% trans %}Ensure that the username you are using is <code>__token__</code>.{% endtrans %}
+  </li>
+</ol>
+<p>
+  {% trans %}Remember that PyPI and TestPyPI each require you to create an account, so your credentials may be different.{% endtrans %}
+</p>
+<p>
+  {% trans href='https://bugs.python.org/issue37426', title=gettext('External link') %}
+  If you're using Windows and trying to paste your token in the Command Prompt or PowerShell, note that Ctrl-V and Shift+Insert won't work.
+  Instead, you can use "Edit > Paste" from the window menu, or enable "Use Ctrl+Shift+C/V as Copy/Paste" in "Properties".
+  This is a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">known issue</a> with Python's <code>getpass</code> module.
+{% endtrans %}
+</p>
+<h3 id="tls-deprecation">{{ tls_deprecation() }}</h3>
+<p>
+  {% trans announcement_href='https://mail.python.org/pipermail/python-announce-list/2018-April/011885.html', reason_href='https://pyfound.blogspot.com/2017/01/time-to-upgrade-your-python-tls-v12.html', title=gettext('External link') %}
+  Transport Layer Security, or TLS, is part of how we make sure connections between your computer and PyPI are private and secure.
+  It's a cryptographic protocol that's had several versions over time.
+  PyPI <a href="{{ announcement_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">turned off support for TLS versions 1.0 and 1.1</a>
+  in April 2018. <a href="{{ reason_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">Learn why on the PSF blog</a>.
+{% endtrans %}
+</p>
+<p>
+  {% trans command='pip install' %}If you are having trouble with <code>{{ command }}</code> and get a <code>No matching distribution found</code> or <code>Could not fetch URL</code> error, try adding <code>-v</code> to the command to get more information:{% endtrans %}
+</p>
+<p>
+  <code>pip install --upgrade -v pip</code>
+</p>
+<p>
+  {% trans %}If you see an error like <code>There was a problem confirming the ssl certificate</code> or <code>tlsv1 alert protocol version</code> or <code>TLSV1_ALERT_PROTOCOL_VERSION</code>, you need to be connecting to PyPI with a newer TLS support library.{% endtrans %}
+</p>
+<p>
+  {% trans %}The specific steps you need to take will depend on your operating system version, where your installation of Python originated (python.org, your OS vendor, or an intermediate distributor), and the installed versions of Python, <code>setuptools</code>, and <code>pip</code>.{% endtrans %}
+</p>
+<p>
+  {% trans irc_href='https://web.libera.chat/#pypa', issue_tracker_href='https://github.com/pypa/packaging-problems/issues', discourse_href='https://discuss.python.org/c/packaging/14', title=gettext('External link'), command='pip install --upgrade -vvv pip' %}
+  For help, go to <a href="{{ irc_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">the <code>#pypa</code> IRC channel on Libera</a>,
+  file an issue at <a href="{{ issue_tracker_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">pypa/packaging-problems/issues</a>,
+  or <a href="{{ discourse_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">discuss on the Discourse</a>,
+  including your OS and installation details and the output of <code>{{ command }}</code>.
+{% endtrans %}
+</p>
+{{ code_of_conduct() }}
+<h3 id="accessibility">{{ accessibility() }}</h3>
+<p>
+  {% trans href='https://en.wikipedia.org/wiki/Web_accessibility', title=gettext('External link') %}
+  We take <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">accessibility</a> very seriously and want to make the website easy to use for everyone.
+{% endtrans %}
+</p>
+<p>
+  {% trans href='https://github.com/pypi/warehouse/issues', title=gettext('External link') %}
+  If you are experiencing an accessibility problem, <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">report it to us on GitHub</a>, so we can try to fix the problem, for you and others.
+{% endtrans %}
+</p>
+{{ code_of_conduct() }}
+<h3 id="uploading">{{ uploading() }}</h3>
+<p>
+  {% trans href='https://packaging.python.org/guides/distributing-packages-using-setuptools/#uploading-your-project-to-pypi', title=gettext('External link') %}
+  In a previous version of PyPI, it used to be possible for maintainers
+  to upload releases to PyPI using a form in the web browser.
+  This feature was deprecated with the new version of PyPI – we instead
+  recommend that you <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">use twine to upload your project to PyPI</a>.
+{% endtrans %}
+</p>
+<h3 id="admin-intervention">{{ admin_intervention() }}</h3>
+<p>
+  {% trans %}Spammers return to PyPI with some regularity hoping to place their Search Engine Optimized phishing, scam, and click-farming content on the site. Since PyPI allows for indexing of the Long Description and other data related to projects and has a generally solid search reputation, it is a prime target.{% endtrans %}
+</p>
+<p>
+  {% trans href='https://status.python.org', title=gettext('External link') %}
+  When the PyPI administrators are overwhelmed by spam <strong>or</strong> determine that there is some other threat to PyPI,
+  new user registration and/or new project registration may be disabled.
+  Check <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">our status page</a> for more details,
+  as we'll likely have updated it with reasoning for the intervention.
+{% endtrans %}
+</p>
+<h3 id="file-name-reuse">{{ file_name_reuse() }}</h3>
+<p>{% trans %}PyPI will return these errors for one of these reasons:{% endtrans %}</p>
+<ul>
+  <li>{% trans %}Filename has been used and file exists{% endtrans %}</li>
+  <li>{% trans %}Filename has been used but file no longer exists{% endtrans %}</li>
+  <li>{% trans %}A file with the exact same content exists{% endtrans %}</li>
+</ul>
+<p>
+  {% trans %}
+  PyPI does not allow for a filename to be reused, even once a
+  project has been deleted and recreated.
+{% endtrans %}
+</p>
+<p>
+  {% trans %}
+  A distribution filename on PyPI consists of the combination of
+  project name, version number, and distribution type.
+{% endtrans %}
+</p>
+<p>
+  {% trans %}
+  This ensures that a given distribution for a given release for a
+  given project will always resolve to the same file, and cannot be
+  surreptitiously changed one day by the projects maintainer or a
+  malicious party (it can only be removed).
+{% endtrans %}
+</p>
+<p>
+  {% trans %}
+  To avoid this situation in most cases, you will need to change the
+  version number to one that you haven't previously uploaded to PyPI,
+  rebuild the distribution, and then upload the new distribution.
+{% endtrans %}
+</p>
+<h3 id="new-classifier">{{ new_classifier() }}</h3>
+<p>
+  {% trans href='https://github.com/pypa/trove-classifiers/', title=gettext('External link') %}
+  If you would like to request a new trove classifier file a pull request on the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><code>pypa/trove-classifiers</code> project</a>. Be sure to include a brief justification of why it is important.
+{% endtrans %}
+</p>
+{{ code_of_conduct() }}
+<h3 id="feedback">{{ feedback() }}</h3>
+<p>
+  {% trans href='https://github.com/pypi/warehouse/issues', title=gettext('External link') %}
+  If you're experiencing an issue with PyPI itself, we welcome <strong>constructive</strong> feedback and bug reports
+  via our <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">issue tracker</a>.
+  Please note that this tracker is only for issues with the software that runs PyPI.
+  Before writing a new issue, first check that a similar issue does not already exist.
+{% endtrans %}
+</p>
+<p>
+  {% trans %}If you are having an issue is with a specific package installed from PyPI, you should reach out to the maintainers of that project directly instead.{% endtrans %}
+</p>
+{{ code_of_conduct() }}
+<h3 id="totp_trouble">{{ totp_trouble() }}</h3>
+<p>
+  {% trans %}
+  If you are having issues while setting up a <abbr title="time-based one-time password">TOTP</abbr> device, it may be because your device time is out of sync. Please check that the time on your device is set automatically, and try setting up the device again.
+{% endtrans %}
+</p>
+<h3 id="project_in_quarantine">{{ project_in_quarantine() }}</h3>
+<p>
+  {% trans tou="https://policies.python.org/pypi.org/Terms-of-Service/", aup="https://policies.python.org/pypi.org/Acceptable-Use-Policy/" %}
+  Projects may get placed in quarantine for any number of reasons,
+  such as suspicion of malicious activity, spam, or other violations of the
+  <a href="{{ tou }}" target="_blank" rel="noopener">Terms of Service</a>
+  or
+  <a href="{{ aup }}" target="_blank" rel="noopener">Acceptable Use Policy</a>.
+{% endtrans %}
+</p>
+<p>
+  {% trans %}
+  While in quarantine, the project is not installable by clients,
+  and cannot be being modified by its maintainers.
+  PyPI Administrators will need to review this project before it can be restored.
+{% endtrans %}
+</p>
+<p>
+  {% trans mailto="mailto:security@pypi.org" %}
+  If you believe your project has mistakenly been flagged for quarantine,
+  contact PyPI via <a href="{{ mailto }}">security@pypi.org</a>
+  with any details.
+{% endtrans %}
+</p>
+</section>
+<section class="faq-group" id="about">
+  <h2>{% trans %}About{% endtrans %}</h2>
+  <h3 id="maintainers">{{ maintainers() }}</h3>
+  <p>
+    {% trans href='https://warehouse.pypa.io/', title=gettext('External link') %}
+    PyPI is powered by the Warehouse project; <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Warehouse</a> is an open source project developed under the umbrella of the Python Packaging Authority (PyPA) and supported by the Python Packaging Working Group (PackagingWG).
+  {% endtrans %}
+</p>
+<p>
+  {% trans href='https://www.pypa.io/', title=gettext('External link') %}
+  The <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">PyPA</a> is an independent group of developers whose goal is to improve and maintain many of the core projects related to Python packaging.
+{% endtrans %}
+</p>
+<p>
+  {% trans packaging_wg_href='https://wiki.python.org/psf/PackagingWG', otf_award_href='https://pyfound.blogspot.com/2019/03/commencing-security-accessibility-and.html', title=gettext('External link') %}
+  The <a href="{{ packaging_wg_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">PackagingWG</a>
+  is a working group of the Python Software Foundation (PSF) whose goal is to raise and disburse funds to support the ongoing improvement of Python packaging.
+  Most recently it <a href="{{ otf_award_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">secured an award from the Open Technology Fund</a>
+  whose funding is enabling developers to improve Warehouse's security and accessibility.
+{% endtrans %}
+</p>
+<h3 id="sponsors">{{ sponsors() }}</h3>
+<p>
+  {% trans warehouse_href='https://warehouse.pypa.io/', sponsors_href=request.route_path('sponsors'), title=gettext('External link') %}
+  PyPI is powered by <a href="{{ warehouse_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">Warehouse</a>
+  and by a variety of tools and services provided by our <a href="{{ sponsors_href }}">generous sponsors</a>.
+{% endtrans %}
+</p>
+<h3 id="availability">{{ availability() }}</h3>
+<p>
+  {% trans %}As of April 16, 2018, PyPI.org is at "production" status, meaning that it has moved out of beta and replaced the old site (pypi.python.org). It is now robust, tested, and ready for expected browser and API traffic.{% endtrans %}
+</p>
+<p>
+  {% trans fastly_href='https://www.fastly.com/', status_page_href='https://status.python.org/', mirror_href='#mirroring', private_index_href='#private-indices', title=gettext('External link') %}
+  PyPI is heavily cached and distributed via <abbr title="content delivery network">CDN</abbr> thanks to our sponsor
+  <a href="{{ fastly_href }}"
+     title="{{ title }}"
+     target="_blank"
+     rel="noopener">Fastly</a>
+  and thus is generally available globally. However, the site is mostly maintained by volunteers,
+  we do not provide any specific Service Level Agreement,
+  and as could be expected for a giant distributed system, things can and sometimes do go wrong.
+  See <a href="{{ status_page_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">our status page</a>
+  for current and past outages and incidents. If you have high availability requirements for your package index,
+  consider either a <a href="{{ mirror_href }}">mirror</a> or a <a href="{{ private_index_href }}">private index</a>.
+{% endtrans %}
+</p>
+<h3 id="contributing">{{ contributing() }}</h3>
+<p>
+  {% trans href='https://warehouse.pypa.io/', title=gettext('External link') %}
+  We have a huge amount of work to do to continue to maintain and improve PyPI
+  (also known as <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">the Warehouse project</a>).
+{% endtrans %}
+</p>
+<p>
+  <strong>{% trans %}Financial:{% endtrans %}</strong> {% trans href='https://donate.pypi.org/' %}We would deeply appreciate <a href="{{ href }}">your donations to fund development and maintenance</a>.{% endtrans %}
+</p>
+<p>
+  <strong>{% trans %}Development:{% endtrans %}</strong> {% trans %}Warehouse is open source, and we would love to see some new faces working on the project. You <strong>do not</strong> need to be an experienced open-source developer to make a contribution – in fact, we'd love to help you make your first open source pull request!{% endtrans %}
+</p>
+<p>
+  {% trans getting_started_href='https://warehouse.pypa.io/development/getting-started/', issue_tracker_href='https://github.com/pypi/warehouse/issues', good_first_issue_href='https://github.com/pypi/warehouse/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22', title=gettext('External link') %}
+  If you have skills in Python, Full-Text Search, HTML, SCSS, JavaScript, or SQLAlchemy then skim our
+  <a href="{{ getting_started_href }}"
+     title="{{ title }}"
+     target="_blank"
+     rel="noopener">"Getting started" guide</a>,
+  then take a look at the <a href="{{ issue_tracker_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">issue tracker</a>.
+  We've created a <a href="{{ good_first_issue_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">'Good first issue'</a> label – we recommend you start here.
+{% endtrans %}
+</p>
+<p>
+  {% trans href='https://github.com/pypi/warehouse/milestones', title=gettext('External link') %}
+  Issues are grouped into <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">milestones</a>;
+  working on issues in the current milestone is a great way to help push the project forward.
+  If you're interested in working on a particular issue, leave a comment, and we can guide you through the contribution process.
+{% endtrans %}
+</p>
+<p>
+  <strong>{% trans %}Stay updated:{% endtrans %}</strong>
+  {% trans discourse_forum_href='https://discuss.python.org/c/packaging', title=gettext('External link') %}
+  You can also follow the ongoing development of the project on the
+  <a href="{{ discourse_forum_href }}"
+     title="{{ title }}"
+     target="_blank"
+     rel="noopener">Python packaging forum on Discourse</a>.
+{% endtrans %}
+</p>
+{{ code_of_conduct() }}
+<h3 id="upcoming-changes">{{ upcoming_changes() }}</h3>
+<p>
+  {% trans mailing_list_href='https://mail.python.org/mailman3/lists/pypi-announce.python.org/', blog_href='https://blog.pypi.org', rss_href='https://blog.pypi.org/feed_rss_created.xml', title=gettext('External link') %}
+  Changes to PyPI are generally announced on both the
+  <a href="{{ mailing_list_href }}"
+     title="{{ title }}"
+     target="_blank"
+     rel="noopener">pypi-announce mailing list</a>
+  and the <a href="{{ blog_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">PyPI blog</a>.
+  The PyPI blog also has an <a href="{{ rss_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">RSS</a> feed.
+{% endtrans %}
+</p>
+<h3 id="ips">{{ ips() }}</h3>
+<p>
+  {% trans href="https://api.fastly.com/public-ip-list" %}All traffic is routed through our global CDN, which lists their public IP addresses here: <a href="{{ href }}">{{ href }}</a>.{% endtrans %}
+</p>
+<p>
+  {% trans href="https://docs.fastly.com/en/guides/accessing-fastlys-ip-ranges" %}More information about this list can be found here: <a href="{{ href }}">{{ href }}</a>.{% endtrans %}
+</p>
+<h3 id="beta-badge">{{ beta_badge() }}</h3>
+<p>
+  {% trans %}When Warehouse's maintainers are deploying new features, at first we mark them with a small "beta feature" symbol to tell you: this should probably work fine, but it's new and less tested than other site functionality.{% endtrans %}
+</p>
+<p>{% trans %}Currently, no features are in beta.{% endtrans %}</p>
+<h3 id="pronunciation">{{ pronunciation() }}</h3>
+<p>
+  {% trans href='https://pypy.org/', title=gettext('External link') %}
+  "PyPI" should be pronounced like "pie pea eye", specifically with the "PI" pronounced as individual letters, rather as a single sound.
+  This minimizes confusion with the <a href="{{ href }}" title="{{ title }}">PyPy</a> project, which is a popular alternative implementation of the Python language.
+{% endtrans %}
+</p>
+</section>
+</div>
+</div>
+<div class="horizontal-section horizontal-section--grey">
+  <div class="narrow-container">
+    <h3>{% trans %}Resources{% endtrans %}</h3>
+    <p>{% trans %}Looking for something else? Perhaps these links will help:{% endtrans %}</p>
+    <ul>
+      <li>
+        <a href="{{ request.user_docs_url('/') }}"
+           title="{% trans %}External link{% endtrans %}"
+           target="_blank"
+           rel="noopener">{% trans %}PyPI User Documentation{% endtrans %}</a>
+      </li>
+      <li>
+        <a href="https://packaging.python.org"
+           title="{% trans %}External link{% endtrans %}"
+           target="_blank"
+           rel="noopener">{% trans %}Python Packaging User Guide{% endtrans %}</a>
+      </li>
+      <li>
+        <a href="https://docs.python.org"
+           title="{% trans %}External link{% endtrans %}"
+           target="_blank"
+           rel="noopener">{% trans %}Python documentation{% endtrans %}</a>
+      </li>
+      <li>
+        <a href="https://python.org/"
+           title="{% trans %}External link{% endtrans %}"
+           target="_blank"
+           rel="noopener">Python.org</a> {% trans %}(main Python website){% endtrans %}
+      </li>
+      <li>
+        <a href="https://python.org/community/"
+           title="{% trans %}External link{% endtrans %}"
+           target="_blank"
+           rel="noopener">{% trans %}Python community page{% endtrans %}</a> {% trans %}(lists IRC channels, mailing lists, etc.){% endtrans %}
+      </li>
+    </ul>
+    <h3>{% trans %}Contact{% endtrans %}</h3>
+    <p>
+      {% trans pypa_href='https://pypa.io', irc_href='https://web.libera.chat/#pypa', discourse_href='https://discuss.python.org/c/packaging/14', title=gettext('External link') %}
+      The <a href="{{ pypa_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">Python Packaging Authority (PyPA)</a>
+      is a working group who work together to improve Python packaging. If you'd like to get in touch with a core packaging developer,
+      use <a href="{{ irc_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">#pypa on IRC (Libera)</a>,
+      or <a href="{{ discourse_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">browse the online board</a>.
+    {% endtrans %}
+  </p>
+</div>
+</div>
 {% endblock %}

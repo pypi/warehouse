@@ -1,183 +1,151 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-
 {% extends "manage_organization_base.html" %}
-
 {% set user = request.user %}
 {% set title = gettext("Organization settings") %}
-
-{% set active_tab = 'settings' %}
-
-{% block title %}{% trans organization_name=organization.name %}Manage '{{ organization_name }}' settings{% endtrans %}{% endblock %}
-
+{% set active_tab = "settings" %}
+{% block title %}
+  {% trans organization_name=organization.name %}Manage '{{ organization_name }}' settings{% endtrans %}
+{% endblock %}
 {% block main %}
   <h2>{% trans %}Organization settings{% endtrans %}</h2>
-
   {{ form_error_anchor(save_organization_form) }}
   <section id="organization-details">
     <div class="form-group">
       <span class="form-group__label">{% trans %}Organization account name{% endtrans %}</span>
       <p class="form-group__text">{{ organization.name }}</p>
       <p class="form-group__help-text">
-        {% trans %}This account name is used in URLs on PyPI.{% endtrans %}<br>
+        {% trans %}This account name is used in URLs on PyPI.{% endtrans %}
+        <br>
         {% trans href="#change-organization-account-name" %}Change the organization account name <a href="{{ href }}">below</a>.{% endtrans %}
       </p>
     </div>
     <div class="form-group">
       <span class="form-group__label">{% trans %}Date created{% endtrans %}</span>
-      <p class="form-group__text">
-        {{ humanize(organization.created) }}
-      </p>
+      <p class="form-group__text">{{ humanize(organization.created) }}</p>
     </div>
-
-    <form method="POST">
-      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+    <form method="post">
+      <input name="csrf_token"
+             type="hidden"
+             value="{{ request.session.get_csrf_token() }}">
       {{ form_errors(save_organization_form) }}
       <div class="form-group">
         <label for="display_name" class="form-group__label">
           {% trans %}Organization display name{% endtrans %}
           {% if request.has_permission(Permissions.OrganizationsManage) and save_organization_form.display_name.flags.required %}
-          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+            <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
         {% if request.has_permission(Permissions.OrganizationsManage) %}
-        {{ save_organization_form.display_name(
-          placeholder=gettext("Name of your business, product, or project"),
+          {{ save_organization_form.display_name(placeholder=gettext("Name of your business, product, or project") ,
           autocomplete="organization",
           autocapitalize="off",
           spellcheck="false",
           class_="form-group__field",
           aria_describedby="display-name-errors",
-        ) }}
+          ) }}
         {% else %}
-        <p class="form-group__text">
-          {{ save_organization_form.display_name.data }}
-        </p>
+          <p class="form-group__text">{{ save_organization_form.display_name.data }}</p>
         {% endif %}
         <div id="display-name-errors">
           {% if save_organization_form.display_name.errors %}
-          <ul class="form-errors" role="alert">
-            {% for error in save_organization_form.display_name.errors %}
-            <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
+            <ul class="form-errors" role="alert">
+              {% for error in save_organization_form.display_name.errors %}<li>{{ error }}</li>{% endfor %}
+            </ul>
           {% endif %}
         </div>
         {% if request.has_permission(Permissions.OrganizationsManage) %}
-        <p class="form-group__help-text">
-          {% trans %}For example{% endtrans %}: Python Software Foundation
-        </p>
+          <p class="form-group__help-text">{% trans %}For example{% endtrans %}: Python Software Foundation</p>
         {% endif %}
       </div>
-
       <div class="form-group">
         <label class="form-group__label" for="link_url">
           {% trans %}️Organization URL{% endtrans %}
           {% if request.has_permission(Permissions.OrganizationsManage) and save_organization_form.link_url.flags.required %}
-          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+            <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
         {% if request.has_permission(Permissions.OrganizationsManage) %}
-        {{ save_organization_form.link_url(
-          placeholder=gettext("URL for your business, product, or project"),
+          {{ save_organization_form.link_url(placeholder=gettext("URL for your business, product, or project") ,
           autocomplete="url",
           autocapitalize="off",
           spellcheck="false",
           class_="form-group__field",
           aria_describedby="link-url-errors"
-        ) }}
+          ) }}
         {% else %}
-        <p class="form-group__text">
-          {{ save_organization_form.link_url.data }}
-        </p>
+          <p class="form-group__text">{{ save_organization_form.link_url.data }}</p>
         {% endif %}
-        <div id="link-url-errors">
-          {{ field_errors(save_organization_form.link_url) }}
-        </div>
+        <div id="link-url-errors">{{ field_errors(save_organization_form.link_url) }}</div>
         {% if request.has_permission(Permissions.OrganizationsManage) %}
-        <p class="form-group__help-text">
-          {% trans %}For example{% endtrans %}: https://www.python.org/psf/
-        </p>
+          <p class="form-group__help-text">{% trans %}For example{% endtrans %}: https://www.python.org/psf/</p>
         {% endif %}
       </div>
-
       <div class="form-group">
         <label for="description" class="form-group__label">
           {% trans %}Organization description{% endtrans %}
           {% if request.has_permission(Permissions.OrganizationsManage) and save_organization_form.description.flags.required %}
-          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+            <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
         {% if request.has_permission(Permissions.OrganizationsManage) %}
-        {{ save_organization_form.description(
-          placeholder=gettext("Description of your business, product, or project"),
+          {{ save_organization_form.description(placeholder=gettext("Description of your business, product, or project") ,
           autocomplete="off",
           autocapitalize="off",
           spellcheck="true",
           class_="form-group__field",
           aria_describedby="description-errors"
-        ) }}
+          ) }}
         {% else %}
-        <p class="form-group__text">
-          {{ save_organization_form.description.data }}
-        </p>
+          <p class="form-group__text">{{ save_organization_form.description.data }}</p>
         {% endif %}
         <div id="description-errors">
           {% if save_organization_form.description.errors %}
-          <ul class="form-errors" role="alert">
-            {% for error in save_organization_form.description.errors %}
-            <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
+            <ul class="form-errors" role="alert">
+              {% for error in save_organization_form.description.errors %}<li>{{ error }}</li>{% endfor %}
+            </ul>
           {% endif %}
         </div>
       </div>
-
       <div class="form-group">
         <label class="form-group__label" for="orgtype">
           {% trans %}️Organization type{% endtrans %}
           {% if request.has_permission(Permissions.OrganizationsManage) and organization.orgtype != OrganizationType.Company and save_organization_form.orgtype.flags.required %}
-          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+            <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
         {% if request.has_permission(Permissions.OrganizationsManage) and organization.orgtype != OrganizationType.Company %}
-        {{ save_organization_form.orgtype(
-          class_="form-group__field",
-          aria_describedby="orgtype-errors",
-        ) }}
+          {{ save_organization_form.orgtype(class_="form-group__field",
+                    aria_describedby="orgtype-errors",) }}
         {% else %}
-        <input name="orgtype" type="hidden" value="Company">  {# Ensure request params match Pyramid POST route #}
-        <p class="form-group__text">
-          {{ save_organization_form.orgtype.data.value }}
-        </p>
+          <input name="orgtype" type="hidden" value="Company">
+          {# Ensure request params match Pyramid POST route #}
+          <p class="form-group__text">{{ save_organization_form.orgtype.data.value }}</p>
         {% endif %}
-        <div id="orgtype-errors">
-          {{ field_errors(save_organization_form.orgtype) }}
-        </div>
+        <div id="orgtype-errors">{{ field_errors(save_organization_form.orgtype) }}</div>
         {% if request.has_permission(Permissions.OrganizationsManage) %}
-        <p class="form-group__help-text">
-          {% trans %}
-          Companies can create organization accounts as a paid service while community projects are granted complimentary access.
+          <p class="form-group__help-text">
+            {% trans %}
+            Companies can create organization accounts as a paid service while community projects are granted complimentary access.
           {% endtrans %}
         </p>
         {% if organization.orgtype == OrganizationType.Company %}
-        <p class="form-group__help-text">
-          {% trans email="admin@pypi.org",site=request.registry.settings["site.name"] %}
-          If you need to convert your organization account from a Company account to a Community account, you can email <a href="mailto:{{ email }}">{{ email }}</a> to communicate with {{ site }} administrators.
+          <p class="form-group__help-text">
+            {% trans email="admin@pypi.org",site=request.registry.settings["site.name"] %}
+            If you need to convert your organization account from a Company account to a Community account, you can email <a href="mailto:{{ email }}">{{ email }}</a> to communicate with {{ site }} administrators.
           {% endtrans %}
         </p>
-        {% endif %}
-        {% endif %}
-      </div>
-
-      {% if request.has_permission(Permissions.OrganizationsManage) %}
-      <input value="{% trans %}Update organization{% endtrans %}" class="button button--primary" type="submit">
       {% endif %}
-    </form>
-  </section>
-
-  {% if request.has_permission(Permissions.OrganizationsBillingManage) and organization.orgtype == OrganizationType.Company %}
+    {% endif %}
+  </div>
+  {% if request.has_permission(Permissions.OrganizationsManage) %}
+    <input value="{% trans %}Update organization{% endtrans %}"
+           class="button button--primary"
+           type="submit">
+  {% endif %}
+</form>
+</section>
+{% if request.has_permission(Permissions.OrganizationsBillingManage) and organization.orgtype == OrganizationType.Company %}
   <hr>
-
   <section id="billing-details">
     <h2>{% trans %}Billing details{% endtrans %}</h2>
     <div class="form-group">
@@ -189,27 +157,22 @@
       <p class="form-group__text">{{ gettext(organization.active_subscription.customer.billing_email) }}</p>
     </div>
     <div class="form-group">
-      <a href="{{ request.route_path('manage.organization.subscription', organization_name=organization.normalized_name, _query={'next': request.current_route_path(organization_name=organization.normalized_name)}) }}" class="button button--primary">
-        {% trans %}Manage billing{% endtrans %}
-      </a>
+      <a href="{{ request.route_path('manage.organization.subscription', organization_name=organization.normalized_name, _query={'next': request.current_route_path(organization_name=organization.normalized_name) }) }}"
+         class="button button--primary">{% trans %}Manage billing{% endtrans %}</a>
     </div>
   </section>
-  {% endif %}
-
-  {% if request.has_permission(Permissions.OrganizationsManage) %}
+{% endif %}
+{% if request.has_permission(Permissions.OrganizationsManage) %}
   <hr>
-
   <section id="change-organization-account-name">
     <h2>{% trans %}Change organization account name{% endtrans %}</h2>
     <div class="callout-block callout-block--warning">
-      <p>
-        {% trans %}Renaming organizations is not currently supported.{% endtrans %}
-      </p>
+      <p>{% trans %}Renaming organizations is not currently supported.{% endtrans %}</p>
       <p>
         {% trans href="mailto:support+orgs@pypi.org" %}Please contact <a href={{ href }}>PyPI Support</a> if you need to rename your organization.{% endtrans %}
       </p>
     </div>
-<!-- When support for renaming orgs is re-introduced
+    <!-- When support for renaming orgs is re-introduced
     <div class="callout-block callout-block--danger">
       <h3>{% trans %}Proceed with caution!{% endtrans %}</h3>
       <p>
@@ -240,16 +203,14 @@
     </div>
 -->
   </section>
-
   <hr>
-
   <section id="delete-organization">
     <h2>{% trans %}Delete organization{% endtrans %}</h2>
     <div class="callout-block{% if not active_projects %} callout-block--danger{% endif %}">
       {% if active_projects %}
-      <h3>{% trans %}Cannot delete organization{% endtrans %}</h3>
-      <p>
-        {% trans count=active_projects|length %}
+        <h3>{% trans %}Cannot delete organization{% endtrans %}</h3>
+        <p>
+          {% trans count=active_projects|length %}
           Your organization currently owns {{ count }} project.
         {% pluralize %}
           Your organization currently owns {{ count }} projects.
@@ -263,40 +224,40 @@
       </p>
       <ul class="no-bottom-margin">
         {% for project in active_projects %}
-        <li>
-          <strong>{{ project.name }}</strong> -
-          {% trans transfer_href=request.route_path('manage.project.roles', project_name=project.name), remove_delete_href=request.route_path('manage.project.settings', project_name=project.name) %}
+          <li>
+            <strong>{{ project.name }}</strong> -
+            {% trans transfer_href=request.route_path('manage.project.roles', project_name=project.name), remove_delete_href=request.route_path('manage.project.settings', project_name=project.name) %}
             <a href="{{ transfer_href }}">transfer ownership</a> and <a href="{{ remove_delete_href }}">remove project</a>
             <b>or</b>
             <a href="{{ remove_delete_href }}">delete project</a>
           {% endtrans %}
         </li>
-        {% endfor %}
-      </ul>
-      {% else %}
-      <h3>{% trans %}Proceed with caution!{% endtrans %}</h3>
-      <p>
-        <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
-        {% trans %}You will not be able to recover your organization after you delete it.{% endtrans %}
-      </p>
-      {% if organization %}
-        {% if organization.subscriptions %}
+      {% endfor %}
+    </ul>
+  {% else %}
+    <h3>{% trans %}Proceed with caution!{% endtrans %}</h3>
+    <p>
+      <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
+      {% trans %}You will not be able to recover your organization after you delete it.{% endtrans %}
+    </p>
+    {% if organization %}
+      {% if organization.subscriptions %}
         <p>
           <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
           {% if organization.active_subscription %}
-          {% trans %}Your subscription will be cancelled, and you will lose access to the billing portal.{% endtrans %}
+            {% trans %}Your subscription will be cancelled, and you will lose access to the billing portal.{% endtrans %}
           {% else %}
-          {% trans %}You will lose access to the billing portal.{% endtrans %}
+            {% trans %}You will lose access to the billing portal.{% endtrans %}
           {% endif %}
-          {% trans billing_href=request.route_path('manage.organization.subscription', organization_name=organization.normalized_name, _query={'next': request.current_route_path(organization_name=organization.normalized_name)})%}
-            Please ensure you have retrieved all invoices from <a href="{{billing_href}}">your billing portal</a> before proceeding.
-          {% endtrans %}
-        </p>
-        {% endif %}
-      {% endif %}
-      {{ confirm_button(gettext("Delete organization"), gettext("Organization Name"), "organization_name", organization.name) }}
-      {% endif %}
-    </div>
-  </section>
+          {% trans billing_href=request.route_path('manage.organization.subscription', organization_name=organization.normalized_name, _query={'next': request.current_route_path(organization_name=organization.normalized_name)}) %}
+          Please ensure you have retrieved all invoices from <a href="{{ billing_href }}">your billing portal</a> before proceeding.
+        {% endtrans %}
+      </p>
+    {% endif %}
   {% endif %}
+  {{ confirm_button(gettext("Delete organization") , gettext("Organization Name"), "organization_name", organization.name) }}
+{% endif %}
+</div>
+</section>
+{% endif %}
 {% endblock %}

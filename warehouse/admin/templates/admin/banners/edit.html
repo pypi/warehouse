@@ -89,7 +89,7 @@
 
 {% if banner %}
 <div class="modal fade" id="deleteBanner" tabindex="-1" role="dialog">
-  <form method="POST" action="{{ request.route_path('admin.banner.delete', banner_id=banner.id) }}">
+  <form method="post" action="{{ request.route_path('admin.banner.delete', banner_id=banner.id) }}">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
