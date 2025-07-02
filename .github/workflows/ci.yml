@@ -133,6 +133,8 @@ jobs:
           path: dev/environment
           export-variables: true
           keys-case: upper
+      - name: Install jq
+        run: apt-get update && apt-get install -y jq
       - name: Check Database
         run: bin/db-check
         env:
