@@ -138,7 +138,7 @@ msgstr ""
 "khác."
 
 #: warehouse/accounts/forms.py:399 warehouse/manage/forms.py:131
-#: warehouse/manage/forms.py:773
+#: warehouse/manage/forms.py:786
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Tên quá dài. Chọn một tên có tối đa 100 ký tự."
 
@@ -515,7 +515,13 @@ msgstr ""
 "Tên người dùng này đã được sử dụng bởi một tài khoản khác. Chọn một tên "
 "người dùng khác."
 
-#: warehouse/manage/forms.py:591
+#: warehouse/manage/forms.py:551
+#, fuzzy
+#| msgid "Create an account"
+msgid "Cannot transfer to Company Organization with inactive billing"
+msgstr "Tạo một tài khoản"
+
+#: warehouse/manage/forms.py:604
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -523,7 +529,7 @@ msgid ""
 "characters or less."
 msgstr "Tên quá dài. Chọn một tên có tối đa 100 ký tự."
 
-#: warehouse/manage/forms.py:603
+#: warehouse/manage/forms.py:616
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -531,11 +537,11 @@ msgid ""
 "characters or less."
 msgstr "Tên quá dài. Chọn một tên có tối đa 100 ký tự."
 
-#: warehouse/manage/forms.py:609
+#: warehouse/manage/forms.py:622
 msgid "The organization URL must start with http:// or https://"
 msgstr ""
 
-#: warehouse/manage/forms.py:621
+#: warehouse/manage/forms.py:634
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -543,7 +549,7 @@ msgid ""
 "with 400 characters or less."
 msgstr "Tên quá dài. Chọn một tên có tối đa 100 ký tự."
 
-#: warehouse/manage/forms.py:664
+#: warehouse/manage/forms.py:677
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -551,23 +557,23 @@ msgid ""
 "1024 characters or less."
 msgstr "Tên quá dài. Chọn một tên có tối đa 100 ký tự."
 
-#: warehouse/manage/forms.py:686
+#: warehouse/manage/forms.py:699
 msgid "You have already submitted the maximum number of "
 msgstr ""
 
-#: warehouse/manage/forms.py:715
+#: warehouse/manage/forms.py:728
 #, fuzzy
 #| msgid "Choose a username with 50 characters or less."
 msgid "Choose a team name with 50 characters or less."
 msgstr "Chọn một tên người dùng tối đa 50 ký tự."
 
-#: warehouse/manage/forms.py:722
+#: warehouse/manage/forms.py:735
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:750
+#: warehouse/manage/forms.py:763
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -577,23 +583,23 @@ msgstr ""
 "Tên người dùng này đã được sử dụng bởi một tài khoản khác. Chọn một tên "
 "người dùng khác."
 
-#: warehouse/manage/forms.py:768
+#: warehouse/manage/forms.py:781
 #, fuzzy
 #| msgid "Project name"
 msgid "Specify your alternate repository name"
 msgstr "Tên dự án"
 
-#: warehouse/manage/forms.py:782
+#: warehouse/manage/forms.py:795
 msgid "Specify your alternate repository URL"
 msgstr ""
 
-#: warehouse/manage/forms.py:787
+#: warehouse/manage/forms.py:800
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid "The URL is too long. Choose a URL with 400 characters or less."
 msgstr "Tên quá dài. Chọn một tên có tối đa 100 ký tự."
 
-#: warehouse/manage/forms.py:801
+#: warehouse/manage/forms.py:814
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -1466,7 +1472,7 @@ msgstr "Chuyển sang phiên bản di động"
 #: warehouse/templates/manage/project/release.html:209
 #: warehouse/templates/manage/project/settings.html:85
 #: warehouse/templates/manage/project/settings.html:131
-#: warehouse/templates/manage/project/settings.html:362
+#: warehouse/templates/manage/project/settings.html:372
 #: warehouse/templates/manage/team/settings.html:62
 msgid "Warning"
 msgstr "Cảnh báo"
@@ -1871,9 +1877,9 @@ msgstr "Mật khẩu"
 #: warehouse/templates/manage/project/roles.html:364
 #: warehouse/templates/manage/project/roles.html:397
 #: warehouse/templates/manage/project/roles.html:416
-#: warehouse/templates/manage/project/settings.html:266
-#: warehouse/templates/manage/project/settings.html:282
-#: warehouse/templates/manage/project/settings.html:298
+#: warehouse/templates/manage/project/settings.html:276
+#: warehouse/templates/manage/project/settings.html:292
+#: warehouse/templates/manage/project/settings.html:308
 #: warehouse/templates/manage/team/roles.html:104
 #: warehouse/templates/manage/team/settings.html:22
 #: warehouse/templates/packaging/submit-malware-observation.html:54
@@ -2210,9 +2216,9 @@ msgstr ""
 #: warehouse/templates/manage/project/history.html:295
 #: warehouse/templates/manage/project/history.html:306
 #: warehouse/templates/manage/project/history.html:317
-#: warehouse/templates/manage/project/settings.html:209
-#: warehouse/templates/manage/project/settings.html:264
-#: warehouse/templates/manage/project/settings.html:269
+#: warehouse/templates/manage/project/settings.html:219
+#: warehouse/templates/manage/project/settings.html:274
+#: warehouse/templates/manage/project/settings.html:279
 #: warehouse/templates/manage/unverified-account.html:102
 msgid "Name"
 msgstr "Tên"
@@ -5668,7 +5674,7 @@ msgstr ""
 #: warehouse/templates/manage/project/publishing.html:255
 #: warehouse/templates/manage/project/publishing.html:329
 #: warehouse/templates/manage/project/roles.html:373
-#: warehouse/templates/manage/project/settings.html:319
+#: warehouse/templates/manage/project/settings.html:329
 #: warehouse/templates/manage/team/roles.html:125
 msgid "Add"
 msgstr ""
@@ -6993,7 +6999,7 @@ msgstr "Điều hướng chính"
 #: warehouse/templates/manage/organization/roles.html:352
 #: warehouse/templates/manage/project/release.html:96
 #: warehouse/templates/manage/project/releases.html:98
-#: warehouse/templates/manage/project/settings.html:236
+#: warehouse/templates/manage/project/settings.html:246
 msgid "Delete"
 msgstr "Xóa bỏ"
 
@@ -7559,9 +7565,9 @@ msgstr ""
 #: warehouse/templates/manage/project/history.html:296
 #: warehouse/templates/manage/project/history.html:307
 #: warehouse/templates/manage/project/history.html:318
-#: warehouse/templates/manage/project/settings.html:210
-#: warehouse/templates/manage/project/settings.html:280
-#: warehouse/templates/manage/project/settings.html:285
+#: warehouse/templates/manage/project/settings.html:220
+#: warehouse/templates/manage/project/settings.html:290
+#: warehouse/templates/manage/project/settings.html:295
 msgid "Url"
 msgstr ""
 
@@ -8308,8 +8314,8 @@ msgid "Remove project"
 msgstr "Không có dự án"
 
 #: warehouse/templates/manage/project/settings.html:104
-#: warehouse/templates/manage/project/settings.html:168
-#: warehouse/templates/manage/project/settings.html:436
+#: warehouse/templates/manage/project/settings.html:178
+#: warehouse/templates/manage/project/settings.html:446
 msgid "Project Name"
 msgstr "Tên dự án"
 
@@ -8376,25 +8382,25 @@ msgid ""
 "project permissions."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:168
+#: warehouse/templates/manage/project/settings.html:178
 #, fuzzy
 #| msgid "Manage project"
 msgid "Transfer project"
 msgstr "Quản lý dự án"
 
-#: warehouse/templates/manage/project/settings.html:174
+#: warehouse/templates/manage/project/settings.html:184
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "Cannot transfer project to another organization"
 msgstr "Bạn không phải là chủ sở hữu của dự án này"
 
-#: warehouse/templates/manage/project/settings.html:176
+#: warehouse/templates/manage/project/settings.html:186
 #, fuzzy
 #| msgid "Create an account"
 msgid "Cannot transfer project to an organization"
 msgstr "Tạo một tài khoản"
 
-#: warehouse/templates/manage/project/settings.html:181
+#: warehouse/templates/manage/project/settings.html:191
 #, fuzzy
 #| msgid "Invalid token: not an email verification token"
 msgid ""
@@ -8402,13 +8408,13 @@ msgid ""
 "or manage."
 msgstr "Mã thông báo không hợp lệ: không phải là mã thông báo xác minh email"
 
-#: warehouse/templates/manage/project/settings.html:182
+#: warehouse/templates/manage/project/settings.html:192
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "You are not an owner or manager of any other organizations."
 msgstr "Bạn không phải là chủ sở hữu của dự án này"
 
-#: warehouse/templates/manage/project/settings.html:184
+#: warehouse/templates/manage/project/settings.html:194
 #, fuzzy
 #| msgid "Invalid token: not an email verification token"
 msgid ""
@@ -8416,84 +8422,84 @@ msgid ""
 "manage."
 msgstr "Mã thông báo không hợp lệ: không phải là mã thông báo xác minh email"
 
-#: warehouse/templates/manage/project/settings.html:185
+#: warehouse/templates/manage/project/settings.html:195
 #, fuzzy
 #| msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgid "You are not an owner or manager of any organizations."
 msgstr "%(user)s chưa tải lên bất kỳ dự án nào cho PyPI"
 
-#: warehouse/templates/manage/project/settings.html:192
+#: warehouse/templates/manage/project/settings.html:202
 msgid "Alternate repository locations"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:195
+#: warehouse/templates/manage/project/settings.html:205
 #, python-format
 msgid ""
 "Provisional support for <a href=\"%(pep_url)s\">PEP 708</a> \"Alternate "
 "Locations\" Metadata."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:199
+#: warehouse/templates/manage/project/settings.html:209
 #, python-format
 msgid ""
 "Implementation may change, consider subscribing to <a "
 "href=\"%(pypi_announce_url)s\">pypi-announce</a> to be notified of changes."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:205
+#: warehouse/templates/manage/project/settings.html:215
 #, fuzzy, python-format
 #| msgid "Create a token for %(project_name)s"
 msgid "Alternate repository locations for %(project_name)s"
 msgstr "Tạo một mã khóa cho %(project_name)s"
 
-#: warehouse/templates/manage/project/settings.html:211
+#: warehouse/templates/manage/project/settings.html:221
 msgid "Description"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:227
+#: warehouse/templates/manage/project/settings.html:237
 #, fuzzy, python-format
 #| msgid "Remove %(user)s from this project"
 msgid "Delete %(name)s from this project."
 msgstr "Loại bỏ %(user)s khỏi dự án này"
 
-#: warehouse/templates/manage/project/settings.html:237
+#: warehouse/templates/manage/project/settings.html:247
 #, fuzzy
 #| msgid "Invalid TOTP code."
 msgid "Alternate Repository Name"
 msgstr "Mã TOTP không hợp lệ."
 
-#: warehouse/templates/manage/project/settings.html:251
+#: warehouse/templates/manage/project/settings.html:261
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "There are no alternate repositories for this project, yet."
 msgstr "Bạn không phải là chủ sở hữu của dự án này"
 
-#: warehouse/templates/manage/project/settings.html:253
+#: warehouse/templates/manage/project/settings.html:263
 msgid "Get started by adding an alternate repository below."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:256
+#: warehouse/templates/manage/project/settings.html:266
 msgid "Add alternate repository location"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:296
+#: warehouse/templates/manage/project/settings.html:306
 msgid "Alternate repository description"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:301
-#: warehouse/templates/manage/project/settings.html:312
+#: warehouse/templates/manage/project/settings.html:311
+#: warehouse/templates/manage/project/settings.html:322
 msgid "Description of the purpose or content of the alternate repository."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:324
-#: warehouse/templates/manage/project/settings.html:349
-#: warehouse/templates/manage/project/settings.html:353
+#: warehouse/templates/manage/project/settings.html:334
+#: warehouse/templates/manage/project/settings.html:359
+#: warehouse/templates/manage/project/settings.html:363
 #, fuzzy
 #| msgid "Search projects"
 msgid "Archive project"
 msgstr "Tìm kiếm dự án"
 
-#: warehouse/templates/manage/project/settings.html:328
+#: warehouse/templates/manage/project/settings.html:338
 #, python-format
 msgid ""
 "Archiving a project will prevent any new uploads, and remove the project "
@@ -8506,35 +8512,35 @@ msgid ""
 "description by editing the README file."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:340
-#: warehouse/templates/manage/project/settings.html:343
+#: warehouse/templates/manage/project/settings.html:350
+#: warehouse/templates/manage/project/settings.html:353
 #, fuzzy
 #| msgid "Search projects"
 msgid "Unarchive project"
 msgstr "Tìm kiếm dự án"
 
-#: warehouse/templates/manage/project/settings.html:344
+#: warehouse/templates/manage/project/settings.html:354
 msgid ""
 "Unarchiving a project will allow new file uploads and add the project to the "
 "search index."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:354
+#: warehouse/templates/manage/project/settings.html:364
 msgid ""
 "Archiving a project will block any new file uploads and remove the project "
 "from the search index."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:360
-#: warehouse/templates/manage/project/settings.html:436
+#: warehouse/templates/manage/project/settings.html:370
+#: warehouse/templates/manage/project/settings.html:446
 msgid "Delete project"
 msgstr "Xóa dự án"
 
-#: warehouse/templates/manage/project/settings.html:363
+#: warehouse/templates/manage/project/settings.html:373
 msgid "Deleting this project will:"
 msgstr "Xóa dự án này sẽ:"
 
-#: warehouse/templates/manage/project/settings.html:368
+#: warehouse/templates/manage/project/settings.html:378
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s "
@@ -8545,16 +8551,16 @@ msgid_plural ""
 msgstr[0] ""
 "Xóa vĩnh viễn dự án cùng với <a href=\"%(href)s\">%(count)s bản phát hành</a>"
 
-#: warehouse/templates/manage/project/settings.html:374
+#: warehouse/templates/manage/project/settings.html:384
 msgid "Irreversibly delete the project"
 msgstr "Xóa vĩnh viễn dự án"
 
-#: warehouse/templates/manage/project/settings.html:378
+#: warehouse/templates/manage/project/settings.html:388
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 "Cung cấp tên dự án cho <strong>bất kỳ người dùng PyPI</strong> nào khác"
 
-#: warehouse/templates/manage/project/settings.html:381
+#: warehouse/templates/manage/project/settings.html:391
 msgid ""
 "This user will be able to make new releases under this project name, so long "
 "as the distribution filenames do not match filenames from a previously "
