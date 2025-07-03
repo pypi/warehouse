@@ -145,7 +145,7 @@ msgstr ""
 "mail."
 
 #: warehouse/accounts/forms.py:399 warehouse/manage/forms.py:131
-#: warehouse/manage/forms.py:773
+#: warehouse/manage/forms.py:786
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Nazwa jest za długa. Wybierz nazwę zawierającą maksymalnie 100 znaków."
 
@@ -494,7 +494,13 @@ msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr "Ta nazwa projektu jest już używana. Wybierz inną nazwę projektu."
 
-#: warehouse/manage/forms.py:591
+#: warehouse/manage/forms.py:551
+#, fuzzy
+#| msgid "Create an account"
+msgid "Cannot transfer to Company Organization with inactive billing"
+msgstr "Utwórz konto"
+
+#: warehouse/manage/forms.py:604
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
@@ -502,7 +508,7 @@ msgstr ""
 "Nazwa organizacji jest za długa. Wybierz nazwę organizacji zawierającą "
 "maksymalnie 100 znaków."
 
-#: warehouse/manage/forms.py:603
+#: warehouse/manage/forms.py:616
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
@@ -510,11 +516,11 @@ msgstr ""
 "URL organizacji jest za długi. Wybierz URL organizacji zawierający "
 "maksymalnie 400 znaków."
 
-#: warehouse/manage/forms.py:609
+#: warehouse/manage/forms.py:622
 msgid "The organization URL must start with http:// or https://"
 msgstr "Adres URL organizacji musi zaczynać się od http:// lub https://"
 
-#: warehouse/manage/forms.py:621
+#: warehouse/manage/forms.py:634
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
@@ -522,7 +528,7 @@ msgstr ""
 "Opis organizacji jest za długi. Wybierz opis organizacji zawierający "
 "maksymalnie 400 znaków."
 
-#: warehouse/manage/forms.py:664
+#: warehouse/manage/forms.py:677
 #, fuzzy
 #| msgid ""
 #| "The description is too long. Choose a description with 400 characters or "
@@ -532,15 +538,15 @@ msgid ""
 "1024 characters or less."
 msgstr "Opis jest za długi. Wybierz opis zawierający 400 lub mniej znaków."
 
-#: warehouse/manage/forms.py:686
+#: warehouse/manage/forms.py:699
 msgid "You have already submitted the maximum number of "
 msgstr "Złożyłeś(łaś) już maksymalną liczbę "
 
-#: warehouse/manage/forms.py:715
+#: warehouse/manage/forms.py:728
 msgid "Choose a team name with 50 characters or less."
 msgstr "Wybierz nazwę zespołu składającą się z maksymalnie 50 znaków."
 
-#: warehouse/manage/forms.py:722
+#: warehouse/manage/forms.py:735
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
@@ -549,23 +555,23 @@ msgstr ""
 "kończyć spacją, kropką, podkreśleniem, myślnikiem ani ukośnikiem. Wybierz "
 "inną nazwę zespołu."
 
-#: warehouse/manage/forms.py:750
+#: warehouse/manage/forms.py:763
 msgid "This team name has already been used. Choose a different team name."
 msgstr "Ta nazwa zespołu została już użyta. Wybierz inną nazwę zespołu."
 
-#: warehouse/manage/forms.py:768
+#: warehouse/manage/forms.py:781
 msgid "Specify your alternate repository name"
 msgstr "Określ nazwę swojego alternatywnego repozytorium"
 
-#: warehouse/manage/forms.py:782
+#: warehouse/manage/forms.py:795
 msgid "Specify your alternate repository URL"
 msgstr "Określ URL swojego alternatywnego repozytorium"
 
-#: warehouse/manage/forms.py:787
+#: warehouse/manage/forms.py:800
 msgid "The URL is too long. Choose a URL with 400 characters or less."
 msgstr "URL jest za długi. Wybierz URL zawierający 400 lub mniej znaków."
 
-#: warehouse/manage/forms.py:801
+#: warehouse/manage/forms.py:814
 msgid ""
 "The description is too long. Choose a description with 400 characters or "
 "less."
@@ -1413,7 +1419,7 @@ msgstr "Przełącz na wersję mobilną"
 #: warehouse/templates/manage/project/release.html:209
 #: warehouse/templates/manage/project/settings.html:85
 #: warehouse/templates/manage/project/settings.html:131
-#: warehouse/templates/manage/project/settings.html:362
+#: warehouse/templates/manage/project/settings.html:372
 #: warehouse/templates/manage/team/settings.html:62
 msgid "Warning"
 msgstr "Uwaga"
@@ -1806,9 +1812,9 @@ msgstr "Hasło"
 #: warehouse/templates/manage/project/roles.html:364
 #: warehouse/templates/manage/project/roles.html:397
 #: warehouse/templates/manage/project/roles.html:416
-#: warehouse/templates/manage/project/settings.html:266
-#: warehouse/templates/manage/project/settings.html:282
-#: warehouse/templates/manage/project/settings.html:298
+#: warehouse/templates/manage/project/settings.html:276
+#: warehouse/templates/manage/project/settings.html:292
+#: warehouse/templates/manage/project/settings.html:308
 #: warehouse/templates/manage/team/roles.html:104
 #: warehouse/templates/manage/team/settings.html:22
 #: warehouse/templates/packaging/submit-malware-observation.html:54
@@ -2195,9 +2201,9 @@ msgstr ""
 #: warehouse/templates/manage/project/history.html:295
 #: warehouse/templates/manage/project/history.html:306
 #: warehouse/templates/manage/project/history.html:317
-#: warehouse/templates/manage/project/settings.html:209
-#: warehouse/templates/manage/project/settings.html:264
-#: warehouse/templates/manage/project/settings.html:269
+#: warehouse/templates/manage/project/settings.html:219
+#: warehouse/templates/manage/project/settings.html:274
+#: warehouse/templates/manage/project/settings.html:279
 #: warehouse/templates/manage/unverified-account.html:102
 msgid "Name"
 msgstr "Nazwa"
@@ -5581,7 +5587,7 @@ msgstr ""
 #: warehouse/templates/manage/project/publishing.html:255
 #: warehouse/templates/manage/project/publishing.html:329
 #: warehouse/templates/manage/project/roles.html:373
-#: warehouse/templates/manage/project/settings.html:319
+#: warehouse/templates/manage/project/settings.html:329
 #: warehouse/templates/manage/team/roles.html:125
 msgid "Add"
 msgstr ""
@@ -6842,7 +6848,7 @@ msgstr "Główne menu"
 #: warehouse/templates/manage/organization/roles.html:352
 #: warehouse/templates/manage/project/release.html:96
 #: warehouse/templates/manage/project/releases.html:98
-#: warehouse/templates/manage/project/settings.html:236
+#: warehouse/templates/manage/project/settings.html:246
 msgid "Delete"
 msgstr ""
 
@@ -7387,9 +7393,9 @@ msgstr ""
 #: warehouse/templates/manage/project/history.html:296
 #: warehouse/templates/manage/project/history.html:307
 #: warehouse/templates/manage/project/history.html:318
-#: warehouse/templates/manage/project/settings.html:210
-#: warehouse/templates/manage/project/settings.html:280
-#: warehouse/templates/manage/project/settings.html:285
+#: warehouse/templates/manage/project/settings.html:220
+#: warehouse/templates/manage/project/settings.html:290
+#: warehouse/templates/manage/project/settings.html:295
 msgid "Url"
 msgstr ""
 
@@ -8081,8 +8087,8 @@ msgid "Remove project"
 msgstr "Brak projektów"
 
 #: warehouse/templates/manage/project/settings.html:104
-#: warehouse/templates/manage/project/settings.html:168
-#: warehouse/templates/manage/project/settings.html:436
+#: warehouse/templates/manage/project/settings.html:178
+#: warehouse/templates/manage/project/settings.html:446
 msgid "Project Name"
 msgstr ""
 
@@ -8145,25 +8151,25 @@ msgid ""
 "project permissions."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:168
+#: warehouse/templates/manage/project/settings.html:178
 #, fuzzy
 #| msgid "Manage project"
 msgid "Transfer project"
 msgstr "Zarządzaj projektem"
 
-#: warehouse/templates/manage/project/settings.html:174
+#: warehouse/templates/manage/project/settings.html:184
 #, fuzzy
 #| msgid "Create an account"
 msgid "Cannot transfer project to another organization"
 msgstr "Utwórz konto"
 
-#: warehouse/templates/manage/project/settings.html:176
+#: warehouse/templates/manage/project/settings.html:186
 #, fuzzy
 #| msgid "Create an account"
 msgid "Cannot transfer project to an organization"
 msgstr "Utwórz konto"
 
-#: warehouse/templates/manage/project/settings.html:181
+#: warehouse/templates/manage/project/settings.html:191
 #, fuzzy
 #| msgid "Invalid token: not a collaboration invitation token"
 msgid ""
@@ -8171,7 +8177,7 @@ msgid ""
 "or manage."
 msgstr "Nieprawidłowy token: to nie jest token zaproszenia do współpracy"
 
-#: warehouse/templates/manage/project/settings.html:182
+#: warehouse/templates/manage/project/settings.html:192
 #, fuzzy
 #| msgid ""
 #| "You are receiving this because you have been added by "
@@ -8181,7 +8187,7 @@ msgstr ""
 "Widzisz to ponieważ zostałeś dodany do projektu %(site)s przez "
 "%(initiator_username)s."
 
-#: warehouse/templates/manage/project/settings.html:184
+#: warehouse/templates/manage/project/settings.html:194
 #, fuzzy
 #| msgid "Invalid token: not a collaboration invitation token"
 msgid ""
@@ -8189,84 +8195,84 @@ msgid ""
 "manage."
 msgstr "Nieprawidłowy token: to nie jest token zaproszenia do współpracy"
 
-#: warehouse/templates/manage/project/settings.html:185
+#: warehouse/templates/manage/project/settings.html:195
 #, fuzzy
 #| msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgid "You are not an owner or manager of any organizations."
 msgstr "%(user)s nie przesłał jeszcze żadnych projektów do PyPI"
 
-#: warehouse/templates/manage/project/settings.html:192
+#: warehouse/templates/manage/project/settings.html:202
 msgid "Alternate repository locations"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:195
+#: warehouse/templates/manage/project/settings.html:205
 #, python-format
 msgid ""
 "Provisional support for <a href=\"%(pep_url)s\">PEP 708</a> \"Alternate "
 "Locations\" Metadata."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:199
+#: warehouse/templates/manage/project/settings.html:209
 #, python-format
 msgid ""
 "Implementation may change, consider subscribing to <a "
 "href=\"%(pypi_announce_url)s\">pypi-announce</a> to be notified of changes."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:205
+#: warehouse/templates/manage/project/settings.html:215
 #, fuzzy, python-format
 #| msgid "Create an account"
 msgid "Alternate repository locations for %(project_name)s"
 msgstr "Utwórz konto"
 
-#: warehouse/templates/manage/project/settings.html:211
+#: warehouse/templates/manage/project/settings.html:221
 msgid "Description"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:227
+#: warehouse/templates/manage/project/settings.html:237
 #, fuzzy, python-format
 #| msgid "Create an account"
 msgid "Delete %(name)s from this project."
 msgstr "Utwórz konto"
 
-#: warehouse/templates/manage/project/settings.html:237
+#: warehouse/templates/manage/project/settings.html:247
 #, fuzzy
 #| msgid "Invalid repository name"
 msgid "Alternate Repository Name"
 msgstr "Nieprawidłowa nazwa repozytorium"
 
-#: warehouse/templates/manage/project/settings.html:251
+#: warehouse/templates/manage/project/settings.html:261
 #, fuzzy
 #| msgid "Create an account"
 msgid "There are no alternate repositories for this project, yet."
 msgstr "Utwórz konto"
 
-#: warehouse/templates/manage/project/settings.html:253
+#: warehouse/templates/manage/project/settings.html:263
 msgid "Get started by adding an alternate repository below."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:256
+#: warehouse/templates/manage/project/settings.html:266
 msgid "Add alternate repository location"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:296
+#: warehouse/templates/manage/project/settings.html:306
 msgid "Alternate repository description"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:301
-#: warehouse/templates/manage/project/settings.html:312
+#: warehouse/templates/manage/project/settings.html:311
+#: warehouse/templates/manage/project/settings.html:322
 msgid "Description of the purpose or content of the alternate repository."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:324
-#: warehouse/templates/manage/project/settings.html:349
-#: warehouse/templates/manage/project/settings.html:353
+#: warehouse/templates/manage/project/settings.html:334
+#: warehouse/templates/manage/project/settings.html:359
+#: warehouse/templates/manage/project/settings.html:363
 #, fuzzy
 #| msgid "Search projects"
 msgid "Archive project"
 msgstr "Szukaj projektów"
 
-#: warehouse/templates/manage/project/settings.html:328
+#: warehouse/templates/manage/project/settings.html:338
 #, python-format
 msgid ""
 "Archiving a project will prevent any new uploads, and remove the project "
@@ -8279,35 +8285,35 @@ msgid ""
 "description by editing the README file."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:340
-#: warehouse/templates/manage/project/settings.html:343
+#: warehouse/templates/manage/project/settings.html:350
+#: warehouse/templates/manage/project/settings.html:353
 #, fuzzy
 #| msgid "Search projects"
 msgid "Unarchive project"
 msgstr "Szukaj projektów"
 
-#: warehouse/templates/manage/project/settings.html:344
+#: warehouse/templates/manage/project/settings.html:354
 msgid ""
 "Unarchiving a project will allow new file uploads and add the project to the "
 "search index."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:354
+#: warehouse/templates/manage/project/settings.html:364
 msgid ""
 "Archiving a project will block any new file uploads and remove the project "
 "from the search index."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:360
-#: warehouse/templates/manage/project/settings.html:436
+#: warehouse/templates/manage/project/settings.html:370
+#: warehouse/templates/manage/project/settings.html:446
 msgid "Delete project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:363
+#: warehouse/templates/manage/project/settings.html:373
 msgid "Deleting this project will:"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:368
+#: warehouse/templates/manage/project/settings.html:378
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s "
@@ -8319,15 +8325,15 @@ msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: warehouse/templates/manage/project/settings.html:374
+#: warehouse/templates/manage/project/settings.html:384
 msgid "Irreversibly delete the project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:378
+#: warehouse/templates/manage/project/settings.html:388
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:381
+#: warehouse/templates/manage/project/settings.html:391
 msgid ""
 "This user will be able to make new releases under this project name, so long "
 "as the distribution filenames do not match filenames from a previously "
