@@ -14,7 +14,8 @@
     {% set title = "PyPI" %}
   {% endif %}
   <div class="horizontal-section">
-    <div class="site-container">
+    <div class="site-container"
+         data-controller="password password-match password-strength-gauge password-breach email-confirmation">
       <h1 class="page-title">{% trans title=title %}Create an account on {{ title }}{% endtrans %}</h1>
       <aside>
         <p>
@@ -39,9 +40,20 @@
     </p>
   </aside>
   <hr>
+  <dialog data-action="cancel->email-confirmation#close"
+          data-email-confirmation-target="dialog">
+    <form method="dialog">
+      <p>
+        {% trans %}Please confirm that your email address is <strong data-email-confirmation-target="email"></strong>.{% endtrans %}
+      </p>
+      <button class="button button--primary"
+              data-action="click->email-confirmation#confirm">{% trans %}Confirm{% endtrans %}</button>
+      <button class="button" formmethod="dialog" value="cancel">{% trans %}Cancel{% endtrans %}</button>
+    </form>
+  </dialog>
   <form method="post"
         action="{{ request.current_route_path() }}"
-        data-controller="password password-match password-strength-gauge password-breach">
+        data-email-confirmation-target="form">
     <input name="csrf_token"
            type="hidden"
            value="{{ request.session.get_csrf_token() }}">
