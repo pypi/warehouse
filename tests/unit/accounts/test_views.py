@@ -392,6 +392,7 @@ class TestLogin:
         assert isinstance(result, HTTPSeeOther)
         assert pyramid_request.route_path.calls == [pretend.call("manage.projects")]
         assert result.headers["Location"] == "/the-redirect"
+        assert result.headers["Set-Cookie"].startswith("user_id__insecure=")
         assert result.headers["foo"] == "bar"
 
         assert form_class.calls == [
@@ -1498,6 +1499,7 @@ class TestRecoveryCode:
             token_expected_data["redirect_to"] = redirect_url
 
         assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Set-Cookie"].startswith("user_id__insecure=")
 
         assert remember.calls == [pretend.call(pyramid_request, str(1))]
         assert pyramid_request.session.invalidate.calls == [pretend.call()]

@@ -344,22 +344,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                 # either where they were trying to go originally, or to the default
                 # view.
                 resp = HTTPSeeOther(redirect_to, headers=dict(headers))
-
-                # We'll use this cookie so that client side javascript can
-                # Determine the actual user ID (not username, user ID). This is
-                # *not* a security sensitive context and it *MUST* not be used
-                # where security matters.
-                #
-                # We'll also hash this value just to avoid leaking the actual User
-                # IDs here, even though it really shouldn't matter.
-                resp.set_cookie(
-                    USER_ID_INSECURE_COOKIE,
-                    hashlib.blake2b(
-                        str(userid).encode("ascii"), person=b"warehouse.userid"
-                    )
-                    .hexdigest()
-                    .lower(),
-                )
+                _set_userid_cookie(resp, userid)
 
             return resp
 
@@ -421,12 +406,7 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
             user_service.update_user(userid, last_totp_value=form.totp_value.data)
 
             resp = HTTPSeeOther(redirect_to)
-            resp.set_cookie(
-                USER_ID_INSECURE_COOKIE,
-                hashlib.blake2b(str(userid).encode("ascii"), person=b"warehouse.userid")
-                .hexdigest()
-                .lower(),
-            )
+            _set_userid_cookie(resp, userid)
 
             if not two_factor_state.get("has_recovery_codes", False):
                 send_recovery_code_reminder_email(request, request.user)
@@ -515,13 +495,7 @@ def webauthn_authentication_validate(request):
 
         two_factor_method = "webauthn"
         _login_user(request, userid, two_factor_method, two_factor_label=webauthn.label)
-
-        request.response.set_cookie(
-            USER_ID_INSECURE_COOKIE,
-            hashlib.blake2b(str(userid).encode("ascii"), person=b"warehouse.userid")
-            .hexdigest()
-            .lower(),
-        )
+        _set_userid_cookie(request.response, userid)
 
         if not request.user.has_recovery_codes:
             send_recovery_code_reminder_email(request, request.user)
@@ -536,6 +510,22 @@ def webauthn_authentication_validate(request):
 
     errors = [str(error) for error in form.credential.errors]
     return {"fail": {"errors": errors}}
+
+
+def _set_userid_cookie(resp, userid):
+    # We'll use this cookie so that client side javascript can
+    # Determine the actual user ID (not username, user ID). This is
+    # *not* a security sensitive context and it *MUST* not be used
+    # where security matters.
+    #
+    # We'll also hash this value just to avoid leaking the actual User
+    # IDs here, even though it really shouldn't matter.
+    resp.set_cookie(
+        USER_ID_INSECURE_COOKIE,
+        hashlib.blake2b(str(userid).encode("ascii"), person=b"warehouse.userid")
+        .hexdigest()
+        .lower(),
+    )
 
 
 def _check_remember_device_token(request, user_id) -> bool:
@@ -612,12 +602,7 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
             _login_user(request, userid, two_factor_method="recovery-code")
 
             resp = HTTPSeeOther(request.route_path("manage.account"))
-            resp.set_cookie(
-                USER_ID_INSECURE_COOKIE,
-                hashlib.blake2b(str(userid).encode("ascii"), person=b"warehouse.userid")
-                .hexdigest()
-                .lower(),
-            )
+            _set_userid_cookie(resp, userid)
 
             user = user_service.get_user(userid)
             user.record_event(
@@ -768,19 +753,7 @@ def register(request, _form_class=RegistrationForm):
         resp = HTTPSeeOther(
             request.route_path("index"), headers=dict(_login_user(request, user.id))
         )
-        # We'll use this cookie so that client side javascript can
-        # Determine the actual user ID (not username, user ID). This is
-        # *not* a security sensitive context and it *MUST* not be used
-        # where security matters.
-        #
-        # We'll also hash this value just to avoid leaking the actual User
-        # IDs here, even though it really shouldn't matter.
-        resp.set_cookie(
-            USER_ID_INSECURE_COOKIE,
-            hashlib.blake2b(str(user.id).encode("ascii"), person=b"warehouse.userid")
-            .hexdigest()
-            .lower(),
-        )
+        _set_userid_cookie(resp, user.id)
 
         return resp
 
