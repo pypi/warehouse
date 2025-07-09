@@ -765,9 +765,24 @@ def register(request, _form_class=RegistrationForm):
         send_email_verification_email(request, (user, email))
         email_limiter.hit(user.id)
 
-        return HTTPSeeOther(
+        resp = HTTPSeeOther(
             request.route_path("index"), headers=dict(_login_user(request, user.id))
         )
+        # We'll use this cookie so that client side javascript can
+        # Determine the actual user ID (not username, user ID). This is
+        # *not* a security sensitive context and it *MUST* not be used
+        # where security matters.
+        #
+        # We'll also hash this value just to avoid leaking the actual User
+        # IDs here, even though it really shouldn't matter.
+        resp.set_cookie(
+            USER_ID_INSECURE_COOKIE,
+            hashlib.blake2b(str(user.id).encode("ascii"), person=b"warehouse.userid")
+            .hexdigest()
+            .lower(),
+        )
+
+        return resp
 
     return {"form": form}
 

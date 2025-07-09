@@ -1765,6 +1765,7 @@ class TestRegister:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
+        assert result.headers["Set-Cookie"].startswith("user_id__insecure=")
         assert create_user.calls == [
             pretend.call("username_value", "full_name", "MyStr0ng!shP455w0rd")
         ]
