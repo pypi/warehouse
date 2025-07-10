@@ -1,21 +1,10 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
+# SPDX-License-Identifier: Apache-2.0
 
 import urllib
 
-from typing import Any
+from typing import Any, Self
 
-from sqlalchemy import ForeignKey, String, UniqueConstraint
+from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Query, mapped_column
 
@@ -29,11 +18,13 @@ from warehouse.oidc.models._core import (
     PendingOIDCPublisher,
 )
 
+ACTIVESTATE_OIDC_ISSUER_URL = "https://platform.activestate.com/api/v1/oauth/oidc"
+
 _ACTIVESTATE_URL = "https://platform.activestate.com"
 
 
 def _check_sub(
-    ground_truth: str, signed_claim: str, _all_signed_claims: SignedClaims
+    ground_truth: str, signed_claim: str, _all_signed_claims: SignedClaims, **_kwargs
 ) -> bool:
     # We expect a string formatted as follows:
     #  org:<orgName>:project:<projectName>
@@ -90,18 +81,6 @@ class ActiveStatePublisherMixin:
         "project_visibility",
     }
 
-    @staticmethod
-    def __lookup_all__(klass, signed_claims: SignedClaims):
-        return Query(klass).filter_by(
-            organization=signed_claims["organization"],
-            activestate_project_name=signed_claims["project"],
-            actor_id=signed_claims["actor_id"],
-        )
-
-    __lookup_strategies__ = [
-        __lookup_all__,
-    ]
-
     @property
     def sub(self) -> str:
         return f"org:{self.organization}:project:{self.activestate_project_name}"
@@ -118,16 +97,43 @@ class ActiveStatePublisherMixin:
     def project(self) -> str:
         return self.activestate_project_name
 
-    def publisher_url(self, claims: SignedClaims | None = None) -> str:
+    @property
+    def publisher_base_url(self) -> str:
         return urllib.parse.urljoin(
             _ACTIVESTATE_URL, f"{self.organization}/{self.activestate_project_name}"
         )
+
+    def publisher_url(self, claims: SignedClaims | None = None) -> str:
+        return self.publisher_base_url
 
     def stored_claims(self, claims=None):
         return {}
 
     def __str__(self) -> str:
         return self.publisher_url()
+
+    def exists(self, session) -> bool:
+        return session.query(
+            exists().where(
+                and_(
+                    self.__class__.organization == self.organization,
+                    self.__class__.activestate_project_name
+                    == self.activestate_project_name,
+                    self.__class__.actor_id == self.actor_id,
+                )
+            )
+        ).scalar()
+
+    @classmethod
+    def lookup_by_claims(cls, session, signed_claims: SignedClaims) -> Self:
+        query: Query = Query(cls).filter_by(
+            organization=signed_claims["organization"],
+            activestate_project_name=signed_claims["project"],
+            actor_id=signed_claims["actor_id"],
+        )
+        if publisher := query.with_session(session).one_or_none():
+            return publisher
+        raise InvalidPublisherError("Publisher with matching claims was not found")
 
 
 class ActiveStatePublisher(ActiveStatePublisherMixin, OIDCPublisher):
@@ -153,7 +159,7 @@ class ActiveStatePublisher(ActiveStatePublisherMixin, OIDCPublisher):
 class PendingActiveStatePublisher(ActiveStatePublisherMixin, PendingOIDCPublisher):
     __tablename__ = "pending_activestate_oidc_publishers"
     __mapper_args__ = {"polymorphic_identity": "pending_activestate_oidc_publishers"}
-    __table_args__ = (
+    __table_args__ = (  # type: ignore[assignment]
         UniqueConstraint(
             "organization",
             "activestate_project_name",

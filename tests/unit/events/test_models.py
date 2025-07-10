@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pytest
 
@@ -20,7 +10,7 @@ from ...common.db.packaging import FileFactory
 
 class TestGeoIPInfo:
     @pytest.mark.parametrize(
-        "test_input, expected",
+        ("test_input", "expected"),
         [
             ({}, ""),
             (
@@ -44,7 +34,7 @@ class TestGeoIPInfo:
 
 class TestUserAgentInfo:
     @pytest.mark.parametrize(
-        "test_input, expected",
+        ("test_input", "expected"),
         [
             (
                 (
@@ -188,7 +178,7 @@ class TestUserAgentInfo:
         assert file.events[0].additional is None
 
     @pytest.mark.parametrize(
-        "test_input, expected",
+        ("test_input", "expected"),
         [
             (
                 {
@@ -316,7 +306,7 @@ class TestUserAgentInfo:
         assert dataklazz.display() == expected
 
     @pytest.mark.parametrize(
-        "user_agent, expected",
+        ("user_agent", "expected"),
         [
             (
                 (

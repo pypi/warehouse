@@ -6,13 +6,13 @@ title: Troubleshooting
 
 ## Reusable workflows on GitHub
 
-[Reusable workflows] cannot currently be used as the workflow in a trusted
-publisher. This is a practical limitation, and is being tracked in
+[Reusable workflows] cannot currently be used as the workflow in a Trusted
+Publisher. This is a practical limitation, and is being tracked in
 [warehouse#11096].
 
 ## Ratelimiting
 
-PyPI currently imposes ratelimits on trusted publisher registration: no more
+PyPI currently imposes rate limits on Trusted Publisher registration: no more
 than 100 publishers can be registered by a single user or IP address within a 24
 hour window.
 
@@ -89,13 +89,13 @@ To fix this, you must determine which of the two names is the correct one:
 
 * If the name used in the pending publisher is the correct one, then you must
   update your project metadata to reflect that name. Subsequent uploads with the
-  trusted publisher will work automatically, and no further action is required.
+  Trusted Publisher will work automatically, and no further action is required.
 
 * If the name used in the project metadata is the correct one, then you must:
 
   1. Go to [your projects] and delete the incorrectly created project.
      This will also have the effect of deleting the incorrectly registered
-     trusted publisher.
+     Trusted Publisher.
 
   2. Create a new pending publisher with the corrected project name.
 

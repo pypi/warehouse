@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from unittest import mock
 
@@ -77,8 +67,11 @@ class TestWarehouseTask:
         assert runner.calls == [pretend.call(request)]
 
     def test_retry(self, monkeypatch, metrics):
+        class SpecificError(Exception):
+            pass
+
         def runner(self):
-            raise self.retry(exc=Exception())
+            raise self.retry(exc=SpecificError)
 
         request = pretend.stub(
             find_service=lambda *a, **kw: metrics,
@@ -90,7 +83,7 @@ class TestWarehouseTask:
         task.name = "warehouse.test.task"
         task.run = runner
 
-        with pytest.raises(Exception):
+        with pytest.raises(SpecificError):
             task.run(task)
 
         assert metrics.increment.calls == [
@@ -111,7 +104,11 @@ class TestWarehouseTask:
 
         assert task.apply_async() is async_result
 
-        assert apply_async.calls == [pretend.call(task)]
+        assert apply_async.calls == [
+            pretend.call(
+                task,
+            )
+        ]
         assert get_current_request.calls == [pretend.call()]
 
     def test_request_without_tm(self, monkeypatch):
@@ -129,7 +126,11 @@ class TestWarehouseTask:
 
         assert task.apply_async() is async_result
 
-        assert apply_async.calls == [pretend.call(task)]
+        assert apply_async.calls == [
+            pretend.call(
+                task,
+            )
+        ]
         assert get_current_request.calls == [pretend.call()]
 
     def test_request_after_commit(self, monkeypatch):
@@ -146,7 +147,9 @@ class TestWarehouseTask:
         task.app = Celery()
 
         args = (pretend.stub(), pretend.stub())
-        kwargs = {"foo": pretend.stub()}
+        kwargs = {
+            "foo": pretend.stub(),
+        }
 
         assert task.apply_async(*args, **kwargs) is None
         assert get_current_request.calls == [pretend.call()]
@@ -438,105 +441,40 @@ def test_make_celery_app():
 
 
 @pytest.mark.parametrize(
-    ("env", "ssl", "broker_url", "expected_url", "transport_options"),
+    (
+        "env",
+        "ssl",
+        "broker_redis_url",
+        "expected_url",
+        "transport_options",
+    ),
     [
         (
-            Environment.development,
-            False,
-            "amqp://guest@rabbitmq:5672//",
-            "amqp://guest@rabbitmq:5672//",
+            Environment.production,
+            True,
+            "redis://127.0.0.1:6379/10",
+            "redis://127.0.0.1:6379/10",
             {},
         ),
         (
             Environment.production,
             True,
-            "amqp://guest@rabbitmq:5672//",
-            "amqp://guest@rabbitmq:5672//",
-            {},
-        ),
-        (
-            Environment.development,
-            False,
-            "sqs://",
-            "sqs://",
+            (
+                "rediss://user:pass@redis.example.com:6379/10"
+                "?socket_timeout=5&irreleveant=0"
+                "&ssl_cert_reqs=required&ssl_ca_certs=/p/a/t/h/cacert.pem"
+            ),
+            (
+                "rediss://user:pass@redis.example.com:6379/10"
+                "?ssl_cert_reqs=required&ssl_ca_certs=/p/a/t/h/cacert.pem"
+            ),
             {
-                "client-config": {"tcp_keepalive": True},
-            },
-        ),
-        (
-            Environment.production,
-            True,
-            "sqs://",
-            "sqs://",
-            {
-                "client-config": {"tcp_keepalive": True},
-            },
-        ),
-        (
-            Environment.development,
-            False,
-            "sqs://?queue_name_prefix=warehouse",
-            "sqs://",
-            {
-                "queue_name_prefix": "warehouse-",
-                "client-config": {"tcp_keepalive": True},
-            },
-        ),
-        (
-            Environment.production,
-            True,
-            "sqs://?queue_name_prefix=warehouse",
-            "sqs://",
-            {
-                "queue_name_prefix": "warehouse-",
-                "client-config": {"tcp_keepalive": True},
-            },
-        ),
-        (
-            Environment.development,
-            False,
-            "sqs://?region=us-east-2",
-            "sqs://",
-            {
-                "region": "us-east-2",
-                "client-config": {"tcp_keepalive": True},
-            },
-        ),
-        (
-            Environment.production,
-            True,
-            "sqs://?region=us-east-2",
-            "sqs://",
-            {
-                "region": "us-east-2",
-                "client-config": {"tcp_keepalive": True},
-            },
-        ),
-        (
-            Environment.development,
-            False,
-            "sqs:///?region=us-east-2&queue_name_prefix=warehouse",
-            "sqs://",
-            {
-                "region": "us-east-2",
-                "queue_name_prefix": "warehouse-",
-                "client-config": {"tcp_keepalive": True},
-            },
-        ),
-        (
-            Environment.production,
-            True,
-            "sqs:///?region=us-east-2&queue_name_prefix=warehouse",
-            "sqs://",
-            {
-                "region": "us-east-2",
-                "queue_name_prefix": "warehouse-",
-                "client-config": {"tcp_keepalive": True},
+                "socket_timeout": 5,
             },
         ),
     ],
 )
-def test_includeme(env, ssl, broker_url, expected_url, transport_options):
+def test_includeme(env, ssl, broker_redis_url, expected_url, transport_options):
     registry_dict = {}
     config = pretend.stub(
         action=pretend.call_recorder(lambda *a, **kw: None),
@@ -547,7 +485,7 @@ def test_includeme(env, ssl, broker_url, expected_url, transport_options):
             __setitem__=registry_dict.__setitem__,
             settings={
                 "warehouse.env": env,
-                "celery.broker_url": broker_url,
+                "celery.broker_redis_url": broker_redis_url,
                 "celery.result_url": pretend.stub(),
                 "celery.scheduler_url": pretend.stub(),
             },

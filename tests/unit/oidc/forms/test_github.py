@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -17,12 +7,28 @@ import wtforms
 from requests import ConnectionError, HTTPError, Timeout
 from webob.multidict import MultiDict
 
+from warehouse import i18n
 from warehouse.oidc.forms import github
+from warehouse.packaging.interfaces import (
+    ProjectNameUnavailableExistingError,
+    ProjectNameUnavailableInvalidError,
+    ProjectNameUnavailableProhibitedError,
+    ProjectNameUnavailableSimilarError,
+    ProjectNameUnavailableStdlibError,
+)
+
+from ....common.db.accounts import UserFactory
+from ....common.db.packaging import (
+    ProjectFactory,
+    RoleFactory,
+)
 
 
 class TestPendingGitHubPublisherForm:
-    def test_validate(self, monkeypatch):
-        project_factory = []
+    def test_validate(self, monkeypatch, project_service):
+        route_url = pretend.stub()
+        user = pretend.stub()
+
         data = MultiDict(
             {
                 "owner": "some-owner",
@@ -32,20 +38,92 @@ class TestPendingGitHubPublisherForm:
             }
         )
         form = github.PendingGitHubPublisherForm(
-            MultiDict(data), api_token=pretend.stub(), project_factory=project_factory
+            MultiDict(data),
+            api_token=pretend.stub(),
+            route_url=route_url,
+            check_project_name=project_service.check_project_name,
+            user=user,
         )
 
         # We're testing only the basic validation here.
         owner_info = {"login": "fake-username", "id": "1234"}
         monkeypatch.setattr(form, "_lookup_owner", lambda o: owner_info)
 
-        assert form._project_factory == project_factory
+        assert form._check_project_name == project_service.check_project_name
+        assert form._route_url == route_url
+        assert form._user == user
         assert form.validate()
 
-    def test_validate_project_name_already_in_use(self):
-        project_factory = ["some-project"]
+    def test_validate_project_name_already_in_use_owner(
+        self, pyramid_config, project_service
+    ):
+        route_url = pretend.call_recorder(lambda *args, **kwargs: "")
+
+        user = UserFactory.create()
+        project = ProjectFactory.create(name="some-project")
+        RoleFactory.create(user=user, project=project)
+
         form = github.PendingGitHubPublisherForm(
-            api_token="fake-token", project_factory=project_factory
+            api_token="fake-token",
+            route_url=route_url,
+            check_project_name=project_service.check_project_name,
+            user=user,
+        )
+
+        field = pretend.stub(data="some-project")
+        with pytest.raises(wtforms.validators.ValidationError):
+            form.validate_project_name(field)
+
+        # The project settings URL is only shown in the error message if
+        # the user is the owner of the project
+        assert route_url.calls == [
+            pretend.call(
+                "manage.project.settings.publishing",
+                project_name="some-project",
+                _query={"provider": {"github"}},
+            )
+        ]
+
+    def test_validate_project_name_already_in_use_not_owner(
+        self, pyramid_config, project_service
+    ):
+        route_url = pretend.call_recorder(lambda *args, **kwargs: "")
+
+        user = UserFactory.create()
+        ProjectFactory.create(name="some-project")
+
+        form = github.PendingGitHubPublisherForm(
+            api_token="fake-token",
+            route_url=route_url,
+            check_project_name=project_service.check_project_name,
+            user=user,
+        )
+
+        field = pretend.stub(data="some-project")
+        with pytest.raises(wtforms.validators.ValidationError):
+            form.validate_project_name(field)
+
+        assert route_url.calls == []
+
+    @pytest.mark.parametrize(
+        "reason",
+        [
+            ProjectNameUnavailableExistingError(pretend.stub(owners=[pretend.stub()])),
+            ProjectNameUnavailableInvalidError(),
+            ProjectNameUnavailableStdlibError(),
+            ProjectNameUnavailableProhibitedError(),
+            ProjectNameUnavailableSimilarError(similar_project_name="pkg_name"),
+        ],
+    )
+    def test_validate_project_name_unavailable(self, reason, pyramid_config):
+        def check_project_name(name):
+            raise reason
+
+        form = github.PendingGitHubPublisherForm(
+            api_token="fake-token",
+            route_url=pretend.call_recorder(lambda *args, **kwargs: ""),
+            check_project_name=check_project_name,
+            user=pretend.stub(),
         )
 
         field = pretend.stub(data="some-project")
@@ -55,7 +133,7 @@ class TestPendingGitHubPublisherForm:
 
 class TestGitHubPublisherForm:
     @pytest.mark.parametrize(
-        "token, headers",
+        ("token", "headers"),
         [
             (
                 None,
@@ -305,14 +383,55 @@ class TestGitHubPublisherForm:
             form.validate_workflow_filename(field)
 
     @pytest.mark.parametrize(
-        "data, expected",
+        ("environment", "expected"),
         [
-            ("wu-tang", "wu-tang"),
-            ("WU-TANG", "wu-tang"),
-            ("", ""),
-            ("  ", ""),
-            ("\t\r\n", ""),
-            (None, ""),
+            ("f" * 256, "Environment name is too long"),
+            (" foo", "Environment name may not start with whitespace"),
+            ("foo ", "Environment name may not end with whitespace"),
+            ("'", "Environment name must not contain non-printable characters"),
+            ('"', "Environment name must not contain non-printable characters"),
+            ("`", "Environment name must not contain non-printable characters"),
+            (",", "Environment name must not contain non-printable characters"),
+            (";", "Environment name must not contain non-printable characters"),
+            ("\\", "Environment name must not contain non-printable characters"),
+            ("\x00", "Environment name must not contain non-printable characters"),
+            ("\x1f", "Environment name must not contain non-printable characters"),
+            ("\x7f", "Environment name must not contain non-printable characters"),
+            ("\t", "Environment name must not contain non-printable characters"),
+            ("\r", "Environment name must not contain non-printable characters"),
+            ("\n", "Environment name must not contain non-printable characters"),
+        ],
+    )
+    def test_validate_environment_raises(self, environment, expected, monkeypatch):
+        request = pretend.stub(
+            localizer=pretend.stub(translate=pretend.call_recorder(lambda ts: ts))
+        )
+        get_current_request = pretend.call_recorder(lambda: request)
+        monkeypatch.setattr(i18n, "get_current_request", get_current_request)
+
+        form = github.GitHubPublisherForm(api_token=pretend.stub())
+        field = pretend.stub(data=environment)
+
+        with pytest.raises(wtforms.validators.ValidationError) as e:
+            form.validate_environment(field)
+
+        assert str(e.value).startswith(expected)
+
+    @pytest.mark.parametrize("environment", ["", None])
+    def test_validate_environment_passes(self, environment):
+        field = pretend.stub(data=environment)
+        form = github.GitHubPublisherForm(api_token=pretend.stub())
+
+        assert form.validate_environment(field) is None
+
+    @pytest.mark.parametrize(
+        ("data", "expected"),
+        [
+            ("wu-tang", "wu-tang"),  # Non-alpha characters are preserved
+            ("WU-TANG", "wu-tang"),  # Alpha characters are lowercased
+            ("Foo   Bar", "foo   bar"),  # Whitespace is preserved
+            ("", ""),  # Empty string is empty string
+            (None, ""),  # None and empty string are equivalent
         ],
     )
     def test_normalized_environment(self, data, expected):

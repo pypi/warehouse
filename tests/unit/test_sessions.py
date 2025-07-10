@@ -1,17 +1,8 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import time
 
+import markupsafe
 import msgpack
 import pretend
 import pytest
@@ -204,7 +195,9 @@ class TestSession:
         session = Session()
         assert session._get_flash_queue_key(queue) == expected
 
-    def test_flash_messages(self):
+    def test_flash_messages(self, monkeypatch):
+        _markup = pretend.call_recorder(lambda x: x)
+        monkeypatch.setattr(markupsafe, "Markup", _markup)
         session = Session()
 
         assert session.peek_flash() == []
@@ -213,39 +206,54 @@ class TestSession:
         assert session.pop_flash(queue="foo") == []
 
         session.flash("A Flash Message")
-        assert session.peek_flash() == ["A Flash Message"]
+        assert session.peek_flash() == [{"msg": "A Flash Message", "safe": False}]
         assert session.peek_flash(queue="foo") == []
 
-        session.flash("Another Flash Message", queue="foo")
-        assert session.peek_flash() == ["A Flash Message"]
-        assert session.peek_flash(queue="foo") == ["Another Flash Message"]
+        session.flash("Another Flash Message", queue="foo", safe=True)
+        assert session.peek_flash() == [{"msg": "A Flash Message", "safe": False}]
+        assert session.peek_flash(queue="foo") == [
+            {"msg": "Another Flash Message", "safe": True}
+        ]
 
         session.flash("A Flash Message")
-        assert session.peek_flash() == ["A Flash Message", "A Flash Message"]
-        assert session.peek_flash(queue="foo") == ["Another Flash Message"]
+        assert session.peek_flash() == [
+            {"msg": "A Flash Message", "safe": False},
+            {"msg": "A Flash Message", "safe": False},
+        ]
+        assert session.peek_flash(queue="foo") == [
+            {"msg": "Another Flash Message", "safe": True}
+        ]
 
         session.flash("A Flash Message", allow_duplicate=True)
         assert session.peek_flash() == [
-            "A Flash Message",
-            "A Flash Message",
-            "A Flash Message",
+            {"msg": "A Flash Message", "safe": False},
+            {"msg": "A Flash Message", "safe": False},
+            {"msg": "A Flash Message", "safe": False},
         ]
-        assert session.peek_flash(queue="foo") == ["Another Flash Message"]
+        assert session.peek_flash(queue="foo") == [
+            {"msg": "Another Flash Message", "safe": True}
+        ]
 
         session.flash("A Flash Message", allow_duplicate=False)
         assert session.peek_flash() == [
-            "A Flash Message",
-            "A Flash Message",
-            "A Flash Message",
+            {"msg": "A Flash Message", "safe": False},
+            {"msg": "A Flash Message", "safe": False},
+            {"msg": "A Flash Message", "safe": False},
         ]
-        assert session.peek_flash(queue="foo") == ["Another Flash Message"]
+        assert session.peek_flash(queue="foo") == [
+            {"msg": "Another Flash Message", "safe": True}
+        ]
 
         assert session.pop_flash() == [
             "A Flash Message",
             "A Flash Message",
             "A Flash Message",
         ]
-        assert session.pop_flash(queue="foo") == ["Another Flash Message"]
+        assert session.pop_flash(queue="foo") == [
+            "Another Flash Message",
+        ]
+
+        assert _markup.calls == [pretend.call("Another Flash Message")]
 
         assert session.peek_flash() == []
         assert session.peek_flash(queue="foo") == []
@@ -555,7 +563,7 @@ class TestSessionFactory:
         pyramid_request.session.should_save = pretend.call_recorder(lambda: True)
         response = pretend.stub(
             set_cookie=pretend.call_recorder(
-                lambda cookie, data, max_age, httponly, secure, samesite: None
+                lambda cookie, data, httponly=False, secure=True, samesite=b"none": None
             )
         )
         session_factory._process_response(pyramid_request, response)
@@ -581,7 +589,6 @@ class TestSessionFactory:
             pretend.call(
                 "session_id",
                 "cookie data",
-                max_age=12 * 60 * 60,
                 httponly=True,
                 secure=False,
                 samesite=b"lax",

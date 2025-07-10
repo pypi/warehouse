@@ -1,38 +1,48 @@
-{#
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
--#}
-{% extends "confirm-action.html" %}
-
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% extends "manage_organization_base.html" %}
 {% block title %}
   {% trans %}Activate Subscription{% endtrans %}
 {% endblock %}
-
-{% block prompt %}
-  {% trans %}Activate Subscription{% endtrans %}
-{% endblock %}
-
 {% block main %}
-<div class="form-group">
-  <span class="form-group__text">
-    {% trans %}Company accounts require an active subscription. Please enter up-to-date billing information to enable the account.{% endtrans %}
-  </span>
-</div>
-<div>
-  <a href="{{ request.route_path('manage.organizations') }}" class="button">
-    {% trans %}Cancel{% endtrans %}
-  </a>
-  <a href="{{ request.route_path('manage.organization.subscription', organization_name=organization.normalized_name) }}" class="button button--primary">
-    {% trans %}Activate Subscription{% endtrans %}
-  </a>
-</div>
+  <h2>{% trans %}Activate Subscription{% endtrans %}</h2>
+  <form method="post"
+        data-controller="organization-terms-of-service-accepted">
+    <div class="form-group__wide">
+      <p class="form-group__text">
+        {% trans %}Company accounts require an active subscription. Please enter up-to-date billing information to enable the account.{% endtrans %}
+      </p>
+    </div>
+    <input name="csrf_token"
+           type="hidden"
+           value="{{ request.session.get_csrf_token() }}">
+    {{ form_errors(form) }}
+    <div class="form-group__wide">
+      <label for="terms_of_service_agreement" class="form-group__label">
+        {% trans %}Terms of Service{% endtrans %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+      </label>
+      <input type="checkbox"
+             name="terms_of_service_agreement"
+             data-action="input->organization-terms-of-service-accepted#checkTermsOfServiceAccepted"
+             data-organization-terms-of-service-accepted-target="termsOfServiceAccepted" />
+      {% trans tos_url="https://policies.python.org/pypi.org/Terms-of-Service/", organization_name=organization.display_name %}
+      I agree to the PyPI <a href="{{ tos_url }}">Terms of Service</a> on behalf of the {{ organization_name }} organization.
+    {% endtrans %}
+    <div id="display-terms-of-service-agreement-errors">
+      {% if form.terms_of_service_agreement.errors %}
+        <ul class="form-errors" role="alert">
+          {% for error in form.terms_of_service_agreement.errors %}<li>{{ error }}</li>{% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  </div>
+  <div class="form-group__wide">
+    <a href="{{ request.route_path('manage.organizations') }}"
+       class="button">{% trans %}Cancel{% endtrans %}</a>
+    <input value="{% trans %}Activate Subscription{% endtrans %}"
+           class="button button--primary"
+           type="submit"
+           data-organization-terms-of-service-accepted-target="submit">
+  </div>
+</form>
 {% endblock %}

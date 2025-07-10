@@ -1,12 +1,1 @@
-decorator>=4.1.2
-ipython>=6.2.1
-ipython-genutils>=0.2.0
-jedi>=0.11.0
-parso>=0.1.0
-pexpect>=4.3.1
-pickleshare>=0.7.4
-prompt-toolkit>=1.0.15
-ptyprocess>=0.5.2
-simplegeneric>=0.8.1
-traitlets>=4.3.2
-wcwidth>=0.1.7
+ipython>=9.2.0

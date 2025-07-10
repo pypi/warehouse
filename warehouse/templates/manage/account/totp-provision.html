@@ -1,98 +1,90 @@
-{#
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
--#}
+{# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "manage/manage_base.html" %}
-
 {% set user = request.user %}
 {% set title = gettext("Set up 2FA with an authentication application (TOTP)") %}
-
-{% set active_tab = 'account' %}
-
+{% set active_tab = "account" %}
 {% block title %}
-  {% if provision_totp_form.errors %}{% trans %}Error processing form{% endtrans %} –{% endif %}
+  {% if provision_totp_form.errors %}
+    {% trans %}Error processing form{% endtrans %} –
+  {% endif %}
   {{ title }}
 {% endblock %}
-
 {# Hide mobile search on manager pages #}
 {% block mobile_search %}{% endblock %}
-
 {% block main %}
-<h1 class="page-title page-title--wsubtitle heading-wsubtitle__heading">{{ title }}</h1>
-<p class="heading-wsubtitle__subtitle">
-  {% trans href='https://en.wikipedia.org/wiki/Time-based_One-time_Password_algorithm', title=gettext('External link') %}
+  <h1 class="page-title page-title--wsubtitle heading-wsubtitle__heading">{{ title }}</h1>
+  <p class="heading-wsubtitle__subtitle">
+    {% trans href='https://en.wikipedia.org/wiki/Time-based_One-time_Password_algorithm', title=gettext('External link') %}
     PyPI supports any application that follows the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><abbr title="time-based one-time password">TOTP</abbr> standard</a>.
   {% endtrans %}
   <br>
   {% trans href=request.route_path('help', _anchor='totp') %}
-    Visit <a href="{{ href }}">PyPI's help page</a> for a list of compatible applications.
-  {% endtrans %}
+  Visit <a href="{{ href }}">PyPI's help page</a> for a list of compatible applications.
+{% endtrans %}
 </p>
-
 <section>
   <h2>{% trans %}Set up your application{% endtrans %}</h2>
-
   <p>
     <strong>{% trans %}Scan the QR code with the authentication application of your choice.{% endtrans %}</strong>
     {% trans %}For security reasons, you can only associate one authentication application per PyPI account.{% endtrans %}
   </p>
-
   <div class="totp-form">
     <div>
       <div class="totp-form__qr">
-        <img src="{{ request.route_path('manage.account.totp-provision.image') }}" alt="{% trans %}QR code for setting up an authentication application{% endtrans %}" aria-label="{{ provision_totp_uri }}">
+        <img src="{{ request.route_path('manage.account.totp-provision.image') }}"
+             alt="{% trans %}QR code for setting up an authentication application{% endtrans %}"
+             aria-label="{{ provision_totp_uri }}">
       </div>
       <div class="totp-form__manual-code" data-controller="clipboard">
-        <p>{% trans %}<strong>No QR scanner?</strong> Enter this code in your TOTP application instead:{% endtrans %}
+        <p>
+          {% trans %}<strong>No QR scanner?</strong> Enter this code in your TOTP application instead:{% endtrans %}
           <code data-clipboard-target="source">{{ provision_totp_secret }}</code>
-          <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-action="clipboard#copy" data-clipboard-target="tooltip" data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
+          <button type="button"
+                  class="button button--small copy-tooltip copy-tooltip-w"
+                  data-action="clipboard#copy"
+                  data-clipboard-target="tooltip"
+                  data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
             {% trans %}Copy{% endtrans %}
           </button>
         </p>
       </div>
     </div>
-    <form method="POST" class="totp-form__form">
-      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+    <form method="post" class="totp-form__form">
+      <input name="csrf_token"
+             type="hidden"
+             value="{{ request.session.get_csrf_token() }}">
       <div class="form-group">
         <label for="totp_value" class="form-group__label">
           {% trans %}Verify application{% endtrans %}
           {% if provision_totp_form.totp_value.flags.required %}
-          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+            <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {{ provision_totp_form.totp_value(
-          placeholder=gettext("Authentication code"),
-          autocapitalize="off",
-          autocomplete="off",
-          inputmode="numeric",
-          pattern="\d{6}",
-          required="required",
-          spellcheck="false",
-          class_="form-group__field",
-          aria_describedby="totp-help totp-errors",
+        {{ provision_totp_form.totp_value(placeholder=gettext("Authentication code") ,
+        autocapitalize="off",
+        autocomplete="off",
+        inputmode="numeric",
+        pattern="\\d{6}",
+        required="required",
+        spellcheck="false",
+        class_="form-group__field",
+        aria_describedby="totp-help totp-errors",
         ) }}
-        <p id="totp-help" class="form-group__help-text">{% trans %}To finalize the set-up process, enter the 6-digit code provided by your TOTP application.{% endtrans %}</p>
+        <p id="totp-help" class="form-group__help-text">
+          {% trans %}To finalize the set-up process, enter the 6-digit code provided by your TOTP application.{% endtrans %}
+        </p>
         <div id="totp-errors">
           {% if provision_totp_form.totp_value.errors %}
-          <ul class="form-errors" role="alert">
-            {% for error in provision_totp_form.totp_value.errors %}
-            <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
+            <ul class="form-errors" role="alert">
+              {% for error in provision_totp_form.totp_value.errors %}<li>{{ error }}</li>{% endfor %}
+            </ul>
           {% endif %}
         </div>
       </div>
       <div>
-        <input type="submit" value="{% trans %}Set up application{% endtrans %}" class="button button--primary">
+        <input type="submit"
+               value="{% trans %}Set up application{% endtrans %}"
+               class="button button--primary">
       </div>
     </form>
   </div>

@@ -1,338 +1,382 @@
-{#
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
--#}
+{# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "manage_base.html" %}
-
-{% set active_tab = 'organizations' %}
-
-{% block title %}{% trans %}Your organizations{% endtrans %}{% endblock %}
-
+{% set active_tab = "organizations" %}
+{% block title %}
+  {% trans %}Your organizations{% endtrans %}
+{% endblock %}
 {% block main %}
   {% if organization_invites %}
-  <h1 class="page-title">
-    {% trans %}Pending invitations{% endtrans %}
-    <span class="badge badge--neutral">{{ organization_invites|length }}</span>
-  </h1>
-  <div class="organization-list">
-    {% for organization, token in organization_invites %}
-    <div class="organization-snippet">
-      <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
-        <div>
-          <h3 class="organization-snippet__title">
-            <a href="{{ request.route_path('organizations.profile', organization=organization.name) }}">{{ organization.name }}</a>
-          </h3>
-          <p class="organization-snippet__meta">
-            {% trans creation_date=humanize(organization.created) %}Created {{ creation_date }}{% endtrans %}
-          </p>
+    <h1 class="page-title">
+      {% trans %}Pending invitations{% endtrans %}
+      <span class="badge badge--neutral">{{ organization_invites|length }}</span>
+    </h1>
+    <div class="organization-list">
+      {% for organization, token in organization_invites %}
+        <div class="organization-snippet">
+          <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
+            <div>
+              <h3 class="organization-snippet__title">
+                <a href="{{ request.route_path('organizations.profile', organization=organization.name) }}">{{ organization.name }}</a>
+              </h3>
+              <p class="organization-snippet__meta">
+                {% trans creation_date=humanize(organization.created) %}Created {{ creation_date }}{% endtrans %}
+              </p>
+            </div>
+            <div class="organization-snippet__buttons">
+              <form method="post"
+                    action="{{ request.route_path('accounts.verify-organization-role') }}">
+                <input name="csrf_token"
+                       type="hidden"
+                       value="{{ request.session.get_csrf_token() }}">
+                <input name="token" type="hidden" value="{{ token }}">
+                <input name="accept"
+                       type="submit"
+                       value="{% trans %}Accept{% endtrans %}"
+                       class="button button--primary">
+              </form>
+              {% set extra_fields %}
+                <input type="hidden" name="token" value="{{ token }}">
+                <input type="hidden" name="decline" value="{% trans %}Decline{% endtrans %}">
+                <textarea class="form-group__field"
+                          name="message"
+                          placeholder="Optional explanatory message"></textarea>
+                <p class="form-group__help-text">This message will be included in the notification email.</p>
+              {% endset %}
+              {% set extra_description %}
+                {% trans org=organization.name %}Decline invitation to {{ org }}{% endtrans %}
+              {% endset %}
+              {% set tooltip %}
+                {% trans %}Decline invitation{% endtrans %}
+              {% endset %}
+              {{ confirm_button(gettext("Decline") , gettext("Organization Name"), "decline-" + organization.name|string, None, extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('accounts.verify-organization-role'), warning=False, modifier="", tooltip=tooltip) }}
+            </div>
+          </div>
         </div>
-        <div class="organization-snippet__buttons">
-          <form method="POST" action="{{ request.route_path('accounts.verify-organization-role') }}">
-            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            <input name="token" type="hidden" value="{{ token }}">
-            <input name="accept" type="submit" value="{% trans %}Accept{% endtrans %}" class="button button--primary">
-          </form>
-          {% set extra_fields %}
-            <input type="hidden" name="token" value="{{ token }}">
-            <input type="hidden" name="decline" value="{% trans %}Decline{% endtrans %}">
-            <textarea class="form-group__field" name="message" placeholder="Optional explanatory message"></textarea>
-            <p class="form-group__help-text">
-              This message will be included in the notification email.
-            </p>
-          {% endset %}
-          {% set extra_description %}{% trans org=organization.name %}Decline invitation to {{ org }}{% endtrans %}{% endset %}
-          {% set tooltip %}{% trans %}Decline invitation{% endtrans %}{% endset %}
-          {{ confirm_button(gettext("Decline"), gettext("Organization Name"), "decline-" + organization.name|string, None, extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('accounts.verify-organization-role'), warning=False, modifier="", tooltip=tooltip) }}
-        </div>
-      </div>
+      {% endfor %}
     </div>
-    {% endfor%}
-  </div>
   {% endif %}
-
   <h1 class="page-title">
     {% trans %}Your organizations{% endtrans %}
     <span class="badge badge--neutral">{{ organizations|length }}</span>
   </h1>
   <div class="organization-list">
-    {% for organization in organizations if organization.is_approved != False %}
-    <div class="organization-snippet">
-      <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
-        <div>
-          <h3 class="organization-snippet__title">
-            {% if organization.is_approved and organization.is_active %}
-            <a href="{{ request.route_path('organizations.profile', organization=organization.name) }}">{{ organization.name }}</a>
-            {% else %}{{ organization.name }}{% endif %}
-
-            <span class="badge" title="{% trans org_type=organization.orgtype.name %}Organization Type: {{ org_type }}{% endtrans %}">{% trans org_type=organization.orgtype.name %}{{ org_type }}{% endtrans %}</span>
-            {% if organization.is_approved is none %}
-            <span class="badge badge--neutral" title="{% trans %}You will receive an email when the organization has been approved{% endtrans %}">{% trans %}Request Submitted{% endtrans %}</span>
+    {% for organization in organizations %}
+      <div class="organization-snippet">
+        <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
+          <div>
+            <h3 class="organization-snippet__title">
+              {% if organization.is_active %}
+                <a href="{{ request.route_path('organizations.profile', organization=organization.name) }}">{{ organization.name }}</a>
+              {% else %}
+                {{ organization.name }}
+              {% endif %}
+              <span class="badge"
+                    title="{% trans org_type=organization.orgtype.name %}Organization Type: {{ org_type }}{% endtrans %}">{% trans org_type=organization.orgtype.name %}{{ org_type }}{% endtrans %}</span>
+              {% if organization.orgtype == OrganizationType.Company and not organization.active_subscription %}
+                {% if organization.name in (organizations_owned + organizations_billing) %}
+                  <a class="badge badge--danger"
+                     href="{{ request.route_path('manage.organization.activate_subscription', organization_name=organization.normalized_name) }}">{% trans %}Billing Inactive{% endtrans %}</a>
+                {% else %}
+                  <span class="badge badge--danger"
+                        title="{% trans %}This organization's billing can be activated by an organization owner or billing manager{% endtrans %}">{% trans %}Billing Inactive{% endtrans %}</span>
+                {% endif %}
+              {% elif organization.is_active == False %}
+                <span class="badge badge--danger"
+                      title="{% trans %}This organization is not active{% endtrans %}">{% trans %}Inactive{% endtrans %}</span>
+              {% elif organization.name in organizations_managed %}
+                <a class="badge badge--warning"
+                   href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}">{% trans %}Manager{% endtrans %}</a>
+              {% elif organization.name in organizations_owned %}
+                <a class="badge badge--warning"
+                   href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}">{% trans %}Owner{% endtrans %}</a>
+              {% elif organization.name in organizations_billing %}
+                <a class="badge badge--success"
+                   href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}">{% trans %}Billing Manager{% endtrans %}</a>
+              {% endif %}
+            </h3>
+            <p class="organization-snippet__meta">
+              {% trans creation_date=humanize(organization.created) %}Created {{ creation_date }}{% endtrans %}
+            </p>
+          </div>
+          <div class="organization-snippet__buttons">
+            {% if organization.name not in (organizations_managed + organizations_owned + organizations_billing) %}
+              {# Show "View" button for non-manager and non-owner #}
+              <a class="button"
+                 href="{{ request.route_path('manage.organization.projects', organization_name=organization.normalized_name) }}"
+                 title="{% trans %}View this organization{% endtrans %}">{% trans %}View{% endtrans %}</a>
             {% elif organization.orgtype == OrganizationType.Company and not organization.active_subscription %}
               {% if organization.name in (organizations_owned + organizations_billing) %}
-              <a class="badge badge--danger" href="{{ request.route_path('manage.organization.activate_subscription', organization_name=organization.normalized_name) }}">{% trans %}Billing Inactive{% endtrans %}</a>
+                {# Show "Activate Billing" button for owners and billing managers #}
+                <a class="button button--primary"
+                   href="{{ request.route_path('manage.organization.activate_subscription', organization_name=organization.normalized_name) }}"
+                   title="{% trans %}Activate billing for this organization{% endtrans %}">
+                  {% trans %}Activate Billing{% endtrans %}
+                </a>
               {% else %}
-              <span class="badge badge--danger" title="{% trans %}This organization's billing can be activated by an organization owner or billing manager{% endtrans %}">{% trans %}Billing Inactive{% endtrans %}</span>
+                {# Show disabled "Manage" button for managers #}
+                <button class="button button--primary"
+                        disabled
+                        title="{% trans %}This organization is not active{% endtrans %}">
+                  {% trans %}Manage{% endtrans %}
+                </button>
               {% endif %}
-            {% elif organization.is_active == False %}
-            <span class="badge badge--danger" title="{% trans %}This organization is not active{% endtrans %}">{% trans %}Inactive{% endtrans %}</span>
-            {% elif organization.name in organizations_managed %}
-            <a class="badge badge--warning" href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}">{% trans %}Manager{% endtrans %}</a>
-            {% elif organization.name in organizations_owned %}
-            <a class="badge badge--warning" href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}">{% trans %}Owner{% endtrans %}</a>
-            {% elif organization.name in organizations_billing %}
-            <a class="badge badge--success" href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}">{% trans %}Billing Manager{% endtrans %}</a>
-            {% endif %}
-          </h3>
-          <p class="organization-snippet__meta">
-            {% trans creation_date=humanize(organization.created) %}Created {{ creation_date }}{% endtrans %}
-          </p>
-        </div>
-        <div class="organization-snippet__buttons">
-          {% if organization.name not in (organizations_managed + organizations_owned + organizations_billing) %}
-          {# Show "View" button for non-manager and non-owner #}
-          <a class="button" href="{{ request.route_path('manage.organization.projects', organization_name=organization.normalized_name) }}" title="{% trans %}View this organization{% endtrans %}">
-            {% trans %}View{% endtrans %}
-          </a>
-          {% elif organization.orgtype == OrganizationType.Company and not organization.active_subscription %}
-            {% if organization.name in (organizations_owned + organizations_billing) %}
-            {# Show "Activate Billing" button for owners and billing managers #}
-            <a class="button button--primary {{"button--disabled" if organization.is_approved is none else ""}}" href="{{ request.route_path('manage.organization.activate_subscription', organization_name=organization.normalized_name) if organization.is_approved else "#" }}" title="{% trans %}Activate billing for this organization{% endtrans %}">
-              {% trans %}Activate Billing{% endtrans %}
-            </a>
+            {% elif not organization.is_active %}
+              {# Show disabled "Manage" button for inactive organization #}
+              <button class="button button--primary"
+                      disabled
+                      title="{% trans %}This organization is not active{% endtrans %}">
+                {% trans %}Manage{% endtrans %}
+              </button>
             {% else %}
-            {# Show disabled "Manage" button for managers #}
-            <button class="button button--primary" disabled title="{% trans %}This organization is not active{% endtrans %}">
-              {% trans %}Manage{% endtrans %}
-            </button>
+              {# Show "Manage" button for managers and owners #}
+              <a class="button button--primary"
+                 href="{{ request.route_path('manage.organization.settings', organization_name=organization.normalized_name) }}"
+                 title="{% trans %}Manage this organization{% endtrans %}">{% trans %}Manage{% endtrans %}</a>
             {% endif %}
-          {% elif not organization.is_active %}
-          {# Show disabled "Manage" button for inactive organization #}
-          <button class="button button--primary" disabled title="{% trans %}This organization is not active{% endtrans %}">
-            {% trans %}Manage{% endtrans %}
-          </button>
-          {% else %}
-          {# Show "Manage" button for managers and owners #}
-          <a class="button button--primary" href="{{ request.route_path('manage.organization.settings', organization_name=organization.normalized_name) }}" title="{% trans %}Manage this organization{% endtrans %}">
-            {% trans %}Manage{% endtrans %}
-          </a>
-          {% endif %}
+          </div>
         </div>
       </div>
-    </div>
     {% else %}
       <div class="callout-block no-top-margin">
         <p>{% trans %}You have not joined any organizations on PyPI, yet.{% endtrans %}</p>
       </div>
     {% endfor %}
   </div>
-
-  {% if organization_applications|selectattr('is_approved', 'equalto', none)|list|length > 0 %}
-  <h2>
-    {% trans %}Pending organization requests{% endtrans %}
-    <span class="badge badge--neutral">{{ organization_applications|length }}</span>
-  </h2>
-  {% if organization_applications|selectattr('orgtype', 'equalto', OrganizationType.Company)|list|length > 0 %}
-  <div class="callout-block callout-block--warning">
-    <p>{% trans %}Approvals for corporate organizations are currently paused while terms of service and payment are finalized.{% endtrans %}</p>
-  </div>
-  {% endif %}
-  <div class="organization-list">
-    {% for organization_application in organization_applications %}
-    {% if organization_application.is_approved == None %}
-    <div class="organization-snippet">
-      <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
-        <div>
-          <h3 class="organization-snippet__title">
-            {{ organization_application.name }}
-
-            <span class="badge" title="{% trans org_type=organization_application.orgtype.name %}Organization Type: {{ org_type }}{% endtrans %}">{% trans org_type=organization_application.orgtype.name %}{{ org_type }}{% endtrans %}</span>
-            <span class="badge badge--neutral" title="{% trans %}You will receive an email when the organization has been approved{% endtrans %}">{% trans %}Request Submitted{% endtrans %}</span>
-          </h3>
-          <p class="organization-snippet__meta">
-            {% trans submitted=humanize(organization_application.submitted) %}Submitted {{ submitted }}{% endtrans %}
-          </p>
-        </div>
-        <div class="organization-snippet__buttons">
-        </div>
-      </div>
+  {% if organization_applications|rejectattr('status', 'equalto', 'approved')|list|length > 0 %}
+    <h2>
+      {% trans %}Pending organization requests{% endtrans %}
+      <span class="badge badge--neutral">{{ organization_applications|rejectattr('status', 'equalto', 'approved') |list|length }}</span>
+    </h2>
+    <div class="organization-list">
+      {% for organization_application in organization_applications %}
+        {% if organization_application.status != 'approved' %}
+          <div class="organization-snippet">
+            <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
+              <div>
+                <h3 class="organization-snippet__title">
+                  {{ organization_application.name }}
+                  <span class="badge"
+                        title="{% trans org_type=organization_application.orgtype.name %}Organization Type: {{ org_type }}{% endtrans %}">{% trans org_type=organization_application.orgtype.name %}{{ org_type }}{% endtrans %}</span>
+                  {% if organization_application.status == 'declined' %}
+                    <span class="badge badge--danger"
+                          title="{% trans %}This Organization request has been declined{% endtrans %}">{% trans %}Declined{% endtrans %}</span>
+                  {% elif organization_application.status == 'moreinformationneeded' %}
+                    <span class="badge badge--warning"
+                          title="{% trans %}More information is needed to process this Organization request{% endtrans %}">{% trans %}More Information Needed{% endtrans %}</span>
+                  {% else %}
+                    <span class="badge badge--neutral"
+                          title="{% trans %}You will receive an email when the organization has been approved{% endtrans %}">{% trans %}Request Submitted{% endtrans %}</span>
+                  {% endif %}
+                </h3>
+                <p class="organization-snippet__meta">
+                  {% trans submitted=humanize(organization_application.submitted) %}Submitted {{ submitted }}{% endtrans %}
+                </p>
+                {% if organization_application.status == 'declined' %}
+                  <small>{% trans %}Declined organization requests will be deleted 30 days after decision.{% endtrans %}</small>
+                {% endif %}
+              </div>
+              <div class="organization-snippet__buttons">
+                {% if organization_application.status not in ['approved', 'declined'] %}
+                  <a class="button button--secondary"
+                     href="{{ request.route_path('manage.organizations.application', organization_application_id=organization_application.id) }}"
+                     title="{% trans %}Manage this organization request{% endtrans %}">
+                    {% trans %}Manage{% endtrans %}
+                  </a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
     </div>
-    {% endif %}
-    {% endfor %}
-  </div>
   {% endif %}
-
   <hr>
-
   {% if create_organization_application_form %}
-  {{ form_error_anchor(create_organization_application_form) }}
-  <section id="create-organization">
-    <h2 class="sub-title">{% trans %}Request a new organization{% endtrans %}</h2>
-    {% if request.user.has_two_factor %}
-    <form method="POST">
-      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-      {{ form_errors(create_organization_application_form) }}
-      <div class="form-group">
-        <label for="name" class="form-group__label">
-          {% trans %}Organization account name{% endtrans %}
-          {% if create_organization_application_form.name.flags.required %}
-          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-          {% endif %}
-        </label>
-        {{ create_organization_application_form.name(
-          placeholder=gettext("Select an organization account name"),
-          autocapitalize="off",
-          autocomplete="off",
-          spellcheck="false",
-          required="required",
-          class_="form-group__field",
-          aria_describedby="name-errors"
-        ) }}
-        <div id="name-errors">
-          {% if create_organization_application_form.name.errors %}
-          <ul class="form-errors" role="alert">
-            {% for error in create_organization_application_form.name.errors %}
-            <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-          {% endif %}
-        </div>
-        <p class="form-group__help-text">
-          {% trans %}This account name is used in URLs on PyPI.{% endtrans %}<br>
-          {% trans %}For example{% endtrans %}: psf
-        </p>
-      </div>
-
-      <div class="form-group">
-        <label for="display_name" class="form-group__label">
-          {% trans %}Organization display name{% endtrans %}
-          {% if create_organization_application_form.display_name.flags.required %}
-          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-          {% endif %}
-        </label>
-        {{ create_organization_application_form.display_name(
-          placeholder=gettext("Name of your business, product, or project"),
-          autocomplete="organization",
-          autocapitalize="off",
-          spellcheck="false",
-          class_="form-group__field",
-          aria_describedby="display-name-errors",
-        ) }}
-        <div id="display-name-errors">
-          {% if create_organization_application_form.display_name.errors %}
-          <ul class="form-errors" role="alert">
-            {% for error in create_organization_application_form.display_name.errors %}
-            <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-          {% endif %}
-        </div>
-        <p class="form-group__help-text">
-          {% trans %}For example{% endtrans %}: Python Software Foundation
-        </p>
-      </div>
-
-      <div class="form-group">
-        <label class="form-group__label" for="link_url">
-          {% trans %}️Organization URL{% endtrans %}
-          {% if create_organization_application_form.link_url.flags.required %}
-          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-          {% endif %}
-        </label>
-        <p class="form-group__text">
-          {{ create_organization_application_form.link_url(
-            placeholder=gettext("URL for your business, product, or project"),
-            autocomplete="url",
+    {{ form_error_anchor(create_organization_application_form) }}
+    <section id="create-organization">
+      <h2 class="sub-title">{% trans %}Request a new organization{% endtrans %}</h2>
+      {% if request.user.has_two_factor %}
+        <form method="post">
+          <input name="csrf_token"
+                 type="hidden"
+                 value="{{ request.session.get_csrf_token() }}">
+          {{ form_errors(create_organization_application_form) }}
+          <div class="form-group">
+            <label for="name" class="form-group__label">
+              {% trans %}Organization Account Name{% endtrans %}
+              {% if create_organization_application_form.name.flags.required %}
+                <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+              {% endif %}
+            </label>
+            {{ create_organization_application_form.name(placeholder=gettext("Select an organization account name") ,
+            autocapitalize="off",
+            autocomplete="off",
+            spellcheck="false",
+            required="required",
+            class_="form-group__field",
+            aria_describedby="name-errors"
+            ) }}
+            <div id="name-errors">
+              {% if create_organization_application_form.name.errors %}
+                <ul class="form-errors" role="alert">
+                  {% for error in create_organization_application_form.name.errors %}<li>{{ error }}</li>{% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+            <p class="form-group__help-text">
+              {% trans %}This account name is used in URLs on PyPI.{% endtrans %}
+              <br>
+              {% trans %}For example{% endtrans %}: psf
+            </p>
+          </div>
+          <div class="form-group">
+            <label for="display_name" class="form-group__label">
+              {% trans %}Organization Display Name{% endtrans %}
+              {% if create_organization_application_form.display_name.flags.required %}
+                <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+              {% endif %}
+            </label>
+            {{ create_organization_application_form.display_name(placeholder=gettext("Name of your business, product, or project") ,
+            autocomplete="organization",
             autocapitalize="off",
             spellcheck="false",
             class_="form-group__field",
-            aria_describedby="link-url-errors",
-          ) }}
-        </p>
-        <div id="link-url-errors">
-          {{ field_errors(create_organization_application_form.link_url) }}
+            aria_describedby="display-name-errors",
+            ) }}
+            <div id="display-name-errors">
+              {% if create_organization_application_form.display_name.errors %}
+                <ul class="form-errors" role="alert">
+                  {% for error in create_organization_application_form.display_name.errors %}<li>{{ error }}</li>{% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+            <p class="form-group__help-text">{% trans %}For example{% endtrans %}: Python Software Foundation</p>
+          </div>
+          <div class="form-group">
+            <label class="form-group__label" for="link_url">
+              {% trans %}️Organization URL{% endtrans %}
+              {% if create_organization_application_form.link_url.flags.required %}
+                <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+              {% endif %}
+            </label>
+            <p class="form-group__text">
+              {{ create_organization_application_form.link_url(placeholder=gettext("URL for your business, product, or project") ,
+              autocomplete="url",
+              autocapitalize="off",
+              spellcheck="false",
+              class_="form-group__field",
+              aria_describedby="link-url-errors",
+              ) }}
+            </p>
+            <div id="link-url-errors">{{ field_errors(create_organization_application_form.link_url) }}</div>
+            <p class="form-group__help-text">{% trans %}For example{% endtrans %}: https://www.python.org/psf/</p>
+          </div>
+          <div class="form-group">
+            <label for="description" class="form-group__label">
+              {% trans %}Organization Description{% endtrans %}
+              {% if create_organization_application_form.description.flags.required %}
+                <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+              {% endif %}
+            </label>
+            {{ create_organization_application_form.description(placeholder=gettext("Description of your business, product, or project") ,
+            autocomplete="off",
+            autocapitalize="off",
+            spellcheck="true",
+            class_="form-group__field",
+            aria_describedby="description-errors",
+            ) }}
+            <div id="description-errors">
+              {% if create_organization_application_form.description.errors %}
+                <ul class="form-errors" role="alert">
+                  {% for error in create_organization_application_form.description.errors %}<li>{{ error }}</li>{% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-group__label" for="orgtype">
+              {% trans %}️Organization Membership Size{% endtrans %}
+              {% if create_organization_application_form.membership_size.flags.required %}
+                <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+              {% endif %}
+            </label>
+            <p class="form-group__text">
+              {{ create_organization_application_form.membership_size(class_="form-group__field",
+                            aria_describedby="membership_size-errors",) }}
+            </p>
+            <div id="membership_size-errors">{{ field_errors(create_organization_application_form.membership_size) }}</div>
+            <p class="form-group__help-text">
+              {% trans %}
+              Estimated number of PyPI Users you anticipate joining this Organization.
+              <b>Not</b> the number of people in your organization.
+            {% endtrans %}
+          </p>
         </div>
-        <p class="form-group__help-text">
-          {% trans %}For example{% endtrans %}: https://www.python.org/psf/
-        </p>
-      </div>
-
-      <div class="form-group">
-        <label for="description" class="form-group__label">
-          {% trans %}Organization description{% endtrans %}
-          {% if create_organization_application_form.description.flags.required %}
-          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-          {% endif %}
-        </label>
-        {{ create_organization_application_form.description(
-          placeholder=gettext("Description of your business, product, or project"),
+        <div class="form-group">
+          <label for="usage" class="form-group__label">
+            {% trans %}Anticipated Usage{% endtrans %}
+            {% if create_organization_application_form.usage.flags.required %}
+              <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+            {% endif %}
+          </label>
+          {{ create_organization_application_form.usage(placeholder=gettext("Description how you plan to use PyPI Organizations features") ,
           autocomplete="off",
           autocapitalize="off",
           spellcheck="true",
           class_="form-group__field",
-          aria_describedby="description-errors",
-        ) }}
-        <div id="description-errors">
-          {% if create_organization_application_form.description.errors %}
-          <ul class="form-errors" role="alert">
-            {% for error in create_organization_application_form.description.errors %}
-            <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-          {% endif %}
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-group__label" for="orgtype">
-          {% trans %}️Organization type{% endtrans %}
-          {% if create_organization_application_form.orgtype.flags.required %}
-          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-          {% endif %}
-        </label>
-        <p class="form-group__text">
-          {{ create_organization_application_form.orgtype(
-            class_="form-group__field",
-            aria_describedby="orgtype-errors",
+          aria_describedby="usage-errors",
           ) }}
-        </p>
-        <div id="orgtype-errors">
-          {{ field_errors(create_organization_application_form.orgtype) }}
-        </div>
-        <p class="form-group__help-text">
-          {% trans %}
-            Companies can create organization accounts as a paid service while community projects are granted complimentary access.
+          <div id="usage-errors">
+            {% if create_organization_application_form.usage.errors %}
+              <ul class="form-errors" role="alert">
+                {% for error in create_organization_application_form.usage.errors %}<li>{{ error }}</li>{% endfor %}
+              </ul>
+            {% endif %}
+          </div>
+          <p class="form-group__help-text">
+            {% trans %}
+            Tell us a little bit about how you plan to use PyPI Organizations features.
           {% endtrans %}
         </p>
       </div>
-
-      <input value="{% trans %}Create{% endtrans %}" class="button button--primary" type="submit">
-    </form>
-    {% else %}{# user has not enabled 2FA #}
-    <div class="callout-block no-top-margin">
-      {% trans href=request.route_path('manage.account.two-factor') %}
-      You must first enable <a href="{{ href }}">two-factor authentication</a> on your account before requesting an organization.
-      {% endtrans %}
+      <div class="form-group">
+        <label class="form-group__label" for="orgtype">
+          {% trans %}️Organization Type{% endtrans %}
+          {% if create_organization_application_form.orgtype.flags.required %}
+            <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+        </label>
+        <p class="form-group__text">
+          {{ create_organization_application_form.orgtype(class_="form-group__field",
+                    aria_describedby="orgtype-errors",) }}
+        </p>
+        <div id="orgtype-errors">{{ field_errors(create_organization_application_form.orgtype) }}</div>
+        <p class="form-group__help-text">
+          {% trans %}
+          Companies can create organization accounts as a paid service while community projects are granted complimentary access.
+        {% endtrans %}
+      </p>
     </div>
-    {% endif %}
-  </section>
-  {% else %}
-    <section id="create-organization">
-      <h2 class="sub-title">{% trans %}Request a new organization{% endtrans %}</h2>
-      <p>
-        {% trans %}Your request(s) for a new PyPI organization(s) have been submitted.{% endtrans %}
-      </p>
-      <p>
-        {% trans %}You will receive an email when each organization has been approved{% endtrans %}{% trans %}.{% endtrans %}
-      </p>
-    </section>
-  {% endif %}
+    <input value="{% trans %}Create{% endtrans %}"
+           class="button button--primary"
+           type="submit">
+  </form>
+{% else %}
+  {# user has not enabled 2FA #}
+  <div class="callout-block no-top-margin">
+    {% trans href=request.route_path('manage.account.two-factor') %}
+    You must first enable <a href="{{ href }}">two-factor authentication</a> on your account before requesting an organization.
+  {% endtrans %}
+</div>
+{% endif %}
+</section>
+{% else %}
+<section id="create-organization">
+  <h2 class="sub-title">{% trans %}Request a new organization{% endtrans %}</h2>
+  <p>{% trans %}Your request(s) for a new PyPI organization(s) have been submitted.{% endtrans %}</p>
+  <p>
+    {% trans %}You will receive an email when each organization has been approved{% endtrans %}{% trans %}.{% endtrans %}
+  </p>
+</section>
+{% endif %}
 {% endblock %}

@@ -1,10 +1,13 @@
-coverage
+# performance regression with sysmon, waiting on 3.14
+# https://github.com/pypi/warehouse/pull/17872#issuecomment-2845932281
+coverage==7.6.12
 factory_boy
 freezegun
 pretend
 pytest>=3.0.0
 pytest-icdiff
-pytest-postgresql>=3.1.3,<7.0.0
+pytest-mock
+pytest-postgresql>=3.1.3,<8.0.0
 pytest-randomly
 pytest-socket
 pytest-sugar

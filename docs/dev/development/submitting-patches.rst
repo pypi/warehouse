@@ -15,7 +15,7 @@ As you work on your patch, keep this in mind:
   2.0.
 
 If you believe you've identified a security issue in Warehouse, follow the
-directions on the :doc:`security page </security>`.
+directions on the :doc:`security page </security/index>`.
 
 Code
 ----
@@ -34,17 +34,7 @@ Every code file must start with the boilerplate licensing notice:
 
 .. code-block:: python
 
-    # Licensed under the Apache License, Version 2.0 (the "License");
-    # you may not use this file except in compliance with the License.
-    # You may obtain a copy of the License at
-    #
-    # http://www.apache.org/licenses/LICENSE-2.0
-    #
-    # Unless required by applicable law or agreed to in writing, software
-    # distributed under the License is distributed on an "AS IS" BASIS,
-    # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    # See the License for the specific language governing permissions and
-    # limitations under the License.
+    # SPDX-License-Identifier: Apache-2.0
 
 You can view :doc:`patterns` to see more patterns that should be used within
 Warehouse.
@@ -61,7 +51,7 @@ Documentation
 -------------
 
 Important information should be documented with prose in the ``docs`` section.
-To ensure it builds and passes `doc8`_ style checks you can run
+To ensure it builds and passes documentation style checks you can run
 ``make dev-docs user-docs`` and ``make lint`` respectively.
 
 
@@ -187,6 +177,5 @@ feature branch at least once while you are working on it.
 .. _`Write comments as complete sentences.`: https://nedbatchelder.com/blog/201401/comments_should_be_sentences.html
 .. _`syntax`: https://sphinx-doc.org/domains.html#info-field-lists
 .. _`Studies have shown`: https://static1.smartbear.co/support/media/resources/cc/book/code-review-cisco-case-study.pdf
-.. _`doc8`: https://github.com/PyCQA/doc8
 .. _`coverage.py`: https://pypi.org/project/coverage
 .. _`the Black Code Style`: https://github.com/psf/black#the-black-code-style

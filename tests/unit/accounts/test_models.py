@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import datetime
 import uuid
@@ -171,6 +161,18 @@ class TestUser:
                 (
                     Permissions.AdminUsersRead,
                     Permissions.AdminUsersWrite,
+                    Permissions.AdminUsersEmailWrite,
+                    Permissions.AdminUsersAccountRecoveryWrite,
+                    Permissions.AdminDashboardSidebarRead,
+                ),
+            ),
+            (
+                "Allow",
+                "group:support",
+                (
+                    Permissions.AdminUsersRead,
+                    Permissions.AdminUsersEmailWrite,
+                    Permissions.AdminUsersAccountRecoveryWrite,
                     Permissions.AdminDashboardSidebarRead,
                 ),
             ),
@@ -184,14 +186,16 @@ class TestUser:
     @pytest.mark.parametrize(
         (
             "is_superuser",
+            "is_support",
             "is_moderator",
             "is_psf_staff",
             "expected",
         ),
         [
-            (False, False, False, []),
+            (False, False, False, False, []),
             (
                 True,
+                False,
                 False,
                 False,
                 [
@@ -202,6 +206,17 @@ class TestUser:
                 ],
             ),
             (
+                False,
+                True,
+                False,
+                False,
+                [
+                    "group:support",
+                    "group:moderators",
+                ],
+            ),
+            (
+                False,
                 False,
                 True,
                 False,
@@ -209,6 +224,7 @@ class TestUser:
             ),
             (
                 True,
+                False,
                 True,
                 False,
                 [
@@ -221,10 +237,12 @@ class TestUser:
             (
                 False,
                 False,
+                False,
                 True,
                 ["group:psf_staff"],
             ),
             (
+                False,
                 False,
                 True,
                 True,
@@ -235,6 +253,7 @@ class TestUser:
     def test_principals(
         self,
         is_superuser,
+        is_support,
         is_moderator,
         is_psf_staff,
         expected,
@@ -242,6 +261,7 @@ class TestUser:
         user = User(
             id=uuid.uuid4(),
             is_superuser=is_superuser,
+            is_support=is_support,
             is_moderator=is_moderator,
             is_psf_staff=is_psf_staff,
         )

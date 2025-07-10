@@ -1,20 +1,12 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
+from __future__ import annotations
 
 import functools
 import hashlib
 import logging
-import os
 import time
+import typing
 import urllib.parse
 
 import celery
@@ -27,10 +19,12 @@ import venusian
 
 from kombu import Queue
 from pyramid.threadlocal import get_current_request
-from urllib3.util import parse_url
 
 from warehouse.config import Environment
 from warehouse.metrics import IMetricsService
+
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
 
 # We need to trick Celery into supporting rediss:// URLs which is how redis-py
 # signals that you should use Redis with TLS.
@@ -38,9 +32,6 @@ celery.app.backends.BACKEND_ALIASES["rediss"] = (
     "warehouse.tasks:TLSRedisBackend"  # noqa
 )
 
-
-# We need to register that the sqs:// url scheme uses a netloc
-urllib.parse.uses_netloc.append("sqs")
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +44,19 @@ class TLSRedisBackend(celery.backends.redis.RedisBackend):
 
 
 class WarehouseTask(celery.Task):
-    def __new__(cls, *args, **kwargs):
+    """
+    A custom Celery Task that integrates with Pyramid's transaction manager and
+    metrics service.
+    """
+
+    __header__: typing.Callable
+    _wh_original_run: typing.Callable
+
+    def __new__(cls, *args, **kwargs) -> WarehouseTask:
+        """
+        Override to wrap the `run` method of the task with a new method that
+        will handle exceptions from the task and retry them if they're retryable.
+        """
         obj = super().__new__(cls, *args, **kwargs)
         if getattr(obj, "__header__", None) is not None:
             obj.__header__ = functools.partial(obj.__header__, object())
@@ -82,16 +85,34 @@ class WarehouseTask(celery.Task):
                     metrics.increment("warehouse.task.failed", tags=metric_tags)
                     raise
 
-        obj._wh_original_run, obj.run = obj.run, run
+        # Reassign the `run` method to the new one we've created.
+        obj._wh_original_run, obj.run = obj.run, run  # type: ignore[method-assign]
 
         return obj
 
     def __call__(self, *args, **kwargs):
+        """
+        Override to inject a faux request object into the task when it's called.
+        There's no WSGI request object available when a task is called, so we
+        create a fake one here. This is necessary as a lot of our code assumes
+        that there's a Pyramid request object available.
+        """
         return super().__call__(*(self.get_request(),) + args, **kwargs)
 
-    def get_request(self):
+    def get_request(self) -> Request:
+        """
+        Get a request object to use for this task.
+
+        This will either return the request object that was injected into the
+        task when it was called, or it will create a new request object to use
+        for the task.
+
+        Note: The `type: ignore` comments are necessary because the `pyramid_env`
+        attribute is not defined on the request object, but we're adding it
+        dynamically.
+        """
         if not hasattr(self.request, "pyramid_env"):
-            registry = self.app.pyramid_config.registry
+            registry = self.app.pyramid_config.registry  # type: ignore[attr-defined]
             env = pyramid.scripting.prepare(registry=registry)
             env["request"].tm = transaction.TransactionManager(explicit=True)
             env["request"].timings = {"new_request_start": time.time() * 1000}
@@ -101,15 +122,29 @@ class WarehouseTask(celery.Task):
             ).hexdigest()
             self.request.update(pyramid_env=env)
 
-        return self.request.pyramid_env["request"]
+        return self.request.pyramid_env["request"]  # type: ignore[attr-defined]
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
+        """
+        Called after the task has returned. This is where we'll clean up the
+        request object that we injected into the task.
+        """
         if hasattr(self.request, "pyramid_env"):
             pyramid_env = self.request.pyramid_env
             pyramid_env["request"]._process_finished_callbacks()
             pyramid_env["closer"]()
 
     def apply_async(self, *args, **kwargs):
+        """
+        Override the apply_async method to add an after commit hook to the
+        transaction manager to send the task after the transaction has been
+        committed.
+
+        This is necessary because we want to ensure that the task is only sent
+        after the transaction has been committed. This is important because we
+        want to ensure that the task is only sent if the transaction was
+        successful.
+        """
         # The API design of Celery makes this threadlocal pretty impossible to
         # avoid :(
         request = get_current_request()
@@ -128,17 +163,51 @@ class WarehouseTask(celery.Task):
         )
 
     def retry(self, *args, **kwargs):
+        """
+        Override the retry method to increment a metric when a task is retried.
+
+        This is necessary because the `retry` method is called when a task is
+        retried, and we want to track how many times a task has been retried.
+        """
         request = get_current_request()
         metrics = request.find_service(IMetricsService, context=None)
         metrics.increment("warehouse.task.retried", tags=[f"task:{self.name}"])
         return super().retry(*args, **kwargs)
 
     def _after_commit_hook(self, success, *args, **kwargs):
+        """
+        This is the hook that gets called after the transaction has been
+        committed. We'll only send the task if the transaction was successful.
+        """
         if success:
             super().apply_async(*args, **kwargs)
 
 
 def task(**kwargs):
+    """
+    A decorator that can be used to define a Celery task.
+
+    A thin wrapper around Celery's `task` decorator that allows us to attach
+    the task to the Celery app when the configuration is scanned during the
+    application startup.
+
+    This decorator also sets the `shared` option to `False` by default. This
+    means that the task will be created anew for each worker process that is
+    started. This is important because the `WarehouseTask` class that we use
+    for our tasks is not thread-safe, so we need to ensure that each worker
+    process has its own instance of the task.
+
+    This decorator also adds the task to the `warehouse` category in the
+    configuration scanner. This is important because we use this category to
+    find all the tasks that have been defined in the configuration.
+
+    Example usage:
+    ```
+    @tasks.task(...)
+    def my_task(self, *args, **kwargs):
+        pass
+    ```
+    """
     kwargs.setdefault("shared", False)
 
     def deco(wrapped):
@@ -184,31 +253,34 @@ def _add_periodic_task(config, schedule, func, args=(), kwargs=(), name=None, **
 def includeme(config):
     s = config.registry.settings
 
-    broker_transport_options = {}
+    broker_transport_options: dict[str, str | dict] = {}
 
-    broker_url = s["celery.broker_url"]
-    if broker_url.startswith("sqs://"):
-        parsed_url = parse_url(broker_url)
-        parsed_query = urllib.parse.parse_qs(parsed_url.query)
-        # Celery doesn't handle paths/query arms being passed into the SQS broker,
-        # so we'll just remove them from here.
-        broker_url = urllib.parse.urlunparse(
-            (parsed_url.scheme, parsed_url.netloc) + ("",) * 4
-        )
-        os.environ["BROKER_URL"] = broker_url
+    broker_url = s["celery.broker_redis_url"]
 
-        if "queue_name_prefix" in parsed_query:
-            broker_transport_options["queue_name_prefix"] = (
-                parsed_query["queue_name_prefix"][0] + "-"
-            )
+    # Only redis is supported as a broker
+    assert broker_url.startswith("redis")
 
-        if "region" in parsed_query:
-            broker_transport_options["region"] = parsed_query["region"][0]
+    parsed_url = urllib.parse.urlparse(  # noqa: WH001, going to urlunparse this
+        broker_url
+    )
+    parsed_query = urllib.parse.parse_qs(parsed_url.query)
 
-        # Add TCP keepalive options to the SQS connection
-        broker_transport_options["client-config"] = {
-            "tcp_keepalive": True,
-        }
+    celery_transport_options = {
+        "socket_timeout": int,
+    }
+
+    for key, value in parsed_query.copy().items():
+        if key.startswith("ssl_"):
+            continue
+        else:
+            if key in celery_transport_options:
+                broker_transport_options[key] = celery_transport_options[key](value[0])
+            del parsed_query[key]
+
+    parsed_url = parsed_url._replace(
+        query=urllib.parse.urlencode(parsed_query, doseq=True, safe="/")
+    )
+    broker_url = urllib.parse.urlunparse(parsed_url)
 
     config.registry["celery.app"] = celery.Celery(
         "warehouse", autofinalize=False, set_as_current=False
@@ -226,6 +298,8 @@ def includeme(config):
         task_serializer="json",
         worker_disable_rate_limits=True,
         REDBEAT_REDIS_URL=s["celery.scheduler_url"],
+        # Silence deprecation warning on startup
+        broker_connection_retry_on_startup=False,
     )
     config.registry["celery.app"].Task = WarehouseTask
     config.registry["celery.app"].pyramid_config = config

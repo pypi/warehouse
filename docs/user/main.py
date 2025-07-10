@@ -1,17 +1,15 @@
 from pathlib import Path
 
-
-ORG_ACCOUNTS = """
+INDEX_ATTESTATIONS = """
 !!! info
 
-    Organization account features are currently in closed beta.
-
-    Keep an eye on our [blog](https://blog.pypi.org) and
-    [twitter](https://twitter.com/pypi)
-    to be one of the first to know how you can begin using them.
+    Index attestations are currently under active development,
+    and are not yet considered stable.
 """
 
-PREVIEW_FEATURES = {"org-accounts": ORG_ACCOUNTS}
+PREVIEW_FEATURES = {
+    "index-attestations": INDEX_ATTESTATIONS,
+}
 
 _HERE = Path(__file__).parent.resolve()
 

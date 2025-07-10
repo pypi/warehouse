@@ -1,19 +1,11 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import http
 
 from urllib.parse import urlencode
 
+from pyramid_retry import RetryableException
+from requests.exceptions import Timeout
 from zope.interface import implementer
 
 from .interfaces import ChallengeResponse, ICaptchaService
@@ -41,11 +33,23 @@ class InvalidInputResponseError(HCaptchaError):
     pass
 
 
+class ExpiredInputResponseError(HCaptchaError):
+    pass
+
+
+class AlreadySeenResponseError(HCaptchaError):
+    pass
+
+
 class BadRequestError(HCaptchaError):
     pass
 
 
-class InvalidOrAlreadySeenResponseError(HCaptchaError):
+class MissingRemoteIPError(HCaptchaError):
+    pass
+
+
+class InvalidRemoteIPError(HCaptchaError):
     pass
 
 
@@ -61,16 +65,25 @@ class UnexpectedError(HCaptchaError):
     pass
 
 
+class InvalidOrAlreadySeenResponseError(HCaptchaError):
+    pass
+
+
 # https://docs.hcaptcha.com/#siteverify-error-codes-table
 ERROR_CODE_MAP = {
     "missing-input-secret": MissingInputSecretError,
     "invalid-input-secret": InvalidInputSecretError,
     "missing-input-response": MissingInputResponseError,
     "invalid-input-response": InvalidInputResponseError,
-    "invalid-or-already-seen-response": InvalidOrAlreadySeenResponseError,
+    "expired-input-response": ExpiredInputResponseError,
+    "already-seen-response": AlreadySeenResponseError,
+    "bad-request": BadRequestError,
+    "missing-remoteip": MissingRemoteIPError,
+    "invalid-remoteip": InvalidRemoteIPError,
     "not-using-dummy-passcode": NotUsingDummyPasscodeError,
     "sitekey-secret-mismatch": SitekeySecretMismatchError,
-    "bad-request": BadRequestError,
+    # Maybe legacy?
+    "invalid-or-already-seen-response": InvalidOrAlreadySeenResponseError,
 }
 
 
@@ -134,6 +147,8 @@ class Service:
                 },
                 timeout=10,
             )
+        except Timeout as err:
+            raise RetryableException from err
         except Exception as err:
             raise UnexpectedError(str(err)) from err
 

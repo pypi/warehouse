@@ -11,3 +11,9 @@
 }
 
 readthedocs-flyout { display: none; }
+
+
+/* From warehouse/static/sass/blocks/_verified.scss */
+.checked {
+  color: #148024;
+}

@@ -1,13 +1,12 @@
 #!/bin/bash
 set -e
 
-# Click requires us to ensure we have a well configured environment to run
-# our click commands. So we'll set our environment to ensure our locale is
-# correct.
-export LC_ALL="${ENCODING:-en_US.UTF-8}"
-export LANG="${ENCODING:-en_US.UTF-8}"
 export COVERAGE_PROCESS_START="$(pwd)/pyproject.toml"
-COMMAND_ARGS="$@"
+# PEP 669 introduced sys.monitoring, a lighter-weight way to monitor
+# the execution. Tell coverage to use this
+# https://nedbatchelder.com/blog/202312/coveragepy_with_sysmonitoring.html
+export COVERAGE_CORE="${COVERAGE_CORE:-sysmon}"
+COMMAND_ARGS=( "$@" )
 
 # Test the postgres connection
 while [ $# -gt 0 ]; do
@@ -37,7 +36,11 @@ mkdir -p warehouse/admin/static/dist/
 mkdir -p warehouse/static/dist/
 
 # Actually run our tests.
-python -m coverage run -m pytest --strict-markers $COMMAND_ARGS
-python -m coverage combine
-python -m coverage html --show-contexts
-python -m coverage report -m --fail-under 100
+if [ "${COVERAGE:-yes}" != "no" ]; then
+  python -m coverage run -m pytest --strict-markers "${COMMAND_ARGS[@]}"
+  python -m coverage combine
+  python -m coverage html --show-contexts
+  python -m coverage report -m --fail-under 100 --skip-covered
+else
+  python -m pytest --strict-markers "${COMMAND_ARGS[@]}"
+fi;

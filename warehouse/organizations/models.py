@@ -1,14 +1,5 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
 from __future__ import annotations
 
 import datetime
@@ -22,6 +13,7 @@ from pyramid.httpexceptions import HTTPPermanentRedirect
 from sqlalchemy import (
     CheckConstraint,
     Enum,
+    FetchedValue,
     ForeignKey,
     Index,
     UniqueConstraint,
@@ -39,11 +31,13 @@ from sqlalchemy.orm import (
 )
 
 from warehouse import db
-from warehouse.accounts.models import User
+from warehouse.accounts.models import TermsOfServiceEngagement, User
 from warehouse.authnz import Permissions
 from warehouse.events.models import HasEvents
+from warehouse.observations.models import HasObservations, ObservationKind
 from warehouse.utils.attrs import make_repr
-from warehouse.utils.db.types import bool_false, datetime_now
+from warehouse.utils.db import orm_session_from_obj
+from warehouse.utils.db.types import TZDateTime, bool_false, datetime_now
 
 if typing.TYPE_CHECKING:
     from pyramid.request import Request
@@ -143,6 +137,30 @@ class OrganizationStripeSubscription(db.Model):
     subscription: Mapped[StripeSubscription] = relationship(lazy=False)
 
 
+class OrganizationTermsOfServiceEngagement(db.Model):
+    __tablename__ = "organization_terms_of_service_engagements"
+    __table_args__ = (
+        Index(
+            "organization_terms_of_service_engagements_org_id_revision_idx",
+            "organization_id",
+            "revision",
+        ),
+    )
+
+    __repr__ = make_repr("organization_id")
+
+    organization_id: Mapped[UUID] = mapped_column(
+        ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
+    )
+    revision: Mapped[str]
+    created: Mapped[datetime.datetime] = mapped_column(TZDateTime)
+    engagement: Mapped[TermsOfServiceEngagement]
+
+    organization: Mapped[Organization] = relationship(
+        lazy=False, back_populates="terms_of_service_engagements"
+    )
+
+
 class OrganizationStripeCustomer(db.Model):
     __tablename__ = "organization_stripe_customers"
     __table_args__ = (
@@ -218,6 +236,22 @@ class OrganizationFactory:
             raise KeyError from None
 
 
+class OrganizationApplicationFactory:
+    def __init__(self, request):
+        self.request = request
+
+    def __getitem__(self, organization_application_id):
+        # Try returning organization application with matching id.
+        try:
+            return (
+                self.request.db.query(OrganizationApplication)
+                .filter(OrganizationApplication.id == organization_application_id)
+                .one()
+            )
+        except NoResultFound:
+            raise KeyError from None
+
+
 class OrganizationMixin:
     @declared_attr
     def __table_args__(cls):  # noqa: N805
@@ -234,10 +268,6 @@ class OrganizationMixin:
 
     name: Mapped[str] = mapped_column(comment="The account name used in URLS")
 
-    @declared_attr
-    def normalized_name(cls):  # noqa: N805
-        return column_property(func.normalize_pep426_name(cls.name))
-
     display_name: Mapped[str] = mapped_column(comment="Display name used in UI")
     orgtype: Mapped[enum.Enum] = mapped_column(
         Enum(OrganizationType, values_callable=lambda x: [e.value for e in x]),
@@ -250,10 +280,6 @@ class OrganizationMixin:
         comment="Description of the business or project the organization represents",
     )
 
-    is_approved: Mapped[bool | None] = mapped_column(
-        comment="Status of administrator approval of the request"
-    )
-
 
 # TODO: Determine if this should also utilize SitemapMixin
 class Organization(OrganizationMixin, HasEvents, db.Model):
@@ -261,16 +287,17 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
 
     __repr__ = make_repr("name")
 
+    normalized_name: Mapped[str] = mapped_column(
+        unique=True,
+        server_default=FetchedValue(),
+        server_onupdate=FetchedValue(),
+    )
     is_active: Mapped[bool_false] = mapped_column(
         comment="When True, the organization is active and all features are available.",
     )
     created: Mapped[datetime_now] = mapped_column(
         index=True,
         comment="Datetime the organization was created.",
-    )
-    date_approved: Mapped[datetime.datetime | None] = mapped_column(
-        onupdate=func.now(),
-        comment="Datetime the organization was approved by administrators.",
     )
     application: Mapped[OrganizationApplication] = relationship(
         back_populates="organization"
@@ -282,6 +309,9 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         viewonly=True,
     )
     roles: Mapped[list[OrganizationRole]] = relationship(back_populates="organization")
+    invitations: Mapped[list[OrganizationInvitation]] = relationship(
+        back_populates="organization"
+    )
     teams: Mapped[list[Team]] = relationship(
         back_populates="organization",
         order_by=lambda: Team.name.asc(),
@@ -302,13 +332,19 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         back_populates="organization",
         viewonly=True,
     )
+    terms_of_service_engagements: Mapped[list[OrganizationTermsOfServiceEngagement]] = (
+        relationship(
+            back_populates="organization",
+            viewonly=True,
+        )
+    )
 
     @property
     def owners(self):
         """Return all users who are owners of the organization."""
+        session = orm_session_from_obj(self)
         owner_roles = (
-            orm.object_session(self)
-            .query(User.id)
+            session.query(User.id)
             .join(OrganizationRole.user)
             .filter(
                 OrganizationRole.role_name == OrganizationRoleType.Owner,
@@ -316,12 +352,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             )
             .subquery()
         )
-        return (
-            orm.object_session(self)
-            .query(User)
-            .join(owner_roles, User.id == owner_roles.c.id)
-            .all()
-        )
+        return session.query(User).join(owner_roles, User.id == owner_roles.c.id).all()
 
     def record_event(self, *, tag, request: Request = None, additional=None):
         """Record organization name in events in case organization is ever deleted."""
@@ -331,8 +362,20 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             additional={"organization_name": self.name, **additional},
         )
 
+    @property
+    def good_standing(self):
+        return (
+            # Organization is active.
+            self.is_active
+            # Organization has active subscription if it is a Company.
+            and not (
+                self.orgtype == OrganizationType.Company
+                and self.active_subscription is None
+            )
+        )
+
     def __acl__(self):
-        session = orm.object_session(self)
+        session = orm_session_from_obj(self)
 
         acls = [
             (
@@ -341,6 +384,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                 (
                     Permissions.AdminOrganizationsRead,
                     Permissions.AdminOrganizationsWrite,
+                    Permissions.AdminOrganizationsNameWrite,
                 ),
             ),
             (Allow, "group:moderators", Permissions.AdminOrganizationsRead),
@@ -464,13 +508,44 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         else:
             return None
 
+    @property
+    def manageable_subscription(self):
+        for subscription in self.subscriptions:
+            if subscription.is_manageable:
+                return subscription
+        else:
+            return None
+
     def customer_name(self, site_name="PyPI"):
         return f"{site_name} Organization - {self.display_name} ({self.name})"
 
 
-class OrganizationApplication(OrganizationMixin, db.Model):
+class OrganizationApplicationStatus(enum.StrEnum):
+    Submitted = "submitted"
+    Declined = "declined"
+    Deferred = "deferred"
+    MoreInformationNeeded = "moreinformationneeded"
+    Approved = "approved"
+
+
+class OrganizationMembershipSize(enum.StrEnum):
+    none = ""
+    solo = "1"
+    smol = "2-5"
+    small = "6-10"
+    mid = "11-25"
+    medium = "26-50"
+    lorge = "51-100"
+    large = "100+"
+
+
+class OrganizationApplication(OrganizationMixin, HasObservations, db.Model):
     __tablename__ = "organization_applications"
     __repr__ = make_repr("name")
+
+    @declared_attr
+    def normalized_name(cls):  # noqa: N805
+        return column_property(func.normalize_pep426_name(cls.name))
 
     submitted_by_id: Mapped[UUID] = mapped_column(
         PG_UUID,
@@ -486,6 +561,30 @@ class OrganizationApplication(OrganizationMixin, db.Model):
         index=True,
         comment="Datetime the request was submitted",
     )
+    updated: Mapped[datetime.datetime | None] = mapped_column(
+        onupdate=func.now(),
+        comment="Datetime the request was last updated",
+    )
+    status: Mapped[enum.Enum] = mapped_column(
+        Enum(
+            OrganizationApplicationStatus,
+            values_callable=lambda x: [e.value for e in x],
+        ),
+        server_default=OrganizationApplicationStatus.Submitted,
+        comment="Status of the request",
+    )
+
+    usage: Mapped[str | None] = mapped_column(
+        comment="Description of how the applicant plans to use Organizations",
+    )
+    membership_size: Mapped[enum.Enum | None] = mapped_column(
+        Enum(
+            OrganizationMembershipSize,
+            values_callable=lambda x: [e.value for e in x],
+        ),
+        comment="Anticipated size of Organization Membership",
+    )
+
     organization_id: Mapped[UUID | None] = mapped_column(
         PG_UUID,
         ForeignKey(
@@ -504,8 +603,30 @@ class OrganizationApplication(OrganizationMixin, db.Model):
         back_populates="application", viewonly=True
     )
 
+    @property
+    def information_requests(self):
+        return sorted(
+            [
+                observation
+                for observation in self.observations
+                if observation.kind == ObservationKind.InformationRequest.value[0]
+            ],
+            key=lambda x: x.created,
+            reverse=True,
+        )
+
     def __lt__(self, other: OrganizationApplication) -> bool:
         return self.name < other.name
+
+    def __acl__(self):
+        acls = [
+            (
+                Allow,
+                f"user:{self.submitted_by.id}",
+                (Permissions.OrganizationApplicationsManage,),
+            )
+        ]
+        return acls
 
 
 class OrganizationNameCatalog(db.Model):
@@ -517,6 +638,10 @@ class OrganizationNameCatalog(db.Model):
             "normalized_name",
             "organization_id",
             name="_organization_name_catalog_normalized_name_organization_uc",
+        ),
+        UniqueConstraint(
+            "normalized_name",
+            name="_organization_name_catalog_normalized_name_uc",
         ),
     )
 
@@ -562,7 +687,9 @@ class OrganizationInvitation(db.Model):
     user: Mapped[User] = relationship(
         back_populates="organization_invitations", lazy=False
     )
-    organization: Mapped[Organization] = relationship(lazy=False)
+    organization: Mapped[Organization] = relationship(
+        back_populates="invitations", lazy=False
+    )
 
 
 class TeamRoleType(str, enum.Enum):

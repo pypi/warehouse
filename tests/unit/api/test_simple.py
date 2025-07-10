@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -17,14 +7,17 @@ from packaging.version import parse
 from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.testing import DummyRequest
 
+from tests.common.db.oidc import GitHubPublisherFactory
 from warehouse.api import simple
-from warehouse.packaging.utils import API_VERSION
+from warehouse.packaging.utils import API_VERSION, _valid_simple_detail_context
 
 from ...common.db.accounts import UserFactory
 from ...common.db.packaging import (
+    AlternateRepositoryFactory,
     FileFactory,
     JournalEntryFactory,
     ProjectFactory,
+    ProvenanceFactory,
     ReleaseFactory,
 )
 
@@ -48,29 +41,30 @@ class TestContentNegotiation:
         default to text/html.
         """
         request = DummyRequest(accept=header)
-        assert simple._select_content_type(request) == "text/html"
+        assert simple._select_content_type(request) == simple.MIME_TEXT_HTML
 
     @pytest.mark.parametrize(
-        "header, expected",
+        ("header", "expected"),
         [
-            ("text/html", "text/html"),
+            (simple.MIME_TEXT_HTML, simple.MIME_TEXT_HTML),
             (
-                "application/vnd.pypi.simple.v1+html",
-                "application/vnd.pypi.simple.v1+html",
+                simple.MIME_PYPI_SIMPLE_V1_HTML,
+                simple.MIME_PYPI_SIMPLE_V1_HTML,
             ),
             (
-                "application/vnd.pypi.simple.v1+json",
-                "application/vnd.pypi.simple.v1+json",
+                simple.MIME_PYPI_SIMPLE_V1_JSON,
+                simple.MIME_PYPI_SIMPLE_V1_JSON,
             ),
             (
-                "text/html, application/vnd.pypi.simple.v1+html, "
-                "application/vnd.pypi.simple.v1+json",
-                "text/html",
+                f"{simple.MIME_TEXT_HTML}, {simple.MIME_PYPI_SIMPLE_V1_HTML}, "
+                f"{simple.MIME_PYPI_SIMPLE_V1_JSON}",
+                simple.MIME_TEXT_HTML,
             ),
             (
-                "text/html;q=0.01, application/vnd.pypi.simple.v1+html;q=0.2, "
-                "application/vnd.pypi.simple.v1+json",
-                "application/vnd.pypi.simple.v1+json",
+                f"{simple.MIME_TEXT_HTML};q=0.01, "
+                f"{simple.MIME_PYPI_SIMPLE_V1_HTML};q=0.2, "
+                f"{simple.MIME_PYPI_SIMPLE_V1_JSON}",
+                simple.MIME_PYPI_SIMPLE_V1_JSON,
             ),
         ],
     )
@@ -80,15 +74,15 @@ class TestContentNegotiation:
 
 
 CONTENT_TYPE_PARAMS = [
-    ("text/html", None),
-    ("application/vnd.pypi.simple.v1+html", None),
-    ("application/vnd.pypi.simple.v1+json", "json"),
+    (simple.MIME_TEXT_HTML, None),
+    (simple.MIME_PYPI_SIMPLE_V1_HTML, None),
+    (simple.MIME_PYPI_SIMPLE_V1_JSON, "json"),
 ]
 
 
 class TestSimpleIndex:
     @pytest.mark.parametrize(
-        "content_type,renderer_override",
+        ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
     def test_no_results_no_serial(self, db_request, content_type, renderer_override):
@@ -105,7 +99,7 @@ class TestSimpleIndex:
             assert db_request.override_renderer == renderer_override
 
     @pytest.mark.parametrize(
-        "content_type,renderer_override",
+        ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
     def test_no_results_with_serial(self, db_request, content_type, renderer_override):
@@ -124,7 +118,7 @@ class TestSimpleIndex:
             assert db_request.override_renderer == renderer_override
 
     @pytest.mark.parametrize(
-        "content_type,renderer_override",
+        ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
     def test_with_results_no_serial(self, db_request, content_type, renderer_override):
@@ -145,7 +139,7 @@ class TestSimpleIndex:
             assert db_request.override_renderer == renderer_override
 
     @pytest.mark.parametrize(
-        "content_type,renderer_override",
+        ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
     def test_with_results_with_serial(
@@ -170,6 +164,19 @@ class TestSimpleIndex:
         if renderer_override is not None:
             assert db_request.override_renderer == renderer_override
 
+    def test_quarantined_project_omitted_from_index(self, db_request):
+        db_request.accept = "text/html"
+        ProjectFactory.create(name="foo")
+        ProjectFactory.create(name="bar", lifecycle_status="quarantine-enter")
+
+        assert simple.simple_index(db_request) == {
+            "meta": {"_last-serial": 0, "api-version": API_VERSION},
+            "projects": [{"name": "foo", "_last-serial": 0}],
+        }
+        assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
+        assert db_request.response.content_type == "text/html"
+        _assert_has_cors_headers(db_request.response.headers)
+
 
 class TestSimpleDetail:
     def test_redirects(self, pyramid_request):
@@ -188,7 +195,7 @@ class TestSimpleDetail:
         assert pyramid_request.current_route_path.calls == [pretend.call(name="foo")]
 
     @pytest.mark.parametrize(
-        "content_type,renderer_override",
+        ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
     def test_no_files_no_serial(self, db_request, content_type, renderer_override):
@@ -198,12 +205,15 @@ class TestSimpleDetail:
         user = UserFactory.create()
         JournalEntryFactory.create(submitted_by=user)
 
-        assert simple.simple_detail(project, db_request) == {
+        context = {
             "meta": {"_last-serial": 0, "api-version": API_VERSION},
             "name": project.normalized_name,
             "files": [],
             "versions": [],
+            "alternate-locations": [],
         }
+        context = _update_context(context, content_type, renderer_override)
+        assert simple.simple_detail(project, db_request) == context
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
         assert db_request.response.content_type == content_type
@@ -213,7 +223,7 @@ class TestSimpleDetail:
             assert db_request.override_renderer == renderer_override
 
     @pytest.mark.parametrize(
-        "content_type,renderer_override",
+        ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
     def test_no_files_with_serial(self, db_request, content_type, renderer_override):
@@ -222,13 +232,20 @@ class TestSimpleDetail:
         db_request.matchdict["name"] = project.normalized_name
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
+        als = [
+            AlternateRepositoryFactory.create(project=project),
+            AlternateRepositoryFactory.create(project=project),
+        ]
 
-        assert simple.simple_detail(project, db_request) == {
+        context = {
             "meta": {"_last-serial": je.id, "api-version": API_VERSION},
             "name": project.normalized_name,
             "files": [],
             "versions": [],
+            "alternate-locations": sorted(al.url for al in als),
         }
+        context = _update_context(context, content_type, renderer_override)
+        assert simple.simple_detail(project, db_request) == context
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
         assert db_request.response.content_type == content_type
@@ -238,7 +255,7 @@ class TestSimpleDetail:
             assert db_request.override_renderer == renderer_override
 
     @pytest.mark.parametrize(
-        "content_type,renderer_override",
+        ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
     def test_with_files_no_serial(self, db_request, content_type, renderer_override):
@@ -258,7 +275,7 @@ class TestSimpleDetail:
         user = UserFactory.create()
         JournalEntryFactory.create(submitted_by=user)
 
-        assert simple.simple_detail(project, db_request) == {
+        context = {
             "meta": {"_last-serial": 0, "api-version": API_VERSION},
             "name": project.normalized_name,
             "versions": release_versions,
@@ -273,10 +290,14 @@ class TestSimpleDetail:
                     "upload-time": f.upload_time.isoformat() + "Z",
                     "data-dist-info-metadata": False,
                     "core-metadata": False,
+                    "provenance": None,
                 }
                 for f in files
             ],
+            "alternate-locations": [],
         }
+        context = _update_context(context, content_type, renderer_override)
+        assert simple.simple_detail(project, db_request) == context
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
         assert db_request.response.content_type == content_type
@@ -286,7 +307,7 @@ class TestSimpleDetail:
             assert db_request.override_renderer == renderer_override
 
     @pytest.mark.parametrize(
-        "content_type,renderer_override",
+        ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
     def test_with_files_with_serial(self, db_request, content_type, renderer_override):
@@ -306,7 +327,7 @@ class TestSimpleDetail:
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
-        assert simple.simple_detail(project, db_request) == {
+        context = {
             "meta": {"_last-serial": je.id, "api-version": API_VERSION},
             "name": project.normalized_name,
             "versions": release_versions,
@@ -321,10 +342,14 @@ class TestSimpleDetail:
                     "upload-time": f.upload_time.isoformat() + "Z",
                     "data-dist-info-metadata": False,
                     "core-metadata": False,
+                    "provenance": None,
                 }
                 for f in files
             ],
+            "alternate-locations": [],
         }
+        context = _update_context(context, content_type, renderer_override)
+        assert simple.simple_detail(project, db_request) == context
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
         assert db_request.response.content_type == content_type
@@ -334,7 +359,7 @@ class TestSimpleDetail:
             assert db_request.override_renderer == renderer_override
 
     @pytest.mark.parametrize(
-        "content_type,renderer_override",
+        ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
     def test_with_files_with_version_multi_digit(
@@ -391,7 +416,7 @@ class TestSimpleDetail:
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
-        assert simple.simple_detail(project, db_request) == {
+        context = {
             "meta": {"_last-serial": je.id, "api-version": API_VERSION},
             "name": project.normalized_name,
             "versions": release_versions,
@@ -414,10 +439,14 @@ class TestSimpleDetail:
                         if f.metadata_file_sha256_digest is not None
                         else False
                     ),
+                    "provenance": None,
                 }
                 for f in files
             ],
+            "alternate-locations": [],
         }
+        context = _update_context(context, content_type, renderer_override)
+        assert simple.simple_detail(project, db_request) == context
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
         assert db_request.response.content_type == content_type
@@ -425,3 +454,161 @@ class TestSimpleDetail:
 
         if renderer_override is not None:
             assert db_request.override_renderer == renderer_override
+
+    @pytest.mark.parametrize(
+        ("content_type", "renderer_override"),
+        CONTENT_TYPE_PARAMS,
+    )
+    def test_with_files_quarantined_omitted_from_index(
+        self, db_request, content_type, renderer_override
+    ):
+        db_request.accept = content_type
+        project = ProjectFactory.create(lifecycle_status="quarantine-enter")
+        releases = ReleaseFactory.create_batch(3, project=project)
+        _ = [
+            FileFactory.create(release=r, filename=f"{project.name}-{r.version}.tar.gz")
+            for r in releases
+        ]
+
+        context = {
+            "meta": {"_last-serial": 0, "api-version": API_VERSION},
+            "name": project.normalized_name,
+            "files": [],
+            "versions": [],
+            "alternate-locations": [],
+        }
+        context = _update_context(context, content_type, renderer_override)
+
+        assert simple.simple_detail(project, db_request) == context
+
+        if renderer_override is not None:
+            assert db_request.override_renderer == renderer_override
+
+    @pytest.mark.parametrize(
+        ("content_type", "renderer_override"),
+        CONTENT_TYPE_PARAMS,
+    )
+    def test_with_files_varying_provenance(
+        self,
+        db_request,
+        integrity_service,
+        dummy_attestation,
+        content_type,
+        renderer_override,
+    ):
+        db_request.accept = content_type
+        db_request.oidc_publisher = GitHubPublisherFactory.create()
+
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0.0")
+
+        # wheel with provenance, sdist with no provenance
+        wheel = FileFactory.create(
+            release=release,
+            filename=f"{project.name}-1.0.0.whl",
+            packagetype="bdist_wheel",
+            metadata_file_sha256_digest="deadbeefdeadbeefdeadbeefdeadbeef",
+        )
+
+        provenance = ProvenanceFactory.create(file=wheel)
+        assert wheel.provenance == provenance
+
+        sdist = FileFactory.create(
+            release=release,
+            filename=f"{project.name}-1.0.0.tar.gz",
+            packagetype="sdist",
+        )
+
+        files = [sdist, wheel]
+
+        db_request.matchdict["name"] = project.normalized_name
+
+        def route_url(route, **kw):
+            # Rendering the simple index calls route_url once for each file,
+            # and zero or one times per file depending on whether the file
+            # has provenance. We emulate this while testing by maintaining
+            # a dictionary of expected URLs for each route, which are
+            # pulled from as appropriate when a route_url call is made.
+            route_urls = {
+                "packaging.file": {f.path: f"/file/{f.filename}" for f in files},
+                "integrity.provenance": {
+                    (
+                        wheel.release.project.normalized_name,
+                        wheel.release.version,
+                        wheel.filename,
+                    ): (
+                        f"/integrity/{wheel.release.project.normalized_name}/"
+                        f"{wheel.release.version}/{wheel.filename}/provenance"
+                    )
+                },
+            }
+
+            match route:
+                case "packaging.file":
+                    return route_urls[route].get(kw.get("path"), "")
+                case "integrity.provenance":
+                    key = (
+                        kw.get("project_name"),
+                        kw.get("release"),
+                        kw.get("filename"),
+                    )
+                    return route_urls[route].get(key, "")
+                case _:
+                    pytest.fail(f"unexpected route: {route}")
+
+        db_request.route_url = route_url
+
+        user = UserFactory.create()
+        je = JournalEntryFactory.create(name=project.name, submitted_by=user)
+
+        context = {
+            "meta": {"_last-serial": je.id, "api-version": API_VERSION},
+            "name": project.normalized_name,
+            "versions": ["1.0.0"],
+            "files": [
+                {
+                    "filename": f.filename,
+                    "url": f"/file/{f.filename}",
+                    "hashes": {"sha256": f.sha256_digest},
+                    "requires-python": f.requires_python,
+                    "yanked": False,
+                    "size": f.size,
+                    "upload-time": f.upload_time.isoformat() + "Z",
+                    "data-dist-info-metadata": (
+                        {"sha256": "deadbeefdeadbeefdeadbeefdeadbeef"}
+                        if f.metadata_file_sha256_digest is not None
+                        else False
+                    ),
+                    "core-metadata": (
+                        {"sha256": "deadbeefdeadbeefdeadbeefdeadbeef"}
+                        if f.metadata_file_sha256_digest is not None
+                        else False
+                    ),
+                    "provenance": (
+                        (
+                            f"/integrity/{f.release.project.normalized_name}/"
+                            f"{f.release.version}/{f.filename}/provenance"
+                        )
+                        if f.provenance is not None
+                        else None
+                    ),
+                }
+                for f in files
+            ],
+            "alternate-locations": [],
+        }
+        context = _update_context(context, content_type, renderer_override)
+
+        assert simple.simple_detail(project, db_request) == context
+
+        if renderer_override is not None:
+            assert db_request.override_renderer == renderer_override
+
+
+def _update_context(context, content_type, renderer_override):
+    if renderer_override != "json" or content_type in [
+        simple.MIME_TEXT_HTML,
+        simple.MIME_PYPI_SIMPLE_V1_HTML,
+    ]:
+        return _valid_simple_detail_context(context)
+    return context

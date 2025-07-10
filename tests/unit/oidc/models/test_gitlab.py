@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -18,27 +8,174 @@ from tests.common.db.oidc import GitLabPublisherFactory, PendingGitLabPublisherF
 from warehouse.oidc import errors
 from warehouse.oidc.models import _core, gitlab
 
+PROJECT_NAME = "project_name"
+NAMESPACE = "project_owner"
+
+
+@pytest.mark.parametrize(
+    ("ci_config_ref_uri", "expected"),
+    [
+        # Well-formed `ci_config_ref_uri`s, including obnoxious ones.
+        ("gitlab.com/foo/bar//notnested.yml@/some/ref", "notnested.yml"),
+        ("gitlab.com/foo/bar//notnested.yaml@/some/ref", "notnested.yaml"),
+        ("gitlab.com/foo/bar//basic/basic.yml@/some/ref", "basic/basic.yml"),
+        (
+            "gitlab.com/foo/bar//more/nested/example.yml@/some/ref",
+            "more/nested/example.yml",
+        ),
+        (
+            "gitlab.com/foo/bar//too//many//slashes.yml@/some/ref",
+            "too//many//slashes.yml",
+        ),
+        ("gitlab.com/foo/bar//has-@.yml@/some/ref", "has-@.yml"),
+        ("gitlab.com/foo/bar//foo.bar.yml@/some/ref", "foo.bar.yml"),
+        ("gitlab.com/foo/bar//foo.yml.bar.yml@/some/ref", "foo.yml.bar.yml"),
+        ("gitlab.com/foo/bar//foo.yml@bar.yml@/some/ref", "foo.yml@bar.yml"),
+        ("gitlab.com/foo/bar//@foo.yml@bar.yml@/some/ref", "@foo.yml@bar.yml"),
+        (
+            "gitlab.com/foo/bar//@.yml.foo.yml@bar.yml@/some/ref",
+            "@.yml.foo.yml@bar.yml",
+        ),
+        # Malformed `ci_config_ref_uri`s.
+        ("gitlab.com/foo/bar//notnested.wrongsuffix@/some/ref", None),
+        ("gitlab.com/foo/bar//@/some/ref", None),
+        ("gitlab.com/foo/bar//.yml@/some/ref", None),
+        ("gitlab.com/foo/bar//.yaml@/some/ref", None),
+        ("gitlab.com/foo/bar//somedir/.yaml@/some/ref", None),
+    ],
+)
+def test_extract_workflow_filename(ci_config_ref_uri, expected):
+    assert gitlab._extract_workflow_filepath(ci_config_ref_uri) == expected
+
 
 @pytest.mark.parametrize("claim", ["", "repo", "repo:"])
 def test_check_sub(claim):
     assert gitlab._check_sub(pretend.stub(), claim, pretend.stub()) is False
 
 
-def test_lookup_strategies():
-    assert (
-        len(gitlab.GitLabPublisher.__lookup_strategies__)
-        == len(gitlab.PendingGitLabPublisher.__lookup_strategies__)
-        == 2
-    )
-
-
 class TestGitLabPublisher:
-    def test_lookup_strategies(self):
-        assert (
-            len(gitlab.GitLabPublisher.__lookup_strategies__)
-            == len(gitlab.PendingGitLabPublisher.__lookup_strategies__)
-            == 2
+    @pytest.mark.parametrize("environment", [None, "some_environment"])
+    def test_lookup_fails_invalid_ci_config_ref_uri(self, environment):
+        signed_claims = {
+            "project_path": "foo/bar",
+            "ci_config_ref_uri": ("gitlab.com/foo/bar//example/.yml@refs/heads/main"),
+        }
+
+        if environment:
+            signed_claims["environment"] = environment
+
+        # The `ci_config_ref_uri` is malformed, so no queries are performed.
+        with pytest.raises(
+            errors.InvalidPublisherError,
+            match="Could not extract workflow filename from OIDC claims",
+        ):
+            gitlab.GitLabPublisher.lookup_by_claims(pretend.stub(), signed_claims)
+
+    @pytest.mark.parametrize("environment", ["SomeEnvironment", "SOME_ENVIRONMENT"])
+    def test_lookup_succeeds_with_non_lowercase_environment(
+        self, db_request, environment
+    ):
+        # Test that we find a matching publisher when the environment claims match
+        # If we incorrectly normalized the incoming capitalized claim, we wouldn't
+        # find the matching publisher.
+        stored_publisher = GitLabPublisherFactory(
+            id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            namespace="foo",
+            project="bar",
+            workflow_filepath=".gitlab-ci.yml",
+            environment=environment,
         )
+
+        signed_claims = {
+            "project_path": "foo/bar",
+            "ci_config_ref_uri": ("gitlab.com/foo/bar//.gitlab-ci.yml@refs/heads/main"),
+            "environment": environment,
+        }
+
+        publisher = gitlab.GitLabPublisher.lookup_by_claims(
+            db_request.db, signed_claims
+        )
+
+        assert publisher.id == stored_publisher.id
+        assert publisher.environment == environment
+
+    @pytest.mark.parametrize("environment", ["SomeEnvironment", "SOME_ENVIRONMENT"])
+    def test_lookup_is_case_sensitive_for_environment(self, db_request, environment):
+        # Test that we don't find a matching publisher when the environment claims don't
+        # exactly match.
+        # If we incorrectly normalized the incoming capitalized claim, we would match
+        # a publisher that has a different environment.
+        GitLabPublisherFactory(
+            id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            namespace="foo",
+            project="bar",
+            workflow_filepath=".gitlab-ci.yml",
+            # stored environment is all lowercase, doesn't match incoming claims
+            environment=environment.lower(),
+        )
+
+        signed_claims = {
+            "project_path": "foo/bar",
+            "ci_config_ref_uri": ("gitlab.com/foo/bar//.gitlab-ci.yml@refs/heads/main"),
+            "environment": environment,
+        }
+
+        with pytest.raises(errors.InvalidPublisherError) as e:
+            gitlab.GitLabPublisher.lookup_by_claims(db_request.db, signed_claims)
+        assert str(e.value) == "Publisher with matching claims was not found"
+
+    @pytest.mark.parametrize("environment", ["", "some_environment"])
+    @pytest.mark.parametrize(
+        ("workflow_filepath_a", "workflow_filepath_b"),
+        [
+            ("workflows/release_pypi/ci.yml", "workflows/release-pypi/ci.yml"),
+            ("workflows/release%pypi/ci.yml", "workflows/release-pypi/ci.yml"),
+        ],
+    )
+    def test_lookup_escapes(
+        self, db_request, environment, workflow_filepath_a, workflow_filepath_b
+    ):
+        GitLabPublisherFactory(
+            id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            namespace="foo",
+            project="bar",
+            workflow_filepath=workflow_filepath_a,
+            environment=environment,
+        )
+        GitLabPublisherFactory(
+            id="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+            namespace="foo",
+            project="bar",
+            workflow_filepath=workflow_filepath_b,
+            environment=environment,
+        )
+
+        for workflow_filepath in (workflow_filepath_a, workflow_filepath_b):
+            signed_claims = {
+                "project_path": "foo/bar",
+                "ci_config_ref_uri": (
+                    f"gitlab.com/foo/bar//{workflow_filepath}@refs/heads/main"
+                ),
+            }
+
+            if environment:
+                signed_claims["environment"] = environment
+
+            assert (
+                gitlab.GitLabPublisher.lookup_by_claims(
+                    db_request.db, signed_claims
+                ).workflow_filepath
+                == workflow_filepath
+            )
+
+    def test_lookup_no_matching_publisher(self, db_request):
+        signed_claims = {
+            "project_path": "foo/bar",
+            "ci_config_ref_uri": ("gitlab.com/foo/bar//.gitlab-ci.yml@refs/heads/main"),
+        }
+        with pytest.raises(errors.InvalidPublisherError) as e:
+            gitlab.GitLabPublisher.lookup_by_claims(db_request.db, signed_claims)
+        assert str(e.value) == "Publisher with matching claims was not found"
 
     def test_gitlab_publisher_all_known_claims(self):
         assert gitlab.GitLabPublisher.all_known_claims() == {
@@ -57,6 +194,7 @@ class TestGitLabPublisher:
             "nbf",
             "exp",
             "aud",
+            "jti",
             # unchecked claims
             "project_id",
             "namespace_id",
@@ -78,7 +216,6 @@ class TestGitLabPublisher:
             "runner_environment",
             "ci_config_sha",
             "project_visibility",
-            "jti",
             "user_access_level",
             "groups_direct",
         }
@@ -95,6 +232,7 @@ class TestGitLabPublisher:
             assert getattr(publisher, claim_name) is not None
 
         assert str(publisher) == "subfolder/fakeworkflow.yml"
+        assert publisher.publisher_base_url == "https://gitlab.com/fakeowner/fakerepo"
         assert publisher.publisher_url() == "https://gitlab.com/fakeowner/fakerepo"
         assert (
             publisher.publisher_url({"sha": "somesha"})
@@ -106,16 +244,10 @@ class TestGitLabPublisher:
         }
 
     def test_gitlab_publisher_unaccounted_claims(self, monkeypatch):
-        publisher = gitlab.GitLabPublisher(
-            project="fakerepo",
-            namespace="fakeowner",
-            workflow_filepath="subfolder/fakeworkflow.yml",
-        )
-
         scope = pretend.stub()
         sentry_sdk = pretend.stub(
             capture_message=pretend.call_recorder(lambda s: None),
-            push_scope=pretend.call_recorder(
+            new_scope=pretend.call_recorder(
                 lambda: pretend.stub(
                     __enter__=lambda *a: scope, __exit__=lambda *a: None
                 )
@@ -130,9 +262,8 @@ class TestGitLabPublisher:
         }
         signed_claims["fake-claim"] = "fake"
         signed_claims["another-fake-claim"] = "also-fake"
-        with pytest.raises(errors.InvalidPublisherError) as e:
-            publisher.verify_claims(signed_claims=signed_claims)
-        assert str(e.value) == "Check failed for required claim 'sub'"
+
+        gitlab.GitLabPublisher.check_claims_existence(signed_claims)
         assert sentry_sdk.capture_message.calls == [
             pretend.call(
                 "JWT for GitLabPublisher has unaccounted claims: "
@@ -141,7 +272,11 @@ class TestGitLabPublisher:
         ]
         assert scope.fingerprint == ["another-fake-claim", "fake-claim"]
 
-    @pytest.mark.parametrize("missing", ["sub", "ref_path"])
+    @pytest.mark.parametrize(
+        "missing",
+        gitlab.GitLabPublisher.__required_verifiable_claims__.keys()
+        | gitlab.GitLabPublisher.__required_unverifiable_claims__,
+    )
     def test_gitlab_publisher_missing_claims(self, monkeypatch, missing):
         publisher = gitlab.GitLabPublisher(
             project="fakerepo",
@@ -152,7 +287,7 @@ class TestGitLabPublisher:
         scope = pretend.stub()
         sentry_sdk = pretend.stub(
             capture_message=pretend.call_recorder(lambda s: None),
-            push_scope=pretend.call_recorder(
+            new_scope=pretend.call_recorder(
                 lambda: pretend.stub(
                     __enter__=lambda *a: scope, __exit__=lambda *a: None
                 )
@@ -169,7 +304,7 @@ class TestGitLabPublisher:
         assert missing not in signed_claims
         assert publisher.__required_verifiable_claims__
         with pytest.raises(errors.InvalidPublisherError) as e:
-            publisher.verify_claims(signed_claims=signed_claims)
+            gitlab.GitLabPublisher.check_claims_existence(signed_claims)
         assert str(e.value) == f"Missing claim {missing!r}"
         assert sentry_sdk.capture_message.calls == [
             pretend.call(f"JWT for GitLabPublisher is missing claim: {missing}")
@@ -187,6 +322,10 @@ class TestGitLabPublisher:
         sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
         monkeypatch.setattr(_core, "sentry_sdk", sentry_sdk)
 
+        service = pretend.stub(
+            jwt_identifier_exists=pretend.call_recorder(lambda s: False)
+        )
+
         signed_claims = {
             claim_name: getattr(publisher, claim_name)
             for claim_name in gitlab.GitLabPublisher.__required_verifiable_claims__
@@ -196,7 +335,9 @@ class TestGitLabPublisher:
         signed_claims["ci_config_ref_uri"] = publisher.ci_config_ref_uri + "@ref"
         assert publisher.__required_verifiable_claims__
         with pytest.raises(errors.InvalidPublisherError) as e:
-            publisher.verify_claims(signed_claims=signed_claims)
+            publisher.verify_claims(
+                signed_claims=signed_claims, publisher_service=service
+            )
         assert str(e.value) == "Check failed for optional claim 'environment'"
         assert sentry_sdk.capture_message.calls == []
 
@@ -213,7 +354,7 @@ class TestGitLabPublisher:
             environment="environment",
         )
 
-        noop_check = pretend.call_recorder(lambda gt, sc, ac: True)
+        noop_check = pretend.call_recorder(lambda gt, sc, ac, **kwargs: True)
         verifiable_claims = {
             claim_name: noop_check
             for claim_name in publisher.__required_verifiable_claims__
@@ -234,7 +375,9 @@ class TestGitLabPublisher:
             for claim_name in gitlab.GitLabPublisher.all_known_claims()
             if claim_name not in missing_claims
         }
-        assert publisher.verify_claims(signed_claims=signed_claims)
+        assert publisher.verify_claims(
+            signed_claims=signed_claims, publisher_service=pretend.stub()
+        )
         assert len(noop_check.calls) == len(verifiable_claims) + len(
             optional_verifiable_claims
         )
@@ -497,15 +640,167 @@ class TestGitLabPublisher:
         db_request.db.add(publisher1)
         db_request.db.commit()
 
+        publisher2 = gitlab.GitLabPublisher(
+            project="repository_name",
+            namespace="repository_owner",
+            workflow_filepath="subfolder/worflow_filename.yml",
+            environment="",
+        )
+        db_request.db.add(publisher2)
+
         with pytest.raises(sqlalchemy.exc.IntegrityError):
-            publisher2 = gitlab.GitLabPublisher(
-                project="repository_name",
-                namespace="repository_owner",
-                workflow_filepath="subfolder/worflow_filename.yml",
-                environment="",
-            )
-            db_request.db.add(publisher2)
             db_request.db.commit()
+
+    @pytest.mark.parametrize(
+        ("project_name", "namespace", "url", "expected"),
+        [
+            (
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://gitlab.com/{NAMESPACE}/{PROJECT_NAME}.git",
+                True,
+            ),
+            (
+                "Project_Name",
+                NAMESPACE,
+                f"https://gitlab.com/{NAMESPACE}/{PROJECT_NAME}.git",
+                True,
+            ),
+            (
+                PROJECT_NAME,
+                "Project_Owner",
+                f"https://gitlab.com/{NAMESPACE}/{PROJECT_NAME}.git",
+                True,
+            ),
+            (
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://gitlab.com/{NAMESPACE}/{PROJECT_NAME}.git/",
+                True,
+            ),
+            (
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://gitlab.com/{NAMESPACE}/{PROJECT_NAME}.git/issues",
+                False,
+            ),
+            (
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://{NAMESPACE}.gitlab.io/{PROJECT_NAME}/",
+                True,
+            ),
+            (
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://{NAMESPACE}.gitlab.io/{PROJECT_NAME}/subpage/",
+                True,
+            ),
+            (
+                PROJECT_NAME,
+                "owner.with.dot",
+                f"https://owner.with.dot.gitlab.io/{PROJECT_NAME}",
+                True,
+            ),
+            (
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://gitlab.com/{NAMESPACE.replace('e', 'E')}/"
+                f"{PROJECT_NAME.replace('r', 'R')}/",
+                True,
+            ),
+            (  # Unique domains are not supported
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://{PROJECT_NAME}-123456.gitlab.io/",
+                False,
+            ),
+            # Project name is not properly formed
+            (PROJECT_NAME, NAMESPACE, f"https://{NAMESPACE}.gitlab.io/", False),
+            (
+                f"{NAMESPACE}.gitlab.io",
+                NAMESPACE,
+                f"https://{NAMESPACE}.gitlab.io",
+                True,
+            ),
+            (
+                f"{NAMESPACE}.gitlab.io",
+                NAMESPACE,
+                f"https://{NAMESPACE}.gitlab.io/",
+                True,
+            ),
+            (
+                f"{NAMESPACE}.gitlab.io",
+                NAMESPACE,
+                f"https://{NAMESPACE}.gitlab.io/subpage",
+                True,
+            ),
+            (  # Only for user/group own pages
+                "project_name.gitlab.io",
+                NAMESPACE,
+                f"https://{NAMESPACE}.gitlab.io/subpage",
+                False,
+            ),
+            (
+                "project",
+                "group/subgroup",
+                "https://group.gitlab.io/subgroup/project/",
+                True,
+            ),
+            (
+                "project",
+                "group/subgroup",
+                "https://group.gitlab.io/subgroup/project/about",
+                True,
+            ),
+            # The namespace should only contain 1 element
+            ("group.gitlab.io", "group/subgroup", "https://group.gitlab.io/", False),
+        ],
+    )
+    def test_gitlab_publisher_verify_url(
+        self, project_name: str, namespace: str, url: str, expected: bool
+    ):
+        publisher = gitlab.GitLabPublisher(
+            project=project_name,
+            namespace=namespace,
+            workflow_filepath="workflow_filename.yml",
+            environment="",
+        )
+        assert publisher.verify_url(url) == expected
+
+    @pytest.mark.parametrize("environment", ["", "some-env"])
+    def test_gitlab_publisher_attestation_identity(self, environment):
+        publisher = gitlab.GitLabPublisher(
+            project="project",
+            namespace="group/subgroup",
+            workflow_filepath="workflow_filename.yml",
+            environment=environment,
+        )
+
+        identity = publisher.attestation_identity
+        assert identity is not None
+        assert identity.repository == publisher.project_path
+        assert identity.workflow_filepath == publisher.workflow_filepath
+
+        if not environment:
+            assert identity.environment is None
+        else:
+            assert identity.environment == publisher.environment
+
+    @pytest.mark.parametrize("exists_in_db", [True, False])
+    def test_exists(self, db_request, exists_in_db):
+        publisher = gitlab.GitLabPublisher(
+            project="repository_name",
+            namespace="repository_owner",
+            workflow_filepath="subfolder/worflow_filename.yml",
+            environment="",
+        )
+
+        if exists_in_db:
+            db_request.db.add(publisher)
+            db_request.db.flush()
+
+        assert publisher.exists(db_request.db) == exists_in_db
 
 
 class TestPendingGitLabPublisher:

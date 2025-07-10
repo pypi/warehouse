@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import uuid
 
@@ -26,7 +16,7 @@ import warehouse.constants
 from tests.common.db.oidc import GitHubPublisherFactory
 from warehouse.admin.views import projects as views
 from warehouse.observations.models import ObservationKind
-from warehouse.packaging.models import Project, Role
+from warehouse.packaging.models import LifecycleStatus, Project, Role
 from warehouse.packaging.tasks import update_release_description
 from warehouse.search.tasks import reindex_project
 from warehouse.utils.paginate import paginate_url_factory
@@ -952,3 +942,96 @@ class TestReindexProject:
         assert db_request.session.flash.calls == [
             pretend.call("Task sent to reindex the project 'foo'", queue="success")
         ]
+
+
+class TestProjectArchival:
+    def test_archive(self, db_request):
+        project = ProjectFactory.create(name="foo")
+        user = UserFactory.create(username="testuser")
+
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.method = "POST"
+        db_request.user = user
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.archive_project_view(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert project.lifecycle_status == LifecycleStatus.ArchivedNoindex
+        assert db_request.route_path.calls == [
+            pretend.call("admin.project.detail", project_name=project.name)
+        ]
+
+    def test_unarchive_project(self, db_request):
+        project = ProjectFactory.create(
+            name="foo", lifecycle_status=LifecycleStatus.Archived
+        )
+        user = UserFactory.create(username="testuser")
+
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.method = "POST"
+        db_request.user = user
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.unarchive_project_view(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.route_path.calls == [
+            pretend.call("admin.project.detail", project_name=project.name)
+        ]
+        assert project.lifecycle_status is None
+
+    def test_disallowed_archive(self, db_request):
+        project = ProjectFactory.create(name="foo", lifecycle_status="quarantine-enter")
+        user = UserFactory.create(username="testuser")
+
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.method = "POST"
+        db_request.user = user
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.archive_project_view(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Cannot archive project with status {project.lifecycle_status}",
+                queue="error",
+            )
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("admin.project.detail", project_name="foo")
+        ]
+        assert project.lifecycle_status == "quarantine-enter"
+
+    def test_disallowed_unarchive(self, db_request):
+        project = ProjectFactory.create(name="foo", lifecycle_status="quarantine-enter")
+        user = UserFactory.create(username="testuser")
+
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.method = "POST"
+        db_request.user = user
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.unarchive_project_view(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.session.flash.calls == [
+            pretend.call("Can only unarchive an archived project", queue="error")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("admin.project.detail", project_name="foo")
+        ]
+        assert project.lifecycle_status == "quarantine-enter"

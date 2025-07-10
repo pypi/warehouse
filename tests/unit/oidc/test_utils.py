@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import uuid
 
@@ -24,6 +14,13 @@ from tests.common.db.oidc import (
     GooglePublisherFactory,
 )
 from warehouse.oidc import errors, utils
+from warehouse.oidc.models import (
+    ActiveStatePublisher,
+    GitHubPublisher,
+    GitLabPublisher,
+    GooglePublisher,
+)
+from warehouse.oidc.utils import OIDC_PUBLISHER_CLASSES
 from warehouse.utils.security_policy import principals_for
 
 
@@ -35,7 +32,36 @@ def test_find_publisher_by_issuer_bad_issuer_url():
 
 
 @pytest.mark.parametrize(
-    "environment, expected_id",
+    ("issuer_url", "publisher_cls_dict"), OIDC_PUBLISHER_CLASSES.items()
+)
+def test_find_publisher_by_issuer_checks_claims_existence(
+    monkeypatch, issuer_url, publisher_cls_dict
+):
+    publisher_cls = pretend.stub(
+        check_claims_existence=pretend.call_recorder(lambda x: None),
+        lookup_by_claims=pretend.call_recorder(lambda x, y: None),
+    )
+    monkeypatch.setattr(
+        utils,
+        "OIDC_PUBLISHER_CLASSES",
+        {issuer_url: {False: publisher_cls, True: publisher_cls}},
+    )
+
+    signed_claims = {
+        claim_name: "fake"
+        for claim_name in publisher_cls_dict[False].all_known_claims()
+    }
+    session = pretend.stub()
+    utils.find_publisher_by_issuer(session, issuer_url, signed_claims)
+
+    assert publisher_cls.check_claims_existence.calls == [pretend.call(signed_claims)]
+    assert publisher_cls.lookup_by_claims.calls == [
+        pretend.call(session, signed_claims)
+    ]
+
+
+@pytest.mark.parametrize(
+    ("environment", "expected_id"),
     [
         (None, uuid.UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")),
         ("some_other_environment", uuid.UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")),
@@ -62,10 +88,15 @@ def test_find_publisher_by_issuer_github(db_request, environment, expected_id):
     )
 
     signed_claims = {
-        "repository": "foo/bar",
-        "job_workflow_ref": "foo/bar/.github/workflows/ci.yml@refs/heads/main",
-        "repository_owner_id": "1234",
+        claim_name: "fake" for claim_name in GitHubPublisher.all_known_claims()
     }
+    signed_claims.update(
+        {
+            "repository": "foo/bar",
+            "job_workflow_ref": "foo/bar/.github/workflows/ci.yml@refs/heads/main",
+            "repository_owner_id": "1234",
+        }
+    )
     if environment:
         signed_claims["environment"] = environment
 
@@ -80,7 +111,7 @@ def test_find_publisher_by_issuer_github(db_request, environment, expected_id):
 
 
 @pytest.mark.parametrize(
-    "environment, expected_id",
+    ("environment", "expected_id"),
     [
         (None, uuid.UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")),
         ("some_other_environment", uuid.UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")),
@@ -104,9 +135,15 @@ def test_find_publisher_by_issuer_gitlab(db_request, environment, expected_id):
     )
 
     signed_claims = {
-        "project_path": "foo/bar",
-        "ci_config_ref_uri": "gitlab.com/foo/bar//workflows/ci.yml@refs/heads/main",
+        claim_name: "fake" for claim_name in GitLabPublisher.all_known_claims()
     }
+
+    signed_claims.update(
+        {
+            "project_path": "foo/bar",
+            "ci_config_ref_uri": "gitlab.com/foo/bar//workflows/ci.yml@refs/heads/main",
+        }
+    )
     if environment:
         signed_claims["environment"] = environment
 
@@ -121,7 +158,7 @@ def test_find_publisher_by_issuer_gitlab(db_request, environment, expected_id):
 
 
 @pytest.mark.parametrize(
-    "sub, expected_id",
+    ("sub", "expected_id"),
     [
         ("some-other-subject", uuid.UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")),
         ("some-subject", uuid.UUID("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")),
@@ -140,9 +177,15 @@ def test_find_publisher_by_issuer_google(db_request, sub, expected_id):
     )
 
     signed_claims = {
-        "email": "fake@example.com",
-        "sub": sub,
+        claim_name: "fake" for claim_name in GooglePublisher.all_known_claims()
     }
+
+    signed_claims.update(
+        {
+            "email": "fake@example.com",
+            "sub": sub,
+        }
+    )
 
     assert (
         utils.find_publisher_by_issuer(
@@ -155,7 +198,15 @@ def test_find_publisher_by_issuer_google(db_request, sub, expected_id):
 
 
 @pytest.mark.parametrize(
-    "expected_id, sub, organization, project, actor_id, actor, ingredient_name",
+    (
+        "expected_id",
+        "sub",
+        "organization",
+        "project",
+        "actor_id",
+        "actor",
+        "ingredient_name",
+    ),
     [
         (
             uuid.UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
@@ -219,12 +270,18 @@ def test_find_publisher_by_issuer_activestate(
     )
 
     signed_claims = {
-        "sub": sub,
-        "organization": organization,
-        "project": project,
-        "actor_id": actor_id,
-        "actor": actor,
+        claim_name: "fake" for claim_name in ActiveStatePublisher.all_known_claims()
     }
+
+    signed_claims.update(
+        {
+            "sub": sub,
+            "organization": organization,
+            "project": project,
+            "actor_id": actor_id,
+            "actor": actor,
+        }
+    )
 
     assert (
         utils.find_publisher_by_issuer(

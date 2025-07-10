@@ -1,14 +1,7 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
+import datetime
+
 from urllib.parse import urljoin
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
@@ -26,8 +19,6 @@ from warehouse.accounts.interfaces import ITokenService, IUserService, TokenExpi
 from warehouse.accounts.models import User
 from warehouse.authnz import Permissions
 from warehouse.email import (
-    send_admin_organization_deleted_email,
-    send_admin_organization_renamed_email,
     send_canceled_as_invited_organization_member_email,
     send_new_organization_requested_email,
     send_organization_deleted_email,
@@ -37,7 +28,6 @@ from warehouse.email import (
     send_organization_member_role_changed_email,
     send_organization_project_added_email,
     send_organization_project_removed_email,
-    send_organization_renamed_email,
     send_organization_role_verification_email,
     send_organization_updated_email,
     send_removed_as_organization_member_email,
@@ -51,6 +41,8 @@ from warehouse.manage.forms import (
     CreateOrganizationApplicationForm,
     CreateOrganizationRoleForm,
     CreateTeamForm,
+    InformationRequestResponseForm,
+    OrganizationActivateBillingForm,
     SaveOrganizationForm,
     SaveOrganizationNameForm,
     TransferOrganizationProjectForm,
@@ -60,13 +52,17 @@ from warehouse.manage.views.view_helpers import (
     user_organizations,
     user_projects,
 )
+from warehouse.observations.models import Observation
 from warehouse.organizations import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
+    OrganizationApplication,
+    OrganizationApplicationStatus,
     OrganizationInvitationStatus,
     OrganizationRole,
     OrganizationRoleType,
     OrganizationType,
+    TermsOfServiceEngagement,
 )
 from warehouse.packaging import IProjectService, Project, Role
 from warehouse.packaging.models import JournalEntry, ProjectFactory
@@ -161,11 +157,6 @@ class ManageOrganizationsViews:
         organizations = self.organization_service.get_organizations_by_user(
             self.request.user.id
         )
-        organizations = [
-            organization
-            for organization in organizations
-            if organization.is_approved is not False
-        ]
 
         return {
             "organization_invites": organization_invites,
@@ -192,7 +183,11 @@ class ManageOrganizationsViews:
                     [
                         app
                         for app in self.request.user.organization_applications
-                        if app.is_approved is None
+                        if app.status
+                        not in (
+                            OrganizationApplicationStatus.Approved,
+                            OrganizationApplicationStatus.Declined,
+                        )
                     ]
                 )
                 < self.request.registry.settings[
@@ -243,6 +238,82 @@ class ManageOrganizationsViews:
         else:
             return {"create_organization_application_form": form}
 
+        return HTTPSeeOther(self.request.path)
+
+
+@view_defaults(
+    route_name="manage.organizations.application",
+    context=OrganizationApplication,
+    renderer="manage/organization/application.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission=Permissions.OrganizationApplicationsManage,
+    has_translations=True,
+)
+class ManageOrganizationApplicationViews:
+    def __init__(self, organization_application, request):
+        self.organization_application = organization_application
+        self.request = request
+
+    @view_config(request_method="GET")
+    def manage_organization_application(self):
+        information_requests = self.organization_application.information_requests
+        return {
+            "organization_application": self.organization_application,
+            "information_requests": information_requests,
+            "response_forms": {
+                information_request.id: InformationRequestResponseForm()
+                for information_request in information_requests
+                if information_request.additional.get("response") is None
+            },
+        }
+
+    @view_config(request_method="POST")
+    def manage_organization_application_submit(self):
+        form = InformationRequestResponseForm(self.request.POST)
+        information_requests = self.organization_application.information_requests
+        if form.validate():
+            data = form.data
+
+            observation = (
+                self.request.db.query(Observation)
+                .filter(Observation.id == self.request.POST.get("response_form-id"))
+                .one()
+            )
+            observation.additional["response"] = data["response"]
+            observation.additional["response_time"] = datetime.datetime.now(
+                datetime.UTC
+            ).isoformat()
+            self.request.db.add(observation)
+
+            # Move status back to Submitted if all information requests have responses
+            if all(
+                [
+                    "response" in information_request.additional
+                    for information_request in information_requests
+                ]
+            ):
+                self.organization_application.status = (
+                    OrganizationApplicationStatus.Submitted
+                )
+
+            self.request.session.flash("Response submitted", queue="success")
+        else:
+            return {
+                "organization_application": self.organization_application,
+                "information_requests": information_requests,
+                "response_forms": {
+                    information_request.id: (
+                        form
+                        if information_request.id.__str__()
+                        == self.request.POST.get("response_form-id")
+                        else InformationRequestResponseForm()
+                    )
+                    for information_request in information_requests
+                    if information_request.additional.get("response") is None
+                },
+            }
         return HTTPSeeOther(self.request.path)
 
 
@@ -357,57 +428,62 @@ class ManageOrganizationSettingsViews:
             error_message="Could not rename organization",
         )
 
-        form = SaveOrganizationNameForm(
-            self.request.POST,
-            organization_service=self.organization_service,
-            organization_id=self.organization.id,
-            user=self.request.user,
+        self.request.session.flash(
+            "Organization names cannot be changed", queue="error"
+        )
+        return HTTPSeeOther(
+            self.request.route_path(
+                "manage.organization.settings",
+                organization_name=self.organization.normalized_name,
+            )
         )
 
-        if form.validate():
-            previous_organization_name = self.organization.name
-            self.organization_service.rename_organization(
-                self.organization.id,
-                form.name.data,
-            )
-            self.organization.record_event(
-                tag=EventTag.Organization.CatalogEntryAdd,
-                request=self.request,
-                additional={"submitted_by_user_id": str(self.request.user.id)},
-            )
-            self.organization.record_event(
-                tag=EventTag.Organization.OrganizationRename,
-                request=self.request,
-                additional={
-                    "previous_organization_name": previous_organization_name,
-                    "renamed_by_user_id": str(self.request.user.id),
-                },
-            )
-            owner_users = set(organization_owners(self.request, self.organization))
-            send_admin_organization_renamed_email(
-                self.request,
-                self.user_service.get_admin_user(),
-                organization_name=self.organization.name,
-                previous_organization_name=previous_organization_name,
-            )
-            send_organization_renamed_email(
-                self.request,
-                owner_users,
-                organization_name=self.organization.name,
-                previous_organization_name=previous_organization_name,
-            )
-            self.request.session.flash(
-                "Organization account name updated", queue="success"
-            )
-            return HTTPSeeOther(
-                self.request.route_path(
-                    "manage.organization.settings",
-                    organization_name=self.organization.normalized_name,
-                )
-                + "#modal-close"
-            )
+        # # When support for renaming orgs is re-introduced
+        # form = SaveOrganizationNameForm(
+        #    self.request.POST,
+        #    organization_service=self.organization_service,
+        #    organization_id=self.organization.id,
+        #    user=self.request.user,
+        # )
 
-        return {**self.default_response, "save_organization_name_form": form}
+        # if form.validate():
+        #    previous_organization_name = self.organization.name
+        #    self.organization_service.rename_organization(
+        #        self.organization.id,
+        #        form.name.data,
+        #    )
+        #    self.organization.record_event(
+        #        tag=EventTag.Organization.CatalogEntryAdd,
+        #        request=self.request,
+        #        additional={"submitted_by_user_id": str(self.request.user.id)},
+        #    )
+        #    self.organization.record_event(
+        #        tag=EventTag.Organization.OrganizationRename,
+        #        request=self.request,
+        #        additional={
+        #            "previous_organization_name": previous_organization_name,
+        #            "renamed_by_user_id": str(self.request.user.id),
+        #        },
+        #    )
+        #    owner_users = set(organization_owners(self.request, self.organization))
+        #    send_organization_renamed_email(
+        #        self.request,
+        #        owner_users,
+        #        organization_name=self.organization.name,
+        #        previous_organization_name=previous_organization_name,
+        #    )
+        #    self.request.session.flash(
+        #        "Organization account name updated", queue="success"
+        #    )
+        #    return HTTPSeeOther(
+        #        self.request.route_path(
+        #            "manage.organization.settings",
+        #            organization_name=self.organization.normalized_name,
+        #        )
+        #        + "#modal-close"
+        #    )
+
+        # return {**self.default_response, "save_organization_name_form": form}
 
     @view_config(request_method="POST", request_param=["confirm_organization_name"])
     def delete_organization(self):
@@ -441,11 +517,6 @@ class ManageOrganizationSettingsViews:
 
         self.organization_service.delete_organization(self.organization.id)
 
-        send_admin_organization_deleted_email(
-            self.request,
-            self.user_service.get_admin_user(),
-            organization_name=self.organization.name,
-        )
         send_organization_deleted_email(
             self.request,
             owner_users,
@@ -554,9 +625,19 @@ class ManageOrganizationBillingViews:
         renderer="manage/organization/activate_subscription.html",
     )
     def activate_subscription(self):
-        # We're not ready for companies to activate their own subscriptions yet.
-        raise HTTPNotFound()
-        # return {"organization": self.organization}
+        form = OrganizationActivateBillingForm(self.request.POST)
+        if self.request.method == "POST" and form.validate():
+            self.organization_service.record_tos_engagement(
+                self.organization.id,
+                self.request.registry.settings.get("terms.revision"),
+                TermsOfServiceEngagement.Agreed,
+            )
+            route = self.request.route_path(
+                "manage.organization.subscription",
+                organization_name=self.organization.normalized_name,
+            )
+            return HTTPSeeOther(route)
+        return {"organization": self.organization, "form": form}
 
     @view_config(route_name="manage.organization.subscription")
     def create_or_manage_subscription(self):
@@ -564,8 +645,10 @@ class ManageOrganizationBillingViews:
         if not self.request.organization_access:
             raise HTTPNotFound()
 
-        if not self.organization.subscriptions:
-            # Create subscription if there are no existing subscription.
+        if not self.organization.manageable_subscription:
+            # Create subscription if there are no manageable subscription.
+            # This occurs if no subscription exists, or all subscriptions have reached
+            # a terminal state of Canceled.
             return self.create_subscription()
         else:
             # Manage subscription if there is an existing subscription.
@@ -1478,18 +1561,16 @@ def transfer_organization_project(project, request):
 
     all_user_organizations = user_organizations(request)
     active_organizations_owned = {
-        organization.name
+        organization
         for organization in all_user_organizations["organizations_owned"]
         if organization.is_active
     }
     active_organizations_managed = {
-        organization.name
+        organization
         for organization in all_user_organizations["organizations_managed"]
         if organization.is_active
     }
-    current_organization = (
-        {project.organization.name} if project.organization else set()
-    )
+    current_organization = {project.organization} if project.organization else set()
     organization_choices = (
         active_organizations_owned | active_organizations_managed
     ) - current_organization
@@ -1573,7 +1654,7 @@ def transfer_organization_project(project, request):
         orm.attributes.flag_dirty(organization)
 
     # Add project to selected organization.
-    organization = organization_service.get_organization_by_name(form.organization.data)
+    organization = organization_service.get_organization(form.organization.data)
     organization_service.add_organization_project(organization.id, project.id)
     organization.record_event(
         tag=EventTag.Organization.OrganizationProjectAdd,

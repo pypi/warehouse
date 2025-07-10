@@ -1,15 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -35,14 +24,6 @@ INGREDIENT = "fakeingredientname"
 # validate the format when verifying the JWT. That should happen when the
 # Publisher is configured.  We just need to make sure that the subject matches
 SUBJECT = f"org:{ORG_URL_NAME}:project:{PROJECT_NAME}"
-
-
-def test_lookup_strategies():
-    assert (
-        len(ActiveStatePublisher.__lookup_strategies__)
-        == len(PendingActiveStatePublisher.__lookup_strategies__)
-        == 1
-    )
 
 
 def new_signed_claims(
@@ -83,6 +64,18 @@ class TestActiveStatePublisher:
         publisher = ActiveStatePublisher()
 
         assert publisher.publisher_name == "ActiveState"
+
+    def test_publisher_base_url(self):
+        org_name = "fakeorg"
+        project_name = "fakeproject"
+        publisher = ActiveStatePublisher(
+            organization=org_name, activestate_project_name=project_name
+        )
+
+        assert (
+            publisher.publisher_base_url
+            == f"https://platform.activestate.com/{org_name}/{project_name}"
+        )
 
     def test_publisher_url(self):
         org_name = "fakeorg"
@@ -140,16 +133,10 @@ class TestActiveStatePublisher:
         }
 
     def test_activestate_publisher_unaccounted_claims(self, monkeypatch):
-        publisher = ActiveStatePublisher(
-            organization=ORG_URL_NAME,
-            activestate_project_name=PROJECT_NAME,
-            actor_id=ACTOR_ID,
-        )
-
         scope = pretend.stub()
         sentry_sdk = pretend.stub(
             capture_message=pretend.call_recorder(lambda s: None),
-            push_scope=pretend.call_recorder(
+            new_scope=pretend.call_recorder(
                 lambda: pretend.stub(
                     __enter__=lambda *a: scope, __exit__=lambda *a: None
                 )
@@ -161,7 +148,7 @@ class TestActiveStatePublisher:
         signed_claims["fake-claim"] = "fake"
         signed_claims["another-fake-claim"] = "also-fake"
 
-        assert publisher.verify_claims(signed_claims=signed_claims)
+        ActiveStatePublisher.check_claims_existence(signed_claims)
 
         assert sentry_sdk.capture_message.calls == [
             pretend.call(
@@ -198,7 +185,7 @@ class TestActiveStatePublisher:
         scope = pretend.stub()
         sentry_sdk = pretend.stub(
             capture_message=pretend.call_recorder(lambda s: None),
-            push_scope=pretend.call_recorder(
+            new_scope=pretend.call_recorder(
                 lambda: pretend.stub(
                     __enter__=lambda *a: scope, __exit__=lambda *a: None
                 )
@@ -211,10 +198,17 @@ class TestActiveStatePublisher:
 
         assert claim_to_drop not in signed_claims
         if valid:
-            assert publisher.verify_claims(signed_claims=signed_claims) is valid
+            ActiveStatePublisher.check_claims_existence(signed_claims)
+            assert (
+                publisher.verify_claims(
+                    signed_claims=signed_claims, publisher_service=pretend.stub
+                )
+                is valid
+            )
         else:
             with pytest.raises(InvalidPublisherError) as e:
-                assert publisher.verify_claims(signed_claims=signed_claims)
+                ActiveStatePublisher.check_claims_existence(signed_claims)
+
             assert str(e.value) == error_msg
             assert sentry_sdk.capture_message.calls == [
                 pretend.call(
@@ -336,6 +330,44 @@ class TestActiveStatePublisher:
             with pytest.raises(InvalidPublisherError) as e:
                 check(expected, actual, signed_claims)
             assert str(e.value) == error_msg
+
+    @pytest.mark.parametrize(
+        ("url", "expected"),
+        [
+            ("https://platform.activestate.com/repository_name/project_name", True),
+            ("https://platform.activestate.com/repository_name/PrOjECt_NaMe", False),
+        ],
+    )
+    def test_activestate_publisher_verify_url(self, url, expected):
+        publisher = ActiveStatePublisher(
+            organization="repository_name",
+            activestate_project_name="project_name",
+            actor_id=ACTOR_ID,
+            actor=ACTOR,
+        )
+        assert publisher.verify_url(url) == expected
+
+    @pytest.mark.parametrize("exists_in_db", [True, False])
+    def test_exists(self, db_request, exists_in_db):
+        publisher = ActiveStatePublisher(
+            organization="repository_name",
+            activestate_project_name="project_name",
+            actor_id=ACTOR_ID,
+            actor=ACTOR,
+        )
+
+        if exists_in_db:
+            db_request.db.add(publisher)
+            db_request.db.flush()
+
+        assert publisher.exists(db_request.db) == exists_in_db
+
+    def test_lookup_no_matching_publishers(self, db_request):
+        signed_claims = new_signed_claims(actor_id="my_id")
+
+        with pytest.raises(InvalidPublisherError) as e:
+            ActiveStatePublisher.lookup_by_claims(db_request.db, signed_claims)
+        assert str(e.value) == "Publisher with matching claims was not found"
 
 
 class TestPendingActiveStatePublisher:

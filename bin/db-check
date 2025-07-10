@@ -1,0 +1,16 @@
+#!/bin/bash
+set -ex
+
+# When on GitHub Actions, if a label is present on the PR, skip the check.
+if [ -n "$GITHUB_ACTIONS" ]; then
+  if [ -n "$GITHUB_EVENT_PATH" ]; then
+    if jq -e '.pull_request.labels | map(.name) | index("skip-db-check")' < "$GITHUB_EVENT_PATH" > /dev/null; then
+      echo "Skipping database check due to 'skip-db-check' label"
+      exit 0
+    fi
+  fi
+fi
+
+# Check for outstanding database migrations
+python -m warehouse db upgrade head
+python -m warehouse db check

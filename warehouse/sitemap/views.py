@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import collections
 import datetime
@@ -27,6 +17,10 @@ SITEMAP_MAXSIZE = 50000
 
 
 Bucket = collections.namedtuple("Bucket", ["name", "modified"])
+
+
+class BucketTooSmallError(ValueError):
+    pass
 
 
 @view_config(
@@ -84,15 +78,15 @@ def sitemap_index(request):
         .group_by(User.sitemap_bucket)
         .all()
     )
-    buckets = {}
+    buckets: dict[str, datetime.datetime] = {}
     for b in itertools.chain(projects, users):
         current = buckets.setdefault(b.sitemap_bucket, b.modified)
         if current is None or (b.modified is not None and b.modified > current):
             buckets[b.sitemap_bucket] = b.modified
-    buckets = [Bucket(name=k, modified=v) for k, v in buckets.items()]
-    buckets.sort(key=lambda x: x.name)
+    bucket_list = [Bucket(name=k, modified=v) for k, v in buckets.items()]
+    bucket_list.sort(key=lambda x: x.name)
 
-    return {"buckets": buckets}
+    return {"buckets": bucket_list}
 
 
 @view_config(
@@ -147,7 +141,7 @@ def sitemap_bucket(request):
     # out so that we can adjust our bucket size to spread the URLs out over
     # more buckets.
     if len(urls) > SITEMAP_MAXSIZE:
-        raise ValueError(
+        raise BucketTooSmallError(
             "Too many URLs in the sitemap for bucket: {!r}.".format(
                 request.matchdict["bucket"]
             )

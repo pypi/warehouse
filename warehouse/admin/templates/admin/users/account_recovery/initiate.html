@@ -1,0 +1,98 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
+{% extends "admin/base.html" %}
+
+{% block title %}{{ user.username }} - Initiate Account Recovery{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ request.route_path('admin.user.detail', username=user.username) }}">{{ user.username }}</a></li>
+<li class="breadcrumb-item active">Initiate Account Recovery</li>
+{% endblock %}
+
+{% block content %}
+<form action="" method=POST>
+  <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+  <div class="card">
+    <div class="card-header with-border">
+      <h3 class="card-title">1. Confirm user details</h3>
+    </div>
+    <div class="card-body">
+      <table class="table table-hover">
+        <tr>
+          <th>TOTP Enabled</th>
+          <th>{% if user.totp_secret %}<i class="fa fa-check text-green"></i>{% else %}<i class="fa fa-times text-red"></i>{% endif %}</th>
+        </tr>
+        <tr>
+          <th>WebAuthn Enabled</th>
+          <th>{% if user.webauthn %}<i class="fa fa-check text-green"></i>{% else %}<i class="fa fa-times text-red"></i>{% endif %}</th>
+        </tr>
+        <tr>
+          <th>Recovery Codes Generated</th>
+          <th>{% if user.has_recovery_codes %}<i class="fa fa-check text-green"></i>{% else %}<i class="fa fa-times text-red"></i>{% endif %}</th>
+        </tr>
+        <tr>
+          <th>Recovery Codes Used</th>
+          {% set n_codes = user.recovery_codes.all()|length %}
+          {% set n_remaining = user.recovery_codes.filter_by(burned=None).all()|length %}
+          <th>{{ n_codes - n_remaining }}/{{ n_codes }}</td>
+        </tr>
+      </table>
+    </div>
+  </div> <!-- .card -->
+
+  <div class="card">
+    <div class="card-header with-border">
+      <h3 class="card-title">2. Provide support issue link</h3>
+    </div>
+    <div class="card-body">
+      <div class="input-group input-group-lg">
+        <input name="support_issue_link" type="text" class="form-control input-lg" placeholder="https://github.com/pypi/support/issues/..."{% if query %} value="{{ query }}"{% endif %}>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header with-border">
+      <h3 class="card-title">3. Select a Project to use for verification</h3>
+    </div>
+    <div class="card-body">
+      <p class="card-text">
+        Ensure that the Project has at least one reachable URL that leads to a public source code repository.
+      </p>
+    {% if repo_urls %}
+      {% for project_name, repo_urls in repo_urls.items() %}
+        {% if repo_urls %}
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="project_name" value="{{ project_name }}" name="{{ project_name }}">
+            <label class="form-check-label" for="{{ project_name }}"><a href="{{ request.route_url("admin.project.detail", project_name=project_name) }}">{{ project_name }}</a></label>
+            <ul>
+            {% for kind, repo_url in repo_urls %}
+              <li>{{ kind }}: <a href="{{ repo_url }}" data-check-link-url="{{ request.camo_url(repo_url) }}"><i class="fa fa-question"></i> {{ repo_url }}</a></li>
+            {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      <i>No repos found. You can proceed with recovery based on response alone.</i>
+    {% endif %}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header with-border">
+      <h3 class="card-title">4. Send a recovery notification email</h3>
+    </div>
+    <div class="card-body">
+      <p>If you need to send the recovery instructions to an alternate email, please enter it below.</p>
+      <div class="input-group input-group-lg">
+        <input name="override_to_email" type="text" class="form-control input-lg" placeholder="user@example.com"{% if query %} value="{{ query }}"{% endif %}>
+      </div>
+    </div>
+    <div class="card-body">
+      <button type="submit" class="btn btn-danger">Submit</button>
+    </div>
+   </form>
+  </div>
+
+{% endblock %}

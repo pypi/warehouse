@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -21,7 +11,7 @@ class TestReAuthView:
         assert set(manage.reauth_view.options) == {"require_reauth"}
 
     @pytest.mark.parametrize(
-        "require_reauth, needs_reauth_calls",
+        ("require_reauth", "needs_reauth_calls"),
         [
             (True, [pretend.call(manage.DEFAULT_TIME_TO_REAUTH)]),
             (666, [pretend.call(666)]),
@@ -52,7 +42,7 @@ class TestReAuthView:
         assert request.session.needs_reauthentication.calls == needs_reauth_calls
 
     @pytest.mark.parametrize(
-        "require_reauth, needs_reauth_calls",
+        ("require_reauth", "needs_reauth_calls"),
         [
             (True, [pretend.call(manage.DEFAULT_TIME_TO_REAUTH)]),
             (666, [pretend.call(666)]),

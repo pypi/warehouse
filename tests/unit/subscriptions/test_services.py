@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import importlib
 
@@ -59,11 +49,13 @@ class TestStripeBillingService:
             api=api,
             publishable_key="secret_to_everybody",
             webhook_secret="keep_it_secret_keep_it_safe",
+            domain="tests",
         )
 
         assert billing_service.api is api
         assert billing_service.publishable_key == "secret_to_everybody"
         assert billing_service.webhook_secret == "keep_it_secret_keep_it_safe"
+        assert billing_service.domain == "tests"
 
     def test_create_service(self):
         # Reload stripe to reset the global stripe.api_key to default.
@@ -77,6 +69,7 @@ class TestStripeBillingService:
                     "billing.secret_key": "sk_test_123",
                     "billing.publishable_key": "pk_test_123",
                     "billing.webhook_key": "whsec_123",
+                    "billing.domain": "tests",
                 }
             )
         )
@@ -87,6 +80,7 @@ class TestStripeBillingService:
         assert billing_service.api.api_key == "sk_test_123"
         assert billing_service.publishable_key == "pk_test_123"
         assert billing_service.webhook_secret == "whsec_123"
+        assert billing_service.domain == "tests"
 
 
 class TestMockStripeBillingService:
@@ -100,11 +94,13 @@ class TestMockStripeBillingService:
             api=api,
             publishable_key="secret_to_everybody",
             webhook_secret="keep_it_secret_keep_it_safe",
+            domain="tests",
         )
 
         assert billing_service.api is api
         assert billing_service.publishable_key == "secret_to_everybody"
         assert billing_service.webhook_secret == "keep_it_secret_keep_it_safe"
+        assert billing_service.domain == "tests"
 
     def test_create_service(self):
         request = pretend.stub(
@@ -420,11 +416,13 @@ class TestGenericBillingService:
             api=api,
             publishable_key="secret_to_everybody",
             webhook_secret="keep_it_secret_keep_it_safe",
+            domain="tests",
         )
 
         assert billing_service.api is api
         assert billing_service.publishable_key == "secret_to_everybody"
         assert billing_service.webhook_secret == "keep_it_secret_keep_it_safe"
+        assert billing_service.domain == "tests"
 
     def test_notimplementederror(self):
         with pytest.raises(NotImplementedError):
@@ -444,7 +442,7 @@ class TestStripeSubscriptionService:
     def test_verify_service(self):
         assert verifyClass(ISubscriptionService, services.StripeSubscriptionService)
 
-    def test_service_creation(self, remote_addr):
+    def test_service_creation(self):
         session = pretend.stub()
         service = services.StripeSubscriptionService(session)
 

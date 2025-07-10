@@ -1,0 +1,21 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
+{% extends "email/_base/body.txt" %}
+
+{% block content %}
+{% trans %}Someone, perhaps you, has made a password reset request for a PyPI account associated with this email address.{% endtrans %}
+
+{% trans %}However, the email used to make this request is not verified. Your email address must be verified before you can use it to reset your password.{% endtrans %}
+
+{% trans %}If you have another verified email address associated with your PyPI account, try that instead.{% endtrans %}
+
+{% trans %}If you cannot use another verified email, follow account recovery steps for your PyPI account.{% endtrans %}
+
+    {{ request.route_url('help', _anchor='account-recovery') }}
+
+{% trans %}Read more about verified emails:{% endtrans %}
+
+    {{ request.route_url('help', _anchor='verified-email') }}
+
+{% trans %}If you did not make this request, you can safely ignore this email.{% endtrans %}
+{% endblock %}

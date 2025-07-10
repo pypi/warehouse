@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -16,7 +6,7 @@ import pytest
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 
 from warehouse.legacy.api import json
-from warehouse.packaging.models import ReleaseURL
+from warehouse.packaging.models import LifecycleStatus, ReleaseURL
 
 from ....common.db.accounts import UserFactory
 from ....common.db.integrations import VulnerabilityRecordFactory
@@ -117,6 +107,18 @@ class TestLatestReleaseFactory:
         release = ReleaseFactory.create(project=project, version="2.0.dev0")
         db_request.matchdict = {"name": project.normalized_name}
         assert json.latest_release_factory(db_request) == release
+
+    def test_project_quarantined(self, monkeypatch, db_request):
+        project = ProjectFactory.create(
+            lifecycle_status=LifecycleStatus.QuarantineEnter
+        )
+        ReleaseFactory.create(project=project, version="1.0")
+
+        db_request.matchdict = {"name": project.normalized_name}
+        resp = json.latest_release_factory(db_request)
+
+        assert isinstance(resp, HTTPNotFound)
+        _assert_has_cors_headers(resp.headers)
 
 
 class TestJSONProject:
@@ -236,6 +238,8 @@ class TestJSONProject:
                 "home_page": None,
                 "keywords": None,
                 "license": None,
+                "license_expression": None,
+                "license_files": None,
                 "maintainer": None,
                 "maintainer_email": None,
                 "name": project.name,
@@ -399,8 +403,20 @@ class TestReleaseFactory:
         assert isinstance(resp, HTTPNotFound)
         _assert_has_cors_headers(resp.headers)
 
+    def test_project_quarantined(self, db_request):
+        project = ProjectFactory.create(
+            lifecycle_status=LifecycleStatus.QuarantineEnter
+        )
+        ReleaseFactory.create(project=project, version="1.0")
+
+        db_request.matchdict = {"name": project.normalized_name, "version": "1.0"}
+        resp = json.release_factory(db_request)
+
+        assert isinstance(resp, HTTPNotFound)
+        _assert_has_cors_headers(resp.headers)
+
     @pytest.mark.parametrize(
-        "other_versions,the_version,lookup_version",
+        ("other_versions", "the_version", "lookup_version"),
         [
             (["0.1", "1.0", "2.0"], "3.0", "3.0"),
             (["0.1", "1.0", "2.0"], "3.0.0", "3.0"),
@@ -548,6 +564,8 @@ class TestJSONRelease:
                 "home_page": None,
                 "keywords": None,
                 "license": None,
+                "license_expression": None,
+                "license_files": None,
                 "maintainer": None,
                 "maintainer_email": None,
                 "name": project.name,
@@ -640,6 +658,8 @@ class TestJSONRelease:
                 "home_page": None,
                 "keywords": None,
                 "license": None,
+                "license_expression": None,
+                "license_files": None,
                 "maintainer": None,
                 "maintainer_email": None,
                 "name": project.name,
@@ -683,7 +703,7 @@ class TestJSONRelease:
             "vulnerabilities": [],
         }
 
-    @pytest.mark.parametrize("withdrawn", (None, "2022-06-28T16:39:06Z"))
+    @pytest.mark.parametrize("withdrawn", [None, "2022-06-28T16:39:06Z"])
     def test_vulnerabilities_renders(self, pyramid_config, db_request, withdrawn):
         project = ProjectFactory.create(has_docs=False)
         release = ReleaseFactory.create(project=project, version="0.1")

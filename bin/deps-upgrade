@@ -1,0 +1,62 @@
+#!/bin/bash
+
+usage() {
+  echo "Usage: $0 [OPTIONS]"
+  echo "Options:"
+  echo "  -h, --help     Display this help message"
+  echo "  -a, --all      Upgrade all dependencies"
+  echo "  -p, --package  PACKAGE_NAME Upgrade a specific package"
+}
+
+has_argument() {
+    [[ ("$1" == *=* && -n ${1#*=}) || ( ! -z "$2" && "$2" != -*)  ]];
+}
+
+extract_argument() {
+  echo "${2:-${1#*=}}"
+}
+
+pip_compile_args=""
+
+handle_options() {
+  while [ $# -gt 0 ]; do
+    case $1 in
+      -h | --help)
+        usage
+        exit 0
+        ;;
+      -a | --all)
+        pip_compile_args="--upgrade"
+        ;;
+      -p | --package*)
+        if ! has_argument $@; then
+          echo "Project name not specified." >&2
+          usage
+          exit 1
+        fi
+
+        pip_compile_args="--upgrade-package $(extract_argument $@)"
+
+        shift
+        ;;
+      *)
+        echo "Invalid option: $1" >&2
+        usage
+        exit 1
+        ;;
+    esac
+    shift
+  done
+}
+
+# Main script execution
+handle_options "$@"
+
+set -ex
+pip-compile --allow-unsafe --generate-hashes $pip_compile_args --output-file=requirements/deploy.txt requirements/deploy.in
+pip-compile --allow-unsafe --generate-hashes $pip_compile_args --output-file=requirements/main.txt requirements/main.in
+pip-compile --allow-unsafe --generate-hashes $pip_compile_args --output-file=requirements/lint.txt requirements/lint.in
+pip-compile --allow-unsafe --generate-hashes $pip_compile_args --output-file=requirements/tests.txt requirements/tests.in
+pip-compile --allow-unsafe --generate-hashes $pip_compile_args --output-file=requirements/docs-dev.txt requirements/docs-dev.in
+pip-compile --allow-unsafe --generate-hashes $pip_compile_args --output-file=requirements/docs-user.txt requirements/docs-user.in
+pip-compile --allow-unsafe --generate-hashes $pip_compile_args --output-file=requirements/docs-blog.txt requirements/docs-blog.in

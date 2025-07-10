@@ -10,7 +10,7 @@ tags:
   - security
 ---
 
-On June 28, 2024 security@pypi.org and I (Ee Durbin) were notified of
+On June 28, 2024 <security@pypi.org> and I (Ee Durbin) were notified of
 a leaked GitHub Personal Access Token for my GitHub user account, `ewdurbin`.
 This token was immediately revoked,
 and a review of my GitHub account and activity was performed.
@@ -36,7 +36,7 @@ No indicators of malicious activity were found.
     removed from hub.docker.com for reasons unrelated to this report[^4].
 - 2024-06-28 7:09 AM Eastern:
     Brian Moussalli of JFrog reports their finding of the
-    GitHub Personal Access Token for `ewdurbin` to security@pypi.org and Ee's
+    GitHub Personal Access Token for `ewdurbin` to <security@pypi.org> and Ee's
     personal email address.
 - 2024-06-28 7:26 AM Eastern:
     GitHub Personal Access Token for `ewdurbin` destroyed.
@@ -131,11 +131,11 @@ You can read their blog post on this finding
 We are grateful for the entire community of security researchers
 undertaking scanning of public repositories like Docker Hub and PyPI itself.
 PyPI relies on the efforts of this community for detecting
-[Malware uploaded to PyPI](/posts/2024-03-06-malware-reporting-evolved/)
+[Malware uploaded to PyPI](2024-03-06-malware-reporting-evolved.md)
 and
 [integrates with GitHub](https://github.blog/changelog/2021-03-22-the-python-package-index-is-now-a-github-secret-scanning-integrator/)
 to automatically handle leaked PyPI credentials in commits as well as
-[in public issues](/posts/2023-08-17-github-token-scanning-for-public-repos/).
+[in public issues](2023-08-17-github-token-scanning-for-public-repos.md).
 Cooperation between all parties helps to improve the security of open source,
 and none of us could do it alone.
 
@@ -145,7 +145,6 @@ _Ee Durbin is the Director of Infrastructure at
 the Python Software Foundation.
 They have been contributing to keeping PyPI online, available, and
 secure since 2013._
-
 
 [^1]:
     Exact date is unknown, as
@@ -157,14 +156,14 @@ secure since 2013._
     and were not noted before the token was destroyed.
     We've asked JFrog if their findings include the token level permissions
     and will update this post if they provide them.
-    
+
     **Edit**: JFrog provided these dates from their findings on 2024-07-09.
 [^3]:
     Publication dates are not known because hub.docker.com does not retain any
     history for images which have been removed.
     We've asked JFrog if their findings include the publication dates
     and will update this post if they provide them.
-    
+
     **Edit**: JFrog provided these dates from their findings on 2024-07-09.
 [^4]:
     `cabotage-app` had moved its builds to an automated system. The images on
@@ -174,7 +173,7 @@ secure since 2013._
     [warehouse codebase](https://github.com/pypi/warehouse)
     as well as related services that compose PyPI.
     You can read more about cabotage in our blog post from our
-    [security audit of the codebase](/posts/2023-11-14-3-security-audit-remediation-cabotage/).
+    [security audit of the codebase](2023-11-14-3-security-audit-remediation-cabotage.md).
 [^6]:
     Better still, the internal private registry used for cabotage builds uses
     [fine-grained Docker authentication](https://github.com/cabotage/cabotage-app/blob/0c960f9a6683d0ced7a3be7a757edf87aff5695b/cabotage/server/models/projects.py#L586-L601)

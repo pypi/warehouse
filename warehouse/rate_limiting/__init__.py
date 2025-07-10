@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import functools
 import logging
@@ -17,10 +7,10 @@ from datetime import datetime, timezone
 
 import redis
 
-from first import first
 from limits import parse_many
 from limits.storage import storage_from_string
 from limits.strategies import MovingWindowRateLimiter
+from more_itertools import first_true
 from zope.interface import implementer
 
 from warehouse.metrics import IMetricsService
@@ -113,7 +103,7 @@ class RateLimiter:
         # If we have any resets, then we'll go through and find whichever one
         # is going to reset soonest and use that as our hint for when this
         # limit might be available again.
-        return first(sorted(resets))
+        return first_true(sorted(resets))
 
 
 @implementer(IRateLimiter)

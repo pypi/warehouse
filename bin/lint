@@ -1,21 +1,12 @@
 #!/bin/bash
-set -e
-
-# Click requires us to ensure we have a well configured environment to run
-# our click commands. So we'll set our environment to ensure our locale is
-# correct.
-export LC_ALL="${ENCODING:-en_US.UTF-8}"
-export LANG="${ENCODING:-en_US.UTF-8}"
-
-# Print all the following commands
-set -x
+set -ex
 
 # Actually run our tests.
-find . -name '*.py' -exec python -m pyupgrade --py312-plus {} +
+find . -name '*.py' -exec python -m pyupgrade --py313-plus {} +
 python -m flake8 .
 python -m black --check --diff *.py warehouse/ tests/
 python -m isort --check *.py warehouse/ tests/
-python -m doc8 --allow-long-titles README.rst CONTRIBUTING.rst docs/ --ignore-path "docs/**/_build/"
-python -m curlylint ./warehouse/templates ./docs/blog
+sphinx-lint --enable=all --disable=line-too-long README.rst CONTRIBUTING.rst docs/dev/ --ignore=docs/dev/_build/
+python -m djlint --check --lint ./warehouse/templates ./docs/blog
 python -m mypy -p warehouse
 ./bin/flushes

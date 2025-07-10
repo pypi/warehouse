@@ -1,16 +1,7 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from pyramid import events, viewderivers
+from pyramid.request import Request
 from pyramid_retry import IBeforeRetry
 
 from warehouse.metrics import event_handlers
@@ -19,6 +10,10 @@ from warehouse.metrics.services import DataDogMetrics, NullMetrics
 from warehouse.metrics.views import timing_view
 
 __all__ = ["IMetricsService", "NullMetrics", "DataDogMetrics", "includeme"]
+
+
+def _metrics(request: Request) -> IMetricsService:
+    return request.find_service(IMetricsService)
 
 
 def includeme(config):
@@ -38,3 +33,6 @@ def includeme(config):
 
     # Register our view deriver that ensures we get our view timed.
     config.add_view_deriver(timing_view, under=viewderivers.INGRESS)
+
+    # Add the metrics service to the request.
+    config.add_request_method(_metrics, name="metrics", reify=True)

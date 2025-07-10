@@ -1,14 +1,5 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
 from __future__ import annotations
 
 import datetime
@@ -29,7 +20,7 @@ from sqlalchemy import (
     select,
     sql,
 )
-from sqlalchemy.dialects.postgresql import CITEXT, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import ARRAY, CITEXT, UUID as PG_UUID
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column
@@ -37,9 +28,10 @@ from sqlalchemy.orm import Mapped, mapped_column
 from warehouse import db
 from warehouse.authnz import Permissions
 from warehouse.events.models import HasEvents
-from warehouse.observations.models import HasObservers
+from warehouse.observations.models import HasObservations, HasObservers, ObservationKind
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils.attrs import make_repr
+from warehouse.utils.db import orm_session_from_obj
 from warehouse.utils.db.types import TZDateTime, bool_false, datetime_now
 
 if TYPE_CHECKING:
@@ -72,7 +64,7 @@ class DisableReason(enum.Enum):
     AdminInitiated = "admin initiated"
 
 
-class User(SitemapMixin, HasObservers, HasEvents, db.Model):
+class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
     __tablename__ = "users"
     __table_args__ = (
         CheckConstraint("length(username) <= 50", name="users_valid_username_length"),
@@ -93,6 +85,7 @@ class User(SitemapMixin, HasObservers, HasEvents, db.Model):
     is_active: Mapped[bool_false]
     is_frozen: Mapped[bool_false]
     is_superuser: Mapped[bool_false]
+    is_support: Mapped[bool_false]
     is_moderator: Mapped[bool_false]
     is_psf_staff: Mapped[bool_false]
     is_observer: Mapped[bool_false] = mapped_column(
@@ -134,6 +127,7 @@ class User(SitemapMixin, HasObservers, HasEvents, db.Model):
 
     organization_applications: Mapped[list[OrganizationApplication]] = orm.relationship(
         back_populates="submitted_by",
+        cascade="all, delete-orphan",
     )
 
     organizations: Mapped[list[Organization]] = orm.relationship(
@@ -175,6 +169,15 @@ class User(SitemapMixin, HasObservers, HasEvents, db.Model):
         lazy=True,
         viewonly=True,
         order_by="Team.name",
+    )
+
+    terms_of_service_engagements: Mapped[list[UserTermsOfServiceEngagement]] = (
+        orm.relationship(
+            back_populates="user",
+            cascade="all, delete-orphan",
+            lazy=True,
+            viewonly=True,
+        )
     )
 
     @property
@@ -234,7 +237,7 @@ class User(SitemapMixin, HasObservers, HasEvents, db.Model):
 
     @property
     def recent_events(self):
-        session = orm.object_session(self)
+        session = orm_session_from_obj(self)
         last_ninety = datetime.datetime.now() - datetime.timedelta(days=90)
         return (
             session.query(User.Event)
@@ -249,18 +252,30 @@ class User(SitemapMixin, HasObservers, HasEvents, db.Model):
         return not any(
             [
                 self.is_superuser,
+                self.is_support,
                 self.is_moderator,
                 self.is_psf_staff,
                 self.prohibit_password_reset,
             ]
         )
 
+    @property
+    def active_account_recoveries(self):
+        return [
+            observation
+            for observation in self.observations
+            if observation.kind == ObservationKind.AccountRecovery.value[0]
+            and observation.additional["status"] == "initiated"
+        ]
+
     def __principals__(self) -> list[str]:
         principals = [Authenticated, f"user:{self.id}"]
 
         if self.is_superuser:
             principals.append("group:admins")
-        if self.is_moderator or self.is_superuser:
+        if self.is_support:
+            principals.append("group:support")
+        if self.is_moderator or self.is_superuser or self.is_support:
             principals.append("group:moderators")
         if self.is_psf_staff or self.is_superuser:
             principals.append("group:psf_staff")
@@ -281,6 +296,18 @@ class User(SitemapMixin, HasObservers, HasEvents, db.Model):
                 (
                     Permissions.AdminUsersRead,
                     Permissions.AdminUsersWrite,
+                    Permissions.AdminUsersEmailWrite,
+                    Permissions.AdminUsersAccountRecoveryWrite,
+                    Permissions.AdminDashboardSidebarRead,
+                ),
+            ),
+            (
+                Allow,
+                "group:support",
+                (
+                    Permissions.AdminUsersRead,
+                    Permissions.AdminUsersEmailWrite,
+                    Permissions.AdminUsersAccountRecoveryWrite,
                     Permissions.AdminDashboardSidebarRead,
                 ),
             ),
@@ -293,6 +320,37 @@ class User(SitemapMixin, HasObservers, HasEvents, db.Model):
 
     def __lt__(self, other):
         return self.username < other.username
+
+
+class TermsOfServiceEngagement(enum.Enum):
+    Flashed = "flashed"
+    Notified = "notified"
+    Viewed = "viewed"
+    Agreed = "agreed"
+
+
+class UserTermsOfServiceEngagement(db.Model):
+    __tablename__ = "user_terms_of_service_engagements"
+    __table_args__ = (
+        Index(
+            "user_terms_of_service_engagements_user_id_revision_idx",
+            "user_id",
+            "revision",
+        ),
+    )
+
+    __repr__ = make_repr("user_id")
+
+    user_id: Mapped[UUID] = mapped_column(
+        ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"),
+    )
+    revision: Mapped[str]
+    created: Mapped[datetime.datetime] = mapped_column(TZDateTime)
+    engagement: Mapped[TermsOfServiceEngagement]
+
+    user: Mapped[User] = orm.relationship(
+        lazy=True, back_populates="terms_of_service_engagements"
+    )
 
 
 class WebAuthn(db.Model):
@@ -333,6 +391,7 @@ class UnverifyReasons(enum.Enum):
     SpamComplaint = "spam complaint"
     HardBounce = "hard bounce"
     SoftBounce = "soft bounce"
+    DomainInvalid = "domain status invalid"
 
 
 class Email(db.ModelBase):
@@ -357,6 +416,16 @@ class Email(db.ModelBase):
     unverify_reason: Mapped[UnverifyReasons | None]
     transient_bounces: Mapped[int] = mapped_column(server_default=sql.text("0"))
 
+    # Domain validation information
+    domain_last_checked: Mapped[datetime.datetime | None] = mapped_column(
+        comment="Last time domain was checked with the domain validation service.",
+        index=True,
+    )
+    domain_last_status: Mapped[list[str] | None] = mapped_column(
+        ARRAY(String),
+        comment="Status strings returned by the domain validation service.",
+    )
+
     @property
     def domain(self):
         return self.email.split("@")[-1].lower()
@@ -368,6 +437,9 @@ class ProhibitedEmailDomain(db.Model):
 
     created: Mapped[datetime_now]
     domain: Mapped[str] = mapped_column(unique=True)
+    is_mx_record: Mapped[bool_false] = mapped_column(
+        comment="Prohibit any domains that have this domain as an MX record?"
+    )
     _prohibited_by: Mapped[UUID | None] = mapped_column(
         "prohibited_by",
         PG_UUID(as_uuid=True),

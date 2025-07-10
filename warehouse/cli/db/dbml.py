@@ -1,18 +1,8 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import json
 
-from collections.abc import Iterator
+from collections.abc import Iterable
 from typing import Literal, NotRequired, TypedDict
 
 import click
@@ -95,7 +85,7 @@ class TableInfo(TypedDict):
     comment: NotRequired[str]
 
 
-def generate_dbml_file(tables: Iterator[Table], _output: str | None) -> None:
+def generate_dbml_file(tables: Iterable[Table], _output: str | None) -> None:
     file = click.open_file(_output, "w") if _output else click.open_file("-", "w")
 
     tables_info = {}

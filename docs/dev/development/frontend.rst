@@ -21,11 +21,11 @@ container:
 
 .. code-block:: console
 
-    $ # install dependencies
-    $ docker compose run --rm static npm install
+    # install dependencies
+    docker compose run --rm static npm install
 
-    $ # start a build
-    $ docker compose run --rm static npm run build
+    # start a build
+    docker compose run --rm static npm run build
 
 
 Building outside of Docker
@@ -151,3 +151,25 @@ One of these blocks provides code syntax highlighting, which can be tested with
 reference project provided at `<http://localhost/project/pypi-code-highlighting-demo/>`_
 when using development database. Source reStructuredText file is available
 `here <https://github.com/evemorgen/pypi-code-highlighting-demo>`_.
+
+
+Javascript localization support
+-------------------------------
+
+Strings in JS can be translated, see the see the :doc:`../translations` docs.
+
+As part of the webpack build,
+the translation data for each locale in ``KNOWN_LOCALES``
+is placed in |warehouse/static/js/warehouse/utils/messages-access.js|_.
+
+A separate js bundle is generated for each locale,
+named like this: ``warehouse.[locale].[contenthash].js``.
+
+The JS bundle to include is selected in |warehouse/templates/base.html|_
+using the current :code:`request.localizer.locale_name`.
+
+.. |warehouse/static/js/warehouse/utils/messages-access.js| replace:: ``warehouse/static/js/warehouse/utils/messages-access.js``
+.. _warehouse/static/js/warehouse/utils/messages-access.js: https://github.com/pypi/warehouse/blob/main/warehouse/static/js/warehouse/utils/messages-access.js
+
+.. |warehouse/templates/base.html| replace:: ``warehouse/templates/base.html``
+.. _warehouse/templates/base.html: https://github.com/pypi/warehouse/blob/main/warehouse/templates/base.html

@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import urllib.parse
 
@@ -20,7 +10,10 @@ from celery.schedules import crontab
 from urllib3.util import parse_url
 
 from warehouse import db
-from warehouse.packaging.models import Project, Release
+from warehouse.packaging.models import LifecycleStatus, Project, Release
+from warehouse.rate_limiting import IRateLimiter, RateLimit
+from warehouse.search.interfaces import ISearchService
+from warehouse.search.services import SearchService
 from warehouse.search.utils import get_index
 
 
@@ -39,7 +32,14 @@ def store_projects_for_project_reindex(config, session, flush_context):
     # a Project to reindex for when the session has been committed.
     for obj in session.new | session.dirty:
         if obj.__class__ == Project:
-            projects_to_update.add(obj)
+            # Un-index archived/quarantined projects
+            if obj.lifecycle_status in [
+                LifecycleStatus.QuarantineEnter,
+                LifecycleStatus.ArchivedNoindex,
+            ]:
+                projects_to_delete.add(obj)
+            else:
+                projects_to_update.add(obj)
         if obj.__class__ == Release:
             projects_to_update.add(obj.project)
 
@@ -52,16 +52,17 @@ def store_projects_for_project_reindex(config, session, flush_context):
 
 @db.listens_for(db.Session, "after_commit")
 def execute_project_reindex(config, session):
+    try:
+        search_service_factory = config.find_service_factory(ISearchService)
+    except LookupError:
+        return
+
     projects_to_update = session.info.pop("warehouse.search.project_updates", set())
     projects_to_delete = session.info.pop("warehouse.search.project_deletes", set())
 
-    from warehouse.search.tasks import reindex_project, unindex_project
-
-    for project in projects_to_update:
-        config.task(reindex_project).delay(project.normalized_name)
-
-    for project in projects_to_delete:
-        config.task(unindex_project).delay(project.normalized_name)
+    search_service = search_service_factory(None, config)
+    search_service.reindex(config, projects_to_update)
+    search_service.unindex(config, projects_to_delete)
 
 
 def opensearch(request):
@@ -79,14 +80,20 @@ def opensearch(request):
 
 
 def includeme(config):
+    ratelimit_string = config.registry.settings.get("warehouse.search.ratelimit_string")
+    config.register_service_factory(
+        RateLimit(ratelimit_string), IRateLimiter, name="search"
+    )
+
     p = parse_url(config.registry.settings["opensearch.url"])
+    assert p.path, "The URL for the OpenSearch instance must include the index name."
     qs = urllib.parse.parse_qs(p.query)
     kwargs = {
         "hosts": [urllib.parse.urlunparse((p.scheme, p.netloc) + ("",) * 4)],
         "verify_certs": True,
         "ca_certs": certifi.where(),
-        "timeout": 2,
-        "retry_on_timeout": False,
+        "timeout": 0.5,
+        "retry_on_timeout": True,
         "serializer": opensearchpy.serializer.serializer,
         "max_retries": 1,
     }
@@ -109,3 +116,5 @@ def includeme(config):
     from warehouse.search.tasks import reindex
 
     config.add_periodic_task(crontab(minute=0, hour=6), reindex)
+
+    config.register_service_factory(SearchService.create_service, iface=ISearchService)

@@ -1,19 +1,6 @@
-{#
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
--#}
-{% extends "admin/base.html" %}
+{# SPDX-License-Identifier: Apache-2.0 -#}
 
-{% import "admin/utils/pagination.html" as pagination %}
+{% extends "admin/base.html" %}
 
 {% block title %}Organization Applications{% endblock %}
 
@@ -39,14 +26,16 @@
         <a href="#" data-input="q" data-append="description:">desc:</a>"open source"
         <br>
         Filters:&nbsp;
-        <div class="btn-group btn-group-sm" role="group" data-input="q" data-state="approval" aria-label="Approval">
-          <button type="button" class="btn btn-secondary {{ 'active' if 'is:submitted' in terms else '' }}" data-approval="is:submitted">Submitted</button>
-          <button type="button" class="btn btn-secondary {{ 'active' if 'is:approved' in terms else '' }}" data-approval="is:approved">Approved</button>
-          <button type="button" class="btn btn-secondary {{ 'active' if 'is:declined' in terms else '' }}" data-approval="is:declined">Declined</button>
+        <div class="btn-group btn-group-sm" role="group" data-input="q" data-state="status" aria-label="Approval">
+          <button type="button" class="btn btn-secondary {{ 'active' if 'is:submitted' in terms else '' }}" data-status="is:submitted">Submitted</button>
+          <button type="button" class="btn btn-secondary {{ 'active' if 'is:deferred' in terms else '' }}" data-status="is:deferred">Deferred</button>
+          <button type="button" class="btn btn-secondary {{ 'active' if 'is:moreinformationneeded' in terms else '' }}" data-status="is:moreinformationneeded">More Info</button>
+          <button type="button" class="btn btn-secondary {{ 'active' if 'is:approved' in terms else '' }}" data-status="is:approved">Approved</button>
+          <button type="button" class="btn btn-secondary {{ 'active' if 'is:declined' in terms else '' }}" data-status="is:declined">Declined</button>
         </div>&nbsp;
-        <div class="btn-group btn-group-sm" role="group" data-input="q" data-state="status" aria-label="Type">
-          <button type="button" class="btn btn-secondary {{ 'active' if 'type:company' in terms else '' }}" data-status="type:company">Company</button>
-          <button type="button" class="btn btn-secondary {{ 'active' if 'type:community' in terms else '' }}" data-status="type:community">Community</button>
+        <div class="btn-group btn-group-sm" role="group" data-input="q" data-state="type" aria-label="Type">
+          <button type="button" class="btn btn-secondary {{ 'active' if 'type:company' in terms else '' }}" data-type="type:company">Company</button>
+          <button type="button" class="btn btn-secondary {{ 'active' if 'type:community' in terms else '' }}" data-type="type:community">Community</button>
         </div>
       </div>
     </form>
@@ -55,21 +44,25 @@
 
 <div class="card">
   <div class="card-body table-responsive p-0">
-    <table class="table table-hover">
+    <table class="table table-hover" id="organization-applications">
       <thead>
       <tr>
         <th>Account Name</th>
         <th>Organization</th>
         <th>Description</th>
         <th>Type</th>
-        <th>Approval</th>
+        <th>Submitted</th>
+        <th>Status</th>
       </tr>
       </thead>
 
       <tbody>
       {% for organization_application in organization_applications %}
+      {% set information_requests = organization_application.information_requests %}
+      {% set outstanding_information_requests = organization_application.information_requests|selectattr("additional", "defined")|map(attribute="additional")|selectattr("response", "undefined")|list %}
       <tr>
         <td>
+          {% if information_requests %}{% if outstanding_information_requests %}  <i class="fa-solid fa-envelope text-info"></i>{% else %}  <i class="fa-solid fa-envelope-open text-green"></i><i class="fa-solid fa-reply text-green"></i>{% endif %}{% endif %}
           <a href="{{ request.route_path('admin.organization_application.detail', organization_application_id=organization_application.id) }}">{{ organization_application.name }}</a>
         </td>
         <td>
@@ -77,12 +70,19 @@
         </td>
         <td>{{ organization_application.description }}</td>
         <td>{{ organization_application.orgtype.value }}</td>
-        {% if organization_application.is_approved == True %}
+        <td>{{ organization_application.submitted }}</td>
+        {% if organization_application.status == 'approved' %}
         <td><i class="fa fa-fw fa-check text-green"></i> Approved</td>
-        {% elif organization_application.is_approved == False %}
+        {% elif organization_application.status == 'declined' %}
         <td><i class="fa fa-fw fa-times text-red"></i> Declined</td>
-        {% else %}
+        {% elif organization_application.status == 'deferred' %}
+        <td><i class="fa fa-fw fa-stopwatch"></i> Deferred</td>
+        {% elif organization_application.status == 'moreinformationneeded' %}
+        <td><i class="fa fa-fw fa-question text-yellow"></i> Info Needed</td>
+        {% elif organization_application.status == 'submitted' %}
         <td><i class="fa fa-fw"></i> Submitted</td>
+        {% else %}
+        <td><i class="fa fa-fw"></i> {{ organization_application.status.value }}</td>
         {% endif %}
       </tr>
       {% endfor %}
@@ -90,18 +90,5 @@
     </table>
   </div>
 
-  <div class="card-footer">
-    <div class="row">
-      <div class="col-sm-5">
-        {{ pagination.summary(organization_applications) }}
-      </div>
-
-      <div class="col-sm-7">
-        <div class="float-right">
-          {{ pagination.paginate(organization_applications) }}
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 {% endblock content %}

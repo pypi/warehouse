@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -17,6 +7,7 @@ from celery.schedules import crontab
 
 from warehouse import accounts
 from warehouse.accounts.interfaces import (
+    IDomainStatusService,
     IEmailBreachedService,
     IPasswordBreachedService,
     ITokenService,
@@ -25,6 +16,7 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.services import (
     HaveIBeenPwnedEmailBreachedService,
     HaveIBeenPwnedPasswordBreachedService,
+    NullDomainStatusService,
     TokenServiceFactory,
     database_login_factory,
 )
@@ -91,7 +83,7 @@ class TestOIDCPublisherAndClaims:
 
 class TestOrganizationAccess:
     @pytest.mark.parametrize(
-        ["identity", "flag", "orgs", "expected"],
+        ("identity", "flag", "orgs", "expected"),
         [
             (False, True, [], False),  # Unauth'd always have no access
             (False, False, [], False),  # Unauth'd always have no access
@@ -186,6 +178,7 @@ def test_includeme(monkeypatch):
             HaveIBeenPwnedEmailBreachedService.create_service,
             IEmailBreachedService,
         ),
+        pretend.call(NullDomainStatusService.create_service, IDomainStatusService),
         pretend.call(RateLimit("10 per 5 minutes"), IRateLimiter, name="user.login"),
         pretend.call(RateLimit("10 per 5 minutes"), IRateLimiter, name="ip.login"),
         pretend.call(

@@ -1,15 +1,4 @@
-/* Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/* SPDX-License-Identifier: Apache-2.0 */
 
 /* global expect, beforeEach, describe, it */
 
@@ -89,7 +78,7 @@ describe("GitHub Repo Info controller", () => {
         message: "Not Found",
         documentation_url: "https://docs.github.com/rest/reference/repos#get-a-repository",
       }),
-      { status: 404 }
+      { status: 404 },
     );
 
     startStimulus();
@@ -115,7 +104,7 @@ describe("GitHub Repo Info controller", () => {
         forks_count: 200,
         open_issues_count: 300,
         total_count: 50,
-      })
+      }),
     );
 
     startStimulus();
@@ -128,16 +117,16 @@ describe("GitHub Repo Info controller", () => {
         expect(fetch.mock.calls.length).toEqual(6);
 
         const stargazersCount = el.querySelector(
-          "[data-github-repo-info-target='stargazersCount']"
+          "[data-github-repo-info-target='stargazersCount']",
         );
         const forksCount = el.querySelector(
-          "[data-github-repo-info-target='forksCount']"
+          "[data-github-repo-info-target='forksCount']",
         );
         const openIssuesCount = el.querySelector(
-          "[data-github-repo-info-target='openIssuesCount']"
+          "[data-github-repo-info-target='openIssuesCount']",
         );
         const openPRsCount = el.querySelector(
-          "[data-github-repo-info-target='openPRsCount']"
+          "[data-github-repo-info-target='openPRsCount']",
         );
 
         expect(stargazersCount.textContent).toBe("100");

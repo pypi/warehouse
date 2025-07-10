@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import dataclasses
 import time
@@ -63,7 +53,7 @@ def test_caveat_verify_fails():
 
 
 @pytest.mark.parametrize(
-    "caveat,expected",
+    ("caveat", "expected"),
     [
         (Expiration(expires_at=50, not_before=10), b"[0,50,10]"),
         (ProjectName(normalized_names=["foo", "bar"]), b'[1,["foo","bar"]]'),
@@ -79,7 +69,7 @@ def test_serialization(caveat, expected):
 
 
 @pytest.mark.parametrize(
-    "caveat,expected",
+    ("caveat", "expected"),
     [
         (Expiration(expires_at=50, not_before=10), [[0, 50, 10]]),
         (ProjectName(normalized_names=["foo", "bar"]), [[1, ["foo", "bar"]]]),
@@ -100,7 +90,7 @@ def test_serialization_onto_events(caveat, expected, db_request):
 
 class TestDeserialization:
     @pytest.mark.parametrize(
-        "data,expected",
+        ("data", "expected"),
         [
             # Current Caveat Style
             (b"[0,50,10]", Expiration(expires_at=50, not_before=10)),

@@ -1,18 +1,12 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
 
 import collections
 import re
+import typing
+
+from pathlib import Path
 
 import opensearchpy
 
@@ -26,11 +20,13 @@ from pyramid.httpexceptions import (
     HTTPRequestEntityTooLarge,
     HTTPSeeOther,
     HTTPServiceUnavailable,
+    HTTPTooManyRequests,
     exception_response,
 )
 from pyramid.i18n import make_localizer
 from pyramid.interfaces import ITranslationDirectories
 from pyramid.renderers import render_to_response
+from pyramid.response import FileResponse
 from pyramid.view import (
     exception_view_config,
     forbidden_view_config,
@@ -60,10 +56,15 @@ from warehouse.packaging.models import (
     Release,
     ReleaseClassifiers,
 )
+from warehouse.rate_limiting import IRateLimiter
 from warehouse.search.queries import SEARCH_FILTER_ORDER, get_opensearch_query
+from warehouse.utils.cors import _CORS_HEADERS
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import OpenSearchPage, paginate_url_factory
 from warehouse.utils.row_counter import RowCount
+
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
 
 JSON_REGEX = r"^/pypi/([^\/]+)\/?([^\/]+)?/json\/?$"
 json_path = re.compile(JSON_REGEX)
@@ -94,7 +95,10 @@ def httpexception_view(exc, request):
     try:
         # Lightweight version of 404 page for `/simple/`
         if isinstance(exc, HTTPNotFound) and request.path.startswith("/simple/"):
-            response = HTTPNotFound(body="404 Not Found", content_type="text/plain")
+            response = HTTPNotFound(
+                body="404 Not Found",
+                content_type="text/plain",
+            )
         elif isinstance(exc, HTTPNotFound) and json_path.match(request.path):
             response = HTTPNotFound(
                 body='{"message": "Not Found"}',
@@ -118,6 +122,7 @@ def httpexception_view(exc, request):
     response.headers.extend(
         (k, v) for k, v in exc.headers.items() if k not in response.headers
     )
+    response.headers.extend(_CORS_HEADERS)
 
     return response
 
@@ -194,6 +199,29 @@ def forbidden_api(exc, request):
 @view_config(context=DatabaseNotAvailableError)
 def service_unavailable(exc, request):
     return httpexception_view(HTTPServiceUnavailable(), request)
+
+
+@view_config(
+    route_name="favicon.ico",
+    decorator=[
+        cache_control(365 * 24 * 60 * 60),  # 1 year
+    ],
+)
+def favicon(request: Request) -> FileResponse:
+    """
+    Return static favicon.ico file
+
+    The favicon path is not known, static files are compressed into a dist/ directory.
+    """
+    favicon_filename = Path(
+        request.static_path("warehouse:static/dist/images/favicon.ico")
+    ).name
+    favicon_path = (
+        Path(__file__).parent / "static" / "dist" / "images" / favicon_filename
+    )
+
+    request.response.content_type = "image/x-icon"
+    return FileResponse(favicon_path, request=request)
 
 
 @view_config(
@@ -317,7 +345,22 @@ def list_classifiers(request):
     has_translations=True,
 )
 def search(request):
+    ratelimiter = request.find_service(IRateLimiter, name="search", context=None)
     metrics = request.find_service(IMetricsService, context=None)
+
+    ratelimiter.hit(request.remote_addr)
+    if not ratelimiter.test(request.remote_addr):
+        metrics.increment("warehouse.search.ratelimiter.exceeded")
+        message = (
+            "Your search query could not be performed because there were too "
+            "many requests by the client."
+        )
+        _resets_in = ratelimiter.resets_in(request.remote_addr)
+        if _resets_in is not None:
+            _resets_in = max(1, int(_resets_in.total_seconds()))
+            message += f" Limit may reset in {_resets_in} seconds."
+        raise HTTPTooManyRequests(message)
+    metrics.increment("warehouse.search.ratelimiter.hit")
 
     querystring = request.params.get("q", "").replace("'", '"')
     # Bail early for really long queries before ES raises an error
@@ -381,7 +424,7 @@ def search(request):
         Returns a dictionary, each key being a filter and each value being
         the filter's children.
         """
-        d = {}
+        d: dict[str, dict] = {}
         for list_ in split_list:
             current_level = d
             for part in list_:

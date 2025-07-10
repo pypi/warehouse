@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import datetime
 import functools
@@ -19,7 +9,7 @@ import pytz
 import sentry_sdk
 
 from celery.schedules import crontab
-from first import first
+from more_itertools import first_true
 from pyramid_mailer.exceptions import BadHeaders, EncodingError, InvalidMessage
 from sqlalchemy.exc import NoResultFound
 
@@ -36,7 +26,9 @@ from warehouse.metrics.interfaces import IMetricsService
 def _compute_recipient(user, email):
     # We want to try and use the user's name, then their username, and finally
     # nothing to display a "Friendly" name for the recipient.
-    return str(Address(first([user.name, user.username], default=""), addr_spec=email))
+    return str(
+        Address(first_true([user.name, user.username], default=""), addr_spec=email)
+    )
 
 
 def _redact_ip(request, email):
@@ -89,6 +81,7 @@ def _send_email_to_user(
     email=None,
     allow_unverified=False,
     repeat_window=None,
+    override_from=None,
 ):
     # If we were not given a specific email object, then we'll default to using
     # the User's primary email address.
@@ -115,12 +108,17 @@ def _send_email_to_user(
             "subject": msg.subject,
             "body_text": msg.body_text,
             "body_html": msg.body_html,
+            "sender": override_from,
         },
         {
             "tag": EventTag.Account.EmailSent,
             "user_id": user.id,
             "additional": {
-                "from_": request.registry.settings.get("mail.sender"),
+                "from_": (
+                    request.registry.settings.get("mail.sender")
+                    if override_from is None
+                    else override_from
+                ),
                 "to": email.email,
                 "subject": msg.subject,
                 "redact_ip": _redact_ip(request, email.email),
@@ -134,6 +132,7 @@ def _email(
     *,
     allow_unverified=False,
     repeat_window=None,
+    override_from=None,
 ):
     """
     This decorator is used to turn an e function into an email sending function!
@@ -190,6 +189,7 @@ def _email(
                     email=email,
                     allow_unverified=allow_unverified,
                     repeat_window=repeat_window,
+                    override_from=override_from,
                 )
                 metrics = request.find_service(IMetricsService, context=None)
                 metrics.increment(
@@ -212,63 +212,7 @@ def _email(
     return inner
 
 
-# Email templates for administrators.
-
-
-@_email("admin-new-organization-requested")
-def send_admin_new_organization_requested_email(
-    request, user, *, organization_name, initiator_username, organization_id
-):
-    return {
-        "initiator_username": initiator_username,
-        "organization_id": organization_id,
-        "organization_name": organization_name,
-    }
-
-
-@_email("admin-new-organization-approved")
-def send_admin_new_organization_approved_email(
-    request, user, *, organization_name, initiator_username, message=""
-):
-    return {
-        "initiator_username": initiator_username,
-        "message": message,
-        "organization_name": organization_name,
-    }
-
-
-@_email("admin-new-organization-declined")
-def send_admin_new_organization_declined_email(
-    request, user, *, organization_name, initiator_username, message=""
-):
-    return {
-        "initiator_username": initiator_username,
-        "message": message,
-        "organization_name": organization_name,
-    }
-
-
-@_email("admin-organization-renamed")
-def send_admin_organization_renamed_email(
-    request, user, *, organization_name, previous_organization_name
-):
-    return {
-        "organization_name": organization_name,
-        "previous_organization_name": previous_organization_name,
-    }
-
-
-@_email("admin-organization-deleted")
-def send_admin_organization_deleted_email(request, user, *, organization_name):
-    return {
-        "organization_name": organization_name,
-    }
-
-
-# Email templates for users.
-
-
-@_email("password-reset", allow_unverified=True)
+@_email("password-reset")
 def send_password_reset_email(request, user_and_email):
     user, _ = user_and_email
     token_service = request.find_service(ITokenService, name="password")
@@ -290,6 +234,17 @@ def send_password_reset_email(request, user_and_email):
         "username": user.username,
         "n_hours": token_service.max_age // 60 // 60,
     }
+
+
+@_email("password-reset-unverified", allow_unverified=True)
+def send_password_reset_unverified_email(_request, _user_and_email):
+    """
+    This email is sent to users who have not verified their email address
+    when they request a password reset. It is sent to the email address
+    they provided, which may not be their primary email address.
+    """
+    # No params are used in the template, return an empty dict
+    return {}
 
 
 @_email("verify-email", allow_unverified=True)
@@ -341,12 +296,20 @@ def send_token_compromised_email_leak(request, user, *, public_url, origin):
 
 
 @_email(
-    "two-factor-not-yet-enabled",
+    "account-recovery-initiated",
     allow_unverified=True,
-    repeat_window=datetime.timedelta(days=14),
+    override_from="support@pypi.org",
 )
-def send_two_factor_not_yet_enabled_email(request, user):
-    return {"username": user.username}
+def send_account_recovery_initiated_email(
+    request, user_and_email, *, project_name, support_issue_link, token
+):
+    user, email = user_and_email
+    return {
+        "user": user,
+        "support_issue_link": support_issue_link,
+        "project_name": project_name,
+        "token": token,
+    }
 
 
 @_email("account-deleted")
@@ -386,6 +349,17 @@ def send_new_organization_declined_email(
     return {
         "message": message,
         "organization_name": organization_name,
+    }
+
+
+@_email("new-organization-moreinformationneeded")
+def send_new_organization_moreinformationneeded_email(
+    request, user, *, organization_name, organization_application_id, message=""
+):
+    return {
+        "message": message,
+        "organization_name": organization_name,
+        "organization_application_id": organization_application_id,
     }
 
 
@@ -1044,6 +1018,61 @@ def send_api_token_used_in_trusted_publisher_project_email(
         "token_owner_username": token_owner_username,
         "project_name": project_name,
         "token_name": token_name,
+    }
+
+
+@_email("pep625-extension-email")
+def send_pep625_extension_email(request, users, project_name, filename):
+    return {
+        "project_name": project_name,
+        "filename": filename,
+    }
+
+
+@_email("pep625-name-email")
+def send_pep625_name_email(request, users, project_name, filename, normalized_name):
+    return {
+        "project_name": project_name,
+        "filename": filename,
+        "normalized_name": normalized_name,
+    }
+
+
+@_email("pep625-version-email")
+def send_pep625_version_email(
+    request, users, project_name, filename, normalized_version
+):
+    return {
+        "project_name": project_name,
+        "filename": filename,
+        "normalized_version": normalized_version,
+    }
+
+
+@_email("environment-ignored-in-trusted-publisher")
+def send_environment_ignored_in_trusted_publisher_email(
+    request, users, project_name, publisher, environment_name
+):
+    return {
+        "project_name": project_name,
+        "publisher": publisher,
+        "environment_name": environment_name,
+    }
+
+
+@_email("user-terms-of-service-updated")
+def send_user_terms_of_service_updated(request, user):
+    return {
+        "user": user,
+    }
+
+
+@_email("pep427-name-email")
+def send_pep427_name_email(request, users, project_name, filename, normalized_name):
+    return {
+        "project_name": project_name,
+        "filename": filename,
+        "normalized_name": normalized_name,
     }
 
 

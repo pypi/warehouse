@@ -30,8 +30,11 @@ improve the process:
 Detailed installation instructions
 ----------------------------------
 
-Getting the Warehouse source code
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Get the Warehouse source code
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+First, fork and clone the Warehouse source code to work on it locally.
+
 `Fork <https://docs.github.com/en/get-started/quickstart/fork-a-repo>`_ the repository
 on `GitHub`_ and
 `clone <https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository>`_ it to
@@ -54,25 +57,36 @@ you stay up-to-date with our repository:
     git merge upstream/main
 
 
-Configure the development environment
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Create your development environment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. note::
-   In case you are used to using a virtual environment for Python development:
-   it's unnecessary for Warehouse development. Our Makefile scripts execute all
-   developer actions inside Docker containers.
+   Warehouse development can be done using Makefile scripts which
+   execute all developer actions inside Docker containers. You do
+   not need to create a Python virtual environment.
 
-Verifying Make Installation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Verify that you have Make installed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Verify that you have make installed in your environment
+We use Make to build the docs and the Warehouse site.
+Verify that you have Make installed in your environment.
 
 .. code-block:: console
 
     make --version
 
-If you do not have it installed,
-consult your OS documentation on how to install ``make``.
+If you do not have ``Make`` installed,
+consult your operating system documentation on how to install ``make``.
+
+
+Do you want to build the docs or the Warehouse site?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you wish to build the entire Warehouse site,
+use Docker and follow the instructions below. However, if you are only
+contributing to the user or development documentation, then you can skip
+setting up Docker below and use ``Make`` instead. To build the docs,
+follow the `instructions here <#build-docs>`_.
 
 
 Why Docker?
@@ -188,7 +202,7 @@ application.
    (on Windows by editing the config file found at ``C:\Users\<USER>\AppData\Local\Docker\wsl``).
 
    If you are using Linux, you may need to configure the maximum map count to get
-   the `opensearch` up and running. According to the
+   the ``opensearch`` up and running. According to the
    `documentation <https://opensearch.org/docs/2.15/install-and-configure/install-opensearch/index/#important-settings>`_
    this can be set temporarily:
 
@@ -321,25 +335,67 @@ the string ``password``. You can log in as any account at
 http://localhost:80/account/login/.
 
 To log in as an admin user, log in as ``ewdurbin`` with the password
-``password``. Due to session invalidation, you may have to login twice.
+``password``. You can generate a TOTP value for logging in using:
+
+.. code-block:: console
+
+    $ make totp
+
+These users also have recovery codes generated:
+
+.. code-block::
+
+    6ebc846aadf23e35
+    7283821faf191a33
+    68108e19d25e2eec
+    4e6a18adb880fbc1
+    f62627d29675725f
+    4cda895a133b4cc8
+    8678c6f0d9a1e6de
+    edc6ce3800c0fc94 -- burned
 
 Some user accounts that you might want to try are:
 
-- `ewdurbin` - Superuser, 3 email addresses (one verified), has projects
-- `di` - Superuser, 2 email addresses (both verified), has projects
-- `dstufft` - Superuser, 2 email addresses (one verified), has projects
-- `miketheman` - Regular user, 1 email address (not verified), has a project
+- ``ewdurbin`` - Superuser, 3 email addresses (one verified), has projects
+- ``di`` - Superuser, 2 email addresses (both verified), has projects
+- ``dstufft`` - Superuser, 2 email addresses (one verified), has projects
+- ``miketheman`` - Regular user, 1 email address (not verified), has a project
 
 There are no Moderator accounts in the dev db, any Superuser can change a user
 to a moderator if needed.
 
+All of these users have 2FA enabled via TOTP,
+using the same secret as ``make totp``.
+You can scan the following QR code to add this TOTP secret to your TOTP authenticator:
+
+.. image:: ../_static/warehouse_admin_totp.png
+   :width: 100
+
+They also have the following Recovery Codes generated:
+
+.. code-block::
+
+    6ebc846aadf23e35
+    7283821faf191a33
+    68108e19d25e2eec
+    4e6a18adb880fbc1
+    f62627d29675725f
+    4cda895a133b4cc8
+    8678c6f0d9a1e6de
+    edc6ce3800c0fc94 -- burned
+
 Using different accounts will allow you to see different parts of the site,
 and have slightly different experiences.
 
-For example, using `miketheman` will require email verification.
+For example, using ``miketheman`` will require email verification.
 See :ref:`testing-e-mails` for more information on how to see those emails.
 
-Once logged in, you must enroll in a form of Two-Factor Authentication (2FA).
+Logging in as users without 2FA
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For users that are not listed above,
+once logged in with the password ``password``,
+you must enroll in a form of Two-Factor Authentication (2FA).
 This is a requirement for all users.
 
 One way to make this easier is to use a command-line tool like
@@ -479,6 +535,21 @@ Errors when executing ``make initdb``
   you might need to increase the amount of memory allocated to docker, since
   opensearch wants a lot of memory (Dustin gives warehouse ~4GB locally).
   Refer to the tip under :ref:`running-warehouse-containers` section for more details.
+
+* If ``make initdb`` fails with an error like::
+
+    A fatal error has been detected by the Java Runtime Environment:
+    SIGILL (0x4) at pc=0x0000f819dfc67c5c, pid=25, tid=26
+
+  while building the ``warehouse-opensearch`` image, this is a known issue
+  with OpenSearch in Apple M4 processors. A workaround (described in
+  `this comment <https://github.com/elastic/elasticsearch/issues/118583#issuecomment-2567270484>`_)
+  is to add the following line to ``dev/compose/opensearch/Dockerfile.yml`` (after
+  the FROM line):
+
+  .. code-block:: docker
+
+     ENV _JAVA_OPTIONS=-XX:UseSVE=0
 
 
 "no space left on device" when using ``docker compose``
@@ -643,7 +714,27 @@ If you want to run a specific test, you can use the ``T`` variable:
 
     T=tests/unit/i18n/test_filters.py make tests
 
-You can add arguments to the test runner by using the ``TESTARGS`` variable:
+
+.. note::
+
+  By default, using the ``T`` variable disables testcase parallelization
+  (due to runner startup time being greater than actual test time). To
+  re-enable parallelization, you can pass explicit ``TESTARGS``:
+
+  .. code-block:: console
+
+    T=tests/unit/i18n/test_filters.py TESTARGS="-n auto" make tests
+
+  It also turns off test coverage reporting because it is almost guaranteed
+  to fail and add test time overhead. To re-enable the coverage report, you
+  can pass explicit ``COVERAGE``:
+
+  .. code-block:: console
+
+    T=tests/unit/i18n/test_filters.py COVERAGE=1 make tests
+
+You can also add arguments to the test runner by using the ``TESTARGS``
+variable:
 
 .. code-block:: console
 
@@ -670,34 +761,6 @@ formatting and linting. You can reformat with:
 .. code-block:: console
 
     make reformat
-
-
-Building documentation
-----------------------
-
-The Warehouse documentation is stored in the :file:`docs/`
-directory. It is written in `reStructured Text`_ and rendered using
-`Sphinx`_.
-
-Use :command:`make` to build the documentation. For example:
-
-.. code-block:: console
-
-    make user-docs dev-docs
-
-The HTML index for the user documentation can now be found at
-:file:`docs/user-site/index.html`, and the index for the developer
-documentation at :file:`docs/dev/_build/html/index.html`.
-
-Building the docs requires Python 3.8. If it is not installed, the
-:command:`make` command will give the following error message:
-
-.. code-block:: console
-
-  make: python3.8: Command not found
-  Makefile:53: recipe for target '.state/env/pyvenv.cfg' failed
-  make: *** [.state/env/pyvenv.cfg] Error 127
-
 
 .. _building-translations:
 

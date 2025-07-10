@@ -1,32 +1,45 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import shlex
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy import or_
+from sqlalchemy import desc, func, or_
+from sqlalchemy.orm import joinedload
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.authnz import Permissions
-from warehouse.events.tags import EventTag
+from warehouse.manage.forms import OrganizationNameMixin, SaveOrganizationForm
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
     OrganizationApplication,
+    OrganizationApplicationStatus,
     OrganizationType,
 )
 from warehouse.utils.paginate import paginate_url_factory
+
+
+def _turbo_mode(request):
+    next_organization_application = (
+        request.db.query(OrganizationApplication)
+        .filter(OrganizationApplication.status == "submitted")
+        .order_by(OrganizationApplication.submitted)
+        .first()
+    )
+    if next_organization_application:
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization_application.detail",
+                organization_application_id=next_organization_application.id,
+            )
+        )
+    else:
+        request.session.flash(
+            "No more Organization Applications to review!", queue="success"
+        )
+        return HTTPSeeOther(request.route_path("admin.dashboard"))
 
 
 @view_config(
@@ -44,12 +57,14 @@ def organization_list(request):
     except ValueError:
         raise HTTPBadRequest("'page' must be an integer.") from None
 
-    organizations_query = request.db.query(Organization).order_by(
-        Organization.normalized_name
+    organizations_query = (
+        request.db.query(Organization)
+        .options(joinedload(Organization.subscriptions))
+        .order_by(Organization.normalized_name)
     )
 
     if q:
-        filters = []
+        filters: list = []
         for term in terms:
             # Examples:
             # - search individual words or "whole phrase" in any field
@@ -137,70 +152,57 @@ def organization_list(request):
     has_translations=True,
     uses_session=True,
     require_csrf=True,
-    require_reauth=True,
 )
 def organization_detail(request):
     organization_service = request.find_service(IOrganizationService, context=None)
-    user_service = request.find_service(IUserService, context=None)
 
     organization_id = request.matchdict["organization_id"]
     organization = organization_service.get_organization(organization_id)
     if organization is None:
         raise HTTPNotFound
 
-    create_event = (
-        organization.events.filter(
-            Organization.Event.tag == EventTag.Organization.OrganizationCreate
-        )
-        .order_by(Organization.Event.time.desc())
-        .first()
-    )
-    user = (
-        user_service.get_user(create_event.additional["created_by_user_id"])
-        if create_event
-        else None
-    )
-
-    if organization.is_approved is True:
-        approve_event = (
-            organization.events.filter(
-                Organization.Event.tag == EventTag.Organization.OrganizationApprove
-            )
-            .order_by(Organization.Event.time.desc())
-            .first()
-        )
-        approved_by_user_id = (
-            approve_event.additional.get("approved_by_user_id")
-            if approve_event
-            else None
-        )
-        admin = (
-            user_service.get_user(approved_by_user_id) if approved_by_user_id else None
-        )
-    elif organization.is_approved is False:
-        decline_event = (
-            organization.events.filter(
-                Organization.Event.tag == EventTag.Organization.OrganizationDecline
-            )
-            .order_by(Organization.Event.time.desc())
-            .first()
-        )
-        declined_by_user_id = (
-            decline_event.additional.get("declined_by_user_id")
-            if decline_event
-            else None
-        )
-        admin = (
-            user_service.get_user(declined_by_user_id) if declined_by_user_id else None
-        )
-    else:
-        admin = None
-
     return {
-        "admin": admin,
         "organization": organization,
-        "user": user,
     }
+
+
+@view_config(
+    route_name="admin.organization.rename",
+    require_methods=["POST"],
+    permission=Permissions.AdminOrganizationsNameWrite,
+    has_translations=True,
+    uses_session=True,
+    require_csrf=True,
+)
+def organization_rename(request):
+    organization_service = request.find_service(IOrganizationService, context=None)
+
+    organization_id = request.matchdict["organization_id"]
+    organization = organization_service.get_organization(organization_id)
+    if organization is None:
+        raise HTTPNotFound
+
+    old_organization_name = organization.name
+    new_organization_name = request.params.get("new_organization_name")
+
+    try:
+        organization_service.rename_organization(organization_id, new_organization_name)
+    except ValueError as exc:
+        request.session.flash(exc.args[0], queue="error")
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
+    request.session.flash(
+        f'"{old_organization_name}" organization renamed "{new_organization_name}"',
+        queue="success",
+    )
+
+    return HTTPSeeOther(
+        request.route_path("admin.organization.detail", organization_id=organization.id)
+    )
 
 
 @view_config(
@@ -213,17 +215,12 @@ def organization_applications_list(request):
     q = request.params.get("q", "")
     terms = shlex.split(q)
 
-    try:
-        page_num = int(request.params.get("page", 1))
-    except ValueError:
-        raise HTTPBadRequest("'page' must be an integer.") from None
-
     organization_applications_query = request.db.query(
         OrganizationApplication
-    ).order_by(OrganizationApplication.normalized_name)
+    ).order_by(OrganizationApplication.submitted)
 
     if q:
-        filters = []
+        filters: list = []
         for term in terms:
             # Examples:
             # - search individual words or "whole phrase" in any field
@@ -234,9 +231,11 @@ def organization_applications_list(request):
             # - desc:word
             # - description:word
             # - description:"whole phrase"
-            # - is:approved
-            # - is:declined
             # - is:submitted
+            # - is:declined
+            # - is:deferred
+            # - is:moreinformationneeded
+            # - is:approved
             # - type:company
             # - type:community
             try:
@@ -270,13 +269,8 @@ def organization_applications_list(request):
                         OrganizationApplication.orgtype == OrganizationType.Community
                     )
             elif field == "is":
-                # Add filter for `is_approved` field.
-                if "approved".startswith(value):
-                    filters.append(OrganizationApplication.is_approved.is_(True))
-                elif "declined".startswith(value):
-                    filters.append(OrganizationApplication.is_approved.is_(False))
-                elif "submitted".startswith(value):
-                    filters.append(OrganizationApplication.is_approved.is_(None))
+                if value in OrganizationApplicationStatus:
+                    filters.append(OrganizationApplication.status == value)
             else:
                 # Add filter for any field.
                 filters.append(
@@ -304,18 +298,22 @@ def organization_applications_list(request):
                     organization_applications_query.filter(filter_or_subfilters)
                 )
 
-    organization_applications = SQLAlchemyORMPage(
-        organization_applications_query,
-        page=page_num,
-        items_per_page=25,
-        url_maker=paginate_url_factory(request),
+    organization_applications_query = organization_applications_query.options(
+        joinedload(OrganizationApplication.observations)
     )
 
     return {
-        "organization_applications": organization_applications,
+        "organization_applications": organization_applications_query.all(),
         "query": q,
         "terms": terms,
     }
+
+
+class OrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationForm):
+    def __init__(self, *args, organization_service, user, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.organization_service = organization_service
+        self.user = user
 
 
 @view_config(
@@ -326,7 +324,6 @@ def organization_applications_list(request):
     has_translations=True,
     uses_session=True,
     require_csrf=True,
-    require_reauth=True,
 )
 def organization_application_detail(request):
     organization_service = request.find_service(IOrganizationService, context=None)
@@ -339,10 +336,60 @@ def organization_application_detail(request):
     if organization_application is None:
         raise HTTPNotFound
 
+    form = OrganizationApplicationForm(
+        request.POST if request.method == "POST" else None,
+        organization_application,
+        organization_service=organization_service,
+        user=request.user,
+    )
+
+    if request.method == "POST" and form.validate():
+        form.populate_obj(organization_application)
+        request.session.flash(
+            f"Application for {organization_application.name!r} updated",
+            queue="success",
+        )
+        return HTTPSeeOther(location=request.current_route_path())
+
+    parts = organization_application.normalized_name.split("-")
+    conflicting_applications = (
+        request.db.query(OrganizationApplication)
+        .filter(
+            or_(
+                *(
+                    [
+                        OrganizationApplication.normalized_name == parts[0],
+                        OrganizationApplication.normalized_name.startswith(
+                            parts[0] + "-"
+                        ),
+                    ]
+                    + [
+                        OrganizationApplication.normalized_name.startswith(
+                            "-".join(parts[: i + 1])
+                        )
+                        for i in range(1, len(parts))
+                    ]
+                )
+            )
+        )
+        .filter(OrganizationApplication.id != organization_application.id)
+        .order_by(
+            desc(
+                func.similarity(
+                    OrganizationApplication.normalized_name,
+                    organization_application.normalized_name,
+                )
+            )
+        )
+        .all()
+    )
+
     user = user_service.get_user(organization_application.submitted_by_id)
 
     return {
         "organization_application": organization_application,
+        "form": form,
+        "conflicting_applications": conflicting_applications,
         "user": user,
     }
 
@@ -350,12 +397,10 @@ def organization_application_detail(request):
 @view_config(
     route_name="admin.organization_application.approve",
     require_methods=["POST"],
-    renderer="admin/organization_applicationss/approve.html",
     permission=Permissions.AdminOrganizationsWrite,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
-    require_reauth=True,
 )
 def organization_application_approve(request):
     organization_service = request.find_service(IOrganizationService, context=None)
@@ -366,14 +411,6 @@ def organization_application_approve(request):
     )
     if organization_application is None:
         raise HTTPNotFound
-    elif organization_application.name != request.params.get("organization_name"):
-        request.session.flash("Wrong confirmation input", queue="error")
-        return HTTPSeeOther(
-            request.route_path(
-                "admin.organization_application.detail",
-                organization_application_id=organization_application.id,
-            )
-        )
 
     organization = organization_service.approve_organization_application(
         organization_application.id, request
@@ -383,20 +420,102 @@ def organization_application_approve(request):
         f'Request for "{organization.name}" organization approved', queue="success"
     )
 
+    if request.params.get("organization_applications_turbo_mode") == "true":
+        return _turbo_mode(request)
+
     return HTTPSeeOther(
         request.route_path("admin.organization.detail", organization_id=organization.id)
     )
 
 
 @view_config(
-    route_name="admin.organization_application.decline",
+    route_name="admin.organization_application.defer",
     require_methods=["POST"],
-    renderer="admin/organization_applications/decline.html",
     permission=Permissions.AdminOrganizationsWrite,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
-    require_reauth=True,
+)
+def organization_application_defer(request):
+    organization_service = request.find_service(IOrganizationService, context=None)
+
+    organization_application_id = request.matchdict["organization_application_id"]
+    organization_application = organization_service.get_organization_application(
+        organization_application_id
+    )
+    if organization_application is None:
+        raise HTTPNotFound
+
+    organization_service.defer_organization_application(
+        organization_application.id, request
+    )
+
+    request.session.flash(
+        f'Request for "{organization_application.name}" organization deferred',
+        queue="success",
+    )
+
+    if request.params.get("organization_applications_turbo_mode") == "true":
+        return _turbo_mode(request)
+
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.organization_application.detail",
+            organization_application_id=organization_application.id,
+        )
+    )
+
+
+@view_config(
+    route_name="admin.organization_application.requestmoreinfo",
+    require_methods=["POST"],
+    permission=Permissions.AdminOrganizationsWrite,
+    has_translations=True,
+    uses_session=True,
+    require_csrf=True,
+)
+def organization_application_request_more_information(request):
+    organization_service = request.find_service(IOrganizationService, context=None)
+
+    organization_application_id = request.matchdict["organization_application_id"]
+    organization_application = organization_service.get_organization_application(
+        organization_application_id
+    )
+    if organization_application is None:
+        raise HTTPNotFound
+
+    try:
+        organization_service.request_more_information(
+            organization_application.id, request
+        )
+        request.session.flash(
+            (
+                f'Request for more info from "{organization_application.name}" '
+                "organization sent"
+            ),
+            queue="success",
+        )
+
+        if request.params.get("organization_applications_turbo_mode") == "true":
+            return _turbo_mode(request)
+    except ValueError:
+        request.session.flash("No message provided", queue="error")
+
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.organization_application.detail",
+            organization_application_id=organization_application.id,
+        )
+    )
+
+
+@view_config(
+    route_name="admin.organization_application.decline",
+    require_methods=["POST"],
+    permission=Permissions.AdminOrganizationsWrite,
+    has_translations=True,
+    uses_session=True,
+    require_csrf=True,
 )
 def organization_application_decline(request):
     organization_service = request.find_service(IOrganizationService, context=None)
@@ -407,14 +526,6 @@ def organization_application_decline(request):
     )
     if organization_application is None:
         raise HTTPNotFound
-    elif organization_application.name != request.params.get("organization_name"):
-        request.session.flash("Wrong confirmation input", queue="error")
-        return HTTPSeeOther(
-            request.route_path(
-                "admin.organization_application.detail",
-                organization_application_id=organization_application.id,
-            )
-        )
 
     organization_service.decline_organization_application(
         organization_application.id, request
@@ -424,6 +535,9 @@ def organization_application_decline(request):
         f'Request for "{organization_application.name}" organization declined',
         queue="success",
     )
+
+    if request.params.get("organization_applications_turbo_mode") == "true":
+        return _turbo_mode(request)
 
     return HTTPSeeOther(
         request.route_path(

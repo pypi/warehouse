@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import collections
 import hashlib
@@ -30,13 +20,14 @@ import stdlib_list
 
 from packaging.utils import canonicalize_name
 from pyramid.httpexceptions import HTTPBadRequest, HTTPConflict, HTTPForbidden
-from sqlalchemy import exists, func
-from sqlalchemy.exc import NoResultFound
+from sqlalchemy import exists, func, select
 from zope.interface import implementer
 
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.cache import IQueryResultsCache
 from warehouse.email import send_pending_trusted_publisher_invalidated_email
 from warehouse.events.tags import EventTag
+from warehouse.helpdesk.interfaces import IAdminNotificationService
 from warehouse.metrics import IMetricsService
 from warehouse.oidc.models import PendingOIDCPublisher
 from warehouse.packaging.interfaces import (
@@ -44,6 +35,12 @@ from warehouse.packaging.interfaces import (
     IFileStorage,
     IProjectService,
     ISimpleStorage,
+    ProjectNameUnavailableExistingError,
+    ProjectNameUnavailableInvalidError,
+    ProjectNameUnavailableProhibitedError,
+    ProjectNameUnavailableSimilarError,
+    ProjectNameUnavailableStdlibError,
+    ProjectNameUnavailableTypoSquattingError,
     TooManyProjectsCreated,
 )
 from warehouse.packaging.models import (
@@ -52,7 +49,9 @@ from warehouse.packaging.models import (
     Project,
     Role,
 )
+from warehouse.packaging.typosnyper import typo_check_name
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
+from warehouse.utils.exceptions import DevelopmentModeWarning
 from warehouse.utils.project import PROJECT_NAME_RE
 
 logger = logging.getLogger(__name__)
@@ -74,7 +73,7 @@ STDLIB_PROHIBITED = {
 }
 
 
-class InsecureStorageWarning(UserWarning):
+class InsecureStorageWarning(DevelopmentModeWarning):
     pass
 
 
@@ -169,11 +168,11 @@ class LocalDocsStorage:
 
 
 class GenericBlobStorage:
-    def __init__(self, bucket, *, prefix=None):
+    def __init__(self, bucket, *, prefix: str | None = None):
         self.bucket = bucket
         self.prefix = prefix
 
-    def _get_path(self, path):
+    def _get_path(self, path: str) -> str:
         # If we have a prefix, then prepend it to our path. This will let us
         # store items inside of a sub directory without exposing that to end
         # users.
@@ -184,7 +183,7 @@ class GenericBlobStorage:
 
 
 class GenericB2BlobStorage(GenericBlobStorage):
-    def get(self, path):
+    def get(self, path: str):
         path = self._get_path(path)
         try:
             file_obj = io.BytesIO()
@@ -195,14 +194,14 @@ class GenericB2BlobStorage(GenericBlobStorage):
         except b2sdk.v2.exception.FileNotPresent:
             raise FileNotFoundError(f"No such key: {path!r}") from None
 
-    def get_metadata(self, path):
+    def get_metadata(self, path: str):
         path = self._get_path(path)
         try:
             return self.bucket.get_file_info_by_name(path).file_info
         except b2sdk.v2.exception.FileNotPresent:
             raise FileNotFoundError(f"No such key: {path!r}") from None
 
-    def get_checksum(self, path):
+    def get_checksum(self, path: str):
         path = self._get_path(path)
         try:
             return self.bucket.get_file_info_by_id(
@@ -211,7 +210,7 @@ class GenericB2BlobStorage(GenericBlobStorage):
         except b2sdk.v2.exception.FileNotPresent:
             raise FileNotFoundError(f"No such key: {path!r}") from None
 
-    def store(self, path, file_path, *, meta=None):
+    def store(self, path: str, file_path, *, meta=None):
         path = self._get_path(path)
         self.bucket.upload_local_file(
             local_file=file_path,
@@ -231,7 +230,7 @@ class B2FileStorage(GenericB2BlobStorage):
 
 
 class GenericS3BlobStorage(GenericBlobStorage):
-    def get(self, path):
+    def get(self, path: str):
         # Note: this is not actually used to serve files, instead our CDN is
         # configured to connect directly to our storage bucket. See:
         # https://github.com/python/pypi-infra/blob/master/terraform/file-hosting/vcl/main.vcl
@@ -242,7 +241,7 @@ class GenericS3BlobStorage(GenericBlobStorage):
                 raise
             raise FileNotFoundError(f"No such key: {path!r}") from None
 
-    def get_metadata(self, path):
+    def get_metadata(self, path: str):
         try:
             return self.bucket.Object(self._get_path(path)).metadata
         except botocore.exceptions.ClientError as exc:
@@ -250,7 +249,7 @@ class GenericS3BlobStorage(GenericBlobStorage):
                 raise
             raise FileNotFoundError(f"No such key: {path!r}") from None
 
-    def get_checksum(self, path):
+    def get_checksum(self, path: str):
         try:
             return (
                 self.bucket.Object(self._get_path(path)).e_tag.rstrip('"').lstrip('"')
@@ -261,7 +260,7 @@ class GenericS3BlobStorage(GenericBlobStorage):
                 raise
             raise FileNotFoundError(f"No such key: {path!r}") from None
 
-    def store(self, path, file_path, *, meta=None):
+    def store(self, path: str, file_path, *, meta=None):
         extra_args = {}
         if meta is not None:
             extra_args["Metadata"] = meta
@@ -327,16 +326,16 @@ class S3DocsStorage:
 
 
 class GenericGCSBlobStorage(GenericBlobStorage):
-    def get(self, path):
+    def get(self, path: str):
         # Note: this is not actually used in to serve files, instead our CDN is
         # configured to connect directly to our storage bucket. See:
         # https://github.com/python/pypi-infra/blob/master/terraform/file-hosting/vcl/main.vcl
         raise NotImplementedError
 
-    def get_metadata(self, path):
+    def get_metadata(self, path: str):
         raise NotImplementedError
 
-    def get_checksum(self, path):
+    def get_checksum(self, path: str):
         raise NotImplementedError
 
     @google.api_core.retry.Retry(
@@ -344,7 +343,7 @@ class GenericGCSBlobStorage(GenericBlobStorage):
             google.api_core.exceptions.ServiceUnavailable
         )
     )
-    def store(self, path, file_path, *, meta=None):
+    def store(self, path: str, file_path, *, meta=None):
         path = self._get_path(path)
         blob = self.bucket.blob(path)
         if meta is not None:
@@ -403,13 +402,18 @@ class GCSSimpleStorage(GenericGCSBlobStorage):
 
 @implementer(IProjectService)
 class ProjectService:
-    def __init__(self, session, metrics=None, ratelimiters=None) -> None:
+    def __init__(
+        self, session, metrics=None, ratelimiters=None, query_results_cache=None
+    ) -> None:
         if ratelimiters is None:
             ratelimiters = {}
+        if query_results_cache is None:
+            query_results_cache = {}
 
         self.db = session
         self.ratelimiters = collections.defaultdict(DummyRateLimiter, ratelimiters)
         self._metrics = metrics
+        self._query_results_cache = query_results_cache
 
     def _check_ratelimits(self, request, creator):
         # First we want to check if a single IP is exceeding our rate limiter.
@@ -442,29 +446,76 @@ class ProjectService:
         self.ratelimiters["project.create.user"].hit(creator.id)
         self.ratelimiters["project.create.ip"].hit(request.remote_addr)
 
+    def check_project_name(self, name: str) -> None:
+        """
+        Check if a project name is valid and available.
+
+        This method will raise an exception if the project name is invalid or
+        unavailable for any reason.
+        """
+        if not PROJECT_NAME_RE.match(name):
+            raise ProjectNameUnavailableInvalidError()
+
+        # Also check for collisions with Python Standard Library modules.
+        if canonicalize_name(name) in STDLIB_PROHIBITED:
+            raise ProjectNameUnavailableStdlibError()
+
+        if existing_project := self.db.scalars(
+            select(Project).where(
+                Project.normalized_name == func.normalize_pep426_name(name)
+            )
+        ).first():
+            raise ProjectNameUnavailableExistingError(existing_project)
+
+        if self.db.query(
+            exists().where(
+                ProhibitedProjectName.name == func.normalize_pep426_name(name)
+            )
+        ).scalar():
+            raise ProjectNameUnavailableProhibitedError()
+
+        if similar_project_name := self.db.scalars(
+            select(Project.name).where(
+                func.ultranormalize_name(Project.name) == func.ultranormalize_name(name)
+            )
+        ).first():
+            raise ProjectNameUnavailableSimilarError(similar_project_name)
+
+        # Check for typo-squatting.
+        cached_corpus = self._query_results_cache.get("top_dependents_corpus")
+        if typo_check_match := typo_check_name(
+            canonicalize_name(name), corpus=cached_corpus
+        ):
+            raise ProjectNameUnavailableTypoSquattingError(
+                check_name=typo_check_match[0],
+                existing_project_name=typo_check_match[1],
+            )
+
+        return None
+
     def create_project(
         self, name, creator, request, *, creator_is_owner=True, ratelimited=True
     ):
         if ratelimited:
             self._check_ratelimits(request, creator)
 
-        # Sanity check that the project name is valid. This may have already
-        # happened via form validation prior to calling this function, but
-        # isn't guaranteed.
-        if not PROJECT_NAME_RE.match(name):
-            raise HTTPBadRequest(f"The name {name!r} is invalid.")
+        # Check for AdminFlag set by a PyPI Administrator disabling new project
+        # registration, reasons for this include Spammers, security
+        # vulnerabilities, or just wanting to be lazy and not worry ;)
+        if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_PROJECT_REGISTRATION):
+            raise HTTPForbidden(
+                (
+                    "New project registration temporarily disabled. "
+                    "See {projecthelp} for more information."
+                ).format(projecthelp=request.help_url(_anchor="admin-intervention")),
+            ) from None
 
-        # Look up the project first before doing anything else, and fail if it
-        # already exists. If it does not exist, proceed with additional checks
-        # to ensure that the project has a valid name before creating it.
+        # Verify that the project name is both valid and currently available.
         try:
-            # Find existing project or raise NoResultFound.
-            (
-                request.db.query(Project.id)
-                .filter(Project.normalized_name == func.normalize_pep426_name(name))
-                .one()
-            )
-
+            self.check_project_name(name)
+        except ProjectNameUnavailableInvalidError:
+            raise HTTPBadRequest(f"The name {name!r} is invalid.")
+        except ProjectNameUnavailableExistingError:
             # Found existing project with conflicting name.
             raise HTTPConflict(
                 (
@@ -475,69 +526,116 @@ class ProjectService:
                     projecthelp=request.help_url(_anchor="project-name"),
                 ),
             ) from None
-        except NoResultFound:
-            # Check for AdminFlag set by a PyPI Administrator disabling new project
-            # registration, reasons for this include Spammers, security
-            # vulnerabilities, or just wanting to be lazy and not worry ;)
-            if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_PROJECT_REGISTRATION):
-                raise HTTPForbidden(
-                    (
-                        "New project registration temporarily disabled. "
-                        "See {projecthelp} for more information."
-                    ).format(
-                        projecthelp=request.help_url(_anchor="admin-intervention")
-                    ),
-                ) from None
+        except ProjectNameUnavailableProhibitedError:
+            raise HTTPBadRequest(
+                (
+                    "The name {name!r} isn't allowed. "
+                    "See {projecthelp} for more information."
+                ).format(
+                    name=name,
+                    projecthelp=request.help_url(_anchor="project-name"),
+                ),
+            ) from None
+        except ProjectNameUnavailableSimilarError:
+            raise HTTPBadRequest(
+                (
+                    "The name {name!r} is too similar to an existing project. "
+                    "See {projecthelp} for more information."
+                ).format(
+                    name=name,
+                    projecthelp=request.help_url(_anchor="project-name"),
+                ),
+            ) from None
+        except ProjectNameUnavailableStdlibError:
+            raise HTTPBadRequest(
+                (
+                    "The name {name!r} isn't allowed (conflict with Python "
+                    "Standard Library module name). See "
+                    "{projecthelp} for more information."
+                ).format(
+                    name=name,
+                    projecthelp=request.help_url(_anchor="project-name"),
+                ),
+            ) from None
+        except ProjectNameUnavailableTypoSquattingError as exc:
+            # Don't yet raise an error here, as we want to allow the
+            # user to proceed with the project creation. We'll log a warning
+            # instead.
+            request.log.warning(
+                "ProjectNameUnavailableTypoSquattingError",
+                check_name=exc.check_name,
+                existing_project_name=exc.existing_project_name,
+            )
+            # Send notification to Admins for review
+            notification_service = request.find_service(IAdminNotificationService)
 
-            # Before we create the project, we're going to check our prohibited
-            # names to see if this project name prohibited, or if the project name
-            # is a close approximation of an existing project name. If it is,
-            # then we're going to deny the request to create this project.
-            _prohibited_name = request.db.query(
-                exists().where(
-                    ProhibitedProjectName.name == func.normalize_pep426_name(name)
-                )
-            ).scalar()
-            if _prohibited_name:
-                raise HTTPBadRequest(
-                    (
-                        "The name {name!r} isn't allowed. "
-                        "See {projecthelp} for more information."
-                    ).format(
-                        name=name,
-                        projecthelp=request.help_url(_anchor="project-name"),
-                    ),
-                ) from None
+            warehouse_domain = request.registry.settings.get("warehouse.domain")
+            new_project_page = request.route_url(
+                "packaging.project",
+                name=name,
+                _host=warehouse_domain,
+            )
+            new_project_text = (
+                f"During `file_upload`, Project Create for "
+                f"*<{new_project_page}|{name}>* was detected as a potential "
+                f"typo by the `{exc.check_name!r}` check."
+            )
+            existing_project_page = request.route_url(
+                "packaging.project",
+                name=exc.existing_project_name,
+                _host=warehouse_domain,
+            )
+            existing_project_text = (
+                f"<{existing_project_page}|Existing project: "
+                f"{exc.existing_project_name}>"
+            )
 
-            _ultranormalize_collision = request.db.query(
-                exists().where(
-                    func.ultranormalize_name(Project.name)
-                    == func.ultranormalize_name(name)
-                )
-            ).scalar()
-            if _ultranormalize_collision:
-                raise HTTPBadRequest(
-                    (
-                        "The name {name!r} is too similar to an existing project. "
-                        "See {projecthelp} for more information."
-                    ).format(
-                        name=name,
-                        projecthelp=request.help_url(_anchor="project-name"),
-                    ),
-                ) from None
+            webhook_payload = {
+                "blocks": [
+                    {
+                        "type": "header",
+                        "text": {
+                            "type": "plain_text",
+                            "text": "TypoSnyper :warning:",
+                            "emoji": True,
+                        },
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": new_project_text,
+                        },
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": existing_project_text,
+                        },
+                    },
+                    {"type": "divider"},
+                    {
+                        "type": "context",
+                        "elements": [
+                            {
+                                "type": "plain_text",
+                                "text": "Once reviewed/confirmed, "
+                                "react to this message with :white_check_mark:",
+                                "emoji": True,
+                            }
+                        ],
+                    },
+                ]
+            }
+            notification_service.send_notification(payload=webhook_payload)
 
-            # Also check for collisions with Python Standard Library modules.
-            if canonicalize_name(name) in STDLIB_PROHIBITED:
-                raise HTTPBadRequest(
-                    (
-                        "The name {name!r} isn't allowed (conflict with Python "
-                        "Standard Library module name). See "
-                        "{projecthelp} for more information."
-                    ).format(
-                        name=name,
-                        projecthelp=request.help_url(_anchor="project-name"),
-                    ),
-                ) from None
+            request.metrics.increment(
+                "warehouse.packaging.services.create_project.typo_squatting",
+                tags=[f"check_name:{exc.check_name!r}"],
+            )
+            # and continue with the project creation
+            pass
 
         # The project name is valid: create it and add it
         project = Project(name=name)
@@ -583,15 +681,15 @@ class ProjectService:
             )
 
         # Remove all pending publishers not owned by the creator.
-        # There might be other pending publishers for the same project name,
-        # which we've now invalidated by creating the project. These would
+        # There might be other pending publishers for the same or similar project
+        # name, which we've now invalidated by creating the project. These would
         # be disposed of on use, but we explicitly dispose of them here while
         # also sending emails to their owners.
         stale_pending_publishers = (
             request.db.query(PendingOIDCPublisher)
             .filter(
-                func.normalize_pep426_name(PendingOIDCPublisher.project_name)
-                == func.normalize_pep426_name(project.name),
+                func.ultranormalize_name(PendingOIDCPublisher.project_name)
+                == func.ultranormalize_name(project.name),
                 PendingOIDCPublisher.added_by != creator,
             )
             .all()
@@ -619,4 +717,10 @@ def project_service_factory(context, request):
             IRateLimiter, name="project.create.ip", context=None
         ),
     }
-    return ProjectService(request.db, metrics=metrics, ratelimiters=ratelimiters)
+    query_results_cache = request.find_service(IQueryResultsCache)
+    return ProjectService(
+        request.db,
+        metrics=metrics,
+        ratelimiters=ratelimiters,
+        query_results_cache=query_results_cache,
+    )

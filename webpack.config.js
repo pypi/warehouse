@@ -1,32 +1,23 @@
-/* Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/* SPDX-License-Identifier: Apache-2.0 */
+
+/* global module, __dirname */
 
 // This is the main configuration file for webpack.
 // See: https://webpack.js.org/configuration/
 
 const path = require("path");
 const zlib = require("zlib");
-const glob = require("glob");
 const rtlcss = require("rtlcss");
 const CompressionPlugin = require("compression-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
-const LiveReloadPlugin = require('webpack-livereload-plugin');
+const LiveReloadPlugin = require("webpack-livereload-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const ProvidePlugin = require("webpack").ProvidePlugin;
 const RemoveEmptyScriptsPlugin = require("webpack-remove-empty-scripts");
-const { WebpackManifestPlugin } = require("webpack-manifest-plugin");
+const {WebpackManifestPlugin} = require("webpack-manifest-plugin");
+const {WebpackLocalisationPlugin, allLocaleData} = require("./webpack.plugin.localize.js");
 
 /* Shared Plugins */
 
@@ -34,7 +25,7 @@ const sharedCompressionPlugins = [
   new CompressionPlugin({
     filename: "[path][base].gz",
     algorithm: "gzip",
-    compressionOptions: { level: 9, memLevel: 9 },
+    compressionOptions: {level: 9, memLevel: 9},
     // Only compress files that will actually be smaller when compressed.
     minRatio: 1,
   }),
@@ -61,55 +52,55 @@ const sharedCSSPlugins = [
   new RemoveEmptyScriptsPlugin(),
 ];
 
-const sharedWebpackManifestPlugins = [
-  new WebpackManifestPlugin({
-    // Replace each entry with a prefix of a subdirectory.
-    // NOTE: This could be removed if we update the HTML to use the non-prefixed
-    //       paths.
-    map: (file) => {
-      // if the filename matches .js or .js.map, add js/ prefix if not already present
-      if (file.name.match(/\.js(\.map)?$/)) {
-        if (!file.name.startsWith("js/")) {
-          file.name = `js/${file.name}`; // eslint-disable-line no-param-reassign
-        }
+
+// Refs: https://github.com/shellscape/webpack-manifest-plugin/issues/229#issuecomment-737617994
+const sharedWebpackManifestPublicPath = "";
+const sharedWebpackManifestData = {};
+const sharedWebpackManifestMap =
+  // Replace each entry with a prefix of a subdirectory.
+  // NOTE: This could be removed if we update the HTML to use the non-prefixed
+  //       paths.
+  (file) => {
+    // if the filename matches .js or .js.map, add js/ prefix if not already present
+    if (file.name.match(/\.js(\.map)?$/)) {
+      if (!file.name.startsWith("js/")) {
+        file.name = `js/${file.name}`; // eslint-disable-line no-param-reassign
       }
-      // if the filename matches .css or .css.map, add a prefix of css/
-      if (file.name.match(/\.css(\.map)?$/)) {
-        file.name = `css/${file.name}`; // eslint-disable-line no-param-reassign
-      }
-      return file;
-    },
-    // Refs: https://github.com/shellscape/webpack-manifest-plugin/issues/229#issuecomment-737617994
-    publicPath: "",
-  }),
-];
+    }
+    // if the filename matches .css or .css.map, add a prefix of css/
+    if (file.name.match(/\.css(\.map)?$/)) {
+      file.name = `css/${file.name}`; // eslint-disable-line no-param-reassign
+    }
+    return file;
+  };
 
 /* End Shared Plugins */
 
 const sharedResolve = {
   alias: {
-  // Use an alias to make inline non-relative `@import` statements.
+    // Use an alias to make inline non-relative `@import` statements.
     warehouse: path.resolve(__dirname, "warehouse/static/js/warehouse"),
   },
 };
+
 
 module.exports = [
   {
     name: "warehouse",
     experiments: {
-    // allow us to manage RTL CSS as a separate file
+      // allow us to manage RTL CSS as a separate file
       layers: true,
     },
     plugins: [
       new CopyPlugin({
         patterns: [
           {
-          // Most images are not referenced in JS/CSS, copy them manually.
+            // Most images are not referenced in JS/CSS, copy them manually.
             from: path.resolve(__dirname, "warehouse/static/images/*"),
             to: "images/[name].[contenthash][ext]",
           },
           {
-          // Copy vendored zxcvbn code
+            // Copy vendored zxcvbn code
             from: path.resolve(__dirname, "warehouse/static/js/vendor/zxcvbn.js"),
             to: "js/vendor/[name].[contenthash][ext]",
           },
@@ -117,12 +108,17 @@ module.exports = [
       }),
       ...sharedCompressionPlugins,
       ...sharedCSSPlugins,
-      ...sharedWebpackManifestPlugins,
+      new WebpackManifestPlugin({
+        removeKeyHash: /([a-f0-9]{8}\.?)/gi,
+        publicPath: sharedWebpackManifestPublicPath,
+        seed: sharedWebpackManifestData,
+        map: sharedWebpackManifestMap,
+      }),
       new LiveReloadPlugin(),
     ],
     resolve: sharedResolve,
     entry: {
-    // Webpack will create a bundle for each entry point.
+      // Webpack will create a bundle for each entry point.
 
       /* JavaScript */
       warehouse: {
@@ -150,7 +146,7 @@ module.exports = [
     // See: https://webpack.js.org/configuration/devtool
     devtool: "source-map",
     output: {
-    // remove old files
+      // remove old files
       clean: true,
       // Matches current behavior. Defaults to 20. 16 in the future.
       hashDigestLength: 8,
@@ -162,12 +158,12 @@ module.exports = [
     module: {
       rules: [
         {
-        // Handle SASS/SCSS/CSS files
+          // Handle SASS/SCSS/CSS files
           test: /\.(sa|sc|c)ss$/,
           // NOTE: Order is important here, as the first match wins
           oneOf: [
             {
-            // For the `rtl` file, needs postcss processing
+              // For the `rtl` file, needs postcss processing
               layer: "rtl",
               issuerLayer: "rtl",
               use: [
@@ -185,9 +181,9 @@ module.exports = [
               ],
             },
             {
-            // All other CSS files
+              // All other CSS files
               use: [
-              // Extracts CSS into separate files
+                // Extracts CSS into separate files
                 MiniCssExtractPlugin.loader,
                 // Translates CSS into CommonJS
                 "css-loader",
@@ -198,7 +194,7 @@ module.exports = [
           ],
         },
         {
-        // Handle image files
+          // Handle image files
           test: /\.(png|svg|jpg|jpeg|gif)$/i,
           // disables data URL inline encoding images into CSS,
           // since it violates our CSP settings.
@@ -208,7 +204,7 @@ module.exports = [
           },
         },
         {
-        // Handle font files
+          // Handle font files
           test: /\.(woff|woff2|eot|ttf|otf)$/i,
           type: "asset/resource",
           generator: {
@@ -219,7 +215,7 @@ module.exports = [
     },
     optimization: {
       minimizer: [
-      // default minimizer is Terser for JS. Extend here vs overriding.
+        // default minimizer is Terser for JS. Extend here vs overriding.
         "...",
         // Minimize CSS
         new CssMinimizerPlugin({
@@ -227,7 +223,7 @@ module.exports = [
             preset: [
               "default",
               {
-                discardComments: { removeAll: true },
+                discardComments: {removeAll: true},
               },
             ],
           },
@@ -240,7 +236,7 @@ module.exports = [
           },
           generator: [
             {
-            // Apply generator for copied assets
+              // Apply generator for copied assets
               type: "asset",
               implementation: ImageMinimizerPlugin.sharpGenerate,
               options: {
@@ -278,7 +274,11 @@ module.exports = [
     plugins: [
       ...sharedCompressionPlugins,
       ...sharedCSSPlugins,
-      ...sharedWebpackManifestPlugins,
+      new WebpackManifestPlugin({
+        removeKeyHash: /([a-f0-9]{8}\.?)/gi,
+        publicPath: sharedWebpackManifestPublicPath,
+        map: sharedWebpackManifestMap,
+      }),
       // admin site dependencies use jQuery
       new ProvidePlugin({
         $: "jquery",
@@ -314,7 +314,7 @@ module.exports = [
           ],
         },
         {
-        // Handle image files
+          // Handle image files
           test: /\.(png|svg|jpg|jpeg|gif)$/i,
           // disables data URL inline encoding images into CSS,
           // since it violates our CSP settings.
@@ -333,4 +333,45 @@ module.exports = [
       ],
     },
   },
+  // for each language locale, generate config for warehouse
+  ...allLocaleData.map(function (localeData) {
+    const name = `warehouse.${localeData[""].language}`;
+    return {
+      name: name,
+      plugins: [
+        new WebpackLocalisationPlugin(localeData),
+        ...sharedCompressionPlugins,
+        new WebpackManifestPlugin({
+          removeKeyHash: /([a-f0-9]{8}\.?)/gi,
+          publicPath: sharedWebpackManifestPublicPath,
+          seed: sharedWebpackManifestData,
+          map: sharedWebpackManifestMap,
+        }),
+        new LiveReloadPlugin(),
+      ],
+      resolve: sharedResolve,
+      entry: {
+        // Webpack will create a bundle for each entry point.
+
+        /* JavaScript */
+        [name]: {
+          import: "./warehouse/static/js/warehouse/index.js",
+          // override the filename from `index` to `warehouse`
+          filename: `js/${name}.[contenthash].js`,
+        },
+      },
+      // The default source map. Slowest, but best production-build optimizations.
+      // See: https://webpack.js.org/configuration/devtool
+      devtool: "source-map",
+      output: {
+        // Matches current behavior. Defaults to 20. 16 in the future.
+        hashDigestLength: 8,
+        // Global filename template for all assets. Other assets MUST override.
+        filename: "[name].[contenthash].js",
+        // Global output path for all assets.
+        path: path.resolve(__dirname, "warehouse/static/dist"),
+      },
+      dependencies: ["warehouse"],
+    };
+  }),
 ];

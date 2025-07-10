@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -16,8 +6,78 @@ import sqlalchemy
 
 from tests.common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
 from warehouse.oidc import errors
-from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.models import _core, github
+
+
+@pytest.mark.parametrize(
+    ("workflow_ref", "expected"),
+    [
+        # Well-formed workflow refs, including exceedingly obnoxious ones
+        # with `@` or extra suffixes or `git` refs that look like workflows.
+        ("foo/bar/.github/workflows/basic.yml@refs/heads/main", "basic.yml"),
+        ("foo/bar/.github/workflows/basic.yaml@refs/heads/main", "basic.yaml"),
+        ("foo/bar/.github/workflows/has-dash.yml@refs/heads/main", "has-dash.yml"),
+        (
+            "foo/bar/.github/workflows/has--dashes.yml@refs/heads/main",
+            "has--dashes.yml",
+        ),
+        (
+            "foo/bar/.github/workflows/has--dashes-.yml@refs/heads/main",
+            "has--dashes-.yml",
+        ),
+        ("foo/bar/.github/workflows/has.period.yml@refs/heads/main", "has.period.yml"),
+        (
+            "foo/bar/.github/workflows/has..periods.yml@refs/heads/main",
+            "has..periods.yml",
+        ),
+        (
+            "foo/bar/.github/workflows/has..periods..yml@refs/heads/main",
+            "has..periods..yml",
+        ),
+        (
+            "foo/bar/.github/workflows/has_underscore.yml@refs/heads/main",
+            "has_underscore.yml",
+        ),
+        (
+            "foo/bar/.github/workflows/nested@evil.yml@refs/heads/main",
+            "nested@evil.yml",
+        ),
+        (
+            "foo/bar/.github/workflows/nested.yml@evil.yml@refs/heads/main",
+            "nested.yml@evil.yml",
+        ),
+        (
+            "foo/bar/.github/workflows/extra@nested.yml@evil.yml@refs/heads/main",
+            "extra@nested.yml@evil.yml",
+        ),
+        (
+            "foo/bar/.github/workflows/extra.yml@nested.yml@evil.yml@refs/heads/main",
+            "extra.yml@nested.yml@evil.yml",
+        ),
+        (
+            "foo/bar/.github/workflows/basic.yml@refs/heads/misleading@branch.yml",
+            "basic.yml",
+        ),
+        (
+            "foo/bar/.github/workflows/basic.yml@refs/heads/bad@branch@twomatches.yml",
+            "basic.yml",
+        ),
+        ("foo/bar/.github/workflows/foo.yml.yml@refs/heads/main", "foo.yml.yml"),
+        (
+            "foo/bar/.github/workflows/foo.yml.foo.yml@refs/heads/main",
+            "foo.yml.foo.yml",
+        ),
+        # Malformed workflow refs.
+        ("foo/bar/.github/workflows/basic.wrongsuffix@refs/heads/main", None),
+        ("foo/bar/.github/workflows/@refs/heads/main", None),
+        ("foo/bar/.github/workflows/nosuffix@refs/heads/main", None),
+        ("foo/bar/.github/workflows/.yml@refs/heads/main", None),
+        ("foo/bar/.github/workflows/.yaml@refs/heads/main", None),
+        ("foo/bar/.github/workflows/main.yml", None),
+    ],
+)
+def test_extract_workflow_filename(workflow_ref, expected):
+    assert github._extract_workflow_filename(workflow_ref) == expected
 
 
 @pytest.mark.parametrize("claim", ["", "repo", "repo:"])
@@ -25,21 +85,91 @@ def test_check_sub(claim):
     assert github._check_sub(pretend.stub(), claim, pretend.stub()) is False
 
 
-def test_lookup_strategies():
-    assert (
-        len(github.GitHubPublisher.__lookup_strategies__)
-        == len(github.PendingGitHubPublisher.__lookup_strategies__)
-        == 2
-    )
-
-
 class TestGitHubPublisher:
-    def test_lookup_strategies(self):
-        assert (
-            len(github.GitHubPublisher.__lookup_strategies__)
-            == len(github.PendingGitHubPublisher.__lookup_strategies__)
-            == 2
+    @pytest.mark.parametrize("environment", [None, "some_environment"])
+    def test_lookup_fails_invalid_workflow_ref(self, environment):
+        signed_claims = {
+            "repository": "foo/bar",
+            "job_workflow_ref": ("foo/bar/.github/workflows/.yml@refs/heads/main"),
+            "repository_owner_id": "1234",
+        }
+
+        if environment:
+            signed_claims["environment"] = environment
+
+        # The `job_workflow_ref` is malformed, so no queries are performed.
+        with pytest.raises(
+            errors.InvalidPublisherError,
+            match="Could not job extract workflow filename from OIDC claims",
+        ):
+            github.GitHubPublisher.lookup_by_claims(pretend.stub(), signed_claims)
+
+    @pytest.mark.parametrize("environment", ["", "some_environment"])
+    @pytest.mark.parametrize(
+        ("workflow_a", "workflow_b"),
+        [
+            ("release-pypi.yml", "release_pypi.yml"),
+            ("release%pypi.yml", "release-pypi.yml"),
+        ],
+    )
+    def test_lookup_escapes(self, db_request, environment, workflow_a, workflow_b):
+        GitHubPublisherFactory(
+            id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            repository_owner="foo",
+            repository_name="bar",
+            repository_owner_id="1234",
+            workflow_filename=workflow_a,
+            environment=environment,
         )
+        GitHubPublisherFactory(
+            id="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+            repository_owner="foo",
+            repository_name="bar",
+            repository_owner_id="1234",
+            workflow_filename=workflow_b,
+            environment=environment,
+        )
+
+        for workflow in (workflow_a, workflow_b):
+            signed_claims = {
+                "repository": "foo/bar",
+                "job_workflow_ref": (
+                    f"foo/bar/.github/workflows/{workflow}@refs/heads/main"
+                ),
+                "repository_owner_id": "1234",
+            }
+
+            if environment:
+                signed_claims["environment"] = environment
+
+            assert (
+                github.GitHubPublisher.lookup_by_claims(
+                    db_request.db, signed_claims
+                ).workflow_filename
+                == workflow
+            )
+
+    def test_lookup_no_matching_publishers(self, db_request):
+        GitHubPublisherFactory(
+            id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            repository_owner="foo",
+            repository_name="bar",
+            repository_owner_id="1234",
+            workflow_filename="release.yml",
+            environment="environment",
+        )
+        signed_claims = {
+            "repository": "foo/bar",
+            "job_workflow_ref": (
+                "foo/bar/.github/workflows/release.yml@refs/heads/main"
+            ),
+            "repository_owner_id": "1234",
+            "environment": "another_environment",
+        }
+
+        with pytest.raises(errors.InvalidPublisherError) as e:
+            github.GitHubPublisher.lookup_by_claims(db_request.db, signed_claims)
+        assert str(e.value) == "Publisher with matching claims was not found"
 
     def test_github_publisher_all_known_claims(self):
         assert github.GitHubPublisher.all_known_claims() == {
@@ -60,10 +190,10 @@ class TestGitHubPublisher:
             "nbf",
             "exp",
             "aud",
+            "jti",
             # unchecked claims
             "actor",
             "actor_id",
-            "jti",
             "run_id",
             "run_number",
             "run_attempt",
@@ -97,6 +227,7 @@ class TestGitHubPublisher:
             assert getattr(publisher, claim_name) is not None
 
         assert str(publisher) == "fakeworkflow.yml"
+        assert publisher.publisher_base_url == "https://github.com/fakeowner/fakerepo"
         assert publisher.publisher_url() == "https://github.com/fakeowner/fakerepo"
         assert (
             publisher.publisher_url({"sha": "somesha"})
@@ -108,17 +239,10 @@ class TestGitHubPublisher:
         }
 
     def test_github_publisher_unaccounted_claims(self, monkeypatch):
-        publisher = github.GitHubPublisher(
-            repository_name="fakerepo",
-            repository_owner="fakeowner",
-            repository_owner_id="fakeid",
-            workflow_filename="fakeworkflow.yml",
-        )
-
         scope = pretend.stub()
         sentry_sdk = pretend.stub(
             capture_message=pretend.call_recorder(lambda s: None),
-            push_scope=pretend.call_recorder(
+            new_scope=pretend.call_recorder(
                 lambda: pretend.stub(
                     __enter__=lambda *a: scope, __exit__=lambda *a: None
                 )
@@ -133,9 +257,8 @@ class TestGitHubPublisher:
         }
         signed_claims["fake-claim"] = "fake"
         signed_claims["another-fake-claim"] = "also-fake"
-        with pytest.raises(errors.InvalidPublisherError) as e:
-            publisher.verify_claims(signed_claims=signed_claims)
-        assert str(e.value) == "Check failed for required claim 'sub'"
+
+        github.GitHubPublisher.check_claims_existence(signed_claims)
         assert sentry_sdk.capture_message.calls == [
             pretend.call(
                 "JWT for GitHubPublisher has unaccounted claims: "
@@ -144,7 +267,11 @@ class TestGitHubPublisher:
         ]
         assert scope.fingerprint == ["another-fake-claim", "fake-claim"]
 
-    @pytest.mark.parametrize("missing", ["sub", "ref"])
+    @pytest.mark.parametrize(
+        "missing",
+        github.GitHubPublisher.__required_verifiable_claims__.keys()
+        | github.GitHubPublisher.__required_unverifiable_claims__,
+    )
     def test_github_publisher_missing_claims(self, monkeypatch, missing):
         publisher = github.GitHubPublisher(
             repository_name="fakerepo",
@@ -156,7 +283,7 @@ class TestGitHubPublisher:
         scope = pretend.stub()
         sentry_sdk = pretend.stub(
             capture_message=pretend.call_recorder(lambda s: None),
-            push_scope=pretend.call_recorder(
+            new_scope=pretend.call_recorder(
                 lambda: pretend.stub(
                     __enter__=lambda *a: scope, __exit__=lambda *a: None
                 )
@@ -173,7 +300,7 @@ class TestGitHubPublisher:
         assert missing not in signed_claims
         assert publisher.__required_verifiable_claims__
         with pytest.raises(errors.InvalidPublisherError) as e:
-            publisher.verify_claims(signed_claims=signed_claims)
+            github.GitHubPublisher.check_claims_existence(signed_claims)
         assert str(e.value) == f"Missing claim {missing!r}"
         assert sentry_sdk.capture_message.calls == [
             pretend.call(f"JWT for GitHubPublisher is missing claim: {missing}")
@@ -192,6 +319,10 @@ class TestGitHubPublisher:
         sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
         monkeypatch.setattr(_core, "sentry_sdk", sentry_sdk)
 
+        service_ = pretend.stub(
+            jwt_identifier_exists=pretend.call_recorder(lambda s: False),
+        )
+
         signed_claims = {
             claim_name: getattr(publisher, claim_name)
             for claim_name in github.GitHubPublisher.__required_verifiable_claims__
@@ -201,7 +332,9 @@ class TestGitHubPublisher:
         signed_claims["job_workflow_ref"] = publisher.job_workflow_ref + "@ref"
         assert publisher.__required_verifiable_claims__
         with pytest.raises(errors.InvalidPublisherError) as e:
-            publisher.verify_claims(signed_claims=signed_claims)
+            publisher.verify_claims(
+                signed_claims=signed_claims, publisher_service=service_
+            )
         assert str(e.value) == "Check failed for optional claim 'environment'"
         assert sentry_sdk.capture_message.calls == []
 
@@ -219,7 +352,7 @@ class TestGitHubPublisher:
             environment=environment,
         )
 
-        noop_check = pretend.call_recorder(lambda gt, sc, ac: True)
+        noop_check = pretend.call_recorder(lambda gt, sc, ac, **kwargs: True)
         verifiable_claims = {
             claim_name: noop_check
             for claim_name in publisher.__required_verifiable_claims__
@@ -240,7 +373,10 @@ class TestGitHubPublisher:
             for claim_name in github.GitHubPublisher.all_known_claims()
             if claim_name not in missing_claims
         }
-        assert publisher.verify_claims(signed_claims=signed_claims)
+        github.GitHubPublisher.check_claims_existence(signed_claims)
+        assert publisher.verify_claims(
+            signed_claims=signed_claims, publisher_service=pretend.stub()
+        )
         assert len(noop_check.calls) == len(verifiable_claims) + len(
             optional_verifiable_claims
         )
@@ -471,31 +607,6 @@ class TestGitHubPublisher:
         check = github.GitHubPublisher.__optional_verifiable_claims__["environment"]
         assert check(truth, claim, pretend.stub()) is valid
 
-    @pytest.mark.parametrize(
-        ("ref", "sha", "raises"),
-        [
-            ("ref", "sha", False),
-            (None, "sha", False),
-            ("ref", None, False),
-            (None, None, True),
-        ],
-    )
-    def test_github_publisher_verification_policy(self, ref, sha, raises):
-        publisher = github.GitHubPublisher(
-            repository_name="fakerepo",
-            repository_owner="fakeowner",
-            repository_owner_id="fakeid",
-            workflow_filename="fakeworkflow.yml",
-            environment="",
-        )
-        claims = {"ref": ref, "sha": sha}
-
-        if not raises:
-            publisher.publisher_verification_policy(claims)
-        else:
-            with pytest.raises(InvalidPublisherError):
-                publisher.publisher_verification_policy(claims)
-
     def test_github_publisher_duplicates_cant_be_created(self, db_request):
         publisher1 = github.GitHubPublisher(
             repository_name="repository_name",
@@ -507,16 +618,94 @@ class TestGitHubPublisher:
         db_request.db.add(publisher1)
         db_request.db.commit()
 
+        publisher2 = github.GitHubPublisher(
+            repository_name="repository_name",
+            repository_owner="repository_owner",
+            repository_owner_id="666",
+            workflow_filename="workflow_filename.yml",
+            environment="",
+        )
+        db_request.db.add(publisher2)
+
         with pytest.raises(sqlalchemy.exc.IntegrityError):
-            publisher2 = github.GitHubPublisher(
-                repository_name="repository_name",
-                repository_owner="repository_owner",
-                repository_owner_id="666",
-                workflow_filename="workflow_filename.yml",
-                environment="",
-            )
-            db_request.db.add(publisher2)
             db_request.db.commit()
+
+    @pytest.mark.parametrize(
+        "repository_name",
+        [
+            "repository_name",
+            "Repository_Name",
+        ],
+    )
+    @pytest.mark.parametrize(
+        "repository_owner",
+        [
+            "repository_owner",
+            "Repository_Owner",
+        ],
+    )
+    @pytest.mark.parametrize(
+        ("url", "expected"),
+        [
+            ("https://github.com/repository_owner/repository_name.git", True),
+            ("https://github.com/repository_owner/repository_name.git/", True),
+            ("https://github.com/repository_owner/repository_name.git/issues", False),
+            ("https://repository_owner.github.io/repository_name/", True),
+            ("https://repository_owner.github.io/repository_name", True),
+            ("https://repository_owner.github.io/repository_name/subpage", True),
+            ("https://repository_owner.github.io/repository_name/../malicious", False),
+            ("https://repository_owner.github.io/", False),
+            ("https://repository_owner.github.io/unrelated_name/", False),
+            ("https://github.com/RePosItory_OwNeR/rePository_Name.git", True),
+            ("https://repository_owner.github.io/RePoSiToRy_NaMe/subpage", True),
+        ],
+    )
+    def test_github_publisher_verify_url(
+        self, url, expected, repository_name, repository_owner
+    ):
+        publisher = github.GitHubPublisher(
+            repository_name=repository_name,
+            repository_owner=repository_owner,
+            repository_owner_id="666",
+            workflow_filename="workflow_filename.yml",
+            environment="",
+        )
+        assert publisher.verify_url(url) == expected
+
+    @pytest.mark.parametrize("environment", ["", "some-env"])
+    def test_github_publisher_attestation_identity(self, environment):
+        publisher = github.GitHubPublisher(
+            repository_name="repository_name",
+            repository_owner="repository_owner",
+            repository_owner_id="666",
+            workflow_filename="workflow_filename.yml",
+            environment=environment,
+        )
+
+        identity = publisher.attestation_identity
+        assert identity.repository == publisher.repository
+        assert identity.workflow == publisher.workflow_filename
+
+        if not environment:
+            assert identity.environment is None
+        else:
+            assert identity.environment == publisher.environment
+
+    @pytest.mark.parametrize("exists_in_db", [True, False])
+    def test_exists(self, db_request, exists_in_db):
+        publisher = github.GitHubPublisher(
+            repository_name="repository_name",
+            repository_owner="repository_owner",
+            repository_owner_id="666",
+            workflow_filename="workflow_filename.yml",
+            environment="",
+        )
+
+        if exists_in_db:
+            db_request.db.add(publisher)
+            db_request.db.flush()
+
+        assert publisher.exists(db_request.db) == exists_in_db
 
 
 class TestPendingGitHubPublisher:

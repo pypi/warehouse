@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
 
@@ -20,6 +10,10 @@ from warehouse.admin.flags import AdminFlagValue
 from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models import (
+    ACTIVESTATE_OIDC_ISSUER_URL,
+    GITHUB_OIDC_ISSUER_URL,
+    GITLAB_OIDC_ISSUER_URL,
+    GOOGLE_OIDC_ISSUER_URL,
     ActiveStatePublisher,
     GitHubPublisher,
     GitLabPublisher,
@@ -31,11 +25,6 @@ from warehouse.oidc.models import (
     PendingGooglePublisher,
     PendingOIDCPublisher,
 )
-
-GITHUB_OIDC_ISSUER_URL = "https://token.actions.githubusercontent.com"
-GITLAB_OIDC_ISSUER_URL = "https://gitlab.com"
-GOOGLE_OIDC_ISSUER_URL = "https://accounts.google.com"
-ACTIVESTATE_OIDC_ISSUER_URL = "https://platform.activestate.com/api/v1/oauth/oidc"
 
 OIDC_ISSUER_SERVICE_NAMES = {
     GITHUB_OIDC_ISSUER_URL: "github",
@@ -89,6 +78,10 @@ def find_publisher_by_issuer(
         # This indicates a logic error, since we shouldn't have verified
         # claims for an issuer that we don't recognize and support.
         raise InvalidPublisherError(f"Issuer {issuer_url!r} is unsupported")
+
+    # Before looking up the publisher by claims, we need to ensure that all expected
+    # claims are present in the JWT.
+    publisher_cls.check_claims_existence(signed_claims)
 
     return publisher_cls.lookup_by_claims(session, signed_claims)
 

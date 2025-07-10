@@ -1,16 +1,7 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
+import pyramid_retry
 import pytest
 import requests
 import responses
@@ -118,6 +109,18 @@ class TestVerifyResponse:
             challenge_ts=None,
             hostname=None,
         )
+
+    def test_retries_on_timeout(self, monkeypatch):
+        service = hcaptcha.Service.create_service(
+            context=None,
+            request=_REQUEST,
+        )
+        monkeypatch.setattr(
+            service.request.http, "post", pretend.raiser(requests.Timeout)
+        )
+
+        with pytest.raises(pyramid_retry.RetryableException):
+            service.verify_response("meaningless")
 
     def test_unexpected_error(self, monkeypatch):
         service = hcaptcha.Service.create_service(

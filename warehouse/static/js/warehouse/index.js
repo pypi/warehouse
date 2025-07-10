@@ -1,15 +1,4 @@
-/* Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/* SPDX-License-Identifier: Apache-2.0 */
 
 // Import stimulus
 import { Application } from "@hotwired/stimulus";
@@ -22,7 +11,6 @@ import { Autocomplete } from "stimulus-autocomplete";
 import docReady from "warehouse/utils/doc-ready";
 
 // Import our utility functions
-import Analytics from "warehouse/utils/analytics";
 import HTMLInclude from "warehouse/utils/html-include";
 import * as formUtils from "warehouse/utils/forms";
 import PositionWarning from "warehouse/utils/position-warning";
@@ -57,9 +45,6 @@ docReady(() => {
 
 // Kick off the client side HTML includes.
 docReady(HTMLInclude);
-
-// Trigger our analytics code.
-docReady(Analytics);
 
 // Handle the JS based automatic form submission.
 docReady(formUtils.submitTriggers);

@@ -1,0 +1,5 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
+{% extends "email/_base/subject.txt" %}
+
+{% block subject %}Trusted Publisher for project {{ project_name }} can be made more secure{% endblock %}

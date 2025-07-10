@@ -1,25 +1,14 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
 
 from webob.multidict import MultiDict
-from wtforms.validators import StopValidation, ValidationError
+from wtforms.validators import ValidationError
 
 from warehouse.forms import (
-    DBForm,
-    Form,
     PasswordStrengthValidator,
+    PreventHTMLTagsValidator,
     SetLocaleForm,
     URIValidator,
 )
@@ -89,125 +78,43 @@ class TestPasswordStrengthValidator:
         assert str(exc.value) == expected
 
 
-def _raiser(exc):
-    raise exc
-
-
-class TestForm:
-    def test_empty_form_no_errors(self):
-        form = Form()
-        assert form.errors == {}
-
-    def test_errors_is_not_cached(self):
-        # Changed in wtforms==2.3.0 (https://github.com/wtforms/wtforms/pull/568)
-        form = Form()
-        assert form.errors == {}
-        form._form_errors.append("An Error")
-        assert form.errors == {"__all__": ["An Error"]}
-
-    def test_form_level_validation_no_validators(self):
-        class TestForm(Form):
-            pass
-
-        form = TestForm()
-
-        assert form.validate()
-        assert form.errors == {}
-
-    def test_form_level_validation_full_validate(self):
-        class TestForm(Form):
-            @pretend.call_recorder
-            def full_validate(self):
-                pass
-
-        form = TestForm()
-
-        assert form.validate()
-        assert form.errors == {}
-        assert form.full_validate.calls == [pretend.call(form)]
-
-    def test_form_level_validation_full_validate_fails(self):
-        class TestForm(Form):
-            @pretend.call_recorder
-            def full_validate(self):
-                raise ValueError("A Value Error")
-
-        form = TestForm()
-
-        assert not form.validate()
-        assert form.errors == {"__all__": ["A Value Error"]}
-        assert form.full_validate.calls == [pretend.call(form)]
-
-    @pytest.mark.parametrize("validator_funcs", [[], [lambda f: None]])
-    def test_form_level_validation_meta_works(self, validator_funcs):
-        validator_funcs = [pretend.call_recorder(v) for v in validator_funcs]
-
-        class TestForm(Form):
-            class Meta:
-                validators = validator_funcs
-
-        form = TestForm()
-
-        assert form.validate()
-        assert form.errors == {}
-        for v in validator_funcs:
-            assert v.calls == [pretend.call(form)]
-
+class TestPreventHTMLTagsValidator:
     @pytest.mark.parametrize(
-        ("validator_funcs", "errors", "stop_after"),
+        "inbound_data",
         [
-            (
-                [
-                    lambda f: _raiser(ValueError("An Error")),
-                    lambda f: None,
-                    lambda f: _raiser(ValueError("Another Error")),
-                    lambda f: _raiser(StopValidation("Stop!")),
-                    lambda f: _raiser(ValueError("This Won't Show.")),
-                ],
-                ["An Error", "Another Error", "Stop!"],
-                3,
-            ),
-            (
-                [
-                    lambda f: _raiser(ValueError("An Error")),
-                    lambda f: None,
-                    lambda f: _raiser(ValueError("Another Error")),
-                    lambda f: _raiser(StopValidation),
-                    lambda f: _raiser(ValueError("This Won't Show.")),
-                ],
-                ["An Error", "Another Error"],
-                3,
-            ),
+            "A link https://example.com",
+            "query string https://example.com?query=string",
+            "anchor https://example.com#fragment",
+            "qs and anchor https://example.com?query=string#fragment",
+            "path, qs, anchor https://example.com/path?query=string#fragment",
+            "A comment with a > character",
+            "A comment with a < character",
+            "A comment with a & character",
+            "A comment with a ' character",
+            'A comment with a " character',
         ],
     )
-    def test_form_level_validation_meta_fails(
-        self, validator_funcs, errors, stop_after
-    ):
-        validator_funcs = [pretend.call_recorder(v) for v in validator_funcs]
+    def test_valid(self, inbound_data):
+        validator = PreventHTMLTagsValidator()
+        validator(pretend.stub(), pretend.stub(data=inbound_data))
 
-        class TestForm(Form):
-            class Meta:
-                validators = validator_funcs
+    def test_invalid(self):
+        validator = PreventHTMLTagsValidator()
+        with pytest.raises(ValidationError) as exc:
+            validator(
+                pretend.stub(), pretend.stub(data="<img src='https://example.com'>")
+            )
 
-        form = TestForm()
+        assert str(exc.value) == "HTML tags are not allowed"
 
-        assert not form.validate()
-        assert form.errors == {"__all__": errors}
-        for i, v in enumerate(validator_funcs):
-            assert v.calls == [pretend.call(form)]
-            if i >= stop_after:
-                break
+    def test_custom_message(self):
+        validator = PreventHTMLTagsValidator(message="No HTML allowed")
+        with pytest.raises(ValidationError) as exc:
+            validator(
+                pretend.stub(), pretend.stub(data="<img src='https://example.com'>")
+            )
 
-
-class TestDBForm:
-    def test_form_requires_db(self):
-        with pytest.raises(TypeError):
-            DBForm()
-
-    def test_form_accepts_db(self):
-        db = pretend.stub()
-        form = DBForm(db=db)
-        assert form.db is db
+        assert str(exc.value) == "No HTML allowed"
 
 
 class TestSetLocaleForm:

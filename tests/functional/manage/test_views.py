@@ -1,16 +1,12 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
+import time
+
+from http import HTTPStatus
+
+import faker
 import pretend
+import pytest
 
 from webob.multidict import MultiDict
 
@@ -19,6 +15,7 @@ from warehouse.manage import views
 from warehouse.manage.views import organizations as org_views
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import OrganizationType
+from warehouse.utils.otp import _get_totp
 
 from ...common.db.accounts import EmailFactory, UserFactory
 
@@ -47,15 +44,73 @@ class TestManageAccount:
         assert user.name == "new name"
         assert user.public_email is None
 
+    def test_changing_password_succeeds(self, webtest, socket_enabled):
+        """A user can log in, and change their password."""
+        # create a User
+        user = UserFactory.create(
+            with_verified_primary_email=True,
+            with_terms_of_service_agreement=True,
+            clear_pwd="password",
+        )
+
+        # visit login page
+        login_page = webtest.get("/account/login/", status=HTTPStatus.OK)
+
+        # Fill & submit the login form
+        login_form = login_page.forms["login-form"]
+        anonymous_csrf_token = login_form["csrf_token"].value
+        login_form["username"] = user.username
+        login_form["password"] = "password"
+        login_form["csrf_token"] = anonymous_csrf_token
+
+        two_factor_page = login_form.submit().follow(status=HTTPStatus.OK)
+
+        two_factor_form = two_factor_page.forms["totp-auth-form"]
+        two_factor_form["csrf_token"] = anonymous_csrf_token
+
+        # Generate the correct TOTP value from the known secret
+        two_factor_form["totp_value"] = (
+            _get_totp(user.totp_secret).generate(time.time()).decode()
+        )
+
+        logged_in = two_factor_form.submit().follow(status=HTTPStatus.OK)
+        assert logged_in.html.find(
+            "title", string="Warehouse · The Python Package Index"
+        )
+
+        # Now visit the change password page
+        change_password_page = logged_in.goto("/manage/account/", status=HTTPStatus.OK)
+
+        # Ensure that the CSRF token changes once logged in and a session is established
+        logged_in_csrf_token = change_password_page.html.find(
+            "input", {"name": "csrf_token"}
+        )["value"]
+        assert anonymous_csrf_token != logged_in_csrf_token
+
+        # Fill & submit the change password form
+        new_password = faker.Faker().password()  # a secure-enough password for testing
+        change_password_form = change_password_page.forms["change-password-form"]
+        change_password_form["csrf_token"] = logged_in_csrf_token
+        change_password_form["password"] = "password"
+        change_password_form["new_password"] = new_password
+        change_password_form["password_confirm"] = new_password
+
+        change_password_form.submit().follow(status=HTTPStatus.OK)
+
+        # Request the JavaScript-enabled flash messages directly to get the message
+        resp = webtest.get("/_includes/unauthed/flash-messages/", status=HTTPStatus.OK)
+        success_message = resp.html.find("span", {"class": "notification-bar__message"})
+        assert success_message.text == "Password updated"
+
 
 class TestManageOrganizations:
-    def test_create_organization(
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_create_organization_application(
         self,
         pyramid_services,
         user_service,
         organization_service,
         db_request,
-        enable_organizations,
         monkeypatch,
     ):
         pyramid_services.register_service(user_service, IUserService, None)
@@ -79,6 +134,8 @@ class TestManageOrganizations:
                     "language, and to support and facilitate the growth of a "
                     "diverse and international community of Python programmers"
                 ),
+                "usage": ("We plan to host projects owned by the PSF"),
+                "membership_size": "2-5",
             }
         )
         db_request.registry.settings[

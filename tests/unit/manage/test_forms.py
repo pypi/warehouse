@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -19,8 +9,11 @@ from webob.multidict import MultiDict
 import warehouse.utils.otp as otp
 import warehouse.utils.webauthn as webauthn
 
+from warehouse.accounts.models import ProhibitedEmailDomain
 from warehouse.manage import forms
 
+from ...common.constants import REMOTE_ADDR
+from ...common.db.organizations import OrganizationFactory
 from ...common.db.packaging import ProjectFactory
 
 
@@ -169,12 +162,13 @@ class TestSaveAccountForm:
 
 
 class TestAddEmailForm:
-    def test_validate(self):
+    def test_validate(self, metrics):
         user_id = pretend.stub()
         user_service = pretend.stub(find_userid_by_email=lambda _: None)
         form = forms.AddEmailForm(
             request=pretend.stub(
-                db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False))
+                db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False)),
+                metrics=metrics,
             ),
             formdata=MultiDict({"email": "foo@bar.com"}),
             user_id=user_id,
@@ -240,11 +234,113 @@ class TestAddEmailForm:
             "Use a different email."
         )
 
-    def test_email_too_long_error(self, pyramid_config):
-        form = forms.AddEmailForm(
-            request=pretend.stub(
-                db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False))
+    @pytest.mark.parametrize(
+        ("email_address", "mx_record_domain", "prohibited_domain"),
+        [
+            ("foo@wutang.net", "in.mail.net", "mail.net"),
+            ("foo@wutang.net", "in.mail.net", "in.mail.net"),
+            (
+                "foo@outlook.com",
+                "outlook-com.mail.protection.outlook.com",
+                "outlook.com",
             ),
+        ],
+    )
+    def test_prohibited_mx_domain_error(
+        self,
+        monkeypatch,
+        db_request,
+        email_address,
+        mx_record_domain,
+        prohibited_domain,
+    ):
+        """
+        Similar to `test_prohibited_email_error()`, checking the MX domain.
+        """
+        mock_deliverability_info = {"mx": [(10, mx_record_domain)]}
+
+        def mock_function(*args, **kwargs):
+            return mock_deliverability_info
+
+        monkeypatch.setattr(
+            "email_validator.deliverability.validate_email_deliverability",
+            mock_function,
+        )
+
+        prohibited_mx_domain = ProhibitedEmailDomain(
+            domain=prohibited_domain,
+            is_mx_record=True,
+        )
+        db_request.db.add(prohibited_mx_domain)
+
+        form = forms.AddEmailForm(
+            request=db_request,
+            formdata=MultiDict({"email": email_address}),
+            user_service=pretend.stub(find_userid_by_email=lambda _: None),
+            user_id=pretend.stub(),
+        )
+
+        assert not form.validate()
+        assert (
+            str(form.email.errors.pop())
+            == "You can't use an email address from this domain. "
+            "Use a different email."
+        )
+
+    @pytest.mark.parametrize(
+        ("email_address", "mx_record_domain", "prohibited_domain"),
+        [
+            (
+                "foo@microsoft.com",
+                "microsoft-com.mail.protection.outlook.com",
+                "outlook.com",
+            ),
+        ],
+    )
+    def test_prohibited_mx_domain_passes(
+        self,
+        monkeypatch,
+        db_request,
+        email_address,
+        mx_record_domain,
+        prohibited_domain,
+    ):
+        """
+        Similar to `test_prohibited_email_error()`, allowing if:
+          - the `registered_domain` part of the email address is **not** prohibited
+          - the `registered_domain` part of the MX record is prohibited
+
+        This is to allow for cases where the email address that shares MX records with a
+        prohibited domain is not itself prohibited.
+        """
+        mock_deliverability_info = {"mx": [(10, mx_record_domain)]}
+
+        def mock_function(*args, **kwargs):
+            return mock_deliverability_info
+
+        monkeypatch.setattr(
+            "email_validator.deliverability.validate_email_deliverability",
+            mock_function,
+        )
+
+        prohibited_mx_domain = ProhibitedEmailDomain(
+            domain=prohibited_domain,
+            is_mx_record=False,
+        )
+        db_request.db.add(prohibited_mx_domain)
+
+        form = forms.AddEmailForm(
+            request=db_request,
+            formdata=MultiDict({"email": email_address}),
+            user_service=pretend.stub(find_userid_by_email=lambda _: None),
+            user_id=pretend.stub(),
+        )
+
+        assert form.validate()
+
+    def test_email_too_long_error(self, pyramid_request):
+        form = forms.AddEmailForm(
+            request=pyramid_request,
             formdata=MultiDict({"email": f"{'x' * 300}@bar.com"}),
             user_service=pretend.stub(find_userid_by_email=lambda _: None),
             user_id=pretend.stub(),
@@ -252,7 +348,7 @@ class TestAddEmailForm:
 
         assert not form.validate()
         assert (
-            str(form.email.errors.pop()) == "The email address is too long. Try again."
+            str(form.email.errors.pop()) == "The email address isn't valid. Try again."
         )
 
 
@@ -292,7 +388,7 @@ class TestDeleteTOTPForm:
 
     def test_validate_confirm_password(self):
         request = pretend.stub(
-            remote_addr="1.2.3.4", banned=pretend.stub(by_ip=lambda ip_address: False)
+            remote_addr=REMOTE_ADDR, banned=pretend.stub(by_ip=lambda ip_address: False)
         )
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
@@ -325,7 +421,7 @@ class TestProvisionTOTPForm:
         assert form.validate(), str(form.errors)
 
     @pytest.mark.parametrize(
-        "exception, expected_error",
+        ("exception", "expected_error"),
         [
             (otp.InvalidTOTPError, "Invalid TOTP code. Try again?"),
             (
@@ -654,7 +750,7 @@ class TestDeleteMacaroonForm:
             find_userid=lambda *a, **kw: 1, check_password=lambda *a, **kw: True
         )
         request = pretend.stub(
-            remote_addr="1.2.3.4", banned=pretend.stub(by_ip=lambda ip_address: False)
+            remote_addr=REMOTE_ADDR, banned=pretend.stub(by_ip=lambda ip_address: False)
         )
         form = forms.DeleteMacaroonForm(
             formdata=MultiDict({"macaroon_id": pretend.stub(), "password": "password"}),
@@ -675,7 +771,7 @@ class TestDeleteMacaroonForm:
             find_userid=lambda *a, **kw: 1, check_password=lambda *a, **kw: True
         )
         request = pretend.stub(
-            remote_addr="1.2.3.4", banned=pretend.stub(by_ip=lambda ip_address: False)
+            remote_addr=REMOTE_ADDR, banned=pretend.stub(by_ip=lambda ip_address: False)
         )
         form = forms.DeleteMacaroonForm(
             formdata=MultiDict(
@@ -795,14 +891,12 @@ class TestCreateOrganizationApplicationForm:
 
         form.validate__max_apps(pretend.stub())
 
-        assert form.errors == {
-            "__all__": [
-                (
-                    "You have already submitted the maximum number of "
-                    "Organization requests (3)."
-                )
-            ]
-        }
+        assert form.form_errors == [
+            (
+                "You have already submitted the maximum number of "
+                "Organization requests (3)."
+            )
+        ]
 
         assert organization_service.get_organization_applications_by_name.calls == []
         assert organization_service.find_organizationid.calls == []
@@ -915,25 +1009,30 @@ class TestAddOrganizationProjectForm:
 
 
 class TestTransferOrganizationProjectForm:
-    @pytest.mark.parametrize(
-        ("organization", "organization_choices", "errors"),
-        [
-            ("", [], {"organization": ["Select organization"]}),
-            ("", ["organization"], {"organization": ["Select organization"]}),
-            ("organization", ["organization"], {}),
-        ],
-    )
-    def test_validate(
-        self, pyramid_request, organization, organization_choices, errors
-    ):
-        pyramid_request.POST = MultiDict({"organization": organization})
+    def test_validate(self, pyramid_request):
+        organization = OrganizationFactory()
+        pyramid_request.POST = MultiDict({"organization": organization.id})
 
         form = forms.TransferOrganizationProjectForm(
-            pyramid_request.POST, organization_choices=organization_choices
+            pyramid_request.POST, organization_choices=[organization]
         )
 
-        assert not form.validate() if errors else form.validate(), str(form.errors)
-        assert form.errors == errors
+        assert form.validate()
+
+    def test_rejects_inactive_company(self, pyramid_request):
+        organization = OrganizationFactory(orgtype="Company")
+        pyramid_request.POST = MultiDict({"organization": organization.id})
+
+        form = forms.TransferOrganizationProjectForm(
+            pyramid_request.POST, organization_choices=[organization]
+        )
+
+        assert not form.validate()
+        assert form.errors == {
+            "organization": [
+                "Cannot transfer to Company Organization with inactive billing"
+            ]
+        }
 
 
 class TestCreateOrganizationRoleForm:

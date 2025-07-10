@@ -1,14 +1,5 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
 from datetime import datetime
 from uuid import UUID
 
@@ -24,6 +15,7 @@ import warehouse.cli.db.dbml
 import warehouse.db
 
 from warehouse.cli.db.branches import branches
+from warehouse.cli.db.check import check
 from warehouse.cli.db.current import current
 from warehouse.cli.db.downgrade import downgrade
 from warehouse.cli.db.heads import heads
@@ -280,7 +272,7 @@ def test_stamp_command(monkeypatch, cli, pyramid_config):
 
 
 def test_upgrade_command(monkeypatch, cli, pyramid_config):
-    alembic_upgrade = pretend.call_recorder(lambda config, revision: None)
+    alembic_upgrade = pretend.call_recorder(lambda config, revision, sql: None)
     monkeypatch.setattr(alembic.command, "upgrade", alembic_upgrade)
 
     alembic_config = pretend.stub(attributes={})
@@ -296,7 +288,19 @@ def test_upgrade_command(monkeypatch, cli, pyramid_config):
 
     result = cli.invoke(upgrade, ["foo"], obj=pyramid_config)
     assert result.exit_code == 0
-    assert alembic_upgrade.calls == [pretend.call(alembic_config, "foo")]
+    assert alembic_upgrade.calls == [pretend.call(alembic_config, "foo", sql=False)]
+
+
+def test_check_command(monkeypatch, cli, pyramid_config):
+    alembic_check = pretend.call_recorder(lambda config: None)
+    monkeypatch.setattr(alembic.command, "check", alembic_check)
+
+    alembic_config = pretend.stub(attributes={})
+    pyramid_config.alembic_config = lambda: alembic_config
+
+    result = cli.invoke(check, obj=pyramid_config)
+    assert result.exit_code == 0
+    assert alembic_check.calls == [pretend.call(alembic_config)]
 
 
 def test_dbml_command(monkeypatch, cli):

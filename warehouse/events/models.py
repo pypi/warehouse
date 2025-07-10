@@ -1,14 +1,5 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
 from __future__ import annotations
 
 import typing
@@ -42,6 +33,8 @@ class GeoIPInfo:
     country_code: str | None = None
     country_name: str | None = None
     region: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
 
     @property
     def _city(self) -> str:
@@ -198,6 +191,7 @@ class HasEvents:
             passive_deletes=True,
             lazy="dynamic",
             back_populates="source",
+            order_by=f"desc({cls.__name__}Event.time)",
         )
 
     def record_event(self, *, tag, request: Request, additional=None):
@@ -222,9 +216,12 @@ class HasEvents:
                     additional = additional or {}
                     additional["user_agent_info"] = {
                         "installer": "Browser",
-                        "device": parsed_user_agent["device"]["family"],
+                        # See https://github.com/pypi/linehaul-cloud-function/issues/203
+                        "device": parsed_user_agent["device"]["family"],  # noqa: E501
                         "os": parsed_user_agent["os"]["family"],
-                        "user_agent": parsed_user_agent["user_agent"]["family"],
+                        "user_agent": parsed_user_agent["user_agent"][
+                            "family"
+                        ],  # noqa: E501
                     }
                 else:
                     additional = additional or {}

@@ -1,0 +1,70 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
+{% extends "admin/base.html" %}
+
+{% import "admin/utils/pagination.html" as pagination %}
+{% block title %}
+  Prohibited Usernames
+{% endblock title %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item">Prohibition Era</li>
+  <li class="breadcrumb-item active">Usernames</li>
+{% endblock breadcrumb %}
+
+{% block content %}
+  <div class="card">
+    <div class="card-body">
+      <form>
+        <div class="input-group input-group-lg">
+          <label for="search" title="Search"></label>
+          <input name="q"
+                 id="search"
+                 type="text"
+                 class="form-control input-lg"
+                 placeholder="Search"
+                 {% if query %}value="{{ query }}"{% endif %}>
+          <div class="input-group-btn input-group-append">
+            <button type="submit" class="btn btn-default">
+              <i class="fa fa-search"></i>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body table-responsive p-0">
+      <table class="table table-hover table-striped">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Prohibited by</th>
+            <th>Prohibited on</th>
+            <th>Comment</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for prohibited_user_name in prohibited_user_names %}
+            <tr>
+              <td>{{ prohibited_user_name.name }}</td>
+              <td>
+                <a href="{{ request.route_path('admin.user.detail', username=prohibited_user_name.prohibited_by.username) }}">
+                  {{ prohibited_user_name.prohibited_by.username }}
+                </a>
+              </td>
+              <td>{{ prohibited_user_name.created | format_datetime }}</td>
+              <td>{{ prohibited_user_name.comment }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="card-footer">
+      <div class="col-sm-5">{{ pagination.summary(prohibited_user_names) }}</div>
+      <div class="col-sm-7">
+        <div class="float-right">{{ pagination.paginate(prohibited_user_names) }}</div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}

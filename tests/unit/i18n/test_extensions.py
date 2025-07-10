@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -19,7 +9,7 @@ from warehouse.i18n import extensions
 
 
 @pytest.mark.parametrize(
-    "ext, result",
+    ("ext", "result"),
     [
         # Just a sanity check: test that when we do nothing, text is not trimmed.
         ([], "   hey   "),
@@ -62,9 +52,12 @@ def _get_with_context(value, ctx=None):
 class TestFallbackInternationalizationExtension:
     @pytest.mark.parametrize(
         (
-            "newstyle_env, newstyle_param, "
-            "newer_gettext_expected, newer_ngettext_expected, "
-            "_pgettext, _npgettext"
+            "newstyle_env",
+            "newstyle_param",
+            "newer_gettext_expected",
+            "newer_ngettext_expected",
+            "pgettext",
+            "npgettext",
         ),
         [
             (
@@ -101,8 +94,8 @@ class TestFallbackInternationalizationExtension:
         newstyle_param,
         newer_gettext_expected,
         newer_ngettext_expected,
-        _pgettext,
-        _npgettext,
+        pgettext,
+        npgettext,
     ):
         _make_newer_gettext = pretend.call_recorder(lambda func: func)
         _make_newer_ngettext = pretend.call_recorder(lambda func: func)
@@ -120,15 +113,15 @@ class TestFallbackInternationalizationExtension:
             pretend_gettext,
             pretend_ngettext,
             newstyle=newstyle_param,
-            pgettext=pretend_pgettext if _pgettext else None,
-            npgettext=pretend_npgettext if _npgettext else None,
+            pgettext=pretend_pgettext if pgettext else None,
+            npgettext=pretend_npgettext if npgettext else None,
         )
 
         assert _make_newer_gettext.calls == newer_gettext_expected
         assert _make_newer_ngettext.calls == newer_ngettext_expected
 
     @pytest.mark.parametrize(
-        "translation, expected",
+        ("translation", "expected"),
         [
             ("Youzer: %(user)s", "Youzer: monty"),
             ("Youzer: %(missing)s", "User: monty"),
@@ -161,7 +154,7 @@ class TestFallbackInternationalizationExtension:
         assert tmpl.render(LANGUAGE="en_US", user="monty") == expected
 
     @pytest.mark.parametrize(
-        "translation, translation_plural, num, expected",
+        ("translation", "translation_plural", "num", "expected"),
         [
             (
                 "%(user_num)s Youzer online",

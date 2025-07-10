@@ -1,191 +1,178 @@
-{#
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
--#}
+{# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "base.html" %}
-
 {% import "warehouse:templates/includes/pagination.html" as pagination %}
-
-{% block title %}{% trans %}Search results{% endtrans %}{% endblock %}
-
+{% block title %}
+  {% trans %}Search results{% endtrans %}
+{% endblock %}
 {% macro project_snippet(item) -%}
-<li>
-  <a class="package-snippet" href="{{ request.route_path('packaging.project', name=item.normalized_name) }}">
-    <h3 class="package-snippet__title">
-      <span class="package-snippet__name">{{ item.name }}</span>
-      <span class="package-snippet__version">{{ item.latest_version }}</span>
-      <span class="package-snippet__created">{{ humanize(item.created) }}</span>
-    </h3>
-    <p class="package-snippet__description">{{ item.summary }}</p>
-  </a>
-</li>
+  <li>
+    <a class="package-snippet"
+       href="{{ request.route_path('packaging.project', name=item.normalized_name) }}">
+      <h3 class="package-snippet__title">
+        <span class="package-snippet__name">{{ item.name }}</span>
+        <span class="package-snippet__created">{{ humanize(item.created) }}</span>
+      </h3>
+      <p class="package-snippet__description">{{ item.summary }}</p>
+    </a>
+  </li>
 {%- endmacro %}
-
-
 {% macro suggestion_link(best_guess) -%}
-
-{% set text = best_guess.text %}
-{% set link = request.route_path('search', _query={'q': text}) %}
-
-<span>
-  {% trans link=link, text=text %}Did you mean '<a class="link" href="{{ link }}">{{ text }}</a>'?{% endtrans %}
-</span>
+  {% set text = best_guess.text %}
+  {% set link = request.route_path('search', _query={'q': text}) %}
+  <span>
+    {% trans link=link, text=text %}Did you mean '<a class="link" href="{{ link }}">{{ text }}</a>'?{% endtrans %}
+  </span>
 {%- endmacro %}
-
-
 {% macro search_option(text, value) -%}
-<option value="{{ value }}" {{ 'selected' if value == order else ''}}>{{ text }}</option>
+  <option value="{{ value }}" {% if value == order %}selected{% endif %}>{{ text }}</option>
 {%- endmacro %}
-
-
 {% macro generate_classifier_tree(top_level, classifiers, applied_filters, parent=None) -%}
   {% set level_id = top_level %}
   {%- for classifier in classifiers %}
-  {% set children = classifiers[classifier] %}
-  {% if parent is not none %}
-    {% set level_id = level_id +' :: '+ parent %}
-  {% endif %}
-  {% set id = level_id + ' :: ' + classifier %}
-  <li>
-    <input name="c" type="checkbox" id="{{ id|classifier_id }}" class="-js-form-submit-trigger checkbox-tree__checkbox" value="{{ id }}" {{ 'checked' if id in applied_filters else '' }}>
-    <label class="checkbox-tree__label" for="{{ id|classifier_id }}">{{ classifier }}</label>
-    {%- if children %}
-    <ul>{{ generate_classifier_tree(level_id, children, applied_filters, parent=classifier) }}</ul>
-    {%- endif %}
-  </li>
+    {% set children = classifiers[classifier] %}
+    {% if parent is not none %}
+      {% set level_id = level_id +' :: '+ parent %}
+    {% endif %}
+    {% set id = level_id + ' :: ' + classifier %}
+    <li>
+      <input name="c"
+             type="checkbox"
+             id="{{ id|classifier_id }}"
+             class="-js-form-submit-trigger checkbox-tree__checkbox"
+             value="{{ id }}"
+             {{ 'checked' if id in applied_filters else '' }}>
+      <label class="checkbox-tree__label" for="{{ id|classifier_id }}">{{ classifier }}</label>
+      {%- if children %}
+        <ul>
+          {{ generate_classifier_tree(level_id, children, applied_filters, parent=classifier) }}
+        </ul>
+      {%- endif %}
+    </li>
   {%- endfor %}
 {%- endmacro %}
-
-
 {% block search_form_extra_inputs -%}
   <input type="hidden" name="o" value="{{ order }}">
   {%- for classifier in applied_filters %}
-  <input name="c" type="hidden" value="{{ classifier|e }}">
+    <input name="c" type="hidden" value="{{ classifier|e }}">
   {%- endfor -%}
 {%- endblock %}
-
 {% block content %}
-<div class="horizontal-section horizontal-section--medium">
-  <div class="left-layout">
-    <div class="left-layout__sidebar">
-      <div class="dark-overlay -js-dark-overlay"></div>
-      <div class="filter-panel -js-filter-panel">
-        <button type="button" class="filter-panel__close -js-close-panel" aria-label="{% trans %}Close panel{% endtrans %}">
-          <i class="fa fa-times" aria-hidden="true"></i>
-        </button>
-        <h2 class="no-top-padding">
-          {% trans href=request.route_path('classifiers') %}
-          Filter by <a href="{{ href }}">classifier</a>
+  <div class="horizontal-section horizontal-section--medium">
+    <div class="left-layout">
+      <div class="left-layout__sidebar">
+        <div class="dark-overlay -js-dark-overlay"></div>
+        <div class="filter-panel -js-filter-panel">
+          <button type="button"
+                  class="filter-panel__close -js-close-panel"
+                  aria-label="{% trans %}Close panel{% endtrans %}">
+            <i class="fa fa-times" aria-hidden="true"></i>
+          </button>
+          <h2 class="no-top-padding">
+            {% trans href=request.route_path('classifiers') %}
+            Filter by <a href="{{ href }}">classifier</a>
           {% endtrans %}
         </h2>
         <form id="classifiers">
-        <input id="search" type="hidden" name="q" value="{{ term }}">
-        <input type="hidden" name="o" value="{{ order }}">
-
-        {% set applied_filters_str = applied_filters|join(' ') %}
-        {% for each_filter in available_filters %}
-        {% for top_level, classifiers in each_filter.items() recursive %}
-          <div class="accordion{{ ' accordion--closed' if top_level not in applied_filters_str else '' }}">
-            <button type="button" class="accordion__link -js-accordion-trigger" aria-expanded="false" aria-controls="accordion-{{ top_level|classifier_id }}">{{ top_level }}</button>
-            <div id="accordion-{{ top_level|classifier_id }}" aria-hidden="true" class="accordion__content">
-              <div class="checkbox-tree">
-                <ul>
-                 {{ generate_classifier_tree(top_level, classifiers, applied_filters, parent=None) }}
-                </ul>
+          <input id="search" type="hidden" name="q" value="{{ term }}">
+          <input type="hidden" name="o" value="{{ order }}">
+          {% set applied_filters_str = applied_filters|join(' ') %}
+          {% for each_filter in available_filters %}
+            {% for top_level, classifiers in each_filter.items() recursive %}
+              <div class="accordion{{ ' accordion--closed' if top_level not in applied_filters_str else '' }}">
+                <button type="button"
+                        class="accordion__link -js-accordion-trigger"
+                        aria-expanded="false"
+                        aria-controls="accordion-{{ top_level|classifier_id }}">{{ top_level }}</button>
+                <div id="accordion-{{ top_level|classifier_id }}"
+                     aria-hidden="true"
+                     class="accordion__content">
+                  <div class="checkbox-tree">
+                    <ul>
+                      {{ generate_classifier_tree(top_level, classifiers, applied_filters, parent=None) }}
+                    </ul>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        {% endfor %}
-        {% endfor %}
+            {% endfor %}
+          {% endfor %}
         </form>
       </div>
     </div>
-
     <div class="left-layout__main">
       <h2 class="sr-only">{% trans %}Search results{% endtrans %}</h2>
       {% if not term and not applied_filters %}
-      <div class="callout-block no-top-margin">
-        <p class="hide-below-desktop">{% trans %}Enter a search query, or select a filter from the list of classifiers.{% endtrans %}</p>
-        <p class="hide-on-desktop">{% trans %}Enter a search query, or add a filter by clicking on the button.{% endtrans %}</p>
-        <p>{% trans %}You can combine searches and classifier filters. Examples:{% endtrans %}</p>
-        <ul class="no-bottom-margin">
-          <li>
-            <a href="{{ request.route_path('search', _query=[('c', 'Programming Language :: Python :: 3')]) }}">
-              {% trans %}Python 3 compatible projects{% endtrans %}
-            </a>
-          </li>
-          <li>
-            <a href="{{ request.route_path('search', _query=[('c', 'Framework :: Sphinx :: Extension'), ('c', 'Development Status :: 5 - Production/Stable')]) }}">
-              {% trans %}Sphinx extensions that have a stable/production status{% endtrans %}
-            </a>
-          </li>
-          <li>
-            <a href="{{ request.route_path('search', _query=[('q', 'graphics'), ('c', 'License :: OSI Approved')]) }}">
-              {% trans %}Projects related to "graphics" with OSI-approved licenses{% endtrans %}
-            </a>
-          </li>
-        </ul>
-      </div>
+        <div class="callout-block no-top-margin">
+          <p class="hide-below-desktop">
+            {% trans %}Enter a search query, or select a filter from the list of classifiers.{% endtrans %}
+          </p>
+          <p class="hide-on-desktop">
+            {% trans %}Enter a search query, or add a filter by clicking on the button.{% endtrans %}
+          </p>
+          <p>{% trans %}You can combine searches and classifier filters. Examples:{% endtrans %}</p>
+          <ul class="no-bottom-margin">
+            <li>
+              <a href="{{ request.route_path('search', _query=[('c', 'Programming Language :: Python :: 3') ]) }}">
+                {% trans %}Python 3 compatible projects{% endtrans %}
+              </a>
+            </li>
+            <li>
+              <a href="{{ request.route_path('search', _query=[('c', 'Framework :: Sphinx :: Extension') , ('c', 'Development Status :: 5 - Production/Stable')]) }}">
+                {% trans %}Sphinx extensions that have a stable/production status{% endtrans %}
+              </a>
+            </li>
+            <li>
+              <a href="{{ request.route_path('search', _query=[('q', 'graphics') , ('c', 'License :: OSI Approved')]) }}">
+                {% trans %}Projects related to "graphics" with OSI-approved licenses{% endtrans %}
+              </a>
+            </li>
+          </ul>
+        </div>
       {% endif %}
       <form action="{{ request.route_path('search') }}">
         <div class="split-layout split-layout--table split-layout--wrap-on-tablet">
           <div>
             {% if term or applied_filters %}
-            <p>
-              {% if page.item_count >= 10000 %}
-                {% set item_count_display = page.item_count|format_number + '+' %}
-              {% else %}
-                {% set item_count_display = page.item_count|format_number %}
-              {% endif %}
-
-              {% trans count=page.item_count, count_display=item_count_display %}
-              <strong>{{ count_display }}</strong> project
+              <p>
+                {% if page.item_count >= 10000 %}
+                  {% set item_count_display = page.item_count|format_number + '+' %}
+                {% else %}
+                  {% set item_count_display = page.item_count|format_number %}
+                {% endif %}
+                {% trans count=page.item_count, count_display=item_count_display %}
+                <strong>{{ count_display }}</strong> project
               {% pluralize %}
-              <strong>{{ count_display }}</strong> projects
+                <strong>{{ count_display }}</strong> projects
               {% endtrans %}
-
               {% if term %}
                 {% trans term=term %}for "{{ term }}"{% endtrans %}
               {% endif %}
-
               {% if applied_filters %}
                 {% trans count=applied_filters|length %}
-                  with the selected classifier
-                {% pluralize %}
-                  with the selected classifiers
-                {% endtrans %}
-              {% endif %}
-
-              {% if page.collection.best_guess and page.collection.best_guess.freq > page.item_count %}
-                {{ suggestion_link(page.collection.best_guess) }}
-              {% endif %}
-            </p>
+                with the selected classifier
+              {% pluralize %}
+                with the selected classifiers
+              {% endtrans %}
             {% endif %}
-          </div>
-          <div>
-            {% if term or applied_filters %}
-            <input id="search" type="hidden" name="q" value="{{ term }}">
-            <label for="order">{% trans %}Order by{% endtrans %} &nbsp;</label>
-            <select class="-js-form-submit-trigger" id="order" name="o">
-              {{ search_option(gettext("Relevance"), "") }}
-              {{ search_option(gettext("Date last updated"), "-created") }}
-            </select>
+            {% if page.collection.best_guess and page.collection.best_guess.freq > page.item_count %}
+              {{ suggestion_link(page.collection.best_guess) }}
             {% endif %}
-          </div>
-        </div>
-
-        <div class="applied-filters">
-        {% if applied_filters %}
-          {% for filter in applied_filters %}
+          </p>
+        {% endif %}
+      </div>
+      <div>
+        {% if term or applied_filters %}
+          <input id="search" type="hidden" name="q" value="{{ term }}">
+          <label for="order">{% trans %}Order by{% endtrans %} &nbsp;</label>
+          <select class="-js-form-submit-trigger" id="order" name="o">
+            {{ search_option(gettext("Relevance") , "") }}
+            {{ search_option(gettext("Date last updated") , "-created") }}
+          </select>
+        {% endif %}
+      </div>
+    </div>
+    <div class="applied-filters">
+      {% if applied_filters %}
+        {% for filter in applied_filters %}
           <div class="filter-badge">
             <input type="hidden" name="c" value="{{ filter }}">
             <span class="filter-badge__icon">
@@ -198,44 +185,39 @@
               <span class="sr-only">{% trans %}Close{% endtrans %}</span>
             </button>
           </div>
-          {% endfor %}
-        {% endif %}
-          <span class="applied-filters__add-button">
-            <button type="button" class="-js-add-filter button button--small">{% trans %}Add filter{% endtrans %}</button>
-          </span>
-        </div>
-
-        {% if term or applied_filters %}
-        <div>
-          {% if page.items %}
+        {% endfor %}
+      {% endif %}
+      <span class="applied-filters__add-button">
+        <button type="button" class="-js-add-filter button button--small">{% trans %}Add filter{% endtrans %}</button>
+      </span>
+    </div>
+    {% if term or applied_filters %}
+      <div>
+        {% if page.items %}
           <ul class="unstyled" aria-label="{% trans %}Search results{% endtrans %}">
-            {% for item in page.items %}
-              {{ project_snippet(item) }}
-            {% endfor %}
+            {% for item in page.items %}{{ project_snippet(item) }}{% endfor %}
           </ul>
-          {% else %}
+        {% else %}
           <div class="callout-block">
             <p>
               {% if term %}
                 {% trans term=term %}There were no results for '{{ term }}'{% endtrans %}
               {% elif applied_filters %}
                 {% trans count=applied_filters|length, filters=applied_filters|join(", ") %}
-                  There were no results for '{{ filters }}' filter
-                {% pluralize %}
-                  There were no results for '{{ filters }}' filters
-                {% endtrans %}
-              {% endif %}
-              {% if page.collection.best_guess %}
-                {{ suggestion_link(page.collection.best_guess) }}
-              {% endif %}
-            </p>
-          </div>
-          {% endif %}
-          {{ pagination.paginate(page) }}
+                There were no results for '{{ filters }}' filter
+              {% pluralize %}
+                There were no results for '{{ filters }}' filters
+              {% endtrans %}
+            {% endif %}
+            {% if page.collection.best_guess %}{{ suggestion_link(page.collection.best_guess) }}{% endif %}
+          </p>
         </div>
-        {% endif %}
-      </form>
+      {% endif %}
+      {{ pagination.paginate(page) }}
     </div>
-  </div>
+  {% endif %}
+</form>
+</div>
+</div>
 </div>
 {% endblock %}

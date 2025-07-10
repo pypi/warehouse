@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import datetime
 
@@ -24,7 +14,6 @@ from warehouse.rate_limiting.interfaces import IRateLimiter
 
 from .....common.db.accounts import UserFactory
 from .....common.db.packaging import (
-    FileFactory,
     JournalEntryFactory,
     ProjectFactory,
     ReleaseFactory,
@@ -78,7 +67,7 @@ class TestRateLimiting:
         ]
 
     @pytest.mark.parametrize(
-        "resets_in_delta, expected",
+        ("resets_in_delta", "expected"),
         [
             (datetime.timedelta(minutes=11, seconds=6.9), 666),
             (datetime.timedelta(seconds=0), 1),
@@ -137,9 +126,16 @@ class TestSearch:
         assert metrics.increment.calls == []
 
 
-def test_list_packages(db_request):
-    projects = ProjectFactory.create_batch(10)
-    assert set(xmlrpc.list_packages(db_request)) == {p.name for p in projects}
+def test_list_packages(pyramid_request):
+    with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
+        xmlrpc.list_packages(pyramid_request)
+
+    assert exc.value.faultString == (
+        "RuntimeError: PyPI no longer supports the XMLRPC list_packages method. "
+        "Use Simple API instead. "
+        "See https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods "
+        "for more information."
+    )
 
 
 def test_list_packages_with_serial(db_request):
@@ -152,15 +148,6 @@ def test_list_packages_with_serial(db_request):
             if entry.id > expected[project.name]:
                 expected[project.name] = entry.id
     assert xmlrpc.list_packages_with_serial(db_request) == expected
-
-
-def test_package_hosting_mode_shows_none(db_request):
-    assert xmlrpc.package_hosting_mode(db_request, "nope") == "pypi-only"
-
-
-def test_package_hosting_mode_results(db_request):
-    project = ProjectFactory.create()
-    assert xmlrpc.package_hosting_mode(db_request, project.name) == "pypi-only"
 
 
 def test_user_packages(db_request):
@@ -229,135 +216,40 @@ def test_package_data(domain, db_request):
     )
 
 
-def test_package_releases(db_request):
-    project1 = ProjectFactory.create()
-    releases1 = ReleaseFactory.create_batch(10, project=project1)
-    project2 = ProjectFactory.create()
-    ReleaseFactory.create_batch(10, project=project2)
-    result = xmlrpc.package_releases(db_request, project1.name, show_hidden=False)
-    assert (
-        result
-        == [
-            r.version
-            for r in reversed(sorted(releases1, key=lambda x: x._pypi_ordering))
-        ][:1]
+def test_package_releases(pyramid_request):
+    with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
+        xmlrpc.package_releases(pyramid_request, "project")
+
+    assert exc.value.faultString == (
+        "RuntimeError: PyPI no longer supports the XMLRPC package_releases method. "
+        "Use JSON or Simple API instead. "
+        "See https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods "
+        "for more information."
     )
 
 
-def test_package_releases_hidden(db_request):
-    project1 = ProjectFactory.create()
-    releases1 = ReleaseFactory.create_batch(10, project=project1)
-    project2 = ProjectFactory.create()
-    ReleaseFactory.create_batch(10, project=project2)
-    result = xmlrpc.package_releases(db_request, project1.name, show_hidden=True)
-    assert result == [
-        r.version for r in reversed(sorted(releases1, key=lambda x: x._pypi_ordering))
-    ]
+def test_release_data(pyramid_request):
+    with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
+        xmlrpc.release_data(pyramid_request, "project", "version")
 
-
-def test_package_releases_no_project(db_request):
-    result = xmlrpc.package_releases(db_request, "foo")
-    assert result == []
-
-
-def test_package_releases_no_releases(db_request):
-    project = ProjectFactory.create()
-    result = xmlrpc.package_releases(db_request, project.name)
-    assert result == []
-
-
-def test_release_data_no_project(db_request):
-    assert xmlrpc.release_data(db_request, "foo", "1.0") == {}
-
-
-def test_release_data_no_release(db_request):
-    project = ProjectFactory.create()
-    assert xmlrpc.release_data(db_request, project.name, "1.0") == {}
-
-
-def test_release_data(db_request):
-    project = ProjectFactory.create()
-    release = ReleaseFactory.create(project=project)
-
-    urls = [pretend.stub(), pretend.stub()]
-    urls_iter = iter(urls)
-    db_request.route_url = pretend.call_recorder(lambda r, **kw: next(urls_iter))
-
-    assert xmlrpc.release_data(db_request, project.name, release.version) == {
-        "name": release.project.name,
-        "version": release.version,
-        "stable_version": None,
-        "bugtrack_url": None,
-        "package_url": urls[0],
-        "release_url": urls[1],
-        "docs_url": release.project.documentation_url,
-        "home_page": release.home_page,
-        "download_url": release.download_url,
-        "project_url": list(release.project_urls),
-        "author": release.author,
-        "author_email": release.author_email,
-        "maintainer": release.maintainer,
-        "maintainer_email": release.maintainer_email,
-        "summary": release.summary,
-        "description": release.description.raw,
-        "license": release.license,
-        "keywords": release.keywords,
-        "platform": release.platform,
-        "classifiers": list(release.classifiers),
-        "requires": list(release.requires),
-        "requires_dist": list(release.requires_dist),
-        "provides": list(release.provides),
-        "provides_dist": list(release.provides_dist),
-        "obsoletes": list(release.obsoletes),
-        "obsoletes_dist": list(release.obsoletes_dist),
-        "requires_python": release.requires_python,
-        "requires_external": list(release.requires_external),
-        "_pypi_ordering": release._pypi_ordering,
-        "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
-        "cheesecake_code_kwalitee_id": None,
-        "cheesecake_documentation_id": None,
-        "cheesecake_installability_id": None,
-    }
-    assert db_request.route_url.calls == [
-        pretend.call("packaging.project", name=project.name),
-        pretend.call("packaging.release", name=project.name, version=release.version),
-    ]
-
-
-def test_release_urls(db_request):
-    project = ProjectFactory.create()
-    release = ReleaseFactory.create(project=project)
-    file_ = FileFactory.create(
-        release=release,
-        filename=f"{project.name}-{release.version}.tar.gz",
-        python_version="source",
+    assert exc.value.faultString == (
+        "RuntimeError: PyPI no longer supports the XMLRPC release_data method. "
+        "Use JSON or Simple API instead. "
+        "See https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods "
+        "for more information."
     )
 
-    urls = [pretend.stub()]
-    urls_iter = iter(urls)
-    db_request.route_url = pretend.call_recorder(lambda r, **kw: next(urls_iter))
 
-    assert xmlrpc.release_urls(db_request, project.name, release.version) == [
-        {
-            "filename": file_.filename,
-            "packagetype": file_.packagetype,
-            "python_version": file_.python_version,
-            "size": file_.size,
-            "md5_digest": file_.md5_digest,
-            "sha256_digest": file_.sha256_digest,
-            "digests": {"md5": file_.md5_digest, "sha256": file_.sha256_digest},
-            "has_sig": False,
-            "upload_time": file_.upload_time.isoformat() + "Z",
-            "upload_time_iso_8601": file_.upload_time.isoformat() + "Z",
-            "comment_text": file_.comment_text,
-            "downloads": -1,
-            "path": file_.path,
-            "url": urls[0],
-        }
-    ]
-    assert db_request.route_url.calls == [
-        pretend.call("packaging.file", path=file_.path)
-    ]
+def test_release_urls(pyramid_request):
+    with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
+        xmlrpc.release_urls(pyramid_request, "project", "version")
+
+    assert exc.value.faultString == (
+        "RuntimeError: PyPI no longer supports the XMLRPC release_urls method. "
+        "Use JSON or Simple API instead. "
+        "See https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods "
+        "for more information."
+    )
 
 
 def test_package_roles(db_request):
@@ -490,7 +382,7 @@ def test_multicall(pyramid_request):
 
 
 @pytest.mark.parametrize(
-    "string, expected", [("Hello…", "Hello&#8230;"), ("Stripe\x1b", "Stripe")]
+    ("string", "expected"), [("Hello…", "Hello&#8230;"), ("Stripe\x1b", "Stripe")]
 )
 def test_clean_for_xml(string, expected):
     assert xmlrpc._clean_for_xml(string) == expected

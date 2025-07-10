@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 
 def includeme(config):
@@ -28,6 +18,7 @@ def includeme(config):
     # Basic global routes
     config.add_route("index", "/", domain=warehouse)
     config.add_route("locale", "/locale/", domain=warehouse)
+    config.add_route("favicon.ico", "/favicon.ico", domain=warehouse)
     config.add_route("robots.txt", "/robots.txt", domain=warehouse)
     config.add_route("opensearch.xml", "/opensearch.xml", domain=warehouse)
     config.add_route("index.sitemap.xml", "/sitemap.xml", domain=warehouse)
@@ -75,67 +66,62 @@ def includeme(config):
     # HTML Snippets for including into other pages.
     config.add_route(
         "includes.current-user-indicator",
-        "/_includes/current-user-indicator/",
+        "/_includes/authed/current-user-indicator/",
         domain=warehouse,
     )
     config.add_route(
-        "includes.flash-messages", "/_includes/flash-messages/", domain=warehouse
+        "includes.flash-messages",
+        "/_includes/unauthed/flash-messages/",
+        domain=warehouse,
     )
     config.add_route(
         "includes.session-notifications",
-        "/_includes/session-notifications/",
+        "/_includes/authed/session-notifications/",
         domain=warehouse,
     )
     config.add_route(
         "includes.current-user-profile-callout",
-        "/_includes/current-user-profile-callout/{username}",
+        "/_includes/authed/current-user-profile-callout/{username}",
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{username}",
         domain=warehouse,
     )
     config.add_route(
         "includes.edit-project-button",
-        "/_includes/edit-project-button/{project_name}",
+        "/_includes/authed/edit-project-button/{project_name}",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{project_name}",
         domain=warehouse,
     )
     config.add_route(
         "includes.profile-actions",
-        "/_includes/profile-actions/{username}",
+        "/_includes/authed/profile-actions/{username}",
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{username}",
         domain=warehouse,
     )
     config.add_route(
         "includes.profile-public-email",
-        "/_includes/profile-public-email/{username}",
+        "/_includes/authed/profile-public-email/{username}",
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{username}",
         domain=warehouse,
     )
     config.add_route(
         "includes.sidebar-sponsor-logo",
-        "/_includes/sidebar-sponsor-logo/",
+        "/_includes/unauthed/sidebar-sponsor-logo/",
         domain=warehouse,
     )
     config.add_route(
         "includes.administer-project-include",
-        "/_includes/administer-project-include/{project_name}",
+        "/_includes/authed/administer-project-include/{project_name}",
         domain=warehouse,
     )
     config.add_route(
         "includes.administer-user-include",
-        "/_includes/administer-user-include/{user_name}",
+        "/_includes/authed/administer-user-include/{user_name}",
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{user_name}",
-        domain=warehouse,
-    )
-    config.add_route(
-        "includes.submit_malware_report",
-        "/_includes/submit-malware-report/{project_name}",
-        factory="warehouse.packaging.models:ProjectFactory",
-        traverse="/{project_name}",
         domain=warehouse,
     )
 
@@ -214,6 +200,11 @@ def includeme(config):
         "/account/verify-project-role/",
         domain=warehouse,
     )
+    config.add_route(
+        "accounts.view-terms-of-service",
+        "/account/view-terms-of-service/",
+        domain=warehouse,
+    )
 
     # Management (views for logged-in users)
     config.add_route(
@@ -273,6 +264,13 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route("manage.account.token", "/manage/account/token/", domain=warehouse)
+    config.add_route(
+        "manage.organizations.application",
+        "/manage/organizations/application/{organization_application_id}/",
+        factory="warehouse.organizations.models:OrganizationApplicationFactory",
+        traverse="/{organization_application_id}",
+        domain=warehouse,
+    )
     config.add_route("manage.organizations", "/manage/organizations/", domain=warehouse)
     config.add_route(
         "manage.organization.settings",
@@ -493,6 +491,20 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "manage.project.archive",
+        "/manage/project/{project_name}/archive/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.project.unarchive",
+        "/manage/project/{project_name}/unarchive/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
         "manage.project.history",
         "/manage/project/{project_name}/history/",
         factory="warehouse.packaging.models:ProjectFactory",
@@ -502,6 +514,9 @@ def includeme(config):
 
     # Packaging
     config.add_redirect("/p/{name}/", "/project/{name}/", domain=warehouse)
+    config.add_redirect(
+        "/p/{name}/{version}/", "/project/{name}/{version}/", domain=warehouse
+    )
     config.add_route(
         "packaging.project",
         "/project/{name}/",
@@ -538,14 +553,18 @@ def includeme(config):
         traverse="/{name}/",
         domain=warehouse,
     )
-    # Integration URLs
 
+    # Integration URLs
     config.add_route(
-        "integrations.github.disclose-token",
+        "integrations.secrets.disclose-token",
+        "/_/secrets/disclose-token",
+        domain=warehouse,
+    )
+    config.add_route(
+        "integrations.github.disclose-token",  # For backwards compatiblity
         "/_/github/disclose-token",
         domain=warehouse,
     )
-
     config.add_route(
         "integrations.vulnerabilities.osv.report",
         "/_/vulnerabilities/osv/report",
@@ -573,6 +592,15 @@ def includeme(config):
         "/danger-api/projects/{name}/observations",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}",
+        domain=warehouse,
+    )
+
+    # PEP 740 URLs
+    config.add_route(
+        "integrity.provenance",
+        "/integrity/{project_name}/{release}/{filename}/provenance",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}/{release}/{filename}",
         domain=warehouse,
     )
 

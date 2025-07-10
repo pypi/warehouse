@@ -1,16 +1,5 @@
-/**
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/* SPDX-License-Identifier: Apache-2.0 */
+
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
@@ -30,11 +19,11 @@ export default class extends Controller {
       mode: "cors",
     };
     const fetchRepoData = fetch(this.urlValue, fetchParams).then((response) =>
-      response.ok === true ? response.json() : null
+      response.ok === true ? response.json() : null,
     );
 
     const fetchIssueData = fetch(this.issueUrlValue, fetchParams).then(
-      (response) => (response.ok === true ? response.json() : null)
+      (response) => (response.ok === true ? response.json() : null),
     );
 
     const allData = Promise.all([fetchRepoData, fetchIssueData]);
@@ -52,7 +41,7 @@ export default class extends Controller {
           PRs: res[0].open_issues_count - res[1].total_count,
         };
         this.githubRepoInfoOutlets.forEach((outlet) =>
-          outlet.updateStats(stats)
+          outlet.updateStats(stats),
         );
       })
       // swallow errors, we don't want to show them to the user

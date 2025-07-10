@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import enum
 
@@ -102,6 +92,8 @@ class EventTag:
         TwoFactorMethodAdded = "account:two_factor:method_added"
         TwoFactorMethodRemoved = "account:two_factor:method_removed"
         EmailSent = "account:email:sent"
+        AlternateRepositoryAdd = "account:alternate_repository:add"
+        AlternateRepositoryDelete = "account:alternate_repository:delete"
         # The following tags are no longer used when recording events.
         # ReauthenticateFailure = "account:reauthenticate:failure"
         # RoleAccepted = "account:role:accepted"
@@ -122,6 +114,8 @@ class EventTag:
         OrganizationProjectRemove = "project:organization_project:remove"
         OwnersRequire2FADisabled = "project:owners_require_2fa:disabled"
         OwnersRequire2FAEnabled = "project:owners_require_2fa:enabled"
+        ProjectArchiveEnter = "project:archive:enter"
+        ProjectArchiveExit = "project:archive:exit"
         ProjectCreate = "project:create"
         ProjectQuarantineEnter = "project:quarantine:enter"
         ProjectQuarantineExit = "project:quarantine:exit"
@@ -138,6 +132,8 @@ class EventTag:
         TeamProjectRoleAdd = "project:team_project_role:add"
         TeamProjectRoleChange = "project:team_project_role:change"
         TeamProjectRoleRemove = "project:team_project_role:remove"
+        AlternateRepositoryAdd = "project:alternate_repository:add"
+        AlternateRepositoryDelete = "project:alternate_repository:delete"
         # The following tags are no longer used when recording events.
         # RoleAccepted = "project:role:accepted"
         # RoleDelete = "project:role:delete"

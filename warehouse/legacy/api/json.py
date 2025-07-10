@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from packaging.utils import canonicalize_name, canonicalize_version
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
@@ -18,7 +8,14 @@ from sqlalchemy.orm import Load, contains_eager, joinedload
 
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
-from warehouse.packaging.models import File, Project, Release, ReleaseURL
+from warehouse.packaging.models import (
+    Description,
+    File,
+    LifecycleStatus,
+    Project,
+    Release,
+    ReleaseURL,
+)
 from warehouse.utils.cors import _CORS_HEADERS
 
 _RELEASE_CACHE_DECORATOR = [
@@ -63,6 +60,14 @@ def _json_data(request, project, release, *, all_releases):
     if not all_releases:
         release_files = release_files.filter(Release.id == release.id)
 
+    # Get the raw description and description content type for this release
+    release_description = (
+        request.db.query(Description)
+        .options(Load(Description).load_only(Description.content_type, Description.raw))
+        .filter(Description.release == release)
+        .one()
+    )
+
     # Finally set an ordering, and execute the query.
     release_files = release_files.order_by(
         Release._pypi_ordering.desc(), File.filename
@@ -70,9 +75,9 @@ def _json_data(request, project, release, *, all_releases):
 
     # Map our releases + files into a dictionary that maps each release to a
     # list of all its files.
-    releases = {}
+    releases_and_files: dict[Release, list[File]] = {}
     for r, file_ in release_files:
-        files = releases.setdefault(r, [])
+        files = releases_and_files.setdefault(r, [])
         if file_ is not None:
             files.append(file_)
 
@@ -107,7 +112,7 @@ def _json_data(request, project, release, *, all_releases):
             }
             for f in fs
         ]
-        for r, fs in releases.items()
+        for r, fs in releases_and_files.items()
     }
 
     # Serialize a list of vulnerabilities for this release
@@ -134,10 +139,12 @@ def _json_data(request, project, release, *, all_releases):
             "name": project.name,
             "version": release.version,
             "summary": release.summary,
-            "description_content_type": release.description.content_type,
-            "description": release.description.raw,
+            "description_content_type": release_description.content_type,
+            "description": release_description.raw,
             "keywords": release.keywords,
             "license": release.license,
+            "license_expression": release.license_expression,
+            "license_files": release.license_files,
             "classifiers": list(release.classifiers),
             "author": release.author,
             "author_email": release.author_email,
@@ -185,6 +192,12 @@ def latest_release_factory(request):
             request.db.query(Release.id, Release.version)
             .join(Release.project)
             .filter(Project.normalized_name == normalized_name)
+            # Exclude projects in quarantine.
+            .filter(
+                Project.lifecycle_status.is_distinct_from(
+                    LifecycleStatus.QuarantineEnter
+                )
+            )
             .order_by(
                 Release.yanked.asc(),
                 Release.is_prerelease.nullslast(),
@@ -264,6 +277,10 @@ def release_factory(request):
             joinedload(Release._requires_dist),
         )
         .filter(Project.normalized_name == normalized_name)
+        # Exclude projects in quarantine.
+        .filter(
+            Project.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter)
+        )
     )
 
     try:

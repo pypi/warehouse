@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import sentry_sdk
 
@@ -17,16 +7,13 @@ from sentry_sdk.integrations.logging import LoggingIntegration
 from sentry_sdk.integrations.pyramid import PyramidIntegration
 from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 from sentry_sdk.integrations.wsgi import SentryWsgiMiddleware
+from webob.request import DisconnectionError
 
 
 def _sentry(request):
     return request.registry["sentry"]
 
 
-# There is an 'ignore_errors' kwarg for sentry_sdk.init() however it is supposedly
-# WIP and unstable compared to the 'before_send' kwarg. We can switch to
-# 'ignore_errors' once https://github.com/getsentry/sentry-python/issues/149
-# is closed.
 ignore_exceptions = (
     # For some reason we get periodic SystemExit exceptions, I think it is
     # because of OpenSSL generating a SIGABRT when OpenSSL_Die() is called, and
@@ -52,10 +39,20 @@ ignore_exceptions = (
     "gunicorn.http.errors.InvalidProxyLine",
     "gunicorn.http.errors.ForbiddenProxyRequest",
     "gunicorn.http.errors.InvalidSchemeHeaders",
+    # Webob raises this when the client disconnects, which we can't do anything about
+    DisconnectionError,
 )
+
+ignore_strings = [
+    "was sent code 131!",
+    "was sent SIGINT!",
+]
 
 
 def before_send(event, hint):
+    if "message" in event and any(s in event["message"] for s in ignore_strings):
+        return None
+
     if "exc_info" in hint:
         exc_type, exc_value, tb = hint["exc_info"]
         if (

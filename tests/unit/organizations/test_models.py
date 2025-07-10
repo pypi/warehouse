@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -19,12 +9,14 @@ from pyramid.location import lineage
 
 from warehouse.authnz import Permissions
 from warehouse.organizations.models import (
+    OrganizationApplicationFactory,
     OrganizationFactory,
     OrganizationRoleType,
     TeamFactory,
 )
 
 from ...common.db.organizations import (
+    OrganizationApplicationFactory as DBOrganizationApplicationFactory,
     OrganizationFactory as DBOrganizationFactory,
     OrganizationNameCatalogFactory as DBOrganizationNameCatalogFactory,
     OrganizationRoleFactory as DBOrganizationRoleFactory,
@@ -36,6 +28,34 @@ from ...common.db.subscriptions import (
     StripeCustomerFactory as DBStripeCustomerFactory,
     StripeSubscriptionFactory as DBStripeSubscriptionFactory,
 )
+
+
+class TestOrganizationApplicationFactory:
+    def test_traversal_finds(self, db_request):
+        organization_application = DBOrganizationApplicationFactory.create()
+        _organization_application = OrganizationApplicationFactory(db_request)
+        assert (
+            _organization_application[organization_application.id]
+            == organization_application
+        )
+
+    def test_traversal_cant_find(self, db_request):
+        DBOrganizationApplicationFactory.create()
+        _organization_application = OrganizationApplicationFactory(db_request)
+        with pytest.raises(KeyError):
+            _organization_application["deadbeef-dead-beef-dead-beefdeadbeef"]
+
+
+class TestOrganizationApplication:
+    def test_acl(self, db_session):
+        organization_application = DBOrganizationApplicationFactory.create()
+        assert organization_application.__acl__() == [
+            (
+                Allow,
+                f"user:{organization_application.submitted_by.id}",
+                (Permissions.OrganizationApplicationsManage,),
+            )
+        ]
 
 
 class TestOrganizationFactory:
@@ -122,6 +142,7 @@ class TestOrganization:
                 (
                     Permissions.AdminOrganizationsRead,
                     Permissions.AdminOrganizationsWrite,
+                    Permissions.AdminOrganizationsNameWrite,
                 ),
             ),
             (Allow, "group:moderators", Permissions.AdminOrganizationsRead),
@@ -339,6 +360,7 @@ class TestTeam:
                 (
                     Permissions.AdminOrganizationsRead,
                     Permissions.AdminOrganizationsWrite,
+                    Permissions.AdminOrganizationsNameWrite,
                 ),
             ),
             (Allow, "group:moderators", Permissions.AdminOrganizationsRead),
@@ -445,8 +467,38 @@ class TestTeam:
             organization=organization, subscription=subscription
         )
         assert organization.active_subscription is not None
+        assert organization.manageable_subscription is not None
 
     def test_active_subscription_none(self, db_session):
+        organization = DBOrganizationFactory.create()
+        stripe_customer = DBStripeCustomerFactory.create()
+        DBOrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
+        )
+        subscription = DBStripeSubscriptionFactory.create(
+            customer=stripe_customer,
+            status="unpaid",
+        )
+        DBOrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+        assert organization.active_subscription is None
+        assert organization.manageable_subscription is not None
+
+    def test_manageable_subscription(self, db_session):
+        organization = DBOrganizationFactory.create()
+        stripe_customer = DBStripeCustomerFactory.create()
+        DBOrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
+        )
+        subscription = DBStripeSubscriptionFactory.create(customer=stripe_customer)
+        DBOrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+        assert organization.active_subscription is not None
+        assert organization.manageable_subscription is not None
+
+    def test_manageable_subscription_none(self, db_session):
         organization = DBOrganizationFactory.create()
         stripe_customer = DBStripeCustomerFactory.create()
         DBOrganizationStripeCustomerFactory.create(
@@ -460,3 +512,4 @@ class TestTeam:
             organization=organization, subscription=subscription
         )
         assert organization.active_subscription is None
+        assert organization.manageable_subscription is None

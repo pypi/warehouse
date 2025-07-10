@@ -1,31 +1,25 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import base64
-import distutils.util
 import enum
+import functools
 import json
 import os
+import secrets
 import shlex
 
 from datetime import timedelta
+from urllib.parse import urlparse, urlunparse
 
 import orjson
+import platformdirs
 import transaction
 
 from pyramid import renderers
 from pyramid.authorization import Allow, Authenticated
 from pyramid.config import Configurator as _Configurator
 from pyramid.exceptions import HTTPForbidden
+from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
@@ -82,8 +76,14 @@ class RootFactory:
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
                 Permissions.AdminOrganizationsWrite,
+                Permissions.AdminOrganizationsNameWrite,
+                Permissions.AdminProhibitedEmailDomainsRead,
+                Permissions.AdminProhibitedEmailDomainsWrite,
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedProjectsWrite,
+                Permissions.AdminProhibitedProjectsRelease,
+                Permissions.AdminProhibitedUsernameRead,
+                Permissions.AdminProhibitedUsernameWrite,
                 Permissions.AdminProjectsDelete,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminProjectsSetLimit,
@@ -93,6 +93,36 @@ class RootFactory:
                 Permissions.AdminSponsorsRead,
                 Permissions.AdminUsersRead,
                 Permissions.AdminUsersWrite,
+                Permissions.AdminUsersEmailWrite,
+                Permissions.AdminUsersAccountRecoveryWrite,
+            ),
+        ),
+        (
+            Allow,
+            "group:support",
+            (
+                Permissions.AdminBannerRead,
+                Permissions.AdminDashboardRead,
+                Permissions.AdminDashboardSidebarRead,
+                Permissions.AdminEmailsRead,
+                Permissions.AdminFlagsRead,
+                Permissions.AdminJournalRead,
+                Permissions.AdminObservationsRead,
+                Permissions.AdminObservationsWrite,
+                Permissions.AdminOrganizationsRead,
+                Permissions.AdminOrganizationsWrite,
+                Permissions.AdminProhibitedEmailDomainsRead,
+                Permissions.AdminProhibitedProjectsRead,
+                Permissions.AdminProhibitedProjectsRelease,
+                Permissions.AdminProhibitedUsernameRead,
+                Permissions.AdminProjectsRead,
+                Permissions.AdminProjectsSetLimit,
+                Permissions.AdminRoleAdd,
+                Permissions.AdminRoleDelete,
+                Permissions.AdminSponsorsRead,
+                Permissions.AdminUsersRead,
+                Permissions.AdminUsersEmailWrite,
+                Permissions.AdminUsersAccountRecoveryWrite,
             ),
         ),
         (
@@ -108,7 +138,9 @@ class RootFactory:
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
+                Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedProjectsRead,
+                Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminProjectsSetLimit,
                 Permissions.AdminRoleAdd,
@@ -210,11 +242,63 @@ def maybe_set_compound(settings, base, name, envvar):
             settings[".".join([base, key])] = value
 
 
+def maybe_set_redis(settings, name, envvar, coercer=None, default=None, db=None):
+    """
+    Note on our DB numbering:
+      - General purpose caches and temporary storage should go in 1-9
+      - Celery queues, results, and schedulers should use 10-15
+      - By default Redis only allows use of 0-15, so db should be <16
+    """
+    if envvar in os.environ:
+        value = os.environ[envvar]
+        if coercer is not None:
+            value = coercer(value)
+        parsed_url = urlparse(value)  # noqa: WH001, we're going to urlunparse this
+        parsed_url = parsed_url._replace(path=(str(db) if db is not None else "0"))
+        value = urlunparse(parsed_url)
+        settings.setdefault(name, value)
+    elif default is not None:
+        settings.setdefault(name, default)
+
+
 def from_base64_encoded_json(configuration):
     return json.loads(base64.urlsafe_b64decode(configuration.encode("ascii")))
 
 
+def reject_duplicate_post_keys_view(view, info):
+    if info.options.get("permit_duplicate_post_keys") or info.exception_only:
+        return view
+
+    else:
+        # If this isn't an exception or hasn't been permitted to have duplicate
+        # POST keys, wrap the view with a check
+
+        @functools.wraps(view)
+        def wrapped(context, request):
+            if request.POST:
+                # Determine if there are any duplicate keys
+                keys = list(request.POST.keys())
+                if len(keys) != len(set(keys)):
+                    return HTTPBadRequest(
+                        "POST body may not contain duplicate keys "
+                        f"(URL: {request.url!r})"
+                    )
+
+            # Casting succeeded, so just return the regular view
+            return view(context, request)
+
+        return wrapped
+
+
+reject_duplicate_post_keys_view.options = {"permit_duplicate_post_keys"}  # type: ignore
+
+
 def configure(settings=None):
+    # Sanity check: regardless of what we're configuring, some of Warehouse's
+    # application state depends on a handful of XDG directories existing.
+    platformdirs.user_data_dir(appname=secrets.token_urlsafe(), ensure_exists=True)
+    platformdirs.user_cache_dir(appname=secrets.token_urlsafe(), ensure_exists=True)
+
     if settings is None:
         settings = {}
     settings["warehouse.forklift.legacy.MAX_FILESIZE_MIB"] = MAX_FILESIZE / ONE_MIB
@@ -238,6 +322,20 @@ def configure(settings=None):
         default=Environment.production,
     )
 
+    maybe_set(
+        settings,
+        "terms.revision",
+        "TERMS_REVISION",
+        default="initial",
+    )
+    maybe_set(
+        settings,
+        "terms.notification_batch_size",
+        "TERMS_NOTIFICATION_BATCH_SIZE",
+        int,
+        default=1000,
+    )
+
     # Pull in default configuration from the environment.
     maybe_set(settings, "warehouse.token", "WAREHOUSE_TOKEN")
     maybe_set(settings, "warehouse.ip_salt", "WAREHOUSE_IP_SALT")
@@ -245,6 +343,9 @@ def configure(settings=None):
     maybe_set(settings, "warehouse.domain", "WAREHOUSE_DOMAIN")
     maybe_set(settings, "forklift.domain", "FORKLIFT_DOMAIN")
     maybe_set(settings, "auth.domain", "AUTH_DOMAIN")
+    maybe_set(
+        settings, "userdocs.domain", "USERDOCS_DOMAIN", default="https://docs.pypi.org"
+    )
     maybe_set(settings, "warehouse.legacy_domain", "WAREHOUSE_LEGACY_DOMAIN")
     maybe_set(settings, "site.name", "SITE_NAME", default="Warehouse")
     maybe_set(settings, "aws.key_id", "AWS_ACCESS_KEY_ID")
@@ -270,16 +371,17 @@ def configure(settings=None):
         default="https://api.github.com/meta/public_keys/token_scanning",
     )
     maybe_set(settings, "warehouse.downloads_table", "WAREHOUSE_DOWNLOADS_TABLE")
-    maybe_set(settings, "celery.broker_url", "BROKER_URL")
-    maybe_set(settings, "celery.result_url", "REDIS_URL")
-    maybe_set(settings, "celery.scheduler_url", "REDIS_URL")
-    maybe_set(settings, "oidc.jwk_cache_url", "REDIS_URL")
+    maybe_set_redis(settings, "celery.broker_redis_url", "REDIS_URL", db=10)
+    maybe_set_redis(settings, "celery.result_url", "REDIS_URL", db=12)
+    maybe_set_redis(settings, "celery.scheduler_url", "REDIS_URL", db=0)
+    maybe_set_redis(settings, "oidc.jwk_cache_url", "REDIS_URL", db=1)
     maybe_set(settings, "database.url", "DATABASE_URL")
     maybe_set(settings, "opensearch.url", "OPENSEARCH_URL")
     maybe_set(settings, "sentry.dsn", "SENTRY_DSN")
     maybe_set(settings, "sentry.transport", "SENTRY_TRANSPORT")
-    maybe_set(settings, "sessions.url", "REDIS_URL")
-    maybe_set(settings, "ratelimit.url", "REDIS_URL")
+    maybe_set_redis(settings, "sessions.url", "REDIS_URL", db=2)
+    maybe_set_redis(settings, "ratelimit.url", "REDIS_URL", db=3)
+    maybe_set_redis(settings, "db_results_cache.url", "REDIS_URL", db=5)
     maybe_set(settings, "captcha.backend", "CAPTCHA_BACKEND")
     maybe_set(settings, "recaptcha.site_key", "RECAPTCHA_SITE_KEY")
     maybe_set(settings, "recaptcha.secret_key", "RECAPTCHA_SECRET_KEY")
@@ -289,22 +391,13 @@ def configure(settings=None):
     maybe_set(settings, "camo.url", "CAMO_URL")
     maybe_set(settings, "camo.key", "CAMO_KEY")
     maybe_set(settings, "docs.url", "DOCS_URL")
-    maybe_set(settings, "ga.tracking_id", "GA_TRACKING_ID")
-    maybe_set(settings, "ga4.tracking_id", "GA4_TRACKING_ID")
     maybe_set(settings, "statuspage.url", "STATUSPAGE_URL")
     maybe_set(settings, "hibp.api_key", "HIBP_API_KEY")
     maybe_set(settings, "token.password.secret", "TOKEN_PASSWORD_SECRET")
     maybe_set(settings, "token.email.secret", "TOKEN_EMAIL_SECRET")
     maybe_set(settings, "token.two_factor.secret", "TOKEN_TWO_FACTOR_SECRET")
     maybe_set(settings, "token.remember_device.secret", "TOKEN_REMEMBER_DEVICE_SECRET")
-    maybe_set(
-        settings,
-        "warehouse.xmlrpc.search.enabled",
-        "WAREHOUSE_XMLRPC_SEARCH",
-        coercer=distutils.util.strtobool,
-        default=True,
-    )
-    maybe_set(settings, "warehouse.xmlrpc.cache.url", "REDIS_URL")
+    maybe_set_redis(settings, "warehouse.xmlrpc.cache.url", "REDIS_URL", db=4)
     maybe_set(
         settings,
         "warehouse.xmlrpc.client.ratelimit_string",
@@ -348,13 +441,6 @@ def configure(settings=None):
         coercer=int,
         default=100,
     )
-    maybe_set(
-        settings,
-        "metadata_backfill.batch_size",
-        "METADATA_BACKFILL_BATCH_SIZE",
-        coercer=int,
-        default=500,
-    )
     maybe_set_compound(settings, "billing", "backend", "BILLING_BACKEND")
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
     maybe_set_compound(settings, "archive_files", "backend", "ARCHIVE_FILES_BACKEND")
@@ -366,11 +452,18 @@ def configure(settings=None):
     maybe_set_compound(settings, "metrics", "backend", "METRICS_BACKEND")
     maybe_set_compound(settings, "breached_emails", "backend", "BREACHED_EMAILS")
     maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
+    maybe_set_compound(settings, "domain_status", "backend", "DOMAIN_STATUS_BACKEND")
     maybe_set(
         settings,
         "oidc.backend",
         "OIDC_BACKEND",
         default="warehouse.oidc.services.OIDCPublisherService",
+    )
+    maybe_set(
+        settings,
+        "integrity.backend",
+        "INTEGRITY_BACKEND",
+        default="warehouse.attestations.services.IntegrityService",
     )
 
     # Pythondotorg integration settings
@@ -386,9 +479,19 @@ def configure(settings=None):
     maybe_set(
         settings, "admin.helpscout.app_secret", "HELPSCOUT_APP_SECRET", default=None
     )
+    maybe_set(settings, "helpdesk.backend", "HELPDESK_BACKEND")
     maybe_set(settings, "helpscout.app_id", "HELPSCOUT_WAREHOUSE_APP_ID")
     maybe_set(settings, "helpscout.app_secret", "HELPSCOUT_WAREHOUSE_APP_SECRET")
     maybe_set(settings, "helpscout.mailbox_id", "HELPSCOUT_WAREHOUSE_MAILBOX_ID")
+    # Admin notification service settings
+    maybe_set(
+        settings, "helpdesk.notification_backend", "HELPDESK_NOTIFICATION_BACKEND"
+    )
+    maybe_set(
+        settings,
+        "helpdesk.notification_service_url",
+        "HELPDESK_NOTIFICATION_SERVICE_URL",
+    )
 
     # Configure our ratelimiters
     maybe_set(
@@ -426,7 +529,7 @@ def configure(settings=None):
         "warehouse.account.accounts_search_ratelimit_string",
         "ACCOUNTS_SEARCH_RATELIMIT_STRING",
         default="100 per hour",
-    ),
+    )
     maybe_set(
         settings,
         "warehouse.account.password_reset_ratelimit_string",
@@ -457,6 +560,12 @@ def configure(settings=None):
         "PROJECT_CREATE_IP_RATELIMIT_STRING",
         default="40 per hour",
     )
+    maybe_set(
+        settings,
+        "warehouse.search.ratelimit_string",
+        "SEARCH_RATELIMIT_STRING",
+        default="5 per second",
+    )
 
     # OIDC feature flags and settings
     maybe_set(settings, "warehouse.oidc.audience", "OIDC_AUDIENCE")
@@ -486,6 +595,7 @@ def configure(settings=None):
                     "headers.HeaderDebugPanel",
                     "request_vars.RequestVarsDebugPanel",
                     "renderings.RenderingsDebugPanel",
+                    "session.SessionDebugPanel",
                     "logger.LoggingPanel",
                     "performance.PerformanceDebugPanel",
                     "routes.RoutesDebugPanel",
@@ -585,6 +695,7 @@ def configure(settings=None):
     filters.setdefault(
         "remove_invalid_xml_unicode", "warehouse.filters:remove_invalid_xml_unicode"
     )
+    filters.setdefault("parse_isoformat", "warehouse.filters:parse_isoformat")
 
     # We also want to register some global functions for Jinja
     jglobals = config.get_settings().setdefault("jinja2.globals", {})
@@ -693,6 +804,8 @@ def configure(settings=None):
     # Register our support for http and origin caching
     config.include(".cache.http")
     config.include(".cache.origin")
+    # Register our support for the database results cache
+    config.include(".cache")
 
     # Register support for sending emails
     config.include(".email")
@@ -705,6 +818,9 @@ def configure(settings=None):
 
     # Register support for OIDC based authentication
     config.include(".oidc")
+
+    # Register support for attestations
+    config.include(".attestations")
 
     # Register logged-in views
     config.include(".manage")
@@ -750,6 +866,11 @@ def configure(settings=None):
             "pyramid_debugtoolbar.toolbar_tween_factory",
             EXCVIEW,
         ],
+    )
+
+    # Reject requests with duplicate POST keys
+    config.add_view_deriver(
+        reject_duplicate_post_keys_view, over="rendered_view", under="decorated_view"
     )
 
     # Enable Warehouse to serve our static files
@@ -809,6 +930,9 @@ def configure(settings=None):
     # Register Captcha service
     config.include(".captcha")
 
+    # Register HelpDesk service
+    config.include(".helpdesk")
+
     config.add_settings({"http": {"verify": "/etc/ssl/certs/"}})
     config.include(".http")
 
@@ -825,8 +949,8 @@ def configure(settings=None):
     )
 
     # Sanity check our request and responses.
-    # Note: It is very important that this go last. We need everything else that might
-    #       have added a tween to be registered prior to this.
+    # Note: It is very important that this go last. We need everything else
+    # that might have added a tween to be registered prior to this.
     config.include(".sanity")
 
     # Finally, commit all of our changes

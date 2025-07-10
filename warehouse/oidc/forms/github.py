@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import re
 
@@ -16,15 +6,15 @@ import requests
 import sentry_sdk
 import wtforms
 
-from warehouse import forms
 from warehouse.i18n import localize as _
 from warehouse.oidc.forms._core import PendingPublisherMixin
 
 _VALID_GITHUB_REPO = re.compile(r"^[a-zA-Z0-9-_.]+$")
 _VALID_GITHUB_OWNER = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9-]*$")
+_INVALID_ENVIRONMENT_CHARS = re.compile(r'[\x00-\x1F\x7F\'"`,;\\]', re.UNICODE)
 
 
-class GitHubPublisherBase(forms.Form):
+class GitHubPublisherBase(wtforms.Form):
     __params__ = ["owner", "repository", "workflow_filename", "environment"]
 
     owner = wtforms.StringField(
@@ -154,24 +144,56 @@ class GitHubPublisherBase(forms.Form):
                 _("Workflow filename must be a filename only, without directories")
             )
 
+    def validate_environment(self, field):
+        environment = field.data
+
+        if not environment:
+            return
+
+        if len(environment) > 255:
+            raise wtforms.validators.ValidationError(
+                _("Environment name is too long (maximum is 255 characters)")
+            )
+
+        if environment.startswith(" "):
+            raise wtforms.validators.ValidationError(
+                _("Environment name may not start with whitespace")
+            )
+
+        if environment.endswith(" "):
+            raise wtforms.validators.ValidationError(
+                _("Environment name may not end with whitespace")
+            )
+
+        if _INVALID_ENVIRONMENT_CHARS.search(environment):
+            raise wtforms.validators.ValidationError(
+                _(
+                    "Environment name must not contain non-printable characters "
+                    'or the characters "\'", """, "`", ",", ";", "\\"'
+                )
+            )
+
     @property
     def normalized_environment(self):
+        # The only normalization is due to case-insensitivity.
+        #
         # NOTE: We explicitly do not compare `self.environment.data` to None,
-        # since it might also be falsey via an empty string (or might be
-        # only whitespace, which we also treat as a None case).
-        return (
-            self.environment.data.lower()
-            if self.environment.data and not self.environment.data.isspace()
-            else ""
-        )
+        # since it might also be falsey via an empty string.
+        return self.environment.data.lower() if self.environment.data else ""
 
 
 class PendingGitHubPublisherForm(GitHubPublisherBase, PendingPublisherMixin):
     __params__ = GitHubPublisherBase.__params__ + ["project_name"]
 
-    def __init__(self, *args, project_factory, **kwargs):
+    def __init__(self, *args, route_url, check_project_name, user, **kwargs):
         super().__init__(*args, **kwargs)
-        self._project_factory = project_factory
+        self._route_url = route_url
+        self._check_project_name = check_project_name
+        self._user = user
+
+    @property
+    def provider(self) -> str:
+        return "github"
 
 
 class GitHubPublisherForm(GitHubPublisherBase):

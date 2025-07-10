@@ -6,20 +6,24 @@ volumes:
   policies:
   caches:
   rstuf-metadata:
+  pgdata:
+  cachedata:
 
 services:
   db:
-    image: postgres:16.1
+    image: postgres:17.5
     ports:
       # 5432 may already in use by another PostgreSQL on host
       - "5433:5432"
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust  # never do this in production!
+      POSTGRES_INITDB_ARGS: '--no-sync --set fsync=off --set full_page_writes=off'
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
       interval: 1s
       start_period: 10s
     volumes:
+      - pgdata:/var/lib/postgresql/data
       - ./dev/db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:z
       - ./dev/example.sql.xz:/example.sql.xz:z
       - ./dev/db/post-migrations.sql:/post-migrations.sql:z
@@ -32,16 +36,8 @@ services:
 
   redis:
     image: redis:7.0
-
-  localstack:
-    image: localstack/localstack:3.5
-    stop_signal: SIGKILL
-    environment:
-      SERVICES: "sqs"
-      LOCALSTACK_HOST: "localstack"
-      LS_LOG: "error"
-    ports:
-      - "4566:4566"
+    volumes:
+      - cachedata:/data
 
   opensearch:
     build:
@@ -64,7 +60,7 @@ services:
 
   camo:
     image: pypa/warehouse-camo:2.0.0
-    command: /bin/go-camo --listen=0.0.0.0:9000
+    command: "/bin/go-camo --listen=0.0.0.0:9000 --header 'Access-Control-Allow-Origin: http://localhost'"
     ports:
       - "9000:9000"
     environment:
@@ -111,7 +107,7 @@ services:
 
   web:
     image: warehouse:docker-compose
-    command: gunicorn --reload --reload-extra-file=warehouse/api/openapi.yaml -w 4 -b 0.0.0.0:8000 --access-logfile - --error-logfile - warehouse.wsgi:application
+    command: gunicorn --reload --reload-extra-file=warehouse/api/openapi.yaml -b 0.0.0.0:8000 --access-logfile - --error-logfile - warehouse.wsgi:application
     env_file: dev/environment
     pull_policy: never
     volumes: *base_volumes
@@ -136,6 +132,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
       stripe:
         condition: service_started
 
@@ -157,7 +155,7 @@ services:
   worker:
     image: warehouse:docker-compose
     pull_policy: never
-    command: hupper --shutdown-interval 10 --reload-interval 10 -m celery -A warehouse worker --beat --scheduler redbeat.RedBeatScheduler -l info
+    command: hupper --shutdown-interval 10 --reload-interval 10 -m celery -A warehouse worker --concurrency=1 --beat --scheduler redbeat.RedBeatScheduler -l info
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
       - packages:/var/opt/warehouse/packages
@@ -218,7 +216,8 @@ services:
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
       - ./webpack.config.js:/opt/warehouse/src/webpack.config.js:z
-      - ./.babelrc:/opt/warehouse/src/.babelrc:z
+      - ./webpack.plugin.localize.js:/opt/warehouse/src/webpack.plugin.localize.js:z
+      - ./babel.config.js:/opt/warehouse/src/babel.config.js:z
       - ./.stylelintrc.json:/opt/warehouse/src/.stylelintrc.json:z
       - ./tests/frontend:/opt/warehouse/src/tests/frontend:z
       - ./bin:/opt/warehouse/src/bin:z
@@ -227,7 +226,7 @@ services:
       - caches:/opt/warehouse/src/.stylelintcache
 
   maildev:
-    image: maildev/maildev:2.1.0
+    image: maildev/maildev:2.2.1
     ports:
       - "1080:1080"
       - "1025:1025"
@@ -256,9 +255,12 @@ services:
       context: .
       target: docs
     image: warehouse:docker-compose-docs
+    command: sphinx-autobuild --host 0.0.0.0 "docs/dev/" "docs/dev/_build"
     volumes:
       - ./bin:/opt/warehouse/src/bin:z
       - ./docs:/opt/warehouse/src/docs:z
+    ports:
+      - "10002:8000"
 
   user-docs:
     image: warehouse:docker-compose-docs

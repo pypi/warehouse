@@ -1,18 +1,9 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import datetime
 import json
 
+import email_validator
 import pretend
 import pytest
 import wtforms
@@ -33,11 +24,13 @@ from warehouse.captcha import recaptcha
 from warehouse.events.tags import EventTag
 from warehouse.utils.webauthn import AuthenticationRejectedError
 
+from ...common.constants import REMOTE_ADDR
+
 
 class TestLoginForm:
     def test_validate(self):
         request = pretend.stub(
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
             banned=pretend.stub(
                 by_ip=lambda ip_address: False,
             ),
@@ -62,6 +55,20 @@ class TestLoginForm:
         assert form.breach_service is breach_service
         assert form.validate(), str(form.errors)
 
+    def test_validate_username_with_null_bytes(self, pyramid_config):
+        request = pretend.stub()
+        user_service = pretend.stub()
+        breach_service = pretend.stub()
+        form = forms.LoginForm(
+            formdata=MultiDict({"username": "my_username\0"}),
+            request=request,
+            user_service=user_service,
+            breach_service=breach_service,
+        )
+
+        assert not form.validate()
+        assert str(form.username.errors.pop()) == "Null bytes are not allowed."
+
     def test_validate_username_with_no_user(self):
         request = pretend.stub()
         user_service = pretend.stub(
@@ -69,17 +76,17 @@ class TestLoginForm:
         )
         breach_service = pretend.stub()
         form = forms.LoginForm(
-            request=request, user_service=user_service, breach_service=breach_service
+            formdata=MultiDict({"username": "my_username"}),
+            request=request,
+            user_service=user_service,
+            breach_service=breach_service,
         )
-        field = pretend.stub(data="my_username")
 
-        with pytest.raises(wtforms.validators.ValidationError):
-            form.validate_username(field)
-
+        assert not form.validate()
         assert user_service.find_userid.calls == [pretend.call("my_username")]
 
     @pytest.mark.parametrize(
-        "input_username,expected_username",
+        ("input_username", "expected_username"),
         [
             ("my_username", "my_username"),
             ("  my_username  ", "my_username"),
@@ -93,16 +100,18 @@ class TestLoginForm:
         user_service = pretend.stub(find_userid=pretend.call_recorder(lambda userid: 1))
         breach_service = pretend.stub()
         form = forms.LoginForm(
-            request=request, user_service=user_service, breach_service=breach_service
+            formdata=MultiDict({"username": input_username}),
+            request=request,
+            user_service=user_service,
+            breach_service=breach_service,
         )
-        field = pretend.stub(data=input_username)
-        form.validate_username(field)
 
+        assert not form.validate()
         assert user_service.find_userid.calls == [pretend.call(expected_username)]
 
     def test_validate_password_no_user(self):
         request = pretend.stub(
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
             banned=pretend.stub(
                 by_ip=lambda ip_address: False,
             ),
@@ -128,7 +137,7 @@ class TestLoginForm:
 
     def test_validate_password_disabled_for_compromised_pw(self, db_session):
         request = pretend.stub(
-            remote_addr="1.2.3.4", banned=pretend.stub(by_ip=lambda ip_address: False)
+            remote_addr=REMOTE_ADDR, banned=pretend.stub(by_ip=lambda ip_address: False)
         )
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
@@ -159,7 +168,7 @@ class TestLoginForm:
 
     def test_validate_password_ok(self):
         request = pretend.stub(
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
             banned=pretend.stub(
                 by_ip=lambda ip_address: False,
             ),
@@ -199,7 +208,7 @@ class TestLoginForm:
 
     def test_validate_password_notok(self, db_session):
         request = pretend.stub(
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
             banned=pretend.stub(
                 by_ip=lambda ip_address: False,
             ),
@@ -242,7 +251,7 @@ class TestLoginForm:
 
     def test_validate_password_too_many_failed(self):
         request = pretend.stub(
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
             banned=pretend.stub(
                 by_ip=lambda ip_address: False,
             ),
@@ -280,7 +289,7 @@ class TestLoginForm:
 
         user = pretend.stub(id=1)
         request = pretend.stub(
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
             banned=pretend.stub(
                 by_ip=lambda ip_address: False,
             ),
@@ -317,7 +326,7 @@ class TestLoginForm:
 
     def test_validate_password_ok_ip_banned(self):
         request = pretend.stub(
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
             banned=pretend.stub(
                 by_ip=lambda ip_address: True,
             ),
@@ -351,7 +360,7 @@ class TestLoginForm:
 
     def test_validate_password_notok_ip_banned(self, db_session):
         request = pretend.stub(
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
             banned=pretend.stub(
                 by_ip=lambda ip_address: True,
             ),
@@ -381,8 +390,23 @@ class TestLoginForm:
         assert user_service.check_password.calls == []
 
 
+@pytest.fixture
+def _no_deliverability_check(monkeypatch):
+    """
+    Prevents the email_validator library from checking deliverability of email
+    """
+    original_validate_email = email_validator.validate_email  # recursion prevention
+
+    def mock_validate_email(email, check_deliverability=True, *args, **kwargs):
+        return original_validate_email(
+            email, check_deliverability=False, *args, **kwargs
+        )
+
+    monkeypatch.setattr("email_validator.validate_email", mock_validate_email)
+
+
 class TestRegistrationForm:
-    def test_validate(self):
+    def test_validate(self, metrics):
         captcha_service = pretend.stub(
             enabled=False,
             verify_response=pretend.call_recorder(lambda _: None),
@@ -400,7 +424,8 @@ class TestRegistrationForm:
 
         form = forms.RegistrationForm(
             request=pretend.stub(
-                db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False))
+                db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False)),
+                metrics=metrics,
             ),
             formdata=MultiDict(
                 {
@@ -506,10 +531,11 @@ class TestRegistrationForm:
             str(form.email.errors.pop()) == "The email address isn't valid. Try again."
         )
 
-    def test_exotic_email_success(self):
+    def test_exotic_email_success(self, metrics):
         form = forms.RegistrationForm(
             request=pretend.stub(
-                db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False))
+                db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False)),
+                metrics=metrics,
             ),
             formdata=MultiDict({"email": "foo@n--tree.net"}),
             user_service=pretend.stub(
@@ -561,17 +587,19 @@ class TestRegistrationForm:
             "different email."
         )
 
+    @pytest.mark.usefixtures("_no_deliverability_check")
     @pytest.mark.parametrize(
-        "email",
+        ("email", "prohibited_domain"),
         [
-            "foo@wutang.net",
-            "foo@clan.wutang.net",
-            "foo@one.two.wutang.net",
-            "foo@wUtAnG.net",
+            ("foo@wutang.net", "wutang.net"),
+            ("foo@clan.wutang.net", "wutang.net"),
+            ("foo@one.two.wutang.net", "wutang.net"),
+            ("foo@wUtAnG.net", "wutang.net"),
+            ("foo@one.wutang.co.uk", "wutang.co.uk"),
         ],
     )
-    def test_prohibited_email_error(self, db_request, email):
-        domain = ProhibitedEmailDomain(domain="wutang.net")
+    def test_prohibited_email_error(self, db_request, email, prohibited_domain):
+        domain = ProhibitedEmailDomain(domain=prohibited_domain)
         db_request.db.add(domain)
 
         form = forms.RegistrationForm(
@@ -781,6 +809,33 @@ class TestRegistrationForm:
         assert not form.validate()
         assert form.full_name.errors.pop() == "Null bytes are not allowed."
 
+    @pytest.mark.parametrize(
+        "input_name",
+        [
+            "https://example.com",
+            "hello http://example.com",
+            "http://example.com goodbye",
+        ],
+    )
+    def test_name_contains_url(self, pyramid_config, input_name):
+        form = forms.RegistrationForm(
+            request=pretend.stub(),
+            formdata=MultiDict({"full_name": input_name}),
+            user_service=pretend.stub(
+                find_userid=pretend.call_recorder(lambda _: None)
+            ),
+            captcha_service=pretend.stub(
+                enabled=False,
+                verify_response=pretend.call_recorder(lambda _: None),
+            ),
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: True),
+        )
+        assert not form.validate()
+        assert (
+            str(form.full_name.errors.pop())
+            == "URLs are not allowed in the name field."
+        )
+
 
 class TestRequestPasswordResetForm:
     @pytest.mark.parametrize(
@@ -917,7 +972,7 @@ class TestTOTPAuthenticationForm:
     def test_validate(self, totp_value):
         user = pretend.stub(record_event=pretend.call_recorder(lambda *a, **kw: None))
         get_user = pretend.call_recorder(lambda userid: user)
-        request = pretend.stub(remote_addr="1.2.3.4")
+        request = pretend.stub(remote_addr=REMOTE_ADDR)
 
         form = forms.TOTPAuthenticationForm(
             formdata=MultiDict({"totp_value": totp_value}),
@@ -930,7 +985,7 @@ class TestTOTPAuthenticationForm:
         assert form.validate()
 
     @pytest.mark.parametrize(
-        "totp_value, expected_error",
+        ("totp_value", "expected_error"),
         [
             ("", "This field is required."),
             ("not_a_real_value", "TOTP code must be 6 digits."),
@@ -940,7 +995,7 @@ class TestTOTPAuthenticationForm:
     def test_totp_secret_not_valid(self, pyramid_config, totp_value, expected_error):
         user = pretend.stub(record_event=pretend.call_recorder(lambda *a, **kw: None))
         get_user = pretend.call_recorder(lambda userid: user)
-        request = pretend.stub(remote_addr="1.2.3.4")
+        request = pretend.stub(remote_addr=REMOTE_ADDR)
 
         form = forms.TOTPAuthenticationForm(
             formdata=MultiDict({"totp_value": totp_value}),
@@ -954,7 +1009,7 @@ class TestTOTPAuthenticationForm:
         assert str(form.totp_value.errors.pop()) == expected_error
 
     @pytest.mark.parametrize(
-        "exception, expected_error, reason",
+        ("exception", "expected_error", "reason"),
         [
             (otp.InvalidTOTPError, "Invalid TOTP code.", "invalid_totp"),
             (otp.OutOfSyncTOTPError, "Invalid TOTP code.", "invalid_totp"),
@@ -965,7 +1020,7 @@ class TestTOTPAuthenticationForm:
     ):
         user = pretend.stub(record_event=pretend.call_recorder(lambda *a, **kw: None))
         get_user = pretend.call_recorder(lambda userid: user)
-        request = pretend.stub(remote_addr="1.2.3.4")
+        request = pretend.stub(remote_addr=REMOTE_ADDR)
 
         user_service = pretend.stub(
             check_totp_value=pretend.raiser(exception),
@@ -1100,7 +1155,7 @@ class TestReAuthenticateForm:
 
 class TestRecoveryCodeForm:
     def test_validate(self, monkeypatch):
-        request = pretend.stub(remote_addr="1.2.3.4")
+        request = pretend.stub(remote_addr=REMOTE_ADDR)
         user = pretend.stub(id=pretend.stub(), username="foobar")
         user_service = pretend.stub(
             check_recovery_code=pretend.call_recorder(lambda *a, **kw: True),
@@ -1137,7 +1192,7 @@ class TestRecoveryCodeForm:
         assert form.recovery_code_value.errors.pop() == "This field is required."
 
     @pytest.mark.parametrize(
-        "exception, expected_reason, expected_error",
+        ("exception", "expected_reason", "expected_error"),
         [
             (InvalidRecoveryCode, "invalid_recovery_code", "Invalid recovery code."),
             (NoRecoveryCodes, "invalid_recovery_code", "Invalid recovery code."),
@@ -1177,7 +1232,7 @@ class TestRecoveryCodeForm:
         ]
 
     @pytest.mark.parametrize(
-        "input_string, validates",
+        ("input_string", "validates"),
         [
             (" deadbeef00001111 ", True),
             ("deadbeef00001111 ", True),

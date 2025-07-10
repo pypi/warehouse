@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import shlex
 
@@ -57,7 +47,7 @@ def prohibited_project_names(request):
     if q:
         terms = shlex.split(q)
 
-        filters = []
+        filters: list = []
         for term in terms:
             filters.append(
                 ProhibitedProjectName.name.ilike(func.normalize_pep426_name(term))
@@ -146,7 +136,7 @@ def confirm_prohibited_project_names(request):
 
 @view_config(
     route_name="admin.prohibited_project_names.release",
-    permission=Permissions.AdminProhibitedProjectsWrite,
+    permission=Permissions.AdminProhibitedProjectsRelease,
     request_method="POST",
     uses_session=True,
     require_methods=False,
@@ -250,7 +240,7 @@ def add_prohibited_project_names(request):
         )
         return HTTPSeeOther(request.route_path("admin.prohibited_project_names.list"))
 
-    prohibit_and_remove_project(project_name, request, comment)
+    prohibit_and_remove_project(project_name, request, comment=comment)
 
     request.session.flash(f"Prohibited Project Name {project_name!r}", queue="success")
 

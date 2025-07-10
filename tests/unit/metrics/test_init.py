@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 
@@ -19,6 +9,7 @@ from warehouse.metrics import (
     DataDogMetrics,
     IMetricsService,
     NullMetrics,
+    _metrics,
     event_handlers,
     includeme,
     views,
@@ -30,6 +21,7 @@ def test_include_defaults_to_null():
         registry=pretend.stub(settings={}),
         maybe_dotted=lambda i: i,
         register_service_factory=pretend.call_recorder(lambda factory, iface: None),
+        add_request_method=pretend.call_recorder(lambda fn, name, reify: None),
         add_subscriber=pretend.call_recorder(lambda handler, event: None),
         add_view_deriver=pretend.call_recorder(lambda deriver, under: None),
     )
@@ -49,6 +41,9 @@ def test_include_defaults_to_null():
     assert config.add_view_deriver.calls == [
         pretend.call(views.timing_view, under=viewderivers.INGRESS)
     ]
+    assert config.add_request_method.calls == [
+        pretend.call(_metrics, name="metrics", reify=True)
+    ]
 
 
 def test_include_sets_class():
@@ -60,6 +55,7 @@ def test_include_sets_class():
             pth
         ],
         register_service_factory=pretend.call_recorder(lambda factory, iface: None),
+        add_request_method=pretend.call_recorder(lambda fn, name, reify: None),
         add_subscriber=pretend.call_recorder(lambda handler, event: None),
         add_view_deriver=pretend.call_recorder(lambda deriver, under: None),
     )
@@ -79,3 +75,10 @@ def test_include_sets_class():
     assert config.add_view_deriver.calls == [
         pretend.call(views.timing_view, under=viewderivers.INGRESS)
     ]
+    assert config.add_request_method.calls == [
+        pretend.call(_metrics, name="metrics", reify=True)
+    ]
+
+
+def test_finds_service(pyramid_request):
+    assert _metrics(pyramid_request) == pyramid_request.find_service(IMetricsService)

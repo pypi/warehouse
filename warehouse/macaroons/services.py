@@ -1,16 +1,7 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import datetime
+import typing
 import uuid
 
 import pymacaroons
@@ -170,9 +161,10 @@ class DatabaseMacaroonService:
         # NOTE: This is a bit of a hack: we keep a separate copy of the
         # permissions caveat in the DB, so that we can display scope information
         # in the UI.
-        permissions = {}
+        permissions: dict[str, list[str]] | str = {}
         for caveat in scopes:
             if isinstance(caveat, caveats.ProjectName):
+                permissions = typing.cast(dict[str, list[str]], permissions)
                 projects = permissions.setdefault("projects", [])
                 projects.extend(caveat.normalized_names)
             elif isinstance(caveat, caveats.RequestUser):

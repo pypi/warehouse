@@ -1,28 +1,21 @@
 #!/bin/bash
-set -e
-
-# Click requires us to ensure we have a well configured environment to run
-# our click commands. So we'll set our environment to ensure our locale is
-# correct.
-export LC_ALL="${ENCODING:-en_US.UTF-8}"
-export LANG="${ENCODING:-en_US.UTF-8}"
-
-# Print all the following commands
-set -x
+set -ex
 
 export TMPDIR=$(mktemp -d)
-mkdir -p $TMPDIR/docs
-pip-compile --upgrade -o $TMPDIR/deploy.txt requirements/deploy.in > /dev/null
-pip-compile --upgrade -o $TMPDIR/main.txt requirements/main.in > /dev/null
-pip-compile --upgrade -o $TMPDIR/lint.txt requirements/lint.in > /dev/null
-pip-compile --upgrade -o $TMPDIR/tests.txt requirements/tests.in > /dev/null
-pip-compile --upgrade -o $TMPDIR/docs-dev.txt requirements/docs-dev.in > /dev/null
-pip-compile --upgrade -o $TMPDIR/docs-user.txt requirements/docs-user.in > /dev/null
-pip-compile --upgrade -o $TMPDIR/docs-blog.txt requirements/docs-blog.in > /dev/null
+cp requirements/*.txt $TMPDIR/
+pip-compile -o $TMPDIR/deploy.txt requirements/deploy.in > /dev/null
+pip-compile -o $TMPDIR/main.txt requirements/main.in > /dev/null
+pip-compile -o $TMPDIR/lint.txt requirements/lint.in > /dev/null
+pip-compile -o $TMPDIR/tests.txt requirements/tests.in > /dev/null
+pip-compile -o $TMPDIR/dev.txt requirements/dev.in > /dev/null
+pip-compile -o $TMPDIR/docs-dev.txt requirements/docs-dev.in > /dev/null
+pip-compile -o $TMPDIR/docs-user.txt requirements/docs-user.in > /dev/null
+pip-compile -o $TMPDIR/docs-blog.txt requirements/docs-blog.in > /dev/null
 python bin/depchecker.py $TMPDIR/deploy.txt requirements/deploy.txt
 python bin/depchecker.py $TMPDIR/main.txt requirements/main.txt
 python bin/depchecker.py $TMPDIR/lint.txt requirements/lint.txt
 python bin/depchecker.py $TMPDIR/tests.txt requirements/tests.txt
+python bin/depchecker.py $TMPDIR/dev.txt requirements/dev.txt
 python bin/depchecker.py $TMPDIR/docs-dev.txt requirements/docs-dev.txt
 python bin/depchecker.py $TMPDIR/docs-user.txt requirements/docs-user.txt
 python bin/depchecker.py $TMPDIR/docs-blog.txt requirements/docs-blog.txt

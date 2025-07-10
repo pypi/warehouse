@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -146,11 +136,11 @@ class TestActiveOrganizationPredicate:
         predicate = ActiveOrganizationPredicate(True, None)
         assert not predicate(organization, db_request)
 
+    @pytest.mark.usefixtures("_enable_organizations")
     def test_inactive_organization(
         self,
         db_request,
         organization,
-        enable_organizations,
     ):
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/manage/organizations/"
@@ -163,11 +153,11 @@ class TestActiveOrganizationPredicate:
 
         assert db_request.route_path.calls == [pretend.call("manage.organizations")]
 
+    @pytest.mark.usefixtures("_enable_organizations")
     def test_inactive_subscription(
         self,
         db_request,
         organization,
-        enable_organizations,
         inactive_subscription,
     ):
         db_request.route_path = pretend.call_recorder(
@@ -180,8 +170,12 @@ class TestActiveOrganizationPredicate:
 
         assert db_request.route_path.calls == [pretend.call("manage.organizations")]
 
+    @pytest.mark.usefixtures("_enable_organizations")
     def test_active_subscription(
-        self, db_request, organization, enable_organizations, active_subscription
+        self,
+        db_request,
+        organization,
+        active_subscription,
     ):
         predicate = ActiveOrganizationPredicate(True, None)
         assert predicate(organization, db_request)

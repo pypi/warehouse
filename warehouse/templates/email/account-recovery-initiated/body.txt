@@ -1,0 +1,23 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
+{% extends "email/_base/body.txt" %}
+
+
+{% block content %}
+An account recovery request was filed at {{ support_issue_link }} for the PyPI username {{ user.username }} which has this address ({{ user.primary_email.email }}) as its primary email.
+
+{% if project_name %}
+In order to verify the request, please push a branch with the name {{ token }} to the public source code repository for the {{ request.route_url("packaging.project", name=project_name) }} project and respond to this email.
+
+The branch does not need to include any commits or changes and can be deleted after it has been verified.
+
+{% else %}
+Because there are no projects with public source code repositories associated with your account, we are unable to utilize our normal verification process to proceed.
+
+Please respond to this email confirming intent to reset 2FA.
+
+{% endif %}
+
+After that, {{ "and a 7 day waiting period," if not project_name else "" }} the 2FA for your account will be reset and a password reset will be issued to this address.
+
+{% endblock %}

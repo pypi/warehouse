@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import os
 
@@ -20,10 +10,11 @@ import pytest
 import redis
 import redis.lock
 
-from first import first
+from more_itertools import first_true
 
 import warehouse.search.tasks
 
+from warehouse.packaging.models import LifecycleStatus
 from warehouse.search.tasks import (
     SearchLock,
     _project_docs,
@@ -56,6 +47,20 @@ def test_project_docs(db_session):
                 )
             ]
 
+    # Create an Archived project which should not be included
+    archived_project = ProjectFactory.create(
+        lifecycle_status=LifecycleStatus.ArchivedNoindex
+    )
+    archived_releases = ReleaseFactory.create_batch(3, project=archived_project)
+    for r in archived_releases:
+        r.files = [
+            FileFactory.create(
+                release=r,
+                filename=f"{p.name}-{r.version}.tar.gz",
+                python_version="source",
+            )
+        ]
+
     assert list(_project_docs(db_session)) == [
         {
             "_id": p.normalized_name,
@@ -63,9 +68,8 @@ def test_project_docs(db_session):
                 "created": p.created,
                 "name": p.name,
                 "normalized_name": p.normalized_name,
-                "latest_version": first(prs, key=lambda r: not r.is_prerelease).version,
-                "description": first(
-                    prs, key=lambda r: not r.is_prerelease
+                "description": first_true(
+                    prs, pred=lambda r: not r.is_prerelease
                 ).description.raw,
             },
         }
@@ -101,9 +105,8 @@ def test_single_project_doc(db_session):
                 "created": p.created,
                 "name": p.name,
                 "normalized_name": p.normalized_name,
-                "latest_version": first(prs, key=lambda r: not r.is_prerelease).version,
-                "description": first(
-                    prs, key=lambda r: not r.is_prerelease
+                "description": first_true(
+                    prs, pred=lambda r: not r.is_prerelease
                 ).description.raw,
             },
         }
@@ -140,9 +143,8 @@ def test_project_docs_empty(db_session):
                 "created": p.created,
                 "name": p.name,
                 "normalized_name": p.normalized_name,
-                "latest_version": first(prs, key=lambda r: not r.is_prerelease).version,
-                "description": first(
-                    prs, key=lambda r: not r.is_prerelease
+                "description": first_true(
+                    prs, pred=lambda r: not r.is_prerelease
                 ).description.raw,
             },
         }
@@ -174,7 +176,7 @@ class FakeESIndices:
         if not self.aliases[name]:
             del self.aliases[name]
 
-    def update_aliases(self, body):
+    def update_aliases(self, *, body):
         for items in body["actions"]:
             for action, values in items.items():
                 if action == "add":
@@ -388,7 +390,9 @@ class TestReindex:
                 index="warehouse-cbcbcbcbcb",
             )
         ]
-        assert es_client.indices.delete.calls == [pretend.call("warehouse-aaaaaaaaaa")]
+        assert es_client.indices.delete.calls == [
+            pretend.call(index="warehouse-aaaaaaaaaa")
+        ]
         assert es_client.indices.aliases == {"warehouse": ["warehouse-cbcbcbcbcb"]}
         assert es_client.indices.put_settings.calls == [
             pretend.call(

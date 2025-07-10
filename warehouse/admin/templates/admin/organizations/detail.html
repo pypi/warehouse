@@ -1,16 +1,5 @@
-{#
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
--#}
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
 {% extends "admin/base.html" %}
 
 {% block title %}{{ organization.name }}{% endblock %}
@@ -26,7 +15,7 @@
       <div class="card card-primary">
         <div class="card-body card-widget widget-user-1">
           <div class="widget-user-header">
-            <h3 class="widget-user-username text-center">{{ organization.name }}</h3>
+            <h3 class="widget-user-username text-center">{{ organization.display_name }}</h3>
           </div>
         </div>
         <div class="card-body">
@@ -41,6 +30,55 @@
           <h2 class="card-title">Actions</h2>
         </div>
         <div class="card-body">
+
+            <button
+              type="button"
+              class="btn btn-danger btn-block"
+              data-toggle="modal"
+              data-target="#renameModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) }}
+              title="Rename"
+            >
+              <i class="icon fa fa-rotate"></i> Rename
+            </button>
+
+            <div class="modal fade" id="renameModal" tabindex="-1" role="dialog">
+              <form method="POST" action="{{ request.route_path('admin.organization.rename', organization_id=organization.id) }}">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title" id="renameModalLabel">
+                        Rename {{ organization.name }}?
+                      </h4>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>
+                        This will rename <strong>{{ organization.name }}</strong>
+                      </p>
+                      <div class="form-group">
+                        <label for="renameModalOrganizationName">
+                          New Organization Name
+                        </label>
+                        <input type="text" id="renameModalOrganizationName" class="form-control" aria-describedby="renameModalOrganizationNameHelpBlock" name="new_organization_name" placeholder="{{ organization.name }}" required>
+                        <span id="renameModalOrganizationNameHelpBlock">
+                          Type the NEW organization name for "{{ organization.name }}" to confirm you are <strong>renaming</strong> the organization.
+                        </span>
+                      </div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-danger">
+                        <i class="icon fa fa-check"></i> Rename organization
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+
         </div>
       </div>
     </div>
@@ -48,42 +86,10 @@
     <div class="col-md-9">
       <div class="card">
         <div class="card-header with-border">
-          <h3 class="card-title">Organization Request</h3>
+          <h3 class="card-title">Organization</h3>
         </div>
         <div class="card-body">
           <div class="form-horizontal">
-            <div class="form-group">
-              <label class="col-sm-5 control-label">
-                Approval Status
-              </label>
-              <div class="col-sm-7">
-                {% if organization.is_approved == True %}
-                Approved by <a href="{{ request.route_url('admin.user.detail', username=admin.username) }}">{{ admin.username }}</a><br>
-                {{ organization.date_approved|format_date() }}
-                {% elif organization.is_approved == False %}
-                Declined by <a href="{{ request.route_url('admin.user.detail', username=admin.username) }}">{{ admin.username }}</a><br>
-                {{ organization.date_approved|format_date() }}
-                {% elif user %}
-                Pending request by <a href="{{ request.route_url('admin.user.detail', username=user.username) }}">{{ user.username }}</a><br>
-                {{ organization.created|format_date() }}
-                {% else %}
-                Unknown
-                {% endif %}
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="col-sm-5 control-label">
-                Requesting User
-              </label>
-              <div class="col-sm-7">
-                {% if user %}
-                <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a><br>
-                <a href="mailto:{{ user.email }}">{{ user.email }}</a>
-                {% else %}
-                <i>n/a</i>
-                {% endif %}
-              </div>
-            </div>
             <div class="form-group">
               <label class="col-sm-5 control-label">
                 Organization Account Name
@@ -127,6 +133,122 @@
           </div>
         </div>
       </div>
+
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Projects</h3>
+        </div>
+
+        <div class="card-body">
+          {% if organization.projects %}
+          <table class="table table-hover" id="projects">
+            <thead>
+              <tr>
+                <th>Project Name</th>
+                <th>Total Size</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for project in organization.projects %}
+              <tr>
+                <td><a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">{{ project.name }}</a></td>
+                <td>{{ project.total_size | filesizeformat(binary=True) }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          No projects.
+          {% endif %}
+        </div>
+      </div> <!-- .card -->
+
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Members</h3>
+        </div>
+
+        <div class="card-body">
+          {% if organization.roles %}
+          <table class="table table-hover" id="projects">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Role</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for role in organization.roles %}
+              <tr>
+                <td><a href="{{ request.route_path('admin.user.detail', username=role.user.username) }}">{{ role.user.username }}</a></td>
+                <td>{{ role.role_name.value }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          No members.
+          {% endif %}
+        </div>
+
+        <div class="card-header with-border">
+          <h3 class="card-title">Invitations</h3>
+        </div>
+
+        <div class="card-body">
+          {% if organization.invitations %}
+          <table class="table table-hover" id="projects">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for role in organization.invitations %}
+              <tr>
+                <td><a href="{{ request.route_path('admin.user.detail', username=role.user.username) }}">{{ role.user.username }}</a></td>
+                <td><i>{{ role.invite_status.value }}</i></td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          No invitations.
+          {% endif %}
+        </div>
+      </div> <!-- .card -->
+
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Teams</h3>
+        </div>
+
+        <div class="card-body">
+          {% if organization.teams %}
+          <table class="table table-hover" id="projects">
+            <thead>
+              <tr>
+                <th>Team</th>
+                <th>Members</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for team in organization.teams %}
+              <tr>
+                <td>{{ team.name }}</td>
+                <td>{{ team.members|length }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          No teams.
+          {% endif %}
+        </div>
+      </div> <!-- .card -->
+
     </div>
+
   </div>
 {% endblock %}

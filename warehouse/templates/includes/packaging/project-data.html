@@ -11,157 +11,305 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-
 <div class="sidebar-section verified">
-  <h3 class="sidebar-section__title">{% trans %}Verified details{% endtrans %}</h3>
-  <small><i>These details have been verified by PyPI</i></small>
+  <h3 class="sidebar-section__title">
+    {% trans %}Verified details{% endtrans %}
+    <i class="fa fa-circle-check check"
+       title="{% trans release_date=release.created.date() %}Verified by PyPI on {{ release_date }} {% endtrans %}"></i>
+  </h3>
+  <small><i>{% trans href="https://docs.pypi.org/project_metadata/#verified-details" %}These details have been <a href="{{ href }}">verified by PyPI</a>{% endtrans %}</i></small>
+  {% if release.urls_by_verify_status(verified=True).values() | contains_valid_uris %}
+    <h6>{% trans %}Project links{% endtrans %}</h6>
+    <ul class="vertical-tabs__list">
+      {% for name, url in release.urls_by_verify_status(verified=True).items() %}
+        {% if is_valid_uri(url) %}
+          <li>
+            <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+               href="{{ url }}"
+               rel="nofollow">{{ url_icon(name, url) }}{{ name }}</a>
+          </li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+  {% endif %}
   {% if project.organization %}
-  <h6>Owner</h6>
-    <span class="sidebar-section__maintainer">
-      <a href="{{ request.route_path('organizations.profile', organization=project.organization.name) }}" aria-label="{{ project.organization.name }}">
-        <span class="sidebar-section__user-gravatar">
-          <img src="{{ request.static_path('warehouse:static/dist/images/blue-sitemap.png') }}" height="43" alt="organization icon" title="organization icon">        </span>
-        <span class="sidebar-section__user-gravatar-text">
+    <h6>Owner</h6>
+    <ul class="vertical-tabs__list">
+      <li>
+        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+           href="{{ request.route_path('organizations.profile', organization=project.organization.name) }}"
+           aria-label="{{ project.organization.name }}">
+          <i class="fa fa-sitemap" aria-hidden="true"></i>
           {{ project.organization.display_name }}
-        </span>
-      </a>
-    </span>
+        </a>
+      </li>
+    </ul>
+  {% endif %}
+  {% if release.verified_github_repo_info_url and release.verified_github_open_issue_info_url %}
+    <h6>{% trans %}GitHub Statistics{% endtrans %}</h6>
+    <div class="hidden github-repo-info" data-controller="github-repo-info">
+      <ul class="vertical-tabs__list">
+        <li>
+          <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+             rel="noopener"
+             href="https://github.com/{{ release.verified_github_user_name_and_repo_name|join("/") }}">
+            <i class="fab fa-github" aria-hidden="true"></i>
+            <strong>{% trans %}Repository{% endtrans %}</strong>
+          </a>
+        </li>
+        <li>
+          <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+             data-github-repo-info-target="stargazersUrl"
+             rel="noopener">
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <strong>{% trans %}Stars:{% endtrans %}</strong>
+            <span data-github-repo-info-target="stargazersCount"></span>
+          </a>
+        </li>
+        <li>
+          <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+             data-github-repo-info-target="forksUrl"
+             rel="noopener">
+            <i class="fa fa-code-branch" aria-hidden="true"></i>
+            <strong>{% trans %}Forks:{% endtrans %}</strong>
+            <span data-github-repo-info-target="forksCount"></span>
+          </a>
+        </li>
+        <li>
+          <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+             data-github-repo-info-target="openIssuesUrl"
+             rel="noopener">
+            <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+            <strong>{% trans %}Open issues:{% endtrans %}</strong>
+            <span data-github-repo-info-target="openIssuesCount"></span>
+          </a>
+        </li>
+        <li>
+          <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+             data-github-repo-info-target="openPRsUrl"
+             rel="noopener">
+            <i class="fa fa-code-pull-request" aria-hidden="true"></i>
+            <strong>{% trans %}Open PRs:{% endtrans %}</strong>
+            <span data-github-repo-info-target="openPRsCount"></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  {% endif %}
+  {% if release.verified_gitlab_repository %}
+    <h6>{% trans %}GitLab Statistics{% endtrans %}</h6>
+    <div class="hidden gitlab-repo-info" data-controller="gitlab-repo-info">
+      <ul class="vertical-tabs__list">
+        <li>
+          <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+             rel="noopener"
+             href="https://gitlab.com/{{ release.verified_gitlab_user_name_and_repo_name|join("/") }}">
+            <i class="fab fa-gitlab" aria-hidden="true"></i>
+            <strong>{% trans %}Repository{% endtrans %}</strong>
+          </a>
+        </li>
+        <li>
+          <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+             data-gitlab-repo-info-target="starrersUrl"
+             rel="noopener">
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <strong>{% trans %}Stars:{% endtrans %}</strong>
+            <span data-gitlab-repo-info-target="starrersCount"></span>
+          </a>
+        </li>
+        <li>
+          <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+             data-gitlab-repo-info-target="forksUrl"
+             rel="noopener">
+            <i class="fa fa-code-branch" aria-hidden="true"></i>
+            <strong>{% trans %}Forks:{% endtrans %}</strong>
+            <span data-gitlab-repo-info-target="forksCount"></span>
+          </a>
+        </li>
+        <li>
+          <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+             data-gitlab-repo-info-target="openIssuesUrl"
+             rel="noopener">
+            <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+            <strong>{% trans %}Open issues:{% endtrans %}</strong>
+            <span data-gitlab-repo-info-target="openIssuesCount"></span>
+          </a>
+        </li>
+        <li>
+          <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+             data-gitlab-repo-info-target="openMRsUrl"
+             rel="noopener">
+            <i class="fa fa-code-pull-request" aria-hidden="true"></i>
+            <strong>{% trans %}Open merge requests:{% endtrans %}</strong>
+            <span data-gitlab-repo-info-target="openMRsCount"></span>
+          </a>
+        </li>
+      </ul>
+    </div>
   {% endif %}
   {% if maintainers %}
     <h6>{% trans %}Maintainers{% endtrans %}</h6>
     {% for maintainer in maintainers %}
       {% set alt = gettext("Avatar for {username} from gravatar.com").format(username=maintainer.username) %}
       <span class="sidebar-section__maintainer">
-        <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}" aria-label="{{ username}}">
+        <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}"
+           aria-label="{{ username }}">
           <span class="sidebar-section__user-gravatar">
-            <img src="{{ gravatar(request, maintainer.email, size=50) }}" height="50" width="50" alt="{{ alt }}" title="{{ alt }}">
+            <img src="{{ gravatar(request, maintainer.email, size=50) }}"
+                 height="50"
+                 width="50"
+                 alt="{{ alt }}"
+                 title="{{ alt }}">
           </span>
-          <span class="sidebar-section__user-gravatar-text">
-            {{ maintainer.username}}
-          </span>
+          <span class="sidebar-section__user-gravatar-text">{{ maintainer.username }}</span>
         </a>
       </span>
     {% endfor %}
   {% endif %}
-</div>
-
-<div class="sidebar-section verified">
-  <h3 class="sidebar-section__title">{% trans %}Unverified details{% endtrans %}</h3>
-  <small><i>These details have <b>not</b> been verified by PyPI</i></small>
-{% if release.urls.values() | contains_valid_uris %}
-  <h6>{% trans %}Project links{% endtrans %}</h6>
-  <ul class="vertical-tabs__list">
-    {% for name, url in release.urls.items() %}
-    {% if is_valid_uri(url) %}
-    <li>
-      <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed" href="{{ url }}" rel="nofollow">
-        {{ url_icon(name, url) }}{{ name }}
-      </a>
-    </li>
-    {% endif %}
-    {% endfor %}
-  </ul>
-{% endif %}
-
-  {% if release.github_repo_info_url and release.github_open_issue_info_url %}
-  <h6>{% trans %}GitHub Statistics{% endtrans %}</h6>
-  <div class="hidden github-repo-info" data-controller="github-repo-info">
-    <ul class="vertical-tabs__list">
-      <li>
-        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
-           data-github-repo-info-target="stargazersUrl" rel="noopener">
-          <i class="fa fa-star" aria-hidden="true"></i>
-          <strong>{% trans %}Stars:{% endtrans %}</strong>
-          <span data-github-repo-info-target="stargazersCount"></span>
-        </a>
-      </li>
-      <li>
-        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
-           data-github-repo-info-target="forksUrl" rel="noopener">
-          <i class="fa fa-code-branch" aria-hidden="true"></i>
-          <strong>{% trans %}Forks:{% endtrans %}</strong>
-          <span data-github-repo-info-target="forksCount"></span>
-        </a>
-      </li>
-      <li>
-        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
-           data-github-repo-info-target="openIssuesUrl" rel="noopener">
-          <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-          <strong>{% trans %}Open issues:{% endtrans %}</strong>
-          <span data-github-repo-info-target="openIssuesCount"></span>
-        </a>
-      </li>
-      <li>
-        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
-           data-github-repo-info-target="openPRsUrl" rel="noopener">
-          <i class="fa fa-code-pull-request" aria-hidden="true"></i>
-          <strong>{% trans %}Open PRs:{% endtrans %}</strong>
-          <span data-github-repo-info-target="openPRsCount"></span>
-        </a>
-      </li>
-    </ul>
-  </div>
-  {% endif %}
-
-{% if release.has_meta %}
-<div class="sidebar-section">
-  <h6>{% trans %}Meta{% endtrans %}</h6>
-  {% if license %}
-  <p><strong>{% trans %}License:{% endtrans %}</strong> {{ license }}</p>
-  {% endif %}
-  {% if release.author_email %}
-    <p><strong>{% trans %}Author:{% endtrans %}</strong> <a href="mailto:{{ release.author_email|format_email|last }}">{{ release.author or release.author_email|format_email|first }}</a></p>
-  {% elif release.author %}
-    <p><strong>{% trans %}Author:{% endtrans %}</strong> {{ release.author }}</p>
-  {% endif %}
-  {% if release.maintainer_email %}
-    <p><strong>{% trans %}Maintainer:{% endtrans %}</strong> <a href="mailto:{{ release.maintainer_email|format_email|last }}">{{ release.maintainer or release.maintainer_email|format_email|first }}</a></p>
-  {% elif release.maintainer %}
-    <p><strong>{% trans %}Maintainer:{% endtrans %}</strong> {{ release.maintainer }}</p>
-  {% endif %}
-  {% if release.keywords %}
-  <p class="tags">
-    <i class="fa fa-tags" aria-hidden="true"></i>
-    <span class="sr-only">{% trans %}Tags{% endtrans %}</span>
-    {% for keyword in release.keywords | format_tags %}
-    <span class="package-keyword">
-      {{ keyword }}{% if not loop.last %},{% endif %}
-    </span>
-    {% endfor %}
-  </p>
-  {% endif %}
-  {% if release.requires_python %}
-  <p>
-    <strong>{% trans %}Requires:{% endtrans %}</strong> Python {{ release.requires_python|replace(',', ', ') }}
-  </p>
-  {% endif %}
-  {% if release.provides_extra %}
-  <p>
-    <strong>{% trans %}Provides-Extra:{% endtrans %}</strong> {% for extra in release.provides_extra %}<code>{{ extra }}</code>{% if not loop.last %}, {% endif %}{% endfor %}
-  </p>
-  {% endif %}
-</div>
-{% endif %}
-
-{% if release.classifiers %}
-<div class="sidebar-section">
-  <h6 class="sidebar-section__title">{% trans %}Classifiers{% endtrans %}</h6>
-  <ul class="sidebar-section__classifiers">
-    {% for classifier_head, classifier_tails in (release.classifiers|format_classifiers()).items() %}
-    <li>
-      <strong>{{ classifier_head }}</strong>
+  {% if release.has_meta and (release.author_email_verified or release.maintainer_email_verified) %}
+    <div class="sidebar-section verified">
+      <h6>{% trans %}Meta{% endtrans %}</h6>
       <ul>
-        {% for classifier_tail in classifier_tails %}
-        <li>
-          <a href="{{ request.route_path('search', _query={'c': ' :: '.join((classifier_head, classifier_tail))}) }}">
-            {{ classifier_tail }}
-          </a>
-        </li>
+        {% if release.author_email and release.author_email_verified %}
+          <li>
+            <span>
+              <strong>{% trans %}Author:{% endtrans %}</strong> <a href="mailto:{{ release.author_email|format_email|last }}">{{ release.author or release.author_email|format_email|first }}</a>
+            </span>
+          </li>
+        {% endif %}
+        {% if release.maintainer_email and release.maintainer_email_verified %}
+          <li>
+            <span>
+              <strong>{% trans %}Maintainer:{% endtrans %}</strong> <a href="mailto:{{ release.maintainer_email|format_email|last }}">{{ release.maintainer or release.maintainer_email|format_email|first }}</a>
+            </span>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  {% endif %}
+</div>
+<div class="sidebar-section unverified">
+  <h3 class="sidebar-section__title">{% trans %}Unverified details{% endtrans %}</h3>
+  <small><i>{% trans %}These details have <b>not</b> been verified by PyPI{% endtrans %}</i></small>
+  {% if release.urls_by_verify_status(verified=False).values() | contains_valid_uris %}
+    <h6>{% trans %}Project links{% endtrans %}</h6>
+    <ul class="vertical-tabs__list">
+      {% for name, url in release.urls_by_verify_status(verified=False).items() %}
+        {% if is_valid_uri(url) %}
+          <li>
+            <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+               href="{{ url }}"
+               rel="nofollow">{{ url_icon(name, url) }}{{ name }}</a>
+          </li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+  {% endif %}
+  {% if release.has_meta %}
+    <div class="sidebar-section unverified">
+      <h6>{% trans %}Meta{% endtrans %}</h6>
+      <ul>
+        {% if release.license_expression %}
+          <li>
+            <span>
+              <strong>{% trans %}License Expression:{% endtrans %}</strong> {{ release.license_expression }}
+              <br>
+              <small>
+                <i>
+                  <a target="_blank" href="https://spdx.org/licenses/">SPDX</a>
+                  <a target="_blank"
+                     href="https://spdx.github.io/spdx-spec/v2-draft/SPDX-license-expressions/">{% trans %}License Expression{% endtrans %}</a>
+                </i>
+              </small>
+            </span>
+          </li>
+        {% elif license %}
+          <li>
+            <span>
+              <strong>{% trans %}License:{% endtrans %}</strong> {{ license }}
+            </span>
+          </li>
+        {% endif %}
+        {% if release.author_email and not release.author_email_verified %}
+          <li>
+            <span>
+              <strong>{% trans %}Author:{% endtrans %}</strong> <a href="mailto:{{ release.author_email|format_email|last }}">{{ release.author or release.author_email|format_email|first }}</a>
+            </span>
+          </li>
+        {% elif release.author %}
+          <li>
+            <span>
+              <strong>{% trans %}Author:{% endtrans %}</strong> {{ release.author }}
+            </span>
+          </li>
+        {% endif %}
+        {% if release.maintainer_email and not release.maintainer_email_verified %}
+          <li>
+            <span>
+              <strong>{% trans %}Maintainer:{% endtrans %}</strong> <a href="mailto:{{ release.maintainer_email|format_email|last }}">{{ release.maintainer or release.maintainer_email|format_email|first }}</a>
+            </span>
+          </li>
+        {% elif release.maintainer %}
+          <li>
+            <span>
+              <strong>{% trans %}Maintainer:{% endtrans %}</strong> {{ release.maintainer }}
+            </span>
+          </li>
+        {% endif %}
+        {% if release.keywords %}
+          <li class="tags">
+            <span>
+              <i class="fa fa-tags" aria-hidden="true"></i>
+              <span class="sr-only">{% trans %}Tags{% endtrans %}</span>
+              {% for keyword in release.keywords | format_tags %}
+                <span class="package-keyword">
+                  {{ keyword }}
+                  {% if not loop.last %},{% endif %}
+                </span>
+              {% endfor %}
+            </span>
+          </li>
+        {% endif %}
+        {% if release.requires_python %}
+          <li>
+            <span>
+              <strong>{% trans %}Requires:{% endtrans %}</strong> Python {{ release.requires_python|replace(',', ', ') }}
+            </span>
+          </li>
+        {% endif %}
+        {% if release.provides_extra %}
+          <li>
+            <span>
+              <strong>{% trans %}Provides-Extra:{% endtrans %}</strong>
+              {% for extra in release.provides_extra %}
+                <code>{{ extra }}</code>
+                {% if not loop.last %},{% endif %}
+              {% endfor %}
+            </span>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  {% endif %}
+  {% if release.classifiers %}
+    <div class="sidebar-section unverified">
+      <h6 class="sidebar-section__title">{% trans %}Classifiers{% endtrans %}</h6>
+      <ul class="sidebar-section__classifiers">
+        {% for classifier_head, classifier_tails in (release.classifiers|format_classifiers()).items() %}
+          <li>
+            <strong>{{ classifier_head }}</strong>
+            <ul>
+              {% for classifier_tail in classifier_tails %}
+                <li>
+                  <a href="{{ request.route_path('search', _query={'c': ' :: '.join((classifier_head, classifier_tail) )}) }}">
+                    {{ classifier_tail }}
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          </li>
         {% endfor %}
       </ul>
-    </li>
-    {% endfor %}
-  </ul>
-</div>
-{% endif %}
+    </div>
+  {% endif %}
 </div>

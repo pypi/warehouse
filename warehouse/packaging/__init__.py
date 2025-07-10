@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from celery.schedules import crontab
 from sqlalchemy.orm.base import NO_VALUE
@@ -24,12 +14,13 @@ from warehouse.packaging.interfaces import (
     IProjectService,
     ISimpleStorage,
 )
-from warehouse.packaging.models import File, Project, Release, Role
+from warehouse.packaging.models import AlternateRepository, File, Project, Release, Role
 from warehouse.packaging.services import project_service_factory
 from warehouse.packaging.tasks import (
     check_file_cache_tasks_outstanding,
     compute_2fa_metrics,
     compute_packaging_metrics,
+    compute_top_dependents_corpus,
     update_description_html,
 )
 from warehouse.rate_limiting import IRateLimiter, RateLimit
@@ -178,6 +169,13 @@ def includeme(config):
             key_factory("project/{itr.normalized_name}", iterate_on="projects"),
         ],
     )
+    config.register_origin_cache_keys(
+        AlternateRepository,
+        cache_keys=["project/{obj.project.normalized_name}"],
+        purge_keys=[
+            key_factory("project/{obj.project.normalized_name}"),
+        ],
+    )
 
     config.add_periodic_task(crontab(minute="*/1"), check_file_cache_tasks_outstanding)
 
@@ -190,6 +188,5 @@ def includeme(config):
     # Add a periodic task to generate general metrics
     config.add_periodic_task(crontab(minute="*/5"), compute_packaging_metrics)
 
-    # TODO: restore this
-    # if config.get_settings().get("warehouse.release_files_table"):
-    #     config.add_periodic_task(crontab(minute=0), sync_bigquery_release_files)
+    # Add a periodic task to compute dependents corpus once a day
+    config.add_periodic_task(crontab(minute=0, hour=5), compute_top_dependents_corpus)

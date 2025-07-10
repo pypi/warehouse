@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 
 def includeme(config):
@@ -29,6 +19,11 @@ def includeme(config):
         "/admin/organizations/{organization_id}/",
         domain=warehouse,
     )
+    config.add_route(
+        "admin.organization.rename",
+        "/admin/organizations/{organization_id}/rename/",
+        domain=warehouse,
+    )
 
     config.add_route(
         "admin.organization_application.list",
@@ -43,6 +38,19 @@ def includeme(config):
     config.add_route(
         "admin.organization_application.approve",
         "/admin/organization_applications/{organization_application_id}/approve/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.organization_application.requestmoreinfo",
+        (
+            "/admin/organization_applications/{organization_application_id}"
+            "/requestmoreinfo/"
+        ),
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.organization_application.defer",
+        "/admin/organization_applications/{organization_application_id}/defer/",
         domain=warehouse,
     )
     config.add_route(
@@ -61,8 +69,29 @@ def includeme(config):
         traverse="/{username}",
     )
     config.add_route(
+        "admin.user.submit_email",
+        "/admin/users/{username}/emails/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
         "admin.user.add_email",
         "/admin/users/{username}/add_email/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
+        "admin.user.email_domain_check",
+        "/admin/users/{username}/email_domain_check/",
+        factory="warehouse.accounts.models:UserFactory",
+        domain=warehouse,
+        traverse="/{username}",
+    )
+    config.add_route(
+        "admin.user.delete_email",
+        "/admin/users/{username}/delete_email/",
         domain=warehouse,
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{username}",
@@ -89,16 +118,32 @@ def includeme(config):
         traverse="/{username}",
     )
     config.add_route(
-        "admin.user.wipe_factors",
-        "/admin/users/{username}/wipe_factors/",
+        "admin.user.account_recovery.initiate",
+        "/admin/users/{username}/account_recovery/initiate/",
         domain=warehouse,
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{username}",
     )
     config.add_route(
-        "admin.prohibited_user_names.bulk_add",
-        "/admin/prohibited_user_names/bulk/",
+        "admin.user.account_recovery.cancel",
+        "/admin/users/{username}/account_recovery/cancel/",
         domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
+        "admin.user.account_recovery.complete",
+        "/admin/users/{username}/account_recovery/complete/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
+        "admin.user.burn_recovery_codes",
+        "/admin/users/{username}/burn_recovery_codes/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
     )
 
     # Macaroon related Admin pages
@@ -236,6 +281,20 @@ def includeme(config):
         traverse="/{project_name}",
         domain=warehouse,
     )
+    config.add_route(
+        "admin.project.archive",
+        "/admin/projects/{project_name}/archive/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.project.unarchive",
+        "/admin/projects/{project_name}/unarchive/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
 
     # Journal related Admin pages
     config.add_route("admin.journals.list", "/admin/journals/", domain=warehouse)
@@ -264,6 +323,33 @@ def includeme(config):
     config.add_route(
         "admin.prohibited_project_names.release",
         "/admin/prohibited_project_names/release/",
+        domain=warehouse,
+    )
+    # Prohibited Username related Admin pages
+    config.add_route(
+        "admin.prohibited_user_names.list",
+        "/admin/prohibited_user_names/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.prohibited_user_names.bulk_add",
+        "/admin/prohibited_user_names/bulk/",
+        domain=warehouse,
+    )
+    # Prohibited Email related Admin pages
+    config.add_route(
+        "admin.prohibited_email_domains.list",
+        "/admin/prohibited_email_domains/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.prohibited_email_domains.add",
+        "/admin/prohibited_email_domains/add/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.prohibited_email_domains.remove",
+        "/admin/prohibited_email_domains/remove/",
         domain=warehouse,
     )
 

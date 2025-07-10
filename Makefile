@@ -7,6 +7,27 @@ ifeq ($(WAREHOUSE_IPYTHON_SHELL), 1)
     IPYTHON = yes
 endif
 
+# Optimization: if the user explicitly passes tests via `T`,
+# disable xdist (since the overhead of spawning workers is typically
+# higher than running a small handful of specific tests).
+# Only do this when the user doesn't set any explicit `TESTARGS` to avoid
+# confusion.
+COVERAGE := yes
+ifneq ($(T),)
+		COVERAGE = no
+		ifeq ($(TESTARGS),)
+				TESTARGS = -n 0
+		endif
+endif
+
+# PEP 669 introduced sys.monitoring, a lighter-weight way to monitor
+# the execution. While this introduces significant speed-up during test
+# execution, coverage does not yet support dynamic contexts when enabled.
+# This variable can be set to other tracers (ctrace, pytrace) to fall
+# back use them.
+# https://nedbatchelder.com/blog/202312/coveragepy_with_sysmonitoring.html
+COVERAGE_CORE ?= sysmon
+
 default:
 	@echo "Call a specific subcommand:"
 	@echo
@@ -25,7 +46,7 @@ default:
 	mkdir -p .state
 	touch .state/docker-build-base
 
-.state/docker-build-static: Dockerfile package.json package-lock.json .babelrc
+.state/docker-build-static: Dockerfile package.json package-lock.json babel.config.js
 	# Build our static container for this project.
 	docker compose build --force-rm static
 
@@ -63,7 +84,7 @@ debug: .state/docker-build-base
 	docker compose run --rm --service-ports web
 
 tests: .state/docker-build-base
-	docker compose run --rm tests bin/tests --postgresql-host db $(T) $(TESTARGS)
+	docker compose run --rm --env COVERAGE=$(COVERAGE) --env COVERAGE_CORE=$(COVERAGE_CORE) tests bin/tests --postgresql-host db $(T) $(TESTARGS)
 
 static_tests: .state/docker-build-static
 	docker compose run --rm static bin/static_tests $(T) $(TESTARGS)
@@ -92,6 +113,12 @@ licenses: .state/docker-build-base
 
 deps: .state/docker-build-base
 	docker compose run --rm base bin/deps
+
+deps_upgrade_all: .state/docker-build-base
+	docker compose run --rm base bin/deps-upgrade -a
+
+deps_upgrade_project: .state/docker-build-base
+	docker compose run --rm base bin/deps-upgrade -p $(P)
 
 translations: .state/docker-build-base
 	docker compose run --rm base bin/translations
@@ -134,11 +161,17 @@ inittuf: .state/db-migrated
 runmigrations: .state/docker-build-base
 	docker compose run --rm web python -m warehouse db upgrade head
 
+checkdb: .state/docker-build-base
+	docker compose run --rm web bin/db-check
+
 reindex: .state/docker-build-base
 	docker compose run --rm web python -m warehouse search reindex
 
 shell: .state/docker-build-base
 	docker compose run --rm web python -m warehouse shell
+
+totp: .state/docker-build-base
+	@docker compose run --rm base bin/devtotp
 
 dbshell: .state/docker-build-base
 	docker compose run --rm web psql -h db -d warehouse -U postgres
@@ -154,4 +187,4 @@ purge: stop clean
 stop:
 	docker compose stop
 
-.PHONY: default build serve resetdb initdb shell dbshell tests dev-docs user-docs deps clean purge debug stop compile-pot runmigrations
+.PHONY: default build serve resetdb initdb shell dbshell tests dev-docs user-docs deps deps_upgrade_all deps_upgrade_project clean purge debug stop compile-pot runmigrations checkdb

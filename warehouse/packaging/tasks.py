@@ -1,33 +1,36 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
+from __future__ import annotations
 
 import datetime
 import logging
 import tempfile
+import typing
 
 from collections import namedtuple
-from itertools import product
 
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
-from google.cloud.bigquery import LoadJobConfig
+from sqlalchemy import desc, func, nulls_last, select
 from sqlalchemy.orm import joinedload
 
 from warehouse import tasks
 from warehouse.accounts.models import User, WebAuthn
+from warehouse.cache.interfaces import IQueryResultsCache
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage
-from warehouse.packaging.models import Description, File, Project, Release
+from warehouse.packaging.models import (
+    Dependency,
+    DependencyKind,
+    Description,
+    File,
+    Project,
+    Release,
+)
 from warehouse.utils import readme
 from warehouse.utils.row_counter import RowCount
+
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +47,7 @@ def _copy_file_to_cache(archive_storage, cache_storage, path):
 @tasks.task(
     ignore_result=True,
     acks_late=True,
-    time_limit=30,
+    time_limit=120,
     autoretry_for=(
         SoftTimeLimitExceeded,
         TimeLimitExceeded,
@@ -309,14 +312,14 @@ def update_bigquery_release_files(task, request, dist_metadata):
     table_names = release_files_table.split()
 
     for table_name in table_names:
-        table_schema = bq.get_table(table_name).schema
+        table_schema = bq.get_table(table_name, timeout=5.0, retry=None).schema
 
         # Using the schema to populate the data allows us to automatically
         # set the values to their respective fields rather than assigning
         # values individually
-        json_rows = dict()
+        json_rows: dict = {}
         for sch in table_schema:
-            field_data = dist_metadata[sch.name]
+            field_data = dist_metadata.get(sch.name, None)
 
             if isinstance(field_data, datetime.datetime):
                 field_data = field_data.isoformat()
@@ -343,104 +346,87 @@ def update_bigquery_release_files(task, request, dist_metadata):
                 json_rows[sch.name] = field_data
         json_rows = [json_rows]
 
-        bq.insert_rows_json(table=table_name, json_rows=json_rows)
+        bq.insert_rows_json(
+            table=table_name, json_rows=json_rows, timeout=5.0, retry=None
+        )
 
 
 @tasks.task(ignore_result=True, acks_late=True)
-def sync_bigquery_release_files(request):
-    release_files_table = request.registry.settings.get("warehouse.release_files_table")
-    if release_files_table is None:
-        return
-
-    bq = request.find_service(name="gcloud.bigquery")
-
-    # Multiple table names can be specified by separating them with whitespace
-    table_names = release_files_table.split()
-
-    for table_name in table_names:
-        table_schema = bq.get_table(table_name).schema
-
-        # Using the schema to populate the data allows us to automatically
-        # set the values to their respective fields rather than assigning
-        # values individually
-        def populate_data_using_schema(file):
-            release = file.release
-            project = release.project
-
-            row_data = dict()
-            for sch in table_schema:
-                # The order of data extraction below is determined based on the
-                # classes that are most recently updated
-                if hasattr(file, sch.name):
-                    field_data = getattr(file, sch.name)
-                elif hasattr(release, sch.name) and sch.name == "description":
-                    field_data = getattr(release, sch.name).raw
-                elif sch.name == "description_content_type":
-                    field_data = getattr(release, "description").content_type
-                elif hasattr(release, sch.name):
-                    field_data = getattr(release, sch.name)
-                elif hasattr(project, sch.name):
-                    field_data = getattr(project, sch.name)
-                else:
-                    field_data = None
-
-                if isinstance(field_data, datetime.datetime):
-                    field_data = field_data.isoformat()
-
-                # Replace all empty objects to None will ensure
-                # proper checks if a field is nullable or not
-                if not isinstance(field_data, bool) and not field_data:
-                    field_data = None
-
-                if field_data is None and sch.mode == "REPEATED":
-                    row_data[sch.name] = []
-                elif field_data and sch.mode == "REPEATED":
-                    # Currently, some of the metadata fields such as
-                    # the 'platform' tag are incorrectly classified as a
-                    # str instead of a list, hence, this workaround to comply
-                    # with PEP 345 and the Core Metadata specifications.
-                    # This extra check can be removed once
-                    # https://github.com/pypi/warehouse/issues/8257 is fixed
-                    if isinstance(field_data, str):
-                        row_data[sch.name] = [field_data]
-                    else:
-                        row_data[sch.name] = list(field_data)
-                else:
-                    row_data[sch.name] = field_data
-            row_data["has_signature"] = False
-            return row_data
-
-        for first, second in product("fedcba9876543210", repeat=2):
-            db_release_files = (
-                request.db.query(File.md5_digest)
-                .filter(File.md5_digest.like(f"{first}{second}%"))
-                .yield_per(1000)
-                .all()
+def compute_top_dependents_corpus(request: Request) -> dict[str, int]:
+    """
+    Query to collect all dependents from projects' most recent release
+    and rank them by the number of dependents.
+    Store in query results cache for retrieval during `file_upload`.
+    """
+    # Create a CTE with the most recent releases for each project.
+    # Selects each release's ID, project ID, and version, with a row number
+    # partitioned by project and ordered to get the most recent non-yanked releases.
+    recent_releases_cte = (
+        select(
+            Release.id.label("release_id"),
+            Release.project_id,
+            Release.version,
+            func.row_number()
+            .over(
+                partition_by=Release.project_id,
+                order_by=[
+                    nulls_last(
+                        Release.is_prerelease
+                    ),  # False first, True next, nulls last
+                    desc(Release._pypi_ordering),
+                ],
             )
-            db_file_digests = [file.md5_digest for file in db_release_files]
+            .label("rn"),
+        )
+        .where(Release.yanked.is_(False))
+        .cte("recent_releases")
+    )
+    # Create a CTE that parses dependency names from release_dependencies.
+    #
+    # Extracts normalized dependency names by:
+    # 1. Taking the specifier from release_dependencies
+    # 2. Using regex to extract just the package name portion
+    # 3. Converting to lowercase for normalization
+    parsed_dependencies_cte = (
+        select(
+            func.normalize_pep426_name(
+                # TODO: this isn't perfect, but it's a start.
+                #  A better solution would be to use a proper parser, but we'd need
+                #  to teach Postgres how to parse it.
+                func.regexp_replace(Dependency.specifier, "^([A-Za-z0-9_.-]+).*", "\\1")
+            ).label("dependent_name")
+        )
+        .select_from(recent_releases_cte)
+        .join(Dependency, Dependency.release_id == recent_releases_cte.c.release_id)
+        .where(
+            recent_releases_cte.c.rn == 1,  # "latest" release per-project
+            Dependency.kind.in_(
+                [DependencyKind.requires_dist, DependencyKind.requires]
+            ),
+        )
+        .cte("parsed_dependencies")
+    )
 
-            bq_file_digests = bq.query(
-                "SELECT md5_digest "
-                f"FROM {table_name} "
-                f"WHERE md5_digest LIKE '{first}{second}%'"
-            ).result()
-            bq_file_digests = [row.get("md5_digest") for row in bq_file_digests]
+    # Final query that gets the top dependents by count
+    top_dependents_stmt = (
+        select(
+            parsed_dependencies_cte.c.dependent_name,
+            func.count().label("dependent_count"),
+        )
+        .group_by(parsed_dependencies_cte.c.dependent_name)
+        .order_by(desc("dependent_count"), parsed_dependencies_cte.c.dependent_name)
+        .limit(10000)
+    )
 
-            md5_diff_list = list(set(db_file_digests) - set(bq_file_digests))[:1000]
-            if not md5_diff_list:
-                # There are no files that need synced to BigQuery
-                continue
+    # Execute the query and fetch the constructed object
+    results = request.db.execute(top_dependents_stmt).fetchall()
+    # Result is Rows, so convert to a dicts of "name: count" pairs
+    results = {row.dependent_name: row.dependent_count for row in results}
 
-            release_files = (
-                request.db.query(File)
-                .join(Release, Release.id == File.release_id)
-                .filter(File.md5_digest.in_(md5_diff_list))
-                .all()
-            )
+    # Store the results in the query results cache
+    cache = request.find_service(IQueryResultsCache)
+    cache_key = "top_dependents_corpus"
+    cache.set(cache_key, results)
+    logger.info("Stored `top_dependents_corpus` in query results cache.")
 
-            json_rows = [populate_data_using_schema(file) for file in release_files]
-
-            bq.load_table_from_json(
-                json_rows, table_name, job_config=LoadJobConfig(schema=table_schema)
-            ).result()
-            break
+    return results

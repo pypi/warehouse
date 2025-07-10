@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pytest
 
@@ -26,6 +16,7 @@ from warehouse.packaging.models import (
     Role,
 )
 from warehouse.utils.project import (
+    PROJECT_NAME_RE,
     clear_project_quarantine,
     confirm_project,
     destroy_docs,
@@ -42,6 +33,18 @@ from ...common.db.packaging import (
     ReleaseFactory,
     RoleFactory,
 )
+
+
+@pytest.mark.parametrize(
+    "name", ["django", "zope.interface", "Twisted", "foo_bar", "abc123"]
+)
+def test_project_name_re_ok(name: str) -> None:
+    assert PROJECT_NAME_RE.match(name) is not None
+
+
+@pytest.mark.parametrize("name", ["", "foo\n", "foo\nbar", "..."])
+def test_project_name_re_invalid(name: str) -> None:
+    assert PROJECT_NAME_RE.match(name) is None
 
 
 def test_confirm():
@@ -196,7 +199,7 @@ def test_remove_project(db_request, flash):
 @pytest.mark.parametrize("flash", [True, False])
 def test_destroy_docs(db_request, flash):
     user = UserFactory.create()
-    project = ProjectFactory.create(name="foo", has_docs=True)
+    project = ProjectFactory.create(name="Foo", has_docs=True)
     RoleFactory.create(user=user, project=project)
 
     db_request.user = user
@@ -213,11 +216,11 @@ def test_destroy_docs(db_request, flash):
         .has_docs
     )
 
-    assert remove_documentation_recorder.delay.calls == [call("foo")]
+    assert remove_documentation_recorder.delay.calls == [call("Foo"), call("foo")]
 
     if flash:
         assert db_request.session.flash.calls == [
-            call("Deleted docs for project 'foo'", queue="success")
+            call("Deleted docs for project 'Foo'", queue="success")
         ]
     else:
         assert db_request.session.flash.calls == []

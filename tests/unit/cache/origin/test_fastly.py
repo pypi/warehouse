@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import time
 
@@ -211,6 +201,33 @@ class TestFastlyCache:
             ),
         }
 
+    def test_override_ttl_on_response(self):
+        request = pretend.stub()
+        response = pretend.stub(headers={}, override_ttl=6969)
+
+        cacher = fastly.FastlyCache(
+            api_endpoint=None,
+            api_connect_via=None,
+            api_key=None,
+            service_id=None,
+            purger=None,
+        )
+        cacher.cache(
+            ["abc", "defg"],
+            request,
+            response,
+            seconds=9123,
+            stale_while_revalidate=4567,
+            stale_if_error=2276,
+        )
+
+        assert response.headers == {
+            "Surrogate-Key": "abc defg",
+            "Surrogate-Control": (
+                "max-age=6969, stale-while-revalidate=4567, stale-if-error=2276"
+            ),
+        }
+
     def test_multiple_calls_to_cache_dont_overwrite_surrogate_keys(self):
         request = pretend.stub()
         response = pretend.stub(headers={})
@@ -261,7 +278,7 @@ class TestFastlyCache:
         assert purge_delay.calls == [pretend.call("one"), pretend.call("two")]
 
     @pytest.mark.parametrize(
-        "connect_via,forced_ip_https_adapter_calls",
+        ("connect_via", "forced_ip_https_adapter_calls"),
         [(None, []), ("172.16.0.1", [pretend.call(dest_ip="172.16.0.1")])],
     )
     def test__purge_key_ok(
@@ -318,7 +335,7 @@ class TestFastlyCache:
         assert response.raise_for_status.calls == [pretend.call()]
 
     @pytest.mark.parametrize(
-        "connect_via,forced_ip_https_adapter_calls,result",
+        ("connect_via", "forced_ip_https_adapter_calls", "result"),
         [
             (None, [], {"status": "fail"}),
             (None, [], {}),
@@ -380,7 +397,7 @@ class TestFastlyCache:
         assert response.raise_for_status.calls == [pretend.call()]
 
     @pytest.mark.parametrize(
-        "connect_via,_purge_key_calls",
+        ("connect_via", "purge_key_calls"),
         [
             (
                 None,
@@ -398,7 +415,7 @@ class TestFastlyCache:
             ),
         ],
     )
-    def test__double_purge_key_ok(self, monkeypatch, connect_via, _purge_key_calls):
+    def test__double_purge_key_ok(self, monkeypatch, connect_via, purge_key_calls):
         monkeypatch.setattr(time, "sleep", lambda x: None)
         cacher = fastly.FastlyCache(
             api_endpoint="https://api.fastly.com",
@@ -412,10 +429,10 @@ class TestFastlyCache:
 
         cacher._double_purge_key("one", connect_via=connect_via)
 
-        assert cacher._purge_key.calls == _purge_key_calls
+        assert cacher._purge_key.calls == purge_key_calls
 
     @pytest.mark.parametrize(
-        "connect_via,_purge_key_calls",
+        ("connect_via", "purge_key_calls"),
         [
             (
                 None,
@@ -432,7 +449,7 @@ class TestFastlyCache:
         ],
     )
     def test__double_purge_key_unsuccessful_first(
-        self, monkeypatch, connect_via, _purge_key_calls
+        self, monkeypatch, connect_via, purge_key_calls
     ):
         monkeypatch.setattr(time, "sleep", lambda x: None)
         cacher = fastly.FastlyCache(
@@ -450,10 +467,10 @@ class TestFastlyCache:
         with pytest.raises(fastly.UnsuccessfulPurgeError):
             cacher._double_purge_key("one", connect_via=connect_via)
 
-        assert cacher._purge_key.calls == _purge_key_calls
+        assert cacher._purge_key.calls == purge_key_calls
 
     @pytest.mark.parametrize(
-        "connect_via,_purge_key_calls",
+        ("connect_via", "purge_key_calls"),
         [
             (
                 None,
@@ -472,7 +489,7 @@ class TestFastlyCache:
         ],
     )
     def test__double_purge_key_unsuccessful_second(
-        self, monkeypatch, connect_via, _purge_key_calls
+        self, monkeypatch, connect_via, purge_key_calls
     ):
         monkeypatch.setattr(time, "sleep", lambda x: None)
         cacher = fastly.FastlyCache(
@@ -490,10 +507,10 @@ class TestFastlyCache:
         with pytest.raises(fastly.UnsuccessfulPurgeError):
             cacher._double_purge_key("one", connect_via=connect_via)
 
-        assert cacher._purge_key.calls == _purge_key_calls
+        assert cacher._purge_key.calls == purge_key_calls
 
     @pytest.mark.parametrize(
-        "connect_via,_purge_key_mock_effects,_purge_key_calls,metrics_calls",
+        ("connect_via", "purge_key_mock_effects", "purge_key_calls", "metrics_calls"),
         [
             (
                 "172.16.0.1",
@@ -532,8 +549,8 @@ class TestFastlyCache:
         monkeypatch,
         metrics,
         connect_via,
-        _purge_key_mock_effects,
-        _purge_key_calls,
+        purge_key_mock_effects,
+        purge_key_calls,
         metrics_calls,
     ):
         monkeypatch.setattr(time, "sleep", lambda x: None)
@@ -546,16 +563,21 @@ class TestFastlyCache:
         )
 
         _purge_key_mock = Mock()
-        _purge_key_mock.side_effect = _purge_key_mock_effects
+        _purge_key_mock.side_effect = purge_key_mock_effects
         cacher._purge_key = pretend.call_recorder(_purge_key_mock)
 
         cacher.purge_key("one", metrics=metrics)
 
-        assert cacher._purge_key.calls == _purge_key_calls
+        assert cacher._purge_key.calls == purge_key_calls
         assert metrics.increment.calls == metrics_calls
 
     @pytest.mark.parametrize(
-        "connect_via,_purge_key_mock_effects,expected_raise,_purge_key_calls",
+        (
+            "connect_via",
+            "purge_key_mock_effects",
+            "expected_raise",
+            "purge_key_calls",
+        ),
         [
             (
                 None,
@@ -588,9 +610,9 @@ class TestFastlyCache:
         monkeypatch,
         metrics,
         connect_via,
-        _purge_key_mock_effects,
+        purge_key_mock_effects,
         expected_raise,
-        _purge_key_calls,
+        purge_key_calls,
     ):
         monkeypatch.setattr(time, "sleep", lambda x: None)
         cacher = fastly.FastlyCache(
@@ -602,13 +624,13 @@ class TestFastlyCache:
         )
 
         _purge_key_mock = Mock()
-        _purge_key_mock.side_effect = _purge_key_mock_effects
+        _purge_key_mock.side_effect = purge_key_mock_effects
         cacher._purge_key = pretend.call_recorder(_purge_key_mock)
 
         with pytest.raises(expected_raise):
             cacher.purge_key("one", metrics=metrics)
 
-        assert cacher._purge_key.calls == _purge_key_calls
+        assert cacher._purge_key.calls == purge_key_calls
         assert metrics.increment.calls == []
 
 

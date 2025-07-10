@@ -1,15 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
+# SPDX-License-Identifier: Apache-2.0
 
 from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.request import Request
@@ -19,8 +8,16 @@ from sqlalchemy import func
 from warehouse.cache.http import add_vary, cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import JournalEntry, Project
-from warehouse.packaging.utils import _simple_detail, _simple_index
+from warehouse.packaging.utils import (
+    _simple_detail,
+    _simple_index,
+    _valid_simple_detail_context,
+)
 from warehouse.utils.cors import _CORS_HEADERS
+
+MIME_TEXT_HTML = "text/html"
+MIME_PYPI_SIMPLE_V1_HTML = "application/vnd.pypi.simple.v1+html"
+MIME_PYPI_SIMPLE_V1_JSON = "application/vnd.pypi.simple.v1+json"
 
 
 def _select_content_type(request: Request) -> str:
@@ -36,16 +33,16 @@ def _select_content_type(request: Request) -> str:
     # match, it will be an empty list.
     offers = request.accept.acceptable_offers(
         [
-            "text/html",
-            "application/vnd.pypi.simple.v1+html",
-            "application/vnd.pypi.simple.v1+json",
+            MIME_TEXT_HTML,
+            MIME_PYPI_SIMPLE_V1_HTML,
+            MIME_PYPI_SIMPLE_V1_JSON,
         ]
     )
 
-    # Default case, we want to return whatevr we want to return
+    # Default case, we want to return whatever we want to return
     # by default when there is no Accept header.
     if not offers:
-        return "text/html"
+        return MIME_TEXT_HTML
     # We've selected a list of acceptable offers, so we'll take
     # the first one as our return type.
     else:
@@ -69,7 +66,8 @@ def simple_index(request):
     # Determine what our content-type should be, and setup our request
     # to return the correct content types.
     request.response.content_type = _select_content_type(request)
-    if request.response.content_type == "application/vnd.pypi.simple.v1+json":
+    if request.response.content_type == MIME_PYPI_SIMPLE_V1_JSON:
+        request.response.override_ttl = 30 * 60  # 30 minutes
         request.override_renderer = "json"
 
     # Apply CORS headers.
@@ -109,7 +107,7 @@ def simple_detail(project, request):
     # Determine what our content-type should be, and setup our request
     # to return the correct content types.
     request.response.content_type = _select_content_type(request)
-    if request.response.content_type == "application/vnd.pypi.simple.v1+json":
+    if request.response.content_type == MIME_PYPI_SIMPLE_V1_JSON:
         request.override_renderer = "json"
 
     # Apply CORS headers.
@@ -118,4 +116,10 @@ def simple_detail(project, request):
     # Get the latest serial number for this project.
     request.response.headers["X-PyPI-Last-Serial"] = str(project.last_serial)
 
-    return _simple_detail(project, request)
+    context = _simple_detail(project, request)
+
+    # Modify the Jinja context to use valid variable name
+    if request.response.content_type != MIME_PYPI_SIMPLE_V1_JSON:
+        context = _valid_simple_detail_context(context)
+
+    return context

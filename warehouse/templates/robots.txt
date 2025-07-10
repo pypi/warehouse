@@ -6,9 +6,12 @@ Disallow: /
 {% else %}
 Disallow: /simple/
 Disallow: /packages/
-Disallow: /_includes/
+Disallow: /_includes/authed/
 Disallow: /pypi/*/json
 Disallow: /pypi/*/*/json
 Disallow: /pypi*?
 Disallow: /search*
+Disallow: /_/
+Disallow: /integrity/
+Disallow: /admin/
 {% endif %}

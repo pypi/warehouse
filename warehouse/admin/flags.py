@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import enum
 
@@ -20,6 +10,7 @@ from warehouse.utils.db.types import bool_false
 
 class AdminFlagValue(enum.Enum):
     DISABLE_ORGANIZATIONS = "disable-organizations"
+    DISABLE_PEP740 = "disable-pep740"
     DISALLOW_DELETION = "disallow-deletion"
     DISALLOW_NEW_PROJECT_REGISTRATION = "disallow-new-project-registration"
     DISALLOW_NEW_UPLOAD = "disallow-new-upload"
@@ -44,21 +35,27 @@ class AdminFlag(db.ModelBase):
 class Flags:
     def __init__(self, request):
         self.request = request
+        self.admin_flags_values = None
+
+    def _fetch_flags(self):
+        if self.admin_flags_values is None:
+            self.admin_flags_values = {
+                f.id: f for f in self.request.db.query(AdminFlag).all()
+            }
+        return self.admin_flags_values
 
     def notifications(self):
-        return (
-            self.request.db.query(AdminFlag)
-            .filter(AdminFlag.enabled.is_(True), AdminFlag.notify.is_(True))
-            .all()
-        )
+        return [
+            flag
+            for flag in self._fetch_flags().values()
+            if flag.enabled and flag.notify
+        ]
 
     def disallow_oidc(self, flag_member=None):
         return self.enabled(flag_member) or self.enabled(AdminFlagValue.DISALLOW_OIDC)
 
     def enabled(self, flag_member):
-        flag = (
-            self.request.db.get(AdminFlag, flag_member.value) if flag_member else None
-        )
+        flag = self._fetch_flags().get(flag_member.value, None) if flag_member else None
         return flag.enabled if flag else False
 
 

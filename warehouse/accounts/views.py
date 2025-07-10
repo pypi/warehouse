@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import datetime
 import hashlib
@@ -17,9 +7,8 @@ import uuid
 
 import humanize
 import pytz
-import sentry_sdk
 
-from first import first
+from more_itertools import first_true
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPMovedPermanently,
@@ -31,6 +20,7 @@ from pyramid.httpexceptions import (
 from pyramid.interfaces import ISecurityPolicy
 from pyramid.security import forget, remember
 from pyramid.view import view_config, view_defaults
+from sqlalchemy import and_, func, select
 from sqlalchemy.exc import NoResultFound
 from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
@@ -59,7 +49,8 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
     TooManyPasswordResetRequests,
 )
-from warehouse.accounts.models import Email, User
+from warehouse.accounts.models import Email, TermsOfServiceEngagement, User
+from warehouse.accounts.utils import update_email_domain_status
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.cache.origin import origin_cache
@@ -74,6 +65,7 @@ from warehouse.email import (
     send_organization_member_invite_declined_email,
     send_password_change_email,
     send_password_reset_email,
+    send_password_reset_unverified_email,
     send_recovery_code_reminder_email,
 )
 from warehouse.events.tags import EventTag
@@ -95,10 +87,11 @@ from warehouse.oidc.models import (
 )
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import OrganizationRole, OrganizationRoleType
+from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import (
     JournalEntry,
+    LifecycleStatus,
     Project,
-    ProjectFactory,
     Release,
     Role,
     RoleInvitation,
@@ -169,15 +162,69 @@ def profile(user, request):
     if user.username != request.matchdict.get("username", user.username):
         return HTTPMovedPermanently(request.current_route_path(username=user.username))
 
-    projects = (
-        request.db.query(Project)
-        .filter(Project.users.contains(user))
-        .join(Project.releases)
+    # Query only for the necessary data that the template needs
+    # Subquery to get the latest release date for each project associated with the user
+    latest_releases_subquery = (
+        select(
+            Release.project_id, func.max(Release.created).label("latest_release_date")
+        )
+        .join(Role, Release.project_id == Role.project_id)
+        .where(Role.user_id == user.id)
+        .group_by(Release.project_id)
+        .subquery()
+    )
+    # Main query to select the latest releases
+    stmt = (
+        select(
+            Project.name,
+            Project.normalized_name,
+            Project.lifecycle_status,
+            Release.created,
+            Release.summary,
+        )
+        .join(Role, Project.id == Role.project_id)
+        .join(
+            latest_releases_subquery,
+            Project.id == latest_releases_subquery.c.project_id,
+        )
+        .outerjoin(
+            Release,
+            and_(
+                Release.project_id == latest_releases_subquery.c.project_id,
+                Release.created == latest_releases_subquery.c.latest_release_date,
+            ),
+        )
+        .where(Role.user_id == user.id)
+        .distinct()
         .order_by(Release.created.desc())
-        .all()
     )
 
-    return {"user": user, "projects": projects}
+    # Construct the list of projects with their latest releases from query results
+    archived_projects = []
+    live_projects = []
+
+    for row in request.db.execute(stmt):
+        project = {
+            "name": row.name,
+            "normalized_name": row.normalized_name,
+            "lifecycle_status": row.lifecycle_status,
+            "created": row.created,
+            "summary": row.summary,
+        }
+
+        if row.lifecycle_status in [
+            LifecycleStatus.Archived,
+            LifecycleStatus.ArchivedNoindex,
+        ]:
+            archived_projects.append(project)
+        else:
+            live_projects.append(project)
+
+    return {
+        "user": user,
+        "live_projects": live_projects,
+        "archived_projects": archived_projects,
+    }
 
 
 @view_config(
@@ -254,8 +301,9 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
 
             # If the user has enabled two-factor authentication and they do not have
             # a valid saved device.
+            _two_factor_remembered = _check_remember_device_token(request, userid)
             two_factor_required = user_service.has_two_factor(userid) and (
-                not _check_remember_device_token(request, userid)
+                not _two_factor_remembered
             )
             if two_factor_required:
                 two_factor_data = {"userid": userid}
@@ -278,8 +326,19 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                 ):
                     redirect_to = request.route_path("manage.projects")
 
+                # Construct necessary two_factor information
+                two_factor_method = (
+                    "remembered-device" if _two_factor_remembered else None
+                )
+                two_factor_label = two_factor_method
+
                 # Actually perform the login routine for our user.
-                headers = _login_user(request, userid)
+                headers = _login_user(
+                    request,
+                    userid,
+                    two_factor_method,
+                    two_factor_label=two_factor_label,
+                )
 
                 # Now that we're logged in we'll want to redirect the user to
                 # either where they were trying to go originally, or to the default
@@ -691,6 +750,11 @@ def register(request, _form_class=RegistrationForm):
         user = user_service.create_user(
             form.username.data, form.full_name.data, form.new_password.data
         )
+        user_service.record_tos_engagement(
+            user.id,
+            request.registry.settings.get("terms.revision"),
+            TermsOfServiceEngagement.Agreed,
+        )
         email = user_service.add_email(user.id, form.email.data, primary=True)
         user.record_event(
             tag=EventTag.Account.AccountCreate,
@@ -723,19 +787,43 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
     user_service = request.find_service(IUserService, context=None)
     form = _form_class(request.POST, user_service=user_service)
     if request.method == "POST" and form.validate():
-        user = user_service.get_user_by_username(form.username_or_email.data)
+        form_field_input = form.username_or_email.data
 
-        if user is None:
-            user = user_service.get_user_by_email(form.username_or_email.data)
-        if user is not None:
-            email = first(
-                user.emails, key=lambda e: e.email == form.username_or_email.data
-            )
+        requested_email = None
+        user = user_service.get_user_by_username(form_field_input)
+
+        if user:
+            requested_email = user.primary_email
         else:
+            if user := user_service.get_user_by_email(form_field_input):
+                requested_email = first_true(
+                    user.emails,
+                    pred=lambda e: e.email == form_field_input,
+                )
+            else:
+                # We could not find the user by username nor email.
+                # Return a response as if we did, to avoid leaking registered emails.
+                token_service = request.find_service(ITokenService, name="password")
+                n_hours = token_service.max_age // 60 // 60
+                return {"n_hours": n_hours}
+
+        if requested_email and not requested_email.verified:
+            # No verified email, log the attempt, ping the rate limit,
+            # notify to the email as to why no reset, return generic response.
+            send_password_reset_unverified_email(request, (user, requested_email))
+            user.record_event(
+                tag=EventTag.Account.PasswordResetAttempt,
+                request=request,
+            )
+            request.log.warning(
+                "User requested password reset for unverified email",
+                username=user.username,
+                email_address=requested_email.email,
+            )
+            user_service.ratelimiters["password.reset"].hit(user.id)
+
             token_service = request.find_service(ITokenService, name="password")
             n_hours = token_service.max_age // 60 // 60
-            # We could not find the user by username nor email.
-            # Return a response as if we did, to avoid leaking registered emails.
             return {"n_hours": n_hours}
 
         if not user_service.ratelimiters["password.reset"].test(user.id):
@@ -744,7 +832,7 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
             )
 
         if user.can_reset_password:
-            send_password_reset_email(request, (user, email))
+            send_password_reset_email(request, (user, requested_email))
             user.record_event(
                 tag=EventTag.Account.PasswordResetRequest,
                 request=request,
@@ -819,18 +907,6 @@ def reset_password(request, _form_class=ResetPasswordForm):
     if not last_login.tzinfo:
         last_login = pytz.UTC.localize(last_login)
     if user.last_login and user.last_login > last_login:
-        sentry_sdk.set_context(
-            "user",
-            {
-                "username": user.username,
-                "last_login": user.last_login,
-                "token_last_login": last_login,
-            },
-        )
-        sentry_sdk.capture_message(
-            f"Password reset token used after user logged in for {user.username}",
-            level="warning",
-        )
         return _error(
             request._(
                 "Invalid token: user has logged in since this token was requested"
@@ -931,6 +1007,8 @@ def verify_email(request):
 
     if email.verified:
         return _error(request._("Email already verified"))
+    # Run the domain status update now that the end user has verified it.
+    update_email_domain_status(email, request)
 
     email.verified = True
     email.unverify_reason = None
@@ -1380,7 +1458,44 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     request.session.record_password_timestamp(
         user_service.get_password_timestamp(userid)
     )
+
+    # Check if we need to notify the user of an updated Terms of Service
+    if user_service.needs_tos_flash(
+        userid,
+        request.registry.settings.get("terms.revision"),
+    ):
+        request.session.flash(
+            request._(
+                'Please review our updated <a href="${tos_url}">Terms of Service</a>.',
+                mapping={
+                    "tos_url": request.route_path("accounts.view-terms-of-service")
+                },
+            ),
+            safe=True,
+        )
+        user_service.record_tos_engagement(
+            userid,
+            request.registry.settings.get("terms.revision"),
+            TermsOfServiceEngagement.Flashed,
+        )
+
     return headers
+
+
+@view_config(
+    route_name="accounts.view-terms-of-service",
+    uses_session=True,
+    has_translations=False,
+)
+def view_terms_of_service(request):
+    if request.user is not None:
+        user_service = request.find_service(IUserService, context=None)
+        user_service.record_tos_engagement(
+            request.user.id,
+            request.registry.settings.get("terms.revision"),
+            TermsOfServiceEngagement.Viewed,
+        )
+    return HTTPSeeOther("https://policies.python.org/pypi.org/Terms-of-Service/")
 
 
 @view_config(
@@ -1477,24 +1592,32 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
 class ManageAccountPublishingViews:
     def __init__(self, request):
         self.request = request
-        self.project_factory = ProjectFactory(request)
         self.metrics = self.request.find_service(IMetricsService, context=None)
+        self.project_service = self.request.find_service(IProjectService, context=None)
         self.pending_github_publisher_form = PendingGitHubPublisherForm(
             self.request.POST,
             api_token=self.request.registry.settings.get("github.token"),
-            project_factory=self.project_factory,
+            route_url=self.request.route_url,
+            check_project_name=self.project_service.check_project_name,
+            user=request.user,
         )
         self.pending_gitlab_publisher_form = PendingGitLabPublisherForm(
             self.request.POST,
-            project_factory=self.project_factory,
+            route_url=self.request.route_url,
+            check_project_name=self.project_service.check_project_name,
+            user=request.user,
         )
         self.pending_google_publisher_form = PendingGooglePublisherForm(
             self.request.POST,
-            project_factory=self.project_factory,
+            route_url=self.request.route_url,
+            check_project_name=self.project_service.check_project_name,
+            user=request.user,
         )
         self.pending_activestate_publisher_form = PendingActiveStatePublisherForm(
             self.request.POST,
-            project_factory=self.project_factory,
+            route_url=self.request.route_url,
+            check_project_name=self.project_service.check_project_name,
+            user=request.user,
         )
 
     @property
@@ -1605,8 +1728,7 @@ class ManageAccountPublishingViews:
         if len(self.request.user.pending_oidc_publishers) >= 3:
             self.request.session.flash(
                 self.request._(
-                    "You can't register more than 3 pending trusted "
-                    "publishers at once."
+                    "You can't register more than 3 pending trusted publishers at once."
                 ),
                 queue="error",
             )

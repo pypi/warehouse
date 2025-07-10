@@ -1,21 +1,14 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
-from typing import Any
+from typing import Any, Self
 
-from sqlalchemy import ForeignKey, String, UniqueConstraint
+from more_itertools import first_true
+from pypi_attestations import GooglePublisher as GoogleIdentity, Publisher
+from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Query, mapped_column
 
+from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models._core import (
     CheckClaimCallable,
@@ -25,9 +18,14 @@ from warehouse.oidc.models._core import (
     check_claim_invariant,
 )
 
+GOOGLE_OIDC_ISSUER_URL = "https://accounts.google.com"
+
 
 def _check_sub(
-    ground_truth: str, signed_claim: str, all_signed_claims: SignedClaims
+    ground_truth: str,
+    signed_claim: str,
+    _all_signed_claims: SignedClaims,
+    **_kwargs,
 ) -> bool:
     # If we haven't set a subject for the publisher, we don't need to check
     # this claim.
@@ -62,27 +60,36 @@ class GooglePublisherMixin:
 
     __unchecked_claims__ = {"azp", "google"}
 
-    @staticmethod
-    def __lookup_all__(klass, signed_claims: SignedClaims) -> Query | None:
-        return Query(klass).filter_by(
-            email=signed_claims["email"], sub=signed_claims["sub"]
-        )
+    @classmethod
+    def lookup_by_claims(cls, session, signed_claims: SignedClaims) -> Self:
+        query: Query = Query(cls).filter_by(email=signed_claims["email"])
+        publishers = query.with_session(session).all()
 
-    @staticmethod
-    def __lookup_no_sub__(klass, signed_claims: SignedClaims) -> Query | None:
-        return Query(klass).filter_by(email=signed_claims["email"], sub="")
+        if sub := signed_claims.get("sub"):
+            if specific_publisher := first_true(
+                publishers, pred=lambda p: p.sub == sub
+            ):
+                return specific_publisher
 
-    __lookup_strategies__ = [
-        __lookup_all__,
-        __lookup_no_sub__,
-    ]
+        if general_publisher := first_true(publishers, pred=lambda p: p.sub == ""):
+            return general_publisher
+
+        raise InvalidPublisherError("Publisher with matching claims was not found")
 
     @property
     def publisher_name(self):
         return "Google"
 
+    @property
+    def publisher_base_url(self):
+        return None
+
     def publisher_url(self, claims=None):
         return None
+
+    @property
+    def attestation_identity(self) -> Publisher | None:
+        return GoogleIdentity(email=self.email)
 
     def stored_claims(self, claims=None):
         return {}
@@ -95,6 +102,16 @@ class GooglePublisherMixin:
 
     def __str__(self):
         return self.email
+
+    def exists(self, session) -> bool:
+        return session.query(
+            exists().where(
+                and_(
+                    self.__class__.email == self.email,
+                    self.__class__.sub == self.sub,
+                )
+            )
+        ).scalar()
 
 
 class GooglePublisher(GooglePublisherMixin, OIDCPublisher):
@@ -116,7 +133,7 @@ class GooglePublisher(GooglePublisherMixin, OIDCPublisher):
 class PendingGooglePublisher(GooglePublisherMixin, PendingOIDCPublisher):
     __tablename__ = "pending_google_oidc_publishers"
     __mapper_args__ = {"polymorphic_identity": "pending_google_oidc_publishers"}
-    __table_args__ = (
+    __table_args__ = (  # type: ignore[assignment]
         UniqueConstraint(
             "email",
             "sub",

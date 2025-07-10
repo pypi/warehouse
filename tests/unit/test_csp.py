@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import collections
 
@@ -165,7 +155,9 @@ class TestCSPTween:
                 "default-src": ["'none'"],
                 "frame-src": ["'none'"],
                 "img-src": ["'self'"],
-            }
+                "connect-src": [],
+            },
+            "camo.url": "http://localhost:9000",
         }
         response = pretend.stub(headers={})
         registry = pretend.stub(settings=settings)
@@ -176,11 +168,13 @@ class TestCSPTween:
         request = pretend.stub(
             path="/admin/",
             find_service=pretend.call_recorder(lambda *args, **kwargs: settings["csp"]),
+            registry=registry,
         )
 
         assert tween(request) is response
         assert response.headers == {
             "Content-Security-Policy": (
+                "connect-src http://localhost:9000; "
                 "default-src 'none'; "
                 "frame-src https://inspector.pypi.io; "
                 "img-src 'self' data:"
@@ -194,7 +188,7 @@ class TestCSPPolicy:
         assert isinstance(policy, collections.defaultdict)
 
     @pytest.mark.parametrize(
-        "existing, incoming, expected",
+        ("existing", "incoming", "expected"),
         [
             (
                 {"foo": ["bar"]},
@@ -241,14 +235,12 @@ def test_includeme():
             {
                 "csp": {
                     "base-uri": ["'self'"],
-                    "block-all-mixed-content": [],
                     "connect-src": [
                         "'self'",
                         "https://api.github.com/repos/",
                         "https://api.github.com/search/issues",
-                        "https://*.google-analytics.com",
-                        "https://*.analytics.google.com",
-                        "https://*.googletagmanager.com",
+                        "https://gitlab.com/api/",
+                        "https://analytics.python.org",
                         "fastly-insights.com",
                         "*.fastly-insights.com",
                         "*.ethicalads.io",
@@ -258,23 +250,23 @@ def test_includeme():
                     ],
                     "default-src": ["'none'"],
                     "font-src": ["'self'", "fonts.gstatic.com"],
-                    "form-action": ["'self'", "https://checkout.stripe.com"],
+                    "form-action": [
+                        "'self'",
+                        "https://checkout.stripe.com",
+                        "https://billing.stripe.com",
+                    ],
                     "frame-ancestors": ["'none'"],
                     "frame-src": ["'none'"],
                     "img-src": [
                         "'self'",
                         "camo.url.value",
-                        "https://*.google-analytics.com",
-                        "https://*.googletagmanager.com",
                         "*.fastly-insights.com",
                         "*.ethicalads.io",
                         "ethicalads.blob.core.windows.net",
                     ],
                     "script-src": [
                         "'self'",
-                        "https://*.googletagmanager.com",
-                        "https://www.google-analytics.com",
-                        "https://ssl.google-analytics.com",
+                        "https://analytics.python.org",
                         "*.fastly-insights.com",
                         "*.ethicalads.io",
                         "'sha256-U3hKDidudIaxBDEzwGJApJgPEf2mWk6cfMWghrAa6i0='",

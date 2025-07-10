@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from email.headerregistry import Address
 from email.message import EmailMessage as RawEmailMessage
@@ -32,10 +22,17 @@ def _format_sender(sitename, sender):
 
 
 class EmailMessage:
-    def __init__(self, subject: str, body_text: str, body_html: str | None = None):
+    def __init__(
+        self,
+        subject: str,
+        body_text: str,
+        body_html: str | None = None,
+        sender: str | None = None,
+    ):
         self.subject = subject
         self.body_text = body_text
         self.body_html = body_html
+        self.sender = sender
 
     @classmethod
     def from_template(cls, email_name, context, *, request):
@@ -76,7 +73,7 @@ class SMTPEmailSender:
                 body=message.body_text,
                 html=message.body_html,
                 recipients=[recipient],
-                sender=self.sender,
+                sender=self.sender if message.sender is None else message.sender,
             )
         )
 
@@ -110,7 +107,7 @@ class SESEmailSender:
     def send(self, recipient, message):
         raw = RawEmailMessage()
         raw["Subject"] = message.subject
-        raw["From"] = self._sender
+        raw["From"] = self._sender if message.sender is None else message.sender
         raw["To"] = recipient
 
         raw.set_content(message.body_text)
@@ -126,7 +123,9 @@ class SESEmailSender:
         self._db.add(
             SESEmailMessage(
                 message_id=resp["MessageId"],
-                from_=parseaddr(self._sender)[1],
+                from_=parseaddr(
+                    self._sender if message.sender is None else message.sender
+                )[1],
                 to=parseaddr(recipient)[1],
                 subject=message.subject,
             )
@@ -152,7 +151,7 @@ class ConsoleAndSMTPEmailSender(SMTPEmailSender):
         print(
             f"""Email sent
 Subject: {message.subject}
-From: {self.sender}
+From: {self.sender if message.sender is None else message.sender}
 To: {recipient}
 HTML: Visualize at http://localhost:1080
 Text: {message.body_text}"""
