@@ -58,6 +58,7 @@ from warehouse.organizations import services as organization_services
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.packaging import services as packaging_services
 from warehouse.packaging.interfaces import IProjectService
+from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.search import services as search_services
 from warehouse.search.interfaces import ISearchService
 from warehouse.subscriptions import services as subscription_services
@@ -164,6 +165,7 @@ def pyramid_services(
     query_results_cache_service,
     search_service,
     domain_status_service,
+    ratelimit_service,
 ):
     services = _Services()
 
@@ -190,6 +192,8 @@ def pyramid_services(
     services.register_service(query_results_cache_service, IQueryResultsCache)
     services.register_service(search_service, ISearchService)
     services.register_service(domain_status_service, IDomainStatusService)
+    services.register_service(ratelimit_service, IRateLimiter, name="email.add")
+    services.register_service(ratelimit_service, IRateLimiter, name="email.verify")
 
     return services
 
@@ -547,6 +551,13 @@ def search_service():
 def domain_status_service(mocker):
     service = account_services.NullDomainStatusService()
     mocker.spy(service, "get_domain_status")
+    return service
+
+
+@pytest.fixture
+def ratelimit_service(mocker):
+    service = DummyRateLimiter()
+    mocker.spy(service, "clear")
     return service
 
 
