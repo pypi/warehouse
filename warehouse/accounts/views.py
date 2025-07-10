@@ -50,6 +50,7 @@ from warehouse.accounts.interfaces import (
     TooManyPasswordResetRequests,
 )
 from warehouse.accounts.models import Email, TermsOfServiceEngagement, User
+from warehouse.accounts.utils import update_email_domain_status
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.cache.origin import origin_cache
@@ -1006,6 +1007,8 @@ def verify_email(request):
 
     if email.verified:
         return _error(request._("Email already verified"))
+    # Run the domain status update now that the end user has verified it.
+    update_email_domain_status(email, request)
 
     email.verified = True
     email.unverify_reason = None
