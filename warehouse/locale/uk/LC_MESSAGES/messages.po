@@ -24,7 +24,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2025-07-11 15:45+0000\n"
+"PO-Revision-Date: 2025-07-11 20:13+0000\n"
 "Last-Translator: Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "uk/>\n"
@@ -10354,16 +10354,12 @@ msgstr ""
 "налаштуваннях свого облікового запису."
 
 #: warehouse/templates/pages/help.html:812
-#, fuzzy
-#| msgid ""
-#| "API tokens provide an alternative way to authenticate when uploading "
-#| "packages to PyPI."
 msgid ""
 "API tokens are used to authenticate when <strong>uploading packages</strong> "
 "to PyPI."
 msgstr ""
-"API-токени забезпечують альтернативний спосіб автентифікації під час "
-"завантаження пакунків до PyPI."
+"API-токени забезпечують автентифікацію під час <strong>завантаження "
+"пакунків</strong> до PyPI."
 
 #: warehouse/templates/pages/help.html:817
 #, fuzzy
