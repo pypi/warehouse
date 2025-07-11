@@ -269,9 +269,6 @@ class ITokenService(Interface):
 
 class IPasswordBreachedService(Interface):
     failure_message = Attribute("The message to describe the failure that occurred")
-    failure_message_plain = Attribute(
-        "The message to describe the failure that occurred in plain text"
-    )
 
     def check_password(password, *, tags=None):
         """
