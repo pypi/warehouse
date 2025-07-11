@@ -21,6 +21,8 @@ def test_lazy_config_delays(monkeypatch):
     assert configure.calls == [pretend.call("thing", settings={"lol": "wat"})]
 
 
+# TODO: This test doesn't actually test anything, as the command is not registered.
+#  The test output is effectively "command not found".
 def test_cli_no_settings(monkeypatch, cli):
     config = pretend.stub()
     configure = pretend.call_recorder(lambda: config)
@@ -28,7 +30,7 @@ def test_cli_no_settings(monkeypatch, cli):
 
     @warehouse.cli.warehouse.command()
     @click.pass_obj
-    def cli_test_command(obj):
+    def cli_test_command(obj):  # pragma: no cover
         assert obj is config
 
     result = cli.invoke(warehouse.cli.warehouse, ["cli-test-command"])

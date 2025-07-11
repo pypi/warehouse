@@ -89,7 +89,7 @@ def _event(
     tags=None,
     hostname=None,
 ):
-    return None
+    return None  # pragma: no cover
 
 
 @pytest.fixture
@@ -739,7 +739,7 @@ class _MockRedis:
     def __init__(self, cache=None):
         self.cache = cache
 
-        if not self.cache:
+        if not self.cache:  # pragma: no cover
             self.cache = dict()
 
     def __enter__(self):
@@ -770,7 +770,7 @@ class _MockRedis:
             return None
 
     def hset(self, hash_, key, value, *_args, **_kwargs):
-        if hash_ not in self.cache:
+        if hash_ not in self.cache:  # pragma: no cover
             self.cache[hash_] = dict()
         self.cache[hash_][key] = value
 
@@ -781,7 +781,7 @@ class _MockRedis:
         return self
 
     def register_script(self, script):
-        return script
+        return script  # pragma: no cover
 
     def scan_iter(self, search, count):
         del count  # unused
