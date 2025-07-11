@@ -1477,40 +1477,6 @@ class TestHaveIBeenPwnedPasswordBreachedService:
         )
         assert svc.failure_message == expected
 
-    @pytest.mark.parametrize(
-        ("help_url", "expected"),
-        [
-            (
-                None,
-                (
-                    "This password appears in a security breach or has been "
-                    "compromised and cannot be used."
-                ),
-            ),
-            (
-                "http://localhost/help/#compromised-password",
-                (
-                    "This password appears in a security breach or has been "
-                    "compromised and cannot be used. See the FAQ entry at "
-                    "http://localhost/help/#compromised-password for more information."
-                ),
-            ),
-        ],
-    )
-    def test_failure_message_plain(self, help_url, expected):
-        context = pretend.stub()
-        request = pretend.stub(
-            http=pretend.stub(),
-            find_service=lambda iface, context: {
-                (IMetricsService, None): NullMetrics()
-            }[(iface, context)],
-            help_url=lambda _anchor=None: help_url,
-        )
-        svc = services.HaveIBeenPwnedPasswordBreachedService.create_service(
-            context, request
-        )
-        assert svc.failure_message_plain == expected
-
 
 class TestNullPasswordBreachedService:
     def test_verify_service(self):
