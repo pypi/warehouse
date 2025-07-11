@@ -344,7 +344,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                 # either where they were trying to go originally, or to the default
                 # view.
                 resp = HTTPSeeOther(redirect_to, headers=dict(headers))
-                _set_userid_cookie(resp, userid)
+                _set_userid_insecure_cookie(resp, userid)
 
             return resp
 
@@ -406,7 +406,7 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
             user_service.update_user(userid, last_totp_value=form.totp_value.data)
 
             resp = HTTPSeeOther(redirect_to)
-            _set_userid_cookie(resp, userid)
+            _set_userid_insecure_cookie(resp, userid)
 
             if not two_factor_state.get("has_recovery_codes", False):
                 send_recovery_code_reminder_email(request, request.user)
@@ -495,7 +495,7 @@ def webauthn_authentication_validate(request):
 
         two_factor_method = "webauthn"
         _login_user(request, userid, two_factor_method, two_factor_label=webauthn.label)
-        _set_userid_cookie(request.response, userid)
+        _set_userid_insecure_cookie(request.response, userid)
 
         if not request.user.has_recovery_codes:
             send_recovery_code_reminder_email(request, request.user)
@@ -512,7 +512,7 @@ def webauthn_authentication_validate(request):
     return {"fail": {"errors": errors}}
 
 
-def _set_userid_cookie(resp, userid):
+def _set_userid_insecure_cookie(resp, userid):
     # We'll use this cookie so that client side javascript can
     # Determine the actual user ID (not username, user ID). This is
     # *not* a security sensitive context and it *MUST* not be used
@@ -602,7 +602,7 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
             _login_user(request, userid, two_factor_method="recovery-code")
 
             resp = HTTPSeeOther(request.route_path("manage.account"))
-            _set_userid_cookie(resp, userid)
+            _set_userid_insecure_cookie(resp, userid)
 
             user = user_service.get_user(userid)
             user.record_event(
@@ -753,7 +753,7 @@ def register(request, _form_class=RegistrationForm):
         resp = HTTPSeeOther(
             request.route_path("index"), headers=dict(_login_user(request, user.id))
         )
-        _set_userid_cookie(resp, user.id)
+        _set_userid_insecure_cookie(resp, user.id)
 
         return resp
 
