@@ -14,7 +14,7 @@ from warehouse.macaroons.services import deserialize_raw_macaroon
 
 @view_config(
     route_name="admin.macaroon.decode_token",
-    renderer="admin/macaroons/decode_token.html",
+    renderer="warehouse.admin:templates/admin/macaroons/decode_token.html",
     permission=Permissions.AdminMacaroonsRead,
     request_method="GET",
     uses_session=True,
@@ -23,7 +23,7 @@ from warehouse.macaroons.services import deserialize_raw_macaroon
 )
 @view_config(
     route_name="admin.macaroon.decode_token",
-    renderer="admin/macaroons/decode_token.html",
+    renderer="warehouse.admin:templates/admin/macaroons/decode_token.html",
     permission=Permissions.AdminMacaroonsRead,
     request_method="POST",
     uses_session=True,
@@ -59,7 +59,7 @@ def macaroon_decode_token(request):
 
 @view_config(
     route_name="admin.macaroon.detail",
-    renderer="admin/macaroons/detail.html",
+    renderer="warehouse.admin:templates/admin/macaroons/detail.html",
     permission=Permissions.AdminMacaroonsRead,
     uses_session=True,
 )

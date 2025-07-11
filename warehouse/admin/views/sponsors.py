@@ -73,7 +73,7 @@ class SponsorForm(wtforms.Form):
 
 @view_config(
     route_name="admin.sponsor.list",
-    renderer="admin/sponsors/list.html",
+    renderer="warehouse.admin:templates/admin/sponsors/list.html",
     permission=Permissions.AdminSponsorsRead,
     request_method="GET",
     uses_session=True,
@@ -111,7 +111,7 @@ def _upload_image(image_name, request, form):
 
 @view_config(
     route_name="admin.sponsor.edit",
-    renderer="admin/sponsors/edit.html",
+    renderer="warehouse.admin:templates/admin/sponsors/edit.html",
     permission=Permissions.AdminSponsorsRead,
     request_method="GET",
     uses_session=True,
@@ -120,7 +120,7 @@ def _upload_image(image_name, request, form):
 )
 @view_config(
     route_name="admin.sponsor.edit",
-    renderer="admin/sponsors/edit.html",
+    renderer="warehouse.admin:templates/admin/sponsors/edit.html",
     permission=Permissions.AdminSponsorsWrite,
     request_method="POST",
     uses_session=True,
@@ -151,7 +151,7 @@ def edit_sponsor(request):
 
 @view_config(
     route_name="admin.sponsor.create",
-    renderer="admin/sponsors/edit.html",
+    renderer="warehouse.admin:templates/admin/sponsors/edit.html",
     permission=Permissions.AdminSponsorsRead,
     request_method="GET",
     uses_session=True,
@@ -160,7 +160,7 @@ def edit_sponsor(request):
 )
 @view_config(
     route_name="admin.sponsor.create",
-    renderer="admin/sponsors/edit.html",
+    renderer="warehouse.admin:templates/admin/sponsors/edit.html",
     permission=Permissions.AdminSponsorsWrite,
     request_method="POST",
     uses_session=True,
