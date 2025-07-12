@@ -39,6 +39,9 @@ class JsonResponse(TypedDict, total=False):
     message: str | None
     errors: list[Error] | None
     token: StrictStr | None
+    # This value is used to communicate the minted token's expiration
+    # time to the user. It is not used to determine the expiration,
+    # changing this field does not change the token's expiration time.
     expires: int | None
     success: bool | None
 
