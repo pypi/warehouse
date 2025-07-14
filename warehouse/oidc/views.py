@@ -39,6 +39,10 @@ class JsonResponse(TypedDict, total=False):
     message: str | None
     errors: list[Error] | None
     token: StrictStr | None
+    # This value is used to communicate the minted token's expiration
+    # time to the user. It is not used to determine the expiration,
+    # changing this field does not change the token's expiration time.
+    expires: int | None
     success: bool | None
 
 
@@ -340,7 +344,7 @@ def mint_token(
         metrics = request.find_service(IMetricsService, context=None)
         metrics.increment("warehouse.oidc.mint_token.github_reusable_workflow")
 
-    return {"success": True, "token": serialized}
+    return {"success": True, "token": serialized, "expires": expires_at}
 
 
 def is_from_reusable_workflow(

@@ -1136,17 +1136,17 @@ class ManageProjectSettingsViews:
             # Allow transfer of project to active orgs owned or managed by user.
             all_user_organizations = user_organizations(self.request)
             active_organizations_owned = {
-                organization.name
+                organization
                 for organization in all_user_organizations["organizations_owned"]
                 if organization.is_active
             }
             active_organizations_managed = {
-                organization.name
+                organization
                 for organization in all_user_organizations["organizations_managed"]
                 if organization.is_active
             }
             current_organization = (
-                {self.project.organization.name} if self.project.organization else set()
+                {self.project.organization} if self.project.organization else set()
             )
             organization_choices = (
                 active_organizations_owned | active_organizations_managed

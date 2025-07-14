@@ -1,15 +1,13 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 <!DOCTYPE html>
-{# djlint:off H030,H031 #}
 <html lang="en">
-  {# djlint:on #}
   <head>
     <meta name="pypi:repository-version" content="{{ meta['api-version'] }}">
     <title>Simple index</title>
   </head>
   <body>
     {% for project in projects -%}
-      <a href="{{ request.route_path('api.simple.detail', name=project.name|canonicalize_name) }}">{{ project.name }}</a>
+    <a href="{{ request.route_path('api.simple.detail', name=project.name|canonicalize_name) }}">{{ project.name }}</a>
     {% endfor -%}
   </body>
 </html>

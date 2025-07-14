@@ -1561,18 +1561,16 @@ def transfer_organization_project(project, request):
 
     all_user_organizations = user_organizations(request)
     active_organizations_owned = {
-        organization.name
+        organization
         for organization in all_user_organizations["organizations_owned"]
         if organization.is_active
     }
     active_organizations_managed = {
-        organization.name
+        organization
         for organization in all_user_organizations["organizations_managed"]
         if organization.is_active
     }
-    current_organization = (
-        {project.organization.name} if project.organization else set()
-    )
+    current_organization = {project.organization} if project.organization else set()
     organization_choices = (
         active_organizations_owned | active_organizations_managed
     ) - current_organization
@@ -1656,7 +1654,7 @@ def transfer_organization_project(project, request):
         orm.attributes.flag_dirty(organization)
 
     # Add project to selected organization.
-    organization = organization_service.get_organization_by_name(form.organization.data)
+    organization = organization_service.get_organization(form.organization.data)
     organization_service.add_organization_project(organization.id, project.id)
     organization.record_event(
         tag=EventTag.Organization.OrganizationProjectAdd,
