@@ -134,7 +134,7 @@ msgstr ""
 "பயன்படுத்தவும்."
 
 #: warehouse/accounts/forms.py:399 warehouse/manage/forms.py:131
-#: warehouse/manage/forms.py:773
+#: warehouse/manage/forms.py:786
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "பெயர் மிக நீளமானது. 100 எழுத்துக்கள் அல்லது அதற்கும் குறைவான பெயரைத் தேர்வுசெய்க."
 
@@ -162,7 +162,7 @@ msgstr "மீட்பு குறியீடு(Recovery code) முன்�
 msgid "The username isn't valid. Try again."
 msgstr "பயனர் பெயர் தவறானது. மீண்டும் முயற்சி செய்."
 
-#: warehouse/accounts/views.py:109
+#: warehouse/accounts/views.py:110
 #, python-brace-format
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
@@ -171,7 +171,7 @@ msgstr ""
 "பல வெற்றியுறாத உள்நுழைவு முயற்சிகள் நடந்துள்ளன. நீங்கள் ${} மணி நேரத்திற்கு "
 "பூட்டப்பட்டிருக்கிறீர்கள். பின்னர் மீண்டும் முயற்சிக்கவும்."
 
-#: warehouse/accounts/views.py:130
+#: warehouse/accounts/views.py:131
 #, python-brace-format
 msgid ""
 "Too many emails have been added to this account without verifying them. "
@@ -180,7 +180,7 @@ msgstr ""
 "இந்தக் கணக்கில் பல மின்னஞ்சல்கள் சரிபார்க்கப்படாமலே சேர்க்கப்பட்டுள்ளன. உங்கள் இன்பாக்ஸைச் "
 "சரிபார்த்து, சரிபார்ப்பு இணைப்புகளைப் பின்பற்றவும். (IP: ${ip})"
 
-#: warehouse/accounts/views.py:142
+#: warehouse/accounts/views.py:143
 #, python-brace-format
 msgid ""
 "Too many password resets have been requested for this account without "
@@ -191,26 +191,26 @@ msgstr ""
 "கோரப்பட்டுள்ளன. உங்கள் இன்பாக்ஸைச் சரிபார்த்து, சரிபார்ப்பு இணைப்புகளைப் பின்பற்றவும். (IP: "
 "${ip})"
 
-#: warehouse/accounts/views.py:389 warehouse/accounts/views.py:458
-#: warehouse/accounts/views.py:460 warehouse/accounts/views.py:489
-#: warehouse/accounts/views.py:491 warehouse/accounts/views.py:597
+#: warehouse/accounts/views.py:375 warehouse/accounts/views.py:439
+#: warehouse/accounts/views.py:441 warehouse/accounts/views.py:470
+#: warehouse/accounts/views.py:472 warehouse/accounts/views.py:588
 msgid "Invalid or expired two factor login."
 msgstr "தவறான அல்லது காலாவதியான இரண்டு காரணி உள்நுழைவு."
 
-#: warehouse/accounts/views.py:452
+#: warehouse/accounts/views.py:433
 msgid "Already authenticated"
 msgstr "ஏற்கனவே அங்கீகரிக்கப்பட்டது"
 
-#: warehouse/accounts/views.py:532
+#: warehouse/accounts/views.py:507
 msgid "Successful WebAuthn assertion"
 msgstr "வெற்றிகரமான இணைய அங்கீகரிப்பு(Web Authentication ) வலியுறுத்தல்"
 
-#: warehouse/accounts/views.py:629 warehouse/manage/views/__init__.py:871
+#: warehouse/accounts/views.py:615 warehouse/manage/views/__init__.py:871
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "மீட்பு குறியீடு ஏற்றுக்கொள்ளப்பட்டது. வழங்கப்பட்ட குறியீட்டை மீண்டும் பயன்படுத்த முடியாது."
 
-#: warehouse/accounts/views.py:721
+#: warehouse/accounts/views.py:707
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -218,144 +218,144 @@ msgstr ""
 "புதிய பயனர்(user) பதிவு தற்காலிகமாக முடக்கப்பட்டுள்ளது. விவரங்களுக்கு https://pypi."
 "org/help#admin-intervention ஐப் பார்க்கவும்."
 
-#: warehouse/accounts/views.py:887
+#: warehouse/accounts/views.py:876
 msgid "Expired token: request a new password reset link"
 msgstr ""
 "காலாவதியான டோக்கன்: புதிய கடவுச்சொல்(Password) மீட்டமைப்பு(reset) இணைப்பைக்(link) "
 "கோரவும்"
 
-#: warehouse/accounts/views.py:889
+#: warehouse/accounts/views.py:878
 msgid "Invalid token: request a new password reset link"
 msgstr ""
 "தவறான டோக்கன்: புதிய கடவுச்சொல்(password) மீட்டமைப்பு(reset) இணைப்பைக்(link) கோரவும்"
 
-#: warehouse/accounts/views.py:891 warehouse/accounts/views.py:992
-#: warehouse/accounts/views.py:1096 warehouse/accounts/views.py:1265
+#: warehouse/accounts/views.py:880 warehouse/accounts/views.py:981
+#: warehouse/accounts/views.py:1087 warehouse/accounts/views.py:1256
 msgid "Invalid token: no token supplied"
 msgstr "தவறான டோக்கன்: டோக்கன் வழங்கப்படவில்லை"
 
-#: warehouse/accounts/views.py:895
+#: warehouse/accounts/views.py:884
 msgid "Invalid token: not a password reset token"
 msgstr "தவறான டோக்கன்: கடவுச்சொல்(password) மீட்டமைப்பு(reset) டோக்கன் அல்ல"
 
-#: warehouse/accounts/views.py:900
+#: warehouse/accounts/views.py:889
 msgid "Invalid token: user not found"
 msgstr "தவறான டோக்கன்: பயனர்(user) கிடைக்கவில்லை(not found)"
 
-#: warehouse/accounts/views.py:911
+#: warehouse/accounts/views.py:900
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "தவறான டோக்கன்: இந்த டோக்கன் கோரப்பட்டதால் பயனர் உள்நுழைந்துள்ளார்"
 
-#: warehouse/accounts/views.py:929
+#: warehouse/accounts/views.py:918
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "தவறான டோக்கன்: இந்த டோக்கன் கோரப்பட்டதிலிருந்து கடவுச்சொல் ஏற்கனவே மாற்றப்பட்டுள்ளது"
 
-#: warehouse/accounts/views.py:960
+#: warehouse/accounts/views.py:949
 msgid "You have reset your password"
 msgstr "உங்கள் கடவுச்சொல்லை மீட்டமைத்துவிட்டீர்கள்"
 
-#: warehouse/accounts/views.py:988
+#: warehouse/accounts/views.py:977
 msgid "Expired token: request a new email verification link"
 msgstr "காலாவதியான டோக்கன்: புதிய மின்னஞ்சல் சரிபார்ப்பு இணைப்பைக் கோருங்கள்"
 
-#: warehouse/accounts/views.py:990
+#: warehouse/accounts/views.py:979
 msgid "Invalid token: request a new email verification link"
 msgstr "தவறான அடையாளச் சின்னம்: புதிய மின்னஞ்சல் சரிபார்ப்பு இணைப்பைக் கோருங்கள்"
 
-#: warehouse/accounts/views.py:996
+#: warehouse/accounts/views.py:985
 msgid "Invalid token: not an email verification token"
 msgstr "தவறான அடையாளச் சின்னம்: மின்னஞ்சல் சரிபார்ப்பு அடையாளச் சின்னமல்ல"
 
-#: warehouse/accounts/views.py:1005
+#: warehouse/accounts/views.py:994
 msgid "Email not found"
 msgstr "மின்னஞ்சல் கிடைக்கவில்லை"
 
-#: warehouse/accounts/views.py:1008
+#: warehouse/accounts/views.py:997
 msgid "Email already verified"
 msgstr "மின்னஞ்சல் ஏற்கனவே சரிபார்க்கப்பட்டது"
 
-#: warehouse/accounts/views.py:1026
+#: warehouse/accounts/views.py:1017
 msgid "You can now set this email as your primary address"
 msgstr "நீங்கள் இப்போது இந்த மின்னஞ்சலை உங்கள் முதன்மை முகவரியாக அமைக்கலாம்"
 
-#: warehouse/accounts/views.py:1029
+#: warehouse/accounts/views.py:1020
 msgid "This is your primary address"
 msgstr "இது உங்கள் முதன்மை முகவரி"
 
-#: warehouse/accounts/views.py:1035
+#: warehouse/accounts/views.py:1026
 #, python-brace-format
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "மின்னஞ்சல் முகவரி ${email_address} சரிபார்க்கப்பட்டது. ${confirm_message}."
 
-#: warehouse/accounts/views.py:1092
+#: warehouse/accounts/views.py:1083
 msgid "Expired token: request a new organization invitation"
 msgstr ""
 "காலாவதியான டோக்கன்: புதிய அமைப்பு (organization) அழைப்பை(invitation) கோரவும்"
 
-#: warehouse/accounts/views.py:1094
+#: warehouse/accounts/views.py:1085
 msgid "Invalid token: request a new organization invitation"
 msgstr "தவறான அடையாளச் சின்னம்: புதிய அமைப்பு அழைப்பை கோருங்கள்"
 
-#: warehouse/accounts/views.py:1100
+#: warehouse/accounts/views.py:1091
 msgid "Invalid token: not an organization invitation token"
 msgstr "செல்லாத கடவு குறியீடு: ஒரு அமைப்பின் அழைப்பிதழுக்கானா கடவு குறியீடு அல்ல"
 
-#: warehouse/accounts/views.py:1104
+#: warehouse/accounts/views.py:1095
 msgid "Organization invitation is not valid."
 msgstr "நிறுவன அழைப்பு செல்லாது."
 
-#: warehouse/accounts/views.py:1113
+#: warehouse/accounts/views.py:1104
 msgid "Organization invitation no longer exists."
 msgstr "நிறுவன அழைப்பு இனி இல்லை."
 
-#: warehouse/accounts/views.py:1165
+#: warehouse/accounts/views.py:1156
 #, python-brace-format
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "'${organization_name}' -க்கான அழைப்பு நிராகரிக்கப்பட்டது."
 
-#: warehouse/accounts/views.py:1228
+#: warehouse/accounts/views.py:1219
 #, python-brace-format
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "நீங்கள் இனிமேல் '${organization_name}' நிறுவனத்தின் ${role}."
 
-#: warehouse/accounts/views.py:1261
+#: warehouse/accounts/views.py:1252
 msgid "Expired token: request a new project role invitation"
 msgstr "காலாவதியான கடவு குறியீடு: திட்டபணியின் புதிய பங்களிப்பிற்கானா அழைப்பை கோரவும்"
 
-#: warehouse/accounts/views.py:1263
+#: warehouse/accounts/views.py:1254
 msgid "Invalid token: request a new project role invitation"
 msgstr "செல்லாத கடவு குறியீடு: திட்டபணியின் புதிய பங்களிப்பிற்கானா அழைப்பை கோரவும்"
 
-#: warehouse/accounts/views.py:1269
+#: warehouse/accounts/views.py:1260
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "செல்லாத கடவு குறியீடு: ஒத்துழைப்பிற்கானா அழைப்பு கடவு குறியீடு அல்ல"
 
-#: warehouse/accounts/views.py:1273
+#: warehouse/accounts/views.py:1264
 msgid "Role invitation is not valid."
 msgstr "பங்கு அழைப்பு மதிப்பில்லாத."
 
-#: warehouse/accounts/views.py:1288
+#: warehouse/accounts/views.py:1279
 msgid "Role invitation no longer exists."
 msgstr "பங்கு அழைப்பு இனி இல்லை."
 
-#: warehouse/accounts/views.py:1320
+#: warehouse/accounts/views.py:1311
 #, python-brace-format
 msgid "Invitation for '${project_name}' is declined."
 msgstr "'${project_name}' -க்கான அழைப்பு நிராகரிக்கப்பட்டது."
 
-#: warehouse/accounts/views.py:1386
+#: warehouse/accounts/views.py:1377
 #, python-brace-format
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "நீங்கள் இனிமேல் '${project_name}' திட்டப்பணியின் ${role}."
 
-#: warehouse/accounts/views.py:1466
+#: warehouse/accounts/views.py:1457
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
-#: warehouse/accounts/views.py:1678 warehouse/accounts/views.py:1920
+#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1911
 #: warehouse/manage/views/__init__.py:1409
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
@@ -364,11 +364,11 @@ msgstr ""
 "நம்பகமான வெளியீடு தற்காலிகமாக முடக்கப்பட்டுள்ளது. விவரங்களுக்கு https://pypi.org/"
 "help#admin- தலையீட்டைக் காண்க."
 
-#: warehouse/accounts/views.py:1699
+#: warehouse/accounts/views.py:1690
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr "முடக்கப்பட்டது. விவரங்களுக்கு https://pypi.org/help#admin- தலையீட்டைக் காண்க."
 
-#: warehouse/accounts/views.py:1715
+#: warehouse/accounts/views.py:1706
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
@@ -376,12 +376,12 @@ msgstr ""
 "நிலுவையில் உள்ள நம்பகமான வெளியீட்டாளரை பதிவு செய்ய உங்களிடம் சரிபார்க்கப்பட்ட மின்னஞ்சல் "
 "இருக்க வேண்டும். விவரங்களுக்கு https://pypi.org/help#openid-connect ஐப் பார்க்கவும்."
 
-#: warehouse/accounts/views.py:1728
+#: warehouse/accounts/views.py:1719
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 "நம்பகமான 3 க்கும் மேற்பட்ட நம்பகமான வெளியீட்டாளர்களை ஒரே நேரத்தில் பதிவு செய்ய முடியாது."
 
-#: warehouse/accounts/views.py:1743 warehouse/manage/views/__init__.py:1590
+#: warehouse/accounts/views.py:1734 warehouse/manage/views/__init__.py:1590
 #: warehouse/manage/views/__init__.py:1705
 #: warehouse/manage/views/__init__.py:1819
 #: warehouse/manage/views/__init__.py:1931
@@ -390,14 +390,14 @@ msgid ""
 "again later."
 msgstr "நம்பகமான வெளியீட்டாளர் பதிவுகள் பல முயற்சித்துள்ளன. பின்னர் மீண்டும் முயற்சிக்கவும்."
 
-#: warehouse/accounts/views.py:1753 warehouse/manage/views/__init__.py:1603
+#: warehouse/accounts/views.py:1744 warehouse/manage/views/__init__.py:1603
 #: warehouse/manage/views/__init__.py:1718
 #: warehouse/manage/views/__init__.py:1832
 #: warehouse/manage/views/__init__.py:1944
 msgid "The trusted publisher could not be registered"
 msgstr "நம்பகமான வெளியீட்டாளரை பதிவு செய்ய முடியவில்லை"
 
-#: warehouse/accounts/views.py:1768
+#: warehouse/accounts/views.py:1759
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
@@ -405,16 +405,16 @@ msgstr ""
 "இந்த நம்பகமான வெளியீட்டாளர் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளார். இது வேண்டுமென்றே இல்லாவிட்டால் "
 "தயவுசெய்து பைபியின் நிர்வாகிகளை தொடர்பு கொள்ளவும்."
 
-#: warehouse/accounts/views.py:1795
+#: warehouse/accounts/views.py:1786
 msgid "Registered a new pending publisher to create "
 msgstr "உருவாக்க நிலுவையில் உள்ள புதிய வெளியீட்டாளரை பதிவு செய்தது "
 
-#: warehouse/accounts/views.py:1933 warehouse/accounts/views.py:1946
-#: warehouse/accounts/views.py:1953
+#: warehouse/accounts/views.py:1924 warehouse/accounts/views.py:1937
+#: warehouse/accounts/views.py:1944
 msgid "Invalid publisher ID"
 msgstr "தவறான வெளியீட்டாளர் ஐடி"
 
-#: warehouse/accounts/views.py:1960
+#: warehouse/accounts/views.py:1951
 msgid "Removed trusted publisher for project "
 msgstr "திட்டத்திற்கான நம்பகமான வெளியீட்டாளர் அகற்றப்பட்டார் "
 
@@ -479,7 +479,13 @@ msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr "இந்த திட்ட பெயர் ஏற்கனவே பயன்படுத்தப்பட்டுள்ளது. வேறு திட்ட பெயரைத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:591
+#: warehouse/manage/forms.py:551
+#, fuzzy
+#| msgid "Cannot transfer project to an organization"
+msgid "Cannot transfer to Company Organization with inactive billing"
+msgstr "திட்டத்தை ஒரு நிறுவனத்திற்கு மாற்ற முடியாது"
+
+#: warehouse/manage/forms.py:604
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
@@ -487,7 +493,7 @@ msgstr ""
 "நிறுவனத்தின் பெயர் மிக நீளமானது. 100 எழுத்துக்கள் அல்லது அதற்கும் குறைவாக ஒரு "
 "நிறுவனத்தின் பெயரைத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:603
+#: warehouse/manage/forms.py:616
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
@@ -495,11 +501,11 @@ msgstr ""
 "அமைப்பு முகவரி மிக நீளமானது. 400 எழுத்துக்கள் அல்லது அதற்கும் குறைவாக ஒரு நிறுவன "
 "முகவரி ஐத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:609
+#: warehouse/manage/forms.py:622
 msgid "The organization URL must start with http:// or https://"
 msgstr "அமைப்பு முகவரி HTTP: // அல்லது https: // உடன் தொடங்க வேண்டும்"
 
-#: warehouse/manage/forms.py:621
+#: warehouse/manage/forms.py:634
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
@@ -507,7 +513,7 @@ msgstr ""
 "அமைப்பு விளக்கம் மிக நீளமானது. 400 எழுத்துக்கள் அல்லது அதற்கும் குறைவான நிறுவன "
 "விளக்கத்தைத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:664
+#: warehouse/manage/forms.py:677
 #, fuzzy
 #| msgid ""
 #| "The description is too long. Choose a description with 400 characters or "
@@ -518,15 +524,15 @@ msgid ""
 msgstr ""
 "விளக்கம் மிக நீளமானது. 400 எழுத்துக்கள் அல்லது அதற்கும் குறைவான விளக்கத்தைத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:686
+#: warehouse/manage/forms.py:699
 msgid "You have already submitted the maximum number of "
 msgstr "நீங்கள் ஏற்கனவே அதிகபட்ச எண்ணிக்கையை சமர்ப்பித்துள்ளீர்கள் "
 
-#: warehouse/manage/forms.py:715
+#: warehouse/manage/forms.py:728
 msgid "Choose a team name with 50 characters or less."
 msgstr "50 எழுத்துக்கள் அல்லது அதற்கும் குறைவான குழு பெயரைத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:722
+#: warehouse/manage/forms.py:735
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
@@ -534,24 +540,24 @@ msgstr ""
 "அணியின் பெயர் தவறானது. குழு பெயர்கள் ஒரு இடம், காலம், அடிக்கோடிட்டு, ஐபன் அல்லது ச்லாச் "
 "ஆகியவற்றுடன் தொடங்கவோ முடிவடையவோ முடியாது. வேறு குழு பெயரைத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:750
+#: warehouse/manage/forms.py:763
 msgid "This team name has already been used. Choose a different team name."
 msgstr "இந்த அணியின் பெயர் ஏற்கனவே பயன்படுத்தப்பட்டுள்ளது. வேறு குழு பெயரைத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:768
+#: warehouse/manage/forms.py:781
 msgid "Specify your alternate repository name"
 msgstr "உங்கள் மாற்று களஞ்சிய பெயரைக் குறிப்பிடவும்"
 
-#: warehouse/manage/forms.py:782
+#: warehouse/manage/forms.py:795
 msgid "Specify your alternate repository URL"
 msgstr "உங்கள் மாற்று களஞ்சிய முகவரி ஐக் குறிப்பிடவும்"
 
-#: warehouse/manage/forms.py:787
+#: warehouse/manage/forms.py:800
 msgid "The URL is too long. Choose a URL with 400 characters or less."
 msgstr ""
 "முகவரி மிக நீளமானது. 400 எழுத்துக்கள் அல்லது அதற்கும் குறைவான முகவரி ஐத் தேர்வுசெய்க."
 
-#: warehouse/manage/forms.py:801
+#: warehouse/manage/forms.py:814
 msgid ""
 "The description is too long. Choose a description with 400 characters or "
 "less."
@@ -1354,7 +1360,7 @@ msgstr "மொபைல் பதிப்பிற்கு மாறவும�
 #: warehouse/templates/manage/project/release.html:209
 #: warehouse/templates/manage/project/settings.html:85
 #: warehouse/templates/manage/project/settings.html:131
-#: warehouse/templates/manage/project/settings.html:362
+#: warehouse/templates/manage/project/settings.html:372
 #: warehouse/templates/manage/team/settings.html:62
 msgid "Warning"
 msgstr "எச்சரிக்கை"
@@ -1641,8 +1647,8 @@ msgstr "உங்கள் பைதான் குறியீட்டை PYP
 msgid "Error processing form"
 msgstr "பிழை செயலாக்க படிவம்"
 
-#: warehouse/templates/accounts/register.html:166
-#: warehouse/templates/accounts/register.html:171
+#: warehouse/templates/accounts/register.html:178
+#: warehouse/templates/accounts/register.html:183
 #: warehouse/templates/accounts/reset-password.html:62
 #: warehouse/templates/accounts/reset-password.html:67
 #: warehouse/templates/manage/account.html:453
@@ -1655,7 +1661,7 @@ msgid "Confirm password to continue"
 msgstr "தொடர கடவுச்சொல் உறுதிப்படுத்தவும்"
 
 #: warehouse/templates/accounts/login.html:56
-#: warehouse/templates/accounts/register.html:130
+#: warehouse/templates/accounts/register.html:142
 #: warehouse/templates/accounts/reset-password.html:28
 #: warehouse/templates/manage/manage_base.html:451
 #: warehouse/templates/re-auth.html:49
@@ -1665,11 +1671,11 @@ msgstr "கடவுச்சொல்"
 #: warehouse/templates/accounts/login.html:34
 #: warehouse/templates/accounts/login.html:58
 #: warehouse/templates/accounts/recovery-code.html:28
-#: warehouse/templates/accounts/register.html:57
-#: warehouse/templates/accounts/register.html:79
-#: warehouse/templates/accounts/register.html:107
-#: warehouse/templates/accounts/register.html:132
-#: warehouse/templates/accounts/register.html:168
+#: warehouse/templates/accounts/register.html:69
+#: warehouse/templates/accounts/register.html:91
+#: warehouse/templates/accounts/register.html:119
+#: warehouse/templates/accounts/register.html:144
+#: warehouse/templates/accounts/register.html:180
 #: warehouse/templates/accounts/request-password-reset.html:28
 #: warehouse/templates/accounts/reset-password.html:30
 #: warehouse/templates/accounts/reset-password.html:64
@@ -1738,9 +1744,9 @@ msgstr "கடவுச்சொல்"
 #: warehouse/templates/manage/project/roles.html:364
 #: warehouse/templates/manage/project/roles.html:397
 #: warehouse/templates/manage/project/roles.html:416
-#: warehouse/templates/manage/project/settings.html:266
-#: warehouse/templates/manage/project/settings.html:282
-#: warehouse/templates/manage/project/settings.html:298
+#: warehouse/templates/manage/project/settings.html:276
+#: warehouse/templates/manage/project/settings.html:292
+#: warehouse/templates/manage/project/settings.html:308
 #: warehouse/templates/manage/team/roles.html:104
 #: warehouse/templates/manage/team/settings.html:22
 #: warehouse/templates/packaging/submit-malware-observation.html:54
@@ -1845,7 +1851,7 @@ msgstr "%(title)s உள்நுழைக"
 
 #: warehouse/templates/accounts/login.html:32
 #: warehouse/templates/accounts/profile.html:25
-#: warehouse/templates/accounts/register.html:105
+#: warehouse/templates/accounts/register.html:117
 #: warehouse/templates/email/organization-member-added/body.html:14
 #: warehouse/templates/email/organization-member-invited/body.html:14
 #: warehouse/templates/email/organization-member-removed/body.html:14
@@ -2019,12 +2025,12 @@ msgstr "<p> வேலை செய்யவில்லையா? <a href = \"%(
 msgid "Create an account"
 msgstr "ஒரு கணக்கை உருவாக்கவும்"
 
-#: warehouse/templates/accounts/register.html:18
+#: warehouse/templates/accounts/register.html:19
 #, python-format
 msgid "Create an account on %(title)s"
 msgstr "%(title)s ஒரு கணக்கை உருவாக்கவும்"
 
-#: warehouse/templates/accounts/register.html:21
+#: warehouse/templates/accounts/register.html:22
 #, python-format
 msgid ""
 "Before creating an account on %(title)s, familiarize yourself with the "
@@ -2033,34 +2039,34 @@ msgstr ""
 "%(title)s இல் ஒரு கணக்கை உருவாக்குவதற்கு முன், பின்வரும் வழிகாட்டுதல்களை நன்கு அறிந்து "
 "கொள்ளுங்கள்:"
 
-#: warehouse/templates/accounts/register.html:24
+#: warehouse/templates/accounts/register.html:25
 #, python-format
 msgid "Do not use %(title)s for any illegal or harmful activities."
 msgstr ""
 "எந்தவொரு சட்டவிரோத அல்லது தீங்கு விளைவிக்கும் செயல்களுக்கும் %(title)s பயன்படுத்த வேண்டாம்."
 
-#: warehouse/templates/accounts/register.html:25
+#: warehouse/templates/accounts/register.html:26
 msgid ""
 "Do not impersonate others or post private information without their consent."
 msgstr ""
 "மற்றவர்களுக்கு ஆள்மாறாட்டம் செய்யவோ அல்லது அவர்களின் அனுமதியின்றி தனிப்பட்ட தகவல்களை "
 "இடுகையிடவோ வேண்டாம்."
 
-#: warehouse/templates/accounts/register.html:26
+#: warehouse/templates/accounts/register.html:27
 msgid ""
 "Be respectful of other users and avoid abusive or discriminatory language."
 msgstr "பிற பயனர்களை மதிக்கவும், தவறான அல்லது பாரபட்சமான மொழியைத் தவிர்க்கவும்."
 
-#: warehouse/templates/accounts/register.html:27
+#: warehouse/templates/accounts/register.html:28
 msgid "Do not post spam or distribute malware."
 msgstr "ச்பேமை இடுகையிட வேண்டாம் அல்லது தீம்பொருளை விநியோகிக்க வேண்டாம்."
 
-#: warehouse/templates/accounts/register.html:28
+#: warehouse/templates/accounts/register.html:29
 #, python-format
 msgid "Do not use %(title)s to conduct security research."
 msgstr "பாதுகாப்பு ஆராய்ச்சி நடத்த %(title)s பயன்படுத்த வேண்டாம்."
 
-#: warehouse/templates/accounts/register.html:31
+#: warehouse/templates/accounts/register.html:32
 #, fuzzy, python-format
 #| msgid ""
 #| "For more information, please read the full <a href=\"%(tou)s\" "
@@ -2074,61 +2080,80 @@ msgstr ""
 "பயன்பாட்டு விதிமுறைகள் </a> மற்றும் <a href = \"%(aup)s\" rel = \"noopener\"> "
 "ஏற்றுக்கொள்ளக்கூடிய பயன்பாட்டு கொள்கை </a>."
 
-#: warehouse/templates/accounts/register.html:36
+#: warehouse/templates/accounts/register.html:37
 #, python-format
 msgid ""
 "By registering, you agree to the <a href=\"%(tos)s\">PyPI Terms of Service</"
 "a>."
 msgstr ""
 
-#: warehouse/templates/accounts/register.html:55
+#: warehouse/templates/accounts/register.html:47
+msgid ""
+"Please confirm that your email address is <strong data-email-confirmation-"
+"target=\"email\"></strong>."
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:50
+#, fuzzy
+#| msgid "Confirm form"
+msgid "Confirm"
+msgstr "படிவத்தை உறுதிப்படுத்தவும்"
+
+#: warehouse/templates/accounts/register.html:51
+#: warehouse/templates/manage/manage_base.html:398
+#: warehouse/templates/manage/manage_base.html:473
+#: warehouse/templates/manage/organization/activate_subscription.html:41
+msgid "Cancel"
+msgstr "ரத்துசெய்"
+
+#: warehouse/templates/accounts/register.html:67
 #: warehouse/templates/manage/account.html:149
 #: warehouse/templates/manage/account.html:491
 #: warehouse/templates/manage/project/history.html:284
 #: warehouse/templates/manage/project/history.html:295
 #: warehouse/templates/manage/project/history.html:306
 #: warehouse/templates/manage/project/history.html:317
-#: warehouse/templates/manage/project/settings.html:209
-#: warehouse/templates/manage/project/settings.html:264
-#: warehouse/templates/manage/project/settings.html:269
+#: warehouse/templates/manage/project/settings.html:219
+#: warehouse/templates/manage/project/settings.html:274
+#: warehouse/templates/manage/project/settings.html:279
 #: warehouse/templates/manage/unverified-account.html:102
 msgid "Name"
 msgstr "பெயர்"
 
-#: warehouse/templates/accounts/register.html:60
+#: warehouse/templates/accounts/register.html:72
 msgid "Your name"
 msgstr "உங்கள் பெயர்"
 
-#: warehouse/templates/accounts/register.html:77
+#: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:350
 #: warehouse/templates/manage/unverified-account.html:225
 msgid "Email address"
 msgstr "மின்னஞ்சல் முகவரி"
 
-#: warehouse/templates/accounts/register.html:82
+#: warehouse/templates/accounts/register.html:94
 #: warehouse/templates/manage/account.html:370
 msgid "Your email address"
 msgstr "உங்கள் மின்னஞ்சல் முகவரி"
 
-#: warehouse/templates/accounts/register.html:99
+#: warehouse/templates/accounts/register.html:111
 msgid "Confirm form"
 msgstr "படிவத்தை உறுதிப்படுத்தவும்"
 
-#: warehouse/templates/accounts/register.html:110
+#: warehouse/templates/accounts/register.html:122
 msgid "Select a username"
 msgstr "பயனர்பெயரைத் தேர்ந்தெடுக்கவும்"
 
-#: warehouse/templates/accounts/register.html:140
+#: warehouse/templates/accounts/register.html:152
 #: warehouse/templates/accounts/reset-password.html:39
 #: warehouse/templates/manage/account.html:409
 msgid "Show passwords"
 msgstr "கடவுச்சொற்களைக் காட்டு"
 
-#: warehouse/templates/accounts/register.html:143
+#: warehouse/templates/accounts/register.html:155
 msgid "Select a password"
 msgstr "கடவுச்சொல்லைத் தேர்ந்தெடுக்கவும்"
 
-#: warehouse/templates/accounts/register.html:195
+#: warehouse/templates/accounts/register.html:207
 msgid ""
 "This password appears in a security breach or has been compromised and "
 "cannot be used. Please refer to the <a href=\"/help/#compromised-"
@@ -2138,7 +2163,7 @@ msgstr ""
 "முடியாது. மேலும் தகவலுக்கு <a href = \"/help/#சமரசம்-பாச்வேர்ட்\"> கேள்விகள் </a> ஐப் "
 "பார்க்கவும்."
 
-#: warehouse/templates/accounts/register.html:202
+#: warehouse/templates/accounts/register.html:214
 msgid "Create account"
 msgstr "கணக்கை உருவாக்கவும்"
 
@@ -4678,12 +4703,6 @@ msgstr "தொடர உங்கள் பயனர்பெயரை உறு
 msgid "Confirm the %(item)s to continue."
 msgstr "தொடர %(item)s உறுதிப்படுத்தவும்."
 
-#: warehouse/templates/manage/manage_base.html:398
-#: warehouse/templates/manage/manage_base.html:473
-#: warehouse/templates/manage/organization/activate_subscription.html:41
-msgid "Cancel"
-msgstr "ரத்துசெய்"
-
 #: warehouse/templates/manage/manage_base.html:428
 msgid "close"
 msgstr "மூடு"
@@ -5262,7 +5281,7 @@ msgstr ""
 #: warehouse/templates/manage/project/publishing.html:255
 #: warehouse/templates/manage/project/publishing.html:329
 #: warehouse/templates/manage/project/roles.html:373
-#: warehouse/templates/manage/project/settings.html:319
+#: warehouse/templates/manage/project/settings.html:329
 #: warehouse/templates/manage/team/roles.html:125
 msgid "Add"
 msgstr "கூட்டு"
@@ -6501,7 +6520,7 @@ msgstr "%(user)s காலாவதியான அழைப்பை நீக�
 #: warehouse/templates/manage/organization/roles.html:352
 #: warehouse/templates/manage/project/release.html:96
 #: warehouse/templates/manage/project/releases.html:98
-#: warehouse/templates/manage/project/settings.html:236
+#: warehouse/templates/manage/project/settings.html:246
 msgid "Delete"
 msgstr "நீக்கு"
 
@@ -6958,9 +6977,9 @@ msgstr "திட்ட மாற்று களஞ்சியம் சேர
 #: warehouse/templates/manage/project/history.html:296
 #: warehouse/templates/manage/project/history.html:307
 #: warehouse/templates/manage/project/history.html:318
-#: warehouse/templates/manage/project/settings.html:210
-#: warehouse/templates/manage/project/settings.html:280
-#: warehouse/templates/manage/project/settings.html:285
+#: warehouse/templates/manage/project/settings.html:220
+#: warehouse/templates/manage/project/settings.html:290
+#: warehouse/templates/manage/project/settings.html:295
 msgid "Url"
 msgstr ""
 
@@ -7662,8 +7681,8 @@ msgid "Remove project"
 msgstr "திட்டத்தை அகற்று"
 
 #: warehouse/templates/manage/project/settings.html:104
-#: warehouse/templates/manage/project/settings.html:168
-#: warehouse/templates/manage/project/settings.html:436
+#: warehouse/templates/manage/project/settings.html:178
+#: warehouse/templates/manage/project/settings.html:446
 msgid "Project Name"
 msgstr "திட்ட பெயர்"
 
@@ -7724,19 +7743,19 @@ msgstr ""
 "திட்டத்தின் மற்ற அனைத்து தனிப்பட்ட உரிமையாளர்களும் பராமரிப்பாளர்களும் தங்கள் திட்ட "
 "அனுமதிகளைத் தக்க வைத்துக் கொள்வார்கள்."
 
-#: warehouse/templates/manage/project/settings.html:168
+#: warehouse/templates/manage/project/settings.html:178
 msgid "Transfer project"
 msgstr "பரிமாற்ற திட்டம்"
 
-#: warehouse/templates/manage/project/settings.html:174
+#: warehouse/templates/manage/project/settings.html:184
 msgid "Cannot transfer project to another organization"
 msgstr "திட்டத்தை வேறொரு நிறுவனத்திற்கு மாற்ற முடியாது"
 
-#: warehouse/templates/manage/project/settings.html:176
+#: warehouse/templates/manage/project/settings.html:186
 msgid "Cannot transfer project to an organization"
 msgstr "திட்டத்தை ஒரு நிறுவனத்திற்கு மாற்ற முடியாது"
 
-#: warehouse/templates/manage/project/settings.html:181
+#: warehouse/templates/manage/project/settings.html:191
 msgid ""
 "Organization owners can transfer the project to organizations that they own "
 "or manage."
@@ -7744,11 +7763,11 @@ msgstr ""
 "நிறுவன உரிமையாளர்கள் இந்த திட்டத்தை தாங்கள் வைத்திருக்கும் அல்லது நிர்வகிக்கும் "
 "நிறுவனங்களுக்கு மாற்றலாம்."
 
-#: warehouse/templates/manage/project/settings.html:182
+#: warehouse/templates/manage/project/settings.html:192
 msgid "You are not an owner or manager of any other organizations."
 msgstr "நீங்கள் வேறு எந்த அமைப்புகளின் உரிமையாளர் அல்லது மேலாளர் அல்ல."
 
-#: warehouse/templates/manage/project/settings.html:184
+#: warehouse/templates/manage/project/settings.html:194
 msgid ""
 "Project owners can transfer the project to organizations that they own or "
 "manage."
@@ -7756,15 +7775,15 @@ msgstr ""
 "திட்ட உரிமையாளர்கள் திட்டத்தை தங்களுக்கு சொந்தமான அல்லது நிர்வகிக்கும் நிறுவனங்களுக்கு "
 "மாற்றலாம்."
 
-#: warehouse/templates/manage/project/settings.html:185
+#: warehouse/templates/manage/project/settings.html:195
 msgid "You are not an owner or manager of any organizations."
 msgstr "நீங்கள் எந்த அமைப்புகளின் உரிமையாளர் அல்லது மேலாளர் அல்ல."
 
-#: warehouse/templates/manage/project/settings.html:192
+#: warehouse/templates/manage/project/settings.html:202
 msgid "Alternate repository locations"
 msgstr "மாற்று களஞ்சிய இடங்கள்"
 
-#: warehouse/templates/manage/project/settings.html:195
+#: warehouse/templates/manage/project/settings.html:205
 #, python-format
 msgid ""
 "Provisional support for <a href=\"%(pep_url)s\">PEP 708</a> \"Alternate "
@@ -7773,7 +7792,7 @@ msgstr ""
 "<A href = \"%(pep_url)s\"> pep 708 </a> \"மாற்று இடங்கள்\" மெட்டாடேட்டாவுக்கான "
 "தற்காலிக உதவி."
 
-#: warehouse/templates/manage/project/settings.html:199
+#: warehouse/templates/manage/project/settings.html:209
 #, python-format
 msgid ""
 "Implementation may change, consider subscribing to <a "
@@ -7782,52 +7801,52 @@ msgstr ""
 "செயல்படுத்தல் மாறக்கூடும், மாற்றங்கள் குறித்து அறிவிக்க <a href = "
 "\"%(pypi_announce_url)s\"> pypi-antouns </a> க்கு சந்தா செலுத்துவதைக் கவனியுங்கள்."
 
-#: warehouse/templates/manage/project/settings.html:205
+#: warehouse/templates/manage/project/settings.html:215
 #, python-format
 msgid "Alternate repository locations for %(project_name)s"
 msgstr "%(project_name)s மாற்று களஞ்சிய இருப்பிடங்கள்"
 
-#: warehouse/templates/manage/project/settings.html:211
+#: warehouse/templates/manage/project/settings.html:221
 msgid "Description"
 msgstr "விவரம்"
 
-#: warehouse/templates/manage/project/settings.html:227
+#: warehouse/templates/manage/project/settings.html:237
 #, python-format
 msgid "Delete %(name)s from this project."
 msgstr "இந்த திட்டத்திலிருந்து %(name)s நீக்கு."
 
-#: warehouse/templates/manage/project/settings.html:237
+#: warehouse/templates/manage/project/settings.html:247
 msgid "Alternate Repository Name"
 msgstr "மாற்று களஞ்சிய பெயர்"
 
-#: warehouse/templates/manage/project/settings.html:251
+#: warehouse/templates/manage/project/settings.html:261
 msgid "There are no alternate repositories for this project, yet."
 msgstr "இந்த திட்டத்திற்கு மாற்று களஞ்சியங்கள் எதுவும் இல்லை."
 
-#: warehouse/templates/manage/project/settings.html:253
+#: warehouse/templates/manage/project/settings.html:263
 msgid "Get started by adding an alternate repository below."
 msgstr "கீழே ஒரு மாற்று களஞ்சியத்தைச் சேர்ப்பதன் மூலம் தொடங்கவும்."
 
-#: warehouse/templates/manage/project/settings.html:256
+#: warehouse/templates/manage/project/settings.html:266
 msgid "Add alternate repository location"
 msgstr "மாற்று களஞ்சிய இருப்பிடத்தைச் சேர்க்கவும்"
 
-#: warehouse/templates/manage/project/settings.html:296
+#: warehouse/templates/manage/project/settings.html:306
 msgid "Alternate repository description"
 msgstr "மாற்று களஞ்சிய விளக்கம்"
 
-#: warehouse/templates/manage/project/settings.html:301
-#: warehouse/templates/manage/project/settings.html:312
+#: warehouse/templates/manage/project/settings.html:311
+#: warehouse/templates/manage/project/settings.html:322
 msgid "Description of the purpose or content of the alternate repository."
 msgstr "மாற்று களஞ்சியத்தின் நோக்கம் அல்லது உள்ளடக்கத்தின் விளக்கம்."
 
-#: warehouse/templates/manage/project/settings.html:324
-#: warehouse/templates/manage/project/settings.html:349
-#: warehouse/templates/manage/project/settings.html:353
+#: warehouse/templates/manage/project/settings.html:334
+#: warehouse/templates/manage/project/settings.html:359
+#: warehouse/templates/manage/project/settings.html:363
 msgid "Archive project"
 msgstr "காப்பக திட்டம்"
 
-#: warehouse/templates/manage/project/settings.html:328
+#: warehouse/templates/manage/project/settings.html:338
 #, fuzzy, python-format
 #| msgid ""
 #| "Archiving a project will prevent any new uploads. Before doing so, we "
@@ -7853,33 +7872,33 @@ msgstr ""
 "இலக்கு = \"_ வெற்று\"> அவ்வாறு செய்ய கட்டமைக்கப்பட்டிருந்தால், </a>, நீங்கள் README "
 "கோப்பைத் திருத்துவதன் மூலம் திட்டத்தின் விளக்கத்தை புதுப்பிக்கலாம்."
 
-#: warehouse/templates/manage/project/settings.html:340
-#: warehouse/templates/manage/project/settings.html:343
+#: warehouse/templates/manage/project/settings.html:350
+#: warehouse/templates/manage/project/settings.html:353
 msgid "Unarchive project"
 msgstr "Unarchible திட்டம்"
 
-#: warehouse/templates/manage/project/settings.html:344
+#: warehouse/templates/manage/project/settings.html:354
 msgid ""
 "Unarchiving a project will allow new file uploads and add the project to the "
 "search index."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:354
+#: warehouse/templates/manage/project/settings.html:364
 msgid ""
 "Archiving a project will block any new file uploads and remove the project "
 "from the search index."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:360
-#: warehouse/templates/manage/project/settings.html:436
+#: warehouse/templates/manage/project/settings.html:370
+#: warehouse/templates/manage/project/settings.html:446
 msgid "Delete project"
 msgstr "திட்டத்தை நீக்கு"
 
-#: warehouse/templates/manage/project/settings.html:363
+#: warehouse/templates/manage/project/settings.html:373
 msgid "Deleting this project will:"
 msgstr "இந்த திட்டத்தை நீக்குவது:"
 
-#: warehouse/templates/manage/project/settings.html:368
+#: warehouse/templates/manage/project/settings.html:378
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s "
@@ -7893,16 +7912,16 @@ msgstr[1] ""
 "<A href = \"%(href)s\">%(எண்ணிக்கை) வெளியீடுகள் </a> உடன் திட்டத்தை மாற்றமுடியாமல் "
 "நீக்கவும்"
 
-#: warehouse/templates/manage/project/settings.html:374
+#: warehouse/templates/manage/project/settings.html:384
 msgid "Irreversibly delete the project"
 msgstr "மாற்றமுடியாமல் திட்டத்தை நீக்கவும்"
 
-#: warehouse/templates/manage/project/settings.html:378
+#: warehouse/templates/manage/project/settings.html:388
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 "திட்டத்தின் பெயரை <strong> வேறு எந்த பைபி </strong> பயனருக்கும் கிடைக்கச் செய்யுங்கள்"
 
-#: warehouse/templates/manage/project/settings.html:381
+#: warehouse/templates/manage/project/settings.html:391
 msgid ""
 "This user will be able to make new releases under this project name, so long "
 "as the distribution filenames do not match filenames from a previously "
