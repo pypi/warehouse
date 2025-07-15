@@ -683,9 +683,9 @@ types-stripe==3.5.2.20240106 \
     --hash=sha256:63a36958f0dc4a71685b027f0b6d807ff197ee337135ac19a0f8b6132365ca52 \
     --hash=sha256:9ea7bc9b9889a3d8606114c52dcc70a8fc62d44a46da4bc5ee19f0d463674bb8
     # via -r requirements/lint.in
-types-webob==1.8.0.20250522 \
-    --hash=sha256:ad08df93fd62ec70940bb71a1149538086ebca25201696e2cf3c2c10a11797f3 \
-    --hash=sha256:ed1e3413d4fce775f2dc390b9034533405f2572fe519b0c4c714d4df847ba78f
+types-webob==1.8.0.20250703 \
+    --hash=sha256:71ebe3003c0b204996b8576fb6e7e2f6d498e9744cb6692e76a48ff6effc930a \
+    --hash=sha256:c857ab4cc2848395f455224b2b4c1dce4363a0ca93f98d8659461f150f179676
     # via -r requirements/lint.in
 types-wtforms==3.2.1.20250602 \
     --hash=sha256:4e399ce7a05811715c3352afc7d1650156da6ca5b07fda8952e77a88a5f89c1f \
