@@ -207,9 +207,9 @@ celery[redis]==5.5.3 \
     # via
     #   -r requirements/main.in
     #   celery-redbeat
-celery-redbeat==2.3.2 \
-    --hash=sha256:7d6e41e4b807fafba5d88b98e3d3863f0df95ac3ed1692d70b134c079b936b8b \
-    --hash=sha256:9d61ab6e29f59d676621a846c778a347d5acad22e90fb4386343a4852d4f7ac3
+celery-redbeat==2.3.3 \
+    --hash=sha256:0d6da101c46c0147b88f3ae2bfaed42548545934263a31d325a8b0e6585c3fb1 \
+    --hash=sha256:f52664b490b2923a787d9f348f291243601430bf8ec383b6e79870a1731ee92a
     # via -r requirements/main.in
 certifi==2025.7.14 \
     --hash=sha256:6b31f564a415d79ee77df69d757bb49a5bb53bd9f756cbbe24394ffd6fc1f4b2 \
