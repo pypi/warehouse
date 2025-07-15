@@ -110,7 +110,7 @@
       {% set devPyPI = true %}
     {% endif %}
     {# djlint:off #}
-    <title>{% block title_base %}{% block title %}{% endblock title %}{% if self.title() %}·{% endif %}{{ request.registry.settings['site.name'] }}{% endblock title_base %}</title>
+    <title>{% block title_base %}{% block title %}{% endblock title %}{% if self.title() %} · {% endif %}{{ request.registry.settings['site.name'] }}{% endblock title_base %}</title>
     {# djlint:on #}
     <meta name="description"
           content="{% block description %}{% trans %}The Python Package Index (PyPI) is a repository of software for the Python programming language.{% endtrans %}{% endblock %}">
