@@ -26,11 +26,11 @@ All relevant projects have been removed from PyPI, and accounts have been disabl
 Users are welcome to use any valid email address to register a new account,
 however this delegates some of the responsibility of account security
 to the email provider.
-Most email providers have strong anti-spam and anti-abuse measures in place.
-Those that do not have such protections may end up on the publicly-available
-[`disposable-email-domains`](https://github.com/disposable-email-domains/disposable-email-domains) list,
-and PyPI maintains its own block list internally that is added to by PyPI Admins
-in response to discovering abuse.
+
+PyPI uses the [`disposable-email-domains`](https://github.com/disposable-email-domains/disposable-email-domains)
+list to prevent new registrations using disposable email addresses,
+and PyPI maintains its own internal block list,
+updated by PyPI Admins in response to discovering abuse.
 
 See a [previous post](./2024-06-16-prohibiting-msn-emails.md)
 for a previous case of prohibiting a popular email domain provider.
