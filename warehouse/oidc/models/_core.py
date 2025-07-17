@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, Self, TypedDict, TypeVar, Unpack
 import rfc3986
 import sentry_sdk
 
-from sqlalchemy import ForeignKey, Index, String, func, orm
+from sqlalchemy import ForeignKey, Index, String, UniqueConstraint, func, orm
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -97,6 +97,7 @@ def check_existing_jti(
 
 class OIDCPublisherProjectAssociation(db.Model):
     __tablename__ = "oidc_publisher_project_association"
+    __table_args__ = (UniqueConstraint("oidc_publisher_id", "project_id"),)
 
     oidc_publisher_id = mapped_column(
         UUID(as_uuid=True),
