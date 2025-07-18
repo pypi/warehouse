@@ -51,6 +51,16 @@ class WarehouseVisitor(ast.NodeVisitor):
                 _check_keywords(node.value.keywords)
 
     def template_exists(self, template_name: str) -> bool:
+        repo_root = Path(__file__).parent.parent.parent
+
+        # If the template name is a full package path, check if it exists
+        # in the package's templates directory.
+        if ":" in template_name:
+            pkg, resource = template_name.split(":", 1)
+            pkg_path = repo_root.joinpath(*pkg.split("."))
+            resource_path = pkg_path / resource
+            return resource_path.is_file()
+
         settings = {}
         # TODO: Replace with actual configuration retrieval if it makes sense
         # Get Jinja2 search paths from warehouse config
@@ -58,7 +68,6 @@ class WarehouseVisitor(ast.NodeVisitor):
         search_paths = settings.get("jinja2.searchpath", [])
         # If not set, fallback to default templates path
         if not search_paths:
-            repo_root = Path(__file__).parent.parent.parent
             search_paths = [
                 str(repo_root / "warehouse" / "templates"),
                 str(repo_root / "warehouse" / "admin" / "templates"),
@@ -146,6 +155,25 @@ def test_wh003_renderer_template_not_found():
     assert visitor.errors[0][2] == WH003_msg
 
 
+def test_wh003_renderer_template_in_package_path():
+    code = dedent(
+        """
+    from pyramid.view import view_config
+
+    @view_config(renderer="warehouse.admin:templates/admin/dashboard.html")
+    def my_view(request):
+        pass
+    """
+    )
+    tree = ast.parse(code)
+    visitor = WarehouseVisitor(filename="test_file.py")
+    visitor.visit(tree)
+
+    # Assert that no WH003 error is raised
+    assert len(visitor.errors) == 0
+
+
 if __name__ == "__main__":
     test_wh003_renderer_template_not_found()
+    test_wh003_renderer_template_in_package_path()
     print("Test passed!")
