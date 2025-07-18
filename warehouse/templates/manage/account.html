@@ -780,9 +780,11 @@
 <table class="table table--security-logs">
   <caption class="sr-only">{% trans %}Recent account activity{% endtrans %}</caption>
   <thead>
-    <th scope="col">{% trans %}Event{% endtrans %}</th>
-    <th scope="col">{% trans %}Time{% endtrans %}</th>
-    <th scope="col">{% trans %}Additional Info{% endtrans %}</th>
+    <tr>
+      <th scope="col">{% trans %}Event{% endtrans %}</th>
+      <th scope="col">{% trans %}Time{% endtrans %}</th>
+      <th scope="col">{% trans %}Additional Info{% endtrans %}</th>
+    </tr>
   </thead>
   <tbody>
     {% for event in recent_events %}
