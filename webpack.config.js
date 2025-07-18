@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-/* global module, __dirname */
+/* global module, process, __dirname */
 
 // This is the main configuration file for webpack.
 // See: https://webpack.js.org/configuration/
@@ -372,6 +372,8 @@ module.exports = [
         path: path.resolve(__dirname, "warehouse/static/dist"),
       },
       dependencies: ["warehouse"],
+      // Emit fewer stats-per-language in non-production builds.
+      stats: (process.env.NODE_ENV === "production") ? undefined : "errors-warnings",
     };
   }),
 ];
