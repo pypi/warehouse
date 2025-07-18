@@ -10,7 +10,7 @@ from warehouse.organizations.models import Organization
 @view_config(
     route_name="organizations.profile",
     context=Organization,
-    renderer="organizations/profile.html",
+    renderer="warehouse:templates/organizations/profile.html",
     decorator=[
         origin_cache(1 * 24 * 60 * 60, stale_if_error=1 * 24 * 60 * 60)  # 1 day each.
     ],

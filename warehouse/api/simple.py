@@ -51,7 +51,7 @@ def _select_content_type(request: Request) -> str:
 
 @view_config(
     route_name="api.simple.index",
-    renderer="api/simple/index.html",
+    renderer="warehouse:templates/api/simple/index.html",
     decorator=[
         add_vary("Accept"),
         cache_control(10 * 60),  # 10 minutes
@@ -83,7 +83,7 @@ def simple_index(request):
 @view_config(
     route_name="api.simple.detail",
     context=Project,
-    renderer="api/simple/detail.html",
+    renderer="warehouse:templates/api/simple/detail.html",
     decorator=[
         add_vary("Accept"),
         cache_control(10 * 60),  # 10 minutes

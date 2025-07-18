@@ -12,7 +12,7 @@ from warehouse.observations.models import Observation
 
 @view_config(
     route_name="admin.observations.list",
-    renderer="admin/observations/list.html",
+    renderer="warehouse.admin:templates/admin/observations/list.html",
     permission=Permissions.AdminObservationsRead,
     request_method="GET",
     uses_session=True,

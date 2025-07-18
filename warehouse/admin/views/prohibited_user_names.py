@@ -13,7 +13,7 @@ from warehouse.utils.paginate import paginate_url_factory
 
 @view_config(
     route_name="admin.prohibited_user_names.list",
-    renderer="admin/prohibited_user_names/list.html",
+    renderer="warehouse.admin:templates/admin/prohibited_user_names/list.html",
     permission=Permissions.AdminProhibitedUsernameRead,
     request_method="GET",
     uses_session=True,
@@ -47,7 +47,7 @@ def prohibited_usernames(request):
 
 @view_config(
     route_name="admin.prohibited_user_names.bulk_add",
-    renderer="admin/prohibited_user_names/bulk.html",
+    renderer="warehouse.admin:templates/admin/prohibited_user_names/bulk.html",
     permission=Permissions.AdminUsersWrite,
     uses_session=True,
     require_methods=False,
