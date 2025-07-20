@@ -170,6 +170,7 @@ _jointlinux_arches = {
     "armv7l",
     "ppc64le",
     "s390x",
+    "riscv64",
 }
 _manylinux_arches = _jointlinux_arches | {"ppc64"}
 _musllinux_arches = _jointlinux_arches
