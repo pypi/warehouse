@@ -40,11 +40,10 @@
         <th>Username</th>
         <th>Name</th>
         <th>Email</th>
-        <th>Admin</th>
-        <th>Moderator</th>
-        <th>PSF Staff</th>
+        <th>PyPI Roles</th>
         <th>Active</th>
         <th>2FA</th>
+        <th>Frozen</th>
       </tr>
       </thead>
       <tbody>
@@ -56,11 +55,17 @@
         </td>
         <td>{{ user.name }}</td>
         <td>{{ user.email }}</td>
-        <td>{% if user.is_superuser %}<i class="fa fa-check text-green"></i>{% endif %}</td>
-        <td>{% if user.is_moderator %}<i class="fa fa-check text-green"></i>{% endif %}</td>
-        <td>{% if user.is_psf_staff %}<i class="fa fa-check text-green"></i>{% endif %}</td>
+        <td>
+          {% set pypi_roles = [] %}
+          {% if user.is_superuser %}{% set _ = pypi_roles.append("Admin") %}{% endif %}
+          {% if user.is_moderator %}{% set _ = pypi_roles.append("Moderator") %}{% endif %}
+          {% if user.is_psf_staff %}{% set _ = pypi_roles.append("PSF Staff") %}{% endif %}
+          {% if user.is_observer %}{% set _ = pypi_roles.append("Observer") %}{% endif %}
+          {{ pypi_roles|join(', ') }}
+        </td>
         <td>{% if user.is_active %}<i class="fa fa-check text-green"></i>{% endif %}</td>
         <td>{% if user.has_two_factor %}<i class="fa fa-check text-green"></i>{% endif %}</td>
+        <td>{% if user.is_frozen %}<i class="fa fa-check text-red"></i>{% endif %}</td>
       </tr>
       {% endfor %}
       </tbody>
