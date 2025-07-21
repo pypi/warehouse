@@ -4447,7 +4447,7 @@ class TestManageAccountPublishingViews:
                         "organization": "some-org",
                         "project": "some-project",
                         "actor": "some-user",
-                        "project_name": "some-other-project-name",
+                        "project_name": "some-project-name",
                     }
                 ),
             ),
