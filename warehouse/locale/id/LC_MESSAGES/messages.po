@@ -19,13 +19,14 @@
 # Arsy Opraza Akma <aras.opraza@gmail.com>, 2024.
 # Roffi Ulwan <roffiulwannusa@gmail.com>, 2025.
 # Farih Dzaky <farihmuhammad75@gmail.com>, 2025.
+# farhanr <fr150899@gmail.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2025-01-12 02:37+0000\n"
-"Last-Translator: Farih Dzaky <farihmuhammad75@gmail.com>\n"
+"PO-Revision-Date: 2025-07-14 14:09+0000\n"
+"Last-Translator: farhanr <fr150899@gmail.com>\n"
 "Language-Team: Indonesian <https://hosted.weblate.org/projects/pypa/"
 "warehouse/id/>\n"
 "Language: id\n"
@@ -33,7 +34,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.10-dev\n"
+"X-Generator: Weblate 5.13-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:148
@@ -88,10 +89,9 @@ msgid "TOTP code must be ${totp_length} digits."
 msgstr "Kode TOTP harus terdiri dari ${totp_length} digit."
 
 #: warehouse/accounts/forms.py:117
-#, fuzzy, python-brace-format
-#| msgid "Recovery Codes must be ${recovery_code_length} characters."
+#, python-brace-format
 msgid "Recovery Codes must be ${recovery_code_length} characters."
-msgstr "Kode pemulihan seharusnya ${panjang_kode_pemulihan} karakter"
+msgstr "Kode pemulihan harus sepanjang jumlah karakter ${recovery_code_length}"
 
 #: warehouse/accounts/forms.py:131
 msgid "Choose a username with 50 characters or less."
@@ -368,7 +368,7 @@ msgstr "Anda sekarang menjadi ${role} dari proyek '${project_name}'."
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
-#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1911
+#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1915
 #: warehouse/manage/views/__init__.py:1409
 #, fuzzy
 #| msgid ""
@@ -439,12 +439,12 @@ msgstr ""
 msgid "Registered a new pending publisher to create "
 msgstr "Mendaftarkan penerbit baru yang tertunda untuk dibuat "
 
-#: warehouse/accounts/views.py:1924 warehouse/accounts/views.py:1937
-#: warehouse/accounts/views.py:1944
+#: warehouse/accounts/views.py:1928 warehouse/accounts/views.py:1941
+#: warehouse/accounts/views.py:1948
 msgid "Invalid publisher ID"
 msgstr "ID penerbit tidak valid"
 
-#: warehouse/accounts/views.py:1951
+#: warehouse/accounts/views.py:1955
 msgid "Removed trusted publisher for project "
 msgstr "Menghapus penerbit tepercaya untuk proyek "
 
@@ -1480,7 +1480,7 @@ msgstr "Beralih ke versi seluler"
 #: warehouse/templates/base.html:215
 #: warehouse/templates/includes/flash-messages.html:41
 #: warehouse/templates/includes/session-notifications.html:19
-#: warehouse/templates/manage/account.html:843
+#: warehouse/templates/manage/account.html:845
 #: warehouse/templates/manage/manage_base.html:364
 #: warehouse/templates/manage/manage_base.html:442
 #: warehouse/templates/manage/organization/settings.html:179
@@ -4728,7 +4728,7 @@ msgstr ""
 msgid "Recent account activity"
 msgstr "Aktivitas akun terbaru"
 
-#: warehouse/templates/manage/account.html:783
+#: warehouse/templates/manage/account.html:784
 #: warehouse/templates/manage/organization/history.html:175
 #: warehouse/templates/manage/project/history.html:333
 #: warehouse/templates/manage/team/history.html:87
@@ -4736,7 +4736,7 @@ msgstr "Aktivitas akun terbaru"
 msgid "Event"
 msgstr "Peristiwa"
 
-#: warehouse/templates/manage/account.html:784
+#: warehouse/templates/manage/account.html:785
 #: warehouse/templates/manage/organization/history.html:176
 #: warehouse/templates/manage/organization/history.html:185
 #: warehouse/templates/manage/project/history.html:334
@@ -4747,25 +4747,25 @@ msgstr "Peristiwa"
 msgid "Time"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:785
+#: warehouse/templates/manage/account.html:786
 #: warehouse/templates/manage/organization/history.html:177
 #: warehouse/templates/manage/team/history.html:89
 #: warehouse/templates/manage/unverified-account.html:461
 msgid "Additional Info"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:792
+#: warehouse/templates/manage/account.html:794
 #: warehouse/templates/manage/unverified-account.html:468
 msgid "Date / time"
 msgstr "Tanggal / waktu"
 
-#: warehouse/templates/manage/account.html:796
+#: warehouse/templates/manage/account.html:798
 #: warehouse/templates/manage/organization/history.html:189
 #: warehouse/templates/manage/unverified-account.html:472
 msgid "Location Info"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:799
+#: warehouse/templates/manage/account.html:801
 #: warehouse/templates/manage/organization/history.html:192
 #: warehouse/templates/manage/project/history.html:350
 #: warehouse/templates/manage/team/history.html:104
@@ -4775,7 +4775,7 @@ msgstr ""
 msgid "Device Info"
 msgstr "Nama perangkat"
 
-#: warehouse/templates/manage/account.html:807
+#: warehouse/templates/manage/account.html:809
 #: warehouse/templates/manage/unverified-account.html:483
 msgid ""
 "Events will appear here as security-related actions occur on your account."
@@ -4783,15 +4783,15 @@ msgstr ""
 "Peristiwa akan muncul di sini karena tindakan terkait keamanan terjadi di "
 "akun Anda."
 
-#: warehouse/templates/manage/account.html:812
+#: warehouse/templates/manage/account.html:814
 msgid "Delete account"
 msgstr "Hapus akun"
 
-#: warehouse/templates/manage/account.html:815
+#: warehouse/templates/manage/account.html:817
 msgid "Cannot delete account"
 msgstr "Tidak dapat menghapus akun"
 
-#: warehouse/templates/manage/account.html:817
+#: warehouse/templates/manage/account.html:819
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -4815,7 +4815,7 @@ msgstr[0] ""
 "strong> dari%(count)s proyek.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:822
+#: warehouse/templates/manage/account.html:824
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -4839,7 +4839,7 @@ msgstr[0] ""
 "sebelum Anda dapat menghapus akun Anda.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:832
+#: warehouse/templates/manage/account.html:834
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
@@ -4848,7 +4848,7 @@ msgstr ""
 "<a href=\"%(transfer_href)s\"> transfer kepemilikan </a> atau<a "
 "href=\"%(delete_href)s\">hapus proyek</a>"
 
-#: warehouse/templates/manage/account.html:841
+#: warehouse/templates/manage/account.html:843
 #: warehouse/templates/manage/account/token.html:177
 #: warehouse/templates/manage/organization/settings.html:177
 #: warehouse/templates/manage/organization/settings.html:238
@@ -4857,11 +4857,11 @@ msgstr ""
 msgid "Proceed with caution!"
 msgstr "Lanjutkan dengan hati-hati!"
 
-#: warehouse/templates/manage/account.html:844
+#: warehouse/templates/manage/account.html:846
 msgid "You will not be able to recover your account after you delete it"
 msgstr "Anda tidak akan dapat memulihkan akun setelah menghapusnya"
 
-#: warehouse/templates/manage/account.html:846
+#: warehouse/templates/manage/account.html:848
 msgid "Delete your PyPI account"
 msgstr "Hapus akun PyPI Anda"
 

@@ -10,13 +10,14 @@
 # Beta 46 <ronald20052005@gmail.com>, 2025.
 # Guilherme Moraes <guilherme.morais.54540218@gmail.com>, 2025.
 # joseph thornton <booter2418@gmail.com>, 2025.
+# Rafael Fontenelle <rafaelff@gnome.org>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-09-27 17:33+0200\n"
-"PO-Revision-Date: 2025-03-08 23:51+0000\n"
-"Last-Translator: joseph thornton <booter2418@gmail.com>\n"
+"PO-Revision-Date: 2025-07-16 02:07+0000\n"
+"Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/pypa/"
 "warehouse/pt/>\n"
 "Language: pt\n"
@@ -24,7 +25,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.10.3-dev\n"
+"X-Generator: Weblate 5.13-dev\n"
 
 #: warehouse/views.py:148
 msgid ""
@@ -361,7 +362,7 @@ msgstr ""
 "Por favor revise nossos <a href=\"${tos_url}\">Termos de serviço</a> "
 "atualizados."
 
-#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1911
+#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1915
 #: warehouse/manage/views/__init__.py:1409
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
@@ -419,12 +420,12 @@ msgstr ""
 msgid "Registered a new pending publisher to create "
 msgstr "Registou um novo editor de publicação para criar "
 
-#: warehouse/accounts/views.py:1924 warehouse/accounts/views.py:1937
-#: warehouse/accounts/views.py:1944
+#: warehouse/accounts/views.py:1928 warehouse/accounts/views.py:1941
+#: warehouse/accounts/views.py:1948
 msgid "Invalid publisher ID"
 msgstr "ID de editor inválido"
 
-#: warehouse/accounts/views.py:1951
+#: warehouse/accounts/views.py:1955
 msgid "Removed trusted publisher for project "
 msgstr "Editor confiável removido do projeto "
 
@@ -1370,7 +1371,7 @@ msgstr "Mudar para a versão de telemóvel"
 #: warehouse/templates/base.html:215
 #: warehouse/templates/includes/flash-messages.html:41
 #: warehouse/templates/includes/session-notifications.html:19
-#: warehouse/templates/manage/account.html:843
+#: warehouse/templates/manage/account.html:845
 #: warehouse/templates/manage/manage_base.html:364
 #: warehouse/templates/manage/manage_base.html:442
 #: warehouse/templates/manage/organization/settings.html:179
@@ -3583,7 +3584,7 @@ msgstr "Membros"
 
 #: warehouse/templates/includes/packaging/project-data.html:16
 msgid "Verified details"
-msgstr "Detalhes verificaddos"
+msgstr "Detalhes verificados"
 
 #: warehouse/templates/includes/packaging/project-data.html:18
 #, python-format
@@ -3593,7 +3594,7 @@ msgstr "Verificado pela PyPI em: %(release_date)s"
 #: warehouse/templates/includes/packaging/project-data.html:20
 #, python-format
 msgid "These details have been <a href=\"%(href)s\">verified by PyPI</a>"
-msgstr "FEstes detalhes foram <a href=\"%(href)s\">verificados pela PyPI</a>"
+msgstr "Estes detalhes foram <a href=\"%(href)s\">verificados pelo PyPI</a>"
 
 #: warehouse/templates/includes/packaging/project-data.html:22
 #: warehouse/templates/includes/packaging/project-data.html:195
@@ -4407,7 +4408,7 @@ msgstr ""
 msgid "Recent account activity"
 msgstr "Atividade recente da conta"
 
-#: warehouse/templates/manage/account.html:783
+#: warehouse/templates/manage/account.html:784
 #: warehouse/templates/manage/organization/history.html:175
 #: warehouse/templates/manage/project/history.html:333
 #: warehouse/templates/manage/team/history.html:87
@@ -4415,7 +4416,7 @@ msgstr "Atividade recente da conta"
 msgid "Event"
 msgstr "Evento"
 
-#: warehouse/templates/manage/account.html:784
+#: warehouse/templates/manage/account.html:785
 #: warehouse/templates/manage/organization/history.html:176
 #: warehouse/templates/manage/organization/history.html:185
 #: warehouse/templates/manage/project/history.html:334
@@ -4426,25 +4427,25 @@ msgstr "Evento"
 msgid "Time"
 msgstr "Horário"
 
-#: warehouse/templates/manage/account.html:785
+#: warehouse/templates/manage/account.html:786
 #: warehouse/templates/manage/organization/history.html:177
 #: warehouse/templates/manage/team/history.html:89
 #: warehouse/templates/manage/unverified-account.html:461
 msgid "Additional Info"
 msgstr "Informações Adicionais"
 
-#: warehouse/templates/manage/account.html:792
+#: warehouse/templates/manage/account.html:794
 #: warehouse/templates/manage/unverified-account.html:468
 msgid "Date / time"
 msgstr "Data / hora"
 
-#: warehouse/templates/manage/account.html:796
+#: warehouse/templates/manage/account.html:798
 #: warehouse/templates/manage/organization/history.html:189
 #: warehouse/templates/manage/unverified-account.html:472
 msgid "Location Info"
 msgstr "Informações de Localização"
 
-#: warehouse/templates/manage/account.html:799
+#: warehouse/templates/manage/account.html:801
 #: warehouse/templates/manage/organization/history.html:192
 #: warehouse/templates/manage/project/history.html:350
 #: warehouse/templates/manage/team/history.html:104
@@ -4452,7 +4453,7 @@ msgstr "Informações de Localização"
 msgid "Device Info"
 msgstr "Informações do aparelho"
 
-#: warehouse/templates/manage/account.html:807
+#: warehouse/templates/manage/account.html:809
 #: warehouse/templates/manage/unverified-account.html:483
 msgid ""
 "Events will appear here as security-related actions occur on your account."
@@ -4460,15 +4461,15 @@ msgstr ""
 "Os eventos aparecerão aqui como as ações relacionadas à segurança que "
 "ocorrem na sua conta."
 
-#: warehouse/templates/manage/account.html:812
+#: warehouse/templates/manage/account.html:814
 msgid "Delete account"
 msgstr "Apagar conta"
 
-#: warehouse/templates/manage/account.html:815
+#: warehouse/templates/manage/account.html:817
 msgid "Cannot delete account"
 msgstr "Não foi possível apagar a conta"
 
-#: warehouse/templates/manage/account.html:817
+#: warehouse/templates/manage/account.html:819
 #, python-format
 msgid ""
 "Your account is currently the <strong>sole owner</strong> of %(count)s "
@@ -4483,7 +4484,7 @@ msgstr[1] ""
 "A sua conta é atualmente a <strong>única proprietária</strong> dos %(count)s "
 "projetos."
 
-#: warehouse/templates/manage/account.html:822
+#: warehouse/templates/manage/account.html:824
 msgid ""
 "You must transfer ownership or delete this project before you can delete "
 "your account."
@@ -4497,7 +4498,7 @@ msgstr[1] ""
 "Você precisa transferir a propriedade ou excluir estes projetos antes de "
 "poder excluir sua conta."
 
-#: warehouse/templates/manage/account.html:832
+#: warehouse/templates/manage/account.html:834
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
@@ -4506,7 +4507,7 @@ msgstr ""
 "<a href=\"%(transfer_href)s\">transferir propriedade</a> ou <a "
 "href=\"%(delete_href)s\">apagar projeto</a>"
 
-#: warehouse/templates/manage/account.html:841
+#: warehouse/templates/manage/account.html:843
 #: warehouse/templates/manage/account/token.html:177
 #: warehouse/templates/manage/organization/settings.html:177
 #: warehouse/templates/manage/organization/settings.html:238
@@ -4515,11 +4516,11 @@ msgstr ""
 msgid "Proceed with caution!"
 msgstr "Prossiga com atenção!"
 
-#: warehouse/templates/manage/account.html:844
+#: warehouse/templates/manage/account.html:846
 msgid "You will not be able to recover your account after you delete it"
 msgstr "Não poderá recuperar a sua conta depois de apagá-la"
 
-#: warehouse/templates/manage/account.html:846
+#: warehouse/templates/manage/account.html:848
 msgid "Delete your PyPI account"
 msgstr "Apagar a sua conta no PyPI"
 

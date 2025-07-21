@@ -35,13 +35,14 @@
 # OIS <mistresssilvara@hotmail.com>, 2024.
 # gfbdrgn <erfvvgtyhbnjhyuu@wireconnected.com>, 2025.
 # Lol Cool <zhilin.makar0009@gmail.com>, 2025.
+# Maksym Aniriew <lenyayt008@gmail.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2025-07-01 17:35+0000\n"
-"Last-Translator: Lol Cool <zhilin.makar0009@gmail.com>\n"
+"PO-Revision-Date: 2025-07-20 01:06+0000\n"
+"Last-Translator: Maksym Aniriew <lenyayt008@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ru/>\n"
 "Language: ru\n"
@@ -400,7 +401,7 @@ msgstr ""
 "Пожалуйста, ознакомьтесь с нашими обновленными <a "
 "href=\"${tos_url}\">Условиями предоставления услуг</a>."
 
-#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1911
+#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1915
 #: warehouse/manage/views/__init__.py:1409
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
@@ -460,12 +461,12 @@ msgstr ""
 msgid "Registered a new pending publisher to create "
 msgstr "Зарегистрирован новый издатель, ожидающий подключения "
 
-#: warehouse/accounts/views.py:1924 warehouse/accounts/views.py:1937
-#: warehouse/accounts/views.py:1944
+#: warehouse/accounts/views.py:1928 warehouse/accounts/views.py:1941
+#: warehouse/accounts/views.py:1948
 msgid "Invalid publisher ID"
 msgstr "Неверный ID издателя"
 
-#: warehouse/accounts/views.py:1951
+#: warehouse/accounts/views.py:1955
 msgid "Removed trusted publisher for project "
 msgstr "Доверенный издатель был удалён из проекта "
 
@@ -1409,7 +1410,7 @@ msgstr "Переключиться на мобильную версию"
 #: warehouse/templates/base.html:215
 #: warehouse/templates/includes/flash-messages.html:41
 #: warehouse/templates/includes/session-notifications.html:19
-#: warehouse/templates/manage/account.html:843
+#: warehouse/templates/manage/account.html:845
 #: warehouse/templates/manage/manage_base.html:364
 #: warehouse/templates/manage/manage_base.html:442
 #: warehouse/templates/manage/organization/settings.html:179
@@ -2163,6 +2164,8 @@ msgid ""
 "Please confirm that your email address is <strong data-email-confirmation-"
 "target=\"email\"></strong>."
 msgstr ""
+"Пожалуйста, подтвердите что ваш адрес электронной почты является <strong "
+"data-email-confirmation-target=\"email\"></strong>."
 
 #: warehouse/templates/accounts/register.html:50
 #, fuzzy
@@ -2998,6 +3001,9 @@ msgid ""
 "However, the email used to make this request is not verified. Your email "
 "address must be verified before you can use it to reset your password."
 msgstr ""
+"Однако адрес электронной почты, использованный для этого запроса, не "
+"подтверждён. Ваш адрес электронной почты должен быть подтверждён, прежде чем "
+"вы сможете использовать его для сброса пароля."
 
 #: warehouse/templates/email/password-reset-unverified/body.html:23
 #, fuzzy
@@ -3006,7 +3012,8 @@ msgid ""
 "If you have another verified email address associated with your PyPI "
 "account, try that instead."
 msgstr ""
-"Потери доступа к адресу электронной почты, связанному с вашей учётной записью"
+"Если вы имеете ещё один подтверждённый адрес электронной почты "
+"ассоциированный с вашей учётной записью PyPI, попробуйте это."
 
 #: warehouse/templates/email/password-reset-unverified/body.html:26
 #, python-format
@@ -3014,12 +3021,16 @@ msgid ""
 "If you cannot use another verified email, follow <a "
 "href=\"%(href)s\">account recovery steps</a> for your PyPI account."
 msgstr ""
+"Если вы не можете использовать другой подтверждённый адрес электронной "
+"почты, следуйте <a href=\"%(href)s\">шагам восстановления учётной записи</a> "
+"для вашей учётной записи PyPI."
 
 #: warehouse/templates/email/password-reset-unverified/body.html:29
-#, fuzzy, python-format
-#| msgid "<a href=\"%(href)s\">Version %(version)s</a> yanked"
+#, python-format
 msgid "<a href=\"%(href)s\">Read more about verified emails.</a>"
-msgstr "<a href=\"%(href)s\">Версия %(version)s</a> выдернута"
+msgstr ""
+"<a href=\"%(href)s\">Читать больше про подтверждённые адреса электронной "
+"почты.</a>"
 
 #: warehouse/templates/email/primary-email-change/body.html:5
 #, python-format
@@ -4120,7 +4131,7 @@ msgstr "Код восстановления"
 #, fuzzy
 #| msgid "Remove device"
 msgid "Remembered device"
-msgstr "Удалить устройство"
+msgstr "Запомненное устройство"
 
 #: warehouse/templates/manage/account.html:561
 #: warehouse/templates/manage/unverified-account.html:270
@@ -4442,7 +4453,7 @@ msgstr ""
 msgid "Recent account activity"
 msgstr "Недавние действия с учётной записью"
 
-#: warehouse/templates/manage/account.html:783
+#: warehouse/templates/manage/account.html:784
 #: warehouse/templates/manage/organization/history.html:175
 #: warehouse/templates/manage/project/history.html:333
 #: warehouse/templates/manage/team/history.html:87
@@ -4450,7 +4461,7 @@ msgstr "Недавние действия с учётной записью"
 msgid "Event"
 msgstr "Событие"
 
-#: warehouse/templates/manage/account.html:784
+#: warehouse/templates/manage/account.html:785
 #: warehouse/templates/manage/organization/history.html:176
 #: warehouse/templates/manage/organization/history.html:185
 #: warehouse/templates/manage/project/history.html:334
@@ -4461,25 +4472,25 @@ msgstr "Событие"
 msgid "Time"
 msgstr "Время"
 
-#: warehouse/templates/manage/account.html:785
+#: warehouse/templates/manage/account.html:786
 #: warehouse/templates/manage/organization/history.html:177
 #: warehouse/templates/manage/team/history.html:89
 #: warehouse/templates/manage/unverified-account.html:461
 msgid "Additional Info"
 msgstr "Дополнительная информация"
 
-#: warehouse/templates/manage/account.html:792
+#: warehouse/templates/manage/account.html:794
 #: warehouse/templates/manage/unverified-account.html:468
 msgid "Date / time"
 msgstr "Дата / время"
 
-#: warehouse/templates/manage/account.html:796
+#: warehouse/templates/manage/account.html:798
 #: warehouse/templates/manage/organization/history.html:189
 #: warehouse/templates/manage/unverified-account.html:472
 msgid "Location Info"
 msgstr "Информация о местонахождении"
 
-#: warehouse/templates/manage/account.html:799
+#: warehouse/templates/manage/account.html:801
 #: warehouse/templates/manage/organization/history.html:192
 #: warehouse/templates/manage/project/history.html:350
 #: warehouse/templates/manage/team/history.html:104
@@ -4487,7 +4498,7 @@ msgstr "Информация о местонахождении"
 msgid "Device Info"
 msgstr "Информация об устройстве"
 
-#: warehouse/templates/manage/account.html:807
+#: warehouse/templates/manage/account.html:809
 #: warehouse/templates/manage/unverified-account.html:483
 msgid ""
 "Events will appear here as security-related actions occur on your account."
@@ -4495,15 +4506,15 @@ msgstr ""
 "Здесь будут отображаться события в ответ на действия, затрагивающие "
 "безопасность вашей учётной записи."
 
-#: warehouse/templates/manage/account.html:812
+#: warehouse/templates/manage/account.html:814
 msgid "Delete account"
 msgstr "Удаление учётной записи"
 
-#: warehouse/templates/manage/account.html:815
+#: warehouse/templates/manage/account.html:817
 msgid "Cannot delete account"
 msgstr "Невозможно удалить учётную запись"
 
-#: warehouse/templates/manage/account.html:817
+#: warehouse/templates/manage/account.html:819
 #, python-format
 msgid ""
 "Your account is currently the <strong>sole owner</strong> of %(count)s "
@@ -4521,7 +4532,7 @@ msgstr[2] ""
 "Ваша учётная запись в настоящее время является <strong>единственным "
 "владельцем</strong> %(count)s проектов."
 
-#: warehouse/templates/manage/account.html:822
+#: warehouse/templates/manage/account.html:824
 msgid ""
 "You must transfer ownership or delete this project before you can delete "
 "your account."
@@ -4538,7 +4549,7 @@ msgstr[2] ""
 "Вы должны передать право собственности или удалить эти проекты, прежде чем "
 "вы сможете удалить свою учётную запись."
 
-#: warehouse/templates/manage/account.html:832
+#: warehouse/templates/manage/account.html:834
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
@@ -4547,7 +4558,7 @@ msgstr ""
 "<a href=\"%(transfer_href)s\">передать право собственности</a> или <a "
 "href=\"%(delete_href)s\">удалить проект</a>"
 
-#: warehouse/templates/manage/account.html:841
+#: warehouse/templates/manage/account.html:843
 #: warehouse/templates/manage/account/token.html:177
 #: warehouse/templates/manage/organization/settings.html:177
 #: warehouse/templates/manage/organization/settings.html:238
@@ -4556,11 +4567,11 @@ msgstr ""
 msgid "Proceed with caution!"
 msgstr "Действуйте осторожно!"
 
-#: warehouse/templates/manage/account.html:844
+#: warehouse/templates/manage/account.html:846
 msgid "You will not be able to recover your account after you delete it"
 msgstr "Вы не сможете восстановить свою учётную запись после её удаления"
 
-#: warehouse/templates/manage/account.html:846
+#: warehouse/templates/manage/account.html:848
 msgid "Delete your PyPI account"
 msgstr "Удалить свою учётную запись PyPI"
 
@@ -5033,21 +5044,23 @@ msgstr "До поступления просьб об организации"
 #, fuzzy
 #| msgid "This organization is not active"
 msgid "This Organization request has been declined"
-msgstr "Эта организация не активна"
+msgstr "Этот запрос организации был отклонён."
 
 #: warehouse/templates/manage/organizations.html:162
 #, fuzzy
 #| msgid "Decline"
 msgid "Declined"
-msgstr "Отклонить"
+msgstr "Отклонено"
 
 #: warehouse/templates/manage/organizations.html:165
+#, fuzzy
 msgid "More information is needed to process this Organization request"
-msgstr ""
+msgstr "Для обработки этого запроса организации требуется больше информации"
 
 #: warehouse/templates/manage/organizations.html:165
+#, fuzzy
 msgid "More Information Needed"
-msgstr ""
+msgstr "Требуется больше информации"
 
 #: warehouse/templates/manage/organizations.html:168
 msgid "Request Submitted"
@@ -5061,12 +5074,14 @@ msgstr "Представлено %(submitted)s"
 #: warehouse/templates/manage/organizations.html:175
 msgid "Declined organization requests will be deleted 30 days after decision."
 msgstr ""
+"Отклоненные заявки организаций будут удалены через 30 дней после принятия "
+"решения."
 
 #: warehouse/templates/manage/organizations.html:182
 #, fuzzy
 #| msgid "Manage this organization"
 msgid "Manage this organization request"
-msgstr "Управление этой организацией"
+msgstr "Управление этим запросом организации"
 
 #: warehouse/templates/manage/organizations.html:197
 #: warehouse/templates/manage/organizations.html:375
@@ -5077,7 +5092,7 @@ msgstr "Запросить новую организацию"
 #, fuzzy
 #| msgid "Organization account name"
 msgid "Organization Account Name"
-msgstr "Имя учетной записи организации"
+msgstr "Имя Учетной Записи Организации"
 
 #: warehouse/templates/manage/organizations.html:211
 msgid "Select an organization account name"
@@ -5100,7 +5115,7 @@ msgstr "Например"
 #, fuzzy
 #| msgid "Organization display name"
 msgid "Organization Display Name"
-msgstr "Отображаемое имя организации"
+msgstr "Отображаемое Имя Организации"
 
 #: warehouse/templates/manage/organization/settings.html:39
 #: warehouse/templates/manage/organizations.html:239
@@ -5122,7 +5137,7 @@ msgstr "URL-адрес вашего бизнеса, продукта или пр
 #, fuzzy
 #| msgid "Organization description"
 msgid "Organization Description"
-msgstr "Описание организации"
+msgstr "Описание Организации"
 
 #: warehouse/templates/manage/organization/settings.html:91
 #: warehouse/templates/manage/organizations.html:281
@@ -5133,32 +5148,42 @@ msgstr "Описание вашего бизнеса, продукта или п
 #, fuzzy
 #| msgid "Organization description"
 msgid "️Organization Membership Size"
-msgstr "Описание организации"
+msgstr "️Размер членства в организации"
 
 #: warehouse/templates/manage/organizations.html:309
+#, fuzzy
 msgid ""
 "Estimated number of PyPI Users you anticipate joining this Organization. "
 "<b>Not</b> the number of people in your organization."
 msgstr ""
+"Предполагаемое количество пользователей PyPI, которых вы ожидаете "
+"присоединиться к этой организации. <b>Не</b> количество людей в вашей "
+"организации."
 
 #: warehouse/templates/manage/organizations.html:317
+#, fuzzy
 msgid "Anticipated Usage"
-msgstr ""
+msgstr "Ожидаемое использование"
 
 #: warehouse/templates/manage/organizations.html:322
+#, fuzzy
 msgid "Description how you plan to use PyPI Organizations features"
 msgstr ""
+"Описание того, как вы планируете использовать функции PyPI Organizations"
 
 #: warehouse/templates/manage/organizations.html:337
+#, fuzzy
 msgid ""
 "Tell us a little bit about how you plan to use PyPI Organizations features."
 msgstr ""
+"Расскажите нам чуть-чуть про то, как вы планируете использовать функции PyPI "
+"Organizations."
 
 #: warehouse/templates/manage/organizations.html:344
 #, fuzzy
 #| msgid "️Organization type"
 msgid "️Organization Type"
-msgstr "Тип организации"
+msgstr "Тип Организации"
 
 #: warehouse/templates/manage/organization/settings.html:127
 #: warehouse/templates/manage/organizations.html:355
@@ -10797,7 +10822,7 @@ msgstr "Ищете что-то ещё? Возможно, вам помогут �
 #, fuzzy
 #| msgid "Documentation"
 msgid "PyPI User Documentation"
-msgstr "Документация"
+msgstr "Пользовательская документация PyPI"
 
 #: warehouse/templates/pages/help.html:1467
 msgid "Python Packaging User Guide"
