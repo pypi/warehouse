@@ -24,7 +24,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2025-07-11 15:45+0000\n"
+"PO-Revision-Date: 2025-07-11 20:13+0000\n"
 "Last-Translator: Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "uk/>\n"
@@ -374,7 +374,7 @@ msgstr ""
 "Будь ласка, ознайомтесь із нашими оновленими <a href=\"${tos_url}\">Умовами "
 "надання послуг</a>."
 
-#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1911
+#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1915
 #: warehouse/manage/views/__init__.py:1409
 #, fuzzy
 #| msgid ""
@@ -440,12 +440,12 @@ msgstr ""
 msgid "Registered a new pending publisher to create "
 msgstr "Нового очікуваного видавця зареєстровано для створення "
 
-#: warehouse/accounts/views.py:1924 warehouse/accounts/views.py:1937
-#: warehouse/accounts/views.py:1944
+#: warehouse/accounts/views.py:1928 warehouse/accounts/views.py:1941
+#: warehouse/accounts/views.py:1948
 msgid "Invalid publisher ID"
 msgstr "Недійсний ідентифікатор видавця ID"
 
-#: warehouse/accounts/views.py:1951
+#: warehouse/accounts/views.py:1955
 #, fuzzy
 msgid "Removed trusted publisher for project "
 msgstr "Вилучено довіреного видавця для проєкту. "
@@ -1431,7 +1431,7 @@ msgstr "Перемкнутися на мобільну версію"
 #: warehouse/templates/base.html:215
 #: warehouse/templates/includes/flash-messages.html:41
 #: warehouse/templates/includes/session-notifications.html:19
-#: warehouse/templates/manage/account.html:843
+#: warehouse/templates/manage/account.html:845
 #: warehouse/templates/manage/manage_base.html:364
 #: warehouse/templates/manage/manage_base.html:442
 #: warehouse/templates/manage/organization/settings.html:179
@@ -3427,8 +3427,8 @@ msgid ""
 "the \"%(team_name)s\" team in the \"%(organization_name)s\" organization by "
 "<a href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"<a href=\"%(submitter_profile)s\">%(submitter)s</a> додав(-ла) <a href="
-"\"%(user_profile)s\">%(username)s</a> до команди «%(team_name)s» в "
+"<a href=\"%(submitter_profile)s\">%(submitter)s</a> додав(-ла) <a "
+"href=\"%(user_profile)s\">%(username)s</a> до команди «%(team_name)s» в "
 "організації «%(organization_name)s»."
 
 #: warehouse/templates/email/team-member-removed/body.html:5
@@ -3438,8 +3438,8 @@ msgid ""
 "of the \"%(team_name)s\" team in the \"%(organization_name)s\" organization "
 "by <a href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"<a href=\"%(submitter_profile)s\">%(submitter)s</a> видалив(-ла) <a href="
-"\"%(user_profile)s\">%(username)s</a> з команди «%(team_name)s» в "
+"<a href=\"%(submitter_profile)s\">%(submitter)s</a> видалив(-ла) <a "
+"href=\"%(user_profile)s\">%(username)s</a> з команди «%(team_name)s» в "
 "організації «%(organization_name)s»."
 
 #: warehouse/templates/email/two-factor-added/body.html:5
@@ -4661,7 +4661,7 @@ msgstr ""
 msgid "Recent account activity"
 msgstr "Нещодавня активність облікового запису"
 
-#: warehouse/templates/manage/account.html:783
+#: warehouse/templates/manage/account.html:784
 #: warehouse/templates/manage/organization/history.html:175
 #: warehouse/templates/manage/project/history.html:333
 #: warehouse/templates/manage/team/history.html:87
@@ -4669,7 +4669,7 @@ msgstr "Нещодавня активність облікового запис�
 msgid "Event"
 msgstr "Подія"
 
-#: warehouse/templates/manage/account.html:784
+#: warehouse/templates/manage/account.html:785
 #: warehouse/templates/manage/organization/history.html:176
 #: warehouse/templates/manage/organization/history.html:185
 #: warehouse/templates/manage/project/history.html:334
@@ -4680,25 +4680,25 @@ msgstr "Подія"
 msgid "Time"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:785
+#: warehouse/templates/manage/account.html:786
 #: warehouse/templates/manage/organization/history.html:177
 #: warehouse/templates/manage/team/history.html:89
 #: warehouse/templates/manage/unverified-account.html:461
 msgid "Additional Info"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:792
+#: warehouse/templates/manage/account.html:794
 #: warehouse/templates/manage/unverified-account.html:468
 msgid "Date / time"
 msgstr "Дата / час"
 
-#: warehouse/templates/manage/account.html:796
+#: warehouse/templates/manage/account.html:798
 #: warehouse/templates/manage/organization/history.html:189
 #: warehouse/templates/manage/unverified-account.html:472
 msgid "Location Info"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:799
+#: warehouse/templates/manage/account.html:801
 #: warehouse/templates/manage/organization/history.html:192
 #: warehouse/templates/manage/project/history.html:350
 #: warehouse/templates/manage/team/history.html:104
@@ -4708,7 +4708,7 @@ msgstr ""
 msgid "Device Info"
 msgstr "Назва пристрою"
 
-#: warehouse/templates/manage/account.html:807
+#: warehouse/templates/manage/account.html:809
 #: warehouse/templates/manage/unverified-account.html:483
 msgid ""
 "Events will appear here as security-related actions occur on your account."
@@ -4716,15 +4716,15 @@ msgstr ""
 "Події з'являтимуться тут, щойно дії, пов'язані з безпекою, виникатимуть у "
 "вашому обліковому записі."
 
-#: warehouse/templates/manage/account.html:812
+#: warehouse/templates/manage/account.html:814
 msgid "Delete account"
 msgstr "Видалити обліковий запис"
 
-#: warehouse/templates/manage/account.html:815
+#: warehouse/templates/manage/account.html:817
 msgid "Cannot delete account"
 msgstr "Неможливо видалити обліковий запис"
 
-#: warehouse/templates/manage/account.html:817
+#: warehouse/templates/manage/account.html:819
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -4758,7 +4758,7 @@ msgstr[2] ""
 "%(count)s проєктів.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:822
+#: warehouse/templates/manage/account.html:824
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -4792,7 +4792,7 @@ msgstr[2] ""
 "видалити свій обліковий запис.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:832
+#: warehouse/templates/manage/account.html:834
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
@@ -4801,7 +4801,7 @@ msgstr ""
 "<a href=\"%(transfer_href)s\">перенести право власності</a> чи <a "
 "href=\"%(delete_href)s\">видалити проєкт</a>"
 
-#: warehouse/templates/manage/account.html:841
+#: warehouse/templates/manage/account.html:843
 #: warehouse/templates/manage/account/token.html:177
 #: warehouse/templates/manage/organization/settings.html:177
 #: warehouse/templates/manage/organization/settings.html:238
@@ -4810,12 +4810,12 @@ msgstr ""
 msgid "Proceed with caution!"
 msgstr "Продовжуйте обережно!"
 
-#: warehouse/templates/manage/account.html:844
+#: warehouse/templates/manage/account.html:846
 msgid "You will not be able to recover your account after you delete it"
 msgstr ""
 "Ви не зможете відносити свій обліковий запис після того, як видалите його"
 
-#: warehouse/templates/manage/account.html:846
+#: warehouse/templates/manage/account.html:848
 msgid "Delete your PyPI account"
 msgstr "Видалити свій обліковий запис на PyPI"
 
@@ -6037,8 +6037,8 @@ msgid ""
 "You must first enable <a href=\"%(href)s\">two-factor authentication</a> on "
 "your account before adding a new publisher."
 msgstr ""
-"Аби додати нового довіреного видавця, спершу увімкни <a href=\"%(href)s\""
-">двофакторну автентифікацію</a> у своєму обліковому записі."
+"Аби додати нового довіреного видавця, спершу увімкни <a "
+"href=\"%(href)s\">двофакторну автентифікацію</a> у своєму обліковому записі."
 
 #: warehouse/templates/manage/account/recovery_codes-burn.html:16
 #, fuzzy
@@ -7327,9 +7327,9 @@ msgid ""
 "href=\"%(remove_delete_href)s\">remove project</a> <b>or</b> <a "
 "href=\"%(remove_delete_href)s\">delete project</a>"
 msgstr ""
-"<a href=\"%(transfer_href)s\">передати комусь право власності</a> та <a href="
-"\"%(remove_delete_href)s\">вилучити проєкт</a> <b> або просто</b> <a href="
-"\"%(remove_delete_href)s\">видалити проєкт</a>"
+"<a href=\"%(transfer_href)s\">передати комусь право власності</a> та <a "
+"href=\"%(remove_delete_href)s\">вилучити проєкт</a> <b> або просто</b> <a "
+"href=\"%(remove_delete_href)s\">видалити проєкт</a>"
 
 #: warehouse/templates/manage/organization/settings.html:241
 #, fuzzy
@@ -9698,8 +9698,8 @@ msgid ""
 "including how to yank a release."
 msgstr ""
 "Анульований випуск — це випуск, який завжди ігнорується встановлювачем, крім "
-"випадків, коли цей випуск єдиний, що відповідає вказаній версії ("
-"використовуючи <code>==</code> чи <code>===</code>). Щоб дізнатися більше, "
+"випадків, коли цей випуск єдиний, що відповідає вказаній версії "
+"(використовуючи <code>==</code> чи <code>===</code>). Щоб дізнатися більше, "
 "читайте <a href=\"%(href)s\" title=\"%(title)s\">користувацьку документацію</"
 "a>, яка включає пояснення того, як анулювати випуск."
 
@@ -10354,16 +10354,12 @@ msgstr ""
 "налаштуваннях свого облікового запису."
 
 #: warehouse/templates/pages/help.html:812
-#, fuzzy
-#| msgid ""
-#| "API tokens provide an alternative way to authenticate when uploading "
-#| "packages to PyPI."
 msgid ""
 "API tokens are used to authenticate when <strong>uploading packages</strong> "
 "to PyPI."
 msgstr ""
-"API-токени забезпечують альтернативний спосіб автентифікації під час "
-"завантаження пакунків до PyPI."
+"API-токени забезпечують автентифікацію під час <strong>завантаження "
+"пакунків</strong> до PyPI."
 
 #: warehouse/templates/pages/help.html:817
 #, fuzzy

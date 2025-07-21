@@ -357,7 +357,7 @@ msgstr "Du er nå ${role} av '${project_name}'-prosjektet."
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
-#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1911
+#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1915
 #: warehouse/manage/views/__init__.py:1409
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
@@ -421,12 +421,12 @@ msgstr ""
 msgid "Registered a new pending publisher to create "
 msgstr "Registrerte en ny ventende utgiver for å opprette "
 
-#: warehouse/accounts/views.py:1924 warehouse/accounts/views.py:1937
-#: warehouse/accounts/views.py:1944
+#: warehouse/accounts/views.py:1928 warehouse/accounts/views.py:1941
+#: warehouse/accounts/views.py:1948
 msgid "Invalid publisher ID"
 msgstr "Ugyldig utgiver-ID"
 
-#: warehouse/accounts/views.py:1951
+#: warehouse/accounts/views.py:1955
 #, fuzzy
 msgid "Removed trusted publisher for project "
 msgstr "Fjernet klarert utgiver for prosjektet "
@@ -1423,7 +1423,7 @@ msgstr "Bytt til mobilversjonen"
 #: warehouse/templates/base.html:215
 #: warehouse/templates/includes/flash-messages.html:41
 #: warehouse/templates/includes/session-notifications.html:19
-#: warehouse/templates/manage/account.html:843
+#: warehouse/templates/manage/account.html:845
 #: warehouse/templates/manage/manage_base.html:364
 #: warehouse/templates/manage/manage_base.html:442
 #: warehouse/templates/manage/organization/settings.html:179
@@ -4450,7 +4450,7 @@ msgstr ""
 msgid "Recent account activity"
 msgstr "Nylig kontoaktivitet"
 
-#: warehouse/templates/manage/account.html:783
+#: warehouse/templates/manage/account.html:784
 #: warehouse/templates/manage/organization/history.html:175
 #: warehouse/templates/manage/project/history.html:333
 #: warehouse/templates/manage/team/history.html:87
@@ -4458,7 +4458,7 @@ msgstr "Nylig kontoaktivitet"
 msgid "Event"
 msgstr "Hendelse"
 
-#: warehouse/templates/manage/account.html:784
+#: warehouse/templates/manage/account.html:785
 #: warehouse/templates/manage/organization/history.html:176
 #: warehouse/templates/manage/organization/history.html:185
 #: warehouse/templates/manage/project/history.html:334
@@ -4469,25 +4469,25 @@ msgstr "Hendelse"
 msgid "Time"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:785
+#: warehouse/templates/manage/account.html:786
 #: warehouse/templates/manage/organization/history.html:177
 #: warehouse/templates/manage/team/history.html:89
 #: warehouse/templates/manage/unverified-account.html:461
 msgid "Additional Info"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:792
+#: warehouse/templates/manage/account.html:794
 #: warehouse/templates/manage/unverified-account.html:468
 msgid "Date / time"
 msgstr "Dato / tid"
 
-#: warehouse/templates/manage/account.html:796
+#: warehouse/templates/manage/account.html:798
 #: warehouse/templates/manage/organization/history.html:189
 #: warehouse/templates/manage/unverified-account.html:472
 msgid "Location Info"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:799
+#: warehouse/templates/manage/account.html:801
 #: warehouse/templates/manage/organization/history.html:192
 #: warehouse/templates/manage/project/history.html:350
 #: warehouse/templates/manage/team/history.html:104
@@ -4497,7 +4497,7 @@ msgstr ""
 msgid "Device Info"
 msgstr "Enhetsnavn"
 
-#: warehouse/templates/manage/account.html:807
+#: warehouse/templates/manage/account.html:809
 #: warehouse/templates/manage/unverified-account.html:483
 #, fuzzy
 msgid ""
@@ -4506,15 +4506,15 @@ msgstr ""
 "Hendelser vises her så snart sikkerhetsrelaterte handlinger utføres på "
 "kontoen din."
 
-#: warehouse/templates/manage/account.html:812
+#: warehouse/templates/manage/account.html:814
 msgid "Delete account"
 msgstr "Slett konto"
 
-#: warehouse/templates/manage/account.html:815
+#: warehouse/templates/manage/account.html:817
 msgid "Cannot delete account"
 msgstr "Kan ikke slette konto"
 
-#: warehouse/templates/manage/account.html:817
+#: warehouse/templates/manage/account.html:819
 #, python-format
 msgid ""
 "Your account is currently the <strong>sole owner</strong> of %(count)s "
@@ -4525,7 +4525,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/account.html:822
+#: warehouse/templates/manage/account.html:824
 msgid ""
 "You must transfer ownership or delete this project before you can delete "
 "your account."
@@ -4535,14 +4535,14 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/account.html:832
+#: warehouse/templates/manage/account.html:834
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
 "href=\"%(delete_href)s\">delete project</a>"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:841
+#: warehouse/templates/manage/account.html:843
 #: warehouse/templates/manage/account/token.html:177
 #: warehouse/templates/manage/organization/settings.html:177
 #: warehouse/templates/manage/organization/settings.html:238
@@ -4551,11 +4551,11 @@ msgstr ""
 msgid "Proceed with caution!"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:844
+#: warehouse/templates/manage/account.html:846
 msgid "You will not be able to recover your account after you delete it"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:846
+#: warehouse/templates/manage/account.html:848
 msgid "Delete your PyPI account"
 msgstr "Slett din PyPI-konto"
 
