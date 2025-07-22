@@ -1,12 +1,13 @@
 # John Lester L. Licayan <johnlesterincbusiness@gmail.com>, 2022.
 # RedFurrFox <redfurryfoxgaming@gmail.com>, 2022.
+# searinminecraft <kitakita@disroot.org>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2022-01-15 16:16+0200\n"
-"PO-Revision-Date: 2022-11-18 20:24+0000\n"
-"Last-Translator: RedFurrFox <redfurryfoxgaming@gmail.com>\n"
+"PO-Revision-Date: 2025-07-21 14:47+0000\n"
+"Last-Translator: searinminecraft <kitakita@disroot.org>\n"
 "Language-Team: Filipino <https://hosted.weblate.org/projects/pypa/warehouse/"
 "fil/>\n"
 "Language: fil\n"
@@ -15,13 +16,15 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1 && n != 2 && n != 3 && (n % 10 == 4 "
 "|| n % 10 == 6 || n % 10 == 9);\n"
-"X-Generator: Weblate 4.15-dev\n"
+"X-Generator: Weblate 5.13-dev\n"
 
 #: warehouse/views.py:148
 msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
 msgstr ""
+"Kailangang mong i-verify ang iyong **pangunahing** email address bago mo "
+"gawin ang aksyong ito."
 
 #: warehouse/views.py:164
 msgid ""
@@ -55,7 +58,7 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:62
 msgid "Null bytes are not allowed."
-msgstr ""
+msgstr "Hindi pinapayagan ang null bytes."
 
 #: warehouse/accounts/forms.py:76
 msgid "No user found with that username"
@@ -89,25 +92,21 @@ msgid "Password too long."
 msgstr "Ang password ay napakahaba."
 
 #: warehouse/accounts/forms.py:194
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
+#, python-brace-format
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
 msgstr ""
-"Napakaraming hindi matagumpay na pagtatangka sa pag-log in. Subukan ulit "
-"mamaya."
+"Napakaraming hindi matagumpay na pagtatangka sa pag-log in. Na-lock out ka "
+"na nang ${time}. Subukan ulit mamaya."
 
 #: warehouse/accounts/forms.py:227
 msgid "Your passwords don't match. Try again."
 msgstr "Ang iyong passwords ay hindi tugma. Subukan muli."
 
 #: warehouse/accounts/forms.py:261
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
 msgid "The email address is too long. Try again."
-msgstr "And email address ay hindi valid. Subukan muli."
+msgstr "Masyadong mahaba ang email address. Subukan muli."
 
 #: warehouse/accounts/forms.py:333
 msgid "You can't use an email address from this domain. Use a different email."
@@ -140,7 +139,7 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:405
 msgid "URLs are not allowed in the name field."
-msgstr ""
+msgstr "Hindi pinapayagan ang mga URL sa pangalan."
 
 #: warehouse/accounts/forms.py:494
 msgid "Invalid TOTP code."
@@ -159,21 +158,17 @@ msgid "Recovery code has been previously used."
 msgstr "Nagamit na dati ang recovery code."
 
 #: warehouse/accounts/forms.py:619
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
 msgid "The username isn't valid. Try again."
-msgstr "And email address ay hindi valid. Subukan muli."
+msgstr "Hindi wasto ang username. Subukan muli."
 
 #: warehouse/accounts/views.py:110
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
+#, python-brace-format
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
 msgstr ""
-"Napakaraming hindi matagumpay na pagtatangka sa pag-log in. Subukan ulit "
-"mamaya."
+"Napakaraming hindi matagumpay na pagtatangka sa pag-log in. Na-lock out ka "
+"na nang {}. Subukan ulit mamaya."
 
 #: warehouse/accounts/views.py:131
 #, python-brace-format
@@ -213,88 +208,94 @@ msgstr "Matagumpay na WebAuthn assertion"
 #: warehouse/accounts/views.py:615 warehouse/manage/views/__init__.py:871
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
+"Tinanggap ang recovery code. Hindi na magagamit muli ang ibinigay na code."
 
 #: warehouse/accounts/views.py:707
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
+"Pansamantalang na-disable ang bagong pagrehistro ng user. Tignan ang https://"
+"pypi.org/help#admin-intervention para sa mga detalye."
 
 #: warehouse/accounts/views.py:876
 msgid "Expired token: request a new password reset link"
-msgstr ""
+msgstr "Na-expire na token: humiling ng bagong password reset link"
 
 #: warehouse/accounts/views.py:878
 msgid "Invalid token: request a new password reset link"
-msgstr ""
+msgstr "Hindi wastong token: humiling ng bagong password reset link"
 
 #: warehouse/accounts/views.py:880 warehouse/accounts/views.py:981
 #: warehouse/accounts/views.py:1087 warehouse/accounts/views.py:1256
 msgid "Invalid token: no token supplied"
-msgstr ""
+msgstr "Hindi wastong token: walang token na ibinigay"
 
 #: warehouse/accounts/views.py:884
 msgid "Invalid token: not a password reset token"
-msgstr ""
+msgstr "Hindi wastong token: hindi isang password reset token"
 
 #: warehouse/accounts/views.py:889
 msgid "Invalid token: user not found"
-msgstr ""
+msgstr "Hindi wastong token: hindi nahanap ang user"
 
 #: warehouse/accounts/views.py:900
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
+"Hindi wastong token: nag-log in ang user mula noong hiniling ang token na ito"
 
 #: warehouse/accounts/views.py:918
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
+"Hindi wastong token: binago na ang password mula noong hiniling ang token na "
+"ito"
 
 #: warehouse/accounts/views.py:949
 msgid "You have reset your password"
-msgstr ""
+msgstr "Na-reset mo ang iyong password"
 
 #: warehouse/accounts/views.py:977
 msgid "Expired token: request a new email verification link"
-msgstr ""
+msgstr "Na-expire na token: humiling ng bagong email verification link"
 
 #: warehouse/accounts/views.py:979
 msgid "Invalid token: request a new email verification link"
-msgstr ""
+msgstr "Hindi wastong token: humiling ng bagong email verification link"
 
 #: warehouse/accounts/views.py:985
 msgid "Invalid token: not an email verification token"
-msgstr ""
+msgstr "Hindi wastong token: hindi isang email verification token"
 
 #: warehouse/accounts/views.py:994
 msgid "Email not found"
-msgstr ""
+msgstr "Hindi nahanap ang email"
 
 #: warehouse/accounts/views.py:997
 msgid "Email already verified"
-msgstr ""
+msgstr "Na-verify na ang email"
 
 #: warehouse/accounts/views.py:1017
 msgid "You can now set this email as your primary address"
-msgstr ""
+msgstr "Maaari mo nang itakda ang email na ito bilang pangunahing address"
 
 #: warehouse/accounts/views.py:1020
 msgid "This is your primary address"
-msgstr ""
+msgstr "Ito ang iyong pangunahing address"
 
 #: warehouse/accounts/views.py:1026
 #, python-brace-format
 msgid "Email address ${email_address} verified. ${confirm_message}."
-msgstr ""
+msgstr "Na-verify ang email address na ${email_address}. ${confirm_message}."
 
 #: warehouse/accounts/views.py:1083
 msgid "Expired token: request a new organization invitation"
-msgstr ""
+msgstr "Na-expire na token: humiling ng bagong imbitasyon sa organisasyon"
 
 #: warehouse/accounts/views.py:1085
 msgid "Invalid token: request a new organization invitation"
-msgstr ""
+msgstr "Hindi wastong token: humiling ng bagong imbitasyon sa organisasyon"
 
 #: warehouse/accounts/views.py:1091
 msgid "Invalid token: not an organization invitation token"
@@ -353,7 +354,7 @@ msgstr ""
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
-#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1911
+#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1915
 #: warehouse/manage/views/__init__.py:1409
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
@@ -405,12 +406,12 @@ msgstr ""
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1924 warehouse/accounts/views.py:1937
-#: warehouse/accounts/views.py:1944
+#: warehouse/accounts/views.py:1928 warehouse/accounts/views.py:1941
+#: warehouse/accounts/views.py:1948
 msgid "Invalid publisher ID"
 msgstr ""
 
-#: warehouse/accounts/views.py:1951
+#: warehouse/accounts/views.py:1955
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -1367,7 +1368,7 @@ msgstr ""
 #: warehouse/templates/base.html:215
 #: warehouse/templates/includes/flash-messages.html:41
 #: warehouse/templates/includes/session-notifications.html:19
-#: warehouse/templates/manage/account.html:843
+#: warehouse/templates/manage/account.html:845
 #: warehouse/templates/manage/manage_base.html:364
 #: warehouse/templates/manage/manage_base.html:442
 #: warehouse/templates/manage/organization/settings.html:179
@@ -4099,7 +4100,7 @@ msgstr ""
 msgid "Recent account activity"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:783
+#: warehouse/templates/manage/account.html:784
 #: warehouse/templates/manage/organization/history.html:175
 #: warehouse/templates/manage/project/history.html:333
 #: warehouse/templates/manage/team/history.html:87
@@ -4107,7 +4108,7 @@ msgstr ""
 msgid "Event"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:784
+#: warehouse/templates/manage/account.html:785
 #: warehouse/templates/manage/organization/history.html:176
 #: warehouse/templates/manage/organization/history.html:185
 #: warehouse/templates/manage/project/history.html:334
@@ -4118,25 +4119,25 @@ msgstr ""
 msgid "Time"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:785
+#: warehouse/templates/manage/account.html:786
 #: warehouse/templates/manage/organization/history.html:177
 #: warehouse/templates/manage/team/history.html:89
 #: warehouse/templates/manage/unverified-account.html:461
 msgid "Additional Info"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:792
+#: warehouse/templates/manage/account.html:794
 #: warehouse/templates/manage/unverified-account.html:468
 msgid "Date / time"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:796
+#: warehouse/templates/manage/account.html:798
 #: warehouse/templates/manage/organization/history.html:189
 #: warehouse/templates/manage/unverified-account.html:472
 msgid "Location Info"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:799
+#: warehouse/templates/manage/account.html:801
 #: warehouse/templates/manage/organization/history.html:192
 #: warehouse/templates/manage/project/history.html:350
 #: warehouse/templates/manage/team/history.html:104
@@ -4144,21 +4145,21 @@ msgstr ""
 msgid "Device Info"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:807
+#: warehouse/templates/manage/account.html:809
 #: warehouse/templates/manage/unverified-account.html:483
 msgid ""
 "Events will appear here as security-related actions occur on your account."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:812
+#: warehouse/templates/manage/account.html:814
 msgid "Delete account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:815
+#: warehouse/templates/manage/account.html:817
 msgid "Cannot delete account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:817
+#: warehouse/templates/manage/account.html:819
 #, python-format
 msgid ""
 "Your account is currently the <strong>sole owner</strong> of %(count)s "
@@ -4169,7 +4170,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/account.html:822
+#: warehouse/templates/manage/account.html:824
 msgid ""
 "You must transfer ownership or delete this project before you can delete "
 "your account."
@@ -4179,14 +4180,14 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/account.html:832
+#: warehouse/templates/manage/account.html:834
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
 "href=\"%(delete_href)s\">delete project</a>"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:841
+#: warehouse/templates/manage/account.html:843
 #: warehouse/templates/manage/account/token.html:177
 #: warehouse/templates/manage/organization/settings.html:177
 #: warehouse/templates/manage/organization/settings.html:238
@@ -4195,11 +4196,11 @@ msgstr ""
 msgid "Proceed with caution!"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:844
+#: warehouse/templates/manage/account.html:846
 msgid "You will not be able to recover your account after you delete it"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:846
+#: warehouse/templates/manage/account.html:848
 msgid "Delete your PyPI account"
 msgstr ""
 

@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2021-05-01 15:23+0200\n"
-"PO-Revision-Date: 2025-02-12 08:33+0000\n"
+"PO-Revision-Date: 2025-07-19 04:26+0000\n"
 "Last-Translator: தமிழ்நேரம் <anishprabu.t@gmail.com>\n"
 "Language-Team: Tamil <https://hosted.weblate.org/projects/pypa/warehouse/ta/"
 ">\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.10-dev\n"
+"X-Generator: Weblate 5.13-dev\n"
 
 #: warehouse/views.py:148
 msgid ""
@@ -75,7 +75,7 @@ msgstr "TOTP குறியீடு ${totp_length} இலக்கங்கள
 #: warehouse/accounts/forms.py:117
 #, python-brace-format
 msgid "Recovery Codes must be ${recovery_code_length} characters."
-msgstr "மீட்பு குறியீடுகள்"
+msgstr "மீட்பு குறியீடுகள் ${recovery_code_length} எழுத்துகள் இருக்க வேண்டும்."
 
 #: warehouse/accounts/forms.py:131
 msgid "Choose a username with 50 characters or less."
@@ -354,8 +354,10 @@ msgstr "நீங்கள் இனிமேல் '${project_name}' திட�
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
+"எங்கள் புதுப்பிக்கப்பட்ட <a href = \"$ {tos_url}\"> பணி விதிமுறைகளை மதிப்பாய்வு "
+"செய்யவும் </a>."
 
-#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1911
+#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1915
 #: warehouse/manage/views/__init__.py:1409
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
@@ -409,12 +411,12 @@ msgstr ""
 msgid "Registered a new pending publisher to create "
 msgstr "உருவாக்க நிலுவையில் உள்ள புதிய வெளியீட்டாளரை பதிவு செய்தது "
 
-#: warehouse/accounts/views.py:1924 warehouse/accounts/views.py:1937
-#: warehouse/accounts/views.py:1944
+#: warehouse/accounts/views.py:1928 warehouse/accounts/views.py:1941
+#: warehouse/accounts/views.py:1948
 msgid "Invalid publisher ID"
 msgstr "தவறான வெளியீட்டாளர் ஐடி"
 
-#: warehouse/accounts/views.py:1951
+#: warehouse/accounts/views.py:1955
 msgid "Removed trusted publisher for project "
 msgstr "திட்டத்திற்கான நம்பகமான வெளியீட்டாளர் அகற்றப்பட்டார் "
 
@@ -424,7 +426,7 @@ msgstr "பேனர் முன்னோட்டம்"
 
 #: warehouse/manage/forms.py:380
 msgid "Provide your response to the request."
-msgstr ""
+msgstr "கோரிக்கைக்கு உங்கள் பதிலை வழங்கவும்."
 
 #: warehouse/manage/forms.py:421
 msgid "Choose an organization account name with 50 characters or less."
@@ -480,10 +482,8 @@ msgid ""
 msgstr "இந்த திட்ட பெயர் ஏற்கனவே பயன்படுத்தப்பட்டுள்ளது. வேறு திட்ட பெயரைத் தேர்வுசெய்க."
 
 #: warehouse/manage/forms.py:551
-#, fuzzy
-#| msgid "Cannot transfer project to an organization"
 msgid "Cannot transfer to Company Organization with inactive billing"
-msgstr "திட்டத்தை ஒரு நிறுவனத்திற்கு மாற்ற முடியாது"
+msgstr "செயலற்ற பட்டியலிடல் மூலம் நிறுவன நிறுவனத்திற்கு மாற்ற முடியாது"
 
 #: warehouse/manage/forms.py:604
 msgid ""
@@ -514,15 +514,12 @@ msgstr ""
 "விளக்கத்தைத் தேர்வுசெய்க."
 
 #: warehouse/manage/forms.py:677
-#, fuzzy
-#| msgid ""
-#| "The description is too long. Choose a description with 400 characters or "
-#| "less."
 msgid ""
 "We don't need to know quite that much :), limit your usage description to "
 "1024 characters or less."
 msgstr ""
-"விளக்கம் மிக நீளமானது. 400 எழுத்துக்கள் அல்லது அதற்கும் குறைவான விளக்கத்தைத் தேர்வுசெய்க."
+"நாங்கள் அவ்வளவு தெரிந்து கொள்ளத் தேவையில்லை :), உங்கள் பயன்பாட்டு விளக்கத்தை 1024 "
+"எழுத்துக்கள் அல்லது அதற்கும் குறைவாக கட்டுப்படுத்தவும்."
 
 #: warehouse/manage/forms.py:699
 msgid "You have already submitted the maximum number of "
@@ -712,7 +709,7 @@ msgstr "பயனர் '$ {username}' ஏற்கனவே திட்டத�
 #: warehouse/manage/views/__init__.py:2906
 #, python-brace-format
 msgid "${username} is now ${role} of the '${project_name}' project."
-msgstr "$ {username} இப்போது '$ {role}' திட்டத்தின் $ {பாத்திரம்."
+msgstr "${username} இப்போது '${role}' இன் '${project_name}' திட்டத்தின்."
 
 #: warehouse/manage/views/__init__.py:2938
 #, python-brace-format
@@ -720,8 +717,8 @@ msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
-"பயனர் '$ {username}' சரிபார்க்கப்பட்ட முதன்மை மின்னஞ்சல் முகவரி இல்லை, மேலும் "
-"திட்டத்திற்கான $ {roup_name அச் ஆக சேர்க்க முடியாது"
+"பயனர் '${username}' சரிபார்க்கப்பட்ட முதன்மை மின்னஞ்சல் முகவரி இல்லை, மேலும் "
+"திட்டத்திற்கான ${role_name} ஆகச் சேர்க்க முடியாது"
 
 #: warehouse/manage/views/__init__.py:2951
 #: warehouse/manage/views/organizations.py:962
@@ -763,8 +760,8 @@ msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
 msgstr ""
-"பயனர் '$ {username}' சரிபார்க்கப்பட்ட முதன்மை மின்னஞ்சல் முகவரி இல்லை, மேலும் "
-"நிறுவனத்திற்கு $ {roup_name அச் ஆக சேர்க்க முடியாது"
+"பயனர் '${username}' சரிபார்க்கப்பட்ட முதன்மை மின்னஞ்சல் முகவரி இல்லை, மேலும் "
+"நிறுவனத்திற்கு ${role_name} ஆகச் சேர்க்க முடியாது"
 
 #: warehouse/manage/views/organizations.py:1109
 #: warehouse/manage/views/organizations.py:1151
@@ -795,10 +792,8 @@ msgstr ""
 "அமைப்புகள் <a href = '$ {url}'> இங்கே </a> ஐப் பயன்படுத்தவும்."
 
 #: warehouse/oidc/forms/_core.py:64
-#, fuzzy
-#| msgid "This project has no releases"
 msgid "This project already exists."
-msgstr "இந்த திட்டத்திற்கு எந்த வெளியீடுகளும் இல்லை"
+msgstr "இந்த திட்டம் ஏற்கனவே உள்ளது."
 
 #: warehouse/oidc/forms/_core.py:69
 msgid "This project name isn't allowed"
@@ -921,21 +916,23 @@ msgstr ""
 
 #: warehouse/oidc/forms/github.py:155
 msgid "Environment name is too long (maximum is 255 characters)"
-msgstr ""
+msgstr "சுற்றுச்சூழல் பெயர் மிக நீளமானது (அதிகபட்சம் 255 எழுத்துக்கள்)"
 
 #: warehouse/oidc/forms/github.py:160
 msgid "Environment name may not start with whitespace"
-msgstr ""
+msgstr "சுற்றுச்சூழல் பெயர் ஒயிட்ச்பேசுடன் தொடங்கக்கூடாது"
 
 #: warehouse/oidc/forms/github.py:165
 msgid "Environment name may not end with whitespace"
-msgstr ""
+msgstr "சுற்றுச்சூழல் பெயர் இடைவெளியுடன் முடிவடையாது"
 
 #: warehouse/oidc/forms/github.py:171
 msgid ""
 "Environment name must not contain non-printable characters or the characters "
 "\"'\", \"\"\", \"`\", \",\", \";\", \"\\\""
 msgstr ""
+"சுற்றுச்சூழல் பெயரில் அச்சிடப்படாத எழுத்துக்கள் அல்லது \"\", \"\", \"` \",\", \",\"; "
+"\",\" \\ \"என்ற எழுத்துக்கள் இருக்கக்கூடாது"
 
 #: warehouse/oidc/forms/gitlab.py:22
 msgid "Name ends with .git or .atom"
@@ -1066,10 +1063,8 @@ msgid "We looked everywhere but couldn't find this page"
 msgstr "நாங்கள் மலை கடல் எங்கும் தேடினோம், ஆனால் இந்தப் பக்கத்தைக் கண்டுபிடிக்க முடியவில்லை"
 
 #: warehouse/templates/404.html:15
-#, fuzzy
-#| msgid "And now for something <br><span>completely different</span>"
 msgid "And now for something <br> <span>completely different</span>"
-msgstr "இப்போது ஏதோவொன்றுக்கு<br><span>முற்றிலும் வேறுபட்டது</span>"
+msgstr "இப்போது ஏதாவது <br> <span> முற்றிலும் வேறுபட்டது </span>"
 
 #: warehouse/templates/404.html:21
 msgid "Monty Python - The Cheese Shop Sketch"
@@ -1216,13 +1211,6 @@ msgid "Rely on PyPI to get your job done?"
 msgstr "உங்கள் வேலையைச் செய்ய PyPI ஐ நம்பவா?"
 
 #: warehouse/templates/500.html:32
-#, fuzzy
-#| msgid ""
-#| "Consider <a href=\"https://github.com/pypi/warehouse\" target=\"_blank\" "
-#| "rel=\"noopener\"> contributing </a> or <a href=\"https://psfmember.org/"
-#| "civicrm/contribute/transact?reset=1&id=13\" target=\"_blank\" "
-#| "rel=\"noopener\"> donating </a> to help us build a more stable and secure "
-#| "platform."
 msgid ""
 "Consider <a href=\"https://github.com/pypi/warehouse\" target=\"_blank\" "
 "rel=\"noopener\">contributing</a> or <a href=\"https://psfmember.org/civicrm/"
@@ -1230,9 +1218,11 @@ msgid ""
 "rel=\"noopener\">donating</a> to help us build a more stable and secure "
 "platform."
 msgstr ""
-"<A href = \"https://github.com/pypi/warehouse\" இலக்கு = \"_ வெற்று\" rel = "
-"\"noopener\"> பங்களிப்பு </a> அல்லது <a href = \"https://psfmember.org/civicrm/ "
-"பங்களிப்பு/பரிவர்த்தனை?"
+"மிகவும் நிலையான மற்றும் பாதுகாப்பான தளத்தை உருவாக்க எங்களுக்கு உதவ <a href=\"https://"
+"github.com/pypi/warehouse\" target=\"_blank\" rel=\"noopener\">பங்களிப்பதை</a> "
+"அல்லது <a href=\"https://psfmember.org/civicrm/contribute/transact?"
+"reset=1&id=13\" target=\"_blank\" rel=\"noopener\">நன்கொடை அளிப்பதை</a> "
+"கருத்தில் கொள்ளுங்கள்."
 
 #: warehouse/templates/base.html:13
 msgid ""
@@ -1261,7 +1251,7 @@ msgstr "உதவி"
 
 #: warehouse/templates/base.html:36
 msgid "Docs"
-msgstr ""
+msgstr "ஆவணங்கள்"
 
 #: warehouse/templates/base.html:40 warehouse/templates/base.html:71
 #: warehouse/templates/includes/current-user-indicator.html:83
@@ -1317,10 +1307,9 @@ msgid ""
 "href=\"%(trademarks_href)s\">trademarks</a> of the <a href=\"%(psf_href)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Software Foundation</a>."
 msgstr ""
-"\"%(wordmark)s\", \"%(name)s\", மற்றும் தொகுதிகள் சின்னங்கள் <a href = "
-"\"%(வர்த்தக முத்திரைகள்_அ்ரெஃப்) s\"> வர்த்தக முத்திரைகள் </a> <a href = "
-"\"%(trademarks_href)s \"இலக்கு =\" _ வெற்று \"rel =\" noopener \"> பைதான் "
-"மென்பொருள் அறக்கட்டளை </a>."
+"\"%(wordmark)s\", \"%(name)s\", மற்றும் தொகுதிகள் சின்னங்கள் <a "
+"href=\"%(trademarks_href)s\"> வர்த்தக முத்திரைகள் </a> <a href=\"%(psf_href)s\" "
+"target=\"_blank\" rel=\"noopener\">பைதான் மென்பொருள் அறக்கட்டளை </a>."
 
 #: warehouse/templates/base.html:116 warehouse/templates/index.html:93
 msgid ""
@@ -1350,7 +1339,7 @@ msgstr "மொபைல் பதிப்பிற்கு மாறவும�
 #: warehouse/templates/base.html:215
 #: warehouse/templates/includes/flash-messages.html:41
 #: warehouse/templates/includes/session-notifications.html:19
-#: warehouse/templates/manage/account.html:843
+#: warehouse/templates/manage/account.html:845
 #: warehouse/templates/manage/manage_base.html:364
 #: warehouse/templates/manage/manage_base.html:442
 #: warehouse/templates/manage/organization/settings.html:179
@@ -1395,10 +1384,8 @@ msgid "Search PyPI"
 msgstr "பைபியைத் தேடுங்கள்"
 
 #: warehouse/templates/base.html:257 warehouse/templates/index.html:35
-#, fuzzy
-#| msgid "Search projects"
 msgid "Type '/' to search projects"
-msgstr "தேடல் திட்டங்கள்"
+msgstr "தேடல் திட்டங்களுக்கு '/' என தட்டச்சு செய்க"
 
 #: warehouse/templates/base.html:268 warehouse/templates/base.html:297
 #: warehouse/templates/error-base-with-search.html:19
@@ -1611,7 +1598,7 @@ msgstr[1] "%(num_files_formatted)s கோப்புகள்"
 msgid "%(num_users_formatted)s user"
 msgid_plural "%(num_users_formatted)s users"
 msgstr[0] "%(num_users_formatted)s பயனர்"
-msgstr[1] "%(num_users_formatted) பயனர்கள்"
+msgstr[1] "%(num_users_formatted)s பயனர்கள்"
 
 #: warehouse/templates/index.html:96
 msgid ""
@@ -1893,7 +1880,7 @@ msgid ""
 "Would you like to accept this invitation to join '%(organization_name)s' as "
 "an organization %(role_name)s?"
 msgstr ""
-"இந்த அழைப்பை ' %(அமைப்பு_பெயர்)' ஒரு அமைப்பாக %(organization_name)s ஆக ஏற்ற "
+"இந்த அழைப்பை '%(organization_name)s' ஒரு அமைப்பாக %(role_name)s ஆக ஏற்ற "
 "விரும்புகிறீர்களா?"
 
 #: warehouse/templates/accounts/organization-invite-confirmation.html:39
@@ -1919,7 +1906,7 @@ msgstr "%(username)sுயவிவரம்"
 #: warehouse/templates/manage/team/roles.html:45
 #, python-brace-format
 msgid "Avatar for {user} from gravatar.com"
-msgstr "{பயனருக்கான அவதார் fravatar.com இலிருந்து"
+msgstr "{user}க்கான அவதார் gravatar.com இலிருந்து"
 
 #: warehouse/templates/accounts/profile.html:36
 #: warehouse/templates/organizations/profile.html:24
@@ -1937,8 +1924,8 @@ msgstr "இணைந்தது %(start_date)s"
 #, python-format
 msgid "%(count)s project"
 msgid_plural "%(count)s projects"
-msgstr[0] "%(எண்ணிக்கை) திட்டம்"
-msgstr[1] "%(எண்ணிக்கை) திட்டங்கள்"
+msgstr[0] "%(count)s திட்டம்"
+msgstr[1] "%(count)s திட்டங்கள்"
 
 #: warehouse/templates/accounts/profile.html:58
 #: warehouse/templates/organizations/profile.html:43
@@ -1967,7 +1954,11 @@ msgid "%(count)s <a href=\"%(href)s#archived-project\">archived</a> project"
 msgid_plural ""
 "%(count)s <a href=\"%(href)s#archived-project\">archived</a> projects"
 msgstr[0] ""
+"%(count)s <a href = \"%(href)s#காப்பகப்படுத்தப்பட்ட-திட்ட\"> காப்பகப்படுத்தப்பட்ட </a> "
+"திட்டம்"
 msgstr[1] ""
+"%(count)s <a href = \"%(href)s#காப்பகப்படுத்தப்பட்ட-திட்டம்\"> காப்பகப்படுத்தப்பட்ட </a> "
+"திட்டங்கள்"
 
 #: warehouse/templates/accounts/profile.html:97
 #: warehouse/templates/manage/projects.html:80
@@ -2016,8 +2007,7 @@ msgstr ""
 "உள்ளிடவும். பயன்படுத்தப்பட்டதும், மீட்பு குறியீடு இனி செல்லுபடியாகாது."
 
 #: warehouse/templates/accounts/recovery-code.html:56
-#, fuzzy, python-format
-#| msgid "<p>Not working? <a href=\"%(href)s\">Get help</a>.</p>"
+#, python-format
 msgid "<p> Not working? <a href=\"%(href)s\">Get help</a>. </p>"
 msgstr "<p> வேலை செய்யவில்லையா? <a href = \"%(href)s\"> உதவி கிடைக்கும் </a>. </p>"
 
@@ -2067,18 +2057,13 @@ msgid "Do not use %(title)s to conduct security research."
 msgstr "பாதுகாப்பு ஆராய்ச்சி நடத்த %(title)s பயன்படுத்த வேண்டாம்."
 
 #: warehouse/templates/accounts/register.html:32
-#, fuzzy, python-format
-#| msgid ""
-#| "For more information, please read the full <a href=\"%(tou)s\" "
-#| "rel=\"noopener\">Terms of Use</a> and <a href=\"%(aup)s\" "
-#| "rel=\"noopener\">Acceptable Use Policy</a>."
+#, python-format
 msgid ""
 "For more information, please read the full <a href=\"%(aup)s\" "
 "rel=\"noopener\">Acceptable Use Policy</a>."
 msgstr ""
-"மேலும் தகவலுக்கு, தயவுசெய்து முழு <a href = \"%(tou)s\" rel = \"noopener\"> "
-"பயன்பாட்டு விதிமுறைகள் </a> மற்றும் <a href = \"%(aup)s\" rel = \"noopener\"> "
-"ஏற்றுக்கொள்ளக்கூடிய பயன்பாட்டு கொள்கை </a>."
+"மேலும் தகவலுக்கு, தயவுசெய்து முழு <a href = \"%(aup)s\" rel = \"noopener\"> "
+"ஏற்றுக்கொள்ளக்கூடிய பயன்பாட்டுக் கொள்கை </a> ஐப் படிக்கவும்."
 
 #: warehouse/templates/accounts/register.html:37
 #, python-format
@@ -2086,18 +2071,20 @@ msgid ""
 "By registering, you agree to the <a href=\"%(tos)s\">PyPI Terms of Service</"
 "a>."
 msgstr ""
+"பதிவு செய்வதன் மூலம், நீங்கள் <a href = \"%(tos)s\"> pypi பணி விதிமுறைகளுக்கு "
+"ஒப்புக்கொள்கிறீர்கள் </a>."
 
 #: warehouse/templates/accounts/register.html:47
 msgid ""
 "Please confirm that your email address is <strong data-email-confirmation-"
 "target=\"email\"></strong>."
 msgstr ""
+"உங்கள் மின்னஞ்சல் முகவரி <வலுவான தரவு-எமெயில்-உறுதிப்படுத்தல்-இலக்கு = \"மின்னஞ்சல்\"> </"
+"strong> என்பதை உறுதிப்படுத்தவும்."
 
 #: warehouse/templates/accounts/register.html:50
-#, fuzzy
-#| msgid "Confirm form"
 msgid "Confirm"
-msgstr "படிவத்தை உறுதிப்படுத்தவும்"
+msgstr "உறுதிப்படுத்து"
 
 #: warehouse/templates/accounts/register.html:51
 #: warehouse/templates/manage/manage_base.html:398
@@ -2189,16 +2176,12 @@ msgid "Reset email sent"
 msgstr "அனுப்பப்பட்ட மின்னஞ்சல் மீட்டமை"
 
 #: warehouse/templates/accounts/request-password-reset.html:41
-#, fuzzy
-#| msgid ""
-#| "If you submitted a valid username or email address, an email has been "
-#| "sent to your registered email address."
 msgid ""
 "If you submitted a valid username or verified email address, an email has "
 "been sent to your registered email address."
 msgstr ""
-"நீங்கள் செல்லுபடியாகும் பயனர்பெயர் அல்லது மின்னஞ்சல் முகவரியை சமர்ப்பித்திருந்தால், உங்கள் "
-"பதிவுசெய்யப்பட்ட மின்னஞ்சல் முகவரிக்கு மின்னஞ்சல் அனுப்பப்பட்டுள்ளது."
+"நீங்கள் செல்லுபடியாகும் பயனர்பெயர் அல்லது சரிபார்க்கப்பட்ட மின்னஞ்சல் முகவரியை "
+"சமர்ப்பித்திருந்தால், உங்கள் பதிவுசெய்யப்பட்ட மின்னஞ்சல் முகவரிக்கு மின்னஞ்சல் அனுப்பப்பட்டுள்ளது."
 
 #: warehouse/templates/accounts/request-password-reset.html:44
 #, python-format
@@ -2206,7 +2189,7 @@ msgid ""
 "The email contains a link to reset your password. This link will expire in "
 "%(n_hours)s hours."
 msgstr ""
-"உங்கள் கடவுச்சொல்லை மீட்டமைக்க மின்னஞ்சலில் ஒரு இணைப்பு உள்ளது. இந்த இணைப்பு %(n_hours) "
+"உங்கள் கடவுச்சொல்லை மீட்டமைக்க மின்னஞ்சலில் ஒரு இணைப்பு உள்ளது. இந்த இணைப்பு %(n_hours)s "
 "மணிநேரங்களில் காலாவதியாகும்."
 
 #: warehouse/templates/accounts/reset-password.html:7
@@ -2265,8 +2248,8 @@ msgstr ""
 #, python-format
 msgid "Remember this device for %(remember_device_days)s day"
 msgid_plural "Remember this device for %(remember_device_days)s days"
-msgstr[0] "இந்த சாதனத்தை %(rell_device_days) நாள் நினைவில் கொள்ளுங்கள்"
-msgstr[1] "இந்த சாதனத்தை %(rell_device_days) நாட்களுக்கு நினைவில் கொள்ளுங்கள்"
+msgstr[0] "இந்தச் சாதனத்தை %(remember_device_days)s நாள் நினைவில் கொள்ளுங்கள்"
+msgstr[1] "இந்தச் சாதனத்தை %(remember_device_days)s நாட்களுக்கு நினைவில் கொள்ளுங்கள்"
 
 #: warehouse/templates/accounts/two-factor.html:57
 #, python-format
@@ -2284,20 +2267,15 @@ msgid "Enter authentication code"
 msgstr "அங்கீகாரக் குறியீட்டை உள்ளிடவும்"
 
 #: warehouse/templates/accounts/two-factor.html:115
-#, fuzzy, python-format
-#| msgid ""
-#| "<p>Generate a code using the authentication application connected to your "
-#| "PyPI account. Enter this code in the form to verify your identity.</p> "
-#| "<p>Lost your application? Not working? <a href=\"%(href)s\">Get help</a>."
-#| "</p>"
+#, python-format
 msgid ""
 "<p> Generate a code using the authentication application connected to your "
 "PyPI account. Enter this code in the form to verify your identity. </p> <p> "
 "Lost your application? Not working? <a href=\"%(href)s\">Get help</a>. </p>"
 msgstr ""
 "<p> உங்கள் PYPI கணக்குடன் இணைக்கப்பட்ட அங்கீகார பயன்பாட்டைப் பயன்படுத்தி ஒரு குறியீட்டை "
-"உருவாக்கவும். உங்கள் அடையாளத்தை சரிபார்க்க இந்த குறியீட்டை படிவத்தில் உள்ளிடவும். </P> <p> "
-"உங்கள் பயன்பாட்டை இழந்ததா? வேலை செய்யவில்லையா? <a href = \"%(href)s\"> உதவி "
+"உருவாக்கவும். உங்கள் அடையாளத்தை சரிபார்க்க இந்த குறியீட்டை படிவத்தில் உள்ளிடவும். </p> <p> "
+"உங்கள் விண்ணப்பத்தை இழந்ததா? வேலை செய்யவில்லையா? <a href = \"%(href)s\"> உதவி "
 "கிடைக்கும் </a>. </p>"
 
 #: warehouse/templates/accounts/two-factor.html:130
@@ -2305,17 +2283,13 @@ msgid "Lost your security key or application?"
 msgstr "உங்கள் பாதுகாப்பு விசை அல்லது பயன்பாட்டை இழந்ததா?"
 
 #: warehouse/templates/accounts/two-factor.html:134
-#, fuzzy, python-format
-#| msgid ""
-#| "<p><strong>You have not generated account recovery codes.</strong></p> "
-#| "<p>If you lose access to your two factor methods, you may lose access to "
-#| "your account. <a href=\"%(href)s\">Get help with recovery codes.</a></p>"
+#, python-format
 msgid ""
 "<p> <strong>You have not generated account recovery codes.</strong> </p> <p> "
 "If you lose access to your two factor methods, you may lose access to your "
 "account. <a href=\"%(href)s\">Get help with recovery codes.</a> </p>"
 msgstr ""
-"<p> <strong> நீங்கள் கணக்கு மீட்டெடுப்பு குறியீடுகளை உருவாக்கவில்லை. <a href = "
+"<p> <strong> நீங்கள் கணக்கு மீட்புக் குறியீடுகளை உருவாக்கவில்லை. <a href = "
 "\"%(href)s\"> மீட்புக் குறியீடுகளுக்கு உதவியைப் பெறுங்கள். </a> </p>"
 
 #: warehouse/templates/email/account-deleted/body.html:5
@@ -2345,8 +2319,8 @@ msgid ""
 "You have been added as <strong>%(role)s</strong> to the %(site)s project "
 "%(project_name)s by %(initiator_username)s."
 msgstr ""
-"நீங்கள் <strong> %(role)s </strong> %(தளம்) திட்ட %(site)s %(project_name)s என "
-"சேர்க்கப்பட்டுள்ளீர்கள்."
+"நீங்கள் <strong>%(role)s</strong>%(site)s திட்ட %(site)s %(project_name)s எனச் "
+"சேர்க்கப்பட்டுள்ளீர்கள் %(initiator_username)s இவர்மூலம்."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:10
 #, python-format
@@ -2507,21 +2481,18 @@ msgstr ""
 "அங்கீகரிக்கப்படவில்லை."
 
 #: warehouse/templates/email/new-organization-moreinformationneeded/body.html:6
-#, fuzzy, python-format
-#| msgid ""
-#| "Your request to create a new organization named '%(organization_name)s' "
-#| "was not approved."
+#, python-format
 msgid ""
 "We need more information to process your request to create a new "
 "organization named '%(organization_name)s'."
 msgstr ""
-"'%(organization_name)s' என்ற புதிய அமைப்பை உருவாக்க உங்கள் கோரிக்கை "
-"அங்கீகரிக்கப்படவில்லை."
+"'%(அமைப்பு_பெயர்)' என்ற புதிய அமைப்பை உருவாக்க உங்கள் கோரிக்கையை செயலாக்க எங்களுக்கு "
+"கூடுதல் தகவல்கள் தேவை."
 
 #: warehouse/templates/email/new-organization-moreinformationneeded/body.html:10
 #, python-format
 msgid "Submit your response on %(domain)s"
-msgstr ""
+msgstr "உங்கள் பதிலை %(domain)s சமர்ப்பிக்கவும்"
 
 #: warehouse/templates/email/new-organization-requested/body.html:5
 #, python-format
@@ -2906,30 +2877,29 @@ msgstr ""
 "புறக்கணிக்கலாம்."
 
 #: warehouse/templates/email/password-reset-unverified/body.html:17
-#, fuzzy
-#| msgid ""
-#| "Someone, perhaps you, has made a password reset request for your PyPI "
-#| "account '%(username)s'."
 msgid ""
 "Someone, perhaps you, has made a password reset request for a PyPI account "
 "associated with this email address."
 msgstr ""
-"யாரோ, ஒருவேளை நீங்கள், உங்கள் PYPI கணக்கில் '%(பயனர்பெயர்)' என்ற கடவுச்சொல் மீட்டமைப்பு "
-"கோரிக்கையை செய்துள்ளீர்கள்."
+"இந்த மின்னஞ்சல் முகவரியுடன் தொடர்புடைய PYPI கணக்கிற்கான கடவுச்சொல் மீட்டமைப்பு கோரிக்கையை "
+"யாரோ ஒருவர் செய்துள்ளீர்கள்."
 
 #: warehouse/templates/email/password-reset-unverified/body.html:20
 msgid ""
 "However, the email used to make this request is not verified. Your email "
 "address must be verified before you can use it to reset your password."
 msgstr ""
+"இருப்பினும், இந்த கோரிக்கையை செய்ய பயன்படுத்தப்படும் மின்னஞ்சல் சரிபார்க்கப்படவில்லை. உங்கள் "
+"கடவுச்சொல்லை மீட்டமைக்க அதைப் பயன்படுத்துவதற்கு முன்பு உங்கள் மின்னஞ்சல் முகவரி சரிபார்க்கப்பட "
+"வேண்டும்."
 
 #: warehouse/templates/email/password-reset-unverified/body.html:23
-#, fuzzy
-#| msgid "Lost access to the email address associated with your account"
 msgid ""
 "If you have another verified email address associated with your PyPI "
 "account, try that instead."
-msgstr "உங்கள் கணக்குடன் தொடர்புடைய மின்னஞ்சல் முகவரிக்கு அணுகலை இழந்தது"
+msgstr ""
+"உங்கள் PYPI கணக்குடன் தொடர்புடைய மற்றொரு சரிபார்க்கப்பட்ட மின்னஞ்சல் முகவரி உங்களிடம் "
+"இருந்தால், அதற்கு பதிலாக முயற்சிக்கவும்."
 
 #: warehouse/templates/email/password-reset-unverified/body.html:26
 #, python-format
@@ -2937,12 +2907,14 @@ msgid ""
 "If you cannot use another verified email, follow <a "
 "href=\"%(href)s\">account recovery steps</a> for your PyPI account."
 msgstr ""
+"சரிபார்க்கப்பட்ட மற்றொரு மின்னஞ்சலைப் பயன்படுத்த முடியாவிட்டால், உங்கள் PYPI கணக்கிற்கு <a "
+"href = \"%(href)s\"> கணக்கு மீட்பு படிகள் </a> ஐப் பின்பற்றவும்."
 
 #: warehouse/templates/email/password-reset-unverified/body.html:29
-#, fuzzy, python-format
-#| msgid "<a href=\"%(href)s\">Version %(version)s</a> yanked"
+#, python-format
 msgid "<a href=\"%(href)s\">Read more about verified emails.</a>"
-msgstr "<a href = \" %(href)s\"> பதிப்பு %(version)s </a> yanked"
+msgstr ""
+"<a href = \"%(href)s\"> சரிபார்க்கப்பட்ட மின்னஞ்சல்களைப் பற்றி மேலும் வாசிக்க. </a>"
 
 #: warehouse/templates/email/primary-email-change/body.html:5
 #, python-format
@@ -3045,8 +3017,8 @@ msgid ""
 "Your role in the \"%(organization_name)s\" organization has been changed to "
 "<strong>%(role)s</strong> by %(submitter)s"
 msgstr ""
-"\"%(organization_name)s\" அமைப்பில் உங்கள் பங்கு <strong>%(role)s </strong> "
-"என%(submitter)s என மாற்றப்பட்டுள்ளது"
+"\"%(organization_name)s\" அமைப்பில் உங்கள் பங்கு <strong>%(role)s </strong> என "
+"மாற்றப்பட்டுள்ளது %(submitter)s இவர்களால்"
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:6
 #, python-format
@@ -4028,10 +4000,8 @@ msgid "Recovery code"
 msgstr "Recovery குறியீடு"
 
 #: warehouse/templates/manage/account.html:557
-#, fuzzy
-#| msgid "Remove device"
 msgid "Remembered device"
-msgstr "சாதனத்தை அகற்று"
+msgstr "நினைவில் கொள்ளப்பட்ட சாதனம்"
 
 #: warehouse/templates/manage/account.html:561
 #: warehouse/templates/manage/unverified-account.html:270
@@ -4347,7 +4317,7 @@ msgstr ""
 msgid "Recent account activity"
 msgstr "Recent account செய்கைப்பாடு"
 
-#: warehouse/templates/manage/account.html:783
+#: warehouse/templates/manage/account.html:784
 #: warehouse/templates/manage/organization/history.html:175
 #: warehouse/templates/manage/project/history.html:333
 #: warehouse/templates/manage/team/history.html:87
@@ -4355,7 +4325,7 @@ msgstr "Recent account செய்கைப்பாடு"
 msgid "Event"
 msgstr "நிகழ்வு"
 
-#: warehouse/templates/manage/account.html:784
+#: warehouse/templates/manage/account.html:785
 #: warehouse/templates/manage/organization/history.html:176
 #: warehouse/templates/manage/organization/history.html:185
 #: warehouse/templates/manage/project/history.html:334
@@ -4366,25 +4336,25 @@ msgstr "நிகழ்வு"
 msgid "Time"
 msgstr "நேரம்"
 
-#: warehouse/templates/manage/account.html:785
+#: warehouse/templates/manage/account.html:786
 #: warehouse/templates/manage/organization/history.html:177
 #: warehouse/templates/manage/team/history.html:89
 #: warehouse/templates/manage/unverified-account.html:461
 msgid "Additional Info"
 msgstr "Additional செய்தி"
 
-#: warehouse/templates/manage/account.html:792
+#: warehouse/templates/manage/account.html:794
 #: warehouse/templates/manage/unverified-account.html:468
 msgid "Date / time"
 msgstr "திகதி / time"
 
-#: warehouse/templates/manage/account.html:796
+#: warehouse/templates/manage/account.html:798
 #: warehouse/templates/manage/organization/history.html:189
 #: warehouse/templates/manage/unverified-account.html:472
 msgid "Location Info"
 msgstr "Location செய்தி"
 
-#: warehouse/templates/manage/account.html:799
+#: warehouse/templates/manage/account.html:801
 #: warehouse/templates/manage/organization/history.html:192
 #: warehouse/templates/manage/project/history.html:350
 #: warehouse/templates/manage/team/history.html:104
@@ -4392,22 +4362,22 @@ msgstr "Location செய்தி"
 msgid "Device Info"
 msgstr "Device செய்தி"
 
-#: warehouse/templates/manage/account.html:807
+#: warehouse/templates/manage/account.html:809
 #: warehouse/templates/manage/unverified-account.html:483
 msgid ""
 "Events will appear here as security-related actions occur on your account."
 msgstr ""
 "நிகழ்வுகள் will appear here அச் security-related செயல்கள் occur on your account."
 
-#: warehouse/templates/manage/account.html:812
+#: warehouse/templates/manage/account.html:814
 msgid "Delete account"
 msgstr "நீக்கு account"
 
-#: warehouse/templates/manage/account.html:815
+#: warehouse/templates/manage/account.html:817
 msgid "Cannot delete account"
 msgstr "Cannot நீக்கு account"
 
-#: warehouse/templates/manage/account.html:817
+#: warehouse/templates/manage/account.html:819
 #, python-format
 msgid ""
 "Your account is currently the <strong>sole owner</strong> of %(count)s "
@@ -4416,13 +4386,11 @@ msgid_plural ""
 "Your account is currently the <strong>sole owner</strong> of %(count)s "
 "projects."
 msgstr[0] ""
-"உங்கள் கணக்கு தற்போது <strong> ஒரே உரிமையாளர் </strong> %(எண்ணிக்கை) திட்டங்களில் "
-"உள்ளது."
+"உங்கள் கணக்கு தற்போது <strong> ஒரே உரிமையாளர் </strong> %(count)s திட்டத்தில் உள்ளது."
 msgstr[1] ""
-"Your account is currently the <strong>sole owner</strong> of %(count)s "
-"projects."
+"உங்கள் கணக்கு தற்போது <strong> ஒரே உரிமையாளர் </strong> %(count)s திட்டங்களில் உள்ளது."
 
-#: warehouse/templates/manage/account.html:822
+#: warehouse/templates/manage/account.html:824
 msgid ""
 "You must transfer ownership or delete this project before you can delete "
 "your account."
@@ -4436,7 +4404,7 @@ msgstr[1] ""
 "You must transfer ownership or நீக்கு these திட்டங்கள் before you can நீக்கு your "
 "account."
 
-#: warehouse/templates/manage/account.html:832
+#: warehouse/templates/manage/account.html:834
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
@@ -4445,7 +4413,7 @@ msgstr ""
 "<a href = \"%(transfer_href)s\"> உரிமையை மாற்றும் </a> அல்லது <a href = "
 "\"%(delete_href)s\"> திட்டத்தை நீக்கு </a>"
 
-#: warehouse/templates/manage/account.html:841
+#: warehouse/templates/manage/account.html:843
 #: warehouse/templates/manage/account/token.html:177
 #: warehouse/templates/manage/organization/settings.html:177
 #: warehouse/templates/manage/organization/settings.html:238
@@ -4454,11 +4422,11 @@ msgstr ""
 msgid "Proceed with caution!"
 msgstr "எச்சரிக்கையுடன் தொடரவும்!"
 
-#: warehouse/templates/manage/account.html:844
+#: warehouse/templates/manage/account.html:846
 msgid "You will not be able to recover your account after you delete it"
 msgstr "உங்கள் கணக்கை நீக்கிய பிறகு அதை மீட்டெடுக்க முடியாது"
 
-#: warehouse/templates/manage/account.html:846
+#: warehouse/templates/manage/account.html:848
 msgid "Delete your PyPI account"
 msgstr "உங்கள் PYPI கணக்கை நீக்கு"
 
@@ -4759,7 +4727,7 @@ msgstr "ஏதேனும்"
 #: warehouse/templates/manage/project/history.html:304
 #: warehouse/templates/manage/team/history.html:68
 msgid "Added by:"
-msgstr "வழங்கியவர்:"
+msgstr "மூலம் சேர்க்கப்பட்டது:"
 
 #: warehouse/templates/manage/manage_base.html:633
 #: warehouse/templates/manage/organization/history.html:146
@@ -4770,7 +4738,7 @@ msgstr "வழங்கியவர்:"
 #: warehouse/templates/manage/project/history.html:196
 #: warehouse/templates/manage/team/history.html:73
 msgid "Removed by:"
-msgstr "வழங்கியவர்:"
+msgstr "மூலம் அகற்றப்பட்டது:"
 
 #: warehouse/templates/manage/manage_base.html:635
 msgid "Submitted by:"
@@ -4922,24 +4890,20 @@ msgid "Pending organization requests"
 msgstr "நிறுவன கோரிக்கைகள் நிலுவையில் உள்ளன"
 
 #: warehouse/templates/manage/organizations.html:162
-#, fuzzy
-#| msgid "This organization is not active"
 msgid "This Organization request has been declined"
-msgstr "இந்த அமைப்பு செயலில் இல்லை"
+msgstr "இந்த நிறுவன கோரிக்கை மறுக்கப்பட்டுள்ளது"
 
 #: warehouse/templates/manage/organizations.html:162
-#, fuzzy
-#| msgid "Decline"
 msgid "Declined"
-msgstr "வீழ்ச்சி"
+msgstr "மறுக்கப்பட்டது"
 
 #: warehouse/templates/manage/organizations.html:165
 msgid "More information is needed to process this Organization request"
-msgstr ""
+msgstr "இந்த நிறுவன கோரிக்கையை செயலாக்க கூடுதல் தகவல்கள் தேவை"
 
 #: warehouse/templates/manage/organizations.html:165
 msgid "More Information Needed"
-msgstr ""
+msgstr "மேலும் தகவல்கள் தேவை"
 
 #: warehouse/templates/manage/organizations.html:168
 msgid "Request Submitted"
@@ -4952,13 +4916,11 @@ msgstr "சமர்ப்பிக்கப்பட்ட %(submitted)s"
 
 #: warehouse/templates/manage/organizations.html:175
 msgid "Declined organization requests will be deleted 30 days after decision."
-msgstr ""
+msgstr "முடிவெடுப்பது 30 நாட்களுக்குப் பிறகு மறுக்கப்பட்ட நிறுவன கோரிக்கைகள் நீக்கப்படும்."
 
 #: warehouse/templates/manage/organizations.html:182
-#, fuzzy
-#| msgid "Manage this organization"
 msgid "Manage this organization request"
-msgstr "இந்த அமைப்பை நிர்வகிக்கவும்"
+msgstr "இந்த அமைப்பு கோரிக்கையை நிர்வகிக்கவும்"
 
 #: warehouse/templates/manage/organizations.html:197
 #: warehouse/templates/manage/organizations.html:375
@@ -4966,8 +4928,6 @@ msgid "Request a new organization"
 msgstr "புதிய அமைப்பைக் கோருங்கள்"
 
 #: warehouse/templates/manage/organizations.html:206
-#, fuzzy
-#| msgid "Organization account name"
 msgid "Organization Account Name"
 msgstr "அமைப்பு கணக்கு பெயர்"
 
@@ -4989,8 +4949,6 @@ msgid "For example"
 msgstr "உதாரணமாக"
 
 #: warehouse/templates/manage/organizations.html:234
-#, fuzzy
-#| msgid "Organization display name"
 msgid "Organization Display Name"
 msgstr "அமைப்பு காட்சி பெயர்"
 
@@ -5011,8 +4969,6 @@ msgid "URL for your business, product, or project"
 msgstr "உங்கள் வணிகம், தயாரிப்பு அல்லது திட்டத்திற்கான முகவரி"
 
 #: warehouse/templates/manage/organizations.html:276
-#, fuzzy
-#| msgid "Organization description"
 msgid "Organization Description"
 msgstr "அமைப்பு விளக்கம்"
 
@@ -5022,33 +4978,33 @@ msgid "Description of your business, product, or project"
 msgstr "உங்கள் வணிகம், தயாரிப்பு அல்லது திட்டத்தின் விளக்கம்"
 
 #: warehouse/templates/manage/organizations.html:298
-#, fuzzy
-#| msgid "Organization description"
 msgid "️Organization Membership Size"
-msgstr "அமைப்பு விளக்கம்"
+msgstr "Ormanization ஒழுங்குமுறை உறுப்பினர் அளவு"
 
 #: warehouse/templates/manage/organizations.html:309
 msgid ""
 "Estimated number of PyPI Users you anticipate joining this Organization. "
 "<b>Not</b> the number of people in your organization."
 msgstr ""
+"இந்த நிறுவனத்தில் சேர நீங்கள் எதிர்பார்க்கும் PYPI பயனர்களின் மதிப்பிடப்பட்ட எண்ணிக்கை. <b> "
+"இல்லை </b> உங்கள் நிறுவனத்தில் உள்ளவர்களின் எண்ணிக்கை."
 
 #: warehouse/templates/manage/organizations.html:317
 msgid "Anticipated Usage"
-msgstr ""
+msgstr "எதிர்பார்த்த பயன்பாடு"
 
 #: warehouse/templates/manage/organizations.html:322
 msgid "Description how you plan to use PyPI Organizations features"
-msgstr ""
+msgstr "விளக்கம் நீங்கள் PYPI நிறுவனங்களின் அம்சங்களைப் பயன்படுத்த திட்டமிட்டுள்ளீர்கள்"
 
 #: warehouse/templates/manage/organizations.html:337
 msgid ""
 "Tell us a little bit about how you plan to use PyPI Organizations features."
 msgstr ""
+"PYPI நிறுவனங்களின் அம்சங்களை எவ்வாறு பயன்படுத்த திட்டமிட்டுள்ளீர்கள் என்பதைப் பற்றி கொஞ்சம் "
+"சொல்லுங்கள்."
 
 #: warehouse/templates/manage/organizations.html:344
-#, fuzzy
-#| msgid "️Organization type"
 msgid "️Organization Type"
 msgstr "Cormanication அமைப்பு வகை"
 
@@ -5964,16 +5920,13 @@ msgstr ""
 "விதிமுறைகள் </a> க்கு ஒப்புக்கொள்கிறேன்."
 
 #: warehouse/templates/manage/organization/application.html:6
-#, fuzzy, python-format
-#| msgid "%(organization_name)s organization deleted"
+#, python-format
 msgid "Manage '%(organization_application_name)s' Organization Request"
-msgstr "%(அமைப்பு_பெயர்) அமைப்பு நீக்கப்பட்டது"
+msgstr "'%(அமைப்பு விண்ணப்பம்_பெயர்' அமைப்பு கோரிக்கையை நிர்வகிக்கவும்"
 
 #: warehouse/templates/manage/organization/application.html:9
-#, fuzzy
-#| msgid "Organization Roles"
 msgid "Organization request"
-msgstr "அமைப்பு பாத்திரங்கள்"
+msgstr "நிறுவன கோரிக்கை"
 
 #: warehouse/templates/manage/organization/application.html:12
 #: warehouse/templates/manage/organization/settings.html:14
@@ -5986,10 +5939,8 @@ msgid "Organization display name"
 msgstr "அமைப்பு காட்சி பெயர்"
 
 #: warehouse/templates/manage/organization/application.html:24
-#, fuzzy
-#| msgid "Organization description"
 msgid "️Organization description"
-msgstr "அமைப்பு விளக்கம்"
+msgstr "Contragitactionary விளக்கம்"
 
 #: warehouse/templates/manage/organization/application.html:28
 #: warehouse/templates/manage/organization/settings.html:111
@@ -5997,30 +5948,24 @@ msgid "️Organization type"
 msgstr "Cormanication அமைப்பு வகை"
 
 #: warehouse/templates/manage/organization/application.html:32
-#, fuzzy
-#| msgid "Organization description"
 msgid "️Organization membership size"
-msgstr "அமைப்பு விளக்கம்"
+msgstr "Ormanization ஒழுங்குமுறை உறுப்பினர் அளவு"
 
 #: warehouse/templates/manage/organization/application.html:38
 msgid "️Anticipated usage"
-msgstr ""
+msgstr "Autitationated பயன்பாடு"
 
 #: warehouse/templates/manage/organization/application.html:42
-#, fuzzy
-#| msgid "Submitted %(submitted)s"
 msgid "Date submitted"
-msgstr "சமர்ப்பிக்கப்பட்ட %(submitted)s"
+msgstr "சமர்ப்பிக்கப்பட்ட தேதி"
 
 #: warehouse/templates/manage/organization/application.html:67
 msgid "️Your Response"
-msgstr ""
+msgstr "Responee உங்கள் பதில்"
 
 #: warehouse/templates/manage/organization/application.html:78
-#, fuzzy
-#| msgid "Submitted by:"
 msgid "Submit"
-msgstr "சமர்ப்பித்தவர்:"
+msgstr "சமர்ப்பிக்கவும்"
 
 #: warehouse/templates/manage/organization/history.html:6
 #: warehouse/templates/manage/project/history.html:6
@@ -6204,7 +6149,7 @@ msgstr "உருவாக்கியவர்:"
 #: warehouse/templates/manage/project/history.html:315
 #: warehouse/templates/manage/team/history.html:57
 msgid "Deleted by:"
-msgstr "வழங்கியவர்:"
+msgstr "மூலம் நீக்கப்பட்டது:"
 
 #: warehouse/templates/manage/organization/history.html:125
 #: warehouse/templates/manage/team/history.html:62
@@ -6217,7 +6162,7 @@ msgstr "ஒப்புதல் அளித்தவர்:"
 
 #: warehouse/templates/manage/organization/history.html:135
 msgid "Declined by:"
-msgstr "வழங்கியவர்:"
+msgstr "மூலம் மறுக்கப்பட்டது:"
 
 #: warehouse/templates/manage/organization/history.html:151
 #: warehouse/templates/manage/project/history.html:133
@@ -6594,10 +6539,8 @@ msgid "Change organization account name"
 msgstr "நிறுவன கணக்கு பெயரை மாற்றவும்"
 
 #: warehouse/templates/manage/organization/settings.html:170
-#, fuzzy
-#| msgid "This organization is not active"
 msgid "Renaming organizations is not currently supported."
-msgstr "இந்த அமைப்பு செயலில் இல்லை"
+msgstr "மறுபெயரிடும் நிறுவனங்கள் தற்போது ஆதரிக்கப்படவில்லை."
 
 #: warehouse/templates/manage/organization/settings.html:172
 #, python-format
@@ -6605,6 +6548,8 @@ msgid ""
 "Please contact <a href=%(href)s>PyPI Support</a> if you need to rename your "
 "organization."
 msgstr ""
+"உங்கள் நிறுவனத்தை மறுபெயரிட வேண்டியிருந்தால் <a href =%(href)s> pypi உதவி </a> ஐ "
+"தொடர்பு கொள்ளவும்."
 
 #: warehouse/templates/manage/organization/settings.html:180
 msgid ""
@@ -6942,7 +6887,7 @@ msgstr "2FA தேவை இயக்கப்பட்டது"
 
 #: warehouse/templates/manage/project/history.html:260
 msgid "Enabled by:"
-msgstr "வழங்கியவர்:"
+msgstr "மூலம் இயக்கப்பட்டது:"
 
 #: warehouse/templates/manage/project/history.html:263
 msgid "2FA requirement disabled"
@@ -7094,17 +7039,14 @@ msgstr ""
 "ஒவ்வொன்றையும் நம்பகமான வெளியீட்டாளராக பதிவு செய்ய வேண்டும்."
 
 #: warehouse/templates/manage/project/publishing.html:438
-#, fuzzy, python-format
-#| msgid ""
-#| "I understand that this Trusted Publisher will only allow uploads frow CI/"
-#| "CD workflows running in the '%(constrained_environment_name)s' "
-#| "environment."
+#, python-format
 msgid ""
 "I understand that this Trusted Publisher will only allow uploads from CI/CD "
 "workflows running in the '%(constrained_environment_name)s' environment."
 msgstr ""
-"இந்த நம்பகமான வெளியீட்டாளர் '%(கட்டுப்படுத்தப்பட்ட சுற்றுச்சூழல்_பெயர்) எச்' சூழலில் இயங்கும் "
-"சிஐ/சிடி பணிப்பாய்வுகளிலிருந்து பதிவேற்ற அனுமதிப்பார் என்பதை நான் புரிந்துகொள்கிறேன்."
+"இந்த நம்பகமான வெளியீட்டாளர் '%(கட்டுப்படுத்தப்பட்ட_இன் சுற்றுச்சூழல்_பேம்) எச்' சூழலில் "
+"இயங்கும் சிஐ/சிடி பணிப்பாய்வுகளிலிருந்து பதிவேற்றங்களை மட்டுமே அனுமதிப்பார் என்பதை நான் "
+"புரிந்துகொள்கிறேன்."
 
 #: warehouse/templates/manage/project/publishing.html:443
 msgid "New Environment Name"
@@ -7590,8 +7532,7 @@ msgstr "திட்ட அளவு:"
 
 #: warehouse/templates/manage/project/settings.html:21
 #: warehouse/templates/manage/project/settings.html:31
-#, fuzzy, python-format
-#| msgid "<a href=\"%(help_url)s\"> (request an increase) </a>"
+#, python-format
 msgid "<a href=\"%(help_url)s\">(request an increase)</a>"
 msgstr "<a href = \"%(help_url)s\"> (அதிகரிப்பைக் கோருங்கள்) </a>"
 
@@ -7847,15 +7788,7 @@ msgid "Archive project"
 msgstr "காப்பக திட்டம்"
 
 #: warehouse/templates/manage/project/settings.html:338
-#, fuzzy, python-format
-#| msgid ""
-#| "Archiving a project will prevent any new uploads. Before doing so, we "
-#| "recommend publishing a final release with an update to the project's "
-#| "description to warn the users that the project won't receive further "
-#| "updates, and to mention any alternative projects they may consider as a "
-#| "replacement. If your project is <a href=\"%(readme_description_href)s\" "
-#| "rel=\"noopener\" target=\"_blank\">configured to do so</a>, you can "
-#| "update the project's description by editing the README file."
+#, python-format
 msgid ""
 "Archiving a project will prevent any new uploads, and remove the project "
 "from PyPI's search results. Before doing so, we recommend publishing a final "
@@ -7866,11 +7799,12 @@ msgid ""
 "target=\"_blank\">configured to do so</a>, you can update the project's "
 "description by editing the README file."
 msgstr ""
-"ஒரு திட்டத்தை காப்பகப்படுத்துவது புதிய பதிவேற்றங்களைத் தடுக்கும். அவ்வாறு செய்வதற்கு முன், "
-"திட்டத்தின் விளக்கத்திற்கான புதுப்பிப்புடன் இறுதி வெளியீட்டை வெளியிட பரிந்துரைக்கிறோம். "
-"உங்கள் திட்டம் <a href = \"%(readme_description_href)s\" rel = \"noopener\" "
-"இலக்கு = \"_ வெற்று\"> அவ்வாறு செய்ய கட்டமைக்கப்பட்டிருந்தால், </a>, நீங்கள் README "
-"கோப்பைத் திருத்துவதன் மூலம் திட்டத்தின் விளக்கத்தை புதுப்பிக்கலாம்."
+"ஒரு திட்டத்தை காப்பகப்படுத்துவது புதிய பதிவேற்றங்களைத் தடுக்கும், மேலும் பைபியின் தேடல் "
+"முடிவுகளிலிருந்து திட்டத்தை அகற்றும். அவ்வாறு செய்வதற்கு முன், திட்டத்தின் விளக்கத்திற்கான "
+"புதுப்பிப்புடன் இறுதி வெளியீட்டை வெளியிட பரிந்துரைக்கிறோம். உங்கள் திட்டம் <a href = "
+"\"%(readme_description_href)s\" rel = \"noopener\" இலக்கு = \"_ வெற்று\"> "
+"அவ்வாறு செய்ய கட்டமைக்கப்பட்டிருந்தால், </a>, நீங்கள் README கோப்பைத் திருத்துவதன் மூலம் "
+"திட்டத்தின் விளக்கத்தை புதுப்பிக்கலாம்."
 
 #: warehouse/templates/manage/project/settings.html:350
 #: warehouse/templates/manage/project/settings.html:353
@@ -7882,12 +7816,16 @@ msgid ""
 "Unarchiving a project will allow new file uploads and add the project to the "
 "search index."
 msgstr ""
+"ஒரு திட்டம் புதிய கோப்பு பதிவேற்றங்களை அனுமதிக்கும் மற்றும் திட்டத்தை தேடல் குறியீட்டில் "
+"சேர்க்கும்."
 
 #: warehouse/templates/manage/project/settings.html:364
 msgid ""
 "Archiving a project will block any new file uploads and remove the project "
 "from the search index."
 msgstr ""
+"ஒரு திட்டத்தை காப்பகப்படுத்துவது எந்தவொரு புதிய கோப்பு பதிவேற்றங்களையும் தடுக்கும் மற்றும் "
+"தேடல் குறியீட்டிலிருந்து திட்டத்தை அகற்றும்."
 
 #: warehouse/templates/manage/project/settings.html:370
 #: warehouse/templates/manage/project/settings.html:446
@@ -8198,7 +8136,7 @@ msgstr "முன் வெளியீடு"
 
 #: warehouse/templates/packaging/detail.html:401
 msgid "yanked"
-msgstr "yanked"
+msgstr "இழுத்துச் செல்லப்பட்டது"
 
 #: warehouse/templates/packaging/detail.html:426
 #, python-format
@@ -8215,7 +8153,7 @@ msgstr ""
 msgid "Source Distribution"
 msgid_plural "Source Distributions"
 msgstr[0] "மூல வழங்கல்"
-msgstr[1] "மூல வழங்கல்"
+msgstr[1] "மூல வழங்கல்கள்"
 
 #: warehouse/templates/packaging/detail.html:443
 msgid "No source distribution files available for this release."
@@ -8234,7 +8172,7 @@ msgstr ""
 msgid "Built Distribution"
 msgid_plural "Built Distributions"
 msgstr[0] "கட்டப்பட்ட வழங்கல்"
-msgstr[1] "கட்டப்பட்ட வழங்கல்"
+msgstr[1] "கட்டப்பட்ட வழங்கல்கள்"
 
 #: warehouse/templates/packaging/submit-malware-observation.html:20
 msgid "Submit Malware Report for Project"
@@ -8405,10 +8343,8 @@ msgid "What's a \"yanked\" release?"
 msgstr "\"யங்க்\" வெளியீடு என்றால் என்ன?"
 
 #: warehouse/templates/pages/help.html:54
-#, fuzzy
-#| msgid "Unarchive project"
 msgid "What's an archived project?"
-msgstr "Unarchible திட்டம்"
+msgstr "காப்பகப்படுத்தப்பட்ட திட்டம் என்றால் என்ன?"
 
 #: warehouse/templates/pages/help.html:58
 msgid "Why do I need a verified email address?"
@@ -8691,23 +8627,7 @@ msgid "About"
 msgstr "பற்றி"
 
 #: warehouse/templates/pages/help.html:425
-#, fuzzy, python-format
-#| msgid ""
-#| "<p>We use a number of terms to describe software available on PyPI, like "
-#| "\"project\", \"release\", \"file\", and \"package\". Sometimes those "
-#| "terms are confusing because they're used to describe different things in "
-#| "other contexts. Here's how we use them on PyPI:</p> <p>A \"project\" on "
-#| "PyPI is the name of a collection of releases and files, and information "
-#| "about them. Projects on PyPI are made and shared by other members of the "
-#| "Python community so that you can use them.</p> <p>A \"release\" on PyPI "
-#| "is a specific version of a project. For example, the <a "
-#| "href=\"%(requests_href)s\">requests</a> project has many releases, like "
-#| "\"requests 2.10\" and \"requests 1.2.1\". A release consists of one or "
-#| "more \"files\".</p> <p>A \"file\", also known as a \"package\", on PyPI "
-#| "is something that you can download and install. Because of different "
-#| "hardware, operating systems, and file formats, a release may have several "
-#| "files (packages), like an archive containing source code or a binary <a "
-#| "href=\"%(wheel_href)s\">wheel</a>.</p>"
+#, python-format
 msgid ""
 "<p> We use a number of terms to describe software available on PyPI, like "
 "\"project\", \"release\", \"file\", and \"package\". Sometimes those terms "
@@ -8731,15 +8651,15 @@ msgstr ""
 "பயன்படுகின்றன. PYPI இல் அவற்றை எவ்வாறு பயன்படுத்துகிறோம் என்பது இங்கே: </p> <p> PYPI "
 "இல் ஒரு \"திட்டம்\" என்பது வெளியீடுகள் மற்றும் கோப்புகளின் தொகுப்பின் பெயர் மற்றும் அவற்றைப் "
 "பற்றிய தகவல்கள். PYPI இல் உள்ள திட்டங்கள் பைதான் சமூகத்தின் மற்ற உறுப்பினர்களால் "
-"தயாரிக்கப்பட்டு பகிரப்படுகின்றன, இதனால் நீங்கள் அவற்றைப் பயன்படுத்தலாம். </P> <p> PYPI இல் "
-"ஒரு \"வெளியீடு\" என்பது ஒரு திட்டத்தின் ஒரு குறிப்பிட்ட பதிப்பாகும். எடுத்துக்காட்டாக, "
-"<a href = \"%(requests_href)s\"> கோரிக்கைகள் </a> திட்டத்தில் \"கோரிக்கைகள் 2.10\" "
+"தயாரிக்கப்பட்டு பகிரப்படுகின்றன, இதனால் நீங்கள் அவற்றைப் பயன்படுத்தலாம். </p> <p> PYPI இல் "
+"ஒரு \"வெளியீடு\" என்பது ஒரு திட்டத்தின் குறிப்பிட்ட பதிப்பாகும். எடுத்துக்காட்டாக, <a "
+"href = \"%(requests_href)s\"> கோரிக்கைகள் </a> திட்டத்தில் \"கோரிக்கைகள் 2.10\" "
 "மற்றும் \"கோரிக்கைகள் 1.2.1\" போன்ற பல வெளியீடுகள் உள்ளன. ஒரு வெளியீடு ஒன்று அல்லது "
-"அதற்கு மேற்பட்ட \"கோப்புகளை\" கொண்டுள்ளது. </P> <p> ஒரு \"கோப்பு\", \"தொகுப்பு\" "
-"என்றும் அழைக்கப்படுகிறது, இது PYPI இல் நீங்கள் பதிவிறக்கம் செய்து நிறுவக்கூடிய ஒன்று. "
-"வெவ்வேறு வன்பொருள், இயக்க முறைமைகள் மற்றும் கோப்பு வடிவங்கள் காரணமாக, ஒரு வெளியீட்டில் "
-"மூலக் குறியீடு கொண்ட காப்பகம் அல்லது பைனரி <a href = \"%(wheel_href)s\"> சக்கரம் </"
-"a> </a> போன்ற பல கோப்புகள் (தொகுப்புகள்) இருக்கலாம். /பி>"
+"அதற்கு மேற்பட்ட \"கோப்புகளை\" கொண்டுள்ளது. </p> <p> ஒரு \"கோப்பு\", \"தொகுப்பு\" "
+"என்றும் அழைக்கப்படுகிறது, பைபியில் நீங்கள் பதிவிறக்கம் செய்து நிறுவக்கூடிய ஒன்று. வெவ்வேறு "
+"வன்பொருள், இயக்க முறைமைகள் மற்றும் கோப்பு வடிவங்கள் காரணமாக, ஒரு வெளியீட்டில் மூலக் "
+"குறியீடு கொண்ட காப்பகம் அல்லது பைனரி <a href = \"%(wheel_href)s\"> சக்கரம் </a> "
+"போன்ற பல கோப்புகள் (தொகுப்புகள்) இருக்கலாம். </p>"
 
 #: warehouse/templates/pages/help.html:441
 #, python-format
@@ -8781,14 +8701,7 @@ msgstr ""
 "செல்லுபடியாகும் வகைப்படுத்திகளின் பட்டியலையும் காண்க."
 
 #: warehouse/templates/pages/help.html:471
-#, fuzzy, python-format
-#| msgid ""
-#| "A yanked release is a release that is always ignored by an installer, "
-#| "unless it is the only release that matches a version specifier (using "
-#| "either <code>==</code> or <code>===</code>). See <a href=\"%(href)s\" "
-#| "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"><abbr "
-#| "title=\"Python enhancement proposal\">PEP</abbr> 592</a> for more "
-#| "information."
+#, python-format
 msgid ""
 "A yanked release is a release that is always ignored by an installer, unless "
 "it is the only release that matches a version specifier (using either "
@@ -8796,11 +8709,11 @@ msgid ""
 "title=\"%(title)s\">the user documentation</a> for more information, "
 "including how to yank a release."
 msgstr ""
-"ஒரு பதிப்பு விவரக்குறிப்புடன் பொருந்தக்கூடிய ஒரே வெளியீடாக இல்லாவிட்டால் (<குறியீடு> == "
+"ஒரு பதிப்பு விவரக்குறிப்புடன் பொருந்தக்கூடிய ஒரே வெளியீடு இல்லாவிட்டால் (<குறியீடு> == "
 "</code> அல்லது <code> === </code>) ஐப் பயன்படுத்தி) ஒரு நிறுவியால் எப்போதும் "
 "புறக்கணிக்கப்படும் ஒரு வெளியீடு ஆகும். <A href = \"%(href)s\" தலைப்பு = "
-"\"%(title)s\" இலக்கு = \"_ வெற்று\" rel = \"noopener\"> <abbr தலைப்பு = \"பைதான் "
-"மேம்பாட்டு திட்டம்\"> பெப் </abbr> 592 </ a> மேலும் தகவலுக்கு."
+"\"%(title)s\"> பயனர் ஆவணங்கள் </a> ஐப் பார்க்கவும் </a>, வெளியீட்டை எவ்வாறு அசைப்பது "
+"உட்பட மேலும் தகவலுக்கு."
 
 #: warehouse/templates/pages/help.html:481
 #, python-format
@@ -8812,6 +8725,13 @@ msgid ""
 "or <a href=\"%(href)s\">yanked</a> releases. An archived project cannot make "
 "new releases and will not appear in PyPI's search results."
 msgstr ""
+"காப்பகப்படுத்தப்பட்ட திட்டம் என்பது எந்த புதுப்பிப்புகளையும் இனி பெறாத ஒரு திட்டமாகும். "
+"எதிர்கால புதுப்பிப்புகளை எதிர்பார்க்கக்கூடாது என்று பயனர்களுக்கு சமிக்ஞை செய்ய ஒரு "
+"திட்டத்தை காப்பகப்படுத்தியதாக ஒரு திட்ட பராமரிப்பாளர் குறிக்க முடியும். "
+"காப்பகப்படுத்தப்பட்ட திட்டங்கள் பகிரங்கமாகக் காணப்படுகின்றன, மேலும் அவை நீக்கப்பட்ட அல்லது <a "
+"href = \"%(href)s\"> yanked </a> வெளியீடுகளைப் போலல்லாமல், இயல்பாகவே "
+"குறியீட்டிலிருந்து தீர்க்கப்படலாம். ஒரு காப்பகப்படுத்தப்பட்ட திட்டத்தால் புதிய வெளியீடுகளைச் "
+"செய்ய முடியாது மற்றும் பைபியின் தேடல் முடிவுகளில் தோன்றாது."
 
 #: warehouse/templates/pages/help.html:492
 msgid "My account"
@@ -8913,13 +8833,7 @@ msgstr ""
 "மீட்டமைக்கவும் </a>. </p>"
 
 #: warehouse/templates/pages/help.html:549
-#, fuzzy, python-format
-#| msgid ""
-#| "<p> All PyPI user events are stored under security history in account "
-#| "settings. If there are any events that seem suspicious, take the "
-#| "following steps: </p> <ul> <li><a href=\"%(reset_pwd_href)s\">Reset your "
-#| "password</a></li> <li>Contact the PyPI admins about the event at <a "
-#| "href=\"mailto:%(admin_email)s\">%(admin_email)s</a></li> </ul>"
+#, python-format
 msgid ""
 "<p> All PyPI user events are stored under security history in account "
 "settings. If there are any events that seem suspicious, take the following "
@@ -8929,10 +8843,9 @@ msgid ""
 msgstr ""
 "<p> அனைத்து PYPI பயனர் நிகழ்வுகளும் கணக்கு அமைப்புகளில் பாதுகாப்பு வரலாற்றில் "
 "சேமிக்கப்படுகின்றன. சந்தேகத்திற்குரியதாகத் தோன்றும் ஏதேனும் நிகழ்வுகள் இருந்தால், பின்வரும் "
-"படிகளை எடுக்கவும்: </p> <ul> <li> <a href = \"%(reset_pwd_href)s\"> உங்கள் "
-"கடவுச்சொல்லை மீட்டமைக்கவும் </a> </li> <li> <A href = \"mailto:"
-"%(admin_email)s\">%(admin_email)s </a> </li> </ul> இல் நிகழ்வைப் பற்றி பைபி "
-"நிர்வாகிகளைத் தொடர்பு கொள்ளுங்கள்"
+"படிகளை எடுத்துக் கொள்ளுங்கள்: </p> <ul> <li> <a href = \"%(reset_pwd_href)s\"> "
+"உங்கள் கடவுச்சொல்லை மீட்டமைக்கவும் </a> </li> <li> <a href = \"maindto:"
+"%(admin_email)s\""
 
 #: warehouse/templates/pages/help.html:564
 msgid ""
@@ -9165,8 +9078,8 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">FIDO U2F "
 "specification</a>:"
 msgstr ""
-"<A href = \"%(href)s\" தலைப்பு = \"%(title)s\" இலக்கு = \"_ வெற்று\" rel = "
-"\"noopener\"> fido U2f விவரக்குறிப்பு </a>"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> "
+"fido U2f விவரக்குறிப்பு </a> இதன்படி யுஎச்பி திறவுகோல் இருந்தால் பயன்படுத்தலாம்:"
 
 #: warehouse/templates/pages/help.html:709
 #, python-format
@@ -9194,14 +9107,6 @@ msgid "Follow these steps:"
 msgstr "இந்த படிகளைப் பின்பற்றவும்:"
 
 #: warehouse/templates/pages/help.html:733
-#, fuzzy
-#| msgid ""
-#| "<li>Log in to your PyPI account, go to your account settings, and choose "
-#| "\"Add <abbr title=\"two factor authentication\">2FA</abbr> with security "
-#| "device (e.g. USB key)\"</li> <li>Give your key a name. This is necessary "
-#| "because it's possible to add more than one security device to your "
-#| "account.</li> <li>Click on the \"Set up security device\" button</li> "
-#| "<li>Insert and touch your USB key, as instructed by your browser</li>"
 msgid ""
 "<li> Log in to your PyPI account, go to your account settings, and choose "
 "\"Add <abbr title=\"two factor authentication\">2FA</abbr> with security "
@@ -9211,10 +9116,11 @@ msgid ""
 "touch your USB key, as instructed by your browser</li>"
 msgstr ""
 "<li> உங்கள் PYPI கணக்கில் உள்நுழைந்து, உங்கள் கணக்கு அமைப்புகளுக்குச் சென்று, பாதுகாப்பு "
-"சாதனத்துடன் (எ.கா. யூ.எச்.பி விசை) \"</li> <li உடன்\" <abbr தலைப்பு = \"இரண்டு "
-"காரணி அங்கீகாரம்\"> 2fa </bbr> ஐத் தேர்வுசெய்க > உங்கள் விசைக்கு ஒரு பெயரைக் கொடுங்கள். "
-"இது தேவை, ஏனெனில் உங்கள் கணக்கில் ஒன்றுக்கு மேற்பட்ட பாதுகாப்பு சாதனங்களைச் சேர்க்க "
-"முடியும். உங்கள் உலாவியால் </li>"
+"சாதனத்துடன் (எ.கா. யூ.எச்.பி விசை) \"2FA </abbr>\" ஐ சேர் <ABBR தலைப்பு = \"இரண்டு "
+"காரணி அங்கீகாரம்\"> 2fa </abbr> ஐத் தேர்வுசெய்க. இது தேவை, ஏனெனில் உங்கள் கணக்கில் "
+"ஒன்றுக்கு மேற்பட்ட பாதுகாப்பு சாதனங்களைச் சேர்க்க முடியும். </li> <li> \"பாதுகாப்பு "
+"சாதனத்தை அமைக்கவும்\" பொத்தானைக் சொடுக்கு செய்க </li> <li> உங்கள் உலாவியால் "
+"அறிவுறுத்தப்பட்டபடி, உங்கள் யூ.எச்.பி விசையைச் செருகவும் தொடவும் </li>"
 
 #: warehouse/templates/pages/help.html:745
 msgid ""
@@ -9452,15 +9358,6 @@ msgstr ""
 "வெளியீட்டைச் சரிபார்க்கிறார்கள்."
 
 #: warehouse/templates/pages/help.html:871
-#, fuzzy
-#| msgid ""
-#| "<p>PyPI asks you to confirm your password before you want to perform a "
-#| "<i>sensitive action</i>. Sensitive actions include things like adding or "
-#| "removing maintainers, deleting distributions, generating API tokens, and "
-#| "setting up two-factor authentication.</p> <p>You'll only have to re-"
-#| "confirm your password if it's been more than an hour since you last "
-#| "confirmed it.</p> <p><strong>We strongly recommend you only perform such "
-#| "actions on your personal, password-protected computer.</strong></p>"
 msgid ""
 "<p> PyPI asks you to confirm your password before you want to perform a "
 "<i>sensitive action</i>. Sensitive actions include things like adding or "
@@ -9470,13 +9367,12 @@ msgid ""
 "p> <p> <strong>We strongly recommend you only perform such actions on your "
 "personal, password-protected computer.</strong> </p>"
 msgstr ""
-"<i> உணர்திறன் செயல் </i> செய்ய விரும்புவதற்கு முன் உங்கள் கடவுச்சொல்லை உறுதிப்படுத்துமாறு "
-"பைபி உங்களிடம் கேட்கிறார். உணர்திறன் செயல்களில் பராமரிப்பாளர்களைச் சேர்ப்பது அல்லது "
-"அகற்றுவது, விநியோகங்களை நீக்குதல், பநிஇ டோக்கன்களை உருவாக்குதல் மற்றும் இரண்டு காரணி "
-"அங்கீகாரத்தை அமைத்தல் போன்றவை அடங்கும். </P> <p> உங்கள் கடவுச்சொல்லை ஒரு மணி நேரத்திற்கும் "
-"மேலாக இருந்தால் மட்டுமே நீங்கள் மீண்டும் உறுதிப்படுத்த வேண்டும் நீங்கள் கடைசியாக அதை "
-"உறுதிப்படுத்தியதால். </p> <p> <strong> உங்கள் தனிப்பட்ட, கடவுச்சொல் பாதுகாக்கப்பட்ட "
-"கணினியில் மட்டுமே இதுபோன்ற செயல்களைச் செய்ய நாங்கள் கடுமையாக பரிந்துரைக்கிறோம்."
+"<p><i> உணர்திறன் செயல் </i> செய்ய விரும்புவதற்கு முன் உங்கள் கடவுச்சொல்லை "
+"உறுதிப்படுத்துமாறு பைபி உங்களிடம் கேட்கிறார். உணர்திறன் செயல்களில் பராமரிப்பாளர்களைச் "
+"சேர்ப்பது அல்லது அகற்றுவது, விநியோகங்களை நீக்குதல், பநிஇ டோக்கன்களை உருவாக்குதல் மற்றும் "
+"இரண்டு காரணி அங்கீகாரத்தை அமைப்பது போன்றவை அடங்கும். </p> <p><strong> உங்கள் "
+"கடவுச்சொல்லை நீங்கள் கடைசியாக உறுதிப்படுத்தியதிலிருந்து ஒரு மணி நேரத்திற்கும் மேலாக "
+"இருந்தால் மட்டுமே நீங்கள் மீண்டும் உறுதிப்படுத்த வேண்டும்.</strong></p>"
 
 #: warehouse/templates/pages/help.html:881
 msgid "PyPI does not currently support changing a username."
@@ -9766,21 +9662,15 @@ msgstr ""
 "கையேடு </a> ஐப் பார்க்கவும்."
 
 #: warehouse/templates/pages/help.html:1027
-#, fuzzy, python-format
-#| msgid ""
-#| "If you can't upload your project's release to PyPI because you're hitting "
-#| "the project size limit (%(max_project_size_gb)s GiB by default; "
-#| "individual projects may differ), first remove any unnecessary releases or "
-#| "individual files to lower your overall project size."
+#, python-format
 msgid ""
 "If you can't upload your project's release to PyPI because you're hitting "
 "the upload file size limit (%(max_file_size_mb)s MiB by default; individual "
 "projects may differ), we can sometimes increase your limit."
 msgstr ""
-"உங்கள் திட்டத்தின் வெளியீட்டை PYPI இல் பதிவேற்ற முடியாவிட்டால், நீங்கள் திட்ட அளவு வரம்பை "
-"(%(max_project_size_gb)s கிப் இயல்புநிலையாக தாக்குகிறீர்கள்; தனிப்பட்ட திட்டங்கள் "
-"வேறுபடலாம்), முதலில் உங்கள் ஒட்டுமொத்த திட்ட அளவைக் குறைக்க தேவையற்ற வெளியீடுகள் அல்லது "
-"தனிப்பட்ட கோப்புகளை அகற்றவும் ."
+"உங்கள் திட்டத்தின் வெளியீட்டை PYPI இல் பதிவேற்ற முடியாவிட்டால், நீங்கள் பதிவேற்றும் கோப்பு "
+"அளவு வரம்பை (%(max_file_size_mb)s MIB ஐ இயல்பாகவே தாக்குகிறீர்கள்; தனிப்பட்ட திட்டங்கள் "
+"வேறுபடலாம்), நாங்கள் சில நேரங்களில் உங்கள் வரம்பை அதிகரிக்கலாம்."
 
 #: warehouse/templates/pages/help.html:1034
 #, python-format
@@ -9788,14 +9678,11 @@ msgid ""
 "See the <a href=\"%(href)s\">user documentation</a> for more information on "
 "requesting a file size limit increase."
 msgstr ""
+"கோப்பு அளவு வரம்பு அதிகரிப்பைக் கோருவது பற்றிய கூடுதல் தகவலுக்கு <a href = "
+"\"%(href)s\"> பயனர் ஆவணங்கள் </a> ஐப் பார்க்கவும்."
 
 #: warehouse/templates/pages/help.html:1042
-#, fuzzy, python-format
-#| msgid ""
-#| "If you can't upload your project's release to PyPI because you're hitting "
-#| "the project size limit (%(max_project_size_gb)s GiB by default; "
-#| "individual projects may differ), first remove any unnecessary releases or "
-#| "individual files to lower your overall project size."
+#, python-format
 msgid ""
 "If you can't upload your project's release to PyPI because you're hitting "
 "the project size limit (%(max_project_size_gb)s GiB by default; individual "
@@ -9803,24 +9690,20 @@ msgid ""
 "releases or individual files</a> to lower your overall project size."
 msgstr ""
 "உங்கள் திட்டத்தின் வெளியீட்டை PYPI இல் பதிவேற்ற முடியாவிட்டால், நீங்கள் திட்ட அளவு வரம்பை "
-"(%(max_project_size_gb)s கிப் இயல்புநிலையாக தாக்குகிறீர்கள்; தனிப்பட்ட திட்டங்கள் "
-"வேறுபடலாம்), முதலில் உங்கள் ஒட்டுமொத்த திட்ட அளவைக் குறைக்க தேவையற்ற வெளியீடுகள் அல்லது "
-"தனிப்பட்ட கோப்புகளை அகற்றவும் ."
+"(%(max_project_size_gb)sப் இயல்புநிலையாக தாக்குகிறீர்கள்; தனிப்பட்ட திட்டங்கள் "
+"வேறுபடலாம்), முதலில் <a href = \"%(href)s\"> உங்கள் ஒட்டுமொத்த திட்ட அளவைக் குறைக்க "
+"தேவையற்ற வெளியீடுகள் அல்லது தனிப்பட்ட கோப்புகளை அகற்றவும்."
 
 #: warehouse/templates/pages/help.html:1051
-#, fuzzy, python-format
-#| msgid ""
-#| "If that is not possible, we can sometimes increase your limit. <a "
-#| "href=\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" "
-#| "rel=\"noopener\">File an issue</a> and tell us:"
+#, python-format
 msgid ""
 "If that is not possible, we can sometimes increase your limit. See the <a "
 "href=\"%(href)s\">user documentation</a> for more information on requesting "
 "a project size limit increase."
 msgstr ""
-"அது முடியாவிட்டால், நாங்கள் சில நேரங்களில் உங்கள் வரம்பை அதிகரிக்க முடியும். <a href = "
-"\"%(file_issue_href)s\" தலைப்பு = \"%(title)s\" இலக்கு = \"_ வெற்று\" rel = "
-"\"noopener\"> ஒரு சிக்கலைத் தாக்கல் </a> எங்களிடம் கூறுங்கள்:"
+"அது முடியாவிட்டால், நாங்கள் சில நேரங்களில் உங்கள் வரம்பை அதிகரிக்க முடியும். திட்ட அளவு "
+"வரம்பு அதிகரிப்பைக் கோருவது பற்றிய கூடுதல் தகவலுக்கு <a href = \"%(href)s\"> பயனர் "
+"ஆவணங்கள் </a> ஐப் பார்க்கவும்."
 
 #: warehouse/templates/pages/help.html:1059
 #, python-format
@@ -10223,13 +10106,7 @@ msgstr ""
 "சரிபார்க்கவும், மீண்டும் சாதனத்தை அமைக்க முயற்சிக்கவும்."
 
 #: warehouse/templates/pages/help.html:1282
-#, fuzzy, python-format
-#| msgid ""
-#| "Projects may get placed in quarantine for any number of reasons, such as "
-#| "suspicion of malicious activity, spam, or other violations of the <a "
-#| "href=\"%(tou)s\" target=\"_blank\" rel=\"noopener\">Terms of Use</a> or "
-#| "<a href=\"%(aup)s\" target=\"_blank\" rel=\"noopener\">Acceptable Use "
-#| "Policy</a>."
+#, python-format
 msgid ""
 "Projects may get placed in quarantine for any number of reasons, such as "
 "suspicion of malicious activity, spam, or other violations of the <a "
@@ -10237,11 +10114,9 @@ msgid ""
 "<a href=\"%(aup)s\" target=\"_blank\" rel=\"noopener\">Acceptable Use "
 "Policy</a>."
 msgstr ""
-"தீங்கிழைக்கும் செயல்பாடு, ச்பேம் அல்லது <a href = \"%(tou)s\" இலக்கு = \"_ வெற்று\" "
-"rel = \"noopener\"> விதிமுறைகள் போன்ற எந்தவொரு காரணங்களுக்காகவும் திட்டங்கள் "
-"தனிமைப்படுத்தலில் வைக்கப்படலாம் </a> அல்லது <a href = \"%(aup)s\" இலக்கு = \"_ "
-"வெற்று\" rel = \"noopener\"> ஏற்றுக்கொள்ளக்கூடிய பயன்பாட்டுக் கொள்கை </a> ஐப் "
-"பயன்படுத்தவும்."
+"தீங்கிழைக்கும் செயல்பாடு, ச்பேம் அல்லது <a href=\"%(tou)s\" target=\"_blank\" "
+"rel=\"noopener\">பணி விதிமுறைகள் </a> அல்லது <a href=\"%(aup)s\" "
+"target=\"_blank\" rel=\"noopener\">ஏற்று கொள்ளகூடிய விதிமுறைகள்</a>."
 
 #: warehouse/templates/pages/help.html:1291
 msgid ""
@@ -10528,10 +10403,8 @@ msgid "Looking for something else? Perhaps these links will help:"
 msgstr "வேறு ஏதாவது தேடுகிறீர்களா? ஒருவேளை இந்த இணைப்புகள் உதவும்:"
 
 #: warehouse/templates/pages/help.html:1461
-#, fuzzy
-#| msgid "Documentation"
 msgid "PyPI User Documentation"
-msgstr "ஆவணப்படுத்துதல்"
+msgstr "PYPI பயனர் ஆவணம்"
 
 #: warehouse/templates/pages/help.html:1467
 msgid "Python Packaging User Guide"
