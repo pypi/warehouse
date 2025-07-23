@@ -168,9 +168,31 @@
     <script async src="{{ request.static_path('warehouse:static/dist/js/warehouse' + ('' if request.localizer.locale_name == 'en' else '.' + request.localizer.locale_name) + '.js') }}">
     </script>
     {% block extra_js %}{% endblock %}
-    <script defer
-            data-domain="pypi.org"
-            src="https://analytics.python.org/js/script.js"></script>
+    {# Exclude all query parameters from analytics payload on pages where they may contain sensitive information.
+     # PSF controls the analytics destination, so it is not a third-party tracker,
+     # but this prevents the parameters from being sent to the analytics service in the payload,
+     # where it would be further filtered before storage. #}
+    {% set analytics_sanatize_query_params_routes = [
+      "accounts.reset-password",
+      "accounts.verify-email",
+      "accounts.verify-organization-role",
+      "accounts.verify-project-role"
+    ] %}
+    {% if request.matched_route and request.matched_route.name in analytics_sanatize_query_params_routes %}
+      <script defer
+              data-domain="pypi.org"
+              src="https://analytics.python.org/js/script.manual.js"></script>
+      <script>
+          window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }
+      </script>
+      <script>
+          plausible('pageview', { u: '{{ request.scheme }}://{{ request.domain }}{{ request.matched_route.pattern }}' });
+      </script>
+    {% else %}
+      <script defer
+              data-domain="pypi.org"
+              src="https://analytics.python.org/js/script.js"></script>
+    {% endif %}
     <script defer
             src="https://www.fastly-insights.com/insights.js?k=6a52360a-f306-421e-8ed5-7417d0d4a4e9&dnt=true"></script>
     <script async
