@@ -172,13 +172,13 @@
      # PSF controls the analytics destination, so it is not a third-party tracker,
      # but this prevents the parameters from being sent to the analytics service in the payload,
      # where it would be further filtered before storage. #}
-    {% set analytics_sanatize_query_params_routes = [
+    {% set analytics_sanitize_query_params_routes = [
       "accounts.reset-password",
       "accounts.verify-email",
       "accounts.verify-organization-role",
       "accounts.verify-project-role"
     ] %}
-    {% if request.matched_route and request.matched_route.name in analytics_sanatize_query_params_routes %}
+    {% if request.matched_route and request.matched_route.name in analytics_sanitize_query_params_routes %}
       <script defer
               data-domain="pypi.org"
               src="https://analytics.python.org/js/script.manual.js"></script>
