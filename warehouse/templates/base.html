@@ -168,9 +168,21 @@
     <script async src="{{ request.static_path('warehouse:static/dist/js/warehouse' + ('' if request.localizer.locale_name == 'en' else '.' + request.localizer.locale_name) + '.js') }}">
     </script>
     {% block extra_js %}{% endblock %}
-    <script defer
-            data-domain="pypi.org"
-            src="https://analytics.python.org/js/script.js"></script>
+    {# Exclude the analytics tracking on pages where the URL may contain sensitive information.
+     # PSF controls the analytics destination, so it is not a third-party tracker,
+     # but this prevents the URL from being sent to the analytics service in the payload,
+     # where it would be further filtered before storage. #}
+    {% set excluded_routes = [
+      "accounts.reset-password",
+      "accounts.verify-email",
+      "accounts.verify-organization-role",
+      "accounts.verify-project-role"
+    ] %}
+    {% if request.matched_route and request.matched_route.name not in excluded_routes %}
+      <script defer
+              data-domain="pypi.org"
+              src="https://analytics.python.org/js/script.js"></script>
+    {% endif %}
     <script defer
             src="https://www.fastly-insights.com/insights.js?k=6a52360a-f306-421e-8ed5-7417d0d4a4e9&dnt=true"></script>
     <script async
