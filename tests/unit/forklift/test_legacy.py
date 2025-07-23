@@ -2728,6 +2728,7 @@ class TestFileUpload:
             "manylinux_2_17_armv7l",
             "manylinux_2_17_ppc64",
             "manylinux_2_17_ppc64le",
+            "manylinux_2_39_riscv64",
             "manylinux_3_0_s390x",
             "musllinux_1_1_x86_64",
             "macosx_10_5_ppc",
