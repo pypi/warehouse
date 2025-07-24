@@ -195,21 +195,23 @@ def organization_list(request):
 
 @view_config(
     route_name="admin.organization.detail",
-    request_method="GET",
     renderer="warehouse.admin:templates/admin/organizations/detail.html",
     permission=Permissions.AdminOrganizationsRead,
+    request_method="GET",
     has_translations=True,
     uses_session=True,
     require_csrf=True,
+    require_methods=False,
 )
 @view_config(
     route_name="admin.organization.detail",
-    request_method="POST",
     renderer="warehouse.admin:templates/admin/organizations/detail.html",
     permission=Permissions.AdminOrganizationsWrite,
+    request_method="POST",
     has_translations=True,
     uses_session=True,
     require_csrf=True,
+    require_methods=False,
 )
 def organization_detail(request):
     organization_service = request.find_service(IOrganizationService, context=None)

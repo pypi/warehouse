@@ -373,7 +373,7 @@ class TestOrganizationDetail:
 
         with pytest.raises(HTTPNotFound):
             views.organization_detail(request)
-    
+
     def test_updates_organization(self, db_request):
         organization = OrganizationFactory.create(
             display_name="Old Name",
@@ -381,31 +381,33 @@ class TestOrganizationDetail:
             description="Old description",
             orgtype=OrganizationType.Company,
         )
-        
+
         db_request.matchdict = {"organization_id": str(organization.id)}
         db_request.method = "POST"
-        db_request.POST = MultiDict({
-            "display_name": "New Name",
-            "link_url": "https://new-url.com",
-            "description": "New description",
-            "orgtype": "Community",
-        })
+        db_request.POST = MultiDict(
+            {
+                "display_name": "New Name",
+                "link_url": "https://new-url.com",
+                "description": "New description",
+                "orgtype": "Community",
+            }
+        )
         db_request.route_path = pretend.call_recorder(
             lambda name, **kwargs: f"/admin/organizations/{organization.id}/"
         )
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
-        
+
         organization_service = pretend.stub(
             get_organization=pretend.call_recorder(lambda org_id: organization)
         )
         db_request.find_service = pretend.call_recorder(
             lambda iface, context: organization_service
         )
-        
+
         result = views.organization_detail(db_request)
-        
+
         assert isinstance(result, HTTPSeeOther)
         assert result.location == f"/admin/organizations/{organization.id}/"
         assert organization.display_name == "New Name"
@@ -415,31 +417,33 @@ class TestOrganizationDetail:
         assert db_request.session.flash.calls == [
             pretend.call(
                 f"Organization {organization.name!r} updated successfully",
-                queue="success"
+                queue="success",
             )
         ]
 
     def test_does_not_update_with_invalid_form(self, db_request):
         organization = OrganizationFactory.create()
-        
+
         db_request.matchdict = {"organization_id": str(organization.id)}
         db_request.method = "POST"
-        db_request.POST = MultiDict({
-            "display_name": "",  # Required field
-            "link_url": "invalid-url",  # Invalid URL
-            "description": "Some description",
-            "orgtype": "Company",
-        })
-        
+        db_request.POST = MultiDict(
+            {
+                "display_name": "",  # Required field
+                "link_url": "invalid-url",  # Invalid URL
+                "description": "Some description",
+                "orgtype": "Company",
+            }
+        )
+
         organization_service = pretend.stub(
             get_organization=pretend.call_recorder(lambda org_id: organization)
         )
         db_request.find_service = pretend.call_recorder(
             lambda iface, context: organization_service
         )
-        
+
         result = views.organization_detail(db_request)
-        
+
         assert result["organization"] == organization
         assert isinstance(result["form"], views.OrganizationForm)
         assert result["form"].errors
