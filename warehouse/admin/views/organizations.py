@@ -2,6 +2,8 @@
 
 import shlex
 
+import wtforms
+
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
@@ -19,6 +21,53 @@ from warehouse.organizations.models import (
     OrganizationType,
 )
 from warehouse.utils.paginate import paginate_url_factory
+
+
+class OrganizationForm(wtforms.Form):
+    display_name = wtforms.StringField(
+        validators=[
+            wtforms.validators.InputRequired(
+                message="Specify organization display name"
+            ),
+            wtforms.validators.Length(
+                max=100,
+                message="Organization display name must be 100 characters or less",
+            ),
+        ]
+    )
+
+    link_url = wtforms.URLField(
+        validators=[
+            wtforms.validators.InputRequired(message="Specify organization URL"),
+            wtforms.validators.Length(
+                max=400, message="Organization URL must be 400 characters or less"
+            ),
+            wtforms.validators.Regexp(
+                r"^https?://",
+                message="Organization URL must start with http:// or https://",
+            ),
+        ]
+    )
+
+    description = wtforms.TextAreaField(
+        validators=[
+            wtforms.validators.InputRequired(
+                message="Specify organization description"
+            ),
+            wtforms.validators.Length(
+                max=400,
+                message="Organization description must be 400 characters or less",
+            ),
+        ]
+    )
+
+    orgtype = wtforms.SelectField(
+        choices=[("Company", "Company"), ("Community", "Community")],
+        coerce=OrganizationType,
+        validators=[
+            wtforms.validators.InputRequired(message="Select organization type"),
+        ],
+    )
 
 
 def _turbo_mode(request):
@@ -146,9 +195,18 @@ def organization_list(request):
 
 @view_config(
     route_name="admin.organization.detail",
-    require_methods=False,
+    request_method="GET",
     renderer="warehouse.admin:templates/admin/organizations/detail.html",
     permission=Permissions.AdminOrganizationsRead,
+    has_translations=True,
+    uses_session=True,
+    require_csrf=True,
+)
+@view_config(
+    route_name="admin.organization.detail",
+    request_method="POST",
+    renderer="warehouse.admin:templates/admin/organizations/detail.html",
+    permission=Permissions.AdminOrganizationsWrite,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
@@ -161,8 +219,27 @@ def organization_detail(request):
     if organization is None:
         raise HTTPNotFound
 
+    form = OrganizationForm(
+        request.POST if request.method == "POST" else None,
+        organization,
+    )
+
+    if request.method == "POST" and form.validate():
+        form.populate_obj(organization)
+
+        request.session.flash(
+            f"Organization {organization.name!r} updated successfully",
+            queue="success",
+        )
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
     return {
         "organization": organization,
+        "form": form,
     }
 
 

@@ -20,6 +20,59 @@ from ....common.db.organizations import (
 )
 
 
+class TestOrganizationForm:
+    def test_validate_success(self):
+        form_data = MultiDict(
+            {
+                "display_name": "My Organization",
+                "link_url": "https://example.com",
+                "description": "A test organization",
+                "orgtype": "Company",
+            }
+        )
+        form = views.OrganizationForm(formdata=form_data)
+        assert form.validate(), str(form.errors)
+
+    def test_validate_invalid_url(self):
+        form_data = MultiDict(
+            {
+                "display_name": "My Organization",
+                "link_url": "not-a-url",
+                "description": "A test organization",
+                "orgtype": "Company",
+            }
+        )
+        form = views.OrganizationForm(formdata=form_data)
+        assert not form.validate()
+        assert "Organization URL must start with http:// or https://" in str(
+            form.link_url.errors
+        )
+
+    def test_validate_missing_required_fields(self):
+        form_data = MultiDict({})
+        form = views.OrganizationForm(formdata=form_data)
+        assert not form.validate()
+        assert form.display_name.errors
+        assert form.link_url.errors
+        assert form.description.errors
+        assert form.orgtype.errors
+
+    def test_validate_field_too_long(self):
+        form_data = MultiDict(
+            {
+                "display_name": "x" * 101,  # Max is 100
+                "link_url": "https://example.com/" + "x" * 381,  # Max is 400
+                "description": "x" * 401,  # Max is 400
+                "orgtype": "Company",
+            }
+        )
+        form = views.OrganizationForm(formdata=form_data)
+        assert not form.validate()
+        assert "100 characters or less" in str(form.display_name.errors)
+        assert "400 characters or less" in str(form.link_url.errors)
+        assert "400 characters or less" in str(form.description.errors)
+
+
 class TestOrganizationList:
 
     @pytest.mark.usefixtures("_enable_organizations")
@@ -230,6 +283,8 @@ class TestOrganizationDetail:
             get_organization=lambda *a, **kw: organization,
         )
         request = pretend.stub(
+            method="GET",
+            POST=MultiDict(),
             flags=pretend.stub(enabled=lambda *a: False),
             find_service=lambda iface, **kw: {
                 IOrganizationService: organization_service,
@@ -237,9 +292,9 @@ class TestOrganizationDetail:
             matchdict={"organization_id": pretend.stub()},
         )
 
-        assert views.organization_detail(request) == {
-            "organization": organization,
-        }
+        result = views.organization_detail(request)
+        assert result["organization"] == organization
+        assert "form" in result
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_is_approved_true(self):
@@ -261,6 +316,8 @@ class TestOrganizationDetail:
             get_organization=lambda *a, **kw: organization,
         )
         request = pretend.stub(
+            method="GET",
+            POST=MultiDict(),
             flags=pretend.stub(enabled=lambda *a: False),
             find_service=lambda iface, **kw: {
                 IOrganizationService: organization_service,
@@ -268,9 +325,9 @@ class TestOrganizationDetail:
             matchdict={"organization_id": pretend.stub()},
         )
 
-        assert views.organization_detail(request) == {
-            "organization": organization,
-        }
+        result = views.organization_detail(request)
+        assert result["organization"] == organization
+        assert "form" in result
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_is_approved_false(self):
@@ -292,6 +349,8 @@ class TestOrganizationDetail:
             get_organization=lambda *a, **kw: organization,
         )
         request = pretend.stub(
+            method="GET",
+            POST=MultiDict(),
             flags=pretend.stub(enabled=lambda *a: False),
             find_service=lambda iface, **kw: {
                 IOrganizationService: organization_service,
@@ -299,9 +358,9 @@ class TestOrganizationDetail:
             matchdict={"organization_id": pretend.stub()},
         )
 
-        assert views.organization_detail(request) == {
-            "organization": organization,
-        }
+        result = views.organization_detail(request)
+        assert result["organization"] == organization
+        assert "form" in result
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_not_found(self):
@@ -309,6 +368,8 @@ class TestOrganizationDetail:
             get_organization=lambda *a, **kw: None,
         )
         request = pretend.stub(
+            method="GET",
+            POST=MultiDict(),
             flags=pretend.stub(enabled=lambda *a: False),
             find_service=lambda *a, **kw: organization_service,
             matchdict={"organization_id": pretend.stub()},
@@ -316,6 +377,108 @@ class TestOrganizationDetail:
 
         with pytest.raises(HTTPNotFound):
             views.organization_detail(request)
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_detail_post_success(self, db_request):
+        organization = OrganizationFactory.create(
+            display_name="Old Name",
+            link_url="https://old-url.com",
+            description="Old description",
+            orgtype=OrganizationType.Company,
+        )
+
+        db_request.method = "POST"
+        db_request.matchdict = {"organization_id": organization.id}
+        db_request.POST = MultiDict(
+            {
+                "display_name": "New Name",
+                "link_url": "https://new-url.com",
+                "description": "New description",
+                "orgtype": "Community",
+            }
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda msg, queue: None)
+        )
+        db_request.route_path = pretend.call_recorder(
+            lambda name, **kw: f"/admin/organizations/{kw['organization_id']}/"
+        )
+
+        organization_service = pretend.stub(
+            get_organization=lambda org_id: organization,
+        )
+        db_request.find_service = lambda iface, **kw: {
+            IOrganizationService: organization_service,
+        }[iface]
+
+        result = views.organization_detail(db_request)
+
+        assert result.status_code == 303
+        assert result.location == f"/admin/organizations/{organization.id}/"
+        assert organization.display_name == "New Name"
+        assert organization.link_url == "https://new-url.com"
+        assert organization.description == "New description"
+        assert organization.orgtype == OrganizationType.Community
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Organization {organization.name!r} updated successfully",
+                queue="success",
+            )
+        ]
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_detail_post_invalid_form(self, db_request):
+        organization = OrganizationFactory.create()
+
+        db_request.method = "POST"
+        db_request.matchdict = {"organization_id": organization.id}
+        db_request.POST = MultiDict(
+            {
+                "display_name": "",  # Required field
+                "link_url": "not-a-url",  # Invalid URL
+                "description": "",  # Required field
+                "orgtype": "InvalidType",  # Invalid choice
+            }
+        )
+
+        organization_service = pretend.stub(
+            get_organization=lambda org_id: organization,
+        )
+        db_request.find_service = lambda iface, **kw: {
+            IOrganizationService: organization_service,
+        }[iface]
+
+        result = views.organization_detail(db_request)
+
+        assert result["organization"] == organization
+        assert result["form"]
+        assert not result["form"].validate()
+        assert result["form"].display_name.errors
+        assert result["form"].link_url.errors
+        assert result["form"].description.errors
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_detail_get_with_form(self, db_request):
+        organization = OrganizationFactory.create()
+
+        db_request.method = "GET"
+        db_request.matchdict = {"organization_id": organization.id}
+
+        organization_service = pretend.stub(
+            get_organization=lambda org_id: organization,
+        )
+        db_request.find_service = lambda iface, **kw: {
+            IOrganizationService: organization_service,
+        }[iface]
+
+        result = views.organization_detail(db_request)
+
+        assert result["organization"] == organization
+        assert result["form"]
+        assert result["form"].display_name.data == organization.display_name
+        assert result["form"].link_url.data == organization.link_url
+        assert result["form"].description.data == organization.description
+        assert result["form"].orgtype.data == organization.orgtype
 
 
 class TestOrganizationActions:
