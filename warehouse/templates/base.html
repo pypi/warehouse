@@ -182,12 +182,8 @@
       <script defer
               data-domain="pypi.org"
               src="https://analytics.python.org/js/script.manual.js"></script>
-      <script>
-          window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }
-      </script>
-      <script>
-          plausible('pageview', { u: '{{ request.scheme }}://{{ request.domain }}{{ request.matched_route.pattern }}' });
-      </script>
+      <script defer
+              src="{{ request.static_path('warehouse:static/dist/js/utils/plausible-sanitized.js') }}"></script>
     {% else %}
       <script defer
               data-domain="pypi.org"
