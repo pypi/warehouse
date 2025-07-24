@@ -301,7 +301,7 @@ msgstr ""
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
-#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1915
+#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1922
 #: warehouse/manage/views/__init__.py:1409
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help"
@@ -344,16 +344,16 @@ msgid ""
 " admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1786
+#: warehouse/accounts/views.py:1793
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1928 warehouse/accounts/views.py:1941
-#: warehouse/accounts/views.py:1948
+#: warehouse/accounts/views.py:1935 warehouse/accounts/views.py:1948
+#: warehouse/accounts/views.py:1955
 msgid "Invalid publisher ID"
 msgstr ""
 
-#: warehouse/accounts/views.py:1955
+#: warehouse/accounts/views.py:1962
 msgid "Removed trusted publisher for project "
 msgstr ""
 

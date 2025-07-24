@@ -21,7 +21,7 @@ from pyramid.interfaces import ISecurityPolicy
 from pyramid.security import forget, remember
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import and_, func, select
-from sqlalchemy.exc import NoResultFound
+from sqlalchemy.exc import IntegrityError, NoResultFound
 from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
 
@@ -1765,8 +1765,15 @@ class ManageAccountPublishingViews:
 
         pending_publisher = make_pending_publisher(self.request, form)
 
-        self.request.db.add(pending_publisher)
-        self.request.db.flush()  # To get the new ID
+        try:
+            self.request.db.add(pending_publisher)
+            self.request.db.flush()  # To get the new ID
+        except IntegrityError:
+            # The user has probably double-posted and a new publisher was
+            # created after our check for duplicates ran. The success message
+            # is probably already in the flash queue, so just redirect to the
+            # expected page on success if this is the response they are served.
+            return HTTPSeeOther(self.request.path)
 
         self.request.user.record_event(
             tag=EventTag.Account.PendingOIDCPublisherAdded,
