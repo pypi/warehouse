@@ -74,7 +74,7 @@ class GenericBillingService:
         return self.api.Customer.modify(
             customer_id,
             name=name,
-            description=description,
+            description=description[:300],
         )
 
     def create_checkout_session(self, customer_id, price_ids, success_url, cancel_url):
