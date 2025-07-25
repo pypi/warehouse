@@ -3,7 +3,7 @@ title: "Prohibiting inbox.ru email domain registrations"
 description: We have prohibited new registrations of accounts using inbox.ru email domains.
 authors:
   - miketheman
-date: 2025-06-15
+date: 2025-07-15
 tags:
   - security
   - transparency
