@@ -119,7 +119,7 @@
                 <div class="col-sm-7">
                   <div class="input-group">
                     {{ form.link_url(class="form-control", value=organization.link_url, disabled=(not request.has_permission(Permissions.AdminOrganizationsWrite))) }}
-                    <span class="input-group-btn">
+                    <span class="input-group-append input-group-btn">
                       <a href="{{ organization.link_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-default" title="Visit organization URL">
                         <i class="fa-solid fa-arrow-up-right-from-square"></i>
                       </a>
