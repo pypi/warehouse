@@ -361,7 +361,7 @@ msgstr "تم تحديث صلاحياتك لتكن ${role} فى المشروع ${
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
-#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1915
+#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1922
 #: warehouse/manage/views/__init__.py:1409
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
@@ -412,16 +412,16 @@ msgstr ""
 "هذا الناشر الموثوق قد تم تسجيله بالفعل. قم بمراسلة مسؤلي PyPI إن لم يكن هذا "
 "مقصودا."
 
-#: warehouse/accounts/views.py:1786
+#: warehouse/accounts/views.py:1793
 msgid "Registered a new pending publisher to create "
 msgstr "تم تسجيل حساب ناشر جديد للإنشاء تحت المراجعة. "
 
-#: warehouse/accounts/views.py:1928 warehouse/accounts/views.py:1941
-#: warehouse/accounts/views.py:1948
+#: warehouse/accounts/views.py:1935 warehouse/accounts/views.py:1948
+#: warehouse/accounts/views.py:1955
 msgid "Invalid publisher ID"
 msgstr "مُعَرّف ناشر غير صالح"
 
-#: warehouse/accounts/views.py:1955
+#: warehouse/accounts/views.py:1962
 msgid "Removed trusted publisher for project "
 msgstr "تمت إزالة ناشر موثوق لمشروع. "
 
@@ -1108,14 +1108,14 @@ msgstr "مونتي بايثون - مشهد متجر الجبنة"
 
 #: warehouse/templates/404.html:30 warehouse/templates/500.html:18
 #: warehouse/templates/accounts/two-factor.html:35
-#: warehouse/templates/base.html:319 warehouse/templates/base.html:325
-#: warehouse/templates/base.html:331 warehouse/templates/base.html:337
-#: warehouse/templates/base.html:353 warehouse/templates/base.html:359
-#: warehouse/templates/base.html:384 warehouse/templates/base.html:390
-#: warehouse/templates/base.html:399 warehouse/templates/base.html:412
-#: warehouse/templates/base.html:421 warehouse/templates/base.html:427
-#: warehouse/templates/base.html:433 warehouse/templates/base.html:446
-#: warehouse/templates/base.html:463
+#: warehouse/templates/base.html:337 warehouse/templates/base.html:343
+#: warehouse/templates/base.html:349 warehouse/templates/base.html:355
+#: warehouse/templates/base.html:371 warehouse/templates/base.html:377
+#: warehouse/templates/base.html:402 warehouse/templates/base.html:408
+#: warehouse/templates/base.html:417 warehouse/templates/base.html:430
+#: warehouse/templates/base.html:439 warehouse/templates/base.html:445
+#: warehouse/templates/base.html:451 warehouse/templates/base.html:464
+#: warehouse/templates/base.html:481
 #: warehouse/templates/includes/accounts/profile-callout.html:17
 #: warehouse/templates/includes/file-details.html:129
 #: warehouse/templates/index.html:98 warehouse/templates/index.html:105
@@ -1283,7 +1283,7 @@ msgid "Main navigation"
 msgstr "الابحار الرئسى"
 
 #: warehouse/templates/base.html:33 warehouse/templates/base.html:68
-#: warehouse/templates/base.html:314
+#: warehouse/templates/base.html:332
 #: warehouse/templates/includes/current-user-indicator.html:77
 #: warehouse/templates/pages/help.html:209
 #: warehouse/templates/pages/sitemap.html:19
@@ -1372,16 +1372,16 @@ msgstr "RSS: 40 آخر التحديثات"
 msgid "RSS: 40 newest packages"
 msgstr "RSS: 40 أحدث الحزم"
 
-#: warehouse/templates/base.html:185
+#: warehouse/templates/base.html:203
 msgid "Skip to main content"
 msgstr "انتقال الى المحتوى الرئيسي"
 
-#: warehouse/templates/base.html:189
+#: warehouse/templates/base.html:207
 msgid "Switch to mobile version"
 msgstr "تحويل الى اصدار الموبايل"
 
-#: warehouse/templates/base.html:196 warehouse/templates/base.html:205
-#: warehouse/templates/base.html:215
+#: warehouse/templates/base.html:214 warehouse/templates/base.html:223
+#: warehouse/templates/base.html:233
 #: warehouse/templates/includes/flash-messages.html:41
 #: warehouse/templates/includes/session-notifications.html:19
 #: warehouse/templates/manage/account.html:845
@@ -1399,11 +1399,11 @@ msgstr "تحويل الى اصدار الموبايل"
 msgid "Warning"
 msgstr "تحذير"
 
-#: warehouse/templates/base.html:198
+#: warehouse/templates/base.html:216
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr "انت تستخدم متصفح غير مدعوم, قم بالترقيه الى اصدار احدث."
 
-#: warehouse/templates/base.html:207
+#: warehouse/templates/base.html:225
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
@@ -1412,178 +1412,178 @@ msgstr ""
 "أنت تستخدم TestPyPI - صورة منفصلة عن فهرس حزم بايثون الذي يسمح لك بتجربة "
 "أدوات وعمليات النشر دون التأثير علي الفهرس الأصلي."
 
-#: warehouse/templates/base.html:217
+#: warehouse/templates/base.html:235
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
 msgstr ""
 "بعض السمات ربما لن تعمل بدون جافاسكربت. رجاءًا حاول تفعيلها إذا واجهتك مشاكل."
 
-#: warehouse/templates/base.html:252 warehouse/templates/base.html:284
+#: warehouse/templates/base.html:270 warehouse/templates/base.html:302
 #: warehouse/templates/error-base-with-search.html:8
 #: warehouse/templates/index.html:29
 msgid "Search PyPI"
 msgstr "بحث في PyPI"
 
-#: warehouse/templates/base.html:257 warehouse/templates/index.html:35
+#: warehouse/templates/base.html:275 warehouse/templates/index.html:35
 #, fuzzy
 #| msgid "Search projects"
 msgid "Type '/' to search projects"
 msgstr "بحث في المشاريع"
 
-#: warehouse/templates/base.html:268 warehouse/templates/base.html:297
+#: warehouse/templates/base.html:286 warehouse/templates/base.html:315
 #: warehouse/templates/error-base-with-search.html:19
 #: warehouse/templates/index.html:44
 msgid "Search"
 msgstr "بحث"
 
-#: warehouse/templates/base.html:289
+#: warehouse/templates/base.html:307
 #: warehouse/templates/error-base-with-search.html:13
 msgid "Search projects"
 msgstr "بحث في المشاريع"
 
-#: warehouse/templates/base.html:315
+#: warehouse/templates/base.html:333
 msgid "Help navigation"
 msgstr "التنقل المساعدة"
 
-#: warehouse/templates/base.html:321
+#: warehouse/templates/base.html:339
 msgid "Installing packages"
 msgstr "تعرف على تثبيت الحزمات"
 
-#: warehouse/templates/base.html:327
+#: warehouse/templates/base.html:345
 msgid "Uploading packages"
 msgstr "تحميل الحزمات"
 
-#: warehouse/templates/base.html:333
+#: warehouse/templates/base.html:351
 msgid "User guide"
 msgstr "دليل المستخدم"
 
-#: warehouse/templates/base.html:339
+#: warehouse/templates/base.html:357
 #, fuzzy
 #| msgid "Package index name retention"
 msgid "Project name retention"
 msgstr "احتفاظ اسم فهرس الحزمة"
 
-#: warehouse/templates/base.html:342
+#: warehouse/templates/base.html:360
 msgid "FAQs"
 msgstr "الأسئلة الشائعة"
 
-#: warehouse/templates/base.html:348 warehouse/templates/pages/sitemap.html:34
+#: warehouse/templates/base.html:366 warehouse/templates/pages/sitemap.html:34
 msgid "About PyPI"
 msgstr "حول فهرس حزم بايثون"
 
-#: warehouse/templates/base.html:349
+#: warehouse/templates/base.html:367
 msgid "About PyPI navigation"
 msgstr "حول تصفح فهرس حزم بايثون"
 
-#: warehouse/templates/base.html:355
+#: warehouse/templates/base.html:373
 msgid "PyPI Blog"
 msgstr ""
 
-#: warehouse/templates/base.html:361
+#: warehouse/templates/base.html:379
 msgid "Infrastructure dashboard"
 msgstr "لوحة معلومات البنية التحتية"
 
-#: warehouse/templates/base.html:364 warehouse/templates/pages/sitemap.html:40
+#: warehouse/templates/base.html:382 warehouse/templates/pages/sitemap.html:40
 #: warehouse/templates/pages/stats.html:4
 msgid "Statistics"
 msgstr "إحصا"
 
-#: warehouse/templates/base.html:367
+#: warehouse/templates/base.html:385
 msgid "Logos & trademarks"
 msgstr "الشعارات والعلامات التجارية"
 
-#: warehouse/templates/base.html:370
+#: warehouse/templates/base.html:388
 msgid "Our sponsors"
 msgstr "الرعاة"
 
-#: warehouse/templates/base.html:376
+#: warehouse/templates/base.html:394
 msgid "Contributing to PyPI"
 msgstr "المساهمة في PyPI"
 
-#: warehouse/templates/base.html:377
+#: warehouse/templates/base.html:395
 msgid "How to contribute navigation"
 msgstr "كيفيه المساهمة بالتنقل"
 
-#: warehouse/templates/base.html:380
+#: warehouse/templates/base.html:398
 msgid "Bugs and feedback"
 msgstr "الأخطاء والإبلاغ"
 
-#: warehouse/templates/base.html:386
+#: warehouse/templates/base.html:404
 msgid "Contribute on GitHub"
 msgstr "المساهمة على جيت هاب"
 
-#: warehouse/templates/base.html:392
+#: warehouse/templates/base.html:410
 msgid "Translate PyPI"
 msgstr "ترجم فهرس حزم بايثون"
 
-#: warehouse/templates/base.html:395
+#: warehouse/templates/base.html:413
 #, fuzzy
 #| msgid "Sponsors"
 msgid "Sponsor PyPI"
 msgstr "الممولون"
 
-#: warehouse/templates/base.html:401
+#: warehouse/templates/base.html:419
 msgid "Development credits"
 msgstr "مساهمات التنمية"
 
-#: warehouse/templates/base.html:407 warehouse/templates/pages/sitemap.html:10
+#: warehouse/templates/base.html:425 warehouse/templates/pages/sitemap.html:10
 msgid "Using PyPI"
 msgstr "استخدام فهرس حزم بايثون"
 
-#: warehouse/templates/base.html:408
+#: warehouse/templates/base.html:426
 msgid "Using PyPI navigation"
 msgstr "استخدام تنقل PyPI"
 
-#: warehouse/templates/base.html:414
+#: warehouse/templates/base.html:432
 #: warehouse/templates/manage/organization/activate_subscription.html:21
 #, fuzzy
 #| msgid "Terms of use"
 msgid "Terms of Service"
 msgstr "شروط الاستخدام"
 
-#: warehouse/templates/base.html:417
+#: warehouse/templates/base.html:435
 msgid "Report security issue"
 msgstr "الإبلاغ عن مشكلة أمنية"
 
-#: warehouse/templates/base.html:423
+#: warehouse/templates/base.html:441
 msgid "Code of conduct"
 msgstr "مدونة قواعد السلوك"
 
-#: warehouse/templates/base.html:429
+#: warehouse/templates/base.html:447
 #, fuzzy
 #| msgid "Privacy policy"
 msgid "Privacy Notice"
 msgstr "سياسة الخصوصية"
 
-#: warehouse/templates/base.html:435
+#: warehouse/templates/base.html:453
 msgid "Acceptable Use Policy"
 msgstr ""
 
-#: warehouse/templates/base.html:445
+#: warehouse/templates/base.html:463
 #, fuzzy
 #| msgid "Status: "
 msgid "Status:"
 msgstr "الحالة: "
 
-#: warehouse/templates/base.html:449
+#: warehouse/templates/base.html:467
 msgid "all systems operational"
 msgstr ""
 
-#: warehouse/templates/base.html:453
+#: warehouse/templates/base.html:471
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr "تم تطويره وصيانته من قبل مجتمع Python لمجتمع Python."
 
-#: warehouse/templates/base.html:455
+#: warehouse/templates/base.html:473
 msgid "Donate today!"
 msgstr "تبرع الآن!"
 
-#: warehouse/templates/base.html:467 warehouse/templates/pages/sitemap.html:4
+#: warehouse/templates/base.html:485 warehouse/templates/pages/sitemap.html:4
 msgid "Site map"
 msgstr "خارطة الموقع"
 
-#: warehouse/templates/base.html:474
+#: warehouse/templates/base.html:492
 msgid "Switch to desktop version"
 msgstr "انتقل إلى إصدار سطح المكتب"
 
