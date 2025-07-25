@@ -491,10 +491,10 @@ class TestSimpleDetail:
 
     @pytest.mark.parametrize(
         "archive_marker",
-        (
+        [
             "archived",
             "archived-noindex",
-        ),
+        ],
     )
     @pytest.mark.parametrize(
         ("content_type", "renderer_override"),
