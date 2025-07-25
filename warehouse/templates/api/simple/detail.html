@@ -4,6 +4,7 @@
   <head>
     <meta name="pypi:repository-version" content="{{ meta['api-version'] }}">
     {% for alt_repo in alternate_locations %}<meta name="pypi:alternate-locations" content="{{ alt_repo }}">{% endfor %}
+    {% if project_status %}<meta name="pypi:project-status" content="{{ project_status.status }}">{% endif %}
     <title>Links for {{ name }}</title>
   </head>
   <body>
