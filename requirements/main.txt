@@ -2045,9 +2045,9 @@ rfc8785==0.1.4 \
     --hash=sha256:520d690b448ecf0703691c76e1a34a24ddcd4fc5bc41d589cb7c58ec651bcd48 \
     --hash=sha256:e545841329fe0eee4f6a3b44e7034343100c12b4ec566dc06ca9735681deb4da
     # via sigstore
-rich==14.0.0 \
-    --hash=sha256:1c9491e1951aac09caffd42f448ee3d04e58923ffe14993f6e83068dc395d7e0 \
-    --hash=sha256:82f1bc23a6a21ebca4ae0c45af9bdbc492ed20231dcb63f297d6d1021a9d5725
+rich==14.1.0 \
+    --hash=sha256:536f5f1785986d6dbdea3c75205c473f970777b4a0d6c6dd1b696aa05a3fa04f \
+    --hash=sha256:e497a48b844b0320d45007cdebfeaeed8db2a4f4bcf49f15e455cfc4af11eaa8
     # via sigstore
 rpds-py==0.26.0 \
     --hash=sha256:0919f38f5542c0a87e7b4afcafab6fd2c15386632d249e9a087498571250abe3 \
