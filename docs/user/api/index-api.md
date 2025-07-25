@@ -3,9 +3,14 @@
 This page documents PyPI's implementation of the
 [PEP 503] (HTML) and [PEP 691] (JSON) index API.
 
+See the [Simple Repository API] for the official living
+specification of this API.
+
 [PEP 503]: https://peps.python.org/pep-0503/
 
 [PEP 691]: https://peps.python.org/pep-0691/
+
+[Simple Repository API]: https://packaging.python.org/en/latest/specifications/simple-repository-api/
 
 !!! note
 
@@ -53,7 +58,7 @@ Accept: application/vnd.pypi.simple.v1+html
 
     <html>
       <head>
-        <meta name="pypi:repository-version" content="1.1">
+        <meta name="pypi:repository-version" content="1.4">
         <title>Simple index</title>
       </head>
       <body>
@@ -84,7 +89,7 @@ Accept: application/vnd.pypi.simple.v1+json
     {
       "meta": {
         "_last-serial": 24888689,
-        "api-version": "1.1"
+        "api-version": "1.4"
       },
       "projects": [
         {
@@ -152,7 +157,8 @@ Accept: application/vnd.pypi.simple.v1+html
     <!DOCTYPE html>
     <html>
       <head>
-        <meta name="pypi:repository-version" content="1.1">
+        <meta name="pypi:repository-version" content="1.4">
+        <meta name="pypi:project-status" content="active">
         <title>Links for beautifulsoup4</title>
       </head>
       <body>
@@ -277,9 +283,12 @@ Accept: application/vnd.pypi.simple.v1+json
       ],
       "meta": {
         "_last-serial": 22406780,
-        "api-version": "1.1"
+        "api-version": "1.4"
       },
       "name": "beautifulsoup4",
+      "project-status": {
+        "status": "active"
+      }
       "versions": [
         "4.0.1",
         "4.0.2",
