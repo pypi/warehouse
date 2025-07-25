@@ -20,6 +20,7 @@ from warehouse.organizations.models import (
     OrganizationApplicationStatus,
     OrganizationType,
 )
+from warehouse.subscriptions.interfaces import IBillingService
 from warehouse.utils.paginate import paginate_url_factory
 
 
@@ -215,6 +216,7 @@ def organization_list(request):
 )
 def organization_detail(request):
     organization_service = request.find_service(IOrganizationService, context=None)
+    billing_service = request.find_service(IBillingService, context=None)
 
     organization_id = request.matchdict["organization_id"]
     organization = organization_service.get_organization(organization_id)
@@ -228,6 +230,14 @@ def organization_detail(request):
 
     if request.method == "POST" and form.validate():
         form.populate_obj(organization)
+
+        # Update Stripe customer if organization has one
+        if organization.customer is not None:
+            billing_service.update_customer(
+                organization.customer.customer_id,
+                organization.customer_name(request.registry.settings["site.name"]),
+                organization.description,
+            )
 
         request.session.flash(
             f"Organization {organization.name!r} updated successfully",

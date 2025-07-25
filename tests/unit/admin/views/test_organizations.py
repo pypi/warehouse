@@ -12,12 +12,15 @@ from warehouse.organizations.models import (
     OrganizationApplicationStatus,
     OrganizationType,
 )
+from warehouse.subscriptions.interfaces import IBillingService
 
 from ....common.db.accounts import UserFactory
 from ....common.db.organizations import (
     OrganizationApplicationFactory,
     OrganizationFactory,
+    OrganizationStripeCustomerFactory,
 )
+from ....common.db.subscriptions import StripeCustomerFactory
 
 
 class TestOrganizationForm:
@@ -282,10 +285,12 @@ class TestOrganizationDetail:
         organization_service = pretend.stub(
             get_organization=lambda *a, **kw: organization,
         )
+        billing_service = pretend.stub()
         request = pretend.stub(
             flags=pretend.stub(enabled=lambda *a: False),
             find_service=lambda iface, **kw: {
                 IOrganizationService: organization_service,
+                IBillingService: billing_service,
             }[iface],
             matchdict={"organization_id": pretend.stub()},
             method="GET",
@@ -314,10 +319,12 @@ class TestOrganizationDetail:
         organization_service = pretend.stub(
             get_organization=lambda *a, **kw: organization,
         )
+        billing_service = pretend.stub()
         request = pretend.stub(
             flags=pretend.stub(enabled=lambda *a: False),
             find_service=lambda iface, **kw: {
                 IOrganizationService: organization_service,
+                IBillingService: billing_service,
             }[iface],
             matchdict={"organization_id": pretend.stub()},
             method="GET",
@@ -346,10 +353,12 @@ class TestOrganizationDetail:
         organization_service = pretend.stub(
             get_organization=lambda *a, **kw: organization,
         )
+        billing_service = pretend.stub()
         request = pretend.stub(
             flags=pretend.stub(enabled=lambda *a: False),
             find_service=lambda iface, **kw: {
                 IOrganizationService: organization_service,
+                IBillingService: billing_service,
             }[iface],
             matchdict={"organization_id": pretend.stub()},
             method="GET",
@@ -364,9 +373,13 @@ class TestOrganizationDetail:
         organization_service = pretend.stub(
             get_organization=lambda *a, **kw: None,
         )
+        billing_service = pretend.stub()
         request = pretend.stub(
             flags=pretend.stub(enabled=lambda *a: False),
-            find_service=lambda *a, **kw: organization_service,
+            find_service=lambda iface, **kw: {
+                IOrganizationService: organization_service,
+                IBillingService: billing_service,
+            }[iface],
             matchdict={"organization_id": pretend.stub()},
             method="GET",
         )
@@ -381,6 +394,7 @@ class TestOrganizationDetail:
             description="Old description",
             orgtype=OrganizationType.Company,
         )
+        organization.customer = None  # No Stripe customer
 
         db_request.matchdict = {"organization_id": str(organization.id)}
         db_request.method = "POST"
@@ -402,8 +416,13 @@ class TestOrganizationDetail:
         organization_service = pretend.stub(
             get_organization=pretend.call_recorder(lambda org_id: organization)
         )
+        billing_service = pretend.stub()
+
         db_request.find_service = pretend.call_recorder(
-            lambda iface, context: organization_service
+            lambda iface, context: {
+                IOrganizationService: organization_service,
+                IBillingService: billing_service,
+            }.get(iface)
         )
 
         result = views.organization_detail(db_request)
@@ -414,6 +433,73 @@ class TestOrganizationDetail:
         assert organization.link_url == "https://new-url.com"
         assert organization.description == "New description"
         assert organization.orgtype == OrganizationType.Community
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Organization {organization.name!r} updated successfully",
+                queue="success",
+            )
+        ]
+
+    def test_updates_organization_with_stripe_customer(self, db_request):
+        organization = OrganizationFactory.create(
+            name="acme",
+            display_name="Old Name",
+            link_url="https://old-url.com",
+            description="Old description",
+            orgtype=OrganizationType.Company,
+        )
+        stripe_customer = StripeCustomerFactory.create(customer_id="cus_123456")
+        OrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
+        )
+
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {
+                "display_name": "New Name",
+                "link_url": "https://new-url.com",
+                "description": "New description",
+                "orgtype": "Community",
+            }
+        )
+        db_request.route_path = pretend.call_recorder(
+            lambda name, **kwargs: f"/admin/organizations/{organization.id}/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.registry = pretend.stub(settings={"site.name": "TestPyPI"})
+
+        organization_service = pretend.stub(
+            get_organization=pretend.call_recorder(lambda org_id: organization)
+        )
+        billing_service = pretend.stub(
+            update_customer=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context: {
+                IOrganizationService: organization_service,
+                IBillingService: billing_service,
+            }.get(iface)
+        )
+
+        result = views.organization_detail(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.location == f"/admin/organizations/{organization.id}/"
+        assert organization.display_name == "New Name"
+        assert organization.link_url == "https://new-url.com"
+        assert organization.description == "New description"
+        assert organization.orgtype == OrganizationType.Community
+        assert billing_service.update_customer.calls == [
+            pretend.call(
+                "cus_123456",
+                "TestPyPI Organization - New Name (acme)",
+                "New description",
+            )
+        ]
         assert db_request.session.flash.calls == [
             pretend.call(
                 f"Organization {organization.name!r} updated successfully",
@@ -438,8 +524,13 @@ class TestOrganizationDetail:
         organization_service = pretend.stub(
             get_organization=pretend.call_recorder(lambda org_id: organization)
         )
+        billing_service = pretend.stub()
+
         db_request.find_service = pretend.call_recorder(
-            lambda iface, context: organization_service
+            lambda iface, context: {
+                IOrganizationService: organization_service,
+                IBillingService: billing_service,
+            }.get(iface)
         )
 
         result = views.organization_detail(db_request)
