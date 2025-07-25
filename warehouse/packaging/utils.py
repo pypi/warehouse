@@ -13,7 +13,7 @@ from sqlalchemy.orm import joinedload
 from warehouse.packaging.interfaces import ISimpleStorage
 from warehouse.packaging.models import File, LifecycleStatus, Project, Release
 
-API_VERSION = "1.3"
+API_VERSION = "1.4"
 
 
 def _simple_index(request, serial):
@@ -71,6 +71,11 @@ def _simple_detail(project, request):
     return {
         "meta": {"api-version": API_VERSION, "_last-serial": project.last_serial},
         "name": project.normalized_name,
+        "project-status": (
+            {
+                "status": project.project_status.value,
+            }
+        ),
         "versions": versions,
         "alternate-locations": alternate_repositories,
         "files": [
@@ -163,5 +168,6 @@ def render_simple_detail(project, request, store=False):
 
 
 def _valid_simple_detail_context(context: dict) -> dict:
+    context["project_status"] = context.pop("project-status", None)
     context["alternate_locations"] = context.pop("alternate-locations", [])
     return context
