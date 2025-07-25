@@ -104,6 +104,11 @@ module.exports = [
             from: path.resolve(__dirname, "warehouse/static/js/vendor/zxcvbn.js"),
             to: "js/vendor/[name].[contenthash][ext]",
           },
+          {
+            // Copy utility for sanitizing plausible analytics
+            from: path.resolve(__dirname, "warehouse/static/js/vendor/plausible-sanitized.js"),
+            to: "js/utils/[name].[contenthash][ext]",
+          },
         ],
       }),
       ...sharedCompressionPlugins,
