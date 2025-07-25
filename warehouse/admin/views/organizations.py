@@ -63,7 +63,7 @@ class OrganizationForm(wtforms.Form):
     )
 
     orgtype = wtforms.SelectField(
-        choices=[("Company", "Company"), ("Community", "Community")],
+        choices=[(orgtype.value, orgtype.value) for orgtype in OrganizationType],
         coerce=OrganizationType,
         validators=[
             wtforms.validators.InputRequired(message="Select organization type"),
