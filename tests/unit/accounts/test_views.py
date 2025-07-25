@@ -16,7 +16,7 @@ from pyramid.httpexceptions import (
     HTTPTooManyRequests,
     HTTPUnauthorized,
 )
-from sqlalchemy.exc import NoResultFound
+from sqlalchemy.exc import IntegrityError, NoResultFound
 from webauthn.authentication.verify_authentication_response import (
     VerifiedAuthentication,
 )
@@ -4532,6 +4532,47 @@ class TestManageAccountPublishingViews:
                 queue="error",
             )
         ]
+
+    def test_add_pending_oidc_publisher_integrityerror(self, monkeypatch, db_request):
+        db_request.user = UserFactory.create()
+        EmailFactory(user=db_request.user, verified=True, primary=True)
+        db_request.db.add = pretend.raiser(IntegrityError("foo", "bar", "baz"))
+
+        db_request.registry = pretend.stub(
+            settings={
+                "github.token": "fake-api-token",
+            }
+        )
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
+        db_request.POST = MultiDict(
+            {
+                "owner": "some-owner",
+                "repository": "some-repository",
+                "workflow_filename": "some-workflow-filename.yml",
+                "environment": "some-environment",
+                "project_name": "some-project-name",
+            }
+        )
+
+        view = views.ManageAccountPublishingViews(db_request)
+
+        monkeypatch.setattr(
+            views.PendingGitHubPublisherForm,
+            "_lookup_owner",
+            lambda *a: {"login": "some-owner", "id": "some-owner-id"},
+        )
+
+        monkeypatch.setattr(
+            view, "_check_ratelimits", pretend.call_recorder(lambda: None)
+        )
+        monkeypatch.setattr(
+            view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
+        )
+
+        resp = view.add_pending_github_oidc_publisher()
+        assert isinstance(resp, HTTPSeeOther)
 
     @pytest.mark.parametrize(
         ("view_name", "publisher_name", "post_body", "publisher_class"),
