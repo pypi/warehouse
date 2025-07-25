@@ -114,10 +114,17 @@
               </div>
               <div class="form-group">
                 <label for="link_url" class="col-sm-5 control-label">
-                  Organization URL <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                  Organization URL
                 </label>
                 <div class="col-sm-7">
-                  {{ form.link_url(class="form-control", value=organization.link_url, disabled=(not request.has_permission(Permissions.AdminOrganizationsWrite))) }}
+                  <div class="input-group">
+                    {{ form.link_url(class="form-control", value=organization.link_url, disabled=(not request.has_permission(Permissions.AdminOrganizationsWrite))) }}
+                    <span class="input-group-btn">
+                      <a href="{{ organization.link_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-default" title="Visit organization URL">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                      </a>
+                    </span>
+                  </div>
                   {% if form.link_url.errors %}
                     <div class="text-danger">{{ form.link_url.errors[0] }}</div>
                   {% endif %}
