@@ -7,6 +7,36 @@
     {{ timestamp|format_date() }}
   </time>
 {%- endmacro %}
+{% macro input_field_label(user_friendly_name="", form_instance="") -%}
+<label for="{{form_instance.name}}" class="form-group__label">
+  {% trans form_name=user_friendly_name %}{{ form_name }}{% endtrans %}
+  {% if form_instance.flags.required %}
+  <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+  {% endif %}
+</label>
+{% endmacro %}
+{% macro input_field_errors(instance, form_instance) -%}
+<div id="{{instance}}-errors">
+  {% if form_instance.errors %}
+  <ul class="form-errors" role="alert">
+    {% for error in form_instance.errors %}
+    <li>{{ error }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</div>
+{% endmacro %}
+{% macro input_field(instance, user_friendly_name, form_instance, placeholder="") -%}
+  {{ input_field_label(user_friendly_name, form_instance) }}
+  {% set form_field_attrs = {
+    "placeholder": gettext(placeholder),
+    "class": "form-group__field",
+    "aria-describedby": instance ~ "-errors"
+  } %}
+  {% set _ = form_field_attrs.update(kwargs) %}
+  {{ form_instance(**form_field_attrs) }}
+  {{ input_field_errors(instance, form_instance) }}
+{%- endmacro %}
 {% macro password_strength_gauge(data_password_strength_gauge_target=None) -%}
   <div id="password-strength">
     <p class="form-group__help-text">
