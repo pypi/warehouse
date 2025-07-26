@@ -63,48 +63,26 @@
       </ul>
     {% endif %}
     <div class="form-group">
-      <label for="full_name" class="form-group__label">
-        {% trans %}Name{% endtrans %}
-        {% if form.full_name.flags.required %}
-          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-        {% endif %}
-      </label>
-      {{ form.full_name(placeholder=gettext("Your name") ,
-      autocomplete="name",
-      autocapitalize="off",
-      spellcheck="false",
-      class_="form-group__field",
-      aria_describedby="name-errors",
-      ) }}
-      <div id="name-errors">
-        {% if form.full_name.errors %}
-          <ul class="form-errors" role="alert">
-            {% for error in form.full_name.errors %}<li>{{ error }}</li>{% endfor %}
-          </ul>
-        {% endif %}
-      </div>
+      {{ input_field(
+        instance="name",
+        user_friendly_name="Name",
+        form_instance=form.full_name,
+        placeholder="Your name",
+        autocomplete="name",
+        autocapitalize="off",
+        spellcheck="false"
+      )}}
     </div>
     <div class="form-group">
-      <label for="email" class="form-group__label">
-        {% trans %}Email address{% endtrans %}
-        {% if form.email.flags.required %}
-          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-        {% endif %}
-      </label>
-      {{ form.email(placeholder=gettext("Your email address") ,
-      autocomplete="email",
-      spellcheck="false",
-      required="required",
-      class_="form-group__field",
-      aria_describedby="email-errors",
-      ) }}
-      <div id="email-errors">
-        {% if form.email.errors %}
-          <ul class="form-errors" role="alert">
-            {% for error in form.email.errors %}<li>{{ error }}</li>{% endfor %}
-          </ul>
-        {% endif %}
-      </div>
+      {{ input_field(
+        instance="email",
+        user_friendly_name="Email address",
+        form_instance=form.email,
+        placeholder="Your email address",
+        autocomplete="email",
+        spellcheck="false",
+        required="required"
+      )}}
     </div>
     {# The following is a honeypot field and is hidden from the user #}
     <div class="form-group confirm-form">
@@ -113,37 +91,23 @@
             aria_hidden='true',) }}
     </div>
     <div class="form-group">
-      <label for="username" class="form-group__label">
-        {% trans %}Username{% endtrans %}
-        {% if form.username.flags.required %}
-          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-        {% endif %}
-      </label>
-      {{ form.username(placeholder=gettext("Select a username") ,
-      autocapitalize="off",
-      autocomplete="username",
-      spellcheck="false",
-      required="required",
-      class_="form-group__field",
-      aria_describedby="username-errors",
-      ) }}
-      <div id="username-errors">
-        {% if form.username.errors %}
-          <ul class="form-errors" role="alert">
-            {% for error in form.username.errors %}<li>{{ error }}</li>{% endfor %}
-          </ul>
-        {% endif %}
-      </div>
+      {{ input_field(
+        instance="username",
+        user_friendly_name="Username",
+        form_instance=form.username,
+        placeholder="Select a username",
+        autocomplete="username",
+        autocapitalize="off",
+        required="required"
+      )}}
     </div>
     <div>
       <div class="form-group">
         <div class="split-layout">
-          <label for="new_password" class="form-group__label">
-            {% trans %}Password{% endtrans %}
-            {% if form.new_password.flags.required %}
-              <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-            {% endif %}
-          </label>
+          {{ input_field_label(
+            user_friendly_name="Password",
+            form_instance=form.new_password
+          )}}
           <label for="show-password">
             <input data-action="change->password#togglePasswords"
                    data-password-target="showPassword"
@@ -164,40 +128,26 @@
         data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength input->password-breach#check",
         aria_describedby="password-errors password-strength"
         ) }}
-        <div id="password-errors">
-          {% if form.new_password.errors %}
-            <ul class="form-errors" role="alert">
-              {% for error in form.new_password.errors %}<li>{{ error }}</li>{% endfor %}
-            </ul>
-          {% endif %}
-        </div>
+        {{ input_field_errors(
+          instance="password",
+          form_instance=form.new_password
+        )}}
         {{ password_strength_gauge(data_password_strength_gauge_target="strengthGauge") }}
       </div>
-      <div class="form-group">
-        <label for="password_confirm" class="form-group__label">
-          {% trans %}Confirm password{% endtrans %}
-          {% if form.password_confirm.flags.required %}
-            <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-          {% endif %}
-        </label>
-        {{ form.password_confirm(placeholder=gettext("Confirm password") ,
-        required="required",
-        class_="form-group__field",
-        autocomplete="new-password",
-        spellcheck="false",
-        data_password_target="password",
-        data_password_match_target="passwordMatch",
-        data_action="input->password-match#checkPasswordsMatch",
-        aria_describedby="password-confirm-errors",
-        ) }}
-        <div id="password-confirm-errors">
-          {% if form.password_confirm.errors %}
-            <ul class="form-errors" role="alert">
-              {% for error in form.password_confirm.errors %}<li>{{ error }}</li>{% endfor %}
-            </ul>
-          {% endif %}
+        <div class="form-group">
+          {{ input_field(
+             instance="password-confirm",
+             user_friendly_name="Confirm password",
+             form_instance=form.password_confirm,
+             placeholder="Confirm password",
+             autocomplete="new-password",
+             required="required",
+             spellcheck="false",
+             data_password_target="password",
+             data_password_match_target="passwordMatch",
+             data_action="input->password-match#checkPasswordsMatch",
+          )}}
         </div>
-      </div>
     </div>
     <div class="form-group">
       <ul class="form-errors">

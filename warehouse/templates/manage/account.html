@@ -287,20 +287,15 @@
            value="{{ request.session.get_csrf_token() }}">
     {{ form_errors(save_account_form) }}
     <div class="form-group">
-      <label class="form-group__label" for="name">
-        {% trans %}Full name{% endtrans %}
-        {% if save_account_form.name.flags.required %}
-          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-        {% endif %}
-      </label>
-      {{ save_account_form.name(placeholder=gettext("No name set") ,
-      autocomplete="name",
-      autocapitalize="off",
-      spellcheck="false",
-      class_="form-group__field",
-      aria_describedby="full-name-errors",
-      ) }}
-      <div id="full-name-errors">{{ field_errors(save_account_form.name) }}</div>
+      {{ input_field(
+        instance="full-name",
+        user_friendly_name="Full name",
+        form_instance=save_account_form.name,
+        placeholder="No name set",
+        autocomplete="name",
+        autocapitalize="off",
+        spellcheck="false"
+      )}}
       <p class="form-group__help-text">
         {% trans href=request.route_path('accounts.profile', username=user.username) %}
         Displayed on your <a href="{{ href }}">public profile</a>
@@ -308,17 +303,15 @@
     </p>
   </div>
   <div class="form-group">
-    <label class="form-group__label" for="public_email">
-      {% trans %}️Public email{% endtrans %}
-      {% if save_account_form.public_email.flags.required %}
-        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-      {% endif %}
-    </label>
-    <p class="form-group__text">
-      {{ save_account_form.public_email(class_="form-group__field",
-            aria_describedby="public-email-errors",) }}
-    </p>
-    <div id="public-email-errors">{{ field_errors(save_account_form.public_email) }}</div>
+    {{ input_field(
+      instance="public-email",
+      user_friendly_name="Public email",
+      form_instance=save_account_form.public_email,
+      placeholder="Your email address",
+      required="required",
+      autocomplete="email",
+      spellcheck="false"
+    )}}
     <p class="form-group__help-text">
       {% trans href=request.route_path('accounts.profile', username=user.username) %}
       One of your verified emails can be displayed on your <a href="{{ href }}">public profile</a> to logged-in users.
@@ -361,20 +354,11 @@
            type="hidden"
            value="{{ request.session.get_csrf_token() }}">
     <div class="form-group">
-      <label class="form-group__label" for="email">
-        {% trans %}Add email{% endtrans %}
-        {% if add_email_form.email.flags.required %}
-          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-        {% endif %}
-      </label>
-      {{ add_email_form.email(placeholder=gettext("Your email address") ,
-      autocomplete="email",
-      spellcheck="false",
-      required="required",
-      class_="form-group__field",
-      aria_describedby="add-email-errors",
-      ) }}
-      <div id="add-email-errors">{{ field_errors(add_email_form.email) }}</div>
+      {{ input_field(
+        instance="add-email",
+        user_friendly_name="Add email",
+        form_instance=add_email_form.email
+      )}}
     </div>
     <input value="{% trans %}Add email{% endtrans %}"
            class="button button--primary"
@@ -395,12 +379,10 @@
     {{ form_errors(change_password_form) }}
     <div class="form-group">
       <div class="split-layout">
-        <label class="form-group__label" for="name">
-          {% trans %}Old password{% endtrans %}
-          {% if change_password_form.password.flags.required %}
-            <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-          {% endif %}
-        </label>
+        {{ input_field_label(
+          user_friendly_name="Old password",
+          form_instance=change_password_form.password
+        )}}
         <label for="show-password">
           <input data-action="change->password#togglePasswords"
                  data-password-target="showPassword"
@@ -420,47 +402,35 @@
       <div id="current-password-errors">{{ field_errors(change_password_form.password) }}</div>
     </div>
     <div class="form-group">
-      <label class="form-group__label" for="name">
-        {% trans %}New password{% endtrans %}
-        {% if change_password_form.new_password.flags.required %}
-          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-        {% endif %}
-      </label>
       {# the password field needs to be wrapped in a div to properly place tooltips #}
-      <div>
-        {{ change_password_form.new_password(placeholder=gettext("Select a new password") ,
-        required="required",
+      {{ input_field(
+        instance="new-password",
+        user_friendly_name="New password",
+        form_instance=change_password_form.new_password,
+        placeholder="Select a new password",
         autocomplete="new-password",
-        spellcheck="false",
-        class_="form-group__field",
         data_password_target="password",
         data_password_match_target="passwordMatch",
         data_password_strength_gauge_target="password",
         data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength",
-        aria_describedby="new-password-errors",
-        ) }}
-      </div>
-      <div id="new-password-errors">{{ field_errors(change_password_form.new_password) }}</div>
+        required="required",
+        spellcheck="false"
+      )}}
       {{ password_strength_gauge(data_password_strength_gauge_target="strengthGauge") }}
     </div>
     <div class="form-group">
-      <label class="form-group__label" for="name">
-        {% trans %}Confirm new password{% endtrans %}
-        {% if change_password_form.password_confirm.flags.required %}
-          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-        {% endif %}
-      </label>
-      {{ change_password_form.password_confirm(placeholder=gettext("Confirm password") ,
-      required="required",
-      autocomplete="new-password",
-      spellcheck="false",
-      class_="form-group__field",
-      data_password_target="password",
-      data_password_match_target="passwordMatch",
-      data_action="input->password-match#checkPasswordsMatch",
-      aria_describedby="confirm-password-errors",
-      ) }}
-      <div id="confirm-password-errors">{{ field_errors(change_password_form.password_confirm) }}</div>
+      {{ input_field(
+        instance="confirm-password",
+        user_friendly_name="Confirm new password",
+        form_instance=change_password_form.password_confirm,
+        placeholder="Confirm password",
+        autocomplete="new-password",
+        data_password_target="password",
+        data_password_match_target="passwordMatch",
+        data_action="input->password-match#checkPasswordsMatch",
+        required="required",
+        spellcheck="false"
+      )}}
     </div>
     <div class="form-group">
       <ul class="form-errors">
