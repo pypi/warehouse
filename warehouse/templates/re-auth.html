@@ -44,29 +44,16 @@
           </ul>
         {% endif %}
         <div data-controller="password" class="form-group">
-          <div>
-            <label for="password" class="form-group__label">
-              {% trans %}Password{% endtrans %}
-              {% if form.password.flags.required %}
-                <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-              {% endif %}
-            </label>
-          </div>
-          {{ form.password(placeholder=gettext("Your password") ,
-          required="required",
-          class_="form-group__field",
-          autocomplete="current-password",
-          spellcheck="false",
-          data_password_target="password",
-          aria_describedby="password-errors",
-          ) }}
-          <div id="password-errors">
-            {% if form.password.errors %}
-              <ul class="form-errors" role="alert">
-                {% for error in form.password.errors %}<li>{{ error }}</li>{% endfor %}
-              </ul>
-            {% endif %}
-          </div>
+          {{ input_field(
+             instance="password",
+             user_friendly_name="Password",
+             form_instance=form.password,
+             placeholder="Your password",
+             autocomplete="current-password",
+             spellcheck="false",
+             required="required",
+             data_password_target="password",
+          )}}
           <div class="form-group">
             <div class="split-layout margin-top--large margin-bottom--large">
               <div>

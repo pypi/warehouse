@@ -872,7 +872,7 @@ msgid "Passwords do not match"
 msgstr ""
 
 #: warehouse/static/js/warehouse/controllers/password_strength_gauge_controller.js:15
-#: warehouse/templates/base.html:20
+#: warehouse/templates/base.html:50
 msgid "Password field is empty"
 msgstr ""
 
@@ -957,14 +957,14 @@ msgstr ""
 
 #: warehouse/templates/404.html:30 warehouse/templates/500.html:18
 #: warehouse/templates/accounts/two-factor.html:35
-#: warehouse/templates/base.html:337 warehouse/templates/base.html:343
-#: warehouse/templates/base.html:349 warehouse/templates/base.html:355
-#: warehouse/templates/base.html:371 warehouse/templates/base.html:377
-#: warehouse/templates/base.html:402 warehouse/templates/base.html:408
-#: warehouse/templates/base.html:417 warehouse/templates/base.html:430
-#: warehouse/templates/base.html:439 warehouse/templates/base.html:445
-#: warehouse/templates/base.html:451 warehouse/templates/base.html:464
-#: warehouse/templates/base.html:481
+#: warehouse/templates/base.html:367 warehouse/templates/base.html:373
+#: warehouse/templates/base.html:379 warehouse/templates/base.html:385
+#: warehouse/templates/base.html:401 warehouse/templates/base.html:407
+#: warehouse/templates/base.html:432 warehouse/templates/base.html:438
+#: warehouse/templates/base.html:447 warehouse/templates/base.html:460
+#: warehouse/templates/base.html:469 warehouse/templates/base.html:475
+#: warehouse/templates/base.html:481 warehouse/templates/base.html:494
+#: warehouse/templates/base.html:511
 #: warehouse/templates/includes/accounts/profile-callout.html:17
 #: warehouse/templates/includes/file-details.html:129
 #: warehouse/templates/index.html:98 warehouse/templates/index.html:105
@@ -1101,34 +1101,110 @@ msgid ""
 "stable and secure platform."
 msgstr ""
 
-#: warehouse/templates/base.html:13
+#: warehouse/templates/base.html:12
+#, python-format
+msgid "%(form_name)s"
+msgstr ""
+
+#: warehouse/templates/accounts/recovery-code.html:28
+#: warehouse/templates/accounts/request-password-reset.html:28
+#: warehouse/templates/accounts/two-factor.html:82
+#: warehouse/templates/base.html:14
+#: warehouse/templates/manage/account/publishing.html:24
+#: warehouse/templates/manage/account/publishing.html:37
+#: warehouse/templates/manage/account/publishing.html:50
+#: warehouse/templates/manage/account/publishing.html:69
+#: warehouse/templates/manage/account/publishing.html:86
+#: warehouse/templates/manage/account/publishing.html:132
+#: warehouse/templates/manage/account/publishing.html:145
+#: warehouse/templates/manage/account/publishing.html:158
+#: warehouse/templates/manage/account/publishing.html:171
+#: warehouse/templates/manage/account/publishing.html:184
+#: warehouse/templates/manage/account/publishing.html:227
+#: warehouse/templates/manage/account/publishing.html:240
+#: warehouse/templates/manage/account/publishing.html:253
+#: warehouse/templates/manage/account/publishing.html:294
+#: warehouse/templates/manage/account/publishing.html:313
+#: warehouse/templates/manage/account/publishing.html:330
+#: warehouse/templates/manage/account/publishing.html:349
+#: warehouse/templates/manage/account/recovery_codes-burn.html:48
+#: warehouse/templates/manage/account/token.html:127
+#: warehouse/templates/manage/account/token.html:152
+#: warehouse/templates/manage/account/totp-provision.html:60
+#: warehouse/templates/manage/account/webauthn-provision.html:37
+#: warehouse/templates/manage/organization/activate_subscription.html:22
+#: warehouse/templates/manage/organization/projects.html:109
+#: warehouse/templates/manage/organization/projects.html:130
+#: warehouse/templates/manage/organization/roles.html:374
+#: warehouse/templates/manage/organization/roles.html:393
+#: warehouse/templates/manage/organization/settings.html:35
+#: warehouse/templates/manage/organization/settings.html:64
+#: warehouse/templates/manage/organization/settings.html:87
+#: warehouse/templates/manage/organization/settings.html:113
+#: warehouse/templates/manage/organization/teams.html:70
+#: warehouse/templates/manage/organizations.html:208
+#: warehouse/templates/manage/organizations.html:236
+#: warehouse/templates/manage/organizations.html:259
+#: warehouse/templates/manage/organizations.html:278
+#: warehouse/templates/manage/organizations.html:300
+#: warehouse/templates/manage/organizations.html:319
+#: warehouse/templates/manage/organizations.html:346
+#: warehouse/templates/manage/project/publishing.html:43
+#: warehouse/templates/manage/project/publishing.html:56
+#: warehouse/templates/manage/project/publishing.html:75
+#: warehouse/templates/manage/project/publishing.html:92
+#: warehouse/templates/manage/project/publishing.html:140
+#: warehouse/templates/manage/project/publishing.html:153
+#: warehouse/templates/manage/project/publishing.html:166
+#: warehouse/templates/manage/project/publishing.html:179
+#: warehouse/templates/manage/project/publishing.html:223
+#: warehouse/templates/manage/project/publishing.html:236
+#: warehouse/templates/manage/project/publishing.html:278
+#: warehouse/templates/manage/project/publishing.html:295
+#: warehouse/templates/manage/project/publishing.html:314
+#: warehouse/templates/manage/project/roles.html:320
+#: warehouse/templates/manage/project/roles.html:333
+#: warehouse/templates/manage/project/roles.html:344
+#: warehouse/templates/manage/project/roles.html:364
+#: warehouse/templates/manage/project/roles.html:397
+#: warehouse/templates/manage/project/roles.html:416
+#: warehouse/templates/manage/project/settings.html:276
+#: warehouse/templates/manage/project/settings.html:292
+#: warehouse/templates/manage/project/settings.html:308
+#: warehouse/templates/manage/team/settings.html:22
+#: warehouse/templates/packaging/submit-malware-observation.html:54
+#: warehouse/templates/packaging/submit-malware-observation.html:67
+msgid "(required)"
+msgstr ""
+
+#: warehouse/templates/base.html:43
 msgid ""
 "Choose a strong password that contains letters (uppercase and lowercase),"
 " numbers and special characters. Avoid common words or repetition."
 msgstr ""
 
-#: warehouse/templates/base.html:16
+#: warehouse/templates/base.html:46
 msgid "Password strength:"
 msgstr ""
 
-#: warehouse/templates/base.html:30 warehouse/templates/base.html:53
+#: warehouse/templates/base.html:60 warehouse/templates/base.html:83
 #: warehouse/templates/includes/current-user-indicator.html:17
 msgid "Main navigation"
 msgstr ""
 
-#: warehouse/templates/base.html:33 warehouse/templates/base.html:68
-#: warehouse/templates/base.html:332
+#: warehouse/templates/base.html:63 warehouse/templates/base.html:98
+#: warehouse/templates/base.html:362
 #: warehouse/templates/includes/current-user-indicator.html:77
 #: warehouse/templates/pages/help.html:209
 #: warehouse/templates/pages/sitemap.html:19
 msgid "Help"
 msgstr ""
 
-#: warehouse/templates/base.html:36
+#: warehouse/templates/base.html:66
 msgid "Docs"
 msgstr ""
 
-#: warehouse/templates/base.html:40 warehouse/templates/base.html:71
+#: warehouse/templates/base.html:70 warehouse/templates/base.html:101
 #: warehouse/templates/includes/current-user-indicator.html:83
 #: warehouse/templates/pages/sitemap.html:43
 #: warehouse/templates/pages/sponsors.html:4
@@ -1136,31 +1212,31 @@ msgid "Sponsors"
 msgstr ""
 
 #: warehouse/templates/accounts/login.html:7
-#: warehouse/templates/accounts/login.html:80 warehouse/templates/base.html:44
-#: warehouse/templates/base.html:75
+#: warehouse/templates/accounts/login.html:57 warehouse/templates/base.html:74
+#: warehouse/templates/base.html:105
 msgid "Log in"
 msgstr ""
 
-#: warehouse/templates/base.html:48 warehouse/templates/base.html:79
+#: warehouse/templates/base.html:78 warehouse/templates/base.html:109
 #: warehouse/templates/pages/sitemap.html:28
 msgid "Register"
 msgstr ""
 
-#: warehouse/templates/base.html:58
+#: warehouse/templates/base.html:88
 #: warehouse/templates/includes/current-user-indicator.html:23
 msgid "View menu"
 msgstr ""
 
-#: warehouse/templates/base.html:59
+#: warehouse/templates/base.html:89
 msgid "Menu"
 msgstr ""
 
-#: warehouse/templates/base.html:66
+#: warehouse/templates/base.html:96
 #: warehouse/templates/includes/current-user-indicator.html:34
 msgid "Main menu"
 msgstr ""
 
-#: warehouse/templates/base.html:87
+#: warehouse/templates/base.html:117
 #, python-format
 msgid ""
 "\"%(wordmark)s\", \"%(name)s\", and the blocks logos are registered "
@@ -1170,7 +1246,7 @@ msgid ""
 "is prohibited."
 msgstr ""
 
-#: warehouse/templates/base.html:91
+#: warehouse/templates/base.html:121
 #, python-format
 msgid ""
 "\"%(wordmark)s\", \"%(name)s\", and the blocks logos are registered <a "
@@ -1179,33 +1255,33 @@ msgid ""
 "Foundation</a>."
 msgstr ""
 
-#: warehouse/templates/base.html:116 warehouse/templates/index.html:93
+#: warehouse/templates/base.html:146 warehouse/templates/index.html:93
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the "
 "Python programming language."
 msgstr ""
 
-#: warehouse/templates/base.html:133
+#: warehouse/templates/base.html:163
 msgid "RSS: 40 latest updates"
 msgstr ""
 
-#: warehouse/templates/base.html:137
+#: warehouse/templates/base.html:167
 msgid "RSS: 40 newest packages"
 msgstr ""
 
-#: warehouse/templates/base.html:203
+#: warehouse/templates/base.html:233
 msgid "Skip to main content"
 msgstr ""
 
-#: warehouse/templates/base.html:207
+#: warehouse/templates/base.html:237
 msgid "Switch to mobile version"
 msgstr ""
 
-#: warehouse/templates/base.html:214 warehouse/templates/base.html:223
-#: warehouse/templates/base.html:233
+#: warehouse/templates/base.html:244 warehouse/templates/base.html:253
+#: warehouse/templates/base.html:263
 #: warehouse/templates/includes/flash-messages.html:41
 #: warehouse/templates/includes/session-notifications.html:19
-#: warehouse/templates/manage/account.html:845
+#: warehouse/templates/manage/account.html:815
 #: warehouse/templates/manage/manage_base.html:364
 #: warehouse/templates/manage/manage_base.html:442
 #: warehouse/templates/manage/organization/settings.html:179
@@ -1220,177 +1296,177 @@ msgstr ""
 msgid "Warning"
 msgstr ""
 
-#: warehouse/templates/base.html:216
+#: warehouse/templates/base.html:246
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
 
-#: warehouse/templates/base.html:225
+#: warehouse/templates/base.html:255
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting"
 " the real index."
 msgstr ""
 
-#: warehouse/templates/base.html:235
+#: warehouse/templates/base.html:265
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if "
 "you encounter problems."
 msgstr ""
 
-#: warehouse/templates/base.html:270 warehouse/templates/base.html:302
+#: warehouse/templates/base.html:300 warehouse/templates/base.html:332
 #: warehouse/templates/error-base-with-search.html:8
 #: warehouse/templates/index.html:29
 msgid "Search PyPI"
 msgstr ""
 
-#: warehouse/templates/base.html:275 warehouse/templates/index.html:35
+#: warehouse/templates/base.html:305 warehouse/templates/index.html:35
 msgid "Type '/' to search projects"
 msgstr ""
 
-#: warehouse/templates/base.html:286 warehouse/templates/base.html:315
+#: warehouse/templates/base.html:316 warehouse/templates/base.html:345
 #: warehouse/templates/error-base-with-search.html:19
 #: warehouse/templates/index.html:44
 msgid "Search"
 msgstr ""
 
-#: warehouse/templates/base.html:307
+#: warehouse/templates/base.html:337
 #: warehouse/templates/error-base-with-search.html:13
 msgid "Search projects"
 msgstr ""
 
-#: warehouse/templates/base.html:333
+#: warehouse/templates/base.html:363
 msgid "Help navigation"
 msgstr ""
 
-#: warehouse/templates/base.html:339
+#: warehouse/templates/base.html:369
 msgid "Installing packages"
 msgstr ""
 
-#: warehouse/templates/base.html:345
+#: warehouse/templates/base.html:375
 msgid "Uploading packages"
 msgstr ""
 
-#: warehouse/templates/base.html:351
+#: warehouse/templates/base.html:381
 msgid "User guide"
 msgstr ""
 
-#: warehouse/templates/base.html:357
+#: warehouse/templates/base.html:387
 msgid "Project name retention"
 msgstr ""
 
-#: warehouse/templates/base.html:360
+#: warehouse/templates/base.html:390
 msgid "FAQs"
 msgstr ""
 
-#: warehouse/templates/base.html:366 warehouse/templates/pages/sitemap.html:34
+#: warehouse/templates/base.html:396 warehouse/templates/pages/sitemap.html:34
 msgid "About PyPI"
 msgstr ""
 
-#: warehouse/templates/base.html:367
+#: warehouse/templates/base.html:397
 msgid "About PyPI navigation"
 msgstr ""
 
-#: warehouse/templates/base.html:373
+#: warehouse/templates/base.html:403
 msgid "PyPI Blog"
 msgstr ""
 
-#: warehouse/templates/base.html:379
+#: warehouse/templates/base.html:409
 msgid "Infrastructure dashboard"
 msgstr ""
 
-#: warehouse/templates/base.html:382 warehouse/templates/pages/sitemap.html:40
+#: warehouse/templates/base.html:412 warehouse/templates/pages/sitemap.html:40
 #: warehouse/templates/pages/stats.html:4
 msgid "Statistics"
 msgstr ""
 
-#: warehouse/templates/base.html:385
+#: warehouse/templates/base.html:415
 msgid "Logos & trademarks"
 msgstr ""
 
-#: warehouse/templates/base.html:388
+#: warehouse/templates/base.html:418
 msgid "Our sponsors"
 msgstr ""
 
-#: warehouse/templates/base.html:394
+#: warehouse/templates/base.html:424
 msgid "Contributing to PyPI"
 msgstr ""
 
-#: warehouse/templates/base.html:395
+#: warehouse/templates/base.html:425
 msgid "How to contribute navigation"
 msgstr ""
 
-#: warehouse/templates/base.html:398
+#: warehouse/templates/base.html:428
 msgid "Bugs and feedback"
 msgstr ""
 
-#: warehouse/templates/base.html:404
+#: warehouse/templates/base.html:434
 msgid "Contribute on GitHub"
 msgstr ""
 
-#: warehouse/templates/base.html:410
+#: warehouse/templates/base.html:440
 msgid "Translate PyPI"
 msgstr ""
 
-#: warehouse/templates/base.html:413
+#: warehouse/templates/base.html:443
 msgid "Sponsor PyPI"
 msgstr ""
 
-#: warehouse/templates/base.html:419
+#: warehouse/templates/base.html:449
 msgid "Development credits"
 msgstr ""
 
-#: warehouse/templates/base.html:425 warehouse/templates/pages/sitemap.html:10
+#: warehouse/templates/base.html:455 warehouse/templates/pages/sitemap.html:10
 msgid "Using PyPI"
 msgstr ""
 
-#: warehouse/templates/base.html:426
+#: warehouse/templates/base.html:456
 msgid "Using PyPI navigation"
 msgstr ""
 
-#: warehouse/templates/base.html:432
+#: warehouse/templates/base.html:462
 #: warehouse/templates/manage/organization/activate_subscription.html:21
 msgid "Terms of Service"
 msgstr ""
 
-#: warehouse/templates/base.html:435
+#: warehouse/templates/base.html:465
 msgid "Report security issue"
 msgstr ""
 
-#: warehouse/templates/base.html:441
+#: warehouse/templates/base.html:471
 msgid "Code of conduct"
 msgstr ""
 
-#: warehouse/templates/base.html:447
+#: warehouse/templates/base.html:477
 msgid "Privacy Notice"
 msgstr ""
 
-#: warehouse/templates/base.html:453
+#: warehouse/templates/base.html:483
 msgid "Acceptable Use Policy"
 msgstr ""
 
-#: warehouse/templates/base.html:463
+#: warehouse/templates/base.html:493
 msgid "Status:"
 msgstr ""
 
-#: warehouse/templates/base.html:467
+#: warehouse/templates/base.html:497
 msgid "all systems operational"
 msgstr ""
 
-#: warehouse/templates/base.html:471
+#: warehouse/templates/base.html:501
 msgid ""
 "Developed and maintained by the Python community, for the Python "
 "community."
 msgstr ""
 
-#: warehouse/templates/base.html:473
+#: warehouse/templates/base.html:503
 msgid "Donate today!"
 msgstr ""
 
-#: warehouse/templates/base.html:485 warehouse/templates/pages/sitemap.html:4
+#: warehouse/templates/base.html:515 warehouse/templates/pages/sitemap.html:4
 msgid "Site map"
 msgstr ""
 
-#: warehouse/templates/base.html:492
+#: warehouse/templates/base.html:522
 msgid "Switch to desktop version"
 msgstr ""
 
@@ -1491,12 +1567,7 @@ msgstr ""
 msgid "Error processing form"
 msgstr ""
 
-#: warehouse/templates/accounts/register.html:178
-#: warehouse/templates/accounts/register.html:183
-#: warehouse/templates/accounts/reset-password.html:62
-#: warehouse/templates/accounts/reset-password.html:67
-#: warehouse/templates/manage/account.html:453
-#: warehouse/templates/re-auth.html:19 warehouse/templates/re-auth.html:74
+#: warehouse/templates/re-auth.html:19 warehouse/templates/re-auth.html:61
 msgid "Confirm password"
 msgstr ""
 
@@ -1504,118 +1575,18 @@ msgstr ""
 msgid "Confirm password to continue"
 msgstr ""
 
-#: warehouse/templates/accounts/login.html:56
-#: warehouse/templates/accounts/register.html:142
-#: warehouse/templates/accounts/reset-password.html:28
-#: warehouse/templates/manage/manage_base.html:451
-#: warehouse/templates/re-auth.html:49
-msgid "Password"
-msgstr ""
-
-#: warehouse/templates/accounts/login.html:34
-#: warehouse/templates/accounts/login.html:58
-#: warehouse/templates/accounts/recovery-code.html:28
-#: warehouse/templates/accounts/register.html:69
-#: warehouse/templates/accounts/register.html:91
-#: warehouse/templates/accounts/register.html:119
-#: warehouse/templates/accounts/register.html:144
-#: warehouse/templates/accounts/register.html:180
-#: warehouse/templates/accounts/request-password-reset.html:28
-#: warehouse/templates/accounts/reset-password.html:30
-#: warehouse/templates/accounts/reset-password.html:64
-#: warehouse/templates/accounts/two-factor.html:82
-#: warehouse/templates/manage/account.html:293
-#: warehouse/templates/manage/account.html:314
-#: warehouse/templates/manage/account.html:367
-#: warehouse/templates/manage/account.html:401
-#: warehouse/templates/manage/account.html:426
-#: warehouse/templates/manage/account.html:450
-#: warehouse/templates/manage/account/publishing.html:24
-#: warehouse/templates/manage/account/publishing.html:37
-#: warehouse/templates/manage/account/publishing.html:50
-#: warehouse/templates/manage/account/publishing.html:69
-#: warehouse/templates/manage/account/publishing.html:86
-#: warehouse/templates/manage/account/publishing.html:132
-#: warehouse/templates/manage/account/publishing.html:145
-#: warehouse/templates/manage/account/publishing.html:158
-#: warehouse/templates/manage/account/publishing.html:171
-#: warehouse/templates/manage/account/publishing.html:184
-#: warehouse/templates/manage/account/publishing.html:227
-#: warehouse/templates/manage/account/publishing.html:240
-#: warehouse/templates/manage/account/publishing.html:253
-#: warehouse/templates/manage/account/publishing.html:294
-#: warehouse/templates/manage/account/publishing.html:313
-#: warehouse/templates/manage/account/publishing.html:330
-#: warehouse/templates/manage/account/publishing.html:349
-#: warehouse/templates/manage/account/recovery_codes-burn.html:48
-#: warehouse/templates/manage/account/token.html:127
-#: warehouse/templates/manage/account/token.html:152
-#: warehouse/templates/manage/account/totp-provision.html:60
-#: warehouse/templates/manage/account/webauthn-provision.html:37
-#: warehouse/templates/manage/organization/activate_subscription.html:22
-#: warehouse/templates/manage/organization/projects.html:109
-#: warehouse/templates/manage/organization/projects.html:130
-#: warehouse/templates/manage/organization/roles.html:374
-#: warehouse/templates/manage/organization/roles.html:393
-#: warehouse/templates/manage/organization/settings.html:35
-#: warehouse/templates/manage/organization/settings.html:64
-#: warehouse/templates/manage/organization/settings.html:87
-#: warehouse/templates/manage/organization/settings.html:113
-#: warehouse/templates/manage/organization/teams.html:70
-#: warehouse/templates/manage/organizations.html:208
-#: warehouse/templates/manage/organizations.html:236
-#: warehouse/templates/manage/organizations.html:259
-#: warehouse/templates/manage/organizations.html:278
-#: warehouse/templates/manage/organizations.html:300
-#: warehouse/templates/manage/organizations.html:319
-#: warehouse/templates/manage/organizations.html:346
-#: warehouse/templates/manage/project/publishing.html:43
-#: warehouse/templates/manage/project/publishing.html:56
-#: warehouse/templates/manage/project/publishing.html:75
-#: warehouse/templates/manage/project/publishing.html:92
-#: warehouse/templates/manage/project/publishing.html:140
-#: warehouse/templates/manage/project/publishing.html:153
-#: warehouse/templates/manage/project/publishing.html:166
-#: warehouse/templates/manage/project/publishing.html:179
-#: warehouse/templates/manage/project/publishing.html:223
-#: warehouse/templates/manage/project/publishing.html:236
-#: warehouse/templates/manage/project/publishing.html:278
-#: warehouse/templates/manage/project/publishing.html:295
-#: warehouse/templates/manage/project/publishing.html:314
-#: warehouse/templates/manage/project/roles.html:320
-#: warehouse/templates/manage/project/roles.html:333
-#: warehouse/templates/manage/project/roles.html:344
-#: warehouse/templates/manage/project/roles.html:364
-#: warehouse/templates/manage/project/roles.html:397
-#: warehouse/templates/manage/project/roles.html:416
-#: warehouse/templates/manage/project/settings.html:276
-#: warehouse/templates/manage/project/settings.html:292
-#: warehouse/templates/manage/project/settings.html:308
-#: warehouse/templates/manage/team/roles.html:104
-#: warehouse/templates/manage/team/settings.html:22
-#: warehouse/templates/packaging/submit-malware-observation.html:54
-#: warehouse/templates/packaging/submit-malware-observation.html:67
-#: warehouse/templates/re-auth.html:51
-msgid "(required)"
-msgstr ""
-
-#: warehouse/templates/accounts/login.html:62
-#: warehouse/templates/re-auth.html:55
-msgid "Your password"
-msgstr ""
-
-#: warehouse/templates/accounts/login.html:88
+#: warehouse/templates/accounts/login.html:65
 #: warehouse/templates/manage/manage_base.html:457
-#: warehouse/templates/re-auth.html:82
+#: warehouse/templates/re-auth.html:69
 msgid "Show password"
 msgstr ""
 
-#: warehouse/templates/accounts/login.html:92
-#: warehouse/templates/re-auth.html:86
+#: warehouse/templates/accounts/login.html:69
+#: warehouse/templates/re-auth.html:73
 msgid "Forgot password?"
 msgstr ""
 
-#: warehouse/templates/re-auth.html:90
+#: warehouse/templates/re-auth.html:77
 #, python-format
 msgid ""
 "<b>Tip:</b> you are about to perform a <a href=\"%(href)s\">sensitive "
@@ -1682,29 +1653,6 @@ msgstr ""
 msgid "Log in to %(title)s"
 msgstr ""
 
-#: warehouse/templates/accounts/login.html:32
-#: warehouse/templates/accounts/profile.html:25
-#: warehouse/templates/accounts/register.html:117
-#: warehouse/templates/email/organization-member-added/body.html:14
-#: warehouse/templates/email/organization-member-invited/body.html:14
-#: warehouse/templates/email/organization-member-removed/body.html:14
-#: warehouse/templates/email/organization-member-role-changed/body.html:14
-#: warehouse/templates/manage/account.html:272
-#: warehouse/templates/manage/organization/roles.html:291
-#: warehouse/templates/manage/organization/roles.html:377
-#: warehouse/templates/manage/project/roles.html:171
-#: warehouse/templates/manage/project/roles.html:250
-#: warehouse/templates/manage/project/roles.html:346
-#: warehouse/templates/manage/project/roles.html:400
-#: warehouse/templates/manage/team/roles.html:77
-#: warehouse/templates/manage/team/roles.html:107
-msgid "Username"
-msgstr ""
-
-#: warehouse/templates/accounts/login.html:37
-msgid "Your username"
-msgstr ""
-
 #: warehouse/templates/accounts/logout.html:4
 #: warehouse/templates/accounts/logout.html:13
 #: warehouse/templates/includes/current-user-indicator.html:93
@@ -1748,6 +1696,23 @@ msgstr ""
 #: warehouse/templates/manage/team/roles.html:45
 #, python-brace-format
 msgid "Avatar for {user} from gravatar.com"
+msgstr ""
+
+#: warehouse/templates/accounts/profile.html:25
+#: warehouse/templates/email/organization-member-added/body.html:14
+#: warehouse/templates/email/organization-member-invited/body.html:14
+#: warehouse/templates/email/organization-member-removed/body.html:14
+#: warehouse/templates/email/organization-member-role-changed/body.html:14
+#: warehouse/templates/manage/account.html:272
+#: warehouse/templates/manage/organization/roles.html:291
+#: warehouse/templates/manage/organization/roles.html:377
+#: warehouse/templates/manage/project/roles.html:171
+#: warehouse/templates/manage/project/roles.html:250
+#: warehouse/templates/manage/project/roles.html:346
+#: warehouse/templates/manage/project/roles.html:400
+#: warehouse/templates/manage/team/roles.html:77
+#: warehouse/templates/manage/team/roles.html:105
+msgid "Username"
 msgstr ""
 
 #: warehouse/templates/accounts/profile.html:36
@@ -1914,61 +1879,28 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: warehouse/templates/accounts/register.html:67
-#: warehouse/templates/manage/account.html:149
-#: warehouse/templates/manage/account.html:491
-#: warehouse/templates/manage/project/history.html:284
-#: warehouse/templates/manage/project/history.html:295
-#: warehouse/templates/manage/project/history.html:306
-#: warehouse/templates/manage/project/history.html:317
-#: warehouse/templates/manage/project/settings.html:219
-#: warehouse/templates/manage/project/settings.html:274
-#: warehouse/templates/manage/project/settings.html:279
-#: warehouse/templates/manage/unverified-account.html:102
-msgid "Name"
-msgstr ""
-
-#: warehouse/templates/accounts/register.html:72
-msgid "Your name"
-msgstr ""
-
 #: warehouse/templates/accounts/register.html:89
-#: warehouse/templates/manage/account.html:350
-#: warehouse/templates/manage/unverified-account.html:225
-msgid "Email address"
-msgstr ""
-
-#: warehouse/templates/accounts/register.html:94
-#: warehouse/templates/manage/account.html:370
-msgid "Your email address"
-msgstr ""
-
-#: warehouse/templates/accounts/register.html:111
 msgid "Confirm form"
 msgstr ""
 
-#: warehouse/templates/accounts/register.html:122
-msgid "Select a username"
-msgstr ""
-
-#: warehouse/templates/accounts/register.html:152
-#: warehouse/templates/accounts/reset-password.html:39
-#: warehouse/templates/manage/account.html:409
+#: warehouse/templates/accounts/register.html:116
+#: warehouse/templates/accounts/reset-password.html:37
+#: warehouse/templates/manage/account.html:391
 msgid "Show passwords"
 msgstr ""
 
-#: warehouse/templates/accounts/register.html:155
+#: warehouse/templates/accounts/register.html:119
 msgid "Select a password"
 msgstr ""
 
-#: warehouse/templates/accounts/register.html:207
+#: warehouse/templates/accounts/register.html:157
 msgid ""
 "This password appears in a security breach or has been compromised and "
 "cannot be used. Please refer to the <a href=\"/help/#compromised-"
 "password\">FAQ</a> for more information."
 msgstr ""
 
-#: warehouse/templates/accounts/register.html:214
+#: warehouse/templates/accounts/register.html:164
 msgid "Create account"
 msgstr ""
 
@@ -2012,12 +1944,11 @@ msgstr ""
 msgid "Reset your password"
 msgstr ""
 
-#: warehouse/templates/accounts/reset-password.html:42
-#: warehouse/templates/manage/account.html:431
+#: warehouse/templates/accounts/reset-password.html:40
 msgid "Select a new password"
 msgstr ""
 
-#: warehouse/templates/accounts/reset-password.html:89
+#: warehouse/templates/accounts/reset-password.html:74
 msgid "Reset password"
 msgstr ""
 
@@ -3090,7 +3021,7 @@ msgstr ""
 #: warehouse/templates/includes/manage/manage-organization-menu.html:37
 #: warehouse/templates/includes/manage/manage-project-menu.html:31
 #: warehouse/templates/includes/manage/manage-team-menu.html:28
-#: warehouse/templates/manage/account.html:513
+#: warehouse/templates/manage/account.html:483
 #: warehouse/templates/manage/organization/history.html:9
 #: warehouse/templates/manage/project/history.html:9
 #: warehouse/templates/manage/team/history.html:9
@@ -3354,8 +3285,21 @@ msgstr ""
 msgid "Remove email"
 msgstr ""
 
+#: warehouse/templates/manage/account.html:149
+#: warehouse/templates/manage/account.html:461
+#: warehouse/templates/manage/project/history.html:284
+#: warehouse/templates/manage/project/history.html:295
+#: warehouse/templates/manage/project/history.html:306
+#: warehouse/templates/manage/project/history.html:317
+#: warehouse/templates/manage/project/settings.html:219
+#: warehouse/templates/manage/project/settings.html:274
+#: warehouse/templates/manage/project/settings.html:279
+#: warehouse/templates/manage/unverified-account.html:102
+msgid "Name"
+msgstr ""
+
 #: warehouse/templates/manage/account.html:153
-#: warehouse/templates/manage/account.html:492
+#: warehouse/templates/manage/account.html:462
 #: warehouse/templates/manage/account/token.html:150
 #: warehouse/templates/manage/unverified-account.html:106
 msgid "Scope"
@@ -3367,13 +3311,13 @@ msgid "All projects"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:163
-#: warehouse/templates/manage/account.html:493
+#: warehouse/templates/manage/account.html:463
 #: warehouse/templates/manage/unverified-account.html:116
 msgid "Created"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:167
-#: warehouse/templates/manage/account.html:494
+#: warehouse/templates/manage/account.html:464
 #: warehouse/templates/manage/unverified-account.html:120
 msgid "Last used"
 msgstr ""
@@ -3453,40 +3397,28 @@ msgid ""
 "changed."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:291
-msgid "Full name"
-msgstr ""
-
-#: warehouse/templates/manage/account.html:296
-msgid "No name set"
-msgstr ""
-
-#: warehouse/templates/manage/account.html:305
+#: warehouse/templates/manage/account.html:300
 #, python-format
 msgid "Displayed on your <a href=\"%(href)s\">public profile</a>"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:312
-msgid "️Public email"
-msgstr ""
-
-#: warehouse/templates/manage/account.html:323
+#: warehouse/templates/manage/account.html:316
 #, python-format
 msgid ""
 "One of your verified emails can be displayed on your <a "
 "href=\"%(href)s\">public profile</a> to logged-in users."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:328
+#: warehouse/templates/manage/account.html:321
 msgid "Update account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:336
+#: warehouse/templates/manage/account.html:329
 #: warehouse/templates/manage/unverified-account.html:211
 msgid "Account emails"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:338
+#: warehouse/templates/manage/account.html:331
 msgid ""
 "You can associate several emails with your account. You can use any <span"
 " class=\"badge badge--success\"><i class=\"fa fa-check\" aria-"
@@ -3495,125 +3427,117 @@ msgid ""
 "notifications."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:347
+#: warehouse/templates/manage/account.html:340
 #: warehouse/templates/manage/unverified-account.html:222
 msgid "Emails associated with your account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:351
+#: warehouse/templates/manage/account.html:343
+#: warehouse/templates/manage/unverified-account.html:225
+msgid "Email address"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:344
 #: warehouse/templates/manage/unverified-account.html:226
 msgid "Status"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:365
-#: warehouse/templates/manage/account.html:379
+#: warehouse/templates/manage/account.html:363
 msgid "Add email"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:386
+#: warehouse/templates/manage/account.html:370
 msgid "Change password"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:399
-msgid "Old password"
-msgstr ""
-
-#: warehouse/templates/manage/account.html:412
+#: warehouse/templates/manage/account.html:394
 msgid "Your current password"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:424
-msgid "New password"
-msgstr ""
-
-#: warehouse/templates/manage/account.html:448
-msgid "Confirm new password"
-msgstr ""
-
-#: warehouse/templates/manage/account.html:471
+#: warehouse/templates/manage/account.html:441
 msgid "Update password"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:482
+#: warehouse/templates/manage/account.html:452
 #: warehouse/templates/manage/project/settings.html:35
 msgid "API tokens"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:484
+#: warehouse/templates/manage/account.html:454
 #: warehouse/templates/manage/project/settings.html:36
 msgid ""
 "API tokens provide an alternative way to authenticate when uploading "
 "packages to PyPI."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:484
+#: warehouse/templates/manage/account.html:454
 msgid "Learn more about API tokens"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:488
+#: warehouse/templates/manage/account.html:458
 msgid "Active API tokens for this account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:504
+#: warehouse/templates/manage/account.html:474
 msgid "Add API token"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:507
+#: warehouse/templates/manage/account.html:477
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add API "
 "tokens to your account."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:531
-#: warehouse/templates/manage/account.html:719
+#: warehouse/templates/manage/account.html:501
+#: warehouse/templates/manage/account.html:689
 #: warehouse/templates/manage/unverified-account.html:242
 #: warehouse/templates/manage/unverified-account.html:424
 msgid "Token scope: entire account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:533
-#: warehouse/templates/manage/account.html:721
+#: warehouse/templates/manage/account.html:503
+#: warehouse/templates/manage/account.html:691
 #: warehouse/templates/manage/unverified-account.html:244
 #: warehouse/templates/manage/unverified-account.html:426
 #, python-format
 msgid "Token scope: Project %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:536
+#: warehouse/templates/manage/account.html:506
 #: warehouse/templates/manage/unverified-account.html:247
 #, python-format
 msgid "Expires: %(exp)s"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:541
+#: warehouse/templates/manage/account.html:511
 #: warehouse/templates/manage/unverified-account.html:252
 msgid "Account created"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:543
+#: warehouse/templates/manage/account.html:513
 #: warehouse/templates/manage/unverified-account.html:254
 msgid "Logged in"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:546
+#: warehouse/templates/manage/account.html:516
 #: warehouse/templates/manage/unverified-account.html:257
 msgid "Two factor method:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:548
+#: warehouse/templates/manage/account.html:518
 #: warehouse/templates/manage/project/release.html:61
 #: warehouse/templates/manage/unverified-account.html:259
 msgid "None"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:551
+#: warehouse/templates/manage/account.html:521
 #: warehouse/templates/manage/manage_base.html:84
 #: warehouse/templates/manage/unverified-account.html:262
 msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:553
+#: warehouse/templates/manage/account.html:523
 #: warehouse/templates/manage/manage_base.html:58
 #: warehouse/templates/manage/unverified-account.html:264
 msgid ""
@@ -3621,161 +3545,161 @@ msgid ""
 "password\">TOTP</abbr>)"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:555
+#: warehouse/templates/manage/account.html:525
 #: warehouse/templates/manage/unverified-account.html:266
 msgid "Recovery code"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:557
+#: warehouse/templates/manage/account.html:527
 msgid "Remembered device"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:561
+#: warehouse/templates/manage/account.html:531
 #: warehouse/templates/manage/unverified-account.html:270
 msgid "Login failed"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:564
+#: warehouse/templates/manage/account.html:534
 #: warehouse/templates/manage/unverified-account.html:273
 msgid "- Basic Auth (Upload endpoint)"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:569
-#: warehouse/templates/manage/account.html:588
+#: warehouse/templates/manage/account.html:539
+#: warehouse/templates/manage/account.html:558
 #: warehouse/templates/manage/project/history.html:247
 #: warehouse/templates/manage/unverified-account.html:278
 #: warehouse/templates/manage/unverified-account.html:297
 msgid "Reason:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:571
-#: warehouse/templates/manage/account.html:590
+#: warehouse/templates/manage/account.html:541
+#: warehouse/templates/manage/account.html:560
 #: warehouse/templates/manage/unverified-account.html:280
 #: warehouse/templates/manage/unverified-account.html:299
 msgid "Incorrect Password"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:573
+#: warehouse/templates/manage/account.html:543
 #: warehouse/templates/manage/unverified-account.html:282
 msgid "Invalid two factor (TOTP)"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:575
+#: warehouse/templates/manage/account.html:545
 #: warehouse/templates/manage/unverified-account.html:284
 msgid "Invalid two factor (WebAuthn)"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:577
-#: warehouse/templates/manage/account.html:579
+#: warehouse/templates/manage/account.html:547
+#: warehouse/templates/manage/account.html:549
 #: warehouse/templates/manage/unverified-account.html:286
 #: warehouse/templates/manage/unverified-account.html:288
 msgid "Invalid two factor (Recovery code)"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:585
+#: warehouse/templates/manage/account.html:555
 #: warehouse/templates/manage/unverified-account.html:294
 msgid "Session reauthentication failed"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:596
+#: warehouse/templates/manage/account.html:566
 #: warehouse/templates/manage/unverified-account.html:305
 msgid "Email added to account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:600
+#: warehouse/templates/manage/account.html:570
 #: warehouse/templates/manage/unverified-account.html:309
 msgid "Email removed from account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:604
+#: warehouse/templates/manage/account.html:574
 #: warehouse/templates/manage/unverified-account.html:313
 msgid "Email verified"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:608
+#: warehouse/templates/manage/account.html:578
 #: warehouse/templates/manage/unverified-account.html:317
 msgid "Email reverified"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:613
+#: warehouse/templates/manage/account.html:583
 #: warehouse/templates/manage/unverified-account.html:322
 msgid "Primary email changed"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:616
+#: warehouse/templates/manage/account.html:586
 #: warehouse/templates/manage/unverified-account.html:325
 msgid "Old primary email:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:618
+#: warehouse/templates/manage/account.html:588
 #: warehouse/templates/manage/unverified-account.html:327
 msgid "New primary email:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:621
+#: warehouse/templates/manage/account.html:591
 #: warehouse/templates/manage/unverified-account.html:330
 msgid "Primary email set"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:626
+#: warehouse/templates/manage/account.html:596
 #: warehouse/templates/manage/unverified-account.html:335
 msgid "Email sent"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:629
+#: warehouse/templates/manage/account.html:599
 #: warehouse/templates/manage/unverified-account.html:338
 msgid "From:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:631
+#: warehouse/templates/manage/account.html:601
 #: warehouse/templates/manage/unverified-account.html:340
 msgid "To:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:633
+#: warehouse/templates/manage/account.html:603
 #: warehouse/templates/manage/unverified-account.html:342
 msgid "Subject:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:636
+#: warehouse/templates/manage/account.html:606
 #: warehouse/templates/manage/unverified-account.html:345
 msgid "Password reset requested"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:638
+#: warehouse/templates/manage/account.html:608
 #: warehouse/templates/manage/unverified-account.html:347
 msgid "Password reset attempted"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:640
+#: warehouse/templates/manage/account.html:610
 #: warehouse/templates/manage/unverified-account.html:349
 msgid "Password successfully reset"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:642
+#: warehouse/templates/manage/account.html:612
 #: warehouse/templates/manage/unverified-account.html:351
 msgid "Password successfully changed"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:644
+#: warehouse/templates/manage/account.html:614
 msgid "Password disabled"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:647
-#: warehouse/templates/manage/account.html:651
+#: warehouse/templates/manage/account.html:617
+#: warehouse/templates/manage/account.html:621
 #: warehouse/templates/manage/account/token.html:168
 #: warehouse/templates/manage/unverified-account.html:354
 #: warehouse/templates/manage/unverified-account.html:358
 msgid "Project:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:654
+#: warehouse/templates/manage/account.html:624
 #: warehouse/templates/manage/unverified-account.html:361
 msgid "Two factor authentication added"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:658
-#: warehouse/templates/manage/account.html:670
+#: warehouse/templates/manage/account.html:628
+#: warehouse/templates/manage/account.html:640
 #: warehouse/templates/manage/unverified-account.html:365
 #: warehouse/templates/manage/unverified-account.html:377
 msgid ""
@@ -3783,15 +3707,15 @@ msgid ""
 "authentication\">WebAuthn</abbr>)"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:660
-#: warehouse/templates/manage/account.html:672
+#: warehouse/templates/manage/account.html:630
+#: warehouse/templates/manage/account.html:642
 #: warehouse/templates/manage/unverified-account.html:367
 #: warehouse/templates/manage/unverified-account.html:379
 msgid "Device name:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:662
-#: warehouse/templates/manage/account.html:674
+#: warehouse/templates/manage/account.html:632
+#: warehouse/templates/manage/account.html:644
 #: warehouse/templates/manage/unverified-account.html:369
 #: warehouse/templates/manage/unverified-account.html:381
 msgid ""
@@ -3799,37 +3723,37 @@ msgid ""
 "password\">TOTP</abbr>)"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:666
+#: warehouse/templates/manage/account.html:636
 #: warehouse/templates/manage/unverified-account.html:373
 msgid "Two factor authentication removed"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:678
+#: warehouse/templates/manage/account.html:648
 msgid "Two factor device remembered"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:680
+#: warehouse/templates/manage/account.html:650
 #: warehouse/templates/manage/unverified-account.html:385
 msgid "Recovery codes generated"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:683
+#: warehouse/templates/manage/account.html:653
 #: warehouse/templates/manage/unverified-account.html:388
 msgid "Recovery codes regenerated"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:686
+#: warehouse/templates/manage/account.html:656
 #: warehouse/templates/manage/unverified-account.html:391
 msgid "Recovery code used for login"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:689
+#: warehouse/templates/manage/account.html:659
 #: warehouse/templates/manage/unverified-account.html:394
 msgid "API token added"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:692
-#: warehouse/templates/manage/account.html:714
+#: warehouse/templates/manage/account.html:662
+#: warehouse/templates/manage/account.html:684
 #: warehouse/templates/manage/project/history.html:238
 #: warehouse/templates/manage/project/history.html:245
 #: warehouse/templates/manage/unverified-account.html:397
@@ -3837,88 +3761,88 @@ msgstr ""
 msgid "Token name:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:707
+#: warehouse/templates/manage/account.html:677
 #: warehouse/templates/manage/project/history.html:240
 #: warehouse/templates/manage/unverified-account.html:412
 msgid "API token removed"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:709
-#: warehouse/templates/manage/account.html:716
+#: warehouse/templates/manage/account.html:679
+#: warehouse/templates/manage/account.html:686
 #: warehouse/templates/manage/unverified-account.html:414
 #: warehouse/templates/manage/unverified-account.html:421
 msgid "Unique identifier:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:711
+#: warehouse/templates/manage/account.html:681
 #: warehouse/templates/manage/unverified-account.html:416
 msgid "API token automatically removed for security reasons"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:724
+#: warehouse/templates/manage/account.html:694
 #: warehouse/templates/manage/unverified-account.html:429
 #, python-format
 msgid "Reason: Token found at <a href=\"%(public_url)s\">public url</a>"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:728
+#: warehouse/templates/manage/account.html:698
 #: warehouse/templates/manage/unverified-account.html:433
 #, python-format
 msgid "Invited to join <a href=\"%(href)s\">%(organization_name)s</a>"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:732
+#: warehouse/templates/manage/account.html:702
 #: warehouse/templates/manage/unverified-account.html:437
 #, python-format
 msgid "Invitation to join <a href=\"%(href)s\">%(organization_name)s</a> declined"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:736
+#: warehouse/templates/manage/account.html:706
 #: warehouse/templates/manage/unverified-account.html:441
 #, python-format
 msgid "Invitation to join <a href=\"%(href)s\">%(organization_name)s</a> revoked"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:740
+#: warehouse/templates/manage/account.html:710
 #: warehouse/templates/manage/unverified-account.html:445
 #, python-format
 msgid "Invitation to join <a href=\"%(href)s\">%(organization_name)s</a> expired"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:744
+#: warehouse/templates/manage/account.html:714
 #, python-format
 msgid "Role in <a href=\"%(href)s\">%(organization_name)s</a> added"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:748
+#: warehouse/templates/manage/account.html:718
 #, python-format
 msgid "Role in <a href=\"%(href)s\">%(organization_name)s</a> changed"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:751
+#: warehouse/templates/manage/account.html:721
 msgid "Organization role removed"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:753
-#: warehouse/templates/manage/account.html:760
+#: warehouse/templates/manage/account.html:723
+#: warehouse/templates/manage/account.html:730
 #, python-format
 msgid "Project: %(project_name)s; role: %(role_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:758
-#: warehouse/templates/manage/account.html:765
+#: warehouse/templates/manage/account.html:728
+#: warehouse/templates/manage/account.html:735
 #, python-format
 msgid "%(heading)s"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:767
+#: warehouse/templates/manage/account.html:737
 #, python-format
 msgid ""
 "Organization: %(organization_name)s; team: %(team_name)s; role: "
 "%(role_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:776
+#: warehouse/templates/manage/account.html:746
 #: warehouse/templates/manage/unverified-account.html:452
 #, python-format
 msgid ""
@@ -3927,12 +3851,12 @@ msgid ""
 "your account</a> as soon as possible."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:781
+#: warehouse/templates/manage/account.html:751
 #: warehouse/templates/manage/unverified-account.html:457
 msgid "Recent account activity"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:784
+#: warehouse/templates/manage/account.html:754
 #: warehouse/templates/manage/organization/history.html:175
 #: warehouse/templates/manage/project/history.html:333
 #: warehouse/templates/manage/team/history.html:87
@@ -3940,7 +3864,7 @@ msgstr ""
 msgid "Event"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:785
+#: warehouse/templates/manage/account.html:755
 #: warehouse/templates/manage/organization/history.html:176
 #: warehouse/templates/manage/organization/history.html:185
 #: warehouse/templates/manage/project/history.html:334
@@ -3951,25 +3875,25 @@ msgstr ""
 msgid "Time"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:786
+#: warehouse/templates/manage/account.html:756
 #: warehouse/templates/manage/organization/history.html:177
 #: warehouse/templates/manage/team/history.html:89
 #: warehouse/templates/manage/unverified-account.html:461
 msgid "Additional Info"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:794
+#: warehouse/templates/manage/account.html:764
 #: warehouse/templates/manage/unverified-account.html:468
 msgid "Date / time"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:798
+#: warehouse/templates/manage/account.html:768
 #: warehouse/templates/manage/organization/history.html:189
 #: warehouse/templates/manage/unverified-account.html:472
 msgid "Location Info"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:801
+#: warehouse/templates/manage/account.html:771
 #: warehouse/templates/manage/organization/history.html:192
 #: warehouse/templates/manage/project/history.html:350
 #: warehouse/templates/manage/team/history.html:104
@@ -3977,20 +3901,20 @@ msgstr ""
 msgid "Device Info"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:809
+#: warehouse/templates/manage/account.html:779
 #: warehouse/templates/manage/unverified-account.html:483
 msgid "Events will appear here as security-related actions occur on your account."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:814
+#: warehouse/templates/manage/account.html:784
 msgid "Delete account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:817
+#: warehouse/templates/manage/account.html:787
 msgid "Cannot delete account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:819
+#: warehouse/templates/manage/account.html:789
 #, python-format
 msgid ""
 "Your account is currently the <strong>sole owner</strong> of %(count)s "
@@ -4001,7 +3925,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/account.html:824
+#: warehouse/templates/manage/account.html:794
 msgid ""
 "You must transfer ownership or delete this project before you can delete "
 "your account."
@@ -4011,14 +3935,14 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/account.html:834
+#: warehouse/templates/manage/account.html:804
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
 "href=\"%(delete_href)s\">delete project</a>"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:843
+#: warehouse/templates/manage/account.html:813
 #: warehouse/templates/manage/account/token.html:177
 #: warehouse/templates/manage/organization/settings.html:177
 #: warehouse/templates/manage/organization/settings.html:238
@@ -4027,11 +3951,11 @@ msgstr ""
 msgid "Proceed with caution!"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:846
+#: warehouse/templates/manage/account.html:816
 msgid "You will not be able to recover your account after you delete it"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:848
+#: warehouse/templates/manage/account.html:818
 msgid "Delete your PyPI account"
 msgstr ""
 
@@ -4260,6 +4184,10 @@ msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:448
 msgid "Enter your password to continue."
+msgstr ""
+
+#: warehouse/templates/manage/manage_base.html:451
+msgid "Password"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:535
@@ -4785,7 +4713,7 @@ msgstr ""
 #: warehouse/templates/manage/project/publishing.html:329
 #: warehouse/templates/manage/project/roles.html:373
 #: warehouse/templates/manage/project/settings.html:329
-#: warehouse/templates/manage/team/roles.html:125
+#: warehouse/templates/manage/team/roles.html:123
 msgid "Add"
 msgstr ""
 
@@ -5805,7 +5733,6 @@ msgstr ""
 #: warehouse/templates/manage/organization/roles.html:372
 #: warehouse/templates/manage/project/roles.html:395
 #: warehouse/templates/manage/team/roles.html:35
-#: warehouse/templates/manage/team/roles.html:102
 msgid "User"
 msgstr ""
 
@@ -7233,7 +7160,7 @@ msgstr ""
 msgid "Add member"
 msgstr ""
 
-#: warehouse/templates/manage/team/roles.html:120
+#: warehouse/templates/manage/team/roles.html:118
 #, python-format
 msgid ""
 "Add an organization owner, manager, or member to the team. <a "
