@@ -1,7 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-import docReady from "warehouse/utils/doc-ready";
-
 /**
  * Proxy Protection - Detects if the page is being loaded through a proxy
  * and displays a warning if the domain is not in the allowed list.
@@ -198,8 +196,5 @@ function dismissPhishingWarning() {
     document.body.insertBefore(banner, document.body.firstChild);
   }
 }
-
-// Initialize proxy protection when DOM is ready
-docReady(checkProxyProtection);
 
 export default checkProxyProtection;
