@@ -333,6 +333,7 @@ def test_configure(monkeypatch, settings, environment):
         "gcloud.service_account_info": {},
         "warehouse.forklift.legacy.MAX_FILESIZE_MIB": 100,
         "warehouse.forklift.legacy.MAX_PROJECT_SIZE_GIB": 10,
+        "warehouse.allowed_domains": [],
     }
     if environment == config.Environment.development:
         expected_settings.update(
@@ -394,6 +395,7 @@ def test_configure(monkeypatch, settings, environment):
         ]
         + [
             pretend.call(".logging"),
+            pretend.call(".request"),
             pretend.call("pyramid_jinja2"),
             pretend.call(".filters"),
             pretend.call("pyramid_mailer"),
