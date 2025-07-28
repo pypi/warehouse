@@ -19,7 +19,7 @@ async function hashDomain(domain, nonce) {
     nonceData,
     { name: "HMAC", hash: "SHA-256" },
     false,
-    ["sign"]
+    ["sign"],
   );
   
   // Generate HMAC
