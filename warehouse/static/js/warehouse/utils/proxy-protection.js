@@ -119,42 +119,60 @@ function showPhishingWarning() {
     text-align: center;
   `;
 
-  warningContent.innerHTML = `
-    <h1 style="color: #dc3545; margin-bottom: 20px; font-size: 28px;">
-      <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-      Security Warning: Potential Phishing Site
-    </h1>
-    <div style="color: #333; margin-bottom: 30px;">
-      <p style="font-size: 18px; margin-bottom: 15px;">
-        <strong>Warning:</strong> You are not accessing this site from an official domain.
-      </p>
-      <p style="margin-bottom: 15px;">
-        This could be a phishing attempt. You are currently on:
-      </p>
-      <p style="font-size: 20px; font-weight: bold; color: #dc3545; margin-bottom: 15px;">
-        ${window.location.hostname}
-      </p>
-      <p style="margin-bottom: 20px;">
-        Please verify that you trust this domain before continuing.
-      </p>
-    </div>
-    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-      <button type="button" 
-              id="dismiss-warning-button"
-              style="background-color: #6c757d; color: white; border: none; padding: 12px 24px; font-size: 16px; cursor: pointer; border-radius: 4px;">
-        Continue Anyway
-      </button>
-    </div>
+  // Create header
+  const header = document.createElement("h1");
+  header.style.cssText = "color: #dc3545; margin-bottom: 20px; font-size: 28px;";
+  header.innerHTML = `
+    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+    Security Warning:<br>Potential Phishing Site
   `;
+  warningContent.appendChild(header);
+
+  // Create content div
+  const contentDiv = document.createElement("div");
+  contentDiv.style.cssText = "color: #333; margin-bottom: 30px;";
+  
+  const warningP = document.createElement("p");
+  warningP.style.cssText = "font-size: 18px; margin-bottom: 15px;";
+  warningP.innerHTML = "<strong>Warning:</strong> You are not accessing this site from an official domain.";
+  contentDiv.appendChild(warningP);
+  
+  const messageP = document.createElement("p");
+  messageP.style.cssText = "margin-bottom: 15px;";
+  messageP.textContent = "This could be a phishing attempt. You are currently on:";
+  contentDiv.appendChild(messageP);
+  
+  // Create hostname display
+  const hostnameDiv = document.createElement("div");
+  hostnameDiv.style.cssText = "font-size: 72px !important; font-weight: 900 !important; color: #ff6b6b !important; margin: 10px 0; line-height: 1.2; font-family: monospace; word-break: break-all;";
+  hostnameDiv.textContent = window.location.hostname;
+  contentDiv.appendChild(hostnameDiv);
+  
+  const verifyP = document.createElement("p");
+  verifyP.style.cssText = "margin-bottom: 20px;";
+  verifyP.textContent = "Please verify that you trust this domain before continuing.";
+  contentDiv.appendChild(verifyP);
+  
+  warningContent.appendChild(contentDiv);
+  
+  // Create button container
+  const buttonDiv = document.createElement("div");
+  buttonDiv.style.cssText = "display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;";
+  
+  const dismissButton = document.createElement("button");
+  dismissButton.type = "button";
+  dismissButton.id = "dismiss-warning-button";
+  dismissButton.style.cssText = "background-color: #6c757d; color: white; border: none; padding: 12px 24px; font-size: 16px; cursor: pointer; border-radius: 4px;";
+  dismissButton.textContent = "Continue Anyway";
+  
+  buttonDiv.appendChild(dismissButton);
+  warningContent.appendChild(buttonDiv);
 
   warningOverlay.appendChild(warningContent);
   document.body.appendChild(warningOverlay);
   
   // Attach click event listener to the dismiss button
-  const dismissButton = document.getElementById("dismiss-warning-button");
-  if (dismissButton) {
-    dismissButton.addEventListener("click", dismissPhishingWarning);
-  }
+  dismissButton.addEventListener("click", dismissPhishingWarning);
 
   // Store the original background color before changing it
   document.body.dataset.originalBackgroundColor = document.body.style.backgroundColor || "";
