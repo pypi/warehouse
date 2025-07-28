@@ -187,7 +187,7 @@ def _block_patched(self, count, _orig_block=tarfile.TarInfo._block):
     return _orig_block(self, count)
 
 
-tarfile.TarInfo._block = _block_patched
+tarfile.TarInfo._block = _block_patched  # type: ignore[attr-defined]
 
 
 # Actual checking code;
