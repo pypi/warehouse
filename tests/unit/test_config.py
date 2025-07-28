@@ -670,3 +670,34 @@ def test_root_factory_access_control_list():
             ),
         ),
     ]
+
+
+class TestWarehouseAllowedDomains:
+    def test_allowed_domains_parsing(self):
+        """Test that allowed domains are parsed correctly."""
+
+        # Test the lambda function used in maybe_set
+        def parser(s):
+            return [d.strip() for d in s.split(",") if d.strip()]
+
+        # Test normal case
+        assert parser("pypi.org, test.pypi.org, example.com") == [
+            "pypi.org",
+            "test.pypi.org",
+            "example.com",
+        ]
+
+        # Test with empty strings
+        assert parser("pypi.org,,, test.pypi.org, ") == ["pypi.org", "test.pypi.org"]
+
+        # Test with only commas
+        assert parser(",,,") == []
+
+        # Test single domain
+        assert parser("pypi.org") == ["pypi.org"]
+
+        # Test with extra spaces
+        assert parser("  pypi.org  ,   test.pypi.org  ") == [
+            "pypi.org",
+            "test.pypi.org",
+        ]

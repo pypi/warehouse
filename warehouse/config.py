@@ -341,6 +341,13 @@ def configure(settings=None):
     maybe_set(settings, "warehouse.ip_salt", "WAREHOUSE_IP_SALT")
     maybe_set(settings, "warehouse.num_proxies", "WAREHOUSE_NUM_PROXIES", int)
     maybe_set(settings, "warehouse.domain", "WAREHOUSE_DOMAIN")
+    maybe_set(
+        settings,
+        "warehouse.allowed_domains",
+        "WAREHOUSE_ALLOWED_DOMAINS",
+        lambda s: [d.strip() for d in s.split(",") if d.strip()],
+        default=[],
+    )
     maybe_set(settings, "forklift.domain", "FORKLIFT_DOMAIN")
     maybe_set(settings, "auth.domain", "AUTH_DOMAIN")
     maybe_set(

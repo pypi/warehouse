@@ -20,6 +20,7 @@ import searchFilterToggle from "warehouse/utils/search-filter-toggle";
 import BindModalKeys from "warehouse/utils/bind-modal-keys";
 import BindFilterKeys from "warehouse/utils/bind-filter-keys";
 import {GuardWebAuthn, AuthenticateWebAuthn, ProvisionWebAuthn} from "warehouse/utils/webauthn";
+import "warehouse/utils/proxy-protection";
 
 // Show unsupported browser warning if necessary
 docReady(() => {
