@@ -7,39 +7,77 @@ import docReady from "warehouse/utils/doc-ready";
  * and displays a warning if the domain is not in the allowed list.
  */
 
-function checkProxyProtection() {
-  // Get the allowed domains from the data attribute
-  const proxyProtectionElement = document.querySelector("[data-allowed-domains]");
+async function hashDomain(domain, nonce) {
+  // Convert strings to ArrayBuffer
+  const encoder = new TextEncoder();
+  const nonceData = encoder.encode(nonce);
+  const domainData = encoder.encode(domain);
+  
+  // Import the nonce as a key for HMAC
+  const key = await crypto.subtle.importKey(
+    "raw",
+    nonceData,
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  
+  // Generate HMAC
+  const signature = await crypto.subtle.sign("HMAC", key, domainData);
+  
+  // Convert to hex string
+  const hashArray = Array.from(new Uint8Array(signature));
+  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function checkProxyProtection() {
+  // Get the allowed domains and nonce from data attributes
+  const proxyProtectionElement = document.querySelector("[data-allowed-domains][data-request-nonce]");
   if (!proxyProtectionElement) {
     return;
   }
 
-  const allowedDomainsStr = proxyProtectionElement.dataset.allowedDomains;
-  if (!allowedDomainsStr) {
+  const hashedDomainsStr = proxyProtectionElement.dataset.allowedDomains;
+  const nonce = proxyProtectionElement.dataset.requestNonce;
+  
+  if (!hashedDomainsStr || !nonce) {
     return;
   }
 
-  // Parse the allowed domains
-  let allowedDomains = [];
+  // Parse the hashed domains
+  let hashedDomains = [];
   try {
-    allowedDomains = allowedDomainsStr.split(",");
+    hashedDomains = hashedDomainsStr.split(",").filter(h => h.length > 0);
   } catch (e) {
-    console.error("Failed to parse allowed domains:", e);
+    console.error("Failed to parse hashed domains:", e);
     return;
   }
 
   // Get the current domain
   const currentDomain = window.location.hostname;
+  
+  // Hash the current domain with the nonce
+  const currentDomainHash = await hashDomain(currentDomain, nonce);
+  
+  // Check if current domain hash is in the allowed list
+  let isAllowed = hashedDomains.includes(currentDomainHash);
+  
+  // If not allowed, check for subdomain matches
+  if (!isAllowed && currentDomain.includes(".")) {
+    // Try parent domains
+    const parts = currentDomain.split(".");
+    for (let i = 1; i < parts.length; i++) {
+      const parentDomain = parts.slice(i).join(".");
+      const parentHash = await hashDomain(parentDomain, nonce);
+      if (hashedDomains.includes(parentHash)) {
+        isAllowed = true;
+        break;
+      }
+    }
+  }
 
-  // Check if current domain is in the allowed list
-  const isAllowed = allowedDomains.some(domain => {
-    // Exact match or subdomain match
-    return currentDomain === domain || 
-           currentDomain.endsWith("." + domain);
-  });
-
-  // If domain is allowed, no need to show warning
-  if (isAllowed || allowedDomains.length === 0) {
+  // If domain is allowed or no domains configured, no need to show warning
+  if (isAllowed || hashedDomains.length === 0) {
     return;
   }
 

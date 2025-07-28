@@ -643,6 +643,9 @@ def configure(settings=None):
     # Register our logging support
     config.include(".logging")
 
+    # Register request utilities (nonce, etc.)
+    config.include(".request")
+
     # We'll want to use Jinja2 as our template system.
     config.include("pyramid_jinja2")
 
