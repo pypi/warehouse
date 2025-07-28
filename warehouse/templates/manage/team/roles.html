@@ -98,12 +98,10 @@
         <input name="csrf_token"
                type="hidden"
                value="{{ request.session.get_csrf_token() }}">
-        <label for="username" class="form-group__label">
-          {% trans %}User{% endtrans %}
-          {% if form.username.flags.required %}
-            <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-          {% endif %}
-        </label>
+        {{ input_field_label(
+          user_friendly_name="User",
+          form_instance=form.username
+        )}}
         {{ form.username(placeholder=gettext("Username") ,
         list="organization-users",
         autocomplete="off",
