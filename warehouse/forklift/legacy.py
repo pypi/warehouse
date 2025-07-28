@@ -180,12 +180,15 @@ _musllinux_arches = _jointlinux_arches
 if sys.version_info >= (3, 13, 6):  # pragma: no cover
     raise RuntimeError("Patched _block() not needed in Python 3.13.6+")
 
+
 def _block_patched(self, count, _orig_block=tarfile.TarInfo._block):
     if count < 0:  # pragma: no cover
         raise tarfile.InvalidHeaderError("invalid offset")
     return _orig_block(self, count)
 
+
 tarfile.TarInfo._block = _block_patched
+
 
 # Actual checking code;
 def _valid_platform_tag(platform_tag):
