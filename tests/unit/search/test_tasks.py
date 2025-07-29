@@ -243,7 +243,7 @@ class TestReindex:
         class TestError(Exception):
             pass
 
-        def parallel_bulk(client, iterable, index=None):
+        def parallel_bulk(client, iterable, index=None, max_chunk_bytes=None):
             assert client is es_client
             assert iterable is docs
             assert index == "warehouse-cbcbcbcbcb"
@@ -303,7 +303,9 @@ class TestReindex:
         )
         monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
 
-        parallel_bulk = pretend.call_recorder(lambda client, iterable, index: [None])
+        parallel_bulk = pretend.call_recorder(
+            lambda client, iterable, index, max_chunk_bytes: [None]
+        )
         monkeypatch.setattr(warehouse.search.tasks, "parallel_bulk", parallel_bulk)
 
         monkeypatch.setattr(os, "urandom", lambda n: b"\xcb" * n)
@@ -311,7 +313,9 @@ class TestReindex:
         reindex(task, db_request)
 
         assert parallel_bulk.calls == [
-            pretend.call(es_client, docs, index="warehouse-cbcbcbcbcb")
+            pretend.call(
+                es_client, docs, index="warehouse-cbcbcbcbcb", max_chunk_bytes=10485760
+            )
         ]
         assert es_client.indices.create.calls == [
             pretend.call(
@@ -367,7 +371,9 @@ class TestReindex:
         )
         monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
 
-        parallel_bulk = pretend.call_recorder(lambda client, iterable, index: [None])
+        parallel_bulk = pretend.call_recorder(
+            lambda client, iterable, index, max_chunk_bytes: [None]
+        )
         monkeypatch.setattr(warehouse.search.tasks, "parallel_bulk", parallel_bulk)
 
         monkeypatch.setattr(os, "urandom", lambda n: b"\xcb" * n)
@@ -375,7 +381,9 @@ class TestReindex:
         reindex(task, db_request)
 
         assert parallel_bulk.calls == [
-            pretend.call(es_client, docs, index="warehouse-cbcbcbcbcb")
+            pretend.call(
+                es_client, docs, index="warehouse-cbcbcbcbcb", max_chunk_bytes=10485760
+            )
         ]
         assert es_client.indices.create.calls == [
             pretend.call(
@@ -432,7 +440,9 @@ class TestReindex:
         )
         monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
 
-        parallel_bulk = pretend.call_recorder(lambda client, iterable, index: [None])
+        parallel_bulk = pretend.call_recorder(
+            lambda client, iterable, index, max_chunk_bytes: [None]
+        )
         monkeypatch.setattr(warehouse.search.tasks, "parallel_bulk", parallel_bulk)
 
         monkeypatch.setattr(os, "urandom", lambda n: b"\xcb" * n)
@@ -455,7 +465,9 @@ class TestReindex:
         ]
 
         assert parallel_bulk.calls == [
-            pretend.call(es_client, docs, index="warehouse-cbcbcbcbcb")
+            pretend.call(
+                es_client, docs, index="warehouse-cbcbcbcbcb", max_chunk_bytes=10485760
+            )
         ]
         assert es_client.indices.create.calls == [
             pretend.call(
