@@ -168,6 +168,7 @@ def reindex(self, request):
                     client,
                     _project_docs(request.db),
                     index=new_index_name,
+                    chunk_size=100,
                     max_chunk_bytes=10 * 1024 * 1024,  # 10MB, per OpenSearch defaults
                 ):
                     pass
