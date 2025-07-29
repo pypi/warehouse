@@ -2,7 +2,7 @@
 set -ex
 
 # Actually run our tests.
-find . -name '*.py' -not -path './*venv/*' -exec python -m pyupgrade --py313-plus {} +
+find . -name '*.py' -exec python -m pyupgrade --py313-plus {} +
 python -m flake8 .
 python -m black --check --diff *.py warehouse/ tests/
 python -m isort --check *.py warehouse/ tests/
