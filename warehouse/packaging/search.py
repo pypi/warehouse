@@ -41,7 +41,7 @@ class Project(Document):
         obj["name"] = release.name
         obj["normalized_name"] = release.normalized_name
         obj["summary"] = release.summary
-        obj["description"] = release.description
+        obj["description"] = release.description[:5_000_000]
         obj["author"] = release.author
         obj["author_email"] = release.author_email
         obj["maintainer"] = release.maintainer
