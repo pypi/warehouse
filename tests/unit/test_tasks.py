@@ -244,7 +244,7 @@ class TestWarehouseTask:
         ]
         assert metrics.increment.calls == [
             pretend.call("warehouse.task.start", tags=["task:warehouse.test.task"]),
-            pretend.call("warehouse.task.complete", tags=["task:warehouse.test.task"])
+            pretend.call("warehouse.task.complete", tags=["task:warehouse.test.task"]),
         ]
 
     def test_run_retries_failed_transaction(self, metrics):
