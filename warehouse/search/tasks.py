@@ -40,7 +40,7 @@ def _project_docs(db, project_name: str | None = None):
     )
     projects_to_index = (
         select(
-            Description.raw.label("description"),
+            func.left(Description.raw, 5_000_000).label("description"),
             Release.author,
             Release.author_email,
             Release.maintainer,
