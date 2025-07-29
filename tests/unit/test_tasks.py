@@ -290,7 +290,7 @@ class TestWarehouseTask:
         ]
         assert metrics.increment.calls == [
             pretend.call("warehouse.task.start", tags=["task:warehouse.test.task"]),
-            pretend.call("warehouse.task.retried", tags=["task:warehouse.test.task"])
+            pretend.call("warehouse.task.retried", tags=["task:warehouse.test.task"]),
         ]
 
     def test_run_doesnt_retries_failed_transaction(self, metrics):
@@ -329,7 +329,7 @@ class TestWarehouseTask:
         ]
         assert metrics.increment.calls == [
             pretend.call("warehouse.task.start", tags=["task:warehouse.test.task"]),
-            pretend.call("warehouse.task.failed", tags=["task:warehouse.test.task"])
+            pretend.call("warehouse.task.failed", tags=["task:warehouse.test.task"]),
         ]
 
     def test_after_return_without_pyramid_env(self):
