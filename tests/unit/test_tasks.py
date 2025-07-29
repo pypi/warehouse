@@ -289,6 +289,7 @@ class TestWarehouseTask:
             pretend.call("warehouse.task.run", tags=["task:warehouse.test.task"])
         ]
         assert metrics.increment.calls == [
+            pretend.call("warehouse.task.start", tags=["task:warehouse.test.task"]),
             pretend.call("warehouse.task.retried", tags=["task:warehouse.test.task"])
         ]
 
@@ -327,6 +328,7 @@ class TestWarehouseTask:
             pretend.call("warehouse.task.run", tags=["task:warehouse.test.task"])
         ]
         assert metrics.increment.calls == [
+            pretend.call("warehouse.task.start", tags=["task:warehouse.test.task"]),
             pretend.call("warehouse.task.failed", tags=["task:warehouse.test.task"])
         ]
 
