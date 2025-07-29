@@ -73,6 +73,7 @@ class WarehouseTask(celery.Task):
 
             with request.tm, metrics.timed("warehouse.task.run", tags=metric_tags):
                 try:
+                    metrics.increment("warehouse.task.start", tags=metric_tags)
                     result = original_run(*args, **kwargs)
                     metrics.increment("warehouse.task.complete", tags=metric_tags)
                     return result
