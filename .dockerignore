@@ -6,3 +6,4 @@ dev/*
 htmlcov
 warehouse/static/dist
 .venv
+venv
