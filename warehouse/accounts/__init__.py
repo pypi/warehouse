@@ -104,6 +104,9 @@ def includeme(config):
         TokenServiceFactory(name="two_factor"), ITokenService, name="two_factor"
     )
     config.register_service_factory(
+        TokenServiceFactory(name="confirm_login"), ITokenService, name="confirm_login"
+    )
+    config.register_service_factory(
         TokenServiceFactory(name="remember_device"),
         ITokenService,
         name="remember_device",

@@ -1,0 +1,12 @@
+A login attempt was made from an unrecognized device.
+
+To complete your login, please visit the following link:
+
+{{ request.route_url('accounts.confirm-login', _query={'token': token}) }}
+
+This login attempt was made from:
+- IP address: {{ ip_address }}
+- User agent: {{ user_agent }}
+
+If you did not make this change, you can email admin@pypi.org to
+communicate with the PyPI administrators.

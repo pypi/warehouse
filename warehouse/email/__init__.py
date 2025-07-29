@@ -983,6 +983,16 @@ def send_recovery_code_reminder_email(request, user):
     return {"username": user.username}
 
 
+@_email("unrecognized-login")
+def send_unrecognized_login_email(request, user, *, ip_address, user_agent, token):
+    return {
+        "username": user.username,
+        "ip_address": ip_address,
+        "user_agent": user_agent,
+        "token": token,
+    }
+
+
 @_email("trusted-publisher-added")
 def send_trusted_publisher_added_email(request, user, project_name, publisher):
     # We use the request's user, since they're the one triggering the action.

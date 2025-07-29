@@ -1,0 +1,23 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% extends "email/base.html" %}
+{% block content %}
+  <p>A login attempt was made from an unrecognized device.</p>
+  <p>To complete your login, please visit the following link:</p>
+  {% set link = request.route_url('accounts.confirm-login', _query={'token': token}) %}
+  <p>
+    <a href="{{ link }}">{{ link }}</a>
+  </p>
+  <p>This login attempt was made from:</p>
+  <ul>
+    <li>
+      <strong>IP address:</strong> {{ ip_address }}
+    </li>
+    <li>
+      <strong>User agent:</strong> {{ user_agent }}
+    </li>
+  </ul>
+  <p>
+    If you did not make this change, you can email admin@pypi.org to
+    communicate with the PyPI administrators.
+  </p>
+{% endblock %}
