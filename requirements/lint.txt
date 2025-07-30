@@ -396,9 +396,9 @@ mypy-extensions==1.1.0 \
     # via
     #   black
     #   mypy
-mypy-zope==1.0.12 \
-    --hash=sha256:d6f8f99eb5644885553b4ec7afc8d68f5daf412c9bf238ec3c36b65d97df6cbe \
-    --hash=sha256:f2ecf169f886fbc266e9339db0c2f3818528a7536b9bb4f5ece1d5854dc2f27c
+mypy-zope==1.0.13 \
+    --hash=sha256:13740c4cbc910cca2c143c6709e1c483c991abeeeb7b629ad6f73d8ac1edad15 \
+    --hash=sha256:63fb4d035ea874baf280dc69e714dcde4bd2a4a4837a0fd8d90ce91bea510f99
     # via -r requirements/lint.in
 packaging==25.0 \
     --hash=sha256:29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484 \
@@ -701,9 +701,9 @@ urllib3==2.5.0 \
     --hash=sha256:3fc47733c7e419d4bc3f6b3dc2b4f890bb743906a30d56ba4a5bfa4bbff92760 \
     --hash=sha256:e6b01673c0fa6a13e374b50871808eb3bf7046c4b125b216f6bf1cc604cff0dc
     # via types-requests
-zope-event==5.1 \
-    --hash=sha256:53de8f0e9f61dc0598141ac591f49b042b6d74784dab49971b9cc91d0f73a7df \
-    --hash=sha256:a153660e0c228124655748e990396b9d8295d6e4f546fa1b34f3319e1c666e7f
+zope-event==5.1.1 \
+    --hash=sha256:8d5ea7b992c42ce73a6fa9c2ba99a004c52cd9f05d87f3220768ef0329b92df7 \
+    --hash=sha256:c1ac931abf57efba71a2a313c5f4d57768a19b15c37e3f02f50eb1536be12d4e
     # via zope-schema
 zope-interface==7.2 \
     --hash=sha256:033b3923b63474800b04cba480b70f6e6243a62208071fc148354f3f89cc01b7 \
