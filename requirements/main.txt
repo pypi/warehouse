@@ -10,9 +10,9 @@ alembic==1.16.4 \
     # via
     #   -r requirements/main.in
     #   alembic-postgresql-enum
-alembic-postgresql-enum==1.7.0 \
-    --hash=sha256:1a12a2b25f3f49440f419821888530496511573875438b6e9a08cbcb8a6f006f \
-    --hash=sha256:2a64260f3f1ed96f1bf984f55cb838e5d915693b8478b7b6ffea13cc09184ae0
+alembic-postgresql-enum==1.8.0 \
+    --hash=sha256:0e62833f8d1aca2c58fa09cae1d4a52472fb32d2dde32b68c84515fffcf401d5 \
+    --hash=sha256:132cd5fdc4a2a0b6498f3d89ea1c7b2a5ddc3281ddd84edae7259ec4c0a215a0
     # via -r requirements/main.in
 amqp==5.3.1 \
     --hash=sha256:43b3319e1b4e7d1251833a93d672b4af1e40f3d632d479b98661a95f117880a2 \
