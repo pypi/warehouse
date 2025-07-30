@@ -374,7 +374,7 @@ msgstr ""
 "Будь ласка, ознайомтесь із нашими оновленими <a href=\"${tos_url}\">Умовами "
 "надання послуг</a>."
 
-#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1915
+#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1922
 #: warehouse/manage/views/__init__.py:1409
 #, fuzzy
 #| msgid ""
@@ -436,16 +436,16 @@ msgstr ""
 "Цей довірений видавець уже зареєстрований. Якщо це сталося ненавмисно, будь "
 "ласка, зв'яжіться з адміністраторами PyPI."
 
-#: warehouse/accounts/views.py:1786
+#: warehouse/accounts/views.py:1793
 msgid "Registered a new pending publisher to create "
 msgstr "Нового очікуваного видавця зареєстровано для створення "
 
-#: warehouse/accounts/views.py:1928 warehouse/accounts/views.py:1941
-#: warehouse/accounts/views.py:1948
+#: warehouse/accounts/views.py:1935 warehouse/accounts/views.py:1948
+#: warehouse/accounts/views.py:1955
 msgid "Invalid publisher ID"
 msgstr "Недійсний ідентифікатор видавця ID"
 
-#: warehouse/accounts/views.py:1955
+#: warehouse/accounts/views.py:1962
 #, fuzzy
 msgid "Removed trusted publisher for project "
 msgstr "Вилучено довіреного видавця для проєкту. "
@@ -1156,14 +1156,14 @@ msgstr "Монті Пайтон – Скетч «Сирний магазин»"
 
 #: warehouse/templates/404.html:30 warehouse/templates/500.html:18
 #: warehouse/templates/accounts/two-factor.html:35
-#: warehouse/templates/base.html:319 warehouse/templates/base.html:325
-#: warehouse/templates/base.html:331 warehouse/templates/base.html:337
-#: warehouse/templates/base.html:353 warehouse/templates/base.html:359
-#: warehouse/templates/base.html:384 warehouse/templates/base.html:390
-#: warehouse/templates/base.html:399 warehouse/templates/base.html:412
-#: warehouse/templates/base.html:421 warehouse/templates/base.html:427
-#: warehouse/templates/base.html:433 warehouse/templates/base.html:446
-#: warehouse/templates/base.html:463
+#: warehouse/templates/base.html:339 warehouse/templates/base.html:345
+#: warehouse/templates/base.html:351 warehouse/templates/base.html:357
+#: warehouse/templates/base.html:373 warehouse/templates/base.html:379
+#: warehouse/templates/base.html:404 warehouse/templates/base.html:410
+#: warehouse/templates/base.html:419 warehouse/templates/base.html:432
+#: warehouse/templates/base.html:441 warehouse/templates/base.html:447
+#: warehouse/templates/base.html:453 warehouse/templates/base.html:466
+#: warehouse/templates/base.html:483
 #: warehouse/templates/includes/accounts/profile-callout.html:17
 #: warehouse/templates/includes/file-details.html:129
 #: warehouse/templates/index.html:98 warehouse/templates/index.html:105
@@ -1333,7 +1333,7 @@ msgid "Main navigation"
 msgstr "Основна навігація"
 
 #: warehouse/templates/base.html:33 warehouse/templates/base.html:68
-#: warehouse/templates/base.html:314
+#: warehouse/templates/base.html:334
 #: warehouse/templates/includes/current-user-indicator.html:77
 #: warehouse/templates/pages/help.html:209
 #: warehouse/templates/pages/sitemap.html:19
@@ -1419,16 +1419,16 @@ msgstr "RSS: 40 останніх оновлень"
 msgid "RSS: 40 newest packages"
 msgstr "RSS: 40 найновіших пакунків"
 
-#: warehouse/templates/base.html:185
+#: warehouse/templates/base.html:205
 msgid "Skip to main content"
 msgstr "Перескочити до основного вмісту"
 
-#: warehouse/templates/base.html:189
+#: warehouse/templates/base.html:209
 msgid "Switch to mobile version"
 msgstr "Перемкнутися на мобільну версію"
 
-#: warehouse/templates/base.html:196 warehouse/templates/base.html:205
-#: warehouse/templates/base.html:215
+#: warehouse/templates/base.html:216 warehouse/templates/base.html:225
+#: warehouse/templates/base.html:235
 #: warehouse/templates/includes/flash-messages.html:41
 #: warehouse/templates/includes/session-notifications.html:19
 #: warehouse/templates/manage/account.html:845
@@ -1439,19 +1439,19 @@ msgstr "Перемкнутися на мобільну версію"
 #: warehouse/templates/manage/organization/settings.html:246
 #: warehouse/templates/manage/project/documentation.html:13
 #: warehouse/templates/manage/project/release.html:209
-#: warehouse/templates/manage/project/settings.html:85
-#: warehouse/templates/manage/project/settings.html:131
-#: warehouse/templates/manage/project/settings.html:372
+#: warehouse/templates/manage/project/settings.html:84
+#: warehouse/templates/manage/project/settings.html:130
+#: warehouse/templates/manage/project/settings.html:371
 #: warehouse/templates/manage/team/settings.html:62
 msgid "Warning"
 msgstr "Попередження"
 
-#: warehouse/templates/base.html:198
+#: warehouse/templates/base.html:218
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
 "Ви використовуєте непідтримуваний браузер, оновіть його до новішої версії."
 
-#: warehouse/templates/base.html:207
+#: warehouse/templates/base.html:227
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
@@ -1461,7 +1461,7 @@ msgstr ""
 "який надає вам можливість спробувати засоби та процеси, не впливаючи на "
 "справжній реєстр."
 
-#: warehouse/templates/base.html:217
+#: warehouse/templates/base.html:237
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
@@ -1469,161 +1469,161 @@ msgstr ""
 "Деякі функції можуть не працювати без JavaScript. Будь ласка, спробуйте "
 "увімкнути його, якщо у вас виникнуть проблеми."
 
-#: warehouse/templates/base.html:252 warehouse/templates/base.html:284
+#: warehouse/templates/base.html:272 warehouse/templates/base.html:304
 #: warehouse/templates/error-base-with-search.html:8
 #: warehouse/templates/index.html:29
 msgid "Search PyPI"
 msgstr "Пошук на PyPI"
 
-#: warehouse/templates/base.html:257 warehouse/templates/index.html:35
+#: warehouse/templates/base.html:277 warehouse/templates/index.html:35
 #, fuzzy
 #| msgid "Search projects"
 msgid "Type '/' to search projects"
 msgstr "Шукайте проєкти"
 
-#: warehouse/templates/base.html:268 warehouse/templates/base.html:297
+#: warehouse/templates/base.html:288 warehouse/templates/base.html:317
 #: warehouse/templates/error-base-with-search.html:19
 #: warehouse/templates/index.html:44
 msgid "Search"
 msgstr "Шукати"
 
-#: warehouse/templates/base.html:289
+#: warehouse/templates/base.html:309
 #: warehouse/templates/error-base-with-search.html:13
 msgid "Search projects"
 msgstr "Шукайте проєкти"
 
-#: warehouse/templates/base.html:315
+#: warehouse/templates/base.html:335
 msgid "Help navigation"
 msgstr "Навігація допомоги"
 
-#: warehouse/templates/base.html:321
+#: warehouse/templates/base.html:341
 msgid "Installing packages"
 msgstr "Встановлення пакунків"
 
-#: warehouse/templates/base.html:327
+#: warehouse/templates/base.html:347
 msgid "Uploading packages"
 msgstr "Завантаження пакунків"
 
-#: warehouse/templates/base.html:333
+#: warehouse/templates/base.html:353
 msgid "User guide"
 msgstr "Керівництво користувача"
 
-#: warehouse/templates/base.html:339
+#: warehouse/templates/base.html:359
 msgid "Project name retention"
 msgstr "Збереження назви проєкту"
 
-#: warehouse/templates/base.html:342
+#: warehouse/templates/base.html:362
 msgid "FAQs"
 msgstr "ЧаПи"
 
-#: warehouse/templates/base.html:348 warehouse/templates/pages/sitemap.html:34
+#: warehouse/templates/base.html:368 warehouse/templates/pages/sitemap.html:34
 msgid "About PyPI"
 msgstr "Про PyPI"
 
-#: warehouse/templates/base.html:349
+#: warehouse/templates/base.html:369
 msgid "About PyPI navigation"
 msgstr "Про навігацію в PyPI"
 
-#: warehouse/templates/base.html:355
+#: warehouse/templates/base.html:375
 msgid "PyPI Blog"
 msgstr "Блог PyPI"
 
-#: warehouse/templates/base.html:361
+#: warehouse/templates/base.html:381
 msgid "Infrastructure dashboard"
 msgstr "Панель інфраструктури"
 
-#: warehouse/templates/base.html:364 warehouse/templates/pages/sitemap.html:40
+#: warehouse/templates/base.html:384 warehouse/templates/pages/sitemap.html:40
 #: warehouse/templates/pages/stats.html:4
 msgid "Statistics"
 msgstr "Статистика"
 
-#: warehouse/templates/base.html:367
+#: warehouse/templates/base.html:387
 msgid "Logos & trademarks"
 msgstr "Логотипи й торгові марки"
 
-#: warehouse/templates/base.html:370
+#: warehouse/templates/base.html:390
 msgid "Our sponsors"
 msgstr "Наші спонсори"
 
-#: warehouse/templates/base.html:376
+#: warehouse/templates/base.html:396
 msgid "Contributing to PyPI"
 msgstr "Здійснення вкладу до PyPI"
 
-#: warehouse/templates/base.html:377
+#: warehouse/templates/base.html:397
 msgid "How to contribute navigation"
 msgstr "Навігація того як робити вклади"
 
-#: warehouse/templates/base.html:380
+#: warehouse/templates/base.html:400
 msgid "Bugs and feedback"
 msgstr "Помилки та відгуки"
 
-#: warehouse/templates/base.html:386
+#: warehouse/templates/base.html:406
 msgid "Contribute on GitHub"
 msgstr "Зробіть внесок на GitHub"
 
-#: warehouse/templates/base.html:392
+#: warehouse/templates/base.html:412
 msgid "Translate PyPI"
 msgstr "Перекладайте PyPI"
 
-#: warehouse/templates/base.html:395
+#: warehouse/templates/base.html:415
 msgid "Sponsor PyPI"
 msgstr "Спонсорувати PyPI"
 
-#: warehouse/templates/base.html:401
+#: warehouse/templates/base.html:421
 msgid "Development credits"
 msgstr "Подяки розробникам"
 
-#: warehouse/templates/base.html:407 warehouse/templates/pages/sitemap.html:10
+#: warehouse/templates/base.html:427 warehouse/templates/pages/sitemap.html:10
 msgid "Using PyPI"
 msgstr "Використання PyPI"
 
-#: warehouse/templates/base.html:408
+#: warehouse/templates/base.html:428
 msgid "Using PyPI navigation"
 msgstr "Навігація про використання PyPI"
 
-#: warehouse/templates/base.html:414
+#: warehouse/templates/base.html:434
 #: warehouse/templates/manage/organization/activate_subscription.html:21
 msgid "Terms of Service"
 msgstr "Умови надання послуг"
 
-#: warehouse/templates/base.html:417
+#: warehouse/templates/base.html:437
 msgid "Report security issue"
 msgstr "Звітувати про проблему безпеки"
 
-#: warehouse/templates/base.html:423
+#: warehouse/templates/base.html:443
 msgid "Code of conduct"
 msgstr "Кодекс честі"
 
-#: warehouse/templates/base.html:429
+#: warehouse/templates/base.html:449
 msgid "Privacy Notice"
 msgstr "Повідомлення про конфіденційність"
 
-#: warehouse/templates/base.html:435
+#: warehouse/templates/base.html:455
 msgid "Acceptable Use Policy"
 msgstr "Політика прийнятного використання"
 
-#: warehouse/templates/base.html:445
+#: warehouse/templates/base.html:465
 msgid "Status:"
 msgstr "Статус:"
 
-#: warehouse/templates/base.html:449
+#: warehouse/templates/base.html:469
 msgid "all systems operational"
 msgstr "усі системи працюють"
 
-#: warehouse/templates/base.html:453
+#: warehouse/templates/base.html:473
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr "Розробляється та доглядається спільнотою Python, для спільноти Python."
 
-#: warehouse/templates/base.html:455
+#: warehouse/templates/base.html:475
 msgid "Donate today!"
 msgstr "Пожертвуйте сьогодні!"
 
-#: warehouse/templates/base.html:467 warehouse/templates/pages/sitemap.html:4
+#: warehouse/templates/base.html:487 warehouse/templates/pages/sitemap.html:4
 msgid "Site map"
 msgstr "Мапа сайту"
 
-#: warehouse/templates/base.html:474
+#: warehouse/templates/base.html:494
 msgid "Switch to desktop version"
 msgstr "Перемкнутися на настільну версію"
 
@@ -1835,9 +1835,9 @@ msgstr "Пароль"
 #: warehouse/templates/manage/project/roles.html:364
 #: warehouse/templates/manage/project/roles.html:397
 #: warehouse/templates/manage/project/roles.html:416
-#: warehouse/templates/manage/project/settings.html:276
-#: warehouse/templates/manage/project/settings.html:292
-#: warehouse/templates/manage/project/settings.html:308
+#: warehouse/templates/manage/project/settings.html:275
+#: warehouse/templates/manage/project/settings.html:291
+#: warehouse/templates/manage/project/settings.html:307
 #: warehouse/templates/manage/team/roles.html:104
 #: warehouse/templates/manage/team/settings.html:22
 #: warehouse/templates/packaging/submit-malware-observation.html:54
@@ -2212,9 +2212,9 @@ msgstr "Скасувати"
 #: warehouse/templates/manage/project/history.html:295
 #: warehouse/templates/manage/project/history.html:306
 #: warehouse/templates/manage/project/history.html:317
-#: warehouse/templates/manage/project/settings.html:219
-#: warehouse/templates/manage/project/settings.html:274
-#: warehouse/templates/manage/project/settings.html:279
+#: warehouse/templates/manage/project/settings.html:218
+#: warehouse/templates/manage/project/settings.html:273
+#: warehouse/templates/manage/project/settings.html:278
 #: warehouse/templates/manage/unverified-account.html:102
 msgid "Name"
 msgstr "Імʼя"
@@ -3534,7 +3534,7 @@ msgstr "Сховати сповіщення"
 #: warehouse/templates/manage/manage_base.html:347
 #: warehouse/templates/manage/project/release.html:158
 #: warehouse/templates/manage/project/releases.html:186
-#: warehouse/templates/manage/project/settings.html:70
+#: warehouse/templates/manage/project/settings.html:69
 #: warehouse/templates/manage/unverified-account.html:169
 #: warehouse/templates/manage/unverified-account.html:172
 #: warehouse/templates/manage/unverified-account.html:187
@@ -5749,7 +5749,7 @@ msgstr ""
 #: warehouse/templates/manage/project/publishing.html:255
 #: warehouse/templates/manage/project/publishing.html:329
 #: warehouse/templates/manage/project/roles.html:373
-#: warehouse/templates/manage/project/settings.html:329
+#: warehouse/templates/manage/project/settings.html:328
 #: warehouse/templates/manage/team/roles.html:125
 msgid "Add"
 msgstr "Додати"
@@ -7128,7 +7128,7 @@ msgstr "Відкликати запрошення %(user)s"
 #: warehouse/templates/manage/organization/roles.html:352
 #: warehouse/templates/manage/project/release.html:96
 #: warehouse/templates/manage/project/releases.html:98
-#: warehouse/templates/manage/project/settings.html:246
+#: warehouse/templates/manage/project/settings.html:245
 msgid "Delete"
 msgstr "Видалити"
 
@@ -7687,9 +7687,9 @@ msgstr "Альтернативний репозиторій проєкту до�
 #: warehouse/templates/manage/project/history.html:296
 #: warehouse/templates/manage/project/history.html:307
 #: warehouse/templates/manage/project/history.html:318
-#: warehouse/templates/manage/project/settings.html:220
-#: warehouse/templates/manage/project/settings.html:290
-#: warehouse/templates/manage/project/settings.html:295
+#: warehouse/templates/manage/project/settings.html:219
+#: warehouse/templates/manage/project/settings.html:289
+#: warehouse/templates/manage/project/settings.html:294
 msgid "Url"
 msgstr ""
 
@@ -7926,7 +7926,7 @@ msgstr "Жодних файлів не знайдено"
 
 #: warehouse/templates/manage/project/release.html:155
 #: warehouse/templates/manage/project/releases.html:183
-#: warehouse/templates/manage/project/settings.html:67
+#: warehouse/templates/manage/project/settings.html:66
 msgid "Dismiss"
 msgstr "Сховати"
 
@@ -8432,11 +8432,9 @@ msgid ""
 "href=\"%(pyproject_args_href)s\" rel=\"noopener\" "
 "target=\"_blank\"><code>project</code> metadata fields in your "
 "<code>pyproject.toml</code> file</a>. Updating these fields will not change "
-"the metadata for past releases. Additionally, you <strong>must</strong> use "
-"<a href=\"%(twine_docs_href)s\" rel=\"noopener\" target=\"_blank\">Twine</a> "
-"to upload your files in order to get full support for these fields. See <a "
-"href=\"%(distribution_href)s\" rel=\"noopener\" target=\"_blank\">the Python "
-"Packaging User Guide</a> for more help."
+"the metadata for past releases. See <a href=\"%(distribution_href)s\" "
+"rel=\"noopener\" target=\"_blank\">the Python Packaging User Guide</a> for "
+"more help."
 msgstr ""
 "Щоб встановити опис «%(project_name)s», його автора, посилання, "
 "класифікатори та інші подробиці свого наступного випуску, використовуйте "
@@ -8449,22 +8447,22 @@ msgstr ""
 "href=\"%(distribution_href)s\" rel=\"noopener\" "
 "target=\"_blank\">користувацькому керівництві з пакування Python</a>."
 
-#: warehouse/templates/manage/project/settings.html:83
+#: warehouse/templates/manage/project/settings.html:82
 msgid "Remove project from organization"
 msgstr "Видалити з цієї організації"
 
-#: warehouse/templates/manage/project/settings.html:86
+#: warehouse/templates/manage/project/settings.html:85
 msgid "Removing this project from the organization will:"
 msgstr "Видалення цього проєкту з організації:"
 
-#: warehouse/templates/manage/project/settings.html:90
-#: warehouse/templates/manage/project/settings.html:137
+#: warehouse/templates/manage/project/settings.html:89
+#: warehouse/templates/manage/project/settings.html:136
 #, python-format
 msgid "Remove this project from the '%(organization_name)s' organization."
 msgstr "Видалить цей проєкт з організації «%(organization_name)s»."
 
-#: warehouse/templates/manage/project/settings.html:93
-#: warehouse/templates/manage/project/settings.html:140
+#: warehouse/templates/manage/project/settings.html:92
+#: warehouse/templates/manage/project/settings.html:139
 #, python-format
 msgid ""
 "Revoke project permissions for teams in the '%(organization_name)s' "
@@ -8472,68 +8470,68 @@ msgid ""
 msgstr ""
 "Скасує права в проєкті для команд в організації «%(organization_name)s»."
 
-#: warehouse/templates/manage/project/settings.html:96
-#: warehouse/templates/manage/project/settings.html:101
+#: warehouse/templates/manage/project/settings.html:95
+#: warehouse/templates/manage/project/settings.html:100
 msgid ""
 "Individual owners and maintainers of the project will retain their project "
 "permissions."
 msgstr "Окремі власники та доглядачі проєкту збережуть свої права у проєкті."
 
-#: warehouse/templates/manage/project/settings.html:100
+#: warehouse/templates/manage/project/settings.html:99
 #, fuzzy, python-format
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid ""
 "This will remove the project from the '%(organization_name)s' organization."
 msgstr "Ви тепер ${role} проєкту '${project_name}'."
 
-#: warehouse/templates/manage/project/settings.html:104
+#: warehouse/templates/manage/project/settings.html:103
 #, fuzzy
 #| msgid "No projects"
 msgid "Remove project"
 msgstr "Жодних проєктів"
 
-#: warehouse/templates/manage/project/settings.html:104
-#: warehouse/templates/manage/project/settings.html:178
-#: warehouse/templates/manage/project/settings.html:446
+#: warehouse/templates/manage/project/settings.html:103
+#: warehouse/templates/manage/project/settings.html:177
+#: warehouse/templates/manage/project/settings.html:445
 msgid "Project Name"
 msgstr "Назва проєкту"
 
-#: warehouse/templates/manage/project/settings.html:108
+#: warehouse/templates/manage/project/settings.html:107
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "Cannot remove project from organization"
 msgstr "Ви не володієте цим проєктом"
 
-#: warehouse/templates/manage/project/settings.html:110
+#: warehouse/templates/manage/project/settings.html:109
 msgid ""
 "Your organization is currently the <strong>sole owner</strong> of the "
 "project. You must add an individual owner to the project before you can "
 "remove the project from your organization."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:125
+#: warehouse/templates/manage/project/settings.html:124
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "Transfer project to another organization"
 msgstr "Ви не володієте цим проєктом"
 
-#: warehouse/templates/manage/project/settings.html:127
+#: warehouse/templates/manage/project/settings.html:126
 #, fuzzy
 #| msgid "Create new organization"
 msgid "Transfer project to an organization"
 msgstr "Створіть нову організацію"
 
-#: warehouse/templates/manage/project/settings.html:132
+#: warehouse/templates/manage/project/settings.html:131
 #, fuzzy
 #| msgid "Deleting this project will:"
 msgid "Transferring this project will:"
 msgstr "Видалення цього проєкту:"
 
-#: warehouse/templates/manage/project/settings.html:143
+#: warehouse/templates/manage/project/settings.html:142
 msgid "Revoke your direct Owner role on the project."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:144
+#: warehouse/templates/manage/project/settings.html:143
 #, fuzzy
 #| msgid "You will not be able to recover your account after you delete it"
 msgid ""
@@ -8542,45 +8540,45 @@ msgid ""
 msgstr ""
 "Ви не зможете відносити свій обліковий запис після того, як видалите його"
 
-#: warehouse/templates/manage/project/settings.html:148
+#: warehouse/templates/manage/project/settings.html:147
 msgid "Add the project to another organization that you own."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:150
+#: warehouse/templates/manage/project/settings.html:149
 #, fuzzy
 #| msgid "Invalid token: not a collaboration invitation token"
 msgid "Add the project to an organization that you own."
 msgstr "Недійсний токен: не є токеном запрошення до співпраці"
 
-#: warehouse/templates/manage/project/settings.html:153
+#: warehouse/templates/manage/project/settings.html:152
 msgid "Grant full project permissions to owners of the organization."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:156
+#: warehouse/templates/manage/project/settings.html:155
 msgid ""
 "All other individual owners and maintainers of the project will retain their "
 "project permissions."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:178
+#: warehouse/templates/manage/project/settings.html:177
 #, fuzzy
 #| msgid "Manage project"
 msgid "Transfer project"
 msgstr "Керувати проєктом"
 
-#: warehouse/templates/manage/project/settings.html:184
+#: warehouse/templates/manage/project/settings.html:183
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "Cannot transfer project to another organization"
 msgstr "Ви не володієте цим проєктом"
 
-#: warehouse/templates/manage/project/settings.html:186
+#: warehouse/templates/manage/project/settings.html:185
 #, fuzzy
 #| msgid "Create new organization"
 msgid "Cannot transfer project to an organization"
 msgstr "Створіть нову організацію"
 
-#: warehouse/templates/manage/project/settings.html:191
+#: warehouse/templates/manage/project/settings.html:190
 #, fuzzy
 #| msgid "Invalid token: not a collaboration invitation token"
 msgid ""
@@ -8588,13 +8586,13 @@ msgid ""
 "or manage."
 msgstr "Недійсний токен: не є токеном запрошення до співпраці"
 
-#: warehouse/templates/manage/project/settings.html:192
+#: warehouse/templates/manage/project/settings.html:191
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "You are not an owner or manager of any other organizations."
 msgstr "Ви не володієте цим проєктом"
 
-#: warehouse/templates/manage/project/settings.html:194
+#: warehouse/templates/manage/project/settings.html:193
 #, fuzzy
 #| msgid "Invalid token: not a collaboration invitation token"
 msgid ""
@@ -8602,88 +8600,88 @@ msgid ""
 "manage."
 msgstr "Недійсний токен: не є токеном запрошення до співпраці"
 
-#: warehouse/templates/manage/project/settings.html:195
+#: warehouse/templates/manage/project/settings.html:194
 #, fuzzy
 #| msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgid "You are not an owner or manager of any organizations."
 msgstr "%(user)s ще не завантажував(-ла) жодних проєктів до PyPI"
 
-#: warehouse/templates/manage/project/settings.html:202
+#: warehouse/templates/manage/project/settings.html:201
 msgid "Alternate repository locations"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:205
+#: warehouse/templates/manage/project/settings.html:204
 #, python-format
 msgid ""
 "Provisional support for <a href=\"%(pep_url)s\">PEP 708</a> \"Alternate "
 "Locations\" Metadata."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:209
+#: warehouse/templates/manage/project/settings.html:208
 #, python-format
 msgid ""
 "Implementation may change, consider subscribing to <a "
 "href=\"%(pypi_announce_url)s\">pypi-announce</a> to be notified of changes."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:215
+#: warehouse/templates/manage/project/settings.html:214
 #, fuzzy, python-format
 #| msgid "Create a token for %(project_name)s"
 msgid "Alternate repository locations for %(project_name)s"
 msgstr "Створити токен для %(project_name)s"
 
-#: warehouse/templates/manage/project/settings.html:221
+#: warehouse/templates/manage/project/settings.html:220
 #, fuzzy
 #| msgid "Project description"
 msgid "Description"
 msgstr "Опис проєкту"
 
-#: warehouse/templates/manage/project/settings.html:237
+#: warehouse/templates/manage/project/settings.html:236
 #, fuzzy, python-format
 #| msgid "Remove %(user)s from this project"
 msgid "Delete %(name)s from this project."
 msgstr "Видалити %(user)s з цього проєкта"
 
-#: warehouse/templates/manage/project/settings.html:247
+#: warehouse/templates/manage/project/settings.html:246
 #, fuzzy
 #| msgid "Repository name"
 msgid "Alternate Repository Name"
 msgstr "Назва репозиторію"
 
-#: warehouse/templates/manage/project/settings.html:261
+#: warehouse/templates/manage/project/settings.html:260
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "There are no alternate repositories for this project, yet."
 msgstr "Ви не володієте цим проєктом"
 
-#: warehouse/templates/manage/project/settings.html:263
+#: warehouse/templates/manage/project/settings.html:262
 msgid "Get started by adding an alternate repository below."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:266
+#: warehouse/templates/manage/project/settings.html:265
 msgid "Add alternate repository location"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:306
+#: warehouse/templates/manage/project/settings.html:305
 #, fuzzy
 #| msgid "Organization description"
 msgid "Alternate repository description"
 msgstr "Опис організації"
 
-#: warehouse/templates/manage/project/settings.html:311
-#: warehouse/templates/manage/project/settings.html:322
+#: warehouse/templates/manage/project/settings.html:310
+#: warehouse/templates/manage/project/settings.html:321
 msgid "Description of the purpose or content of the alternate repository."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:334
-#: warehouse/templates/manage/project/settings.html:359
-#: warehouse/templates/manage/project/settings.html:363
+#: warehouse/templates/manage/project/settings.html:333
+#: warehouse/templates/manage/project/settings.html:358
+#: warehouse/templates/manage/project/settings.html:362
 #, fuzzy
 #| msgid "Search projects"
 msgid "Archive project"
 msgstr "Шукайте проєкти"
 
-#: warehouse/templates/manage/project/settings.html:338
+#: warehouse/templates/manage/project/settings.html:337
 #, python-format
 msgid ""
 "Archiving a project will prevent any new uploads, and remove the project "
@@ -8696,35 +8694,35 @@ msgid ""
 "description by editing the README file."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:350
-#: warehouse/templates/manage/project/settings.html:353
+#: warehouse/templates/manage/project/settings.html:349
+#: warehouse/templates/manage/project/settings.html:352
 #, fuzzy
 #| msgid "Search projects"
 msgid "Unarchive project"
 msgstr "Шукайте проєкти"
 
-#: warehouse/templates/manage/project/settings.html:354
+#: warehouse/templates/manage/project/settings.html:353
 msgid ""
 "Unarchiving a project will allow new file uploads and add the project to the "
 "search index."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:364
+#: warehouse/templates/manage/project/settings.html:363
 msgid ""
 "Archiving a project will block any new file uploads and remove the project "
 "from the search index."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:370
-#: warehouse/templates/manage/project/settings.html:446
+#: warehouse/templates/manage/project/settings.html:369
+#: warehouse/templates/manage/project/settings.html:445
 msgid "Delete project"
 msgstr "Видалити проєкт"
 
-#: warehouse/templates/manage/project/settings.html:373
+#: warehouse/templates/manage/project/settings.html:372
 msgid "Deleting this project will:"
 msgstr "Видалення цього проєкту:"
 
-#: warehouse/templates/manage/project/settings.html:378
+#: warehouse/templates/manage/project/settings.html:377
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s "
@@ -8742,17 +8740,17 @@ msgstr[2] ""
 "Незворотньо видалить цей проєкт разом із <a href=\"%(href)s\">%(count)s "
 "випусками</a>"
 
-#: warehouse/templates/manage/project/settings.html:384
+#: warehouse/templates/manage/project/settings.html:383
 msgid "Irreversibly delete the project"
 msgstr "Незворотньо видалить цей проєкт"
 
-#: warehouse/templates/manage/project/settings.html:388
+#: warehouse/templates/manage/project/settings.html:387
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 "Зробить назву проєкту доступною для <strong>будь-яких інших користувачів "
 "PyPI</strong>"
 
-#: warehouse/templates/manage/project/settings.html:391
+#: warehouse/templates/manage/project/settings.html:390
 msgid ""
 "This user will be able to make new releases under this project name, so long "
 "as the distribution filenames do not match filenames from a previously "

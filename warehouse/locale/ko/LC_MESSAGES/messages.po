@@ -369,7 +369,7 @@ msgstr "당신은 이제 '${project_name}' 프로젝트의 ${role} 역할 입니
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr "업데이트된 <a href=\"${tos_url}\">이용약관</a>을 검토해 주세요."
 
-#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1915
+#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1922
 #: warehouse/manage/views/__init__.py:1409
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
@@ -421,16 +421,16 @@ msgstr ""
 "이 신뢰할 수 있는 공급자는 이미 등록되었습니다. 이러한 시도가 의도한 것이 아"
 "니라면, PyPI 관리자에게 연락하십시오."
 
-#: warehouse/accounts/views.py:1786
+#: warehouse/accounts/views.py:1793
 msgid "Registered a new pending publisher to create "
 msgstr "새 임시 게시자를 등록하였습니다. "
 
-#: warehouse/accounts/views.py:1928 warehouse/accounts/views.py:1941
-#: warehouse/accounts/views.py:1948
+#: warehouse/accounts/views.py:1935 warehouse/accounts/views.py:1948
+#: warehouse/accounts/views.py:1955
 msgid "Invalid publisher ID"
 msgstr "유효하지 않은 퍼블리셔 ID"
 
-#: warehouse/accounts/views.py:1955
+#: warehouse/accounts/views.py:1962
 msgid "Removed trusted publisher for project "
 msgstr "프로젝트에 대한 신뢰할 수 있는 공급자가 제거됨 "
 
@@ -1088,14 +1088,14 @@ msgstr "몬티 파이썬 - 치즈 샵 스케치"
 
 #: warehouse/templates/404.html:30 warehouse/templates/500.html:18
 #: warehouse/templates/accounts/two-factor.html:35
-#: warehouse/templates/base.html:319 warehouse/templates/base.html:325
-#: warehouse/templates/base.html:331 warehouse/templates/base.html:337
-#: warehouse/templates/base.html:353 warehouse/templates/base.html:359
-#: warehouse/templates/base.html:384 warehouse/templates/base.html:390
-#: warehouse/templates/base.html:399 warehouse/templates/base.html:412
-#: warehouse/templates/base.html:421 warehouse/templates/base.html:427
-#: warehouse/templates/base.html:433 warehouse/templates/base.html:446
-#: warehouse/templates/base.html:463
+#: warehouse/templates/base.html:339 warehouse/templates/base.html:345
+#: warehouse/templates/base.html:351 warehouse/templates/base.html:357
+#: warehouse/templates/base.html:373 warehouse/templates/base.html:379
+#: warehouse/templates/base.html:404 warehouse/templates/base.html:410
+#: warehouse/templates/base.html:419 warehouse/templates/base.html:432
+#: warehouse/templates/base.html:441 warehouse/templates/base.html:447
+#: warehouse/templates/base.html:453 warehouse/templates/base.html:466
+#: warehouse/templates/base.html:483
 #: warehouse/templates/includes/accounts/profile-callout.html:17
 #: warehouse/templates/includes/file-details.html:129
 #: warehouse/templates/index.html:98 warehouse/templates/index.html:105
@@ -1256,7 +1256,7 @@ msgid "Main navigation"
 msgstr "메인 내비게이션"
 
 #: warehouse/templates/base.html:33 warehouse/templates/base.html:68
-#: warehouse/templates/base.html:314
+#: warehouse/templates/base.html:334
 #: warehouse/templates/includes/current-user-indicator.html:77
 #: warehouse/templates/pages/help.html:209
 #: warehouse/templates/pages/sitemap.html:19
@@ -1340,16 +1340,16 @@ msgstr "RSS: 최근 40개의 업데이트"
 msgid "RSS: 40 newest packages"
 msgstr "RSS: 최근 40개의 패키지"
 
-#: warehouse/templates/base.html:185
+#: warehouse/templates/base.html:205
 msgid "Skip to main content"
 msgstr "메인 컨텐츠로 가기"
 
-#: warehouse/templates/base.html:189
+#: warehouse/templates/base.html:209
 msgid "Switch to mobile version"
 msgstr "모바일 버전으로 전환"
 
-#: warehouse/templates/base.html:196 warehouse/templates/base.html:205
-#: warehouse/templates/base.html:215
+#: warehouse/templates/base.html:216 warehouse/templates/base.html:225
+#: warehouse/templates/base.html:235
 #: warehouse/templates/includes/flash-messages.html:41
 #: warehouse/templates/includes/session-notifications.html:19
 #: warehouse/templates/manage/account.html:845
@@ -1360,20 +1360,20 @@ msgstr "모바일 버전으로 전환"
 #: warehouse/templates/manage/organization/settings.html:246
 #: warehouse/templates/manage/project/documentation.html:13
 #: warehouse/templates/manage/project/release.html:209
-#: warehouse/templates/manage/project/settings.html:85
-#: warehouse/templates/manage/project/settings.html:131
-#: warehouse/templates/manage/project/settings.html:372
+#: warehouse/templates/manage/project/settings.html:84
+#: warehouse/templates/manage/project/settings.html:130
+#: warehouse/templates/manage/project/settings.html:371
 #: warehouse/templates/manage/team/settings.html:62
 msgid "Warning"
 msgstr "경고"
 
-#: warehouse/templates/base.html:198
+#: warehouse/templates/base.html:218
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
 "현재 지원되지 않는 브라우저를 사용하고 계십니다. 새로운 버전으로 업그레이드 "
 "하세요."
 
-#: warehouse/templates/base.html:207
+#: warehouse/templates/base.html:227
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
@@ -1382,7 +1382,7 @@ msgstr ""
 "TestPyPI를 사용중입니다 – 분리된 파이썬 패키지 인덱스 인스턴스를 통해 실제 인"
 "덱스에 영향을 미치지 않고 배포 도구와 프로세스를 사용해볼 수 있습니다."
 
-#: warehouse/templates/base.html:217
+#: warehouse/templates/base.html:237
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
@@ -1390,160 +1390,160 @@ msgstr ""
 "일부 기능은 자바스크립트 없이는 작동하지 않을 수 있습니다. 문제가 발생할 경"
 "우 활성화하세요."
 
-#: warehouse/templates/base.html:252 warehouse/templates/base.html:284
+#: warehouse/templates/base.html:272 warehouse/templates/base.html:304
 #: warehouse/templates/error-base-with-search.html:8
 #: warehouse/templates/index.html:29
 msgid "Search PyPI"
 msgstr "PyPI 검색"
 
-#: warehouse/templates/base.html:257 warehouse/templates/index.html:35
+#: warehouse/templates/base.html:277 warehouse/templates/index.html:35
 msgid "Type '/' to search projects"
 msgstr "프로젝트 검색을 하려면 '/'을 입력하세요"
 
-#: warehouse/templates/base.html:268 warehouse/templates/base.html:297
+#: warehouse/templates/base.html:288 warehouse/templates/base.html:317
 #: warehouse/templates/error-base-with-search.html:19
 #: warehouse/templates/index.html:44
 msgid "Search"
 msgstr "검색"
 
-#: warehouse/templates/base.html:289
+#: warehouse/templates/base.html:309
 #: warehouse/templates/error-base-with-search.html:13
 msgid "Search projects"
 msgstr "프로젝트 검색"
 
-#: warehouse/templates/base.html:315
+#: warehouse/templates/base.html:335
 msgid "Help navigation"
 msgstr "도움말 내비게이션"
 
-#: warehouse/templates/base.html:321
+#: warehouse/templates/base.html:341
 msgid "Installing packages"
 msgstr "패키지 설치하기"
 
-#: warehouse/templates/base.html:327
+#: warehouse/templates/base.html:347
 msgid "Uploading packages"
 msgstr "패키지 업로드하기"
 
-#: warehouse/templates/base.html:333
+#: warehouse/templates/base.html:353
 msgid "User guide"
 msgstr "사용자 가이드"
 
-#: warehouse/templates/base.html:339
+#: warehouse/templates/base.html:359
 msgid "Project name retention"
 msgstr "프로젝트명 유지"
 
-#: warehouse/templates/base.html:342
+#: warehouse/templates/base.html:362
 msgid "FAQs"
 msgstr "자주 하는 질문"
 
-#: warehouse/templates/base.html:348 warehouse/templates/pages/sitemap.html:34
+#: warehouse/templates/base.html:368 warehouse/templates/pages/sitemap.html:34
 msgid "About PyPI"
 msgstr "PyPI에 대하여"
 
-#: warehouse/templates/base.html:349
+#: warehouse/templates/base.html:369
 msgid "About PyPI navigation"
 msgstr "PyPI에 관한 내비게이션"
 
-#: warehouse/templates/base.html:355
+#: warehouse/templates/base.html:375
 msgid "PyPI Blog"
 msgstr "PyPI 블로그"
 
-#: warehouse/templates/base.html:361
+#: warehouse/templates/base.html:381
 msgid "Infrastructure dashboard"
 msgstr "인프라스트럭쳐 대시보드"
 
-#: warehouse/templates/base.html:364 warehouse/templates/pages/sitemap.html:40
+#: warehouse/templates/base.html:384 warehouse/templates/pages/sitemap.html:40
 #: warehouse/templates/pages/stats.html:4
 msgid "Statistics"
 msgstr "통계"
 
-#: warehouse/templates/base.html:367
+#: warehouse/templates/base.html:387
 msgid "Logos & trademarks"
 msgstr "로고 & 트레이드마크"
 
-#: warehouse/templates/base.html:370
+#: warehouse/templates/base.html:390
 msgid "Our sponsors"
 msgstr "후원사"
 
-#: warehouse/templates/base.html:376
+#: warehouse/templates/base.html:396
 msgid "Contributing to PyPI"
 msgstr "PyPI에 기여하기"
 
-#: warehouse/templates/base.html:377
+#: warehouse/templates/base.html:397
 msgid "How to contribute navigation"
 msgstr "PyPI에 기여하기 내비게이션"
 
-#: warehouse/templates/base.html:380
+#: warehouse/templates/base.html:400
 msgid "Bugs and feedback"
 msgstr "버그와 피드백"
 
-#: warehouse/templates/base.html:386
+#: warehouse/templates/base.html:406
 msgid "Contribute on GitHub"
 msgstr "GitHub에서 기여하기"
 
-#: warehouse/templates/base.html:392
+#: warehouse/templates/base.html:412
 msgid "Translate PyPI"
 msgstr "PyPI 번역"
 
-#: warehouse/templates/base.html:395
+#: warehouse/templates/base.html:415
 msgid "Sponsor PyPI"
 msgstr "PyPI 후원자"
 
-#: warehouse/templates/base.html:401
+#: warehouse/templates/base.html:421
 msgid "Development credits"
 msgstr "개발자 목록"
 
-#: warehouse/templates/base.html:407 warehouse/templates/pages/sitemap.html:10
+#: warehouse/templates/base.html:427 warehouse/templates/pages/sitemap.html:10
 msgid "Using PyPI"
 msgstr "PyPI 사용하기"
 
-#: warehouse/templates/base.html:408
+#: warehouse/templates/base.html:428
 msgid "Using PyPI navigation"
 msgstr "PyPI 내비게이션 사용하기"
 
-#: warehouse/templates/base.html:414
+#: warehouse/templates/base.html:434
 #: warehouse/templates/manage/organization/activate_subscription.html:21
 msgid "Terms of Service"
 msgstr "이용 약관"
 
-#: warehouse/templates/base.html:417
+#: warehouse/templates/base.html:437
 msgid "Report security issue"
 msgstr "보안 문제점 제보"
 
-#: warehouse/templates/base.html:423
+#: warehouse/templates/base.html:443
 msgid "Code of conduct"
 msgstr "행동 강령"
 
-#: warehouse/templates/base.html:429
+#: warehouse/templates/base.html:449
 msgid "Privacy Notice"
 msgstr "개인정보 보호 공지"
 
-#: warehouse/templates/base.html:435
+#: warehouse/templates/base.html:455
 msgid "Acceptable Use Policy"
 msgstr "허용가능한 사용 정책"
 
-#: warehouse/templates/base.html:445
+#: warehouse/templates/base.html:465
 msgid "Status:"
 msgstr "상태:"
 
-#: warehouse/templates/base.html:449
+#: warehouse/templates/base.html:469
 msgid "all systems operational"
 msgstr "모든 시스템 이상 없음"
 
-#: warehouse/templates/base.html:453
+#: warehouse/templates/base.html:473
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr ""
 "파이썬 커뮤니티를 위해, 파이썬 커뮤니티에 의해 개발되어 관리되고 있습니다."
 
-#: warehouse/templates/base.html:455
+#: warehouse/templates/base.html:475
 msgid "Donate today!"
 msgstr "오늘 바로 후원하기!"
 
-#: warehouse/templates/base.html:467 warehouse/templates/pages/sitemap.html:4
+#: warehouse/templates/base.html:487 warehouse/templates/pages/sitemap.html:4
 msgid "Site map"
 msgstr "사이트맵"
 
-#: warehouse/templates/base.html:474
+#: warehouse/templates/base.html:494
 msgid "Switch to desktop version"
 msgstr "데스크탑 버전으로 전환"
 
@@ -1739,9 +1739,9 @@ msgstr "패스워드"
 #: warehouse/templates/manage/project/roles.html:364
 #: warehouse/templates/manage/project/roles.html:397
 #: warehouse/templates/manage/project/roles.html:416
-#: warehouse/templates/manage/project/settings.html:276
-#: warehouse/templates/manage/project/settings.html:292
-#: warehouse/templates/manage/project/settings.html:308
+#: warehouse/templates/manage/project/settings.html:275
+#: warehouse/templates/manage/project/settings.html:291
+#: warehouse/templates/manage/project/settings.html:307
 #: warehouse/templates/manage/team/roles.html:104
 #: warehouse/templates/manage/team/settings.html:22
 #: warehouse/templates/packaging/submit-malware-observation.html:54
@@ -2097,9 +2097,9 @@ msgstr "취소"
 #: warehouse/templates/manage/project/history.html:295
 #: warehouse/templates/manage/project/history.html:306
 #: warehouse/templates/manage/project/history.html:317
-#: warehouse/templates/manage/project/settings.html:219
-#: warehouse/templates/manage/project/settings.html:274
-#: warehouse/templates/manage/project/settings.html:279
+#: warehouse/templates/manage/project/settings.html:218
+#: warehouse/templates/manage/project/settings.html:273
+#: warehouse/templates/manage/project/settings.html:278
 #: warehouse/templates/manage/unverified-account.html:102
 msgid "Name"
 msgstr "이름"
@@ -3226,7 +3226,7 @@ msgstr "이 알림 지우기"
 #: warehouse/templates/manage/manage_base.html:347
 #: warehouse/templates/manage/project/release.html:158
 #: warehouse/templates/manage/project/releases.html:186
-#: warehouse/templates/manage/project/settings.html:70
+#: warehouse/templates/manage/project/settings.html:69
 #: warehouse/templates/manage/unverified-account.html:169
 #: warehouse/templates/manage/unverified-account.html:172
 #: warehouse/templates/manage/unverified-account.html:187
@@ -5218,7 +5218,7 @@ msgstr ""
 #: warehouse/templates/manage/project/publishing.html:255
 #: warehouse/templates/manage/project/publishing.html:329
 #: warehouse/templates/manage/project/roles.html:373
-#: warehouse/templates/manage/project/settings.html:329
+#: warehouse/templates/manage/project/settings.html:328
 #: warehouse/templates/manage/team/roles.html:125
 msgid "Add"
 msgstr "추가"
@@ -6455,7 +6455,7 @@ msgstr "%(user)s에 대한 만료 된 초대 삭제."
 #: warehouse/templates/manage/organization/roles.html:352
 #: warehouse/templates/manage/project/release.html:96
 #: warehouse/templates/manage/project/releases.html:98
-#: warehouse/templates/manage/project/settings.html:246
+#: warehouse/templates/manage/project/settings.html:245
 msgid "Delete"
 msgstr "삭제"
 
@@ -6919,9 +6919,9 @@ msgstr "프로젝트 대체 저장소가 추가됨"
 #: warehouse/templates/manage/project/history.html:296
 #: warehouse/templates/manage/project/history.html:307
 #: warehouse/templates/manage/project/history.html:318
-#: warehouse/templates/manage/project/settings.html:220
-#: warehouse/templates/manage/project/settings.html:290
-#: warehouse/templates/manage/project/settings.html:295
+#: warehouse/templates/manage/project/settings.html:219
+#: warehouse/templates/manage/project/settings.html:289
+#: warehouse/templates/manage/project/settings.html:294
 msgid "Url"
 msgstr "URL"
 
@@ -7152,7 +7152,7 @@ msgstr "파일이 없습니다"
 
 #: warehouse/templates/manage/project/release.html:155
 #: warehouse/templates/manage/project/releases.html:183
-#: warehouse/templates/manage/project/settings.html:67
+#: warehouse/templates/manage/project/settings.html:66
 msgid "Dismiss"
 msgstr "확인"
 
@@ -7545,18 +7545,28 @@ msgid "Project description and sidebar"
 msgstr "프로젝트 설명 및 사이드바"
 
 #: warehouse/templates/manage/project/settings.html:56
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "To set the '%(project_name)s' description, author, links, classifiers, "
+#| "and other details for your next release, use the <a "
+#| "href=\"%(pyproject_args_href)s\" rel=\"noopener\" "
+#| "target=\"_blank\"><code>project</code> metadata fields in your "
+#| "<code>pyproject.toml</code> file</a>. Updating these fields will not "
+#| "change the metadata for past releases. Additionally, you <strong>must</"
+#| "strong> use <a href=\"%(twine_docs_href)s\" rel=\"noopener\" "
+#| "target=\"_blank\">Twine</a> to upload your files in order to get full "
+#| "support for these fields. See <a href=\"%(distribution_href)s\" "
+#| "rel=\"noopener\" target=\"_blank\">the Python Packaging User Guide</a> "
+#| "for more help."
 msgid ""
 "To set the '%(project_name)s' description, author, links, classifiers, and "
 "other details for your next release, use the <a "
 "href=\"%(pyproject_args_href)s\" rel=\"noopener\" "
 "target=\"_blank\"><code>project</code> metadata fields in your "
 "<code>pyproject.toml</code> file</a>. Updating these fields will not change "
-"the metadata for past releases. Additionally, you <strong>must</strong> use "
-"<a href=\"%(twine_docs_href)s\" rel=\"noopener\" target=\"_blank\">Twine</a> "
-"to upload your files in order to get full support for these fields. See <a "
-"href=\"%(distribution_href)s\" rel=\"noopener\" target=\"_blank\">the Python "
-"Packaging User Guide</a> for more help."
+"the metadata for past releases. See <a href=\"%(distribution_href)s\" "
+"rel=\"noopener\" target=\"_blank\">the Python Packaging User Guide</a> for "
+"more help."
 msgstr ""
 "'%(project_name)s'의 설명, 저자, 링크, 분류자 및 기타 세부 정보를 다음 릴리스"
 "를 위해 설정하려면 <a href=\"%(pyproject_args_href)s\" rel=\"noopener\" "
@@ -7568,56 +7578,56 @@ msgstr ""
 "href=\"%(distribution_href)s\" rel=\"noopener\" target=\"_blank\">파이썬 패키"
 "징 사용자 가이드</a>에서 확인하세요."
 
-#: warehouse/templates/manage/project/settings.html:83
+#: warehouse/templates/manage/project/settings.html:82
 msgid "Remove project from organization"
 msgstr "조직에서 프로젝트 제거"
 
-#: warehouse/templates/manage/project/settings.html:86
+#: warehouse/templates/manage/project/settings.html:85
 msgid "Removing this project from the organization will:"
 msgstr "이 프로젝트를 조직에서 제거하면:"
 
-#: warehouse/templates/manage/project/settings.html:90
-#: warehouse/templates/manage/project/settings.html:137
+#: warehouse/templates/manage/project/settings.html:89
+#: warehouse/templates/manage/project/settings.html:136
 #, python-format
 msgid "Remove this project from the '%(organization_name)s' organization."
 msgstr "'%(organization_name)s' 조직에서 이 프로젝트를 제거하세요."
 
-#: warehouse/templates/manage/project/settings.html:93
-#: warehouse/templates/manage/project/settings.html:140
+#: warehouse/templates/manage/project/settings.html:92
+#: warehouse/templates/manage/project/settings.html:139
 #, python-format
 msgid ""
 "Revoke project permissions for teams in the '%(organization_name)s' "
 "organization."
 msgstr "'%(organization_name)s' 조직의 팀에 대한 프로젝트 권한을 취소하세요."
 
-#: warehouse/templates/manage/project/settings.html:96
-#: warehouse/templates/manage/project/settings.html:101
+#: warehouse/templates/manage/project/settings.html:95
+#: warehouse/templates/manage/project/settings.html:100
 msgid ""
 "Individual owners and maintainers of the project will retain their project "
 "permissions."
 msgstr "프로젝트의 개별 소유자 및 관리자는 프로젝트 권한을 유지합니다."
 
-#: warehouse/templates/manage/project/settings.html:100
+#: warehouse/templates/manage/project/settings.html:99
 #, python-format
 msgid ""
 "This will remove the project from the '%(organization_name)s' organization."
 msgstr "'%(organization_name)s' 조직의 팀에 대한 프로젝트 권한을 취소하세요."
 
-#: warehouse/templates/manage/project/settings.html:104
+#: warehouse/templates/manage/project/settings.html:103
 msgid "Remove project"
 msgstr "프로젝트 제거"
 
-#: warehouse/templates/manage/project/settings.html:104
-#: warehouse/templates/manage/project/settings.html:178
-#: warehouse/templates/manage/project/settings.html:446
+#: warehouse/templates/manage/project/settings.html:103
+#: warehouse/templates/manage/project/settings.html:177
+#: warehouse/templates/manage/project/settings.html:445
 msgid "Project Name"
 msgstr "프로젝트 이름"
 
-#: warehouse/templates/manage/project/settings.html:108
+#: warehouse/templates/manage/project/settings.html:107
 msgid "Cannot remove project from organization"
 msgstr "프로젝트를 조직에서 제거할 수 없습니다"
 
-#: warehouse/templates/manage/project/settings.html:110
+#: warehouse/templates/manage/project/settings.html:109
 msgid ""
 "Your organization is currently the <strong>sole owner</strong> of the "
 "project. You must add an individual owner to the project before you can "
@@ -7626,60 +7636,60 @@ msgstr ""
 "귀하의 조직은 현재 프로젝트의 <strong>유일한 소유자</strong>입니다. 프로젝트"
 "를 조직에서 제거하기 전에 개별 소유자를 추가해야 합니다."
 
-#: warehouse/templates/manage/project/settings.html:125
+#: warehouse/templates/manage/project/settings.html:124
 msgid "Transfer project to another organization"
 msgstr "프로젝트를 다른 조직으로 이전하기"
 
-#: warehouse/templates/manage/project/settings.html:127
+#: warehouse/templates/manage/project/settings.html:126
 msgid "Transfer project to an organization"
 msgstr "프로젝트를 조직으로 이전하기"
 
-#: warehouse/templates/manage/project/settings.html:132
+#: warehouse/templates/manage/project/settings.html:131
 msgid "Transferring this project will:"
 msgstr "이 프로젝트를 이전하면:"
 
-#: warehouse/templates/manage/project/settings.html:143
+#: warehouse/templates/manage/project/settings.html:142
 msgid "Revoke your direct Owner role on the project."
 msgstr "프로젝트에서 직접 소유자 역할을 취소합니다."
 
-#: warehouse/templates/manage/project/settings.html:144
+#: warehouse/templates/manage/project/settings.html:143
 msgid ""
 "You will retain Owner permissions on the project through your organization "
 "role."
 msgstr "조직 역할을 통해 프로젝트에 대한 소유자 권한을 유지하게 됩니다."
 
-#: warehouse/templates/manage/project/settings.html:148
+#: warehouse/templates/manage/project/settings.html:147
 msgid "Add the project to another organization that you own."
 msgstr "소유하고 있는 다른 조직에 프로젝트를 추가합니다."
 
-#: warehouse/templates/manage/project/settings.html:150
+#: warehouse/templates/manage/project/settings.html:149
 msgid "Add the project to an organization that you own."
 msgstr "귀하가 소유한 조직에 프로젝트를 추가하세요."
 
-#: warehouse/templates/manage/project/settings.html:153
+#: warehouse/templates/manage/project/settings.html:152
 msgid "Grant full project permissions to owners of the organization."
 msgstr "조직의 소유자에게 전체 프로젝트 권한을 부여합니다."
 
-#: warehouse/templates/manage/project/settings.html:156
+#: warehouse/templates/manage/project/settings.html:155
 msgid ""
 "All other individual owners and maintainers of the project will retain their "
 "project permissions."
 msgstr ""
 "프로젝트의 다른 모든 개인 소유자 및 관리자는 프로젝트 권한을 유지합니다."
 
-#: warehouse/templates/manage/project/settings.html:178
+#: warehouse/templates/manage/project/settings.html:177
 msgid "Transfer project"
 msgstr "프로젝트 이전"
 
-#: warehouse/templates/manage/project/settings.html:184
+#: warehouse/templates/manage/project/settings.html:183
 msgid "Cannot transfer project to another organization"
 msgstr "프로젝트를 다른 조직으로 이전할 수 없습니다"
 
-#: warehouse/templates/manage/project/settings.html:186
+#: warehouse/templates/manage/project/settings.html:185
 msgid "Cannot transfer project to an organization"
 msgstr "프로젝트를 조직으로 이전할 수 없습니다"
 
-#: warehouse/templates/manage/project/settings.html:191
+#: warehouse/templates/manage/project/settings.html:190
 msgid ""
 "Organization owners can transfer the project to organizations that they own "
 "or manage."
@@ -7687,11 +7697,11 @@ msgstr ""
 "조직 소유자는 자신이 소유하거나 관리하는 조직으로 프로젝트를 이전할 수 있습니"
 "다."
 
-#: warehouse/templates/manage/project/settings.html:192
+#: warehouse/templates/manage/project/settings.html:191
 msgid "You are not an owner or manager of any other organizations."
 msgstr "귀하는 다른 조직의 소유자나 관리자가 아닙니다."
 
-#: warehouse/templates/manage/project/settings.html:194
+#: warehouse/templates/manage/project/settings.html:193
 msgid ""
 "Project owners can transfer the project to organizations that they own or "
 "manage."
@@ -7699,15 +7709,15 @@ msgstr ""
 "프로젝트 소유자는 자신이 소유하거나 관리하는 조직으로 프로젝트를 이전할 수 있"
 "습니다."
 
-#: warehouse/templates/manage/project/settings.html:195
+#: warehouse/templates/manage/project/settings.html:194
 msgid "You are not an owner or manager of any organizations."
 msgstr "귀하는 어떤 조직의 소유자나 관리자가 아닙니다."
 
-#: warehouse/templates/manage/project/settings.html:202
+#: warehouse/templates/manage/project/settings.html:201
 msgid "Alternate repository locations"
 msgstr "대체 저장소 위치"
 
-#: warehouse/templates/manage/project/settings.html:205
+#: warehouse/templates/manage/project/settings.html:204
 #, python-format
 msgid ""
 "Provisional support for <a href=\"%(pep_url)s\">PEP 708</a> \"Alternate "
@@ -7716,7 +7726,7 @@ msgstr ""
 "<a href=\"%(pep_url)s\">PEP 708</a> \"대체 위치\" 메타데이터에 대한 임시 지"
 "원."
 
-#: warehouse/templates/manage/project/settings.html:209
+#: warehouse/templates/manage/project/settings.html:208
 #, python-format
 msgid ""
 "Implementation may change, consider subscribing to <a "
@@ -7725,54 +7735,54 @@ msgstr ""
 "구현은 변경될 수 있으니, 변경 사항을 알림받기 위해 <a "
 "href=\"%(pypi_announce_url)s\">pypi-announce</a>에 가입하는 것을 고려하세요."
 
-#: warehouse/templates/manage/project/settings.html:215
+#: warehouse/templates/manage/project/settings.html:214
 #, python-format
 msgid "Alternate repository locations for %(project_name)s"
 msgstr "%(project_name)s의 대체 저장소 위치"
 
-#: warehouse/templates/manage/project/settings.html:221
+#: warehouse/templates/manage/project/settings.html:220
 msgid "Description"
 msgstr "문서"
 
-#: warehouse/templates/manage/project/settings.html:237
+#: warehouse/templates/manage/project/settings.html:236
 #, python-format
 msgid "Delete %(name)s from this project."
 msgstr "이 프로젝트에서 %(name)s을(를) 삭제하세요."
 
-#: warehouse/templates/manage/project/settings.html:247
+#: warehouse/templates/manage/project/settings.html:246
 msgid "Alternate Repository Name"
 msgstr "대체 저장소 이름"
 
-#: warehouse/templates/manage/project/settings.html:261
+#: warehouse/templates/manage/project/settings.html:260
 msgid "There are no alternate repositories for this project, yet."
 msgstr "이 프로젝트에는 아직 대체 저장소가 없습니다."
 
-#: warehouse/templates/manage/project/settings.html:263
+#: warehouse/templates/manage/project/settings.html:262
 msgid "Get started by adding an alternate repository below."
 msgstr "아래에 대체 저장소를 추가하여 시작하세요."
 
-#: warehouse/templates/manage/project/settings.html:266
+#: warehouse/templates/manage/project/settings.html:265
 msgid "Add alternate repository location"
 msgstr "대체 저장소 위치 추가"
 
-#: warehouse/templates/manage/project/settings.html:306
+#: warehouse/templates/manage/project/settings.html:305
 msgid "Alternate repository description"
 msgstr "대체 저장소 설명"
 
-#: warehouse/templates/manage/project/settings.html:311
-#: warehouse/templates/manage/project/settings.html:322
+#: warehouse/templates/manage/project/settings.html:310
+#: warehouse/templates/manage/project/settings.html:321
 msgid "Description of the purpose or content of the alternate repository."
 msgstr "대체 저장소의 목적이나 내용에 대한 설명."
 
-#: warehouse/templates/manage/project/settings.html:334
-#: warehouse/templates/manage/project/settings.html:359
-#: warehouse/templates/manage/project/settings.html:363
+#: warehouse/templates/manage/project/settings.html:333
+#: warehouse/templates/manage/project/settings.html:358
+#: warehouse/templates/manage/project/settings.html:362
 #, fuzzy
 #| msgid "Search projects"
 msgid "Archive project"
 msgstr "프로젝트 검색"
 
-#: warehouse/templates/manage/project/settings.html:338
+#: warehouse/templates/manage/project/settings.html:337
 #, python-format
 msgid ""
 "Archiving a project will prevent any new uploads, and remove the project "
@@ -7785,35 +7795,35 @@ msgid ""
 "description by editing the README file."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:350
-#: warehouse/templates/manage/project/settings.html:353
+#: warehouse/templates/manage/project/settings.html:349
+#: warehouse/templates/manage/project/settings.html:352
 #, fuzzy
 #| msgid "Search projects"
 msgid "Unarchive project"
 msgstr "프로젝트 검색"
 
-#: warehouse/templates/manage/project/settings.html:354
+#: warehouse/templates/manage/project/settings.html:353
 msgid ""
 "Unarchiving a project will allow new file uploads and add the project to the "
 "search index."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:364
+#: warehouse/templates/manage/project/settings.html:363
 msgid ""
 "Archiving a project will block any new file uploads and remove the project "
 "from the search index."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:370
-#: warehouse/templates/manage/project/settings.html:446
+#: warehouse/templates/manage/project/settings.html:369
+#: warehouse/templates/manage/project/settings.html:445
 msgid "Delete project"
 msgstr "프로젝트 삭제"
 
-#: warehouse/templates/manage/project/settings.html:373
+#: warehouse/templates/manage/project/settings.html:372
 msgid "Deleting this project will:"
 msgstr "이 프로젝트를 제거하면:"
 
-#: warehouse/templates/manage/project/settings.html:378
+#: warehouse/templates/manage/project/settings.html:377
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s "
@@ -7825,17 +7835,17 @@ msgstr[0] ""
 "<a href=\"%(href)s\">%(count)s 릴리스</a>와 함께 프로젝트를 되돌릴 수 없이 삭"
 "제합니다"
 
-#: warehouse/templates/manage/project/settings.html:384
+#: warehouse/templates/manage/project/settings.html:383
 msgid "Irreversibly delete the project"
 msgstr "프로젝트를 되돌릴 수 없게 삭제"
 
-#: warehouse/templates/manage/project/settings.html:388
+#: warehouse/templates/manage/project/settings.html:387
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 "프로젝트 이름을 <strong>다른 모든 PyPI 사용자</strong>가 사용할 수 있도록 만"
 "듭니다"
 
-#: warehouse/templates/manage/project/settings.html:391
+#: warehouse/templates/manage/project/settings.html:390
 msgid ""
 "This user will be able to make new releases under this project name, so long "
 "as the distribution filenames do not match filenames from a previously "
