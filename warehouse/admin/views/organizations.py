@@ -2,6 +2,8 @@
 
 import shlex
 
+import wtforms
+
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
@@ -18,7 +20,55 @@ from warehouse.organizations.models import (
     OrganizationApplicationStatus,
     OrganizationType,
 )
+from warehouse.subscriptions.interfaces import IBillingService
 from warehouse.utils.paginate import paginate_url_factory
+
+
+class OrganizationForm(wtforms.Form):
+    display_name = wtforms.StringField(
+        validators=[
+            wtforms.validators.InputRequired(
+                message="Specify organization display name"
+            ),
+            wtforms.validators.Length(
+                max=100,
+                message="Organization display name must be 100 characters or less",
+            ),
+        ]
+    )
+
+    link_url = wtforms.URLField(
+        validators=[
+            wtforms.validators.InputRequired(message="Specify organization URL"),
+            wtforms.validators.Length(
+                max=400, message="Organization URL must be 400 characters or less"
+            ),
+            wtforms.validators.Regexp(
+                r"^https?://",
+                message="Organization URL must start with http:// or https://",
+            ),
+        ]
+    )
+
+    description = wtforms.TextAreaField(
+        validators=[
+            wtforms.validators.InputRequired(
+                message="Specify organization description"
+            ),
+            wtforms.validators.Length(
+                max=400,
+                message="Organization description must be 400 characters or less",
+            ),
+        ]
+    )
+
+    orgtype = wtforms.SelectField(
+        choices=[(orgtype.value, orgtype.value) for orgtype in OrganizationType],
+        coerce=OrganizationType,
+        validators=[
+            wtforms.validators.InputRequired(message="Select organization type"),
+        ],
+    )
 
 
 def _turbo_mode(request):
@@ -44,7 +94,7 @@ def _turbo_mode(request):
 
 @view_config(
     route_name="admin.organization.list",
-    renderer="admin/organizations/list.html",
+    renderer="warehouse.admin:templates/admin/organizations/list.html",
     permission=Permissions.AdminOrganizationsRead,
     uses_session=True,
 )
@@ -146,23 +196,62 @@ def organization_list(request):
 
 @view_config(
     route_name="admin.organization.detail",
-    require_methods=False,
-    renderer="admin/organizations/detail.html",
+    renderer="warehouse.admin:templates/admin/organizations/detail.html",
     permission=Permissions.AdminOrganizationsRead,
+    request_method="GET",
     has_translations=True,
     uses_session=True,
     require_csrf=True,
+    require_methods=False,
+)
+@view_config(
+    route_name="admin.organization.detail",
+    renderer="warehouse.admin:templates/admin/organizations/detail.html",
+    permission=Permissions.AdminOrganizationsWrite,
+    request_method="POST",
+    has_translations=True,
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
 )
 def organization_detail(request):
     organization_service = request.find_service(IOrganizationService, context=None)
+    billing_service = request.find_service(IBillingService, context=None)
 
     organization_id = request.matchdict["organization_id"]
     organization = organization_service.get_organization(organization_id)
     if organization is None:
         raise HTTPNotFound
 
+    form = OrganizationForm(
+        request.POST if request.method == "POST" else None,
+        organization,
+    )
+
+    if request.method == "POST" and form.validate():
+        form.populate_obj(organization)
+
+        # Update Stripe customer if organization has one
+        if organization.customer is not None:
+            billing_service.update_customer(
+                organization.customer.customer_id,
+                organization.customer_name(request.registry.settings["site.name"]),
+                organization.description,
+            )
+
+        request.session.flash(
+            f"Organization {organization.name!r} updated successfully",
+            queue="success",
+        )
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
     return {
         "organization": organization,
+        "form": form,
     }
 
 
@@ -207,7 +296,7 @@ def organization_rename(request):
 
 @view_config(
     route_name="admin.organization_application.list",
-    renderer="admin/organization_applications/list.html",
+    renderer="warehouse.admin:templates/admin/organization_applications/list.html",
     permission=Permissions.AdminOrganizationsRead,
     uses_session=True,
 )
@@ -319,7 +408,7 @@ class OrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationForm):
 @view_config(
     route_name="admin.organization_application.detail",
     require_methods=False,
-    renderer="admin/organization_applications/detail.html",
+    renderer="warehouse.admin:templates/admin/organization_applications/detail.html",
     permission=Permissions.AdminOrganizationsRead,
     has_translations=True,
     uses_session=True,

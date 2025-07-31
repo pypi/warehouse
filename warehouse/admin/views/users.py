@@ -48,7 +48,7 @@ if typing.TYPE_CHECKING:
 
 @view_config(
     route_name="admin.user.list",
-    renderer="admin/users/list.html",
+    renderer="warehouse.admin:templates/admin/users/list.html",
     permission=Permissions.AdminUsersRead,
     uses_session=True,
 )
@@ -130,7 +130,7 @@ class UserForm(wtforms.Form):
 
 @view_config(
     route_name="admin.user.detail",
-    renderer="admin/users/detail.html",
+    renderer="warehouse.admin:templates/admin/users/detail.html",
     permission=Permissions.AdminUsersRead,
     request_method="GET",
     uses_session=True,
@@ -139,7 +139,7 @@ class UserForm(wtforms.Form):
 )
 @view_config(
     route_name="admin.user.detail",
-    renderer="admin/users/detail.html",
+    renderer="warehouse.admin:templates/admin/users/detail.html",
     permission=Permissions.AdminUsersWrite,
     request_method="POST",
     uses_session=True,
@@ -473,7 +473,7 @@ def _get_related_urls(user):
 
 @view_config(
     route_name="admin.user.account_recovery.initiate",
-    renderer="admin/users/account_recovery/initiate.html",
+    renderer="warehouse.admin:templates/admin/users/account_recovery/initiate.html",
     permission=Permissions.AdminUsersAccountRecoveryWrite,
     has_translations=True,
     uses_session=True,

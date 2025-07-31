@@ -86,51 +86,83 @@
     <div class="col-md-9">
       <div class="card">
         <div class="card-header with-border">
-          <h3 class="card-title">Organization</h3>
+          <h3 class="card-title">Organization Details</h3>
         </div>
         <div class="card-body">
-          <div class="form-horizontal">
-            <div class="form-group">
-              <label class="col-sm-5 control-label">
-                Organization Account Name
-              </label>
-              <div class="col-sm-7">
-                <input class="form-control" value="{{ organization.name }}" readonly>
+          <form method="POST" action="{{ request.route_path('admin.organization.detail', organization_id=organization.id) }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+            <div class="form-horizontal">
+              <div class="form-group">
+                <label class="col-sm-5 control-label">
+                  Organization Account Name
+                </label>
+                <div class="col-sm-7">
+                  <input class="form-control" value="{{ organization.name }}" readonly>
+                  <small class="form-text text-muted">Account name cannot be changed here. Use the Rename action instead.</small>
+                </div>
               </div>
-            </div>
-            <div class="form-group">
-              <label class="col-sm-5 control-label">
-                Organization Name
-              </label>
-              <div class="col-sm-7">
-                <input class="form-control" value="{{ organization.display_name }}" readonly>
+              <div class="form-group">
+                <label for="display_name" class="col-sm-5 control-label">
+                  Organization Display Name
+                </label>
+                <div class="col-sm-7">
+                  {{ form.display_name(class="form-control", value=organization.display_name, disabled=(not request.has_permission(Permissions.AdminOrganizationsWrite))) }}
+                  {% if form.display_name.errors %}
+                    <div class="text-danger">{{ form.display_name.errors[0] }}</div>
+                  {% endif %}
+                </div>
               </div>
-            </div>
-            <div class="form-group">
-              <label class="col-sm-5 control-label">
-                Organization URL <i class="fa-solid fa-arrow-up-right-from-square"></i>
-              </label>
-              <div class="col-sm-7">
-                <a href="{{ organization.link_url }}" rel="nofollow noopener noreferrer" target="_blank"><input class="form-control" value="{{ organization.link_url }}" readonly></a>
+              <div class="form-group">
+                <label for="link_url" class="col-sm-5 control-label">
+                  Organization URL
+                </label>
+                <div class="col-sm-7">
+                  <div class="input-group">
+                    {{ form.link_url(class="form-control", value=organization.link_url, disabled=(not request.has_permission(Permissions.AdminOrganizationsWrite))) }}
+                    <span class="input-group-append input-group-btn">
+                      <a href="{{ organization.link_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-default" title="Visit organization URL">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                      </a>
+                    </span>
+                  </div>
+                  {% if form.link_url.errors %}
+                    <div class="text-danger">{{ form.link_url.errors[0] }}</div>
+                  {% endif %}
+                </div>
               </div>
-            </div>
-            <div class="form-group">
-              <label class="col-sm-5 control-label">
-                Organization Description
-              </label>
-              <div class="col-sm-7">
-                <textarea class="form-control" rows="4" readonly>{{ organization.description }}</textarea>
+              <div class="form-group">
+                <label for="description" class="col-sm-5 control-label">
+                  Organization Description
+                </label>
+                <div class="col-sm-7">
+                  {{ form.description(class="form-control", rows="4", disabled=(not request.has_permission(Permissions.AdminOrganizationsWrite))) }}
+                  {% if form.description.errors %}
+                    <div class="text-danger">{{ form.description.errors[0] }}</div>
+                  {% endif %}
+                </div>
               </div>
-            </div>
-            <div class="form-group">
-              <label class="col-sm-5 control-label">
-                Organization Type
-              </label>
-              <div class="col-sm-7">
-                <input class="form-control" value="{{ organization.orgtype.value }}" readonly>
+              <div class="form-group">
+                <label for="orgtype" class="col-sm-5 control-label">
+                  Organization Type
+                </label>
+                <div class="col-sm-7">
+                  {{ form.orgtype(class="form-control", disabled=(not request.has_permission(Permissions.AdminOrganizationsWrite))) }}
+                  {% if form.orgtype.errors %}
+                    <div class="text-danger">{{ form.orgtype.errors[0] }}</div>
+                  {% endif %}
+                </div>
               </div>
+              {% if request.has_permission(Permissions.AdminOrganizationsWrite) %}
+              <div class="form-group">
+                <div class="col-sm-offset-5 col-sm-7">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-save"></i> Save Changes
+                  </button>
+                </div>
+              </div>
+              {% endif %}
             </div>
-          </div>
+          </form>
         </div>
       </div>
 

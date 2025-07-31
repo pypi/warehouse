@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-/* global module, __dirname */
+/* global module, process, __dirname */
 
 // This is the main configuration file for webpack.
 // See: https://webpack.js.org/configuration/
@@ -103,6 +103,11 @@ module.exports = [
             // Copy vendored zxcvbn code
             from: path.resolve(__dirname, "warehouse/static/js/vendor/zxcvbn.js"),
             to: "js/vendor/[name].[contenthash][ext]",
+          },
+          {
+            // Copy utility for sanitizing plausible analytics
+            from: path.resolve(__dirname, "warehouse/static/js/vendor/plausible-sanitized.js"),
+            to: "js/utils/[name].[contenthash][ext]",
           },
         ],
       }),
@@ -372,6 +377,8 @@ module.exports = [
         path: path.resolve(__dirname, "warehouse/static/dist"),
       },
       dependencies: ["warehouse"],
+      // Emit fewer stats-per-language in non-production builds.
+      stats: (process.env.NODE_ENV === "production") ? undefined : "errors-warnings",
     };
   }),
 ];

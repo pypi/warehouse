@@ -32,7 +32,7 @@ UPLOAD_LIMIT_CAP = ONE_GIB
 
 @view_config(
     route_name="admin.project.list",
-    renderer="admin/projects/list.html",
+    renderer="warehouse.admin:templates/admin/projects/list.html",
     permission=Permissions.AdminProjectsRead,
     request_method="GET",
     uses_session=True,
@@ -69,7 +69,7 @@ def project_list(request):
 
 @view_config(
     route_name="admin.project.detail",
-    renderer="admin/projects/detail.html",
+    renderer="warehouse.admin:templates/admin/projects/detail.html",
     permission=Permissions.AdminProjectsRead,
     request_method="GET",
     uses_session=True,
@@ -78,7 +78,7 @@ def project_list(request):
 )
 @view_config(
     route_name="admin.project.detail",
-    renderer="admin/projects/detail.html",
+    renderer="warehouse.admin:templates/admin/projects/detail.html",
     permission=Permissions.AdminProjectsWrite,
     request_method="POST",
     uses_session=True,
@@ -148,7 +148,7 @@ def project_detail(project, request):
 
 @view_config(
     route_name="admin.project.observations",
-    renderer="admin/projects/project_observations_list.html",
+    renderer="warehouse.admin:templates/admin/projects/project_observations_list.html",
     permission=Permissions.AdminObservationsRead,
     request_method="GET",
     uses_session=True,
@@ -234,7 +234,7 @@ def add_project_observation(project, request):
 
 @view_config(
     route_name="admin.project.releases",
-    renderer="admin/projects/releases_list.html",
+    renderer="warehouse.admin:templates/admin/projects/releases_list.html",
     permission=Permissions.AdminProjectsRead,
     request_method="GET",
     uses_session=True,
@@ -284,7 +284,7 @@ def releases_list(project, request):
 
 @view_config(
     route_name="admin.project.release",
-    renderer="admin/projects/release_detail.html",
+    renderer="warehouse.admin:templates/admin/projects/release_detail.html",
     permission=Permissions.AdminProjectsRead,
     request_method="GET",
     uses_session=True,
@@ -412,7 +412,7 @@ def release_render(release, request):
 
 @view_config(
     route_name="admin.project.journals",
-    renderer="admin/projects/journals_list.html",
+    renderer="warehouse.admin:templates/admin/projects/journals_list.html",
     permission=Permissions.AdminProjectsRead,
     request_method="GET",
     uses_session=True,

@@ -119,7 +119,7 @@ def organization_members(request, organization):
 
 @view_defaults(
     route_name="manage.organizations",
-    renderer="manage/organizations.html",
+    renderer="warehouse:templates/manage/organizations.html",
     uses_session=True,
     require_active_organization=False,  # Allow list/create orgs without active org.
     require_csrf=True,
@@ -244,7 +244,7 @@ class ManageOrganizationsViews:
 @view_defaults(
     route_name="manage.organizations.application",
     context=OrganizationApplication,
-    renderer="manage/organization/application.html",
+    renderer="warehouse:templates/manage/organization/application.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -320,7 +320,7 @@ class ManageOrganizationApplicationViews:
 @view_defaults(
     route_name="manage.organization.settings",
     context=Organization,
-    renderer="manage/organization/settings.html",
+    renderer="warehouse:templates/manage/organization/settings.html",
     uses_session=True,
     require_active_organization=True,
     require_csrf=True,
@@ -622,7 +622,7 @@ class ManageOrganizationBillingViews:
 
     @view_config(
         route_name="manage.organization.activate_subscription",
-        renderer="manage/organization/activate_subscription.html",
+        renderer="warehouse:templates/manage/organization/activate_subscription.html",
     )
     def activate_subscription(self):
         form = OrganizationActivateBillingForm(self.request.POST)
@@ -658,7 +658,7 @@ class ManageOrganizationBillingViews:
 @view_defaults(
     route_name="manage.organization.teams",
     context=Organization,
-    renderer="manage/organization/teams.html",
+    renderer="warehouse:templates/manage/organization/teams.html",
     uses_session=True,
     require_active_organization=True,
     require_csrf=True,
@@ -746,7 +746,7 @@ class ManageOrganizationTeamsViews:
 @view_defaults(
     route_name="manage.organization.projects",
     context=Organization,
-    renderer="manage/organization/projects.html",
+    renderer="warehouse:templates/manage/organization/projects.html",
     uses_session=True,
     require_active_organization=True,
     require_csrf=True,
@@ -1034,7 +1034,7 @@ def _send_organization_invitation(request, organization, role_name, user):
 @view_config(
     route_name="manage.organization.roles",
     context=Organization,
-    renderer="manage/organization/roles.html",
+    renderer="warehouse:templates/manage/organization/roles.html",
     uses_session=True,
     require_active_organization=True,
     require_methods=False,
@@ -1393,7 +1393,7 @@ def delete_organization_role(organization, request):
 @view_config(
     route_name="manage.organization.history",
     context=Organization,
-    renderer="manage/organization/history.html",
+    renderer="warehouse:templates/manage/organization/history.html",
     uses_session=True,
     permission=Permissions.OrganizationsManage,
     has_translations=True,

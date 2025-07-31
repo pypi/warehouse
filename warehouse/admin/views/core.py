@@ -16,7 +16,7 @@ from warehouse.subscriptions.models import StripeSubscription, StripeSubscriptio
 
 @view_config(
     route_name="admin.dashboard",
-    renderer="admin/dashboard.html",
+    renderer="warehouse.admin:templates/admin/dashboard.html",
     permission=Permissions.AdminDashboardRead,
     uses_session=True,
 )

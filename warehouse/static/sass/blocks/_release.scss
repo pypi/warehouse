@@ -99,10 +99,14 @@
     padding-bottom: 2px;
   }
 
-  &__yanked-reason p {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  &__yanked-reason {
+    display: block;
+
+    p {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 
   &--current {

@@ -165,7 +165,11 @@ def reindex(self, request):
                 request.db.execute(text("SET statement_timeout = '600s'"))
 
                 for _ in parallel_bulk(
-                    client, _project_docs(request.db), index=new_index_name
+                    client,
+                    _project_docs(request.db),
+                    index=new_index_name,
+                    chunk_size=100,
+                    max_chunk_bytes=10 * 1024 * 1024,  # 10MB, per OpenSearch defaults
                 ):
                     pass
             except:  # noqa

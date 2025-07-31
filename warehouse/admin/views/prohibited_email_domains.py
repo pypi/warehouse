@@ -13,7 +13,7 @@ from warehouse.utils.paginate import paginate_url_factory
 
 @view_config(
     route_name="admin.prohibited_email_domains.list",
-    renderer="admin/prohibited_email_domains/list.html",
+    renderer="warehouse.admin:templates/admin/prohibited_email_domains/list.html",
     permission=Permissions.AdminProhibitedEmailDomainsRead,
     request_method="GET",
     uses_session=True,

@@ -8,17 +8,18 @@ babel==2.17.0 \
     --hash=sha256:0c54cffb19f690cdcc52a3b50bcbf71e07a808d1c80d549f2459b9d2cf0afb9d \
     --hash=sha256:4d0b53093fdfb4b21c92b5213dba5a1b23885afa8383709427046b21c366e5f2
     # via mkdocs-material
-backrefs==5.8 \
-    --hash=sha256:2cab642a205ce966af3dd4b38ee36009b31fa9502a35fd61d59ccc116e40a6bd \
-    --hash=sha256:2e1c15e4af0e12e45c8701bd5da0902d326b2e200cafcd25e49d9f06d44bb61b \
-    --hash=sha256:a66851e4533fb5b371aa0628e1fee1af05135616b86140c9d787a2ffdf4b8fdc \
-    --hash=sha256:bbef7169a33811080d67cdf1538c8289f76f0942ff971222a16034da88a73486 \
-    --hash=sha256:c67f6638a34a5b8730812f5101376f9d41dc38c43f1fdc35cb54700f6ed4465d \
-    --hash=sha256:e3a63b073867dbefd0536425f43db618578528e3896fb77be7141328642a1585
+backrefs==5.9 \
+    --hash=sha256:6907635edebbe9b2dc3de3a2befff44d74f30a4562adbb8b36f21252ea19c5cf \
+    --hash=sha256:7fdf9771f63e6028d7fee7e0c497c81abda597ea45d6b8f89e8ad76994f5befa \
+    --hash=sha256:808548cb708d66b82ee231f962cb36faaf4f2baab032f2fbb783e9c2fdddaa59 \
+    --hash=sha256:cc37b19fa219e93ff825ed1fed8879e47b4d89aa7a1884860e2db64ccd7c676b \
+    --hash=sha256:db8e8ba0e9de81fcd635f440deab5ae5f2591b54ac1ebe0550a2ca063488cd9f \
+    --hash=sha256:df5e169836cc8acb5e440ebae9aad4bf9d15e226d3bad049cf3f6a5c20cc8dc9 \
+    --hash=sha256:f48ee18f6252b8f5777a22a00a09a85de0ca931658f1dd96d4406a34f3748c60
     # via mkdocs-material
-certifi==2025.6.15 \
-    --hash=sha256:2e0c7ce7cb5d8f8634ca55d2ba7e6ec2689a2fd6537d8dec1296a477a4910057 \
-    --hash=sha256:d747aa5a8b9bbbb1bb8c22bb13e22bd1f18e9796defa16bab421f7f7a317323b
+certifi==2025.7.14 \
+    --hash=sha256:6b31f564a415d79ee77df69d757bb49a5bb53bd9f756cbbe24394ffd6fc1f4b2 \
+    --hash=sha256:8ea99dbdfaaf2ba2f9bac77b9249ef62ec5218e7c2b2e903378ed5fccf765995
     # via requests
 charset-normalizer==3.4.2 \
     --hash=sha256:005fa3432484527f9732ebd315da8da8001593e2cf46a3d817669f062c3d9ed4 \
@@ -241,9 +242,9 @@ mkdocs-macros-plugin==1.3.7 \
     --hash=sha256:02432033a5b77fb247d6ec7924e72fc4ceec264165b1644ab8d0dc159c22ce59 \
     --hash=sha256:17c7fd1a49b94defcdb502fd453d17a1e730f8836523379d21292eb2be4cb523
     # via -r requirements/docs-user.in
-mkdocs-material==9.6.14 \
-    --hash=sha256:39d795e90dce6b531387c255bd07e866e027828b7346d3eba5ac3de265053754 \
-    --hash=sha256:3b9cee6d3688551bf7a8e8f41afda97a3c39a12f0325436d76c86706114b721b
+mkdocs-material==9.6.16 \
+    --hash=sha256:8d1a1282b892fe1fdf77bfeb08c485ba3909dd743c9ba69a19a40f637c6ec18c \
+    --hash=sha256:d07011df4a5c02ee0877496d9f1bfc986cfb93d964799b032dd99fe34c0e9d19
     # via
     #   -r requirements/docs-user.in
     #   material-plausible-plugin
@@ -271,13 +272,13 @@ platformdirs==4.3.8 \
     --hash=sha256:3d512d96e16bcb959a814c9f348431070822a6496326a4be0911c40b5a74c2bc \
     --hash=sha256:ff7059bb7eb1179e2685604f4aaf157cfd9535242bd23742eadc3c13542139b4
     # via mkdocs-get-deps
-pygments==2.19.1 \
-    --hash=sha256:61c16d2a8576dc0649d9f39e089b5f02bcd27fba10d8fb4dcc28173f7a45151f \
-    --hash=sha256:9ea1544ad55cecf4b8242fab6dd35a93bbce657034b0611ee383099054ab6d8c
+pygments==2.19.2 \
+    --hash=sha256:636cb2477cec7f8952536970bc533bc43743542f70392ae026374600add5b887 \
+    --hash=sha256:86540386c03d588bb81d44bc3928634ff26449851e99741617ecb9037ee5ec0b
     # via mkdocs-material
-pymdown-extensions==10.15 \
-    --hash=sha256:0e5994e32155f4b03504f939e501b981d306daf7ec2aa1cd2eb6bd300784f8f7 \
-    --hash=sha256:46e99bb272612b0de3b7e7caf6da8dd5f4ca5212c0b273feb9304e236c484e5f
+pymdown-extensions==10.16.1 \
+    --hash=sha256:aace82bcccba3efc03e25d584e6a22d27a8e17caa3f4dd9f207e49b787aa9a91 \
+    --hash=sha256:d6ba157a6c03146a7fb122b2b9a121300056384eafeec9c9f9e584adfdb2a32d
     # via mkdocs-material
 python-dateutil==2.9.0.post0 \
     --hash=sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3 \

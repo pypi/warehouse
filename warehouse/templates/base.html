@@ -110,7 +110,7 @@
       {% set devPyPI = true %}
     {% endif %}
     {# djlint:off #}
-    <title>{% block title_base %}{% block title %}{% endblock title %}{% if self.title() %}·{% endif %}{{ request.registry.settings['site.name'] }}{% endblock title_base %}</title>
+    <title>{% block title_base %}{% block title %}{% endblock title %}{% if self.title() %} · {% endif %}{{ request.registry.settings['site.name'] }}{% endblock title_base %}</title>
     {# djlint:on #}
     <meta name="description"
           content="{% block description %}{% trans %}The Python Package Index (PyPI) is a repository of software for the Python programming language.{% endtrans %}{% endblock %}">
@@ -168,9 +168,27 @@
     <script async src="{{ request.static_path('warehouse:static/dist/js/warehouse' + ('' if request.localizer.locale_name == 'en' else '.' + request.localizer.locale_name) + '.js') }}">
     </script>
     {% block extra_js %}{% endblock %}
-    <script defer
-            data-domain="pypi.org"
-            src="https://analytics.python.org/js/script.js"></script>
+    {# Exclude all query parameters from analytics payload on pages where they may contain sensitive information.
+     # PSF controls the analytics destination, so it is not a third-party tracker,
+     # but this prevents the parameters from being sent to the analytics service in the payload,
+     # where it would be further filtered before storage. #}
+    {% set analytics_sanitize_query_params_routes = [
+      "accounts.reset-password",
+      "accounts.verify-email",
+      "accounts.verify-organization-role",
+      "accounts.verify-project-role"
+    ] %}
+    {% if request.matched_route and request.matched_route.name in analytics_sanitize_query_params_routes %}
+      <script defer
+              data-domain="pypi.org"
+              src="https://analytics.python.org/js/script.manual.js"></script>
+      <script defer
+              src="{{ request.static_path('warehouse:static/dist/js/utils/plausible-sanitized.js') }}"></script>
+    {% else %}
+      <script defer
+              data-domain="pypi.org"
+              src="https://analytics.python.org/js/script.js"></script>
+    {% endif %}
     <script defer
             src="https://www.fastly-insights.com/insights.js?k=6a52360a-f306-421e-8ed5-7417d0d4a4e9&dnt=true"></script>
     <script async
@@ -179,7 +197,9 @@
             crossorigin="anonymous"></script>
     {% if devPyPI %}<script src="{{ request.registry.settings.get("livereload.url") }}/livereload.js"></script>{% endif %}
   </head>
-  <body data-controller="viewport-toggle">
+  <body data-controller="viewport-toggle"
+        data-allowed-domains="{{ request.hashed_domains }}"
+        data-request-nonce="{{ request.nonce }}">
     {% block body %}
       <!-- Accessibility: this link should always be the first piece of content inside the body-->
       <a href="#content" class="skip-to-content">{% trans %}Skip to main content{% endtrans %}</a>

@@ -815,13 +815,6 @@ class HaveIBeenPwnedPasswordBreachedService:
             )
         return message
 
-    @property
-    def failure_message_plain(self):
-        message = self._failure_message_preamble
-        if self._help_url:
-            message += f" See the FAQ entry at {self._help_url} for more information."
-        return message
-
     def _metrics_increment(self, *args, **kwargs):
         self._metrics.increment(*args, **kwargs)
 
@@ -890,7 +883,6 @@ class HaveIBeenPwnedPasswordBreachedService:
 @implementer(IPasswordBreachedService)
 class NullPasswordBreachedService:
     failure_message = "This password appears in a breach."
-    failure_message_plain = "This password appears in a breach."
 
     @classmethod
     def create_service(cls, context, request):

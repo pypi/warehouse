@@ -16,7 +16,7 @@ from pyramid.httpexceptions import (
     HTTPTooManyRequests,
     HTTPUnauthorized,
 )
-from sqlalchemy.exc import NoResultFound
+from sqlalchemy.exc import IntegrityError, NoResultFound
 from webauthn.authentication.verify_authentication_response import (
     VerifiedAuthentication,
 )
@@ -24,6 +24,7 @@ from webob.multidict import MultiDict
 
 from warehouse.accounts import views
 from warehouse.accounts.interfaces import (
+    IDomainStatusService,
     IPasswordBreachedService,
     ITokenService,
     IUserService,
@@ -391,6 +392,7 @@ class TestLogin:
         assert isinstance(result, HTTPSeeOther)
         assert pyramid_request.route_path.calls == [pretend.call("manage.projects")]
         assert result.headers["Location"] == "/the-redirect"
+        assert result.headers["Set-Cookie"].startswith("user_id__insecure=")
         assert result.headers["foo"] == "bar"
 
         assert form_class.calls == [
@@ -1497,6 +1499,7 @@ class TestRecoveryCode:
             token_expected_data["redirect_to"] = redirect_url
 
         assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Set-Cookie"].startswith("user_id__insecure=")
 
         assert remember.calls == [pretend.call(pyramid_request, str(1))]
         assert pyramid_request.session.invalidate.calls == [pretend.call()]
@@ -1764,6 +1767,7 @@ class TestRegister:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
+        assert result.headers["Set-Cookie"].startswith("user_id__insecure=")
         assert create_user.calls == [
             pretend.call("username_value", "full_name", "MyStr0ng!shP455w0rd")
         ]
@@ -2575,52 +2579,47 @@ class TestVerifyEmail:
         ],
     )
     def test_verify_email(
-        self, db_request, user_service, token_service, is_primary, confirm_message
+        self, mocker, db_request, ratelimit_service, is_primary, confirm_message
     ):
         user = UserFactory(is_active=False, totp_secret=None)
         email = EmailFactory(user=user, verified=False, primary=is_primary)
         db_request.user = user
         db_request.GET.update({"token": "RANDOM_KEY"})
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        token_service.loads = pretend.call_recorder(
-            lambda token: {"action": "email-verify", "email.id": str(email.id)}
+        db_request.route_path = mocker.Mock(return_value="/")
+        mock_token_service_loads = mocker.patch(
+            "warehouse.accounts.services.TokenService.loads",
+            return_value={"action": "email-verify", "email.id": str(email.id)},
         )
-        email_limiter = pretend.stub(clear=pretend.call_recorder(lambda a: None))
-        verify_limiter = pretend.stub(clear=pretend.call_recorder(lambda a: None))
-        services = {
-            "email": token_service,
-            "email.add": email_limiter,
-            "email.verify": verify_limiter,
-        }
-        db_request.find_service = pretend.call_recorder(
-            lambda a, name, **kwargs: services[name]
-        )
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        spy_find_service = mocker.spy(db_request, "find_service")
+        spy_session_flash = mocker.spy(db_request.session, "flash")
 
         result = views.verify_email(db_request)
 
         db_request.db.flush()
         assert email.verified
+        assert email.domain_last_status == ["active"]
         assert user.is_active
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
-        assert db_request.route_path.calls == [
-            pretend.call("manage.account.two-factor")
-        ]
-        assert token_service.loads.calls == [pretend.call("RANDOM_KEY")]
-        assert email_limiter.clear.calls == [pretend.call(db_request.remote_addr)]
-        assert verify_limiter.clear.calls == [pretend.call(user.id)]
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Email address {email.email} verified. " + confirm_message,
-                queue="success",
-            )
-        ]
-        assert db_request.find_service.calls == [
-            pretend.call(ITokenService, name="email"),
-            pretend.call(IRateLimiter, name="email.add"),
-            pretend.call(IRateLimiter, name="email.verify"),
-        ]
+        db_request.route_path.assert_called_once_with("manage.account.two-factor")
+        mock_token_service_loads.assert_called_once_with("RANDOM_KEY")
+        ratelimit_service.clear.assert_has_calls(
+            [
+                mocker.call(db_request.remote_addr),
+                mocker.call(user.id),
+            ]
+        )
+        spy_session_flash.assert_called_once_with(
+            f"Email address {email.email} verified. " + confirm_message, queue="success"
+        )
+        spy_find_service.assert_has_calls(
+            [
+                mocker.call(ITokenService, name="email"),
+                mocker.call(IRateLimiter, name="email.add"),
+                mocker.call(IRateLimiter, name="email.verify"),
+                mocker.call(IDomainStatusService),
+            ]
+        )
 
     @pytest.mark.parametrize(
         ("exception", "message"),
@@ -2702,26 +2701,16 @@ class TestVerifyEmail:
             pretend.call("Email already verified", queue="error")
         ]
 
-    def test_verify_email_with_existing_2fa(self, db_request, token_service):
+    def test_verify_email_with_existing_2fa(self, mocker, db_request):
         user = UserFactory(is_active=False, totp_secret=b"secret")
         email = EmailFactory(user=user, verified=False, primary=False)
         db_request.user = user
         db_request.GET.update({"token": "RANDOM_KEY"})
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
-        token_service.loads = pretend.call_recorder(
-            lambda token: {"action": "email-verify", "email.id": str(email.id)}
+        db_request.route_path = mocker.Mock(return_value="/")
+        mocker.patch(
+            "warehouse.accounts.services.TokenService.loads",
+            return_value={"action": "email-verify", "email.id": str(email.id)},
         )
-        email_limiter = pretend.stub(clear=pretend.call_recorder(lambda a: None))
-        verify_limiter = pretend.stub(clear=pretend.call_recorder(lambda a: None))
-        services = {
-            "email": token_service,
-            "email.add": email_limiter,
-            "email.verify": verify_limiter,
-        }
-        db_request.find_service = pretend.call_recorder(
-            lambda a, name, **kwargs: services[name]
-        )
-        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
 
         assert db_request.user.has_two_factor
 
@@ -2729,7 +2718,7 @@ class TestVerifyEmail:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
-        assert db_request.route_path.calls == [pretend.call("manage.account")]
+        db_request.route_path.assert_called_once_with("manage.account")
         assert db_request.user.is_active
 
 
@@ -4458,7 +4447,7 @@ class TestManageAccountPublishingViews:
                         "organization": "some-org",
                         "project": "some-project",
                         "actor": "some-user",
-                        "project_name": "some-other-project-name",
+                        "project_name": "some-project-name",
                     }
                 ),
             ),
@@ -4543,6 +4532,47 @@ class TestManageAccountPublishingViews:
                 queue="error",
             )
         ]
+
+    def test_add_pending_oidc_publisher_integrityerror(self, monkeypatch, db_request):
+        db_request.user = UserFactory.create()
+        EmailFactory(user=db_request.user, verified=True, primary=True)
+        db_request.db.add = pretend.raiser(IntegrityError("foo", "bar", "baz"))
+
+        db_request.registry = pretend.stub(
+            settings={
+                "github.token": "fake-api-token",
+            }
+        )
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
+        db_request.POST = MultiDict(
+            {
+                "owner": "some-owner",
+                "repository": "some-repository",
+                "workflow_filename": "some-workflow-filename.yml",
+                "environment": "some-environment",
+                "project_name": "some-project-name",
+            }
+        )
+
+        view = views.ManageAccountPublishingViews(db_request)
+
+        monkeypatch.setattr(
+            views.PendingGitHubPublisherForm,
+            "_lookup_owner",
+            lambda *a: {"login": "some-owner", "id": "some-owner-id"},
+        )
+
+        monkeypatch.setattr(
+            view, "_check_ratelimits", pretend.call_recorder(lambda: None)
+        )
+        monkeypatch.setattr(
+            view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
+        )
+
+        resp = view.add_pending_github_oidc_publisher()
+        assert isinstance(resp, HTTPSeeOther)
 
     @pytest.mark.parametrize(
         ("view_name", "publisher_name", "post_body", "publisher_class"),
