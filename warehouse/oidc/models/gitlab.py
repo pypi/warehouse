@@ -1,19 +1,10 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import re
 
-from typing import Any
+from typing import Any, Self
 
+from more_itertools import first_true
 from pypi_attestations import GitLabPublisher as GitLabIdentity, Publisher
 from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists
 from sqlalchemy.dialects.postgresql import UUID
@@ -188,47 +179,48 @@ class GitLabPublisherMixin:
         "groups_direct",
     }
 
-    @staticmethod
-    def __lookup_all__(klass, signed_claims: SignedClaims) -> Query | None:
-        # This lookup requires the environment claim to be present;
-        # if it isn't, bail out early.
-        if not (environment := signed_claims.get("environment")):
-            return None
+    # Get the most specific publisher from a list of publishers,
+    # where publishers constrained with an environment are more
+    # specific than publishers not constrained on environment.
+    @classmethod
+    def _get_publisher_for_environment(
+        cls, publishers: list[Self], environment: str | None
+    ) -> Self | None:
+        if environment:
+            if specific_publisher := first_true(
+                publishers, pred=lambda p: p.environment == environment
+            ):
+                return specific_publisher
 
+        if general_publisher := first_true(
+            publishers, pred=lambda p: p.environment == ""
+        ):
+            return general_publisher
+
+        return None
+
+    @classmethod
+    def lookup_by_claims(cls, session, signed_claims: SignedClaims) -> Self:
         project_path = signed_claims["project_path"]
         ci_config_ref_uri = signed_claims["ci_config_ref_uri"]
         namespace, project = project_path.rsplit("/", 1)
+        environment = signed_claims.get("environment")
 
         if not (workflow_filepath := _extract_workflow_filepath(ci_config_ref_uri)):
-            return None
+            raise InvalidPublisherError(
+                "Could not extract workflow filename from OIDC claims"
+            )
 
-        return Query(klass).filter_by(
+        query: Query = Query(cls).filter_by(
             namespace=namespace,
             project=project,
-            environment=environment,
             workflow_filepath=workflow_filepath,
         )
+        publishers = query.with_session(session).all()
+        if publisher := cls._get_publisher_for_environment(publishers, environment):
+            return publisher
 
-    @staticmethod
-    def __lookup_no_environment__(klass, signed_claims: SignedClaims) -> Query | None:
-        project_path = signed_claims["project_path"]
-        ci_config_ref_uri = signed_claims["ci_config_ref_uri"]
-        namespace, project = project_path.rsplit("/", 1)
-
-        if not (workflow_filepath := _extract_workflow_filepath(ci_config_ref_uri)):
-            return None
-
-        return Query(klass).filter_by(
-            namespace=namespace,
-            project=project,
-            environment="",
-            workflow_filepath=workflow_filepath,
-        )
-
-    __lookup_strategies__ = [
-        __lookup_all__,
-        __lookup_no_environment__,
-    ]
+        raise InvalidPublisherError("Publisher with matching claims was not found")
 
     @property
     def project_path(self):

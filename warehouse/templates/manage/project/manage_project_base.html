@@ -1,66 +1,47 @@
-{#
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
--#}
+{# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "manage/manage_base.html" %}
-
 {% set user = request.user %}
 {% set projects = user.projects %}
 {% set active_tab = active_tab|default('releases') %}
-
-{% block title %}{% trans project_name=project.name %}Manage '{{ project_name }}'{% endtrans %}{% endblock %}
-
+{% block title %}
+  {% trans project_name=project.name %}Manage '{{ project_name }}'{% endtrans %}
+{% endblock %}
 {# Hide mobile search on manager pages #}
 {% block mobile_search %}{% endblock %}
-
 {% block content %}
   <div class="tabs-container">
     {% block breadcrumbs %}
-    <nav aria-label="{% trans %}Breadcrumbs{% endtrans %}" class="breadcrumbs">
-      <ul>
-        <li class="breadcrumbs__breadcrumb">
-          <a href="{{ request.route_path('manage.projects') }}">
-            {% trans %}Your account{% endtrans %}
-          </a>
-        </li>
-        {% if request.organization_access and project.organization and request.user in project.organization.users %}
-        <li class="breadcrumbs__breadcrumb">
-          <a href="{{ request.route_path('manage.organization.projects', organization_name=project.organization.normalized_name) }}">
-            <i class="fa fa-sm fa-sitemap" aria-hidden="true"></i>
-            {{ project.organization.name }}
-          </a>
-        </li>
-        {% endif %}
-
-        {# Last breadcrumb can be overriden #}
-        {% block breadcrumb %}
-        <li class="breadcrumbs__breadcrumb">
-          <i class="fa fa-cubes" aria-hidden="true"></i>
-          {{ project.name }}
-        </li>
-        {% endblock %}
-      </ul>
-    </nav>
+      <nav aria-label="{% trans %}Breadcrumbs{% endtrans %}" class="breadcrumbs">
+        <ul>
+          <li class="breadcrumbs__breadcrumb">
+            <a href="{{ request.route_path('manage.projects') }}">{% trans %}Your account{% endtrans %}</a>
+          </li>
+          {% if request.organization_access and project.organization and request.user in project.organization.users %}
+            <li class="breadcrumbs__breadcrumb">
+              <a href="{{ request.route_path('manage.organization.projects', organization_name=project.organization.normalized_name) }}">
+                <i class="fa fa-sm fa-sitemap" aria-hidden="true"></i>
+                {{ project.organization.name }}
+              </a>
+            </li>
+          {% endif %}
+          {# Last breadcrumb can be overriden #}
+          {% block breadcrumb %}
+            <li class="breadcrumbs__breadcrumb">
+              <i class="fa fa-cubes" aria-hidden="true"></i>
+              {{ project.name }}
+            </li>
+          {% endblock %}
+        </ul>
+      </nav>
     {% endblock %}
-
     <div class="vertical-tabs">
       <div class="vertical-tabs__tabs">
-        <div class="sidebar-section">
-          {% include "warehouse:templates/includes/manage/manage-project-menu.html" %}
-        </div>
+        <div class="sidebar-section">{% include "warehouse:templates/includes/manage/manage-project-menu.html" %}</div>
       </div>
       <div class="vertical-tabs__panel">
         <!-- mobile nav -->
-        <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border">
+        <a href="{{ request.route_path('manage.projects') }}"
+           class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border">
           <i class="fa fa-arrow-left" aria-hidden="true"></i>
           {% trans %}Back to projects{% endtrans %}
         </a>
@@ -70,48 +51,48 @@
               <p>{% trans %}This project has been quarantined.{% endtrans %}</p>
               <p>
                 {% trans %}
-                  PyPI Admins need to review this project before it can be restored.
-                  While in quarantine, the project is not installable by clients,
-                  and cannot be being modified by its maintainers.
-                {% endtrans %}
-              </p>
-              <p>
-                {% trans href=request.route_path('help') + "#project_in_quarantine" %}
-                  Read more in the <a href="{{ href }}">project in quarantine</a> help article.
-                {% endtrans %}
-              </p>
-            </div>
-          {% elif project.lifecycle_status in ["archived", "archived-noindex"] %}
-            <div class="callout-block callout-block--warning">
-              <p>{% trans %}This project has been archived.{% endtrans %}</p>
-            </div>
-          {% endif %}
-          {% if request.organization_access and project.organization %}
-            <div class="organization-snippet organization-snippet--margin-bottom">
-              <h1 class="organization-snippet__title organization-snippet__title--page-title">
-                <a href="{{ request.route_path('organizations.profile', organization=project.organization.name) }}">{{ project.organization.name }}</a>
-              </h1>
-              <p class="organization-snippet__description">{{ project.organization.display_name }}</p>
-            </div>
-          {% endif %}
-          <a class="package-snippet package-snippet--margin-bottom" href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
-            {% set release = project.releases[0] if project.releases else None %}
-            {% if release %}
-            <h1 class="package-snippet__title package-snippet__title--page-title">{{ project.name }}</h1>
-            <p class="package-snippet__description">{{ release.summary }}</p>
-            {% else %}
-            <h1 class="package-snippet__title package-snippet__title--page-title">{{ project.name }}</h1>
-            {% endif %}
-          </a>
-          <!-- mobile nav -->
-          {% with mode="mobile" %}
-            {% include "warehouse:templates/includes/manage/manage-project-menu.html" %}
-          {% endwith %}
-
-          {% block main %}{% endblock %}
+                PyPI Admins need to review this project before it can be restored.
+                While in quarantine, the project is not installable by clients,
+                and cannot be being modified by its maintainers.
+              {% endtrans %}
+            </p>
+            <p>
+              {% trans href=request.route_path('help') + "#project_in_quarantine" %}
+              Read more in the <a href="{{ href }}">project in quarantine</a> help article.
+            {% endtrans %}
+          </p>
         </div>
-        {% block mobile_tabs_bottom %}{% endblock %}
-      </div>
+      {% elif project.lifecycle_status in ["archived", "archived-noindex"] %}
+        <div class="callout-block callout-block--warning">
+          <p>{% trans %}This project has been archived.{% endtrans %}</p>
+        </div>
+      {% endif %}
+      {% if request.organization_access and project.organization %}
+        <div class="organization-snippet organization-snippet--margin-bottom">
+          <h1 class="organization-snippet__title organization-snippet__title--page-title">
+            <a href="{{ request.route_path('organizations.profile', organization=project.organization.name) }}">{{ project.organization.name }}</a>
+          </h1>
+          <p class="organization-snippet__description">{{ project.organization.display_name }}</p>
+        </div>
+      {% endif %}
+      <a class="package-snippet package-snippet--margin-bottom"
+         href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
+        {% set release = project.releases[0] if project.releases else None %}
+        {% if release %}
+          <h1 class="package-snippet__title package-snippet__title--page-title">{{ project.name }}</h1>
+          <p class="package-snippet__description">{{ release.summary }}</p>
+        {% else %}
+          <h1 class="package-snippet__title package-snippet__title--page-title">{{ project.name }}</h1>
+        {% endif %}
+      </a>
+      <!-- mobile nav -->
+      {% with mode="mobile" %}
+        {% include "warehouse:templates/includes/manage/manage-project-menu.html" %}
+      {% endwith %}
+      {% block main %}{% endblock %}
     </div>
+    {% block mobile_tabs_bottom %}{% endblock %}
   </div>
+</div>
+</div>
 {% endblock %}

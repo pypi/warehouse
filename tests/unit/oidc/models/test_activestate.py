@@ -1,15 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -35,14 +24,6 @@ INGREDIENT = "fakeingredientname"
 # validate the format when verifying the JWT. That should happen when the
 # Publisher is configured.  We just need to make sure that the subject matches
 SUBJECT = f"org:{ORG_URL_NAME}:project:{PROJECT_NAME}"
-
-
-def test_lookup_strategies():
-    assert (
-        len(ActiveStatePublisher.__lookup_strategies__)
-        == len(PendingActiveStatePublisher.__lookup_strategies__)
-        == 1
-    )
 
 
 def new_signed_claims(
@@ -380,6 +361,13 @@ class TestActiveStatePublisher:
             db_request.db.flush()
 
         assert publisher.exists(db_request.db) == exists_in_db
+
+    def test_lookup_no_matching_publishers(self, db_request):
+        signed_claims = new_signed_claims(actor_id="my_id")
+
+        with pytest.raises(InvalidPublisherError) as e:
+            ActiveStatePublisher.lookup_by_claims(db_request.db, signed_claims)
+        assert str(e.value) == "Publisher with matching claims was not found"
 
 
 class TestPendingActiveStatePublisher:

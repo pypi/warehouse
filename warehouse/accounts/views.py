@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import datetime
 import hashlib
@@ -31,7 +21,7 @@ from pyramid.interfaces import ISecurityPolicy
 from pyramid.security import forget, remember
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import and_, func, select
-from sqlalchemy.exc import NoResultFound
+from sqlalchemy.exc import IntegrityError, NoResultFound
 from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
 
@@ -60,6 +50,7 @@ from warehouse.accounts.interfaces import (
     TooManyPasswordResetRequests,
 )
 from warehouse.accounts.models import Email, TermsOfServiceEngagement, User
+from warehouse.accounts.utils import update_email_domain_status
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.cache.origin import origin_cache
@@ -161,7 +152,7 @@ def incomplete_password_resets(exc, request):
 @view_config(
     route_name="accounts.profile",
     context=User,
-    renderer="accounts/profile.html",
+    renderer="warehouse:templates/accounts/profile.html",
     decorator=[
         origin_cache(1 * 24 * 60 * 60, stale_if_error=1 * 24 * 60 * 60)  # 1 day each.
     ],
@@ -238,7 +229,7 @@ def profile(user, request):
 
 @view_config(
     route_name="accounts.search",
-    renderer="api/account_search.html",
+    renderer="warehouse:templates/api/account_search.html",
     uses_session=True,
 )
 def accounts_search(request) -> dict[str, list[User]]:
@@ -276,7 +267,7 @@ def accounts_search(request) -> dict[str, list[User]]:
 
 @view_config(
     route_name="accounts.login",
-    renderer="accounts/login.html",
+    renderer="warehouse:templates/accounts/login.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -353,22 +344,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                 # either where they were trying to go originally, or to the default
                 # view.
                 resp = HTTPSeeOther(redirect_to, headers=dict(headers))
-
-                # We'll use this cookie so that client side javascript can
-                # Determine the actual user ID (not username, user ID). This is
-                # *not* a security sensitive context and it *MUST* not be used
-                # where security matters.
-                #
-                # We'll also hash this value just to avoid leaking the actual User
-                # IDs here, even though it really shouldn't matter.
-                resp.set_cookie(
-                    USER_ID_INSECURE_COOKIE,
-                    hashlib.blake2b(
-                        str(userid).encode("ascii"), person=b"warehouse.userid"
-                    )
-                    .hexdigest()
-                    .lower(),
-                )
+                _set_userid_insecure_cookie(resp, userid)
 
             return resp
 
@@ -380,7 +356,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
 
 @view_config(
     route_name="accounts.two-factor",
-    renderer="accounts/two-factor.html",
+    renderer="warehouse:templates/accounts/two-factor.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -430,12 +406,7 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
             user_service.update_user(userid, last_totp_value=form.totp_value.data)
 
             resp = HTTPSeeOther(redirect_to)
-            resp.set_cookie(
-                USER_ID_INSECURE_COOKIE,
-                hashlib.blake2b(str(userid).encode("ascii"), person=b"warehouse.userid")
-                .hexdigest()
-                .lower(),
-            )
+            _set_userid_insecure_cookie(resp, userid)
 
             if not two_factor_state.get("has_recovery_codes", False):
                 send_recovery_code_reminder_email(request, request.user)
@@ -524,13 +495,7 @@ def webauthn_authentication_validate(request):
 
         two_factor_method = "webauthn"
         _login_user(request, userid, two_factor_method, two_factor_label=webauthn.label)
-
-        request.response.set_cookie(
-            USER_ID_INSECURE_COOKIE,
-            hashlib.blake2b(str(userid).encode("ascii"), person=b"warehouse.userid")
-            .hexdigest()
-            .lower(),
-        )
+        _set_userid_insecure_cookie(request.response, userid)
 
         if not request.user.has_recovery_codes:
             send_recovery_code_reminder_email(request, request.user)
@@ -545,6 +510,22 @@ def webauthn_authentication_validate(request):
 
     errors = [str(error) for error in form.credential.errors]
     return {"fail": {"errors": errors}}
+
+
+def _set_userid_insecure_cookie(resp, userid):
+    # We'll use this cookie so that client side javascript can
+    # Determine the actual user ID (not username, user ID). This is
+    # *not* a security sensitive context and it *MUST* not be used
+    # where security matters.
+    #
+    # We'll also hash this value just to avoid leaking the actual User
+    # IDs here, even though it really shouldn't matter.
+    resp.set_cookie(
+        USER_ID_INSECURE_COOKIE,
+        hashlib.blake2b(str(userid).encode("ascii"), person=b"warehouse.userid")
+        .hexdigest()
+        .lower(),
+    )
 
 
 def _check_remember_device_token(request, user_id) -> bool:
@@ -590,7 +571,7 @@ def _remember_device(request, response, userid, two_factor_method) -> None:
 
 @view_config(
     route_name="accounts.recovery-code",
-    renderer="accounts/recovery-code.html",
+    renderer="warehouse:templates/accounts/recovery-code.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -621,12 +602,7 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
             _login_user(request, userid, two_factor_method="recovery-code")
 
             resp = HTTPSeeOther(request.route_path("manage.account"))
-            resp.set_cookie(
-                USER_ID_INSECURE_COOKIE,
-                hashlib.blake2b(str(userid).encode("ascii"), person=b"warehouse.userid")
-                .hexdigest()
-                .lower(),
-            )
+            _set_userid_insecure_cookie(resp, userid)
 
             user = user_service.get_user(userid)
             user.record_event(
@@ -650,7 +626,7 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
 
 @view_config(
     route_name="accounts.logout",
-    renderer="accounts/logout.html",
+    renderer="warehouse:templates/accounts/logout.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -711,7 +687,7 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
 
 @view_config(
     route_name="accounts.register",
-    renderer="accounts/register.html",
+    renderer="warehouse:templates/accounts/register.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -774,16 +750,19 @@ def register(request, _form_class=RegistrationForm):
         send_email_verification_email(request, (user, email))
         email_limiter.hit(user.id)
 
-        return HTTPSeeOther(
+        resp = HTTPSeeOther(
             request.route_path("index"), headers=dict(_login_user(request, user.id))
         )
+        _set_userid_insecure_cookie(resp, user.id)
+
+        return resp
 
     return {"form": form}
 
 
 @view_config(
     route_name="accounts.request-password-reset",
-    renderer="accounts/request-password-reset.html",
+    renderer="warehouse:templates/accounts/request-password-reset.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -872,7 +851,7 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
 
 @view_config(
     route_name="accounts.reset-password",
-    renderer="accounts/reset-password.html",
+    renderer="warehouse:templates/accounts/reset-password.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -1016,6 +995,8 @@ def verify_email(request):
 
     if email.verified:
         return _error(request._("Email already verified"))
+    # Run the domain status update now that the end user has verified it.
+    update_email_domain_status(email, request)
 
     email.verified = True
     email.unverify_reason = None
@@ -1080,7 +1061,7 @@ def _get_two_factor_data(request, _redirect_to="/"):
 
 @view_config(
     route_name="accounts.verify-organization-role",
-    renderer="accounts/organization-invite-confirmation.html",
+    renderer="warehouse:templates/accounts/organization-invite-confirmation.html",
     require_methods=False,
     uses_session=True,
     permission=Permissions.AccountVerifyOrgRole,
@@ -1250,7 +1231,7 @@ def verify_organization_role(request):
 
 @view_config(
     route_name="accounts.verify-project-role",
-    renderer="accounts/invite-confirmation.html",
+    renderer="warehouse:templates/accounts/invite-confirmation.html",
     require_methods=False,
     uses_session=True,
     permission=Permissions.AccountVerifyProjectRole,
@@ -1508,7 +1489,7 @@ def view_terms_of_service(request):
 @view_config(
     route_name="includes.current-user-profile-callout",
     context=User,
-    renderer="includes/accounts/profile-callout.html",
+    renderer="warehouse:templates/includes/accounts/profile-callout.html",
     uses_session=True,
     has_translations=True,
 )
@@ -1519,7 +1500,7 @@ def profile_callout(user, request):
 @view_config(
     route_name="includes.profile-actions",
     context=User,
-    renderer="includes/accounts/profile-actions.html",
+    renderer="warehouse:templates/includes/accounts/profile-actions.html",
     uses_session=True,
     has_translations=True,
 )
@@ -1530,7 +1511,7 @@ def edit_profile_button(user, request):
 @view_config(
     route_name="includes.profile-public-email",
     context=User,
-    renderer="includes/accounts/profile-public-email.html",
+    renderer="warehouse:templates/includes/accounts/profile-public-email.html",
     uses_session=True,
     has_translations=True,
 )
@@ -1588,7 +1569,7 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
 
 @view_defaults(
     route_name="manage.account.publishing",
-    renderer="manage/account/publishing.html",
+    renderer="warehouse:templates/manage/account/publishing.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -1784,8 +1765,15 @@ class ManageAccountPublishingViews:
 
         pending_publisher = make_pending_publisher(self.request, form)
 
-        self.request.db.add(pending_publisher)
-        self.request.db.flush()  # To get the new ID
+        try:
+            self.request.db.add(pending_publisher)
+            self.request.db.flush()  # To get the new ID
+        except IntegrityError:
+            # The user has probably double-posted and a new publisher was
+            # created after our check for duplicates ran. The success message
+            # is probably already in the flash queue, so just redirect to the
+            # expected page on success if this is the response they are served.
+            return HTTPSeeOther(self.request.path)
 
         self.request.user.record_event(
             tag=EventTag.Account.PendingOIDCPublisherAdded,
@@ -1833,6 +1821,7 @@ class ManageAccountPublishingViews:
                 sub=form.sub.data,
             ),
             make_existence_filters=lambda form: dict(
+                project_name=form.project_name.data,
                 email=form.email.data,
                 sub=form.sub.data,
             ),
@@ -1859,6 +1848,7 @@ class ManageAccountPublishingViews:
                 environment=form.normalized_environment,
             ),
             make_existence_filters=lambda form: dict(
+                project_name=form.project_name.data,
                 repository_name=form.repository.data,
                 repository_owner=form.normalized_owner,
                 workflow_filename=form.workflow_filename.data,
@@ -1886,6 +1876,7 @@ class ManageAccountPublishingViews:
                 actor_id=form.actor_id,
             ),
             make_existence_filters=lambda form: dict(
+                project_name=form.project_name.data,
                 organization=form.organization.data,
                 activestate_project_name=form.project.data,
                 actor_id=form.actor_id,
@@ -1912,6 +1903,7 @@ class ManageAccountPublishingViews:
                 environment=form.normalized_environment,
             ),
             make_existence_filters=lambda form: dict(
+                project_name=form.project_name.data,
                 namespace=form.namespace.data,
                 project=form.project.data,
                 workflow_filepath=form.workflow_filepath.data,

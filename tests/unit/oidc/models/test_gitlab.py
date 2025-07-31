@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -64,13 +54,6 @@ def test_check_sub(claim):
 
 
 class TestGitLabPublisher:
-    def test_lookup_strategies(self):
-        assert (
-            len(gitlab.GitLabPublisher.__lookup_strategies__)
-            == len(gitlab.PendingGitLabPublisher.__lookup_strategies__)
-            == 2
-        )
-
     @pytest.mark.parametrize("environment", [None, "some_environment"])
     def test_lookup_fails_invalid_ci_config_ref_uri(self, environment):
         signed_claims = {
@@ -83,9 +66,63 @@ class TestGitLabPublisher:
 
         # The `ci_config_ref_uri` is malformed, so no queries are performed.
         with pytest.raises(
-            errors.InvalidPublisherError, match="All lookup strategies exhausted"
+            errors.InvalidPublisherError,
+            match="Could not extract workflow filename from OIDC claims",
         ):
             gitlab.GitLabPublisher.lookup_by_claims(pretend.stub(), signed_claims)
+
+    @pytest.mark.parametrize("environment", ["SomeEnvironment", "SOME_ENVIRONMENT"])
+    def test_lookup_succeeds_with_non_lowercase_environment(
+        self, db_request, environment
+    ):
+        # Test that we find a matching publisher when the environment claims match
+        # If we incorrectly normalized the incoming capitalized claim, we wouldn't
+        # find the matching publisher.
+        stored_publisher = GitLabPublisherFactory(
+            id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            namespace="foo",
+            project="bar",
+            workflow_filepath=".gitlab-ci.yml",
+            environment=environment,
+        )
+
+        signed_claims = {
+            "project_path": "foo/bar",
+            "ci_config_ref_uri": ("gitlab.com/foo/bar//.gitlab-ci.yml@refs/heads/main"),
+            "environment": environment,
+        }
+
+        publisher = gitlab.GitLabPublisher.lookup_by_claims(
+            db_request.db, signed_claims
+        )
+
+        assert publisher.id == stored_publisher.id
+        assert publisher.environment == environment
+
+    @pytest.mark.parametrize("environment", ["SomeEnvironment", "SOME_ENVIRONMENT"])
+    def test_lookup_is_case_sensitive_for_environment(self, db_request, environment):
+        # Test that we don't find a matching publisher when the environment claims don't
+        # exactly match.
+        # If we incorrectly normalized the incoming capitalized claim, we would match
+        # a publisher that has a different environment.
+        GitLabPublisherFactory(
+            id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            namespace="foo",
+            project="bar",
+            workflow_filepath=".gitlab-ci.yml",
+            # stored environment is all lowercase, doesn't match incoming claims
+            environment=environment.lower(),
+        )
+
+        signed_claims = {
+            "project_path": "foo/bar",
+            "ci_config_ref_uri": ("gitlab.com/foo/bar//.gitlab-ci.yml@refs/heads/main"),
+            "environment": environment,
+        }
+
+        with pytest.raises(errors.InvalidPublisherError) as e:
+            gitlab.GitLabPublisher.lookup_by_claims(db_request.db, signed_claims)
+        assert str(e.value) == "Publisher with matching claims was not found"
 
     @pytest.mark.parametrize("environment", ["", "some_environment"])
     @pytest.mark.parametrize(
@@ -130,6 +167,15 @@ class TestGitLabPublisher:
                 ).workflow_filepath
                 == workflow_filepath
             )
+
+    def test_lookup_no_matching_publisher(self, db_request):
+        signed_claims = {
+            "project_path": "foo/bar",
+            "ci_config_ref_uri": ("gitlab.com/foo/bar//.gitlab-ci.yml@refs/heads/main"),
+        }
+        with pytest.raises(errors.InvalidPublisherError) as e:
+            gitlab.GitLabPublisher.lookup_by_claims(db_request.db, signed_claims)
+        assert str(e.value) == "Publisher with matching claims was not found"
 
     def test_gitlab_publisher_all_known_claims(self):
         assert gitlab.GitLabPublisher.all_known_claims() == {

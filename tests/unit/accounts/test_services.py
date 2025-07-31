@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import datetime
 import uuid
@@ -1486,40 +1476,6 @@ class TestHaveIBeenPwnedPasswordBreachedService:
             context, request
         )
         assert svc.failure_message == expected
-
-    @pytest.mark.parametrize(
-        ("help_url", "expected"),
-        [
-            (
-                None,
-                (
-                    "This password appears in a security breach or has been "
-                    "compromised and cannot be used."
-                ),
-            ),
-            (
-                "http://localhost/help/#compromised-password",
-                (
-                    "This password appears in a security breach or has been "
-                    "compromised and cannot be used. See the FAQ entry at "
-                    "http://localhost/help/#compromised-password for more information."
-                ),
-            ),
-        ],
-    )
-    def test_failure_message_plain(self, help_url, expected):
-        context = pretend.stub()
-        request = pretend.stub(
-            http=pretend.stub(),
-            find_service=lambda iface, context: {
-                (IMetricsService, None): NullMetrics()
-            }[(iface, context)],
-            help_url=lambda _anchor=None: help_url,
-        )
-        svc = services.HaveIBeenPwnedPasswordBreachedService.create_service(
-            context, request
-        )
-        assert svc.failure_message_plain == expected
 
 
 class TestNullPasswordBreachedService:

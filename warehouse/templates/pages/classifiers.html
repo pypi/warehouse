@@ -1,45 +1,49 @@
-{#
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
--#}
+{# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "base.html" %}
-
-{% block title %}{% trans %}Classifiers{% endtrans %}{% endblock %}
-
+{% block title %}
+  {% trans %}Classifiers{% endtrans %}
+{% endblock %}
 {% block content %}
-<div class="horizontal-section">
-  <div class="narrow-container">
-    <h1 class="page-title">{% trans %}Classifiers{% endtrans %}</h1>
-    <p>{% trans %}Each project's maintainers provide PyPI with a list of "Trove classifiers" to categorize each release, describing who it's for, what systems it can run on, and how mature it is.{% endtrans %}</p>
-    <p>{% trans %}These standardized classifiers can then be used by community members to find projects based on their desired criteria.{% endtrans %}</p>
-    <p>
-      {% trans ppug_href='https://packaging.python.org/guides/writing-pyproject-toml/#classifiers', pep301_href='https://peps.python.org/pep-0301/#distutils-trove-classification', title=gettext('External link') %}
-      Instructions for how to add Trove classifiers to a project can be found on the <a href="{{ ppug_href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a>.
-      To read the original classifier specification, refer to <a href="{{ pep301_href }}" title="{{ title }}" target="_blank" rel="noopener"><abbr title="Python enhancement proposal">PEP</abbr> 301</a>.
+  <div class="horizontal-section">
+    <div class="narrow-container">
+      <h1 class="page-title">{% trans %}Classifiers{% endtrans %}</h1>
+      <p>
+        {% trans %}Each project's maintainers provide PyPI with a list of "Trove classifiers" to categorize each release, describing who it's for, what systems it can run on, and how mature it is.{% endtrans %}
+      </p>
+      <p>
+        {% trans %}These standardized classifiers can then be used by community members to find projects based on their desired criteria.{% endtrans %}
+      </p>
+      <p>
+        {% trans ppug_href='https://packaging.python.org/guides/writing-pyproject-toml/#classifiers', pep301_href='https://peps.python.org/pep-0301/#distutils-trove-classification', title=gettext('External link') %}
+        Instructions for how to add Trove classifiers to a project can be found on the <a href="{{ ppug_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">Python Packaging User Guide</a>.
+        To read the original classifier specification, refer to <a href="{{ pep301_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener"><abbr title="Python enhancement proposal">PEP</abbr> 301</a>.
       {% endtrans %}
     </p>
-    <p>{% trans %}To prevent a package from being uploaded to PyPI, use the special "Private :: Do Not Upload" classifier. PyPI will always reject packages with classifiers beginning with "Private ::".{% endtrans %}</p>
-
+    <p>
+      {% trans %}To prevent a package from being uploaded to PyPI, use the special "Private :: Do Not Upload" classifier. PyPI will always reject packages with classifiers beginning with "Private ::".{% endtrans %}
+    </p>
     <h2>{% trans %}List of classifiers{% endtrans %}</h2>
     <ul>
-    {% for classifier in classifiers %}
-      <li data-controller="clipboard">
-        <a href="{{ request.route_path('search', _query={'c': classifier}) }}" data-clipboard-target="source">{{ classifier }}</a>
-        &nbsp;
-        <button type="button" class="button button--small margin-top margin-bottom copy-tooltip copy-tooltip-w" data-action="clipboard#copy" data-clipboard-target="tooltip" data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
-          {% trans %}Copy{% endtrans %}
-        </button>
-      </li>
-    {% endfor %}
+      {% for classifier in classifiers %}
+        <li data-controller="clipboard">
+          <a href="{{ request.route_path('search', _query={'c': classifier}) }}"
+             data-clipboard-target="source">{{ classifier }}</a>
+          &nbsp;
+          <button type="button"
+                  class="button button--small margin-top margin-bottom copy-tooltip copy-tooltip-w"
+                  data-action="clipboard#copy"
+                  data-clipboard-target="tooltip"
+                  data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
+            {% trans %}Copy{% endtrans %}
+          </button>
+        </li>
+      {% endfor %}
     </ul>
   </div>
 </div>

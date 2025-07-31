@@ -1,22 +1,10 @@
-{#
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
--#}
+{# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "base.html" %}
-
 {% block title %}PyPI 2FA Security Key Giveaway{% endblock %}
-{% block description %}PyPI is implementing a 2FA requirement for critical projects, and distributing security keys to critical maintainers.{% endblock %}
-{% block image %}{{ request.static_url('warehouse:static/dist/images/titan.png') }}{% endblock %}
-
+{% block description %}
+  PyPI is implementing a 2FA requirement for critical projects, and distributing security keys to critical maintainers.
+{% endblock %}
+{% block image %}{{ request.static_url("warehouse:static/dist/images/titan.png") }}{% endblock %}
 {% block content %}
   <div class="horizontal-section">
     <div class="narrow-container">
@@ -26,7 +14,8 @@
         <p>The givaway has closed as of Oct 1, 2022.</p>
       </div>
       <p>
-        <img src="{{ request.static_path('warehouse:static/dist/images/titan.png') }}" alt="Two Titan security keys, one USB-A and one USB-C">
+        <img src="{{ request.static_path('warehouse:static/dist/images/titan.png') }}"
+             alt="Two Titan security keys, one USB-A and one USB-C">
         <center><small>Pictured: two Titan security keys, one USB-A and the other USB-C. (Source: <a href="https://store.google.com/product/titan_security_key">Google</a>)</small></center>
       </p>
       <p>
@@ -38,106 +27,95 @@
       <p>
         Additionally, to ensure that maintainers of critical projects have the
         ability to implement strong 2FA with security keys, the Google Open
-        Source Security Team, a sponsor of the <a
-        href="https://www.python.org/psf/">Python Software Foundation</a>, has
+        Source Security Team, a sponsor of the <a href="https://www.python.org/psf/">Python Software Foundation</a>, has
         provided a limited number of security keys to distribute to critical
         project maintainers.
       </p>
       <p>
         Eligible maintainers will be able to redeem a promo code for two
-        free <a
-        href="https://store.google.com/product/titan_security_key">Titan
+        free <a href="https://store.google.com/product/titan_security_key">Titan
         Security Keys</a> (either USB-C or USB-A), including free shipping.
       </p>
-
       <section class="faq-group">
-      <h2 id="faq">FAQ</h2>
-      <p>Answers to frequently asked questions regarding this effort:</p>
-
-      <h3 id="critical-eligiblity">What determines if a project is a critical project?</h3>
-      <p>
-        PyPI determines eligibility based on download counts derived
-        from PyPI's <a
-        href="https://docs.pypi.org/api/bigquery/">public
-      dataset of download statistics</a>. Any project in the top 1% of
-    downloads over the prior 6 months is designated as critical.
-      </p>
-
-      <h3 id="critical-quantity">How many projects are designated as critical projects?</h3>
-      <p>
-        At the time of writing, there are more than 350K projects on PyPI,
-        resulting in a 'critical' designation of more than 3,500 projects. This
-        determination is recalculated on a daily basis.
-      </p>
-
-      <h3 id="optout">Can a project opt-out or become non-critical in any way?</h3>
-      <p>
-        No, once the project has been designated as critical it retains that
-        designation indefinitely.
-      </p>
-
-      <h3 id="user-requirement-eligiblity">What users are included in the 2FA requirement?</h3>
-      <p>
-        Any maintainer of a critical project (both 'Maintainers' and 'Owners')
-        are included in the 2FA requirement.
-      </p>
-
-      <h3 id="user-key-eligibility">What users are eligible to receive security keys?</h3>
-      <p>
-        PyPI users who are eligible to receive security keys must be
-        maintainers of critical projects who have not previously enabled 2FA on
-        PyPI and are able to ship their keys to an eligible region.
-      </p>
-
-      <h3 id="regions">What regions are eligible to receive security keys?</h3>
-      <p>
-        Titan keys are only approved for sale in certain geographic regions,
-        and thus can only be shipped to the following countries: Austria,
-        Belgium, Canada, France, Germany, Italy, Japan, Spain, Switzerland,
-        United Kingdom, and the United States.
-      </p>
-      <p>
-        We only use your response to this question to determine eligibility and
-        do not store it or associate it with your PyPI account.
-      </p>
-
-      <h3 id="non-eligible-regions">What should maintainers in non-eligible regions do?</h3>
-      <p>
-        Unfortunately we are only able to distribute security keys to maintainers in
-        eligible regions. If you are a maintainer of a critical project, and
-        need to enable 2FA, but not in an eligible region, there are two options:
-      </p>
-      <p>
-        Independently purchase a FIDO U2F security key from a security key
-        vendor that is available in your region, such as
-        <a href="https://www.yubico.com/" title="External link" target="_blank" rel="noopener">Yubikey</a> or
-        <a href="https://thetis.io/" title="External link" target="_blank" rel="noopener">Thetis</a>.
-        See <a href="{{ request.help_url(_anchor='utfkey') }}">How does two factor authentication
+        <h2 id="faq">FAQ</h2>
+        <p>Answers to frequently asked questions regarding this effort:</p>
+        <h3 id="critical-eligiblity">What determines if a project is a critical project?</h3>
+        <p>
+          PyPI determines eligibility based on download counts derived
+          from PyPI's <a href="https://docs.pypi.org/api/bigquery/">public
+          dataset of download statistics</a>. Any project in the top 1% of
+          downloads over the prior 6 months is designated as critical.
+        </p>
+        <h3 id="critical-quantity">How many projects are designated as critical projects?</h3>
+        <p>
+          At the time of writing, there are more than 350K projects on PyPI,
+          resulting in a 'critical' designation of more than 3,500 projects. This
+          determination is recalculated on a daily basis.
+        </p>
+        <h3 id="optout">Can a project opt-out or become non-critical in any way?</h3>
+        <p>
+          No, once the project has been designated as critical it retains that
+          designation indefinitely.
+        </p>
+        <h3 id="user-requirement-eligiblity">What users are included in the 2FA requirement?</h3>
+        <p>
+          Any maintainer of a critical project (both 'Maintainers' and 'Owners')
+          are included in the 2FA requirement.
+        </p>
+        <h3 id="user-key-eligibility">What users are eligible to receive security keys?</h3>
+        <p>
+          PyPI users who are eligible to receive security keys must be
+          maintainers of critical projects who have not previously enabled 2FA on
+          PyPI and are able to ship their keys to an eligible region.
+        </p>
+        <h3 id="regions">What regions are eligible to receive security keys?</h3>
+        <p>
+          Titan keys are only approved for sale in certain geographic regions,
+          and thus can only be shipped to the following countries: Austria,
+          Belgium, Canada, France, Germany, Italy, Japan, Spain, Switzerland,
+          United Kingdom, and the United States.
+        </p>
+        <p>
+          We only use your response to this question to determine eligibility and
+          do not store it or associate it with your PyPI account.
+        </p>
+        <h3 id="non-eligible-regions">What should maintainers in non-eligible regions do?</h3>
+        <p>
+          Unfortunately we are only able to distribute security keys to maintainers in
+          eligible regions. If you are a maintainer of a critical project, and
+          need to enable 2FA, but not in an eligible region, there are two options:
+        </p>
+        <p>
+          Independently purchase a FIDO U2F security key from a security key
+          vendor that is available in your region, such as
+          <a href="https://www.yubico.com/"
+             title="External link"
+             target="_blank"
+             rel="noopener">Yubikey</a> or
+          <a href="https://thetis.io/"
+             title="External link"
+             target="_blank"
+             rel="noopener">Thetis</a>.
+          See <a href="{{ request.help_url(_anchor='utfkey') }}">How does two factor authentication
         with a security device (e.g. USB key) work? How do I set it up on PyPI?</a>
       </p>
       <p>
-        Alternatively, you should enable 2FA via a TOTP application instead. See <a
-        href="{{ request.help_url(_anchor='totp') }}">How does two factor
+        Alternatively, you should enable 2FA via a TOTP application instead. See <a href="{{ request.help_url(_anchor='totp') }}">How does two factor
         authentication with an authentication application (TOTP) work? How do I
-        set it up on PyPI?</a>
-      </p>
-
-      <h3 id="key-quantity">How many keys are available?</h3>
-      <p>A total of 4,000 keys are available to maintainers.</p>
-
-      <h3 id="expiry">Do the promo codes expire?</h3>
-      <p>The promo codes expire on October 1, 2022.</p>
-
-      <h3 id="why-keys">Why security keys instead of TOTP-based authentication applications?</h3>
-      <p>
-        Using security keys via WebAuthn is generally considered to be more
-        secure than using TOTP-based authentication applications for 2FA. For a
-        more thorough analysis of the differences between TOTP and WebAuthn, see
-        <a
-        href="https://blog.trailofbits.com/2019/06/20/getting-2fa-right-in-2019/">this
+      set it up on PyPI?</a>
+    </p>
+    <h3 id="key-quantity">How many keys are available?</h3>
+    <p>A total of 4,000 keys are available to maintainers.</p>
+    <h3 id="expiry">Do the promo codes expire?</h3>
+    <p>The promo codes expire on October 1, 2022.</p>
+    <h3 id="why-keys">Why security keys instead of TOTP-based authentication applications?</h3>
+    <p>
+      Using security keys via WebAuthn is generally considered to be more
+      secure than using TOTP-based authentication applications for 2FA. For a
+      more thorough analysis of the differences between TOTP and WebAuthn, see
+      <a href="https://blog.trailofbits.com/2019/06/20/getting-2fa-right-in-2019/">this
         article from the team who implemented 2FA on PyPI in 2019</a>.
       </p>
-
       <h3 id="why-two-keys">Why two keys instead of one?</h3>
       <p>
         Without multiple 2FA options, effect of losing a 2FA method results in
@@ -145,14 +123,12 @@
         time-consuming both for maintainers and PyPI administrators. Enabling
         multiple 2FA methods reduces the potential disruption if one is lost.
       </p>
-
       <h3 id="promo-error">What should I do if I'm getting the error 'Promo code doesn't apply'?</h3>
       <p>
         Increase the quantity in the cart from 1 key to 2 keys. See
         <a href="#why-two-keys">Why two keys instead of one?</a> for more
         details.
       </p>
-
       <h3 id="supply">The key I want is not in stock, what should I do?</h3>
       <p>
         If the USB format that you want is not in stock in your region, you
@@ -164,20 +140,18 @@
         redeem your promo code until stock has been replenished (note that
         codes expire on October 1, 2022).
       </p>
-
       <h3 id="key-setup">I've got security keys already, what should I do?</h3>
       <p>
         See <a href="{{ request.help_url(_anchor='utfkey') }}">How does two factor
         authentication with a security device (e.g. USB key) work? How do I
-        set it up on PyPI?</a>
-      </p>
-
-      <h3 id="contact">What should I do if I have a question that isn't answered here?</h3>
-      <p>
-        See <a href="{{ request.help_url() }}">PyPI's help page</a> or contact
-        <a href="mailto:admin@pypi.org">admin@pypi.org</a>.
-      </p>
-      </section>
-    </div>
-  </div>
+      set it up on PyPI?</a>
+    </p>
+    <h3 id="contact">What should I do if I have a question that isn't answered here?</h3>
+    <p>
+      See <a href="{{ request.help_url() }}">PyPI's help page</a> or contact
+      <a href="mailto:admin@pypi.org">admin@pypi.org</a>.
+    </p>
+  </section>
+</div>
+</div>
 {% endblock %}

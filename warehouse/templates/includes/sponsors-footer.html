@@ -11,7 +11,6 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-
 <div class="sponsors">
   <p class="sponsors__title">Supported by</p>
   <div class="sponsors__divider"></div>
@@ -20,17 +19,20 @@
     {% if sponsor.white_logo_url %}
       {# Check if they belong in the footer #}
       {% if sponsor.infra_sponsor or sponsor.footer %}
-        <a class="sponsors__sponsor" target="_blank" rel="noopener" href="{{ sponsor.link_url }}">
+        <a class="sponsors__sponsor"
+           target="_blank"
+           rel="noopener"
+           href="{{ sponsor.link_url }}">
           {{ sponsor.white_logo_img|camoify|safe }}
           <span class="sponsors__name">{{ sponsor.name }}</span>
           <span class="sponsors__service">
-          {# If they're an infra sponsor, we should have a service for them,
+            {# If they're an infra sponsor, we should have a service for them,
           otherwise they're a PSF sponsor #}
-          {% if sponsor.infra_sponsor %}
-            {{ sponsor.service }}
-          {% elif sponsor.footer %}
-            PSF Sponsor
-          {% endif %}
+            {% if sponsor.infra_sponsor %}
+              {{ sponsor.service }}
+            {% elif sponsor.footer %}
+              PSF Sponsor
+            {% endif %}
           </span>
         </a>
       {% endif %}

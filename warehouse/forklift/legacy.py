@@ -1,19 +1,10 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import hashlib
 import hmac
 import os.path
 import re
+import sys
 import tarfile
 import tempfile
 import zipfile
@@ -180,9 +171,23 @@ _jointlinux_arches = {
     "armv7l",
     "ppc64le",
     "s390x",
+    "riscv64",
 }
 _manylinux_arches = _jointlinux_arches | {"ppc64"}
 _musllinux_arches = _jointlinux_arches
+
+# Remove this patch once 3.13.6 is available.
+if sys.version_info >= (3, 13, 6):  # pragma: no cover
+    raise RuntimeError("Patched _block() not needed in Python 3.13.6+")
+
+
+def _block_patched(self, count, _orig_block=tarfile.TarInfo._block):
+    if count < 0:  # pragma: no cover
+        raise tarfile.InvalidHeaderError("invalid offset")
+    return _orig_block(self, count)
+
+
+tarfile.TarInfo._block = _block_patched  # type: ignore[attr-defined]
 
 
 # Actual checking code;

@@ -1,24 +1,14 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, TypedDict, TypeVar, Unpack
+from typing import TYPE_CHECKING, Any, Self, TypedDict, TypeVar, Unpack
 
 import rfc3986
 import sentry_sdk
 
-from sqlalchemy import ForeignKey, Index, String, func, orm
+from sqlalchemy import ForeignKey, Index, String, UniqueConstraint, func, orm
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -107,6 +97,7 @@ def check_existing_jti(
 
 class OIDCPublisherProjectAssociation(db.Model):
     __tablename__ = "oidc_publisher_project_association"
+    __table_args__ = (UniqueConstraint("oidc_publisher_id", "project_id"),)
 
     oidc_publisher_id = mapped_column(
         UUID(as_uuid=True),
@@ -162,32 +153,15 @@ class OIDCPublisherMixin:
     # required and optional attributes, and thus can't be naively looked
     # up from a raw claim set.
     #
-    # Each subclass should explicitly override this list to contain
-    # class methods that take a `SignedClaims` and return a SQLAlchemy
-    # expression that, when queried, should produce exactly one or no result.
-    # This list should be ordered by specificity, e.g. selecting for the
-    # expression with the most optional constraints first, and ending with
-    # the expression with only required constraints.
+    # Each subclass should explicitly override this method, which takes
+    # a set of claims (`SignedClaims`) and returns a Publisher.
+    # In case that multiple publishers satisfy the given claims, the
+    # most specific publisher should be the one returned, i.e. the one with
+    # the most optional constraints satisfied.
     #
-    # TODO(ww): In principle this list is computable directly from
-    # `__required_verifiable_claims__` and `__optional_verifiable_claims__`,
-    # but there are a few problems: those claim sets don't map to their
-    # "equivalent" column (only to an instantiated property), and may not
-    # even have an "equivalent" column.
-    __lookup_strategies__: list = []
-
     @classmethod
-    def lookup_by_claims(cls, session, signed_claims: SignedClaims):
-        for lookup in cls.__lookup_strategies__:
-            query = lookup(cls, signed_claims)
-            if not query:
-                # We might not build a query if we know the claim set can't
-                # satisfy it. If that's the case, then we skip.
-                continue
-
-            if publisher := query.with_session(session).one_or_none():
-                return publisher
-        raise InvalidPublisherError("All lookup strategies exhausted")
+    def lookup_by_claims(cls, session, signed_claims: SignedClaims) -> Self:
+        raise NotImplementedError
 
     @classmethod
     def all_known_claims(cls) -> set[str]:
@@ -244,7 +218,7 @@ class OIDCPublisherMixin:
                 with sentry_sdk.new_scope() as scope:
                     scope.fingerprint = [claim_name]
                     sentry_sdk.capture_message(
-                        f"JWT for {cls.__name__} is missing claim: " f"{claim_name}"
+                        f"JWT for {cls.__name__} is missing claim: {claim_name}"
                     )
                 raise InvalidPublisherError(f"Missing claim {claim_name!r}")
 

@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from typing import cast
 
@@ -164,7 +154,7 @@ class PEP740AttestationViewer:
 @view_config(
     route_name="packaging.project",
     context=Project,
-    renderer="packaging/detail.html",
+    renderer="warehouse:templates/packaging/detail.html",
     decorator=[
         origin_cache(
             1 * 24 * 60 * 60, stale_if_error=5 * 24 * 60 * 60  # 1 day, 5 days stale
@@ -197,7 +187,7 @@ def project_detail(project, request):
 @view_config(
     route_name="packaging.release",
     context=Release,
-    renderer="packaging/detail.html",
+    renderer="warehouse:templates/packaging/detail.html",
     decorator=[
         origin_cache(
             1 * 24 * 60 * 60, stale_if_error=5 * 24 * 60 * 60  # 1 day, 5 days stale
@@ -295,7 +285,7 @@ def release_detail(release, request):
 @view_config(
     route_name="includes.edit-project-button",
     context=Project,
-    renderer="includes/manage-project-button.html",
+    renderer="warehouse:templates/includes/manage-project-button.html",
     uses_session=True,
     has_translations=True,
 )
@@ -307,7 +297,7 @@ def edit_project_button(project, request):
     context=Project,
     has_translations=True,
     permission=Permissions.SubmitMalwareObservation,
-    renderer="packaging/submit-malware-observation.html",
+    renderer="warehouse:templates/packaging/submit-malware-observation.html",
     require_csrf=True,
     require_methods=False,
     route_name="packaging.project.submit_malware_observation",

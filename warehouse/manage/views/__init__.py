@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import base64
 import io
@@ -214,7 +204,7 @@ class ManageAccountMixin:
 
 @view_defaults(
     route_name="manage.unverified-account",
-    renderer="manage/unverified-account.html",
+    renderer="warehouse:templates/manage/unverified-account.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -234,7 +224,7 @@ class ManageUnverifiedAccountViews(ManageAccountMixin):
 
 @view_defaults(
     route_name="manage.account",
-    renderer="manage/account.html",
+    renderer="warehouse:templates/manage/account.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -511,7 +501,7 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
 
 @view_config(
     route_name="manage.account.two-factor",
-    renderer="manage/account/two-factor.html",
+    renderer="warehouse:templates/manage/account/two-factor.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -525,7 +515,7 @@ def manage_two_factor(request):
 
 @view_defaults(
     route_name="manage.account.totp-provision",
-    renderer="manage/account/totp-provision.html",
+    renderer="warehouse:templates/manage/account/totp-provision.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -691,7 +681,7 @@ class ProvisionWebAuthnViews:
     @view_config(
         request_method="GET",
         route_name="manage.account.webauthn-provision",
-        renderer="manage/account/webauthn-provision.html",
+        renderer="warehouse:templates/manage/account/webauthn-provision.html",
     )
     def webauthn_provision(self):
         if not self.request.user.has_burned_recovery_codes:
@@ -818,7 +808,7 @@ class ProvisionRecoveryCodesViews:
     @view_config(
         request_method="GET",
         route_name="manage.account.recovery-codes.generate",
-        renderer="manage/account/recovery_codes-provision.html",
+        renderer="warehouse:templates/manage/account/recovery_codes-provision.html",
         require_reauth=10,  # 10 seconds
     )
     def recovery_codes_generate(self):
@@ -843,7 +833,7 @@ class ProvisionRecoveryCodesViews:
     @view_config(
         request_method="GET",
         route_name="manage.account.recovery-codes.regenerate",
-        renderer="manage/account/recovery_codes-provision.html",
+        renderer="warehouse:templates/manage/account/recovery_codes-provision.html",
         require_reauth=10,  # 10 seconds
     )
     def recovery_codes_regenerate(self):
@@ -858,7 +848,7 @@ class ProvisionRecoveryCodesViews:
 
     @view_config(
         route_name="manage.account.recovery-codes.burn",
-        renderer="manage/account/recovery_codes-burn.html",
+        renderer="warehouse:templates/manage/account/recovery_codes-burn.html",
     )
     def recovery_codes_burn(self, _form_class=RecoveryCodeAuthenticationForm):
         user = self.user_service.get_user(self.request.user.id)
@@ -892,7 +882,7 @@ class ProvisionRecoveryCodesViews:
     require_csrf=True,
     require_methods=False,
     permission=Permissions.AccountAPITokens,
-    renderer="manage/account/token.html",
+    renderer="warehouse:templates/manage/account/token.html",
     route_name="manage.account.token",
     has_translations=True,
     require_reauth=True,
@@ -1080,7 +1070,7 @@ class ProvisionMacaroonViews:
 
 @view_config(
     route_name="manage.projects",
-    renderer="manage/projects.html",
+    renderer="warehouse:templates/manage/projects.html",
     uses_session=True,
     permission=Permissions.ProjectsRead,
     has_translations=True,
@@ -1123,7 +1113,7 @@ def manage_projects(request):
 @view_defaults(
     route_name="manage.project.settings",
     context=Project,
-    renderer="manage/project/settings.html",
+    renderer="warehouse:templates/manage/project/settings.html",
     uses_session=True,
     permission=Permissions.ProjectsRead,
     has_translations=True,
@@ -1146,17 +1136,17 @@ class ManageProjectSettingsViews:
             # Allow transfer of project to active orgs owned or managed by user.
             all_user_organizations = user_organizations(self.request)
             active_organizations_owned = {
-                organization.name
+                organization
                 for organization in all_user_organizations["organizations_owned"]
                 if organization.is_active
             }
             active_organizations_managed = {
-                organization.name
+                organization
                 for organization in all_user_organizations["organizations_managed"]
                 if organization.is_active
             }
             current_organization = (
-                {self.project.organization.name} if self.project.organization else set()
+                {self.project.organization} if self.project.organization else set()
             )
             organization_choices = (
                 active_organizations_owned | active_organizations_managed
@@ -1333,7 +1323,7 @@ class ManageProjectSettingsViews:
 @view_defaults(
     context=Project,
     route_name="manage.project.settings.publishing",
-    renderer="manage/project/publishing.html",
+    renderer="warehouse:templates/manage/project/publishing.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -2212,7 +2202,7 @@ def destroy_project_docs(project, request):
 @view_config(
     route_name="manage.project.releases",
     context=Project,
-    renderer="manage/project/releases.html",
+    renderer="warehouse:templates/manage/project/releases.html",
     uses_session=True,
     permission=Permissions.ProjectsRead,
     has_translations=True,
@@ -2254,7 +2244,7 @@ def manage_project_releases(project, request):
 @view_defaults(
     route_name="manage.project.release",
     context=Release,
-    renderer="manage/project/release.html",
+    renderer="warehouse:templates/manage/project/release.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -2651,7 +2641,7 @@ class ManageProjectRelease:
 @view_config(
     route_name="manage.project.roles",
     context=Project,
-    renderer="manage/project/roles.html",
+    renderer="warehouse:templates/manage/project/roles.html",
     uses_session=True,
     require_methods=False,
     permission=Permissions.ProjectsWrite,
@@ -3267,7 +3257,7 @@ def delete_project_role(project, request):
 @view_config(
     route_name="manage.project.history",
     context=Project,
-    renderer="manage/project/history.html",
+    renderer="warehouse:templates/manage/project/history.html",
     uses_session=True,
     permission=Permissions.ProjectsRead,
     has_translations=True,
@@ -3316,7 +3306,7 @@ def manage_project_history(project, request):
 @view_config(
     route_name="manage.project.documentation",
     context=Project,
-    renderer="manage/project/documentation.html",
+    renderer="warehouse:templates/manage/project/documentation.html",
     uses_session=True,
     permission=Permissions.ProjectsRead,
     has_translations=True,

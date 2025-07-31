@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import time
 
@@ -49,6 +39,10 @@ class JsonResponse(TypedDict, total=False):
     message: str | None
     errors: list[Error] | None
     token: StrictStr | None
+    # This value is used to communicate the minted token's expiration
+    # time to the user. It is not used to determine the expiration,
+    # changing this field does not change the token's expiration time.
+    expires: int | None
     success: bool | None
 
 
@@ -350,7 +344,7 @@ def mint_token(
         metrics = request.find_service(IMetricsService, context=None)
         metrics.increment("warehouse.oidc.mint_token.github_reusable_workflow")
 
-    return {"success": True, "token": serialized}
+    return {"success": True, "token": serialized, "expires": expires_at}
 
 
 def is_from_reusable_workflow(

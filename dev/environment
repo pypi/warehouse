@@ -94,3 +94,5 @@ HELPDESK_NOTIFICATION_BACKEND="warehouse.helpdesk.services.ConsoleAdminNotificat
 
 # Example of Domain Status configuration
 # DOMAIN_STATUS_BACKEND="warehouse.accounts.services.DomainrDomainStatusService client_id=some_client_id"
+
+WAREHOUSE_ALLOWED_DOMAINS=127.0.0.1,localhost

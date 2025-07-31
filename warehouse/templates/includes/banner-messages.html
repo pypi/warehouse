@@ -11,18 +11,30 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-
 {% for banner in banners %}
-<div class="notification-bar notification-bar--banner {{ "notification-bar--dismissable" if banner.dismissable else "" }}" data-controller="notification" data-notification-target="notification" id="{{ banner.id }}">
-  <span class="notification-bar__icon">
-    <i class="fa {{ banner.fa_icon }}" aria-hidden="true"></i>
-  </span>
-  <span class="notification-bar__message">
-    {{ banner.text }}&nbsp;
-    <a href="{{ banner.link_url }}" class="button button--dark button--small button--primary" target="_blank" rel="noopener">{{ banner.link_label }}</a>
-  </span>
-  {% if banner.dismissable %}
-  <button type="button" title="{% trans %}Dismiss this notification{% endtrans %}" data-notification-target="dismissButton" data-action="click->notification#dismiss" class="notification-bar__dismiss" aria-label="{% trans %}Close{% endtrans %}"><i class="fa fa-times" aria-hidden="true"></i></button>
-  {% endif %}
-</div>
+  <div class="notification-bar notification-bar--banner {{ "notification-bar--dismissable" if banner.dismissable else "" }}"
+       data-controller="notification"
+       data-notification-target="notification"
+       id="{{ banner.id }}">
+    <span class="notification-bar__icon">
+      <i class="fa {{ banner.fa_icon }}" aria-hidden="true"></i>
+    </span>
+    <span class="notification-bar__message">
+      {{ banner.text }}&nbsp;
+      <a href="{{ banner.link_url }}"
+         class="button button--dark button--small button--primary"
+         target="_blank"
+         rel="noopener">{{ banner.link_label }}</a>
+    </span>
+    {% if banner.dismissable %}
+      <button type="button"
+              title="{% trans %}Dismiss this notification{% endtrans %}"
+              data-notification-target="dismissButton"
+              data-action="click->notification#dismiss"
+              class="notification-bar__dismiss"
+              aria-label="{% trans %}Close{% endtrans %}">
+        <i class="fa fa-times" aria-hidden="true"></i>
+      </button>
+    {% endif %}
+  </div>
 {% endfor %}

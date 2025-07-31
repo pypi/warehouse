@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from celery.schedules import crontab
 
@@ -36,6 +26,7 @@ from warehouse.accounts.tasks import (
     batch_update_email_domain_status,
     compute_user_metrics,
     notify_users_of_tos_update,
+    unverify_emails_with_expired_domains,
 )
 from warehouse.accounts.utils import UserContext
 from warehouse.admin.flags import AdminFlagValue
@@ -220,5 +211,8 @@ def includeme(config):
     config.add_periodic_task(crontab(minute="*/20"), compute_user_metrics)
     config.add_periodic_task(crontab(minute="*"), notify_users_of_tos_update)
     config.add_periodic_task(
-        crontab(minute="0", hour=4), batch_update_email_domain_status
+        crontab(minute=0, hour=4), batch_update_email_domain_status
+    )
+    config.add_periodic_task(
+        crontab(minute=15, hour=4), unverify_emails_with_expired_domains
     )

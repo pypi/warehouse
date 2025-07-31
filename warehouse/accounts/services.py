@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
 
@@ -825,13 +815,6 @@ class HaveIBeenPwnedPasswordBreachedService:
             )
         return message
 
-    @property
-    def failure_message_plain(self):
-        message = self._failure_message_preamble
-        if self._help_url:
-            message += f" See the FAQ entry at {self._help_url} for more information."
-        return message
-
     def _metrics_increment(self, *args, **kwargs):
         self._metrics.increment(*args, **kwargs)
 
@@ -900,7 +883,6 @@ class HaveIBeenPwnedPasswordBreachedService:
 @implementer(IPasswordBreachedService)
 class NullPasswordBreachedService:
     failure_message = "This password appears in a breach."
-    failure_message_plain = "This password appears in a breach."
 
     @classmethod
     def create_service(cls, context, request):

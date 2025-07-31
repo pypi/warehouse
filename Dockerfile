@@ -1,6 +1,9 @@
+# Set variables reused in Dockerfile
+ARG PYTHON_IMAGE_VERSION=3.13.5-slim-bookworm
+
 # First things first, we build an image which is where we're going to compile
 # our static assets with. We use this stage in development.
-FROM node:24.0.0-bookworm AS static-deps
+FROM node:24.4.1-bookworm AS static-deps
 
 WORKDIR /opt/warehouse/src/
 
@@ -38,7 +41,7 @@ RUN NODE_ENV=production npm run build
 
 
 # We'll build a light-weight layer along the way with just docs stuff
-FROM python:3.13.2-slim-bookworm AS docs
+FROM python:${PYTHON_IMAGE_VERSION} AS docs
 
 # By default, Docker has special steps to avoid keeping APT caches in the layers, which
 # is good, but in our case, we're going to mount a special cache volume (kept between
@@ -47,14 +50,22 @@ RUN set -eux; \
     rm -f /etc/apt/apt.conf.d/docker-clean; \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache;
 
-# Install System level build requirements, this is done before
-# everything else because these are rarely ever going to change.
+# Install System level build requirements, this is done before everything else
+# because these are rarely ever going to change.
+# Usages:
+#  - build-essential: make
+#  - git: mkdocs plugin uses this for created/updated
+#  - libcairo2: mkdocs uses cairosvg
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
-        build-essential git libcairo2-dev libfreetype6-dev libjpeg-dev libpng-dev libz-dev
+       build-essential \
+       git \
+       libcairo2 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # We create an /opt directory with a virtual environment in it to store our
 # application in.
@@ -105,7 +116,7 @@ USER docs
 
 # Now we're going to build our actual application, but not the actual production
 # image that it gets deployed into.
-FROM python:3.13.2-slim-bookworm AS build
+FROM python:${PYTHON_IMAGE_VERSION} AS build
 
 # Define whether we're building a production or a development image. This will
 # generally be used to control whether or not we install our development and
@@ -120,23 +131,6 @@ ARG CI=no
 # as the warehouse shell interpreter,
 # i.e. 'docker compose run --rm web python -m warehouse shell --type=ipython')
 ARG IPYTHON=no
-
-# By default, Docker has special steps to avoid keeping APT caches in the layers, which
-# is good, but in our case, we're going to mount a special cache volume (kept between
-# builds), so we WANT the cache to persist.
-RUN set -eux; \
-    rm -f /etc/apt/apt.conf.d/docker-clean; \
-    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache;
-
-# Install System level Warehouse build requirements, this is done before
-# everything else because these are rarely ever going to change.
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    set -x \
-    && apt-get update \
-    && apt-get install --no-install-recommends -y \
-        build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev \
-        $(if [ "$DEVEL" = "yes" ]; then echo 'libjpeg-dev'; fi)
 
 # We create an /opt directory with a virtual environment in it to store our
 # application in.
@@ -187,7 +181,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 # Now we're going to build our actual application image, which will eventually
 # pull in the static files that were built above.
-FROM python:3.13.2-slim-bookworm
+FROM python:${PYTHON_IMAGE_VERSION}
 
 # Setup some basic environment variables that are ~never going to change.
 ENV PYTHONUNBUFFERED 1
@@ -205,23 +199,31 @@ ARG DEVEL=no
 # as well for the matrix!
 ARG CI=no
 
-# This is a work around because otherwise postgresql-client bombs out trying
-# to create symlinks to these directories.
-RUN set -x \
-    && mkdir -p /usr/share/man/man1 \
-    && mkdir -p /usr/share/man/man7
+# By default, Docker has special steps to avoid keeping APT caches in the layers, which
+# is good, but in our case, we're going to mount a special cache volume (kept between
+# builds), so we WANT the cache to persist.
+RUN set -eux; \
+    rm -f /etc/apt/apt.conf.d/docker-clean; \
+    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache;
 
 # Install System level Warehouse requirements, this is done before everything
 # else because these are rarely ever going to change.
+# Usages:
+#  - build-essential: make
+#  - postgresql-client: make initdb and friends
+#  - oathtool: make totp
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     set -x \
-    && apt-get update \
-    && apt-get install --no-install-recommends -y \
-        libpq5 libxml2 libxslt1.1 libcurl4  \
-        $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev vim oathtool'; fi) \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    && if [ "$DEVEL" = "yes" ]; then \
+        apt-get update \
+        && apt-get install --no-install-recommends -y \
+           build-essential \
+           postgresql-client \
+           oathtool \
+        && apt-get clean \
+        && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*; \
+    fi
 
 # Copy the directory into the container, this is done last so that changes to
 # Warehouse itself require the least amount of layers being invalidated from
@@ -236,4 +238,4 @@ COPY . /opt/warehouse/src/
 RUN tldextract --update
 # Load our module to pre-compile as much bytecode as we can easily.
 # Saves time collectively on container boot!
-RUN python -m warehouse
+RUN python -m warehouse db -h

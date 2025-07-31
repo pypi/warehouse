@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import os
 import os.path
@@ -68,6 +58,7 @@ from warehouse.organizations import services as organization_services
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.packaging import services as packaging_services
 from warehouse.packaging.interfaces import IProjectService
+from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.search import services as search_services
 from warehouse.search.interfaces import ISearchService
 from warehouse.subscriptions import services as subscription_services
@@ -174,6 +165,7 @@ def pyramid_services(
     query_results_cache_service,
     search_service,
     domain_status_service,
+    ratelimit_service,
 ):
     services = _Services()
 
@@ -200,6 +192,8 @@ def pyramid_services(
     services.register_service(query_results_cache_service, IQueryResultsCache)
     services.register_service(search_service, ISearchService)
     services.register_service(domain_status_service, IDomainStatusService)
+    services.register_service(ratelimit_service, IRateLimiter, name="email.add")
+    services.register_service(ratelimit_service, IRateLimiter, name="email.verify")
 
     return services
 
@@ -349,6 +343,9 @@ def get_app_config(database, nondefaults=None):
         "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
         "warehouse.xmlrpc.cache.url": "redis://localhost:0/",
         "terms.revision": "initial",
+        "oidc.jwk_cache_url": "redis://localhost:0/",
+        "warehouse.oidc.audience": "pypi",
+        "oidc.backend": "warehouse.oidc.services.NullOIDCPublisherService",
     }
 
     if nondefaults:
@@ -557,6 +554,13 @@ def domain_status_service(mocker):
     return service
 
 
+@pytest.fixture
+def ratelimit_service(mocker):
+    service = DummyRateLimiter()
+    mocker.spy(service, "clear")
+    return service
+
+
 class QueryRecorder:
     def __init__(self):
         self.queries = []
@@ -607,6 +611,28 @@ def db_request(pyramid_request, db_session, tm):
         hashed_ip_address=pyramid_request.remote_addr_hashed,
     )
     return pyramid_request
+
+
+@pytest.fixture
+def _enable_all_oidc_providers(webtest):
+    flags = (
+        AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
+        AdminFlagValue.DISALLOW_GITLAB_OIDC,
+        AdminFlagValue.DISALLOW_GITHUB_OIDC,
+        AdminFlagValue.DISALLOW_GOOGLE_OIDC,
+    )
+    original_flag_values = {}
+    db_sess = webtest.extra_environ["warehouse.db_session"]
+
+    for flag in flags:
+        flag_db = db_sess.get(AdminFlag, flag.value)
+        original_flag_values[flag] = flag_db.enabled
+        flag_db.enabled = False
+    yield
+
+    for flag in flags:
+        flag_db = db_sess.get(AdminFlag, flag.value)
+        flag_db.enabled = original_flag_values[flag]
 
 
 @pytest.fixture

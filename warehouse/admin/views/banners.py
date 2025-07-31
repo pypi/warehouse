@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import wtforms
 
@@ -23,7 +13,7 @@ from warehouse.forms import URIValidator
 
 @view_config(
     route_name="admin.banner.list",
-    renderer="admin/banners/list.html",
+    renderer="warehouse.admin:templates/admin/banners/list.html",
     permission=Permissions.AdminBannerRead,
     request_method="GET",
     uses_session=True,
@@ -35,7 +25,7 @@ def banner_list(request):
 
 @view_config(
     route_name="admin.banner.edit",
-    renderer="admin/banners/edit.html",
+    renderer="warehouse.admin:templates/admin/banners/edit.html",
     permission=Permissions.AdminBannerRead,
     request_method="GET",
     uses_session=True,
@@ -44,7 +34,7 @@ def banner_list(request):
 )
 @view_config(
     route_name="admin.banner.edit",
-    renderer="admin/banners/edit.html",
+    renderer="warehouse.admin:templates/admin/banners/edit.html",
     permission=Permissions.AdminBannerWrite,
     request_method="POST",
     uses_session=True,
@@ -70,7 +60,7 @@ def edit_banner(request):
 
 @view_config(
     route_name="admin.banner.create",
-    renderer="admin/banners/edit.html",
+    renderer="warehouse.admin:templates/admin/banners/edit.html",
     permission=Permissions.AdminBannerRead,
     request_method="GET",
     uses_session=True,
@@ -79,7 +69,7 @@ def edit_banner(request):
 )
 @view_config(
     route_name="admin.banner.create",
-    renderer="admin/banners/edit.html",
+    renderer="warehouse.admin:templates/admin/banners/edit.html",
     permission=Permissions.AdminBannerWrite,
     request_method="POST",
     uses_session=True,
@@ -134,7 +124,7 @@ def delete_banner(request):
     uses_session=True,
     require_csrf=True,
     has_translations=True,
-    renderer="admin/banners/preview.html",
+    renderer="warehouse.admin:templates/admin/banners/preview.html",
 )
 def preview_banner(request):
     id_ = request.matchdict["banner_id"]

@@ -11,12 +11,9 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-
 {% if request.user %}
-<i class="fa fa-envelope" aria-hidden="true"></i>
-<span class="sr-only">{% trans %}Email{% endtrans %}</span>
-&nbsp;&nbsp;
-<a class="public-email" href="mailto:{{ user.public_email.email }}">
-{{ user.public_email.email }}
-</a>
+  <i class="fa fa-envelope" aria-hidden="true"></i>
+  <span class="sr-only">{% trans %}Email{% endtrans %}</span>
+  &nbsp;&nbsp;
+  <a class="public-email" href="mailto:{{ user.public_email.email }}">{{ user.public_email.email }}</a>
 {% endif %}
