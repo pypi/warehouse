@@ -22,8 +22,7 @@ omit = [
 parallel = true
 
 [tool.coverage.report]
-exclude_lines = [
-  "pragma: no cover",
+exclude_also = [
   "class \\w+\\(Interface\\):",
   "if (typing\\.)?TYPE_CHECKING:",
 ]
