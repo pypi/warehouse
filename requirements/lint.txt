@@ -622,9 +622,9 @@ types-certifi==2021.10.8.3 \
     --hash=sha256:72cf7798d165bc0b76e1c10dd1ea3097c7063c42c21d664523b928e88b554a4f \
     --hash=sha256:b2d1e325e69f71f7c78e5943d410e650b4707bb0ef32e4ddf3da37f54176e88a
     # via -r requirements/lint.in
-types-cffi==1.17.0.20250523 \
-    --hash=sha256:e7110f314c65590533adae1b30763be08ca71ad856a1ae3fe9b9d8664d49ec22 \
-    --hash=sha256:e98c549d8e191f6220e440f9f14315d6775a21a0e588c32c20476be885b2fad9
+types-cffi==1.17.0.20250801 \
+    --hash=sha256:3c401b22f45b7873e66586c00c2722415d6138e8e89cdc9b030e68337796d66a \
+    --hash=sha256:67c6b271253efcc7f37938873cb3d56ee47dc3536cfa3dd75e14aec64358abe0
     # via types-pyopenssl
 types-first==2.0.5.20240806 \
     --hash=sha256:11e3eba5bfc294be7afc6cea00be69cb20244674df117aa67648dcbd26c96766 \
