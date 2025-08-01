@@ -5154,13 +5154,13 @@ class TestFileUpload:
                 )
                 digest = _TAR_GZ_PKG_MD5
                 data = _TAR_GZ_PKG_TESTDATA
-            elif mimetype == "application/zip":
+            elif mimetype == "application/zip":  # pragma: no branch
                 filename = "{}-{}.zip".format(
                     project.normalized_name.replace("-", "_"), "1.0"
                 )
                 digest = _ZIP_PKG_MD5
                 data = _ZIP_PKG_TESTDATA
-        elif filetype == "bdist_wheel":
+        elif filetype == "bdist_wheel":  # pragma: no branch
             filename = "{}-{}-py3-none-any.whl".format(
                 project.normalized_name.replace("-", "_"), "1.0"
             )
@@ -5272,14 +5272,14 @@ class TestFileUpload:
                 )
                 digest = _TAR_GZ_PKG_MD5
                 data = _TAR_GZ_PKG_TESTDATA
-            elif mimetype == "application/zip":
+            elif mimetype == "application/zip":  # pragma: no branch
                 filename = "{}-{}.zip".format(
                     project.normalized_name.replace("-", "_"), "1.0"
                 )
                 digest = _ZIP_PKG_MD5
                 data = _ZIP_PKG_TESTDATA
             license_filename = "fake_package-1.0/LICENSE"
-        elif filetype == "bdist_wheel":
+        elif filetype == "bdist_wheel":  # pragma: no branch
             filename = "{}-{}-py3-none-any.whl".format(
                 project.normalized_name.replace("-", "_"),
                 "1.0",
