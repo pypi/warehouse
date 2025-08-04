@@ -272,7 +272,7 @@ def organization_rename(request):
         raise HTTPNotFound
 
     old_organization_name = organization.name
-    new_organization_name = request.params.get("new_organization_name")
+    new_organization_name = request.params.get("new_organization_name").strip()
 
     try:
         organization_service.rename_organization(organization_id, new_organization_name)

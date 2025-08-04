@@ -566,7 +566,7 @@ class TestOrganizationActions:
 
         db_request.matchdict = {"organization_id": organization.id}
         db_request.params = {
-            "new_organization_name": "widget",
+            "new_organization_name": "  widget  ",  # Test trimming whitespace
         }
         db_request.user = admin
         db_request.route_path = pretend.call_recorder(_organization_application_routes)
