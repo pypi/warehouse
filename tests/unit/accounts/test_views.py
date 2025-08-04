@@ -121,15 +121,11 @@ class TestUserProfile:
     def test_user_redirects_username(self, db_request):
         user = UserFactory.create()
 
-        if user.username.upper() != user.username:
-            username = user.username.upper()
-        else:
-            username = user.username.lower()
-
         db_request.current_route_path = pretend.call_recorder(
             lambda username: "/user/the-redirect/"
         )
-        db_request.matchdict = {"username": username}
+        # Intentionally swap the case of the username to trigger the redirect
+        db_request.matchdict = {"username": user.username.swapcase()}
 
         result = views.profile(user, db_request)
 
@@ -3505,7 +3501,7 @@ class TestManageAccountPublishingViews:
                 return metrics
             if iface is IProjectService:
                 return project_service
-            return pretend.stub()
+            pytest.fail(f"Unexpected service requested: {iface}")
 
         request = pretend.stub(
             find_service=pretend.call_recorder(find_service),

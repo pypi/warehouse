@@ -145,7 +145,11 @@ class TestExcWithMessage:
 
 
 def test_construct_dependencies():
-    types = {"requires": DependencyKind.requires, "provides": DependencyKind.provides}
+    types = {
+        "requires": DependencyKind.requires,
+        "provides": DependencyKind.provides,
+        "requires_dist": DependencyKind.requires_dist,
+    }
 
     meta = metadata.Metadata.from_raw(
         {
@@ -3064,10 +3068,7 @@ class TestFileUpload:
         @pretend.call_recorder
         def storage_service_store(path, file_path, *, meta):
             with open(file_path, "rb") as fp:
-                if file_path.endswith(".metadata"):
-                    assert fp.read() == b"Fake metadata"
-                else:
-                    assert fp.read() == filebody
+                assert fp.read() == filebody
 
         storage_service = pretend.stub(store=storage_service_store)
 
@@ -5153,13 +5154,13 @@ class TestFileUpload:
                 )
                 digest = _TAR_GZ_PKG_MD5
                 data = _TAR_GZ_PKG_TESTDATA
-            elif mimetype == "application/zip":
+            elif mimetype == "application/zip":  # pragma: no branch
                 filename = "{}-{}.zip".format(
                     project.normalized_name.replace("-", "_"), "1.0"
                 )
                 digest = _ZIP_PKG_MD5
                 data = _ZIP_PKG_TESTDATA
-        elif filetype == "bdist_wheel":
+        elif filetype == "bdist_wheel":  # pragma: no branch
             filename = "{}-{}-py3-none-any.whl".format(
                 project.normalized_name.replace("-", "_"), "1.0"
             )
@@ -5271,14 +5272,14 @@ class TestFileUpload:
                 )
                 digest = _TAR_GZ_PKG_MD5
                 data = _TAR_GZ_PKG_TESTDATA
-            elif mimetype == "application/zip":
+            elif mimetype == "application/zip":  # pragma: no branch
                 filename = "{}-{}.zip".format(
                     project.normalized_name.replace("-", "_"), "1.0"
                 )
                 digest = _ZIP_PKG_MD5
                 data = _ZIP_PKG_TESTDATA
             license_filename = "fake_package-1.0/LICENSE"
-        elif filetype == "bdist_wheel":
+        elif filetype == "bdist_wheel":  # pragma: no branch
             filename = "{}-{}-py3-none-any.whl".format(
                 project.normalized_name.replace("-", "_"),
                 "1.0",
@@ -5473,22 +5474,6 @@ class TestFileUpload:
         )
         filebody = _get_whl_testdata(
             name=project.normalized_name.replace("-", "_"), version=version
-        )
-
-        @pretend.call_recorder
-        def storage_service_store(path, file_path, *, meta):
-            with open(file_path, "rb") as fp:
-                if file_path.endswith(".metadata"):
-                    assert fp.read() == b"Fake metadata"
-                else:
-                    assert fp.read() == filebody
-
-        storage_service = pretend.stub(store=storage_service_store)
-
-        db_request.find_service = pretend.call_recorder(
-            lambda svc, name=None, context=None: {
-                IFileStorage: storage_service,
-            }.get(svc)
         )
 
         monkeypatch.setattr(

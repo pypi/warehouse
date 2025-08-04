@@ -43,7 +43,7 @@ class TestRateLimiting:
 
     def test_ratelimiting_block(self, pyramid_services, pyramid_request, metrics):
         def view(context, request):
-            return None
+            pytest.fail("view should not be called")
 
         ratelimited_view = xmlrpc.ratelimit()(view)
         context = pretend.stub()
@@ -77,7 +77,7 @@ class TestRateLimiting:
         self, pyramid_services, pyramid_request, metrics, resets_in_delta, expected
     ):
         def view(context, request):
-            return None
+            pytest.fail("view should not be called")
 
         ratelimited_view = xmlrpc.ratelimit()(view)
         context = pretend.stub()
@@ -145,8 +145,7 @@ def test_list_packages_with_serial(db_request):
         expected.setdefault(project.name, 0)
         entries = JournalEntryFactory.create_batch(10, name=project.name)
         for entry in entries:
-            if entry.id > expected[project.name]:
-                expected[project.name] = entry.id
+            expected[project.name] = entry.id
     assert xmlrpc.list_packages_with_serial(db_request) == expected
 
 

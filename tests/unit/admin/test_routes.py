@@ -386,6 +386,11 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            "admin.malware_reports.detail.add_helpscout_conversation",
+            "/admin/malware_reports/{observation_id}/add_helpscout_conversation/",
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.malware_reports.detail.verdict_not_malware",
             "/admin/malware_reports/{observation_id}/not_malware/",
             domain=warehouse,

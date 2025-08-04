@@ -610,9 +610,7 @@ def test_mint_token_no_pending_publisher_ok(
     )
 
     def find_service(iface, **kw):
-        if iface == IOIDCPublisherService:
-            return oidc_service
-        elif iface == IMacaroonService:
+        if iface == IMacaroonService:
             return macaroon_service
         else:
             pytest.fail(iface)
@@ -712,9 +710,7 @@ def test_mint_token_warn_constrain_environment(monkeypatch, db_request):
     )
 
     def find_service(iface, **kw):
-        if iface == IOIDCPublisherService:
-            return oidc_service
-        elif iface == IMacaroonService:
+        if iface == IMacaroonService:
             return macaroon_service
         else:
             pytest.fail(iface)
@@ -923,9 +919,7 @@ def test_mint_token_github_reusable_workflow_metrics(
     )
 
     def find_service(iface, **kw):
-        if iface == IOIDCPublisherService:
-            return oidc_service
-        elif iface == IMacaroonService:
+        if iface == IMacaroonService:
             return macaroon_service
         elif iface == IMetricsService:
             return metrics

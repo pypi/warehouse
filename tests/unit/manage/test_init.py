@@ -74,7 +74,7 @@ class TestReAuthView:
 
         @pretend.call_recorder
         def view(context, request):
-            return response
+            pytest.fail("view should not be called")
 
         info = pretend.stub(options={}, exception_only=False)
         info.options["require_reauth"] = require_reauth

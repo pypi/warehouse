@@ -173,8 +173,6 @@ class FakeESIndices:
 
     def remove_alias(self, name, alias):
         self.aliases[name] = [n for n in self.aliases[name] if n != alias]
-        if not self.aliases[name]:
-            del self.aliases[name]
 
     def update_aliases(self, *, body):
         for items in body["actions"]:
@@ -184,7 +182,7 @@ class FakeESIndices:
                 elif action == "remove":
                     self.remove_alias(values["alias"], values["index"])
                 else:
-                    raise ValueError(f"Unknown action: {action!r}.")
+                    pytest.fail(f"Unknown action: {action!r}.")
 
 
 class FakeESClient:
@@ -201,12 +199,6 @@ class NotLock:
 
     def __exit__(self, exc_type, exc_value, traceback):
         pass
-
-    def acquire(self):
-        return True
-
-    def release(self):
-        return True
 
 
 class TestSearchLock:
