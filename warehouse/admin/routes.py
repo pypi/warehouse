@@ -145,6 +145,20 @@ def includeme(config):
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{username}",
     )
+    config.add_route(
+        "admin.user.quarantine_projects",
+        "/admin/users/{username}/quarantine_projects/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
+        "admin.user.clear_quarantine_projects",
+        "/admin/users/{username}/clear_quarantine_projects/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
 
     # Macaroon related Admin pages
     config.add_route(
