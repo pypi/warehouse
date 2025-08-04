@@ -6348,8 +6348,8 @@ class TestManageOIDCPublisherViews:
 
         # The form data does not contain the provider, so we'll remove it from
         # the prefilled data before comparing them
-        if "provider" in prefilled_data:
-            del prefilled_data["provider"]
+        del prefilled_data["provider"]
+
         form = getattr(view, form_name)
         assert form.data == prefilled_data
 
@@ -6431,8 +6431,8 @@ class TestManageOIDCPublisherViews:
 
         # The form data does not contain the provider, so we'll remove it from
         # the prefilled data before comparing them
-        if "provider" in prefilled_data:
-            del prefilled_data["provider"]
+        del prefilled_data["provider"]
+
         missing_data = {k: None for k in missing_fields}
         # The expected form data is the prefilled data plus the missing fields
         # (set to None) minus the extra fields

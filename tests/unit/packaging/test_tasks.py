@@ -440,8 +440,7 @@ bq_schema = [
 
 class TestUpdateBigQueryMetadata:
     class ListField(Field):
-        def process_formdata(self, valuelist):
-            self.data = [v.strip() for v in valuelist if v.strip()]
+        pass
 
     input_parameters = [
         (
@@ -528,8 +527,7 @@ class TestUpdateBigQueryMetadata:
 
         # Process the mocked wtform fields
         for key, value in form_factory.items():
-            if isinstance(value, StringField) or isinstance(value, self.ListField):
-                value.process(None)
+            value.process(None)
 
         get_table = pretend.stub(schema=bq_schema)
         bigquery = pretend.stub(
@@ -541,7 +539,7 @@ class TestUpdateBigQueryMetadata:
         def find_service(name=None):
             if name == "gcloud.bigquery":
                 return bigquery
-            raise LookupError
+            pytest.fail(f"Unexpected service name: {name}")
 
         db_request.find_service = find_service
         db_request.registry.settings = {

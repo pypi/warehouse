@@ -974,7 +974,7 @@ def _organization_application_routes(
     elif route_name == "admin.dashboard":
         return "/admin/"
     else:
-        raise ValueError("No dummy route found")
+        pytest.fail(f"No dummy route found for {route_name}")
 
 
 class TestOrganizationApplicationActions:
