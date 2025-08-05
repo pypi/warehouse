@@ -30,6 +30,21 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            "admin.organization.add_role",
+            "/admin/organizations/{organization_id}/add_role/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.organization.update_role",
+            "/admin/organizations/{organization_id}/update_role/{role_id}/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.organization.delete_role",
+            "/admin/organizations/{organization_id}/delete_role/{role_id}/",
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.organization_application.list",
             "/admin/organization_applications/",
             domain=warehouse,
