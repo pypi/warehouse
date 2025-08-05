@@ -163,6 +163,20 @@ def test_includeme():
             traverse="/{username}",
         ),
         pretend.call(
+            "admin.user.quarantine_projects",
+            "/admin/users/{username}/quarantine_projects/",
+            domain=warehouse,
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
+        ),
+        pretend.call(
+            "admin.user.clear_quarantine_projects",
+            "/admin/users/{username}/clear_quarantine_projects/",
+            domain=warehouse,
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
+        ),
+        pretend.call(
             "admin.macaroon.decode_token", "/admin/token/decode", domain=warehouse
         ),
         pretend.call(
