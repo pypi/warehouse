@@ -183,9 +183,9 @@ faker==37.4.2 \
     --hash=sha256:8e281bbaea30e5658895b8bea21cc50d27aaf3a43db3f2694409ca5701c56b0a \
     --hash=sha256:b70ed1af57bfe988cbcd0afd95f4768c51eaf4e1ce8a30962e127ac5c139c93f
     # via factory-boy
-freezegun==1.5.3 \
-    --hash=sha256:1ce20ee4be61349ba52c3af64f5eaba8d08ff51acfcf1b3ea671f03e54c818f1 \
-    --hash=sha256:d7c6204e33a50affd7c7aa284f4f92e04e96f72d63313b89ceaaf60d9c64bc5e
+freezegun==1.5.4 \
+    --hash=sha256:798b9372fdd4d907f33e8b6a58bc64e682d9ffa8d494ce60f780197ee81faed1 \
+    --hash=sha256:8bdd75c9d790f53d5a173d273064ccd7900984b36635be552befeedb0cd47b20
     # via -r requirements/tests.in
 icdiff==2.0.7 \
     --hash=sha256:f05d1b3623223dd1c70f7848da7d699de3d9a2550b902a8234d9026292fb5762 \
