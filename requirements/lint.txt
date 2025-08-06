@@ -616,9 +616,9 @@ tqdm==4.67.1 \
     --hash=sha256:26445eca388f82e72884e0d580d5464cd801a3ea01e63e5601bdff9ba6a48de2 \
     --hash=sha256:f8aef9c52c08c13a65f30ea34f4e5aac3fd1a34959879d7e59e63027286627f2
     # via djlint
-types-awscrt==0.27.4 \
-    --hash=sha256:a8c4b9d9ae66d616755c322aba75ab9bd793c6fef448917e6de2e8b8cdf66fb4 \
-    --hash=sha256:c019ba91a097e8a31d6948f6176ede1312963f41cdcacf82482ac877cbbcf390
+types-awscrt==0.27.5 \
+    --hash=sha256:8eefe50d1709520663b77d3643a772c35ace3d8acfcb296f857627622c84cb4c \
+    --hash=sha256:99ee40e787dfb92ae93a5c956251a03b847de3ac532552f7e06dd5eb6e0fd02f
     # via botocore-stubs
 types-babel==2.11.0.15 \
     --hash=sha256:282c184c8c9d81e8269212c1b8fa0d39ee88fb8bc43be47980412781c9c85f7e \
