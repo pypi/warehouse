@@ -26,7 +26,7 @@ from pyramid.httpexceptions import (
 from pyramid.i18n import make_localizer
 from pyramid.interfaces import ITranslationDirectories
 from pyramid.renderers import render_to_response
-from pyramid.response import FileResponse
+from pyramid.response import FileResponse, Response
 from pyramid.view import (
     exception_view_config,
     forbidden_view_config,
@@ -243,7 +243,6 @@ def robotstxt(request):
 
 @view_config(
     route_name="funding-manifest-urls",
-    renderer="warehouse:templates/funding-manifest-urls.txt",
     decorator=[
         cache_control(1 * 24 * 60 * 60),  # 1 day
         origin_cache(
@@ -254,8 +253,11 @@ def robotstxt(request):
     ],
 )
 def funding_manifest_urls(request):
-    request.response.content_type = "text/plain"
-    return {}
+    return Response(
+        "https://www.python.org/funding.json",
+        content_type="text/plain",
+        charset="utf-8",
+    )
 
 
 @view_config(
