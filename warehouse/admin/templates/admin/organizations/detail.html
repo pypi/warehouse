@@ -218,12 +218,7 @@
                   <form method="POST" action="{{ request.route_path('admin.organization.update_role', organization_id=organization.id, role_id=role.id) }}" style="display: inline;">
                     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
                     <div class="input-group input-group-sm">
-                      <select class="form-control" name="role_name" {{ 'disabled' if not request.has_permission(Permissions.AdminRoleAdd) }}>
-                        <option value="Member" {% if role.role_name.value == "Member" %}selected{% endif %}>Member</option>
-                        <option value="Manager" {% if role.role_name.value == "Manager" %}selected{% endif %}>Manager</option>
-                        <option value="Billing Manager" {% if role.role_name.value == "Billing Manager" %}selected{% endif %}>Billing Manager</option>
-                        <option value="Owner" {% if role.role_name.value == "Owner" %}selected{% endif %}>Owner</option>
-                      </select>
+                      {{ role_forms[role.id].role_name(class_="form-control", disabled=not request.has_permission(Permissions.AdminRoleAdd)) }}
                       <div class="input-group-append">
                         <button type="submit" class="btn btn-primary btn-sm" {{ 'disabled' if not request.has_permission(Permissions.AdminRoleAdd) }}>
                           <i class="fa fa-save"></i>
@@ -286,10 +281,9 @@
               <label for="role_name" class="sr-only">Role</label>
               <select class="form-control" id="role_name" name="role_name" required>
                 <option value="">Select Role</option>
-                <option value="Member">Member</option>
-                <option value="Manager">Manager</option>
-                <option value="Billing Manager">Billing Manager</option>
-                <option value="Owner">Owner</option>
+                {% for role_type in OrganizationRoleType %}
+                <option value="{{ role_type.value }}">{{ role_type.value }}</option>
+                {% endfor %}
               </select>
             </div>
             <button type="submit" class="btn btn-primary" {{ 'disabled' if not request.has_permission(Permissions.AdminRoleAdd) }}>

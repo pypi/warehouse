@@ -299,6 +299,8 @@ class TestOrganizationDetail:
         assert result["organization"] == organization
         assert isinstance(result["form"], views.OrganizationForm)
         assert result["roles"] == []
+        assert result["role_forms"] == {}
+        assert result["OrganizationRoleType"] == OrganizationRoleType
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_is_approved_true(self, db_request):
@@ -330,6 +332,8 @@ class TestOrganizationDetail:
         assert result["organization"] == organization
         assert isinstance(result["form"], views.OrganizationForm)
         assert result["roles"] == []
+        assert result["role_forms"] == {}
+        assert result["OrganizationRoleType"] == OrganizationRoleType
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_is_approved_false(self, db_request):
@@ -361,6 +365,8 @@ class TestOrganizationDetail:
         assert result["organization"] == organization
         assert isinstance(result["form"], views.OrganizationForm)
         assert result["roles"] == []
+        assert result["role_forms"] == {}
+        assert result["OrganizationRoleType"] == OrganizationRoleType
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_not_found(self):
@@ -580,6 +586,14 @@ class TestOrganizationDetail:
         assert result["roles"][1].user.username == "bob"
         assert result["roles"][2].user.username == "charlie"
 
+        # Check that role forms are created for each role
+        assert len(result["role_forms"]) == 3
+        assert set(result["role_forms"].keys()) == {role.id for role in result["roles"]}
+        for role_id, form in result["role_forms"].items():
+            assert isinstance(form, views.OrganizationRoleForm)
+
+        assert result["OrganizationRoleType"] == OrganizationRoleType
+
     @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_no_roles(self, db_request):
         """Test that organization detail view works with no roles"""
@@ -602,6 +616,8 @@ class TestOrganizationDetail:
         assert result["organization"] == organization
         assert isinstance(result["form"], views.OrganizationForm)
         assert result["roles"] == []
+        assert result["role_forms"] == {}
+        assert result["OrganizationRoleType"] == OrganizationRoleType
 
 
 class TestOrganizationActions:
