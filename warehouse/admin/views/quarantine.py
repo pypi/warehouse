@@ -21,7 +21,6 @@ if typing.TYPE_CHECKING:
     permission=Permissions.AdminProjectsRead,
     request_method="GET",
     uses_session=True,
-    require_csrf=True,
     require_methods=False,
 )
 def quarantine_list(request: Request) -> dict[str, list[Project]]:
