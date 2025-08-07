@@ -145,17 +145,7 @@ class TestProject:
 
         publisher = GitHubPublisherFactory.create(projects=[project])
 
-        acls = []
-        for location in lineage(project):
-            try:
-                acl = location.__acl__
-            except AttributeError:
-                continue
-
-            if acl and callable(acl):
-                acl = acl()
-
-            acls.extend(acl)
+        acls = [item for location in lineage(project) for item in location.__acl__()]
 
         assert acls == [
             (
@@ -279,17 +269,7 @@ class TestProject:
 
         publisher = GitHubPublisherFactory.create(projects=[project])
 
-        acls = []
-        for location in lineage(project):
-            try:
-                acl = location.__acl__
-            except AttributeError:
-                continue
-
-            if acl and callable(acl):
-                acl = acl()
-
-            acls.extend(acl)
+        acls = [item for location in lineage(project) for item in location.__acl__()]
 
         _perms_read_and_upload = [
             Permissions.ProjectsRead,
@@ -381,17 +361,7 @@ class TestProject:
         # permissions, and archived projects don't allow upload
         GitHubPublisherFactory.create(projects=[project])
 
-        acls = []
-        for location in lineage(project):
-            try:
-                acl = location.__acl__
-            except AttributeError:
-                continue
-
-            if acl and callable(acl):
-                acl = acl()
-
-            acls.extend(acl)
+        acls = [item for location in lineage(project) for item in location.__acl__()]
 
         _perms_read_and_write = [
             Permissions.ProjectsRead,
@@ -931,11 +901,7 @@ class TestRelease:
                 acl = location.__acl__
             except AttributeError:
                 continue
-
-            if acl and callable(acl):
-                acl = acl()
-
-            acls.extend(acl)
+            acls.extend(acl())
 
         assert acls == [
             (

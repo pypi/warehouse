@@ -41,6 +41,7 @@ from warehouse.email import (
 from warehouse.observations.models import ObservationKind
 from warehouse.packaging.models import JournalEntry, Project, Release, Role
 from warehouse.utils.paginate import paginate_url_factory
+from warehouse.utils.project import clear_project_quarantine, quarantine_project
 
 if typing.TYPE_CHECKING:
     from pyramid.request import Request
@@ -709,4 +710,74 @@ def user_email_domain_check(user, request):
     request.session.flash(
         f"Domain status check for {email.domain!r} completed", queue="success"
     )
+    return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
+
+
+@view_config(
+    route_name="admin.user.quarantine_projects",
+    require_methods=["POST"],
+    permission=Permissions.AdminProjectsWrite,
+    uses_session=True,
+    require_csrf=True,
+    context=User,
+)
+def user_quarantine_projects(user, request):
+    if user.username != request.params.get("username"):
+        request.session.flash("Wrong confirmation input", queue="error")
+        return HTTPSeeOther(
+            request.route_path("admin.user.detail", username=user.username)
+        )
+
+    quarantined_count = 0
+    for project in user.projects:
+        # Only quarantine projects that aren't already quarantined
+        if project.lifecycle_status not in ["quarantine-enter"]:
+            quarantine_project(project, request, flash=False)
+            quarantined_count += 1
+
+    if quarantined_count > 0:
+        request.session.flash(
+            f"Quarantined {quarantined_count} project(s) for user {user.username!r}",
+            queue="success",
+        )
+    else:
+        request.session.flash(
+            f"No projects needed quarantining for user {user.username!r}",
+            queue="info",
+        )
+    return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
+
+
+@view_config(
+    route_name="admin.user.clear_quarantine_projects",
+    require_methods=["POST"],
+    permission=Permissions.AdminProjectsWrite,
+    uses_session=True,
+    require_csrf=True,
+    context=User,
+)
+def user_clear_quarantine_projects(user, request):
+    if user.username != request.params.get("username"):
+        request.session.flash("Wrong confirmation input", queue="error")
+        return HTTPSeeOther(
+            request.route_path("admin.user.detail", username=user.username)
+        )
+
+    cleared_count = 0
+    for project in user.projects:
+        # Only clear quarantine for projects that are quarantined
+        if project.lifecycle_status == "quarantine-enter":
+            clear_project_quarantine(project, request, flash=False)
+            cleared_count += 1
+
+    if cleared_count > 0:
+        request.session.flash(
+            f"Cleared quarantine for {cleared_count} project(s) for {user.username!r}",
+            queue="success",
+        )
+    else:
+        request.session.flash(
+            f"No quarantined projects found for user {user.username!r}",
+            queue="info",
+        )
     return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))

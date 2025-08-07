@@ -106,7 +106,7 @@ class Macaroon(db.Model):
 
     # Intentionally not using a back references here, since we express
     # relationships in terms of the "other" side of the relationship.
-    user: Mapped["User"] = orm.relationship(lazy=True, viewonly=True)
+    user: Mapped[User | None] = orm.relationship(lazy=True, viewonly=True)
     # TODO: Can't annotate this as "OIDCPublisher" because that would create a
     #  circular import.
     oidc_publisher = orm.relationship("OIDCPublisher", lazy=True, viewonly=True)

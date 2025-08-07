@@ -949,7 +949,6 @@ class TestManageOrganizationSettings:
         self,
         db_request,
         pyramid_user,
-        organization_service,
         user_service,
         monkeypatch,
     ):
@@ -962,15 +961,6 @@ class TestManageOrganizationSettings:
             lambda *a, organization_name, **kw: (
                 f"/manage/organization/{organization_name}/settings/"
             )
-        )
-
-        def rename_organization(organization_id, organization_name):
-            organization.name = organization_name
-
-        monkeypatch.setattr(
-            organization_service,
-            "rename_organization",
-            pretend.call_recorder(rename_organization),
         )
 
         admin = None
@@ -1005,7 +995,6 @@ class TestManageOrganizationSettings:
         assert result.headers["Location"] == (
             f"/manage/organization/{organization.normalized_name}/settings/"
         )
-        assert organization_service.rename_organization.calls == []
         assert send_email.calls == []
 
     # When support for renaming orgs is re-introduced
@@ -1852,7 +1841,6 @@ class TestManageOrganizationProjects:
         self,
         db_request,
         pyramid_user,
-        organization_service,
         monkeypatch,
     ):
         organization = OrganizationFactory.create()
@@ -1877,15 +1865,6 @@ class TestManageOrganizationProjects:
         )
         monkeypatch.setattr(
             org_views, "AddOrganizationProjectForm", add_organization_project_cls
-        )
-
-        def add_organization_project(*args, **kwargs):
-            OrganizationProjectFactory.create(
-                organization=organization, project=project
-            )
-
-        monkeypatch.setattr(
-            organization_service, "add_organization_project", add_organization_project
         )
 
         view = org_views.ManageOrganizationProjectsViews(organization, db_request)

@@ -37,7 +37,6 @@ def new_signed_claims(
     project_id: str = "fakeprojectid",
     project_path: str = "fakeorg/fakeproject",
     project_visibility: str = "public",
-    branch_id: str | None = None,
 ) -> SignedClaims:
     claims = SignedClaims(
         {
@@ -54,8 +53,6 @@ def new_signed_claims(
             "builder": "pypi-publisher",
         }
     )
-    if branch_id:
-        claims["branch_id"] = branch_id
     return claims
 
 

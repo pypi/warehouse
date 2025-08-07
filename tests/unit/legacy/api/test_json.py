@@ -126,11 +126,7 @@ class TestJSONProject:
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
 
-        name = project.name.lower()
-        if name == project.normalized_name:
-            name = project.name.upper()
-
-        db_request.matchdict = {"name": name}
+        db_request.matchdict = {"name": project.name.swapcase()}
         db_request.current_route_path = pretend.call_recorder(
             lambda name: "/project/the-redirect/"
         )
@@ -367,11 +363,7 @@ class TestJSONProjectSlash:
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
 
-        name = project.name.lower()
-        if name == project.normalized_name:
-            name = project.name.upper()
-
-        db_request.matchdict = {"name": name}
+        db_request.matchdict = {"name": project.name.swapcase()}
         db_request.current_route_path = pretend.call_recorder(
             lambda name: "/project/the-redirect/"
         )
@@ -446,14 +438,12 @@ class TestReleaseFactory:
 
 class TestJSONRelease:
     def test_normalizing_redirects(self, db_request):
-        project = ProjectFactory.create()
-        release = ReleaseFactory.create(project=project, version="3.0")
+        release = ReleaseFactory.create(version="3.0")
 
-        name = release.project.name.lower()
-        if name == release.project.normalized_name:
-            name = release.project.name.upper()
-
-        db_request.matchdict = {"name": name, "version": "3.0"}
+        db_request.matchdict = {
+            "name": release.project.name.swapcase(),
+            "version": "3.0",
+        }
         db_request.current_route_path = pretend.call_recorder(
             lambda name: "/project/the-redirect/3.0/"
         )
@@ -744,14 +734,12 @@ class TestJSONRelease:
 
 class TestJSONReleaseSlash:
     def test_normalizing_redirects(self, db_request):
-        project = ProjectFactory.create()
-        release = ReleaseFactory.create(project=project, version="3.0")
+        release = ReleaseFactory.create(version="3.0")
 
-        name = release.project.name.lower()
-        if name == release.project.normalized_name:
-            name = release.project.name.upper()
-
-        db_request.matchdict = {"name": name, "version": "3.0"}
+        db_request.matchdict = {
+            "name": release.project.name.swapcase(),
+            "version": "3.0",
+        }
         db_request.current_route_path = pretend.call_recorder(
             lambda name: "/project/the-redirect/3.0/"
         )

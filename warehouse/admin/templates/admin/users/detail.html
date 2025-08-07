@@ -4,6 +4,7 @@
 
 {% import "admin/utils/pagination.html" as pagination %}
 
+{% set perms_admin_projects_write = request.has_permission(Permissions.AdminProjectsWrite) %}
 {% set perms_admin_users_write = request.has_permission(Permissions.AdminUsersWrite) %}
 {% set perms_admin_users_email_write = request.has_permission(Permissions.AdminUsersEmailWrite) %}
 {% set perms_admin_users_account_recovery_write = request.has_permission(Permissions.AdminUsersAccountRecoveryWrite) %}
@@ -127,6 +128,12 @@
               <i class="fa-solid fa-toilet-paper"></i> Wipe 2FA and recovery codes
             </button>
             {% endif %}
+            <button type="button" class="btn btn-block btn-warning" data-toggle="modal" data-target="#quarantineAllProjectsModal" {{ "disabled" if not perms_admin_projects_write }}>
+              <i class="icon fa fa-lock"></i> Quarantine all projects & freeze user
+            </button>
+            <button type="button" class="btn btn-block btn-success" data-toggle="modal" data-target="#clearQuarantineAllProjectsModal" {{ "disabled" if not perms_admin_projects_write }}>
+              <i class="icon fa fa-unlock"></i> Clear all projects from quarantine
+            </button>
             <div class="modal fade" id="freezeModal" tabindex="-1" role="dialog">
               <form method="POST" action="{{ request.route_path('admin.user.freeze', username=user.username) }}">
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -172,7 +179,7 @@
                 </div>
               </form>
             </div>
-<div class="modal fade" id="nukeModal" tabindex="-1" role="dialog">
+            <div class="modal fade" id="nukeModal" tabindex="-1" role="dialog">
               <form method="POST" action="{{ request.route_path('admin.user.delete', username=user.username) }}">
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
                 <div class="modal-dialog" role="document">
@@ -276,6 +283,59 @@
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         <button type="submit" class="btn btn-danger">Wipe factors</button>
                       </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <!-- Quarantine All Projects Modal -->
+            <div class="modal fade" id="quarantineAllProjectsModal" tabindex="-1" role="dialog">
+              <form method="POST" action="{{ request.route_path('admin.user.quarantine_projects', username=user.username) }}">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title">Quarantine all projects for {{ user.username }}?</h4>
+                      <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>This will quarantine all projects owned by this user, removing them from public APIs until cleared or removed.</p>
+                      <p>This action is reversible.</p>
+                      <hr>
+                      <p>Enter username '{{ user.username }}' to confirm:</p>
+                      <input type="text" name="username" placeholder="{{ user.username }}" autocomplete="off" autocorrect="off" autocapitalize="off">
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-warning">Quarantine all projects</button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <!-- Clear Quarantine All Projects Modal -->
+            <div class="modal fade" id="clearQuarantineAllProjectsModal" tabindex="-1" role="dialog">
+              <form method="POST" action="{{ request.route_path('admin.user.clear_quarantine_projects', username=user.username) }}">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title">Clear quarantine for all projects for {{ user.username }}?</h4>
+                      <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>This will clear quarantine for all quarantined projects owned by this user, making them publicly available again.</p>
+                      <hr>
+                      <p>Enter username '{{ user.username }}' to confirm:</p>
+                      <input type="text" name="username" placeholder="{{ user.username }}" autocomplete="off" autocorrect="off" autocapitalize="off">
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-success">Clear quarantine for all projects</button>
+                    </div>
                   </div>
                 </div>
               </form>

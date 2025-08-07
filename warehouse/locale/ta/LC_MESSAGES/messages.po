@@ -357,7 +357,7 @@ msgstr ""
 "எங்கள் புதுப்பிக்கப்பட்ட <a href = \"$ {tos_url}\"> பணி விதிமுறைகளை மதிப்பாய்வு "
 "செய்யவும் </a>."
 
-#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1915
+#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1922
 #: warehouse/manage/views/__init__.py:1409
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
@@ -407,16 +407,16 @@ msgstr ""
 "இந்த நம்பகமான வெளியீட்டாளர் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளார். இது வேண்டுமென்றே இல்லாவிட்டால் "
 "தயவுசெய்து பைபியின் நிர்வாகிகளை தொடர்பு கொள்ளவும்."
 
-#: warehouse/accounts/views.py:1786
+#: warehouse/accounts/views.py:1793
 msgid "Registered a new pending publisher to create "
 msgstr "உருவாக்க நிலுவையில் உள்ள புதிய வெளியீட்டாளரை பதிவு செய்தது "
 
-#: warehouse/accounts/views.py:1928 warehouse/accounts/views.py:1941
-#: warehouse/accounts/views.py:1948
+#: warehouse/accounts/views.py:1935 warehouse/accounts/views.py:1948
+#: warehouse/accounts/views.py:1955
 msgid "Invalid publisher ID"
 msgstr "தவறான வெளியீட்டாளர் ஐடி"
 
-#: warehouse/accounts/views.py:1955
+#: warehouse/accounts/views.py:1962
 msgid "Removed trusted publisher for project "
 msgstr "திட்டத்திற்கான நம்பகமான வெளியீட்டாளர் அகற்றப்பட்டார் "
 
@@ -1072,14 +1072,14 @@ msgstr "Monty Python - The Cheese Shop மாதிரிச் சித்த�
 
 #: warehouse/templates/404.html:30 warehouse/templates/500.html:18
 #: warehouse/templates/accounts/two-factor.html:35
-#: warehouse/templates/base.html:319 warehouse/templates/base.html:325
-#: warehouse/templates/base.html:331 warehouse/templates/base.html:337
-#: warehouse/templates/base.html:353 warehouse/templates/base.html:359
-#: warehouse/templates/base.html:384 warehouse/templates/base.html:390
-#: warehouse/templates/base.html:399 warehouse/templates/base.html:412
-#: warehouse/templates/base.html:421 warehouse/templates/base.html:427
-#: warehouse/templates/base.html:433 warehouse/templates/base.html:446
-#: warehouse/templates/base.html:463
+#: warehouse/templates/base.html:339 warehouse/templates/base.html:345
+#: warehouse/templates/base.html:351 warehouse/templates/base.html:357
+#: warehouse/templates/base.html:373 warehouse/templates/base.html:379
+#: warehouse/templates/base.html:404 warehouse/templates/base.html:410
+#: warehouse/templates/base.html:419 warehouse/templates/base.html:432
+#: warehouse/templates/base.html:441 warehouse/templates/base.html:447
+#: warehouse/templates/base.html:453 warehouse/templates/base.html:466
+#: warehouse/templates/base.html:483
 #: warehouse/templates/includes/accounts/profile-callout.html:17
 #: warehouse/templates/includes/file-details.html:129
 #: warehouse/templates/index.html:98 warehouse/templates/index.html:105
@@ -1242,7 +1242,7 @@ msgid "Main navigation"
 msgstr "முதன்மையான வழிசெலுத்தல்"
 
 #: warehouse/templates/base.html:33 warehouse/templates/base.html:68
-#: warehouse/templates/base.html:314
+#: warehouse/templates/base.html:334
 #: warehouse/templates/includes/current-user-indicator.html:77
 #: warehouse/templates/pages/help.html:209
 #: warehouse/templates/pages/sitemap.html:19
@@ -1327,16 +1327,16 @@ msgstr "ஆர்.எச்.எச்: 40 அண்மைக் கால பு
 msgid "RSS: 40 newest packages"
 msgstr "ஆர்.எச்.எச்: 40 புதிய தொகுப்புகள்"
 
-#: warehouse/templates/base.html:185
+#: warehouse/templates/base.html:205
 msgid "Skip to main content"
 msgstr "முக்கிய உள்ளடக்கத்திற்கு செல்லவும்"
 
-#: warehouse/templates/base.html:189
+#: warehouse/templates/base.html:209
 msgid "Switch to mobile version"
 msgstr "மொபைல் பதிப்பிற்கு மாறவும்"
 
-#: warehouse/templates/base.html:196 warehouse/templates/base.html:205
-#: warehouse/templates/base.html:215
+#: warehouse/templates/base.html:216 warehouse/templates/base.html:225
+#: warehouse/templates/base.html:235
 #: warehouse/templates/includes/flash-messages.html:41
 #: warehouse/templates/includes/session-notifications.html:19
 #: warehouse/templates/manage/account.html:845
@@ -1347,19 +1347,19 @@ msgstr "மொபைல் பதிப்பிற்கு மாறவும�
 #: warehouse/templates/manage/organization/settings.html:246
 #: warehouse/templates/manage/project/documentation.html:13
 #: warehouse/templates/manage/project/release.html:209
-#: warehouse/templates/manage/project/settings.html:85
-#: warehouse/templates/manage/project/settings.html:131
-#: warehouse/templates/manage/project/settings.html:372
+#: warehouse/templates/manage/project/settings.html:84
+#: warehouse/templates/manage/project/settings.html:130
+#: warehouse/templates/manage/project/settings.html:371
 #: warehouse/templates/manage/team/settings.html:62
 msgid "Warning"
 msgstr "எச்சரிக்கை"
 
-#: warehouse/templates/base.html:198
+#: warehouse/templates/base.html:218
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
 "நீங்கள் ஆதரிக்கப்படாத உலாவியைப் பயன்படுத்துகிறீர்கள், புதிய பதிப்பிற்கு மேம்படுத்தவும்."
 
-#: warehouse/templates/base.html:207
+#: warehouse/templates/base.html:227
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
@@ -1369,7 +1369,7 @@ msgstr ""
 "இது உண்மையான குறியீட்டை பாதிக்காமல் விநியோக கருவிகள் மற்றும் செயல்முறைகளை முயற்சிக்க "
 "உங்களை அனுமதிக்கிறது."
 
-#: warehouse/templates/base.html:217
+#: warehouse/templates/base.html:237
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
@@ -1377,159 +1377,159 @@ msgstr ""
 "சாவாச்கிரிப்ட் இல்லாமல் சில நற்பொருத்தங்கள் வேலை செய்யாது. நீங்கள் சிக்கல்களை எதிர்கொண்டால் "
 "அதை இயக்க முயற்சிக்கவும்."
 
-#: warehouse/templates/base.html:252 warehouse/templates/base.html:284
+#: warehouse/templates/base.html:272 warehouse/templates/base.html:304
 #: warehouse/templates/error-base-with-search.html:8
 #: warehouse/templates/index.html:29
 msgid "Search PyPI"
 msgstr "பைபியைத் தேடுங்கள்"
 
-#: warehouse/templates/base.html:257 warehouse/templates/index.html:35
+#: warehouse/templates/base.html:277 warehouse/templates/index.html:35
 msgid "Type '/' to search projects"
 msgstr "தேடல் திட்டங்களுக்கு '/' என தட்டச்சு செய்க"
 
-#: warehouse/templates/base.html:268 warehouse/templates/base.html:297
+#: warehouse/templates/base.html:288 warehouse/templates/base.html:317
 #: warehouse/templates/error-base-with-search.html:19
 #: warehouse/templates/index.html:44
 msgid "Search"
 msgstr "தேடல்"
 
-#: warehouse/templates/base.html:289
+#: warehouse/templates/base.html:309
 #: warehouse/templates/error-base-with-search.html:13
 msgid "Search projects"
 msgstr "தேடல் திட்டங்கள்"
 
-#: warehouse/templates/base.html:315
+#: warehouse/templates/base.html:335
 msgid "Help navigation"
 msgstr "வழிசெலுத்தலுக்கு உதவுங்கள்"
 
-#: warehouse/templates/base.html:321
+#: warehouse/templates/base.html:341
 msgid "Installing packages"
 msgstr "தொகுப்புகளை நிறுவுதல்"
 
-#: warehouse/templates/base.html:327
+#: warehouse/templates/base.html:347
 msgid "Uploading packages"
 msgstr "தொகுப்புகளை பதிவேற்றுகிறது"
 
-#: warehouse/templates/base.html:333
+#: warehouse/templates/base.html:353
 msgid "User guide"
 msgstr "பயனர் வழிகாட்டி"
 
-#: warehouse/templates/base.html:339
+#: warehouse/templates/base.html:359
 msgid "Project name retention"
 msgstr "திட்ட பெயர் தக்கவைப்பு"
 
-#: warehouse/templates/base.html:342
+#: warehouse/templates/base.html:362
 msgid "FAQs"
 msgstr "கேள்விகள்"
 
-#: warehouse/templates/base.html:348 warehouse/templates/pages/sitemap.html:34
+#: warehouse/templates/base.html:368 warehouse/templates/pages/sitemap.html:34
 msgid "About PyPI"
 msgstr "பைபி பற்றி"
 
-#: warehouse/templates/base.html:349
+#: warehouse/templates/base.html:369
 msgid "About PyPI navigation"
 msgstr "பைபி வழிசெலுத்தல் பற்றி"
 
-#: warehouse/templates/base.html:355
+#: warehouse/templates/base.html:375
 msgid "PyPI Blog"
 msgstr "பூசாரி வலைப்பதிவு"
 
-#: warehouse/templates/base.html:361
+#: warehouse/templates/base.html:381
 msgid "Infrastructure dashboard"
 msgstr "உள்கட்டமைப்பு டாச்போர்டு"
 
-#: warehouse/templates/base.html:364 warehouse/templates/pages/sitemap.html:40
+#: warehouse/templates/base.html:384 warehouse/templates/pages/sitemap.html:40
 #: warehouse/templates/pages/stats.html:4
 msgid "Statistics"
 msgstr "புள்ளிவிவரங்கள்"
 
-#: warehouse/templates/base.html:367
+#: warehouse/templates/base.html:387
 msgid "Logos & trademarks"
 msgstr "லோகோக்கள் மற்றும் வர்த்தக முத்திரைகள்"
 
-#: warehouse/templates/base.html:370
+#: warehouse/templates/base.html:390
 msgid "Our sponsors"
 msgstr "எங்கள் ஒப்புரவாளர்கள்"
 
-#: warehouse/templates/base.html:376
+#: warehouse/templates/base.html:396
 msgid "Contributing to PyPI"
 msgstr "பைபிக்கு பங்களிப்பு"
 
-#: warehouse/templates/base.html:377
+#: warehouse/templates/base.html:397
 msgid "How to contribute navigation"
 msgstr "வழிசெலுத்தலை எவ்வாறு பங்களிப்பது"
 
-#: warehouse/templates/base.html:380
+#: warehouse/templates/base.html:400
 msgid "Bugs and feedback"
 msgstr "பிழைகள் மற்றும் கருத்து"
 
-#: warehouse/templates/base.html:386
+#: warehouse/templates/base.html:406
 msgid "Contribute on GitHub"
 msgstr "கிதுபில் பங்களிப்பு செய்யுங்கள்"
 
-#: warehouse/templates/base.html:392
+#: warehouse/templates/base.html:412
 msgid "Translate PyPI"
 msgstr "பைபியை மொழிபெயர்க்கவும்"
 
-#: warehouse/templates/base.html:395
+#: warehouse/templates/base.html:415
 msgid "Sponsor PyPI"
 msgstr "ஒப்புரவாளர் பைபி"
 
-#: warehouse/templates/base.html:401
+#: warehouse/templates/base.html:421
 msgid "Development credits"
 msgstr "வளர்ச்சி வரவு"
 
-#: warehouse/templates/base.html:407 warehouse/templates/pages/sitemap.html:10
+#: warehouse/templates/base.html:427 warehouse/templates/pages/sitemap.html:10
 msgid "Using PyPI"
 msgstr "பைபியைப் பயன்படுத்துதல்"
 
-#: warehouse/templates/base.html:408
+#: warehouse/templates/base.html:428
 msgid "Using PyPI navigation"
 msgstr "பைபி வழிசெலுத்தலைப் பயன்படுத்துதல்"
 
-#: warehouse/templates/base.html:414
+#: warehouse/templates/base.html:434
 #: warehouse/templates/manage/organization/activate_subscription.html:21
 msgid "Terms of Service"
 msgstr "பணி விதிமுறைகள்"
 
-#: warehouse/templates/base.html:417
+#: warehouse/templates/base.html:437
 msgid "Report security issue"
 msgstr "பாதுகாப்பு வெளியீட்டைப் புகாரளிக்கவும்"
 
-#: warehouse/templates/base.html:423
+#: warehouse/templates/base.html:443
 msgid "Code of conduct"
 msgstr "நடத்தை விதிமுறை"
 
-#: warehouse/templates/base.html:429
+#: warehouse/templates/base.html:449
 msgid "Privacy Notice"
 msgstr "தனியுரிமை அறிவிப்பு"
 
-#: warehouse/templates/base.html:435
+#: warehouse/templates/base.html:455
 msgid "Acceptable Use Policy"
 msgstr "ஏற்றுக்கொள்ளக்கூடிய பயன்பாட்டுக் கொள்கை"
 
-#: warehouse/templates/base.html:445
+#: warehouse/templates/base.html:465
 msgid "Status:"
 msgstr "நிலை:"
 
-#: warehouse/templates/base.html:449
+#: warehouse/templates/base.html:469
 msgid "all systems operational"
 msgstr "அனைத்து அமைப்புகளும் செயல்படும்"
 
-#: warehouse/templates/base.html:453
+#: warehouse/templates/base.html:473
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr "பைதான் சமூகத்திற்காக பைதான் சமூகத்தால் உருவாக்கப்பட்டு பராமரிக்கப்படுகிறது."
 
-#: warehouse/templates/base.html:455
+#: warehouse/templates/base.html:475
 msgid "Donate today!"
 msgstr "இன்று நன்கொடை!"
 
-#: warehouse/templates/base.html:467 warehouse/templates/pages/sitemap.html:4
+#: warehouse/templates/base.html:487 warehouse/templates/pages/sitemap.html:4
 msgid "Site map"
 msgstr "தள வரைபடம்"
 
-#: warehouse/templates/base.html:474
+#: warehouse/templates/base.html:494
 msgid "Switch to desktop version"
 msgstr "டெச்க்டாப் பதிப்பிற்கு மாறவும்"
 
@@ -1731,9 +1731,9 @@ msgstr "கடவுச்சொல்"
 #: warehouse/templates/manage/project/roles.html:364
 #: warehouse/templates/manage/project/roles.html:397
 #: warehouse/templates/manage/project/roles.html:416
-#: warehouse/templates/manage/project/settings.html:276
-#: warehouse/templates/manage/project/settings.html:292
-#: warehouse/templates/manage/project/settings.html:308
+#: warehouse/templates/manage/project/settings.html:275
+#: warehouse/templates/manage/project/settings.html:291
+#: warehouse/templates/manage/project/settings.html:307
 #: warehouse/templates/manage/team/roles.html:104
 #: warehouse/templates/manage/team/settings.html:22
 #: warehouse/templates/packaging/submit-malware-observation.html:54
@@ -2100,9 +2100,9 @@ msgstr "ரத்துசெய்"
 #: warehouse/templates/manage/project/history.html:295
 #: warehouse/templates/manage/project/history.html:306
 #: warehouse/templates/manage/project/history.html:317
-#: warehouse/templates/manage/project/settings.html:219
-#: warehouse/templates/manage/project/settings.html:274
-#: warehouse/templates/manage/project/settings.html:279
+#: warehouse/templates/manage/project/settings.html:218
+#: warehouse/templates/manage/project/settings.html:273
+#: warehouse/templates/manage/project/settings.html:278
 #: warehouse/templates/manage/unverified-account.html:102
 msgid "Name"
 msgstr "பெயர்"
@@ -3229,7 +3229,7 @@ msgstr "இந்த அறிவிப்பை நிராகரிக்க�
 #: warehouse/templates/manage/manage_base.html:347
 #: warehouse/templates/manage/project/release.html:158
 #: warehouse/templates/manage/project/releases.html:186
-#: warehouse/templates/manage/project/settings.html:70
+#: warehouse/templates/manage/project/settings.html:69
 #: warehouse/templates/manage/unverified-account.html:169
 #: warehouse/templates/manage/unverified-account.html:172
 #: warehouse/templates/manage/unverified-account.html:187
@@ -5237,7 +5237,7 @@ msgstr ""
 #: warehouse/templates/manage/project/publishing.html:255
 #: warehouse/templates/manage/project/publishing.html:329
 #: warehouse/templates/manage/project/roles.html:373
-#: warehouse/templates/manage/project/settings.html:329
+#: warehouse/templates/manage/project/settings.html:328
 #: warehouse/templates/manage/team/roles.html:125
 msgid "Add"
 msgstr "கூட்டு"
@@ -6465,7 +6465,7 @@ msgstr "%(user)s காலாவதியான அழைப்பை நீக�
 #: warehouse/templates/manage/organization/roles.html:352
 #: warehouse/templates/manage/project/release.html:96
 #: warehouse/templates/manage/project/releases.html:98
-#: warehouse/templates/manage/project/settings.html:246
+#: warehouse/templates/manage/project/settings.html:245
 msgid "Delete"
 msgstr "நீக்கு"
 
@@ -6922,9 +6922,9 @@ msgstr "திட்ட மாற்று களஞ்சியம் சேர
 #: warehouse/templates/manage/project/history.html:296
 #: warehouse/templates/manage/project/history.html:307
 #: warehouse/templates/manage/project/history.html:318
-#: warehouse/templates/manage/project/settings.html:220
-#: warehouse/templates/manage/project/settings.html:290
-#: warehouse/templates/manage/project/settings.html:295
+#: warehouse/templates/manage/project/settings.html:219
+#: warehouse/templates/manage/project/settings.html:289
+#: warehouse/templates/manage/project/settings.html:294
 msgid "Url"
 msgstr ""
 
@@ -7156,7 +7156,7 @@ msgstr "கோப்புகள் எதுவும் கிடைக்க�
 
 #: warehouse/templates/manage/project/release.html:155
 #: warehouse/templates/manage/project/releases.html:183
-#: warehouse/templates/manage/project/settings.html:67
+#: warehouse/templates/manage/project/settings.html:66
 msgid "Dismiss"
 msgstr "தள்ளுபடி"
 
@@ -7555,18 +7555,28 @@ msgid "Project description and sidebar"
 msgstr "திட்ட விளக்கம் மற்றும் பக்கப்பட்டி"
 
 #: warehouse/templates/manage/project/settings.html:56
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "To set the '%(project_name)s' description, author, links, classifiers, "
+#| "and other details for your next release, use the <a "
+#| "href=\"%(pyproject_args_href)s\" rel=\"noopener\" "
+#| "target=\"_blank\"><code>project</code> metadata fields in your "
+#| "<code>pyproject.toml</code> file</a>. Updating these fields will not "
+#| "change the metadata for past releases. Additionally, you <strong>must</"
+#| "strong> use <a href=\"%(twine_docs_href)s\" rel=\"noopener\" "
+#| "target=\"_blank\">Twine</a> to upload your files in order to get full "
+#| "support for these fields. See <a href=\"%(distribution_href)s\" "
+#| "rel=\"noopener\" target=\"_blank\">the Python Packaging User Guide</a> "
+#| "for more help."
 msgid ""
 "To set the '%(project_name)s' description, author, links, classifiers, and "
 "other details for your next release, use the <a "
 "href=\"%(pyproject_args_href)s\" rel=\"noopener\" "
 "target=\"_blank\"><code>project</code> metadata fields in your "
 "<code>pyproject.toml</code> file</a>. Updating these fields will not change "
-"the metadata for past releases. Additionally, you <strong>must</strong> use "
-"<a href=\"%(twine_docs_href)s\" rel=\"noopener\" target=\"_blank\">Twine</a> "
-"to upload your files in order to get full support for these fields. See <a "
-"href=\"%(distribution_href)s\" rel=\"noopener\" target=\"_blank\">the Python "
-"Packaging User Guide</a> for more help."
+"the metadata for past releases. See <a href=\"%(distribution_href)s\" "
+"rel=\"noopener\" target=\"_blank\">the Python Packaging User Guide</a> for "
+"more help."
 msgstr ""
 "உங்கள் அடுத்த வெளியீட்டிற்கான '%(project_name)s' விளக்கம், ஆசிரியர், இணைப்புகள், "
 "வகைப்படுத்திகள் மற்றும் பிற விவரங்களை அமைக்க, <a href = \"%(pyproject_args_href)s\" "
@@ -7578,22 +7588,22 @@ msgstr ""
 "href = \"%(distribution_href)s\" rel = \"noopener\" இலக்கு = \"_ வெற்று\"> "
 "பைதான் பேக்கேசிங் பயனர் கையேடு </a> மேலும் உதவிக்கு பார்க்கவும்."
 
-#: warehouse/templates/manage/project/settings.html:83
+#: warehouse/templates/manage/project/settings.html:82
 msgid "Remove project from organization"
 msgstr "அமைப்பிலிருந்து திட்டத்தை அகற்று"
 
-#: warehouse/templates/manage/project/settings.html:86
+#: warehouse/templates/manage/project/settings.html:85
 msgid "Removing this project from the organization will:"
 msgstr "இந்த திட்டத்தை அமைப்பிலிருந்து நீக்குவது:"
 
-#: warehouse/templates/manage/project/settings.html:90
-#: warehouse/templates/manage/project/settings.html:137
+#: warehouse/templates/manage/project/settings.html:89
+#: warehouse/templates/manage/project/settings.html:136
 #, python-format
 msgid "Remove this project from the '%(organization_name)s' organization."
 msgstr "இந்த திட்டத்தை '%(organization_name)s அமைப்பிலிருந்து அகற்றவும்."
 
-#: warehouse/templates/manage/project/settings.html:93
-#: warehouse/templates/manage/project/settings.html:140
+#: warehouse/templates/manage/project/settings.html:92
+#: warehouse/templates/manage/project/settings.html:139
 #, python-format
 msgid ""
 "Revoke project permissions for teams in the '%(organization_name)s' "
@@ -7602,8 +7612,8 @@ msgstr ""
 "'%(organization_name)s அமைப்பில் உள்ள அணிகளுக்கான திட்ட அனுமதிகளைத் திரும்பப் "
 "பெறுங்கள்."
 
-#: warehouse/templates/manage/project/settings.html:96
-#: warehouse/templates/manage/project/settings.html:101
+#: warehouse/templates/manage/project/settings.html:95
+#: warehouse/templates/manage/project/settings.html:100
 msgid ""
 "Individual owners and maintainers of the project will retain their project "
 "permissions."
@@ -7611,27 +7621,27 @@ msgstr ""
 "தனிப்பட்ட உரிமையாளர்கள் மற்றும் திட்டத்தின் பராமரிப்பாளர்கள் தங்கள் திட்ட அனுமதிகளைத் தக்க "
 "வைத்துக் கொள்வார்கள்."
 
-#: warehouse/templates/manage/project/settings.html:100
+#: warehouse/templates/manage/project/settings.html:99
 #, python-format
 msgid ""
 "This will remove the project from the '%(organization_name)s' organization."
 msgstr "இது திட்டத்தை '%(organization_name)s அமைப்பிலிருந்து அகற்றும்."
 
-#: warehouse/templates/manage/project/settings.html:104
+#: warehouse/templates/manage/project/settings.html:103
 msgid "Remove project"
 msgstr "திட்டத்தை அகற்று"
 
-#: warehouse/templates/manage/project/settings.html:104
-#: warehouse/templates/manage/project/settings.html:178
-#: warehouse/templates/manage/project/settings.html:446
+#: warehouse/templates/manage/project/settings.html:103
+#: warehouse/templates/manage/project/settings.html:177
+#: warehouse/templates/manage/project/settings.html:445
 msgid "Project Name"
 msgstr "திட்ட பெயர்"
 
-#: warehouse/templates/manage/project/settings.html:108
+#: warehouse/templates/manage/project/settings.html:107
 msgid "Cannot remove project from organization"
 msgstr "நிறுவனத்திலிருந்து திட்டத்தை அகற்ற முடியாது"
 
-#: warehouse/templates/manage/project/settings.html:110
+#: warehouse/templates/manage/project/settings.html:109
 msgid ""
 "Your organization is currently the <strong>sole owner</strong> of the "
 "project. You must add an individual owner to the project before you can "
@@ -7641,42 +7651,42 @@ msgstr ""
 "நிறுவனத்திலிருந்து திட்டத்தை அகற்றுவதற்கு முன்பு நீங்கள் ஒரு தனிப்பட்ட உரிமையாளரை "
 "திட்டத்தில் சேர்க்க வேண்டும்."
 
-#: warehouse/templates/manage/project/settings.html:125
+#: warehouse/templates/manage/project/settings.html:124
 msgid "Transfer project to another organization"
 msgstr "திட்டத்தை மற்றொரு நிறுவனத்திற்கு மாற்றவும்"
 
-#: warehouse/templates/manage/project/settings.html:127
+#: warehouse/templates/manage/project/settings.html:126
 msgid "Transfer project to an organization"
 msgstr "திட்டத்தை ஒரு நிறுவனத்திற்கு மாற்றவும்"
 
-#: warehouse/templates/manage/project/settings.html:132
+#: warehouse/templates/manage/project/settings.html:131
 msgid "Transferring this project will:"
 msgstr "இந்த திட்டத்தை மாற்றுவது:"
 
-#: warehouse/templates/manage/project/settings.html:143
+#: warehouse/templates/manage/project/settings.html:142
 msgid "Revoke your direct Owner role on the project."
 msgstr "திட்டத்தில் உங்கள் நேரடி உரிமையாளர் பங்கை ரத்து செய்யுங்கள்."
 
-#: warehouse/templates/manage/project/settings.html:144
+#: warehouse/templates/manage/project/settings.html:143
 msgid ""
 "You will retain Owner permissions on the project through your organization "
 "role."
 msgstr ""
 "உங்கள் நிறுவன பங்கு மூலம் திட்டத்தின் உரிமையாளர் அனுமதிகளை நீங்கள் தக்க வைத்துக் கொள்வீர்கள்."
 
-#: warehouse/templates/manage/project/settings.html:148
+#: warehouse/templates/manage/project/settings.html:147
 msgid "Add the project to another organization that you own."
 msgstr "உங்களுக்கு சொந்தமான மற்றொரு நிறுவனத்தில் திட்டத்தைச் சேர்க்கவும்."
 
-#: warehouse/templates/manage/project/settings.html:150
+#: warehouse/templates/manage/project/settings.html:149
 msgid "Add the project to an organization that you own."
 msgstr "உங்களுக்கு சொந்தமான ஒரு நிறுவனத்தில் திட்டத்தைச் சேர்க்கவும்."
 
-#: warehouse/templates/manage/project/settings.html:153
+#: warehouse/templates/manage/project/settings.html:152
 msgid "Grant full project permissions to owners of the organization."
 msgstr "நிறுவனத்தின் உரிமையாளர்களுக்கு முழு திட்ட அனுமதிகளையும் வழங்கவும்."
 
-#: warehouse/templates/manage/project/settings.html:156
+#: warehouse/templates/manage/project/settings.html:155
 msgid ""
 "All other individual owners and maintainers of the project will retain their "
 "project permissions."
@@ -7684,19 +7694,19 @@ msgstr ""
 "திட்டத்தின் மற்ற அனைத்து தனிப்பட்ட உரிமையாளர்களும் பராமரிப்பாளர்களும் தங்கள் திட்ட "
 "அனுமதிகளைத் தக்க வைத்துக் கொள்வார்கள்."
 
-#: warehouse/templates/manage/project/settings.html:178
+#: warehouse/templates/manage/project/settings.html:177
 msgid "Transfer project"
 msgstr "பரிமாற்ற திட்டம்"
 
-#: warehouse/templates/manage/project/settings.html:184
+#: warehouse/templates/manage/project/settings.html:183
 msgid "Cannot transfer project to another organization"
 msgstr "திட்டத்தை வேறொரு நிறுவனத்திற்கு மாற்ற முடியாது"
 
-#: warehouse/templates/manage/project/settings.html:186
+#: warehouse/templates/manage/project/settings.html:185
 msgid "Cannot transfer project to an organization"
 msgstr "திட்டத்தை ஒரு நிறுவனத்திற்கு மாற்ற முடியாது"
 
-#: warehouse/templates/manage/project/settings.html:191
+#: warehouse/templates/manage/project/settings.html:190
 msgid ""
 "Organization owners can transfer the project to organizations that they own "
 "or manage."
@@ -7704,11 +7714,11 @@ msgstr ""
 "நிறுவன உரிமையாளர்கள் இந்த திட்டத்தை தாங்கள் வைத்திருக்கும் அல்லது நிர்வகிக்கும் "
 "நிறுவனங்களுக்கு மாற்றலாம்."
 
-#: warehouse/templates/manage/project/settings.html:192
+#: warehouse/templates/manage/project/settings.html:191
 msgid "You are not an owner or manager of any other organizations."
 msgstr "நீங்கள் வேறு எந்த அமைப்புகளின் உரிமையாளர் அல்லது மேலாளர் அல்ல."
 
-#: warehouse/templates/manage/project/settings.html:194
+#: warehouse/templates/manage/project/settings.html:193
 msgid ""
 "Project owners can transfer the project to organizations that they own or "
 "manage."
@@ -7716,15 +7726,15 @@ msgstr ""
 "திட்ட உரிமையாளர்கள் திட்டத்தை தங்களுக்கு சொந்தமான அல்லது நிர்வகிக்கும் நிறுவனங்களுக்கு "
 "மாற்றலாம்."
 
-#: warehouse/templates/manage/project/settings.html:195
+#: warehouse/templates/manage/project/settings.html:194
 msgid "You are not an owner or manager of any organizations."
 msgstr "நீங்கள் எந்த அமைப்புகளின் உரிமையாளர் அல்லது மேலாளர் அல்ல."
 
-#: warehouse/templates/manage/project/settings.html:202
+#: warehouse/templates/manage/project/settings.html:201
 msgid "Alternate repository locations"
 msgstr "மாற்று களஞ்சிய இடங்கள்"
 
-#: warehouse/templates/manage/project/settings.html:205
+#: warehouse/templates/manage/project/settings.html:204
 #, python-format
 msgid ""
 "Provisional support for <a href=\"%(pep_url)s\">PEP 708</a> \"Alternate "
@@ -7733,7 +7743,7 @@ msgstr ""
 "<A href = \"%(pep_url)s\"> pep 708 </a> \"மாற்று இடங்கள்\" மெட்டாடேட்டாவுக்கான "
 "தற்காலிக உதவி."
 
-#: warehouse/templates/manage/project/settings.html:209
+#: warehouse/templates/manage/project/settings.html:208
 #, python-format
 msgid ""
 "Implementation may change, consider subscribing to <a "
@@ -7742,52 +7752,52 @@ msgstr ""
 "செயல்படுத்தல் மாறக்கூடும், மாற்றங்கள் குறித்து அறிவிக்க <a href = "
 "\"%(pypi_announce_url)s\"> pypi-antouns </a> க்கு சந்தா செலுத்துவதைக் கவனியுங்கள்."
 
-#: warehouse/templates/manage/project/settings.html:215
+#: warehouse/templates/manage/project/settings.html:214
 #, python-format
 msgid "Alternate repository locations for %(project_name)s"
 msgstr "%(project_name)s மாற்று களஞ்சிய இருப்பிடங்கள்"
 
-#: warehouse/templates/manage/project/settings.html:221
+#: warehouse/templates/manage/project/settings.html:220
 msgid "Description"
 msgstr "விவரம்"
 
-#: warehouse/templates/manage/project/settings.html:237
+#: warehouse/templates/manage/project/settings.html:236
 #, python-format
 msgid "Delete %(name)s from this project."
 msgstr "இந்த திட்டத்திலிருந்து %(name)s நீக்கு."
 
-#: warehouse/templates/manage/project/settings.html:247
+#: warehouse/templates/manage/project/settings.html:246
 msgid "Alternate Repository Name"
 msgstr "மாற்று களஞ்சிய பெயர்"
 
-#: warehouse/templates/manage/project/settings.html:261
+#: warehouse/templates/manage/project/settings.html:260
 msgid "There are no alternate repositories for this project, yet."
 msgstr "இந்த திட்டத்திற்கு மாற்று களஞ்சியங்கள் எதுவும் இல்லை."
 
-#: warehouse/templates/manage/project/settings.html:263
+#: warehouse/templates/manage/project/settings.html:262
 msgid "Get started by adding an alternate repository below."
 msgstr "கீழே ஒரு மாற்று களஞ்சியத்தைச் சேர்ப்பதன் மூலம் தொடங்கவும்."
 
-#: warehouse/templates/manage/project/settings.html:266
+#: warehouse/templates/manage/project/settings.html:265
 msgid "Add alternate repository location"
 msgstr "மாற்று களஞ்சிய இருப்பிடத்தைச் சேர்க்கவும்"
 
-#: warehouse/templates/manage/project/settings.html:306
+#: warehouse/templates/manage/project/settings.html:305
 msgid "Alternate repository description"
 msgstr "மாற்று களஞ்சிய விளக்கம்"
 
-#: warehouse/templates/manage/project/settings.html:311
-#: warehouse/templates/manage/project/settings.html:322
+#: warehouse/templates/manage/project/settings.html:310
+#: warehouse/templates/manage/project/settings.html:321
 msgid "Description of the purpose or content of the alternate repository."
 msgstr "மாற்று களஞ்சியத்தின் நோக்கம் அல்லது உள்ளடக்கத்தின் விளக்கம்."
 
-#: warehouse/templates/manage/project/settings.html:334
-#: warehouse/templates/manage/project/settings.html:359
-#: warehouse/templates/manage/project/settings.html:363
+#: warehouse/templates/manage/project/settings.html:333
+#: warehouse/templates/manage/project/settings.html:358
+#: warehouse/templates/manage/project/settings.html:362
 msgid "Archive project"
 msgstr "காப்பக திட்டம்"
 
-#: warehouse/templates/manage/project/settings.html:338
+#: warehouse/templates/manage/project/settings.html:337
 #, python-format
 msgid ""
 "Archiving a project will prevent any new uploads, and remove the project "
@@ -7806,12 +7816,12 @@ msgstr ""
 "அவ்வாறு செய்ய கட்டமைக்கப்பட்டிருந்தால், </a>, நீங்கள் README கோப்பைத் திருத்துவதன் மூலம் "
 "திட்டத்தின் விளக்கத்தை புதுப்பிக்கலாம்."
 
-#: warehouse/templates/manage/project/settings.html:350
-#: warehouse/templates/manage/project/settings.html:353
+#: warehouse/templates/manage/project/settings.html:349
+#: warehouse/templates/manage/project/settings.html:352
 msgid "Unarchive project"
 msgstr "Unarchible திட்டம்"
 
-#: warehouse/templates/manage/project/settings.html:354
+#: warehouse/templates/manage/project/settings.html:353
 msgid ""
 "Unarchiving a project will allow new file uploads and add the project to the "
 "search index."
@@ -7819,7 +7829,7 @@ msgstr ""
 "ஒரு திட்டம் புதிய கோப்பு பதிவேற்றங்களை அனுமதிக்கும் மற்றும் திட்டத்தை தேடல் குறியீட்டில் "
 "சேர்க்கும்."
 
-#: warehouse/templates/manage/project/settings.html:364
+#: warehouse/templates/manage/project/settings.html:363
 msgid ""
 "Archiving a project will block any new file uploads and remove the project "
 "from the search index."
@@ -7827,16 +7837,16 @@ msgstr ""
 "ஒரு திட்டத்தை காப்பகப்படுத்துவது எந்தவொரு புதிய கோப்பு பதிவேற்றங்களையும் தடுக்கும் மற்றும் "
 "தேடல் குறியீட்டிலிருந்து திட்டத்தை அகற்றும்."
 
-#: warehouse/templates/manage/project/settings.html:370
-#: warehouse/templates/manage/project/settings.html:446
+#: warehouse/templates/manage/project/settings.html:369
+#: warehouse/templates/manage/project/settings.html:445
 msgid "Delete project"
 msgstr "திட்டத்தை நீக்கு"
 
-#: warehouse/templates/manage/project/settings.html:373
+#: warehouse/templates/manage/project/settings.html:372
 msgid "Deleting this project will:"
 msgstr "இந்த திட்டத்தை நீக்குவது:"
 
-#: warehouse/templates/manage/project/settings.html:378
+#: warehouse/templates/manage/project/settings.html:377
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s "
@@ -7850,16 +7860,16 @@ msgstr[1] ""
 "<A href = \"%(href)s\">%(எண்ணிக்கை) வெளியீடுகள் </a> உடன் திட்டத்தை மாற்றமுடியாமல் "
 "நீக்கவும்"
 
-#: warehouse/templates/manage/project/settings.html:384
+#: warehouse/templates/manage/project/settings.html:383
 msgid "Irreversibly delete the project"
 msgstr "மாற்றமுடியாமல் திட்டத்தை நீக்கவும்"
 
-#: warehouse/templates/manage/project/settings.html:388
+#: warehouse/templates/manage/project/settings.html:387
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 "திட்டத்தின் பெயரை <strong> வேறு எந்த பைபி </strong> பயனருக்கும் கிடைக்கச் செய்யுங்கள்"
 
-#: warehouse/templates/manage/project/settings.html:391
+#: warehouse/templates/manage/project/settings.html:390
 msgid ""
 "This user will be able to make new releases under this project name, so long "
 "as the distribution filenames do not match filenames from a previously "

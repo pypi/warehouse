@@ -53,13 +53,12 @@
      data-dismissable-identifier="settings">
   <h3>{% trans %}Project description and sidebar{% endtrans %}</h3>
   <p>
-    {% trans project_name=project.name, pyproject_args_href='https://packaging.python.org/tutorials/packaging-projects/#creating-pyproject-toml', twine_docs_href='https://twine.readthedocs.io/', distribution_href='https://packaging.python.org/guides/section-build-and-publish/' %}
+    {% trans project_name=project.name, pyproject_args_href='https://packaging.python.org/tutorials/packaging-projects/#creating-pyproject-toml', distribution_href='https://packaging.python.org/guides/section-build-and-publish/' %}
     To set the '{{ project_name }}' description, author, links, classifiers,
     and other details for your next release, use the
     <a href="{{ pyproject_args_href }}" rel="noopener" target="_blank"><code>project</code>
       metadata fields in your <code>pyproject.toml</code> file</a>.
       Updating these fields will not change the metadata for past releases.
-      Additionally, you <strong>must</strong> use <a href="{{ twine_docs_href }}" rel="noopener" target="_blank">Twine</a> to upload your files in order to get full support for these fields.
       See <a href="{{ distribution_href }}" rel="noopener" target="_blank">the Python Packaging User Guide</a> for more help.
     {% endtrans %}
   </p>
