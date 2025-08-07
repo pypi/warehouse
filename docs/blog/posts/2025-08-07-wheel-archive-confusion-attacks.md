@@ -23,7 +23,7 @@ provided by the `zipfile` standard library module.
 * There is no evidence that this vulnerability has been exploited using PyPI.
 * PyPI is deprecating wheel distributions with incorrect `RECORD` files.
 
-Please see [this blog post](https://astral.sh/blog/uv-security-advisory-cve-2025-54368) and [CVE-2025-54368](https://www.cve.org/CVERecord?id=CVE-2025-54368)
+Please see [this blog post](https://astral.sh/blog/uv-security-advisory-cve-2025-54368) and [CVE-2025-54368](https://github.com/astral-sh/uv/security/advisories/GHSA-8qf3-x8v5-2pj8)
 for more information on uv's patch.
 
 <!-- more -->
