@@ -68,6 +68,7 @@ class Permissions(StrEnum):
 
     AdminRoleAdd = "admin:role:add"
     AdminRoleDelete = "admin:role:delete"
+    AdminRoleUpdate = "admin:role:update"
 
     AdminSponsorsRead = "admin:sponsors:read"
     AdminSponsorsWrite = "admin:sponsors:write"
