@@ -771,7 +771,7 @@ def add_organization_role(request):
 
 @view_config(
     route_name="admin.organization.update_role",
-    permission=Permissions.AdminRoleAdd,
+    permission=Permissions.AdminRoleUpdate,
     request_method="POST",
     uses_session=True,
     require_csrf=True,

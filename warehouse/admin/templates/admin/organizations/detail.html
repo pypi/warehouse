@@ -218,9 +218,9 @@
                   <form method="POST" action="{{ request.route_path('admin.organization.update_role', organization_id=organization.id, role_id=role.id) }}" style="display: inline;">
                     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
                     <div class="input-group input-group-sm">
-                      {{ role_forms[role.id].role_name(class_="form-control", disabled=not request.has_permission(Permissions.AdminRoleAdd)) }}
+                      {{ role_forms[role.id].role_name(class_="form-control", disabled=not request.has_permission(Permissions.AdminRoleUpdate)) }}
                       <div class="input-group-append">
-                        <button type="submit" class="btn btn-primary btn-sm" {{ 'disabled' if not request.has_permission(Permissions.AdminRoleAdd) }}>
+                        <button type="submit" class="btn btn-primary btn-sm" {{ 'disabled' if not request.has_permission(Permissions.AdminRoleUpdate) }}>
                           <i class="fa fa-save"></i>
                         </button>
                       </div>
