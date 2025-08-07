@@ -5,4 +5,4 @@ pyramid_debugtoolbar>=2.5
 pip-api
 watchdog
 # Pinned due to https://github.com/jazzband/pip-tools/issues/2176
-pip==25.0.1
+pip==25.2
