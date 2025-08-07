@@ -7,7 +7,6 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from webob.multidict import MultiDict
 
 from warehouse.admin.views import organizations as views
-from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     OrganizationApplicationStatus,
     OrganizationRole,
@@ -283,15 +282,6 @@ class TestOrganizationDetail:
             ),
             is_active=False,
         )
-        organization_service = pretend.stub(
-            get_organization=lambda *a, **kw: organization,
-        )
-        billing_service = pretend.stub()
-
-        db_request.find_service = lambda iface, **kw: {
-            IOrganizationService: organization_service,
-            IBillingService: billing_service,
-        }[iface]
         db_request.matchdict = {"organization_id": str(organization.id)}
         db_request.method = "GET"
 
@@ -316,15 +306,6 @@ class TestOrganizationDetail:
             ),
             is_active=True,
         )
-        organization_service = pretend.stub(
-            get_organization=lambda *a, **kw: organization,
-        )
-        billing_service = pretend.stub()
-
-        db_request.find_service = lambda iface, **kw: {
-            IOrganizationService: organization_service,
-            IBillingService: billing_service,
-        }[iface]
         db_request.matchdict = {"organization_id": str(organization.id)}
         db_request.method = "GET"
 
@@ -349,15 +330,6 @@ class TestOrganizationDetail:
             ),
             is_active=False,
         )
-        organization_service = pretend.stub(
-            get_organization=lambda *a, **kw: organization,
-        )
-        billing_service = pretend.stub()
-
-        db_request.find_service = lambda iface, **kw: {
-            IOrganizationService: organization_service,
-            IBillingService: billing_service,
-        }[iface]
         db_request.matchdict = {"organization_id": str(organization.id)}
         db_request.method = "GET"
 
@@ -369,23 +341,14 @@ class TestOrganizationDetail:
         assert isinstance(result["add_role_form"], views.AddOrganizationRoleForm)
 
     @pytest.mark.usefixtures("_enable_organizations")
-    def test_detail_not_found(self):
-        organization_service = pretend.stub(
-            get_organization=lambda *a, **kw: None,
-        )
-        billing_service = pretend.stub()
-        request = pretend.stub(
-            flags=pretend.stub(enabled=lambda *a: False),
-            find_service=lambda iface, **kw: {
-                IOrganizationService: organization_service,
-                IBillingService: billing_service,
-            }[iface],
-            matchdict={"organization_id": pretend.stub()},
-            method="GET",
-        )
+    def test_detail_not_found(self, db_request):
+        db_request.matchdict = {
+            "organization_id": "00000000-0000-0000-0000-000000000000"
+        }
+        db_request.method = "GET"
 
         with pytest.raises(HTTPNotFound):
-            views.organization_detail(request)
+            views.organization_detail(db_request)
 
     def test_updates_organization(self, db_request):
         organization = OrganizationFactory.create(
@@ -413,18 +376,6 @@ class TestOrganizationDetail:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
 
-        organization_service = pretend.stub(
-            get_organization=pretend.call_recorder(lambda org_id: organization)
-        )
-        billing_service = pretend.stub()
-
-        db_request.find_service = pretend.call_recorder(
-            lambda iface, context: {
-                IOrganizationService: organization_service,
-                IBillingService: billing_service,
-            }.get(iface)
-        )
-
         result = views.organization_detail(db_request)
 
         assert isinstance(result, HTTPSeeOther)
@@ -440,7 +391,7 @@ class TestOrganizationDetail:
             )
         ]
 
-    def test_updates_organization_with_stripe_customer(self, db_request):
+    def test_updates_organization_with_stripe_customer(self, db_request, monkeypatch):
         organization = OrganizationFactory.create(
             name="acme",
             display_name="Old Name",
@@ -471,19 +422,10 @@ class TestOrganizationDetail:
         )
         db_request.registry = pretend.stub(settings={"site.name": "TestPyPI"})
 
-        organization_service = pretend.stub(
-            get_organization=pretend.call_recorder(lambda org_id: organization)
-        )
-        billing_service = pretend.stub(
-            update_customer=pretend.call_recorder(lambda *a, **kw: None)
-        )
-
-        db_request.find_service = pretend.call_recorder(
-            lambda iface, context: {
-                IOrganizationService: organization_service,
-                IBillingService: billing_service,
-            }.get(iface)
-        )
+        # Patch the billing service's update_customer method
+        billing_service = db_request.find_service(IBillingService)
+        update_customer = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(billing_service, "update_customer", update_customer)
 
         result = views.organization_detail(db_request)
 
@@ -493,7 +435,7 @@ class TestOrganizationDetail:
         assert organization.link_url == "https://new-url.com"
         assert organization.description == "New description"
         assert organization.orgtype == OrganizationType.Community
-        assert billing_service.update_customer.calls == [
+        assert update_customer.calls == [
             pretend.call(
                 "cus_123456",
                 "TestPyPI Organization - New Name (acme)",
@@ -519,18 +461,6 @@ class TestOrganizationDetail:
                 "description": "Some description",
                 "orgtype": "Company",
             }
-        )
-
-        organization_service = pretend.stub(
-            get_organization=pretend.call_recorder(lambda org_id: organization)
-        )
-        billing_service = pretend.stub()
-
-        db_request.find_service = pretend.call_recorder(
-            lambda iface, context: {
-                IOrganizationService: organization_service,
-                IBillingService: billing_service,
-            }.get(iface)
         )
 
         result = views.organization_detail(db_request)
@@ -564,15 +494,6 @@ class TestOrganizationDetail:
             organization=organization, user=user3, role_name=OrganizationRoleType.Member
         )
 
-        organization_service = pretend.stub(
-            get_organization=lambda org_id: organization,
-        )
-        billing_service = pretend.stub()
-
-        db_request.find_service = lambda iface, **kw: {
-            IOrganizationService: organization_service,
-            IBillingService: billing_service,
-        }[iface]
         db_request.matchdict = {"organization_id": str(organization.id)}
         db_request.method = "GET"
 
@@ -600,15 +521,6 @@ class TestOrganizationDetail:
         """Test that organization detail view works with no roles"""
         organization = OrganizationFactory.create(name="pypi")
 
-        organization_service = pretend.stub(
-            get_organization=lambda org_id: organization,
-        )
-        billing_service = pretend.stub()
-
-        db_request.find_service = lambda iface, **kw: {
-            IOrganizationService: organization_service,
-            IBillingService: billing_service,
-        }[iface]
         db_request.matchdict = {"organization_id": str(organization.id)}
         db_request.method = "GET"
 
@@ -1522,18 +1434,14 @@ class TestOrganizationApplicationActions:
 
 
 class TestAddOrganizationRole:
-    def test_add_role(self, db_request):
+    def test_add_role(self, db_request, monkeypatch):
         organization = OrganizationFactory.create(name="pypi")
         user = UserFactory.create(username="testuser")
 
         # Mock record_event
-        organization.record_event = pretend.call_recorder(lambda **kwargs: None)
+        record_event = pretend.call_recorder(lambda **kwargs: None)
+        monkeypatch.setattr(organization, "record_event", record_event)
 
-        organization_service = pretend.stub(
-            get_organization=lambda org_id: organization,
-        )
-
-        db_request.find_service = lambda iface, **kw: organization_service
         db_request.matchdict = {"organization_id": str(organization.id)}
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/admin/organizations/"
@@ -1561,7 +1469,7 @@ class TestAddOrganizationRole:
         assert role.organization == organization
 
         # Check event was recorded
-        assert organization.record_event.calls == [
+        assert record_event.calls == [
             pretend.call(
                 request=db_request,
                 tag="admin:organization:role:add",
@@ -1576,11 +1484,6 @@ class TestAddOrganizationRole:
     def test_add_role_no_username(self, db_request):
         organization = OrganizationFactory.create(name="pypi")
 
-        organization_service = pretend.stub(
-            get_organization=lambda org_id: organization,
-        )
-
-        db_request.find_service = lambda iface, **kw: organization_service
         db_request.matchdict = {"organization_id": str(organization.id)}
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/admin/organizations/"
@@ -1600,11 +1503,6 @@ class TestAddOrganizationRole:
     def test_add_role_unknown_user(self, db_request):
         organization = OrganizationFactory.create(name="pypi")
 
-        organization_service = pretend.stub(
-            get_organization=lambda org_id: organization,
-        )
-
-        db_request.find_service = lambda iface, **kw: organization_service
         db_request.matchdict = {"organization_id": str(organization.id)}
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/admin/organizations/"
@@ -1625,11 +1523,6 @@ class TestAddOrganizationRole:
         organization = OrganizationFactory.create(name="pypi")
         user = UserFactory.create(username="testuser")
 
-        organization_service = pretend.stub(
-            get_organization=lambda org_id: organization,
-        )
-
-        db_request.find_service = lambda iface, **kw: organization_service
         db_request.matchdict = {"organization_id": str(organization.id)}
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/admin/organizations/"
@@ -1653,11 +1546,6 @@ class TestAddOrganizationRole:
             organization=organization, user=user, role_name=OrganizationRoleType.Member
         )
 
-        organization_service = pretend.stub(
-            get_organization=lambda org_id: organization,
-        )
-
-        db_request.find_service = lambda iface, **kw: organization_service
         db_request.matchdict = {"organization_id": str(organization.id)}
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/admin/organizations/"
@@ -1678,19 +1566,16 @@ class TestAddOrganizationRole:
         ]
 
     def test_add_role_organization_not_found(self, db_request):
-        organization_service = pretend.stub(
-            get_organization=lambda org_id: None,
-        )
-
-        db_request.find_service = lambda iface, **kw: organization_service
-        db_request.matchdict = {"organization_id": "nonexistent"}
+        db_request.matchdict = {
+            "organization_id": "00000000-0000-0000-0000-000000000000"
+        }
 
         with pytest.raises(HTTPNotFound):
             views.add_organization_role(db_request)
 
 
 class TestUpdateOrganizationRole:
-    def test_update_role(self, db_request):
+    def test_update_role(self, db_request, monkeypatch):
         organization = OrganizationFactory.create(name="pypi")
         user = UserFactory.create(username="testuser")
         role = OrganizationRoleFactory.create(
@@ -1698,13 +1583,9 @@ class TestUpdateOrganizationRole:
         )
 
         # Mock record_event
-        organization.record_event = pretend.call_recorder(lambda **kwargs: None)
+        record_event = pretend.call_recorder(lambda **kwargs: None)
+        monkeypatch.setattr(organization, "record_event", record_event)
 
-        organization_service = pretend.stub(
-            get_organization=lambda org_id: organization,
-        )
-
-        db_request.find_service = lambda iface, **kw: organization_service
         db_request.matchdict = {
             "organization_id": str(organization.id),
             "role_id": str(role.id),
@@ -1734,7 +1615,7 @@ class TestUpdateOrganizationRole:
         assert role.role_name == OrganizationRoleType.Manager
 
         # Check event was recorded
-        assert organization.record_event.calls == [
+        assert record_event.calls == [
             pretend.call(
                 request=db_request,
                 tag="admin:organization:role:change",
@@ -1750,11 +1631,6 @@ class TestUpdateOrganizationRole:
     def test_update_role_not_found(self, db_request):
         organization = OrganizationFactory.create(name="pypi")
 
-        organization_service = pretend.stub(
-            get_organization=lambda org_id: organization,
-        )
-
-        db_request.find_service = lambda iface, **kw: organization_service
         db_request.matchdict = {
             "organization_id": str(organization.id),
             "role_id": "00000000-0000-0000-0000-000000000000",
@@ -1780,11 +1656,6 @@ class TestUpdateOrganizationRole:
             organization=organization, user=user, role_name=OrganizationRoleType.Member
         )
 
-        organization_service = pretend.stub(
-            get_organization=lambda org_id: organization,
-        )
-
-        db_request.find_service = lambda iface, **kw: organization_service
         db_request.matchdict = {
             "organization_id": str(organization.id),
             "role_id": str(role.id),
@@ -1811,11 +1682,6 @@ class TestUpdateOrganizationRole:
             organization=organization, user=user, role_name=OrganizationRoleType.Member
         )
 
-        organization_service = pretend.stub(
-            get_organization=lambda org_id: organization,
-        )
-
-        db_request.find_service = lambda iface, **kw: organization_service
         db_request.matchdict = {
             "organization_id": str(organization.id),
             "role_id": str(role.id),
@@ -1836,13 +1702,8 @@ class TestUpdateOrganizationRole:
         ]
 
     def test_update_role_organization_not_found(self, db_request):
-        organization_service = pretend.stub(
-            get_organization=lambda org_id: None,
-        )
-
-        db_request.find_service = lambda iface, **kw: organization_service
         db_request.matchdict = {
-            "organization_id": "nonexistent",
+            "organization_id": "00000000-0000-0000-0000-000000000000",
             "role_id": "00000000-0000-0000-0000-000000000000",
         }
 
@@ -1851,7 +1712,7 @@ class TestUpdateOrganizationRole:
 
 
 class TestDeleteOrganizationRole:
-    def test_delete_role(self, db_request):
+    def test_delete_role(self, db_request, monkeypatch):
         organization = OrganizationFactory.create(name="pypi")
         user = UserFactory.create(username="testuser")
         role = OrganizationRoleFactory.create(
@@ -1859,13 +1720,9 @@ class TestDeleteOrganizationRole:
         )
 
         # Mock record_event
-        organization.record_event = pretend.call_recorder(lambda **kwargs: None)
+        record_event = pretend.call_recorder(lambda **kwargs: None)
+        monkeypatch.setattr(organization, "record_event", record_event)
 
-        organization_service = pretend.stub(
-            get_organization=lambda org_id: organization,
-        )
-
-        db_request.find_service = lambda iface, **kw: organization_service
         db_request.matchdict = {
             "organization_id": str(organization.id),
             "role_id": str(role.id),
@@ -1893,7 +1750,7 @@ class TestDeleteOrganizationRole:
         assert db_request.db.query(OrganizationRole).count() == 0
 
         # Check event was recorded
-        assert organization.record_event.calls == [
+        assert record_event.calls == [
             pretend.call(
                 request=db_request,
                 tag="admin:organization:role:remove",
@@ -1908,11 +1765,6 @@ class TestDeleteOrganizationRole:
     def test_delete_role_not_found(self, db_request):
         organization = OrganizationFactory.create(name="pypi")
 
-        organization_service = pretend.stub(
-            get_organization=lambda org_id: organization,
-        )
-
-        db_request.find_service = lambda iface, **kw: organization_service
         db_request.matchdict = {
             "organization_id": str(organization.id),
             "role_id": "00000000-0000-0000-0000-000000000000",
@@ -1938,11 +1790,6 @@ class TestDeleteOrganizationRole:
             organization=organization, user=user, role_name=OrganizationRoleType.Member
         )
 
-        organization_service = pretend.stub(
-            get_organization=lambda org_id: organization,
-        )
-
-        db_request.find_service = lambda iface, **kw: organization_service
         db_request.matchdict = {
             "organization_id": str(organization.id),
             "role_id": str(role.id),
@@ -1972,11 +1819,6 @@ class TestDeleteOrganizationRole:
             organization=organization, user=user, role_name=OrganizationRoleType.Member
         )
 
-        organization_service = pretend.stub(
-            get_organization=lambda org_id: organization,
-        )
-
-        db_request.find_service = lambda iface, **kw: organization_service
         db_request.matchdict = {
             "organization_id": str(organization.id),
             "role_id": str(role.id),
@@ -2000,13 +1842,8 @@ class TestDeleteOrganizationRole:
         assert db_request.db.query(OrganizationRole).count() == 1
 
     def test_delete_role_organization_not_found(self, db_request):
-        organization_service = pretend.stub(
-            get_organization=lambda org_id: None,
-        )
-
-        db_request.find_service = lambda iface, **kw: organization_service
         db_request.matchdict = {
-            "organization_id": "nonexistent",
+            "organization_id": "00000000-0000-0000-0000-000000000000",
             "role_id": "00000000-0000-0000-0000-000000000000",
         }
 
