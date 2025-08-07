@@ -12,7 +12,7 @@ Any files already uploaded will remain in place as-is and do not need to be upda
 
 In most cases, this can be resolved by upgrading the version of your build tooling to a later version that correctly records wheel contents. You do not need to remove the file.
 
-Please read this PyPI blog post for more information: https://blog.pypi.org/posts/2025-08-07-wheel-archive-differentials
+Please read this PyPI blog post for more information: https://blog.pypi.org/posts/2025-08-07-wheel-archive-confusion-attacks
 
 If you have questions, you can email admin@pypi.org to communicate with the PyPI administrators.
 
