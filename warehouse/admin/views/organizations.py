@@ -682,6 +682,7 @@ def organization_application_decline(request):
     permission=Permissions.AdminRoleAdd,
     request_method="POST",
     uses_session=True,
+    require_csrf=True,
     require_methods=False,
 )
 def add_organization_role(request):
@@ -773,6 +774,7 @@ def add_organization_role(request):
     permission=Permissions.AdminRoleAdd,
     request_method="POST",
     uses_session=True,
+    require_csrf=True,
     require_methods=False,
 )
 def update_organization_role(request):
@@ -848,6 +850,7 @@ def update_organization_role(request):
     permission=Permissions.AdminRoleDelete,
     request_method="POST",
     uses_session=True,
+    require_csrf=True,
     require_methods=False,
 )
 def delete_organization_role(request):
