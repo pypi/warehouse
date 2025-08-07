@@ -15,6 +15,7 @@ from sqlalchemy.orm import joinedload
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User
 from warehouse.authnz import Permissions
+from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
 from warehouse.manage.forms import OrganizationNameMixin, SaveOrganizationForm
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
@@ -28,6 +29,8 @@ from warehouse.organizations.models import (
 )
 from warehouse.subscriptions.interfaces import IBillingService
 from warehouse.utils.paginate import paginate_url_factory
+
+UPLOAD_LIMIT_CAP = ONE_GIB
 
 
 class OrganizationRoleForm(wtforms.Form):
@@ -320,6 +323,11 @@ def organization_detail(request):
         "role_forms": role_forms,
         "add_role_form": add_role_form,
         "manual_activation_form": manual_activation_form,
+        "ONE_MIB": ONE_MIB,
+        "MAX_FILESIZE": MAX_FILESIZE,
+        "ONE_GIB": ONE_GIB,
+        "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
+        "UPLOAD_LIMIT_CAP": UPLOAD_LIMIT_CAP,
     }
 
 
@@ -1007,6 +1015,63 @@ def add_manual_activation(request):
 
 
 @view_config(
+    route_name="admin.organization.set_upload_limit",
+    permission=Permissions.AdminOrganizationsWrite,
+    request_method="POST",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def set_upload_limit(request):
+    organization_id = request.matchdict["organization_id"]
+    organization = request.db.query(Organization).get(organization_id)
+    if organization is None:
+        raise HTTPNotFound
+
+    upload_limit = request.POST.get("upload_limit", "")
+    # Update the organization's upload limit.
+    # If the upload limit is an empty string or otherwise falsy, just set the
+    # limit to None, indicating the default limit.
+    if not upload_limit:
+        upload_limit = None
+    else:
+        try:
+            upload_limit = int(upload_limit)
+        except ValueError:
+            raise HTTPBadRequest(
+                f"Invalid value for upload limit: {upload_limit}, "
+                f"must be integer or empty string."
+            )
+        # The form is in MiB, but the database field is in bytes.
+        upload_limit *= ONE_MIB
+        if upload_limit > UPLOAD_LIMIT_CAP:
+            raise HTTPBadRequest(
+                f"Upload limit can not be greater than the overall limit of "
+                f"{UPLOAD_LIMIT_CAP / ONE_MIB}MiB."
+            )
+        if upload_limit < MAX_FILESIZE:
+            raise HTTPBadRequest(
+                f"Upload limit can not be less than the default limit of "
+                f"{MAX_FILESIZE / ONE_MIB}MiB."
+            )
+
+    organization.upload_limit = upload_limit
+
+    request.session.flash(
+        f"Upload limit set to "
+        f"{upload_limit / ONE_MIB if upload_limit else '(default)'}MiB",
+        queue="success",
+    )
+
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.organization.detail",
+            organization_id=organization.id,
+        )
+    )
+
+
+@view_config(
     route_name="admin.organization.update_manual_activation",
     permission=Permissions.AdminOrganizationsWrite,
     request_method="POST",
@@ -1143,4 +1208,53 @@ def delete_manual_activation(request):
 
     return HTTPSeeOther(
         request.route_path("admin.organization.detail", organization_id=organization.id)
+    )
+
+
+@view_config(
+    route_name="admin.organization.set_total_size_limit",
+    permission=Permissions.AdminOrganizationsWrite,
+    request_method="POST",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def set_total_size_limit(request):
+    organization_id = request.matchdict["organization_id"]
+    organization = request.db.query(Organization).get(organization_id)
+    if organization is None:
+        raise HTTPNotFound
+
+    total_size_limit = request.POST.get("total_size_limit", "")
+    if not total_size_limit:
+        total_size_limit = None
+    else:
+        try:
+            total_size_limit = int(total_size_limit)
+        except ValueError:
+            raise HTTPBadRequest(
+                f"Invalid value for total size limit: {total_size_limit}, "
+                f"must be integer or empty string."
+            )
+        # The form is in GiB, but the database field is in bytes.
+        total_size_limit *= ONE_GIB
+        if total_size_limit < MAX_PROJECT_SIZE:
+            raise HTTPBadRequest(
+                f"Total organization size can not be less than the default limit of "
+                f"{MAX_PROJECT_SIZE / ONE_GIB}GiB."
+            )
+
+    organization.total_size_limit = total_size_limit
+
+    request.session.flash(
+        f"Total size limit set to "
+        f"{total_size_limit / ONE_GIB if total_size_limit else '(default)'}GiB",
+        queue="success",
+    )
+
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.organization.detail",
+            organization_id=organization.id,
+        )
     )

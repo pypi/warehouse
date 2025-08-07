@@ -11,11 +11,13 @@ from uuid import UUID
 from pyramid.authorization import Allow
 from pyramid.httpexceptions import HTTPPermanentRedirect
 from sqlalchemy import (
+    BigInteger,
     CheckConstraint,
     Enum,
     FetchedValue,
     ForeignKey,
     Index,
+    Integer,
     UniqueConstraint,
     func,
     orm,
@@ -299,6 +301,14 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
     created: Mapped[datetime_now] = mapped_column(
         index=True,
         comment="Datetime the organization was created.",
+    )
+    upload_limit: Mapped[int | None] = mapped_column(
+        Integer,
+        comment="Maximum file size limit in bytes for projects in this organization",
+    )
+    total_size_limit: Mapped[int | None] = mapped_column(
+        BigInteger,
+        comment="Maximum total size limit in bytes for projects in this organization",
     )
     application: Mapped[OrganizationApplication] = relationship(
         back_populates="organization"

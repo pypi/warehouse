@@ -1038,9 +1038,17 @@ def file_upload(request):
 
     # The project may or may not have a file size specified on the project, if
     # it does then it may or may not be smaller or larger than our global file
-    # size limits.
-    file_size_limit = max(filter(None, [MAX_FILESIZE, project.upload_limit]))
-    project_size_limit = max(filter(None, [MAX_PROJECT_SIZE, project.total_size_limit]))
+    # size limits. Additionally, if the project belongs to an organization,
+    # we also consider the organization's limits and use the most generous one.
+    limits_to_check = [MAX_FILESIZE, project.upload_limit]
+    size_limits_to_check = [MAX_PROJECT_SIZE, project.total_size_limit]
+
+    if project.organization:
+        limits_to_check.append(project.organization.upload_limit)
+        size_limits_to_check.append(project.organization.total_size_limit)
+
+    file_size_limit = max(filter(None, limits_to_check))
+    project_size_limit = max(filter(None, size_limits_to_check))
 
     file_data = None
     with tempfile.TemporaryDirectory() as tmpdir:
