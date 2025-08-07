@@ -242,6 +242,23 @@ def robotstxt(request):
 
 
 @view_config(
+    route_name="funding-manifest-urls",
+    renderer="warehouse:templates/funding-manifest-urls.txt",
+    decorator=[
+        cache_control(1 * 24 * 60 * 60),  # 1 day
+        origin_cache(
+            1 * 24 * 60 * 60,  # 1 day
+            stale_while_revalidate=6 * 60 * 60,  # 6 hours
+            stale_if_error=1 * 24 * 60 * 60,  # 1 day
+        ),
+    ],
+)
+def funding_manifest_urls(request):
+    request.response.content_type = "text/plain"
+    return {}
+
+
+@view_config(
     route_name="opensearch.xml",
     renderer="warehouse:templates/opensearch.xml",
     decorator=[
