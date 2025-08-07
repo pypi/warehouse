@@ -112,6 +112,29 @@ class TestProjectDetail:
         with pytest.raises(HTTPMovedPermanently):
             views.project_detail(project, db_request)
 
+    def test_with_organization(self, db_request):
+        from ....common.db.organizations import (
+            OrganizationFactory,
+            OrganizationProjectFactory,
+        )
+
+        organization = OrganizationFactory.create(
+            upload_limit=150 * views.ONE_MIB,
+            total_size_limit=100 * views.ONE_GIB,
+        )
+        org_project = OrganizationProjectFactory.create(organization=organization)
+        project = org_project.project
+        project.upload_limit = 50 * views.ONE_MIB
+        project.total_size_limit = 50 * views.ONE_GIB
+        db_request.matchdict["project_name"] = str(project.normalized_name)
+        result = views.project_detail(project, db_request)
+
+        assert result["project"] == project
+        assert project.organization == organization
+        # Verify that the organization limits are accessible through the project
+        assert project.organization.upload_limit == 150 * views.ONE_MIB
+        assert project.organization.total_size_limit == 100 * views.ONE_GIB
+
 
 class TestReleaseDetail:
     def test_gets_release(self, db_request):

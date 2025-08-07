@@ -24,6 +24,16 @@ def includeme(config):
         "/admin/organizations/{organization_id}/rename/",
         domain=warehouse,
     )
+    config.add_route(
+        "admin.organization.set_upload_limit",
+        "/admin/organizations/{organization_id}/set_upload_limit/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.organization.set_total_size_limit",
+        "/admin/organizations/{organization_id}/set_total_size_limit/",
+        domain=warehouse,
+    )
 
     config.add_route(
         "admin.organization_application.list",
