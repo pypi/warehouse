@@ -275,16 +275,11 @@
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
             <div class="form-group mr-2">
               <label for="username" class="sr-only">Username</label>
-              <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
+              {{ add_role_form.username(class="form-control", placeholder="Username", disabled=not request.has_permission(Permissions.AdminRoleAdd)) }}
             </div>
             <div class="form-group mr-2">
               <label for="role_name" class="sr-only">Role</label>
-              <select class="form-control" id="role_name" name="role_name" required>
-                <option value="">Select Role</option>
-                {% for role_type in OrganizationRoleType %}
-                <option value="{{ role_type.value }}">{{ role_type.value }}</option>
-                {% endfor %}
-              </select>
+              {{ add_role_form.role_name(class="form-control", disabled=not request.has_permission(Permissions.AdminRoleAdd)) }}
             </div>
             <button type="submit" class="btn btn-primary" {{ 'disabled' if not request.has_permission(Permissions.AdminRoleAdd) }}>
               <i class="fa fa-plus"></i> Add Member

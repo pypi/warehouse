@@ -38,6 +38,21 @@ class OrganizationRoleForm(wtforms.Form):
     )
 
 
+class AddOrganizationRoleForm(wtforms.Form):
+    username = wtforms.StringField(
+        validators=[
+            wtforms.validators.InputRequired(message="Specify username"),
+        ]
+    )
+    role_name = wtforms.SelectField(
+        choices=[(role.value, role.value) for role in OrganizationRoleType],
+        coerce=OrganizationRoleType,
+        validators=[
+            wtforms.validators.InputRequired(message="Select a role"),
+        ],
+    )
+
+
 class OrganizationForm(wtforms.Form):
     display_name = wtforms.StringField(
         validators=[
@@ -274,12 +289,15 @@ def organization_detail(request):
     # Create role forms for each existing role
     role_forms = {role.id: OrganizationRoleForm(obj=role) for role in roles}
 
+    # Create form for adding new roles
+    add_role_form = AddOrganizationRoleForm()
+
     return {
         "organization": organization,
         "form": form,
         "roles": roles,
         "role_forms": role_forms,
-        "OrganizationRoleType": OrganizationRoleType,
+        "add_role_form": add_role_form,
     }
 
 

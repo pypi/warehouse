@@ -300,7 +300,7 @@ class TestOrganizationDetail:
         assert isinstance(result["form"], views.OrganizationForm)
         assert result["roles"] == []
         assert result["role_forms"] == {}
-        assert result["OrganizationRoleType"] == OrganizationRoleType
+        assert isinstance(result["add_role_form"], views.AddOrganizationRoleForm)
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_is_approved_true(self, db_request):
@@ -333,7 +333,7 @@ class TestOrganizationDetail:
         assert isinstance(result["form"], views.OrganizationForm)
         assert result["roles"] == []
         assert result["role_forms"] == {}
-        assert result["OrganizationRoleType"] == OrganizationRoleType
+        assert isinstance(result["add_role_form"], views.AddOrganizationRoleForm)
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_is_approved_false(self, db_request):
@@ -366,7 +366,7 @@ class TestOrganizationDetail:
         assert isinstance(result["form"], views.OrganizationForm)
         assert result["roles"] == []
         assert result["role_forms"] == {}
-        assert result["OrganizationRoleType"] == OrganizationRoleType
+        assert isinstance(result["add_role_form"], views.AddOrganizationRoleForm)
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_not_found(self):
@@ -592,7 +592,7 @@ class TestOrganizationDetail:
         for role_id, form in result["role_forms"].items():
             assert isinstance(form, views.OrganizationRoleForm)
 
-        assert result["OrganizationRoleType"] == OrganizationRoleType
+        assert isinstance(result["add_role_form"], views.AddOrganizationRoleForm)
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_no_roles(self, db_request):
@@ -617,7 +617,7 @@ class TestOrganizationDetail:
         assert isinstance(result["form"], views.OrganizationForm)
         assert result["roles"] == []
         assert result["role_forms"] == {}
-        assert result["OrganizationRoleType"] == OrganizationRoleType
+        assert isinstance(result["add_role_form"], views.AddOrganizationRoleForm)
 
 
 class TestOrganizationActions:
