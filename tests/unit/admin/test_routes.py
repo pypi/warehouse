@@ -376,6 +376,7 @@ def test_includeme():
             "/admin/observations/",
             domain=warehouse,
         ),
+        pretend.call("admin.quarantine.list", "/admin/quarantine/", domain=warehouse),
         pretend.call(
             "admin.malware_reports.list",
             "/admin/malware_reports/",
