@@ -547,9 +547,10 @@ class TestOrganizationDetail:
         organization = OrganizationFactory.create(name="pypi")
 
         # Create some users with roles
-        user1 = UserFactory.create(username="alice")
-        user2 = UserFactory.create(username="bob")
+        # Intentionally not ordered to test order later
         user3 = UserFactory.create(username="charlie")
+        user2 = UserFactory.create(username="bob")
+        user1 = UserFactory.create(username="alice")
 
         OrganizationRoleFactory.create(
             organization=organization, user=user1, role_name=OrganizationRoleType.Owner
