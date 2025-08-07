@@ -278,13 +278,8 @@ def organization_detail(request):
             )
         )
 
-    roles = (
-        request.db.query(OrganizationRole)
-        .join(User)
-        .filter(OrganizationRole.organization == organization)
-        .order_by(User.username)
-        .all()
-    )
+    # Sort roles by username
+    roles = sorted(organization.roles, key=lambda r: r.user.username)
 
     # Create role forms for each existing role
     role_forms = {role.id: OrganizationRoleForm(obj=role) for role in roles}
