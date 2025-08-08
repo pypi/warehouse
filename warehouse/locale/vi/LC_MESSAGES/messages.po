@@ -41,7 +41,7 @@ msgstr ""
 "Để thực hiện hành động này, tài khoản của bạn phải được thiết lập xác thực "
 "hai yếu tố."
 
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr "Ngôn ngữ đã được cập nhật"
 

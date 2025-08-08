@@ -34,7 +34,7 @@ msgstr ""
 "ამ ქმედებისთვის საჭიროა თქვენს ანგარიშზე გქონდეთ გააქტიურებული ორმაგი "
 "ავთენტიფიკაცია."
 
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr "ადგილობრივები განახლდა"
 

@@ -65,7 +65,7 @@ msgstr ""
 "L'authentification à deux facteurs doit être activée sur votre compte pour "
 "effectuer cette action."
 
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr "Langue mise à jour"
 

@@ -37,7 +37,7 @@ msgid ""
 "action."
 msgstr "Nasir"
 
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr "অনুবাদ হালনাগাদকৃত"
 
