@@ -64,7 +64,7 @@ msgid ""
 "action."
 msgstr "이 작업을 수행하려면 계정에서 2차 인증을 활성화해야 합니다."
 
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr "언어 업데이트됨"
 

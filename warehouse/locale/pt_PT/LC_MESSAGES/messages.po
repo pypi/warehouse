@@ -41,7 +41,7 @@ msgid ""
 msgstr ""
 "O duplo fator de autenticação deve estar ativado para executar esta ação."
 
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr "Atualizado localmente"
 

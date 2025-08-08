@@ -55,7 +55,7 @@ msgstr ""
 "この操作を実行するには、アカウントで 2 要素認証を有効にする必要があります。"
 
 # | msgid "Stay updated:"
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr "ロケールが更新されました (Locale updated)"
 

@@ -30,7 +30,7 @@ msgstr ""
 "Na vykonanie tejto akcie musí byť vo vašom účte povolená dvojfaktorová "
 "autentifikácia."
 
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr "Miestne nastavenie bolo aktualizované"
 

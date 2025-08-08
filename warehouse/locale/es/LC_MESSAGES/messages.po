@@ -55,7 +55,7 @@ msgstr ""
 "Para efectuar esta acción, la autenticación en dos fases debe estar activada "
 "en su cuenta."
 
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr "Se actualizó la configuración de idioma"
 

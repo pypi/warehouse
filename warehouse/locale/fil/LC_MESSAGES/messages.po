@@ -34,7 +34,7 @@ msgstr ""
 "Dapat paganahin ang two-factor authentication sa iyong account upang "
 "maisagawa ang pagkilos na ito."
 
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr "Na update na ang lokal"
 

@@ -44,7 +44,7 @@ msgstr ""
 "σας για να εκτελέσετε αυτή τη δράση."
 
 # | msgid "Stay updated:"
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr "η τοπική γλώσσα ενημερώθηκε"
 
