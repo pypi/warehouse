@@ -25,8 +25,7 @@ from ...common.db.packaging import (
 def _assert_has_cors_headers(headers):
     assert headers["Access-Control-Allow-Origin"] == "*"
     assert headers["Access-Control-Allow-Headers"] == (
-        "Content-Type, If-Match, If-Modified-Since, If-None-Match, "
-        "If-Unmodified-Since"
+        "Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since"
     )
     assert headers["Access-Control-Allow-Methods"] == "GET"
     assert headers["Access-Control-Max-Age"] == "86400"
@@ -208,6 +207,7 @@ class TestSimpleDetail:
         context = {
             "meta": {"_last-serial": 0, "api-version": API_VERSION},
             "name": project.normalized_name,
+            "project-status": {"status": "active"},
             "files": [],
             "versions": [],
             "alternate-locations": [],
@@ -240,6 +240,7 @@ class TestSimpleDetail:
         context = {
             "meta": {"_last-serial": je.id, "api-version": API_VERSION},
             "name": project.normalized_name,
+            "project-status": {"status": "active"},
             "files": [],
             "versions": [],
             "alternate-locations": sorted(al.url for al in als),
@@ -278,6 +279,7 @@ class TestSimpleDetail:
         context = {
             "meta": {"_last-serial": 0, "api-version": API_VERSION},
             "name": project.normalized_name,
+            "project-status": {"status": "active"},
             "versions": release_versions,
             "files": [
                 {
@@ -330,6 +332,7 @@ class TestSimpleDetail:
         context = {
             "meta": {"_last-serial": je.id, "api-version": API_VERSION},
             "name": project.normalized_name,
+            "project-status": {"status": "active"},
             "versions": release_versions,
             "files": [
                 {
@@ -419,6 +422,7 @@ class TestSimpleDetail:
         context = {
             "meta": {"_last-serial": je.id, "api-version": API_VERSION},
             "name": project.normalized_name,
+            "project-status": {"status": "active"},
             "versions": release_versions,
             "files": [
                 {
@@ -473,6 +477,66 @@ class TestSimpleDetail:
         context = {
             "meta": {"_last-serial": 0, "api-version": API_VERSION},
             "name": project.normalized_name,
+            "project-status": {"status": "quarantined"},
+            "files": [],
+            "versions": [],
+            "alternate-locations": [],
+        }
+        context = _update_context(context, content_type, renderer_override)
+
+        assert simple.simple_detail(project, db_request) == context
+
+        if renderer_override is not None:
+            assert db_request.override_renderer == renderer_override
+
+    @pytest.mark.parametrize(
+        "archive_marker",
+        [
+            "archived",
+            "archived-noindex",
+        ],
+    )
+    @pytest.mark.parametrize(
+        ("content_type", "renderer_override"),
+        CONTENT_TYPE_PARAMS,
+    )
+    def test_with_archived_project(
+        self, db_request, archive_marker, content_type, renderer_override
+    ):
+        db_request.accept = content_type
+        project = ProjectFactory.create(lifecycle_status=archive_marker)
+        _ = ReleaseFactory.create_batch(3, project=project)
+
+        context = {
+            "meta": {"_last-serial": 0, "api-version": API_VERSION},
+            "name": project.normalized_name,
+            "project-status": {"status": "archived"},
+            "files": [],
+            "versions": [],
+            "alternate-locations": [],
+        }
+        context = _update_context(context, content_type, renderer_override)
+
+        assert simple.simple_detail(project, db_request) == context
+
+        if renderer_override is not None:
+            assert db_request.override_renderer == renderer_override
+
+    @pytest.mark.parametrize(
+        ("content_type", "renderer_override"),
+        CONTENT_TYPE_PARAMS,
+    )
+    def test_with_quarantine_exit_project(
+        self, db_request, content_type, renderer_override
+    ):
+        db_request.accept = content_type
+        project = ProjectFactory.create(lifecycle_status="quarantine-exit")
+        _ = ReleaseFactory.create_batch(3, project=project)
+
+        context = {
+            "meta": {"_last-serial": 0, "api-version": API_VERSION},
+            "name": project.normalized_name,
+            "project-status": {"status": "active"},
             "files": [],
             "versions": [],
             "alternate-locations": [],
@@ -564,6 +628,7 @@ class TestSimpleDetail:
         context = {
             "meta": {"_last-serial": je.id, "api-version": API_VERSION},
             "name": project.normalized_name,
+            "project-status": {"status": "active"},
             "versions": ["1.0.0"],
             "files": [
                 {
