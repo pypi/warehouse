@@ -600,17 +600,21 @@
                         {% if breached_email_count[field.email.data] %}
                           <div class="col-sm">Breaches: {{ breached_email_count[field.email.data] }}</div>
                         {% endif %}
-                        {% if field.unverify_reason.data %}
-                          <div class="col">
-                            <i class="fa fa-times text-red"></i> Unverify Reason: {{ field.unverify_reason.data.value }}
+                        <div class="col-sm">
+                          <div class="btn-group" role="group">
+                            <a href="{{ request.route_path('admin.emails.list', _query={'q': 'to:' + field.email.data}) }}"
+                               class="btn btn-sm btn-info align-content-center"
+                               title="Search emails for this address">
+                              <i class="fa-solid fa-magnifying-glass"></i>
+                            </a>
+                            <button type="button"
+                                    class="btn btn-sm btn-danger"
+                                    data-toggle="modal"
+                                    data-target="#deleteEmail-{{ field.email.id }}">
+                              <i class="fa-solid fa-trash"></i>
+                            </button>
                           </div>
-                        {% endif %}
-                        <button type="button"
-                                class="btn btn-sm btn-danger"
-                                data-toggle="modal"
-                                data-target="#deleteEmail-{{ field.email.id }}">
-                          <i class="fa fa-trash"></i>
-                        </button>
+                        </div>
                       </div>
                       <div class="row">
                         <div class="col-sm">Domain Status: {{ field.domain_last_status.data }}</div>
@@ -622,6 +626,11 @@
                                   data-target="#checkEmailDomain-{{ field.email.id }}">Check now</button>
                         </div>
                       </div>
+                      {% if field.unverify_reason.data %}
+                        <div class="row">
+                          <div class="col-sm">Unverify Reason: <i class="fa fa-times text-red"></i> {{ field.unverify_reason.data.value }}</div>
+                        </div>
+                      {% endif %}
                       {% if not loop.last %}<hr />{% endif %}
                     {% endfor %}
                   </div>
