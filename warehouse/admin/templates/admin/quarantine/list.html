@@ -1,0 +1,167 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
+{% extends "admin/base.html" %}
+
+{% block title %}Quarantine{% endblock %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item active">Quarantine</li>
+{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Projects in Quarantine</h3>
+    </div>
+    <div class="card-body">
+      {% if quarantined_projects %}
+        <div class="table-responsive">
+          <table class="table table-striped quarantine-table">
+            <thead>
+              <tr>
+                <th>Project</th>
+                <th class="d-none d-md-table-cell">Days in Quarantine</th>
+                <th class="d-none d-lg-table-cell">Quarantined Date</th>
+                <th class="d-none d-xl-table-cell">Note</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for project in quarantined_projects %}
+                <tr>
+                  <td>
+                    <div class="project-info">
+                      <div class="project-name">
+                        <a href="{{ request.route_path('admin.project.detail', project_name=project.name) }}">
+                          <strong>{{ project.name }}</strong>
+                        </a>
+                      </div>
+                      <!-- Mobile-only information shown under project name -->
+                      <div class="d-md-none text-muted small mt-1">
+                        {% if project.lifecycle_status_changed %}
+                          {% set days_quarantined = (now() - project.lifecycle_status_changed).days %}
+                          <span class="badge badge-{{ 'warning' if days_quarantined > 30 else ('info' if days_quarantined > 7 else 'secondary') }} mr-2">
+                            {{ days_quarantined }} days
+                          </span>
+                          {{ project.lifecycle_status_changed.strftime('%Y-%m-%d') }}
+                        {% else %}
+                          <span class="badge badge-secondary">Unknown</span>
+                        {% endif %}
+                      </div>
+                      {% if project.lifecycle_status_note %}
+                        <div class="d-xl-none text-muted small mt-1">
+                          <strong>Note:</strong> {{ project.lifecycle_status_note }}
+                        </div>
+                      {% endif %}
+                    </div>
+                  </td>
+                  <td class="d-none d-md-table-cell">
+                    {% if project.lifecycle_status_changed %}
+                      {% set days_quarantined = (now() - project.lifecycle_status_changed).days %}
+                      <span class="badge badge-{{ 'warning' if days_quarantined > 30 else ('info' if days_quarantined > 7 else 'secondary') }}">
+                        {{ days_quarantined }} days
+                      </span>
+                    {% else %}
+                      <em>Unknown</em>
+                    {% endif %}
+                  </td>
+                  <td class="d-none d-lg-table-cell">
+                    {% if project.lifecycle_status_changed %}
+                      {{ project.lifecycle_status_changed.strftime('%Y-%m-%d %H:%M:%S UTC') }}
+                    {% else %}
+                      <em>Unknown</em>
+                    {% endif %}
+                  </td>
+                  <td class="d-none d-xl-table-cell">
+                    {% if project.lifecycle_status_note %}
+                      {{ project.lifecycle_status_note }}
+                    {% else %}
+                      <em>No note</em>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <div class="btn-group-vertical d-md-none">
+                      <a href="{{ request.route_path('admin.project.detail', project_name=project.name) }}"
+                         class="btn btn-sm btn-info mb-1" title="View Project Details">
+                        <i class="fa fa-eye"></i> View
+                      </a>
+                      <button type="button"
+                              class="btn btn-sm btn-success"
+                              data-toggle="modal"
+                              data-target="#modal-exit-quarantine-{{ loop.index }}"
+                              title="Clear from Quarantine">
+                        <i class="fa fa-unlock"></i> Release
+                      </button>
+                    </div>
+                    <div class="btn-group d-none d-md-flex" role="group">
+                      <a href="{{ request.route_path('admin.project.detail', project_name=project.name) }}"
+                         class="btn btn-sm btn-info" title="View Project Details">
+                        <i class="fa fa-eye"></i> View
+                      </a>
+                      <button type="button"
+                              class="btn btn-sm btn-success"
+                              data-toggle="modal"
+                              data-target="#modal-exit-quarantine-{{ loop.index }}"
+                              title="Clear from Quarantine">
+                        <i class="fa fa-unlock"></i> Release
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Modals -->
+        {% for project in quarantined_projects %}
+          <div class="modal fade" id="modal-exit-quarantine-{{ loop.index }}">
+            <div class="modal-dialog modal-exit-quarantine">
+              <form id="exit-quarantine-{{ loop.index }}"
+                    action="{{ request.route_path('admin.project.remove_from_quarantine', project_name=project.name) }}"
+                    method="post">
+                <input name="csrf_token"
+                       type="hidden"
+                       value="{{ request.session.get_csrf_token() }}">
+                <div class="modal-content">
+                  <div class="modal-header bg-success">
+                    <h4 class="modal-title">Clear Project from Quarantine</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">×</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <p>
+                      Confirming that <code>{{ project.name }}</code> will no longer be quarantined.
+                    </p>
+                    <p>
+                      This will restore the project to the index for installation.
+                      It will not affect any frozen user accounts - those will need to be handled separately.
+                    </p>
+                  </div>
+                  <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-outline-success">Clear from Quarantine</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+
+        <div class="mt-3">
+          <div class="alert alert-info">
+            <i class="fa fa-info-circle"></i>
+            <strong>{{ quarantined_projects|length }}</strong> project{{ 's' if quarantined_projects|length != 1 else '' }} currently in quarantine.
+            Projects are sorted by quarantine date (oldest first).
+          </div>
+        </div>
+      {% else %}
+        <div class="alert alert-success">
+          <i class="fa fa-check-circle"></i>
+          No projects are currently in quarantine.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

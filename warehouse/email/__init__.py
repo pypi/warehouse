@@ -1076,6 +1076,14 @@ def send_pep427_name_email(request, users, project_name, filename, normalized_na
     }
 
 
+@_email("wheel-record-mismatch-email")
+def send_wheel_record_mismatch_email(request, users, project_name, filename):
+    return {
+        "project_name": project_name,
+        "filename": filename,
+    }
+
+
 def includeme(config):
     email_sending_class = config.maybe_dotted(config.registry.settings["mail.backend"])
     config.register_service_factory(email_sending_class.create_service, IEmailSender)

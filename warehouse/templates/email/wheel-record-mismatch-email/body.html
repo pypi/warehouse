@@ -1,0 +1,32 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% extends "email/_base/body.html" %}
+{% set domain = request.registry.settings.get('warehouse.domain') %}
+{% block content %}
+  <p>
+    This email is notifying you of an upcoming deprecation that we have
+    determined may affect you as a result of your recent upload to
+    '{{ project_name }}'.
+  </p>
+  <p>
+    In the future, PyPI will require the file contents of all newly uploaded
+    wheel distributions to match their included <code>RECORD</code> file.
+    Specifically, your recent upload of '{{ filename }}' has file contents
+    that do not match the included <code>RECORD</code> file.
+  </p>
+  <p>
+    Any files already uploaded can remain in place as-is and do
+    not need to be updated or removed.
+  </p>
+  <p>
+    In most cases, this can be resolved by upgrading the version of your build
+    tooling to a later version that correctly records wheel contents. You do
+    not need to remove the file.
+  </p>
+  <p>
+    Please read this
+    <a href="https://blog.pypi.org/posts/2025-08-07-wheel-archive-confusion-attacks">PyPI blog post</a>
+    for more information. If you have questions, you can email
+    <a href="mailto:admin@pypi.org">admin@pypi.org</a> to communicate with the
+    PyPI administrators.
+  </p>
+{% endblock %}

@@ -28,3 +28,24 @@
 .hidden {
   display: none;
 }
+
+/* Responsive quarantine table */
+.quarantine-table {
+  .project-info {
+    min-width: 200px;
+  }
+
+  .project-name {
+    font-weight: 500;
+  }
+
+  @media (width <= 768px) {
+    td {
+      padding: 0.75rem 0.5rem;
+    }
+
+    .btn .btn-group-vertical {
+      font-size: 0.875rem;
+    }
+  }
+}

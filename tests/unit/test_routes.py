@@ -69,6 +69,11 @@ def test_routes(warehouse):
         pretend.call("locale", "/locale/", domain=warehouse),
         pretend.call("favicon.ico", "/favicon.ico", domain=warehouse),
         pretend.call("robots.txt", "/robots.txt", domain=warehouse),
+        pretend.call(
+            "funding-manifest-urls",
+            "/.well-known/funding-manifest-urls",
+            domain=warehouse,
+        ),
         pretend.call("opensearch.xml", "/opensearch.xml", domain=warehouse),
         pretend.call("index.sitemap.xml", "/sitemap.xml", domain=warehouse),
         pretend.call("bucket.sitemap.xml", "/{bucket}.sitemap.xml", domain=warehouse),

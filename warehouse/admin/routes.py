@@ -34,6 +34,21 @@ def includeme(config):
         "/admin/organizations/{organization_id}/set_total_size_limit/",
         domain=warehouse,
     )
+    config.add_route(
+        "admin.organization.add_role",
+        "/admin/organizations/{organization_id}/add_role/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.organization.update_role",
+        "/admin/organizations/{organization_id}/update_role/{role_id}/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.organization.delete_role",
+        "/admin/organizations/{organization_id}/delete_role/{role_id}/",
+        domain=warehouse,
+    )
 
     config.add_route(
         "admin.organization_application.list",
@@ -381,6 +396,7 @@ def includeme(config):
     config.add_route(
         "admin.observations.list", "/admin/observations/", domain=warehouse
     )
+    config.add_route("admin.quarantine.list", "/admin/quarantine/", domain=warehouse)
     config.add_route(
         "admin.malware_reports.list",
         "/admin/malware_reports/",

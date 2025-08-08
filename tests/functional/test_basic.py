@@ -6,6 +6,14 @@ import pytest
 import webtest
 
 
+def test_funding_manifest_urls(app_config):
+    testapp = webtest.TestApp(app_config.make_wsgi_app())
+    resp = testapp.get("/.well-known/funding-manifest-urls")
+    assert resp.status_code == HTTPStatus.OK
+    assert resp.content_type == "text/plain"
+    assert resp.body.decode(resp.charset) == "https://www.python.org/funding.json"
+
+
 @pytest.mark.parametrize(
     ("domain", "indexable"), [("pypi.org", True), ("test.pypi.org", False)]
 )

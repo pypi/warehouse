@@ -20,6 +20,9 @@ def includeme(config):
     config.add_route("locale", "/locale/", domain=warehouse)
     config.add_route("favicon.ico", "/favicon.ico", domain=warehouse)
     config.add_route("robots.txt", "/robots.txt", domain=warehouse)
+    config.add_route(
+        "funding-manifest-urls", "/.well-known/funding-manifest-urls", domain=warehouse
+    )
     config.add_route("opensearch.xml", "/opensearch.xml", domain=warehouse)
     config.add_route("index.sitemap.xml", "/sitemap.xml", domain=warehouse)
     config.add_route("bucket.sitemap.xml", "/{bucket}.sitemap.xml", domain=warehouse)
