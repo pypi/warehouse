@@ -3646,8 +3646,9 @@ class TestFileUpload:
         self, monkeypatch, pyramid_config, db_request, exempt_filename
     ):
         """
-        Certain filenames are required not to be included in RECORD (RECORD.jws, RECORD.p7s)
-        so we can't warn if they aren't included in the RECORD.
+        Certain filenames are required not to be included in RECORD
+        (RECORD.jws, RECORD.p7s) so we can't warn if they aren't included in
+        the RECORD.
         """
 
         user = UserFactory.create()
