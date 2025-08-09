@@ -5947,6 +5947,151 @@ class TestFileUpload:
             "Please contact support+orgs@pypi.org."
         )
 
+    def test_upload_with_organization_file_size_limit_succeeds(
+        self, pyramid_config, db_request, monkeypatch
+    ):
+        organization = OrganizationFactory.create(
+            orgtype="Company", upload_limit=120 * (1024**2)  # 120 MiB
+        )
+        user = UserFactory.create(with_verified_primary_email=True)
+        OrganizationRoleFactory.create(organization=organization, user=user)
+        OrganizationStripeSubscriptionFactory.create(organization=organization)
+        project = OrganizationProjectFactory.create(
+            organization=organization,
+            project__upload_limit=70 * (1024**2),  # 70 MiB
+        ).project
+        version = "1.0.0"
+
+        filename = (
+            f"{project.normalized_name.replace('-', '_')}-{version}-py3-none-any.whl"
+        )
+        # Create a small file representing a 110 MiB file
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version=version
+        )
+
+        @pretend.call_recorder
+        def storage_service_store(path, file_path, *, meta):
+            with open(file_path, "rb") as fp:
+                if file_path.endswith(".metadata"):
+                    assert fp.read() == b"Fake metadata"
+                else:
+                    assert fp.read() == filebody
+
+        storage_service = pretend.stub(store=storage_service_store)
+
+        db_request.find_service = pretend.call_recorder(
+            lambda svc, name=None, context=None: {
+                IFileStorage: storage_service,
+            }.get(svc)
+        )
+
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        # Mock the file size to be 110 MiB
+        class MockFieldStorage:
+            def __init__(self, data, filename):
+                self.file = io.BytesIO(data)
+                self.filename = filename
+                self.type = "application/x-wheel+zip"
+                self.length = 110 * (1024**2)  # 110 MiB
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0.0",
+                "summary": "This is a summary",
+                "filetype": "bdist_wheel",
+                "pyversion": "py3",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": MockFieldStorage(filebody, filename),
+            }
+        )
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+    def test_upload_with_organization_total_size_limit_succeeds(
+        self, pyramid_config, db_request, monkeypatch
+    ):
+        organization = OrganizationFactory.create(
+            orgtype="Company", total_size_limit=100 * (1024**3)  # 100 GiB
+        )
+        user = UserFactory.create(with_verified_primary_email=True)
+        OrganizationRoleFactory.create(organization=organization, user=user)
+        OrganizationStripeSubscriptionFactory.create(organization=organization)
+
+        # Create project with 90 GiB already used, project limit of 50 GiB
+        project = OrganizationProjectFactory.create(
+            organization=organization,
+            project__total_size_limit=50 * (1024**3),  # 50 GiB
+            project__total_size=90 * (1024**3),  # 90 GiB already used
+        ).project
+        version = "1.0.0"
+
+        filename = (
+            f"{project.normalized_name.replace('-', '_')}-{version}-py3-none-any.whl"
+        )
+        # Create a small file representing a 5 GiB file
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version=version
+        )
+
+        @pretend.call_recorder
+        def storage_service_store(path, file_path, *, meta):
+            with open(file_path, "rb") as fp:
+                if file_path.endswith(".metadata"):
+                    assert fp.read() == b"Fake metadata"
+                else:
+                    assert fp.read() == filebody
+
+        storage_service = pretend.stub(store=storage_service_store)
+
+        db_request.find_service = pretend.call_recorder(
+            lambda svc, name=None, context=None: {
+                IFileStorage: storage_service,
+            }.get(svc)
+        )
+
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        # Mock the file size to be 5 GiB
+        class MockFieldStorage:
+            def __init__(self, data, filename):
+                self.file = io.BytesIO(data)
+                self.filename = filename
+                self.type = "application/x-wheel+zip"
+                self.length = 5 * (1024**3)  # 5 GiB
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0.0",
+                "summary": "This is a summary",
+                "filetype": "bdist_wheel",
+                "pyversion": "py3",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": MockFieldStorage(filebody, filename),
+            }
+        )
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
     def test_upload_for_company_organization_owned_project_suceeds_with_subscription(
         self, pyramid_config, db_request, monkeypatch
     ):
