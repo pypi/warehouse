@@ -29,7 +29,7 @@ msgstr ""
 "Tes que habilitar a autenticación de dobre factor na túa conta para levar a "
 "cabo esta acción."
 
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr ""
 

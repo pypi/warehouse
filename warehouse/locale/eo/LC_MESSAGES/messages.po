@@ -30,7 +30,7 @@ msgid ""
 "action."
 msgstr "Vi devas starigi dupaŝan aŭtentikigon por fari tion."
 
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr "Lokaĵaro ĝisdatigita"
 

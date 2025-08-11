@@ -28,7 +28,7 @@ msgid ""
 "action."
 msgstr "यो कार्य गर्न तपाईंको खातामा दुई-कारक प्रमाणीकरण सक्षम हुनुपर्छ।"
 
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr "लोकेल अपडेट गरियो"
 

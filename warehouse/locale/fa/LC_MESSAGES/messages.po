@@ -56,7 +56,7 @@ msgid ""
 msgstr ""
 "برای انجام این عملیات احراز هویت دو مرحله ای باید در حساب شما فعال باشد."
 
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr "به‌روز رسانی محلی"
 

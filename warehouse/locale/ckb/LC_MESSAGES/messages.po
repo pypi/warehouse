@@ -28,7 +28,7 @@ msgid ""
 "action."
 msgstr "بۆ بەکارهێنانی ئەو کردارە پێویستە دوو فاکتەر دابگرسێنیت"
 
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr "Ndnv"
 

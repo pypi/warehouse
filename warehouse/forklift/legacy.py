@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-
+import csv
 import hashlib
 import hmac
 import os.path
@@ -47,6 +47,7 @@ from warehouse.email import (
     send_pep625_extension_email,
     send_pep625_name_email,
     send_pep625_version_email,
+    send_wheel_record_mismatch_email,
 )
 from warehouse.events.tags import EventTag
 from warehouse.forklift import metadata
@@ -67,7 +68,7 @@ from warehouse.packaging.models import (
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
 from warehouse.rate_limiting.interfaces import RateLimiterException
-from warehouse.utils import readme
+from warehouse.utils import readme, zipfiles
 from warehouse.utils.release import strip_keywords
 
 PATH_HASHER = "blake2_256"
@@ -353,6 +354,12 @@ def _is_valid_dist_file(filename, filetype):
                     except KeyError:
                         return False, f"WHEEL not found at {target_file}"
 
+            # Check the ZIP file record framing
+            # to avoid parser differentials.
+            zip_ok, zip_error = zipfiles.validate_zipfile(filename)
+            if not zip_ok:
+                return False, f"ZIP archive not accepted: {zip_error}"
+
         except zipfile.BadZipFile:  # pragma: no cover
             return False, None
 
@@ -452,6 +459,11 @@ def _sort_releases(request: Request, project: Project):
         #       update query to eliminate the possibility we trigger this again.
         if r._pypi_ordering != i:
             r._pypi_ordering = i
+
+
+def _zip_filename_is_dir(filename: str) -> bool:
+    """Return True if this ZIP archive member is a directory."""
+    return filename.endswith(("/", "\\"))
 
 
 @view_config(
@@ -1464,6 +1476,54 @@ def file_upload(request):
                                 f"License-File {license_file} does not exist in "
                                 f"distribution file {filename} at {license_filename}",
                             )
+
+            """
+            Extract RECORD file from a wheel and check the ZIP archive contents
+            against the files listed in the RECORD. Mismatches are reported via email.
+            """
+            record_filename = f"{name}-{version}.dist-info/RECORD"
+            # Files that must be missing from 'RECORD',
+            # so we ignore them when cross-checking.
+            record_exemptions = {
+                f"{name}-{version}.dist-info/RECORD.jws",
+                f"{name}-{version}.dist-info/RECORD.p7s",
+            }
+            try:
+                with zipfile.ZipFile(temporary_filename) as zfp:
+                    wheel_record_contents = zfp.read(record_filename).decode()
+                record_entries = {
+                    fn.replace("\\", "/")  # Normalize Windows path separators.
+                    for fn, *_ in csv.reader(wheel_record_contents.splitlines())
+                }
+                zip_entries = {
+                    fn
+                    for fn in zfp.namelist()
+                    if not _zip_filename_is_dir(fn) and fn not in record_exemptions
+                }
+            except (UnicodeError, KeyError, csv.Error) as e:
+                request.metrics.increment(
+                    "warehouse.upload.failed",
+                    tags=[
+                        "reason:missing-record-file",
+                        f"filetype:{form.filetype.data}",
+                    ],
+                )
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    "Wheel '{filename}' does not contain the required "
+                    "RECORD file: {record_filename} {e}".format(
+                        filename=filename,
+                        record_filename=record_filename,
+                        e=str(type(e)) + repr(e),
+                    ),
+                )
+            if record_entries != zip_entries:
+                send_wheel_record_mismatch_email(
+                    request,
+                    set(project.users),
+                    project_name=project.name,
+                    filename=filename,
+                )
 
             """
             Extract METADATA file from a wheel and return it as a content.

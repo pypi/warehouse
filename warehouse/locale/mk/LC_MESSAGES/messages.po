@@ -39,7 +39,7 @@ msgstr ""
 "Дво-факторна автентикација мора да се вклучи на вашиот акаунт за да се "
 "изврши оваа акција."
 
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr "Јазикот е обновен"
 

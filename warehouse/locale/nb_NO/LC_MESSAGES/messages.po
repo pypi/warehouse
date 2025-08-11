@@ -37,7 +37,7 @@ msgstr ""
 "Tofaktorautentisering må være aktivert på kontoen din for å utføre denne "
 "handlingen."
 
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr "Lokalitet oppdatert"
 

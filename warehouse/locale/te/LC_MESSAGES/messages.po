@@ -27,7 +27,7 @@ msgid ""
 "action."
 msgstr "ఈ చర్యను నిర్వహించడానికి మీ ఖాతాలో రెండు-కారకాల ప్రమాణీకరణ తప్పనిసరిగా ప్రారంభించబడాలి."
 
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr ""
 
