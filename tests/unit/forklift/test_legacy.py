@@ -10,6 +10,7 @@ import tempfile
 import zipfile
 
 from cgi import FieldStorage
+from textwrap import dedent
 from unittest import mock
 
 import pretend
@@ -91,6 +92,17 @@ def _get_whl_testdata(name="fake_package", version="1.0"):
         zfp.writestr(
             f"{name}-{version}.dist-info/licenses/LICENSE.APACHE", "Fake License"
         )
+        zfp.writestr(
+            f"{name}-{version}.dist-info/RECORD",
+            dedent(
+                f"""\
+                {name}-{version}.dist-info/METADATA,
+                {name}-{version}.dist-info/licenses/LICENSE.MIT,
+                {name}-{version}.dist-info/licenses/LICENSE.APACHE,
+                {name}-{version}.dist-info/RECORD,
+                """,
+            ),
+        )
     return temp_f.getvalue()
 
 
@@ -145,7 +157,11 @@ class TestExcWithMessage:
 
 
 def test_construct_dependencies():
-    types = {"requires": DependencyKind.requires, "provides": DependencyKind.provides}
+    types = {
+        "requires": DependencyKind.requires,
+        "provides": DependencyKind.provides,
+        "requires_dist": DependencyKind.requires_dist,
+    }
 
     meta = metadata.Metadata.from_raw(
         {
@@ -3064,10 +3080,7 @@ class TestFileUpload:
         @pretend.call_recorder
         def storage_service_store(path, file_path, *, meta):
             with open(file_path, "rb") as fp:
-                if file_path.endswith(".metadata"):
-                    assert fp.read() == b"Fake metadata"
-                else:
-                    assert fp.read() == filebody
+                assert fp.read() == filebody
 
         storage_service = pretend.stub(store=storage_service_store)
 
@@ -3366,7 +3379,7 @@ class TestFileUpload:
             "400 Binary wheel .* has an unsupported platform tag .*", resp.status
         )
 
-    def test_upload_fails_with_missing_metadata_wheel(
+    def test_upload_fails_with_missing_record_wheel(
         self, monkeypatch, pyramid_config, db_request
     ):
         user = UserFactory.create()
@@ -3383,6 +3396,429 @@ class TestFileUpload:
 
         filename = "{}-{}-cp34-none-any.whl".format(
             project.normalized_name.replace("-", "_"),
+            release.version,
+        )
+        filebody = temp_f.getvalue()
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "cp34",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert re.match(
+            "400 Wheel .* does not contain the required RECORD file: .*", resp.status
+        )
+
+    def test_upload_warns_with_mismatched_wheel_and_zip_contents(
+        self, monkeypatch, pyramid_config, db_request
+    ):
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        temp_f = io.BytesIO()
+        project_name = project.normalized_name.replace("-", "_")
+        with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
+            zfp.writestr("some_file", "some_data")
+            zfp.writestr(f"{project_name}-{release.version}.dist-info/METADATA", "")
+            zfp.writestr(
+                f"{project_name}-{release.version}.dist-info/RECORD",
+                f"{project_name}-{release.version}.dist-info/RECORD,",
+            )
+
+        filename = "{}-{}-cp34-none-any.whl".format(
+            project.normalized_name.replace("-", "_"),
+            release.version,
+        )
+        filebody = temp_f.getvalue()
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "cp34",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(legacy, "send_wheel_record_mismatch_email", send_email)
+
+        resp = legacy.file_upload(db_request)
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                {user},
+                project_name=project.name,
+                filename=filename,
+            ),
+        ]
+        assert resp.status_code == 200
+
+    def test_upload_record_does_not_warn_with_zip_dir(
+        self, monkeypatch, pyramid_config, db_request
+    ):
+        """
+        ZIP archives can contain directory "members".
+        These shouldn't cause a warning, as RECORD
+        only contains files, not directories.
+        """
+
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        temp_f = io.BytesIO()
+        project_name = project.normalized_name.replace("-", "_")
+        with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
+            zfp.mkdir("some-dir/")  # Directories!
+            zfp.mkdir(f"{project_name}-{release.version}.dist-info/")
+
+            zfp.writestr(f"{project_name}-{release.version}.dist-info/METADATA", "")
+            zfp.writestr(
+                f"{project_name}-{release.version}.dist-info/RECORD",
+                dedent(
+                    f"""\
+                    {project_name}-{release.version}.dist-info/METADATA,
+                    {project_name}-{release.version}.dist-info/RECORD,
+                    """,
+                ),
+            )
+
+        filename = "{}-{}-cp34-none-any.whl".format(
+            project.normalized_name.replace("-", "_"),
+            release.version,
+        )
+        filebody = temp_f.getvalue()
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "cp34",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(legacy, "send_wheel_record_mismatch_email", send_email)
+
+        resp = legacy.file_upload(db_request)
+
+        assert send_email.calls == []
+        assert resp.status_code == 200
+
+    def test_upload_record_does_not_warn_windows_path_separators(
+        self, monkeypatch, pyramid_config, db_request
+    ):
+        """
+        RECORD files can use '/' or '\' for path separators.
+        We should handle both and not send unnecessary emails.
+        """
+
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        temp_f = io.BytesIO()
+        project_name = project.normalized_name.replace("-", "_")
+        with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
+            zfp.writestr(f"{project_name}-{release.version}.dist-info/METADATA", "")
+            zfp.writestr(
+                f"{project_name}-{release.version}.dist-info/RECORD",
+                dedent(
+                    f"""\
+                {project_name}-{release.version}.dist-info\\METADATA,
+                {project_name}-{release.version}.dist-info\\RECORD,
+                """,
+                ),
+            )
+
+        filename = "{}-{}-cp34-none-any.whl".format(
+            project.normalized_name.replace("-", "_"),
+            release.version,
+        )
+        filebody = temp_f.getvalue()
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "cp34",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(legacy, "send_wheel_record_mismatch_email", send_email)
+
+        resp = legacy.file_upload(db_request)
+
+        assert send_email.calls == []
+        assert resp.status_code == 200
+
+    @pytest.mark.parametrize("exempt_filename", ["RECORD.jws", "RECORD.p7s"])
+    def test_upload_record_check_does_not_include_jws_p7s(
+        self, monkeypatch, pyramid_config, db_request, exempt_filename
+    ):
+        """
+        Certain filenames are required not to be included in RECORD
+        (RECORD.jws, RECORD.p7s) so we can't warn if they aren't included in
+        the RECORD.
+        """
+
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        temp_f = io.BytesIO()
+        project_name = project.normalized_name.replace("-", "_")
+        with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
+            zfp.mkdir("some-dir/")  # Directories!
+            zfp.mkdir(f"{project_name}-{release.version}.dist-info/")
+
+            zfp.writestr(f"{project_name}-{release.version}.dist-info/METADATA", "")
+            zfp.writestr(
+                f"{project_name}-{release.version}.dist-info/{exempt_filename}", ""
+            )
+            zfp.writestr(
+                f"{project_name}-{release.version}.dist-info/RECORD",
+                dedent(
+                    f"""\
+                    {project_name}-{release.version}.dist-info/METADATA,
+                    {project_name}-{release.version}.dist-info/RECORD,
+                    """,
+                ),
+            )
+
+        filename = "{}-{}-cp34-none-any.whl".format(
+            project.normalized_name.replace("-", "_"),
+            release.version,
+        )
+        filebody = temp_f.getvalue()
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "cp34",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(legacy, "send_wheel_record_mismatch_email", send_email)
+
+        resp = legacy.file_upload(db_request)
+
+        assert send_email.calls == []
+        assert resp.status_code == 200
+
+    @pytest.mark.parametrize("exempt_filename", ["RECORD.jws", "RECORD.p7s"])
+    def test_upload_record_check_exclusions_only_in_dist_info(
+        self,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        exempt_filename,
+    ):
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        temp_f = io.BytesIO()
+        project_name = project.normalized_name.replace("-", "_")
+        with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
+            zfp.writestr("some_file", "some_data")
+            zfp.writestr(f"{project_name}-{release.version}.dist-info/METADATA", "")
+            zfp.writestr(f"not-dist-info/{exempt_filename}", "")
+            zfp.writestr(
+                f"{project_name}-{release.version}.dist-info/RECORD",
+                f"{project_name}-{release.version}.dist-info/RECORD,",
+            )
+
+        filename = "{}-{}-cp34-none-any.whl".format(
+            project.normalized_name.replace("-", "_"),
+            release.version,
+        )
+        filebody = temp_f.getvalue()
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "cp34",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(legacy, "send_wheel_record_mismatch_email", send_email)
+
+        resp = legacy.file_upload(db_request)
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                {user},
+                project_name=project.name,
+                filename=filename,
+            ),
+        ]
+        assert resp.status_code == 200
+
+    def test_upload_fails_with_missing_metadata_wheel(
+        self, monkeypatch, pyramid_config, db_request
+    ):
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        temp_f = io.BytesIO()
+        project_name = project.normalized_name.replace("-", "_")
+        with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
+            zfp.writestr("some_file", "some_data")
+            zfp.writestr(
+                f"{project_name}-{release.version}.dist-info/RECORD",
+                dedent(
+                    f"""\
+                    some_file,
+                    {project_name}-{release.version}.dist-info/RECORD,
+                    """,
+                ),
+            )
+
+        filename = "{}-{}-cp34-none-any.whl".format(
+            project_name,
             release.version,
         )
         filebody = temp_f.getvalue()
@@ -5153,13 +5589,13 @@ class TestFileUpload:
                 )
                 digest = _TAR_GZ_PKG_MD5
                 data = _TAR_GZ_PKG_TESTDATA
-            elif mimetype == "application/zip":
+            elif mimetype == "application/zip":  # pragma: no branch
                 filename = "{}-{}.zip".format(
                     project.normalized_name.replace("-", "_"), "1.0"
                 )
                 digest = _ZIP_PKG_MD5
                 data = _ZIP_PKG_TESTDATA
-        elif filetype == "bdist_wheel":
+        elif filetype == "bdist_wheel":  # pragma: no branch
             filename = "{}-{}-py3-none-any.whl".format(
                 project.normalized_name.replace("-", "_"), "1.0"
             )
@@ -5271,14 +5707,14 @@ class TestFileUpload:
                 )
                 digest = _TAR_GZ_PKG_MD5
                 data = _TAR_GZ_PKG_TESTDATA
-            elif mimetype == "application/zip":
+            elif mimetype == "application/zip":  # pragma: no branch
                 filename = "{}-{}.zip".format(
                     project.normalized_name.replace("-", "_"), "1.0"
                 )
                 digest = _ZIP_PKG_MD5
                 data = _ZIP_PKG_TESTDATA
             license_filename = "fake_package-1.0/LICENSE"
-        elif filetype == "bdist_wheel":
+        elif filetype == "bdist_wheel":  # pragma: no branch
             filename = "{}-{}-py3-none-any.whl".format(
                 project.normalized_name.replace("-", "_"),
                 "1.0",
@@ -5473,22 +5909,6 @@ class TestFileUpload:
         )
         filebody = _get_whl_testdata(
             name=project.normalized_name.replace("-", "_"), version=version
-        )
-
-        @pretend.call_recorder
-        def storage_service_store(path, file_path, *, meta):
-            with open(file_path, "rb") as fp:
-                if file_path.endswith(".metadata"):
-                    assert fp.read() == b"Fake metadata"
-                else:
-                    assert fp.read() == filebody
-
-        storage_service = pretend.stub(store=storage_service_store)
-
-        db_request.find_service = pretend.call_recorder(
-            lambda svc, name=None, context=None: {
-                IFileStorage: storage_service,
-            }.get(svc)
         )
 
         monkeypatch.setattr(

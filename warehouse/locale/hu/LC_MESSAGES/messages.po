@@ -36,7 +36,7 @@ msgid ""
 "action."
 msgstr "A folytatáshoz engedélyezd a kétlépcsős azonosítást ezen a fiókon."
 
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr ""
 

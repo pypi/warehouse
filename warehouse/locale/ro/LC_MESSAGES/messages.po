@@ -41,7 +41,7 @@ msgstr ""
 "Autentificarea cu doi factori trebuie să fie activată în contul dvs. pentru "
 "a efectua această acțiune."
 
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr "Setări regionale actualizate"
 

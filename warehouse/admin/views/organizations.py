@@ -8,9 +8,11 @@ from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy import desc, func, or_
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
 
 from warehouse.accounts.interfaces import IUserService
+from warehouse.accounts.models import User
 from warehouse.authnz import Permissions
 from warehouse.manage.forms import OrganizationNameMixin, SaveOrganizationForm
 from warehouse.organizations.interfaces import IOrganizationService
@@ -18,10 +20,37 @@ from warehouse.organizations.models import (
     Organization,
     OrganizationApplication,
     OrganizationApplicationStatus,
+    OrganizationRole,
+    OrganizationRoleType,
     OrganizationType,
 )
 from warehouse.subscriptions.interfaces import IBillingService
 from warehouse.utils.paginate import paginate_url_factory
+
+
+class OrganizationRoleForm(wtforms.Form):
+    role_name = wtforms.SelectField(
+        choices=[(role.value, role.value) for role in OrganizationRoleType],
+        coerce=OrganizationRoleType,
+        validators=[
+            wtforms.validators.InputRequired(message="Select a role"),
+        ],
+    )
+
+
+class AddOrganizationRoleForm(wtforms.Form):
+    username = wtforms.StringField(
+        validators=[
+            wtforms.validators.InputRequired(message="Specify username"),
+        ]
+    )
+    role_name = wtforms.SelectField(
+        choices=[(role.value, role.value) for role in OrganizationRoleType],
+        coerce=OrganizationRoleType,
+        validators=[
+            wtforms.validators.InputRequired(message="Select a role"),
+        ],
+    )
 
 
 class OrganizationForm(wtforms.Form):
@@ -249,9 +278,21 @@ def organization_detail(request):
             )
         )
 
+    # Sort roles by username
+    roles = sorted(organization.roles, key=lambda r: r.user.username)
+
+    # Create role forms for each existing role
+    role_forms = {role.id: OrganizationRoleForm(obj=role) for role in roles}
+
+    # Create form for adding new roles
+    add_role_form = AddOrganizationRoleForm()
+
     return {
         "organization": organization,
         "form": form,
+        "roles": roles,
+        "role_forms": role_forms,
+        "add_role_form": add_role_form,
     }
 
 
@@ -272,7 +313,7 @@ def organization_rename(request):
         raise HTTPNotFound
 
     old_organization_name = organization.name
-    new_organization_name = request.params.get("new_organization_name")
+    new_organization_name = request.params.get("new_organization_name").strip()
 
     try:
         organization_service.rename_organization(organization_id, new_organization_name)
@@ -633,4 +674,231 @@ def organization_application_decline(request):
             "admin.organization_application.detail",
             organization_application_id=organization_application.id,
         )
+    )
+
+
+@view_config(
+    route_name="admin.organization.add_role",
+    permission=Permissions.AdminRoleAdd,
+    request_method="POST",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def add_organization_role(request):
+    organization_service = request.find_service(IOrganizationService, context=None)
+
+    organization_id = request.matchdict["organization_id"]
+    organization = organization_service.get_organization(organization_id)
+    if organization is None:
+        raise HTTPNotFound
+
+    username = request.POST.get("username")
+    if not username:
+        request.session.flash("Provide a username", queue="error")
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
+    try:
+        user = request.db.query(User).filter(User.username == username).one()
+    except NoResultFound:
+        request.session.flash(f"Unknown username '{username}'", queue="error")
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
+    role_name = request.POST.get("role_name")
+    if not role_name:
+        request.session.flash("Provide a role", queue="error")
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
+    # Check if user already has a role in this organization
+    already_there = (
+        request.db.query(OrganizationRole)
+        .filter(
+            OrganizationRole.user == user, OrganizationRole.organization == organization
+        )
+        .count()
+    )
+    if already_there > 0:
+        request.session.flash(
+            f"User '{user.username}' already has a role in this organization",
+            queue="error",
+        )
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
+    # Create the role
+    organization_role = OrganizationRole(
+        role_name=OrganizationRoleType(role_name),
+        user=user,
+        organization=organization,
+    )
+    request.db.add(organization_role)
+
+    # Record the event
+    organization.record_event(
+        request=request,
+        tag="admin:organization:role:add",
+        additional={
+            "action": f"add {role_name} {user.username}",
+            "user_id": str(user.id),
+            "role_name": role_name,
+        },
+    )
+
+    request.session.flash(
+        f"Added '{user.username}' as '{role_name}' to '{organization.name}'",
+        queue="success",
+    )
+
+    return HTTPSeeOther(
+        request.route_path("admin.organization.detail", organization_id=organization.id)
+    )
+
+
+@view_config(
+    route_name="admin.organization.update_role",
+    permission=Permissions.AdminRoleUpdate,
+    request_method="POST",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def update_organization_role(request):
+    organization_service = request.find_service(IOrganizationService, context=None)
+
+    organization_id = request.matchdict["organization_id"]
+    organization = organization_service.get_organization(organization_id)
+    if organization is None:
+        raise HTTPNotFound
+
+    role_id = request.matchdict.get("role_id")
+    role = request.db.get(OrganizationRole, role_id)
+    if not role:
+        request.session.flash("This role no longer exists", queue="error")
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
+    new_role_name = request.POST.get("role_name")
+    if not new_role_name:
+        request.session.flash("Provide a role", queue="error")
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
+    # Don't update if it's the same role
+    if role.role_name.value == new_role_name:
+        request.session.flash("Role is already set to this value", queue="error")
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
+    old_role_name = role.role_name.value
+
+    # Update the role
+    role.role_name = OrganizationRoleType(new_role_name)
+    request.db.add(role)
+    request.db.flush()  # Ensure the role is updated before recording event
+
+    # Record the event
+    organization.record_event(
+        request=request,
+        tag="admin:organization:role:change",
+        additional={
+            "action": (
+                f"change {role.user.username} from {old_role_name} to {new_role_name}"
+            ),
+            "user_id": str(role.user.id),
+            "old_role_name": old_role_name,
+            "new_role_name": new_role_name,
+        },
+    )
+
+    request.session.flash(
+        f"Changed '{role.user.username}' from '{old_role_name}' to "
+        f"'{new_role_name}' in '{organization.name}'",
+        queue="success",
+    )
+
+    return HTTPSeeOther(
+        request.route_path("admin.organization.detail", organization_id=organization.id)
+    )
+
+
+@view_config(
+    route_name="admin.organization.delete_role",
+    permission=Permissions.AdminRoleDelete,
+    request_method="POST",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def delete_organization_role(request):
+    organization_service = request.find_service(IOrganizationService, context=None)
+
+    organization_id = request.matchdict["organization_id"]
+    organization = organization_service.get_organization(organization_id)
+    if organization is None:
+        raise HTTPNotFound
+
+    role_id = request.matchdict.get("role_id")
+    role = request.db.get(OrganizationRole, role_id)
+    if not role:
+        request.session.flash("This role no longer exists", queue="error")
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
+    confirm = request.POST.get("username")
+    if not confirm or confirm != role.user.username:
+        request.session.flash("Confirm the request", queue="error")
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
+    # Record the event before deleting
+    organization.record_event(
+        request=request,
+        tag="admin:organization:role:remove",
+        additional={
+            "action": f"remove {role.role_name.value} {role.user.username}",
+            "user_id": str(role.user.id),
+            "role_name": role.role_name.value,
+        },
+    )
+
+    request.session.flash(
+        f"Removed '{role.user.username}' as '{role.role_name.value}' "
+        f"from '{organization.name}'",
+        queue="success",
+    )
+
+    request.db.delete(role)
+
+    return HTTPSeeOther(
+        request.route_path("admin.organization.detail", organization_id=organization.id)
     )

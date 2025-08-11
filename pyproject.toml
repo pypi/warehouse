@@ -1,7 +1,7 @@
 [tool.coverage.run]
 branch = true
 dynamic_context = "test_function"
-source = ["warehouse"]
+source = ["warehouse", "tests"]
 omit = [
   # We don't want to get coverage information for our migrations.
   "warehouse/migrations/*",
@@ -22,10 +22,12 @@ omit = [
 parallel = true
 
 [tool.coverage.report]
-exclude_lines = [
-  "pragma: no cover",
+exclude_also = [
   "class \\w+\\(Interface\\):",
   "if (typing\\.)?TYPE_CHECKING:",
+  "pytest.fail\\(",  # Use for test branches that should never be reached.
+  # Remove once resolved: https://github.com/nedbat/coveragepy/issues/1563
+  "case _:\\n\\s*pytest\\.fail\\(",
 ]
 
 [tool.djlint]
@@ -52,6 +54,7 @@ known_first_party = ['warehouse', 'tests']
 
 [tool.mypy]
 python_version = "3.12"
+warn_unreachable = true
 warn_unused_configs = true
 warn_unused_ignores = true
 plugins = ["mypy_zope:plugin"]

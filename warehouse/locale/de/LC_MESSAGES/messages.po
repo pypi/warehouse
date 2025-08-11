@@ -18,7 +18,7 @@
 # Pascal Vallaster <pascalvallaster@gmail.com>, 2021, 2022, 2023.
 # Marlon <mawol@protonmail.com>, 2022.
 # Pixel-Master <Pixel_Mqster@protonmail.com>, 2022.
-# Jean-Luc Tibaux <eugentoptic@outlook.de>, 2022, 2023.
+# Jean-Luc Tibaux <eugentoptic@outlook.de>, 2022, 2023, 2025.
 # Justin Nogossek <justmegaliga10000@gmail.com>, 2022.
 # Fatifer Depulsor <fatiferdepulsor@gmail.com>, 2023.
 # Thomas Hess <thomas.hess@udo.edu>, 2024.
@@ -37,8 +37,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2025-03-19 23:48+0000\n"
-"Last-Translator: Liam Daly <liam@riftcs.com>\n"
+"PO-Revision-Date: 2025-08-06 18:46+0000\n"
+"Last-Translator: Jean-Luc Tibaux <eugentoptic@outlook.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/pypa/warehouse/de/"
 ">\n"
 "Language: de\n"
@@ -46,7 +46,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.11-dev\n"
+"X-Generator: Weblate 5.13-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:148
@@ -66,7 +66,7 @@ msgstr ""
 "Aktion auszuführen."
 
 # | msgid "Stay updated:"
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr "Lokalisierung aktualisiert"
 
@@ -877,6 +877,8 @@ msgid ""
 "This project name isn't allowed (conflict with the Python standard library "
 "module name)"
 msgstr ""
+"Dieser Projekt Name ist nicht erlaubt (Konflikt mit einem Python standard "
+"Bibliothek Modul Namen)"
 
 #: warehouse/oidc/forms/_core.py:106 warehouse/oidc/forms/_core.py:117
 msgid "Specify a publisher ID"
@@ -1010,21 +1012,23 @@ msgstr ""
 
 #: warehouse/oidc/forms/github.py:155
 msgid "Environment name is too long (maximum is 255 characters)"
-msgstr ""
+msgstr "Umgebungsname ist zu lang (maximal 255 Zeichen)"
 
 #: warehouse/oidc/forms/github.py:160
 msgid "Environment name may not start with whitespace"
-msgstr ""
+msgstr "Umgebungsname darf nicht mit Leerzeichen beginnen"
 
 #: warehouse/oidc/forms/github.py:165
 msgid "Environment name may not end with whitespace"
-msgstr ""
+msgstr "Umweltname darf nicht mit Leerzeichen enden"
 
 #: warehouse/oidc/forms/github.py:171
 msgid ""
 "Environment name must not contain non-printable characters or the characters "
 "\"'\", \"\"\", \"`\", \",\", \";\", \"\\\""
 msgstr ""
+"Umgebungsname darf keine nicht druckbaren Zeichen oder die Zeichen \"'\", "
+"\"\", \"\", \",\", \";\", \"\\\" enthalten"
 
 #: warehouse/oidc/forms/gitlab.py:22
 #, fuzzy

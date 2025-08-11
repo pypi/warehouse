@@ -37,7 +37,7 @@ class TestRequireMethodView:
     def test_disallows_unsafe_by_default(self, method):
         @pretend.call_recorder
         def view(context, request):
-            pass
+            pytest.fail("view should not be called")
 
         info = pretend.stub(options={})
         wrapped_view = csrf.require_method_view(view, info)
@@ -85,7 +85,7 @@ class TestRequireMethodView:
     def test_explicit_controls_exception_views(self):
         @pretend.call_recorder
         def view(context, request):
-            pass
+            pytest.fail("view should not be called")
 
         info = pretend.stub(options={"require_methods": ["POST"]})
         wrapped_view = csrf.require_method_view(view, info)

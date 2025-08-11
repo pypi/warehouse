@@ -58,7 +58,7 @@ msgid ""
 "action."
 msgstr "必須在您的帳戶上啟用雙因素身份驗證才能執行此操作。"
 
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr "已更新語系設定"
 

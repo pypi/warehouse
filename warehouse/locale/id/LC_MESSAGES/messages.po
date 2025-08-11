@@ -20,13 +20,14 @@
 # Roffi Ulwan <roffiulwannusa@gmail.com>, 2025.
 # Farih Dzaky <farihmuhammad75@gmail.com>, 2025.
 # farhanr <fr150899@gmail.com>, 2025.
+# Indra Sah Noeldy <indragirsang75@smp.belajar.id>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2025-07-14 14:09+0000\n"
-"Last-Translator: farhanr <fr150899@gmail.com>\n"
+"PO-Revision-Date: 2025-08-06 18:46+0000\n"
+"Last-Translator: Indra Sah Noeldy <indragirsang75@smp.belajar.id>\n"
 "Language-Team: Indonesian <https://hosted.weblate.org/projects/pypa/"
 "warehouse/id/>\n"
 "Language: id\n"
@@ -53,7 +54,7 @@ msgstr ""
 "Autentikasi dua faktor harus diaktifkan pada akun anda untuk melakukan "
 "tindakan ini."
 
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr "Lokal diperbarui"
 
@@ -151,9 +152,8 @@ msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Nama terlalu panjang. Pilih nama dengan panjang kurang dari 100 huruf."
 
 #: warehouse/accounts/forms.py:405
-#, fuzzy
 msgid "URLs are not allowed in the name field."
-msgstr "URLs tidak di izinkan pada kotak nama."
+msgstr "URL tidak di izinkan pada bidang nama."
 
 #: warehouse/accounts/forms.py:494
 msgid "Invalid TOTP code."
@@ -367,6 +367,8 @@ msgstr "Anda sekarang menjadi ${role} dari proyek '${project_name}'."
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
+"Mohon tinjau <a href=\"${tos_url}\">Ketentuan Layanan</a> yang telah kami "
+"perbarui."
 
 #: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1922
 #: warehouse/manage/views/__init__.py:1409
@@ -454,7 +456,7 @@ msgstr "Pratinjau Spanduk"
 
 #: warehouse/manage/forms.py:380
 msgid "Provide your response to the request."
-msgstr ""
+msgstr "Berikan respons untuk permintaan."
 
 #: warehouse/manage/forms.py:421
 msgid "Choose an organization account name with 50 characters or less."
@@ -536,78 +538,66 @@ msgid "The organization URL must start with http:// or https://"
 msgstr "URL organisasi harus diawali dengan http:// atau https://"
 
 #: warehouse/manage/forms.py:634
-#, fuzzy
-#| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
-msgstr "Nama terlalu panjang. Pilih nama dengan panjang kurang dari 100 huruf."
+msgstr ""
+"Deskripsi organisasi terlalu panjang. Pilih deskripsi dengan panjang kurang "
+"dari 400 huruf."
 
 #: warehouse/manage/forms.py:677
-#, fuzzy
-#| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
 "We don't need to know quite that much :), limit your usage description to "
 "1024 characters or less."
-msgstr "Nama terlalu panjang. Pilih nama dengan panjang kurang dari 100 huruf."
+msgstr ""
+"Kami tidak perlu tahu terlalu banyak hal :), batasi penggunaan deskripsimu "
+"menjadi 1024 karakter atau lebih sedikit."
 
 #: warehouse/manage/forms.py:699
 msgid "You have already submitted the maximum number of "
-msgstr ""
+msgstr "Kamu telah memasukkan jumlah maksimum. "
 
 #: warehouse/manage/forms.py:728
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Choose a team name with 50 characters or less."
-msgstr "Pilih nama pengguna kurang dari 50 huruf."
+msgstr "Pilih nama tim dengan 50 karakter atau lebih sedikit."
 
 #: warehouse/manage/forms.py:735
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
+"Nama tim tidak valid. Nama tim tidak boleh diawali atau diakhiri dengan "
+"spasi, titik, garis bawah, tanda hubung, atau garis miring. Pilih nama tim "
+"lain."
 
 #: warehouse/manage/forms.py:763
-#, fuzzy
-#| msgid ""
-#| "This username is already being used by another account. Choose a "
-#| "different username."
 msgid "This team name has already been used. Choose a different team name."
-msgstr ""
-"Nama pengguna ini sudah digunakan oleh akun lain. Pilih nama pengguna yang "
-"berbeda."
+msgstr "Nama tim  ini sudah digunakan. Pilih nama tim yang berbeda."
 
 #: warehouse/manage/forms.py:781
-#, fuzzy
-#| msgid "Specify repository name"
 msgid "Specify your alternate repository name"
-msgstr "Tentukan nama repositori"
+msgstr "Tentukan nama alternatif untuk repositorimu"
 
 #: warehouse/manage/forms.py:795
-#, fuzzy
-#| msgid "Specify repository name"
 msgid "Specify your alternate repository URL"
-msgstr "Tentukan nama repositori"
+msgstr "Tentukan URL alternatif untuk repositorimu"
 
 #: warehouse/manage/forms.py:800
-#, fuzzy
-#| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid "The URL is too long. Choose a URL with 400 characters or less."
-msgstr "Nama terlalu panjang. Pilih nama dengan panjang kurang dari 100 huruf."
+msgstr ""
+"URL terlalu panjang. Pilih URL dengan panjang kurang dari 400 karakter."
 
 #: warehouse/manage/forms.py:814
-#, fuzzy
-#| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
 "The description is too long. Choose a description with 400 characters or "
 "less."
-msgstr "Nama terlalu panjang. Pilih nama dengan panjang kurang dari 100 huruf."
+msgstr ""
+"Desķripsi terlalu panjang. Pilih deskripsi dengan panjang kurang dari 400 "
+"karakter."
 
 #: warehouse/manage/views/__init__.py:282
-#, fuzzy
-#| msgid "Account details"
 msgid "Account details updated"
-msgstr "Detail akun"
+msgstr "Detail akun diperbarui"
 
 #: warehouse/manage/views/__init__.py:313
 #, python-brace-format
@@ -626,52 +616,41 @@ msgstr ""
 "Membuat kode pemulihan baru akan membuat kode yang sudah ada tidak valid."
 
 #: warehouse/manage/views/__init__.py:928
-#, fuzzy
-#| msgid "Verify your email or add a new address."
 msgid "Verify your email to create an API token."
-msgstr "Verivikasi alamat email atau tambahkan alamat email baru."
+msgstr "Verifikasi alamat emailmu untuk membuat token API"
 
 #: warehouse/manage/views/__init__.py:1030
 msgid "API Token does not exist."
-msgstr ""
+msgstr "Token API tidak ada."
 
 #: warehouse/manage/views/__init__.py:1062
 msgid "Invalid credentials. Try again"
 msgstr "Kredensial tidak valid. Coba lagi"
 
 #: warehouse/manage/views/__init__.py:1181
-#, fuzzy
-#| msgid "Invalid repository name"
 msgid "Invalid alternate repository location details"
-msgstr "Nama repositori tidak valid"
+msgstr "Detail lokasi repositori alternatif tidak valid"
 
 #: warehouse/manage/views/__init__.py:1219
-#, fuzzy, python-brace-format
-#| msgid "Invalid repository name"
+#, python-brace-format
 msgid "Added alternate repository '${name}'"
-msgstr "Nama repositori tidak valid"
+msgstr "Menambahkan repositori alternatif '${name}'"
 
 #: warehouse/manage/views/__init__.py:1252
 #: warehouse/manage/views/__init__.py:2279
 #: warehouse/manage/views/__init__.py:2364
 #: warehouse/manage/views/__init__.py:2465
 #: warehouse/manage/views/__init__.py:2565
-#, fuzzy
-#| msgid "Confirm Invite"
 msgid "Confirm the request"
-msgstr "Konfirmasi Undangan"
+msgstr "Konfirmasi permintaan"
 
 #: warehouse/manage/views/__init__.py:1264
-#, fuzzy
-#| msgid "Invalid repository name"
 msgid "Invalid alternate repository id"
-msgstr "Nama repositori tidak valid"
+msgstr "ID repositori alternatif tidak valid"
 
 #: warehouse/manage/views/__init__.py:1275
-#, fuzzy
-#| msgid "Invalid repository name"
 msgid "Invalid alternate repository for project"
-msgstr "Nama repositori tidak valid"
+msgstr "Repositori alternatif untuk proyek tidak valid"
 
 #: warehouse/manage/views/__init__.py:1284
 #, python-brace-format

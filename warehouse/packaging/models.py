@@ -158,6 +158,15 @@ class ProjectFactory:
             return True
 
 
+class ProjectStatusMarker(enum.StrEnum):
+    """PEP 792 status markers."""
+
+    Active = "active"
+    Archived = "archived"
+    Quarantined = "quarantined"
+    Deprecated = "deprecated"
+
+
 class LifecycleStatus(enum.StrEnum):
     QuarantineEnter = "quarantine-enter"
     QuarantineExit = "quarantine-exit"
@@ -493,6 +502,25 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             .order_by(Release._pypi_ordering.desc())
             .all()
         )
+
+    @property
+    def project_status(self) -> ProjectStatusMarker:
+        """
+        Return the PEP 792 project status marker that's equivalent
+        to this project's lifecycle status.
+        """
+
+        if self.lifecycle_status == LifecycleStatus.QuarantineEnter:
+            return ProjectStatusMarker.Quarantined
+        elif self.lifecycle_status in (
+            LifecycleStatus.Archived,
+            LifecycleStatus.ArchivedNoindex,
+        ):
+            return ProjectStatusMarker.Archived
+
+        # PyPI doesn't yet have a deprecated lifecycle status
+        # and "quarantine-exit" means a return to active.
+        return ProjectStatusMarker.Active
 
 
 class DependencyKind(enum.IntEnum):

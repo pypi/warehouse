@@ -36,7 +36,7 @@ msgstr ""
 "Ushbu amalni bajarish uchun hisobingizda ikki faktorli autentifikatsiya "
 "yoqilgan boʻlishi kerak."
 
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr "Mahalliy til yangilandi"
 

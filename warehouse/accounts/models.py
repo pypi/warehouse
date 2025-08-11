@@ -294,6 +294,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
                 Allow,
                 "group:admins",
                 (
+                    Permissions.AdminProjectsWrite,
                     Permissions.AdminUsersRead,
                     Permissions.AdminUsersWrite,
                     Permissions.AdminUsersEmailWrite,

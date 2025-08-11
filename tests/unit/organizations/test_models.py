@@ -123,17 +123,9 @@ class TestOrganization:
             organization=organization, role_name=OrganizationRoleType.Member
         )
 
-        acls = []
-        for location in lineage(organization):
-            try:
-                acl = location.__acl__
-            except AttributeError:
-                continue
-
-            if acl and callable(acl):
-                acl = acl()
-
-            acls.extend(acl)
+        acls = [
+            item for location in lineage(organization) for item in location.__acl__()
+        ]
 
         assert acls == [
             (
@@ -341,17 +333,7 @@ class TestTeam:
             organization=organization, role_name=OrganizationRoleType.Member
         )
 
-        acls = []
-        for location in lineage(team):
-            try:
-                acl = location.__acl__
-            except AttributeError:
-                continue
-
-            if acl and callable(acl):
-                acl = acl()
-
-            acls.extend(acl)
+        acls = [item for location in lineage(team) for item in location.__acl__()]
 
         assert acls == [
             (
