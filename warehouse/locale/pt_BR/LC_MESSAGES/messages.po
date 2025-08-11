@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2025-07-18 14:49+0000\n"
+"PO-Revision-Date: 2025-08-08 10:05+0000\n"
 "Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/pypa/"
 "warehouse/pt_BR/>\n"
@@ -44,7 +44,7 @@ msgstr ""
 "A autenticação de dois fatores deve estar habilitada em sua conta para "
 "realizar esta ação."
 
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr "Localidade atualizada"
 
@@ -5118,20 +5118,12 @@ msgstr ""
 "fatores</a> em sua conta antes de solicitar uma organização."
 
 #: warehouse/templates/manage/organizations.html:376
-#, fuzzy
-#| msgid ""
-#| "Your request for a new PyPI organization named '%(organization_name)s' "
-#| "has been submitted."
 msgid "Your request(s) for a new PyPI organization(s) have been submitted."
-msgstr ""
-"Sua solicitação para uma nova organização PyPI chamada "
-"\"%(organization_name)s\" foi enviada."
+msgstr "Sua solicitação para uma nova organização PyPI foi enviada."
 
 #: warehouse/templates/manage/organizations.html:378
-#, fuzzy
-#| msgid "You will receive an email when the organization has been approved"
 msgid "You will receive an email when each organization has been approved"
-msgstr "Você vai receber um e-mail quando a organização tiver sido aprovada"
+msgstr "Você vai receber um e-mail quando cada organização tiver sido aprovada"
 
 #: warehouse/templates/manage/organizations.html:378
 #: warehouse/templates/manage/project/roles.html:166
@@ -5182,22 +5174,16 @@ msgstr ""
 "Usuário para Empacotamento de Python</a>"
 
 #: warehouse/templates/manage/unverified-account.html:4
-#, fuzzy
-#| msgid "Delete your PyPI account"
 msgid "Activate your account"
-msgstr "Excluir sua conta PyPI"
+msgstr "Ativar sua conta"
 
 #: warehouse/templates/manage/unverified-account.html:198
-#, fuzzy
-#| msgid ""
-#| "<a href=\"%(href)s\">Verify your primary email address</a> before "
-#| "enabling two factor authentication on your account."
 msgid ""
 "You must verify a primary email address before making any other changes to "
 "your account."
 msgstr ""
-"<a href=\"%(href)s\">Verifique seu endereço de e-mail principal</a> antes de "
-"habilitar a autenticação de dois fatores na sua conta."
+"Você deve verificar um endereço de e-mail principal antes de fazer qualquer "
+"outra alteração em sua conta."
 
 #: warehouse/templates/manage/unverified-account.html:204
 #, python-format
@@ -5209,36 +5195,24 @@ msgstr ""
 "href=\"%(help_url)s\">%(help_url)s</a>."
 
 #: warehouse/templates/manage/unverified-account.html:213
-#, fuzzy
-#| msgid ""
-#| "You can associate several emails with your account. You can use any <span "
-#| "class=\"badge badge--success\"><i class=\"fa fa-check\" aria-"
-#| "hidden=\"true\"></i> Verified</span> email to recover your account, but "
-#| "only your <span class=\"badge\">Primary</span> email will receive "
-#| "notifications."
 msgid ""
 "You must have at least one <span class=\"badge badge--success\"><i "
 "class=\"fa fa-check\" aria-hidden=\"true\"></i> Verified</span> email "
 "address to activate your account."
 msgstr ""
-"Você pode associar vários e-mails à sua conta. Você pode usar qualquer "
-"classe e-mail <span class=\"badge badge--success\"><i class=\"fa fa-check\" "
-"aria-hidden=\"true\"></i> Verificado</span> para recuperar sua conta, mas "
-"apenas o seu e-mail <span class=\"badge\">Principal</span> receberá "
-"notificações."
+"Você deve ter pelo menos um endereço de e-mail <span class="
+"\"badge badge--success\"><i class=\"fa fa-check\" aria-hidden=\"true\"></i> "
+"Verificado</span> para ativar sua conta."
 
 #: warehouse/templates/manage/account/publishing.html:9
 #: warehouse/templates/manage/project/publishing.html:28
-#, fuzzy, python-format
-#| msgid ""
-#| "Read more about GitHub's OpenID Connect provider <a "
-#| "href=\"%(href)s\">here</a>."
+#, python-format
 msgid ""
 "Read more about GitHub Actions' OpenID Connect support <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
-"Leia mais sobre o provedor de OpenID Connect do GitHub <a "
-"href=\"%(href)s\">aqui</a>."
+"Leia mais sobre o suporte a OpenID Connect do GitHub Actions <a href="
+"\"%(href)s\">aqui</a>."
 
 #: warehouse/templates/manage/account/publishing.html:22
 #: warehouse/templates/manage/account/publishing.html:130
@@ -5258,7 +5232,6 @@ msgstr "nome do projeto"
 #: warehouse/templates/manage/account/publishing.html:137
 #: warehouse/templates/manage/account/publishing.html:232
 #: warehouse/templates/manage/account/publishing.html:305
-#, fuzzy
 msgid "The project (on PyPI) that will be created when this publisher is used"
 msgstr "O projeto (no PyPI) que será criado quando este editor for usado"
 
@@ -5287,7 +5260,6 @@ msgstr "repositório"
 
 #: warehouse/templates/manage/account/publishing.html:61
 #: warehouse/templates/manage/project/publishing.html:67
-#, fuzzy
 msgid "The name of the GitHub repository that contains the publishing workflow"
 msgstr ""
 "O nome do repositório do GitHub que contém o fluxo de trabalho de publicação"
@@ -5304,7 +5276,6 @@ msgstr "fluxodetrabalho.yml"
 
 #: warehouse/templates/manage/account/publishing.html:78
 #: warehouse/templates/manage/project/publishing.html:84
-#, fuzzy
 msgid ""
 "The filename of the publishing workflow. This file should exist in the "
 "<code>.github/workflows/</code> directory in the repository configured above."
@@ -5317,8 +5288,6 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:182
 #: warehouse/templates/manage/project/publishing.html:90
 #: warehouse/templates/manage/project/publishing.html:177
-#, fuzzy
-#| msgid "Invalid project name"
 msgid "Environment name"
 msgstr "Nome do ambiente"
 
@@ -5328,14 +5297,12 @@ msgstr "Nome do ambiente"
 #: warehouse/templates/manage/project/publishing.html:94
 #: warehouse/templates/manage/project/publishing.html:181
 #: warehouse/templates/manage/project/publishing.html:238
-#, fuzzy
-#| msgid "Reason (optional)"
 msgid "(optional)"
 msgstr "(opcional)"
 
 #: warehouse/templates/manage/account/publishing.html:96
 #: warehouse/templates/manage/project/publishing.html:103
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "The name of the <a href=\"%(href)s\">GitHub Actions environment</a> that the "
 "above workflow uses for publishing.  This should be configured under the "
@@ -5367,30 +5334,23 @@ msgstr "Adicionar"
 
 #: warehouse/templates/manage/account/publishing.html:117
 #: warehouse/templates/manage/project/publishing.html:125
-#, fuzzy, python-format
-#| msgid ""
-#| "Read more about GitHub's OpenID Connect provider <a "
-#| "href=\"%(href)s\">here</a>."
+#, python-format
 msgid ""
 "Read more about GitLab CI/CD OpenID Connect support <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
-"Leia mais sobre o provedor de OpenID Connect do GitHub <a "
-"href=\"%(href)s\">aqui</a>."
+"Leia mais sobre o suportea OpenID Connect do GitLab CI/CD <a href="
+"\"%(href)s\">aqui</a>."
 
 #: warehouse/templates/manage/account/publishing.html:143
 #: warehouse/templates/manage/project/publishing.html:138
-#, fuzzy
-#| msgid "Name"
 msgid "Namespace"
-msgstr "Nome"
+msgstr "Espaço de nomes"
 
 #: warehouse/templates/manage/account/publishing.html:148
 #: warehouse/templates/manage/project/publishing.html:143
-#, fuzzy
-#| msgid "No name set"
 msgid "namespace"
-msgstr "Nenhum nome definido"
+msgstr "espaço de nomes"
 
 #: warehouse/templates/manage/account/publishing.html:150
 #: warehouse/templates/manage/project/publishing.html:145
@@ -5411,39 +5371,35 @@ msgstr "Nome do projeto"
 
 #: warehouse/templates/manage/account/publishing.html:161
 #: warehouse/templates/manage/project/publishing.html:156
-#, fuzzy
-#| msgid "Project"
 msgid "project"
-msgstr "Projeto"
+msgstr "projeto"
 
 #: warehouse/templates/manage/account/publishing.html:163
 #: warehouse/templates/manage/project/publishing.html:158
-#, fuzzy
 msgid "The name of the GitLab project that contains the publishing workflow"
 msgstr ""
-"O nome do repositório do GitHub que contém o fluxo de trabalho de publicação"
+"O nome do projeto do GitLab que contém o fluxo de trabalho de publicação"
 
 #: warehouse/templates/manage/account/publishing.html:169
 #: warehouse/templates/manage/project/publishing.html:164
 msgid "Top-level pipeline file path"
-msgstr ""
+msgstr "Caminho do arquivo de pipeline de nível superior"
 
 #: warehouse/templates/manage/account/publishing.html:174
 #: warehouse/templates/manage/project/publishing.html:169
 msgid ".gitlab-ci.yml"
-msgstr ""
+msgstr ".gitlab-ci.yml"
 
 #: warehouse/templates/manage/account/publishing.html:176
 #: warehouse/templates/manage/project/publishing.html:171
-#, fuzzy
 msgid ""
 "The file path of the top-level pipeline, relative to the project's root. "
 "This file should exist in the project configured above (external pipelines "
 "are not supported)."
 msgstr ""
-"O nome do arquivo do fluxo de trabalho de publicação. Este arquivo deve "
-"existir no diretório <code>.github/workflows/</code> no repositório "
-"configurado acima."
+"O caminho de arquivo do pipeline de nível superior, em relação à raiz do "
+"projeto. Este arquivo deve existir no projeto configurado acima (pipelines "
+"externos não são suportados)."
 
 #: warehouse/templates/manage/account/publishing.html:189
 #: warehouse/templates/manage/project/publishing.html:97

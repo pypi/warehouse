@@ -386,6 +386,7 @@ def includeme(config):
     config.add_route(
         "admin.observations.list", "/admin/observations/", domain=warehouse
     )
+    config.add_route("admin.quarantine.list", "/admin/quarantine/", domain=warehouse)
     config.add_route(
         "admin.malware_reports.list",
         "/admin/malware_reports/",

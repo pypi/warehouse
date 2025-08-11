@@ -1482,6 +1482,12 @@ def file_upload(request):
             against the files listed in the RECORD. Mismatches are reported via email.
             """
             record_filename = f"{name}-{version}.dist-info/RECORD"
+            # Files that must be missing from 'RECORD',
+            # so we ignore them when cross-checking.
+            record_exemptions = {
+                f"{name}-{version}.dist-info/RECORD.jws",
+                f"{name}-{version}.dist-info/RECORD.p7s",
+            }
             try:
                 with zipfile.ZipFile(temporary_filename) as zfp:
                     wheel_record_contents = zfp.read(record_filename).decode()
@@ -1490,7 +1496,9 @@ def file_upload(request):
                     for fn, *_ in csv.reader(wheel_record_contents.splitlines())
                 }
                 zip_entries = {
-                    fn for fn in zfp.namelist() if not _zip_filename_is_dir(fn)
+                    fn
+                    for fn in zfp.namelist()
+                    if not _zip_filename_is_dir(fn) and fn not in record_exemptions
                 }
             except (UnicodeError, KeyError, csv.Error) as e:
                 request.metrics.increment(

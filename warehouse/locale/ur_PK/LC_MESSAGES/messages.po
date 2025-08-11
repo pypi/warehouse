@@ -32,7 +32,7 @@ msgstr ""
 "اس کارروائی کو انجام دینے کے لئے آپ کے اکاؤنٹ پر ٹو فیکٹر توثیق کرنا ضروری "
 "ہے."
 
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr "لوکل اپ ڈیٹ"
 

@@ -34,6 +34,7 @@ from warehouse.views import (
     forbidden_api,
     forbidden_include,
     force_status,
+    funding_manifest_urls,
     health,
     httpexception_view,
     index,
@@ -376,6 +377,13 @@ def test_favicon(pyramid_request):
 def test_robotstxt(pyramid_request):
     assert robotstxt(pyramid_request) == {}
     assert pyramid_request.response.content_type == "text/plain"
+
+
+def test_funding_manifest_urls(pyramid_request):
+    response = funding_manifest_urls(pyramid_request)
+    assert response.text == "https://www.python.org/funding.json"
+    assert response.content_type == "text/plain"
+    assert response.charset == "utf-8"
 
 
 def test_opensearchxml(pyramid_request):

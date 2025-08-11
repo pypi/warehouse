@@ -34,7 +34,7 @@ msgid ""
 "action."
 msgstr "执行此操作之前，必须开启账号的双重认证机制。"
 
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr "区已变"
 

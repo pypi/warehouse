@@ -38,7 +38,7 @@ msgid ""
 "action."
 msgstr "กรุณาเปิดการยืนยันสองขั้นตอนในบัญชีของคุณเพื่อดำเนินการต่อ"
 
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr "ตำเเหน่งอัปเดต"
 
