@@ -68,6 +68,9 @@
           <a class="dropdown__link" href="{{ request.route_path('help') }}">{% trans %}Help{% endtrans %}</a>
         </li>
         <li>
+          <a class="dropdown__link" href="{{ request.user_docs_url('/') }}">{% trans %}Docs{% endtrans %}</a>
+        </li>
+        <li>
           <a class="dropdown__link" href="{{ request.route_path('sponsors') }}">{% trans %}Sponsors{% endtrans %}</a>
         </li>
         <li>
