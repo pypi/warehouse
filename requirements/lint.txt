@@ -752,9 +752,9 @@ zope-interface==7.2 \
     # via
     #   mypy-zope
     #   zope-schema
-zope-schema==7.0.1 \
-    --hash=sha256:cf006c678793b00e0075ad54d55281c8785ea21e5bc1f5ec0584787719c2aab2 \
-    --hash=sha256:ead4dbcb03354d4e410c9a3b904451eb44d90254751b1cbdedf4a61aede9fbb9
+zope-schema==7.1 \
+    --hash=sha256:0b23034abc5a55411d5ac241b54a626143d43fe8e8016b69dae4d41811ab8b34 \
+    --hash=sha256:9503f0914ca6af9216056398cbfb343029285824716a6d098e5698f378d15994
     # via mypy-zope
 
 # The following packages are considered to be unsafe in a requirements file:
