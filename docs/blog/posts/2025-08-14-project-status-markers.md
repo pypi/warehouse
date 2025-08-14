@@ -50,7 +50,7 @@ essentially boil down to a single question:
 Before [PEP 792], Python packaging had no less than three overlapping
 solutions for determining a project's status:
 
-* Individual distributions of a project could include a `Development Status`
+* Individual releases of a project could include a `Development Status`
   [trove classifier] in their metadata, such as
   `Development Status :: 7 - Inactive` to indicate that the project is no
   longer actively maintained.
@@ -63,20 +63,20 @@ solutions for determining a project's status:
        onerous, particularly when the intent is to _stop_ updating the
        project!
     2. Classifiers do not apply retroactively, meaning that all _previous_
-       distributions of a project continue to have their original
+       releases of a project continue to have their original
        classifiers. This results in a misleading view of the project's status:
        a downstream that pins to `sampleproject==1.2.3` may fail to realize
        that `sampleproject===1.2.4` signals that the entire project is now
        inactive.
 
 * Indices can mark individual files (or entire releases) as "yanked," per the
-  [file yanking specification]. Yanked distributions are effectively
+  [file yanking specification]. Yanked files are effectively
   soft-deleted, meaning that they'll be skipped by complying installers
   during resolution but not if explicitly pinned by the user.
 
     Yanking is a useful tool for mitigating accidental vulnerabilities
     or compatibility breakages in a release, but it has the same "scope"
-    issue as classifiers: it applies at the distribution and release level,
+    issue as classifiers: it applies at the file and release level,
     not at the project level.
 
     Moreover, the semantics of yanking aren't appropriate for all potential
@@ -207,7 +207,7 @@ projects and ecosystems.
 [uv]: https://docs.astral.sh/uv/
 
 [^warning]: This warning is technically moot, as PyPI itself will not offer
-            any distributions of quarantined projects for installation.
+            any files from quarantined projects for installation.
             However, the warning can still help users understand _why_
             their installation has failed, and is therefore recommended
             by the standard.
