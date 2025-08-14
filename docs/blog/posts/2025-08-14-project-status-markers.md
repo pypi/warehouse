@@ -12,7 +12,7 @@ tags:
 ---
 
 PyPI now serves [project status markers] in its standard
-[index APIs]. This allows downstreams (like Python package installers and
+[index APIs]. This allows downstream consumers (like Python package installers and
 index mirrors) to retrieve project statuses programmatically and use them to
 inform users when a project is archived or quarantined.
 
@@ -22,11 +22,11 @@ inform users when a project is archived or quarantined.
   [PEP 792].
 * As of today, PyPI supports three standard statuses: **active** (the default),
   **archived**, and **quarantined**.
-* Downstreams can now retrieve these statuses via the standard index APIs
+* Downstream consumers can now retrieve these statuses via the standard index APIs
   and use them to inform users about the state of a project.
 
 See the [project archival] and [project quarantine] announcement posts
-for additional information on PyPI's implementation of individual statuses.
+for additional information on PyPI's implementation of those individual statuses.
 
 <!-- more -->
 
@@ -45,7 +45,7 @@ These questions (and many others in the domain of supply chain security)
 essentially boil down to a single question:
 **what is the status of this project?**
 
-## Status quo ante PEP
+## The status quo before status markers
 
 Before [PEP 792], Python packaging had no less than three overlapping
 solutions for determining a project's status:
@@ -59,7 +59,7 @@ solutions for determining a project's status:
     to two problems:
 
     1. To update a project's status, the project's maintainer must upload
-       a new distribution with the updated classifier. This is unnecessarily
+       a new release with the updated classifier. This is unnecessarily
        onerous, particularly when the intent is to _stop_ updating the
        project!
     2. Classifiers do not apply retroactively, meaning that all _previous_
@@ -69,7 +69,7 @@ solutions for determining a project's status:
        that `sampleproject===1.2.4` signals that the entire project is now
        inactive.
 
-* Indices can mark distributions (or entire releases) as "yanked," per the
+* Indices can mark individual files (or entire releases) as "yanked," per the
   [file yanking specification]. Yanked distributions are effectively
   soft-deleted, meaning that they'll be skipped by complying installers
   during resolution but not if explicitly pinned by the user.
@@ -82,7 +82,7 @@ solutions for determining a project's status:
     Moreover, the semantics of yanking aren't appropriate for all potential
     statuses: soft deletion is still disruptive, whereas statuses like
     "archived" and "deprecated" suggest that the project is still
-    suitable for resolution, so long as the user can be made aware of
+    suitable for installation, so long as the user can be made aware of
     its status.
 
 * PyPI itself has "project statuses," which apply to the entire project.
