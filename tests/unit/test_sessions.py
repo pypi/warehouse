@@ -564,7 +564,8 @@ class TestSessionFactory:
         response = pretend.stub(
             set_cookie=pretend.call_recorder(
                 lambda cookie, data, httponly=False, secure=True, samesite=b"none": None
-            )
+            ),
+            delete_cookie=pretend.call_recorder(lambda cookie: None),
         )
         session_factory._process_response(pyramid_request, response)
 
@@ -593,6 +594,9 @@ class TestSessionFactory:
                 secure=False,
                 samesite=b"lax",
             )
+        ]
+        assert response.delete_cookie.calls == [
+            pretend.call("user_id__insecure"),
         ]
 
 
