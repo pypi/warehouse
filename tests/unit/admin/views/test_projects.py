@@ -92,6 +92,7 @@ class TestProjectDetail:
             "project": project,
             "releases": [],
             "maintainers": roles,
+            "package_roles": [],
             "journal": journals[:30],
             "oidc_publishers": oidc_publishers,
             "ONE_MIB": views.ONE_MIB,
