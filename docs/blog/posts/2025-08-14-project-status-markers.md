@@ -94,9 +94,8 @@ Beyond these partial solutions many downstreams also apply heuristics
 to determine a project's status, such as checking for recent project
 (or source repository) activity or using popularity metrics like
 GitHub stars as a proxy for project health. However, these heuristics
-can be gamed (the unfortunately named ["starjacking" pattern]), or
-outright incorrect (such as when a project is feature complete and
-therefore has no recent activity).
+can be manipulated or outright incorrect, such as when a project is feature
+complete and therefore has no recent activity.
 
 Overall, these partial solutions and heuristics point to a need for
 something better.
@@ -212,7 +211,6 @@ projects and ecosystems.
 [project quarantine]: 2024-12-30-quarantine.md
 [trove classifier]: https://pypi.org/classifiers
 [file yanking specification]: https://packaging.python.org/en/latest/specifications/file-yanking/
-["starjacking" pattern]: https://capec.mitre.org/data/definitions/693.html
 [Alpha-Omega]: https://alpha-omega.dev/
 [Facundo Tuesca]: https://github.com/facutuesca
 [William Woodruff]: https://github.com/woodruffw
