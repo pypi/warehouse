@@ -127,7 +127,8 @@ which have both index-side and installer-side semantics:
   to inform users about the project's deprecation.
 
 Of these statuses, PyPI currently supports **active**, **archived**, and
-**quarantined**.
+**quarantined**. PyPI doesn't support **deprecated** yet, but we'll be looking
+at supporting it now that the MVP is complete.
 
 Beyond the statuses themselves, the standard also defines an optional
 "status reason" that can be used to provide additional context about the status.
@@ -187,9 +188,10 @@ Starting today, Python package installers and other index consumers can
 retrieve status markers from PyPI's standard index APIs.
 
 Our hope is that downstreams *will* consume these markers, and use them
-as suggested by the standard. In particular, we hope that installers like
+as suggested by the standard. In particular we hope that installers like
 [pip] and [uv] will signal relevant statuses to users, helping them
-form a better picture of the status of their dependencies.
+form a better picture of the status of their dependencies as well as set
+policies controlling which statuses are acceptable for installation.
 
 ## Acknowledgements
 
