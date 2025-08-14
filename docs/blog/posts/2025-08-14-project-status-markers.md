@@ -145,6 +145,21 @@ but for the HTML API the `<meta>` fields are:
 * `pypi:project-status` for the project status itself (or **active** by default)
 * `pypi:project-status-reason` for the project status reason (if present)
 
+For example:
+
+```sh
+curl --silent \
+  -H "Accept: application/vnd.pypi.simple.v1+html" \
+  https://pypi.org/simple/pepy/ \
+    | htmlq --pretty 'head meta[name="pypi:project-status"]'
+```
+
+Yields:
+
+```html
+<meta name="pypi:project-status" content="archived">
+```
+
 Within the JSON API, the project status is available via the
 top-level `project-status` object, which contains `status` and `reason`
 fields corresponding to the HTML API fields above.
@@ -152,8 +167,8 @@ fields corresponding to the HTML API fields above.
 For example:
 
 ```sh
-curl -s -H \
-  "Accept: application/vnd.pypi.simple.v1+json" \
+curl --silent \
+  -H "Accept: application/vnd.pypi.simple.v1+json" \
   https://pypi.org/simple/pepy/ \
     | jq '."project-status"'
 ```
