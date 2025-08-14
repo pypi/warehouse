@@ -22,7 +22,7 @@
       <h2>{% trans %}Authentication{% endtrans %}</h2>
       <ul>
         <li>
-          <a href="{{ request.route_url('accounts.login') }}">{% trans %}Login{% endtrans %}</a>
+          <a href="{{ request.route_url('accounts.login', _query={'next': request.url}) }}">{% trans %}Login{% endtrans %}</a>
         </li>
         <li>
           <a href="{{ request.route_url('accounts.register') }}">{% trans %}Register{% endtrans %}</a>
