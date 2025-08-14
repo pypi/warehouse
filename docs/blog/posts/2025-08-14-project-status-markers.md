@@ -1,5 +1,5 @@
 ---
-title: PyPI now serves project status markers
+title: PyPI now serves project status markers in API responses
 description: >
   PyPI has implemented PEP 792, and is now serving
   project status markers in its standard HTML and JSON APIs.
