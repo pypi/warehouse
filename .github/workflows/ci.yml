@@ -29,7 +29,7 @@ jobs:
         uses: depot/setup-action@b0b1ea4f69e92ebf5dea3f8713a1b0c37b2126a5 # v1.6.0
       - name: Build image
         id: build
-        uses: depot/build-push-action@2583627a84956d07561420dcc1d0eb1f2af3fac0 # v1.15.0
+        uses: depot/build-push-action@0b7423b11016b0349604e22d7ea01b078bed6c70 # v1.16.0
         with:
           save: true
           build-args: |
