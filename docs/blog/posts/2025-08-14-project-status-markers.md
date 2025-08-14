@@ -140,8 +140,7 @@ The standard is one thing, but let's see how to actually get status
 markers from PyPI's [index APIs].
 
 Status markers are available in both the HTML and JSON index APIs.
-The example below will use the JSON API (since it's easier to read),
-but for the HTML API the `<meta>` fields are:
+For the HTML API the `<meta>` fields are:
 
 * `pypi:project-status` for the project status itself (or **active** by default)
 * `pypi:project-status-reason` for the project status reason (if present)
