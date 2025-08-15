@@ -128,7 +128,7 @@ class TestActiveStatePublisherForm:
         )
         requests = pretend.stub(
             post=pretend.call_recorder(lambda o, **kw: response),
-            expception=_requests.exceptions,
+            exception=_requests.exceptions,
             Timeout=Timeout,
             HTTPError=HTTPError,
             ConnectionError=ConnectionError,
@@ -160,7 +160,7 @@ class TestActiveStatePublisherForm:
         )
         requests = pretend.stub(
             post=pretend.call_recorder(lambda o, **kw: response),
-            expception=_requests.exceptions,
+            exception=_requests.exceptions,
             Timeout=Timeout,
             HTTPError=HTTPError,
             ConnectionError=ConnectionError,

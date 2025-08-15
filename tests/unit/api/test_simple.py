@@ -232,7 +232,7 @@ class TestSimpleDetail:
         db_request.matchdict["name"] = project.normalized_name
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
-        als = [
+        alts = [
             AlternateRepositoryFactory.create(project=project),
             AlternateRepositoryFactory.create(project=project),
         ]
@@ -243,7 +243,7 @@ class TestSimpleDetail:
             "project-status": {"status": "active"},
             "files": [],
             "versions": [],
-            "alternate-locations": sorted(al.url for al in als),
+            "alternate-locations": sorted(al.url for al in alts),
         }
         context = _update_context(context, content_type, renderer_override)
         assert simple.simple_detail(project, db_request) == context

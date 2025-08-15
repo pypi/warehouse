@@ -722,7 +722,7 @@ class _TestApp(_webtest.TestApp):
 
 @pytest.fixture
 def tm():
-    # Create a new transaction manager for dependant test cases
+    # Create a new transaction manager for dependent test cases
     tm = transaction.TransactionManager(explicit=True)
     tm.begin()
 
