@@ -20,3 +20,4 @@ python -m mypy -p warehouse
 # lint our pyproject.toml file (as well as any other toml files)
 tombi lint --error-on-warnings
 tombi format --check --diff
+codespell
