@@ -140,7 +140,7 @@ class OIDCPublisherMixin:
     # A set of claim names which must be present, but can't be verified
     __required_unverifiable_claims__: set[str] = set()
 
-    # Simlar to __verificable_claims__, but these claims are optional
+    # Similar to __required_verifiable_claims__, but these claims are optional
     __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = dict()
 
     # Claims that have already been verified during the JWT signature
