@@ -129,7 +129,7 @@ class TestSMTPEmailSender:
         service = sender_class(mailer, sender="DevPyPI <noreply@example.com>")
 
         service.send(
-            "sombody@example.com",
+            "somebody@example.com",
             EmailMessage(
                 subject="a subject", body_text="a body", body_html="a html body"
             ),
@@ -142,7 +142,7 @@ class TestSMTPEmailSender:
         assert msg.subject == "a subject"
         assert msg.body == "a body"
         assert msg.html == "a html body"
-        assert msg.recipients == ["sombody@example.com"]
+        assert msg.recipients == ["somebody@example.com"]
         assert msg.sender == "DevPyPI <noreply@example.com>"
 
     def test_last_sent(self, sender_class):
@@ -160,7 +160,7 @@ class TestConsoleAndSMTPEmailSender:
         )
 
         service.send(
-            "sombody@example.com",
+            "somebody@example.com",
             EmailMessage(
                 subject="a subject",
                 body_text="a body",
@@ -172,7 +172,7 @@ class TestConsoleAndSMTPEmailSender:
 Email sent
 Subject: a subject
 From: DevPyPI <noreply@example.com>
-To: sombody@example.com
+To: somebody@example.com
 HTML: Visualize at http://localhost:1080
 Text: a body"""
         assert captured.out.strip() == expected.strip()
