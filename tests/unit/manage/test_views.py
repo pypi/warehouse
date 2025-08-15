@@ -121,7 +121,7 @@ class TestManageUnverifiedAccount:
     @pytest.mark.parametrize(
         ("has_old_primary", "expected_old_address"),
         [
-            (True, "typo@exmaple.com"),
+            (True, "typo@exmaple.com"),  # codespell:ignore exmaple
             (False, None),
         ],
     )
@@ -129,7 +129,12 @@ class TestManageUnverifiedAccount:
         self, monkeypatch, has_old_primary, expected_old_address
     ):
         old_email = (
-            pretend.stub(id=1, email="typo@exmaple.com", verified=False, primary=True)
+            pretend.stub(
+                id=1,
+                email="typo@exmaple.com",  # codespell:ignore exmaple
+                verified=False,
+                primary=True,
+            )
             if has_old_primary
             else None
         )

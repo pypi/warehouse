@@ -831,11 +831,13 @@ class _MockRedis:
     def set(self, key, value=None, *_args, **_kwargs):
         if _kwargs.get("nx", False) and key in self.cache:
             return None
+        # codespell:ignore-begin 'exat'
         # Real Redis immediately evicts a key when exat is in the past.
         exat = _kwargs.get("exat")
         if exat is not None and exat <= time.time():
             self.cache.pop(key, None)
             return True
+        # codespell:ignore-end
         self.cache[key] = value
         return True
 

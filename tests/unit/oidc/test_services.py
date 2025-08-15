@@ -934,7 +934,7 @@ class TestOIDCPublisherService:
         """
         A token whose ``exp`` just passed (but is still within leeway) must
         have its JTI key persist in Redis. If the TTL doesn't account for
-        the leeway, the key would be set with a past ``exat`` and Redis
+        the leeway, the key would be set with a past ``exat`` and Redis  # codespell:ignore exat # noqa: E501
         would immediately evict it, allowing replay.
         """
         service = services.OIDCPublisherService(
