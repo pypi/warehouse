@@ -437,7 +437,7 @@ class StripeSubscriptionService:
 
         self.db.add(subscription)
         self.db.add(organization_subscription)
-        self.db.flush()  # flush db now so we have acccess to subscription.id
+        self.db.flush()  # flush db now so we have access to subscription.id
 
         # Create new subscription item.
         subscription_item = StripeSubscriptionItem(
