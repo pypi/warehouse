@@ -86,7 +86,7 @@ def parse(
     else:
         raise NoMetadataError
 
-    # Validate the metadata using our custom rules, which we layer ontop of the
+    # Validate the metadata using our custom rules, which we layer on top of the
     # built in rules to add PyPI specific constraints above and beyond what the
     # core metadata requirements are.
     _validate_metadata(metadata, backfill=backfill)
@@ -95,7 +95,7 @@ def parse(
 
 
 def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
-    # Add our own custom validations ontop of the standard validations from
+    # Add our own custom validations on top of the standard validations from
     # packaging.metadata.
     errors: list[InvalidMetadata] = []
 
@@ -372,7 +372,7 @@ def parse_form_metadata(data: MultiDict) -> Metadata:
             except KeyError:
                 unparsed[name] = value
         # Nothing that we've done has managed to parse this, so it'll just
-        # throw it in our unparseable data and move on.
+        # throw it in our unparsable data and move on.
         else:
             unparsed[name] = value
 
