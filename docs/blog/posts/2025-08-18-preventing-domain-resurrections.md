@@ -80,12 +80,6 @@ flowchart TD
   D -->|No Redemption| E[Pending Delete<br/>5 days]
 
   E -->|Automatic| F[Domain Released]
-
-  style A fill:#90EE90
-  style C fill:#FFE4B5
-  style D fill:#FFB6C1
-  style E fill:#FF6B6B
-  style F fill:#87CEEB
 ```
 
 The word "expiration" might be a bit overloaded,
