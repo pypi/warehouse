@@ -16,6 +16,7 @@ from zope.interface import implementer
 import warehouse.utils.otp as otp
 import warehouse.utils.webauthn as webauthn
 
+from warehouse.accounts.views import USER_ID_INSECURE_COOKIE
 from warehouse.cache.http import add_vary
 from warehouse.utils import crypto
 from warehouse.utils.msgpack import object_encode
@@ -305,7 +306,7 @@ class SessionFactory:
             #  > Expires: Session
             # This will allow effectively allow the cookie to live indefinitely,
             # as long as the user has interacted with the session _before_ the
-            # session key expieres in redis.
+            # session key expires in redis.
             # Once the session key has expired in redis, the session will be marked
             # as invalid and will not authenticate the account.
             response.set_cookie(
@@ -315,6 +316,12 @@ class SessionFactory:
                 secure=request.scheme == "https",
                 samesite=b"lax",
             )
+            # If there's no user associated with the session, remove the insecure cookie
+            # to prevent JavaScript access to it, which can confuse the UI.
+            # We cannot access `request.authenticated_userid` at this point in the
+            # request lifecycle, so we check the session directly.
+            if not request.session.get("auth.userid"):
+                response.delete_cookie(USER_ID_INSECURE_COOKIE)
 
 
 def session_view(view, info):
