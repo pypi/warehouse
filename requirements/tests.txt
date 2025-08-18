@@ -213,7 +213,6 @@ packaging==25.0 \
     # via
     #   pytest
     #   pytest-postgresql
-    #   pytest-sugar
 pluggy==1.6.0 \
     --hash=sha256:7dcc130b76258d33b90f61b658791dede3486c3e6bfb003ee5c9bfb396dd22f3 \
     --hash=sha256:e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746
@@ -282,9 +281,9 @@ pytest-socket==0.7.0 \
     --hash=sha256:71ab048cbbcb085c15a4423b73b619a8b35d6a307f46f78ea46be51b1b7e11b3 \
     --hash=sha256:7e0f4642177d55d317bbd58fc68c6bd9048d6eadb2d46a89307fa9221336ce45
     # via -r requirements/tests.in
-pytest-sugar==1.0.0 \
-    --hash=sha256:6422e83258f5b0c04ce7c632176c7732cab5fdb909cb39cca5c9139f81276c0a \
-    --hash=sha256:70ebcd8fc5795dc457ff8b69d266a4e2e8a74ae0c3edc749381c64b5246c8dfd
+pytest-sugar==1.1.0 \
+    --hash=sha256:53138645cabc311a677bb09c307eab41681a563e498318cd2a0d7cd184837af4 \
+    --hash=sha256:c853866512288f1b679efc10c565303de4617854287e977781f07904f4560668
     # via -r requirements/tests.in
 pytest-xdist==3.8.0 \
     --hash=sha256:202ca578cfeb7370784a8c33d6d05bc6e13b4f25b5053c30a152269fd10f0b88 \
