@@ -4,7 +4,6 @@ import hashlib
 import hmac
 import os.path
 import re
-import sys
 import tarfile
 import tempfile
 import zipfile
@@ -176,19 +175,6 @@ _jointlinux_arches = {
 }
 _manylinux_arches = _jointlinux_arches | {"ppc64"}
 _musllinux_arches = _jointlinux_arches
-
-# Remove this patch once 3.13.6 is available.
-if sys.version_info >= (3, 13, 6):  # pragma: no cover
-    raise RuntimeError("Patched _block() not needed in Python 3.13.6+")
-
-
-def _block_patched(self, count, _orig_block=tarfile.TarInfo._block):
-    if count < 0:  # pragma: no cover
-        raise tarfile.InvalidHeaderError("invalid offset")
-    return _orig_block(self, count)
-
-
-tarfile.TarInfo._block = _block_patched  # type: ignore[attr-defined]
 
 
 # Actual checking code;
