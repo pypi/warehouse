@@ -183,7 +183,7 @@
 </div> <!-- .card #attributes -->
 
 {% if project.organization %}
-<div class="card card-secondary" id="maintainers">
+<div class="card card-secondary" id="organization">
   <div class="card-header">Organization</div>
   <div class="card-body">
     <div class="table-responsive p-0">
@@ -211,7 +211,16 @@
 {% endif %}
 
 <div class="card card-secondary" id="maintainers">
-  <div class="card-header">Maintainers</div>
+  <div class="card-header">
+    <div class="card-title">Maintainers</div>
+    <div class="card-tools">
+      {% if maintainers %}
+      <span class="badge badge-primary">{{ maintainers|length }}</span>
+      {% endif %}
+      <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i>
+      </button>
+    </div>
+  </div>
   <div class="card-body">
     <div class="table-responsive p-0">
       <table class="table table-hover table-striped">
@@ -321,7 +330,9 @@
   <div class="card-header">
     <h3 class="card-title">Releases</h3>
     <div class="card-tools">
+      {% if releases %}
       <span class="badge badge-secondary">{{ releases|length }}</span>
+      {% endif %}
     </div>
   </div>
   <div class="card-body">
@@ -527,6 +538,9 @@
   <div class="card-header">
     <h3 class="card-title">Journals</h3>
     <div class="card-tools">
+      {% if journal %}
+      <span class="badge badge-secondary">{{ journal|length }}</span>
+      {% endif %}
       <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i>
       </button>
     </div>
