@@ -4,7 +4,7 @@ import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPNotFound
-from trove_classifiers import sorted_classifiers
+from trove_classifiers import all_classifiers
 
 from warehouse.legacy.api import pypi
 
@@ -61,7 +61,7 @@ def test_list_classifiers(db_request):
     resp = pypi.list_classifiers(db_request)
 
     assert resp.status_code == 200
-    assert resp.text == "\n".join(sorted_classifiers)
+    assert resp.text == "\n".join(all_classifiers)
 
 
 def test_search():
