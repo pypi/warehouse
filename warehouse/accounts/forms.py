@@ -418,13 +418,13 @@ class RegistrationForm(  # type: ignore[misc]
     def validate_captcha_response(self, field):
         # do required data validation here due to enabled flag being required
         if self.captcha_service.enabled and not field.data:
-            raise wtforms.validators.ValidationError("Recaptcha error.")
+            raise wtforms.validators.ValidationError("Captcha error.")
         try:
             self.captcha_service.verify_response(field.data)
         except recaptcha.RecaptchaError:
             # TODO: log error
             # don't want to provide the user with any detail
-            raise wtforms.validators.ValidationError("Recaptcha error.")
+            raise wtforms.validators.ValidationError("Captcha error.")
 
 
 class LoginForm(PasswordMixin, UsernameMixin, wtforms.Form):
