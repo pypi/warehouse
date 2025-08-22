@@ -127,8 +127,11 @@ services:
   tests:
     image: warehouse:docker-compose
     pull_policy: never
+    env_file: dev/environment
     environment:
       ENCODING: "C"
+      WAREHOUSE_ENV:
+      REDIS_URL:
     volumes: *base_volumes
     depends_on:
       db:
