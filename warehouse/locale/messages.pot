@@ -1402,7 +1402,7 @@ msgstr ""
 msgid "Are you sure?"
 msgstr ""
 
-#: warehouse/templates/error-base.html:23
+#: warehouse/templates/error-base.html:24
 msgid "Error code"
 msgstr ""
 
@@ -9577,8 +9577,8 @@ msgstr ""
 
 #: warehouse/templates/search/results.html:141
 #, python-format
-msgid "<strong>%(count_display)s</strong> project"
-msgid_plural "<strong>%(count_display)s</strong> projects"
+msgid "<strong>%(count_display)s</strong> project&nbsp;"
+msgid_plural "<strong>%(count_display)s</strong> projects&nbsp;"
 msgstr[0] ""
 msgstr[1] ""
 
