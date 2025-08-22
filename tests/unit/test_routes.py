@@ -647,27 +647,35 @@ def test_routes(warehouse):
             "sitemap",
             "/sitemap/",
             "pages/sitemap.html",
+            route_kw={"domain": warehouse},
             view_kw={"has_translations": True},
         ),
         pretend.call(
-            "help", "/help/", "pages/help.html", view_kw={"has_translations": True}
+            "help",
+            "/help/",
+            "pages/help.html",
+            route_kw={"domain": warehouse},
+            view_kw={"has_translations": True},
         ),
         pretend.call(
             "security",
             "/security/",
             "pages/security.html",
+            route_kw={"domain": warehouse},
             view_kw={"has_translations": True},
         ),
         pretend.call(
             "sponsors",
             "/sponsors/",
             "pages/sponsors.html",
+            route_kw={"domain": warehouse},
             view_kw={"has_translations": True},
         ),
         pretend.call(
             "trademarks",
             "/trademarks/",
             "pages/trademarks.html",
+            route_kw={"domain": warehouse},
             view_kw={"has_translations": True},
         ),
     ]
