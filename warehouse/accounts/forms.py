@@ -29,7 +29,7 @@ from warehouse.accounts.interfaces import (
 )
 from warehouse.accounts.models import DisableReason, ProhibitedEmailDomain
 from warehouse.accounts.services import RECOVERY_CODE_BYTES
-from warehouse.captcha import recaptcha
+from warehouse.captcha import CaptchaError
 from warehouse.constants import MAX_PASSWORD_SIZE
 from warehouse.email import (
     send_password_compromised_email_hibp,
@@ -421,7 +421,7 @@ class RegistrationForm(  # type: ignore[misc]
             raise wtforms.validators.ValidationError("Captcha error.")
         try:
             self.captcha_service.verify_response(field.data)
-        except recaptcha.RecaptchaError:
+        except CaptchaError:
             # TODO: log error
             # don't want to provide the user with any detail
             raise wtforms.validators.ValidationError("Captcha error.")

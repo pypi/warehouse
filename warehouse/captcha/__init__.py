@@ -3,6 +3,10 @@
 from .interfaces import ICaptchaService
 
 
+class CaptchaError(ValueError):
+    pass
+
+
 def includeme(config):
     # Register our Captcha service
     captcha_class = config.maybe_dotted(config.registry.settings["captcha.backend"])
