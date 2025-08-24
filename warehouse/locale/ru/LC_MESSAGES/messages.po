@@ -36,13 +36,14 @@
 # gfbdrgn <erfvvgtyhbnjhyuu@wireconnected.com>, 2025.
 # Lol Cool <zhilin.makar0009@gmail.com>, 2025.
 # Maksym Aniriew <lenyayt008@gmail.com>, 2025.
+# Dev <70532790+vldmrdev@users.noreply.github.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2025-07-20 01:06+0000\n"
-"Last-Translator: Maksym Aniriew <lenyayt008@gmail.com>\n"
+"PO-Revision-Date: 2025-08-24 03:18+0000\n"
+"Last-Translator: Dev <70532790+vldmrdev@users.noreply.github.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ru/>\n"
 "Language: ru\n"
@@ -51,7 +52,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.13-dev\n"
+"X-Generator: Weblate 5.13\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:148
@@ -63,12 +64,13 @@ msgstr ""
 "сможете выполнить это действие."
 
 #: warehouse/views.py:164
+#, fuzzy
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
 msgstr ""
 "Для выполнения этого действия в настройках вашей учетной записи должна быть "
-"включена двухфакторная авторизация."
+"включена двухфакторная аутентификация."
 
 #: warehouse/views.py:341
 msgid "Locale updated"
@@ -450,6 +452,7 @@ msgid "The trusted publisher could not be registered"
 msgstr "Трастовый публикатор не может быть зарегистрирован"
 
 #: warehouse/accounts/views.py:1759
+#, fuzzy
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
@@ -484,16 +487,17 @@ msgstr ""
 "Выберите название аккаунта организации, используя не более 50 символов."
 
 #: warehouse/manage/forms.py:429
+#, fuzzy
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
 "start and finish with a letter or number. Choose a different organization "
 "account name."
 msgstr ""
-"Имя учетной записи организации недействительно. Имена учетных записей "
-"организаций должны состоять из букв, цифр, точек, дефисов и знаков "
-"подчеркивания. Кроме того, они должны начинаться и заканчиваться буквой или "
-"цифрой. Выберите другое имя учетной записи организации."
+"Недопустимое имя учётной записи организации. Имя учётной записи организации "
+"должно состоять из букв, цифр, точек, дефисов и знаков подчёркивания. Имя "
+"также должно начинаться и заканчиваться буквой или цифрой. Выберите другое "
+"имя учётной записи организации."
 
 #: warehouse/manage/forms.py:452
 msgid ""
@@ -1142,14 +1146,14 @@ msgstr "Монти Пайтон — Магазин сыра (Monty Python — Th
 
 #: warehouse/templates/404.html:30 warehouse/templates/500.html:18
 #: warehouse/templates/accounts/two-factor.html:35
-#: warehouse/templates/base.html:339 warehouse/templates/base.html:345
-#: warehouse/templates/base.html:351 warehouse/templates/base.html:357
-#: warehouse/templates/base.html:373 warehouse/templates/base.html:379
-#: warehouse/templates/base.html:404 warehouse/templates/base.html:410
-#: warehouse/templates/base.html:419 warehouse/templates/base.html:432
-#: warehouse/templates/base.html:441 warehouse/templates/base.html:447
-#: warehouse/templates/base.html:453 warehouse/templates/base.html:466
-#: warehouse/templates/base.html:483
+#: warehouse/templates/base.html:342 warehouse/templates/base.html:348
+#: warehouse/templates/base.html:354 warehouse/templates/base.html:360
+#: warehouse/templates/base.html:376 warehouse/templates/base.html:382
+#: warehouse/templates/base.html:407 warehouse/templates/base.html:413
+#: warehouse/templates/base.html:422 warehouse/templates/base.html:435
+#: warehouse/templates/base.html:444 warehouse/templates/base.html:450
+#: warehouse/templates/base.html:456 warehouse/templates/base.html:469
+#: warehouse/templates/base.html:486
 #: warehouse/templates/includes/accounts/profile-callout.html:17
 #: warehouse/templates/includes/file-details.html:129
 #: warehouse/templates/index.html:98 warehouse/templates/index.html:105
@@ -1312,18 +1316,18 @@ msgid "Main navigation"
 msgstr "Основная навигация"
 
 #: warehouse/templates/base.html:33 warehouse/templates/base.html:68
-#: warehouse/templates/base.html:334
+#: warehouse/templates/base.html:337
 #: warehouse/templates/includes/current-user-indicator.html:77
 #: warehouse/templates/pages/help.html:209
 #: warehouse/templates/pages/sitemap.html:19
 msgid "Help"
 msgstr "Помощь"
 
-#: warehouse/templates/base.html:36
+#: warehouse/templates/base.html:36 warehouse/templates/base.html:71
 msgid "Docs"
 msgstr "Документы"
 
-#: warehouse/templates/base.html:40 warehouse/templates/base.html:71
+#: warehouse/templates/base.html:40 warehouse/templates/base.html:74
 #: warehouse/templates/includes/current-user-indicator.html:83
 #: warehouse/templates/pages/sitemap.html:43
 #: warehouse/templates/pages/sponsors.html:4
@@ -1332,11 +1336,11 @@ msgstr "Спонсоры"
 
 #: warehouse/templates/accounts/login.html:7
 #: warehouse/templates/accounts/login.html:80 warehouse/templates/base.html:44
-#: warehouse/templates/base.html:75
+#: warehouse/templates/base.html:78
 msgid "Log in"
 msgstr "Войти"
 
-#: warehouse/templates/base.html:48 warehouse/templates/base.html:79
+#: warehouse/templates/base.html:48 warehouse/templates/base.html:82
 #: warehouse/templates/pages/sitemap.html:28
 msgid "Register"
 msgstr "Зарегистрироваться"
@@ -1355,7 +1359,7 @@ msgstr "Меню"
 msgid "Main menu"
 msgstr "Главное меню"
 
-#: warehouse/templates/base.html:87
+#: warehouse/templates/base.html:90
 #, python-format
 msgid ""
 "\"%(wordmark)s\", \"%(name)s\", and the blocks logos are registered "
@@ -1370,7 +1374,7 @@ msgstr ""
 "относящимися к продукты и услуги, связанные с pypi.org . Любое другое "
 "использование любой другой стороной запрещено."
 
-#: warehouse/templates/base.html:91
+#: warehouse/templates/base.html:94
 #, python-format
 msgid ""
 "\"%(wordmark)s\", \"%(name)s\", and the blocks logos are registered <a "
@@ -1382,7 +1386,7 @@ msgstr ""
 "href=\"%(psf_href)s\" target=\"_blank\" rel=\"noopener\">Python Software "
 "Foundation</a>."
 
-#: warehouse/templates/base.html:116 warehouse/templates/index.html:93
+#: warehouse/templates/base.html:119 warehouse/templates/index.html:93
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the Python "
 "programming language."
@@ -1390,24 +1394,24 @@ msgstr ""
 "Индекс пакетов Python (PyPI) - это хранилище программного обеспечения для "
 "языка программирования Python."
 
-#: warehouse/templates/base.html:133
+#: warehouse/templates/base.html:136
 msgid "RSS: 40 latest updates"
 msgstr "RSS: 40 последних обновлений"
 
-#: warehouse/templates/base.html:137
+#: warehouse/templates/base.html:140
 msgid "RSS: 40 newest packages"
 msgstr "RSS: 40 новейших пакетов"
 
-#: warehouse/templates/base.html:205
+#: warehouse/templates/base.html:208
 msgid "Skip to main content"
 msgstr "Перейти к основному содержимому"
 
-#: warehouse/templates/base.html:209
+#: warehouse/templates/base.html:212
 msgid "Switch to mobile version"
 msgstr "Переключиться на мобильную версию"
 
-#: warehouse/templates/base.html:216 warehouse/templates/base.html:225
-#: warehouse/templates/base.html:235
+#: warehouse/templates/base.html:219 warehouse/templates/base.html:228
+#: warehouse/templates/base.html:238
 #: warehouse/templates/includes/flash-messages.html:41
 #: warehouse/templates/includes/session-notifications.html:19
 #: warehouse/templates/manage/account.html:845
@@ -1425,12 +1429,12 @@ msgstr "Переключиться на мобильную версию"
 msgid "Warning"
 msgstr "Предупреждение"
 
-#: warehouse/templates/base.html:218
+#: warehouse/templates/base.html:221
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
 "Вы используете неподдерживаемый браузер, обновите его до более новой версии."
 
-#: warehouse/templates/base.html:227
+#: warehouse/templates/base.html:230
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
@@ -1440,7 +1444,7 @@ msgstr ""
 "позволяет вам пробовать инструменты распространения и процессы, не влияя на "
 "реальный индекс."
 
-#: warehouse/templates/base.html:237
+#: warehouse/templates/base.html:240
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
@@ -1448,160 +1452,160 @@ msgstr ""
 "Некоторые функции могут не работать без JavaScript. Пожалуйста, попробуйте "
 "включить его, если у вас возникнут проблемы."
 
-#: warehouse/templates/base.html:272 warehouse/templates/base.html:304
+#: warehouse/templates/base.html:275 warehouse/templates/base.html:307
 #: warehouse/templates/error-base-with-search.html:8
 #: warehouse/templates/index.html:29
 msgid "Search PyPI"
 msgstr "Поиск по PyPI"
 
-#: warehouse/templates/base.html:277 warehouse/templates/index.html:35
+#: warehouse/templates/base.html:280 warehouse/templates/index.html:35
 msgid "Type '/' to search projects"
 msgstr "Напишите / чтобы найти проекты"
 
-#: warehouse/templates/base.html:288 warehouse/templates/base.html:317
+#: warehouse/templates/base.html:291 warehouse/templates/base.html:320
 #: warehouse/templates/error-base-with-search.html:19
 #: warehouse/templates/index.html:44
 msgid "Search"
 msgstr "Поиск"
 
-#: warehouse/templates/base.html:309
+#: warehouse/templates/base.html:312
 #: warehouse/templates/error-base-with-search.html:13
 msgid "Search projects"
 msgstr "Поиск проектов"
 
-#: warehouse/templates/base.html:335
+#: warehouse/templates/base.html:338
 msgid "Help navigation"
 msgstr "Помощь с навигацией"
 
-#: warehouse/templates/base.html:341
+#: warehouse/templates/base.html:344
 msgid "Installing packages"
 msgstr "Установка пакетов"
 
-#: warehouse/templates/base.html:347
+#: warehouse/templates/base.html:350
 msgid "Uploading packages"
 msgstr "Загрузка пакетов"
 
-#: warehouse/templates/base.html:353
+#: warehouse/templates/base.html:356
 msgid "User guide"
 msgstr "Руководство пользователя"
 
-#: warehouse/templates/base.html:359
+#: warehouse/templates/base.html:362
 msgid "Project name retention"
 msgstr "Удержание названия проекта"
 
-#: warehouse/templates/base.html:362
+#: warehouse/templates/base.html:365
 msgid "FAQs"
 msgstr "Часто задаваемые вопросы"
 
-#: warehouse/templates/base.html:368 warehouse/templates/pages/sitemap.html:34
+#: warehouse/templates/base.html:371 warehouse/templates/pages/sitemap.html:34
 msgid "About PyPI"
 msgstr "О PyPI"
 
-#: warehouse/templates/base.html:369
+#: warehouse/templates/base.html:372
 msgid "About PyPI navigation"
 msgstr "Навигация по блоку ссылок «О PyPI»"
 
-#: warehouse/templates/base.html:375
+#: warehouse/templates/base.html:378
 msgid "PyPI Blog"
 msgstr "Блог PyPI"
 
-#: warehouse/templates/base.html:381
+#: warehouse/templates/base.html:384
 msgid "Infrastructure dashboard"
 msgstr "Панель мониторинга инфраструктуры"
 
-#: warehouse/templates/base.html:384 warehouse/templates/pages/sitemap.html:40
+#: warehouse/templates/base.html:387 warehouse/templates/pages/sitemap.html:40
 #: warehouse/templates/pages/stats.html:4
 msgid "Statistics"
 msgstr "Статистика"
 
-#: warehouse/templates/base.html:387
+#: warehouse/templates/base.html:390
 msgid "Logos & trademarks"
 msgstr "Логотипы и товарные знаки"
 
-#: warehouse/templates/base.html:390
+#: warehouse/templates/base.html:393
 msgid "Our sponsors"
 msgstr "Наши спонсоры"
 
-#: warehouse/templates/base.html:396
+#: warehouse/templates/base.html:399
 msgid "Contributing to PyPI"
 msgstr "Внесение вклада в PyPI"
 
-#: warehouse/templates/base.html:397
+#: warehouse/templates/base.html:400
 msgid "How to contribute navigation"
 msgstr "Навигация по блоку ссылок «Внесение вклада в PyPI»"
 
-#: warehouse/templates/base.html:400
+#: warehouse/templates/base.html:403
 msgid "Bugs and feedback"
 msgstr "Программные ошибки и обратная связь"
 
-#: warehouse/templates/base.html:406
+#: warehouse/templates/base.html:409
 msgid "Contribute on GitHub"
 msgstr "Внесение вклада на GitHub’е"
 
-#: warehouse/templates/base.html:412
+#: warehouse/templates/base.html:415
 msgid "Translate PyPI"
 msgstr "Перевод PyPI"
 
-#: warehouse/templates/base.html:415
+#: warehouse/templates/base.html:418
 msgid "Sponsor PyPI"
 msgstr "Спонсор PyPI"
 
-#: warehouse/templates/base.html:421
+#: warehouse/templates/base.html:424
 msgid "Development credits"
 msgstr "Вклад в разработку"
 
-#: warehouse/templates/base.html:427 warehouse/templates/pages/sitemap.html:10
+#: warehouse/templates/base.html:430 warehouse/templates/pages/sitemap.html:10
 msgid "Using PyPI"
 msgstr "Использование PyPI"
 
-#: warehouse/templates/base.html:428
+#: warehouse/templates/base.html:431
 msgid "Using PyPI navigation"
 msgstr "Навигация по блоку ссылок «Использование PyPI»"
 
-#: warehouse/templates/base.html:434
+#: warehouse/templates/base.html:437
 #: warehouse/templates/manage/organization/activate_subscription.html:21
 msgid "Terms of Service"
 msgstr "Условия и положения"
 
-#: warehouse/templates/base.html:437
+#: warehouse/templates/base.html:440
 msgid "Report security issue"
 msgstr "Сообщить о проблеме безопасности"
 
-#: warehouse/templates/base.html:443
+#: warehouse/templates/base.html:446
 msgid "Code of conduct"
 msgstr "Нормы поведения"
 
-#: warehouse/templates/base.html:449
+#: warehouse/templates/base.html:452
 msgid "Privacy Notice"
 msgstr "Политика конфиденциальности"
 
-#: warehouse/templates/base.html:455
+#: warehouse/templates/base.html:458
 msgid "Acceptable Use Policy"
 msgstr "Политика допустимого использования"
 
-#: warehouse/templates/base.html:465
+#: warehouse/templates/base.html:468
 msgid "Status:"
 msgstr "Статус:"
 
-#: warehouse/templates/base.html:469
+#: warehouse/templates/base.html:472
 msgid "all systems operational"
 msgstr "все системы в рабочем состоянии"
 
-#: warehouse/templates/base.html:473
+#: warehouse/templates/base.html:476
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr ""
 "Разработано и поддерживается сообществом Python’а для сообщества Python’а."
 
-#: warehouse/templates/base.html:475
+#: warehouse/templates/base.html:478
 msgid "Donate today!"
 msgstr "Пожертвуйте сегодня!"
 
-#: warehouse/templates/base.html:487 warehouse/templates/pages/sitemap.html:4
+#: warehouse/templates/base.html:490 warehouse/templates/pages/sitemap.html:4
 msgid "Site map"
 msgstr "Карта сайта"
 
-#: warehouse/templates/base.html:494
+#: warehouse/templates/base.html:497
 msgid "Switch to desktop version"
 msgstr "Переключиться на настольную версию"
 
@@ -1613,7 +1617,7 @@ msgstr "Подтверждение действия"
 msgid "Are you sure?"
 msgstr "Вы уверены?"
 
-#: warehouse/templates/error-base.html:23
+#: warehouse/templates/error-base.html:24
 msgid "Error code"
 msgstr "Код ошибки"
 
@@ -2168,10 +2172,8 @@ msgstr ""
 "data-email-confirmation-target=\"email\"></strong>."
 
 #: warehouse/templates/accounts/register.html:50
-#, fuzzy
-#| msgid "Confirm form"
 msgid "Confirm"
-msgstr "Форма подтверждения"
+msgstr "Подтверждение"
 
 #: warehouse/templates/accounts/register.html:51
 #: warehouse/templates/manage/manage_base.html:398
@@ -3006,8 +3008,6 @@ msgstr ""
 "вы сможете использовать его для сброса пароля."
 
 #: warehouse/templates/email/password-reset-unverified/body.html:23
-#, fuzzy
-#| msgid "Lost access to the email address associated with your account"
 msgid ""
 "If you have another verified email address associated with your PyPI "
 "account, try that instead."
@@ -4128,8 +4128,6 @@ msgid "Recovery code"
 msgstr "Код восстановления"
 
 #: warehouse/templates/manage/account.html:557
-#, fuzzy
-#| msgid "Remove device"
 msgid "Remembered device"
 msgstr "Запомненное устройство"
 
@@ -5044,11 +5042,9 @@ msgstr "До поступления просьб об организации"
 #, fuzzy
 #| msgid "This organization is not active"
 msgid "This Organization request has been declined"
-msgstr "Этот запрос организации был отклонён."
+msgstr "Этот запрос организации был отклонён"
 
 #: warehouse/templates/manage/organizations.html:162
-#, fuzzy
-#| msgid "Decline"
 msgid "Declined"
 msgstr "Отклонено"
 
@@ -6122,7 +6118,7 @@ msgstr ""
 #, fuzzy, python-format
 #| msgid "%(organization_name)s organization deleted"
 msgid "Manage '%(organization_application_name)s' Organization Request"
-msgstr "%(organization_name)s организация исключена"
+msgstr "Управление запросом организации %(organization_application_name)"
 
 #: warehouse/templates/manage/organization/application.html:9
 #, fuzzy
@@ -6159,7 +6155,7 @@ msgstr "Описание организации"
 
 #: warehouse/templates/manage/organization/application.html:38
 msgid "️Anticipated usage"
-msgstr ""
+msgstr "Ожидаемое использование"
 
 #: warehouse/templates/manage/organization/application.html:42
 #, fuzzy
@@ -6169,13 +6165,13 @@ msgstr "Представлено %(submitted)s"
 
 #: warehouse/templates/manage/organization/application.html:67
 msgid "️Your Response"
-msgstr ""
+msgstr "️Ваш ответ"
 
 #: warehouse/templates/manage/organization/application.html:78
 #, fuzzy
 #| msgid "Submitted by:"
 msgid "Submit"
-msgstr "Представлено:"
+msgstr "Представлено"
 
 #: warehouse/templates/manage/organization/history.html:6
 #: warehouse/templates/manage/project/history.html:6
@@ -6761,7 +6757,7 @@ msgstr "Изменение имени учетной записи организ
 #, fuzzy
 #| msgid "This organization is not active"
 msgid "Renaming organizations is not currently supported."
-msgstr "Эта организация не активна"
+msgstr "Переименование организаций в настоящее время не поддерживается."
 
 #: warehouse/templates/manage/organization/settings.html:172
 #, python-format
@@ -6769,6 +6765,8 @@ msgid ""
 "Please contact <a href=%(href)s>PyPI Support</a> if you need to rename your "
 "organization."
 msgstr ""
+"Пожалуйста, свяжитесь с <a href=%(href)s>Поддержкой PyPI</a> если вам "
+"необходимо переименовать свою организацию."
 
 #: warehouse/templates/manage/organization/settings.html:180
 msgid ""
@@ -9032,10 +9030,9 @@ msgstr ""
 "Изъятый выпуск — это выпуск, который установщик всегда игнорирует, если "
 "только этот выпуск не является единственным, удовлетворяющим спецификатору "
 "версии (при использовании условий <code>==</code> или <code>===</code>). Для "
-"получения дополнительной информации смотрите <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"><abbr title=\"Python "
-"enhancement proposal — Предложение по улучшению Python’а\">PEP</abbr> 592</"
-"a>."
+"получения дополнительной информации смотрите <a href=\"%(href)s\" title="
+"\"%(title)s\">пользовательскую документацию</a> для получения дополнительной "
+"информации, включая инструкции о том, как выполнить изъятие релиза."
 
 #: warehouse/templates/pages/help.html:481
 #, fuzzy, python-format
@@ -10056,9 +10053,8 @@ msgid ""
 "projects may differ), we can sometimes increase your limit."
 msgstr ""
 "Если вы не можете загрузить релиз своего проекта в PyPI из-за превышения "
-"лимита размера проекта (%(max_project_size_gb)s GiB по умолчанию; для "
-"отдельных проектов он может отличаться), сначала удалите все ненужные релизы "
-"или отдельные файлы, чтобы уменьшить общий размер проекта."
+"лимита размера проекта %(max_file_size_mb)s MiB по умолчанию; для отдельных "
+"проектов он может отличаться), иногда мы можем увеличить ваш лимит."
 
 #: warehouse/templates/pages/help.html:1034
 #, python-format
@@ -10066,6 +10062,9 @@ msgid ""
 "See the <a href=\"%(href)s\">user documentation</a> for more information on "
 "requesting a file size limit increase."
 msgstr ""
+"Смотрите <a href=\"%(href)s\">пользовательскую документацию</a> для "
+"получения дополнительной информации о запросе увеличения лимита размера "
+"файла."
 
 #: warehouse/templates/pages/help.html:1042
 #, fuzzy, python-format
@@ -10082,8 +10081,9 @@ msgid ""
 msgstr ""
 "Если вы не можете загрузить релиз своего проекта в PyPI из-за превышения "
 "лимита размера проекта (%(max_project_size_gb)s GiB по умолчанию; для "
-"отдельных проектов он может отличаться), сначала удалите все ненужные релизы "
-"или отдельные файлы, чтобы уменьшить общий размер проекта."
+"отдельных проектов он может отличаться), сначала <a href=\"%(href)s\""
+">удалите все ненужные релизы или отдельные файлы</a>, чтобы уменьшить общий "
+"размер проекта."
 
 #: warehouse/templates/pages/help.html:1051
 #, fuzzy, python-format
@@ -10096,9 +10096,9 @@ msgid ""
 "href=\"%(href)s\">user documentation</a> for more information on requesting "
 "a project size limit increase."
 msgstr ""
-"Если это невозможно, мы иногда можем увеличить ваш лимит. <a "
-"href=\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Создайте замечание</a>, в котором укажите для нас:"
+"Если это невозможно, мы иногда можем увеличить ваш лимит. Смотрите <a href="
+"\"%(href)s\">пользовательскую документацию</a> для получения дополнительной "
+"информации о запросе увеличения лимита размера проекта."
 
 #: warehouse/templates/pages/help.html:1059
 #, python-format
@@ -11359,9 +11359,11 @@ msgid "Projects related to \"graphics\" with OSI-approved licenses"
 msgstr "Проекты, связанные с «графикой» с лицензиями, одобренными OSI"
 
 #: warehouse/templates/search/results.html:141
-#, python-format
-msgid "<strong>%(count_display)s</strong> project"
-msgid_plural "<strong>%(count_display)s</strong> projects"
+#, fuzzy, python-format
+#| msgid "<strong>%(count_display)s</strong> project"
+#| msgid_plural "<strong>%(count_display)s</strong> projects"
+msgid "<strong>%(count_display)s</strong> project&nbsp;"
+msgid_plural "<strong>%(count_display)s</strong> projects&nbsp;"
 msgstr[0] "<strong>%(count_display)s</strong> проект"
 msgstr[1] "<strong>%(count_display)s</strong> проекта"
 msgstr[2] "<strong>%(count_display)s</strong> проектов"
