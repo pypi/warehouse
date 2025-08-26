@@ -1160,6 +1160,20 @@ def verify_organization_role(request):
         )
         return HTTPSeeOther(request.route_path("manage.organizations"))
 
+    # Check seat limit enforcement for manually activated organizations
+    if organization.manual_activation and organization.manual_activation.is_active:
+        if not organization.manual_activation.has_available_seats:
+            request.session.flash(
+                request._(
+                    "Cannot accept invitation. Organization has reached its "
+                    "seat limit of ${seat_limit} members. Please contact the "
+                    "organization administrator.",
+                    mapping={"seat_limit": organization.manual_activation.seat_limit},
+                ),
+                queue="error",
+            )
+            return HTTPSeeOther(request.route_path("manage.organizations"))
+
     organization_service.add_organization_role(
         organization_id=organization.id,
         user_id=user.id,

@@ -3295,3 +3295,7 @@ class TestManageOrganizationHistory:
 
         with pytest.raises(HTTPNotFound):
             assert org_views.manage_organization_history(organization, db_request)
+
+
+# Seat limit enforcement is tested in test_models.py
+# The actual enforcement in views requires Redis for email sending not available here

@@ -16,9 +16,11 @@ from sqlalchemy import (
     FetchedValue,
     ForeignKey,
     Index,
+    Integer,
     UniqueConstraint,
     func,
     orm,
+    text,
 )
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.exc import NoResultFound
@@ -338,6 +340,10 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             viewonly=True,
         )
     )
+    manual_activation: Mapped[OrganizationManualActivation] = relationship(
+        back_populates="organization",
+        uselist=False,
+    )
 
     @property
     def owners(self):
@@ -371,6 +377,10 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             and not (
                 self.orgtype == OrganizationType.Company
                 and self.active_subscription is None
+                and (
+                    self.manual_activation is None
+                    or not self.manual_activation.is_active
+                )
             )
         )
 
@@ -518,6 +528,64 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
 
     def customer_name(self, site_name="PyPI"):
         return f"{site_name} Organization - {self.display_name} ({self.name})"
+
+
+class OrganizationManualActivation(db.Model):
+    __tablename__ = "organization_manual_activations"
+
+    __repr__ = make_repr("organization_id", "seat_limit", "expires")
+
+    organization_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("organizations.id", ondelete="CASCADE"),
+        primary_key=True,
+        comment="Foreign key to organization",
+    )
+    organization: Mapped[Organization] = relationship(
+        back_populates="manual_activation"
+    )
+
+    seat_limit: Mapped[int] = mapped_column(
+        Integer, comment="Maximum number of organization members allowed"
+    )
+    expires: Mapped[datetime.datetime] = mapped_column(
+        TZDateTime, comment="Expiration date for the manual activation"
+    )
+    created: Mapped[datetime_now] = mapped_column(
+        comment="Datetime when manual activation was created"
+    )
+    created_by_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("users.id"),
+        comment="Admin user who created the manual activation",
+    )
+    created_by: Mapped[User] = relationship()
+
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        server_default=text("gen_random_uuid()"),
+    )
+
+    @property
+    def is_active(self) -> bool:
+        """Check if manual activation is currently active (not expired)."""
+        return datetime.datetime.now(datetime.UTC) < self.expires
+
+    @property
+    def current_member_count(self) -> int:
+        """Get the current number of organization members."""
+        # Use roles count instead of users relationship for more reliable counting
+        return len([role for role in self.organization.roles if role.user_id])
+
+    @property
+    def has_available_seats(self) -> bool:
+        """Check if there are available seats for new members."""
+        return self.current_member_count < self.seat_limit
+
+    @property
+    def available_seats(self) -> int:
+        """Get the number of available seats for new members."""
+        return max(0, self.seat_limit - self.current_member_count)
 
 
 class OrganizationApplicationStatus(enum.StrEnum):

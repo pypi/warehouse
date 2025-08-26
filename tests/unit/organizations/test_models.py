@@ -18,6 +18,7 @@ from warehouse.organizations.models import (
 from ...common.db.organizations import (
     OrganizationApplicationFactory as DBOrganizationApplicationFactory,
     OrganizationFactory as DBOrganizationFactory,
+    OrganizationManualActivationFactory as DBOrganizationManualActivationFactory,
     OrganizationNameCatalogFactory as DBOrganizationNameCatalogFactory,
     OrganizationRoleFactory as DBOrganizationRoleFactory,
     OrganizationStripeCustomerFactory as DBOrganizationStripeCustomerFactory,
@@ -495,3 +496,165 @@ class TestTeam:
         )
         assert organization.active_subscription is None
         assert organization.manageable_subscription is None
+
+    def test_good_standing_with_manual_activation_active(self, db_session):
+        import datetime
+
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        DBOrganizationManualActivationFactory.create(
+            organization=organization,
+            expires=datetime.datetime(2025, 12, 31, 23, 59, 0, tzinfo=datetime.UTC),
+        )
+        assert organization.good_standing
+
+    def test_good_standing_with_manual_activation_expired(self, db_session):
+        import datetime
+
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        DBOrganizationManualActivationFactory.create(
+            organization=organization,
+            expires=datetime.datetime(2020, 1, 1, 0, 0, 0, tzinfo=datetime.UTC),
+        )
+        assert not organization.good_standing
+
+    def test_good_standing_community_without_manual_activation(self, db_session):
+        organization = DBOrganizationFactory.create(orgtype="Community")
+        assert organization.good_standing
+
+    def test_good_standing_company_without_manual_activation_or_subscription(
+        self, db_session
+    ):
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        assert not organization.good_standing
+
+
+class TestOrganizationManualActivation:
+    def test_is_active_future_expiration(self, db_session):
+        import datetime
+
+        activation = DBOrganizationManualActivationFactory.create(
+            expires=datetime.datetime(2025, 12, 31, 23, 59, 0, tzinfo=datetime.UTC)
+        )
+        assert activation.is_active
+
+    def test_is_active_past_expiration(self, db_session):
+        import datetime
+
+        activation = DBOrganizationManualActivationFactory.create(
+            expires=datetime.datetime(2020, 1, 1, 0, 0, 0, tzinfo=datetime.UTC)
+        )
+        assert not activation.is_active
+
+    def test_current_member_count(self, db_session):
+        organization = DBOrganizationFactory.create()
+        activation = DBOrganizationManualActivationFactory.create(
+            organization=organization, seat_limit=10
+        )
+
+        # Create some organization roles (members)
+        from ...common.db.accounts import UserFactory as DBUserFactory
+
+        for _ in range(3):
+            user = DBUserFactory.create()
+            DBOrganizationRoleFactory.create(
+                organization=organization,
+                user=user,
+                role_name=OrganizationRoleType.Member,
+            )
+
+        assert activation.current_member_count == 3
+
+    def test_has_available_seats_with_space(self, db_session):
+        organization = DBOrganizationFactory.create()
+        activation = DBOrganizationManualActivationFactory.create(
+            organization=organization, seat_limit=10
+        )
+
+        # Create some organization roles (members)
+        from ...common.db.accounts import UserFactory as DBUserFactory
+
+        for _ in range(5):
+            user = DBUserFactory.create()
+            DBOrganizationRoleFactory.create(
+                organization=organization,
+                user=user,
+                role_name=OrganizationRoleType.Member,
+            )
+
+        assert activation.has_available_seats
+
+    def test_has_available_seats_at_limit(self, db_session):
+        organization = DBOrganizationFactory.create()
+        activation = DBOrganizationManualActivationFactory.create(
+            organization=organization, seat_limit=5
+        )
+
+        # Create organization roles up to the limit
+        from ...common.db.accounts import UserFactory as DBUserFactory
+
+        for _ in range(5):
+            user = DBUserFactory.create()
+            DBOrganizationRoleFactory.create(
+                organization=organization,
+                user=user,
+                role_name=OrganizationRoleType.Member,
+            )
+
+        assert not activation.has_available_seats
+
+    def test_has_available_seats_over_limit(self, db_session):
+        organization = DBOrganizationFactory.create()
+        activation = DBOrganizationManualActivationFactory.create(
+            organization=organization, seat_limit=3
+        )
+
+        # Create more organization roles than the limit allows
+        from ...common.db.accounts import UserFactory as DBUserFactory
+
+        for _ in range(5):
+            user = DBUserFactory.create()
+            DBOrganizationRoleFactory.create(
+                organization=organization,
+                user=user,
+                role_name=OrganizationRoleType.Member,
+            )
+
+        assert not activation.has_available_seats
+
+    def test_available_seats(self, db_session):
+        organization = DBOrganizationFactory.create()
+        activation = DBOrganizationManualActivationFactory.create(
+            organization=organization, seat_limit=10
+        )
+
+        # Create some organization roles (members)
+        from ...common.db.accounts import UserFactory as DBUserFactory
+
+        for _ in range(3):
+            user = DBUserFactory.create()
+            DBOrganizationRoleFactory.create(
+                organization=organization,
+                user=user,
+                role_name=OrganizationRoleType.Member,
+            )
+
+        assert activation.available_seats == 7  # 10 - 3
+
+    def test_available_seats_negative(self, db_session):
+        organization = DBOrganizationFactory.create()
+        activation = DBOrganizationManualActivationFactory.create(
+            organization=organization, seat_limit=3
+        )
+
+        # Create more organization roles than the limit
+        from ...common.db.accounts import UserFactory as DBUserFactory
+
+        for _ in range(5):
+            user = DBUserFactory.create()
+            DBOrganizationRoleFactory.create(
+                organization=organization,
+                user=user,
+                role_name=OrganizationRoleType.Member,
+            )
+
+        assert activation.available_seats == 0  # Should never be negative

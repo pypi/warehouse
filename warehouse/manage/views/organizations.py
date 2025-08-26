@@ -966,6 +966,22 @@ def _send_organization_invitation(request, organization, role_name, user):
             queue="error",
         )
     else:
+        # Check seat limit enforcement for manually activated organizations
+        if organization.manual_activation and organization.manual_activation.is_active:
+            if not organization.manual_activation.has_available_seats:
+                request.session.flash(
+                    request._(
+                        "Cannot invite new member. Organization has reached its "
+                        "seat limit of ${seat_limit} members. Please contact "
+                        "support or upgrade your plan.",
+                        mapping={
+                            "seat_limit": organization.manual_activation.seat_limit
+                        },
+                    ),
+                    queue="error",
+                )
+                return
+
         invite_token = token_service.dumps(
             {
                 "action": "email-organization-role-verify",

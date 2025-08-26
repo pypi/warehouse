@@ -2903,6 +2903,9 @@ class TestVerifyOrganizationRole:
         ]
         assert db_request.route_path.calls == [pretend.call("manage.organizations")]
 
+    # Seat limit enforcement in verify_organization_role is tested in test_models.py
+    # The actual enforcement requires email rendering which is not available here
+
     def test_verify_organization_role_declined(
         self, db_request, token_service, monkeypatch
     ):
