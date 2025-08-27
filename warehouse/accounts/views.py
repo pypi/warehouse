@@ -1160,16 +1160,6 @@ def verify_organization_role(request):
         )
         return HTTPSeeOther(request.route_path("manage.organizations"))
 
-    # Check if organization is in good standing (but allow acceptances over seat limit)
-    if not organization.is_in_good_standing():
-        request.session.flash(
-            request._(
-                "Cannot accept invitation. Organization is not in good standing."
-            ),
-            queue="error",
-        )
-        return HTTPSeeOther(request.route_path("manage.organizations"))
-
     organization_service.add_organization_role(
         organization_id=organization.id,
         user_id=user.id,
