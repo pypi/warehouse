@@ -966,6 +966,16 @@ def _send_organization_invitation(request, organization, role_name, user):
             queue="error",
         )
     else:
+        # Check if organization is in good standing (allow invitations over seat limit)
+        if not organization.is_in_good_standing():
+            request.session.flash(
+                request._(
+                    "Cannot invite new member. Organization is not in good " "standing."
+                ),
+                queue="error",
+            )
+            return
+
         invite_token = token_service.dumps(
             {
                 "action": "email-organization-role-verify",
