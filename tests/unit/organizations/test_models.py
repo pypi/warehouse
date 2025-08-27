@@ -655,14 +655,14 @@ class TestOrganizationManualActivation:
 
 
 class TestOrganizationBillingMethods:
-    def test_has_active_billing_with_manual_activation(self, db_session):
+    def test_is_in_good_standing_company_with_manual_activation(self, db_session):
         organization = DBOrganizationFactory.create(orgtype="Company")
         DBOrganizationManualActivationFactory.create(
             organization=organization,
             expires=datetime.date.today() + datetime.timedelta(days=365),
         )
-        assert organization.has_active_billing()
+        assert organization.is_in_good_standing()
 
-    def test_has_active_billing_without_billing(self, db_session):
+    def test_is_in_good_standing_company_without_billing(self, db_session):
         organization = DBOrganizationFactory.create(orgtype="Company")
-        assert not organization.has_active_billing()
+        assert not organization.is_in_good_standing()

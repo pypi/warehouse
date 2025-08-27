@@ -1,89 +1,21 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pretend
-import pytest
 
 from pyramid.httpexceptions import HTTPSeeOther
 
-from tests.common.db.accounts import EmailFactory, UserFactory
 from tests.common.db.organizations import OrganizationInvitationFactory
 from tests.unit.common.test_seat_limit_fixtures import (  # noqa: F401
     company_without_billing,
-    mock_organization_services,
+    mock_email_sending_accounts,
+    mock_find_service_accounts,
+    mock_real_services,
+    new_user_with_email,
     organization_at_seat_limit,
     organization_with_available_seats,
 )
 from warehouse.accounts import views
 from warehouse.organizations.models import OrganizationRole
-
-
-@pytest.fixture
-def mock_email_sending(monkeypatch):
-    """Mock only email sending functions since we can't send emails in tests."""
-    organization_member_added_email = pretend.call_recorder(
-        lambda *args, **kwargs: None
-    )
-    added_as_organization_member_email = pretend.call_recorder(
-        lambda *args, **kwargs: None
-    )
-
-    monkeypatch.setattr(
-        views, "send_organization_member_added_email", organization_member_added_email
-    )
-    monkeypatch.setattr(
-        views,
-        "send_added_as_organization_member_email",
-        added_as_organization_member_email,
-    )
-
-    return {
-        "organization_member_added_email": organization_member_added_email,
-        "added_as_organization_member_email": added_as_organization_member_email,
-    }
-
-
-@pytest.fixture
-def mock_accounts_services(db_request):
-    """Use REAL services where possible for accounts views."""
-
-    def create_services(organization, new_user, owner, invitation):
-        token_service = pretend.stub(
-            loads=lambda token: {
-                "action": "email-organization-role-verify",
-                "desired_role": "Member",
-                "user_id": new_user.id,
-                "organization_id": organization.id,
-                "submitter_id": owner.id,
-            }
-        )
-
-        # Use REAL organization service for actual database operations!
-        from warehouse.organizations.services import DatabaseOrganizationService
-
-        organization_service = DatabaseOrganizationService(db_request.db)
-
-        # Use REAL user service for actual database operations!
-        from warehouse.accounts.services import DatabaseUserService
-
-        user_service = DatabaseUserService(
-            db_request.db,
-            ratelimiters={},  # Empty ratelimiters for tests
-            remote_addr="127.0.0.1",  # Test IP
-            metrics=pretend.stub(),  # Stub metrics for tests
-        )
-
-        def find_service(iface, name=None, context=None):
-            if name == "email":
-                return token_service
-            elif iface.__name__ == "IOrganizationService":
-                return organization_service
-            elif iface.__name__ == "IUserService":
-                return user_service
-            return None  # pragma: no cover
-
-        return find_service, organization_service
-
-    return create_services
 
 
 class TestVerifyOrganizationRoleSeatLimit:
@@ -93,22 +25,22 @@ class TestVerifyOrganizationRoleSeatLimit:
         self,
         db_request,
         organization_at_seat_limit,  # noqa: F811
-        mock_email_sending,
-        mock_accounts_services,
+        new_user_with_email,  # noqa: F811
+        mock_email_sending_accounts,  # noqa: F811
+        mock_find_service_accounts,  # noqa: F811
     ):
         """Test invitation blocked when organization is at seat limit."""
         organization, owner = organization_at_seat_limit
+        new_user = new_user_with_email
+        mock_emails = mock_email_sending_accounts
 
-        # Create user trying to accept invitation
-        new_user = UserFactory.create()
-        EmailFactory.create(user=new_user, verified=True, primary=True)
         invitation = OrganizationInvitationFactory.create(
             organization=organization,
             user=new_user,
         )
 
         # Setup service mocks
-        find_service, organization_service = mock_accounts_services(
+        find_service, organization_service = mock_find_service_accounts(
             organization, new_user, owner, invitation
         )
         db_request.find_service = find_service
@@ -135,8 +67,8 @@ class TestVerifyOrganizationRoleSeatLimit:
         assert flash_call.kwargs["queue"] == "error"
 
         # Verify no emails were sent (blocked by seat limit)
-        assert mock_email_sending["organization_member_added_email"].calls == []
-        assert mock_email_sending["added_as_organization_member_email"].calls == []
+        assert mock_emails["organization_member_added_email"].calls == []
+        assert mock_emails["added_as_organization_member_email"].calls == []
 
         # Verify redirect
         assert isinstance(result, HTTPSeeOther)
@@ -150,22 +82,22 @@ class TestVerifyOrganizationRoleSeatLimit:
         self,
         db_request,
         organization_with_available_seats,  # noqa: F811
-        mock_email_sending,
-        mock_accounts_services,
+        new_user_with_email,  # noqa: F811
+        mock_email_sending_accounts,  # noqa: F811
+        mock_find_service_accounts,  # noqa: F811
     ):
         """Test invitation succeeds when organization has available seats."""
         organization, owner = organization_with_available_seats
+        new_user = new_user_with_email
+        mock_emails = mock_email_sending_accounts
 
-        # Create user accepting invitation
-        new_user = UserFactory.create()
-        EmailFactory.create(user=new_user, verified=True, primary=True)
         invitation = OrganizationInvitationFactory.create(
             organization=organization,
             user=new_user,
         )
 
         # Setup service mocks
-        find_service, organization_service = mock_accounts_services(
+        find_service, organization_service = mock_find_service_accounts(
             organization, new_user, owner, invitation
         )
         db_request.find_service = find_service
@@ -197,8 +129,8 @@ class TestVerifyOrganizationRoleSeatLimit:
         assert flash_call.kwargs["queue"] == "success"
 
         # Verify emails were sent
-        assert len(mock_email_sending["organization_member_added_email"].calls) == 1
-        assert len(mock_email_sending["added_as_organization_member_email"].calls) == 1
+        assert len(mock_emails["organization_member_added_email"].calls) == 1
+        assert len(mock_emails["added_as_organization_member_email"].calls) == 1
 
         # Verify redirect to manage organization roles
         assert isinstance(result, HTTPSeeOther)
@@ -215,21 +147,23 @@ class TestVerifyOrganizationRoleSeatLimit:
         assert new_role.role_name == "Member"
 
     def test_verify_role_blocked_when_not_in_good_standing(
-        self, db_request, company_without_billing, mock_accounts_services  # noqa: F811
+        self,
+        db_request,
+        company_without_billing,  # noqa: F811
+        new_user_with_email,  # noqa: F811
+        mock_find_service_accounts,  # noqa: F811
     ):
         """Test invitation fails when organization not in good standing."""
         organization, owner = company_without_billing
+        new_user = new_user_with_email
 
-        # Create user trying to accept invitation
-        new_user = UserFactory.create()
-        EmailFactory.create(user=new_user, verified=True, primary=True)
         invitation = OrganizationInvitationFactory.create(
             organization=organization,
             user=new_user,
         )
 
         # Setup service mocks
-        find_service, organization_service = mock_accounts_services(
+        find_service, organization_service = mock_find_service_accounts(
             organization, new_user, owner, invitation
         )
         db_request.find_service = find_service

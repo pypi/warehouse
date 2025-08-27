@@ -401,16 +401,6 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             self.manual_activation is not None and self.manual_activation.is_active
         )
 
-    def has_active_billing(self) -> bool:
-        """Check if organization has active billing (subscription or manual activation).
-
-        This is specifically for billing status checks, separate from good
-        standing status.
-        """
-        return self.active_subscription is not None or (
-            self.manual_activation is not None and self.manual_activation.is_active
-        )
-
     def can_invite_new_members(self) -> bool:
         """Check if organization can invite new members (seat limit enforcement).
 
@@ -437,7 +427,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         Returns the organization name with billing status suffix if not in
         good standing.
         """
-        if self.good_standing:
+        if self.is_in_good_standing():
             return self.name
         else:
             return f"{self.name} (Billing inactive)"

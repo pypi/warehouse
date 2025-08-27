@@ -1,15 +1,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pretend
-import pytest
 
 from pyramid.httpexceptions import HTTPSeeOther
 from webob.multidict import MultiDict
 
-from tests.common.db.accounts import EmailFactory, UserFactory
 from tests.unit.common.test_seat_limit_fixtures import (  # noqa: F401
     company_without_billing,
-    mock_organization_services,
+    mock_email_sending_manage,
+    mock_find_service_manage,
+    mock_real_services,
+    new_user_with_email,
     organization_at_seat_limit,
     organization_with_available_seats,
 )
@@ -21,37 +22,6 @@ from warehouse.organizations.models import (
 )
 
 
-@pytest.fixture
-def mock_email_sending(monkeypatch):
-    """Mock only email sending functions since we can't send emails in tests."""
-    send_organization_member_invited_email = pretend.call_recorder(
-        lambda *args, **kwargs: None
-    )
-    send_organization_role_verification_email = pretend.call_recorder(
-        lambda *args, **kwargs: None
-    )
-
-    monkeypatch.setattr(
-        org_views,
-        "send_organization_member_invited_email",
-        send_organization_member_invited_email,
-    )
-    monkeypatch.setattr(
-        org_views,
-        "send_organization_role_verification_email",
-        send_organization_role_verification_email,
-    )
-
-    return {
-        "send_organization_member_invited_email": (
-            send_organization_member_invited_email
-        ),
-        "send_organization_role_verification_email": (
-            send_organization_role_verification_email
-        ),
-    }
-
-
 class TestSeatLimitEnforcement:
     """Test seat limit enforcement in organization invitations."""
 
@@ -59,19 +29,18 @@ class TestSeatLimitEnforcement:
         self,
         db_request,
         organization_at_seat_limit,  # noqa: F811
-        mock_email_sending,
-        mock_organization_services,  # noqa: F811
+        new_user_with_email,  # noqa: F811
+        mock_email_sending_manage,  # noqa: F811
+        mock_find_service_manage,  # noqa: F811
         monkeypatch,
     ):
         """Test that invitations are blocked when at seat limit."""
         organization, owner = organization_at_seat_limit
-
-        # User to invite
-        new_user = UserFactory.create()
-        EmailFactory.create(user=new_user, verified=True, primary=True)
+        new_user = new_user_with_email
+        mock_emails = mock_email_sending_manage
 
         # Setup service mocks
-        find_service, organization_service = mock_organization_services(owner, new_user)
+        find_service, organization_service = mock_find_service_manage()
         db_request.find_service = find_service
 
         # Setup request
@@ -102,10 +71,8 @@ class TestSeatLimitEnforcement:
         assert flash_call.kwargs["queue"] == "error"
 
         # Verify no emails were sent
-        assert mock_email_sending["send_organization_member_invited_email"].calls == []
-        assert (
-            mock_email_sending["send_organization_role_verification_email"].calls == []
-        )
+        assert mock_emails["send_organization_member_invited_email"].calls == []
+        assert mock_emails["send_organization_role_verification_email"].calls == []
 
         # Verify redirect
         assert isinstance(result, HTTPSeeOther)
@@ -114,19 +81,18 @@ class TestSeatLimitEnforcement:
         self,
         db_request,
         organization_with_available_seats,  # noqa: F811
-        mock_email_sending,
-        mock_organization_services,  # noqa: F811
+        new_user_with_email,  # noqa: F811
+        mock_email_sending_manage,  # noqa: F811
+        mock_find_service_manage,  # noqa: F811
         monkeypatch,
     ):
         """Test that invitations work when seats are available."""
         organization, owner = organization_with_available_seats
-
-        # User to invite
-        new_user = UserFactory.create()
-        EmailFactory.create(user=new_user, verified=True, primary=True)
+        new_user = new_user_with_email
+        mock_emails = mock_email_sending_manage
 
         # Setup service mocks
-        find_service, organization_service = mock_organization_services(owner, new_user)
+        find_service, organization_service = mock_find_service_manage()
         db_request.find_service = find_service
 
         # Setup request
@@ -161,13 +127,8 @@ class TestSeatLimitEnforcement:
         assert flash_call.kwargs["queue"] == "success"
 
         # Verify emails were sent
-        assert (
-            len(mock_email_sending["send_organization_member_invited_email"].calls) == 1
-        )
-        assert (
-            len(mock_email_sending["send_organization_role_verification_email"].calls)
-            == 1
-        )
+        assert len(mock_emails["send_organization_member_invited_email"].calls) == 1
+        assert len(mock_emails["send_organization_role_verification_email"].calls) == 1
 
         # Verify an invitation was actually created in the database
         invitation = (
@@ -185,19 +146,18 @@ class TestSeatLimitEnforcement:
         self,
         db_request,
         company_without_billing,  # noqa: F811
-        mock_email_sending,
-        mock_organization_services,  # noqa: F811
+        new_user_with_email,  # noqa: F811
+        mock_email_sending_manage,  # noqa: F811
+        mock_find_service_manage,  # noqa: F811
         monkeypatch,
     ):
         """Test that invitations are blocked when organization not in good standing."""
         organization, owner = company_without_billing
-
-        # User to invite
-        new_user = UserFactory.create()
-        EmailFactory.create(user=new_user, verified=True, primary=True)
+        new_user = new_user_with_email
+        mock_emails = mock_email_sending_manage
 
         # Setup service mocks
-        find_service, organization_service = mock_organization_services(owner, new_user)
+        find_service, organization_service = mock_find_service_manage()
         db_request.find_service = find_service
 
         # Setup request
@@ -231,10 +191,8 @@ class TestSeatLimitEnforcement:
         assert flash_call.kwargs["queue"] == "error"
 
         # Verify no emails were sent
-        assert mock_email_sending["send_organization_member_invited_email"].calls == []
-        assert (
-            mock_email_sending["send_organization_role_verification_email"].calls == []
-        )
+        assert mock_emails["send_organization_member_invited_email"].calls == []
+        assert mock_emails["send_organization_role_verification_email"].calls == []
 
         # Verify redirect
         assert isinstance(result, HTTPSeeOther)

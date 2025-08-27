@@ -382,7 +382,7 @@
         </div>
       {% endif %}
     {% endif %}
-    {% if not (organization.orgtype == OrganizationType.Company and organization.manual_activation and organization.manual_activation.is_active and not organization.manual_activation.has_available_seats) %}
+    {% if organization.can_invite_new_members() %}
       <form method="post">
         <div class="form-group"
              data-controller="autocomplete"
