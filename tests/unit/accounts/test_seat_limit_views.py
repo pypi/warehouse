@@ -1,57 +1,105 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
-
 import pretend
+import pytest
 
 from pyramid.httpexceptions import HTTPSeeOther
 
 from tests.common.db.accounts import EmailFactory, UserFactory
-from tests.common.db.organizations import (
-    OrganizationFactory,
-    OrganizationInvitationFactory,
-    OrganizationManualActivationFactory,
-    OrganizationRoleFactory,
+from tests.common.db.organizations import OrganizationInvitationFactory
+from tests.unit.common.test_seat_limit_fixtures import (  # noqa: F401
+    company_without_billing,
+    mock_organization_services,
+    organization_at_seat_limit,
+    organization_with_available_seats,
 )
 from warehouse.accounts import views
-from warehouse.accounts.interfaces import IUserService
-from warehouse.organizations.models import OrganizationRoleType
-from warehouse.organizations.services import IOrganizationService
+from warehouse.organizations.models import OrganizationRole
+
+
+@pytest.fixture
+def mock_email_sending(monkeypatch):
+    """Mock only email sending functions since we can't send emails in tests."""
+    organization_member_added_email = pretend.call_recorder(
+        lambda *args, **kwargs: None
+    )
+    added_as_organization_member_email = pretend.call_recorder(
+        lambda *args, **kwargs: None
+    )
+
+    monkeypatch.setattr(
+        views, "send_organization_member_added_email", organization_member_added_email
+    )
+    monkeypatch.setattr(
+        views,
+        "send_added_as_organization_member_email",
+        added_as_organization_member_email,
+    )
+
+    return {
+        "organization_member_added_email": organization_member_added_email,
+        "added_as_organization_member_email": added_as_organization_member_email,
+    }
+
+
+@pytest.fixture
+def mock_accounts_services(db_request):
+    """Use REAL services where possible for accounts views."""
+
+    def create_services(organization, new_user, owner, invitation):
+        token_service = pretend.stub(
+            loads=lambda token: {
+                "action": "email-organization-role-verify",
+                "desired_role": "Member",
+                "user_id": new_user.id,
+                "organization_id": organization.id,
+                "submitter_id": owner.id,
+            }
+        )
+
+        # Use REAL organization service for actual database operations!
+        from warehouse.organizations.services import DatabaseOrganizationService
+
+        organization_service = DatabaseOrganizationService(db_request.db)
+
+        # Use REAL user service for actual database operations!
+        from warehouse.accounts.services import DatabaseUserService
+
+        user_service = DatabaseUserService(
+            db_request.db,
+            ratelimiters={},  # Empty ratelimiters for tests
+            remote_addr="127.0.0.1",  # Test IP
+            metrics=pretend.stub(),  # Stub metrics for tests
+        )
+
+        def find_service(iface, name=None, context=None):
+            if name == "email":
+                return token_service
+            elif iface.__name__ == "IOrganizationService":
+                return organization_service
+            elif iface.__name__ == "IUserService":
+                return user_service
+            return None  # pragma: no cover
+
+        return find_service, organization_service
+
+    return create_services
 
 
 class TestVerifyOrganizationRoleSeatLimit:
     """Test seat limit enforcement when accepting organization invitations."""
 
-    def test_verify_role_at_seat_limit(self, db_request, monkeypatch):
-        """Test that accepting invitation is blocked when at seat limit."""
-        # Create organization with manual activation at limit
-        organization = OrganizationFactory.create()
-        # Create activation that expires far in the future
-        future_date = datetime.datetime(2030, 1, 1, tzinfo=datetime.UTC)
-        manual_activation = OrganizationManualActivationFactory.create(
-            organization=organization,
-            seat_limit=2,  # Only 2 seats
-            expires=future_date,
-        )
-        organization.manual_activation = manual_activation
+    def test_verify_role_blocked_at_seat_limit(
+        self,
+        db_request,
+        organization_at_seat_limit,  # noqa: F811
+        mock_email_sending,
+        mock_accounts_services,
+    ):
+        """Test invitation blocked when organization is at seat limit."""
+        organization, owner = organization_at_seat_limit
 
-        # Create 2 existing members to reach the limit
-        owner = UserFactory.create()
-        member = UserFactory.create()
-        owner_role = OrganizationRoleFactory.create(
-            organization=organization,
-            user=owner,
-            role_name=OrganizationRoleType.Owner,
-        )
-        member_role = OrganizationRoleFactory.create(
-            organization=organization,
-            user=member,
-            role_name=OrganizationRoleType.Member,
-        )
-        # Ensure the organization.roles relationship is properly loaded
-        organization.roles = [owner_role, member_role]
-
-        # User trying to accept invitation
+        # Create user trying to accept invitation
         new_user = UserFactory.create()
         EmailFactory.create(user=new_user, verified=True, primary=True)
         invitation = OrganizationInvitationFactory.create(
@@ -59,7 +107,13 @@ class TestVerifyOrganizationRoleSeatLimit:
             user=new_user,
         )
 
-        # Setup request
+        # Setup service mocks
+        find_service, organization_service = mock_accounts_services(
+            organization, new_user, owner, invitation
+        )
+        db_request.find_service = find_service
+
+        # Setup request with real data
         db_request.user = new_user
         db_request.method = "POST"
         db_request.GET.update({"token": "fake-token"})
@@ -71,114 +125,50 @@ class TestVerifyOrganizationRoleSeatLimit:
         db_request.remote_addr = "192.168.1.1"
         db_request._ = lambda text, **kw: text.format(**kw.get("mapping", {}))
 
-        # Mock services
-        token_service = pretend.stub(
-            loads=pretend.call_recorder(
-                lambda token: {
-                    "action": "email-organization-role-verify",
-                    "desired_role": "Member",
-                    "user_id": new_user.id,
-                    "organization_id": organization.id,
-                    "submitter_id": owner.id,
-                }
-            )
-        )
-        user_service = pretend.stub(
-            get_user=lambda userid: owner if userid == owner.id else new_user,
-        )
-        # Make sure the organization returned by service has manual activation
-
-        def get_organization_with_manual_activation(org_id):
-
-            # Ensure manual activation and roles are properly attached
-            organization.manual_activation = manual_activation
-            organization.roles = [owner_role, member_role]
-            return organization
-
-        organization_service = pretend.stub(
-            get_organization=get_organization_with_manual_activation,
-            get_organization_invite_by_user=lambda org_id, user_id: invitation,
-            get_organization_role_by_user=lambda org_id, user_id: None,
-            add_organization_role=pretend.call_recorder(lambda **kw: None),
-            delete_organization_invite=pretend.call_recorder(lambda invite_id: None),
-        )
-
-        def find_service(iface, **kw):
-            if iface == IUserService:
-                return user_service
-            elif iface == IOrganizationService:
-                return organization_service
-            else:
-                return {"email": token_service}.get(kw.get("name"))
-
-        db_request.find_service = find_service
-
-        # Mock email functions (they won't be called due to seat limit)
-        organization_member_added_email = pretend.call_recorder(
-            lambda *args, **kwargs: None
-        )
-        monkeypatch.setattr(
-            views,
-            "send_organization_member_added_email",
-            organization_member_added_email,
-        )
-        added_as_organization_member_email = pretend.call_recorder(
-            lambda *args, **kwargs: None
-        )
-        monkeypatch.setattr(
-            views,
-            "send_added_as_organization_member_email",
-            added_as_organization_member_email,
-        )
-
-        # Call verify_organization_role
+        # Call the actual view function
         result = views.verify_organization_role(db_request)
 
-        # Verify seat limit error was flashed
+        # Verify seat limit error was shown
         assert len(db_request.session.flash.calls) == 1
         flash_call = db_request.session.flash.calls[0]
-        assert "Cannot accept invitation" in flash_call.args[0]
         assert "seat limit" in flash_call.args[0]
         assert flash_call.kwargs["queue"] == "error"
 
-        # Verify no emails were sent
-        assert organization_member_added_email.calls == []
-        assert added_as_organization_member_email.calls == []
+        # Verify no emails were sent (blocked by seat limit)
+        assert mock_email_sending["organization_member_added_email"].calls == []
+        assert mock_email_sending["added_as_organization_member_email"].calls == []
 
-        # Verify redirect to manage organizations
+        # Verify redirect
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/manage.organizations"
 
-    def test_verify_role_with_available_seats(self, db_request, monkeypatch):
-        """Test that accepting invitation works when seats are available."""
-        # Create organization with manual activation with available seats
-        organization = OrganizationFactory.create()
-        # Create activation that expires far in the future
-        future_date = datetime.datetime(2030, 1, 1, tzinfo=datetime.UTC)
-        manual_activation = OrganizationManualActivationFactory.create(
-            organization=organization,
-            seat_limit=10,  # Plenty of seats
-            expires=future_date,
-        )
-        organization.manual_activation = manual_activation
+        # Verify no new organization role was created
+        roles_count = len(organization.roles)
+        assert roles_count == 2  # Still just owner + member
 
-        # Create 1 existing member
-        owner = UserFactory.create()
-        owner_role = OrganizationRoleFactory.create(
-            organization=organization,
-            user=owner,
-            role_name=OrganizationRoleType.Owner,
-        )
-        # Ensure the organization.roles relationship is properly loaded
-        organization.roles = [owner_role]
+    def test_verify_role_succeeds_with_available_seats(
+        self,
+        db_request,
+        organization_with_available_seats,  # noqa: F811
+        mock_email_sending,
+        mock_accounts_services,
+    ):
+        """Test invitation succeeds when organization has available seats."""
+        organization, owner = organization_with_available_seats
 
-        # User accepting invitation
+        # Create user accepting invitation
         new_user = UserFactory.create()
         EmailFactory.create(user=new_user, verified=True, primary=True)
         invitation = OrganizationInvitationFactory.create(
             organization=organization,
             user=new_user,
         )
+
+        # Setup service mocks
+        find_service, organization_service = mock_accounts_services(
+            organization, new_user, owner, invitation
+        )
+        db_request.find_service = find_service
 
         # Setup request
         db_request.user = new_user
@@ -192,107 +182,57 @@ class TestVerifyOrganizationRoleSeatLimit:
         db_request.remote_addr = "192.168.1.1"
         db_request._ = lambda text, **kw: text.format(**kw.get("mapping", {}))
 
-        # Mock services
-        token_service = pretend.stub(
-            loads=pretend.call_recorder(
-                lambda token: {
-                    "action": "email-organization-role-verify",
-                    "desired_role": "Member",
-                    "user_id": new_user.id,
-                    "organization_id": organization.id,
-                    "submitter_id": owner.id,
-                }
-            )
-        )
-        user_service = pretend.stub(
-            get_user=lambda userid: owner if userid == owner.id else new_user,
-        )
-        # Make sure the organization returned by service has manual activation
-
-        def get_organization_with_manual_activation(org_id):
-
-            # Ensure manual activation and roles are properly attached
-            organization.manual_activation = manual_activation
-            organization.roles = [owner_role]
-            return organization
-
-        organization_service = pretend.stub(
-            get_organization=get_organization_with_manual_activation,
-            get_organization_invite_by_user=lambda org_id, user_id: invitation,
-            get_organization_role_by_user=lambda org_id, user_id: None,
-            add_organization_role=pretend.call_recorder(lambda **kw: None),
-            delete_organization_invite=pretend.call_recorder(lambda invite_id: None),
-        )
-
-        def find_service(iface, **kw):
-            if iface == IUserService:
-                return user_service
-            elif iface == IOrganizationService:
-                return organization_service
-            else:
-                return {"email": token_service}.get(kw.get("name"))
-
-        db_request.find_service = find_service
-
-        # Mock email functions
-        organization_member_added_email = pretend.call_recorder(
-            lambda *args, **kwargs: None
-        )
-        monkeypatch.setattr(
-            views,
-            "send_organization_member_added_email",
-            organization_member_added_email,
-        )
-        added_as_organization_member_email = pretend.call_recorder(
-            lambda *args, **kwargs: None
-        )
-        monkeypatch.setattr(
-            views,
-            "send_added_as_organization_member_email",
-            added_as_organization_member_email,
-        )
-
-        # Mock record_event to avoid any issues
+        # Mock record_event to avoid Redis/event system dependencies
         organization.record_event = pretend.call_recorder(lambda **kw: None)
         new_user.record_event = pretend.call_recorder(lambda **kw: None)
         owner.record_event = pretend.call_recorder(lambda **kw: None)
 
-        # Call verify_organization_role
+        # Call the actual view function
         result = views.verify_organization_role(db_request)
 
-        # Verify success message was flashed
+        # Verify success message was shown
         assert len(db_request.session.flash.calls) == 1
         flash_call = db_request.session.flash.calls[0]
         assert "You are now" in flash_call.args[0]
         assert flash_call.kwargs["queue"] == "success"
 
         # Verify emails were sent
-        assert len(organization_member_added_email.calls) == 1
-        assert len(added_as_organization_member_email.calls) == 1
-
-        # Verify organization service was called to add role
-        assert len(organization_service.add_organization_role.calls) == 1
-        assert len(organization_service.delete_organization_invite.calls) == 1
+        assert len(mock_email_sending["organization_member_added_email"].calls) == 1
+        assert len(mock_email_sending["added_as_organization_member_email"].calls) == 1
 
         # Verify redirect to manage organization roles
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/manage.organization.roles"
 
-    def test_verify_role_organization_not_in_good_standing(
-        self, db_request, monkeypatch
-    ):
-        """Test that accepting invitation fails when organization not in good
-        standing."""
-        # Create Company organization without billing (not in good standing)
-        organization = OrganizationFactory.create(orgtype="Company")
+        # Verify the user was actually added to the organization
+        # Check database state directly
+        new_role = (
+            db_request.db.query(OrganizationRole)
+            .filter_by(organization_id=organization.id, user_id=new_user.id)
+            .first()
+        )
+        assert new_role is not None
+        assert new_role.role_name == "Member"
 
-        # User trying to accept invitation
+    def test_verify_role_blocked_when_not_in_good_standing(
+        self, db_request, company_without_billing, mock_accounts_services  # noqa: F811
+    ):
+        """Test invitation fails when organization not in good standing."""
+        organization, owner = company_without_billing
+
+        # Create user trying to accept invitation
         new_user = UserFactory.create()
         EmailFactory.create(user=new_user, verified=True, primary=True)
         invitation = OrganizationInvitationFactory.create(
             organization=organization,
             user=new_user,
         )
+
+        # Setup service mocks
+        find_service, organization_service = mock_accounts_services(
+            organization, new_user, owner, invitation
+        )
+        db_request.find_service = find_service
 
         # Setup request
         db_request.user = new_user
@@ -306,50 +246,15 @@ class TestVerifyOrganizationRoleSeatLimit:
         db_request.remote_addr = "192.168.1.1"
         db_request._ = lambda text, **kw: text.format(**kw.get("mapping", {}))
 
-        # Mock services
-        token_service = pretend.stub(
-            loads=pretend.call_recorder(
-                lambda token: {
-                    "action": "email-organization-role-verify",
-                    "desired_role": "Member",
-                    "user_id": new_user.id,
-                    "organization_id": organization.id,
-                    "submitter_id": new_user.id,
-                }
-            )
-        )
-        user_service = pretend.stub(
-            get_user=lambda userid: new_user,
-        )
-
-        organization_service = pretend.stub(
-            get_organization=lambda org_id: organization,
-            get_organization_invite_by_user=lambda org_id, user_id: invitation,
-            get_organization_role_by_user=lambda org_id, user_id: None,
-        )
-
-        def find_service(iface, **kw):
-            if iface == IUserService:
-                return user_service
-            elif iface == IOrganizationService:
-                return organization_service
-            else:
-                return {"email": token_service}.get(kw.get("name"))
-
-        db_request.find_service = find_service
-
-        # Call verify_organization_role
+        # Call the actual view function
         result = views.verify_organization_role(db_request)
 
-        # Verify error message was flashed
+        # Verify good standing error was shown
         assert len(db_request.session.flash.calls) == 1
         flash_call = db_request.session.flash.calls[0]
-        assert (
-            "Cannot accept invitation. Organization is not in good standing."
-            in flash_call.args[0]
-        )
+        assert "not in good standing" in flash_call.args[0]
         assert flash_call.kwargs["queue"] == "error"
 
-        # Verify redirect to manage organizations
+        # Verify redirect
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/manage.organizations"
