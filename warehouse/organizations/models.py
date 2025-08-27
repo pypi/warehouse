@@ -12,6 +12,7 @@ from pyramid.authorization import Allow
 from pyramid.httpexceptions import HTTPPermanentRedirect
 from sqlalchemy import (
     CheckConstraint,
+    Date,
     Enum,
     FetchedValue,
     ForeignKey,
@@ -548,8 +549,8 @@ class OrganizationManualActivation(db.Model):
     seat_limit: Mapped[int] = mapped_column(
         Integer, comment="Maximum number of organization members allowed"
     )
-    expires: Mapped[datetime.datetime] = mapped_column(
-        TZDateTime, comment="Expiration date for the manual activation"
+    expires: Mapped[datetime.date] = mapped_column(
+        Date, comment="Expiration date for the manual activation"
     )
     created: Mapped[datetime_now] = mapped_column(
         comment="Datetime when manual activation was created"
@@ -569,7 +570,7 @@ class OrganizationManualActivation(db.Model):
     @property
     def is_active(self) -> bool:
         """Check if manual activation is currently active (not expired)."""
-        return datetime.datetime.now(datetime.UTC) < self.expires
+        return datetime.date.today() < self.expires
 
     @property
     def current_member_count(self) -> int:

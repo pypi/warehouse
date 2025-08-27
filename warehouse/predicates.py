@@ -61,7 +61,8 @@ class ActiveOrganizationPredicate:
 
         1. `AdminFlagValue.DISABLE_ORGANIZATIONS` flag is off.
         2. `Organization.is_active` is true.
-        3. `Organization.active_subscription` exists if organization is a company.
+        3. `Organization.active_subscription` exists if organization is a company,
+           OR organization has an active manual activation.
 
         """
         if self.val is False:
@@ -74,10 +75,14 @@ class ActiveOrganizationPredicate:
         if (
             # Organization is active.
             organization.is_active
-            # Organization has active subscription if it is a Company.
+            # Organization has active subscription or manual activation if Company.
             and (
                 organization.orgtype != OrganizationType.Company
                 or organization.active_subscription
+                or (
+                    organization.manual_activation
+                    and organization.manual_activation.is_active
+                )
             )
         ):
             return True

@@ -1,8 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import datetime
 import shlex
-
-from datetime import datetime
 
 import wtforms
 
@@ -113,14 +112,14 @@ class ManualActivationForm(wtforms.Form):
         ]
     )
 
-    expires = wtforms.DateTimeLocalField(
+    expires = wtforms.DateField(
         validators=[
             wtforms.validators.InputRequired(message="Specify expiration date"),
         ]
     )
 
     def validate_expires(self, field):
-        if field.data and field.data <= datetime.now():
+        if field.data and field.data <= datetime.date.today():
             raise wtforms.ValidationError("Expiration date must be in the future")
 
 

@@ -1,8 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import datetime
+
 import pretend
 import pytest
 
+from freezegun import freeze_time
 from pyramid.authorization import Allow
 from pyramid.httpexceptions import HTTPPermanentRedirect
 from pyramid.location import lineage
@@ -15,6 +18,7 @@ from warehouse.organizations.models import (
     TeamFactory,
 )
 
+from ...common.db.accounts import UserFactory as DBUserFactory
 from ...common.db.organizations import (
     OrganizationApplicationFactory as DBOrganizationApplicationFactory,
     OrganizationFactory as DBOrganizationFactory,
@@ -498,24 +502,22 @@ class TestTeam:
         assert organization.manageable_subscription is None
 
     def test_good_standing_with_manual_activation_active(self, db_session):
-        import datetime
-
-        organization = DBOrganizationFactory.create(orgtype="Company")
-        DBOrganizationManualActivationFactory.create(
-            organization=organization,
-            expires=datetime.datetime(2025, 12, 31, 23, 59, 0, tzinfo=datetime.UTC),
-        )
-        assert organization.good_standing
+        with freeze_time("2024-01-15"):
+            organization = DBOrganizationFactory.create(orgtype="Company")
+            DBOrganizationManualActivationFactory.create(
+                organization=organization,
+                expires=datetime.date(2024, 12, 31),  # Future date from frozen time
+            )
+            assert organization.good_standing
 
     def test_good_standing_with_manual_activation_expired(self, db_session):
-        import datetime
-
-        organization = DBOrganizationFactory.create(orgtype="Company")
-        DBOrganizationManualActivationFactory.create(
-            organization=organization,
-            expires=datetime.datetime(2020, 1, 1, 0, 0, 0, tzinfo=datetime.UTC),
-        )
-        assert not organization.good_standing
+        with freeze_time("2024-01-15"):
+            organization = DBOrganizationFactory.create(orgtype="Company")
+            DBOrganizationManualActivationFactory.create(
+                organization=organization,
+                expires=datetime.date(2023, 12, 31),  # Past date from frozen time
+            )
+            assert not organization.good_standing
 
     def test_good_standing_community_without_manual_activation(self, db_session):
         organization = DBOrganizationFactory.create(orgtype="Community")
@@ -530,20 +532,22 @@ class TestTeam:
 
 class TestOrganizationManualActivation:
     def test_is_active_future_expiration(self, db_session):
-        import datetime
-
-        activation = DBOrganizationManualActivationFactory.create(
-            expires=datetime.datetime(2025, 12, 31, 23, 59, 0, tzinfo=datetime.UTC)
-        )
-        assert activation.is_active
+        # Freeze time to a known date
+        with freeze_time("2024-01-15"):
+            # Create activation that expires in the future
+            activation = DBOrganizationManualActivationFactory.create(
+                expires=datetime.date(2024, 12, 31)
+            )
+            assert activation.is_active
 
     def test_is_active_past_expiration(self, db_session):
-        import datetime
-
-        activation = DBOrganizationManualActivationFactory.create(
-            expires=datetime.datetime(2020, 1, 1, 0, 0, 0, tzinfo=datetime.UTC)
-        )
-        assert not activation.is_active
+        # Freeze time to a known date
+        with freeze_time("2024-01-15"):
+            # Create activation that already expired
+            activation = DBOrganizationManualActivationFactory.create(
+                expires=datetime.date(2023, 12, 31)
+            )
+            assert not activation.is_active
 
     def test_current_member_count(self, db_session):
         organization = DBOrganizationFactory.create()
@@ -552,8 +556,6 @@ class TestOrganizationManualActivation:
         )
 
         # Create some organization roles (members)
-        from ...common.db.accounts import UserFactory as DBUserFactory
-
         for _ in range(3):
             user = DBUserFactory.create()
             DBOrganizationRoleFactory.create(
@@ -590,8 +592,6 @@ class TestOrganizationManualActivation:
         )
 
         # Create organization roles up to the limit
-        from ...common.db.accounts import UserFactory as DBUserFactory
-
         for _ in range(5):
             user = DBUserFactory.create()
             DBOrganizationRoleFactory.create(
@@ -609,8 +609,6 @@ class TestOrganizationManualActivation:
         )
 
         # Create more organization roles than the limit allows
-        from ...common.db.accounts import UserFactory as DBUserFactory
-
         for _ in range(5):
             user = DBUserFactory.create()
             DBOrganizationRoleFactory.create(
@@ -628,8 +626,6 @@ class TestOrganizationManualActivation:
         )
 
         # Create some organization roles (members)
-        from ...common.db.accounts import UserFactory as DBUserFactory
-
         for _ in range(3):
             user = DBUserFactory.create()
             DBOrganizationRoleFactory.create(
@@ -647,8 +643,6 @@ class TestOrganizationManualActivation:
         )
 
         # Create more organization roles than the limit
-        from ...common.db.accounts import UserFactory as DBUserFactory
-
         for _ in range(5):
             user = DBUserFactory.create()
             DBOrganizationRoleFactory.create(

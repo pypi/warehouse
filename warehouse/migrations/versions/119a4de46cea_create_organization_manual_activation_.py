@@ -11,8 +11,6 @@ import sqlalchemy as sa
 
 from alembic import op
 
-import warehouse.utils.db.types
-
 revision = "119a4de46cea"
 down_revision = "30c837b1425a"
 
@@ -57,7 +55,7 @@ def upgrade():
         ),
         sa.Column(
             "expires",
-            warehouse.utils.db.types.TZDateTime(),
+            sa.Date(),
             nullable=False,
             comment="Expiration date for the manual activation",
         ),

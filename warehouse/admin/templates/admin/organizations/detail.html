@@ -272,8 +272,8 @@
                 </div>
                 <div class="form-group">
                   <label for="update_expires">Expiration Date</label>
-                  <input type="datetime-local" name="expires" id="update_expires" class="form-control" 
-                         value="{{ organization.manual_activation.expires.strftime('%Y-%m-%dT%H:%M') }}" required>
+                  <input type="date" name="expires" id="update_expires" class="form-control" 
+                         value="{{ organization.manual_activation.expires.strftime('%Y-%m-%d') }}" required>
                   <small class="form-text text-muted">When this activation will expire</small>
                 </div>
               </div>

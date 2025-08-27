@@ -72,7 +72,7 @@
               {% endif %}
               <span class="badge"
                     title="{% trans org_type=organization.orgtype.name %}Organization Type: {{ org_type }}{% endtrans %}">{% trans org_type=organization.orgtype.name %}{{ org_type }}{% endtrans %}</span>
-              {% if organization.orgtype == OrganizationType.Company and not organization.active_subscription %}
+              {% if organization.orgtype == OrganizationType.Company and not organization.active_subscription and not (organization.manual_activation and organization.manual_activation.is_active) %}
                 {% if organization.name in (organizations_owned + organizations_billing) %}
                   <a class="badge badge--danger"
                      href="{{ request.route_path('manage.organization.activate_subscription', organization_name=organization.normalized_name) }}">{% trans %}Billing Inactive{% endtrans %}</a>
@@ -104,7 +104,7 @@
               <a class="button"
                  href="{{ request.route_path('manage.organization.projects', organization_name=organization.normalized_name) }}"
                  title="{% trans %}View this organization{% endtrans %}">{% trans %}View{% endtrans %}</a>
-            {% elif organization.orgtype == OrganizationType.Company and not organization.active_subscription %}
+            {% elif organization.orgtype == OrganizationType.Company and not organization.active_subscription and not (organization.manual_activation and organization.manual_activation.is_active) %}
               {% if organization.name in (organizations_owned + organizations_billing) %}
                 {# Show "Activate Billing" button for owners and billing managers #}
                 <a class="button button--primary"

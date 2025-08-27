@@ -1,14 +1,18 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from datetime import date, timedelta
+
 import pretend
 import pytest
 
+from freezegun import freeze_time
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from webob.multidict import MultiDict
 
 from warehouse.admin.views import organizations as views
 from warehouse.organizations.models import (
     OrganizationApplicationStatus,
+    OrganizationManualActivation,
     OrganizationRole,
     OrganizationRoleType,
     OrganizationType,
@@ -1853,20 +1857,22 @@ class TestDeleteOrganizationRole:
 
 
 class TestManualActivationForm:
+    @freeze_time("2024-01-15")
     def test_validate_success(self):
         form_data = MultiDict(
             {
                 "seat_limit": "25",
-                "expires": "2025-12-31T23:59",
+                "expires": (date.today() + timedelta(days=365)).isoformat(),
             }
         )
         form = views.ManualActivationForm(formdata=form_data)
         assert form.validate(), str(form.errors)
 
+    @freeze_time("2024-01-15")
     def test_validate_missing_seat_limit(self):
         form_data = MultiDict(
             {
-                "expires": "2025-12-31T23:59",
+                "expires": (date.today() + timedelta(days=365)).isoformat(),
             }
         )
         form = views.ManualActivationForm(formdata=form_data)
@@ -1883,33 +1889,36 @@ class TestManualActivationForm:
         assert not form.validate()
         assert "Specify expiration date" in str(form.expires.errors)
 
+    @freeze_time("2024-01-15")
     def test_validate_invalid_seat_limit_zero(self):
         form_data = MultiDict(
             {
                 "seat_limit": "0",
-                "expires": "2025-12-31T23:59",
+                "expires": (date.today() + timedelta(days=365)).isoformat(),
             }
         )
         form = views.ManualActivationForm(formdata=form_data)
         assert not form.validate()
         assert "Seat limit must be at least 1" in str(form.seat_limit.errors)
 
+    @freeze_time("2024-01-15")
     def test_validate_invalid_seat_limit_negative(self):
         form_data = MultiDict(
             {
                 "seat_limit": "-1",
-                "expires": "2025-12-31T23:59",
+                "expires": (date.today() + timedelta(days=365)).isoformat(),
             }
         )
         form = views.ManualActivationForm(formdata=form_data)
         assert not form.validate()
         assert "Seat limit must be at least 1" in str(form.seat_limit.errors)
 
+    @freeze_time("2024-01-15")
     def test_validate_expires_in_past(self):
         form_data = MultiDict(
             {
                 "seat_limit": "25",
-                "expires": "2020-01-01T00:00",
+                "expires": "2020-01-01",
             }
         )
         form = views.ManualActivationForm(formdata=form_data)
@@ -1918,6 +1927,7 @@ class TestManualActivationForm:
 
 
 class TestAddManualActivation:
+    @freeze_time("2024-01-15")
     def test_add_manual_activation_success(self, db_request, monkeypatch):
         organization = OrganizationFactory.create()
         user = UserFactory.create()
@@ -1927,7 +1937,7 @@ class TestAddManualActivation:
         db_request.POST = MultiDict(
             {
                 "seat_limit": "25",
-                "expires": "2025-12-31T23:59",
+                "expires": (date.today() + timedelta(days=365)).isoformat(),
             }
         )
         db_request.route_path = pretend.call_recorder(
@@ -1949,8 +1959,6 @@ class TestAddManualActivation:
         assert isinstance(result, HTTPSeeOther)
 
         # Check that manual activation was created
-        from warehouse.organizations.models import OrganizationManualActivation
-
         manual_activation = db_request.db.query(OrganizationManualActivation).first()
         assert manual_activation is not None
         assert manual_activation.organization_id == organization.id
@@ -1985,6 +1993,7 @@ class TestAddManualActivation:
         with pytest.raises(HTTPNotFound):
             views.add_manual_activation(db_request)
 
+    @freeze_time("2024-01-15")
     def test_add_manual_activation_already_exists(self, db_request, monkeypatch):
         organization = OrganizationFactory.create()
         user = UserFactory.create()
@@ -1995,7 +2004,7 @@ class TestAddManualActivation:
         db_request.POST = MultiDict(
             {
                 "seat_limit": "25",
-                "expires": "2025-12-31T23:59",
+                "expires": (date.today() + timedelta(days=365)).isoformat(),
             }
         )
         db_request.route_path = pretend.call_recorder(
@@ -2021,6 +2030,7 @@ class TestAddManualActivation:
         assert "already has manual activation" in call.args[0]
         assert call.kwargs == {"queue": "error"}
 
+    @freeze_time("2024-01-15")
     def test_add_manual_activation_invalid_form(self, db_request, monkeypatch):
         organization = OrganizationFactory.create()
         user = UserFactory.create()
@@ -2030,7 +2040,9 @@ class TestAddManualActivation:
         db_request.POST = MultiDict(
             {
                 "seat_limit": "0",  # Invalid
-                "expires": "2020-01-01T00:00",  # In the past
+                "expires": (
+                    date.today() - timedelta(days=365)
+                ).isoformat(),  # In the past
             }
         )
         db_request.route_path = pretend.call_recorder(
@@ -2058,6 +2070,7 @@ class TestAddManualActivation:
 
 
 class TestUpdateManualActivation:
+    @freeze_time("2024-01-15")
     def test_update_manual_activation_success(self, db_request, monkeypatch):
         organization = OrganizationFactory.create()
         user = UserFactory.create()
@@ -2071,7 +2084,7 @@ class TestUpdateManualActivation:
         db_request.POST = MultiDict(
             {
                 "seat_limit": "50",
-                "expires": "2026-12-31T23:59",
+                "expires": (date.today() + timedelta(days=730)).isoformat(),
             }
         )
         db_request.route_path = pretend.call_recorder(
@@ -2113,7 +2126,12 @@ class TestUpdateManualActivation:
         organization = OrganizationFactory.create()
 
         db_request.matchdict = {"organization_id": str(organization.id)}
-        db_request.POST = MultiDict({"seat_limit": "50", "expires": "2026-12-31T23:59"})
+        db_request.POST = MultiDict(
+            {
+                "seat_limit": "50",
+                "expires": (date.today() + timedelta(days=730)).isoformat(),
+            }
+        )
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/admin/organizations/"
         )
@@ -2137,6 +2155,7 @@ class TestUpdateManualActivation:
         assert "has no manual activation to update" in call.args[0]
         assert call.kwargs == {"queue": "error"}
 
+    @freeze_time("2024-01-15")
     def test_update_manual_activation_invalid_form(self, db_request, monkeypatch):
         organization = OrganizationFactory.create()
         user = UserFactory.create()
@@ -2151,7 +2170,7 @@ class TestUpdateManualActivation:
         db_request.POST = MultiDict(
             {
                 "seat_limit": "-5",
-                "expires": "2026-12-31T23:59",
+                "expires": (date.today() + timedelta(days=730)).isoformat(),
             }
         )
         db_request.route_path = pretend.call_recorder(
@@ -2225,8 +2244,6 @@ class TestDeleteManualActivation:
         assert isinstance(result, HTTPSeeOther)
 
         # Check that manual activation was deleted
-        from warehouse.organizations.models import OrganizationManualActivation
-
         remaining_activations = (
             db_request.db.query(OrganizationManualActivation)
             .filter(OrganizationManualActivation.organization_id == organization.id)
@@ -2275,7 +2292,6 @@ class TestDeleteManualActivation:
         assert call.kwargs == {"queue": "error"}
 
         # Manual activation should still exist
-        from warehouse.organizations.models import OrganizationManualActivation
 
         remaining_activations = (
             db_request.db.query(OrganizationManualActivation)
