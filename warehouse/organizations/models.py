@@ -12,12 +12,10 @@ from pyramid.authorization import Allow
 from pyramid.httpexceptions import HTTPPermanentRedirect
 from sqlalchemy import (
     CheckConstraint,
-    Date,
     Enum,
     FetchedValue,
     ForeignKey,
     Index,
-    Integer,
     UniqueConstraint,
     func,
     orm,
@@ -574,10 +572,10 @@ class OrganizationManualActivation(db.Model):
     )
 
     seat_limit: Mapped[int] = mapped_column(
-        Integer, comment="Maximum number of organization members allowed"
+        comment="Maximum number of organization members allowed"
     )
     expires: Mapped[datetime.date] = mapped_column(
-        Date, comment="Expiration date for the manual activation"
+        comment="Expiration date for the manual activation"
     )
     created: Mapped[datetime_now] = mapped_column(
         comment="Datetime when manual activation was created"
