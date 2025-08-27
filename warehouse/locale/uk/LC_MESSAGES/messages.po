@@ -792,7 +792,7 @@ msgstr ""
 "пізніше."
 
 #: warehouse/manage/views/__init__.py:3016
-#: warehouse/manage/views/organizations.py:1027
+#: warehouse/manage/views/organizations.py:1037
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr "Запрошення надіслано до '${username}'"
@@ -806,7 +806,7 @@ msgid "Invitation already expired."
 msgstr "Термін дії запрошення вже сплив."
 
 #: warehouse/manage/views/__init__.py:3092
-#: warehouse/manage/views/organizations.py:1214
+#: warehouse/manage/views/organizations.py:1224
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
 msgstr "Запрошення «${username}» скасовано."
@@ -825,18 +825,22 @@ msgstr ""
 "Основна електронна адреса користувача(-ки) '${username}' непідтверджена, "
 "тому його (її) неможливо додати до організації в якості ${role_name}"
 
-#: warehouse/manage/views/organizations.py:1109
-#: warehouse/manage/views/organizations.py:1151
+#: warehouse/manage/views/organizations.py:973
+msgid "Cannot invite new member. Organization is not in good standing."
+msgstr ""
+
+#: warehouse/manage/views/organizations.py:1119
+#: warehouse/manage/views/organizations.py:1161
 msgid "Could not find organization invitation."
 msgstr "Запрошення до організації не знайдено."
 
-#: warehouse/manage/views/organizations.py:1119
+#: warehouse/manage/views/organizations.py:1129
 #, fuzzy
 #| msgid "Organization invitation no longer exists."
 msgid "Organization invitation could not be re-sent."
 msgstr "Запрошення в організацію вже не існує."
 
-#: warehouse/manage/views/organizations.py:1167
+#: warehouse/manage/views/organizations.py:1177
 #, python-brace-format
 msgid "Expired invitation for '${username}' deleted."
 msgstr "Прострочене запрошення для '${username}' видалено."
@@ -1156,14 +1160,14 @@ msgstr "Монті Пайтон – Скетч «Сирний магазин»"
 
 #: warehouse/templates/404.html:30 warehouse/templates/500.html:18
 #: warehouse/templates/accounts/two-factor.html:35
-#: warehouse/templates/base.html:339 warehouse/templates/base.html:345
-#: warehouse/templates/base.html:351 warehouse/templates/base.html:357
-#: warehouse/templates/base.html:373 warehouse/templates/base.html:379
-#: warehouse/templates/base.html:404 warehouse/templates/base.html:410
-#: warehouse/templates/base.html:419 warehouse/templates/base.html:432
-#: warehouse/templates/base.html:441 warehouse/templates/base.html:447
-#: warehouse/templates/base.html:453 warehouse/templates/base.html:466
-#: warehouse/templates/base.html:483
+#: warehouse/templates/base.html:342 warehouse/templates/base.html:348
+#: warehouse/templates/base.html:354 warehouse/templates/base.html:360
+#: warehouse/templates/base.html:376 warehouse/templates/base.html:382
+#: warehouse/templates/base.html:407 warehouse/templates/base.html:413
+#: warehouse/templates/base.html:422 warehouse/templates/base.html:435
+#: warehouse/templates/base.html:444 warehouse/templates/base.html:450
+#: warehouse/templates/base.html:456 warehouse/templates/base.html:469
+#: warehouse/templates/base.html:486
 #: warehouse/templates/includes/accounts/profile-callout.html:17
 #: warehouse/templates/includes/file-details.html:129
 #: warehouse/templates/index.html:98 warehouse/templates/index.html:105
@@ -1333,18 +1337,18 @@ msgid "Main navigation"
 msgstr "Основна навігація"
 
 #: warehouse/templates/base.html:33 warehouse/templates/base.html:68
-#: warehouse/templates/base.html:334
+#: warehouse/templates/base.html:337
 #: warehouse/templates/includes/current-user-indicator.html:77
 #: warehouse/templates/pages/help.html:209
 #: warehouse/templates/pages/sitemap.html:19
 msgid "Help"
 msgstr "Допомога"
 
-#: warehouse/templates/base.html:36
+#: warehouse/templates/base.html:36 warehouse/templates/base.html:71
 msgid "Docs"
 msgstr ""
 
-#: warehouse/templates/base.html:40 warehouse/templates/base.html:71
+#: warehouse/templates/base.html:40 warehouse/templates/base.html:74
 #: warehouse/templates/includes/current-user-indicator.html:83
 #: warehouse/templates/pages/sitemap.html:43
 #: warehouse/templates/pages/sponsors.html:4
@@ -1353,11 +1357,11 @@ msgstr "Спонсори"
 
 #: warehouse/templates/accounts/login.html:7
 #: warehouse/templates/accounts/login.html:80 warehouse/templates/base.html:44
-#: warehouse/templates/base.html:75
+#: warehouse/templates/base.html:78
 msgid "Log in"
 msgstr "Увійти"
 
-#: warehouse/templates/base.html:48 warehouse/templates/base.html:79
+#: warehouse/templates/base.html:48 warehouse/templates/base.html:82
 #: warehouse/templates/pages/sitemap.html:28
 msgid "Register"
 msgstr "Реєстрація"
@@ -1376,7 +1380,7 @@ msgstr "Меню"
 msgid "Main menu"
 msgstr "Головне меню"
 
-#: warehouse/templates/base.html:87
+#: warehouse/templates/base.html:90
 #, python-format
 msgid ""
 "\"%(wordmark)s\", \"%(name)s\", and the blocks logos are registered "
@@ -1391,7 +1395,7 @@ msgstr ""
 "продуктів та служб, пов’язаних із pypi.org. Будь-яке інше використання "
 "іншими сторонами заборонено."
 
-#: warehouse/templates/base.html:91
+#: warehouse/templates/base.html:94
 #, python-format
 msgid ""
 "\"%(wordmark)s\", \"%(name)s\", and the blocks logos are registered <a "
@@ -1403,7 +1407,7 @@ msgstr ""
 "href=\"%(psf_href)s\" target=\"_blank\" rel=\"noopener\">Фонду програмного "
 "забезпечення Python</a>."
 
-#: warehouse/templates/base.html:116 warehouse/templates/index.html:93
+#: warehouse/templates/base.html:119 warehouse/templates/index.html:93
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the Python "
 "programming language."
@@ -1411,32 +1415,32 @@ msgstr ""
 "Реєстр Python-пакунків (PyPI) — це сховище програмного забезпечення для мови "
 "програмування Python."
 
-#: warehouse/templates/base.html:133
+#: warehouse/templates/base.html:136
 msgid "RSS: 40 latest updates"
 msgstr "RSS: 40 останніх оновлень"
 
-#: warehouse/templates/base.html:137
+#: warehouse/templates/base.html:140
 msgid "RSS: 40 newest packages"
 msgstr "RSS: 40 найновіших пакунків"
 
-#: warehouse/templates/base.html:205
+#: warehouse/templates/base.html:208
 msgid "Skip to main content"
 msgstr "Перескочити до основного вмісту"
 
-#: warehouse/templates/base.html:209
+#: warehouse/templates/base.html:212
 msgid "Switch to mobile version"
 msgstr "Перемкнутися на мобільну версію"
 
-#: warehouse/templates/base.html:216 warehouse/templates/base.html:225
-#: warehouse/templates/base.html:235
+#: warehouse/templates/base.html:219 warehouse/templates/base.html:228
+#: warehouse/templates/base.html:238
 #: warehouse/templates/includes/flash-messages.html:41
 #: warehouse/templates/includes/session-notifications.html:19
 #: warehouse/templates/manage/account.html:845
 #: warehouse/templates/manage/manage_base.html:364
 #: warehouse/templates/manage/manage_base.html:442
-#: warehouse/templates/manage/organization/settings.html:179
-#: warehouse/templates/manage/organization/settings.html:240
-#: warehouse/templates/manage/organization/settings.html:246
+#: warehouse/templates/manage/organization/settings.html:205
+#: warehouse/templates/manage/organization/settings.html:266
+#: warehouse/templates/manage/organization/settings.html:272
 #: warehouse/templates/manage/project/documentation.html:13
 #: warehouse/templates/manage/project/release.html:209
 #: warehouse/templates/manage/project/settings.html:84
@@ -1446,12 +1450,12 @@ msgstr "Перемкнутися на мобільну версію"
 msgid "Warning"
 msgstr "Попередження"
 
-#: warehouse/templates/base.html:218
+#: warehouse/templates/base.html:221
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
 "Ви використовуєте непідтримуваний браузер, оновіть його до новішої версії."
 
-#: warehouse/templates/base.html:227
+#: warehouse/templates/base.html:230
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
@@ -1461,7 +1465,7 @@ msgstr ""
 "який надає вам можливість спробувати засоби та процеси, не впливаючи на "
 "справжній реєстр."
 
-#: warehouse/templates/base.html:237
+#: warehouse/templates/base.html:240
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
@@ -1469,161 +1473,161 @@ msgstr ""
 "Деякі функції можуть не працювати без JavaScript. Будь ласка, спробуйте "
 "увімкнути його, якщо у вас виникнуть проблеми."
 
-#: warehouse/templates/base.html:272 warehouse/templates/base.html:304
+#: warehouse/templates/base.html:275 warehouse/templates/base.html:307
 #: warehouse/templates/error-base-with-search.html:8
 #: warehouse/templates/index.html:29
 msgid "Search PyPI"
 msgstr "Пошук на PyPI"
 
-#: warehouse/templates/base.html:277 warehouse/templates/index.html:35
+#: warehouse/templates/base.html:280 warehouse/templates/index.html:35
 #, fuzzy
 #| msgid "Search projects"
 msgid "Type '/' to search projects"
 msgstr "Шукайте проєкти"
 
-#: warehouse/templates/base.html:288 warehouse/templates/base.html:317
+#: warehouse/templates/base.html:291 warehouse/templates/base.html:320
 #: warehouse/templates/error-base-with-search.html:19
 #: warehouse/templates/index.html:44
 msgid "Search"
 msgstr "Шукати"
 
-#: warehouse/templates/base.html:309
+#: warehouse/templates/base.html:312
 #: warehouse/templates/error-base-with-search.html:13
 msgid "Search projects"
 msgstr "Шукайте проєкти"
 
-#: warehouse/templates/base.html:335
+#: warehouse/templates/base.html:338
 msgid "Help navigation"
 msgstr "Навігація допомоги"
 
-#: warehouse/templates/base.html:341
+#: warehouse/templates/base.html:344
 msgid "Installing packages"
 msgstr "Встановлення пакунків"
 
-#: warehouse/templates/base.html:347
+#: warehouse/templates/base.html:350
 msgid "Uploading packages"
 msgstr "Завантаження пакунків"
 
-#: warehouse/templates/base.html:353
+#: warehouse/templates/base.html:356
 msgid "User guide"
 msgstr "Керівництво користувача"
 
-#: warehouse/templates/base.html:359
+#: warehouse/templates/base.html:362
 msgid "Project name retention"
 msgstr "Збереження назви проєкту"
 
-#: warehouse/templates/base.html:362
+#: warehouse/templates/base.html:365
 msgid "FAQs"
 msgstr "ЧаПи"
 
-#: warehouse/templates/base.html:368 warehouse/templates/pages/sitemap.html:34
+#: warehouse/templates/base.html:371 warehouse/templates/pages/sitemap.html:34
 msgid "About PyPI"
 msgstr "Про PyPI"
 
-#: warehouse/templates/base.html:369
+#: warehouse/templates/base.html:372
 msgid "About PyPI navigation"
 msgstr "Про навігацію в PyPI"
 
-#: warehouse/templates/base.html:375
+#: warehouse/templates/base.html:378
 msgid "PyPI Blog"
 msgstr "Блог PyPI"
 
-#: warehouse/templates/base.html:381
+#: warehouse/templates/base.html:384
 msgid "Infrastructure dashboard"
 msgstr "Панель інфраструктури"
 
-#: warehouse/templates/base.html:384 warehouse/templates/pages/sitemap.html:40
+#: warehouse/templates/base.html:387 warehouse/templates/pages/sitemap.html:40
 #: warehouse/templates/pages/stats.html:4
 msgid "Statistics"
 msgstr "Статистика"
 
-#: warehouse/templates/base.html:387
+#: warehouse/templates/base.html:390
 msgid "Logos & trademarks"
 msgstr "Логотипи й торгові марки"
 
-#: warehouse/templates/base.html:390
+#: warehouse/templates/base.html:393
 msgid "Our sponsors"
 msgstr "Наші спонсори"
 
-#: warehouse/templates/base.html:396
+#: warehouse/templates/base.html:399
 msgid "Contributing to PyPI"
 msgstr "Здійснення вкладу до PyPI"
 
-#: warehouse/templates/base.html:397
+#: warehouse/templates/base.html:400
 msgid "How to contribute navigation"
 msgstr "Навігація того як робити вклади"
 
-#: warehouse/templates/base.html:400
+#: warehouse/templates/base.html:403
 msgid "Bugs and feedback"
 msgstr "Помилки та відгуки"
 
-#: warehouse/templates/base.html:406
+#: warehouse/templates/base.html:409
 msgid "Contribute on GitHub"
 msgstr "Зробіть внесок на GitHub"
 
-#: warehouse/templates/base.html:412
+#: warehouse/templates/base.html:415
 msgid "Translate PyPI"
 msgstr "Перекладайте PyPI"
 
-#: warehouse/templates/base.html:415
+#: warehouse/templates/base.html:418
 msgid "Sponsor PyPI"
 msgstr "Спонсорувати PyPI"
 
-#: warehouse/templates/base.html:421
+#: warehouse/templates/base.html:424
 msgid "Development credits"
 msgstr "Подяки розробникам"
 
-#: warehouse/templates/base.html:427 warehouse/templates/pages/sitemap.html:10
+#: warehouse/templates/base.html:430 warehouse/templates/pages/sitemap.html:10
 msgid "Using PyPI"
 msgstr "Використання PyPI"
 
-#: warehouse/templates/base.html:428
+#: warehouse/templates/base.html:431
 msgid "Using PyPI navigation"
 msgstr "Навігація про використання PyPI"
 
-#: warehouse/templates/base.html:434
+#: warehouse/templates/base.html:437
 #: warehouse/templates/manage/organization/activate_subscription.html:21
 msgid "Terms of Service"
 msgstr "Умови надання послуг"
 
-#: warehouse/templates/base.html:437
+#: warehouse/templates/base.html:440
 msgid "Report security issue"
 msgstr "Звітувати про проблему безпеки"
 
-#: warehouse/templates/base.html:443
+#: warehouse/templates/base.html:446
 msgid "Code of conduct"
 msgstr "Кодекс честі"
 
-#: warehouse/templates/base.html:449
+#: warehouse/templates/base.html:452
 msgid "Privacy Notice"
 msgstr "Повідомлення про конфіденційність"
 
-#: warehouse/templates/base.html:455
+#: warehouse/templates/base.html:458
 msgid "Acceptable Use Policy"
 msgstr "Політика прийнятного використання"
 
-#: warehouse/templates/base.html:465
+#: warehouse/templates/base.html:468
 msgid "Status:"
 msgstr "Статус:"
 
-#: warehouse/templates/base.html:469
+#: warehouse/templates/base.html:472
 msgid "all systems operational"
 msgstr "усі системи працюють"
 
-#: warehouse/templates/base.html:473
+#: warehouse/templates/base.html:476
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr "Розробляється та доглядається спільнотою Python, для спільноти Python."
 
-#: warehouse/templates/base.html:475
+#: warehouse/templates/base.html:478
 msgid "Donate today!"
 msgstr "Пожертвуйте сьогодні!"
 
-#: warehouse/templates/base.html:487 warehouse/templates/pages/sitemap.html:4
+#: warehouse/templates/base.html:490 warehouse/templates/pages/sitemap.html:4
 msgid "Site map"
 msgstr "Мапа сайту"
 
-#: warehouse/templates/base.html:494
+#: warehouse/templates/base.html:497
 msgid "Switch to desktop version"
 msgstr "Перемкнутися на настільну версію"
 
@@ -1635,7 +1639,7 @@ msgstr "Підтвердьте дію"
 msgid "Are you sure?"
 msgstr "А ви впевнені?"
 
-#: warehouse/templates/error-base.html:23
+#: warehouse/templates/error-base.html:24
 msgid "Error code"
 msgstr "Код помилки"
 
@@ -1802,8 +1806,8 @@ msgstr "Пароль"
 #: warehouse/templates/manage/organization/activate_subscription.html:22
 #: warehouse/templates/manage/organization/projects.html:109
 #: warehouse/templates/manage/organization/projects.html:130
-#: warehouse/templates/manage/organization/roles.html:374
-#: warehouse/templates/manage/organization/roles.html:393
+#: warehouse/templates/manage/organization/roles.html:398
+#: warehouse/templates/manage/organization/roles.html:417
 #: warehouse/templates/manage/organization/settings.html:35
 #: warehouse/templates/manage/organization/settings.html:64
 #: warehouse/templates/manage/organization/settings.html:87
@@ -1950,7 +1954,7 @@ msgstr "Увійти до %(title)s"
 #: warehouse/templates/email/organization-member-role-changed/body.html:14
 #: warehouse/templates/manage/account.html:272
 #: warehouse/templates/manage/organization/roles.html:291
-#: warehouse/templates/manage/organization/roles.html:377
+#: warehouse/templates/manage/organization/roles.html:401
 #: warehouse/templates/manage/project/roles.html:171
 #: warehouse/templates/manage/project/roles.html:250
 #: warehouse/templates/manage/project/roles.html:346
@@ -2714,7 +2718,7 @@ msgstr "<a href=\"%(href)s\">%(username)s</a> стає %(role_name)s проєк�
 #: warehouse/templates/manage/organization/roles.html:46
 #: warehouse/templates/manage/organization/roles.html:200
 #: warehouse/templates/manage/organization/roles.html:248
-#: warehouse/templates/manage/organization/roles.html:391
+#: warehouse/templates/manage/organization/roles.html:415
 #: warehouse/templates/manage/project/roles.html:59
 #: warehouse/templates/manage/project/roles.html:133
 #: warehouse/templates/manage/project/roles.html:214
@@ -4803,8 +4807,8 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:843
 #: warehouse/templates/manage/account/token.html:177
-#: warehouse/templates/manage/organization/settings.html:177
-#: warehouse/templates/manage/organization/settings.html:238
+#: warehouse/templates/manage/organization/settings.html:203
+#: warehouse/templates/manage/organization/settings.html:264
 #: warehouse/templates/manage/project/publishing.html:19
 #: warehouse/templates/manage/team/settings.html:60
 msgid "Proceed with caution!"
@@ -5269,7 +5273,7 @@ msgstr "Відкликати запрошення %(user)s"
 msgid "Decline invitation"
 msgstr "Основна навігація"
 
-#: warehouse/templates/manage/organization/settings.html:258
+#: warehouse/templates/manage/organization/settings.html:284
 #: warehouse/templates/manage/organizations.html:51
 #, fuzzy
 #| msgid "Organization description"
@@ -5308,6 +5312,7 @@ msgstr ""
 msgid "This organization is not active"
 msgstr "Запрошення на роль недійсне."
 
+#: warehouse/templates/manage/organization/settings.html:182
 #: warehouse/templates/manage/organizations.html:85
 msgid "Inactive"
 msgstr ""
@@ -7032,7 +7037,7 @@ msgid "Users who can manage %(organization_name)s"
 msgstr "Користувачі, які можуть керувати %(project_name)s"
 
 #: warehouse/templates/manage/organization/roles.html:199
-#: warehouse/templates/manage/organization/roles.html:372
+#: warehouse/templates/manage/organization/roles.html:396
 #: warehouse/templates/manage/project/roles.html:395
 #: warehouse/templates/manage/team/roles.html:35
 #: warehouse/templates/manage/team/roles.html:102
@@ -7138,7 +7143,39 @@ msgstr "Видалити"
 msgid "Invite member"
 msgstr "Термін дії запрошення сплив"
 
-#: warehouse/templates/manage/organization/roles.html:403
+#: warehouse/templates/manage/organization/roles.html:366
+#, fuzzy
+#| msgid "Account details"
+msgid "Billing Notice:"
+msgstr "Деталі облікового запису"
+
+#: warehouse/templates/manage/organization/roles.html:367
+msgid ""
+"Accepted invitations will result in an additional $5 per user per month "
+"billing charge."
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:373
+msgid "Seat Usage:"
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:374
+#, python-format
+msgid "%(current)s of %(limit)s seats used."
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:377
+#, python-format
+msgid "%(available)s seats available."
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:379
+msgid ""
+"You have exceeded your seat limit. Invited members can still accept "
+"invitations."
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:427
 #: warehouse/templates/manage/project/roles.html:426
 msgid "Invite"
 msgstr "Запросити"
@@ -7200,41 +7237,67 @@ msgstr "Створіть нову організацію"
 msgid "Billing details"
 msgstr "Деталі облікового запису"
 
-#: warehouse/templates/manage/organization/settings.html:152
+#: warehouse/templates/manage/organization/settings.html:153
+#: warehouse/templates/manage/organization/settings.html:166
+#: warehouse/templates/manage/organization/settings.html:181
 msgid "Billing status"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:156
+#: warehouse/templates/manage/organization/settings.html:157
 msgid "Billing email"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:161
+#: warehouse/templates/manage/organization/settings.html:162
 #, fuzzy
 #| msgid "Manage version"
 msgid "Manage billing"
 msgstr "Керувати версією"
 
-#: warehouse/templates/manage/organization/settings.html:168
-#: warehouse/templates/manage/organization/settings.html:202
+#: warehouse/templates/manage/organization/settings.html:167
+msgid "Manually Activated"
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:170
+msgid "Seat limit"
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:172
+#, fuzzy
+#| msgid "Add email"
+msgid "members"
+msgstr "Додати електронну адресу"
+
+#: warehouse/templates/manage/organization/settings.html:176
+msgid "Expires"
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:186
+#, fuzzy
+#| msgid "Project description"
+msgid "Activate billing"
+msgstr "Опис проєкту"
+
+#: warehouse/templates/manage/organization/settings.html:194
+#: warehouse/templates/manage/organization/settings.html:228
 #, fuzzy
 #| msgid "Manage '%(project_name)s'"
 msgid "Change organization account name"
 msgstr "Керувати «%(project_name)s»"
 
-#: warehouse/templates/manage/organization/settings.html:170
+#: warehouse/templates/manage/organization/settings.html:196
 #, fuzzy
 #| msgid "Role invitation is not valid."
 msgid "Renaming organizations is not currently supported."
 msgstr "Запрошення на роль недійсне."
 
-#: warehouse/templates/manage/organization/settings.html:172
+#: warehouse/templates/manage/organization/settings.html:198
 #, python-format
 msgid ""
 "Please contact <a href=%(href)s>PyPI Support</a> if you need to rename your "
 "organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:180
+#: warehouse/templates/manage/organization/settings.html:206
 #, fuzzy
 #| msgid "You will not be able to recover your account after you delete it"
 msgid ""
@@ -7243,32 +7306,32 @@ msgid ""
 msgstr ""
 "Ви не зможете відносити свій обліковий запис після того, як видалите його"
 
-#: warehouse/templates/manage/organization/settings.html:202
+#: warehouse/templates/manage/organization/settings.html:228
 #, fuzzy
 #| msgid "Manage '%(project_name)s'"
 msgid "Change organization account name for"
 msgstr "Керувати «%(project_name)s»"
 
-#: warehouse/templates/manage/organization/settings.html:202
+#: warehouse/templates/manage/organization/settings.html:228
 #, fuzzy
 #| msgid "Create new organization"
 msgid "Current organization account name"
 msgstr "Створіть нову організацію"
 
-#: warehouse/templates/manage/organization/settings.html:208
-#: warehouse/templates/manage/organization/settings.html:258
+#: warehouse/templates/manage/organization/settings.html:234
+#: warehouse/templates/manage/organization/settings.html:284
 #, fuzzy
 #| msgid "Create new organization"
 msgid "Delete organization"
 msgstr "Створіть нову організацію"
 
-#: warehouse/templates/manage/organization/settings.html:211
+#: warehouse/templates/manage/organization/settings.html:237
 #, fuzzy
 #| msgid "Create new organization"
 msgid "Cannot delete organization"
 msgstr "Створіть нову організацію"
 
-#: warehouse/templates/manage/organization/settings.html:213
+#: warehouse/templates/manage/organization/settings.html:239
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -7298,29 +7361,29 @@ msgstr[2] ""
 "%(count)s проєктів.\n"
 "        "
 
-#: warehouse/templates/manage/organization/settings.html:218
+#: warehouse/templates/manage/organization/settings.html:244
 msgid "For each project, you must either:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:220
+#: warehouse/templates/manage/organization/settings.html:246
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "Transfer ownership and remove the project from your organization"
 msgstr "Ви не володієте цим проєктом"
 
-#: warehouse/templates/manage/organization/settings.html:221
+#: warehouse/templates/manage/organization/settings.html:247
 #, fuzzy
 #| msgid "Delete project"
 msgid "Delete the project"
 msgstr "Видалити проєкт"
 
-#: warehouse/templates/manage/organization/settings.html:223
+#: warehouse/templates/manage/organization/settings.html:249
 #, fuzzy
 #| msgid "Create new organization"
 msgid "Before you can delete your organization."
 msgstr "Створіть нову організацію"
 
-#: warehouse/templates/manage/organization/settings.html:229
+#: warehouse/templates/manage/organization/settings.html:255
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> and <a "
@@ -7331,24 +7394,24 @@ msgstr ""
 "href=\"%(remove_delete_href)s\">вилучити проєкт</a> <b> або просто</b> <a "
 "href=\"%(remove_delete_href)s\">видалити проєкт</a>"
 
-#: warehouse/templates/manage/organization/settings.html:241
+#: warehouse/templates/manage/organization/settings.html:267
 #, fuzzy
 #| msgid "You will not be able to recover your account after you delete it"
 msgid "You will not be able to recover your organization after you delete it."
 msgstr ""
 "Ви не зможете відносити свій обліковий запис після того, як видалите його"
 
-#: warehouse/templates/manage/organization/settings.html:248
+#: warehouse/templates/manage/organization/settings.html:274
 msgid ""
 "Your subscription will be cancelled, and you will lose access to the billing "
 "portal."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:250
+#: warehouse/templates/manage/organization/settings.html:276
 msgid "You will lose access to the billing portal."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:252
+#: warehouse/templates/manage/organization/settings.html:278
 #, python-format
 msgid ""
 "Please ensure you have retrieved all invoices from <a "
@@ -12101,8 +12164,8 @@ msgstr "Проєкти, пов'язані із «графікою» із ліц�
 #| "\n"
 #| "              <strong>%(count_display)s</strong> projects\n"
 #| "              "
-msgid "<strong>%(count_display)s</strong> project"
-msgid_plural "<strong>%(count_display)s</strong> projects"
+msgid "<strong>%(count_display)s</strong> project&nbsp;"
+msgid_plural "<strong>%(count_display)s</strong> projects&nbsp;"
 msgstr[0] ""
 "\n"
 "              <strong>%(count_display)s</strong> проєкт\n"
