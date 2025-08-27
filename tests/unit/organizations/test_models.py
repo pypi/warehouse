@@ -666,3 +666,26 @@ class TestOrganizationBillingMethods:
     def test_is_in_good_standing_company_without_billing(self, db_session):
         organization = DBOrganizationFactory.create(orgtype="Company")
         assert not organization.is_in_good_standing()
+
+    def test_is_in_good_standing_ignores_seat_limits(self, db_session):
+        """Test that seat limits don't affect good standing - informational only."""
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        activation = DBOrganizationManualActivationFactory.create(
+            organization=organization,
+            seat_limit=1,  # Very low limit
+            expires=datetime.date.today() + datetime.timedelta(days=365),
+        )
+
+        # Create more members than seat limit allows
+        for _ in range(3):
+            user = DBUserFactory.create()
+            DBOrganizationRoleFactory.create(
+                organization=organization,
+                user=user,
+                role_name=OrganizationRoleType.Member,
+            )
+
+        # Organization should still be in good standing despite being over seat limit
+        assert organization.is_in_good_standing()
+        assert activation.current_member_count > activation.seat_limit
+        assert not activation.has_available_seats

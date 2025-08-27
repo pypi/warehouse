@@ -376,13 +376,13 @@
             {% if organization.manual_activation.has_available_seats %}
               {% trans available=organization.manual_activation.available_seats %}{{ available }} seats available.{% endtrans %}
             {% else %}
-              {% trans %}You have reached your seat limit and cannot invite additional members.{% endtrans %}
+              {% trans %}You have exceeded your seat limit. Invited members can still accept invitations.{% endtrans %}
             {% endif %}
           </p>
         </div>
       {% endif %}
     {% endif %}
-    {% if organization.can_invite_new_members() %}
+    {% if organization.is_in_good_standing() %}
       <form method="post">
         <div class="form-group"
              data-controller="autocomplete"

@@ -1160,27 +1160,14 @@ def verify_organization_role(request):
         )
         return HTTPSeeOther(request.route_path("manage.organizations"))
 
-    # Check if organization can invite new members (includes seat limit enforcement)
-    if not organization.can_invite_new_members():
-        # If it's in good standing but can't invite members, it must be a seat
-        # limit issue
-        if organization.is_in_good_standing():
-            request.session.flash(
-                request._(
-                    "Cannot accept invitation. Organization has reached its "
-                    "seat limit of ${seat_limit} members. Please contact the "
-                    "organization administrator.",
-                    mapping={"seat_limit": organization.manual_activation.seat_limit},
-                ),
-                queue="error",
-            )
-        else:
-            request.session.flash(
-                request._(
-                    "Cannot accept invitation. Organization is not in good standing."
-                ),
-                queue="error",
-            )
+    # Check if organization is in good standing (but allow acceptances over seat limit)
+    if not organization.is_in_good_standing():
+        request.session.flash(
+            request._(
+                "Cannot accept invitation. Organization is not in good standing."
+            ),
+            queue="error",
+        )
         return HTTPSeeOther(request.route_path("manage.organizations"))
 
     organization_service.add_organization_role(

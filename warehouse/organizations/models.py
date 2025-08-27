@@ -401,26 +401,6 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             self.manual_activation is not None and self.manual_activation.is_active
         )
 
-    def can_invite_new_members(self) -> bool:
-        """Check if organization can invite new members (seat limit enforcement).
-
-        Returns True if:
-        1. Organization is in good standing
-        2. No seat limit restrictions OR has available seats
-        """
-        if not self.is_in_good_standing():
-            return False
-
-        # Check seat limit for manually activated organizations
-        if (
-            self.manual_activation is not None
-            and self.manual_activation.is_active
-            and not self.manual_activation.has_available_seats
-        ):
-            return False
-
-        return True
-
     def get_billing_status_display(self) -> str:
         """Get a human-readable billing status for display in forms.
 

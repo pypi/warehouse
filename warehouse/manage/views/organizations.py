@@ -966,30 +966,14 @@ def _send_organization_invitation(request, organization, role_name, user):
             queue="error",
         )
     else:
-        # Check if organization can invite new members (includes seat limit enforcement)
-        if not organization.can_invite_new_members():
-            # If it's in good standing but can't invite members, it must be a seat
-            # limit issue
-            if organization.is_in_good_standing():
-                request.session.flash(
-                    request._(
-                        "Cannot invite new member. Organization has reached its "
-                        "seat limit of ${seat_limit} members. Please contact "
-                        "support or upgrade your plan.",
-                        mapping={
-                            "seat_limit": organization.manual_activation.seat_limit
-                        },
-                    ),
-                    queue="error",
-                )
-            else:
-                request.session.flash(
-                    request._(
-                        "Cannot invite new member. Organization is not in good "
-                        "standing."
-                    ),
-                    queue="error",
-                )
+        # Check if organization is in good standing (allow invitations over seat limit)
+        if not organization.is_in_good_standing():
+            request.session.flash(
+                request._(
+                    "Cannot invite new member. Organization is not in good " "standing."
+                ),
+                queue="error",
+            )
             return
 
         invite_token = token_service.dumps(

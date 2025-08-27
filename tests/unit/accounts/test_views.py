@@ -2903,8 +2903,47 @@ class TestVerifyOrganizationRole:
         ]
         assert db_request.route_path.calls == [pretend.call("manage.organizations")]
 
-    # Seat limit enforcement in verify_organization_role is tested in test_models.py
-    # The actual enforcement requires email rendering which is not available here
+    def test_verify_organization_role_not_in_good_standing(
+        self, db_request, token_service
+    ):
+        desired_role = "Manager"
+        organization = OrganizationFactory.create(orgtype="Company")  # No billing
+        user = UserFactory.create()
+        owner_user = UserFactory.create()
+        OrganizationRoleFactory(
+            organization=organization, user=owner_user, role_name="Owner"
+        )
+        OrganizationInvitationFactory.create(
+            organization=organization,
+            user=user,
+        )
+
+        db_request.user = user
+        db_request.method = "POST"
+        db_request.POST = {"accept": "Accept"}
+        db_request.params = {"token": "RANDOM_KEY"}
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        token_service.loads = pretend.call_recorder(
+            lambda a: {
+                "action": "email-organization-role-verify",
+                "desired_role": desired_role,
+                "user_id": user.id,
+                "organization_id": organization.id,
+                "submitter_id": owner_user.id,
+            }
+        )
+
+        result = views.verify_organization_role(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Cannot accept invitation. Organization is not in good standing.",
+                queue="error",
+            )
+        ]
+        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
+        assert isinstance(result, HTTPSeeOther)
 
     def test_verify_organization_role_declined(
         self, db_request, token_service, monkeypatch
