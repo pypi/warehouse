@@ -966,9 +966,11 @@ def _send_organization_invitation(request, organization, role_name, user):
             queue="error",
         )
     else:
-        # Check seat limit enforcement for manually activated organizations
-        if organization.manual_activation and organization.manual_activation.is_active:
-            if not organization.manual_activation.has_available_seats:
+        # Check if organization can invite new members (includes seat limit enforcement)
+        if not organization.can_invite_new_members():
+            # If it's in good standing but can't invite members, it must be a seat
+            # limit issue
+            if organization.is_in_good_standing():
                 request.session.flash(
                     request._(
                         "Cannot invite new member. Organization has reached its "
@@ -980,7 +982,15 @@ def _send_organization_invitation(request, organization, role_name, user):
                     ),
                     queue="error",
                 )
-                return
+            else:
+                request.session.flash(
+                    request._(
+                        "Cannot invite new member. Organization is not in good "
+                        "standing."
+                    ),
+                    queue="error",
+                )
+            return
 
         invite_token = token_service.dumps(
             {

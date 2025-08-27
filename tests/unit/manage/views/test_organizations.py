@@ -2090,6 +2090,12 @@ class TestManageOrganizationRoles:
         monkeypatch,
     ):
         organization = OrganizationFactory.create(name="foobar", orgtype=orgtype)
+
+        # Company organizations need billing to be in good standing
+        if orgtype == OrganizationType.Company:
+            OrganizationStripeCustomerFactory.create(organization=organization)
+            OrganizationStripeSubscriptionFactory.create(organization=organization)
+
         new_user = UserFactory.create(username="new_user")
         EmailFactory.create(user=new_user, verified=True, primary=True)
         owner_1 = UserFactory.create(username="owner_1")

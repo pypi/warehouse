@@ -652,3 +652,17 @@ class TestOrganizationManualActivation:
             )
 
         assert activation.available_seats == 0  # Should never be negative
+
+
+class TestOrganizationBillingMethods:
+    def test_has_active_billing_with_manual_activation(self, db_session):
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        DBOrganizationManualActivationFactory.create(
+            organization=organization,
+            expires=datetime.date.today() + datetime.timedelta(days=365),
+        )
+        assert organization.has_active_billing()
+
+    def test_has_active_billing_without_billing(self, db_session):
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        assert not organization.has_active_billing()

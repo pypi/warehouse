@@ -371,19 +371,76 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
 
     @property
     def good_standing(self):
-        return (
-            # Organization is active.
-            self.is_active
-            # Organization has active subscription if it is a Company.
-            and not (
-                self.orgtype == OrganizationType.Company
-                and self.active_subscription is None
-                and (
-                    self.manual_activation is None
-                    or not self.manual_activation.is_active
-                )
-            )
+        """Legacy property - use is_in_good_standing() for new code.
+
+        Check if organization is in good standing and can perform actions.
+        """
+        return self.is_in_good_standing()
+
+    def is_in_good_standing(self) -> bool:
+        """Check if organization is in good standing and can perform actions.
+
+        This is the canonical method for determining if an organization
+        meets all requirements to operate (uploads, invitations, etc.).
+
+        Returns True if:
+        1. Organization is active (not deleted/deactivated)
+        2. For Company organizations: Has active subscription OR active manual
+           activation
+        3. For Community organizations: Just needs to be active
+        """
+        if not self.is_active:
+            return False
+
+        # Community organizations only need to be active
+        if self.orgtype != OrganizationType.Company:
+            return True
+
+        # Company organizations need active subscription OR manual activation
+        return self.active_subscription is not None or (
+            self.manual_activation is not None and self.manual_activation.is_active
         )
+
+    def has_active_billing(self) -> bool:
+        """Check if organization has active billing (subscription or manual activation).
+
+        This is specifically for billing status checks, separate from good
+        standing status.
+        """
+        return self.active_subscription is not None or (
+            self.manual_activation is not None and self.manual_activation.is_active
+        )
+
+    def can_invite_new_members(self) -> bool:
+        """Check if organization can invite new members (seat limit enforcement).
+
+        Returns True if:
+        1. Organization is in good standing
+        2. No seat limit restrictions OR has available seats
+        """
+        if not self.is_in_good_standing():
+            return False
+
+        # Check seat limit for manually activated organizations
+        if (
+            self.manual_activation is not None
+            and self.manual_activation.is_active
+            and not self.manual_activation.has_available_seats
+        ):
+            return False
+
+        return True
+
+    def get_billing_status_display(self) -> str:
+        """Get a human-readable billing status for display in forms.
+
+        Returns the organization name with billing status suffix if not in
+        good standing.
+        """
+        if self.good_standing:
+            return self.name
+        else:
+            return f"{self.name} (Billing inactive)"
 
     def __acl__(self):
         session = orm_session_from_obj(self)

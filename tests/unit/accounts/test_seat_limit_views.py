@@ -277,3 +277,79 @@ class TestVerifyOrganizationRoleSeatLimit:
         # Verify redirect to manage organization roles
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/manage.organization.roles"
+
+    def test_verify_role_organization_not_in_good_standing(
+        self, db_request, monkeypatch
+    ):
+        """Test that accepting invitation fails when organization not in good
+        standing."""
+        # Create Company organization without billing (not in good standing)
+        organization = OrganizationFactory.create(orgtype="Company")
+
+        # User trying to accept invitation
+        new_user = UserFactory.create()
+        EmailFactory.create(user=new_user, verified=True, primary=True)
+        invitation = OrganizationInvitationFactory.create(
+            organization=organization,
+            user=new_user,
+        )
+
+        # Setup request
+        db_request.user = new_user
+        db_request.method = "POST"
+        db_request.GET.update({"token": "fake-token"})
+        db_request.POST = {"accept": "Accept"}
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda name, **kw: f"/{name}")
+        db_request.remote_addr = "192.168.1.1"
+        db_request._ = lambda text, **kw: text.format(**kw.get("mapping", {}))
+
+        # Mock services
+        token_service = pretend.stub(
+            loads=pretend.call_recorder(
+                lambda token: {
+                    "action": "email-organization-role-verify",
+                    "desired_role": "Member",
+                    "user_id": new_user.id,
+                    "organization_id": organization.id,
+                    "submitter_id": new_user.id,
+                }
+            )
+        )
+        user_service = pretend.stub(
+            get_user=lambda userid: new_user,
+        )
+
+        organization_service = pretend.stub(
+            get_organization=lambda org_id: organization,
+            get_organization_invite_by_user=lambda org_id, user_id: invitation,
+            get_organization_role_by_user=lambda org_id, user_id: None,
+        )
+
+        def find_service(iface, **kw):
+            if iface == IUserService:
+                return user_service
+            elif iface == IOrganizationService:
+                return organization_service
+            else:
+                return {"email": token_service}.get(kw.get("name"))
+
+        db_request.find_service = find_service
+
+        # Call verify_organization_role
+        result = views.verify_organization_role(db_request)
+
+        # Verify error message was flashed
+        assert len(db_request.session.flash.calls) == 1
+        flash_call = db_request.session.flash.calls[0]
+        assert (
+            "Cannot accept invitation. Organization is not in good standing."
+            in flash_call.args[0]
+        )
+        assert flash_call.kwargs["queue"] == "error"
+
+        # Verify redirect to manage organizations
+        assert isinstance(result, HTTPSeeOther)
+        assert result.location == "/manage.organizations"

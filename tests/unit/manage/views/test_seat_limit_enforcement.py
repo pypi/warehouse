@@ -244,3 +244,103 @@ class TestSeatLimitEnforcement:
 
         # Verify redirect
         assert isinstance(result, HTTPSeeOther)
+
+    def test_send_invitation_organization_not_in_good_standing(
+        self, db_request, monkeypatch
+    ):
+        """Test that invitations are blocked when organization not in good standing."""
+        # Create Company organization without billing (not in good standing)
+        organization = OrganizationFactory.create(orgtype="Company")
+
+        # Create 1 existing member
+        owner = UserFactory.create()
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=owner,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        # User to invite
+        new_user = UserFactory.create()
+        EmailFactory.create(user=new_user, verified=True, primary=True)
+
+        # Setup request
+        db_request.method = "POST"
+        db_request.POST = MultiDict(
+            {"username": new_user.username, "role_name": "Member"}
+        )
+        db_request.user = owner
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/")
+
+        # Mock services
+        user_service = pretend.stub(
+            find_userid=lambda username: new_user.id,
+            get_user=lambda userid: new_user,
+        )
+        organization_service = pretend.stub(
+            get_organization_role_by_user=lambda org_id, user_id: None,
+            get_organization_invite_by_user=lambda org_id, user_id: None,
+            get_organization_roles=lambda org_id: [],
+            get_organization_invites=lambda org_id: [],
+        )
+        token_service = pretend.stub(
+            dumps=lambda data: "fake-token",
+            max_age=300,  # 5 minutes
+        )
+
+        def find_service(iface, **kw):
+            if iface == IUserService:
+                return user_service
+            elif iface == IOrganizationService:
+                return organization_service
+            else:
+                return {"email": token_service}.get(kw.get("name"))
+
+        db_request.find_service = find_service
+
+        # Mock email functions (they won't be called due to not being in good standing)
+        send_organization_member_invited_email = pretend.call_recorder(
+            lambda r, u, **k: None
+        )
+        monkeypatch.setattr(
+            org_views,
+            "send_organization_member_invited_email",
+            send_organization_member_invited_email,
+        )
+        send_organization_role_verification_email = pretend.call_recorder(
+            lambda r, u, **k: None
+        )
+        monkeypatch.setattr(
+            org_views,
+            "send_organization_role_verification_email",
+            send_organization_role_verification_email,
+        )
+
+        # Mock organization_owners helper
+        monkeypatch.setattr(
+            org_views, "organization_owners", lambda request, org: [owner]
+        )
+
+        # Call the actual manage_organization_roles view
+        result = org_views.manage_organization_roles(
+            organization, db_request, _form_class=CreateOrganizationRoleForm
+        )
+
+        # Verify error was flashed
+        assert len(db_request.session.flash.calls) == 1
+        flash_call = db_request.session.flash.calls[0]
+        assert (
+            "Cannot invite new member. Organization is not in good standing."
+            in flash_call.args[0]
+        )
+        assert flash_call.kwargs["queue"] == "error"
+
+        # Verify no emails were sent
+        assert send_organization_member_invited_email.calls == []
+        assert send_organization_role_verification_email.calls == []
+
+        # Verify redirect
+        assert isinstance(result, HTTPSeeOther)

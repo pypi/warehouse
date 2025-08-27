@@ -6,7 +6,7 @@ from pyramid.httpexceptions import HTTPSeeOther
 from pyramid.util import is_same_domain
 
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.organizations.models import Organization, OrganizationType, Team
+from warehouse.organizations.models import Organization, Team
 
 
 class DomainPredicate:
@@ -57,12 +57,12 @@ class ActiveOrganizationPredicate:
     phash = text
 
     def __call__(self, context: Organization | Team, request):
-        """Check organizations are enabled globally and this organization is active.
+        """Check organizations are enabled globally and this organization is
+        operational.
 
         1. `AdminFlagValue.DISABLE_ORGANIZATIONS` flag is off.
-        2. `Organization.is_active` is true.
-        3. `Organization.active_subscription` exists if organization is a company,
-           OR organization has an active manual activation.
+        2. Organization is operational (uses consolidated is_in_good_standing()
+           method).
 
         """
         if self.val is False:
@@ -72,19 +72,7 @@ class ActiveOrganizationPredicate:
             context if isinstance(context, Organization) else context.organization
         )
 
-        if (
-            # Organization is active.
-            organization.is_active
-            # Organization has active subscription or manual activation if Company.
-            and (
-                organization.orgtype != OrganizationType.Company
-                or organization.active_subscription
-                or (
-                    organization.manual_activation
-                    and organization.manual_activation.is_active
-                )
-            )
-        ):
+        if organization.is_in_good_standing():
             return True
         elif (
             # Organization accounts are disabled.
