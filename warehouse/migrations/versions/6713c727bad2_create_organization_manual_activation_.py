@@ -2,16 +2,16 @@
 """
 create organization manual activation table
 
-Revision ID: 119a4de46cea
+Revision ID: 6713c727bad2
 Revises: 30c837b1425a
-Create Date: 2025-08-26 18:13:17.813847
+Create Date: 2025-08-27 21:06:14.999353
 """
 
 import sqlalchemy as sa
 
 from alembic import op
 
-revision = "119a4de46cea"
+revision = "6713c727bad2"
 down_revision = "30c837b1425a"
 
 # Note: It is VERY important to ensure that a migration does not lock for a
@@ -82,7 +82,7 @@ def upgrade():
         sa.ForeignKeyConstraint(
             ["organization_id"], ["organizations.id"], ondelete="CASCADE"
         ),
-        sa.PrimaryKeyConstraint("organization_id", "id"),
+        sa.PrimaryKeyConstraint("organization_id"),
     )
     # ### end Alembic commands ###
 
