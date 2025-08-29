@@ -348,9 +348,9 @@ sphinx==8.2.3 \
     #   sphinx-reredirects
     #   sphinxcontrib-httpdomain
     #   sphinxcontrib-mermaid
-sphinx-autobuild==2024.10.3 \
-    --hash=sha256:158e16c36f9d633e613c9aaf81c19b0fc458ca78b112533b20dafcda430d60fa \
-    --hash=sha256:248150f8f333e825107b6d4b86113ab28fa51750e5f9ae63b59dc339be951fb1
+sphinx-autobuild==2025.8.25 \
+    --hash=sha256:9cf5aab32853c8c31af572e4fecdc09c997e2b8be5a07daf2a389e270e85b213 \
+    --hash=sha256:b750ac7d5a18603e4665294323fd20f6dcc0a984117026d1986704fa68f0379a
     # via -r requirements/docs-dev.in
 sphinx-basic-ng==1.0.0b2 \
     --hash=sha256:9ec55a47c90c8c002b5960c57492ec3021f5193cb26cebc2dc4ea226848651c9 \
