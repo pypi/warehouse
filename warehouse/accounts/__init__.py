@@ -178,6 +178,19 @@ def includeme(config):
     config.register_service_factory(
         RateLimit(global_login_ratelimit_string), IRateLimiter, name="global.login"
     )
+    # Register separate rate limiters for 2FA attempts
+    twofa_user_ratelimit_string = config.registry.settings.get(
+        "warehouse.account.2fa_user_ratelimit_string"
+    )
+    config.register_service_factory(
+        RateLimit(twofa_user_ratelimit_string), IRateLimiter, name="2fa.user"
+    )
+    twofa_ip_ratelimit_string = config.registry.settings.get(
+        "warehouse.account.2fa_ip_ratelimit_string"
+    )
+    config.register_service_factory(
+        RateLimit(twofa_ip_ratelimit_string), IRateLimiter, name="2fa.ip"
+    )
     email_add_ratelimit_string = config.registry.settings.get(
         "warehouse.account.email_add_ratelimit_string"
     )
