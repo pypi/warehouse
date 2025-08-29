@@ -904,9 +904,9 @@ html5lib==1.1 \
     --hash=sha256:0d78f8fde1c230e99fe37986a60526d7049ed4bf8a9fadbad5f00e22e58e041d \
     --hash=sha256:b2e5b40261e20f354d198eae92afc10d750afb487ed5e50f9c4eaf07c184146f
     # via -r requirements/main.in
-humanize==4.12.3 \
-    --hash=sha256:2cbf6370af06568fa6d2da77c86edb7886f3160ecd19ee1ffef07979efc597f6 \
-    --hash=sha256:8430be3a615106fdfceb0b2c1b41c4c98c6b0fc5cc59663a5539b111dd325fb0
+humanize==4.13.0 \
+    --hash=sha256:78f79e68f76f0b04d711c4e55d32bebef5be387148862cb1ef83d2b58e7935a0 \
+    --hash=sha256:b810820b31891813b1673e8fec7f1ed3312061eab2f26e3fa192c393d11ed25f
     # via -r requirements/main.in
 hupper==1.12.1 \
     --hash=sha256:06bf54170ff4ecf4c84ad5f188dee3901173ab449c2608ad05b9bfd6b13e32eb \
