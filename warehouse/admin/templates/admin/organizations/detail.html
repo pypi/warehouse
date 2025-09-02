@@ -168,6 +168,159 @@
 
       <div class="card">
         <div class="card-header with-border">
+          <h3 class="card-title">Manual Activation</h3>
+        </div>
+
+        <div class="card-body">
+          {% if organization.manual_activation %}
+            <div class="row">
+              <div class="col-md-6">
+                <strong>Seat Limit:</strong> {{ organization.manual_activation.seat_limit }}
+                <br><small class="text-muted">Current members: {{ organization.manual_activation.current_member_count }} / {{ organization.manual_activation.seat_limit }}</small>
+              </div>
+              <div class="col-md-6">
+                <strong>Expires:</strong> {{ organization.manual_activation.expires|format_date() }}
+                {% if organization.manual_activation.is_active %}
+                  <span class="badge badge-success">Active</span>
+                {% else %}
+                  <span class="badge badge-danger">Expired</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="row mt-2">
+              <div class="col-md-12">
+                <small class="text-muted">
+                  Created by admin on {{ organization.manual_activation.created|format_date() }}
+                </small>
+              </div>
+            </div>
+          {% else %}
+            <p class="text-muted">No manual activation configured for this organization.</p>
+          {% endif %}
+        </div>
+
+        {% if request.has_permission(Permissions.AdminOrganizationsWrite) %}
+        <div class="card-footer">
+          {% if not organization.manual_activation %}
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addManualActivationModal">
+              <i class="fa fa-plus"></i> Add Manual Activation
+            </button>
+          {% else %}
+            <button type="button" class="btn btn-warning mr-2" data-toggle="modal" data-target="#updateManualActivationModal">
+              <i class="fa fa-edit"></i> Update Activation
+            </button>
+            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteManualActivationModal">
+              <i class="fa fa-times"></i> Remove Activation
+            </button>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div> <!-- .card -->
+
+      <!-- Add Manual Activation Modal -->
+      <div class="modal fade" id="addManualActivationModal" tabindex="-1" role="dialog">
+        <form method="POST" action="{{ request.route_path('admin.organization.add_manual_activation', organization_id=organization.id) }}">
+          <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h4 class="modal-title">Add Manual Activation</h4>
+                <button type="button" class="close" data-dismiss="modal">
+                  <span>&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="form-group">
+                  <label for="seat_limit">Seat Limit</label>
+                  {{ manual_activation_form.seat_limit(class="form-control", id="seat_limit") }}
+                  <small class="form-text text-muted">Maximum number of organization members allowed</small>
+                </div>
+                <div class="form-group">
+                  <label for="expires">Expiration Date</label>
+                  {{ manual_activation_form.expires(class="form-control", id="expires") }}
+                  <small class="form-text text-muted">When this activation will expire</small>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary">Add Manual Activation</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Update Manual Activation Modal -->
+      {% if organization.manual_activation %}
+      <div class="modal fade" id="updateManualActivationModal" tabindex="-1" role="dialog">
+        <form method="POST" action="{{ request.route_path('admin.organization.update_manual_activation', organization_id=organization.id) }}">
+          <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h4 class="modal-title">Update Manual Activation</h4>
+                <button type="button" class="close" data-dismiss="modal">
+                  <span>&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="form-group">
+                  <label for="update_seat_limit">Seat Limit</label>
+                  <input type="number" name="seat_limit" id="update_seat_limit" class="form-control" 
+                         value="{{ organization.manual_activation.seat_limit }}" min="1" required>
+                  <small class="form-text text-muted">Maximum number of organization members allowed</small>
+                </div>
+                <div class="form-group">
+                  <label for="update_expires">Expiration Date</label>
+                  <input type="date" name="expires" id="update_expires" class="form-control" 
+                         value="{{ organization.manual_activation.expires.strftime('%Y-%m-%d') }}" required>
+                  <small class="form-text text-muted">When this activation will expire</small>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-warning">Update Activation</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Delete Manual Activation Modal -->
+      <div class="modal fade" id="deleteManualActivationModal" tabindex="-1" role="dialog">
+        <form method="POST" action="{{ request.route_path('admin.organization.delete_manual_activation', organization_id=organization.id) }}">
+          <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h4 class="modal-title">Remove Manual Activation?</h4>
+                <button type="button" class="close" data-dismiss="modal">
+                  <span>&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <p>
+                  This will remove manual activation from <strong>{{ organization.name }}</strong>.
+                  The organization will no longer have manual activation privileges.
+                </p>
+                <hr>
+                <p>
+                  To confirm, type the organization name:
+                </p>
+                <input type="text" name="confirm" class="form-control" placeholder="{{ organization.name }}" required>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-danger">Remove Activation</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      {% endif %}
+
+      <div class="card">
+        <div class="card-header with-border">
           <h3 class="card-title">Projects</h3>
         </div>
 

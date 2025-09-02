@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import datetime
 import shlex
 
 import wtforms
@@ -20,6 +21,7 @@ from warehouse.organizations.models import (
     Organization,
     OrganizationApplication,
     OrganizationApplicationStatus,
+    OrganizationManualActivation,
     OrganizationRole,
     OrganizationRoleType,
     OrganizationType,
@@ -98,6 +100,27 @@ class OrganizationForm(wtforms.Form):
             wtforms.validators.InputRequired(message="Select organization type"),
         ],
     )
+
+
+class ManualActivationForm(wtforms.Form):
+    seat_limit = wtforms.IntegerField(
+        validators=[
+            wtforms.validators.InputRequired(message="Specify seat limit"),
+            wtforms.validators.NumberRange(
+                min=1, message="Seat limit must be at least 1"
+            ),
+        ]
+    )
+
+    expires = wtforms.DateField(
+        validators=[
+            wtforms.validators.InputRequired(message="Specify expiration date"),
+        ]
+    )
+
+    def validate_expires(self, field):
+        if field.data and field.data <= datetime.date.today():
+            raise wtforms.ValidationError("Expiration date must be in the future")
 
 
 def _turbo_mode(request):
@@ -287,12 +310,16 @@ def organization_detail(request):
     # Create form for adding new roles
     add_role_form = AddOrganizationRoleForm()
 
+    # Create form for manual activation
+    manual_activation_form = ManualActivationForm()
+
     return {
         "organization": organization,
         "form": form,
         "roles": roles,
         "role_forms": role_forms,
         "add_role_form": add_role_form,
+        "manual_activation_form": manual_activation_form,
     }
 
 
@@ -898,6 +925,221 @@ def delete_organization_role(request):
     )
 
     request.db.delete(role)
+
+    return HTTPSeeOther(
+        request.route_path("admin.organization.detail", organization_id=organization.id)
+    )
+
+
+@view_config(
+    route_name="admin.organization.add_manual_activation",
+    permission=Permissions.AdminOrganizationsWrite,
+    request_method="POST",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def add_manual_activation(request):
+    organization_service = request.find_service(IOrganizationService, context=None)
+
+    organization_id = request.matchdict["organization_id"]
+    organization = organization_service.get_organization(organization_id)
+    if organization is None:
+        raise HTTPNotFound
+
+    # Check if organization already has manual activation
+    existing_activation = (
+        request.db.query(OrganizationManualActivation)
+        .filter(OrganizationManualActivation.organization_id == organization.id)
+        .first()
+    )
+
+    if existing_activation:
+        request.session.flash(
+            f"Organization '{organization.name}' already has manual activation",
+            queue="error",
+        )
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
+    form = ManualActivationForm(request.POST)
+    if not form.validate():
+        for field, errors in form.errors.items():
+            for error in errors:
+                request.session.flash(f"{field}: {error}", queue="error")
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
+    # Create manual activation
+    manual_activation = OrganizationManualActivation(
+        organization_id=organization.id,
+        seat_limit=form.seat_limit.data,
+        expires=form.expires.data,
+        created_by_id=request.user.id,
+    )
+    request.db.add(manual_activation)
+
+    # Record the event
+    organization.record_event(
+        request=request,
+        tag="admin:organization:manual_activation:add",
+        additional={
+            "seat_limit": form.seat_limit.data,
+            "expires": form.expires.data.isoformat(),
+        },
+    )
+
+    request.session.flash(
+        f"Manual activation added for '{organization.name}' "
+        f"(seat limit: {form.seat_limit.data}, expires: {form.expires.data})",
+        queue="success",
+    )
+
+    return HTTPSeeOther(
+        request.route_path("admin.organization.detail", organization_id=organization.id)
+    )
+
+
+@view_config(
+    route_name="admin.organization.update_manual_activation",
+    permission=Permissions.AdminOrganizationsWrite,
+    request_method="POST",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def update_manual_activation(request):
+    organization_service = request.find_service(IOrganizationService, context=None)
+
+    organization_id = request.matchdict["organization_id"]
+    organization = organization_service.get_organization(organization_id)
+    if organization is None:
+        raise HTTPNotFound
+
+    manual_activation = (
+        request.db.query(OrganizationManualActivation)
+        .filter(OrganizationManualActivation.organization_id == organization.id)
+        .first()
+    )
+
+    if not manual_activation:
+        request.session.flash(
+            f"Organization '{organization.name}' has no manual activation to update",
+            queue="error",
+        )
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
+    form = ManualActivationForm(request.POST)
+    if not form.validate():
+        for field, errors in form.errors.items():
+            for error in errors:
+                request.session.flash(f"{field}: {error}", queue="error")
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
+    old_seat_limit = manual_activation.seat_limit
+    old_expires = manual_activation.expires
+
+    # Update manual activation
+    manual_activation.seat_limit = form.seat_limit.data
+    manual_activation.expires = form.expires.data
+    manual_activation.created_by_id = request.user.id
+    request.db.add(manual_activation)
+
+    # Record the event
+    organization.record_event(
+        request=request,
+        tag="admin:organization:manual_activation:update",
+        additional={
+            "old_seat_limit": old_seat_limit,
+            "new_seat_limit": form.seat_limit.data,
+            "old_expires": old_expires.isoformat(),
+            "new_expires": form.expires.data.isoformat(),
+        },
+    )
+
+    request.session.flash(
+        f"Manual activation updated for '{organization.name}' "
+        f"(seat limit: {form.seat_limit.data}, expires: {form.expires.data})",
+        queue="success",
+    )
+
+    return HTTPSeeOther(
+        request.route_path("admin.organization.detail", organization_id=organization.id)
+    )
+
+
+@view_config(
+    route_name="admin.organization.delete_manual_activation",
+    permission=Permissions.AdminOrganizationsWrite,
+    request_method="POST",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def delete_manual_activation(request):
+    organization_service = request.find_service(IOrganizationService, context=None)
+
+    organization_id = request.matchdict["organization_id"]
+    organization = organization_service.get_organization(organization_id)
+    if organization is None:
+        raise HTTPNotFound
+
+    manual_activation = (
+        request.db.query(OrganizationManualActivation)
+        .filter(OrganizationManualActivation.organization_id == organization.id)
+        .first()
+    )
+
+    if not manual_activation:
+        request.session.flash(
+            f"Organization '{organization.name}' has no manual activation to delete",
+            queue="error",
+        )
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
+    confirm = request.POST.get("confirm")
+    if not confirm or confirm != organization.name:
+        request.session.flash("Confirm the request", queue="error")
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
+    # Record the event before deleting
+    organization.record_event(
+        request=request,
+        tag="admin:organization:manual_activation:delete",
+        additional={
+            "seat_limit": manual_activation.seat_limit,
+            "expires": manual_activation.expires.isoformat(),
+        },
+    )
+
+    request.session.flash(
+        f"Manual activation removed from '{organization.name}'",
+        queue="success",
+    )
+
+    request.db.delete(manual_activation)
 
     return HTTPSeeOther(
         request.route_path("admin.organization.detail", organization_id=organization.id)
