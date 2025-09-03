@@ -35,7 +35,7 @@
               type="button"
               class="btn btn-danger btn-block"
               data-toggle="modal"
-              data-target="#renameModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) }}
+              data-target="#renameModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsNameWrite) }}
               title="Rename"
             >
               <i class="icon fa fa-rotate"></i> Rename
