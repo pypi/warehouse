@@ -112,6 +112,7 @@ class RootFactory:
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
                 Permissions.AdminOrganizationsWrite,
+                Permissions.AdminOrganizationsNameWrite,
                 Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedProjectsRelease,
