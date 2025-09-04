@@ -209,6 +209,37 @@ class DatabaseUserService:
         self.ratelimiters["global.login"].hit()
         self.ratelimiters["ip.login"].hit(self.remote_addr)
 
+    def _check_2fa_ratelimits(self, userid: int, tags: list[str] | None = None) -> None:
+        tags = tags if tags is not None else []
+
+        # Check IP-based 2FA rate limit
+        if self.remote_addr is not None:
+            if not self.ratelimiters["2fa.ip"].test(self.remote_addr):
+                logger.warning("IP failed 2FA threshold reached.")
+                self._metrics.increment(
+                    "warehouse.authentication.ratelimited",
+                    tags=tags + ["ratelimiter:ip"],
+                )
+                raise TooManyFailedLogins(
+                    resets_in=self.ratelimiters["2fa.ip"].resets_in(self.remote_addr)
+                )
+
+        # Check user-based 2FA rate limit
+        if not self.ratelimiters["2fa.user"].test(userid):
+            logger.warning("User failed 2FA threshold reached.")
+            self._metrics.increment(
+                "warehouse.authentication.ratelimited",
+                tags=tags + ["ratelimiter:user"],
+            )
+            raise TooManyFailedLogins(
+                resets_in=self.ratelimiters["2fa.user"].resets_in(userid)
+            )
+
+    def _hit_2fa_ratelimits(self, userid: int) -> None:
+        self.ratelimiters["2fa.user"].hit(userid)
+        if self.remote_addr is not None:
+            self.ratelimiters["2fa.ip"].hit(self.remote_addr)
+
     def check_password(self, userid, password, *, tags=None):
         tags = tags if tags is not None else []
         tags.append("mechanism:check_password")
@@ -395,7 +426,7 @@ class DatabaseUserService:
         # If we've gotten here, then we'll want to record a failed attempt in our
         # rate limiting before raising an exception to indicate a failed
         # recovery code verification.
-        self._hit_ratelimits(userid=user_id)
+        self._hit_2fa_ratelimits(userid=user_id)
         raise NoRecoveryCodes
 
     def get_recovery_code(self, user_id, code):
@@ -415,7 +446,7 @@ class DatabaseUserService:
         # If we've gotten here, then we'll want to record a failed attempt in our
         # rate limiting before returning False to indicate a failed recovery code
         # verification.
-        self._hit_ratelimits(userid=user_id)
+        self._hit_2fa_ratelimits(userid=user_id)
         raise InvalidRecoveryCode
 
     def get_totp_secret(self, user_id):
@@ -450,7 +481,7 @@ class DatabaseUserService:
         tags.append("mechanism:check_totp_value")
         self._metrics.increment("warehouse.authentication.two_factor.start", tags=tags)
 
-        self._check_ratelimits(userid=user_id, tags=tags)
+        self._check_2fa_ratelimits(userid=user_id, tags=tags)
 
         totp_secret = self.get_totp_secret(user_id)
 
@@ -462,7 +493,7 @@ class DatabaseUserService:
             # If we've gotten here, then we'll want to record a failed attempt in our
             # rate limiting before returning False to indicate a failed totp
             # verification.
-            self._hit_ratelimits(userid=user_id)
+            self._hit_2fa_ratelimits(userid=user_id)
             return False
 
         last_totp_value = self.get_last_totp_value(user_id)
@@ -470,20 +501,20 @@ class DatabaseUserService:
         if last_totp_value is not None and totp_value == last_totp_value.encode():
             return False
 
-        valid = otp.verify_totp(totp_secret, totp_value)
-
-        if valid:
-            self._metrics.increment("warehouse.authentication.two_factor.ok", tags=tags)
-        else:
+        try:
+            if not (valid := otp.verify_totp(totp_secret, totp_value)):
+                self._hit_2fa_ratelimits(userid=user_id)
+        except otp.InvalidTOTPError:
             self._metrics.increment(
                 "warehouse.authentication.two_factor.failure",
                 tags=tags + ["failure_reason:invalid_totp"],
             )
             # If we've gotten here, then we'll want to record a failed attempt in our
-            # rate limiting before returning False to indicate a failed totp
-            # verification.
-            self._hit_ratelimits(userid=user_id)
+            # rate limiting before raising to indicate a failed totp verification.
+            self._hit_2fa_ratelimits(userid=user_id)
+            raise otp.InvalidTOTPError
 
+        self._metrics.increment("warehouse.authentication.two_factor.ok", tags=tags)
         return valid
 
     def get_webauthn_credential_options(self, user_id, *, challenge, rp_name, rp_id):
@@ -541,11 +572,19 @@ class DatabaseUserService:
         Returns the updated signage count on success, raises
         webauthn.AuthenticationRejectedError on failure.
         """
+        # Check rate limits before attempting verification
+        self._check_2fa_ratelimits(userid=user_id, tags=["mechanism:webauthn"])
+
         user = self.get_user(user_id)
 
-        return webauthn.verify_assertion_response(
-            assertion, challenge=challenge, user=user, origin=origin, rp_id=rp_id
-        )
+        try:
+            return webauthn.verify_assertion_response(
+                assertion, challenge=challenge, user=user, origin=origin, rp_id=rp_id
+            )
+        except webauthn.AuthenticationRejectedError:
+            # Hit rate limits on failure
+            self._hit_2fa_ratelimits(userid=user_id)
+            raise
 
     def add_webauthn(self, user_id, **kwargs):
         """
@@ -607,7 +646,7 @@ class DatabaseUserService:
         self._metrics.increment("warehouse.authentication.recovery_code.start")
 
         if not skip_ratelimits:
-            self._check_ratelimits(
+            self._check_2fa_ratelimits(
                 userid=user_id,
                 tags=["mechanism:check_recovery_code"],
             )
@@ -744,6 +783,10 @@ def database_login_factory(context, request):
             ),
             "user.login": request.find_service(
                 IRateLimiter, name="user.login", context=None
+            ),
+            "2fa.ip": request.find_service(IRateLimiter, name="2fa.ip", context=None),
+            "2fa.user": request.find_service(
+                IRateLimiter, name="2fa.user", context=None
             ),
             "email.add": request.find_service(
                 IRateLimiter, name="email.add", context=None

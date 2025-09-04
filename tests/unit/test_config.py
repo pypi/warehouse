@@ -317,6 +317,8 @@ def test_configure(monkeypatch, settings, environment):
         "warehouse.account.user_login_ratelimit_string": "10 per 5 minutes",
         "warehouse.account.ip_login_ratelimit_string": "10 per 5 minutes",
         "warehouse.account.global_login_ratelimit_string": "1000 per 5 minutes",
+        "warehouse.account.2fa_user_ratelimit_string": "5 per 5 minutes, 20 per hour, 50 per day",  # noqa: E501
+        "warehouse.account.2fa_ip_ratelimit_string": "10 per 5 minutes, 50 per hour",
         "warehouse.account.email_add_ratelimit_string": "2 per day",
         "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
         "warehouse.account.accounts_search_ratelimit_string": "100 per hour",
@@ -600,6 +602,7 @@ def test_root_factory_access_control_list():
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
                 Permissions.AdminOrganizationsWrite,
+                Permissions.AdminOrganizationsNameWrite,
                 Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedProjectsRelease,

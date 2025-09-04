@@ -45,6 +45,21 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            "admin.organization.add_manual_activation",
+            "/admin/organizations/{organization_id}/add_manual_activation/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.organization.update_manual_activation",
+            "/admin/organizations/{organization_id}/update_manual_activation/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.organization.delete_manual_activation",
+            "/admin/organizations/{organization_id}/delete_manual_activation/",
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.organization_application.list",
             "/admin/organization_applications/",
             domain=warehouse,

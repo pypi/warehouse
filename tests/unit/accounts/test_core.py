@@ -138,6 +138,8 @@ def test_includeme(monkeypatch):
                 "warehouse.account.user_login_ratelimit_string": "10 per 5 minutes",
                 "warehouse.account.ip_login_ratelimit_string": "10 per 5 minutes",
                 "warehouse.account.global_login_ratelimit_string": "1000 per 5 minutes",
+                "warehouse.account.2fa_user_ratelimit_string": "5 per 5 minutes, 20 per hour, 50 per day",  # noqa: E501
+                "warehouse.account.2fa_ip_ratelimit_string": "10 per 5 minutes, 50 per hour",  # noqa: E501
                 "warehouse.account.email_add_ratelimit_string": "2 per day",
                 "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
                 "warehouse.account.password_reset_ratelimit_string": "5 per day",
@@ -183,6 +185,14 @@ def test_includeme(monkeypatch):
         pretend.call(RateLimit("10 per 5 minutes"), IRateLimiter, name="ip.login"),
         pretend.call(
             RateLimit("1000 per 5 minutes"), IRateLimiter, name="global.login"
+        ),
+        pretend.call(
+            RateLimit("5 per 5 minutes, 20 per hour, 50 per day"),
+            IRateLimiter,
+            name="2fa.user",
+        ),
+        pretend.call(
+            RateLimit("10 per 5 minutes, 50 per hour"), IRateLimiter, name="2fa.ip"
         ),
         pretend.call(RateLimit("2 per day"), IRateLimiter, name="email.add"),
         pretend.call(RateLimit("5 per day"), IRateLimiter, name="password.reset"),

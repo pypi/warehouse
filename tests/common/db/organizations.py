@@ -11,6 +11,7 @@ from warehouse.organizations.models import (
     OrganizationApplication,
     OrganizationApplicationStatus,
     OrganizationInvitation,
+    OrganizationManualActivation,
     OrganizationNameCatalog,
     OrganizationProject,
     OrganizationRole,
@@ -129,6 +130,20 @@ class OrganizationInvitationFactory(WarehouseFactory):
     token = "test_token"
     user = factory.SubFactory(UserFactory)
     organization = factory.SubFactory(OrganizationFactory)
+
+
+class OrganizationManualActivationFactory(WarehouseFactory):
+    class Meta:
+        model = OrganizationManualActivation
+
+    organization_id = factory.SelfAttribute("organization.id")
+    organization = factory.SubFactory(OrganizationFactory)
+    seat_limit = 10
+    expires = factory.LazyFunction(
+        lambda: datetime.date.today() + datetime.timedelta(days=365)
+    )
+    created_by_id = factory.SelfAttribute("created_by.id")
+    created_by = factory.SubFactory(UserFactory)
 
 
 class OrganizationProjectFactory(WarehouseFactory):

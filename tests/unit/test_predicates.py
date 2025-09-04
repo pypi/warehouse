@@ -180,6 +180,55 @@ class TestActiveOrganizationPredicate:
         predicate = ActiveOrganizationPredicate(True, None)
         assert predicate(organization, db_request)
 
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_active_manual_activation(
+        self,
+        db_request,
+        organization,
+    ):
+        import datetime
+
+        from freezegun import freeze_time
+
+        from ..common.db.organizations import OrganizationManualActivationFactory
+
+        with freeze_time("2024-01-15"):
+            # Create an active manual activation
+            OrganizationManualActivationFactory(
+                organization=organization,
+                expires=datetime.date(2024, 12, 31),  # Future date
+            )
+            predicate = ActiveOrganizationPredicate(True, None)
+            assert predicate(organization, db_request)
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_expired_manual_activation(
+        self,
+        db_request,
+        organization,
+    ):
+        import datetime
+
+        from freezegun import freeze_time
+
+        from ..common.db.organizations import OrganizationManualActivationFactory
+
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/manage/organizations/"
+        )
+
+        with freeze_time("2024-01-15"):
+            # Create an expired manual activation
+            OrganizationManualActivationFactory(
+                organization=organization,
+                expires=datetime.date(2023, 12, 31),  # Past date
+            )
+            predicate = ActiveOrganizationPredicate(True, None)
+            with pytest.raises(HTTPSeeOther):
+                predicate(organization, db_request)
+
+        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
+
 
 def test_includeme():
     config = pretend.stub(

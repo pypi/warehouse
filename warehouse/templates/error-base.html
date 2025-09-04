@@ -20,9 +20,9 @@
     {% block error_text %}
       <div class="viewport-section__text">
         <p>
-          <strong>{% trans %}Error code{% endtrans %}
-            {% block error_code %}{% endblock %}
-          </strong>
+          {# djlint:off #}
+          <strong>{% trans %}Error code{% endtrans %}&nbsp;{% block error_code %}{% endblock %}</strong>
+          {# djlint:on #}
           <br>
           <a href="{{ request.route_path('index') }}">{% trans %}Back to the homepage{% endtrans %}</a>
         </p>

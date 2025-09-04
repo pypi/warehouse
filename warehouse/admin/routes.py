@@ -39,6 +39,21 @@ def includeme(config):
         "/admin/organizations/{organization_id}/delete_role/{role_id}/",
         domain=warehouse,
     )
+    config.add_route(
+        "admin.organization.add_manual_activation",
+        "/admin/organizations/{organization_id}/add_manual_activation/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.organization.update_manual_activation",
+        "/admin/organizations/{organization_id}/update_manual_activation/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.organization.delete_manual_activation",
+        "/admin/organizations/{organization_id}/delete_manual_activation/",
+        domain=warehouse,
+    )
 
     config.add_route(
         "admin.organization_application.list",
