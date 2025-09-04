@@ -1016,7 +1016,7 @@ def add_manual_activation(request):
 
 @view_config(
     route_name="admin.organization.set_upload_limit",
-    permission=Permissions.AdminOrganizationsWrite,
+    permission=Permissions.AdminOrganizationsSetLimit,
     request_method="POST",
     uses_session=True,
     require_csrf=True,
@@ -1213,7 +1213,7 @@ def delete_manual_activation(request):
 
 @view_config(
     route_name="admin.organization.set_total_size_limit",
-    permission=Permissions.AdminOrganizationsWrite,
+    permission=Permissions.AdminOrganizationsSetLimit,
     request_method="POST",
     uses_session=True,
     require_csrf=True,

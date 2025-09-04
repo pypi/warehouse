@@ -144,37 +144,37 @@
             {% endif %}
             
             <div class="alert alert-info" style="margin-bottom: 10px;">
-              <strong>✓ Effective limit: {{ effective_upload_limit|filesizeformat(binary=True) }}</strong> (from {{ limit_source }})
+              <strong>Effective limit: {{ effective_upload_limit|filesizeformat(binary=True) }}</strong> (from {{ limit_source }})
             </div>
             
             <table class="table table-sm table-bordered" style="margin-bottom: 0;">
               <tr>
-                <td style="width: 40%;">• System default:</td>
+                <td style="width: 40%;">System default:</td>
                 <td style="width: 30%;">{{ MAX_FILESIZE|filesizeformat(binary=True) }}</td>
                 <td style="width: 30%;"><small class="text-muted">Not configurable</small></td>
               </tr>
               <tr>
-                <td>• Project limit:</td>
+                <td>Project limit:</td>
                 <td>
                   {% if project.upload_limit %}
                     {{ project.upload_limit|filesizeformat(binary=True) }}
                   {% else %}
                     <span class="text-muted">Not set</span>
                   {% endif %}
-                  {% if limit_source == "project" %}<span class="badge badge-success">✓</span>{% endif %}
+                  {% if limit_source == "project" %}<span class="badge badge-success">Active</span>{% endif %}
                 </td>
                 <td><small class="text-muted">Configure below</small></td>
               </tr>
               {% if project.organization %}
               <tr>
-                <td>• Organization limit:</td>
+                <td>Organization limit:</td>
                 <td>
                   {% if project.organization.upload_limit %}
                     {{ project.organization.upload_limit|filesizeformat(binary=True) }}
                   {% else %}
                     <span class="text-muted">Not set</span>
                   {% endif %}
-                  {% if limit_source == "organization" %}<span class="badge badge-success">✓</span>{% endif %}
+                  {% if limit_source == "organization" %}<span class="badge badge-success">Active</span>{% endif %}
                 </td>
                 <td><a href="{{ request.route_path('admin.organization.detail', organization_id=project.organization.id) }}#organization-limits" class="btn btn-xs btn-outline-primary">Edit in organization</a></td>
               </tr>
@@ -219,37 +219,37 @@
             {% endif %}
             
             <div class="alert alert-info" style="margin-bottom: 10px;">
-              <strong>✓ Effective limit: {{ effective_total_size_limit|filesizeformat(binary=True) }}</strong> (from {{ size_limit_source }})
+              <strong>Effective limit: {{ effective_total_size_limit|filesizeformat(binary=True) }}</strong> (from {{ size_limit_source }})
             </div>
             
             <table class="table table-sm table-bordered" style="margin-bottom: 0;">
               <tr>
-                <td style="width: 40%;">• System default:</td>
+                <td style="width: 40%;">System default:</td>
                 <td style="width: 30%;">{{ MAX_PROJECT_SIZE|filesizeformat(binary=True) }}</td>
                 <td style="width: 30%;"><small class="text-muted">Not configurable</small></td>
               </tr>
               <tr>
-                <td>• Project limit:</td>
+                <td>Project limit:</td>
                 <td>
                   {% if project.total_size_limit %}
                     {{ project.total_size_limit|filesizeformat(binary=True) }}
                   {% else %}
                     <span class="text-muted">Not set</span>
                   {% endif %}
-                  {% if size_limit_source == "project" %}<span class="badge badge-success">✓</span>{% endif %}
+                  {% if size_limit_source == "project" %}<span class="badge badge-success">Active</span>{% endif %}
                 </td>
                 <td><small class="text-muted">Configure below</small></td>
               </tr>
               {% if project.organization %}
               <tr>
-                <td>• Organization limit:</td>
+                <td>Organization limit:</td>
                 <td>
                   {% if project.organization.total_size_limit %}
                     {{ project.organization.total_size_limit|filesizeformat(binary=True) }}
                   {% else %}
                     <span class="text-muted">Not set</span>
                   {% endif %}
-                  {% if size_limit_source == "organization" %}<span class="badge badge-success">✓</span>{% endif %}
+                  {% if size_limit_source == "organization" %}<span class="badge badge-success">Active</span>{% endif %}
                 </td>
                 <td><a href="{{ request.route_path('admin.organization.detail', organization_id=project.organization.id) }}#organization-limits" class="btn btn-xs btn-outline-primary">Edit in organization</a></td>
               </tr>
