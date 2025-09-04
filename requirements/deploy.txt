@@ -4,9 +4,9 @@
 #
 #    pip-compile --allow-unsafe --generate-hashes --output-file=requirements/deploy.txt requirements/deploy.in
 #
-bytecode==0.16.2 \
-    --hash=sha256:0a7dea0387ec5cae5ec77578690c5ca7470c8a202c50ce64a426d86380cddd7f \
-    --hash=sha256:f05020b6dc1f48cdadd946f7c3a03131ba0f312bd103767c5d75559de5c308f8
+bytecode==0.17.0 \
+    --hash=sha256:0c37efa5bd158b1b873f530cceea2c645611d55bd2dc2a4758b09f185749b6fd \
+    --hash=sha256:64fb10cde1db7ef5cc39bd414ecebd54ba3b40e1c4cf8121ca5e72f170916ff8
     # via ddtrace
 ddtrace==3.12.0 \
     --hash=sha256:02637eecbe74aeca9d8f4dfdd1e07554dc50701ee101d3c5184394c8667849a6 \
