@@ -674,9 +674,9 @@ types-s3transfer==0.13.1 \
     --hash=sha256:4ff730e464a3fd3785b5541f0f555c1bd02ad408cf82b6b7a95429f6b0d26b4a \
     --hash=sha256:ce488d79fdd7d3b9d39071939121eca814ec65de3aa36bdce1f9189c0a61cc80
     # via boto3-stubs
-types-setuptools==80.9.0.20250809 \
-    --hash=sha256:7c6539b4c7ac7b4ab4db2be66d8a58fb1e28affa3ee3834be48acafd94f5976a \
-    --hash=sha256:e986ba37ffde364073d76189e1d79d9928fb6f5278c7d07589cde353d0218864
+types-setuptools==80.9.0.20250822 \
+    --hash=sha256:070ea7716968ec67a84c7f7768d9952ff24d28b65b6594797a464f1b3066f965 \
+    --hash=sha256:53bf881cb9d7e46ed12c76ef76c0aaf28cfe6211d3fab12e0b83620b1a8642c3
     # via
     #   types-babel
     #   types-cffi
