@@ -3,7 +3,7 @@
 Add upload and total size limits to organizations
 
 Revision ID: a6994b8bed95
-Revises: 30c837b1425a
+Revises: 6713c727bad2
 Create Date: 2025-08-06 22:47:15.411024
 """
 
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision = "a6994b8bed95"
-down_revision = "30c837b1425a"
+down_revision = "6713c727bad2"
 
 # Note: It is VERY important to ensure that a migration does not lock for a
 #       long period of time and to ensure that each individual migration does

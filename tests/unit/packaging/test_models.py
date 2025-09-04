@@ -1311,3 +1311,199 @@ class TestFile:
         )
 
         assert rfile.pretty_wheel_tags == ["Source"]
+
+
+class TestProjectLimitProperties:
+    def test_upload_limit_size_with_no_limits(self, db_session):
+        from warehouse.constants import MAX_FILESIZE
+
+        project = DBProjectFactory.create(upload_limit=None)
+        assert project.upload_limit_size == MAX_FILESIZE
+
+    def test_upload_limit_size_with_project_limit(self, db_session):
+        from warehouse.constants import MAX_FILESIZE, ONE_MIB
+
+        project_limit = 50 * ONE_MIB
+        project = DBProjectFactory.create(upload_limit=project_limit)
+
+        # Should use the most generous limit
+        expected = max(MAX_FILESIZE, project_limit)
+        assert project.upload_limit_size == expected
+
+    def test_upload_limit_size_with_organization_limit(self, db_session):
+        from tests.common.db.organizations import OrganizationFactory
+        from warehouse.constants import MAX_FILESIZE, ONE_MIB
+        from warehouse.organizations.models import OrganizationType
+
+        org_limit = 100 * ONE_MIB
+        organization = OrganizationFactory.create(
+            orgtype=OrganizationType.Company, upload_limit=org_limit
+        )
+        project = DBProjectFactory.create(upload_limit=None)
+
+        # Manually set organization relationship since it's complex
+        project.organization = organization
+
+        # Should use the most generous limit
+        expected = max(MAX_FILESIZE, org_limit)
+        assert project.upload_limit_size == expected
+
+    def test_upload_limit_size_with_both_limits(self, db_session):
+        from tests.common.db.organizations import OrganizationFactory
+        from warehouse.constants import MAX_FILESIZE, ONE_MIB
+        from warehouse.organizations.models import OrganizationType
+
+        project_limit = 50 * ONE_MIB
+        org_limit = 100 * ONE_MIB
+        organization = OrganizationFactory.create(
+            orgtype=OrganizationType.Company, upload_limit=org_limit
+        )
+        project = DBProjectFactory.create(upload_limit=project_limit)
+        project.organization = organization
+
+        # Should use the most generous limit
+        expected = max(MAX_FILESIZE, project_limit, org_limit)
+        assert project.upload_limit_size == expected
+
+    def test_total_size_limit_value_with_no_limits(self, db_session):
+        from warehouse.constants import MAX_PROJECT_SIZE
+
+        project = DBProjectFactory.create(total_size_limit=None)
+        assert project.total_size_limit_value == MAX_PROJECT_SIZE
+
+    def test_total_size_limit_value_with_project_limit(self, db_session):
+        from warehouse.constants import MAX_PROJECT_SIZE, ONE_GIB
+
+        project_limit = 50 * ONE_GIB
+        project = DBProjectFactory.create(total_size_limit=project_limit)
+
+        # Should use the most generous limit
+        expected = max(MAX_PROJECT_SIZE, project_limit)
+        assert project.total_size_limit_value == expected
+
+    def test_total_size_limit_value_with_organization_limit(self, db_session):
+        from tests.common.db.organizations import OrganizationFactory
+        from warehouse.constants import MAX_PROJECT_SIZE, ONE_GIB
+        from warehouse.organizations.models import OrganizationType
+
+        org_limit = 100 * ONE_GIB
+        organization = OrganizationFactory.create(
+            orgtype=OrganizationType.Company, total_size_limit=org_limit
+        )
+        project = DBProjectFactory.create(total_size_limit=None)
+        project.organization = organization
+
+        # Should use the most generous limit
+        expected = max(MAX_PROJECT_SIZE, org_limit)
+        assert project.total_size_limit_value == expected
+
+    def test_total_size_limit_value_with_both_limits(self, db_session):
+        from tests.common.db.organizations import OrganizationFactory
+        from warehouse.constants import MAX_PROJECT_SIZE, ONE_GIB
+        from warehouse.organizations.models import OrganizationType
+
+        project_limit = 50 * ONE_GIB
+        org_limit = 100 * ONE_GIB
+        organization = OrganizationFactory.create(
+            orgtype=OrganizationType.Company, total_size_limit=org_limit
+        )
+        project = DBProjectFactory.create(total_size_limit=project_limit)
+        project.organization = organization
+
+        # Should use the most generous limit
+        expected = max(MAX_PROJECT_SIZE, project_limit, org_limit)
+        assert project.total_size_limit_value == expected
+
+    def test_upload_limit_size_edge_case_with_zero_limits(self, db_session):
+        """Edge case: test behavior with zero/negative limits"""
+        from tests.common.db.organizations import OrganizationFactory
+        from warehouse.constants import MAX_FILESIZE
+        from warehouse.organizations.models import OrganizationType
+
+        # Create organization with zero limit (should be filtered out)
+        organization = OrganizationFactory.create(
+            orgtype=OrganizationType.Company, upload_limit=0
+        )
+        project = DBProjectFactory.create(upload_limit=0)
+        project.organization = organization
+
+        # Should fall back to system default since zero limits are filtered out
+        assert project.upload_limit_size == MAX_FILESIZE
+
+    def test_total_size_limit_value_edge_case_with_zero_limits(self, db_session):
+        """Edge case: test behavior with zero/negative limits"""
+        from tests.common.db.organizations import OrganizationFactory
+        from warehouse.constants import MAX_PROJECT_SIZE
+        from warehouse.organizations.models import OrganizationType
+
+        # Create organization with zero limit (should be filtered out)
+        organization = OrganizationFactory.create(
+            orgtype=OrganizationType.Company, total_size_limit=0
+        )
+        project = DBProjectFactory.create(total_size_limit=0)
+        project.organization = organization
+
+        # Should fall back to system default since zero limits are filtered out
+        assert project.total_size_limit_value == MAX_PROJECT_SIZE
+
+    def test_upload_limit_size_edge_case_all_none_fallback(self, db_session):
+        """Edge case: test fallback when all custom limits are None"""
+        from warehouse.constants import MAX_FILESIZE
+
+        # Create project with no organization and no limits
+        project = DBProjectFactory.create(upload_limit=None, total_size_limit=None)
+        # Explicitly ensure no organization
+        project.organization = None
+
+        # Should return system default even with all None values
+        assert project.upload_limit_size == MAX_FILESIZE
+
+    def test_total_size_limit_value_edge_case_all_none_fallback(self, db_session):
+        """Edge case: test fallback when all custom limits are None"""
+        from warehouse.constants import MAX_PROJECT_SIZE
+
+        # Create project with no organization and no limits
+        project = DBProjectFactory.create(upload_limit=None, total_size_limit=None)
+        # Explicitly ensure no organization
+        project.organization = None
+
+        # Should return system default even with all None values
+        assert project.total_size_limit_value == MAX_PROJECT_SIZE
+
+    def test_upload_limit_size_large_values(self, db_session):
+        """Edge case: test with very large limit values within INTEGER range"""
+        from tests.common.db.organizations import OrganizationFactory
+        from warehouse.constants import MAX_FILESIZE, ONE_MIB
+        from warehouse.organizations.models import OrganizationType
+
+        # Test with large values (1GB) - within INTEGER range
+        large_limit = 1000 * ONE_MIB  # 1GB
+        organization = OrganizationFactory.create(
+            orgtype=OrganizationType.Company, upload_limit=large_limit
+        )
+        project = DBProjectFactory.create(upload_limit=500 * ONE_MIB)  # 500MB
+        project.organization = organization
+
+        # Should use the largest value (1GB org limit)
+        expected = max(MAX_FILESIZE, 500 * ONE_MIB, large_limit)
+        assert project.upload_limit_size == expected
+        assert project.upload_limit_size == large_limit
+
+    def test_total_size_limit_value_large_values(self, db_session):
+        """Edge case: test with very large limit values"""
+        from tests.common.db.organizations import OrganizationFactory
+        from warehouse.constants import MAX_PROJECT_SIZE, ONE_GIB
+        from warehouse.organizations.models import OrganizationType
+
+        # Test with very large values (10TB)
+        large_limit = 10000 * ONE_GIB
+        organization = OrganizationFactory.create(
+            orgtype=OrganizationType.Company, total_size_limit=large_limit
+        )
+        project = DBProjectFactory.create(total_size_limit=5000 * ONE_GIB)
+        project.organization = organization
+
+        # Should use the largest value (10TB org limit)
+        expected = max(MAX_PROJECT_SIZE, 5000 * ONE_GIB, large_limit)
+        assert project.total_size_limit_value == expected
+        assert project.total_size_limit_value == large_limit

@@ -6152,6 +6152,224 @@ class TestFileUpload:
 
         assert resp.status_code == 200
 
+    def test_upload_uses_model_property_for_file_size_limits(
+        self, pyramid_config, db_request, monkeypatch
+    ):
+        """Integration test: verify upload uses project.upload_limit_size property"""
+        # Create organization with generous limit
+        organization = OrganizationFactory.create(
+            orgtype="Company", upload_limit=150 * (1024**2)  # 150 MiB
+        )
+        user = UserFactory.create(with_verified_primary_email=True)
+        OrganizationRoleFactory.create(organization=organization, user=user)
+        OrganizationStripeSubscriptionFactory.create(organization=organization)
+
+        # Create project with smaller limit - should use org limit (max of both)
+        project = OrganizationProjectFactory.create(
+            organization=organization,
+            project__upload_limit=80 * (1024**2),  # 80 MiB - smaller than org
+        ).project
+
+        # Verify our model property returns the expected value (most generous)
+        assert project.upload_limit_size == 150 * (1024**2)  # Should be org limit
+
+        # Upload file that's between project and org limits (120 MiB)
+        filename = f"{project.normalized_name.replace('-', '_')}-1.0.0-py3-none-any.whl"
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version="1.0.0"
+        )
+
+        # Mock storage service
+        storage_service = pretend.stub(
+            store=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.find_service = pretend.call_recorder(
+            lambda svc, name=None, context=None: {
+                IFileStorage: storage_service,
+            }.get(svc)
+        )
+
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        # Mock file upload
+        class MockFieldStorage:
+            def __init__(self, data, filename):
+                self.file = io.BytesIO(data)
+                self.filename = filename
+                self.type = "application/x-wheel+zip"
+                self.length = len(data)
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0.0",
+                "summary": "Test upload",
+                "filetype": "bdist_wheel",
+                "pyversion": "py3",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": MockFieldStorage(filebody, filename),
+            }
+        )
+
+        # Upload should succeed because it uses the more generous org limit
+        resp = legacy.file_upload(db_request)
+        assert resp.status_code == 200
+
+    def test_upload_uses_model_property_for_total_size_limits(
+        self, pyramid_config, db_request, monkeypatch
+    ):
+        """Integration test: verify upload uses total_size_limit_value property"""
+        # Create organization with generous total size limit
+        organization = OrganizationFactory.create(
+            orgtype="Company", total_size_limit=60 * (1024**3)  # 60 GiB
+        )
+        user = UserFactory.create(with_verified_primary_email=True)
+        OrganizationRoleFactory.create(organization=organization, user=user)
+        OrganizationStripeSubscriptionFactory.create(organization=organization)
+
+        # Create project with smaller total size limit and existing usage
+        project = OrganizationProjectFactory.create(
+            organization=organization,
+            project__total_size_limit=40 * (1024**3),  # 40 GiB - smaller than org
+            project__total_size=50 * (1024**3),  # 50 GiB already used
+        ).project
+
+        # Verify our model property returns the expected value (most generous)
+        assert project.total_size_limit_value == 60 * (1024**3)  # Should be org limit
+
+        # Upload file that would exceed project limit but not org limit
+        filename = f"{project.normalized_name.replace('-', '_')}-1.0.0-py3-none-any.whl"
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version="1.0.0"
+        )
+
+        @pretend.call_recorder
+        def storage_service_store(path, file_path, *, meta):
+            with open(file_path, "rb") as fp:
+                if file_path.endswith(".metadata"):
+                    assert fp.read() == b"Fake metadata"
+                else:
+                    assert fp.read() == filebody
+
+        storage_service = pretend.stub(store=storage_service_store)
+        db_request.find_service = pretend.call_recorder(
+            lambda svc, name=None, context=None: {
+                IFileStorage: storage_service,
+            }.get(svc)
+        )
+
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        # Mock file upload - simulate 5 GiB file size
+        class MockFieldStorage:
+            def __init__(self, data, filename):
+                self.file = io.BytesIO(data)
+                self.filename = filename
+                self.type = "application/x-wheel+zip"
+                self.length = 5 * (1024**3)  # Mock large file size
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.user_docs_url = pretend.call_recorder(
+            lambda *a, **kw: "/the/help/url/"
+        )
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0.0",
+                "summary": "Test upload",
+                "filetype": "bdist_wheel",
+                "pyversion": "py3",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": MockFieldStorage(filebody, filename),
+            }
+        )
+
+        # Upload should succeed: 50 GiB existing + 5 GiB new = 55 GiB < 60 GiB org limit
+        resp = legacy.file_upload(db_request)
+        assert resp.status_code == 200
+
+    def test_upload_limit_property_falls_back_to_system_default(
+        self, pyramid_config, db_request, monkeypatch
+    ):
+        """Integration test: verify properties fall back to system defaults correctly"""
+        # Create project with NO custom limits and NO organization
+        project = ProjectFactory.create(upload_limit=None, total_size_limit=None)
+        user = UserFactory.create(with_verified_primary_email=True)
+        RoleFactory.create(user=user, project=project)
+
+        # Verify model properties return system defaults
+        from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
+
+        assert project.upload_limit_size == MAX_FILESIZE
+        assert project.total_size_limit_value == MAX_PROJECT_SIZE
+
+        # Upload file just under system limit should succeed
+        filename = f"{project.normalized_name.replace('-', '_')}-1.0.0-py3-none-any.whl"
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version="1.0.0"
+        )
+
+        @pretend.call_recorder
+        def storage_service_store(path, file_path, *, meta):
+            with open(file_path, "rb") as fp:
+                if file_path.endswith(".metadata"):
+                    assert fp.read() == b"Fake metadata"
+                else:
+                    assert fp.read() == filebody
+
+        storage_service = pretend.stub(store=storage_service_store)
+        db_request.find_service = pretend.call_recorder(
+            lambda svc, name=None, context=None: {
+                IFileStorage: storage_service,
+            }.get(svc)
+        )
+
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        # Mock file upload - simulate file just under system limit
+        class MockFieldStorage:
+            def __init__(self, data, filename):
+                self.file = io.BytesIO(data)
+                self.filename = filename
+                self.type = "application/x-wheel+zip"
+                self.length = MAX_FILESIZE - 1024  # Just under system limit
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.user_docs_url = pretend.call_recorder(
+            lambda *a, **kw: "/the/help/url/"
+        )
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0.0",
+                "summary": "Test upload",
+                "filetype": "bdist_wheel",
+                "pyversion": "py3",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": MockFieldStorage(filebody, filename),
+            }
+        )
+
+        # Upload should succeed using system default limits
+        resp = legacy.file_upload(db_request)
+        assert resp.status_code == 200
+
 
 def test_submit(pyramid_request):
     resp = legacy.submit(pyramid_request)

@@ -56,6 +56,7 @@ from warehouse.accounts.models import User
 from warehouse.attestations.models import Provenance
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
+from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.events.models import HasEvents
 from warehouse.forklift import metadata
 from warehouse.integrations.vulnerabilities.models import VulnerabilityRecord
@@ -521,6 +522,48 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
         # PyPI doesn't yet have a deprecated lifecycle status
         # and "quarantine-exit" means a return to active.
         return ProjectStatusMarker.Active
+
+    @property
+    def upload_limit_size(self) -> int:
+        """
+        Return the effective file size upload limit for this project.
+
+        Uses the most generous (highest) limit from:
+        - System default (MAX_FILESIZE)
+        - Project-specific limit (if set)
+        - Organization limit (if project belongs to org and org has limit)
+
+        This allows organizations and projects to have higher limits than
+        the system default, with users benefiting from the most generous
+        limit available to them.
+        """
+        limits_to_check = [MAX_FILESIZE, self.upload_limit]
+        if self.organization:
+            limits_to_check.append(self.organization.upload_limit)
+
+        valid_limits = [limit for limit in limits_to_check if limit is not None]
+        return max(valid_limits)
+
+    @property
+    def total_size_limit_value(self) -> int:
+        """
+        Return the effective total size limit for this project.
+
+        Uses the most generous (highest) limit from:
+        - System default (MAX_PROJECT_SIZE)
+        - Project-specific limit (if set)
+        - Organization limit (if project belongs to org and org has limit)
+
+        This allows organizations and projects to have higher limits than
+        the system default, with users benefiting from the most generous
+        limit available to them.
+        """
+        limits_to_check = [MAX_PROJECT_SIZE, self.total_size_limit]
+        if self.organization:
+            limits_to_check.append(self.organization.total_size_limit)
+
+        valid_limits = [limit for limit in limits_to_check if limit is not None]
+        return max(valid_limits)
 
 
 class DependencyKind(enum.IntEnum):

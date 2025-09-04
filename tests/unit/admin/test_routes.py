@@ -60,6 +60,16 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            "admin.organization.set_upload_limit",
+            "/admin/organizations/{organization_id}/set_upload_limit/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.organization.set_total_size_limit",
+            "/admin/organizations/{organization_id}/set_total_size_limit/",
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.organization_application.list",
             "/admin/organization_applications/",
             domain=warehouse,
