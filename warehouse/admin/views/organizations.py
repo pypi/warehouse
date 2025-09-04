@@ -14,7 +14,15 @@ from sqlalchemy.orm import joinedload
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User
+from warehouse.admin.forms import SetTotalSizeLimitForm, SetUploadLimitForm
 from warehouse.authnz import Permissions
+from warehouse.constants import (
+    MAX_FILESIZE,
+    MAX_PROJECT_SIZE,
+    ONE_GIB,
+    ONE_MIB,
+    UPLOAD_LIMIT_CAP,
+)
 from warehouse.manage.forms import OrganizationNameMixin, SaveOrganizationForm
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
@@ -320,6 +328,11 @@ def organization_detail(request):
         "role_forms": role_forms,
         "add_role_form": add_role_form,
         "manual_activation_form": manual_activation_form,
+        "ONE_MIB": ONE_MIB,
+        "MAX_FILESIZE": MAX_FILESIZE,
+        "ONE_GIB": ONE_GIB,
+        "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
+        "UPLOAD_LIMIT_CAP": UPLOAD_LIMIT_CAP,
     }
 
 
@@ -1007,6 +1020,52 @@ def add_manual_activation(request):
 
 
 @view_config(
+    route_name="admin.organization.set_upload_limit",
+    permission=Permissions.AdminOrganizationsSetLimit,
+    request_method="POST",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def set_upload_limit(request):
+    organization_id = request.matchdict["organization_id"]
+    organization = request.db.query(Organization).get(organization_id)
+    if organization is None:
+        raise HTTPNotFound
+
+    form = SetUploadLimitForm(request.POST)
+
+    if not form.validate():
+        for field, errors in form.errors.items():
+            for error in errors:
+                request.session.flash(f"{field}: {error}", queue="error")
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
+    # Form validation has already converted to bytes or None
+    organization.upload_limit = form.upload_limit.data
+
+    if organization.upload_limit:
+        limit_msg = f"{organization.upload_limit / ONE_MIB}MiB"
+    else:
+        limit_msg = "(default)"
+    request.session.flash(
+        f"Upload limit set to {limit_msg}",
+        queue="success",
+    )
+
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.organization.detail",
+            organization_id=organization.id,
+        )
+    )
+
+
+@view_config(
     route_name="admin.organization.update_manual_activation",
     permission=Permissions.AdminOrganizationsWrite,
     request_method="POST",
@@ -1143,4 +1202,50 @@ def delete_manual_activation(request):
 
     return HTTPSeeOther(
         request.route_path("admin.organization.detail", organization_id=organization.id)
+    )
+
+
+@view_config(
+    route_name="admin.organization.set_total_size_limit",
+    permission=Permissions.AdminOrganizationsSetLimit,
+    request_method="POST",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def set_total_size_limit(request):
+    organization_id = request.matchdict["organization_id"]
+    organization = request.db.query(Organization).get(organization_id)
+    if organization is None:
+        raise HTTPNotFound
+
+    form = SetTotalSizeLimitForm(request.POST)
+
+    if not form.validate():
+        for field, errors in form.errors.items():
+            for error in errors:
+                request.session.flash(f"{field}: {error}", queue="error")
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
+    # Form validation has already converted to bytes or None
+    organization.total_size_limit = form.total_size_limit.data
+
+    if organization.total_size_limit:
+        limit_msg = f"{organization.total_size_limit / ONE_GIB}GiB"
+    else:
+        limit_msg = "(default)"
+    request.session.flash(
+        f"Total size limit set to {limit_msg}",
+        queue="success",
+    )
+
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.organization.detail",
+            organization_id=organization.id,
+        )
     )

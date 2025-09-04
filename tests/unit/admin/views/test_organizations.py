@@ -2344,3 +2344,227 @@ class TestDeleteManualActivation:
 
         with pytest.raises(HTTPNotFound):
             views.delete_manual_activation(db_request)
+
+
+class TestSetUploadLimit:
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_set_upload_limit_with_integer(self, db_request):
+        organization = OrganizationFactory.create(name="foo")
+
+        db_request.route_path = pretend.call_recorder(
+            lambda a, organization_id: "/admin/organizations/1/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.matchdict["organization_id"] = organization.id
+        db_request.POST = MultiDict({"upload_limit": "150"})
+
+        result = views.set_upload_limit(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Upload limit set to 150.0MiB", queue="success")
+        ]
+        assert result.status_code == 303
+        assert result.location == "/admin/organizations/1/"
+        assert organization.upload_limit == 150 * views.ONE_MIB
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_set_upload_limit_with_none(self, db_request):
+        organization = OrganizationFactory.create(name="foo")
+        organization.upload_limit = 150 * views.ONE_MIB
+
+        db_request.route_path = pretend.call_recorder(
+            lambda a, organization_id: "/admin/organizations/1/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.matchdict["organization_id"] = organization.id
+        db_request.POST = MultiDict({"upload_limit": ""})
+
+        result = views.set_upload_limit(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Upload limit set to (default)", queue="success")
+        ]
+        assert result.status_code == 303
+        assert result.location == "/admin/organizations/1/"
+        assert organization.upload_limit is None
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_set_upload_limit_invalid_value(self, db_request):
+        organization = OrganizationFactory.create(name="foo")
+
+        db_request.route_path = pretend.call_recorder(
+            lambda a, organization_id: "/admin/organizations/1/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.matchdict["organization_id"] = organization.id
+        db_request.POST = MultiDict({"upload_limit": "not_an_integer"})
+
+        result = views.set_upload_limit(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "upload_limit: Upload limit must be a valid integer or empty",
+                queue="error",
+            )
+        ]
+        assert result.status_code == 303
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_set_upload_limit_not_found(self, db_request):
+        db_request.matchdict["organization_id"] = "00000000-0000-0000-0000-000000000000"
+
+        with pytest.raises(HTTPNotFound):
+            views.set_upload_limit(db_request)
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_set_upload_limit_above_cap(self, db_request):
+        organization = OrganizationFactory.create(name="foo")
+
+        db_request.route_path = pretend.call_recorder(
+            lambda a, organization_id: "/admin/organizations/1/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.matchdict["organization_id"] = organization.id
+        db_request.POST = MultiDict({"upload_limit": "2048"})  # 2048 MiB > 1024 MiB cap
+
+        result = views.set_upload_limit(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "upload_limit: Upload limit can not be greater than 1024.0MiB",
+                queue="error",
+            )
+        ]
+        assert result.status_code == 303
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_set_upload_limit_below_default(self, db_request):
+        organization = OrganizationFactory.create(name="foo")
+
+        db_request.route_path = pretend.call_recorder(
+            lambda a, organization_id: "/admin/organizations/1/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.matchdict["organization_id"] = organization.id
+        db_request.POST = MultiDict({"upload_limit": "50"})  # 50 MiB < 100 MiB default
+
+        result = views.set_upload_limit(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "upload_limit: Upload limit can not be less than 100.0MiB",
+                queue="error",
+            )
+        ]
+        assert result.status_code == 303
+
+
+class TestSetTotalSizeLimit:
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_set_total_size_limit_with_integer(self, db_request):
+        organization = OrganizationFactory.create(name="foo")
+
+        db_request.route_path = pretend.call_recorder(
+            lambda a, organization_id: "/admin/organizations/1/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.matchdict["organization_id"] = organization.id
+        db_request.POST = MultiDict({"total_size_limit": "150"})
+
+        result = views.set_total_size_limit(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Total size limit set to 150.0GiB", queue="success")
+        ]
+        assert result.status_code == 303
+        assert result.location == "/admin/organizations/1/"
+        assert organization.total_size_limit == 150 * views.ONE_GIB
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_set_total_size_limit_with_none(self, db_request):
+        organization = OrganizationFactory.create(name="foo")
+        organization.total_size_limit = 150 * views.ONE_GIB
+
+        db_request.route_path = pretend.call_recorder(
+            lambda a, organization_id: "/admin/organizations/1/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.matchdict["organization_id"] = organization.id
+        db_request.POST = MultiDict({"total_size_limit": ""})
+
+        result = views.set_total_size_limit(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Total size limit set to (default)", queue="success")
+        ]
+        assert result.status_code == 303
+        assert result.location == "/admin/organizations/1/"
+        assert organization.total_size_limit is None
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_set_total_size_limit_invalid_value(self, db_request):
+        organization = OrganizationFactory.create(name="foo")
+
+        db_request.route_path = pretend.call_recorder(
+            lambda a, organization_id: "/admin/organizations/1/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.matchdict["organization_id"] = organization.id
+        db_request.POST = MultiDict({"total_size_limit": "not_an_integer"})
+
+        result = views.set_total_size_limit(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "total_size_limit: Total size limit must be a valid integer or empty",
+                queue="error",
+            )
+        ]
+        assert result.status_code == 303
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_set_total_size_limit_not_found(self, db_request):
+        db_request.matchdict["organization_id"] = "00000000-0000-0000-0000-000000000000"
+
+        with pytest.raises(HTTPNotFound):
+            views.set_total_size_limit(db_request)
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_set_total_size_limit_below_default(self, db_request):
+        organization = OrganizationFactory.create(name="foo")
+
+        db_request.route_path = pretend.call_recorder(
+            lambda a, organization_id: "/admin/organizations/1/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.matchdict["organization_id"] = organization.id
+        db_request.POST = MultiDict({"total_size_limit": "5"})  # 5 GiB < 10 GiB default
+
+        result = views.set_total_size_limit(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "total_size_limit: Total organization size can not be less than "
+                "10.0GiB",
+                queue="error",
+            )
+        ]
+        assert result.status_code == 303

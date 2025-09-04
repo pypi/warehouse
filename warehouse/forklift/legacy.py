@@ -39,7 +39,7 @@ from warehouse.attestations.errors import AttestationUploadError
 from warehouse.attestations.interfaces import IIntegrityService
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
-from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
+from warehouse.constants import ONE_GIB, ONE_MIB
 from warehouse.email import (
     send_api_token_used_in_trusted_publisher_project_email,
     send_pep427_name_email,
@@ -1038,9 +1038,10 @@ def file_upload(request):
 
     # The project may or may not have a file size specified on the project, if
     # it does then it may or may not be smaller or larger than our global file
-    # size limits.
-    file_size_limit = max(filter(None, [MAX_FILESIZE, project.upload_limit]))
-    project_size_limit = max(filter(None, [MAX_PROJECT_SIZE, project.total_size_limit]))
+    # size limits. Additionally, if the project belongs to an organization,
+    # we also consider the organization's limits and use the most generous one.
+    file_size_limit = project.upload_limit_size
+    project_size_limit = project.total_size_limit_value
 
     file_data = None
     with tempfile.TemporaryDirectory() as tmpdir:

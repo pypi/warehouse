@@ -48,6 +48,7 @@ class Permissions(StrEnum):
     AdminObservationsWrite = "admin:observations:write"
 
     AdminOrganizationsRead = "admin:organizations:read"
+    AdminOrganizationsSetLimit = "admin:organizations:set-limit"
     AdminOrganizationsWrite = "admin:organizations:write"
     AdminOrganizationsNameWrite = "admin:organizations:name:write"
 

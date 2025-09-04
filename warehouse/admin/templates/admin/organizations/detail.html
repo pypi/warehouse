@@ -166,6 +166,66 @@
         </div>
       </div>
 
+      <div class="card" id="organization-limits">
+        <div class="card-header with-border">
+          <h3 class="card-title">Organization Limits</h3>
+        </div>
+        <div class="card-body">
+          <table class="table table-hover">
+            <tbody>
+              <tr>
+                <form method="POST" action="{{ request.route_path('admin.organization.set_upload_limit', organization_id=organization.id) }}">
+                  <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                  <td>Upload limit</td>
+                  <td>
+                    {% if organization.upload_limit %}
+                    {{ organization.upload_limit|filesizeformat(binary=True) }}
+                    {% else %}
+                    Default ({{ MAX_FILESIZE|filesizeformat(binary=True) }})
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if organization.upload_limit %}
+                    {% set upload_limit_value = organization.upload_limit / ONE_MIB %}
+                    {% else %}
+                    {% set upload_limit_value = '' %}
+                    {% endif %}
+                    <input type="number" name="upload_limit" id="uploadLimit" min="{{ MAX_FILESIZE / ONE_MIB }}" max="{{ UPLOAD_LIMIT_CAP / ONE_MIB }}" step=1 value="{{ upload_limit_value|int }}"> MiB
+                  </td>
+                  <td>
+                    <button type="submit" class="btn btn-primary btn-sm" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) }}>Submit</button>
+                  </td>
+                </form>
+              </tr>
+              <tr>
+                <form method="POST" action="{{ request.route_path('admin.organization.set_total_size_limit', organization_id=organization.id) }}">
+                  <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                  <td>Total size limit</td>
+                  <td>
+                    {% if organization.total_size_limit %}
+                    {{ organization.total_size_limit|filesizeformat(binary=True) }}
+                    {% else %}
+                    Default ({{ MAX_PROJECT_SIZE|filesizeformat(binary=True) }})
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if organization.total_size_limit %}
+                    {% set total_size_limit_value = organization.total_size_limit // ONE_GIB %}
+                    {% else %}
+                    {% set total_size_limit_value = '' %}
+                    {% endif %}
+                    <input type="number" name="total_size_limit" id="totalSizeLimit" min="{{ MAX_PROJECT_SIZE / ONE_GIB }}" step=1 value="{{ total_size_limit_value|int }}"> GiB
+                  </td>
+                  <td>
+                    <button type="submit" class="btn btn-primary btn-sm" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) }}>Submit</button>
+                  </td>
+                </form>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-header with-border">
           <h3 class="card-title">Manual Activation</h3>
