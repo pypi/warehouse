@@ -523,6 +523,19 @@ def configure(settings=None):
         "GLOBAL_LOGIN_RATELIMIT_STRING",
         default="1000 per 5 minutes",
     )
+    # Separate rate limiters for 2FA attempts to prevent brute-force attacks
+    maybe_set(
+        settings,
+        "warehouse.account.2fa_user_ratelimit_string",
+        "2FA_USER_RATELIMIT_STRING",
+        default="5 per 5 minutes, 20 per hour, 50 per day",
+    )
+    maybe_set(
+        settings,
+        "warehouse.account.2fa_ip_ratelimit_string",
+        "2FA_IP_RATELIMIT_STRING",
+        default="10 per 5 minutes, 50 per hour",
+    )
     maybe_set(
         settings,
         "warehouse.account.email_add_ratelimit_string",
