@@ -17,7 +17,6 @@ from sqlalchemy import (
     FetchedValue,
     ForeignKey,
     Index,
-    Integer,
     UniqueConstraint,
     func,
     orm,
@@ -303,7 +302,6 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         comment="Datetime the organization was created.",
     )
     upload_limit: Mapped[int | None] = mapped_column(
-        Integer,
         comment="Maximum file size limit in bytes for projects in this organization",
     )
     total_size_limit: Mapped[int | None] = mapped_column(

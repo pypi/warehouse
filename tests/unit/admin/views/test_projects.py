@@ -10,6 +10,7 @@ import pytest
 from paginate_sqlalchemy import SqlalchemyOrmPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from sqlalchemy.orm import joinedload
+from webob.multidict import MultiDict
 
 import warehouse.constants
 
@@ -127,6 +128,7 @@ class TestProjectDetail:
         project.upload_limit = 50 * views.ONE_MIB
         project.total_size_limit = 50 * views.ONE_GIB
         db_request.matchdict["project_name"] = str(project.normalized_name)
+
         result = views.project_detail(project, db_request)
 
         assert result["project"] == project
@@ -605,7 +607,7 @@ class TestProjectSetTotalSizeLimit:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.matchdict["project_name"] = project.normalized_name
-        db_request.POST["total_size_limit"] = "150"
+        db_request.POST = MultiDict({"total_size_limit": "150"})
 
         views.set_total_size_limit(project, db_request)
 
@@ -626,6 +628,7 @@ class TestProjectSetTotalSizeLimit:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.matchdict["project_name"] = project.normalized_name
+        db_request.POST = MultiDict({"total_size_limit": ""})
 
         views.set_total_size_limit(project, db_request)
 
@@ -638,20 +641,47 @@ class TestProjectSetTotalSizeLimit:
     def test_sets_total_size_limitwith_non_integer(self, db_request):
         project = ProjectFactory.create(name="foo")
 
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
         db_request.matchdict["project_name"] = project.normalized_name
-        db_request.POST["total_size_limit"] = "meep"
+        db_request.POST = MultiDict({"total_size_limit": "meep"})
 
-        with pytest.raises(HTTPBadRequest):
-            views.set_total_size_limit(project, db_request)
+        result = views.set_total_size_limit(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "total_size_limit: Total size limit must be a valid integer or empty",
+                queue="error",
+            )
+        ]
+        assert result.status_code == 303
 
     def test_sets_total_size_limit_with_less_than_minimum(self, db_request):
         project = ProjectFactory.create(name="foo")
 
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
         db_request.matchdict["project_name"] = project.normalized_name
-        db_request.POST["total_size_limit"] = "9"
+        db_request.POST = MultiDict({"total_size_limit": "9"})
 
-        with pytest.raises(HTTPBadRequest):
-            views.set_total_size_limit(project, db_request)
+        result = views.set_total_size_limit(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "total_size_limit: Total organization size can not be less than "
+                "10.0GiB",
+                queue="error",
+            )
+        ]
+        assert result.status_code == 303
 
 
 class TestProjectSetLimit:
@@ -666,7 +696,7 @@ class TestProjectSetLimit:
         )
         db_request.matchdict["project_name"] = project.normalized_name
         new_upload_limit = warehouse.constants.MAX_FILESIZE // views.ONE_MIB
-        db_request.POST["upload_limit"] = str(new_upload_limit)
+        db_request.POST = MultiDict({"upload_limit": str(new_upload_limit)})
 
         views.set_upload_limit(project, db_request)
 
@@ -687,6 +717,7 @@ class TestProjectSetLimit:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.matchdict["project_name"] = project.normalized_name
+        db_request.POST = MultiDict({"upload_limit": ""})
 
         views.set_upload_limit(project, db_request)
 
@@ -699,29 +730,70 @@ class TestProjectSetLimit:
     def test_sets_limit_with_non_integer(self, db_request):
         project = ProjectFactory.create(name="foo")
 
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
         db_request.matchdict["project_name"] = project.normalized_name
-        db_request.POST["upload_limit"] = "meep"
+        db_request.POST = MultiDict({"upload_limit": "meep"})
 
-        with pytest.raises(HTTPBadRequest):
-            views.set_upload_limit(project, db_request)
+        result = views.set_upload_limit(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "upload_limit: Upload limit must be a valid integer or empty",
+                queue="error",
+            )
+        ]
+        assert result.status_code == 303
 
     def test_sets_limit_with_less_than_minimum(self, db_request):
         project = ProjectFactory.create(name="foo")
 
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
         db_request.matchdict["project_name"] = project.normalized_name
-        db_request.POST["upload_limit"] = "20"
+        db_request.POST = MultiDict({"upload_limit": "20"})
 
-        with pytest.raises(HTTPBadRequest):
-            views.set_upload_limit(project, db_request)
+        result = views.set_upload_limit(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "upload_limit: Upload limit can not be less than 100.0MiB",
+                queue="error",
+            )
+        ]
+        assert result.status_code == 303
 
     def test_sets_limit_above_maximum(self, db_request):
         project = ProjectFactory.create(name="foo")
 
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
         db_request.matchdict["project_name"] = project.normalized_name
-        db_request.POST["upload_limit"] = str(views.UPLOAD_LIMIT_CAP + 1)
+        db_request.POST = MultiDict(
+            {"upload_limit": str(views.UPLOAD_LIMIT_CAP // views.ONE_MIB + 1)}
+        )
 
-        with pytest.raises(HTTPBadRequest):
-            views.set_upload_limit(project, db_request)
+        result = views.set_upload_limit(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "upload_limit: Upload limit can not be greater than 1024.0MiB",
+                queue="error",
+            )
+        ]
+        assert result.status_code == 303
 
 
 class TestDeleteProject:
