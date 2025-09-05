@@ -36,8 +36,8 @@ services:
     ports:
       - "12111:12111"
 
-  redis:
-    image: redis:7.0
+  cache:
+    image: valkey/valkey:8-alpine
     volumes:
       - cachedata:/data
 
@@ -119,7 +119,7 @@ services:
         condition: service_healthy
       opensearch:
         condition: service_started
-      redis:
+      cache:
         condition: service_started
       stripe:
         condition: service_started
@@ -133,7 +133,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      redis:
+      cache:
         condition: service_started
       stripe:
         condition: service_started
@@ -174,12 +174,12 @@ services:
       - 8001:80
     stop_signal: SIGKILL
     environment:
-      - RSTUF_BROKER_SERVER=redis://redis/1
-      - RSTUF_REDIS_SERVER=redis://redis
+      - RSTUF_BROKER_SERVER=redis://cache/1
+      - RSTUF_REDIS_SERVER=redis://cache
       - RSTUF_REDIS_SERVER_DB_RESULT=1
       - RSTUF_REDIS_SERVER_DB_REPO_SETTINGS=2
     depends_on:
-      redis:
+      cache:
         condition: service_started
 
   rstuf-worker:
@@ -192,15 +192,15 @@ services:
       - RSTUF_STORAGE_BACKEND=LocalStorage
       - RSTUF_ONLINE_KEY_DIR=/keyvault
       - RSTUF_LOCAL_STORAGE_BACKEND_PATH=/var/opt/repository-service-tuf/storage
-      - RSTUF_BROKER_SERVER=redis://redis/1
-      - RSTUF_REDIS_SERVER=redis://redis
+      - RSTUF_BROKER_SERVER=redis://cache/1
+      - RSTUF_REDIS_SERVER=redis://cache
       - RSTUF_REDIS_SERVER_DB_RESULT=1
       - RSTUF_REDIS_SERVER_DB_REPO_SETTINGS=2
       - RSTUF_SQL_SERVER=postgresql://postgres@db:5432/rstuf
     depends_on:
       db:
         condition: service_healthy
-      redis:
+      cache:
         condition: service_started
 
   static:
