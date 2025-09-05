@@ -6,7 +6,6 @@ from http import HTTPStatus
 
 import faker
 import pretend
-import pytest
 
 from webob.multidict import MultiDict
 
@@ -104,7 +103,6 @@ class TestManageAccount:
 
 
 class TestManageOrganizations:
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_create_organization_application(
         self,
         pyramid_services,

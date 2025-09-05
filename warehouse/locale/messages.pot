@@ -621,13 +621,13 @@ msgid ""
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2951
-#: warehouse/manage/views/organizations.py:962
+#: warehouse/manage/views/organizations.py:951
 #, python-brace-format
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:3016
-#: warehouse/manage/views/organizations.py:1037
+#: warehouse/manage/views/organizations.py:1026
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr ""
@@ -641,37 +641,37 @@ msgid "Invitation already expired."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:3092
-#: warehouse/manage/views/organizations.py:1224
+#: warehouse/manage/views/organizations.py:1213
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:938
+#: warehouse/manage/views/organizations.py:927
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:949
+#: warehouse/manage/views/organizations.py:938
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:973
+#: warehouse/manage/views/organizations.py:962
 msgid "Cannot invite new member. Organization is not in good standing."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1119
-#: warehouse/manage/views/organizations.py:1161
+#: warehouse/manage/views/organizations.py:1108
+#: warehouse/manage/views/organizations.py:1150
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1129
+#: warehouse/manage/views/organizations.py:1118
 msgid "Organization invitation could not be re-sent."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1177
+#: warehouse/manage/views/organizations.py:1166
 #, python-brace-format
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""

@@ -637,14 +637,6 @@ def _enable_all_oidc_providers(webtest):
 
 
 @pytest.fixture
-def _enable_organizations(db_request):
-    flag = db_request.db.get(AdminFlag, AdminFlagValue.DISABLE_ORGANIZATIONS.value)
-    flag.enabled = False
-    yield
-    flag.enabled = True
-
-
-@pytest.fixture
 def send_email(pyramid_request, monkeypatch):
     send_email_stub = pretend.stub(
         delay=pretend.call_recorder(lambda *args, **kwargs: None)
