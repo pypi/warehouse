@@ -55,6 +55,35 @@
       </div>
     </div>
   </div>
+  <h3>Organization Utilization</h3>
+  <div class="row">
+    <div class="col-lg-4 col-6">
+      <div class="small-box bg-gradient-teal utilization-card">
+        <div class="inner">
+          <h3>{{ orgs_with_projects.Total }} With Projects</h3>
+          <h4>Community: {{ orgs_with_projects.get('Community', 0) }}</h4>
+          <h4>Company: {{ orgs_with_projects.get('Company', 0) }}</h4>
+        </div>
+        <div class="icon">
+          <i class="fa-solid fa-folder-open"></i>
+        </div>
+        <i class="fa fa-info-circle info-icon" title="Organizations that have at least one project"></i>
+      </div>
+    </div>
+    <div class="col-lg-4 col-6">
+      <div class="small-box bg-gradient-teal utilization-card">
+        <div class="inner">
+          <h3>{{ orgs_with_multiple_members.Total }} With Members</h3>
+          <h4>Community: {{ orgs_with_multiple_members.get('Community', 0) }}</h4>
+          <h4>Company: {{ orgs_with_multiple_members.get('Company', 0) }}</h4>
+        </div>
+        <div class="icon">
+          <i class="fa-solid fa-users"></i>
+        </div>
+        <i class="fa fa-info-circle info-icon" title="Organizations with more than 1 member"></i>
+      </div>
+    </div>
+  </div>
   <div class="row">
     {% if malware_reports_count %}
       <div class="col-lg-4 col-6">
