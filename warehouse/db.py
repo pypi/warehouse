@@ -17,7 +17,14 @@ from pyramid.renderers import JSON
 from sqlalchemy import event, func, inspect
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.exc import IntegrityError, OperationalError
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
+from sqlalchemy.orm import (
+    DeclarativeBase,
+    Mapped,
+    Session as BaseSession,
+    mapped_column,
+    raiseload,
+    sessionmaker,
+)
 
 from warehouse.metrics import IMetricsService
 from warehouse.utils.attrs import make_repr
@@ -92,10 +99,18 @@ class Model(ModelBase):
     )
 
 
+# Custom Session to prevent lazy-loading
+class StrictSession(BaseSession):
+    def query(self, *entities, **kwargs):
+        query = super().query(*entities)
+        query = query.options(raiseload("*"))
+        return query
+
+
 # Create our session class here, this will stay stateless as we'll bind the
 # engine to each new state we create instead of binding it to the session
 # class.
-Session = sessionmaker()
+Session = sessionmaker(class_=StrictSession)
 
 
 def listens_for(target, identifier, *args, **kwargs):
