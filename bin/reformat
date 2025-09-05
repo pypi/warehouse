@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -ex
 
-# Fix typos before other changes, as they may affect formatting.
-codespell --write
 find . -name '*.py' -exec python -m pyupgrade --py313-plus {} +
 python -m isort *.py warehouse/ tests/
 python -m black *.py warehouse/ tests/
