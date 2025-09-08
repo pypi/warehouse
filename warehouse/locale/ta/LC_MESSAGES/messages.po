@@ -730,7 +730,7 @@ msgstr ""
 "மீண்டும் முயற்சிக்கவும்."
 
 #: warehouse/manage/views/__init__.py:3016
-#: warehouse/manage/views/organizations.py:1027
+#: warehouse/manage/views/organizations.py:1037
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr "'$ {username}' க்கு அழைப்பு அனுப்பப்பட்டது"
@@ -744,7 +744,7 @@ msgid "Invitation already expired."
 msgstr "அழைப்பு ஏற்கனவே காலாவதியானது."
 
 #: warehouse/manage/views/__init__.py:3092
-#: warehouse/manage/views/organizations.py:1214
+#: warehouse/manage/views/organizations.py:1224
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
 msgstr "அழைப்பிதழ் '$ {username}' இலிருந்து ரத்து செய்யப்பட்டது."
@@ -763,16 +763,20 @@ msgstr ""
 "பயனர் '${username}' சரிபார்க்கப்பட்ட முதன்மை மின்னஞ்சல் முகவரி இல்லை, மேலும் "
 "நிறுவனத்திற்கு ${role_name} ஆகச் சேர்க்க முடியாது"
 
-#: warehouse/manage/views/organizations.py:1109
-#: warehouse/manage/views/organizations.py:1151
+#: warehouse/manage/views/organizations.py:973
+msgid "Cannot invite new member. Organization is not in good standing."
+msgstr ""
+
+#: warehouse/manage/views/organizations.py:1119
+#: warehouse/manage/views/organizations.py:1161
 msgid "Could not find organization invitation."
 msgstr "நிறுவன அழைப்பிதழைக் கண்டுபிடிக்க முடியவில்லை."
 
-#: warehouse/manage/views/organizations.py:1119
+#: warehouse/manage/views/organizations.py:1129
 msgid "Organization invitation could not be re-sent."
 msgstr "நிறுவன அழைப்பிதழ் மீண்டும் அனுப்ப முடியாது."
 
-#: warehouse/manage/views/organizations.py:1167
+#: warehouse/manage/views/organizations.py:1177
 #, python-brace-format
 msgid "Expired invitation for '${username}' deleted."
 msgstr "'$ {username}' க்கான காலாவதியான அழைப்பு நீக்கப்பட்டது."
@@ -1072,14 +1076,14 @@ msgstr "Monty Python - The Cheese Shop மாதிரிச் சித்த�
 
 #: warehouse/templates/404.html:30 warehouse/templates/500.html:18
 #: warehouse/templates/accounts/two-factor.html:35
-#: warehouse/templates/base.html:339 warehouse/templates/base.html:345
-#: warehouse/templates/base.html:351 warehouse/templates/base.html:357
-#: warehouse/templates/base.html:373 warehouse/templates/base.html:379
-#: warehouse/templates/base.html:404 warehouse/templates/base.html:410
-#: warehouse/templates/base.html:419 warehouse/templates/base.html:432
-#: warehouse/templates/base.html:441 warehouse/templates/base.html:447
-#: warehouse/templates/base.html:453 warehouse/templates/base.html:466
-#: warehouse/templates/base.html:483
+#: warehouse/templates/base.html:342 warehouse/templates/base.html:348
+#: warehouse/templates/base.html:354 warehouse/templates/base.html:360
+#: warehouse/templates/base.html:376 warehouse/templates/base.html:382
+#: warehouse/templates/base.html:407 warehouse/templates/base.html:413
+#: warehouse/templates/base.html:422 warehouse/templates/base.html:435
+#: warehouse/templates/base.html:444 warehouse/templates/base.html:450
+#: warehouse/templates/base.html:456 warehouse/templates/base.html:469
+#: warehouse/templates/base.html:486
 #: warehouse/templates/includes/accounts/profile-callout.html:17
 #: warehouse/templates/includes/file-details.html:129
 #: warehouse/templates/index.html:98 warehouse/templates/index.html:105
@@ -1242,18 +1246,18 @@ msgid "Main navigation"
 msgstr "முதன்மையான வழிசெலுத்தல்"
 
 #: warehouse/templates/base.html:33 warehouse/templates/base.html:68
-#: warehouse/templates/base.html:334
+#: warehouse/templates/base.html:337
 #: warehouse/templates/includes/current-user-indicator.html:77
 #: warehouse/templates/pages/help.html:209
 #: warehouse/templates/pages/sitemap.html:19
 msgid "Help"
 msgstr "உதவி"
 
-#: warehouse/templates/base.html:36
+#: warehouse/templates/base.html:36 warehouse/templates/base.html:71
 msgid "Docs"
 msgstr "ஆவணங்கள்"
 
-#: warehouse/templates/base.html:40 warehouse/templates/base.html:71
+#: warehouse/templates/base.html:40 warehouse/templates/base.html:74
 #: warehouse/templates/includes/current-user-indicator.html:83
 #: warehouse/templates/pages/sitemap.html:43
 #: warehouse/templates/pages/sponsors.html:4
@@ -1262,11 +1266,11 @@ msgstr "ஒப்புரவாளர்கள்"
 
 #: warehouse/templates/accounts/login.html:7
 #: warehouse/templates/accounts/login.html:80 warehouse/templates/base.html:44
-#: warehouse/templates/base.html:75
+#: warehouse/templates/base.html:78
 msgid "Log in"
 msgstr "புகுபதிகை"
 
-#: warehouse/templates/base.html:48 warehouse/templates/base.html:79
+#: warehouse/templates/base.html:48 warehouse/templates/base.html:82
 #: warehouse/templates/pages/sitemap.html:28
 msgid "Register"
 msgstr "பதிவு செய்யுங்கள்"
@@ -1285,7 +1289,7 @@ msgstr "பட்டியல்"
 msgid "Main menu"
 msgstr "பட்டியல் விளையாடுங்கள்"
 
-#: warehouse/templates/base.html:87
+#: warehouse/templates/base.html:90
 #, python-format
 msgid ""
 "\"%(wordmark)s\", \"%(name)s\", and the blocks logos are registered "
@@ -1300,7 +1304,7 @@ msgstr ""
 "தயாரிப்புகள் மற்றும் சேவைகளைக் குறிப்பிடுகிறது. வேறு எந்த கட்சியின் வேறு எந்த பயன்பாடும் "
 "தடைசெய்யப்பட்டுள்ளது."
 
-#: warehouse/templates/base.html:91
+#: warehouse/templates/base.html:94
 #, python-format
 msgid ""
 "\"%(wordmark)s\", \"%(name)s\", and the blocks logos are registered <a "
@@ -1311,7 +1315,7 @@ msgstr ""
 "href=\"%(trademarks_href)s\"> வர்த்தக முத்திரைகள் </a> <a href=\"%(psf_href)s\" "
 "target=\"_blank\" rel=\"noopener\">பைதான் மென்பொருள் அறக்கட்டளை </a>."
 
-#: warehouse/templates/base.html:116 warehouse/templates/index.html:93
+#: warehouse/templates/base.html:119 warehouse/templates/index.html:93
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the Python "
 "programming language."
@@ -1319,32 +1323,32 @@ msgstr ""
 "பைதான் தொகுப்பு அட்டவணை (PYPI) என்பது பைதான் நிரலாக்க மொழிக்கான மென்பொருளின் "
 "களஞ்சியமாகும்."
 
-#: warehouse/templates/base.html:133
+#: warehouse/templates/base.html:136
 msgid "RSS: 40 latest updates"
 msgstr "ஆர்.எச்.எச்: 40 அண்மைக் கால புதுப்பிப்புகள்"
 
-#: warehouse/templates/base.html:137
+#: warehouse/templates/base.html:140
 msgid "RSS: 40 newest packages"
 msgstr "ஆர்.எச்.எச்: 40 புதிய தொகுப்புகள்"
 
-#: warehouse/templates/base.html:205
+#: warehouse/templates/base.html:208
 msgid "Skip to main content"
 msgstr "முக்கிய உள்ளடக்கத்திற்கு செல்லவும்"
 
-#: warehouse/templates/base.html:209
+#: warehouse/templates/base.html:212
 msgid "Switch to mobile version"
 msgstr "மொபைல் பதிப்பிற்கு மாறவும்"
 
-#: warehouse/templates/base.html:216 warehouse/templates/base.html:225
-#: warehouse/templates/base.html:235
+#: warehouse/templates/base.html:219 warehouse/templates/base.html:228
+#: warehouse/templates/base.html:238
 #: warehouse/templates/includes/flash-messages.html:41
 #: warehouse/templates/includes/session-notifications.html:19
 #: warehouse/templates/manage/account.html:845
 #: warehouse/templates/manage/manage_base.html:364
 #: warehouse/templates/manage/manage_base.html:442
-#: warehouse/templates/manage/organization/settings.html:179
-#: warehouse/templates/manage/organization/settings.html:240
-#: warehouse/templates/manage/organization/settings.html:246
+#: warehouse/templates/manage/organization/settings.html:205
+#: warehouse/templates/manage/organization/settings.html:266
+#: warehouse/templates/manage/organization/settings.html:272
 #: warehouse/templates/manage/project/documentation.html:13
 #: warehouse/templates/manage/project/release.html:209
 #: warehouse/templates/manage/project/settings.html:84
@@ -1354,12 +1358,12 @@ msgstr "மொபைல் பதிப்பிற்கு மாறவும�
 msgid "Warning"
 msgstr "எச்சரிக்கை"
 
-#: warehouse/templates/base.html:218
+#: warehouse/templates/base.html:221
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
 "நீங்கள் ஆதரிக்கப்படாத உலாவியைப் பயன்படுத்துகிறீர்கள், புதிய பதிப்பிற்கு மேம்படுத்தவும்."
 
-#: warehouse/templates/base.html:227
+#: warehouse/templates/base.html:230
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
@@ -1369,7 +1373,7 @@ msgstr ""
 "இது உண்மையான குறியீட்டை பாதிக்காமல் விநியோக கருவிகள் மற்றும் செயல்முறைகளை முயற்சிக்க "
 "உங்களை அனுமதிக்கிறது."
 
-#: warehouse/templates/base.html:237
+#: warehouse/templates/base.html:240
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
@@ -1377,159 +1381,159 @@ msgstr ""
 "சாவாச்கிரிப்ட் இல்லாமல் சில நற்பொருத்தங்கள் வேலை செய்யாது. நீங்கள் சிக்கல்களை எதிர்கொண்டால் "
 "அதை இயக்க முயற்சிக்கவும்."
 
-#: warehouse/templates/base.html:272 warehouse/templates/base.html:304
+#: warehouse/templates/base.html:275 warehouse/templates/base.html:307
 #: warehouse/templates/error-base-with-search.html:8
 #: warehouse/templates/index.html:29
 msgid "Search PyPI"
 msgstr "பைபியைத் தேடுங்கள்"
 
-#: warehouse/templates/base.html:277 warehouse/templates/index.html:35
+#: warehouse/templates/base.html:280 warehouse/templates/index.html:35
 msgid "Type '/' to search projects"
 msgstr "தேடல் திட்டங்களுக்கு '/' என தட்டச்சு செய்க"
 
-#: warehouse/templates/base.html:288 warehouse/templates/base.html:317
+#: warehouse/templates/base.html:291 warehouse/templates/base.html:320
 #: warehouse/templates/error-base-with-search.html:19
 #: warehouse/templates/index.html:44
 msgid "Search"
 msgstr "தேடல்"
 
-#: warehouse/templates/base.html:309
+#: warehouse/templates/base.html:312
 #: warehouse/templates/error-base-with-search.html:13
 msgid "Search projects"
 msgstr "தேடல் திட்டங்கள்"
 
-#: warehouse/templates/base.html:335
+#: warehouse/templates/base.html:338
 msgid "Help navigation"
 msgstr "வழிசெலுத்தலுக்கு உதவுங்கள்"
 
-#: warehouse/templates/base.html:341
+#: warehouse/templates/base.html:344
 msgid "Installing packages"
 msgstr "தொகுப்புகளை நிறுவுதல்"
 
-#: warehouse/templates/base.html:347
+#: warehouse/templates/base.html:350
 msgid "Uploading packages"
 msgstr "தொகுப்புகளை பதிவேற்றுகிறது"
 
-#: warehouse/templates/base.html:353
+#: warehouse/templates/base.html:356
 msgid "User guide"
 msgstr "பயனர் வழிகாட்டி"
 
-#: warehouse/templates/base.html:359
+#: warehouse/templates/base.html:362
 msgid "Project name retention"
 msgstr "திட்ட பெயர் தக்கவைப்பு"
 
-#: warehouse/templates/base.html:362
+#: warehouse/templates/base.html:365
 msgid "FAQs"
 msgstr "கேள்விகள்"
 
-#: warehouse/templates/base.html:368 warehouse/templates/pages/sitemap.html:34
+#: warehouse/templates/base.html:371 warehouse/templates/pages/sitemap.html:34
 msgid "About PyPI"
 msgstr "பைபி பற்றி"
 
-#: warehouse/templates/base.html:369
+#: warehouse/templates/base.html:372
 msgid "About PyPI navigation"
 msgstr "பைபி வழிசெலுத்தல் பற்றி"
 
-#: warehouse/templates/base.html:375
+#: warehouse/templates/base.html:378
 msgid "PyPI Blog"
 msgstr "பூசாரி வலைப்பதிவு"
 
-#: warehouse/templates/base.html:381
+#: warehouse/templates/base.html:384
 msgid "Infrastructure dashboard"
 msgstr "உள்கட்டமைப்பு டாச்போர்டு"
 
-#: warehouse/templates/base.html:384 warehouse/templates/pages/sitemap.html:40
+#: warehouse/templates/base.html:387 warehouse/templates/pages/sitemap.html:40
 #: warehouse/templates/pages/stats.html:4
 msgid "Statistics"
 msgstr "புள்ளிவிவரங்கள்"
 
-#: warehouse/templates/base.html:387
+#: warehouse/templates/base.html:390
 msgid "Logos & trademarks"
 msgstr "லோகோக்கள் மற்றும் வர்த்தக முத்திரைகள்"
 
-#: warehouse/templates/base.html:390
+#: warehouse/templates/base.html:393
 msgid "Our sponsors"
 msgstr "எங்கள் ஒப்புரவாளர்கள்"
 
-#: warehouse/templates/base.html:396
+#: warehouse/templates/base.html:399
 msgid "Contributing to PyPI"
 msgstr "பைபிக்கு பங்களிப்பு"
 
-#: warehouse/templates/base.html:397
+#: warehouse/templates/base.html:400
 msgid "How to contribute navigation"
 msgstr "வழிசெலுத்தலை எவ்வாறு பங்களிப்பது"
 
-#: warehouse/templates/base.html:400
+#: warehouse/templates/base.html:403
 msgid "Bugs and feedback"
 msgstr "பிழைகள் மற்றும் கருத்து"
 
-#: warehouse/templates/base.html:406
+#: warehouse/templates/base.html:409
 msgid "Contribute on GitHub"
 msgstr "கிதுபில் பங்களிப்பு செய்யுங்கள்"
 
-#: warehouse/templates/base.html:412
+#: warehouse/templates/base.html:415
 msgid "Translate PyPI"
 msgstr "பைபியை மொழிபெயர்க்கவும்"
 
-#: warehouse/templates/base.html:415
+#: warehouse/templates/base.html:418
 msgid "Sponsor PyPI"
 msgstr "ஒப்புரவாளர் பைபி"
 
-#: warehouse/templates/base.html:421
+#: warehouse/templates/base.html:424
 msgid "Development credits"
 msgstr "வளர்ச்சி வரவு"
 
-#: warehouse/templates/base.html:427 warehouse/templates/pages/sitemap.html:10
+#: warehouse/templates/base.html:430 warehouse/templates/pages/sitemap.html:10
 msgid "Using PyPI"
 msgstr "பைபியைப் பயன்படுத்துதல்"
 
-#: warehouse/templates/base.html:428
+#: warehouse/templates/base.html:431
 msgid "Using PyPI navigation"
 msgstr "பைபி வழிசெலுத்தலைப் பயன்படுத்துதல்"
 
-#: warehouse/templates/base.html:434
+#: warehouse/templates/base.html:437
 #: warehouse/templates/manage/organization/activate_subscription.html:21
 msgid "Terms of Service"
 msgstr "பணி விதிமுறைகள்"
 
-#: warehouse/templates/base.html:437
+#: warehouse/templates/base.html:440
 msgid "Report security issue"
 msgstr "பாதுகாப்பு வெளியீட்டைப் புகாரளிக்கவும்"
 
-#: warehouse/templates/base.html:443
+#: warehouse/templates/base.html:446
 msgid "Code of conduct"
 msgstr "நடத்தை விதிமுறை"
 
-#: warehouse/templates/base.html:449
+#: warehouse/templates/base.html:452
 msgid "Privacy Notice"
 msgstr "தனியுரிமை அறிவிப்பு"
 
-#: warehouse/templates/base.html:455
+#: warehouse/templates/base.html:458
 msgid "Acceptable Use Policy"
 msgstr "ஏற்றுக்கொள்ளக்கூடிய பயன்பாட்டுக் கொள்கை"
 
-#: warehouse/templates/base.html:465
+#: warehouse/templates/base.html:468
 msgid "Status:"
 msgstr "நிலை:"
 
-#: warehouse/templates/base.html:469
+#: warehouse/templates/base.html:472
 msgid "all systems operational"
 msgstr "அனைத்து அமைப்புகளும் செயல்படும்"
 
-#: warehouse/templates/base.html:473
+#: warehouse/templates/base.html:476
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr "பைதான் சமூகத்திற்காக பைதான் சமூகத்தால் உருவாக்கப்பட்டு பராமரிக்கப்படுகிறது."
 
-#: warehouse/templates/base.html:475
+#: warehouse/templates/base.html:478
 msgid "Donate today!"
 msgstr "இன்று நன்கொடை!"
 
-#: warehouse/templates/base.html:487 warehouse/templates/pages/sitemap.html:4
+#: warehouse/templates/base.html:490 warehouse/templates/pages/sitemap.html:4
 msgid "Site map"
 msgstr "தள வரைபடம்"
 
-#: warehouse/templates/base.html:494
+#: warehouse/templates/base.html:497
 msgid "Switch to desktop version"
 msgstr "டெச்க்டாப் பதிப்பிற்கு மாறவும்"
 
@@ -1541,7 +1545,7 @@ msgstr "செயலை உறுதிப்படுத்தவும்"
 msgid "Are you sure?"
 msgstr "நீங்கள் உறுதியாக இருக்கிறீர்களா?"
 
-#: warehouse/templates/error-base.html:23
+#: warehouse/templates/error-base.html:24
 msgid "Error code"
 msgstr "பிழைக் குறியீடு"
 
@@ -1698,8 +1702,8 @@ msgstr "கடவுச்சொல்"
 #: warehouse/templates/manage/organization/activate_subscription.html:22
 #: warehouse/templates/manage/organization/projects.html:109
 #: warehouse/templates/manage/organization/projects.html:130
-#: warehouse/templates/manage/organization/roles.html:374
-#: warehouse/templates/manage/organization/roles.html:393
+#: warehouse/templates/manage/organization/roles.html:398
+#: warehouse/templates/manage/organization/roles.html:417
 #: warehouse/templates/manage/organization/settings.html:35
 #: warehouse/templates/manage/organization/settings.html:64
 #: warehouse/templates/manage/organization/settings.html:87
@@ -1845,7 +1849,7 @@ msgstr "%(title)s உள்நுழைக"
 #: warehouse/templates/email/organization-member-role-changed/body.html:14
 #: warehouse/templates/manage/account.html:272
 #: warehouse/templates/manage/organization/roles.html:291
-#: warehouse/templates/manage/organization/roles.html:377
+#: warehouse/templates/manage/organization/roles.html:401
 #: warehouse/templates/manage/project/roles.html:171
 #: warehouse/templates/manage/project/roles.html:250
 #: warehouse/templates/manage/project/roles.html:346
@@ -2549,7 +2553,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/roles.html:46
 #: warehouse/templates/manage/organization/roles.html:200
 #: warehouse/templates/manage/organization/roles.html:248
-#: warehouse/templates/manage/organization/roles.html:391
+#: warehouse/templates/manage/organization/roles.html:415
 #: warehouse/templates/manage/project/roles.html:59
 #: warehouse/templates/manage/project/roles.html:133
 #: warehouse/templates/manage/project/roles.html:214
@@ -4415,8 +4419,8 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:843
 #: warehouse/templates/manage/account/token.html:177
-#: warehouse/templates/manage/organization/settings.html:177
-#: warehouse/templates/manage/organization/settings.html:238
+#: warehouse/templates/manage/organization/settings.html:203
+#: warehouse/templates/manage/organization/settings.html:264
 #: warehouse/templates/manage/project/publishing.html:19
 #: warehouse/templates/manage/team/settings.html:60
 msgid "Proceed with caution!"
@@ -4787,7 +4791,7 @@ msgstr "%(org)sுக்கு அழைப்பை நிராகரிக்
 msgid "Decline invitation"
 msgstr "அழைப்பை நிராகரிக்கவும்"
 
-#: warehouse/templates/manage/organization/settings.html:258
+#: warehouse/templates/manage/organization/settings.html:284
 #: warehouse/templates/manage/organizations.html:51
 msgid "Organization Name"
 msgstr "அமைப்பு பெயர்"
@@ -4823,6 +4827,7 @@ msgstr ""
 msgid "This organization is not active"
 msgstr "இந்த அமைப்பு செயலில் இல்லை"
 
+#: warehouse/templates/manage/organization/settings.html:182
 #: warehouse/templates/manage/organizations.html:85
 msgid "Inactive"
 msgstr "செயலற்றது"
@@ -6379,7 +6384,7 @@ msgid "Users who can manage %(organization_name)s"
 msgstr "%(organization_name)s நிர்வகிக்கக்கூடிய பயனர்கள்"
 
 #: warehouse/templates/manage/organization/roles.html:199
-#: warehouse/templates/manage/organization/roles.html:372
+#: warehouse/templates/manage/organization/roles.html:396
 #: warehouse/templates/manage/project/roles.html:395
 #: warehouse/templates/manage/team/roles.html:35
 #: warehouse/templates/manage/team/roles.html:102
@@ -6473,7 +6478,39 @@ msgstr "நீக்கு"
 msgid "Invite member"
 msgstr "உறுப்பினரை அழைக்கவும்"
 
-#: warehouse/templates/manage/organization/roles.html:403
+#: warehouse/templates/manage/organization/roles.html:366
+#, fuzzy
+#| msgid "Billing Inactive"
+msgid "Billing Notice:"
+msgstr "பட்டியலிடல் செயலற்றது"
+
+#: warehouse/templates/manage/organization/roles.html:367
+msgid ""
+"Accepted invitations will result in an additional $5 per user per month "
+"billing charge."
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:373
+msgid "Seat Usage:"
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:374
+#, python-format
+msgid "%(current)s of %(limit)s seats used."
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:377
+#, python-format
+msgid "%(available)s seats available."
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:379
+msgid ""
+"You have exceeded your seat limit. Invited members can still accept "
+"invitations."
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:427
 #: warehouse/templates/manage/project/roles.html:426
 msgid "Invite"
 msgstr "அழைக்கவும்"
@@ -6521,28 +6558,56 @@ msgstr "புதுப்பிப்பு அமைப்பு"
 msgid "Billing details"
 msgstr "பட்டியலிடல் விவரங்கள்"
 
-#: warehouse/templates/manage/organization/settings.html:152
+#: warehouse/templates/manage/organization/settings.html:153
+#: warehouse/templates/manage/organization/settings.html:166
+#: warehouse/templates/manage/organization/settings.html:181
 msgid "Billing status"
 msgstr "பட்டியலிடல் நிலை"
 
-#: warehouse/templates/manage/organization/settings.html:156
+#: warehouse/templates/manage/organization/settings.html:157
 msgid "Billing email"
 msgstr "பட்டியலிடல் மின்னஞ்சல்"
 
-#: warehouse/templates/manage/organization/settings.html:161
+#: warehouse/templates/manage/organization/settings.html:162
 msgid "Manage billing"
 msgstr "பட்டியலிடல் நிர்வகிக்கவும்"
 
-#: warehouse/templates/manage/organization/settings.html:168
-#: warehouse/templates/manage/organization/settings.html:202
+#: warehouse/templates/manage/organization/settings.html:167
+msgid "Manually Activated"
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:170
+msgid "Seat limit"
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:172
+#, fuzzy
+#| msgid "Members"
+msgid "members"
+msgstr "உறுப்பினர்கள்"
+
+#: warehouse/templates/manage/organization/settings.html:176
+#, fuzzy
+#| msgid "Expired"
+msgid "Expires"
+msgstr "காலாவதியான"
+
+#: warehouse/templates/manage/organization/settings.html:186
+#, fuzzy
+#| msgid "Activate Billing"
+msgid "Activate billing"
+msgstr "பட்டியலிடல் செயல்படுத்தவும்"
+
+#: warehouse/templates/manage/organization/settings.html:194
+#: warehouse/templates/manage/organization/settings.html:228
 msgid "Change organization account name"
 msgstr "நிறுவன கணக்கு பெயரை மாற்றவும்"
 
-#: warehouse/templates/manage/organization/settings.html:170
+#: warehouse/templates/manage/organization/settings.html:196
 msgid "Renaming organizations is not currently supported."
 msgstr "மறுபெயரிடும் நிறுவனங்கள் தற்போது ஆதரிக்கப்படவில்லை."
 
-#: warehouse/templates/manage/organization/settings.html:172
+#: warehouse/templates/manage/organization/settings.html:198
 #, python-format
 msgid ""
 "Please contact <a href=%(href)s>PyPI Support</a> if you need to rename your "
@@ -6551,54 +6616,54 @@ msgstr ""
 "உங்கள் நிறுவனத்தை மறுபெயரிட வேண்டியிருந்தால் <a href =%(href)s> pypi உதவி </a> ஐ "
 "தொடர்பு கொள்ளவும்."
 
-#: warehouse/templates/manage/organization/settings.html:180
+#: warehouse/templates/manage/organization/settings.html:206
 msgid ""
 "You will not be able to revert to your current account name after you rename "
 "your organization."
 msgstr ""
 "உங்கள் நிறுவனத்தை மறுபெயரிட்ட பிறகு உங்கள் நடப்பு கணக்கு பெயருக்கு திரும்ப முடியாது."
 
-#: warehouse/templates/manage/organization/settings.html:202
+#: warehouse/templates/manage/organization/settings.html:228
 msgid "Change organization account name for"
 msgstr "அதற்கான நிறுவன கணக்கு பெயரை மாற்றவும்"
 
-#: warehouse/templates/manage/organization/settings.html:202
+#: warehouse/templates/manage/organization/settings.html:228
 msgid "Current organization account name"
 msgstr "தற்போதைய அமைப்பு கணக்கு பெயர்"
 
-#: warehouse/templates/manage/organization/settings.html:208
-#: warehouse/templates/manage/organization/settings.html:258
+#: warehouse/templates/manage/organization/settings.html:234
+#: warehouse/templates/manage/organization/settings.html:284
 msgid "Delete organization"
 msgstr "அமைப்பை நீக்கு"
 
-#: warehouse/templates/manage/organization/settings.html:211
+#: warehouse/templates/manage/organization/settings.html:237
 msgid "Cannot delete organization"
 msgstr "அமைப்பை நீக்க முடியாது"
 
-#: warehouse/templates/manage/organization/settings.html:213
+#: warehouse/templates/manage/organization/settings.html:239
 #, python-format
 msgid "Your organization currently owns %(count)s project."
 msgid_plural "Your organization currently owns %(count)s projects."
 msgstr[0] "உங்கள் அமைப்பு தற்போது %(எண்ணிக்கை) திட்டத்தை வைத்திருக்கிறது."
 msgstr[1] "உங்கள் அமைப்பு தற்போது %(எண்ணிக்கை) திட்டங்களை வைத்திருக்கிறது."
 
-#: warehouse/templates/manage/organization/settings.html:218
+#: warehouse/templates/manage/organization/settings.html:244
 msgid "For each project, you must either:"
 msgstr "ஒவ்வொரு திட்டத்திற்கும், நீங்கள் வேண்டும்:"
 
-#: warehouse/templates/manage/organization/settings.html:220
+#: warehouse/templates/manage/organization/settings.html:246
 msgid "Transfer ownership and remove the project from your organization"
 msgstr "உரிமையை மாற்றவும், உங்கள் நிறுவனத்திலிருந்து திட்டத்தை அகற்றவும்"
 
-#: warehouse/templates/manage/organization/settings.html:221
+#: warehouse/templates/manage/organization/settings.html:247
 msgid "Delete the project"
 msgstr "திட்டத்தை நீக்கு"
 
-#: warehouse/templates/manage/organization/settings.html:223
+#: warehouse/templates/manage/organization/settings.html:249
 msgid "Before you can delete your organization."
 msgstr "உங்கள் நிறுவனத்தை நீக்குவதற்கு முன்."
 
-#: warehouse/templates/manage/organization/settings.html:229
+#: warehouse/templates/manage/organization/settings.html:255
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> and <a "
@@ -6609,22 +6674,22 @@ msgstr ""
 "\"%(remove_delete_href)s\"> திட்டத்தை அகற்று </a> <b> அல்லது </b> <a href = \" "
 "%(remove_delete_href)s \"> திட்டத்தை நீக்கு </a>"
 
-#: warehouse/templates/manage/organization/settings.html:241
+#: warehouse/templates/manage/organization/settings.html:267
 msgid "You will not be able to recover your organization after you delete it."
 msgstr "உங்கள் நிறுவனத்தை நீக்கிய பிறகு அதை மீட்டெடுக்க முடியாது."
 
-#: warehouse/templates/manage/organization/settings.html:248
+#: warehouse/templates/manage/organization/settings.html:274
 msgid ""
 "Your subscription will be cancelled, and you will lose access to the billing "
 "portal."
 msgstr ""
 "உங்கள் சந்தா ரத்து செய்யப்படும், மேலும் நீங்கள் பட்டியலிடல் போர்ட்டலுக்கான அணுகலை இழப்பீர்கள்."
 
-#: warehouse/templates/manage/organization/settings.html:250
+#: warehouse/templates/manage/organization/settings.html:276
 msgid "You will lose access to the billing portal."
 msgstr "பட்டியலிடல் போர்ட்டலுக்கான அணுகலை நீங்கள் இழப்பீர்கள்."
 
-#: warehouse/templates/manage/organization/settings.html:252
+#: warehouse/templates/manage/organization/settings.html:278
 #, python-format
 msgid ""
 "Please ensure you have retrieved all invoices from <a "
@@ -10933,9 +10998,11 @@ msgid "Projects related to \"graphics\" with OSI-approved licenses"
 msgstr "OSI- அங்கீகரிக்கப்பட்ட உரிமங்களுடன் \"கிராபிக்ச்\" தொடர்பான திட்டங்கள்"
 
 #: warehouse/templates/search/results.html:141
-#, python-format
-msgid "<strong>%(count_display)s</strong> project"
-msgid_plural "<strong>%(count_display)s</strong> projects"
+#, fuzzy, python-format
+#| msgid "<strong>%(count_display)s</strong> project"
+#| msgid_plural "<strong>%(count_display)s</strong> projects"
+msgid "<strong>%(count_display)s</strong> project&nbsp;"
+msgid_plural "<strong>%(count_display)s</strong> projects&nbsp;"
 msgstr[0] "<strong>%(count_display)s </strong> திட்டம்"
 msgstr[1] "<strong>%(count_display)s </strong> திட்டங்கள்"
 
