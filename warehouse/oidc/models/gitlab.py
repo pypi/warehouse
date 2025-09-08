@@ -177,6 +177,10 @@ class GitLabPublisherMixin:
         "project_visibility",
         "user_access_level",
         "groups_direct",
+        "job_namespace_id",
+        "job_namespace_path",
+        "job_project_id",
+        "job_project_path",
     }
 
     # Get the most specific publisher from a list of publishers,
