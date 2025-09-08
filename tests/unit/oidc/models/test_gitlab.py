@@ -218,6 +218,10 @@ class TestGitLabPublisher:
             "project_visibility",
             "user_access_level",
             "groups_direct",
+            "job_namespace_id",
+            "job_namespace_path",
+            "job_project_id",
+            "job_project_path",
         }
 
     def test_gitlab_publisher_computed_properties(self):
