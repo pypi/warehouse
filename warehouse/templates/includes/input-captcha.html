@@ -4,9 +4,9 @@
   {% if captcha_svc.enabled %}
     <div class="{{ captcha_svc.class_name }}"
          data-sitekey="{{ captcha_svc.site_key }}"></div>
-    {% if form.captcha_response.errors %}
+    {% if form.g_recaptcha_response.errors %}
       <ul class="form-errors">
-        {% for error in form.captcha_response.errors %}<li>{{ error }}</li>{% endfor %}
+        {% for error in form.g_recaptcha_response.errors %}<li>{{ error }}</li>{% endfor %}
       </ul>
     {% endif %}
   {% endif %}

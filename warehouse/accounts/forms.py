@@ -407,7 +407,7 @@ class RegistrationForm(  # type: ignore[misc]
             PreventNullBytesValidator(),
         ]
     )
-    captcha_response = wtforms.StringField()
+    g_recaptcha_response = wtforms.StringField()
 
     def __init__(self, *args, captcha_service, user_service, **kwargs):
         super().__init__(*args, **kwargs)
@@ -415,7 +415,7 @@ class RegistrationForm(  # type: ignore[misc]
         self.user_id = None
         self.captcha_service = captcha_service
 
-    def validate_captcha_response(self, field):
+    def validate_g_recaptcha_response(self, field):
         # do required data validation here due to enabled flag being required
         if self.captcha_service.enabled and not field.data:
             raise wtforms.validators.ValidationError("Captcha error.")
