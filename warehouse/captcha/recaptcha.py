@@ -6,12 +6,13 @@ from urllib.parse import urlencode
 
 from zope.interface import implementer
 
+from . import CaptchaError
 from .interfaces import ChallengeResponse, ICaptchaService
 
 VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
 
 
-class RecaptchaError(ValueError):
+class RecaptchaError(CaptchaError):
     pass
 
 

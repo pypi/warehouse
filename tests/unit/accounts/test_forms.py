@@ -433,7 +433,7 @@ class TestRegistrationForm:
                     "new_password": "mysupersecurepassword1!",
                     "password_confirm": "mysupersecurepassword1!",
                     "email": "foo@bar.com",
-                    "g_recaptcha_reponse": "",
+                    "captcha_reponse": "",
                 }
             ),
             user_service=user_service,
@@ -634,12 +634,12 @@ class TestRegistrationForm:
         assert not form.validate()
         # there shouldn't be any errors for the recaptcha field if it's
         # disabled
-        assert not form.g_recaptcha_response.errors
+        assert not form.captcha_response.errors
 
     def test_recaptcha_required_error(self):
         form = forms.RegistrationForm(
             request=pretend.stub(),
-            formdata=MultiDict({"g_recaptcha_response": ""}),
+            formdata=MultiDict({"captcha_response": ""}),
             user_service=pretend.stub(),
             captcha_service=pretend.stub(
                 enabled=True,
@@ -648,12 +648,12 @@ class TestRegistrationForm:
             breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
         )
         assert not form.validate()
-        assert form.g_recaptcha_response.errors.pop() == "Recaptcha error."
+        assert form.captcha_response.errors.pop() == "Captcha error."
 
     def test_recaptcha_error(self):
         form = forms.RegistrationForm(
             request=pretend.stub(),
-            formdata=MultiDict({"g_recaptcha_response": "asd"}),
+            formdata=MultiDict({"captcha_response": "asd"}),
             user_service=pretend.stub(),
             captcha_service=pretend.stub(
                 verify_response=pretend.raiser(recaptcha.RecaptchaError),
@@ -662,7 +662,7 @@ class TestRegistrationForm:
             breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
         )
         assert not form.validate()
-        assert form.g_recaptcha_response.errors.pop() == "Recaptcha error."
+        assert form.captcha_response.errors.pop() == "Captcha error."
 
     def test_username_exists(self, pyramid_config):
         form = forms.RegistrationForm(
