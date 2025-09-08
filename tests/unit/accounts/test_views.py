@@ -1752,7 +1752,7 @@ class TestRegister:
                 "password_confirm": "MyStr0ng!shP455w0rd",
                 "email": "foo@bar.com",
                 "full_name": "full_name",
-                "captcha_response": "captchavalue",
+                "g_recaptcha_response": "captchavalue",
             }
         )
 
