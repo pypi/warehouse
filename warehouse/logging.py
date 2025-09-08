@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging.config
+import os
+import re
 import threading
 import uuid
 
@@ -8,16 +10,64 @@ import structlog
 
 request_logger = structlog.get_logger("warehouse.request")
 
-RENDERER = structlog.processors.JSONRenderer()
+# Determine if we're in development mode
+DEV_MODE = os.environ.get("WAREHOUSE_ENV") == "development"
+
+# Choose renderer based on environment
+RENDERER: structlog.dev.ConsoleRenderer | structlog.processors.JSONRenderer
+if DEV_MODE:
+    RENDERER = structlog.dev.ConsoleRenderer(colors=True)
+else:
+    RENDERER = structlog.processors.JSONRenderer()
 
 
 class StructlogFormatter(logging.Formatter):
+    # Pattern to parse Gunicorn access logs
+    ACCESS_LOG_PATTERN = re.compile(
+        r"(?P<request_id>[\w-]+) - - "
+        r"\[(?P<timestamp>[^\]]+)\] "
+        r'"(?P<method>\w+) (?P<path>[^\s]+) (?P<protocol>[^"]+)" '
+        r"(?P<status>\d+) (?P<size>\d+) "
+        r'"(?P<referrer>[^"]*)" '
+        r'"(?P<user_agent>[^"]*)"'
+    )
+
     def format(self, record):
-        # TODO: Figure out a better way of handling this besides just looking
-        #       at the logger name, ideally this would have some way to
-        #       really differentiate between log items which were logged by
-        #       structlog and which were not.
-        if not record.name.startswith("warehouse."):
+        # Handle Gunicorn access logs with structured parsing
+        if record.name == "gunicorn.access":
+            match = self.ACCESS_LOG_PATTERN.match(record.msg)
+            if match:
+                event_dict = {
+                    "logger": record.name,
+                    "level": record.levelname,
+                    "event": "http_request",
+                    "request_id": match.group("request_id"),
+                    "method": match.group("method"),
+                    "path": match.group("path"),
+                    "protocol": match.group("protocol"),
+                    "status": int(match.group("status")),
+                    "response_size": int(match.group("size")),
+                    "referrer": (
+                        match.group("referrer")
+                        if match.group("referrer") != "-"
+                        else None
+                    ),
+                    "user_agent": match.group("user_agent"),
+                    "thread": threading.get_ident(),
+                }
+                record.msg = RENDERER(None, record.levelname, event_dict)
+            else:
+                # Fallback for access logs that don't match the expected format
+                event_dict = {
+                    "logger": record.name,
+                    "level": record.levelname,
+                    "event": "http_request_unparsed",
+                    "raw_message": record.msg,
+                    "thread": threading.get_ident(),
+                }
+                record.msg = RENDERER(None, record.levelname, event_dict)
+        # Handle other non-warehouse logs
+        elif not record.name.startswith("warehouse."):
             # TODO: Is there a better way to handle this? Maybe we can figure
             #       out a way to pass this through the structlog processors
             #       instead of manually duplicating the side effects here?
@@ -40,6 +90,7 @@ def _add_datadog_context(logger, method_name, event_dict):
     """Add Datadog trace context if available"""
     try:
         import ddtrace
+
         span = ddtrace.tracer.current_span()
         if span:
             event_dict["dd.trace_id"] = str(span.trace_id)
