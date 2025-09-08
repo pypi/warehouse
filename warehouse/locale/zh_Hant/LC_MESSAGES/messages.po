@@ -29,13 +29,14 @@
 # nonepork <59335048+nonepork@users.noreply.github.com>, 2025.
 # toto6038 <toto6038@gmail.com>, 2025.
 # Samlan <samlan@duck.com>, 2025.
+# tenido33 <giappoh@gmail.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2025-07-10 20:23+0000\n"
-"Last-Translator: Samlan <samlan@duck.com>\n"
+"PO-Revision-Date: 2025-08-12 13:51+0000\n"
+"Last-Translator: tenido33 <giappoh@gmail.com>\n"
 "Language-Team: Chinese (Traditional Han script) <https://hosted.weblate.org/"
 "projects/pypa/warehouse/zh_Hant/>\n"
 "Language: zh_Hant\n"
@@ -50,7 +51,7 @@ msgstr ""
 msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
-msgstr "你必須驗證你的**主**電子郵件地址方可執行此操作。"
+msgstr "你必須驗證你的**主要**電子郵件地址方可執行此操作。"
 
 #: warehouse/views.py:164
 msgid ""
@@ -789,7 +790,7 @@ msgid ""
 msgstr "使用者'${username}'已經有一個有效的邀請。請稍後再試。"
 
 #: warehouse/manage/views/__init__.py:3016
-#: warehouse/manage/views/organizations.py:1027
+#: warehouse/manage/views/organizations.py:1037
 #, fuzzy, python-brace-format
 #| msgid "Invitation sent to '${username}'"
 msgid "Invitation sent to '${username}'"
@@ -804,7 +805,7 @@ msgid "Invitation already expired."
 msgstr "已驗證的電子郵件。"
 
 #: warehouse/manage/views/__init__.py:3092
-#: warehouse/manage/views/organizations.py:1214
+#: warehouse/manage/views/organizations.py:1224
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
 msgstr "來自'${username}'的邀請被撤銷了。"
@@ -826,20 +827,24 @@ msgid ""
 msgstr ""
 "用戶“${username}”沒有經過驗證的主電子郵件地址，無法添加為項目的 ${role_name}"
 
-#: warehouse/manage/views/organizations.py:1109
-#: warehouse/manage/views/organizations.py:1151
+#: warehouse/manage/views/organizations.py:973
+msgid "Cannot invite new member. Organization is not in good standing."
+msgstr ""
+
+#: warehouse/manage/views/organizations.py:1119
+#: warehouse/manage/views/organizations.py:1161
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find organization invitation."
 msgstr "找不到角色邀請。"
 
-#: warehouse/manage/views/organizations.py:1119
+#: warehouse/manage/views/organizations.py:1129
 #, fuzzy
 #| msgid "Role invitation no longer exists."
 msgid "Organization invitation could not be re-sent."
 msgstr "角色邀請不再存在。"
 
-#: warehouse/manage/views/organizations.py:1167
+#: warehouse/manage/views/organizations.py:1177
 #, fuzzy, python-brace-format
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
@@ -1171,14 +1176,14 @@ msgstr "蒙提·派森（Monty Python） - The Cheese Shop Sketch"
 
 #: warehouse/templates/404.html:30 warehouse/templates/500.html:18
 #: warehouse/templates/accounts/two-factor.html:35
-#: warehouse/templates/base.html:339 warehouse/templates/base.html:345
-#: warehouse/templates/base.html:351 warehouse/templates/base.html:357
-#: warehouse/templates/base.html:373 warehouse/templates/base.html:379
-#: warehouse/templates/base.html:404 warehouse/templates/base.html:410
-#: warehouse/templates/base.html:419 warehouse/templates/base.html:432
-#: warehouse/templates/base.html:441 warehouse/templates/base.html:447
-#: warehouse/templates/base.html:453 warehouse/templates/base.html:466
-#: warehouse/templates/base.html:483
+#: warehouse/templates/base.html:342 warehouse/templates/base.html:348
+#: warehouse/templates/base.html:354 warehouse/templates/base.html:360
+#: warehouse/templates/base.html:376 warehouse/templates/base.html:382
+#: warehouse/templates/base.html:407 warehouse/templates/base.html:413
+#: warehouse/templates/base.html:422 warehouse/templates/base.html:435
+#: warehouse/templates/base.html:444 warehouse/templates/base.html:450
+#: warehouse/templates/base.html:456 warehouse/templates/base.html:469
+#: warehouse/templates/base.html:486
 #: warehouse/templates/includes/accounts/profile-callout.html:17
 #: warehouse/templates/includes/file-details.html:129
 #: warehouse/templates/index.html:98 warehouse/templates/index.html:105
@@ -1347,18 +1352,18 @@ msgid "Main navigation"
 msgstr "主導航欄"
 
 #: warehouse/templates/base.html:33 warehouse/templates/base.html:68
-#: warehouse/templates/base.html:334
+#: warehouse/templates/base.html:337
 #: warehouse/templates/includes/current-user-indicator.html:77
 #: warehouse/templates/pages/help.html:209
 #: warehouse/templates/pages/sitemap.html:19
 msgid "Help"
 msgstr "取得支援"
 
-#: warehouse/templates/base.html:36
+#: warehouse/templates/base.html:36 warehouse/templates/base.html:71
 msgid "Docs"
 msgstr ""
 
-#: warehouse/templates/base.html:40 warehouse/templates/base.html:71
+#: warehouse/templates/base.html:40 warehouse/templates/base.html:74
 #: warehouse/templates/includes/current-user-indicator.html:83
 #: warehouse/templates/pages/sitemap.html:43
 #: warehouse/templates/pages/sponsors.html:4
@@ -1367,11 +1372,11 @@ msgstr "贊助商"
 
 #: warehouse/templates/accounts/login.html:7
 #: warehouse/templates/accounts/login.html:80 warehouse/templates/base.html:44
-#: warehouse/templates/base.html:75
+#: warehouse/templates/base.html:78
 msgid "Log in"
 msgstr "登入"
 
-#: warehouse/templates/base.html:48 warehouse/templates/base.html:79
+#: warehouse/templates/base.html:48 warehouse/templates/base.html:82
 #: warehouse/templates/pages/sitemap.html:28
 msgid "Register"
 msgstr "建立帳戶"
@@ -1390,7 +1395,7 @@ msgstr "選單"
 msgid "Main menu"
 msgstr "主目錄"
 
-#: warehouse/templates/base.html:87
+#: warehouse/templates/base.html:90
 #, fuzzy, python-format
 #| msgid ""
 #| "<strong>Quarterly</strong> thank you tweet from the <a href=\"%(href)s\" "
@@ -1406,7 +1411,7 @@ msgstr ""
 "<strong>每季</strong> 感謝您從<a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Software Foundation</a>推特推文"
 
-#: warehouse/templates/base.html:91
+#: warehouse/templates/base.html:94
 #, fuzzy, python-format
 #| msgid ""
 #| "<strong>Quarterly</strong> thank you tweet from the <a href=\"%(href)s\" "
@@ -1420,38 +1425,38 @@ msgstr ""
 "<strong>每季</strong> 感謝您從<a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Software Foundation</a>推特推文"
 
-#: warehouse/templates/base.html:116 warehouse/templates/index.html:93
+#: warehouse/templates/base.html:119 warehouse/templates/index.html:93
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the Python "
 "programming language."
 msgstr "Python 軟體包索引 （PyPI） 是 Python 程式設計語言的軟體儲存庫。"
 
-#: warehouse/templates/base.html:133
+#: warehouse/templates/base.html:136
 msgid "RSS: 40 latest updates"
 msgstr "RSS：40個最近的更新"
 
-#: warehouse/templates/base.html:137
+#: warehouse/templates/base.html:140
 msgid "RSS: 40 newest packages"
 msgstr "RSS：40 個最新的套件"
 
-#: warehouse/templates/base.html:205
+#: warehouse/templates/base.html:208
 msgid "Skip to main content"
 msgstr "跳到主要内容"
 
-#: warehouse/templates/base.html:209
+#: warehouse/templates/base.html:212
 msgid "Switch to mobile version"
 msgstr "轉換至行動裝置版本"
 
-#: warehouse/templates/base.html:216 warehouse/templates/base.html:225
-#: warehouse/templates/base.html:235
+#: warehouse/templates/base.html:219 warehouse/templates/base.html:228
+#: warehouse/templates/base.html:238
 #: warehouse/templates/includes/flash-messages.html:41
 #: warehouse/templates/includes/session-notifications.html:19
 #: warehouse/templates/manage/account.html:845
 #: warehouse/templates/manage/manage_base.html:364
 #: warehouse/templates/manage/manage_base.html:442
-#: warehouse/templates/manage/organization/settings.html:179
-#: warehouse/templates/manage/organization/settings.html:240
-#: warehouse/templates/manage/organization/settings.html:246
+#: warehouse/templates/manage/organization/settings.html:205
+#: warehouse/templates/manage/organization/settings.html:266
+#: warehouse/templates/manage/organization/settings.html:272
 #: warehouse/templates/manage/project/documentation.html:13
 #: warehouse/templates/manage/project/release.html:209
 #: warehouse/templates/manage/project/settings.html:84
@@ -1461,11 +1466,11 @@ msgstr "轉換至行動裝置版本"
 msgid "Warning"
 msgstr "警告"
 
-#: warehouse/templates/base.html:218
+#: warehouse/templates/base.html:221
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr "不支援你正在使用的瀏覽器，請更新至新的版本。"
 
-#: warehouse/templates/base.html:227
+#: warehouse/templates/base.html:230
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
@@ -1474,7 +1479,7 @@ msgstr ""
 "您正在使用 TestPyPI – 一個 Python 套件索引的實例，可以讓您嘗試發佈工具且可以"
 "讓您不會影響實際索引地進行。"
 
-#: warehouse/templates/base.html:237
+#: warehouse/templates/base.html:240
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
@@ -1482,173 +1487,173 @@ msgstr ""
 "在沒有啟用JavaScript的情況下，某些功能可能無法正常運作。如果你遇到問題，請嘗"
 "試重新啟用JavaScript。"
 
-#: warehouse/templates/base.html:272 warehouse/templates/base.html:304
+#: warehouse/templates/base.html:275 warehouse/templates/base.html:307
 #: warehouse/templates/error-base-with-search.html:8
 #: warehouse/templates/index.html:29
 msgid "Search PyPI"
 msgstr "搜索 PyPI套件"
 
-#: warehouse/templates/base.html:277 warehouse/templates/index.html:35
+#: warehouse/templates/base.html:280 warehouse/templates/index.html:35
 #, fuzzy
 #| msgid "Search projects"
 msgid "Type '/' to search projects"
 msgstr "搜尋專案"
 
-#: warehouse/templates/base.html:288 warehouse/templates/base.html:317
+#: warehouse/templates/base.html:291 warehouse/templates/base.html:320
 #: warehouse/templates/error-base-with-search.html:19
 #: warehouse/templates/index.html:44
 msgid "Search"
 msgstr "搜尋"
 
-#: warehouse/templates/base.html:309
+#: warehouse/templates/base.html:312
 #: warehouse/templates/error-base-with-search.html:13
 msgid "Search projects"
 msgstr "搜尋專案"
 
-#: warehouse/templates/base.html:335
+#: warehouse/templates/base.html:338
 msgid "Help navigation"
 msgstr "說明導航欄"
 
-#: warehouse/templates/base.html:341
+#: warehouse/templates/base.html:344
 msgid "Installing packages"
 msgstr "安裝軟體套件"
 
-#: warehouse/templates/base.html:347
+#: warehouse/templates/base.html:350
 msgid "Uploading packages"
 msgstr "正在上載軟體套件"
 
-#: warehouse/templates/base.html:353
+#: warehouse/templates/base.html:356
 msgid "User guide"
 msgstr "使用者指南"
 
-#: warehouse/templates/base.html:359
+#: warehouse/templates/base.html:362
 #, fuzzy
 #| msgid "Project name"
 msgid "Project name retention"
 msgstr "專案名稱"
 
-#: warehouse/templates/base.html:362
+#: warehouse/templates/base.html:365
 msgid "FAQs"
 msgstr "常見疑難"
 
-#: warehouse/templates/base.html:368 warehouse/templates/pages/sitemap.html:34
+#: warehouse/templates/base.html:371 warehouse/templates/pages/sitemap.html:34
 msgid "About PyPI"
 msgstr "關於 PyPI"
 
-#: warehouse/templates/base.html:369
+#: warehouse/templates/base.html:372
 msgid "About PyPI navigation"
 msgstr "關於 PyPI 導航欄"
 
-#: warehouse/templates/base.html:375
+#: warehouse/templates/base.html:378
 #, fuzzy
 #| msgid "PyPI home"
 msgid "PyPI Blog"
 msgstr "PyPI 主頁"
 
-#: warehouse/templates/base.html:381
+#: warehouse/templates/base.html:384
 msgid "Infrastructure dashboard"
 msgstr "基礎架構儀表板"
 
-#: warehouse/templates/base.html:384 warehouse/templates/pages/sitemap.html:40
+#: warehouse/templates/base.html:387 warehouse/templates/pages/sitemap.html:40
 #: warehouse/templates/pages/stats.html:4
 msgid "Statistics"
 msgstr "統計"
 
-#: warehouse/templates/base.html:387
+#: warehouse/templates/base.html:390
 msgid "Logos & trademarks"
 msgstr ""
 
-#: warehouse/templates/base.html:390
+#: warehouse/templates/base.html:393
 msgid "Our sponsors"
 msgstr "我們的贊助商"
 
-#: warehouse/templates/base.html:396
+#: warehouse/templates/base.html:399
 msgid "Contributing to PyPI"
 msgstr "為 PyPI 貢獻"
 
-#: warehouse/templates/base.html:397
+#: warehouse/templates/base.html:400
 msgid "How to contribute navigation"
 msgstr "如何貢獻導航欄"
 
-#: warehouse/templates/base.html:400
+#: warehouse/templates/base.html:403
 msgid "Bugs and feedback"
 msgstr "錯誤回報"
 
-#: warehouse/templates/base.html:406
+#: warehouse/templates/base.html:409
 msgid "Contribute on GitHub"
 msgstr "在 GitHub 上做出貢獻"
 
-#: warehouse/templates/base.html:412
+#: warehouse/templates/base.html:415
 msgid "Translate PyPI"
 msgstr "翻譯 PyPI"
 
-#: warehouse/templates/base.html:415
+#: warehouse/templates/base.html:418
 #, fuzzy
 #| msgid "Sponsors"
 msgid "Sponsor PyPI"
 msgstr "贊助商"
 
-#: warehouse/templates/base.html:421
+#: warehouse/templates/base.html:424
 msgid "Development credits"
 msgstr "開發功勞"
 
-#: warehouse/templates/base.html:427 warehouse/templates/pages/sitemap.html:10
+#: warehouse/templates/base.html:430 warehouse/templates/pages/sitemap.html:10
 msgid "Using PyPI"
 msgstr "使用 PyPI"
 
-#: warehouse/templates/base.html:428
+#: warehouse/templates/base.html:431
 msgid "Using PyPI navigation"
 msgstr "使用 PyPI 導航欄"
 
-#: warehouse/templates/base.html:434
+#: warehouse/templates/base.html:437
 #: warehouse/templates/manage/organization/activate_subscription.html:21
 #, fuzzy
 #| msgid "Terms of use"
 msgid "Terms of Service"
 msgstr "使用條款"
 
-#: warehouse/templates/base.html:437
+#: warehouse/templates/base.html:440
 msgid "Report security issue"
 msgstr "回報安全問題"
 
-#: warehouse/templates/base.html:443
+#: warehouse/templates/base.html:446
 msgid "Code of conduct"
 msgstr "行為守則"
 
-#: warehouse/templates/base.html:449
+#: warehouse/templates/base.html:452
 #, fuzzy
 #| msgid "Privacy policy"
 msgid "Privacy Notice"
 msgstr "隱私政策"
 
-#: warehouse/templates/base.html:455
+#: warehouse/templates/base.html:458
 msgid "Acceptable Use Policy"
 msgstr ""
 
-#: warehouse/templates/base.html:465
+#: warehouse/templates/base.html:468
 #, fuzzy
 #| msgid "Status: "
 msgid "Status:"
 msgstr "狀態： "
 
-#: warehouse/templates/base.html:469
+#: warehouse/templates/base.html:472
 msgid "all systems operational"
 msgstr "所有繫統皆準備好因應"
 
-#: warehouse/templates/base.html:473
+#: warehouse/templates/base.html:476
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr "由 Python 社群為 Python 社群開發和維護。"
 
-#: warehouse/templates/base.html:475
+#: warehouse/templates/base.html:478
 msgid "Donate today!"
 msgstr "捐助我們！"
 
-#: warehouse/templates/base.html:487 warehouse/templates/pages/sitemap.html:4
+#: warehouse/templates/base.html:490 warehouse/templates/pages/sitemap.html:4
 msgid "Site map"
 msgstr "網站地圖"
 
-#: warehouse/templates/base.html:494
+#: warehouse/templates/base.html:497
 msgid "Switch to desktop version"
 msgstr "轉換到桌上版"
 
@@ -1660,7 +1665,7 @@ msgstr "確認操作"
 msgid "Are you sure?"
 msgstr ""
 
-#: warehouse/templates/error-base.html:23
+#: warehouse/templates/error-base.html:24
 msgid "Error code"
 msgstr "錯誤代碼"
 
@@ -1815,8 +1820,8 @@ msgstr "密碼"
 #: warehouse/templates/manage/organization/activate_subscription.html:22
 #: warehouse/templates/manage/organization/projects.html:109
 #: warehouse/templates/manage/organization/projects.html:130
-#: warehouse/templates/manage/organization/roles.html:374
-#: warehouse/templates/manage/organization/roles.html:393
+#: warehouse/templates/manage/organization/roles.html:398
+#: warehouse/templates/manage/organization/roles.html:417
 #: warehouse/templates/manage/organization/settings.html:35
 #: warehouse/templates/manage/organization/settings.html:64
 #: warehouse/templates/manage/organization/settings.html:87
@@ -1957,7 +1962,7 @@ msgstr "登入 %(title)s"
 #: warehouse/templates/email/organization-member-role-changed/body.html:14
 #: warehouse/templates/manage/account.html:272
 #: warehouse/templates/manage/organization/roles.html:291
-#: warehouse/templates/manage/organization/roles.html:377
+#: warehouse/templates/manage/organization/roles.html:401
 #: warehouse/templates/manage/project/roles.html:171
 #: warehouse/templates/manage/project/roles.html:250
 #: warehouse/templates/manage/project/roles.html:346
@@ -2660,7 +2665,7 @@ msgstr "<a href=\"%(href)s\">%(username)s</a> 改變為專案角色 %(role_name)
 #: warehouse/templates/manage/organization/roles.html:46
 #: warehouse/templates/manage/organization/roles.html:200
 #: warehouse/templates/manage/organization/roles.html:248
-#: warehouse/templates/manage/organization/roles.html:391
+#: warehouse/templates/manage/organization/roles.html:415
 #: warehouse/templates/manage/project/roles.html:59
 #: warehouse/templates/manage/project/roles.html:133
 #: warehouse/templates/manage/project/roles.html:214
@@ -4645,8 +4650,8 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:843
 #: warehouse/templates/manage/account/token.html:177
-#: warehouse/templates/manage/organization/settings.html:177
-#: warehouse/templates/manage/organization/settings.html:238
+#: warehouse/templates/manage/organization/settings.html:203
+#: warehouse/templates/manage/organization/settings.html:264
 #: warehouse/templates/manage/project/publishing.html:19
 #: warehouse/templates/manage/team/settings.html:60
 msgid "Proceed with caution!"
@@ -5072,7 +5077,7 @@ msgstr "撤銷對 %(user)s 的邀請"
 msgid "Decline invitation"
 msgstr "主導航欄"
 
-#: warehouse/templates/manage/organization/settings.html:258
+#: warehouse/templates/manage/organization/settings.html:284
 #: warehouse/templates/manage/organizations.html:51
 #, fuzzy
 #| msgid "Project description"
@@ -5111,6 +5116,7 @@ msgstr ""
 msgid "This organization is not active"
 msgstr "身份邀請已過期。"
 
+#: warehouse/templates/manage/organization/settings.html:182
 #: warehouse/templates/manage/organizations.html:85
 msgid "Inactive"
 msgstr ""
@@ -6790,7 +6796,7 @@ msgid "Users who can manage %(organization_name)s"
 msgstr "可以管理%(project_name)s 的用戶"
 
 #: warehouse/templates/manage/organization/roles.html:199
-#: warehouse/templates/manage/organization/roles.html:372
+#: warehouse/templates/manage/organization/roles.html:396
 #: warehouse/templates/manage/project/roles.html:395
 #: warehouse/templates/manage/team/roles.html:35
 #: warehouse/templates/manage/team/roles.html:102
@@ -6897,7 +6903,39 @@ msgstr "刪除"
 msgid "Invite member"
 msgstr "邀請已過期"
 
-#: warehouse/templates/manage/organization/roles.html:403
+#: warehouse/templates/manage/organization/roles.html:366
+#, fuzzy
+#| msgid "Account details"
+msgid "Billing Notice:"
+msgstr "帳戶詳情"
+
+#: warehouse/templates/manage/organization/roles.html:367
+msgid ""
+"Accepted invitations will result in an additional $5 per user per month "
+"billing charge."
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:373
+msgid "Seat Usage:"
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:374
+#, python-format
+msgid "%(current)s of %(limit)s seats used."
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:377
+#, python-format
+msgid "%(available)s seats available."
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:379
+msgid ""
+"You have exceeded your seat limit. Invited members can still accept "
+"invitations."
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:427
 #: warehouse/templates/manage/project/roles.html:426
 msgid "Invite"
 msgstr "邀請"
@@ -6960,41 +6998,67 @@ msgstr "建立帳戶"
 msgid "Billing details"
 msgstr "帳戶詳情"
 
-#: warehouse/templates/manage/organization/settings.html:152
+#: warehouse/templates/manage/organization/settings.html:153
+#: warehouse/templates/manage/organization/settings.html:166
+#: warehouse/templates/manage/organization/settings.html:181
 msgid "Billing status"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:156
+#: warehouse/templates/manage/organization/settings.html:157
 msgid "Billing email"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:161
+#: warehouse/templates/manage/organization/settings.html:162
 #, fuzzy
 #| msgid "Manage version"
 msgid "Manage billing"
 msgstr "管理版本"
 
-#: warehouse/templates/manage/organization/settings.html:168
-#: warehouse/templates/manage/organization/settings.html:202
+#: warehouse/templates/manage/organization/settings.html:167
+msgid "Manually Activated"
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:170
+msgid "Seat limit"
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:172
+#, fuzzy
+#| msgid "Add email"
+msgid "members"
+msgstr "新增電郵地址"
+
+#: warehouse/templates/manage/organization/settings.html:176
+msgid "Expires"
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:186
+#, fuzzy
+#| msgid "Project description"
+msgid "Activate billing"
+msgstr "專案敘述"
+
+#: warehouse/templates/manage/organization/settings.html:194
+#: warehouse/templates/manage/organization/settings.html:228
 #, fuzzy
 #| msgid "Manage '%(project_name)s'"
 msgid "Change organization account name"
 msgstr "管理 '%(project_name)s'"
 
-#: warehouse/templates/manage/organization/settings.html:170
+#: warehouse/templates/manage/organization/settings.html:196
 #, fuzzy
 #| msgid "Role invitation is not valid."
 msgid "Renaming organizations is not currently supported."
 msgstr "身份邀請已過期。"
 
-#: warehouse/templates/manage/organization/settings.html:172
+#: warehouse/templates/manage/organization/settings.html:198
 #, python-format
 msgid ""
 "Please contact <a href=%(href)s>PyPI Support</a> if you need to rename your "
 "organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:180
+#: warehouse/templates/manage/organization/settings.html:206
 #, fuzzy
 #| msgid "You will not be able to recover your account after you delete it"
 msgid ""
@@ -7002,32 +7066,32 @@ msgid ""
 "your organization."
 msgstr "刪除帳戶後將無法還原"
 
-#: warehouse/templates/manage/organization/settings.html:202
+#: warehouse/templates/manage/organization/settings.html:228
 #, fuzzy
 #| msgid "Manage '%(project_name)s'"
 msgid "Change organization account name for"
 msgstr "管理 '%(project_name)s'"
 
-#: warehouse/templates/manage/organization/settings.html:202
+#: warehouse/templates/manage/organization/settings.html:228
 #, fuzzy
 #| msgid "Create an account"
 msgid "Current organization account name"
 msgstr "建立帳戶"
 
-#: warehouse/templates/manage/organization/settings.html:208
-#: warehouse/templates/manage/organization/settings.html:258
+#: warehouse/templates/manage/organization/settings.html:234
+#: warehouse/templates/manage/organization/settings.html:284
 #, fuzzy
 #| msgid "Create an account"
 msgid "Delete organization"
 msgstr "建立帳戶"
 
-#: warehouse/templates/manage/organization/settings.html:211
+#: warehouse/templates/manage/organization/settings.html:237
 #, fuzzy
 #| msgid "Create an account"
 msgid "Cannot delete organization"
 msgstr "建立帳戶"
 
-#: warehouse/templates/manage/organization/settings.html:213
+#: warehouse/templates/manage/organization/settings.html:239
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -7046,29 +7110,29 @@ msgstr[0] ""
 "          你的帳戶目前是 %(count)s 專案的<strong> 單獨擁有者 </strong>。\n"
 "        "
 
-#: warehouse/templates/manage/organization/settings.html:218
+#: warehouse/templates/manage/organization/settings.html:244
 msgid "For each project, you must either:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:220
+#: warehouse/templates/manage/organization/settings.html:246
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "Transfer ownership and remove the project from your organization"
 msgstr "你不是此專案的擁有者"
 
-#: warehouse/templates/manage/organization/settings.html:221
+#: warehouse/templates/manage/organization/settings.html:247
 #, fuzzy
 #| msgid "Delete project"
 msgid "Delete the project"
 msgstr "刪除專案"
 
-#: warehouse/templates/manage/organization/settings.html:223
+#: warehouse/templates/manage/organization/settings.html:249
 #, fuzzy
 #| msgid "Create an account"
 msgid "Before you can delete your organization."
 msgstr "建立帳戶"
 
-#: warehouse/templates/manage/organization/settings.html:229
+#: warehouse/templates/manage/organization/settings.html:255
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
@@ -7081,23 +7145,23 @@ msgstr ""
 "<a href=\"%(transfer_href)s\"> 轉移擁有權</a> 或 <a "
 "href=\"%(delete_href)s\"> 刪除專案 </a>"
 
-#: warehouse/templates/manage/organization/settings.html:241
+#: warehouse/templates/manage/organization/settings.html:267
 #, fuzzy
 #| msgid "You will not be able to recover your account after you delete it"
 msgid "You will not be able to recover your organization after you delete it."
 msgstr "刪除帳戶後將無法還原"
 
-#: warehouse/templates/manage/organization/settings.html:248
+#: warehouse/templates/manage/organization/settings.html:274
 msgid ""
 "Your subscription will be cancelled, and you will lose access to the billing "
 "portal."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:250
+#: warehouse/templates/manage/organization/settings.html:276
 msgid "You will lose access to the billing portal."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:252
+#: warehouse/templates/manage/organization/settings.html:278
 #, python-format
 msgid ""
 "Please ensure you have retrieved all invoices from <a "
@@ -11609,8 +11673,8 @@ msgstr "與具有 OSI 批准許可證的“圖形”相關的項目"
 #| "\n"
 #| "              <strong>%(count_display)s</strong> projects\n"
 #| "              "
-msgid "<strong>%(count_display)s</strong> project"
-msgid_plural "<strong>%(count_display)s</strong> projects"
+msgid "<strong>%(count_display)s</strong> project&nbsp;"
+msgid_plural "<strong>%(count_display)s</strong> projects&nbsp;"
 msgstr[0] ""
 "\n"
 "              <strong>%(count_display)s</strong> 專案\n"
