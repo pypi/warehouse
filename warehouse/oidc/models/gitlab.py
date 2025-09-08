@@ -154,7 +154,7 @@ class GitLabPublisherMixin:
 
     __unchecked_claims__ = {
         # We are not currently verifying project_id or namespace_id to protect against
-        # resurrection attacks: https://github.com/pypi/warehouse/issues/13575
+        # resurrection attacks: https://github.com/pypi/warehouse/issues/15643
         "project_id",
         "namespace_id",
         "namespace_path",
@@ -177,6 +177,10 @@ class GitLabPublisherMixin:
         "project_visibility",
         "user_access_level",
         "groups_direct",
+        "job_namespace_id",
+        "job_namespace_path",
+        "job_project_id",
+        "job_project_path",
     }
 
     # Get the most specific publisher from a list of publishers,
