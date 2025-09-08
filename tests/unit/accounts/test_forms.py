@@ -662,7 +662,7 @@ class TestRegistrationForm:
             breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
         )
         assert not form.validate()
-        assert form.g_captcha_response.errors.pop() == "Captcha error."
+        assert form.g_recaptcha_response.errors.pop() == "Captcha error."
 
     def test_username_exists(self, pyramid_config):
         form = forms.RegistrationForm(
