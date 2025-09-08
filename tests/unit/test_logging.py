@@ -37,6 +37,70 @@ class TestStructlogFormatter:
             "thread": threading.get_ident(),
         }
 
+    def test_gunicorn_access_log_parsing(self):
+        formatter = wlogging.StructlogFormatter()
+        access_log_line = (
+            "bce7b3d78e73edf3cb8949bec7c52eba9727c4083417be33eca8afc5f31ef355 - - "
+            '[11/Aug/2025:21:01:13 +0000] "GET /pypi/b5ee/json HTTP/1.1" 404 24 '
+            '"-" "dependabot-core/0.325.1 excon/1.2.5 ruby/3.4.5 (x86_64-linux) '
+            '(+https://github.com/dependabot/dependabot-core)"'
+        )
+        record = logging.LogRecord(
+            "gunicorn.access", logging.INFO, None, None, access_log_line, None, None
+        )
+
+        result = json.loads(formatter.format(record))
+
+        assert result["logger"] == "gunicorn.access"
+        assert result["level"] == "INFO"
+        assert result["event"] == "http_request"
+        expected_id = "bce7b3d78e73edf3cb8949bec7c52eba9727c4083417be33eca8afc5f31ef355"
+        assert result["request_id"] == expected_id
+        assert result["method"] == "GET"
+        assert result["path"] == "/pypi/b5ee/json"
+        assert result["protocol"] == "HTTP/1.1"
+        assert result["status"] == 404
+        assert result["response_size"] == 24
+        assert result["referrer"] is None
+        assert "dependabot-core" in result["user_agent"]
+        assert "thread" in result
+
+    def test_gunicorn_access_log_parsing_with_referrer(self):
+        formatter = wlogging.StructlogFormatter()
+        access_log_line = (
+            "test-id-123 - - "
+            '[12/Aug/2025:10:30:45 +0000] "POST /simple/upload HTTP/1.1" 200 500 '
+            '"https://pypi.org/project/test/" "Mozilla/5.0 (compatible; test)"'
+        )
+        record = logging.LogRecord(
+            "gunicorn.access", logging.INFO, None, None, access_log_line, None, None
+        )
+
+        result = json.loads(formatter.format(record))
+
+        assert result["request_id"] == "test-id-123"
+        assert result["method"] == "POST"
+        assert result["path"] == "/simple/upload"
+        assert result["status"] == 200
+        assert result["response_size"] == 500
+        assert result["referrer"] == "https://pypi.org/project/test/"
+        assert result["user_agent"] == "Mozilla/5.0 (compatible; test)"
+
+    def test_gunicorn_access_log_unparsable(self):
+        formatter = wlogging.StructlogFormatter()
+        malformed_log = "this is not a valid access log format"
+        record = logging.LogRecord(
+            "gunicorn.access", logging.INFO, None, None, malformed_log, None, None
+        )
+
+        result = json.loads(formatter.format(record))
+
+        assert result["logger"] == "gunicorn.access"
+        assert result["level"] == "INFO"
+        assert result["event"] == "http_request_unparsed"
+        assert result["raw_message"] == "this is not a valid access log format"
+        assert "thread" in result
+
 
 def test_create_id(monkeypatch):
     uuid4 = pretend.call_recorder(lambda: "a fake uuid")
@@ -119,9 +183,11 @@ def test_includeme(monkeypatch, settings, expected_level):
                 structlog.stdlib.filter_by_level,
                 structlog.stdlib.add_logger_name,
                 structlog.stdlib.add_log_level,
-                mock.ANY,
-                mock.ANY,
+                mock.ANY,  # PositionalArgumentsFormatter
+                mock.ANY,  # TimeStamper
+                mock.ANY,  # StackInfoRenderer
                 structlog.processors.format_exc_info,
+                mock.ANY,  # _add_datadog_context
                 wlogging.RENDERER,
             ],
             logger_factory=mock.ANY,
@@ -135,6 +201,10 @@ def test_includeme(monkeypatch, settings, expected_level):
     )
     assert isinstance(
         configure.calls[0].kwargs["processors"][4],
+        structlog.processors.TimeStamper,
+    )
+    assert isinstance(
+        configure.calls[0].kwargs["processors"][5],
         structlog.processors.StackInfoRenderer,
     )
     assert isinstance(
