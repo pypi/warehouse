@@ -2046,7 +2046,10 @@ class TestFileUpload:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = f"{project.normalized_name.replace('-', '_')}-{release.version}-py2.py3-none-any.whl"
+        filename = "{}-{}-py2.py3-none-any.whl".format(
+            project.normalized_name.replace("-", "_"),
+            release.version,
+        )
 
         db_request.user = user
         pyramid_config.testing_securitypolicy(identity=user)
