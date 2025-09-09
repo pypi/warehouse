@@ -1536,8 +1536,22 @@ def file_upload(request):
                         filename=filename, metadata_filename=metadata_filename
                     ),
                 )
-            with open(temporary_filename + ".metadata", "wb") as fp:
-                fp.write(wheel_metadata_contents)
+            try:
+                with open(temporary_filename + ".metadata", "wb") as fp:
+                    fp.write(wheel_metadata_contents)
+            except OSError:
+                request.metrics.increment(
+                    "warehouse.upload.failed",
+                    tags=[
+                        "reason:filename-too-long",
+                        f"filetype:{form.filetype.data}",
+                    ],
+                )
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    f"Filename is too long: '{filename}'",
+                )
+
             metadata_file_hashes = {
                 "sha256": hashlib.sha256(),
                 "blake2_256": hashlib.blake2b(digest_size=256 // 8),
