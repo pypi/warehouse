@@ -11,13 +11,14 @@ import pytest
 from webob.multidict import MultiDict
 
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
+from warehouse.accounts.models import UniqueLoginStatus
 from warehouse.manage import views
 from warehouse.manage.views import organizations as org_views
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import OrganizationType
 from warehouse.utils.otp import _get_totp
 
-from ...common.db.accounts import EmailFactory, UserFactory
+from ...common.db.accounts import EmailFactory, UserFactory, UserUniqueLoginFactory
 
 
 class TestManageAccount:
@@ -51,6 +52,9 @@ class TestManageAccount:
             with_verified_primary_email=True,
             with_terms_of_service_agreement=True,
             clear_pwd="password",
+        )
+        UserUniqueLoginFactory.create(
+            user=user, ip_address="1.2.3.4", status=UniqueLoginStatus.CONFIRMED
         )
 
         # visit login page
