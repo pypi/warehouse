@@ -2036,7 +2036,9 @@ class TestFileUpload:
         self, tmpdir, monkeypatch, pyramid_config, db_request
     ):
         monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
-        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None))
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
 
         user = UserFactory.create()
         EmailFactory.create(user=user)
