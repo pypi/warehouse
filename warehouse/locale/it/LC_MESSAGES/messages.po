@@ -23,13 +23,14 @@
 # Frankie McEyes <mceyes@protonmail.com>, 2023.
 # letruxux <mrgianfranco483@gmail.com>, 2024.
 # Pietro Marini <marinipietro456@gmail.com>, 2024.
+# Laurent FAVOLE <lfavole@users.noreply.hosted.weblate.org>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2025-03-02 16:19+0000\n"
-"Last-Translator: albanobattistella <albano_battistella@hotmail.com>\n"
+"PO-Revision-Date: 2025-09-09 21:01+0000\n"
+"Last-Translator: Laurent FAVOLE <lfavole@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "it/>\n"
 "Language: it\n"
@@ -37,7 +38,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.10.3-dev\n"
+"X-Generator: Weblate 5.14-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:148
@@ -1377,7 +1378,7 @@ msgid "Sponsors"
 msgstr "Sponsors"
 
 #: warehouse/templates/accounts/login.html:7
-#: warehouse/templates/accounts/login.html:80 warehouse/templates/base.html:44
+#: warehouse/templates/accounts/login.html:87 warehouse/templates/base.html:44
 #: warehouse/templates/base.html:78
 msgid "Log in"
 msgstr "Accedi"
@@ -1592,7 +1593,7 @@ msgstr "Tradurre PyPI"
 
 #: warehouse/templates/base.html:418
 msgid "Sponsor PyPI"
-msgstr "Sponsor di PyPI"
+msgstr "Sponsor PyPI"
 
 #: warehouse/templates/base.html:424
 msgid "Development credits"
@@ -1866,18 +1867,18 @@ msgstr "Password"
 msgid "(required)"
 msgstr "(obbligatorio)"
 
-#: warehouse/templates/accounts/login.html:62
+#: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/re-auth.html:55
 msgid "Your password"
 msgstr "La tua password"
 
-#: warehouse/templates/accounts/login.html:88
+#: warehouse/templates/accounts/login.html:66
 #: warehouse/templates/manage/manage_base.html:457
 #: warehouse/templates/re-auth.html:82
 msgid "Show password"
 msgstr "Mostra password"
 
-#: warehouse/templates/accounts/login.html:92
+#: warehouse/templates/accounts/login.html:91
 #: warehouse/templates/re-auth.html:86
 msgid "Forgot password?"
 msgstr "Password dimenticata?"

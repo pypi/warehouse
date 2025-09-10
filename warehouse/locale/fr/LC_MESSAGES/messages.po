@@ -37,7 +37,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2025-06-24 17:14+0000\n"
+"PO-Revision-Date: 2025-09-09 21:01+0000\n"
 "Last-Translator: Laurent FAVOLE <lfavole@users.noreply.hosted.weblate.org>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/pypa/warehouse/fr/"
 ">\n"
@@ -46,7 +46,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.13-dev\n"
+"X-Generator: Weblate 5.14-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:148
@@ -1056,10 +1056,8 @@ msgid "Error while validating hashed password, disregard on development"
 msgstr ""
 
 #: warehouse/static/js/warehouse/controllers/password_match_controller.js:20
-#, fuzzy
-#| msgid "Password"
 msgid "Passwords match"
-msgstr "Mot de passe"
+msgstr "Les mots de passe correspondent"
 
 #: warehouse/static/js/warehouse/controllers/password_match_controller.js:24
 msgid "Passwords do not match"
@@ -1097,7 +1095,7 @@ msgstr[1] ""
 
 #: warehouse/static/js/warehouse/utils/timeago.js:30
 msgid "Just now"
-msgstr ""
+msgstr "À l'instant"
 
 #: warehouse/subscriptions/models.py:25
 #: warehouse/templates/manage/project/history.html:209
@@ -1344,7 +1342,7 @@ msgstr "Aide"
 
 #: warehouse/templates/base.html:36 warehouse/templates/base.html:71
 msgid "Docs"
-msgstr ""
+msgstr "Documentation"
 
 #: warehouse/templates/base.html:40 warehouse/templates/base.html:74
 #: warehouse/templates/includes/current-user-indicator.html:83
@@ -1354,7 +1352,7 @@ msgid "Sponsors"
 msgstr "Sponsors"
 
 #: warehouse/templates/accounts/login.html:7
-#: warehouse/templates/accounts/login.html:80 warehouse/templates/base.html:44
+#: warehouse/templates/accounts/login.html:87 warehouse/templates/base.html:44
 #: warehouse/templates/base.html:78
 msgid "Log in"
 msgstr "Se connecter"
@@ -1569,7 +1567,7 @@ msgstr "Traduire PyPI"
 
 #: warehouse/templates/base.html:418
 msgid "Sponsor PyPI"
-msgstr "Sponsor pypi"
+msgstr "Soutenir PyPI"
 
 #: warehouse/templates/base.html:424
 msgid "Development credits"
@@ -1847,18 +1845,18 @@ msgstr "Mot de passe"
 msgid "(required)"
 msgstr "(obligatoire)"
 
-#: warehouse/templates/accounts/login.html:62
+#: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/re-auth.html:55
 msgid "Your password"
 msgstr "Votre mot de passe"
 
-#: warehouse/templates/accounts/login.html:88
+#: warehouse/templates/accounts/login.html:66
 #: warehouse/templates/manage/manage_base.html:457
 #: warehouse/templates/re-auth.html:82
 msgid "Show password"
 msgstr "Afficher le mot de passe"
 
-#: warehouse/templates/accounts/login.html:92
+#: warehouse/templates/accounts/login.html:91
 #: warehouse/templates/re-auth.html:86
 msgid "Forgot password?"
 msgstr "Mot de passe oublié ?"
@@ -2067,10 +2065,8 @@ msgstr[1] ""
 
 #: warehouse/templates/accounts/profile.html:97
 #: warehouse/templates/manage/projects.html:80
-#, fuzzy
-#| msgid "Search projects"
 msgid "Archived"
-msgstr "Rechercher des projets"
+msgstr "Archivé"
 
 #: warehouse/templates/accounts/recovery-code.html:7
 #: warehouse/templates/manage/manage_base.html:27
@@ -2197,10 +2193,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/accounts/register.html:50
-#, fuzzy
-#| msgid "Confirm form"
 msgid "Confirm"
-msgstr "Formulaire de confirmation"
+msgstr "Confirmer"
 
 #: warehouse/templates/accounts/register.html:51
 #: warehouse/templates/manage/manage_base.html:398
@@ -5134,10 +5128,8 @@ msgid "This Organization request has been declined"
 msgstr "Cette organisation n'est pas active"
 
 #: warehouse/templates/manage/organizations.html:162
-#, fuzzy
-#| msgid "Decline"
 msgid "Declined"
-msgstr "Refuser"
+msgstr "Refusé"
 
 #: warehouse/templates/manage/organizations.html:165
 msgid "More information is needed to process this Organization request"
@@ -6267,10 +6259,8 @@ msgid "️Your Response"
 msgstr ""
 
 #: warehouse/templates/manage/organization/application.html:78
-#, fuzzy
-#| msgid "Submitted by:"
 msgid "Submit"
-msgstr "Envoyé par :"
+msgstr "Envoyer"
 
 #: warehouse/templates/manage/organization/history.html:6
 #: warehouse/templates/manage/project/history.html:6
@@ -6920,16 +6910,12 @@ msgid "Seat limit"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:172
-#, fuzzy
-#| msgid "Members"
 msgid "members"
-msgstr "Membres"
+msgstr "membres"
 
 #: warehouse/templates/manage/organization/settings.html:176
-#, fuzzy
-#| msgid "Expired"
 msgid "Expires"
-msgstr "Expiration"
+msgstr "Expire"
 
 #: warehouse/templates/manage/organization/settings.html:186
 #, fuzzy
@@ -7449,10 +7435,8 @@ msgstr "Ajouter un nouveau fournisseur"
 
 #: warehouse/templates/manage/project/publishing.html:407
 #: warehouse/templates/manage/project/publishing.html:410
-#, fuzzy
-#| msgid "Invalid environment name"
 msgid "Constrain environment"
-msgstr "Nom d'environnement invalide"
+msgstr "Contraindre l'environnement"
 
 #: warehouse/templates/manage/project/publishing.html:423
 msgid "This will restrict the Trusted Publisher's environment to"
@@ -8240,10 +8224,8 @@ msgstr ""
 #: warehouse/templates/manage/project/settings.html:333
 #: warehouse/templates/manage/project/settings.html:358
 #: warehouse/templates/manage/project/settings.html:362
-#, fuzzy
-#| msgid "Search projects"
 msgid "Archive project"
-msgstr "Rechercher des projets"
+msgstr "Archiver le projet"
 
 #: warehouse/templates/manage/project/settings.html:337
 #, python-format
@@ -11548,8 +11530,6 @@ msgid "We all love stats, so here are some useful statistics about PyPI."
 msgstr ""
 
 #: warehouse/templates/pages/stats.html:15
-#, fuzzy
-#| msgid "PyPI statistics"
 msgid "First-party statistics"
 msgstr "Statistiques de première partie"
 

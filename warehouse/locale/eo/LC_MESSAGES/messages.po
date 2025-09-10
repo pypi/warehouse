@@ -1261,7 +1261,7 @@ msgid "Sponsors"
 msgstr "Sponsoroj"
 
 #: warehouse/templates/accounts/login.html:7
-#: warehouse/templates/accounts/login.html:80 warehouse/templates/base.html:44
+#: warehouse/templates/accounts/login.html:87 warehouse/templates/base.html:44
 #: warehouse/templates/base.html:78
 msgid "Log in"
 msgstr "Saluti"
@@ -1742,18 +1742,18 @@ msgstr "Pasvorto"
 msgid "(required)"
 msgstr "(nepre)"
 
-#: warehouse/templates/accounts/login.html:62
+#: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/re-auth.html:55
 msgid "Your password"
 msgstr "Via pasvorto"
 
-#: warehouse/templates/accounts/login.html:88
+#: warehouse/templates/accounts/login.html:66
 #: warehouse/templates/manage/manage_base.html:457
 #: warehouse/templates/re-auth.html:82
 msgid "Show password"
 msgstr "Montri pasvorton"
 
-#: warehouse/templates/accounts/login.html:92
+#: warehouse/templates/accounts/login.html:91
 #: warehouse/templates/re-auth.html:86
 msgid "Forgot password?"
 msgstr "Ĉu forgesis pasvorton?"

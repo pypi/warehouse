@@ -21,8 +21,8 @@ msgstr ""
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
 "PO-Revision-Date: 2025-09-04 09:02+0000\n"
 "Last-Translator: Shipra <ships3040@gmail.com>\n"
-"Language-Team: Hindi <https://hosted.weblate.org/projects/pypa/warehouse/hi/>"
-"\n"
+"Language-Team: Hindi <https://hosted.weblate.org/projects/pypa/warehouse/hi/"
+">\n"
 "Language: hi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1414,7 +1414,7 @@ msgid "Sponsors"
 msgstr "प्रायोजकों"
 
 #: warehouse/templates/accounts/login.html:7
-#: warehouse/templates/accounts/login.html:80 warehouse/templates/base.html:44
+#: warehouse/templates/accounts/login.html:87 warehouse/templates/base.html:44
 #: warehouse/templates/base.html:78
 msgid "Log in"
 msgstr "लॉग इन करें"
@@ -1906,18 +1906,18 @@ msgstr "पासवर्ड"
 msgid "(required)"
 msgstr "(आवश्यक है)"
 
-#: warehouse/templates/accounts/login.html:62
+#: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/re-auth.html:55
 msgid "Your password"
 msgstr "आपका पासवर्ड"
 
-#: warehouse/templates/accounts/login.html:88
+#: warehouse/templates/accounts/login.html:66
 #: warehouse/templates/manage/manage_base.html:457
 #: warehouse/templates/re-auth.html:82
 msgid "Show password"
 msgstr "पासवर्ड दिखाएं"
 
-#: warehouse/templates/accounts/login.html:92
+#: warehouse/templates/accounts/login.html:91
 #: warehouse/templates/re-auth.html:86
 msgid "Forgot password?"
 msgstr "पासवर्ड भूल गए?"
