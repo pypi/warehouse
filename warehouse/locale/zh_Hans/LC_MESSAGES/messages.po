@@ -69,8 +69,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
 "PO-Revision-Date: 2025-09-04 09:01+0000\n"
-"Last-Translator: 大王叫我来巡山 "
-"<hamburger2048@users.noreply.hosted.weblate.org>\n"
+"Last-Translator: 大王叫我来巡山 <hamburger2048@users.noreply.hosted.weblate."
+"org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/pypa/warehouse/zh_Hans/>\n"
 "Language: zh_Hans\n"
@@ -1276,7 +1276,7 @@ msgid "Sponsors"
 msgstr "赞助商"
 
 #: warehouse/templates/accounts/login.html:7
-#: warehouse/templates/accounts/login.html:80 warehouse/templates/base.html:44
+#: warehouse/templates/accounts/login.html:87 warehouse/templates/base.html:44
 #: warehouse/templates/base.html:78
 msgid "Log in"
 msgstr "登录"
@@ -1749,18 +1749,18 @@ msgstr "密码"
 msgid "(required)"
 msgstr "（必填）"
 
-#: warehouse/templates/accounts/login.html:62
+#: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/re-auth.html:55
 msgid "Your password"
 msgstr "你的密码"
 
-#: warehouse/templates/accounts/login.html:88
+#: warehouse/templates/accounts/login.html:66
 #: warehouse/templates/manage/manage_base.html:457
 #: warehouse/templates/re-auth.html:82
 msgid "Show password"
 msgstr "显示密码"
 
-#: warehouse/templates/accounts/login.html:92
+#: warehouse/templates/accounts/login.html:91
 #: warehouse/templates/re-auth.html:86
 msgid "Forgot password?"
 msgstr "忘记密码了？"
