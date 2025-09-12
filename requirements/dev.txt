@@ -236,11 +236,10 @@ zope-interface==7.2 \
     # via pyramid
 
 # The following packages are considered to be unsafe in a requirements file:
-pip==25.0.1 \
-    --hash=sha256:88f96547ea48b940a3a385494e181e29fb8637898f88d88737c5049780f196ea \
-    --hash=sha256:c46efd13b6aa8279f33f2864459c8ce587ea6a1a59ee20de055868d8f7688f7f
+pip==25.2 \
+    --hash=sha256:578283f006390f85bb6282dffb876454593d637f5d1be494b5202ce4877e71f2 \
+    --hash=sha256:6d67a2b4e7f14d8b31b8b52648866fa717f45a1eb70e83002f4331d07e953717
     # via
-    #   -r requirements/dev.in
     #   pip-api
     #   pip-tools
 setuptools==80.9.0 \
