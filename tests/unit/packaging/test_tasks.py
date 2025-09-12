@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import tempfile
 
@@ -450,8 +440,7 @@ bq_schema = [
 
 class TestUpdateBigQueryMetadata:
     class ListField(Field):
-        def process_formdata(self, valuelist):
-            self.data = [v.strip() for v in valuelist if v.strip()]
+        pass
 
     input_parameters = [
         (
@@ -510,13 +499,13 @@ class TestUpdateBigQueryMetadata:
         [
             (
                 "example.pypi.distributions",
-                [pretend.call("example.pypi.distributions")],
+                [pretend.call("example.pypi.distributions", timeout=5.0, retry=None)],
             ),
             (
                 "example.pypi.distributions some.other.table",
                 [
-                    pretend.call("example.pypi.distributions"),
-                    pretend.call("some.other.table"),
+                    pretend.call("example.pypi.distributions", timeout=5.0, retry=None),
+                    pretend.call("some.other.table", timeout=5.0, retry=None),
                 ],
             ),
         ],
@@ -538,12 +527,11 @@ class TestUpdateBigQueryMetadata:
 
         # Process the mocked wtform fields
         for key, value in form_factory.items():
-            if isinstance(value, StringField) or isinstance(value, self.ListField):
-                value.process(None)
+            value.process(None)
 
         get_table = pretend.stub(schema=bq_schema)
         bigquery = pretend.stub(
-            get_table=pretend.call_recorder(lambda t: get_table),
+            get_table=pretend.call_recorder(lambda *a, **kw: get_table),
             insert_rows_json=pretend.call_recorder(lambda *a, **kw: []),
         )
 
@@ -551,7 +539,7 @@ class TestUpdateBigQueryMetadata:
         def find_service(name=None):
             if name == "gcloud.bigquery":
                 return bigquery
-            raise LookupError
+            pytest.fail(f"Unexpected service name: {name}")
 
         db_request.find_service = find_service
         db_request.registry.settings = {
@@ -661,6 +649,8 @@ class TestUpdateBigQueryMetadata:
                         "blake2_256_digest": release_file.blake2_256_digest,
                     },
                 ],
+                timeout=5.0,
+                retry=None,
             )
             for table in release_files_table.split()
         ]

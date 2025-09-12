@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import functools
 
@@ -80,24 +70,14 @@ def _locale(request):
 
 
 def _negotiate_locale(request):
-    locale_name = getattr(request, LOCALE_ATTR, None)
-    if locale_name is not None:
+    locale_name = default_locale_negotiator(request)
+    if locale_name in KNOWN_LOCALES:
         return locale_name
 
-    locale_name = request.params.get(LOCALE_ATTR)
-    if locale_name is not None:
-        return locale_name
+    if request.accept_language:
+        return request.accept_language.best_match(tuple(KNOWN_LOCALES.keys()))
 
-    locale_name = request.cookies.get(LOCALE_ATTR)
-    if locale_name is not None:
-        return locale_name
-
-    if not request.accept_language:
-        return default_locale_negotiator(request)
-
-    return request.accept_language.best_match(
-        tuple(KNOWN_LOCALES.keys()), default_match=default_locale_negotiator(request)
-    )
+    return None
 
 
 def _localize(request, message, **kwargs):

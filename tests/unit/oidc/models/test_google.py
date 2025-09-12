@@ -1,15 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -17,14 +6,6 @@ import pytest
 from tests.common.db.oidc import GooglePublisherFactory, PendingGooglePublisherFactory
 from warehouse.oidc import errors
 from warehouse.oidc.models import _core, google
-
-
-def test_lookup_strategies():
-    assert (
-        len(google.GooglePublisher.__lookup_strategies__)
-        == len(google.PendingGooglePublisher.__lookup_strategies__)
-        == 2
-    )
 
 
 class TestGooglePublisher:
@@ -196,6 +177,16 @@ class TestGooglePublisher:
                 )
             assert str(e.value) == "Check failed for optional claim 'sub'"
 
+    def test_lookup_no_matching_publishers(self, db_request):
+        signed_claims = {
+            "email": "fake@example.com",
+            "email_verified": True,
+        }
+
+        with pytest.raises(errors.InvalidPublisherError) as e:
+            google.GooglePublisher.lookup_by_claims(db_request.db, signed_claims)
+        assert str(e.value) == "Publisher with matching claims was not found"
+
     @pytest.mark.parametrize("exists_in_db", [True, False])
     def test_exists(self, db_request, exists_in_db):
         publisher = google.GooglePublisher(
@@ -208,6 +199,11 @@ class TestGooglePublisher:
             db_request.db.flush()
 
         assert publisher.exists(db_request.db) == exists_in_db
+
+    def test_google_publisher_attestation_identity(self):
+        publisher = google.GooglePublisher(email="wu@tang.net")
+        identity = publisher.attestation_identity
+        assert identity.email == publisher.email
 
 
 class TestPendingGooglePublisher:

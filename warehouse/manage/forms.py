@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import json
 
@@ -27,6 +17,7 @@ from warehouse.accounts.forms import (
 )
 from warehouse.i18n import localize as _
 from warehouse.organizations.models import (
+    OrganizationMembershipSize,
     OrganizationRoleType,
     OrganizationType,
     TeamProjectRoleType,
@@ -544,8 +535,21 @@ class TransferOrganizationProjectForm(wtforms.Form):
     def __init__(self, *args, organization_choices, **kwargs):
         super().__init__(*args, **kwargs)
         self.organization.choices += [
-            (name, name) for name in sorted(organization_choices)
+            (
+                str(org.id),
+                org.get_billing_status_display(),
+            )
+            for org in sorted(organization_choices, key=lambda x: x.name)
         ]
+        self.disabled_organizations = [
+            str(org.id) for org in organization_choices if not org.good_standing
+        ]
+
+    def validate_organization(self, field):
+        if self.organization.data in self.disabled_organizations:
+            raise wtforms.validators.ValidationError(
+                _("Cannot transfer to Company Organization with inactive billing")
+            )
 
 
 class CreateOrganizationRoleForm(
@@ -635,6 +639,7 @@ class SaveOrganizationForm(wtforms.Form):
     )
     orgtype = wtforms.SelectField(
         choices=[("Company", "Company"), ("Community", "Community")],
+        default=None,
         coerce=OrganizationType,
         validators=[
             wtforms.validators.InputRequired(message="Select organization type"),
@@ -646,6 +651,35 @@ class CreateOrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationF
     __params__ = ["name"] + SaveOrganizationForm.__params__
 
     _max_apps = wtforms.IntegerField()
+
+    membership_size = wtforms.SelectField(
+        choices=[(size.value, size.value) for size in OrganizationMembershipSize],
+        default=None,
+        coerce=OrganizationMembershipSize,
+        validators=[
+            wtforms.validators.InputRequired(
+                message="Select organization membership size"
+            ),
+        ],
+    )
+
+    usage = wtforms.TextAreaField(
+        validators=[
+            wtforms.validators.Length(
+                min=32,
+                message=(
+                    "Tell us a little more about how you plan to use PyPI Organizations"
+                ),
+            ),
+            wtforms.validators.Length(
+                max=1024,
+                message=_(
+                    "We don't need to know quite that much :), "
+                    "limit your usage description to 1024 characters or less."
+                ),
+            ),
+        ]
+    )
 
     def __init__(
         self, *args, organization_service, user, max_applications=None, **kwargs

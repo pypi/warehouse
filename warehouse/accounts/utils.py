@@ -1,21 +1,18 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
+
+import datetime
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from warehouse.accounts.models import Email
+from warehouse.accounts.services import IDomainStatusService
+
 if TYPE_CHECKING:
+    from pyramid.request import Request
+
     from warehouse.accounts.models import User
     from warehouse.macaroons.models import Macaroon
 
@@ -44,3 +41,17 @@ class UserContext:
 
     def __principals__(self) -> list[str]:
         return self.user.__principals__()
+
+
+def update_email_domain_status(email: Email, request: Request) -> None:
+    """
+    Update the domain status of the given email address.
+    """
+    domain_status_service = request.find_service(IDomainStatusService)
+
+    if domain_status := domain_status_service.get_domain_status(email.domain):
+        email.domain_last_checked = datetime.datetime.now(datetime.UTC)
+        email.domain_last_status = domain_status
+        request.db.add(email)
+
+    return None

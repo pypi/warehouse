@@ -1,16 +1,4 @@
-{#
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
--#}
+{# SPDX-License-Identifier: Apache-2.0 -#}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -114,11 +102,6 @@
           {# TODO: Is there a cleaner way to show/hide the allowed sections? #}
           {% if request.has_permission(Permissions.AdminDashboardSidebarRead) %}
           <li class="nav-item">
-            <a href="{{ request.route_path('admin.malware_reports.list') }}" class="nav-link">
-              <i class="fa-solid fa-dumpster-fire nav-icon"></i> <p>Malware Reports <span class="right badge badge-danger">New</span></p>
-            </a>
-          </li>
-          <li class="nav-item">
             <a href="{{ request.route_path('admin.organization_application.list') }}?q=is%3Asubmitted" class="nav-link">
               <i class="fa fa-sitemap nav-icon"></i> <p>Organization Applications</p>
             </a>
@@ -155,6 +138,34 @@
           </li>
           <li class="nav-item menu-closed">
             <a href="#" class="nav-link">
+              <i class="nav-icon fa-solid fa-eye"></i>
+              <p>
+                Observations
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="{{ request.route_path('admin.malware_reports.list') }}" class="nav-link">
+                  <i class="nav-icon fa-solid fa-dumpster-fire"></i>
+                  <p>Malware Reports</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ request.route_path('admin.quarantine.list') }}" class="nav-link">
+                  <i class="nav-icon fa-solid fa-file-shield"></i> <p>Quarantine</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ request.route_path('admin.observations.list') }}" class="nav-link">
+                  <i class="nav-icon fa-solid fa-eye"></i>
+                  <p>All Observations</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-item menu-closed">
+            <a href="#" class="nav-link">
               <i class="nav-icon fa fa-ban"></i>
               <p>
                 Prohibition Era
@@ -181,11 +192,6 @@
                 </a>
               </li>
             </ul>
-          </li>
-          <li class="nav-item">
-            <a href="{{ request.route_path('admin.observations.list') }}" class="nav-link">
-              <i class="fa-solid fa-eye nav-icon"></i> <p>Observations</p>
-            </a>
           </li>
           <li class="nav-item">
             <a href="{{ request.route_path('admin.emails.list') }}" class="nav-link">
@@ -223,7 +229,7 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0">{{ self.title()|default('Dashboard', true) }}</h1>
+            {% block title_header %}<h1 class="m-0">{{ self.title()|default('Dashboard', true) }}</h1>{% endblock %}
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">

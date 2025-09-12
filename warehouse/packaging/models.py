@@ -1,14 +1,5 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
 from __future__ import annotations
 
 import enum
@@ -65,6 +56,7 @@ from warehouse.accounts.models import User
 from warehouse.attestations.models import Provenance
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
+from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.events.models import HasEvents
 from warehouse.forklift import metadata
 from warehouse.integrations.vulnerabilities.models import VulnerabilityRecord
@@ -167,10 +159,20 @@ class ProjectFactory:
             return True
 
 
+class ProjectStatusMarker(enum.StrEnum):
+    """PEP 792 status markers."""
+
+    Active = "active"
+    Archived = "archived"
+    Quarantined = "quarantined"
+    Deprecated = "deprecated"
+
+
 class LifecycleStatus(enum.StrEnum):
     QuarantineEnter = "quarantine-enter"
     QuarantineExit = "quarantine-exit"
     Archived = "archived"
+    ArchivedNoindex = "archived-noindex"
 
 
 class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
@@ -223,6 +225,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
     )
     invitations: Mapped[list[RoleInvitation]] = orm.relationship(
         back_populates="project",
+        passive_deletes=True,
     )
     team: Mapped[Team] = orm.relationship(
         secondary=TeamProjectRole.__table__,
@@ -335,7 +338,10 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             (Allow, Authenticated, Permissions.SubmitMalwareObservation),
         ]
 
-        if self.lifecycle_status != LifecycleStatus.Archived:
+        if self.lifecycle_status not in [
+            LifecycleStatus.Archived,
+            LifecycleStatus.ArchivedNoindex,
+        ]:
             # The project has zero or more OIDC publishers registered to it,
             # each of which serves as an identity with the ability to upload releases
             # (only if the project is not archived)
@@ -401,7 +407,10 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             else:
                 current_permissions = [Permissions.ProjectsUpload]
 
-            if self.lifecycle_status == LifecycleStatus.Archived:
+            if self.lifecycle_status in [
+                LifecycleStatus.Archived,
+                LifecycleStatus.ArchivedNoindex,
+            ]:
                 # Disallow upload permissions for archived projects
                 current_permissions.remove(Permissions.ProjectsUpload)
 
@@ -494,6 +503,67 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             .order_by(Release._pypi_ordering.desc())
             .all()
         )
+
+    @property
+    def project_status(self) -> ProjectStatusMarker:
+        """
+        Return the PEP 792 project status marker that's equivalent
+        to this project's lifecycle status.
+        """
+
+        if self.lifecycle_status == LifecycleStatus.QuarantineEnter:
+            return ProjectStatusMarker.Quarantined
+        elif self.lifecycle_status in (
+            LifecycleStatus.Archived,
+            LifecycleStatus.ArchivedNoindex,
+        ):
+            return ProjectStatusMarker.Archived
+
+        # PyPI doesn't yet have a deprecated lifecycle status
+        # and "quarantine-exit" means a return to active.
+        return ProjectStatusMarker.Active
+
+    @property
+    def upload_limit_size(self) -> int:
+        """
+        Return the effective file size upload limit for this project.
+
+        Uses the most generous (highest) limit from:
+        - System default (MAX_FILESIZE)
+        - Project-specific limit (if set)
+        - Organization limit (if project belongs to org and org has limit)
+
+        This allows organizations and projects to have higher limits than
+        the system default, with users benefiting from the most generous
+        limit available to them.
+        """
+        limits_to_check = [MAX_FILESIZE, self.upload_limit]
+        if self.organization:
+            limits_to_check.append(self.organization.upload_limit)
+
+        valid_limits = [limit for limit in limits_to_check if limit is not None]
+        return max(valid_limits)
+
+    @property
+    def total_size_limit_value(self) -> int:
+        """
+        Return the effective total size limit for this project.
+
+        Uses the most generous (highest) limit from:
+        - System default (MAX_PROJECT_SIZE)
+        - Project-specific limit (if set)
+        - Organization limit (if project belongs to org and org has limit)
+
+        This allows organizations and projects to have higher limits than
+        the system default, with users benefiting from the most generous
+        limit available to them.
+        """
+        limits_to_check = [MAX_PROJECT_SIZE, self.total_size_limit]
+        if self.organization:
+            limits_to_check.append(self.organization.total_size_limit)
+
+        valid_limits = [limit for limit in limits_to_check if limit is not None]
+        return max(valid_limits)
 
 
 class DependencyKind(enum.IntEnum):

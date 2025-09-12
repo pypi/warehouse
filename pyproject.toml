@@ -1,7 +1,7 @@
 [tool.coverage.run]
 branch = true
 dynamic_context = "test_function"
-source = ["warehouse"]
+source = ["warehouse", "tests"]
 omit = [
   # We don't want to get coverage information for our migrations.
   "warehouse/migrations/*",
@@ -22,16 +22,29 @@ omit = [
 parallel = true
 
 [tool.coverage.report]
-exclude_lines = [
-  "pragma: no cover",
+exclude_also = [
   "class \\w+\\(Interface\\):",
   "if (typing\\.)?TYPE_CHECKING:",
+  "pytest.fail\\(",  # Use for test branches that should never be reached.
+  # Remove once resolved: https://github.com/nedbat/coveragepy/issues/1563
+  "case _:\\n\\s*pytest\\.fail\\(",
 ]
 
-[tool.curlylint]
-include = '\.(html|jinja|txt)$'
-# For jinja's i18n extension:
-template_tags = [['trans', 'pluralize', 'endtrans']]
+[tool.djlint]
+# https://www.djlint.com/docs/configuration/
+indent = 2
+profile = "jinja"
+use_gitignore = true
+# The Simple API templates have structures that are relied upon.
+extend_exclude = "warehouse/templates/api/simple/*"
+# TODO: Evaluate which `img` tags can get height/width attributes and remove H006.
+# H006: <img> tag should have `height` and `width` attributes.
+# TODO: Convert single quotes to double quotes and remove T002 from ignore.
+# T002: Double quotes should be used in tags. Ex {% extends "this.html" %}
+# TODO: Add endblock names everywhere and remove T003 from ignore.
+# T003: Endblock should have name. Ex: {% endblock body %}.
+# T028: Handled by warehouse config. See: https://github.com/pypi/warehouse/pull/14709
+ignore = "H006,T002,T003,T028"
 
 [tool.isort]
 profile = 'black'
@@ -41,6 +54,7 @@ known_first_party = ['warehouse', 'tests']
 
 [tool.mypy]
 python_version = "3.12"
+warn_unreachable = true
 warn_unused_configs = true
 warn_unused_ignores = true
 plugins = ["mypy_zope:plugin"]
@@ -99,6 +113,16 @@ markers = [
 filterwarnings = [
     'ignore::warehouse.utils.exceptions.DevelopmentModeWarning',
     'error:SELECT statement has a cartesian product:sqlalchemy.exc.SAWarning',
+
+    # Noise reduction for warnings that are waiting for an upstream fix.
+    # https://github.com/Pylons/pyramid/issues/3731
+    'ignore:pkg_resources is deprecated as an API.*:UserWarning:pyramid.asset',
+    # https://github.com/Pylons/webob/issues/473
+    'ignore:datetime\.datetime\.utcnow\(\) is deprecated.*:DeprecationWarning:webob.cookies',
+    # https://github.com/pypi/warehouse/issues/15454#issuecomment-2599321232
+    'ignore:Accessing argon2.__version__ is deprecated.*:DeprecationWarning:passlib.handlers.argon2',
+    # https://github.com/zopefoundation/meta/issues/194
+    '''ignore:Deprecated call to `pkg_resources.declare_namespace\('(paste|repoze|zope)'\).*:DeprecationWarning:pkg_resources''',
 ]
 
 [tool.pip-tools.compile]

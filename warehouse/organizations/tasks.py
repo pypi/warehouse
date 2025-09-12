@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import datetime
 
@@ -23,6 +13,7 @@ from warehouse.organizations.models import (
     OrganizationStripeSubscription,
 )
 from warehouse.subscriptions.interfaces import IBillingService
+from warehouse.subscriptions.models import StripeSubscriptionStatus
 
 CLEANUP_AFTER = datetime.timedelta(days=30)
 
@@ -82,8 +73,11 @@ def update_organziation_subscription_usage_record(request):
 
     # Call the Billing API to update the usage record of this subscription item
     for org_subscription in organization_subscriptions:
-        billing_service = request.find_service(IBillingService, context=None)
-        billing_service.create_or_update_usage_record(
-            org_subscription.subscription.subscription_item.subscription_item_id,
-            len(org_subscription.organization.users),
-        )
+        if org_subscription.subscription.status not in (
+            StripeSubscriptionStatus.Canceled,
+        ):
+            billing_service = request.find_service(IBillingService, context=None)
+            billing_service.create_or_update_usage_record(
+                org_subscription.subscription.subscription_item.subscription_item_id,
+                len(org_subscription.organization.users),
+            )

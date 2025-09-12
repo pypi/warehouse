@@ -1,14 +1,5 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
 from __future__ import annotations
 
 import datetime
@@ -29,7 +20,7 @@ from sqlalchemy import (
     select,
     sql,
 )
-from sqlalchemy.dialects.postgresql import CITEXT, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import ARRAY, CITEXT, UUID as PG_UUID
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column
@@ -303,6 +294,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
                 Allow,
                 "group:admins",
                 (
+                    Permissions.AdminProjectsWrite,
                     Permissions.AdminUsersRead,
                     Permissions.AdminUsersWrite,
                     Permissions.AdminUsersEmailWrite,
@@ -400,6 +392,7 @@ class UnverifyReasons(enum.Enum):
     SpamComplaint = "spam complaint"
     HardBounce = "hard bounce"
     SoftBounce = "soft bounce"
+    DomainInvalid = "domain status invalid"
 
 
 class Email(db.ModelBase):
@@ -423,6 +416,16 @@ class Email(db.ModelBase):
     # Deliverability information
     unverify_reason: Mapped[UnverifyReasons | None]
     transient_bounces: Mapped[int] = mapped_column(server_default=sql.text("0"))
+
+    # Domain validation information
+    domain_last_checked: Mapped[datetime.datetime | None] = mapped_column(
+        comment="Last time domain was checked with the domain validation service.",
+        index=True,
+    )
+    domain_last_status: Mapped[list[str] | None] = mapped_column(
+        ARRAY(String),
+        comment="Status strings returned by the domain validation service.",
+    )
 
     @property
     def domain(self):

@@ -1,17 +1,6 @@
-/* Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/* SPDX-License-Identifier: Apache-2.0 */
 
-/* global module, __dirname */
+/* global module, process, __dirname */
 
 // This is the main configuration file for webpack.
 // See: https://webpack.js.org/configuration/
@@ -114,6 +103,11 @@ module.exports = [
             // Copy vendored zxcvbn code
             from: path.resolve(__dirname, "warehouse/static/js/vendor/zxcvbn.js"),
             to: "js/vendor/[name].[contenthash][ext]",
+          },
+          {
+            // Copy utility for sanitizing plausible analytics
+            from: path.resolve(__dirname, "warehouse/static/js/vendor/plausible-sanitized.js"),
+            to: "js/utils/[name].[contenthash][ext]",
           },
         ],
       }),
@@ -383,6 +377,8 @@ module.exports = [
         path: path.resolve(__dirname, "warehouse/static/dist"),
       },
       dependencies: ["warehouse"],
+      // Emit fewer stats-per-language in non-production builds.
+      stats: (process.env.NODE_ENV === "production") ? undefined : "errors-warnings",
     };
   }),
 ];

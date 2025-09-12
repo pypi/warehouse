@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -79,6 +69,11 @@ def test_routes(warehouse):
         pretend.call("locale", "/locale/", domain=warehouse),
         pretend.call("favicon.ico", "/favicon.ico", domain=warehouse),
         pretend.call("robots.txt", "/robots.txt", domain=warehouse),
+        pretend.call(
+            "funding-manifest-urls",
+            "/.well-known/funding-manifest-urls",
+            domain=warehouse,
+        ),
         pretend.call("opensearch.xml", "/opensearch.xml", domain=warehouse),
         pretend.call("index.sitemap.xml", "/sitemap.xml", domain=warehouse),
         pretend.call("bucket.sitemap.xml", "/{bucket}.sitemap.xml", domain=warehouse),
@@ -89,7 +84,7 @@ def test_routes(warehouse):
         ),
         pretend.call(
             "includes.flash-messages",
-            "/_includes/authed/flash-messages/",
+            "/_includes/unauthed/flash-messages/",
             domain=warehouse,
         ),
         pretend.call(
@@ -140,13 +135,6 @@ def test_routes(warehouse):
             "/_includes/authed/administer-user-include/{user_name}",
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{user_name}",
-            domain=warehouse,
-        ),
-        pretend.call(
-            "includes.submit_malware_report",
-            "/_includes/authed/submit-malware-report/{project_name}",
-            factory="warehouse.packaging.models:ProjectFactory",
-            traverse="/{project_name}",
             domain=warehouse,
         ),
         pretend.call("classifiers", "/classifiers/", domain=warehouse),
@@ -659,27 +647,35 @@ def test_routes(warehouse):
             "sitemap",
             "/sitemap/",
             "pages/sitemap.html",
+            route_kw={"domain": warehouse},
             view_kw={"has_translations": True},
         ),
         pretend.call(
-            "help", "/help/", "pages/help.html", view_kw={"has_translations": True}
+            "help",
+            "/help/",
+            "pages/help.html",
+            route_kw={"domain": warehouse},
+            view_kw={"has_translations": True},
         ),
         pretend.call(
             "security",
             "/security/",
             "pages/security.html",
+            route_kw={"domain": warehouse},
             view_kw={"has_translations": True},
         ),
         pretend.call(
             "sponsors",
             "/sponsors/",
             "pages/sponsors.html",
+            route_kw={"domain": warehouse},
             view_kw={"has_translations": True},
         ),
         pretend.call(
             "trademarks",
             "/trademarks/",
             "pages/trademarks.html",
+            route_kw={"domain": warehouse},
             view_kw={"has_translations": True},
         ),
     ]

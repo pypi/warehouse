@@ -3,13 +3,16 @@ volumes:
   packages:
   packages-archive:
   sponsorlogos:
-  policies:
   caches:
+  postgres_data:
+  redis_data:
   rstuf-metadata:
+  pgdata:
+  cachedata:
 
 services:
   db:
-    image: postgres:16.1
+    image: postgres:17.5
     ports:
       # 5432 may already in use by another PostgreSQL on host
       - "5433:5432"
@@ -21,10 +24,12 @@ services:
       interval: 1s
       start_period: 10s
     volumes:
+      - pgdata:/var/lib/postgresql/data
       - ./dev/db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:z
       - ./dev/example.sql.xz:/example.sql.xz:z
       - ./dev/db/post-migrations.sql:/post-migrations.sql:z
       - ./bin/wait-for-db:/usr/local/bin/wait-for-db:z
+      - postgres_data:/var/lib/postgresql/data/
 
   stripe:
     image: stripe/stripe-mock:v0.162.0
@@ -33,6 +38,8 @@ services:
 
   redis:
     image: redis:7.0
+    volumes:
+      - cachedata:/data
 
   opensearch:
     build:
@@ -92,7 +99,6 @@ services:
       - packages:/var/opt/warehouse/packages
       - packages-archive:/var/opt/warehouse/packages-archive
       - sponsorlogos:/var/opt/warehouse/sponsorlogos
-      - policies:/var/opt/warehouse/policies
       - simple:/var/opt/warehouse/simple
       - ./bin:/opt/warehouse/src/bin:z
       - ./requirements:/opt/warehouse/src/requirements:z
@@ -221,7 +227,7 @@ services:
       - caches:/opt/warehouse/src/.stylelintcache
 
   maildev:
-    image: maildev/maildev:2.1.0
+    image: maildev/maildev:2.2.1
     ports:
       - "1080:1080"
       - "1025:1025"

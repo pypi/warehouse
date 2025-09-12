@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import os
 
@@ -327,6 +317,8 @@ def test_configure(monkeypatch, settings, environment):
         "warehouse.account.user_login_ratelimit_string": "10 per 5 minutes",
         "warehouse.account.ip_login_ratelimit_string": "10 per 5 minutes",
         "warehouse.account.global_login_ratelimit_string": "1000 per 5 minutes",
+        "warehouse.account.2fa_user_ratelimit_string": "5 per 5 minutes, 20 per hour, 50 per day",  # noqa: E501
+        "warehouse.account.2fa_ip_ratelimit_string": "10 per 5 minutes, 50 per hour",
         "warehouse.account.email_add_ratelimit_string": "2 per day",
         "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
         "warehouse.account.accounts_search_ratelimit_string": "100 per hour",
@@ -343,6 +335,7 @@ def test_configure(monkeypatch, settings, environment):
         "gcloud.service_account_info": {},
         "warehouse.forklift.legacy.MAX_FILESIZE_MIB": 100,
         "warehouse.forklift.legacy.MAX_PROJECT_SIZE_GIB": 10,
+        "warehouse.allowed_domains": [],
     }
     if environment == config.Environment.development:
         expected_settings.update(
@@ -404,6 +397,7 @@ def test_configure(monkeypatch, settings, environment):
         ]
         + [
             pretend.call(".logging"),
+            pretend.call(".request"),
             pretend.call("pyramid_jinja2"),
             pretend.call(".filters"),
             pretend.call("pyramid_mailer"),
@@ -571,11 +565,14 @@ def test_root_factory_access_control_list():
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
+                Permissions.AdminOrganizationsSetLimit,
                 Permissions.AdminOrganizationsWrite,
+                Permissions.AdminOrganizationsNameWrite,
                 Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedEmailDomainsWrite,
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedProjectsWrite,
+                Permissions.AdminProhibitedProjectsRelease,
                 Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProhibitedUsernameWrite,
                 Permissions.AdminProjectsDelete,
@@ -584,6 +581,7 @@ def test_root_factory_access_control_list():
                 Permissions.AdminProjectsWrite,
                 Permissions.AdminRoleAdd,
                 Permissions.AdminRoleDelete,
+                Permissions.AdminRoleUpdate,
                 Permissions.AdminSponsorsRead,
                 Permissions.AdminUsersRead,
                 Permissions.AdminUsersWrite,
@@ -604,14 +602,18 @@ def test_root_factory_access_control_list():
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
+                Permissions.AdminOrganizationsSetLimit,
                 Permissions.AdminOrganizationsWrite,
+                Permissions.AdminOrganizationsNameWrite,
                 Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedProjectsRead,
+                Permissions.AdminProhibitedProjectsRelease,
                 Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminProjectsSetLimit,
                 Permissions.AdminRoleAdd,
                 Permissions.AdminRoleDelete,
+                Permissions.AdminRoleUpdate,
                 Permissions.AdminSponsorsRead,
                 Permissions.AdminUsersRead,
                 Permissions.AdminUsersEmailWrite,
@@ -638,6 +640,7 @@ def test_root_factory_access_control_list():
                 Permissions.AdminProjectsSetLimit,
                 Permissions.AdminRoleAdd,
                 Permissions.AdminRoleDelete,
+                Permissions.AdminRoleUpdate,
                 Permissions.AdminSponsorsRead,
                 Permissions.AdminUsersRead,
             ),
@@ -677,3 +680,34 @@ def test_root_factory_access_control_list():
             ),
         ),
     ]
+
+
+class TestWarehouseAllowedDomains:
+    def test_allowed_domains_parsing(self):
+        """Test that allowed domains are parsed correctly."""
+
+        # Test the lambda function used in maybe_set
+        def parser(s):
+            return [d.strip() for d in s.split(",") if d.strip()]
+
+        # Test normal case
+        assert parser("pypi.org, test.pypi.org, example.com") == [
+            "pypi.org",
+            "test.pypi.org",
+            "example.com",
+        ]
+
+        # Test with empty strings
+        assert parser("pypi.org,,, test.pypi.org, ") == ["pypi.org", "test.pypi.org"]
+
+        # Test with only commas
+        assert parser(",,,") == []
+
+        # Test single domain
+        assert parser("pypi.org") == ["pypi.org"]
+
+        # Test with extra spaces
+        assert parser("  pypi.org  ,   test.pypi.org  ") == [
+            "pypi.org",
+            "test.pypi.org",
+        ]

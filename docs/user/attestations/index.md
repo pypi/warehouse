@@ -37,6 +37,13 @@ attestations per file: one for each of the allowed predicates. Uploads with more
 than two attestations per file, or with attestations with repeated predicates will
 be rejected.
 
+Currently, PyPI allows for attestations to be signed by the following Trusted
+Publisher identities:
+
+* [GitHub Actions]
+* [GitLab CI/CD]
+* [Google Cloud]
+
 [in-toto Attestation Framework]: https://github.com/in-toto/attestation/blob/main/spec/README.md
 
 [PEP 740]: https://peps.python.org/pep-0740/
@@ -49,4 +56,9 @@ be rejected.
 
 [SLSA Provenance]: https://slsa.dev/spec/v1.0/provenance
 
+[GitHub Actions]: /trusted-publishers/using-a-publisher/#github-actions
+
+[GitLab CI/CD]: /trusted-publishers/using-a-publisher/#gitlab-cicd
+
+[Google Cloud]: /trusted-publishers/using-a-publisher/#google-cloud
 

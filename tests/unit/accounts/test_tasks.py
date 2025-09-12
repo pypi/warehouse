@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from datetime import datetime, timedelta, timezone
 
@@ -16,8 +6,13 @@ import pretend
 import pytest
 
 from warehouse.accounts import tasks
-from warehouse.accounts.models import TermsOfServiceEngagement
-from warehouse.accounts.tasks import compute_user_metrics, notify_users_of_tos_update
+from warehouse.accounts.models import TermsOfServiceEngagement, UnverifyReasons
+from warehouse.accounts.tasks import (
+    batch_update_email_domain_status,
+    compute_user_metrics,
+    notify_users_of_tos_update,
+    unverify_emails_with_expired_domains,
+)
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.packaging import ProjectFactory, ReleaseFactory
@@ -191,4 +186,87 @@ def test_compute_user_metrics(db_request, metrics):
                 "primary:true",
             ],
         ),
+    ]
+
+
+def test_update_email_domain_status(db_request, domain_status_service, mocker):
+    """
+    Test that the batch update performs the correct queries and updates
+    """
+    never_checked = EmailFactory.create(
+        email="me@never-checked.com", domain_last_checked=None
+    )
+    over_threshold = EmailFactory.create(
+        email="me@over-threshold.com",
+        domain_last_checked=datetime.now(tz=timezone.utc) - timedelta(days=90),
+    )
+    on_threshold = EmailFactory.create(
+        email="me@on-threshold.com",
+        domain_last_checked=datetime.now(tz=timezone.utc) - timedelta(days=30),
+    )
+    under_threshold = EmailFactory.create(
+        email="me@under-threshold.com",
+        domain_last_checked=datetime.now(tz=timezone.utc) - timedelta(days=1),
+    )
+
+    batch_update_email_domain_status(db_request)
+
+    assert domain_status_service.get_domain_status.call_count == 3
+    domain_status_service.get_domain_status.assert_has_calls(
+        [
+            mocker.call(never_checked.domain),
+            mocker.call(over_threshold.domain),
+            mocker.call(on_threshold.domain),
+        ]
+    )
+
+    assert never_checked.domain_last_status == ["active"]
+    assert over_threshold.domain_last_status == ["active"]
+    assert on_threshold.domain_last_status == ["active"]
+    assert under_threshold.domain_last_status is None  # no default, not updated
+
+
+def test_update_email_domain_status_does_not_update_if_not_needed(
+    db_request, domain_status_service, mocker
+):
+    mocker.patch.object(domain_status_service, "get_domain_status", return_value=None)
+
+    fail_check = EmailFactory.create()
+
+    batch_update_email_domain_status(db_request)
+
+    domain_status_service.get_domain_status.assert_called_once_with(fail_check.domain)
+
+    assert fail_check.domain_last_checked is None
+    assert fail_check.domain_last_status is None
+
+
+def test_unverify_emails_with_expired_domains(db_request, user_service):
+    """
+    Test that the unverify_emails_with_expired_domains task works as expected.
+    """
+    # ensure an admin user exists
+    admin_user = UserFactory.create(username="admin")
+
+    expired_email = EmailFactory.create(domain_last_status=["undelegated"])
+    non_expired_email = EmailFactory.create(domain_last_status=["active"])
+
+    unverify_emails_with_expired_domains(db_request)
+
+    # Check that the expired email is now unverified and observation added
+    assert expired_email.verified is False
+    assert expired_email.unverify_reason == UnverifyReasons.DomainInvalid
+    assert expired_email.user.observations[-1].kind == "email_unverified"
+
+    # Check that the non-expired email is still verified, and no observation added
+    assert non_expired_email.verified is True
+    assert len(non_expired_email.user.observations) == 0
+
+    # Confirm that the observation was added to the "actor"
+    assert admin_user.observer.observations[-1].kind == "email_unverified"
+
+    assert db_request.metrics.increment.calls == [
+        pretend.call(
+            "warehouse.emails.unverified", value=1, tags=["reason:domain_expired"]
+        )
     ]

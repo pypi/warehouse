@@ -1,15 +1,5 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
+# SPDX-License-Identifier: Apache-2.0
+import csv
 import hashlib
 import hmac
 import os.path
@@ -49,13 +39,14 @@ from warehouse.attestations.errors import AttestationUploadError
 from warehouse.attestations.interfaces import IIntegrityService
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
-from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
+from warehouse.constants import ONE_GIB, ONE_MIB
 from warehouse.email import (
     send_api_token_used_in_trusted_publisher_project_email,
     send_pep427_name_email,
     send_pep625_extension_email,
     send_pep625_name_email,
     send_pep625_version_email,
+    send_wheel_record_mismatch_email,
 )
 from warehouse.events.tags import EventTag
 from warehouse.forklift import metadata
@@ -76,7 +67,7 @@ from warehouse.packaging.models import (
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
 from warehouse.rate_limiting.interfaces import RateLimiterException
-from warehouse.utils import readme
+from warehouse.utils import readme, zipfiles
 from warehouse.utils.release import strip_keywords
 
 PATH_HASHER = "blake2_256"
@@ -180,6 +171,7 @@ _jointlinux_arches = {
     "armv7l",
     "ppc64le",
     "s390x",
+    "riscv64",
 }
 _manylinux_arches = _jointlinux_arches | {"ppc64"}
 _musllinux_arches = _jointlinux_arches
@@ -348,6 +340,12 @@ def _is_valid_dist_file(filename, filetype):
                     except KeyError:
                         return False, f"WHEEL not found at {target_file}"
 
+            # Check the ZIP file record framing
+            # to avoid parser differentials.
+            zip_ok, zip_error = zipfiles.validate_zipfile(filename)
+            if not zip_ok:
+                return False, f"ZIP archive not accepted: {zip_error}"
+
         except zipfile.BadZipFile:  # pragma: no cover
             return False, None
 
@@ -447,6 +445,11 @@ def _sort_releases(request: Request, project: Project):
         #       update query to eliminate the possibility we trigger this again.
         if r._pypi_ordering != i:
             r._pypi_ordering = i
+
+
+def _zip_filename_is_dir(filename: str) -> bool:
+    """Return True if this ZIP archive member is a directory."""
+    return filename.endswith(("/", "\\"))
 
 
 @view_config(
@@ -742,6 +745,22 @@ def file_upload(request):
         )
         raise _exc_with_message(HTTPForbidden, msg)
 
+    # If organization owned project, check if the organization is active.
+    # Inactive organizations cannot upload new releases to their projects.
+    if project.organization and not project.organization.good_standing:
+        request.metrics.increment(
+            "warehouse.upload.failed", tags=["reason:org-not-active"]
+        )
+        raise _exc_with_message(
+            HTTPBadRequest,
+            (
+                "Organization account owning this project is inactive. "
+                "This may be due to inactive billing for Company Organizations, "
+                "or administrator intervention for Community Organizations. "
+                "Please contact support+orgs@pypi.org."
+            ),
+        )
+
     # If this is a user identity (i.e: API token) but there exists
     # a trusted publisher for this project, send an email warning that an
     # API token was used to upload a project where Trusted Publishing is configured.
@@ -1019,9 +1038,10 @@ def file_upload(request):
 
     # The project may or may not have a file size specified on the project, if
     # it does then it may or may not be smaller or larger than our global file
-    # size limits.
-    file_size_limit = max(filter(None, [MAX_FILESIZE, project.upload_limit]))
-    project_size_limit = max(filter(None, [MAX_PROJECT_SIZE, project.total_size_limit]))
+    # size limits. Additionally, if the project belongs to an organization,
+    # we also consider the organization's limits and use the most generous one.
+    file_size_limit = project.upload_limit_size
+    project_size_limit = project.total_size_limit_value
 
     file_data = None
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -1445,6 +1465,54 @@ def file_upload(request):
                             )
 
             """
+            Extract RECORD file from a wheel and check the ZIP archive contents
+            against the files listed in the RECORD. Mismatches are reported via email.
+            """
+            record_filename = f"{name}-{version}.dist-info/RECORD"
+            # Files that must be missing from 'RECORD',
+            # so we ignore them when cross-checking.
+            record_exemptions = {
+                f"{name}-{version}.dist-info/RECORD.jws",
+                f"{name}-{version}.dist-info/RECORD.p7s",
+            }
+            try:
+                with zipfile.ZipFile(temporary_filename) as zfp:
+                    wheel_record_contents = zfp.read(record_filename).decode()
+                record_entries = {
+                    fn.replace("\\", "/")  # Normalize Windows path separators.
+                    for fn, *_ in csv.reader(wheel_record_contents.splitlines())
+                }
+                zip_entries = {
+                    fn
+                    for fn in zfp.namelist()
+                    if not _zip_filename_is_dir(fn) and fn not in record_exemptions
+                }
+            except (UnicodeError, KeyError, csv.Error) as e:
+                request.metrics.increment(
+                    "warehouse.upload.failed",
+                    tags=[
+                        "reason:missing-record-file",
+                        f"filetype:{form.filetype.data}",
+                    ],
+                )
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    "Wheel '{filename}' does not contain the required "
+                    "RECORD file: {record_filename} {e}".format(
+                        filename=filename,
+                        record_filename=record_filename,
+                        e=str(type(e)) + repr(e),
+                    ),
+                )
+            if record_entries != zip_entries:
+                send_wheel_record_mismatch_email(
+                    request,
+                    set(project.users),
+                    project_name=project.name,
+                    filename=filename,
+                )
+
+            """
             Extract METADATA file from a wheel and return it as a content.
             The name of the .whl file is used to find the corresponding .dist-info dir.
             See https://peps.python.org/pep-0491/#file-contents
@@ -1468,8 +1536,22 @@ def file_upload(request):
                         filename=filename, metadata_filename=metadata_filename
                     ),
                 )
-            with open(temporary_filename + ".metadata", "wb") as fp:
-                fp.write(wheel_metadata_contents)
+            try:
+                with open(temporary_filename + ".metadata", "wb") as fp:
+                    fp.write(wheel_metadata_contents)
+            except OSError:
+                request.metrics.increment(
+                    "warehouse.upload.failed",
+                    tags=[
+                        "reason:filename-too-long",
+                        f"filetype:{form.filetype.data}",
+                    ],
+                )
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    f"Filename is too long: '{filename}'",
+                )
+
             metadata_file_hashes = {
                 "sha256": hashlib.sha256(),
                 "blake2_256": hashlib.blake2b(digest_size=256 // 8),

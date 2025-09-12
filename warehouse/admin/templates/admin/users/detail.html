@@ -1,20 +1,10 @@
-{#
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
--#}
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
 {% extends "admin/base.html" %}
 
 {% import "admin/utils/pagination.html" as pagination %}
 
+{% set perms_admin_projects_write = request.has_permission(Permissions.AdminProjectsWrite) %}
 {% set perms_admin_users_write = request.has_permission(Permissions.AdminUsersWrite) %}
 {% set perms_admin_users_email_write = request.has_permission(Permissions.AdminUsersEmailWrite) %}
 {% set perms_admin_users_account_recovery_write = request.has_permission(Permissions.AdminUsersAccountRecoveryWrite) %}
@@ -100,6 +90,16 @@
                 Projects - Total Owned Size	<span class="float-right badge bg-success">{{ user_projects | selectattr("role_name", "equalto", "Owner") | sum(attribute="total_size") | filesizeformat(binary=True) }}</span>
               </a>
             </li>
+            <li class="nav-item">
+              <a href="#organizations" class="nav-link">
+                Organizations <span class="float-right badge bg-info">{{ user.organizations | length }}</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#orgapps" class="nav-link">
+                Org Applications <span class="float-right badge bg-info">{{ user.organization_applications | length }}</span>
+              </a>
+            </li>
           </ul>
         </div>
 
@@ -128,6 +128,12 @@
               <i class="fa-solid fa-toilet-paper"></i> Wipe 2FA and recovery codes
             </button>
             {% endif %}
+            <button type="button" class="btn btn-block btn-warning" data-toggle="modal" data-target="#quarantineAllProjectsModal" {{ "disabled" if not perms_admin_projects_write }}>
+              <i class="icon fa fa-lock"></i> Quarantine all projects & freeze user
+            </button>
+            <button type="button" class="btn btn-block btn-success" data-toggle="modal" data-target="#clearQuarantineAllProjectsModal" {{ "disabled" if not perms_admin_projects_write }}>
+              <i class="icon fa fa-unlock"></i> Clear all projects from quarantine
+            </button>
             <div class="modal fade" id="freezeModal" tabindex="-1" role="dialog">
               <form method="POST" action="{{ request.route_path('admin.user.freeze', username=user.username) }}">
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -173,7 +179,7 @@
                 </div>
               </form>
             </div>
-<div class="modal fade" id="nukeModal" tabindex="-1" role="dialog">
+            <div class="modal fade" id="nukeModal" tabindex="-1" role="dialog">
               <form method="POST" action="{{ request.route_path('admin.user.delete', username=user.username) }}">
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
                 <div class="modal-dialog" role="document">
@@ -277,6 +283,59 @@
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         <button type="submit" class="btn btn-danger">Wipe factors</button>
                       </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <!-- Quarantine All Projects Modal -->
+            <div class="modal fade" id="quarantineAllProjectsModal" tabindex="-1" role="dialog">
+              <form method="POST" action="{{ request.route_path('admin.user.quarantine_projects', username=user.username) }}">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title">Quarantine all projects for {{ user.username }}?</h4>
+                      <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>This will quarantine all projects owned by this user, removing them from public APIs until cleared or removed.</p>
+                      <p>This action is reversible.</p>
+                      <hr>
+                      <p>Enter username '{{ user.username }}' to confirm:</p>
+                      <input type="text" name="username" placeholder="{{ user.username }}" autocomplete="off" autocorrect="off" autocapitalize="off">
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-warning">Quarantine all projects</button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <!-- Clear Quarantine All Projects Modal -->
+            <div class="modal fade" id="clearQuarantineAllProjectsModal" tabindex="-1" role="dialog">
+              <form method="POST" action="{{ request.route_path('admin.user.clear_quarantine_projects', username=user.username) }}">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title">Clear quarantine for all projects for {{ user.username }}?</h4>
+                      <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>This will clear quarantine for all quarantined projects owned by this user, making them publicly available again.</p>
+                      <hr>
+                      <p>Enter username '{{ user.username }}' to confirm:</p>
+                      <input type="text" name="username" placeholder="{{ user.username }}" autocomplete="off" autocorrect="off" autocapitalize="off">
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-success">Clear quarantine for all projects</button>
+                    </div>
                   </div>
                 </div>
               </form>
@@ -522,33 +581,60 @@
                     <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
                   {% endfor %}
                 {% endif %}
-
-                {% for field in emails_form.emails.entries %}
                 <div class="row">
-                  <div class="col-sm-7">
-                    {{ render_field("Email", field.email, "email-" ~ loop.index0, class="form-control", placeholder="Email", permission=perms_admin_users_email_write)}}
-                  </div>
-                  <div class="col-sm">
-                    {{ render_checkbox("Primary", field.primary, "email-primary-" ~ loop.index0, permission=perms_admin_users_email_write)}}
-                  </div>
-                  <div class="col-sm">
-                    {{ render_checkbox("Verified", field.verified, "email-verified-" ~ loop.index0, permission=perms_admin_users_email_write) }}
-                  </div>
-                  <div class="col-sm">
-                    {{ render_checkbox("Public", field.public, "email-public-" ~ loop.index0, permission=perms_admin_users_email_write) }}
-                  </div>
-                  {% if breached_email_count[field.email.data] %}
-                  <div class="col-sm">
-                    Breaches: {{ breached_email_count[field.email.data] }}
-                  </div>
-                  {% endif %}
-                  {% if field.unverify_reason.data %}
                   <div class="col">
-                    <i class="fa fa-times text-red"></i> Unverify Reason: {{ field.unverify_reason.data.value }}
+                    {% for field in emails_form.emails.entries %}
+                      <div class="row">
+                        <div class="col-sm-6">
+                          {{ render_field("Email", field.email, "email-" ~ loop.index0, class="form-control", placeholder="Email", permission=perms_admin_users_email_write) }}
+                        </div>
+                        <div class="col-sm">
+                          {{ render_checkbox("Primary", field.primary, "email-primary-" ~ loop.index0, permission=perms_admin_users_email_write) }}
+                        </div>
+                        <div class="col-sm">
+                          {{ render_checkbox("Verified", field.verified, "email-verified-" ~ loop.index0, permission=perms_admin_users_email_write) }}
+                        </div>
+                        <div class="col-sm">
+                          {{ render_checkbox("Public", field.public, "email-public-" ~ loop.index0, permission=perms_admin_users_email_write) }}
+                        </div>
+                        {% if breached_email_count[field.email.data] %}
+                          <div class="col-sm">Breaches: {{ breached_email_count[field.email.data] }}</div>
+                        {% endif %}
+                        <div class="col-sm">
+                          <div class="btn-group" role="group">
+                            <a href="{{ request.route_path('admin.emails.list', _query={'q': 'to:' + field.email.data}) }}"
+                               class="btn btn-sm btn-info align-content-center"
+                               title="Search emails for this address">
+                              <i class="fa-solid fa-magnifying-glass"></i>
+                            </a>
+                            <button type="button"
+                                    class="btn btn-sm btn-danger"
+                                    data-toggle="modal"
+                                    data-target="#deleteEmail-{{ field.email.id }}">
+                              <i class="fa-solid fa-trash"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-sm">Domain Status: {{ field.domain_last_status.data }}</div>
+                        <div class="col-sm">Last checked: {{ field.domain_last_checked.data }}</div>
+                        <div class="col-sm-2">
+                          <button type="button"
+                                  class="btn btn-sm btn-info"
+                                  data-toggle="modal"
+                                  data-target="#checkEmailDomain-{{ field.email.id }}">Check now</button>
+                        </div>
+                      </div>
+                      {% if field.unverify_reason.data %}
+                        <div class="row">
+                          <div class="col-sm">Unverify Reason: <i class="fa fa-times text-red"></i> {{ field.unverify_reason.data.value }}</div>
+                        </div>
+                      {% endif %}
+                      {% if not loop.last %}<hr />{% endif %}
+                    {% endfor %}
                   </div>
-                  {% endif %}
                 </div>
-                {% endfor %}
               </div>
 
               <div class="card-footer">
@@ -837,6 +923,32 @@
       </div> <!-- .card -->
       {% endif %}
 
+      {% if user.organization_applications %}
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Organization Applications</h3>
+        </div>
+
+        <div class="card-body">
+          <table class="table table-hover" id="orgapps">
+            <thead>
+              <tr>
+                <th>Organization Application Name</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for application in user.organization_applications %}
+              <tr>
+                <td><a href="{{ request.route_path('admin.organization_application.detail', organization_application_id=application.id) }}">{{ application.name }}</a></td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div> <!-- .card -->
+      {% endif %}
+
+
       <div class="card">
         <div class="card-header with-border">
           <h3 class="card-title">Pending OpenID Connect Publishers</h3>
@@ -1011,4 +1123,70 @@
 
     </div>
   </div>
+  {% for email in emails_form.emails.entries %}
+    <div class="modal fade"
+         id="checkEmailDomain-{{ email.id }}-email"
+         tabindex="-1"
+         role="dialog">
+      <form method="POST"
+            action="{{ request.route_path('admin.user.email_domain_check', username=user.username, email_address=email.email) }}">
+        <input name="csrf_token"
+               type="hidden"
+               value="{{ request.session.get_csrf_token() }}">
+        <input name="email_address" type="hidden" value="{{ email.email.data }}">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title" id="checkDomainStatusModalLabel">Check domain status?</h4>
+              <button type="button" class="close" data-dismiss="modal">
+                <span>&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <p>Perform a domain status lookup check and update the database with the results.</p>
+              <p>Check domain for email address:</p>
+              <code>{{ email.email.data }}</code>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-info">Check domain</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="modal fade"
+         id="deleteEmail-{{ email.id }}-email"
+          tabindex="-1"
+          role="dialog">
+      <form method="POST"
+            action="{{ request.route_path('admin.user.delete_email', username=user.username, email_address=email.email.data) }}">
+        <input name="csrf_token"
+               type="hidden"
+               value="{{ request.session.get_csrf_token() }}">
+        <input name="email_address" type="hidden" value="{{ email.email.data }}">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title" id="deleteEmailModalLabel">Delete email?</h4>
+              <button type="button" class="close" data-dismiss="modal">
+                <span>&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <p>Are you sure you want to delete this email address?</p>
+              <p>Email address:</p>
+              <code>{{ email.email.data }}</code>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-danger">Delete</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+  {% endfor %}
 {% endblock %}

@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import collections
 import copy
@@ -98,9 +88,7 @@ def _connect_src_settings(config) -> list:
         "https://api.github.com/repos/",
         "https://api.github.com/search/issues",
         "https://gitlab.com/api/",
-        "https://*.google-analytics.com",
-        "https://*.analytics.google.com",
-        "https://*.googletagmanager.com",
+        "https://analytics.python.org",
         "fastly-insights.com",
         "*.fastly-insights.com",
         "*.ethicalads.io",
@@ -134,9 +122,7 @@ def _connect_src_settings(config) -> list:
 def _script_src_settings(config) -> list:
     settings = [
         SELF,
-        "https://*.googletagmanager.com",
-        "https://www.google-analytics.com",  # Remove when disabling UA
-        "https://ssl.google-analytics.com",  # Remove when disabling UA
+        "https://analytics.python.org",
         "*.fastly-insights.com",
         "*.ethicalads.io",
         # Hash for v1.4.0 of ethicalads.min.js
@@ -169,14 +155,16 @@ def includeme(config):
                 "connect-src": _connect_src_settings(config),
                 "default-src": [NONE],
                 "font-src": [SELF, "fonts.gstatic.com"],
-                "form-action": [SELF, "https://checkout.stripe.com"],
+                "form-action": [
+                    SELF,
+                    "https://checkout.stripe.com",
+                    "https://billing.stripe.com",
+                ],
                 "frame-ancestors": [NONE],
                 "frame-src": [NONE],
                 "img-src": [
                     SELF,
                     config.registry.settings["camo.url"],
-                    "https://*.google-analytics.com",
-                    "https://*.googletagmanager.com",
                     "*.fastly-insights.com",
                     "*.ethicalads.io",
                     "ethicalads.blob.core.windows.net",

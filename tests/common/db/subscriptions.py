@@ -1,16 +1,7 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import factory
+import faker
 
 from warehouse.subscriptions.models import (
     StripeCustomer,
@@ -23,6 +14,8 @@ from warehouse.subscriptions.models import (
 
 from .base import WarehouseFactory
 
+fake = faker.Faker()
+
 
 class StripeCustomerFactory(WarehouseFactory):
     class Meta:
@@ -30,7 +23,10 @@ class StripeCustomerFactory(WarehouseFactory):
 
     id = factory.Faker("uuid4", cast_to=None)
     customer_id = factory.Faker("uuid4")
-    billing_email = factory.Faker("safe_email")
+
+    # TODO: Replace when factory_boy supports `unique`.
+    #  See https://github.com/FactoryBoy/factory_boy/pull/997
+    billing_email = factory.Sequence(lambda _: fake.unique.safe_email())
 
 
 class StripeSubscriptionProductFactory(WarehouseFactory):

@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -17,6 +7,7 @@ from celery.schedules import crontab
 
 from warehouse import accounts
 from warehouse.accounts.interfaces import (
+    IDomainStatusService,
     IEmailBreachedService,
     IPasswordBreachedService,
     ITokenService,
@@ -25,6 +16,7 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.services import (
     HaveIBeenPwnedEmailBreachedService,
     HaveIBeenPwnedPasswordBreachedService,
+    NullDomainStatusService,
     TokenServiceFactory,
     database_login_factory,
 )
@@ -146,6 +138,8 @@ def test_includeme(monkeypatch):
                 "warehouse.account.user_login_ratelimit_string": "10 per 5 minutes",
                 "warehouse.account.ip_login_ratelimit_string": "10 per 5 minutes",
                 "warehouse.account.global_login_ratelimit_string": "1000 per 5 minutes",
+                "warehouse.account.2fa_user_ratelimit_string": "5 per 5 minutes, 20 per hour, 50 per day",  # noqa: E501
+                "warehouse.account.2fa_ip_ratelimit_string": "10 per 5 minutes, 50 per hour",  # noqa: E501
                 "warehouse.account.email_add_ratelimit_string": "2 per day",
                 "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
                 "warehouse.account.password_reset_ratelimit_string": "5 per day",
@@ -186,10 +180,19 @@ def test_includeme(monkeypatch):
             HaveIBeenPwnedEmailBreachedService.create_service,
             IEmailBreachedService,
         ),
+        pretend.call(NullDomainStatusService.create_service, IDomainStatusService),
         pretend.call(RateLimit("10 per 5 minutes"), IRateLimiter, name="user.login"),
         pretend.call(RateLimit("10 per 5 minutes"), IRateLimiter, name="ip.login"),
         pretend.call(
             RateLimit("1000 per 5 minutes"), IRateLimiter, name="global.login"
+        ),
+        pretend.call(
+            RateLimit("5 per 5 minutes, 20 per hour, 50 per day"),
+            IRateLimiter,
+            name="2fa.user",
+        ),
+        pretend.call(
+            RateLimit("10 per 5 minutes, 50 per hour"), IRateLimiter, name="2fa.ip"
         ),
         pretend.call(RateLimit("2 per day"), IRateLimiter, name="email.add"),
         pretend.call(RateLimit("5 per day"), IRateLimiter, name="password.reset"),

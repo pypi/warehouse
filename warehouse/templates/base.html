@@ -1,110 +1,144 @@
-{#
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
--#}
-
+{# SPDX-License-Identifier: Apache-2.0 -#}
 {% macro humanize(timestamp, relative="true", time="false") -%}
-<time datetime="{{ timestamp|format_datetime('yyyy-MM-ddTHH:mm:ssZ') }}" data-controller="localized-time" data-localized-time-relative="{{ relative }}" data-localized-time-show-time="{{ time }}">
-  {{ timestamp|format_date()}}
-</time>
+  <time datetime="{{ timestamp|format_datetime('yyyy-MM-ddTHH:mm:ssZ') }}"
+        data-controller="localized-time"
+        data-localized-time-relative="{{ relative }}"
+        data-localized-time-show-time="{{ time }}">
+    {{ timestamp|format_date() }}
+  </time>
 {%- endmacro %}
-
 {% macro password_strength_gauge(data_password_strength_gauge_target=None) -%}
-<div id="password-strength">
-  <p class="form-group__help-text">
-    {% trans %}Choose a strong password that contains letters (uppercase and lowercase), numbers and special characters. Avoid common words or repetition.{% endtrans %}
-  </p>
-  <p class="form-group__help-text">
-    <strong>{% trans %}Password strength:{% endtrans %}</strong>
-    <span class="password-strength">
-      <span class="password-strength__gauge"{% if data_password_strength_gauge_target %} data-password-strength-gauge-target="{{ data_password_strength_gauge_target }}"{% endif %}>
-        <span class="sr-only">{% trans %}Password field is empty{% endtrans %}</span>
+  <div id="password-strength">
+    <p class="form-group__help-text">
+      {% trans %}Choose a strong password that contains letters (uppercase and lowercase), numbers and special characters. Avoid common words or repetition.{% endtrans %}
+    </p>
+    <p class="form-group__help-text">
+      <strong>{% trans %}Password strength:{% endtrans %}</strong>
+      <span class="password-strength">
+        <span class="password-strength__gauge"
+              {% if data_password_strength_gauge_target %} data-password-strength-gauge-target="{{ data_password_strength_gauge_target }}"{% endif %}>
+          <span class="sr-only">{% trans %}Password field is empty{% endtrans %}</span>
+        </span>
       </span>
-    </span>
-  </p>
-</div>
+    </p>
+  </div>
 {%- endmacro %}
-
 {% macro main_navigation_logged_out() -%}
-<div id="user-indicator" class="horizontal-menu horizontal-menu--light horizontal-menu--tall">
-  <nav class="horizontal-menu horizontal-menu--light horizontal-menu--tall hide-on-tablet" aria-label="{% trans %}Main navigation{% endtrans %}">
-    <ul>
-      <li class="horizontal-menu__item"><a href="{{ request.route_path('help') }}" class="horizontal-menu__link">{% trans %}Help{% endtrans %}</a></li>
-      <li class="horizontal-menu__item"><a href="{{ request.route_path('sponsors') }}" class="horizontal-menu__link">{% trans %}Sponsors{% endtrans %}</a></li>
-      <li class="horizontal-menu__item"><a href="{{ request.route_path('accounts.login') }}" class="horizontal-menu__link">{% trans %}Log in{% endtrans %}</a></li>
-      <li class="horizontal-menu__item"><a href="{{ request.route_path('accounts.register') }}" class="horizontal-menu__link">{% trans %}Register{% endtrans %}</a></li>
-    </ul>
-  </nav>
-  <nav class="dropdown dropdown--on-menu hidden show-on-tablet" aria-label="{% trans %}Main navigation{% endtrans %}">
-    <button type="button" class="horizontal-menu__link dropdown__trigger" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}View menu{% endtrans %}">
-      {% trans %}Menu{% endtrans %}
-      <span class="dropdown__trigger-caret">
-        <i class="fa fa-caret-down" aria-hidden="true"></i>
-      </span>
-    </button>
-    <ul class="dropdown__content" aria-hidden="true" aria-label="{% trans %}Main menu{% endtrans %}">
-      <li><a class="dropdown__link" href="{{ request.route_path('help') }}">{% trans %}Help{% endtrans %}</a></li>
-      <li><a class="dropdown__link" href="{{ request.route_path('sponsors') }}">{% trans %}Sponsors{% endtrans %}</a></li>
-      <li><a class="dropdown__link" href="{{ request.route_path('accounts.login') }}">{% trans %}Log in{% endtrans %}</a></li>
-      <li><a class="dropdown__link" href="{{ request.route_path('accounts.register') }}">{% trans %}Register{% endtrans %}</a></li>
-    </ul>
-  </nav>
-</div>
+  <div id="user-indicator"
+       class="horizontal-menu horizontal-menu--light horizontal-menu--tall">
+    <nav class="horizontal-menu horizontal-menu--light horizontal-menu--tall hide-on-tablet"
+         aria-label="{% trans %}Main navigation{% endtrans %}">
+      <ul>
+        <li class="horizontal-menu__item">
+          <a href="{{ request.route_path('help') }}" class="horizontal-menu__link">{% trans %}Help{% endtrans %}</a>
+        </li>
+        <li class="horizontal-menu__item">
+          <a href="{{ request.user_docs_url('/') }}" class="horizontal-menu__link">{% trans %}Docs{% endtrans %}</a>
+        </li>
+        <li class="horizontal-menu__item">
+          <a href="{{ request.route_path('sponsors') }}"
+             class="horizontal-menu__link">{% trans %}Sponsors{% endtrans %}</a>
+        </li>
+        <li class="horizontal-menu__item">
+          <a href="{{ request.route_path('accounts.login', _query={'next': request.url }) }}"
+             class="horizontal-menu__link">{% trans %}Log in{% endtrans %}</a>
+        </li>
+        <li class="horizontal-menu__item">
+          <a href="{{ request.route_path('accounts.register') }}"
+             class="horizontal-menu__link">{% trans %}Register{% endtrans %}</a>
+        </li>
+      </ul>
+    </nav>
+    <nav class="dropdown dropdown--on-menu hidden show-on-tablet"
+         aria-label="{% trans %}Main navigation{% endtrans %}">
+      <button type="button"
+              class="horizontal-menu__link dropdown__trigger"
+              aria-haspopup="true"
+              aria-expanded="false"
+              aria-label="{% trans %}View menu{% endtrans %}">
+        {% trans %}Menu{% endtrans %}
+        <span class="dropdown__trigger-caret">
+          <i class="fa fa-caret-down" aria-hidden="true"></i>
+        </span>
+      </button>
+      <ul class="dropdown__content"
+          aria-hidden="true"
+          aria-label="{% trans %}Main menu{% endtrans %}">
+        <li>
+          <a class="dropdown__link" href="{{ request.route_path('help') }}">{% trans %}Help{% endtrans %}</a>
+        </li>
+        <li>
+          <a class="dropdown__link" href="{{ request.user_docs_url('/') }}">{% trans %}Docs{% endtrans %}</a>
+        </li>
+        <li>
+          <a class="dropdown__link" href="{{ request.route_path('sponsors') }}">{% trans %}Sponsors{% endtrans %}</a>
+        </li>
+        <li>
+          <a class="dropdown__link"
+             href="{{ request.route_path('accounts.login') }}">{% trans %}Log in{% endtrans %}</a>
+        </li>
+        <li>
+          <a class="dropdown__link"
+             href="{{ request.route_path('accounts.register') }}">{% trans %}Register{% endtrans %}</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
 {%- endmacro %}
-
 {% macro trademarks(long=False) -%}
-{% if long %}
-{% trans wordmark="PyPI", name="Python Package Index", psf_href="https://www.python.org/psf-landing", trademarks_href=request.route_path('trademarks') %}
-"{{ wordmark }}", "{{ name }}", and the blocks logos are registered trademarks of the <a href="{{ psf_href }}" target="_blank" rel="noopener">Python Software Foundation</a> referring to the products and services associated with pypi.org. Any other use by any other party is prohibited.
-{% endtrans %}
+  {% if long %}
+    {% trans wordmark="PyPI", name="Python Package Index", psf_href="https://www.python.org/psf-landing", trademarks_href=request.route_path('trademarks') %}
+    "{{ wordmark }}", "{{ name }}", and the blocks logos are registered trademarks of the <a href="{{ psf_href }}" target="_blank" rel="noopener">Python Software Foundation</a> referring to the products and services associated with pypi.org. Any other use by any other party is prohibited.
+  {% endtrans %}
 {% else %}
-{% trans wordmark="PyPI", name="Python Package Index", psf_href="https://www.python.org/psf-landing", trademarks_href=request.route_path('trademarks') %}
-"{{ wordmark }}", "{{ name }}", and the blocks logos are registered <a href="{{ trademarks_href }}">trademarks</a> of the <a href="{{ psf_href }}" target="_blank" rel="noopener">Python Software Foundation</a>.
+  {% trans wordmark="PyPI", name="Python Package Index", psf_href="https://www.python.org/psf-landing", trademarks_href=request.route_path('trademarks') %}
+  "{{ wordmark }}", "{{ name }}", and the blocks logos are registered <a href="{{ trademarks_href }}">trademarks</a> of the <a href="{{ psf_href }}" target="_blank" rel="noopener">Python Software Foundation</a>.
 {% endtrans %}
 {% endif %}
 {%- endmacro %}
-
 <!DOCTYPE html>
+{# djlint:off H031 #}
 <html lang="{{ request.locale }}" dir="{{ request.locale.text_direction }}">
+  {# djlint:on #}
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <meta name="defaultLanguage" content="en">
-    <meta name="availableLanguages" content="{{ ', '.join(KNOWN_LOCALES.keys()) }}">
-
+    <meta name="availableLanguages"
+          content="{{ ', '.join(KNOWN_LOCALES.keys() ) }}">
     {% if request.registry.settings.get("warehouse.domain") == "test.pypi.org" %}
       {% set testPyPI = true %}
     {% elif request.registry.settings.get("warehouse.env").value == "development" %}
       {% set devPyPI = true %}
     {% endif %}
-
-    <title>{% block title_base %}{% block title %}{% endblock %}{% if self.title() %} · {% endif %}{{ request.registry.settings['site.name'] }}{% endblock %}</title>
-    <meta name="description" content="{% block description %}{% trans %}The Python Package Index (PyPI) is a repository of software for the Python programming language.{% endtrans %}{% endblock %}">
-
-    <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/warehouse-{}.css'.format(request.locale.text_direction)) }}">
-    <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/fontawesome.css') }}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+3:400,400italic,600,600italic,700,700italic%7CSource+Code+Pro:500">
+    {# djlint:off #}
+    <title>{% block title_base %}{% block title %}{% endblock title %}{% if self.title() %} · {% endif %}{{ request.registry.settings['site.name'] }}{% endblock title_base %}</title>
+    {# djlint:on #}
+    <meta name="description"
+          content="{% block description %}{% trans %}The Python Package Index (PyPI) is a repository of software for the Python programming language.{% endtrans %}{% endblock %}">
+    <link rel="stylesheet"
+          href="{{ request.static_path('warehouse:static/dist/css/warehouse-{}.css'.format(request.locale.text_direction) ) }}">
+    <link rel="stylesheet"
+          href="{{ request.static_path('warehouse:static/dist/css/fontawesome.css') }}">
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Source+Sans+3:400,400italic,600,600italic,700,700italic%7CSource+Code+Pro:500">
     <noscript>
-      <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/noscript.css') }}">
+      <link rel="stylesheet"
+            href="{{ request.static_path('warehouse:static/dist/css/noscript.css') }}">
     </noscript>
-
     {% block extra_css %}{% endblock %}
-
-    <link rel="icon" href="{{ request.static_path('warehouse:static/dist/images/favicon.ico') }}" type="image/x-icon">
-
-    <link rel="alternate" type="application/rss+xml" title="{% trans %}RSS: 40 latest updates{% endtrans %}" href="{{ request.route_path('rss.updates') }}">
-    <link rel="alternate" type="application/rss+xml" title="{% trans %}RSS: 40 newest packages{% endtrans %}" href="{{ request.route_path('rss.packages') }}">
+    <link rel="icon"
+          href="{{ request.static_path('warehouse:static/dist/images/favicon.ico') }}"
+          type="image/x-icon">
+    <link rel="alternate"
+          type="application/rss+xml"
+          title="{% trans %}RSS: 40 latest updates{% endtrans %}"
+          href="{{ request.route_path('rss.updates') }}">
+    <link rel="alternate"
+          type="application/rss+xml"
+          title="{% trans %}RSS: 40 newest packages{% endtrans %}"
+          href="{{ request.route_path('rss.packages') }}">
     {% block additional_rss %}{% endblock %}
     {# Allow overriding the canonical URL if we have explicitly set it.
      # Otherwise, try to use the URL to the current matched route as the canonical URL,
@@ -112,67 +146,73 @@
      # If that fails, don't include a canonical URL
      #}
     {% if self.canonical_url() %}
-    <link rel="canonical" href="{% block canonical_url %}{% endblock %}">
+      <link rel="canonical" href="{% block canonical_url %}{% endblock %}">
     {% elif request.canonical_url() %}
-    <link rel="canonical" href="{{ request.canonical_url() }}">
+      <link rel="canonical" href="{{ request.canonical_url() }}">
     {% endif %}
-
-    <meta property="og:url" content="{% if request.matched_route %}{{ request.current_route_url() }}{% else %}{{ request.url }}{% endif %}">
+    <meta property="og:url"
+          content="{% if request.matched_route %}{{ request.current_route_url() }}{% else %}{{ request.url }}{% endif %}">
     <meta property="og:site_name" content="PyPI">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="{% block image %}{{ request.static_url('warehouse:static/dist/images/twitter.jpg') }}{% endblock %}">
-    <meta property="og:title" content="{{ self.title()|default('Python Package Index') }}">
+    <meta property="og:image"
+          content="{% block image %}{{ request.static_url("warehouse:static/dist/images/twitter.jpg") }}{% endblock %}">
+    <meta property="og:title"
+          content="{{ self.title() |default('Python Package Index') }}">
     <meta property="og:description" content="{{ self.description() }}">
     {% block extra_meta %}{% endblock %}
-
-    <link rel="search" type="application/opensearchdescription+xml" title="PyPI" href="{{ request.route_path('opensearch.xml') }}">
-
+    <link rel="search"
+          type="application/opensearchdescription+xml"
+          title="PyPI"
+          href="{{ request.route_path('opensearch.xml') }}">
     {# All of our JavaScript should be loaded using the async attribute so it's
      # fine to have it in the header. This will allow the browser to start
      # downloading it ASAP while still not blocking the parser.
      #}
-    <script async
-            {% if request.registry.settings.get("ga.tracking_id") -%}
-            data-ga-id="{{ request.registry.settings['ga.tracking_id'] }}"
-            {% endif -%}
-            {% if request.registry.settings.get("ga4.tracking_id") -%}
-            data-ga4-id="{{ request.registry.settings['ga4.tracking_id'] }}"
-            {% endif %}
-            src="{{ request.static_path('warehouse:static/dist/js/warehouse' + ('' if request.localizer.locale_name == 'en' else '.' + request.localizer.locale_name) + '.js') }}">
+    <script async src="{{ request.static_path('warehouse:static/dist/js/warehouse' + ('' if request.localizer.locale_name == 'en' else '.' + request.localizer.locale_name) + '.js') }}">
     </script>
-    {% block extra_js %}
-    {% endblock %}
-    {% if request.registry.settings.get("ga.tracking_id") -%}
-    <script async src="https://www.googletagmanager.com/gtag/js?id={{ request.registry.settings['ga.tracking_id'] }}"></script>
-    {% endif -%}
-    {% if request.registry.settings.get("ga4.tracking_id") -%}
-    <script async src="https://www.googletagmanager.com/gtag/js?id={{ request.registry.settings['ga4.tracking_id'] }}"></script>
-    {% endif -%}
-    <script defer src="https://www.fastly-insights.com/insights.js?k=6a52360a-f306-421e-8ed5-7417d0d4a4e9&dnt=true"></script>
-    <script async
-        src="https://media.ethicalads.io/media/client/v1.4.0/ethicalads.min.js"
-        integrity="sha256-U3hKDidudIaxBDEzwGJApJgPEf2mWk6cfMWghrAa6i0= sha384-UcmsCqcNRSLW/dV3Lo1oCi2/VaurXbib6p4HyUEOeIa/4OpsrnucrugAefzVZJfI sha512-q4t1L4xEjGV2R4hzqCa41P8jrgFUS8xTb8rdNv4FGvw7FpydVj/kkxBJHOiaoxHa8olCcx1Slk9K+3sNbsM4ug=="
-        crossorigin="anonymous"
-    ></script>
-
-    {% if devPyPI %}
-    <script src="{{ request.registry.settings.get("livereload.url") }}/livereload.js"></script>
+    {% block extra_js %}{% endblock %}
+    {# Exclude all query parameters from analytics payload on pages where they may contain sensitive information.
+     # PSF controls the analytics destination, so it is not a third-party tracker,
+     # but this prevents the parameters from being sent to the analytics service in the payload,
+     # where it would be further filtered before storage. #}
+    {% set analytics_sanitize_query_params_routes = [
+      "accounts.reset-password",
+      "accounts.verify-email",
+      "accounts.verify-organization-role",
+      "accounts.verify-project-role"
+    ] %}
+    {% if request.matched_route and request.matched_route.name in analytics_sanitize_query_params_routes %}
+      <script defer
+              data-domain="pypi.org"
+              src="https://analytics.python.org/js/script.manual.js"></script>
+      <script defer
+              src="{{ request.static_path('warehouse:static/dist/js/utils/plausible-sanitized.js') }}"></script>
+    {% else %}
+      <script defer
+              data-domain="pypi.org"
+              src="https://analytics.python.org/js/script.js"></script>
     {% endif %}
+    <script defer
+            src="https://www.fastly-insights.com/insights.js?k=6a52360a-f306-421e-8ed5-7417d0d4a4e9&dnt=true"></script>
+    <script async
+            src="https://media.ethicalads.io/media/client/v1.4.0/ethicalads.min.js"
+            integrity="sha256-U3hKDidudIaxBDEzwGJApJgPEf2mWk6cfMWghrAa6i0= sha384-UcmsCqcNRSLW/dV3Lo1oCi2/VaurXbib6p4HyUEOeIa/4OpsrnucrugAefzVZJfI sha512-q4t1L4xEjGV2R4hzqCa41P8jrgFUS8xTb8rdNv4FGvw7FpydVj/kkxBJHOiaoxHa8olCcx1Slk9K+3sNbsM4ug=="
+            crossorigin="anonymous"></script>
+    {% if devPyPI %}<script src="{{ request.registry.settings.get("livereload.url") }}/livereload.js"></script>{% endif %}
   </head>
-
-  <body data-controller="viewport-toggle">
+  <body data-controller="viewport-toggle"
+        data-allowed-domains="{{ request.hashed_domains }}"
+        data-request-nonce="{{ request.nonce }}">
     {% block body %}
-
-    <!-- Accessibility: this link should always be the first piece of content inside the body-->
-    <a href="#content" class="skip-to-content">{% trans %}Skip to main content{% endtrans %}</a>
-
-    <button type="button" class="button button--primary button--switch-to-mobile hidden" data-viewport-toggle-target="switchToMobile" data-action="viewport-toggle#switchToMobile">
-      {% trans %}Switch to mobile version{% endtrans %}
-    </button>
-
-    <div id="sticky-notifications" class="stick-to-top js-stick-to-top">
-      <!-- Add browser warning. Will show for ie9 and below -->
-      <!--[if IE]>
+      <!-- Accessibility: this link should always be the first piece of content inside the body-->
+      <a href="#content" class="skip-to-content">{% trans %}Skip to main content{% endtrans %}</a>
+      <button type="button"
+              class="button button--primary button--switch-to-mobile hidden"
+              data-viewport-toggle-target="switchToMobile"
+              data-action="viewport-toggle#switchToMobile">{% trans %}Switch to mobile version{% endtrans %}</button>
+      <div id="sticky-notifications" class="stick-to-top js-stick-to-top">
+        <!-- Add browser warning. Will show for ie9 and below -->
+        <!--[if IE]>
       <div class="notification-bar notification-bar--warning" role="status">
         <span class="notification-bar__icon">
           <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
@@ -181,209 +221,297 @@
         <span class="notification-bar__message">{% trans %}You are using an unsupported browser, upgrade to a newer version.{% endtrans %}</span>
       </div>
       <![endif]-->
-      {% if testPyPI %}
-      <div class="notification-bar notification-bar--warning" role="status">
-        <span class="notification-bar__icon">
-          <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-          <span class="sr-only">{% trans %}Warning{% endtrans %}</span>
-        </span>
-        <span class="notification-bar__message">{% trans %}You are using TestPyPI – a separate instance of the Python Package Index that allows you to try distribution tools and processes without affecting the real index.{% endtrans %}</span>
-      </div>
-      {% endif %}
-      <noscript>
-      <div class="notification-bar notification-bar--warning" role="status">
-        {# TODO: This should be removed once GH-3828 is fixed. #}
-        <span class="notification-bar__icon">
-          <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-          <span class="sr-only">{% trans %}Warning{% endtrans %}</span>
-        </span>
-        <span class="notification-bar__message">{% trans %}Some features may not work without JavaScript. Please try enabling it if you encounter problems.{% endtrans %}</span>
-      </div>
-      </noscript>
-
-      {% block banner_messages %}
-        {% csi request.route_path("includes.db-banners") %}
+        {% if testPyPI %}
+          <div class="notification-bar notification-bar--warning" role="status">
+            <span class="notification-bar__icon">
+              <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+              <span class="sr-only">{% trans %}Warning{% endtrans %}</span>
+            </span>
+            <span class="notification-bar__message">{% trans %}You are using TestPyPI – a separate instance of the Python Package Index that allows you to try distribution tools and processes without affecting the real index.{% endtrans %}</span>
+          </div>
+        {% endif %}
+        <noscript>
+          <div class="notification-bar notification-bar--warning" role="status">
+            {# TODO: This should be removed once GH-3828 is fixed. #}
+            <span class="notification-bar__icon">
+              <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+              <span class="sr-only">{% trans %}Warning{% endtrans %}</span>
+            </span>
+            <span class="notification-bar__message">{% trans %}Some features may not work without JavaScript. Please try enabling it if you encounter problems.{% endtrans %}</span>
+          </div>
+        </noscript>
+        {% block banner_messages %}
+          {% csi request.route_path("includes.db-banners") %}
         {% endcsi %}
       {% endblock %}
     </div>
-
     {% block flash_messages %}
       {% csi request.route_path("includes.flash-messages") %}
-      {% endcsi %}
-    {% endblock %}
-
-    {% for flag in request.flags.notifications() %}
+    {% endcsi %}
+  {% endblock %}
+  {% for flag in request.flags.notifications() %}
     <div class="notification-bar">
       <span class="notification-bar__message">{{ flag.description }}</span>
     </div>
-    {% endfor %}
-
-    {% block session_notifications %}
-      {% csi request.route_path("includes.session-notifications") %}
-      {% endcsi %}
-    {% endblock %}
-
-    <header class="site-header {% if testPyPI %}site-header--test-pypi{% elif devPyPI %}site-header--dev-pypi{% else %}{% endif %}">
-      <div class="site-container">
+  {% endfor %}
+  {% block session_notifications %}
+    {% csi request.route_path("includes.session-notifications") %}
+  {% endcsi %}
+{% endblock %}
+<header class="site-header {% if testPyPI %}site-header--test-pypi{% elif devPyPI %}site-header--dev-pypi{% else %}{% endif %}">
+  <div class="site-container">
+    <div class="split-layout">
+      {% block brand %}
         <div class="split-layout">
-          {% block brand %}
-          <div class="split-layout">
-            <div>
-              <a class="site-header__logo" href="{{ request.route_path('index') }}">
-                <img alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
-              </a>
-            </div>
-
-            <form class="search-form search-form--primary" action="{{ request.route_path('search') }}" role="search">
-              <label for="search" class="sr-only">{% trans %}Search PyPI{% endtrans %}</label>
-              <input id="search" class="search-form__search" type="text" name="q" placeholder="{% trans %}Search projects{% endtrans %}" value="{{ term }}" autocomplete="off" autocapitalize="off" spellcheck="false" data-controller="search-focus" data-action="keydown@window->search-focus#focusSearchField" data-search-focus-target="searchField">
-              {% block search_form_extra_inputs %}{% endblock %}
-              <button type="submit" class="search-form__button">
-                <i class="fa fa-search" aria-hidden="true"></i>
-                <span class="sr-only">{% trans %}Search{% endtrans %}</span>
-              </button>
-            </form>
+          <div>
+            <a class="site-header__logo" href="{{ request.route_path('index') }}">
+              <img alt="{{ request.registry.settings['site.name'] }}"
+                   src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
+            </a>
           </div>
-          {% endblock %}
-
-          {% csi request.route_path("includes.current-user-indicator") %}
-            {{ main_navigation_logged_out() }}
-          {% endcsi %}
-        </div>
-      </div>
-    </header>
-
-    {% block mobile_search %}
-    <div class="mobile-search">
-      <form class="search-form search-form--fullwidth" action="{{ request.route_path('search') }}" role="search">
-        <label for="mobile-search" class="sr-only">{% trans %}Search PyPI{% endtrans %}</label>
-        <input id="mobile-search" class="search-form__search" type="text" name="q" placeholder="{% trans %}Search projects{% endtrans %}" value="{{ term }}" autocomplete="off" autocapitalize="off" spellcheck="false">
-        {{ self.search_form_extra_inputs() }}
-        <button type="submit" class="search-form__button">
-          <i class="fa fa-search" aria-hidden="true"></i>
-          <span class="sr-only">{% trans %}Search{% endtrans %}</span>
-        </button>
-      </form>
-    </div>
-    {% endblock mobile_search %}
-
-    <main id="content">
-      {% block content %}
-      {% endblock content %}
-    </main>
-
-    <footer class="footer">
-      <div class="footer__logo">
-        <img src="{{ request.static_path('warehouse:static/dist/images/white-cube.svg') }}" alt="" class="-js-white-cube">
-      </div>
-
-      <div class="footer__menus">
-        <div class="footer__menu">
-          <h2>{% trans %}Help{% endtrans %}</h2>
-          <nav aria-label="{% trans %}Help navigation{% endtrans %}">
-            <ul>
-              <li><a href="https://packaging.python.org/tutorials/installing-packages/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Installing packages{% endtrans %}</a></li>
-              <li><a href="https://packaging.python.org/tutorials/packaging-projects/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Uploading packages{% endtrans %}</a></li>
-              <li><a href="https://packaging.python.org/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}User guide{% endtrans %}</a></li>
-              <li><a href="https://www.python.org/dev/peps/pep-0541/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Project name retention{% endtrans %}</a></li>
-              <li><a href="{{ request.route_path('help')}}">{% trans %}FAQs{% endtrans %}</a></li>
-            </ul>
-          </nav>
-        </div>
-
-        <div class="footer__menu">
-          <h2>{% trans %}About PyPI{% endtrans %}</h2>
-          <nav aria-label="{% trans %}About PyPI navigation{% endtrans %}">
-            <ul>
-              <li><a href="https://blog.pypi.org" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}PyPI Blog{% endtrans %}</a></li>
-              <li><a href="https://dtdg.co/pypi" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Infrastructure dashboard{% endtrans %}</a></li>
-              <li><a href="{{ request.route_path('stats') }}">{% trans %}Statistics{% endtrans %}</a></li>
-              <li><a href="{{ request.route_path('trademarks') }}">{% trans %}Logos & trademarks{% endtrans %}</a></li>
-              <li><a href="{{ request.route_path('sponsors') }}">{% trans %}Our sponsors{% endtrans %}</a></li>
-            </ul>
-          </nav>
-        </div>
-
-        <div class="footer__menu">
-          <h2>{% trans %}Contributing to PyPI{% endtrans %}</h2>
-          <nav aria-label="{% trans %}How to contribute navigation{% endtrans %}">
-            <ul>
-              <li><a href="{{ request.route_path('help')}}#feedback">{% trans %}Bugs and feedback{% endtrans %}</a></li>
-              <li><a href="https://github.com/pypi/warehouse" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Contribute on GitHub{% endtrans %}</a></li>
-              <li><a href="https://hosted.weblate.org/projects/pypa/warehouse/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Translate PyPI{% endtrans %}</a></li>
-              <li><a href="{{ request.route_path('sponsors') }}">{% trans %}Sponsor PyPI{% endtrans %}</a></li>
-              <li><a href="https://github.com/pypi/warehouse/graphs/contributors" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Development credits{% endtrans %}</a></li>
-            </ul>
-          </nav>
-        </div>
-
-        <div class="footer__menu">
-          <h2>{% trans %}Using PyPI{% endtrans %}</h2>
-          <nav aria-label="{% trans %}Using PyPI navigation{% endtrans %}">
-            <ul>
-              <li><a href="https://policies.python.org/pypi.org/Terms-of-Service/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Terms of Service{% endtrans %}</a></li>
-              <li><a href="{{ request.route_path('security') }}">{% trans %}Report security issue{% endtrans %}</a></li>
-              <li><a href="https://policies.python.org/python.org/code-of-conduct/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Code of conduct{% endtrans %}</a></li>
-              <li><a href="https://policies.python.org/pypi.org/Privacy-Notice/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Privacy Notice{% endtrans %}</a></li>
-              <li><a href="https://policies.python.org/pypi.org/Acceptable-Use-Policy/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Acceptable Use Policy{% endtrans %}</a></li>
-            </ul>
-          </nav>
-        </div>
-      </div>
-
-      <hr class="footer__divider">
-
-      <div class="footer__text">
-        {% if request.registry.settings.get("statuspage.url") %}
-        <p>{% trans %}Status: {% endtrans %}<a href="https://status.python.org/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">
-          <span data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}">{% trans %}all systems operational{% endtrans %}</span></a>
-        </p>
-        {% endif %}
-        <p>
-          {% trans %}Developed and maintained by the Python community, for the Python community.{% endtrans %}
-          <br>
-          <a href="https://donate.pypi.org">{% trans %}Donate today!{% endtrans %}</a>
-        </p>
-        <p>
-          {{ trademarks() }}<br>
-        </p>
-        <p>
-          © {{ now()|format_date('yyyy') }} <a href="https://www.python.org/psf-landing/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">Python Software Foundation</a><br>
-          <a href="{{ request.route_path('sitemap') }}">{% trans %}Site map{% endtrans %}</a>
-        </p>
-      </div>
-
-      <div class="centered hide-on-desktop">
-        <button type="button" class="button button--switch-to-desktop hidden" data-viewport-toggle-target="switchToDesktop" data-action="viewport-toggle#switchToDesktop">
-          {% trans %}Switch to desktop version{% endtrans %}
-        </button>
-      </div>
-    </footer>
-
-
-    <div class="language-switcher">
-      <form action="{{ request.route_path('locale') }}">
-        <ul>
-          {% for identifier, locale in KNOWN_LOCALES.items() %}
-          <li>
-            <button
-              {% if request.locale_name == identifier %}
-              class="language-switcher__selected"
-              {% endif %}
-              name="locale_id" value="{{ identifier }}" type="submit"
-            >
-              {{ locale.display_name }}
+          <form class="search-form search-form--primary"
+                action="{{ request.route_path('search') }}"
+                role="search">
+            <label for="search" class="sr-only">{% trans %}Search PyPI{% endtrans %}</label>
+            <input id="search"
+                   class="search-form__search"
+                   type="text"
+                   name="q"
+                   placeholder="{% trans %}Type '/' to search projects{% endtrans %}"
+                   value="{{ term }}"
+                   autocomplete="off"
+                   autocapitalize="off"
+                   spellcheck="false"
+                   data-controller="search-focus"
+                   data-action="keydown@window->search-focus#focusSearchField"
+                   data-search-focus-target="searchField">
+            {% block search_form_extra_inputs %}{% endblock %}
+            <button type="submit" class="search-form__button">
+              <i class="fa fa-search" aria-hidden="true"></i>
+              <span class="sr-only">{% trans %}Search{% endtrans %}</span>
             </button>
+          </form>
+        </div>
+      {% endblock %}
+      {% csi request.route_path("includes.current-user-indicator") %}
+      {{ main_navigation_logged_out() }}
+    {% endcsi %}
+  </div>
+</div>
+</header>
+{% block mobile_search %}
+  <div class="mobile-search">
+    <form class="search-form search-form--fullwidth"
+          action="{{ request.route_path('search') }}"
+          role="search">
+      <label for="mobile-search" class="sr-only">{% trans %}Search PyPI{% endtrans %}</label>
+      <input id="mobile-search"
+             class="search-form__search"
+             type="text"
+             name="q"
+             placeholder="{% trans %}Search projects{% endtrans %}"
+             value="{{ term }}"
+             autocomplete="off"
+             autocapitalize="off"
+             spellcheck="false">
+      {{ self.search_form_extra_inputs() }}
+      <button type="submit" class="search-form__button">
+        <i class="fa fa-search" aria-hidden="true"></i>
+        <span class="sr-only">{% trans %}Search{% endtrans %}</span>
+      </button>
+    </form>
+  </div>
+{% endblock mobile_search %}
+<main id="content">
+  {% block content %}
+  {% endblock content %}
+</main>
+<footer class="footer">
+  <div class="footer__logo">
+    <img src="{{ request.static_path('warehouse:static/dist/images/white-cube.svg') }}"
+         alt=""
+         class="-js-white-cube">
+  </div>
+  <div class="footer__menus">
+    <div class="footer__menu">
+      <h2>{% trans %}Help{% endtrans %}</h2>
+      <nav aria-label="{% trans %}Help navigation{% endtrans %}">
+        <ul>
+          <li>
+            <a href="https://packaging.python.org/tutorials/installing-packages/"
+               title="{% trans %}External link{% endtrans %}"
+               target="_blank"
+               rel="noopener">{% trans %}Installing packages{% endtrans %}</a>
           </li>
-          {% endfor %}
+          <li>
+            <a href="https://packaging.python.org/tutorials/packaging-projects/"
+               title="{% trans %}External link{% endtrans %}"
+               target="_blank"
+               rel="noopener">{% trans %}Uploading packages{% endtrans %}</a>
+          </li>
+          <li>
+            <a href="https://packaging.python.org/"
+               title="{% trans %}External link{% endtrans %}"
+               target="_blank"
+               rel="noopener">{% trans %}User guide{% endtrans %}</a>
+          </li>
+          <li>
+            <a href="https://www.python.org/dev/peps/pep-0541/"
+               title="{% trans %}External link{% endtrans %}"
+               target="_blank"
+               rel="noopener">{% trans %}Project name retention{% endtrans %}</a>
+          </li>
+          <li>
+            <a href="{{ request.route_path('help') }}">{% trans %}FAQs{% endtrans %}</a>
+          </li>
         </ul>
-      </form>
+      </nav>
     </div>
-
-
-    {% include "warehouse:templates/includes/sponsors-footer.html" %}
-
-    {% endblock body %}
-  </body>
-
+    <div class="footer__menu">
+      <h2>{% trans %}About PyPI{% endtrans %}</h2>
+      <nav aria-label="{% trans %}About PyPI navigation{% endtrans %}">
+        <ul>
+          <li>
+            <a href="https://blog.pypi.org"
+               title="{% trans %}External link{% endtrans %}"
+               target="_blank"
+               rel="noopener">{% trans %}PyPI Blog{% endtrans %}</a>
+          </li>
+          <li>
+            <a href="https://dtdg.co/pypi"
+               title="{% trans %}External link{% endtrans %}"
+               target="_blank"
+               rel="noopener">{% trans %}Infrastructure dashboard{% endtrans %}</a>
+          </li>
+          <li>
+            <a href="{{ request.route_path('stats') }}">{% trans %}Statistics{% endtrans %}</a>
+          </li>
+          <li>
+            <a href="{{ request.route_path('trademarks') }}">{% trans %}Logos & trademarks{% endtrans %}</a>
+          </li>
+          <li>
+            <a href="{{ request.route_path('sponsors') }}">{% trans %}Our sponsors{% endtrans %}</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+    <div class="footer__menu">
+      <h2>{% trans %}Contributing to PyPI{% endtrans %}</h2>
+      <nav aria-label="{% trans %}How to contribute navigation{% endtrans %}">
+        <ul>
+          <li>
+            <a href="{{ request.route_path('help') }}#feedback">{% trans %}Bugs and feedback{% endtrans %}</a>
+          </li>
+          <li>
+            <a href="https://github.com/pypi/warehouse"
+               title="{% trans %}External link{% endtrans %}"
+               target="_blank"
+               rel="noopener">{% trans %}Contribute on GitHub{% endtrans %}</a>
+          </li>
+          <li>
+            <a href="https://hosted.weblate.org/projects/pypa/warehouse/"
+               title="{% trans %}External link{% endtrans %}"
+               target="_blank"
+               rel="noopener">{% trans %}Translate PyPI{% endtrans %}</a>
+          </li>
+          <li>
+            <a href="{{ request.route_path('sponsors') }}">{% trans %}Sponsor PyPI{% endtrans %}</a>
+          </li>
+          <li>
+            <a href="https://github.com/pypi/warehouse/graphs/contributors"
+               title="{% trans %}External link{% endtrans %}"
+               target="_blank"
+               rel="noopener">{% trans %}Development credits{% endtrans %}</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+    <div class="footer__menu">
+      <h2>{% trans %}Using PyPI{% endtrans %}</h2>
+      <nav aria-label="{% trans %}Using PyPI navigation{% endtrans %}">
+        <ul>
+          <li>
+            <a href="https://policies.python.org/pypi.org/Terms-of-Service/"
+               title="{% trans %}External link{% endtrans %}"
+               target="_blank"
+               rel="noopener">{% trans %}Terms of Service{% endtrans %}</a>
+          </li>
+          <li>
+            <a href="{{ request.route_path('security') }}">{% trans %}Report security issue{% endtrans %}</a>
+          </li>
+          <li>
+            <a href="https://policies.python.org/python.org/code-of-conduct/"
+               title="{% trans %}External link{% endtrans %}"
+               target="_blank"
+               rel="noopener">{% trans %}Code of conduct{% endtrans %}</a>
+          </li>
+          <li>
+            <a href="https://policies.python.org/pypi.org/Privacy-Notice/"
+               title="{% trans %}External link{% endtrans %}"
+               target="_blank"
+               rel="noopener">{% trans %}Privacy Notice{% endtrans %}</a>
+          </li>
+          <li>
+            <a href="https://policies.python.org/pypi.org/Acceptable-Use-Policy/"
+               title="{% trans %}External link{% endtrans %}"
+               target="_blank"
+               rel="noopener">{% trans %}Acceptable Use Policy{% endtrans %}</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+  <hr class="footer__divider">
+  <div class="footer__text">
+    {% if request.registry.settings.get("statuspage.url") %}
+      <p>
+        {% trans %}Status: {% endtrans %}<a href="https://status.python.org/"
+   title="{% trans %}External link{% endtrans %}"
+   target="_blank"
+   rel="noopener">
+        <span data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}">{% trans %}all systems operational{% endtrans %}</span></a>
+    </p>
+  {% endif %}
+  <p>
+    {% trans %}Developed and maintained by the Python community, for the Python community.{% endtrans %}
+    <br>
+    <a href="https://donate.pypi.org">{% trans %}Donate today!{% endtrans %}</a>
+  </p>
+  <p>
+    {{ trademarks() }}
+    <br>
+  </p>
+  <p>
+    © {{ now() |format_date('yyyy') }} <a href="https://www.python.org/psf-landing/"
+    title="{% trans %}External link{% endtrans %}"
+    target="_blank"
+    rel="noopener">Python Software Foundation</a>
+    <br>
+    <a href="{{ request.route_path('sitemap') }}">{% trans %}Site map{% endtrans %}</a>
+  </p>
+</div>
+<div class="centered hide-on-desktop">
+  <button type="button"
+          class="button button--switch-to-desktop hidden"
+          data-viewport-toggle-target="switchToDesktop"
+          data-action="viewport-toggle#switchToDesktop">{% trans %}Switch to desktop version{% endtrans %}</button>
+</div>
+</footer>
+<div class="language-switcher">
+  <form action="{{ request.route_path('locale') }}">
+    <ul>
+      {% for identifier, locale in KNOWN_LOCALES.items() %}
+        <li>
+          <button {% if request.locale_name == identifier %}class="language-switcher__selected"{% endif %}
+                  name="locale_id"
+                  value="{{ identifier }}"
+                  type="submit">{{ locale.display_name }}</button>
+        </li>
+      {% endfor %}
+    </ul>
+  </form>
+</div>
+{% include "warehouse:templates/includes/sponsors-footer.html" %}
+{% endblock body %}
+</body>
 </html>

@@ -1,17 +1,10 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
+from __future__ import annotations
 
 import datetime
 import shlex
+import typing
 
 from collections import defaultdict
 from secrets import token_urlsafe
@@ -39,6 +32,7 @@ from warehouse.accounts.models import (
     ProhibitedUserName,
     User,
 )
+from warehouse.accounts.utils import update_email_domain_status
 from warehouse.authnz import Permissions
 from warehouse.email import (
     send_account_recovery_initiated_email,
@@ -47,11 +41,15 @@ from warehouse.email import (
 from warehouse.observations.models import ObservationKind
 from warehouse.packaging.models import JournalEntry, Project, Release, Role
 from warehouse.utils.paginate import paginate_url_factory
+from warehouse.utils.project import clear_project_quarantine, quarantine_project
+
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
 
 
 @view_config(
     route_name="admin.user.list",
-    renderer="admin/users/list.html",
+    renderer="warehouse.admin:templates/admin/users/list.html",
     permission=Permissions.AdminUsersRead,
     uses_session=True,
 )
@@ -98,6 +96,8 @@ class EmailForm(wtforms.Form):
     verified = wtforms.fields.BooleanField()
     public = wtforms.fields.BooleanField()
     unverify_reason = wtforms.fields.StringField(render_kw={"readonly": True})
+    domain_last_checked = wtforms.fields.DateTimeField(render_kw={"readonly": True})
+    domain_last_status = wtforms.fields.StringField(render_kw={"readonly": True})
 
 
 class EmailsForm(wtforms.Form):
@@ -131,7 +131,7 @@ class UserForm(wtforms.Form):
 
 @view_config(
     route_name="admin.user.detail",
-    renderer="admin/users/detail.html",
+    renderer="warehouse.admin:templates/admin/users/detail.html",
     permission=Permissions.AdminUsersRead,
     request_method="GET",
     uses_session=True,
@@ -140,7 +140,7 @@ class UserForm(wtforms.Form):
 )
 @view_config(
     route_name="admin.user.detail",
-    renderer="admin/users/detail.html",
+    renderer="warehouse.admin:templates/admin/users/detail.html",
     permission=Permissions.AdminUsersWrite,
     request_method="POST",
     uses_session=True,
@@ -298,6 +298,31 @@ def user_add_email(user, request):
     return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
 
 
+@view_config(
+    route_name="admin.user.delete_email",
+    require_methods=["POST"],
+    permission=Permissions.AdminUsersEmailWrite,
+    uses_session=True,
+    require_csrf=True,
+    context=User,
+)
+def user_email_delete(user: User, request: Request) -> HTTPSeeOther:
+    email = request.db.scalar(
+        select(Email).where(
+            Email.email == request.POST.get("email_address"), Email.user == user
+        )
+    )
+    if not email:
+        request.session.flash("Email not found", queue="error")
+        return HTTPSeeOther(
+            request.route_path("admin.user.detail", username=user.username)
+        )
+
+    request.db.delete(email)
+    request.session.flash(f"Email address {email.email!r} deleted", queue="success")
+    return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
+
+
 def _nuke_user(user, request):
     # Delete all the user's projects
     projects = request.db.query(Project).filter(
@@ -449,7 +474,7 @@ def _get_related_urls(user):
 
 @view_config(
     route_name="admin.user.account_recovery.initiate",
-    renderer="admin/users/account_recovery/initiate.html",
+    renderer="warehouse.admin:templates/admin/users/account_recovery/initiate.html",
     permission=Permissions.AdminUsersAccountRecoveryWrite,
     has_translations=True,
     uses_session=True,
@@ -662,4 +687,97 @@ def user_burn_recovery_codes(user, request):
                 pass
 
         request.session.flash(f"Burned {n_burned} recovery code(s)", queue="success")
+    return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
+
+
+@view_config(
+    route_name="admin.user.email_domain_check",
+    require_methods=["POST"],
+    permission=Permissions.AdminUsersEmailWrite,
+    uses_session=True,
+    require_csrf=True,
+    context=User,
+)
+def user_email_domain_check(user, request):
+    """
+    Run a status check on the email domain of the user.
+    """
+    email_address = request.params.get("email_address")
+    email = request.db.scalar(select(Email).where(Email.email == email_address))
+
+    update_email_domain_status(email, request)
+
+    request.session.flash(
+        f"Domain status check for {email.domain!r} completed", queue="success"
+    )
+    return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
+
+
+@view_config(
+    route_name="admin.user.quarantine_projects",
+    require_methods=["POST"],
+    permission=Permissions.AdminProjectsWrite,
+    uses_session=True,
+    require_csrf=True,
+    context=User,
+)
+def user_quarantine_projects(user, request):
+    if user.username != request.params.get("username"):
+        request.session.flash("Wrong confirmation input", queue="error")
+        return HTTPSeeOther(
+            request.route_path("admin.user.detail", username=user.username)
+        )
+
+    quarantined_count = 0
+    for project in user.projects:
+        # Only quarantine projects that aren't already quarantined
+        if project.lifecycle_status not in ["quarantine-enter"]:
+            quarantine_project(project, request, flash=False)
+            quarantined_count += 1
+
+    if quarantined_count > 0:
+        request.session.flash(
+            f"Quarantined {quarantined_count} project(s) for user {user.username!r}",
+            queue="success",
+        )
+    else:
+        request.session.flash(
+            f"No projects needed quarantining for user {user.username!r}",
+            queue="info",
+        )
+    return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
+
+
+@view_config(
+    route_name="admin.user.clear_quarantine_projects",
+    require_methods=["POST"],
+    permission=Permissions.AdminProjectsWrite,
+    uses_session=True,
+    require_csrf=True,
+    context=User,
+)
+def user_clear_quarantine_projects(user, request):
+    if user.username != request.params.get("username"):
+        request.session.flash("Wrong confirmation input", queue="error")
+        return HTTPSeeOther(
+            request.route_path("admin.user.detail", username=user.username)
+        )
+
+    cleared_count = 0
+    for project in user.projects:
+        # Only clear quarantine for projects that are quarantined
+        if project.lifecycle_status == "quarantine-enter":
+            clear_project_quarantine(project, request, flash=False)
+            cleared_count += 1
+
+    if cleared_count > 0:
+        request.session.flash(
+            f"Cleared quarantine for {cleared_count} project(s) for {user.username!r}",
+            queue="success",
+        )
+    else:
+        request.session.flash(
+            f"No quarantined projects found for user {user.username!r}",
+            queue="info",
+        )
     return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))

@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import datetime
 
@@ -53,7 +43,7 @@ class TestRateLimiting:
 
     def test_ratelimiting_block(self, pyramid_services, pyramid_request, metrics):
         def view(context, request):
-            return None
+            pytest.fail("view should not be called")
 
         ratelimited_view = xmlrpc.ratelimit()(view)
         context = pretend.stub()
@@ -87,7 +77,7 @@ class TestRateLimiting:
         self, pyramid_services, pyramid_request, metrics, resets_in_delta, expected
     ):
         def view(context, request):
-            return None
+            pytest.fail("view should not be called")
 
         ratelimited_view = xmlrpc.ratelimit()(view)
         context = pretend.stub()
@@ -155,8 +145,7 @@ def test_list_packages_with_serial(db_request):
         expected.setdefault(project.name, 0)
         entries = JournalEntryFactory.create_batch(10, name=project.name)
         for entry in entries:
-            if entry.id > expected[project.name]:
-                expected[project.name] = entry.id
+            expected[project.name] = entry.id
     assert xmlrpc.list_packages_with_serial(db_request) == expected
 
 

@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import opensearchpy
 import pretend
@@ -22,14 +12,17 @@ from ...common.db.packaging import ProjectFactory, ReleaseFactory
 def test_store_projects(db_request):
     project0 = ProjectFactory.create()
     project1 = ProjectFactory.create()
+    project3 = ProjectFactory.create(lifecycle_status="archived-noindex")
     release1 = ReleaseFactory.create(project=project1)
     config = pretend.stub()
-    session = pretend.stub(info={}, new={project0}, dirty=set(), deleted={release1})
+    session = pretend.stub(
+        info={}, new={project0}, dirty={project3}, deleted={release1}
+    )
 
     search.store_projects_for_project_reindex(config, session, pretend.stub())
 
     assert session.info["warehouse.search.project_updates"] == {project0, project1}
-    assert session.info["warehouse.search.project_deletes"] == set()
+    assert session.info["warehouse.search.project_deletes"] == {project3}
 
 
 def test_store_projects_unindex(db_request):

@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import datetime
 import functools
@@ -222,7 +212,7 @@ def _email(
     return inner
 
 
-@_email("password-reset", allow_unverified=True)
+@_email("password-reset")
 def send_password_reset_email(request, user_and_email):
     user, _ = user_and_email
     token_service = request.find_service(ITokenService, name="password")
@@ -244,6 +234,17 @@ def send_password_reset_email(request, user_and_email):
         "username": user.username,
         "n_hours": token_service.max_age // 60 // 60,
     }
+
+
+@_email("password-reset-unverified", allow_unverified=True)
+def send_password_reset_unverified_email(_request, _user_and_email):
+    """
+    This email is sent to users who have not verified their email address
+    when they request a password reset. It is sent to the email address
+    they provided, which may not be their primary email address.
+    """
+    # No params are used in the template, return an empty dict
+    return {}
 
 
 @_email("verify-email", allow_unverified=True)
@@ -1072,6 +1073,14 @@ def send_pep427_name_email(request, users, project_name, filename, normalized_na
         "project_name": project_name,
         "filename": filename,
         "normalized_name": normalized_name,
+    }
+
+
+@_email("wheel-record-mismatch-email")
+def send_wheel_record_mismatch_email(request, users, project_name, filename):
+    return {
+        "project_name": project_name,
+        "filename": filename,
     }
 
 

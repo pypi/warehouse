@@ -1,15 +1,4 @@
-/* Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/* SPDX-License-Identifier: Apache-2.0 */
 
 /* global expect, beforeEach, describe, it */
 
@@ -70,7 +59,7 @@ describe("Password breach controller", () => {
     **test** behaviors - the production behavior works fine right now.
     Potentially: https://stimulus-use.github.io/stimulus-use/#/use-debounce
     See also: https://buddyreno.dev/posts/testing-stimulus-connect-in-jest
-    
+
     Another approach is to stop mocking `fetch` at all, and try one of the
     approaches as shown in https://kentcdodds.com/blog/stop-mocking-fetch
     This seems a bit advanced for me right now, but wanted to keep the link.

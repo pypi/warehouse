@@ -1,18 +1,11 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
+import datetime
 
 import pretend
 import pytest
 
+from freezegun import freeze_time
 from pyramid.authorization import Allow
 from pyramid.httpexceptions import HTTPPermanentRedirect
 from pyramid.location import lineage
@@ -25,9 +18,11 @@ from warehouse.organizations.models import (
     TeamFactory,
 )
 
+from ...common.db.accounts import UserFactory as DBUserFactory
 from ...common.db.organizations import (
     OrganizationApplicationFactory as DBOrganizationApplicationFactory,
     OrganizationFactory as DBOrganizationFactory,
+    OrganizationManualActivationFactory as DBOrganizationManualActivationFactory,
     OrganizationNameCatalogFactory as DBOrganizationNameCatalogFactory,
     OrganizationRoleFactory as DBOrganizationRoleFactory,
     OrganizationStripeCustomerFactory as DBOrganizationStripeCustomerFactory,
@@ -133,17 +128,9 @@ class TestOrganization:
             organization=organization, role_name=OrganizationRoleType.Member
         )
 
-        acls = []
-        for location in lineage(organization):
-            try:
-                acl = location.__acl__
-            except AttributeError:
-                continue
-
-            if acl and callable(acl):
-                acl = acl()
-
-            acls.extend(acl)
+        acls = [
+            item for location in lineage(organization) for item in location.__acl__()
+        ]
 
         assert acls == [
             (
@@ -152,6 +139,7 @@ class TestOrganization:
                 (
                     Permissions.AdminOrganizationsRead,
                     Permissions.AdminOrganizationsWrite,
+                    Permissions.AdminOrganizationsNameWrite,
                 ),
             ),
             (Allow, "group:moderators", Permissions.AdminOrganizationsRead),
@@ -350,17 +338,7 @@ class TestTeam:
             organization=organization, role_name=OrganizationRoleType.Member
         )
 
-        acls = []
-        for location in lineage(team):
-            try:
-                acl = location.__acl__
-            except AttributeError:
-                continue
-
-            if acl and callable(acl):
-                acl = acl()
-
-            acls.extend(acl)
+        acls = [item for location in lineage(team) for item in location.__acl__()]
 
         assert acls == [
             (
@@ -369,6 +347,7 @@ class TestTeam:
                 (
                     Permissions.AdminOrganizationsRead,
                     Permissions.AdminOrganizationsWrite,
+                    Permissions.AdminOrganizationsNameWrite,
                 ),
             ),
             (Allow, "group:moderators", Permissions.AdminOrganizationsRead),
@@ -521,3 +500,192 @@ class TestTeam:
         )
         assert organization.active_subscription is None
         assert organization.manageable_subscription is None
+
+    def test_good_standing_with_manual_activation_active(self, db_session):
+        with freeze_time("2024-01-15"):
+            organization = DBOrganizationFactory.create(orgtype="Company")
+            DBOrganizationManualActivationFactory.create(
+                organization=organization,
+                expires=datetime.date(2024, 12, 31),  # Future date from frozen time
+            )
+            assert organization.good_standing
+
+    def test_good_standing_with_manual_activation_expired(self, db_session):
+        with freeze_time("2024-01-15"):
+            organization = DBOrganizationFactory.create(orgtype="Company")
+            DBOrganizationManualActivationFactory.create(
+                organization=organization,
+                expires=datetime.date(2023, 12, 31),  # Past date from frozen time
+            )
+            assert not organization.good_standing
+
+    def test_good_standing_community_without_manual_activation(self, db_session):
+        organization = DBOrganizationFactory.create(orgtype="Community")
+        assert organization.good_standing
+
+    def test_good_standing_company_without_manual_activation_or_subscription(
+        self, db_session
+    ):
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        assert not organization.good_standing
+
+
+class TestOrganizationManualActivation:
+    def test_is_active_future_expiration(self, db_session):
+        # Freeze time to a known date
+        with freeze_time("2024-01-15"):
+            # Create activation that expires in the future
+            activation = DBOrganizationManualActivationFactory.create(
+                expires=datetime.date(2024, 12, 31)
+            )
+            assert activation.is_active
+
+    def test_is_active_past_expiration(self, db_session):
+        # Freeze time to a known date
+        with freeze_time("2024-01-15"):
+            # Create activation that already expired
+            activation = DBOrganizationManualActivationFactory.create(
+                expires=datetime.date(2023, 12, 31)
+            )
+            assert not activation.is_active
+
+    def test_current_member_count(self, db_session):
+        organization = DBOrganizationFactory.create()
+        activation = DBOrganizationManualActivationFactory.create(
+            organization=organization, seat_limit=10
+        )
+
+        # Create some organization roles (members)
+        for _ in range(3):
+            user = DBUserFactory.create()
+            DBOrganizationRoleFactory.create(
+                organization=organization,
+                user=user,
+                role_name=OrganizationRoleType.Member,
+            )
+
+        assert activation.current_member_count == 3
+
+    def test_has_available_seats_with_space(self, db_session):
+        organization = DBOrganizationFactory.create()
+        activation = DBOrganizationManualActivationFactory.create(
+            organization=organization, seat_limit=10
+        )
+
+        # Create some organization roles (members)
+        from ...common.db.accounts import UserFactory as DBUserFactory
+
+        for _ in range(5):
+            user = DBUserFactory.create()
+            DBOrganizationRoleFactory.create(
+                organization=organization,
+                user=user,
+                role_name=OrganizationRoleType.Member,
+            )
+
+        assert activation.has_available_seats
+
+    def test_has_available_seats_at_limit(self, db_session):
+        organization = DBOrganizationFactory.create()
+        activation = DBOrganizationManualActivationFactory.create(
+            organization=organization, seat_limit=5
+        )
+
+        # Create organization roles up to the limit
+        for _ in range(5):
+            user = DBUserFactory.create()
+            DBOrganizationRoleFactory.create(
+                organization=organization,
+                user=user,
+                role_name=OrganizationRoleType.Member,
+            )
+
+        assert not activation.has_available_seats
+
+    def test_has_available_seats_over_limit(self, db_session):
+        organization = DBOrganizationFactory.create()
+        activation = DBOrganizationManualActivationFactory.create(
+            organization=organization, seat_limit=3
+        )
+
+        # Create more organization roles than the limit allows
+        for _ in range(5):
+            user = DBUserFactory.create()
+            DBOrganizationRoleFactory.create(
+                organization=organization,
+                user=user,
+                role_name=OrganizationRoleType.Member,
+            )
+
+        assert not activation.has_available_seats
+
+    def test_available_seats(self, db_session):
+        organization = DBOrganizationFactory.create()
+        activation = DBOrganizationManualActivationFactory.create(
+            organization=organization, seat_limit=10
+        )
+
+        # Create some organization roles (members)
+        for _ in range(3):
+            user = DBUserFactory.create()
+            DBOrganizationRoleFactory.create(
+                organization=organization,
+                user=user,
+                role_name=OrganizationRoleType.Member,
+            )
+
+        assert activation.available_seats == 7  # 10 - 3
+
+    def test_available_seats_negative(self, db_session):
+        organization = DBOrganizationFactory.create()
+        activation = DBOrganizationManualActivationFactory.create(
+            organization=organization, seat_limit=3
+        )
+
+        # Create more organization roles than the limit
+        for _ in range(5):
+            user = DBUserFactory.create()
+            DBOrganizationRoleFactory.create(
+                organization=organization,
+                user=user,
+                role_name=OrganizationRoleType.Member,
+            )
+
+        assert activation.available_seats == 0  # Should never be negative
+
+
+class TestOrganizationBillingMethods:
+    def test_is_in_good_standing_company_with_manual_activation(self, db_session):
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        DBOrganizationManualActivationFactory.create(
+            organization=organization,
+            expires=datetime.date.today() + datetime.timedelta(days=365),
+        )
+        assert organization.is_in_good_standing()
+
+    def test_is_in_good_standing_company_without_billing(self, db_session):
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        assert not organization.is_in_good_standing()
+
+    def test_is_in_good_standing_ignores_seat_limits(self, db_session):
+        """Test that seat limits don't affect good standing - informational only."""
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        activation = DBOrganizationManualActivationFactory.create(
+            organization=organization,
+            seat_limit=1,  # Very low limit
+            expires=datetime.date.today() + datetime.timedelta(days=365),
+        )
+
+        # Create more members than seat limit allows
+        for _ in range(3):
+            user = DBUserFactory.create()
+            DBOrganizationRoleFactory.create(
+                organization=organization,
+                user=user,
+                role_name=OrganizationRoleType.Member,
+            )
+
+        # Organization should still be in good standing despite being over seat limit
+        assert organization.is_in_good_standing()
+        assert activation.current_member_count > activation.seat_limit
+        assert not activation.has_available_seats

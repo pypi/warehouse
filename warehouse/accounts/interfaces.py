@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from zope.interface import Attribute, Interface
 
@@ -279,9 +269,6 @@ class ITokenService(Interface):
 
 class IPasswordBreachedService(Interface):
     failure_message = Attribute("The message to describe the failure that occurred")
-    failure_message_plain = Attribute(
-        "The message to describe the failure that occurred in plain text"
-    )
 
     def check_password(password, *, tags=None):
         """
@@ -297,4 +284,11 @@ class IEmailBreachedService(Interface):
     def get_email_breach_count(email: str) -> int | None:
         """
         Returns count of times the email appears in verified breaches.
+        """
+
+
+class IDomainStatusService(Interface):
+    def get_domain_status(domain: str) -> list[str] | None:
+        """
+        Returns a list of status strings for the given domain.
         """

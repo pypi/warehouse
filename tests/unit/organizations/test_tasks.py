@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import datetime
 
@@ -28,6 +18,7 @@ from warehouse.organizations.tasks import (
     update_organziation_subscription_usage_record,
 )
 from warehouse.subscriptions.interfaces import IBillingService
+from warehouse.subscriptions.models import StripeSubscriptionStatus
 
 from ...common.db.organizations import (
     OrganizationApplicationFactory,
@@ -156,9 +147,8 @@ class TestDeleteOrganizationApplications:
 
 class TestUpdateOrganizationSubscriptionUsage:
     def test_update_organization_subscription_usage_record(self, db_request):
-        # Create an organization with a subscription and members
+        # Setup an organization with an active subscription
         organization = OrganizationFactory.create()
-        # Add a couple members
         owner_user = UserFactory.create()
         OrganizationRoleFactory(
             organization=organization,
@@ -171,7 +161,6 @@ class TestUpdateOrganizationSubscriptionUsage:
             user=member_user,
             role_name=OrganizationRoleType.Member,
         )
-        # Wire up the customer, subscripton, organization, and subscription item
         stripe_customer = StripeCustomerFactory.create()
         OrganizationStripeCustomerFactory.create(
             organization=organization, customer=stripe_customer
@@ -183,6 +172,38 @@ class TestUpdateOrganizationSubscriptionUsage:
         subscription = StripeSubscriptionFactory.create(
             customer=stripe_customer,
             subscription_price=subscription_price,
+        )
+        OrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+        StripeSubscriptionItemFactory.create(subscription=subscription)
+
+        # Setup an organization with a cancelled subscription
+        organization = OrganizationFactory.create()
+        owner_user = UserFactory.create()
+        OrganizationRoleFactory(
+            organization=organization,
+            user=owner_user,
+            role_name=OrganizationRoleType.Owner,
+        )
+        member_user = UserFactory.create()
+        OrganizationRoleFactory(
+            organization=organization,
+            user=member_user,
+            role_name=OrganizationRoleType.Member,
+        )
+        stripe_customer = StripeCustomerFactory.create()
+        OrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
+        )
+        subscription_product = StripeSubscriptionProductFactory.create()
+        subscription_price = StripeSubscriptionPriceFactory.create(
+            subscription_product=subscription_product
+        )
+        subscription = StripeSubscriptionFactory.create(
+            customer=stripe_customer,
+            subscription_price=subscription_price,
+            status=StripeSubscriptionStatus.Canceled,
         )
         OrganizationStripeSubscriptionFactory.create(
             organization=organization, subscription=subscription

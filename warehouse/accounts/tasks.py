@@ -1,30 +1,30 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
-from datetime import datetime, timedelta, timezone
+from __future__ import annotations
 
-from sqlalchemy import func
+import typing
+
+from datetime import UTC, datetime, timedelta, timezone
+
+from sqlalchemy import func, nullsfirst, or_, select
 
 from warehouse import tasks
 from warehouse.accounts.models import (
     Email,
     TermsOfServiceEngagement,
+    UnverifyReasons,
     User,
     UserTermsOfServiceEngagement,
 )
 from warehouse.accounts.services import IUserService
+from warehouse.accounts.utils import update_email_domain_status
 from warehouse.email import send_user_terms_of_service_updated
 from warehouse.metrics import IMetricsService
+from warehouse.observations.models import ObservationKind
 from warehouse.packaging.models import Release
+
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
 
 
 @tasks.task(ignore_result=True, acks_late=True)
@@ -135,4 +135,84 @@ def compute_user_metrics(request):
             "window:2years",
             "primary:true",
         ],
+    )
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def batch_update_email_domain_status(request: Request) -> None:
+    """
+    Update the email domain status for any domain last checked over 30 days ago.
+
+    30 days is roughly the time between a domain's expiration
+    and when it enters a renewal grace period.
+    Each TLD may express their own grace period, 30 days is an estimate
+    of time before the registrar is likely to sell it.
+    """
+    stmt = (
+        select(Email)
+        .where(
+            or_(
+                Email.domain_last_checked.is_(None),
+                Email.domain_last_checked < datetime.now(tz=UTC) - timedelta(days=30),
+            )
+        )
+        .order_by(nullsfirst(Email.domain_last_checked.asc()))
+        .limit(1_000)
+    )
+
+    for email in request.db.scalars(stmt):
+        update_email_domain_status(email, request)
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def unverify_emails_with_expired_domains(request: Request) -> None:
+    """
+    Unverify any emails with domains that have expired.
+    """
+    task_actor = request.find_service(IUserService).get_admin_user()
+
+    stmt = (
+        select(Email)
+        .where(
+            Email.domain_last_status.overlap(
+                [
+                    "undelegated",
+                    "inactive",
+                    "expiring",
+                    "deleting",
+                    "unknown",
+                ]
+            ),
+            Email.verified.is_(True),
+        )
+        .order_by(Email.domain_last_checked)
+        .limit(1_000)
+    )
+
+    results = request.db.scalars(stmt).all()
+
+    for email in results:
+        # Unverify the email
+        email.verified = False
+        email.unverify_reason = UnverifyReasons.DomainInvalid
+        # add an observation to the email parent user
+        email.user.record_observation(
+            request=request,
+            kind=ObservationKind.EmailUnverified,
+            actor=task_actor,
+            summary="Email domain expired",
+            payload={
+                "email": email.email,
+                "domain": email.domain,
+                "domain_last_status": email.domain_last_status,
+                "domain_last_checked": str(email.domain_last_checked),
+            },
+        )
+
+        request.db.add(email)
+
+    request.metrics.increment(
+        "warehouse.emails.unverified",
+        value=len(results),
+        tags=["reason:domain_expired"],
     )

@@ -2,8 +2,6 @@
 title: Pricing and Payments
 ---
 
-<!--[[ preview('org-accounts') ]]-->
-
 # Organization Pricing and Payment Terms
 
 ## Corporate Organizations

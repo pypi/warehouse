@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import urllib.parse
 
@@ -20,7 +10,7 @@ from celery.schedules import crontab
 from urllib3.util import parse_url
 
 from warehouse import db
-from warehouse.packaging.models import Project, Release
+from warehouse.packaging.models import LifecycleStatus, Project, Release
 from warehouse.rate_limiting import IRateLimiter, RateLimit
 from warehouse.search.interfaces import ISearchService
 from warehouse.search.services import SearchService
@@ -42,7 +32,14 @@ def store_projects_for_project_reindex(config, session, flush_context):
     # a Project to reindex for when the session has been committed.
     for obj in session.new | session.dirty:
         if obj.__class__ == Project:
-            projects_to_update.add(obj)
+            # Un-index archived/quarantined projects
+            if obj.lifecycle_status in [
+                LifecycleStatus.QuarantineEnter,
+                LifecycleStatus.ArchivedNoindex,
+            ]:
+                projects_to_delete.add(obj)
+            else:
+                projects_to_update.add(obj)
         if obj.__class__ == Release:
             projects_to_update.add(obj.project)
 

@@ -1,18 +1,9 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from celery.schedules import crontab
 
 from warehouse.accounts.interfaces import (
+    IDomainStatusService,
     IEmailBreachedService,
     IPasswordBreachedService,
     ITokenService,
@@ -25,12 +16,18 @@ from warehouse.accounts.security_policy import (
 from warehouse.accounts.services import (
     HaveIBeenPwnedEmailBreachedService,
     HaveIBeenPwnedPasswordBreachedService,
+    NullDomainStatusService,
     NullEmailBreachedService,
     NullPasswordBreachedService,
     TokenServiceFactory,
     database_login_factory,
 )
-from warehouse.accounts.tasks import compute_user_metrics, notify_users_of_tos_update
+from warehouse.accounts.tasks import (
+    batch_update_email_domain_status,
+    compute_user_metrics,
+    notify_users_of_tos_update,
+    unverify_emails_with_expired_domains,
+)
 from warehouse.accounts.utils import UserContext
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.macaroons.security_policy import MacaroonSecurityPolicy
@@ -131,6 +128,14 @@ def includeme(config):
         breached_email_class.create_service, IEmailBreachedService
     )
 
+    # Register our domain status service.
+    domain_status_class = config.maybe_dotted(
+        config.registry.settings.get("domain_status.backend", NullDomainStatusService)
+    )
+    config.register_service_factory(
+        domain_status_class.create_service, IDomainStatusService
+    )
+
     # Register our security policies.
     config.set_security_policy(
         MultiSecurityPolicy(
@@ -173,6 +178,19 @@ def includeme(config):
     config.register_service_factory(
         RateLimit(global_login_ratelimit_string), IRateLimiter, name="global.login"
     )
+    # Register separate rate limiters for 2FA attempts
+    twofa_user_ratelimit_string = config.registry.settings.get(
+        "warehouse.account.2fa_user_ratelimit_string"
+    )
+    config.register_service_factory(
+        RateLimit(twofa_user_ratelimit_string), IRateLimiter, name="2fa.user"
+    )
+    twofa_ip_ratelimit_string = config.registry.settings.get(
+        "warehouse.account.2fa_ip_ratelimit_string"
+    )
+    config.register_service_factory(
+        RateLimit(twofa_ip_ratelimit_string), IRateLimiter, name="2fa.ip"
+    )
     email_add_ratelimit_string = config.registry.settings.get(
         "warehouse.account.email_add_ratelimit_string"
     )
@@ -205,3 +223,9 @@ def includeme(config):
     # Add a periodic task to generate Account metrics
     config.add_periodic_task(crontab(minute="*/20"), compute_user_metrics)
     config.add_periodic_task(crontab(minute="*"), notify_users_of_tos_update)
+    config.add_periodic_task(
+        crontab(minute=0, hour=4), batch_update_email_domain_status
+    )
+    config.add_periodic_task(
+        crontab(minute=15, hour=4), unverify_emails_with_expired_domains
+    )

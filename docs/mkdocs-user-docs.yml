@@ -3,6 +3,7 @@ docs_dir: user
 site_dir: user-site
 plugins:
   - search
+  - material-plausible
   - macros:
       module_name: user/main
       j2_block_start_string: "<!--[[%"
@@ -50,12 +51,20 @@ theme:
 extra_css:
   - stylesheets/extra.css
 extra:
+  analytics:
+    provider: plausible
+    domain: docs.pypi.org
+    src: https://analytics.python.org/js/script.outbound-links.js
   homepage: https://pypi.org
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/pypi
     - icon: fontawesome/brands/twitter
       link: https://twitter.com/pypi
+    - icon: fontawesome/brands/mastodon
+      link: https://fosstodon.org/@pypi
+    - icon: fontawesome/brands/bluesky
+      link: https://bsky.app/profile/pypi.org
 repo_url: https://github.com/pypi/warehouse
 edit_uri: blob/main/docs/user/
 
@@ -74,6 +83,7 @@ nav:
           - "organization-accounts/actions/project-actions.md"
           - "organization-accounts/actions/team-actions.md"
       - "organization-accounts/pricing-and-payments.md"
+      - "organization-accounts/support.md"
   - "Trusted Publishers":
       - "trusted-publishers/index.md"
       - "trusted-publishers/adding-a-publisher.md"

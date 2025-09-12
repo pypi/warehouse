@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import binascii
 import os
@@ -22,13 +12,14 @@ import sentry_sdk
 
 from opensearchpy.helpers import parallel_bulk
 from redis.lock import Lock
-from sqlalchemy import func, select, text
+from sqlalchemy import func, or_, select, text
 from urllib3.util import parse_url
 
 from warehouse import tasks
 from warehouse.packaging.models import (
     Classifier,
     Description,
+    LifecycleStatus,
     Project,
     Release,
     ReleaseClassifiers,
@@ -63,6 +54,7 @@ def _project_docs(db, project_name: str | None = None):
             classifiers_subquery,
             Project.normalized_name,
             Project.name,
+            Project.lifecycle_status,
         )
         .select_from(Release)
         .join(Description)
@@ -72,6 +64,13 @@ def _project_docs(db, project_name: str | None = None):
             Release.files.any(),
             # Filter by project_name if provided
             Project.name == project_name if project_name else text("TRUE"),
+            # Don't index archived/quarantined projects
+            or_(
+                Project.lifecycle_status.notin_(
+                    [LifecycleStatus.ArchivedNoindex, LifecycleStatus.QuarantineEnter]
+                ),
+                Project.lifecycle_status.is_(None),
+            ),
         )
         .order_by(
             Project.name,
@@ -166,7 +165,11 @@ def reindex(self, request):
                 request.db.execute(text("SET statement_timeout = '600s'"))
 
                 for _ in parallel_bulk(
-                    client, _project_docs(request.db), index=new_index_name
+                    client,
+                    _project_docs(request.db),
+                    index=new_index_name,
+                    chunk_size=100,
+                    max_chunk_bytes=10 * 1024 * 1024,  # 10MB, per OpenSearch defaults
                 ):
                     pass
             except:  # noqa
@@ -196,8 +199,9 @@ def reindex(self, request):
                     to_delete.add(name)
                     actions.append({"remove": {"index": name, "alias": index_base}})
                 actions.append({"add": {"index": new_index_name, "alias": index_base}})
-                client.indices.update_aliases({"actions": actions})
-                client.indices.delete(",".join(to_delete))
+                client.indices.update_aliases(body={"actions": actions})
+                for index_to_delete in to_delete:
+                    client.indices.delete(index=index_to_delete)
             else:
                 client.indices.put_alias(name=index_base, index=new_index_name)
     except redis.exceptions.LockError as exc:

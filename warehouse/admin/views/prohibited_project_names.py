@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import shlex
 
@@ -37,7 +27,7 @@ from warehouse.utils.project import prohibit_and_remove_project
 
 @view_config(
     route_name="admin.prohibited_project_names.list",
-    renderer="admin/prohibited_project_names/list.html",
+    renderer="warehouse.admin:templates/admin/prohibited_project_names/list.html",
     permission=Permissions.AdminProhibitedProjectsRead,
     request_method="GET",
     uses_session=True,
@@ -80,7 +70,7 @@ def prohibited_project_names(request):
 
 @view_config(
     route_name="admin.prohibited_project_names.add",
-    renderer="admin/prohibited_project_names/confirm.html",
+    renderer="warehouse.admin:templates/admin/prohibited_project_names/confirm.html",
     permission=Permissions.AdminProhibitedProjectsWrite,
     request_method="GET",
     uses_session=True,
@@ -146,7 +136,7 @@ def confirm_prohibited_project_names(request):
 
 @view_config(
     route_name="admin.prohibited_project_names.release",
-    permission=Permissions.AdminProhibitedProjectsWrite,
+    permission=Permissions.AdminProhibitedProjectsRelease,
     request_method="POST",
     uses_session=True,
     require_methods=False,
@@ -295,7 +285,7 @@ def remove_prohibited_project_names(request):
 
 @view_config(
     route_name="admin.prohibited_project_names.bulk_add",
-    renderer="admin/prohibited_project_names/bulk.html",
+    renderer="warehouse.admin:templates/admin/prohibited_project_names/bulk.html",
     permission=Permissions.AdminProhibitedProjectsWrite,
     uses_session=True,
     require_methods=False,

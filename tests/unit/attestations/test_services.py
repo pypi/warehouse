@@ -1,14 +1,5 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
 import json
 import re
 
@@ -43,7 +34,7 @@ class TestNullIntegrityService:
 
     @pytest.mark.parametrize(
         "publisher_factory",
-        [GitHubPublisherFactory, GitLabPublisherFactory],
+        [GitHubPublisherFactory, GitLabPublisherFactory, GooglePublisherFactory],
     )
     def test_build_provenance(self, db_request, dummy_attestation, publisher_factory):
         db_request.oidc_publisher = publisher_factory.create()
@@ -94,7 +85,6 @@ class TestIntegrityService:
     @pytest.mark.parametrize(
         "publisher_factory",
         [
-            GooglePublisherFactory,
             ActiveStatePublisherFactory,
         ],
     )
@@ -317,7 +307,7 @@ class TestIntegrityService:
 
     @pytest.mark.parametrize(
         "publisher_factory",
-        [GitHubPublisherFactory, GitLabPublisherFactory],
+        [GitHubPublisherFactory, GitLabPublisherFactory, GooglePublisherFactory],
     )
     def test_build_provenance_succeeds(
         self, metrics, db_request, publisher_factory, dummy_attestation
@@ -347,7 +337,7 @@ class TestIntegrityService:
 
 @pytest.mark.parametrize(
     "publisher_factory",
-    [GitHubPublisherFactory, GitLabPublisherFactory],
+    [GitHubPublisherFactory, GitLabPublisherFactory, GooglePublisherFactory],
 )
 def test_extract_attestations_from_request_empty_list(db_request, publisher_factory):
     db_request.oidc_publisher = publisher_factory.create()

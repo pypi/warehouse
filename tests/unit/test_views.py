@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import datetime
 
@@ -44,6 +34,7 @@ from warehouse.views import (
     forbidden_api,
     forbidden_include,
     force_status,
+    funding_manifest_urls,
     health,
     httpexception_view,
     index,
@@ -386,6 +377,13 @@ def test_favicon(pyramid_request):
 def test_robotstxt(pyramid_request):
     assert robotstxt(pyramid_request) == {}
     assert pyramid_request.response.content_type == "text/plain"
+
+
+def test_funding_manifest_urls(pyramid_request):
+    response = funding_manifest_urls(pyramid_request)
+    assert response.text == "https://www.python.org/funding.json"
+    assert response.content_type == "text/plain"
+    assert response.charset == "utf-8"
 
 
 def test_opensearchxml(pyramid_request):

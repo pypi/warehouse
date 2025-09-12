@@ -1,15 +1,4 @@
-/* Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/* SPDX-License-Identifier: Apache-2.0 */
 
 import "admin-lte/plugins/jquery/jquery";
 import "admin-lte/plugins/bootstrap/js/bootstrap.bundle";
@@ -211,6 +200,96 @@ if (OrganizationApplicationsTable.length) {
   table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
 }
 
+let organizationApplicationTurboModeSwitch = document.getElementById("organizationApplicationTurboMode");
+if (organizationApplicationTurboModeSwitch !== null) {
+  let organizationApplicationTurboModeEnabled = JSON.parse(localStorage.getItem("organizationApplicationTurboModeEnabled") || false);
+  organizationApplicationTurboModeSwitch.addEventListener("click", (event) => {
+    localStorage.setItem("organizationApplicationTurboModeEnabled", event.target.checked);
+    document.querySelectorAll("input[name=organization_applications_turbo_mode]").forEach(function(input) {
+      input.value = event.target.checked;
+    });
+  });
+  organizationApplicationTurboModeSwitch.checked = organizationApplicationTurboModeEnabled;
+  document.querySelectorAll("input[name=organization_applications_turbo_mode]").forEach(function(input) {
+    input.value = organizationApplicationTurboModeEnabled;
+  });
+  if (organizationApplicationTurboModeEnabled) {
+    [...document.querySelectorAll(".alert-dismissible")].forEach(function(alertElem) {
+      setTimeout(function() {alertElem.getElementsByTagName("button")[0].click();}, 1000);
+    });
+  }
+}
+
+const savedReplyButtons = document.querySelectorAll(".saved-reply-button");
+
+if (savedReplyButtons.length > 0) {
+  const requestMoreInfoModalMessage = document.getElementById("requestMoreInfoModalMessage");
+
+  if (requestMoreInfoModalMessage) {
+    savedReplyButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        const templateId = button.dataset.template;
+
+        if (templateId) {
+          const templateElement = document.getElementById(templateId);
+
+          if (templateElement) {
+            const templateContent = templateElement.innerHTML;
+            const cleanedContent = templateContent
+              .trim()
+              .replace(/\n/g, " ")
+              .replace(/\s{2,}/g, " ");
+            requestMoreInfoModalMessage.value = cleanedContent;
+          }
+        }
+      });
+    });
+  }
+}
+
+let editModalForm = document.getElementById("editModalForm");
+if (editModalForm !== null) {
+  if (editModalForm.classList.contains("edit-form-errors")) {
+    document.getElementById("editModalButton").click();
+  }
+}
+
+$(document).ready(function() {
+  const modalHotKeyBindings = document.querySelectorAll("button[data-hotkey-binding]");
+  var keyBindings = new Map();
+  function bindHotKeys() {
+    document.onkeyup = hotKeys;
+  }
+  function unbindHotKeys() {
+    document.onkeyup = function(){};
+  }
+  function hotKeys(e) {
+    if (keyBindings.has(String(e.which))) {
+      unbindHotKeys();
+      const targetModal = $(keyBindings.get(String(e.which)));
+      targetModal.one("shown.bs.modal", function () {
+        const firstFocusableElement = $(this).find("input:visible, textarea:visible").first();
+        if (firstFocusableElement.length) {
+          firstFocusableElement.focus();
+        }
+      });
+      targetModal.modal("show");
+      targetModal.on("hidden.bs.modal", bindHotKeys);
+    }
+  }
+  modalHotKeyBindings.forEach(function(modalHotKeyBinding) {
+    if (! modalHotKeyBinding.disabled) {
+      keyBindings.set(modalHotKeyBinding.dataset.hotkeyBinding, modalHotKeyBinding.dataset.target);
+    }
+  });
+  const focusable = document.querySelectorAll("input, textarea");
+  focusable.forEach(function(element) {
+    element.addEventListener("focusin", unbindHotKeys);
+    element.addEventListener("focusout", bindHotKeys);
+  });
+  bindHotKeys();
+});
+
 // Link Checking
 const links = document.querySelectorAll("a[data-check-link-url]");
 links.forEach(function(link){
@@ -223,7 +302,6 @@ links.forEach(function(link){
       let responseText = "";
       response.text().then((text) => {
         responseText = text;
-        console.log(response.status, responseText);
         if (response.status === 400 && responseText === "Unsupported content-type returned\n") {
           reportLine.element.firstChild.classList.remove("fa-question");
           reportLine.element.firstChild.classList.add("fa-check");
@@ -235,13 +313,10 @@ links.forEach(function(link){
           reportLine.element.firstChild.classList.add("fa-times");
           reportLine.element.firstChild.classList.add("text-red");
         }
-        console.log(reportLine);
       });
     })
-    .catch(function(error) {
+    .catch(() => {
       reportLine.status = -1;
-      console.log(error);
-      console.log(reportLine);
       reportLine.element.firstChild.classList.remove("fa-question");
       reportLine.element.firstChild.classList.add("fa-times");
       reportLine.element.firstChild.classList.add("text-red");

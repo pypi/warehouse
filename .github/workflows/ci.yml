@@ -22,14 +22,14 @@ jobs:
       id-token: write
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
       - name: Set up Depot CLI
-        uses: depot/setup-action@v1
+        uses: depot/setup-action@b0b1ea4f69e92ebf5dea3f8713a1b0c37b2126a5 # v1.6.0
       - name: Build image
         id: build
-        uses: depot/build-push-action@v1
+        uses: depot/build-push-action@9785b135c3c76c33db102e45be96a25ab55cd507 # v1.16.2
         with:
           save: true
           build-args: |
@@ -68,7 +68,7 @@ jobs:
       id-token: write
     services:
       postgres:
-        image: ${{ (matrix.name == 'Tests') && 'postgres:16.1' || '' }}
+        image: ${{ (matrix.name == 'Tests') && 'postgres:17.5' || '' }}
         ports:
           - 5432:5432
         env:
@@ -87,12 +87,12 @@ jobs:
     name: ${{ matrix.name }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
       - name: Cache mypy results
         if: ${{ (matrix.name == 'Lint') }}
-        uses: actions/cache@v4
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
         with:
           path: |
               dev/.mypy_cache
@@ -111,7 +111,7 @@ jobs:
       id-token: write
     services:
       postgres:
-        image: postgres:16.1
+        image: postgres:17.5
         ports:
         - 5432:5432
         env:
@@ -122,17 +122,19 @@ jobs:
         options: --health-cmd "pg_isready --username=postgres --dbname=postgres" --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
       - name: Dotenv Action
         # We need to load the environment variables to run the CLI
         id: dotenv
-        uses: falti/dotenv-action@v1
+        uses: falti/dotenv-action@a33be0b8cf6a6e6f1b82cc9f3782061ab1022be5 # v1.1.4
         with:
           path: dev/environment
           export-variables: true
           keys-case: upper
+      - name: Install jq
+        run: apt-get update && apt-get install -y jq
       - name: Check Database
         run: bin/db-check
         env:

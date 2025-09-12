@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -271,6 +261,7 @@ class TestDatabaseOrganizationService:
 
         admin = UserFactory(username="admin", is_superuser=True)
         db_request.user = admin
+        db_request.params["message"] = "some message"
 
         organization_application = OrganizationApplicationFactory.create()
         organization_service.request_more_information(
@@ -288,9 +279,29 @@ class TestDatabaseOrganizationService:
                 organization_application.submitted_by,
                 organization_name=organization_application.name,
                 organization_application_id=organization_application.id,
-                message="",
+                message="some message",
             ),
         ]
+
+    def test_request_more_information_organization_application_no_message(
+        self, db_request, organization_service, monkeypatch
+    ):
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            services, "send_new_organization_moreinformationneeded_email", send_email
+        )
+
+        admin = UserFactory(username="admin", is_superuser=True)
+        db_request.user = admin
+
+        organization_application = OrganizationApplicationFactory.create()
+        with pytest.raises(ValueError):  # noqa
+            organization_service.request_more_information(
+                organization_application.id, db_request
+            )
+
+        assert len(organization_application.observations) == 0
+        assert send_email.calls == []
 
     def test_decline_organization_application(
         self, db_request, organization_service, monkeypatch
@@ -436,6 +447,35 @@ class TestDatabaseOrganizationService:
                 organization_role.user_id,
             )
             is None
+        )
+
+    def test_delete_organization_role_deletes_team_roles(
+        self, organization_service, user_service
+    ):
+        user = UserFactory.create()
+        organization = OrganizationFactory.create()
+        organization_role = OrganizationRoleFactory.create(
+            organization=organization, user=user
+        )
+        team = TeamFactory.create(organization=organization)
+        TeamRoleFactory.create(team=team, user=user)
+
+        organization_service.delete_organization_role(organization_role.id)
+
+        assert (
+            organization_service.get_organization_role_by_user(
+                organization_role.organization_id,
+                user.id,
+            )
+            is None
+        )
+
+        assert (
+            organization_service.get_organization_team_roles_by_user(
+                organization.id,
+                user.id,
+            )
+            == []
         )
 
     def test_get_organization_invite(self, organization_service):
@@ -623,6 +663,62 @@ class TestDatabaseOrganizationService:
             )
             .count()
         )
+
+    def test_rename_organization_back(self, organization_service, db_request):
+        organization = OrganizationFactory.create()
+        original_name = organization.name
+
+        organization_service.rename_organization(organization.id, "some_new_name")
+        assert organization.name == "some_new_name"
+
+        db_organization = organization_service.get_organization(organization.id)
+        assert db_organization.name == "some_new_name"
+
+        organization_service.db.flush()
+        assert (
+            db_request.db.query(OrganizationNameCatalog)
+            .filter(
+                OrganizationNameCatalog.normalized_name == organization.normalized_name
+            )
+            .count()
+        ) == 1
+
+        organization_service.rename_organization(organization.id, original_name)
+        assert organization.name == original_name
+
+        db_organization = organization_service.get_organization(organization.id)
+        assert db_organization.name == original_name
+
+        organization_service.db.flush()
+        assert (
+            db_request.db.query(OrganizationNameCatalog)
+            .filter(
+                OrganizationNameCatalog.normalized_name == organization.normalized_name
+            )
+            .count()
+        ) == 1
+
+    def test_rename_fails_if_organization_name_in_use(
+        self, organization_service, db_request
+    ):
+        conflicting_org = OrganizationFactory.create()
+        organization = OrganizationFactory.create()
+
+        with pytest.raises(ValueError):  # noqa: PT011
+            organization_service.rename_organization(
+                organization.id, conflicting_org.name
+            )
+
+    def test_rename_fails_if_organization_name_previously_used(
+        self, organization_service, db_request
+    ):
+        conflicting_org = OrganizationFactory.create()
+        original_name = conflicting_org.name
+        organization_service.rename_organization(conflicting_org.id, "some_new_name")
+        organization = OrganizationFactory.create()
+
+        with pytest.raises(ValueError):  # noqa: PT011
+            organization_service.rename_organization(organization.id, original_name)
 
     def test_update_organization(self, organization_service, db_request):
         organization = OrganizationFactory.create()

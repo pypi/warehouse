@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -51,12 +41,6 @@ pretend_pgettext = pretend.call_recorder(lambda context, message: message)
 pretend_npgettext = pretend.call_recorder(
     lambda context, singular, plural, n: singular if n == 1 else plural
 )
-
-
-def _get_with_context(value, ctx=None):
-    if isinstance(value, dict):
-        return value.get(ctx, value)
-    return value
 
 
 class TestFallbackInternationalizationExtension:
@@ -149,8 +133,7 @@ class TestFallbackInternationalizationExtension:
         @pass_context
         def gettext(context, string):
             language = context.get("LANGUAGE", "en")
-            value = languages.get(language, {}).get(string, string)
-            return _get_with_context(value)
+            return languages.get(language, {}).get(string, string)
 
         env = Environment(
             loader=DictLoader(templates),
@@ -224,10 +207,8 @@ class TestFallbackInternationalizationExtension:
         def ngettext(context, s, p, n):
             language = context.get("LANGUAGE", "en")
             if n != 1:
-                value = languages.get(language, {}).get(p, p)
-                return _get_with_context(value)
-            value = languages.get(language, {}).get(s, s)
-            return _get_with_context(value)
+                return languages.get(language, {}).get(p, p)
+            return languages.get(language, {}).get(s, s)
 
         env = Environment(
             loader=DictLoader(templates),

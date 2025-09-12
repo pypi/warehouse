@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import datetime
 
@@ -21,6 +11,7 @@ from warehouse.organizations.models import (
     OrganizationApplication,
     OrganizationApplicationStatus,
     OrganizationInvitation,
+    OrganizationManualActivation,
     OrganizationNameCatalog,
     OrganizationProject,
     OrganizationRole,
@@ -139,6 +130,20 @@ class OrganizationInvitationFactory(WarehouseFactory):
     token = "test_token"
     user = factory.SubFactory(UserFactory)
     organization = factory.SubFactory(OrganizationFactory)
+
+
+class OrganizationManualActivationFactory(WarehouseFactory):
+    class Meta:
+        model = OrganizationManualActivation
+
+    organization_id = factory.SelfAttribute("organization.id")
+    organization = factory.SubFactory(OrganizationFactory)
+    seat_limit = 10
+    expires = factory.LazyFunction(
+        lambda: datetime.date.today() + datetime.timedelta(days=365)
+    )
+    created_by_id = factory.SelfAttribute("created_by.id")
+    created_by = factory.SubFactory(UserFactory)
 
 
 class OrganizationProjectFactory(WarehouseFactory):

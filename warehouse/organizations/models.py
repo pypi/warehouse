@@ -1,14 +1,5 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
 from __future__ import annotations
 
 import datetime
@@ -20,13 +11,16 @@ from uuid import UUID
 from pyramid.authorization import Allow
 from pyramid.httpexceptions import HTTPPermanentRedirect
 from sqlalchemy import (
+    BigInteger,
     CheckConstraint,
     Enum,
+    FetchedValue,
     ForeignKey,
     Index,
     UniqueConstraint,
     func,
     orm,
+    text,
 )
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.exc import NoResultFound
@@ -276,10 +270,6 @@ class OrganizationMixin:
 
     name: Mapped[str] = mapped_column(comment="The account name used in URLS")
 
-    @declared_attr
-    def normalized_name(cls):  # noqa: N805
-        return column_property(func.normalize_pep426_name(cls.name))
-
     display_name: Mapped[str] = mapped_column(comment="Display name used in UI")
     orgtype: Mapped[enum.Enum] = mapped_column(
         Enum(OrganizationType, values_callable=lambda x: [e.value for e in x]),
@@ -299,12 +289,24 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
 
     __repr__ = make_repr("name")
 
+    normalized_name: Mapped[str] = mapped_column(
+        unique=True,
+        server_default=FetchedValue(),
+        server_onupdate=FetchedValue(),
+    )
     is_active: Mapped[bool_false] = mapped_column(
         comment="When True, the organization is active and all features are available.",
     )
     created: Mapped[datetime_now] = mapped_column(
         index=True,
         comment="Datetime the organization was created.",
+    )
+    upload_limit: Mapped[int | None] = mapped_column(
+        comment="Maximum file size limit in bytes for projects in this organization",
+    )
+    total_size_limit: Mapped[int | None] = mapped_column(
+        BigInteger,
+        comment="Maximum total size limit in bytes for projects in this organization",
     )
     application: Mapped[OrganizationApplication] = relationship(
         back_populates="organization"
@@ -345,6 +347,10 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             viewonly=True,
         )
     )
+    manual_activation: Mapped[OrganizationManualActivation] = relationship(
+        back_populates="organization",
+        uselist=False,
+    )
 
     @property
     def owners(self):
@@ -369,6 +375,49 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             additional={"organization_name": self.name, **additional},
         )
 
+    @property
+    def good_standing(self):
+        """Legacy property - use is_in_good_standing() for new code.
+
+        Check if organization is in good standing and can perform actions.
+        """
+        return self.is_in_good_standing()
+
+    def is_in_good_standing(self) -> bool:
+        """Check if organization is in good standing and can perform actions.
+
+        This is the canonical method for determining if an organization
+        meets all requirements to operate (uploads, invitations, etc.).
+
+        Returns True if:
+        1. Organization is active (not deleted/deactivated)
+        2. For Company organizations: Has active subscription OR active manual
+           activation
+        3. For Community organizations: Just needs to be active
+        """
+        if not self.is_active:
+            return False
+
+        # Community organizations only need to be active
+        if self.orgtype != OrganizationType.Company:
+            return True
+
+        # Company organizations need active subscription OR manual activation
+        return self.active_subscription is not None or (
+            self.manual_activation is not None and self.manual_activation.is_active
+        )
+
+    def get_billing_status_display(self) -> str:
+        """Get a human-readable billing status for display in forms.
+
+        Returns the organization name with billing status suffix if not in
+        good standing.
+        """
+        if self.is_in_good_standing():
+            return self.name
+        else:
+            return f"{self.name} (Billing inactive)"
+
     def __acl__(self):
         session = orm_session_from_obj(self)
 
@@ -379,6 +428,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                 (
                     Permissions.AdminOrganizationsRead,
                     Permissions.AdminOrganizationsWrite,
+                    Permissions.AdminOrganizationsNameWrite,
                 ),
             ),
             (Allow, "group:moderators", Permissions.AdminOrganizationsRead),
@@ -514,6 +564,64 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         return f"{site_name} Organization - {self.display_name} ({self.name})"
 
 
+class OrganizationManualActivation(db.Model):
+    __tablename__ = "organization_manual_activations"
+
+    __repr__ = make_repr("organization_id", "seat_limit", "expires")
+
+    organization_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("organizations.id", ondelete="CASCADE"),
+        primary_key=True,
+        comment="Foreign key to organization",
+    )
+    organization: Mapped[Organization] = relationship(
+        back_populates="manual_activation"
+    )
+
+    seat_limit: Mapped[int] = mapped_column(
+        comment="Maximum number of organization members allowed"
+    )
+    expires: Mapped[datetime.date] = mapped_column(
+        comment="Expiration date for the manual activation"
+    )
+    created: Mapped[datetime_now] = mapped_column(
+        comment="Datetime when manual activation was created"
+    )
+    created_by_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("users.id"),
+        comment="Admin user who created the manual activation",
+    )
+    created_by: Mapped[User] = relationship()
+
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        server_default=text("gen_random_uuid()"),
+    )
+
+    @property
+    def is_active(self) -> bool:
+        """Check if manual activation is currently active (not expired)."""
+        return datetime.date.today() < self.expires
+
+    @property
+    def current_member_count(self) -> int:
+        """Get the current number of organization members."""
+        # Use roles count instead of users relationship for more reliable counting
+        return len([role for role in self.organization.roles if role.user_id])
+
+    @property
+    def has_available_seats(self) -> bool:
+        """Check if there are available seats for new members."""
+        return self.current_member_count < self.seat_limit
+
+    @property
+    def available_seats(self) -> int:
+        """Get the number of available seats for new members."""
+        return max(0, self.seat_limit - self.current_member_count)
+
+
 class OrganizationApplicationStatus(enum.StrEnum):
     Submitted = "submitted"
     Declined = "declined"
@@ -522,9 +630,24 @@ class OrganizationApplicationStatus(enum.StrEnum):
     Approved = "approved"
 
 
+class OrganizationMembershipSize(enum.StrEnum):
+    none = ""
+    solo = "1"
+    smol = "2-5"
+    small = "6-10"
+    mid = "11-25"
+    medium = "26-50"
+    lorge = "51-100"
+    large = "100+"
+
+
 class OrganizationApplication(OrganizationMixin, HasObservations, db.Model):
     __tablename__ = "organization_applications"
     __repr__ = make_repr("name")
+
+    @declared_attr
+    def normalized_name(cls):  # noqa: N805
+        return column_property(func.normalize_pep426_name(cls.name))
 
     submitted_by_id: Mapped[UUID] = mapped_column(
         PG_UUID,
@@ -551,6 +674,17 @@ class OrganizationApplication(OrganizationMixin, HasObservations, db.Model):
         ),
         server_default=OrganizationApplicationStatus.Submitted,
         comment="Status of the request",
+    )
+
+    usage: Mapped[str | None] = mapped_column(
+        comment="Description of how the applicant plans to use Organizations",
+    )
+    membership_size: Mapped[enum.Enum | None] = mapped_column(
+        Enum(
+            OrganizationMembershipSize,
+            values_callable=lambda x: [e.value for e in x],
+        ),
+        comment="Anticipated size of Organization Membership",
     )
 
     organization_id: Mapped[UUID | None] = mapped_column(
@@ -606,6 +740,10 @@ class OrganizationNameCatalog(db.Model):
             "normalized_name",
             "organization_id",
             name="_organization_name_catalog_normalized_name_organization_uc",
+        ),
+        UniqueConstraint(
+            "normalized_name",
+            name="_organization_name_catalog_normalized_name_uc",
         ),
     )
 

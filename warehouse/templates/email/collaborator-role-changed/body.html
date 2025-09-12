@@ -13,32 +13,31 @@
 -#}
 {% extends "email/_base/body.html" %}
 {% set site = request.registry.settings["site.name"] %}
-
-
 {% block extra_style %}
-ul.collaborator-details {
-    list-style-type: none;
-}
+  ul.collaborator-details {
+  list-style-type: none;
+  }
 {% endblock %}
-
-
 {% block content %}
-<p>
-  A collaborator's role was changed on a project you own on {{ site }}:
-
-  <ul class="collaborator-details">
-    <li><strong>Username</strong>: {{ username }}</li>
-    <li><strong>New role</strong>: {{ role }}</li>
-    <li><strong>Collaborator for</strong>: {{ project }}</li>
-    <li><strong>Changed by</strong>: {{ submitter }}</li>
-  </ul>
-</p>
-
-<p>If this was a mistake, you can email <a href="mailto:admin@pypi.org">admin@pypi.org</a> to communicate with the PyPI administrators.</p>
+  <p>
+    A collaborator's role was changed on a project you own on {{ site }}:
+    <ul class="collaborator-details">
+      <li>
+        <strong>Username</strong>: {{ username }}
+      </li>
+      <li>
+        <strong>New role</strong>: {{ role }}
+      </li>
+      <li>
+        <strong>Collaborator for</strong>: {{ project }}
+      </li>
+      <li>
+        <strong>Changed by</strong>: {{ submitter }}
+      </li>
+    </ul>
+  </p>
+  <p>
+    If this was a mistake, you can email <a href="mailto:admin@pypi.org">admin@pypi.org</a> to communicate with the PyPI administrators.
+  </p>
 {% endblock %}
-
-
-{% block reason %}
-You are receiving this because you are an owner of this project.
-{% endblock %}
-   
+{% block reason %}You are receiving this because you are an owner of this project.{% endblock %}

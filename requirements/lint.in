@@ -1,6 +1,6 @@
+djlint
 flake8
 flake8-pytest-style
-curlylint
 pep8-naming
 black==25.1.0
 isort>=5.13.1
@@ -20,8 +20,7 @@ types-passlib
 types-python-slugify
 types-pytz
 types-redis
-types-requests==2.32.0.20250306
-types-setuptools
+types-requests==2.32.4.20250809
 types-stripe
 types-WTForms
 types-WebOb

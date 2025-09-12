@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from unittest import mock
 
@@ -253,7 +243,8 @@ class TestWarehouseTask:
             pretend.call("warehouse.task.run", tags=["task:warehouse.test.task"])
         ]
         assert metrics.increment.calls == [
-            pretend.call("warehouse.task.complete", tags=["task:warehouse.test.task"])
+            pretend.call("warehouse.task.start", tags=["task:warehouse.test.task"]),
+            pretend.call("warehouse.task.complete", tags=["task:warehouse.test.task"]),
         ]
 
     def test_run_retries_failed_transaction(self, metrics):
@@ -298,7 +289,8 @@ class TestWarehouseTask:
             pretend.call("warehouse.task.run", tags=["task:warehouse.test.task"])
         ]
         assert metrics.increment.calls == [
-            pretend.call("warehouse.task.retried", tags=["task:warehouse.test.task"])
+            pretend.call("warehouse.task.start", tags=["task:warehouse.test.task"]),
+            pretend.call("warehouse.task.retried", tags=["task:warehouse.test.task"]),
         ]
 
     def test_run_doesnt_retries_failed_transaction(self, metrics):
@@ -336,7 +328,8 @@ class TestWarehouseTask:
             pretend.call("warehouse.task.run", tags=["task:warehouse.test.task"])
         ]
         assert metrics.increment.calls == [
-            pretend.call("warehouse.task.failed", tags=["task:warehouse.test.task"])
+            pretend.call("warehouse.task.start", tags=["task:warehouse.test.task"]),
+            pretend.call("warehouse.task.failed", tags=["task:warehouse.test.task"]),
         ]
 
     def test_after_return_without_pyramid_env(self):

@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 
 def includeme(config):
@@ -30,21 +20,33 @@ def includeme(config):
     config.add_route("locale", "/locale/", domain=warehouse)
     config.add_route("favicon.ico", "/favicon.ico", domain=warehouse)
     config.add_route("robots.txt", "/robots.txt", domain=warehouse)
+    config.add_route(
+        "funding-manifest-urls", "/.well-known/funding-manifest-urls", domain=warehouse
+    )
     config.add_route("opensearch.xml", "/opensearch.xml", domain=warehouse)
     config.add_route("index.sitemap.xml", "/sitemap.xml", domain=warehouse)
     config.add_route("bucket.sitemap.xml", "/{bucket}.sitemap.xml", domain=warehouse)
 
     # Some static, template driven pages
     config.add_template_view(
-        "sitemap", "/sitemap/", "pages/sitemap.html", view_kw={"has_translations": True}
+        "sitemap",
+        "/sitemap/",
+        "pages/sitemap.html",
+        route_kw={"domain": warehouse},
+        view_kw={"has_translations": True},
     )
     config.add_template_view(
-        "help", "/help/", "pages/help.html", view_kw={"has_translations": True}
+        "help",
+        "/help/",
+        "pages/help.html",
+        route_kw={"domain": warehouse},
+        view_kw={"has_translations": True},
     )
     config.add_template_view(
         "security",
         "/security/",
         "pages/security.html",
+        route_kw={"domain": warehouse},
         view_kw={"has_translations": True},
     )
     # Redirect the old "sponsor PyPI" page to the sponsors page
@@ -53,6 +55,7 @@ def includeme(config):
         "sponsors",
         "/sponsors/",
         "pages/sponsors.html",
+        route_kw={"domain": warehouse},
         view_kw={"has_translations": True},
     )
 
@@ -70,6 +73,7 @@ def includeme(config):
         "trademarks",
         "/trademarks/",
         "pages/trademarks.html",
+        route_kw={"domain": warehouse},
         view_kw={"has_translations": True},
     )
 
@@ -80,7 +84,9 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
-        "includes.flash-messages", "/_includes/authed/flash-messages/", domain=warehouse
+        "includes.flash-messages",
+        "/_includes/unauthed/flash-messages/",
+        domain=warehouse,
     )
     config.add_route(
         "includes.session-notifications",
@@ -130,13 +136,6 @@ def includeme(config):
         "/_includes/authed/administer-user-include/{user_name}",
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{user_name}",
-        domain=warehouse,
-    )
-    config.add_route(
-        "includes.submit_malware_report",
-        "/_includes/authed/submit-malware-report/{project_name}",
-        factory="warehouse.packaging.models:ProjectFactory",
-        traverse="/{project_name}",
         domain=warehouse,
     )
 

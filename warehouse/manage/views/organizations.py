@@ -1,14 +1,5 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
 import datetime
 
 from urllib.parse import urljoin
@@ -128,7 +119,7 @@ def organization_members(request, organization):
 
 @view_defaults(
     route_name="manage.organizations",
-    renderer="manage/organizations.html",
+    renderer="warehouse:templates/manage/organizations.html",
     uses_session=True,
     require_active_organization=False,  # Allow list/create orgs without active org.
     require_csrf=True,
@@ -192,7 +183,11 @@ class ManageOrganizationsViews:
                     [
                         app
                         for app in self.request.user.organization_applications
-                        if app.status != OrganizationApplicationStatus.Approved
+                        if app.status
+                        not in (
+                            OrganizationApplicationStatus.Approved,
+                            OrganizationApplicationStatus.Declined,
+                        )
                     ]
                 )
                 < self.request.registry.settings[
@@ -249,7 +244,7 @@ class ManageOrganizationsViews:
 @view_defaults(
     route_name="manage.organizations.application",
     context=OrganizationApplication,
-    renderer="manage/organization/application.html",
+    renderer="warehouse:templates/manage/organization/application.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -325,7 +320,7 @@ class ManageOrganizationApplicationViews:
 @view_defaults(
     route_name="manage.organization.settings",
     context=Organization,
-    renderer="manage/organization/settings.html",
+    renderer="warehouse:templates/manage/organization/settings.html",
     uses_session=True,
     require_active_organization=True,
     require_csrf=True,
@@ -627,7 +622,7 @@ class ManageOrganizationBillingViews:
 
     @view_config(
         route_name="manage.organization.activate_subscription",
-        renderer="manage/organization/activate_subscription.html",
+        renderer="warehouse:templates/manage/organization/activate_subscription.html",
     )
     def activate_subscription(self):
         form = OrganizationActivateBillingForm(self.request.POST)
@@ -663,7 +658,7 @@ class ManageOrganizationBillingViews:
 @view_defaults(
     route_name="manage.organization.teams",
     context=Organization,
-    renderer="manage/organization/teams.html",
+    renderer="warehouse:templates/manage/organization/teams.html",
     uses_session=True,
     require_active_organization=True,
     require_csrf=True,
@@ -751,7 +746,7 @@ class ManageOrganizationTeamsViews:
 @view_defaults(
     route_name="manage.organization.projects",
     context=Organization,
-    renderer="manage/organization/projects.html",
+    renderer="warehouse:templates/manage/organization/projects.html",
     uses_session=True,
     require_active_organization=True,
     require_csrf=True,
@@ -971,6 +966,16 @@ def _send_organization_invitation(request, organization, role_name, user):
             queue="error",
         )
     else:
+        # Check if organization is in good standing (allow invitations over seat limit)
+        if not organization.is_in_good_standing():
+            request.session.flash(
+                request._(
+                    "Cannot invite new member. Organization is not in good " "standing."
+                ),
+                queue="error",
+            )
+            return
+
         invite_token = token_service.dumps(
             {
                 "action": "email-organization-role-verify",
@@ -1039,7 +1044,7 @@ def _send_organization_invitation(request, organization, role_name, user):
 @view_config(
     route_name="manage.organization.roles",
     context=Organization,
-    renderer="manage/organization/roles.html",
+    renderer="warehouse:templates/manage/organization/roles.html",
     uses_session=True,
     require_active_organization=True,
     require_methods=False,
@@ -1398,7 +1403,7 @@ def delete_organization_role(organization, request):
 @view_config(
     route_name="manage.organization.history",
     context=Organization,
-    renderer="manage/organization/history.html",
+    renderer="warehouse:templates/manage/organization/history.html",
     uses_session=True,
     permission=Permissions.OrganizationsManage,
     has_translations=True,
@@ -1566,18 +1571,16 @@ def transfer_organization_project(project, request):
 
     all_user_organizations = user_organizations(request)
     active_organizations_owned = {
-        organization.name
+        organization
         for organization in all_user_organizations["organizations_owned"]
         if organization.is_active
     }
     active_organizations_managed = {
-        organization.name
+        organization
         for organization in all_user_organizations["organizations_managed"]
         if organization.is_active
     }
-    current_organization = (
-        {project.organization.name} if project.organization else set()
-    )
+    current_organization = {project.organization} if project.organization else set()
     organization_choices = (
         active_organizations_owned | active_organizations_managed
     ) - current_organization
@@ -1661,7 +1664,7 @@ def transfer_organization_project(project, request):
         orm.attributes.flag_dirty(organization)
 
     # Add project to selected organization.
-    organization = organization_service.get_organization_by_name(form.organization.data)
+    organization = organization_service.get_organization(form.organization.data)
     organization_service.add_organization_project(organization.id, project.id)
     organization.record_event(
         tag=EventTag.Organization.OrganizationProjectAdd,

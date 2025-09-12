@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import base64
 import enum
@@ -85,11 +75,14 @@ class RootFactory:
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
+                Permissions.AdminOrganizationsSetLimit,
                 Permissions.AdminOrganizationsWrite,
+                Permissions.AdminOrganizationsNameWrite,
                 Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedEmailDomainsWrite,
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedProjectsWrite,
+                Permissions.AdminProhibitedProjectsRelease,
                 Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProhibitedUsernameWrite,
                 Permissions.AdminProjectsDelete,
@@ -98,6 +91,7 @@ class RootFactory:
                 Permissions.AdminProjectsWrite,
                 Permissions.AdminRoleAdd,
                 Permissions.AdminRoleDelete,
+                Permissions.AdminRoleUpdate,
                 Permissions.AdminSponsorsRead,
                 Permissions.AdminUsersRead,
                 Permissions.AdminUsersWrite,
@@ -118,14 +112,18 @@ class RootFactory:
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
+                Permissions.AdminOrganizationsSetLimit,
                 Permissions.AdminOrganizationsWrite,
+                Permissions.AdminOrganizationsNameWrite,
                 Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedProjectsRead,
+                Permissions.AdminProhibitedProjectsRelease,
                 Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminProjectsSetLimit,
                 Permissions.AdminRoleAdd,
                 Permissions.AdminRoleDelete,
+                Permissions.AdminRoleUpdate,
                 Permissions.AdminSponsorsRead,
                 Permissions.AdminUsersRead,
                 Permissions.AdminUsersEmailWrite,
@@ -152,6 +150,7 @@ class RootFactory:
                 Permissions.AdminProjectsSetLimit,
                 Permissions.AdminRoleAdd,
                 Permissions.AdminRoleDelete,
+                Permissions.AdminRoleUpdate,
                 Permissions.AdminSponsorsRead,
                 Permissions.AdminUsersRead,
             ),
@@ -348,6 +347,13 @@ def configure(settings=None):
     maybe_set(settings, "warehouse.ip_salt", "WAREHOUSE_IP_SALT")
     maybe_set(settings, "warehouse.num_proxies", "WAREHOUSE_NUM_PROXIES", int)
     maybe_set(settings, "warehouse.domain", "WAREHOUSE_DOMAIN")
+    maybe_set(
+        settings,
+        "warehouse.allowed_domains",
+        "WAREHOUSE_ALLOWED_DOMAINS",
+        lambda s: [d.strip() for d in s.split(",") if d.strip()],
+        default=[],
+    )
     maybe_set(settings, "forklift.domain", "FORKLIFT_DOMAIN")
     maybe_set(settings, "auth.domain", "AUTH_DOMAIN")
     maybe_set(
@@ -398,8 +404,6 @@ def configure(settings=None):
     maybe_set(settings, "camo.url", "CAMO_URL")
     maybe_set(settings, "camo.key", "CAMO_KEY")
     maybe_set(settings, "docs.url", "DOCS_URL")
-    maybe_set(settings, "ga.tracking_id", "GA_TRACKING_ID")
-    maybe_set(settings, "ga4.tracking_id", "GA4_TRACKING_ID")
     maybe_set(settings, "statuspage.url", "STATUSPAGE_URL")
     maybe_set(settings, "hibp.api_key", "HIBP_API_KEY")
     maybe_set(settings, "token.password.secret", "TOKEN_PASSWORD_SECRET")
@@ -461,6 +465,7 @@ def configure(settings=None):
     maybe_set_compound(settings, "metrics", "backend", "METRICS_BACKEND")
     maybe_set_compound(settings, "breached_emails", "backend", "BREACHED_EMAILS")
     maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
+    maybe_set_compound(settings, "domain_status", "backend", "DOMAIN_STATUS_BACKEND")
     maybe_set(
         settings,
         "oidc.backend",
@@ -519,6 +524,19 @@ def configure(settings=None):
         "warehouse.account.global_login_ratelimit_string",
         "GLOBAL_LOGIN_RATELIMIT_STRING",
         default="1000 per 5 minutes",
+    )
+    # Separate rate limiters for 2FA attempts to prevent brute-force attacks
+    maybe_set(
+        settings,
+        "warehouse.account.2fa_user_ratelimit_string",
+        "2FA_USER_RATELIMIT_STRING",
+        default="5 per 5 minutes, 20 per hour, 50 per day",
+    )
+    maybe_set(
+        settings,
+        "warehouse.account.2fa_ip_ratelimit_string",
+        "2FA_IP_RATELIMIT_STRING",
+        default="10 per 5 minutes, 50 per hour",
     )
     maybe_set(
         settings,
@@ -643,6 +661,9 @@ def configure(settings=None):
 
     # Register our logging support
     config.include(".logging")
+
+    # Register request utilities (nonce, etc.)
+    config.include(".request")
 
     # We'll want to use Jinja2 as our template system.
     config.include("pyramid_jinja2")
