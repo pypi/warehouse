@@ -410,6 +410,7 @@ def configure(settings=None):
     maybe_set(settings, "token.email.secret", "TOKEN_EMAIL_SECRET")
     maybe_set(settings, "token.two_factor.secret", "TOKEN_TWO_FACTOR_SECRET")
     maybe_set(settings, "token.remember_device.secret", "TOKEN_REMEMBER_DEVICE_SECRET")
+    maybe_set(settings, "token.confirm_login.secret", "TOKEN_CONFIRM_LOGIN_SECRET")
     maybe_set_redis(settings, "warehouse.xmlrpc.cache.url", "REDIS_URL", db=4)
     maybe_set(
         settings,
