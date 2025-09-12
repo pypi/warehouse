@@ -312,6 +312,7 @@ def test_configure(monkeypatch, settings, environment):
         "terms.revision": "initial",
         "terms.notification_batch_size": 1000,
         "warehouse.commit": "null",
+        "userdocs.domain": "https://docs.pypi.org",
         "site.name": "Warehouse",
         "token.two_factor.max_age": 300,
         "remember_device.days": 30,
@@ -355,17 +356,11 @@ def test_configure(monkeypatch, settings, environment):
                     "pyramid_debugtoolbar.panels.versions.VersionDebugPanel",
                     "pyramid_debugtoolbar.panels.settings.SettingsDebugPanel",
                     "pyramid_debugtoolbar.panels.headers.HeaderDebugPanel",
-                    (
-                        "pyramid_debugtoolbar.panels.request_vars."
-                        "RequestVarsDebugPanel"
-                    ),
+                    ("pyramid_debugtoolbar.panels.request_vars.RequestVarsDebugPanel"),
                     "pyramid_debugtoolbar.panels.renderings.RenderingsDebugPanel",
                     "pyramid_debugtoolbar.panels.session.SessionDebugPanel",
                     "pyramid_debugtoolbar.panels.logger.LoggingPanel",
-                    (
-                        "pyramid_debugtoolbar.panels.performance."
-                        "PerformanceDebugPanel"
-                    ),
+                    ("pyramid_debugtoolbar.panels.performance.PerformanceDebugPanel"),
                     "pyramid_debugtoolbar.panels.routes.RoutesDebugPanel",
                     "pyramid_debugtoolbar.panels.sqla.SQLADebugPanel",
                     "pyramid_debugtoolbar.panels.tweens.TweensDebugPanel",
@@ -431,6 +426,7 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".sessions"),
             pretend.call(".cache.http"),
             pretend.call(".cache.origin"),
+            pretend.call(".cache"),
             pretend.call(".email"),
             pretend.call(".accounts"),
             pretend.call(".macaroons"),
@@ -608,6 +604,7 @@ def test_root_factory_access_control_list():
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
+                Permissions.AdminOrganizationsWrite,
                 Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedUsernameRead,

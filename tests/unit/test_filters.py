@@ -243,6 +243,19 @@ def test_localize_datetime(inp, expected):
     ("inp", "expected"),
     [
         (
+            datetime.datetime(2018, 12, 26, 13, 36, 5, 789013).isoformat(),
+            datetime.datetime(2018, 12, 26, 13, 36, 5, 789013),
+        )
+    ],
+)
+def test_parse_isoformat(inp, expected):
+    assert filters.parse_isoformat(inp) == expected
+
+
+@pytest.mark.parametrize(
+    ("inp", "expected"),
+    [
+        (
             1667404296,
             datetime.datetime(2022, 11, 2, 15, 51, 36),
         )
@@ -301,3 +314,25 @@ def test_remove_invalid_xml_unicode(inp, expected):
     Test that invalid XML unicode characters are removed.
     """
     assert filters.remove_invalid_xml_unicode(inp) == expected
+
+
+def test_canonical_url():
+    request = pretend.stub(
+        matched_route=pretend.stub(name="foo"),
+        route_url=pretend.call_recorder(lambda a: "bar"),
+    )
+    assert filters._canonical_url(request) == "bar"
+    assert request.route_url.calls == [pretend.call("foo")]
+
+
+def test_canonical_url_no_matched_route():
+    request = pretend.stub(matched_route=None)
+    assert filters._canonical_url(request) is None
+
+
+def test_canonical_url_missing_kwargs():
+    request = pretend.stub(
+        matched_route=pretend.stub(name="foo"),
+        route_url=pretend.raiser(KeyError),
+    )
+    assert filters._canonical_url(request) is None

@@ -34,6 +34,7 @@ from sqlalchemy import exists, func, select
 from zope.interface import implementer
 
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.cache import IQueryResultsCache
 from warehouse.email import send_pending_trusted_publisher_invalidated_email
 from warehouse.events.tags import EventTag
 from warehouse.helpdesk.interfaces import IAdminNotificationService
@@ -411,13 +412,18 @@ class GCSSimpleStorage(GenericGCSBlobStorage):
 
 @implementer(IProjectService)
 class ProjectService:
-    def __init__(self, session, metrics=None, ratelimiters=None) -> None:
+    def __init__(
+        self, session, metrics=None, ratelimiters=None, query_results_cache=None
+    ) -> None:
         if ratelimiters is None:
             ratelimiters = {}
+        if query_results_cache is None:
+            query_results_cache = {}
 
         self.db = session
         self.ratelimiters = collections.defaultdict(DummyRateLimiter, ratelimiters)
         self._metrics = metrics
+        self._query_results_cache = query_results_cache
 
     def _check_ratelimits(self, request, creator):
         # First we want to check if a single IP is exceeding our rate limiter.
@@ -486,7 +492,10 @@ class ProjectService:
             raise ProjectNameUnavailableSimilarError(similar_project_name)
 
         # Check for typo-squatting.
-        if typo_check_match := typo_check_name(canonicalize_name(name)):
+        cached_corpus = self._query_results_cache.get("top_dependents_corpus")
+        if typo_check_match := typo_check_name(
+            canonicalize_name(name), corpus=cached_corpus
+        ):
             raise ProjectNameUnavailableTypoSquattingError(
                 check_name=typo_check_match[0],
                 existing_project_name=typo_check_match[1],
@@ -718,4 +727,10 @@ def project_service_factory(context, request):
             IRateLimiter, name="project.create.ip", context=None
         ),
     }
-    return ProjectService(request.db, metrics=metrics, ratelimiters=ratelimiters)
+    query_results_cache = request.find_service(IQueryResultsCache)
+    return ProjectService(
+        request.db,
+        metrics=metrics,
+        ratelimiters=ratelimiters,
+        query_results_cache=query_results_cache,
+    )

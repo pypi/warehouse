@@ -15,6 +15,9 @@
 
 {% block title %}{% trans %}Manage{% endtrans %}{% endblock %}
 
+{# These pages are not indexed so the canonical URL doesn't matter #}
+{% block canonical_url %}{% endblock %}
+
 {# Hide mobile search on manager pages #}
 {% block mobile_search %}{% endblock %}
 

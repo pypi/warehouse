@@ -19,12 +19,14 @@ from pyramid.location import lineage
 
 from warehouse.authnz import Permissions
 from warehouse.organizations.models import (
+    OrganizationApplicationFactory,
     OrganizationFactory,
     OrganizationRoleType,
     TeamFactory,
 )
 
 from ...common.db.organizations import (
+    OrganizationApplicationFactory as DBOrganizationApplicationFactory,
     OrganizationFactory as DBOrganizationFactory,
     OrganizationNameCatalogFactory as DBOrganizationNameCatalogFactory,
     OrganizationRoleFactory as DBOrganizationRoleFactory,
@@ -36,6 +38,34 @@ from ...common.db.subscriptions import (
     StripeCustomerFactory as DBStripeCustomerFactory,
     StripeSubscriptionFactory as DBStripeSubscriptionFactory,
 )
+
+
+class TestOrganizationApplicationFactory:
+    def test_traversal_finds(self, db_request):
+        organization_application = DBOrganizationApplicationFactory.create()
+        _organization_application = OrganizationApplicationFactory(db_request)
+        assert (
+            _organization_application[organization_application.id]
+            == organization_application
+        )
+
+    def test_traversal_cant_find(self, db_request):
+        DBOrganizationApplicationFactory.create()
+        _organization_application = OrganizationApplicationFactory(db_request)
+        with pytest.raises(KeyError):
+            _organization_application["deadbeef-dead-beef-dead-beefdeadbeef"]
+
+
+class TestOrganizationApplication:
+    def test_acl(self, db_session):
+        organization_application = DBOrganizationApplicationFactory.create()
+        assert organization_application.__acl__() == [
+            (
+                Allow,
+                f"user:{organization_application.submitted_by.id}",
+                (Permissions.OrganizationApplicationsManage,),
+            )
+        ]
 
 
 class TestOrganizationFactory:

@@ -203,3 +203,8 @@ hr {
   background: $border-color;
   background-image: linear-gradient(to right, $border-color, $white);
 }
+
+// Pre-formatted text
+.preserve-line-breaks {
+  white-space: pre-line;
+}

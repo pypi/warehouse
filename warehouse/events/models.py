@@ -198,6 +198,7 @@ class HasEvents:
             passive_deletes=True,
             lazy="dynamic",
             back_populates="source",
+            order_by=f"desc({cls.__name__}Event.time)",
         )
 
     def record_event(self, *, tag, request: Request, additional=None):

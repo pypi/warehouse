@@ -155,5 +155,24 @@ def test_includeme(monkeypatch):
     ]
 
     assert config.register_service_factory.calls == [
-        pretend.call(RateLimit("10 per second"), IRateLimiter, name="search")
+        pretend.call(RateLimit("10 per second"), IRateLimiter, name="search"),
+        pretend.call(
+            search.services.SearchService.create_service,
+            iface=search.interfaces.ISearchService,
+        ),
+    ]
+
+
+def test_execute_reindex_no_service():
+    @pretend.call_recorder
+    def find_service_factory(interface):
+        raise LookupError
+
+    config = pretend.stub(find_service_factory=find_service_factory)
+    session = pretend.stub()
+
+    search.execute_project_reindex(config, session)
+
+    assert find_service_factory.calls == [
+        pretend.call(search.interfaces.ISearchService)
     ]

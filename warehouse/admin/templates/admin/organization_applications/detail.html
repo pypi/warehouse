@@ -41,16 +41,47 @@
           <h2 class="card-title">Actions</h2>
         </div>
         <div class="card-body">
-          <p>
-            Approve or decline request for organization named <strong>{{ organization_application.name }}</strong>?
-          </p>
           <div class="form-group">
-            <button type="button" class="btn {{ 'btn-primary' if organization_application.is_approved != True else '' }} btn-block" data-toggle="modal" data-target="#approveModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) or organization_application.is_approved == True }} title="{{ 'Admin permission required to approve organization request' if not request.has_permission(Permissions.AdminOrganizationsWrite) else 'Organization request already approved' if organization_application.is_approved == True else 'Approve organization request' }}">
+            <button
+              type="button"
+              class="btn btn-primary btn-block"
+              data-toggle="modal"
+              data-target="#approveModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) or organization_application.status.value in ['approved', 'declined'] }}
+              title="Approve organization request"
+            >
               <i class="icon fa fa-check"></i> Approve
             </button>
-            <button type="button" class="btn {{ 'btn-danger' if organization_application.is_approved != False else '' }} btn-block" data-toggle="modal" data-target="#declineModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) or organization_application.is_approved == False }} title="{{ 'Admin permission required to decline organization request' if not request.has_permission(Permissions.AdminOrganizationsWrite) else 'Organization request already declined' if organization_application.is_approved == False else 'Decline organization request' }}">
+
+            <button
+              type="button"
+              class="btn btn-info btn-block"
+              data-toggle="modal"
+              data-target="#requestMoreInfoModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) or organization_application.status.value in ['approved', 'declined'] }}
+              title="Request more information on this organization request"
+            >
+              <i class="icon fa fa-question"></i> Request Info
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-danger btn-block"
+              data-toggle="modal"
+              data-target="#declineModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) or organization_application.status.value in ['approved', 'declined'] }}
+              title="Decline organization request"
+            >
               <i class="icon fa fa-times"></i> Decline
             </button>
+
+            <button
+              type="button"
+              class="btn btn-secondary btn-block"
+              data-toggle="modal"
+              data-target="#deferModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) or organization_application.status in ['deferred', 'approved', 'declined'] }}
+              title="Defer organization request"
+            >
+              <i class="icon fa fa-stopwatch"></i> Defer
+            </button>
+
             {% if user %}
             <div class="modal fade" id="approveModal" tabindex="-1" role="dialog">
               <form method="POST" action="{{ request.route_path('admin.organization_application.approve', organization_application_id=organization_application.id) }}">
@@ -59,7 +90,7 @@
                   <div class="modal-content">
                     <div class="modal-header">
                       <h4 class="modal-title" id="approveModalLabel">
-                        Are you sure?
+                        Approve {{ organization_application.name }}?
                       </h4>
                       <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -98,6 +129,92 @@
                 </div>
               </form>
             </div>
+
+            <div class="modal fade" id="deferModal" tabindex="-1" role="dialog">
+              <form method="POST" action="{{ request.route_path('admin.organization_application.defer', organization_application_id=organization_application.id) }}">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title" id="deferModalLabel">
+                        Defer {{ organization_application.name }}?
+                      </h4>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>
+                        This will defer <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>'s request for a new organization named <strong>{{ organization_application.name }}</strong>.
+                      </p>
+                      <div class="form-group">
+                        <label for="deferModalOrganizationName">
+                          Organization Name
+                        </label>
+                        <input type="text" id="deferModalOrganizationName" class="form-control" aria-describedby="deferModalOrganizationNameHelpBlock" name="organization_name" placeholder="{{ organization_application.name }}" required>
+                        <span id="deferModalOrganizationNameHelpBlock">
+                          Type the organization name "{{ organization_application.name }}" to confirm you are <strong>deferring</strong> the request.
+                        </span>
+                      </div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-secondary">
+                        <i class="icon fa fa-stopwatch"></i> Defer organization request
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <div class="modal fade" id="requestMoreInfoModal" tabindex="-1" role="dialog">
+              <form method="POST" action="{{ request.route_path('admin.organization_application.requestmoreinfo', organization_application_id=organization_application.id) }}">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title" id="requestMoreInfoModalLabel">
+                        Request More Info for {{ organization_application.name }}?
+                      </h4>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>
+                        This will request more information for <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>'s request for a new organization named <strong>{{ organization_application.name }}</strong>.
+                      </p>
+                      <div class="form-group">
+                        <label for="requestMoreInfoModalOrganizationName">
+                          Organization Name
+                        </label>
+                        <input type="text" id="requestMoreInfoModalOrganizationName" class="form-control" aria-describedby="requestMoreInfoModalOrganizationNameHelpBlock" name="organization_name" placeholder="{{ organization_application.name }}" required>
+                        <span id="requestMoreInfoModalOrganizationNameHelpBlock">
+                          Type the organization name "{{ organization_application.name }}" to confirm you are <strong>requesting more information</strong> for this request.
+                        </span>
+                      </div>
+                      <div class="form-group">
+                        <label for="requestMoreInfoModalMessage">
+                          Message
+                        </label>
+                        <textarea id="requestMoreInfoModalMessage" class="form-control" name="message" placeholder="Information you are requesting"></textarea>
+                        <span id="requestMoreInfoModalMessageHelpBlock">
+                          This message will be included in the notification email.
+                        </span>
+                      </div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-info">
+                        <i class="icon fa fa-question"></i> Request More Info
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+
             <div class="modal fade" id="declineModal" tabindex="-1" role="dialog">
               <form method="POST" action="{{ request.route_path('admin.organization_application.decline', organization_application_id=organization_application.id) }}">
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -105,7 +222,7 @@
                   <div class="modal-content">
                     <div class="modal-header">
                       <h4 class="modal-title" id="declineModalLabel">
-                        Are you sure?
+                        Decline {{ organization_application.name }}?
                       </h4>
                       <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -144,6 +261,7 @@
                 </div>
               </form>
             </div>
+
             {% endif %}
           </div>
         </div>
@@ -162,6 +280,7 @@
                 Approval Status
               </label>
               <div class="col-sm-7">
+                {{ organization_application.status.value }}
               </div>
             </div>
             <div class="form-group">
@@ -241,6 +360,40 @@
           </div>
         </div>
       </div>
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Information Requests</h3>
+        </div>
+        <div class="card-body">
+        {% for information_request in organization_application.information_requests %}
+        <div class="card {% if information_request.additional.response %}card-neutral{% else %}card-warning{% endif %} card-outline direct-chat direct-chat-primary"</div>
+          <div class="card-body">
+            <div class="direct-chat-messages unset-height">
+              <div class="direct-chat-msg">
+                <div class="direct-chat-infos clearfix">
+                  <span class="direct-chat-name float-left">{{ information_request.observer.parent.username }} (PyPI)</span>
+                  <span class="direct-chat-timestamp float-right">{{ information_request.created|format_datetime }}</span>
+                </div>
+                <img class="direct-chat-img" src="{{ gravatar(request, information_request.observer.parent.email, size=128) }}" alt="Message User Image">
+                <div class="direct-chat-text preserve-line-breaks">{{ information_request.payload.message }}</div>
+              </div>
+              {% if information_request.additional.response %}
+              <div class="direct-chat-msg right">
+                <div class="direct-chat-infos clearfix">
+                  <span class="direct-chat-name float-right">{{ organization_application.submitted_by.username }}</span>
+                  <span class="direct-chat-timestamp float-left">{{ information_request.additional.response_time|parse_isoformat|format_datetime }}</span>
+                </div>
+                <img class="direct-chat-img" src="{{ gravatar(request, organization_application.submitted_by.email, size=128) }}" alt="Message User Image">
+                <div class="direct-chat-text preserve-line-breaks">{{ information_request.additional.response }}</div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+        </div>
+      </div>
     </div>
+
   </div>
 {% endblock %}

@@ -12,23 +12,12 @@
  # limitations under the License.
 -#}
 {% extends "email/_base/body.html" %}
-
-{% set site = request.registry.settings["site.name"] %}
-
-{% block extra_style %}
-ul.member-details {
-    list-style-type: none;
-}
-{% endblock %}
-
+{% set domain = request.registry.settings.get('warehouse.domain') %}
 
 {% block content %}
-<p>
-  {% trans organization_name=organization_name, previous_organization_name=previous_organization_name, site=site %}The {{ site }} organization has been renamed from "{{ previous_organization_name }}" to "{{ organization_name }}".{% endtrans %}
-</p>
-{% endblock %}
+<p>{% trans organization_name=organization_name %}We need more information to process your request to create a new organization named '{{ organization_name }}'.{% endtrans %}</p>
 
+<p>{{ message|default('') }}</p>
 
-{% block reason %}
-{% trans site=site %}You are receiving this because you are a {{ site }} administrator.{% endtrans %}
+<p><a href="{{ request.route_url('manage.organizations.application', organization_application_id=organization_application_id) }}">{% trans domain=domain %}Submit your response on {{ domain }}{% endtrans %}</a></p>
 {% endblock %}

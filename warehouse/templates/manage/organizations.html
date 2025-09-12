@@ -64,19 +64,19 @@
     <span class="badge badge--neutral">{{ organizations|length }}</span>
   </h1>
   <div class="organization-list">
-    {% for organization in organizations if organization.is_approved != False %}
+    {% for organization in organizations %}
     <div class="organization-snippet">
       <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
         <div>
           <h3 class="organization-snippet__title">
-            {% if organization.is_approved and organization.is_active %}
-            <a href="{{ request.route_path('organizations.profile', organization=organization.name) }}">{{ organization.name }}</a>
-            {% else %}{{ organization.name }}{% endif %}
+            {% if organization.is_active %}
+              <a href="{{ request.route_path('organizations.profile', organization=organization.name) }}">{{ organization.name }}</a>
+            {% else %}
+              {{ organization.name }}
+            {% endif %}
 
             <span class="badge" title="{% trans org_type=organization.orgtype.name %}Organization Type: {{ org_type }}{% endtrans %}">{% trans org_type=organization.orgtype.name %}{{ org_type }}{% endtrans %}</span>
-            {% if organization.is_approved is none %}
-            <span class="badge badge--neutral" title="{% trans %}You will receive an email when the organization has been approved{% endtrans %}">{% trans %}Request Submitted{% endtrans %}</span>
-            {% elif organization.orgtype == OrganizationType.Company and not organization.active_subscription %}
+            {% if organization.orgtype == OrganizationType.Company and not organization.active_subscription %}
               {% if organization.name in (organizations_owned + organizations_billing) %}
               <a class="badge badge--danger" href="{{ request.route_path('manage.organization.activate_subscription', organization_name=organization.normalized_name) }}">{% trans %}Billing Inactive{% endtrans %}</a>
               {% else %}
@@ -105,7 +105,7 @@
           {% elif organization.orgtype == OrganizationType.Company and not organization.active_subscription %}
             {% if organization.name in (organizations_owned + organizations_billing) %}
             {# Show "Activate Billing" button for owners and billing managers #}
-            <a class="button button--primary {{"button--disabled" if organization.is_approved is none else ""}}" href="{{ request.route_path('manage.organization.activate_subscription', organization_name=organization.normalized_name) if organization.is_approved else "#" }}" title="{% trans %}Activate billing for this organization{% endtrans %}">
+            <a class="button button--primary" href="{{ request.route_path('manage.organization.activate_subscription', organization_name=organization.normalized_name) }}" title="{% trans %}Activate billing for this organization{% endtrans %}">
               {% trans %}Activate Billing{% endtrans %}
             </a>
             {% else %}
@@ -135,19 +135,14 @@
     {% endfor %}
   </div>
 
-  {% if organization_applications|selectattr('is_approved', 'equalto', none)|list|length > 0 %}
+  {% if organization_applications|rejectattr('status', 'equalto', 'approved')|list|length > 0 %}
   <h2>
     {% trans %}Pending organization requests{% endtrans %}
-    <span class="badge badge--neutral">{{ organization_applications|selectattr('is_approved', 'equalto', none)|list|length }}</span>
+    <span class="badge badge--neutral">{{ organization_applications|rejectattr('status', 'equalto', 'approved')|list|length }}</span>
   </h2>
-  {% if organization_applications|selectattr('orgtype', 'equalto', OrganizationType.Company)|list|length > 0 %}
-  <div class="callout-block callout-block--warning">
-    <p>{% trans %}Approvals for corporate organizations are currently paused while terms of service and payment are finalized.{% endtrans %}</p>
-  </div>
-  {% endif %}
   <div class="organization-list">
     {% for organization_application in organization_applications %}
-    {% if organization_application.is_approved == None %}
+    {% if organization_application.status != 'approved' %}
     <div class="organization-snippet">
       <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
         <div>
@@ -155,13 +150,27 @@
             {{ organization_application.name }}
 
             <span class="badge" title="{% trans org_type=organization_application.orgtype.name %}Organization Type: {{ org_type }}{% endtrans %}">{% trans org_type=organization_application.orgtype.name %}{{ org_type }}{% endtrans %}</span>
+            {% if organization_application.status == 'declined' %}
+            <span class="badge badge--danger" title="{% trans %}This Organization request has been declined{% endtrans %}">{% trans %}Declined{% endtrans %}</span>
+            {% elif organization_application.status == 'moreinformationneeded' %}
+            <span class="badge badge--warning" title="{% trans %}More information is needed to process this Organization request{% endtrans %}">{% trans %}More Information Needed{% endtrans %}</span>
+            {% else %}
             <span class="badge badge--neutral" title="{% trans %}You will receive an email when the organization has been approved{% endtrans %}">{% trans %}Request Submitted{% endtrans %}</span>
+            {% endif %}
           </h3>
           <p class="organization-snippet__meta">
             {% trans submitted=humanize(organization_application.submitted) %}Submitted {{ submitted }}{% endtrans %}
           </p>
+          {% if organization_application.status == 'declined' %}
+          <small>{% trans %}Declined organization requests will be deleted 30 days after decision.{% endtrans %}</small>
+          {% endif %}
         </div>
         <div class="organization-snippet__buttons">
+          {% if organization_application.status not in ['approved', 'declined'] %}
+            <a class="button button--secondary" href="{{ request.route_path('manage.organizations.application', organization_application_id=organization_application.id) }}" title="{% trans %}Manage this organization request{% endtrans %}">
+              {% trans %}Manage{% endtrans %}
+            </a>
+          {% endif %}
         </div>
       </div>
     </div>

@@ -32,11 +32,14 @@ def test_robots_txt(app_config, domain, indexable):
             "User-agent: *\n"
             "Disallow: /simple/\n"
             "Disallow: /packages/\n"
-            "Disallow: /_includes/\n"
+            "Disallow: /_includes/authed/\n"
             "Disallow: /pypi/*/json\n"
             "Disallow: /pypi/*/*/json\n"
             "Disallow: /pypi*?\n"
             "Disallow: /search*\n"
+            "Disallow: /_/\n"
+            "Disallow: /integrity/\n"
+            "Disallow: /admin/\n"
         )
     else:
         assert body == (

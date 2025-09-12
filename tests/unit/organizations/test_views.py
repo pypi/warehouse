@@ -47,7 +47,7 @@ class TestOrganizationProfile:
         assert views.profile(org, db_request) == {"organization": org}
 
     def test_4oh4_before_approval(self, db_request):
-        org = OrganizationFactory.create(is_active=False, is_approved=False)
+        org = OrganizationFactory.create(is_active=False)
 
         with pytest.raises(HTTPNotFound):
             views.profile(org, db_request)

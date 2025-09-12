@@ -1,4 +1,4 @@
-coverage
+coverage<7.7.0  # performance regression with sysmon
 factory_boy
 freezegun
 pretend

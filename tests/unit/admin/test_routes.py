@@ -50,6 +50,19 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            "admin.organization_application.requestmoreinfo",
+            (
+                "/admin/organization_applications/{organization_application_id}"
+                "/requestmoreinfo/"
+            ),
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.organization_application.defer",
+            "/admin/organization_applications/{organization_application_id}/defer/",
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.organization_application.decline",
             "/admin/organization_applications/{organization_application_id}/decline/",
             domain=warehouse,

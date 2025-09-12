@@ -30,6 +30,7 @@ from warehouse.packaging.tasks import (
     check_file_cache_tasks_outstanding,
     compute_2fa_metrics,
     compute_packaging_metrics,
+    compute_top_dependents_corpus,
     update_description_html,
 )
 from warehouse.rate_limiting import IRateLimiter, RateLimit
@@ -196,3 +197,6 @@ def includeme(config):
 
     # Add a periodic task to generate general metrics
     config.add_periodic_task(crontab(minute="*/5"), compute_packaging_metrics)
+
+    # Add a periodic task to compute dependents corpus once a day
+    config.add_periodic_task(crontab(minute=0, hour=5), compute_top_dependents_corpus)

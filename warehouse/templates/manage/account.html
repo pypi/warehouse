@@ -540,7 +540,7 @@
       {% elif event.tag == EventTag.Account.LoginSuccess %}
       <strong>{% trans %}Logged in{% endtrans %}</strong><br>
       <small>
-        {% trans %}Two factor method:{% endtrans %}
+        {% trans %}Two factor method:{% endtrans %} 
         {% if event.additional.two_factor_method == None %}
           {% trans %}None{% endtrans %}
         {% elif event.additional.two_factor_method  == "webauthn" %}
@@ -549,6 +549,8 @@
           {% trans %}Authentication application (<abbr title="time-based one-time password">TOTP</abbr>){% endtrans %}
         {% elif event.additional.two_factor_method  == "recovery-code" %}
           {% trans %}Recovery code{% endtrans %}
+        {% elif event.additional.two_factor_method  == "remembered-device" %}
+          {% trans %}Remembered device{% endtrans %}
         {% endif %}
       </small>
 

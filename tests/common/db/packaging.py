@@ -72,7 +72,6 @@ class ProjectObservationFactory(WarehouseFactory):
         "random_element", elements=[kind.value[1] for kind in ObservationKind]
     )
     payload = factory.Faker("json")
-    # TODO: add `observer` field
     summary = factory.Faker("paragraph")
 
 

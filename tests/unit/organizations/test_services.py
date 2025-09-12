@@ -21,6 +21,7 @@ from warehouse.organizations import services
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
+    OrganizationApplicationStatus,
     OrganizationInvitation,
     OrganizationNameCatalog,
     OrganizationProject,
@@ -118,13 +119,7 @@ class TestDatabaseOrganizationService:
     ):
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
-            services, "send_admin_new_organization_approved_email", send_email
-        )
-        monkeypatch.setattr(
             services, "send_new_organization_approved_email", send_email
-        )
-        monkeypatch.setattr(
-            services, "send_admin_new_organization_declined_email", send_email
         )
         monkeypatch.setattr(
             services, "send_new_organization_declined_email", send_email
@@ -138,8 +133,13 @@ class TestDatabaseOrganizationService:
             name=organization_application.name.lower()
         )
 
-        assert organization_application.is_approved is None
-        assert competing_organization_application.is_approved is None
+        assert (
+            organization_application.status == OrganizationApplicationStatus.Submitted
+        )
+        assert (
+            competing_organization_application.status
+            == OrganizationApplicationStatus.Submitted
+        )
 
         assert sorted(
             organization_service.get_organization_applications_by_name(
@@ -165,7 +165,6 @@ class TestDatabaseOrganizationService:
         )
 
         assert organization is not None
-        assert organization.is_approved is True
         assert organization.is_active is True
 
         assert (
@@ -187,32 +186,19 @@ class TestDatabaseOrganizationService:
         )
         assert create_event.additional["redact_ip"] is True
 
-        assert organization_application.is_approved is True
+        assert organization_application.status == OrganizationApplicationStatus.Approved
         assert organization_application.organization == organization
-        assert competing_organization_application.is_approved is False
+        assert (
+            competing_organization_application.status
+            == OrganizationApplicationStatus.Declined
+        )
         assert competing_organization_application.organization is None
 
         assert send_email.calls == [
             pretend.call(
                 db_request,
-                admin,
-                organization_name=organization.name,
-                initiator_username=organization_application.submitted_by.username,
-                message="",
-            ),
-            pretend.call(
-                db_request,
                 organization_application.submitted_by,
                 organization_name=organization.name,
-                message="",
-            ),
-            pretend.call(
-                db_request,
-                admin,
-                organization_name=competing_organization_application.name,
-                initiator_username=(
-                    competing_organization_application.submitted_by.username
-                ),
                 message="",
             ),
             pretend.call(
@@ -264,13 +250,52 @@ class TestDatabaseOrganizationService:
             "redact_ip": True,
         }
 
-    def test_decline_organization_application(
+    def test_defer_organization_application(self, db_request, organization_service):
+        admin = UserFactory(username="admin", is_superuser=True)
+        db_request.user = admin
+
+        organization_application = OrganizationApplicationFactory.create()
+        organization_service.defer_organization_application(
+            organization_application.id, db_request
+        )
+
+        assert organization_application.status == OrganizationApplicationStatus.Deferred
+
+    def test_request_more_information_organization_application(
         self, db_request, organization_service, monkeypatch
     ):
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
-            services, "send_admin_new_organization_declined_email", send_email
+            services, "send_new_organization_moreinformationneeded_email", send_email
         )
+
+        admin = UserFactory(username="admin", is_superuser=True)
+        db_request.user = admin
+
+        organization_application = OrganizationApplicationFactory.create()
+        organization_service.request_more_information(
+            organization_application.id, db_request
+        )
+
+        assert len(organization_application.observations) == 1
+        assert (
+            organization_application.status
+            == OrganizationApplicationStatus.MoreInformationNeeded
+        )
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                organization_application.submitted_by,
+                organization_name=organization_application.name,
+                organization_application_id=organization_application.id,
+                message="",
+            ),
+        ]
+
+    def test_decline_organization_application(
+        self, db_request, organization_service, monkeypatch
+    ):
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
             services, "send_new_organization_declined_email", send_email
         )
@@ -283,15 +308,8 @@ class TestDatabaseOrganizationService:
             organization_application.id, db_request
         )
 
-        assert organization_application.is_approved is False
+        assert organization_application.status == OrganizationApplicationStatus.Declined
         assert send_email.calls == [
-            pretend.call(
-                db_request,
-                admin,
-                organization_name=organization_application.name,
-                initiator_username=organization_application.submitted_by.username,
-                message="",
-            ),
             pretend.call(
                 db_request,
                 organization_application.submitted_by,
@@ -543,6 +561,44 @@ class TestDatabaseOrganizationService:
         assert not (
             db_request.db.query(StripeSubscription)
             .filter(StripeSubscription.id == subscription.id)
+            .count()
+        )
+        assert not (
+            db_request.db.query(Team).filter_by(organization=organization).count()
+        )
+        assert organization_service.get_organization(organization.id) is None
+
+    def test_delete_organization_without_subscription(
+        self, organization_service, db_request
+    ):
+        organization = OrganizationFactory.create()
+        TeamFactory.create(organization=organization)
+
+        organization_service.delete_organization(organization.id)
+
+        assert not (
+            db_request.db.query(OrganizationInvitation)
+            .filter_by(organization=organization)
+            .count()
+        )
+        assert not (
+            db_request.db.query(OrganizationNameCatalog)
+            .filter(OrganizationNameCatalog.organization_id == organization.id)
+            .count()
+        )
+        assert not (
+            db_request.db.query(OrganizationProject)
+            .filter_by(organization=organization)
+            .count()
+        )
+        assert not (
+            db_request.db.query(OrganizationRole)
+            .filter_by(organization=organization)
+            .count()
+        )
+        assert not (
+            db_request.db.query(OrganizationStripeSubscription)
+            .filter_by(organization=organization)
             .count()
         )
         assert not (

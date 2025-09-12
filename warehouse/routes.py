@@ -76,65 +76,65 @@ def includeme(config):
     # HTML Snippets for including into other pages.
     config.add_route(
         "includes.current-user-indicator",
-        "/_includes/current-user-indicator/",
+        "/_includes/authed/current-user-indicator/",
         domain=warehouse,
     )
     config.add_route(
-        "includes.flash-messages", "/_includes/flash-messages/", domain=warehouse
+        "includes.flash-messages", "/_includes/authed/flash-messages/", domain=warehouse
     )
     config.add_route(
         "includes.session-notifications",
-        "/_includes/session-notifications/",
+        "/_includes/authed/session-notifications/",
         domain=warehouse,
     )
     config.add_route(
         "includes.current-user-profile-callout",
-        "/_includes/current-user-profile-callout/{username}",
+        "/_includes/authed/current-user-profile-callout/{username}",
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{username}",
         domain=warehouse,
     )
     config.add_route(
         "includes.edit-project-button",
-        "/_includes/edit-project-button/{project_name}",
+        "/_includes/authed/edit-project-button/{project_name}",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{project_name}",
         domain=warehouse,
     )
     config.add_route(
         "includes.profile-actions",
-        "/_includes/profile-actions/{username}",
+        "/_includes/authed/profile-actions/{username}",
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{username}",
         domain=warehouse,
     )
     config.add_route(
         "includes.profile-public-email",
-        "/_includes/profile-public-email/{username}",
+        "/_includes/authed/profile-public-email/{username}",
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{username}",
         domain=warehouse,
     )
     config.add_route(
         "includes.sidebar-sponsor-logo",
-        "/_includes/sidebar-sponsor-logo/",
+        "/_includes/unauthed/sidebar-sponsor-logo/",
         domain=warehouse,
     )
     config.add_route(
         "includes.administer-project-include",
-        "/_includes/administer-project-include/{project_name}",
+        "/_includes/authed/administer-project-include/{project_name}",
         domain=warehouse,
     )
     config.add_route(
         "includes.administer-user-include",
-        "/_includes/administer-user-include/{user_name}",
+        "/_includes/authed/administer-user-include/{user_name}",
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{user_name}",
         domain=warehouse,
     )
     config.add_route(
         "includes.submit_malware_report",
-        "/_includes/submit-malware-report/{project_name}",
+        "/_includes/authed/submit-malware-report/{project_name}",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{project_name}",
         domain=warehouse,
@@ -279,6 +279,13 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route("manage.account.token", "/manage/account/token/", domain=warehouse)
+    config.add_route(
+        "manage.organizations.application",
+        "/manage/organizations/application/{organization_application_id}/",
+        factory="warehouse.organizations.models:OrganizationApplicationFactory",
+        traverse="/{organization_application_id}",
+        domain=warehouse,
+    )
     config.add_route("manage.organizations", "/manage/organizations/", domain=warehouse)
     config.add_route(
         "manage.organization.settings",

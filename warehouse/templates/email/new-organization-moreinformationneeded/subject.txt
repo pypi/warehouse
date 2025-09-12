@@ -11,10 +11,7 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{% extends "email/_base/body.html" %}
 
-{% block content %}
-<p><a href="{{ request.route_url('accounts.profile', username=initiator_username) }}">{{ initiator_username }}</a> has requested approval to create a new PyPI organization named '{{ organization_name }}'.</p>
+{% extends "email/_base/subject.txt" %}
 
-<p>Please follow <a href="{{ request.route_url('admin.organization.detail', organization_id=organization_id) }}">this link</a> to approve or decline the request.</p>
-{% endblock %}
+{% block subject %}{% trans organization_name=organization_name %}We need more information to process your request to create a new organization named '{{ organization_name }}'{% endtrans %}{% endblock %}
