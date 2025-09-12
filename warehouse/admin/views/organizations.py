@@ -1029,7 +1029,7 @@ def add_manual_activation(request):
 )
 def set_upload_limit(request):
     organization_id = request.matchdict["organization_id"]
-    organization = request.db.query(Organization).get(organization_id)
+    organization = request.db.get(Organization, organization_id)
     if organization is None:
         raise HTTPNotFound
 
@@ -1215,7 +1215,7 @@ def delete_manual_activation(request):
 )
 def set_total_size_limit(request):
     organization_id = request.matchdict["organization_id"]
-    organization = request.db.query(Organization).get(organization_id)
+    organization = request.db.get(Organization, organization_id)
     if organization is None:
         raise HTTPNotFound
 
