@@ -240,7 +240,6 @@ pip==25.2 \
     --hash=sha256:578283f006390f85bb6282dffb876454593d637f5d1be494b5202ce4877e71f2 \
     --hash=sha256:6d67a2b4e7f14d8b31b8b52648866fa717f45a1eb70e83002f4331d07e953717
     # via
-    #   -r requirements/dev.in
     #   pip-api
     #   pip-tools
 setuptools==80.9.0 \
