@@ -17,9 +17,7 @@ down_revision = "a6994b8bed95"
 
 
 def upgrade():
-    sa.Enum("pending", "confirmed", "expired", name="uniqueloginstatus").create(
-        op.get_bind()
-    )
+    sa.Enum("pending", "confirmed", name="uniqueloginstatus").create(op.get_bind())
     op.create_table(
         "user_unique_logins",
         sa.Column("user_id", sa.UUID(), nullable=False),
@@ -35,7 +33,6 @@ def upgrade():
             postgresql.ENUM(
                 "pending",
                 "confirmed",
-                "expired",
                 name="uniqueloginstatus",
                 create_type=False,
             ),
@@ -66,6 +63,4 @@ def downgrade():
         op.f("ix_user_unique_logins_user_id"), table_name="user_unique_logins"
     )
     op.drop_table("user_unique_logins")
-    sa.Enum("pending", "confirmed", "expired", name="uniqueloginstatus").drop(
-        op.get_bind()
-    )
+    sa.Enum("pending", "confirmed", name="uniqueloginstatus").drop(op.get_bind())
