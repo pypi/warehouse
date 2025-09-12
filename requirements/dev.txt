@@ -191,9 +191,9 @@ wheel==0.45.1 \
     --hash=sha256:661e1abd9198507b1409a20c02106d9670b2576e916d58f520316666abca6729 \
     --hash=sha256:708e7481cc80179af0e556bbf0cc00b8444c7321e2700b8d8580231d13017248
     # via pip-tools
-zope-deprecation==5.1 \
-    --hash=sha256:46bed4611fb53edc731aadeb64b28308bcb848f4cc150c60c948d078f7108721 \
-    --hash=sha256:60f957b964d8f947a4a592c647d51ce0f4f844d1f041657956ddde0d9fa9a76a
+zope-deprecation==6.0 \
+    --hash=sha256:18727ebda8e63a6d4bd28a290e8b46852e9f14473debb5cc40a0a2dccfadf15f \
+    --hash=sha256:ff72d51c88b516b9ddf2cfb826381cc49f99a6a89b7d35c97faca7bee3b46da6
     # via pyramid
 zope-interface==7.2 \
     --hash=sha256:033b3923b63474800b04cba480b70f6e6243a62208071fc148354f3f89cc01b7 \
