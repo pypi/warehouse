@@ -83,28 +83,24 @@ class TestOIDCPublisherAndClaims:
 
 class TestOrganizationAccess:
     @pytest.mark.parametrize(
-        ("identity", "flag", "orgs", "expected"),
+        ("identity", "orgs", "expected"),
         [
-            (False, True, [], False),  # Unauth'd always have no access
-            (False, False, [], False),  # Unauth'd always have no access
-            (True, False, [], True),  # Flag allows all authenticated users
-            (True, True, [], False),  # Flag blocks all authenticated users without orgs
+            (False, [], False),  # Unauth'd always have no access
+            (True, [], False),  # Authenticated users without orgs have no access
             (
-                True,
                 True,
                 [pretend.stub()],
                 True,
-            ),  # Flag allows users with organizations
+            ),  # Authenticated users with organizations have access
         ],
     )
-    def test_organization_access(self, db_session, identity, flag, orgs, expected):
+    def test_organization_access(self, db_session, identity, orgs, expected):
         user = None if not identity else UserFactory()
         request = pretend.stub(
             identity=UserContext(user, None),
             find_service=lambda interface, context=None: pretend.stub(
                 get_organizations_by_user=lambda x: orgs
             ),
-            flags=pretend.stub(enabled=lambda flag_name: flag),
         )
         assert expected == accounts._organization_access(request)
 
