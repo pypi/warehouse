@@ -73,14 +73,8 @@
 {%- macro file_table(files) -%}
   {% for file in files %}
     <div class="file"
-         {% if 'source' not in file.python_version %}
-         data-filter-list-target="item"
-         data-filtered-target-filename='["{{ file.filename }}"]'
-         {% for filter_name, filter_items in file.wheel_filters.items() %}
-         data-filtered-target-{{ filter_name }}='{{ filter_items | tojson }}'
-         {% endfor %}
-         {% endif %}
-        >
+         {% if 'source' not in file.python_version %} data-filter-list-target="item" data-filtered-target-filename='["{{ file.filename }}"]' {% for filter_name, filter_items in file.wheel_filters.items() %} data-filtered-target-{{ filter_name }}='{{ filter_items | tojson }}' {% endfor %}
+         {% endif %}>
       <div class="file__graphic">
         <i class="far fa-file" aria-hidden="true"></i>
       </div>
@@ -98,25 +92,21 @@
     </div>
   {% endfor %}
 {%- endmacro -%}
-
 {% macro filter_select(name, title, selected) %}
-    <label class="form-group__label sr-only" for="bdist-tags-{{ name }}">
-        {% trans %}{{ title }}{% endtrans %}
-    </label>
-    <select class="form-group__field"
-            id="bdist-tags-{{ name }}" name="bdist-tags-{{ name }}"
-            data-action="filter-list#filter" data-filter-list-target="filter"
-            data-filtered-source="{{ name }}">
-        <option {% if not selected[name] %}selected{% endif %} value="">
-            {% trans %}{{ title }}{% endtrans %}
-        </option>
-        {% for value in wheel_filters_all[name] %}
-            <option {% if selected[name] == value %}selected{% endif %} value="{{ value }}">{{ value }}</option>
-        {% endfor %}
-    </select>
-
+  <label class="form-group__label sr-only" for="bdist-tags-{{ name }}">{% trans %}{{ title }}{% endtrans %}</label>
+  <select class="form-group__field"
+          id="bdist-tags-{{ name }}"
+          name="bdist-tags-{{ name }}"
+          data-action="filter-list#filter"
+          data-filter-list-target="filter"
+          data-filtered-source="{{ name }}">
+    <option {% if not selected[name] %}selected{% endif %} value="">{% trans %}{{ title }}{% endtrans %}</option>
+    {% for value in wheel_filters_all[name] %}
+      <option {% if selected[name] == value %}selected{% endif %}
+              value="{{ value }}">{{ value }}</option>
+    {% endfor %}
+  </select>
 {% endmacro %}
-
 {% block title %}{{ release.project.name }}{% endblock %}
 {% block description %}{{ release.summary }}{% endblock %}
 {% block additional_rss -%}
@@ -447,7 +437,8 @@
          class="vertical-tabs__content"
          role="tabpanel"
          aria-labelledby="files-tab mobile-files-tab"
-         tabindex="-1" data-controller="filter-list">
+         tabindex="-1"
+         data-controller="filter-list">
       <h2 class="page-title">{% trans %}Download files{% endtrans %}</h2>
       <p>
         {% trans href='https://packaging.python.org/tutorials/installing-packages/', title=gettext('External link') %}Download the file for your platform. If you're not sure which to choose, learn more about <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">installing packages</a>.{% endtrans %}
@@ -480,74 +471,59 @@
         Built Distributions
       {% endtrans %}
     </h3>
-
-              <p class="hidden initial-toggle-visibility">
-                {% trans %}Filter files by name, interpreter, ABI, and platform.{% endtrans %}
-              </p>
-
-              <p>
-                {% trans href='https://packaging.python.org/en/latest/specifications/binary-distribution-format/', title=gettext('External link') %}If you're not sure about the file name format, learn more about <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">wheel file names</a>.{% endtrans %}
-              </p>
-
-              <noscript>
-              <p class="initial-toggle-visibility">
-                {% trans %}The dropdown lists show the available interpreters, ABIs, and platforms.{% endtrans %}
-              </p>
-
-              <p class="initial-toggle-visibility">
-                {% trans %}Enable javascript to be able to filter the list of wheel files.{% endtrans %}
-              </p>
-              </noscript>
-
-              <p class="hidden initial-toggle-visibility" data-controller="clipboard">
-                  {% trans %}Copy a direct link to the current filters {% endtrans %}
-                  <a class="hidden" href="{% if request.matched_route %}{{ request.current_route_url() }}{% else %}{{ request.url }}{% endif %}#files"
-                     data-clipboard-target="source" data-filter-list-target="url" ></a>
-                  <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-action="clipboard#copy" data-clipboard-target="tooltip" data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
-                      {% trans %}Copy{% endtrans %}
-                  </button>
-              </p>
-
-              <p class="hidden initial-toggle-visibility">
-                <span data-filter-list-target="summary"></span>
-              </p>
-
-              <div>
-
-                <div class="form-group hidden initial-toggle-visibility">
-                  <label class="form-group__label sr-only" for="bdist-filenames-filter">
-                    {% trans %}File name{% endtrans %}
-                  </label>
-                  <input class="form-group__field"
-                         type="text"
-                         id="bdist-filenames-filter"
-                         name="bdist-filenames-filter"
-                         placeholder="{% trans %}File name{% endtrans %}"
-                         {% if wheel_filters_params['filename'] %}value="{{ wheel_filters_params['filename'] }}"{% endif %}
-                         autocapitalize="none"
-                         autocomplete=""
-                         spellcheck="false"
-                         data-action="filter-list#filter"
-                         data-filter-list-target="filter"
-                         data-filtered-source="filename">
-                </div>
-
-                <div class="col-grid">
-                <div class="form-group col-third">
-                    {{ filter_select('interpreters', 'Interpreter', wheel_filters_params) }}
-                </div>
-
-                <div class="form-group col-third">
-                    {{ filter_select('abis', 'ABI', wheel_filters_params) }}
-                </div>
-
-                <div class="form-group col-third">
-                    {{ filter_select('platforms', 'Platform', wheel_filters_params) }}
-                </div>
-
-                </div>
-
-              </div>
+    <p class="hidden initial-toggle-visibility">
+      {% trans %}Filter files by name, interpreter, ABI, and platform.{% endtrans %}
+    </p>
+    <p>
+      {% trans href='https://packaging.python.org/en/latest/specifications/binary-distribution-format/', title=gettext('External link') %}If you're not sure about the file name format, learn more about <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">wheel file names</a>.{% endtrans %}
+    </p>
+    <noscript>
+      <p class="initial-toggle-visibility">
+        {% trans %}The dropdown lists show the available interpreters, ABIs, and platforms.{% endtrans %}
+      </p>
+      <p class="initial-toggle-visibility">
+        {% trans %}Enable javascript to be able to filter the list of wheel files.{% endtrans %}
+      </p>
+    </noscript>
+    <p class="hidden initial-toggle-visibility" data-controller="clipboard">
+      {% trans %}Copy a direct link to the current filters {% endtrans %}
+      <a class="hidden"
+         href="{% if request.matched_route %}{{ request.current_route_url() }}{% else %}{{ request.url }}{% endif %}#files"
+         data-clipboard-target="source"
+         data-filter-list-target="url"></a>
+      <button type="button"
+              class="button button--small copy-tooltip copy-tooltip-w"
+              data-action="clipboard#copy"
+              data-clipboard-target="tooltip"
+              data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
+        {% trans %}Copy{% endtrans %}
+      </button>
+    </p>
+    <p class="hidden initial-toggle-visibility">
+      <span data-filter-list-target="summary"></span>
+    </p>
+    <div>
+      <div class="form-group hidden initial-toggle-visibility">
+        <label class="form-group__label sr-only" for="bdist-filenames-filter">{% trans %}File name{% endtrans %}</label>
+        <input class="form-group__field"
+               type="text"
+               id="bdist-filenames-filter"
+               name="bdist-filenames-filter"
+               placeholder="{% trans %}File name{% endtrans %}"
+               {% if wheel_filters_params['filename'] %}value="{{ wheel_filters_params['filename'] }}"{% endif %}
+               autocapitalize="none"
+               autocomplete=""
+               spellcheck="false"
+               data-action="filter-list#filter"
+               data-filter-list-target="filter"
+               data-filtered-source="filename">
+      </div>
+      <div class="col-grid">
+        <div class="form-group col-third">{{ filter_select('interpreters', 'Interpreter', wheel_filters_params) }}</div>
+        <div class="form-group col-third">{{ filter_select('abis', 'ABI', wheel_filters_params) }}</div>
+        <div class="form-group col-third">{{ filter_select('platforms', 'Platform', wheel_filters_params) }}</div>
+      </div>
+    </div>
     {{ file_table(bdists) }}
   {% endif %}
 </div>
