@@ -855,13 +855,19 @@ msgstr ""
 msgid "Provide an Inspector link to specific lines of code."
 msgstr ""
 
-#: warehouse/packaging/views.py:332
+#: warehouse/packaging/views.py:346
 msgid "Your report has been recorded. Thank you for your help."
 msgstr ""
 
 #: warehouse/static/js/warehouse/controllers/clipboard_controller.js:21
 msgid "Copied"
 msgstr ""
+
+#: warehouse/static/js/warehouse/controllers/filter_list_controller.js:81
+msgid "Showing %1 of %2 file."
+msgid_plural "Showing %1 of %2 files."
+msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/static/js/warehouse/controllers/password_breach_controller.js:36
 msgid "Error while validating hashed password, disregard on development"
@@ -984,8 +990,9 @@ msgstr ""
 #: warehouse/templates/manage/project/release.html:226
 #: warehouse/templates/manage/project/releases.html:137
 #: warehouse/templates/manage/project/releases.html:190
-#: warehouse/templates/packaging/detail.html:426
 #: warehouse/templates/packaging/detail.html:444
+#: warehouse/templates/packaging/detail.html:462
+#: warehouse/templates/packaging/detail.html:478
 #: warehouse/templates/pages/classifiers.html:17
 #: warehouse/templates/pages/help.html:7
 #: warehouse/templates/pages/help.html:441
@@ -2974,7 +2981,8 @@ msgstr ""
 #: warehouse/templates/manage/account/recovery_codes-provision.html:53
 #: warehouse/templates/manage/account/totp-provision.html:46
 #: warehouse/templates/manage/unverified-account.html:183
-#: warehouse/templates/packaging/detail.html:131
+#: warehouse/templates/packaging/detail.html:148
+#: warehouse/templates/packaging/detail.html:498
 #: warehouse/templates/pages/classifiers.html:42
 msgid "Copy to clipboard"
 msgstr ""
@@ -2986,6 +2994,7 @@ msgstr ""
 #: warehouse/templates/manage/account/recovery_codes-provision.html:54
 #: warehouse/templates/manage/account/totp-provision.html:47
 #: warehouse/templates/manage/unverified-account.html:184
+#: warehouse/templates/packaging/detail.html:499
 #: warehouse/templates/pages/classifiers.html:43
 msgid "Copy"
 msgstr ""
@@ -6403,12 +6412,12 @@ msgid "Back to projects"
 msgstr ""
 
 #: warehouse/templates/manage/project/manage_project_base.html:51
-#: warehouse/templates/packaging/detail.html:310
+#: warehouse/templates/packaging/detail.html:327
 msgid "This project has been quarantined."
 msgstr ""
 
 #: warehouse/templates/manage/project/manage_project_base.html:53
-#: warehouse/templates/packaging/detail.html:312
+#: warehouse/templates/packaging/detail.html:329
 msgid ""
 "PyPI Admins need to review this project before it can be restored. While "
 "in quarantine, the project is not installable by clients, and cannot be "
@@ -6416,7 +6425,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/project/manage_project_base.html:60
-#: warehouse/templates/packaging/detail.html:319
+#: warehouse/templates/packaging/detail.html:336
 #, python-format
 msgid ""
 "Read more in the <a href=\"%(href)s\">project in quarantine</a> help "
@@ -6424,7 +6433,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/project/manage_project_base.html:67
-#: warehouse/templates/packaging/detail.html:326
+#: warehouse/templates/packaging/detail.html:343
 msgid "This project has been archived."
 msgstr ""
 
@@ -7340,142 +7349,148 @@ msgstr ""
 msgid "%(org)s has not uploaded any projects to PyPI, yet"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:84
+#: warehouse/templates/packaging/detail.html:86
 msgid "view details"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:98
+#: warehouse/templates/packaging/detail.html:96
+#: warehouse/templates/packaging/detail.html:103
+#, python-format
+msgid "%(title)s"
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:115
 #, python-format
 msgid "RSS: latest releases for %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:133
+#: warehouse/templates/packaging/detail.html:150
 msgid "Copy PIP instructions"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:143
+#: warehouse/templates/packaging/detail.html:160
 msgid "This project has been quarantined"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:149
+#: warehouse/templates/packaging/detail.html:166
 msgid "This release has been yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:157
+#: warehouse/templates/packaging/detail.html:174
 #, python-format
 msgid "Stable version available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:162
+#: warehouse/templates/packaging/detail.html:179
 #, python-format
 msgid "Newer version available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:167
+#: warehouse/templates/packaging/detail.html:184
 msgid "Latest version"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:172
+#: warehouse/templates/packaging/detail.html:189
 #, python-format
 msgid "Released: %(release_date)s"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:185
+#: warehouse/templates/packaging/detail.html:202
 msgid "No project description provided"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:197
+#: warehouse/templates/packaging/detail.html:214
 msgid "Navigation"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:198
-#: warehouse/templates/packaging/detail.html:250
+#: warehouse/templates/packaging/detail.html:215
+#: warehouse/templates/packaging/detail.html:267
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:207
-#: warehouse/templates/packaging/detail.html:259
+#: warehouse/templates/packaging/detail.html:224
+#: warehouse/templates/packaging/detail.html:276
 msgid "Project description. Focus will be moved to the description."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:209
-#: warehouse/templates/packaging/detail.html:261
-#: warehouse/templates/packaging/detail.html:340
+#: warehouse/templates/packaging/detail.html:226
+#: warehouse/templates/packaging/detail.html:278
+#: warehouse/templates/packaging/detail.html:357
 msgid "Project description"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:218
-#: warehouse/templates/packaging/detail.html:281
+#: warehouse/templates/packaging/detail.html:235
+#: warehouse/templates/packaging/detail.html:298
 msgid "Release history. Focus will be moved to the history panel."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:220
-#: warehouse/templates/packaging/detail.html:283
-#: warehouse/templates/packaging/detail.html:368
+#: warehouse/templates/packaging/detail.html:237
+#: warehouse/templates/packaging/detail.html:300
+#: warehouse/templates/packaging/detail.html:385
 msgid "Release history"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:230
-#: warehouse/templates/packaging/detail.html:293
+#: warehouse/templates/packaging/detail.html:247
+#: warehouse/templates/packaging/detail.html:310
 msgid "Download files. Focus will be moved to the project files."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:232
-#: warehouse/templates/packaging/detail.html:295
-#: warehouse/templates/packaging/detail.html:424
+#: warehouse/templates/packaging/detail.html:249
+#: warehouse/templates/packaging/detail.html:312
+#: warehouse/templates/packaging/detail.html:442
 msgid "Download files"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:245
+#: warehouse/templates/packaging/detail.html:262
 msgid "Report project as malware"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:270
+#: warehouse/templates/packaging/detail.html:287
 msgid "Project details. Focus will be moved to the project details."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:272
-#: warehouse/templates/packaging/detail.html:356
+#: warehouse/templates/packaging/detail.html:289
+#: warehouse/templates/packaging/detail.html:373
 msgid "Project details"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:328
+#: warehouse/templates/packaging/detail.html:345
 msgid ""
 "The maintainers of this project have marked this project as archived. No "
 "new releases are expected."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:336
-#: warehouse/templates/packaging/detail.html:407
+#: warehouse/templates/packaging/detail.html:353
+#: warehouse/templates/packaging/detail.html:424
 msgid "Reason this release was yanked:"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:345
+#: warehouse/templates/packaging/detail.html:362
 msgid "The author of this package has not provided a project description"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:370
+#: warehouse/templates/packaging/detail.html:387
 msgid "Release notifications"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:371
+#: warehouse/templates/packaging/detail.html:388
 msgid "RSS feed"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:382
+#: warehouse/templates/packaging/detail.html:399
 msgid "This version"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:398
+#: warehouse/templates/packaging/detail.html:415
 msgid "pre-release"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:401
+#: warehouse/templates/packaging/detail.html:418
 msgid "yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:426
+#: warehouse/templates/packaging/detail.html:444
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -7483,28 +7498,57 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">installing packages</a>."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:429
+#: warehouse/templates/packaging/detail.html:447
 msgid "Source Distribution"
 msgid_plural "Source Distributions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/packaging/detail.html:443
+#: warehouse/templates/packaging/detail.html:461
 msgid "No source distribution files available for this release."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:444
+#: warehouse/templates/packaging/detail.html:462
 #, python-format
 msgid ""
 "See tutorial on <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">generating distribution archives</a>."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:450
+#: warehouse/templates/packaging/detail.html:468
 msgid "Built Distribution"
 msgid_plural "Built Distributions"
 msgstr[0] ""
 msgstr[1] ""
+
+#: warehouse/templates/packaging/detail.html:475
+msgid "Filter files by name, interpreter, ABI, and platform."
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:478
+#, python-format
+msgid ""
+"If you're not sure about the file name format, learn more about <a "
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">wheel file names</a>."
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:482
+msgid "The dropdown lists show the available interpreters, ABIs, and platforms."
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:485
+msgid "Enable javascript to be able to filter the list of wheel files."
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:489
+msgid "Copy a direct link to the current filters"
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:507
+#: warehouse/templates/packaging/detail.html:512
+msgid "File name"
+msgstr ""
 
 #: warehouse/templates/packaging/submit-malware-observation.html:20
 msgid "Submit Malware Report for Project"
