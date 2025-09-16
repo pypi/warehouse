@@ -60,7 +60,7 @@ with GitHub Actions to help protect their projects in the future.
 
 If you use GitHub Actions to publish to PyPI, I recommend the following steps to protect your projects:
 
-1. Replace long-lived tokens with [Trusted Publishers](https://docs.pypi.org/trusted-publishers/.
+1. Replace long-lived tokens with [Trusted Publishers](https://docs.pypi.org/trusted-publishers/).
    This is the most effective way to protect your projects from this type of attack.
    GitHub Trusted Publishers use short-lived tokens that are scoped to a specific repository,
    and expire after a short period of time.
