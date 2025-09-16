@@ -39,6 +39,7 @@ directly about their current findings, effectively an expansion of the previous 
 Due to some of the contents in that email, it ended up in our inbound Spam folder,
 delaying response until September 10th when I became aware of the attack via other channels,
 and found the original email in the Spam folder.
+I may follow up with our support system provider to see about improving spam filtering rules.
 
 After triaging the situation, I discovered another Indicator of Compromise (IoC) in the form of a URL,
 which I shared with GitGuardian to assist with their ongoing investigation.
