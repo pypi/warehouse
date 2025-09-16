@@ -11,7 +11,7 @@ tags:
 
 ## Summary
 
-We recently responded to an attack campaign where malicious actors injected code into GitHub Actions workflows 
+I recently responded to an attack campaign where malicious actors injected code into GitHub Actions workflows 
 attempting to steal PyPI publishing tokens.
 PyPI was not compromised, and no PyPI packages were published by the attackers.
 
@@ -19,8 +19,8 @@ Attackers targeted a wide variety of repositories, many of which had PyPI tokens
 modifying their workflows to send those tokens to external servers.
 While the attackers successfully exfiltrated some tokens, they do not appear to have used them on PyPI.
 
-We've invalidated all affected tokens and notified the impacted project maintainers.
-If you're one of them, we have emailed you from <security@pypi.org>.
+I've invalidated all affected tokens and notified the impacted project maintainers.
+If you're one of them, I have emailed you from <security@pypi.org>.
 
 <!-- more -->
 
@@ -32,7 +32,7 @@ On September 5th, a GitGuardian employee used the [PyPI "Report as malware" butt
 to submit their findings for a project named `fastuuid` - namely they found a malicious GitHub Actions workflow 
 attempting to exfiltrate PyPI tokens to a remote server.
 No compromise on PyPI was found, tokens relating to the user accounts were invalidated,
-and we reached out to the project owners to notify and help secure the account and project.
+and I reached out to the project owners to notify and help secure the account and project.
 
 Later on September 5th, another researcher from GitGuardian emailed PyPI Security 
 directly about their current findings, effectively an expansion of the previous attack.
@@ -52,14 +52,14 @@ Many of the maintainers also proactively rotated their PyPI tokens.
 After confirming that no PyPI accounts had been compromised,
 on September 15th I reached out to the maintainers of the affected projects to notify them of the situation,
 to let them know that their tokens had been invalidated,
-and recommend using [Trusted Publishers](./2023-04-20-introducing-trusted-publishers.md) 
+and recommend using [Trusted Publishers](https://docs.pypi.org/trusted-publishers/) 
 with GitHub Actions to help protect their projects in the future.
 
 ## What You Can Do
 
-If you use GitHub Actions to publish to PyPI, we recommend the following steps to protect your projects:
+If you use GitHub Actions to publish to PyPI, I recommend the following steps to protect your projects:
 
-1. Replace long-lived tokens with Trusted Publishers.
+1. Replace long-lived tokens with [Trusted Publishers](https://docs.pypi.org/trusted-publishers/.
    This is the most effective way to protect your projects from this type of attack.
    GitHub Trusted Publishers use short-lived tokens that are scoped to a specific repository,
    and expire after a short period of time.
@@ -79,4 +79,4 @@ This investigation and incident response is made possible by the generosity of i
 supporting critical security efforts to better secure the Python community,
 with thanks to [Alpha-Omega](https://alpha-omega.dev/).
 
-Support these efforts and more here: https://www.python.org/sponsors/application/
+Support these efforts and more here: <https://www.python.org/sponsors/application/>
