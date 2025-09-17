@@ -70,8 +70,8 @@ Accept: application/json
                 "Programming Language :: Python :: 3 :: Only",
                 "Programming Language :: Python :: 3.10",
                 "Programming Language :: Python :: 3.11",
-                "Programming Language :: Python :: 3.7",
-                "Programming Language :: Python :: 3.8",
+                "Programming Language :: Python :: 3.12",
+                "Programming Language :: Python :: 3.13",
                 "Programming Language :: Python :: 3.9",
                 "Topic :: Software Development :: Build Tools"
             ],
@@ -88,8 +88,10 @@ Accept: application/json
                 "requires_dist"
             ],
             "home_page": "",
-            "keywords": "sample,setuptools,development",
+            "keywords": "sample, setuptools, development",
             "license": "...",
+            "license_expression": null,
+            "license_files": null,
             "maintainer": "",
             "maintainer_email": "\"A. Great Maintainer\" <maintainer@example.com>",
             "name": "sampleproject",
@@ -107,19 +109,19 @@ Accept: application/json
                 "dev",
                 "test"
             ],
-            "release_url": "https://pypi.org/project/sampleproject/3.0.0/",
+            "release_url": "https://pypi.org/project/sampleproject/4.0.0/",
             "requires_dist": [
                 "peppercorn",
                 "check-manifest ; extra == 'dev'",
                 "coverage ; extra == 'test'"
             ],
-            "requires_python": ">=3.7",
+            "requires_python": ">=3.9",
             "summary": "A sample Python project",
-            "version": "3.0.0",
+            "version": "4.0.0",
             "yanked": false,
             "yanked_reason": null
         },
-        "last_serial": 15959178,
+        "last_serial": 25862117,
         "releases": {
             "1.0": [],
             "1.2.0": [
@@ -176,92 +178,95 @@ Accept: application/json
                 "..."
             ],
             "3.0.0": [
-                {
-                    "comment_text": "",
-                    "digests": {
-                        "blake2b_256": "eca85ec62d18adde798d33a170e7f72930357aa69a60839194c93eb0fb05e59c",
-                        "md5": "e46bfece301c915db29ade44a4932039",
-                        "sha256": "2e52702990c22cf1ce50206606b769fe0dbd5646a32873916144bd5aec5473b3"
-                    },
-                    "downloads": -1,
-                    "filename": "sampleproject-3.0.0-py3-none-any.whl",
-                    "has_sig": false,
-                    "md5_digest": "e46bfece301c915db29ade44a4932039",
-                    "packagetype": "bdist_wheel",
-                    "python_version": "py3",
-                    "requires_python": ">=3.7",
-                    "size": 4662,
-                    "upload_time": "2022-12-01T18:51:00",
-                    "upload_time_iso_8601": "2022-12-01T18:51:00.007372Z",
-                    "url": "https://files.pythonhosted.org/packages/ec/a8/5ec62d18adde798d33a170e7f72930357aa69a60839194c93eb0fb05e59c/sampleproject-3.0.0-py3-none-any.whl",
-                    "yanked": false,
-                    "yanked_reason": null
+                "..."
+            ],
+            "4.0.0": [
+              {
+                "comment_text": "",
+                "digests": {
+                  "blake2b_256": "d773c16e5f3f0d37c60947e70865c255a58dc408780a6474de0523afd0ec553a",
+                  "md5": "d3857a217dacbca9e40a85f06f2b34f1",
+                  "sha256": "c23e447ea90d796d1e645c35c4b2de125040add12a845825546f91c93f391b6b"
                 },
-                {
-                    "comment_text": "",
-                    "digests": {
-                        "blake2b_256": "672a9f056e5fa36e43ef1037ff85581a2963cde420457de0ef29c779d41058ca",
-                        "md5": "46a92a8a919062028405fdf232b508b0",
-                        "sha256": "117ed88e5db073bb92969a7545745fd977ee85b7019706dd256a64058f70963d"
-                    },
-                    "downloads": -1,
-                    "filename": "sampleproject-3.0.0.tar.gz",
-                    "has_sig": false,
-                    "md5_digest": "46a92a8a919062028405fdf232b508b0",
-                    "packagetype": "sdist",
-                    "python_version": "source",
-                    "requires_python": ">=3.7",
-                    "size": 5330,
-                    "upload_time": "2022-12-01T18:51:01",
-                    "upload_time_iso_8601": "2022-12-01T18:51:01.420127Z",
-                    "url": "https://files.pythonhosted.org/packages/67/2a/9f056e5fa36e43ef1037ff85581a2963cde420457de0ef29c779d41058ca/sampleproject-3.0.0.tar.gz",
-                    "yanked": false,
-                    "yanked_reason": null
-                }
+                "downloads": -1,
+                "filename": "sampleproject-4.0.0-py3-none-any.whl",
+                "has_sig": false,
+                "md5_digest": "d3857a217dacbca9e40a85f06f2b34f1",
+                "packagetype": "bdist_wheel",
+                "python_version": "py3",
+                "requires_python": ">=3.9",
+                "size": 4661,
+                "upload_time": "2024-11-06T22:37:09",
+                "upload_time_iso_8601": "2024-11-06T22:37:09.220617Z",
+                "url": "https://files.pythonhosted.org/packages/d7/73/c16e5f3f0d37c60947e70865c255a58dc408780a6474de0523afd0ec553a/sampleproject-4.0.0-py3-none-any.whl",
+                "yanked": false,
+                "yanked_reason": null
+              },
+              {
+                "comment_text": "",
+                "digests": {
+                  "blake2b_256": "488cc18d25735962870ccb6d1cd2ac7bde40008a332211055e260cb7ec4c6bab",
+                  "md5": "9eab89661feaaf3b05b60fb1ed1f7171",
+                  "sha256": "0ace7980f82c5815ede4cd7bf9f6693684cec2ae47b9b7ade9add533b8627c6b"
+                },
+                "downloads": -1,
+                "filename": "sampleproject-4.0.0.tar.gz",
+                "has_sig": false,
+                "md5_digest": "9eab89661feaaf3b05b60fb1ed1f7171",
+                "packagetype": "sdist",
+                "python_version": "source",
+                "requires_python": ">=3.9",
+                "size": 5760,
+                "upload_time": "2024-11-06T22:37:10",
+                "upload_time_iso_8601": "2024-11-06T22:37:10.868088Z",
+                "url": "https://files.pythonhosted.org/packages/48/8c/c18d25735962870ccb6d1cd2ac7bde40008a332211055e260cb7ec4c6bab/sampleproject-4.0.0.tar.gz",
+                "yanked": false,
+                "yanked_reason": null
+              }
             ]
         },
         "urls": [
             {
-                "comment_text": "",
-                "digests": {
-                    "blake2b_256": "eca85ec62d18adde798d33a170e7f72930357aa69a60839194c93eb0fb05e59c",
-                    "md5": "e46bfece301c915db29ade44a4932039",
-                    "sha256": "2e52702990c22cf1ce50206606b769fe0dbd5646a32873916144bd5aec5473b3"
-                },
-                "downloads": -1,
-                "filename": "sampleproject-3.0.0-py3-none-any.whl",
-                "has_sig": false,
-                "md5_digest": "e46bfece301c915db29ade44a4932039",
-                "packagetype": "bdist_wheel",
-                "python_version": "py3",
-                "requires_python": ">=3.7",
-                "size": 4662,
-                "upload_time": "2022-12-01T18:51:00",
-                "upload_time_iso_8601": "2022-12-01T18:51:00.007372Z",
-                "url": "https://files.pythonhosted.org/packages/ec/a8/5ec62d18adde798d33a170e7f72930357aa69a60839194c93eb0fb05e59c/sampleproject-3.0.0-py3-none-any.whl",
-                "yanked": false,
-                "yanked_reason": null
+              "comment_text": "",
+              "digests": {
+                "blake2b_256": "d773c16e5f3f0d37c60947e70865c255a58dc408780a6474de0523afd0ec553a",
+                "md5": "d3857a217dacbca9e40a85f06f2b34f1",
+                "sha256": "c23e447ea90d796d1e645c35c4b2de125040add12a845825546f91c93f391b6b"
+              },
+              "downloads": -1,
+              "filename": "sampleproject-4.0.0-py3-none-any.whl",
+              "has_sig": false,
+              "md5_digest": "d3857a217dacbca9e40a85f06f2b34f1",
+              "packagetype": "bdist_wheel",
+              "python_version": "py3",
+              "requires_python": ">=3.9",
+              "size": 4661,
+              "upload_time": "2024-11-06T22:37:09",
+              "upload_time_iso_8601": "2024-11-06T22:37:09.220617Z",
+              "url": "https://files.pythonhosted.org/packages/d7/73/c16e5f3f0d37c60947e70865c255a58dc408780a6474de0523afd0ec553a/sampleproject-4.0.0-py3-none-any.whl",
+              "yanked": false,
+              "yanked_reason": null
             },
             {
-                "comment_text": "",
-                "digests": {
-                    "blake2b_256": "672a9f056e5fa36e43ef1037ff85581a2963cde420457de0ef29c779d41058ca",
-                    "md5": "46a92a8a919062028405fdf232b508b0",
-                    "sha256": "117ed88e5db073bb92969a7545745fd977ee85b7019706dd256a64058f70963d"
-                },
-                "downloads": -1,
-                "filename": "sampleproject-3.0.0.tar.gz",
-                "has_sig": false,
-                "md5_digest": "46a92a8a919062028405fdf232b508b0",
-                "packagetype": "sdist",
-                "python_version": "source",
-                "requires_python": ">=3.7",
-                "size": 5330,
-                "upload_time": "2022-12-01T18:51:01",
-                "upload_time_iso_8601": "2022-12-01T18:51:01.420127Z",
-                "url": "https://files.pythonhosted.org/packages/67/2a/9f056e5fa36e43ef1037ff85581a2963cde420457de0ef29c779d41058ca/sampleproject-3.0.0.tar.gz",
-                "yanked": false,
-                "yanked_reason": null
+              "comment_text": "",
+              "digests": {
+                "blake2b_256": "488cc18d25735962870ccb6d1cd2ac7bde40008a332211055e260cb7ec4c6bab",
+                "md5": "9eab89661feaaf3b05b60fb1ed1f7171",
+                "sha256": "0ace7980f82c5815ede4cd7bf9f6693684cec2ae47b9b7ade9add533b8627c6b"
+              },
+              "downloads": -1,
+              "filename": "sampleproject-4.0.0.tar.gz",
+              "has_sig": false,
+              "md5_digest": "9eab89661feaaf3b05b60fb1ed1f7171",
+              "packagetype": "sdist",
+              "python_version": "source",
+              "requires_python": ">=3.9",
+              "size": 5760,
+              "upload_time": "2024-11-06T22:37:10",
+              "upload_time_iso_8601": "2024-11-06T22:37:10.868088Z",
+              "url": "https://files.pythonhosted.org/packages/48/8c/c18d25735962870ccb6d1cd2ac7bde40008a332211055e260cb7ec4c6bab/sampleproject-4.0.0.tar.gz",
+              "yanked": false,
+              "yanked_reason": null
             }
         ],
         "vulnerabilities": []
@@ -305,7 +310,7 @@ Status codes:
 Example request:
 
 ```http
-GET /pypi/sampleproject/3.0.0/json HTTP/1.1
+GET /pypi/sampleproject/4.0.0/json HTTP/1.1
 Host: pypi.org
 Accept: application/json
 ```
@@ -329,8 +334,8 @@ Accept: application/json
                 "Programming Language :: Python :: 3 :: Only",
                 "Programming Language :: Python :: 3.10",
                 "Programming Language :: Python :: 3.11",
-                "Programming Language :: Python :: 3.7",
-                "Programming Language :: Python :: 3.8",
+                "Programming Language :: Python :: 3.12",
+                "Programming Language :: Python :: 3.13",
                 "Programming Language :: Python :: 3.9",
                 "Topic :: Software Development :: Build Tools"
             ],
@@ -343,9 +348,14 @@ Accept: application/json
                 "last_month": -1,
                 "last_week": -1
             },
+            "dynamic": [
+                "requires_dist"
+            ],
             "home_page": "",
-            "keywords": "sample,setuptools,development",
+            "keywords": "sample, setuptools, development",
             "license": "... ",
+            "license_expression": null,
+            "license_files": null,
             "maintainer": "",
             "maintainer_email": "\"A. Great Maintainer\" <maintainer@example.com>",
             "name": "sampleproject",
@@ -359,62 +369,66 @@ Accept: application/json
                 "Say Thanks!": "http://saythanks.io/to/example",
                 "Source": "https://github.com/pypa/sampleproject/"
             },
-            "release_url": "https://pypi.org/project/sampleproject/3.0.0/",
+            "provides_extra": [
+              "dev",
+              "test"
+            ],
+            "release_url": "https://pypi.org/project/sampleproject/4.0.0/",
             "requires_dist": [
                 "peppercorn",
                 "check-manifest ; extra == 'dev'",
                 "coverage ; extra == 'test'"
             ],
-            "requires_python": ">=3.7",
+            "requires_python": ">=3.9",
             "summary": "A sample Python project",
-            "version": "3.0.0",
+            "version": "4.0.0",
             "yanked": false,
             "yanked_reason": null
         },
-        "last_serial": 15959178,
+        "last_serial": 25862117,
         "urls": [
-            {
-                "comment_text": "",
-                "digests": {
-                    "blake2b_256": "eca85ec62d18adde798d33a170e7f72930357aa69a60839194c93eb0fb05e59c",
-                    "md5": "e46bfece301c915db29ade44a4932039",
-                    "sha256": "2e52702990c22cf1ce50206606b769fe0dbd5646a32873916144bd5aec5473b3"
-                },
-                "downloads": -1,
-                "filename": "sampleproject-3.0.0-py3-none-any.whl",
-                "has_sig": false,
-                "md5_digest": "e46bfece301c915db29ade44a4932039",
-                "packagetype": "bdist_wheel",
-                "python_version": "py3",
-                "requires_python": ">=3.7",
-                "size": 4662,
-                "upload_time": "2022-12-01T18:51:00",
-                "upload_time_iso_8601": "2022-12-01T18:51:00.007372Z",
-                "url": "https://files.pythonhosted.org/packages/ec/a8/5ec62d18adde798d33a170e7f72930357aa69a60839194c93eb0fb05e59c/sampleproject-3.0.0-py3-none-any.whl",
-                "yanked": false,
-                "yanked_reason": null
+          {
+            "comment_text": "",
+            "digests": {
+              "blake2b_256": "d773c16e5f3f0d37c60947e70865c255a58dc408780a6474de0523afd0ec553a",
+              "md5": "d3857a217dacbca9e40a85f06f2b34f1",
+              "sha256": "c23e447ea90d796d1e645c35c4b2de125040add12a845825546f91c93f391b6b"
             },
-            {
-                "comment_text": "",
-                "digests": {
-                    "blake2b_256": "672a9f056e5fa36e43ef1037ff85581a2963cde420457de0ef29c779d41058ca",
-                    "md5": "46a92a8a919062028405fdf232b508b0",
-                    "sha256": "117ed88e5db073bb92969a7545745fd977ee85b7019706dd256a64058f70963d"
-                },
-                "downloads": -1,
-                "filename": "sampleproject-3.0.0.tar.gz",
-                "has_sig": false,
-                "md5_digest": "46a92a8a919062028405fdf232b508b0",
-                "packagetype": "sdist",
-                "python_version": "source",
-                "requires_python": ">=3.7",
-                "size": 5330,
-                "upload_time": "2022-12-01T18:51:01",
-                "upload_time_iso_8601": "2022-12-01T18:51:01.420127Z",
-                "url": "https://files.pythonhosted.org/packages/67/2a/9f056e5fa36e43ef1037ff85581a2963cde420457de0ef29c779d41058ca/sampleproject-3.0.0.tar.gz",
-                "yanked": false,
-                "yanked_reason": null
-            }
+            "downloads": -1,
+            "filename": "sampleproject-4.0.0-py3-none-any.whl",
+            "has_sig": false,
+            "md5_digest": "d3857a217dacbca9e40a85f06f2b34f1",
+            "packagetype": "bdist_wheel",
+            "python_version": "py3",
+            "requires_python": ">=3.9",
+            "size": 4661,
+            "upload_time": "2024-11-06T22:37:09",
+            "upload_time_iso_8601": "2024-11-06T22:37:09.220617Z",
+            "url": "https://files.pythonhosted.org/packages/d7/73/c16e5f3f0d37c60947e70865c255a58dc408780a6474de0523afd0ec553a/sampleproject-4.0.0-py3-none-any.whl",
+            "yanked": false,
+            "yanked_reason": null
+          },
+          {
+            "comment_text": "",
+            "digests": {
+              "blake2b_256": "488cc18d25735962870ccb6d1cd2ac7bde40008a332211055e260cb7ec4c6bab",
+              "md5": "9eab89661feaaf3b05b60fb1ed1f7171",
+              "sha256": "0ace7980f82c5815ede4cd7bf9f6693684cec2ae47b9b7ade9add533b8627c6b"
+            },
+            "downloads": -1,
+            "filename": "sampleproject-4.0.0.tar.gz",
+            "has_sig": false,
+            "md5_digest": "9eab89661feaaf3b05b60fb1ed1f7171",
+            "packagetype": "sdist",
+            "python_version": "source",
+            "requires_python": ">=3.9",
+            "size": 5760,
+            "upload_time": "2024-11-06T22:37:10",
+            "upload_time_iso_8601": "2024-11-06T22:37:10.868088Z",
+            "url": "https://files.pythonhosted.org/packages/48/8c/c18d25735962870ccb6d1cd2ac7bde40008a332211055e260cb7ec4c6bab/sampleproject-4.0.0.tar.gz",
+            "yanked": false,
+            "yanked_reason": null
+          }
         ],
         "vulnerabilities": []
     }

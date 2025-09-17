@@ -8,12 +8,13 @@ from pyramid_retry import RetryableException
 from requests.exceptions import Timeout
 from zope.interface import implementer
 
+from . import CaptchaError
 from .interfaces import ChallengeResponse, ICaptchaService
 
 VERIFY_URL = "https://api.hcaptcha.com/siteverify"
 
 
-class HCaptchaError(ValueError):
+class HCaptchaError(CaptchaError):
     pass
 
 

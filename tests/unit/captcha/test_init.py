@@ -2,26 +2,7 @@
 
 import pretend
 
-from warehouse.captcha import includeme, interfaces, recaptcha
-
-
-def test_includeme_defaults_to_recaptcha():
-    config = pretend.stub(
-        registry=pretend.stub(settings={}),
-        maybe_dotted=lambda i: i,
-        register_service_factory=pretend.call_recorder(
-            lambda factory, iface, name: None
-        ),
-    )
-    includeme(config)
-
-    assert config.register_service_factory.calls == [
-        pretend.call(
-            recaptcha.Service.create_service,
-            interfaces.ICaptchaService,
-            name="captcha",
-        ),
-    ]
+from warehouse.captcha import includeme, interfaces
 
 
 def test_include_with_custom_backend():

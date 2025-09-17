@@ -81,7 +81,7 @@ HCAPTCHA_SECRET_KEY=0x0000000000000000000000000000000000000000
 # HCAPTCHA_SITE_KEY=30000000-ffff-ffff-ffff-000000000003
 
 # Example of Captcha backend configuration
-# CAPTCHA_BACKEND=warehouse.captcha.hcaptcha.Service
+CAPTCHA_BACKEND=warehouse.captcha.hcaptcha.Service
 
 # Example of HelpScout configuration
 # HELPSCOUT_WAREHOUSE_APP_ID="an insecure helpscout app id"
