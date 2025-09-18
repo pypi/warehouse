@@ -41,6 +41,7 @@
           required="required",
           class_="form-group__field",
           aria_describedby="username-errors",
+          tabindex="1",
           ) }}
           <div id="username-errors">
             {% if form.username.errors %}
@@ -62,7 +63,8 @@
               <input data-action="change->password#togglePasswords"
                      data-password-target="showPassword"
                      id="show-password"
-                     type="checkbox">
+                     type="checkbox"
+                     tabindex="3">
               &nbsp;{% trans %}Show password{% endtrans %}
             </label>
           </div>
@@ -72,6 +74,7 @@
           autocomplete="current-password",
           spellcheck="false", data_password_target="password",
           aria_describedby="password-errors",
+          tabindex="2",
           ) }}
           <div id="password-errors">
             {% if form.password.errors %}
@@ -85,7 +88,8 @@
               <div>
                 <input type="submit"
                        value="{% trans %}Log in{% endtrans %}"
-                       class="button button--primary">
+                       class="button button--primary"
+                       tabindex="4">
               </div>
               <span>
                 <a href="{{ request.route_url('accounts.request-password-reset') }}">{% trans %}Forgot password?{% endtrans %}</a>
