@@ -179,9 +179,9 @@ factory-boy==3.3.3 \
     --hash=sha256:1c39e3289f7e667c4285433f305f8d506efc2fe9c73aaea4151ebd5cdea394fc \
     --hash=sha256:866862d226128dfac7f2b4160287e899daf54f2612778327dd03d0e2cb1e3d03
     # via -r requirements/tests.in
-faker==37.6.0 \
-    --hash=sha256:0f8cc34f30095184adf87c3c24c45b38b33ad81c35ef6eb0a3118f301143012c \
-    --hash=sha256:3c5209b23d7049d596a51db5d76403a0ccfea6fc294ffa2ecfef6a8843b1e6a7
+faker==37.8.0 \
+    --hash=sha256:090bb5abbec2b30949a95ce1ba6b20d1d0ed222883d63483a0d4be4a970d6fb8 \
+    --hash=sha256:b08233118824423b5fc239f7dd51f145e7018082b4164f8da6a9994e1f1ae793
     # via factory-boy
 freezegun==1.5.5 \
     --hash=sha256:ac7742a6cc6c25a2c35e9292dfd554b897b517d2dec26891a2e8debf205cb94a \
@@ -273,9 +273,9 @@ pytest-postgresql==7.0.2 \
     --hash=sha256:0b0d31c51620a9c1d6be93286af354256bc58a47c379f56f4147b22da6e81fb5 \
     --hash=sha256:57c8d3f7d4e91d0ea8b2eac786d04f60080fa6ed6e66f1f94d747c71c9e5a4f4
     # via -r requirements/tests.in
-pytest-randomly==4.0.0 \
-    --hash=sha256:50297deaa5f18bf0b7d2aadfb3332eb3b313628aff260b63210d03578d3691aa \
-    --hash=sha256:521c216e94e8b40cccfa5da5e403e9c45a3071db6f9f1cb2d5658e9017def2a9
+pytest-randomly==4.0.1 \
+    --hash=sha256:174e57bb12ac2c26f3578188490bd333f0e80620c3f47340158a86eca0593cd8 \
+    --hash=sha256:e0dfad2fd4f35e07beff1e47c17fbafcf98f9bf4531fd369d9260e2f858bfcb7
     # via -r requirements/tests.in
 pytest-socket==0.7.0 \
     --hash=sha256:71ab048cbbcb085c15a4423b73b619a8b35d6a307f46f78ea46be51b1b7e11b3 \
