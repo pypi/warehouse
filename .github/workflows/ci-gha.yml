@@ -1,4 +1,4 @@
-name: CI - gha
+name: CI (GHA)
 on:
   push:
     branches:

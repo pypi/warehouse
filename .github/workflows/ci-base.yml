@@ -73,7 +73,7 @@ jobs:
         image: ${{ (matrix.name == 'Tests') && 'stripe/stripe-mock:v0.162.0' || '' }}
         ports:
           - 12111:12111
-    name: ${{ matrix.name }}${{ !inputs.use_depot && ' - gha' || '' }}
+    name: ${{ matrix.name }}${{ !inputs.use_depot && ' (GHA)' || '' }}
     steps:
       - name: Check out repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -90,7 +90,7 @@ jobs:
         run: ${{ matrix.command }}
 
   check_db:
-    name: Check Database Consistency${{ !inputs.use_depot && ' - gha' || '' }}
+    name: Check Database Consistency${{ !inputs.use_depot && ' (GHA)' || '' }}
     runs-on: ${{ inputs.runner }}
     continue-on-error: true
     container:
