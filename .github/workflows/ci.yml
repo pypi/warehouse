@@ -1,42 +1,54 @@
-name: CI Base
+name: CI
 on:
-  workflow_call:
-    inputs:
-      runner:
-        required: true
-        type: string
-        description: 'Runner to use for jobs'
-      runner_large:
-        required: false
-        type: string
-        description: 'Large runner to use for heavy jobs'
-      image_registry:
-        required: true
-        type: string
-        description: 'Container registry for images'
-      build_id:
-        required: true
-        type: string
-        description: 'Build ID for the container image'
-      use_depot:
-        required: false
-        type: boolean
-        default: false
-        description: 'Whether to use Depot for builds'
-
+  push:
+    branches:
+      - main
+  pull_request:
+  merge_group:
+    types: [checks_requested]
+  workflow_dispatch:  # generally only for the "combine-prs" workflow
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
 jobs:
+  build:
+    if: github.repository == 'pypi/warehouse'
+    runs-on: depot-ubuntu-24.04-arm
+    outputs:
+      buildId: ${{ steps.build.outputs.build-id}}
+    permissions:
+      id-token: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - name: Set up Depot CLI
+        uses: depot/setup-action@b0b1ea4f69e92ebf5dea3f8713a1b0c37b2126a5 # v1.6.0
+      - name: Build image
+        id: build
+        uses: depot/build-push-action@9785b135c3c76c33db102e45be96a25ab55cd507 # v1.16.2
+        with:
+          save: true
+          build-args: |
+            DEVEL=yes
+            CI=yes
+          tags: pypi/warehouse:ci-${{ github.run_id }}
   test:
     # Time out if our test suite has gotten hung
     timeout-minutes: 15
+    needs: build
     strategy:
       matrix:
         include:
           - name: Tests
             command: bin/tests --postgresql-host postgres
-            use_large_runner: true
+            runs_on: depot-ubuntu-24.04-arm-4
           - name: Lint
             command: bin/lint
-            use_large_runner: true
+            runs_on: depot-ubuntu-24.04-arm-4
           - name: User Documentation
             command: bin/user-docs
           - name: Developer Documentation
@@ -47,14 +59,13 @@ jobs:
             command: bin/licenses
           - name: Translations
             command: bin/translations
-    runs-on: ${{ (matrix.use_large_runner && inputs.runner_large != '') && inputs.runner_large || inputs.runner }}
+    runs-on: ${{ (matrix.runs_on != null) && matrix.runs_on || 'depot-ubuntu-24.04-arm' }}
     container:
-      image: ${{ inputs.image_registry }}:${{ inputs.build_id }}
+      image: registry.depot.dev/rltf7cln5v:${{ needs.build.outputs.buildId }}
       env:
         BILLING_BACKEND: warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27
     permissions:
       id-token: write
-      packages: read
     services:
       postgres:
         image: ${{ (matrix.name == 'Tests') && 'postgres:17.5' || '' }}
@@ -73,7 +84,7 @@ jobs:
         image: ${{ (matrix.name == 'Tests') && 'stripe/stripe-mock:v0.162.0' || '' }}
         ports:
           - 12111:12111
-    name: ${{ matrix.name }}${{ !inputs.use_depot && ' (GHA)' || '' }}
+    name: ${{ matrix.name }}
     steps:
       - name: Check out repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -90,14 +101,14 @@ jobs:
         run: ${{ matrix.command }}
 
   check_db:
-    name: Check Database Consistency${{ !inputs.use_depot && ' (GHA)' || '' }}
-    runs-on: ${{ inputs.runner }}
+    name: Check Database Consistency
+    needs: build
+    runs-on: depot-ubuntu-24.04-arm
     continue-on-error: true
     container:
-      image: ${{ inputs.image_registry }}:${{ inputs.build_id }}
+      image: registry.depot.dev/rltf7cln5v:${{ needs.build.outputs.buildId }}
     permissions:
       id-token: write
-      packages: read
     services:
       postgres:
         image: postgres:17.5
