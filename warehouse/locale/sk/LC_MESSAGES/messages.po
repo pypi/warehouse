@@ -30,7 +30,7 @@ msgstr ""
 "Na vykonanie tejto akcie musí byť vo vašom účte povolená dvojfaktorová "
 "autentifikácia."
 
-#: warehouse/views.py:322
+#: warehouse/views.py:341
 msgid "Locale updated"
 msgstr "Miestne nastavenie bolo aktualizované"
 
@@ -717,7 +717,7 @@ msgid ""
 msgstr "Používateľ '${username}' už má aktívnu pozvánku. Skúste neskôr prosím."
 
 #: warehouse/manage/views/__init__.py:3016
-#: warehouse/manage/views/organizations.py:1027
+#: warehouse/manage/views/organizations.py:1037
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr "Pozvánka bola odoslaná používateľovi '${username}'"
@@ -731,7 +731,7 @@ msgid "Invitation already expired."
 msgstr "Pozvánka už vypršala."
 
 #: warehouse/manage/views/__init__.py:3092
-#: warehouse/manage/views/organizations.py:1214
+#: warehouse/manage/views/organizations.py:1224
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
 msgstr "Pozvánka od '${username}' bola odvolaná."
@@ -750,16 +750,20 @@ msgstr ""
 "Používateľ '${username}' nemá overenú primárnu e-mailovú adresu a nemôže byť "
 "pridaný ako ${role_name} pre organizáciu"
 
-#: warehouse/manage/views/organizations.py:1109
-#: warehouse/manage/views/organizations.py:1151
+#: warehouse/manage/views/organizations.py:973
+msgid "Cannot invite new member. Organization is not in good standing."
+msgstr ""
+
+#: warehouse/manage/views/organizations.py:1119
+#: warehouse/manage/views/organizations.py:1161
 msgid "Could not find organization invitation."
 msgstr "Nepodarilo sa nájsť pozvánku organizácie."
 
-#: warehouse/manage/views/organizations.py:1119
+#: warehouse/manage/views/organizations.py:1129
 msgid "Organization invitation could not be re-sent."
 msgstr "Pozvánku organizácie nebolo možné znova odoslať."
 
-#: warehouse/manage/views/organizations.py:1167
+#: warehouse/manage/views/organizations.py:1177
 #, python-brace-format
 msgid "Expired invitation for '${username}' deleted."
 msgstr "Pozvánka s vypršanou platnosťou pre '${username}' bola odstránená."
@@ -1086,14 +1090,14 @@ msgstr "Monty Python - Náčrt syrárne"
 
 #: warehouse/templates/404.html:30 warehouse/templates/500.html:18
 #: warehouse/templates/accounts/two-factor.html:35
-#: warehouse/templates/base.html:339 warehouse/templates/base.html:345
-#: warehouse/templates/base.html:351 warehouse/templates/base.html:357
-#: warehouse/templates/base.html:373 warehouse/templates/base.html:379
-#: warehouse/templates/base.html:404 warehouse/templates/base.html:410
-#: warehouse/templates/base.html:419 warehouse/templates/base.html:432
-#: warehouse/templates/base.html:441 warehouse/templates/base.html:447
-#: warehouse/templates/base.html:453 warehouse/templates/base.html:466
-#: warehouse/templates/base.html:483
+#: warehouse/templates/base.html:342 warehouse/templates/base.html:348
+#: warehouse/templates/base.html:354 warehouse/templates/base.html:360
+#: warehouse/templates/base.html:376 warehouse/templates/base.html:382
+#: warehouse/templates/base.html:407 warehouse/templates/base.html:413
+#: warehouse/templates/base.html:422 warehouse/templates/base.html:435
+#: warehouse/templates/base.html:444 warehouse/templates/base.html:450
+#: warehouse/templates/base.html:456 warehouse/templates/base.html:469
+#: warehouse/templates/base.html:486
 #: warehouse/templates/includes/accounts/profile-callout.html:17
 #: warehouse/templates/includes/file-details.html:129
 #: warehouse/templates/index.html:98 warehouse/templates/index.html:105
@@ -1263,18 +1267,18 @@ msgid "Main navigation"
 msgstr "Hlavná navigácia"
 
 #: warehouse/templates/base.html:33 warehouse/templates/base.html:68
-#: warehouse/templates/base.html:334
+#: warehouse/templates/base.html:337
 #: warehouse/templates/includes/current-user-indicator.html:77
 #: warehouse/templates/pages/help.html:209
 #: warehouse/templates/pages/sitemap.html:19
 msgid "Help"
 msgstr "Pomoc"
 
-#: warehouse/templates/base.html:36
+#: warehouse/templates/base.html:36 warehouse/templates/base.html:71
 msgid "Docs"
 msgstr ""
 
-#: warehouse/templates/base.html:40 warehouse/templates/base.html:71
+#: warehouse/templates/base.html:40 warehouse/templates/base.html:74
 #: warehouse/templates/includes/current-user-indicator.html:83
 #: warehouse/templates/pages/sitemap.html:43
 #: warehouse/templates/pages/sponsors.html:4
@@ -1283,11 +1287,11 @@ msgstr "Sponzori"
 
 #: warehouse/templates/accounts/login.html:7
 #: warehouse/templates/accounts/login.html:80 warehouse/templates/base.html:44
-#: warehouse/templates/base.html:75
+#: warehouse/templates/base.html:78
 msgid "Log in"
 msgstr "Prihlásiť"
 
-#: warehouse/templates/base.html:48 warehouse/templates/base.html:79
+#: warehouse/templates/base.html:48 warehouse/templates/base.html:82
 #: warehouse/templates/pages/sitemap.html:28
 msgid "Register"
 msgstr "Registrovať"
@@ -1306,7 +1310,7 @@ msgstr "Menu"
 msgid "Main menu"
 msgstr "Hlavné menu"
 
-#: warehouse/templates/base.html:87
+#: warehouse/templates/base.html:90
 #, python-format
 msgid ""
 "\"%(wordmark)s\", \"%(name)s\", and the blocks logos are registered "
@@ -1320,7 +1324,7 @@ msgstr ""
 "Foundation</a>, ktoré sa vzťahujú na produkty a služby spojené s pypi.org. "
 "Akékoľvek iné použitie akoukoľvek inou stranou je zakázané."
 
-#: warehouse/templates/base.html:91
+#: warehouse/templates/base.html:94
 #, python-format
 msgid ""
 "\"%(wordmark)s\", \"%(name)s\", and the blocks logos are registered <a "
@@ -1332,7 +1336,7 @@ msgstr ""
 "href=\"%(psf_href)s\" target=\"_blank\" rel=\"noopener\">Python Software "
 "Foundation</a>."
 
-#: warehouse/templates/base.html:116 warehouse/templates/index.html:93
+#: warehouse/templates/base.html:119 warehouse/templates/index.html:93
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the Python "
 "programming language."
@@ -1340,32 +1344,32 @@ msgstr ""
 "Index balíkov Python (PyPI) je úložisko softvéru pre programovací jazyk "
 "Python."
 
-#: warehouse/templates/base.html:133
+#: warehouse/templates/base.html:136
 msgid "RSS: 40 latest updates"
 msgstr "RSS: 40 najnovších aktualizácií"
 
-#: warehouse/templates/base.html:137
+#: warehouse/templates/base.html:140
 msgid "RSS: 40 newest packages"
 msgstr "RSS: 40 najnovších balíčkov"
 
-#: warehouse/templates/base.html:205
+#: warehouse/templates/base.html:208
 msgid "Skip to main content"
 msgstr "Preskočiť na hlavný obsah"
 
-#: warehouse/templates/base.html:209
+#: warehouse/templates/base.html:212
 msgid "Switch to mobile version"
 msgstr "Prepnúť na mobilnú verziu"
 
-#: warehouse/templates/base.html:216 warehouse/templates/base.html:225
-#: warehouse/templates/base.html:235
+#: warehouse/templates/base.html:219 warehouse/templates/base.html:228
+#: warehouse/templates/base.html:238
 #: warehouse/templates/includes/flash-messages.html:41
 #: warehouse/templates/includes/session-notifications.html:19
 #: warehouse/templates/manage/account.html:845
 #: warehouse/templates/manage/manage_base.html:364
 #: warehouse/templates/manage/manage_base.html:442
-#: warehouse/templates/manage/organization/settings.html:179
-#: warehouse/templates/manage/organization/settings.html:240
-#: warehouse/templates/manage/organization/settings.html:246
+#: warehouse/templates/manage/organization/settings.html:205
+#: warehouse/templates/manage/organization/settings.html:266
+#: warehouse/templates/manage/organization/settings.html:272
 #: warehouse/templates/manage/project/documentation.html:13
 #: warehouse/templates/manage/project/release.html:209
 #: warehouse/templates/manage/project/settings.html:84
@@ -1375,11 +1379,11 @@ msgstr "Prepnúť na mobilnú verziu"
 msgid "Warning"
 msgstr "Upozornenie"
 
-#: warehouse/templates/base.html:218
+#: warehouse/templates/base.html:221
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr "Používate nepodporovaný prehliadač, inovujte na novšiu verziu."
 
-#: warehouse/templates/base.html:227
+#: warehouse/templates/base.html:230
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
@@ -1389,7 +1393,7 @@ msgstr ""
 "umožňuje vyskúšať distribučné nástroje a procesy bez ovplyvnenia skutočného "
 "indexu."
 
-#: warehouse/templates/base.html:237
+#: warehouse/templates/base.html:240
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
@@ -1397,163 +1401,163 @@ msgstr ""
 "Niektoré funkcie nemusia fungovať bez JavaScriptu. Ak narazíte na problémy, "
 "skúste ho povoliť."
 
-#: warehouse/templates/base.html:272 warehouse/templates/base.html:304
+#: warehouse/templates/base.html:275 warehouse/templates/base.html:307
 #: warehouse/templates/error-base-with-search.html:8
 #: warehouse/templates/index.html:29
 msgid "Search PyPI"
 msgstr "Hľadať PyPI"
 
-#: warehouse/templates/base.html:277 warehouse/templates/index.html:35
+#: warehouse/templates/base.html:280 warehouse/templates/index.html:35
 #, fuzzy
 #| msgid "Search projects"
 msgid "Type '/' to search projects"
 msgstr "Hľadt v projektoch"
 
-#: warehouse/templates/base.html:288 warehouse/templates/base.html:317
+#: warehouse/templates/base.html:291 warehouse/templates/base.html:320
 #: warehouse/templates/error-base-with-search.html:19
 #: warehouse/templates/index.html:44
 msgid "Search"
 msgstr "Hľadať"
 
-#: warehouse/templates/base.html:309
+#: warehouse/templates/base.html:312
 #: warehouse/templates/error-base-with-search.html:13
 msgid "Search projects"
 msgstr "Hľadt v projektoch"
 
-#: warehouse/templates/base.html:335
+#: warehouse/templates/base.html:338
 msgid "Help navigation"
 msgstr "Navigácia pomocníka"
 
-#: warehouse/templates/base.html:341
+#: warehouse/templates/base.html:344
 msgid "Installing packages"
 msgstr "Inštalovanie balíčkov"
 
-#: warehouse/templates/base.html:347
+#: warehouse/templates/base.html:350
 msgid "Uploading packages"
 msgstr "Nahrávanie balíčkov"
 
-#: warehouse/templates/base.html:353
+#: warehouse/templates/base.html:356
 msgid "User guide"
 msgstr "Užívateľská príručka"
 
-#: warehouse/templates/base.html:359
+#: warehouse/templates/base.html:362
 msgid "Project name retention"
 msgstr "Zachovanie názvu projektu"
 
-#: warehouse/templates/base.html:362
+#: warehouse/templates/base.html:365
 msgid "FAQs"
 msgstr "FAQ"
 
-#: warehouse/templates/base.html:368 warehouse/templates/pages/sitemap.html:34
+#: warehouse/templates/base.html:371 warehouse/templates/pages/sitemap.html:34
 msgid "About PyPI"
 msgstr "O PyPI"
 
-#: warehouse/templates/base.html:369
+#: warehouse/templates/base.html:372
 msgid "About PyPI navigation"
 msgstr "O PyPI navigácii"
 
-#: warehouse/templates/base.html:375
+#: warehouse/templates/base.html:378
 msgid "PyPI Blog"
 msgstr "PyPI Blog"
 
-#: warehouse/templates/base.html:381
+#: warehouse/templates/base.html:384
 msgid "Infrastructure dashboard"
 msgstr "Prehľad infraštruktúry"
 
-#: warehouse/templates/base.html:384 warehouse/templates/pages/sitemap.html:40
+#: warehouse/templates/base.html:387 warehouse/templates/pages/sitemap.html:40
 #: warehouse/templates/pages/stats.html:4
 msgid "Statistics"
 msgstr "Štatistika"
 
-#: warehouse/templates/base.html:387
+#: warehouse/templates/base.html:390
 msgid "Logos & trademarks"
 msgstr "Logá a ochranné známky"
 
-#: warehouse/templates/base.html:390
+#: warehouse/templates/base.html:393
 msgid "Our sponsors"
 msgstr "Naši sponzory"
 
-#: warehouse/templates/base.html:396
+#: warehouse/templates/base.html:399
 msgid "Contributing to PyPI"
 msgstr "Prispievanie do PyPI"
 
-#: warehouse/templates/base.html:397
+#: warehouse/templates/base.html:400
 msgid "How to contribute navigation"
 msgstr "Ako prispieť do navigácie"
 
-#: warehouse/templates/base.html:400
+#: warehouse/templates/base.html:403
 msgid "Bugs and feedback"
 msgstr "Chyby a spätná väzba"
 
-#: warehouse/templates/base.html:406
+#: warehouse/templates/base.html:409
 msgid "Contribute on GitHub"
 msgstr "Prispieť na GitHub"
 
-#: warehouse/templates/base.html:412
+#: warehouse/templates/base.html:415
 msgid "Translate PyPI"
 msgstr "Preložiť PyPI"
 
-#: warehouse/templates/base.html:415
+#: warehouse/templates/base.html:418
 msgid "Sponsor PyPI"
 msgstr "Sponzori PyPI"
 
-#: warehouse/templates/base.html:421
+#: warehouse/templates/base.html:424
 msgid "Development credits"
 msgstr "Vývojové kredity"
 
-#: warehouse/templates/base.html:427 warehouse/templates/pages/sitemap.html:10
+#: warehouse/templates/base.html:430 warehouse/templates/pages/sitemap.html:10
 msgid "Using PyPI"
 msgstr "Použitie PyPI"
 
-#: warehouse/templates/base.html:428
+#: warehouse/templates/base.html:431
 msgid "Using PyPI navigation"
 msgstr "Používanie navigácie PyPI"
 
-#: warehouse/templates/base.html:434
+#: warehouse/templates/base.html:437
 #: warehouse/templates/manage/organization/activate_subscription.html:21
 #, fuzzy
 #| msgid "Terms of Use"
 msgid "Terms of Service"
 msgstr "Podmienky použitia"
 
-#: warehouse/templates/base.html:437
+#: warehouse/templates/base.html:440
 msgid "Report security issue"
 msgstr "Nahlásiť bezpečnostný problém"
 
-#: warehouse/templates/base.html:443
+#: warehouse/templates/base.html:446
 msgid "Code of conduct"
 msgstr "Kódex správania"
 
-#: warehouse/templates/base.html:449
+#: warehouse/templates/base.html:452
 msgid "Privacy Notice"
 msgstr "Ochrana osobných údajov"
 
-#: warehouse/templates/base.html:455
+#: warehouse/templates/base.html:458
 msgid "Acceptable Use Policy"
 msgstr "Zásady prijateľného používania"
 
-#: warehouse/templates/base.html:465
+#: warehouse/templates/base.html:468
 msgid "Status:"
 msgstr "Stav:"
 
-#: warehouse/templates/base.html:469
+#: warehouse/templates/base.html:472
 msgid "all systems operational"
 msgstr "všetky systémy funkčné"
 
-#: warehouse/templates/base.html:473
+#: warehouse/templates/base.html:476
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr "Vyvinuté a udržiavané komunitou Python pre komunitu Python."
 
-#: warehouse/templates/base.html:475
+#: warehouse/templates/base.html:478
 msgid "Donate today!"
 msgstr "Prispieť dnes!"
 
-#: warehouse/templates/base.html:487 warehouse/templates/pages/sitemap.html:4
+#: warehouse/templates/base.html:490 warehouse/templates/pages/sitemap.html:4
 msgid "Site map"
 msgstr "Mapa stránok"
 
-#: warehouse/templates/base.html:494
+#: warehouse/templates/base.html:497
 msgid "Switch to desktop version"
 msgstr "Prepnúť na desktop verziu"
 
@@ -1565,7 +1569,7 @@ msgstr "Potvrdiť akciu"
 msgid "Are you sure?"
 msgstr "Ste si istý?"
 
-#: warehouse/templates/error-base.html:23
+#: warehouse/templates/error-base.html:24
 msgid "Error code"
 msgstr "Chybový kód"
 
@@ -1728,8 +1732,8 @@ msgstr "Heslo"
 #: warehouse/templates/manage/organization/activate_subscription.html:22
 #: warehouse/templates/manage/organization/projects.html:109
 #: warehouse/templates/manage/organization/projects.html:130
-#: warehouse/templates/manage/organization/roles.html:374
-#: warehouse/templates/manage/organization/roles.html:393
+#: warehouse/templates/manage/organization/roles.html:398
+#: warehouse/templates/manage/organization/roles.html:417
 #: warehouse/templates/manage/organization/settings.html:35
 #: warehouse/templates/manage/organization/settings.html:64
 #: warehouse/templates/manage/organization/settings.html:87
@@ -1876,7 +1880,7 @@ msgstr "Prihláste sa do %(title)s"
 #: warehouse/templates/email/organization-member-role-changed/body.html:14
 #: warehouse/templates/manage/account.html:272
 #: warehouse/templates/manage/organization/roles.html:291
-#: warehouse/templates/manage/organization/roles.html:377
+#: warehouse/templates/manage/organization/roles.html:401
 #: warehouse/templates/manage/project/roles.html:171
 #: warehouse/templates/manage/project/roles.html:250
 #: warehouse/templates/manage/project/roles.html:346
@@ -2610,7 +2614,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/roles.html:46
 #: warehouse/templates/manage/organization/roles.html:200
 #: warehouse/templates/manage/organization/roles.html:248
-#: warehouse/templates/manage/organization/roles.html:391
+#: warehouse/templates/manage/organization/roles.html:415
 #: warehouse/templates/manage/project/roles.html:59
 #: warehouse/templates/manage/project/roles.html:133
 #: warehouse/templates/manage/project/roles.html:214
@@ -4505,8 +4509,8 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:843
 #: warehouse/templates/manage/account/token.html:177
-#: warehouse/templates/manage/organization/settings.html:177
-#: warehouse/templates/manage/organization/settings.html:238
+#: warehouse/templates/manage/organization/settings.html:203
+#: warehouse/templates/manage/organization/settings.html:264
 #: warehouse/templates/manage/project/publishing.html:19
 #: warehouse/templates/manage/team/settings.html:60
 msgid "Proceed with caution!"
@@ -4880,7 +4884,7 @@ msgstr "Odmietnuť pozvanie na %(org)s"
 msgid "Decline invitation"
 msgstr "Odmietnuť pozvanie"
 
-#: warehouse/templates/manage/organization/settings.html:258
+#: warehouse/templates/manage/organization/settings.html:284
 #: warehouse/templates/manage/organizations.html:51
 msgid "Organization Name"
 msgstr "Názov organizácie"
@@ -4916,6 +4920,7 @@ msgstr ""
 msgid "This organization is not active"
 msgstr "Táto organizácia nie je aktívna"
 
+#: warehouse/templates/manage/organization/settings.html:182
 #: warehouse/templates/manage/organizations.html:85
 msgid "Inactive"
 msgstr "Neaktívne"
@@ -6516,7 +6521,7 @@ msgid "Users who can manage %(organization_name)s"
 msgstr "Používatelia, ktorí môžu spravovať %(organization_name)s"
 
 #: warehouse/templates/manage/organization/roles.html:199
-#: warehouse/templates/manage/organization/roles.html:372
+#: warehouse/templates/manage/organization/roles.html:396
 #: warehouse/templates/manage/project/roles.html:395
 #: warehouse/templates/manage/team/roles.html:35
 #: warehouse/templates/manage/team/roles.html:102
@@ -6610,7 +6615,39 @@ msgstr "Zmazať"
 msgid "Invite member"
 msgstr "Pozvať člena"
 
-#: warehouse/templates/manage/organization/roles.html:403
+#: warehouse/templates/manage/organization/roles.html:366
+#, fuzzy
+#| msgid "Billing Inactive"
+msgid "Billing Notice:"
+msgstr "Fakturácia je neaktívna"
+
+#: warehouse/templates/manage/organization/roles.html:367
+msgid ""
+"Accepted invitations will result in an additional $5 per user per month "
+"billing charge."
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:373
+msgid "Seat Usage:"
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:374
+#, python-format
+msgid "%(current)s of %(limit)s seats used."
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:377
+#, python-format
+msgid "%(available)s seats available."
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:379
+msgid ""
+"You have exceeded your seat limit. Invited members can still accept "
+"invitations."
+msgstr ""
+
+#: warehouse/templates/manage/organization/roles.html:427
 #: warehouse/templates/manage/project/roles.html:426
 msgid "Invite"
 msgstr "Pozvať"
@@ -6658,37 +6695,65 @@ msgstr "Aktualizujte organizáciu"
 msgid "Billing details"
 msgstr "Fakturačné údaje"
 
-#: warehouse/templates/manage/organization/settings.html:152
+#: warehouse/templates/manage/organization/settings.html:153
+#: warehouse/templates/manage/organization/settings.html:166
+#: warehouse/templates/manage/organization/settings.html:181
 msgid "Billing status"
 msgstr "Stav fakturácie"
 
-#: warehouse/templates/manage/organization/settings.html:156
+#: warehouse/templates/manage/organization/settings.html:157
 msgid "Billing email"
 msgstr "Fakturačný email"
 
-#: warehouse/templates/manage/organization/settings.html:161
+#: warehouse/templates/manage/organization/settings.html:162
 msgid "Manage billing"
 msgstr "Spravovať fakturáciu"
 
-#: warehouse/templates/manage/organization/settings.html:168
-#: warehouse/templates/manage/organization/settings.html:202
+#: warehouse/templates/manage/organization/settings.html:167
+msgid "Manually Activated"
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:170
+msgid "Seat limit"
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:172
+#, fuzzy
+#| msgid "Members"
+msgid "members"
+msgstr "Členovia"
+
+#: warehouse/templates/manage/organization/settings.html:176
+#, fuzzy
+#| msgid "Expired"
+msgid "Expires"
+msgstr "Platnosť vypršala"
+
+#: warehouse/templates/manage/organization/settings.html:186
+#, fuzzy
+#| msgid "Activate Billing"
+msgid "Activate billing"
+msgstr "Aktivovať fakturáciu"
+
+#: warehouse/templates/manage/organization/settings.html:194
+#: warehouse/templates/manage/organization/settings.html:228
 msgid "Change organization account name"
 msgstr "Zmeňte názov účtu organizácie"
 
-#: warehouse/templates/manage/organization/settings.html:170
+#: warehouse/templates/manage/organization/settings.html:196
 #, fuzzy
 #| msgid "This organization is not active"
 msgid "Renaming organizations is not currently supported."
 msgstr "Táto organizácia nie je aktívna"
 
-#: warehouse/templates/manage/organization/settings.html:172
+#: warehouse/templates/manage/organization/settings.html:198
 #, python-format
 msgid ""
 "Please contact <a href=%(href)s>PyPI Support</a> if you need to rename your "
 "organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:180
+#: warehouse/templates/manage/organization/settings.html:206
 msgid ""
 "You will not be able to revert to your current account name after you rename "
 "your organization."
@@ -6696,24 +6761,24 @@ msgstr ""
 "Po premenovaní organizácie sa už nebudete môcť vrátiť k svojmu aktuálnemu "
 "názvu účtu."
 
-#: warehouse/templates/manage/organization/settings.html:202
+#: warehouse/templates/manage/organization/settings.html:228
 msgid "Change organization account name for"
 msgstr "Zmeniť názov účtu organizácie pre"
 
-#: warehouse/templates/manage/organization/settings.html:202
+#: warehouse/templates/manage/organization/settings.html:228
 msgid "Current organization account name"
 msgstr "Názov aktuálneho účtu organizácie"
 
-#: warehouse/templates/manage/organization/settings.html:208
-#: warehouse/templates/manage/organization/settings.html:258
+#: warehouse/templates/manage/organization/settings.html:234
+#: warehouse/templates/manage/organization/settings.html:284
 msgid "Delete organization"
 msgstr "Zmazať organizáciu"
 
-#: warehouse/templates/manage/organization/settings.html:211
+#: warehouse/templates/manage/organization/settings.html:237
 msgid "Cannot delete organization"
 msgstr "Organizáciu nemožno odstrániť"
 
-#: warehouse/templates/manage/organization/settings.html:213
+#: warehouse/templates/manage/organization/settings.html:239
 #, python-format
 msgid "Your organization currently owns %(count)s project."
 msgid_plural "Your organization currently owns %(count)s projects."
@@ -6721,23 +6786,23 @@ msgstr[0] "Vaša organizácia momentálne vlastní %(count)s projekt."
 msgstr[1] "Vaša organizácia momentálne vlastní %(count)s projekty."
 msgstr[2] "Vaša organizácia momentálne vlastní %(count)s projekty."
 
-#: warehouse/templates/manage/organization/settings.html:218
+#: warehouse/templates/manage/organization/settings.html:244
 msgid "For each project, you must either:"
 msgstr "Pre každý projekt musíte buď:"
 
-#: warehouse/templates/manage/organization/settings.html:220
+#: warehouse/templates/manage/organization/settings.html:246
 msgid "Transfer ownership and remove the project from your organization"
 msgstr "Preveďte vlastníctvo a odstráňte projekt z vašej organizácie"
 
-#: warehouse/templates/manage/organization/settings.html:221
+#: warehouse/templates/manage/organization/settings.html:247
 msgid "Delete the project"
 msgstr "Odstrániť projekt"
 
-#: warehouse/templates/manage/organization/settings.html:223
+#: warehouse/templates/manage/organization/settings.html:249
 msgid "Before you can delete your organization."
 msgstr "Pred odstránením organizácie."
 
-#: warehouse/templates/manage/organization/settings.html:229
+#: warehouse/templates/manage/organization/settings.html:255
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> and <a "
@@ -6748,22 +6813,22 @@ msgstr ""
 "href=\"%(remove_delete_href)s\">odstrániť projekt</a> <b>alebo</b> <a "
 "href=\"%(remove_delete_href)s\">odstrániť projekt</a>"
 
-#: warehouse/templates/manage/organization/settings.html:241
+#: warehouse/templates/manage/organization/settings.html:267
 msgid "You will not be able to recover your organization after you delete it."
 msgstr "Po odstránení nebudete môcť organizáciu obnoviť."
 
-#: warehouse/templates/manage/organization/settings.html:248
+#: warehouse/templates/manage/organization/settings.html:274
 msgid ""
 "Your subscription will be cancelled, and you will lose access to the billing "
 "portal."
 msgstr ""
 "Vaše predplatné bude zrušené a stratíte prístup k fakturačnému portálu."
 
-#: warehouse/templates/manage/organization/settings.html:250
+#: warehouse/templates/manage/organization/settings.html:276
 msgid "You will lose access to the billing portal."
 msgstr "Stratíte prístup k fakturačnému portálu."
 
-#: warehouse/templates/manage/organization/settings.html:252
+#: warehouse/templates/manage/organization/settings.html:278
 #, python-format
 msgid ""
 "Please ensure you have retrieved all invoices from <a "
@@ -11173,9 +11238,11 @@ msgid "Projects related to \"graphics\" with OSI-approved licenses"
 msgstr "Projekty súvisiace s „grafikou“ s licenciami schválenými OSI"
 
 #: warehouse/templates/search/results.html:141
-#, python-format
-msgid "<strong>%(count_display)s</strong> project"
-msgid_plural "<strong>%(count_display)s</strong> projects"
+#, fuzzy, python-format
+#| msgid "<strong>%(count_display)s</strong> project"
+#| msgid_plural "<strong>%(count_display)s</strong> projects"
+msgid "<strong>%(count_display)s</strong> project&nbsp;"
+msgid_plural "<strong>%(count_display)s</strong> projects&nbsp;"
 msgstr[0] "<strong>%(count_display)s</strong> projekt"
 msgstr[1] "<strong>%(count_display)s</strong> projekty"
 msgstr[2] "<strong>%(count_display)s</strong> projektov"

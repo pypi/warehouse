@@ -69,6 +69,11 @@ def test_routes(warehouse):
         pretend.call("locale", "/locale/", domain=warehouse),
         pretend.call("favicon.ico", "/favicon.ico", domain=warehouse),
         pretend.call("robots.txt", "/robots.txt", domain=warehouse),
+        pretend.call(
+            "funding-manifest-urls",
+            "/.well-known/funding-manifest-urls",
+            domain=warehouse,
+        ),
         pretend.call("opensearch.xml", "/opensearch.xml", domain=warehouse),
         pretend.call("index.sitemap.xml", "/sitemap.xml", domain=warehouse),
         pretend.call("bucket.sitemap.xml", "/{bucket}.sitemap.xml", domain=warehouse),
@@ -642,27 +647,35 @@ def test_routes(warehouse):
             "sitemap",
             "/sitemap/",
             "pages/sitemap.html",
+            route_kw={"domain": warehouse},
             view_kw={"has_translations": True},
         ),
         pretend.call(
-            "help", "/help/", "pages/help.html", view_kw={"has_translations": True}
+            "help",
+            "/help/",
+            "pages/help.html",
+            route_kw={"domain": warehouse},
+            view_kw={"has_translations": True},
         ),
         pretend.call(
             "security",
             "/security/",
             "pages/security.html",
+            route_kw={"domain": warehouse},
             view_kw={"has_translations": True},
         ),
         pretend.call(
             "sponsors",
             "/sponsors/",
             "pages/sponsors.html",
+            route_kw={"domain": warehouse},
             view_kw={"has_translations": True},
         ),
         pretend.call(
             "trademarks",
             "/trademarks/",
             "pages/trademarks.html",
+            route_kw={"domain": warehouse},
             view_kw={"has_translations": True},
         ),
     ]

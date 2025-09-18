@@ -40,7 +40,7 @@
              class="horizontal-menu__link">{% trans %}Sponsors{% endtrans %}</a>
         </li>
         <li class="horizontal-menu__item">
-          <a href="{{ request.route_path('accounts.login') }}"
+          <a href="{{ request.route_path('accounts.login', _query={'next': request.url }) }}"
              class="horizontal-menu__link">{% trans %}Log in{% endtrans %}</a>
         </li>
         <li class="horizontal-menu__item">
@@ -66,6 +66,9 @@
           aria-label="{% trans %}Main menu{% endtrans %}">
         <li>
           <a class="dropdown__link" href="{{ request.route_path('help') }}">{% trans %}Help{% endtrans %}</a>
+        </li>
+        <li>
+          <a class="dropdown__link" href="{{ request.user_docs_url('/') }}">{% trans %}Docs{% endtrans %}</a>
         </li>
         <li>
           <a class="dropdown__link" href="{{ request.route_path('sponsors') }}">{% trans %}Sponsors{% endtrans %}</a>

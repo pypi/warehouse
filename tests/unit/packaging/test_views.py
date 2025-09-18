@@ -23,11 +23,7 @@ class TestProjectDetail:
     def test_normalizing_redirects(self, db_request):
         project = ProjectFactory.create()
 
-        name = project.name.lower()
-        if name == project.name:
-            name = project.name.upper()
-
-        db_request.matchdict = {"name": name}
+        db_request.matchdict = {"name": project.name.swapcase()}
         db_request.current_route_path = pretend.call_recorder(
             lambda name: "/project/the-redirect/"
         )
@@ -131,11 +127,7 @@ class TestReleaseDetail:
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="3.0")
 
-        name = release.project.name.lower()
-        if name == release.project.name:
-            name = release.project.name.upper()
-
-        db_request.matchdict = {"name": name}
+        db_request.matchdict = {"name": project.name.swapcase()}
         db_request.current_route_path = pretend.call_recorder(
             lambda name: "/project/the-redirect/3.0/"
         )

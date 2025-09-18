@@ -1,15 +1,20 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from datetime import date, timedelta
+
 import pretend
 import pytest
 
+from freezegun import freeze_time
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from webob.multidict import MultiDict
 
 from warehouse.admin.views import organizations as views
-from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     OrganizationApplicationStatus,
+    OrganizationManualActivation,
+    OrganizationRole,
+    OrganizationRoleType,
     OrganizationType,
 )
 from warehouse.subscriptions.interfaces import IBillingService
@@ -18,6 +23,8 @@ from ....common.db.accounts import UserFactory
 from ....common.db.organizations import (
     OrganizationApplicationFactory,
     OrganizationFactory,
+    OrganizationManualActivationFactory,
+    OrganizationRoleFactory,
     OrganizationStripeCustomerFactory,
 )
 from ....common.db.subscriptions import StripeCustomerFactory
@@ -267,12 +274,11 @@ class TestOrganizationList:
 
 class TestOrganizationDetail:
     @pytest.mark.usefixtures("_enable_organizations")
-    def test_detail(self):
-        organization = pretend.stub(
-            id=pretend.stub(),
+    def test_detail(self, db_request):
+        organization = OrganizationFactory.create(
             name="example",
             display_name="Example",
-            orgtype=pretend.stub(name="Company"),
+            orgtype=OrganizationType.Company,
             link_url="https://www.example.com/",
             description=(
                 "This company is for use in illustrative examples in documents "
@@ -280,33 +286,23 @@ class TestOrganizationDetail:
                 "coordination or asking for permission."
             ),
             is_active=False,
-            status=OrganizationApplicationStatus.Submitted,
         )
-        organization_service = pretend.stub(
-            get_organization=lambda *a, **kw: organization,
-        )
-        billing_service = pretend.stub()
-        request = pretend.stub(
-            flags=pretend.stub(enabled=lambda *a: False),
-            find_service=lambda iface, **kw: {
-                IOrganizationService: organization_service,
-                IBillingService: billing_service,
-            }[iface],
-            matchdict={"organization_id": pretend.stub()},
-            method="GET",
-        )
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.method = "GET"
 
-        result = views.organization_detail(request)
+        result = views.organization_detail(db_request)
         assert result["organization"] == organization
         assert isinstance(result["form"], views.OrganizationForm)
+        assert result["roles"] == []
+        assert result["role_forms"] == {}
+        assert isinstance(result["add_role_form"], views.AddOrganizationRoleForm)
 
     @pytest.mark.usefixtures("_enable_organizations")
-    def test_detail_is_approved_true(self):
-        organization = pretend.stub(
-            id=pretend.stub(),
+    def test_detail_is_approved_true(self, db_request):
+        organization = OrganizationFactory.create(
             name="example",
             display_name="Example",
-            orgtype=pretend.stub(name="Company"),
+            orgtype=OrganizationType.Company,
             link_url="https://www.example.com/",
             description=(
                 "This company is for use in illustrative examples in documents "
@@ -314,33 +310,23 @@ class TestOrganizationDetail:
                 "coordination or asking for permission."
             ),
             is_active=True,
-            status=OrganizationApplicationStatus.Approved,
         )
-        organization_service = pretend.stub(
-            get_organization=lambda *a, **kw: organization,
-        )
-        billing_service = pretend.stub()
-        request = pretend.stub(
-            flags=pretend.stub(enabled=lambda *a: False),
-            find_service=lambda iface, **kw: {
-                IOrganizationService: organization_service,
-                IBillingService: billing_service,
-            }[iface],
-            matchdict={"organization_id": pretend.stub()},
-            method="GET",
-        )
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.method = "GET"
 
-        result = views.organization_detail(request)
+        result = views.organization_detail(db_request)
         assert result["organization"] == organization
         assert isinstance(result["form"], views.OrganizationForm)
+        assert result["roles"] == []
+        assert result["role_forms"] == {}
+        assert isinstance(result["add_role_form"], views.AddOrganizationRoleForm)
 
     @pytest.mark.usefixtures("_enable_organizations")
-    def test_detail_is_approved_false(self):
-        organization = pretend.stub(
-            id=pretend.stub(),
+    def test_detail_is_approved_false(self, db_request):
+        organization = OrganizationFactory.create(
             name="example",
             display_name="Example",
-            orgtype=pretend.stub(name="Company"),
+            orgtype=OrganizationType.Company,
             link_url="https://www.example.com/",
             description=(
                 "This company is for use in illustrative examples in documents "
@@ -348,44 +334,26 @@ class TestOrganizationDetail:
                 "coordination or asking for permission."
             ),
             is_active=False,
-            status=OrganizationApplicationStatus.Declined,
         )
-        organization_service = pretend.stub(
-            get_organization=lambda *a, **kw: organization,
-        )
-        billing_service = pretend.stub()
-        request = pretend.stub(
-            flags=pretend.stub(enabled=lambda *a: False),
-            find_service=lambda iface, **kw: {
-                IOrganizationService: organization_service,
-                IBillingService: billing_service,
-            }[iface],
-            matchdict={"organization_id": pretend.stub()},
-            method="GET",
-        )
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.method = "GET"
 
-        result = views.organization_detail(request)
+        result = views.organization_detail(db_request)
         assert result["organization"] == organization
         assert isinstance(result["form"], views.OrganizationForm)
+        assert result["roles"] == []
+        assert result["role_forms"] == {}
+        assert isinstance(result["add_role_form"], views.AddOrganizationRoleForm)
 
     @pytest.mark.usefixtures("_enable_organizations")
-    def test_detail_not_found(self):
-        organization_service = pretend.stub(
-            get_organization=lambda *a, **kw: None,
-        )
-        billing_service = pretend.stub()
-        request = pretend.stub(
-            flags=pretend.stub(enabled=lambda *a: False),
-            find_service=lambda iface, **kw: {
-                IOrganizationService: organization_service,
-                IBillingService: billing_service,
-            }[iface],
-            matchdict={"organization_id": pretend.stub()},
-            method="GET",
-        )
+    def test_detail_not_found(self, db_request):
+        db_request.matchdict = {
+            "organization_id": "00000000-0000-0000-0000-000000000000"
+        }
+        db_request.method = "GET"
 
         with pytest.raises(HTTPNotFound):
-            views.organization_detail(request)
+            views.organization_detail(db_request)
 
     def test_updates_organization(self, db_request):
         organization = OrganizationFactory.create(
@@ -413,18 +381,6 @@ class TestOrganizationDetail:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
 
-        organization_service = pretend.stub(
-            get_organization=pretend.call_recorder(lambda org_id: organization)
-        )
-        billing_service = pretend.stub()
-
-        db_request.find_service = pretend.call_recorder(
-            lambda iface, context: {
-                IOrganizationService: organization_service,
-                IBillingService: billing_service,
-            }.get(iface)
-        )
-
         result = views.organization_detail(db_request)
 
         assert isinstance(result, HTTPSeeOther)
@@ -440,7 +396,7 @@ class TestOrganizationDetail:
             )
         ]
 
-    def test_updates_organization_with_stripe_customer(self, db_request):
+    def test_updates_organization_with_stripe_customer(self, db_request, monkeypatch):
         organization = OrganizationFactory.create(
             name="acme",
             display_name="Old Name",
@@ -471,19 +427,10 @@ class TestOrganizationDetail:
         )
         db_request.registry = pretend.stub(settings={"site.name": "TestPyPI"})
 
-        organization_service = pretend.stub(
-            get_organization=pretend.call_recorder(lambda org_id: organization)
-        )
-        billing_service = pretend.stub(
-            update_customer=pretend.call_recorder(lambda *a, **kw: None)
-        )
-
-        db_request.find_service = pretend.call_recorder(
-            lambda iface, context: {
-                IOrganizationService: organization_service,
-                IBillingService: billing_service,
-            }.get(iface)
-        )
+        # Patch the billing service's update_customer method
+        billing_service = db_request.find_service(IBillingService)
+        update_customer = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(billing_service, "update_customer", update_customer)
 
         result = views.organization_detail(db_request)
 
@@ -493,7 +440,7 @@ class TestOrganizationDetail:
         assert organization.link_url == "https://new-url.com"
         assert organization.description == "New description"
         assert organization.orgtype == OrganizationType.Community
-        assert billing_service.update_customer.calls == [
+        assert update_customer.calls == [
             pretend.call(
                 "cus_123456",
                 "TestPyPI Organization - New Name (acme)",
@@ -521,18 +468,6 @@ class TestOrganizationDetail:
             }
         )
 
-        organization_service = pretend.stub(
-            get_organization=pretend.call_recorder(lambda org_id: organization)
-        )
-        billing_service = pretend.stub()
-
-        db_request.find_service = pretend.call_recorder(
-            lambda iface, context: {
-                IOrganizationService: organization_service,
-                IBillingService: billing_service,
-            }.get(iface)
-        )
-
         result = views.organization_detail(db_request)
 
         assert result["organization"] == organization
@@ -540,6 +475,67 @@ class TestOrganizationDetail:
         assert result["form"].errors
         assert "display_name" in result["form"].errors
         assert "link_url" in result["form"].errors
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_detail_with_roles(self, db_request):
+        """Test that organization detail view includes roles"""
+        organization = OrganizationFactory.create(name="pypi")
+
+        # Create some users with roles
+        # Intentionally not ordered to test order later
+        user3 = UserFactory.create(username="charlie")
+        user2 = UserFactory.create(username="bob")
+        user1 = UserFactory.create(username="alice")
+
+        OrganizationRoleFactory.create(
+            organization=organization, user=user1, role_name=OrganizationRoleType.Owner
+        )
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=user2,
+            role_name=OrganizationRoleType.Manager,
+        )
+        OrganizationRoleFactory.create(
+            organization=organization, user=user3, role_name=OrganizationRoleType.Member
+        )
+
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.method = "GET"
+
+        result = views.organization_detail(db_request)
+
+        assert result["organization"] == organization
+        assert isinstance(result["form"], views.OrganizationForm)
+
+        # Check that roles are included and sorted by username
+        assert len(result["roles"]) == 3
+        assert result["roles"][0].user.username == "alice"
+        assert result["roles"][1].user.username == "bob"
+        assert result["roles"][2].user.username == "charlie"
+
+        # Check that role forms are created for each role
+        assert len(result["role_forms"]) == 3
+        assert set(result["role_forms"].keys()) == {role.id for role in result["roles"]}
+        for role_id, form in result["role_forms"].items():
+            assert isinstance(form, views.OrganizationRoleForm)
+
+        assert isinstance(result["add_role_form"], views.AddOrganizationRoleForm)
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_detail_no_roles(self, db_request):
+        """Test that organization detail view works with no roles"""
+        organization = OrganizationFactory.create(name="pypi")
+
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.method = "GET"
+
+        result = views.organization_detail(db_request)
+
+        assert result["organization"] == organization
+        assert isinstance(result["form"], views.OrganizationForm)
+        assert result["roles"] == []
+        assert result["role_forms"] == {}
+        assert isinstance(result["add_role_form"], views.AddOrganizationRoleForm)
 
 
 class TestOrganizationActions:
@@ -566,7 +562,7 @@ class TestOrganizationActions:
 
         db_request.matchdict = {"organization_id": organization.id}
         db_request.params = {
-            "new_organization_name": "widget",
+            "new_organization_name": "  widget  ",  # Test trimming whitespace
         }
         db_request.user = admin
         db_request.route_path = pretend.call_recorder(_organization_application_routes)
@@ -974,7 +970,7 @@ def _organization_application_routes(
     elif route_name == "admin.dashboard":
         return "/admin/"
     else:
-        raise ValueError("No dummy route found")
+        pytest.fail(f"No dummy route found for {route_name}")
 
 
 class TestOrganizationApplicationActions:
@@ -1440,3 +1436,1135 @@ class TestOrganizationApplicationActions:
 
         with pytest.raises(HTTPNotFound):
             views.organization_application_decline(request)
+
+
+class TestAddOrganizationRole:
+    def test_add_role(self, db_request, monkeypatch):
+        organization = OrganizationFactory.create(name="pypi")
+        user = UserFactory.create(username="testuser")
+
+        # Mock record_event
+        record_event = pretend.call_recorder(lambda **kwargs: None)
+        monkeypatch.setattr(organization, "record_event", record_event)
+
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.POST = {"username": user.username, "role_name": "Manager"}
+
+        result = views.add_organization_role(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.location == "/admin/organizations/"
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Added '{user.username}' as 'Manager' to '{organization.name}'",
+                queue="success",
+            )
+        ]
+
+        role = db_request.db.query(OrganizationRole).one()
+        assert role.role_name == OrganizationRoleType.Manager
+        assert role.user == user
+        assert role.organization == organization
+
+        # Check event was recorded
+        assert record_event.calls == [
+            pretend.call(
+                request=db_request,
+                tag="admin:organization:role:add",
+                additional={
+                    "action": f"add Manager {user.username}",
+                    "user_id": str(user.id),
+                    "role_name": "Manager",
+                },
+            )
+        ]
+
+    def test_add_role_no_username(self, db_request):
+        organization = OrganizationFactory.create(name="pypi")
+
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.POST = {"role_name": "Manager"}
+
+        result = views.add_organization_role(db_request)
+        assert isinstance(result, HTTPSeeOther)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Provide a username", queue="error")
+        ]
+
+    def test_add_role_unknown_user(self, db_request):
+        organization = OrganizationFactory.create(name="pypi")
+
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.POST = {"username": "nonexistent", "role_name": "Manager"}
+
+        result = views.add_organization_role(db_request)
+        assert isinstance(result, HTTPSeeOther)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Unknown username 'nonexistent'", queue="error")
+        ]
+
+    def test_add_role_no_role_name(self, db_request):
+        organization = OrganizationFactory.create(name="pypi")
+        user = UserFactory.create(username="testuser")
+
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.POST = {"username": user.username}
+
+        result = views.add_organization_role(db_request)
+        assert isinstance(result, HTTPSeeOther)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Provide a role", queue="error")
+        ]
+
+    def test_add_role_user_already_has_role(self, db_request):
+        organization = OrganizationFactory.create(name="pypi")
+        user = UserFactory.create(username="testuser")
+        OrganizationRoleFactory.create(
+            organization=organization, user=user, role_name=OrganizationRoleType.Member
+        )
+
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.POST = {"username": user.username, "role_name": "Manager"}
+
+        result = views.add_organization_role(db_request)
+        assert isinstance(result, HTTPSeeOther)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"User '{user.username}' already has a role in this organization",
+                queue="error",
+            )
+        ]
+
+    def test_add_role_organization_not_found(self, db_request):
+        db_request.matchdict = {
+            "organization_id": "00000000-0000-0000-0000-000000000000"
+        }
+
+        with pytest.raises(HTTPNotFound):
+            views.add_organization_role(db_request)
+
+
+class TestUpdateOrganizationRole:
+    def test_update_role(self, db_request, monkeypatch):
+        organization = OrganizationFactory.create(name="pypi")
+        user = UserFactory.create(username="testuser")
+        role = OrganizationRoleFactory.create(
+            organization=organization, user=user, role_name=OrganizationRoleType.Member
+        )
+
+        # Mock record_event
+        record_event = pretend.call_recorder(lambda **kwargs: None)
+        monkeypatch.setattr(organization, "record_event", record_event)
+
+        db_request.matchdict = {
+            "organization_id": str(organization.id),
+            "role_id": str(role.id),
+        }
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.POST = {"role_name": "Manager"}
+
+        result = views.update_organization_role(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.location == "/admin/organizations/"
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Changed '{user.username}' from 'Member' to 'Manager' "
+                f"in '{organization.name}'",
+                queue="success",
+            )
+        ]
+
+        db_request.db.refresh(role)
+        assert role.role_name == OrganizationRoleType.Manager
+
+        # Check event was recorded
+        assert record_event.calls == [
+            pretend.call(
+                request=db_request,
+                tag="admin:organization:role:change",
+                additional={
+                    "action": f"change {user.username} from Member to Manager",
+                    "user_id": str(user.id),
+                    "old_role_name": "Member",
+                    "new_role_name": "Manager",
+                },
+            )
+        ]
+
+    def test_update_role_not_found(self, db_request):
+        organization = OrganizationFactory.create(name="pypi")
+
+        db_request.matchdict = {
+            "organization_id": str(organization.id),
+            "role_id": "00000000-0000-0000-0000-000000000000",
+        }
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.update_organization_role(db_request)
+        assert isinstance(result, HTTPSeeOther)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("This role no longer exists", queue="error")
+        ]
+
+    def test_update_role_no_role_name(self, db_request):
+        organization = OrganizationFactory.create(name="pypi")
+        user = UserFactory.create(username="testuser")
+        role = OrganizationRoleFactory.create(
+            organization=organization, user=user, role_name=OrganizationRoleType.Member
+        )
+
+        db_request.matchdict = {
+            "organization_id": str(organization.id),
+            "role_id": str(role.id),
+        }
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.POST = {}
+
+        result = views.update_organization_role(db_request)
+        assert isinstance(result, HTTPSeeOther)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Provide a role", queue="error")
+        ]
+
+    def test_update_role_same_role(self, db_request):
+        organization = OrganizationFactory.create(name="pypi")
+        user = UserFactory.create(username="testuser")
+        role = OrganizationRoleFactory.create(
+            organization=organization, user=user, role_name=OrganizationRoleType.Member
+        )
+
+        db_request.matchdict = {
+            "organization_id": str(organization.id),
+            "role_id": str(role.id),
+        }
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.POST = {"role_name": "Member"}
+
+        result = views.update_organization_role(db_request)
+        assert isinstance(result, HTTPSeeOther)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Role is already set to this value", queue="error")
+        ]
+
+    def test_update_role_organization_not_found(self, db_request):
+        db_request.matchdict = {
+            "organization_id": "00000000-0000-0000-0000-000000000000",
+            "role_id": "00000000-0000-0000-0000-000000000000",
+        }
+
+        with pytest.raises(HTTPNotFound):
+            views.update_organization_role(db_request)
+
+
+class TestDeleteOrganizationRole:
+    def test_delete_role(self, db_request, monkeypatch):
+        organization = OrganizationFactory.create(name="pypi")
+        user = UserFactory.create(username="testuser")
+        role = OrganizationRoleFactory.create(
+            organization=organization, user=user, role_name=OrganizationRoleType.Member
+        )
+
+        # Mock record_event
+        record_event = pretend.call_recorder(lambda **kwargs: None)
+        monkeypatch.setattr(organization, "record_event", record_event)
+
+        db_request.matchdict = {
+            "organization_id": str(organization.id),
+            "role_id": str(role.id),
+        }
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.POST = {"username": user.username}
+
+        result = views.delete_organization_role(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.location == "/admin/organizations/"
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Removed '{user.username}' as 'Member' from '{organization.name}'",
+                queue="success",
+            )
+        ]
+
+        assert db_request.db.query(OrganizationRole).count() == 0
+
+        # Check event was recorded
+        assert record_event.calls == [
+            pretend.call(
+                request=db_request,
+                tag="admin:organization:role:remove",
+                additional={
+                    "action": f"remove Member {user.username}",
+                    "user_id": str(user.id),
+                    "role_name": "Member",
+                },
+            )
+        ]
+
+    def test_delete_role_not_found(self, db_request):
+        organization = OrganizationFactory.create(name="pypi")
+
+        db_request.matchdict = {
+            "organization_id": str(organization.id),
+            "role_id": "00000000-0000-0000-0000-000000000000",
+        }
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.delete_organization_role(db_request)
+        assert isinstance(result, HTTPSeeOther)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("This role no longer exists", queue="error")
+        ]
+
+    def test_delete_role_wrong_confirmation(self, db_request):
+        organization = OrganizationFactory.create(name="pypi")
+        user = UserFactory.create(username="testuser")
+        role = OrganizationRoleFactory.create(
+            organization=organization, user=user, role_name=OrganizationRoleType.Member
+        )
+
+        db_request.matchdict = {
+            "organization_id": str(organization.id),
+            "role_id": str(role.id),
+        }
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.POST = {"username": "wronguser"}
+
+        result = views.delete_organization_role(db_request)
+        assert isinstance(result, HTTPSeeOther)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Confirm the request", queue="error")
+        ]
+
+        # Role should still exist
+        assert db_request.db.query(OrganizationRole).count() == 1
+
+    def test_delete_role_no_confirmation(self, db_request):
+        organization = OrganizationFactory.create(name="pypi")
+        user = UserFactory.create(username="testuser")
+        role = OrganizationRoleFactory.create(
+            organization=organization, user=user, role_name=OrganizationRoleType.Member
+        )
+
+        db_request.matchdict = {
+            "organization_id": str(organization.id),
+            "role_id": str(role.id),
+        }
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.POST = {}
+
+        result = views.delete_organization_role(db_request)
+        assert isinstance(result, HTTPSeeOther)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Confirm the request", queue="error")
+        ]
+
+        # Role should still exist
+        assert db_request.db.query(OrganizationRole).count() == 1
+
+    def test_delete_role_organization_not_found(self, db_request):
+        db_request.matchdict = {
+            "organization_id": "00000000-0000-0000-0000-000000000000",
+            "role_id": "00000000-0000-0000-0000-000000000000",
+        }
+
+        with pytest.raises(HTTPNotFound):
+            views.delete_organization_role(db_request)
+
+
+class TestManualActivationForm:
+    @freeze_time("2024-01-15")
+    def test_validate_success(self):
+        form_data = MultiDict(
+            {
+                "seat_limit": "25",
+                "expires": (date.today() + timedelta(days=365)).isoformat(),
+            }
+        )
+        form = views.ManualActivationForm(formdata=form_data)
+        assert form.validate(), str(form.errors)
+
+    @freeze_time("2024-01-15")
+    def test_validate_missing_seat_limit(self):
+        form_data = MultiDict(
+            {
+                "expires": (date.today() + timedelta(days=365)).isoformat(),
+            }
+        )
+        form = views.ManualActivationForm(formdata=form_data)
+        assert not form.validate()
+        assert "Specify seat limit" in str(form.seat_limit.errors)
+
+    def test_validate_missing_expires(self):
+        form_data = MultiDict(
+            {
+                "seat_limit": "25",
+            }
+        )
+        form = views.ManualActivationForm(formdata=form_data)
+        assert not form.validate()
+        assert "Specify expiration date" in str(form.expires.errors)
+
+    @freeze_time("2024-01-15")
+    def test_validate_invalid_seat_limit_zero(self):
+        form_data = MultiDict(
+            {
+                "seat_limit": "0",
+                "expires": (date.today() + timedelta(days=365)).isoformat(),
+            }
+        )
+        form = views.ManualActivationForm(formdata=form_data)
+        assert not form.validate()
+        assert "Seat limit must be at least 1" in str(form.seat_limit.errors)
+
+    @freeze_time("2024-01-15")
+    def test_validate_invalid_seat_limit_negative(self):
+        form_data = MultiDict(
+            {
+                "seat_limit": "-1",
+                "expires": (date.today() + timedelta(days=365)).isoformat(),
+            }
+        )
+        form = views.ManualActivationForm(formdata=form_data)
+        assert not form.validate()
+        assert "Seat limit must be at least 1" in str(form.seat_limit.errors)
+
+    @freeze_time("2024-01-15")
+    def test_validate_expires_in_past(self):
+        form_data = MultiDict(
+            {
+                "seat_limit": "25",
+                "expires": "2020-01-01",
+            }
+        )
+        form = views.ManualActivationForm(formdata=form_data)
+        assert not form.validate()
+        assert "Expiration date must be in the future" in str(form.expires.errors)
+
+
+class TestAddManualActivation:
+    @freeze_time("2024-01-15")
+    def test_add_manual_activation_success(self, db_request, monkeypatch):
+        organization = OrganizationFactory.create()
+        user = UserFactory.create()
+
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.user = user
+        db_request.POST = MultiDict(
+            {
+                "seat_limit": "25",
+                "expires": (date.today() + timedelta(days=365)).isoformat(),
+            }
+        )
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        organization.record_event = pretend.call_recorder(lambda *a, **kw: None)
+
+        organization_service = pretend.stub(
+            get_organization=pretend.call_recorder(lambda id: organization)
+        )
+        monkeypatch.setattr(
+            db_request, "find_service", lambda iface, context: organization_service
+        )
+
+        result = views.add_manual_activation(db_request)
+        assert isinstance(result, HTTPSeeOther)
+
+        # Check that manual activation was created
+        manual_activation = db_request.db.query(OrganizationManualActivation).first()
+        assert manual_activation is not None
+        assert manual_activation.organization_id == organization.id
+        assert manual_activation.seat_limit == 25
+        assert manual_activation.created_by_id == user.id
+
+        # Check success flash message
+        assert len(db_request.session.flash.calls) == 1
+        call = db_request.session.flash.calls[0]
+        assert call.args[0].startswith("Manual activation added for")
+        assert call.kwargs == {"queue": "success"}
+
+        # Check event was recorded
+        assert len(organization.record_event.calls) == 1
+        call = organization.record_event.calls[0]
+        assert call.kwargs["tag"] == "admin:organization:manual_activation:add"
+
+    def test_add_manual_activation_organization_not_found(
+        self, db_request, monkeypatch
+    ):
+        db_request.matchdict = {
+            "organization_id": "00000000-0000-0000-0000-000000000000"
+        }
+
+        organization_service = pretend.stub(
+            get_organization=pretend.call_recorder(lambda id: None)
+        )
+        monkeypatch.setattr(
+            db_request, "find_service", lambda iface, context: organization_service
+        )
+
+        with pytest.raises(HTTPNotFound):
+            views.add_manual_activation(db_request)
+
+    @freeze_time("2024-01-15")
+    def test_add_manual_activation_already_exists(self, db_request, monkeypatch):
+        organization = OrganizationFactory.create()
+        user = UserFactory.create()
+        OrganizationManualActivationFactory.create(organization=organization)
+
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.user = user
+        db_request.POST = MultiDict(
+            {
+                "seat_limit": "25",
+                "expires": (date.today() + timedelta(days=365)).isoformat(),
+            }
+        )
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        organization_service = pretend.stub(
+            get_organization=pretend.call_recorder(lambda id: organization)
+        )
+        monkeypatch.setattr(
+            db_request, "find_service", lambda iface, context: organization_service
+        )
+
+        result = views.add_manual_activation(db_request)
+        assert isinstance(result, HTTPSeeOther)
+
+        # Check error flash message
+        assert len(db_request.session.flash.calls) == 1
+        call = db_request.session.flash.calls[0]
+        assert "already has manual activation" in call.args[0]
+        assert call.kwargs == {"queue": "error"}
+
+    @freeze_time("2024-01-15")
+    def test_add_manual_activation_invalid_form(self, db_request, monkeypatch):
+        organization = OrganizationFactory.create()
+        user = UserFactory.create()
+
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.user = user
+        db_request.POST = MultiDict(
+            {
+                "seat_limit": "0",  # Invalid
+                "expires": (
+                    date.today() - timedelta(days=365)
+                ).isoformat(),  # In the past
+            }
+        )
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        organization_service = pretend.stub(
+            get_organization=pretend.call_recorder(lambda id: organization)
+        )
+        monkeypatch.setattr(
+            db_request, "find_service", lambda iface, context: organization_service
+        )
+
+        result = views.add_manual_activation(db_request)
+        assert isinstance(result, HTTPSeeOther)
+
+        # Check error flash messages for validation errors
+        assert len(db_request.session.flash.calls) >= 1
+        error_messages = [call.args[0] for call in db_request.session.flash.calls]
+        error_messages = " ".join(error_messages)
+        assert "seat_limit" in error_messages or "expires" in error_messages
+
+
+class TestUpdateManualActivation:
+    @freeze_time("2024-01-15")
+    def test_update_manual_activation_success(self, db_request, monkeypatch):
+        organization = OrganizationFactory.create()
+        user = UserFactory.create()
+        manual_activation = OrganizationManualActivationFactory.create(
+            organization=organization,
+            seat_limit=10,
+        )
+
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.user = user
+        db_request.POST = MultiDict(
+            {
+                "seat_limit": "50",
+                "expires": (date.today() + timedelta(days=730)).isoformat(),
+            }
+        )
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        organization.record_event = pretend.call_recorder(lambda *a, **kw: None)
+
+        organization_service = pretend.stub(
+            get_organization=pretend.call_recorder(lambda id: organization)
+        )
+        monkeypatch.setattr(
+            db_request, "find_service", lambda iface, context: organization_service
+        )
+
+        result = views.update_manual_activation(db_request)
+        assert isinstance(result, HTTPSeeOther)
+
+        # Check that manual activation was updated
+        db_request.db.refresh(manual_activation)
+        assert manual_activation.seat_limit == 50
+        # created_by_id should NOT change during update - it stays the original creator
+        assert manual_activation.created_by_id != user.id
+
+        # Check success flash message
+        assert len(db_request.session.flash.calls) == 1
+        call = db_request.session.flash.calls[0]
+        assert call.args[0].startswith("Manual activation updated for")
+        assert call.kwargs == {"queue": "success"}
+
+        # Check event was recorded
+        assert len(organization.record_event.calls) == 1
+        call = organization.record_event.calls[0]
+        assert call.kwargs["tag"] == "admin:organization:manual_activation:update"
+
+    def test_update_manual_activation_not_found(self, db_request, monkeypatch):
+        organization = OrganizationFactory.create()
+
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.POST = MultiDict(
+            {
+                "seat_limit": "50",
+                "expires": (date.today() + timedelta(days=730)).isoformat(),
+            }
+        )
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        organization_service = pretend.stub(
+            get_organization=pretend.call_recorder(lambda id: organization)
+        )
+        monkeypatch.setattr(
+            db_request, "find_service", lambda iface, context: organization_service
+        )
+
+        result = views.update_manual_activation(db_request)
+        assert isinstance(result, HTTPSeeOther)
+
+        # Check error flash message
+        assert len(db_request.session.flash.calls) == 1
+        call = db_request.session.flash.calls[0]
+        assert "has no manual activation to update" in call.args[0]
+        assert call.kwargs == {"queue": "error"}
+
+    @freeze_time("2024-01-15")
+    def test_update_manual_activation_invalid_form(self, db_request, monkeypatch):
+        organization = OrganizationFactory.create()
+        user = UserFactory.create()
+        OrganizationManualActivationFactory.create(
+            organization=organization,
+            seat_limit=10,
+        )
+
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.user = user
+        # Invalid form data - seat limit is negative
+        db_request.POST = MultiDict(
+            {
+                "seat_limit": "-5",
+                "expires": (date.today() + timedelta(days=730)).isoformat(),
+            }
+        )
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        organization_service = pretend.stub(
+            get_organization=pretend.call_recorder(lambda id: organization)
+        )
+        monkeypatch.setattr(
+            db_request, "find_service", lambda iface, context: organization_service
+        )
+
+        result = views.update_manual_activation(db_request)
+        assert isinstance(result, HTTPSeeOther)
+
+        # Check that form validation errors were flashed
+        assert len(db_request.session.flash.calls) >= 1
+        # Should have flashed seat_limit error
+        error_flashed = any(
+            "seat_limit" in call.args[0]
+            for call in db_request.session.flash.calls
+            if call.kwargs.get("queue") == "error"
+        )
+        assert error_flashed
+
+    def test_update_manual_activation_organization_not_found(
+        self, db_request, monkeypatch
+    ):
+        db_request.matchdict = {
+            "organization_id": "00000000-0000-0000-0000-000000000000"
+        }
+
+        organization_service = pretend.stub(
+            get_organization=pretend.call_recorder(lambda id: None)
+        )
+        monkeypatch.setattr(
+            db_request, "find_service", lambda iface, context: organization_service
+        )
+
+        with pytest.raises(HTTPNotFound):
+            views.update_manual_activation(db_request)
+
+
+class TestDeleteManualActivation:
+    def test_delete_manual_activation_success(self, db_request, monkeypatch):
+        organization = OrganizationFactory.create(name="test-org")
+        OrganizationManualActivationFactory.create(organization=organization)
+
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.POST = MultiDict({"confirm": "test-org"})
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        organization.record_event = pretend.call_recorder(lambda *a, **kw: None)
+
+        organization_service = pretend.stub(
+            get_organization=pretend.call_recorder(lambda id: organization)
+        )
+        monkeypatch.setattr(
+            db_request, "find_service", lambda iface, context: organization_service
+        )
+
+        result = views.delete_manual_activation(db_request)
+        assert isinstance(result, HTTPSeeOther)
+
+        # Check that manual activation was deleted
+        remaining_activations = (
+            db_request.db.query(OrganizationManualActivation)
+            .filter(OrganizationManualActivation.organization_id == organization.id)
+            .count()
+        )
+        assert remaining_activations == 0
+
+        # Check success flash message
+        assert len(db_request.session.flash.calls) == 1
+        call = db_request.session.flash.calls[0]
+        assert "Manual activation removed from" in call.args[0]
+        assert call.kwargs == {"queue": "success"}
+
+        # Check event was recorded
+        assert len(organization.record_event.calls) == 1
+        call = organization.record_event.calls[0]
+        assert call.kwargs["tag"] == "admin:organization:manual_activation:delete"
+
+    def test_delete_manual_activation_no_confirmation(self, db_request, monkeypatch):
+        organization = OrganizationFactory.create(name="test-org")
+        OrganizationManualActivationFactory.create(organization=organization)
+
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.POST = MultiDict({"confirm": "wrong-name"})
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        organization_service = pretend.stub(
+            get_organization=pretend.call_recorder(lambda id: organization)
+        )
+        monkeypatch.setattr(
+            db_request, "find_service", lambda iface, context: organization_service
+        )
+
+        result = views.delete_manual_activation(db_request)
+        assert isinstance(result, HTTPSeeOther)
+
+        # Check error flash message
+        assert len(db_request.session.flash.calls) == 1
+        call = db_request.session.flash.calls[0]
+        assert call.args[0] == "Confirm the request"
+        assert call.kwargs == {"queue": "error"}
+
+        # Manual activation should still exist
+
+        remaining_activations = (
+            db_request.db.query(OrganizationManualActivation)
+            .filter(OrganizationManualActivation.organization_id == organization.id)
+            .count()
+        )
+        assert remaining_activations == 1
+
+    def test_delete_manual_activation_not_found(self, db_request, monkeypatch):
+        organization = OrganizationFactory.create(name="test-org")
+
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.POST = MultiDict({"confirm": "test-org"})
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        organization_service = pretend.stub(
+            get_organization=pretend.call_recorder(lambda id: organization)
+        )
+        monkeypatch.setattr(
+            db_request, "find_service", lambda iface, context: organization_service
+        )
+
+        result = views.delete_manual_activation(db_request)
+        assert isinstance(result, HTTPSeeOther)
+
+        # Check error flash message
+        assert len(db_request.session.flash.calls) == 1
+        call = db_request.session.flash.calls[0]
+        assert "has no manual activation to delete" in call.args[0]
+        assert call.kwargs == {"queue": "error"}
+
+    def test_delete_manual_activation_organization_not_found(
+        self, db_request, monkeypatch
+    ):
+        db_request.matchdict = {
+            "organization_id": "00000000-0000-0000-0000-000000000000"
+        }
+
+        organization_service = pretend.stub(
+            get_organization=pretend.call_recorder(lambda id: None)
+        )
+        monkeypatch.setattr(
+            db_request, "find_service", lambda iface, context: organization_service
+        )
+
+        with pytest.raises(HTTPNotFound):
+            views.delete_manual_activation(db_request)
+
+
+class TestSetUploadLimit:
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_set_upload_limit_with_integer(self, db_request):
+        organization = OrganizationFactory.create(name="foo")
+
+        db_request.route_path = pretend.call_recorder(
+            lambda a, organization_id: "/admin/organizations/1/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.matchdict["organization_id"] = organization.id
+        db_request.POST = MultiDict({"upload_limit": "150"})
+
+        result = views.set_upload_limit(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Upload limit set to 150.0MiB", queue="success")
+        ]
+        assert result.status_code == 303
+        assert result.location == "/admin/organizations/1/"
+        assert organization.upload_limit == 150 * views.ONE_MIB
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_set_upload_limit_with_none(self, db_request):
+        organization = OrganizationFactory.create(name="foo")
+        organization.upload_limit = 150 * views.ONE_MIB
+
+        db_request.route_path = pretend.call_recorder(
+            lambda a, organization_id: "/admin/organizations/1/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.matchdict["organization_id"] = organization.id
+        db_request.POST = MultiDict({"upload_limit": ""})
+
+        result = views.set_upload_limit(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Upload limit set to (default)", queue="success")
+        ]
+        assert result.status_code == 303
+        assert result.location == "/admin/organizations/1/"
+        assert organization.upload_limit is None
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_set_upload_limit_invalid_value(self, db_request):
+        organization = OrganizationFactory.create(name="foo")
+
+        db_request.route_path = pretend.call_recorder(
+            lambda a, organization_id: "/admin/organizations/1/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.matchdict["organization_id"] = organization.id
+        db_request.POST = MultiDict({"upload_limit": "not_an_integer"})
+
+        result = views.set_upload_limit(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "upload_limit: Upload limit must be a valid integer or empty",
+                queue="error",
+            )
+        ]
+        assert result.status_code == 303
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_set_upload_limit_not_found(self, db_request):
+        db_request.matchdict["organization_id"] = "00000000-0000-0000-0000-000000000000"
+
+        with pytest.raises(HTTPNotFound):
+            views.set_upload_limit(db_request)
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_set_upload_limit_above_cap(self, db_request):
+        organization = OrganizationFactory.create(name="foo")
+
+        db_request.route_path = pretend.call_recorder(
+            lambda a, organization_id: "/admin/organizations/1/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.matchdict["organization_id"] = organization.id
+        db_request.POST = MultiDict({"upload_limit": "2048"})  # 2048 MiB > 1024 MiB cap
+
+        result = views.set_upload_limit(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "upload_limit: Upload limit can not be greater than 1024.0MiB",
+                queue="error",
+            )
+        ]
+        assert result.status_code == 303
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_set_upload_limit_below_default(self, db_request):
+        organization = OrganizationFactory.create(name="foo")
+
+        db_request.route_path = pretend.call_recorder(
+            lambda a, organization_id: "/admin/organizations/1/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.matchdict["organization_id"] = organization.id
+        db_request.POST = MultiDict({"upload_limit": "50"})  # 50 MiB < 100 MiB default
+
+        result = views.set_upload_limit(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "upload_limit: Upload limit can not be less than 100.0MiB",
+                queue="error",
+            )
+        ]
+        assert result.status_code == 303
+
+
+class TestSetTotalSizeLimit:
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_set_total_size_limit_with_integer(self, db_request):
+        organization = OrganizationFactory.create(name="foo")
+
+        db_request.route_path = pretend.call_recorder(
+            lambda a, organization_id: "/admin/organizations/1/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.matchdict["organization_id"] = organization.id
+        db_request.POST = MultiDict({"total_size_limit": "150"})
+
+        result = views.set_total_size_limit(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Total size limit set to 150.0GiB", queue="success")
+        ]
+        assert result.status_code == 303
+        assert result.location == "/admin/organizations/1/"
+        assert organization.total_size_limit == 150 * views.ONE_GIB
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_set_total_size_limit_with_none(self, db_request):
+        organization = OrganizationFactory.create(name="foo")
+        organization.total_size_limit = 150 * views.ONE_GIB
+
+        db_request.route_path = pretend.call_recorder(
+            lambda a, organization_id: "/admin/organizations/1/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.matchdict["organization_id"] = organization.id
+        db_request.POST = MultiDict({"total_size_limit": ""})
+
+        result = views.set_total_size_limit(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Total size limit set to (default)", queue="success")
+        ]
+        assert result.status_code == 303
+        assert result.location == "/admin/organizations/1/"
+        assert organization.total_size_limit is None
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_set_total_size_limit_invalid_value(self, db_request):
+        organization = OrganizationFactory.create(name="foo")
+
+        db_request.route_path = pretend.call_recorder(
+            lambda a, organization_id: "/admin/organizations/1/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.matchdict["organization_id"] = organization.id
+        db_request.POST = MultiDict({"total_size_limit": "not_an_integer"})
+
+        result = views.set_total_size_limit(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "total_size_limit: Total size limit must be a valid integer or empty",
+                queue="error",
+            )
+        ]
+        assert result.status_code == 303
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_set_total_size_limit_not_found(self, db_request):
+        db_request.matchdict["organization_id"] = "00000000-0000-0000-0000-000000000000"
+
+        with pytest.raises(HTTPNotFound):
+            views.set_total_size_limit(db_request)
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_set_total_size_limit_below_default(self, db_request):
+        organization = OrganizationFactory.create(name="foo")
+
+        db_request.route_path = pretend.call_recorder(
+            lambda a, organization_id: "/admin/organizations/1/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.matchdict["organization_id"] = organization.id
+        db_request.POST = MultiDict({"total_size_limit": "5"})  # 5 GiB < 10 GiB default
+
+        result = views.set_total_size_limit(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "total_size_limit: Total organization size can not be less than "
+                "10.0GiB",
+                queue="error",
+            )
+        ]
+        assert result.status_code == 303

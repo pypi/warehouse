@@ -949,7 +949,6 @@ class TestManageOrganizationSettings:
         self,
         db_request,
         pyramid_user,
-        organization_service,
         user_service,
         monkeypatch,
     ):
@@ -962,15 +961,6 @@ class TestManageOrganizationSettings:
             lambda *a, organization_name, **kw: (
                 f"/manage/organization/{organization_name}/settings/"
             )
-        )
-
-        def rename_organization(organization_id, organization_name):
-            organization.name = organization_name
-
-        monkeypatch.setattr(
-            organization_service,
-            "rename_organization",
-            pretend.call_recorder(rename_organization),
         )
 
         admin = None
@@ -1005,7 +995,6 @@ class TestManageOrganizationSettings:
         assert result.headers["Location"] == (
             f"/manage/organization/{organization.normalized_name}/settings/"
         )
-        assert organization_service.rename_organization.calls == []
         assert send_email.calls == []
 
     # When support for renaming orgs is re-introduced
@@ -1852,7 +1841,6 @@ class TestManageOrganizationProjects:
         self,
         db_request,
         pyramid_user,
-        organization_service,
         monkeypatch,
     ):
         organization = OrganizationFactory.create()
@@ -1877,15 +1865,6 @@ class TestManageOrganizationProjects:
         )
         monkeypatch.setattr(
             org_views, "AddOrganizationProjectForm", add_organization_project_cls
-        )
-
-        def add_organization_project(*args, **kwargs):
-            OrganizationProjectFactory.create(
-                organization=organization, project=project
-            )
-
-        monkeypatch.setattr(
-            organization_service, "add_organization_project", add_organization_project
         )
 
         view = org_views.ManageOrganizationProjectsViews(organization, db_request)
@@ -2111,6 +2090,12 @@ class TestManageOrganizationRoles:
         monkeypatch,
     ):
         organization = OrganizationFactory.create(name="foobar", orgtype=orgtype)
+
+        # Company organizations need billing to be in good standing
+        if orgtype == OrganizationType.Company:
+            OrganizationStripeCustomerFactory.create(organization=organization)
+            OrganizationStripeSubscriptionFactory.create(organization=organization)
+
         new_user = UserFactory.create(username="new_user")
         EmailFactory.create(user=new_user, verified=True, primary=True)
         owner_1 = UserFactory.create(username="owner_1")
@@ -2497,6 +2482,43 @@ class TestManageOrganizationRoles:
                 token_age=token_service.max_age,
             )
         ]
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_manage_organization_roles_not_in_good_standing(
+        self, db_request, monkeypatch
+    ):
+        organization = OrganizationFactory.create(orgtype="Company")  # No billing
+        new_user = UserFactory.create(username="new-user")
+        EmailFactory.create(user=new_user, verified=True, primary=True)
+        owner_user = UserFactory.create()
+        OrganizationRoleFactory(
+            user=owner_user,
+            organization=organization,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        form_obj = pretend.stub(
+            username=pretend.stub(data="new-user"),
+            role_name=pretend.stub(data=OrganizationRoleType.Member),
+            validate=pretend.call_recorder(lambda: True),
+        )
+        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
+
+        db_request.method = "POST"
+        db_request.user = owner_user
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+
+        result = org_views.manage_organization_roles(
+            organization, db_request, _form_class=form_class
+        )
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Cannot invite new member. Organization is not in good standing.",
+                queue="error",
+            )
+        ]
+        assert isinstance(result, HTTPSeeOther)  # Redirect due to inactive org
 
 
 class TestResendOrganizationInvitations:

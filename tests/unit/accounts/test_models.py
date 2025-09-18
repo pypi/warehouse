@@ -159,6 +159,7 @@ class TestUser:
                 "Allow",
                 "group:admins",
                 (
+                    Permissions.AdminProjectsWrite,
                     Permissions.AdminUsersRead,
                     Permissions.AdminUsersWrite,
                     Permissions.AdminUsersEmailWrite,

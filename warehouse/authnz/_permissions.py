@@ -48,6 +48,7 @@ class Permissions(StrEnum):
     AdminObservationsWrite = "admin:observations:write"
 
     AdminOrganizationsRead = "admin:organizations:read"
+    AdminOrganizationsSetLimit = "admin:organizations:set-limit"
     AdminOrganizationsWrite = "admin:organizations:write"
     AdminOrganizationsNameWrite = "admin:organizations:name:write"
 
@@ -68,6 +69,7 @@ class Permissions(StrEnum):
 
     AdminRoleAdd = "admin:role:add"
     AdminRoleDelete = "admin:role:delete"
+    AdminRoleUpdate = "admin:role:update"
 
     AdminSponsorsRead = "admin:sponsors:read"
     AdminSponsorsWrite = "admin:sponsors:write"

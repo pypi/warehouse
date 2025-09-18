@@ -24,6 +24,46 @@ def includeme(config):
         "/admin/organizations/{organization_id}/rename/",
         domain=warehouse,
     )
+    config.add_route(
+        "admin.organization.add_role",
+        "/admin/organizations/{organization_id}/add_role/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.organization.update_role",
+        "/admin/organizations/{organization_id}/update_role/{role_id}/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.organization.delete_role",
+        "/admin/organizations/{organization_id}/delete_role/{role_id}/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.organization.add_manual_activation",
+        "/admin/organizations/{organization_id}/add_manual_activation/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.organization.update_manual_activation",
+        "/admin/organizations/{organization_id}/update_manual_activation/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.organization.delete_manual_activation",
+        "/admin/organizations/{organization_id}/delete_manual_activation/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.organization.set_upload_limit",
+        "/admin/organizations/{organization_id}/set_upload_limit/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.organization.set_total_size_limit",
+        "/admin/organizations/{organization_id}/set_total_size_limit/",
+        domain=warehouse,
+    )
 
     config.add_route(
         "admin.organization_application.list",
@@ -141,6 +181,20 @@ def includeme(config):
     config.add_route(
         "admin.user.burn_recovery_codes",
         "/admin/users/{username}/burn_recovery_codes/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
+        "admin.user.quarantine_projects",
+        "/admin/users/{username}/quarantine_projects/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
+        "admin.user.clear_quarantine_projects",
+        "/admin/users/{username}/clear_quarantine_projects/",
         domain=warehouse,
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{username}",
@@ -357,6 +411,7 @@ def includeme(config):
     config.add_route(
         "admin.observations.list", "/admin/observations/", domain=warehouse
     )
+    config.add_route("admin.quarantine.list", "/admin/quarantine/", domain=warehouse)
     config.add_route(
         "admin.malware_reports.list",
         "/admin/malware_reports/",
@@ -393,6 +448,11 @@ def includeme(config):
     config.add_route(
         "admin.malware_reports.detail",
         "/admin/malware_reports/{observation_id}/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.malware_reports.detail.add_helpscout_conversation",
+        "/admin/malware_reports/{observation_id}/add_helpscout_conversation/",
         domain=warehouse,
     )
     config.add_route(

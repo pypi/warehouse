@@ -537,7 +537,7 @@ class TransferOrganizationProjectForm(wtforms.Form):
         self.organization.choices += [
             (
                 str(org.id),
-                f"{org.name} (Billing inactive)" if not org.good_standing else org.name,
+                org.get_billing_status_display(),
             )
             for org in sorted(organization_choices, key=lambda x: x.name)
         ]

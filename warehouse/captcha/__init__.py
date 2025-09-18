@@ -1,14 +1,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from .interfaces import ICaptchaService
-from .recaptcha import Service
+
+
+class CaptchaError(ValueError):
+    pass
 
 
 def includeme(config):
     # Register our Captcha service
-    captcha_class = config.maybe_dotted(
-        config.registry.settings.get("captcha.backend", Service)
-    )
+    captcha_class = config.maybe_dotted(config.registry.settings["captcha.backend"])
     config.register_service_factory(
         captcha_class.create_service,
         ICaptchaService,

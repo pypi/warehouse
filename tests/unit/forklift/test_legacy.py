@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import base64
+import builtins
 import hashlib
 import io
 import json
@@ -10,6 +11,7 @@ import tempfile
 import zipfile
 
 from cgi import FieldStorage
+from textwrap import dedent
 from unittest import mock
 
 import pretend
@@ -91,6 +93,17 @@ def _get_whl_testdata(name="fake_package", version="1.0"):
         zfp.writestr(
             f"{name}-{version}.dist-info/licenses/LICENSE.APACHE", "Fake License"
         )
+        zfp.writestr(
+            f"{name}-{version}.dist-info/RECORD",
+            dedent(
+                f"""\
+                {name}-{version}.dist-info/METADATA,
+                {name}-{version}.dist-info/licenses/LICENSE.MIT,
+                {name}-{version}.dist-info/licenses/LICENSE.APACHE,
+                {name}-{version}.dist-info/RECORD,
+                """,
+            ),
+        )
     return temp_f.getvalue()
 
 
@@ -145,7 +158,11 @@ class TestExcWithMessage:
 
 
 def test_construct_dependencies():
-    types = {"requires": DependencyKind.requires, "provides": DependencyKind.provides}
+    types = {
+        "requires": DependencyKind.requires,
+        "provides": DependencyKind.provides,
+        "requires_dist": DependencyKind.requires_dist,
+    }
 
     meta = metadata.Metadata.from_raw(
         {
@@ -2015,6 +2032,95 @@ class TestFileUpload:
             ("example", "1.0", "add source file example-1.0.tar.gz", user),
         ]
 
+    def test_upload_fails_with_oserror_on_metadata_write(
+        self, tmpdir, monkeypatch, pyramid_config, db_request
+    ):
+        monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}-py2.py3-none-any.whl".format(
+            project.normalized_name.replace("-", "_"),
+            release.version,
+        )
+
+        db_request.user = user
+        pyramid_config.testing_securitypolicy(identity=user)
+
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        wheel_metadata = dedent(
+            """
+            Metadata-Version: 2.1
+            Name: {project.name}
+            Version: {release.version}
+            """
+        ).encode("utf-8")
+
+        wheel_testdata = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version=release.version
+        )
+        wheel_md5 = hashlib.md5(wheel_testdata).hexdigest()
+
+        content = FieldStorage()
+        content.filename = filename
+        content.file = io.BytesIO(wheel_testdata)
+        content.type = "application/octet-stream"
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "2.1",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "py2.py3",
+                "content": content,
+                "md5_digest": wheel_md5,
+                "wheel_metadata_version": "1.0",
+                "wheel_metadata": base64.b64encode(wheel_metadata).decode("ascii"),
+            }
+        )
+
+        storage_service = pretend.stub(store=lambda path, file_path, *, meta: None)
+        db_request.find_service = pretend.call_recorder(
+            lambda svc, name=None, context=None: {
+                IFileStorage: storage_service,
+            }.get(svc)
+        )
+
+        # Patch open to raise OSError
+        original_open = builtins.open
+
+        def mock_open(file, mode="r", *args, **kwargs):
+            if str(file).endswith(".metadata"):
+                raise OSError("Filename too long")
+            return original_open(file, mode, *args, **kwargs)
+
+        monkeypatch.setattr("builtins.open", mock_open)
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status == f"400 Filename is too long: '{filename}'"
+
+        assert db_request.metrics.increment.calls == [
+            pretend.call("warehouse.upload.attempt"),
+            pretend.call(
+                "warehouse.upload.failed",
+                tags=["reason:filename-too-long", "filetype:bdist_wheel"],
+            ),
+        ]
+
     def test_upload_fails_with_previously_used_filename(
         self, pyramid_config, db_request
     ):
@@ -3064,10 +3170,7 @@ class TestFileUpload:
         @pretend.call_recorder
         def storage_service_store(path, file_path, *, meta):
             with open(file_path, "rb") as fp:
-                if file_path.endswith(".metadata"):
-                    assert fp.read() == b"Fake metadata"
-                else:
-                    assert fp.read() == filebody
+                assert fp.read() == filebody
 
         storage_service = pretend.stub(store=storage_service_store)
 
@@ -3366,7 +3469,7 @@ class TestFileUpload:
             "400 Binary wheel .* has an unsupported platform tag .*", resp.status
         )
 
-    def test_upload_fails_with_missing_metadata_wheel(
+    def test_upload_fails_with_missing_record_wheel(
         self, monkeypatch, pyramid_config, db_request
     ):
         user = UserFactory.create()
@@ -3383,6 +3486,429 @@ class TestFileUpload:
 
         filename = "{}-{}-cp34-none-any.whl".format(
             project.normalized_name.replace("-", "_"),
+            release.version,
+        )
+        filebody = temp_f.getvalue()
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "cp34",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert re.match(
+            "400 Wheel .* does not contain the required RECORD file: .*", resp.status
+        )
+
+    def test_upload_warns_with_mismatched_wheel_and_zip_contents(
+        self, monkeypatch, pyramid_config, db_request
+    ):
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        temp_f = io.BytesIO()
+        project_name = project.normalized_name.replace("-", "_")
+        with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
+            zfp.writestr("some_file", "some_data")
+            zfp.writestr(f"{project_name}-{release.version}.dist-info/METADATA", "")
+            zfp.writestr(
+                f"{project_name}-{release.version}.dist-info/RECORD",
+                f"{project_name}-{release.version}.dist-info/RECORD,",
+            )
+
+        filename = "{}-{}-cp34-none-any.whl".format(
+            project.normalized_name.replace("-", "_"),
+            release.version,
+        )
+        filebody = temp_f.getvalue()
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "cp34",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(legacy, "send_wheel_record_mismatch_email", send_email)
+
+        resp = legacy.file_upload(db_request)
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                {user},
+                project_name=project.name,
+                filename=filename,
+            ),
+        ]
+        assert resp.status_code == 200
+
+    def test_upload_record_does_not_warn_with_zip_dir(
+        self, monkeypatch, pyramid_config, db_request
+    ):
+        """
+        ZIP archives can contain directory "members".
+        These shouldn't cause a warning, as RECORD
+        only contains files, not directories.
+        """
+
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        temp_f = io.BytesIO()
+        project_name = project.normalized_name.replace("-", "_")
+        with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
+            zfp.mkdir("some-dir/")  # Directories!
+            zfp.mkdir(f"{project_name}-{release.version}.dist-info/")
+
+            zfp.writestr(f"{project_name}-{release.version}.dist-info/METADATA", "")
+            zfp.writestr(
+                f"{project_name}-{release.version}.dist-info/RECORD",
+                dedent(
+                    f"""\
+                    {project_name}-{release.version}.dist-info/METADATA,
+                    {project_name}-{release.version}.dist-info/RECORD,
+                    """,
+                ),
+            )
+
+        filename = "{}-{}-cp34-none-any.whl".format(
+            project.normalized_name.replace("-", "_"),
+            release.version,
+        )
+        filebody = temp_f.getvalue()
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "cp34",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(legacy, "send_wheel_record_mismatch_email", send_email)
+
+        resp = legacy.file_upload(db_request)
+
+        assert send_email.calls == []
+        assert resp.status_code == 200
+
+    def test_upload_record_does_not_warn_windows_path_separators(
+        self, monkeypatch, pyramid_config, db_request
+    ):
+        """
+        RECORD files can use '/' or '\' for path separators.
+        We should handle both and not send unnecessary emails.
+        """
+
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        temp_f = io.BytesIO()
+        project_name = project.normalized_name.replace("-", "_")
+        with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
+            zfp.writestr(f"{project_name}-{release.version}.dist-info/METADATA", "")
+            zfp.writestr(
+                f"{project_name}-{release.version}.dist-info/RECORD",
+                dedent(
+                    f"""\
+                {project_name}-{release.version}.dist-info\\METADATA,
+                {project_name}-{release.version}.dist-info\\RECORD,
+                """,
+                ),
+            )
+
+        filename = "{}-{}-cp34-none-any.whl".format(
+            project.normalized_name.replace("-", "_"),
+            release.version,
+        )
+        filebody = temp_f.getvalue()
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "cp34",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(legacy, "send_wheel_record_mismatch_email", send_email)
+
+        resp = legacy.file_upload(db_request)
+
+        assert send_email.calls == []
+        assert resp.status_code == 200
+
+    @pytest.mark.parametrize("exempt_filename", ["RECORD.jws", "RECORD.p7s"])
+    def test_upload_record_check_does_not_include_jws_p7s(
+        self, monkeypatch, pyramid_config, db_request, exempt_filename
+    ):
+        """
+        Certain filenames are required not to be included in RECORD
+        (RECORD.jws, RECORD.p7s) so we can't warn if they aren't included in
+        the RECORD.
+        """
+
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        temp_f = io.BytesIO()
+        project_name = project.normalized_name.replace("-", "_")
+        with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
+            zfp.mkdir("some-dir/")  # Directories!
+            zfp.mkdir(f"{project_name}-{release.version}.dist-info/")
+
+            zfp.writestr(f"{project_name}-{release.version}.dist-info/METADATA", "")
+            zfp.writestr(
+                f"{project_name}-{release.version}.dist-info/{exempt_filename}", ""
+            )
+            zfp.writestr(
+                f"{project_name}-{release.version}.dist-info/RECORD",
+                dedent(
+                    f"""\
+                    {project_name}-{release.version}.dist-info/METADATA,
+                    {project_name}-{release.version}.dist-info/RECORD,
+                    """,
+                ),
+            )
+
+        filename = "{}-{}-cp34-none-any.whl".format(
+            project.normalized_name.replace("-", "_"),
+            release.version,
+        )
+        filebody = temp_f.getvalue()
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "cp34",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(legacy, "send_wheel_record_mismatch_email", send_email)
+
+        resp = legacy.file_upload(db_request)
+
+        assert send_email.calls == []
+        assert resp.status_code == 200
+
+    @pytest.mark.parametrize("exempt_filename", ["RECORD.jws", "RECORD.p7s"])
+    def test_upload_record_check_exclusions_only_in_dist_info(
+        self,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        exempt_filename,
+    ):
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        temp_f = io.BytesIO()
+        project_name = project.normalized_name.replace("-", "_")
+        with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
+            zfp.writestr("some_file", "some_data")
+            zfp.writestr(f"{project_name}-{release.version}.dist-info/METADATA", "")
+            zfp.writestr(f"not-dist-info/{exempt_filename}", "")
+            zfp.writestr(
+                f"{project_name}-{release.version}.dist-info/RECORD",
+                f"{project_name}-{release.version}.dist-info/RECORD,",
+            )
+
+        filename = "{}-{}-cp34-none-any.whl".format(
+            project.normalized_name.replace("-", "_"),
+            release.version,
+        )
+        filebody = temp_f.getvalue()
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "cp34",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(legacy, "send_wheel_record_mismatch_email", send_email)
+
+        resp = legacy.file_upload(db_request)
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                {user},
+                project_name=project.name,
+                filename=filename,
+            ),
+        ]
+        assert resp.status_code == 200
+
+    def test_upload_fails_with_missing_metadata_wheel(
+        self, monkeypatch, pyramid_config, db_request
+    ):
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        temp_f = io.BytesIO()
+        project_name = project.normalized_name.replace("-", "_")
+        with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
+            zfp.writestr("some_file", "some_data")
+            zfp.writestr(
+                f"{project_name}-{release.version}.dist-info/RECORD",
+                dedent(
+                    f"""\
+                    some_file,
+                    {project_name}-{release.version}.dist-info/RECORD,
+                    """,
+                ),
+            )
+
+        filename = "{}-{}-cp34-none-any.whl".format(
+            project_name,
             release.version,
         )
         filebody = temp_f.getvalue()
@@ -5153,13 +5679,13 @@ class TestFileUpload:
                 )
                 digest = _TAR_GZ_PKG_MD5
                 data = _TAR_GZ_PKG_TESTDATA
-            elif mimetype == "application/zip":
+            elif mimetype == "application/zip":  # pragma: no branch
                 filename = "{}-{}.zip".format(
                     project.normalized_name.replace("-", "_"), "1.0"
                 )
                 digest = _ZIP_PKG_MD5
                 data = _ZIP_PKG_TESTDATA
-        elif filetype == "bdist_wheel":
+        elif filetype == "bdist_wheel":  # pragma: no branch
             filename = "{}-{}-py3-none-any.whl".format(
                 project.normalized_name.replace("-", "_"), "1.0"
             )
@@ -5271,14 +5797,14 @@ class TestFileUpload:
                 )
                 digest = _TAR_GZ_PKG_MD5
                 data = _TAR_GZ_PKG_TESTDATA
-            elif mimetype == "application/zip":
+            elif mimetype == "application/zip":  # pragma: no branch
                 filename = "{}-{}.zip".format(
                     project.normalized_name.replace("-", "_"), "1.0"
                 )
                 digest = _ZIP_PKG_MD5
                 data = _ZIP_PKG_TESTDATA
             license_filename = "fake_package-1.0/LICENSE"
-        elif filetype == "bdist_wheel":
+        elif filetype == "bdist_wheel":  # pragma: no branch
             filename = "{}-{}-py3-none-any.whl".format(
                 project.normalized_name.replace("-", "_"),
                 "1.0",
@@ -5475,22 +6001,6 @@ class TestFileUpload:
             name=project.normalized_name.replace("-", "_"), version=version
         )
 
-        @pretend.call_recorder
-        def storage_service_store(path, file_path, *, meta):
-            with open(file_path, "rb") as fp:
-                if file_path.endswith(".metadata"):
-                    assert fp.read() == b"Fake metadata"
-                else:
-                    assert fp.read() == filebody
-
-        storage_service = pretend.stub(store=storage_service_store)
-
-        db_request.find_service = pretend.call_recorder(
-            lambda svc, name=None, context=None: {
-                IFileStorage: storage_service,
-            }.get(svc)
-        )
-
         monkeypatch.setattr(
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
@@ -5526,6 +6036,151 @@ class TestFileUpload:
             "or administrator intervention for Community Organizations. "
             "Please contact support+orgs@pypi.org."
         )
+
+    def test_upload_with_organization_file_size_limit_succeeds(
+        self, pyramid_config, db_request, monkeypatch
+    ):
+        organization = OrganizationFactory.create(
+            orgtype="Company", upload_limit=120 * (1024**2)  # 120 MiB
+        )
+        user = UserFactory.create(with_verified_primary_email=True)
+        OrganizationRoleFactory.create(organization=organization, user=user)
+        OrganizationStripeSubscriptionFactory.create(organization=organization)
+        project = OrganizationProjectFactory.create(
+            organization=organization,
+            project__upload_limit=70 * (1024**2),  # 70 MiB
+        ).project
+        version = "1.0.0"
+
+        filename = (
+            f"{project.normalized_name.replace('-', '_')}-{version}-py3-none-any.whl"
+        )
+        # Create a small file representing a 110 MiB file
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version=version
+        )
+
+        @pretend.call_recorder
+        def storage_service_store(path, file_path, *, meta):
+            with open(file_path, "rb") as fp:
+                if file_path.endswith(".metadata"):
+                    assert fp.read() == b"Fake metadata"
+                else:
+                    assert fp.read() == filebody
+
+        storage_service = pretend.stub(store=storage_service_store)
+
+        db_request.find_service = pretend.call_recorder(
+            lambda svc, name=None, context=None: {
+                IFileStorage: storage_service,
+            }.get(svc)
+        )
+
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        # Mock the file size to be 110 MiB
+        class MockFieldStorage:
+            def __init__(self, data, filename):
+                self.file = io.BytesIO(data)
+                self.filename = filename
+                self.type = "application/x-wheel+zip"
+                self.length = 110 * (1024**2)  # 110 MiB
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0.0",
+                "summary": "This is a summary",
+                "filetype": "bdist_wheel",
+                "pyversion": "py3",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": MockFieldStorage(filebody, filename),
+            }
+        )
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+    def test_upload_with_organization_total_size_limit_succeeds(
+        self, pyramid_config, db_request, monkeypatch
+    ):
+        organization = OrganizationFactory.create(
+            orgtype="Company", total_size_limit=100 * (1024**3)  # 100 GiB
+        )
+        user = UserFactory.create(with_verified_primary_email=True)
+        OrganizationRoleFactory.create(organization=organization, user=user)
+        OrganizationStripeSubscriptionFactory.create(organization=organization)
+
+        # Create project with 90 GiB already used, project limit of 50 GiB
+        project = OrganizationProjectFactory.create(
+            organization=organization,
+            project__total_size_limit=50 * (1024**3),  # 50 GiB
+            project__total_size=90 * (1024**3),  # 90 GiB already used
+        ).project
+        version = "1.0.0"
+
+        filename = (
+            f"{project.normalized_name.replace('-', '_')}-{version}-py3-none-any.whl"
+        )
+        # Create a small file representing a 5 GiB file
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version=version
+        )
+
+        @pretend.call_recorder
+        def storage_service_store(path, file_path, *, meta):
+            with open(file_path, "rb") as fp:
+                if file_path.endswith(".metadata"):
+                    assert fp.read() == b"Fake metadata"
+                else:
+                    assert fp.read() == filebody
+
+        storage_service = pretend.stub(store=storage_service_store)
+
+        db_request.find_service = pretend.call_recorder(
+            lambda svc, name=None, context=None: {
+                IFileStorage: storage_service,
+            }.get(svc)
+        )
+
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        # Mock the file size to be 5 GiB
+        class MockFieldStorage:
+            def __init__(self, data, filename):
+                self.file = io.BytesIO(data)
+                self.filename = filename
+                self.type = "application/x-wheel+zip"
+                self.length = 5 * (1024**3)  # 5 GiB
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0.0",
+                "summary": "This is a summary",
+                "filetype": "bdist_wheel",
+                "pyversion": "py3",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": MockFieldStorage(filebody, filename),
+            }
+        )
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
 
     def test_upload_for_company_organization_owned_project_suceeds_with_subscription(
         self, pyramid_config, db_request, monkeypatch
@@ -5585,6 +6240,224 @@ class TestFileUpload:
 
         resp = legacy.file_upload(db_request)
 
+        assert resp.status_code == 200
+
+    def test_upload_uses_model_property_for_file_size_limits(
+        self, pyramid_config, db_request, monkeypatch
+    ):
+        """Integration test: verify upload uses project.upload_limit_size property"""
+        # Create organization with generous limit
+        organization = OrganizationFactory.create(
+            orgtype="Company", upload_limit=150 * (1024**2)  # 150 MiB
+        )
+        user = UserFactory.create(with_verified_primary_email=True)
+        OrganizationRoleFactory.create(organization=organization, user=user)
+        OrganizationStripeSubscriptionFactory.create(organization=organization)
+
+        # Create project with smaller limit - should use org limit (max of both)
+        project = OrganizationProjectFactory.create(
+            organization=organization,
+            project__upload_limit=80 * (1024**2),  # 80 MiB - smaller than org
+        ).project
+
+        # Verify our model property returns the expected value (most generous)
+        assert project.upload_limit_size == 150 * (1024**2)  # Should be org limit
+
+        # Upload file that's between project and org limits (120 MiB)
+        filename = f"{project.normalized_name.replace('-', '_')}-1.0.0-py3-none-any.whl"
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version="1.0.0"
+        )
+
+        # Mock storage service
+        storage_service = pretend.stub(
+            store=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.find_service = pretend.call_recorder(
+            lambda svc, name=None, context=None: {
+                IFileStorage: storage_service,
+            }.get(svc)
+        )
+
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        # Mock file upload
+        class MockFieldStorage:
+            def __init__(self, data, filename):
+                self.file = io.BytesIO(data)
+                self.filename = filename
+                self.type = "application/x-wheel+zip"
+                self.length = len(data)
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0.0",
+                "summary": "Test upload",
+                "filetype": "bdist_wheel",
+                "pyversion": "py3",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": MockFieldStorage(filebody, filename),
+            }
+        )
+
+        # Upload should succeed because it uses the more generous org limit
+        resp = legacy.file_upload(db_request)
+        assert resp.status_code == 200
+
+    def test_upload_uses_model_property_for_total_size_limits(
+        self, pyramid_config, db_request, monkeypatch
+    ):
+        """Integration test: verify upload uses total_size_limit_value property"""
+        # Create organization with generous total size limit
+        organization = OrganizationFactory.create(
+            orgtype="Company", total_size_limit=60 * (1024**3)  # 60 GiB
+        )
+        user = UserFactory.create(with_verified_primary_email=True)
+        OrganizationRoleFactory.create(organization=organization, user=user)
+        OrganizationStripeSubscriptionFactory.create(organization=organization)
+
+        # Create project with smaller total size limit and existing usage
+        project = OrganizationProjectFactory.create(
+            organization=organization,
+            project__total_size_limit=40 * (1024**3),  # 40 GiB - smaller than org
+            project__total_size=50 * (1024**3),  # 50 GiB already used
+        ).project
+
+        # Verify our model property returns the expected value (most generous)
+        assert project.total_size_limit_value == 60 * (1024**3)  # Should be org limit
+
+        # Upload file that would exceed project limit but not org limit
+        filename = f"{project.normalized_name.replace('-', '_')}-1.0.0-py3-none-any.whl"
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version="1.0.0"
+        )
+
+        @pretend.call_recorder
+        def storage_service_store(path, file_path, *, meta):
+            with open(file_path, "rb") as fp:
+                if file_path.endswith(".metadata"):
+                    assert fp.read() == b"Fake metadata"
+                else:
+                    assert fp.read() == filebody
+
+        storage_service = pretend.stub(store=storage_service_store)
+        db_request.find_service = pretend.call_recorder(
+            lambda svc, name=None, context=None: {
+                IFileStorage: storage_service,
+            }.get(svc)
+        )
+
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        # Mock file upload - simulate 5 GiB file size
+        class MockFieldStorage:
+            def __init__(self, data, filename):
+                self.file = io.BytesIO(data)
+                self.filename = filename
+                self.type = "application/x-wheel+zip"
+                self.length = 5 * (1024**3)  # Mock large file size
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.user_docs_url = pretend.call_recorder(
+            lambda *a, **kw: "/the/help/url/"
+        )
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0.0",
+                "summary": "Test upload",
+                "filetype": "bdist_wheel",
+                "pyversion": "py3",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": MockFieldStorage(filebody, filename),
+            }
+        )
+
+        # Upload should succeed: 50 GiB existing + 5 GiB new = 55 GiB < 60 GiB org limit
+        resp = legacy.file_upload(db_request)
+        assert resp.status_code == 200
+
+    def test_upload_limit_property_falls_back_to_system_default(
+        self, pyramid_config, db_request, monkeypatch
+    ):
+        """Integration test: verify properties fall back to system defaults correctly"""
+        # Create project with NO custom limits and NO organization
+        project = ProjectFactory.create(upload_limit=None, total_size_limit=None)
+        user = UserFactory.create(with_verified_primary_email=True)
+        RoleFactory.create(user=user, project=project)
+
+        # Verify model properties return system defaults
+        from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
+
+        assert project.upload_limit_size == MAX_FILESIZE
+        assert project.total_size_limit_value == MAX_PROJECT_SIZE
+
+        # Upload file just under system limit should succeed
+        filename = f"{project.normalized_name.replace('-', '_')}-1.0.0-py3-none-any.whl"
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version="1.0.0"
+        )
+
+        @pretend.call_recorder
+        def storage_service_store(path, file_path, *, meta):
+            with open(file_path, "rb") as fp:
+                if file_path.endswith(".metadata"):
+                    assert fp.read() == b"Fake metadata"
+                else:
+                    assert fp.read() == filebody
+
+        storage_service = pretend.stub(store=storage_service_store)
+        db_request.find_service = pretend.call_recorder(
+            lambda svc, name=None, context=None: {
+                IFileStorage: storage_service,
+            }.get(svc)
+        )
+
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        # Mock file upload - simulate file just under system limit
+        class MockFieldStorage:
+            def __init__(self, data, filename):
+                self.file = io.BytesIO(data)
+                self.filename = filename
+                self.type = "application/x-wheel+zip"
+                self.length = MAX_FILESIZE - 1024  # Just under system limit
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.user_docs_url = pretend.call_recorder(
+            lambda *a, **kw: "/the/help/url/"
+        )
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0.0",
+                "summary": "Test upload",
+                "filetype": "bdist_wheel",
+                "pyversion": "py3",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": MockFieldStorage(filebody, filename),
+            }
+        )
+
+        # Upload should succeed using system default limits
+        resp = legacy.file_upload(db_request)
         assert resp.status_code == 200
 
 

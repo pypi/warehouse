@@ -102,11 +102,6 @@
           {# TODO: Is there a cleaner way to show/hide the allowed sections? #}
           {% if request.has_permission(Permissions.AdminDashboardSidebarRead) %}
           <li class="nav-item">
-            <a href="{{ request.route_path('admin.malware_reports.list') }}" class="nav-link">
-              <i class="fa-solid fa-dumpster-fire nav-icon"></i> <p>Malware Reports</p>
-            </a>
-          </li>
-          <li class="nav-item">
             <a href="{{ request.route_path('admin.organization_application.list') }}?q=is%3Asubmitted" class="nav-link">
               <i class="fa fa-sitemap nav-icon"></i> <p>Organization Applications</p>
             </a>
@@ -143,6 +138,34 @@
           </li>
           <li class="nav-item menu-closed">
             <a href="#" class="nav-link">
+              <i class="nav-icon fa-solid fa-eye"></i>
+              <p>
+                Observations
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="{{ request.route_path('admin.malware_reports.list') }}" class="nav-link">
+                  <i class="nav-icon fa-solid fa-dumpster-fire"></i>
+                  <p>Malware Reports</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ request.route_path('admin.quarantine.list') }}" class="nav-link">
+                  <i class="nav-icon fa-solid fa-file-shield"></i> <p>Quarantine</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ request.route_path('admin.observations.list') }}" class="nav-link">
+                  <i class="nav-icon fa-solid fa-eye"></i>
+                  <p>All Observations</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-item menu-closed">
+            <a href="#" class="nav-link">
               <i class="nav-icon fa fa-ban"></i>
               <p>
                 Prohibition Era
@@ -169,11 +192,6 @@
                 </a>
               </li>
             </ul>
-          </li>
-          <li class="nav-item">
-            <a href="{{ request.route_path('admin.observations.list') }}" class="nav-link">
-              <i class="fa-solid fa-eye nav-icon"></i> <p>Observations</p>
-            </a>
           </li>
           <li class="nav-item">
             <a href="{{ request.route_path('admin.emails.list') }}" class="nav-link">

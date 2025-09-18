@@ -1,13 +1,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from pyramid.view import view_config
-from sqlalchemy import func
+from sqlalchemy import distinct, func
 
 from warehouse.authnz import Permissions
 from warehouse.observations.models import Observation, ObservationKind
 from warehouse.organizations.models import (
     Organization,
     OrganizationApplication,
+    OrganizationProject,
     OrganizationRole,
     OrganizationType,
 )
@@ -87,10 +88,51 @@ def dashboard(request):
         .scalar()
     )
 
+    # New statistics: Organizations with projects by type
+    orgs_with_projects = (
+        request.db.query(
+            Organization.orgtype,
+            func.count(distinct(Organization.id)).label("org_count"),
+        )
+        .join(
+            OrganizationProject, Organization.id == OrganizationProject.organization_id
+        )
+        .group_by(Organization.orgtype)
+        .all()
+    )
+    orgs_with_projects = {k.value: v for k, v in orgs_with_projects}
+    orgs_with_projects["Total"] = sum(orgs_with_projects.values())
+
+    # Organizations with more than 1 member by type
+    orgs_with_members_subquery = (
+        request.db.query(
+            Organization.orgtype,
+            Organization.id,
+            func.count(OrganizationRole.user_id).label("members"),
+        )
+        .join(OrganizationRole, Organization.id == OrganizationRole.organization_id)
+        .group_by(Organization.id, Organization.orgtype)
+        .subquery()
+    )
+
+    orgs_with_multiple_members = (
+        request.db.query(
+            orgs_with_members_subquery.c.orgtype,
+            func.count(orgs_with_members_subquery.c.id).label("org_count"),
+        )
+        .filter(orgs_with_members_subquery.c.members > 1)
+        .group_by(orgs_with_members_subquery.c.orgtype)
+        .all()
+    )
+    orgs_with_multiple_members = {k.value: v for k, v in orgs_with_multiple_members}
+    orgs_with_multiple_members["Total"] = sum(orgs_with_multiple_members.values())
+
     return {
         "malware_reports_count": malware_reports_count,
         "organizations_count": organizations_count,
         "organization_applications_count": organization_applications_count,
         "active_company_organizations": active_company_organizations,
         "active_company_organization_users": active_company_organization_users,
+        "orgs_with_projects": orgs_with_projects,
+        "orgs_with_multiple_members": orgs_with_multiple_members,
     }

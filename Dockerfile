@@ -1,9 +1,9 @@
 # Set variables reused in Dockerfile
-ARG PYTHON_IMAGE_VERSION=3.13.5-slim-bookworm
+ARG PYTHON_IMAGE_VERSION=3.13.7-slim-bookworm
 
 # First things first, we build an image which is where we're going to compile
 # our static assets with. We use this stage in development.
-FROM node:24.4.1-bookworm AS static-deps
+FROM node:24.8.0-bookworm AS static-deps
 
 WORKDIR /opt/warehouse/src/
 

@@ -491,7 +491,7 @@ class TestSendEmail:
             @staticmethod
             @pretend.call_recorder
             def retry(exc):
-                raise celery.exceptions.Retry
+                pytest.fail("retry should not be called")
 
         sender, task = FakeMailSender(), Task()
         request = pretend.stub(find_service=lambda *a, **kw: sender)
@@ -6060,6 +6060,92 @@ class TestTrustedPublisherEmails:
         assert result == {
             "project_name": project_name,
             "normalized_name": "test_project",
+            "filename": filename,
+        }
+        subject_renderer.assert_(project_name=project_name)
+        body_renderer.assert_(project_name=project_name)
+        html_renderer.assert_(project_name=project_name)
+
+        assert pyramid_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{stub_user.username} <{stub_user.email}>",
+                {
+                    "sender": None,
+                    "subject": "Email Subject",
+                    "body_text": "Email Body",
+                    "body_html": (
+                        "<html>\n<head></head>\n"
+                        "<body><p>Email HTML Body</p></body>\n</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user.id,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": stub_user.email,
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
+            )
+        ]
+
+    def test_wheel_record_mismatch_email(
+        self,
+        pyramid_request,
+        pyramid_config,
+        monkeypatch,
+    ):
+        stub_user = pretend.stub(
+            id="id",
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/wheel-record-mismatch-email/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/wheel-record-mismatch-email/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/wheel-record-mismatch-email/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
+            ),
+        )
+        pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+
+        project_name = "Test_Project"
+        filename = "Test_Project-1.0-py3-none-any.whl"
+
+        result = email.send_wheel_record_mismatch_email(
+            pyramid_request,
+            {stub_user},
+            project_name=project_name,
+            filename=filename,
+        )
+
+        assert result == {
+            "project_name": project_name,
             "filename": filename,
         }
         subject_renderer.assert_(project_name=project_name)

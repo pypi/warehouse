@@ -129,50 +129,152 @@
           <td></td>
         </tr>
         <tr>
+          <td rowspan="2" style="vertical-align: top;">Upload limit</td>
+          <td colspan="3">
+            {# Calculate effective limit #}
+            {% set effective_upload_limit = MAX_FILESIZE %}
+            {% set limit_source = "system default" %}
+            {% if project.upload_limit and project.upload_limit > effective_upload_limit %}
+              {% set effective_upload_limit = project.upload_limit %}
+              {% set limit_source = "project" %}
+            {% endif %}
+            {% if project.organization and project.organization.upload_limit and project.organization.upload_limit > effective_upload_limit %}
+              {% set effective_upload_limit = project.organization.upload_limit %}
+              {% set limit_source = "organization" %}
+            {% endif %}
+            
+            <div class="alert alert-info" style="margin-bottom: 10px;">
+              <strong>Effective limit: {{ effective_upload_limit|filesizeformat(binary=True) }}</strong> (from {{ limit_source }})
+            </div>
+            
+            <table class="table table-sm table-bordered" style="margin-bottom: 0;">
+              <tr>
+                <td style="width: 40%;">System default:</td>
+                <td style="width: 30%;">{{ MAX_FILESIZE|filesizeformat(binary=True) }}</td>
+                <td style="width: 30%;"><small class="text-muted">Not configurable</small></td>
+              </tr>
+              <tr>
+                <td>Project limit:</td>
+                <td>
+                  {% if project.upload_limit %}
+                    {{ project.upload_limit|filesizeformat(binary=True) }}
+                  {% else %}
+                    <span class="text-muted">Not set</span>
+                  {% endif %}
+                  {% if limit_source == "project" %}<span class="badge badge-success">Active</span>{% endif %}
+                </td>
+                <td><small class="text-muted">Configure below</small></td>
+              </tr>
+              {% if project.organization %}
+              <tr>
+                <td>Organization limit:</td>
+                <td>
+                  {% if project.organization.upload_limit %}
+                    {{ project.organization.upload_limit|filesizeformat(binary=True) }}
+                  {% else %}
+                    <span class="text-muted">Not set</span>
+                  {% endif %}
+                  {% if limit_source == "organization" %}<span class="badge badge-success">Active</span>{% endif %}
+                </td>
+                <td><a href="{{ request.route_path('admin.organization.detail', organization_id=project.organization.id) }}#organization-limits" class="btn btn-xs btn-outline-primary">Edit in organization</a></td>
+              </tr>
+              {% endif %}
+            </table>
+          </td>
+        </tr>
+        <tr>
           <form method="POST" action="{{ request.route_path('admin.project.set_upload_limit', project_name=project.normalized_name) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            <td>Upload limit</td>
-            <td>
-              {% if project.upload_limit %}
-              {{ project.upload_limit|filesizeformat(binary=True) }}
-              {% else %}
-              Default ({{ MAX_FILESIZE|filesizeformat(binary=True) }})
-              {% endif %}
-            </td>
-            <td>
-              {% if project.upload_limit %}
-              {% set upload_limit_value = project.upload_limit / ONE_MIB %}
-              {% else %}
-              {% set upload_limit_value = '' %}
-              {% endif %}
-              <input type="number" name="upload_limit" id="uploadLimit" min="{{ MAX_FILESIZE / ONE_MIB }}" max="{{ UPLOAD_LIMIT_CAP / ONE_MIB }}" step=1 value="{{ upload_limit_value|int }}"> MiB
-            </td>
-            <td>
-              <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+            <td colspan="3">
+              <div class="form-inline">
+                <label for="uploadLimit" class="mr-3">Set project limit:</label>
+                {% if project.upload_limit %}
+                {% set upload_limit_value = project.upload_limit / ONE_MIB %}
+                {% else %}
+                {% set upload_limit_value = '' %}
+                {% endif %}
+                <input type="number" name="upload_limit" id="uploadLimit" class="form-control form-control-sm mr-2" min="{{ MAX_FILESIZE / ONE_MIB }}" max="{{ UPLOAD_LIMIT_CAP / ONE_MIB }}" step=1 value="{{ upload_limit_value|int }}" style="width: 100px;"> 
+                <span class="mr-3">MiB</span>
+                <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                {% if project.upload_limit and limit_source != "project" %}
+                  <small class="text-warning ml-3">⚠️ This limit is overridden by a more generous {{ limit_source }} limit</small>
+                {% endif %}
+              </div>
             </td>
           </form>
         </tr>
         <tr>
+          <td rowspan="2" style="vertical-align: top;">Total size limit</td>
+          <td colspan="3">
+            {# Calculate effective limit #}
+            {% set effective_total_size_limit = MAX_PROJECT_SIZE %}
+            {% set size_limit_source = "system default" %}
+            {% if project.total_size_limit and project.total_size_limit > effective_total_size_limit %}
+              {% set effective_total_size_limit = project.total_size_limit %}
+              {% set size_limit_source = "project" %}
+            {% endif %}
+            {% if project.organization and project.organization.total_size_limit and project.organization.total_size_limit > effective_total_size_limit %}
+              {% set effective_total_size_limit = project.organization.total_size_limit %}
+              {% set size_limit_source = "organization" %}
+            {% endif %}
+            
+            <div class="alert alert-info" style="margin-bottom: 10px;">
+              <strong>Effective limit: {{ effective_total_size_limit|filesizeformat(binary=True) }}</strong> (from {{ size_limit_source }})
+            </div>
+            
+            <table class="table table-sm table-bordered" style="margin-bottom: 0;">
+              <tr>
+                <td style="width: 40%;">System default:</td>
+                <td style="width: 30%;">{{ MAX_PROJECT_SIZE|filesizeformat(binary=True) }}</td>
+                <td style="width: 30%;"><small class="text-muted">Not configurable</small></td>
+              </tr>
+              <tr>
+                <td>Project limit:</td>
+                <td>
+                  {% if project.total_size_limit %}
+                    {{ project.total_size_limit|filesizeformat(binary=True) }}
+                  {% else %}
+                    <span class="text-muted">Not set</span>
+                  {% endif %}
+                  {% if size_limit_source == "project" %}<span class="badge badge-success">Active</span>{% endif %}
+                </td>
+                <td><small class="text-muted">Configure below</small></td>
+              </tr>
+              {% if project.organization %}
+              <tr>
+                <td>Organization limit:</td>
+                <td>
+                  {% if project.organization.total_size_limit %}
+                    {{ project.organization.total_size_limit|filesizeformat(binary=True) }}
+                  {% else %}
+                    <span class="text-muted">Not set</span>
+                  {% endif %}
+                  {% if size_limit_source == "organization" %}<span class="badge badge-success">Active</span>{% endif %}
+                </td>
+                <td><a href="{{ request.route_path('admin.organization.detail', organization_id=project.organization.id) }}#organization-limits" class="btn btn-xs btn-outline-primary">Edit in organization</a></td>
+              </tr>
+              {% endif %}
+            </table>
+          </td>
+        </tr>
+        <tr>
           <form method="POST" action="{{ request.route_path('admin.project.set_total_size_limit', project_name=project.normalized_name) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            <td>Total size limit</td>
-            <td>
-              {% if project.total_size_limit %}
-              {{ project.total_size_limit|filesizeformat(binary=True) }}
-              {% else %}
-              Default ({{(MAX_PROJECT_SIZE)|filesizeformat(binary=True) }})
-              {% endif %}
-            </td>
-            <td>
-              {% if project.total_size_limit %}
-              {% set total_size_limit_value = project.total_size_limit // ONE_GIB %}
-              {% else %}
-              {% set total_size_limit_value = '' %}
-              {% endif %}
-              <input type="number" name="total_size_limit" id="totalSizeLimit" min="{{ MAX_PROJECT_SIZE // ONE_GIB }}" value="{{total_size_limit_value}}"> GiB
-            </td>
-            <td>
-              <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+            <td colspan="3">
+              <div class="form-inline">
+                <label for="totalSizeLimit" class="mr-3">Set project limit:</label>
+                {% if project.total_size_limit %}
+                {% set total_size_limit_value = project.total_size_limit // ONE_GIB %}
+                {% else %}
+                {% set total_size_limit_value = '' %}
+                {% endif %}
+                <input type="number" name="total_size_limit" id="totalSizeLimit" class="form-control form-control-sm mr-2" min="{{ MAX_PROJECT_SIZE // ONE_GIB }}" value="{{total_size_limit_value}}" style="width: 100px;">
+                <span class="mr-3">GiB</span>
+                <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                {% if project.total_size_limit and size_limit_source != "project" %}
+                  <small class="text-warning ml-3">⚠️ This limit is overridden by a more generous {{ size_limit_source }} limit</small>
+                {% endif %}
+              </div>
             </td>
           </form>
         </tr>
@@ -183,7 +285,7 @@
 </div> <!-- .card #attributes -->
 
 {% if project.organization %}
-<div class="card card-secondary" id="maintainers">
+<div class="card card-secondary" id="organization">
   <div class="card-header">Organization</div>
   <div class="card-body">
     <div class="table-responsive p-0">
@@ -211,7 +313,16 @@
 {% endif %}
 
 <div class="card card-secondary" id="maintainers">
-  <div class="card-header">Maintainers</div>
+  <div class="card-header">
+    <div class="card-title">Maintainers</div>
+    <div class="card-tools">
+      {% if maintainers %}
+      <span class="badge badge-primary">{{ maintainers|length }}</span>
+      {% endif %}
+      <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i>
+      </button>
+    </div>
+  </div>
   <div class="card-body">
     <div class="table-responsive p-0">
       <table class="table table-hover table-striped">
@@ -318,7 +429,14 @@
 </div>
 
 <div class="card card-info" id="releases">
-  <div class="card-header">Releases</div>
+  <div class="card-header">
+    <h3 class="card-title">Releases</h3>
+    <div class="card-tools">
+      {% if releases %}
+      <span class="badge badge-secondary">{{ releases|length }}</span>
+      {% endif %}
+    </div>
+  </div>
   <div class="card-body">
     <div class="table-responsive p-0">
       <table class="table table-hover table-striped">
@@ -522,6 +640,9 @@
   <div class="card-header">
     <h3 class="card-title">Journals</h3>
     <div class="card-tools">
+      {% if journal %}
+      <span class="badge badge-secondary">{{ journal|length }}</span>
+      {% endif %}
       <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i>
       </button>
     </div>

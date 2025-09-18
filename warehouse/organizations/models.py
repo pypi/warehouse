@@ -11,6 +11,7 @@ from uuid import UUID
 from pyramid.authorization import Allow
 from pyramid.httpexceptions import HTTPPermanentRedirect
 from sqlalchemy import (
+    BigInteger,
     CheckConstraint,
     Enum,
     FetchedValue,
@@ -19,6 +20,7 @@ from sqlalchemy import (
     UniqueConstraint,
     func,
     orm,
+    text,
 )
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.exc import NoResultFound
@@ -299,6 +301,13 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         index=True,
         comment="Datetime the organization was created.",
     )
+    upload_limit: Mapped[int | None] = mapped_column(
+        comment="Maximum file size limit in bytes for projects in this organization",
+    )
+    total_size_limit: Mapped[int | None] = mapped_column(
+        BigInteger,
+        comment="Maximum total size limit in bytes for projects in this organization",
+    )
     application: Mapped[OrganizationApplication] = relationship(
         back_populates="organization"
     )
@@ -338,6 +347,10 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             viewonly=True,
         )
     )
+    manual_activation: Mapped[OrganizationManualActivation] = relationship(
+        back_populates="organization",
+        uselist=False,
+    )
 
     @property
     def owners(self):
@@ -364,15 +377,46 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
 
     @property
     def good_standing(self):
-        return (
-            # Organization is active.
-            self.is_active
-            # Organization has active subscription if it is a Company.
-            and not (
-                self.orgtype == OrganizationType.Company
-                and self.active_subscription is None
-            )
+        """Legacy property - use is_in_good_standing() for new code.
+
+        Check if organization is in good standing and can perform actions.
+        """
+        return self.is_in_good_standing()
+
+    def is_in_good_standing(self) -> bool:
+        """Check if organization is in good standing and can perform actions.
+
+        This is the canonical method for determining if an organization
+        meets all requirements to operate (uploads, invitations, etc.).
+
+        Returns True if:
+        1. Organization is active (not deleted/deactivated)
+        2. For Company organizations: Has active subscription OR active manual
+           activation
+        3. For Community organizations: Just needs to be active
+        """
+        if not self.is_active:
+            return False
+
+        # Community organizations only need to be active
+        if self.orgtype != OrganizationType.Company:
+            return True
+
+        # Company organizations need active subscription OR manual activation
+        return self.active_subscription is not None or (
+            self.manual_activation is not None and self.manual_activation.is_active
         )
+
+    def get_billing_status_display(self) -> str:
+        """Get a human-readable billing status for display in forms.
+
+        Returns the organization name with billing status suffix if not in
+        good standing.
+        """
+        if self.is_in_good_standing():
+            return self.name
+        else:
+            return f"{self.name} (Billing inactive)"
 
     def __acl__(self):
         session = orm_session_from_obj(self)
@@ -518,6 +562,64 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
 
     def customer_name(self, site_name="PyPI"):
         return f"{site_name} Organization - {self.display_name} ({self.name})"
+
+
+class OrganizationManualActivation(db.Model):
+    __tablename__ = "organization_manual_activations"
+
+    __repr__ = make_repr("organization_id", "seat_limit", "expires")
+
+    organization_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("organizations.id", ondelete="CASCADE"),
+        primary_key=True,
+        comment="Foreign key to organization",
+    )
+    organization: Mapped[Organization] = relationship(
+        back_populates="manual_activation"
+    )
+
+    seat_limit: Mapped[int] = mapped_column(
+        comment="Maximum number of organization members allowed"
+    )
+    expires: Mapped[datetime.date] = mapped_column(
+        comment="Expiration date for the manual activation"
+    )
+    created: Mapped[datetime_now] = mapped_column(
+        comment="Datetime when manual activation was created"
+    )
+    created_by_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("users.id"),
+        comment="Admin user who created the manual activation",
+    )
+    created_by: Mapped[User] = relationship()
+
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        server_default=text("gen_random_uuid()"),
+    )
+
+    @property
+    def is_active(self) -> bool:
+        """Check if manual activation is currently active (not expired)."""
+        return datetime.date.today() < self.expires
+
+    @property
+    def current_member_count(self) -> int:
+        """Get the current number of organization members."""
+        # Use roles count instead of users relationship for more reliable counting
+        return len([role for role in self.organization.roles if role.user_id])
+
+    @property
+    def has_available_seats(self) -> bool:
+        """Check if there are available seats for new members."""
+        return self.current_member_count < self.seat_limit
+
+    @property
+    def available_seats(self) -> int:
+        """Get the number of available seats for new members."""
+        return max(0, self.seat_limit - self.current_member_count)
 
 
 class OrganizationApplicationStatus(enum.StrEnum):

@@ -359,51 +359,76 @@
   </table>
   {% if request.has_permission(Permissions.OrganizationsManage) %}
     <h3>{% trans %}Invite member{% endtrans %}</h3>
-    <form method="post">
-      <div class="form-group"
-           data-controller="autocomplete"
-           data-autocomplete-url-value="/accounts/search/"
-           data-autocomplete-query-param-value="username"
-           role="combobox">
-        <input name="csrf_token"
-               type="hidden"
-               value="{{ request.session.get_csrf_token() }}">
-        <label for="username" class="form-group__label">
-          {% trans %}User{% endtrans %}
-          {% if form.username.flags.required %}
-            <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-          {% endif %}
-        </label>
-        {{ form.username(placeholder=gettext("Username") ,
-        autocomplete="off",
-        autocapitalize="off",
-        spellcheck="false",
-        class_="form-group__field",
-        aria_describedby="user-errors",
-        data_autocomplete_target="input",
-        ) }}
-        <ul class="form-group__results" data-autocomplete-target="results">
-        </ul>
-        <div id="user-errors">{{ field_errors(form.username) }}</div>
-      </div>
-      <div class="form-group">
-        <label for="role_name" class="form-group__label">
-          {% trans %}Role{% endtrans %}
-          {% if form.role_name.flags.required %}
-            <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-          {% endif %}
-        </label>
-        {{ form.role_name(class_="form-group__field",
-                autocomplete="off",
-                aria_describedby="role-errors",) }}
-        <div id="role-errors">{{ field_errors(form.role_name) }}</div>
-      </div>
-      <div>
-        <input type="submit"
-               value="{% trans %}Invite{% endtrans %}"
-               class="button button--primary">
-      </div>
-    </form>
+    {% if organization.orgtype == OrganizationType.Company %}
+      {% if organization.active_subscription %}
+        <div class="callout-block callout-block--info">
+          <p>
+            <strong>{% trans %}Billing Notice:{% endtrans %}</strong>
+            {% trans %}Accepted invitations will result in an additional $5 per user per month billing charge.{% endtrans %}
+          </p>
+        </div>
+      {% elif organization.manual_activation and organization.manual_activation.is_active %}
+        <div class="callout-block {% if organization.manual_activation.has_available_seats %}callout-block--info{% else %}callout-block--danger{% endif %}">
+          <p>
+            <strong>{% trans %}Seat Usage:{% endtrans %}</strong>
+            {% trans current=organization.manual_activation.current_member_count, limit=organization.manual_activation.seat_limit %}{{ current }} of {{ limit }} seats used.{% endtrans %}
+            <br>
+            {% if organization.manual_activation.has_available_seats %}
+              {% trans available=organization.manual_activation.available_seats %}{{ available }} seats available.{% endtrans %}
+            {% else %}
+              {% trans %}You have exceeded your seat limit. Invited members can still accept invitations.{% endtrans %}
+            {% endif %}
+          </p>
+        </div>
+      {% endif %}
+    {% endif %}
+    {% if organization.is_in_good_standing() %}
+      <form method="post">
+        <div class="form-group"
+             data-controller="autocomplete"
+             data-autocomplete-url-value="/accounts/search/"
+             data-autocomplete-query-param-value="username"
+             role="combobox">
+          <input name="csrf_token"
+                 type="hidden"
+                 value="{{ request.session.get_csrf_token() }}">
+          <label for="username" class="form-group__label">
+            {% trans %}User{% endtrans %}
+            {% if form.username.flags.required %}
+              <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+            {% endif %}
+          </label>
+          {{ form.username(placeholder=gettext("Username") ,
+          autocomplete="off",
+          autocapitalize="off",
+          spellcheck="false",
+          class_="form-group__field",
+          aria_describedby="user-errors",
+          data_autocomplete_target="input",
+          ) }}
+          <ul class="form-group__results" data-autocomplete-target="results">
+          </ul>
+          <div id="user-errors">{{ field_errors(form.username) }}</div>
+        </div>
+        <div class="form-group">
+          <label for="role_name" class="form-group__label">
+            {% trans %}Role{% endtrans %}
+            {% if form.role_name.flags.required %}
+              <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+            {% endif %}
+          </label>
+          {{ form.role_name(class_="form-group__field",
+                    autocomplete="off",
+                    aria_describedby="role-errors",) }}
+          <div id="role-errors">{{ field_errors(form.role_name) }}</div>
+        </div>
+        <div>
+          <input type="submit"
+                 value="{% trans %}Invite{% endtrans %}"
+                 class="button button--primary">
+        </div>
+      </form>
+    {% endif %}
   {% endif %}
   <br>
 {% endblock %}

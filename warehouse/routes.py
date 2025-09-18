@@ -20,21 +20,33 @@ def includeme(config):
     config.add_route("locale", "/locale/", domain=warehouse)
     config.add_route("favicon.ico", "/favicon.ico", domain=warehouse)
     config.add_route("robots.txt", "/robots.txt", domain=warehouse)
+    config.add_route(
+        "funding-manifest-urls", "/.well-known/funding-manifest-urls", domain=warehouse
+    )
     config.add_route("opensearch.xml", "/opensearch.xml", domain=warehouse)
     config.add_route("index.sitemap.xml", "/sitemap.xml", domain=warehouse)
     config.add_route("bucket.sitemap.xml", "/{bucket}.sitemap.xml", domain=warehouse)
 
     # Some static, template driven pages
     config.add_template_view(
-        "sitemap", "/sitemap/", "pages/sitemap.html", view_kw={"has_translations": True}
+        "sitemap",
+        "/sitemap/",
+        "pages/sitemap.html",
+        route_kw={"domain": warehouse},
+        view_kw={"has_translations": True},
     )
     config.add_template_view(
-        "help", "/help/", "pages/help.html", view_kw={"has_translations": True}
+        "help",
+        "/help/",
+        "pages/help.html",
+        route_kw={"domain": warehouse},
+        view_kw={"has_translations": True},
     )
     config.add_template_view(
         "security",
         "/security/",
         "pages/security.html",
+        route_kw={"domain": warehouse},
         view_kw={"has_translations": True},
     )
     # Redirect the old "sponsor PyPI" page to the sponsors page
@@ -43,6 +55,7 @@ def includeme(config):
         "sponsors",
         "/sponsors/",
         "pages/sponsors.html",
+        route_kw={"domain": warehouse},
         view_kw={"has_translations": True},
     )
 
@@ -60,6 +73,7 @@ def includeme(config):
         "trademarks",
         "/trademarks/",
         "pages/trademarks.html",
+        route_kw={"domain": warehouse},
         view_kw={"has_translations": True},
     )
 

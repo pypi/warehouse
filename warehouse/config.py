@@ -75,6 +75,7 @@ class RootFactory:
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
+                Permissions.AdminOrganizationsSetLimit,
                 Permissions.AdminOrganizationsWrite,
                 Permissions.AdminOrganizationsNameWrite,
                 Permissions.AdminProhibitedEmailDomainsRead,
@@ -90,6 +91,7 @@ class RootFactory:
                 Permissions.AdminProjectsWrite,
                 Permissions.AdminRoleAdd,
                 Permissions.AdminRoleDelete,
+                Permissions.AdminRoleUpdate,
                 Permissions.AdminSponsorsRead,
                 Permissions.AdminUsersRead,
                 Permissions.AdminUsersWrite,
@@ -110,7 +112,9 @@ class RootFactory:
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
+                Permissions.AdminOrganizationsSetLimit,
                 Permissions.AdminOrganizationsWrite,
+                Permissions.AdminOrganizationsNameWrite,
                 Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedProjectsRelease,
@@ -119,6 +123,7 @@ class RootFactory:
                 Permissions.AdminProjectsSetLimit,
                 Permissions.AdminRoleAdd,
                 Permissions.AdminRoleDelete,
+                Permissions.AdminRoleUpdate,
                 Permissions.AdminSponsorsRead,
                 Permissions.AdminUsersRead,
                 Permissions.AdminUsersEmailWrite,
@@ -145,6 +150,7 @@ class RootFactory:
                 Permissions.AdminProjectsSetLimit,
                 Permissions.AdminRoleAdd,
                 Permissions.AdminRoleDelete,
+                Permissions.AdminRoleUpdate,
                 Permissions.AdminSponsorsRead,
                 Permissions.AdminUsersRead,
             ),
@@ -518,6 +524,19 @@ def configure(settings=None):
         "warehouse.account.global_login_ratelimit_string",
         "GLOBAL_LOGIN_RATELIMIT_STRING",
         default="1000 per 5 minutes",
+    )
+    # Separate rate limiters for 2FA attempts to prevent brute-force attacks
+    maybe_set(
+        settings,
+        "warehouse.account.2fa_user_ratelimit_string",
+        "2FA_USER_RATELIMIT_STRING",
+        default="5 per 5 minutes, 20 per hour, 50 per day",
+    )
+    maybe_set(
+        settings,
+        "warehouse.account.2fa_ip_ratelimit_string",
+        "2FA_IP_RATELIMIT_STRING",
+        default="10 per 5 minutes, 50 per hour",
     )
     maybe_set(
         settings,

@@ -14,15 +14,10 @@ class TestOrganizationProfile:
     def test_redirects_name(self, db_request):
         org = OrganizationFactory.create()
 
-        if org.name.upper() != org.name:
-            organization_name = org.name.upper()
-        else:
-            organization_name = org.name.lower()
-
         db_request.current_route_path = pretend.call_recorder(
             lambda organization: "/user/the-redirect/"
         )
-        db_request.matchdict = {"organization": organization_name}
+        db_request.matchdict = {"organization": org.name.swapcase()}
 
         result = views.profile(org, db_request)
 

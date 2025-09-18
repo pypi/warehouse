@@ -148,18 +148,44 @@
   <hr>
   <section id="billing-details">
     <h2>{% trans %}Billing details{% endtrans %}</h2>
-    <div class="form-group">
-      <span class="form-group__label">{% trans %}Billing status{% endtrans %}</span>
-      <p class="form-group__text">{{ gettext(organization.active_subscription.status.label) }}</p>
-    </div>
-    <div class="form-group">
-      <span class="form-group__label">{% trans %}Billing email{% endtrans %}</span>
-      <p class="form-group__text">{{ gettext(organization.active_subscription.customer.billing_email) }}</p>
-    </div>
-    <div class="form-group">
-      <a href="{{ request.route_path('manage.organization.subscription', organization_name=organization.normalized_name, _query={'next': request.current_route_path(organization_name=organization.normalized_name) }) }}"
-         class="button button--primary">{% trans %}Manage billing{% endtrans %}</a>
-    </div>
+    {% if organization.active_subscription %}
+      <div class="form-group">
+        <span class="form-group__label">{% trans %}Billing status{% endtrans %}</span>
+        <p class="form-group__text">{{ gettext(organization.active_subscription.status.label) }}</p>
+      </div>
+      <div class="form-group">
+        <span class="form-group__label">{% trans %}Billing email{% endtrans %}</span>
+        <p class="form-group__text">{{ gettext(organization.active_subscription.customer.billing_email) }}</p>
+      </div>
+      <div class="form-group">
+        <a href="{{ request.route_path('manage.organization.subscription', organization_name=organization.normalized_name, _query={'next': request.current_route_path(organization_name=organization.normalized_name) }) }}"
+           class="button button--primary">{% trans %}Manage billing{% endtrans %}</a>
+      </div>
+    {% elif organization.manual_activation and organization.manual_activation.is_active %}
+      <div class="form-group">
+        <span class="form-group__label">{% trans %}Billing status{% endtrans %}</span>
+        <p class="form-group__text">{% trans %}Manually Activated{% endtrans %}</p>
+      </div>
+      <div class="form-group">
+        <span class="form-group__label">{% trans %}Seat limit{% endtrans %}</span>
+        <p class="form-group__text">
+          {{ organization.manual_activation.current_member_count }} / {{ organization.manual_activation.seat_limit }} {% trans %}members{% endtrans %}
+        </p>
+      </div>
+      <div class="form-group">
+        <span class="form-group__label">{% trans %}Expires{% endtrans %}</span>
+        <p class="form-group__text">{{ organization.manual_activation.expires }}</p>
+      </div>
+    {% else %}
+      <div class="form-group">
+        <span class="form-group__label">{% trans %}Billing status{% endtrans %}</span>
+        <p class="form-group__text">{% trans %}Inactive{% endtrans %}</p>
+      </div>
+      <div class="form-group">
+        <a href="{{ request.route_path('manage.organization.activate_subscription', organization_name=organization.normalized_name) }}"
+           class="button button--primary">{% trans %}Activate billing{% endtrans %}</a>
+      </div>
+    {% endif %}
   </section>
 {% endif %}
 {% if request.has_permission(Permissions.OrganizationsManage) %}

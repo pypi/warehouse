@@ -7,8 +7,16 @@ date: 2025-07-28
 tags:
   - security
   - transparency
+links:
+  - posts/2025-07-31-incident-report-phishing-attack.md
+
 ---
-(Ongoing, preliminary report)
+
+Read the follow-up post: [Phishing Attack Follow-Up](2025-07-31-incident-report-phishing-attack.md)
+
+---
+~~(Ongoing, preliminary report)~~
+
 
 PyPI has not been hacked, but users are being targeted by a phishing attack
 that attempts to trick them into logging in to a fake PyPI site.
