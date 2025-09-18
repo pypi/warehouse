@@ -64,14 +64,14 @@ jobs:
             DEVEL=yes
             CI=yes
           tags: |
-            ghcr.io/pypi/warehouse:ci-${{ github.run_id }}
+            ghcr.io/${{ github.repository }}:ci-${{ github.run_id }}
 
   ci:
     needs: build
     uses: ./.github/workflows/ci-base.yml
     with:
       runner: ubuntu-24.04-arm
-      image_registry: ghcr.io/pypi/warehouse
+      image_registry: ghcr.io/${{ github.repository }}
       build_id: ci-${{ needs.build.outputs.buildId }}
       use_depot: false
     permissions:
