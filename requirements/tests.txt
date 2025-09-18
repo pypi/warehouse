@@ -273,9 +273,9 @@ pytest-postgresql==7.0.2 \
     --hash=sha256:0b0d31c51620a9c1d6be93286af354256bc58a47c379f56f4147b22da6e81fb5 \
     --hash=sha256:57c8d3f7d4e91d0ea8b2eac786d04f60080fa6ed6e66f1f94d747c71c9e5a4f4
     # via -r requirements/tests.in
-pytest-randomly==4.0.0 \
-    --hash=sha256:50297deaa5f18bf0b7d2aadfb3332eb3b313628aff260b63210d03578d3691aa \
-    --hash=sha256:521c216e94e8b40cccfa5da5e403e9c45a3071db6f9f1cb2d5658e9017def2a9
+pytest-randomly==4.0.1 \
+    --hash=sha256:174e57bb12ac2c26f3578188490bd333f0e80620c3f47340158a86eca0593cd8 \
+    --hash=sha256:e0dfad2fd4f35e07beff1e47c17fbafcf98f9bf4531fd369d9260e2f858bfcb7
     # via -r requirements/tests.in
 pytest-socket==0.7.0 \
     --hash=sha256:71ab048cbbcb085c15a4423b73b619a8b35d6a307f46f78ea46be51b1b7e11b3 \
