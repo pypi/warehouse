@@ -1140,7 +1140,7 @@ msgid "Sponsors"
 msgstr ""
 
 #: warehouse/templates/accounts/login.html:7
-#: warehouse/templates/accounts/login.html:87 warehouse/templates/base.html:44
+#: warehouse/templates/accounts/login.html:90 warehouse/templates/base.html:44
 #: warehouse/templates/base.html:78
 msgid "Log in"
 msgstr ""
@@ -1508,7 +1508,7 @@ msgstr ""
 msgid "Confirm password to continue"
 msgstr ""
 
-#: warehouse/templates/accounts/login.html:56
+#: warehouse/templates/accounts/login.html:57
 #: warehouse/templates/accounts/register.html:142
 #: warehouse/templates/accounts/reset-password.html:28
 #: warehouse/templates/manage/manage_base.html:451
@@ -1517,7 +1517,7 @@ msgid "Password"
 msgstr ""
 
 #: warehouse/templates/accounts/login.html:34
-#: warehouse/templates/accounts/login.html:58
+#: warehouse/templates/accounts/login.html:59
 #: warehouse/templates/accounts/recovery-code.html:28
 #: warehouse/templates/accounts/register.html:69
 #: warehouse/templates/accounts/register.html:91
@@ -1603,18 +1603,18 @@ msgstr ""
 msgid "(required)"
 msgstr ""
 
-#: warehouse/templates/accounts/login.html:69
+#: warehouse/templates/accounts/login.html:71
 #: warehouse/templates/re-auth.html:55
 msgid "Your password"
 msgstr ""
 
-#: warehouse/templates/accounts/login.html:66
+#: warehouse/templates/accounts/login.html:68
 #: warehouse/templates/manage/manage_base.html:457
 #: warehouse/templates/re-auth.html:82
 msgid "Show password"
 msgstr ""
 
-#: warehouse/templates/accounts/login.html:91
+#: warehouse/templates/accounts/login.html:95
 #: warehouse/templates/re-auth.html:86
 msgid "Forgot password?"
 msgstr ""
