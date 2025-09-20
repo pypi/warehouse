@@ -863,7 +863,7 @@ msgstr ""
 msgid "Copied"
 msgstr ""
 
-#: warehouse/static/js/warehouse/controllers/filter_list_controller.js:81
+#: warehouse/static/js/warehouse/controllers/filter_list_controller.js:69
 msgid "Showing %1 of %2 file."
 msgid_plural "Showing %1 of %2 files."
 msgstr[0] ""
