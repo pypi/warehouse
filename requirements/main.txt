@@ -1924,9 +1924,9 @@ pyopenssl==25.3.0 \
     # via
     #   sigstore
     #   webauthn
-pyparsing==3.2.4 \
-    --hash=sha256:91d0fcde680d42cd031daf3a6ba20da3107e08a75de50da58360e7d94ab24d36 \
-    --hash=sha256:fff89494f45559d0f2ce46613b419f632bbb6afbdaed49696d322bcf98a58e99
+pyparsing==3.2.5 \
+    --hash=sha256:2df8d5b7b2802ef88e8d016a2eb9c7aeaa923529cd251ed0fe4608275d4105b6 \
+    --hash=sha256:e38a4f02064cf41fe6593d328d0512495ad1f3d8a91c4f73fc401b3079a59a5e
     # via linehaul
 pypi-attestations==0.0.27 \
     --hash=sha256:05957def33d14227de79edd118b2aae3f67642b389671fd59da90c8135e3633b \
