@@ -1036,6 +1036,10 @@ class File(HasEvents, db.Model):
     def pretty_wheel_tags(self) -> list[str]:
         return wheel.filename_to_pretty_tags(self.filename)
 
+    @property
+    def wheel_filters(self):
+        return wheel.filename_to_filters(self.filename)
+
 
 class Filename(db.ModelBase):
     __tablename__ = "file_registry"
