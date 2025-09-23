@@ -20,6 +20,7 @@ from warehouse.cache.origin import origin_cache
 from warehouse.observations.models import ObservationKind
 from warehouse.packaging.forms import SubmitMalwareObservationForm
 from warehouse.packaging.models import Description, File, Project, Release, Role
+from warehouse.utils import wheel
 
 
 class PEP740AttestationViewer:
@@ -266,6 +267,17 @@ def release_detail(release, request):
         key=lambda f: f.filename,
     )
 
+    # Collect all the available bdist details to enable building filters.
+    wheel_filters_all = wheel.filenames_to_filters([bdist.filename for bdist in bdists])
+
+    # Get the querystring to load any pre-set parameters
+    wheel_filters_params = {
+        "filename": request.params.get("filename", ""),
+        "interpreters": request.params.get("interpreters", ""),
+        "abis": request.params.get("abis", ""),
+        "platforms": request.params.get("platforms", ""),
+    }
+
     return {
         "project": project,
         "release": release,
@@ -279,6 +291,8 @@ def release_detail(release, request):
         "license": license,
         # Additional function to format the attestations
         "PEP740AttestationViewer": PEP740AttestationViewer,
+        "wheel_filters_all": wheel_filters_all,
+        "wheel_filters_params": wheel_filters_params,
     }
 
 

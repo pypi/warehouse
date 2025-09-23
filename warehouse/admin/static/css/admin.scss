@@ -50,6 +50,11 @@
   }
 }
 
+/* Timeline */
+.timeline-body dl dd {
+  overflow-inline: auto; /* Prevent long lines in malware report bodies from breaking the layout */
+}
+
 /* Dashboard utilization cards */
 .utilization-card {
   .info-icon {
