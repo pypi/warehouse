@@ -1190,7 +1190,12 @@ def confirm_login(request):
         return _error(request._("Invalid login attempt."))
 
     if unique_login.ip_address != request.remote_addr:
-        return _error(request._("Device details didn't match, please try again"))
+        return _error(
+            request._(
+                "Device details didn't match, please try again from the device "
+                "you originally used to log in."
+            )
+        )
 
     unique_login.status = UniqueLoginStatus.CONFIRMED
 
