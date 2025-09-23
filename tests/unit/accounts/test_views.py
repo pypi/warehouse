@@ -1837,11 +1837,20 @@ class TestRecoveryCode:
         ]
 
     @pytest.mark.parametrize("redirect_url", ["test_redirect_url", None])
-    def test_recovery_code_auth(self, monkeypatch, db_request, redirect_url):
+    def test_recovery_code_auth_with_confirmed_unique_login(
+        self, monkeypatch, db_request, redirect_url
+    ):
         remember = pretend.call_recorder(lambda request, user_id: [("foo", "bar")])
         monkeypatch.setattr(views, "remember", remember)
 
-        user_id = uuid.uuid4()
+        user = UserFactory.create(
+            last_login=(
+                datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
+            ),
+        )
+        user.record_event = pretend.call_recorder(lambda *a, **kw: None)
+        user_id = user.id
+
         query_params = {"userid": str(user_id)}
         if redirect_url:
             query_params["redirect_to"] = redirect_url
@@ -1855,13 +1864,6 @@ class TestRecoveryCode:
             )
         )
 
-        user = pretend.stub(
-            id=user_id,
-            last_login=(
-                datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
-            ),
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
-        )
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: user_id),
             get_user=pretend.call_recorder(lambda userid: user),
@@ -1900,11 +1902,18 @@ class TestRecoveryCode:
             validate=pretend.call_recorder(lambda: True),
             recovery_code_value=pretend.stub(data="recovery-code"),
         )
-        form_class = pretend.call_recorder(lambda d, user_service, **kw: form_obj)
+        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
         db_request.route_path = pretend.call_recorder(lambda a: "/account/two-factor")
         db_request.params = pretend.stub(
             get=pretend.call_recorder(lambda k: query_params.get(k))
         )
+
+        UserUniqueLoginFactory.create(
+            user=user,
+            ip_address=db_request.remote_addr,
+            status=UniqueLoginStatus.CONFIRMED,
+        )
+
         result = views.recovery_code(db_request, _form_class=form_class)
 
         token_expected_data = {"userid": str(user_id)}
@@ -1938,6 +1947,232 @@ class TestRecoveryCode:
             )
         ]
         assert db_request.session.record_auth_timestamp.calls == [pretend.call()]
+
+    def test_recovery_code_auth_no_unique_login(
+        self, monkeypatch, db_request, make_email_renderers
+    ):
+        make_email_renderers("unrecognized-login")
+        remember = pretend.call_recorder(lambda request, user_id: [("foo", "bar")])
+        monkeypatch.setattr(views, "remember", remember)
+
+        user = UserFactory.create(
+            with_verified_primary_email=True,
+            last_login=(
+                datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
+            ),
+        )
+        user.record_event = pretend.call_recorder(lambda *a, **kw: None)
+        user_id = user.id
+        query_params = {"userid": str(user_id)}
+
+        confirm_login_token_service = pretend.stub(
+            dumps=pretend.call_recorder(lambda d: "fake_token")
+        )
+        two_factor_token_service = pretend.stub(
+            loads=pretend.call_recorder(
+                lambda *args, **kwargs: (
+                    query_params,
+                    datetime.datetime.now(datetime.UTC),
+                )
+            )
+        )
+        user_service = pretend.stub(
+            get_user=pretend.call_recorder(lambda userid: user),
+            check_recovery_code=lambda userid, recovery_code_value: True,
+        )
+
+        db_request.find_service = lambda interface, name=None, **kwargs: {
+            ITokenService: {
+                "confirm_login": confirm_login_token_service,
+                "two_factor": two_factor_token_service,
+                None: two_factor_token_service,
+            },
+            IUserService: {
+                None: user_service,
+            },
+        }[interface][name]
+
+        db_request.method = "POST"
+        db_request.headers["User-Agent"] = (
+            "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) Gecko/20100101 "
+            "Firefox/15.0.1"
+        )
+
+        form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            recovery_code_value=pretend.stub(data="recovery-code"),
+        )
+        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
+        db_request.route_path = pretend.call_recorder(
+            lambda a: "/account/confirm-login"
+        )
+        db_request.params = pretend.stub(
+            get=pretend.call_recorder(lambda k: query_params.get(k))
+        )
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_unrecognized_login_email", send_email)
+
+        result = views.recovery_code(db_request, _form_class=form_class)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/account/confirm-login"
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                user,
+                ip_address=db_request.remote_addr,
+                user_agent="Firefox (Ubuntu)",
+                token="fake_token",
+            )
+        ]
+
+    @pytest.mark.parametrize("ua_string", [None, "no bueno", "Python-urllib/3.7"])
+    def test_recovery_code_auth_no_unique_login_bad_user_agent(
+        self, monkeypatch, db_request, make_email_renderers, ua_string
+    ):
+        make_email_renderers("unrecognized-login")
+        remember = pretend.call_recorder(lambda request, user_id: [("foo", "bar")])
+        monkeypatch.setattr(views, "remember", remember)
+
+        user = UserFactory.create(
+            with_verified_primary_email=True,
+            last_login=(
+                datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
+            ),
+        )
+        user.record_event = pretend.call_recorder(lambda *a, **kw: None)
+        user_id = user.id
+        query_params = {"userid": str(user_id)}
+
+        confirm_login_token_service = pretend.stub(
+            dumps=pretend.call_recorder(lambda d: "fake_token")
+        )
+        two_factor_token_service = pretend.stub(
+            loads=pretend.call_recorder(
+                lambda *args, **kwargs: (
+                    query_params,
+                    datetime.datetime.now(datetime.UTC),
+                )
+            )
+        )
+        user_service = pretend.stub(
+            get_user=pretend.call_recorder(lambda userid: user),
+            check_recovery_code=lambda userid, recovery_code_value: True,
+        )
+
+        db_request.find_service = lambda interface, name=None, **kwargs: {
+            ITokenService: {
+                "confirm_login": confirm_login_token_service,
+                "two_factor": two_factor_token_service,
+                None: two_factor_token_service,
+            },
+            IUserService: {
+                None: user_service,
+            },
+        }[interface][name]
+
+        db_request.method = "POST"
+        if ua_string:
+            db_request.headers["User-Agent"] = ua_string
+
+        form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            recovery_code_value=pretend.stub(data="recovery-code"),
+        )
+        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
+        db_request.route_path = pretend.call_recorder(
+            lambda a: "/account/confirm-login"
+        )
+        db_request.params = pretend.stub(
+            get=pretend.call_recorder(lambda k: query_params.get(k))
+        )
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_unrecognized_login_email", send_email)
+
+        result = views.recovery_code(db_request, _form_class=form_class)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/account/confirm-login"
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                user,
+                ip_address=db_request.remote_addr,
+                user_agent="Unknown User-Agent",
+                token="fake_token",
+            )
+        ]
+
+    def test_recovery_code_auth_with_pending_unique_login(
+        self, monkeypatch, db_request, make_email_renderers
+    ):
+        make_email_renderers("unrecognized-login")
+        remember = pretend.call_recorder(lambda request, user_id: [("foo", "bar")])
+        monkeypatch.setattr(views, "remember", remember)
+
+        user = UserFactory.create(
+            with_verified_primary_email=True,
+            last_login=(
+                datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
+            ),
+        )
+        user.record_event = pretend.call_recorder(lambda *a, **kw: None)
+        user_id = user.id
+        query_params = {"userid": str(user_id)}
+
+        two_factor_token_service = pretend.stub(
+            loads=pretend.call_recorder(
+                lambda *args, **kwargs: (
+                    query_params,
+                    datetime.datetime.now(datetime.UTC),
+                )
+            )
+        )
+        user_service = pretend.stub(
+            get_user=pretend.call_recorder(lambda userid: user),
+            check_recovery_code=lambda userid, recovery_code_value: True,
+        )
+
+        db_request.find_service = lambda interface, name=None, **kwargs: {
+            ITokenService: {
+                "two_factor": two_factor_token_service,
+                None: two_factor_token_service,
+            },
+            IUserService: {
+                None: user_service,
+            },
+        }[interface][name]
+
+        db_request.method = "POST"
+
+        form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            recovery_code_value=pretend.stub(data="recovery-code"),
+        )
+        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
+        db_request.route_path = pretend.call_recorder(
+            lambda a: "/account/confirm-login"
+        )
+        db_request.params = pretend.stub(
+            get=pretend.call_recorder(lambda k: query_params.get(k))
+        )
+
+        UserUniqueLoginFactory.create(
+            user=user,
+            ip_address=db_request.remote_addr,
+            status=UniqueLoginStatus.PENDING,
+        )
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_unrecognized_login_email", send_email)
+
+        result = views.recovery_code(db_request, _form_class=form_class)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/account/confirm-login"
+        assert send_email.calls == []
 
     def test_recovery_code_form_invalid(self):
         token_data = {"userid": 1}
