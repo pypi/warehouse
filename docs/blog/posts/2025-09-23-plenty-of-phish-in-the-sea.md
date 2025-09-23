@@ -19,6 +19,8 @@ and targeting many other open source repositories
 but with a different domain name. Judging from this, we believe this type of campaign will continue
 with new domains in the future.
 
+<!-- more -->
+
 In short, there's a new phishing campaign
 targeting PyPI users occurring right now. The email asks you to "verify their email address"
 for "account maintenance and security procedures" with a note that your account may be suspended.
