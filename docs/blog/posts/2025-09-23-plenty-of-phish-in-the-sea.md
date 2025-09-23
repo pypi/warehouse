@@ -45,11 +45,9 @@ Below are the following steps we're taking to keep users safe:
 
 If you are a maintainer of a package on PyPI, you can help protect your users by adopting the following practices:
 
-* Always double-check emails that appear to come from PyPI by visiting "[pypi.org](https://pypi.org)" in a new browser tab.
-  Don't trust or click links in emails that you yourself didn't trigger.
-* Using a password manager that auto-fills based on domain name and exclusively using this feature.
+* Don't trust or click on links in emails that you didn't trigger yourself.
+* Use a password manager that auto-fills based on domain name and exclusively using this feature.
   If auto-fill isn't working when it usually does, that is a warning sign!
-* Adopting a phishing-resistant 2FA method such as hardware keys.
+* Adopt a phishing-resistant 2FA method such as hardware keys.
 * When in doubt, ask for help before taking action. There is no shame in being cautious, share fishy-looking emails with others.
-* Share this within your own communities. PyPI is not the first or last open source service that will be targeted with phishing attacks.
-
+* Share this warning within your own communities. PyPI is not the first or last open source service that will be targeted with phishing attacks.
