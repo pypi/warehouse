@@ -40,8 +40,7 @@ Below are the following steps we're taking to keep users safe:
 * Submitting phishing domains to lists of known-malicious URLs. This makes browsers show a warning
   before visiting the website, hopefully triggering alarm bells for users.
 * Collaborating with other open source package managers to share strategies for quicker domain take-downs.
-* [Requiring an email confirmation for TOTP-based logins](https://github.com/pypi/warehouse/pull/18689) when logging in from a new device.
-  Phishing-resistant 2FA methods like hardware keys won't require this confirmation.
+* Exploring methods to make authenticating using TOTP-based 2FA more resistant to phishing.
 
 ## What can you do as a maintainer?
 
