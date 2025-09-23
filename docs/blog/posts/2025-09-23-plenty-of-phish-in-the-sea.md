@@ -14,7 +14,7 @@ links:
 ---
 
 Unfortunately the string of phishing attacks using domain-confusion
-and legitimate-looking emails continues. This is the [same attack PyPI saw a few months ago](2025-07-28-pypi-phishing-attack)
+and legitimate-looking emails continues. This is the [same attack PyPI saw a few months ago](2025-07-28-pypi-phishing-attack.md)
 and targeting many other open source repositories
 but with a different domain name. Judging from this, we believe this type of campaign will continue
 with new domains in the future.
@@ -23,6 +23,10 @@ In short, there's a new phishing campaign
 targeting PyPI users occurring right now. The email asks you to "verify their email address"
 for "account maintenance and security procedures" with a note that your account may be suspended.
 This email is fake, and the link goes to `pypi-mirror.org` which is a domain not owned by PyPI or the PSF.
+
+If you have already clicked on the link and provided your credentials, we recommend changing your
+password on PyPI immediately. Inspect your account's Security History for anything unexpected.
+Report suspicious activity, such as potential phishing campaigns against PyPI, to [`security@pypi.org`](mailto:security@pypi.org).
 
 ## What is PyPI doing to protect users?
 
@@ -48,3 +52,4 @@ If you are a maintainer of a package on PyPI, you can help protect your users by
 * Adopting a phishing-resistant 2FA method such as hardware keys.
 * When in doubt, ask for help before taking action. There is no shame in being cautious, share fishy-looking emails with others.
 * Share this within your own communities. PyPI is not the first or last open source service that will be targeted with phishing attacks.
+
