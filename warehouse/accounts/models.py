@@ -493,6 +493,12 @@ class UserUniqueLogin(db.Model):
         UniqueConstraint(
             "user_id", "ip_address", name="_user_unique_logins_user_id_ip_address_uc"
         ),
+        Index(
+            "user_unique_logins_user_id_ip_address_idx",
+            "user_id",
+            "ip_address",
+            unique=True,
+        ),
     )
 
     user_id: Mapped[UUID] = mapped_column(

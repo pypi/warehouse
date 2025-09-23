@@ -56,11 +56,20 @@ def upgrade():
         ["user_id"],
         unique=False,
     )
+    op.create_index(
+        "user_unique_logins_user_id_ip_address_idx",
+        "user_unique_logins",
+        ["user_id", "ip_address"],
+        unique=True,
+    )
 
 
 def downgrade():
     op.drop_index(
         op.f("ix_user_unique_logins_user_id"), table_name="user_unique_logins"
+    )
+    op.drop_index(
+        "user_unique_logins_user_id_ip_address_idx", table_name="user_unique_logins"
     )
     op.drop_table("user_unique_logins")
     sa.Enum("pending", "confirmed", name="uniqueloginstatus").drop(op.get_bind())
