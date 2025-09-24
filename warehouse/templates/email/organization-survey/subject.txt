@@ -2,4 +2,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}Help shape the future of PyPI Organizations for {{ organization_name }}{% endblock %}
+{% block subject %}Reminder: Help shape the future of PyPI Organizations for {{ organization_name }}{% endblock %}
