@@ -441,13 +441,13 @@
          data-controller="filter-list">
       <h2 class="page-title">{% trans %}Download files{% endtrans %}</h2>
       <p>
-        {% trans href='https://packaging.python.org/tutorials/installing-packages/', title=gettext('External link') %}Download the file for your platform. If you're not sure which to choose, learn more about <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">installing packages</a>.{% endtrans %}
+        {% trans href='https://packaging.python.org/en/latest/discussions/package-formats/#package-formats', title=gettext('External link') %}For a detailed explanation of source distributions (sdists) and built distributions (wheels), please see the  <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">package formats documentation</a>.{% endtrans %}
       </p>
       <h3>
         {% trans count=sdists|length %}
-        Source Distribution
+        Source distribution (sdist)
       {% pluralize %}
-        Source Distributions
+        Source distributions (sdists)
       {% endtrans %}
     </h3>
     {% if sdists %}
@@ -457,30 +457,24 @@
         <div class="file__graphic">
           <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
         </div>
-        <div class="card">
+        <div>
           {% trans %}No source distribution files available for this release.{% endtrans %}
           {% trans href='https://packaging.python.org/tutorials/packaging-projects/#generating-distribution-archives', title=gettext('External link') %}See tutorial on <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">generating distribution archives</a>.{% endtrans %}
         </div>
       </div>
     {% endif %}
+
     {% if bdists %}
+    {% set bdist_count = bdists|length %}
       <h3>
-        {% trans count=bdists|length %}
-        Built Distribution
+        {% trans count=bdist_count %}
+        Built distribution (wheel)
       {% pluralize %}
-        Built Distributions
+        Built distributions (wheels)
       {% endtrans %}
     </h3>
-    <p class="hidden initial-toggle-visibility">
-      {% trans %}Filter files by name, interpreter, ABI, and platform.{% endtrans %}
-    </p>
-    <p>
-      {% trans href='https://packaging.python.org/en/latest/specifications/binary-distribution-format/', title=gettext('External link') %}If you're not sure about the file name format, learn more about <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">wheel file names</a>.{% endtrans %}
-    </p>
+    {% if bdist_count > 1 %}
     <noscript>
-      <p class="initial-toggle-visibility">
-        {% trans %}The dropdown lists show the available interpreters, ABIs, and platforms.{% endtrans %}
-      </p>
       <p class="initial-toggle-visibility">
         {% trans %}Enable javascript to be able to filter the list of wheel files.{% endtrans %}
       </p>
@@ -498,9 +492,6 @@
               data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
         {% trans %}Copy{% endtrans %}
       </button>
-    </p>
-    <p class="hidden initial-toggle-visibility">
-      <span data-filter-list-target="summary"></span>
     </p>
     <div>
       <div class="form-group hidden initial-toggle-visibility">
@@ -524,7 +515,16 @@
         <div class="form-group col-third">{{ filter_select('platforms', 'Platform', wheel_filters_params) }}</div>
       </div>
     </div>
+    {% endif %}
+
     {{ file_table(bdists) }}
+
+    {% if bdist_count > 1 %}
+    <p class="hidden initial-toggle-visibility">
+      <span data-filter-list-target="summary"></span>
+    </p>
+    {% endif %}
+    
   {% endif %}
 </div>
 {# Tabs: file details #}
