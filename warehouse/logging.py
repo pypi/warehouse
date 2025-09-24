@@ -21,67 +21,6 @@ else:
     RENDERER = structlog.processors.JSONRenderer()
 
 
-class StructlogFormatter(logging.Formatter):
-    # Pattern to parse Gunicorn access logs
-    ACCESS_LOG_PATTERN = re.compile(
-        r"(?P<remote_addr>[\d\.]+) - - "
-        r"\[(?P<timestamp>[^\]]+)\] "
-        r'"(?P<method>\w+) (?P<path>[^\s]+) (?P<protocol>[^"]+)" '
-        r"(?P<status>\d+) (?P<size>\d+) "
-        r'"(?P<referrer>[^"]*)" '
-        r'"(?P<user_agent>[^"]*)"'
-    )
-
-    def format(self, record):
-        # Handle Gunicorn access logs with structured parsing
-        if record.name == "gunicorn.access":
-            match = self.ACCESS_LOG_PATTERN.match(record.msg)
-            if match:
-                event_dict = {
-                    "logger": record.name,
-                    "level": record.levelname,
-                    "event": "http_request",
-                    "remote_addr": match.group("remote_addr"),
-                    "method": match.group("method"),
-                    "path": match.group("path"),
-                    "protocol": match.group("protocol"),
-                    "status": int(match.group("status")),
-                    "response_size": int(match.group("size")),
-                    "referrer": (
-                        match.group("referrer")
-                        if match.group("referrer") != "-"
-                        else None
-                    ),
-                    "user_agent": match.group("user_agent"),
-                    "thread": threading.get_ident(),
-                }
-                record.msg = RENDERER(None, record.levelname, event_dict)
-            else:
-                # Fallback for access logs that don't match the expected format
-                event_dict = {
-                    "logger": record.name,
-                    "level": record.levelname,
-                    "event": "http_request_unparsed",
-                    "raw_message": record.msg,
-                    "thread": threading.get_ident(),
-                }
-                record.msg = RENDERER(None, record.levelname, event_dict)
-        # Handle other non-warehouse logs
-        elif not record.name.startswith("warehouse."):
-            # TODO: Is there a better way to handle this? Maybe we can figure
-            #       out a way to pass this through the structlog processors
-            #       instead of manually duplicating the side effects here?
-            event_dict = {
-                "logger": record.name,
-                "level": record.levelname,
-                "event": record.msg,
-                "thread": threading.get_ident(),
-            }
-            record.msg = RENDERER(None, record.levelname, event_dict)
-
-        return super().format(record)
-
-
 def _create_id(request):
     return str(uuid.uuid4())
 
@@ -104,6 +43,47 @@ def _add_datadog_context(logger, method_name, event_dict):
     return event_dict
 
 
+def _parse_gunicorn_access_log(logger, method_name, event_dict):
+    """Parse Gunicorn logs into structlog ((only access logs)."""
+    if event_dict.get("logger") != "gunicorn.access":
+        return event_dict
+
+    message = event_dict.get("event", "")
+
+    # based on https://albersdevelopment.net/2019/08/15/using-structlog-with-gunicorn/ and friends
+    # Combined log format: host - user [time] "request" status size "referer" "user-agent"
+    pattern = re.compile(
+        r'(?P<remote_addr>\S+) \S+ (?P<user>\S+) '
+        r'\[(?P<timestamp>.+?)\] "(?P<request>.+?)" '
+        r'(?P<status>\d+) (?P<size>\S+) '
+        r'"(?P<referrer>.*?)" "(?P<user_agent>.*?)"'
+    )
+
+    match = pattern.match(message)
+    if not match:
+        return event_dict
+
+    fields = match.groupdict()
+
+    # sanitize
+    fields["user"] = None if fields["user"] == "-" else fields["user"]
+    fields["status"] = int(fields["status"])
+    fields["size"] = 0 if fields["size"] == "-" else int(fields["size"])
+    fields["referrer"] = None if fields["referrer"] == "-" else fields["referrer"]
+
+    # Parse "GET /path HTTP/1.1" into separate fields
+    request_parts = fields["request"].split(" ", 2)
+    if len(request_parts) >= 2:
+        fields["method"] = request_parts[0]
+        fields["path"] = request_parts[1]
+        if len(request_parts) == 3:
+            fields["protocol"] = request_parts[2]
+
+    event_dict.update(fields)
+    event_dict["event"] = "http_request"
+    return event_dict
+
+
 def _create_logger(request):
     # This has to use **{} instead of just a kwarg because request.id is not
     # an allowed kwarg name.
@@ -111,17 +91,32 @@ def _create_logger(request):
 
 
 def includeme(config):
+    # non structlog thigns
+    foreign_pre_chain = [
+        structlog.stdlib.add_log_level,
+        structlog.stdlib.add_logger_name,
+        structlog.processors.TimeStamper(fmt="iso"),
+        _add_datadog_context,
+        _parse_gunicorn_access_log,
+    ]
+
     # Configure the standard library logging
     logging.config.dictConfig(
         {
             "version": 1,
             "disable_existing_loggers": False,
-            "formatters": {"structlog": {"()": "warehouse.logging.StructlogFormatter"}},
+            "formatters": {
+                "structlog_formatter": {
+                    "()": structlog.stdlib.ProcessorFormatter,
+                    "processor": RENDERER,
+                    "foreign_pre_chain": foreign_pre_chain,
+                }
+            },
             "handlers": {
                 "primary": {
                     "class": "logging.StreamHandler",
                     "stream": "ext://sys.stdout",
-                    "formatter": "structlog",
+                    "formatter": "structlog_formatter",
                 },
             },
             "loggers": {
@@ -160,7 +155,7 @@ def includeme(config):
             structlog.processors.StackInfoRenderer(),
             structlog.processors.format_exc_info,
             _add_datadog_context,
-            RENDERER,
+            structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
         ],
         logger_factory=structlog.stdlib.LoggerFactory(),
         wrapper_class=structlog.stdlib.BoundLogger,
