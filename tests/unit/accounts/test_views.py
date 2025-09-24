@@ -6006,7 +6006,11 @@ class TestConfirmLogin:
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/accounts.login"
         assert db_request.session.flash.calls == [
-            pretend.call("Device details didn't match, please try again", queue="error")
+            pretend.call(
+                "Device details didn't match, please try again from the device you "
+                "originally used to log in.",
+                queue="error",
+            )
         ]
 
     def test_success(self, monkeypatch, db_request):
