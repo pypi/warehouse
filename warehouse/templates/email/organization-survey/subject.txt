@@ -1,0 +1,5 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
+{% extends "email/_base/subject.txt" %}
+
+{% block subject %}Help shape the future of PyPI Organizations for {{ organization_name }}{% endblock %}
