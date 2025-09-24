@@ -14,8 +14,10 @@ import celery.app.backends
 import celery.backends.redis
 import pyramid.scripting
 import pyramid_retry
+import structlog
 import transaction
 import venusian
+from celery import signals
 
 from kombu import Queue
 from pyramid.threadlocal import get_current_request
@@ -35,6 +37,20 @@ celery.app.backends.BACKEND_ALIASES["rediss"] = (
 
 
 logger = logging.getLogger(__name__)
+
+
+# Celery signal handlers for unified structlog configuration
+@signals.after_setup_logger.connect
+def on_after_setup_logger(logger, loglevel, logfile, *args, **kwargs):
+    """Override Celery's default logging behavior with unified structlog configuration."""
+    from warehouse.logging import configure_celery_logging
+    configure_celery_logging(logfile, loglevel)
+
+
+@signals.task_prerun.connect
+def on_task_prerun(sender, task_id, task, **_):
+    """Bind task metadata to contextvars for all logs within the task."""
+    structlog.contextvars.bind_contextvars(task_id=task_id, task_name=task.name)
 
 
 class TLSRedisBackend(celery.backends.redis.RedisBackend):
@@ -302,6 +318,10 @@ def includeme(config: Configurator) -> None:
         REDBEAT_REDIS_URL=s["celery.scheduler_url"],
         # Silence deprecation warning on startup
         broker_connection_retry_on_startup=False,
+        # Disable Celery's logger hijacking for unified structlog control
+        worker_hijack_root_logger=False,
+        worker_log_format="%(message)s",
+        worker_task_log_format="%(message)s",
     )
     config.registry["celery.app"].Task = WarehouseTask
     config.registry["celery.app"].pyramid_config = config
