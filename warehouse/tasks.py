@@ -17,8 +17,8 @@ import pyramid_retry
 import structlog
 import transaction
 import venusian
-from celery import signals
 
+from celery import signals
 from kombu import Queue
 from pyramid.threadlocal import get_current_request
 
@@ -39,10 +39,13 @@ logger = logging.getLogger(__name__)
 
 
 # Celery signal handlers for unified structlog configuration
+# https://github.com/hynek/structlog/issues/287
+# https://www.structlog.org/en/stable/frameworks.html#celery
 @signals.after_setup_logger.connect
 def on_after_setup_logger(logger, loglevel, logfile, *args, **kwargs):
-    """Override Celery's default logging behavior with unified structlog configuration."""
+    """Override Celery's default logging behavior w/ unified structlog configuration."""
     from warehouse.logging import configure_celery_logging
+
     configure_celery_logging(logfile, loglevel)
 
 

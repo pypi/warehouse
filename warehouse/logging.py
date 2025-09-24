@@ -3,7 +3,6 @@
 import logging.config
 import os
 import re
-import threading
 import uuid
 
 import structlog
@@ -19,8 +18,6 @@ if DEV_MODE:
     RENDERER = structlog.dev.ConsoleRenderer(colors=True)
 else:
     RENDERER = structlog.processors.JSONRenderer()
-
-
 
 
 def _create_id(request):
@@ -52,12 +49,15 @@ def _parse_gunicorn_access_log(logger, method_name, event_dict):
 
     message = event_dict.get("event", "")
 
-    # based on https://albersdevelopment.net/2019/08/15/using-structlog-with-gunicorn/ and friends
-    # Combined log format: host - user [time] "request" status size "referer" "user-agent"
+    # based on
+    # https://albersdevelopment.net/2019/08/15/using-structlog-with-gunicorn/
+    # and friends
+    # Combined log format:
+    # host - user [time] "request" status size "referer" "user-agent"
     pattern = re.compile(
-        r'(?P<remote_addr>\S+) \S+ (?P<user>\S+) '
+        r"(?P<remote_addr>\S+) \S+ (?P<user>\S+) "
         r'\[(?P<timestamp>.+?)\] "(?P<request>.+?)" '
-        r'(?P<status>\d+) (?P<size>\S+) '
+        r"(?P<status>\d+) (?P<size>\S+) "
         r'"(?P<referrer>.*?)" "(?P<user_agent>.*?)"'
     )
 
@@ -110,7 +110,8 @@ def configure_celery_logging(logfile: str | None = None, loglevel: int = logging
     root.setLevel(loglevel)
 
     structlog.configure(
-        processors=processors + [
+        processors=processors
+        + [
             structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
         ],
         logger_factory=structlog.stdlib.LoggerFactory(),
