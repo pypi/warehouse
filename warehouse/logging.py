@@ -24,7 +24,7 @@ else:
 class StructlogFormatter(logging.Formatter):
     # Pattern to parse Gunicorn access logs
     ACCESS_LOG_PATTERN = re.compile(
-        r"(?P<request_id>[\w-]+) - - "
+        r"(?P<remote_addr>[\d\.]+) - - "
         r"\[(?P<timestamp>[^\]]+)\] "
         r'"(?P<method>\w+) (?P<path>[^\s]+) (?P<protocol>[^"]+)" '
         r"(?P<status>\d+) (?P<size>\d+) "
@@ -41,7 +41,7 @@ class StructlogFormatter(logging.Formatter):
                     "logger": record.name,
                     "level": record.levelname,
                     "event": "http_request",
-                    "request_id": match.group("request_id"),
+                    "remote_addr": match.group("remote_addr"),
                     "method": match.group("method"),
                     "path": match.group("path"),
                     "protocol": match.group("protocol"),
