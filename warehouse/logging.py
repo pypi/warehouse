@@ -88,7 +88,7 @@ def _parse_gunicorn_access_log(logger, method_name, event_dict):
 
 def configure_celery_logging(logfile: str | None = None, loglevel: int = logging.INFO):
     """Configure unified structlog logging for Celery that handles all log types."""
-    processors = [
+    processors: list = [
         structlog.contextvars.merge_contextvars,
         structlog.processors.TimeStamper(fmt="iso"),
         structlog.stdlib.add_log_level,
@@ -128,7 +128,7 @@ def _create_logger(request):
 
 def includeme(config):
     # non structlog thigns
-    foreign_pre_chain = [
+    foreign_pre_chain: list = [
         structlog.stdlib.add_log_level,
         structlog.stdlib.add_logger_name,
         structlog.processors.TimeStamper(fmt="iso"),
