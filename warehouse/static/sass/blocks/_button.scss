@@ -13,6 +13,7 @@
     - primary: Makes button bright blue.
     - danger: Makes button red.
     - warning: Makes button brown.
+    - link: styles button like a link (removes all padding, border, etc.)
     - disabled: Styles for when the button cannot be clicked.
     - switch-to-desktop: Switch to desktop button found in site footer.
     - switch-to-mobile: Switch to mobile button found in site header.
@@ -123,6 +124,20 @@
     &:focus {
       border-color: $white;
       @include link-focus-state($warning-color);
+    }
+  }
+
+  &--link {
+    padding: 0;
+    background-color: transparent;
+    border: 0;
+    color: $text-color;
+    display: inline-block;
+
+    &:focus,
+    &:hover,
+    &:active {
+      color: $primary-color;
     }
   }
 

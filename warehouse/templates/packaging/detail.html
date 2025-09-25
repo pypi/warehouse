@@ -458,7 +458,7 @@
           <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
         </div>
         <div>
-          {% trans %}No source distribution files available for this release.{% endtrans %}
+          {% trans %}No source distribution files available for this release.{% endtrans %}&nbsp;
           {% trans href='https://packaging.python.org/tutorials/packaging-projects/#generating-distribution-archives', title=gettext('External link') %}See tutorial on <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">generating distribution archives</a>.{% endtrans %}
         </div>
       </div>
@@ -479,40 +479,45 @@
         {% trans %}Enable javascript to be able to filter the list of wheel files.{% endtrans %}
       </p>
     </noscript>
-    <p class="hidden initial-toggle-visibility" data-controller="clipboard">
-      {% trans %}Copy a direct link to the current filters {% endtrans %}
-      <a class="hidden"
-         href="{% if request.matched_route %}{{ request.current_route_url() }}{% else %}{{ request.url }}{% endif %}#files"
-         data-clipboard-target="source"
-         data-filter-list-target="url"></a>
-      <button type="button"
-              class="button button--small copy-tooltip copy-tooltip-w"
+    <div class="filter-wheels">
+      <div class="filter-wheels__search hidden initial-toggle-visibility">
+        <div class="form-group form-group--flex-width">
+          <label class="form-group__label" for="bdist-filenames-filter">{% trans %}Search{% endtrans %}</label>
+          <input class="form-group__field"
+                type="text"
+                id="bdist-filenames-filter"
+                name="bdist-filenames-filter"
+                placeholder="{% trans %}Search by file name{% endtrans %}"
+                {% if wheel_filters_params['filename'] %}value="{{ wheel_filters_params['filename'] }}"{% endif %}
+                autocapitalize="none"
+                autocomplete=""
+                spellcheck="false"
+                data-action="filter-list#filter"
+                data-filter-list-target="filter"
+                data-filtered-source="filename">
+        </div>
+      </div>
+      <div class="filter-wheels__filters">
+        <div class="form-group form-group--flex-width">
+          <strong>Filters</strong>
+          <span class="hidden initial-toggle-visibility" data-controller="clipboard">
+            <a class="hidden"
+              href="{% if request.matched_route %}{{ request.current_route_url() }}{% else %}{{ request.url }}{% endif %}#files"
+              data-clipboard-target="source"
+              data-filter-list-target="url"></a>              
+            <button type="button"
+              class="button--link copy-tooltip copy-tooltip-n"
               data-action="clipboard#copy"
               data-clipboard-target="tooltip"
-              data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
-        {% trans %}Copy{% endtrans %}
-      </button>
-    </p>
-    <div>
-      <div class="form-group hidden initial-toggle-visibility">
-        <label class="form-group__label sr-only" for="bdist-filenames-filter">{% trans %}File name{% endtrans %}</label>
-        <input class="form-group__field"
-               type="text"
-               id="bdist-filenames-filter"
-               name="bdist-filenames-filter"
-               placeholder="{% trans %}File name{% endtrans %}"
-               {% if wheel_filters_params['filename'] %}value="{{ wheel_filters_params['filename'] }}"{% endif %}
-               autocapitalize="none"
-               autocomplete=""
-               spellcheck="false"
-               data-action="filter-list#filter"
-               data-filter-list-target="filter"
-               data-filtered-source="filename">
-      </div>
-      <div class="col-grid">
-        <div class="form-group col-third">{{ filter_select('interpreters', 'Interpreter', wheel_filters_params) }}</div>
-        <div class="form-group col-third">{{ filter_select('abis', 'ABI', wheel_filters_params) }}</div>
-        <div class="form-group col-third">{{ filter_select('platforms', 'Platform', wheel_filters_params) }}</div>
+              data-clipboard-tooltip-value="{% trans %}Copy link to filters{% endtrans %}">
+                <i class="fa fa-link" aria-hidden="true"></i>
+                <span class="sr-only">{% trans %}Copy link to filters{% endtrans %}</span>
+              </button>
+          </span>
+          {{ filter_select('interpreters', 'Interpreter', wheel_filters_params) }}
+        </div>
+        <div class="form-group form-group--flex-width">{{ filter_select('abis', 'ABI', wheel_filters_params) }}</div>
+        <div class="form-group form-group--flex-width">{{ filter_select('platforms', 'Platform', wheel_filters_params) }}</div>
       </div>
     </div>
     {% endif %}

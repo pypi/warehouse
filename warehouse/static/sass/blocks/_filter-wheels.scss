@@ -1,0 +1,56 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+/*
+  Search and filter wheels
+
+  <div class="filter-wheels">
+    <div class="wheel-filters__search">
+      Search bar here
+    </div>
+    <div class="wheel-filters__filters">
+      Filters here
+    </div>
+  </div>
+*/
+
+.filter-wheels {
+  display: flex;
+  gap: $spacing-unit / 2;
+  justify-content: space-between;
+
+  @media only screen and (max-width: $tablet) {
+    flex-wrap: wrap;
+  }
+
+  &__search {
+    flex-grow: 1;
+
+    .form-group input {
+      height: 40px;
+    }
+
+    @media only screen and (max-width: $tablet) {
+      width: 100%;
+    }
+  }
+
+  &__filters {
+    flex-shrink: 0; 
+    flex: 0 1 auto;
+    display: flex;
+    gap: $spacing-unit / 3;
+    align-items: flex-end;
+
+    div {
+      flex: 0 1 auto;
+    }
+
+    @media only screen and (max-width: $tablet) {
+      width: 100%;
+    }
+
+    @media only screen and (max-width: $small-tablet) {
+      display: block;
+    }
+  }
+}
