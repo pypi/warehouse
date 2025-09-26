@@ -1,39 +1,123 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging.config
-import threading
+import os
+import re
 import uuid
 
 import structlog
 
 request_logger = structlog.get_logger("warehouse.request")
 
-RENDERER = structlog.processors.JSONRenderer()
+# Determine if we're in development mode
+DEV_MODE = os.environ.get("WAREHOUSE_ENV") == "development"
 
-
-class StructlogFormatter(logging.Formatter):
-    def format(self, record):
-        # TODO: Figure out a better way of handling this besides just looking
-        #       at the logger name, ideally this would have some way to
-        #       really differentiate between log items which were logged by
-        #       structlog and which were not.
-        if not record.name.startswith("warehouse."):
-            # TODO: Is there a better way to handle this? Maybe we can figure
-            #       out a way to pass this through the structlog processors
-            #       instead of manually duplicating the side effects here?
-            event_dict = {
-                "logger": record.name,
-                "level": record.levelname,
-                "event": record.msg,
-                "thread": threading.get_ident(),
-            }
-            record.msg = RENDERER(None, record.levelname, event_dict)
-
-        return super().format(record)
+# Choose renderer based on environment
+RENDERER: structlog.dev.ConsoleRenderer | structlog.processors.JSONRenderer
+if DEV_MODE:
+    RENDERER = structlog.dev.ConsoleRenderer(colors=True)
+else:
+    RENDERER = structlog.processors.JSONRenderer()
 
 
 def _create_id(request):
     return str(uuid.uuid4())
+
+
+def _add_datadog_context(logger, method_name, event_dict):
+    """Add Datadog trace context if available"""
+    try:
+        import ddtrace
+
+        span = ddtrace.tracer.current_span()
+        if span:
+            event_dict["dd.trace_id"] = str(span.trace_id)
+            event_dict["dd.span_id"] = str(span.span_id)
+            event_dict["dd.service"] = span.service
+        # deployment metadata
+        event_dict["dd.env"] = os.environ.get("DD_ENV", "development")
+        event_dict["dd.version"] = os.environ.get("DD_VERSION", "unknown")
+    except (ImportError, AttributeError):
+        pass
+    return event_dict
+
+
+def _parse_gunicorn_access_log(logger, method_name, event_dict):
+    """Parse Gunicorn logs into structlog ((only access logs)."""
+    if event_dict.get("logger") != "gunicorn.access":
+        return event_dict
+
+    message = event_dict.get("event", "")
+
+    # based on
+    # https://albersdevelopment.net/2019/08/15/using-structlog-with-gunicorn/
+    # and friends
+    # Combined log format:
+    # host - user [time] "request" status size "referer" "user-agent"
+    pattern = re.compile(
+        r"(?P<remote_addr>\S+) \S+ (?P<user>\S+) "
+        r'\[(?P<timestamp>.+?)\] "(?P<request>.+?)" '
+        r"(?P<status>\d+) (?P<size>\S+) "
+        r'"(?P<referrer>.*?)" "(?P<user_agent>.*?)"'
+    )
+
+    match = pattern.match(message)
+    if not match:
+        return event_dict
+
+    fields = match.groupdict()
+
+    # sanitize
+    fields["user"] = None if fields["user"] == "-" else fields["user"]
+    fields["status"] = int(fields["status"])
+    fields["size"] = 0 if fields["size"] == "-" else int(fields["size"])
+    fields["referrer"] = None if fields["referrer"] == "-" else fields["referrer"]
+
+    # Parse "GET /path HTTP/1.1" into separate fields
+    request_parts = fields["request"].split(" ", 2)
+    if len(request_parts) >= 2:
+        fields["method"] = request_parts[0]
+        fields["path"] = request_parts[1]
+        if len(request_parts) == 3:
+            fields["protocol"] = request_parts[2]
+
+    event_dict.update(fields)
+    event_dict["event"] = "http_request"
+    return event_dict
+
+
+def configure_celery_logging(logfile: str | None = None, loglevel: int = logging.INFO):
+    """Configure unified structlog logging for Celery that handles all log types."""
+    processors: list = [
+        structlog.contextvars.merge_contextvars,
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.stdlib.add_log_level,
+        structlog.processors.StackInfoRenderer(),
+        structlog.processors.format_exc_info,
+        _add_datadog_context,
+    ]
+    formatter = structlog.stdlib.ProcessorFormatter(
+        processor=RENDERER,
+        foreign_pre_chain=processors,
+    )
+
+    handler = logging.FileHandler(logfile) if logfile else logging.StreamHandler()
+    handler.setFormatter(formatter)
+
+    root = logging.getLogger()
+    root.handlers.clear()
+    root.addHandler(handler)
+    root.setLevel(loglevel)
+
+    structlog.configure(
+        processors=processors
+        + [
+            structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
+        ],
+        logger_factory=structlog.stdlib.LoggerFactory(),
+        wrapper_class=structlog.make_filtering_bound_logger(logging.INFO),
+        cache_logger_on_first_use=True,
+    )
 
 
 def _create_logger(request):
@@ -43,17 +127,32 @@ def _create_logger(request):
 
 
 def includeme(config):
+    # non structlog thigns
+    foreign_pre_chain: list = [
+        structlog.stdlib.add_log_level,
+        structlog.stdlib.add_logger_name,
+        structlog.processors.TimeStamper(fmt="iso"),
+        _add_datadog_context,
+        _parse_gunicorn_access_log,
+    ]
+
     # Configure the standard library logging
     logging.config.dictConfig(
         {
             "version": 1,
             "disable_existing_loggers": False,
-            "formatters": {"structlog": {"()": "warehouse.logging.StructlogFormatter"}},
+            "formatters": {
+                "structlog_formatter": {
+                    "()": structlog.stdlib.ProcessorFormatter,
+                    "processor": RENDERER,
+                    "foreign_pre_chain": foreign_pre_chain,
+                }
+            },
             "handlers": {
                 "primary": {
                     "class": "logging.StreamHandler",
                     "stream": "ext://sys.stdout",
-                    "formatter": "structlog",
+                    "formatter": "structlog_formatter",
                 },
             },
             "loggers": {
@@ -88,9 +187,11 @@ def includeme(config):
             structlog.stdlib.add_logger_name,
             structlog.stdlib.add_log_level,
             structlog.stdlib.PositionalArgumentsFormatter(),
+            structlog.processors.TimeStamper(fmt="iso"),
             structlog.processors.StackInfoRenderer(),
             structlog.processors.format_exc_info,
-            RENDERER,
+            _add_datadog_context,
+            structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
         ],
         logger_factory=structlog.stdlib.LoggerFactory(),
         wrapper_class=structlog.stdlib.BoundLogger,
