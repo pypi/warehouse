@@ -13,5 +13,6 @@ Disallow: /pypi*?
 Disallow: /search*
 Disallow: /_/
 Disallow: /integrity/
+Disallow: /account/
 Disallow: /admin/
 {% endif %}
