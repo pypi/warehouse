@@ -2994,7 +2994,7 @@ class TestManageProjectSettings:
             user=user,
             organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            route_path=lambda *a, **kw: "/foo/bar/",
+            route_path=pretend.call_recorder(lambda *a, **kw: "/foo/bar/"),
         )
 
         with pytest.raises(HTTPSeeOther) as exc:
@@ -3012,21 +3012,6 @@ class TestManageProjectSettings:
             )
         ]
 
-    def test_remove_organization_project_disable_organizations(self):
-        project = pretend.stub(name="foo", normalized_name="foo")
-        request = pretend.stub(
-            organization_access=False,
-            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-        )
-
-        result = org_views.remove_organization_project(project, request)
-
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
-        assert request.session.flash.calls == [
-            pretend.call("Organizations are disabled", queue="error")
-        ]
         assert request.route_path.calls == [
             pretend.call("manage.project.settings", project_name="foo")
         ]
@@ -3248,26 +3233,6 @@ class TestManageProjectSettings:
                 "Could not transfer project - 'FOO' is not the same as 'foo'",
                 queue="error",
             )
-        ]
-
-    def test_transfer_organization_project_disable_organizations(self):
-        project = pretend.stub(name="foo", normalized_name="foo")
-        request = pretend.stub(
-            organization_access=False,
-            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-        )
-
-        result = org_views.transfer_organization_project(project, request)
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
-
-        assert request.session.flash.calls == [
-            pretend.call("Organizations are disabled", queue="error")
-        ]
-
-        assert request.route_path.calls == [
-            pretend.call("manage.project.settings", project_name="foo")
         ]
 
     def test_transfer_organization_project_no_current_organization(
@@ -4808,7 +4773,7 @@ class TestManageProjectRelease:
 
 class TestManageProjectRoles:
     @pytest.fixture
-    def organization(self, _enable_organizations, pyramid_user):
+    def organization(self, pyramid_user):
         organization = OrganizationFactory.create()
         OrganizationRoleFactory.create(
             organization=organization,
