@@ -5,6 +5,11 @@
   <div class="col-grid">
     <div class="col-half"></div>
   </div>
+
+   Column that is 33% wide:
+   <div class="col-grid">
+     <div class="col-third"></div>
+   </div>
 */
 
 .col-grid {
@@ -13,6 +18,24 @@
 
 .col-half {
   grid-column: span 6;
+
+  &:last-of-type {
+    margin: 0;
+  }
+
+  @media only screen and (max-width: $tablet) {
+    float: none;
+    margin: 0;
+    width: 100%;
+
+    &:first-of-type {
+      margin-bottom: $spacing-unit;
+    }
+  }
+}
+
+.col-third {
+  grid-column: span 4;
 
   &:last-of-type {
     margin: 0;

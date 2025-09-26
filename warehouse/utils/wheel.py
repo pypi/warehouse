@@ -2,6 +2,7 @@
 
 import re
 
+import packaging.tags
 import packaging.utils
 
 # import sentry_sdk
@@ -69,16 +70,22 @@ def _format_version(s: str) -> str:
     return f"{s[0]}.{s[1:]}"
 
 
+def filename_to_tags(filename: str) -> set[packaging.tags.Tag]:
+    """Parse a wheel file name to extract the tags."""
+    try:
+        _, _, _, tags = packaging.utils.parse_wheel_filename(filename)
+        return set(tags)
+    except packaging.utils.InvalidWheelFilename:
+        return set()
+
+
 def filename_to_pretty_tags(filename: str) -> list[str]:
     if filename.endswith(".egg"):
         return ["Egg"]
     elif not filename.endswith(".whl"):
         return ["Source"]
 
-    try:
-        _, _, _, tags = packaging.utils.parse_wheel_filename(filename)
-    except packaging.utils.InvalidWheelFilename:
-        return []
+    tags = filename_to_tags(filename)
 
     pretty_tags = set()
     for tag in tags:
@@ -118,3 +125,31 @@ def filename_to_pretty_tags(filename: str) -> list[str]:
             pretty_tags.add(tag.interpreter)
 
     return sorted(pretty_tags)
+
+
+def filenames_to_filters(filenames: list[str]) -> dict[str, list[str]]:
+    tags = set()
+    for filename in filenames:
+        tags.update(filename_to_tags(filename))
+    return tags_to_filters(tags)
+
+
+def filename_to_filters(filename: str) -> dict[str, list[str]]:
+    tags = filename_to_tags(filename)
+    return tags_to_filters(tags)
+
+
+def tags_to_filters(tags: set[packaging.tags.Tag]) -> dict[str, list[str]]:
+    interpreters = set()
+    abis = set()
+    platforms = set()
+    for tag in tags or []:
+        interpreters.add(tag.interpreter)
+        abis.add(tag.abi)
+        platforms.add(tag.platform)
+
+    return {
+        "interpreters": sorted(interpreters),
+        "abis": sorted(abis),
+        "platforms": sorted(platforms),
+    }

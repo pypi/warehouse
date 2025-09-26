@@ -37,6 +37,7 @@ def test_robots_txt(app_config, domain, indexable):
             "Disallow: /search*\n"
             "Disallow: /_/\n"
             "Disallow: /integrity/\n"
+            "Disallow: /account/\n"
             "Disallow: /admin/\n"
         )
     else:
