@@ -1,5 +1,5 @@
 # Set variables reused in Dockerfile
-ARG PYTHON_IMAGE_VERSION=3.13.11-slim-bookworm
+ARG PYTHON_IMAGE_VERSION=3.14.2-slim-bookworm
 
 # First things first, we build an image which is where we're going to compile
 # our static assets with. We use this stage in development.
