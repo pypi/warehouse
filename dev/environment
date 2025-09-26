@@ -59,6 +59,7 @@ TOKEN_PASSWORD_SECRET="an insecure password reset secret key"
 TOKEN_EMAIL_SECRET="an insecure email verification secret key"
 TOKEN_TWO_FACTOR_SECRET="an insecure two-factor auth secret key"
 TOKEN_REMEMBER_DEVICE_SECRET="an insecure remember device auth secret key"
+TOKEN_CONFIRM_LOGIN_SECRET="an insecure confirm login auth secret key"
 
 WAREHOUSE_LEGACY_DOMAIN=pypi.python.org
 

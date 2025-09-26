@@ -190,6 +190,9 @@ def test_routes(warehouse):
             "accounts.reset-password", "/account/reset-password/", domain=warehouse
         ),
         pretend.call(
+            "accounts.confirm-login", "/account/confirm-login/", domain=warehouse
+        ),
+        pretend.call(
             "accounts.verify-email", "/account/verify-email/", domain=warehouse
         ),
         pretend.call(
