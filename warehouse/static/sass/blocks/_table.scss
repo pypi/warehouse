@@ -30,8 +30,9 @@
 
    Modifiers:
      - downloads: specific styles for downloads table on project detail page
+     - files: specific styles for files table on project detail page
      - releases: specific styles for releases table on manage project page
-     - files: specific styles for files table on releases tab
+     - manage-files: specific styles for files table on the releases tab
      - history: specific styles for project journals
      - hashes: specific styles for the hashes table on an individual file
      - collaborators: specific styles for managing a project's collaborators
@@ -58,6 +59,7 @@
   tbody tr td:last-child {
     display: block;
     width: 100%;
+    max-width: 100%;
     text-align: left;
     border-bottom: 0;
     padding: 2px 0;
@@ -175,6 +177,19 @@
     }
   }
 
+  &--files {
+    margin-bottom: $half-spacing-unit;
+
+    td.file-name {
+      word-wrap: break-word;
+      max-width: 250px;
+    }
+
+    @media only screen and (max-width: $desktop) {
+      @include mobile-friendly-table;
+    }
+  }
+
   &--releases {
     word-wrap: break-word;
     margin-bottom: $spacing-unit;
@@ -185,7 +200,7 @@
     }
   }
 
-  &--files,
+  &--manage-files,
   &--history {
     margin-top: $half-spacing-unit;
 
