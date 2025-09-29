@@ -282,6 +282,17 @@ class GitLabPublisherMixin:
             )
         ).scalar()
 
+    @property
+    def admin_details(self) -> list[tuple[str, str]]:
+        """Returns GitLab publisher configuration details for admin display."""
+        details = [
+            ("Project", self.project_path),
+            ("Workflow", self.workflow_filepath),
+        ]
+        if self.environment:
+            details.append(("Environment", self.environment))
+        return details
+
 
 class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):
     __tablename__ = "gitlab_oidc_publishers"

@@ -249,6 +249,33 @@ class TestGitLabPublisher:
             "ref_path": "someref",
         }
 
+    def test_gitlab_publisher_admin_details_with_environment(self):
+        publisher = gitlab.GitLabPublisher(
+            project="fakerepo",
+            namespace="fakeowner",
+            workflow_filepath="subfolder/fakeworkflow.yml",
+            environment="fakeenv",
+        )
+
+        assert publisher.admin_details == [
+            ("Project", "fakeowner/fakerepo"),
+            ("Workflow", "subfolder/fakeworkflow.yml"),
+            ("Environment", "fakeenv"),
+        ]
+
+    def test_gitlab_publisher_admin_details_without_environment(self):
+        publisher = gitlab.GitLabPublisher(
+            project="fakerepo",
+            namespace="fakeowner",
+            workflow_filepath="subfolder/fakeworkflow.yml",
+            environment="",
+        )
+
+        assert publisher.admin_details == [
+            ("Project", "fakeowner/fakerepo"),
+            ("Workflow", "subfolder/fakeworkflow.yml"),
+        ]
+
     def test_gitlab_publisher_unaccounted_claims(self, monkeypatch):
         scope = pretend.stub()
         sentry_sdk = pretend.stub(

@@ -292,6 +292,18 @@ class GitHubPublisherMixin:
             )
         ).scalar()
 
+    @property
+    def admin_details(self) -> list[tuple[str, str]]:
+        """Returns GitHub publisher configuration details for admin display."""
+        details = [
+            ("Repository", self.repository),
+            ("Workflow", self.workflow_filename),
+            ("Owner ID", self.repository_owner_id),
+        ]
+        if self.environment:
+            details.append(("Environment", self.environment))
+        return details
+
 
 class GitHubPublisher(GitHubPublisherMixin, OIDCPublisher):
     __tablename__ = "github_oidc_publishers"

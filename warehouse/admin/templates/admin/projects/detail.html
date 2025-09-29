@@ -129,7 +129,7 @@
           <td></td>
         </tr>
         <tr>
-          <td rowspan="2" style="vertical-align: top;">Upload limit</td>
+          <td rowspan="2">Upload limit</td>
           <td colspan="3">
             {# Calculate effective limit #}
             {% set effective_upload_limit = MAX_FILESIZE %}
@@ -142,16 +142,16 @@
               {% set effective_upload_limit = project.organization.upload_limit %}
               {% set limit_source = "organization" %}
             {% endif %}
-            
-            <div class="alert alert-info" style="margin-bottom: 10px;">
+
+            <div class="alert alert-info">
               <strong>Effective limit: {{ effective_upload_limit|filesizeformat(binary=True) }}</strong> (from {{ limit_source }})
             </div>
-            
-            <table class="table table-sm table-bordered" style="margin-bottom: 0;">
+
+            <table class="table table-sm table-bordered">
               <tr>
-                <td style="width: 40%;">System default:</td>
-                <td style="width: 30%;">{{ MAX_FILESIZE|filesizeformat(binary=True) }}</td>
-                <td style="width: 30%;"><small class="text-muted">Not configurable</small></td>
+                <td>System default:</td>
+                <td>{{ MAX_FILESIZE|filesizeformat(binary=True) }}</td>
+                <td><small class="text-muted">Not configurable</small></td>
               </tr>
               <tr>
                 <td>Project limit:</td>
@@ -193,7 +193,7 @@
                 {% else %}
                 {% set upload_limit_value = '' %}
                 {% endif %}
-                <input type="number" name="upload_limit" id="uploadLimit" class="form-control form-control-sm mr-2" min="{{ MAX_FILESIZE / ONE_MIB }}" max="{{ UPLOAD_LIMIT_CAP / ONE_MIB }}" step=1 value="{{ upload_limit_value|int }}" style="width: 100px;"> 
+                <input type="number" name="upload_limit" id="uploadLimit" class="form-control form-control-sm mr-2" min="{{ MAX_FILESIZE / ONE_MIB }}" max="{{ UPLOAD_LIMIT_CAP / ONE_MIB }}" step=1 value="{{ upload_limit_value|int }}">
                 <span class="mr-3">MiB</span>
                 <button type="submit" class="btn btn-primary btn-sm">Update</button>
                 {% if project.upload_limit and limit_source != "project" %}
@@ -204,7 +204,7 @@
           </form>
         </tr>
         <tr>
-          <td rowspan="2" style="vertical-align: top;">Total size limit</td>
+          <td rowspan="2">Total size limit</td>
           <td colspan="3">
             {# Calculate effective limit #}
             {% set effective_total_size_limit = MAX_PROJECT_SIZE %}
@@ -217,16 +217,16 @@
               {% set effective_total_size_limit = project.organization.total_size_limit %}
               {% set size_limit_source = "organization" %}
             {% endif %}
-            
-            <div class="alert alert-info" style="margin-bottom: 10px;">
+
+            <div class="alert alert-info">
               <strong>Effective limit: {{ effective_total_size_limit|filesizeformat(binary=True) }}</strong> (from {{ size_limit_source }})
             </div>
-            
-            <table class="table table-sm table-bordered" style="margin-bottom: 0;">
+
+            <table class="table table-sm table-bordered">
               <tr>
-                <td style="width: 40%;">System default:</td>
-                <td style="width: 30%;">{{ MAX_PROJECT_SIZE|filesizeformat(binary=True) }}</td>
-                <td style="width: 30%;"><small class="text-muted">Not configurable</small></td>
+                <td>System default:</td>
+                <td>{{ MAX_PROJECT_SIZE|filesizeformat(binary=True) }}</td>
+                <td><small class="text-muted">Not configurable</small></td>
               </tr>
               <tr>
                 <td>Project limit:</td>
@@ -268,7 +268,7 @@
                 {% else %}
                 {% set total_size_limit_value = '' %}
                 {% endif %}
-                <input type="number" name="total_size_limit" id="totalSizeLimit" class="form-control form-control-sm mr-2" min="{{ MAX_PROJECT_SIZE // ONE_GIB }}" value="{{total_size_limit_value}}" style="width: 100px;">
+                <input type="number" name="total_size_limit" id="totalSizeLimit" class="form-control form-control-sm mr-2" min="{{ MAX_PROJECT_SIZE // ONE_GIB }}" value="{{total_size_limit_value}}">
                 <span class="mr-3">GiB</span>
                 <button type="submit" class="btn btn-primary btn-sm">Update</button>
                 {% if project.total_size_limit and size_limit_source != "project" %}
@@ -480,21 +480,35 @@
       <table class="table table-hover table-striped">
         <thead>
           <tr>
-            <th>Publisher name</th>
+            <th>Publisher</th>
+            <th>Configuration</th>
             <th>URL</th>
-            <th>repr</th>
           </tr>
         </thead>
         <tbody>
           {% for pub in oidc_publishers %}
           <tr>
-            <td>{{ pub.publisher_name }}</td>
-            {% if pub.publisher_url() %}
-            <td><a href="{{ pub.publisher_url() }}">{{ pub.publisher_url() }}</a></td>
-            {% else %}
-            <td>N/A</td>
-            {% endif %}
-            <td><code>{{ pub }}</code></td>
+            <td><strong>{{ pub.publisher_name }}</strong></td>
+            <td>
+              {% if pub.admin_details %}
+                <dl class="mb-0">
+                  {% for label, value in pub.admin_details %}
+                    <dt class="small d-inline-block">{{ label }}:</dt>
+                    <dd class="small d-inline"><code>{{ value }}</code></dd>
+                    <br>
+                  {% endfor %}
+                </dl>
+              {% else %}
+                <code>{{ pub }}</code>
+              {% endif %}
+            </td>
+            <td>
+              {% if pub.publisher_url() %}
+                <a href="{{ pub.publisher_url() }}" target="_blank">{{ pub.publisher_url() }}</a>
+              {% else %}
+                <span class="text-muted">N/A</span>
+              {% endif %}
+            </td>
           </tr>
           {% endfor %}
         </tbody>

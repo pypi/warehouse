@@ -346,6 +346,14 @@ class OIDCPublisherMixin:
         # Only concrete subclasses are constructed.
         raise NotImplementedError
 
+    @property
+    def admin_details(self) -> list[tuple[str, str]]:
+        """
+        Returns a list of (label, value) tuples for display in admin interface.
+        Each publisher should override this to provide its configuration details.
+        """
+        return []
+
 
 class OIDCPublisher(OIDCPublisherMixin, db.Model):
     __tablename__ = "oidc_publishers"

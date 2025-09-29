@@ -47,6 +47,10 @@ class TestOIDCPublisher:
         publisher = _core.OIDCPublisher(projects=[])
         assert not publisher.attestation_identity
 
+    def test_admin_details_default(self):
+        publisher = _core.OIDCPublisher(projects=[])
+        assert publisher.admin_details == []
+
     @pytest.mark.parametrize(
         ("url", "publisher_url", "expected"),
         [

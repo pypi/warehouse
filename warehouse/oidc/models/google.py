@@ -113,6 +113,16 @@ class GooglePublisherMixin:
             )
         ).scalar()
 
+    @property
+    def admin_details(self) -> list[tuple[str, str]]:
+        """Returns Google publisher configuration details for admin display."""
+        details = [
+            ("Email", self.email),
+        ]
+        if self.sub:
+            details.append(("Subject", self.sub))
+        return details
+
 
 class GooglePublisher(GooglePublisherMixin, OIDCPublisher):
     __tablename__ = "google_oidc_publishers"
