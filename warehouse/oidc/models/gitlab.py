@@ -33,8 +33,8 @@ _WORKFLOW_FILEPATH_RE = re.compile(
                       # component of the claim.
 
     (                 # our capture group
-        .+            # match one or more of any character, including slashes
-        [^/]          # match at least one non-slash character, to prevent
+        .*            # match zero or more of any character, including slashes
+        [^/]          # match exactly one non-slash character, to prevent
                       # empty basenames (e.g. `foo/.yml`)
         \.(yml|yaml)  # match the literal suffix `.yml` or `.yaml`
     )
@@ -281,6 +281,17 @@ class GitLabPublisherMixin:
                 )
             )
         ).scalar()
+
+    @property
+    def admin_details(self) -> list[tuple[str, str]]:
+        """Returns GitLab publisher configuration details for admin display."""
+        details = [
+            ("Project", self.project_path),
+            ("Workflow", self.workflow_filepath),
+        ]
+        if self.environment:
+            details.append(("Environment", self.environment))
+        return details
 
 
 class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):

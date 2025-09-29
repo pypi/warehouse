@@ -34,6 +34,27 @@ class TestGooglePublisher:
 
         assert str(publisher) == publisher.email
 
+    def test_google_publisher_admin_details_with_sub(self):
+        publisher = google.GooglePublisher(
+            email="fake@example.com",
+            sub="fakesubject",
+        )
+
+        assert publisher.admin_details == [
+            ("Email", "fake@example.com"),
+            ("Subject", "fakesubject"),
+        ]
+
+    def test_google_publisher_admin_details_without_sub(self):
+        publisher = google.GooglePublisher(
+            email="fake@example.com",
+            sub=None,
+        )
+
+        assert publisher.admin_details == [
+            ("Email", "fake@example.com"),
+        ]
+
     def test_google_publisher_all_known_claims(self):
         assert google.GooglePublisher.all_known_claims() == {
             # verifiable claims

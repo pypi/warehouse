@@ -124,6 +124,16 @@ class ActiveStatePublisherMixin:
             )
         ).scalar()
 
+    @property
+    def admin_details(self) -> list[tuple[str, str]]:
+        """Returns ActiveState publisher configuration details for admin display."""
+        return [
+            ("Organization", self.organization),
+            ("Project", self.activestate_project_name),
+            ("Actor", self.actor),
+            ("Actor ID", self.actor_id),
+        ]
+
     @classmethod
     def lookup_by_claims(cls, session, signed_claims: SignedClaims) -> Self:
         query: Query = Query(cls).filter_by(

@@ -36,6 +36,8 @@ NAMESPACE = "project_owner"
             "gitlab.com/foo/bar//@.yml.foo.yml@bar.yml@/some/ref",
             "@.yml.foo.yml@bar.yml",
         ),
+        ("gitlab.com/foo/bar//a.yml@/some/ref", "a.yml"),
+        ("gitlab.com/foo/bar//a/b.yml@/some/ref", "a/b.yml"),
         # Malformed `ci_config_ref_uri`s.
         ("gitlab.com/foo/bar//notnested.wrongsuffix@/some/ref", None),
         ("gitlab.com/foo/bar//@/some/ref", None),
@@ -246,6 +248,33 @@ class TestGitLabPublisher:
             "sha": "somesha",
             "ref_path": "someref",
         }
+
+    def test_gitlab_publisher_admin_details_with_environment(self):
+        publisher = gitlab.GitLabPublisher(
+            project="fakerepo",
+            namespace="fakeowner",
+            workflow_filepath="subfolder/fakeworkflow.yml",
+            environment="fakeenv",
+        )
+
+        assert publisher.admin_details == [
+            ("Project", "fakeowner/fakerepo"),
+            ("Workflow", "subfolder/fakeworkflow.yml"),
+            ("Environment", "fakeenv"),
+        ]
+
+    def test_gitlab_publisher_admin_details_without_environment(self):
+        publisher = gitlab.GitLabPublisher(
+            project="fakerepo",
+            namespace="fakeowner",
+            workflow_filepath="subfolder/fakeworkflow.yml",
+            environment="",
+        )
+
+        assert publisher.admin_details == [
+            ("Project", "fakeowner/fakerepo"),
+            ("Workflow", "subfolder/fakeworkflow.yml"),
+        ]
 
     def test_gitlab_publisher_unaccounted_claims(self, monkeypatch):
         scope = pretend.stub()

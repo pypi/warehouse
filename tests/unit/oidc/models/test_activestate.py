@@ -93,6 +93,21 @@ class TestActiveStatePublisher:
 
         assert publisher.stored_claims() == {}
 
+    def test_admin_details(self):
+        publisher = ActiveStatePublisher(
+            organization="fakeorg",
+            activestate_project_name="fakeproject",
+            actor="fakeactor",
+            actor_id="fakeactorid",
+        )
+
+        assert publisher.admin_details == [
+            ("Organization", "fakeorg"),
+            ("Project", "fakeproject"),
+            ("Actor", "fakeactor"),
+            ("Actor ID", "fakeactorid"),
+        ]
+
     def test_stringifies_as_project_url(self):
         org_name = "fakeorg"
         project_name = "fakeproject"
