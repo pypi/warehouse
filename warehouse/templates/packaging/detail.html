@@ -559,7 +559,7 @@
         Built distributions (wheels)
       {% endtrans %}
     </h3>
-    {% if bdist_count > 1 %}
+    {% if bdist_count > 3 %}
     <noscript>
       <p class="initial-toggle-visibility">
         {% trans %}Enable javascript to be able to filter the list of wheel files.{% endtrans %}
@@ -610,7 +610,7 @@
 
     {{ bdists_table(bdists) }}
 
-    {% if bdist_count > 1 %}
+    {% if bdist_count > 3 %}
     <p class="hidden initial-toggle-visibility">
       <span data-filter-list-target="summary"></span>
     </p>
