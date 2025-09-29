@@ -36,6 +36,8 @@ NAMESPACE = "project_owner"
             "gitlab.com/foo/bar//@.yml.foo.yml@bar.yml@/some/ref",
             "@.yml.foo.yml@bar.yml",
         ),
+        ("gitlab.com/foo/bar//a.yml@/some/ref", "a.yml"),
+        ("gitlab.com/foo/bar//a/b.yml@/some/ref", "a/b.yml"),
         # Malformed `ci_config_ref_uri`s.
         ("gitlab.com/foo/bar//notnested.wrongsuffix@/some/ref", None),
         ("gitlab.com/foo/bar//@/some/ref", None),

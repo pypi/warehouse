@@ -33,8 +33,8 @@ _WORKFLOW_FILEPATH_RE = re.compile(
                       # component of the claim.
 
     (                 # our capture group
-        .+            # match one or more of any character, including slashes
-        [^/]          # match at least one non-slash character, to prevent
+        .*            # match zero or more of any character, including slashes
+        [^/]          # match exactly one non-slash character, to prevent
                       # empty basenames (e.g. `foo/.yml`)
         \.(yml|yaml)  # match the literal suffix `.yml` or `.yaml`
     )
