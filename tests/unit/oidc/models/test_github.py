@@ -238,6 +238,37 @@ class TestGitHubPublisher:
             "ref": "someref",
         }
 
+    def test_github_publisher_admin_details_with_environment(self):
+        publisher = github.GitHubPublisher(
+            repository_name="fakerepo",
+            repository_owner="fakeowner",
+            repository_owner_id="fakeid",
+            workflow_filename="fakeworkflow.yml",
+            environment="fakeenv",
+        )
+
+        assert publisher.admin_details == [
+            ("Repository", "fakeowner/fakerepo"),
+            ("Workflow", "fakeworkflow.yml"),
+            ("Owner ID", "fakeid"),
+            ("Environment", "fakeenv"),
+        ]
+
+    def test_github_publisher_admin_details_without_environment(self):
+        publisher = github.GitHubPublisher(
+            repository_name="fakerepo",
+            repository_owner="fakeowner",
+            repository_owner_id="fakeid",
+            workflow_filename="fakeworkflow.yml",
+            environment="",
+        )
+
+        assert publisher.admin_details == [
+            ("Repository", "fakeowner/fakerepo"),
+            ("Workflow", "fakeworkflow.yml"),
+            ("Owner ID", "fakeid"),
+        ]
+
     def test_github_publisher_unaccounted_claims(self, monkeypatch):
         scope = pretend.stub()
         sentry_sdk = pretend.stub(
