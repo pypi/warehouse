@@ -12,6 +12,10 @@
     <p class="form-group__text">When a field is not editable, you can use me instead</p>
     <p class="form-group__help-text">Some help text here</p>
   </div>
+
+
+    Modifiers:
+    - flex-width: makes fields inside the group flexible width (instead of 350px wide)
 */
 
 .form-group {
@@ -20,7 +24,7 @@
 
   &__label {
     display: block;
-    font-weight: bold;
+    font-weight: 600;
   }
 
   &__label:not(:first-child) {
@@ -118,6 +122,38 @@
         outline: 1px solid $primary-color;
         border-bottom-color: $primary-color;
       }
+    }
+  }
+
+  &--flex-width {
+    max-width: unset;
+    :where(
+      input:not([type]),
+      select,
+      textarea,
+      [type="color"],
+      [type="date"],
+      [type="datetime"],
+      [type="datetime-local"],
+      [type="email"],
+      [type="month"],
+      [type="month"],
+      [type="number"],
+      [type="password"],
+      [type="search"],
+      [type="tel"],
+      [type="text"],
+      [type="time"],
+      [type="url"],
+      [type="week"]
+    ).form-group__field,
+      select.form-group__field {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    select.form-group__field {
+      padding-right: $spacing-unit;
     }
   }
 
