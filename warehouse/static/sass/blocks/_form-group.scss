@@ -85,7 +85,14 @@
   &__results {
     font-size: $input-font-size;
     margin-left: 0;
-    padding: 4px 0 8px;
+    margin-top: -1px;
+    padding: 0;
+    border: 1px solid $border-color;
+    border-bottom: 0;
+    position: absolute;
+    z-index: 400;
+    width: 350px;
+    max-width: calc(100% - $spacing-unit);
 
     li {
       background-color: $white;
@@ -93,6 +100,11 @@
       color: $text-color;
       cursor: pointer;
       list-style-type: none;
+      padding: $quarter-spacing-unit;
+
+      img {
+        margin-right: 4px;
+      }
 
       &:hover,
       &:active,
