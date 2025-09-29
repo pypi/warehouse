@@ -76,6 +76,7 @@
     <caption class="sr-only">{% trans name=release.project.name, release=release.version %}Source distribution for {{ name }} {{ version }}{% endtrans %}</caption>
     <thead>
       <th scope="col">{% trans %}File{% endtrans %}</th>
+      <th scope="col">{% trans %}Uploaded{% endtrans %}</th>
       <th scope="col">{% trans %}Size{% endtrans %}</th>
       <th scope="col">{% trans %}Type{% endtrans %}</th>
       <th class="table__align-right"  scope="col">{% trans %}Details{% endtrans %}</th>
@@ -86,8 +87,10 @@
         <span class="table__mobile-label">{% trans %}File{% endtrans %}</span>
         <a href="{{ request.route_url('packaging.file', path=file.path) }}"><i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i></a>&nbsp;
         <a href="{{ request.route_url('packaging.file', path=file.path) }}">{{ file.filename }}</a>
-        <br />
-        <small>{% trans upload_time=humanize(file.upload_time) %}Uploaded {{ upload_time }}{% endtrans %}</small>
+      </td>
+      <td>
+        <span class="table__mobile-label">{% trans %}Uploaded{% endtrans %}</span>
+        {% trans upload_time=humanize(file.upload_time) %}Uploaded {{ upload_time }}{% endtrans %}
       </td>
       <td>
         <span class="table__mobile-label">{% trans %}Size{% endtrans %}</span>
@@ -95,7 +98,7 @@
       </td>
       <td>
         <span class="table__mobile-label">{% trans %}Type{% endtrans %}</span>
-        <code>{% trans %}Source{% endtrans %}</code>
+        {% trans %}Source{% endtrans %}
       </td>
       <td class="table__align-right">
         <span class="table__mobile-label">{% trans %}View details{% endtrans %}</span>
@@ -115,7 +118,6 @@
     <caption class="sr-only">{% trans name=release.project.name, release=release.version %}Table of built distributions (wheels) for {{ name }} {{ release }}{% endtrans %}</caption>
     <thead>
       <th scope="col">{% trans %}File{% endtrans %}</th>
-      <th scope="col">{% trans %}Size{% endtrans %}</th>
       <th scope="col">{% trans %}Interpreter{% endtrans %}</th>
       <th scope="col">{% trans %}ABI{% endtrans %}</th>
       <th scope="col">{% trans %}Platform{% endtrans %}</th>
@@ -131,18 +133,17 @@
         <a href="{{ request.route_url('packaging.file', path=file.path) }}"><i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i></a>&nbsp;
         <a href="{{ request.route_url('packaging.file', path=file.path) }}">{{ file.filename }}</a>
         <br />
-        <small>{% trans upload_time=humanize(file.upload_time) %}Uploaded {{ upload_time }}{% endtrans %}</small>
-      </td>
-      <td>
-        <span class="table__mobile-label">{% trans %}Size{% endtrans %}</span>
-        {{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}
+        <small>
+          {{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}.&nbsp;
+          {% trans upload_time=humanize(file.upload_time) %}Uploaded {{ upload_time }}{% endtrans %}.
+        </small>
       </td>
       <td>
         <span class="table__mobile-label">{% trans %}Interpreter{% endtrans %}</span>
         {% for key, value in file.wheel_filters.items() %}
           {% if key == 'interpreters' %}
             {% for interpreter in value %}
-              <code>{{ interpreter }}</code>
+              {{ interpreter }}<br/>
             {% endfor %}
           {% endif %}
         {% endfor %}
@@ -151,18 +152,18 @@
         <span class="table__mobile-label">{% trans %}ABI{% endtrans %}</span>
           {% for key, value in file.wheel_filters.items() %}
           {% if key == 'abis' %}
-            {% for interpreter in value %}
-              <code>{{ interpreter }}</code>
+            {% for abi in value %}
+             {{ abi }}<br/>
             {% endfor %}
-          {% endif %}
+          {% endif %} 
         {% endfor %}
       </td>
       <td>
         <span class="table__mobile-label">{% trans %}Platform{% endtrans %}</span>
           {% for key, value in file.wheel_filters.items() %}
           {% if key == 'platforms' %}
-            {% for interpreter in value %}
-              <code>{{ interpreter }}</code>
+            {% for platform in value %}
+              {{ platform }}<br/>
             {% endfor %}
           {% endif %}
         {% endfor %}
