@@ -47,7 +47,7 @@ def notify_users_of_tos_update(request):
         request.db.query(User)
         .outerjoin(Email)
         .filter(Email.verified == True, Email.primary == True)  # noqa E711
-        .filter(User.id.not_in(already_notified_subquery))
+        .filter(User.id.not_in(select(already_notified_subquery)))
         .limit(request.registry.settings.get("terms.notification_batch_size"))
     )
     for user in users_to_notify:

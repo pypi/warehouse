@@ -2,7 +2,7 @@ djlint
 flake8
 flake8-pytest-style
 pep8-naming
-black==25.1.0
+black==25.9.0
 isort>=5.13.1
 pyupgrade
 mypy

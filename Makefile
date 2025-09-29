@@ -23,10 +23,10 @@ endif
 # PEP 669 introduced sys.monitoring, a lighter-weight way to monitor
 # the execution. While this introduces significant speed-up during test
 # execution, coverage does not yet support dynamic contexts when enabled.
-# This variable can be set to other tracers (ctrace, pytrace) to fall
-# back use them.
+# This variable can be set to other tracers (ctrace, pytrace, sysmon).
 # https://nedbatchelder.com/blog/202312/coveragepy_with_sysmonitoring.html
-COVERAGE_CORE ?= sysmon
+# TODO: Flip to `sysmon` when we're on Python 3.14
+COVERAGE_CORE ?= ctrace
 
 default:
 	@echo "Call a specific subcommand:"
