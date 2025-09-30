@@ -22,9 +22,11 @@
   </div>
 
   Modifiers:
+    - neutral: Makes border grey
     - danger: Makes border red
     - warning: Makes border brown
     - success: Makes border green
+    - message: Custom styles for messaging UI
     - bottom-margin: Adds extra margin below the callout
 
   // Collapsible
@@ -48,7 +50,6 @@
   margin: 15px 0;
   position: relative;
   border-radius: 4px;
-  display: inline-block;
 
   &__dismiss {
     @include dismiss-button;
@@ -96,18 +97,6 @@
       height: calc(100% + 2px);
       border-radius: 0 3px 3px 0;
     }
-  }
-
-  &--full-width {
-    width: 100%;
-  }
-
-  &--bottom-margin {
-    margin-bottom: $half-spacing-unit;
-  }
-
-  &--dismissed {
-    display: none;
   }
 
   &--neutral {
@@ -180,5 +169,23 @@
     .callout-block__dismiss {
       @include link-focus-state($success-color);
     }
+  }
+
+  &--message {
+    display: inline-block;
+    max-width: 75%;
+    margin: 10px 0;
+
+    @media only screen and (max-width: $mobile) {
+     max-width: 85%;
+    }
+  }
+
+  &--bottom-margin {
+    margin-bottom: $half-spacing-unit;
+  }
+
+  &--dismissed {
+    display: none;
   }
 }

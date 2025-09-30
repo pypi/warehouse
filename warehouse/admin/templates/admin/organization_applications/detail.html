@@ -336,7 +336,7 @@
       </div>
     </div>
 
-    {% set information_requests = organization_application.information_requests %}
+    {% set information_requests = organization_application.information_requests|reverse %}
     {% set outstanding_information_requests = organization_application.information_requests|selectattr("additional", "defined")|map(attribute="additional")|selectattr("response", "undefined")|list %}
     <div class="col-md-7 col-lg-6">
       <div class="card">
@@ -490,7 +490,7 @@
         </div>
         <div class="card-body">
         {% for information_request in information_requests %}
-        <div class="card {% if information_request.additional.response %}card-neutral{% else %}card-warning{% endif %} card-outline direct-chat direct-chat-primary"</div>
+        <div class="card {% if information_request.additional.response %}card-neutral{% else %}card-warning{% endif %} direct-chat direct-chat-primary"</div>
           <div class="card-body">
             <div class="direct-chat-messages unset-height">
               <div class="direct-chat-msg">

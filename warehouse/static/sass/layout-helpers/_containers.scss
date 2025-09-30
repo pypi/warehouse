@@ -34,3 +34,12 @@
     padding: 0 $half-spacing-unit;
   }
 }
+
+/*
+  Reduce the size of the content to a single column:
+  <div class="single-column"></div>
+*/
+
+.single-column {
+  max-width: $site-container / 2;
+}
