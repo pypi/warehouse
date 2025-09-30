@@ -29,6 +29,7 @@
     - Use a th and add 'scope="row"' for row headings
 
    Modifiers:
+     - information: table for displaying table data - ideally with row level headings
      - downloads: specific styles for downloads table on project detail page
      - releases: specific styles for releases table on manage project page
      - files: specific styles for files table on releases tab
@@ -122,6 +123,10 @@
     padding: 10px;
   }
 
+  tbody tr th {
+    font-weight: $bold-font-weight;
+  }
+
   th,
   td {
     border-bottom: 1px solid $base-grey;
@@ -154,12 +159,29 @@
     text-align: right;
   }
 
+
   &__mobile-label {
     display: none;
     font-weight: $bold-font-weight;
   }
 
   // Custom table styles
+
+  &--information {
+    th {
+      width: 1%; 
+      white-space: nowrap; 
+    }
+
+    td,
+    th {
+      vertical-align: baseline;
+    }
+
+    @media only screen and (max-width: $mobile) {
+      @include mobile-friendly-table;
+    }
+  }
 
   &--downloads {
     word-wrap: break-word;

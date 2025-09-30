@@ -15,12 +15,12 @@
 */
 
 .form-group {
-  margin-bottom: $half-spacing-unit;
+  margin-bottom: $spacing-unit;
   max-width: 350px;
 
   &__label {
     display: block;
-    font-weight: bold;
+    font-weight: $bold-font-weight;
   }
 
   &__label:not(:first-child) {
@@ -32,9 +32,10 @@
     font-weight: normal;
   }
 
-  &__wide {
+  &--wide {
     margin-bottom: $half-spacing-unit;
     max-width: unset;
+    width: 100%;
   }
 
 :where(
@@ -62,6 +63,10 @@
     width: 350px;
     margin-top: 4px;
     max-width: 100%;
+
+    &--full-width {
+      width: 100%;
+    }
   }
 
   &__text {
