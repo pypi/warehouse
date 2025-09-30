@@ -4547,7 +4547,7 @@ msgstr ""
 msgid "Name of your business, product, or project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/application.html:48
+#: warehouse/templates/manage/organization/application.html:43
 #: warehouse/templates/manage/organization/settings.html:62
 #: warehouse/templates/manage/organizations.html:257
 msgid "️Organization URL"
@@ -5418,47 +5418,47 @@ msgstr ""
 msgid "Request submitted"
 msgstr ""
 
-#: warehouse/templates/manage/organization/application.html:36
+#: warehouse/templates/manage/organization/application.html:35
 #: warehouse/templates/manage/organization/settings.html:14
 msgid "Organization account name"
 msgstr ""
 
-#: warehouse/templates/manage/organization/application.html:42
+#: warehouse/templates/manage/organization/application.html:39
 #: warehouse/templates/manage/organization/settings.html:33
 msgid "Organization display name"
 msgstr ""
 
-#: warehouse/templates/manage/organization/application.html:53
+#: warehouse/templates/manage/organization/application.html:47
 msgid "️Organization description"
 msgstr ""
 
-#: warehouse/templates/manage/organization/application.html:57
+#: warehouse/templates/manage/organization/application.html:51
 #: warehouse/templates/manage/organization/settings.html:111
 msgid "️Organization type"
 msgstr ""
 
-#: warehouse/templates/manage/organization/application.html:61
+#: warehouse/templates/manage/organization/application.html:55
 msgid "️Organization membership size"
 msgstr ""
 
-#: warehouse/templates/manage/organization/application.html:65
+#: warehouse/templates/manage/organization/application.html:59
 msgid "️Anticipated usage"
 msgstr ""
 
-#: warehouse/templates/manage/organization/application.html:69
+#: warehouse/templates/manage/organization/application.html:63
 msgid "Date submitted"
 msgstr ""
 
-#: warehouse/templates/manage/organization/application.html:82
+#: warehouse/templates/manage/organization/application.html:76
 msgid "️PyPI Staff"
 msgstr ""
 
-#: warehouse/templates/manage/organization/application.html:90
-#: warehouse/templates/manage/organization/application.html:102
+#: warehouse/templates/manage/organization/application.html:84
+#: warehouse/templates/manage/organization/application.html:96
 msgid "️Your response"
 msgstr ""
 
-#: warehouse/templates/manage/organization/application.html:114
+#: warehouse/templates/manage/organization/application.html:108
 msgid "Submit"
 msgstr ""
 
