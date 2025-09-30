@@ -2280,6 +2280,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/new-organization-requested/body.html:7
+#: warehouse/templates/manage/organization/application.html:30
 #: warehouse/templates/manage/organizations.html:168
 msgid "You will receive an email when the organization has been approved"
 msgstr ""
@@ -4481,6 +4482,7 @@ msgstr ""
 msgid "This Organization request has been declined"
 msgstr ""
 
+#: warehouse/templates/manage/organization/application.html:20
 #: warehouse/templates/manage/organizations.html:162
 msgid "Declined"
 msgstr ""
@@ -4545,7 +4547,7 @@ msgstr ""
 msgid "Name of your business, product, or project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/application.html:20
+#: warehouse/templates/manage/organization/application.html:48
 #: warehouse/templates/manage/organization/settings.html:62
 #: warehouse/templates/manage/organizations.html:257
 msgid "️Organization URL"
@@ -5391,46 +5393,72 @@ msgstr ""
 msgid "Manage '%(organization_application_name)s' Organization Request"
 msgstr ""
 
-#: warehouse/templates/manage/organization/application.html:9
-msgid "Organization request"
+#: warehouse/templates/manage/organization/application.html:10
+#, python-format
+msgid "Organization request for %(org_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/organization/application.html:12
+#: warehouse/templates/manage/organization/application.html:17
+msgid "Request status"
+msgstr ""
+
+#: warehouse/templates/manage/organization/application.html:22
+msgid "This organization request has been declined"
+msgstr ""
+
+#: warehouse/templates/manage/organization/application.html:24
+msgid "More information needed"
+msgstr ""
+
+#: warehouse/templates/manage/organization/application.html:26
+msgid "Please provide more information below"
+msgstr ""
+
+#: warehouse/templates/manage/organization/application.html:28
+msgid "Request submitted"
+msgstr ""
+
+#: warehouse/templates/manage/organization/application.html:36
 #: warehouse/templates/manage/organization/settings.html:14
 msgid "Organization account name"
 msgstr ""
 
-#: warehouse/templates/manage/organization/application.html:16
+#: warehouse/templates/manage/organization/application.html:42
 #: warehouse/templates/manage/organization/settings.html:33
 msgid "Organization display name"
 msgstr ""
 
-#: warehouse/templates/manage/organization/application.html:24
+#: warehouse/templates/manage/organization/application.html:53
 msgid "️Organization description"
 msgstr ""
 
-#: warehouse/templates/manage/organization/application.html:28
+#: warehouse/templates/manage/organization/application.html:57
 #: warehouse/templates/manage/organization/settings.html:111
 msgid "️Organization type"
 msgstr ""
 
-#: warehouse/templates/manage/organization/application.html:32
+#: warehouse/templates/manage/organization/application.html:61
 msgid "️Organization membership size"
 msgstr ""
 
-#: warehouse/templates/manage/organization/application.html:38
+#: warehouse/templates/manage/organization/application.html:65
 msgid "️Anticipated usage"
 msgstr ""
 
-#: warehouse/templates/manage/organization/application.html:42
+#: warehouse/templates/manage/organization/application.html:69
 msgid "Date submitted"
 msgstr ""
 
-#: warehouse/templates/manage/organization/application.html:67
-msgid "️Your Response"
+#: warehouse/templates/manage/organization/application.html:82
+msgid "️PyPI Staff"
 msgstr ""
 
-#: warehouse/templates/manage/organization/application.html:78
+#: warehouse/templates/manage/organization/application.html:90
+#: warehouse/templates/manage/organization/application.html:102
+msgid "️Your response"
+msgstr ""
+
+#: warehouse/templates/manage/organization/application.html:114
 msgid "Submit"
 msgstr ""
 
