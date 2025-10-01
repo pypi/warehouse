@@ -258,9 +258,9 @@ pluggy==1.6.0 \
     --hash=sha256:7dcc130b76258d33b90f61b658791dede3486c3e6bfb003ee5c9bfb396dd22f3 \
     --hash=sha256:e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746
     # via pytest
-port-for==0.7.4 \
-    --hash=sha256:08404aa072651a53dcefe8d7a598ee8a1dca320d9ac44ac464da16ccf2a02c4a \
-    --hash=sha256:fc7713e7b22f89442f335ce12536653656e8f35146739eccaeff43d28436028d
+port-for==1.0.0 \
+    --hash=sha256:35a848b98cf4cc075fe80dc49ae5c3a78e3ca345a23bd39bf5252277b4eef5c2 \
+    --hash=sha256:404d161b1b2c82e2f6b31d8646396b4847d02bf5ee10068c92b7263657a14582
     # via pytest-postgresql
 pprintpp==0.4.0 \
     --hash=sha256:b6b4dcdd0c0c0d75e4d7b2f21a9e933e5b2ce62b26e1a54537f9651ae5a5c01d \
