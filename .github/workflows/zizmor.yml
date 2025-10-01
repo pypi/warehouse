@@ -28,7 +28,7 @@ jobs:
       - name: Run zizmor
         run: pipx run zizmor --format sarif . > results.sarif
       - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@303c0aef88fc2fe5ff6d63d3b1596bfd83dfa1f9 # v3.29.5
+        uses: github/codeql-action/upload-sarif@3599b3baa15b485a2e49ef411a7a4bb2452e7f93 # v3.29.5
         with:
           # Path to SARIF file relative to the root of the repository
           sarif_file: results.sarif
