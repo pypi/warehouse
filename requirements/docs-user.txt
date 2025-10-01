@@ -373,9 +373,9 @@ six==1.17.0 \
     --hash=sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274 \
     --hash=sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81
     # via python-dateutil
-super-collections==0.5.7 \
-    --hash=sha256:796a9ab231487e488b2a8588c9bb6ca0dc719d66abf775ca67177e34de8f3bc0 \
-    --hash=sha256:fa9b1653d5fed9e435df3edf3b43ed6c8d5af32ff7ff83fe00b589173990f07b
+super-collections==0.6.2 \
+    --hash=sha256:0c8d8abacd9fad2c7c1c715f036c29f5db213f8cac65f24d45ecba12b4da187a \
+    --hash=sha256:291b74d26299e9051d69ad9d89e61b07b6646f86a57a2f5ab3063d206eee9c56
     # via mkdocs-macros-plugin
 termcolor==3.1.0 \
     --hash=sha256:591dd26b5c2ce03b9e43f391264626557873ce1d379019786f99b0c2bee140aa \
