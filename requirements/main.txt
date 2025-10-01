@@ -1049,9 +1049,9 @@ legacy-cgi==2.6.3 \
     --hash=sha256:4c119d6cb8e9d8b6ad7cc0ddad880552c62df4029622835d06dfd18f438a8154 \
     --hash=sha256:6df2ea5ae14c71ef6f097f8b6372b44f6685283dc018535a75c924564183cdab
     # via webob
-limits==5.5.0 \
-    --hash=sha256:57217d01ffa5114f7e233d1f5e5bdc6fe60c9b24ade387bf4d5e83c5cf929bae \
-    --hash=sha256:ee269fedb078a904608b264424d9ef4ab10555acc8d090b6fc1db70e913327ea
+limits==5.6.0 \
+    --hash=sha256:807fac75755e73912e894fdd61e2838de574c5721876a19f7ab454ae1fffb4b5 \
+    --hash=sha256:b585c2104274528536a5b68864ec3835602b3c4a802cd6aa0b07419798394021
     # via -r requirements/main.in
 linehaul==1.0.2 \
     --hash=sha256:4545fee3b54df22c697d204da8668e8fd975afcb28cbb5654865e43491c70ff0 \
