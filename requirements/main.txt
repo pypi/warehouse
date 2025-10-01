@@ -800,9 +800,9 @@ grpcio==1.75.1 \
     # via
     #   google-api-core
     #   grpcio-status
-grpcio-status==1.75.0 \
-    --hash=sha256:69d5b91be1b8b926f086c1c483519a968c14640773a0ccdd6c04282515dbedf7 \
-    --hash=sha256:de62557ef97b7e19c3ce6da19793a12c5f6c1fbbb918d233d9671aba9d9e1d78
+grpcio-status==1.75.1 \
+    --hash=sha256:8162afa21833a2085c91089cc395ad880fac1378a1d60233d976649ed724cbf8 \
+    --hash=sha256:f681b301be26dcf7abf5c765d4a22e4098765e1a65cbdfa3efca384edf8e4e3c
     # via google-api-core
 grpclib==0.4.8 \
     --hash=sha256:a5047733a7acc1c1cee6abf3c841c7c6fab67d2844a45a853b113fa2e6cd2654 \
