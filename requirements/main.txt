@@ -2453,9 +2453,9 @@ stdlib-list==0.11.1 \
     --hash=sha256:9029ea5e3dfde8cd4294cfd4d1797be56a67fc4693c606181730148c3fd1da29 \
     --hash=sha256:95ebd1d73da9333bba03ccc097f5bac05e3aa03e6822a0c0290f87e1047f1857
     # via -r requirements/main.in
-stripe==11.6.0 \
-    --hash=sha256:0ced7cce23a6cb1a393c86a1f7f9435c9d83ae7cbd556362868caf62cb44a92c \
-    --hash=sha256:6e6cf09ebb6d5fc2d708401cb8868fd7bff987a6d09a0433caaa92c62f97dbc5
+stripe==13.0.0 \
+    --hash=sha256:045ba733f414e77de36b4086ffad774542750983692b261f85e3389c4cdaa09b \
+    --hash=sha256:2caf0e2e035dc8be38c5c601cad0c16c0be7ed9bf538ae8e2bb70d9b42d5fe6b
     # via -r requirements/main.in
 structlog==25.4.0 \
     --hash=sha256:186cd1b0a8ae762e29417095664adf1d6a31702160a46dacb7796ea82f7409e4 \
