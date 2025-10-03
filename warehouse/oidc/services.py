@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 import json
+import typing
 import warnings
 
 import jwt
@@ -17,10 +20,24 @@ from warehouse.oidc.models import OIDCPublisher, PendingOIDCPublisher
 from warehouse.oidc.utils import find_publisher_by_issuer
 from warehouse.utils.exceptions import InsecureOIDCPublisherWarning
 
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
+    from sqlalchemy.orm import Session
+
+    from warehouse.packaging import Project
+
 
 @implementer(IOIDCPublisherService)
 class NullOIDCPublisherService:
-    def __init__(self, session, publisher, issuer_url, audience, cache_url, metrics):
+    def __init__(
+        self,
+        session: Session,
+        publisher: str,
+        issuer_url: str,
+        audience: str,
+        cache_url: str,
+        metrics: IMetricsService,
+    ):
         warnings.warn(
             "NullOIDCPublisherService is intended only for use in development, "
             "you should not use it in production due to the lack of actual "
@@ -64,7 +81,9 @@ class NullOIDCPublisherService:
             self.db, self.issuer_url, signed_claims, pending=pending
         )
 
-    def reify_pending_publisher(self, pending_publisher, project):
+    def reify_pending_publisher(
+        self, pending_publisher: PendingOIDCPublisher, project: Project
+    ) -> OIDCPublisher:
         new_publisher = pending_publisher.reify(self.db)
         project.oidc_publishers.append(new_publisher)
         return new_publisher
@@ -86,7 +105,15 @@ class NullOIDCPublisherService:
 
 @implementer(IOIDCPublisherService)
 class OIDCPublisherService:
-    def __init__(self, session, publisher, issuer_url, audience, cache_url, metrics):
+    def __init__(
+        self,
+        session: Session,
+        publisher: str,
+        issuer_url: str,
+        audience: str,
+        cache_url: str,
+        metrics: IMetricsService,
+    ):
         self.db = session
         self.publisher = publisher
         self.issuer_url = issuer_url
@@ -97,7 +124,7 @@ class OIDCPublisherService:
         self._publisher_jwk_key = f"/warehouse/oidc/jwks/{self.publisher}"
         self._publisher_timeout_key = f"{self._publisher_jwk_key}/timeout"
 
-    def _store_keyset(self, keys):
+    def _store_keyset(self, keys: dict) -> None:
         """
         Store the given keyset for the given publisher, setting the timeout key
         in the process.
@@ -107,7 +134,7 @@ class OIDCPublisherService:
             r.set(self._publisher_jwk_key, json.dumps(keys))
             r.setex(self._publisher_timeout_key, 60, "placeholder")
 
-    def _get_keyset(self):
+    def _get_keyset(self) -> tuple[dict[str, dict], bool]:
         """
         Return the cached keyset for the given publisher, or an empty
         keyset if no keys are currently cached.
@@ -121,7 +148,7 @@ class OIDCPublisherService:
             else:
                 return ({}, timeout)
 
-    def _refresh_keyset(self):
+    def _refresh_keyset(self) -> dict[str, dict]:
         """
         Attempt to refresh the keyset from the OIDC publisher, assuming no
         timeout is in effect.
@@ -196,7 +223,7 @@ class OIDCPublisherService:
 
         return keys
 
-    def _get_key(self, key_id):
+    def _get_key(self, key_id: str) -> jwt.PyJWK | None:
         """
         Return a JWK for the given key ID, or None if the key can't be found
         in this publisher's keyset.
@@ -328,19 +355,26 @@ class OIDCPublisherService:
             )
             raise e
 
-    def reify_pending_publisher(self, pending_publisher, project) -> OIDCPublisher:
+    def reify_pending_publisher(
+        self, pending_publisher: PendingOIDCPublisher, project: Project
+    ) -> OIDCPublisher:
         new_publisher = pending_publisher.reify(self.db)
         project.oidc_publishers.append(new_publisher)
         return new_publisher
 
 
 class OIDCPublisherServiceFactory:
-    def __init__(self, publisher, issuer_url, service_class=OIDCPublisherService):
+    def __init__(
+        self,
+        publisher: str,
+        issuer_url: str,
+        service_class=OIDCPublisherService,  # TODO: Unclear how to correctly type this
+    ):
         self.publisher = publisher
         self.issuer_url = issuer_url
         self.service_class = service_class
 
-    def __call__(self, _context, request):
+    def __call__(self, _context, request: Request) -> OIDCPublisherService:
         cache_url = request.registry.settings["oidc.jwk_cache_url"]
         audience = request.registry.settings["warehouse.oidc.audience"]
         metrics = request.find_service(IMetricsService, context=None)
@@ -354,7 +388,7 @@ class OIDCPublisherServiceFactory:
             metrics,
         )
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if not isinstance(other, OIDCPublisherServiceFactory):
             return NotImplemented
 
