@@ -1,12 +1,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
+import typing
 import urllib
 
 from typing import Any, Self
+from uuid import UUID
 
 from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Query, mapped_column
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+from sqlalchemy.orm import Mapped, Query, mapped_column
 
 import warehouse.oidc.models._core as oidccore
 
@@ -17,6 +21,9 @@ from warehouse.oidc.models._core import (
     OIDCPublisher,
     PendingOIDCPublisher,
 )
+
+if typing.TYPE_CHECKING:
+    from sqlalchemy.orm import Session
 
 ACTIVESTATE_OIDC_ISSUER_URL = "https://platform.activestate.com/api/v1/oauth/oidc"
 
@@ -53,13 +60,13 @@ class ActiveStatePublisherMixin:
     Common functionality for both pending and concrete ActiveState OIDC publishers.
     """
 
-    organization = mapped_column(String, nullable=False)
-    activestate_project_name = mapped_column(String, nullable=False)
-    actor = mapped_column(String, nullable=False)
+    organization: Mapped[str] = mapped_column(String, nullable=False)
+    activestate_project_name: Mapped[str] = mapped_column(String, nullable=False)
+    actor: Mapped[str] = mapped_column(String, nullable=False)
     # 'actor' (The ActiveState platform username) is obtained from the user
     # while configuring the publisher We'll make an api call to ActiveState to
     # get the 'actor_id'
-    actor_id = mapped_column(String, nullable=False)
+    actor_id: Mapped[str] = mapped_column(String, nullable=False)
 
     __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "sub": _check_sub,
@@ -106,13 +113,13 @@ class ActiveStatePublisherMixin:
     def publisher_url(self, claims: SignedClaims | None = None) -> str:
         return self.publisher_base_url
 
-    def stored_claims(self, claims=None):
+    def stored_claims(self, claims: SignedClaims | None = None) -> dict:
         return {}
 
     def __str__(self) -> str:
         return self.publisher_url()
 
-    def exists(self, session) -> bool:
+    def exists(self, session: Session) -> bool:
         return session.query(
             exists().where(
                 and_(
@@ -135,7 +142,7 @@ class ActiveStatePublisherMixin:
         ]
 
     @classmethod
-    def lookup_by_claims(cls, session, signed_claims: SignedClaims) -> Self:
+    def lookup_by_claims(cls, session: Session, signed_claims: SignedClaims) -> Self:
         query: Query = Query(cls).filter_by(
             organization=signed_claims["organization"],
             activestate_project_name=signed_claims["project"],
@@ -161,8 +168,8 @@ class ActiveStatePublisher(ActiveStatePublisherMixin, OIDCPublisher):
         ),
     )
 
-    id = mapped_column(
-        UUID(as_uuid=True), ForeignKey(OIDCPublisher.id), primary_key=True
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True), ForeignKey(OIDCPublisher.id), primary_key=True
     )
 
 
@@ -178,11 +185,11 @@ class PendingActiveStatePublisher(ActiveStatePublisherMixin, PendingOIDCPublishe
         ),
     )
 
-    id = mapped_column(
-        UUID(as_uuid=True), ForeignKey(PendingOIDCPublisher.id), primary_key=True
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True), ForeignKey(PendingOIDCPublisher.id), primary_key=True
     )
 
-    def reify(self, session):
+    def reify(self, session: Session) -> ActiveStatePublisher:
         """
         Returns a `ActiveStatePublisher` for this `PendingActiveStatePublisher`,
         deleting the `PendingActiveStatePublisher` in the process.

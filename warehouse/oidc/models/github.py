@@ -1,14 +1,18 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 import re
+import typing
 
 from typing import Any, Self
+from uuid import UUID
 
 from more_itertools import first_true
 from pypi_attestations import GitHubPublisher as GitHubIdentity, Publisher
 from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Query, mapped_column
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+from sqlalchemy.orm import Mapped, Query, mapped_column
 
 from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import SignedClaims
@@ -20,6 +24,9 @@ from warehouse.oidc.models._core import (
     check_existing_jti,
 )
 from warehouse.oidc.urls import verify_url_from_reference
+
+if typing.TYPE_CHECKING:
+    from sqlalchemy.orm import Session
 
 GITHUB_OIDC_ISSUER_URL = "https://token.actions.githubusercontent.com"
 
@@ -48,7 +55,9 @@ def _extract_workflow_filename(workflow_ref: str) -> str | None:
         return None
 
 
-def _check_repository(ground_truth, signed_claim, _all_signed_claims, **_kwargs):
+def _check_repository(
+    ground_truth: str, signed_claim: str, _all_signed_claims: SignedClaims, **_kwargs
+) -> bool:
     # Defensive: GitHub should never give us an empty repository claim.
     if not signed_claim:
         return False
@@ -57,7 +66,9 @@ def _check_repository(ground_truth, signed_claim, _all_signed_claims, **_kwargs)
     return signed_claim.lower() == ground_truth.lower()
 
 
-def _check_job_workflow_ref(ground_truth, signed_claim, all_signed_claims, **_kwargs):
+def _check_job_workflow_ref(
+    ground_truth: str, signed_claim: str, all_signed_claims: SignedClaims, **_kwargs
+) -> bool:
     # We expect a string formatted as follows:
     #   OWNER/REPO/.github/workflows/WORKFLOW.yml@REF
     # where REF is the value of either the `ref` or `sha` claims.
@@ -88,7 +99,12 @@ def _check_job_workflow_ref(ground_truth, signed_claim, all_signed_claims, **_kw
     return True
 
 
-def _check_environment(ground_truth, signed_claim, _all_signed_claims, **_kwargs):
+def _check_environment(
+    ground_truth: str,
+    signed_claim: str | None,
+    _all_signed_claims: SignedClaims,
+    **_kwargs,
+) -> bool:
     # When there is an environment, we expect a case-insensitive string.
     # https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment
     # For tokens that are generated outside of an environment, the claim will
@@ -110,7 +126,9 @@ def _check_environment(ground_truth, signed_claim, _all_signed_claims, **_kwargs
     return ground_truth.lower() == signed_claim.lower()
 
 
-def _check_sub(ground_truth, signed_claim, _all_signed_claims, **_kwargs):
+def _check_sub(
+    ground_truth: str, signed_claim: str, _all_signed_claims: SignedClaims, **_kwargs
+) -> bool:
     # We expect a string formatted as follows:
     #  repo:ORG/REPO[:OPTIONAL-STUFF]
     # where :OPTIONAL-STUFF is a concatenation of other job context
@@ -139,11 +157,11 @@ class GitHubPublisherMixin:
     Common functionality for both pending and concrete GitHub OIDC publishers.
     """
 
-    repository_name = mapped_column(String, nullable=False)
-    repository_owner = mapped_column(String, nullable=False)
-    repository_owner_id = mapped_column(String, nullable=False)
-    workflow_filename = mapped_column(String, nullable=False)
-    environment = mapped_column(String, nullable=False)
+    repository_name: Mapped[str] = mapped_column(String, nullable=False)
+    repository_owner: Mapped[str] = mapped_column(String, nullable=False)
+    repository_owner_id: Mapped[str] = mapped_column(String, nullable=False)
+    workflow_filename: Mapped[str] = mapped_column(String, nullable=False)
+    environment: Mapped[str] = mapped_column(String, nullable=False)
 
     __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "sub": _check_sub,
@@ -204,7 +222,7 @@ class GitHubPublisherMixin:
         return None
 
     @classmethod
-    def lookup_by_claims(cls, session, signed_claims: SignedClaims) -> Self:
+    def lookup_by_claims(cls, session: Session, signed_claims: SignedClaims) -> Self:
         repository = signed_claims["repository"]
         repository_owner, repository_name = repository.split("/", 1)
         job_workflow_ref = signed_claims["job_workflow_ref"]
@@ -229,27 +247,27 @@ class GitHubPublisherMixin:
             raise InvalidPublisherError("Publisher with matching claims was not found")
 
     @property
-    def _workflow_slug(self):
+    def _workflow_slug(self) -> str:
         return f".github/workflows/{self.workflow_filename}"
 
     @property
-    def publisher_name(self):
+    def publisher_name(self) -> str:
         return "GitHub"
 
     @property
-    def repository(self):
+    def repository(self) -> str:
         return f"{self.repository_owner}/{self.repository_name}"
 
     @property
-    def job_workflow_ref(self):
+    def job_workflow_ref(self) -> str:
         return f"{self.repository}/{self._workflow_slug}"
 
     @property
-    def sub(self):
+    def sub(self) -> str:
         return f"repo:{self.repository}"
 
     @property
-    def publisher_base_url(self):
+    def publisher_base_url(self) -> str:
         return f"https://github.com/{self.repository}"
 
     @property
@@ -257,7 +275,7 @@ class GitHubPublisherMixin:
         """Placeholder value for JTI."""
         return "placeholder"
 
-    def publisher_url(self, claims=None):
+    def publisher_url(self, claims: SignedClaims | None = None) -> str:
         base = self.publisher_base_url
         sha = claims.get("sha") if claims else None
 
@@ -273,14 +291,14 @@ class GitHubPublisherMixin:
             environment=self.environment if self.environment else None,
         )
 
-    def stored_claims(self, claims=None):
-        claims = claims if claims else {}
-        return {"ref": claims.get("ref"), "sha": claims.get("sha")}
+    def stored_claims(self, claims: SignedClaims | None = None) -> dict:
+        claims_obj = claims if claims else {}
+        return {"ref": claims_obj.get("ref"), "sha": claims_obj.get("sha")}
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.workflow_filename
 
-    def exists(self, session) -> bool:
+    def exists(self, session: Session) -> bool:
         return session.query(
             exists().where(
                 and_(
@@ -318,11 +336,11 @@ class GitHubPublisher(GitHubPublisherMixin, OIDCPublisher):
         ),
     )
 
-    id = mapped_column(
-        UUID(as_uuid=True), ForeignKey(OIDCPublisher.id), primary_key=True
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True), ForeignKey(OIDCPublisher.id), primary_key=True
     )
 
-    def verify_url(self, url: str):
+    def verify_url(self, url: str) -> bool:
         """
         Verify a given URL against this GitHub's publisher information
 
@@ -375,11 +393,11 @@ class PendingGitHubPublisher(GitHubPublisherMixin, PendingOIDCPublisher):
         ),
     )
 
-    id = mapped_column(
-        UUID(as_uuid=True), ForeignKey(PendingOIDCPublisher.id), primary_key=True
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True), ForeignKey(PendingOIDCPublisher.id), primary_key=True
     )
 
-    def reify(self, session):
+    def reify(self, session: Session) -> GitHubPublisher:
         """
         Returns a `GitHubPublisher` for this `PendingGitHubPublisher`,
         deleting the `PendingGitHubPublisher` in the process.

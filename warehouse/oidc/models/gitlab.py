@@ -1,14 +1,18 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 import re
+import typing
 
 from typing import Any, Self
+from uuid import UUID
 
 from more_itertools import first_true
 from pypi_attestations import GitLabPublisher as GitLabIdentity, Publisher
 from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Query, mapped_column
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+from sqlalchemy.orm import Mapped, Query, mapped_column
 
 from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import SignedClaims
@@ -19,6 +23,9 @@ from warehouse.oidc.models._core import (
     check_existing_jti,
 )
 from warehouse.oidc.urls import verify_url_from_reference
+
+if typing.TYPE_CHECKING:
+    from sqlalchemy.orm import Session
 
 GITLAB_OIDC_ISSUER_URL = "https://gitlab.com"
 
@@ -51,7 +58,13 @@ def _extract_workflow_filepath(ci_config_ref_uri: str) -> str | None:
         return None
 
 
-def _check_project_path(ground_truth, signed_claim, _all_signed_claims, **_kwargs):
+def _check_project_path(
+    ground_truth: str,
+    signed_claim: str | None,
+    _all_signed_claims: SignedClaims,
+    **_kwargs,
+) -> bool:
+
     # Defensive: GitLab should never give us an empty project_path claim.
     if not signed_claim:
         return False
@@ -60,7 +73,12 @@ def _check_project_path(ground_truth, signed_claim, _all_signed_claims, **_kwarg
     return signed_claim.lower() == ground_truth.lower()
 
 
-def _check_ci_config_ref_uri(ground_truth, signed_claim, all_signed_claims, **_kwargs):
+def _check_ci_config_ref_uri(
+    ground_truth: str,
+    signed_claim: str | None,
+    all_signed_claims: SignedClaims,
+    **_kwargs,
+) -> bool:
     # We expect a string formatted as follows:
     #   gitlab.com/OWNER/REPO//WORKFLOW_PATH/WORKFLOW_FILE.yml@REF
     # where REF is the value of the `ref_path` claim.
@@ -86,7 +104,12 @@ def _check_ci_config_ref_uri(ground_truth, signed_claim, all_signed_claims, **_k
     return True
 
 
-def _check_environment(ground_truth, signed_claim, _all_signed_claims, **_kwargs):
+def _check_environment(
+    ground_truth: str,
+    signed_claim: str | None,
+    _all_signed_claims: SignedClaims,
+    **_kwargs,
+) -> bool:
     # When there is an environment, we expect a string.
     # For tokens that are generated outside of an environment, the claim will
     # be missing.
@@ -105,7 +128,12 @@ def _check_environment(ground_truth, signed_claim, _all_signed_claims, **_kwargs
     return ground_truth == signed_claim
 
 
-def _check_sub(ground_truth, signed_claim, _all_signed_claims, **_kwargs):
+def _check_sub(
+    ground_truth: str,
+    signed_claim: str | None,
+    _all_signed_claims: SignedClaims,
+    **_kwargs,
+) -> bool:
     # We expect a string formatted as follows:
     # project_path:NAMESPACE/PROJECT[:OPTIONAL-STUFF]
     # where :OPTIONAL-STUFF is a concatenation of other job context
@@ -134,10 +162,10 @@ class GitLabPublisherMixin:
     Common functionality for both pending and concrete GitLab OIDC publishers.
     """
 
-    namespace = mapped_column(String, nullable=False)
-    project = mapped_column(String, nullable=False)
-    workflow_filepath = mapped_column(String, nullable=False)
-    environment = mapped_column(String, nullable=False)
+    namespace: Mapped[str] = mapped_column(String, nullable=False)
+    project: Mapped[str] = mapped_column(String, nullable=False)
+    workflow_filepath: Mapped[str] = mapped_column(String, nullable=False)
+    environment: Mapped[str] = mapped_column(String, nullable=False)
 
     __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "sub": _check_sub,
@@ -204,7 +232,7 @@ class GitLabPublisherMixin:
         return None
 
     @classmethod
-    def lookup_by_claims(cls, session, signed_claims: SignedClaims) -> Self:
+    def lookup_by_claims(cls, session: Session, signed_claims: SignedClaims) -> Self:
         project_path = signed_claims["project_path"]
         ci_config_ref_uri = signed_claims["ci_config_ref_uri"]
         namespace, project = project_path.rsplit("/", 1)
@@ -227,23 +255,23 @@ class GitLabPublisherMixin:
         raise InvalidPublisherError("Publisher with matching claims was not found")
 
     @property
-    def project_path(self):
+    def project_path(self) -> str:
         return f"{self.namespace}/{self.project}"
 
     @property
-    def sub(self):
+    def sub(self) -> str:
         return f"project_path:{self.project_path}"
 
     @property
-    def ci_config_ref_uri(self):
+    def ci_config_ref_uri(self) -> str:
         return f"gitlab.com/{self.project_path}//{self.workflow_filepath}"
 
     @property
-    def publisher_name(self):
+    def publisher_name(self) -> str:
         return "GitLab"
 
     @property
-    def publisher_base_url(self):
+    def publisher_base_url(self) -> str:
         return f"https://gitlab.com/{self.project_path}"
 
     @property
@@ -251,7 +279,7 @@ class GitLabPublisherMixin:
         """Placeholder value for JTI."""
         return "placeholder"
 
-    def publisher_url(self, claims=None):
+    def publisher_url(self, claims: SignedClaims | None = None) -> str | None:
         base = self.publisher_base_url
         return f"{base}/commit/{claims['sha']}" if claims else base
 
@@ -263,14 +291,14 @@ class GitLabPublisherMixin:
             environment=self.environment if self.environment else None,
         )
 
-    def stored_claims(self, claims=None):
-        claims = claims if claims else {}
-        return {"ref_path": claims.get("ref_path"), "sha": claims.get("sha")}
+    def stored_claims(self, claims: SignedClaims | None = None) -> dict:
+        claims_obj = claims if claims else {}
+        return {"ref_path": claims_obj.get("ref_path"), "sha": claims_obj.get("sha")}
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.workflow_filepath
 
-    def exists(self, session) -> bool:
+    def exists(self, session: Session) -> bool:
         return session.query(
             exists().where(
                 and_(
@@ -307,11 +335,11 @@ class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):
         ),
     )
 
-    id = mapped_column(
-        UUID(as_uuid=True), ForeignKey(OIDCPublisher.id), primary_key=True
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True), ForeignKey(OIDCPublisher.id), primary_key=True
     )
 
-    def verify_url(self, url: str):
+    def verify_url(self, url: str) -> bool:
         """
         Verify a given URL against this GitLab's publisher information
 
@@ -382,11 +410,11 @@ class PendingGitLabPublisher(GitLabPublisherMixin, PendingOIDCPublisher):
         ),
     )
 
-    id = mapped_column(
-        UUID(as_uuid=True), ForeignKey(PendingOIDCPublisher.id), primary_key=True
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True), ForeignKey(PendingOIDCPublisher.id), primary_key=True
     )
 
-    def reify(self, session):
+    def reify(self, session: Session) -> GitLabPublisher:
         """
         Returns a `GitLabPublisher` for this `PendingGitLabPublisher`,
         deleting the `PendingGitLabPublisher` in the process.
