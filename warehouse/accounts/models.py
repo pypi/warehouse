@@ -511,6 +511,7 @@ class UserUniqueLogin(db.Model):
 
     ip_address: Mapped[str] = mapped_column(String, nullable=False)
     created: Mapped[datetime_now]
+    last_used: Mapped[datetime_now]
     device_information: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     status: Mapped[UniqueLoginStatus] = mapped_column(
         Enum(UniqueLoginStatus, values_callable=lambda x: [e.value for e in x]),
