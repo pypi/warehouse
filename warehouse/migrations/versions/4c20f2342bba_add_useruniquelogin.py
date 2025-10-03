@@ -26,6 +26,12 @@ def upgrade():
             "created", sa.DateTime(), server_default=sa.text("now()"), nullable=False
         ),
         sa.Column(
+            "last_used",
+            sa.DateTime(),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
+        sa.Column(
             "device_information", postgresql.JSONB(astext_type=sa.Text()), nullable=True
         ),
         sa.Column(

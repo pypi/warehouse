@@ -673,6 +673,62 @@ class TestLogin:
         )
         assert unique_login.status == UniqueLoginStatus.CONFIRMED
 
+    def test_login_updates_last_used(self, monkeypatch, db_request, pyramid_services):
+        remember = pretend.call_recorder(lambda request, user_id: [("foo", "bar")])
+        monkeypatch.setattr(views, "remember", remember)
+
+        user = UserFactory.create()
+        user.record_event = pretend.call_recorder(lambda *a, **kw: None)
+
+        user_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda username: user.id),
+            update_user=pretend.call_recorder(lambda *a, **kw: None),
+            get_user=pretend.call_recorder(lambda userid: user),
+            has_two_factor=lambda userid: False,
+            get_password_timestamp=lambda userid: 0,
+            needs_tos_flash=lambda userid, revision: False,
+        )
+        breach_service = pretend.stub(check_password=lambda password, tags=None: False)
+
+        pyramid_services.register_service(user_service, IUserService, None)
+        pyramid_services.register_service(
+            breach_service, IPasswordBreachedService, None
+        )
+
+        # Create a unique login with a timestamp in the distant past.
+        past_timestamp = datetime.datetime(1970, 1, 1)
+        UserUniqueLoginFactory.create(
+            user=user,
+            ip_address=db_request.remote_addr,
+            status=UniqueLoginStatus.CONFIRMED,
+            last_used=past_timestamp,
+        )
+
+        db_request.method = "POST"
+        db_request.session = pretend.stub(
+            items=lambda: [],
+            update=lambda d: None,
+            invalidate=pretend.call_recorder(lambda: None),
+            new_csrf_token=pretend.call_recorder(lambda: None),
+            record_auth_timestamp=pretend.call_recorder(lambda: None),
+            record_password_timestamp=lambda ts: None,
+        )
+        db_request.registry.settings = {"sessions.secret": "dummy_secret"}
+
+        form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            username=pretend.stub(data=user.username),
+            password=pretend.stub(data="password"),
+        )
+        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
+        db_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
+
+        # Simulate the login.
+        views.login(db_request, _form_class=form_class)
+
+        unique_login = db_request.db.query(UserUniqueLogin).one()
+        assert unique_login.last_used > past_timestamp
+
 
 class TestTwoFactor:
     def test_get_two_factor_data_invalid_after_login(self, pyramid_request):

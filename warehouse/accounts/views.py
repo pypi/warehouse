@@ -1692,7 +1692,8 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     # Whenever we log in the user, we want to update their user so that it
     # records when the last login was.
     user_service = request.find_service(IUserService, context=None)
-    user_service.update_user(userid, last_login=datetime.datetime.now(datetime.UTC))
+    now = datetime.datetime.now(datetime.UTC)
+    user_service.update_user(userid, last_login=now)
     user = user_service.get_user(userid)
     user.record_event(
         tag=EventTag.Account.LoginSuccess,
@@ -1712,6 +1713,9 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
         )
         .one_or_none()
     )
+    if unique_login:
+        unique_login.last_used = now
+
     if unique_login is None and two_factor_method not in PHISHABLE_METHODS:
         # We haven't seen this login before. Create a new one and mark it as confirmed
         # if this is non-phishable.
@@ -1722,7 +1726,8 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
         )
         request.db.add(unique_login)
     if (
-        unique_login.status == UniqueLoginStatus.PENDING
+        unique_login is not None
+        and unique_login.status == UniqueLoginStatus.PENDING
         and two_factor_method not in PHISHABLE_METHODS
     ):
         # The user had a pending login, but has since logged in with a non-phishable
