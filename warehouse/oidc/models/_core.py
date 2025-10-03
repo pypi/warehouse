@@ -224,7 +224,7 @@ class OIDCPublisherMixin:
 
     def verify_claims(
         self, signed_claims: SignedClaims, publisher_service: OIDCPublisherService
-    ):
+    ) -> bool:
         """
         Given a JWT that has been successfully decoded (checked for a valid
         signature and basic claims), verify it against the more specific
