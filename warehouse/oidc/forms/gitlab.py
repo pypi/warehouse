@@ -22,6 +22,18 @@ def ends_with_atom_or_git(form: wtforms.Form, field: wtforms.Field) -> None:
         raise wtforms.validators.ValidationError(_("Name ends with .git or .atom"))
 
 
+def _lowercase_only(form: wtforms.Form, field: wtforms.Field) -> None:
+    """
+    GitLab API is case-insensitive for namespaces and projects.
+    Instead of changing the regular expressions to remove uppercase letters,
+    we add this additional validator to ensure that users only enter lowercase
+    characters, and provide a clear error message if they do not.
+    """
+    field_value = typing.cast(str, field.data)
+    if field_value != field_value.lower():
+        raise wtforms.validators.ValidationError(_("Value must be lowercase"))
+
+
 class GitLabPublisherBase(wtforms.Form):
     __params__ = ["namespace", "project", "workflow_filepath", "environment"]
 
@@ -31,6 +43,7 @@ class GitLabPublisherBase(wtforms.Form):
                 message=_("Specify GitLab namespace (username or group/subgroup)"),
             ),
             ends_with_atom_or_git,
+            _lowercase_only,
             wtforms.validators.Regexp(
                 _VALID_GITLAB_NAMESPACE,
                 message=_("Invalid GitLab username or group/subgroup name."),
@@ -46,6 +59,7 @@ class GitLabPublisherBase(wtforms.Form):
         validators=[
             wtforms.validators.InputRequired(message=_("Specify project name")),
             ends_with_atom_or_git,
+            _lowercase_only,
             wtforms.validators.Regexp(
                 _VALID_GITLAB_PROJECT, message=_("Invalid project name")
             ),

@@ -152,6 +152,16 @@ class TestGitLabPublisherForm:
             },
             {"project": "some", "namespace": "some", "workflow_filepath": None},
             {"project": "some", "namespace": "some", "workflow_filepath": ""},
+            {
+                "namespace": "some-owner",
+                "project": "CaseSensitive",
+                "workflow_filepath": "some-workflow.yml",
+            },
+            {
+                "namespace": "CaseSensitive",
+                "project": "some-repo",
+                "workflow_filepath": "some-workflow.yml",
+            },
         ],
     )
     def test_validate_basic_invalid_fields(self, data):
