@@ -117,6 +117,13 @@ each.
     **optionally** provide the name of a
     [GitLab CI/CD environment](https://docs.gitlab.com/ee/ci/environments/).
 
+    !!! note
+
+        The repository's namepsace and name must be provided as lowercase.
+        For example, if your project is at `https://gitlab.com/NameSpace/SampleProject`,
+        you must enter `namespace` as the namespace and `sampleproject` as the
+        project name.
+
     For example, if you have a project at `https://gitlab.com/namespace/sampleproject`
     with a top-level pipeline defined in `.gitlab-ci.yml` and a custom environment
     named `release`, then you'd do the following:
