@@ -45,16 +45,16 @@ class GitHubPublisherBase(wtforms.Form):
     # https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment
     environment = wtforms.StringField(validators=[wtforms.validators.Optional()])
 
-    def __init__(self, *args, api_token, **kwargs):
+    def __init__(self, *args, api_token: str, **kwargs):
         super().__init__(*args, **kwargs)
         self._api_token = api_token
 
-    def _headers_auth(self):
+    def _headers_auth(self) -> dict[str, str]:
         if not self._api_token:
             return {}
         return {"Authorization": f"token {self._api_token}"}
 
-    def _lookup_owner(self, owner):
+    def _lookup_owner(self, owner: str) -> dict[str, str | int]:
         # To actually validate the owner, we ask GitHub's API about them.
         # We can't do this for the repository, since it might be private.
         try:
@@ -113,7 +113,7 @@ class GitHubPublisherBase(wtforms.Form):
 
         return response.json()
 
-    def validate_owner(self, field):
+    def validate_owner(self, field: wtforms.Field) -> None:
         owner = field.data
 
         # We pre-filter owners with a regex, to avoid loading GitHub's API
@@ -129,7 +129,7 @@ class GitHubPublisherBase(wtforms.Form):
         self.normalized_owner = owner_info["login"]
         self.owner_id = owner_info["id"]
 
-    def validate_workflow_filename(self, field):
+    def validate_workflow_filename(self, field: wtforms.Field) -> None:
         workflow_filename = field.data
 
         if not (
@@ -144,7 +144,7 @@ class GitHubPublisherBase(wtforms.Form):
                 _("Workflow filename must be a filename only, without directories")
             )
 
-    def validate_environment(self, field):
+    def validate_environment(self, field: wtforms.Field) -> None:
         environment = field.data
 
         if not environment:
@@ -174,7 +174,7 @@ class GitHubPublisherBase(wtforms.Form):
             )
 
     @property
-    def normalized_environment(self):
+    def normalized_environment(self) -> str:
         # The only normalization is due to case-insensitivity.
         #
         # NOTE: We explicitly do not compare `self.environment.data` to None,

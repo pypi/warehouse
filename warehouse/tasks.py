@@ -24,6 +24,7 @@ from warehouse.config import Environment
 from warehouse.metrics import IMetricsService
 
 if typing.TYPE_CHECKING:
+    from pyramid.config import Configurator
     from pyramid.request import Request
 
 # We need to trick Celery into supporting rediss:// URLs which is how redis-py
@@ -251,10 +252,10 @@ def _add_periodic_task(config, schedule, func, args=(), kwargs=(), name=None, **
     config.action(None, add_task, order=100)
 
 
-def includeme(config):
+def includeme(config: Configurator) -> None:
     s = config.registry.settings
 
-    broker_transport_options: dict[str, str | dict] = {}
+    broker_transport_options: dict[str, str | int | dict] = {}
 
     broker_url = s["celery.broker_redis_url"]
 

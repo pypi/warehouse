@@ -4,12 +4,13 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, Self, TypedDict, TypeVar, Unpack
+from uuid import UUID
 
 import rfc3986
 import sentry_sdk
 
 from sqlalchemy import ForeignKey, Index, String, UniqueConstraint, func, orm
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
@@ -19,6 +20,7 @@ from warehouse.oidc.urls import verify_url_from_reference
 
 if TYPE_CHECKING:
     from pypi_attestations import Publisher
+    from sqlalchemy.orm import Session
 
     from warehouse.accounts.models import User
     from warehouse.macaroons.models import Macaroon
@@ -77,7 +79,7 @@ def check_claim_invariant(value: C) -> CheckClaimCallable[C]:
 
 def check_existing_jti(
     _ground_truth,
-    signed_claim,
+    signed_claim: str,
     _all_signed_claims,
     **kwargs: Unpack[CheckNamedArguments],
 ) -> bool:
@@ -99,14 +101,14 @@ class OIDCPublisherProjectAssociation(db.Model):
     __tablename__ = "oidc_publisher_project_association"
     __table_args__ = (UniqueConstraint("oidc_publisher_id", "project_id"),)
 
-    oidc_publisher_id = mapped_column(
-        UUID(as_uuid=True),
+    oidc_publisher_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
         ForeignKey("oidc_publishers.id"),
         nullable=False,
         primary_key=True,
     )
-    project_id = mapped_column(
-        UUID(as_uuid=True),
+    project_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         primary_key=True,
@@ -122,7 +124,7 @@ class OIDCPublisherMixin:
     # Each hierarchy of OIDC publishers (both `OIDCPublisher` and
     # `PendingOIDCPublisher`) use a `discriminator` column for model
     # polymorphism, but the two are not mutually polymorphic at the DB level.
-    discriminator = mapped_column(String)
+    discriminator: Mapped[str | None] = mapped_column(String)
 
     # A map of claim names to "check" functions, each of which
     # has the signature `check(ground-truth, signed-claim, all-signed-claims) -> bool`.
@@ -160,7 +162,7 @@ class OIDCPublisherMixin:
     # the most optional constraints satisfied.
     #
     @classmethod
-    def lookup_by_claims(cls, session, signed_claims: SignedClaims) -> Self:
+    def lookup_by_claims(cls, session: Session, signed_claims: SignedClaims) -> Self:
         raise NotImplementedError
 
     @classmethod
@@ -224,7 +226,7 @@ class OIDCPublisherMixin:
 
     def verify_claims(
         self, signed_claims: SignedClaims, publisher_service: OIDCPublisherService
-    ):
+    ) -> bool:
         """
         Given a JWT that has been successfully decoded (checked for a valid
         signature and basic claims), verify it against the more specific
@@ -339,7 +341,7 @@ class OIDCPublisherMixin:
             url=url,
         )
 
-    def exists(self, session) -> bool:  # pragma: no cover
+    def exists(self, session: Session) -> bool:  # pragma: no cover
         """
         Check if the publisher exists in the database
         """
@@ -380,9 +382,9 @@ class PendingOIDCPublisher(OIDCPublisherMixin, db.Model):
 
     __tablename__ = "pending_oidc_publishers"
 
-    project_name = mapped_column(String, nullable=False)
-    added_by_id = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
+    project_name: Mapped[str] = mapped_column(String, nullable=False)
+    added_by_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
     )
     added_by: Mapped[User] = orm.relationship(back_populates="pending_oidc_publishers")
 
@@ -397,7 +399,7 @@ class PendingOIDCPublisher(OIDCPublisherMixin, db.Model):
         "polymorphic_on": OIDCPublisherMixin.discriminator,
     }
 
-    def reify(self, session):  # pragma: no cover
+    def reify(self, session: Session) -> OIDCPublisher:  # pragma: no cover
         """
         Return an equivalent "normal" OIDC publisher model for this pending publisher,
         deleting the pending publisher in the process.
