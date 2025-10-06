@@ -394,7 +394,7 @@ msgid "Select project"
 msgstr ""
 
 #: warehouse/manage/forms.py:507 warehouse/oidc/forms/_core.py:36
-#: warehouse/oidc/forms/gitlab.py:47
+#: warehouse/oidc/forms/gitlab.py:60
 msgid "Specify project name"
 msgstr ""
 
@@ -677,7 +677,7 @@ msgid "Expired invitation for '${username}' deleted."
 msgstr ""
 
 #: warehouse/oidc/forms/_core.py:38 warehouse/oidc/forms/_core.py:49
-#: warehouse/oidc/forms/gitlab.py:50 warehouse/oidc/forms/gitlab.py:54
+#: warehouse/oidc/forms/gitlab.py:64 warehouse/oidc/forms/gitlab.py:68
 msgid "Invalid project name"
 msgstr ""
 
@@ -827,27 +827,31 @@ msgstr ""
 msgid "Name ends with .git or .atom"
 msgstr ""
 
-#: warehouse/oidc/forms/gitlab.py:31
+#: warehouse/oidc/forms/gitlab.py:34
+msgid "Value must be lowercase"
+msgstr ""
+
+#: warehouse/oidc/forms/gitlab.py:43
 msgid "Specify GitLab namespace (username or group/subgroup)"
 msgstr ""
 
-#: warehouse/oidc/forms/gitlab.py:36 warehouse/oidc/forms/gitlab.py:40
+#: warehouse/oidc/forms/gitlab.py:49 warehouse/oidc/forms/gitlab.py:53
 msgid "Invalid GitLab username or group/subgroup name."
 msgstr ""
 
-#: warehouse/oidc/forms/gitlab.py:62
+#: warehouse/oidc/forms/gitlab.py:76
 msgid "Specify top-level pipeline file path"
 msgstr ""
 
-#: warehouse/oidc/forms/gitlab.py:71
+#: warehouse/oidc/forms/gitlab.py:85
 msgid "Invalid environment name"
 msgstr ""
 
-#: warehouse/oidc/forms/gitlab.py:86
+#: warehouse/oidc/forms/gitlab.py:100
 msgid "Top-level pipeline file path must end with .yml or .yaml"
 msgstr ""
 
-#: warehouse/oidc/forms/gitlab.py:90
+#: warehouse/oidc/forms/gitlab.py:104
 msgid "Top-level pipeline file path cannot start or end with /"
 msgstr ""
 
