@@ -29,7 +29,6 @@ from warehouse.accounts.tasks import (
     unverify_emails_with_expired_domains,
 )
 from warehouse.accounts.utils import UserContext
-from warehouse.admin.flags import AdminFlagValue
 from warehouse.macaroons.security_policy import MacaroonSecurityPolicy
 from warehouse.oidc.utils import PublisherTokenContext
 from warehouse.organizations.services import IOrganizationService
@@ -79,10 +78,7 @@ def _organization_access(request):
 
     organization_service = request.find_service(IOrganizationService, context=None)
     organizations = organization_service.get_organizations_by_user(user.id)
-    return (
-        not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS)
-        or len(organizations) > 0
-    )
+    return len(organizations) > 0
 
 
 def _unauthenticated_userid(request):
