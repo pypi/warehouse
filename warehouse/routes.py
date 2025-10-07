@@ -202,6 +202,9 @@ def includeme(config):
         "accounts.reset-password", "/account/reset-password/", domain=warehouse
     )
     config.add_route(
+        "accounts.confirm-login", "/account/confirm-login/", domain=warehouse
+    )
+    config.add_route(
         "accounts.verify-email", "/account/verify-email/", domain=warehouse
     )
     config.add_route(
