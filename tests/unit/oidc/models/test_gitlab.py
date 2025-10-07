@@ -668,6 +668,7 @@ class TestGitLabPublisher:
             namespace="repository_owner",
             workflow_filepath="subfolder/worflow_filename.yml",
             environment="",
+            issuer_url="https://gitlab.com",
         )
 
         db_request.db.add(publisher1)
@@ -678,6 +679,7 @@ class TestGitLabPublisher:
             namespace="repository_owner",
             workflow_filepath="subfolder/worflow_filename.yml",
             environment="",
+            issuer_url="https://gitlab.com",
         )
         db_request.db.add(publisher2)
 
@@ -827,6 +829,7 @@ class TestGitLabPublisher:
             namespace="repository_owner",
             workflow_filepath="subfolder/worflow_filename.yml",
             environment="",
+            issuer_url="https://gitlab.com",
         )
 
         if exists_in_db:

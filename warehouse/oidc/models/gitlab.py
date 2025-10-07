@@ -437,6 +437,7 @@ class PendingGitLabPublisher(GitLabPublisherMixin, PendingOIDCPublisher):
             project=self.project,
             workflow_filepath=self.workflow_filepath,
             environment=self.environment,
+            issuer_url=GITLAB_OIDC_ISSUER_URL,
         )
 
         session.delete(self)

@@ -456,6 +456,7 @@ class TestManageOIDCPublisherViews:
                     project="some-project",
                     workflow_filepath="some-workflow-filename.yml",
                     environment="",
+                    issuer_url="https://gitlab.com",
                 ),
                 "fakeenv",
             ),
@@ -948,6 +949,7 @@ class TestManageOIDCPublisherViews:
                     "namespace": "some-namespace",
                     "project": "some-project",
                     "workflow_filepath": "some-workflow-filename.yml",
+                    "issuer_url": "https://gitlab.com",
                 },
             ),
         ],
@@ -1375,6 +1377,7 @@ class TestManageOIDCPublisherViews:
                     namespace="some-owner",
                     workflow_filepath="subfolder/some-workflow-filename.yml",
                     environment="some-environment",
+                    issuer_url="https://gitlab.com",
                 ),
                 MultiDict(
                     {
@@ -1753,6 +1756,7 @@ class TestManageOIDCPublisherViews:
                 namespace="some-owner",
                 workflow_filepath="subfolder/some-workflow-filename.yml",
                 environment="some-environment",
+                issuer_url="https://gitlab.com",
             ),
             GooglePublisher(
                 email="some-email@example.com",
@@ -1867,6 +1871,7 @@ class TestManageOIDCPublisherViews:
                 namespace="some-owner",
                 workflow_filepath="subfolder/some-workflow-filename.yml",
                 environment="some-environment",
+                issuer_url="https://gitlab.com",
             ),
             GooglePublisher(
                 email="some-email@example.com",
