@@ -1333,7 +1333,7 @@ class TestTwoFactor:
                 db_request,
                 user,
                 ip_address=db_request.remote_addr,
-                user_agent="Unknown User-Agent",
+                user_agent=ua_string or "Unknown User-Agent",
                 token="fake_token",
             )
         ]
@@ -2155,7 +2155,7 @@ class TestRecoveryCode:
                 db_request,
                 user,
                 ip_address=db_request.remote_addr,
-                user_agent="Unknown User-Agent",
+                user_agent=ua_string or "Unknown User-Agent",
                 token="fake_token",
             )
         ]
