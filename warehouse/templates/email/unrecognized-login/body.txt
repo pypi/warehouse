@@ -7,6 +7,7 @@ To complete your login, please visit the following link:
 
 This login attempt was made from:
 - IP address: {{ ip_address }}
+- Location: {{ ip_address.geo_ip or "Unknown"}}
 - User agent: {{ user_agent }}
 
 If you did not make this change, you can email admin@pypi.org to
