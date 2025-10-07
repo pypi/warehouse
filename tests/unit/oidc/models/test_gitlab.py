@@ -255,11 +255,13 @@ class TestGitLabPublisher:
             namespace="fakeowner",
             workflow_filepath="subfolder/fakeworkflow.yml",
             environment="fakeenv",
+            issuer_url="https://gitlab.com",
         )
 
         assert publisher.admin_details == [
             ("Project", "fakeowner/fakerepo"),
             ("Workflow", "subfolder/fakeworkflow.yml"),
+            ("Issuer URL", "https://gitlab.com"),
             ("Environment", "fakeenv"),
         ]
 
@@ -269,11 +271,13 @@ class TestGitLabPublisher:
             namespace="fakeowner",
             workflow_filepath="subfolder/fakeworkflow.yml",
             environment="",
+            issuer_url="https://gitlab.com",
         )
 
         assert publisher.admin_details == [
             ("Project", "fakeowner/fakerepo"),
             ("Workflow", "subfolder/fakeworkflow.yml"),
+            ("Issuer URL", "https://gitlab.com"),
         ]
 
     def test_gitlab_publisher_unaccounted_claims(self, monkeypatch):

@@ -317,6 +317,7 @@ class GitLabPublisherMixin:
         details = [
             ("Project", self.project_path),
             ("Workflow", self.workflow_filepath),
+            ("Issuer URL", self.issuer_url),
         ]
         if self.environment:
             details.append(("Environment", self.environment))
