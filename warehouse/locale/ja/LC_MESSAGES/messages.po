@@ -226,7 +226,7 @@ msgstr "既に認証済みです"
 msgid "Successful WebAuthn assertion"
 msgstr "WebAuthnアサーションに成功しました"
 
-#: warehouse/accounts/views.py:615 warehouse/manage/views/__init__.py:871
+#: warehouse/accounts/views.py:615 warehouse/manage/views/__init__.py:851
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "リカバリーコードを受け付けました。今回入力されたコードを再度使用することはで"
@@ -381,7 +381,7 @@ msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr "更新された<a href=\"${tos_url}\">利用規約</a>を確認してください。"
 
 #: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1922
-#: warehouse/manage/views/__init__.py:1409
+#: warehouse/manage/views/oidc_publishers.py:120
 #, fuzzy
 #| msgid ""
 #| "Trusted publishers are temporarily disabled. See https://pypi.org/"
@@ -415,10 +415,11 @@ msgstr ""
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr "一度に保留中の信頼できる発行元を 3 つ以上登録することはできません。"
 
-#: warehouse/accounts/views.py:1734 warehouse/manage/views/__init__.py:1590
-#: warehouse/manage/views/__init__.py:1705
-#: warehouse/manage/views/__init__.py:1819
-#: warehouse/manage/views/__init__.py:1931
+#: warehouse/accounts/views.py:1734
+#: warehouse/manage/views/oidc_publishers.py:301
+#: warehouse/manage/views/oidc_publishers.py:416
+#: warehouse/manage/views/oidc_publishers.py:530
+#: warehouse/manage/views/oidc_publishers.py:642
 #, fuzzy
 #| msgid ""
 #| "There have been too many attempted OpenID Connect registrations. Try "
@@ -430,10 +431,11 @@ msgstr ""
 "OpenID Connect の登録が試行された回数が多すぎます。後でもう一度やり直してくだ"
 "さい。"
 
-#: warehouse/accounts/views.py:1744 warehouse/manage/views/__init__.py:1603
-#: warehouse/manage/views/__init__.py:1718
-#: warehouse/manage/views/__init__.py:1832
-#: warehouse/manage/views/__init__.py:1944
+#: warehouse/accounts/views.py:1744
+#: warehouse/manage/views/oidc_publishers.py:314
+#: warehouse/manage/views/oidc_publishers.py:429
+#: warehouse/manage/views/oidc_publishers.py:543
+#: warehouse/manage/views/oidc_publishers.py:655
 msgid "The trusted publisher could not be registered"
 msgstr "信頼できる発行元を登録できませんでした"
 
@@ -612,98 +614,194 @@ msgid ""
 "less."
 msgstr "組織の説明が長すぎます。400 文字以下の組織の説明を選択します。"
 
-#: warehouse/manage/views/__init__.py:282
+#: warehouse/manage/views/__init__.py:262
 #, fuzzy
 #| msgid "Account details"
 msgid "Account details updated"
 msgstr "アカウント詳細"
 
-#: warehouse/manage/views/__init__.py:313
+#: warehouse/manage/views/__init__.py:293
 #, python-brace-format
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "メールアドレス ${email_address} が追加されました - メールにある確認用のリンク"
 "をチェックしてください"
 
-#: warehouse/manage/views/__init__.py:818
+#: warehouse/manage/views/__init__.py:798
 msgid "Recovery codes already generated"
 msgstr "リカバリーコードは既に生成済みです"
 
-#: warehouse/manage/views/__init__.py:820
+#: warehouse/manage/views/__init__.py:800
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "新しいリカバリーコードを生成すると、既存のコードが無効となります。"
 
-#: warehouse/manage/views/__init__.py:928
+#: warehouse/manage/views/__init__.py:908
 #, fuzzy
 #| msgid "Verify your email or add a new address."
 msgid "Verify your email to create an API token."
 msgstr "メールアドレスを確認するか、新しいアドレスを追加してください。"
 
-#: warehouse/manage/views/__init__.py:1030
+#: warehouse/manage/views/__init__.py:1010
 msgid "API Token does not exist."
 msgstr "APIトークンが存在しません。"
 
-#: warehouse/manage/views/__init__.py:1062
+#: warehouse/manage/views/__init__.py:1042
 msgid "Invalid credentials. Try again"
 msgstr "資格情報が無効です。再度試してみてください"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/manage/views/__init__.py:1181
+#: warehouse/manage/views/__init__.py:1161
 #, fuzzy
 #| msgid "Invalid repository name"
 msgid "Invalid alternate repository location details"
 msgstr "無効なリポジトリ名"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/manage/views/__init__.py:1219
+#: warehouse/manage/views/__init__.py:1199
 #, fuzzy, python-brace-format
 #| msgid "Invalid repository name"
 msgid "Added alternate repository '${name}'"
 msgstr "無効なリポジトリ名"
 
-#: warehouse/manage/views/__init__.py:1252
-#: warehouse/manage/views/__init__.py:2279
-#: warehouse/manage/views/__init__.py:2364
-#: warehouse/manage/views/__init__.py:2465
-#: warehouse/manage/views/__init__.py:2565
+#: warehouse/manage/views/__init__.py:1232
+#: warehouse/manage/views/__init__.py:1493
+#: warehouse/manage/views/__init__.py:1578
+#: warehouse/manage/views/__init__.py:1679
+#: warehouse/manage/views/__init__.py:1779
 #, fuzzy
 #| msgid "Confirm Invite"
 msgid "Confirm the request"
 msgstr "招待の確認"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/manage/views/__init__.py:1264
+#: warehouse/manage/views/__init__.py:1244
 #, fuzzy
 #| msgid "Invalid repository name"
 msgid "Invalid alternate repository id"
 msgstr "無効なリポジトリ名"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/manage/views/__init__.py:1275
+#: warehouse/manage/views/__init__.py:1255
 #, fuzzy
 #| msgid "Invalid repository name"
 msgid "Invalid alternate repository for project"
 msgstr "無効なリポジトリ名"
 
-#: warehouse/manage/views/__init__.py:1284
+#: warehouse/manage/views/__init__.py:1264
 #, python-brace-format
 msgid ""
 "Could not delete alternate repository - ${confirm} is not the same as "
 "${alt_repo_name}"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1314
+#: warehouse/manage/views/__init__.py:1294
 #, python-brace-format
 msgid "Deleted alternate repository '${name}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1458
+#: warehouse/manage/views/__init__.py:1362
+#: warehouse/manage/views/__init__.py:1663
+#: warehouse/manage/views/__init__.py:1771
+msgid ""
+"Project deletion temporarily disabled. See https://pypi.org/help#admin-"
+"intervention for details."
+msgstr ""
+"プロジェクトの削除が一時的に無効になっています。詳細については https://pypi."
+"org/help#admin-intervention を参照してください。"
+
+#: warehouse/manage/views/__init__.py:1506
+#, fuzzy
+#| msgid "pre-release"
+msgid "Could not yank release - "
+msgstr "プレリリース"
+
+#: warehouse/manage/views/__init__.py:1591
+#, fuzzy
+#| msgid "pre-release"
+msgid "Could not un-yank release - "
+msgstr "プレリリース"
+
+#: warehouse/manage/views/__init__.py:1692
+#, fuzzy
+#| msgid "Delete release"
+msgid "Could not delete release - "
+msgstr "リリース削除"
+
+#: warehouse/manage/views/__init__.py:1791
+#, fuzzy
+#| msgid "Could not find role invitation."
+msgid "Could not find file"
+msgstr "役割への招待が見つかりません。"
+
+#: warehouse/manage/views/__init__.py:1796
+msgid "Could not delete file - "
+msgstr "ファイルを削除できませんでした - "
+
+#: warehouse/manage/views/__init__.py:1946
+#, python-brace-format
+msgid "Team '${team_name}' already has ${role_name} role for project"
+msgstr ""
+"チーム '${team_name}' には、既にプロジェクトの ${role_name} の役割が与えられ"
+"ています"
+
+#: warehouse/manage/views/__init__.py:2053
+#, python-brace-format
+msgid "User '${username}' already has ${role_name} role for project"
+msgstr ""
+"ユーザ '${username}' には、既にプロジェクトの ${role_name} の役割が与えられて"
+"います"
+
+#: warehouse/manage/views/__init__.py:2120
+#, fuzzy, python-brace-format
+#| msgid "You are now ${role} of the '${project_name}' project."
+msgid "${username} is now ${role} of the '${project_name}' project."
+msgstr "プロジェクト '${project_name}' の ${role} になりました。"
+
+#: warehouse/manage/views/__init__.py:2152
+#, python-brace-format
+msgid ""
+"User '${username}' does not have a verified primary email address and cannot "
+"be added as a ${role_name} for project"
+msgstr ""
+"ユーザ '${username}' には確認済みの主要メールアドレスが登録されていないため、"
+"プロジェクトの ${role_name} に追加することはできません"
+
+#: warehouse/manage/views/__init__.py:2165
+#: warehouse/manage/views/organizations.py:962
+#, python-brace-format
+msgid ""
+"User '${username}' already has an active invite. Please try again later."
+msgstr ""
+"ユーザ '${username}' には既にアクティブな招待があります。後でもう一度お試しく"
+"ださい。"
+
+#: warehouse/manage/views/__init__.py:2230
+#: warehouse/manage/views/organizations.py:1037
+#, python-brace-format
+msgid "Invitation sent to '${username}'"
+msgstr "'${username}' に招待を送信しました"
+
+#: warehouse/manage/views/__init__.py:2262
+msgid "Could not find role invitation."
+msgstr "役割への招待が見つかりません。"
+
+#: warehouse/manage/views/__init__.py:2273
+msgid "Invitation already expired."
+msgstr "招待の期限が切れています。"
+
+#: warehouse/manage/views/__init__.py:2306
+#: warehouse/manage/views/organizations.py:1224
+#, python-brace-format
+msgid "Invitation revoked from '${username}'."
+msgstr "'${username}' の招待を無効化しました。"
+
+#: warehouse/manage/views/oidc_publishers.py:169
 #, fuzzy
 #| msgid "The trusted publisher could not be registered"
 msgid "The trusted publisher could not be constrained"
 msgstr "信頼できる発行元を登録できませんでした"
 
-#: warehouse/manage/views/__init__.py:1571
+#: warehouse/manage/views/oidc_publishers.py:282
 #, fuzzy
 #| msgid ""
 #| "Trusted publishers are temporarily disabled. See https://pypi.org/"
@@ -715,7 +813,7 @@ msgstr ""
 "信頼できる発行元が一時的に無効になっています。詳細については https://pypi."
 "org/help#admin-intervention を参照してください。"
 
-#: warehouse/manage/views/__init__.py:1686
+#: warehouse/manage/views/oidc_publishers.py:397
 #, fuzzy
 #| msgid ""
 #| "Trusted publishers are temporarily disabled. See https://pypi.org/"
@@ -727,7 +825,7 @@ msgstr ""
 "信頼できる発行元が一時的に無効になっています。詳細については https://pypi."
 "org/help#admin-intervention を参照してください。"
 
-#: warehouse/manage/views/__init__.py:1800
+#: warehouse/manage/views/oidc_publishers.py:511
 #, fuzzy
 #| msgid ""
 #| "Trusted publishers are temporarily disabled. See https://pypi.org/"
@@ -739,7 +837,7 @@ msgstr ""
 "信頼できる発行元が一時的に無効になっています。詳細については https://pypi."
 "org/help#admin-intervention を参照してください。"
 
-#: warehouse/manage/views/__init__.py:1911
+#: warehouse/manage/views/oidc_publishers.py:622
 #, fuzzy
 #| msgid ""
 #| "Trusted publishers are temporarily disabled. See https://pypi.org/"
@@ -750,102 +848,6 @@ msgid ""
 msgstr ""
 "信頼できる発行元が一時的に無効になっています。詳細については https://pypi."
 "org/help#admin-intervention を参照してください。"
-
-#: warehouse/manage/views/__init__.py:2148
-#: warehouse/manage/views/__init__.py:2449
-#: warehouse/manage/views/__init__.py:2557
-msgid ""
-"Project deletion temporarily disabled. See https://pypi.org/help#admin-"
-"intervention for details."
-msgstr ""
-"プロジェクトの削除が一時的に無効になっています。詳細については https://pypi."
-"org/help#admin-intervention を参照してください。"
-
-#: warehouse/manage/views/__init__.py:2292
-#, fuzzy
-#| msgid "pre-release"
-msgid "Could not yank release - "
-msgstr "プレリリース"
-
-#: warehouse/manage/views/__init__.py:2377
-#, fuzzy
-#| msgid "pre-release"
-msgid "Could not un-yank release - "
-msgstr "プレリリース"
-
-#: warehouse/manage/views/__init__.py:2478
-#, fuzzy
-#| msgid "Delete release"
-msgid "Could not delete release - "
-msgstr "リリース削除"
-
-#: warehouse/manage/views/__init__.py:2577
-#, fuzzy
-#| msgid "Could not find role invitation."
-msgid "Could not find file"
-msgstr "役割への招待が見つかりません。"
-
-#: warehouse/manage/views/__init__.py:2582
-msgid "Could not delete file - "
-msgstr "ファイルを削除できませんでした - "
-
-#: warehouse/manage/views/__init__.py:2732
-#, python-brace-format
-msgid "Team '${team_name}' already has ${role_name} role for project"
-msgstr ""
-"チーム '${team_name}' には、既にプロジェクトの ${role_name} の役割が与えられ"
-"ています"
-
-#: warehouse/manage/views/__init__.py:2839
-#, python-brace-format
-msgid "User '${username}' already has ${role_name} role for project"
-msgstr ""
-"ユーザ '${username}' には、既にプロジェクトの ${role_name} の役割が与えられて"
-"います"
-
-#: warehouse/manage/views/__init__.py:2906
-#, fuzzy, python-brace-format
-#| msgid "You are now ${role} of the '${project_name}' project."
-msgid "${username} is now ${role} of the '${project_name}' project."
-msgstr "プロジェクト '${project_name}' の ${role} になりました。"
-
-#: warehouse/manage/views/__init__.py:2938
-#, python-brace-format
-msgid ""
-"User '${username}' does not have a verified primary email address and cannot "
-"be added as a ${role_name} for project"
-msgstr ""
-"ユーザ '${username}' には確認済みの主要メールアドレスが登録されていないため、"
-"プロジェクトの ${role_name} に追加することはできません"
-
-#: warehouse/manage/views/__init__.py:2951
-#: warehouse/manage/views/organizations.py:962
-#, python-brace-format
-msgid ""
-"User '${username}' already has an active invite. Please try again later."
-msgstr ""
-"ユーザ '${username}' には既にアクティブな招待があります。後でもう一度お試しく"
-"ださい。"
-
-#: warehouse/manage/views/__init__.py:3016
-#: warehouse/manage/views/organizations.py:1037
-#, python-brace-format
-msgid "Invitation sent to '${username}'"
-msgstr "'${username}' に招待を送信しました"
-
-#: warehouse/manage/views/__init__.py:3048
-msgid "Could not find role invitation."
-msgstr "役割への招待が見つかりません。"
-
-#: warehouse/manage/views/__init__.py:3059
-msgid "Invitation already expired."
-msgstr "招待の期限が切れています。"
-
-#: warehouse/manage/views/__init__.py:3092
-#: warehouse/manage/views/organizations.py:1224
-#, python-brace-format
-msgid "Invitation revoked from '${username}'."
-msgstr "'${username}' の招待を無効化しました。"
 
 #: warehouse/manage/views/organizations.py:938
 #, fuzzy, python-brace-format
