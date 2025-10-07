@@ -34,7 +34,10 @@ from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage import views
-from warehouse.manage.views import organizations as org_views
+from warehouse.manage.views import (
+    oidc_publishers as oidc_views,
+    organizations as org_views,
+)
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import (
@@ -6084,7 +6087,7 @@ class TestManageOIDCPublisherViews:
             ),
             POST=MultiDict(),
         )
-        view = views.ManageOIDCPublisherViews(project, request)
+        view = oidc_views.ManageOIDCPublisherViews(project, request)
 
         assert view.project is project
         assert view.request is request
@@ -6136,7 +6139,7 @@ class TestManageOIDCPublisherViews:
             POST=MultiDict(),
         )
 
-        view = views.ManageOIDCPublisherViews(project, request)
+        view = oidc_views.ManageOIDCPublisherViews(project, request)
 
         assert view._ratelimiters == {
             "user.oidc": user_rate_limiter,
@@ -6177,7 +6180,7 @@ class TestManageOIDCPublisherViews:
             POST=MultiDict(),
         )
 
-        view = views.ManageOIDCPublisherViews(project, request)
+        view = oidc_views.ManageOIDCPublisherViews(project, request)
         assert view.manage_project_oidc_publishers() == {
             "disabled": {
                 "GitHub": False,
@@ -6220,7 +6223,7 @@ class TestManageOIDCPublisherViews:
         )
         pyramid_request.POST = MultiDict()
 
-        view = views.ManageOIDCPublisherViews(project, pyramid_request)
+        view = oidc_views.ManageOIDCPublisherViews(project, pyramid_request)
 
         assert view.manage_project_oidc_publishers() == {
             "disabled": {
@@ -6330,7 +6333,7 @@ class TestManageOIDCPublisherViews:
             params=MultiDict(prefilled_data),
         )
 
-        view = views.ManageOIDCPublisherViews(project, request)
+        view = oidc_views.ManageOIDCPublisherViews(project, request)
         assert view.manage_project_oidc_publishers_prefill() == {
             "disabled": {
                 "GitHub": False,
@@ -6413,7 +6416,7 @@ class TestManageOIDCPublisherViews:
             params=MultiDict(prefilled_data),
         )
 
-        view = views.ManageOIDCPublisherViews(project, request)
+        view = oidc_views.ManageOIDCPublisherViews(project, request)
         assert view.manage_project_oidc_publishers_prefill() == {
             "disabled": {
                 "GitHub": False,
@@ -6466,7 +6469,7 @@ class TestManageOIDCPublisherViews:
             params=MultiDict(prefilled_data),
         )
 
-        view = views.ManageOIDCPublisherViews(project, request)
+        view = oidc_views.ManageOIDCPublisherViews(project, request)
         assert view.manage_project_oidc_publishers_prefill() == {
             "disabled": {
                 "GitHub": False,
@@ -6541,7 +6544,7 @@ class TestManageOIDCPublisherViews:
             disallow_oidc=pretend.call_recorder(lambda f=None: False)
         )
         db_request._ = lambda s: s
-        view = views.ManageOIDCPublisherViews(project, db_request)
+        view = oidc_views.ManageOIDCPublisherViews(project, db_request)
 
         assert isinstance(view.constrain_environment(), HTTPSeeOther)
         assert view.metrics.increment.calls == [
@@ -6631,7 +6634,7 @@ class TestManageOIDCPublisherViews:
             disallow_oidc=pretend.call_recorder(lambda f=None: False)
         )
         db_request._ = lambda s: s
-        view = views.ManageOIDCPublisherViews(project, db_request)
+        view = oidc_views.ManageOIDCPublisherViews(project, db_request)
 
         assert isinstance(view.constrain_environment(), HTTPSeeOther)
         assert view.metrics.increment.calls == [
@@ -6715,10 +6718,10 @@ class TestManageOIDCPublisherViews:
             registry=pretend.stub(settings={}),
         )
 
-        view = views.ManageOIDCPublisherViews(project, request)
+        view = oidc_views.ManageOIDCPublisherViews(project, request)
         default_response = {"_": pretend.stub()}
         monkeypatch.setattr(
-            views.ManageOIDCPublisherViews, "default_response", default_response
+            oidc_views.ManageOIDCPublisherViews, "default_response", default_response
         )
 
         assert view.constrain_environment() == default_response
@@ -6753,10 +6756,10 @@ class TestManageOIDCPublisherViews:
             registry=pretend.stub(settings={}),
         )
 
-        view = views.ManageOIDCPublisherViews(project, request)
+        view = oidc_views.ManageOIDCPublisherViews(project, request)
         default_response = {"_": pretend.stub()}
         monkeypatch.setattr(
-            views.ManageOIDCPublisherViews, "default_response", default_response
+            oidc_views.ManageOIDCPublisherViews, "default_response", default_response
         )
 
         assert view.constrain_environment() == default_response
@@ -6789,10 +6792,10 @@ class TestManageOIDCPublisherViews:
             disallow_oidc=pretend.call_recorder(lambda f=None: False)
         )
 
-        view = views.ManageOIDCPublisherViews(project, db_request)
+        view = oidc_views.ManageOIDCPublisherViews(project, db_request)
         default_response = {"_": pretend.stub()}
         monkeypatch.setattr(
-            views.ManageOIDCPublisherViews, "default_response", default_response
+            oidc_views.ManageOIDCPublisherViews, "default_response", default_response
         )
 
         assert view.constrain_environment() == default_response
@@ -6845,10 +6848,10 @@ class TestManageOIDCPublisherViews:
             disallow_oidc=pretend.call_recorder(lambda f=None: False)
         )
 
-        view = views.ManageOIDCPublisherViews(request_project, db_request)
+        view = oidc_views.ManageOIDCPublisherViews(request_project, db_request)
         default_response = {"_": pretend.stub()}
         monkeypatch.setattr(
-            views.ManageOIDCPublisherViews, "default_response", default_response
+            oidc_views.ManageOIDCPublisherViews, "default_response", default_response
         )
 
         assert view.constrain_environment() == default_response
@@ -6905,10 +6908,10 @@ class TestManageOIDCPublisherViews:
             disallow_oidc=pretend.call_recorder(lambda f=None: False)
         )
 
-        view = views.ManageOIDCPublisherViews(project, db_request)
+        view = oidc_views.ManageOIDCPublisherViews(project, db_request)
         default_response = {"_": pretend.stub()}
         monkeypatch.setattr(
-            views.ManageOIDCPublisherViews, "default_response", default_response
+            oidc_views.ManageOIDCPublisherViews, "default_response", default_response
         )
 
         assert view.constrain_environment() == default_response
@@ -6959,10 +6962,10 @@ class TestManageOIDCPublisherViews:
             disallow_oidc=pretend.call_recorder(lambda f=None: False)
         )
 
-        view = views.ManageOIDCPublisherViews(project, db_request)
+        view = oidc_views.ManageOIDCPublisherViews(project, db_request)
         default_response = {"_": pretend.stub()}
         monkeypatch.setattr(
-            views.ManageOIDCPublisherViews, "default_response", default_response
+            oidc_views.ManageOIDCPublisherViews, "default_response", default_response
         )
 
         assert view.constrain_environment() == default_response
@@ -7032,10 +7035,10 @@ class TestManageOIDCPublisherViews:
         )
         db_request._ = lambda s: s
 
-        view = views.ManageOIDCPublisherViews(project, db_request)
+        view = oidc_views.ManageOIDCPublisherViews(project, db_request)
         default_response = {"_": pretend.stub()}
         monkeypatch.setattr(
-            views.ManageOIDCPublisherViews, "default_response", default_response
+            oidc_views.ManageOIDCPublisherViews, "default_response", default_response
         )
 
         assert view.constrain_environment() == default_response
@@ -7175,12 +7178,12 @@ class TestManageOIDCPublisherViews:
 
         publisher_form_obj = make_form(publisher)
         publisher_form_cls = pretend.call_recorder(lambda *a, **kw: publisher_form_obj)
-        monkeypatch.setattr(views, "GitHubPublisherForm", publisher_form_cls)
-        monkeypatch.setattr(views, "GitLabPublisherForm", publisher_form_cls)
-        monkeypatch.setattr(views, "GooglePublisherForm", publisher_form_cls)
-        monkeypatch.setattr(views, "ActiveStatePublisherForm", publisher_form_cls)
+        monkeypatch.setattr(oidc_views, "GitHubPublisherForm", publisher_form_cls)
+        monkeypatch.setattr(oidc_views, "GitLabPublisherForm", publisher_form_cls)
+        monkeypatch.setattr(oidc_views, "GooglePublisherForm", publisher_form_cls)
+        monkeypatch.setattr(oidc_views, "ActiveStatePublisherForm", publisher_form_cls)
 
-        view = views.ManageOIDCPublisherViews(project, request)
+        view = oidc_views.ManageOIDCPublisherViews(project, request)
         monkeypatch.setattr(
             view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
         )
@@ -7319,17 +7322,17 @@ class TestManageOIDCPublisherViews:
         )
 
         publisher_form_cls = pretend.call_recorder(lambda *a, **kw: publisher_form_obj)
-        monkeypatch.setattr(views, "GitHubPublisherForm", publisher_form_cls)
-        monkeypatch.setattr(views, "GitLabPublisherForm", publisher_form_cls)
-        monkeypatch.setattr(views, "GooglePublisherForm", publisher_form_cls)
-        monkeypatch.setattr(views, "ActiveStatePublisherForm", publisher_form_cls)
+        monkeypatch.setattr(oidc_views, "GitHubPublisherForm", publisher_form_cls)
+        monkeypatch.setattr(oidc_views, "GitLabPublisherForm", publisher_form_cls)
+        monkeypatch.setattr(oidc_views, "GooglePublisherForm", publisher_form_cls)
+        monkeypatch.setattr(oidc_views, "ActiveStatePublisherForm", publisher_form_cls)
         monkeypatch.setattr(
-            views,
+            oidc_views,
             "send_trusted_publisher_added_email",
             pretend.call_recorder(lambda *a, **kw: None),
         )
 
-        view = views.ManageOIDCPublisherViews(project, request)
+        view = oidc_views.ManageOIDCPublisherViews(project, request)
         monkeypatch.setattr(
             view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
         )
@@ -7381,7 +7384,7 @@ class TestManageOIDCPublisherViews:
         ]
         assert request.db.add.calls == [pretend.call(project.oidc_publishers[0])]
         assert publisher_form_obj.validate.calls == [pretend.call()]
-        assert views.send_trusted_publisher_added_email.calls == [
+        assert oidc_views.send_trusted_publisher_added_email.calls == [
             pretend.call(
                 request,
                 fakeuser,
@@ -7492,21 +7495,21 @@ class TestManageOIDCPublisherViews:
         )
         db_request.POST = post_body
 
-        view = views.ManageOIDCPublisherViews(project, db_request)
+        view = oidc_views.ManageOIDCPublisherViews(project, db_request)
         monkeypatch.setattr(
-            views.GitHubPublisherForm,
+            oidc_views.GitHubPublisherForm,
             "_lookup_owner",
             lambda *a: {"login": "some-owner", "id": "some-owner-id"},
         )
 
         monkeypatch.setattr(
-            views.ActiveStatePublisherForm,
+            oidc_views.ActiveStatePublisherForm,
             "_lookup_organization",
             lambda *a: None,
         )
 
         monkeypatch.setattr(
-            views.ActiveStatePublisherForm,
+            oidc_views.ActiveStatePublisherForm,
             "_lookup_actor",
             lambda *a: {"user_id": "some-user-id"},
         )
@@ -7588,9 +7591,9 @@ class TestManageOIDCPublisherViews:
         )
         db_request.POST = post_body
 
-        view = views.ManageOIDCPublisherViews(project, db_request)
+        view = oidc_views.ManageOIDCPublisherViews(project, db_request)
         monkeypatch.setattr(
-            views.GitHubPublisherForm,
+            oidc_views.GitHubPublisherForm,
             "_lookup_owner",
             lambda *a: {"login": "some-owner", "id": "some-owner-id"},
         )
@@ -7655,7 +7658,7 @@ class TestManageOIDCPublisherViews:
             POST=MultiDict(),
         )
 
-        view = views.ManageOIDCPublisherViews(project, request)
+        view = oidc_views.ManageOIDCPublisherViews(project, request)
         monkeypatch.setattr(
             view,
             "_check_ratelimits",
@@ -7705,10 +7708,10 @@ class TestManageOIDCPublisherViews:
             registry=pretend.stub(settings={}),
         )
 
-        view = views.ManageOIDCPublisherViews(project, request)
+        view = oidc_views.ManageOIDCPublisherViews(project, request)
         default_response = {"_": pretend.stub()}
         monkeypatch.setattr(
-            views.ManageOIDCPublisherViews, "default_response", default_response
+            oidc_views.ManageOIDCPublisherViews, "default_response", default_response
         )
 
         assert getattr(view, view_name)() == default_response
@@ -7752,12 +7755,12 @@ class TestManageOIDCPublisherViews:
             validate=pretend.call_recorder(lambda: False),
         )
         publisher_form_cls = pretend.call_recorder(lambda *a, **kw: publisher_form_obj)
-        monkeypatch.setattr(views, "GitHubPublisherForm", publisher_form_cls)
-        monkeypatch.setattr(views, "GitLabPublisherForm", publisher_form_cls)
-        monkeypatch.setattr(views, "GooglePublisherForm", publisher_form_cls)
-        monkeypatch.setattr(views, "ActiveStatePublisherForm", publisher_form_cls)
+        monkeypatch.setattr(oidc_views, "GitHubPublisherForm", publisher_form_cls)
+        monkeypatch.setattr(oidc_views, "GitLabPublisherForm", publisher_form_cls)
+        monkeypatch.setattr(oidc_views, "GooglePublisherForm", publisher_form_cls)
+        monkeypatch.setattr(oidc_views, "ActiveStatePublisherForm", publisher_form_cls)
 
-        view = views.ManageOIDCPublisherViews(project, request)
+        view = oidc_views.ManageOIDCPublisherViews(project, request)
         default_response = {
             "github_publisher_form": publisher_form_obj,
             "gitlab_publisher_form": publisher_form_obj,
@@ -7765,7 +7768,7 @@ class TestManageOIDCPublisherViews:
             "activestate_publisher_form": publisher_form_obj,
         }
         monkeypatch.setattr(
-            views.ManageOIDCPublisherViews, "default_response", default_response
+            oidc_views.ManageOIDCPublisherViews, "default_response", default_response
         )
         monkeypatch.setattr(
             view, "_check_ratelimits", pretend.call_recorder(lambda: None)
@@ -7839,15 +7842,15 @@ class TestManageOIDCPublisherViews:
         )
 
         monkeypatch.setattr(
-            views,
+            oidc_views,
             "send_trusted_publisher_removed_email",
             pretend.call_recorder(lambda *a, **kw: None),
         )
 
-        view = views.ManageOIDCPublisherViews(project, db_request)
+        view = oidc_views.ManageOIDCPublisherViews(project, db_request)
         default_response = {"_": pretend.stub()}
         monkeypatch.setattr(
-            views.ManageOIDCPublisherViews, "default_response", default_response
+            oidc_views.ManageOIDCPublisherViews, "default_response", default_response
         )
 
         assert isinstance(view.delete_oidc_publisher(), HTTPSeeOther)
@@ -7890,7 +7893,7 @@ class TestManageOIDCPublisherViews:
         assert db_request.db.query(OIDCPublisher).one() == publisher
         assert another_project.oidc_publishers == [publisher]
 
-        assert views.send_trusted_publisher_removed_email.calls == [
+        assert oidc_views.send_trusted_publisher_removed_email.calls == [
             pretend.call(
                 db_request,
                 db_request.user,
@@ -7949,15 +7952,15 @@ class TestManageOIDCPublisherViews:
         )
 
         monkeypatch.setattr(
-            views,
+            oidc_views,
             "send_trusted_publisher_removed_email",
             pretend.call_recorder(lambda *a, **kw: None),
         )
 
-        view = views.ManageOIDCPublisherViews(project, db_request)
+        view = oidc_views.ManageOIDCPublisherViews(project, db_request)
         default_response = {"_": pretend.stub()}
         monkeypatch.setattr(
-            views.ManageOIDCPublisherViews, "default_response", default_response
+            oidc_views.ManageOIDCPublisherViews, "default_response", default_response
         )
 
         assert isinstance(view.delete_oidc_publisher(), HTTPSeeOther)
@@ -7997,7 +8000,7 @@ class TestManageOIDCPublisherViews:
         # The publisher is actually removed entirely from the DB.
         assert db_request.db.query(OIDCPublisher).all() == []
 
-        assert views.send_trusted_publisher_removed_email.calls == [
+        assert oidc_views.send_trusted_publisher_removed_email.calls == [
             pretend.call(
                 db_request,
                 db_request.user,
@@ -8025,12 +8028,14 @@ class TestManageOIDCPublisherViews:
         delete_publisher_form_cls = pretend.call_recorder(
             lambda *a, **kw: delete_publisher_form_obj
         )
-        monkeypatch.setattr(views, "DeletePublisherForm", delete_publisher_form_cls)
+        monkeypatch.setattr(
+            oidc_views, "DeletePublisherForm", delete_publisher_form_cls
+        )
 
-        view = views.ManageOIDCPublisherViews(project, request)
+        view = oidc_views.ManageOIDCPublisherViews(project, request)
         default_response = {"_": pretend.stub()}
         monkeypatch.setattr(
-            views.ManageOIDCPublisherViews, "default_response", default_response
+            oidc_views.ManageOIDCPublisherViews, "default_response", default_response
         )
 
         assert view.delete_oidc_publisher() == default_response
@@ -8085,12 +8090,14 @@ class TestManageOIDCPublisherViews:
         delete_publisher_form_cls = pretend.call_recorder(
             lambda *a, **kw: delete_publisher_form_obj
         )
-        monkeypatch.setattr(views, "DeletePublisherForm", delete_publisher_form_cls)
+        monkeypatch.setattr(
+            oidc_views, "DeletePublisherForm", delete_publisher_form_cls
+        )
 
-        view = views.ManageOIDCPublisherViews(project, request)
+        view = oidc_views.ManageOIDCPublisherViews(project, request)
         default_response = {"_": pretend.stub()}
         monkeypatch.setattr(
-            views.ManageOIDCPublisherViews, "default_response", default_response
+            oidc_views.ManageOIDCPublisherViews, "default_response", default_response
         )
 
         assert view.delete_oidc_publisher() == default_response
@@ -8124,10 +8131,10 @@ class TestManageOIDCPublisherViews:
             registry=pretend.stub(settings={}),
         )
 
-        view = views.ManageOIDCPublisherViews(project, request)
+        view = oidc_views.ManageOIDCPublisherViews(project, request)
         default_response = {"_": pretend.stub()}
         monkeypatch.setattr(
-            views.ManageOIDCPublisherViews, "default_response", default_response
+            oidc_views.ManageOIDCPublisherViews, "default_response", default_response
         )
 
         assert view.delete_oidc_publisher() == default_response
