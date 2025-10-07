@@ -166,6 +166,7 @@ class GitLabPublisherMixin:
     project: Mapped[str] = mapped_column(String, nullable=False)
     workflow_filepath: Mapped[str] = mapped_column(String, nullable=False)
     environment: Mapped[str] = mapped_column(String, nullable=False)
+    issuer_url: Mapped[str] = mapped_column(comment="Full URL of the issuer")
 
     __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "sub": _check_sub,
