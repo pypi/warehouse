@@ -13,6 +13,9 @@
       <strong>IP address:</strong> {{ ip_address }}
     </li>
     <li>
+      <strong>Location:</strong> {{ ip_address.geo_ip or "Unknown" }}
+    </li>
+    <li>
       <strong>User agent:</strong> {{ user_agent }}
     </li>
   </ul>
