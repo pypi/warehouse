@@ -219,7 +219,7 @@ msgstr "已驗證身份"
 msgid "Successful WebAuthn assertion"
 msgstr "成功的 WebAuthn 斷言"
 
-#: warehouse/accounts/views.py:615 warehouse/manage/views/__init__.py:871
+#: warehouse/accounts/views.py:615 warehouse/manage/views/__init__.py:851
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "重設碼已接受，提供的重設碼將無法再次使用。"
 
@@ -367,7 +367,7 @@ msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr "請查看我們更新的<a href=\"${tos_url}\">服務條款</a>。"
 
 #: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1922
-#: warehouse/manage/views/__init__.py:1409
+#: warehouse/manage/views/oidc_publishers.py:120
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -399,10 +399,11 @@ msgstr ""
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1734 warehouse/manage/views/__init__.py:1590
-#: warehouse/manage/views/__init__.py:1705
-#: warehouse/manage/views/__init__.py:1819
-#: warehouse/manage/views/__init__.py:1931
+#: warehouse/accounts/views.py:1734
+#: warehouse/manage/views/oidc_publishers.py:301
+#: warehouse/manage/views/oidc_publishers.py:416
+#: warehouse/manage/views/oidc_publishers.py:530
+#: warehouse/manage/views/oidc_publishers.py:642
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -411,10 +412,11 @@ msgid ""
 "again later."
 msgstr "登錄嘗試失敗的次數過多，請稍後再試。"
 
-#: warehouse/accounts/views.py:1744 warehouse/manage/views/__init__.py:1603
-#: warehouse/manage/views/__init__.py:1718
-#: warehouse/manage/views/__init__.py:1832
-#: warehouse/manage/views/__init__.py:1944
+#: warehouse/accounts/views.py:1744
+#: warehouse/manage/views/oidc_publishers.py:314
+#: warehouse/manage/views/oidc_publishers.py:429
+#: warehouse/manage/views/oidc_publishers.py:543
+#: warehouse/manage/views/oidc_publishers.py:655
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
@@ -589,136 +591,88 @@ msgid ""
 "less."
 msgstr "名稱太長了。請選擇不超過 100 個字的名稱。"
 
-#: warehouse/manage/views/__init__.py:282
+#: warehouse/manage/views/__init__.py:262
 #, fuzzy
 #| msgid "Account details"
 msgid "Account details updated"
 msgstr "帳戶詳情"
 
-#: warehouse/manage/views/__init__.py:313
+#: warehouse/manage/views/__init__.py:293
 #, python-brace-format
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr "已添加電子郵件 ${email_address} - 檢查您的電子郵件以查看驗證連結"
 
-#: warehouse/manage/views/__init__.py:818
+#: warehouse/manage/views/__init__.py:798
 msgid "Recovery codes already generated"
 msgstr "重設碼已生成"
 
-#: warehouse/manage/views/__init__.py:820
+#: warehouse/manage/views/__init__.py:800
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "產生新的重置碼會使現有的重置碼失效。"
 
-#: warehouse/manage/views/__init__.py:928
+#: warehouse/manage/views/__init__.py:908
 #, fuzzy
 #| msgid "Verify your email or add a new address."
 msgid "Verify your email to create an API token."
 msgstr "驗證你的電郵地址或新增一個新的電郵地址。"
 
-#: warehouse/manage/views/__init__.py:1030
+#: warehouse/manage/views/__init__.py:1010
 msgid "API Token does not exist."
 msgstr "API密鑰不存在。"
 
-#: warehouse/manage/views/__init__.py:1062
+#: warehouse/manage/views/__init__.py:1042
 msgid "Invalid credentials. Try again"
 msgstr "憑證無效。請再試一次"
 
-#: warehouse/manage/views/__init__.py:1181
+#: warehouse/manage/views/__init__.py:1161
 #, fuzzy
 #| msgid "Invalid recovery code."
 msgid "Invalid alternate repository location details"
 msgstr "無效的重設碼。"
 
-#: warehouse/manage/views/__init__.py:1219
+#: warehouse/manage/views/__init__.py:1199
 #, fuzzy, python-brace-format
 #| msgid "Invalid recovery code."
 msgid "Added alternate repository '${name}'"
 msgstr "無效的重設碼。"
 
-#: warehouse/manage/views/__init__.py:1252
-#: warehouse/manage/views/__init__.py:2279
-#: warehouse/manage/views/__init__.py:2364
-#: warehouse/manage/views/__init__.py:2465
-#: warehouse/manage/views/__init__.py:2565
+#: warehouse/manage/views/__init__.py:1232
+#: warehouse/manage/views/__init__.py:1493
+#: warehouse/manage/views/__init__.py:1578
+#: warehouse/manage/views/__init__.py:1679
+#: warehouse/manage/views/__init__.py:1779
 #, fuzzy
 #| msgid "Confirm Invite"
 msgid "Confirm the request"
 msgstr "確認邀請"
 
-#: warehouse/manage/views/__init__.py:1264
+#: warehouse/manage/views/__init__.py:1244
 #, fuzzy
 #| msgid "Invalid recovery code."
 msgid "Invalid alternate repository id"
 msgstr "無效的重設碼。"
 
-#: warehouse/manage/views/__init__.py:1275
+#: warehouse/manage/views/__init__.py:1255
 #, fuzzy
 #| msgid "Invalid recovery code."
 msgid "Invalid alternate repository for project"
 msgstr "無效的重設碼。"
 
-#: warehouse/manage/views/__init__.py:1284
+#: warehouse/manage/views/__init__.py:1264
 #, python-brace-format
 msgid ""
 "Could not delete alternate repository - ${confirm} is not the same as "
 "${alt_repo_name}"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1314
+#: warehouse/manage/views/__init__.py:1294
 #, python-brace-format
 msgid "Deleted alternate repository '${name}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1458
-msgid "The trusted publisher could not be constrained"
-msgstr ""
-
-#: warehouse/manage/views/__init__.py:1571
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
-msgid ""
-"GitHub-based trusted publishing is temporarily disabled. See https://pypi."
-"org/help#admin-intervention for details."
-msgstr ""
-"暫時不開放新的使用者註冊。詳情請見 https://pypi.org/help#admin-intervention。"
-
-#: warehouse/manage/views/__init__.py:1686
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
-msgid ""
-"GitLab-based trusted publishing is temporarily disabled. See https://pypi."
-"org/help#admin-intervention for details."
-msgstr ""
-"暫時不開放新的使用者註冊。詳情請見 https://pypi.org/help#admin-intervention。"
-
-#: warehouse/manage/views/__init__.py:1800
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
-msgid ""
-"Google-based trusted publishing is temporarily disabled. See https://pypi."
-"org/help#admin-intervention for details."
-msgstr ""
-"暫時不開放新的使用者註冊。詳情請見 https://pypi.org/help#admin-intervention。"
-
-#: warehouse/manage/views/__init__.py:1911
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
-msgid ""
-"ActiveState-based trusted publishing is temporarily disabled. See https://"
-"pypi.org/help#admin-intervention for details."
-msgstr ""
-"暫時不開放新的使用者註冊。詳情請見 https://pypi.org/help#admin-intervention。"
-
-#: warehouse/manage/views/__init__.py:2148
-#: warehouse/manage/views/__init__.py:2449
-#: warehouse/manage/views/__init__.py:2557
+#: warehouse/manage/views/__init__.py:1362
+#: warehouse/manage/views/__init__.py:1663
+#: warehouse/manage/views/__init__.py:1771
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -729,52 +683,52 @@ msgid ""
 msgstr ""
 "暫時不開放新的使用者註冊。詳情請見 https://pypi.org/help#admin-intervention。"
 
-#: warehouse/manage/views/__init__.py:2292
+#: warehouse/manage/views/__init__.py:1506
 #, fuzzy
 #| msgid "Un-yank release"
 msgid "Could not yank release - "
 msgstr "解除撤銷版本"
 
-#: warehouse/manage/views/__init__.py:2377
+#: warehouse/manage/views/__init__.py:1591
 #, fuzzy
 #| msgid "Un-yank release"
 msgid "Could not un-yank release - "
 msgstr "解除撤銷版本"
 
-#: warehouse/manage/views/__init__.py:2478
+#: warehouse/manage/views/__init__.py:1692
 #, fuzzy
 #| msgid "Delete release"
 msgid "Could not delete release - "
 msgstr "刪除版本"
 
-#: warehouse/manage/views/__init__.py:2577
+#: warehouse/manage/views/__init__.py:1791
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find file"
 msgstr "找不到角色邀請。"
 
-#: warehouse/manage/views/__init__.py:2582
+#: warehouse/manage/views/__init__.py:1796
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2732
+#: warehouse/manage/views/__init__.py:1946
 #, fuzzy, python-brace-format
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "使用者`${username}` 已經擁用此專案的`${role_name}`權限"
 
-#: warehouse/manage/views/__init__.py:2839
+#: warehouse/manage/views/__init__.py:2053
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "使用者`${username}` 已經擁用此專案的`${role_name}`權限"
 
-#: warehouse/manage/views/__init__.py:2906
+#: warehouse/manage/views/__init__.py:2120
 #, fuzzy, python-brace-format
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "你不是此專案的擁有者。"
 
-#: warehouse/manage/views/__init__.py:2938
+#: warehouse/manage/views/__init__.py:2152
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
@@ -782,33 +736,81 @@ msgid ""
 msgstr ""
 "用戶“${username}”沒有經過驗證的主電子郵件地址，無法添加為項目的 ${role_name}"
 
-#: warehouse/manage/views/__init__.py:2951
+#: warehouse/manage/views/__init__.py:2165
 #: warehouse/manage/views/organizations.py:962
 #, python-brace-format
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr "使用者'${username}'已經有一個有效的邀請。請稍後再試。"
 
-#: warehouse/manage/views/__init__.py:3016
+#: warehouse/manage/views/__init__.py:2230
 #: warehouse/manage/views/organizations.py:1037
 #, fuzzy, python-brace-format
 #| msgid "Invitation sent to '${username}'"
 msgid "Invitation sent to '${username}'"
 msgstr "邀請函已發送至 '${使用者名稱}'"
 
-#: warehouse/manage/views/__init__.py:3048
+#: warehouse/manage/views/__init__.py:2262
 msgid "Could not find role invitation."
 msgstr "找不到角色邀請。"
 
-#: warehouse/manage/views/__init__.py:3059
+#: warehouse/manage/views/__init__.py:2273
 msgid "Invitation already expired."
 msgstr "已驗證的電子郵件。"
 
-#: warehouse/manage/views/__init__.py:3092
+#: warehouse/manage/views/__init__.py:2306
 #: warehouse/manage/views/organizations.py:1224
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
 msgstr "來自'${username}'的邀請被撤銷了。"
+
+#: warehouse/manage/views/oidc_publishers.py:169
+msgid "The trusted publisher could not be constrained"
+msgstr ""
+
+#: warehouse/manage/views/oidc_publishers.py:282
+#, fuzzy
+#| msgid ""
+#| "New user registration temporarily disabled. See https://pypi.org/"
+#| "help#admin-intervention for details."
+msgid ""
+"GitHub-based trusted publishing is temporarily disabled. See https://pypi."
+"org/help#admin-intervention for details."
+msgstr ""
+"暫時不開放新的使用者註冊。詳情請見 https://pypi.org/help#admin-intervention。"
+
+#: warehouse/manage/views/oidc_publishers.py:397
+#, fuzzy
+#| msgid ""
+#| "New user registration temporarily disabled. See https://pypi.org/"
+#| "help#admin-intervention for details."
+msgid ""
+"GitLab-based trusted publishing is temporarily disabled. See https://pypi."
+"org/help#admin-intervention for details."
+msgstr ""
+"暫時不開放新的使用者註冊。詳情請見 https://pypi.org/help#admin-intervention。"
+
+#: warehouse/manage/views/oidc_publishers.py:511
+#, fuzzy
+#| msgid ""
+#| "New user registration temporarily disabled. See https://pypi.org/"
+#| "help#admin-intervention for details."
+msgid ""
+"Google-based trusted publishing is temporarily disabled. See https://pypi."
+"org/help#admin-intervention for details."
+msgstr ""
+"暫時不開放新的使用者註冊。詳情請見 https://pypi.org/help#admin-intervention。"
+
+#: warehouse/manage/views/oidc_publishers.py:622
+#, fuzzy
+#| msgid ""
+#| "New user registration temporarily disabled. See https://pypi.org/"
+#| "help#admin-intervention for details."
+msgid ""
+"ActiveState-based trusted publishing is temporarily disabled. See https://"
+"pypi.org/help#admin-intervention for details."
+msgstr ""
+"暫時不開放新的使用者註冊。詳情請見 https://pypi.org/help#admin-intervention。"
 
 #: warehouse/manage/views/organizations.py:938
 #, fuzzy, python-brace-format

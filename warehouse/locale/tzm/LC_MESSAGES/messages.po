@@ -177,7 +177,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:615 warehouse/manage/views/__init__.py:871
+#: warehouse/accounts/views.py:615 warehouse/manage/views/__init__.py:851
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -321,7 +321,7 @@ msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
 #: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1922
-#: warehouse/manage/views/__init__.py:1409
+#: warehouse/manage/views/oidc_publishers.py:120
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -341,19 +341,21 @@ msgstr ""
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1734 warehouse/manage/views/__init__.py:1590
-#: warehouse/manage/views/__init__.py:1705
-#: warehouse/manage/views/__init__.py:1819
-#: warehouse/manage/views/__init__.py:1931
+#: warehouse/accounts/views.py:1734
+#: warehouse/manage/views/oidc_publishers.py:301
+#: warehouse/manage/views/oidc_publishers.py:416
+#: warehouse/manage/views/oidc_publishers.py:530
+#: warehouse/manage/views/oidc_publishers.py:642
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:1744 warehouse/manage/views/__init__.py:1603
-#: warehouse/manage/views/__init__.py:1718
-#: warehouse/manage/views/__init__.py:1832
-#: warehouse/manage/views/__init__.py:1944
+#: warehouse/accounts/views.py:1744
+#: warehouse/manage/views/oidc_publishers.py:314
+#: warehouse/manage/views/oidc_publishers.py:429
+#: warehouse/manage/views/oidc_publishers.py:543
+#: warehouse/manage/views/oidc_publishers.py:655
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
@@ -538,177 +540,177 @@ msgid ""
 "less."
 msgstr "Iɣezzef yisem-a. Dɣer yan s 100 n iwenɣuten neɣ drus."
 
-#: warehouse/manage/views/__init__.py:282
+#: warehouse/manage/views/__init__.py:262
 #, fuzzy
 #| msgid "Account emails"
 msgid "Account details updated"
 msgstr "Imaylen n ifres"
 
-#: warehouse/manage/views/__init__.py:313
+#: warehouse/manage/views/__init__.py:293
 #, python-brace-format
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:818
+#: warehouse/manage/views/__init__.py:798
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:820
+#: warehouse/manage/views/__init__.py:800
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:928
+#: warehouse/manage/views/__init__.py:908
 msgid "Verify your email to create an API token."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1030
+#: warehouse/manage/views/__init__.py:1010
 msgid "API Token does not exist."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1062
+#: warehouse/manage/views/__init__.py:1042
 msgid "Invalid credentials. Try again"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1181
+#: warehouse/manage/views/__init__.py:1161
 msgid "Invalid alternate repository location details"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1219
+#: warehouse/manage/views/__init__.py:1199
 #, python-brace-format
 msgid "Added alternate repository '${name}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1252
-#: warehouse/manage/views/__init__.py:2279
-#: warehouse/manage/views/__init__.py:2364
-#: warehouse/manage/views/__init__.py:2465
-#: warehouse/manage/views/__init__.py:2565
+#: warehouse/manage/views/__init__.py:1232
+#: warehouse/manage/views/__init__.py:1493
+#: warehouse/manage/views/__init__.py:1578
+#: warehouse/manage/views/__init__.py:1679
+#: warehouse/manage/views/__init__.py:1779
 msgid "Confirm the request"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1264
+#: warehouse/manage/views/__init__.py:1244
 msgid "Invalid alternate repository id"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1275
+#: warehouse/manage/views/__init__.py:1255
 msgid "Invalid alternate repository for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1284
+#: warehouse/manage/views/__init__.py:1264
 #, python-brace-format
 msgid ""
 "Could not delete alternate repository - ${confirm} is not the same as "
 "${alt_repo_name}"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1314
+#: warehouse/manage/views/__init__.py:1294
 #, python-brace-format
 msgid "Deleted alternate repository '${name}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1458
-msgid "The trusted publisher could not be constrained"
-msgstr ""
-
-#: warehouse/manage/views/__init__.py:1571
-msgid ""
-"GitHub-based trusted publishing is temporarily disabled. See https://pypi."
-"org/help#admin-intervention for details."
-msgstr ""
-
-#: warehouse/manage/views/__init__.py:1686
-msgid ""
-"GitLab-based trusted publishing is temporarily disabled. See https://pypi."
-"org/help#admin-intervention for details."
-msgstr ""
-
-#: warehouse/manage/views/__init__.py:1800
-msgid ""
-"Google-based trusted publishing is temporarily disabled. See https://pypi."
-"org/help#admin-intervention for details."
-msgstr ""
-
-#: warehouse/manage/views/__init__.py:1911
-msgid ""
-"ActiveState-based trusted publishing is temporarily disabled. See https://"
-"pypi.org/help#admin-intervention for details."
-msgstr ""
-
-#: warehouse/manage/views/__init__.py:2148
-#: warehouse/manage/views/__init__.py:2449
-#: warehouse/manage/views/__init__.py:2557
+#: warehouse/manage/views/__init__.py:1362
+#: warehouse/manage/views/__init__.py:1663
+#: warehouse/manage/views/__init__.py:1771
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2292
+#: warehouse/manage/views/__init__.py:1506
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2377
+#: warehouse/manage/views/__init__.py:1591
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2478
+#: warehouse/manage/views/__init__.py:1692
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2577
+#: warehouse/manage/views/__init__.py:1791
 msgid "Could not find file"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2582
+#: warehouse/manage/views/__init__.py:1796
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2732
+#: warehouse/manage/views/__init__.py:1946
 #, python-brace-format
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2839
+#: warehouse/manage/views/__init__.py:2053
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2906
+#: warehouse/manage/views/__init__.py:2120
 #, python-brace-format
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2938
+#: warehouse/manage/views/__init__.py:2152
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2951
+#: warehouse/manage/views/__init__.py:2165
 #: warehouse/manage/views/organizations.py:962
 #, python-brace-format
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:3016
+#: warehouse/manage/views/__init__.py:2230
 #: warehouse/manage/views/organizations.py:1037
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:3048
+#: warehouse/manage/views/__init__.py:2262
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:3059
+#: warehouse/manage/views/__init__.py:2273
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:3092
+#: warehouse/manage/views/__init__.py:2306
 #: warehouse/manage/views/organizations.py:1224
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
+msgstr ""
+
+#: warehouse/manage/views/oidc_publishers.py:169
+msgid "The trusted publisher could not be constrained"
+msgstr ""
+
+#: warehouse/manage/views/oidc_publishers.py:282
+msgid ""
+"GitHub-based trusted publishing is temporarily disabled. See https://pypi."
+"org/help#admin-intervention for details."
+msgstr ""
+
+#: warehouse/manage/views/oidc_publishers.py:397
+msgid ""
+"GitLab-based trusted publishing is temporarily disabled. See https://pypi."
+"org/help#admin-intervention for details."
+msgstr ""
+
+#: warehouse/manage/views/oidc_publishers.py:511
+msgid ""
+"Google-based trusted publishing is temporarily disabled. See https://pypi."
+"org/help#admin-intervention for details."
+msgstr ""
+
+#: warehouse/manage/views/oidc_publishers.py:622
+msgid ""
+"ActiveState-based trusted publishing is temporarily disabled. See https://"
+"pypi.org/help#admin-intervention for details."
 msgstr ""
 
 #: warehouse/manage/views/organizations.py:938
