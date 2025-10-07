@@ -482,6 +482,10 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
                 # Get User Agent Information
                 user_agent_info_data = {}
                 if user_agent_str := request.headers.get("User-Agent"):
+                    user_agent_info_data = {
+                        # A hack to get it to fall back to the raw user agent
+                        "installer": user_agent_str,
+                    }
                     try:
                         parsed = linehaul_user_agent_parser.parse(user_agent_str)
                         if (
@@ -497,7 +501,7 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
                                 "user_agent": parsed_ua["user_agent"]["family"],
                             }
                     except linehaul_user_agent_parser.UnknownUserAgentError:
-                        pass  # Fallback to default empty dict
+                        pass  # Fallback to raw user-agent string
 
                 user_agent_info = UserAgentInfo(**user_agent_info_data)
 
@@ -762,6 +766,10 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
                 # Get User Agent Information
                 user_agent_info_data = {}
                 if user_agent_str := request.headers.get("User-Agent"):
+                    user_agent_info_data = {
+                        # A hack to get it to fall back to the raw user agent
+                        "installer": user_agent_str,
+                    }
                     try:
                         parsed = linehaul_user_agent_parser.parse(user_agent_str)
                         if (
@@ -777,7 +785,7 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
                                 "user_agent": parsed_ua["user_agent"]["family"],
                             }
                     except linehaul_user_agent_parser.UnknownUserAgentError:
-                        pass  # Fallback to default empty dict
+                        pass  # Fallback to raw user-agent string
 
                 user_agent_info = UserAgentInfo(**user_agent_info_data)
 
