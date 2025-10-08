@@ -79,6 +79,7 @@ from warehouse.oidc.forms import (
 )
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import (
+    GITLAB_OIDC_ISSUER_URL,
     PendingActiveStatePublisher,
     PendingGitHubPublisher,
     PendingGitLabPublisher,
@@ -1901,6 +1902,7 @@ class ManageAccountPublishingViews:
                 project=form.project.data,
                 workflow_filepath=form.workflow_filepath.data,
                 environment=form.normalized_environment,
+                issuer_url=GITLAB_OIDC_ISSUER_URL,
             ),
             make_existence_filters=lambda form: dict(
                 project_name=form.project_name.data,

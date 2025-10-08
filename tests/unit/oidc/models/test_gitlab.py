@@ -255,11 +255,13 @@ class TestGitLabPublisher:
             namespace="fakeowner",
             workflow_filepath="subfolder/fakeworkflow.yml",
             environment="fakeenv",
+            issuer_url="https://gitlab.com",
         )
 
         assert publisher.admin_details == [
             ("Project", "fakeowner/fakerepo"),
             ("Workflow", "subfolder/fakeworkflow.yml"),
+            ("Issuer URL", "https://gitlab.com"),
             ("Environment", "fakeenv"),
         ]
 
@@ -269,11 +271,13 @@ class TestGitLabPublisher:
             namespace="fakeowner",
             workflow_filepath="subfolder/fakeworkflow.yml",
             environment="",
+            issuer_url="https://gitlab.com",
         )
 
         assert publisher.admin_details == [
             ("Project", "fakeowner/fakerepo"),
             ("Workflow", "subfolder/fakeworkflow.yml"),
+            ("Issuer URL", "https://gitlab.com"),
         ]
 
     def test_gitlab_publisher_unaccounted_claims(self, monkeypatch):
@@ -668,6 +672,7 @@ class TestGitLabPublisher:
             namespace="repository_owner",
             workflow_filepath="subfolder/worflow_filename.yml",
             environment="",
+            issuer_url="https://gitlab.com",
         )
 
         db_request.db.add(publisher1)
@@ -678,6 +683,7 @@ class TestGitLabPublisher:
             namespace="repository_owner",
             workflow_filepath="subfolder/worflow_filename.yml",
             environment="",
+            issuer_url="https://gitlab.com",
         )
         db_request.db.add(publisher2)
 
@@ -827,6 +833,7 @@ class TestGitLabPublisher:
             namespace="repository_owner",
             workflow_filepath="subfolder/worflow_filename.yml",
             environment="",
+            issuer_url="https://gitlab.com",
         )
 
         if exists_in_db:

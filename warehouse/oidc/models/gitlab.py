@@ -166,6 +166,7 @@ class GitLabPublisherMixin:
     project: Mapped[str] = mapped_column(String, nullable=False)
     workflow_filepath: Mapped[str] = mapped_column(String, nullable=False)
     environment: Mapped[str] = mapped_column(String, nullable=False)
+    issuer_url: Mapped[str] = mapped_column(comment="Full URL of the issuer")
 
     __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "sub": _check_sub,
@@ -316,6 +317,7 @@ class GitLabPublisherMixin:
         details = [
             ("Project", self.project_path),
             ("Workflow", self.workflow_filepath),
+            ("Issuer URL", self.issuer_url),
         ]
         if self.environment:
             details.append(("Environment", self.environment))
@@ -436,6 +438,7 @@ class PendingGitLabPublisher(GitLabPublisherMixin, PendingOIDCPublisher):
             project=self.project,
             workflow_filepath=self.workflow_filepath,
             environment=self.environment,
+            issuer_url=GITLAB_OIDC_ISSUER_URL,
         )
 
         session.delete(self)
