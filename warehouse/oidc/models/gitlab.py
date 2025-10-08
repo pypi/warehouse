@@ -10,7 +10,7 @@ from uuid import UUID
 
 from more_itertools import first_true
 from pypi_attestations import GitLabPublisher as GitLabIdentity, Publisher
-from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists
+from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists, func
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, Query, mapped_column
 
@@ -244,10 +244,11 @@ class GitLabPublisherMixin:
                 "Could not extract workflow filename from OIDC claims"
             )
 
-        query: Query = Query(cls).filter_by(
-            namespace=namespace,
-            project=project,
-            workflow_filepath=workflow_filepath,
+        query: Query = Query(cls).filter(
+            # claims `project_path` is case-insensitive
+            func.lower(cls.namespace) == namespace,
+            func.lower(cls.project) == project,
+            cls.workflow_filepath == workflow_filepath,
         )
         publishers = query.with_session(session).all()
         if publisher := cls._get_publisher_for_environment(publishers, environment):

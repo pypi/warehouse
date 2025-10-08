@@ -73,6 +73,29 @@ class TestGitLabPublisher:
         ):
             gitlab.GitLabPublisher.lookup_by_claims(pretend.stub(), signed_claims)
 
+    def test_lookup_succeeds_with_mixed_case_project_path(self, db_request):
+        # Test that we find a matching publisher when the project_path claims match
+        # even if the case is different.
+        stored_publisher = GitLabPublisherFactory(
+            namespace="Foo",
+            project="Bar",
+            workflow_filepath=".gitlab-ci.yml",
+            environment="",
+        )
+
+        signed_claims = {
+            "project_path": "foo/bar",  # different case than stored publisher
+            "ci_config_ref_uri": ("gitlab.com/foo/bar//.gitlab-ci.yml@refs/heads/main"),
+            "environment": "some_environment",
+        }
+
+        publisher = gitlab.GitLabPublisher.lookup_by_claims(
+            db_request.db, signed_claims
+        )
+
+        assert publisher.id == stored_publisher.id
+        assert publisher.environment == stored_publisher.environment
+
     @pytest.mark.parametrize("environment", ["SomeEnvironment", "SOME_ENVIRONMENT"])
     def test_lookup_succeeds_with_non_lowercase_environment(
         self, db_request, environment
