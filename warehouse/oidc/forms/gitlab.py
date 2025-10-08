@@ -57,11 +57,12 @@ class GitLabPublisherBase(wtforms.Form):
     )
 
     workflow_filepath = wtforms.StringField(
+        filters=[lambda x: x.strip() if x else x],
         validators=[
             wtforms.validators.InputRequired(
                 message=_("Specify top-level pipeline file path")
             )
-        ]
+        ],
     )
 
     environment = wtforms.StringField(

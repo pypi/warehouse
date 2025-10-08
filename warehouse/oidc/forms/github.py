@@ -35,9 +35,10 @@ class GitHubPublisherBase(wtforms.Form):
     )
 
     workflow_filename = wtforms.StringField(
+        filters=[lambda x: x.strip() if x else x],
         validators=[
             wtforms.validators.InputRequired(message=_("Specify workflow filename"))
-        ]
+        ],
     )
 
     # Environment names are not case sensitive. An environment name may not
