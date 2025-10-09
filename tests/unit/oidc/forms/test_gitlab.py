@@ -105,6 +105,12 @@ class TestGitLabPublisherForm:
                 "project": "some-repo",
                 "workflow_filepath": "subfolder/some-workflow.yml",
             },
+            # Leading/trailing whitespace is stripped from filepath
+            {
+                "namespace": "some-group/some-subgroup",
+                "project": "some-repo",
+                "workflow_filepath": "  subfolder/some-workflow.yml  ",
+            },
         ],
     )
     def test_validate(self, data):

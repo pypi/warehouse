@@ -372,10 +372,27 @@ class TestGitHubPublisherForm:
         assert form.normalized_owner == "some-username"
         assert form.owner_id == "1234"
 
+    def test_validate_workflow_filename_strips_whitespace(self, monkeypatch):
+        data = MultiDict(
+            {
+                "owner": "some-owner",
+                "repository": "some-repo",
+                "workflow_filename": "  some-workflow.yml  ",
+            }
+        )
+        form = github.GitHubPublisherForm(MultiDict(data), api_token=pretend.stub())
+        owner_info = {"login": "fake-username", "id": "1234"}
+        monkeypatch.setattr(form, "_lookup_owner", lambda o: owner_info)
+
+        assert form.validate(), str(form.errors)
+        assert form.owner.data == "some-owner"
+        assert form.repository.data == "some-repo"
+        assert form.workflow_filename.data == "some-workflow.yml"
+
     @pytest.mark.parametrize(
         "workflow_filename", ["missing_suffix", "/slash", "/many/slashes", "/slash.yml"]
     )
-    def test_validate_workflow_filename(self, workflow_filename):
+    def test_validate_workflow_filename_raises(self, workflow_filename):
         form = github.GitHubPublisherForm(api_token=pretend.stub())
         field = pretend.stub(data=workflow_filename)
 
