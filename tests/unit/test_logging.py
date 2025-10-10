@@ -196,9 +196,9 @@ def test_configure_celery_logging(monkeypatch):
     mock_handler = pretend.stub(setFormatter=pretend.call_recorder(lambda f: None))
     mock_logger = pretend.stub(
         handlers=pretend.stub(clear=pretend.call_recorder(lambda: None)),
-        setLevel=pretend.call_recorder(lambda l: None),
-        addHandler=pretend.call_recorder(lambda h: None),
-        removeHandler=pretend.call_recorder(lambda h: None),
+        setLevel=pretend.call_recorder(lambda level: None),
+        addHandler=pretend.call_recorder(lambda add_handler: None),
+        removeHandler=pretend.call_recorder(lambda remove_handler: None),
     )
     monkeypatch.setattr(logging, "getLogger", lambda: mock_logger)
     monkeypatch.setattr(logging, "StreamHandler", lambda: mock_handler)
