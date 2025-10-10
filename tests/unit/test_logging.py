@@ -153,3 +153,37 @@ def test_includeme(monkeypatch, settings, expected_level):
         pretend.call(wlogging._create_id, name="id", reify=True),
         pretend.call(wlogging._create_logger, name="log", reify=True),
     ]
+
+
+def test_add_datadog_context(monkeypatch):
+    monkeypatch.setenv("DD_ENV", "production")
+    monkeypatch.setenv("DD_VERSION", "1.2.3")
+
+    event_dict = {"event": "test"}
+    result = wlogging._add_datadog_context(None, None, event_dict)
+
+    assert result["dd.env"] == "production"
+    assert result["dd.version"] == "1.2.3"
+
+
+def test_add_datadog_context_with_span(monkeypatch):
+    """Test Datadog context with an active span."""
+    import sys
+
+    mock_span = pretend.stub(trace_id=123, span_id=456, service="test-svc")
+    mock_tracer = pretend.stub(current_span=lambda: mock_span)
+    mock_ddtrace = pretend.stub(tracer=mock_tracer)
+
+    sys.modules["ddtrace"] = mock_ddtrace
+    monkeypatch.setenv("DD_ENV", "prod")
+    monkeypatch.setenv("DD_VERSION", "2.0")
+
+    try:
+        event_dict = {"event": "test"}
+        result = wlogging._add_datadog_context(None, None, event_dict)
+
+        assert result["dd.trace_id"] == "123"
+        assert result["dd.span_id"] == "456"
+        assert result["dd.service"] == "test-svc"
+    finally:
+        del sys.modules["ddtrace"]
