@@ -189,6 +189,33 @@ def test_add_datadog_context_with_span(monkeypatch):
         del sys.modules["ddtrace"]
 
 
+def test_add_datadog_context_no_ddtrace(monkeypatch):
+    """Test Datadog context when ddtrace is not available."""
+    # Block ddtrace import
+    # we just want to simulate ddtrace beiung unavailable
+    # to make coverage happy :)
+    import builtins
+
+    original_import = builtins.__import__
+
+    def mock_import(name, *args, **kwargs):
+        if name == "ddtrace":
+            raise ImportError("ddtrace not available")
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", mock_import)
+
+    event_dict = {"event": "test"}
+    result = wlogging._add_datadog_context(None, None, event_dict)
+
+    # Should not have any dd fields when import fails
+    assert "dd.trace_id" not in result
+    assert "dd.span_id" not in result
+    assert "dd.service" not in result
+    assert "dd.env" not in result
+    assert "dd.version" not in result
+
+
 def test_configure_celery_logging(monkeypatch):
     configure = pretend.call_recorder(lambda **kw: None)
     monkeypatch.setattr(structlog, "configure", configure)
