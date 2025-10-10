@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging.config
+import os
 import threading
 import uuid
 
@@ -34,6 +35,58 @@ class StructlogFormatter(logging.Formatter):
 
 def _create_id(request):
     return str(uuid.uuid4())
+
+
+def _add_datadog_context(logger, method_name, event_dict):
+    """Add Datadog trace context if available"""
+    try:
+        import ddtrace
+
+        span = ddtrace.tracer.current_span()
+        if span:
+            event_dict["dd.trace_id"] = str(span.trace_id)
+            event_dict["dd.span_id"] = str(span.span_id)
+            event_dict["dd.service"] = span.service
+        # deployment metadata
+        event_dict["dd.env"] = os.environ.get("DD_ENV", "development")
+        event_dict["dd.version"] = os.environ.get("DD_VERSION", "unknown")
+    except (ImportError, AttributeError):
+        pass
+    return event_dict
+
+
+def configure_celery_logging(logfile: str | None = None, loglevel: int = logging.INFO):
+    """Configure unified structlog logging for Celery that handles all log types."""
+    processors = [
+        structlog.contextvars.merge_contextvars,
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.stdlib.add_log_level,
+        structlog.processors.StackInfoRenderer(),
+        structlog.processors.format_exc_info,
+        _add_datadog_context,
+    ]
+    formatter = structlog.stdlib.ProcessorFormatter(
+        processor=RENDERER,
+        foreign_pre_chain=processors,  # type: ignore[arg-type]
+    )
+
+    handler = logging.FileHandler(logfile) if logfile else logging.StreamHandler()
+    handler.setFormatter(formatter)
+
+    root = logging.getLogger()
+    root.handlers.clear()
+    root.addHandler(handler)
+    root.setLevel(loglevel)
+
+    structlog.configure(
+        processors=processors  # type: ignore[arg-type]
+        + [
+            structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
+        ],
+        logger_factory=structlog.stdlib.LoggerFactory(),
+        wrapper_class=structlog.make_filtering_bound_logger(logging.INFO),
+        cache_logger_on_first_use=True,
+    )
 
 
 def _create_logger(request):
@@ -88,8 +141,10 @@ def includeme(config):
             structlog.stdlib.add_logger_name,
             structlog.stdlib.add_log_level,
             structlog.stdlib.PositionalArgumentsFormatter(),
+            structlog.processors.TimeStamper(fmt="iso"),
             structlog.processors.StackInfoRenderer(),
             structlog.processors.format_exc_info,
+            _add_datadog_context,
             RENDERER,
         ],
         logger_factory=structlog.stdlib.LoggerFactory(),
