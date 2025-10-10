@@ -113,7 +113,6 @@ def test_includeme(monkeypatch, settings, expected_level):
         structlog.stdlib.add_log_level,
         structlog.stdlib.add_logger_name,
         mock.ANY,  # TimeStamper
-        wlogging._add_datadog_context,
         wlogging._parse_gunicorn_access_log,
     ]
 
@@ -175,7 +174,6 @@ def test_includeme(monkeypatch, settings, expected_level):
                 mock.ANY,  # TimeStamper
                 mock.ANY,  # StackInfoRenderer
                 structlog.processors.format_exc_info,
-                wlogging._add_datadog_context,
                 structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
             ],
             logger_factory=mock.ANY,
