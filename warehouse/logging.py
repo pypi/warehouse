@@ -49,10 +49,8 @@ def _parse_gunicorn_access_log(logger, method_name, event_dict):
 
     message = event_dict.get("event", "")
 
-    # based on
-    # https://albersdevelopment.net/2019/08/15/using-structlog-with-gunicorn/
-    # and friends
-    # Combined log format: host - user [time] "request" status size "referer" "user-agent"
+    # based on https://albersdevelopment.net/2019/08/15/using-structlog-with-gunicorn/ and friends  # noqa E501
+    # Combined log format: host - user [time] "request" status size "referer" "user-agent"  # noqa E501
     pattern = re.compile(
         r"(?P<remote_addr>\S+) \S+ (?P<user>\S+) "
         r'\[(?P<timestamp>.+?)\] "(?P<request>.+?)" '
