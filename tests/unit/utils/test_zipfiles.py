@@ -23,7 +23,18 @@ def zippath(filename: str):
         ("reject/8bitcomment.zip", "Filename not in central directory"),
         ("reject/cd_extra_entry.zip", "Duplicate filename in central directory"),
         ("reject/cd_missing_entry.zip", "Filename not in central directory"),
-        ("reject/data_descriptor_bad_crc_0.zip", "Unknown record signature"),
+        ("reject/data_descriptor.zip", "ZIP contains a data descriptor"),
+        ("reject/data_descriptor_bad_crc.zip", "ZIP contains a data descriptor"),
+        ("reject/data_descriptor_bad_crc_0.zip", "ZIP contains a data descriptor"),
+        ("reject/data_descriptor_bad_csize.zip", "ZIP contains a data descriptor"),
+        ("reject/data_descriptor_bad_usize.zip", "ZIP contains a data descriptor"),
+        (
+            "reject/data_descriptor_bad_usize_no_sig.zip",
+            "ZIP contains a data descriptor",
+        ),
+        ("reject/data_descriptor_zip64.zip", "ZIP contains a data descriptor"),
+        ("reject/data_descriptor_zip64_csize.zip", "ZIP contains a data descriptor"),
+        ("reject/data_descriptor_zip64_usize.zip", "ZIP contains a data descriptor"),
         ("reject/dupe_eocd.zip", "Truncated central directory"),
         (
             "reject/eocd64_locator_mismatch.zip",
@@ -37,10 +48,10 @@ def zippath(filename: str):
         ("reject/non_ascii_original_name.zip", "Filename not unicode"),
         ("reject/not.zip", "File is not a zip file"),
         ("reject/prefix.zip", "Unknown record signature"),
-        ("reject/second_unicode_extra.zip", "Filename not in central directory"),
+        ("reject/second_unicode_extra.zip", "Invalid duplicate extra in local file"),
         ("reject/shortextra.zip", "Corrupt extra field 7075 (size=9)"),
         ("reject/suffix_not_comment.zip", "Trailing data"),
-        ("reject/unicode_extra_chain.zip", "Filename not in central directory"),
+        ("reject/unicode_extra_chain.zip", "Invalid duplicate extra in local file"),
         ("reject/wheel-1.0-py3-none-any.whl", "Duplicate filename in local headers"),
         ("reject/zip64_eocd_confusion.zip", "Filename not in central directory"),
         ("reject/zip64_eocd_extensible_data.zip", "Bad offset for central directory"),
@@ -70,8 +81,8 @@ def test_bad_zips(filename, error):
 @pytest.mark.parametrize("filename", list(os.listdir(ZIPDATA_DIR / "accept")))
 def test_good_zips(filename):
     result = zipfiles.validate_zipfile(zippath(f"accept/{filename}"))
-    assert result[0] is True
     assert result[1] is None
+    assert result[0] is True
 
 
 def test_local_file_header():
@@ -151,3 +162,20 @@ def test_local_file_header_zip64_extra_no_compressed_size_nok_using_deflate():
     fp = io.BytesIO(header + b"a" + extra + b"a")
     with pytest.raises(zipfiles.InvalidZipFileError):
         zipfiles._handle_local_file_header(fp, {"a": 0})
+
+
+def test_local_file_invalid_filename():
+    header = struct.pack("<xxHHxxxxxxxxLxxxxHxx", 0, 0, 0xFFFFFFFF, 1)
+    fp = io.BytesIO(header + b"\x7f")
+    with pytest.raises(zipfiles.InvalidZipFileError) as e:
+        zipfiles._handle_local_file_header(fp, {"a": 0})
+    assert str(e.value) == "Invalid character in filename"
+
+
+def test_local_file_invalid_filename_in_unicode_extra():
+    extra = struct.pack("<HHxxxxxxxx", 0x7075, 8)
+    header = struct.pack("<xxHHxxxxxxxxLxxxxHH", 0, 0, 0, 1, len(extra))
+    fp = io.BytesIO(header + b"a" + extra)
+    with pytest.raises(zipfiles.InvalidZipFileError) as e:
+        zipfiles._handle_local_file_header(fp, {"a": 0})
+    assert str(e.value) == "Invalid character in filename"
