@@ -67,7 +67,7 @@ def configure_celery_logging(logfile: str | None = None, loglevel: int = logging
     ]
     formatter = structlog.stdlib.ProcessorFormatter(
         processor=RENDERER,
-        foreign_pre_chain=processors,
+        foreign_pre_chain=processors,  # type: ignore[arg-type]
     )
 
     handler = logging.FileHandler(logfile) if logfile else logging.StreamHandler()
@@ -79,7 +79,7 @@ def configure_celery_logging(logfile: str | None = None, loglevel: int = logging
     root.setLevel(loglevel)
 
     structlog.configure(
-        processors=processors
+        processors=processors  # type: ignore[arg-type]
         + [
             structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
         ],
