@@ -190,6 +190,54 @@ class OrganizationStripeCustomer(db.Model):
     customer: Mapped[StripeCustomer] = relationship(lazy=False)
 
 
+class OIDCIssuerType(enum.StrEnum):
+    GitHub = "github"
+    GitLab = "gitlab"
+    Google = "google"
+    ActiveState = "activestate"
+
+
+class OrganizationOIDCIssuer(db.Model):
+    __tablename__ = "organization_oidc_issuers"
+    __table_args__ = (
+        Index("organization_oidc_issuers_issuer_url_idx", "issuer_url"),
+        Index("organization_oidc_issuers_organization_id_idx", "organization_id"),
+        UniqueConstraint(
+            "organization_id",
+            "issuer_type",
+            "issuer_url",
+            name="_organization_oidc_issuers_org_type_url_uc",
+        ),
+    )
+
+    __repr__ = make_repr("organization_id", "issuer_type", "issuer_url")
+
+    organization_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
+    )
+    issuer_type: Mapped[OIDCIssuerType] = mapped_column(
+        Enum(OIDCIssuerType, values_callable=lambda x: [e.value for e in x]),
+        comment="Type of OIDC issuer",
+    )
+    issuer_url: Mapped[str] = mapped_column(
+        comment="Custom OIDC issuer URL (e.g., https://gitlab.company.com)",
+    )
+    created: Mapped[datetime_now] = mapped_column(
+        comment="Datetime when the issuer was added",
+    )
+    created_by_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("users.id"),
+        comment="Admin user who created the issuer mapping",
+    )
+
+    organization: Mapped[Organization] = relationship(
+        back_populates="oidc_issuers", lazy=False
+    )
+    created_by: Mapped[User] = relationship(lazy=False)
+
+
 class OrganizationType(str, enum.Enum):
     Community = "Community"
     Company = "Company"
@@ -350,6 +398,9 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
     manual_activation: Mapped[OrganizationManualActivation] = relationship(
         back_populates="organization",
         uselist=False,
+    )
+    oidc_issuers: Mapped[list[OrganizationOIDCIssuer]] = relationship(
+        back_populates="organization",
     )
 
     @property

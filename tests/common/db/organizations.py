@@ -7,12 +7,14 @@ import faker
 
 from warehouse.observations.models import ObservationKind
 from warehouse.organizations.models import (
+    OIDCIssuerType,
     Organization,
     OrganizationApplication,
     OrganizationApplicationStatus,
     OrganizationInvitation,
     OrganizationManualActivation,
     OrganizationNameCatalog,
+    OrganizationOIDCIssuer,
     OrganizationProject,
     OrganizationRole,
     OrganizationRoleType,
@@ -210,3 +212,17 @@ class TeamProjectRoleFactory(WarehouseFactory):
     role_name = TeamProjectRoleType.Owner
     project = factory.SubFactory(ProjectFactory)
     team = factory.SubFactory(TeamFactory)
+
+
+class OrganizationOIDCIssuerFactory(WarehouseFactory):
+    class Meta:
+        model = OrganizationOIDCIssuer
+
+    organization_id = factory.SelfAttribute("organization.id")
+    organization = factory.SubFactory(OrganizationFactory)
+    issuer_type = factory.LazyFunction(
+        lambda: fake.random_element(elements=[e.value for e in OIDCIssuerType])
+    )
+    issuer_url = factory.Faker("url", schemes=["https"])
+    created_by_id = factory.SelfAttribute("created_by.id")
+    created_by = factory.SubFactory(UserFactory)
