@@ -191,17 +191,22 @@ def test_add_datadog_context_with_span(monkeypatch):
 
 def test_add_datadog_context_no_ddtrace(monkeypatch):
     """Test Datadog context when ddtrace is not available."""
+    import sys
+    import builtins
+
     # Block ddtrace import
     # we just want to simulate ddtrace beiung unavailable
     # to make coverage happy :)
-    import builtins
-
     original_import = builtins.__import__
 
     def mock_import(name, *args, **kwargs):
         if name == "ddtrace":
-            raise ImportError("ddtrace not available")
+            raise ImportError("No module named 'ddtrace'")
         return original_import(name, *args, **kwargs)
+
+    # Remove from sys.modules if present
+    if "ddtrace" in sys.modules:
+        del sys.modules["ddtrace"]
 
     monkeypatch.setattr(builtins, "__import__", mock_import)
 
