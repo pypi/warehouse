@@ -42,7 +42,7 @@ logger = logging.getLogger(__name__)
 # Celery signal handlers for unified structlog configuration
 @signals.after_setup_logger.connect
 def on_after_setup_logger(logger, loglevel, logfile, *args, **kwargs):
-    """Override Celery's default logging behavior with unified structlog configuration."""
+    """Override Celery's default logging behavior with unified structlog configuration."""  # noqa: E501
     from warehouse.logging import configure_celery_logging
 
     configure_celery_logging(logfile, loglevel)
