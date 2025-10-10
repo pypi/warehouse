@@ -52,7 +52,7 @@ def print_indices(config):
 
 
 @search.command()
-@click.argument("env_name", type=str, required=True)
+@click.argument("env_name", type=click.Choice(["production", "staging", "development"]))
 @click.pass_obj
 def delete_older_indices(config, env_name):
     """
