@@ -187,3 +187,30 @@ def test_add_datadog_context_with_span(monkeypatch):
         assert result["dd.service"] == "test-svc"
     finally:
         del sys.modules["ddtrace"]
+
+
+def test_configure_celery_logging(monkeypatch):
+    configure = pretend.call_recorder(lambda **kw: None)
+    monkeypatch.setattr(structlog, "configure", configure)
+
+    mock_handler = pretend.stub(setFormatter=pretend.call_recorder(lambda f: None))
+    mock_logger = pretend.stub(
+        handlers=pretend.stub(clear=pretend.call_recorder(lambda: None)),
+        setLevel=pretend.call_recorder(lambda l: None),
+        addHandler=pretend.call_recorder(lambda h: None),
+        removeHandler=pretend.call_recorder(lambda h: None),
+    )
+    monkeypatch.setattr(logging, "getLogger", lambda: mock_logger)
+    monkeypatch.setattr(logging, "StreamHandler", lambda: mock_handler)
+
+    wlogging.configure_celery_logging()
+
+    # Verify handlers cleared and new one added
+    assert mock_logger.handlers.clear.calls == [pretend.call()]
+    assert len(mock_logger.addHandler.calls) == 1
+    assert mock_logger.setLevel.calls == [pretend.call(logging.INFO)]
+
+    # Verify processors
+    processors = configure.calls[0].kwargs["processors"]
+    assert structlog.contextvars.merge_contextvars in processors
+    assert wlogging._add_datadog_context in processors
