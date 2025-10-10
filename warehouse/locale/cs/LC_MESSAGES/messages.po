@@ -165,7 +165,7 @@ msgstr "Kód pro obnovy již byl použit."
 msgid "The username isn't valid. Try again."
 msgstr "Neplatná emailová adresa. Zkuste to znovu."
 
-#: warehouse/accounts/views.py:110
+#: warehouse/accounts/views.py:111
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -175,7 +175,7 @@ msgid ""
 msgstr ""
 "Přiliš mnoho neúspěšných pokusů o přihlášení. Zkuste to prosím později."
 
-#: warehouse/accounts/views.py:131
+#: warehouse/accounts/views.py:132
 #, python-brace-format
 msgid ""
 "Too many emails have been added to this account without verifying them. "
@@ -185,7 +185,7 @@ msgstr ""
 "Zkontrolujte svou e-mailovou schránku a klikněte na ověřovací odkaz. (IP: "
 "${ip})"
 
-#: warehouse/accounts/views.py:143
+#: warehouse/accounts/views.py:144
 #, python-brace-format
 msgid ""
 "Too many password resets have been requested for this account without "
@@ -196,25 +196,25 @@ msgstr ""
 "Zkontrolujte svou e-mailovou schránku a klikněte na ověřovací odkaz. (IP: "
 "${ip})"
 
-#: warehouse/accounts/views.py:375 warehouse/accounts/views.py:439
-#: warehouse/accounts/views.py:441 warehouse/accounts/views.py:470
-#: warehouse/accounts/views.py:472 warehouse/accounts/views.py:588
+#: warehouse/accounts/views.py:376 warehouse/accounts/views.py:440
+#: warehouse/accounts/views.py:442 warehouse/accounts/views.py:471
+#: warehouse/accounts/views.py:473 warehouse/accounts/views.py:589
 msgid "Invalid or expired two factor login."
 msgstr "Neplatné či expirované dvoufaktorové přihlášení."
 
-#: warehouse/accounts/views.py:433
+#: warehouse/accounts/views.py:434
 msgid "Already authenticated"
 msgstr "Již autenizován"
 
-#: warehouse/accounts/views.py:507
+#: warehouse/accounts/views.py:508
 msgid "Successful WebAuthn assertion"
 msgstr "Úspšená aserce WebAuthn"
 
-#: warehouse/accounts/views.py:615 warehouse/manage/views/__init__.py:851
+#: warehouse/accounts/views.py:616 warehouse/manage/views/__init__.py:851
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "Obnovovací kód byl již přijat. Poskytnutý kód nelze použít znovu."
 
-#: warehouse/accounts/views.py:707
+#: warehouse/accounts/views.py:708
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -222,140 +222,140 @@ msgstr ""
 "Nový registrace jsou dočasně zakázány. Více informací na https://pypi.org/"
 "help#admin-intervention."
 
-#: warehouse/accounts/views.py:876
+#: warehouse/accounts/views.py:877
 msgid "Expired token: request a new password reset link"
 msgstr "Expirovaný token: požádejte o novou adresu pro reset hesla"
 
-#: warehouse/accounts/views.py:878
+#: warehouse/accounts/views.py:879
 msgid "Invalid token: request a new password reset link"
 msgstr "Neplatný token: požádejte o novou adresu pro reset hesla"
 
-#: warehouse/accounts/views.py:880 warehouse/accounts/views.py:981
-#: warehouse/accounts/views.py:1087 warehouse/accounts/views.py:1256
+#: warehouse/accounts/views.py:881 warehouse/accounts/views.py:982
+#: warehouse/accounts/views.py:1088 warehouse/accounts/views.py:1257
 msgid "Invalid token: no token supplied"
 msgstr "Neplatný token: žádný token nebyl poskytnut"
 
-#: warehouse/accounts/views.py:884
+#: warehouse/accounts/views.py:885
 msgid "Invalid token: not a password reset token"
 msgstr "Neplatný token: nejedná se o token pro reset hesla"
 
-#: warehouse/accounts/views.py:889
+#: warehouse/accounts/views.py:890
 msgid "Invalid token: user not found"
 msgstr "Neplatný token: uživatel nenalezen"
 
-#: warehouse/accounts/views.py:900
+#: warehouse/accounts/views.py:901
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "Neplatný token: uživatel se po vygenerování tokenu již přihlásil"
 
-#: warehouse/accounts/views.py:918
+#: warehouse/accounts/views.py:919
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "Neplatný token: heslo již bylo po vygenerování tokenu změněno"
 
-#: warehouse/accounts/views.py:949
+#: warehouse/accounts/views.py:950
 msgid "You have reset your password"
 msgstr "Vaše heslo bylo změněno"
 
-#: warehouse/accounts/views.py:977
+#: warehouse/accounts/views.py:978
 msgid "Expired token: request a new email verification link"
 msgstr "Expirovaný token: vyžádejte nový odkaz pro reset hesla"
 
-#: warehouse/accounts/views.py:979
+#: warehouse/accounts/views.py:980
 msgid "Invalid token: request a new email verification link"
 msgstr "Neplatný token: vyžádejte nový odkaz pro reset hesla"
 
-#: warehouse/accounts/views.py:985
+#: warehouse/accounts/views.py:986
 msgid "Invalid token: not an email verification token"
 msgstr "Neplatný token: nejedná se o token pro reset e-mailové adresy"
 
-#: warehouse/accounts/views.py:994
+#: warehouse/accounts/views.py:995
 msgid "Email not found"
 msgstr "E-mail nenalezen"
 
-#: warehouse/accounts/views.py:997
+#: warehouse/accounts/views.py:998
 msgid "Email already verified"
 msgstr "E-mail již byl ověřen"
 
-#: warehouse/accounts/views.py:1017
+#: warehouse/accounts/views.py:1018
 msgid "You can now set this email as your primary address"
 msgstr "Nyní můžete nastavit tento e-mail jako vaši primární adresu"
 
-#: warehouse/accounts/views.py:1020
+#: warehouse/accounts/views.py:1021
 msgid "This is your primary address"
 msgstr "Toto je vaše primární adresa"
 
-#: warehouse/accounts/views.py:1026
+#: warehouse/accounts/views.py:1027
 #, python-brace-format
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "E-mailová adresa ${email_address} byla oveřena. ${confirm_message}."
 
-#: warehouse/accounts/views.py:1083
+#: warehouse/accounts/views.py:1084
 msgid "Expired token: request a new organization invitation"
 msgstr "Expirovaný token: požádejte o novou pozvánku do organizace"
 
-#: warehouse/accounts/views.py:1085
+#: warehouse/accounts/views.py:1086
 msgid "Invalid token: request a new organization invitation"
 msgstr "Neplatný token: požádejte o novou pozvánku do organizace"
 
-#: warehouse/accounts/views.py:1091
+#: warehouse/accounts/views.py:1092
 msgid "Invalid token: not an organization invitation token"
 msgstr "Neplatný token: nejedná se o token pozvánky do organizace"
 
-#: warehouse/accounts/views.py:1095
+#: warehouse/accounts/views.py:1096
 msgid "Organization invitation is not valid."
 msgstr "Pozvánka do organizace je neplatná."
 
-#: warehouse/accounts/views.py:1104
+#: warehouse/accounts/views.py:1105
 msgid "Organization invitation no longer exists."
 msgstr "Pozvánka do organizace už neexistuje."
 
-#: warehouse/accounts/views.py:1156
+#: warehouse/accounts/views.py:1157
 #, python-brace-format
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "Pozvánka do '${organization_name}' byla odmítnuta."
 
-#: warehouse/accounts/views.py:1219
+#: warehouse/accounts/views.py:1220
 #, python-brace-format
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Nyní jste ${role} organizace '${organization_name}'."
 
-#: warehouse/accounts/views.py:1252
+#: warehouse/accounts/views.py:1253
 msgid "Expired token: request a new project role invitation"
 msgstr "Expirovaný token: požádejte o novou pozvánku pro roli v projektu"
 
-#: warehouse/accounts/views.py:1254
+#: warehouse/accounts/views.py:1255
 msgid "Invalid token: request a new project role invitation"
 msgstr "Neplatný token: požádejte o novou pozvánku pro roli v projektu"
 
-#: warehouse/accounts/views.py:1260
+#: warehouse/accounts/views.py:1261
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Neplatný token: nejedná se o token pozvánky ke spolupráci"
 
-#: warehouse/accounts/views.py:1264
+#: warehouse/accounts/views.py:1265
 msgid "Role invitation is not valid."
 msgstr "Pozvánka pro roli je neplatná."
 
-#: warehouse/accounts/views.py:1279
+#: warehouse/accounts/views.py:1280
 msgid "Role invitation no longer exists."
 msgstr "Pozvánka pre rolu už neexistuje."
 
-#: warehouse/accounts/views.py:1311
+#: warehouse/accounts/views.py:1312
 #, python-brace-format
 msgid "Invitation for '${project_name}' is declined."
 msgstr "Pozvánka pro '${project_name}' byla odmítnuta."
 
-#: warehouse/accounts/views.py:1377
+#: warehouse/accounts/views.py:1378
 #, python-brace-format
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Nyní jste ${role} projektu '${project_name}'."
 
-#: warehouse/accounts/views.py:1457
+#: warehouse/accounts/views.py:1458
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
-#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1922
+#: warehouse/accounts/views.py:1670 warehouse/accounts/views.py:1924
 #: warehouse/manage/views/oidc_publishers.py:120
 #, fuzzy
 #| msgid ""
@@ -368,7 +368,7 @@ msgstr ""
 "Nový registrace jsou dočasně zakázány. Více informací na https://pypi.org/"
 "help#admin-intervention."
 
-#: warehouse/accounts/views.py:1690
+#: warehouse/accounts/views.py:1691
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -378,21 +378,21 @@ msgstr ""
 "Nový registrace jsou dočasně zakázány. Více informací na https://pypi.org/"
 "help#admin-intervention."
 
-#: warehouse/accounts/views.py:1706
+#: warehouse/accounts/views.py:1707
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1719
+#: warehouse/accounts/views.py:1720
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1734
-#: warehouse/manage/views/oidc_publishers.py:301
-#: warehouse/manage/views/oidc_publishers.py:416
-#: warehouse/manage/views/oidc_publishers.py:530
-#: warehouse/manage/views/oidc_publishers.py:642
+#: warehouse/accounts/views.py:1735
+#: warehouse/manage/views/oidc_publishers.py:302
+#: warehouse/manage/views/oidc_publishers.py:417
+#: warehouse/manage/views/oidc_publishers.py:531
+#: warehouse/manage/views/oidc_publishers.py:643
 #, fuzzy
 #| msgid ""
 #| "There have been too many attempted OpenID Connect registrations. Try "
@@ -404,34 +404,34 @@ msgstr ""
 "Příliš mnoho neúspěšných pokusů o registraci pomocí OpenID Connect. Zkuste "
 "to prosím později."
 
-#: warehouse/accounts/views.py:1744
-#: warehouse/manage/views/oidc_publishers.py:314
-#: warehouse/manage/views/oidc_publishers.py:429
-#: warehouse/manage/views/oidc_publishers.py:543
-#: warehouse/manage/views/oidc_publishers.py:655
+#: warehouse/accounts/views.py:1745
+#: warehouse/manage/views/oidc_publishers.py:315
+#: warehouse/manage/views/oidc_publishers.py:430
+#: warehouse/manage/views/oidc_publishers.py:544
+#: warehouse/manage/views/oidc_publishers.py:656
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1759
+#: warehouse/accounts/views.py:1760
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1793
+#: warehouse/accounts/views.py:1794
 #, fuzzy
 #| msgid "Manage this project"
 msgid "Registered a new pending publisher to create "
 msgstr "Spravovat tento projekt"
 
-#: warehouse/accounts/views.py:1935 warehouse/accounts/views.py:1948
-#: warehouse/accounts/views.py:1955
+#: warehouse/accounts/views.py:1937 warehouse/accounts/views.py:1950
+#: warehouse/accounts/views.py:1957
 #, fuzzy
 #| msgid "Manage version"
 msgid "Invalid publisher ID"
 msgstr "Spravovat verzi"
 
-#: warehouse/accounts/views.py:1962
+#: warehouse/accounts/views.py:1964
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -772,7 +772,7 @@ msgstr "Uživatel '${username}' odmítl pozvánku."
 msgid "The trusted publisher could not be constrained"
 msgstr ""
 
-#: warehouse/manage/views/oidc_publishers.py:282
+#: warehouse/manage/views/oidc_publishers.py:283
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -784,7 +784,7 @@ msgstr ""
 "Nový registrace jsou dočasně zakázány. Více informací na https://pypi.org/"
 "help#admin-intervention."
 
-#: warehouse/manage/views/oidc_publishers.py:397
+#: warehouse/manage/views/oidc_publishers.py:398
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -796,7 +796,7 @@ msgstr ""
 "Nový registrace jsou dočasně zakázány. Více informací na https://pypi.org/"
 "help#admin-intervention."
 
-#: warehouse/manage/views/oidc_publishers.py:511
+#: warehouse/manage/views/oidc_publishers.py:512
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -808,7 +808,7 @@ msgstr ""
 "Nový registrace jsou dočasně zakázány. Více informací na https://pypi.org/"
 "help#admin-intervention."
 
-#: warehouse/manage/views/oidc_publishers.py:622
+#: warehouse/manage/views/oidc_publishers.py:623
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -970,55 +970,55 @@ msgstr ""
 msgid "Invalid repository name"
 msgstr "Neplatné jméno repozitáře"
 
-#: warehouse/oidc/forms/github.py:39
+#: warehouse/oidc/forms/github.py:40
 msgid "Specify workflow filename"
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:74
+#: warehouse/oidc/forms/github.py:75
 msgid "Unknown GitHub user or organization."
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:85
+#: warehouse/oidc/forms/github.py:86
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:94
+#: warehouse/oidc/forms/github.py:95
 msgid "Unexpected error from GitHub. Try again."
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:102
+#: warehouse/oidc/forms/github.py:103
 msgid "Unexpected connection error from GitHub. Try again in a few minutes."
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:111
+#: warehouse/oidc/forms/github.py:112
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:123
+#: warehouse/oidc/forms/github.py:124
 msgid "Invalid GitHub user or organization name."
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:139
+#: warehouse/oidc/forms/github.py:140
 msgid "Workflow name must end with .yml or .yaml"
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:144
+#: warehouse/oidc/forms/github.py:145
 msgid "Workflow filename must be a filename only, without directories"
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:155
+#: warehouse/oidc/forms/github.py:156
 msgid "Environment name is too long (maximum is 255 characters)"
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:160
+#: warehouse/oidc/forms/github.py:161
 msgid "Environment name may not start with whitespace"
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:165
+#: warehouse/oidc/forms/github.py:166
 msgid "Environment name may not end with whitespace"
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:171
+#: warehouse/oidc/forms/github.py:172
 msgid ""
 "Environment name must not contain non-printable characters or the characters "
 "\"'\", \"\"\", \"`\", \",\", \";\", \"\\\""
@@ -1036,21 +1036,21 @@ msgstr ""
 msgid "Invalid GitLab username or group/subgroup name."
 msgstr ""
 
-#: warehouse/oidc/forms/gitlab.py:62
+#: warehouse/oidc/forms/gitlab.py:63
 msgid "Specify top-level pipeline file path"
 msgstr ""
 
-#: warehouse/oidc/forms/gitlab.py:71
+#: warehouse/oidc/forms/gitlab.py:72
 #, fuzzy
 #| msgid "Invalid project name"
 msgid "Invalid environment name"
 msgstr "Neplatné jméno projektu"
 
-#: warehouse/oidc/forms/gitlab.py:86
+#: warehouse/oidc/forms/gitlab.py:87
 msgid "Top-level pipeline file path must end with .yml or .yaml"
 msgstr ""
 
-#: warehouse/oidc/forms/gitlab.py:90
+#: warehouse/oidc/forms/gitlab.py:91
 msgid "Top-level pipeline file path cannot start or end with /"
 msgstr ""
 
@@ -4769,7 +4769,7 @@ msgstr "Nemůžete odebrat sami sebe jakožto vlastníka"
 #: warehouse/templates/manage/manage_base.html:72
 #: warehouse/templates/manage/manage_base.html:91
 #: warehouse/templates/manage/manage_base.html:95
-#: warehouse/templates/manage/manage_base.html:624
+#: warehouse/templates/manage/manage_base.html:626
 #: warehouse/templates/manage/organization/roles.html:276
 #: warehouse/templates/manage/organization/roles.html:280
 #: warehouse/templates/manage/organization/roles.html:291
@@ -4997,11 +4997,11 @@ msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:587
 #: warehouse/templates/manage/manage_base.html:598
-#: warehouse/templates/manage/manage_base.html:607
+#: warehouse/templates/manage/manage_base.html:609
 msgid "Any"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:631
+#: warehouse/templates/manage/manage_base.html:633
 #: warehouse/templates/manage/organization/history.html:141
 #: warehouse/templates/manage/project/history.html:27
 #: warehouse/templates/manage/project/history.html:80
@@ -5014,7 +5014,7 @@ msgstr ""
 msgid "Added by:"
 msgstr "Přidal:"
 
-#: warehouse/templates/manage/manage_base.html:633
+#: warehouse/templates/manage/manage_base.html:635
 #: warehouse/templates/manage/organization/history.html:146
 #: warehouse/templates/manage/project/history.html:46
 #: warehouse/templates/manage/project/history.html:111
@@ -5025,32 +5025,32 @@ msgstr "Přidal:"
 msgid "Removed by:"
 msgstr "Odstranil:"
 
-#: warehouse/templates/manage/manage_base.html:635
+#: warehouse/templates/manage/manage_base.html:637
 #, fuzzy
 #| msgid "Changed by:"
 msgid "Submitted by:"
 msgstr "Změnil:"
 
-#: warehouse/templates/manage/manage_base.html:638
+#: warehouse/templates/manage/manage_base.html:640
 #: warehouse/templates/manage/project/history.html:224
 #, fuzzy
 #| msgid "Your name"
 msgid "Workflow:"
 msgstr "Vaše jméno"
 
-#: warehouse/templates/manage/manage_base.html:640
+#: warehouse/templates/manage/manage_base.html:642
 #, fuzzy
 #| msgid "Verify application"
 msgid "Specifier:"
 msgstr "Ověřit aplikaci"
 
-#: warehouse/templates/manage/manage_base.html:642
+#: warehouse/templates/manage/manage_base.html:644
 #, fuzzy
 #| msgid "Username"
 msgid "Publisher:"
 msgstr "Uživatelské jméno"
 
-#: warehouse/templates/manage/manage_base.html:644
+#: warehouse/templates/manage/manage_base.html:646
 #: warehouse/templates/manage/project/history.html:36
 #: warehouse/templates/manage/project/history.html:89
 msgid "URL:"
