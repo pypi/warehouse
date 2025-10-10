@@ -43,7 +43,7 @@ def report_vulnerabilities(request):
         vulnerability_reports = request.json_body
     except json.decoder.JSONDecodeError:
         metrics.increment(
-            "warehouse.vulnerabilties.error.payload.json_error", tags=["origin:osv"]
+            "warehouse.vulnerabilities.error.payload.json_error", tags=["origin:osv"]
         )
         return HTTPBadRequest(body="Invalid JSON")
 

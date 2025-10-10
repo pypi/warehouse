@@ -10,3 +10,4 @@ sphinx-lint --enable=all --disable=line-too-long README.rst CONTRIBUTING.rst doc
 python -m djlint --check --lint ./warehouse/templates ./docs/blog
 python -m mypy -p warehouse
 ./bin/flushes
+codespell
