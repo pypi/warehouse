@@ -448,7 +448,7 @@ webob==1.8.9 \
     --hash=sha256:45e34c58ed0c7e2ecd238ffd34432487ff13d9ad459ddfd77895e67abba7c1f9 \
     --hash=sha256:ad6078e2edb6766d1334ec3dee072ac6a7f95b1e32ce10def8ff7f0f02d56589
     # via webtest
-webtest==3.0.6 \
-    --hash=sha256:0c4a5a3dcf745a78c7905b803d6a520a2cf241c1f00ccdf4351f52916d555543 \
-    --hash=sha256:4256fd5242448f56c575bcb9afe275e305a6f0723c4b01438dbdd4dd5344944b
+webtest==3.0.7 \
+    --hash=sha256:2f51a0844f3a8beaef89bc23d225fe05ad816f7e429ffcc655a13013a799ac6c \
+    --hash=sha256:7aeab50f970d46c068e7a36dd162cb242591edf72a1d04efd21374772b931741
     # via -r requirements/tests.in
