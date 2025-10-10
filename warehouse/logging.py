@@ -40,6 +40,7 @@ def _add_datadog_context(logger, method_name, event_dict):
     """Add Datadog trace context if available"""
     try:
         import ddtrace
+
         span = ddtrace.tracer.current_span()
         if span:
             event_dict["dd.trace_id"] = str(span.trace_id)
@@ -77,7 +78,8 @@ def configure_celery_logging(logfile: str | None = None, loglevel: int = logging
     root.setLevel(loglevel)
 
     structlog.configure(
-        processors=processors + [
+        processors=processors
+        + [
             structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
         ],
         logger_factory=structlog.stdlib.LoggerFactory(),
