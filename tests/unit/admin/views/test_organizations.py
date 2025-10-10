@@ -13,13 +13,16 @@ from tests.common.db.accounts import UserFactory
 from tests.common.db.organizations import (
     OrganizationFactory,
     OrganizationManualActivationFactory,
+    OrganizationOIDCIssuerFactory,
     OrganizationRoleFactory,
     OrganizationStripeCustomerFactory,
 )
 from tests.common.db.subscriptions import StripeCustomerFactory
 from warehouse.admin.views import organizations as views
 from warehouse.organizations.models import (
+    OIDCIssuerType,
     OrganizationManualActivation,
+    OrganizationOIDCIssuer,
     OrganizationRole,
     OrganizationRoleType,
     OrganizationType,
@@ -1736,3 +1739,317 @@ class TestSetTotalSizeLimit:
             )
         ]
         assert result.status_code == 303
+
+
+class TestAddOIDCIssuer:
+    def test_add_oidc_issuer_success(self, db_request, monkeypatch):
+        organization = OrganizationFactory.create()
+        admin_user = UserFactory.create(username="admin")
+
+        # Mock record_event
+        record_event = pretend.call_recorder(lambda **kwargs: None)
+        monkeypatch.setattr(organization, "record_event", record_event)
+
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.user = admin_user
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.POST = MultiDict(
+            {
+                "issuer_type": "gitlab",
+                "issuer_url": "https://gitlab.company.com",
+            }
+        )
+
+        result = views.add_oidc_issuer(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.location == "/admin/organizations/"
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "OIDC issuer 'https://gitlab.company.com' (gitlab) added to "
+                f"'{organization.name}'",
+                queue="success",
+            )
+        ]
+
+        issuer = db_request.db.query(OrganizationOIDCIssuer).one()
+        assert issuer.issuer_type == OIDCIssuerType.GitLab
+        assert issuer.issuer_url == "https://gitlab.company.com"
+        assert issuer.organization == organization
+        assert issuer.created_by == admin_user
+
+        # Check event was recorded
+        assert record_event.calls == [
+            pretend.call(
+                request=db_request,
+                tag="admin:organization:oidc_issuer:add",
+                additional={
+                    "issuer_type": "gitlab",
+                    "issuer_url": "https://gitlab.company.com",
+                },
+            )
+        ]
+
+    def test_add_oidc_issuer_invalid_form(self, db_request):
+        organization = OrganizationFactory.create()
+        admin_user = UserFactory.create(username="admin")
+
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.user = admin_user
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        # Missing issuer_url
+        db_request.POST = MultiDict({"issuer_type": "gitlab"})
+
+        result = views.add_oidc_issuer(db_request)
+        assert isinstance(result, HTTPSeeOther)
+
+        # Should flash form validation errors
+        assert len(db_request.session.flash.calls) > 0
+        assert "error" in str(db_request.session.flash.calls[0])
+
+    def test_add_oidc_issuer_invalid_url(self, db_request):
+        organization = OrganizationFactory.create()
+        admin_user = UserFactory.create(username="admin")
+
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.user = admin_user
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        # Invalid URL (not https)
+        db_request.POST = MultiDict(
+            {
+                "issuer_type": "gitlab",
+                "issuer_url": "http://gitlab.company.com",
+            }
+        )
+
+        result = views.add_oidc_issuer(db_request)
+        assert isinstance(result, HTTPSeeOther)
+
+        # Should flash form validation errors
+        flash_messages = [call.args[0] for call in db_request.session.flash.calls]
+        assert any("https://" in msg for msg in flash_messages)
+
+    def test_add_oidc_issuer_duplicate(self, db_request, monkeypatch):
+        organization = OrganizationFactory.create()
+        admin_user = UserFactory.create(username="admin")
+
+        # Create existing issuer
+        OrganizationOIDCIssuerFactory.create(
+            organization=organization,
+            issuer_type=OIDCIssuerType.GitLab,
+            issuer_url="https://gitlab.company.com",
+            created_by=admin_user,
+        )
+
+        # Mock record_event (should not be called on duplicate)
+        record_event = pretend.call_recorder(lambda **kwargs: None)
+        monkeypatch.setattr(organization, "record_event", record_event)
+
+        db_request.matchdict = {"organization_id": str(organization.id)}
+        db_request.user = admin_user
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.POST = MultiDict(
+            {
+                "issuer_type": "gitlab",
+                "issuer_url": "https://gitlab.company.com",
+            }
+        )
+
+        result = views.add_oidc_issuer(db_request)
+        assert isinstance(result, HTTPSeeOther)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Issuer 'https://gitlab.company.com' already exists "
+                f"for organization '{organization.name}'",
+                queue="error",
+            )
+        ]
+
+        # No new event recorded
+        assert record_event.calls == []
+
+    def test_add_oidc_issuer_organization_not_found(self, db_request):
+        admin_user = UserFactory.create(username="admin")
+
+        db_request.matchdict = {
+            "organization_id": "00000000-0000-0000-0000-000000000000"
+        }
+        db_request.user = admin_user
+
+        with pytest.raises(HTTPNotFound):
+            views.add_oidc_issuer(db_request)
+
+
+class TestDeleteOIDCIssuer:
+    def test_delete_oidc_issuer_success(self, db_request, monkeypatch):
+        organization = OrganizationFactory.create()
+        admin_user = UserFactory.create(username="admin")
+
+        issuer = OrganizationOIDCIssuerFactory.create(
+            organization=organization,
+            issuer_type=OIDCIssuerType.GitLab,
+            issuer_url="https://gitlab.company.com",
+            created_by=admin_user,
+        )
+
+        # Mock record_event
+        record_event = pretend.call_recorder(lambda **kwargs: None)
+        monkeypatch.setattr(organization, "record_event", record_event)
+
+        db_request.matchdict = {
+            "organization_id": str(organization.id),
+            "issuer_id": str(issuer.id),
+        }
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.POST = MultiDict({"confirm": "https://gitlab.company.com"})
+
+        result = views.delete_oidc_issuer(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.location == "/admin/organizations/"
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "OIDC issuer 'https://gitlab.company.com' removed "
+                f"from '{organization.name}'",
+                queue="success",
+            )
+        ]
+
+        assert db_request.db.query(OrganizationOIDCIssuer).count() == 0
+
+        # Check event was recorded
+        assert record_event.calls == [
+            pretend.call(
+                request=db_request,
+                tag="admin:organization:oidc_issuer:delete",
+                additional={
+                    "issuer_type": "gitlab",
+                    "issuer_url": "https://gitlab.company.com",
+                },
+            )
+        ]
+
+    def test_delete_oidc_issuer_not_found(self, db_request):
+        organization = OrganizationFactory.create()
+
+        db_request.matchdict = {
+            "organization_id": str(organization.id),
+            "issuer_id": "00000000-0000-0000-0000-000000000000",
+        }
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.POST = MultiDict({"confirm": "https://gitlab.company.com"})
+
+        result = views.delete_oidc_issuer(db_request)
+        assert isinstance(result, HTTPSeeOther)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("This issuer does not exist", queue="error")
+        ]
+
+    def test_delete_oidc_issuer_wrong_confirmation(self, db_request):
+        organization = OrganizationFactory.create()
+        admin_user = UserFactory.create(username="admin")
+
+        issuer = OrganizationOIDCIssuerFactory.create(
+            organization=organization,
+            issuer_type=OIDCIssuerType.GitLab,
+            issuer_url="https://gitlab.company.com",
+            created_by=admin_user,
+        )
+
+        db_request.matchdict = {
+            "organization_id": str(organization.id),
+            "issuer_id": str(issuer.id),
+        }
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.POST = MultiDict({"confirm": "https://wrong-url.com"})
+
+        result = views.delete_oidc_issuer(db_request)
+        assert isinstance(result, HTTPSeeOther)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Confirm the request", queue="error")
+        ]
+
+        # Issuer should still exist
+        assert db_request.db.query(OrganizationOIDCIssuer).count() == 1
+
+    def test_delete_oidc_issuer_no_confirmation(self, db_request):
+        organization = OrganizationFactory.create()
+        admin_user = UserFactory.create(username="admin")
+
+        issuer = OrganizationOIDCIssuerFactory.create(
+            organization=organization,
+            issuer_type=OIDCIssuerType.GitLab,
+            issuer_url="https://gitlab.company.com",
+            created_by=admin_user,
+        )
+
+        db_request.matchdict = {
+            "organization_id": str(organization.id),
+            "issuer_id": str(issuer.id),
+        }
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/organizations/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.POST = MultiDict({})
+
+        result = views.delete_oidc_issuer(db_request)
+        assert isinstance(result, HTTPSeeOther)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Confirm the request", queue="error")
+        ]
+
+        # Issuer should still exist
+        assert db_request.db.query(OrganizationOIDCIssuer).count() == 1
+
+    def test_delete_oidc_issuer_organization_not_found(self, db_request):
+        db_request.matchdict = {
+            "organization_id": "00000000-0000-0000-0000-000000000000",
+            "issuer_id": "00000000-0000-0000-0000-000000000001",
+        }
+
+        with pytest.raises(HTTPNotFound):
+            views.delete_oidc_issuer(db_request)
