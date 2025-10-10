@@ -119,9 +119,11 @@ def test_includeme(monkeypatch, settings, expected_level):
                 structlog.stdlib.filter_by_level,
                 structlog.stdlib.add_logger_name,
                 structlog.stdlib.add_log_level,
-                mock.ANY,
-                mock.ANY,
+                mock.ANY,  # PositionalArgumentsFormatter
+                mock.ANY,  # TimeStamper
+                mock.ANY,  # StackInfoRenderer
                 structlog.processors.format_exc_info,
+                mock.ANY,  # _add_datadog_context
                 wlogging.RENDERER,
             ],
             logger_factory=mock.ANY,
@@ -133,10 +135,17 @@ def test_includeme(monkeypatch, settings, expected_level):
         configure.calls[0].kwargs["processors"][3],
         structlog.stdlib.PositionalArgumentsFormatter,
     )
+    # timestamper #18843
     assert isinstance(
         configure.calls[0].kwargs["processors"][4],
+        structlog.processors.TimeStamper,
+    )
+    assert isinstance(
+        configure.calls[0].kwargs["processors"][5],
         structlog.processors.StackInfoRenderer,
     )
+    # _add_datadog_context #18843
+    assert configure.calls[0].kwargs["processors"][7] == wlogging._add_datadog_context
     assert isinstance(
         configure.calls[0].kwargs["logger_factory"], structlog.stdlib.LoggerFactory
     )
