@@ -83,6 +83,25 @@ class TestGunicornAccessLogParsing:
         assert result["path"] == "/test"
         assert "protocol" not in result
 
+    def test_parses_malformed_request_field(self):
+        """Test when request field has less than 2 parts.
+
+        fixes cov: 43 0 10 1 98%   lines57->63
+        """
+        access_log_line = (
+            "test-id - - "
+            '[10/Aug/2025:10:00:00 +0000] "INVALID" 400 0 "-" "agent"'
+        )
+        event_dict = {"logger": "gunicorn.access", "event": access_log_line}
+
+        result = wlogging._parse_gunicorn_access_log(None, None, event_dict)
+
+        # Request field should be preserved but not parsed
+        assert result["request"] == "INVALID"
+        assert "method" not in result
+        assert "path" not in result
+        assert "protocol" not in result
+
 
 def test_renderer_dev_mode(monkeypatch):
     """Test that ConsoleRenderer is used in development mode."""
