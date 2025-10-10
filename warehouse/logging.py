@@ -3,7 +3,6 @@
 import logging.config
 import os
 import re
-import threading
 import uuid
 
 import structlog
@@ -50,12 +49,14 @@ def _parse_gunicorn_access_log(logger, method_name, event_dict):
 
     message = event_dict.get("event", "")
 
-    # based on https://albersdevelopment.net/2019/08/15/using-structlog-with-gunicorn/ and friends
+    # based on
+    # https://albersdevelopment.net/2019/08/15/using-structlog-with-gunicorn/
+    # and friends
     # Combined log format: host - user [time] "request" status size "referer" "user-agent"
     pattern = re.compile(
-        r'(?P<remote_addr>\S+) \S+ (?P<user>\S+) '
+        r"(?P<remote_addr>\S+) \S+ (?P<user>\S+) "
         r'\[(?P<timestamp>.+?)\] "(?P<request>.+?)" '
-        r'(?P<status>\d+) (?P<size>\S+) '
+        r"(?P<status>\d+) (?P<size>\S+) "
         r'"(?P<referrer>.*?)" "(?P<user_agent>.*?)"'
     )
 
