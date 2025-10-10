@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import json
 import logging
 import logging.config
 import uuid
@@ -160,8 +159,9 @@ def test_includeme(monkeypatch, settings, expected_level):
         )
     ]
     # Verify TimeStamper in foreign_pre_chain
+    formatter_config = dict_config.calls[0].args[0]["formatters"]["structlog_formatter"]
     assert isinstance(
-        dict_config.calls[0].args[0]["formatters"]["structlog_formatter"]["foreign_pre_chain"][2],
+        formatter_config["foreign_pre_chain"][2],
         structlog.processors.TimeStamper,
     )
 
