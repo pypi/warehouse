@@ -69,6 +69,34 @@ class TestGunicornAccessLogParsing:
 
         assert result == event_dict
 
+    def test_parses_without_protocol(self):
+        """Test when request has no protocol (only method and path)."""
+        access_log_line = (
+            "test-id - - "
+            '[10/Aug/2025:10:00:00 +0000] "GET /test" 200 100 "-" "agent"'
+        )
+        event_dict = {"logger": "gunicorn.access", "event": access_log_line}
+
+        result = wlogging._parse_gunicorn_access_log(None, None, event_dict)
+
+        assert result["method"] == "GET"
+        assert result["path"] == "/test"
+        assert "protocol" not in result
+
+
+def test_renderer_dev_mode(monkeypatch):
+    """Test that ConsoleRenderer is used in development mode."""
+    import importlib
+
+    try:
+        monkeypatch.setenv("WAREHOUSE_ENV", "development")
+        importlib.reload(wlogging)
+        assert isinstance(wlogging.RENDERER, structlog.dev.ConsoleRenderer)
+    finally:
+        # Restore original state
+        monkeypatch.delenv("WAREHOUSE_ENV", raising=False)
+        importlib.reload(wlogging)
+
 
 def test_create_id(monkeypatch):
     uuid4 = pretend.call_recorder(lambda: "a fake uuid")
