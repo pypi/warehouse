@@ -35,7 +35,9 @@ def _simple_index(request, serial):
                 Project.lifecycle_status.is_distinct_from(
                     LifecycleStatus.QuarantineEnter
                 )
-            ).order_by(Project.normalized_name)
+            )
+            .order_by(Project.normalized_name)
+            .scalar_subquery()
         )
     )
     projects = request.db.execute(query).scalar() or []

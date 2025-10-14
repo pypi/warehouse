@@ -13,21 +13,15 @@
     </li>
     <li>
       Project upload limit:
-      {% if project.upload_limit %}
-        {{ project.upload_limit|filesizeformat(binary=True) }}
-      {% else %}
-        Default ({{ MAX_FILESIZE|filesizeformat(binary=True) }})
-      {% endif %}
+      {% if project.upload_limit_size == MAX_FILESIZE %}Default{% endif %}
+      {{ project.upload_limit_size|filesizeformat(binary=True) }}
       {% trans help_url=request.user_docs_url("/project-management/storage-limits", anchor="requesting-a-file-size-limit-increase") %}
       <a href="{{ help_url }}">(request an increase)</a>{% endtrans %}
     </li>
     <li>
       Project total size limit:
-      {% if project.total_size_limit %}
-        {{ project.total_size_limit|filesizeformat(binary=True) }}
-      {% else %}
-        Default ({{ MAX_PROJECT_SIZE|filesizeformat(binary=True) }})
-      {% endif %}
+      {% if project.total_size_limit_value == MAX_PROJECT_SIZE %}Default{% endif %}
+      {{ project.total_size_limit_value|filesizeformat(binary=True) }}
       {% trans help_url=request.user_docs_url("/project-management/storage-limits", anchor="requesting-a-project-size-limit-increase") %}
       <a href="{{ help_url }}">(request an increase)</a>{% endtrans %}
     </li>

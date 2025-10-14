@@ -55,6 +55,7 @@ class GitLabPublisherFactory(WarehouseFactory):
     namespace = factory.Faker("pystr", max_chars=12)
     workflow_filepath = "subfolder/example.yml"
     environment = "production"
+    issuer_url = "https://gitlab.com"
 
 
 class PendingGitLabPublisherFactory(WarehouseFactory):
@@ -67,6 +68,7 @@ class PendingGitLabPublisherFactory(WarehouseFactory):
     namespace = factory.Faker("pystr", max_chars=12)
     workflow_filepath = "subfolder/example.yml"
     environment = "production"
+    issuer_url = "https://gitlab.com"
     added_by = factory.SubFactory(UserFactory)
 
 

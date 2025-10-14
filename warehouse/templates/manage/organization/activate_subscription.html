@@ -7,7 +7,7 @@
   <h2>{% trans %}Activate Subscription{% endtrans %}</h2>
   <form method="post"
         data-controller="organization-terms-of-service-accepted">
-    <div class="form-group__wide">
+    <div class="form-group form-group--wide">
       <p class="form-group__text">
         {% trans %}Company accounts require an active subscription. Please enter up-to-date billing information to enable the account.{% endtrans %}
       </p>
@@ -16,7 +16,7 @@
            type="hidden"
            value="{{ request.session.get_csrf_token() }}">
     {{ form_errors(form) }}
-    <div class="form-group__wide">
+    <div class="form-group form-group--wide">
       <label for="terms_of_service_agreement" class="form-group__label">
         {% trans %}Terms of Service{% endtrans %}
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
@@ -36,7 +36,7 @@
       {% endif %}
     </div>
   </div>
-  <div class="form-group__wide">
+  <div class="form-group form-group--wide">
     <a href="{{ request.route_path('manage.organizations') }}"
        class="button">{% trans %}Cancel{% endtrans %}</a>
     <input value="{% trans %}Activate Subscription{% endtrans %}"

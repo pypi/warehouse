@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import typing
+
 from dataclasses import dataclass
 
 from pyramid.authorization import Authenticated
@@ -25,6 +27,10 @@ from warehouse.oidc.models import (
     PendingGooglePublisher,
     PendingOIDCPublisher,
 )
+
+if typing.TYPE_CHECKING:
+    from sqlalchemy.orm import Session
+
 
 OIDC_ISSUER_SERVICE_NAMES = {
     GITHUB_OIDC_ISSUER_URL: "github",
@@ -61,7 +67,11 @@ OIDC_PUBLISHER_CLASSES: dict[
 
 
 def find_publisher_by_issuer(
-    session, issuer_url: str, signed_claims: SignedClaims, *, pending: bool = False
+    session: Session,
+    issuer_url: str,
+    signed_claims: SignedClaims,
+    *,
+    pending: bool = False,
 ) -> OIDCPublisher | PendingOIDCPublisher:
     """
     Given an OIDC issuer URL and a dictionary of claims that have been verified

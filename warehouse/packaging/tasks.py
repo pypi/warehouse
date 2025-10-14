@@ -298,7 +298,7 @@ def update_release_description(_task, request, release_id):
     retry_jitter=False,
     max_retries=5,
 )
-def update_bigquery_release_files(task, request, dist_metadata):
+def update_bigquery_release_files(task, request, dist_metadata) -> None:
     """
     Adds release file metadata to public BigQuery database
     """
@@ -317,7 +317,7 @@ def update_bigquery_release_files(task, request, dist_metadata):
         # Using the schema to populate the data allows us to automatically
         # set the values to their respective fields rather than assigning
         # values individually
-        json_rows: dict = {}
+        json_row: dict = {}
         for sch in table_schema:
             field_data = dist_metadata.get(sch.name, None)
 
@@ -330,7 +330,7 @@ def update_bigquery_release_files(task, request, dist_metadata):
                 field_data = None
 
             if field_data is None and sch.mode == "REPEATED":
-                json_rows[sch.name] = []
+                json_row[sch.name] = []
             elif field_data and sch.mode == "REPEATED":
                 # Currently, some of the metadata fields such as
                 # the 'platform' tag are incorrectly classified as a
@@ -339,12 +339,12 @@ def update_bigquery_release_files(task, request, dist_metadata):
                 # This extra check can be removed once
                 # https://github.com/pypi/warehouse/issues/8257 is fixed
                 if isinstance(field_data, str):
-                    json_rows[sch.name] = [field_data]
+                    json_row[sch.name] = [field_data]
                 else:
-                    json_rows[sch.name] = list(field_data)
+                    json_row[sch.name] = list(field_data)
             else:
-                json_rows[sch.name] = field_data
-        json_rows = [json_rows]
+                json_row[sch.name] = field_data
+        json_rows = [json_row]
 
         bq.insert_rows_json(
             table=table_name, json_rows=json_rows, timeout=5.0, retry=None

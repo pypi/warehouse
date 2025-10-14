@@ -31,14 +31,14 @@ class GqlResponse(TypedDict):
     errors: list[dict[str, Any]]
 
 
-def _no_double_dashes(form, field):
+def _no_double_dashes(_form: wtforms.Form, field: wtforms.Field) -> None:
     if _DOUBLE_DASHES.search(field.data):
         raise wtforms.validators.ValidationError(
             _("Double dashes are not allowed in the name")
         )
 
 
-def _no_leading_or_trailing_dashes(form, field):
+def _no_leading_or_trailing_dashes(_form: wtforms.Form, field: wtforms.Field) -> None:
     if field.data.startswith("-") or field.data.endswith("-"):
         raise wtforms.validators.ValidationError(
             _("Leading or trailing dashes are not allowed in the name")
@@ -150,7 +150,7 @@ class ActiveStatePublisherBase(wtforms.Form):
             _GRAPHQL_GET_ORGANIZATION, {"orgname": org_url_name}, process_org_response
         )
 
-    def validate_organization(self, field):
+    def validate_organization(self, field: wtforms.Field) -> None:
         self._lookup_organization(field.data)
 
     def _lookup_actor(self, actor: str) -> UserResponse:
@@ -170,7 +170,7 @@ class ActiveStatePublisherBase(wtforms.Form):
             _GRAPHQL_GET_ACTOR, {"username": actor}, process_actor_response
         )
 
-    def validate_actor(self, field):
+    def validate_actor(self, field: wtforms.Field) -> None:
         actor = field.data
 
         actor_info = self._lookup_actor(actor)

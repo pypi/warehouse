@@ -89,6 +89,7 @@ from warehouse.oidc.forms import (
 )
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import (
+    GITLAB_OIDC_ISSUER_URL,
     PendingActiveStatePublisher,
     PendingGitHubPublisher,
     PendingGitLabPublisher,
@@ -1526,11 +1527,14 @@ def verify_project_role(request):
     if user != request.user:
         return _error(request._("Role invitation is not valid."))
 
-    project = (
-        request.db.query(Project).filter(Project.id == data.get("project_id")).one()
-    )
-    desired_role = data.get("desired_role")
+    try:
+        project = (
+            request.db.query(Project).filter(Project.id == data.get("project_id")).one()
+        )
+    except NoResultFound:
+        return _error(request._("Invalid token: project does not exist"))
 
+    desired_role = data.get("desired_role")
     role_invite = (
         request.db.query(RoleInvitation)
         .filter(RoleInvitation.project == project)
@@ -2196,6 +2200,7 @@ class ManageAccountPublishingViews:
                 project=form.project.data,
                 workflow_filepath=form.workflow_filepath.data,
                 environment=form.normalized_environment,
+                issuer_url=GITLAB_OIDC_ISSUER_URL,
             ),
             make_existence_filters=lambda form: dict(
                 project_name=form.project_name.data,

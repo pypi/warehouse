@@ -15,12 +15,12 @@
 */
 
 .form-group {
-  margin-bottom: $half-spacing-unit;
+  margin-bottom: $spacing-unit;
   max-width: 350px;
 
   &__label {
     display: block;
-    font-weight: bold;
+    font-weight: $bold-font-weight;
   }
 
   &__label:not(:first-child) {
@@ -32,9 +32,10 @@
     font-weight: normal;
   }
 
-  &__wide {
+  &--wide {
     margin-bottom: $half-spacing-unit;
     max-width: unset;
+    width: 100%;
   }
 
 :where(
@@ -62,6 +63,10 @@
     width: 350px;
     margin-top: 4px;
     max-width: 100%;
+
+    &--full-width {
+      width: 100%;
+    }
   }
 
   &__text {
@@ -85,7 +90,14 @@
   &__results {
     font-size: $input-font-size;
     margin-left: 0;
-    padding: 4px 0 8px;
+    margin-top: -1px;
+    padding: 0;
+    border: 1px solid $border-color;
+    border-bottom: 0;
+    position: absolute;
+    z-index: 400;
+    width: 350px;
+    max-width: calc(100% - $spacing-unit);
 
     li {
       background-color: $white;
@@ -93,6 +105,11 @@
       color: $text-color;
       cursor: pointer;
       list-style-type: none;
+      padding: $quarter-spacing-unit;
+
+      img {
+        margin-right: 4px;
+      }
 
       &:hover,
       &:active,

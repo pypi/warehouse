@@ -64,6 +64,16 @@ def includeme(config):
         "/admin/organizations/{organization_id}/set_total_size_limit/",
         domain=warehouse,
     )
+    config.add_route(
+        "admin.organization.add_oidc_issuer",
+        "/admin/organizations/{organization_id}/oidc-issuers/add/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.organization.delete_oidc_issuer",
+        "/admin/organizations/{organization_id}/oidc-issuers/{issuer_id}/delete/",
+        domain=warehouse,
+    )
 
     config.add_route(
         "admin.organization_application.list",

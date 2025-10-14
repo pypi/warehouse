@@ -140,14 +140,14 @@ class DatabaseMacaroonService:
 
     def create_macaroon(
         self,
-        location,
-        description,
-        scopes,
+        location: str,
+        description: str,
+        scopes: list[caveats.Caveat],
         *,
-        user_id=None,
-        oidc_publisher_id=None,
-        additional=None,
-    ):
+        user_id: uuid.UUID | None = None,
+        oidc_publisher_id: str | None = None,
+        additional: dict[str, typing.Any] | None = None,
+    ) -> tuple[str, Macaroon]:
         """
         Returns a tuple of a new raw (serialized) macaroon and its DB model.
         The description provided is not embedded into the macaroon, only stored

@@ -215,6 +215,13 @@ class TestReleaseDetail:
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
             "license": None,
             "PEP740AttestationViewer": views.PEP740AttestationViewer,
+            "wheel_filters_all": {"interpreters": [], "abis": [], "platforms": []},
+            "wheel_filters_params": {
+                "filename": "",
+                "interpreters": "",
+                "abis": "",
+                "platforms": "",
+            },
         }
 
     def test_detail_renders_files_natural_sort(self, db_request):
@@ -225,17 +232,27 @@ class TestReleaseDetail:
         files = [
             FileFactory.create(
                 release=release,
-                filename=f"{project.name}-{release.version}-{py_ver}.whl",
+                filename="-".join(
+                    [project.name, release.version, py_ver, py_abi, py_platform]
+                )
+                + ".whl",
                 python_version="py2.py3",
                 packagetype="bdist_wheel",
             )
             for py_ver in ["cp27", "cp310", "cp39"]  # intentionally out of order
+            for py_abi in ["none"]
+            for py_platform in ["any"]
         ]
         sorted_files = natsorted(files, reverse=True, key=lambda f: f.filename)
 
         result = views.release_detail(release, db_request)
 
         assert result["files"] == sorted_files
+        assert [file.wheel_filters for file in result["files"]] == [
+            {"interpreters": ["cp310"], "abis": ["none"], "platforms": ["any"]},
+            {"interpreters": ["cp39"], "abis": ["none"], "platforms": ["any"]},
+            {"interpreters": ["cp27"], "abis": ["none"], "platforms": ["any"]},
+        ]
 
     def test_license_from_classifier(self, db_request):
         """A license label is added when a license classifier exists."""

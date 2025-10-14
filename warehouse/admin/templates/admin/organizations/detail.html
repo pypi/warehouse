@@ -326,13 +326,13 @@
               <div class="modal-body">
                 <div class="form-group">
                   <label for="update_seat_limit">Seat Limit</label>
-                  <input type="number" name="seat_limit" id="update_seat_limit" class="form-control" 
+                  <input type="number" name="seat_limit" id="update_seat_limit" class="form-control"
                          value="{{ organization.manual_activation.seat_limit }}" min="1" required>
                   <small class="form-text text-muted">Maximum number of organization members allowed</small>
                 </div>
                 <div class="form-group">
                   <label for="update_expires">Expiration Date</label>
-                  <input type="date" name="expires" id="update_expires" class="form-control" 
+                  <input type="date" name="expires" id="update_expires" class="form-control"
                          value="{{ organization.manual_activation.expires.strftime('%Y-%m-%d') }}" required>
                   <small class="form-text text-muted">When this activation will expire</small>
                 </div>
@@ -377,6 +377,125 @@
           </div>
         </form>
       </div>
+      {% endif %}
+
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Custom OIDC Issuers</h3>
+        </div>
+
+        <div class="card-body">
+          {% if organization.oidc_issuers %}
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Issuer Type</th>
+                  <th>Issuer URL</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for issuer in organization.oidc_issuers %}
+                <tr>
+                  <td>{{ issuer.issuer_type.value }}</td>
+                  <td>{{ issuer.issuer_url }}</td>
+                  <td>{{ issuer.created|format_date() }}</td>
+                  <td>
+                    <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteOIDCIssuerModal-{{ issuer.id }}" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) }}>
+                      <i class="fa fa-times"></i> Delete
+                    </button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <p class="text-muted">No custom OIDC issuers configured for this organization.</p>
+          {% endif %}
+        </div>
+
+        {% if request.has_permission(Permissions.AdminOrganizationsWrite) %}
+        <div class="card-footer">
+          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addOIDCIssuerModal">
+            <i class="fa fa-plus"></i> Add OIDC Issuer
+          </button>
+        </div>
+        {% endif %}
+      </div> <!-- .card -->
+
+      <!-- Add OIDC Issuer Modal -->
+      <div class="modal fade" id="addOIDCIssuerModal" tabindex="-1" role="dialog">
+        <form method="POST" action="{{ request.route_path('admin.organization.add_oidc_issuer', organization_id=organization.id) }}">
+          <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h4 class="modal-title">Add Custom OIDC Issuer</h4>
+                <button type="button" class="close" data-dismiss="modal">
+                  <span>&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="form-group">
+                  <label for="issuer_type">Issuer Type</label>
+                  {{ oidc_issuer_form.issuer_type(class="form-control", id="issuer_type") }}
+                  {% if oidc_issuer_form.issuer_type.errors %}
+                    <div class="text-danger">{{ oidc_issuer_form.issuer_type.errors[0] }}</div>
+                  {% endif %}
+                  <small class="form-text text-muted">Select the type of OIDC issuer</small>
+                </div>
+                <div class="form-group">
+                  <label for="issuer_url">Issuer URL</label>
+                  {{ oidc_issuer_form.issuer_url(class="form-control", id="issuer_url", placeholder="https://gitlab.example.com") }}
+                  {% if oidc_issuer_form.issuer_url.errors %}
+                    <div class="text-danger">{{ oidc_issuer_form.issuer_url.errors[0] }}</div>
+                  {% endif %}
+                  <small class="form-text text-muted">Custom OIDC issuer URL (must start with <code>https://</code>)</small>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary">Add OIDC Issuer</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Delete OIDC Issuer Modals -->
+      {% if organization.oidc_issuers %}
+        {% for issuer in organization.oidc_issuers %}
+        <div class="modal fade" id="deleteOIDCIssuerModal-{{ issuer.id }}" tabindex="-1" role="dialog">
+          <form method="POST" action="{{ request.route_path('admin.organization.delete_oidc_issuer', organization_id=organization.id, issuer_id=issuer.id) }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title">Delete OIDC Issuer?</h4>
+                  <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <p>
+                    This will delete the <strong>{{ issuer.issuer_type.value }}</strong> OIDC issuer at <strong>{{ issuer.issuer_url }}</strong> from <strong>{{ organization.name }}</strong>.
+                  </p>
+                  <hr>
+                  <p>
+                    To confirm, type <code>{{ issuer.issuer_url }}</code>:
+                  </p>
+                  <input type="text" name="confirm" class="form-control" placeholder="{{ issuer.issuer_url }}" required>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-danger">Delete OIDC Issuer</button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        {% endfor %}
       {% endif %}
 
       <div class="card">

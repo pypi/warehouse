@@ -70,6 +70,16 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            "admin.organization.add_oidc_issuer",
+            "/admin/organizations/{organization_id}/oidc-issuers/add/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.organization.delete_oidc_issuer",
+            "/admin/organizations/{organization_id}/oidc-issuers/{issuer_id}/delete/",
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.organization_application.list",
             "/admin/organization_applications/",
             domain=warehouse,

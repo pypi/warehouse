@@ -1,6 +1,4 @@
-# performance regression with sysmon, waiting on 3.14
-# https://github.com/pypi/warehouse/pull/17872#issuecomment-2845932281
-coverage==7.6.12
+coverage
 factory_boy
 freezegun
 pretend

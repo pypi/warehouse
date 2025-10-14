@@ -36,6 +36,8 @@ NAMESPACE = "project_owner"
             "gitlab.com/foo/bar//@.yml.foo.yml@bar.yml@/some/ref",
             "@.yml.foo.yml@bar.yml",
         ),
+        ("gitlab.com/foo/bar//a.yml@/some/ref", "a.yml"),
+        ("gitlab.com/foo/bar//a/b.yml@/some/ref", "a/b.yml"),
         # Malformed `ci_config_ref_uri`s.
         ("gitlab.com/foo/bar//notnested.wrongsuffix@/some/ref", None),
         ("gitlab.com/foo/bar//@/some/ref", None),
@@ -70,6 +72,29 @@ class TestGitLabPublisher:
             match="Could not extract workflow filename from OIDC claims",
         ):
             gitlab.GitLabPublisher.lookup_by_claims(pretend.stub(), signed_claims)
+
+    def test_lookup_succeeds_with_mixed_case_project_path(self, db_request):
+        # Test that we find a matching publisher when the project_path claims match
+        # even if the case is different.
+        stored_publisher = GitLabPublisherFactory(
+            namespace="Foo",
+            project="Bar",
+            workflow_filepath=".gitlab-ci.yml",
+            environment="",
+        )
+
+        signed_claims = {
+            "project_path": "foo/bar",  # different case than stored publisher
+            "ci_config_ref_uri": ("gitlab.com/foo/bar//.gitlab-ci.yml@refs/heads/main"),
+            "environment": "some_environment",
+        }
+
+        publisher = gitlab.GitLabPublisher.lookup_by_claims(
+            db_request.db, signed_claims
+        )
+
+        assert publisher.id == stored_publisher.id
+        assert publisher.environment == stored_publisher.environment
 
     @pytest.mark.parametrize("environment", ["SomeEnvironment", "SOME_ENVIRONMENT"])
     def test_lookup_succeeds_with_non_lowercase_environment(
@@ -246,6 +271,37 @@ class TestGitLabPublisher:
             "sha": "somesha",
             "ref_path": "someref",
         }
+
+    def test_gitlab_publisher_admin_details_with_environment(self):
+        publisher = gitlab.GitLabPublisher(
+            project="fakerepo",
+            namespace="fakeowner",
+            workflow_filepath="subfolder/fakeworkflow.yml",
+            environment="fakeenv",
+            issuer_url="https://gitlab.com",
+        )
+
+        assert publisher.admin_details == [
+            ("Project", "fakeowner/fakerepo"),
+            ("Workflow", "subfolder/fakeworkflow.yml"),
+            ("Issuer URL", "https://gitlab.com"),
+            ("Environment", "fakeenv"),
+        ]
+
+    def test_gitlab_publisher_admin_details_without_environment(self):
+        publisher = gitlab.GitLabPublisher(
+            project="fakerepo",
+            namespace="fakeowner",
+            workflow_filepath="subfolder/fakeworkflow.yml",
+            environment="",
+            issuer_url="https://gitlab.com",
+        )
+
+        assert publisher.admin_details == [
+            ("Project", "fakeowner/fakerepo"),
+            ("Workflow", "subfolder/fakeworkflow.yml"),
+            ("Issuer URL", "https://gitlab.com"),
+        ]
 
     def test_gitlab_publisher_unaccounted_claims(self, monkeypatch):
         scope = pretend.stub()
@@ -639,6 +695,7 @@ class TestGitLabPublisher:
             namespace="repository_owner",
             workflow_filepath="subfolder/worflow_filename.yml",
             environment="",
+            issuer_url="https://gitlab.com",
         )
 
         db_request.db.add(publisher1)
@@ -649,6 +706,7 @@ class TestGitLabPublisher:
             namespace="repository_owner",
             workflow_filepath="subfolder/worflow_filename.yml",
             environment="",
+            issuer_url="https://gitlab.com",
         )
         db_request.db.add(publisher2)
 
@@ -798,6 +856,7 @@ class TestGitLabPublisher:
             namespace="repository_owner",
             workflow_filepath="subfolder/worflow_filename.yml",
             environment="",
+            issuer_url="https://gitlab.com",
         )
 
         if exists_in_db:

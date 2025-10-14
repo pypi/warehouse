@@ -57,11 +57,12 @@ class GitLabPublisherBase(wtforms.Form):
     )
 
     workflow_filepath = wtforms.StringField(
+        filters=[lambda x: x.strip() if x else x],
         validators=[
             wtforms.validators.InputRequired(
                 message=_("Specify top-level pipeline file path")
             )
-        ]
+        ],
     )
 
     environment = wtforms.StringField(
@@ -76,7 +77,7 @@ class GitLabPublisherBase(wtforms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def validate_workflow_filepath(self, field):
+    def validate_workflow_filepath(self, field: wtforms.Field) -> None:
         workflow_filepath = field.data
 
         if not (
@@ -91,7 +92,7 @@ class GitLabPublisherBase(wtforms.Form):
             )
 
     @property
-    def normalized_environment(self):
+    def normalized_environment(self) -> str:
         # NOTE: We explicitly do not compare `self.environment.data` to None,
         # since it might also be falsey via an empty string (or might be
         # only whitespace, which we also treat as a None case).
