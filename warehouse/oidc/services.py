@@ -121,7 +121,7 @@ class OIDCPublisherService:
         self.cache_url = cache_url
         self.metrics = metrics
 
-        self._publisher_jwk_key = f"/warehouse/oidc/jwks/{self.publisher}"
+        self._publisher_jwk_key = f"/warehouse/oidc/jwks/{self.issuer_url}"
         self._publisher_timeout_key = f"{self._publisher_jwk_key}/timeout"
 
     def _store_keyset(self, keys: dict) -> None:
@@ -255,7 +255,7 @@ class OIDCPublisherService:
         Check if a JWT Token Identifier has already been used.
         """
         with redis.StrictRedis.from_url(self.cache_url) as r:
-            return bool(r.exists(f"/warehouse/oidc/{self.publisher}/{jti}"))
+            return bool(r.exists(f"/warehouse/oidc/{self.issuer_url}/{jti}"))
 
     def store_jwt_identifier(self, jti: str, expiration: int) -> None:
         """
@@ -266,7 +266,7 @@ class OIDCPublisherService:
             # the token expiration date. Thus, the lock will not be
             # released before the token invalidation.
             r.set(
-                f"/warehouse/oidc/{self.publisher}/{jti}",
+                f"/warehouse/oidc/{self.issuer_url}/{jti}",
                 exat=expiration + 5,
                 value="",  # empty value to lower memory usage
                 nx=True,
