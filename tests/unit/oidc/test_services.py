@@ -103,7 +103,7 @@ class TestOIDCPublisherService:
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="fakepublisher",
-            issuer_url=pretend.stub(),
+            issuer_url="https://none",
             audience="fakeaudience",
             cache_url=pretend.stub(),
             metrics=metrics,
@@ -123,7 +123,7 @@ class TestOIDCPublisherService:
         assert service.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.verify_jwt_signature.malformed_jwt",
-                tags=["publisher:fakepublisher"],
+                tags=["publisher:fakepublisher", "issuer_url:https://none"],
             )
         ]
         assert services.sentry_sdk.capture_message.calls == []
@@ -133,7 +133,7 @@ class TestOIDCPublisherService:
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="fakepublisher",
-            issuer_url=pretend.stub(),
+            issuer_url="https://none",
             audience="fakeaudience",
             cache_url=pretend.stub(),
             metrics=metrics,
@@ -156,7 +156,7 @@ class TestOIDCPublisherService:
         assert service.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.verify_jwt_signature.invalid_signature",
-                tags=["publisher:fakepublisher"],
+                tags=["publisher:fakepublisher", "issuer_url:https://none"],
             )
         ]
 
@@ -171,7 +171,7 @@ class TestOIDCPublisherService:
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="fakepublisher",
-            issuer_url=pretend.stub(),
+            issuer_url="https://none",
             audience="fakeaudience",
             cache_url=pretend.stub(),
             metrics=metrics,
@@ -189,11 +189,11 @@ class TestOIDCPublisherService:
         assert service.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.find_publisher.attempt",
-                tags=["publisher:fakepublisher"],
+                tags=["publisher:fakepublisher", "issuer_url:https://none"],
             ),
             pretend.call(
                 "warehouse.oidc.find_publisher.ok",
-                tags=["publisher:fakepublisher"],
+                tags=["publisher:fakepublisher", "issuer_url:https://none"],
             ),
         ]
 
@@ -201,7 +201,7 @@ class TestOIDCPublisherService:
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="fakepublisher",
-            issuer_url=pretend.stub(),
+            issuer_url="https://none",
             audience="fakeaudience",
             cache_url=pretend.stub(),
             metrics=metrics,
@@ -218,11 +218,11 @@ class TestOIDCPublisherService:
         assert service.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.find_publisher.attempt",
-                tags=["publisher:fakepublisher"],
+                tags=["publisher:fakepublisher", "issuer_url:https://none"],
             ),
             pretend.call(
                 "warehouse.oidc.find_publisher.publisher_not_found",
-                tags=["publisher:fakepublisher"],
+                tags=["publisher:fakepublisher", "issuer_url:https://none"],
             ),
         ]
 
@@ -230,7 +230,7 @@ class TestOIDCPublisherService:
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="fakepublisher",
-            issuer_url=pretend.stub(),
+            issuer_url="https://none",
             audience="fakeaudience",
             cache_url=pretend.stub(),
             metrics=metrics,
@@ -252,11 +252,11 @@ class TestOIDCPublisherService:
         assert service.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.find_publisher.attempt",
-                tags=["publisher:fakepublisher"],
+                tags=["publisher:fakepublisher", "issuer_url:https://none"],
             ),
             pretend.call(
                 "warehouse.oidc.find_publisher.publisher_not_found",
-                tags=["publisher:fakepublisher"],
+                tags=["publisher:fakepublisher", "issuer_url:https://none"],
             ),
         ]
         assert publisher.verify_claims.calls == [pretend.call(claims, service)]
@@ -354,7 +354,8 @@ class TestOIDCPublisherService:
         assert keys == keyset
         assert metrics.increment.calls == [
             pretend.call(
-                "warehouse.oidc.refresh_keyset.timeout", tags=["publisher:example"]
+                "warehouse.oidc.refresh_keyset.timeout",
+                tags=["publisher:example", "issuer_url:https://example.com"],
             )
         ]
 
@@ -669,7 +670,11 @@ class TestOIDCPublisherService:
         assert metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.get_key.error",
-                tags=["publisher:example", "key_id:fake-key-id"],
+                tags=[
+                    "publisher:example",
+                    "key_id:fake-key-id",
+                    "issuer_url:https://example.com",
+                ],
             )
         ]
 

@@ -164,7 +164,7 @@ class OIDCPublisherService:
         if timeout:
             self.metrics.increment(
                 "warehouse.oidc.refresh_keyset.timeout",
-                tags=[f"publisher:{self.publisher}"],
+                tags=[f"publisher:{self.publisher}", f"issuer_url:{self.issuer_url}"],
             )
             return keys
 
@@ -235,7 +235,11 @@ class OIDCPublisherService:
         if key_id not in keyset:
             self.metrics.increment(
                 "warehouse.oidc.get_key.error",
-                tags=[f"publisher:{self.publisher}", f"key_id:{key_id}"],
+                tags=[
+                    f"publisher:{self.publisher}",
+                    f"key_id:{key_id}",
+                    f"issuer_url:{self.issuer_url}",
+                ],
             )
             return None
         return jwt.PyJWK(keyset[key_id])
@@ -280,7 +284,7 @@ class OIDCPublisherService:
             # with missing components.
             self.metrics.increment(
                 "warehouse.oidc.verify_jwt_signature.malformed_jwt",
-                tags=[f"publisher:{self.publisher}"],
+                tags=[f"publisher:{self.publisher}", f"issuer_url:{self.issuer_url}"],
             )
             return None
 
@@ -315,7 +319,7 @@ class OIDCPublisherService:
         except Exception as e:
             self.metrics.increment(
                 "warehouse.oidc.verify_jwt_signature.invalid_signature",
-                tags=[f"publisher:{self.publisher}"],
+                tags=[f"publisher:{self.publisher}", f"issuer_url:{self.issuer_url}"],
             )
             if not isinstance(e, jwt.PyJWTError):
                 with sentry_sdk.new_scope() as scope:
@@ -330,7 +334,7 @@ class OIDCPublisherService:
         self, signed_claims: SignedClaims, *, pending: bool = False
     ) -> OIDCPublisher | PendingOIDCPublisher:
         """Returns a publisher for the given claims, or raises an error."""
-        metrics_tags = [f"publisher:{self.publisher}"]
+        metrics_tags = [f"publisher:{self.publisher}", f"issuer_url:{self.issuer_url}"]
         self.metrics.increment(
             "warehouse.oidc.find_publisher.attempt",
             tags=metrics_tags,
