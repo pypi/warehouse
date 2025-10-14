@@ -90,7 +90,7 @@ class _CaveatRegistry:
     def add(self, tag: int, cls: type[Caveat]):
         if tag in self._tags:
             raise TypeError(
-                f"Cannot re-use tag: {tag}, already used by {self._tags[tag]}"
+                f"Cannot reuse tag: {tag}, already used by {self._tags[tag]}"
             )
 
         self._tags[tag] = cls
