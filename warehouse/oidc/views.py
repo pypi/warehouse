@@ -24,7 +24,11 @@ from warehouse.oidc.interfaces import IOIDCPublisherService, SignedClaims
 from warehouse.oidc.models import GitHubPublisher, OIDCPublisher, PendingOIDCPublisher
 from warehouse.oidc.models.gitlab import GitLabPublisher
 from warehouse.oidc.services import OIDCPublisherService
-from warehouse.oidc.utils import OIDC_ISSUER_ADMIN_FLAGS, OIDC_ISSUER_SERVICE_NAMES
+from warehouse.oidc.utils import (
+    OIDC_ISSUER_ADMIN_FLAGS,
+    OIDC_ISSUER_SERVICE_NAMES,
+    lookup_custom_issuer_type,
+)
 from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import ProjectFactory
 from warehouse.rate_limiting.interfaces import IRateLimiter
@@ -135,8 +139,16 @@ def mint_token_from_oidc(request: Request):
         )
 
     # Associate the given issuer claim with Warehouse's OIDCPublisherService.
+    # First, try the standard issuers
     service_name = OIDC_ISSUER_SERVICE_NAMES.get(unverified_issuer)
+    # If not in global mapping, check for organization-specific custom issuer
     if not service_name:
+        service_name = lookup_custom_issuer_type(request.db, unverified_issuer)
+    if not service_name:
+        request.metrics.increment(
+            "warehouse.oidc.mint_token_from_oidc.unknown_issuer",
+            tags={"issuer_url": unverified_issuer},
+        )
         return _invalid(
             errors=[
                 {
@@ -147,7 +159,7 @@ def mint_token_from_oidc(request: Request):
             request=request,
         )
 
-    if request.flags.disallow_oidc(OIDC_ISSUER_ADMIN_FLAGS[unverified_issuer]):
+    if request.flags.disallow_oidc(OIDC_ISSUER_ADMIN_FLAGS.get(unverified_issuer)):
         return _invalid(
             errors=[
                 {

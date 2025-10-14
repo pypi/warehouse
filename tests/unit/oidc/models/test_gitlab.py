@@ -38,6 +38,8 @@ NAMESPACE = "project_owner"
         ),
         ("gitlab.com/foo/bar//a.yml@/some/ref", "a.yml"),
         ("gitlab.com/foo/bar//a/b.yml@/some/ref", "a/b.yml"),
+        # Custom domain.
+        ("gitlab.example.com/foo/bar//example.yml@/some/ref", "example.yml"),
         # Malformed `ci_config_ref_uri`s.
         ("gitlab.com/foo/bar//notnested.wrongsuffix@/some/ref", None),
         ("gitlab.com/foo/bar//@/some/ref", None),
@@ -59,6 +61,7 @@ class TestGitLabPublisher:
     @pytest.mark.parametrize("environment", [None, "some_environment"])
     def test_lookup_fails_invalid_ci_config_ref_uri(self, environment):
         signed_claims = {
+            "iss": "https://gitlab.com",
             "project_path": "foo/bar",
             "ci_config_ref_uri": ("gitlab.com/foo/bar//example/.yml@refs/heads/main"),
         }
@@ -101,6 +104,7 @@ class TestGitLabPublisher:
         )
 
         signed_claims = {
+            "iss": "https://gitlab.com",
             "project_path": project_path,
             "ci_config_ref_uri": "gitlab.com/foo/bar//.gitlab-ci.yml@refs/heads/main",
             "environment": "some_environment",
@@ -129,6 +133,7 @@ class TestGitLabPublisher:
         )
 
         signed_claims = {
+            "iss": "https://gitlab.com",
             "project_path": "foo/bar",
             "ci_config_ref_uri": ("gitlab.com/foo/bar//.gitlab-ci.yml@refs/heads/main"),
             "environment": environment,
@@ -157,6 +162,7 @@ class TestGitLabPublisher:
         )
 
         signed_claims = {
+            "iss": "https://gitlab.com",
             "project_path": "foo/bar",
             "ci_config_ref_uri": ("gitlab.com/foo/bar//.gitlab-ci.yml@refs/heads/main"),
             "environment": environment,
@@ -194,6 +200,7 @@ class TestGitLabPublisher:
 
         for workflow_filepath in (workflow_filepath_a, workflow_filepath_b):
             signed_claims = {
+                "iss": "https://gitlab.com",
                 "project_path": "foo/bar",
                 "ci_config_ref_uri": (
                     f"gitlab.com/foo/bar//{workflow_filepath}@refs/heads/main"
@@ -212,6 +219,7 @@ class TestGitLabPublisher:
 
     def test_lookup_no_matching_publisher(self, db_request):
         signed_claims = {
+            "iss": "https://gitlab.com",
             "project_path": "foo/bar",
             "ci_config_ref_uri": ("gitlab.com/foo/bar//.gitlab-ci.yml@refs/heads/main"),
         }
@@ -272,6 +280,7 @@ class TestGitLabPublisher:
             namespace="fakeowner",
             workflow_filepath="subfolder/fakeworkflow.yml",
             environment="fakeenv",
+            issuer_url="https://gitlab.com",
         )
 
         for claim_name in publisher.__required_verifiable_claims__.keys():
@@ -359,6 +368,7 @@ class TestGitLabPublisher:
             project="fakerepo",
             namespace="fakeowner",
             workflow_filepath="subfolder/fakeworkflow.yml",
+            issuer_url="https://gitlab.com",
         )
 
         scope = pretend.stub()
@@ -394,6 +404,7 @@ class TestGitLabPublisher:
             namespace="fakeowner",
             workflow_filepath="subfolder/fakeworkflow.yml",
             environment="some-environment",  # The optional claim that should be present
+            issuer_url="https://gitlab.com",
         )
 
         sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
@@ -429,6 +440,7 @@ class TestGitLabPublisher:
             namespace="fakeowner",
             workflow_filepath="subfolder/fakeworkflow.yml",
             environment="environment",
+            issuer_url="https://gitlab.com",
         )
 
         noop_check = pretend.call_recorder(lambda gt, sc, ac, **kwargs: True)
@@ -661,6 +673,7 @@ class TestGitLabPublisher:
             project="bar",
             namespace="foo",
             workflow_filepath="workflows/baz.yml",
+            issuer_url="https://gitlab.com",
         )
 
         check = gitlab.GitLabPublisher.__required_verifiable_claims__[
@@ -844,6 +857,7 @@ class TestGitLabPublisher:
             namespace=namespace,
             workflow_filepath="workflow_filename.yml",
             environment="",
+            issuer_url="https://gitlab.com",
         )
         assert publisher.verify_url(url) == expected
 
@@ -854,6 +868,7 @@ class TestGitLabPublisher:
             namespace="group/subgroup",
             workflow_filepath="workflow_filename.yml",
             environment=environment,
+            issuer_url="https://gitlab.com",
         )
 
         identity = publisher.attestation_identity
