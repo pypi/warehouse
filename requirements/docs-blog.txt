@@ -387,9 +387,9 @@ mkdocs-material-extensions==1.3.1 \
     --hash=sha256:10c9511cea88f568257f960358a467d12b970e1f7b2c0e5fb2bb48cab1928443 \
     --hash=sha256:adff8b62700b25cb77b53358dad940f3ef973dd6db797907c49e3c2ef3ab4e31
     # via mkdocs-material
-mkdocs-rss-plugin==1.17.3 \
-    --hash=sha256:0a5b3e03dd68cc6b94feb50fc2e47fd427d39c452affe0fc3135289da9810a6d \
-    --hash=sha256:15b99c6b3370f50503fe189e814600b375e5a0d8f99d19f6d8d9b80c1aa56f5c
+mkdocs-rss-plugin==1.17.4 \
+    --hash=sha256:c05fdb5a63fdf396f8d05169e45a08388abc3eb6f55ca4d23682039aad0cce50 \
+    --hash=sha256:cfd42d250cbf7a73b006cbe291eedb29d32d4d8bf803f7da0e7a98bedcda2ac3
     # via -r requirements/docs-blog.in
 msgpack==1.1.1 \
     --hash=sha256:196a736f0526a03653d829d7d4c5500a97eea3648aebfd4b6743875f28aa2af8 \
