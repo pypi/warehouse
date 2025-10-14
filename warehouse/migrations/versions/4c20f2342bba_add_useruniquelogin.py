@@ -3,7 +3,7 @@
 Refactor UserUniqueLogin to use mapped_column
 
 Revision ID: 4c20f2342bba
-Revises: a6994b8bed95
+Revises: daf71d83673f
 Create Date: 2025-07-29 00:55:39.682180
 """
 
@@ -13,7 +13,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "4c20f2342bba"
-down_revision = "a6994b8bed95"
+down_revision = "daf71d83673f"
 
 
 def upgrade():
