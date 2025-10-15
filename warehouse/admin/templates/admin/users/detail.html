@@ -990,6 +990,41 @@
 
       <div class="card">
         <div class="card-header with-border">
+          <h3 class="card-title">Unique logins</h3>
+        </div>
+
+        <div class="card-body">
+          {% if user.unique_logins %}
+          <div class="table-responsive p-0">
+            <table class="table table-hover" id="pending-oidc-publishers">
+              <thead>
+                <tr>
+                  <th scope="col">Created</th>
+                  <th scope="col">IP address</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Device Information</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for login in user.unique_logins %}
+                <tr>
+                  <td>{{ login.created }}</td>
+                  <td>{{ login.ip_address }}</td>
+                  <td>{{ login.status.value }}</td>
+                  <td>{{ login.device_information }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          No known logins.
+          {% endif %}
+        </div>
+      </div> <!-- .card -->
+
+      <div class="card">
+        <div class="card-header with-border">
           <h3 class="card-title">Account activity</h3>
         </div>
         <div class="card-body">
