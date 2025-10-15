@@ -16,7 +16,9 @@ SignedClaims = NewType("SignedClaims", dict[str, Any])  # TODO: narrow this down
 
 
 class IOIDCPublisherService(Interface):
-    def verify_jwt_signature(unverified_token: str) -> SignedClaims | None:
+    def verify_jwt_signature(
+        unverified_token: str, issuer_url: str
+    ) -> SignedClaims | None:
         """
         Verify the given JWT's signature, returning its signed claims if
         valid. If the signature is invalid, `None` is returned.
