@@ -444,6 +444,12 @@ class TestGitHubPublisher:
             pretend.stub(),
             publisher_service=publisher_service,
         )
+        assert metrics.increment.calls == [
+            pretend.call(
+                "warehouse.oidc.claim",
+                tags=["publisher:GitHub", "event_name:pull_request_target"],
+            ),
+        ]
 
     @pytest.mark.parametrize(
         ("claim", "ref", "sha", "valid", "expected"),
