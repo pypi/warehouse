@@ -291,7 +291,7 @@ Attestation object verification is described at a high level in :pep:`740`.
   Users are **strongly discouraged** from implementing the steps below in an
   ad-hoc manner, since they involve error-prone X.509 and transparency log
   operations. Instead, we **strongly encourage** integrators to use
-  either `pypi-attestation-models`_ or `sigstore-python`_'s pre-existing APIs
+  either `pypi-attestations`_ or `sigstore-python`_'s pre-existing APIs
   for attestation manipulation, signing, and verification.
 
 Using the details above, we can provide the steps with slightly more accuracy:
@@ -343,6 +343,6 @@ and any operations on its associated distribution should halt.
 
 .. _`DSSE PAE encoding`: https://github.com/secure-systems-lab/dsse/blob/v1.0.0/protocol.md
 
-.. _`pypi-attestation-models`: https://github.com/trailofbits/pypi-attestation-models
+.. _`pypi-attestations`: https://github.com/pypi/pypi-attestations
 
 .. _`sigstore-python`: https://github.com/sigstore/sigstore-python
