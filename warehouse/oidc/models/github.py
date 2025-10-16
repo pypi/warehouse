@@ -152,6 +152,18 @@ def _check_sub(
     return f"{org}:{repo}".lower() == ground_truth.lower()
 
 
+def _check_event_name(
+    ground_truth: str, signed_claim: str, _all_signed_claims: SignedClaims, **_kwawrgs
+) -> bool:
+    if signed_claim == "pull_request_target":
+        raise InvalidPublisherError(
+            "Publishing from a workflow invoked via 'pull_request_target' is "
+            "not supported."
+        )
+    else:
+        return True
+
+
 class GitHubPublisherMixin:
     """
     Common functionality for both pending and concrete GitHub OIDC publishers.
@@ -170,6 +182,7 @@ class GitHubPublisherMixin:
         "repository_owner_id": check_claim_binary(str.__eq__),
         "job_workflow_ref": _check_job_workflow_ref,
         "jti": check_existing_jti,
+        "event_name": _check_event_name,
     }
 
     __required_unverifiable_claims__: set[str] = {"ref", "sha"}
@@ -186,7 +199,6 @@ class GitHubPublisherMixin:
         "run_attempt",
         "head_ref",
         "base_ref",
-        "event_name",
         "ref_type",
         "repository_id",
         "workflow",
@@ -273,6 +285,11 @@ class GitHubPublisherMixin:
     @property
     def jti(self) -> str:
         """Placeholder value for JTI."""
+        return "placeholder"
+
+    @property
+    def event_name(self) -> str:
+        """Placeholder value for event_name (not used)"""
         return "placeholder"
 
     def publisher_url(self, claims: SignedClaims | None = None) -> str:
