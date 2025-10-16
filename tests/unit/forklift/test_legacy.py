@@ -15,12 +15,12 @@ from textwrap import dedent
 from unittest import mock
 
 import pretend
+import psycopg
 import pytest
 
 from pypi_attestations import Attestation, Envelope, VerificationMaterial
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPTooManyRequests
 from sqlalchemy import and_, exists
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
 from trove_classifiers import classifiers
 from webob.multidict import MultiDict
@@ -4789,7 +4789,7 @@ class TestFileUpload:
     @pytest.mark.parametrize("parent_classifier", ["private", "Private", "PrIvAtE"])
     def test_private_classifiers_cannot_be_created(self, db_request, parent_classifier):
         db_request.db.add(Classifier(classifier=f"{parent_classifier} :: Foo"))
-        with pytest.raises(IntegrityError):
+        with pytest.raises(psycopg.errors.CheckViolation):
             db_request.db.commit()
 
     def test_equivalent_version_one_release(self, pyramid_config, db_request):
