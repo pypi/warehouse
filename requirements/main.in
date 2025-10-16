@@ -63,7 +63,7 @@ requests-aws4auth
 redis>=2.8.0,<6.0.0
 rfc3986
 sentry-sdk
-pypi-attestations==0.0.27
+pypi-attestations==0.0.28
 sqlalchemy[asyncio]>=2.0,<3.0
 stdlib-list
 stripe
