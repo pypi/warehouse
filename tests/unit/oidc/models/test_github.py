@@ -338,7 +338,7 @@ class TestGitHubPublisher:
         ]
         assert scope.fingerprint == [missing]
 
-    def test_github_publisher_missing_optional_claims(self, monkeypatch):
+    def test_github_publisher_missing_optional_claims(self, metrics, monkeypatch):
         publisher = github.GitHubPublisher(
             repository_name="fakerepo",
             repository_owner="fakeowner",
@@ -352,6 +352,7 @@ class TestGitHubPublisher:
 
         service_ = pretend.stub(
             jwt_identifier_exists=pretend.call_recorder(lambda s: False),
+            metrics=metrics,
         )
 
         signed_claims = {
@@ -432,6 +433,17 @@ class TestGitHubPublisher:
     def test_check_repository(self, truth, claim, valid):
         check = github.GitHubPublisher.__required_verifiable_claims__["repository"]
         assert check(truth, claim, pretend.stub()) == valid
+
+    def test_check_event_name_emits_metrics(self, metrics):
+        check = github.GitHubPublisher.__required_verifiable_claims__["event_name"]
+        publisher_service = pretend.stub(metrics=metrics)
+
+        assert check(
+            "throwaway",
+            "pull_request_target",
+            pretend.stub(),
+            publisher_service=publisher_service,
+        )
 
     @pytest.mark.parametrize(
         ("claim", "ref", "sha", "valid", "expected"),

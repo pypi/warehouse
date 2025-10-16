@@ -28,6 +28,8 @@ from warehouse.oidc.urls import verify_url_from_reference
 if typing.TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
+    from warehouse.oidc.services import OIDCPublisherService
+
 GITHUB_OIDC_ISSUER_URL = "https://token.actions.githubusercontent.com"
 
 # This expression matches the workflow filename component of a GitHub
@@ -152,6 +154,18 @@ def _check_sub(
     return f"{org}:{repo}".lower() == ground_truth.lower()
 
 
+def _check_event_name(
+    ground_truth: str, signed_claim: str, _all_signed_claims: SignedClaims, **kwargs
+) -> bool:
+    # Log the event name
+    publisher_service: OIDCPublisherService = kwargs["publisher_service"]
+    publisher_service.metrics.increment(
+        "warehouse.oidc.claim", tags=["publisher:GitHub", f"event_name:{signed_claim}"]
+    )
+    # Always permit all event names for now
+    return True
+
+
 class GitHubPublisherMixin:
     """
     Common functionality for both pending and concrete GitHub OIDC publishers.
@@ -170,6 +184,7 @@ class GitHubPublisherMixin:
         "repository_owner_id": check_claim_binary(str.__eq__),
         "job_workflow_ref": _check_job_workflow_ref,
         "jti": check_existing_jti,
+        "event_name": _check_event_name,
     }
 
     __required_unverifiable_claims__: set[str] = {"ref", "sha"}
@@ -186,7 +201,6 @@ class GitHubPublisherMixin:
         "run_attempt",
         "head_ref",
         "base_ref",
-        "event_name",
         "ref_type",
         "repository_id",
         "workflow",
@@ -273,6 +287,11 @@ class GitHubPublisherMixin:
     @property
     def jti(self) -> str:
         """Placeholder value for JTI."""
+        return "placeholder"
+
+    @property
+    def event_name(self) -> str:
+        """Placeholder value for event_name (not used)"""
         return "placeholder"
 
     def publisher_url(self, claims: SignedClaims | None = None) -> str:
