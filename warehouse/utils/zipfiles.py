@@ -121,7 +121,7 @@ def _handle_local_file_header(
             try:
                 unicode_name.decode("utf-8")
             except UnicodeError:
-                raise InvalidZipFileError("Filename not unicode")
+                raise InvalidZipFileError("Filename not valid UTF-8")
 
         extra = extra[extra_data_size + 4 :]
 
@@ -233,7 +233,7 @@ def validate_zipfile(zip_filepath: str) -> tuple[bool, str | None]:
     try:
         zfp = zipfile.ZipFile(zip_filepath, mode="r")
         # Store compression sizes from the CD for use later.
-        zipfile_files = {zfi.filename: zfi.compress_size for zfi in zfp.filelist}
+        zipfile_files = {zfi.orig_filename: zfi.compress_size for zfi in zfp.filelist}
     except zipfile.BadZipfile as e:
         return False, e.args[0]
 
@@ -330,11 +330,17 @@ def validate_zipfile(zip_filepath: str) -> tuple[bool, str | None]:
                         eocd_cd_records, eocd_cd_size, eocd_cd_offset = _handle_eocd(fp)
 
                     if eocd_cd_records != cd_records:
-                        raise InvalidZipFileError("Malformed zip file")
+                        raise InvalidZipFileError(
+                            "Mismatched central directory records"
+                        )
                     if cd_offset is None or eocd_cd_offset != cd_offset:
-                        raise InvalidZipFileError("Malformed zip file")
-                    if cd_size is None or eocd_cd_size != cd_size:
-                        raise InvalidZipFileError("Malformed zip file")
+                        raise InvalidZipFileError("Mismatched central directory offset")
+                    # This branch is tough to cover, as CPython's ZIP archive
+                    # implementation already doesn't like mismatches between size
+                    # and offset of the CD.
+                    if cd_size is None or eocd_cd_size != cd_size:  # pragma: no cover
+                        raise InvalidZipFileError("Mismatched central directory size")
+
                     break  # This always means the end of a ZIP.
 
                 # End of Central Directory (ZIP64)

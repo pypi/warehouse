@@ -4,6 +4,7 @@ import io
 import os
 import pathlib
 import struct
+import tempfile
 
 import pytest
 
@@ -179,3 +180,168 @@ def test_local_file_invalid_filename_in_unicode_extra():
     with pytest.raises(zipfiles.InvalidZipFileError) as e:
         zipfiles._handle_local_file_header(fp, {"a": 0})
     assert str(e.value) == "Invalid character in filename"
+
+
+def test_local_file_invalid_filename_utf8():
+    extra = struct.pack("<HHxxxxx", 0x7075, 6) + b"\xf7"
+    header = struct.pack("<xxHHxxxxxxxxLxxxxHH", 0, 0, 0, 1, len(extra))
+    fp = io.BytesIO(header + b"a" + extra)
+    with pytest.raises(zipfiles.InvalidZipFileError) as e:
+        zipfiles._handle_local_file_header(fp, {"a": 0})
+    assert str(e.value) == "Filename not valid UTF-8"
+
+
+def test_local_file_multiple_extras():
+    extras = struct.pack("<HH", 0x7075, 1) + b"a" + struct.pack("<HHxxxx", 0x0002, 4)
+    header = struct.pack("<xxHHxxxxxxxxLxxxxHH", 0, 0, 0, 1, len(extras))
+    fp = io.BytesIO(header + b"a" + extras)
+    filename = zipfiles._handle_local_file_header(fp, {"a": 0})
+    assert filename == b"a"
+
+
+def test_cd_with_comment_rejected():
+    data = struct.pack("<xxxxxxxxxxxxxxxxLxxxxHHHxxxxxxxxL", 0, 1, 0, 1, 0)
+    fp = io.BytesIO(data)
+    with pytest.raises(zipfiles.InvalidZipFileError) as e:
+        zipfiles._handle_central_directory_header(fp)
+    assert str(e.value) == "Comment in central directory"
+
+
+def test_cd_with_invalid_filename():
+    data = struct.pack("<xxxxxxxxxxxxxxxxLxxxxHHHxxxxxxxxL", 0, 1, 0, 0, 0) + b"\x00"
+    fp = io.BytesIO(data)
+    with pytest.raises(zipfiles.InvalidZipFileError) as e:
+        zipfiles._handle_central_directory_header(fp)
+    assert str(e.value) == "Invalid character in filename"
+
+
+def test_eocd_mismatched_records_on_disk():
+    data = struct.pack("<xxxxHHLLH", 100, 1, 0, 0, 0)
+    fp = io.BytesIO(data)
+    with pytest.raises(zipfiles.InvalidZipFileError) as e:
+        zipfiles._handle_eocd(fp)
+    assert str(e.value) == "Malformed zip file"
+
+
+def test_eocd64_mismatched_records_on_disk():
+    data = struct.pack("<QxxxxxxxxxxxxQQQQ", 0, 100, 1, 0, 0)
+    fp = io.BytesIO(data)
+    with pytest.raises(zipfiles.InvalidZipFileError) as e:
+        zipfiles._handle_eocd64(fp)
+    assert str(e.value) == "Malformed zip file"
+
+
+def test_cd_and_eocd_match():
+    data_lf = (
+        zipfiles.RECORD_SIG_LOCAL_FILE
+        + struct.pack("<xxHHHxxxxxxLxxxxHH", 0, 0, 20, 0, 1, 0)
+        + b"a"
+    )
+    data_cd = (
+        zipfiles.RECORD_SIG_CENTRAL_DIRECTORY
+        + struct.pack("<HHxxxxxxxxxxxxLxxxxHHHxxxxxxxxL", 20, 20, 0, 1, 0, 0, 0)
+        + b"a"
+    )
+    cd_records = 1
+    cd_offset = len(data_lf)
+    cd_size = len(data_cd)
+    data_eocd = zipfiles.RECORD_SIG_EOCD + struct.pack(
+        "<xxxxHHLLH", cd_records, cd_records, cd_size, cd_offset, 0
+    )
+    data = data_lf + data_cd + data_eocd
+    with tempfile.NamedTemporaryFile(mode="wb") as tmp:
+        tmp.write(data)
+        tmp.flush()
+        assert (True, None) == zipfiles.validate_zipfile(tmp.name)
+
+
+@pytest.mark.parametrize(
+    ("cd_records", "error"),
+    [
+        (0, "Mismatched central directory records"),
+        (2, "Mismatched central directory records"),
+    ],
+)
+def test_cd_and_eocd_mismatch_records(cd_records, error):
+    data_lf = (
+        zipfiles.RECORD_SIG_LOCAL_FILE
+        + struct.pack("<xxHHHxxxxxxLxxxxHH", 0, 0, 20, 0, 1, 0)
+        + b"a"
+    )
+    data_cd = (
+        zipfiles.RECORD_SIG_CENTRAL_DIRECTORY
+        + struct.pack("<HHxxxxxxxxxxxxLxxxxHHHxxxxxxxxL", 20, 20, 0, 1, 0, 0, 0)
+        + b"a"
+    )
+    cd_offset = len(data_lf)
+    cd_size = len(data_cd)
+    data_eocd = zipfiles.RECORD_SIG_EOCD + struct.pack(
+        "<xxxxHHLLH", cd_records, cd_records, cd_size, cd_offset, 0
+    )
+    data = data_lf + data_cd + data_eocd
+    with tempfile.NamedTemporaryFile(mode="wb") as tmp:
+        tmp.write(data)
+        tmp.flush()
+        assert (False, error) == zipfiles.validate_zipfile(tmp.name)
+
+
+@pytest.mark.parametrize(
+    ("cd_offset_diff", "error"),
+    [
+        (-1, "Mismatched central directory offset"),
+        (1, "Mismatched central directory offset"),
+    ],
+)
+def test_cd_and_eocd_mismatch_offset(cd_offset_diff, error):
+    data_lf = (
+        zipfiles.RECORD_SIG_LOCAL_FILE
+        + struct.pack("<xxHHHxxxxxxLxxxxHH", 0, 0, 20, 0, 1, 0)
+        + b"a"
+    )
+    data_cd = (
+        zipfiles.RECORD_SIG_CENTRAL_DIRECTORY
+        + struct.pack("<HHxxxxxxxxxxxxLxxxxHHHxxxxxxxxL", 20, 20, 0, 1, 0, 0, 0)
+        + b"a"
+    )
+    cd_records = 1
+    cd_offset = len(data_lf) + cd_offset_diff
+    cd_size = len(data_cd)
+    data_eocd = zipfiles.RECORD_SIG_EOCD + struct.pack(
+        "<xxxxHHLLH", cd_records, cd_records, cd_size, cd_offset, 0
+    )
+    data = data_lf + data_cd + data_eocd
+    with tempfile.NamedTemporaryFile(mode="wb") as tmp:
+        tmp.write(data)
+        tmp.flush()
+        assert (False, error) == zipfiles.validate_zipfile(tmp.name)
+
+
+@pytest.mark.parametrize(
+    ("cd_size_diff", "error"),
+    [
+        (-1, "Bad magic number for central directory"),
+        (1, "Bad magic number for central directory"),
+    ],
+)
+def test_cd_and_eocd_mismatch_size(cd_size_diff, error):
+    data_lf = (
+        zipfiles.RECORD_SIG_LOCAL_FILE
+        + struct.pack("<xxHHHxxxxxxLxxxxHH", 0, 0, 20, 0, 1, 0)
+        + b"a"
+    )
+    data_cd = (
+        zipfiles.RECORD_SIG_CENTRAL_DIRECTORY
+        + struct.pack("<HHxxxxxxxxxxxxLxxxxHHHxxxxxxxxL", 20, 20, 0, 1, 0, 0, 0)
+        + b"a"
+    )
+    cd_records = 1
+    cd_offset = len(data_lf)
+    cd_size = len(data_cd) + cd_size_diff
+    data_eocd = zipfiles.RECORD_SIG_EOCD + struct.pack(
+        "<xxxxHHLLH", cd_records, cd_records, cd_size, cd_offset, 0
+    )
+    data = data_lf + data_cd + data_eocd
+    with tempfile.NamedTemporaryFile(mode="wb") as tmp:
+        tmp.write(data)
+        tmp.flush()
+        assert (False, error) == zipfiles.validate_zipfile(tmp.name)
