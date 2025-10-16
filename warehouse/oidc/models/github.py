@@ -139,6 +139,18 @@ def _check_event_name(
     return True
 
 
+def _check_event_name(
+    ground_truth: str, signed_claim: str, _all_signed_claims: SignedClaims, **_kwawrgs
+) -> bool:
+    if signed_claim == "pull_request_target":
+        raise InvalidPublisherError(
+            "Publishing from a workflow invoked via 'pull_request_target' is "
+            "not supported."
+        )
+    else:
+        return True
+
+
 class GitHubPublisherMixin:
     """
     Common functionality for both pending and concrete GitHub OIDC publishers.
