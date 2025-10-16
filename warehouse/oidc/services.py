@@ -121,7 +121,7 @@ class OIDCPublisherService:
         self.cache_url = cache_url
         self.metrics = metrics
 
-        self._publisher_jwk_key = f"/warehouse/oidc/jwks/{self.publisher}"
+        self._publisher_jwk_key = f"/warehouse/oidc/jwks/{self.issuer_url}"
         self._publisher_timeout_key = f"{self._publisher_jwk_key}/timeout"
 
     def _store_keyset(self, keys: dict) -> None:
@@ -164,7 +164,7 @@ class OIDCPublisherService:
         if timeout:
             self.metrics.increment(
                 "warehouse.oidc.refresh_keyset.timeout",
-                tags=[f"publisher:{self.publisher}"],
+                tags=[f"publisher:{self.publisher}", f"issuer_url:{self.issuer_url}"],
             )
             return keys
 
@@ -235,7 +235,11 @@ class OIDCPublisherService:
         if key_id not in keyset:
             self.metrics.increment(
                 "warehouse.oidc.get_key.error",
-                tags=[f"publisher:{self.publisher}", f"key_id:{key_id}"],
+                tags=[
+                    f"publisher:{self.publisher}",
+                    f"key_id:{key_id}",
+                    f"issuer_url:{self.issuer_url}",
+                ],
             )
             return None
         return jwt.PyJWK(keyset[key_id])
@@ -255,7 +259,7 @@ class OIDCPublisherService:
         Check if a JWT Token Identifier has already been used.
         """
         with redis.StrictRedis.from_url(self.cache_url) as r:
-            return bool(r.exists(f"/warehouse/oidc/{self.publisher}/{jti}"))
+            return bool(r.exists(f"/warehouse/oidc/{self.issuer_url}/{jti}"))
 
     def store_jwt_identifier(self, jti: str, expiration: int) -> None:
         """
@@ -266,7 +270,7 @@ class OIDCPublisherService:
             # the token expiration date. Thus, the lock will not be
             # released before the token invalidation.
             r.set(
-                f"/warehouse/oidc/{self.publisher}/{jti}",
+                f"/warehouse/oidc/{self.issuer_url}/{jti}",
                 exat=expiration + 5,
                 value="",  # empty value to lower memory usage
                 nx=True,
@@ -280,7 +284,7 @@ class OIDCPublisherService:
             # with missing components.
             self.metrics.increment(
                 "warehouse.oidc.verify_jwt_signature.malformed_jwt",
-                tags=[f"publisher:{self.publisher}"],
+                tags=[f"publisher:{self.publisher}", f"issuer_url:{self.issuer_url}"],
             )
             return None
 
@@ -315,7 +319,7 @@ class OIDCPublisherService:
         except Exception as e:
             self.metrics.increment(
                 "warehouse.oidc.verify_jwt_signature.invalid_signature",
-                tags=[f"publisher:{self.publisher}"],
+                tags=[f"publisher:{self.publisher}", f"issuer_url:{self.issuer_url}"],
             )
             if not isinstance(e, jwt.PyJWTError):
                 with sentry_sdk.new_scope() as scope:
@@ -330,7 +334,7 @@ class OIDCPublisherService:
         self, signed_claims: SignedClaims, *, pending: bool = False
     ) -> OIDCPublisher | PendingOIDCPublisher:
         """Returns a publisher for the given claims, or raises an error."""
-        metrics_tags = [f"publisher:{self.publisher}"]
+        metrics_tags = [f"publisher:{self.publisher}", f"issuer_url:{self.issuer_url}"]
         self.metrics.increment(
             "warehouse.oidc.find_publisher.attempt",
             tags=metrics_tags,

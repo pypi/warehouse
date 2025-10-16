@@ -1264,11 +1264,14 @@ def verify_project_role(request):
     if user != request.user:
         return _error(request._("Role invitation is not valid."))
 
-    project = (
-        request.db.query(Project).filter(Project.id == data.get("project_id")).one()
-    )
-    desired_role = data.get("desired_role")
+    try:
+        project = (
+            request.db.query(Project).filter(Project.id == data.get("project_id")).one()
+        )
+    except NoResultFound:
+        return _error(request._("Invalid token: project does not exist"))
 
+    desired_role = data.get("desired_role")
     role_invite = (
         request.db.query(RoleInvitation)
         .filter(RoleInvitation.project == project)
