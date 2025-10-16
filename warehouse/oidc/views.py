@@ -162,13 +162,16 @@ def mint_token_from_oidc(request: Request):
         IOIDCPublisherService, name=service_name
     )
 
-    return mint_token(oidc_service, unverified_jwt, request)
+    return mint_token(oidc_service, unverified_jwt, unverified_issuer, request)
 
 
 def mint_token(
-    oidc_service: OIDCPublisherService, unverified_jwt: str, request: Request
+    oidc_service: OIDCPublisherService,
+    unverified_jwt: str,
+    unverified_issuer: str,
+    request: Request,
 ) -> JsonResponse:
-    claims = oidc_service.verify_jwt_signature(unverified_jwt)
+    claims = oidc_service.verify_jwt_signature(unverified_jwt, unverified_issuer)
     if not claims:
         return _invalid(
             errors=[

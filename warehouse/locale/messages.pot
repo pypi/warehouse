@@ -306,7 +306,7 @@ msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
 #: warehouse/accounts/views.py:1673 warehouse/accounts/views.py:1927
-#: warehouse/manage/views/oidc_publishers.py:120
+#: warehouse/manage/views/oidc_publishers.py:121
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help"
 "#admin-intervention for details."
@@ -327,20 +327,20 @@ msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
 #: warehouse/accounts/views.py:1738
-#: warehouse/manage/views/oidc_publishers.py:302
-#: warehouse/manage/views/oidc_publishers.py:417
-#: warehouse/manage/views/oidc_publishers.py:531
-#: warehouse/manage/views/oidc_publishers.py:643
+#: warehouse/manage/views/oidc_publishers.py:303
+#: warehouse/manage/views/oidc_publishers.py:418
+#: warehouse/manage/views/oidc_publishers.py:534
+#: warehouse/manage/views/oidc_publishers.py:646
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
 msgstr ""
 
 #: warehouse/accounts/views.py:1748
-#: warehouse/manage/views/oidc_publishers.py:315
-#: warehouse/manage/views/oidc_publishers.py:430
-#: warehouse/manage/views/oidc_publishers.py:544
-#: warehouse/manage/views/oidc_publishers.py:656
+#: warehouse/manage/views/oidc_publishers.py:316
+#: warehouse/manage/views/oidc_publishers.py:431
+#: warehouse/manage/views/oidc_publishers.py:547
+#: warehouse/manage/views/oidc_publishers.py:659
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
@@ -624,29 +624,29 @@ msgstr ""
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views/oidc_publishers.py:169
+#: warehouse/manage/views/oidc_publishers.py:170
 msgid "The trusted publisher could not be constrained"
 msgstr ""
 
-#: warehouse/manage/views/oidc_publishers.py:283
+#: warehouse/manage/views/oidc_publishers.py:284
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See "
 "https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/oidc_publishers.py:398
+#: warehouse/manage/views/oidc_publishers.py:399
 msgid ""
 "GitLab-based trusted publishing is temporarily disabled. See "
 "https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/oidc_publishers.py:512
+#: warehouse/manage/views/oidc_publishers.py:515
 msgid ""
 "Google-based trusted publishing is temporarily disabled. See "
 "https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/oidc_publishers.py:623
+#: warehouse/manage/views/oidc_publishers.py:626
 msgid ""
 "ActiveState-based trusted publishing is temporarily disabled. See "
 "https://pypi.org/help#admin-intervention for details."
