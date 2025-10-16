@@ -433,6 +433,18 @@ class TestGitHubPublisher:
         check = github.GitHubPublisher.__required_verifiable_claims__["repository"]
         assert check(truth, claim, pretend.stub()) == valid
 
+    def test_check_event_name_invalid(self):
+        check = github.GitHubPublisher.__required_verifiable_claims__["event_name"]
+
+        with pytest.raises(
+            errors.InvalidPublisherError,
+            match=(
+                "Publishing from a workflow invoked via 'pull_request_target' "
+                "is not supported."
+            ),
+        ):
+            check("throwaway", "pull_request_target", pretend.stub())
+
     @pytest.mark.parametrize(
         ("claim", "ref", "sha", "valid", "expected"),
         [
