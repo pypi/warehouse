@@ -231,11 +231,11 @@ Before uploading attestations to the index, please:
 
 [official workflows described above]: #the-easy-way
 
-[pypi-attestations]: https://github.com/trailofbits/pypi-attestations
+[pypi-attestations]: https://github.com/pypi/pypi-attestations
 
 [ambient identity]: https://github.com/sigstore/sigstore-python#signing-with-ambient-credentials
 
-[pypi-attestations' documentation]: https://trailofbits.github.io/pypi-attestations/pypi_attestations.html
+[pypi-attestations' documentation]: https://pypi.github.io/pypi-attestations/pypi_attestations.html
 
 [Sigstore bundles]: https://github.com/sigstore/protobuf-specs/blob/main/protos/sigstore_bundle.proto
 
