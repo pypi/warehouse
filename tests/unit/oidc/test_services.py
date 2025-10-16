@@ -672,8 +672,11 @@ class TestOIDCPublisherService:
         monkeypatch.setattr(service, "_get_keyset", lambda issuer_url=None: ({}, False))
         monkeypatch.setattr(service, "_refresh_keyset", lambda issuer_url=None: {})
 
-        key = service._get_key("fake-key-id", "https://example.com")
-        assert key is None
+        with pytest.raises(
+            jwt.PyJWTError,
+            match=r"Key ID 'fake-key-id' not found for issuer 'https://example.com'",
+        ):
+            service._get_key("fake-key-id", "https://example.com")
 
         assert metrics.increment.calls == [
             pretend.call(

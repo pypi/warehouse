@@ -227,7 +227,7 @@ class OIDCPublisherService:
 
         return keys
 
-    def _get_key(self, key_id: str, issuer_url: str) -> jwt.PyJWK | None:
+    def _get_key(self, key_id: str, issuer_url: str) -> jwt.PyJWK:
         """
         Return a JWK for the given key ID, or None if the key can't be found
         in this publisher's keyset.
@@ -245,10 +245,12 @@ class OIDCPublisherService:
                     f"issuer_url:{self.issuer_url}",
                 ],
             )
-            return None
+            raise jwt.PyJWTError(
+                f"Key ID {key_id!r} not found for issuer {issuer_url!r}"
+            )
         return jwt.PyJWK(keyset[key_id])
 
-    def _get_key_for_token(self, token, issuer_url: str) -> jwt.PyJWK | None:
+    def _get_key_for_token(self, token, issuer_url: str) -> jwt.PyJWK:
         """
         Return a JWK suitable for verifying the given JWT.
 
