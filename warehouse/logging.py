@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging.config
-import os
 import threading
 import uuid
 
@@ -37,24 +36,6 @@ def _create_id(request):
     return str(uuid.uuid4())
 
 
-def _add_datadog_context(logger, method_name, event_dict):
-    """Add Datadog trace context if available"""
-    try:
-        import ddtrace
-
-        span = ddtrace.tracer.current_span()
-        if span:
-            event_dict["dd.trace_id"] = str(span.trace_id)
-            event_dict["dd.span_id"] = str(span.span_id)
-            event_dict["dd.service"] = span.service
-        # deployment metadata
-        event_dict["dd.env"] = os.environ.get("DD_ENV", "development")
-        event_dict["dd.version"] = os.environ.get("DD_VERSION", "unknown")
-    except (ImportError, AttributeError):
-        pass
-    return event_dict
-
-
 def configure_celery_logging(logfile: str | None = None, loglevel: int = logging.INFO):
     """Configure unified structlog logging for Celery that handles all log types."""
     processors = [
@@ -63,7 +44,6 @@ def configure_celery_logging(logfile: str | None = None, loglevel: int = logging
         structlog.stdlib.add_log_level,
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
-        _add_datadog_context,
     ]
     formatter = structlog.stdlib.ProcessorFormatter(
         processor=RENDERER,
@@ -144,7 +124,6 @@ def includeme(config):
             structlog.processors.TimeStamper(fmt="iso"),
             structlog.processors.StackInfoRenderer(),
             structlog.processors.format_exc_info,
-            _add_datadog_context,
             RENDERER,
         ],
         logger_factory=structlog.stdlib.LoggerFactory(),

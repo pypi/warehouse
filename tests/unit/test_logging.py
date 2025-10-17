@@ -123,7 +123,6 @@ def test_includeme(monkeypatch, settings, expected_level):
                 mock.ANY,  # TimeStamper
                 mock.ANY,  # StackInfoRenderer
                 structlog.processors.format_exc_info,
-                mock.ANY,  # _add_datadog_context
                 wlogging.RENDERER,
             ],
             logger_factory=mock.ANY,
@@ -144,8 +143,6 @@ def test_includeme(monkeypatch, settings, expected_level):
         configure.calls[0].kwargs["processors"][5],
         structlog.processors.StackInfoRenderer,
     )
-    # _add_datadog_context #18843
-    assert configure.calls[0].kwargs["processors"][7] == wlogging._add_datadog_context
     assert isinstance(
         configure.calls[0].kwargs["logger_factory"], structlog.stdlib.LoggerFactory
     )
@@ -153,72 +150,6 @@ def test_includeme(monkeypatch, settings, expected_level):
         pretend.call(wlogging._create_id, name="id", reify=True),
         pretend.call(wlogging._create_logger, name="log", reify=True),
     ]
-
-
-def test_add_datadog_context(monkeypatch):
-    monkeypatch.setenv("DD_ENV", "production")
-    monkeypatch.setenv("DD_VERSION", "1.2.3")
-
-    event_dict = {"event": "test"}
-    result = wlogging._add_datadog_context(None, None, event_dict)
-
-    assert result["dd.env"] == "production"
-    assert result["dd.version"] == "1.2.3"
-
-
-def test_add_datadog_context_with_span(monkeypatch):
-    """Test Datadog context with an active span."""
-    import sys
-
-    mock_span = pretend.stub(trace_id=123, span_id=456, service="test-svc")
-    mock_tracer = pretend.stub(current_span=lambda: mock_span)
-    mock_ddtrace = pretend.stub(tracer=mock_tracer)
-
-    sys.modules["ddtrace"] = mock_ddtrace
-    monkeypatch.setenv("DD_ENV", "prod")
-    monkeypatch.setenv("DD_VERSION", "2.0")
-
-    try:
-        event_dict = {"event": "test"}
-        result = wlogging._add_datadog_context(None, None, event_dict)
-
-        assert result["dd.trace_id"] == "123"
-        assert result["dd.span_id"] == "456"
-        assert result["dd.service"] == "test-svc"
-    finally:
-        del sys.modules["ddtrace"]
-
-
-def test_add_datadog_context_no_ddtrace(monkeypatch):
-    """Test Datadog context when ddtrace is not available."""
-    import sys
-    import builtins
-
-    # Block ddtrace import
-    # we just want to simulate ddtrace beiung unavailable
-    # to make coverage happy :)
-    original_import = builtins.__import__
-
-    def mock_import(name, *args, **kwargs):
-        if name == "ddtrace":
-            raise ImportError("No module named 'ddtrace'")
-        return original_import(name, *args, **kwargs)
-
-    # Remove from sys.modules if present
-    if "ddtrace" in sys.modules:
-        del sys.modules["ddtrace"]
-
-    monkeypatch.setattr(builtins, "__import__", mock_import)
-
-    event_dict = {"event": "test"}
-    result = wlogging._add_datadog_context(None, None, event_dict)
-
-    # Should not have any dd fields when import fails
-    assert "dd.trace_id" not in result
-    assert "dd.span_id" not in result
-    assert "dd.service" not in result
-    assert "dd.env" not in result
-    assert "dd.version" not in result
 
 
 def test_configure_celery_logging(monkeypatch):
@@ -245,4 +176,3 @@ def test_configure_celery_logging(monkeypatch):
     # Verify processors
     processors = configure.calls[0].kwargs["processors"]
     assert structlog.contextvars.merge_contextvars in processors
-    assert wlogging._add_datadog_context in processors
