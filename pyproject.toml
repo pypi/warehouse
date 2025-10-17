@@ -94,7 +94,7 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 addopts = [
   "--disable-socket",
-  "--allow-hosts=localhost,::1,stripe,redis",
+  "--allow-hosts=localhost,::1,stripe,cache",
   "--durations=20",
   "--numprocesses=auto",
   # Disable ddtrace for tests
