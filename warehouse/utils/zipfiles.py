@@ -2,6 +2,7 @@
 
 import os
 import struct
+import sys
 import typing
 import zipfile
 
@@ -388,3 +389,21 @@ def validate_zipfile(zip_filepath: str) -> tuple[bool, str | None]:
             return False, "Trailing data"
 
     return True, None
+
+
+def main(argv) -> int:  # pragma: no cover
+    if len(argv) != 1:
+        print("Usage: python -m warehouse.utils.zipfiles <ZIP path>")
+        return 1
+    zip_filepath = argv[0]
+    zip_filename = os.path.basename(zip_filepath)
+    ok, error = validate_zipfile(zip_filepath)
+    if ok:
+        print(f"{zip_filename}: OK")
+    else:
+        print(f"{zip_filename}: {error}")
+    return 0 if ok else 1
+
+
+if __name__ == "__main__":  # pragma: no cover
+    sys.exit(main(sys.argv[1:]))
