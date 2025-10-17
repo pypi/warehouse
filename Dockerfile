@@ -3,7 +3,7 @@ ARG PYTHON_IMAGE_VERSION=3.13.8-slim-bookworm
 
 # First things first, we build an image which is where we're going to compile
 # our static assets with. We use this stage in development.
-FROM node:24.10.0-bookworm AS static-deps
+FROM node:25.0.0-bookworm AS static-deps
 
 WORKDIR /opt/warehouse/src/
 
