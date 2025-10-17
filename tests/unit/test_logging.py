@@ -89,8 +89,7 @@ class TestGunicornAccessLogParsing:
         fixes cov: 43 0 10 1 98%   lines57->63
         """
         access_log_line = (
-            "test-id - - "
-            '[10/Aug/2025:10:00:00 +0000] "INVALID" 400 0 "-" "agent"'
+            "test-id - - " '[10/Aug/2025:10:00:00 +0000] "INVALID" 400 0 "-" "agent"'
         )
         event_dict = {"logger": "gunicorn.access", "event": access_log_line}
 
