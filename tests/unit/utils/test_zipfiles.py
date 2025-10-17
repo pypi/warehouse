@@ -82,8 +82,8 @@ def test_bad_zips(filename, error):
 @pytest.mark.parametrize("filename", list(os.listdir(ZIPDATA_DIR / "accept")))
 def test_good_zips(filename):
     result = zipfiles.validate_zipfile(zippath(f"accept/{filename}"))
+    assert result[0] is True, f"Expected no error, got {result[1]!r}"
     assert result[1] is None
-    assert result[0] is True
 
 
 def test_local_file_header():
