@@ -181,6 +181,11 @@ class EventTag:
         TeamRoleAdd = "organization:team_role:add"
         TeamRoleRemove = "organization:team_role:remove"
 
+        OIDCPublisherAdded = "organization:oidc:publisher-added"
+        OIDCPublisherRemoved = "organization:oidc:publisher-removed"
+        PendingOIDCPublisherAdded = "organization:oidc:pending-publisher-added"
+        PendingOIDCPublisherRemoved = "organization:oidc:pending-publisher-removed"
+
     class Team(EventTagEnum):
         """Tags for Organization events.
 
