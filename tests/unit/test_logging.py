@@ -134,7 +134,6 @@ def test_includeme(monkeypatch, settings, expected_level):
         configure.calls[0].kwargs["processors"][3],
         structlog.stdlib.PositionalArgumentsFormatter,
     )
-    # timestamper #18843
     assert isinstance(
         configure.calls[0].kwargs["processors"][4],
         structlog.processors.TimeStamper,
