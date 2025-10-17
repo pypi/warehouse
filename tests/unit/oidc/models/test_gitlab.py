@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pretend
+import psycopg
 import pytest
-import sqlalchemy
 
 from tests.common.db.oidc import GitLabPublisherFactory, PendingGitLabPublisherFactory
 from warehouse.oidc import errors
@@ -710,7 +710,7 @@ class TestGitLabPublisher:
         )
         db_request.db.add(publisher2)
 
-        with pytest.raises(sqlalchemy.exc.IntegrityError):
+        with pytest.raises(psycopg.errors.UniqueViolation):
             db_request.db.commit()
 
     @pytest.mark.parametrize(

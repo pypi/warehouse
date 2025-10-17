@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import psycopg
 import pytest
 
 from sqlalchemy import sql
-from sqlalchemy.exc import IntegrityError
 
 from warehouse.ip_addresses.models import BanReason
 
@@ -46,5 +46,5 @@ class TestIpAddress:
         ],
     )
     def test_ban_data_constraint(self, db_request, kwargs):
-        with pytest.raises(IntegrityError):
+        with pytest.raises(psycopg.errors.CheckViolation):
             DBIpAddressFactory(**kwargs)

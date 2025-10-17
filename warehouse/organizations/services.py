@@ -2,8 +2,9 @@
 
 import datetime
 
+from psycopg.errors import UniqueViolation
 from sqlalchemy import delete, func, orm, select
-from sqlalchemy.exc import IntegrityError, NoResultFound
+from sqlalchemy.exc import NoResultFound
 from zope.interface import implementer
 
 from warehouse.accounts.models import TermsOfServiceEngagement, User
@@ -518,7 +519,7 @@ class DatabaseOrganizationService:
         try:
             self.db.flush()  # flush db now so organization.normalized_name available
             self.add_catalog_entry(organization_id)
-        except IntegrityError:
+        except UniqueViolation:
             raise ValueError(f'Organization name "{name}" has been used')
 
         return organization
