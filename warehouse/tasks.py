@@ -8,6 +8,7 @@ import logging
 import time
 import typing
 import urllib.parse
+import uuid
 
 import celery
 import celery.app.backends
@@ -139,6 +140,10 @@ class WarehouseTask(celery.Task):
             env["request"].remote_addr_hashed = hashlib.sha256(
                 ("127.0.0.1" + registry.settings["warehouse.ip_salt"]).encode("utf8")
             ).hexdigest()
+            request_id = str(uuid.uuid4())
+            env["request"].id = request_id
+            structlog.contextvars.bind_contextvars(**{"request.id": request_id})
+            env["request"].log = structlog.get_logger("warehouse.request")
             self.request.update(pyramid_env=env)
 
         return self.request.pyramid_env["request"]  # type: ignore[attr-defined]
