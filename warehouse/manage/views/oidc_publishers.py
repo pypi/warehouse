@@ -21,6 +21,7 @@ from warehouse.oidc.forms import (
 from warehouse.oidc.forms._core import ConstrainEnvironmentForm
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import (
+    GITLAB_OIDC_ISSUER_URL,
     ActiveStatePublisher,
     GitHubPublisher,
     GitLabPublisher,
@@ -451,6 +452,8 @@ class ManageOIDCPublisherViews:
                 project=form.project.data,
                 workflow_filepath=form.workflow_filepath.data,
                 environment=form.normalized_environment,
+                # TODO: Support custom issuers here
+                issuer_url=GITLAB_OIDC_ISSUER_URL,
             )
 
             self.request.db.add(publisher)

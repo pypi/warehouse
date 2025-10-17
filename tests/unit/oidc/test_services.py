@@ -59,10 +59,11 @@ class TestOIDCPublisherService:
         )
 
     def test_verify_jwt_signature(self, monkeypatch):
+        issuer_url = "https://example.com"
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher=pretend.stub(),
-            issuer_url=pretend.stub(),
+            issuer_url=issuer_url,
             audience="fakeaudience",
             cache_url=pretend.stub(),
             metrics=pretend.stub(),
@@ -72,12 +73,10 @@ class TestOIDCPublisherService:
         decoded = pretend.stub()
         jwt = pretend.stub(decode=pretend.call_recorder(lambda t, **kwargs: decoded))
         key = pretend.stub(key="fake-key")
-        monkeypatch.setattr(
-            service, "_get_key_for_token", pretend.call_recorder(lambda t: key)
-        )
+        monkeypatch.setattr(service, "_get_key_for_token", lambda t, i=issuer_url: key)
         monkeypatch.setattr(services, "jwt", jwt)
 
-        assert service.verify_jwt_signature(token) == decoded
+        assert service.verify_jwt_signature(token, issuer_url) == decoded
         assert jwt.decode.calls == [
             pretend.call(
                 token,
@@ -93,7 +92,7 @@ class TestOIDCPublisherService:
                     verify_nbf=True,
                     strict_aud=True,
                 ),
-                issuer=service.issuer_url,
+                issuer=issuer_url,
                 audience="fakeaudience",
                 leeway=30,
             )
@@ -103,7 +102,7 @@ class TestOIDCPublisherService:
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="fakepublisher",
-            issuer_url=pretend.stub(),
+            issuer_url="https://none",
             audience="fakeaudience",
             cache_url=pretend.stub(),
             metrics=metrics,
@@ -119,21 +118,22 @@ class TestOIDCPublisherService:
             pretend.call_recorder(lambda s: None),
         )
 
-        assert service.verify_jwt_signature(token) is None
+        assert service.verify_jwt_signature(token, "https://none") is None
         assert service.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.verify_jwt_signature.malformed_jwt",
-                tags=["publisher:fakepublisher"],
+                tags=["publisher:fakepublisher", "issuer_url:https://none"],
             )
         ]
         assert services.sentry_sdk.capture_message.calls == []
 
     @pytest.mark.parametrize("exc", [PyJWTError, TypeError("foo")])
     def test_verify_jwt_signature_fails(self, metrics, monkeypatch, exc):
+        issuer_url = "https://none"
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="fakepublisher",
-            issuer_url=pretend.stub(),
+            issuer_url=issuer_url,
             audience="fakeaudience",
             cache_url=pretend.stub(),
             metrics=metrics,
@@ -143,7 +143,9 @@ class TestOIDCPublisherService:
         jwt = pretend.stub(decode=pretend.raiser(exc), PyJWTError=PyJWTError)
         key = pretend.stub(key="fake-key")
         monkeypatch.setattr(
-            service, "_get_key_for_token", pretend.call_recorder(lambda t: key)
+            service,
+            "_get_key_for_token",
+            pretend.call_recorder(lambda t, i=issuer_url: key),
         )
         monkeypatch.setattr(services, "jwt", jwt)
         monkeypatch.setattr(
@@ -152,11 +154,11 @@ class TestOIDCPublisherService:
             pretend.call_recorder(lambda s: None),
         )
 
-        assert service.verify_jwt_signature(token) is None
+        assert service.verify_jwt_signature(token, issuer_url) is None
         assert service.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.verify_jwt_signature.invalid_signature",
-                tags=["publisher:fakepublisher"],
+                tags=["publisher:fakepublisher", "issuer_url:https://none"],
             )
         ]
 
@@ -168,16 +170,17 @@ class TestOIDCPublisherService:
             assert services.sentry_sdk.capture_message.calls == []
 
     def test_find_publisher(self, metrics, monkeypatch):
+        issuer_url = "https://none"
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="fakepublisher",
-            issuer_url=pretend.stub(),
+            issuer_url=issuer_url,
             audience="fakeaudience",
             cache_url=pretend.stub(),
             metrics=metrics,
         )
 
-        token = SignedClaims({})
+        token = SignedClaims({"iss": issuer_url})
 
         publisher = pretend.stub(verify_claims=pretend.call_recorder(lambda c, s: True))
         find_publisher_by_issuer = pretend.call_recorder(lambda *a, **kw: publisher)
@@ -189,19 +192,20 @@ class TestOIDCPublisherService:
         assert service.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.find_publisher.attempt",
-                tags=["publisher:fakepublisher"],
+                tags=["publisher:fakepublisher", "issuer_url:https://none"],
             ),
             pretend.call(
                 "warehouse.oidc.find_publisher.ok",
-                tags=["publisher:fakepublisher"],
+                tags=["publisher:fakepublisher", "issuer_url:https://none"],
             ),
         ]
 
     def test_find_publisher_issuer_lookup_fails(self, metrics, monkeypatch):
+        issuer_url = "https://none"
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="fakepublisher",
-            issuer_url=pretend.stub(),
+            issuer_url=issuer_url,
             audience="fakeaudience",
             cache_url=pretend.stub(),
             metrics=metrics,
@@ -212,25 +216,26 @@ class TestOIDCPublisherService:
             services, "find_publisher_by_issuer", find_publisher_by_issuer
         )
 
-        claims = pretend.stub()
+        claims = SignedClaims({"iss": issuer_url})
         with pytest.raises(errors.InvalidPublisherError):
             service.find_publisher(claims)
         assert service.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.find_publisher.attempt",
-                tags=["publisher:fakepublisher"],
+                tags=["publisher:fakepublisher", "issuer_url:https://none"],
             ),
             pretend.call(
                 "warehouse.oidc.find_publisher.publisher_not_found",
-                tags=["publisher:fakepublisher"],
+                tags=["publisher:fakepublisher", "issuer_url:https://none"],
             ),
         ]
 
     def test_find_publisher_verify_claims_fails(self, metrics, monkeypatch):
+        issuer_url = "https://none"
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="fakepublisher",
-            issuer_url=pretend.stub(),
+            issuer_url=issuer_url,
             audience="fakeaudience",
             cache_url=pretend.stub(),
             metrics=metrics,
@@ -246,17 +251,17 @@ class TestOIDCPublisherService:
             services, "find_publisher_by_issuer", find_publisher_by_issuer
         )
 
-        claims = SignedClaims({})
+        claims = SignedClaims({"iss": issuer_url})
         with pytest.raises(errors.InvalidPublisherError):
             service.find_publisher(claims)
         assert service.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.find_publisher.attempt",
-                tags=["publisher:fakepublisher"],
+                tags=["publisher:fakepublisher", "issuer_url:https://none"],
             ),
             pretend.call(
                 "warehouse.oidc.find_publisher.publisher_not_found",
-                tags=["publisher:fakepublisher"],
+                tags=["publisher:fakepublisher", "issuer_url:https://none"],
             ),
         ]
         assert publisher.verify_claims.calls == [pretend.call(claims, service)]
@@ -311,7 +316,7 @@ class TestOIDCPublisherService:
 
         monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
 
-        keys, timeout = service._get_keyset()
+        keys, timeout = service._get_keyset("https://example.com")
 
         assert not keys
         assert timeout is False
@@ -329,17 +334,18 @@ class TestOIDCPublisherService:
         monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
 
         keyset = {"fake-key-id": {"foo": "bar"}}
-        service._store_keyset(keyset)
-        keys, timeout = service._get_keyset()
+        service._store_keyset("https://example.com", keyset)
+        keys, timeout = service._get_keyset("https://example.com")
 
         assert keys == keyset
         assert timeout is True
 
     def test_refresh_keyset_timeout(self, metrics, monkeypatch, mockredis):
+        issuer_url = "https://example.com"
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="example",
-            issuer_url="https://example.com",
+            issuer_url=issuer_url,
             audience="fakeaudience",
             cache_url="rediss://fake.example.com",
             metrics=metrics,
@@ -348,13 +354,14 @@ class TestOIDCPublisherService:
         monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
 
         keyset = {"fake-key-id": {"foo": "bar"}}
-        service._store_keyset(keyset)
+        service._store_keyset(issuer_url, keyset)
 
-        keys = service._refresh_keyset()
+        keys = service._refresh_keyset(issuer_url)
         assert keys == keyset
         assert metrics.increment.calls == [
             pretend.call(
-                "warehouse.oidc.refresh_keyset.timeout", tags=["publisher:example"]
+                "warehouse.oidc.refresh_keyset.timeout",
+                tags=["publisher:example", "issuer_url:https://example.com"],
             )
         ]
 
@@ -379,7 +386,7 @@ class TestOIDCPublisherService:
         monkeypatch.setattr(services, "requests", requests)
         monkeypatch.setattr(services, "sentry_sdk", sentry_sdk)
 
-        keys = service._refresh_keyset()
+        keys = service._refresh_keyset("https://example.com")
 
         assert keys == {}
         assert metrics.increment.calls == []
@@ -420,7 +427,7 @@ class TestOIDCPublisherService:
         monkeypatch.setattr(services, "requests", requests)
         monkeypatch.setattr(services, "sentry_sdk", sentry_sdk)
 
-        keys = service._refresh_keyset()
+        keys = service._refresh_keyset("https://example.com")
 
         assert keys == {}
         assert metrics.increment.calls == []
@@ -471,7 +478,7 @@ class TestOIDCPublisherService:
         monkeypatch.setattr(services, "requests", requests)
         monkeypatch.setattr(services, "sentry_sdk", sentry_sdk)
 
-        keys = service._refresh_keyset()
+        keys = service._refresh_keyset("https://example.com")
 
         assert keys == {}
         assert metrics.increment.calls == []
@@ -523,7 +530,7 @@ class TestOIDCPublisherService:
         monkeypatch.setattr(services, "requests", requests)
         monkeypatch.setattr(services, "sentry_sdk", sentry_sdk)
 
-        keys = service._refresh_keyset()
+        keys = service._refresh_keyset("https://example.com")
 
         assert keys == {}
         assert metrics.increment.calls == []
@@ -572,7 +579,7 @@ class TestOIDCPublisherService:
         monkeypatch.setattr(services, "requests", requests)
         monkeypatch.setattr(services, "sentry_sdk", sentry_sdk)
 
-        keys = service._refresh_keyset()
+        keys = service._refresh_keyset("https://example.com")
 
         assert keys == {"fake-key-id": {"kid": "fake-key-id", "foo": "bar"}}
         assert metrics.increment.calls == []
@@ -585,7 +592,7 @@ class TestOIDCPublisherService:
         assert sentry_sdk.capture_message.calls == []
 
         # Ensure that we also cached the updated keyset as part of refreshing.
-        keys, timeout = service._get_keyset()
+        keys, timeout = service._get_keyset("https://example.com")
         assert keys == {"fake-key-id": {"kid": "fake-key-id", "foo": "bar"}}
         assert timeout is True
 
@@ -611,9 +618,11 @@ class TestOIDCPublisherService:
                 "x5t": "dummy",
             }
         }
-        monkeypatch.setattr(service, "_get_keyset", lambda: (keyset, True))
+        monkeypatch.setattr(
+            service, "_get_keyset", lambda issuer_url=None: (keyset, True)
+        )
 
-        key = service._get_key("fake-key-id")
+        key = service._get_key("fake-key-id", "https://example.com")
         assert isinstance(key, PyJWK)
         assert key.key_id == "fake-key-id"
 
@@ -641,10 +650,10 @@ class TestOIDCPublisherService:
                 "x5t": "dummy",
             }
         }
-        monkeypatch.setattr(service, "_get_keyset", lambda: ({}, False))
-        monkeypatch.setattr(service, "_refresh_keyset", lambda: keyset)
+        monkeypatch.setattr(service, "_get_keyset", lambda issuer_url=None: ({}, False))
+        monkeypatch.setattr(service, "_refresh_keyset", lambda issuer_url=None: keyset)
 
-        key = service._get_key("fake-key-id")
+        key = service._get_key("fake-key-id", "https://example.com")
         assert isinstance(key, PyJWK)
         assert key.key_id == "fake-key-id"
 
@@ -660,16 +669,23 @@ class TestOIDCPublisherService:
             metrics=metrics,
         )
 
-        monkeypatch.setattr(service, "_get_keyset", lambda: ({}, False))
-        monkeypatch.setattr(service, "_refresh_keyset", lambda: {})
+        monkeypatch.setattr(service, "_get_keyset", lambda issuer_url=None: ({}, False))
+        monkeypatch.setattr(service, "_refresh_keyset", lambda issuer_url=None: {})
 
-        key = service._get_key("fake-key-id")
-        assert key is None
+        with pytest.raises(
+            jwt.PyJWTError,
+            match=r"Key ID 'fake-key-id' not found for issuer 'https://example.com'",
+        ):
+            service._get_key("fake-key-id", "https://example.com")
 
         assert metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.get_key.error",
-                tags=["publisher:example", "key_id:fake-key-id"],
+                tags=[
+                    "publisher:example",
+                    "key_id:fake-key-id",
+                    "issuer_url:https://example.com",
+                ],
             )
         ]
 
@@ -685,7 +701,9 @@ class TestOIDCPublisherService:
             cache_url="rediss://fake.example.com",
             metrics=pretend.stub(),
         )
-        monkeypatch.setattr(service, "_get_key", pretend.call_recorder(lambda kid: key))
+        monkeypatch.setattr(
+            service, "_get_key", pretend.call_recorder(lambda kid, i: key)
+        )
 
         monkeypatch.setattr(
             services.jwt,
@@ -693,8 +711,10 @@ class TestOIDCPublisherService:
             pretend.call_recorder(lambda token: {"kid": "fake-key-id"}),
         )
 
-        assert service._get_key_for_token(token) == key
-        assert service._get_key.calls == [pretend.call("fake-key-id")]
+        assert service._get_key_for_token(token, "https://example.com") == key
+        assert service._get_key.calls == [
+            pretend.call("fake-key-id", "https://example.com")
+        ]
         assert services.jwt.get_unverified_header.calls == [pretend.call(token)]
 
     def test_reify_publisher(self, monkeypatch):
@@ -797,7 +817,9 @@ class TestNullOIDCPublisherService:
             metrics=pretend.stub(),
         )
 
-        assert service.verify_jwt_signature("malformed-jwt") is None
+        assert (
+            service.verify_jwt_signature("malformed-jwt", "https://example.com") is None
+        )
 
     def test_verify_jwt_signature_missing_aud(self):
         # {
@@ -825,7 +847,7 @@ class TestNullOIDCPublisherService:
             metrics=pretend.stub(),
         )
 
-        assert service.verify_jwt_signature(jwt) is None
+        assert service.verify_jwt_signature(jwt, "https://example.com") is None
 
     def test_verify_jwt_signature_wrong_aud(self):
         # {
@@ -855,7 +877,7 @@ class TestNullOIDCPublisherService:
             metrics=pretend.stub(),
         )
 
-        assert service.verify_jwt_signature(jwt) is None
+        assert service.verify_jwt_signature(jwt, "https://example.com") is None
 
     def test_verify_jwt_signature_strict_aud(self):
         # {
@@ -880,7 +902,7 @@ class TestNullOIDCPublisherService:
             metrics=pretend.stub(),
         )
 
-        assert service.verify_jwt_signature(jwt) is None
+        assert service.verify_jwt_signature(jwt, "https://example.com") is None
 
     def test_find_publisher(self, monkeypatch):
         claims = SignedClaims(
