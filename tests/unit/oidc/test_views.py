@@ -215,11 +215,13 @@ def test_mint_token_from_oidc_jwt_decode_leaky_exception(monkeypatch):
         assert err["description"] == "malformed JWT"
 
 
-def test_mint_token_from_oidc_unknown_issuer():
+def test_mint_token_from_oidc_unknown_issuer(metrics):
     class Request:
         def __init__(self):
             self.response = pretend.stub(status=None)
             self.flags = pretend.stub(disallow_oidc=lambda *a: False)
+            self.db = pretend.stub(scalar=lambda *stmt: None)
+            self.metrics = metrics
 
         @property
         def body(self):
