@@ -723,7 +723,7 @@ class TestOrganizationOIDCIssuer:
             created_by=admin_user,
         )
 
-        # Attempt to create duplicate - should raise IntegrityError
+        # Attempt to create duplicate - should raise UniqueViolation
         with pytest.raises(psycopg.errors.UniqueViolation):
             DBOrganizationOIDCIssuerFactory.create(
                 organization=organization,
