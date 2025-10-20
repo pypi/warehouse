@@ -9,6 +9,7 @@ import humanize
 import pytz
 
 from more_itertools import first_true
+from psycopg.errors import UniqueViolation
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPMovedPermanently,
@@ -21,7 +22,7 @@ from pyramid.interfaces import ISecurityPolicy
 from pyramid.security import forget, remember
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import and_, func, select
-from sqlalchemy.exc import IntegrityError, NoResultFound
+from sqlalchemy.exc import NoResultFound
 from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
 
@@ -1772,7 +1773,7 @@ class ManageAccountPublishingViews:
         try:
             self.request.db.add(pending_publisher)
             self.request.db.flush()  # To get the new ID
-        except IntegrityError:
+        except UniqueViolation:
             # The user has probably double-posted and a new publisher was
             # created after our check for duplicates ran. The success message
             # is probably already in the flash queue, so just redirect to the
