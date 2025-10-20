@@ -937,3 +937,13 @@ class TestPendingGitLabPublisher:
         # it is returned and the pending publisher is marked for deletion.
         assert existing_publisher == publisher
         assert pending_publisher in db_request.db.deleted
+
+    def test_reify_with_custom_issuer_url(self, db_request):
+        custom_issuer_url = "https://gitlab.custom-domain.com"
+        pending_publisher = PendingGitLabPublisherFactory.create(
+            issuer_url=custom_issuer_url
+        )
+        publisher = pending_publisher.reify(db_request.db)
+
+        assert publisher.issuer_url == custom_issuer_url
+        assert isinstance(publisher, gitlab.GitLabPublisher)

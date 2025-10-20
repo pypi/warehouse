@@ -435,8 +435,7 @@ class PendingGitLabPublisher(GitLabPublisherMixin, PendingOIDCPublisher):
                 GitLabPublisher.project == self.project,
                 GitLabPublisher.workflow_filepath == self.workflow_filepath,
                 GitLabPublisher.environment == self.environment,
-                # TODO (glsm): Implement custom issuers
-                #  GitLabPublisher.issuer_url == self.issuer_url,
+                GitLabPublisher.issuer_url == self.issuer_url,
             )
             .one_or_none()
         )
@@ -446,8 +445,7 @@ class PendingGitLabPublisher(GitLabPublisherMixin, PendingOIDCPublisher):
             project=self.project,
             workflow_filepath=self.workflow_filepath,
             environment=self.environment,
-            # TODO (glsm): Implement custom issuers
-            #  issuer_url=self.issuer_url,
+            issuer_url=self.issuer_url,
         )
 
         session.delete(self)
