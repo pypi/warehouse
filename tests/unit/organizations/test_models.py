@@ -3,13 +3,13 @@
 import datetime
 
 import pretend
+import psycopg
 import pytest
 
 from freezegun import freeze_time
 from pyramid.authorization import Allow
 from pyramid.httpexceptions import HTTPPermanentRedirect
 from pyramid.location import lineage
-from sqlalchemy.exc import IntegrityError
 
 from warehouse.authnz import Permissions
 from warehouse.organizations.models import (
@@ -724,7 +724,7 @@ class TestOrganizationOIDCIssuer:
         )
 
         # Attempt to create duplicate - should raise IntegrityError
-        with pytest.raises(IntegrityError):
+        with pytest.raises(psycopg.errors.UniqueViolation):
             DBOrganizationOIDCIssuerFactory.create(
                 organization=organization,
                 issuer_type=OIDCIssuerType.GitLab,

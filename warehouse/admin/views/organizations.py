@@ -23,6 +23,7 @@ from warehouse.constants import (
     ONE_MIB,
     UPLOAD_LIMIT_CAP,
 )
+from warehouse.events.tags import EventTag
 from warehouse.manage.forms import OrganizationNameMixin, SaveOrganizationForm
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
@@ -1287,6 +1288,7 @@ class OrganizationOIDCIssuerForm(wtforms.Form):
 )
 def add_oidc_issuer(request):
     organization_service = request.find_service(IOrganizationService, context=None)
+    user_service = request.find_service(IUserService)
 
     organization_id = request.matchdict["organization_id"]
     organization = organization_service.get_organization(organization_id)
@@ -1339,10 +1341,11 @@ def add_oidc_issuer(request):
     # Record the event
     organization.record_event(
         request=request,
-        tag="admin:organization:oidc_issuer:add",
+        tag=EventTag.Organization.OIDCPublisherAdded,
         additional={
             "issuer_type": form.issuer_type.data.value,
             "issuer_url": form.issuer_url.data,
+            "submitted_by_user_id": str(user_service.get_admin_user().id),
         },
     )
 
@@ -1367,6 +1370,7 @@ def add_oidc_issuer(request):
 )
 def delete_oidc_issuer(request):
     organization_service = request.find_service(IOrganizationService, context=None)
+    user_service = request.find_service(IUserService)
 
     organization_id = request.matchdict["organization_id"]
     organization = organization_service.get_organization(organization_id)
@@ -1395,10 +1399,11 @@ def delete_oidc_issuer(request):
     # Record the event before deleting
     organization.record_event(
         request=request,
-        tag="admin:organization:oidc_issuer:delete",
+        tag=EventTag.Organization.OIDCPublisherRemoved,
         additional={
             "issuer_type": issuer.issuer_type.value,
             "issuer_url": issuer.issuer_url,
+            "deleted_by_user_id": str(user_service.get_admin_user().id),
         },
     )
 
