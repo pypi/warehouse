@@ -27,7 +27,7 @@ from warehouse.rate_limiting import IRateLimiter
 
 class TestManageOIDCPublisherViews:
     def test_initializes(self, metrics):
-        project = pretend.stub()
+        project = pretend.stub(organization=None)
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda *a, **kw: metrics),
             registry=pretend.stub(
@@ -56,7 +56,7 @@ class TestManageOIDCPublisherViews:
         ],
     )
     def test_ratelimiting(self, metrics, ip_exceeded, user_exceeded):
-        project = pretend.stub()
+        project = pretend.stub(organization=None)
         user_rate_limiter = pretend.stub(
             hit=pretend.call_recorder(lambda *a, **kw: None),
             test=pretend.call_recorder(lambda uid: not user_exceeded),
@@ -115,7 +115,7 @@ class TestManageOIDCPublisherViews:
             view._check_ratelimits()
 
     def test_manage_project_oidc_publishers(self, monkeypatch):
-        project = pretend.stub(oidc_publishers=[])
+        project = pretend.stub(oidc_publishers=[], organization=None)
         request = pretend.stub(
             user=pretend.stub(),
             registry=pretend.stub(
@@ -157,7 +157,7 @@ class TestManageOIDCPublisherViews:
     def test_manage_project_oidc_publishers_admin_disabled(
         self, monkeypatch, pyramid_request
     ):
-        project = pretend.stub(oidc_publishers=[])
+        project = pretend.stub(oidc_publishers=[], organization=None)
         pyramid_request.user = pretend.stub()
         pyramid_request.registry = pretend.stub(
             settings={
@@ -230,6 +230,7 @@ class TestManageOIDCPublisherViews:
                     "project": "repo",
                     "workflow_filepath": "file.yml",
                     "environment": "my_env",
+                    "issuer_url": "https://gitlab.com",
                 },
             ),
             # All fields of Google provider
@@ -267,7 +268,7 @@ class TestManageOIDCPublisherViews:
     def test_manage_project_oidc_publishers_prefill(
         self, monkeypatch, form_name, prefilled_data
     ):
-        project = pretend.stub(oidc_publishers=[])
+        project = pretend.stub(oidc_publishers=[], organization=None)
         request = pretend.stub(
             user=pretend.stub(),
             registry=pretend.stub(
@@ -350,7 +351,7 @@ class TestManageOIDCPublisherViews:
     def test_manage_project_oidc_publishers_prefill_partial(
         self, monkeypatch, missing_fields, prefilled_data, extra_fields
     ):
-        project = pretend.stub(oidc_publishers=[])
+        project = pretend.stub(oidc_publishers=[], organization=None)
         request = pretend.stub(
             user=pretend.stub(),
             registry=pretend.stub(
@@ -396,7 +397,7 @@ class TestManageOIDCPublisherViews:
         assert view.github_publisher_form.data == expected_data
 
     def test_manage_project_oidc_publishers_prefill_unknown_provider(self, monkeypatch):
-        project = pretend.stub(oidc_publishers=[])
+        project = pretend.stub(oidc_publishers=[], organization=None)
         prefilled_data = {
             "provider": "github2",
             "owner": "owner",
@@ -649,7 +650,7 @@ class TestManageOIDCPublisherViews:
         ]
 
     def test_constrain_oidc_publisher_admin_disabled(self, monkeypatch):
-        project = pretend.stub()
+        project = pretend.stub(organization=None)
         request = pretend.stub(
             method="POST",
             params=MultiDict(),
@@ -687,7 +688,7 @@ class TestManageOIDCPublisherViews:
         ]
 
     def test_constrain_oidc_publisher_invalid_params(self, monkeypatch, metrics):
-        project = pretend.stub()
+        project = pretend.stub(organization=None)
         request = pretend.stub(
             method="POST",
             params=MultiDict(),
@@ -727,7 +728,7 @@ class TestManageOIDCPublisherViews:
     def test_constrain_non_extant_oidc_publisher(
         self, monkeypatch, metrics, db_request
     ):
-        project = pretend.stub()
+        project = pretend.stub(organization=None)
         db_request.method = "POST"
         db_request.POST = MultiDict(
             {
@@ -1051,6 +1052,7 @@ class TestManageOIDCPublisherViews:
                     namespace=pretend.stub(data=publisher.namespace),
                     workflow_filepath=pretend.stub(data=publisher.workflow_filepath),
                     normalized_environment=publisher.environment,
+                    issuer_url=pretend.stub(data="https://gitlab.com"),
                 ),
             ),
             (
@@ -1100,6 +1102,7 @@ class TestManageOIDCPublisherViews:
         project = pretend.stub(
             name="fakeproject",
             oidc_publishers=[],
+            organization=None,
             record_event=pretend.call_recorder(lambda *a, **kw: None),
             users=[],
         )
@@ -1210,6 +1213,7 @@ class TestManageOIDCPublisherViews:
                     namespace=pretend.stub(data="fakeowner"),
                     workflow_filepath=pretend.stub(data="subfolder/fakeworkflow.yml"),
                     normalized_environment="some-environment",
+                    issuer_url=pretend.stub(data="https://gitlab.com"),
                 ),
                 pretend.stub(publisher_name="GitLab"),
             ),
@@ -1245,6 +1249,7 @@ class TestManageOIDCPublisherViews:
         project = pretend.stub(
             name="fakeproject",
             oidc_publishers=[],
+            organization=None,
             record_event=pretend.call_recorder(lambda *a, **kw: None),
             users=[fakeuser],
         )
@@ -1385,6 +1390,7 @@ class TestManageOIDCPublisherViews:
                         "project": "some-repository",
                         "workflow_filepath": "subfolder/some-workflow-filename.yml",
                         "environment": "some-environment",
+                        "issuer_url": "https://gitlab.com",
                     }
                 ),
             ),
@@ -1432,6 +1438,7 @@ class TestManageOIDCPublisherViews:
         project = pretend.stub(
             name="fakeproject",
             oidc_publishers=[publisher],
+            organization=None,
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
 
@@ -1528,6 +1535,7 @@ class TestManageOIDCPublisherViews:
         project = pretend.stub(
             name="fakeproject",
             oidc_publishers=[publisher],
+            organization=None,
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
 
@@ -1598,7 +1606,7 @@ class TestManageOIDCPublisherViews:
     def test_add_oidc_publisher_ratelimited(
         self, metrics, monkeypatch, view_name, publisher_name
     ):
-        project = pretend.stub()
+        project = pretend.stub(organization=None)
 
         request = pretend.stub(
             user=pretend.stub(),
@@ -1648,7 +1656,7 @@ class TestManageOIDCPublisherViews:
     def test_add_oidc_publisher_admin_disabled(
         self, monkeypatch, view_name, publisher_name
     ):
-        project = pretend.stub()
+        project = pretend.stub(organization=None)
         request = pretend.stub(
             user=pretend.stub(),
             find_service=lambda *a, **kw: None,
@@ -1691,7 +1699,7 @@ class TestManageOIDCPublisherViews:
     def test_add_oidc_publisher_invalid_form(
         self, metrics, monkeypatch, view_name, publisher_name
     ):
-        project = pretend.stub()
+        project = pretend.stub(organization=None)
         request = pretend.stub(
             user=pretend.stub(),
             find_service=lambda *a, **kw: metrics,
@@ -1966,7 +1974,7 @@ class TestManageOIDCPublisherViews:
 
     def test_delete_oidc_publisher_invalid_form(self, metrics, monkeypatch):
         publisher = pretend.stub()
-        project = pretend.stub(oidc_publishers=[publisher])
+        project = pretend.stub(oidc_publishers=[publisher], organization=None)
         request = pretend.stub(
             user=pretend.stub(),
             find_service=lambda *a, **kw: metrics,
@@ -2020,6 +2028,7 @@ class TestManageOIDCPublisherViews:
 
         project = pretend.stub(
             oidc_publishers=[publisher],
+            organization=None,
             name="fakeproject",
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
@@ -2074,7 +2083,7 @@ class TestManageOIDCPublisherViews:
         assert delete_publisher_form_obj.validate.calls == [pretend.call()]
 
     def test_delete_oidc_publisher_admin_disabled(self, monkeypatch):
-        project = pretend.stub()
+        project = pretend.stub(organization=None)
         request = pretend.stub(
             user=pretend.stub(),
             find_service=lambda *a, **kw: None,

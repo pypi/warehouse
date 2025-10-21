@@ -195,6 +195,21 @@
   </p>
   <div id="environment-errors">{{ field_errors(gitlab_publisher_form.environment) }}</div>
 </div>
+{% if gitlab_publisher_form.issuer_url.choices|length > 1 %}
+  <div class="form-group">
+    <label for="issuer_url" class="form-group__label">
+      {% trans %}GitLab instance{% endtrans %}
+      {% if gitlab_publisher_form.issuer_url.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+      {% endif %}
+    </label>
+    {{ gitlab_publisher_form.issuer_url(class_="form-group__field", **{"aria-describedby":"issuer_url-errors"}) }}
+    <p class="form-group__help-text">
+      {% trans %}The GitLab instance URL. Select <code>https://gitlab.com</code> for the public GitLab service, or a custom instance.{% endtrans %}
+    </p>
+    <div id="issuer_url-errors">{{ field_errors(gitlab_publisher_form.issuer_url) }}</div>
+  </div>
+{% endif %}
 <div>
   <input type="submit"
          value="{% trans %}Add{% endtrans %}"

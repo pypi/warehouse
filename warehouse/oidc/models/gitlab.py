@@ -23,9 +23,12 @@ from warehouse.oidc.models._core import (
     check_existing_jti,
 )
 from warehouse.oidc.urls import verify_url_from_reference
+from warehouse.organizations.models import OIDCIssuerType
 
 if typing.TYPE_CHECKING:
     from sqlalchemy.orm import Session
+
+    from warehouse.organizations.models import Organization
 
 GITLAB_OIDC_ISSUER_URL = "https://gitlab.com"
 
@@ -328,6 +331,34 @@ class GitLabPublisherMixin:
         if self.environment:
             details.append(("Environment", self.environment))
         return details
+
+    @classmethod
+    def get_available_issuer_urls(
+        cls, organization: Organization | None = None
+    ) -> list[str]:
+        """
+        Get a list of issuer URLs available for the given organization.
+
+        Custom OIDC issuers are only configured at the organization level,
+        and can only be used by projects owned by that organization.
+
+        Returns:
+            List of unique issuer URLs, with the default gitlab.com first.
+            If organization is None, only returns the default issuer.
+        """
+        # Start with the default issuer
+        issuer_urls = {GITLAB_OIDC_ISSUER_URL}
+
+        if organization:
+            # Get custom issuers from the organization
+            for oidc_issuer in organization.oidc_issuers:
+                if oidc_issuer.issuer_type == OIDCIssuerType.GitLab:
+                    issuer_urls.add(oidc_issuer.issuer_url)
+
+        # Return as sorted list with default first
+        result = [GITLAB_OIDC_ISSUER_URL]
+        result.extend(sorted(issuer_urls - {GITLAB_OIDC_ISSUER_URL}))
+        return result
 
 
 class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):
