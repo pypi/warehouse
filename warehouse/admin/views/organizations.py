@@ -1346,6 +1346,7 @@ def add_oidc_issuer(request):
             "issuer_type": form.issuer_type.data.value,
             "issuer_url": form.issuer_url.data,
             "submitted_by_user_id": str(user_service.get_admin_user().id),
+            "redact_ip": True,
         },
     )
 
@@ -1404,6 +1405,7 @@ def delete_oidc_issuer(request):
             "issuer_type": issuer.issuer_type.value,
             "issuer_url": issuer.issuer_url,
             "deleted_by_user_id": str(user_service.get_admin_user().id),
+            "redact_ip": True,
         },
     )
 
