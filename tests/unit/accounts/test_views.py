@@ -8,6 +8,7 @@ import freezegun
 import pretend
 import pytest
 
+from psycopg.errors import UniqueViolation
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPMovedPermanently,
@@ -16,7 +17,7 @@ from pyramid.httpexceptions import (
     HTTPTooManyRequests,
     HTTPUnauthorized,
 )
-from sqlalchemy.exc import IntegrityError, NoResultFound
+from sqlalchemy.exc import NoResultFound
 from webauthn.authentication.verify_authentication_response import (
     VerifiedAuthentication,
 )
@@ -4569,10 +4570,10 @@ class TestManageAccountPublishingViews:
             )
         ]
 
-    def test_add_pending_oidc_publisher_integrityerror(self, monkeypatch, db_request):
+    def test_add_pending_oidc_publisher_uniqueviolation(self, monkeypatch, db_request):
         db_request.user = UserFactory.create()
         EmailFactory(user=db_request.user, verified=True, primary=True)
-        db_request.db.add = pretend.raiser(IntegrityError("foo", "bar", "baz"))
+        db_request.db.add = pretend.raiser(UniqueViolation("foo", "bar", "baz"))
 
         db_request.registry = pretend.stub(
             settings={

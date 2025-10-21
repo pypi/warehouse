@@ -165,7 +165,7 @@ msgstr "Gjenopprettelseskoden har blitt brukt tidligere."
 msgid "The username isn't valid. Try again."
 msgstr "Brukernavnet er ikke gyldig. Prøv igjen."
 
-#: warehouse/accounts/views.py:110
+#: warehouse/accounts/views.py:112
 #, python-brace-format
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
@@ -174,7 +174,7 @@ msgstr ""
 "Det har blitt utført for mange feilede innloggingsforsøk. Du har blitt låst "
 "ute i {}. Prøv igjen senere."
 
-#: warehouse/accounts/views.py:131
+#: warehouse/accounts/views.py:133
 #, python-brace-format
 msgid ""
 "Too many emails have been added to this account without verifying them. "
@@ -183,7 +183,7 @@ msgstr ""
 "For mange e-postadresser har blitt lagt til denne brukeren uten å ha blitt "
 "verifisert. Sjekk innboksen din og følg verifiserings linkene. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:143
+#: warehouse/accounts/views.py:145
 #, python-brace-format
 msgid ""
 "Too many password resets have been requested for this account without "
@@ -193,26 +193,26 @@ msgstr ""
 "Det er bedt om for mange tilbakestillinger av passord for denne kontoen uten "
 "å fullføre dem. Sjekk innboksen din og følg bekreftelseslenkene. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:375 warehouse/accounts/views.py:439
-#: warehouse/accounts/views.py:441 warehouse/accounts/views.py:470
-#: warehouse/accounts/views.py:472 warehouse/accounts/views.py:588
+#: warehouse/accounts/views.py:377 warehouse/accounts/views.py:441
+#: warehouse/accounts/views.py:443 warehouse/accounts/views.py:472
+#: warehouse/accounts/views.py:474 warehouse/accounts/views.py:590
 msgid "Invalid or expired two factor login."
 msgstr "Ugyldig eller utløpt to-faktorinnlogging."
 
-#: warehouse/accounts/views.py:433
+#: warehouse/accounts/views.py:435
 msgid "Already authenticated"
 msgstr "Allerede autentisert"
 
-#: warehouse/accounts/views.py:507
+#: warehouse/accounts/views.py:509
 msgid "Successful WebAuthn assertion"
 msgstr "Vellykket WebAuthn-påstand"
 
-#: warehouse/accounts/views.py:615 warehouse/manage/views/__init__.py:851
+#: warehouse/accounts/views.py:617 warehouse/manage/views/__init__.py:851
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Gjenopprettingskode akseptert. Den medfølgende koden kan ikke brukes igjen."
 
-#: warehouse/accounts/views.py:707
+#: warehouse/accounts/views.py:709
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -220,145 +220,151 @@ msgstr ""
 "Registrering av nye brukere er midlertidig deaktivert. Se https://pypi.org/"
 "help#admin-intervention for detaljer."
 
-#: warehouse/accounts/views.py:876
+#: warehouse/accounts/views.py:878
 msgid "Expired token: request a new password reset link"
 msgstr "Utløpt symbol: Forespør en ny passordstilbakestillingslenke"
 
-#: warehouse/accounts/views.py:878
+#: warehouse/accounts/views.py:880
 msgid "Invalid token: request a new password reset link"
 msgstr "Ugyldig symbol: Forespør en ny passordstilbakestillingslenke"
 
-#: warehouse/accounts/views.py:880 warehouse/accounts/views.py:981
-#: warehouse/accounts/views.py:1087 warehouse/accounts/views.py:1256
+#: warehouse/accounts/views.py:882 warehouse/accounts/views.py:983
+#: warehouse/accounts/views.py:1089 warehouse/accounts/views.py:1258
 msgid "Invalid token: no token supplied"
 msgstr "Ugyldig symbol: Inget symbol angitt"
 
-#: warehouse/accounts/views.py:884
+#: warehouse/accounts/views.py:886
 msgid "Invalid token: not a password reset token"
 msgstr "Ugyldig symbol: Ikke et passord tilbakestillingssymbol"
 
-#: warehouse/accounts/views.py:889
+#: warehouse/accounts/views.py:891
 msgid "Invalid token: user not found"
 msgstr "Ugyldig symbol: bruker ikke funnet"
 
-#: warehouse/accounts/views.py:900
+#: warehouse/accounts/views.py:902
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Ugyldig token: brukeren har logget på siden dette tokenet ble forespurt"
 
-#: warehouse/accounts/views.py:918
+#: warehouse/accounts/views.py:920
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
 "Ugyldig token: passordet er allerede endret siden dette tokenet ble forespurt"
 
-#: warehouse/accounts/views.py:949
+#: warehouse/accounts/views.py:951
 msgid "You have reset your password"
 msgstr "Du har tilbakestilt passordet ditt"
 
-#: warehouse/accounts/views.py:977
+#: warehouse/accounts/views.py:979
 msgid "Expired token: request a new email verification link"
 msgstr "Utløpt token: be om en ny e-postbekreftelseslenke"
 
-#: warehouse/accounts/views.py:979
+#: warehouse/accounts/views.py:981
 msgid "Invalid token: request a new email verification link"
 msgstr "Ugyldig token: be om en ny e-postbekreftelseslenke"
 
-#: warehouse/accounts/views.py:985
+#: warehouse/accounts/views.py:987
 msgid "Invalid token: not an email verification token"
 msgstr "Ugyldig token: ikke et e-postbekreftelsestoken"
 
-#: warehouse/accounts/views.py:994
+#: warehouse/accounts/views.py:996
 msgid "Email not found"
 msgstr "E-postadresse ble ikke funnet"
 
-#: warehouse/accounts/views.py:997
+#: warehouse/accounts/views.py:999
 #, fuzzy
 msgid "Email already verified"
 msgstr "E-postadresse allerede bekreftet"
 
-#: warehouse/accounts/views.py:1017
+#: warehouse/accounts/views.py:1019
 msgid "You can now set this email as your primary address"
 msgstr "Du kan nå sette denne E-postadressen som din primære adresse"
 
-#: warehouse/accounts/views.py:1020
+#: warehouse/accounts/views.py:1022
 msgid "This is your primary address"
 msgstr "Dette er din hovedadresse"
 
-#: warehouse/accounts/views.py:1026
+#: warehouse/accounts/views.py:1028
 #, python-brace-format
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "E-postadressen ${email_address} er verifisert. ${confirm_message}."
 
-#: warehouse/accounts/views.py:1083
+#: warehouse/accounts/views.py:1085
 msgid "Expired token: request a new organization invitation"
 msgstr "Utløpt token: be om en ny organisasjonsinvitasjon"
 
-#: warehouse/accounts/views.py:1085
+#: warehouse/accounts/views.py:1087
 msgid "Invalid token: request a new organization invitation"
 msgstr "Ugyldig token: be om en ny organisasjonsinvitasjon"
 
-#: warehouse/accounts/views.py:1091
+#: warehouse/accounts/views.py:1093
 msgid "Invalid token: not an organization invitation token"
 msgstr "Ugyldig token: ikke et organisasjonsinvitasjonstoken"
 
-#: warehouse/accounts/views.py:1095
+#: warehouse/accounts/views.py:1097
 msgid "Organization invitation is not valid."
 msgstr "Organisasjonsinvitasjonen er ikke gyldig."
 
-#: warehouse/accounts/views.py:1104
+#: warehouse/accounts/views.py:1106
 msgid "Organization invitation no longer exists."
 msgstr "Organisasjonsinvitasjon eksisterer ikke lenger."
 
-#: warehouse/accounts/views.py:1156
+#: warehouse/accounts/views.py:1158
 #, python-brace-format
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "Invitasjon til '${organization_name}' er avslått."
 
-#: warehouse/accounts/views.py:1219
+#: warehouse/accounts/views.py:1221
 #, fuzzy, python-brace-format
 #| msgid "You are now ${role} of the '${organization_name}' organization."
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Du har ikke eierskap i dette prosjektet."
 
-#: warehouse/accounts/views.py:1252
+#: warehouse/accounts/views.py:1254
 msgid "Expired token: request a new project role invitation"
 msgstr "Utløpt token: be om en ny prosjektrolleinvitasjon"
 
-#: warehouse/accounts/views.py:1254
+#: warehouse/accounts/views.py:1256
 msgid "Invalid token: request a new project role invitation"
 msgstr "Ugyldig token: be om en ny prosjektrolleinvitasjon"
 
-#: warehouse/accounts/views.py:1260
+#: warehouse/accounts/views.py:1262
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Ugyldig token: ikke et samarbeidsinvitasjonstoken"
 
-#: warehouse/accounts/views.py:1264
+#: warehouse/accounts/views.py:1266
 msgid "Role invitation is not valid."
 msgstr "Rolleinvitasjonen er ikke gyldig."
 
-#: warehouse/accounts/views.py:1279
+#: warehouse/accounts/views.py:1273
+#, fuzzy
+#| msgid "API Token does not exist."
+msgid "Invalid token: project does not exist"
+msgstr "API-token eksisterer ikke."
+
+#: warehouse/accounts/views.py:1284
 msgid "Role invitation no longer exists."
 msgstr "Rolleinvitasjon eksisterer ikke lenger."
 
-#: warehouse/accounts/views.py:1311
+#: warehouse/accounts/views.py:1316
 #, python-brace-format
 msgid "Invitation for '${project_name}' is declined."
 msgstr "Invitasjon til '${project_name}' er avslått."
 
-#: warehouse/accounts/views.py:1377
+#: warehouse/accounts/views.py:1382
 #, python-brace-format
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Du er nå ${role} av '${project_name}'-prosjektet."
 
-#: warehouse/accounts/views.py:1457
+#: warehouse/accounts/views.py:1462
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
-#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1922
-#: warehouse/manage/views/oidc_publishers.py:120
+#: warehouse/accounts/views.py:1674 warehouse/accounts/views.py:1928
+#: warehouse/manage/views/oidc_publishers.py:121
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -366,7 +372,7 @@ msgstr ""
 "Klarert publisering er midlertidig deaktivert. Se https://pypi.org/"
 "help#admin-intervention for detaljer."
 
-#: warehouse/accounts/views.py:1690
+#: warehouse/accounts/views.py:1695
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -376,7 +382,7 @@ msgstr ""
 "Registrering av nye brukere er midlertidig deaktivert. Se https://pypi.org/"
 "help#admin-intervention for detaljer."
 
-#: warehouse/accounts/views.py:1706
+#: warehouse/accounts/views.py:1711
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
@@ -384,16 +390,16 @@ msgstr ""
 "Du må ha en bekreftet e-post for å registrere en ventende pålitelig utgiver. "
 "Se https://pypi.org/help#openid-connect for detaljer."
 
-#: warehouse/accounts/views.py:1719
+#: warehouse/accounts/views.py:1724
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 "Du kan ikke registrere mer enn 3 ventende pålitelige utgivere samtidig."
 
-#: warehouse/accounts/views.py:1734
-#: warehouse/manage/views/oidc_publishers.py:301
-#: warehouse/manage/views/oidc_publishers.py:416
-#: warehouse/manage/views/oidc_publishers.py:530
-#: warehouse/manage/views/oidc_publishers.py:642
+#: warehouse/accounts/views.py:1739
+#: warehouse/manage/views/oidc_publishers.py:303
+#: warehouse/manage/views/oidc_publishers.py:418
+#: warehouse/manage/views/oidc_publishers.py:534
+#: warehouse/manage/views/oidc_publishers.py:646
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
@@ -401,15 +407,15 @@ msgstr ""
 "Det har vært for mange forsøk på registrering av klarerte utgivere. Prøv "
 "igjen senere."
 
-#: warehouse/accounts/views.py:1744
-#: warehouse/manage/views/oidc_publishers.py:314
-#: warehouse/manage/views/oidc_publishers.py:429
-#: warehouse/manage/views/oidc_publishers.py:543
-#: warehouse/manage/views/oidc_publishers.py:655
+#: warehouse/accounts/views.py:1749
+#: warehouse/manage/views/oidc_publishers.py:316
+#: warehouse/manage/views/oidc_publishers.py:431
+#: warehouse/manage/views/oidc_publishers.py:547
+#: warehouse/manage/views/oidc_publishers.py:659
 msgid "The trusted publisher could not be registered"
 msgstr "Den klarerte utgiveren kunne ikke registreres"
 
-#: warehouse/accounts/views.py:1759
+#: warehouse/accounts/views.py:1764
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
@@ -417,18 +423,18 @@ msgstr ""
 "Denne pålitelige utgiveren er allerede registrert. Ta kontakt med PyPIs "
 "administratorer hvis dette ikke var med vilje."
 
-#: warehouse/accounts/views.py:1793
+#: warehouse/accounts/views.py:1798
 #, fuzzy
 #| msgid "Manage this project"
 msgid "Registered a new pending publisher to create "
 msgstr "Registrerte en ny ventende utgiver for å opprette "
 
-#: warehouse/accounts/views.py:1935 warehouse/accounts/views.py:1948
-#: warehouse/accounts/views.py:1955
+#: warehouse/accounts/views.py:1941 warehouse/accounts/views.py:1954
+#: warehouse/accounts/views.py:1961
 msgid "Invalid publisher ID"
 msgstr "Ugyldig utgiver-ID"
 
-#: warehouse/accounts/views.py:1962
+#: warehouse/accounts/views.py:1968
 #, fuzzy
 msgid "Removed trusted publisher for project "
 msgstr "Fjernet klarert utgiver for prosjektet "
@@ -751,13 +757,13 @@ msgstr "E-postadresse allerede bekreftet"
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views/oidc_publishers.py:169
+#: warehouse/manage/views/oidc_publishers.py:170
 #, fuzzy
 #| msgid "The trusted publisher could not be registered"
 msgid "The trusted publisher could not be constrained"
 msgstr "Den klarerte utgiveren kunne ikke registreres"
 
-#: warehouse/manage/views/oidc_publishers.py:282
+#: warehouse/manage/views/oidc_publishers.py:284
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -765,7 +771,7 @@ msgstr ""
 "GitHub-basert klarert publisering er midlertidig deaktivert. Se https://pypi."
 "org/help#admin-intervention for detaljer."
 
-#: warehouse/manage/views/oidc_publishers.py:397
+#: warehouse/manage/views/oidc_publishers.py:399
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -777,7 +783,7 @@ msgstr ""
 "Registrering av nye brukere er midlertidig deaktivert. Se https://pypi.org/"
 "help#admin-intervention for detaljer."
 
-#: warehouse/manage/views/oidc_publishers.py:511
+#: warehouse/manage/views/oidc_publishers.py:515
 msgid ""
 "Google-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -785,7 +791,7 @@ msgstr ""
 "GitLab-basert klarert publisering er midlertidig deaktivert. Se https://pypi."
 "org/help#admin-intervention for detaljer."
 
-#: warehouse/manage/views/oidc_publishers.py:622
+#: warehouse/manage/views/oidc_publishers.py:626
 msgid ""
 "ActiveState-based trusted publishing is temporarily disabled. See https://"
 "pypi.org/help#admin-intervention for details."
@@ -944,55 +950,55 @@ msgstr ""
 msgid "Invalid repository name"
 msgstr "Ugyldig TOTP-kode."
 
-#: warehouse/oidc/forms/github.py:39
+#: warehouse/oidc/forms/github.py:40
 msgid "Specify workflow filename"
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:74
+#: warehouse/oidc/forms/github.py:75
 msgid "Unknown GitHub user or organization."
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:85
+#: warehouse/oidc/forms/github.py:86
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:94
+#: warehouse/oidc/forms/github.py:95
 msgid "Unexpected error from GitHub. Try again."
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:102
+#: warehouse/oidc/forms/github.py:103
 msgid "Unexpected connection error from GitHub. Try again in a few minutes."
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:111
+#: warehouse/oidc/forms/github.py:112
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:123
+#: warehouse/oidc/forms/github.py:124
 msgid "Invalid GitHub user or organization name."
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:139
+#: warehouse/oidc/forms/github.py:140
 msgid "Workflow name must end with .yml or .yaml"
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:144
+#: warehouse/oidc/forms/github.py:145
 msgid "Workflow filename must be a filename only, without directories"
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:155
+#: warehouse/oidc/forms/github.py:156
 msgid "Environment name is too long (maximum is 255 characters)"
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:160
+#: warehouse/oidc/forms/github.py:161
 msgid "Environment name may not start with whitespace"
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:165
+#: warehouse/oidc/forms/github.py:166
 msgid "Environment name may not end with whitespace"
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:171
+#: warehouse/oidc/forms/github.py:172
 msgid ""
 "Environment name must not contain non-printable characters or the characters "
 "\"'\", \"\"\", \"`\", \",\", \";\", \"\\\""
@@ -1010,21 +1016,21 @@ msgstr ""
 msgid "Invalid GitLab username or group/subgroup name."
 msgstr ""
 
-#: warehouse/oidc/forms/gitlab.py:62
+#: warehouse/oidc/forms/gitlab.py:63
 msgid "Specify top-level pipeline file path"
 msgstr ""
 
-#: warehouse/oidc/forms/gitlab.py:71
+#: warehouse/oidc/forms/gitlab.py:72
 #, fuzzy
 #| msgid "Invalid TOTP code."
 msgid "Invalid environment name"
 msgstr "Ugyldig TOTP-kode."
 
-#: warehouse/oidc/forms/gitlab.py:86
+#: warehouse/oidc/forms/gitlab.py:87
 msgid "Top-level pipeline file path must end with .yml or .yaml"
 msgstr ""
 
-#: warehouse/oidc/forms/gitlab.py:90
+#: warehouse/oidc/forms/gitlab.py:91
 msgid "Top-level pipeline file path cannot start or end with /"
 msgstr ""
 
@@ -4653,7 +4659,7 @@ msgstr "Du har ikke eierskap i dette prosjektet"
 #: warehouse/templates/manage/manage_base.html:72
 #: warehouse/templates/manage/manage_base.html:91
 #: warehouse/templates/manage/manage_base.html:95
-#: warehouse/templates/manage/manage_base.html:624
+#: warehouse/templates/manage/manage_base.html:626
 #: warehouse/templates/manage/organization/roles.html:276
 #: warehouse/templates/manage/organization/roles.html:280
 #: warehouse/templates/manage/organization/roles.html:291
@@ -4852,11 +4858,11 @@ msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:587
 #: warehouse/templates/manage/manage_base.html:598
-#: warehouse/templates/manage/manage_base.html:607
+#: warehouse/templates/manage/manage_base.html:609
 msgid "Any"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:631
+#: warehouse/templates/manage/manage_base.html:633
 #: warehouse/templates/manage/organization/history.html:141
 #: warehouse/templates/manage/project/history.html:27
 #: warehouse/templates/manage/project/history.html:80
@@ -4869,7 +4875,7 @@ msgstr ""
 msgid "Added by:"
 msgstr "Lagt til av:"
 
-#: warehouse/templates/manage/manage_base.html:633
+#: warehouse/templates/manage/manage_base.html:635
 #: warehouse/templates/manage/organization/history.html:146
 #: warehouse/templates/manage/project/history.html:46
 #: warehouse/templates/manage/project/history.html:111
@@ -4880,30 +4886,30 @@ msgstr "Lagt til av:"
 msgid "Removed by:"
 msgstr "Fjernet av:"
 
-#: warehouse/templates/manage/manage_base.html:635
+#: warehouse/templates/manage/manage_base.html:637
 #, fuzzy
 #| msgid "Changed by:"
 msgid "Submitted by:"
 msgstr "Endret av:"
 
-#: warehouse/templates/manage/manage_base.html:638
+#: warehouse/templates/manage/manage_base.html:640
 #: warehouse/templates/manage/project/history.html:224
 #, fuzzy
 #| msgid "Your name"
 msgid "Workflow:"
 msgstr "Ditt navn"
 
-#: warehouse/templates/manage/manage_base.html:640
+#: warehouse/templates/manage/manage_base.html:642
 msgid "Specifier:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:642
+#: warehouse/templates/manage/manage_base.html:644
 #, fuzzy
 #| msgid "Username"
 msgid "Publisher:"
 msgstr "Brukernavn"
 
-#: warehouse/templates/manage/manage_base.html:644
+#: warehouse/templates/manage/manage_base.html:646
 #: warehouse/templates/manage/project/history.html:36
 #: warehouse/templates/manage/project/history.html:89
 msgid "URL:"

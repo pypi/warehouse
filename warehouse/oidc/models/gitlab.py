@@ -246,8 +246,8 @@ class GitLabPublisherMixin:
 
         query: Query = Query(cls).filter(
             # claims `project_path` is case-insensitive
-            func.lower(cls.namespace) == namespace,
-            func.lower(cls.project) == project,
+            func.lower(cls.namespace) == func.lower(namespace),
+            func.lower(cls.project) == func.lower(project),
             cls.workflow_filepath == workflow_filepath,
         )
         publishers = query.with_session(session).all()

@@ -69,8 +69,9 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2025-10-06 00:52+0000\n"
-"Last-Translator: 123abc <3933676724@qq.com>\n"
+"PO-Revision-Date: 2025-10-15 14:07+0000\n"
+"Last-Translator: 大王叫我来巡山 <hamburger2048@users.noreply.hosted.weblate."
+"org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/pypa/warehouse/zh_Hans/>\n"
 "Language: zh_Hans\n"
@@ -209,7 +210,7 @@ msgstr "恢复代码已被使用。"
 msgid "The username isn't valid. Try again."
 msgstr "用户名无效。请再试一次。"
 
-#: warehouse/accounts/views.py:110
+#: warehouse/accounts/views.py:112
 #, python-brace-format
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
@@ -217,7 +218,7 @@ msgid ""
 msgstr ""
 "尝试登录失败次数过多，请稍后重试。你被锁在账户外面的时间已达 {}。请稍后再试。"
 
-#: warehouse/accounts/views.py:131
+#: warehouse/accounts/views.py:133
 #, python-brace-format
 msgid ""
 "Too many emails have been added to this account without verifying them. "
@@ -226,7 +227,7 @@ msgstr ""
 "本账号下添加了过多的电子邮箱，但都没有进行验证。检查你的收件箱，并遵照指示点"
 "击验证链接。(IP: ${ip})"
 
-#: warehouse/accounts/views.py:143
+#: warehouse/accounts/views.py:145
 #, python-brace-format
 msgid ""
 "Too many password resets have been requested for this account without "
@@ -236,25 +237,25 @@ msgstr ""
 "该账户多次要求重置密码，且均未完成。检查你的收件箱，并遵照指示点击验证链接。"
 "(IP: ${ip})"
 
-#: warehouse/accounts/views.py:375 warehouse/accounts/views.py:439
-#: warehouse/accounts/views.py:441 warehouse/accounts/views.py:470
-#: warehouse/accounts/views.py:472 warehouse/accounts/views.py:588
+#: warehouse/accounts/views.py:377 warehouse/accounts/views.py:441
+#: warehouse/accounts/views.py:443 warehouse/accounts/views.py:472
+#: warehouse/accounts/views.py:474 warehouse/accounts/views.py:590
 msgid "Invalid or expired two factor login."
 msgstr "双因素登录无效或过期。"
 
-#: warehouse/accounts/views.py:433
+#: warehouse/accounts/views.py:435
 msgid "Already authenticated"
 msgstr "已通过身份验证"
 
-#: warehouse/accounts/views.py:507
+#: warehouse/accounts/views.py:509
 msgid "Successful WebAuthn assertion"
 msgstr "成功的 WebAuthn 断言"
 
-#: warehouse/accounts/views.py:615 warehouse/manage/views/__init__.py:851
+#: warehouse/accounts/views.py:617 warehouse/manage/views/__init__.py:851
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "接受恢复代码。无法再次使用提供的代码。"
 
-#: warehouse/accounts/views.py:707
+#: warehouse/accounts/views.py:709
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -262,141 +263,145 @@ msgstr ""
 "新用户注册暂时被禁用。有关详细信息，请参见 https://pypi.org/help#admin-"
 "intervention。"
 
-#: warehouse/accounts/views.py:876
+#: warehouse/accounts/views.py:878
 msgid "Expired token: request a new password reset link"
 msgstr "令牌已过期：请重新请求新的密码重置链接"
 
-#: warehouse/accounts/views.py:878
+#: warehouse/accounts/views.py:880
 msgid "Invalid token: request a new password reset link"
 msgstr "令牌无效：请再次请求新的密码重置链接"
 
-#: warehouse/accounts/views.py:880 warehouse/accounts/views.py:981
-#: warehouse/accounts/views.py:1087 warehouse/accounts/views.py:1256
+#: warehouse/accounts/views.py:882 warehouse/accounts/views.py:983
+#: warehouse/accounts/views.py:1089 warehouse/accounts/views.py:1258
 msgid "Invalid token: no token supplied"
 msgstr "令牌无效：未提供令牌"
 
-#: warehouse/accounts/views.py:884
+#: warehouse/accounts/views.py:886
 msgid "Invalid token: not a password reset token"
 msgstr "令牌无效：请再次请求新的密码重置链接"
 
-#: warehouse/accounts/views.py:889
+#: warehouse/accounts/views.py:891
 msgid "Invalid token: user not found"
 msgstr "令牌无效：找不到用户"
 
-#: warehouse/accounts/views.py:900
+#: warehouse/accounts/views.py:902
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "令牌无效：自请求此令牌以来，用户已登录"
 
-#: warehouse/accounts/views.py:918
+#: warehouse/accounts/views.py:920
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "令牌无效：自请求此令牌以来，密码被已更改"
 
-#: warehouse/accounts/views.py:949
+#: warehouse/accounts/views.py:951
 msgid "You have reset your password"
 msgstr "你已重置密码"
 
-#: warehouse/accounts/views.py:977
+#: warehouse/accounts/views.py:979
 msgid "Expired token: request a new email verification link"
 msgstr "令牌已过期：请重新请求新的电子邮件验证链接"
 
-#: warehouse/accounts/views.py:979
+#: warehouse/accounts/views.py:981
 msgid "Invalid token: request a new email verification link"
 msgstr "令牌无效：请重新请求新的电子邮件验证链接"
 
-#: warehouse/accounts/views.py:985
+#: warehouse/accounts/views.py:987
 msgid "Invalid token: not an email verification token"
 msgstr "无效令牌：不是电子邮件验证令牌"
 
-#: warehouse/accounts/views.py:994
+#: warehouse/accounts/views.py:996
 msgid "Email not found"
 msgstr "未找到电子邮件"
 
-#: warehouse/accounts/views.py:997
+#: warehouse/accounts/views.py:999
 msgid "Email already verified"
 msgstr "电子邮件已验证"
 
-#: warehouse/accounts/views.py:1017
+#: warehouse/accounts/views.py:1019
 msgid "You can now set this email as your primary address"
 msgstr "你现在可以将此电子邮件设置为你的主邮件地址"
 
-#: warehouse/accounts/views.py:1020
+#: warehouse/accounts/views.py:1022
 msgid "This is your primary address"
 msgstr "这是你的主邮件地址"
 
-#: warehouse/accounts/views.py:1026
+#: warehouse/accounts/views.py:1028
 #, python-brace-format
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "电子邮件地址 ${email_address} 已验证。${confirm_message}。"
 
-#: warehouse/accounts/views.py:1083
+#: warehouse/accounts/views.py:1085
 msgid "Expired token: request a new organization invitation"
 msgstr "令牌已过期：请求新的组织邀请"
 
-#: warehouse/accounts/views.py:1085
+#: warehouse/accounts/views.py:1087
 msgid "Invalid token: request a new organization invitation"
 msgstr "令牌无效：请求新的组织邀请"
 
-#: warehouse/accounts/views.py:1091
+#: warehouse/accounts/views.py:1093
 msgid "Invalid token: not an organization invitation token"
 msgstr "无效令牌：不是组织邀请令牌"
 
-#: warehouse/accounts/views.py:1095
+#: warehouse/accounts/views.py:1097
 msgid "Organization invitation is not valid."
 msgstr "组织邀请无效。"
 
-#: warehouse/accounts/views.py:1104
+#: warehouse/accounts/views.py:1106
 msgid "Organization invitation no longer exists."
 msgstr "组织邀请已不存在。"
 
-#: warehouse/accounts/views.py:1156
+#: warehouse/accounts/views.py:1158
 #, python-brace-format
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "'${organization_name}'的邀请被拒绝。"
 
-#: warehouse/accounts/views.py:1219
+#: warehouse/accounts/views.py:1221
 #, python-brace-format
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "你现在是 '${organization_name}' 组织的 ${role}。"
 
-#: warehouse/accounts/views.py:1252
+#: warehouse/accounts/views.py:1254
 msgid "Expired token: request a new project role invitation"
 msgstr "令牌已过期：请求新的项目角色邀请"
 
-#: warehouse/accounts/views.py:1254
+#: warehouse/accounts/views.py:1256
 msgid "Invalid token: request a new project role invitation"
 msgstr "令牌无效：请求新的项目角色邀请"
 
-#: warehouse/accounts/views.py:1260
+#: warehouse/accounts/views.py:1262
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "无效的令牌：不是协作邀请令牌"
 
-#: warehouse/accounts/views.py:1264
+#: warehouse/accounts/views.py:1266
 msgid "Role invitation is not valid."
 msgstr "角色邀请无效。"
 
-#: warehouse/accounts/views.py:1279
+#: warehouse/accounts/views.py:1273
+msgid "Invalid token: project does not exist"
+msgstr "无效令牌：项目不存在"
+
+#: warehouse/accounts/views.py:1284
 msgid "Role invitation no longer exists."
 msgstr "角色邀请已不存在。"
 
-#: warehouse/accounts/views.py:1311
+#: warehouse/accounts/views.py:1316
 #, python-brace-format
 msgid "Invitation for '${project_name}' is declined."
 msgstr "'${project_name}'的邀请已无效。"
 
-#: warehouse/accounts/views.py:1377
+#: warehouse/accounts/views.py:1382
 #, python-brace-format
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "你现在的角色是 ${role}，所在项目为 '${project_name}'。"
 
-#: warehouse/accounts/views.py:1457
+#: warehouse/accounts/views.py:1462
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr "请查看已更新的<a href=\"${tos_url}\">服务条款</a>。"
 
-#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1922
-#: warehouse/manage/views/oidc_publishers.py:120
+#: warehouse/accounts/views.py:1674 warehouse/accounts/views.py:1928
+#: warehouse/manage/views/oidc_publishers.py:121
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -404,12 +409,12 @@ msgstr ""
 "受信任发布暂时被禁用。有关详细信息，请参见 https://pypi.org/help#admin-"
 "intervention。"
 
-#: warehouse/accounts/views.py:1690
+#: warehouse/accounts/views.py:1695
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr ""
 "被禁用。有关详细信息，请参见 https://pypi.org/help#admin-intervention。"
 
-#: warehouse/accounts/views.py:1706
+#: warehouse/accounts/views.py:1711
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
@@ -417,44 +422,44 @@ msgstr ""
 "要注册待定的受信任发布者，你必须有一个已验证的电子邮箱。详见 https://pypi."
 "org/help#openid-connect。"
 
-#: warehouse/accounts/views.py:1719
+#: warehouse/accounts/views.py:1724
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr "你不能一下子注册超过三个待定的受信任发布者。"
 
-#: warehouse/accounts/views.py:1734
-#: warehouse/manage/views/oidc_publishers.py:301
-#: warehouse/manage/views/oidc_publishers.py:416
-#: warehouse/manage/views/oidc_publishers.py:530
-#: warehouse/manage/views/oidc_publishers.py:642
+#: warehouse/accounts/views.py:1739
+#: warehouse/manage/views/oidc_publishers.py:303
+#: warehouse/manage/views/oidc_publishers.py:418
+#: warehouse/manage/views/oidc_publishers.py:534
+#: warehouse/manage/views/oidc_publishers.py:646
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
 msgstr "受信任发布者的注册尝试次数过多。请稍后重试。"
 
-#: warehouse/accounts/views.py:1744
-#: warehouse/manage/views/oidc_publishers.py:314
-#: warehouse/manage/views/oidc_publishers.py:429
-#: warehouse/manage/views/oidc_publishers.py:543
-#: warehouse/manage/views/oidc_publishers.py:655
+#: warehouse/accounts/views.py:1749
+#: warehouse/manage/views/oidc_publishers.py:316
+#: warehouse/manage/views/oidc_publishers.py:431
+#: warehouse/manage/views/oidc_publishers.py:547
+#: warehouse/manage/views/oidc_publishers.py:659
 msgid "The trusted publisher could not be registered"
 msgstr "无法注册该受信任发布者"
 
-#: warehouse/accounts/views.py:1759
+#: warehouse/accounts/views.py:1764
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr "该受信任发布者已被注册。如果这不是有意为之，请联系 PyPI 的管理员。"
 
-#: warehouse/accounts/views.py:1793
+#: warehouse/accounts/views.py:1798
 msgid "Registered a new pending publisher to create "
 msgstr "注册了新的待定发布者来创建 "
 
-#: warehouse/accounts/views.py:1935 warehouse/accounts/views.py:1948
-#: warehouse/accounts/views.py:1955
+#: warehouse/accounts/views.py:1941 warehouse/accounts/views.py:1954
+#: warehouse/accounts/views.py:1961
 msgid "Invalid publisher ID"
 msgstr "无效的发布者 ID"
 
-#: warehouse/accounts/views.py:1962
+#: warehouse/accounts/views.py:1968
 msgid "Removed trusted publisher for project "
 msgstr "删除了项目的受信任发布者 "
 
@@ -734,11 +739,11 @@ msgstr "邀请已过期。"
 msgid "Invitation revoked from '${username}'."
 msgstr "从“${username}”撤回邀请。"
 
-#: warehouse/manage/views/oidc_publishers.py:169
+#: warehouse/manage/views/oidc_publishers.py:170
 msgid "The trusted publisher could not be constrained"
 msgstr "无法限制该受信任发布者"
 
-#: warehouse/manage/views/oidc_publishers.py:282
+#: warehouse/manage/views/oidc_publishers.py:284
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -746,7 +751,7 @@ msgstr ""
 "基于 Github 的受信任发布暂时被禁用。有关详细信息，请参见 https://pypi.org/"
 "help#admin-intervention。"
 
-#: warehouse/manage/views/oidc_publishers.py:397
+#: warehouse/manage/views/oidc_publishers.py:399
 msgid ""
 "GitLab-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -754,7 +759,7 @@ msgstr ""
 "基于 GitLab 的受信任发布暂时被禁用。有关详细信息，请参见 https://pypi.org/"
 "help#admin-intervention。"
 
-#: warehouse/manage/views/oidc_publishers.py:511
+#: warehouse/manage/views/oidc_publishers.py:515
 msgid ""
 "Google-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -762,7 +767,7 @@ msgstr ""
 "基于 Google 的受信任发布暂时被禁用。有关详细信息，请参见 https://pypi.org/"
 "help#admin-intervention。"
 
-#: warehouse/manage/views/oidc_publishers.py:622
+#: warehouse/manage/views/oidc_publishers.py:626
 msgid ""
 "ActiveState-based trusted publishing is temporarily disabled. See https://"
 "pypi.org/help#admin-intervention for details."
@@ -900,55 +905,55 @@ msgstr "指定存储库名称"
 msgid "Invalid repository name"
 msgstr "无效的存储库名"
 
-#: warehouse/oidc/forms/github.py:39
+#: warehouse/oidc/forms/github.py:40
 msgid "Specify workflow filename"
 msgstr "指定工作流文件名"
 
-#: warehouse/oidc/forms/github.py:74
+#: warehouse/oidc/forms/github.py:75
 msgid "Unknown GitHub user or organization."
 msgstr "未知的 GitHub 用户或组织。"
 
-#: warehouse/oidc/forms/github.py:85
+#: warehouse/oidc/forms/github.py:86
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr "GitHub 对此操作进行了速率限制。请在几分钟后重试。"
 
-#: warehouse/oidc/forms/github.py:94
+#: warehouse/oidc/forms/github.py:95
 msgid "Unexpected error from GitHub. Try again."
 msgstr "来自 GitHub 的意外错误。再试一次。"
 
-#: warehouse/oidc/forms/github.py:102
+#: warehouse/oidc/forms/github.py:103
 msgid "Unexpected connection error from GitHub. Try again in a few minutes."
 msgstr "来自 GitHub 的意外连接错误。请在几分钟后重试。"
 
-#: warehouse/oidc/forms/github.py:111
+#: warehouse/oidc/forms/github.py:112
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgstr "来自 GitHub 的意外超时。请在几分钟后重试。"
 
-#: warehouse/oidc/forms/github.py:123
+#: warehouse/oidc/forms/github.py:124
 msgid "Invalid GitHub user or organization name."
 msgstr "无效的 GitHub 用户或组织名称。"
 
-#: warehouse/oidc/forms/github.py:139
+#: warehouse/oidc/forms/github.py:140
 msgid "Workflow name must end with .yml or .yaml"
 msgstr "工作流名称必须以 .yml 或 .yaml 结尾"
 
-#: warehouse/oidc/forms/github.py:144
+#: warehouse/oidc/forms/github.py:145
 msgid "Workflow filename must be a filename only, without directories"
 msgstr "工作流文件名必须仅为文件名，不能包含目录"
 
-#: warehouse/oidc/forms/github.py:155
+#: warehouse/oidc/forms/github.py:156
 msgid "Environment name is too long (maximum is 255 characters)"
 msgstr "环境名过长（最大长度 255 个字符）"
 
-#: warehouse/oidc/forms/github.py:160
+#: warehouse/oidc/forms/github.py:161
 msgid "Environment name may not start with whitespace"
 msgstr "环境名不可以空白开头"
 
-#: warehouse/oidc/forms/github.py:165
+#: warehouse/oidc/forms/github.py:166
 msgid "Environment name may not end with whitespace"
 msgstr "环境名不可以空白结尾"
 
-#: warehouse/oidc/forms/github.py:171
+#: warehouse/oidc/forms/github.py:172
 msgid ""
 "Environment name must not contain non-printable characters or the characters "
 "\"'\", \"\"\", \"`\", \",\", \";\", \"\\\""
@@ -967,20 +972,20 @@ msgstr "指定 GitLab 命名空间（用户名或组/子组）"
 msgid "Invalid GitLab username or group/subgroup name."
 msgstr "无效的 GitLab 用户名或组/子组名。"
 
-#: warehouse/oidc/forms/gitlab.py:62
+#: warehouse/oidc/forms/gitlab.py:63
 msgid "Specify top-level pipeline file path"
 msgstr "指定顶层管线文件路径"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/oidc/forms/gitlab.py:71
+#: warehouse/oidc/forms/gitlab.py:72
 msgid "Invalid environment name"
 msgstr "无效的环境名"
 
-#: warehouse/oidc/forms/gitlab.py:86
+#: warehouse/oidc/forms/gitlab.py:87
 msgid "Top-level pipeline file path must end with .yml or .yaml"
 msgstr "顶层管线文件路径必须以 .yml 或 .yaml 结尾"
 
-#: warehouse/oidc/forms/gitlab.py:90
+#: warehouse/oidc/forms/gitlab.py:91
 msgid "Top-level pipeline file path cannot start or end with /"
 msgstr "顶层管线文件路径不能以 / 开头或结尾"
 
@@ -4452,7 +4457,7 @@ msgstr "无法删除上一个双因素身份验证方式"
 #: warehouse/templates/manage/manage_base.html:72
 #: warehouse/templates/manage/manage_base.html:91
 #: warehouse/templates/manage/manage_base.html:95
-#: warehouse/templates/manage/manage_base.html:624
+#: warehouse/templates/manage/manage_base.html:626
 #: warehouse/templates/manage/organization/roles.html:276
 #: warehouse/templates/manage/organization/roles.html:280
 #: warehouse/templates/manage/organization/roles.html:291
@@ -4648,11 +4653,11 @@ msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:587
 #: warehouse/templates/manage/manage_base.html:598
-#: warehouse/templates/manage/manage_base.html:607
+#: warehouse/templates/manage/manage_base.html:609
 msgid "Any"
 msgstr "任意"
 
-#: warehouse/templates/manage/manage_base.html:631
+#: warehouse/templates/manage/manage_base.html:633
 #: warehouse/templates/manage/organization/history.html:141
 #: warehouse/templates/manage/project/history.html:27
 #: warehouse/templates/manage/project/history.html:80
@@ -4665,7 +4670,7 @@ msgstr "任意"
 msgid "Added by:"
 msgstr "添加者："
 
-#: warehouse/templates/manage/manage_base.html:633
+#: warehouse/templates/manage/manage_base.html:635
 #: warehouse/templates/manage/organization/history.html:146
 #: warehouse/templates/manage/project/history.html:46
 #: warehouse/templates/manage/project/history.html:111
@@ -4676,24 +4681,24 @@ msgstr "添加者："
 msgid "Removed by:"
 msgstr "删除者："
 
-#: warehouse/templates/manage/manage_base.html:635
+#: warehouse/templates/manage/manage_base.html:637
 msgid "Submitted by:"
 msgstr "提交者："
 
-#: warehouse/templates/manage/manage_base.html:638
+#: warehouse/templates/manage/manage_base.html:640
 #: warehouse/templates/manage/project/history.html:224
 msgid "Workflow:"
 msgstr "工作流："
 
-#: warehouse/templates/manage/manage_base.html:640
+#: warehouse/templates/manage/manage_base.html:642
 msgid "Specifier:"
 msgstr "技术参数："
 
-#: warehouse/templates/manage/manage_base.html:642
+#: warehouse/templates/manage/manage_base.html:644
 msgid "Publisher:"
 msgstr "发布者："
 
-#: warehouse/templates/manage/manage_base.html:644
+#: warehouse/templates/manage/manage_base.html:646
 #: warehouse/templates/manage/project/history.html:36
 #: warehouse/templates/manage/project/history.html:89
 msgid "URL:"
