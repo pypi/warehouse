@@ -346,7 +346,7 @@ def _is_valid_dist_file(filename, filetype):
             if not zip_ok:
                 return False, (
                     f"ZIP archive not accepted: {zip_error}. "
-                    f"See {request.user_docs_url("/archives")} for more information"
+                    f"See https://docs.pypi.org/archives for more information"
                 )
 
         except zipfile.BadZipFile:  # pragma: no cover
