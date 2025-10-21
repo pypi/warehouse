@@ -57,3 +57,7 @@ as marking a ZIP as ZIP64 or defining the Unicode filename.
 Many archives support trailing or prepended data
 or comments within records. PyPI disallows these features
 to avoid smuggling other archive records within comments.
+
+## Further reading
+
+This [white paper](https://www.usenix.org/system/files/usenixsecurity25-you.pdf) details many aspects of ZIPs, differentials, and exploitable archive features.
