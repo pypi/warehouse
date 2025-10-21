@@ -1225,9 +1225,8 @@ msgstr ""
 #: warehouse/templates/manage/account.html:845
 #: warehouse/templates/manage/manage_base.html:364
 #: warehouse/templates/manage/manage_base.html:442
-#: warehouse/templates/manage/organization/settings.html:205
-#: warehouse/templates/manage/organization/settings.html:266
-#: warehouse/templates/manage/organization/settings.html:272
+#: warehouse/templates/manage/organization/settings.html:291
+#: warehouse/templates/manage/organization/settings.html:297
 #: warehouse/templates/manage/project/documentation.html:13
 #: warehouse/templates/manage/project/release.html:209
 #: warehouse/templates/manage/project/settings.html:78
@@ -3953,7 +3952,7 @@ msgid "Recent account activity"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:784
-#: warehouse/templates/manage/organization/history.html:175
+#: warehouse/templates/manage/organization/history.html:193
 #: warehouse/templates/manage/project/history.html:333
 #: warehouse/templates/manage/team/history.html:87
 #: warehouse/templates/manage/unverified-account.html:459
@@ -3961,8 +3960,8 @@ msgid "Event"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:785
-#: warehouse/templates/manage/organization/history.html:176
-#: warehouse/templates/manage/organization/history.html:185
+#: warehouse/templates/manage/organization/history.html:194
+#: warehouse/templates/manage/organization/history.html:203
 #: warehouse/templates/manage/project/history.html:334
 #: warehouse/templates/manage/project/history.html:343
 #: warehouse/templates/manage/team/history.html:88
@@ -3972,7 +3971,7 @@ msgid "Time"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:786
-#: warehouse/templates/manage/organization/history.html:177
+#: warehouse/templates/manage/organization/history.html:195
 #: warehouse/templates/manage/team/history.html:89
 #: warehouse/templates/manage/unverified-account.html:461
 msgid "Additional Info"
@@ -3984,13 +3983,13 @@ msgid "Date / time"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:798
-#: warehouse/templates/manage/organization/history.html:189
+#: warehouse/templates/manage/organization/history.html:207
 #: warehouse/templates/manage/unverified-account.html:472
 msgid "Location Info"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:801
-#: warehouse/templates/manage/organization/history.html:192
+#: warehouse/templates/manage/organization/history.html:210
 #: warehouse/templates/manage/project/history.html:350
 #: warehouse/templates/manage/team/history.html:104
 #: warehouse/templates/manage/unverified-account.html:475
@@ -4040,8 +4039,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:843
 #: warehouse/templates/manage/account/token.html:177
-#: warehouse/templates/manage/organization/settings.html:203
-#: warehouse/templates/manage/organization/settings.html:264
+#: warehouse/templates/manage/organization/settings.html:289
 #: warehouse/templates/manage/project/publishing.html:19
 #: warehouse/templates/manage/team/settings.html:60
 msgid "Proceed with caution!"
@@ -4313,7 +4311,8 @@ msgid "Any"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:633
-#: warehouse/templates/manage/organization/history.html:141
+#: warehouse/templates/manage/organization/history.html:109
+#: warehouse/templates/manage/organization/history.html:159
 #: warehouse/templates/manage/project/history.html:27
 #: warehouse/templates/manage/project/history.html:80
 #: warehouse/templates/manage/project/history.html:119
@@ -4326,7 +4325,8 @@ msgid "Added by:"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:635
-#: warehouse/templates/manage/organization/history.html:146
+#: warehouse/templates/manage/organization/history.html:117
+#: warehouse/templates/manage/organization/history.html:164
 #: warehouse/templates/manage/project/history.html:46
 #: warehouse/templates/manage/project/history.html:111
 #: warehouse/templates/manage/project/history.html:126
@@ -4383,7 +4383,7 @@ msgstr ""
 msgid "Decline invitation"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:284
+#: warehouse/templates/manage/organization/settings.html:309
 #: warehouse/templates/manage/organizations.html:51
 msgid "Organization Name"
 msgstr ""
@@ -5620,56 +5620,70 @@ msgstr ""
 msgid "<a href=\"%(href)s\">%(username)s</a> removed from %(team_name)s team"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:109
+#: warehouse/templates/manage/organization/history.html:106
+#, python-format
+msgid ""
+"Custom Trusted Publisher '%(issuer_type)s' for "
+"<code>%(issuer_url)s</code> added to organization"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:114
+#, python-format
+msgid ""
+"Custom Trusted Publisher '%(issuer_type)s' for "
+"<code>%(issuer_url)s</code> removed from organization"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:127
 msgid "Registered by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:115
+#: warehouse/templates/manage/organization/history.html:133
 #: warehouse/templates/manage/project/history.html:19
 #: warehouse/templates/manage/team/history.html:52
 msgid "Created by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:120
+#: warehouse/templates/manage/organization/history.html:138
 #: warehouse/templates/manage/project/history.html:293
 #: warehouse/templates/manage/project/history.html:315
 #: warehouse/templates/manage/team/history.html:57
 msgid "Deleted by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:125
+#: warehouse/templates/manage/organization/history.html:143
 #: warehouse/templates/manage/team/history.html:62
 msgid "Renamed by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:130
+#: warehouse/templates/manage/organization/history.html:148
 msgid "Approved by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:135
+#: warehouse/templates/manage/organization/history.html:153
 msgid "Declined by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:151
+#: warehouse/templates/manage/organization/history.html:169
 #: warehouse/templates/manage/project/history.html:133
 #: warehouse/templates/manage/project/history.html:179
 #: warehouse/templates/manage/team/history.html:78
 msgid "Changed by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:156
-#: warehouse/templates/manage/organization/history.html:161
+#: warehouse/templates/manage/organization/history.html:174
+#: warehouse/templates/manage/organization/history.html:179
 #: warehouse/templates/manage/project/history.html:140
 #: warehouse/templates/manage/project/history.html:147
 msgid "Invited by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:166
+#: warehouse/templates/manage/organization/history.html:184
 #: warehouse/templates/manage/project/history.html:154
 msgid "Revoked by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:172
+#: warehouse/templates/manage/organization/history.html:190
 #: warehouse/templates/manage/project/history.html:330
 #: warehouse/templates/manage/team/history.html:84
 #, python-format
@@ -6055,68 +6069,75 @@ msgid "Activate billing"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:194
-#: warehouse/templates/manage/organization/settings.html:228
-msgid "Change organization account name"
+msgid "Custom Trusted Publishers"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:196
+msgid ""
+"The following custom Trusted Publisher issuers have been configured for "
+"this organization. These issuers can be used to configure Trusted "
+"Publishing for your organization's projects."
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:209
+msgid "Modifying custom Trusted Publishers is not currently supported."
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:211
+#, python-format
+msgid ""
+"Please contact <a href=%(href)s>PyPI Support</a> if you need to modify "
+"custom Trusted Publishers."
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:219
+msgid "Change organization account name"
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:221
 msgid "Renaming organizations is not currently supported."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:198
+#: warehouse/templates/manage/organization/settings.html:223
 #, python-format
 msgid ""
 "Please contact <a href=%(href)s>PyPI Support</a> if you need to rename "
 "your organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:206
-msgid ""
-"You will not be able to revert to your current account name after you "
-"rename your organization."
-msgstr ""
-
-#: warehouse/templates/manage/organization/settings.html:228
-msgid "Change organization account name for"
-msgstr ""
-
-#: warehouse/templates/manage/organization/settings.html:228
-msgid "Current organization account name"
-msgstr ""
-
-#: warehouse/templates/manage/organization/settings.html:234
-#: warehouse/templates/manage/organization/settings.html:284
+#: warehouse/templates/manage/organization/settings.html:259
+#: warehouse/templates/manage/organization/settings.html:309
 msgid "Delete organization"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:237
+#: warehouse/templates/manage/organization/settings.html:262
 msgid "Cannot delete organization"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:239
+#: warehouse/templates/manage/organization/settings.html:264
 #, python-format
 msgid "Your organization currently owns %(count)s project."
 msgid_plural "Your organization currently owns %(count)s projects."
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/organization/settings.html:244
+#: warehouse/templates/manage/organization/settings.html:269
 msgid "For each project, you must either:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:246
+#: warehouse/templates/manage/organization/settings.html:271
 msgid "Transfer ownership and remove the project from your organization"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:247
+#: warehouse/templates/manage/organization/settings.html:272
 msgid "Delete the project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:249
+#: warehouse/templates/manage/organization/settings.html:274
 msgid "Before you can delete your organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:255
+#: warehouse/templates/manage/organization/settings.html:280
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> and <a "
@@ -6124,21 +6145,21 @@ msgid ""
 "href=\"%(remove_delete_href)s\">delete project</a>"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:267
+#: warehouse/templates/manage/organization/settings.html:292
 msgid "You will not be able to recover your organization after you delete it."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:274
+#: warehouse/templates/manage/organization/settings.html:299
 msgid ""
 "Your subscription will be cancelled, and you will lose access to the "
 "billing portal."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:276
+#: warehouse/templates/manage/organization/settings.html:301
 msgid "You will lose access to the billing portal."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:278
+#: warehouse/templates/manage/organization/settings.html:303
 #, python-format
 msgid ""
 "Please ensure you have retrieved all invoices from <a "
