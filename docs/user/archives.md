@@ -1,4 +1,4 @@
-# Archives
+# Archive Formats
 
 Wheels and source distributions use the ZIP and tar format to distribute
 multiple files within a single artifact. To avoid archive differential / confusion
