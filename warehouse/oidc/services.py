@@ -77,7 +77,7 @@ class NullOIDCPublisherService:
 
     def find_publisher(
         self, signed_claims: SignedClaims, *, pending: bool = False
-    ) -> OIDCPublisher | PendingOIDCPublisher | None:
+    ) -> OIDCPublisher | PendingOIDCPublisher:
         # NOTE: We do NOT verify the claims against the publisher, since this
         # service is for development purposes only.
         return find_publisher_by_issuer(

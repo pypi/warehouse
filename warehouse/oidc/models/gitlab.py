@@ -80,7 +80,7 @@ def _check_ci_config_ref_uri(
     **_kwargs,
 ) -> bool:
     # We expect a string formatted as follows:
-    #   gitlab.com/OWNER/REPO//WORKFLOW_PATH/WORKFLOW_FILE.yml@REF
+    #   <gitlab.com>/OWNER/REPO//WORKFLOW_PATH/WORKFLOW_FILE.yml@REF
     # where REF is the value of the `ref_path` claim.
 
     # Defensive: GitLab should never give us an empty ci_config_ref_uri,
@@ -234,6 +234,7 @@ class GitLabPublisherMixin:
 
     @classmethod
     def lookup_by_claims(cls, session: Session, signed_claims: SignedClaims) -> Self:
+        issuer_url = signed_claims["iss"]
         project_path = signed_claims["project_path"]
         ci_config_ref_uri = signed_claims["ci_config_ref_uri"]
         namespace, project = project_path.rsplit("/", 1)
@@ -249,6 +250,7 @@ class GitLabPublisherMixin:
             func.lower(cls.namespace) == func.lower(namespace),
             func.lower(cls.project) == func.lower(project),
             cls.workflow_filepath == workflow_filepath,
+            cls.issuer_url == issuer_url,
         )
         publishers = query.with_session(session).all()
         if publisher := cls._get_publisher_for_environment(publishers, environment):
@@ -266,7 +268,9 @@ class GitLabPublisherMixin:
 
     @property
     def ci_config_ref_uri(self) -> str:
-        return f"gitlab.com/{self.project_path}//{self.workflow_filepath}"
+        # Extract domain from issuer_url (remove https:// prefix)
+        domain = self.issuer_url.removeprefix("https://")
+        return f"{domain}/{self.project_path}//{self.workflow_filepath}"
 
     @property
     def publisher_name(self) -> str:
@@ -274,7 +278,8 @@ class GitLabPublisherMixin:
 
     @property
     def publisher_base_url(self) -> str:
-        return f"https://gitlab.com/{self.project_path}"
+        # Use the issuer_url which already includes the scheme (https://)
+        return f"{self.issuer_url}/{self.project_path}"
 
     @property
     def jti(self) -> str:
@@ -430,6 +435,7 @@ class PendingGitLabPublisher(GitLabPublisherMixin, PendingOIDCPublisher):
                 GitLabPublisher.project == self.project,
                 GitLabPublisher.workflow_filepath == self.workflow_filepath,
                 GitLabPublisher.environment == self.environment,
+                GitLabPublisher.issuer_url == self.issuer_url,
             )
             .one_or_none()
         )
@@ -439,7 +445,7 @@ class PendingGitLabPublisher(GitLabPublisherMixin, PendingOIDCPublisher):
             project=self.project,
             workflow_filepath=self.workflow_filepath,
             environment=self.environment,
-            issuer_url=GITLAB_OIDC_ISSUER_URL,
+            issuer_url=self.issuer_url,
         )
 
         session.delete(self)
