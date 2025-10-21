@@ -1794,6 +1794,7 @@ class TestAddOIDCIssuer:
                     "issuer_type": "gitlab",
                     "issuer_url": "https://gitlab.company.com",
                     "submitted_by_user_id": str(admin_user.id),
+                    "redact_ip": True,
                 },
             )
         ]
@@ -1956,6 +1957,7 @@ class TestDeleteOIDCIssuer:
                     "issuer_type": "gitlab",
                     "issuer_url": "https://gitlab.company.com",
                     "deleted_by_user_id": str(admin_user.id),
+                    "redact_ip": True,
                 },
             )
         ]
