@@ -188,6 +188,31 @@
     {% endif %}
   </section>
 {% endif %}
+{% if request.has_permission(Permissions.OrganizationsManage) and organization.oidc_issuers %}
+  <hr>
+  <section id="custom-trusted-publishers">
+    <h2>{% trans %}Custom Trusted Publishers{% endtrans %}</h2>
+    <p>
+      {% trans %}The following custom Trusted Publisher issuers have been configured for this organization.
+      These issuers can be used to configure Trusted Publishing for your organization's projects.{% endtrans %}
+    </p>
+    <div>
+      <ul>
+        {% for issuer in organization.oidc_issuers %}
+          <li>
+            <strong>{{ issuer.issuer_type.name }}</strong>: {{ issuer.issuer_url }}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="callout-block callout-block--warning">
+      <p>{% trans %}Modifying custom Trusted Publishers is not currently supported.{% endtrans %}</p>
+      <p>
+        {% trans href="mailto:support+orgs@pypi.org" %}Please contact <a href={{ href }}>PyPI Support</a> if you need to modify custom Trusted Publishers.{% endtrans %}
+      </p>
+    </div>
+  </section>
+{% endif %}
 {% if request.has_permission(Permissions.OrganizationsManage) %}
   <hr>
   <section id="change-organization-account-name">
