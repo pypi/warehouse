@@ -223,7 +223,7 @@
         {% trans href="mailto:support+orgs@pypi.org" %}Please contact <a href={{ href }}>PyPI Support</a> if you need to rename your organization.{% endtrans %}
       </p>
     </div>
-    <!-- When support for renaming orgs is re-introduced
+    {# When support for renaming orgs is re-introduced
     <div class="callout-block callout-block--danger">
       <h3>{% trans %}Proceed with caution!{% endtrans %}</h3>
       <p>
@@ -252,7 +252,7 @@
       {% endset %}
       {{ confirm_button(gettext("Change organization account name for"), gettext("Current organization account name"), "current_organization_name", organization.name, confirm_button_label=gettext("Change organization account name"), extra_fields=extra_fields, action=action) }}
     </div>
--->
+-#}
   </section>
   <hr>
   <section id="delete-organization">
