@@ -7,13 +7,13 @@ use unnecessary and uncommon features of archives, such as archives that are
 designated for multiple disks or archives that are constructed to intentionally
 confuse archive implementations.
 
-This page details the archive format features that PyPI rejects so if you
+This page details some of the the archive format features that PyPI rejects so if you
 encounter an error you can debug the issue and upload the fixed archive to PyPI.
 
 ## Multiple or malformed central directory
 
 Archives often support having multiple central directories
-or indexes to allow for "append-only" updates, this is not allowed in archives
+or indexes to allow for "append-only" updates. This is not allowed in archives
 on PyPI to avoid confusion while handling multiple central directories.
 Additionally, central directories must be specified correctly such that
 none of the central directory can be missed or misinterpreted
