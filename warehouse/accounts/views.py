@@ -9,6 +9,7 @@ import humanize
 import pytz
 
 from more_itertools import first_true
+from psycopg.errors import UniqueViolation
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPMovedPermanently,
@@ -21,7 +22,7 @@ from pyramid.interfaces import ISecurityPolicy
 from pyramid.security import forget, remember
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import and_, func, select
-from sqlalchemy.exc import IntegrityError, NoResultFound
+from sqlalchemy.exc import NoResultFound
 from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
 
@@ -79,6 +80,7 @@ from warehouse.oidc.forms import (
 )
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import (
+    GITLAB_OIDC_ISSUER_URL,
     PendingActiveStatePublisher,
     PendingGitHubPublisher,
     PendingGitLabPublisher,
@@ -1263,11 +1265,14 @@ def verify_project_role(request):
     if user != request.user:
         return _error(request._("Role invitation is not valid."))
 
-    project = (
-        request.db.query(Project).filter(Project.id == data.get("project_id")).one()
-    )
-    desired_role = data.get("desired_role")
+    try:
+        project = (
+            request.db.query(Project).filter(Project.id == data.get("project_id")).one()
+        )
+    except NoResultFound:
+        return _error(request._("Invalid token: project does not exist"))
 
+    desired_role = data.get("desired_role")
     role_invite = (
         request.db.query(RoleInvitation)
         .filter(RoleInvitation.project == project)
@@ -1768,7 +1773,7 @@ class ManageAccountPublishingViews:
         try:
             self.request.db.add(pending_publisher)
             self.request.db.flush()  # To get the new ID
-        except IntegrityError:
+        except UniqueViolation:
             # The user has probably double-posted and a new publisher was
             # created after our check for duplicates ran. The success message
             # is probably already in the flash queue, so just redirect to the
@@ -1901,6 +1906,7 @@ class ManageAccountPublishingViews:
                 project=form.project.data,
                 workflow_filepath=form.workflow_filepath.data,
                 environment=form.normalized_environment,
+                issuer_url=GITLAB_OIDC_ISSUER_URL,
             ),
             make_existence_filters=lambda form: dict(
                 project_name=form.project_name.data,

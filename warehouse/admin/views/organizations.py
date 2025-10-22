@@ -23,13 +23,16 @@ from warehouse.constants import (
     ONE_MIB,
     UPLOAD_LIMIT_CAP,
 )
+from warehouse.events.tags import EventTag
 from warehouse.manage.forms import OrganizationNameMixin, SaveOrganizationForm
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
+    OIDCIssuerType,
     Organization,
     OrganizationApplication,
     OrganizationApplicationStatus,
     OrganizationManualActivation,
+    OrganizationOIDCIssuer,
     OrganizationRole,
     OrganizationRoleType,
     OrganizationType,
@@ -321,6 +324,9 @@ def organization_detail(request):
     # Create form for manual activation
     manual_activation_form = ManualActivationForm()
 
+    # Create form for OIDC issuer management
+    oidc_issuer_form = OrganizationOIDCIssuerForm()
+
     return {
         "organization": organization,
         "form": form,
@@ -328,6 +334,7 @@ def organization_detail(request):
         "role_forms": role_forms,
         "add_role_form": add_role_form,
         "manual_activation_form": manual_activation_form,
+        "oidc_issuer_form": oidc_issuer_form,
         "ONE_MIB": ONE_MIB,
         "MAX_FILESIZE": MAX_FILESIZE,
         "ONE_GIB": ONE_GIB,
@@ -1248,4 +1255,167 @@ def set_total_size_limit(request):
             "admin.organization.detail",
             organization_id=organization.id,
         )
+    )
+
+
+class OrganizationOIDCIssuerForm(wtforms.Form):
+    issuer_type = wtforms.SelectField(
+        choices=[(issuer.value, issuer.name) for issuer in OIDCIssuerType],
+        coerce=OIDCIssuerType,
+        validators=[
+            wtforms.validators.InputRequired(message="Select an issuer type"),
+        ],
+    )
+    issuer_url = wtforms.URLField(
+        validators=[
+            wtforms.validators.InputRequired(message="Specify issuer URL"),
+            wtforms.validators.Length(max=400),
+            wtforms.validators.Regexp(
+                r"^https://",
+                message="Issuer URL must start with https://",
+            ),
+        ],
+    )
+
+
+@view_config(
+    route_name="admin.organization.add_oidc_issuer",
+    permission=Permissions.AdminOrganizationsWrite,
+    request_method="POST",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def add_oidc_issuer(request):
+    organization_service = request.find_service(IOrganizationService, context=None)
+    user_service = request.find_service(IUserService)
+
+    organization_id = request.matchdict["organization_id"]
+    organization = organization_service.get_organization(organization_id)
+    if organization is None:
+        raise HTTPNotFound
+
+    form = OrganizationOIDCIssuerForm(request.POST)
+    if not form.validate():
+        for field, errors in form.errors.items():
+            for error in errors:
+                request.session.flash(f"{field}: {error}", queue="error")
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
+    # Check if this issuer already exists for this organization
+    existing_issuer = (
+        request.db.query(OrganizationOIDCIssuer)
+        .filter(
+            OrganizationOIDCIssuer.organization_id == organization.id,
+            OrganizationOIDCIssuer.issuer_type == form.issuer_type.data,
+            OrganizationOIDCIssuer.issuer_url == form.issuer_url.data,
+        )
+        .first()
+    )
+
+    if existing_issuer:
+        request.session.flash(
+            f"Issuer '{form.issuer_url.data}' already exists for organization "
+            f"'{organization.name}'",
+            queue="error",
+        )
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
+    # Create OIDC issuer
+    oidc_issuer = OrganizationOIDCIssuer(
+        organization_id=organization.id,
+        issuer_type=form.issuer_type.data,
+        issuer_url=form.issuer_url.data,
+        created_by_id=request.user.id,
+    )
+    request.db.add(oidc_issuer)
+
+    # Record the event
+    organization.record_event(
+        request=request,
+        tag=EventTag.Organization.OIDCPublisherAdded,
+        additional={
+            "issuer_type": form.issuer_type.data.value,
+            "issuer_url": form.issuer_url.data,
+            "submitted_by_user_id": str(user_service.get_admin_user().id),
+            "redact_ip": True,
+        },
+    )
+
+    request.session.flash(
+        f"OIDC issuer '{form.issuer_url.data}' ({form.issuer_type.data.value}) "
+        f"added to '{organization.name}'",
+        queue="success",
+    )
+
+    return HTTPSeeOther(
+        request.route_path("admin.organization.detail", organization_id=organization.id)
+    )
+
+
+@view_config(
+    route_name="admin.organization.delete_oidc_issuer",
+    permission=Permissions.AdminOrganizationsWrite,
+    request_method="POST",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def delete_oidc_issuer(request):
+    organization_service = request.find_service(IOrganizationService, context=None)
+    user_service = request.find_service(IUserService)
+
+    organization_id = request.matchdict["organization_id"]
+    organization = organization_service.get_organization(organization_id)
+    if organization is None:
+        raise HTTPNotFound
+
+    issuer_id = request.matchdict.get("issuer_id")
+    issuer = request.db.get(OrganizationOIDCIssuer, issuer_id)
+    if not issuer or issuer.organization_id != organization.id:
+        request.session.flash("This issuer does not exist", queue="error")
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
+    confirm = request.POST.get("confirm")
+    if not confirm or confirm != issuer.issuer_url:
+        request.session.flash("Confirm the request", queue="error")
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
+    # Record the event before deleting
+    organization.record_event(
+        request=request,
+        tag=EventTag.Organization.OIDCPublisherRemoved,
+        additional={
+            "issuer_type": issuer.issuer_type.value,
+            "issuer_url": issuer.issuer_url,
+            "deleted_by_user_id": str(user_service.get_admin_user().id),
+            "redact_ip": True,
+        },
+    )
+
+    request.session.flash(
+        f"OIDC issuer '{issuer.issuer_url}' removed from '{organization.name}'",
+        queue="success",
+    )
+
+    request.db.delete(issuer)
+
+    return HTTPSeeOther(
+        request.route_path("admin.organization.detail", organization_id=organization.id)
     )

@@ -1,4 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
+from __future__ import annotations
+
+import typing
 
 from celery.schedules import crontab
 
@@ -12,8 +15,11 @@ from warehouse.oidc.utils import (
     GOOGLE_OIDC_ISSUER_URL,
 )
 
+if typing.TYPE_CHECKING:
+    from pyramid.config import Configurator
 
-def includeme(config):
+
+def includeme(config: Configurator) -> None:
     oidc_publisher_service_class = config.maybe_dotted(
         config.registry.settings["oidc.backend"]
     )

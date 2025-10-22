@@ -215,11 +215,13 @@ def test_mint_token_from_oidc_jwt_decode_leaky_exception(monkeypatch):
         assert err["description"] == "malformed JWT"
 
 
-def test_mint_token_from_oidc_unknown_issuer():
+def test_mint_token_from_oidc_unknown_issuer(metrics):
     class Request:
         def __init__(self):
             self.response = pretend.stub(status=None)
             self.flags = pretend.stub(disallow_oidc=lambda *a: False)
+            self.db = pretend.stub(scalar=lambda *stmt: None)
+            self.metrics = metrics
 
         @property
         def body(self):
@@ -247,7 +249,7 @@ def test_mint_token_from_oidc_unknown_issuer():
 
 
 @pytest.mark.parametrize(
-    ("token", "service_name"),
+    ("token", "service_name", "unverified_issuer"),
     [
         (
             (
@@ -256,6 +258,7 @@ def test_mint_token_from_oidc_unknown_issuer():
                 "ZWPGfHu-0EEQMlVyO5UVdQ"
             ),
             "github",
+            "https://token.actions.githubusercontent.com",
         ),
         (
             (
@@ -263,6 +266,7 @@ def test_mint_token_from_oidc_unknown_issuer():
                 "nRzLmdvb2dsZS5jb20ifQ.2RJ6Y52Rap0LEj61yBGDokUg8r92SYQq6l3cflSWBVI"
             ),
             "google",
+            "https://accounts.google.com",
         ),
         (
             (
@@ -271,11 +275,12 @@ def test_mint_token_from_oidc_unknown_issuer():
                 "sHtF7obbcnu4w_ZSU"
             ),
             "gitlab",
+            "https://gitlab.com",
         ),
     ],
 )
 def test_mint_token_from_oidc_creates_expected_service(
-    monkeypatch, token, service_name
+    monkeypatch, token, service_name, unverified_issuer
 ):
     mint_token = pretend.call_recorder(lambda *a: pretend.stub())
     monkeypatch.setattr(views, "mint_token", mint_token)
@@ -293,12 +298,15 @@ def test_mint_token_from_oidc_creates_expected_service(
     assert request.find_service.calls == [
         pretend.call(IOIDCPublisherService, name=service_name)
     ]
-    assert mint_token.calls == [pretend.call(oidc_service, token, request)]
+    assert mint_token.calls == [
+        pretend.call(oidc_service, token, unverified_issuer, request)
+    ]
 
 
 def test_mint_token_from_trusted_publisher_verify_jwt_signature_fails():
+    claims = {"iss": "https://none"}
     oidc_service = pretend.stub(
-        verify_jwt_signature=pretend.call_recorder(lambda token: None),
+        verify_jwt_signature=pretend.call_recorder(lambda token, issuer_url=None: None),
     )
     request = pretend.stub(
         response=pretend.stub(status=None),
@@ -306,7 +314,9 @@ def test_mint_token_from_trusted_publisher_verify_jwt_signature_fails():
         flags=pretend.stub(disallow_oidc=lambda *a: False),
     )
 
-    response = views.mint_token(oidc_service, DUMMY_GITHUB_OIDC_JWT, request)
+    response = views.mint_token(
+        oidc_service, DUMMY_GITHUB_OIDC_JWT, claims["iss"], request
+    )
     assert request.response.status == 422
     assert response == {
         "message": "Token request failed",
@@ -319,15 +329,17 @@ def test_mint_token_from_trusted_publisher_verify_jwt_signature_fails():
     }
 
     assert oidc_service.verify_jwt_signature.calls == [
-        pretend.call(DUMMY_GITHUB_OIDC_JWT)
+        pretend.call(DUMMY_GITHUB_OIDC_JWT, claims["iss"])
     ]
 
 
 def test_mint_token_trusted_publisher_lookup_fails():
-    claims = pretend.stub()
+    claims = {"iss": "https://none"}
     message = "some message"
     oidc_service = pretend.stub(
-        verify_jwt_signature=pretend.call_recorder(lambda token: claims),
+        verify_jwt_signature=pretend.call_recorder(
+            lambda token, issuer_url=None: claims
+        ),
         find_publisher=pretend.call_recorder(
             pretend.raiser(errors.InvalidPublisherError(message))
         ),
@@ -338,7 +350,9 @@ def test_mint_token_trusted_publisher_lookup_fails():
         flags=pretend.stub(disallow_oidc=lambda *a: False),
     )
 
-    response = views.mint_token(oidc_service, DUMMY_GITHUB_OIDC_JWT, request)
+    response = views.mint_token(
+        oidc_service, DUMMY_GITHUB_OIDC_JWT, claims["iss"], request
+    )
     assert request.response.status == 422
     assert response == {
         "message": "Token request failed",
@@ -353,7 +367,7 @@ def test_mint_token_trusted_publisher_lookup_fails():
     }
 
     assert oidc_service.verify_jwt_signature.calls == [
-        pretend.call(DUMMY_GITHUB_OIDC_JWT)
+        pretend.call(DUMMY_GITHUB_OIDC_JWT, claims["iss"])
     ]
     assert oidc_service.find_publisher.calls == [
         pretend.call(claims, pending=True),
@@ -368,9 +382,11 @@ def test_mint_token_duplicate_token():
         else:
             raise errors.InvalidPublisherError("some message")
 
-    claims = pretend.stub()
+    claims = {"iss": "https://none"}
     oidc_service = pretend.stub(
-        verify_jwt_signature=pretend.call_recorder(lambda token: claims),
+        verify_jwt_signature=pretend.call_recorder(
+            lambda token, issuer_url=None: claims
+        ),
         find_publisher=find_publishers_mockup,
     )
     request = pretend.stub(
@@ -379,7 +395,9 @@ def test_mint_token_duplicate_token():
         flags=pretend.stub(disallow_oidc=lambda *a: False),
     )
 
-    response = views.mint_token(oidc_service, DUMMY_GITHUB_OIDC_JWT, request)
+    response = views.mint_token(
+        oidc_service, DUMMY_GITHUB_OIDC_JWT, claims["iss"], request
+    )
     assert request.response.status == 422
     assert response == {
         "message": "Token request failed",
@@ -400,16 +418,20 @@ def test_mint_token_pending_publisher_project_already_exists(db_request):
 
     db_request.flags.disallow_oidc = lambda f=None: False
 
-    claims = pretend.stub()
+    claims = {"iss": "https://none"}
     oidc_service = pretend.stub(
-        verify_jwt_signature=pretend.call_recorder(lambda token: claims),
+        verify_jwt_signature=pretend.call_recorder(
+            lambda token, issuer_url=None: claims
+        ),
         find_publisher=pretend.call_recorder(
             lambda claims, pending=False: pending_publisher
         ),
     )
     db_request.find_service = pretend.call_recorder(lambda *a, **kw: oidc_service)
 
-    resp = views.mint_token(oidc_service, DUMMY_GITHUB_OIDC_JWT, db_request)
+    resp = views.mint_token(
+        oidc_service, DUMMY_GITHUB_OIDC_JWT, claims["iss"], db_request
+    )
     assert db_request.response.status_code == 422
     assert resp == {
         "message": "Token request failed",
@@ -422,7 +444,7 @@ def test_mint_token_pending_publisher_project_already_exists(db_request):
     }
 
     assert oidc_service.verify_jwt_signature.calls == [
-        pretend.call(DUMMY_GITHUB_OIDC_JWT)
+        pretend.call(DUMMY_GITHUB_OIDC_JWT, "https://none")
     ]
     assert oidc_service.find_publisher.calls == [pretend.call(claims, pending=True)]
 
@@ -577,6 +599,10 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
 def test_mint_token_no_pending_publisher_ok(
     monkeypatch, db_request, claims_in_token, claims_input
 ):
+    # Ensure the `iss` claim is set to match the GitHub OIDC issuer, as that's
+    # what the GitHubPublisherFactory implies.
+    claims_in_token.update({"iss": "https://token.actions.githubusercontent.com"})
+
     time = pretend.stub(time=pretend.call_recorder(lambda: 0))
     monkeypatch.setattr(views, "time", time)
 
@@ -598,7 +624,9 @@ def test_mint_token_no_pending_publisher_ok(
             return publisher
 
     oidc_service = pretend.stub(
-        verify_jwt_signature=pretend.call_recorder(lambda token: claims_in_token),
+        verify_jwt_signature=pretend.call_recorder(
+            lambda token, issuer_url=None: claims_in_token
+        ),
         find_publisher=pretend.call_recorder(_find_publisher),
     )
 
@@ -618,7 +646,12 @@ def test_mint_token_no_pending_publisher_ok(
     monkeypatch.setattr(db_request, "find_service", find_service)
     monkeypatch.setattr(db_request, "domain", "fakedomain")
 
-    response = views.mint_token(oidc_service, DUMMY_GITHUB_OIDC_JWT, db_request)
+    response = views.mint_token(
+        oidc_service,
+        DUMMY_GITHUB_OIDC_JWT,
+        "https://token.actions.githubusercontent.com",
+        db_request,
+    )
     assert response == {
         "success": True,
         "token": "raw-macaroon",
@@ -626,7 +659,9 @@ def test_mint_token_no_pending_publisher_ok(
     }
 
     assert oidc_service.verify_jwt_signature.calls == [
-        pretend.call(DUMMY_GITHUB_OIDC_JWT)
+        pretend.call(
+            DUMMY_GITHUB_OIDC_JWT, "https://token.actions.githubusercontent.com"
+        )
     ]
     assert oidc_service.find_publisher.calls == [
         pretend.call(claims_in_token, pending=True),
@@ -663,7 +698,12 @@ def test_mint_token_no_pending_publisher_ok(
 
 
 def test_mint_token_warn_constrain_environment(monkeypatch, db_request):
-    claims_in_token = {"ref": "someref", "sha": "somesha", "environment": "fakeenv"}
+    claims_in_token = {
+        "ref": "someref",
+        "sha": "somesha",
+        "environment": "fakeenv",
+        "iss": "https://token.actions.githubusercontent.com",
+    }
     claims_input = {"ref": "someref", "sha": "somesha"}
     time = pretend.stub(time=pretend.call_recorder(lambda: 0))
     monkeypatch.setattr(views, "time", time)
@@ -698,7 +738,9 @@ def test_mint_token_warn_constrain_environment(monkeypatch, db_request):
             return publisher
 
     oidc_service = pretend.stub(
-        verify_jwt_signature=pretend.call_recorder(lambda token: claims_in_token),
+        verify_jwt_signature=pretend.call_recorder(
+            lambda token, issuer_url=None: claims_in_token
+        ),
         find_publisher=pretend.call_recorder(_find_publisher),
     )
 
@@ -718,7 +760,9 @@ def test_mint_token_warn_constrain_environment(monkeypatch, db_request):
     monkeypatch.setattr(db_request, "find_service", find_service)
     monkeypatch.setattr(db_request, "domain", "fakedomain")
 
-    response = views.mint_token(oidc_service, DUMMY_GITHUB_OIDC_JWT, db_request)
+    response = views.mint_token(
+        oidc_service, DUMMY_GITHUB_OIDC_JWT, claims_in_token["iss"], db_request
+    )
     assert response == {
         "success": True,
         "token": "raw-macaroon",
@@ -726,7 +770,9 @@ def test_mint_token_warn_constrain_environment(monkeypatch, db_request):
     }
 
     assert oidc_service.verify_jwt_signature.calls == [
-        pretend.call(DUMMY_GITHUB_OIDC_JWT)
+        pretend.call(
+            DUMMY_GITHUB_OIDC_JWT, "https://token.actions.githubusercontent.com"
+        )
     ]
     assert oidc_service.find_publisher.calls == [
         pretend.call(claims_in_token, pending=True),
@@ -851,6 +897,7 @@ def test_mint_token_with_invalid_name_fails(monkeypatch, db_request):
     [
         (
             {
+                "iss": "https://token.actions.githubusercontent.com",
                 "ref": "someref",
                 "sha": "somesha",
                 "workflow_ref": "org/repo/.github/workflows/parent.yml@someref",
@@ -861,6 +908,7 @@ def test_mint_token_with_invalid_name_fails(monkeypatch, db_request):
         ),
         (
             {
+                "iss": "https://token.actions.githubusercontent.com",
                 "ref": "someref",
                 "sha": "somesha",
                 "workflow_ref": "org/repo/.github/workflows/workflow.yml@someref",
@@ -871,6 +919,7 @@ def test_mint_token_with_invalid_name_fails(monkeypatch, db_request):
         ),
         (
             {
+                "iss": "https://gitlab.com",
                 "ref": "someref",
                 "sha": "somesha",
             },
@@ -907,7 +956,9 @@ def test_mint_token_github_reusable_workflow_metrics(
             return publisher
 
     oidc_service = pretend.stub(
-        verify_jwt_signature=pretend.call_recorder(lambda token: claims_in_token),
+        verify_jwt_signature=pretend.call_recorder(
+            lambda token, issuer_url=None: claims_in_token
+        ),
         find_publisher=pretend.call_recorder(_find_publisher),
     )
 
@@ -929,7 +980,7 @@ def test_mint_token_github_reusable_workflow_metrics(
     monkeypatch.setattr(db_request, "find_service", find_service)
     monkeypatch.setattr(db_request, "domain", "fakedomain")
 
-    views.mint_token(oidc_service, DUMMY_GITHUB_OIDC_JWT, db_request)
+    views.mint_token(oidc_service, DUMMY_GITHUB_OIDC_JWT, claims_in_token, db_request)
 
     if is_reusable:
         assert metrics.increment.calls == [

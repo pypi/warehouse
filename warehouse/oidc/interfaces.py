@@ -9,14 +9,16 @@ from zope.interface import Interface
 from warehouse.rate_limiting.interfaces import RateLimiterException
 
 if TYPE_CHECKING:
-    from warehouse.oidc.models import PendingOIDCPublisher
+    from warehouse.oidc.models import OIDCPublisher, PendingOIDCPublisher
     from warehouse.packaging.models import Project
 
-SignedClaims = NewType("SignedClaims", dict[str, Any])
+SignedClaims = NewType("SignedClaims", dict[str, Any])  # TODO: narrow this down
 
 
 class IOIDCPublisherService(Interface):
-    def verify_jwt_signature(unverified_token: str):
+    def verify_jwt_signature(
+        unverified_token: str, issuer_url: str
+    ) -> SignedClaims | None:
         """
         Verify the given JWT's signature, returning its signed claims if
         valid. If the signature is invalid, `None` is returned.
@@ -26,7 +28,9 @@ class IOIDCPublisherService(Interface):
         """
         pass
 
-    def find_publisher(signed_claims: SignedClaims, *, pending: bool = False):
+    def find_publisher(
+        signed_claims: SignedClaims, *, pending: bool = False
+    ) -> OIDCPublisher | PendingOIDCPublisher | None:
         """
         Given a mapping of signed claims produced by `verify_jwt_signature`,
         attempt to find and return either a `OIDCPublisher` or `PendingOIDCPublisher`
@@ -38,7 +42,7 @@ class IOIDCPublisherService(Interface):
 
     def reify_pending_publisher(
         pending_publisher: PendingOIDCPublisher, project: Project
-    ):
+    ) -> OIDCPublisher:
         """
         Reify the given pending `PendingOIDCPublisher` into an `OIDCPublisher`,
         adding it to the given project (presumed newly created) in the process.

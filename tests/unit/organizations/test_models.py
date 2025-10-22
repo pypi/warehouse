@@ -3,6 +3,7 @@
 import datetime
 
 import pretend
+import psycopg
 import pytest
 
 from freezegun import freeze_time
@@ -12,6 +13,7 @@ from pyramid.location import lineage
 
 from warehouse.authnz import Permissions
 from warehouse.organizations.models import (
+    OIDCIssuerType,
     OrganizationApplicationFactory,
     OrganizationFactory,
     OrganizationRoleType,
@@ -24,6 +26,7 @@ from ...common.db.organizations import (
     OrganizationFactory as DBOrganizationFactory,
     OrganizationManualActivationFactory as DBOrganizationManualActivationFactory,
     OrganizationNameCatalogFactory as DBOrganizationNameCatalogFactory,
+    OrganizationOIDCIssuerFactory as DBOrganizationOIDCIssuerFactory,
     OrganizationRoleFactory as DBOrganizationRoleFactory,
     OrganizationStripeCustomerFactory as DBOrganizationStripeCustomerFactory,
     OrganizationStripeSubscriptionFactory as DBOrganizationStripeSubscriptionFactory,
@@ -573,8 +576,6 @@ class TestOrganizationManualActivation:
         )
 
         # Create some organization roles (members)
-        from ...common.db.accounts import UserFactory as DBUserFactory
-
         for _ in range(5):
             user = DBUserFactory.create()
             DBOrganizationRoleFactory.create(
@@ -689,3 +690,148 @@ class TestOrganizationBillingMethods:
         assert organization.is_in_good_standing()
         assert activation.current_member_count > activation.seat_limit
         assert not activation.has_available_seats
+
+
+class TestOrganizationOIDCIssuer:
+    def test_create_oidc_issuer(self, db_session):
+        """Basic creation of an OIDC issuer."""
+        organization = DBOrganizationFactory.create()
+        admin_user = DBUserFactory.create()
+
+        issuer = DBOrganizationOIDCIssuerFactory.create(
+            organization=organization,
+            issuer_type=OIDCIssuerType.GitLab,
+            issuer_url="https://gitlab.example.com",
+            created_by=admin_user,
+        )
+
+        assert issuer.organization == organization
+        assert issuer.issuer_type == OIDCIssuerType.GitLab
+        assert issuer.issuer_url == "https://gitlab.example.com"
+        assert issuer.created_by == admin_user
+        assert issuer.created is not None
+
+    def test_unique_constraint(self, db_session):
+        organization = DBOrganizationFactory.create()
+        admin_user = DBUserFactory.create()
+
+        # Create first issuer
+        DBOrganizationOIDCIssuerFactory.create(
+            organization=organization,
+            issuer_type=OIDCIssuerType.GitLab,
+            issuer_url="https://gitlab.example.com",
+            created_by=admin_user,
+        )
+
+        # Attempt to create duplicate - should raise UniqueViolation
+        with pytest.raises(psycopg.errors.UniqueViolation):
+            DBOrganizationOIDCIssuerFactory.create(
+                organization=organization,
+                issuer_type=OIDCIssuerType.GitLab,
+                issuer_url="https://gitlab.example.com",
+                created_by=admin_user,
+            )
+
+    def test_different_organizations_same_issuer(self, db_session):
+        """Different organizations may have the same issuer URL."""
+        org1 = DBOrganizationFactory.create()
+        org2 = DBOrganizationFactory.create()
+        admin_user = DBUserFactory.create()
+
+        # Same issuer URL for different organizations should be allowed
+        issuer1 = DBOrganizationOIDCIssuerFactory.create(
+            organization=org1,
+            issuer_type=OIDCIssuerType.GitLab,
+            issuer_url="https://gitlab.example.com",
+            created_by=admin_user,
+        )
+
+        issuer2 = DBOrganizationOIDCIssuerFactory.create(
+            organization=org2,
+            issuer_type=OIDCIssuerType.GitLab,
+            issuer_url="https://gitlab.example.com",
+            created_by=admin_user,
+        )
+
+        assert issuer1.issuer_url == issuer2.issuer_url
+        assert issuer1.organization != issuer2.organization
+
+    def test_same_org_different_issuer_types(self, db_session):
+        """A single org can have multiple issuer types."""
+        organization = DBOrganizationFactory.create()
+        admin_user = DBUserFactory.create()
+
+        # Create multiple issuers with different types for the same org
+        gitlab_issuer = DBOrganizationOIDCIssuerFactory.create(
+            organization=organization,
+            issuer_type=OIDCIssuerType.GitLab,
+            issuer_url="https://gitlab.example.com",
+            created_by=admin_user,
+        )
+
+        github_issuer = DBOrganizationOIDCIssuerFactory.create(
+            organization=organization,
+            issuer_type=OIDCIssuerType.GitHub,
+            issuer_url="https://github.example.com",
+            created_by=admin_user,
+        )
+
+        assert gitlab_issuer.organization == github_issuer.organization
+        assert gitlab_issuer.issuer_type != github_issuer.issuer_type
+
+    @pytest.mark.parametrize("issuer_type", list(OIDCIssuerType))
+    def test_issuer_type_enum_values(self, db_session, issuer_type):
+        """All OIDC issuer type enum values."""
+        organization = DBOrganizationFactory.create()
+        admin_user = DBUserFactory.create()
+
+        issuer = DBOrganizationOIDCIssuerFactory.create(
+            organization=organization,
+            issuer_type=issuer_type,
+            issuer_url=f"https://{issuer_type}.example.com",
+            created_by=admin_user,
+        )
+
+        assert issuer.issuer_type == issuer_type
+        assert issuer.issuer_type.value == issuer_type
+
+    def test_organization_relationship(self, db_session):
+        """Test the relationship between Organization and OIDCIssuer."""
+        organization = DBOrganizationFactory.create()
+        admin_user = DBUserFactory.create()
+
+        # Create multiple issuers for one organization
+        issuer1 = DBOrganizationOIDCIssuerFactory.create(
+            organization=organization,
+            issuer_type=OIDCIssuerType.GitLab,
+            issuer_url="https://gitlab1.example.com",
+            created_by=admin_user,
+        )
+
+        issuer2 = DBOrganizationOIDCIssuerFactory.create(
+            organization=organization,
+            issuer_type=OIDCIssuerType.GitLab,
+            issuer_url="https://gitlab2.example.com",
+            created_by=admin_user,
+        )
+
+        # Test the relationship from organization to issuers
+        assert issuer1 in organization.oidc_issuers
+        assert issuer2 in organization.oidc_issuers
+        assert len(organization.oidc_issuers) == 2
+
+    def test_created_by_relationship(self, db_session):
+        """Test the created_by relationship."""
+        organization = DBOrganizationFactory.create()
+        admin_user = DBUserFactory.create()
+
+        issuer = DBOrganizationOIDCIssuerFactory.create(
+            organization=organization,
+            issuer_type=OIDCIssuerType.GitLab,
+            issuer_url="https://gitlab.example.com",
+            created_by=admin_user,
+        )
+
+        # Test the relationship
+        assert issuer.created_by == admin_user
+        assert issuer.created_by_id == admin_user.id

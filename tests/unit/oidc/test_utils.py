@@ -13,6 +13,7 @@ from tests.common.db.oidc import (
     GitLabPublisherFactory,
     GooglePublisherFactory,
 )
+from tests.common.db.organizations import OrganizationOIDCIssuerFactory
 from warehouse.oidc import errors, utils
 from warehouse.oidc.models import (
     ActiveStatePublisher,
@@ -21,13 +22,16 @@ from warehouse.oidc.models import (
     GooglePublisher,
 )
 from warehouse.oidc.utils import OIDC_PUBLISHER_CLASSES
+from warehouse.organizations.models import OIDCIssuerType
 from warehouse.utils.security_policy import principals_for
 
 
 def test_find_publisher_by_issuer_bad_issuer_url():
+    session = pretend.stub(scalar=lambda *stmt: None)
+
     with pytest.raises(errors.InvalidPublisherError):
         utils.find_publisher_by_issuer(
-            pretend.stub(), "https://fake-issuer.url", pretend.stub()
+            session, "https://fake-issuer.url", pretend.stub()
         )
 
 
@@ -140,6 +144,7 @@ def test_find_publisher_by_issuer_gitlab(db_request, environment, expected_id):
 
     signed_claims.update(
         {
+            "iss": utils.GITLAB_OIDC_ISSUER_URL,
             "project_path": "foo/bar",
             "ci_config_ref_uri": "gitlab.com/foo/bar//workflows/ci.yml@refs/heads/main",
         }
@@ -303,18 +308,49 @@ def test_oidc_context_principals():
 
 
 def test_oidc_maps_consistent():
-    # Our various mappings should have equivalent cardinalities.
-    assert len(utils.OIDC_ISSUER_URLS) == len(utils.OIDC_ISSUER_SERVICE_NAMES)
-    assert len(utils.OIDC_ISSUER_URLS) == len(utils.OIDC_ISSUER_ADMIN_FLAGS)
-    assert len(utils.OIDC_ISSUER_URLS) == len(utils.OIDC_PUBLISHER_CLASSES)
-
-    for iss in utils.OIDC_ISSUER_URLS:
-        # Each issuer should be present in each mapping.
-        assert iss in utils.OIDC_ISSUER_SERVICE_NAMES
-        assert iss in utils.OIDC_ISSUER_ADMIN_FLAGS
-        assert iss in utils.OIDC_PUBLISHER_CLASSES
-
     for class_map in utils.OIDC_PUBLISHER_CLASSES.values():
         # The class mapping for pending and non-pending publisher models
         # should be distinct.
         assert class_map[True] != class_map[False]
+
+
+def test_find_publisher_by_issuer_with_custom_issuer(db_request):
+    """
+    A custom OIDC issuer URL is properly resolved to a concrete publisher.
+    """
+    # Create organization and register a custom GitLab issuer URL
+    custom_issuer_url = "https://gitlab.custom-company.com"
+    OrganizationOIDCIssuerFactory.create(
+        issuer_type=OIDCIssuerType.GitLab,
+        issuer_url=custom_issuer_url,
+    )
+
+    # Create a GitLab publisher that would match the claims
+    publisher = GitLabPublisherFactory(
+        namespace="foo",
+        project="bar",
+        workflow_filepath="workflows/ci.yml",
+        environment="",
+        issuer_url=custom_issuer_url,
+    )
+
+    # Create signed claims that would come from the custom GitLab instance
+    signed_claims = {
+        claim_name: "fake" for claim_name in GitLabPublisher.all_known_claims()
+    }
+    signed_claims.update(
+        {
+            "iss": custom_issuer_url,
+            "project_path": "foo/bar",
+            "ci_config_ref_uri": "gitlab.custom-company.com/foo/bar//workflows/ci.yml@refs/heads/main",  # noqa: E501
+        }
+    )
+
+    # This should successfully resolve the custom issuer URL to the GitLab publisher
+    result = utils.find_publisher_by_issuer(
+        db_request.db,
+        utils.GITLAB_OIDC_ISSUER_URL,
+        signed_claims,
+    )
+
+    assert result.id == publisher.id

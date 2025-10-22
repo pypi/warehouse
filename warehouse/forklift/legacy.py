@@ -344,7 +344,10 @@ def _is_valid_dist_file(filename, filetype):
             # to avoid parser differentials.
             zip_ok, zip_error = zipfiles.validate_zipfile(filename)
             if not zip_ok:
-                return False, f"ZIP archive not accepted: {zip_error}"
+                return False, (
+                    f"ZIP archive not accepted: {zip_error}. "
+                    f"See https://docs.pypi.org/archives for more information"
+                )
 
         except zipfile.BadZipFile:  # pragma: no cover
             return False, None

@@ -8,6 +8,7 @@ import freezegun
 import pretend
 import pytest
 
+from psycopg.errors import UniqueViolation
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPMovedPermanently,
@@ -16,7 +17,7 @@ from pyramid.httpexceptions import (
     HTTPTooManyRequests,
     HTTPUnauthorized,
 )
-from sqlalchemy.exc import IntegrityError, NoResultFound
+from sqlalchemy.exc import NoResultFound
 from webauthn.authentication.verify_authentication_response import (
     VerifiedAuthentication,
 )
@@ -3325,6 +3326,44 @@ class TestVerifyProjectRole:
         ]
         assert db_request.route_path.calls == [pretend.call("manage.projects")]
 
+    def test_verify_fails_with_missing_project(
+        self, db_request, user_service, token_service
+    ):
+        project = ProjectFactory.create()
+        user = UserFactory.create()
+
+        db_request.user = user
+        db_request.method = "POST"
+        db_request.GET.update({"token": "RANDOM_KEY"})
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.remote_addr = "192.168.1.1"
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                "action": "email-project-role-verify",
+                "desired_role": "Maintainer",
+                "user_id": user.id,
+                "project_id": project.id,
+                "submitter_id": db_request.user.id,
+            }
+        )
+        user_service.get_user = pretend.call_recorder(lambda user_id: user)
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context=None, name=None: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }.get(iface)
+        )
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+
+        db_request.db.delete(project)
+
+        views.verify_project_role(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Invalid token: project does not exist", queue="error")
+        ]
+        assert db_request.route_path.calls == [pretend.call("manage.projects")]
+
     def test_verify_role_get_confirmation(
         self, db_request, user_service, token_service
     ):
@@ -4093,6 +4132,7 @@ class TestManageAccountPublishingViews:
                     namespace="some-namespace",
                     workflow_filepath="some-filepath",
                     environment="",
+                    issuer_url="https://gitlab.com",
                     added_by_id=user_id,
                 ),
                 PendingGitLabPublisher,
@@ -4398,6 +4438,7 @@ class TestManageAccountPublishingViews:
                     project="some-repository",
                     workflow_filepath="subfolder/some-workflow-filename.yml",
                     environment="some-environment",
+                    issuer_url="https://gitlab.com",
                     added_by_id=user_id,
                 ),
                 MultiDict(
@@ -4407,6 +4448,7 @@ class TestManageAccountPublishingViews:
                         "workflow_filepath": "subfolder/some-workflow-filename.yml",
                         "environment": "some-environment",
                         "project_name": "some-project-name",
+                        "issuer_url": "https://gitlab.com",
                     }
                 ),
             ),
@@ -4529,10 +4571,10 @@ class TestManageAccountPublishingViews:
             )
         ]
 
-    def test_add_pending_oidc_publisher_integrityerror(self, monkeypatch, db_request):
+    def test_add_pending_oidc_publisher_uniqueviolation(self, monkeypatch, db_request):
         db_request.user = UserFactory.create()
         EmailFactory(user=db_request.user, verified=True, primary=True)
-        db_request.db.add = pretend.raiser(IntegrityError("foo", "bar", "baz"))
+        db_request.db.add = pretend.raiser(UniqueViolation("foo", "bar", "baz"))
 
         db_request.registry = pretend.stub(
             settings={
@@ -4597,6 +4639,7 @@ class TestManageAccountPublishingViews:
                         "workflow_filepath": "subfolder/some-workflow-filename.yml",
                         "environment": "some-environment",
                         "project_name": "some-project-name",
+                        "issuer_url": "https://gitlab.com",
                     }
                 ),
                 PendingGitLabPublisher,
@@ -4878,6 +4921,7 @@ class TestManageAccountPublishingViews:
                     project="some-repository",
                     workflow_filepath="subfolder/some-filename",
                     environment="",
+                    issuer_url="https://gitlab.com",
                     added_by_id=user_id,
                 ),
                 PendingGitLabPublisher,
@@ -4960,6 +5004,7 @@ class TestManageAccountPublishingViews:
                     project="some-repository",
                     workflow_filepath="subfolder/some-filename",
                     environment="",
+                    issuer_url="https://gitlab.com",
                     added_by_id=user_id,
                 ),
                 PendingGitLabPublisher,
@@ -5036,6 +5081,7 @@ class TestManageAccountPublishingViews:
                     project="some-owner",
                     workflow_filepath="subfolder/some-filename",
                     environment="",
+                    issuer_url="https://gitlab.com",
                     added_by_id=user_id,
                 ),
                 PendingGitLabPublisher,

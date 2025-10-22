@@ -1,5 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
+import typing
+
 import markupsafe
 import structlog
 import wtforms
@@ -15,10 +19,18 @@ from warehouse.packaging.interfaces import (
 )
 from warehouse.utils.project import PROJECT_NAME_RE
 
+if typing.TYPE_CHECKING:
+    from warehouse.accounts.models import User
+
 log = structlog.get_logger()
 
 
 class PendingPublisherMixin:
+    # Attributes that must be provided by subclasses
+    _user: User
+    _check_project_name: typing.Callable[[str], None]
+    _route_url: typing.Callable[..., str]
+
     project_name = wtforms.StringField(
         validators=[
             wtforms.validators.InputRequired(message=_("Specify project name")),
@@ -28,7 +40,7 @@ class PendingPublisherMixin:
         ]
     )
 
-    def validate_project_name(self, field):
+    def validate_project_name(self, field: wtforms.Field) -> None:
         project_name = field.data
 
         try:
@@ -39,7 +51,8 @@ class PendingPublisherMixin:
             # If the user owns the existing project, the error message includes a
             # link to the project settings that the user can modify.
             if self._user in e.existing_project.owners:
-                url_params = {name: value for name, value in self.data.items() if value}
+                # Mixin doesn't inherit from wtforms.Form but composed classes do
+                url_params = {name: value for name, value in self.data.items() if value}  # type: ignore[attr-defined] # noqa: E501
                 url_params["provider"] = {self.provider}
                 url = self._route_url(
                     "manage.project.settings.publishing",
