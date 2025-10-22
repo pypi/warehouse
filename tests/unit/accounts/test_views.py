@@ -4448,6 +4448,7 @@ class TestManageAccountPublishingViews:
                         "workflow_filepath": "subfolder/some-workflow-filename.yml",
                         "environment": "some-environment",
                         "project_name": "some-project-name",
+                        "issuer_url": "https://gitlab.com",
                     }
                 ),
             ),
@@ -4638,6 +4639,7 @@ class TestManageAccountPublishingViews:
                         "workflow_filepath": "subfolder/some-workflow-filename.yml",
                         "environment": "some-environment",
                         "project_name": "some-project-name",
+                        "issuer_url": "https://gitlab.com",
                     }
                 ),
                 PendingGitLabPublisher,

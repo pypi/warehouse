@@ -21,7 +21,6 @@ from warehouse.oidc.forms import (
 from warehouse.oidc.forms._core import ConstrainEnvironmentForm
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import (
-    GITLAB_OIDC_ISSUER_URL,
     ActiveStatePublisher,
     GitHubPublisher,
     GitLabPublisher,
@@ -53,7 +52,13 @@ class ManageOIDCPublisherViews:
             self.request.POST,
             api_token=self.request.registry.settings.get("github.token"),
         )
-        self.gitlab_publisher_form = GitLabPublisherForm(self.request.POST)
+        _gl_issuers = GitLabPublisher.get_available_issuer_urls(
+            organization=project.organization
+        )
+        self.gitlab_publisher_form = GitLabPublisherForm(
+            self.request.POST,
+            issuer_url_choices=_gl_issuers,
+        )
         self.google_publisher_form = GooglePublisherForm(self.request.POST)
         self.activestate_publisher_form = ActiveStatePublisherForm(self.request.POST)
         self.prefilled_provider = None
@@ -443,6 +448,7 @@ class ManageOIDCPublisherViews:
                 GitLabPublisher.project == form.project.data,
                 GitLabPublisher.workflow_filepath == form.workflow_filepath.data,
                 GitLabPublisher.environment == form.normalized_environment,
+                GitLabPublisher.issuer_url == form.issuer_url.data,
             )
             .one_or_none()
         )
@@ -452,8 +458,7 @@ class ManageOIDCPublisherViews:
                 project=form.project.data,
                 workflow_filepath=form.workflow_filepath.data,
                 environment=form.normalized_environment,
-                # TODO: Support custom issuers here
-                issuer_url=GITLAB_OIDC_ISSUER_URL,
+                issuer_url=form.issuer_url.data,
             )
 
             self.request.db.add(publisher)
