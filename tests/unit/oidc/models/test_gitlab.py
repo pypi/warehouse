@@ -916,11 +916,15 @@ class TestGitLabPublisher:
     def test_get_available_issuer_urls_multiple_custom(self, db_session):
         """
         If multiple custom GitLab issuer URLs are configured for the org,
-        they are all included.
+        they are all included, and sorted alphabetically after the default.
         """
-        org_oidc_issuer1 = OrganizationOIDCIssuerFactory(issuer_type="gitlab")
+        org_oidc_issuer1 = OrganizationOIDCIssuerFactory(
+            issuer_type="gitlab", issuer_url="https://zzz.example.com"
+        )
         org_oidc_issuer2 = OrganizationOIDCIssuerFactory(
-            organization=org_oidc_issuer1.organization, issuer_type="gitlab"
+            organization=org_oidc_issuer1.organization,
+            issuer_type="gitlab",
+            issuer_url="https://aaa.example.com",
         )
 
         issuer_urls = gitlab.GitLabPublisher.get_available_issuer_urls(
@@ -929,8 +933,8 @@ class TestGitLabPublisher:
 
         assert issuer_urls == [
             "https://gitlab.com",
-            org_oidc_issuer1.issuer_url,
             org_oidc_issuer2.issuer_url,
+            org_oidc_issuer1.issuer_url,
         ]
 
     def test_get_available_issuer_urls_custom_non_gitlab(self, db_session):
