@@ -346,19 +346,16 @@ class GitLabPublisherMixin:
             List of unique issuer URLs, with the default gitlab.com first.
             If organization is None, only returns the default issuer.
         """
-        # Start with the default issuer
-        issuer_urls = {GITLAB_OIDC_ISSUER_URL}
-
-        if organization:
-            # Get custom issuers from the organization
-            for oidc_issuer in organization.oidc_issuers:
-                if oidc_issuer.issuer_type == OIDCIssuerType.GitLab:
-                    issuer_urls.add(oidc_issuer.issuer_url)
-
-        # Return as sorted list with default first
-        result = [GITLAB_OIDC_ISSUER_URL]
-        result.extend(sorted(issuer_urls - {GITLAB_OIDC_ISSUER_URL}))
-        return result
+        issuer_urls = (
+            {
+                oidc_issuer.issuer_url
+                for oidc_issuer in organization.oidc_issuers
+                if oidc_issuer.issuer_type == OIDCIssuerType.GitLab
+            }
+            if organization
+            else set()
+        )
+        return [GITLAB_OIDC_ISSUER_URL] + sorted(issuer_urls)
 
 
 class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):
