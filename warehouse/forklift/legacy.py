@@ -42,7 +42,6 @@ from warehouse.classifiers.models import Classifier
 from warehouse.constants import ONE_GIB, ONE_MIB
 from warehouse.email import (
     send_api_token_used_in_trusted_publisher_project_email,
-    send_pep427_name_email,
     send_pep625_extension_email,
     send_pep625_name_email,
     send_pep625_version_email,
@@ -1408,16 +1407,22 @@ def file_upload(request):
 
             # PEP 427 / PEP 503: Enforcement of project name normalization.
             # Filenames that do not start with the fully normalized project name
-            # will not be permitted.
+            # are not be permitted.
             # https://packaging.python.org/en/latest/specifications/binary-distribution-format/#escaping-and-unicode
             normalized_name = project.normalized_name.replace("-", "_")
             if name_from_filename != normalized_name:
-                send_pep427_name_email(
-                    request,
-                    set(project.users),
-                    project_name=project.name,
-                    filename=filename,
-                    normalized_name=normalized_name,
+                request.metrics.increment(
+                    "warehouse.upload.failed",
+                    tags=[
+                        "reason:invalid-filename-projectname",
+                        f"filetype:{form.filetype.data}",
+                    ],
+                )
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    f"Filename {filename!r} should contain the normalized "
+                    f"project name {normalized_name!r}, not "
+                    f"{name_from_filename!r}.",
                 )
 
             if meta.version != version:
