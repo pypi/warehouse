@@ -7,6 +7,7 @@ import wtforms
 
 from warehouse.i18n import localize as _
 from warehouse.oidc.forms._core import PendingPublisherMixin
+from warehouse.oidc.models import GITLAB_OIDC_ISSUER_URL
 
 # https://docs.gitlab.com/ee/user/reserved_names.html#limitations-on-project-and-group-names
 _VALID_GITLAB_PROJECT = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_.-]*[a-zA-Z0-9]$")
@@ -23,7 +24,13 @@ def ends_with_atom_or_git(form: wtforms.Form, field: wtforms.Field) -> None:
 
 
 class GitLabPublisherBase(wtforms.Form):
-    __params__ = ["namespace", "project", "workflow_filepath", "environment"]
+    __params__ = [
+        "namespace",
+        "project",
+        "workflow_filepath",
+        "environment",
+        "issuer_url",
+    ]
 
     namespace = wtforms.StringField(
         validators=[
@@ -74,8 +81,25 @@ class GitLabPublisherBase(wtforms.Form):
         ]
     )
 
-    def __init__(self, *args, **kwargs):
+    issuer_url = wtforms.SelectField(
+        validators=[
+            wtforms.validators.InputRequired(message=_("Choose GitLab issuer URL"))
+        ]
+    )
+
+    def __init__(self, *args, issuer_url_choices=None, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # Set choices for issuer_url field
+        if issuer_url_choices:
+            self.issuer_url.choices = [(url, url) for url in issuer_url_choices]
+        else:
+            # Default to gitlab.com if no choices provided
+            self.issuer_url.choices = [(GITLAB_OIDC_ISSUER_URL, GITLAB_OIDC_ISSUER_URL)]
+
+        # Set default value if not already set
+        if not self.issuer_url.data:
+            self.issuer_url.data = GITLAB_OIDC_ISSUER_URL
 
     def validate_workflow_filepath(self, field: wtforms.Field) -> None:
         workflow_filepath = field.data

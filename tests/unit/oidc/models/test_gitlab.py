@@ -5,6 +5,7 @@ import psycopg
 import pytest
 
 from tests.common.db.oidc import GitLabPublisherFactory, PendingGitLabPublisherFactory
+from tests.common.db.organizations import OrganizationOIDCIssuerFactory
 from warehouse.oidc import errors
 from warehouse.oidc.models import _core, gitlab
 
@@ -896,6 +897,58 @@ class TestGitLabPublisher:
             db_request.db.flush()
 
         assert publisher.exists(db_request.db) == exists_in_db
+
+    def test_get_available_issuer_urls_default(self):
+        """By default, there's a single known GitLab issuer URL."""
+        issuer_urls = gitlab.GitLabPublisher.get_available_issuer_urls()
+        assert issuer_urls == ["https://gitlab.com"]
+
+    def test_get_available_issuer_urls_custom(self, db_session):
+        """If a custom GitLab issuer URL is configured for the org, it is included."""
+        org_oidc_issuer = OrganizationOIDCIssuerFactory(issuer_type="gitlab")
+
+        issuer_urls = gitlab.GitLabPublisher.get_available_issuer_urls(
+            org_oidc_issuer.organization
+        )
+
+        assert issuer_urls == ["https://gitlab.com", org_oidc_issuer.issuer_url]
+
+    def test_get_available_issuer_urls_multiple_custom(self, db_session):
+        """
+        If multiple custom GitLab issuer URLs are configured for the org,
+        they are all included, and sorted alphabetically after the default.
+        """
+        org_oidc_issuer1 = OrganizationOIDCIssuerFactory(
+            issuer_type="gitlab", issuer_url="https://zzz.example.com"
+        )
+        org_oidc_issuer2 = OrganizationOIDCIssuerFactory(
+            organization=org_oidc_issuer1.organization,
+            issuer_type="gitlab",
+            issuer_url="https://aaa.example.com",
+        )
+
+        issuer_urls = gitlab.GitLabPublisher.get_available_issuer_urls(
+            org_oidc_issuer1.organization
+        )
+
+        assert issuer_urls == [
+            "https://gitlab.com",
+            org_oidc_issuer2.issuer_url,
+            org_oidc_issuer1.issuer_url,
+        ]
+
+    def test_get_available_issuer_urls_custom_non_gitlab(self, db_session):
+        """
+        If a custom OIDC issuer URL of a different type is configured for the org,
+        it is not included.
+        """
+        org_oidc_issuer = OrganizationOIDCIssuerFactory(issuer_type="github")
+
+        issuer_urls = gitlab.GitLabPublisher.get_available_issuer_urls(
+            org_oidc_issuer.organization
+        )
+
+        assert issuer_urls == ["https://gitlab.com"]
 
 
 class TestPendingGitLabPublisher:
