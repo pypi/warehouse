@@ -122,12 +122,6 @@ _TAR_BZ2_PKG_SHA256 = hashlib.sha256(_TAR_BZ2_PKG_TESTDATA).hexdigest()
 _TAR_BZ2_PKG_STORAGE_HASH = _storage_hash(_TAR_BZ2_PKG_TESTDATA)
 
 
-_ZIP_PKG_TESTDATA = _get_zip_testdata()
-_ZIP_PKG_MD5 = hashlib.md5(_ZIP_PKG_TESTDATA).hexdigest()
-_ZIP_PKG_SHA256 = hashlib.sha256(_ZIP_PKG_TESTDATA).hexdigest()
-_ZIP_PKG_STORAGE_HASH = _storage_hash(_ZIP_PKG_TESTDATA)
-
-
 class TestExcWithMessage:
     def test_exc_with_message(self):
         exc = legacy._exc_with_message(HTTPBadRequest, "My Test Message.")
