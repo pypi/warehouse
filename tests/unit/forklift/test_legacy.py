@@ -2,6 +2,7 @@
 
 import base64
 import builtins
+import datetime
 import hashlib
 import io
 import json
@@ -9,7 +10,6 @@ import re
 import tarfile
 import tempfile
 import zipfile
-import datetime
 
 from cgi import FieldStorage
 from textwrap import dedent
@@ -44,11 +44,11 @@ from warehouse.packaging.models import (
     File,
     Filename,
     JournalEntry,
+    LifecycleStatus,
     Project,
     ProjectMacaroonWarningAssociation,
     Release,
     Role,
-    LifecycleStatus,
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
 
@@ -6462,7 +6462,9 @@ class TestFileUpload:
         resp = legacy.file_upload(db_request)
         assert resp.status_code == 200
 
-    def test_upload_fails_with_deleted_project_conflict(self, db_request, pyramid_config):
+    def test_upload_fails_with_deleted_project_conflict(
+        self, db_request, pyramid_config
+    ):
         """
         Test uploading a file conflicting with one from an archived project raises
         a specific error.
@@ -6501,26 +6503,32 @@ class TestFileUpload:
         # --- Action: Prepare dummy content and POST data ---
         dummy_file_content = b"different dummy file content"
         calculated_sha256 = hashlib.sha256(dummy_file_content).hexdigest()
-        calculated_blake2 = hashlib.blake2b(dummy_file_content, digest_size=256//8).hexdigest()
+        calculated_blake2 = hashlib.blake2b(
+            dummy_file_content, digest_size=256 // 8
+        ).hexdigest()
 
-        db_request.POST = MultiDict({
-            ":action": "file_upload",
-            "metadata_version": "1.2",
-            "name": project.name,
-            "version": release.version,
-            "summary": "Test Summary",
-            "filename": original_file.filename, # Conflicting filename
-            "filetype": "bdist_wheel",
-            "pyversion": "py3",
-            "sha256_digest": calculated_sha256, # Use real hash
-            "blake2_256_digest": calculated_blake2, # Use real hash
-            "content": pretend.stub(
-                filename=original_file.filename,
-                file=io.BytesIO(dummy_file_content),
-                type="application/octet-stream"
-            ),
-        })
-        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/") # Mock
+        db_request.POST = MultiDict(
+            {
+                ":action": "file_upload",
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "summary": "Test Summary",
+                "filename": original_file.filename,  # Conflicting filename
+                "filetype": "bdist_wheel",
+                "pyversion": "py3",
+                "sha256_digest": calculated_sha256,  # Use real hash
+                "blake2_256_digest": calculated_blake2,  # Use real hash
+                "content": pretend.stub(
+                    filename=original_file.filename,
+                    file=io.BytesIO(dummy_file_content),
+                    type="application/octet-stream",
+                ),
+            }
+        )
+        db_request.help_url = pretend.call_recorder(
+            lambda **kw: "/the/help/url/"
+        )  # Mock
 
         # --- Assert ---
         with pytest.raises(HTTPBadRequest) as exc_info:
@@ -6530,6 +6538,7 @@ class TestFileUpload:
             "This filename was used by a previously archived project. "
             "Please use a different version."
         )
+
 
 def test_submit(pyramid_request):
     resp = legacy.submit(pyramid_request)

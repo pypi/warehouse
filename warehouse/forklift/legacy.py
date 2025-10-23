@@ -61,10 +61,10 @@ from warehouse.packaging.models import (
     File,
     Filename,
     JournalEntry,
+    LifecycleStatus,
     Project,
     ProjectMacaroonWarningAssociation,
     Release,
-    LifecycleStatus,
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
 from warehouse.rate_limiting.interfaces import RateLimiterException
@@ -1170,8 +1170,8 @@ def file_upload(request):
                     HTTPBadRequest,
                     # Note: Changing this error message (...)
                     "File already exists "
-                    + f"({filename!r}, with blake2_256 hash " # USE CURRENT FILENAME
-                    f"{file_hashes['blake2_256']!r})." # USE CURRENT HASH
+                    + f"({filename!r}, with blake2_256 hash "  # USE CURRENT FILENAME
+                    f"{file_hashes['blake2_256']!r})."  # USE CURRENT HASH
                     + " See "
                     + request.help_url(_anchor="file-name-reuse")
                     + " for more information.",
