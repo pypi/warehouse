@@ -147,7 +147,7 @@ def mint_token_from_oidc(request: Request):
     if not service_name:
         request.metrics.increment(
             "warehouse.oidc.mint_token_from_oidc.unknown_issuer",
-            tags={"issuer_url": unverified_issuer},
+            tags=[f"issuer_url:{unverified_issuer}"],
         )
         return _invalid(
             errors=[

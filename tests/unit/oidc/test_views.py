@@ -246,6 +246,12 @@ def test_mint_token_from_oidc_unknown_issuer(metrics):
         assert isinstance(err, dict)
         assert err["code"] == "invalid-payload"
         assert err["description"] == "unknown trusted publishing issuer"
+    assert metrics.increment.calls == [
+        pretend.call(
+            "warehouse.oidc.mint_token_from_oidc.unknown_issuer",
+            tags=["issuer_url:nonexistent-issuer"],
+        )
+    ]
 
 
 @pytest.mark.parametrize(
