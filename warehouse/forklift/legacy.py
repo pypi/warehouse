@@ -64,6 +64,7 @@ from warehouse.packaging.models import (
     Project,
     ProjectMacaroonWarningAssociation,
     Release,
+    LifecycleStatus,
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
 from warehouse.rate_limiting.interfaces import RateLimiterException
@@ -1120,29 +1121,64 @@ def file_upload(request):
             )
 
         # Check to see if the file that was uploaded exists already or not.
-        is_duplicate = _is_duplicate_file(request.db, filename, file_hashes)
-        if is_duplicate:
-            request.tm.doom()
-            return HTTPOk()
-        elif is_duplicate is not None:
-            request.metrics.increment(
-                "warehouse.upload.failed", tags=["reason:duplicate-file"]
+        # We query for a file with the same filename OR the same blake2 hash
+        # to find any potential conflicts.
+        conflicting_file = (
+            request.db.query(File)
+            .options(orm.joinedload(File.release).joinedload(Release.project))
+            .filter(
+                (File.filename == filename)
+                | (File.blake2_256_digest == file_hashes["blake2_256"])
             )
-            raise _exc_with_message(
-                HTTPBadRequest,
-                # Note: Changing this error message to something that doesn't
-                # start with "File already exists" will break the
-                # --skip-existing functionality in twine
-                # ref: https://github.com/pypi/warehouse/issues/3482
-                # ref: https://github.com/pypa/twine/issues/332
-                "File already exists "
-                + f"({filename!r}, with blake2_256 hash {file_hashes['blake2_256']!r})."
-                + " See "
-                + request.help_url(_anchor="file-name-reuse")
-                + " for more information.",
-            )
+            .first()
+        )
 
-        # Check to see if the file that was uploaded exists in our filename log
+        if conflicting_file is not None:
+            # A file with this filename or hash already exists in the File table.
+
+            # Case 1: Exact match (re-upload). Silently accept.
+            if (
+                conflicting_file.filename == filename
+                and conflicting_file.sha256_digest == file_hashes["sha256"]
+                and conflicting_file.blake2_256_digest == file_hashes["blake2_256"]
+            ):
+                request.tm.doom()
+                return HTTPOk()
+
+            # Case 2: Conflict (different content or different filename but same hash).
+            # Check if the conflicting file's project is archived.
+            if conflicting_file.release.project.lifecycle_status in [
+                LifecycleStatus.Archived,
+                LifecycleStatus.ArchivedNoindex,
+            ]:
+                # Conflict is with an ARCHIVED project - raise specific error.
+                request.metrics.increment(
+                    "warehouse.upload.failed", tags=["reason:filename-reuse-archived"]
+                )
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    # Specific error message for archived projects
+                    "This filename was used by a previously archived project. "
+                    "Please use a different version.",
+                )
+            else:
+                # Conflict is with an ACTIVE (or quarantined) project - raise original error.
+                request.metrics.increment(
+                    "warehouse.upload.failed", tags=["reason:duplicate-file"]
+                )
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    # Note: Changing this error message (...)
+                    "File already exists "
+                    + f"({filename!r}, with blake2_256 hash " # USE CURRENT FILENAME
+                    f"{file_hashes['blake2_256']!r})." # USE CURRENT HASH
+                    + " See "
+                    + request.help_url(_anchor="file-name-reuse")
+                    + " for more information.",
+                )
+
+        # Check the historic Filename log as a final fallback.
+        # This catches filenames reused after hard deletions or from legacy data.
         if request.db.query(
             request.db.query(Filename).filter(Filename.filename == filename).exists()
         ).scalar():
@@ -1151,6 +1187,7 @@ def file_upload(request):
             )
             raise _exc_with_message(
                 HTTPBadRequest,
+                # Generic filename reuse error for historic conflicts
                 "This filename has already been used, use a "
                 "different version. "
                 "See "
