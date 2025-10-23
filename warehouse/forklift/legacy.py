@@ -42,10 +42,6 @@ from warehouse.classifiers.models import Classifier
 from warehouse.constants import ONE_GIB, ONE_MIB
 from warehouse.email import (
     send_api_token_used_in_trusted_publisher_project_email,
-    send_pep427_name_email,
-    send_pep625_extension_email,
-    send_pep625_name_email,
-    send_pep625_version_email,
     send_wheel_record_mismatch_email,
 )
 from warehouse.events.tags import EventTag
@@ -1192,52 +1188,10 @@ def file_upload(request):
                 HTTPBadRequest, f"Invalid distribution file. {_msg}"
             )
 
-        # TODO: Remove sdist zip handling when #12245 is resolved
-        # (PEP 625 – Filename of a Source Distribution)
-        if form.filetype.data == "sdist" and filename.endswith(".zip"):
-            # PEP 625: Enforcement on filename extensions. Files ending with
-            # .zip will not be permitted.
-            send_pep625_extension_email(
-                request,
-                set(project.users),
-                project_name=project.name,
-                filename=filename,
-            )
-
-            filename = os.path.basename(temporary_filename)
-
-            if meta.license_files:  # pragma: no branch
-                """
-                Ensure all License-File keys exist in the sdist
-                See https://peps.python.org/pep-0639/#add-license-file-field
-                """
-                with zipfile.ZipFile(temporary_filename) as zfp:
-                    top_level = os.path.commonprefix(zfp.namelist())
-                    for license_file in meta.license_files:
-                        target_file = os.path.join(top_level, license_file)
-                        try:
-                            zfp.read(target_file)
-                        except KeyError:
-                            request.metrics.increment(
-                                "warehouse.upload.failed",
-                                tags=[
-                                    "reason:missing-license-file",
-                                    f"filetype:{form.filetype.data}",
-                                ],
-                            )
-                            raise _exc_with_message(
-                                HTTPBadRequest,
-                                f"License-File {license_file} does not exist in "
-                                f"distribution file {filename} at {target_file}",
-                            )
-
         # Check that the sdist filename is correct
-        if filename.endswith(".tar.gz"):
-            # Extract the project name and version from the filename and check it.
-            # Per PEP 625, both should be normalized, but we aren't currently
-            # enforcing this, so we permit a filename with a project name and
-            # version that normalizes to be what we expect
+        if form.filetype.data == "sdist":
 
+            # Extract the project name and version from the filename and check it.
             try:
                 name_from_filename, version_from_filename = (
                     packaging.utils.parse_sdist_filename(filename)
@@ -1271,30 +1225,18 @@ def file_upload(request):
                     version_string_from_filename = filename[
                         len(name_from_filename) + 1 : -len(".tar.gz")
                     ]
-                    version_from_filename = packaging.version.Version(
-                        version_string_from_filename
-                    )
-
-                    # PEP 625: Enforcement of project version normalization.
-                    # Filenames with dashes in the version will not be permitted.
-                    send_pep625_version_email(
-                        request,
-                        set(project.users),
-                        project_name=project.name,
-                        filename=filename,
-                        normalized_version=str(version_from_filename),
-                    )
+                    packaging.version.Version(version_string_from_filename)
                 except packaging.version.InvalidVersion:
                     # If the version isn't valid, we're not on this edge case.
                     pass
 
-            # Ensure that the prefix in the filename and the project name
-            # normalize to be the same thing. Eventually this should be
-            # unnecessary once we become more restrictive in what we permit
-            filename_prefix = (
-                name_from_filename.lower().replace(".", "_").replace("-", "_")
-            )
-            if (prefix := project.normalized_name.replace("-", "_")) != filename_prefix:
+            # Check if the file corresponds to the project by comparing the
+            # canonicalized name in the filename to the project name. This does
+            # not enforce normalization.
+            if (
+                packaging.utils.canonicalize_name(name_from_filename)
+                != project.normalized_name
+            ):
                 request.metrics.increment(
                     "warehouse.upload.failed",
                     tags=[
@@ -1304,31 +1246,25 @@ def file_upload(request):
                 )
                 raise _exc_with_message(
                     HTTPBadRequest,
-                    f"Start filename for {project.name!r} with {prefix!r}.",
+                    f"Start filename for {project.name!r} with "
+                    f"{project.normalized_name.replace('-', '_')!r}.",
                 )
 
-            # PEP 625: Enforcement of project name normalization. Filenames
-            # that do not start with the normalized project name (with dashes
-            # replaced with underscores) will not be permitted.
-            if not filename.startswith(name_from_filename.replace("-", "_")):
-                send_pep625_name_email(
-                    request,
-                    set(project.users),
-                    project_name=project.name,
-                    filename=filename,
-                    normalized_name=project.normalized_name.replace("-", "_"),
-                )
+            # PEP 625: Enforcement of source distribution filename
+            # normalization.
+            expected_name = project.normalized_name.replace("-", "_")
+            expected_version = str(meta.version)
+            expected_filename = f"{expected_name}-{expected_version}.tar.gz"
 
-            # Make sure that the version in the filename matches the metadata
-            if version_from_filename != meta.version:
+            if filename != expected_filename:
                 request.metrics.increment(
                     "warehouse.upload.failed",
-                    tags=["reason:invalid-sdist-filename-version"],
+                    tags=["reason:invalid-sdist-filename-normalization"],
                 )
                 raise _exc_with_message(
                     HTTPBadRequest,
-                    f"Version in filename should be {str(meta.version)!r} not "
-                    f"{str(version_from_filename)!r}.",
+                    f"Filename {filename!r} is invalid, should be "
+                    f"{expected_filename!r}.",
                 )
 
             filename = os.path.basename(temporary_filename)
@@ -1408,16 +1344,22 @@ def file_upload(request):
 
             # PEP 427 / PEP 503: Enforcement of project name normalization.
             # Filenames that do not start with the fully normalized project name
-            # will not be permitted.
+            # are not be permitted.
             # https://packaging.python.org/en/latest/specifications/binary-distribution-format/#escaping-and-unicode
             normalized_name = project.normalized_name.replace("-", "_")
             if name_from_filename != normalized_name:
-                send_pep427_name_email(
-                    request,
-                    set(project.users),
-                    project_name=project.name,
-                    filename=filename,
-                    normalized_name=normalized_name,
+                request.metrics.increment(
+                    "warehouse.upload.failed",
+                    tags=[
+                        "reason:invalid-filename-projectname",
+                        f"filetype:{form.filetype.data}",
+                    ],
+                )
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    f"Filename {filename!r} should contain the normalized "
+                    f"project name {normalized_name!r}, not "
+                    f"{name_from_filename!r}.",
                 )
 
             if meta.version != version:
