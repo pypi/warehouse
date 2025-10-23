@@ -1151,8 +1151,8 @@ def file_upload(request):
             )
             raise _exc_with_message(
                 HTTPBadRequest,
-                "This filename has already been used, use a "
-                "different version. "
+                "This filename was used by a file that has since been deleted. "
+                "Use a different version. "
                 "See "
                 + request.help_url(_anchor="file-name-reuse")
                 + " for more information.",
