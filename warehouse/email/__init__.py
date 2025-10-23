@@ -1021,34 +1021,6 @@ def send_api_token_used_in_trusted_publisher_project_email(
     }
 
 
-@_email("pep625-extension-email")
-def send_pep625_extension_email(request, users, project_name, filename):
-    return {
-        "project_name": project_name,
-        "filename": filename,
-    }
-
-
-@_email("pep625-name-email")
-def send_pep625_name_email(request, users, project_name, filename, normalized_name):
-    return {
-        "project_name": project_name,
-        "filename": filename,
-        "normalized_name": normalized_name,
-    }
-
-
-@_email("pep625-version-email")
-def send_pep625_version_email(
-    request, users, project_name, filename, normalized_version
-):
-    return {
-        "project_name": project_name,
-        "filename": filename,
-        "normalized_version": normalized_version,
-    }
-
-
 @_email("environment-ignored-in-trusted-publisher")
 def send_environment_ignored_in_trusted_publisher_email(
     request, users, project_name, publisher, environment_name
@@ -1064,15 +1036,6 @@ def send_environment_ignored_in_trusted_publisher_email(
 def send_user_terms_of_service_updated(request, user):
     return {
         "user": user,
-    }
-
-
-@_email("pep427-name-email")
-def send_pep427_name_email(request, users, project_name, filename, normalized_name):
-    return {
-        "project_name": project_name,
-        "filename": filename,
-        "normalized_name": normalized_name,
     }
 
 
