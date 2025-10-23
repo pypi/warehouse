@@ -76,15 +76,6 @@ def _get_tar_testdata(compression_type=""):
     return temp_f.getvalue()
 
 
-def _get_zip_testdata():
-    temp_f = io.BytesIO()
-    with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
-        zfp.writestr("fake_package-1.0/PKG-INFO", "Fake PKG-INFO")
-        zfp.writestr("fake_package-1.0/LICENSE.MIT", "Fake License")
-        zfp.writestr("fake_package-1.0/LICENSE.APACHE", "Fake License")
-    return temp_f.getvalue()
-
-
 def _get_whl_testdata(name="fake_package", version="1.0"):
     temp_f = io.BytesIO()
     with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
