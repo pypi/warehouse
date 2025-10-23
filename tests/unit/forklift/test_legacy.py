@@ -2161,9 +2161,8 @@ class TestFileUpload:
         assert db_request.help_url.calls == [pretend.call(_anchor="file-name-reuse")]
         assert resp.status_code == 400
         assert resp.status == (
-            "400 This filename was used by a file that has since been deleted. "
-            "Use a different version. "
-            "See /the/help/url/ for more information."
+            "400 This filename was previously used by a file that has since been "
+            "deleted. Use a different version. See /the/help/url/ for more information."
         )
 
     def test_upload_noop_with_existing_filename_same_content(
