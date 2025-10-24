@@ -22,7 +22,7 @@
     "@fortawesome/fontawesome-free": "^6.2.1",
     "@hotwired/stimulus": "^3.2.1",
     "@hotwired/stimulus-webpack-helpers": "^1.0.1",
-    "admin-lte": "^3.2.0",
+    "admin-lte": "^4.0.0-rc3",
     "cookie": "^0.7.0",
     "date-fns": "^2.30.0",
     "debounce": "^1.2.1",
