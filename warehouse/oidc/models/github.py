@@ -153,7 +153,7 @@ def _check_sub(
 
 
 def _check_event_name(
-    ground_truth: str, signed_claim: str, _all_signed_claims: SignedClaims, **_kwawrgs
+    ground_truth: str, signed_claim: str, _all_signed_claims: SignedClaims, **_kwargs,
 ) -> bool:
     if signed_claim == "pull_request_target":
         raise InvalidPublisherError(
