@@ -321,7 +321,7 @@ def get_app_config(database, nondefaults=None):
         "database.url": database,
         "docs.url": "http://docs.example.com/",
         "ratelimit.url": "memory://",
-        "db_results_cache.url": "redis://redis:0/",
+        "db_results_cache.url": "redis://cache:0/",
         "opensearch.url": "https://localhost/warehouse",
         "files.backend": "warehouse.packaging.services.LocalFileStorage",
         "archive_files.backend": "warehouse.packaging.services.LocalArchiveFileStorage",
@@ -409,8 +409,8 @@ def app_config_dbsession_from_env(database):
         "warehouse.db_create_session": lambda r: r.environ.get("warehouse.db_session"),
         "breached_passwords.backend": "warehouse.accounts.services.NullPasswordBreachedService",  # noqa: E501
         "token.two_factor.secret": "insecure token",
-        # A running redis service is required for functional web sessions
-        "sessions.url": "redis://redis:0/",
+        # A running redis-like service is required for functional web sessions
+        "sessions.url": "redis://cache:0/",
     }
 
     return get_app_config(database, nondefaults)
