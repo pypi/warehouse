@@ -1,9 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import json
 import logging
 import logging.config
-import threading
 import uuid
 
 from unittest import mock
@@ -15,27 +13,107 @@ import structlog
 from warehouse import logging as wlogging
 
 
-class TestStructlogFormatter:
-    def test_warehouse_logger_no_renderer(self):
-        formatter = wlogging.StructlogFormatter()
-        record = logging.LogRecord(
-            "warehouse.request", logging.INFO, None, None, "the message", None, None
+class TestGunicornAccessLogParsing:
+    def test_parses_access_log(self):
+        access_log_line = (
+            "bce7b3d78e73edf3cb8949bec7c52eba9727c4083417be33eca8afc5f31ef355 - - "
+            '[11/Aug/2025:21:01:13 +0000] "GET /pypi/b5ee/json HTTP/1.1" 404 24 '
+            '"-" "dependabot-core/0.325.1 excon/1.2.5 ruby/3.4.5 (x86_64-linux) '
+            '(+https://github.com/dependabot/dependabot-core)"'
         )
+        event_dict = {"logger": "gunicorn.access", "event": access_log_line}
 
-        assert formatter.format(record) == "the message"
+        result = wlogging._parse_gunicorn_access_log(None, None, event_dict)
 
-    def test_non_warehouse_logger_renders(self):
-        formatter = wlogging.StructlogFormatter()
-        record = logging.LogRecord(
-            "another.logger", logging.INFO, None, None, "the message", None, None
+        assert result["event"] == "http_request"
+        expected_id = "bce7b3d78e73edf3cb8949bec7c52eba9727c4083417be33eca8afc5f31ef355"
+        assert result["remote_addr"] == expected_id
+        assert result["method"] == "GET"
+        assert result["path"] == "/pypi/b5ee/json"
+        assert result["protocol"] == "HTTP/1.1"
+        assert result["status"] == 404
+        assert result["size"] == 24
+        assert result["referrer"] is None
+        assert "dependabot-core" in result["user_agent"]
+
+    def test_parses_with_referrer(self):
+        access_log_line = (
+            "test-id-123 - - "
+            '[12/Aug/2025:10:30:45 +0000] "POST /simple/upload HTTP/1.1" 200 500 '
+            '"https://pypi.org/project/test/" "Mozilla/5.0 (compatible; test)"'
         )
+        event_dict = {"logger": "gunicorn.access", "event": access_log_line}
 
-        assert json.loads(formatter.format(record)) == {
-            "logger": "another.logger",
-            "level": "INFO",
-            "event": "the message",
-            "thread": threading.get_ident(),
-        }
+        result = wlogging._parse_gunicorn_access_log(None, None, event_dict)
+
+        assert result["remote_addr"] == "test-id-123"
+        assert result["method"] == "POST"
+        assert result["path"] == "/simple/upload"
+        assert result["status"] == 200
+        assert result["size"] == 500
+        assert result["referrer"] == "https://pypi.org/project/test/"
+        assert result["user_agent"] == "Mozilla/5.0 (compatible; test)"
+
+    def test_unparsable_log_returns_unchanged(self):
+        malformed_log = "this is not a valid access log format"
+        event_dict = {"logger": "gunicorn.access", "event": malformed_log}
+
+        result = wlogging._parse_gunicorn_access_log(None, None, event_dict)
+
+        assert result["event"] == malformed_log
+
+    def test_non_access_log_returns_unchanged(self):
+        event_dict = {"logger": "gunicorn.server", "event": "some server message"}
+
+        result = wlogging._parse_gunicorn_access_log(None, None, event_dict)
+
+        assert result == event_dict
+
+    def test_parses_without_protocol(self):
+        """Test when request has no protocol (only method and path)."""
+        access_log_line = (
+            "test-id - - "
+            '[10/Aug/2025:10:00:00 +0000] "GET /test" 200 100 "-" "agent"'
+        )
+        event_dict = {"logger": "gunicorn.access", "event": access_log_line}
+
+        result = wlogging._parse_gunicorn_access_log(None, None, event_dict)
+
+        assert result["method"] == "GET"
+        assert result["path"] == "/test"
+        assert "protocol" not in result
+
+    def test_parses_malformed_request_field(self):
+        """Test when request field has less than 2 parts.
+
+        fixes cov: 43 0 10 1 98%   lines57->63
+        """
+        access_log_line = (
+            "test-id - - " '[10/Aug/2025:10:00:00 +0000] "INVALID" 400 0 "-" "agent"'
+        )
+        event_dict = {"logger": "gunicorn.access", "event": access_log_line}
+
+        result = wlogging._parse_gunicorn_access_log(None, None, event_dict)
+
+        # Request field should be preserved but not parsed
+        assert result["request"] == "INVALID"
+        assert "method" not in result
+        assert "path" not in result
+        assert "protocol" not in result
+
+
+def test_renderer_dev_mode(monkeypatch):
+    """Test that ConsoleRenderer is used in development mode."""
+    import importlib
+
+    try:
+        monkeypatch.setenv("WAREHOUSE_ENV", "development")
+        importlib.reload(wlogging)
+        assert isinstance(wlogging.RENDERER, structlog.dev.ConsoleRenderer)
+    finally:
+        # Restore original state
+        monkeypatch.delenv("WAREHOUSE_ENV", raising=False)
+        importlib.reload(wlogging)
 
 
 def test_create_id(monkeypatch):
@@ -76,19 +154,31 @@ def test_includeme(monkeypatch, settings, expected_level):
 
     wlogging.includeme(config)
 
+    # Build expected foreign_pre_chain
+    foreign_pre_chain = [
+        structlog.stdlib.add_log_level,
+        structlog.stdlib.add_logger_name,
+        mock.ANY,  # TimeStamper
+        wlogging._parse_gunicorn_access_log,
+    ]
+
     assert dict_config.calls == [
         pretend.call(
             {
                 "version": 1,
                 "disable_existing_loggers": False,
                 "formatters": {
-                    "structlog": {"()": "warehouse.logging.StructlogFormatter"}
+                    "structlog_formatter": {
+                        "()": structlog.stdlib.ProcessorFormatter,
+                        "processor": wlogging.RENDERER,
+                        "foreign_pre_chain": foreign_pre_chain,
+                    }
                 },
                 "handlers": {
                     "primary": {
                         "class": "logging.StreamHandler",
                         "stream": "ext://sys.stdout",
-                        "formatter": "structlog",
+                        "formatter": "structlog_formatter",
                     },
                 },
                 "loggers": {
@@ -113,16 +203,24 @@ def test_includeme(monkeypatch, settings, expected_level):
             }
         )
     ]
+    # Verify TimeStamper in foreign_pre_chain
+    formatter_config = dict_config.calls[0].args[0]["formatters"]["structlog_formatter"]
+    assert isinstance(
+        formatter_config["foreign_pre_chain"][2],
+        structlog.processors.TimeStamper,
+    )
+
     assert configure.calls == [
         pretend.call(
             processors=[
                 structlog.stdlib.filter_by_level,
                 structlog.stdlib.add_logger_name,
                 structlog.stdlib.add_log_level,
-                mock.ANY,
-                mock.ANY,
+                mock.ANY,  # PositionalArgumentsFormatter
+                mock.ANY,  # TimeStamper
+                mock.ANY,  # StackInfoRenderer
                 structlog.processors.format_exc_info,
-                wlogging.RENDERER,
+                structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
             ],
             logger_factory=mock.ANY,
             wrapper_class=structlog.stdlib.BoundLogger,
@@ -135,6 +233,10 @@ def test_includeme(monkeypatch, settings, expected_level):
     )
     assert isinstance(
         configure.calls[0].kwargs["processors"][4],
+        structlog.processors.TimeStamper,
+    )
+    assert isinstance(
+        configure.calls[0].kwargs["processors"][5],
         structlog.processors.StackInfoRenderer,
     )
     assert isinstance(
