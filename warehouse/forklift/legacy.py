@@ -1516,7 +1516,6 @@ def file_upload(request):
                     f"Invalid attestations supplied during upload: {e}",
                 )
 
-
         # Store the information about the file in the database.
         file_ = File(
             release=release,

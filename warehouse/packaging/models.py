@@ -25,12 +25,12 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     cast,
+    event,
     func,
     or_,
     orm,
     select,
     sql,
-    event,
 )
 from sqlalchemy.dialects.postgresql import (
     ARRAY,
@@ -1217,6 +1217,7 @@ class AlternateRepository(db.Model):
     url: Mapped[str]
     description: Mapped[str]
 
+
 @event.listens_for(File, "after_insert")
 def add_filename_to_registry(mapper, connection, target):
     """
@@ -1226,12 +1227,9 @@ def add_filename_to_registry(mapper, connection, target):
     successfully inserted into the database.
 
     We use a direct connection-level insert (`connection.execute()`)
-    instead of `session.add(Filename(...))` to avoid an `SAWarning`. 
-    Modifying the session *during* the flush process (which is when 
-    this hook runs) is not a supported operation. This method 
+    instead of `session.add(Filename(...))` to avoid an `SAWarning`.
+    Modifying the session *during* the flush process (which is when
+    this hook runs) is not a supported operation. This method
     bypasses the session's unit-of-work tracking and is safe here.
     """
-    connection.execute(
-        Filename.__table__.insert(),
-        {"filename": target.filename}
-    )
+    connection.execute(Filename.__table__.insert(), {"filename": target.filename})
