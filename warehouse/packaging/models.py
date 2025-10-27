@@ -1220,12 +1220,17 @@ class AlternateRepository(db.Model):
 @event.listens_for(File, "after_insert")
 def add_filename_to_registry(mapper, connection, target):
     """
-    Listen for a new File object being inserted and add its filename to the
-    Filename registry.
+    Log the new filename to the Filename (file_registry) table.
+
+    This event listener is triggered *after* a new `File` object is
+    successfully inserted into the database.
+
+    We use a direct connection-level insert (`connection.execute()`)
+    instead of `session.add(Filename(...))` to avoid an `SAWarning`. 
+    Modifying the session *during* the flush process (which is when 
+    this hook runs) is not a supported operation. This method 
+    bypasses the session's unit-of-work tracking and is safe here.
     """
-    # Use a direct connection-level insert,
-    # This avoids using session.add() during the flush process.
-    # The 'target' is the File object that was just inserted.
     connection.execute(
         Filename.__table__.insert(),
         {"filename": target.filename}
