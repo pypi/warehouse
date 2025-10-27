@@ -1516,10 +1516,6 @@ def file_upload(request):
                     f"Invalid attestations supplied during upload: {e}",
                 )
 
-        # TODO: This should be handled by some sort of database trigger or a
-        #       SQLAlchemy hook or the like instead of doing it inline in this
-        #       view.
-        request.db.add(Filename(filename=filename))
 
         # Store the information about the file in the database.
         file_ = File(

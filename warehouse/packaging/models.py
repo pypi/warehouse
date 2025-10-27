@@ -30,6 +30,7 @@ from sqlalchemy import (
     orm,
     select,
     sql,
+    event,
 )
 from sqlalchemy.dialects.postgresql import (
     ARRAY,
@@ -1215,3 +1216,17 @@ class AlternateRepository(db.Model):
     name: Mapped[str]
     url: Mapped[str]
     description: Mapped[str]
+
+@event.listens_for(File, "after_insert")
+def add_filename_to_registry(mapper, connection, target):
+    """
+    Listen for a new File object being inserted and add its filename to the
+    Filename registry.
+    """
+    # Use a direct connection-level insert,
+    # This avoids using session.add() during the flush process.
+    # The 'target' is the File object that was just inserted.
+    connection.execute(
+        Filename.__table__.insert(),
+        {"filename": target.filename}
+    )
