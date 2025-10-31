@@ -578,6 +578,30 @@ class TestManageAccount:
         ]
         assert old_primary.primary
 
+    def test_change_primary_email_2fa_disabled(self, monkeypatch, db_request):
+        user = UserFactory.create(totp_secret=None)
+        _ = EmailFactory(primary=True, verified=False, user=user)
+        secondary = EmailFactory(primary=False, verified=True, user=user)
+
+        db_request.user = user
+        db_request.find_service = lambda *a, **kw: pretend.stub(get_user=lambda a: user)
+        db_request.POST = {"primary_email_id": str(secondary.id)}
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        db_request.route_path = pretend.call_recorder(lambda r, **kw: f"/{r}")
+        monkeypatch.setattr(
+            views.ManageVerifiedAccountViews, "default_response", pretend.stub()
+        )
+        view = views.ManageVerifiedAccountViews(db_request)
+
+        assert view.change_primary_email() == view.default_response
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Two factor authentication must be enabled to change primary "
+                "email address.",
+                queue="error",
+            )
+        ]
+
     @pytest.mark.parametrize(
         ("has_primary_verified_email", "expected_redirect"),
         [

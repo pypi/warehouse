@@ -185,6 +185,14 @@ class ManageAccountMixin:
         request_method="POST", request_param=["primary_email_id"], require_reauth=True
     )
     def change_primary_email(self):
+        if not self.request.user.has_two_factor:
+            self.request.session.flash(
+                "Two factor authentication must be enabled to change primary "
+                "email address.",
+                queue="error",
+            )
+            return self.default_response
+
         previous_primary_email = self.request.user.primary_email
         try:
             new_primary_email = (
