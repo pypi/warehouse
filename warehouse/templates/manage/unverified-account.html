@@ -107,7 +107,6 @@
                 </form>
               </li>
             {% endif %}
-
           </ul>
         </nav>
       {% endif %}
@@ -212,18 +211,35 @@
 {% block main %}
   <h1 class="page-title">{{ title }}</h1>
   <div class="callout-block">
+    {% if user.has_two_factor %}
+      <p>
+        {% trans %}
+        You must verify an existing email address and make it your primary email address
+        before making any other changes to your account.
+      {% endtrans %}
+    </p>
     <p>
-      {% trans %}
-      You must verify a primary email address
-      before making any other changes to your account.
+      {% trans help_url=help_url %}
+      If you cannot verify any email addresses listed,
+      please see <a href="{{ help_url }}">{{ help_url }}</a>
+      to recover access to your account.
     {% endtrans %}
   </p>
+{% else %}
   <p>
-    {% trans help_url=help_url %}
-    If you cannot verify a primary email address,
-    please see <a href="{{ help_url }}">{{ help_url }}</a>.
+    {% trans %}
+    You must verify the primary email address listed below
+    before making any other changes to your account.
   {% endtrans %}
 </p>
+<p>
+  {% trans help_url=help_url %}
+  If you cannot verify the primary email address listed,
+  please see <a href="{{ help_url }}">{{ help_url }}</a>
+  to recover access to your account.
+{% endtrans %}
+</p>
+{% endif %}
 </div>
 <section id="account-emails">
   <h2 class="sub-title">{% trans %}Account emails{% endtrans %}</h2>
