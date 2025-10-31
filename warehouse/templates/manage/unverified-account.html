@@ -90,6 +90,24 @@
                 </form>
               </li>
             {% endif %}
+            {% if user.has_two_factor and not email.primary and email.verified %}
+              {# Only permit primary changes if the user has 2FA #}
+              <li>
+                <form method="post">
+                  <input hidden name="primary_email_id" value="{{ email.id }}">
+                  <input name="csrf_token"
+                         type="hidden"
+                         value="{{ request.session.get_csrf_token() }}">
+                  <button type="submit"
+                          class="dropdown__link"
+                          title="{% trans %}Set this email address as primary{% endtrans %}">
+                    <i class="fa fa-cog" aria-hidden="true"></i>
+                    {% trans %}Set as primary{% endtrans %}
+                  </button>
+                </form>
+              </li>
+            {% endif %}
+
           </ul>
         </nav>
       {% endif %}
