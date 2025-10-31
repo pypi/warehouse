@@ -6,7 +6,6 @@ import time
 from typing import cast
 
 from cryptography.exceptions import InvalidSignature
-from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ec import ECDSA, EllipticCurvePublicKey
 from cryptography.hazmat.primitives.hashes import SHA256
@@ -114,7 +113,7 @@ class PayloadVerifier:
     def _check_signature(self, payload, public_key, signature):
         try:
             loaded_public_key = serialization.load_pem_public_key(
-                data=public_key.encode("utf-8"), backend=default_backend()
+                data=public_key.encode("utf-8")
             )
             # Use Type Narrowing to confirm the loaded_public_key is the correct type
             loaded_public_key = cast(EllipticCurvePublicKey, loaded_public_key)
