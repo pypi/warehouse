@@ -1,12 +1,5 @@
-API reference
-=============
+# API reference
 
-.. note::
-
-  All API documentation except for :doc:`xml-rpc` has been moved to the
-  `user documentation site <https://docs.pypi.org/api/>`_.
-
-.. toctree::
-    :maxdepth: 2
-
-    xml-rpc
+!!! note
+    All API documentation except for [XML-RPC](xml-rpc.md) has been moved to the
+    [user documentation site](https://docs.pypi.org/api/).
