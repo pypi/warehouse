@@ -78,8 +78,7 @@ ENV PATH="/opt/warehouse/bin:${PATH}"
 
 # Next, we want to update pip inside of this virtual
 # environment to ensure that we have the latest version.
-# Pinned due to https://github.com/jazzband/pip-tools/issues/2176
-RUN pip --no-cache-dir --disable-pip-version-check install --upgrade pip==25.0.1
+RUN pip --no-cache-dir --disable-pip-version-check install --upgrade pip
 
 # We copy this into the docker container prior to copying in the rest of our
 # application so that we can skip installing requirements if the only thing
@@ -143,8 +142,7 @@ ENV PATH="/opt/warehouse/bin:${PATH}"
 
 # Next, we want to update pip inside of this virtual
 # environment to ensure that we have the latest version.
-# Pinned due to https://github.com/jazzband/pip-tools/issues/2176
-RUN pip --no-cache-dir --disable-pip-version-check install --upgrade pip==25.0.1
+RUN pip --no-cache-dir --disable-pip-version-check install --upgrade pip
 
 # We copy this into the docker container prior to copying in the rest of our
 # application so that we can skip installing requirements if the only thing
