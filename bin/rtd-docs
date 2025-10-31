@@ -5,14 +5,14 @@ set -e
 set -x
 
 if [ "${READTHEDOCS_PROJECT}" = "warehouse" ]; then
-  if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/dev requirements/docs-dev.txt .readthedocs.yaml; then
+  if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/dev requirements/docs-dev.txt .readthedocs.yaml docs/mkdocs-dev-docs.yml; then
     echo "Nothing relevant changed, skipping build..."
     exit 183;
   fi
   pip install -r requirements/docs-dev.txt
   asdf reshim
-  make -C docs/dev/ html
-  mkdir _readthedocs && mv docs/dev/_build/html _readthedocs/html
+  mkdocs build -f docs/mkdocs-dev-docs.yml
+  mkdir _readthedocs && mv docs/dev-site _readthedocs/html
 fi
 
 if [ "${READTHEDOCS_PROJECT}" = "docspypiorg" ]; then

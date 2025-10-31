@@ -1,5 +1,4 @@
-Token Scanning
-==============
+# Token Scanning
 
 People make mistakes. Sometimes, they post their PyPI tokens publicly. Some
 content managers run regexes to try and identify published secrets, and ideally
@@ -7,23 +6,22 @@ have them deactivated. PyPI has started integrating with such systems in order
 to help secure packages.
 
 User-facing documentation about this feature is available here:
-`<https://docs.pypi.org/api/secrets/>`_.
+<https://docs.pypi.org/api/secrets/>.
 
-How to test it manually
-^^^^^^^^^^^^^^^^^^^^^^^
+## How to test it manually
 
 A fake token reporting service is launched by Docker Compose. Head your browser to
-``http://localhost:8964``. Create/reorder/... one ore more public keys, make
+`http://localhost:8964`. Create/reorder/... one ore more public keys, make
 sure one key is marked as current, then write your payload, using the following
 format:
 
-.. code-block:: json
-
-    [{
-        "type": "pypi_api_token",
-        "token": "pypi-...",
-        "url": "https://example.com"
-    }]
+```json
+[{
+    "type": "pypi_api_token",
+    "token": "pypi-...",
+    "url": "https://example.com"
+}]
+```
 
 Send your payload. It sends it to your local Warehouse. If a match is found, you
 should find that:
@@ -33,16 +31,15 @@ should find that:
   notification email.
 
 After you send the token, the page will reload, and you'll find the details of
-the request at the bottom. If all went well, you should see a ``204`` ('No
+the request at the bottom. If all went well, you should see a `204` ('No
 Content').
 
 Whether it worked or not, a bunch of metrics have been issued, you can see them
-in the ``notdatadog`` container log.
+in the `notdatadog` container log.
 
-PyPI token disclosure infrastructure
-------------------------------------
+## PyPI token disclosure infrastructure
 
-The code is mainly in ``warehouse/integrations/secrets/``.
+The code is mainly in `warehouse/integrations/secrets/`.
 There are 3 main parts in handling a token disclosure report:
 
 - The Web view, which is the top-level glue but does not implement the logic

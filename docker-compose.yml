@@ -256,9 +256,11 @@ services:
       context: .
       target: docs
     image: warehouse:docker-compose-docs
-    command: sphinx-autobuild --host 0.0.0.0 "docs/dev/" "docs/dev/_build"
+    command: mkdocs serve -a 0.0.0.0:8000 -f docs/mkdocs-dev-docs.yml
+    stop_signal: SIGINT
     volumes:
       - ./bin:/opt/warehouse/src/bin:z
+      - ./docs/mkdocs-dev-docs.yml:/opt/warehouse/src/docs/mkdocs-dev-docs.yml:z
       - ./docs:/opt/warehouse/src/docs:z
     ports:
       - "10002:8000"
