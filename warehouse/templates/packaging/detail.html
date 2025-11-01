@@ -187,7 +187,7 @@
   {% endfor %}
 </table>
 {%- endmacro -%}
-{% macro filter_select(name, title, selected) %}
+{% macro filter_select(name, title) %}
   <label class="form-group__label sr-only" for="bdist-tags-{{ name }}">{% trans %}{{ title }}{% endtrans %}</label>
   <select class="form-group__field"
           id="bdist-tags-{{ name }}"
@@ -195,11 +195,11 @@
           data-action="filter-list#filter"
           data-filter-list-target="filter"
           data-filtered-source="{{ name }}"
-          data-comparison-type="exact">
-    <option {% if not selected[name] %}selected{% endif %} value="">{% trans %}{{ title }}{% endtrans %}</option>
+          data-comparison-type="exact"
+          data-auto-update-url-querystring="true">
+    <option value="">{% trans %}{{ title }}{% endtrans %}</option>
     {% for value in wheel_filters_all[name] | sort %}
-      <option {% if selected[name] == value %}selected{% endif %}
-              value="{{ value }}">{{ wheel_filters_all[name][value] }}</option>
+      <option value="{{ value }}">{{ wheel_filters_all[name][value] }}</option>
     {% endfor %}
   </select>
 {% endmacro %}
@@ -579,14 +579,14 @@
                    id="bdist-filenames-filter"
                    name="bdist-filenames-filter"
                    placeholder="{% trans %}Search by file name{% endtrans %}"
-                   {% if wheel_filters_params['filename'] %}value="{{ wheel_filters_params['filename'] }}"{% endif %}
                    autocapitalize="none"
                    autocomplete=""
                    spellcheck="false"
                    data-action="filter-list#filter"
                    data-filter-list-target="filter"
                    data-filtered-source="filename"
-                   data-comparison-type="includes">
+                   data-comparison-type="includes"
+                   data-auto-update-url-querystring="true">
           </div>
         </div>
         <div class="filter-wheels__filters">
@@ -606,10 +606,10 @@
                 <span class="sr-only">{% trans %}Copy link to filters{% endtrans %}</span>
               </button>
             </span>
-            {{ filter_select('interpreter', 'Interpreter', wheel_filters_params) }}
+            {{ filter_select('interpreter', 'Interpreter') }}
           </div>
-          <div class="form-group form-group--flex-width">{{ filter_select('abi', 'ABI', wheel_filters_params) }}</div>
-          <div class="form-group form-group--flex-width">{{ filter_select('platform', 'Platform', wheel_filters_params) }}</div>
+          <div class="form-group form-group--flex-width">{{ filter_select('abi', 'ABI') }}</div>
+          <div class="form-group form-group--flex-width">{{ filter_select('platform', 'Platform') }}</div>
         </div>
       </div>
     {% endif %}

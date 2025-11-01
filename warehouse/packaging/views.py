@@ -272,14 +272,6 @@ def release_detail(release, request):
         [bdist.filename for bdist in bdists]
     )
 
-    # Get the querystring to load any pre-set parameters
-    wheel_filters_params = {
-        "filename": request.params.get("filename", ""),
-        "interpreters": request.params.get("interpreters", ""),
-        "abis": request.params.get("abis", ""),
-        "platforms": request.params.get("platforms", ""),
-    }
-
     return {
         "project": project,
         "release": release,
@@ -294,7 +286,6 @@ def release_detail(release, request):
         # Additional function to format the attestations
         "PEP740AttestationViewer": PEP740AttestationViewer,
         "wheel_filters_all": wheel_filters_all,
-        "wheel_filters_params": wheel_filters_params,
     }
 
 

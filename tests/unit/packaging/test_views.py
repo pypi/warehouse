@@ -220,13 +220,7 @@ class TestReleaseDetail:
                 "abi": {},
                 "platform": {},
                 "other": {},
-            },
-            "wheel_filters_params": {
-                "filename": "",
-                "interpreters": "",
-                "abis": "",
-                "platforms": "",
-            },
+            }
         }
 
     def test_detail_renders_files_natural_sort(self, db_request):
