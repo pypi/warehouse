@@ -249,11 +249,17 @@ _CPYTHON_SUFFIX_MAP = {
 }
 
 
+def _format_version(s: str) -> str:
+    return f"{s[0]}.{s[1:]}"
+
+
 def _norm_arch(a: str) -> str:
     return _ARCH_MAP.get(a, a)
 
+
 def _norm_str(s: str) -> str:
     return (s or "").replace('_', ' ').strip()
+
 
 def _implementation_to_label(raw: str) -> str:
     if raw.startswith("pypy"):
@@ -305,9 +311,9 @@ def _abi_to_label(tag: packaging.tags.Tag) -> str:
     elif tag.abi == "abi3":
         # NOTE: CPython abi3 should have a CPython interpreter.
         # if not tag.interpreter.startswith("cp"):
-            # A non- CPython interpreter with CPython abi3.
-            # Should this be possible?
-            # pass
+        # A non- CPython interpreter with CPython abi3.
+        # Should this be possible?
+        # pass
         return "CPython abi3"
     elif tag.abi.startswith("cp"):
         return _implementation_to_label(tag.abi)
@@ -350,6 +356,24 @@ def _add_group_label(container: dict, group: str, value: str, label: str) -> Non
         container[group][value] = label
 
 
+def filename_to_tags(filename: str) -> set[packaging.tags.Tag]:
+    """Parse a wheel file name to extract the tags."""
+    try:
+        _, _, _, tags = packaging.utils.parse_wheel_filename(filename)
+        return set(tags)
+    except packaging.utils.InvalidWheelFilename:
+        return set()
+
+
+def filename_to_pretty_tags(filename: str) -> list[str]:
+    grouped_labels = filename_to_grouped_labels(filename)
+    pretty_tags = set()
+    for kind, kind_items in grouped_labels.items():
+        for value, label in kind_items.items():
+            pretty_tags.add(label)
+    return sorted(pretty_tags)
+
+
 def filename_to_grouped_labels(filename: str) -> dict[str, dict]:
     grouped_labels = {
         "interpreter": {},
@@ -373,8 +397,22 @@ def filename_to_grouped_labels(filename: str) -> dict[str, dict]:
     return grouped_labels
 
 
-def combine_grouped_labels(*args) -> dict[str, dict]:
-    pass
+def filenames_to_grouped_labels(filenames: list[str]) -> dict[str, dict]:
+    grouped_labels = {
+        "interpreter": {},
+        "abi": {},
+        "platform": {},
+        "other": {},
+    }
+    for filename in filenames:
+        grouped = filename_to_grouped_labels(filename)
+        for kind, kind_items in grouped.items():
+            if kind not in grouped_labels:
+                grouped_labels[kind] = {}
+            for value, label in kind_items.items():
+                if value not in grouped_labels[kind]:
+                    grouped_labels[kind][value] = label
+    return grouped_labels
 
 
 def _zip_filename_is_dir(filename: str) -> bool:
