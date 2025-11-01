@@ -29,7 +29,8 @@
           data-action="filter-list#filter"
           data-filter-list-target="filter"
           data-filtered-source="{{ name }}"
-          data-comparison-type="exact">
+          data-comparison-type="exact"
+          data-auto-update-url-querystring="true">
     <option {% if not selected[name] %}selected{% endif %} value="">{% trans %}{{ title }}{% endtrans %}</option>
     {% for value in wheel_filters_all[name] | sort %}
       <option {% if selected[name] == value %}selected{% endif %}
@@ -123,7 +124,8 @@
              data-action="filter-list#filter"
              data-filter-list-target="filter"
              data-filtered-source="filename"
-             data-comparison-type="includes">
+             data-comparison-type="includes"
+             data-auto-update-url-querystring="true">
     </div>
     <div class="col-grid">
       <div class="form-group col-third">{{ filter_select('interpreter', 'Interpreter', wheel_filters_params) }}</div>

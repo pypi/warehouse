@@ -29,6 +29,9 @@ export default class extends Controller {
     this._populateMappings();
     this._initVisibility();
 
+    const urlFilters = this._getFiltersUrlSearch();
+    this._setFiltersHtmlElements(urlFilters);
+
     this.filter();
   }
 
@@ -72,23 +75,21 @@ export default class extends Controller {
         total);
     }
 
-    // Update the direct url to this filter
-    if (this.hasUrlTarget && this.urlTarget) {
-      const searchParams = new URLSearchParams();
-      for (const key in filterData) {
-        for (const value of filterData[key].values) {
-          if (value && value.trim()) {
-            searchParams.set(key, [...searchParams.getAll(key), value]);
-          }
-        }
-      }
+    // Update the current url to include the filters
+    const htmlElementFilters = this._getFiltersHtmlElements();
+    this._setFiltersUrlSearch(htmlElementFilters);
 
-      const qs = searchParams.toString();
-      const baseUrl = new URL(this.urlTarget.href);
-      if (qs) {
-        baseUrl.search = "?" + qs;
-      }
-      this.urlTarget.textContent = baseUrl.toString();
+    // Update the direct url to these filters
+    if (this.hasUrlTarget && this.urlTarget) {
+      const urlTargetUrl = new URL(this.urlTarget.href);
+      Object.entries(htmlElementFilters ?? {}).forEach(([key, value]) => {
+        if (value) {
+          urlTargetUrl.searchParams.set(key, value);
+        } else {
+          urlTargetUrl.searchParams.delete(key);
+        }
+      });
+      this.urlTarget.textContent = urlTargetUrl.toString();
     }
   }
 
@@ -155,7 +156,7 @@ export default class extends Controller {
         filterData[key].values.push(value);
 
         const comparison = filterTarget.dataset.comparisonType;
-        if (comparison){
+        if (comparison) {
           filterData[key].comparison = comparison;
         }
       });
@@ -165,50 +166,126 @@ export default class extends Controller {
 
   /**
    * Compare an item's data to all filter values and find matches.
-   * @param itemData The item mapping.
-   * @param filterData The filter mapping.
+   * Filters are processed as 'AND' - the item data must match all the filters.
+   * @param itemData {{[key: string]:string[]}} The item mapping.
+   * @param filterData {{[key: string]: {values: string[], comparison: "exact"|"includes"}}} The filter mapping.
    * @returns {boolean}
    * @private
    */
   _compare(itemData, filterData) {
-    // if there are no filters, return true
-    const anyFilter = Object.values(filterData)
-      .some(filterInfo => {
-        const filterValues = filterInfo.values || []
-        return filterValues.length > 0 && filterValues.some(filterValue => !!filterValue);
-      });
-    if (!anyFilter) {
-      return true;
-    }
+    for (const [filterKey, filterInfo] of Object.entries(filterData)) {
+      const comparison = filterInfo.comparison;
+      const filterValues = Array.from(new Set((filterInfo.values ?? []).map(i => i?.toString()?.trim() ?? "").filter(i => !!i)));
+      const itemValues = Array.from(new Set((itemData[filterKey] ?? []).map(i => i?.toString()?.trim() ?? "").filter(i => !!i)));
 
-    // Match using 'OR': the overall match will be true when,
-    // for at least one filter key,
-    // that has at least one value,
-    // at least one item value for the same key includes any filter value.
-    return Object.entries(filterData)
-      .some(filterEntry => {
-        // only include filter values and item values that are truthy
-        const filterValues = (filterEntry[1].values || []).filter(i => !!i);
-        const itemValues = (itemData[filterEntry[0]] || []).filter(i => !!i);
-        const comparison = filterEntry[1].comparison;
-        if (itemValues.length === 0 || filterValues.length === 0) {
-          // If there is at least one filter,
-          // and both the item and the filter have no values,
-          // filter out the item.
+      // Not a match if the item values and filter values are different lengths.
+      if (filterValues.length > 0 && filterValues.length !== itemValues.length) {
+        console.log(`_compare lengths filterValues ${JSON.stringify(filterValues)} itemValues ${JSON.stringify(itemValues)}`);
+        return false;
+      }
+
+      // Not a match if the item values and filter values contain different values.
+      if (filterValues.length > 0 && comparison === 'exact') {
+        if (!filterValues.every(filterValue => itemValues.includes(filterValue))) {
+          console.log(`_compare exact filterValues ${JSON.stringify(filterValues)} itemValues ${JSON.stringify(itemValues)}`);
           return false;
         }
+      }
 
-        return filterValues.some(filterValue => {
-          if (!filterValue) {
-            return false;
-          }
-          if (comparison === 'exact') {
-            return itemValues.some(itemValue => itemValue === filterValue);
-          }
-          if (comparison === 'includes') {
-            return itemValues.some(itemValue => itemValue.includes(filterValue));
-          }
-        });
-      });
+      if (filterValues.length > 0 && comparison === 'includes') {
+        if (!filterValues.every(filterValue => itemValues.some(itemValue => itemValue.includes(filterValue)))) {
+          console.log(`_compare includes filterValues ${JSON.stringify(filterValues)} itemValues ${JSON.stringify(itemValues)}`);
+          return false;
+        }
+      }
+    }
+    console.log(`_compare true filterData ${JSON.stringify(filterData)} itemData ${JSON.stringify(itemData)}`);
+    return true;
+  }
+
+  /**
+   * Get the filters from the url query string.
+   * @returns {{[key: string]: string}}
+   * @private
+   */
+  _getFiltersUrlSearch() {
+    const enabledFilterTargets = this._getAutoUpdateUrlQuerystringFilters();
+    const currentSearchParams = new URLSearchParams(document.location.search);
+    const filterTargets = (this.hasFilterTarget ? (this.filterTargets ?? []) : []);
+    return Object.fromEntries(filterTargets.map(filterTarget => {
+      const key = filterTarget.dataset.filteredSource;
+      const value = currentSearchParams.get(key);
+      return [key, value];
+    }).filter(([key, _value]) => enabledFilterTargets.includes(key)));
+  }
+
+  /**
+   * Set the filters to the url query string.
+   * @param filters The filters to set.
+   * @private
+   */
+  _setFiltersUrlSearch(filters) {
+    const enabledFilterTargets = this._getAutoUpdateUrlQuerystringFilters();
+    const currentUrl = new URL(document.location.href);
+    const filterTargets = (this.hasFilterTarget ? (this.filterTargets ?? []) : []);
+    filterTargets.forEach(filterTarget => {
+      const key = filterTarget.dataset.filteredSource;
+      if (!enabledFilterTargets.includes(key)) {
+        return;
+      }
+      const value = filters[key] ?? null;
+      if (value) {
+        currentUrl.searchParams.set(key, value);
+      } else {
+        currentUrl.searchParams.delete(key);
+      }
+    });
+    window.history.replaceState(null, "", currentUrl);
+  }
+
+  /**
+   * Get the filters from the HTML element values.
+   * @returns {{[key: string]: string}}
+   * @private
+   */
+  _getFiltersHtmlElements() {
+    const filterTargets = (this.hasFilterTarget ? (this.filterTargets ?? []) : []);
+    return Object.fromEntries(filterTargets.map(filterTarget => {
+      const key = filterTarget.dataset.filteredSource;
+      const value = filterTarget.value;
+      return [key, value];
+    }));
+  }
+
+  /**
+   * Set the filters to the HTML element values.
+   * @param filters
+   * @private
+   */
+  _setFiltersHtmlElements(filters) {
+    const filterTargets = (this.hasFilterTarget ? (this.filterTargets ?? []) : []);
+    filterTargets.forEach(filterTarget => {
+      const key = filterTarget.dataset.filteredSource;
+      if (filters[key] !== undefined) {
+        filterTarget.value = filters[key] ?? "";
+      }
+    });
+  }
+
+  /**
+   * Get a map of the filters and whether they participate in the automatic url querystring update.
+   * @returns {string[]}
+   * @private
+   */
+  _getAutoUpdateUrlQuerystringFilters() {
+    const filterTargets = (this.hasFilterTarget ? (this.filterTargets ?? []) : []);
+    return filterTargets
+      .map(filterTarget => {
+        const key = filterTarget.dataset.filteredSource;
+        const value = filterTarget.dataset.autoUpdateUrlQuerystring;
+        return [key, value];
+      })
+      .filter(([_key, value]) => value === 'true')
+      .map(([key, _value]) => key);
   }
 }
