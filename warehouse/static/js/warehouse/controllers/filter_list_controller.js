@@ -49,11 +49,9 @@ export default class extends Controller {
     this.itemTargets.forEach((item, index) => {
       total += 1;
       const itemData = this.mappingItemFilterData[index];
-      const compareResult = this._compare(itemData, filterData);
+      const isShow = this._compare(itemData, filterData);
 
       // Should the item be displayed or not?
-      // Show if there are no filters, or if there are filters and at least one match.
-      const isShow = !compareResult.hasFilter || (compareResult.hasFilter && compareResult.isMatch);
       if (isShow) {
         // match: show item
         item.classList.remove("hidden");
@@ -78,7 +76,7 @@ export default class extends Controller {
     if (this.hasUrlTarget && this.urlTarget) {
       const searchParams = new URLSearchParams();
       for (const key in filterData) {
-        for (const value of filterData[key]) {
+        for (const value of filterData[key].values) {
           if (value && value.trim()) {
             searchParams.set(key, [...searchParams.getAll(key), value]);
           }
@@ -152,69 +150,65 @@ export default class extends Controller {
         const key = filterTarget.dataset.filteredSource;
         const value = filterTarget.value;
         if (!Object.hasOwn(filterData, key)) {
-          filterData[key] = [];
+          filterData[key] = {values: [], comparison: 'exact'};
         }
-        filterData[key].push(value);
+        filterData[key].values.push(value);
+
+        const comparison = filterTarget.dataset.comparisonType;
+        if (comparison){
+          filterData[key].comparison = comparison;
+        }
       });
     }
     return filterData;
   }
 
   /**
-   * Compare an item's tags to all filter values and find matches.
+   * Compare an item's data to all filter values and find matches.
    * @param itemData The item mapping.
    * @param filterData The filter mapping.
-   * @returns {{hasFilter: boolean, isMatch: boolean, matches: *[]}}
+   * @returns {boolean}
    * @private
    */
   _compare(itemData, filterData) {
-    // The overall match will be true when,
-    // for every filter key that has at least one value,
-    // at least one item value for the same key includes any filter value.
-
-    const isMatch = [];
-    const matches = [];
-    const misses = [];
-    let hasFilter = false;
-    for (const itemKey in itemData) {
-      const itemValues = itemData[itemKey];
-      const filterValues = filterData[itemKey];
-
-      let isKeyMatch = false;
-      let hasKeyFilter = false;
-
-      for (const itemValue of itemValues) {
-        for (const filterItemValue of filterValues) {
-
-          if (filterItemValue && !hasKeyFilter) {
-            // Record whether there are any filter values in any filter key.
-            hasFilter = true;
-          }
-
-          if (filterItemValue && !hasKeyFilter) {
-            // Record whether there are any filter values in *this* filter key.
-            hasKeyFilter = true;
-          }
-
-          // There could be two types of comparisons - exact match for tags, contains for filename.
-          // Using: for each named group, does any item value include any filter value?
-          if (filterItemValue && itemValue.includes(filterItemValue)) {
-            isKeyMatch = true;
-            matches.push({"key": itemKey, "filter": filterItemValue, "item": itemValue});
-          }
-          if (filterItemValue && !itemValue.includes(filterItemValue)) {
-            misses.push({"key": itemKey, "filter": filterItemValue, "item": itemValue});
-          }
-        }
-      }
-      isMatch.push(!hasKeyFilter || (isKeyMatch && hasKeyFilter));
+    // if there are no filters, return true
+    const anyFilter = Object.values(filterData)
+      .some(filterInfo => {
+        const filterValues = filterInfo.values || []
+        return filterValues.length > 0 && filterValues.some(filterValue => !!filterValue);
+      });
+    if (!anyFilter) {
+      return true;
     }
 
-    return {
-      "isMatch": isMatch.every(value => value),
-      "hasFilter": hasFilter,
-      "matches": matches,
-      "misses": misses,
-    };
+    // Match using 'OR': the overall match will be true when,
+    // for at least one filter key,
+    // that has at least one value,
+    // at least one item value for the same key includes any filter value.
+    return Object.entries(filterData)
+      .some(filterEntry => {
+        // only include filter values and item values that are truthy
+        const filterValues = (filterEntry[1].values || []).filter(i => !!i);
+        const itemValues = (itemData[filterEntry[0]] || []).filter(i => !!i);
+        const comparison = filterEntry[1].comparison;
+        if (itemValues.length === 0 || filterValues.length === 0) {
+          // If there is at least one filter,
+          // and both the item and the filter have no values,
+          // filter out the item.
+          return false;
+        }
+
+        return filterValues.some(filterValue => {
+          if (!filterValue) {
+            return false;
+          }
+          if (comparison === 'exact') {
+            return itemValues.some(itemValue => itemValue === filterValue);
+          }
+          if (comparison === 'includes') {
+            return itemValues.some(itemValue => itemValue.includes(filterValue));
+          }
+        });
+      });
   }
 }

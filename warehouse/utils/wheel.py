@@ -7,46 +7,63 @@ import packaging.utils
 
 # Map known Python tags, ABI tags, Platform tags to labels.
 _PLATFORM_MAP = {
-    "win": [(re.compile(r"^win_(.*?)$"), lambda m: f"Windows {_norm_arch(m.group(1))}")],
+    "win": [
+        (re.compile(r"^win_(.*?)$"), lambda m: f"Windows {_norm_arch(m.group(1))}")
+    ],
     "win32": [(re.compile(r"^win32$"), lambda m: "Windows x86")],
-    "manylinux": [(
-        re.compile(r"^manylinux_(\d+)_(\d+)_(.*?)$"),
-        lambda m: f"linux glibc {m.group(1)}.{m.group(2)}+ {_norm_arch(m.group(3))}"
-
-    )],
-    "manylinux2014": [(
-        re.compile(r"^manylinux2014_(.*?)$"),
-        lambda m: f"linux glibc 2.17+ {_norm_arch(m.group(1))}",
-    )],
-    "manylinux2010": [(
-        re.compile(r"^manylinux2010_(.*?)$"),
-        lambda m: f"linux glibc 2.12+ {_norm_arch(m.group(1))}",
-    )],
-    "manylinux1": [(
-        re.compile(r"^manylinux1_(.*?)$"),
-        lambda m: f"linux glibc 2.5+ {_norm_arch(m.group(1))}",
-    )],
-    "musllinux": [(
-        re.compile(r"^musllinux_(\d+)_(\d+)_(.*?)$"),
-        lambda m: f"linux musl {m.group(1)}.{m.group(2)}+ {_norm_arch(m.group(3))}"
-    )],
-    "macosx": [(
-        re.compile(r"^macosx_(\d+)_(\d+)_(.*?)$"),
-        lambda m: f"macOS {m.group(1)}.{m.group(2)}+ {_norm_arch(m.group(3))}",
-    )],
-    "ios": [(
-        re.compile(r"^ios_(\d+)_(\d+)_(.*?)_iphoneos$"),
-        lambda m: f"iOS {m.group(1)}.{m.group(2)}+ {_norm_arch(m.group(3))} Device",  # noqa: E501
-    ),
+    "manylinux": [
+        (
+            re.compile(r"^manylinux_(\d+)_(\d+)_(.*?)$"),
+            lambda m: f"linux glibc {m.group(1)}.{m.group(2)}+ "
+            f"{_norm_arch(m.group(3))}",
+        )
+    ],
+    "manylinux2014": [
+        (
+            re.compile(r"^manylinux2014_(.*?)$"),
+            lambda m: f"linux glibc 2.17+ {_norm_arch(m.group(1))}",
+        )
+    ],
+    "manylinux2010": [
+        (
+            re.compile(r"^manylinux2010_(.*?)$"),
+            lambda m: f"linux glibc 2.12+ {_norm_arch(m.group(1))}",
+        )
+    ],
+    "manylinux1": [
+        (
+            re.compile(r"^manylinux1_(.*?)$"),
+            lambda m: f"linux glibc 2.5+ {_norm_arch(m.group(1))}",
+        )
+    ],
+    "musllinux": [
+        (
+            re.compile(r"^musllinux_(\d+)_(\d+)_(.*?)$"),
+            lambda m: f"linux musl {m.group(1)}.{m.group(2)}+ {_norm_arch(m.group(3))}",
+        )
+    ],
+    "macosx": [
+        (
+            re.compile(r"^macosx_(\d+)_(\d+)_(.*?)$"),
+            lambda m: f"macOS {m.group(1)}.{m.group(2)}+ {_norm_arch(m.group(3))}",
+        )
+    ],
+    "ios": [
+        (
+            re.compile(r"^ios_(\d+)_(\d+)_(.*?)_iphoneos$"),
+            lambda m: f"iOS {m.group(1)}.{m.group(2)}+ {_norm_arch(m.group(3))} Device",  # noqa: E501
+        ),
         (
             re.compile(r"^ios_(\d+)_(\d+)_(.*?)_iphonesimulator$"),
             lambda m: f"iOS {m.group(1)}.{m.group(2)}+ {_norm_arch(m.group(3))} Simulator",  # noqa: E501
-        )],
-    "android":
-        [(
+        ),
+    ],
+    "android": [
+        (
             re.compile(r"^android_(\d+)_(.*?)$"),
             lambda m: f"Android API level {m.group(1)}+ {_norm_arch(m.group(2))}",
-        )],
+        )
+    ],
 }
 _ARCH_MAP = {
     "amd64": "x86-64",
@@ -85,7 +102,7 @@ def _norm_arch(a: str) -> str:
 
 
 def _norm_str(s: str) -> str:
-    return (s or "").replace('_', ' ').strip()
+    return (s or "").replace("_", " ").strip()
 
 
 def _implementation_to_label(raw: str) -> str:
@@ -125,7 +142,7 @@ def _format_cpython(s: str) -> tuple[str, str]:
         suffixes.append(name)
         raw = raw[0:-1]
     version = _format_version(raw)
-    return version, ' '.join(sorted(suffixes))
+    return version, " ".join(sorted(suffixes))
 
 
 def _interpreter_to_label(tag: packaging.tags.Tag) -> str:
@@ -158,14 +175,14 @@ def _abi_to_label(tag: packaging.tags.Tag) -> str:
 
 
 def _platform_to_label(tag: packaging.tags.Tag) -> str:
-    if tag.platform == 'any':
+    if tag.platform == "any":
         return "(any)"
 
     value = tag.platform
-    key = value.split('_', maxsplit=1)[0] if '_' in value else value
+    key = value.split("_", maxsplit=1)[0] if "_" in value else value
 
     patterns = _PLATFORM_MAP.get(key, [])
-    for (prefix_re, tmpl) in patterns:
+    for prefix_re, tmpl in patterns:
         if match := prefix_re.match(value):
             return tmpl(match)
 
@@ -210,17 +227,21 @@ def filename_to_grouped_labels(filename: str) -> dict[str, dict]:
     }
 
     if filename.endswith(".egg"):
-        grouped_labels['other']['egg'] = "Egg"
+        grouped_labels["other"]["egg"] = "Egg"
         return grouped_labels
     elif not filename.endswith(".whl"):
-        grouped_labels['other']['source'] = "Source"
+        grouped_labels["other"]["source"] = "Source"
         return grouped_labels
 
     tags = filename_to_tags(filename)
     for tag in tags:
-        _add_group_label(grouped_labels, "interpreter", tag.interpreter, _interpreter_to_label(tag))
+        _add_group_label(
+            grouped_labels, "interpreter", tag.interpreter, _interpreter_to_label(tag)
+        )
         _add_group_label(grouped_labels, "abi", tag.abi, _abi_to_label(tag))
-        _add_group_label(grouped_labels, "platform", tag.platform, _platform_to_label(tag))
+        _add_group_label(
+            grouped_labels, "platform", tag.platform, _platform_to_label(tag)
+        )
     return grouped_labels
 
 
