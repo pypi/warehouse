@@ -268,7 +268,9 @@ def release_detail(release, request):
     )
 
     # Collect all the available bdist details to enable building filters.
-    wheel_filters_all = wheel.filenames_to_filters([bdist.filename for bdist in bdists])
+    wheel_filters_all = wheel.filenames_to_grouped_labels(
+        [bdist.filename for bdist in bdists]
+    )
 
     # Get the querystring to load any pre-set parameters
     wheel_filters_params = {

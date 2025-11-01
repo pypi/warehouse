@@ -215,7 +215,7 @@ class TestReleaseDetail:
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
             "license": None,
             "PEP740AttestationViewer": views.PEP740AttestationViewer,
-            "wheel_filters_all": {"interpreters": [], "abis": [], "platforms": []},
+            "wheel_filters_all": {"interpreter": {}, "abi":{}, "platform": {}, "other":{}},
             "wheel_filters_params": {
                 "filename": "",
                 "interpreters": "",
@@ -249,9 +249,9 @@ class TestReleaseDetail:
 
         assert result["files"] == sorted_files
         assert [file.wheel_filters for file in result["files"]] == [
-            {"interpreters": ["cp310"], "abis": ["none"], "platforms": ["any"]},
-            {"interpreters": ["cp39"], "abis": ["none"], "platforms": ["any"]},
-            {"interpreters": ["cp27"], "abis": ["none"], "platforms": ["any"]},
+            {"interpreter": {"cp310": "CPython 3.10"}, "abi": {"none": "(none)"}, "platform": {"any": "(any)"}, "other":{}},
+            {"interpreter": {"cp39": "CPython 3.9"}, "abi": {"none": "(none)"}, "platform": {"any": "(any)"}, "other":{}},
+            {"interpreter": {"cp27": "CPython 2.7"}, "abi": {"none": "(none)"}, "platform": {"any": "(any)"}, "other":{}},
         ]
 
     def test_license_from_classifier(self, db_request):

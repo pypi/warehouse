@@ -1038,7 +1038,7 @@ class File(HasEvents, db.Model):
 
     @property
     def wheel_filters(self):
-        return wheel.filename_to_filters(self.filename)
+        return wheel.filename_to_grouped_labels(self.filename)
 
 
 class Filename(db.ModelBase):
