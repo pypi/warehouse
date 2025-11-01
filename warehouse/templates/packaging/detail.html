@@ -70,28 +70,118 @@
     pip install{{ index_url }} {{ release.project.name }}{{ project_version }}
   {%- endif -%}
 {%- endmacro -%}
-{%- macro file_table(files) -%}
+
+{%- macro sdists_table(files) -%}
+<table class="table table--files">
+    <caption class="sr-only">{% trans name=release.project.name, release=release.version %}Source distribution for {{ name }} {{ version }}{% endtrans %}</caption>
+    <thead>
+      <th scope="col">{% trans %}File{% endtrans %}</th>
+      <th scope="col">{% trans %}Uploaded{% endtrans %}</th>
+      <th scope="col">{% trans %}Size{% endtrans %}</th>
+      <th scope="col">{% trans %}Type{% endtrans %}</th>
+      <th class="table__align-right"  scope="col">{% trans %}Details{% endtrans %}</th>
+    </thead>
   {% for file in files %}
-    <div class="file"
-         {% if 'source' not in file.python_version %} data-filter-list-target="item" data-filtered-target-filename='["{{ file.filename }}"]' {% for filter_name, filter_items in file.wheel_filters.items() %} data-filtered-target-{{ filter_name }}='{{ filter_items | tojson }}' {% endfor %}
-         {% endif %}>
-      <div class="file__graphic">
-        <i class="far fa-file" aria-hidden="true"></i>
-      </div>
-      <div class="card file__card">
+    <tr>
+      <td>
+        <span class="table__mobile-label">{% trans %}File{% endtrans %}</span>
+        <a href="{{ request.route_url('packaging.file', path=file.path) }}"><i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i></a>&nbsp;
         <a href="{{ request.route_url('packaging.file', path=file.path) }}">{{ file.filename }}</a>
-        ({{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}
+      </td>
+      <td>
+        <span class="table__mobile-label">{% trans %}Uploaded{% endtrans %}</span>
+        {% trans upload_time=humanize(file.upload_time) %}Uploaded {{ upload_time }}{% endtrans %}
+      </td>
+      <td>
+        <span class="table__mobile-label">{% trans %}Size{% endtrans %}</span>
+        {{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}
+      </td>
+      <td>
+        <span class="table__mobile-label">{% trans %}Type{% endtrans %}</span>
+        {% trans %}Source{% endtrans %}
+      </td>
+      <td class="table__align-right">
+        <span class="table__mobile-label">{% trans %}View details{% endtrans %}</span>
         <a href="#{{ file.filename }}"
-           data-project-tabs-target="tab"
-           data-action="project-tabs#onTabClick">{%- trans -%}view details{%- endtrans -%}</a>)
-        <p class="file__meta">
-          Uploaded {{ humanize(file.upload_time) }}
-          {% for tag in file.pretty_wheel_tags %}<code>{{ tag }}</code>{% endfor %}
-        </p>
-      </div>
-    </div>
+            data-project-tabs-target="tab"
+            data-action="project-tabs#onTabClick">
+          {% trans %}Details{% endtrans %}
+        </a>
+      </td>
+    </tr>
   {% endfor %}
+  </table>
 {%- endmacro -%}
+
+{%- macro bdists_table(files) -%}
+  <table class="table table--files">
+    <caption class="sr-only">{% trans name=release.project.name, release=release.version %}Table of built distributions (wheels) for {{ name }} {{ release }}{% endtrans %}</caption>
+    <thead>
+      <th scope="col">{% trans %}File{% endtrans %}</th>
+      <th scope="col">{% trans %}Interpreter{% endtrans %}</th>
+      <th scope="col">{% trans %}ABI{% endtrans %}</th>
+      <th scope="col">{% trans %}Platform{% endtrans %}</th>
+      <th class="table__align-right" scope="col">{% trans %}Details{% endtrans %}</th>
+    </thead>
+  {% for file in files %}
+    <tr {% if 'source' not in file.python_version %}
+        data-filter-list-target="item" data-filtered-target-filename='["{{ file.filename }}"]'
+        {% for filter_name, filter_items in file.wheel_filters.items() %} data-filtered-target-{{ filter_name }}='{{ filter_items | tojson }}' {% endfor %}
+        {% endif %}>
+      <td class="file-name">
+        <span class="table__mobile-label">{% trans %}File{% endtrans %}</span>
+        <a href="{{ request.route_url('packaging.file', path=file.path) }}"><i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i></a>&nbsp;
+        <a href="{{ request.route_url('packaging.file', path=file.path) }}">{{ file.filename }}</a>
+        <br />
+        <small>
+          {{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}.&nbsp;
+          {% trans upload_time=humanize(file.upload_time) %}Uploaded {{ upload_time }}{% endtrans %}.
+        </small>
+      </td>
+      <td>
+        <span class="table__mobile-label">{% trans %}Interpreter{% endtrans %}</span>
+        {% for key, value in file.wheel_filters.items() %}
+          {% if key == 'interpreters' %}
+            {% for interpreter in value %}
+              {{ interpreter }}<br/>
+            {% endfor %}
+          {% endif %}
+        {% endfor %}
+      </td>
+      <td>
+        <span class="table__mobile-label">{% trans %}ABI{% endtrans %}</span>
+          {% for key, value in file.wheel_filters.items() %}
+          {% if key == 'abis' %}
+            {% for abi in value %}
+             {{ abi }}<br/>
+            {% endfor %}
+          {% endif %}
+        {% endfor %}
+      </td>
+      <td>
+        <span class="table__mobile-label">{% trans %}Platform{% endtrans %}</span>
+          {% for key, value in file.wheel_filters.items() %}
+          {% if key == 'platforms' %}
+            {% for platform in value %}
+              {{ platform }}<br/>
+            {% endfor %}
+          {% endif %}
+        {% endfor %}
+      </td>
+      <td class="table__align-right">
+        <span class="table__mobile-label">{% trans %}View details{% endtrans %}</span>
+        <a href="#{{ file.filename }}"
+            data-project-tabs-target="tab"
+            data-action="project-tabs#onTabClick">
+          {% trans %}Details{% endtrans %}
+        </a>
+      </td>
+      </div>
+    </tr>
+  {% endfor %}
+  </table>
+{%- endmacro -%}
+
 {% macro filter_select(name, title, selected) %}
   <label class="form-group__label sr-only" for="bdist-tags-{{ name }}">{% trans %}{{ title }}{% endtrans %}</label>
   <select class="form-group__field"
@@ -107,6 +197,7 @@
     {% endfor %}
   </select>
 {% endmacro %}
+
 {% block title %}{{ release.project.name }}{% endblock %}
 {% block description %}{{ release.summary }}{% endblock %}
 {% block additional_rss -%}
@@ -441,90 +532,91 @@
          data-controller="filter-list">
       <h2 class="page-title">{% trans %}Download files{% endtrans %}</h2>
       <p>
-        {% trans href='https://packaging.python.org/tutorials/installing-packages/', title=gettext('External link') %}Download the file for your platform. If you're not sure which to choose, learn more about <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">installing packages</a>.{% endtrans %}
+        {% trans href='https://packaging.python.org/en/latest/discussions/package-formats/#package-formats', title=gettext('External link') %}For a detailed explanation of source distributions (sdists) and built distributions (wheels), please see the  <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">package formats documentation</a>.{% endtrans %}
       </p>
       <h3>
         {% trans count=sdists|length %}
-        Source Distribution
+        Source distribution (sdist)
       {% pluralize %}
-        Source Distributions
+        Source distributions (sdists)
       {% endtrans %}
     </h3>
     {% if sdists %}
-      {{ file_table(sdists) }}
+      {{ sdists_table(sdists) }}
     {% else %}
-      <div class="file">
-        <div class="file__graphic">
-          <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
-        </div>
-        <div class="card">
-          {% trans %}No source distribution files available for this release.{% endtrans %}
-          {% trans href='https://packaging.python.org/tutorials/packaging-projects/#generating-distribution-archives', title=gettext('External link') %}See tutorial on <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">generating distribution archives</a>.{% endtrans %}
-        </div>
+      <div>
+        <i class="fas fa-exclamation-circle" aria-hidden="true"></i>&nbsp;
+        {% trans %}No source distribution files available for this release.{% endtrans %}&nbsp;
+        {% trans href='https://packaging.python.org/tutorials/packaging-projects/#generating-distribution-archives', title=gettext('External link') %}See tutorial on <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">generating distribution archives</a>.{% endtrans %}
       </div>
     {% endif %}
+
     {% if bdists %}
+    {% set bdist_count = bdists|length %}
       <h3>
-        {% trans count=bdists|length %}
-        Built Distribution
+        {% trans count=bdist_count %}
+        Built distribution (wheel)
       {% pluralize %}
-        Built Distributions
+        Built distributions (wheels)
       {% endtrans %}
     </h3>
-    <p class="hidden initial-toggle-visibility">
-      {% trans %}Filter files by name, interpreter, ABI, and platform.{% endtrans %}
-    </p>
-    <p>
-      {% trans href='https://packaging.python.org/en/latest/specifications/binary-distribution-format/', title=gettext('External link') %}If you're not sure about the file name format, learn more about <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">wheel file names</a>.{% endtrans %}
-    </p>
+    {% if bdist_count > 3 %}
     <noscript>
-      <p class="initial-toggle-visibility">
-        {% trans %}The dropdown lists show the available interpreters, ABIs, and platforms.{% endtrans %}
-      </p>
       <p class="initial-toggle-visibility">
         {% trans %}Enable javascript to be able to filter the list of wheel files.{% endtrans %}
       </p>
     </noscript>
-    <p class="hidden initial-toggle-visibility" data-controller="clipboard">
-      {% trans %}Copy a direct link to the current filters {% endtrans %}
-      <a class="hidden"
-         href="{% if request.matched_route %}{{ request.current_route_url() }}{% else %}{{ request.url }}{% endif %}#files"
-         data-clipboard-target="source"
-         data-filter-list-target="url"></a>
-      <button type="button"
-              class="button button--small copy-tooltip copy-tooltip-w"
+    <div class="filter-wheels">
+      <div class="filter-wheels__search hidden initial-toggle-visibility">
+        <div class="form-group form-group--flex-width">
+          <label class="form-group__label" for="bdist-filenames-filter">{% trans %}Search{% endtrans %}</label>
+          <input class="form-group__field"
+                type="text"
+                id="bdist-filenames-filter"
+                name="bdist-filenames-filter"
+                placeholder="{% trans %}Search by file name{% endtrans %}"
+                {% if wheel_filters_params['filename'] %}value="{{ wheel_filters_params['filename'] }}"{% endif %}
+                autocapitalize="none"
+                autocomplete=""
+                spellcheck="false"
+                data-action="filter-list#filter"
+                data-filter-list-target="filter"
+                data-filtered-source="filename">
+        </div>
+      </div>
+      <div class="filter-wheels__filters">
+        <div class="form-group form-group--flex-width">
+          <strong>{% trans %}Filters{% endtrans %}</strong>
+          <span class="hidden initial-toggle-visibility" data-controller="clipboard">
+            <a class="hidden"
+              href="{% if request.matched_route %}{{ request.current_route_url() }}{% else %}{{ request.url }}{% endif %}#files"
+              data-clipboard-target="source"
+              data-filter-list-target="url"></a>
+            <button type="button"
+              class="button--link copy-tooltip copy-tooltip-n"
               data-action="clipboard#copy"
               data-clipboard-target="tooltip"
-              data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
-        {% trans %}Copy{% endtrans %}
-      </button>
-    </p>
+              data-clipboard-tooltip-value="{% trans %}Copy link to filters{% endtrans %}">
+                <i class="fa fa-link" aria-hidden="true"></i>
+                <span class="sr-only">{% trans %}Copy link to filters{% endtrans %}</span>
+              </button>
+          </span>
+          {{ filter_select('interpreters', 'Interpreter', wheel_filters_params) }}
+        </div>
+        <div class="form-group form-group--flex-width">{{ filter_select('abis', 'ABI', wheel_filters_params) }}</div>
+        <div class="form-group form-group--flex-width">{{ filter_select('platforms', 'Platform', wheel_filters_params) }}</div>
+      </div>
+    </div>
+    {% endif %}
+
+    {{ bdists_table(bdists) }}
+
+    {% if bdist_count > 3 %}
     <p class="hidden initial-toggle-visibility">
       <span data-filter-list-target="summary"></span>
     </p>
-    <div>
-      <div class="form-group hidden initial-toggle-visibility">
-        <label class="form-group__label sr-only" for="bdist-filenames-filter">{% trans %}File name{% endtrans %}</label>
-        <input class="form-group__field"
-               type="text"
-               id="bdist-filenames-filter"
-               name="bdist-filenames-filter"
-               placeholder="{% trans %}File name{% endtrans %}"
-               {% if wheel_filters_params['filename'] %}value="{{ wheel_filters_params['filename'] }}"{% endif %}
-               autocapitalize="none"
-               autocomplete=""
-               spellcheck="false"
-               data-action="filter-list#filter"
-               data-filter-list-target="filter"
-               data-filtered-source="filename">
-      </div>
-      <div class="col-grid">
-        <div class="form-group col-third">{{ filter_select('interpreters', 'Interpreter', wheel_filters_params) }}</div>
-        <div class="form-group col-third">{{ filter_select('abis', 'ABI', wheel_filters_params) }}</div>
-        <div class="form-group col-third">{{ filter_select('platforms', 'Platform', wheel_filters_params) }}</div>
-      </div>
-    </div>
-    {{ file_table(bdists) }}
+    {% endif %}
+
   {% endif %}
 </div>
 {# Tabs: file details #}
