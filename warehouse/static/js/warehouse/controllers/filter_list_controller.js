@@ -24,10 +24,24 @@ export default class extends Controller {
   };
 
   mappingItemFilterData = {};
+  initialSelectOptions = {};
 
   connect() {
     this._populateMappings();
     this._initVisibility();
+
+    // Capture the initial select element values, so they can be restored.
+    this._getFilterTargets().forEach(filterTarget => {
+      if (filterTarget.nodeName === 'SELECT') {
+        const key = filterTarget.dataset.filteredSource;
+        if (!this.initialSelectOptions[key]) {
+          this.initialSelectOptions[key] = [];
+        }
+        for (const option of filterTarget.options) {
+          this.initialSelectOptions[key].push([option.value, option.label]);
+        }
+      }
+    });
 
     const urlFilters = this._getFiltersUrlSearch();
     this._setFiltersHtmlElements(urlFilters);
@@ -49,6 +63,8 @@ export default class extends Controller {
     let total = 0;
     let shown = 0;
 
+    const groupedLabels = {};
+
     this.itemTargets.forEach((item, index) => {
       total += 1;
       const itemData = this.mappingItemFilterData[index];
@@ -59,6 +75,17 @@ export default class extends Controller {
         // match: show item
         item.classList.remove("hidden");
         shown += 1;
+        // store the matched items to update the select options later
+        Object.entries(itemData).forEach(([key, values]) => {
+          if (!groupedLabels[key]) {
+            groupedLabels[key] = [];
+          }
+          values.forEach(value => {
+            if (!groupedLabels[key].includes(value)) {
+              groupedLabels[key].push(value);
+            }
+          })
+        });
       } else {
         // no match: hide item
         item.classList.add("hidden");
@@ -91,6 +118,34 @@ export default class extends Controller {
       });
       this.urlTarget.textContent = urlTargetUrl.toString();
     }
+
+    // Update the dropdowns to reflect the currently displayed items.
+    const filterTargets = this._getFilterTargets();
+    const selected = {};
+    filterTargets.forEach(filterTarget => {
+      if (filterTarget.nodeName === 'SELECT') {
+        const key = filterTarget.dataset.filteredSource;
+        // Store which option is selected.
+        for (const selectedOption of filterTarget.selectedOptions) {
+          selected[key] = selectedOption.value;
+        }
+        // Remove all existing options.
+        for (let index = filterTarget.options.length - 1; index >= 0; index--) {
+          filterTarget.options.remove(index);
+        }
+        // Add the options reflecting the currently displayed items.
+        const valuesToKeep = groupedLabels[key] ?? [];
+        this.initialSelectOptions[key].forEach(option => {
+          const initialOptionValue = option[0];
+          const initialOptionLabel = option[1];
+          if (initialOptionValue === "" || valuesToKeep.includes(initialOptionValue)) {
+            const isSelected = selected[key] === initialOptionValue;
+            filterTarget.options.add(new Option(initialOptionLabel, initialOptionValue, null, isSelected));
+          }
+        });
+      }
+    });
+    // console.log(`update dropdowns groupedLabels ${JSON.stringify(groupedLabels)} selected ${JSON.stringify(selected)}`);
   }
 
   /**
@@ -141,26 +196,25 @@ export default class extends Controller {
 
   /**
    * Build a mapping of filteredSource names to array of values.
-   * @returns {{}}
+   * @returns {{[key: string]: {values: string[], comparison: "exact"|"includes"}}}
    * @private
    */
   _buildFilterData() {
     const filterData = {};
-    if (this.hasFilterTarget) {
-      this.filterTargets.forEach(filterTarget => {
-        const key = filterTarget.dataset.filteredSource;
-        const value = filterTarget.value;
-        if (!Object.hasOwn(filterData, key)) {
-          filterData[key] = {values: [], comparison: 'exact'};
-        }
-        filterData[key].values.push(value);
+    const filterTargets = this._getFilterTargets();
+    filterTargets.forEach(filterTarget => {
+      const key = filterTarget.dataset.filteredSource;
+      const value = filterTarget.value;
+      if (!Object.hasOwn(filterData, key)) {
+        filterData[key] = {values: [], comparison: 'exact'};
+      }
+      filterData[key].values.push(value);
 
-        const comparison = filterTarget.dataset.comparisonType;
-        if (comparison) {
-          filterData[key].comparison = comparison;
-        }
-      });
-    }
+      const comparison = filterTarget.dataset.comparisonType;
+      if (comparison) {
+        filterData[key].comparison = comparison;
+      }
+    });
     return filterData;
   }
 
@@ -178,29 +232,26 @@ export default class extends Controller {
       const filterValues = Array.from(new Set((filterInfo.values ?? []).map(i => i?.toString()?.trim() ?? "").filter(i => !!i)));
       const itemValues = Array.from(new Set((itemData[filterKey] ?? []).map(i => i?.toString()?.trim() ?? "").filter(i => !!i)));
 
-      // Not a match if the item values and filter values are different lengths.
-      if (filterValues.length > 0 && filterValues.length !== itemValues.length) {
-        console.log(`_compare lengths filterValues ${JSON.stringify(filterValues)} itemValues ${JSON.stringify(itemValues)}`);
-        return false;
-      }
-
       // Not a match if the item values and filter values contain different values.
       if (filterValues.length > 0 && comparison === 'exact') {
         if (!filterValues.every(filterValue => itemValues.includes(filterValue))) {
-          console.log(`_compare exact filterValues ${JSON.stringify(filterValues)} itemValues ${JSON.stringify(itemValues)}`);
+          // console.log(`_compare exact filterValues ${JSON.stringify(filterValues)} itemValues ${JSON.stringify(itemValues)}`);
           return false;
         }
       }
 
       if (filterValues.length > 0 && comparison === 'includes') {
         if (!filterValues.every(filterValue => itemValues.some(itemValue => itemValue.includes(filterValue)))) {
-          console.log(`_compare includes filterValues ${JSON.stringify(filterValues)} itemValues ${JSON.stringify(itemValues)}`);
+          // console.log(`_compare includes filterValues ${JSON.stringify(filterValues)} itemValues ${JSON.stringify(itemValues)}`);
           return false;
         }
       }
     }
-    console.log(`_compare true filterData ${JSON.stringify(filterData)} itemData ${JSON.stringify(itemData)}`);
     return true;
+  }
+
+  _getFilterTargets() {
+    return this.hasFilterTarget ? (this.filterTargets ?? []) : [];
   }
 
   /**
@@ -211,7 +262,7 @@ export default class extends Controller {
   _getFiltersUrlSearch() {
     const enabledFilterTargets = this._getAutoUpdateUrlQuerystringFilters();
     const currentSearchParams = new URLSearchParams(document.location.search);
-    const filterTargets = (this.hasFilterTarget ? (this.filterTargets ?? []) : []);
+    const filterTargets = this._getFilterTargets();
     return Object.fromEntries(filterTargets.map(filterTarget => {
       const key = filterTarget.dataset.filteredSource;
       const value = currentSearchParams.get(key);
@@ -227,7 +278,7 @@ export default class extends Controller {
   _setFiltersUrlSearch(filters) {
     const enabledFilterTargets = this._getAutoUpdateUrlQuerystringFilters();
     const currentUrl = new URL(document.location.href);
-    const filterTargets = (this.hasFilterTarget ? (this.filterTargets ?? []) : []);
+    const filterTargets = this._getFilterTargets();
     filterTargets.forEach(filterTarget => {
       const key = filterTarget.dataset.filteredSource;
       if (!enabledFilterTargets.includes(key)) {
@@ -249,7 +300,7 @@ export default class extends Controller {
    * @private
    */
   _getFiltersHtmlElements() {
-    const filterTargets = (this.hasFilterTarget ? (this.filterTargets ?? []) : []);
+    const filterTargets = this._getFilterTargets();
     return Object.fromEntries(filterTargets.map(filterTarget => {
       const key = filterTarget.dataset.filteredSource;
       const value = filterTarget.value;
@@ -263,7 +314,7 @@ export default class extends Controller {
    * @private
    */
   _setFiltersHtmlElements(filters) {
-    const filterTargets = (this.hasFilterTarget ? (this.filterTargets ?? []) : []);
+    const filterTargets = this._getFilterTargets();
     filterTargets.forEach(filterTarget => {
       const key = filterTarget.dataset.filteredSource;
       if (filters[key] !== undefined) {
@@ -278,7 +329,7 @@ export default class extends Controller {
    * @private
    */
   _getAutoUpdateUrlQuerystringFilters() {
-    const filterTargets = (this.hasFilterTarget ? (this.filterTargets ?? []) : []);
+    const filterTargets = this._getFilterTargets();
     return filterTargets
       .map(filterTarget => {
         const key = filterTarget.dataset.filteredSource;
