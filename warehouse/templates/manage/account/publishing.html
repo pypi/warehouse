@@ -199,6 +199,8 @@
     {% endtrans %}
   </p>
   <div id="environment-errors">{{ field_errors(pending_gitlab_publisher_form.environment) }}</div>
+  {# The following field must be present for the view predicate to match #}
+  {{ pending_gitlab_publisher_form.issuer_url(hidden=True) }}
 </div>
 <div>
   <input type="submit"
