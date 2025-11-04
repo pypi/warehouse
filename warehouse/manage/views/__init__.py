@@ -181,6 +181,60 @@ class ManageAccountMixin:
         else:
             return HTTPSeeOther(self.request.route_path("manage.unverified-account"))
 
+    @view_config(
+        request_method="POST", request_param=["primary_email_id"], require_reauth=True
+    )
+    def change_primary_email(self):
+        if not self.request.user.has_two_factor:
+            self.request.session.flash(
+                "Two factor authentication must be enabled to change primary "
+                "email address.",
+                queue="error",
+            )
+            return self.default_response
+
+        previous_primary_email = self.request.user.primary_email
+        try:
+            new_primary_email = (
+                self.request.db.query(Email)
+                .filter(
+                    Email.user_id == self.request.user.id,
+                    Email.id == int(self.request.POST["primary_email_id"]),
+                    Email.verified.is_(True),
+                )
+                .one()
+            )
+        except NoResultFound:
+            self.request.session.flash("Email address not found", queue="error")
+            return self.default_response
+
+        self.request.db.query(Email).filter(
+            Email.user_id == self.request.user.id, Email.primary.is_(True)
+        ).update(values={"primary": False})
+
+        new_primary_email.primary = True
+        self.request.user.record_event(
+            tag=EventTag.Account.EmailPrimaryChange,
+            request=self.request,
+            additional={
+                "old_primary": (
+                    previous_primary_email.email if previous_primary_email else None
+                ),
+                "new_primary": new_primary_email.email,
+            },
+        )
+
+        self.request.session.flash(
+            f"Email address {new_primary_email.email} set as primary", queue="success"
+        )
+
+        if previous_primary_email is not None:
+            send_primary_email_change_email(
+                self.request, (self.request.user, previous_primary_email)
+            )
+
+        return HTTPSeeOther(self.request.path)
+
 
 @view_defaults(
     route_name="manage.unverified-account",
@@ -343,52 +397,6 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
             return HTTPSeeOther(self.request.path)
 
         return self.default_response
-
-    @view_config(
-        request_method="POST", request_param=["primary_email_id"], require_reauth=True
-    )
-    def change_primary_email(self):
-        previous_primary_email = self.request.user.primary_email
-        try:
-            new_primary_email = (
-                self.request.db.query(Email)
-                .filter(
-                    Email.user_id == self.request.user.id,
-                    Email.id == int(self.request.POST["primary_email_id"]),
-                    Email.verified.is_(True),
-                )
-                .one()
-            )
-        except NoResultFound:
-            self.request.session.flash("Email address not found", queue="error")
-            return self.default_response
-
-        self.request.db.query(Email).filter(
-            Email.user_id == self.request.user.id, Email.primary.is_(True)
-        ).update(values={"primary": False})
-
-        new_primary_email.primary = True
-        self.request.user.record_event(
-            tag=EventTag.Account.EmailPrimaryChange,
-            request=self.request,
-            additional={
-                "old_primary": (
-                    previous_primary_email.email if previous_primary_email else None
-                ),
-                "new_primary": new_primary_email.email,
-            },
-        )
-
-        self.request.session.flash(
-            f"Email address {new_primary_email.email} set as primary", queue="success"
-        )
-
-        if previous_primary_email is not None:
-            send_primary_email_change_email(
-                self.request, (self.request.user, previous_primary_email)
-            )
-
-        return HTTPSeeOther(self.request.path)
 
     @view_config(request_method="POST", request_param=ChangePasswordForm.__params__)
     def change_password(self):
