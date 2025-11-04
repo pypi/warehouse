@@ -211,6 +211,9 @@
     </p>
     <div id="issuer_url-errors">{{ field_errors(gitlab_publisher_form.issuer_url) }}</div>
   </div>
+{% else %}
+  {# The following field must be present for the view predicate to match #}
+  {{ gitlab_publisher_form.issuer_url(hidden=True) }}
 {% endif %}
 <div>
   <input type="submit"
