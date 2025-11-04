@@ -4133,7 +4133,7 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:72
 #: warehouse/templates/manage/manage_base.html:91
 #: warehouse/templates/manage/manage_base.html:95
-#: warehouse/templates/manage/manage_base.html:626
+#: warehouse/templates/manage/manage_base.html:617
 #: warehouse/templates/manage/organization/roles.html:276
 #: warehouse/templates/manage/organization/roles.html:280
 #: warehouse/templates/manage/organization/roles.html:291
@@ -4311,13 +4311,28 @@ msgid ""
 "href=\"%(href)s\">here</a>."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:587
-#: warehouse/templates/manage/manage_base.html:598
-#: warehouse/templates/manage/manage_base.html:609
+#: warehouse/templates/manage/manage_base.html:579
+#: warehouse/templates/manage/manage_base.html:590
+#: warehouse/templates/manage/manage_base.html:601
 msgid "Any"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:633
+#: warehouse/templates/manage/manage_base.html:622
+msgid "Remove trusted publisher"
+msgstr ""
+
+#: warehouse/templates/manage/manage_base.html:625
+#, python-format
+msgid ""
+"Removing this %(publisher_name)s trusted publisher will prevent automated"
+" package uploads from this source. You can re-add it later if needed."
+msgstr ""
+
+#: warehouse/templates/manage/manage_base.html:631
+msgid "Remove publisher"
+msgstr ""
+
+#: warehouse/templates/manage/manage_base.html:635
 #: warehouse/templates/manage/organization/history.html:109
 #: warehouse/templates/manage/organization/history.html:159
 #: warehouse/templates/manage/project/history.html:27
@@ -4331,7 +4346,7 @@ msgstr ""
 msgid "Added by:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:635
+#: warehouse/templates/manage/manage_base.html:637
 #: warehouse/templates/manage/organization/history.html:117
 #: warehouse/templates/manage/organization/history.html:164
 #: warehouse/templates/manage/project/history.html:46
@@ -4343,24 +4358,24 @@ msgstr ""
 msgid "Removed by:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:637
+#: warehouse/templates/manage/manage_base.html:639
 msgid "Submitted by:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:640
+#: warehouse/templates/manage/manage_base.html:642
 #: warehouse/templates/manage/project/history.html:224
 msgid "Workflow:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:642
+#: warehouse/templates/manage/manage_base.html:644
 msgid "Specifier:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:644
+#: warehouse/templates/manage/manage_base.html:646
 msgid "Publisher:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:646
+#: warehouse/templates/manage/manage_base.html:648
 #: warehouse/templates/manage/project/history.html:36
 #: warehouse/templates/manage/project/history.html:89
 msgid "URL:"
