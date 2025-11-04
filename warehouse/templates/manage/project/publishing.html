@@ -30,7 +30,8 @@
   {% endtrans %}
 </p>
 {{ form_error_anchor(github_publisher_form) }}
-<form method="post"
+<form id="github-publisher-form"
+      method="post"
       action="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}#errors">
   <input name="csrf_token"
          type="hidden"
@@ -127,7 +128,8 @@
   {% endtrans %}
 </p>
 {{ form_error_anchor(gitlab_publisher_form) }}
-<form method="post"
+<form id="gitlab-publisher-form"
+      method="post"
       action="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}#errors">
   <input name="csrf_token"
          type="hidden"
@@ -209,6 +211,9 @@
     </p>
     <div id="issuer_url-errors">{{ field_errors(gitlab_publisher_form.issuer_url) }}</div>
   </div>
+{% else %}
+  {# The following field must be present for the view predicate to match #}
+  {{ gitlab_publisher_form.issuer_url(hidden=True) }}
 {% endif %}
 <div>
   <input type="submit"
@@ -225,7 +230,8 @@
   {% endtrans %}
 </p>
 {{ form_error_anchor(google_publisher_form) }}
-<form method="post"
+<form id="google-publisher-form"
+      method="post"
       action="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}#errors">
   <input name="csrf_token"
          type="hidden"
@@ -280,7 +286,8 @@
   {% endtrans %}
 </p>
 {{ form_error_anchor(activestate_pubisher_form) }}
-<form method="post"
+<form id="activestate-publisher-form"
+      method="post"
       action="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}#errors">
   <input name="csrf_token"
          type="hidden"
