@@ -562,14 +562,6 @@
   {% else %}
     {% set delete_route = request.route_path('manage.project.settings.publishing', project_name=project.name) %}
   {% endif %}
-  <form id="delete-publisher-{{ publisher.id }}"
-        method="post"
-        action="{{ delete_route }}">
-    <input name="csrf_token"
-           type="hidden"
-           value="{{ request.session.get_csrf_token() }}">
-    <input name="publisher_id" type="hidden" value="{{ publisher.id }}">
-  </form>
   <tr>
     {% if publisher.project_name is defined %}<td scope="row">{{ publisher.project_name }}</td>{% endif %}
     <td scope="row">{{ publisher.publisher_name }}</td>
@@ -621,12 +613,22 @@
       </small>
     </td>
     <td scope="row">
-      <input form="delete-publisher-{{ publisher.id }}"
-             type="submit"
-             value="{% trans %}Remove{% endtrans %}"
-             class="button button--danger">
+      <a href="#remove-publisher-{{ publisher.id }}"
+         class="button button--danger">{% trans %}Remove{% endtrans %}</a>
     </td>
   </tr>
+  {# Confirmation modal for removing the publisher #}
+  {% set slug = "remove-publisher-" ~ publisher.id %}
+  {% set title = gettext("Remove trusted publisher") %}
+  {% set extra_description %}
+    <p>
+      {% trans publisher_name=publisher.publisher_name %}Removing this {{ publisher_name }} trusted publisher will prevent automated package uploads from this source. You can re-add it later if needed.{% endtrans %}
+    </p>
+  {% endset %}
+  {% set extra_fields %}
+    <input name="publisher_id" type="hidden" value="{{ publisher.id }}">
+  {% endset %}
+  {{ confirm_modal(title=title, label=publisher.publisher_name, confirm_name="", confirm_string="", slug=slug, context=None, extra_description=extra_description, extra_fields=extra_fields, action=delete_route, warning=False, confirm_button_label=gettext("Remove publisher") ) }}
 {%- endmacro %}
 {% macro oidc_audit_event(event) -%}
   {% if event.tag == EventTag.Project.OIDCPublisherAdded or event.tag == EventTag.Account.PendingOIDCPublisherAdded %}
