@@ -15,6 +15,7 @@ from tests.common.db.oidc import (
     GooglePublisherFactory,
     PendingGitHubPublisherFactory,
 )
+from tests.common.db.organizations import OrganizationFactory
 from tests.common.db.packaging import ProhibitedProjectFactory, ProjectFactory
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
@@ -27,6 +28,7 @@ from warehouse.oidc.views import (
     is_from_reusable_workflow,
     should_send_environment_warning_email,
 )
+from warehouse.organizations.models import OrganizationProject
 from warehouse.packaging import services
 from warehouse.packaging.models import Project
 from warehouse.rate_limiting.interfaces import IRateLimiter
@@ -493,6 +495,74 @@ def test_mint_token_from_oidc_pending_publisher_ok(monkeypatch, db_request):
         .filter(Project.name == pending_publisher.project_name)
         .one()
     )
+    publisher = db_request.db.query(GitHubPublisher).one()
+    event = project.events.where(
+        Project.Event.tag == EventTag.Project.OIDCPublisherAdded
+    ).one()
+    assert event.additional == {
+        "publisher": publisher.publisher_name,
+        "id": str(publisher.id),
+        "specifier": str(publisher),
+        "url": publisher.publisher_url(),
+        "submitted_by": "OpenID created token",
+        "reified_from_pending_publisher": True,
+        "constrained_from_existing_publisher": False,
+    }
+
+
+def test_mint_token_from_oidc_pending_publisher_for_organization_ok(
+    monkeypatch, db_request
+):
+    """Test creating a project from an organization-owned pending publisher"""
+    user = UserFactory.create()
+    organization = OrganizationFactory.create()
+
+    pending_publisher = PendingGitHubPublisherFactory.create(
+        project_name="org-owned-project",
+        added_by=user,
+        repository_name="bar",
+        repository_owner="foo",
+        repository_owner_id="123",
+        workflow_filename="example.yml",
+        environment="fake",
+        organization_id=organization.id,
+    )
+
+    db_request.flags.disallow_oidc = lambda f=None: False
+    db_request.body = json.dumps({"token": DUMMY_GITHUB_OIDC_JWT})
+    db_request.remote_addr = "0.0.0.0"
+
+    ratelimiter = pretend.stub(clear=pretend.call_recorder(lambda id: None))
+    ratelimiters = {
+        "user.oidc": ratelimiter,
+        "ip.oidc": ratelimiter,
+    }
+    monkeypatch.setattr(views, "_ratelimiters", lambda r: ratelimiters)
+
+    resp = views.mint_token_from_oidc(db_request)
+    assert resp["success"]
+    assert resp["token"].startswith("pypi-")
+
+    # Verify project was created
+    project = (
+        db_request.db.query(Project)
+        .filter(Project.name == pending_publisher.project_name)
+        .one()
+    )
+
+    # Verify project is associated with organization
+    org_project = (
+        db_request.db.query(OrganizationProject)
+        .filter(
+            OrganizationProject.organization_id == organization.id,
+            OrganizationProject.project_id == project.id,
+        )
+        .one()
+    )
+    assert org_project.organization_id == organization.id
+    assert org_project.project_id == project.id
+
+    # Verify publisher was created
     publisher = db_request.db.query(GitHubPublisher).one()
     event = project.events.where(
         Project.Event.tag == EventTag.Project.OIDCPublisherAdded
