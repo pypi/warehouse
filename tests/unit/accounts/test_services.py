@@ -634,6 +634,24 @@ class TestDatabaseUserService:
 
         assert not user_service.check_totp_value(user.id, b"123456")
 
+    def test_check_totp_out_of_sync(self, mocker, metrics, user_service):
+        user = UserFactory.create()
+        mocker.patch.object(otp, "verify_totp", side_effect=otp.OutOfSyncTOTPError)
+
+        with pytest.raises(otp.OutOfSyncTOTPError):
+            user_service.check_totp_value(user.id, b"123456")
+
+        assert metrics.increment.calls == [
+            pretend.call(
+                "warehouse.authentication.two_factor.start",
+                tags=["mechanism:check_totp_value"],
+            ),
+            pretend.call(
+                "warehouse.authentication.two_factor.failure",
+                tags=["mechanism:check_totp_value", "failure_reason:out_of_sync"],
+            ),
+        ]
+
     def test_check_totp_value_no_secret(self, user_service):
         user = UserFactory.create()
         with pytest.raises(otp.InvalidTOTPError):

@@ -478,7 +478,9 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
     def latest_version(self):
         session = orm_session_from_obj(self)
         return (
-            session.query(Release.version, Release.created, Release.is_prerelease)
+            session.query(
+                Release.version, Release.created, Release.is_prerelease, Release.summary
+            )
             .filter(Release.project == self, Release.yanked.is_(False))
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .first()

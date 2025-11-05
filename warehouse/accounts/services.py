@@ -504,6 +504,13 @@ class DatabaseUserService:
         try:
             if not (valid := otp.verify_totp(totp_secret, totp_value)):
                 self._hit_2fa_ratelimits(userid=user_id)
+        except otp.OutOfSyncTOTPError:
+            self._metrics.increment(
+                "warehouse.authentication.two_factor.failure",
+                tags=tags + ["failure_reason:out_of_sync"],
+            )
+            self._hit_2fa_ratelimits(userid=user_id)
+            raise otp.OutOfSyncTOTPError
         except otp.InvalidTOTPError:
             self._metrics.increment(
                 "warehouse.authentication.two_factor.failure",

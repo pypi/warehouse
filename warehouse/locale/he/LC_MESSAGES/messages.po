@@ -369,7 +369,7 @@ msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
 #: warehouse/accounts/views.py:1674 warehouse/accounts/views.py:1928
-#: warehouse/manage/views/oidc_publishers.py:121
+#: warehouse/manage/views/oidc_publishers.py:126
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -402,10 +402,10 @@ msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
 #: warehouse/accounts/views.py:1739
-#: warehouse/manage/views/oidc_publishers.py:303
-#: warehouse/manage/views/oidc_publishers.py:418
-#: warehouse/manage/views/oidc_publishers.py:534
-#: warehouse/manage/views/oidc_publishers.py:646
+#: warehouse/manage/views/oidc_publishers.py:308
+#: warehouse/manage/views/oidc_publishers.py:423
+#: warehouse/manage/views/oidc_publishers.py:539
+#: warehouse/manage/views/oidc_publishers.py:651
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -415,10 +415,10 @@ msgid ""
 msgstr "בוצעו נסיונות הזדהות כושלים רבים מדי. יש לנסות שוב מאוחר יותר."
 
 #: warehouse/accounts/views.py:1749
-#: warehouse/manage/views/oidc_publishers.py:316
-#: warehouse/manage/views/oidc_publishers.py:431
-#: warehouse/manage/views/oidc_publishers.py:547
-#: warehouse/manage/views/oidc_publishers.py:659
+#: warehouse/manage/views/oidc_publishers.py:321
+#: warehouse/manage/views/oidc_publishers.py:436
+#: warehouse/manage/views/oidc_publishers.py:552
+#: warehouse/manage/views/oidc_publishers.py:664
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
@@ -498,7 +498,7 @@ msgid "Select project"
 msgstr "בחירת פרויקט"
 
 #: warehouse/manage/forms.py:507 warehouse/oidc/forms/_core.py:36
-#: warehouse/oidc/forms/gitlab.py:47
+#: warehouse/oidc/forms/gitlab.py:54
 #, fuzzy
 #| msgid "Project name"
 msgid "Specify project name"
@@ -778,11 +778,11 @@ msgstr "ההזמנה כבר פגה."
 msgid "Invitation revoked from '${username}'."
 msgstr "ההזמנה בוטלה מ- '${username}'."
 
-#: warehouse/manage/views/oidc_publishers.py:170
+#: warehouse/manage/views/oidc_publishers.py:175
 msgid "The trusted publisher could not be constrained"
 msgstr ""
 
-#: warehouse/manage/views/oidc_publishers.py:284
+#: warehouse/manage/views/oidc_publishers.py:289
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -794,7 +794,7 @@ msgstr ""
 "רישום משתמש חדש חסום באופן זמני. יש לפנות לכתובת https://pypi.org/help#admin-"
 "intervention לפרטים."
 
-#: warehouse/manage/views/oidc_publishers.py:399
+#: warehouse/manage/views/oidc_publishers.py:404
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -806,7 +806,7 @@ msgstr ""
 "רישום משתמש חדש חסום באופן זמני. יש לפנות לכתובת https://pypi.org/help#admin-"
 "intervention לפרטים."
 
-#: warehouse/manage/views/oidc_publishers.py:515
+#: warehouse/manage/views/oidc_publishers.py:520
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -818,7 +818,7 @@ msgstr ""
 "רישום משתמש חדש חסום באופן זמני. יש לפנות לכתובת https://pypi.org/help#admin-"
 "intervention לפרטים."
 
-#: warehouse/manage/views/oidc_publishers.py:626
+#: warehouse/manage/views/oidc_publishers.py:631
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -868,7 +868,7 @@ msgid "Expired invitation for '${username}' deleted."
 msgstr "ההזמנה ל- '${project_name}' נדחתה."
 
 #: warehouse/oidc/forms/_core.py:38 warehouse/oidc/forms/_core.py:49
-#: warehouse/oidc/forms/gitlab.py:50 warehouse/oidc/forms/gitlab.py:54
+#: warehouse/oidc/forms/gitlab.py:57 warehouse/oidc/forms/gitlab.py:61
 msgid "Invalid project name"
 msgstr "שם פרויקט לא תקין"
 
@@ -1042,39 +1042,43 @@ msgid ""
 "\"'\", \"\"\", \"`\", \",\", \";\", \"\\\""
 msgstr ""
 
-#: warehouse/oidc/forms/gitlab.py:22
+#: warehouse/oidc/forms/gitlab.py:23
 #, fuzzy
 msgid "Name ends with .git or .atom"
 msgstr "סיומת שם קובץ הworkflow חייבת להיות .yml או .yaml"
 
-#: warehouse/oidc/forms/gitlab.py:31
+#: warehouse/oidc/forms/gitlab.py:38
 #, fuzzy
 msgid "Specify GitLab namespace (username or group/subgroup)"
 msgstr "ציינ/י את בעל/ת המאגר בגיטהאב (שם משתמש/ארגון)"
 
-#: warehouse/oidc/forms/gitlab.py:36 warehouse/oidc/forms/gitlab.py:40
+#: warehouse/oidc/forms/gitlab.py:43 warehouse/oidc/forms/gitlab.py:47
 #, fuzzy
 msgid "Invalid GitLab username or group/subgroup name."
 msgstr "שם משתמש/ארגון בגיטהאב לא תקין."
 
-#: warehouse/oidc/forms/gitlab.py:63
+#: warehouse/oidc/forms/gitlab.py:70
 #, fuzzy
 #| msgid "Specify workflow filename"
 msgid "Specify top-level pipeline file path"
 msgstr "ציינ/י את שם קובץ הworkflow"
 
-#: warehouse/oidc/forms/gitlab.py:72
+#: warehouse/oidc/forms/gitlab.py:79
 #, fuzzy
 #| msgid "Invalid project name"
 msgid "Invalid environment name"
 msgstr "שם פרויקט לא תקין"
 
-#: warehouse/oidc/forms/gitlab.py:87
+#: warehouse/oidc/forms/gitlab.py:86
+msgid "Choose GitLab issuer URL"
+msgstr ""
+
+#: warehouse/oidc/forms/gitlab.py:111
 #, fuzzy
 msgid "Top-level pipeline file path must end with .yml or .yaml"
 msgstr "סיומת שם קובץ הworkflow חייבת להיות .yml או .yaml"
 
-#: warehouse/oidc/forms/gitlab.py:91
+#: warehouse/oidc/forms/gitlab.py:115
 msgid "Top-level pipeline file path cannot start or end with /"
 msgstr ""
 
@@ -1502,9 +1506,8 @@ msgstr "מעבר לגרסת המובייל"
 #: warehouse/templates/manage/account.html:845
 #: warehouse/templates/manage/manage_base.html:364
 #: warehouse/templates/manage/manage_base.html:442
-#: warehouse/templates/manage/organization/settings.html:205
-#: warehouse/templates/manage/organization/settings.html:266
-#: warehouse/templates/manage/organization/settings.html:272
+#: warehouse/templates/manage/organization/settings.html:291
+#: warehouse/templates/manage/organization/settings.html:297
 #: warehouse/templates/manage/project/documentation.html:13
 #: warehouse/templates/manage/project/release.html:209
 #: warehouse/templates/manage/project/settings.html:78
@@ -1896,11 +1899,12 @@ msgstr "סיסמה"
 #: warehouse/templates/manage/project/publishing.html:153
 #: warehouse/templates/manage/project/publishing.html:166
 #: warehouse/templates/manage/project/publishing.html:179
-#: warehouse/templates/manage/project/publishing.html:223
-#: warehouse/templates/manage/project/publishing.html:236
-#: warehouse/templates/manage/project/publishing.html:278
-#: warehouse/templates/manage/project/publishing.html:295
-#: warehouse/templates/manage/project/publishing.html:314
+#: warehouse/templates/manage/project/publishing.html:203
+#: warehouse/templates/manage/project/publishing.html:238
+#: warehouse/templates/manage/project/publishing.html:251
+#: warehouse/templates/manage/project/publishing.html:293
+#: warehouse/templates/manage/project/publishing.html:310
+#: warehouse/templates/manage/project/publishing.html:329
 #: warehouse/templates/manage/project/roles.html:320
 #: warehouse/templates/manage/project/roles.html:333
 #: warehouse/templates/manage/project/roles.html:344
@@ -3706,7 +3710,7 @@ msgstr "%(username)s טרם העל/תה פרויקטים ל-PyPI, בינתיים
 
 #: warehouse/templates/includes/accounts/profile-public-email.html:16
 #: warehouse/templates/manage/account/publishing.html:238
-#: warehouse/templates/manage/project/publishing.html:221
+#: warehouse/templates/manage/project/publishing.html:236
 msgid "Email"
 msgstr "אי-מייל"
 
@@ -4642,7 +4646,7 @@ msgid "Recent account activity"
 msgstr "פעילות חשבון שאירעה לאחרונה"
 
 #: warehouse/templates/manage/account.html:784
-#: warehouse/templates/manage/organization/history.html:175
+#: warehouse/templates/manage/organization/history.html:193
 #: warehouse/templates/manage/project/history.html:333
 #: warehouse/templates/manage/team/history.html:87
 #: warehouse/templates/manage/unverified-account.html:459
@@ -4650,8 +4654,8 @@ msgid "Event"
 msgstr "אירוע"
 
 #: warehouse/templates/manage/account.html:785
-#: warehouse/templates/manage/organization/history.html:176
-#: warehouse/templates/manage/organization/history.html:185
+#: warehouse/templates/manage/organization/history.html:194
+#: warehouse/templates/manage/organization/history.html:203
 #: warehouse/templates/manage/project/history.html:334
 #: warehouse/templates/manage/project/history.html:343
 #: warehouse/templates/manage/team/history.html:88
@@ -4661,7 +4665,7 @@ msgid "Time"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:786
-#: warehouse/templates/manage/organization/history.html:177
+#: warehouse/templates/manage/organization/history.html:195
 #: warehouse/templates/manage/team/history.html:89
 #: warehouse/templates/manage/unverified-account.html:461
 msgid "Additional Info"
@@ -4673,13 +4677,13 @@ msgid "Date / time"
 msgstr "תאריך / זמן"
 
 #: warehouse/templates/manage/account.html:798
-#: warehouse/templates/manage/organization/history.html:189
+#: warehouse/templates/manage/organization/history.html:207
 #: warehouse/templates/manage/unverified-account.html:472
 msgid "Location Info"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:801
-#: warehouse/templates/manage/organization/history.html:192
+#: warehouse/templates/manage/organization/history.html:210
 #: warehouse/templates/manage/project/history.html:350
 #: warehouse/templates/manage/team/history.html:104
 #: warehouse/templates/manage/unverified-account.html:475
@@ -4790,8 +4794,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:843
 #: warehouse/templates/manage/account/token.html:177
-#: warehouse/templates/manage/organization/settings.html:203
-#: warehouse/templates/manage/organization/settings.html:264
+#: warehouse/templates/manage/organization/settings.html:289
 #: warehouse/templates/manage/project/publishing.html:19
 #: warehouse/templates/manage/team/settings.html:60
 msgid "Proceed with caution!"
@@ -5122,7 +5125,8 @@ msgid "Any"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:633
-#: warehouse/templates/manage/organization/history.html:141
+#: warehouse/templates/manage/organization/history.html:109
+#: warehouse/templates/manage/organization/history.html:159
 #: warehouse/templates/manage/project/history.html:27
 #: warehouse/templates/manage/project/history.html:80
 #: warehouse/templates/manage/project/history.html:119
@@ -5135,7 +5139,8 @@ msgid "Added by:"
 msgstr "נוספ/ה על ידי:"
 
 #: warehouse/templates/manage/manage_base.html:635
-#: warehouse/templates/manage/organization/history.html:146
+#: warehouse/templates/manage/organization/history.html:117
+#: warehouse/templates/manage/organization/history.html:164
 #: warehouse/templates/manage/project/history.html:46
 #: warehouse/templates/manage/project/history.html:111
 #: warehouse/templates/manage/project/history.html:126
@@ -5205,7 +5210,7 @@ msgstr "בטל הזמנה עבור %(user)s"
 msgid "Decline invitation"
 msgstr "ניווט ראשי"
 
-#: warehouse/templates/manage/organization/settings.html:284
+#: warehouse/templates/manage/organization/settings.html:309
 #: warehouse/templates/manage/organizations.html:51
 #, fuzzy
 #| msgid "Project description"
@@ -5676,7 +5681,7 @@ msgstr "קוד שחזור לא תקין."
 #: warehouse/templates/manage/account/publishing.html:255
 #: warehouse/templates/manage/project/publishing.html:94
 #: warehouse/templates/manage/project/publishing.html:181
-#: warehouse/templates/manage/project/publishing.html:238
+#: warehouse/templates/manage/project/publishing.html:253
 #, fuzzy
 #| msgid "Reason (optional)"
 msgid "(optional)"
@@ -5699,9 +5704,9 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:272
 #: warehouse/templates/manage/account/publishing.html:364
 #: warehouse/templates/manage/project/publishing.html:117
-#: warehouse/templates/manage/project/publishing.html:200
-#: warehouse/templates/manage/project/publishing.html:255
-#: warehouse/templates/manage/project/publishing.html:329
+#: warehouse/templates/manage/project/publishing.html:215
+#: warehouse/templates/manage/project/publishing.html:270
+#: warehouse/templates/manage/project/publishing.html:344
 #: warehouse/templates/manage/project/roles.html:373
 #: warehouse/templates/manage/project/settings.html:322
 #: warehouse/templates/manage/team/roles.html:125
@@ -5800,7 +5805,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:212
-#: warehouse/templates/manage/project/publishing.html:208
+#: warehouse/templates/manage/project/publishing.html:223
 #, fuzzy, python-format
 #| msgid ""
 #| "To regain access to your account, <a href=\"%(href)s\">reset your "
@@ -5812,26 +5817,26 @@ msgstr ""
 "כדי להשיג מחדש גישה לחשבונך, <a href=\"%(href)s\">אספ/י את סיסמתך</a> ב-PyPI."
 
 #: warehouse/templates/manage/account/publishing.html:243
-#: warehouse/templates/manage/project/publishing.html:226
+#: warehouse/templates/manage/project/publishing.html:241
 #, fuzzy
 #| msgid "Email"
 msgid "email"
 msgstr "אי-מייל"
 
 #: warehouse/templates/manage/account/publishing.html:245
-#: warehouse/templates/manage/project/publishing.html:228
+#: warehouse/templates/manage/project/publishing.html:243
 msgid "The email address of the account or service account used to publish."
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:251
-#: warehouse/templates/manage/project/publishing.html:234
+#: warehouse/templates/manage/project/publishing.html:249
 #, fuzzy
 #| msgid "Subject:"
 msgid "Subject"
 msgstr "נושא:"
 
 #: warehouse/templates/manage/account/publishing.html:258
-#: warehouse/templates/manage/project/publishing.html:241
+#: warehouse/templates/manage/project/publishing.html:256
 #, fuzzy
 #| msgid "Subject:"
 msgid "subject"
@@ -5846,7 +5851,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:279
-#: warehouse/templates/manage/project/publishing.html:263
+#: warehouse/templates/manage/project/publishing.html:278
 #, fuzzy, python-format
 #| msgid ""
 #| "To regain access to your account, <a href=\"%(href)s\">reset your "
@@ -5858,7 +5863,7 @@ msgstr ""
 "כדי להשיג מחדש גישה לחשבונך, <a href=\"%(href)s\">אספ/י את סיסמתך</a> ב-PyPI."
 
 #: warehouse/templates/manage/account/publishing.html:311
-#: warehouse/templates/manage/project/publishing.html:276
+#: warehouse/templates/manage/project/publishing.html:291
 #: warehouse/templates/organizations/profile.html:17
 #, fuzzy
 #| msgid "Project description"
@@ -5866,52 +5871,52 @@ msgid "Organization"
 msgstr "תיאור הפרויקט"
 
 #: warehouse/templates/manage/account/publishing.html:316
-#: warehouse/templates/manage/project/publishing.html:281
+#: warehouse/templates/manage/project/publishing.html:296
 #, fuzzy
 #| msgid "Project description"
 msgid "my-organization"
 msgstr "תיאור הפרויקט"
 
 #: warehouse/templates/manage/account/publishing.html:323
-#: warehouse/templates/manage/project/publishing.html:288
+#: warehouse/templates/manage/project/publishing.html:303
 msgid "The ActiveState organization name that owns the project"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:328
-#: warehouse/templates/manage/project/publishing.html:293
+#: warehouse/templates/manage/project/publishing.html:308
 #, fuzzy
 #| msgid "Project name"
 msgid "ActiveState Project name"
 msgstr "שם הפרויקט"
 
 #: warehouse/templates/manage/account/publishing.html:333
-#: warehouse/templates/manage/project/publishing.html:298
+#: warehouse/templates/manage/project/publishing.html:313
 #, fuzzy
 #| msgid "Project:"
 msgid "my-project"
 msgstr "פרויקט:"
 
 #: warehouse/templates/manage/account/publishing.html:341
-#: warehouse/templates/manage/project/publishing.html:306
+#: warehouse/templates/manage/project/publishing.html:321
 msgid "The ActiveState project that will build your Python artifact."
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:347
-#: warehouse/templates/manage/project/publishing.html:312
+#: warehouse/templates/manage/project/publishing.html:327
 #, fuzzy
 #| msgid "Your username"
 msgid "Actor Username"
 msgstr "שם המשתמש שלך"
 
 #: warehouse/templates/manage/account/publishing.html:352
-#: warehouse/templates/manage/project/publishing.html:317
+#: warehouse/templates/manage/project/publishing.html:332
 #, fuzzy
 #| msgid "Username"
 msgid "my-username"
 msgstr "שם משתמש"
 
 #: warehouse/templates/manage/account/publishing.html:358
-#: warehouse/templates/manage/project/publishing.html:323
+#: warehouse/templates/manage/project/publishing.html:338
 msgid ""
 "The username for the ActiveState account that will trigger the build of your "
 "Python artifact."
@@ -5942,12 +5947,12 @@ msgid "Pending project name"
 msgstr "פרויקטים טרנדיים"
 
 #: warehouse/templates/manage/account/publishing.html:411
-#: warehouse/templates/manage/project/publishing.html:353
+#: warehouse/templates/manage/project/publishing.html:368
 msgid "Publisher"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:412
-#: warehouse/templates/manage/project/publishing.html:354
+#: warehouse/templates/manage/project/publishing.html:369
 msgid "Details"
 msgstr ""
 
@@ -5986,7 +5991,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:481
-#: warehouse/templates/manage/project/publishing.html:397
+#: warehouse/templates/manage/project/publishing.html:412
 #, fuzzy, python-format
 #| msgid "You have not enabled two factor authentication on your account."
 msgid ""
@@ -6668,19 +6673,33 @@ msgstr "<a href=\"%(href)s\">%(username)s</a> נוסף כ%(role_name)s בפרו�
 msgid "<a href=\"%(href)s\">%(username)s</a> removed from %(team_name)s team"
 msgstr "<a href=\"%(href)s\">%(username)s</a> הוסר כ%(role_name)s בפרויקט"
 
-#: warehouse/templates/manage/organization/history.html:109
+#: warehouse/templates/manage/organization/history.html:106
+#, python-format
+msgid ""
+"Custom Trusted Publisher '%(issuer_type)s' for <code>%(issuer_url)s</code> "
+"added to organization"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:114
+#, python-format
+msgid ""
+"Custom Trusted Publisher '%(issuer_type)s' for <code>%(issuer_url)s</code> "
+"removed from organization"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:127
 #, fuzzy
 #| msgid "Register"
 msgid "Registered by:"
 msgstr "הרשמה"
 
-#: warehouse/templates/manage/organization/history.html:115
+#: warehouse/templates/manage/organization/history.html:133
 #: warehouse/templates/manage/project/history.html:19
 #: warehouse/templates/manage/team/history.html:52
 msgid "Created by:"
 msgstr "נוצר על ידי:"
 
-#: warehouse/templates/manage/organization/history.html:120
+#: warehouse/templates/manage/organization/history.html:138
 #: warehouse/templates/manage/project/history.html:293
 #: warehouse/templates/manage/project/history.html:315
 #: warehouse/templates/manage/team/history.html:57
@@ -6689,34 +6708,34 @@ msgstr "נוצר על ידי:"
 msgid "Deleted by:"
 msgstr "נוצר על ידי:"
 
-#: warehouse/templates/manage/organization/history.html:125
+#: warehouse/templates/manage/organization/history.html:143
 #: warehouse/templates/manage/team/history.html:62
 #, fuzzy
 #| msgid "Removed by:"
 msgid "Renamed by:"
 msgstr "הוסר/ה על ידי:"
 
-#: warehouse/templates/manage/organization/history.html:130
+#: warehouse/templates/manage/organization/history.html:148
 #, fuzzy
 #| msgid "Removed by:"
 msgid "Approved by:"
 msgstr "הוסר/ה על ידי:"
 
-#: warehouse/templates/manage/organization/history.html:135
+#: warehouse/templates/manage/organization/history.html:153
 #, fuzzy
 #| msgid "Decline"
 msgid "Declined by:"
 msgstr "יְרִידָה"
 
-#: warehouse/templates/manage/organization/history.html:151
+#: warehouse/templates/manage/organization/history.html:169
 #: warehouse/templates/manage/project/history.html:133
 #: warehouse/templates/manage/project/history.html:179
 #: warehouse/templates/manage/team/history.html:78
 msgid "Changed by:"
 msgstr "שונ/תה על ידי:"
 
-#: warehouse/templates/manage/organization/history.html:156
-#: warehouse/templates/manage/organization/history.html:161
+#: warehouse/templates/manage/organization/history.html:174
+#: warehouse/templates/manage/organization/history.html:179
 #: warehouse/templates/manage/project/history.html:140
 #: warehouse/templates/manage/project/history.html:147
 #, fuzzy
@@ -6724,14 +6743,14 @@ msgstr "שונ/תה על ידי:"
 msgid "Invited by:"
 msgstr "מיידי"
 
-#: warehouse/templates/manage/organization/history.html:166
+#: warehouse/templates/manage/organization/history.html:184
 #: warehouse/templates/manage/project/history.html:154
 #, fuzzy
 #| msgid "Removed by:"
 msgid "Revoked by:"
 msgstr "הוסר/ה על ידי:"
 
-#: warehouse/templates/manage/organization/history.html:172
+#: warehouse/templates/manage/organization/history.html:190
 #: warehouse/templates/manage/project/history.html:330
 #: warehouse/templates/manage/team/history.html:84
 #, fuzzy, python-format
@@ -7207,59 +7226,64 @@ msgid "Activate billing"
 msgstr "תיאור הפרויקט"
 
 #: warehouse/templates/manage/organization/settings.html:194
-#: warehouse/templates/manage/organization/settings.html:228
+#, fuzzy
+#| msgid "Username"
+msgid "Custom Trusted Publishers"
+msgstr "שם משתמש"
+
+#: warehouse/templates/manage/organization/settings.html:196
+msgid ""
+"The following custom Trusted Publisher issuers have been configured for this "
+"organization. These issuers can be used to configure Trusted Publishing for "
+"your organization's projects."
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:209
+#, fuzzy
+#| msgid "Role invitation is not valid."
+msgid "Modifying custom Trusted Publishers is not currently supported."
+msgstr "הזמנת התפקיד אינה חוקית."
+
+#: warehouse/templates/manage/organization/settings.html:211
+#, python-format
+msgid ""
+"Please contact <a href=%(href)s>PyPI Support</a> if you need to modify "
+"custom Trusted Publishers."
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:219
 #, fuzzy
 #| msgid "Manage '%(project_name)s'"
 msgid "Change organization account name"
 msgstr "ניהול ׳%(project_name)s׳"
 
-#: warehouse/templates/manage/organization/settings.html:196
+#: warehouse/templates/manage/organization/settings.html:221
 #, fuzzy
 #| msgid "Role invitation is not valid."
 msgid "Renaming organizations is not currently supported."
 msgstr "הזמנת התפקיד אינה חוקית."
 
-#: warehouse/templates/manage/organization/settings.html:198
+#: warehouse/templates/manage/organization/settings.html:223
 #, python-format
 msgid ""
 "Please contact <a href=%(href)s>PyPI Support</a> if you need to rename your "
 "organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:206
-#, fuzzy
-#| msgid "You will not be able to recover your account after you delete it"
-msgid ""
-"You will not be able to revert to your current account name after you rename "
-"your organization."
-msgstr "לא תוכל/י לשחזר את חשבונך לאחר מחיקתו"
-
-#: warehouse/templates/manage/organization/settings.html:228
-#, fuzzy
-#| msgid "Manage '%(project_name)s'"
-msgid "Change organization account name for"
-msgstr "ניהול ׳%(project_name)s׳"
-
-#: warehouse/templates/manage/organization/settings.html:228
-#, fuzzy
-#| msgid "Create an account"
-msgid "Current organization account name"
-msgstr "יצירת חשבון"
-
-#: warehouse/templates/manage/organization/settings.html:234
-#: warehouse/templates/manage/organization/settings.html:284
+#: warehouse/templates/manage/organization/settings.html:259
+#: warehouse/templates/manage/organization/settings.html:309
 #, fuzzy
 #| msgid "Create an account"
 msgid "Delete organization"
 msgstr "יצירת חשבון"
 
-#: warehouse/templates/manage/organization/settings.html:237
+#: warehouse/templates/manage/organization/settings.html:262
 #, fuzzy
 #| msgid "Create an account"
 msgid "Cannot delete organization"
 msgstr "יצירת חשבון"
 
-#: warehouse/templates/manage/organization/settings.html:239
+#: warehouse/templates/manage/organization/settings.html:264
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -7293,29 +7317,29 @@ msgstr[3] ""
 "פרויקטים.\n"
 "        "
 
-#: warehouse/templates/manage/organization/settings.html:244
+#: warehouse/templates/manage/organization/settings.html:269
 msgid "For each project, you must either:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:246
+#: warehouse/templates/manage/organization/settings.html:271
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "Transfer ownership and remove the project from your organization"
 msgstr "אינך בעלים של פרויקט זה"
 
-#: warehouse/templates/manage/organization/settings.html:247
+#: warehouse/templates/manage/organization/settings.html:272
 #, fuzzy
 #| msgid "Delete project"
 msgid "Delete the project"
 msgstr "מחיקת הפרויקט"
 
-#: warehouse/templates/manage/organization/settings.html:249
+#: warehouse/templates/manage/organization/settings.html:274
 #, fuzzy
 #| msgid "Create an account"
 msgid "Before you can delete your organization."
 msgstr "יצירת חשבון"
 
-#: warehouse/templates/manage/organization/settings.html:255
+#: warehouse/templates/manage/organization/settings.html:280
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
@@ -7328,23 +7352,23 @@ msgstr ""
 "<a href=\"%(transfer_href)s\">העברת בעלות</a> או <a "
 "href=\"%(delete_href)s\">מחיקת הפרויקט</a>"
 
-#: warehouse/templates/manage/organization/settings.html:267
+#: warehouse/templates/manage/organization/settings.html:292
 #, fuzzy
 #| msgid "You will not be able to recover your account after you delete it"
 msgid "You will not be able to recover your organization after you delete it."
 msgstr "לא תוכל/י לשחזר את חשבונך לאחר מחיקתו"
 
-#: warehouse/templates/manage/organization/settings.html:274
+#: warehouse/templates/manage/organization/settings.html:299
 msgid ""
 "Your subscription will be cancelled, and you will lose access to the billing "
 "portal."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:276
+#: warehouse/templates/manage/organization/settings.html:301
 msgid "You will lose access to the billing portal."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:278
+#: warehouse/templates/manage/organization/settings.html:303
 #, python-format
 msgid ""
 "Please ensure you have retrieved all invoices from <a "
@@ -7766,7 +7790,19 @@ msgid ""
 "before submitting the form."
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:249
+#: warehouse/templates/manage/project/publishing.html:201
+#, fuzzy
+#| msgid "GitHub statistics:"
+msgid "GitLab instance"
+msgstr "סטטיסטיקות GitHub:"
+
+#: warehouse/templates/manage/project/publishing.html:208
+msgid ""
+"The GitLab instance URL. Select <code>https://gitlab.com</code> for the "
+"public GitLab service, or a custom instance."
+msgstr ""
+
+#: warehouse/templates/manage/project/publishing.html:264
 #, python-format
 msgid ""
 "The subject is the numeric ID that represents the principal making the "
@@ -7775,39 +7811,39 @@ msgid ""
 "here.</a>"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:345
+#: warehouse/templates/manage/project/publishing.html:360
 #, fuzzy
 #| msgid "Manage this project"
 msgid "Manage current publishers"
 msgstr "ניהול פרויקט זה"
 
-#: warehouse/templates/manage/project/publishing.html:349
+#: warehouse/templates/manage/project/publishing.html:364
 #, python-format
 msgid "OpenID Connect publishers associated with %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:363
+#: warehouse/templates/manage/project/publishing.html:378
 msgid "No publishers are currently configured."
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:367
+#: warehouse/templates/manage/project/publishing.html:382
 #, fuzzy
 #| msgid "Manage this project"
 msgid "Add a new publisher"
 msgstr "ניהול פרויקט זה"
 
-#: warehouse/templates/manage/project/publishing.html:407
-#: warehouse/templates/manage/project/publishing.html:410
+#: warehouse/templates/manage/project/publishing.html:422
+#: warehouse/templates/manage/project/publishing.html:425
 #, fuzzy
 #| msgid "Invalid project name"
 msgid "Constrain environment"
 msgstr "שם פרויקט לא תקין"
 
-#: warehouse/templates/manage/project/publishing.html:423
+#: warehouse/templates/manage/project/publishing.html:438
 msgid "This will restrict the Trusted Publisher's environment to"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:426
+#: warehouse/templates/manage/project/publishing.html:441
 #, python-format
 msgid ""
 "If you currently use multiple environments in your CI/CD workflows, you must "
@@ -7815,14 +7851,14 @@ msgid ""
 "each as a Trusted Publisher."
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:438
+#: warehouse/templates/manage/project/publishing.html:453
 #, python-format
 msgid ""
 "I understand that this Trusted Publisher will only allow uploads from CI/CD "
 "workflows running in the '%(constrained_environment_name)s' environment."
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:443
+#: warehouse/templates/manage/project/publishing.html:458
 #, fuzzy
 #| msgid "Invalid recovery code."
 msgid "New Environment Name"
@@ -12166,6 +12202,23 @@ msgstr[0] "לא היו תוצאות עבור '%(term)s'"
 msgstr[1] "לא היו תוצאות עבור '%(term)s'"
 msgstr[2] "לא היו תוצאות עבור '%(term)s'"
 msgstr[3] "לא היו תוצאות עבור '%(term)s'"
+
+#, fuzzy
+#~| msgid "You will not be able to recover your account after you delete it"
+#~ msgid ""
+#~ "You will not be able to revert to your current account name after you "
+#~ "rename your organization."
+#~ msgstr "לא תוכל/י לשחזר את חשבונך לאחר מחיקתו"
+
+#, fuzzy
+#~| msgid "Manage '%(project_name)s'"
+#~ msgid "Change organization account name for"
+#~ msgstr "ניהול ׳%(project_name)s׳"
+
+#, fuzzy
+#~| msgid "Create an account"
+#~ msgid "Current organization account name"
+#~ msgstr "יצירת חשבון"
 
 #, fuzzy
 #~| msgid "Project description"
