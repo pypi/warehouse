@@ -116,7 +116,7 @@ filterwarnings = [
     # https://github.com/Pylons/pyramid/issues/3731
     'ignore:pkg_resources is deprecated as an API.*:UserWarning:pyramid.asset',
     # https://github.com/Pylons/webob/issues/473
-    'ignore:datetime\.datetime\.utcnow\(\) is deprecated.*:DeprecationWarning:webob.cookies',
+    'ignore:datetime\.datetime\.utcnow\(\) is deprecated.*:DeprecationWarning:webob.*',
     # https://github.com/pypi/warehouse/issues/15454#issuecomment-2599321232
     'ignore:Accessing argon2.__version__ is deprecated.*:DeprecationWarning:passlib.handlers.argon2',
     # https://github.com/zopefoundation/meta/issues/194
