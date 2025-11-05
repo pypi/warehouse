@@ -287,7 +287,7 @@ export default class extends Controller {
       const key = filterTarget.dataset.filteredSource;
       const value = currentSearchParams.get(key);
       return [key, value];
-    }).filter(([key, _value]) => enabledFilterTargets.includes(key)));
+    }).filter(i => enabledFilterTargets.includes(i[0])));
   }
 
   /**
@@ -356,7 +356,7 @@ export default class extends Controller {
         const value = filterTarget.dataset.autoUpdateUrlQuerystring;
         return [key, value];
       })
-      .filter(([_key, value]) => value === 'true')
-      .map(([key, _value]) => key);
+      .filter(i => i[1] === "true")
+      .map(i => i[0]);
   }
 }
