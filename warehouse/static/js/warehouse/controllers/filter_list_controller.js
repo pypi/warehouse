@@ -32,7 +32,7 @@ export default class extends Controller {
 
     // Capture the initial select element values, so they can be restored.
     this._getFilterTargets().forEach(filterTarget => {
-      if (filterTarget.nodeName === 'SELECT') {
+      if (filterTarget.nodeName === "SELECT") {
         const key = filterTarget.dataset.filteredSource;
         if (!this.initialSelectOptions[key]) {
           this.initialSelectOptions[key] = [];
@@ -84,7 +84,7 @@ export default class extends Controller {
             if (!groupedLabels[key].includes(value)) {
               groupedLabels[key].push(value);
             }
-          })
+          });
         });
       } else {
         // no match: hide item
@@ -104,8 +104,8 @@ export default class extends Controller {
         total,
         shown,
         total));
-    this.summaryTarget.textContent = messages.join(' ');
-  }
+      this.summaryTarget.textContent = messages.join(" ");
+    }
 
     // Update the current url to include the filters
     const htmlElementFilters = this._getFiltersHtmlElements();
@@ -128,7 +128,7 @@ export default class extends Controller {
     const filterTargets = this._getFilterTargets();
     const selected = {};
     filterTargets.forEach(filterTarget => {
-      if (filterTarget.nodeName === 'SELECT') {
+      if (filterTarget.nodeName === "SELECT") {
         const key = filterTarget.dataset.filteredSource;
         // Store which option is selected.
         for (const selectedOption of filterTarget.selectedOptions) {
@@ -228,7 +228,7 @@ export default class extends Controller {
       const key = filterTarget.dataset.filteredSource;
       const value = filterTarget.value;
       if (!Object.hasOwn(filterData, key)) {
-        filterData[key] = {values: [], comparison: 'exact'};
+        filterData[key] = {values: [], comparison: "exact"};
       }
       filterData[key].values.push(value);
 
@@ -255,13 +255,13 @@ export default class extends Controller {
       const itemValues = Array.from(new Set((itemData[filterKey] ?? []).map(i => i?.toString()?.trim() ?? "").filter(i => !!i)));
 
       // Not a match if the item values and filter values contain different values.
-      if (filterValues.length > 0 && comparison === 'exact') {
+      if (filterValues.length > 0 && comparison === "exact") {
         if (!filterValues.every(filterValue => itemValues.includes(filterValue))) {
           return false;
         }
       }
 
-      if (filterValues.length > 0 && comparison === 'includes') {
+      if (filterValues.length > 0 && comparison === "includes") {
         if (!filterValues.every(filterValue => itemValues.some(itemValue => itemValue.includes(filterValue)))) {
           return false;
         }

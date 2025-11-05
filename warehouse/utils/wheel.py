@@ -212,8 +212,8 @@ def filename_to_pretty_tags(filename: str) -> list[str]:
     return sorted(pretty_tags)
 
 
-def filename_to_grouped_labels(filename: str) -> dict[str, dict]:
-    grouped_labels = {
+def filename_to_grouped_labels(filename: str) -> dict[str, dict[str, str]]:
+    grouped_labels: dict[str, dict[str, str]] = {
         "interpreter": {},
         "abi": {},
         "platform": {},
@@ -239,8 +239,8 @@ def filename_to_grouped_labels(filename: str) -> dict[str, dict]:
     return grouped_labels
 
 
-def filenames_to_grouped_labels(filenames: list[str]) -> dict[str, dict]:
-    grouped_labels = {
+def filenames_to_grouped_labels(filenames: list[str]) -> dict[str, dict[str, str]]:
+    grouped_labels: dict[str, dict[str, str]] = {
         "interpreter": {},
         "abi": {},
         "platform": {},
