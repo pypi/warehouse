@@ -2389,9 +2389,9 @@ stripe==11.6.0 \
     --hash=sha256:0ced7cce23a6cb1a393c86a1f7f9435c9d83ae7cbd556362868caf62cb44a92c \
     --hash=sha256:6e6cf09ebb6d5fc2d708401cb8868fd7bff987a6d09a0433caaa92c62f97dbc5
     # via -r requirements/main.in
-structlog==25.4.0 \
-    --hash=sha256:186cd1b0a8ae762e29417095664adf1d6a31702160a46dacb7796ea82f7409e4 \
-    --hash=sha256:fe809ff5c27e557d14e613f45ca441aabda051d119ee5a0102aaba6ce40eed2c
+structlog==25.5.0 \
+    --hash=sha256:098522a3bebed9153d4570c6d0288abf80a031dfdb2048d59a49e9dc2190fc98 \
+    --hash=sha256:a8453e9b9e636ec59bd9e79bbd4a72f025981b3ba0f5837aebf48f02f37a7f9f
     # via -r requirements/main.in
 tenacity==9.1.2 \
     --hash=sha256:1169d376c297e7de388d18b4481760d478b0e99a777cad3a9c86e556f4b697cb \
