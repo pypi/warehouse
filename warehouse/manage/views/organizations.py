@@ -5,6 +5,7 @@ import datetime
 from urllib.parse import urljoin
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
+from psycopg.errors import UniqueViolation
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPException,
@@ -17,6 +18,7 @@ from webob.multidict import MultiDict
 
 from warehouse.accounts.interfaces import ITokenService, IUserService, TokenExpired
 from warehouse.accounts.models import User
+from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.email import (
     send_canceled_as_invited_organization_member_email,
@@ -53,6 +55,19 @@ from warehouse.manage.views.view_helpers import (
     user_projects,
 )
 from warehouse.observations.models import Observation
+from warehouse.oidc.forms import (
+    PendingActiveStatePublisherForm,
+    PendingGitHubPublisherForm,
+    PendingGitLabPublisherForm,
+    PendingGooglePublisherForm,
+)
+from warehouse.oidc.models import (
+    GitLabPublisher,
+    PendingActiveStatePublisher,
+    PendingGitHubPublisher,
+    PendingGitLabPublisher,
+    PendingGooglePublisher,
+)
 from warehouse.organizations import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
@@ -1705,3 +1720,297 @@ def transfer_organization_project(project, request):
     return HTTPSeeOther(
         request.route_path("manage.project.settings", project_name=project.name)
     )
+
+
+@view_defaults(
+    route_name="manage.organization.publishing",
+    context=Organization,
+    renderer="manage/organization/publishing.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission=Permissions.OrganizationsManage,
+    has_translations=True,
+    require_reauth=True,
+)
+class ManageOrganizationPublishingViews:
+    def __init__(self, organization, request):
+        self.organization = organization
+        self.request = request
+        self.metrics = self.request.metrics
+        self.project_service = self.request.find_service(IProjectService)
+        self.pending_github_publisher_form = PendingGitHubPublisherForm(
+            self.request.POST,
+            api_token=self.request.registry.settings.get("github.token"),
+            route_url=self.request.route_url,
+            check_project_name=self.project_service.check_project_name,
+            user=request.user,  # Still need to pass user for form validation
+        )
+        _gl_issuers = GitLabPublisher.get_available_issuer_urls(
+            organization=organization
+        )
+        self.pending_gitlab_publisher_form = PendingGitLabPublisherForm(
+            self.request.POST,
+            route_url=self.request.route_url,
+            check_project_name=self.project_service.check_project_name,
+            user=request.user,
+            issuer_url_choices=_gl_issuers,
+        )
+        self.pending_google_publisher_form = PendingGooglePublisherForm(
+            self.request.POST,
+            route_url=self.request.route_url,
+            check_project_name=self.project_service.check_project_name,
+            user=request.user,
+        )
+        self.pending_activestate_publisher_form = PendingActiveStatePublisherForm(
+            self.request.POST,
+            route_url=self.request.route_url,
+            check_project_name=self.project_service.check_project_name,
+            user=request.user,
+        )
+
+    @property
+    def default_response(self):
+        # Get pending publishers owned by this organization
+        pending_oidc_publishers = self.organization.pending_oidc_publishers
+
+        return {
+            "organization": self.organization,
+            "pending_github_publisher_form": self.pending_github_publisher_form,
+            "pending_gitlab_publisher_form": self.pending_gitlab_publisher_form,
+            "pending_google_publisher_form": self.pending_google_publisher_form,
+            "pending_activestate_publisher_form": self.pending_activestate_publisher_form,  # noqa: E501
+            "pending_oidc_publishers": pending_oidc_publishers,
+            "disabled": {
+                "GitHub": self.request.flags.disallow_oidc(
+                    AdminFlagValue.DISALLOW_GITHUB_OIDC
+                ),
+                "GitLab": self.request.flags.disallow_oidc(
+                    AdminFlagValue.DISALLOW_GITLAB_OIDC
+                ),
+                "Google": self.request.flags.disallow_oidc(
+                    AdminFlagValue.DISALLOW_GOOGLE_OIDC
+                ),
+                "ActiveState": self.request.flags.disallow_oidc(
+                    AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC
+                ),
+            },
+        }
+
+    @view_config(request_method="GET")
+    def manage_organization_publishing(self):
+        if self.request.flags.disallow_oidc():
+            self.request.session.flash(
+                self.request._(
+                    "Trusted publishing is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+            return self.default_response
+
+        return self.default_response
+
+    def _add_pending_oidc_publisher(
+        self,
+        publisher_name,
+        publisher_class,
+        admin_flag,
+        form,
+        make_pending_publisher,
+        make_existence_filters,
+    ):
+        """Common logic for adding organization-level pending OIDC publishers."""
+        # Check admin flags
+        if self.request.flags.disallow_oidc(admin_flag):
+            self.request.session.flash(
+                self.request._(
+                    f"{publisher_name}-based trusted publishing is temporarily "
+                    "disabled. See https://pypi.org/help#admin-intervention for "
+                    "details."
+                ),
+                queue="error",
+            )
+            return self.default_response
+
+        self.metrics.increment(
+            "warehouse.oidc.add_pending_publisher.attempt",
+            tags=[f"publisher:{publisher_name}", "organization:true"],
+        )
+
+        # Validate form
+        if not form.validate():
+            self.request.session.flash(
+                self.request._("The trusted publisher could not be registered"),
+                queue="error",
+            )
+            return self.default_response
+
+        # Check if publisher already exists
+        publisher_already_exists = (
+            self.request.db.query(publisher_class)
+            .filter_by(**make_existence_filters(form))
+            .first()
+            is not None
+        )
+
+        if publisher_already_exists:
+            self.request.session.flash(
+                self.request._(
+                    "This trusted publisher has already been registered. "
+                    "Please contact PyPI's admins if this wasn't intentional."
+                ),
+                queue="error",
+            )
+            return self.default_response
+
+        # Create pending publisher associated with organization
+        pending_publisher = make_pending_publisher(self.request, form)
+
+        try:
+            self.request.db.add(pending_publisher)
+            self.request.db.flush()  # To get the new ID
+        except UniqueViolation:
+            # Double-post protection
+            return HTTPSeeOther(self.request.path)
+
+        # Record event on organization
+        self.organization.record_event(
+            tag=EventTag.Organization.PendingOIDCPublisherAdded,
+            request=self.request,
+            additional={
+                "project": pending_publisher.project_name,
+                "publisher": pending_publisher.publisher_name,
+                "id": str(pending_publisher.id),
+                "specifier": str(pending_publisher),
+                "url": pending_publisher.publisher_url(),
+                "submitted_by": self.request.user.username,
+            },
+        )
+
+        self.request.session.flash(
+            self.request._(
+                "Registered a new pending publisher to create "
+                f"the project '{pending_publisher.project_name}' "
+                f"owned by the '{self.organization.name}' organization."
+            ),
+            queue="success",
+        )
+
+        self.metrics.increment(
+            "warehouse.oidc.add_pending_publisher.ok",
+            tags=[f"publisher:{publisher_name}", "organization:true"],
+        )
+
+        return HTTPSeeOther(self.request.path)
+
+    @view_config(
+        request_method="POST", request_param=PendingGitHubPublisherForm.__params__
+    )
+    def add_pending_github_oidc_publisher(self):
+        form = self.pending_github_publisher_form
+        return self._add_pending_oidc_publisher(
+            publisher_name="GitHub",
+            publisher_class=PendingGitHubPublisher,
+            admin_flag=AdminFlagValue.DISALLOW_GITHUB_OIDC,
+            form=form,
+            make_pending_publisher=lambda request, form: PendingGitHubPublisher(
+                project_name=form.project_name.data,
+                added_by=request.user,
+                repository_name=form.repository.data,
+                repository_owner=form.normalized_owner,
+                repository_owner_id=form.owner_id,
+                workflow_filename=form.workflow_filename.data,
+                environment=form.normalized_environment,
+                organization_id=self.organization.id,
+            ),
+            make_existence_filters=lambda form: dict(
+                project_name=form.project_name.data,
+                repository_name=form.repository.data,
+                repository_owner=form.normalized_owner,
+                workflow_filename=form.workflow_filename.data,
+                environment=form.normalized_environment,
+            ),
+        )
+
+    @view_config(
+        request_method="POST", request_param=PendingGitLabPublisherForm.__params__
+    )
+    def add_pending_gitlab_oidc_publisher(self):
+        form = self.pending_gitlab_publisher_form
+        return self._add_pending_oidc_publisher(
+            publisher_name="GitLab",
+            publisher_class=PendingGitLabPublisher,
+            admin_flag=AdminFlagValue.DISALLOW_GITLAB_OIDC,
+            form=form,
+            make_pending_publisher=lambda request, form: PendingGitLabPublisher(
+                project_name=form.project_name.data,
+                added_by=request.user,
+                namespace=form.namespace.data,
+                project=form.project.data,
+                workflow_filepath=form.workflow_filepath.data,
+                environment=form.environment.data,
+                issuer_url=form.issuer_url.data,
+                organization_id=self.organization.id,
+            ),
+            make_existence_filters=lambda form: dict(
+                project_name=form.project_name.data,
+                namespace=form.namespace.data,
+                project=form.project.data,
+                workflow_filepath=form.workflow_filepath.data,
+                environment=form.environment.data,
+                issuer_url=form.issuer_url.data,
+            ),
+        )
+
+    @view_config(
+        request_method="POST", request_param=PendingGooglePublisherForm.__params__
+    )
+    def add_pending_google_oidc_publisher(self):
+        form = self.pending_google_publisher_form
+        return self._add_pending_oidc_publisher(
+            publisher_name="Google",
+            publisher_class=PendingGooglePublisher,
+            admin_flag=AdminFlagValue.DISALLOW_GOOGLE_OIDC,
+            form=form,
+            make_pending_publisher=lambda request, form: PendingGooglePublisher(
+                project_name=form.project_name.data,
+                added_by=request.user,
+                email=form.email.data,
+                sub=form.sub.data,
+                organization_id=self.organization.id,
+            ),
+            make_existence_filters=lambda form: dict(
+                project_name=form.project_name.data,
+                email=form.email.data,
+                sub=form.sub.data,
+            ),
+        )
+
+    @view_config(
+        request_method="POST", request_param=PendingActiveStatePublisherForm.__params__
+    )
+    def add_pending_activestate_oidc_publisher(self):
+        form = self.pending_activestate_publisher_form
+        return self._add_pending_oidc_publisher(
+            publisher_name="ActiveState",
+            publisher_class=PendingActiveStatePublisher,
+            admin_flag=AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
+            form=form,
+            make_pending_publisher=lambda request, form: PendingActiveStatePublisher(
+                project_name=form.project_name.data,
+                added_by=request.user,
+                organization=form.organization.data,
+                activestate_project_name=form.project.data,
+                actor=form.actor.data,
+                actor_id=form.actor_id,
+                organization_id=self.organization.id,
+            ),
+            make_existence_filters=lambda form: dict(
+                project_name=form.project_name.data,
+                organization=form.organization.data,
+                activestate_project_name=form.project.data,
+                actor=form.actor.data,
+                actor_id=form.actor_id,
+            ),
+        )
