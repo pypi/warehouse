@@ -45,8 +45,7 @@ describe("Filter list controller", () => {
     elFilter.dispatchEvent(event);
     expect(dispatchEventSpy).toHaveBeenCalledWith(event);
     return elFilter;
-  }
-
+  };
   const setFilterInputValue = function(value) {
     const elFilter = document.getElementById("filter-input");
     const dispatchEventSpy = jest.spyOn(elFilter, "dispatchEvent");
@@ -58,14 +57,14 @@ describe("Filter list controller", () => {
     const event = new Event("input");
     elFilter.dispatchEvent(event);
     expect(dispatchEventSpy).toHaveBeenCalledWith(event);
-  }
+  };
   const clearFilters = function() {
-    const elUrl = document.getElementById('filter-clear');
+    const elUrl = document.getElementById("filter-clear");
     const dispatchEventSpy = jest.spyOn(elUrl, "dispatchEvent");
     const event = new Event("click");
     elUrl.dispatchEvent(event);
     expect(dispatchEventSpy).toHaveBeenCalledWith(event);
-  }
+  };
   describe("is initialized as expected", () => {
     describe("makes expected elements visible", () => {
       let application;
