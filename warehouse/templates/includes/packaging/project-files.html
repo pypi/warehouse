@@ -130,7 +130,12 @@
     <div class="col-grid">
       <div class="form-group col-third">{{ filter_select('interpreter', 'Interpreter', wheel_filters_params) }}</div>
       <div class="form-group col-third">{{ filter_select('abi', 'ABI', wheel_filters_params) }}</div>
-      <div class="form-group col-third">{{ filter_select('platform', 'Platform', wheel_filters_params) }}</div>
+      <div class="form-group col-third">
+        <strong class="float-right"><a href="{% if request.matched_route %}{{ request.current_route_url() }}{% else %}{{ request.url }}{% endif %}#files"
+          data-action="filter-list#filterClear">Show all files</a>
+        </strong>
+        {{ filter_select('platform', 'Platform', wheel_filters_params) }}
+      </div>
     </div>
   </div>
   {{ file_table(bdists) }}
