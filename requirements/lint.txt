@@ -714,9 +714,9 @@ six==1.17.0 \
     # via
     #   cssbeautifier
     #   jsbeautifier
-sphinx-lint==1.0.0 \
-    --hash=sha256:6117a0f340b2dc73eadfc57db7531d4477e0929f92a0c1a2f61e6edbc272f0bc \
-    --hash=sha256:6eafdb44172ce526f405bf36c713eb246f1340ec2d667e7298e2487ed76decd2
+sphinx-lint==1.0.1 \
+    --hash=sha256:2b054ff3270fce56a8a18737665dd8ab04f45d8bfdf3a57a2313970b527ad612 \
+    --hash=sha256:914648e4cc6e677df3a09a8d72a33c8dfa0c2618c857e415ec3ebdc219ff0af1
     # via -r requirements/lint.in
 tokenize-rt==6.2.0 \
     --hash=sha256:8439c042b330c553fdbe1758e4a05c0ed460dbbbb24a606f11f0dee75da4cad6 \
