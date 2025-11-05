@@ -19,7 +19,7 @@ def _build(**kwargs):
             grouped_labels["abi"][key.removeprefix("abi_")] = value
         elif key.startswith("plat_"):
             grouped_labels["platform"][key.removeprefix("plat_")] = value
-        elif key.startswith("other_"):
+        else:
             grouped_labels["other"][key.removeprefix("other_")] = value
     return grouped_labels
 
