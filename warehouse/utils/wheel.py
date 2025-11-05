@@ -191,13 +191,7 @@ def _platform_to_label(tag: packaging.tags.Tag) -> str:
 
 
 def _add_group_label(container: dict, group: str, value: str, label: str) -> None:
-    if value not in container[group]:
-        container[group][value] = label
-    elif container[group][value] != label:
-        # A value that is already present, with a different label.
-        # This looks odd. Is this possible?
-        # Use the most recently seen label.
-        container[group][value] = label
+    container[group][value] = label
 
 
 def filename_to_tags(filename: str) -> set[packaging.tags.Tag]:
