@@ -120,7 +120,7 @@
       <th class="table__align-right" scope="col">{% trans %}Details{% endtrans %}</th>
     </thead>
     {% for file in files %}
-      <tr {% if 'source' not in file.python_version %} data-filter-list-target="item" data-filtered-target-filename='["{{ file.filename }}"]' {% for filter_name, filter_items in file.wheel_filters.items() %} data-filtered-target-{{ filter_name }}='{{ filter_items.keys() | list | tojson }}' {% endfor %}
+      <tr {% if 'source' not in file.python_version %} data-filter-list-target="item" data-filtered-target-filename='["{{ file.filename }}"]' {% for filter_name, filter_items in file.wheel_filters.items() %} data-filtered-target-{{ filter_name }}='{{ ((filter_items.keys() | list) + (filter_items.values() | list)) | tojson }}' {% endfor %}
           {% endif %}>
         <td class="file-name">
           <span class="table__mobile-label">{% trans %}File{% endtrans %}</span>
@@ -132,60 +132,59 @@
             {% trans upload_time=humanize(file.upload_time) %}Uploaded {{ upload_time }}{% endtrans %}.
           </small>
         </td>
-      {% if 'Egg' in file.pretty_wheel_tags %}
-        <td colspan="3">
+        {% if 'Egg' in file.pretty_wheel_tags %}
+          <td colspan="3">
             {{ file.filename }}
             {% for tag in file.pretty_wheel_tags %}
-                {% if loop.first %} - {% endif %}
-                {{ tag }}
-                {% if not loop.last %}&nbsp;{% endif %}
+              {% if loop.first %}-{% endif %}
+              {{ tag }}
+              {% if not loop.last %}&nbsp;{% endif %}
             {% endfor %}
-        </td>
-      {% else %}
-        <td>
-          <span class="table__mobile-label">{% trans %}Interpreter{% endtrans %}</span>
-          {% for key, value in file.wheel_filters.items() %}
-            {% if key == 'interpreter' %}
-              {% for interpreter_value, interpreter_label in value.items() %}
-                {{ interpreter_label }}
-                {% if not loop.last %}<br />{% endif %}
-              {% endfor %}
-            {% endif %}
-          {% endfor %}
-        </td>
-        <td>
-          <span class="table__mobile-label">{% trans %}ABI{% endtrans %}</span>
-          {% for key, value in file.wheel_filters.items() %}
-            {% if key == 'abi' %}
-              {% for abi_value, abi_label in value.items() %}
-                {{ abi_label }}
-                {% if not loop.last %}<br />{% endif %}
-              {% endfor %}
-            {% endif %}
-          {% endfor %}
-        </td>
-        <td>
-          <span class="table__mobile-label">{% trans %}Platform{% endtrans %}</span>
-          {% for key, value in file.wheel_filters.items() %}
-            {% if key == 'platform' %}
-              {% for platform_value, platform_label in value.items() %}
-                {{ platform_label }}
-                {% if not loop.last %}<br />{% endif %}
-              {% endfor %}
-            {% endif %}
-          {% endfor %}
-        </td>
-      {% endif %}
+          </td>
+        {% else %}
+          <td>
+            <span class="table__mobile-label">{% trans %}Interpreter{% endtrans %}</span>
+            {% for key, value in file.wheel_filters.items() %}
+              {% if key == 'interpreter' %}
+                {% for interpreter_value, interpreter_label in value.items() %}
+                  {{ interpreter_label }}
+                  {% if not loop.last %}<br />{% endif %}
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+          </td>
+          <td>
+            <span class="table__mobile-label">{% trans %}ABI{% endtrans %}</span>
+            {% for key, value in file.wheel_filters.items() %}
+              {% if key == 'abi' %}
+                {% for abi_value, abi_label in value.items() %}
+                  {{ abi_label }}
+                  {% if not loop.last %}<br />{% endif %}
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+          </td>
+          <td>
+            <span class="table__mobile-label">{% trans %}Platform{% endtrans %}</span>
+            {% for key, value in file.wheel_filters.items() %}
+              {% if key == 'platform' %}
+                {% for platform_value, platform_label in value.items() %}
+                  {{ platform_label }}
+                  {% if not loop.last %}<br />{% endif %}
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+          </td>
+        {% endif %}
         <td class="table__align-right">
           <span class="table__mobile-label">{% trans %}View details{% endtrans %}</span>
           <a href="#{{ file.filename }}"
              data-project-tabs-target="tab"
              data-action="project-tabs#onTabClick">{% trans %}Details{% endtrans %}</a>
         </td>
-      </div>
-    </tr>
-  {% endfor %}
-</table>
+      </tr>
+    {% endfor %}
+  </table>
 {%- endmacro -%}
 {% macro filter_select(name, title) %}
   <label class="form-group__label sr-only" for="bdist-tags-{{ name }}">{% trans %}{{ title }}{% endtrans %}</label>
@@ -609,17 +608,22 @@
             {{ filter_select('interpreter', 'Interpreter') }}
           </div>
           <div class="form-group form-group--flex-width">{{ filter_select('abi', 'ABI') }}</div>
-          <div class="form-group form-group--flex-width">{{ filter_select('platform', 'Platform') }}</div>
-        </div>
+          <div class="form-group form-group--flex-width">
+          <strong class="float-right"><a href="{% if request.matched_route %}{{ request.current_route_url() }}{% else %}{{ request.url }}{% endif %}#files"
+   data-action="filter-list#filterClear">Show all files</a>
+        </strong>
+        {{ filter_select('platform', 'Platform') }}
       </div>
-    {% endif %}
-    {{ bdists_table(bdists) }}
-    {% if bdist_count > 3 %}
-      <p class="hidden initial-toggle-visibility">
-        <span data-filter-list-target="summary"></span>
-      </p>
-    {% endif %}
-  {% endif %}
+    </div>
+  </div>
+{% endif %}
+{{ bdists_table(bdists) }}
+{% if bdist_count > 3 %}
+  <p class="hidden initial-toggle-visibility">
+    <span data-filter-list-target="summary"></span>
+  </p>
+{% endif %}
+{% endif %}
 </div>
 {# Tabs: file details #}
 {% for file in files %}

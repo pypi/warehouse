@@ -220,7 +220,7 @@ class TestReleaseDetail:
                 "abi": {},
                 "platform": {},
                 "other": {},
-            }
+            },
         }
 
     def test_detail_renders_files_natural_sort(self, db_request):

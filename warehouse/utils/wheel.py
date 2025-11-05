@@ -255,8 +255,6 @@ def filenames_to_grouped_labels(filenames: list[str]) -> dict[str, dict]:
     for filename in filenames:
         grouped = filename_to_grouped_labels(filename)
         for kind, kind_items in grouped.items():
-            if kind not in grouped_labels:
-                grouped_labels[kind] = {}
             for value, label in kind_items.items():
                 if value not in grouped_labels[kind]:
                     grouped_labels[kind][value] = label

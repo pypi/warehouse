@@ -15,7 +15,7 @@
  * - data-filtered-target-[name of filter group in kebab-case e.g. content-type]='(stringify-ed JSON)' (zero or more)
  */
 import {Controller} from "@hotwired/stimulus";
-import {ngettext} from "../utils/messages-access";
+import {gettext, ngettext} from "../utils/messages-access";
 
 export default class extends Controller {
   static targets = ["item", "filter", "summary", "url"];
@@ -94,13 +94,18 @@ export default class extends Controller {
 
     // show the number of matches and the total number of items
     if (this.hasSummaryTarget) {
-      this.summaryTarget.textContent = ngettext(
+      let messages = [];
+      if (shown === 0) {
+        messages.push(gettext("No files match the current filters."));
+      }
+      messages.push(ngettext(
         "Showing %1 of %2 file.",
         "Showing %1 of %2 files.",
         total,
         shown,
-        total);
-    }
+        total));
+    this.summaryTarget.textContent = messages.join(' ');
+  }
 
     // Update the current url to include the filters
     const htmlElementFilters = this._getFiltersHtmlElements();
@@ -145,7 +150,24 @@ export default class extends Controller {
         });
       }
     });
-    // console.log(`update dropdowns groupedLabels ${JSON.stringify(groupedLabels)} selected ${JSON.stringify(selected)}`);
+  }
+
+  /**
+   * Show all files by clearing the filters.
+   * @param event
+   */
+  filterClear(event) {
+    // don't follow the url
+    event.preventDefault();
+
+    // set the html elements to no filter
+    const filterTargets = this._getFilterTargets();
+    filterTargets.forEach(filterTarget => {
+      filterTarget.value = "";
+    });
+
+    // update the list of files
+    this.filter();
   }
 
   /**
@@ -235,14 +257,12 @@ export default class extends Controller {
       // Not a match if the item values and filter values contain different values.
       if (filterValues.length > 0 && comparison === 'exact') {
         if (!filterValues.every(filterValue => itemValues.includes(filterValue))) {
-          // console.log(`_compare exact filterValues ${JSON.stringify(filterValues)} itemValues ${JSON.stringify(itemValues)}`);
           return false;
         }
       }
 
       if (filterValues.length > 0 && comparison === 'includes') {
         if (!filterValues.every(filterValue => itemValues.some(itemValue => itemValue.includes(filterValue)))) {
-          // console.log(`_compare includes filterValues ${JSON.stringify(filterValues)} itemValues ${JSON.stringify(itemValues)}`);
           return false;
         }
       }
