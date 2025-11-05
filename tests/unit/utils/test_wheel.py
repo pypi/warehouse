@@ -21,9 +21,6 @@ def _build(**kwargs):
             grouped_labels["platform"][key.removeprefix("plat_")] = value
         elif key.startswith("other_"):
             grouped_labels["other"][key.removeprefix("other_")] = value
-        # for debugging
-        # else:
-        #     raise ValueError(f"Unknown item {key}={value}")
     return grouped_labels
 
 

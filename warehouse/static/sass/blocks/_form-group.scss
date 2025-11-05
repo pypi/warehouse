@@ -132,6 +132,7 @@
 
   &--flex-width {
     max-width: unset;
+
     :where(
       input:not([type]),
       select,
