@@ -12,14 +12,17 @@ from tests.common.db.oidc import (
     GitHubPublisherFactory,
     GitLabPublisherFactory,
     GooglePublisherFactory,
+    SemaphorePublisherFactory,
 )
 from tests.common.db.organizations import OrganizationOIDCIssuerFactory
 from warehouse.oidc import errors, utils
 from warehouse.oidc.models import (
+    SEMAPHORE_OIDC_ISSUER_URL_SUFFIX,
     ActiveStatePublisher,
     GitHubPublisher,
     GitLabPublisher,
     GooglePublisher,
+    SemaphorePublisher,
 )
 from warehouse.oidc.utils import OIDC_PUBLISHER_CLASSES
 from warehouse.organizations.models import OIDCIssuerType
@@ -296,6 +299,25 @@ def test_find_publisher_by_issuer_activestate(
         ).id
         == expected_id
     )
+
+
+def test_find_publisher_by_issuer_semaphore(db_request):
+    SemaphorePublisherFactory(
+        id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        organization="example-org",
+        project="example-project",
+    )
+
+    signed_claims = {
+        claim_name: "fake" for claim_name in SemaphorePublisher.all_known_claims()
+    }
+    signed_claims.update({"repo_slug": "example-org/example-project"})
+
+    assert utils.find_publisher_by_issuer(
+        db_request.db,
+        f"https://example-org{SEMAPHORE_OIDC_ISSUER_URL_SUFFIX}",
+        signed_claims,
+    ).id == uuid.UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
 
 
 def test_oidc_context_principals():

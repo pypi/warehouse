@@ -12,6 +12,8 @@ from warehouse.oidc.models import (
     PendingGitHubPublisher,
     PendingGitLabPublisher,
     PendingGooglePublisher,
+    PendingSemaphorePublisher,
+    SemaphorePublisher,
 )
 
 from .accounts import UserFactory
@@ -121,4 +123,24 @@ class PendingActiveStatePublisherFactory(WarehouseFactory):
     activestate_project_name = factory.Faker("pystr", max_chars=12)
     actor = factory.Faker("pystr", max_chars=12)
     actor_id = factory.Faker("uuid4")
+    added_by = factory.SubFactory(UserFactory)
+
+
+class SemaphorePublisherFactory(WarehouseFactory):
+    class Meta:
+        model = SemaphorePublisher
+
+    id = factory.Faker("uuid4", cast_to=None)
+    organization = factory.Faker("pystr", max_chars=12)
+    project = factory.Faker("pystr", max_chars=12)
+
+
+class PendingSemaphorePublisherFactory(WarehouseFactory):
+    class Meta:
+        model = PendingSemaphorePublisher
+
+    id = factory.Faker("uuid4", cast_to=None)
+    project_name = factory.Faker("pystr", max_chars=12)
+    organization = factory.Faker("pystr", max_chars=12)
+    project = factory.Faker("pystr", max_chars=12)
     added_by = factory.SubFactory(UserFactory)
