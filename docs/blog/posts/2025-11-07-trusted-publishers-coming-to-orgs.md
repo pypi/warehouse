@@ -83,6 +83,8 @@ I'm excited to share that it's now available in beta for GitLab Self-Managed ins
 This means organizations running their own GitLab can now use Trusted Publishers
 to publish packages more securely, without dealing with long-lived tokens.
 
+As a reminder, GitLab.com (the public instance) support has been around since early 2024.
+
 Since GitLab itself can be self-hosted,
 we're initially launching this feature as a beta to gather feedback and ensure a smooth experience.
 Organizations' self-hosted instances must be manually onboarded by PyPI staff during this beta phase,
