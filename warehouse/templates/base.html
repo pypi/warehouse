@@ -164,11 +164,12 @@
           type="application/opensearchdescription+xml"
           title="PyPI"
           href="{{ request.route_path('opensearch.xml') }}">
-    {# All of our JavaScript should be loaded using the async attribute so it's
+    {# All of our JavaScript should be loaded using either the `async` or `defer` attribute so it's
      # fine to have it in the header. This will allow the browser to start
      # downloading it ASAP while still not blocking the parser.
+     # Use `async` if the script can be executed before the DOM is fully parsed.
      #}
-    <script async src="{{ request.static_path('warehouse:static/dist/js/warehouse' + ('' if request.localizer.locale_name == 'en' else '.' + request.localizer.locale_name) + '.js') }}">
+    <script defer src="{{ request.static_path('warehouse:static/dist/js/warehouse' + ('' if request.localizer.locale_name == 'en' else '.' + request.localizer.locale_name) + '.js') }}">
     </script>
     {% block extra_js %}{% endblock %}
     {# Exclude all query parameters from analytics payload on pages where they may contain sensitive information.

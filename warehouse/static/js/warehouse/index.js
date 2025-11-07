@@ -5,11 +5,6 @@ import { Application } from "@hotwired/stimulus";
 import { definitionsFromContext } from "@hotwired/stimulus-webpack-helpers";
 import { Autocomplete } from "stimulus-autocomplete";
 
-// We'll use docReady as a modern replacement for $(document).ready() which
-// does not require all of jQuery to use. This will let us use it without
-// having to load all of jQuery, which will make things faster.
-import docReady from "warehouse/utils/doc-ready";
-
 // Import our utility functions
 import HTMLInclude from "warehouse/utils/html-include";
 import * as formUtils from "warehouse/utils/forms";
@@ -23,63 +18,51 @@ import {GuardWebAuthn, AuthenticateWebAuthn, ProvisionWebAuthn} from "warehouse/
 import checkProxyProtection from "warehouse/utils/proxy-protection";
 
 // Show unsupported browser warning if necessary
-docReady(() => {
-  if (navigator.appVersion.includes("MSIE 10")) {
-    if (document.getElementById("unsupported-browser") !== null) return;
-
+if (navigator.appVersion.includes("MSIE 10")) {
+  if (document.getElementById("unsupported-browser") === null) {
     let warning_div = document.createElement("div");
     warning_div.innerHTML = "<div id='unsupported-browser' class='notification-bar notification-bar--warning' role='status'><span class='notification-bar__icon'><i class='fa fa-exclamation-triangle' aria-hidden='true'></i><span class='sr-only'>Warning:</span></span><span class='notification-bar__message'>You are using an unsupported browser, please upgrade to a newer version.</span></div>";
 
     document.getElementById("sticky-notifications").appendChild(warning_div);
   }
-});
+}
 
 // Human-readable timestamps for project histories
-docReady(() => {
-  timeAgo();
-});
+timeAgo();
 
 // toggle search panel behavior
-docReady(() => {
-  if (document.querySelector(".-js-add-filter")) searchFilterToggle();
-});
+if (document.querySelector(".-js-add-filter")) searchFilterToggle();
 
 // Kick off the client side HTML includes.
-docReady(HTMLInclude);
+HTMLInclude();
 
 // Handle the JS based automatic form submission.
-docReady(formUtils.submitTriggers);
-docReady(formUtils.registerFormValidation);
+formUtils.submitTriggers();
+formUtils.registerFormValidation();
 
-docReady(Statuspage);
+Statuspage();
 
 // Close modals when escape button is pressed
-docReady(() => {
-  document.addEventListener("keydown", event => {
-    // Only handle the escape key press when a modal is open
-    if (document.querySelector(".modal:target") && event.keyCode === 27) {
-      for (let element of document.querySelectorAll(".modal")) {
-        application
-          .getControllerForElementAndIdentifier(element, "confirm")
-          .cancel();
-      }
+document.addEventListener("keydown", event => {
+  // Only handle the escape key press when a modal is open
+  if (document.querySelector(".modal:target") && event.keyCode === 27) {
+    for (let element of document.querySelectorAll(".modal")) {
+      application
+        .getControllerForElementAndIdentifier(element, "confirm")
+        .cancel();
     }
-  });
+  }
 });
 
 // Position sticky bar
-docReady(() => {
-  setTimeout(PositionWarning, 200);
-});
+setTimeout(PositionWarning, 200);
 
-docReady(() => {
-  let resizeTimer;
-  const onResize = () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(PositionWarning, 200);
-  };
-  window.addEventListener("resize", onResize, false);
-});
+let resizeTimer;
+const onResize = () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(PositionWarning, 200);
+};
+window.addEventListener("resize", onResize, false);
 
 let bindDropdowns = function () {
   // Bind click handlers to dropdowns for keyboard users
@@ -137,33 +120,29 @@ let bindDropdowns = function () {
 };
 
 // Bind the dropdowns when the page is ready
-docReady(bindDropdowns);
+bindDropdowns();
 
 // Get modal keypress event listeners ready
-docReady(BindModalKeys);
+BindModalKeys();
 
 // Get filter pane keypress event listeners ready
-docReady(BindFilterKeys);
+BindFilterKeys();
 
 // Get WebAuthn compatibility checks ready
-docReady(GuardWebAuthn);
+GuardWebAuthn();
 
 // Get WebAuthn provisioning ready
-docReady(ProvisionWebAuthn);
+ProvisionWebAuthn();
 
 // Get WebAuthn authentication ready
-docReady(AuthenticateWebAuthn);
+AuthenticateWebAuthn();
 
 // Initialize proxy protection
-docReady(checkProxyProtection);
+checkProxyProtection();
 
-docReady(() => {
-  const tokenSelect = document.getElementById("token_scope");
+const tokenSelect = document.getElementById("token_scope");
 
-  if (tokenSelect === null) {
-    return;
-  }
-
+if (tokenSelect !== null) {
   tokenSelect.addEventListener("change", () => {
     const tokenScopeWarning = document.getElementById("api-token-scope-warning");
     if (tokenScopeWarning === null) {
@@ -173,7 +152,7 @@ docReady(() => {
     const tokenScope = tokenSelect.options[tokenSelect.selectedIndex].value;
     tokenScopeWarning.hidden = (tokenScope !== "scope:user");
   });
-});
+}
 
 // Bind again when client-side includes have been loaded (for the logged-in
 // user dropdown)
