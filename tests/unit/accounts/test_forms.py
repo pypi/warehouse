@@ -69,6 +69,32 @@ class TestLoginForm:
         assert not form.validate()
         assert str(form.username.errors.pop()) == "Null bytes are not allowed."
 
+    @pytest.mark.parametrize(
+        "email_username",
+        [
+            "user@example.com",
+            "test.user@example.org",
+            "admin@test.co.uk",
+            "  user@example.com  ",
+        ],
+    )
+    def test_validate_username_with_email_address(self, pyramid_config, email_username):
+        request = pretend.stub()
+        user_service = pretend.stub()
+        breach_service = pretend.stub()
+        form = forms.LoginForm(
+            formdata=MultiDict({"username": email_username}),
+            request=request,
+            user_service=user_service,
+            breach_service=breach_service,
+        )
+
+        assert not form.validate()
+        assert str(form.username.errors.pop()) == (
+            "Usernames are not the same as email addresses. "
+            "Enter your username instead of your email address."
+        )
+
     def test_validate_username_with_no_user(self):
         request = pretend.stub()
         user_service = pretend.stub(
