@@ -38,6 +38,7 @@ from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.manage import views
 from warehouse.manage.views import organizations as org_views
+from warehouse.oidc.models import PendingGitHubPublisher
 from warehouse.organizations import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
@@ -3685,3 +3686,124 @@ class TestManageOrganizationPublishingViews:
         # Should return HTTPSeeOther redirect (double-post protection)
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/fake/path"
+
+    def test_two_orgs_can_create_pending_publishers_for_same_project_name(
+        self, db_request, monkeypatch
+    ):
+        """
+        Two different organizations can create pending OIDC publishers
+        for the same future project name but with different OIDC credentials.
+        """
+        # Create two separate organizations with different owners
+        org1_owner = UserFactory.create(username="org1-owner")
+        org2_owner = UserFactory.create(username="org2-owner")
+        EmailFactory.create(user=org1_owner, verified=True, primary=True)
+        EmailFactory.create(user=org2_owner, verified=True, primary=True)
+
+        org1 = OrganizationFactory.create(name="org1")
+        org2 = OrganizationFactory.create(name="org2")
+
+        OrganizationRoleFactory.create(
+            organization=org1, user=org1_owner, role_name="Owner"
+        )
+        OrganizationRoleFactory.create(
+            organization=org2, user=org2_owner, role_name="Owner"
+        )
+
+        # Setup request for org1
+        db_request.user = org1_owner
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.registry = pretend.stub(settings={"github.token": "fake-api-token"})
+        db_request.POST = MultiDict(
+            {
+                "project_name": "same-project-name",
+                "owner": "org1",
+                "repository": "repo1",
+                "workflow_filename": "release.yml",
+                "environment": "",
+            }
+        )
+
+        # Mock the GitHub API lookup for org1
+        monkeypatch.setattr(
+            org_views.PendingGitHubPublisherForm,
+            "_lookup_owner",
+            lambda *a: {"login": "org1", "id": "11111"},
+        )
+
+        # Org1 creates a pending publisher
+        view1 = org_views.ManageOrganizationPublishingViews(org1, db_request)
+        result1 = view1.add_pending_github_oidc_publisher()
+        assert isinstance(result1, HTTPSeeOther)
+
+        # Verify org1's pending publisher was created
+        pending_publisher_1 = (
+            db_request.db.query(PendingGitHubPublisher)
+            .filter(
+                PendingGitHubPublisher.organization_id == org1.id,
+                PendingGitHubPublisher.project_name == "same-project-name",
+            )
+            .one()
+        )
+        assert pending_publisher_1.repository_owner == "org1"
+        assert pending_publisher_1.repository_name == "repo1"
+        assert pending_publisher_1.organization_id == org1.id
+
+        # Setup request for org2 with SAME project name but different credentials
+        db_request.user = org2_owner
+        db_request.POST = MultiDict(
+            {
+                "project_name": "same-project-name",  # SAME PROJECT NAME
+                "owner": "org2",  # DIFFERENT GitHub org
+                "repository": "repo2",  # DIFFERENT repo
+                "workflow_filename": "release.yml",
+                "environment": "",
+            }
+        )
+
+        # Mock the GitHub API lookup for org2
+        monkeypatch.setattr(
+            org_views.PendingGitHubPublisherForm,
+            "_lookup_owner",
+            lambda *a: {"login": "org2", "id": "22222"},
+        )
+
+        # Org2 creates a pending publisher for the SAME project name
+        view2 = org_views.ManageOrganizationPublishingViews(org2, db_request)
+        result2 = view2.add_pending_github_oidc_publisher()
+        assert isinstance(result2, HTTPSeeOther)
+
+        # Verify org2's pending publisher was also created
+        pending_publisher_2 = (
+            db_request.db.query(PendingGitHubPublisher)
+            .filter(
+                PendingGitHubPublisher.organization_id == org2.id,
+                PendingGitHubPublisher.project_name == "same-project-name",
+            )
+            .one()
+        )
+        assert pending_publisher_2.repository_owner == "org2"
+        assert pending_publisher_2.repository_name == "repo2"
+        assert pending_publisher_2.organization_id == org2.id
+
+        # CRITICAL: Both pending publishers should exist
+        all_pending_publishers = (
+            db_request.db.query(PendingGitHubPublisher)
+            .filter(PendingGitHubPublisher.project_name == "same-project-name")
+            .all()
+        )
+        assert len(all_pending_publishers) == 2
+
+        # Verify they have different credentials (different organizations)
+        assert pending_publisher_1.id != pending_publisher_2.id
+        assert (
+            pending_publisher_1.repository_owner != pending_publisher_2.repository_owner
+        )
+        assert (
+            pending_publisher_1.repository_name != pending_publisher_2.repository_name
+        )
