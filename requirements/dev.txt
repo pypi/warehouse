@@ -7,7 +7,7 @@
 asyncudp==0.11.0 \
     --hash=sha256:96d859d86471e3ed30cf9f05cb38e96920156e3a9fe70ee916096ba758ea316e \
     --hash=sha256:c8ab6459f4dc8ebc42f401d3bd72c2a6c6808d10e42231f39e0c433ac646abf9
-    # via -r requirements/dev.in
+    # via -r dev.in
 build==1.3.0 \
     --hash=sha256:698edd0ea270bde950f53aed21f3a0135672206f3911e0176261a31e0e07b397 \
     --hash=sha256:7145f0b5061ba90a1500d60bd1b13ca0a8a4cebdd0cc16ed8adf1c0e739f43b4
@@ -20,7 +20,7 @@ hupper==1.12.1 \
     --hash=sha256:06bf54170ff4ecf4c84ad5f188dee3901173ab449c2608ad05b9bfd6b13e32eb \
     --hash=sha256:e872b959f09d90be5fb615bd2e62de89a0b57efc037bdf9637fb09cdf8552b19
     # via
-    #   -r requirements/dev.in
+    #   -r dev.in
     #   pyramid
 legacy-cgi==2.6.4 \
     --hash=sha256:7e235ce58bf1e25d1fc9b2d299015e4e2cd37305eccafec1e6bac3fc04b878cd \
@@ -132,11 +132,11 @@ pastedeploy==3.1.0 \
 pip-api==0.0.34 \
     --hash=sha256:8b2d7d7c37f2447373aa2cf8b1f60a2f2b27a84e1e9e0294a3f6ef10eb3ba6bb \
     --hash=sha256:9b75e958f14c5a2614bae415f2adf7eeb54d50a2cfbe7e24fd4826471bac3625
-    # via -r requirements/dev.in
+    # via -r dev.in
 pip-tools==7.5.1 \
     --hash=sha256:a051a94794ba52df9acad2d7c9b0b09ae001617db458a543f8287fea7b89c2cf \
     --hash=sha256:f5ff803823529edc0e6e40c86b1aa7da7266fb1078093c8beea4e5b77877036a
-    # via -r requirements/dev.in
+    # via -r dev.in
 plaster==1.1.2 \
     --hash=sha256:42992ab1f4865f1278e2ad740e8ad145683bb4022e03534265528f0c23c0df2d \
     --hash=sha256:f8befc54bf8c1147c10ab40297ec84c2676fa2d4ea5d6f524d9436a80074ef98
@@ -166,7 +166,7 @@ pyramid==2.0.2 \
 pyramid-debugtoolbar==4.12.1 \
     --hash=sha256:1d13a82444b3396d5a76d1e611d0de1b38da096f04440041e8e889536103864b \
     --hash=sha256:71e888d349c85fcca12b3e6dc4c7ae8e3f02a1d5acc05154fd9ba8c7f661b43d
-    # via -r requirements/dev.in
+    # via -r dev.in
 pyramid-mako==1.1.0 \
     --hash=sha256:0066c863441f1c3ddea60cee1ccc50d00a91a317a8052ca44131da1a12a840e2 \
     --hash=sha256:76104592d292b6974cf7080aa52405c51f396a621535f01e274d7fe546e85a43
@@ -210,7 +210,7 @@ watchdog==6.0.0 \
     --hash=sha256:e6f0e77c9417e7cd62af82529b10563db3423625c5fce018430b249bf977f9e8 \
     --hash=sha256:e7631a77ffb1f7d2eefa4445ebbee491c720a5661ddf6df3498ebecae5ed375c \
     --hash=sha256:ef810fbf7b781a5a593894e4f439773830bdecb885e6880d957d5b9382a960d2
-    # via -r requirements/dev.in
+    # via -r dev.in
 webob==1.8.9 \
     --hash=sha256:45e34c58ed0c7e2ecd238ffd34432487ff13d9ad459ddfd77895e67abba7c1f9 \
     --hash=sha256:ad6078e2edb6766d1334ec3dee072ac6a7f95b1e32ce10def8ff7f0f02d56589
@@ -264,9 +264,9 @@ zope-interface==7.2 \
     # via pyramid
 
 # The following packages are considered to be unsafe in a requirements file:
-pip==25.2 \
-    --hash=sha256:578283f006390f85bb6282dffb876454593d637f5d1be494b5202ce4877e71f2 \
-    --hash=sha256:6d67a2b4e7f14d8b31b8b52648866fa717f45a1eb70e83002f4331d07e953717
+pip==25.3 \
+    --hash=sha256:8d0538dbbd7babbd207f261ed969c65de439f6bc9e5dbd3b3b9a77f25d95f343 \
+    --hash=sha256:9655943313a94722b7774661c21049070f6bbb0a1516bf02f7c8d5d9201514cd
     # via
     #   pip-api
     #   pip-tools
