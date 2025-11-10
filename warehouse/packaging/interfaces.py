@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import typing
 
+from uuid import UUID
+
 from zope.interface import Interface
 
 from warehouse.rate_limiting.interfaces import RateLimiterException
@@ -76,7 +78,14 @@ class IProjectService(Interface):
         Check if a project name is valid and available for use.
         """
 
-    def create_project(name, creator, request, *, creator_is_owner=True):
+    def create_project(
+        name,
+        creator,
+        request,
+        *,
+        creator_is_owner=True,
+        organization_id: UUID | None = None,
+    ):
         """
         Creates a new project, recording a user as its creator.
 

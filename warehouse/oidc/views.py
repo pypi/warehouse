@@ -29,7 +29,6 @@ from warehouse.oidc.utils import (
     OIDC_ISSUER_SERVICE_NAMES,
     lookup_custom_issuer_type,
 )
-from warehouse.organizations.models import OrganizationProject
 from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import ProjectFactory
 from warehouse.rate_limiting.interfaces import IRateLimiter
@@ -218,32 +217,14 @@ def mint_token(
             # Try creating the new project
             project_service = request.find_service(IProjectService)
             try:
-                # Check if this pending publisher is for an organization
-                if pending_publisher.organization_id:
-                    # For organization-owned projects,
-                    # create without making the user an owner
-                    new_project = project_service.create_project(
-                        pending_publisher.project_name,
-                        pending_publisher.added_by,
-                        request,
-                        creator_is_owner=False,
-                        ratelimited=False,
-                    )
-                    # Add the project to the organization
-                    request.db.add(
-                        OrganizationProject(
-                            organization_id=pending_publisher.organization_id,
-                            project_id=new_project.id,
-                        )
-                    )
-                else:
-                    # For user-owned projects, create normally
-                    new_project = project_service.create_project(
-                        pending_publisher.project_name,
-                        pending_publisher.added_by,
-                        request,
-                        ratelimited=False,
-                    )
+                new_project = project_service.create_project(
+                    pending_publisher.project_name,
+                    pending_publisher.added_by,
+                    request,
+                    creator_is_owner=pending_publisher.organization_id is None,
+                    ratelimited=False,
+                    organization_id=pending_publisher.organization_id,
+                )
             except HTTPException as exc:
                 return _invalid(
                     errors=[{"code": "invalid-payload", "description": str(exc)}],
