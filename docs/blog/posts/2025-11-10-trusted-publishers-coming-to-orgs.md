@@ -2,7 +2,7 @@
 title: Trusted Publishing is popular, now for GitLab Self-Managed and Organizations
 description: Expansion of Trusted Publishers feature for more impact
 date: 2025-11-10
-author:
+authors:
   - miketheman
 tags:
   - oidc
@@ -14,11 +14,9 @@ meta:
     content: "@miketheman@hachyderm.io"
 ---
 
-## Summary
-
 Trusted Publishing has proven popular since [its launch in 2023](2023-04-20-introducing-trusted-publishers.md).
 
-**Recap:** Trusted Publishing enable software build platforms to publish packages to PyPI on your behalf, 
+**Recap:** Trusted Publishing enables software build platforms to publish packages to PyPI on your behalf,
 eliminating the need to manage long-lived authentication tokens.
 After a one-time setup where you delegate publishing authority to your platform, 
 it automatically obtains short-lived, scoped tokens for each build—no manual token management required.
@@ -26,21 +24,15 @@ it automatically obtains short-lived, scoped tokens for each build—no manual t
 Read the [Security Model](https://docs.pypi.org/trusted-publishers/security-model/)
 for a deeper understanding of how Trusted Publishing works.
 
+<!-- more -->
+
 ## Growing Adoption and Impact
 
 Since its inception, Trusted Publishing has been adopted by communities and companies alike,
 with ~45,000 projects configured for Trusted Publishing on PyPI so far.
 In early 2024 we added the ability to track whether each file upload was done via a Trusted Publisher,
 enabling us to analyze its impact over time.
-Also in 2024, more platforms added were added to PyPI Trusted Publishing,
-as detailed in our [April 2024 blog post](2024-04-17-expanding-trusted-publisher-support.md).
-
-<!-- more -->
-
-Looking at data from February 2024 to October 2025, back in February 2024,
-only about 10% of file uploads to PyPI were done via Trusted Publishers.
-By October 2025, that number has grown to over 25%,
-which shows people are really embracing this more secure way to publish.
+Also in 2024, more platforms were added as detailed in our [April 2024 blog post](2024-04-17-expanding-trusted-publisher-support.md).
 
 Here's a chart displaying the overall count of files uploaded to PyPI each month,
 broken down by whether they were uploaded via Trusted Publishers or not:
@@ -52,12 +44,10 @@ A couple of numbers for comparison:
 * February 2024 - 241k files added
 * October 2025 - 377k files added
 
-The growth patterns are incredible - it's clear that folks really like PyPI!
-The chart displays an overall growth pattern for files uploaded to PyPI,
-regardless of their publishing method.
-Read [this blog from the PSF Director of Infrastructure on open infrastructure growth](https://pyfound.blogspot.com/2025/10/open-infrastructure-is-not-free-pypi.html).
-
-Displayed another way, we can stack the percentage of files uploaded by method over time:
+As this chart shows, the overall scale of files uploaded to PyPI has grown
+(as detailed in [this blog from the PSF Director of Infrastructure on open infrastructure growth](https://pyfound.blogspot.com/2025/10/open-infrastructure-is-not-free-pypi.html))
+but what is great to see is that the proportional rate of Trusted Publishing use has grown as well.
+This can be seen by charting the percentage of files uploaded for each method over time:
 
 ![Monthly File Uploads to PyPI via Trusted Publishers vs Non-Trusted Publishers, stacked](../assets/2025-11-10-trusted-publishers-for-orgs/files_added_to_pypi_pct.svg)
 
@@ -83,7 +73,8 @@ I'm excited to share that it's now available in beta for GitLab Self-Managed ins
 This means organizations running their own GitLab can now use Trusted Publishers
 to publish packages more securely, without dealing with long-lived tokens.
 
-As a reminder, GitLab.com (the public instance) support has been around since early 2024.
+As a reminder, trusted publishing support for the public GitLab.com instance
+has been available since early 2024.
 
 Since GitLab itself can be self-hosted,
 we're initially launching this feature as a beta to gather feedback and ensure a smooth experience.
