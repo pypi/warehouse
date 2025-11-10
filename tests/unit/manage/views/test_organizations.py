@@ -3646,8 +3646,8 @@ class TestManageOrganizationPublishingViews:
         assert result == view.default_response
         assert db_request.session.flash.calls == [
             pretend.call(
-                "This trusted publisher has already been registered. "
-                "Please contact PyPI's admins if this wasn't intentional.",
+                "This publisher has already been registered in your organization. "
+                "See your existing pending publishers below.",
                 queue="error",
             )
         ]

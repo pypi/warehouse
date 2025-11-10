@@ -354,7 +354,6 @@ msgid "The trusted publisher could not be registered"
 msgstr ""
 
 #: warehouse/accounts/views.py:1764
-#: warehouse/manage/views/organizations.py:1860
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's"
 " admins if this wasn't intentional."
@@ -691,6 +690,12 @@ msgstr ""
 #: warehouse/manage/views/organizations.py:1192
 #, python-brace-format
 msgid "Expired invitation for '${username}' deleted."
+msgstr ""
+
+#: warehouse/manage/views/organizations.py:1860
+msgid ""
+"This publisher has already been registered in your organization. See your"
+" existing pending publishers below."
 msgstr ""
 
 #: warehouse/oidc/forms/_core.py:38 warehouse/oidc/forms/_core.py:49

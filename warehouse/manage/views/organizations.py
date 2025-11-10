@@ -1857,8 +1857,8 @@ class ManageOrganizationPublishingViews:
         if publisher_already_exists:
             self.request.session.flash(
                 self.request._(
-                    "This trusted publisher has already been registered. "
-                    "Please contact PyPI's admins if this wasn't intentional."
+                    "This publisher has already been registered in your organization. "
+                    "See your existing pending publishers below."
                 ),
                 queue="error",
             )
