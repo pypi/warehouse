@@ -322,6 +322,13 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "manage.organization.publishing",
+        "/manage/organization/{organization_name}/publishing/",
+        factory="warehouse.organizations.models:OrganizationFactory",
+        traverse="/{organization_name}",
+        domain=warehouse,
+    )
+    config.add_route(
         "manage.organization.roles",
         "/manage/organization/{organization_name}/people/",
         factory="warehouse.organizations.models:OrganizationFactory",
