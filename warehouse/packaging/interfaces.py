@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import typing
 
-from uuid import UUID
-
 from zope.interface import Interface
 
 from warehouse.rate_limiting.interfaces import RateLimiterException
 
 if typing.TYPE_CHECKING:
+    from uuid import UUID
+
     from warehouse.packaging.models import Project
 
 
