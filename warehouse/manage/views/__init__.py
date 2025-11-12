@@ -479,7 +479,7 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
             journal.submitted_by = deleted_user
 
         # Attempt to flush to identify any integrity errors before sending an email
-        self.request.db.flush()
+        self.request.db.flush()  # to identify any integrity errors
 
         # Send a notification email
         send_account_deletion_email(self.request, self.request.user)
