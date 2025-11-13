@@ -510,9 +510,9 @@ pytokens==0.2.0 \
     --hash=sha256:532d6421364e5869ea57a9523bf385f02586d4662acbcc0342afd69511b4dd43 \
     --hash=sha256:74d4b318c67f4295c13782ddd9abcb7e297ec5630ad060eb90abf7ebbefe59f8
     # via black
-pyupgrade==3.21.0 \
-    --hash=sha256:3a200cdc537980f371b4867f1d662e37166a7869d7713f309c1c3241c310c754 \
-    --hash=sha256:3e63a882ec1d16f5621736d938952df3cdc2446501fb049e711415cb8d273960
+pyupgrade==3.21.1 \
+    --hash=sha256:436fea5d40cb6adbd2f5102e9be1ec7031b807a03368c9f591a34f51584a7a25 \
+    --hash=sha256:c716c476b0fd58ee8e3fe2358b1fdc319a65fcb8fed765e2d6af9f6eedc3c180
     # via -r requirements/lint.in
 pyyaml==6.0.3 \
     --hash=sha256:00c4bdeba853cc34e7dd471f16b4114f4162dc03e6b7afcc2128711f0eca823c \
