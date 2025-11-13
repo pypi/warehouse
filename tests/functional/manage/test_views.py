@@ -10,6 +10,7 @@ import pytest
 
 from webob.multidict import MultiDict
 
+from tests.common.constants import REMOTE_ADDR
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
 from warehouse.accounts.models import UniqueLoginStatus
 from warehouse.manage import views
@@ -54,7 +55,7 @@ class TestManageAccount:
             clear_pwd="password",
         )
         UserUniqueLoginFactory.create(
-            user=user, ip_address="1.2.3.4", status=UniqueLoginStatus.CONFIRMED
+            user=user, ip_address=REMOTE_ADDR, status=UniqueLoginStatus.CONFIRMED
         )
 
         # visit login page

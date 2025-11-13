@@ -7,8 +7,10 @@ from http import HTTPStatus
 import pytest
 import responses
 
-from tests.common.db.accounts import UserFactory
+from tests.common.db.accounts import UserFactory, UserUniqueLoginFactory
+from warehouse.accounts.models import UniqueLoginStatus
 from warehouse.utils.otp import _get_totp
+from tests.common.constants import REMOTE_ADDR
 
 
 @pytest.mark.usefixtures("_enable_all_oidc_providers")
@@ -24,6 +26,9 @@ class TestManageAccountPublishing:
             with_verified_primary_email=True,
             with_terms_of_service_agreement=True,
             clear_pwd="password",
+        )
+        UserUniqueLoginFactory.create(
+            user=user, ip_address=REMOTE_ADDR, status=UniqueLoginStatus.CONFIRMED
         )
         # Create a response from GitHub API for owner details
         # during form submission validation.
@@ -100,6 +105,9 @@ class TestManageAccountPublishing:
             with_verified_primary_email=True,
             with_terms_of_service_agreement=True,
             clear_pwd="password",
+        )
+        UserUniqueLoginFactory.create(
+            user=user, ip_address=REMOTE_ADDR, status=UniqueLoginStatus.CONFIRMED
         )
 
         # Act: Log in
