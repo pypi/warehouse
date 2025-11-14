@@ -19,6 +19,7 @@ from warehouse.utils.security_policy import principals_for
 
 from ...common.db.accounts import (
     EmailFactory as DBEmailFactory,
+    OAuthAccountAssociationFactory as DBAccountAssociationFactory,
     UserEventFactory as DBUserEventFactory,
     UserFactory as DBUserFactory,
     UserUniqueLoginFactory,
@@ -316,6 +317,20 @@ class TestUser:
         DBRoleFactory.create(project=project3, user=user)
 
         assert user.projects == [project2, project3, project1]
+
+    def test_account_associations_is_ordered_by_created_desc(self, db_session):
+        user = DBUserFactory.create()
+        assoc1 = DBAccountAssociationFactory.create(
+            user=user, created=datetime.datetime(2020, 1, 1)
+        )
+        assoc2 = DBAccountAssociationFactory.create(
+            user=user, created=datetime.datetime(2021, 1, 1)
+        )
+        assoc3 = DBAccountAssociationFactory.create(
+            user=user, created=datetime.datetime(2022, 1, 1)
+        )
+
+        assert user.account_associations == [assoc3, assoc2, assoc1]
 
 
 class TestUserUniqueLogin:

@@ -189,6 +189,13 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
         )
     )
 
+    account_associations: Mapped[list[AccountAssociation]] = orm.relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy=True,
+        order_by="AccountAssociation.created.desc()",
+    )
+
     @property
     def primary_email(self):
         primaries = [x for x in self.emails if x.primary]
@@ -539,3 +546,101 @@ class UserUniqueLogin(db.Model):
             f"ip_address={self.ip_address!r}, "
             f"status={self.status!r})>"
         )
+
+
+class AccountAssociation(db.Model):
+    """
+    Base class for external account associations linked to PyPI user accounts.
+
+    This is an abstract base class using joined table inheritance.
+    Subclasses like OAuthAccountAssociation provide specific functionality
+    for different types of account associations.
+
+    Allows users to connect multiple external accounts from
+    the same third-party service to their PyPI account.
+    """
+
+    __tablename__ = "account_associations"
+    __mapper_args__ = {
+        "polymorphic_identity": "base",
+        "polymorphic_on": "association_type",
+    }
+
+    __repr__ = make_repr("association_type")
+
+    association_type: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        comment="Polymorphic discriminator for association subtype",
+    )
+
+    created: Mapped[datetime_now]
+    updated: Mapped[datetime.datetime | None] = mapped_column(onupdate=sql.func.now())
+
+    _user_id: Mapped[UUID] = mapped_column(
+        "user_id",
+        PG_UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+        comment="PyPI user who owns this account association",
+    )
+    user: Mapped[User] = orm.relationship(User, back_populates="account_associations")
+
+    metadata_: Mapped[dict | None] = mapped_column(
+        "metadata",
+        JSONB,
+        server_default=sql.text("'{}'"),
+        comment="Additional metadata specific to the association type",
+    )
+
+
+class OAuthAccountAssociation(AccountAssociation):
+    """
+    OAuth-based account association for identity verification.
+
+    Links a PyPI account to an external OAuth provider (GitHub, GitLab, Google, etc.)
+    for identity verification and display purposes. OAuth tokens are NOT stored -
+    verification happens via fresh OAuth flows when needed.
+
+    For future API access, use metadata JSON to store GitHub App installation_id
+    rather than OAuth tokens.
+    """
+
+    __tablename__ = "oauth_account_associations"
+    __table_args__ = (
+        # Prevent the same external account from being linked to multiple PyPI accounts
+        UniqueConstraint(
+            "service",
+            "external_user_id",
+            name="oauth_account_associations_service_external_user_id",
+        ),
+    )
+    __mapper_args__ = {
+        "polymorphic_identity": "oauth",
+    }
+
+    __repr__ = make_repr("service", "external_username")
+
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("account_associations.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+
+    service: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        comment="External OAuth provider name (github, gitlab, google, etc.)",
+    )
+
+    external_user_id: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+        comment="User identifier from external OAuth provider",
+    )
+    external_username: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+        comment="Username or display name from external OAuth provider",
+    )
