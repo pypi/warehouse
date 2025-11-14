@@ -44,6 +44,7 @@ from warehouse.utils.db.types import TZDateTime, bool_false, datetime_now
 if typing.TYPE_CHECKING:
     from pyramid.request import Request
 
+    from warehouse.oidc.models import PendingOIDCPublisher
     from warehouse.packaging.models import Project
     from warehouse.subscriptions.models import StripeCustomer, StripeSubscription
 
@@ -401,6 +402,9 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
     )
     oidc_issuers: Mapped[list[OrganizationOIDCIssuer]] = relationship(
         back_populates="organization",
+    )
+    pending_oidc_publishers: Mapped[list[PendingOIDCPublisher]] = relationship(
+        back_populates="pypi_organization",
     )
 
     @property

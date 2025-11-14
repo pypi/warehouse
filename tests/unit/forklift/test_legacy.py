@@ -2844,6 +2844,7 @@ class TestFileUpload:
             "macosx_11_0_x86_64",
             "macosx_10_15_arm64",
             "macosx_11_10_universal2",
+            "macosx_26_0_arm64",
             "ios_13_0_arm64_iphoneos",
             "ios_13_0_arm64_iphonesimulator",
             "ios_13_0_x86_64_iphonesimulator",
@@ -3410,6 +3411,7 @@ class TestFileUpload:
             "macosx_9_2_x86_64",
             "macosx_16_2_arm64",
             "macosx_10_15_amd64",
+            "macosx_27_0_arm64",
         ],
     )
     def test_upload_fails_with_unsupported_wheel_plat(
