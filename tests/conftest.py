@@ -313,6 +313,7 @@ def get_app_config(database, nondefaults=None):
         "warehouse.prevent_esi": True,
         "warehouse.token": "insecure token",
         "warehouse.ip_salt": "insecure salt",
+        "token.confirm_login.secret": "insecure token",
         "camo.url": "http://localhost:9000/",
         "camo.key": "insecure key",
         "celery.broker_redis_url": "redis://localhost:0/",
