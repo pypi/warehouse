@@ -14,9 +14,8 @@ from pyramid.httpexceptions import (
     HTTPSeeOther,
 )
 from pyramid.view import view_config, view_defaults
-from sqlalchemy import func
+from sqlalchemy import func, update
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import joinedload
 from venusian import lift
 from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
@@ -467,19 +466,13 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
         deleted_user = (
             self.request.db.query(User).filter(User.username == "deleted-user").one()
         )
-
-        journals = (
-            self.request.db.query(JournalEntry)
-            .options(joinedload(JournalEntry.submitted_by))
-            .filter(JournalEntry.submitted_by == self.request.user)
-            .all()
+        # Update in bulk to avoid loading all journal entries into memory (n+1)
+        self.request.db.execute(
+            update(JournalEntry)
+            .where(JournalEntry._submitted_by == self.request.user.username)
+            .values(_submitted_by=deleted_user.username)
+            .execution_options(synchronize_session=False)
         )
-
-        for journal in journals:
-            journal.submitted_by = deleted_user
-
-        # Attempt to flush to identify any integrity errors before sending an email
-        self.request.db.flush()  # to identify any integrity errors
 
         # Send a notification email
         send_account_deletion_email(self.request, self.request.user)
