@@ -7,10 +7,10 @@ from http import HTTPStatus
 import pytest
 import responses
 
+from tests.common.constants import REMOTE_ADDR
 from tests.common.db.accounts import UserFactory, UserUniqueLoginFactory
 from warehouse.accounts.models import UniqueLoginStatus
 from warehouse.utils.otp import _get_totp
-from tests.common.constants import REMOTE_ADDR
 
 
 @pytest.mark.usefixtures("_enable_all_oidc_providers")

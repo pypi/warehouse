@@ -5,9 +5,8 @@ import time
 from http import HTTPStatus
 
 from tests.common.db.accounts import UserFactory
-from warehouse.accounts.models import UserUniqueLogin
+from warehouse.accounts.models import UniqueLoginStatus, UserUniqueLogin
 from warehouse.utils.otp import _get_totp
-from warehouse.accounts.models import UniqueLoginStatus
 
 
 def test_unrecognized_login_with_totp(webtest):
