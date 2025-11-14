@@ -1086,6 +1086,12 @@ class JournalEntry(db.ModelBase):
                 cls._submitted_by,
                 cls.submitted_date.desc(),
             ),
+            # Reverse index on ID, most recent project's journal entry for triggers
+            Index(
+                "journals_name_id_idx",
+                cls.name,
+                cls.id.desc(),
+            ),
         )
 
     id: Mapped[int] = mapped_column(primary_key=True)
