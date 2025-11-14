@@ -185,6 +185,13 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
         )
     )
 
+    account_associations: Mapped[list[AccountAssociation]] = orm.relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy=True,
+        order_by="AccountAssociation.created.desc()",
+    )
+
     @property
     def primary_email(self):
         primaries = [x for x in self.emails if x.primary]
@@ -526,3 +533,67 @@ class UserUniqueLogin(db.Model):
             f"ip_address={self.ip_address!r}, "
             f"status={self.status!r})>"
         )
+
+
+class AccountAssociation(db.Model):
+    """
+    External account associations (e.g., Oauth Providers) linked to PyPI user accounts.
+
+    Allows users to connect multiple external accounts from
+    the same third-party service to their PyPI account.
+    """
+
+    __tablename__ = "account_associations"
+    __table_args__ = (
+        # Prevent the same external account from being linked to multiple PyPI accounts
+        UniqueConstraint(
+            "service", "external_user_id", name="account_associations_service_external"
+        ),
+        Index("account_associations_user_service", "user_id", "service"),
+    )
+
+    __repr__ = make_repr("service", "external_username")
+
+    # Timestamps
+    created: Mapped[datetime_now]
+    updated: Mapped[datetime.datetime | None] = mapped_column(onupdate=sql.func.now())
+
+    # User relationship
+    _user_id: Mapped[UUID] = mapped_column(
+        "user_id",
+        PG_UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    user: Mapped[User] = orm.relationship(User, back_populates="account_associations")
+
+    # Service information
+    service: Mapped[str] = mapped_column(
+        String(50), nullable=False, comment="External service name (e.g., 'github')"
+    )
+    external_user_id: Mapped[str] = mapped_column(
+        String(255), nullable=False, comment="User ID from external service"
+    )
+    external_username: Mapped[str] = mapped_column(
+        String(255), nullable=False, comment="Username from external service"
+    )
+
+    # OAuth tokens (encrypted at application layer before storage)
+    access_token: Mapped[str | None] = mapped_column(
+        comment="Encrypted OAuth access token"
+    )
+    refresh_token: Mapped[str | None] = mapped_column(
+        comment="Encrypted OAuth refresh token"
+    )
+    token_expires_at: Mapped[datetime.datetime | None] = mapped_column(
+        comment="When the access token expires"
+    )
+
+    # Additional service-specific metadata
+    metadata_: Mapped[dict | None] = mapped_column(
+        "metadata",
+        JSONB,
+        server_default=sql.text("'{}'"),
+        comment="Service-specific metadata (profile info, scopes, etc.)",
+    )

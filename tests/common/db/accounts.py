@@ -8,6 +8,7 @@ import faker
 from argon2 import PasswordHasher
 
 from warehouse.accounts.models import (
+    AccountAssociation,
     Email,
     ProhibitedEmailDomain,
     ProhibitedUserName,
@@ -140,3 +141,17 @@ class UserUniqueLoginFactory(WarehouseFactory):
 
     user = factory.SubFactory(UserFactory)
     ip_address = REMOTE_ADDR
+
+
+class AccountAssociationFactory(WarehouseFactory):
+    class Meta:
+        model = AccountAssociation
+
+    user = factory.SubFactory(UserFactory)
+    service = "github"
+    external_user_id = factory.Sequence(lambda n: f"{n}")
+    external_username = factory.Faker("user_name")
+    access_token = factory.Faker("sha256")
+    refresh_token = None
+    token_expires_at = None
+    metadata_ = {}
