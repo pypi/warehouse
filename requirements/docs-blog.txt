@@ -20,7 +20,9 @@ backrefs==5.9 \
 cachecontrol[filecache]==0.14.3 \
     --hash=sha256:73e7efec4b06b20d9267b441c1f733664f989fb8688391b670ca812d70795d11 \
     --hash=sha256:b35e44a3113f17d2a31c1e6b27b9de6d4405f84ae51baa8c1d3cc5b633010cae
-    # via mkdocs-rss-plugin
+    # via
+    #   cachecontrol
+    #   mkdocs-rss-plugin
 cairocffi==1.7.1 \
     --hash=sha256:2e48ee864884ec4a3a34bfa8c9ab9999f688286eb714a15a43ec9d068c36557b \
     --hash=sha256:9803a0e11f6c962f3b0ae2ec8ba6ae45e957a146a004697a1ac1bbf16b073b3f
@@ -408,9 +410,9 @@ mkdocs-material-extensions==1.3.1 \
     --hash=sha256:10c9511cea88f568257f960358a467d12b970e1f7b2c0e5fb2bb48cab1928443 \
     --hash=sha256:adff8b62700b25cb77b53358dad940f3ef973dd6db797907c49e3c2ef3ab4e31
     # via mkdocs-material
-mkdocs-rss-plugin==1.17.4 \
-    --hash=sha256:c05fdb5a63fdf396f8d05169e45a08388abc3eb6f55ca4d23682039aad0cce50 \
-    --hash=sha256:cfd42d250cbf7a73b006cbe291eedb29d32d4d8bf803f7da0e7a98bedcda2ac3
+mkdocs-rss-plugin==1.17.6 \
+    --hash=sha256:88dc85e26cf0b5dbcc2e958779fe61d1b01be407ed28d38708c6dfceeae48a2c \
+    --hash=sha256:c636b43f948e6ab15605c8954fe99f31b7fa5834b862245eb5d4a0a91caac8e5
     # via -r requirements/docs-blog.in
 msgpack==1.1.2 \
     --hash=sha256:0051fffef5a37ca2cd16978ae4f0aef92f164df86823871b5162812bebecd8e2 \
