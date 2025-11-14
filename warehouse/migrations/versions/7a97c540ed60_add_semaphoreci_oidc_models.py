@@ -3,7 +3,7 @@
 Add SemaphoreCI OIDC models
 
 Revision ID: 7a97c540ed60
-Revises: fe2e3d22b3fa
+Revises: 6c0f7fea7b1b
 Create Date: 2025-11-04 00:00:00.000000
 """
 
@@ -13,7 +13,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "7a97c540ed60"
-down_revision = ("d0f67adbcb80", "daf71d83673f")
+down_revision = "6c0f7fea7b1b"
 
 
 def upgrade():
