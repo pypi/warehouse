@@ -7,8 +7,10 @@ from http import HTTPStatus
 import pytest
 import responses
 
-from tests.common.db.accounts import UserFactory
+from tests.common.constants import REMOTE_ADDR
+from tests.common.db.accounts import UserFactory, UserUniqueLoginFactory
 from tests.common.db.organizations import OrganizationFactory, OrganizationRoleFactory
+from warehouse.accounts.models import UniqueLoginStatus
 from warehouse.organizations.models import OrganizationRoleType
 from warehouse.utils.otp import _get_totp
 
@@ -26,6 +28,9 @@ class TestManageOrganizationPublishing:
             with_verified_primary_email=True,
             with_terms_of_service_agreement=True,
             clear_pwd="password",
+        )
+        UserUniqueLoginFactory.create(
+            user=user, ip_address=REMOTE_ADDR, status=UniqueLoginStatus.CONFIRMED
         )
         organization = OrganizationFactory.create(name="test-organization")
         OrganizationRoleFactory.create(
@@ -109,6 +114,9 @@ class TestManageOrganizationPublishing:
             with_terms_of_service_agreement=True,
             clear_pwd="password",
         )
+        UserUniqueLoginFactory.create(
+            user=user, ip_address=REMOTE_ADDR, status=UniqueLoginStatus.CONFIRMED
+        )
         organization = OrganizationFactory.create(name="test-organization")
         OrganizationRoleFactory.create(
             user=user,
@@ -180,6 +188,9 @@ class TestManageOrganizationPublishing:
             with_terms_of_service_agreement=True,
             clear_pwd="password",
         )
+        UserUniqueLoginFactory.create(
+            user=user, ip_address=REMOTE_ADDR, status=UniqueLoginStatus.CONFIRMED
+        )
         organization = OrganizationFactory.create(name="test-organization")
         OrganizationRoleFactory.create(
             user=user,
@@ -248,6 +259,9 @@ class TestManageOrganizationPublishing:
             with_verified_primary_email=True,
             with_terms_of_service_agreement=True,
             clear_pwd="password",
+        )
+        UserUniqueLoginFactory.create(
+            user=user, ip_address=REMOTE_ADDR, status=UniqueLoginStatus.CONFIRMED
         )
         organization = OrganizationFactory.create(name="test-organization")
         OrganizationRoleFactory.create(

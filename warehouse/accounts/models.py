@@ -11,6 +11,7 @@ from uuid import UUID
 from pyramid.authorization import Allow, Authenticated
 from sqlalchemy import (
     CheckConstraint,
+    Enum,
     ForeignKey,
     Index,
     LargeBinary,
@@ -20,7 +21,7 @@ from sqlalchemy import (
     select,
     sql,
 )
-from sqlalchemy.dialects.postgresql import ARRAY, CITEXT, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import ARRAY, CITEXT, JSONB, UUID as PG_UUID
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column
@@ -118,6 +119,10 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
         cascade="all, delete-orphan",
         lazy=True,
         order_by="Macaroon.created.desc()",
+    )
+
+    unique_logins: Mapped[list[UserUniqueLogin]] = orm.relationship(
+        back_populates="user", cascade="all, delete-orphan", lazy=True
     )
 
     role_invitations: Mapped[list[RoleInvitation]] = orm.relationship(
@@ -475,3 +480,49 @@ class ProhibitedUserName(db.Model):
     )
     prohibited_by: Mapped[User] = orm.relationship(User)
     comment: Mapped[str] = mapped_column(server_default="")
+
+
+class UniqueLoginStatus(str, enum.Enum):
+    PENDING = "pending"
+    CONFIRMED = "confirmed"
+
+
+class UserUniqueLogin(db.Model):
+    __tablename__ = "user_unique_logins"
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id", "ip_address", name="_user_unique_logins_user_id_ip_address_uc"
+        ),
+        Index(
+            "user_unique_logins_user_id_ip_address_idx",
+            "user_id",
+            "ip_address",
+            unique=True,
+        ),
+    )
+
+    user_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    user: Mapped[User] = orm.relationship(back_populates="unique_logins")
+
+    ip_address: Mapped[str] = mapped_column(String, nullable=False)
+    created: Mapped[datetime_now]
+    last_used: Mapped[datetime_now]
+    device_information: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    status: Mapped[UniqueLoginStatus] = mapped_column(
+        Enum(UniqueLoginStatus, values_callable=lambda x: [e.value for e in x]),
+        nullable=False,
+        default=UniqueLoginStatus.PENDING,
+        server_default=UniqueLoginStatus.PENDING.value,
+    )
+
+    def __repr__(self):
+        return (
+            f"<UserUniqueLogin(user={self.user.username!r}, "
+            f"ip_address={self.ip_address!r}, "
+            f"status={self.status!r})>"
+        )

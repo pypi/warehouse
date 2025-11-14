@@ -1,0 +1,18 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+A login attempt was made from an unrecognized device.
+
+To complete your login, please visit the following link:
+
+{{ request.route_url('accounts.confirm-login', _query={'token': token}) }}
+
+This login attempt was made from:
+- IP address: {{ ip_address }}
+- Location: {{ ip_address.geo_ip or "Unknown"}}
+- User agent: {{ user_agent }}
+
+In the future, you can automatically trust new devices without needing email
+verification by using a security device or passkey as your 2FA method. See
+{{ request.help_url(_anchor='utfkey') }} for more details.
+
+If you did not initiate this login, you can email admin@pypi.org to
+communicate with the PyPI administrators.

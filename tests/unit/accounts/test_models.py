@@ -7,7 +7,13 @@ import pytest
 
 from pyramid.authorization import Authenticated
 
-from warehouse.accounts.models import Email, RecoveryCode, User, UserFactory, WebAuthn
+from warehouse.accounts.models import (
+    Email,
+    RecoveryCode,
+    User,
+    UserFactory,
+    WebAuthn,
+)
 from warehouse.authnz import Permissions
 from warehouse.utils.security_policy import principals_for
 
@@ -15,6 +21,7 @@ from ...common.db.accounts import (
     EmailFactory as DBEmailFactory,
     UserEventFactory as DBUserEventFactory,
     UserFactory as DBUserFactory,
+    UserUniqueLoginFactory,
 )
 from ...common.db.packaging import (
     ProjectFactory as DBProjectFactory,
@@ -309,3 +316,14 @@ class TestUser:
         DBRoleFactory.create(project=project3, user=user)
 
         assert user.projects == [project2, project3, project1]
+
+
+class TestUserUniqueLogin:
+    def test_repr(self, db_session):
+        unique_login = UserUniqueLoginFactory.create()
+        assert (
+            repr(unique_login)
+            == f"<UserUniqueLogin(user={unique_login.user.username!r}, "
+            f"ip_address={unique_login.ip_address!r}, "
+            f"status={unique_login.status!r})>"
+        )

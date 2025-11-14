@@ -8,6 +8,7 @@ import uuid
 import humanize
 import pytz
 
+from linehaul.ua import parser as linehaul_user_agent_parser
 from more_itertools import first_true
 from psycopg.errors import UniqueViolation
 from pyramid.httpexceptions import (
@@ -23,6 +24,7 @@ from pyramid.security import forget, remember
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import and_, func, select
 from sqlalchemy.exc import NoResultFound
+from ua_parser import user_agent_parser
 from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
 
@@ -50,7 +52,13 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
     TooManyPasswordResetRequests,
 )
-from warehouse.accounts.models import Email, TermsOfServiceEngagement, User
+from warehouse.accounts.models import (
+    Email,
+    TermsOfServiceEngagement,
+    UniqueLoginStatus,
+    User,
+    UserUniqueLogin,
+)
 from warehouse.accounts.utils import update_email_domain_status
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
@@ -68,7 +76,9 @@ from warehouse.email import (
     send_password_reset_email,
     send_password_reset_unverified_email,
     send_recovery_code_reminder_email,
+    send_unrecognized_login_email,
 )
+from warehouse.events.models import UserAgentInfo
 from warehouse.events.tags import EventTag
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.forms import (
@@ -103,6 +113,7 @@ from warehouse.utils.http import is_safe_url
 
 USER_ID_INSECURE_COOKIE = "user_id__insecure"
 REMEMBER_DEVICE_COOKIE = "remember_device"
+PHISHABLE_METHODS = {"totp", "recovery-code"}
 
 
 @view_config(context=TooManyFailedLogins, has_translations=True)
@@ -403,20 +414,105 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
     if request.method == "POST":
         form = two_factor_state["totp_form"]
         if form.validate():
-            two_factor_method = "totp"
-            _login_user(request, userid, two_factor_method, two_factor_label="totp")
-            user_service.update_user(userid, last_totp_value=form.totp_value.data)
+            user = user_service.get_user(userid)
 
-            resp = HTTPSeeOther(redirect_to)
-            _set_userid_insecure_cookie(resp, userid)
+            unique_login = (
+                request.db.query(UserUniqueLogin)
+                .filter(
+                    UserUniqueLogin.user_id == userid,
+                    UserUniqueLogin.ip_address == request.remote_addr,
+                )
+                .one_or_none()
+            )
 
-            if not two_factor_state.get("has_recovery_codes", False):
-                send_recovery_code_reminder_email(request, request.user)
+            if unique_login:
+                if unique_login.status == UniqueLoginStatus.CONFIRMED:
+                    # We've seen this device before for this user and they've
+                    # confirmed it, log in the user
+                    two_factor_method = "totp"
+                    _login_user(
+                        request, userid, two_factor_method, two_factor_label="totp"
+                    )
+                    user_service.update_user(
+                        userid, last_totp_value=form.totp_value.data
+                    )
 
-            if form.remember_device.data:
-                _remember_device(request, resp, userid, two_factor_method)
+                    resp = HTTPSeeOther(redirect_to)
+                    _set_userid_insecure_cookie(resp, userid)
 
-            return resp
+                    if not two_factor_state.get("has_recovery_codes", False):
+                        send_recovery_code_reminder_email(request, request.user)
+
+                    if form.remember_device.data:
+                        _remember_device(request, resp, userid, two_factor_method)
+
+                    return resp
+                else:
+                    # We've seen this device before for this user but they haven't
+                    # confirmed it, don't send another email, just send them to
+                    # the generic page
+                    return HTTPSeeOther(request.route_path("accounts.confirm-login"))
+
+            else:
+                # We haven't seen this device before from this user or they
+                # haven't confirmed it, make them confirm it
+                unique_login = UserUniqueLogin(
+                    user_id=userid,
+                    ip_address=request.remote_addr,
+                    status=UniqueLoginStatus.PENDING,
+                )
+                request.db.add(unique_login)
+                request.db.flush()  # To get the ID for the token
+
+                token_service = request.find_service(
+                    ITokenService, name="confirm_login"
+                )
+                token = token_service.dumps(
+                    {
+                        "action": "login-confirmation",
+                        "user.id": str(user.id),
+                        "user.last_login": str(
+                            user.last_login
+                            or datetime.datetime.min.replace(tzinfo=pytz.UTC)
+                        ),
+                        "unique_login_id": unique_login.id,
+                    }
+                )
+
+                # Get User Agent Information
+                user_agent_info_data = {}
+                if user_agent_str := request.headers.get("User-Agent"):
+                    user_agent_info_data = {
+                        # A hack to get it to fall back to the raw user agent
+                        "installer": user_agent_str,
+                    }
+                    try:
+                        parsed = linehaul_user_agent_parser.parse(user_agent_str)
+                        if (
+                            parsed
+                            and parsed.installer
+                            and parsed.installer.name == "Browser"
+                        ):
+                            parsed_ua = user_agent_parser.Parse(user_agent_str)
+                            user_agent_info_data = {
+                                "installer": "Browser",
+                                "device": parsed_ua["device"]["family"],
+                                "os": parsed_ua["os"]["family"],
+                                "user_agent": parsed_ua["user_agent"]["family"],
+                            }
+                    except linehaul_user_agent_parser.UnknownUserAgentError:
+                        pass  # Fallback to raw user-agent string
+
+                user_agent_info = UserAgentInfo(**user_agent_info_data)
+
+                send_unrecognized_login_email(
+                    request,
+                    user,
+                    ip_address=request.remote_addr,
+                    user_agent=user_agent_info.display(),
+                    token=token,
+                )
+                return HTTPSeeOther(request.route_path("accounts.confirm-login"))
         else:
             form.totp_value.data = ""
 
@@ -592,6 +688,7 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
         return HTTPSeeOther(request.route_path("accounts.login"))
 
     userid = two_factor_data.get("userid")
+    redirect_to = two_factor_data.get("redirect_to")
 
     user_service = request.find_service(IUserService, context=None)
 
@@ -601,25 +698,105 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
 
     if request.method == "POST":
         if form.validate():
-            _login_user(request, userid, two_factor_method="recovery-code")
-
-            resp = HTTPSeeOther(request.route_path("manage.account"))
-            _set_userid_insecure_cookie(resp, userid)
-
             user = user_service.get_user(userid)
-            user.record_event(
-                tag=EventTag.Account.RecoveryCodesUsed,
-                request=request,
+
+            unique_login = (
+                request.db.query(UserUniqueLogin)
+                .filter(
+                    UserUniqueLogin.user_id == userid,
+                    UserUniqueLogin.ip_address == request.remote_addr,
+                )
+                .one_or_none()
             )
 
-            request.session.flash(
-                request._(
-                    "Recovery code accepted. The supplied code cannot be used again."
-                ),
-                queue="success",
-            )
+            if unique_login:
+                if unique_login.status == UniqueLoginStatus.CONFIRMED:
+                    # We've seen this device before for this user and they've
+                    # confirmed it, log in the user
+                    _login_user(request, userid, two_factor_method="recovery-code")
 
-            return resp
+                    user.record_event(
+                        tag=EventTag.Account.RecoveryCodesUsed,
+                        request=request,
+                    )
+
+                    request.session.flash(
+                        request._(
+                            "Recovery code accepted. "
+                            "The supplied code cannot be used again."
+                        ),
+                        queue="success",
+                    )
+
+                    resp = HTTPSeeOther(redirect_to)
+                    _set_userid_insecure_cookie(resp, userid)
+
+                    return resp
+                else:
+                    # We've seen this device before for this user but they haven't
+                    # confirmed it, don't send another email, just send them to
+                    # the generic page
+                    return HTTPSeeOther(request.route_path("accounts.confirm-login"))
+            else:
+                # We haven't seen this device before from this user or they
+                # haven't confirmed it, make them confirm it
+                unique_login = UserUniqueLogin(
+                    user_id=userid,
+                    ip_address=request.remote_addr,
+                    status=UniqueLoginStatus.PENDING,
+                )
+                request.db.add(unique_login)
+                request.db.flush()  # To get the ID for the token
+
+                token_service = request.find_service(
+                    ITokenService, name="confirm_login"
+                )
+                token = token_service.dumps(
+                    {
+                        "action": "login-confirmation",
+                        "user.id": str(user.id),
+                        "user.last_login": str(
+                            user.last_login
+                            or datetime.datetime.min.replace(tzinfo=pytz.UTC)
+                        ),
+                        "unique_login_id": unique_login.id,
+                    }
+                )
+
+                # Get User Agent Information
+                user_agent_info_data = {}
+                if user_agent_str := request.headers.get("User-Agent"):
+                    user_agent_info_data = {
+                        # A hack to get it to fall back to the raw user agent
+                        "installer": user_agent_str,
+                    }
+                    try:
+                        parsed = linehaul_user_agent_parser.parse(user_agent_str)
+                        if (
+                            parsed
+                            and parsed.installer
+                            and parsed.installer.name == "Browser"
+                        ):
+                            parsed_ua = user_agent_parser.Parse(user_agent_str)
+                            user_agent_info_data = {
+                                "installer": "Browser",
+                                "device": parsed_ua["device"]["family"],
+                                "os": parsed_ua["os"]["family"],
+                                "user_agent": parsed_ua["user_agent"]["family"],
+                            }
+                    except linehaul_user_agent_parser.UnknownUserAgentError:
+                        pass  # Fallback to raw user-agent string
+
+                user_agent_info = UserAgentInfo(**user_agent_info_data)
+
+                send_unrecognized_login_email(
+                    request,
+                    user,
+                    ip_address=request.remote_addr,
+                    user_agent=user_agent_info.display(),
+                    token=token,
+                )
+                return HTTPSeeOther(request.route_path("accounts.confirm-login"))
         else:
             form.recovery_code_value.data = ""
 
@@ -955,6 +1132,92 @@ def reset_password(request, _form_class=ResetPasswordForm):
         return HTTPSeeOther(request.route_path("accounts.login"))
 
     return {"form": form}
+
+
+@view_config(
+    route_name="accounts.confirm-login",
+    renderer="warehouse:templates/accounts/unrecognized-device.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    has_translations=True,
+)
+def confirm_login(request):
+    if request.user is not None:
+        return HTTPSeeOther(request.route_path("index"))
+
+    if not request.params.get("token"):
+        # Show a generic page for when a non-logged-in user lands here without a token
+        return {}
+
+    user_service = request.find_service(IUserService, context=None)
+    token_service = request.find_service(ITokenService, name="confirm_login")
+
+    def _error(message):
+        request.session.flash(message, queue="error")
+        return HTTPSeeOther(request.route_path("accounts.login"))
+
+    try:
+        token = request.params.get("token")
+        data = token_service.loads(token)
+    except TokenExpired:
+        return _error(request._("Expired token: please try to login again"))
+    except TokenInvalid:
+        return _error(request._("Invalid token: please try to login again"))
+    except TokenMissing:
+        return _error(request._("Invalid token: no token supplied"))
+
+    # Check whether this token is being used correctly
+    if data.get("action") != "login-confirmation":
+        return _error(request._("Invalid token: not a login confirmation token"))
+
+    # Check whether a user with the given user ID exists
+    user = user_service.get_user(uuid.UUID(data.get("user.id")))
+    if user is None:
+        return _error(request._("Invalid token: user not found"))
+
+    # Check whether the user has logged in since the token was created
+    last_login = datetime.datetime.fromisoformat(data.get("user.last_login"))
+    # Before updating itsdangerous to 2.x the last_login was naive,
+    # now it's localized to UTC
+    if not last_login.tzinfo:
+        last_login = pytz.UTC.localize(last_login)
+    if user.last_login and user.last_login > last_login:
+        return _error(
+            request._(
+                "Invalid token: user has logged in since this token was requested"
+            )
+        )
+
+    unique_login_id = data.get("unique_login_id")
+    unique_login = (
+        request.db.query(UserUniqueLogin)
+        .filter(UserUniqueLogin.id == unique_login_id)
+        .one_or_none()
+    )
+
+    if unique_login is None:
+        return _error(request._("Invalid login attempt."))
+
+    if unique_login.ip_address != request.remote_addr:
+        return _error(
+            request._(
+                "Device details didn't match, please try again from the device "
+                "you originally used to log in."
+            )
+        )
+
+    unique_login.status = UniqueLoginStatus.CONFIRMED
+
+    headers = _login_user(request, user.id)
+    resp = HTTPSeeOther(request.route_path("manage.projects"), headers=dict(headers))
+    _set_userid_insecure_cookie(resp, user.id)
+    request.session.flash(
+        request._("Your login has been confirmed and this device is now recognized."),
+        queue="success",
+    )
+
+    return resp
 
 
 @view_config(
@@ -1437,7 +1700,8 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     # Whenever we log in the user, we want to update their user so that it
     # records when the last login was.
     user_service = request.find_service(IUserService, context=None)
-    user_service.update_user(userid, last_login=datetime.datetime.now(datetime.UTC))
+    now = datetime.datetime.now(datetime.UTC)
+    user_service.update_user(userid, last_login=now)
     user = user_service.get_user(userid)
     user.record_event(
         tag=EventTag.Account.LoginSuccess,
@@ -1447,6 +1711,37 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
             "two_factor_label": two_factor_label,
         },
     )
+
+    # Create a new UserUniqueLogin if one doesn't already exist for this IP
+    unique_login = (
+        request.db.query(UserUniqueLogin)
+        .filter(
+            UserUniqueLogin.user_id == userid,
+            UserUniqueLogin.ip_address == request.remote_addr,
+        )
+        .one_or_none()
+    )
+    if unique_login:
+        unique_login.last_used = now
+
+    if unique_login is None and two_factor_method not in PHISHABLE_METHODS:
+        # We haven't seen this login before. Create a new one and mark it as confirmed
+        # if this is non-phishable.
+        unique_login = UserUniqueLogin(
+            user_id=userid,
+            ip_address=request.remote_addr,
+            status=UniqueLoginStatus.CONFIRMED,
+        )
+        request.db.add(unique_login)
+    if (
+        unique_login is not None
+        and unique_login.status == UniqueLoginStatus.PENDING
+        and two_factor_method not in PHISHABLE_METHODS
+    ):
+        # The user had a pending login, but has since logged in with a non-phishable
+        # method, so mark it as confirmed.
+        unique_login.status = UniqueLoginStatus.CONFIRMED
+
     request.session.record_auth_timestamp()
     request.session.record_password_timestamp(
         user_service.get_password_timestamp(userid)
