@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import jwt
+
 # Pytest Fixture Constants
 
 REMOTE_ADDR = "1.2.3.4"
@@ -181,4 +183,45 @@ DUMMY_GOOGLE_OIDC_JWT = (
     "ImlhdCI6IjE2NTAwNTMxODUiLCJleHAiOiIxNjUwMDU2Nzg1IiwiYWxnIjoiUlMyNTYiL"
     "CJraWQiOiJmMTMzOGNhMjY4MzU4NjNmNjcxNDAzOTQxNzM4YTdiNDllNzQwZmMwIiwidH"
     "lwIjoiSldUIn0.wlPNSE6eTFvznJawgpa6cHC3a8sU5_VBH8si9h-sgi0"
+)
+
+"""
+    {
+    "iss": "https://example-org.semaphoreci.com",
+    "aud": "pypi",
+    "jti": "test-jti",
+    "org": "example-org",
+    "org_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "prj": "example-project",
+    "prj_id": "b2c3d4e5-f6a7-8901-bcde-f01234567891",
+    "repo": "myrepo",
+    "repo_slug": "owner/myrepo",
+    "sub": "org:example-org:project:uuid:repo:myrepo:ref_type:branch:ref:main",
+    "ref": "main",
+    "ref_type": "branch",
+    "iat": 1650663865,
+    "nbf": 1650663265,
+    "exp": 1650664165
+    }
+"""
+DUMMY_SEMAPHORE_OIDC_JWT = jwt.encode(
+    {
+        "iss": "https://example-org.semaphoreci.com",
+        "aud": "pypi",
+        "jti": "test-jti",
+        "org": "example-org",
+        "org_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "prj": "example-project",
+        "prj_id": "b2c3d4e5-f6a7-8901-bcde-f01234567891",
+        "repo": "myrepo",
+        "repo_slug": "owner/myrepo",
+        "sub": "org:example-org:project:uuid:repo:myrepo:ref_type:branch:ref:main",
+        "ref": "main",
+        "ref_type": "branch",
+        "iat": 1650663865,
+        "nbf": 1650663265,
+        "exp": 1650664165,
+    },
+    "secret",
+    algorithm="HS256",
 )

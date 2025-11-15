@@ -305,13 +305,24 @@ def test_find_publisher_by_issuer_semaphore(db_request):
     SemaphorePublisherFactory(
         id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
         organization="example-org",
+        organization_id="org-id-1234",
         project="example-project",
+        project_id="proj-id-5678",
+        repo_slug="owner/repo",
     )
 
     signed_claims = {
         claim_name: "fake" for claim_name in SemaphorePublisher.all_known_claims()
     }
-    signed_claims.update({"repo_slug": "example-org/example-project"})
+    signed_claims.update(
+        {
+            "org": "example-org",
+            "org_id": "org-id-1234",
+            "prj": "example-project",
+            "prj_id": "proj-id-5678",
+            "repo_slug": "owner/repo",
+        }
+    )
 
     assert utils.find_publisher_by_issuer(
         db_request.db,

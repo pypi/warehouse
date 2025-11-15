@@ -6,7 +6,13 @@ from warehouse.oidc.forms._core import PendingPublisherMixin
 
 
 class SemaphorePublisherBase(wtforms.Form):
-    __params__ = ["organization", "project"]
+    __params__ = [
+        "organization",
+        "organization_id",
+        "project",
+        "project_id",
+        "repo_slug",
+    ]
 
     organization = wtforms.StringField(
         validators=[
@@ -18,9 +24,31 @@ class SemaphorePublisherBase(wtforms.Form):
         ]
     )
 
+    organization_id = wtforms.StringField(
+        validators=[
+            wtforms.validators.InputRequired(message="Specify organization ID"),
+        ]
+    )
+
     project = wtforms.StringField(
         validators=[
             wtforms.validators.InputRequired(message="Specify project name"),
+        ]
+    )
+
+    project_id = wtforms.StringField(
+        validators=[
+            wtforms.validators.InputRequired(message="Specify project ID"),
+        ]
+    )
+
+    repo_slug = wtforms.StringField(
+        validators=[
+            wtforms.validators.InputRequired(message="Specify repository (owner/repo)"),
+            wtforms.validators.Regexp(
+                r"^[^/]+/[^/]+$",
+                message="Invalid repository format, expected 'owner/repo'",
+            ),
         ]
     )
 

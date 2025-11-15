@@ -132,7 +132,12 @@ class SemaphorePublisherFactory(WarehouseFactory):
 
     id = factory.Faker("uuid4", cast_to=None)
     organization = factory.Faker("pystr", max_chars=12)
+    organization_id = factory.Faker("uuid4")
     project = factory.Faker("pystr", max_chars=12)
+    project_id = factory.Faker("uuid4")
+    repo_slug = factory.LazyAttribute(
+        lambda obj: f"{obj.organization}/{obj.project}-repo"
+    )
 
 
 class PendingSemaphorePublisherFactory(WarehouseFactory):
@@ -142,5 +147,10 @@ class PendingSemaphorePublisherFactory(WarehouseFactory):
     id = factory.Faker("uuid4", cast_to=None)
     project_name = factory.Faker("pystr", max_chars=12)
     organization = factory.Faker("pystr", max_chars=12)
+    organization_id = factory.Faker("uuid4")
     project = factory.Faker("pystr", max_chars=12)
+    project_id = factory.Faker("uuid4")
+    repo_slug = factory.LazyAttribute(
+        lambda obj: f"{obj.organization}/{obj.project}-repo"
+    )
     added_by = factory.SubFactory(UserFactory)

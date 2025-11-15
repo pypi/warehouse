@@ -35,31 +35,26 @@ def _check_sub(
     **_kwargs,
 ) -> bool:
     # Semaphore's sub claim contains:
-    # org:<org-name>:project:<project-uuid>:repo:<owner/repo>:ref_type:<type>:ref:<ref>
-    # We verify that it contains the expected repo
-
-    if not signed_claim:
-        return False
+    # org:<org-name>:project:<project-uuid>:repo:<repo-name>:ref_type:<type>:ref:<ref>
+    # The :repo: field contains just the repository name (not owner/repo)
+    # ground_truth is in format "repo_slug:owner/repo", so we extract the repo_slug part
 
     # Extract the repo portion from the sub claim
-    if ":repo:" not in signed_claim:
+    if not signed_claim or ":repo:" not in signed_claim:
         return False
 
-    parts = signed_claim.split(":repo:")
-    if len(parts) < 2:  # pragma: no cover
-        # This should be unreachable since we already checked ":repo:" is in the string
-        return False
-
-    # The repo value is between :repo: and the next :
-    repo_and_rest = parts[1]
-    repo_parts = repo_and_rest.split(":", 1)
-    repo_in_sub = repo_parts[0]
-
+    repo_in_sub = signed_claim.split(":repo:", 1)[1].split(":", 1)[0]
     if not repo_in_sub:
         return False
 
+    # Extract repo_slug from ground_truth (format: "repo_slug:owner/repo")
+    repo_slug = ground_truth.removeprefix("repo_slug:")
+
+    # Extract just the repo name from repo_slug (owner/repo -> repo)
+    repo_name = repo_slug.split("/")[-1]
+
     # Compare case-insensitively
-    return repo_in_sub.lower() == ground_truth.lower()
+    return repo_in_sub.lower() == repo_name.lower()
 
 
 class SemaphorePublisherMixin:
@@ -68,19 +63,23 @@ class SemaphorePublisherMixin:
     """
 
     organization: Mapped[str] = mapped_column(String, nullable=False)
+    organization_id: Mapped[str] = mapped_column(String, nullable=False)
     project: Mapped[str] = mapped_column(String, nullable=False)
+    project_id: Mapped[str] = mapped_column(String, nullable=False)
+    repo_slug: Mapped[str] = mapped_column(String, nullable=False)
 
     __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "sub": _check_sub,
+        "org": check_claim_binary(str.__eq__),
+        "org_id": check_claim_binary(str.__eq__),
+        "prj": check_claim_binary(str.__eq__),
+        "prj_id": check_claim_binary(str.__eq__),
         "repo_slug": check_claim_binary(str.__eq__),
         "jti": check_existing_jti,
     }
 
     __unchecked_claims__ = {
-        "org",
-        "org_id",
-        "prj",
-        "prj_id",
+        "repo",
         "wf_id",
         "ppl_id",
         "job_id",
@@ -90,7 +89,6 @@ class SemaphorePublisherMixin:
         "ref",
         "ref_type",
         "tag",
-        "repo",
         "job_type",
         "trg",
         "sub127",
@@ -98,22 +96,23 @@ class SemaphorePublisherMixin:
 
     @classmethod
     def lookup_by_claims(cls, session: Session, signed_claims: SignedClaims) -> Self:
+        org = signed_claims.get("org")
+        org_id = signed_claims.get("org_id")
+        prj = signed_claims.get("prj")
+        prj_id = signed_claims.get("prj_id")
         repo_slug = signed_claims.get("repo_slug")
-        if not repo_slug:
-            raise InvalidPublisherError("Missing 'repo_slug' claim")
 
-        # repo_slug format: owner/repository
-        if "/" not in repo_slug:
+        if not org or not org_id or not prj or not prj_id or not repo_slug:
             raise InvalidPublisherError(
-                f"Invalid 'repo_slug' claim format: {repo_slug!r}, "
-                "expected 'owner/repository'"
+                "Missing required claims: 'org', 'org_id', 'prj', 'prj_id', or 'repo_slug'"
             )
 
-        organization, project = repo_slug.split("/", 1)
-
         query: Query = Query(cls).filter_by(
-            organization=organization,
-            project=project,
+            organization=org,
+            organization_id=org_id,
+            project=prj,
+            project_id=prj_id,
+            repo_slug=repo_slug,
         )
         publisher = query.with_session(session).one_or_none()
 
@@ -127,16 +126,33 @@ class SemaphorePublisherMixin:
         return "SemaphoreCI"
 
     @property
-    def repository(self) -> str:
-        return f"{self.organization}/{self.project}"
-
-    @property
     def sub(self) -> str:
-        return f"repo:{self.repository}"
+        return f"repo_slug:{self.repo_slug}"
 
     @property
-    def repo_slug(self) -> str:
-        return self.repository
+    def repo(self) -> str:
+        # Extract just the repository name from owner/repo
+        return (
+            self.repo_slug.split("/")[-1]
+            if "/" in self.repo_slug
+            else self.repo_slug
+        )
+
+    @property
+    def org(self) -> str:
+        return self.organization
+
+    @property
+    def org_id(self) -> str:
+        return self.organization_id
+
+    @property
+    def prj(self) -> str:
+        return self.project
+
+    @property
+    def prj_id(self) -> str:
+        return self.project_id
 
     @property
     def jti(self) -> str:
@@ -165,14 +181,17 @@ class SemaphorePublisherMixin:
         }
 
     def __str__(self) -> str:
-        return self.repository
+        return self.repo_slug
 
     def exists(self, session: Session) -> bool:
         return session.query(
             exists().where(
                 and_(
                     self.__class__.organization == self.organization,
+                    self.__class__.organization_id == self.organization_id,
                     self.__class__.project == self.project,
+                    self.__class__.project_id == self.project_id,
+                    self.__class__.repo_slug == self.repo_slug,
                 )
             )
         ).scalar()
@@ -181,7 +200,10 @@ class SemaphorePublisherMixin:
     def admin_details(self) -> list[tuple[str, str]]:
         return [
             ("Organization", self.organization),
+            ("Organization ID", self.organization_id),
             ("Project", self.project),
+            ("Project ID", self.project_id),
+            ("Repository", self.repo_slug),
         ]
 
 
@@ -191,7 +213,10 @@ class SemaphorePublisher(SemaphorePublisherMixin, OIDCPublisher):
     __table_args__ = (
         UniqueConstraint(
             "organization",
+            "organization_id",
             "project",
+            "project_id",
+            "repo_slug",
             name="_semaphore_oidc_publisher_uc",
         ),
     )
@@ -207,7 +232,10 @@ class PendingSemaphorePublisher(SemaphorePublisherMixin, PendingOIDCPublisher):
     __table_args__ = (  # type: ignore[assignment]
         UniqueConstraint(
             "organization",
+            "organization_id",
             "project",
+            "project_id",
+            "repo_slug",
             name="_pending_semaphore_oidc_publisher_uc",
         ),
     )
@@ -226,14 +254,20 @@ class PendingSemaphorePublisher(SemaphorePublisherMixin, PendingOIDCPublisher):
             session.query(SemaphorePublisher)
             .filter(
                 SemaphorePublisher.organization == self.organization,
+                SemaphorePublisher.organization_id == self.organization_id,
                 SemaphorePublisher.project == self.project,
+                SemaphorePublisher.project_id == self.project_id,
+                SemaphorePublisher.repo_slug == self.repo_slug,
             )
             .one_or_none()
         )
 
         publisher = maybe_publisher or SemaphorePublisher(
             organization=self.organization,
+            organization_id=self.organization_id,
             project=self.project,
+            project_id=self.project_id,
+            repo_slug=self.repo_slug,
         )
 
         session.delete(self)

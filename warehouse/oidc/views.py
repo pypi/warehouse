@@ -13,6 +13,7 @@ from pyramid.httpexceptions import HTTPException, HTTPForbidden
 from pyramid.request import Request
 from pyramid.view import view_config
 
+from warehouse.admin.flags import AdminFlagValue
 from warehouse.email import send_environment_ignored_in_trusted_publisher_email
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
@@ -21,7 +22,12 @@ from warehouse.macaroons.services import DatabaseMacaroonService
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.errors import InvalidPublisherError, ReusedTokenError
 from warehouse.oidc.interfaces import IOIDCPublisherService, SignedClaims
-from warehouse.oidc.models import GitHubPublisher, OIDCPublisher, PendingOIDCPublisher
+from warehouse.oidc.models import (
+    SEMAPHORE_OIDC_ISSUER_URL_SUFFIX,
+    GitHubPublisher,
+    OIDCPublisher,
+    PendingOIDCPublisher,
+)
 from warehouse.oidc.models.gitlab import GitLabPublisher
 from warehouse.oidc.services import OIDCPublisherService
 from warehouse.oidc.utils import (
@@ -141,6 +147,11 @@ def mint_token_from_oidc(request: Request):
     # Associate the given issuer claim with Warehouse's OIDCPublisherService.
     # First, try the standard issuers
     service_name = OIDC_ISSUER_SERVICE_NAMES.get(unverified_issuer)
+    # Check for Semaphore (org-specific issuer URLs)
+    if not service_name and unverified_issuer.endswith(
+        SEMAPHORE_OIDC_ISSUER_URL_SUFFIX
+    ):
+        service_name = "semaphore"
     # If not in global mapping, check for organization-specific custom issuer
     if not service_name:
         service_name = lookup_custom_issuer_type(request.db, unverified_issuer)
@@ -159,7 +170,14 @@ def mint_token_from_oidc(request: Request):
             request=request,
         )
 
-    if request.flags.disallow_oidc(OIDC_ISSUER_ADMIN_FLAGS.get(unverified_issuer)):
+    # Check if this issuer is disabled via admin flags
+    # For most issuers, we can look up the flag directly in the mapping
+    # For Semaphore, which uses org-specific issuer URLs, we check the suffix
+    admin_flag = OIDC_ISSUER_ADMIN_FLAGS.get(unverified_issuer)
+    if not admin_flag and unverified_issuer.endswith(SEMAPHORE_OIDC_ISSUER_URL_SUFFIX):
+        admin_flag = AdminFlagValue.DISALLOW_SEMAPHORE_OIDC
+
+    if request.flags.disallow_oidc(admin_flag):
         return _invalid(
             errors=[
                 {
