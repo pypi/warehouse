@@ -983,7 +983,7 @@ def send_recovery_code_reminder_email(request, user):
     return {"username": user.username}
 
 
-@_email("unrecognized-login")
+@_email("unrecognized-login", allow_unverified=True)
 def send_unrecognized_login_email(request, user, *, ip_address, user_agent, token):
     return {
         "username": user.username,
