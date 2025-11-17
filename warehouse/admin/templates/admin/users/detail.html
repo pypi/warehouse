@@ -1009,7 +1009,7 @@
                 {% for login in user.unique_logins %}
                 <tr>
                   <td>{{ login.created }}</td>
-                  <td>{{ login.ip_address }}</td>
+                  <td><a href="{{ request.route_path('admin.ip_address.detail', ip_address=login.ip_address ) }}">{{ login.ip_address }}</a></td>
                   <td>{{ login.status.value }}</td>
                   <td>{{ login.device_information }}</td>
                 </tr>
