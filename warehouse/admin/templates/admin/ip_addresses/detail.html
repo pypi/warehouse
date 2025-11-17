@@ -4,11 +4,11 @@
 
 {% import "admin/utils/pagination.html" as pagination %}
 
-{% block title %}{{ ip_address.id }}{% endblock %}
+{% block title %}{{ ip_address }}{% endblock %}
 
 {% block breadcrumb %}
   <li class="breadcrumb-item"><a href="{{ request.route_path('admin.ip_address.list') }}">IP Addresses</a></li>
-  <li class="breadcrumb-item active">{{ ip_address.id }}</li>
+  <li class="breadcrumb-item active">{{ ip_address }}</li>
 {% endblock %}
 
 {% block content %}
@@ -21,6 +21,9 @@
     <dl class="row">
       <dt class="col-sm-4">IP Address:</dt>
       <dd class="col-sm-8">{{ ip_address.ip_address }}</dd>
+
+      <dt class="col-sm-4">IP Address ID:</dt>
+      <dd class="col-sm-8">{{ ip_address.ip_address.id }}</dd>
 
       <dt class="col-sm-4">Hashed IP Address:</dt>
       <dd class="col-sm-8">{{ ip_address.hashed_ip_address }}</dd>
