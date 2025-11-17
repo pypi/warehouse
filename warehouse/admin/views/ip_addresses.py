@@ -9,6 +9,7 @@ from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.view import view_config
 from sqlalchemy.exc import NoResultFound
 
+from warehouse.accounts.models import UserUniqueLogin
 from warehouse.authnz import Permissions
 from warehouse.ip_addresses.models import IpAddress
 from warehouse.utils.paginate import paginate_url_factory
@@ -57,4 +58,10 @@ def ip_address_detail(request: Request) -> dict[str, IpAddress]:
     except NoResultFound:
         raise HTTPBadRequest("No matching IP Address found.")
 
-    return {"ip_address": ip_address}
+    unique_logins = (
+        request.db.query(UserUniqueLogin)
+        .filter(UserUniqueLogin.ip_address == str(ip_address.ip_address))
+        .all()
+    )
+
+    return {"ip_address": ip_address, "unique_logins": unique_logins}
