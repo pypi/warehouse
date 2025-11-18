@@ -519,6 +519,7 @@ class UserUniqueLogin(db.Model):
         default=UniqueLoginStatus.PENDING,
         server_default=UniqueLoginStatus.PENDING.value,
     )
+    expires: Mapped[datetime.datetime | None] = mapped_column(TZDateTime)
 
     def __repr__(self):
         return (
