@@ -21,6 +21,9 @@ def upgrade():
     op.get_bind().commit()
 
     with op.get_context().autocommit_block():
+        op.execute(sa.text("SET statement_timeout = 200000"))
+        op.execute(sa.text("SET lock_timeout = 200000"))
+
         op.create_index(
             "journals_name_id_idx",
             "journals",
