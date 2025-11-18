@@ -2081,6 +2081,41 @@ class TestDeviceIsKnown:
         assert not user_service.device_is_known(user.id, user_service.request)
         assert send_email.calls == []
 
+    def test_device_is_pending_and_expired(self, user_service, monkeypatch):
+        user = UserFactory.create(with_verified_primary_email=True)
+        UserUniqueLoginFactory.create(
+            user=user,
+            ip_address=REMOTE_ADDR,
+            status="pending",
+            created=datetime.datetime(1970, 1, 1),
+            expires=datetime.datetime(1970, 1, 1),
+        )
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(services, "send_unrecognized_login_email", send_email)
+        token_service = pretend.stub(dumps=lambda d: "fake_token", max_age=60)
+        user_service.request = pretend.stub(
+            db=user_service.db,
+            remote_addr=REMOTE_ADDR,
+            headers={
+                "User-Agent": (
+                    "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) "
+                    "Gecko/20100101 Firefox/15.0.1"
+                )
+            },
+            find_service=lambda *a, **kw: token_service,
+        )
+
+        assert not user_service.device_is_known(user.id, user_service.request)
+        assert send_email.calls == [
+            pretend.call(
+                user_service.request,
+                user,
+                ip_address=REMOTE_ADDR,
+                user_agent="Firefox (Ubuntu)",
+                token="fake_token",
+            )
+        ]
+
     @pytest.mark.parametrize("ua_string", [None, "no bueno", "Python-urllib/3.7"])
     def test_device_is_not_known_bad_user_agent(
         self, user_service, monkeypatch, ua_string

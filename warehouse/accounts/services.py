@@ -771,6 +771,17 @@ class DatabaseUserService:
             request.db.flush()  # To get the ID for the token
             should_send_email = True
 
+        # Check if the login had expired
+        if unique_login.expires and unique_login.expires < datetime.datetime.now(
+            datetime.UTC
+        ):
+            # The previous token has expired, update the expiry for
+            # the login and re-send the email
+            unique_login.expires = datetime.datetime.now(
+                datetime.UTC
+            ) + datetime.timedelta(seconds=token_service.max_age)
+            should_send_email = True
+
         # If we don't need to send an email, short-circuit
         if not should_send_email:
             return False
