@@ -24,6 +24,12 @@ def test_now():
     assert now() <= datetime.datetime.now()
 
 
+def test_now_with_timezone():
+    assert isinstance(now(tz=True), datetime.datetime)
+    assert now(tz=True).tzinfo is not None
+    assert now(tz=True) < datetime.datetime.now(datetime.UTC)
+
+
 def test_camo_url():
     request = pretend.stub(
         registry=pretend.stub(

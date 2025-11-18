@@ -1002,6 +1002,7 @@
                   <th scope="col">Created</th>
                   <th scope="col">IP address</th>
                   <th scope="col">Status</th>
+                  <th scope="col">Expired?</th>
                   <th scope="col">Device Information</th>
                 </tr>
               </thead>
@@ -1011,6 +1012,17 @@
                   <td>{{ login.created }}</td>
                   <td><a href="{{ request.route_path('admin.ip_address.detail', ip_address=login.ip_address ) }}">{{ login.ip_address }}</a></td>
                   <td>{{ login.status.value }}</td>
+                  <td>
+                    {% if login.status.value == 'pending' %}
+                      {% if login.expires < now(tz=True) %}
+                      <span title="Expired: {{ login.expires|format_datetime }}">🔴</span>
+                      {% else %}
+                      <span title="Expires: {{ login.expires|format_datetime }}">🟠</span>
+                      {% endif %}
+                    {% elif login.status.value == 'confirmed' %}
+                    <span title="Confirmed">🟢</span>
+                    {% endif %}
+                  </td>
                   <td>{{ login.device_information }}</td>
                 </tr>
                 {% endfor %}
