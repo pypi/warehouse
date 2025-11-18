@@ -8,7 +8,6 @@ import uuid
 import humanize
 import pytz
 
-from linehaul.ua import parser as linehaul_user_agent_parser
 from more_itertools import first_true
 from psycopg.errors import UniqueViolation
 from pyramid.httpexceptions import (
@@ -24,7 +23,6 @@ from pyramid.security import forget, remember
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import and_, func, select
 from sqlalchemy.exc import NoResultFound
-from ua_parser import user_agent_parser
 from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
 
@@ -76,9 +74,7 @@ from warehouse.email import (
     send_password_reset_email,
     send_password_reset_unverified_email,
     send_recovery_code_reminder_email,
-    send_unrecognized_login_email,
 )
-from warehouse.events.models import UserAgentInfo
 from warehouse.events.tags import EventTag
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.forms import (
