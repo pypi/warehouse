@@ -168,6 +168,11 @@ def test_includeme(monkeypatch):
             TokenServiceFactory(name="two_factor"), ITokenService, name="two_factor"
         ),
         pretend.call(
+            TokenServiceFactory(name="confirm_login"),
+            ITokenService,
+            name="confirm_login",
+        ),
+        pretend.call(
             TokenServiceFactory(name="remember_device"),
             ITokenService,
             name="remember_device",
