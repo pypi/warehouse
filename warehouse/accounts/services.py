@@ -766,6 +766,8 @@ class DatabaseUserService:
                 user_id=userid,
                 ip_address=request.remote_addr,
                 status=UniqueLoginStatus.PENDING,
+                expires=datetime.datetime.now(datetime.UTC)
+                + datetime.timedelta(seconds=token_service.max_age),
             )
             request.db.add(unique_login)
             request.db.flush()  # To get the ID for the token
