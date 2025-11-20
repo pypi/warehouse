@@ -2034,7 +2034,7 @@ class TestDeviceIsKnown:
         user = UserFactory.create(with_verified_primary_email=True)
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(services, "send_unrecognized_login_email", send_email)
-        token_service = pretend.stub(dumps=lambda d: "fake_token")
+        token_service = pretend.stub(dumps=lambda d: "fake_token", max_age=60)
         user_service.request = pretend.stub(
             db=user_service.db,
             remote_addr=REMOTE_ADDR,
@@ -2048,6 +2048,17 @@ class TestDeviceIsKnown:
         )
 
         assert not user_service.device_is_known(user.id, user_service.request)
+
+        unique_login = (
+            user_service.db.query(services.UserUniqueLogin)
+            .filter(
+                services.UserUniqueLogin.user_id == user.id,
+                services.UserUniqueLogin.ip_address == REMOTE_ADDR,
+            )
+            .one()
+        )
+        assert unique_login.expires is not None
+
         assert send_email.calls == [
             pretend.call(
                 user_service.request,
@@ -2065,7 +2076,7 @@ class TestDeviceIsKnown:
         )
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(services, "send_unrecognized_login_email", send_email)
-        token_service = pretend.stub(dumps=lambda d: "fake_token")
+        token_service = pretend.stub(dumps=lambda d: "fake_token", max_age=60)
         user_service.request = pretend.stub(
             db=user_service.db,
             remote_addr=REMOTE_ADDR,
@@ -2123,7 +2134,7 @@ class TestDeviceIsKnown:
         user = UserFactory.create(with_verified_primary_email=True)
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(services, "send_unrecognized_login_email", send_email)
-        token_service = pretend.stub(dumps=lambda d: "fake_token")
+        token_service = pretend.stub(dumps=lambda d: "fake_token", max_age=60)
         headers = {}
         if ua_string:
             headers["User-Agent"] = ua_string
