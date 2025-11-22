@@ -202,6 +202,9 @@ def includeme(config):
         "accounts.reset-password", "/account/reset-password/", domain=warehouse
     )
     config.add_route(
+        "accounts.confirm-login", "/account/confirm-login/", domain=warehouse
+    )
+    config.add_route(
         "accounts.verify-email", "/account/verify-email/", domain=warehouse
     )
     config.add_route(
@@ -317,6 +320,13 @@ def includeme(config):
     config.add_route(
         "manage.organization.teams",
         "/manage/organization/{organization_name}/teams/",
+        factory="warehouse.organizations.models:OrganizationFactory",
+        traverse="/{organization_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.organization.publishing",
+        "/manage/organization/{organization_name}/publishing/",
         factory="warehouse.organizations.models:OrganizationFactory",
         traverse="/{organization_name}",
         domain=warehouse,

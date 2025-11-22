@@ -11,7 +11,8 @@
   {% endtrans %}
 </p>
 {{ form_error_anchor(pending_github_publisher_form) }}
-<form method="post"
+<form id="pending-github-publisher-form"
+      method="post"
       action="{{ request.route_path("manage.account.publishing") }}#errors">
   <input name="csrf_token"
          type="hidden"
@@ -119,7 +120,8 @@
   {% endtrans %}
 </p>
 {{ form_error_anchor(pending_gitlab_publisher_form) }}
-<form method="post"
+<form id="pending-gitlab-publisher-form"
+      method="post"
       action="{{ request.route_path("manage.account.publishing") }}#errors">
   <input name="csrf_token"
          type="hidden"
@@ -199,6 +201,8 @@
     {% endtrans %}
   </p>
   <div id="environment-errors">{{ field_errors(pending_gitlab_publisher_form.environment) }}</div>
+  {# The following field must be present for the view predicate to match #}
+  {{ pending_gitlab_publisher_form.issuer_url(hidden=True) }}
 </div>
 <div>
   <input type="submit"
@@ -214,7 +218,8 @@
   {% endtrans %}
 </p>
 {{ form_error_anchor(pending_google_publisher_form) }}
-<form method="post"
+<form id="pending-google-publisher-form"
+      method="post"
       action="{{ request.route_path("manage.account.publishing") }}#errors">
   <input name="csrf_token"
          type="hidden"
@@ -281,7 +286,8 @@
   {% endtrans %}
 </p>
 {{ form_error_anchor(pending_activestate_pubisher_form) }}
-<form method="post"
+<form id="pending-activestate-publisher-form"
+      method="post"
       action="{{ request.route_path("manage.account.publishing") }}#errors">
   <input name="csrf_token"
          type="hidden"

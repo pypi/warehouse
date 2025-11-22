@@ -213,6 +213,7 @@ class GitHubPublisherMixin:
         "enterprise",
         "enterprise_id",
         "ref_protected",
+        "check_run_id",
     }
 
     # Get the most specific publisher from a list of publishers,

@@ -25,13 +25,15 @@
 # Emr <emrd434@gmail.com>, 2024.
 # Mert Sırakaya <umertsrky@gmail.com>, 2024.
 # Rüzgar Hünerel <ruzgarhunerel@gmail.com>, 2025.
+# Rüzgar Hünerel <ruzgar@ruzgarhunerel.com>, 2025.
+# mortemdulcem <denlizeynep1@gmail.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2025-09-28 15:17+0000\n"
-"Last-Translator: Rüzgar Hünerel <ruzgarhunerel@gmail.com>\n"
+"PO-Revision-Date: 2025-10-30 23:25+0000\n"
+"Last-Translator: mortemdulcem <denlizeynep1@gmail.com>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "tr/>\n"
 "Language: tr\n"
@@ -39,16 +41,14 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.14-dev\n"
+"X-Generator: Weblate 5.14.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:148
 msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
-msgstr ""
-"Bu eylemi gerçekleştirmeden önce **birincil** e-posta adresinizi "
-"doğrulamanız gerekmektedir."
+msgstr "denlizeynep1@gmail.come-posta"
 
 #: warehouse/views.py:164
 msgid ""
@@ -328,8 +328,7 @@ msgid "Organization invitation no longer exists."
 msgstr "Organizasyon daveti artık mevcut değil."
 
 #: warehouse/accounts/views.py:1158
-#, fuzzy, python-brace-format
-#| msgid "Invitation for '${organization_name}' is declined."
+#, python-brace-format
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "'${organization_name}' davetiyesi reddedildi."
 
@@ -355,10 +354,8 @@ msgid "Role invitation is not valid."
 msgstr "Rol daveti geçerli değil."
 
 #: warehouse/accounts/views.py:1273
-#, fuzzy
-#| msgid "API Token does not exist."
 msgid "Invalid token: project does not exist"
-msgstr "API Anahtarı mevcut değil."
+msgstr "Geçersiz belirteç: proje mevcut değil ."
 
 #: warehouse/accounts/views.py:1284
 msgid "Role invitation no longer exists."
@@ -375,24 +372,20 @@ msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Artık '${project_name}' projesinde ${role} oldunuz."
 
 #: warehouse/accounts/views.py:1462
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
-"Lütfen düzenlenmiş hizmet şartlarımızı okuyunuz <a "
-"href=\"${tos_url}\">Hizmet Şartlarımız</a>."
+"Lütfen güncellenmiş <a href=\"${tos_url}\">Hizmet Şartlarımızı</a> inceleyin."
 
 #: warehouse/accounts/views.py:1674 warehouse/accounts/views.py:1928
-#: warehouse/manage/views/oidc_publishers.py:121
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
+#: warehouse/manage/views/oidc_publishers.py:126
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
-"Yeni kullanıcı kayıtları geçici olarak kapatıldı. Detaylar için https://pypi."
-"org/help#admin-intervention sayfasını inceleyin."
+"Güvenilir yayınlama geçici olarak devre dışı bırakıldı. Ayrıntılar için "
+"[https://pypi.org/help#admin-intervention]"
+"(https://pypi.org/help#admin-intervention) adresine bakın"
 
 #: warehouse/accounts/views.py:1695
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
@@ -401,31 +394,24 @@ msgstr ""
 "inceleyin."
 
 #: warehouse/accounts/views.py:1711
-#, fuzzy
-#| msgid ""
-#| "You must have a verified email in order to register a pending OpenID "
-#| "Connect provider. See https://pypi.org/help#openid-connect for details."
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
-"Bekleyen bir OpenID Bağlantı sağlayıcısına kaydolmak için doğrulanmış bir e-"
-"postanız olmalıdır. Ayrıntılar için https://pypi.org/help#openid-connect'e "
-"bakın."
+"Bekleyen bir güvenilir yayıncıyı kaydetmek için doğrulanmış bir e-posta "
+"adresine sahip olmanız gerekir. Ayrıntılar için "
+"[https://pypi.org/help#openid-connect](https://pypi.org/help#openid-connect) "
+"adresine bakın"
 
 #: warehouse/accounts/views.py:1724
-#, fuzzy
-#| msgid ""
-#| "You can't register more than 3 pending OpenID Connect providers at once."
 msgid "You can't register more than 3 pending trusted publishers at once."
-msgstr ""
-"Aynı anda 3'ten fazla bekleyen OpenID Connect sağlayıcısını kaydedemezsiniz."
+msgstr "Aynı anda 3'ten fazla bekleyen güvenilir yayıncı kaydedemezsiniz"
 
 #: warehouse/accounts/views.py:1739
-#: warehouse/manage/views/oidc_publishers.py:303
-#: warehouse/manage/views/oidc_publishers.py:418
-#: warehouse/manage/views/oidc_publishers.py:534
-#: warehouse/manage/views/oidc_publishers.py:646
+#: warehouse/manage/views/oidc_publishers.py:308
+#: warehouse/manage/views/oidc_publishers.py:423
+#: warehouse/manage/views/oidc_publishers.py:539
+#: warehouse/manage/views/oidc_publishers.py:651
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
@@ -434,24 +420,20 @@ msgstr ""
 "deneyin."
 
 #: warehouse/accounts/views.py:1749
-#: warehouse/manage/views/oidc_publishers.py:316
-#: warehouse/manage/views/oidc_publishers.py:431
-#: warehouse/manage/views/oidc_publishers.py:547
-#: warehouse/manage/views/oidc_publishers.py:659
+#: warehouse/manage/views/oidc_publishers.py:321
+#: warehouse/manage/views/oidc_publishers.py:436
+#: warehouse/manage/views/oidc_publishers.py:552
+#: warehouse/manage/views/oidc_publishers.py:664
 msgid "The trusted publisher could not be registered"
 msgstr "Onaylı kullanıcı kaydedilemedi"
 
 #: warehouse/accounts/views.py:1764
-#, fuzzy
-#| msgid ""
-#| "This OpenID Connect provider has already been registered. Please contact "
-#| "PyPI's admins if this wasn't intentional."
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
-"Bu yetkili yayıncı zaten kayıtlı. Bunun bir hata olduğunu  düşünüyorsanız, "
-"lütfen PyPI yönetimiyle iletişime geçin."
+"Bu güvenilir yayıncı zaten kaydedilmiş. Bunun kasıtlı olmadığını "
+"düşünüyorsanız lütfen PyPI yöneticileriyle iletişime geçin"
 
 #: warehouse/accounts/views.py:1798
 msgid "Registered a new pending publisher to create "
@@ -511,7 +493,7 @@ msgid "Select project"
 msgstr "Projeyi seç"
 
 #: warehouse/manage/forms.py:507 warehouse/oidc/forms/_core.py:36
-#: warehouse/oidc/forms/gitlab.py:47
+#: warehouse/oidc/forms/gitlab.py:54
 msgid "Specify project name"
 msgstr "Proje adını belirtin"
 
@@ -763,11 +745,11 @@ msgstr "Davetin süresi zaten dolmuş."
 msgid "Invitation revoked from '${username}'."
 msgstr "'${username}' adlı kullanıcıdan gelen davetiye iptal edildi."
 
-#: warehouse/manage/views/oidc_publishers.py:170
+#: warehouse/manage/views/oidc_publishers.py:175
 msgid "The trusted publisher could not be constrained"
 msgstr "Güvenilir yayıncı kısıtlanamadı"
 
-#: warehouse/manage/views/oidc_publishers.py:284
+#: warehouse/manage/views/oidc_publishers.py:289
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -776,7 +758,7 @@ msgstr ""
 "Ayrıntılar için https://pypi.org/help#admin-intervention adresini ziyaret "
 "edin."
 
-#: warehouse/manage/views/oidc_publishers.py:399
+#: warehouse/manage/views/oidc_publishers.py:404
 msgid ""
 "GitLab-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -784,7 +766,7 @@ msgstr ""
 "GitLab tabanlı güvenilir yayınlama geçici olarak devre dışı bırakılmıştır. "
 "Ayrıntılar için https://pypi.org/help#admin-intervention adresine bakın."
 
-#: warehouse/manage/views/oidc_publishers.py:515
+#: warehouse/manage/views/oidc_publishers.py:520
 msgid ""
 "Google-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -793,7 +775,7 @@ msgstr ""
 "Ayrıntılar için https://pypi.org/help#admin-intervention adresini ziyaret "
 "edin."
 
-#: warehouse/manage/views/oidc_publishers.py:626
+#: warehouse/manage/views/oidc_publishers.py:631
 msgid ""
 "ActiveState-based trusted publishing is temporarily disabled. See https://"
 "pypi.org/help#admin-intervention for details."
@@ -835,7 +817,7 @@ msgid "Expired invitation for '${username}' deleted."
 msgstr "'${username}' için süresi dolmuş davet silindi."
 
 #: warehouse/oidc/forms/_core.py:38 warehouse/oidc/forms/_core.py:49
-#: warehouse/oidc/forms/gitlab.py:50 warehouse/oidc/forms/gitlab.py:54
+#: warehouse/oidc/forms/gitlab.py:57 warehouse/oidc/forms/gitlab.py:61
 msgid "Invalid project name"
 msgstr "Geçersiz proje adı"
 
@@ -991,35 +973,37 @@ msgstr ""
 "Ortam adı, yazdırılamayan karakterler veya “'”, “‘’, ”`“, ”,“, ”;“, ”\\\" "
 "karakterlerini içermemelidir"
 
-#: warehouse/oidc/forms/gitlab.py:22
+#: warehouse/oidc/forms/gitlab.py:23
 msgid "Name ends with .git or .atom"
 msgstr "Adı .git veya .atom ile biter"
 
-#: warehouse/oidc/forms/gitlab.py:31
+#: warehouse/oidc/forms/gitlab.py:38
 msgid "Specify GitLab namespace (username or group/subgroup)"
 msgstr "GitLab ad alanını belirtin (kullanıcı adı veya grup/alt grup)"
 
-#: warehouse/oidc/forms/gitlab.py:36 warehouse/oidc/forms/gitlab.py:40
+#: warehouse/oidc/forms/gitlab.py:43 warehouse/oidc/forms/gitlab.py:47
 msgid "Invalid GitLab username or group/subgroup name."
 msgstr "Geçersiz GitLab kullanıcı adı veya grup/alt grup adı."
 
-#: warehouse/oidc/forms/gitlab.py:63
+#: warehouse/oidc/forms/gitlab.py:70
 msgid "Specify top-level pipeline file path"
 msgstr "Üst düzey boru hattı dosya yolunu belirtin"
 
-#: warehouse/oidc/forms/gitlab.py:72
-#, fuzzy
-#| msgid "Invalid project name"
+#: warehouse/oidc/forms/gitlab.py:79
 msgid "Invalid environment name"
 msgstr "Geçersiz ortam adı"
 
-#: warehouse/oidc/forms/gitlab.py:87
+#: warehouse/oidc/forms/gitlab.py:86
+msgid "Choose GitLab issuer URL"
+msgstr "Lütfen Github Sorun Giderici URLsini verin"
+
+#: warehouse/oidc/forms/gitlab.py:111
 #, fuzzy
 #| msgid "Workflow name must end with .yml or .yaml"
 msgid "Top-level pipeline file path must end with .yml or .yaml"
 msgstr "İş akışı adı .yml veya .yaml ile bitmelidir"
 
-#: warehouse/oidc/forms/gitlab.py:91
+#: warehouse/oidc/forms/gitlab.py:115
 msgid "Top-level pipeline file path cannot start or end with /"
 msgstr "Üst düzey boru hattı dosya yolu / ile başlayamaz veya bitiremez"
 
@@ -1084,7 +1068,7 @@ msgstr[1] "Yaklaşık %1 dakika önce"
 
 #: warehouse/static/js/warehouse/utils/timeago.js:30
 msgid "Just now"
-msgstr ""
+msgstr "Hemen Şimdi"
 
 #: warehouse/subscriptions/models.py:25
 #: warehouse/templates/manage/project/history.html:209
@@ -1132,8 +1116,6 @@ msgid "We looked everywhere but couldn't find this page"
 msgstr "Her yere baktık fakat bu sayfayı bulamadık"
 
 #: warehouse/templates/404.html:15
-#, fuzzy
-#| msgid "And now for something <br><span>completely different</span>"
 msgid "And now for something <br> <span>completely different</span>"
 msgstr "Ve şimdi <br><span>tamamen farklı bir şey için</span>"
 
@@ -1283,13 +1265,6 @@ msgid "Rely on PyPI to get your job done?"
 msgstr "PyPI'ye senin işini tamamlaması için güveniyor musun?"
 
 #: warehouse/templates/500.html:32
-#, fuzzy
-#| msgid ""
-#| "Consider <a href=\"https://github.com/pypi/warehouse\" target=\"_blank\" "
-#| "rel=\"noopener\"> contributing </a> or <a href=\"https://psfmember.org/"
-#| "civicrm/contribute/transact?reset=1&id=13\" target=\"_blank\" "
-#| "rel=\"noopener\"> donating </a> to help us build a more stable and secure "
-#| "platform."
 msgid ""
 "Consider <a href=\"https://github.com/pypi/warehouse\" target=\"_blank\" "
 "rel=\"noopener\">contributing</a> or <a href=\"https://psfmember.org/civicrm/"
@@ -1298,10 +1273,10 @@ msgid ""
 "platform."
 msgstr ""
 "Daha istikrarlı ve güvenli bir platform oluşturmamıza yardımcı olması için "
-"<a href=\"https://github.com/pypi/warehouse\" target=\"_blank\" "
-"rel=\"noopener\"> contributing </a> veya <a href=\"https://psfmember.org/"
-"civicrm/contribute/transact?reset=1&id=13\" target=\"_blank\" "
-"rel=\"noopener\"> donating </a> 'yi düşünün."
+"<a href=\"https://github.com/pypi/warehouse\" target=\"_blank\" rel="
+"\"noopener\"> contributing </a> veya <a href="
+"\"https://psfmember.org/civicrm/contribute/transact?reset=1&id=13\" target="
+"\"_blank\" rel=\"noopener\"> donating </a> 'yi düşünün."
 
 #: warehouse/templates/base.html:13
 msgid ""
@@ -1330,7 +1305,7 @@ msgstr "Yardım"
 
 #: warehouse/templates/base.html:36 warehouse/templates/base.html:71
 msgid "Docs"
-msgstr ""
+msgstr "Belgeler"
 
 #: warehouse/templates/base.html:40 warehouse/templates/base.html:74
 #: warehouse/templates/includes/current-user-indicator.html:83
@@ -1422,9 +1397,8 @@ msgstr "Mobil sürüme geç"
 #: warehouse/templates/manage/account.html:845
 #: warehouse/templates/manage/manage_base.html:364
 #: warehouse/templates/manage/manage_base.html:442
-#: warehouse/templates/manage/organization/settings.html:205
-#: warehouse/templates/manage/organization/settings.html:266
-#: warehouse/templates/manage/organization/settings.html:272
+#: warehouse/templates/manage/organization/settings.html:291
+#: warehouse/templates/manage/organization/settings.html:297
 #: warehouse/templates/manage/project/documentation.html:13
 #: warehouse/templates/manage/project/release.html:209
 #: warehouse/templates/manage/project/settings.html:78
@@ -1462,10 +1436,8 @@ msgid "Search PyPI"
 msgstr "PyPI'de ara"
 
 #: warehouse/templates/base.html:280 warehouse/templates/index.html:35
-#, fuzzy
-#| msgid "Search projects"
 msgid "Type '/' to search projects"
-msgstr "Proje ara"
+msgstr "'/' Yazarak Projeleri Arayın"
 
 #: warehouse/templates/base.html:291 warehouse/templates/base.html:320
 #: warehouse/templates/error-base-with-search.html:19
@@ -1511,10 +1483,8 @@ msgid "About PyPI navigation"
 msgstr "PyPI navigasyonu hakkında"
 
 #: warehouse/templates/base.html:378
-#, fuzzy
-#| msgid "PyPI home"
 msgid "PyPI Blog"
-msgstr "PyPI ana sayfası"
+msgstr "PyPI Bloğu"
 
 #: warehouse/templates/base.html:384
 msgid "Infrastructure dashboard"
@@ -1571,8 +1541,6 @@ msgstr "PyPI gezinti özelliğini kullanma"
 
 #: warehouse/templates/base.html:437
 #: warehouse/templates/manage/organization/activate_subscription.html:21
-#, fuzzy
-#| msgid "Terms of use"
 msgid "Terms of Service"
 msgstr "Kullanım şartları"
 
@@ -1585,8 +1553,6 @@ msgid "Code of conduct"
 msgstr "Davranış kuralları"
 
 #: warehouse/templates/base.html:452
-#, fuzzy
-#| msgid "Privacy policy"
 msgid "Privacy Notice"
 msgstr "Gizlilik ilkesi"
 
@@ -1807,11 +1773,12 @@ msgstr "Parola"
 #: warehouse/templates/manage/project/publishing.html:153
 #: warehouse/templates/manage/project/publishing.html:166
 #: warehouse/templates/manage/project/publishing.html:179
-#: warehouse/templates/manage/project/publishing.html:223
-#: warehouse/templates/manage/project/publishing.html:236
-#: warehouse/templates/manage/project/publishing.html:278
-#: warehouse/templates/manage/project/publishing.html:295
-#: warehouse/templates/manage/project/publishing.html:314
+#: warehouse/templates/manage/project/publishing.html:203
+#: warehouse/templates/manage/project/publishing.html:238
+#: warehouse/templates/manage/project/publishing.html:251
+#: warehouse/templates/manage/project/publishing.html:293
+#: warehouse/templates/manage/project/publishing.html:310
+#: warehouse/templates/manage/project/publishing.html:329
 #: warehouse/templates/manage/project/roles.html:320
 #: warehouse/templates/manage/project/roles.html:333
 #: warehouse/templates/manage/project/roles.html:344
@@ -1886,21 +1853,13 @@ msgid "Confirm Invite"
 msgstr "Daveti onayla"
 
 #: warehouse/templates/accounts/invite-confirmation.html:21
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "      Would you like to accept this invitation to join '<a "
-#| "href=\"%(project_link)s\">%(project_name)s</a>' as a project "
-#| "%(role_name)s?\n"
-#| "      "
+#, python-format
 msgid ""
 "Would you like to accept this invitation to join '<a "
 "href=\"%(project_link)s\">%(project_name)s</a>' as a project %(role_name)s?"
 msgstr ""
-"\n"
-"      '<a href=\"%(project_link)s\">%(project_name)s</a>' projesinden gelen "
-"%(role_name)s rolü davetini kabul etmek ister misiniz?\n"
-"      "
+"<a href=\"%(project_link)s\">%(project_name)s</a>' projesinden gelen %"
+"(role_name)s rolü davetini kabul etmek ister misiniz?"
 
 #: warehouse/templates/accounts/invite-confirmation.html:29
 #: warehouse/templates/accounts/organization-invite-confirmation.html:29
@@ -1918,12 +1877,13 @@ msgid "Decline"
 msgstr "Reddet"
 
 #: warehouse/templates/accounts/invite-confirmation.html:39
-#, fuzzy, python-format
-#| msgid "You have not enabled two factor authentication on your account."
+#, python-format
 msgid ""
 "You must first enable <a href=\"%(href)s\">two-factor authentication</a> on "
 "your account before accepting an invitation to join a project."
-msgstr "Hesabınızda çift faktörlü kimlik doğrulamayı etkinleştirmediniz."
+msgstr ""
+"Bir projeye katılma davetini kabul etmeden önce hesabınızda <a href="
+"\"%(href)s\">çift faktörlü kimlik doğrulamayı</a> etkinleştirmeniz gerekir."
 
 #: warehouse/templates/accounts/login.html:17
 #, python-format
@@ -1965,35 +1925,27 @@ msgid "Log out of %(account_name)s"
 msgstr "%(account_name)s 'den çıkış yap"
 
 #: warehouse/templates/accounts/organization-invite-confirmation.html:4
-#, fuzzy
-#| msgid "Confirm Invite"
 msgid "Confirm Organization Invite"
-msgstr "Daveti onayla"
+msgstr "Şirket davetini onayla"
 
 #: warehouse/templates/accounts/organization-invite-confirmation.html:21
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "      Would you like to accept this invitation to join '<a "
-#| "href=\"%(project_link)s\">%(project_name)s</a>' as a project "
-#| "%(role_name)s?\n"
-#| "      "
+#, python-format
 msgid ""
 "Would you like to accept this invitation to join '%(organization_name)s' as "
 "an organization %(role_name)s?"
 msgstr ""
-"\n"
-"      '<a href=\"%(project_link)s\">%(project_name)s</a>' projesinden gelen "
-"%(role_name)s rolü davetini kabul etmek ister misiniz?\n"
-"      "
+"'<a href=\"%(project_link)s\">%(project_name)s</a>' projesinden gelen %"
+"(role_name)s rolü davetini kabul etmek ister misiniz?"
 
 #: warehouse/templates/accounts/organization-invite-confirmation.html:39
-#, fuzzy, python-format
-#| msgid "You have not enabled two factor authentication on your account."
+#, python-format
 msgid ""
 "You must first enable <a href=\"%(href)s\">two-factor authentication</a> on "
 "your account before accepting an invitation to join an organization."
-msgstr "Hesabınızda çift faktörlü kimlik doğrulamayı etkinleştirmediniz."
+msgstr ""
+"İlk önce <a href=\"%(href)s\"> iki faktörlü kimlik doğrulama</a> bir "
+"organizasyona katılmak için davet almadan önce hesabınızda "
+"etkinleştirmelisiniz."
 
 #: warehouse/templates/accounts/profile.html:4
 #, python-format
@@ -2018,10 +1970,9 @@ msgstr "Katılma Tarihi"
 
 #: warehouse/templates/accounts/profile.html:37
 #: warehouse/templates/organizations/profile.html:25
-#, fuzzy, python-format
-#| msgid "Joined on %(start_date)s"
+#, python-format
 msgid "Joined %(start_date)s"
-msgstr "%(start_date)s tarihinde oluşturuldu"
+msgstr "%(start_date)s Tarihinde katıldı"
 
 #: warehouse/templates/accounts/profile.html:52
 #: warehouse/templates/organizations/profile.html:37
@@ -2044,10 +1995,9 @@ msgstr "Herhangi bir proje mevcut değil"
 #: warehouse/templates/manage/projects.html:85
 #: warehouse/templates/manage/team/projects.html:36
 #: warehouse/templates/organizations/profile.html:53
-#, fuzzy, python-format
-#| msgid "Last released on %(release_date)s"
+#, python-format
 msgid "Last released %(release_date)s"
-msgstr "En son %(release_date)s tarihinde yayınlandı"
+msgstr "En son %(release_date)s tarihinde yayımlandı"
 
 #: warehouse/templates/accounts/profile.html:77
 #, python-format
@@ -2060,7 +2010,7 @@ msgid "%(count)s <a href=\"%(href)s#archived-project\">archived</a> project"
 msgid_plural ""
 "%(count)s <a href=\"%(href)s#archived-project\">archived</a> projects"
 msgstr[0] ""
-msgstr[1] ""
+msgstr[1] "%(count)s <a href=\"%(href)s#archived-project\">archived</a> projeler"
 
 #: warehouse/templates/accounts/profile.html:97
 #: warehouse/templates/manage/projects.html:80
@@ -3678,7 +3628,7 @@ msgstr "%(username)s PyPI'a henüz bir proje yüklemedi."
 
 #: warehouse/templates/includes/accounts/profile-public-email.html:16
 #: warehouse/templates/manage/account/publishing.html:238
-#: warehouse/templates/manage/project/publishing.html:221
+#: warehouse/templates/manage/project/publishing.html:236
 msgid "Email"
 msgstr "E-posta"
 
@@ -4631,7 +4581,7 @@ msgid "Recent account activity"
 msgstr "Son Hesap Hareketleri"
 
 #: warehouse/templates/manage/account.html:784
-#: warehouse/templates/manage/organization/history.html:175
+#: warehouse/templates/manage/organization/history.html:193
 #: warehouse/templates/manage/project/history.html:333
 #: warehouse/templates/manage/team/history.html:87
 #: warehouse/templates/manage/unverified-account.html:459
@@ -4639,8 +4589,8 @@ msgid "Event"
 msgstr "Olay"
 
 #: warehouse/templates/manage/account.html:785
-#: warehouse/templates/manage/organization/history.html:176
-#: warehouse/templates/manage/organization/history.html:185
+#: warehouse/templates/manage/organization/history.html:194
+#: warehouse/templates/manage/organization/history.html:203
 #: warehouse/templates/manage/project/history.html:334
 #: warehouse/templates/manage/project/history.html:343
 #: warehouse/templates/manage/team/history.html:88
@@ -4650,7 +4600,7 @@ msgid "Time"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:786
-#: warehouse/templates/manage/organization/history.html:177
+#: warehouse/templates/manage/organization/history.html:195
 #: warehouse/templates/manage/team/history.html:89
 #: warehouse/templates/manage/unverified-account.html:461
 msgid "Additional Info"
@@ -4662,13 +4612,13 @@ msgid "Date / time"
 msgstr "Tarih / Zaman"
 
 #: warehouse/templates/manage/account.html:798
-#: warehouse/templates/manage/organization/history.html:189
+#: warehouse/templates/manage/organization/history.html:207
 #: warehouse/templates/manage/unverified-account.html:472
 msgid "Location Info"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:801
-#: warehouse/templates/manage/organization/history.html:192
+#: warehouse/templates/manage/organization/history.html:210
 #: warehouse/templates/manage/project/history.html:350
 #: warehouse/templates/manage/team/history.html:104
 #: warehouse/templates/manage/unverified-account.html:475
@@ -4760,8 +4710,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:843
 #: warehouse/templates/manage/account/token.html:177
-#: warehouse/templates/manage/organization/settings.html:203
-#: warehouse/templates/manage/organization/settings.html:264
+#: warehouse/templates/manage/organization/settings.html:289
 #: warehouse/templates/manage/project/publishing.html:19
 #: warehouse/templates/manage/team/settings.html:60
 msgid "Proceed with caution!"
@@ -5093,7 +5042,8 @@ msgid "Any"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:633
-#: warehouse/templates/manage/organization/history.html:141
+#: warehouse/templates/manage/organization/history.html:109
+#: warehouse/templates/manage/organization/history.html:159
 #: warehouse/templates/manage/project/history.html:27
 #: warehouse/templates/manage/project/history.html:80
 #: warehouse/templates/manage/project/history.html:119
@@ -5106,7 +5056,8 @@ msgid "Added by:"
 msgstr "Ekleyen:"
 
 #: warehouse/templates/manage/manage_base.html:635
-#: warehouse/templates/manage/organization/history.html:146
+#: warehouse/templates/manage/organization/history.html:117
+#: warehouse/templates/manage/organization/history.html:164
 #: warehouse/templates/manage/project/history.html:46
 #: warehouse/templates/manage/project/history.html:111
 #: warehouse/templates/manage/project/history.html:126
@@ -5177,7 +5128,7 @@ msgstr "%(user)s için daveti iptal et"
 msgid "Decline invitation"
 msgstr "Ana navigasyon"
 
-#: warehouse/templates/manage/organization/settings.html:284
+#: warehouse/templates/manage/organization/settings.html:309
 #: warehouse/templates/manage/organizations.html:51
 #, fuzzy
 #| msgid "Project description"
@@ -5651,7 +5602,7 @@ msgstr "Geçersiz proje adı"
 #: warehouse/templates/manage/account/publishing.html:255
 #: warehouse/templates/manage/project/publishing.html:94
 #: warehouse/templates/manage/project/publishing.html:181
-#: warehouse/templates/manage/project/publishing.html:238
+#: warehouse/templates/manage/project/publishing.html:253
 #, fuzzy
 #| msgid "Reason (optional)"
 msgid "(optional)"
@@ -5674,9 +5625,9 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:272
 #: warehouse/templates/manage/account/publishing.html:364
 #: warehouse/templates/manage/project/publishing.html:117
-#: warehouse/templates/manage/project/publishing.html:200
-#: warehouse/templates/manage/project/publishing.html:255
-#: warehouse/templates/manage/project/publishing.html:329
+#: warehouse/templates/manage/project/publishing.html:215
+#: warehouse/templates/manage/project/publishing.html:270
+#: warehouse/templates/manage/project/publishing.html:344
 #: warehouse/templates/manage/project/roles.html:373
 #: warehouse/templates/manage/project/settings.html:322
 #: warehouse/templates/manage/team/roles.html:125
@@ -5776,7 +5727,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:212
-#: warehouse/templates/manage/project/publishing.html:208
+#: warehouse/templates/manage/project/publishing.html:223
 #, fuzzy, python-format
 #| msgid ""
 #| "To regain access to your account, <a href=\"%(href)s\">reset your "
@@ -5789,26 +5740,26 @@ msgstr ""
 "href=\"%(href)s\">şifrenizi sıfırlayın</a>."
 
 #: warehouse/templates/manage/account/publishing.html:243
-#: warehouse/templates/manage/project/publishing.html:226
+#: warehouse/templates/manage/project/publishing.html:241
 #, fuzzy
 #| msgid "Email"
 msgid "email"
 msgstr "E-posta"
 
 #: warehouse/templates/manage/account/publishing.html:245
-#: warehouse/templates/manage/project/publishing.html:228
+#: warehouse/templates/manage/project/publishing.html:243
 msgid "The email address of the account or service account used to publish."
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:251
-#: warehouse/templates/manage/project/publishing.html:234
+#: warehouse/templates/manage/project/publishing.html:249
 #, fuzzy
 #| msgid "Subject:"
 msgid "Subject"
 msgstr "Konu:"
 
 #: warehouse/templates/manage/account/publishing.html:258
-#: warehouse/templates/manage/project/publishing.html:241
+#: warehouse/templates/manage/project/publishing.html:256
 #, fuzzy
 #| msgid "Subject:"
 msgid "subject"
@@ -5823,7 +5774,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:279
-#: warehouse/templates/manage/project/publishing.html:263
+#: warehouse/templates/manage/project/publishing.html:278
 #, fuzzy, python-format
 #| msgid ""
 #| "To regain access to your account, <a href=\"%(href)s\">reset your "
@@ -5836,7 +5787,7 @@ msgstr ""
 "href=\"%(href)s\">şifrenizi sıfırlayın</a>."
 
 #: warehouse/templates/manage/account/publishing.html:311
-#: warehouse/templates/manage/project/publishing.html:276
+#: warehouse/templates/manage/project/publishing.html:291
 #: warehouse/templates/organizations/profile.html:17
 #, fuzzy
 #| msgid "Project description"
@@ -5844,52 +5795,52 @@ msgid "Organization"
 msgstr "Proje açıklaması"
 
 #: warehouse/templates/manage/account/publishing.html:316
-#: warehouse/templates/manage/project/publishing.html:281
+#: warehouse/templates/manage/project/publishing.html:296
 #, fuzzy
 #| msgid "Project description"
 msgid "my-organization"
 msgstr "Proje açıklaması"
 
 #: warehouse/templates/manage/account/publishing.html:323
-#: warehouse/templates/manage/project/publishing.html:288
+#: warehouse/templates/manage/project/publishing.html:303
 msgid "The ActiveState organization name that owns the project"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:328
-#: warehouse/templates/manage/project/publishing.html:293
+#: warehouse/templates/manage/project/publishing.html:308
 #, fuzzy
 #| msgid "Project name"
 msgid "ActiveState Project name"
 msgstr "Proje Adı"
 
 #: warehouse/templates/manage/account/publishing.html:333
-#: warehouse/templates/manage/project/publishing.html:298
+#: warehouse/templates/manage/project/publishing.html:313
 #, fuzzy
 #| msgid "Project:"
 msgid "my-project"
 msgstr "Proje:"
 
 #: warehouse/templates/manage/account/publishing.html:341
-#: warehouse/templates/manage/project/publishing.html:306
+#: warehouse/templates/manage/project/publishing.html:321
 msgid "The ActiveState project that will build your Python artifact."
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:347
-#: warehouse/templates/manage/project/publishing.html:312
+#: warehouse/templates/manage/project/publishing.html:327
 #, fuzzy
 #| msgid "Your username"
 msgid "Actor Username"
 msgstr "Sizin kullanıcı adınız"
 
 #: warehouse/templates/manage/account/publishing.html:352
-#: warehouse/templates/manage/project/publishing.html:317
+#: warehouse/templates/manage/project/publishing.html:332
 #, fuzzy
 #| msgid "Username"
 msgid "my-username"
 msgstr "Kullanıcı adı"
 
 #: warehouse/templates/manage/account/publishing.html:358
-#: warehouse/templates/manage/project/publishing.html:323
+#: warehouse/templates/manage/project/publishing.html:338
 msgid ""
 "The username for the ActiveState account that will trigger the build of your "
 "Python artifact."
@@ -5920,12 +5871,12 @@ msgid "Pending project name"
 msgstr "Trend olan projeler"
 
 #: warehouse/templates/manage/account/publishing.html:411
-#: warehouse/templates/manage/project/publishing.html:353
+#: warehouse/templates/manage/project/publishing.html:368
 msgid "Publisher"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:412
-#: warehouse/templates/manage/project/publishing.html:354
+#: warehouse/templates/manage/project/publishing.html:369
 msgid "Details"
 msgstr ""
 
@@ -5968,7 +5919,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:481
-#: warehouse/templates/manage/project/publishing.html:397
+#: warehouse/templates/manage/project/publishing.html:412
 #, fuzzy, python-format
 #| msgid "You have not enabled two factor authentication on your account."
 msgid ""
@@ -6691,19 +6642,33 @@ msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> %(role_name)s olarak projeden "
 "kaldırıldı"
 
-#: warehouse/templates/manage/organization/history.html:109
+#: warehouse/templates/manage/organization/history.html:106
+#, python-format
+msgid ""
+"Custom Trusted Publisher '%(issuer_type)s' for <code>%(issuer_url)s</code> "
+"added to organization"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:114
+#, python-format
+msgid ""
+"Custom Trusted Publisher '%(issuer_type)s' for <code>%(issuer_url)s</code> "
+"removed from organization"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:127
 #, fuzzy
 #| msgid "Register"
 msgid "Registered by:"
 msgstr "Kayıt"
 
-#: warehouse/templates/manage/organization/history.html:115
+#: warehouse/templates/manage/organization/history.html:133
 #: warehouse/templates/manage/project/history.html:19
 #: warehouse/templates/manage/team/history.html:52
 msgid "Created by:"
 msgstr "Oluşturan:"
 
-#: warehouse/templates/manage/organization/history.html:120
+#: warehouse/templates/manage/organization/history.html:138
 #: warehouse/templates/manage/project/history.html:293
 #: warehouse/templates/manage/project/history.html:315
 #: warehouse/templates/manage/team/history.html:57
@@ -6712,34 +6677,34 @@ msgstr "Oluşturan:"
 msgid "Deleted by:"
 msgstr "Oluşturan:"
 
-#: warehouse/templates/manage/organization/history.html:125
+#: warehouse/templates/manage/organization/history.html:143
 #: warehouse/templates/manage/team/history.html:62
 #, fuzzy
 #| msgid "Removed by:"
 msgid "Renamed by:"
 msgstr "Kaldıran:"
 
-#: warehouse/templates/manage/organization/history.html:130
+#: warehouse/templates/manage/organization/history.html:148
 #, fuzzy
 #| msgid "Removed by:"
 msgid "Approved by:"
 msgstr "Kaldıran:"
 
-#: warehouse/templates/manage/organization/history.html:135
+#: warehouse/templates/manage/organization/history.html:153
 #, fuzzy
 #| msgid "Decline"
 msgid "Declined by:"
 msgstr "Reddet"
 
-#: warehouse/templates/manage/organization/history.html:151
+#: warehouse/templates/manage/organization/history.html:169
 #: warehouse/templates/manage/project/history.html:133
 #: warehouse/templates/manage/project/history.html:179
 #: warehouse/templates/manage/team/history.html:78
 msgid "Changed by:"
 msgstr "Değiştiren:"
 
-#: warehouse/templates/manage/organization/history.html:156
-#: warehouse/templates/manage/organization/history.html:161
+#: warehouse/templates/manage/organization/history.html:174
+#: warehouse/templates/manage/organization/history.html:179
 #: warehouse/templates/manage/project/history.html:140
 #: warehouse/templates/manage/project/history.html:147
 #, fuzzy
@@ -6747,14 +6712,14 @@ msgstr "Değiştiren:"
 msgid "Invited by:"
 msgstr "Davet et"
 
-#: warehouse/templates/manage/organization/history.html:166
+#: warehouse/templates/manage/organization/history.html:184
 #: warehouse/templates/manage/project/history.html:154
 #, fuzzy
 #| msgid "Removed by:"
 msgid "Revoked by:"
 msgstr "Kaldıran:"
 
-#: warehouse/templates/manage/organization/history.html:172
+#: warehouse/templates/manage/organization/history.html:190
 #: warehouse/templates/manage/project/history.html:330
 #: warehouse/templates/manage/team/history.html:84
 #, fuzzy, python-format
@@ -7230,59 +7195,64 @@ msgid "Activate billing"
 msgstr "Proje açıklaması"
 
 #: warehouse/templates/manage/organization/settings.html:194
-#: warehouse/templates/manage/organization/settings.html:228
+#, fuzzy
+#| msgid "Username"
+msgid "Custom Trusted Publishers"
+msgstr "Kullanıcı adı"
+
+#: warehouse/templates/manage/organization/settings.html:196
+msgid ""
+"The following custom Trusted Publisher issuers have been configured for this "
+"organization. These issuers can be used to configure Trusted Publishing for "
+"your organization's projects."
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:209
+#, fuzzy
+#| msgid "Role invitation is not valid."
+msgid "Modifying custom Trusted Publishers is not currently supported."
+msgstr "Rol daveti geçerli değil."
+
+#: warehouse/templates/manage/organization/settings.html:211
+#, python-format
+msgid ""
+"Please contact <a href=%(href)s>PyPI Support</a> if you need to modify "
+"custom Trusted Publishers."
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:219
 #, fuzzy
 #| msgid "Manage '%(project_name)s'"
 msgid "Change organization account name"
 msgstr "'%(project_name)s' Projesini Yönet"
 
-#: warehouse/templates/manage/organization/settings.html:196
+#: warehouse/templates/manage/organization/settings.html:221
 #, fuzzy
 #| msgid "Role invitation is not valid."
 msgid "Renaming organizations is not currently supported."
 msgstr "Rol daveti geçerli değil."
 
-#: warehouse/templates/manage/organization/settings.html:198
+#: warehouse/templates/manage/organization/settings.html:223
 #, python-format
 msgid ""
 "Please contact <a href=%(href)s>PyPI Support</a> if you need to rename your "
 "organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:206
-#, fuzzy
-#| msgid "You will not be able to recover your account after you delete it"
-msgid ""
-"You will not be able to revert to your current account name after you rename "
-"your organization."
-msgstr "Hesabınızı kaldırdıktan sonra tekrar kurtaramazsınız"
-
-#: warehouse/templates/manage/organization/settings.html:228
-#, fuzzy
-#| msgid "Manage '%(project_name)s'"
-msgid "Change organization account name for"
-msgstr "'%(project_name)s' Projesini Yönet"
-
-#: warehouse/templates/manage/organization/settings.html:228
-#, fuzzy
-#| msgid "Create an account"
-msgid "Current organization account name"
-msgstr "Yeni bir hesap oluştur"
-
-#: warehouse/templates/manage/organization/settings.html:234
-#: warehouse/templates/manage/organization/settings.html:284
+#: warehouse/templates/manage/organization/settings.html:259
+#: warehouse/templates/manage/organization/settings.html:309
 #, fuzzy
 #| msgid "Create an account"
 msgid "Delete organization"
 msgstr "Yeni bir hesap oluştur"
 
-#: warehouse/templates/manage/organization/settings.html:237
+#: warehouse/templates/manage/organization/settings.html:262
 #, fuzzy
 #| msgid "Create an account"
 msgid "Cannot delete organization"
 msgstr "Yeni bir hesap oluştur"
 
-#: warehouse/templates/manage/organization/settings.html:239
+#: warehouse/templates/manage/organization/settings.html:264
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -7305,29 +7275,29 @@ msgstr[1] ""
 "          Hesabınız şu anda %(count)s projenin <strong>tek sahibi</strong>.\n"
 "        "
 
-#: warehouse/templates/manage/organization/settings.html:244
+#: warehouse/templates/manage/organization/settings.html:269
 msgid "For each project, you must either:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:246
+#: warehouse/templates/manage/organization/settings.html:271
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "Transfer ownership and remove the project from your organization"
 msgstr "Bu projenin sahibi değilsiniz"
 
-#: warehouse/templates/manage/organization/settings.html:247
+#: warehouse/templates/manage/organization/settings.html:272
 #, fuzzy
 #| msgid "Delete project"
 msgid "Delete the project"
 msgstr "Projeyi Kaldır"
 
-#: warehouse/templates/manage/organization/settings.html:249
+#: warehouse/templates/manage/organization/settings.html:274
 #, fuzzy
 #| msgid "Create an account"
 msgid "Before you can delete your organization."
 msgstr "Yeni bir hesap oluştur"
 
-#: warehouse/templates/manage/organization/settings.html:255
+#: warehouse/templates/manage/organization/settings.html:280
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
@@ -7340,23 +7310,23 @@ msgstr ""
 "<a href=\"%(transfer_href)s\">devret</a> veya <a "
 "href=\"%(delete_href)s\">kaldır</a>"
 
-#: warehouse/templates/manage/organization/settings.html:267
+#: warehouse/templates/manage/organization/settings.html:292
 #, fuzzy
 #| msgid "You will not be able to recover your account after you delete it"
 msgid "You will not be able to recover your organization after you delete it."
 msgstr "Hesabınızı kaldırdıktan sonra tekrar kurtaramazsınız"
 
-#: warehouse/templates/manage/organization/settings.html:274
+#: warehouse/templates/manage/organization/settings.html:299
 msgid ""
 "Your subscription will be cancelled, and you will lose access to the billing "
 "portal."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:276
+#: warehouse/templates/manage/organization/settings.html:301
 msgid "You will lose access to the billing portal."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:278
+#: warehouse/templates/manage/organization/settings.html:303
 #, python-format
 msgid ""
 "Please ensure you have retrieved all invoices from <a "
@@ -7789,7 +7759,19 @@ msgid ""
 "before submitting the form."
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:249
+#: warehouse/templates/manage/project/publishing.html:201
+#, fuzzy
+#| msgid "GitHub statistics:"
+msgid "GitLab instance"
+msgstr "GitHub İstatistikleri:"
+
+#: warehouse/templates/manage/project/publishing.html:208
+msgid ""
+"The GitLab instance URL. Select <code>https://gitlab.com</code> for the "
+"public GitLab service, or a custom instance."
+msgstr ""
+
+#: warehouse/templates/manage/project/publishing.html:264
 #, python-format
 msgid ""
 "The subject is the numeric ID that represents the principal making the "
@@ -7798,39 +7780,39 @@ msgid ""
 "here.</a>"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:345
+#: warehouse/templates/manage/project/publishing.html:360
 #, fuzzy
 #| msgid "Manage this project"
 msgid "Manage current publishers"
 msgstr "Bu Projeyi Yönet"
 
-#: warehouse/templates/manage/project/publishing.html:349
+#: warehouse/templates/manage/project/publishing.html:364
 #, python-format
 msgid "OpenID Connect publishers associated with %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:363
+#: warehouse/templates/manage/project/publishing.html:378
 msgid "No publishers are currently configured."
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:367
+#: warehouse/templates/manage/project/publishing.html:382
 #, fuzzy
 #| msgid "Manage this project"
 msgid "Add a new publisher"
 msgstr "Bu Projeyi Yönet"
 
-#: warehouse/templates/manage/project/publishing.html:407
-#: warehouse/templates/manage/project/publishing.html:410
+#: warehouse/templates/manage/project/publishing.html:422
+#: warehouse/templates/manage/project/publishing.html:425
 #, fuzzy
 #| msgid "Invalid project name"
 msgid "Constrain environment"
 msgstr "Geçersiz proje adı"
 
-#: warehouse/templates/manage/project/publishing.html:423
+#: warehouse/templates/manage/project/publishing.html:438
 msgid "This will restrict the Trusted Publisher's environment to"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:426
+#: warehouse/templates/manage/project/publishing.html:441
 #, python-format
 msgid ""
 "If you currently use multiple environments in your CI/CD workflows, you must "
@@ -7838,14 +7820,14 @@ msgid ""
 "each as a Trusted Publisher."
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:438
+#: warehouse/templates/manage/project/publishing.html:453
 #, python-format
 msgid ""
 "I understand that this Trusted Publisher will only allow uploads from CI/CD "
 "workflows running in the '%(constrained_environment_name)s' environment."
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:443
+#: warehouse/templates/manage/project/publishing.html:458
 #, fuzzy
 #| msgid "Invalid project name"
 msgid "New Environment Name"
@@ -12126,6 +12108,23 @@ msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "'%(term)s' için bir sonuç bulunamadı"
 msgstr[1] "'%(term)s' için bir sonuç bulunamadı"
+
+#, fuzzy
+#~| msgid "You will not be able to recover your account after you delete it"
+#~ msgid ""
+#~ "You will not be able to revert to your current account name after you "
+#~ "rename your organization."
+#~ msgstr "Hesabınızı kaldırdıktan sonra tekrar kurtaramazsınız"
+
+#, fuzzy
+#~| msgid "Manage '%(project_name)s'"
+#~ msgid "Change organization account name for"
+#~ msgstr "'%(project_name)s' Projesini Yönet"
+
+#, fuzzy
+#~| msgid "Create an account"
+#~ msgid "Current organization account name"
+#~ msgstr "Yeni bir hesap oluştur"
 
 #, fuzzy
 #~| msgid "Project description"

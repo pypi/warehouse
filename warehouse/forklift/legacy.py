@@ -140,6 +140,7 @@ _macosx_major_versions = {
     "13",
     "14",
     "15",
+    "26",
 }
 
 _ios_platform_re = re.compile(

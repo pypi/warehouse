@@ -4,7 +4,6 @@ import itertools
 import os
 import time
 
-from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.hashes import SHA1
 from cryptography.hazmat.primitives.twofactor import InvalidToken
 from cryptography.hazmat.primitives.twofactor.totp import TOTP
@@ -31,7 +30,7 @@ def _get_totp(secret):
         * 6-digit code
         * 30-second interval
     """
-    return TOTP(secret, TOTP_LENGTH, SHA1(), TOTP_INTERVAL, backend=default_backend())
+    return TOTP(secret, TOTP_LENGTH, SHA1(), TOTP_INTERVAL)
 
 
 def generate_totp_secret():

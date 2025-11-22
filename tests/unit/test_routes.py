@@ -190,6 +190,9 @@ def test_routes(warehouse):
             "accounts.reset-password", "/account/reset-password/", domain=warehouse
         ),
         pretend.call(
+            "accounts.confirm-login", "/account/confirm-login/", domain=warehouse
+        ),
+        pretend.call(
             "accounts.verify-email", "/account/verify-email/", domain=warehouse
         ),
         pretend.call(
@@ -308,6 +311,13 @@ def test_routes(warehouse):
         pretend.call(
             "manage.organization.teams",
             "/manage/organization/{organization_name}/teams/",
+            factory="warehouse.organizations.models:OrganizationFactory",
+            traverse="/{organization_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.organization.publishing",
+            "/manage/organization/{organization_name}/publishing/",
             factory="warehouse.organizations.models:OrganizationFactory",
             traverse="/{organization_name}",
             domain=warehouse,

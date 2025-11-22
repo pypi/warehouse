@@ -364,7 +364,7 @@ msgstr ""
 "செய்யவும் </a>."
 
 #: warehouse/accounts/views.py:1674 warehouse/accounts/views.py:1928
-#: warehouse/manage/views/oidc_publishers.py:121
+#: warehouse/manage/views/oidc_publishers.py:126
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -390,20 +390,20 @@ msgstr ""
 "நம்பகமான 3 க்கும் மேற்பட்ட நம்பகமான வெளியீட்டாளர்களை ஒரே நேரத்தில் பதிவு செய்ய முடியாது."
 
 #: warehouse/accounts/views.py:1739
-#: warehouse/manage/views/oidc_publishers.py:303
-#: warehouse/manage/views/oidc_publishers.py:418
-#: warehouse/manage/views/oidc_publishers.py:534
-#: warehouse/manage/views/oidc_publishers.py:646
+#: warehouse/manage/views/oidc_publishers.py:308
+#: warehouse/manage/views/oidc_publishers.py:423
+#: warehouse/manage/views/oidc_publishers.py:539
+#: warehouse/manage/views/oidc_publishers.py:651
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
 msgstr "நம்பகமான வெளியீட்டாளர் பதிவுகள் பல முயற்சித்துள்ளன. பின்னர் மீண்டும் முயற்சிக்கவும்."
 
 #: warehouse/accounts/views.py:1749
-#: warehouse/manage/views/oidc_publishers.py:316
-#: warehouse/manage/views/oidc_publishers.py:431
-#: warehouse/manage/views/oidc_publishers.py:547
-#: warehouse/manage/views/oidc_publishers.py:659
+#: warehouse/manage/views/oidc_publishers.py:321
+#: warehouse/manage/views/oidc_publishers.py:436
+#: warehouse/manage/views/oidc_publishers.py:552
+#: warehouse/manage/views/oidc_publishers.py:664
 msgid "The trusted publisher could not be registered"
 msgstr "நம்பகமான வெளியீட்டாளரை பதிவு செய்ய முடியவில்லை"
 
@@ -472,7 +472,7 @@ msgid "Select project"
 msgstr "திட்டத்தைத் தேர்ந்தெடுக்கவும்"
 
 #: warehouse/manage/forms.py:507 warehouse/oidc/forms/_core.py:36
-#: warehouse/oidc/forms/gitlab.py:47
+#: warehouse/oidc/forms/gitlab.py:54
 msgid "Specify project name"
 msgstr "திட்ட பெயரைக் குறிப்பிடவும்"
 
@@ -721,11 +721,11 @@ msgstr "அழைப்பு ஏற்கனவே காலாவதியா�
 msgid "Invitation revoked from '${username}'."
 msgstr "அழைப்பிதழ் '$ {username}' இலிருந்து ரத்து செய்யப்பட்டது."
 
-#: warehouse/manage/views/oidc_publishers.py:170
+#: warehouse/manage/views/oidc_publishers.py:175
 msgid "The trusted publisher could not be constrained"
 msgstr "நம்பகமான வெளியீட்டாளரைக் கட்டுப்படுத்த முடியவில்லை"
 
-#: warehouse/manage/views/oidc_publishers.py:284
+#: warehouse/manage/views/oidc_publishers.py:289
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -733,7 +733,7 @@ msgstr ""
 "கிதூப்பை தளமாகக் கொண்ட நம்பகமான வெளியீடு தற்காலிகமாக முடக்கப்பட்டுள்ளது. விவரங்களுக்கு "
 "https://pypi.org/help#admin- தலையீட்டைக் காண்க."
 
-#: warehouse/manage/views/oidc_publishers.py:399
+#: warehouse/manage/views/oidc_publishers.py:404
 msgid ""
 "GitLab-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -741,7 +741,7 @@ msgstr ""
 "அறிவிலிஆய்வு அடிப்படையிலான நம்பகமான வெளியீடு தற்காலிகமாக முடக்கப்பட்டுள்ளது. "
 "விவரங்களுக்கு https://pypi.org/help#admin- தலையீட்டைக் காண்க."
 
-#: warehouse/manage/views/oidc_publishers.py:515
+#: warehouse/manage/views/oidc_publishers.py:520
 msgid ""
 "Google-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -749,7 +749,7 @@ msgstr ""
 "கூகிள் அடிப்படையிலான நம்பகமான வெளியீடு தற்காலிகமாக முடக்கப்பட்டுள்ளது. விவரங்களுக்கு "
 "https://pypi.org/help#admin- தலையீட்டைக் காண்க."
 
-#: warehouse/manage/views/oidc_publishers.py:626
+#: warehouse/manage/views/oidc_publishers.py:631
 msgid ""
 "ActiveState-based trusted publishing is temporarily disabled. See https://"
 "pypi.org/help#admin-intervention for details."
@@ -790,7 +790,7 @@ msgid "Expired invitation for '${username}' deleted."
 msgstr "'$ {username}' க்கான காலாவதியான அழைப்பு நீக்கப்பட்டது."
 
 #: warehouse/oidc/forms/_core.py:38 warehouse/oidc/forms/_core.py:49
-#: warehouse/oidc/forms/gitlab.py:50 warehouse/oidc/forms/gitlab.py:54
+#: warehouse/oidc/forms/gitlab.py:57 warehouse/oidc/forms/gitlab.py:61
 msgid "Invalid project name"
 msgstr "தவறான திட்ட பெயர்"
 
@@ -946,31 +946,35 @@ msgstr ""
 "சுற்றுச்சூழல் பெயரில் அச்சிடப்படாத எழுத்துக்கள் அல்லது \"\", \"\", \"` \",\", \",\"; "
 "\",\" \\ \"என்ற எழுத்துக்கள் இருக்கக்கூடாது"
 
-#: warehouse/oidc/forms/gitlab.py:22
+#: warehouse/oidc/forms/gitlab.py:23
 msgid "Name ends with .git or .atom"
 msgstr "பெயர் .git அல்லது .அடோம் உடன் முடிகிறது"
 
-#: warehouse/oidc/forms/gitlab.py:31
+#: warehouse/oidc/forms/gitlab.py:38
 msgid "Specify GitLab namespace (username or group/subgroup)"
 msgstr "அறிவிலிஆய்வு பெயர்வெளியைக் குறிப்பிடவும் (பயனர்பெயர் அல்லது குழு/துணைக்குழு)"
 
-#: warehouse/oidc/forms/gitlab.py:36 warehouse/oidc/forms/gitlab.py:40
+#: warehouse/oidc/forms/gitlab.py:43 warehouse/oidc/forms/gitlab.py:47
 msgid "Invalid GitLab username or group/subgroup name."
 msgstr "தவறான அறிவிலிஆய்வு பயனர்பெயர் அல்லது குழு/துணைக்குழு பெயர்."
 
-#: warehouse/oidc/forms/gitlab.py:63
+#: warehouse/oidc/forms/gitlab.py:70
 msgid "Specify top-level pipeline file path"
 msgstr "உயர்மட்ட பைப்லைன் கோப்பு பாதையைக் குறிப்பிடவும்"
 
-#: warehouse/oidc/forms/gitlab.py:72
+#: warehouse/oidc/forms/gitlab.py:79
 msgid "Invalid environment name"
 msgstr "தவறான சுற்றுச்சூழல் பெயர்"
 
-#: warehouse/oidc/forms/gitlab.py:87
+#: warehouse/oidc/forms/gitlab.py:86
+msgid "Choose GitLab issuer URL"
+msgstr ""
+
+#: warehouse/oidc/forms/gitlab.py:111
 msgid "Top-level pipeline file path must end with .yml or .yaml"
 msgstr "உயர்மட்ட பைப்லைன் கோப்பு பாதை .yml அல்லது .yaml உடன் முடிவடைய வேண்டும்"
 
-#: warehouse/oidc/forms/gitlab.py:91
+#: warehouse/oidc/forms/gitlab.py:115
 msgid "Top-level pipeline file path cannot start or end with /"
 msgstr "உயர்மட்ட பைப்லைன் கோப்பு பாதை / உடன் தொடங்கவோ முடிக்கவோ முடியாது"
 
@@ -1361,9 +1365,8 @@ msgstr "மொபைல் பதிப்பிற்கு மாறவும�
 #: warehouse/templates/manage/account.html:845
 #: warehouse/templates/manage/manage_base.html:364
 #: warehouse/templates/manage/manage_base.html:442
-#: warehouse/templates/manage/organization/settings.html:205
-#: warehouse/templates/manage/organization/settings.html:266
-#: warehouse/templates/manage/organization/settings.html:272
+#: warehouse/templates/manage/organization/settings.html:291
+#: warehouse/templates/manage/organization/settings.html:297
 #: warehouse/templates/manage/project/documentation.html:13
 #: warehouse/templates/manage/project/release.html:209
 #: warehouse/templates/manage/project/settings.html:78
@@ -1739,11 +1742,12 @@ msgstr "கடவுச்சொல்"
 #: warehouse/templates/manage/project/publishing.html:153
 #: warehouse/templates/manage/project/publishing.html:166
 #: warehouse/templates/manage/project/publishing.html:179
-#: warehouse/templates/manage/project/publishing.html:223
-#: warehouse/templates/manage/project/publishing.html:236
-#: warehouse/templates/manage/project/publishing.html:278
-#: warehouse/templates/manage/project/publishing.html:295
-#: warehouse/templates/manage/project/publishing.html:314
+#: warehouse/templates/manage/project/publishing.html:203
+#: warehouse/templates/manage/project/publishing.html:238
+#: warehouse/templates/manage/project/publishing.html:251
+#: warehouse/templates/manage/project/publishing.html:293
+#: warehouse/templates/manage/project/publishing.html:310
+#: warehouse/templates/manage/project/publishing.html:329
 #: warehouse/templates/manage/project/roles.html:320
 #: warehouse/templates/manage/project/roles.html:333
 #: warehouse/templates/manage/project/roles.html:344
@@ -3440,7 +3444,7 @@ msgstr "%(username)s has not uploaded any திட்டங்கள் பெ�
 
 #: warehouse/templates/includes/accounts/profile-public-email.html:16
 #: warehouse/templates/manage/account/publishing.html:238
-#: warehouse/templates/manage/project/publishing.html:221
+#: warehouse/templates/manage/project/publishing.html:236
 msgid "Email"
 msgstr "மின்னஞ்சல்"
 
@@ -4340,7 +4344,7 @@ msgid "Recent account activity"
 msgstr "Recent account செய்கைப்பாடு"
 
 #: warehouse/templates/manage/account.html:784
-#: warehouse/templates/manage/organization/history.html:175
+#: warehouse/templates/manage/organization/history.html:193
 #: warehouse/templates/manage/project/history.html:333
 #: warehouse/templates/manage/team/history.html:87
 #: warehouse/templates/manage/unverified-account.html:459
@@ -4348,8 +4352,8 @@ msgid "Event"
 msgstr "நிகழ்வு"
 
 #: warehouse/templates/manage/account.html:785
-#: warehouse/templates/manage/organization/history.html:176
-#: warehouse/templates/manage/organization/history.html:185
+#: warehouse/templates/manage/organization/history.html:194
+#: warehouse/templates/manage/organization/history.html:203
 #: warehouse/templates/manage/project/history.html:334
 #: warehouse/templates/manage/project/history.html:343
 #: warehouse/templates/manage/team/history.html:88
@@ -4359,7 +4363,7 @@ msgid "Time"
 msgstr "நேரம்"
 
 #: warehouse/templates/manage/account.html:786
-#: warehouse/templates/manage/organization/history.html:177
+#: warehouse/templates/manage/organization/history.html:195
 #: warehouse/templates/manage/team/history.html:89
 #: warehouse/templates/manage/unverified-account.html:461
 msgid "Additional Info"
@@ -4371,13 +4375,13 @@ msgid "Date / time"
 msgstr "திகதி / time"
 
 #: warehouse/templates/manage/account.html:798
-#: warehouse/templates/manage/organization/history.html:189
+#: warehouse/templates/manage/organization/history.html:207
 #: warehouse/templates/manage/unverified-account.html:472
 msgid "Location Info"
 msgstr "Location செய்தி"
 
 #: warehouse/templates/manage/account.html:801
-#: warehouse/templates/manage/organization/history.html:192
+#: warehouse/templates/manage/organization/history.html:210
 #: warehouse/templates/manage/project/history.html:350
 #: warehouse/templates/manage/team/history.html:104
 #: warehouse/templates/manage/unverified-account.html:475
@@ -4437,8 +4441,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:843
 #: warehouse/templates/manage/account/token.html:177
-#: warehouse/templates/manage/organization/settings.html:203
-#: warehouse/templates/manage/organization/settings.html:264
+#: warehouse/templates/manage/organization/settings.html:289
 #: warehouse/templates/manage/project/publishing.html:19
 #: warehouse/templates/manage/team/settings.html:60
 msgid "Proceed with caution!"
@@ -4739,7 +4742,8 @@ msgid "Any"
 msgstr "ஏதேனும்"
 
 #: warehouse/templates/manage/manage_base.html:633
-#: warehouse/templates/manage/organization/history.html:141
+#: warehouse/templates/manage/organization/history.html:109
+#: warehouse/templates/manage/organization/history.html:159
 #: warehouse/templates/manage/project/history.html:27
 #: warehouse/templates/manage/project/history.html:80
 #: warehouse/templates/manage/project/history.html:119
@@ -4752,7 +4756,8 @@ msgid "Added by:"
 msgstr "மூலம் சேர்க்கப்பட்டது:"
 
 #: warehouse/templates/manage/manage_base.html:635
-#: warehouse/templates/manage/organization/history.html:146
+#: warehouse/templates/manage/organization/history.html:117
+#: warehouse/templates/manage/organization/history.html:164
 #: warehouse/templates/manage/project/history.html:46
 #: warehouse/templates/manage/project/history.html:111
 #: warehouse/templates/manage/project/history.html:126
@@ -4809,7 +4814,7 @@ msgstr "%(org)sுக்கு அழைப்பை நிராகரிக்
 msgid "Decline invitation"
 msgstr "அழைப்பை நிராகரிக்கவும்"
 
-#: warehouse/templates/manage/organization/settings.html:284
+#: warehouse/templates/manage/organization/settings.html:309
 #: warehouse/templates/manage/organizations.html:51
 msgid "Organization Name"
 msgstr "அமைப்பு பெயர்"
@@ -5231,7 +5236,7 @@ msgstr "சூழல் பெயர்"
 #: warehouse/templates/manage/account/publishing.html:255
 #: warehouse/templates/manage/project/publishing.html:94
 #: warehouse/templates/manage/project/publishing.html:181
-#: warehouse/templates/manage/project/publishing.html:238
+#: warehouse/templates/manage/project/publishing.html:253
 msgid "(optional)"
 msgstr "(விரும்பினால்)"
 
@@ -5257,9 +5262,9 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:272
 #: warehouse/templates/manage/account/publishing.html:364
 #: warehouse/templates/manage/project/publishing.html:117
-#: warehouse/templates/manage/project/publishing.html:200
-#: warehouse/templates/manage/project/publishing.html:255
-#: warehouse/templates/manage/project/publishing.html:329
+#: warehouse/templates/manage/project/publishing.html:215
+#: warehouse/templates/manage/project/publishing.html:270
+#: warehouse/templates/manage/project/publishing.html:344
 #: warehouse/templates/manage/project/roles.html:373
 #: warehouse/templates/manage/project/settings.html:322
 #: warehouse/templates/manage/team/roles.html:125
@@ -5358,7 +5363,7 @@ msgstr ""
 "அணுகல் இல்லாத அணுகல் அணுகக்கூடியதாக இருந்தால்."
 
 #: warehouse/templates/manage/account/publishing.html:212
-#: warehouse/templates/manage/project/publishing.html:208
+#: warehouse/templates/manage/project/publishing.html:223
 #, python-format
 msgid ""
 "Read more about Google's OpenID Connect support <a href=\"%(href)s\">here</"
@@ -5368,22 +5373,22 @@ msgstr ""
 "வாசிக்க."
 
 #: warehouse/templates/manage/account/publishing.html:243
-#: warehouse/templates/manage/project/publishing.html:226
+#: warehouse/templates/manage/project/publishing.html:241
 msgid "email"
 msgstr "மின்னஞ்சல்"
 
 #: warehouse/templates/manage/account/publishing.html:245
-#: warehouse/templates/manage/project/publishing.html:228
+#: warehouse/templates/manage/project/publishing.html:243
 msgid "The email address of the account or service account used to publish."
 msgstr "கணக்கு அல்லது பணி கணக்கின் மின்னஞ்சல் முகவரி வெளியிட பயன்படுகிறது."
 
 #: warehouse/templates/manage/account/publishing.html:251
-#: warehouse/templates/manage/project/publishing.html:234
+#: warehouse/templates/manage/project/publishing.html:249
 msgid "Subject"
 msgstr "பொருள்"
 
 #: warehouse/templates/manage/account/publishing.html:258
-#: warehouse/templates/manage/project/publishing.html:241
+#: warehouse/templates/manage/project/publishing.html:256
 msgid "subject"
 msgstr "பொருள்"
 
@@ -5399,7 +5404,7 @@ msgstr ""
 "கட்டுப்படுத்துகிறது. <a href = \"%(href)s\"> மேலும் விவரங்கள் இங்கே. </a>"
 
 #: warehouse/templates/manage/account/publishing.html:279
-#: warehouse/templates/manage/project/publishing.html:263
+#: warehouse/templates/manage/project/publishing.html:278
 #, python-format
 msgid ""
 "Read more about ActiveState's OpenID Connect support <a "
@@ -5409,48 +5414,48 @@ msgstr ""
 "வாசிக்க."
 
 #: warehouse/templates/manage/account/publishing.html:311
-#: warehouse/templates/manage/project/publishing.html:276
+#: warehouse/templates/manage/project/publishing.html:291
 #: warehouse/templates/organizations/profile.html:17
 msgid "Organization"
 msgstr "அமைப்பு"
 
 #: warehouse/templates/manage/account/publishing.html:316
-#: warehouse/templates/manage/project/publishing.html:281
+#: warehouse/templates/manage/project/publishing.html:296
 msgid "my-organization"
 msgstr "என் அமைப்பு"
 
 #: warehouse/templates/manage/account/publishing.html:323
-#: warehouse/templates/manage/project/publishing.html:288
+#: warehouse/templates/manage/project/publishing.html:303
 msgid "The ActiveState organization name that owns the project"
 msgstr "திட்டத்திற்கு சொந்தமான செயல்பாட்டு அமைப்பு பெயர்"
 
 #: warehouse/templates/manage/account/publishing.html:328
-#: warehouse/templates/manage/project/publishing.html:293
+#: warehouse/templates/manage/project/publishing.html:308
 msgid "ActiveState Project name"
 msgstr "செயல்பாட்டு திட்டத்தின் பெயர்"
 
 #: warehouse/templates/manage/account/publishing.html:333
-#: warehouse/templates/manage/project/publishing.html:298
+#: warehouse/templates/manage/project/publishing.html:313
 msgid "my-project"
 msgstr "என் திட்டம்"
 
 #: warehouse/templates/manage/account/publishing.html:341
-#: warehouse/templates/manage/project/publishing.html:306
+#: warehouse/templates/manage/project/publishing.html:321
 msgid "The ActiveState project that will build your Python artifact."
 msgstr "உங்கள் பைதான் கலைப்பொருளை உருவாக்கும் செயல்பாட்டு திட்டம்."
 
 #: warehouse/templates/manage/account/publishing.html:347
-#: warehouse/templates/manage/project/publishing.html:312
+#: warehouse/templates/manage/project/publishing.html:327
 msgid "Actor Username"
 msgstr "நடிகர் பயனர்பெயர்"
 
 #: warehouse/templates/manage/account/publishing.html:352
-#: warehouse/templates/manage/project/publishing.html:317
+#: warehouse/templates/manage/project/publishing.html:332
 msgid "my-username"
 msgstr "என்-பயனர்பெயர்"
 
 #: warehouse/templates/manage/account/publishing.html:358
-#: warehouse/templates/manage/project/publishing.html:323
+#: warehouse/templates/manage/project/publishing.html:338
 msgid ""
 "The username for the ActiveState account that will trigger the build of your "
 "Python artifact."
@@ -5477,12 +5482,12 @@ msgid "Pending project name"
 msgstr "திட்ட பெயர் நிலுவையில் உள்ளது"
 
 #: warehouse/templates/manage/account/publishing.html:411
-#: warehouse/templates/manage/project/publishing.html:353
+#: warehouse/templates/manage/project/publishing.html:368
 msgid "Publisher"
 msgstr "வெளியீட்டாளர்"
 
 #: warehouse/templates/manage/account/publishing.html:412
-#: warehouse/templates/manage/project/publishing.html:354
+#: warehouse/templates/manage/project/publishing.html:369
 msgid "Details"
 msgstr "விவரங்கள்"
 
@@ -5531,7 +5536,7 @@ msgstr ""
 "\"நிலுவையில் உள்ள\" வெளியீட்டாளர் உட்பட அதை உருவாக்கலாம்."
 
 #: warehouse/templates/manage/account/publishing.html:481
-#: warehouse/templates/manage/project/publishing.html:397
+#: warehouse/templates/manage/project/publishing.html:412
 #, python-format
 msgid ""
 "You must first enable <a href=\"%(href)s\">two-factor authentication</a> on "
@@ -6195,56 +6200,70 @@ msgid "<a href=\"%(href)s\">%(username)s</a> removed from %(team_name)s team"
 msgstr ""
 "<a href = \"%(href)s\">%(username)s </a>%(team_name)sுழுவிலிருந்து அகற்றப்பட்டது"
 
-#: warehouse/templates/manage/organization/history.html:109
+#: warehouse/templates/manage/organization/history.html:106
+#, python-format
+msgid ""
+"Custom Trusted Publisher '%(issuer_type)s' for <code>%(issuer_url)s</code> "
+"added to organization"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:114
+#, python-format
+msgid ""
+"Custom Trusted Publisher '%(issuer_type)s' for <code>%(issuer_url)s</code> "
+"removed from organization"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:127
 msgid "Registered by:"
 msgstr "பதிவுசெய்தவர்:"
 
-#: warehouse/templates/manage/organization/history.html:115
+#: warehouse/templates/manage/organization/history.html:133
 #: warehouse/templates/manage/project/history.html:19
 #: warehouse/templates/manage/team/history.html:52
 msgid "Created by:"
 msgstr "உருவாக்கியவர்:"
 
-#: warehouse/templates/manage/organization/history.html:120
+#: warehouse/templates/manage/organization/history.html:138
 #: warehouse/templates/manage/project/history.html:293
 #: warehouse/templates/manage/project/history.html:315
 #: warehouse/templates/manage/team/history.html:57
 msgid "Deleted by:"
 msgstr "மூலம் நீக்கப்பட்டது:"
 
-#: warehouse/templates/manage/organization/history.html:125
+#: warehouse/templates/manage/organization/history.html:143
 #: warehouse/templates/manage/team/history.html:62
 msgid "Renamed by:"
 msgstr "மறுபெயரிடப்பட்டது:"
 
-#: warehouse/templates/manage/organization/history.html:130
+#: warehouse/templates/manage/organization/history.html:148
 msgid "Approved by:"
 msgstr "ஒப்புதல் அளித்தவர்:"
 
-#: warehouse/templates/manage/organization/history.html:135
+#: warehouse/templates/manage/organization/history.html:153
 msgid "Declined by:"
 msgstr "மூலம் மறுக்கப்பட்டது:"
 
-#: warehouse/templates/manage/organization/history.html:151
+#: warehouse/templates/manage/organization/history.html:169
 #: warehouse/templates/manage/project/history.html:133
 #: warehouse/templates/manage/project/history.html:179
 #: warehouse/templates/manage/team/history.html:78
 msgid "Changed by:"
 msgstr "மாற்றப்பட்டது:"
 
-#: warehouse/templates/manage/organization/history.html:156
-#: warehouse/templates/manage/organization/history.html:161
+#: warehouse/templates/manage/organization/history.html:174
+#: warehouse/templates/manage/organization/history.html:179
 #: warehouse/templates/manage/project/history.html:140
 #: warehouse/templates/manage/project/history.html:147
 msgid "Invited by:"
 msgstr "அழைத்தவர்:"
 
-#: warehouse/templates/manage/organization/history.html:166
+#: warehouse/templates/manage/organization/history.html:184
 #: warehouse/templates/manage/project/history.html:154
 msgid "Revoked by:"
 msgstr "ரத்து செய்யப்பட்டது:"
 
-#: warehouse/templates/manage/organization/history.html:172
+#: warehouse/templates/manage/organization/history.html:190
 #: warehouse/templates/manage/project/history.html:330
 #: warehouse/templates/manage/team/history.html:84
 #, python-format
@@ -6655,15 +6674,45 @@ msgid "Activate billing"
 msgstr "பட்டியலிடல் செயல்படுத்தவும்"
 
 #: warehouse/templates/manage/organization/settings.html:194
-#: warehouse/templates/manage/organization/settings.html:228
+#, fuzzy
+#| msgid "Trusted publisher added"
+msgid "Custom Trusted Publishers"
+msgstr "நம்பகமான வெளியீட்டாளர் மேலும் கூறினார்"
+
+#: warehouse/templates/manage/organization/settings.html:196
+msgid ""
+"The following custom Trusted Publisher issuers have been configured for this "
+"organization. These issuers can be used to configure Trusted Publishing for "
+"your organization's projects."
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:209
+#, fuzzy
+#| msgid "Renaming organizations is not currently supported."
+msgid "Modifying custom Trusted Publishers is not currently supported."
+msgstr "மறுபெயரிடும் நிறுவனங்கள் தற்போது ஆதரிக்கப்படவில்லை."
+
+#: warehouse/templates/manage/organization/settings.html:211
+#, fuzzy, python-format
+#| msgid ""
+#| "Please contact <a href=%(href)s>PyPI Support</a> if you need to rename "
+#| "your organization."
+msgid ""
+"Please contact <a href=%(href)s>PyPI Support</a> if you need to modify "
+"custom Trusted Publishers."
+msgstr ""
+"உங்கள் நிறுவனத்தை மறுபெயரிட வேண்டியிருந்தால் <a href =%(href)s> pypi உதவி </a> ஐ "
+"தொடர்பு கொள்ளவும்."
+
+#: warehouse/templates/manage/organization/settings.html:219
 msgid "Change organization account name"
 msgstr "நிறுவன கணக்கு பெயரை மாற்றவும்"
 
-#: warehouse/templates/manage/organization/settings.html:196
+#: warehouse/templates/manage/organization/settings.html:221
 msgid "Renaming organizations is not currently supported."
 msgstr "மறுபெயரிடும் நிறுவனங்கள் தற்போது ஆதரிக்கப்படவில்லை."
 
-#: warehouse/templates/manage/organization/settings.html:198
+#: warehouse/templates/manage/organization/settings.html:223
 #, python-format
 msgid ""
 "Please contact <a href=%(href)s>PyPI Support</a> if you need to rename your "
@@ -6672,54 +6721,39 @@ msgstr ""
 "உங்கள் நிறுவனத்தை மறுபெயரிட வேண்டியிருந்தால் <a href =%(href)s> pypi உதவி </a> ஐ "
 "தொடர்பு கொள்ளவும்."
 
-#: warehouse/templates/manage/organization/settings.html:206
-msgid ""
-"You will not be able to revert to your current account name after you rename "
-"your organization."
-msgstr ""
-"உங்கள் நிறுவனத்தை மறுபெயரிட்ட பிறகு உங்கள் நடப்பு கணக்கு பெயருக்கு திரும்ப முடியாது."
-
-#: warehouse/templates/manage/organization/settings.html:228
-msgid "Change organization account name for"
-msgstr "அதற்கான நிறுவன கணக்கு பெயரை மாற்றவும்"
-
-#: warehouse/templates/manage/organization/settings.html:228
-msgid "Current organization account name"
-msgstr "தற்போதைய அமைப்பு கணக்கு பெயர்"
-
-#: warehouse/templates/manage/organization/settings.html:234
-#: warehouse/templates/manage/organization/settings.html:284
+#: warehouse/templates/manage/organization/settings.html:259
+#: warehouse/templates/manage/organization/settings.html:309
 msgid "Delete organization"
 msgstr "அமைப்பை நீக்கு"
 
-#: warehouse/templates/manage/organization/settings.html:237
+#: warehouse/templates/manage/organization/settings.html:262
 msgid "Cannot delete organization"
 msgstr "அமைப்பை நீக்க முடியாது"
 
-#: warehouse/templates/manage/organization/settings.html:239
+#: warehouse/templates/manage/organization/settings.html:264
 #, python-format
 msgid "Your organization currently owns %(count)s project."
 msgid_plural "Your organization currently owns %(count)s projects."
 msgstr[0] "உங்கள் அமைப்பு தற்போது %(எண்ணிக்கை) திட்டத்தை வைத்திருக்கிறது."
 msgstr[1] "உங்கள் அமைப்பு தற்போது %(எண்ணிக்கை) திட்டங்களை வைத்திருக்கிறது."
 
-#: warehouse/templates/manage/organization/settings.html:244
+#: warehouse/templates/manage/organization/settings.html:269
 msgid "For each project, you must either:"
 msgstr "ஒவ்வொரு திட்டத்திற்கும், நீங்கள் வேண்டும்:"
 
-#: warehouse/templates/manage/organization/settings.html:246
+#: warehouse/templates/manage/organization/settings.html:271
 msgid "Transfer ownership and remove the project from your organization"
 msgstr "உரிமையை மாற்றவும், உங்கள் நிறுவனத்திலிருந்து திட்டத்தை அகற்றவும்"
 
-#: warehouse/templates/manage/organization/settings.html:247
+#: warehouse/templates/manage/organization/settings.html:272
 msgid "Delete the project"
 msgstr "திட்டத்தை நீக்கு"
 
-#: warehouse/templates/manage/organization/settings.html:249
+#: warehouse/templates/manage/organization/settings.html:274
 msgid "Before you can delete your organization."
 msgstr "உங்கள் நிறுவனத்தை நீக்குவதற்கு முன்."
 
-#: warehouse/templates/manage/organization/settings.html:255
+#: warehouse/templates/manage/organization/settings.html:280
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> and <a "
@@ -6730,22 +6764,22 @@ msgstr ""
 "\"%(remove_delete_href)s\"> திட்டத்தை அகற்று </a> <b> அல்லது </b> <a href = \" "
 "%(remove_delete_href)s \"> திட்டத்தை நீக்கு </a>"
 
-#: warehouse/templates/manage/organization/settings.html:267
+#: warehouse/templates/manage/organization/settings.html:292
 msgid "You will not be able to recover your organization after you delete it."
 msgstr "உங்கள் நிறுவனத்தை நீக்கிய பிறகு அதை மீட்டெடுக்க முடியாது."
 
-#: warehouse/templates/manage/organization/settings.html:274
+#: warehouse/templates/manage/organization/settings.html:299
 msgid ""
 "Your subscription will be cancelled, and you will lose access to the billing "
 "portal."
 msgstr ""
 "உங்கள் சந்தா ரத்து செய்யப்படும், மேலும் நீங்கள் பட்டியலிடல் போர்ட்டலுக்கான அணுகலை இழப்பீர்கள்."
 
-#: warehouse/templates/manage/organization/settings.html:276
+#: warehouse/templates/manage/organization/settings.html:301
 msgid "You will lose access to the billing portal."
 msgstr "பட்டியலிடல் போர்ட்டலுக்கான அணுகலை நீங்கள் இழப்பீர்கள்."
 
-#: warehouse/templates/manage/organization/settings.html:278
+#: warehouse/templates/manage/organization/settings.html:303
 #, python-format
 msgid ""
 "Please ensure you have retrieved all invoices from <a "
@@ -7110,7 +7144,19 @@ msgstr ""
 "சில படிவ புலங்கள் தானாகவே செய்யப்பட்டுள்ளன, படிவத்தை சமர்ப்பிக்கும் முன் அவற்றின் "
 "மதிப்புகளை இருமுறை சரிபார்க்கவும்."
 
-#: warehouse/templates/manage/project/publishing.html:249
+#: warehouse/templates/manage/project/publishing.html:201
+#, fuzzy
+#| msgid "GitLab Statistics"
+msgid "GitLab instance"
+msgstr "அறிவிலிஆய்வு புள்ளிவிவரங்கள்"
+
+#: warehouse/templates/manage/project/publishing.html:208
+msgid ""
+"The GitLab instance URL. Select <code>https://gitlab.com</code> for the "
+"public GitLab service, or a custom instance."
+msgstr ""
+
+#: warehouse/templates/manage/project/publishing.html:264
 #, python-format
 msgid ""
 "The subject is the numeric ID that represents the principal making the "
@@ -7122,33 +7168,33 @@ msgstr ""
 "என்றாலும், பொருள் வழங்குவது வெளியீட்டிற்கு பயன்படுத்தப்படும் அடையாளத்தை மேலும் "
 "கட்டுப்படுத்துகிறது. <a href = \"%(href)s\"> மேலும் விவரங்கள் இங்கே. </a>"
 
-#: warehouse/templates/manage/project/publishing.html:345
+#: warehouse/templates/manage/project/publishing.html:360
 msgid "Manage current publishers"
 msgstr "தற்போதைய வெளியீட்டாளர்களை நிர்வகிக்கவும்"
 
-#: warehouse/templates/manage/project/publishing.html:349
+#: warehouse/templates/manage/project/publishing.html:364
 #, python-format
 msgid "OpenID Connect publishers associated with %(project_name)s"
 msgstr "%(project_name)s உடன் தொடர்புடைய OpenID இணைப்பு வெளியீட்டாளர்கள்"
 
-#: warehouse/templates/manage/project/publishing.html:363
+#: warehouse/templates/manage/project/publishing.html:378
 msgid "No publishers are currently configured."
 msgstr "தற்போது எந்த வெளியீட்டாளர்களும் கட்டமைக்கப்படவில்லை."
 
-#: warehouse/templates/manage/project/publishing.html:367
+#: warehouse/templates/manage/project/publishing.html:382
 msgid "Add a new publisher"
 msgstr "புதிய வெளியீட்டாளரைச் சேர்க்கவும்"
 
-#: warehouse/templates/manage/project/publishing.html:407
-#: warehouse/templates/manage/project/publishing.html:410
+#: warehouse/templates/manage/project/publishing.html:422
+#: warehouse/templates/manage/project/publishing.html:425
 msgid "Constrain environment"
 msgstr "சூழலைக் கட்டுப்படுத்துங்கள்"
 
-#: warehouse/templates/manage/project/publishing.html:423
+#: warehouse/templates/manage/project/publishing.html:438
 msgid "This will restrict the Trusted Publisher's environment to"
 msgstr "இது நம்பகமான வெளியீட்டாளரின் சூழலை கட்டுப்படுத்தும்"
 
-#: warehouse/templates/manage/project/publishing.html:426
+#: warehouse/templates/manage/project/publishing.html:441
 #, python-format
 msgid ""
 "If you currently use multiple environments in your CI/CD workflows, you must "
@@ -7159,7 +7205,7 @@ msgstr ""
 "அனைத்தையும் '%(கட்டுப்படுத்தப்பட்ட_இன் சுற்றுச்சூழல்_பெயர்) எச்' என மாற்ற வேண்டும் அல்லது "
 "ஒவ்வொன்றையும் நம்பகமான வெளியீட்டாளராக பதிவு செய்ய வேண்டும்."
 
-#: warehouse/templates/manage/project/publishing.html:438
+#: warehouse/templates/manage/project/publishing.html:453
 #, python-format
 msgid ""
 "I understand that this Trusted Publisher will only allow uploads from CI/CD "
@@ -7169,7 +7215,7 @@ msgstr ""
 "இயங்கும் சிஐ/சிடி பணிப்பாய்வுகளிலிருந்து பதிவேற்றங்களை மட்டுமே அனுமதிப்பார் என்பதை நான் "
 "புரிந்துகொள்கிறேன்."
 
-#: warehouse/templates/manage/project/publishing.html:443
+#: warehouse/templates/manage/project/publishing.html:458
 msgid "New Environment Name"
 msgstr "புதிய சுற்றுச்சூழல் பெயர்"
 
@@ -11155,6 +11201,18 @@ msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "'%(filters)s' வடிப்பானுக்கு எந்த முடிவுகளும் இல்லை"
 msgstr[1] "'%(filters)s' வடிப்பான்களுக்கு எந்த முடிவுகளும் இல்லை"
+
+#~ msgid ""
+#~ "You will not be able to revert to your current account name after you "
+#~ "rename your organization."
+#~ msgstr ""
+#~ "உங்கள் நிறுவனத்தை மறுபெயரிட்ட பிறகு உங்கள் நடப்பு கணக்கு பெயருக்கு திரும்ப முடியாது."
+
+#~ msgid "Change organization account name for"
+#~ msgstr "அதற்கான நிறுவன கணக்கு பெயரை மாற்றவும்"
+
+#~ msgid "Current organization account name"
+#~ msgstr "தற்போதைய அமைப்பு கணக்கு பெயர்"
 
 #~ msgid "Organization request"
 #~ msgstr "நிறுவன கோரிக்கை"

@@ -16,8 +16,7 @@ import wtforms.validators
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy import func, or_, select
-from sqlalchemy.orm import joinedload
+from sqlalchemy import func, or_, select, update
 
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
@@ -342,16 +341,13 @@ def _nuke_user(user, request):
 
     # Update all journals to point to `deleted-user` instead
     deleted_user = request.db.query(User).filter(User.username == "deleted-user").one()
-
-    journals = (
-        request.db.query(JournalEntry)
-        .options(joinedload(JournalEntry.submitted_by))
-        .filter(JournalEntry.submitted_by == user)
-        .all()
+    # Update in bulk to avoid loading all journal entries into memory (n+1)
+    request.db.execute(
+        update(JournalEntry)
+        .where(JournalEntry._submitted_by == user.username)
+        .values(_submitted_by=deleted_user.username)
+        .execution_options(synchronize_session=False)
     )
-
-    for journal in journals:
-        journal.submitted_by = deleted_user
 
     # Prohibit the username
     request.db.add(

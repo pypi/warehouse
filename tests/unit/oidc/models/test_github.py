@@ -212,6 +212,7 @@ class TestGitHubPublisher:
             "enterprise",
             "enterprise_id",
             "ref_protected",
+            "check_run_id",
         }
 
     def test_github_publisher_computed_properties(self):

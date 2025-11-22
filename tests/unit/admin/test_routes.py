@@ -225,7 +225,7 @@ def test_includeme():
         pretend.call("admin.ip_address.list", "/admin/ip-addresses/", domain=warehouse),
         pretend.call(
             "admin.ip_address.detail",
-            "/admin/ip-addresses/{ip_address_id}",
+            "/admin/ip-addresses/{ip_address}",
             domain=warehouse,
         ),
         pretend.call("admin.project.list", "/admin/projects/", domain=warehouse),

@@ -67,6 +67,20 @@ class PreventNullBytesValidator:
             raise wtforms.validators.StopValidation(self.message)
 
 
+def _check_for_email_in_username(form, field):
+    """
+    Validator that checks if the username field contains an email address.
+    This helps users who mistakenly enter their email instead of username.
+    """
+    if field.data and "@" in field.data.strip():
+        raise wtforms.validators.StopValidation(
+            message=_(
+                "Usernames are not the same as email addresses. "
+                "Enter your username instead of your email address."
+            )
+        )
+
+
 def _check_for_existing_username(form: LoginForm, field):
     field.data = field.data.strip()
 
@@ -81,6 +95,7 @@ class UsernameMixin:
         validators=[
             wtforms.validators.InputRequired(),
             PreventNullBytesValidator(),
+            _check_for_email_in_username,
             _check_for_existing_username,
         ],
     )

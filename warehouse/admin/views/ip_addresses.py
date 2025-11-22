@@ -9,6 +9,7 @@ from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.view import view_config
 from sqlalchemy.exc import NoResultFound
 
+from warehouse.accounts.models import UserUniqueLogin
 from warehouse.authnz import Permissions
 from warehouse.ip_addresses.models import IpAddress
 from warehouse.utils.paginate import paginate_url_factory
@@ -51,10 +52,16 @@ def ip_address_list(request: Request) -> dict[str, SQLAlchemyORMPage[IpAddress] 
     uses_session=True,
 )
 def ip_address_detail(request: Request) -> dict[str, IpAddress]:
-    ip_address_id = request.matchdict["ip_address_id"]
+    ip_address = request.matchdict["ip_address"]
     try:
-        ip_address = request.db.query(IpAddress).filter_by(id=ip_address_id).one()
+        ip_address = request.db.query(IpAddress).filter_by(ip_address=ip_address).one()
     except NoResultFound:
-        raise HTTPBadRequest("No IP Address found with that id.")
+        raise HTTPBadRequest("No matching IP Address found.")
 
-    return {"ip_address": ip_address}
+    unique_logins = (
+        request.db.query(UserUniqueLogin)
+        .filter(UserUniqueLogin.ip_address == str(ip_address.ip_address))
+        .all()
+    )
+
+    return {"ip_address": ip_address, "unique_logins": unique_logins}
