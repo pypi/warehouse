@@ -49,16 +49,18 @@ Here are security practices to protect your PyPI account:
     [RubyGems](https://guides.rubygems.org/trusted-publishing/),
     and [npmjs.com](https://docs.npmjs.com/trusted-publishers) adopting similar models.
 
-    When using GitHub Actions, consider layering in additional security measures, like human approval steps before publishing.
+    When using GitHub Actions, consider layering in additional security measures,
+    like requiring human approval via [GitHub Environments](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments) before publishing.
     [This blog post from pyOpenSci](https://www.pyopensci.org/blog/python-packaging-security-publish-pypi.html)
     has detailed guidance on adding manual review steps to GitHub Actions workflows.
 
-- **Audit your workflows for misconfiguration:** Regularly review your GitHub Actions workflows for any potential security issues.
+- **Audit your workflows for misconfiguration:** Review your GitHub Actions workflows for any potential security issues.
     Tools like [zizmor](https://docs.zizmor.sh/) and [CodeQL](https://codeql.github.com/)
     can help identify vulnerabilities in your CI/CD pipelines.
+    Adopt scanning as automated actions for the repository to catch future issues.
 
 - **Review your account activity:** Regularly check your PyPI account activity for any unauthorized actions.
-    If you notice any suspicious activity, report it to the PyPI security team immediately.
+    If you notice any suspicious activity, [report it to the PyPI security team](https://pypi.org/security/) immediately.
 
 Taking any of these steps helps mitigate the risk of compromise and keeps packages secure.
 
