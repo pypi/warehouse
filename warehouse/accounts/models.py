@@ -122,7 +122,10 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
     )
 
     unique_logins: Mapped[list[UserUniqueLogin]] = orm.relationship(
-        back_populates="user", cascade="all, delete-orphan", lazy=True
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy=True,
+        order_by="UserUniqueLogin.created.desc()",
     )
 
     role_invitations: Mapped[list[RoleInvitation]] = orm.relationship(

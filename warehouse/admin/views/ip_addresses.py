@@ -61,6 +61,7 @@ def ip_address_detail(request: Request) -> dict[str, IpAddress]:
     unique_logins = (
         request.db.query(UserUniqueLogin)
         .filter(UserUniqueLogin.ip_address == str(ip_address.ip_address))
+        .order_by(UserUniqueLogin.created.desc())
         .all()
     )
 
