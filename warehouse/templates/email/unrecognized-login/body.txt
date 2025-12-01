@@ -1,7 +1,8 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 A login attempt was made from an unrecognized device.
 
-To complete your login, please visit the following link:
+To complete your login, please visit the following link from the same device
+from which you attempted to log in:
 
 {{ request.route_url('accounts.confirm-login', _query={'token': token}) }}
 

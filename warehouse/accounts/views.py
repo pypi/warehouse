@@ -1020,19 +1020,6 @@ def confirm_login(request):
     if user is None:
         return _error(request._("Invalid token: user not found"))
 
-    # Check whether the user has logged in since the token was created
-    last_login = datetime.datetime.fromisoformat(data.get("user.last_login"))
-    # Before updating itsdangerous to 2.x the last_login was naive,
-    # now it's localized to UTC
-    if not last_login.tzinfo:
-        last_login = pytz.UTC.localize(last_login)
-    if user.last_login and user.last_login > last_login:
-        return _error(
-            request._(
-                "Invalid token: user has logged in since this token was requested"
-            )
-        )
-
     unique_login_id = data.get("unique_login_id")
     unique_login = (
         request.db.query(UserUniqueLogin)
