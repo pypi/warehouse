@@ -2,7 +2,7 @@
 {% extends "email/_base/body.html" %}
 {% block content %}
   <p>A login attempt was made from an unrecognized device.</p>
-  <p>To complete your login, please visit the following link:</p>
+  <p>To complete your login, please visit the following link from the same device from which you attempted to log in:</p>
   {% set link = request.route_url('accounts.confirm-login', _query={'token': token}) %}
   <p>
     <a href="{{ link }}">{{ link }}</a>
