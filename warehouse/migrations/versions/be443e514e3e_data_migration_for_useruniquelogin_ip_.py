@@ -44,6 +44,7 @@ def upgrade():
         "user_unique_logins",
         ["ip_address"],
         unique=False,
+        if_not_exists=True,
     )
 
     bind = op.get_bind()
@@ -94,6 +95,7 @@ WHERE
     op.drop_index(
         "ix_user_unique_logins_ip_address_migration",
         "user_unique_logins",
+        if_exists=True,
     )
 
 
