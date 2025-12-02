@@ -512,6 +512,11 @@ class UserUniqueLogin(db.Model):
     )
     user: Mapped[User] = orm.relationship(back_populates="unique_logins")
 
+    ip_address_id: Mapped[int] = mapped_column(
+        ForeignKey("ip_addresses.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=True,
+        index=True,
+    )
     ip_address: Mapped[str] = mapped_column(String, nullable=False)
     created: Mapped[datetime_now]
     last_used: Mapped[datetime_now]
