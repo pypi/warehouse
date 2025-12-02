@@ -4,7 +4,6 @@ volumes:
   packages-archive:
   sponsorlogos:
   caches:
-  postgres_data:
   redis_data:
   rstuf-metadata:
   pgdata:
@@ -29,7 +28,6 @@ services:
       - ./dev/example.sql.xz:/example.sql.xz:z
       - ./dev/db/post-migrations.sql:/post-migrations.sql:z
       - ./bin/wait-for-db:/usr/local/bin/wait-for-db:z
-      - postgres_data:/var/lib/postgresql/data/
 
   stripe:
     image: stripe/stripe-mock:v0.162.0
