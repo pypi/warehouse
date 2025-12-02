@@ -514,7 +514,7 @@ class UserUniqueLogin(db.Model):
 
     ip_address_id: Mapped[int] = mapped_column(
         ForeignKey("ip_addresses.id", onupdate="CASCADE", ondelete="CASCADE"),
-        nullable=True,
+        nullable=False,
         index=True,
     )
     ip_address: Mapped[str] = mapped_column(String, nullable=False)
