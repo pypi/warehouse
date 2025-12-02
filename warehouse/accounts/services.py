@@ -764,7 +764,8 @@ class DatabaseUserService:
         if not unique_login:
             unique_login = UserUniqueLogin(
                 user_id=userid,
-                ip_address=request.remote_addr,
+                ip_address=str(request.ip_address.ip_address),
+                ip_address_id=request.ip_address.id,
                 status=UniqueLoginStatus.PENDING,
                 expires=datetime.datetime.now(datetime.UTC)
                 + datetime.timedelta(seconds=token_service.max_age),
@@ -826,7 +827,7 @@ class DatabaseUserService:
         send_unrecognized_login_email(
             request,
             user,
-            ip_address=request.remote_addr,
+            ip_address=str(request.ip_address.ip_address),
             user_agent=user_agent_info.display(),
             token=token,
         )
