@@ -119,7 +119,7 @@ _allowed_platforms = {
     "linux_armv7l",
 }
 # macosx is a little more complicated:
-_macosx_platform_re = re.compile(r"macosx_(?P<major>\d+)_(\d+)_(?P<arch>.*)")
+_macosx_platform_re = re.compile(r"macosx_(?P<major>\d+)_(?P<minor>\d+)_(?P<arch>.*)")
 _macosx_arches = {
     "ppc",
     "ppc64",
@@ -133,8 +133,8 @@ _macosx_arches = {
     "universal",
     "universal2",
 }
+# macosx 10 is also supported, but with different rules
 _macosx_major_versions = {
-    "10",
     "11",
     "12",
     "13",
@@ -179,9 +179,17 @@ def _valid_platform_tag(platform_tag):
     if platform_tag in _allowed_platforms:
         return True
     m = _macosx_platform_re.match(platform_tag)
+    # https://github.com/pypa/packaging.python.org/issues/1933
+    # There's two macosx formats: `macosx_10_{minor}` for the 10.x series where
+    # only the minor version ever increased, and `macosx_{major}_0` for the
+    # new release scheme where we don't know how many minor versions each
+    # release has.
+    if m and m.group("major") == "10" and m.group("arch") in _macosx_arches:
+        return True
     if (
         m
         and m.group("major") in _macosx_major_versions
+        and m.group("minor") == "0"
         and m.group("arch") in _macosx_arches
     ):
         return True

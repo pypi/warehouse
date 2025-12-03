@@ -1020,19 +1020,6 @@ def confirm_login(request):
     if user is None:
         return _error(request._("Invalid token: user not found"))
 
-    # Check whether the user has logged in since the token was created
-    last_login = datetime.datetime.fromisoformat(data.get("user.last_login"))
-    # Before updating itsdangerous to 2.x the last_login was naive,
-    # now it's localized to UTC
-    if not last_login.tzinfo:
-        last_login = pytz.UTC.localize(last_login)
-    if user.last_login and user.last_login > last_login:
-        return _error(
-            request._(
-                "Invalid token: user has logged in since this token was requested"
-            )
-        )
-
     unique_login_id = data.get("unique_login_id")
     unique_login = (
         request.db.query(UserUniqueLogin)
@@ -1043,7 +1030,7 @@ def confirm_login(request):
     if unique_login is None:
         return _error(request._("Invalid login attempt."))
 
-    if unique_login.ip_address != request.remote_addr:
+    if unique_login.ip_address != str(request.ip_address.ip_address):
         return _error(
             request._(
                 "Device details didn't match, please try again from the device "
@@ -1561,7 +1548,7 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
         request.db.query(UserUniqueLogin)
         .filter(
             UserUniqueLogin.user_id == userid,
-            UserUniqueLogin.ip_address == request.remote_addr,
+            UserUniqueLogin.ip_address == str(request.ip_address.ip_address),
         )
         .one_or_none()
     )
@@ -1573,7 +1560,8 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
         # if this is non-phishable.
         unique_login = UserUniqueLogin(
             user_id=userid,
-            ip_address=request.remote_addr,
+            ip_address=str(request.ip_address.ip_address),
+            ip_address_id=request.ip_address.id,
             status=UniqueLoginStatus.CONFIRMED,
         )
         request.db.add(unique_login)
