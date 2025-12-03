@@ -122,7 +122,10 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
     )
 
     unique_logins: Mapped[list[UserUniqueLogin]] = orm.relationship(
-        back_populates="user", cascade="all, delete-orphan", lazy=True
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy=True,
+        order_by="UserUniqueLogin.created.desc()",
     )
 
     role_invitations: Mapped[list[RoleInvitation]] = orm.relationship(
@@ -509,6 +512,11 @@ class UserUniqueLogin(db.Model):
     )
     user: Mapped[User] = orm.relationship(back_populates="unique_logins")
 
+    ip_address_id: Mapped[int] = mapped_column(
+        ForeignKey("ip_addresses.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=True,
+        index=True,
+    )
     ip_address: Mapped[str] = mapped_column(String, nullable=False)
     created: Mapped[datetime_now]
     last_used: Mapped[datetime_now]

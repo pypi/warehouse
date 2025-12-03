@@ -49,7 +49,7 @@ def test_unrecognized_login_with_totp(webtest):
     assert resp.status_code == HTTPStatus.SEE_OTHER
     assert resp.headers["Location"].endswith("/account/confirm-login/")
     unrecognized_page = resp.follow()
-    assert "Unrecognized device" in unrecognized_page
+    assert "Please confirm this login" in unrecognized_page
 
     # This is a hack because the functional test doesn't have another way to
     # determine the magic link that was sent in the email. Instead, find the
