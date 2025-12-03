@@ -641,7 +641,8 @@ class TestLogin:
 
         UserUniqueLoginFactory.create(
             user=user,
-            ip_address=db_request.remote_addr,
+            ip_address=str(db_request.ip_address.ip_address),
+            ip_address_id=db_request.ip_address.id,
             status=UniqueLoginStatus.PENDING,
         )
 
@@ -699,7 +700,8 @@ class TestLogin:
         past_timestamp = datetime.datetime(1970, 1, 1)
         UserUniqueLoginFactory.create(
             user=user,
-            ip_address=db_request.remote_addr,
+            ip_address=str(db_request.ip_address.ip_address),
+            ip_address_id=db_request.ip_address.id,
             status=UniqueLoginStatus.CONFIRMED,
             last_used=past_timestamp,
         )
@@ -5507,7 +5509,9 @@ class TestConfirmLogin:
     def test_success(self, monkeypatch, db_request):
         user = UserFactory.create(last_login=datetime.datetime.now(datetime.UTC))
         unique_login = UserUniqueLoginFactory.create(
-            user=user, ip_address=db_request.remote_addr
+            user=user,
+            ip_address=str(db_request.ip_address.ip_address),
+            ip_address_id=db_request.ip_address.id,
         )
         db_request.user = None
         db_request.params = {"token": "foo"}
