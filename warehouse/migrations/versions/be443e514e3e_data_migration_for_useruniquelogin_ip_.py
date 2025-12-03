@@ -8,6 +8,8 @@ Create Date: 2025-12-02 17:32:29.770684
 """
 
 
+import os
+
 import sqlalchemy as sa
 
 from alembic import op
@@ -49,13 +51,22 @@ def upgrade():
 
     bind = op.get_bind()
     batch_size = 1000
+    salt = os.environ.get("WAREHOUSE_IP_SALT")
 
     while _get_remaining_ips_to_insert(bind) > 0:
         bind.execute(
             sa.text(
-                """
-INSERT INTO ip_addresses (ip_address)
-SELECT DISTINCT user_unique_logins.ip_address::inet
+                f"""
+INSERT INTO ip_addresses (ip_address, hashed_ip_address)
+SELECT
+    DISTINCT user_unique_logins.ip_address::inet,
+    encode(
+        digest(
+            CONCAT(user_unique_logins.ip_address, '{salt}'),
+            'sha256'
+        ),
+        'hex'
+    )
 FROM user_unique_logins
 LEFT JOIN ip_addresses ON user_unique_logins.ip_address::inet = ip_addresses.ip_address
 WHERE ip_addresses.id IS NULL AND user_unique_logins.ip_address IS NOT NULL
