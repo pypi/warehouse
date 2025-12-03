@@ -154,6 +154,7 @@ def _ip_address(request):
     except NoResultFound:
         ip_address = IpAddress(ip_address=request.remote_addr)
         request.db.add(ip_address)
+        request.db.flush()  # To get the id if newly added
 
     ip_address.hashed_ip_address = request.remote_addr_hashed
     ip_address.geoip_info = {

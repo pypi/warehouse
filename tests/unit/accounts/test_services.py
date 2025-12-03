@@ -2045,6 +2045,7 @@ class TestDeviceIsKnown:
                 )
             },
             find_service=lambda *a, **kw: token_service,
+            ip_address=IpAddressFactory.create(ip_address=REMOTE_ADDR),
         )
 
         assert not user_service.device_is_known(user.id, user_service.request)
@@ -2114,6 +2115,7 @@ class TestDeviceIsKnown:
                 )
             },
             find_service=lambda *a, **kw: token_service,
+            ip_address=IpAddressFactory.create(ip_address=REMOTE_ADDR),
         )
 
         assert not user_service.device_is_known(user.id, user_service.request)
@@ -2143,6 +2145,7 @@ class TestDeviceIsKnown:
             remote_addr=REMOTE_ADDR,
             headers=headers,
             find_service=lambda *a, **kw: token_service,
+            ip_address=IpAddressFactory.create(ip_address=REMOTE_ADDR),
         )
 
         assert not user_service.device_is_known(user.id, user_service.request)
