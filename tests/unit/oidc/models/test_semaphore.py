@@ -11,9 +11,9 @@ class TestSemaphorePublisher:
     def test_publisher_name(self):
         publisher = semaphore.SemaphorePublisher(
             organization="example-org",
-            organization_id="org-id-1234",
+            semaphore_organization_id="org-id-1234",
             project="example-project",
-            project_id="proj-id-5678",
+            semaphore_project_id="proj-id-5678",
             repo_slug="owner/repo",
         )
 
@@ -22,9 +22,9 @@ class TestSemaphorePublisher:
     def test_publisher_base_url(self):
         publisher = semaphore.SemaphorePublisher(
             organization="example-org",
-            organization_id="org-id-1234",
+            semaphore_organization_id="org-id-1234",
             project="example-project",
-            project_id="proj-id-5678",
+            semaphore_project_id="proj-id-5678",
             repo_slug="owner/repo",
         )
 
@@ -33,9 +33,9 @@ class TestSemaphorePublisher:
     def test_publisher_url(self):
         publisher = semaphore.SemaphorePublisher(
             organization="example-org",
-            organization_id="org-id-1234",
+            semaphore_organization_id="org-id-1234",
             project="example-project",
-            project_id="proj-id-5678",
+            semaphore_project_id="proj-id-5678",
             repo_slug="owner/repo",
         )
 
@@ -45,9 +45,9 @@ class TestSemaphorePublisher:
     def test_stored_claims(self):
         publisher = semaphore.SemaphorePublisher(
             organization="example-org",
-            organization_id="org-id-1234",
+            semaphore_organization_id="org-id-1234",
             project="example-project",
-            project_id="proj-id-5678",
+            semaphore_project_id="proj-id-5678",
             repo_slug="owner/repo",
         )
 
@@ -62,9 +62,9 @@ class TestSemaphorePublisher:
     def test_sub(self):
         publisher = semaphore.SemaphorePublisher(
             organization="example-org",
-            organization_id="org-id-1234",
+            semaphore_organization_id="org-id-1234",
             project="example-project",
-            project_id="proj-id-5678",
+            semaphore_project_id="proj-id-5678",
             repo_slug="owner/repo",
         )
 
@@ -73,9 +73,9 @@ class TestSemaphorePublisher:
     def test_repo_slug(self):
         publisher = semaphore.SemaphorePublisher(
             organization="example-org",
-            organization_id="org-id-1234",
+            semaphore_organization_id="org-id-1234",
             project="example-project",
-            project_id="proj-id-5678",
+            semaphore_project_id="proj-id-5678",
             repo_slug="owner/repo",
         )
 
@@ -84,9 +84,9 @@ class TestSemaphorePublisher:
     def test_repo(self):
         publisher = semaphore.SemaphorePublisher(
             organization="example-org",
-            organization_id="org-id-1234",
+            semaphore_organization_id="org-id-1234",
             project="example-project",
-            project_id="proj-id-5678",
+            semaphore_project_id="proj-id-5678",
             repo_slug="owner/repo",
         )
 
@@ -95,9 +95,9 @@ class TestSemaphorePublisher:
     def test_org(self):
         publisher = semaphore.SemaphorePublisher(
             organization="example-org",
-            organization_id="org-id-1234",
+            semaphore_organization_id="org-id-1234",
             project="example-project",
-            project_id="proj-id-5678",
+            semaphore_project_id="proj-id-5678",
             repo_slug="owner/repo",
         )
 
@@ -106,9 +106,9 @@ class TestSemaphorePublisher:
     def test_prj(self):
         publisher = semaphore.SemaphorePublisher(
             organization="example-org",
-            organization_id="org-id-1234",
+            semaphore_organization_id="org-id-1234",
             project="example-project",
-            project_id="proj-id-5678",
+            semaphore_project_id="proj-id-5678",
             repo_slug="owner/repo",
         )
 
@@ -117,9 +117,9 @@ class TestSemaphorePublisher:
     def test_org_id(self):
         publisher = semaphore.SemaphorePublisher(
             organization="example-org",
-            organization_id="org-id-1234",
+            semaphore_organization_id="org-id-1234",
             project="example-project",
-            project_id="proj-id-5678",
+            semaphore_project_id="proj-id-5678",
             repo_slug="owner/repo",
         )
 
@@ -128,9 +128,9 @@ class TestSemaphorePublisher:
     def test_prj_id(self):
         publisher = semaphore.SemaphorePublisher(
             organization="example-org",
-            organization_id="org-id-1234",
+            semaphore_organization_id="org-id-1234",
             project="example-project",
-            project_id="proj-id-5678",
+            semaphore_project_id="proj-id-5678",
             repo_slug="owner/repo",
         )
 
@@ -139,9 +139,9 @@ class TestSemaphorePublisher:
     def test_stringifies_as_repository(self):
         publisher = semaphore.SemaphorePublisher(
             organization="example-org",
-            organization_id="org-id-1234",
+            semaphore_organization_id="org-id-1234",
             project="example-project",
-            project_id="proj-id-5678",
+            semaphore_project_id="proj-id-5678",
             repo_slug="owner/repo",
         )
 
@@ -150,9 +150,9 @@ class TestSemaphorePublisher:
     def test_semaphore_publisher_admin_details(self):
         publisher = semaphore.SemaphorePublisher(
             organization="example-org",
-            organization_id="org-id-1234",
+            semaphore_organization_id="org-id-1234",
             project="example-project",
-            project_id="proj-id-5678",
+            semaphore_project_id="proj-id-5678",
             repo_slug="owner/repo",
         )
 
@@ -199,9 +199,9 @@ class TestSemaphorePublisher:
     def test_semaphore_publisher_lookup_by_claims(self, db_request):
         publisher = semaphore.SemaphorePublisher(
             organization="example-org",
-            organization_id="org-id-1234",
+            semaphore_organization_id="org-id-1234",
             project="example-project",
-            project_id="proj-id-5678",
+            semaphore_project_id="proj-id-5678",
             repo_slug="owner/repo",
         )
         db_request.db.add(publisher)
@@ -303,9 +303,9 @@ class TestSemaphorePublisher:
     def test_check_sub_valid(self):
         publisher = semaphore.SemaphorePublisher(
             organization="example-org",
-            organization_id="org-id-1234",
+            semaphore_organization_id="org-id-1234",
             project="example-project",
-            project_id="proj-id-5678",
+            semaphore_project_id="proj-id-5678",
             repo_slug="owner/repo",
         )
 
@@ -322,9 +322,9 @@ class TestSemaphorePublisher:
     def test_check_sub_invalid(self):
         publisher = semaphore.SemaphorePublisher(
             organization="example-org",
-            organization_id="org-id-1234",
+            semaphore_organization_id="org-id-1234",
             project="example-project",
-            project_id="proj-id-5678",
+            semaphore_project_id="proj-id-5678",
             repo_slug="owner/repo",
         )
 
@@ -341,9 +341,9 @@ class TestSemaphorePublisher:
     def test_check_sub_missing_repo(self):
         publisher = semaphore.SemaphorePublisher(
             organization="example-org",
-            organization_id="org-id-1234",
+            semaphore_organization_id="org-id-1234",
             project="example-project",
-            project_id="proj-id-5678",
+            semaphore_project_id="proj-id-5678",
             repo_slug="owner/repo",
         )
 
@@ -357,9 +357,9 @@ class TestSemaphorePublisher:
     def test_check_sub_empty_claim(self):
         publisher = semaphore.SemaphorePublisher(
             organization="example-org",
-            organization_id="org-id-1234",
+            semaphore_organization_id="org-id-1234",
             project="example-project",
-            project_id="proj-id-5678",
+            semaphore_project_id="proj-id-5678",
             repo_slug="owner/repo",
         )
 
@@ -368,9 +368,9 @@ class TestSemaphorePublisher:
     def test_check_sub_empty_repo_value(self):
         publisher = semaphore.SemaphorePublisher(
             organization="example-org",
-            organization_id="org-id-1234",
+            semaphore_organization_id="org-id-1234",
             project="example-project",
-            project_id="proj-id-5678",
+            semaphore_project_id="proj-id-5678",
             repo_slug="owner/repo",
         )
 
@@ -384,9 +384,9 @@ class TestSemaphorePublisher:
     def test_check_sub_only_repo_prefix(self):
         publisher = semaphore.SemaphorePublisher(
             organization="example-org",
-            organization_id="org-id-1234",
+            semaphore_organization_id="org-id-1234",
             project="example-project",
-            project_id="proj-id-5678",
+            semaphore_project_id="proj-id-5678",
             repo_slug="owner/repo",
         )
 
@@ -400,9 +400,9 @@ class TestSemaphorePublisher:
     def test_check_sub_single_part_after_repo(self):
         publisher = semaphore.SemaphorePublisher(
             organization="example-org",
-            organization_id="org-id-1234",
+            semaphore_organization_id="org-id-1234",
             project="example-project",
-            project_id="proj-id-5678",
+            semaphore_project_id="proj-id-5678",
             repo_slug="owner/repo",
         )
 
@@ -416,9 +416,9 @@ class TestSemaphorePublisher:
     def test_jti_property(self):
         publisher = semaphore.SemaphorePublisher(
             organization="example-org",
-            organization_id="org-id-1234",
+            semaphore_organization_id="org-id-1234",
             project="example-project",
-            project_id="proj-id-5678",
+            semaphore_project_id="proj-id-5678",
             repo_slug="owner/repo",
         )
 
@@ -427,9 +427,9 @@ class TestSemaphorePublisher:
     def test_attestation_identity(self):
         publisher = semaphore.SemaphorePublisher(
             organization="example-org",
-            organization_id="org-id-1234",
+            semaphore_organization_id="org-id-1234",
             project="example-project",
-            project_id="proj-id-5678",
+            semaphore_project_id="proj-id-5678",
             repo_slug="owner/repo",
         )
 
@@ -438,9 +438,9 @@ class TestSemaphorePublisher:
     def test_exists_true(self, db_request):
         publisher = semaphore.SemaphorePublisher(
             organization="example-org",
-            organization_id="org-id-1234",
+            semaphore_organization_id="org-id-1234",
             project="example-project",
-            project_id="proj-id-5678",
+            semaphore_project_id="proj-id-5678",
             repo_slug="owner/repo",
         )
         db_request.db.add(publisher)
@@ -454,9 +454,9 @@ class TestPendingSemaphorePublisher:
         user = UserFactory.create()
         pending_publisher = semaphore.PendingSemaphorePublisher(
             organization="example-org",
-            organization_id="org-id-1234",
+            semaphore_organization_id="a1b2c3d4-e5f6-7890-abcd-ef1234567890",
             project="example-project",
-            project_id="proj-id-5678",
+            semaphore_project_id="b2c3d4e5-f6a7-8901-bcde-f01234567891",
             repo_slug="owner/repo",
             project_name="example-pypi-project",
             added_by_id=user.id,
@@ -469,9 +469,12 @@ class TestPendingSemaphorePublisher:
 
         assert isinstance(publisher, semaphore.SemaphorePublisher)
         assert publisher.organization == "example-org"
-        assert publisher.organization_id == "org-id-1234"
+        assert (
+            publisher.semaphore_organization_id
+            == "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        )
         assert publisher.project == "example-project"
-        assert publisher.project_id == "proj-id-5678"
+        assert publisher.semaphore_project_id == "b2c3d4e5-f6a7-8901-bcde-f01234567891"
         assert publisher.repo_slug == "owner/repo"
 
         # The pending publisher should be deleted
@@ -484,11 +487,15 @@ class TestPendingSemaphorePublisher:
 
     def test_reify_existing_publisher(self, db_request):
         user = UserFactory.create()
+        # Use matching IDs
+        org_id = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        proj_id = "b2c3d4e5-f6a7-8901-bcde-f01234567891"
+
         existing_publisher = semaphore.SemaphorePublisher(
             organization="example-org",
-            organization_id="org-id-1234",
+            semaphore_organization_id=org_id,
             project="example-project",
-            project_id="proj-id-5678",
+            semaphore_project_id=proj_id,
             repo_slug="owner/repo",
         )
         db_request.db.add(existing_publisher)
@@ -496,9 +503,9 @@ class TestPendingSemaphorePublisher:
 
         pending_publisher = semaphore.PendingSemaphorePublisher(
             organization="example-org",
-            organization_id="org-id-1234",
+            semaphore_organization_id=org_id,
             project="example-project",
-            project_id="proj-id-5678",
+            semaphore_project_id=proj_id,
             repo_slug="owner/repo",
             project_name="example-pypi-project",
             added_by_id=user.id,

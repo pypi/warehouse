@@ -305,9 +305,9 @@ def test_find_publisher_by_issuer_semaphore(db_request):
     SemaphorePublisherFactory(
         id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
         organization="example-org",
-        organization_id="org-id-1234",
+        semaphore_organization_id="a1b2c3d4-e5f6-7890-abcd-ef1234567890",
         project="example-project",
-        project_id="proj-id-5678",
+        semaphore_project_id="b2c3d4e5-f6a7-8901-bcde-f01234567891",
         repo_slug="owner/repo",
     )
 
@@ -317,9 +317,9 @@ def test_find_publisher_by_issuer_semaphore(db_request):
     signed_claims.update(
         {
             "org": "example-org",
-            "org_id": "org-id-1234",
+            "org_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
             "prj": "example-project",
-            "prj_id": "proj-id-5678",
+            "prj_id": "b2c3d4e5-f6a7-8901-bcde-f01234567891",
             "repo_slug": "owner/repo",
         }
     )

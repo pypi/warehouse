@@ -63,9 +63,12 @@ class SemaphorePublisherMixin:
     """
 
     organization: Mapped[str] = mapped_column(String, nullable=False)
-    organization_id: Mapped[str] = mapped_column(String, nullable=False)
+    # Note: We use semaphore_organization_id and semaphore_project_id to avoid
+    # naming conflicts with PendingOIDCPublisher.organization_id (which is a UUID FK
+    # to PyPI organizations). These store SemaphoreCI's own UUID identifiers as strings.
+    semaphore_organization_id: Mapped[str] = mapped_column(String, nullable=False)
     project: Mapped[str] = mapped_column(String, nullable=False)
-    project_id: Mapped[str] = mapped_column(String, nullable=False)
+    semaphore_project_id: Mapped[str] = mapped_column(String, nullable=False)
     repo_slug: Mapped[str] = mapped_column(String, nullable=False)
 
     __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
@@ -104,14 +107,15 @@ class SemaphorePublisherMixin:
 
         if not org or not org_id or not prj or not prj_id or not repo_slug:
             raise InvalidPublisherError(
-                "Missing required claims: 'org', 'org_id', 'prj', 'prj_id', or 'repo_slug'"
+                "Missing required claims: 'org', 'org_id', 'prj', "
+                "'prj_id', or 'repo_slug'"
             )
 
         query: Query = Query(cls).filter_by(
             organization=org,
-            organization_id=org_id,
+            semaphore_organization_id=org_id,
             project=prj,
-            project_id=prj_id,
+            semaphore_project_id=prj_id,
             repo_slug=repo_slug,
         )
         publisher = query.with_session(session).one_or_none()
@@ -133,9 +137,7 @@ class SemaphorePublisherMixin:
     def repo(self) -> str:
         # Extract just the repository name from owner/repo
         return (
-            self.repo_slug.split("/")[-1]
-            if "/" in self.repo_slug
-            else self.repo_slug
+            self.repo_slug.split("/")[-1] if "/" in self.repo_slug else self.repo_slug
         )
 
     @property
@@ -144,7 +146,7 @@ class SemaphorePublisherMixin:
 
     @property
     def org_id(self) -> str:
-        return self.organization_id
+        return self.semaphore_organization_id
 
     @property
     def prj(self) -> str:
@@ -152,7 +154,7 @@ class SemaphorePublisherMixin:
 
     @property
     def prj_id(self) -> str:
-        return self.project_id
+        return self.semaphore_project_id
 
     @property
     def jti(self) -> str:
@@ -188,9 +190,10 @@ class SemaphorePublisherMixin:
             exists().where(
                 and_(
                     self.__class__.organization == self.organization,
-                    self.__class__.organization_id == self.organization_id,
+                    self.__class__.semaphore_organization_id
+                    == self.semaphore_organization_id,
                     self.__class__.project == self.project,
-                    self.__class__.project_id == self.project_id,
+                    self.__class__.semaphore_project_id == self.semaphore_project_id,
                     self.__class__.repo_slug == self.repo_slug,
                 )
             )
@@ -200,9 +203,9 @@ class SemaphorePublisherMixin:
     def admin_details(self) -> list[tuple[str, str]]:
         return [
             ("Organization", self.organization),
-            ("Organization ID", self.organization_id),
+            ("Organization ID", self.semaphore_organization_id),
             ("Project", self.project),
-            ("Project ID", self.project_id),
+            ("Project ID", self.semaphore_project_id),
             ("Repository", self.repo_slug),
         ]
 
@@ -213,9 +216,9 @@ class SemaphorePublisher(SemaphorePublisherMixin, OIDCPublisher):
     __table_args__ = (
         UniqueConstraint(
             "organization",
-            "organization_id",
+            "semaphore_organization_id",
             "project",
-            "project_id",
+            "semaphore_project_id",
             "repo_slug",
             name="_semaphore_oidc_publisher_uc",
         ),
@@ -232,9 +235,9 @@ class PendingSemaphorePublisher(SemaphorePublisherMixin, PendingOIDCPublisher):
     __table_args__ = (  # type: ignore[assignment]
         UniqueConstraint(
             "organization",
-            "organization_id",
+            "semaphore_organization_id",
             "project",
-            "project_id",
+            "semaphore_project_id",
             "repo_slug",
             name="_pending_semaphore_oidc_publisher_uc",
         ),
@@ -254,9 +257,10 @@ class PendingSemaphorePublisher(SemaphorePublisherMixin, PendingOIDCPublisher):
             session.query(SemaphorePublisher)
             .filter(
                 SemaphorePublisher.organization == self.organization,
-                SemaphorePublisher.organization_id == self.organization_id,
+                SemaphorePublisher.semaphore_organization_id
+                == self.semaphore_organization_id,
                 SemaphorePublisher.project == self.project,
-                SemaphorePublisher.project_id == self.project_id,
+                SemaphorePublisher.semaphore_project_id == self.semaphore_project_id,
                 SemaphorePublisher.repo_slug == self.repo_slug,
             )
             .one_or_none()
@@ -264,9 +268,9 @@ class PendingSemaphorePublisher(SemaphorePublisherMixin, PendingOIDCPublisher):
 
         publisher = maybe_publisher or SemaphorePublisher(
             organization=self.organization,
-            organization_id=self.organization_id,
+            semaphore_organization_id=self.semaphore_organization_id,
             project=self.project,
-            project_id=self.project_id,
+            semaphore_project_id=self.semaphore_project_id,
             repo_slug=self.repo_slug,
         )
 

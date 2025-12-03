@@ -20,9 +20,9 @@ def upgrade():
     op.create_table(
         "semaphore_oidc_publishers",
         sa.Column("organization", sa.String(), nullable=False),
-        sa.Column("organization_id", sa.String(), nullable=False),
+        sa.Column("semaphore_organization_id", sa.String(), nullable=False),
         sa.Column("project", sa.String(), nullable=False),
-        sa.Column("project_id", sa.String(), nullable=False),
+        sa.Column("semaphore_project_id", sa.String(), nullable=False),
         sa.Column("repo_slug", sa.String(), nullable=False),
         sa.Column("id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.ForeignKeyConstraint(
@@ -32,9 +32,9 @@ def upgrade():
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint(
             "organization",
-            "organization_id",
+            "semaphore_organization_id",
             "project",
-            "project_id",
+            "semaphore_project_id",
             "repo_slug",
             name="_semaphore_oidc_publisher_uc",
         ),
@@ -42,9 +42,9 @@ def upgrade():
     op.create_table(
         "pending_semaphore_oidc_publishers",
         sa.Column("organization", sa.String(), nullable=False),
-        sa.Column("organization_id", sa.String(), nullable=False),
+        sa.Column("semaphore_organization_id", sa.String(), nullable=False),
         sa.Column("project", sa.String(), nullable=False),
-        sa.Column("project_id", sa.String(), nullable=False),
+        sa.Column("semaphore_project_id", sa.String(), nullable=False),
         sa.Column("repo_slug", sa.String(), nullable=False),
         sa.Column("id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.ForeignKeyConstraint(
@@ -54,9 +54,9 @@ def upgrade():
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint(
             "organization",
-            "organization_id",
+            "semaphore_organization_id",
             "project",
-            "project_id",
+            "semaphore_project_id",
             "repo_slug",
             name="_pending_semaphore_oidc_publisher_uc",
         ),

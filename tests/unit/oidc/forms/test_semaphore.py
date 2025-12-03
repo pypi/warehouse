@@ -13,9 +13,9 @@ class TestPendingSemaphorePublisherForm:
             MultiDict(
                 {
                     "organization": "example-org",
-                    "organization_id": "org-id-1234",
+                    "semaphore_organization_id": "org-id-1234",
                     "project": "example-project",
-                    "project_id": "proj-id-5678",
+                    "semaphore_project_id": "proj-id-5678",
                     "repo_slug": "owner/repo",
                     "project_name": "example-pypi-project",
                 }
@@ -120,7 +120,7 @@ class TestPendingSemaphorePublisherForm:
                 {
                     "organization": "example-org",
                     "project": "example-project",
-                    "project_id": "proj-id-5678",
+                    "semaphore_project_id": "proj-id-5678",
                     "repo_slug": "owner/repo",
                     "project_name": "example-pypi-project",
                 }
@@ -131,14 +131,14 @@ class TestPendingSemaphorePublisherForm:
         )
 
         assert not form.validate()
-        assert "organization_id" in form.errors
+        assert "semaphore_organization_id" in form.errors
 
     def test_validate_project_id_required(self, pyramid_request):
         form = forms.PendingSemaphorePublisherForm(
             MultiDict(
                 {
                     "organization": "example-org",
-                    "organization_id": "org-id-1234",
+                    "semaphore_organization_id": "org-id-1234",
                     "project": "example-project",
                     "repo_slug": "owner/repo",
                     "project_name": "example-pypi-project",
@@ -150,7 +150,7 @@ class TestPendingSemaphorePublisherForm:
         )
 
         assert not form.validate()
-        assert "project_id" in form.errors
+        assert "semaphore_project_id" in form.errors
 
     def test_provider_property(self, pyramid_request):
         form = forms.PendingSemaphorePublisherForm(
@@ -176,9 +176,9 @@ class TestSemaphorePublisherForm:
             MultiDict(
                 {
                     "organization": "example-org",
-                    "organization_id": "org-id-1234",
+                    "semaphore_organization_id": "org-id-1234",
                     "project": "example-project",
-                    "project_id": "proj-id-5678",
+                    "semaphore_project_id": "proj-id-5678",
                     "repo_slug": "owner/repo",
                 }
             )
@@ -190,9 +190,9 @@ class TestSemaphorePublisherForm:
         form = forms.SemaphorePublisherForm(
             MultiDict(
                 {
-                    "organization_id": "org-id-1234",
+                    "semaphore_organization_id": "org-id-1234",
                     "project": "example-project",
-                    "project_id": "proj-id-5678",
+                    "semaphore_project_id": "proj-id-5678",
                     "repo_slug": "owner/repo",
                 }
             )
@@ -206,8 +206,8 @@ class TestSemaphorePublisherForm:
             MultiDict(
                 {
                     "organization": "example-org",
-                    "organization_id": "org-id-1234",
-                    "project_id": "proj-id-5678",
+                    "semaphore_organization_id": "org-id-1234",
+                    "semaphore_project_id": "proj-id-5678",
                     "repo_slug": "owner/repo",
                 }
             )
@@ -221,9 +221,9 @@ class TestSemaphorePublisherForm:
             MultiDict(
                 {
                     "organization": "example-org",
-                    "organization_id": "org-id-1234",
+                    "semaphore_organization_id": "org-id-1234",
                     "project": "example-project",
-                    "project_id": "proj-id-5678",
+                    "semaphore_project_id": "proj-id-5678",
                 }
             )
         )
@@ -237,21 +237,21 @@ class TestSemaphorePublisherForm:
                 {
                     "organization": "example-org",
                     "project": "example-project",
-                    "project_id": "proj-id-5678",
+                    "semaphore_project_id": "proj-id-5678",
                     "repo_slug": "owner/repo",
                 }
             )
         )
 
         assert not form.validate()
-        assert "organization_id" in form.errors
+        assert "semaphore_organization_id" in form.errors
 
     def test_validate_project_id_required(self):
         form = forms.SemaphorePublisherForm(
             MultiDict(
                 {
                     "organization": "example-org",
-                    "organization_id": "org-id-1234",
+                    "semaphore_organization_id": "org-id-1234",
                     "project": "example-project",
                     "repo_slug": "owner/repo",
                 }
@@ -259,4 +259,4 @@ class TestSemaphorePublisherForm:
         )
 
         assert not form.validate()
-        assert "project_id" in form.errors
+        assert "semaphore_project_id" in form.errors

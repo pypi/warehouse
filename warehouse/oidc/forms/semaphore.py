@@ -8,9 +8,9 @@ from warehouse.oidc.forms._core import PendingPublisherMixin
 class SemaphorePublisherBase(wtforms.Form):
     __params__ = [
         "organization",
-        "organization_id",
+        "semaphore_organization_id",
         "project",
-        "project_id",
+        "semaphore_project_id",
         "repo_slug",
     ]
 
@@ -24,7 +24,7 @@ class SemaphorePublisherBase(wtforms.Form):
         ]
     )
 
-    organization_id = wtforms.StringField(
+    semaphore_organization_id = wtforms.StringField(
         validators=[
             wtforms.validators.InputRequired(message="Specify organization ID"),
         ]
@@ -36,7 +36,7 @@ class SemaphorePublisherBase(wtforms.Form):
         ]
     )
 
-    project_id = wtforms.StringField(
+    semaphore_project_id = wtforms.StringField(
         validators=[
             wtforms.validators.InputRequired(message="Specify project ID"),
         ]
