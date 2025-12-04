@@ -64,12 +64,15 @@ class TestIpAddressDetail:
         assert result == {"ip_address": ip_address, "unique_logins": []}
 
     def test_ip_address_found_with_unique_logins(self, db_request):
-        ip_address = IpAddressFactory()
         unique_login = UserUniqueLoginFactory.create(
-            ip_address=str(ip_address.ip_address)
+            ip_address=str(db_request.ip_address.ip_address),
+            ip_address_id=str(db_request.ip_address.id),
         )
-        db_request.matchdict["ip_address"] = str(ip_address.ip_address)
+        db_request.matchdict["ip_address"] = str(db_request.ip_address.ip_address)
 
         result = ip_views.ip_address_detail(db_request)
 
-        assert result == {"ip_address": ip_address, "unique_logins": [unique_login]}
+        assert result == {
+            "ip_address": db_request.ip_address,
+            "unique_logins": [unique_login],
+        }

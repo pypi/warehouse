@@ -2095,10 +2095,12 @@ class TestDeviceIsKnown:
 
     def test_device_is_pending_and_expired(self, user_service, monkeypatch):
         user = UserFactory.create(with_verified_primary_email=True)
+        ip_address = IpAddressFactory.create(ip_address=REMOTE_ADDR)
         UserUniqueLoginFactory.create(
             user=user,
-            ip_address=REMOTE_ADDR,
             status="pending",
+            ip_address=str(ip_address.ip_address),
+            ip_address_id=ip_address.id,
             created=datetime.datetime(1970, 1, 1),
             expires=datetime.datetime(1970, 1, 1),
         )
@@ -2115,7 +2117,7 @@ class TestDeviceIsKnown:
                 )
             },
             find_service=lambda *a, **kw: token_service,
-            ip_address=IpAddressFactory.create(ip_address=REMOTE_ADDR),
+            ip_address=ip_address,
         )
 
         assert not user_service.device_is_known(user.id, user_service.request)

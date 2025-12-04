@@ -19,6 +19,7 @@ from warehouse.accounts.models import (
 
 from ...common.constants import REMOTE_ADDR
 from .base import WarehouseFactory
+from .ip_addresses import IpAddressFactory
 
 fake = faker.Faker()
 
@@ -140,3 +141,10 @@ class UserUniqueLoginFactory(WarehouseFactory):
 
     user = factory.SubFactory(UserFactory)
     ip_address = REMOTE_ADDR
+    ip_address_id = factory.LazyAttribute(
+        lambda o: (
+            IpAddressFactory.create(ip_address=o.ip_address).id
+            if o.ip_address is not None
+            else None
+        )
+    )
