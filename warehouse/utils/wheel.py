@@ -1,11 +1,22 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import csv
+import os
 import re
+import sys
+import zipfile
 
 import packaging.tags
 import packaging.utils
 
-# import sentry_sdk
+
+class MissingWheelRecordError(Exception):
+    """Internal exception used by this module"""
+
+
+class InvalidWheelRecordError(Exception):
+    """Internal exception used by this module"""
+
 
 _PLATFORMS = [
     (re.compile(r"^win_(.*?)$"), lambda m: f"Windows {_normalize_arch(m.group(1))}"),
@@ -153,3 +164,66 @@ def tags_to_filters(tags: set[packaging.tags.Tag]) -> dict[str, list[str]]:
         "abis": sorted(abis),
         "platforms": sorted(platforms),
     }
+
+
+def _zip_filename_is_dir(filename: str) -> bool:
+    """Return True if this ZIP archive member is a directory."""
+    return filename.endswith(("/", "\\"))
+
+
+def validate_record(wheel_filepath: str) -> bool:
+    """
+    Extract RECORD file from a wheel and check the ZIP archive contents
+    against the files listed in the RECORD. Mismatches are reported via email.
+    """
+    filename = os.path.basename(wheel_filepath)
+    name, version, _ = filename.split("-", 2)
+    record_filename = f"{name}-{version}.dist-info/RECORD"
+    # Files that must be missing from 'RECORD',
+    # so we ignore them when cross-checking.
+    record_exemptions = {
+        f"{name}-{version}.dist-info/RECORD.jws",
+        f"{name}-{version}.dist-info/RECORD.p7s",
+    }
+    try:
+        with zipfile.ZipFile(wheel_filepath) as zfp:
+            wheel_record_contents = zfp.read(record_filename).decode()
+        record_entries = {
+            fn.replace("\\", "/")  # Normalize Windows path separators.
+            for fn, *_ in csv.reader(wheel_record_contents.splitlines())
+        }
+        wheel_entries = {
+            fn
+            for fn in zfp.namelist()
+            if not _zip_filename_is_dir(fn) and fn not in record_exemptions
+        }
+    except (UnicodeError, KeyError, csv.Error):
+        raise MissingWheelRecordError()
+    if record_entries != wheel_entries:
+        record_is_missing = wheel_entries - record_entries
+        wheel_is_missing = record_entries - wheel_entries
+        raise InvalidWheelRecordError(
+            (f"Record is missing {record_is_missing})" if record_is_missing else "")
+            + ("; " if record_is_missing and wheel_is_missing else "")
+            + (f"Wheel is missing {wheel_is_missing})" if wheel_is_missing else "")
+        )
+    return True
+
+
+def main(argv) -> int:  # pragma: no cover
+    if len(argv) != 1:
+        print("Usage: python -m warehouse.utils.wheel <wheel path>")
+        return 1
+    wheel_filepath = argv[0]
+    wheel_filename = os.path.basename(wheel_filepath)
+    try:
+        validate_record(wheel_filepath)
+        print(f"{wheel_filename}: OK")
+        return 0
+    except Exception as error:
+        print(f"{wheel_filename}: {error!r}")
+        return 1
+
+
+if __name__ == "__main__":  # pragma: no cover
+    sys.exit(main(sys.argv[1:]))
