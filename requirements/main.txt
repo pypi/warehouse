@@ -634,9 +634,9 @@ github-reserved-names==2025.10.1 \
     --hash=sha256:0e17d31503df0a1c752b68a6a112cfcc221ec73c4c43a5506b8f409d4cbeaa7d \
     --hash=sha256:fa32a88c96fe1869f34202b2473ef24fb76ebcd218a07038818ca1cfd2295216
     # via -r requirements/main.in
-google-api-core[grpc]==2.26.0 \
-    --hash=sha256:2b204bd0da2c81f918e3582c48458e24c11771f987f6258e6e227212af78f3ed \
-    --hash=sha256:e6e6d78bd6cf757f4aee41dcc85b07f485fbb069d5daa3afb126defba1e91a62
+google-api-core[grpc]==2.28.1 \
+    --hash=sha256:2b405df02d68e68ce0fbc138559e6036559e685159d148ae5861013dc201baf8 \
+    --hash=sha256:4021b0f8ceb77a6fb4de6fde4502cecab45062e66ff4f2895169e0b35bc9466c
     # via
     #   google-cloud-bigquery
     #   google-cloud-core
@@ -659,9 +659,9 @@ google-cloud-core==2.5.0 \
     # via
     #   google-cloud-bigquery
     #   google-cloud-storage
-google-cloud-storage==3.4.1 \
-    --hash=sha256:6f041a297e23a4b485fad8c305a7a6e6831855c208bcbe74d00332a909f82268 \
-    --hash=sha256:972764cc0392aa097be8f49a5354e22eb47c3f62370067fb1571ffff4a1c1189
+google-cloud-storage==3.6.0 \
+    --hash=sha256:29cc6b9a6c0fc9cdad071e375d540a5a50fbc9a7fad8300fa02fb904f6fe2ca2 \
+    --hash=sha256:5decbdddd63b7d1fc3e266a393ad6453d2e27d172bd982b1e2f15481668db097
     # via -r requirements/main.in
 google-crc32c==1.7.1 \
     --hash=sha256:0f99eaa09a9a7e642a61e06742856eec8b19fc0037832e03f941fe7cf0c8e4db \
