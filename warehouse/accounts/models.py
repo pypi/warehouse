@@ -512,7 +512,7 @@ class UserUniqueLogin(db.Model):
     )
     user: Mapped[User] = orm.relationship(back_populates="unique_logins")
 
-    ip_address_id: Mapped[int] = mapped_column(
+    ip_address_id: Mapped[UUID] = mapped_column(
         ForeignKey("ip_addresses.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         index=True,
