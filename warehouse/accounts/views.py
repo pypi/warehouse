@@ -1030,7 +1030,7 @@ def confirm_login(request):
     if unique_login is None:
         return _error(request._("Invalid login attempt."))
 
-    if unique_login.ip_address != str(request.ip_address.ip_address):
+    if unique_login.ip_address != request.ip_address:
         return _error(
             request._(
                 "Device details didn't match, please try again from the device "
@@ -1548,7 +1548,7 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
         request.db.query(UserUniqueLogin)
         .filter(
             UserUniqueLogin.user_id == userid,
-            UserUniqueLogin.ip_address == str(request.ip_address.ip_address),
+            UserUniqueLogin.ip_address == request.ip_address,
         )
         .one_or_none()
     )
@@ -1560,8 +1560,7 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
         # if this is non-phishable.
         unique_login = UserUniqueLogin(
             user_id=userid,
-            ip_address=str(request.ip_address.ip_address),
-            ip_address_id=request.ip_address.id,
+            ip_address=request.ip_address,
             status=UniqueLoginStatus.CONFIRMED,
         )
         request.db.add(unique_login)
