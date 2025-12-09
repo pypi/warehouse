@@ -2018,17 +2018,13 @@ class TestDomainrDomainStatusService:
 
 
 class TestDeviceIsKnown:
-    def test_device_is_known(self, user_service):
+    def test_device_is_known(self, user_service, db_request):
         user = UserFactory.create()
         UserUniqueLoginFactory.create(
-            user=user, ip_address=REMOTE_ADDR, status="confirmed"
+            user=user, ip_address=db_request.ip_address, status="confirmed"
         )
-        request = pretend.stub(
-            db=user_service.db,
-            remote_addr=REMOTE_ADDR,
-            find_service=lambda *a, **kw: pretend.stub(),
-        )
-        assert user_service.device_is_known(user.id, request)
+        db_request.find_service = lambda *a, **kw: pretend.stub()
+        assert user_service.device_is_known(user.id, db_request)
 
     def test_device_is_not_known(self, user_service, monkeypatch):
         user = UserFactory.create(with_verified_primary_email=True)
@@ -2054,7 +2050,7 @@ class TestDeviceIsKnown:
             user_service.db.query(services.UserUniqueLogin)
             .filter(
                 services.UserUniqueLogin.user_id == user.id,
-                services.UserUniqueLogin.ip_address == REMOTE_ADDR,
+                services.UserUniqueLogin.ip_address.has(ip_address=REMOTE_ADDR),
             )
             .one()
         )
@@ -2070,55 +2066,40 @@ class TestDeviceIsKnown:
             )
         ]
 
-    def test_device_is_pending_not_expired(self, user_service, monkeypatch):
+    def test_device_is_pending_not_expired(self, user_service, monkeypatch, db_request):
         user = UserFactory.create(with_verified_primary_email=True)
         UserUniqueLoginFactory.create(
-            user=user, ip_address=REMOTE_ADDR, status="pending"
+            user=user, ip_address=db_request.ip_address, status="pending"
         )
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(services, "send_unrecognized_login_email", send_email)
         token_service = pretend.stub(dumps=lambda d: "fake_token", max_age=60)
-        user_service.request = pretend.stub(
-            db=user_service.db,
-            remote_addr=REMOTE_ADDR,
-            headers={
-                "User-Agent": (
-                    "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) "
-                    "Gecko/20100101 Firefox/15.0.1"
-                )
-            },
-            find_service=lambda *a, **kw: token_service,
-        )
+        user_service.request = db_request
+        db_request.find_service = lambda *a, **kw: token_service
 
         assert not user_service.device_is_known(user.id, user_service.request)
         assert send_email.calls == []
 
-    def test_device_is_pending_and_expired(self, user_service, monkeypatch):
+    def test_device_is_pending_and_expired(self, user_service, monkeypatch, db_request):
         user = UserFactory.create(with_verified_primary_email=True)
-        ip_address = IpAddressFactory.create(ip_address=REMOTE_ADDR)
         UserUniqueLoginFactory.create(
             user=user,
             status="pending",
-            ip_address=str(ip_address.ip_address),
-            ip_address_id=ip_address.id,
+            ip_address=db_request.ip_address,
             created=datetime.datetime(1970, 1, 1),
             expires=datetime.datetime(1970, 1, 1),
         )
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(services, "send_unrecognized_login_email", send_email)
         token_service = pretend.stub(dumps=lambda d: "fake_token", max_age=60)
-        user_service.request = pretend.stub(
-            db=user_service.db,
-            remote_addr=REMOTE_ADDR,
-            headers={
-                "User-Agent": (
-                    "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) "
-                    "Gecko/20100101 Firefox/15.0.1"
-                )
-            },
-            find_service=lambda *a, **kw: token_service,
-            ip_address=ip_address,
-        )
+        user_service.request = db_request
+        db_request.find_service = lambda *a, **kw: token_service
+        db_request.headers = {
+            "User-Agent": (
+                "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) "
+                "Gecko/20100101 Firefox/15.0.1"
+            )
+        }
 
         assert not user_service.device_is_known(user.id, user_service.request)
         assert send_email.calls == [

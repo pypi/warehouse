@@ -213,53 +213,47 @@ class TestAccountsSearch:
         with pytest.raises(HTTPBadRequest):
             views.accounts_search(pyramid_request)
 
-    def test_returns_users_with_prefix(self, db_session, user_service):
+    def test_returns_users_with_prefix(self, db_request, user_service):
         foo = UserFactory.create(username="foo")
         bas = [
             UserFactory.create(username="bar"),
             UserFactory.create(username="baz"),
         ]
 
-        request = pretend.stub(
-            user=pretend.stub(),
-            find_service=lambda svc, **kw: {
-                IUserService: user_service,
-                IRateLimiter: pretend.stub(
-                    test=pretend.call_recorder(lambda ip_address: True),
-                    hit=pretend.call_recorder(lambda ip_address: None),
-                ),
-            }[svc],
-            ip_address=IpAddressFactory.build(),
-        )
+        db_request.user = pretend.stub()
+        db_request.find_service = lambda svc, **kw: {
+            IUserService: user_service,
+            IRateLimiter: pretend.stub(
+                test=pretend.call_recorder(lambda ip_address: True),
+                hit=pretend.call_recorder(lambda ip_address: None),
+            ),
+        }[svc]
 
-        request.params = MultiDict({"username": "f"})
-        result = views.accounts_search(request)
+        db_request.params = MultiDict({"username": "f"})
+        result = views.accounts_search(db_request)
         assert result == {"users": [foo]}
 
-        request.params = MultiDict({"username": "ba"})
-        result = views.accounts_search(request)
+        db_request.params = MultiDict({"username": "ba"})
+        result = views.accounts_search(db_request)
         assert result == {"users": bas}
 
-        request.params = MultiDict({"username": "zzz"})
+        db_request.params = MultiDict({"username": "zzz"})
         with pytest.raises(HTTPNotFound):
-            views.accounts_search(request)
+            views.accounts_search(db_request)
 
-    def test_when_rate_limited(self, db_session):
+    def test_when_rate_limited(self, db_request):
         search_limiter = pretend.stub(
             test=pretend.call_recorder(lambda ip_address: False),
         )
-        request = pretend.stub(
-            user=pretend.stub(),
-            find_service=lambda svc, **kw: {
-                IRateLimiter: search_limiter,
-            }[svc],
-            ip_address=IpAddressFactory.build(),
-        )
+        db_request.user = pretend.stub()
+        db_request.find_service = lambda svc, **kw: {
+            IRateLimiter: search_limiter,
+        }[svc]
 
-        request.params = MultiDict({"username": "foo"})
-        result = views.accounts_search(request)
+        db_request.params = MultiDict({"username": "foo"})
+        result = views.accounts_search(db_request)
 
-        assert search_limiter.test.calls == [pretend.call(request.ip_address)]
+        assert search_limiter.test.calls == [pretend.call(db_request.ip_address)]
         assert result == {"users": []}
 
 
@@ -641,8 +635,7 @@ class TestLogin:
 
         UserUniqueLoginFactory.create(
             user=user,
-            ip_address=str(db_request.ip_address.ip_address),
-            ip_address_id=db_request.ip_address.id,
+            ip_address=db_request.ip_address,
             status=UniqueLoginStatus.PENDING,
         )
 
@@ -700,8 +693,7 @@ class TestLogin:
         past_timestamp = datetime.datetime(1970, 1, 1)
         UserUniqueLoginFactory.create(
             user=user,
-            ip_address=str(db_request.ip_address.ip_address),
-            ip_address_id=db_request.ip_address.id,
+            ip_address=db_request.ip_address,
             status=UniqueLoginStatus.CONFIRMED,
             last_used=past_timestamp,
         )
@@ -5475,7 +5467,8 @@ class TestConfirmLogin:
 
     def test_ip_address_mismatch(self, db_request):
         user = UserFactory.create(last_login=datetime.datetime.now(datetime.UTC))
-        unique_login = UserUniqueLoginFactory.create(user=user, ip_address="1.1.1.1")
+        ip_address = IpAddressFactory.create(ip_address="1.1.1.1")
+        unique_login = UserUniqueLoginFactory.create(user=user, ip_address=ip_address)
         db_request.user = None
         db_request.params = {"token": "foo"}
         token_data = {
@@ -5510,8 +5503,7 @@ class TestConfirmLogin:
         user = UserFactory.create(last_login=datetime.datetime.now(datetime.UTC))
         unique_login = UserUniqueLoginFactory.create(
             user=user,
-            ip_address=str(db_request.ip_address.ip_address),
-            ip_address_id=db_request.ip_address.id,
+            ip_address=db_request.ip_address,
         )
         db_request.user = None
         db_request.params = {"token": "foo"}

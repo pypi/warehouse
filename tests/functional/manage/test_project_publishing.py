@@ -9,6 +9,7 @@ import responses
 
 from tests.common.constants import REMOTE_ADDR
 from tests.common.db.accounts import UserFactory, UserUniqueLoginFactory
+from tests.common.db.ip_addresses import IpAddressFactory
 from tests.common.db.packaging import ProjectFactory, RoleFactory
 from warehouse.accounts.models import UniqueLoginStatus
 from warehouse.utils.otp import _get_totp
@@ -30,8 +31,9 @@ class TestManageProjectPublishing:
         )
         project = ProjectFactory.create(name="existing-project")
         RoleFactory.create(user=user, project=project, role_name="Owner")
+        ip_address = IpAddressFactory.create(ip_address=REMOTE_ADDR)
         UserUniqueLoginFactory.create(
-            user=user, ip_address=REMOTE_ADDR, status=UniqueLoginStatus.CONFIRMED
+            user=user, ip_address=ip_address, status=UniqueLoginStatus.CONFIRMED
         )
 
         # Mock GitHub API for owner validation
@@ -110,8 +112,9 @@ class TestManageProjectPublishing:
         )
         project = ProjectFactory.create(name="gitlab-project")
         RoleFactory.create(user=user, project=project, role_name="Owner")
+        ip_address = IpAddressFactory.create(ip_address=REMOTE_ADDR)
         UserUniqueLoginFactory.create(
-            user=user, ip_address=REMOTE_ADDR, status=UniqueLoginStatus.CONFIRMED
+            user=user, ip_address=ip_address, status=UniqueLoginStatus.CONFIRMED
         )
 
         # Act: Log in
