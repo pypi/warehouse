@@ -6,7 +6,7 @@
 # Jaruwit Jaiya <poiiiii4yy@gmail.com>, 2019.
 # Wannaphong Phatthiyaphaibun <wannaphong@yahoo.com>, 2020, 2022.
 # altinat <poiiiii4yy@gmail.com>, 2022.
-# Nattawatt Hongthong <nattawatt.ho30@outlook.co.th>, 2023.
+# Nattawatt Hongthong <nattawatt.ho30@outlook.co.th>, 2023, 2025.
 # Pongsathorn Sraouthai <pongsathorns@gmail.com>, 2024.
 # Sira Pornsiriprasert <code@psira.me>, 2024.
 msgid ""
@@ -14,8 +14,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2024-11-22 17:04+0000\n"
-"Last-Translator: Sira Pornsiriprasert <code@psira.me>\n"
+"PO-Revision-Date: 2025-12-10 14:52+0000\n"
+"Last-Translator: Nattawatt Hongthong <nattawatt.ho30@outlook.co.th>\n"
 "Language-Team: Thai <https://hosted.weblate.org/projects/pypa/warehouse/th/"
 ">\n"
 "Language: th\n"
@@ -23,7 +23,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.9-dev\n"
+"X-Generator: Weblate 5.15-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:148
@@ -68,7 +68,7 @@ msgstr "ไม่อนุญาตให้ไบท์เปล่า"
 msgid ""
 "Usernames are not the same as email addresses. Enter your username instead "
 "of your email address."
-msgstr ""
+msgstr "ชื่อบัญชีไม่ตรงกับอีเมล จงใส่ชื่อบัญชีแทนชื่ออีเมล"
 
 #: warehouse/accounts/forms.py:90
 msgid "No user found with that username"
@@ -249,10 +249,8 @@ msgid "You have reset your password"
 msgstr "คุณได้ทำการตั้งค่ารหัสผ่านใหม่"
 
 #: warehouse/accounts/views.py:1008
-#, fuzzy
-#| msgid "Expired token: request a new organization invitation"
 msgid "Expired token: please try to login again"
-msgstr "โทเคนหมดอายุ: กรุณาขอลิ้งค์จากองค์กรของคุณใหม่"
+msgstr "โทเคนหมดอายุ: กรุณาเข้าสู่ระบบใหม่อีกครั้ง"
 
 #: warehouse/accounts/views.py:1010
 #, fuzzy
@@ -261,24 +259,22 @@ msgid "Invalid token: please try to login again"
 msgstr "โทเคนไม่ถูกต้อง: ไม่ค้นพบผู้ใช้งาน"
 
 #: warehouse/accounts/views.py:1016
-#, fuzzy
-#| msgid "Invalid token: not a collaboration invitation token"
 msgid "Invalid token: not a login confirmation token"
-msgstr "โทเคนหมดอายุ: ไม่ใช่โทเคนในการยืนยันอีเมล์"
+msgstr "โทเคนหมดอายุ: ไม่ใช่โทเคนในการยืนยันอีเมล"
 
 #: warehouse/accounts/views.py:1031
 msgid "Invalid login attempt."
-msgstr ""
+msgstr "เข้าสู่ระบบผิดพลาด"
 
 #: warehouse/accounts/views.py:1036
 msgid ""
 "Device details didn't match, please try again from the device you originally "
 "used to log in."
-msgstr ""
+msgstr "รายละเอียดอุปกรณ์ไม่ตรงกัน โปรดลองอีกครั้งจากอุปกรณ์ที่คุณใช้เข้าสู่ระบบครั้งแรก"
 
 #: warehouse/accounts/views.py:1047
 msgid "Your login has been confirmed and this device is now recognized."
-msgstr ""
+msgstr "การเข้าสู่ระบบของคุณได้รับการยืนยันแล้วและอุปกรณ์นี้ได้รับการยอมรับแล้ว"
 
 #: warehouse/accounts/views.py:1073
 msgid "Expired token: request a new email verification link"
@@ -360,10 +356,8 @@ msgid "Role invitation is not valid."
 msgstr "ตำเเหน่งการเชิญไม่ถูกต้อง"
 
 #: warehouse/accounts/views.py:1367
-#, fuzzy
-#| msgid "API Token does not exist."
 msgid "Invalid token: project does not exist"
-msgstr "ไม่มีโทเค็น API"
+msgstr "โทเคนไม่ถูกต้อง: ไม่มีโปรเจคดังกล่าว"
 
 #: warehouse/accounts/views.py:1378
 msgid "Role invitation no longer exists."
@@ -382,7 +376,7 @@ msgstr "ตอนนี้คุณได้เป็น ${role} ของโป
 #: warehouse/accounts/views.py:1588
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
-msgstr ""
+msgstr "โปรดตรวจสอบ<a href=\"${tos_url}\">ข้อกำหนดในการให้บริการ</a>ที่อัปเดตของเรา"
 
 #: warehouse/accounts/views.py:1800 warehouse/accounts/views.py:2054
 #: warehouse/manage/views/oidc_publishers.py:126
@@ -458,7 +452,7 @@ msgstr "ตัวอย่างแบนเนอร์"
 
 #: warehouse/manage/forms.py:380
 msgid "Provide your response to the request."
-msgstr ""
+msgstr "กรุณาให้คำตอบของคุณต่อคำร้องขอ"
 
 #: warehouse/manage/forms.py:421
 msgid "Choose an organization account name with 50 characters or less."
@@ -508,7 +502,7 @@ msgstr "ชื่อโปรเจคนี้ถูกใช้ไปแล้
 
 #: warehouse/manage/forms.py:551
 msgid "Cannot transfer to Company Organization with inactive billing"
-msgstr ""
+msgstr "ไม่สามารถโอนไปยังองค์กรบริษัทที่มีการเรียกเก็บเงินที่ไม่ได้ใช้งาน"
 
 #: warehouse/manage/forms.py:604
 msgid ""
@@ -533,14 +527,10 @@ msgid ""
 msgstr "ชื่อยาวเกินไป กรุณาระบุชื่อโดยมีความยาวไม่เกิน 400 ตัวอักษร"
 
 #: warehouse/manage/forms.py:677
-#, fuzzy
-#| msgid ""
-#| "The organization description is too long. Choose a organization "
-#| "description with 400 characters or less."
 msgid ""
 "We don't need to know quite that much :), limit your usage description to "
 "1024 characters or less."
-msgstr "ชื่อยาวเกินไป กรุณาระบุชื่อโดยมีความยาวไม่เกิน 400 ตัวอักษร"
+msgstr "ชื่อยาวเกินไป กรุณาระบุชื่อโดยมีความยาวไม่เกิน 1024 ตัวอักษร"
 
 #: warehouse/manage/forms.py:699
 msgid "You have already submitted the maximum number of "
@@ -571,10 +561,8 @@ msgid "Specify your alternate repository URL"
 msgstr "ระบุ URL รองของ repository"
 
 #: warehouse/manage/forms.py:800
-#, fuzzy
-#| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid "The URL is too long. Choose a URL with 400 characters or less."
-msgstr "ชื่อยาวเกินไป กรุณาระบุชื่อโดยมีความยาวไม่เกิน 100 ตัวอักษร"
+msgstr "ชื่อลิ้งค์ยาวเกินไป กรุณาระบุลิ้งค์โดยมีความยาวไม่เกิน 400 ตัวอักษร"
 
 #: warehouse/manage/forms.py:814
 #, fuzzy
@@ -1131,14 +1119,14 @@ msgstr "มอนตี้ ไพธอน - รูปสเก็ตช์ร�
 
 #: warehouse/templates/404.html:30 warehouse/templates/500.html:18
 #: warehouse/templates/accounts/two-factor.html:35
-#: warehouse/templates/base.html:343 warehouse/templates/base.html:349
-#: warehouse/templates/base.html:355 warehouse/templates/base.html:361
-#: warehouse/templates/base.html:377 warehouse/templates/base.html:383
-#: warehouse/templates/base.html:408 warehouse/templates/base.html:414
-#: warehouse/templates/base.html:423 warehouse/templates/base.html:436
-#: warehouse/templates/base.html:445 warehouse/templates/base.html:451
-#: warehouse/templates/base.html:457 warehouse/templates/base.html:470
-#: warehouse/templates/base.html:487
+#: warehouse/templates/base.html:345 warehouse/templates/base.html:351
+#: warehouse/templates/base.html:357 warehouse/templates/base.html:363
+#: warehouse/templates/base.html:379 warehouse/templates/base.html:385
+#: warehouse/templates/base.html:410 warehouse/templates/base.html:416
+#: warehouse/templates/base.html:425 warehouse/templates/base.html:438
+#: warehouse/templates/base.html:447 warehouse/templates/base.html:453
+#: warehouse/templates/base.html:459 warehouse/templates/base.html:472
+#: warehouse/templates/base.html:489
 #: warehouse/templates/includes/accounts/profile-callout.html:17
 #: warehouse/templates/includes/file-details.html:129
 #: warehouse/templates/index.html:98 warehouse/templates/index.html:105
@@ -1307,7 +1295,7 @@ msgid "Main navigation"
 msgstr ""
 
 #: warehouse/templates/base.html:33 warehouse/templates/base.html:68
-#: warehouse/templates/base.html:338
+#: warehouse/templates/base.html:340
 #: warehouse/templates/includes/current-user-indicator.html:77
 #: warehouse/templates/pages/help.html:209
 #: warehouse/templates/pages/sitemap.html:19
@@ -1382,16 +1370,16 @@ msgstr ""
 msgid "RSS: 40 newest packages"
 msgstr ""
 
-#: warehouse/templates/base.html:209
+#: warehouse/templates/base.html:211
 msgid "Skip to main content"
 msgstr ""
 
-#: warehouse/templates/base.html:213
+#: warehouse/templates/base.html:215
 msgid "Switch to mobile version"
 msgstr ""
 
-#: warehouse/templates/base.html:220 warehouse/templates/base.html:229
-#: warehouse/templates/base.html:239
+#: warehouse/templates/base.html:222 warehouse/templates/base.html:231
+#: warehouse/templates/base.html:241
 #: warehouse/templates/includes/flash-messages.html:41
 #: warehouse/templates/includes/session-notifications.html:19
 #: warehouse/templates/manage/account.html:845
@@ -1408,178 +1396,178 @@ msgstr ""
 msgid "Warning"
 msgstr ""
 
-#: warehouse/templates/base.html:222
+#: warehouse/templates/base.html:224
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
 
-#: warehouse/templates/base.html:231
+#: warehouse/templates/base.html:233
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
 "the real index."
 msgstr ""
 
-#: warehouse/templates/base.html:241
+#: warehouse/templates/base.html:243
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
 msgstr ""
 
-#: warehouse/templates/base.html:276 warehouse/templates/base.html:308
+#: warehouse/templates/base.html:278 warehouse/templates/base.html:310
 #: warehouse/templates/error-base-with-search.html:8
 #: warehouse/templates/index.html:29
 msgid "Search PyPI"
 msgstr "ค้นหา PyPI"
 
-#: warehouse/templates/base.html:281 warehouse/templates/index.html:35
+#: warehouse/templates/base.html:283 warehouse/templates/index.html:35
 #, fuzzy
 #| msgid "Search projects"
 msgid "Type '/' to search projects"
 msgstr "ค้นหาโครงการ"
 
-#: warehouse/templates/base.html:292 warehouse/templates/base.html:321
+#: warehouse/templates/base.html:294 warehouse/templates/base.html:323
 #: warehouse/templates/error-base-with-search.html:19
 #: warehouse/templates/index.html:44
 msgid "Search"
 msgstr "ค้นหา"
 
-#: warehouse/templates/base.html:313
+#: warehouse/templates/base.html:315
 #: warehouse/templates/error-base-with-search.html:13
 msgid "Search projects"
 msgstr "ค้นหาโครงการ"
 
-#: warehouse/templates/base.html:339
+#: warehouse/templates/base.html:341
 msgid "Help navigation"
 msgstr ""
 
-#: warehouse/templates/base.html:345
+#: warehouse/templates/base.html:347
 msgid "Installing packages"
 msgstr ""
 
-#: warehouse/templates/base.html:351
+#: warehouse/templates/base.html:353
 msgid "Uploading packages"
 msgstr ""
 
-#: warehouse/templates/base.html:357
+#: warehouse/templates/base.html:359
 msgid "User guide"
 msgstr ""
 
-#: warehouse/templates/base.html:363
+#: warehouse/templates/base.html:365
 msgid "Project name retention"
 msgstr ""
 
-#: warehouse/templates/base.html:366
+#: warehouse/templates/base.html:368
 msgid "FAQs"
 msgstr ""
 
-#: warehouse/templates/base.html:372 warehouse/templates/pages/sitemap.html:34
+#: warehouse/templates/base.html:374 warehouse/templates/pages/sitemap.html:34
 msgid "About PyPI"
 msgstr ""
 
-#: warehouse/templates/base.html:373
+#: warehouse/templates/base.html:375
 msgid "About PyPI navigation"
 msgstr ""
 
-#: warehouse/templates/base.html:379
+#: warehouse/templates/base.html:381
 msgid "PyPI Blog"
 msgstr ""
 
-#: warehouse/templates/base.html:385
+#: warehouse/templates/base.html:387
 msgid "Infrastructure dashboard"
 msgstr ""
 
-#: warehouse/templates/base.html:388 warehouse/templates/pages/sitemap.html:40
+#: warehouse/templates/base.html:390 warehouse/templates/pages/sitemap.html:40
 #: warehouse/templates/pages/stats.html:4
 msgid "Statistics"
 msgstr ""
 
-#: warehouse/templates/base.html:391
+#: warehouse/templates/base.html:393
 msgid "Logos & trademarks"
 msgstr ""
 
-#: warehouse/templates/base.html:394
+#: warehouse/templates/base.html:396
 msgid "Our sponsors"
 msgstr ""
 
-#: warehouse/templates/base.html:400
+#: warehouse/templates/base.html:402
 msgid "Contributing to PyPI"
 msgstr ""
 
-#: warehouse/templates/base.html:401
+#: warehouse/templates/base.html:403
 msgid "How to contribute navigation"
 msgstr ""
 
-#: warehouse/templates/base.html:404
+#: warehouse/templates/base.html:406
 msgid "Bugs and feedback"
 msgstr "ข้อผิดพลาดและผลตอบรับ"
 
-#: warehouse/templates/base.html:410
+#: warehouse/templates/base.html:412
 msgid "Contribute on GitHub"
 msgstr "มีส่วนร่วมใน GitHub"
 
-#: warehouse/templates/base.html:416
+#: warehouse/templates/base.html:418
 msgid "Translate PyPI"
 msgstr "แปล PyPI"
 
-#: warehouse/templates/base.html:419
+#: warehouse/templates/base.html:421
 msgid "Sponsor PyPI"
 msgstr "สปอนเซอร์ PyPI"
 
-#: warehouse/templates/base.html:425
+#: warehouse/templates/base.html:427
 msgid "Development credits"
 msgstr ""
 
-#: warehouse/templates/base.html:431 warehouse/templates/pages/sitemap.html:10
+#: warehouse/templates/base.html:433 warehouse/templates/pages/sitemap.html:10
 msgid "Using PyPI"
 msgstr ""
 
-#: warehouse/templates/base.html:432
+#: warehouse/templates/base.html:434
 msgid "Using PyPI navigation"
 msgstr ""
 
-#: warehouse/templates/base.html:438
+#: warehouse/templates/base.html:440
 #: warehouse/templates/manage/organization/activate_subscription.html:21
 msgid "Terms of Service"
 msgstr ""
 
-#: warehouse/templates/base.html:441
+#: warehouse/templates/base.html:443
 msgid "Report security issue"
 msgstr ""
 
-#: warehouse/templates/base.html:447
+#: warehouse/templates/base.html:449
 msgid "Code of conduct"
 msgstr ""
 
-#: warehouse/templates/base.html:453
+#: warehouse/templates/base.html:455
 msgid "Privacy Notice"
 msgstr ""
 
-#: warehouse/templates/base.html:459
+#: warehouse/templates/base.html:461
 msgid "Acceptable Use Policy"
 msgstr ""
 
-#: warehouse/templates/base.html:469
+#: warehouse/templates/base.html:471
 msgid "Status:"
 msgstr "สถานะ"
 
-#: warehouse/templates/base.html:473
+#: warehouse/templates/base.html:475
 msgid "all systems operational"
 msgstr ""
 
-#: warehouse/templates/base.html:477
+#: warehouse/templates/base.html:479
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr ""
 
-#: warehouse/templates/base.html:479
+#: warehouse/templates/base.html:481
 msgid "Donate today!"
 msgstr ""
 
-#: warehouse/templates/base.html:491 warehouse/templates/pages/sitemap.html:4
+#: warehouse/templates/base.html:493 warehouse/templates/pages/sitemap.html:4
 msgid "Site map"
 msgstr ""
 
-#: warehouse/templates/base.html:498
+#: warehouse/templates/base.html:500
 msgid "Switch to desktop version"
 msgstr ""
 

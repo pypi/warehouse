@@ -1256,14 +1256,14 @@ msgstr "Monty Python - Phác thảo cửa hàng phô mai"
 
 #: warehouse/templates/404.html:30 warehouse/templates/500.html:18
 #: warehouse/templates/accounts/two-factor.html:35
-#: warehouse/templates/base.html:343 warehouse/templates/base.html:349
-#: warehouse/templates/base.html:355 warehouse/templates/base.html:361
-#: warehouse/templates/base.html:377 warehouse/templates/base.html:383
-#: warehouse/templates/base.html:408 warehouse/templates/base.html:414
-#: warehouse/templates/base.html:423 warehouse/templates/base.html:436
-#: warehouse/templates/base.html:445 warehouse/templates/base.html:451
-#: warehouse/templates/base.html:457 warehouse/templates/base.html:470
-#: warehouse/templates/base.html:487
+#: warehouse/templates/base.html:345 warehouse/templates/base.html:351
+#: warehouse/templates/base.html:357 warehouse/templates/base.html:363
+#: warehouse/templates/base.html:379 warehouse/templates/base.html:385
+#: warehouse/templates/base.html:410 warehouse/templates/base.html:416
+#: warehouse/templates/base.html:425 warehouse/templates/base.html:438
+#: warehouse/templates/base.html:447 warehouse/templates/base.html:453
+#: warehouse/templates/base.html:459 warehouse/templates/base.html:472
+#: warehouse/templates/base.html:489
 #: warehouse/templates/includes/accounts/profile-callout.html:17
 #: warehouse/templates/includes/file-details.html:129
 #: warehouse/templates/index.html:98 warehouse/templates/index.html:105
@@ -1434,7 +1434,7 @@ msgid "Main navigation"
 msgstr "Điều hướng chính"
 
 #: warehouse/templates/base.html:33 warehouse/templates/base.html:68
-#: warehouse/templates/base.html:338
+#: warehouse/templates/base.html:340
 #: warehouse/templates/includes/current-user-indicator.html:77
 #: warehouse/templates/pages/help.html:209
 #: warehouse/templates/pages/sitemap.html:19
@@ -1521,16 +1521,16 @@ msgstr "RSS: 40 Cập Nhật mới nhất"
 msgid "RSS: 40 newest packages"
 msgstr "RSS: 40 gói mới nhất"
 
-#: warehouse/templates/base.html:209
+#: warehouse/templates/base.html:211
 msgid "Skip to main content"
 msgstr "Bỏ qua đến nội dung chính"
 
-#: warehouse/templates/base.html:213
+#: warehouse/templates/base.html:215
 msgid "Switch to mobile version"
 msgstr "Chuyển sang phiên bản di động"
 
-#: warehouse/templates/base.html:220 warehouse/templates/base.html:229
-#: warehouse/templates/base.html:239
+#: warehouse/templates/base.html:222 warehouse/templates/base.html:231
+#: warehouse/templates/base.html:241
 #: warehouse/templates/includes/flash-messages.html:41
 #: warehouse/templates/includes/session-notifications.html:19
 #: warehouse/templates/manage/account.html:845
@@ -1547,13 +1547,13 @@ msgstr "Chuyển sang phiên bản di động"
 msgid "Warning"
 msgstr "Cảnh báo"
 
-#: warehouse/templates/base.html:222
+#: warehouse/templates/base.html:224
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
 "Bạn đang sử dụng trình duyệt không được hỗ trợ, nâng cấp lên phiên bản mới "
 "hơn."
 
-#: warehouse/templates/base.html:231
+#: warehouse/templates/base.html:233
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
@@ -1563,7 +1563,7 @@ msgstr ""
 "cho phép bạn thử các công cụ và quy trình phân phối mà không ảnh hưởng đến "
 "chỉ mục thực."
 
-#: warehouse/templates/base.html:241
+#: warehouse/templates/base.html:243
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
@@ -1571,172 +1571,172 @@ msgstr ""
 "Một số tính năng có thể không hoạt động mà không cần JavaScript. Hãy thử bật "
 "nó nếu bạn gặp sự cố."
 
-#: warehouse/templates/base.html:276 warehouse/templates/base.html:308
+#: warehouse/templates/base.html:278 warehouse/templates/base.html:310
 #: warehouse/templates/error-base-with-search.html:8
 #: warehouse/templates/index.html:29
 msgid "Search PyPI"
 msgstr "Tìm kiếm PyPI"
 
-#: warehouse/templates/base.html:281 warehouse/templates/index.html:35
+#: warehouse/templates/base.html:283 warehouse/templates/index.html:35
 #, fuzzy
 #| msgid "Search projects"
 msgid "Type '/' to search projects"
 msgstr "Tìm kiếm dự án"
 
-#: warehouse/templates/base.html:292 warehouse/templates/base.html:321
+#: warehouse/templates/base.html:294 warehouse/templates/base.html:323
 #: warehouse/templates/error-base-with-search.html:19
 #: warehouse/templates/index.html:44
 msgid "Search"
 msgstr "Tìm"
 
-#: warehouse/templates/base.html:313
+#: warehouse/templates/base.html:315
 #: warehouse/templates/error-base-with-search.html:13
 msgid "Search projects"
 msgstr "Tìm kiếm dự án"
 
-#: warehouse/templates/base.html:339
+#: warehouse/templates/base.html:341
 msgid "Help navigation"
 msgstr "Trợ giúp điều hướng"
 
-#: warehouse/templates/base.html:345
+#: warehouse/templates/base.html:347
 msgid "Installing packages"
 msgstr "Cài đặt gói"
 
-#: warehouse/templates/base.html:351
+#: warehouse/templates/base.html:353
 msgid "Uploading packages"
 msgstr "Tải lên các gói"
 
-#: warehouse/templates/base.html:357
+#: warehouse/templates/base.html:359
 msgid "User guide"
 msgstr "Hướng dẫn sử dụng"
 
-#: warehouse/templates/base.html:363
+#: warehouse/templates/base.html:365
 #, fuzzy
 #| msgid "Project name"
 msgid "Project name retention"
 msgstr "Tên dự án"
 
-#: warehouse/templates/base.html:366
+#: warehouse/templates/base.html:368
 msgid "FAQs"
 msgstr "Câu hỏi thường gặp"
 
-#: warehouse/templates/base.html:372 warehouse/templates/pages/sitemap.html:34
+#: warehouse/templates/base.html:374 warehouse/templates/pages/sitemap.html:34
 msgid "About PyPI"
 msgstr "Về PyPI"
 
-#: warehouse/templates/base.html:373
+#: warehouse/templates/base.html:375
 msgid "About PyPI navigation"
 msgstr "Về điều hướng PyPI"
 
-#: warehouse/templates/base.html:379
+#: warehouse/templates/base.html:381
 msgid "PyPI Blog"
 msgstr ""
 
-#: warehouse/templates/base.html:385
+#: warehouse/templates/base.html:387
 msgid "Infrastructure dashboard"
 msgstr "Bảng điều khiển cơ sở hạ tầng"
 
-#: warehouse/templates/base.html:388 warehouse/templates/pages/sitemap.html:40
+#: warehouse/templates/base.html:390 warehouse/templates/pages/sitemap.html:40
 #: warehouse/templates/pages/stats.html:4
 msgid "Statistics"
 msgstr "Thống kê"
 
-#: warehouse/templates/base.html:391
+#: warehouse/templates/base.html:393
 msgid "Logos & trademarks"
 msgstr ""
 
-#: warehouse/templates/base.html:394
+#: warehouse/templates/base.html:396
 msgid "Our sponsors"
 msgstr "Nhà tài trợ của chúng tôi"
 
-#: warehouse/templates/base.html:400
+#: warehouse/templates/base.html:402
 msgid "Contributing to PyPI"
 msgstr "Góp sức cho PyPI"
 
-#: warehouse/templates/base.html:401
+#: warehouse/templates/base.html:403
 msgid "How to contribute navigation"
 msgstr "Cách đóng góp điều hướng"
 
-#: warehouse/templates/base.html:404
+#: warehouse/templates/base.html:406
 msgid "Bugs and feedback"
 msgstr "Lỗi và phản hồi"
 
-#: warehouse/templates/base.html:410
+#: warehouse/templates/base.html:412
 msgid "Contribute on GitHub"
 msgstr "Đóng góp trên GitHub"
 
-#: warehouse/templates/base.html:416
+#: warehouse/templates/base.html:418
 msgid "Translate PyPI"
 msgstr "Dịch PyPI"
 
-#: warehouse/templates/base.html:419
+#: warehouse/templates/base.html:421
 #, fuzzy
 #| msgid "Search PyPI"
 msgid "Sponsor PyPI"
 msgstr "Tìm kiếm PyPI"
 
-#: warehouse/templates/base.html:425
+#: warehouse/templates/base.html:427
 msgid "Development credits"
 msgstr "Công trạng của các nhà phát triển"
 
-#: warehouse/templates/base.html:431 warehouse/templates/pages/sitemap.html:10
+#: warehouse/templates/base.html:433 warehouse/templates/pages/sitemap.html:10
 msgid "Using PyPI"
 msgstr "Sử dụng PyPI"
 
-#: warehouse/templates/base.html:432
+#: warehouse/templates/base.html:434
 msgid "Using PyPI navigation"
 msgstr "Sử dụng điều hướng PyPI"
 
-#: warehouse/templates/base.html:438
+#: warehouse/templates/base.html:440
 #: warehouse/templates/manage/organization/activate_subscription.html:21
 #, fuzzy
 #| msgid "Terms of use"
 msgid "Terms of Service"
 msgstr "Điều khoản sử dụng"
 
-#: warehouse/templates/base.html:441
+#: warehouse/templates/base.html:443
 msgid "Report security issue"
 msgstr "Báo cáo vấn đề bảo mật"
 
-#: warehouse/templates/base.html:447
+#: warehouse/templates/base.html:449
 msgid "Code of conduct"
 msgstr "Quy tắc ứng xử"
 
-#: warehouse/templates/base.html:453
+#: warehouse/templates/base.html:455
 #, fuzzy
 #| msgid "Privacy policy"
 msgid "Privacy Notice"
 msgstr "Chính sách bảo mật"
 
-#: warehouse/templates/base.html:459
+#: warehouse/templates/base.html:461
 msgid "Acceptable Use Policy"
 msgstr ""
 
-#: warehouse/templates/base.html:469
+#: warehouse/templates/base.html:471
 #, fuzzy
 #| msgid "Status: "
 msgid "Status:"
 msgstr "Trạng thái: "
 
-#: warehouse/templates/base.html:473
+#: warehouse/templates/base.html:475
 msgid "all systems operational"
 msgstr "tất cả các hệ thống hoạt động"
 
-#: warehouse/templates/base.html:477
+#: warehouse/templates/base.html:479
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr ""
 "Được phát triển và duy trì bởi cộng đồng Python, dành cho cộng đồng Python."
 
-#: warehouse/templates/base.html:479
+#: warehouse/templates/base.html:481
 msgid "Donate today!"
 msgstr "Quyên góp ngay hôm nay!"
 
-#: warehouse/templates/base.html:491 warehouse/templates/pages/sitemap.html:4
+#: warehouse/templates/base.html:493 warehouse/templates/pages/sitemap.html:4
 msgid "Site map"
 msgstr "Sơ đồ trang web"
 
-#: warehouse/templates/base.html:498
+#: warehouse/templates/base.html:500
 msgid "Switch to desktop version"
 msgstr "Chuyển sang phiên bản máy tính để bàn"
 
