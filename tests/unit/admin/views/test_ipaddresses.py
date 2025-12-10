@@ -8,31 +8,31 @@ from pyramid.httpexceptions import HTTPBadRequest
 from tests.common.db.accounts import UserUniqueLoginFactory
 from tests.common.db.ip_addresses import IpAddressFactory
 from warehouse.admin.views import ip_addresses as ip_views
+from warehouse.ip_addresses.models import IpAddress
 
 
 class TestIpAddressList:
     def test_no_query(self, db_request):
-        ip_addresses = sorted(
-            IpAddressFactory.create_batch(30) + [db_request.ip_address]
-        )
-        db_request.db.add_all(ip_addresses)
+        IpAddressFactory.create_batch(30)
 
         result = ip_views.ip_address_list(db_request)
 
-        assert result["ip_addresses"].items == ip_addresses[:25]
+        assert (
+            result["ip_addresses"].items
+            == sorted(db_request.db.query(IpAddress).all())[:25]
+        )
         assert result["q"] is None
 
     def test_with_page(self, db_request):
-        ip_addresses = sorted(
-            IpAddressFactory.create_batch(30) + [db_request.ip_address]
-        )
-        db_request.db.add_all(ip_addresses)
-
+        IpAddressFactory.create_batch(30)
         db_request.GET["page"] = "2"
 
         result = ip_views.ip_address_list(db_request)
 
-        assert result["ip_addresses"].items == ip_addresses[25:]
+        assert (
+            result["ip_addresses"].items
+            == sorted(db_request.db.query(IpAddress).all())[25:]
+        )
         assert result["q"] is None
 
     def test_with_invalid_page(self):
@@ -65,8 +65,7 @@ class TestIpAddressDetail:
 
     def test_ip_address_found_with_unique_logins(self, db_request):
         unique_login = UserUniqueLoginFactory.create(
-            ip_address=str(db_request.ip_address.ip_address),
-            ip_address_id=str(db_request.ip_address.id),
+            ip_address=db_request.ip_address,
         )
         db_request.matchdict["ip_address"] = str(db_request.ip_address.ip_address)
 

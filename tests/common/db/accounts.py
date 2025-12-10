@@ -17,7 +17,6 @@ from warehouse.accounts.models import (
     UserUniqueLogin,
 )
 
-from ...common.constants import REMOTE_ADDR
 from .base import WarehouseFactory
 from .ip_addresses import IpAddressFactory
 
@@ -140,11 +139,4 @@ class UserUniqueLoginFactory(WarehouseFactory):
         model = UserUniqueLogin
 
     user = factory.SubFactory(UserFactory)
-    ip_address = REMOTE_ADDR
-    ip_address_id = factory.LazyAttribute(
-        lambda o: (
-            IpAddressFactory.create(ip_address=o.ip_address).id
-            if o.ip_address is not None
-            else None
-        )
-    )
+    ip_address = factory.SubFactory(IpAddressFactory)

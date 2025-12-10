@@ -2,17 +2,21 @@
 
 import enum
 import ipaddress
+import typing
 
 from datetime import datetime
 
 import sentry_sdk
 
-from sqlalchemy import CheckConstraint, Index
+from sqlalchemy import CheckConstraint, Index, orm
 from sqlalchemy.dialects.postgresql import INET, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, validates
 
 from warehouse import db
 from warehouse.utils.db.types import bool_false
+
+if typing.TYPE_CHECKING:
+    from warehouse.accounts.models import UserUniqueLogin
 
 
 class BanReason(enum.Enum):
@@ -35,6 +39,13 @@ class IpAddress(db.Model):
 
     def __lt__(self, other) -> bool:
         return self.id < other.id
+
+    unique_logins: Mapped[list["UserUniqueLogin"]] = orm.relationship(
+        back_populates="ip_address",
+        cascade="all, delete-orphan",
+        lazy=True,
+        order_by="UserUniqueLogin.created.desc()",
+    )
 
     ip_address: Mapped[ipaddress.IPv4Address | ipaddress.IPv6Address] = mapped_column(
         INET, unique=True, comment="Structured IP Address value"

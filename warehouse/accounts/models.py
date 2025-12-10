@@ -29,6 +29,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from warehouse import db
 from warehouse.authnz import Permissions
 from warehouse.events.models import HasEvents
+from warehouse.ip_addresses.models import IpAddress
 from warehouse.observations.models import HasObservations, HasObservers, ObservationKind
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils.attrs import make_repr
@@ -494,12 +495,14 @@ class UserUniqueLogin(db.Model):
     __tablename__ = "user_unique_logins"
     __table_args__ = (
         UniqueConstraint(
-            "user_id", "ip_address", name="_user_unique_logins_user_id_ip_address_uc"
+            "user_id",
+            "ip_address_id",
+            name="_user_unique_logins_user_id_ip_address_id_uc",
         ),
         Index(
-            "user_unique_logins_user_id_ip_address_idx",
+            "user_unique_logins_user_id_ip_address_id_idx",
             "user_id",
-            "ip_address",
+            "ip_address_id",
             unique=True,
         ),
     )
@@ -512,12 +515,13 @@ class UserUniqueLogin(db.Model):
     )
     user: Mapped[User] = orm.relationship(back_populates="unique_logins")
 
-    ip_address_id: Mapped[int] = mapped_column(
+    ip_address_id: Mapped[UUID] = mapped_column(
         ForeignKey("ip_addresses.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
-    ip_address: Mapped[str] = mapped_column(String, nullable=False)
+    ip_address: Mapped[IpAddress] = orm.relationship(back_populates="unique_logins")
+
     created: Mapped[datetime_now]
     last_used: Mapped[datetime_now]
     device_information: Mapped[dict | None] = mapped_column(JSONB, nullable=True)

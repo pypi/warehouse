@@ -20,6 +20,7 @@ from warehouse.organizations.models import OrganizationType
 from warehouse.utils.otp import _get_totp
 
 from ...common.db.accounts import EmailFactory, UserFactory, UserUniqueLoginFactory
+from ...common.db.ip_addresses import IpAddressFactory
 
 
 class TestManageAccount:
@@ -54,8 +55,9 @@ class TestManageAccount:
             with_terms_of_service_agreement=True,
             clear_pwd="password",
         )
+        ip_address = IpAddressFactory.create(ip_address=REMOTE_ADDR)
         UserUniqueLoginFactory.create(
-            user=user, ip_address=REMOTE_ADDR, status=UniqueLoginStatus.CONFIRMED
+            user=user, ip_address=ip_address, status=UniqueLoginStatus.CONFIRMED
         )
 
         # visit login page
