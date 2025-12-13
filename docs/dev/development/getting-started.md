@@ -279,47 +279,36 @@ use that port instead.
 
 ### Logging in to Warehouse
 
-In the development environment, the password for every account has been set to
-the string `password`. You can log in as any account at
-http://localhost:80/account/login/.
+You can log into warehouse at http://localhost:80/account/login/.
 
-To log in as an admin user, log in as `ewdurbin` with the password
-`password`. You can generate a TOTP value for logging in using:
-
-```shell
-make totp
-```
-
-These users also have recovery codes generated:
-
-```text
-6ebc846aadf23e35
-7283821faf191a33
-68108e19d25e2eec
-4e6a18adb880fbc1
-f62627d29675725f
-4cda895a133b4cc8
-8678c6f0d9a1e6de
-edc6ce3800c0fc94 -- burned
-```
-
-Some user accounts that you might want to try are:
+There are 4 accounts ready for you to use:
 
 - `ewdurbin` - Superuser, 3 email addresses (one verified), has projects
 - `di` - Superuser, 2 email addresses (both verified), has projects
 - `dstufft` - Superuser, 2 email addresses (one verified), has projects
 - `miketheman` - Regular user, 1 email address (not verified), has a project
 
-There are no Moderator accounts in the dev db, any Superuser can change a user
-to a moderator if needed.
+The password for every account has been set to the string `password`.
 
-All of these users have 2FA enabled via TOTP,
-using the same secret as `make totp`.
-You can scan the following QR code to add this TOTP secret to your TOTP authenticator:
+Using different accounts will allow you to see different parts of the site,
+and have slightly different experiences.
+
+Note that there are no Moderator accounts in the dev db. Any Superuser can 
+change a user to a moderator if needed.
+
+#### TOTP and Recovery Codes
+
+To generate a TOTP token, run the following from your terminal:
+
+```shell
+make totp
+```
+Alternatively, you can scan the QR code below to add these accounts to 
+your authenticator app:
 
 ![TOTP QR Code](../assets/warehouse_admin_totp.png){ width="100" }
 
-They also have the following Recovery Codes generated:
+The following static recovery codes are pre-generated for these users:
 
 ```text
 6ebc846aadf23e35
@@ -332,13 +321,15 @@ f62627d29675725f
 edc6ce3800c0fc94 -- burned
 ```
 
-Using different accounts will allow you to see different parts of the site,
-and have slightly different experiences.
+#### Email Verification
 
-For example, using `miketheman` will require email verification.
-See [Testing Emails](email.md) for more information on how to see those emails.
+Auth verification emails are output to the console, or can be accessed 
+from http://localhost:1080.
 
-### Logging in as users without 2FA
+See [Testing Emails](email.md) for more information.
+
+
+#### Logging in as users without 2FA
 
 For users that are not listed above,
 once logged in with the password `password`,
