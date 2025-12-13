@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: Apache-2.0
-import csv
 import hashlib
 import hmac
 import os.path
@@ -65,6 +64,11 @@ from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_releas
 from warehouse.rate_limiting.interfaces import RateLimiterException
 from warehouse.utils import readme, zipfiles
 from warehouse.utils.release import strip_keywords
+from warehouse.utils.wheel import (
+    InvalidWheelRecordError,
+    MissingWheelRecordError,
+    validate_record,
+)
 
 PATH_HASHER = "blake2_256"
 
@@ -119,7 +123,7 @@ _allowed_platforms = {
     "linux_armv7l",
 }
 # macosx is a little more complicated:
-_macosx_platform_re = re.compile(r"macosx_(?P<major>\d+)_(\d+)_(?P<arch>.*)")
+_macosx_platform_re = re.compile(r"macosx_(?P<major>\d+)_(?P<minor>\d+)_(?P<arch>.*)")
 _macosx_arches = {
     "ppc",
     "ppc64",
@@ -133,13 +137,14 @@ _macosx_arches = {
     "universal",
     "universal2",
 }
+# macosx 10 is also supported, but with different rules
 _macosx_major_versions = {
-    "10",
     "11",
     "12",
     "13",
     "14",
     "15",
+    "26",
 }
 
 _ios_platform_re = re.compile(
@@ -178,9 +183,17 @@ def _valid_platform_tag(platform_tag):
     if platform_tag in _allowed_platforms:
         return True
     m = _macosx_platform_re.match(platform_tag)
+    # https://github.com/pypa/packaging.python.org/issues/1933
+    # There's two macosx formats: `macosx_10_{minor}` for the 10.x series where
+    # only the minor version ever increased, and `macosx_{major}_0` for the
+    # new release scheme where we don't know how many minor versions each
+    # release has.
+    if m and m.group("major") == "10" and m.group("arch") in _macosx_arches:
+        return True
     if (
         m
         and m.group("major") in _macosx_major_versions
+        and m.group("minor") == "0"
         and m.group("arch") in _macosx_arches
     ):
         return True
@@ -444,11 +457,6 @@ def _sort_releases(request: Request, project: Project):
         #       update query to eliminate the possibility we trigger this again.
         if r._pypi_ordering != i:
             r._pypi_ordering = i
-
-
-def _zip_filename_is_dir(filename: str) -> bool:
-    """Return True if this ZIP archive member is a directory."""
-    return filename.endswith(("/", "\\"))
 
 
 @view_config(
@@ -1408,30 +1416,9 @@ def file_upload(request):
                                 f"distribution file {filename} at {license_filename}",
                             )
 
-            """
-            Extract RECORD file from a wheel and check the ZIP archive contents
-            against the files listed in the RECORD. Mismatches are reported via email.
-            """
-            record_filename = f"{name}-{version}.dist-info/RECORD"
-            # Files that must be missing from 'RECORD',
-            # so we ignore them when cross-checking.
-            record_exemptions = {
-                f"{name}-{version}.dist-info/RECORD.jws",
-                f"{name}-{version}.dist-info/RECORD.p7s",
-            }
             try:
-                with zipfile.ZipFile(temporary_filename) as zfp:
-                    wheel_record_contents = zfp.read(record_filename).decode()
-                record_entries = {
-                    fn.replace("\\", "/")  # Normalize Windows path separators.
-                    for fn, *_ in csv.reader(wheel_record_contents.splitlines())
-                }
-                zip_entries = {
-                    fn
-                    for fn in zfp.namelist()
-                    if not _zip_filename_is_dir(fn) and fn not in record_exemptions
-                }
-            except (UnicodeError, KeyError, csv.Error) as e:
+                validate_record(temporary_filename)
+            except MissingWheelRecordError:
                 request.metrics.increment(
                     "warehouse.upload.failed",
                     tags=[
@@ -1442,13 +1429,12 @@ def file_upload(request):
                 raise _exc_with_message(
                     HTTPBadRequest,
                     "Wheel '{filename}' does not contain the required "
-                    "RECORD file: {record_filename} {e}".format(
+                    "RECORD file: {record_filename}".format(
                         filename=filename,
-                        record_filename=record_filename,
-                        e=str(type(e)) + repr(e),
+                        record_filename=f"{name}-{version}.dist-info/RECORD",
                     ),
                 )
-            if record_entries != zip_entries:
+            except InvalidWheelRecordError:
                 send_wheel_record_mismatch_email(
                     request,
                     set(project.users),
@@ -1529,11 +1515,6 @@ def file_upload(request):
                     HTTPBadRequest,
                     f"Invalid attestations supplied during upload: {e}",
                 )
-
-        # TODO: This should be handled by some sort of database trigger or a
-        #       SQLAlchemy hook or the like instead of doing it inline in this
-        #       view.
-        request.db.add(Filename(filename=filename))
 
         # Store the information about the file in the database.
         file_ = File(

@@ -227,7 +227,7 @@ def includeme(config):
     config.add_route("admin.ip_address.list", "/admin/ip-addresses/", domain=warehouse)
     config.add_route(
         "admin.ip_address.detail",
-        "/admin/ip-addresses/{ip_address_id}",
+        "/admin/ip-addresses/{ip_address}",
         domain=warehouse,
     )
 

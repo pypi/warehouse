@@ -210,6 +210,7 @@ def pyramid_request(pyramid_services, jinja):
     dummy_request.user = None
     dummy_request.oidc_publisher = None
     dummy_request.metrics = dummy_request.find_service(IMetricsService)
+    dummy_request.ip_address = IpAddressFactory.create()
 
     dummy_request.registry.registerUtility(jinja, IJinja2Environment, name=".jinja2")
 
@@ -313,6 +314,7 @@ def get_app_config(database, nondefaults=None):
         "warehouse.prevent_esi": True,
         "warehouse.token": "insecure token",
         "warehouse.ip_salt": "insecure salt",
+        "token.confirm_login.secret": "insecure token",
         "camo.url": "http://localhost:9000/",
         "camo.key": "insecure key",
         "celery.broker_redis_url": "redis://localhost:0/",

@@ -14,12 +14,15 @@ import typing
 import urllib.parse
 
 import passlib.exc
+import pytz
 import requests
 
+from linehaul.ua import parser as linehaul_user_agent_parser
 from passlib.context import CryptContext
 from sqlalchemy import exists, select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
+from ua_parser import user_agent_parser
 from webauthn.helpers import bytes_to_base64url
 from zope.interface import implementer
 
@@ -47,10 +50,14 @@ from warehouse.accounts.models import (
     ProhibitedUserName,
     RecoveryCode,
     TermsOfServiceEngagement,
+    UniqueLoginStatus,
     User,
     UserTermsOfServiceEngagement,
+    UserUniqueLogin,
     WebAuthn,
 )
+from warehouse.email import send_unrecognized_login_email
+from warehouse.events.models import UserAgentInfo
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
@@ -735,6 +742,96 @@ class DatabaseUserService:
                 engagement=engagement,
             )
         )
+
+    def device_is_known(self, userid, request):
+        user = self.get_user(userid)
+        token_service = request.find_service(ITokenService, name="confirm_login")
+        unique_login = (
+            request.db.query(UserUniqueLogin)
+            .filter(
+                UserUniqueLogin.user_id == userid,
+                UserUniqueLogin.ip_address == request.ip_address,
+            )
+            .one_or_none()
+        )
+        should_send_email = False
+
+        # Check if we've seen this device and it's been confirmed
+        if unique_login and unique_login.status == UniqueLoginStatus.CONFIRMED:
+            return True
+
+        # Create a new login if we haven't seen this device before
+        if not unique_login:
+            unique_login = UserUniqueLogin(
+                user_id=userid,
+                ip_address=request.ip_address,
+                status=UniqueLoginStatus.PENDING,
+                expires=datetime.datetime.now(datetime.UTC)
+                + datetime.timedelta(seconds=token_service.max_age),
+            )
+            request.db.add(unique_login)
+            request.db.flush()  # To get the ID for the token
+            should_send_email = True
+
+        # Check if the login had expired
+        if unique_login.expires and unique_login.expires < datetime.datetime.now(
+            datetime.UTC
+        ):
+            # The previous token has expired, update the expiry for
+            # the login and re-send the email
+            unique_login.expires = datetime.datetime.now(
+                datetime.UTC
+            ) + datetime.timedelta(seconds=token_service.max_age)
+            should_send_email = True
+
+        # If we don't need to send an email, short-circuit
+        if not should_send_email:
+            return False
+
+        # Get User Agent Information
+        user_agent_info_data = {}
+        if user_agent_str := request.headers.get("User-Agent"):
+            user_agent_info_data = {
+                # A hack to get it to fall back to the raw user agent
+                "installer": user_agent_str,
+            }
+            try:
+                parsed = linehaul_user_agent_parser.parse(user_agent_str)
+                if parsed and parsed.installer and parsed.installer.name == "Browser":
+                    parsed_ua = user_agent_parser.Parse(user_agent_str)
+                    user_agent_info_data = {
+                        "installer": "Browser",
+                        "device": parsed_ua["device"]["family"],
+                        "os": parsed_ua["os"]["family"],
+                        "user_agent": parsed_ua["user_agent"]["family"],
+                    }
+            except linehaul_user_agent_parser.UnknownUserAgentError:
+                pass  # Fallback to raw user-agent string
+
+        user_agent_info = UserAgentInfo(**user_agent_info_data)
+
+        # Generate a token
+        token = token_service.dumps(
+            {
+                "action": "login-confirmation",
+                "user.id": str(user.id),
+                "user.last_login": str(
+                    user.last_login or datetime.datetime.min.replace(tzinfo=pytz.UTC)
+                ),
+                "unique_login_id": unique_login.id,
+            }
+        )
+
+        # Send the email
+        send_unrecognized_login_email(
+            request,
+            user,
+            ip_address=str(request.ip_address.ip_address),
+            user_agent=user_agent_info.display(),
+            token=token,
+        )
+
+        return False
 
 
 @implementer(ITokenService)

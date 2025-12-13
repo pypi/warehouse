@@ -14,9 +14,11 @@ from warehouse.accounts.models import (
     TermsOfServiceEngagement,
     User,
     UserTermsOfServiceEngagement,
+    UserUniqueLogin,
 )
 
 from .base import WarehouseFactory
+from .ip_addresses import IpAddressFactory
 
 fake = faker.Faker()
 
@@ -130,3 +132,11 @@ class ProhibitedUsernameFactory(WarehouseFactory):
     # TODO: Replace when factory_boy supports `unique`.
     #  See https://github.com/FactoryBoy/factory_boy/pull/997
     name = factory.Sequence(lambda _: fake.unique.user_name())
+
+
+class UserUniqueLoginFactory(WarehouseFactory):
+    class Meta:
+        model = UserUniqueLogin
+
+    user = factory.SubFactory(UserFactory)
+    ip_address = factory.SubFactory(IpAddressFactory)

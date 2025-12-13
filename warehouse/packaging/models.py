@@ -25,6 +25,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     cast,
+    event,
     func,
     or_,
     orm,
@@ -1086,6 +1087,12 @@ class JournalEntry(db.ModelBase):
                 cls._submitted_by,
                 cls.submitted_date.desc(),
             ),
+            # Reverse index on ID, most recent project's journal entry for triggers
+            Index(
+                "journals_name_id_idx",
+                cls.name,
+                cls.id.desc(),
+            ),
         )
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -1209,3 +1216,20 @@ class AlternateRepository(db.Model):
     name: Mapped[str]
     url: Mapped[str]
     description: Mapped[str]
+
+
+@event.listens_for(File, "after_insert")
+def add_filename_to_registry(mapper, connection, target):
+    """
+    Log the new filename to the Filename (file_registry) table.
+
+    This event listener is triggered *after* a new `File` object is
+    successfully inserted into the database.
+
+    We use a direct connection-level insert (`connection.execute()`)
+    instead of `session.add(Filename(...))` to avoid an `SAWarning`.
+    Modifying the session *during* the flush process (which is when
+    this hook runs) is not a supported operation. This method
+    bypasses the session's unit-of-work tracking and is safe here.
+    """
+    connection.execute(Filename.__table__.insert(), {"filename": target.filename})
