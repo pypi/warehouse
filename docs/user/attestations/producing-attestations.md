@@ -1,7 +1,5 @@
 # Producing attestations
 
-<!--[[ preview('index-attestations') ]]-->
-
 PyPI allows attestations to be attached to individual *release files*
 (source and binary distributions within a release) at upload time.
 
