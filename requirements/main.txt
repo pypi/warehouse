@@ -834,6 +834,7 @@ grpcio==1.76.0 \
     # via
     #   google-api-core
     #   grpcio-status
+    #   opensearch-protobufs
 grpcio-status==1.76.0 \
     --hash=sha256:25fcbfec74c15d1a1cb5da3fab8ee9672852dc16a5a9eeb5baf7d7a9952943cd \
     --hash=sha256:380568794055a8efbbd8871162df92012e0228a5f6dffaf57f2a00c534103b18
@@ -1444,9 +1445,12 @@ openapi-spec-validator==0.7.2 \
     --hash=sha256:4bbdc0894ec85f1d1bea1d6d9c8b2c3c8d7ccaa13577ef40da9c006c9fd0eb60 \
     --hash=sha256:cc029309b5c5dbc7859df0372d55e9d1ff43e96d678b9ba087f7c56fc586f734
     # via openapi-core
-opensearch-py==3.0.0 \
-    --hash=sha256:842bf5d56a4a0d8290eda9bb921c50f3080e5dc4e5fefb9c9648289da3f6a8bb \
-    --hash=sha256:ebb38f303f8a3f794db816196315bcddad880be0dc75094e3334bc271db2ed39
+opensearch-protobufs==0.19.0 \
+    --hash=sha256:5137c9c2323cc7debb694754b820ca4cfb5fc8eb180c41ff125698c3ee11bfc2
+    # via opensearch-py
+opensearch-py==3.1.0 \
+    --hash=sha256:883573af13175ff102b61c80b77934a9e937bdcc40cda2b92051ad53336bc055 \
+    --hash=sha256:e5af83d0454323e6ea9ddee8c0dcc185c0181054592d23cb701da46271a3b65b
     # via -r requirements/main.in
 orjson==3.11.4 \
     --hash=sha256:01ee5487fefee21e6910da4c2ee9eef005bee568a0879834df86f888d2ffbdd9 \
@@ -1623,6 +1627,7 @@ protobuf==6.33.0 \
     #   google-api-core
     #   googleapis-common-protos
     #   grpcio-status
+    #   opensearch-protobufs
     #   proto-plus
 psycopg[binary]==3.2.12 \
     --hash=sha256:85c08d6f6e2a897b16280e0ff6406bef29b1327c045db06d21f364d7cd5da90b \
