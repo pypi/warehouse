@@ -210,6 +210,7 @@ def pyramid_request(pyramid_services, jinja):
     dummy_request.user = None
     dummy_request.oidc_publisher = None
     dummy_request.metrics = dummy_request.find_service(IMetricsService)
+    dummy_request.ip_address = IpAddressFactory.create()
 
     dummy_request.registry.registerUtility(jinja, IJinja2Environment, name=".jinja2")
 
