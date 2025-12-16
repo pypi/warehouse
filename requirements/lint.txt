@@ -826,9 +826,9 @@ urllib3==2.6.0 \
     --hash=sha256:c90f7a39f716c572c4e3e58509581ebd83f9b59cced005b7db7ad2d22b0db99f \
     --hash=sha256:cb9bcef5a4b345d5da5d145dc3e30834f58e8018828cbc724d30b4cb7d4d49f1
     # via types-requests
-zope-event==6.0 \
-    --hash=sha256:0ebac894fa7c5f8b7a89141c272133d8c1de6ddc75ea4b1f327f00d1f890df92 \
-    --hash=sha256:6f0922593407cc673e7d8766b492c519f91bdc99f3080fe43dcec0a800d682a3
+zope-event==6.1 \
+    --hash=sha256:0ca78b6391b694272b23ec1335c0294cc471065ed10f7f606858fc54566c25a0 \
+    --hash=sha256:6052a3e0cb8565d3d4ef1a3a7809336ac519bc4fe38398cb8d466db09adef4f0
     # via zope-schema
 zope-interface==8.1.1 \
     --hash=sha256:127b0e4c873752b777721543cf8525b3db5e76b88bd33bab807f03c568e9003f \
@@ -869,9 +869,3 @@ zope-schema==8.1 \
     --hash=sha256:2d9faa7f91a7bf09fcab2c039d9182fcc9ce7042dc77e18d3df277904aee0948 \
     --hash=sha256:e5313ef0f20b0e5b6ecf9a75fd7bd59bc772244351144097e086a5822fe8b0bb
     # via mypy-zope
-
-# The following packages are considered to be unsafe in a requirements file:
-setuptools==80.9.0 \
-    --hash=sha256:062d34222ad13e0cc312a4c02d73f059e86a4acbfbdea8f8f76b28c99f306922 \
-    --hash=sha256:f36b47402ecde768dbfafc46e8e4207b4360c654f1f3bb84475f0a28628fb19c
-    # via zope-event
