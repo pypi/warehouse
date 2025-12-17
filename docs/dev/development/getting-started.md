@@ -326,7 +326,7 @@ edc6ce3800c0fc94 -- burned
 Auth verification emails are output to the console, or can be accessed 
 from http://localhost:1080.
 
-See [Testing Emails](email.md) for more information.
+See [Testing Emails](email.md#testing-e-mails) for more information.
 
 
 #### Logging in as users without 2FA
