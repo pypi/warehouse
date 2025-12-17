@@ -39,10 +39,16 @@ def zippath(filename: str):
         ("reject/dupe_eocd.zip", "Truncated central directory"),
         (
             "reject/eocd64_locator_mismatch.zip",
-            "Mis-matched EOCD64 record and locator offset",
+            "Corrupt zip64 end of central directory locator",
         ),
-        ("reject/eocd64_non_locator.zip", "Malformed zip file"),
-        ("reject/eocd64_without_eocd.zip", "Malformed zip file"),
+        (
+            "reject/eocd64_non_locator.zip",
+            "Corrupt zip64 end of central directory record",
+        ),
+        (
+            "reject/eocd64_without_eocd.zip",
+            "Corrupt zip64 end of central directory record",
+        ),
         ("reject/eocd64_without_locator.zip", "Malformed zip file"),
         ("reject/missing_local_file.zip", "Missing filename in local headers"),
         ("reject/extra3byte.zip", "Malformed zip file"),
