@@ -1,4 +1,4 @@
-
+update all repositories pypi moves to http://github.com/aripitek
 Warehouse
 =========
 
