@@ -9,6 +9,7 @@ import responses
 
 from tests.common.constants import REMOTE_ADDR
 from tests.common.db.accounts import UserFactory, UserUniqueLoginFactory
+from tests.common.db.ip_addresses import IpAddressFactory
 from warehouse.accounts.models import UniqueLoginStatus
 from warehouse.utils.otp import _get_totp
 
@@ -27,8 +28,9 @@ class TestManageAccountPublishing:
             with_terms_of_service_agreement=True,
             clear_pwd="password",
         )
+        ip_address = IpAddressFactory.create(ip_address=REMOTE_ADDR)
         UserUniqueLoginFactory.create(
-            user=user, ip_address=REMOTE_ADDR, status=UniqueLoginStatus.CONFIRMED
+            user=user, ip_address=ip_address, status=UniqueLoginStatus.CONFIRMED
         )
         # Create a response from GitHub API for owner details
         # during form submission validation.
@@ -106,8 +108,9 @@ class TestManageAccountPublishing:
             with_terms_of_service_agreement=True,
             clear_pwd="password",
         )
+        ip_address = IpAddressFactory.create(ip_address=REMOTE_ADDR)
         UserUniqueLoginFactory.create(
-            user=user, ip_address=REMOTE_ADDR, status=UniqueLoginStatus.CONFIRMED
+            user=user, ip_address=ip_address, status=UniqueLoginStatus.CONFIRMED
         )
 
         # Act: Log in
