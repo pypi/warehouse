@@ -2834,9 +2834,9 @@ zope-interface==8.0.1 \
     #   transaction
     #   wired
     #   zope-sqlalchemy
-zope-sqlalchemy==4.0 \
-    --hash=sha256:3fd2026271056818a04d3320e610525fd4773bc56300158411ed22909c72cd6e \
-    --hash=sha256:d4aeb6d06aa7d0855d67fd3434b56674f01307c4cad50105c94bcfe391ee729d
+zope-sqlalchemy==4.1 \
+    --hash=sha256:1912525fa0b2b6ff0c3cab46aab59fed45302d4de4e4b03e0d11386e770f4531 \
+    --hash=sha256:24c18895af4b962c0b214d84fbdf548df4ac504c9eb437b30d9bff25af0ae072
     # via -r requirements/main.in
 zxcvbn==4.5.0 \
     --hash=sha256:2b6eed621612ce6d65e6e4c7455b966acee87d0280e257956b1f06ccc66bd5ff \
@@ -2851,4 +2851,3 @@ setuptools==80.9.0 \
     #   pyramid
     #   repoze-sendmail
     #   zope-deprecation
-    #   zope-sqlalchemy
