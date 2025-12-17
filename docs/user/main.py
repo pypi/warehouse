@@ -1,15 +1,6 @@
 from pathlib import Path
 
-INDEX_ATTESTATIONS = """
-!!! info
-
-    Index attestations are currently under active development,
-    and are not yet considered stable.
-"""
-
-PREVIEW_FEATURES = {
-    "index-attestations": INDEX_ATTESTATIONS,
-}
+PREVIEW_FEATURES = {}
 
 _HERE = Path(__file__).parent.resolve()
 
