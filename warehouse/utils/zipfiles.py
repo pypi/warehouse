@@ -199,6 +199,8 @@ def _handle_eocd64(fp: typing.IO[bytes]) -> tuple[int, int, int]:
     )
     if cd_records_on_disk != cd_records:
         raise InvalidZipFileError("Malformed zip file")
+    if eocd64_size != 44:
+        raise InvalidZipFileError("ZIP64 extensible data not allowed")
     _seek_check(fp, eocd64_size - 44)
     return cd_records, cd_size, cd_offset
 

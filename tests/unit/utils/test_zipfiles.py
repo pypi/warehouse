@@ -60,8 +60,8 @@ def zippath(filename: str):
         ("reject/suffix_not_comment.zip", "Trailing data"),
         ("reject/unicode_extra_chain.zip", "Invalid duplicate extra in local file"),
         ("reject/wheel-1.0-py3-none-any.whl", "Duplicate filename in local headers"),
-        ("reject/zip64_eocd_confusion.zip", "Filename not in central directory"),
-        ("reject/zip64_eocd_extensible_data.zip", "Bad offset for central directory"),
+        ("reject/zip64_eocd_confusion.zip", "ZIP64 extensible data not allowed"),
+        ("reject/zip64_eocd_extensible_data.zip", "ZIP64 extensible data not allowed"),
         ("reject/zip64_extra_csize.zip", "Malformed zip file"),
         ("reject/zip64_extra_too_long.zip", "Mis-matched data size"),
         (
