@@ -279,20 +279,6 @@ def validate_zipfile(zip_filepath: str) -> tuple[bool, str | None]:
                 ):
                     return False, "Malformed zip file"
 
-                # Only accept a single EOCD64 Locator after EOCD64.
-                if signature == RECORD_SIG_EOCD64_LOCATOR and (
-                    expected_eocd64_offset is None or actual_eocd64_offset is not None
-                ):
-                    return False, "Malformed zip file"
-
-                # If we've seen an EOCD64 record then we only
-                # accept an EOCD64 Locator or an EOCD.
-                if (
-                    signature not in (RECORD_SIG_EOCD64_LOCATOR, RECORD_SIG_EOCD)
-                    and expected_eocd64_offset is not None
-                ):
-                    return False, "Malformed zip file"
-
                 # Central Directory File Header
                 if signature == RECORD_SIG_CENTRAL_DIRECTORY:
                     # Record the first CD record we find as
@@ -357,14 +343,6 @@ def validate_zipfile(zip_filepath: str) -> tuple[bool, str | None]:
                 # End of Central Directory (ZIP64) Locator
                 elif signature == RECORD_SIG_EOCD64_LOCATOR:
                     actual_eocd64_offset = _handle_eocd64_locator(fp)
-
-                    # Cross-check the offset specified in the EOCD64 Locator
-                    # record with the one we ourselves recorded earlier.
-                    if (
-                        expected_eocd64_offset is None
-                        or expected_eocd64_offset != actual_eocd64_offset
-                    ):
-                        return False, "Mis-matched EOCD64 record and locator offset"
 
                 # Note that there are other record types,
                 # but I didn't find any on PyPI, and they don't
