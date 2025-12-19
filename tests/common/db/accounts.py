@@ -9,6 +9,7 @@ from argon2 import PasswordHasher
 
 from warehouse.accounts.models import (
     Email,
+    OAuthAccountAssociation,
     ProhibitedEmailDomain,
     ProhibitedUserName,
     TermsOfServiceEngagement,
@@ -140,3 +141,14 @@ class UserUniqueLoginFactory(WarehouseFactory):
 
     user = factory.SubFactory(UserFactory)
     ip_address = factory.SubFactory(IpAddressFactory)
+
+
+class OAuthAccountAssociationFactory(WarehouseFactory):
+    class Meta:
+        model = OAuthAccountAssociation
+
+    user = factory.SubFactory(UserFactory)
+    service = "github"
+    external_user_id = factory.Sequence(lambda n: f"{n}")
+    external_username = factory.Faker("user_name")
+    metadata_ = {}

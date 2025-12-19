@@ -249,7 +249,11 @@ def test_includeme():
                         "https://2p66nmmycsj3.statuspage.io",
                     ],
                     "default-src": ["'none'"],
-                    "font-src": ["'self'", "fonts.gstatic.com"],
+                    "font-src": [
+                        "'self'",
+                        "fonts.gstatic.com",
+                        "https://fonts.cdnfonts.com",
+                    ],
                     "form-action": [
                         "'self'",
                         "https://checkout.stripe.com",
@@ -280,6 +284,7 @@ def test_includeme():
                         "fonts.googleapis.com",
                         "*.ethicalads.io",
                         "donate.python.org",
+                        "https://fonts.cdnfonts.com",
                         "'sha256-2YHqZokjiizkHi1Zt+6ar0XJ0OeEy/egBnlm+MDMtrM='",
                         "'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='",
                         "'sha256-JLEjeN9e5dGsz5475WyRaoA4eQOdNPxDIeUhclnJDCE='",

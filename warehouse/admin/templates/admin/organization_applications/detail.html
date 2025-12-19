@@ -318,14 +318,14 @@
               <label class="custom-control-label" for="organizationApplicationTurboMode">Turbo Mode</label>
             </div>
           </div>
-          {% if request.user.is_superuser %}
+          {% if request.has_permission(Permissions.AdminOrganizationsWrite) %}
           <div class="form-group">
             <button
               type="button"
               class="btn btn-warning btn-block"
               id="editModalButton"
               data-toggle="modal"
-              data-target="#editModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) or organization_application.status.value in ['approved', 'declined'] }}
+              data-target="#editModal" {{ 'disabled' if organization_application.status.value in ['approved', 'declined'] }}
               title="Edit organization request"
             >
               <i class="fa-solid fa-pen-to-square"></i> Edit
