@@ -1,3 +1,6 @@
+@use "../settings/fonts";
+@use "../settings/grid";
+
 /* SPDX-License-Identifier: Apache-2.0 */
 
 // LISTS
@@ -8,13 +11,13 @@ ul {
 
 ul,
 ol {
-  margin-left: $spacing-unit;
+  margin-left: grid.$spacing-unit;
 }
 
 dl {
   dt {
-    font-weight: $bold-font-weight;
-    margin-top: $half-spacing-unit;
+    font-weight: fonts.$bold-font-weight;
+    margin-top: grid.$half-spacing-unit;
 
     &:first-of-type {
       margin-top: 0;
@@ -22,6 +25,6 @@ dl {
   }
 
   dd {
-    padding-left: $half-spacing-unit;
+    padding-left: grid.$half-spacing-unit;
   }
 }

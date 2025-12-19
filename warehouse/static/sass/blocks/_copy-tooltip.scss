@@ -1,3 +1,7 @@
+@use "sass:color";
+@use "../settings/colours";
+@use "../settings/grid";
+
 // The following is modified from https://github.com/primer/tooltips
 // The MIT License (MIT)
 // Copyright (c) 2016 GitHub Inc
@@ -22,8 +26,8 @@
 
 
 $tooltip-max-width: 250px !default;
-$tooltip-background-color: transparentize($black, 0.3) !default;
-$tooltip-text-color: $white !default;
+$tooltip-background-color: color.adjust(colours.$black, $alpha: -0.3) !default;
+$tooltip-text-color: colours.$white !default;
 $tooltip-delay: 0.4s !default;
 $tooltip-duration: 0.1s !default;
 
@@ -138,12 +142,12 @@ $tooltip-duration: 0.1s !default;
   &::after {
     right: auto;
     left: 50%;
-    margin-left: -$half-spacing-unit;
+    margin-left: -(grid.$half-spacing-unit);
   }
 }
 
 .copy-tooltip-sw::after {
-  margin-right: -$half-spacing-unit;
+  margin-right: -(grid.$half-spacing-unit);
 }
 
 // Tooltips above the object
@@ -169,12 +173,12 @@ $tooltip-duration: 0.1s !default;
   &::after {
     right: auto;
     left: 50%;
-    margin-left: -$half-spacing-unit;
+    margin-left: -(grid.$half-spacing-unit);
   }
 }
 
 .copy-tooltip-nw::after {
-  margin-right: -$half-spacing-unit;
+  margin-right: -(grid.$half-spacing-unit);
 }
 
 // Move the tooltip body to the center of the object.

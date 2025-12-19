@@ -1,3 +1,6 @@
+@use "../settings/colours";
+@use "../tools/link-utilities";
+
 /* SPDX-License-Identifier: Apache-2.0 */
 
 /*
@@ -24,7 +27,7 @@
   margin: 5px 0 0;
   padding-bottom: 5px;
   list-style-type: none;
-  color: $danger-color;
+  color: colours.$danger-color;
 
   li {
     max-width: 350px;
@@ -35,11 +38,11 @@
       content: "\f06a";
       /*rtl:ignore*/
       margin-right: 5px;
-      color: $danger-color;
+      color: colours.$danger-color;
     }
 
     a {
-      @include danger-underlined-link;
+      @include link-utilities.danger-underlined-link;
     }
   }
 
@@ -51,7 +54,7 @@
 
   .form-error {
     &--valid {
-      color: $success-color;
+      color: colours.$success-color;
 
       &::before {
         font-family: "Font Awesome 6 Free";
@@ -59,7 +62,7 @@
         content: "\f00c"; // Check / Tick
         /*rtl:ignore*/
         margin-right: 5px;
-        color: $success-color;
+        color: colours.$success-color;
       }
     }
   }

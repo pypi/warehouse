@@ -1,3 +1,7 @@
+@use "sass:color";
+@use "../settings/colours";
+@use "../tools/link-utilities";
+
 /* SPDX-License-Identifier: Apache-2.0 */
 
 /*
@@ -14,76 +18,76 @@
   margin-left: 0.5em;
   vertical-align: 0.15em;
   text-transform: uppercase;
-  border: 1px solid $primary-color;
-  background-color: $primary-color;
-  color: $white;
+  border: 1px solid colours.$primary-color;
+  background-color: colours.$primary-color;
+  color: colours.$white;
   padding: 0 7px;
   border-radius: 3px;
   font-weight: 600;
   white-space: nowrap;
-  @include link-without-underline;
+  @include link-utilities.link-without-underline;
 
   .fa {
     margin-right: 0.4em;
   }
 
   &:hover {
-    color: $white;
+    color: colours.$white;
   }
 
   &:focus,
   &:active {
-    border-color: $white;
-    outline: 1px solid $primary-color;
+    border-color: colours.$white;
+    outline: 1px solid colours.$primary-color;
   }
 
   &--success {
-    background-color: $success-color;
-    border-color: $success-color;
+    background-color: colours.$success-color;
+    border-color: colours.$success-color;
 
     &:focus,
     &:active {
-      outline: 1px solid $success-color;
+      outline: 1px solid colours.$success-color;
     }
   }
 
   &--danger {
-    background-color: $danger-color;
-    border-color: $danger-color;
+    background-color: colours.$danger-color;
+    border-color: colours.$danger-color;
 
     &:focus,
     &:active {
-      outline: 1px solid $danger-color;
+      outline: 1px solid colours.$danger-color;
     }
   }
 
   &--warning {
-    background-color: $warning-background-color;
-    border-color: $warning-background-color;
-    color: $warning-color;
+    background-color: colours.$warning-background-color;
+    border-color: colours.$warning-background-color;
+    color: colours.$warning-color;
 
     &:hover {
-      color: $warning-color;
+      color: colours.$warning-color;
     }
 
     &:focus,
     &:active {
-      outline: 1px solid $warning-color;
+      outline: 1px solid colours.$warning-color;
     }
   }
 
   &--neutral {
-    background-color: $base-grey;
-    border-color: $base-grey;
-    color: darken($base-grey, 50);
+    background-color: colours.$base-grey;
+    border-color: colours.$base-grey;
+    color: color.adjust(colours.$base-grey, $lightness: -50);
 
     &:hover {
-      color: darken($base-grey, 60);
+      color: color.adjust(colours.$base-grey, $lightness: -60);
     }
 
     &:focus,
     &:active {
-      outline: 1px solid darken($base-grey, 50);
+      outline: 1px solid color.adjust(colours.$base-grey, $lightness: -50);
     }
   }
 }

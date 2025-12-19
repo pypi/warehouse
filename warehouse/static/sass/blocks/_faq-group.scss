@@ -1,3 +1,6 @@
+@use "../settings/colours";
+@use "../settings/grid";
+
 /* SPDX-License-Identifier: Apache-2.0 */
 
 /*
@@ -15,7 +18,7 @@
 .faq-group {
   h2 {
     padding-bottom: 5px;
-    margin-top: $spacing-unit * 2;
+    margin-top: grid.$spacing-unit * 2;
   }
 
   h2.faq-group__first {
@@ -30,13 +33,13 @@
       font-weight: 900;
       content: "\f059";
       margin-right: 5px;
-      color: $primary-color;
+      color: colours.$primary-color;
     }
   }
 
   &--list {
     h2 {
-      margin-top: $spacing-unit;
+      margin-top: grid.$spacing-unit;
       margin-bottom: 15px;
     }
   }

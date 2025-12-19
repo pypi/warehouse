@@ -1,3 +1,8 @@
+@use "../settings/breakpoints";
+@use "../settings/colours";
+@use "../settings/grid";
+@use "../tools/link-utilities";
+
 /* SPDX-License-Identifier: Apache-2.0 */
 
 /*
@@ -12,19 +17,19 @@
 */
 
 .site-header {
-  background-color: $header-background-color;
+  background-color: colours.$header-background-color;
   background-repeat: repeat;
   background-position: 0 50%;
-  border-bottom: 1px solid $header-border-color;
+  border-bottom: 1px solid colours.$header-border-color;
 
   &__logo {
-    padding: $half-spacing-unit 0;
+    padding: grid.$half-spacing-unit 0;
     max-width: 65px;
     float: left;
-    @include link-without-underline;
-    @include link-focus-state($white);
+    @include link-utilities.link-without-underline;
+    @include link-utilities.link-focus-state(colours.$white);
 
-    @media screen and (max-width: $small-tablet) {
+    @media screen and (max-width: breakpoints.$small-tablet) {
       max-width: 50px;
     }
   }

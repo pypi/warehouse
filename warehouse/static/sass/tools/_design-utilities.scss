@@ -1,14 +1,20 @@
+@use "sass:color";
+@use "sass:list";
+@use "../blocks/project-description";
+@use "../settings/colours";
+@use "../settings/z-index";
+
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @mixin card {
-  border: 1px solid $border-color;
+  border: 1px solid colours.$border-color;
   box-shadow: 1px 1px 2px 1px rgb(0 0 0 / 5%);
-  background-color: $white;
+  background-color: colours.$white;
   text-decoration: none;
 
   &:hover,
   &:active {
-    border-color: $border-color;
+    border-color: colours.$border-color;
     text-decoration: none;
   }
 }
@@ -16,8 +22,8 @@
 @mixin overlay {
   position: fixed;
   inset: 0;
-  background-color: transparentize($black, 0.5);
-  z-index: index($z-index-scale, "dark-overlay");
+  background-color: color.adjust(project-description.$black, $alpha: -0.5);
+  z-index: list.index(z-index.$z-index-scale, "dark-overlay");
   pointer-events: none;
   transition: opacity 0.3s;
 }

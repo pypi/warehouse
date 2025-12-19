@@ -1,3 +1,6 @@
+@use "sass:color";
+@use "../settings/colours";
+
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @mixin link-focus-state($color) {
@@ -11,30 +14,30 @@
   color: $color;
 
   &:hover {
-    color: darken($color, 10);
+    color: color.adjust($color, $lightness: -10);
   }
 
   @include link-focus-state($color);
 }
 
 @mixin primary-underlined-link {
-  @include colored-link($primary-color);
+  @include colored-link(colours.$primary-color);
 }
 
 @mixin danger-underlined-link {
-  @include colored-link($danger-color);
+  @include colored-link(colours.$danger-color);
 }
 
 @mixin warning-underlined-link {
-  @include colored-link($warning-color);
+  @include colored-link(colours.$warning-color);
 }
 
 @mixin success-underlined-link {
-  @include colored-link($success-color);
+  @include colored-link(colours.$success-color);
 }
 
 @mixin white-underlined-link {
-  @include colored-link($white);
+  @include colored-link(colours.$white);
 }
 
 @mixin link-without-underline {

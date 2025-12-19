@@ -1,3 +1,6 @@
+@use "../settings/breakpoints";
+@use "../settings/grid";
+
 /* SPDX-License-Identifier: Apache-2.0 */
 
 /*
@@ -11,18 +14,18 @@
 .sponsorship-benefits {
   display: flex;
 
-  @media only screen and (max-width: $desktop) {
+  @media only screen and (max-width: breakpoints.$desktop) {
     display: block;
-    padding: $spacing-unit 0 0;
+    padding: grid.$spacing-unit 0 0;
   }
 
   &__benefit {
     width: 33%;
-    padding: $spacing-unit;
+    padding: grid.$spacing-unit;
 
-    @media only screen and (max-width: $desktop) {
+    @media only screen and (max-width: breakpoints.$desktop) {
       width: 100%;
-      padding: 0 0 $spacing-unit;
+      padding: 0 0 grid.$spacing-unit;
     }
   }
 }

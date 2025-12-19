@@ -1,3 +1,7 @@
+@use "../settings/breakpoints";
+@use "../settings/grid";
+@use "../tools/typography";
+
 /* SPDX-License-Identifier: Apache-2.0 */
 
 /*
@@ -14,27 +18,27 @@
 .sponsorship-intro {
   display: flex;
 
-  @media only screen and (max-width: $desktop) {
+  @media only screen and (max-width: breakpoints.$desktop) {
     display: block;
   }
 
   &__text {
     width: 70%;
-    padding-right: $spacing-unit * 2;
+    padding-right: grid.$spacing-unit * 2;
 
-    @media only screen and (max-width: $desktop) {
+    @media only screen and (max-width: breakpoints.$desktop) {
       width: 100%;
       padding: 0;
-      margin-bottom: $spacing-unit * 2;
+      margin-bottom: grid.$spacing-unit * 2;
     }
 
     h1 {
-      @include h1-title;
+      @include typography.h1-title;
       padding-bottom: 0;
     }
 
     .lede-paragraph {
-      margin: $spacing-unit 0;
+      margin: grid.$spacing-unit 0;
       padding: 0;
     }
   }
@@ -43,7 +47,7 @@
     width: 30%;
     padding-bottom: 120px !important;
 
-    @media only screen and (max-width: $desktop) {
+    @media only screen and (max-width: breakpoints.$desktop) {
       width: 100%;
     }
   }

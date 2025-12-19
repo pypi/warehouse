@@ -1,3 +1,7 @@
+@use "../settings/breakpoints";
+@use "../settings/grid";
+@use "../tools/typography";
+
 /* SPDX-License-Identifier: Apache-2.0 */
 
 /*
@@ -20,30 +24,30 @@
 */
 
 .author-profile {
-  padding-bottom: $spacing-unit;
+  padding-bottom: grid.$spacing-unit;
 
-  @media only screen and (min-width: $desktop) {
-    padding-right: $spacing-unit;
+  @media only screen and (min-width: breakpoints.$desktop) {
+    padding-right: grid.$spacing-unit;
   }
 
-  @media only screen and (max-width: $desktop) and (min-width: $mobile) {
-    padding: 0 0 ($spacing-unit * 1.5);
+  @media only screen and (max-width: breakpoints.$desktop) and (min-width: breakpoints.$mobile) {
+    padding: 0 0 (grid.$spacing-unit * 1.5);
     display: flex;
     align-items: flex-start;
 
     img {
       height: 175px;
-      margin-right: $spacing-unit;
+      margin-right: grid.$spacing-unit;
     }
   }
 
-  @media only screen and (max-width: $desktop) {
+  @media only screen and (max-width: breakpoints.$desktop) {
     &__info {
       padding-top: 0 !important;
     }
   }
 
-  @media only screen and (max-width: $mobile) {
+  @media only screen and (max-width: breakpoints.$mobile) {
     img {
       display: none;
       margin-right: 0;
@@ -51,16 +55,16 @@
   }
 
   &__info {
-    padding-top: $spacing-unit;
+    padding-top: grid.$spacing-unit;
     word-wrap: break-word;
   }
 
   &__name {
-    @include h2;
-    padding: 0 0 $half-spacing-unit;
+    @include typography.h2;
+    padding: 0 0 grid.$half-spacing-unit;
     word-wrap: break-word;
 
-    @media only screen and (max-width: $desktop) {
+    @media only screen and (max-width: breakpoints.$desktop) {
       border-top: 0;
       margin-top: 0;
       padding-top: 0;
@@ -68,17 +72,17 @@
   }
 
   &__meta {
-    margin-bottom: $spacing-unit;
+    margin-bottom: grid.$spacing-unit;
     word-wrap: break-word;
   }
 
   &__metadiv {
-    margin-bottom: $half-spacing-unit;
+    margin-bottom: grid.$half-spacing-unit;
     word-wrap: break-word;
   }
 
   &__edit-button {
-    margin-bottom: $spacing-unit;
+    margin-bottom: grid.$spacing-unit;
     width: 100%;
     text-align: center;
   }

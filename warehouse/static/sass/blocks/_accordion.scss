@@ -1,3 +1,8 @@
+@use "../settings/breakpoints";
+@use "../settings/colours";
+@use "../settings/grid";
+@use "../tools/link-utilities";
+
 /* SPDX-License-Identifier: Apache-2.0 */
 
 /*
@@ -30,19 +35,19 @@
     cursor: pointer;
     border: 0;
     background-color: transparent;
-    color: $primary-color;
-    @include link-without-underline;
+    color: colours.$primary-color;
+    @include link-utilities.link-without-underline;
 
     &::before {
       font-family: "Font Awesome 6 Free";
       font-weight: 900;
       content: "\f139";
-      margin-right: $half-spacing-unit #{"/*rtl:5px*/"};
+      margin-right: grid.$half-spacing-unit #{"/*rtl:5px*/"};
     }
 
-    @media only screen and (max-width: $desktop) {
-      color: $white;
-      @include link-focus-state($white);
+    @media only screen and (max-width: breakpoints.$desktop) {
+      color: colours.$white;
+      @include link-utilities.link-focus-state(colours.$white);
     }
   }
 

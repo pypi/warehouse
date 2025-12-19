@@ -1,3 +1,7 @@
+@use "sass:color";
+@use "../settings/breakpoints";
+@use "../settings/colours";
+
 /* SPDX-License-Identifier: Apache-2.0 */
 
 /*
@@ -9,9 +13,9 @@
 .mobile-search {
   display: none;
   padding: 10px;
-  background-color: darken($primary-color, 5);
+  background-color: color.adjust(colours.$primary-color, $lightness: -5);
 
-  @media screen and (max-width: $tablet) {
+  @media screen and (max-width: breakpoints.$tablet) {
     display: block;
   }
 }

@@ -1,3 +1,6 @@
+@use "../settings/breakpoints";
+@use "../tools/layout-utilities";
+
 /* SPDX-License-Identifier: Apache-2.0 */
 
 /*
@@ -16,7 +19,7 @@
 */
 
 .split-layout {
-  @include split-layout;
+  @include layout-utilities.split-layout;
 
   > * {
     max-width: 100%;
@@ -39,7 +42,7 @@
   }
 
   &--table {
-    @include split-table-layout;
+    @include layout-utilities.split-table-layout;
   }
 
   &--no-wrap {
@@ -48,7 +51,7 @@
   }
 
   &--wrap-on-tablet {
-    @media only screen and (max-width: $tablet) {
+    @media only screen and (max-width: breakpoints.$tablet) {
       flex-wrap: wrap;
 
       > :first-child,

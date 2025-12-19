@@ -1,3 +1,5 @@
+@use "../settings/breakpoints";
+
 /* SPDX-License-Identifier: Apache-2.0 */
 
 /*
@@ -42,7 +44,7 @@
   &--pagination {
     margin-top: 40px;
 
-    @media only screen and (max-width: $tablet) {
+    @media only screen and (max-width: breakpoints.$tablet) {
       .button-group__button:not(:first-child, :last-child) {
         display: none; // Avoid button group's ugly wrapping on tablet / mobile
       }

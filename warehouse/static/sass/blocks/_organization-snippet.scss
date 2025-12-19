@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-@import "snippet";
+@use "snippet";
 
 /*
   A card that contains information about a organization. Often found in organization lists.
@@ -17,5 +17,5 @@
 */
 
 .organization-snippet {
-  @include snippet(url("../images/sitemap.png"), url("../images/sitemap.svg"));
+  @include snippet.snippet(url("../images/sitemap.png"), url("../images/sitemap.svg"));
 }

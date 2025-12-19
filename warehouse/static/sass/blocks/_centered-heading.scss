@@ -1,3 +1,8 @@
+@use "../settings/breakpoints";
+@use "../settings/colours";
+@use "../settings/grid";
+@use "../tools/typography";
+
 /* SPDX-License-Identifier: Apache-2.0 */
 
 /*
@@ -14,16 +19,16 @@
   text-align: center;
 
   &__title {
-    @include h1-title;
+    @include typography.h1-title;
     padding-bottom: 0;
   }
 
   &__rule {
     max-width: 300px;
-    margin: $half-spacing-unit auto ($spacing-unit * 2);
-    background: $base-grey;
+    margin: grid.$half-spacing-unit auto (grid.$spacing-unit * 2);
+    background: colours.$base-grey;
 
-    @media only screen and (max-width: $tablet) {
+    @media only screen and (max-width: breakpoints.$tablet) {
       display: none;
     }
   }

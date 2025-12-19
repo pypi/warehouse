@@ -1,3 +1,8 @@
+@use "../settings/breakpoints";
+@use "../settings/colours";
+@use "../settings/grid";
+@use "../tools/link-utilities";
+
 /* SPDX-License-Identifier: Apache-2.0 */
 
 /*
@@ -35,8 +40,8 @@
     text-decoration: none;
     display: inline-block;
     padding: 8px 10px;
-    @include link-without-underline;
-    @include link-focus-state($white);
+    @include link-utilities.link-without-underline;
+    @include link-utilities.link-focus-state(colours.$white);
 
     &--with-icon {
       .fa {
@@ -59,23 +64,23 @@
 
   &--light {
     .horizontal-menu__link {
-      color: $white;
+      color: colours.$white;
 
       &:hover {
-        text-decoration-color: $transparent-white;
+        text-decoration-color: colours.$transparent-white;
       }
     }
   }
 
   &--tall {
     .horizontal-menu__link {
-      padding: 32px $half-spacing-unit;
+      padding: 32px grid.$half-spacing-unit;
 
       &:hover {
         text-decoration: underline;
       }
 
-      @media only screen and (max-width: $small-tablet) {
+      @media only screen and (max-width: breakpoints.$small-tablet) {
         padding: 25px 10px;
       }
     }

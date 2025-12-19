@@ -1,3 +1,5 @@
+@use "../tools/layout-utilities";
+
 /* SPDX-License-Identifier: Apache-2.0 */
 
 .float-left {
@@ -9,5 +11,5 @@
 }
 
 .clearfix {
-  @include clearfix;
+  @include layout-utilities.clearfix;
 }

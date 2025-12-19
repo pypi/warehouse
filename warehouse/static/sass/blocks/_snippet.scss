@@ -1,3 +1,10 @@
+@use "../settings/breakpoints";
+@use "../settings/colours";
+@use "../settings/fonts";
+@use "../settings/grid";
+@use "../tools/design-utilities";
+@use "../tools/typography";
+
 /* SPDX-License-Identifier: Apache-2.0 */
 
 /*
@@ -7,22 +14,22 @@
 */
 
 @mixin snippet($snippet-icon-png, $snippet-icon-svg) {
-  @include card;
+  @include design-utilities.card;
   direction: ltr;
   text-align: left;
   display: block;
-  padding: $half-spacing-unit 20px $half-spacing-unit 75px;
+  padding: grid.$half-spacing-unit 20px grid.$half-spacing-unit 75px;
   margin: 0 0 20px;
 
-  @media only screen and (max-width: $tablet) {
-    padding: $half-spacing-unit;
+  @media only screen and (max-width: breakpoints.$tablet) {
+    padding: grid.$half-spacing-unit;
   }
 
-  @media only screen and (min-width: $tablet + 1px) {
+  @media only screen and (min-width: breakpoints.$tablet + 1px) {
     &,
     &:hover {
       // Use png fallback
-      background: $white $snippet-icon-png no-repeat;
+      background: colours.$white $snippet-icon-png no-repeat;
 
       // Or svg if the browser supports it
       background-image: $snippet-icon-svg, linear-gradient(transparent, transparent);
@@ -32,13 +39,13 @@
   }
 
   &__title {
-    @include h3;
+    @include typography.h3;
     padding-bottom: 0;
     display: block;
 
     &--page-title,
     &--page-title:first-child {
-      @include h1-title;
+      @include typography.h1-title;
       padding-top: 1px;
       padding-bottom: 5px;
     }
@@ -49,16 +56,16 @@
   }
 
   &__version {
-    font-weight: $bold-font-weight;
+    font-weight: fonts.$bold-font-weight;
   }
 
   &__created {
-    font-weight: $base-font-weight;
+    font-weight: fonts.$base-font-weight;
     float: right;
-    color: $text-color;
+    color: colours.$text-color;
     font-size: 1rem;
 
-    @media only screen and (max-width: $tablet) {
+    @media only screen and (max-width: breakpoints.$tablet) {
       float: none;
       display: block;
     }
@@ -66,7 +73,7 @@
 
   &__description {
     clear: both;
-    color: $text-color;
+    color: colours.$text-color;
   }
 
   &__buttons {
@@ -89,7 +96,7 @@
   &--margin-bottom {
     margin-bottom: 10px;
 
-    @media only screen and (max-width: $tablet) {
+    @media only screen and (max-width: breakpoints.$tablet) {
       margin-bottom: 30px;
     }
   }

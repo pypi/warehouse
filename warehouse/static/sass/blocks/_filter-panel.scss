@@ -1,3 +1,10 @@
+@use "sass:list";
+@use "../settings/breakpoints";
+@use "../settings/colours";
+@use "../settings/z-index";
+@use "../tools/design-utilities";
+@use "../tools/link-utilities";
+
 /* SPDX-License-Identifier: Apache-2.0 */
 
 /*
@@ -20,7 +27,7 @@
     display: none;
   }
 
-  @media only screen and (max-width: $desktop) {
+  @media only screen and (max-width: breakpoints.$desktop) {
     display: none;
     margin: 0;
     padding: 25px;
@@ -29,27 +36,27 @@
     height: 100%;
     top: 0;
     left: 0;
-    background-color: $primary-color;
+    background-color: colours.$primary-color;
     width: 300px;
     max-width: 100%;
-    z-index: index($z-index-scale, "filter-panel");
+    z-index: list.index(z-index.$z-index-scale, "filter-panel");
 
     &__close {
       display: inline-block;
-      @include dismiss-button;
-      color: $white;
-      @include link-focus-state($white);
+      @include design-utilities.dismiss-button;
+      color: colours.$white;
+      @include link-utilities.link-focus-state(colours.$white);
     }
 
     h2,
     label,
     a {
-      color: $white;
+      color: colours.$white;
     }
 
     a {
-      color: $white;
-      @include white-underlined-link;
+      color: colours.$white;
+      @include link-utilities.white-underlined-link;
     }
   }
 }

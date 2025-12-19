@@ -1,3 +1,7 @@
+@use "../settings/breakpoints";
+@use "../settings/grid";
+@use "../tools/link-utilities";
+
 /* SPDX-License-Identifier: Apache-2.0 */
 
 /*
@@ -24,17 +28,17 @@
     margin: 0 auto;
     padding: 0 20px 40px;
 
-    @media only screen and (max-width: $mobile) {
-      padding: 0 10px $spacing-unit;
+    @media only screen and (max-width: breakpoints.$mobile) {
+      padding: 0 10px grid.$spacing-unit;
     }
   }
 
   &__browse {
     font-size: 1.2rem;
-    margin: $spacing-unit 0 10px 0;
+    margin: grid.$spacing-unit 0 10px 0;
 
     a {
-      @include white-underlined-link;
+      @include link-utilities.white-underlined-link;
     }
   }
 }

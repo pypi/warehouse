@@ -1,3 +1,7 @@
+@use "../settings/breakpoints";
+@use "../settings/grid";
+@use "../tools/layout-utilities";
+
 /* SPDX-License-Identifier: Apache-2.0 */
 
 /*
@@ -13,7 +17,7 @@
 */
 
 .col-grid {
-  @include grid-container;
+  @include layout-utilities.grid-container;
 }
 
 .col-half {
@@ -23,13 +27,13 @@
     margin: 0;
   }
 
-  @media only screen and (max-width: $tablet) {
+  @media only screen and (max-width: breakpoints.$tablet) {
     float: none;
     margin: 0;
     width: 100%;
 
     &:first-of-type {
-      margin-bottom: $spacing-unit;
+      margin-bottom: grid.$spacing-unit;
     }
   }
 }
@@ -41,13 +45,13 @@
     margin: 0;
   }
 
-  @media only screen and (max-width: $tablet) {
+  @media only screen and (max-width: breakpoints.$tablet) {
     float: none;
     margin: 0;
     width: 100%;
 
     &:first-of-type {
-      margin-bottom: $spacing-unit;
+      margin-bottom: grid.$spacing-unit;
     }
   }
 }

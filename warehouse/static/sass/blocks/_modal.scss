@@ -1,3 +1,8 @@
+@use "../settings/breakpoints";
+@use "../settings/colours";
+@use "../settings/grid";
+@use "../tools/design-utilities";
+
 /* SPDX-License-Identifier: Apache-2.0 */
 
 /*
@@ -22,7 +27,7 @@
 */
 
 .modal {
-  @include overlay;
+  @include design-utilities.overlay;
   opacity: 0;
   visibility: hidden;
   display: flex;
@@ -43,18 +48,18 @@
     max-height: 90%;
     border-radius: 3px;
     overflow: auto;
-    background: $white;
+    background: colours.$white;
     position: relative;
     margin: auto;
   }
 
   &__body {
-    padding: $spacing-unit;
+    padding: grid.$spacing-unit;
   }
 
-  @media screen and (max-width: $tablet) {
+  @media screen and (max-width: breakpoints.$tablet) {
     &__body {
-      padding: $half-spacing-unit;
+      padding: grid.$half-spacing-unit;
     }
   }
 
@@ -64,8 +69,8 @@
   }
 
   &__footer {
-    border-top: 1px solid $border-color;
-    padding: $half-spacing-unit;
+    border-top: 1px solid colours.$border-color;
+    padding: grid.$half-spacing-unit;
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -76,11 +81,11 @@
   }
 
   &__close {
-    @include dismiss-button;
-    color: $text-color;
+    @include design-utilities.dismiss-button;
+    color: colours.$text-color;
 
     &:hover {
-      color: $text-color;
+      color: colours.$text-color;
     }
   }
 

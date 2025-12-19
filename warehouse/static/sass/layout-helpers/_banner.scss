@@ -1,3 +1,6 @@
+@use "../settings/breakpoints";
+@use "../settings/colours";
+
 /* SPDX-License-Identifier: Apache-2.0 */
 
 /*
@@ -6,15 +9,15 @@
 */
 
 .banner {
-  background-color: $primary-color;
-  color: $white;
+  background-color: colours.$primary-color;
+  color: colours.$white;
   padding: 50px 0;
 
-  @media only screen and (max-width: $tablet) {
+  @media only screen and (max-width: breakpoints.$tablet) {
     padding: 40px 0;
   }
 
-  @media only screen and (max-width: $mobile) {
+  @media only screen and (max-width: breakpoints.$mobile) {
     padding: 25px 0;
   }
 }

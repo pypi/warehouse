@@ -1,3 +1,6 @@
+@use "../settings/breakpoints";
+@use "../tools/design-utilities";
+
 /* SPDX-License-Identifier: Apache-2.0 */
 
 /*
@@ -7,9 +10,9 @@
   <div class="dark-overlay"></div>
 */
 
-@media only screen and (max-width: $desktop) {
+@media only screen and (max-width: breakpoints.$desktop) {
   .dark-overlay {
     display: none;
-    @include overlay;
+    @include design-utilities.overlay;
   }
 }

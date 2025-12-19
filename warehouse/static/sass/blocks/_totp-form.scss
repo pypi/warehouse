@@ -1,3 +1,7 @@
+@use "../settings/breakpoints";
+@use "../settings/colours";
+@use "../settings/grid";
+
 /* SPDX-License-Identifier: Apache-2.0 */
 
 /*
@@ -20,11 +24,11 @@
 
 .totp-form {
   display: flex;
-  margin: $spacing-unit 0;
+  margin: grid.$spacing-unit 0;
 
   &__qr {
-    border: 1px solid $border-color;
-    margin-bottom: $spacing-unit;
+    border: 1px solid colours.$border-color;
+    margin-bottom: grid.$spacing-unit;
 
     img {
       width: 100%;
@@ -39,11 +43,11 @@
   }
 
   &__form {
-    padding-left: $spacing-unit;
-    margin-top: $half-spacing-unit;
+    padding-left: grid.$spacing-unit;
+    margin-top: grid.$half-spacing-unit;
   }
 
-  @media only screen and (max-width: $small-tablet) {
+  @media only screen and (max-width: breakpoints.$small-tablet) {
     display: block;
 
     &__qr {
@@ -52,7 +56,7 @@
 
     &__form {
       padding-left: 0;
-      margin-top: $spacing-unit;
+      margin-top: grid.$spacing-unit;
     }
   }
 }

@@ -1,3 +1,5 @@
+@use "../settings/fonts";
+
 /* SPDX-License-Identifier: Apache-2.0 */
 
 // IMAGES
@@ -15,5 +17,5 @@ figure > img {
 }
 
 figcaption {
-  font-size: $small-font-size;
+  font-size: fonts.$small-font-size;
 }

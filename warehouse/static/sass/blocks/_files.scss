@@ -1,3 +1,7 @@
+@use "../settings/breakpoints";
+@use "../settings/grid";
+@use "../tools/layout-utilities";
+
 /* SPDX-License-Identifier: Apache-2.0 */
 
 /*
@@ -19,14 +23,14 @@
 */
 
 .file {
-  @include clearfix;
+  @include layout-utilities.clearfix;
   display: table;
   table-layout: fixed;
   width: 100%;
 
   &__meta {
     font-size: 0.8rem;
-    padding-top: $quarter-spacing-unit;
+    padding-top: grid.$quarter-spacing-unit;
   }
 
   &__graphic {
@@ -35,16 +39,16 @@
     text-align: center;
     vertical-align: middle;
     position: relative;
-    padding-right: $quarter-spacing-unit;
+    padding-right: grid.$quarter-spacing-unit;
 
-    @media screen and (max-width: $tablet) {
+    @media screen and (max-width: breakpoints.$tablet) {
       display: none;
     }
   }
 
   &__card {
     display: block;
-    margin: $quarter-spacing-unit 0;
+    margin: grid.$quarter-spacing-unit 0;
 
     small {
       display: block;
