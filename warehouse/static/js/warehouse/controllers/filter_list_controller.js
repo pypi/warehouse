@@ -58,98 +58,17 @@ export default class extends Controller {
       return;
     }
 
-    const filterData = this._buildFilterData();
+    const {total, shown, groupedLabels} = this._filterItems();
 
-    let total = 0;
-    let shown = 0;
-
-    const groupedLabels = {};
-
-    this.itemTargets.forEach((item, index) => {
-      total += 1;
-      const itemData = this.mappingItemFilterData[index];
-      const isShow = this._compare(itemData, filterData);
-
-      // Should the item be displayed or not?
-      if (isShow) {
-        // match: show item
-        item.classList.remove("hidden");
-        shown += 1;
-        // store the matched items to update the select options later
-        Object.entries(itemData).forEach(([key, values]) => {
-          if (!groupedLabels[key]) {
-            groupedLabels[key] = [];
-          }
-          values.forEach(value => {
-            if (!groupedLabels[key].includes(value)) {
-              groupedLabels[key].push(value);
-            }
-          });
-        });
-      } else {
-        // no match: hide item
-        item.classList.add("hidden");
-      }
-    });
-
-    // show the number of matches and the total number of items
-    if (this.hasSummaryTarget) {
-      let messages = [];
-      if (shown === 0) {
-        messages.push(gettext("No files match the current filters."));
-      }
-      messages.push(ngettext(
-        "Showing %1 of %2 file.",
-        "Showing %1 of %2 files.",
-        total,
-        shown,
-        total));
-      this.summaryTarget.textContent = messages.join(" ");
-    }
+    this._setSummary(total, shown);
 
     // Update the current url to include the filters
     const htmlElementFilters = this._getFiltersHtmlElements();
     this._setFiltersUrlSearch(htmlElementFilters);
 
-    // Update the direct url to these filters
-    if (this.hasUrlTarget && this.urlTarget) {
-      const urlTargetUrl = new URL(this.urlTarget.href);
-      Object.entries(htmlElementFilters ?? {}).forEach(([key, value]) => {
-        if (value) {
-          urlTargetUrl.searchParams.set(key, value);
-        } else {
-          urlTargetUrl.searchParams.delete(key);
-        }
-      });
-      this.urlTarget.textContent = urlTargetUrl.toString();
-    }
+    this._setCopyUrl();
 
-    // Update the dropdowns to reflect the currently displayed items.
-    const filterTargets = this._getFilterTargets();
-    const selected = {};
-    filterTargets.forEach(filterTarget => {
-      if (filterTarget.nodeName === "SELECT") {
-        const key = filterTarget.dataset.filteredSource;
-        // Store which option is selected.
-        for (const selectedOption of filterTarget.selectedOptions) {
-          selected[key] = selectedOption.value;
-        }
-        // Remove all existing options.
-        for (let index = filterTarget.options.length - 1; index >= 0; index--) {
-          filterTarget.options.remove(index);
-        }
-        // Add the options reflecting the currently displayed items.
-        const valuesToKeep = groupedLabels[key] ?? [];
-        this.initialSelectOptions[key].forEach(option => {
-          const initialOptionValue = option[0];
-          const initialOptionLabel = option[1];
-          if (initialOptionValue === "" || valuesToKeep.includes(initialOptionValue)) {
-            const isSelected = selected[key] === initialOptionValue;
-            filterTarget.options.add(new Option(initialOptionLabel, initialOptionValue, null, isSelected));
-          }
-        });
-      }
-    });
+    this._setFilters(groupedLabels);
   }
 
   /**
@@ -192,7 +111,7 @@ export default class extends Controller {
    * @private
    */
   _populateMappings() {
-    const filterData = this._buildFilterData();
+    const filterData = this._getFilters();
 
     // reset the item filter mapping data
     this.mappingItemFilterData = {};
@@ -201,7 +120,7 @@ export default class extends Controller {
       return;
     }
 
-    this.itemTargets.forEach((item, index) => {
+    this._getItemTargets().forEach((item, index) => {
       const dataAttrs = item.dataset;
       this.mappingItemFilterData[index] = {};
       for (const filterKey in filterData) {
@@ -217,61 +136,180 @@ export default class extends Controller {
   }
 
   /**
-   * Build a mapping of filteredSource names to array of values.
-   * @returns {{[key: string]: {values: string[], comparison: "exact"|"includes"}}}
-   * @private
-   */
-  _buildFilterData() {
-    const filterData = {};
-    const filterTargets = this._getFilterTargets();
-    filterTargets.forEach(filterTarget => {
-      const key = filterTarget.dataset.filteredSource;
-      const value = filterTarget.value;
-      if (!Object.hasOwn(filterData, key)) {
-        filterData[key] = {values: [], comparison: "exact"};
-      }
-      filterData[key].values.push(value);
-
-      const comparison = filterTarget.dataset.comparisonType;
-      if (comparison) {
-        filterData[key].comparison = comparison;
-      }
-    });
-    return filterData;
-  }
-
-  /**
    * Compare an item's data to all filter values and find matches.
    * Filters are processed as 'AND' - the item data must match all the filters.
+   * Returns true if all filters are "" or there are no filters.
    * @param itemData {{[key: string]:string[]}} The item mapping.
-   * @param filterData {{[key: string]: {values: string[], comparison: "exact"|"includes"}}} The filter mapping.
-   * @returns {boolean}
+   * @param filterData {{[key: string]: {[comparison: "exact"|"includes"]: values: string[]}}} The filter mapping.
+   * @returns {boolean} True if the item data matches the filter data, otherwise false.
    * @private
    */
   _compare(itemData, filterData) {
     for (const [filterKey, filterInfo] of Object.entries(filterData)) {
-      const comparison = filterInfo.comparison;
-      const filterValues = Array.from(new Set((filterInfo.values ?? []).map(i => i?.toString()?.trim() ?? "").filter(i => !!i)));
-      const itemValues = Array.from(new Set((itemData[filterKey] ?? []).map(i => i?.toString()?.trim() ?? "").filter(i => !!i)));
+      for (const [comparison, filterValuesRaw] of Object.entries(filterInfo)) {
+        const filterValues = Array.from(new Set((filterValuesRaw ?? []).map(i => i?.toString()?.trim() ?? "").filter(i => !!i)));
+        const itemValues = Array.from(new Set((itemData[filterKey] ?? []).map(i => i?.toString()?.trim() ?? "").filter(i => !!i)));
 
-      // Not a match if the item values and filter values contain different values.
-      if (filterValues.length > 0 && comparison === "exact") {
-        if (!filterValues.every(filterValue => itemValues.includes(filterValue))) {
-          return false;
+        // Not a match if the item values and filter values contain different values.
+        if (filterValues.length > 0 && comparison === "exact") {
+          if (!filterValues.every(filterValue => itemValues.includes(filterValue))) {
+            return false;
+          }
         }
-      }
 
-      if (filterValues.length > 0 && comparison === "includes") {
-        if (!filterValues.every(filterValue => itemValues.some(itemValue => itemValue.includes(filterValue)))) {
-          return false;
+        if (filterValues.length > 0 && comparison === "includes") {
+          if (!filterValues.every(filterValue => itemValues.some(itemValue => itemValue.includes(filterValue)))) {
+            return false;
+          }
         }
       }
     }
     return true;
   }
 
+  /**
+   * Show and hide items based on the filters.
+   * @returns {{total: number, shown: number, groupedLabels: {[key: string]: string[]}}}
+   * @private
+   */
+  _filterItems() {
+    const filterData = this._getFilters();
+    let total = 0;
+    let shown = 0;
+    const groupedLabels = {};
+
+    this._getItemTargets().forEach((item, index) => {
+      total += 1;
+      const itemData = this.mappingItemFilterData[index];
+      const isShow = this._compare(itemData, filterData);
+
+      // Should the item be displayed or not?
+      if (isShow) {
+        // match: show item
+        item.classList.remove("hidden");
+        shown += 1;
+        // store the matched items to update the select options later
+        Object.entries(itemData).forEach(([key, values]) => {
+          if (!groupedLabels[key]) {
+            groupedLabels[key] = [];
+          }
+          values.forEach(value => {
+            if (!groupedLabels[key].includes(value)) {
+              groupedLabels[key].push(value);
+            }
+          });
+        });
+      } else {
+        // no match: hide item
+        item.classList.add("hidden");
+      }
+    });
+
+    return {
+      total: total,
+      shown: shown,
+      groupedLabels: groupedLabels,
+    }
+  }
+
+  /**
+   * Get the array of filter targets.
+   * @returns {(HTMLSelectElement|HTMLInputElement)[]}
+   * @private
+   */
   _getFilterTargets() {
     return this.hasFilterTarget ? (this.filterTargets ?? []) : [];
+  }
+
+  /**
+   * Get the items that are to be filtered.
+   * @returns {HTMLElement[]}
+   * @private
+   */
+  _getItemTargets() {
+    return this.hasItemTarget ? (this.itemTargets ?? []) : [];
+  }
+
+
+  /**
+   * Build a mapping of filteredSource names, to comparison, to array of values.
+   * @returns {{[key: string]: {[comparison: "exact"|"includes"]: values: string[]}}}
+   * @private
+   */
+  _getFilters() {
+    const filterData = {};
+    const filterTargets = this._getFilterTargets();
+    filterTargets.forEach(filterTarget => {
+      const key = filterTarget.dataset.filteredSource;
+
+      let values;
+      if (filterTarget.nodeName === "INPUT") {
+        values = [filterTarget.value];
+      } else if (filterTarget.nodeName === "SELECT") {
+        values = Array.from(filterTarget.selectedOptions).map(selectedOption => selectedOption.value);
+      } else {
+        console.error(`Get filters is not implemented for filter target node name '${filterTarget.nodeName}'.`);
+        values = [];
+      }
+
+      const comparison = filterTarget.dataset.comparisonType;
+      if (!Object.keys(filterData).includes(key)) {
+        filterData[key] = {};
+      }
+      if (!Object.keys(filterData[key]).includes(comparison)) {
+        filterData[key][comparison] = [];
+      }
+      filterData[key][comparison].push(...values);
+    });
+    return filterData;
+  }
+
+  /**
+   * Update the dropdowns to reflect the currently displayed items.
+   * Selection filters that have a selection will show all options, to allow changing the selection.
+   * Selection filters that do not have a selection will have their options reduced to only the available options.
+   * @param filter {{[key: string]:  string[]}} The map of filteredSource to array of available values.
+   * @private
+   */
+  _setFilters(filter) {
+    const filterTargets = this._getFilterTargets();
+    for (const filterTarget of filterTargets) {
+      const key = filterTarget.dataset.filteredSource;
+      const values = filter[key] ?? [];
+
+      if (filterTarget.nodeName === "INPUT") {
+        // An input filter can't have multiple values, just use the first.
+        filterTarget.value = values.length > 0 ? values[0] : "";
+      } else if (filterTarget.nodeName === "SELECT") {
+        // Store which options are currently selected.
+        const selectedValues = Array.from(filterTarget.selectedOptions).map(selectedOption => selectedOption.value);
+        const hasSelectedNonEmptyOptions = selectedValues && selectedValues.length > 0 && selectedValues.some(value => value !== "");
+
+        // Remove all existing options for the filter target in preparation for adding the available options.
+        for (let index = filterTarget.options.length - 1; index >= 0; index--) {
+          filterTarget.options.remove(index);
+        }
+
+        // Add the options reflecting the currently displayed items.
+        // Filter targets with a non-empty selection keep all their options, so that all the options are available to change the selection.
+        for (const initialOption of this.initialSelectOptions[key]) {
+          const initialOptionValue = initialOption[0];
+          const initialOptionLabel = initialOption[1];
+          if (initialOptionValue === "") {
+            // Empty value representing no selection is always present, and selected if nothing else is selected.
+            const isSelected = !hasSelectedNonEmptyOptions;
+            filterTarget.options.add(new Option(initialOptionLabel, initialOptionValue, null, isSelected));
+          } else if (values.includes(initialOptionValue) && !hasSelectedNonEmptyOptions) {
+            // Include only values to keep when nothing is selected.
+            filterTarget.options.add(new Option(initialOptionLabel, initialOptionValue, null, false));
+          } else if (hasSelectedNonEmptyOptions) {
+            //
+            const isSelected = selectedValues.includes(initialOptionValue);
+            filterTarget.options.add(new Option(initialOptionLabel, initialOptionValue, null, isSelected));
+          }
+        }
+      }
+    }
   }
 
   /**
@@ -292,7 +330,7 @@ export default class extends Controller {
 
   /**
    * Set the filters to the url query string.
-   * @param filters The filters to set.
+   * @param filters {{[key: string]: string}} The filters to set.
    * @private
    */
   _setFiltersUrlSearch(filters) {
@@ -330,7 +368,7 @@ export default class extends Controller {
 
   /**
    * Set the filters to the HTML element values.
-   * @param filters
+   * @param filters {{[key: string]: string}} The filters to set.
    * @private
    */
   _setFiltersHtmlElements(filters) {
@@ -358,5 +396,46 @@ export default class extends Controller {
       })
       .filter(i => i[1] === "true")
       .map(i => i[0]);
+  }
+
+  /**
+   * Show the number of matches and the total number of items.
+   * @param total {number} The total number of items.
+   * @param shown {number} The number of items currently shown.
+   * @private
+   */
+  _setSummary(total, shown) {
+    if (this.hasSummaryTarget) {
+      let messages = [];
+      if (shown === 0) {
+        messages.push(gettext("No files match the current filters."));
+      }
+      messages.push(ngettext(
+        "Showing %1 of %2 file.",
+        "Showing %1 of %2 files.",
+        total,
+        shown.toString(),
+        total.toString()));
+      this.summaryTarget.textContent = messages.join(" ");
+    }
+  }
+
+  /**
+   * Update the direct url to the current filters.
+   * @private
+   */
+  _setCopyUrl() {
+    if (this.hasUrlTarget && this.urlTarget) {
+      const htmlElementFilters = this._getFiltersHtmlElements();
+      const urlTargetUrl = new URL(this.urlTarget.href);
+      for (const [key, value] of Object.entries(htmlElementFilters ?? {})) {
+        if (value) {
+          urlTargetUrl.searchParams.set(key, value);
+        } else {
+          urlTargetUrl.searchParams.delete(key);
+        }
+      }
+      this.urlTarget.textContent = urlTargetUrl.toString();
+    }
   }
 }

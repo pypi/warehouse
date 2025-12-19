@@ -183,6 +183,10 @@
              data-action="project-tabs#onTabClick">{% trans %}Details{% endtrans %}</a>
         </td>
       </tr>
+      <tr {% if 'source' not in file.python_version %} data-filter-list-target="item" data-filtered-target-filename='["{{ file.filename }}"]' {% for filter_name, filter_items in file.wheel_filters.items() %} data-filtered-target-{{ filter_name }}='{{ ((filter_items.keys() | list) + (filter_items.values() | list)) | tojson }}' {% endfor %}
+      {% endif %}>
+        <td colspan="5" class="file-name"><small>{%  trans %}File name:{% endtrans %} {{ file.filename }}</small></td>
+      </tr>
     {% endfor %}
   </table>
 {%- endmacro -%}
