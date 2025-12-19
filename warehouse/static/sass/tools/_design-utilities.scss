@@ -1,6 +1,5 @@
 @use "sass:color";
 @use "sass:list";
-@use "../blocks/project-description";
 @use "../settings/colours";
 @use "../settings/z-index";
 
@@ -22,7 +21,7 @@
 @mixin overlay {
   position: fixed;
   inset: 0;
-  background-color: color.adjust(project-description.$black, $alpha: -0.5);
+  background-color: color.adjust(colours.$black, $alpha: -0.5);
   z-index: list.index(z-index.$z-index-scale, "dark-overlay");
   pointer-events: none;
   transition: opacity 0.3s;

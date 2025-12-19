@@ -272,14 +272,14 @@ $dark-red:      color.adjust(colours.$danger-color, $lightness: -20);
 $purple:        #b06;
 $orange:        #a36200;
 $brown:         color.adjust($orange, $lightness: -7);
-colours.$light-grey:    #737373;
+$pygments-light-grey:    #737373;
 $mid-grey:      #575757;
 $dark-grey:     #303030;
-colours.$black:         #000;
+$pygments-black:         #000;
 
 .project-description { // stylelint-disable-line no-duplicate-selectors -- Allow for visual organization
   .c { /* Comment */
-    color: colours.$light-grey;
+    color: $pygments-light-grey;
   }
 
   .err { /* Error */
@@ -291,7 +291,7 @@ colours.$black:         #000;
   }
 
   .cm { /* Comment.Multiline */
-    color: colours.$light-grey;
+    color: $pygments-light-grey;
   }
 
   .cp { /* Comment.Preproc */
@@ -299,7 +299,7 @@ colours.$black:         #000;
   }
 
   .c1 {/* Comment.Single */
-    color: colours.$light-grey;
+    color: $pygments-light-grey;
   }
 
   .cs { /* Comment.Special */
@@ -307,7 +307,7 @@ colours.$black:         #000;
   }
 
   .gd { /* Generic.Deleted */
-    color: colours.$black;
+    color: $pygments-black;
   }
 
   .ge { /* Generic.Emph */
@@ -323,11 +323,11 @@ colours.$black:         #000;
   }
 
   .gi { /* Generic.Inserted */
-    color: colours.$black;
+    color: $pygments-black;
   }
 
   .go { /* Generic.Output */
-    color: colours.$light-grey;
+    color: $pygments-light-grey;
   }
 
   .gp { /* Generic.Prompt */
@@ -363,7 +363,7 @@ colours.$black:         #000;
   }
 
   .kt { /* Keyword.Type */
-    color: colours.$light-grey;
+    color: $pygments-light-grey;
   }
 
   .m { /* Literal.Number */
@@ -428,7 +428,7 @@ colours.$black:         #000;
   }
 
   .w { /* Text.Whitespace */
-    color: colours.$light-grey;
+    color: $pygments-light-grey;
   }
 
   .mf { /* Literal.Number.Float */
