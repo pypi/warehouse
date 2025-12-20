@@ -10,7 +10,7 @@ https://jestjs.io/docs/en/manual-mocks
 
 /* global jest, module */
 
-const debounce = jest.genMockFromModule("debounce");
+const debounce = jest.createMockFromModule("debounce");
 
 function mockDebounce(fn) {
   // Return the wrapped function unchanged.
