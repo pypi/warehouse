@@ -38,9 +38,9 @@ def helpscout(request):
     email = (
         request.db.query(Email)
         .where(
-            func.regexp_replace(Email.email, r"\+[^)]*@", "@").ilike(
+            func.regexp_replace(Email.email, r"\+[^@]*@", "@").ilike(
                 re.sub(
-                    r"\+[^)]*@",
+                    r"\+[^@]*@",
                     "@",
                     request.json_body.get("customer", {}).get("email", ""),
                 )

@@ -78,6 +78,9 @@ class TestHelpscoutApp:
             ("wutang@loudrecords.com", "wutang@loudrecords.com"),
             ("wutang+pypi@loudrecords.com", "wutang@loudrecords.com"),
             ("wutang@loudrecords.com", "wutang+pypi@loudrecords.com"),
+            # Subaddress containing special characters including `)`
+            ("wutang+pypi)test@loudrecords.com", "wutang@loudrecords.com"),
+            ("wutang@loudrecords.com", "wutang+a]b)c@loudrecords.com"),
         ],
     )
     def test_valid_auth_email_found(self, db_request, search_email, user_email):
