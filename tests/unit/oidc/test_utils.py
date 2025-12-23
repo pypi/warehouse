@@ -12,14 +12,17 @@ from tests.common.db.oidc import (
     GitHubPublisherFactory,
     GitLabPublisherFactory,
     GooglePublisherFactory,
+    SemaphorePublisherFactory,
 )
 from tests.common.db.organizations import OrganizationOIDCIssuerFactory
 from warehouse.oidc import errors, utils
 from warehouse.oidc.models import (
+    SEMAPHORE_OIDC_ISSUER_URL_SUFFIX,
     ActiveStatePublisher,
     GitHubPublisher,
     GitLabPublisher,
     GooglePublisher,
+    SemaphorePublisher,
 )
 from warehouse.oidc.utils import OIDC_PUBLISHER_CLASSES
 from warehouse.organizations.models import OIDCIssuerType
@@ -296,6 +299,36 @@ def test_find_publisher_by_issuer_activestate(
         ).id
         == expected_id
     )
+
+
+def test_find_publisher_by_issuer_semaphore(db_request):
+    SemaphorePublisherFactory(
+        id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        organization="example-org",
+        semaphore_organization_id="a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        project="example-project",
+        semaphore_project_id="b2c3d4e5-f6a7-8901-bcde-f01234567891",
+        repo_slug="owner/repo",
+    )
+
+    signed_claims = {
+        claim_name: "fake" for claim_name in SemaphorePublisher.all_known_claims()
+    }
+    signed_claims.update(
+        {
+            "org": "example-org",
+            "org_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+            "prj": "example-project",
+            "prj_id": "b2c3d4e5-f6a7-8901-bcde-f01234567891",
+            "repo_slug": "owner/repo",
+        }
+    )
+
+    assert utils.find_publisher_by_issuer(
+        db_request.db,
+        f"https://example-org{SEMAPHORE_OIDC_ISSUER_URL_SUFFIX}",
+        signed_claims,
+    ).id == uuid.UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
 
 
 def test_oidc_context_principals():
