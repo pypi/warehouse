@@ -78,7 +78,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
 
     __repr__ = make_repr("username")
 
-    username: Mapped[CITEXT] = mapped_column(CITEXT, unique=True)
+    username: Mapped[str] = mapped_column(CITEXT, unique=True)
     name: Mapped[str] = mapped_column(String(length=100))
     password: Mapped[str] = mapped_column(String(length=128))
     password_date: Mapped[datetime.datetime | None] = mapped_column(

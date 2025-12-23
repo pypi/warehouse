@@ -282,6 +282,21 @@ def includeme(config):
     )
     config.add_route("manage.account.token", "/manage/account/token/", domain=warehouse)
     config.add_route(
+        "manage.account.associations.github.connect",
+        "/manage/account/associations/github/connect",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.account.associations.github.callback",
+        "/manage/account/associations/github/callback",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.account.associations.delete",
+        "/manage/account/associations/delete",
+        domain=warehouse,
+    )
+    config.add_route(
         "manage.organizations.application",
         "/manage/organizations/application/{organization_application_id}/",
         factory="warehouse.organizations.models:OrganizationApplicationFactory",

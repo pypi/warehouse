@@ -39,6 +39,7 @@ from warehouse.accounts.interfaces import (
     ITokenService,
     IUserService,
 )
+from warehouse.accounts.oauth import IOAuthProviderService, NullOAuthClient
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.attestations import services as attestations_services
 from warehouse.attestations.interfaces import IIntegrityService
@@ -166,6 +167,7 @@ def pyramid_services(
     search_service,
     domain_status_service,
     ratelimit_service,
+    oauth_provider_service,
 ):
     services = _Services()
 
@@ -194,6 +196,9 @@ def pyramid_services(
     services.register_service(domain_status_service, IDomainStatusService)
     services.register_service(ratelimit_service, IRateLimiter, name="email.add")
     services.register_service(ratelimit_service, IRateLimiter, name="email.verify")
+    services.register_service(
+        oauth_provider_service, IOAuthProviderService, name="github"
+    )
 
     return services
 
@@ -561,6 +566,15 @@ def domain_status_service(mocker):
 def ratelimit_service(mocker):
     service = DummyRateLimiter()
     mocker.spy(service, "clear")
+    return service
+
+
+@pytest.fixture
+def oauth_provider_service(mocker):
+    service = NullOAuthClient()
+    mocker.spy(service, "generate_authorize_url")
+    mocker.spy(service, "exchange_code_for_token")
+    mocker.spy(service, "get_user_info")
     return service
 
 

@@ -186,6 +186,11 @@ def test_includeme(monkeypatch):
             IEmailBreachedService,
         ),
         pretend.call(NullDomainStatusService.create_service, IDomainStatusService),
+        pretend.call(
+            accounts.NullOAuthClient.create_service,
+            accounts.IOAuthProviderService,
+            name="github",
+        ),
         pretend.call(RateLimit("10 per 5 minutes"), IRateLimiter, name="user.login"),
         pretend.call(RateLimit("10 per 5 minutes"), IRateLimiter, name="ip.login"),
         pretend.call(
