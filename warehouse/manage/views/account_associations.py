@@ -9,6 +9,10 @@ from pyramid.view import view_config
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.oauth import IOAuthProviderService, generate_state_token
 from warehouse.authnz import Permissions
+from warehouse.email import (
+    send_account_association_added_email,
+    send_account_association_removed_email,
+)
 from warehouse.events.tags import EventTag
 from warehouse.manage.forms import DeleteAccountAssociationForm
 
@@ -118,6 +122,14 @@ def github_association_callback(request: Request) -> HTTPSeeOther:
             },
         )
 
+        # Send notification email
+        send_account_association_added_email(
+            request,
+            request.user,
+            service="GitHub",
+            external_username=external_username,
+        )
+
         request.session.flash(
             request._(
                 "Successfully connected GitHub account @${username}",
@@ -189,6 +201,14 @@ def delete_account_association(request: Request) -> HTTPSeeOther:
             tag=EventTag.Account.AccountAssociationRemove,
             request=request,
             additional=event_data,
+        )
+
+        # Send notification email before deletion
+        send_account_association_removed_email(
+            request,
+            request.user,
+            service=association.service.capitalize(),
+            external_username=association.external_username,
         )
 
         # Delete the association
