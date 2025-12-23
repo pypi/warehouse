@@ -191,6 +191,10 @@ class TestGitHubAssociationCallback:
         pyramid_request.route_path = lambda *args: "/manage/account/"
         # Mock user's record_event method
         pyramid_user.record_event = mocker.Mock()
+        # Mock the email sending function
+        mock_send_email = mocker.patch.object(
+            views, "send_account_association_added_email"
+        )
 
         result = views.github_association_callback(pyramid_request)
 
@@ -204,6 +208,8 @@ class TestGitHubAssociationCallback:
             pyramid_user.record_event.call_args[1]["tag"]
             == EventTag.Account.AccountAssociationAdd
         )
+        # Verify email was sent
+        mock_send_email.assert_called_once()
         # Verify success flash
         assert pyramid_request.session.peek_flash(queue="success")
 
@@ -234,6 +240,10 @@ class TestDeleteAccountAssociation:
         mock_delete = mocker.patch.object(
             user_service, "delete_account_association", return_value=True
         )
+        # Mock the email sending function
+        mock_send_email = mocker.patch.object(
+            views, "send_account_association_removed_email"
+        )
 
         result = views.delete_account_association(pyramid_request)
 
@@ -245,6 +255,8 @@ class TestDeleteAccountAssociation:
             pyramid_user.record_event.call_args[1]["tag"]
             == EventTag.Account.AccountAssociationRemove
         )
+        # Verify email was sent
+        mock_send_email.assert_called_once()
         assert pyramid_request.session.peek_flash(queue="success")
 
     def test_form_validation_failure(
