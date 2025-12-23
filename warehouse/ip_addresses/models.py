@@ -21,6 +21,7 @@ if typing.TYPE_CHECKING:
 
 class BanReason(enum.Enum):
     AUTHENTICATION_ATTEMPTS = "authentication-attempts"
+    ADMINISTRATIVE = "administrative"
 
 
 class IpAddress(db.Model):
