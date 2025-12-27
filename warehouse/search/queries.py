@@ -70,9 +70,17 @@ def get_opensearch_query(opensearch, terms, order, classifiers):
             + ([classifier_q] if classifiers else [])
         )
 
+        # Boost packages where the search terms appear as an exact phrase in
+        # the name. This ensures that searching for "flask" returns the "flask"
+        # package before "flask-ci", and "python2" returns "python2" before
+        # "python2-hwloc". The high boost value ensures exact matches rank
+        # significantly higher than partial matches.
+        exact_name_boost = Q("match_phrase", name={"query": terms, "boost": 1000})
+
         bool_query = Q(
             "bool",
             must=content_queries,
+            should=[exact_name_boost],
         )
 
         # Allow to optionally match on prefix
