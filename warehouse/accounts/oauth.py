@@ -18,8 +18,6 @@ import requests
 from zope.interface import Interface, implementer
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-
     from pyramid.request import Request
 
 
@@ -36,7 +34,7 @@ class IOAuthProviderService(Interface):  # noqa: N805
         Create appropriate OAuth client based on configuration.
         """
 
-    def generate_authorize_url(state, scopes=None):  # noqa: N805
+    def generate_authorize_url(state):  # noqa: N805
         """
         Generate OAuth authorization URL with CSRF state token.
 
@@ -59,14 +57,23 @@ class IOAuthProviderService(Interface):  # noqa: N805
 
 
 @implementer(IOAuthProviderService)
-class GitHubOAuthClient:
+class GitHubAppClient:
     """
-    OAuth client for GitHub integration.
+    GitHub App client for user authentication and future repository access.
+
+    Uses GitHub App's OAuth flow for user identity verification.
+    Permissions are configured in the GitHub App settings, not requested at
+    authorization time. This provides fine-grained access control.
 
     Configuration required in settings:
-    - github.oauth.client_id
-    - github.oauth.client_secret
-    - github.oauth.redirect_uri (or use request.route_url)
+    - github.oauth.client_id: GitHub App's OAuth client ID
+    - github.oauth.client_secret: GitHub App's OAuth client secret
+
+    Future configuration (for repository access):
+    - github.oauth.app_id: GitHub App ID (for installation API)
+    - github.oauth.private_key: GitHub App private key (for JWT signing)
+
+    See: https://docs.github.com/en/apps/creating-github-apps
     """
 
     AUTHORIZE_URL = "https://github.com/login/oauth/authorize"
@@ -81,7 +88,7 @@ class GitHubOAuthClient:
     @classmethod
     def create_service(cls, context, request: Request) -> Self:
         """
-        Create GitHubOAuthClient from request settings.
+        Create GitHubAppClient from request settings.
         """
         settings = request.registry.settings
         redirect_uri = request.route_url("manage.account.associations.github.callback")
@@ -92,26 +99,23 @@ class GitHubOAuthClient:
             redirect_uri=redirect_uri,
         )
 
-    def generate_authorize_url(
-        self, state: str, scopes: Sequence[str] | None = None
-    ) -> str:
+    def generate_authorize_url(self, state: str) -> str:
         """
-        Generate the GitHub OAuth authorization URL.
+        Generate the GitHub App OAuth authorization URL.
+
+        Unlike OAuth Apps, GitHub Apps don't request scopes at authorization time.
+        Permissions are configured in the GitHub App settings and apply
+        automatically when the user authorizes.
 
         Args:
             state: CSRF protection token (store in session)
-            scopes: Sequence of OAuth scopes to request
 
         Returns:
             Authorization URL to redirect user to
         """
-        if scopes is None:
-            scopes = ["read:user", "user:email"]
-
         params = {
             "client_id": self.client_id,
             "redirect_uri": self.redirect_uri,
-            "scope": " ".join(scopes),
             "state": state,
         }
         return f"{self.AUTHORIZE_URL}?{urllib.parse.urlencode(params)}"
@@ -197,9 +201,7 @@ class NullOAuthClient:
         redirect_uri = request.route_url("manage.account.associations.github.callback")
         return cls(redirect_uri=redirect_uri)
 
-    def generate_authorize_url(
-        self, state: str, scopes: Sequence[str] | None = None
-    ) -> str:
+    def generate_authorize_url(self, state: str) -> str:
         """
         Generate mock authorization URL.
 

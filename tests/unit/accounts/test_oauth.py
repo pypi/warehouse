@@ -12,7 +12,7 @@ from urllib3.util import parse_url
 from zope.interface.verify import verifyClass
 
 from warehouse.accounts.oauth import (
-    GitHubOAuthClient,
+    GitHubAppClient,
     IOAuthProviderService,
     NullOAuthClient,
     generate_state_token,
@@ -21,7 +21,7 @@ from warehouse.accounts.oauth import (
 
 class TestIOAuthProviderService:
     def test_verify_interface(self):
-        assert verifyClass(IOAuthProviderService, GitHubOAuthClient)
+        assert verifyClass(IOAuthProviderService, GitHubAppClient)
         assert verifyClass(IOAuthProviderService, NullOAuthClient)
 
 
@@ -39,9 +39,9 @@ class TestGenerateStateToken:
         assert token1 != token2
 
 
-class TestGitHubOAuthClient:
+class TestGitHubAppClient:
     def test_initialization(self):
-        client = GitHubOAuthClient(
+        client = GitHubAppClient(
             client_id="test_id",
             client_secret="test_secret",
             redirect_uri="http://localhost/callback",
@@ -59,9 +59,9 @@ class TestGitHubOAuthClient:
         request.route_url.return_value = "http://localhost/callback"
         context = None
 
-        client = GitHubOAuthClient.create_service(context, request)
+        client = GitHubAppClient.create_service(context, request)
 
-        assert isinstance(client, GitHubOAuthClient)
+        assert isinstance(client, GitHubAppClient)
         assert client.client_id == "test_id"
         assert client.client_secret == "test_secret"
         assert client.redirect_uri == "http://localhost/callback"
@@ -69,8 +69,9 @@ class TestGitHubOAuthClient:
             "manage.account.associations.github.callback"
         )
 
-    def test_generate_authorize_url_no_scopes(self):
-        client = GitHubOAuthClient(
+    def test_generate_authorize_url(self):
+        """GitHub App OAuth doesn't request scopes - permissions are in app settings."""
+        client = GitHubAppClient(
             client_id="test_id",
             client_secret="test_secret",
             redirect_uri="http://localhost/callback",
@@ -88,38 +89,24 @@ class TestGitHubOAuthClient:
         assert query_params["client_id"] == ["test_id"]
         assert query_params["redirect_uri"] == ["http://localhost/callback"]
         assert query_params["state"] == ["test_state_token"]
-        assert query_params["scope"] == ["read:user user:email"]
-
-    def test_generate_authorize_url_with_scopes(self):
-        client = GitHubOAuthClient(
-            client_id="test_id",
-            client_secret="test_secret",
-            redirect_uri="http://localhost/callback",
-        )
-        state = "test_state_token"
-        scopes = ["repo", "user"]
-
-        url = client.generate_authorize_url(state, scopes=scopes)
-
-        parsed = parse_url(url)
-        query_params = urllib.parse.parse_qs(parsed.query)
-        assert query_params["scope"] == ["repo user"]
+        # GitHub Apps don't request scopes - permissions are configured in app settings
+        assert "scope" not in query_params
 
     @responses.activate
     def test_exchange_code_for_token_success(self):
         response_data = {
             "access_token": "gho_test_token",
             "token_type": "bearer",
-            "scope": "read:user,user:email",
+            "scope": "",  # GitHub Apps return empty scope
         }
         responses.add(
             responses.POST,
-            GitHubOAuthClient.TOKEN_URL,
+            GitHubAppClient.TOKEN_URL,
             json=response_data,
             status=HTTPStatus.OK,
         )
 
-        client = GitHubOAuthClient(
+        client = GitHubAppClient(
             client_id="test_id",
             client_secret="test_secret",
             redirect_uri="http://localhost/callback",
@@ -142,12 +129,12 @@ class TestGitHubOAuthClient:
     def test_exchange_code_for_token_http_error(self):
         responses.add(
             responses.POST,
-            GitHubOAuthClient.TOKEN_URL,
+            GitHubAppClient.TOKEN_URL,
             json={"error": "bad_verification_code"},
             status=HTTPStatus.BAD_REQUEST,
         )
 
-        client = GitHubOAuthClient(
+        client = GitHubAppClient(
             client_id="test_id",
             client_secret="test_secret",
             redirect_uri="http://localhost/callback",
@@ -166,12 +153,12 @@ class TestGitHubOAuthClient:
         }
         responses.add(
             responses.GET,
-            GitHubOAuthClient.USER_API_URL,
+            GitHubAppClient.USER_API_URL,
             json=user_data,
             status=HTTPStatus.OK,
         )
 
-        client = GitHubOAuthClient(
+        client = GitHubAppClient(
             client_id="test_id",
             client_secret="test_secret",
             redirect_uri="http://localhost/callback",
@@ -191,12 +178,12 @@ class TestGitHubOAuthClient:
     def test_get_user_info_http_error(self):
         responses.add(
             responses.GET,
-            GitHubOAuthClient.USER_API_URL,
+            GitHubAppClient.USER_API_URL,
             json={"message": "Bad credentials"},
             status=HTTPStatus.UNAUTHORIZED,
         )
 
-        client = GitHubOAuthClient(
+        client = GitHubAppClient(
             client_id="test_id",
             client_secret="test_secret",
             redirect_uri="http://localhost/callback",
@@ -246,18 +233,6 @@ class TestNullOAuthClient:
         assert parsed.host == "localhost"
         assert parsed.path == "/callback"
 
-        query_params = urllib.parse.parse_qs(parsed.query)
-        assert query_params["code"] == ["mock_authorization_code"]
-        assert query_params["state"] == ["test_state_token"]
-
-    def test_generate_authorize_url_ignores_scopes(self):
-        client = NullOAuthClient(redirect_uri="http://localhost/callback")
-        state = "test_state_token"
-
-        url = client.generate_authorize_url(state, scopes=["repo", "user"])
-
-        # Should work the same regardless of scopes
-        parsed = parse_url(url)
         query_params = urllib.parse.parse_qs(parsed.query)
         assert query_params["code"] == ["mock_authorization_code"]
         assert query_params["state"] == ["test_state_token"]
