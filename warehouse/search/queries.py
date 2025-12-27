@@ -62,11 +62,17 @@ def get_opensearch_query(opensearch, terms, order, classifiers):
         query = opensearch.query(classifier_q) if classifiers else opensearch.query()
     else:
         quoted_string, unquoted_string = filter_query(terms)
+
+        # Build the main content-matching query
+        content_queries = (
+            [form_query("phrase", i) for i in quoted_string]
+            + [form_query("best_fields", i) for i in unquoted_string]
+            + ([classifier_q] if classifiers else [])
+        )
+
         bool_query = Q(
             "bool",
-            must=[form_query("phrase", i) for i in quoted_string]
-            + [form_query("best_fields", i) for i in unquoted_string]
-            + ([classifier_q] if classifiers else []),
+            must=content_queries,
         )
 
         # Allow to optionally match on prefix
