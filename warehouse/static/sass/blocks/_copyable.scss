@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
 @use "sass:color";
 @use "../settings/breakpoints";
 @use "../settings/colours";
@@ -5,8 +7,6 @@
 @use "../settings/grid";
 @use "../tools/layout-utilities";
 @use "../tools/link-utilities";
-
-/* SPDX-License-Identifier: Apache-2.0 */
 
 /*
   Styles for large, copyable text.

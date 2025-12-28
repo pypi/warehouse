@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
 @use "sass:color";
 @use "../settings/colours";
 @use "../settings/fonts";
@@ -5,8 +7,6 @@
 @use "../tools/design-utilities";
 @use "../tools/link-utilities";
 @use "../tools/typography";
-
-/* SPDX-License-Identifier: Apache-2.0 */
 
 /*
   A full width horizontal div that contains a short notification.

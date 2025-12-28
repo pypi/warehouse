@@ -1,8 +1,8 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
 @use "../settings/breakpoints";
 @use "../settings/fonts";
 @use "../settings/grid";
-
-/* SPDX-License-Identifier: Apache-2.0 */
 
 // *Big* h1 used for package name, pypi intro
 @mixin h1 {

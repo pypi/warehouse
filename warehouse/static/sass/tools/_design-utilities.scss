@@ -1,9 +1,9 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
 @use "sass:color";
 @use "sass:list";
 @use "../settings/colours";
 @use "../settings/z-index";
-
-/* SPDX-License-Identifier: Apache-2.0 */
 
 @mixin card {
   border: 1px solid colours.$border-color;

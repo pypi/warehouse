@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
 @use "sass:color";
 @use "sass:list";
 @use "../settings/breakpoints";
@@ -7,8 +9,6 @@
 @use "../settings/z-index";
 @use "../tools/design-utilities";
 @use "../tools/layout-utilities";
-
-/* SPDX-License-Identifier: Apache-2.0 */
 
 /*
   Individual release information represented as a card with meta data
