@@ -120,11 +120,11 @@
   }
 
   &--current {
-    background-color: color.adjust(colours.$background-color, $lightness: -1);
+    background-color: color.adjust(colours.$background-color, $lightness: -1%);
     border: 1px dotted #ccc;
 
     .release__node {
-      background-color: color.adjust(colours.$background-color, $lightness: -1);
+      background-color: color.adjust(colours.$background-color, $lightness: -1%);
     }
 
     .release__card {

@@ -79,7 +79,7 @@
       display: inline;
       font-family: Ewert, cursive;
       font-weight: 400;
-      color: color.adjust(colours.$primary-color, $lightness: -15);
+      color: color.adjust(colours.$primary-color, $lightness: -15%);
       background: colours.$highlight-color;
 
       span {
@@ -123,9 +123,9 @@
         padding-top: 25px;
         margin-bottom: 25px;
         height: 0;
-        background-color: color.adjust(colours.$primary-color, $lightness: -15);
+        background-color: color.adjust(colours.$primary-color, $lightness: -15%);
         border: 9px dashed #fff;
-        outline: 9px solid color.adjust(colours.$primary-color, $lightness: -15);
+        outline: 9px solid color.adjust(colours.$primary-color, $lightness: -15%);
 
         iframe {
           position: absolute;

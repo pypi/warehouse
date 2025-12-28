@@ -137,7 +137,7 @@
       &:hover,
       &:active,
       &:focus {
-        background-color: color.adjust(colours.$header-background-color, $lightness: -1.5);
+        background-color: color.adjust(colours.$header-background-color, $lightness: -1.5%);
         color: colours.$white;
       }
 

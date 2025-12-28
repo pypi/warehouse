@@ -79,15 +79,15 @@
   &--neutral {
     background-color: colours.$base-grey;
     border-color: colours.$base-grey;
-    color: color.adjust(colours.$base-grey, $lightness: -50);
+    color: color.adjust(colours.$base-grey, $lightness: -50%);
 
     &:hover {
-      color: color.adjust(colours.$base-grey, $lightness: -60);
+      color: color.adjust(colours.$base-grey, $lightness: -60%);
     }
 
     &:focus,
     &:active {
-      outline: 1px solid color.adjust(colours.$base-grey, $lightness: -50);
+      outline: 1px solid color.adjust(colours.$base-grey, $lightness: -50%);
     }
   }
 }

@@ -35,7 +35,7 @@
   cursor: pointer;
   padding: 8.5px grid.$half-spacing-unit;
   background-color: transparent;
-  color: color.adjust(colours.$text-color, $lightness: 10);
+  color: color.adjust(colours.$text-color, $lightness: 10%);
   border: 1px solid colours.$accessible-border-color;
   border-radius: 3px;
   display: inline-block;
@@ -51,7 +51,7 @@
   &:active,
   &:focus {
     border-color: colours.$primary-color;
-    color: color.adjust(colours.$primary-color, $lightness: -10);
+    color: color.adjust(colours.$primary-color, $lightness: -10%);
     z-index: list.index(z-index.$z-index-scale, "active-button"); // Needed for button groups
     outline: none;
   }
@@ -74,8 +74,8 @@
     &:hover,
     &:active,
     &:focus {
-      border-color: color.adjust(colours.$primary-color, $lightness: -10);
-      background-color: color.adjust(colours.$primary-color, $lightness: -9);
+      border-color: color.adjust(colours.$primary-color, $lightness: -10%);
+      background-color: color.adjust(colours.$primary-color, $lightness: -9%);
       text-decoration-color: color.adjust(colours.$white, $alpha: -0.8);
       color: colours.$white;
     }
@@ -100,8 +100,8 @@
     &:focus,
     &:hover,
     &:active {
-      border-color: color.adjust(colours.$danger-color, $lightness: -5);
-      background-color: color.adjust(colours.$danger-color, $lightness: -4);
+      border-color: color.adjust(colours.$danger-color, $lightness: -5%);
+      background-color: color.adjust(colours.$danger-color, $lightness: -4%);
       text-decoration-color: color.adjust(colours.$white, $alpha: -0.8);
       color: colours.$white;
     }
@@ -121,8 +121,8 @@
     &:focus,
     &:hover,
     &:active {
-      border-color: color.adjust(colours.$warning-color, $lightness: -5);
-      background-color: color.adjust(colours.$warning-color, $lightness: -4);
+      border-color: color.adjust(colours.$warning-color, $lightness: -5%);
+      background-color: color.adjust(colours.$warning-color, $lightness: -4%);
       text-decoration-color: color.adjust(colours.$white, $alpha: -0.8);
       color: colours.$white;
     }

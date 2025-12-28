@@ -14,7 +14,7 @@
   color: $color;
 
   &:hover {
-    color: color.adjust($color, $lightness: -10);
+    color: color.adjust($color, $lightness: -10%);
   }
 
   @include link-focus-state($color);

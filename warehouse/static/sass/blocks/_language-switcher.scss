@@ -18,8 +18,8 @@
 */
 
 .language-switcher {
-  background-color: color.adjust(colours.$primary-color, $lightness: 1);
-  border-top: 1px solid color.adjust(colours.$primary-color, $lightness: -2);
+  background-color: color.adjust(colours.$primary-color, $lightness: 1%);
+  border-top: 1px solid color.adjust(colours.$primary-color, $lightness: -2%);
   color: colours.$white;
   padding: grid.$half-spacing-unit 0;
   width: 100%;

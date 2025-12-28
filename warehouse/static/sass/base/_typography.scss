@@ -38,11 +38,11 @@ samp,
 tt,
 .docutils.literal {
   font-family: fonts.$code-font;
-  background-color: color.adjust(colours.$base-grey, $lightness: 5);
+  background-color: color.adjust(colours.$base-grey, $lightness: 5%);
   border: 1px solid colours.$border-color;
   padding: 0 2px 1px;
   font-size: 0.85rem;
-  color: color.adjust(colours.$text-color, $lightness: 15);
+  color: color.adjust(colours.$text-color, $lightness: 15%);
 }
 
 // HEADINGS
@@ -154,7 +154,7 @@ button {
 }
 
 ::selection {
-  color: color.adjust(colours.$primary-color, $lightness: -15);
+  color: color.adjust(colours.$primary-color, $lightness: -15%);
   background: colours.$highlight-color;
 }
 

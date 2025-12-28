@@ -13,7 +13,7 @@
 .mobile-search {
   display: none;
   padding: 10px;
-  background-color: color.adjust(colours.$primary-color, $lightness: -5);
+  background-color: color.adjust(colours.$primary-color, $lightness: -5%);
 
   @media screen and (max-width: breakpoints.$tablet) {
     display: block;

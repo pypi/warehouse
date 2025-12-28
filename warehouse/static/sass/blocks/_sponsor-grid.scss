@@ -51,7 +51,7 @@
 
   &__sponsor-activity {
     font-weight: 600;
-    color: color.adjust(colours.$text-color, $lightness: 10);
+    color: color.adjust(colours.$text-color, $lightness: 10%);
     font-size: 1.15rem;
     max-width: 700px;
     margin: 0 auto;

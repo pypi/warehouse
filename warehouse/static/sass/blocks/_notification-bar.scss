@@ -148,7 +148,7 @@
   &--banner {
     background-color: colours.$warning-background-color;
     color: colours.$warning-color;
-    border-color: color.adjust(colours.$primary-color, $lightness: -10);
+    border-color: color.adjust(colours.$primary-color, $lightness: -10%);
 
     a {
       color: colours.$warning-color;

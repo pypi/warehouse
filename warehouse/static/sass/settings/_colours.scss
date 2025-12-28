@@ -5,8 +5,8 @@
 // SETTINGS - COLOURS
 
 $primary-color:               #006dad;
-$primary-color-light:         color.adjust($primary-color, $lightness: 45);
-$primary-color-dark:          color.adjust($primary-color, $lightness: -10);
+$primary-color-light:         color.adjust($primary-color, $lightness: 45%);
+$primary-color-dark:          color.adjust($primary-color, $lightness: -10%);
 $success-color:               #148024;
 $warning-color:               #664e04;
 $warning-background-color:    #ffdf76;
@@ -17,9 +17,9 @@ $black:                       #000;
 $background-color:            #fdfdfd;
 $base-grey:                   #ececec;
 $light-grey:                  #bbb;
-$border-color:                color.adjust($base-grey, $lightness: -10);
+$border-color:                color.adjust($base-grey, $lightness: -10%);
 $accessible-border-color:     #949494;
 $text-color:                  #464646;
 $transparent-white:           color.adjust($white, $alpha: -0.6);
-$header-background-color:     color.adjust($primary-color, $lightness: 2);
-$header-border-color:         color.adjust($primary-color, $lightness: -2);
+$header-background-color:     color.adjust($primary-color, $lightness: 2%);
+$header-border-color:         color.adjust($primary-color, $lightness: -2%);

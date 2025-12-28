@@ -32,8 +32,8 @@
 
   &--grey {
     background-color: colours.$base-grey;
-    border-bottom: 1px solid color.adjust(colours.$base-grey, $lightness: -10);
-    border-top: 1px solid color.adjust(colours.$base-grey, $lightness: -10);
+    border-bottom: 1px solid color.adjust(colours.$base-grey, $lightness: -10%);
+    border-top: 1px solid color.adjust(colours.$base-grey, $lightness: -10%);
   }
 
   &--medium {

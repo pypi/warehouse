@@ -107,7 +107,7 @@
     @include link-utilities.link-without-underline;
 
     &:hover {
-      color: color.adjust(colours.$primary-color, $lightness: -10);
+      color: color.adjust(colours.$primary-color, $lightness: -10%);
     }
 
     &:active,

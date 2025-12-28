@@ -25,7 +25,7 @@
 
 .sponsors {
   text-align: center;
-  border-top: 1px solid color.adjust(colours.$primary-color, $lightness: -2);
+  border-top: 1px solid color.adjust(colours.$primary-color, $lightness: -2%);
   background-color: colours.$primary-color;
   display: flex;
   flex-wrap: wrap;

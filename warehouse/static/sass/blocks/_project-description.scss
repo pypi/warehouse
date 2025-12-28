@@ -124,7 +124,7 @@
     border-left: 3px solid colours.$light-grey;
     font-style: italic;
     padding-left: grid.$half-spacing-unit;
-    color: color.adjust(colours.$text-color, $lightness: 20);
+    color: color.adjust(colours.$text-color, $lightness: 20%);
 
     @media only screen and (max-width: breakpoints.$tablet) {
       margin-left: 0;
@@ -196,11 +196,11 @@
 
     tbody {
       tr {
-        background-color: color.adjust(colours.$background-color, $lightness: -0.75);
+        background-color: color.adjust(colours.$background-color, $lightness: -0.75%);
       }
 
       tr:nth-child(even) {
-        background-color: color.adjust(colours.$background-color, $lightness: -2);
+        background-color: color.adjust(colours.$background-color, $lightness: -2%);
       }
     }
   }
@@ -263,15 +263,15 @@
 
 $blue:          colours.$primary-color;
 $light-blue:    #0078bd;
-$dark-blue:     color.adjust(colours.$primary-color, $lightness: -10);
-$darkest-blue:  color.adjust(colours.$primary-color, $lightness: -20);
-$green:         color.adjust(colours.$success-color, $lightness: -5);
+$dark-blue:     color.adjust(colours.$primary-color, $lightness: -10%);
+$darkest-blue:  color.adjust(colours.$primary-color, $lightness: -20%);
+$green:         color.adjust(colours.$success-color, $lightness: -5%);
 $light-green:   colours.$success-color;
 $red:           colours.$danger-color;
-$dark-red:      color.adjust(colours.$danger-color, $lightness: -20);
+$dark-red:      color.adjust(colours.$danger-color, $lightness: -20%);
 $purple:        #b06;
 $orange:        #a36200;
-$brown:         color.adjust($orange, $lightness: -7);
+$brown:         color.adjust($orange, $lightness: -7%);
 $pygments-light-grey:    #737373;
 $mid-grey:      #575757;
 $dark-grey:     #303030;
