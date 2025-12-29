@@ -5165,10 +5165,8 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:418
 #: warehouse/templates/manage/organization/publishing.html:416
 #: warehouse/templates/manage/project/publishing.html:376
-#: warehouse/templates/packaging/detail.html:81
-#: warehouse/templates/packaging/detail.html:106
-#: warehouse/templates/packaging/detail.html:120
-#: warehouse/templates/packaging/detail.html:183
+#: warehouse/templates/packaging/detail.html:96
+#: warehouse/templates/packaging/detail.html:146
 msgid "Details"
 msgstr ""
 
@@ -6808,8 +6806,8 @@ msgstr ""
 
 #: warehouse/templates/manage/project/release.html:40
 #: warehouse/templates/manage/project/release.html:56
-#: warehouse/templates/packaging/detail.html:80
-#: warehouse/templates/packaging/detail.html:99
+#: warehouse/templates/packaging/detail.html:81
+#: warehouse/templates/packaging/detail.html:107
 msgid "Type"
 msgstr ""
 
@@ -6832,6 +6830,8 @@ msgid "File options"
 msgstr ""
 
 #: warehouse/templates/manage/project/release.html:86
+#: warehouse/templates/packaging/detail.html:89
+#: warehouse/templates/packaging/detail.html:136
 msgid "Download"
 msgstr ""
 
@@ -7634,60 +7634,65 @@ msgstr ""
 msgid "Source distribution for %(name)s %(version)s"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:77
-#: warehouse/templates/packaging/detail.html:86
-#: warehouse/templates/packaging/detail.html:116
-#: warehouse/templates/packaging/detail.html:126
+#: warehouse/templates/packaging/detail.html:78
+#: warehouse/templates/packaging/detail.html:87
+#: warehouse/templates/packaging/detail.html:124
+#: warehouse/templates/packaging/detail.html:134
 msgid "File"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:78
-#: warehouse/templates/packaging/detail.html:91
+#: warehouse/templates/packaging/detail.html:79
+#: warehouse/templates/packaging/detail.html:99
 msgid "Uploaded"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:79
-#: warehouse/templates/packaging/detail.html:95
+#: warehouse/templates/packaging/detail.html:80
+#: warehouse/templates/packaging/detail.html:103
 msgid "Size"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:92
-#: warehouse/templates/packaging/detail.html:132
+#: warehouse/templates/packaging/detail.html:100
 #, python-format
 msgid "Uploaded %(upload_time)s"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:100
+#: warehouse/templates/packaging/detail.html:108
 msgid "Source"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:103
-#: warehouse/templates/packaging/detail.html:180
-msgid "View details"
+#: warehouse/templates/packaging/detail.html:113
+#: warehouse/templates/packaging/detail.html:189
+#, python-format
+msgid "Name: %(file_name)s"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:114
+#: warehouse/templates/packaging/detail.html:121
 #, python-format
 msgid "Table of built distributions (wheels) for %(name)s %(release)s"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:117
-#: warehouse/templates/packaging/detail.html:146
+#: warehouse/templates/packaging/detail.html:125
+#: warehouse/templates/packaging/detail.html:152
 msgid "Interpreter"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:118
-#: warehouse/templates/packaging/detail.html:157
+#: warehouse/templates/packaging/detail.html:126
+#: warehouse/templates/packaging/detail.html:163
 msgid "ABI"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:119
-#: warehouse/templates/packaging/detail.html:168
+#: warehouse/templates/packaging/detail.html:127
+#: warehouse/templates/packaging/detail.html:174
 msgid "Platform"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:189
-msgid "File name:"
+#: warehouse/templates/packaging/detail.html:139
+#, python-format
+msgid "Uploaded: %(upload_time)s"
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:149
+msgid "Legacy Egg format."
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:196
@@ -7871,9 +7876,17 @@ msgstr ""
 msgid "Filters"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:609
-#: warehouse/templates/packaging/detail.html:611
+#: warehouse/templates/packaging/detail.html:615
+#: warehouse/templates/packaging/detail.html:617
 msgid "Copy link to filters"
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:616
+msgid "Copy link"
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:621
+msgid "Show all files"
 msgstr ""
 
 #: warehouse/templates/packaging/submit-malware-observation.html:20
