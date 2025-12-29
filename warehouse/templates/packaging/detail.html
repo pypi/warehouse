@@ -74,36 +74,43 @@
   <table class="table table--files">
     <caption class="sr-only">{% trans name=release.project.name, release=release.version %}Source distribution for {{ name }} {{ version }}{% endtrans %}</caption>
     <thead>
-      <th scope="col">{% trans %}File{% endtrans %}</th>
-      <th scope="col">{% trans %}Uploaded{% endtrans %}</th>
-      <th scope="col">{% trans %}Size{% endtrans %}</th>
-      <th scope="col">{% trans %}Type{% endtrans %}</th>
-      <th class="table__align-right"  scope="col">{% trans %}Details{% endtrans %}</th>
+      <tr>
+        <th scope="col">{% trans %}File{% endtrans %}</th>
+        <th scope="col">{% trans %}Uploaded{% endtrans %}</th>
+        <th scope="col">{% trans %}Size{% endtrans %}</th>
+        <th scope="col">{% trans %}Type{% endtrans %}</th>
+      </tr>
     </thead>
     {% for file in files %}
       <tr>
-        <td>
+        <td class="file-metadata">
           <span class="table__mobile-label">{% trans %}File{% endtrans %}</span>
           <a href="{{ request.route_url('packaging.file', path=file.path) }}"><i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i></a>&nbsp;
-          <a href="{{ request.route_url('packaging.file', path=file.path) }}">{{ file.filename }}</a>
-        </td>
-        <td>
-          <span class="table__mobile-label">{% trans %}Uploaded{% endtrans %}</span>
-          {% trans upload_time=humanize(file.upload_time) %}Uploaded {{ upload_time }}{% endtrans %}
-        </td>
-        <td>
-          <span class="table__mobile-label">{% trans %}Size{% endtrans %}</span>
-          {{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}
-        </td>
-        <td>
-          <span class="table__mobile-label">{% trans %}Type{% endtrans %}</span>
-          {% trans %}Source{% endtrans %}
-        </td>
-        <td class="table__align-right">
-          <span class="table__mobile-label">{% trans %}View details{% endtrans %}</span>
+          <a href="{{ request.route_url('packaging.file', path=file.path) }}">{% trans %}Download{% endtrans %}</a>
+          <br>
+          <a href="#{{ file.filename }}"
+             data-project-tabs-target="tab"
+             data-action="project-tabs#onTabClick"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></a>&nbsp;
           <a href="#{{ file.filename }}"
              data-project-tabs-target="tab"
              data-action="project-tabs#onTabClick">{% trans %}Details{% endtrans %}</a>
+        </td>
+        <td class="file-metadata">
+          <span class="table__mobile-label">{% trans %}Uploaded{% endtrans %}</span>
+          {% trans upload_time=humanize(file.upload_time) %}Uploaded {{ upload_time }}{% endtrans %}
+        </td>
+        <td class="file-metadata">
+          <span class="table__mobile-label">{% trans %}Size{% endtrans %}</span>
+          {{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}
+        </td>
+        <td class="file-metadata">
+          <span class="table__mobile-label">{% trans %}Type{% endtrans %}</span>
+          {% trans %}Source{% endtrans %}
+        </td>
+      </tr>
+      <tr>
+        <td colspan="4" class="file-name">
+          <small>{% trans file_name=file.filename %}Name: {{ file_name }}{% endtrans %}</small>
         </td>
       </tr>
     {% endfor %}
@@ -113,36 +120,35 @@
   <table class="table table--files">
     <caption class="sr-only">{% trans name=release.project.name, release=release.version %}Table of built distributions (wheels) for {{ name }} {{ release }}{% endtrans %}</caption>
     <thead>
-      <th scope="col">{% trans %}File{% endtrans %}</th>
-      <th scope="col">{% trans %}Interpreter{% endtrans %}</th>
-      <th scope="col">{% trans %}ABI{% endtrans %}</th>
-      <th scope="col">{% trans %}Platform{% endtrans %}</th>
-      <th class="table__align-right" scope="col">{% trans %}Details{% endtrans %}</th>
+      <tr>
+        <th scope="col">{% trans %}File{% endtrans %}</th>
+        <th scope="col">{% trans %}Interpreter{% endtrans %}</th>
+        <th scope="col">{% trans %}ABI{% endtrans %}</th>
+        <th scope="col">{% trans %}Platform{% endtrans %}</th>
+      </tr>
     </thead>
     {% for file in files %}
       <tr {% if 'source' not in file.python_version %} data-filter-list-target="item" data-filtered-target-filename='{{ (([file.filename] + file.pretty_wheel_tags) | list) | tojson }}' {% for filter_name, filter_items in file.wheel_filters.items() %} data-filtered-target-{{ filter_name }}='{{ (filter_items.keys() | list) | tojson }}' {% endfor %}
           {% endif %}>
-        <td class="file-name">
+        <td class="file-metadata">
           <span class="table__mobile-label">{% trans %}File{% endtrans %}</span>
           <a href="{{ request.route_url('packaging.file', path=file.path) }}"><i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i></a>&nbsp;
-          <a href="{{ request.route_url('packaging.file', path=file.path) }}">Download file</a>
+          <a href="{{ request.route_url('packaging.file', path=file.path) }}">{% trans %}Download{% endtrans %}</a>
+          ({{ file.size|filesizeformat() if file.size else 0|filesizeformat() }})
           <br />
-          <small>
-            {{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}.&nbsp;
-            {% trans upload_time=humanize(file.upload_time) %}Uploaded {{ upload_time }}{% endtrans %}.
-          </small>
+          <small>{% trans upload_time=humanize(file.upload_time) %}Uploaded: {{ upload_time }}{% endtrans %}.&nbsp;</small>
+          <br />
+          <a href="#{{ file.filename }}"
+             data-project-tabs-target="tab"
+             data-action="project-tabs#onTabClick"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></a>&nbsp;
+          <a href="#{{ file.filename }}"
+             data-project-tabs-target="tab"
+             data-action="project-tabs#onTabClick">{% trans %}Details{% endtrans %}</a>
         </td>
         {% if 'Egg' in file.pretty_wheel_tags %}
-          <td colspan="3">
-            {{ file.filename }}
-            {% for tag in file.pretty_wheel_tags %}
-              {% if loop.first %}-{% endif %}
-              {{ tag }}
-              {% if not loop.last %}&nbsp;{% endif %}
-            {% endfor %}
-          </td>
+          <td colspan="3" class="file-metadata">{% trans %}Legacy Egg format.{% endtrans %}</td>
         {% else %}
-          <td>
+          <td class="file-metadata">
             <span class="table__mobile-label">{% trans %}Interpreter{% endtrans %}</span>
             {% for key, value in file.wheel_filters.items() %}
               {% if key == 'interpreter' %}
@@ -153,7 +159,7 @@
               {% endif %}
             {% endfor %}
           </td>
-          <td>
+          <td class="file-metadata">
             <span class="table__mobile-label">{% trans %}ABI{% endtrans %}</span>
             {% for key, value in file.wheel_filters.items() %}
               {% if key == 'abi' %}
@@ -164,7 +170,7 @@
               {% endif %}
             {% endfor %}
           </td>
-          <td>
+          <td class="file-metadata">
             <span class="table__mobile-label">{% trans %}Platform{% endtrans %}</span>
             {% for key, value in file.wheel_filters.items() %}
               {% if key == 'platform' %}
@@ -176,17 +182,11 @@
             {% endfor %}
           </td>
         {% endif %}
-        <td class="table__align-right">
-          <span class="table__mobile-label">{% trans %}View details{% endtrans %}</span>
-          <a href="#{{ file.filename }}"
-             data-project-tabs-target="tab"
-             data-action="project-tabs#onTabClick">{% trans %}Details{% endtrans %}</a>
-        </td>
       </tr>
       <tr {% if 'source' not in file.python_version %} data-filter-list-target="item" data-filtered-target-filename='["{{ file.filename }}"]' {% for filter_name, filter_items in file.wheel_filters.items() %} data-filtered-target-{{ filter_name }}='{{ ((filter_items.keys() | list) + (filter_items.values() | list)) | tojson }}' {% endfor %}
           {% endif %}>
-        <td colspan="5" class="file-name">
-          <small>{% trans %}File name:{% endtrans %} {{ file.filename }}</small>
+        <td colspan="4" class="file-name">
+          <small>{% trans file_name=file.filename %}Name: {{ file_name }}{% endtrans %}</small>
         </td>
       </tr>
     {% endfor %}
@@ -596,39 +596,44 @@
         </div>
         <div class="filter-wheels__filters">
           <div class="form-group form-group--flex-width">
-            <strong>{% trans %}Filters{% endtrans %}</strong>
+            <strong>{% trans %}Filters{% endtrans %}</strong>&nbsp;&nbsp;
             <span class="hidden initial-toggle-visibility" data-controller="clipboard">
               <a class="hidden"
                  href="{% if request.matched_route %}{{ request.current_route_url() }}{% else %}{{ request.url }}{% endif %}#files"
                  data-clipboard-target="source"
-                 data-filter-list-target="url"></a>
+                 data-filter-list-target="url">
+                {% if request.matched_route %}
+                  {{ request.current_route_url() }}
+                {% else %}
+                  {{ request.url }}
+                {% endif %}
+              #files</a>
               <button type="button"
                       class="button--link copy-tooltip copy-tooltip-n"
                       data-action="clipboard#copy"
                       data-clipboard-target="tooltip"
                       data-clipboard-tooltip-value="{% trans %}Copy link to filters{% endtrans %}">
-                <i class="fa fa-link" aria-hidden="true"></i>
+                {% trans %}Copy link{% endtrans %}
                 <span class="sr-only">{% trans %}Copy link to filters{% endtrans %}</span>
               </button>
-            </span>
-            {{ filter_select('interpreter', 'Interpreter') }}
-          </div>
-          <div class="form-group form-group--flex-width">{{ filter_select('abi', 'ABI') }}</div>
-          <div class="form-group form-group--flex-width">
-          <strong class="float-right"><a href="{% if request.matched_route %}{{ request.current_route_url() }}{% else %}{{ request.url }}{% endif %}#files"
-   data-action="filter-list#filterClear">Show all files</a>
-        </strong>
-        {{ filter_select('platform', 'Platform') }}
+            </span>&nbsp;&nbsp;
+            <strong class="float-right"><a href=" {% if request.matched_route %}{{ request.current_route_url() }}{% else %}{{ request.url }}{% endif %}#files"
+   data-action="filter-list#filterClear">{% trans %}Show all
+            files{% endtrans %}</a>
+          </strong>
+          {{ filter_select('interpreter', 'Interpreter') }}
+        </div>
+        <div class="form-group form-group--flex-width">{{ filter_select('abi', 'ABI') }}</div>
+        <div class="form-group form-group--flex-width">{{ filter_select('platform', 'Platform') }}</div>
       </div>
     </div>
-  </div>
-{% endif %}
-{{ bdists_table(bdists) }}
-{% if bdist_count > 3 %}
-  <p class="hidden initial-toggle-visibility">
-    <span data-filter-list-target="summary"></span>
-  </p>
-{% endif %}
+  {% endif %}
+  {{ bdists_table(bdists) }}
+  {% if bdist_count > 3 %}
+    <p class="hidden initial-toggle-visibility">
+      <span data-filter-list-target="summary"></span>
+    </p>
+  {% endif %}
 {% endif %}
 </div>
 {# Tabs: file details #}
