@@ -58,9 +58,15 @@ export default class extends Controller {
     this._initFilterSelectOptions();
     this._initFilterComparisons();
 
+    // Get the filters from the url.
     const filters = this._getFiltersUrlSearch();
-    this._setFiltersHtmlElements(filters, {});
 
+    // Set HTML element filters with all select options included.
+    const includedRaw = Object.entries(this.#initialSelectOptions);
+    const included = Object.fromEntries(includedRaw.map(([key, items]) => [key, items.map(item => item.value)]));
+    this._setFiltersHtmlElements(filters, included);
+
+    // Run the filter process.
     this.filter();
   }
 
@@ -73,17 +79,16 @@ export default class extends Controller {
       return;
     }
 
-    const {total, shown, filters, selectedData} = this._filterItems();
+    const {total, shown, filters, included} = this._filterItems();
 
     this._setSummary(total, shown);
 
     // Update the current url to include the filters
-    const htmlElementFilters = this._getFiltersHtmlElements();
-    this._setFiltersUrlSearch(htmlElementFilters);
+    this._setFiltersUrlSearch(filters);
 
     this._setCopyUrl(filters);
 
-    this._setFiltersHtmlElements(filters, selectedData);
+    this._setFiltersHtmlElements(filters, included);
   }
 
   /**
@@ -91,16 +96,13 @@ export default class extends Controller {
    * @param event
    */
   filterClear(event) {
-    // don't follow the url
+    // Don't follow the url.
     event.preventDefault();
 
-    // set the HTML elements to no filter
-    const filterTargets = this._getFilterTargets();
-    filterTargets.forEach(filterTarget => {
-      filterTarget.value = "";
-    });
+    // Set the HTML elements to no filter.
+    this._setFiltersHtmlElements({}, {});
 
-    // update the list of files
+    // Update the displayed files.
     this.filter();
   }
 
@@ -229,14 +231,14 @@ export default class extends Controller {
 
   /**
    * Show and hide items based on the filters.
-   * @returns {{total: number, shown: number, filters: {[key: string]: string[]}, selectedData: {[key: string]: string[]}}}
+   * @returns {{total: number, shown: number, filters: {[key: string]: string[]}, included: {[key: string]: string[]}}}
    * @private
    */
   _filterItems() {
     const filters = this._getFiltersHtmlElements();
     let total = 0;
     let shown = 0;
-    const selectedData = {};
+    const included = {};
 
     this._getItemTargets().forEach((item, index) => {
       total += 1;
@@ -250,12 +252,12 @@ export default class extends Controller {
         shown += 1;
         // store the matched items to update the select options later
         Object.entries(itemData).forEach(([key, values]) => {
-          if (!selectedData[key]) {
-            selectedData[key] = [];
+          if (!included[key]) {
+            included[key] = [];
           }
           values.forEach(value => {
-            if (!selectedData[key].includes(value)) {
-              selectedData[key].push(value);
+            if (!included[key].includes(value)) {
+              included[key].push(value);
             }
           });
         });
@@ -269,7 +271,7 @@ export default class extends Controller {
       total: total,
       shown: shown,
       filters: filters,
-      selectedData: selectedData,
+      included: included,
     };
   }
 
@@ -351,14 +353,14 @@ export default class extends Controller {
   /**
    * Set the filters to the HTML element values.
    *
-   * There are two sources of data: the filter data and the currently selected HTML element values.
+   * There are two sources of data: the filter data and the currently included HTML element values.
    * The goal is to maintain the current HTML element values, and update the available filter options if possible.
    *
    * @param filters {{[key: string]: string[]}} The filters to set.
-   * @param selectedData {{[key: string]: string[]}} The shown item values grouped by filter key.
+   * @param included {{[key: string]: string[]}} The shown item values grouped by filter key.
    * @private
    */
-  _setFiltersHtmlElements(filters, selectedData) {
+  _setFiltersHtmlElements(filters, included) {
     const filterTargets = this._getFilterTargets();
     for (const filterTarget of filterTargets) {
       const key = filterTarget.dataset.filteredSource;
@@ -367,7 +369,7 @@ export default class extends Controller {
       if (filterTarget.nodeName === "INPUT") {
         this._setFiltersHtmlInputElement(filterTarget, values);
       } else if (filterTarget.nodeName === "SELECT") {
-        this._setFiltersHtmlSelectElement(filterTarget, values, selectedData);
+        this._setFiltersHtmlSelectElement(filterTarget, values, included[key] ?? []);
       } else {
         console.error(`Set HTML filters is not implemented for filter target node name '${filterTarget.nodeName}'.`);
       }
@@ -397,14 +399,13 @@ export default class extends Controller {
   /**
    * Set the filter for the HTML select element.
    * @param filterTarget {HTMLSelectElement} The select element.
-   * @param values {string[]} The filter values.
-   * @param selectedData {{[key: string]: string[]}} The shown item values grouped by filter key.
+   * @param filterValues {string[]} The filter values to select.
+   * @param includedValues {string[]} The filter values included.
    * @private
    */
-  _setFiltersHtmlSelectElement(filterTarget, values, selectedData) {
+  _setFiltersHtmlSelectElement(filterTarget, filterValues, includedValues) {
     const key = filterTarget.dataset.filteredSource;
-    const isOnlyEmptyValue = values.length === 0 || (values.length === 1 && values[0] === "");
-
+    const isOnlyEmptyValue = filterValues.length === 0 || (filterValues.length === 1 && filterValues[0] === "");
 
     // Store which options are currently selected.
     const selectedValues = Array.from(filterTarget.selectedOptions).map(selectedOption => selectedOption.value);
@@ -423,7 +424,7 @@ export default class extends Controller {
         // If no filter value or one value that is empty string: select empty value and reduce option list to only available options.
         // This allows the current filter to be refined.
 
-        if (isEmptyValue || (selectedData[key] ?? [])?.includes(optionValue)) {
+        if (isEmptyValue || (includedValues ?? [])?.includes(optionValue)) {
           const isSelected = isEmptyValue;
           filterTarget.options.add(new Option(optionLabel, optionValue, isSelected, isSelected));
         }
@@ -433,7 +434,7 @@ export default class extends Controller {
         // This allows the selection to be changed.
 
         // Restore the options that were selected before the update.
-        const isSelected = selectedValues.includes(optionValue);
+        const isSelected = ([...selectedValues, ...filterValues]).includes(optionValue);
 
         filterTarget.options.add(new Option(optionLabel, optionValue, isSelected, isSelected));
       }
@@ -523,7 +524,7 @@ export default class extends Controller {
     const filterTargets = this._getFilterTargets();
 
     // Remove all existing search params.
-    currentUrl.searchParams.keys().forEach(key => currentUrl.searchParams.delete(key));
+    currentUrl.search = "";
 
     for (const filterTarget of filterTargets) {
       const key = filterTarget.dataset.filteredSource;
@@ -539,6 +540,7 @@ export default class extends Controller {
         }
       }
     }
+
     return currentUrl;
   }
 }
