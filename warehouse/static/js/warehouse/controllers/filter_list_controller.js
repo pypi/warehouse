@@ -1,9 +1,12 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+import {Controller} from "@hotwired/stimulus";
+import {gettext, ngettext} from "../utils/messages-access";
 
-/*
- * This controller enables filtering a list using either input or select elements.
- * Each element can filter on a separate data attribute applied to items in the list to be filtered.
+/**
+ * A Stimulus controller for filtering a list of items, using input and select elements.
+ *
+ * Each element can filter on one data attribute applied to items in the list to be filtered.
  *
  * Add these data attributes to each input / select:
  * - data-action="filter-list#filter"
@@ -14,37 +17,49 @@
  * - data-filter-list-target="item"
  * - data-filtered-target-[name of filter group in kebab-case e.g. content-type]='(stringify-ed JSON)' (zero or more)
  */
-import {Controller} from "@hotwired/stimulus";
-import {gettext, ngettext} from "../utils/messages-access";
-
 export default class extends Controller {
   static targets = ["item", "filter", "summary", "url"];
-  static values = {
-    group: String,
-  };
+  static values = {group: String};
 
-  mappingItemFilterData = {};
-  initialSelectOptions = {};
+  /**
+   * The initial per item index number, mapped to the filter keys, mapped to the item's values.
+   * This is captured at the start so the item filters only need to be calculated once.
+   * @type {{[key: number]: {[key: string]: unknown[]}}}
+   */
+  #initialItemFilterData = {};
+
+  /**
+   * The initial filter key mapped to the available options for select elements only.
+   *
+   * This is captured at the start so the select options can be restored.
+   * @type {{[key: string]: {value: string, label: string}[]}}
+   */
+  #initialSelectOptions = {};
+
+  /**
+   * The initial comparison to use for each filter key (filtered-source).
+   * Each filter element can have one filtered-source and one comparison-type.
+   * Because more than one filter element can have the same filtered-source,
+   * each filter key can have more than one comparison type.
+   *
+   * This is captured at the start because the comparisons are linked to the filter elements,
+   * and don't need to be re-built each time.
+   * @type {{[key: string]: "exact"|"includes"[]}}
+   */
+  #initialFilterComparisons = {};
+
+  get initialItemFilterData() {
+    return this.#initialItemFilterData;
+  }
 
   connect() {
-    this._populateMappings();
+    this._initItemFilterData();
     this._initVisibility();
+    this._initFilterSelectOptions();
+    this._initFilterComparisons();
 
-    // Capture the initial select element values, so they can be restored.
-    this._getFilterTargets().forEach(filterTarget => {
-      if (filterTarget.nodeName === "SELECT") {
-        const key = filterTarget.dataset.filteredSource;
-        if (!this.initialSelectOptions[key]) {
-          this.initialSelectOptions[key] = [];
-        }
-        for (const option of filterTarget.options) {
-          this.initialSelectOptions[key].push([option.value, option.label]);
-        }
-      }
-    });
-
-    const urlFilters = this._getFiltersUrlSearch();
-    this._setFiltersHtmlElements(urlFilters);
+    const filters = this._getFiltersUrlSearch();
+    this._setFiltersHtmlElements(filters, {});
 
     this.filter();
   }
@@ -58,7 +73,7 @@ export default class extends Controller {
       return;
     }
 
-    const {total, shown, groupedLabels} = this._filterItems();
+    const {total, shown, filters, selectedData} = this._filterItems();
 
     this._setSummary(total, shown);
 
@@ -66,9 +81,9 @@ export default class extends Controller {
     const htmlElementFilters = this._getFiltersHtmlElements();
     this._setFiltersUrlSearch(htmlElementFilters);
 
-    this._setCopyUrl();
+    this._setCopyUrl(filters);
 
-    this._setFilters(groupedLabels);
+    this._setFiltersHtmlElements(filters, selectedData);
   }
 
   /**
@@ -79,7 +94,7 @@ export default class extends Controller {
     // don't follow the url
     event.preventDefault();
 
-    // set the html elements to no filter
+    // set the HTML elements to no filter
     const filterTargets = this._getFilterTargets();
     filterTargets.forEach(filterTarget => {
       filterTarget.value = "";
@@ -110,11 +125,11 @@ export default class extends Controller {
    * This assumes that the elements will not change after the page has loaded.
    * @private
    */
-  _populateMappings() {
-    const filterData = this._getFilters();
+  _initItemFilterData() {
+    const filters = this._getFiltersHtmlElements();
 
     // reset the item filter mapping data
-    this.mappingItemFilterData = {};
+    this.#initialItemFilterData = {};
 
     if (!this.hasItemTarget) {
       return;
@@ -122,45 +137,90 @@ export default class extends Controller {
 
     this._getItemTargets().forEach((item, index) => {
       const dataAttrs = item.dataset;
-      this.mappingItemFilterData[index] = {};
-      for (const filterKey in filterData) {
+      this.#initialItemFilterData[index] = {};
+      for (const filterKey in filters) {
         const dataAttrsKey = `filteredTarget${filterKey.charAt(0).toUpperCase()}${filterKey.slice(1)}`;
         const dataAttrValue = dataAttrs[dataAttrsKey];
         if (!dataAttrValue) {
           console.warn(`Item target at index ${index} does not have a value for data attribute '${dataAttrsKey}'.`);
         }
-        this.mappingItemFilterData[index][filterKey] = JSON.parse(dataAttrValue || "[]");
+        let value = null;
+        try {
+          value = JSON.parse(dataAttrValue || "[]");
+        } catch {
+          value = null;
+        }
+        if (!Array.isArray(value)) {
+          console.warn(`Item target at index ${index} should have an array as value for data attribute '${dataAttrsKey}': ${dataAttrValue}.`);
+        }
+
+        this.#initialItemFilterData[index][filterKey] = value ?? [];
       }
     });
+  }
 
+  /**
+   * Capture the initial select element values, so they can be restored.
+   * @returns {void}
+   * @private
+   */
+  _initFilterSelectOptions() {
+    this._getFilterTargets().forEach(filterTarget => {
+      if (filterTarget.nodeName === "SELECT") {
+        const key = filterTarget.dataset.filteredSource;
+        if (!this.#initialSelectOptions[key]) {
+          this.#initialSelectOptions[key] = [];
+        }
+        for (const option of filterTarget.options) {
+          this.#initialSelectOptions[key].push({value: option.value, label: option.label});
+        }
+      }
+    });
+  }
+
+  /**
+   * Capture the initial filter element comparisons.
+   * @returns {void}
+   * @private
+   */
+  _initFilterComparisons() {
+    this._getFilterTargets().forEach(filterTarget => {
+      const key = filterTarget.dataset.filteredSource;
+      const comparison = filterTarget.dataset.comparisonType;
+      if (!this.#initialFilterComparisons[key]) {
+        this.#initialFilterComparisons[key] = [];
+      }
+      if (!this.#initialFilterComparisons[key].includes(comparison)) {
+        this.#initialFilterComparisons[key].push(comparison);
+      }
+    });
   }
 
   /**
    * Compare an item's data to all filter values and find matches.
    * Filters are processed as 'AND' - the item data must match all the filters.
    * Returns true if all filters are "" or there are no filters.
-   * @param itemData {{[key: string]:string[]}} The item mapping.
-   * @param filterData {{[key: string]: {[comparison: "exact"|"includes"]: values: string[]}}} The filter mapping.
+   * @param itemData {{[key: string]: string[]}} The item mapping.
+   * @param filters {{[key: string]: string[]}} The filter mapping.
    * @returns {boolean} True if the item data matches the filter data, otherwise false.
    * @private
    */
-  _compare(itemData, filterData) {
-    for (const [filterKey, filterInfo] of Object.entries(filterData)) {
-      for (const [comparison, filterValuesRaw] of Object.entries(filterInfo)) {
-        const filterValues = Array.from(new Set((filterValuesRaw ?? []).map(i => i?.toString()?.trim() ?? "").filter(i => !!i)));
-        const itemValues = Array.from(new Set((itemData[filterKey] ?? []).map(i => i?.toString()?.trim() ?? "").filter(i => !!i)));
+  _compare(itemData, filters) {
+    for (const [filterKey, filterValuesRaw] of Object.entries(filters)) {
+      const filterValues = Array.from(new Set((filterValuesRaw ?? []).map(i => i?.toString()?.trim() ?? "").filter(i => !!i)));
+      const itemValues = Array.from(new Set((itemData[filterKey] ?? []).map(i => i?.toString()?.trim() ?? "").filter(i => !!i)));
+      const comparisons = this.#initialFilterComparisons[filterKey] ?? [];
 
-        // Not a match if the item values and filter values contain different values.
-        if (filterValues.length > 0 && comparison === "exact") {
-          if (!filterValues.every(filterValue => itemValues.includes(filterValue))) {
-            return false;
-          }
+      // Not a match if the item values and filter values contain different values.
+      if (filterValues.length > 0 && comparisons.includes("exact")) {
+        if (!filterValues.every(filterValue => itemValues.includes(filterValue))) {
+          return false;
         }
+      }
 
-        if (filterValues.length > 0 && comparison === "includes") {
-          if (!filterValues.every(filterValue => itemValues.some(itemValue => itemValue.includes(filterValue)))) {
-            return false;
-          }
+      if (filterValues.length > 0 && comparisons.includes("includes")) {
+        if (!filterValues.every(filterValue => itemValues.some(itemValue => itemValue.includes(filterValue)))) {
+          return false;
         }
       }
     }
@@ -169,19 +229,19 @@ export default class extends Controller {
 
   /**
    * Show and hide items based on the filters.
-   * @returns {{total: number, shown: number, groupedLabels: {[key: string]: string[]}}}
+   * @returns {{total: number, shown: number, filters: {[key: string]: string[]}, selectedData: {[key: string]: string[]}}}
    * @private
    */
   _filterItems() {
-    const filterData = this._getFilters();
+    const filters = this._getFiltersHtmlElements();
     let total = 0;
     let shown = 0;
-    const groupedLabels = {};
+    const selectedData = {};
 
     this._getItemTargets().forEach((item, index) => {
       total += 1;
-      const itemData = this.mappingItemFilterData[index];
-      const isShow = this._compare(itemData, filterData);
+      const itemData = this.#initialItemFilterData[index];
+      const isShow = this._compare(itemData, filters);
 
       // Should the item be displayed or not?
       if (isShow) {
@@ -190,12 +250,12 @@ export default class extends Controller {
         shown += 1;
         // store the matched items to update the select options later
         Object.entries(itemData).forEach(([key, values]) => {
-          if (!groupedLabels[key]) {
-            groupedLabels[key] = [];
+          if (!selectedData[key]) {
+            selectedData[key] = [];
           }
           values.forEach(value => {
-            if (!groupedLabels[key].includes(value)) {
-              groupedLabels[key].push(value);
+            if (!selectedData[key].includes(value)) {
+              selectedData[key].push(value);
             }
           });
         });
@@ -208,8 +268,9 @@ export default class extends Controller {
     return {
       total: total,
       shown: shown,
-      groupedLabels: groupedLabels,
-    }
+      filters: filters,
+      selectedData: selectedData,
+    };
   }
 
   /**
@@ -230,17 +291,46 @@ export default class extends Controller {
     return this.hasItemTarget ? (this.itemTargets ?? []) : [];
   }
 
-
   /**
-   * Build a mapping of filteredSource names, to comparison, to array of values.
-   * @returns {{[key: string]: {[comparison: "exact"|"includes"]: values: string[]}}}
+   * Get the filters from the url query string.
+   * @returns {{[key: string]: string[]}}
    * @private
    */
-  _getFilters() {
-    const filterData = {};
+  _getFiltersUrlSearch() {
+    const filters = {};
+    const enabledFilterTargets = this._getAutoUpdateUrlQuerystringFilters();
+    const currentSearchParams = new URLSearchParams(document.location.search);
     const filterTargets = this._getFilterTargets();
-    filterTargets.forEach(filterTarget => {
+    for (const filterTarget of filterTargets) {
       const key = filterTarget.dataset.filteredSource;
+      if (!enabledFilterTargets.includes(key)) {
+        continue;
+      }
+      const values = currentSearchParams.getAll(key);
+      this._addFilterValue(filters, key, values);
+    }
+    return filters;
+  }
+
+  /**
+   * Set the filters to the url query string.
+   * @param filters {{[key: string]: string[]}} The filters to set.
+   * @returns {void}
+   * @private
+   */
+  _setFiltersUrlSearch(filters) {
+    window.history.replaceState(null, "", this._buildFilterUrl(document.location.href, filters));
+  }
+
+  /**
+   * Get the filters from the HTML element values.
+   * @returns {{[key: string]: string[]}}
+   * @private
+   */
+  _getFiltersHtmlElements() {
+    const filters = {};
+    const filterTargets = this._getFilterTargets();
+    for (const filterTarget of filterTargets) {
 
       let values;
       if (filterTarget.nodeName === "INPUT") {
@@ -248,137 +338,106 @@ export default class extends Controller {
       } else if (filterTarget.nodeName === "SELECT") {
         values = Array.from(filterTarget.selectedOptions).map(selectedOption => selectedOption.value);
       } else {
-        console.error(`Get filters is not implemented for filter target node name '${filterTarget.nodeName}'.`);
+        console.error(`Get HTML filters is not implemented for filter target node name '${filterTarget.nodeName}'.`);
         values = [];
       }
 
-      const comparison = filterTarget.dataset.comparisonType;
-      if (!Object.keys(filterData).includes(key)) {
-        filterData[key] = {};
-      }
-      if (!Object.keys(filterData[key]).includes(comparison)) {
-        filterData[key][comparison] = [];
-      }
-      filterData[key][comparison].push(...values);
-    });
-    return filterData;
+      const key = filterTarget.dataset.filteredSource;
+      this._addFilterValue(filters, key, values);
+    }
+    return filters;
   }
 
   /**
-   * Update the dropdowns to reflect the currently displayed items.
-   * Selection filters that have a selection will show all options, to allow changing the selection.
-   * Selection filters that do not have a selection will have their options reduced to only the available options.
-   * @param filter {{[key: string]:  string[]}} The map of filteredSource to array of available values.
+   * Set the filters to the HTML element values.
+   *
+   * There are two sources of data: the filter data and the currently selected HTML element values.
+   * The goal is to maintain the current HTML element values, and update the available filter options if possible.
+   *
+   * @param filters {{[key: string]: string[]}} The filters to set.
+   * @param selectedData {{[key: string]: string[]}} The shown item values grouped by filter key.
    * @private
    */
-  _setFilters(filter) {
+  _setFiltersHtmlElements(filters, selectedData) {
     const filterTargets = this._getFilterTargets();
     for (const filterTarget of filterTargets) {
       const key = filterTarget.dataset.filteredSource;
-      const values = filter[key] ?? [];
+      const values = filters[key] ?? [];
 
       if (filterTarget.nodeName === "INPUT") {
-        // An input filter can't have multiple values, just use the first.
-        filterTarget.value = values.length > 0 ? values[0] : "";
+        this._setFiltersHtmlInputElement(filterTarget, values);
       } else if (filterTarget.nodeName === "SELECT") {
-        // Store which options are currently selected.
-        const selectedValues = Array.from(filterTarget.selectedOptions).map(selectedOption => selectedOption.value);
-        const hasSelectedNonEmptyOptions = selectedValues && selectedValues.length > 0 && selectedValues.some(value => value !== "");
-
-        // Remove all existing options for the filter target in preparation for adding the available options.
-        for (let index = filterTarget.options.length - 1; index >= 0; index--) {
-          filterTarget.options.remove(index);
-        }
-
-        // Add the options reflecting the currently displayed items.
-        // Filter targets with a non-empty selection keep all their options, so that all the options are available to change the selection.
-        for (const initialOption of this.initialSelectOptions[key]) {
-          const initialOptionValue = initialOption[0];
-          const initialOptionLabel = initialOption[1];
-          if (initialOptionValue === "") {
-            // Empty value representing no selection is always present, and selected if nothing else is selected.
-            const isSelected = !hasSelectedNonEmptyOptions;
-            filterTarget.options.add(new Option(initialOptionLabel, initialOptionValue, null, isSelected));
-          } else if (values.includes(initialOptionValue) && !hasSelectedNonEmptyOptions) {
-            // Include only values to keep when nothing is selected.
-            filterTarget.options.add(new Option(initialOptionLabel, initialOptionValue, null, false));
-          } else if (hasSelectedNonEmptyOptions) {
-            //
-            const isSelected = selectedValues.includes(initialOptionValue);
-            filterTarget.options.add(new Option(initialOptionLabel, initialOptionValue, null, isSelected));
-          }
-        }
+        this._setFiltersHtmlSelectElement(filterTarget, values, selectedData);
+      } else {
+        console.error(`Set HTML filters is not implemented for filter target node name '${filterTarget.nodeName}'.`);
       }
     }
   }
 
   /**
-   * Get the filters from the url query string.
-   * @returns {{[key: string]: string}}
+   * Set the filter for the HTML input element.
+   * @param filterTarget {HTMLInputElement} The input element.
+   * @param values {string[]} The filter values.
    * @private
    */
-  _getFiltersUrlSearch() {
-    const enabledFilterTargets = this._getAutoUpdateUrlQuerystringFilters();
-    const currentSearchParams = new URLSearchParams(document.location.search);
-    const filterTargets = this._getFilterTargets();
-    return Object.fromEntries(filterTargets.map(filterTarget => {
+  _setFiltersHtmlInputElement(filterTarget, values) {
+    // If no filter value or one value that is empty string: set empty.
+    if (values.length === 0) {
+      filterTarget.value = "";
+    } else if (values.length === 1) {
+      filterTarget.value = values[0];
+    } else {
+      // Use the first filter value.
       const key = filterTarget.dataset.filteredSource;
-      const value = currentSearchParams.get(key);
-      return [key, value];
-    }).filter(i => enabledFilterTargets.includes(i[0])));
+      console.warn(`Filter input element '${key}' expects zero or one value, but got more than one: ${JSON.stringify(values)}.`);
+      filterTarget.value = values[0];
+    }
   }
 
   /**
-   * Set the filters to the url query string.
-   * @param filters {{[key: string]: string}} The filters to set.
+   * Set the filter for the HTML select element.
+   * @param filterTarget {HTMLSelectElement} The select element.
+   * @param values {string[]} The filter values.
+   * @param selectedData {{[key: string]: string[]}} The shown item values grouped by filter key.
    * @private
    */
-  _setFiltersUrlSearch(filters) {
-    const enabledFilterTargets = this._getAutoUpdateUrlQuerystringFilters();
-    const currentUrl = new URL(document.location.href);
-    const filterTargets = this._getFilterTargets();
-    filterTargets.forEach(filterTarget => {
-      const key = filterTarget.dataset.filteredSource;
-      if (!enabledFilterTargets.includes(key)) {
-        return;
-      }
-      const value = filters[key] ?? null;
-      if (value) {
-        currentUrl.searchParams.set(key, value);
+  _setFiltersHtmlSelectElement(filterTarget, values, selectedData) {
+    const key = filterTarget.dataset.filteredSource;
+    const isOnlyEmptyValue = values.length === 0 || (values.length === 1 && values[0] === "");
+
+
+    // Store which options are currently selected.
+    const selectedValues = Array.from(filterTarget.selectedOptions).map(selectedOption => selectedOption.value);
+
+    // Remove all existing options for the filter target in preparation for adding the available options.
+    for (let index = filterTarget.options.length - 1; index >= 0; index--) {
+      filterTarget.options.remove(index);
+    }
+
+    for (const option of this.#initialSelectOptions[key]) {
+      const optionValue = option.value;
+      const optionLabel = option.label;
+      const isEmptyValue = optionValue === "";
+
+      if (isOnlyEmptyValue) {
+        // If no filter value or one value that is empty string: select empty value and reduce option list to only available options.
+        // This allows the current filter to be refined.
+
+        if (isEmptyValue || (selectedData[key] ?? [])?.includes(optionValue)) {
+          const isSelected = isEmptyValue;
+          filterTarget.options.add(new Option(optionLabel, optionValue, isSelected, isSelected));
+        }
+
       } else {
-        currentUrl.searchParams.delete(key);
-      }
-    });
-    window.history.replaceState(null, "", currentUrl);
-  }
+        // Include all possible options, then select the filter values.
+        // This allows the selection to be changed.
 
-  /**
-   * Get the filters from the HTML element values.
-   * @returns {{[key: string]: string}}
-   * @private
-   */
-  _getFiltersHtmlElements() {
-    const filterTargets = this._getFilterTargets();
-    return Object.fromEntries(filterTargets.map(filterTarget => {
-      const key = filterTarget.dataset.filteredSource;
-      const value = filterTarget.value;
-      return [key, value];
-    }));
-  }
+        // Restore the options that were selected before the update.
+        const isSelected = selectedValues.includes(optionValue);
 
-  /**
-   * Set the filters to the HTML element values.
-   * @param filters {{[key: string]: string}} The filters to set.
-   * @private
-   */
-  _setFiltersHtmlElements(filters) {
-    const filterTargets = this._getFilterTargets();
-    filterTargets.forEach(filterTarget => {
-      const key = filterTarget.dataset.filteredSource;
-      if (filters[key] !== undefined) {
-        filterTarget.value = filters[key] ?? "";
+        filterTarget.options.add(new Option(optionLabel, optionValue, isSelected, isSelected));
       }
-    });
+    }
   }
 
   /**
@@ -402,6 +461,7 @@ export default class extends Controller {
    * Show the number of matches and the total number of items.
    * @param total {number} The total number of items.
    * @param shown {number} The number of items currently shown.
+   * @returns {void}
    * @private
    */
   _setSummary(total, shown) {
@@ -422,20 +482,63 @@ export default class extends Controller {
 
   /**
    * Update the direct url to the current filters.
+   * @param filters {{[key: string]: string[]}} The existing filter data.
+   * @returns {void}
    * @private
    */
-  _setCopyUrl() {
+  _setCopyUrl(filters) {
     if (this.hasUrlTarget && this.urlTarget) {
-      const htmlElementFilters = this._getFiltersHtmlElements();
-      const urlTargetUrl = new URL(this.urlTarget.href);
-      for (const [key, value] of Object.entries(htmlElementFilters ?? {})) {
+      this.urlTarget.href = this._buildFilterUrl(this.urlTarget.href, filters).toString();
+    }
+  }
+
+  /**
+   * Add a value to the filter data.
+   * @param filters {{[key: string]: string[]}} The existing filter data.
+   * @param filterKey {string} The filter key.
+   * @param values {string[]} The values.
+   * @returns {void}
+   * @private
+   */
+  _addFilterValue(filters, filterKey, values) {
+    if (!values || values.length < 1) {
+      return;
+    }
+    if (!Object.keys(filters).includes(filterKey)) {
+      filters[filterKey] = [];
+    }
+    filters[filterKey].push(...values);
+  }
+
+  /**
+   * Build a url with the filters in the querystring.
+   * @param startUrl {string} The start url.
+   * @param filters {{[key: string]: string[]}} The filters to set.
+   * @returns {URL}
+   * @private
+   */
+  _buildFilterUrl(startUrl, filters) {
+    const enabledFilterTargets = this._getAutoUpdateUrlQuerystringFilters();
+    const currentUrl = new URL(startUrl);
+    const filterTargets = this._getFilterTargets();
+
+    // Remove all existing search params.
+    currentUrl.searchParams.keys().forEach(key => currentUrl.searchParams.delete(key));
+
+    for (const filterTarget of filterTargets) {
+      const key = filterTarget.dataset.filteredSource;
+      if (!enabledFilterTargets.includes(key)) {
+        continue;
+      }
+
+      // Add the values to the querystring.
+      const values = filters[key] ?? [];
+      for (const value of values) {
         if (value) {
-          urlTargetUrl.searchParams.set(key, value);
-        } else {
-          urlTargetUrl.searchParams.delete(key);
+          currentUrl.searchParams.append(key, value);
         }
       }
-      this.urlTarget.textContent = urlTargetUrl.toString();
     }
+    return currentUrl;
   }
 }

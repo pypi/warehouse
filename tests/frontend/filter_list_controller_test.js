@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-/* global expect, beforeEach, afterEach, describe, it, jest */
+/* global expect, describe, it, jest */
 
 
 import {Application} from "@hotwired/stimulus";
@@ -9,22 +9,32 @@ import {delay} from "./utils";
 
 
 const testFixtureHTMLVisibilityToggle = `
-<p id="initial-toggle-visibility-shown" class="hidden initial-toggle-visibility">Initially hidden, should end up shown.</p>
-<p id="initial-toggle-visibility-hidden" class="initial-toggle-visibility">Initially shown, should end up hidden.</p>
+<p id="initial-toggle-visibility-shown" class="hidden initial-toggle-visibility">
+    Initially hidden, should end up shown.
+</p>
+<p id="initial-toggle-visibility-hidden" class="initial-toggle-visibility">
+    Initially shown, should end up hidden.
+</p>
 `;
 const testFixtureHTMLShowing = `
 <p id="shown-and-total" data-filter-list-target="summary"></p>
 `;
 const testFixtureHTMLFilters = `
-<input id="filter-input-description" type="text" data-action="filter-list#filter" data-filter-list-target="filter" data-filtered-source="description" data-comparison-type="includes" data-auto-update-url-querystring="false">
-<select id="filter-select-myattr" data-action="filter-list#filter" data-filter-list-target="filter" data-filtered-source="myattr" data-comparison-type="exact" data-auto-update-url-querystring="true">
-  <option selected value="">My Attrs</option>
+<input id="filter-input-description" type="text" data-action="filter-list#filter"
+    data-filter-list-target="filter" data-filtered-source="description" data-comparison-type="includes"
+    data-auto-update-url-querystring="false">
+<select id="filter-select-myattr" data-action="filter-list#filter"
+    data-filter-list-target="filter" data-filtered-source="myattr" data-comparison-type="exact"
+    data-auto-update-url-querystring="true">
+  <option value="" selected>My Attrs</option>
   <option value="myattr1">myattr 1</option>
   <option value="myattr2">myattr 2</option>
   <option value="myattr3">myattr 3</option>
 </select>
-<select id="filter-select-contentType" data-action="filter-list#filter" data-filter-list-target="filter" data-filtered-source="contentType" data-comparison-type="exact" data-auto-update-url-querystring="true">
-  <option selected value="">Content Types</option>
+<select id="filter-select-contentType" data-action="filter-list#filter"
+    data-filter-list-target="filter" data-filtered-source="contentType" data-comparison-type="exact"
+    data-auto-update-url-querystring="true">
+  <option value="" selected>Content Types</option>
   <option value="contentType1">Content Type 1</option>
   <option value="contentType2">Content Type 2</option>
   <option value="contentType3">Content Type 3</option>
@@ -33,9 +43,18 @@ const testFixtureHTMLFilters = `
 const testFixtureHTMLItems = `
         <a id="url-update" href="https://example.com#testing" data-filter-list-target="url"></a>
         <a id="filter-clear" href="#" data-action="filter-list#filterClear">Show all files</a>
-        <div id="item-1" class="my-item" data-filter-list-target="item" data-filtered-target-description="Description 1" data-filtered-target-content-type='["contentType1","Content Type 1","contentType1a","Content Type 1a"]' data-filtered-target-myattr='["myattr1", "My Attr 1"]'>Item 1</div>
-        <div id="item-2" class="my-item" data-filter-list-target="item" data-filtered-target-description="Description 2" data-filtered-target-content-type='["contentType2","Content Type 2","contentType2a","Content Type 2a"]' data-filtered-target-myattr='["myattr2", "My Attr 2"]'>Item 2</div>
-        <div id="item-3" class="my-item" data-filter-list-target="item" data-filtered-target-description="Description 3" data-filtered-target-content-type='["contentType3","Content Type 3","contentType3a","Content Type 3a"]' data-filtered-target-myattr='["myattr3", "My Attr 3"]'>Item 3</div>
+        <div id="item-1" class="my-item" data-filter-list-target="item"
+            data-filtered-target-description='["Description 1","Content Type 1", "My Attr 1"]'
+            data-filtered-target-content-type='["contentType1"]'
+            data-filtered-target-myattr='["myattr1"]'>Item 1</div>
+        <div id="item-2" class="my-item" data-filter-list-target="item"
+            data-filtered-target-description='["Description 2","Content Type 2", "My Attr 2"]'
+            data-filtered-target-content-type='["contentType2"]'
+            data-filtered-target-myattr='["myattr2"]'>Item 2</div>
+        <div id="item-3" class="my-item" data-filter-list-target="item"
+            data-filtered-target-description='["Description 3","Content Type 3", "My Attr 3"]'
+            data-filtered-target-content-type='["contentType3"]'
+            data-filtered-target-myattr='["myattr3"]'>Item 3</div>
 `;
 
 
@@ -72,9 +91,15 @@ describe("Filter list controller", () => {
     elUrl.dispatchEvent(event);
     expect(dispatchEventSpy).toHaveBeenCalledWith(event);
   };
-  const appStart = function () {
-    console.log(`Start test ${expect.getState().currentTestName}`);
-    document.body.innerHTML = `
+  const expectedSelectOptions = function (filterId, values) {
+    const filterMyAttr = document.getElementById(filterId);
+    expect(filterMyAttr.options).toHaveLength(values.length);
+    expect(Array.from(filterMyAttr.options).map(option => [option.value, option.selected])).toEqual(values);
+  };
+  const appStart = async function () {
+    // console.log(`Start test ${expect.getState().currentTestName}`);
+    const div = document.createElement("div");
+    div.innerHTML = `
       <div id="controller" data-controller="filter-list">
         ${testFixtureHTMLVisibilityToggle}
         ${testFixtureHTMLShowing}
@@ -82,22 +107,24 @@ describe("Filter list controller", () => {
         ${testFixtureHTMLItems}
       </div>
       `;
+    document.body.appendChild(div);
 
     const application = Application.start();
     application.register("filter-list", FilterListController);
+
+    // wait for app to be ready
+    await delay(30);
+
     return application;
   };
-  const appStop = function(application) {
-    document.body.innerHTML = "";
+  const appStop = function (application) {
     application.stop();
+    document.body.innerHTML = "";
   };
 
   describe("is initialized as expected", () => {
     it("has expected items and filters", async () => {
-      const application = appStart();
-
-      // wait for app to be ready
-      await delay(30);
+      const application = await appStart();
 
       const elController = document.getElementById("controller");
       const controller = application.getControllerForElementAndIdentifier(elController, "filter-list");
@@ -112,90 +139,109 @@ describe("Filter list controller", () => {
       expect(controller.filterTargets[1].id).toEqual("filter-select-myattr");
       expect(controller.filterTargets[2].id).toEqual("filter-select-contentType");
 
-      expect(Object.keys(controller.mappingItemFilterData)).toHaveLength(3);
-      expect(controller.mappingItemFilterData["0"]).toEqual({
-        "contentType": ["contentType1", "Content Type 1", "contentType1a", "Content Type 1a"],
-        "myattr": ["myattr1", "My Attr 1"],
+      expect(Object.keys(controller.initialItemFilterData)).toHaveLength(3);
+      expect(controller.initialItemFilterData["0"]).toEqual({
+        "contentType": ["contentType1"],
+        "myattr": ["myattr1"],
+        "description": ["Description 1", "Content Type 1", "My Attr 1"],
       });
-      expect(controller.mappingItemFilterData["1"]).toEqual({
-        "contentType": ["contentType2", "Content Type 2", "contentType2a", "Content Type 2a"],
-        "myattr": ["myattr2", "My Attr 2"],
+      expect(controller.initialItemFilterData["1"]).toEqual({
+        "contentType": ["contentType2"],
+        "myattr": ["myattr2"],
+        "description": ["Description 2", "Content Type 2", "My Attr 2"],
       });
-      expect(controller.mappingItemFilterData["2"]).toEqual({
-        "contentType": ["contentType3", "Content Type 3", "contentType3a", "Content Type 3a"],
-        "myattr": ["myattr3", "My Attr 3"],
+      expect(controller.initialItemFilterData["2"]).toEqual({
+        "contentType": ["contentType3"],
+        "myattr": ["myattr3"],
+        "description": ["Description 3", "Content Type 3", "My Attr 3"],
       });
 
       const elP = document.getElementById("url-update");
-      expect(elP.textContent).toEqual("https://example.com/#testing");
+      expect(elP.href).toEqual("https://example.com/#testing");
 
       appStop(application);
     });
   });
 
   describe("with sample application", () => {
-    beforeEach(() => {
-      appStart();
-    });
-
-    afterEach(() => {
-      document.body.innerHTML = "";
-    });
-
     it("makes expected elements visible by toggling visibility", async () => {
+      const application = await appStart();
+
       const elShown = document.getElementById("initial-toggle-visibility-shown");
       expect(elShown.classList).not.toContain("hidden");
 
       const elHidden = document.getElementById("initial-toggle-visibility-hidden");
       expect(elHidden.classList).toContain("hidden");
+
+      appStop(application);
     });
 
-    it("has expected count when all items begin shown", () => {
-      const elP = document.getElementById("shown-and-total");
-      expect(elP.textContent).toEqual("Showing 3 of 3 files.");
-      expect(document.getElementsByClassName("my-item").length).toEqual(3);
+    it("has expected count when all items begin shown", async () => {
+      const application = await appStart();
+
+      expectedSelectOptions("filter-select-myattr", [
+        ["", true], ["myattr1", false], ["myattr2", false], ["myattr3", false],
+      ]);
+      expectedSelectOptions("filter-select-contentType", [
+        ["", true], ["contentType1", false], ["contentType2", false], ["contentType3", false],
+      ]);
+      expect(document.getElementById("filter-input-description").value).toEqual("");
 
       const elUrl = document.getElementById("url-update");
       expect(elUrl.href).toEqual("https://example.com/#testing");
-    });
-    it("has expected count when when all items are hidden", () => {
-      setFilterInputValue("filter-input-description", "lizards");
-
-      const elItem1 = document.getElementById("item-1");
-      expect(elItem1.classList).toContainEqual("hidden");
-
-      const elItem2 = document.getElementById("item-2");
-      expect(elItem2.classList).toContainEqual("hidden");
-
-      const elItem3 = document.getElementById("item-3");
-      expect(elItem3.classList).toContainEqual("hidden");
 
       const elP = document.getElementById("shown-and-total");
-      expect(elP.textContent).toEqual("No files match the current filters. Showing 0 of 3 files.");
-    });
+      expect(document.getElementsByClassName("my-item").length).toEqual(3);
+      expect(elP.textContent).toEqual("Showing 3 of 3 files.");
 
-    it("filter by input text updates the item classes", () => {
+      appStop(application);
+    });
+    it("filter by input text updates the item classes", async () => {
+      const application = await appStart();
+
       setFilterSelectValue("filter-select-myattr", "");
       setFilterSelectValue("filter-select-contentType", "");
       setFilterInputValue("filter-input-description", "2");
 
       const elP = document.getElementById("url-update");
-      expect(elP.textContent).toEqual("https://example.com/#testing");
+      expect(elP.href).toEqual("https://example.com/#testing");
+
+      expectedSelectOptions("filter-select-myattr", [
+        ["", true], ["myattr2", false],
+      ]);
+      expectedSelectOptions("filter-select-contentType", [
+        ["", true], ["contentType2", false],
+      ]);
 
       expect(document.getElementsByClassName("my-item").length).toEqual(3);
       const elItem1 = document.getElementById("item-1");
       expect(elItem1.classList).toContainEqual("hidden");
 
       const elItem2 = document.getElementById("item-2");
-      console.log('check');
       expect(elItem2.classList).not.toContainEqual("hidden");
 
       const elItem3 = document.getElementById("item-3");
       expect(elItem3.classList).toContainEqual("hidden");
 
+      appStop(application);
     });
-    it("shows all items after clearing the input text filter", () => {
+    it("shows all items after clearing the input text filter", async () => {
+      const application = await appStart();
+
       setFilterInputValue("filter-input-description", "lizards");
+
+      expectedSelectOptions("filter-select-myattr", [
+        ["", true],
+      ]);
+      expectedSelectOptions("filter-select-contentType", [
+        ["", true],
+      ]);
+
+      const elP1 = document.getElementById("shown-and-total");
+      expect(elP1.textContent).toEqual("No files match the current filters. Showing 0 of 3 files.");
+
+      const elUrl = document.getElementById("url-update");
+      expect(elUrl.href).toEqual("https://example.com/#testing");
 
       const elItem1 = document.getElementById("item-1");
       expect(elItem1.classList).toContainEqual("hidden");
@@ -208,21 +254,41 @@ describe("Filter list controller", () => {
 
       clearFilters();
 
-      const elP = document.getElementById("shown-and-total");
-      expect(elP.textContent).toEqual("Showing 3 of 3 files.");
+      expect(elP1.textContent).toEqual("Showing 3 of 3 files.");
+
+      expectedSelectOptions("filter-select-myattr", [
+        ["", true], ["myattr1", false], ["myattr2", false], ["myattr3", false],
+      ]);
+      expectedSelectOptions("filter-select-contentType", [
+        ["", true], ["contentType1", false], ["contentType2", false], ["contentType3", false],
+      ]);
+
+      const elP2 = document.getElementById("shown-and-total");
+      expect(elP2.textContent).toEqual("Showing 3 of 3 files.");
 
       expect(elItem1.classList).not.toContainEqual("hidden");
       expect(elItem2.classList).not.toContainEqual("hidden");
       expect(elItem3.classList).not.toContainEqual("hidden");
+
+      appStop(application);
     });
 
     it("selecting an option filters the items and updates the classes", async () => {
+      const application = await appStart();
+
       setFilterSelectValue("filter-select-myattr", "myattr3");
       setFilterSelectValue("filter-select-contentType", "");
       setFilterInputValue("filter-input-description", "");
 
+      expectedSelectOptions("filter-select-myattr", [
+        ["", false], ["myattr1", false], ["myattr2", false], ["myattr3", true],
+      ]);
+      expectedSelectOptions("filter-select-contentType", [
+        ["", true], ["contentType3", false],
+      ]);
+
       const elP = document.getElementById("url-update");
-      expect(elP.textContent).toEqual("https://example.com/?myattr=myattr3#testing");
+      expect(elP.href).toEqual("https://example.com/?myattr=myattr3#testing");
 
       const elItem1 = document.getElementById("item-1");
       expect(elItem1.classList).toContainEqual("hidden");
@@ -231,29 +297,10 @@ describe("Filter list controller", () => {
       expect(elItem2.classList).toContainEqual("hidden");
 
       const elItem3 = document.getElementById("item-3");
-      console.log('check');
       expect(elItem3.classList).not.toContainEqual("hidden");
 
-
-      // Check that any dropdown filter that has a selection has all the options,
-      // and any filter with no selection has reduced options matching the selections in other filters.
-      const filterMyAttr = document.getElementById("filter-select-myattr");
-      expect(filterMyAttr.options).toHaveLength(4);
-      expect(filterMyAttr.options[0].value).toEqual("");
-      expect(filterMyAttr.options[0].selected).toBeFalsy();
-      expect(filterMyAttr.options[1].value).toEqual("myattr1");
-      expect(filterMyAttr.options[1].selected).toBeFalsy();
-      expect(filterMyAttr.options[2].value).toEqual("myattr2");
-      expect(filterMyAttr.options[2].selected).toBeFalsy();
-      expect(filterMyAttr.options[3].value).toEqual("myattr3");
-      expect(filterMyAttr.options[3].selected).toBeTruthy();
-
-      const filterContentType = document.getElementById("filter-select-contentType");
-      expect(filterContentType.options).toHaveLength(2);
-      expect(filterContentType.options[0].value).toEqual("");
-      expect(filterContentType.options[0].selected).toBeTruthy();
-      expect(filterContentType.options[1].value).toEqual("contentType3");
-      expect(filterContentType.options[1].selected).toBeFalsy();
+      appStop(application);
     });
   });
+
 });
