@@ -916,11 +916,11 @@ msgstr ""
 msgid "Copied"
 msgstr ""
 
-#: warehouse/static/js/warehouse/controllers/filter_list_controller.js:471
+#: warehouse/static/js/warehouse/controllers/filter_list_controller.js:472
 msgid "No files match the current filters."
 msgstr ""
 
-#: warehouse/static/js/warehouse/controllers/filter_list_controller.js:478
+#: warehouse/static/js/warehouse/controllers/filter_list_controller.js:479
 msgid "Showing %1 of %2 file."
 msgid_plural "Showing %1 of %2 files."
 msgstr[0] ""
