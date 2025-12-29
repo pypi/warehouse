@@ -489,7 +489,9 @@ export default class extends Controller {
    */
   _setCopyUrl(filters) {
     if (this.hasUrlTarget && this.urlTarget) {
-      this.urlTarget.href = this._buildFilterUrl(this.urlTarget.href, filters).toString();
+      const url = this._buildFilterUrl(this.urlTarget.href, filters).toString();
+      this.urlTarget.href = url;
+      this.urlTarget.textContent = url;
     }
   }
 
