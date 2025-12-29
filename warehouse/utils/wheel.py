@@ -28,7 +28,7 @@ _PLATFORM_MAP = {
         (
             re.compile(r"^manylinux_(\d+)_(\d+)_(.*?)$"),
             lambda m: f"linux glibc {m.group(1)}.{m.group(2)}+ "
-                      f"{_norm_arch(m.group(3))}",
+            f"{_norm_arch(m.group(3))}",
         )
     ],
     "manylinux2014": [
