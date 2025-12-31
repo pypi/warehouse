@@ -666,7 +666,7 @@ def make_email_renderers(pyramid_config):
         name,
         subject="Email Subject",
         body="Email Body",
-        html="Email HTML Body",
+        html="<p>Email HTML Body</p>",
     ):
         subject_renderer = pyramid_config.testing_add_renderer(
             f"email/{name}/subject.txt"

@@ -2,4 +2,5 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}Unrecognized login to your PyPI account{% endblock %}
+{% set sitename = "TestPyPI" if testPyPI else "PyPI" %}
+{% block subject %}Unrecognized login to your {{ sitename }} account{% endblock %}
