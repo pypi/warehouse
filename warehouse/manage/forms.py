@@ -279,6 +279,38 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, wtforms.Form):
             raise wtforms.validators.ValidationError(f"Label '{label}' already in use")
 
 
+class DeleteAccountAssociationForm(wtforms.Form):
+    __params__ = ["association_id"]
+
+    association_id = wtforms.StringField(
+        validators=[
+            wtforms.validators.InputRequired(message=_("Specify an association ID")),
+            wtforms.validators.UUID(message=_("Association must be specified by ID")),
+        ]
+    )
+
+    def __init__(self, *args, user_service, user_id, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_service = user_service
+        self.user_id = user_id
+
+    def validate_association_id(self, field):
+        association_id = field.data
+        association = self.user_service.get_account_association(association_id)
+
+        if association is None:
+            raise wtforms.validators.ValidationError(
+                _("No account association with given ID")
+            )
+
+        if str(association.user.id) != str(self.user_id):
+            raise wtforms.validators.ValidationError(
+                _("This association does not belong to you")
+            )
+
+        self.association = association
+
+
 class CreateMacaroonForm(wtforms.Form):
     __params__ = ["description", "token_scope"]
 

@@ -478,6 +478,126 @@
 <hr>
 {{ twofa_section() }}
 <hr>
+<section id="account-associations">
+  <h2 class="sub-title">{% trans %}Account associations{% endtrans %}</h2>
+  <p>
+    {% trans %}Link your PyPI account with external services to streamline your workflow. Connected accounts may be used for account recovery or accessing service-specific features.{% endtrans %}
+  </p>
+  {% if account_associations %}
+    <table class="table table--api-tokens">
+      <caption class="sr-only">{% trans %}Services linked to your account{% endtrans %}</caption>
+      <thead>
+        <tr>
+          <th scope="col">{% trans %}Service{% endtrans %}</th>
+          <th scope="col">{% trans %}Account{% endtrans %}</th>
+          <th scope="col">{% trans %}Connected{% endtrans %}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for association in account_associations %}
+          <tr>
+            <td>
+              <span class="table__mobile-label">{% trans %}Service{% endtrans %}</span>
+              {% if association.service == "github" %}
+                <i class="fab fa-github" aria-hidden="true"></i>
+                {% trans %}GitHub{% endtrans %}
+              {% endif %}
+            </td>
+            <td>
+              <span class="table__mobile-label">{% trans %}Account{% endtrans %}</span>
+              {% if association.service == "github" %}
+                <a href="https://github.com/{{ association.external_username }}"
+                   target="_blank"
+                   rel="noopener">{{ association.external_username }}</a>
+              {% else %}
+                {{ association.external_username }}
+              {% endif %}
+            </td>
+            <td>
+              <span class="table__mobile-label">{% trans %}Connected{% endtrans %}</span>
+              {{ association.created|format_date() }}
+            </td>
+            <td class="table__align-right">
+              <a href="#remove-association-{{ association.id }}"
+                 class="button button--secondary"
+                 title="{% trans service=association.service.capitalize() %}Remove {{ service }} association{% endtrans %}">
+                {% trans %}Remove{% endtrans %}
+              </a>
+            </td>
+          </tr>
+          {# Confirmation modal for removing association #}
+          <div id="remove-association-{{ association.id }}"
+               class="modal"
+               data-controller="modal-close">
+            <div class="modal__content" role="dialog">
+              <a href="#modal-close"
+                 data-action="click->modal-close#cancel"
+                 title="{% trans %}Close{% endtrans %}"
+                 class="modal__close">
+                <i class="fa fa-times" aria-hidden="true"></i>
+                <span class="sr-only">{% trans %}Close{% endtrans %}</span>
+              </a>
+              <form method="post"
+                    class="modal__form"
+                    action="{{ request.route_path('manage.account.associations.delete') }}">
+                <input name="csrf_token"
+                       type="hidden"
+                       value="{{ request.session.get_csrf_token() }}">
+                <input type="hidden" name="association_id" value="{{ association.id }}">
+                <div class="modal__body">
+                  <h3 class="modal__title">
+                    {% trans service=association.service.capitalize() %}Remove {{ service }} association?{% endtrans %}
+                  </h3>
+                  <p>
+                    {% trans service=association.service.capitalize(), username=association.external_username %}
+                    Removing this association will disconnect your {{ service }} account <strong>{{ username }}</strong> from PyPI.
+                  {% endtrans %}
+                </p>
+                <p>
+                  {% trans service=association.service.capitalize() %}
+                  You can reconnect your {{ service }} account at any time.
+                {% endtrans %}
+              </p>
+            </div>
+            <div class="modal__footer">
+              <button type="reset"
+                      class="button modal__action js-cancel"
+                      data-action="click->modal-close#cancel">{% trans %}Cancel{% endtrans %}</button>
+              <button type="submit"
+                      class="button button--danger modal__action js-confirm"
+                      data-modal-close-target="button">{% trans %}Remove association{% endtrans %}</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="callout-block">
+  <p>{% trans %}You have not connected any external accounts yet.{% endtrans %}</p>
+</div>
+{% endif %}
+{# Add new association - only show button when no associations exist #}
+{% if not account_associations %}
+  <h3 class="sub-title">{% trans %}Connect GitHub account{% endtrans %}</h3>
+  <p>
+    {% trans %}Link your GitHub account to your PyPI account. You'll be redirected to GitHub to authorize the connection.{% endtrans %}
+  </p>
+  <a href="{{ request.route_path('manage.account.associations.github.connect') }}"
+     class="button button--primary">
+    <i class="fab fa-github" aria-hidden="true"></i>
+    {% trans %}Connect GitHub{% endtrans %}
+  </a>
+{% else %}
+  <p class="form-group__help-text">
+    {% trans %}Need to connect a different GitHub account? Remove the existing connection first, or use a private browser window to{% endtrans %}
+    <a href="{{ request.route_path('manage.account.associations.github.connect') }}">{% trans %}connect an additional account{% endtrans %}</a>.
+  </p>
+{% endif %}
+</section>
+<hr>
 <section id="api-tokens">
   <h2>{% trans %}API tokens{% endtrans %}</h2>
   <p>
@@ -685,6 +805,28 @@
       {% elif event.tag == EventTag.Account.RecoveryCodesUsed %}
         <strong>{% trans %}Recovery code used for login{% endtrans %}</strong>
         <br>
+      {% elif event.tag == EventTag.Account.AccountAssociationAdd %}
+        <strong>{% trans %}Account association added{% endtrans %}</strong>
+        <br>
+        <small>
+          {% if event.additional.service == "github" %}
+            <i class="fab fa-github" aria-hidden="true"></i>
+            {% trans username=event.additional.external_username %}GitHub: {{ username }}{% endtrans %}
+          {% else %}
+            {% trans service=event.additional.service, username=event.additional.external_username %}{{ service }}: {{ username }}{% endtrans %}
+          {% endif %}
+        </small>
+      {% elif event.tag == EventTag.Account.AccountAssociationRemove %}
+        <strong>{% trans %}Account association removed{% endtrans %}</strong>
+        <br>
+        <small>
+          {% if event.additional.service == "github" %}
+            <i class="fab fa-github" aria-hidden="true"></i>
+            {% trans username=event.additional.external_username %}GitHub: {{ username }}{% endtrans %}
+          {% else %}
+            {% trans service=event.additional.service, username=event.additional.external_username %}{{ service }}: {{ username }}{% endtrans %}
+          {% endif %}
+        </small>
       {% elif event.tag == EventTag.Account.APITokenAdded %}
         <strong>{% trans %}API token added{% endtrans %}</strong>
         <br>

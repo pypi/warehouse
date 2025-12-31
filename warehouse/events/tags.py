@@ -55,6 +55,8 @@ class EventTag:
         APITokenAdded = "account:api_token:added"
         APITokenRemoved = "account:api_token:removed"
         APITokenRemovedLeak = "account:api_token:removed_leak"
+        AccountAssociationAdd = "account:association:add"
+        AccountAssociationRemove = "account:association:remove"
         AccountCreate = "account:create"
         EmailAdd = "account:email:add"
         EmailPrimaryChange = "account:email:primary:change"
