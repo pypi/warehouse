@@ -1,5 +1,12 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "../settings/breakpoints";
+@use "../settings/colours";
+@use "../settings/grid";
+@use "../tools/design-utilities";
+@use "../tools/link-utilities";
+@use "../tools/typography";
+
 /*
   A block for highlighting important information:
 
@@ -46,17 +53,17 @@
 
 .callout-block {
   padding: 15px 15px 15px 30px;
-  border: 2px solid $primary-color;
+  border: 2px solid colours.$primary-color;
   margin: 15px 0;
   position: relative;
   border-radius: 4px;
 
   &__dismiss {
-    @include dismiss-button;
+    @include design-utilities.dismiss-button;
   }
 
   &__heading {
-    @include h3;
+    @include typography.h3;
 
     details & {
       padding: 15px;
@@ -72,7 +79,7 @@
   &::before {
     content: "";
     width: 15px;
-    background-color: $primary-color;
+    background-color: colours.$primary-color;
     position: absolute;
     top: -1px;
     left: -2px;
@@ -90,7 +97,7 @@
     &::after {
       content: "";
       width: 15px;
-      background-color: $primary-color;
+      background-color: colours.$primary-color;
       position: absolute;
       top: -1px;
       right: -2px;
@@ -100,74 +107,74 @@
   }
 
   &--neutral {
-    border-color: $border-color;
+    border-color: colours.$border-color;
 
     &::before {
-      background-color: $border-color;
+      background-color: colours.$border-color;
     }
 
     &::after {
-      background-color: $border-color;
+      background-color: colours.$border-color;
     }
   }
 
   &--danger {
-    border-color: $danger-color;
+    border-color: colours.$danger-color;
 
     > :not(.modal, .button) {
-      color: $danger-color;
+      color: colours.$danger-color;
 
       a:not(.button) {
-        @include danger-underlined-link;
+        @include link-utilities.danger-underlined-link;
       }
     }
 
     &::before {
-      background-color: $danger-color;
+      background-color: colours.$danger-color;
     }
 
     .callout-block__dismiss {
-      @include link-focus-state($danger-color);
+      @include link-utilities.link-focus-state(colours.$danger-color);
     }
   }
 
   &--warning {
-    border-color: $warning-color;
+    border-color: colours.$warning-color;
 
     > :not(.modal, .button) {
-      color: $warning-color;
+      color: colours.$warning-color;
 
       a:not(.button) {
-        @include warning-underlined-link;
+        @include link-utilities.warning-underlined-link;
       }
     }
 
     &::before {
-      background-color: $warning-color;
+      background-color: colours.$warning-color;
     }
 
     .callout-block__dismiss {
-      @include link-focus-state($warning-color);
+      @include link-utilities.link-focus-state(colours.$warning-color);
     }
   }
 
   &--success {
-    border-color: $success-color;
+    border-color: colours.$success-color;
 
     > :not(.modal, .button) {
-      color: $success-color;
+      color: colours.$success-color;
 
       a:not(.button) {
-        @include success-underlined-link;
+        @include link-utilities.success-underlined-link;
       }
     }
 
     &::before {
-      background-color: $success-color;
+      background-color: colours.$success-color;
     }
 
     .callout-block__dismiss {
-      @include link-focus-state($success-color);
+      @include link-utilities.link-focus-state(colours.$success-color);
     }
   }
 
@@ -176,13 +183,13 @@
     max-width: 75%;
     margin: 10px 0;
 
-    @media only screen and (max-width: $mobile) {
+    @media only screen and (max-width: breakpoints.$mobile) {
      max-width: 85%;
     }
   }
 
   &--bottom-margin {
-    margin-bottom: $half-spacing-unit;
+    margin-bottom: grid.$half-spacing-unit;
   }
 
   &--dismissed {

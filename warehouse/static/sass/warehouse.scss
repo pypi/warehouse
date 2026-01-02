@@ -14,115 +14,115 @@
 */
 
 // TOOLS LAYER: libraries and mixins
-@import "tools/design-utilities";
-@import "tools/layout-utilities";
-@import "tools/link-utilities";
-@import "tools/typography";
+@use "tools/design-utilities";
+@use "tools/layout-utilities";
+@use "tools/link-utilities";
+@use "tools/typography";
 
 // SETTINGS LAYER: settings we use throughout the codebase
-@import "settings/breakpoints";
-@import "settings/colours";
-@import "settings/fonts";
-@import "settings/grid";
-@import "settings/z-index";
+@use "settings/breakpoints";
+@use "settings/colours";
+@use "settings/fonts";
+@use "settings/grid";
+@use "settings/z-index";
 
 // RESETS LAYER: applies CSS resets and sensible defaults
-@import "resets/boxsizing";
-@import "~normalize.css/normalize";
-@import "resets/reset";
+@use "resets/boxsizing";
+@use "~normalize.css/normalize";
+@use "resets/reset";
 
 // BASE LAYER: adds styles to anything without a class
-@import "base/images-figures";
-@import "base/forms";
-@import "base/lists";
-@import "base/tables";
-@import "base/typography";
+@use "base/images-figures";
+@use "base/forms";
+@use "base/lists";
+@use "base/tables";
+@use "base/typography" as typography2;
 
 // LAYOUT HELPERS LAYER: reusable layout helpers
-@import "layout-helpers/banner";
-@import "layout-helpers/columns";
-@import "layout-helpers/containers";
-@import "layout-helpers/floats";
-@import "layout-helpers/left-layout";
-@import "layout-helpers/split-layout";
-@import "layout-helpers/stick-to-top";
+@use "layout-helpers/banner";
+@use "layout-helpers/columns";
+@use "layout-helpers/containers";
+@use "layout-helpers/floats";
+@use "layout-helpers/left-layout";
+@use "layout-helpers/split-layout";
+@use "layout-helpers/stick-to-top";
 
 // blocks LAYER: some warehouse specific, some generic/reusable
-@import "blocks/about-pypi";
-@import "blocks/accordion";
-@import "blocks/admin-include";
-@import "blocks/applied-filters";
-@import "blocks/author-profile";
-@import "blocks/badge";
-@import "blocks/breadcrumbs";
-@import "blocks/button";
-@import "blocks/button-group";
-@import "blocks/callout-block";
-@import "blocks/centered-heading";
-@import "blocks/checkbox-tree";
+@use "blocks/about-pypi";
+@use "blocks/accordion";
+@use "blocks/admin-include";
+@use "blocks/applied-filters";
+@use "blocks/author-profile";
+@use "blocks/badge";
+@use "blocks/breadcrumbs";
+@use "blocks/button";
+@use "blocks/button-group";
+@use "blocks/callout-block";
+@use "blocks/centered-heading";
+@use "blocks/checkbox-tree";
 /*rtl:begin:ignore*/
-@import "blocks/code-block";
+@use "blocks/code-block";
 /*rtl:end:ignore*/
-@import "blocks/copy-tooltip";
-@import "blocks/dark-overlay";
-@import "blocks/dropdown";
-@import "blocks/faq-group";
-@import "blocks/filter-badge";
-@import "blocks/filter-panel";
-@import "blocks/footer";
-@import "blocks/form-errors";
-@import "blocks/form-group";
-@import "blocks/gravatar-form";
-@import "blocks/heading-wsubtitle";
-@import "blocks/homepage-banner";
-@import "blocks/hooray-list";
-@import "blocks/horizontal-menu";
-@import "blocks/horizontal-section";
-@import "blocks/language-switcher";
-@import "blocks/large-input";
-@import "blocks/lede-paragraph";
-@import "blocks/mobile-search-bar";
-@import "blocks/modal";
-@import "blocks/notification-bar";
-@import "blocks/org-roles";
+@use "blocks/copy-tooltip";
+@use "blocks/dark-overlay";
+@use "blocks/dropdown";
+@use "blocks/faq-group";
+@use "blocks/filter-badge";
+@use "blocks/filter-panel";
+@use "blocks/footer";
+@use "blocks/form-errors";
+@use "blocks/form-group";
+@use "blocks/gravatar-form";
+@use "blocks/heading-wsubtitle";
+@use "blocks/homepage-banner";
+@use "blocks/hooray-list";
+@use "blocks/horizontal-menu";
+@use "blocks/horizontal-section";
+@use "blocks/language-switcher";
+@use "blocks/large-input";
+@use "blocks/lede-paragraph";
+@use "blocks/mobile-search-bar";
+@use "blocks/modal";
+@use "blocks/notification-bar";
+@use "blocks/org-roles";
 /*rtl:begin:ignore*/
-@import "blocks/organization-snippet";
-@import "blocks/package-description";
-@import "blocks/package-header";
-@import "blocks/package-snippet";
+@use "blocks/organization-snippet";
+@use "blocks/package-description";
+@use "blocks/package-header";
+@use "blocks/package-snippet";
 /*rtl:end:ignore*/
-@import "blocks/password-strength";
+@use "blocks/password-strength";
 /*rtl:begin:ignore*/
-@import "blocks/project-description";
+@use "blocks/project-description";
 /*rtl:end:ignore*/
-@import "blocks/files";
-@import "blocks/radio-toggle-form";
-@import "blocks/release";
-@import "blocks/release-timeline";
-@import "blocks/search-form";
-@import "blocks/sidebar-section";
-@import "blocks/site-header";
-@import "blocks/skip-to-content";
-@import "blocks/sponsor-grid";
-@import "blocks/sponsor-packages";
-@import "blocks/sponsors";
-@import "blocks/sponsorship-benefits";
-@import "blocks/sponsorship-intro";
+@use "blocks/files";
+@use "blocks/radio-toggle-form";
+@use "blocks/release";
+@use "blocks/release-timeline";
+@use "blocks/search-form";
+@use "blocks/sidebar-section";
+@use "blocks/site-header";
+@use "blocks/skip-to-content";
+@use "blocks/sponsor-grid";
+@use "blocks/sponsor-packages";
+@use "blocks/sponsors";
+@use "blocks/sponsorship-benefits";
+@use "blocks/sponsorship-intro";
 /*rtl:begin:ignore*/
-@import "blocks/status-badge";
+@use "blocks/status-badge";
 /*rtl:end:ignore*/
-@import "blocks/statistics-bar";
-@import "blocks/table";
+@use "blocks/statistics-bar";
+@use "blocks/table";
 /*rtl:begin:ignore*/
-@import "blocks/team-snippet";
+@use "blocks/team-snippet";
 /*rtl:end:ignore*/
-@import "blocks/totp-form";
-@import "blocks/twofa-login";
-@import "blocks/horizontal-tabs";
-@import "blocks/vertical-tabs";
-@import "blocks/verified";
-@import "blocks/viewport-section";
-@import "blocks/copyable";
+@use "blocks/totp-form";
+@use "blocks/twofa-login";
+@use "blocks/horizontal-tabs";
+@use "blocks/vertical-tabs";
+@use "blocks/verified";
+@use "blocks/viewport-section";
+@use "blocks/copyable";
 
 // TRUMPS LAYER: Overwrites everything else
 
@@ -136,7 +136,7 @@
 
 // Reset text to default
 .reset-text {
-  font-size: $base-font-size;
+  font-size: fonts.$base-font-size;
   font-weight: normal;
 }
 
@@ -162,7 +162,7 @@
 // COLORS
 // Make text or icons red to draw attention
 .danger {
-  color: $danger-color;
+  color: colours.$danger-color;
 }
 
 // ALIGNMENT, PADDING & MARGINS
@@ -198,42 +198,42 @@
 
 // Add small margin to the top of elements
 .margin-top {
-  margin-top: $quarter-spacing-unit;
+  margin-top: grid.$quarter-spacing-unit;
 }
 
 // Add larger margin to the top of elements
 .margin-top--large {
-  margin-top: $half-spacing-unit;
+  margin-top: grid.$half-spacing-unit;
 }
 
 // Add small margin to the bottom of elements
 .margin-bottom {
-  margin-bottom: $quarter-spacing-unit;
+  margin-bottom: grid.$quarter-spacing-unit;
 }
 
 // Add larger margin to the bottom of elements
 .margin-bottom--large {
-  margin-bottom: $half-spacing-unit;
+  margin-bottom: grid.$half-spacing-unit;
 }
 
 // Add small margin to the left of elements
 .margin-left {
-  margin-left: $quarter-spacing-unit;
+  margin-left: grid.$quarter-spacing-unit;
 }
 
 // Add larger margin to the left of elements
 .margin-left--large {
-  margin-left: $half-spacing-unit;
+  margin-left: grid.$half-spacing-unit;
 }
 
 // Add small margin to the right of elements
 .margin-right {
-  margin-right: $quarter-spacing-unit;
+  margin-right: grid.$quarter-spacing-unit;
 }
 
 // Add larger margin to the right of elements
 .margin-right--large {
-  margin-right: $half-spacing-unit;
+  margin-right: grid.$half-spacing-unit;
 }
 
 // Apply spacing between elements when they wrap (usually on mobile)
@@ -248,7 +248,7 @@
 // TITLES
 // Adjust size of h1s on standalone pages
 .page-title {
-  @include h1-title;
+  @include typography.h1-title;
 }
 
 // Resolve conflict between .page-title and .heading-wsubtitle
@@ -272,20 +272,20 @@
 }
 
 // Desktop specific visibility
-@media screen and (min-width: $desktop + 1px) {
+@media screen and (min-width: breakpoints.$desktop + 1px) {
   .hide-on-desktop {
     display: none;
   }
 }
 
-@media screen and (max-width: $desktop) {
+@media screen and (max-width: breakpoints.$desktop) {
   .hide-below-desktop {
     display: none;
   }
 }
 
 // Tablet specific visibility
-@media screen and (max-width: $tablet) {
+@media screen and (max-width: breakpoints.$tablet) {
   .hide-on-tablet {
     display: none;
   }
@@ -301,7 +301,7 @@
 html[dir="rtl"] .package-snippet .split-layout > :first-child,
 html[dir="rtl"] .package-description.split-layout > :first-child {
   padding-left: 0;
-  padding-right: $spacing-unit;
+  padding-right: grid.$spacing-unit;
 }
 
 // Force humanized time to display ltr
