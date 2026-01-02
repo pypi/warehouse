@@ -2,6 +2,7 @@
 
 @use "../settings/breakpoints";
 @use "../settings/colours";
+@use "../settings/fonts";
 @use "../settings/grid";
 @use "../tools/link-utilities";
 
@@ -39,7 +40,7 @@
     @include link-utilities.link-without-underline;
 
     &::before {
-      font-family: "Font Awesome 6 Free";
+      font-family: fonts.$fa-font-family;
       font-weight: 900;
       content: "\f139";
       margin-right: grid.$half-spacing-unit #{"/*rtl:5px*/"};
@@ -67,7 +68,7 @@
 
     .accordion__link {
       &::before {
-        font-family: "Font Awesome 6 Free";
+        font-family: fonts.$fa-font-family;
         font-weight: 900;
         content: "\f13a";
       }

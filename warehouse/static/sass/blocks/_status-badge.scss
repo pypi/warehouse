@@ -45,7 +45,7 @@
 
   &::before {
     content: "\f05a"; // Info icon
-    font-family: "Font Awesome 6 Free";
+    font-family: fonts.$fa-font-family;
     font-weight: 900;
     padding: 12px;
     margin-right: 12px;

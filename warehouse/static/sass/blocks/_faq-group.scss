@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @use "../settings/colours";
+@use "../settings/fonts";
 @use "../settings/grid";
 
 /*
@@ -29,7 +30,7 @@
     padding-top: 30px;
 
     &::before {
-      font-family: "Font Awesome 6 Free";
+      font-family: fonts.$fa-font-family;
       font-weight: 900;
       content: "\f059";
       margin-right: 5px;

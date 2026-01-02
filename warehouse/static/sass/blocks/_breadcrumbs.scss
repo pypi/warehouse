@@ -3,6 +3,7 @@
 @use "sass:color";
 @use "../settings/breakpoints";
 @use "../settings/colours";
+@use "../settings/fonts";
 @use "../settings/grid";
 @use "../tools/layout-utilities";
 @use "../tools/link-utilities";
@@ -62,7 +63,7 @@
 
     &:not(:last-child)::after {
       content: "\f054";
-      font-family: "Font Awesome 6 Free";
+      font-family: fonts.$fa-font-family;
       font-weight: 900;
       margin-left: 4px;
       margin-right: 6px;
