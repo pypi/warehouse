@@ -400,9 +400,9 @@ mkdocs-get-deps==0.2.0 \
     --hash=sha256:162b3d129c7fad9b19abfdcb9c1458a651628e4b1dea628ac68790fb3061c60c \
     --hash=sha256:2bf11d0b133e77a0dd036abeeb06dec8775e46efa526dc70667d8863eefc6134
     # via mkdocs
-mkdocs-material==9.7.0 \
-    --hash=sha256:602b359844e906ee402b7ed9640340cf8a474420d02d8891451733b6b02314ec \
-    --hash=sha256:da2866ea53601125ff5baa8aa06404c6e07af3c5ce3d5de95e3b52b80b442887
+mkdocs-material==9.7.1 \
+    --hash=sha256:3f6100937d7d731f87f1e3e3b021c97f7239666b9ba1151ab476cabb96c60d5c \
+    --hash=sha256:89601b8f2c3e6c6ee0a918cc3566cb201d40bf37c3cd3c2067e26fadb8cce2b8
     # via
     #   -r requirements/docs-blog.in
     #   material-plausible-plugin
