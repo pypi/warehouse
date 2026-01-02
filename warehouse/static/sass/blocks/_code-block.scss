@@ -1,5 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "../settings/grid";
+
 /*
 A custom styled code block.
 
@@ -14,8 +16,8 @@ A custom styled code block.
 
 .code-block {
   display: block;
-  padding: $half-spacing-unit;
-  margin-bottom: $half-spacing-unit;
+  padding: grid.$half-spacing-unit;
+  margin-bottom: grid.$half-spacing-unit;
   word-break: break-all;
   direction: ltr;
   overflow-x: auto;

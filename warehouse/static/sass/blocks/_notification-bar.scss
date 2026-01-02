@@ -1,5 +1,13 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "sass:color";
+@use "../settings/colours";
+@use "../settings/fonts";
+@use "../settings/grid";
+@use "../tools/design-utilities";
+@use "../tools/link-utilities";
+@use "../tools/typography";
+
 /*
   A full width horizontal div that contains a short notification.
   Use for single lines only, as all content will be styled as a h3.
@@ -78,29 +86,29 @@
 */
 
 .notification-bar {
-  border-bottom: 2px solid $white;
+  border-bottom: 2px solid colours.$white;
   text-align: center;
-  background-color: $primary-color-dark;
-  color: $white;
-  padding: $half-spacing-unit;
+  background-color: colours.$primary-color-dark;
+  color: colours.$white;
+  padding: grid.$half-spacing-unit;
   position: relative;
 
   &__icon {
-    font-size: $small-font-size;
+    font-size: fonts.$small-font-size;
     margin-right: 3px;
   }
 
   &__message {
-    @include h3;
+    @include typography.h3;
 
     a:not(.button) {
-      @include white-underlined-link;
+      @include link-utilities.white-underlined-link;
     }
   }
 
   &__dismiss {
-    @include dismiss-button;
-    @include link-focus-state(inherit);
+    @include design-utilities.dismiss-button;
+    @include link-utilities.link-focus-state(inherit);
     color: inherit;
   }
 
@@ -117,37 +125,37 @@
   }
 
   &--warning {
-    background-color: $warning-background-color;
-    color: $warning-color;
+    background-color: colours.$warning-background-color;
+    color: colours.$warning-color;
 
     a:not(.button) {
-      @include colored-link($warning-color);
+      @include link-utilities.colored-link(colours.$warning-color);
     }
 
     .notification-bar__dismiss {
-      @include link-focus-state($warning-color);
+      @include link-utilities.link-focus-state(colours.$warning-color);
     }
   }
 
   &--danger {
-    background-color: $danger-color;
+    background-color: colours.$danger-color;
   }
 
   &--success {
-    background-color: $success-color;
+    background-color: colours.$success-color;
   }
 
   &--banner {
-    background-color: $warning-background-color;
-    color: $warning-color;
-    border-color: darken($primary-color, 10);
+    background-color: colours.$warning-background-color;
+    color: colours.$warning-color;
+    border-color: color.adjust(colours.$primary-color, $lightness: -10%);
 
     a {
-      color: $warning-color;
+      color: colours.$warning-color;
     }
 
     .button {
-      color: $white;
+      color: colours.$white;
     }
   }
 }

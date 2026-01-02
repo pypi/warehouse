@@ -1,5 +1,9 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "sass:color";
+@use "../settings/colours";
+@use "../settings/fonts";
+
 /*
   A lede paragraph.  Use to highlight important sections in the text.
 
@@ -7,7 +11,7 @@
 */
 
 .lede-paragraph {
-  font-weight: $bold-font-weight;
+  font-weight: fonts.$bold-font-weight;
   font-size: 1.2rem;
-  color: lighten($text-color, 10);
+  color: color.adjust(colours.$text-color, $lightness: 10%);
 }
