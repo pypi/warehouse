@@ -257,9 +257,9 @@ jsbeautifier==1.15.4 \
     # via
     #   cssbeautifier
     #   djlint
-json5==0.12.1 \
-    --hash=sha256:b2743e77b3242f8d03c143dd975a6ec7c52e2f2afe76ed934e53503dd4ad4990 \
-    --hash=sha256:d9c9b3bc34a5f54d43c35e11ef7cb87d8bdd098c6ace87117a7b7e83e705c1d5
+json5==0.13.0 \
+    --hash=sha256:9a08e1dd65f6a4d4c6fa82d216cf2477349ec2346a38fd70cc11d2557499fbcc \
+    --hash=sha256:b1edf8d487721c0bf64d83c28e91280781f6e21f4a797d3261c7c828d4c165bf
     # via djlint
 librt==0.7.4 \
     --hash=sha256:022cc673e69283a42621dd453e2407cf1647e77f8bd857d7ad7499901e62376f \
