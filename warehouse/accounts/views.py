@@ -414,10 +414,12 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
                 # We've seen this device before for this user and they've
                 # confirmed it, log in the user
                 two_factor_method = "totp"
-                _login_user(request, userid, two_factor_method, two_factor_label="totp")
+                headers = _login_user(
+                    request, userid, two_factor_method, two_factor_label="totp"
+                )
                 user_service.update_user(userid, last_totp_value=form.totp_value.data)
 
-                resp = HTTPSeeOther(redirect_to)
+                resp = HTTPSeeOther(redirect_to, headers=dict(headers))
                 _set_userid_insecure_cookie(resp, userid)
 
                 if not two_factor_state.get("has_recovery_codes", False):
@@ -618,7 +620,9 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
             if user_service.device_is_known(userid, request):
                 # We've seen this device before for this user and they've
                 # confirmed it, log in the user
-                _login_user(request, userid, two_factor_method="recovery-code")
+                headers = _login_user(
+                    request, userid, two_factor_method="recovery-code"
+                )
 
                 user = user_service.get_user(userid)
                 user.record_event(
@@ -634,7 +638,7 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
                     queue="success",
                 )
 
-                resp = HTTPSeeOther(redirect_to)
+                resp = HTTPSeeOther(redirect_to, headers=dict(headers))
                 _set_userid_insecure_cookie(resp, userid)
 
                 return resp
