@@ -148,8 +148,8 @@ module.exports = [
       fontawesome: "./warehouse/static/sass/vendor/fontawesome.scss",
 
       /* Self-hosted fonts via Fontsource */
-      fonts: "./warehouse/static/js/vendor/fonts.js",
-      "fonts-ewert": "./warehouse/static/js/vendor/fonts-ewert.js",
+      fonts: "./warehouse/static/sass/vendor/fonts.scss",
+      "fonts-ewert": "./warehouse/static/sass/vendor/fonts-ewert.scss",
     },
     // The default source map. Slowest, but best production-build optimizations.
     // See: https://webpack.js.org/configuration/devtool
@@ -186,7 +186,14 @@ module.exports = [
                     },
                   },
                 },
-                "sass-loader",
+                {
+                  loader: "sass-loader",
+                  options: {
+                    sassOptions: {
+                      loadPaths: [path.resolve(__dirname, "node_modules")],
+                    },
+                  },
+                },
               ],
             },
             {
@@ -197,7 +204,14 @@ module.exports = [
                 // Translates CSS into CommonJS
                 "css-loader",
                 // Translate SCSS to CSS
-                "sass-loader",
+                {
+                  loader: "sass-loader",
+                  options: {
+                    sassOptions: {
+                      loadPaths: [path.resolve(__dirname, "node_modules")],
+                    },
+                  },
+                },
               ],
             },
           ],
