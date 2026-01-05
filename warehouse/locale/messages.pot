@@ -1010,15 +1010,15 @@ msgstr ""
 msgid "We looked everywhere but couldn't find this page"
 msgstr ""
 
-#: warehouse/templates/404.html:15
+#: warehouse/templates/404.html:18
 msgid "And now for something <br> <span>completely different</span>"
 msgstr ""
 
-#: warehouse/templates/404.html:21
+#: warehouse/templates/404.html:24
 msgid "Monty Python - The Cheese Shop Sketch"
 msgstr ""
 
-#: warehouse/templates/404.html:30 warehouse/templates/500.html:18
+#: warehouse/templates/404.html:33 warehouse/templates/500.html:18
 #: warehouse/templates/accounts/two-factor.html:35
 #: warehouse/templates/base.html:345 warehouse/templates/base.html:351
 #: warehouse/templates/base.html:357 warehouse/templates/base.html:363
@@ -1117,7 +1117,7 @@ msgstr ""
 msgid "External link"
 msgstr ""
 
-#: warehouse/templates/404.html:32
+#: warehouse/templates/404.html:35
 msgid "View video transcript"
 msgstr ""
 

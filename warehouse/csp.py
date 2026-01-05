@@ -155,7 +155,7 @@ def includeme(config):
                 "base-uri": [SELF],
                 "connect-src": _connect_src_settings(config),
                 "default-src": [NONE],
-                "font-src": [SELF, "fonts.gstatic.com", "https://fonts.cdnfonts.com"],
+                "font-src": [SELF, "https://fonts.cdnfonts.com"],
                 "form-action": [
                     SELF,
                     "https://checkout.stripe.com",
@@ -173,7 +173,6 @@ def includeme(config):
                 "script-src": _script_src_settings(config),
                 "style-src": [
                     SELF,
-                    "fonts.googleapis.com",
                     "*.ethicalads.io",
                     "donate.python.org",
                     "https://fonts.cdnfonts.com",

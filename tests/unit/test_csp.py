@@ -251,7 +251,6 @@ def test_includeme():
                     "default-src": ["'none'"],
                     "font-src": [
                         "'self'",
-                        "fonts.gstatic.com",
                         "https://fonts.cdnfonts.com",
                     ],
                     "form-action": [
@@ -281,7 +280,6 @@ def test_includeme():
                     ],
                     "style-src": [
                         "'self'",
-                        "fonts.googleapis.com",
                         "*.ethicalads.io",
                         "donate.python.org",
                         "https://fonts.cdnfonts.com",
