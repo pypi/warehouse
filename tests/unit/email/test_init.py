@@ -6185,7 +6185,7 @@ class TestAccountAssociationAddedEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/account-association-added/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -6340,7 +6340,7 @@ class TestAccountAssociationRemovedEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/account-association-removed/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
