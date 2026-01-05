@@ -1542,9 +1542,9 @@ nh3==0.3.2 \
     # via
     #   -r requirements/main.in
     #   readme-renderer
-openapi-core==0.21.0 \
-    --hash=sha256:a9e378fafbf3708a2ca827608388bb3d46d7ba07f9758b78244ffee6503a772e \
-    --hash=sha256:ef1605ed661fdd548f0c037b92e8b1dfb6052b3ad3e93247f2896c8bdb7d4974
+openapi-core==0.22.0 \
+    --hash=sha256:8fb7c325f2db4ef6c60584b1870f90eeb3183aa47e30643715c5003b7677a149 \
+    --hash=sha256:b30490dfa74e3aac2276105525590135212352f5dd7e5acf8f62f6a89ed6f2d0
     # via pyramid-openapi3
 openapi-schema-validator==0.6.3 \
     --hash=sha256:f37bace4fc2a5d96692f4f8b31dc0f8d7400fd04f3a937798eaf880d425de6ee \
