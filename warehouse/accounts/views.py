@@ -195,13 +195,13 @@ def profile(user, request):
         .join(
             latest_releases_subquery,
             Project.id == latest_releases_subquery.c.project_id,
-            )
+        )
         .outerjoin(
             Release,
             and_(
                 Release.project_id == latest_releases_subquery.c.project_id,
                 Release.created == latest_releases_subquery.c.latest_release_date,
-                ),
+            ),
         )
         .where(Role.user_id == user.id)
         .distinct()
@@ -542,7 +542,7 @@ def _set_userid_insecure_cookie(resp, userid):
         hashlib.blake2b(str(userid).encode("ascii"), person=b"warehouse.userid")
         .hexdigest()
         .lower(),
-        )
+    )
 
 
 def _check_remember_device_token(request, user_id) -> bool:
@@ -620,7 +620,9 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
             if user_service.device_is_known(userid, request):
                 # We've seen this device before for this user and they've
                 # confirmed it, log in the user
-                headers = _login_user(request, userid, two_factor_method="recovery-code")
+                headers = _login_user(
+                    request, userid, two_factor_method="recovery-code"
+                )
 
                 user = user_service.get_user(userid)
                 user.record_event(
@@ -1551,7 +1553,7 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
         .filter(
             UserUniqueLogin.user_id == userid,
             UserUniqueLogin.ip_address == request.ip_address,
-            )
+        )
         .one_or_none()
     )
     if unique_login:
@@ -1684,7 +1686,7 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
         redirect_to = request.route_path(
             form.next_route.data,
             **json.loads(form.next_route_matchdict.data)
-              | dict(_query=json.loads(form.next_route_query.data)),
+            | dict(_query=json.loads(form.next_route_query.data)),
         )
     else:
         redirect_to = request.route_path("manage.projects")
