@@ -23,7 +23,7 @@ from webob.multidict import MultiDict
 
 from warehouse.utils import http
 
-SUPPORTED_METADATA_VERSIONS = {"1.0", "1.1", "1.2", "2.1", "2.2", "2.3", "2.4"}
+SUPPORTED_METADATA_VERSIONS = {"1.0", "1.1", "1.2", "2.1", "2.2", "2.3", "2.4", "2.5"}
 
 DYNAMIC_FIELDS = [
     "Platform",
@@ -55,6 +55,8 @@ DYNAMIC_FIELDS = [
     "Requires",
     "Provides",
     "Obsoletes",
+    "Import-Name",  # Permitted as dynamic in PEP 794
+    "Import-Namespace",  # Permitted as dynamic in PEP 794
 ]
 
 # Mapping of fields on a Metadata instance to any limits on the length of that
