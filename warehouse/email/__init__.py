@@ -111,7 +111,7 @@ def _send_email_to_user(
             "sender": override_from,
         },
         {
-            "tag": EventTag.Account.EmailSent,
+            "tag": EventTag.Account.EmailSent.value,
             "user_id": user.id,
             "additional": {
                 "from_": (
