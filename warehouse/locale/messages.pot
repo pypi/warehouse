@@ -3702,9 +3702,8 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:484
 msgid ""
-"Link your PyPI account with external services to streamline your "
-"workflow. Connected accounts may be used for account recovery or "
-"accessing service-specific features."
+"Link your PyPI account with external services. Connected accounts may be "
+"used for account recovery or accessing service-specific features."
 msgstr ""
 
 #: warehouse/templates/manage/account.html:488
