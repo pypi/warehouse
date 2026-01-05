@@ -1,12 +1,16 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "../settings/breakpoints";
+@use "../settings/grid";
+@use "../tools/layout-utilities";
+
 /*
   Main container for the site:
   <div class="site-container"></div>
 */
 
 .site-container {
-  @include site-container;
+  @include layout-utilities.site-container;
 }
 
 /*
@@ -14,9 +18,9 @@
 */
 
 .tabs-container {
-  @include site-container;
+  @include layout-utilities.site-container;
 
-  @media only screen and (max-width: $tablet) {
+  @media only screen and (max-width: breakpoints.$tablet) {
     padding: 5px;
   }
 }
@@ -27,11 +31,11 @@
 */
 
 .narrow-container { // Use for single column content pages
-  @include centered-container($narrow-container);
-  padding: 0 $spacing-unit;
+  @include layout-utilities.centered-container(grid.$narrow-container);
+  padding: 0 grid.$spacing-unit;
 
-  @media screen and (max-width: $small-tablet) {
-    padding: 0 $half-spacing-unit;
+  @media screen and (max-width: breakpoints.$small-tablet) {
+    padding: 0 grid.$half-spacing-unit;
   }
 }
 
@@ -41,5 +45,5 @@
 */
 
 .single-column {
-  max-width: $site-container / 2;
+  max-width: grid.$site-container * 0.5;
 }

@@ -1,5 +1,11 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "sass:color";
+@use "../settings/breakpoints";
+@use "../settings/colours";
+@use "../settings/grid";
+@use "../tools/design-utilities";
+
 /*
   The sponsor grid on the sponsors page.
 
@@ -21,17 +27,17 @@
 */
 
 .sponsor-grid {
-  margin-top: $spacing-unit;
+  margin-top: grid.$spacing-unit;
 
   &__sponsor {
-    @include card;
-    padding: $spacing-unit;
+    @include design-utilities.card;
+    padding: grid.$spacing-unit;
     text-align: center;
-    margin-bottom: $spacing-unit;
+    margin-bottom: grid.$spacing-unit;
 
     &--invitation,
     &--invitation:hover {
-      border-color: $primary-color;
+      border-color: colours.$primary-color;
     }
   }
 
@@ -45,28 +51,28 @@
 
   &__sponsor-activity {
     font-weight: 600;
-    color: lighten($text-color, 10);
+    color: color.adjust(colours.$text-color, $lightness: 10%);
     font-size: 1.15rem;
     max-width: 700px;
     margin: 0 auto;
   }
 
   &__sponsor-link {
-    margin-top: $spacing-unit;
+    margin-top: grid.$spacing-unit;
   }
 
   &--bottom-margin {
-    margin-bottom: $spacing-unit * 2;
+    margin-bottom: grid.$spacing-unit * 2;
   }
 }
 
 @supports (display: grid) {
   .sponsor-grid {
     display: grid;
-    grid-gap: $spacing-unit;
+    grid-gap: grid.$spacing-unit;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 
-    @media screen and (max-width: $mobile) {
+    @media screen and (max-width: breakpoints.$mobile) {
       grid-template-columns: repeat(auto-fill, 100%);
     }
 
@@ -86,7 +92,7 @@
       justify-content: center;
       align-items: center;
 
-      @media screen and (max-width: $mobile) {
+      @media screen and (max-width: breakpoints.$mobile) {
         height: 130px;
       }
 
@@ -103,7 +109,7 @@
     &__sponsor-link {
       width: calc(100% - 60px);
       position: absolute;
-      bottom: $spacing-unit;
+      bottom: grid.$spacing-unit;
       display: block;
       text-align: center;
       margin-top: 0;
