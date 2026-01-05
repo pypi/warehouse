@@ -251,7 +251,6 @@ def test_includeme():
                     "default-src": ["'none'"],
                     "font-src": [
                         "'self'",
-                        "fonts.gstatic.com",
                     ],
                     "form-action": [
                         "'self'",
@@ -279,7 +278,6 @@ def test_includeme():
                     ],
                     "style-src": [
                         "'self'",
-                        "fonts.googleapis.com",
                         "*.ethicalads.io",
                         "'sha256-2YHqZokjiizkHi1Zt+6ar0XJ0OeEy/egBnlm+MDMtrM='",
                         "'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='",
