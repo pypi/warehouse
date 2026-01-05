@@ -252,7 +252,6 @@ def test_includeme():
                     "font-src": [
                         "'self'",
                         "fonts.gstatic.com",
-                        "https://fonts.cdnfonts.com",
                     ],
                     "form-action": [
                         "'self'",
@@ -273,7 +272,6 @@ def test_includeme():
                         "https://analytics.python.org",
                         "*.fastly-insights.com",
                         "*.ethicalads.io",
-                        "https://donate.python.org",
                         "'sha256-U3hKDidudIaxBDEzwGJApJgPEf2mWk6cfMWghrAa6i0='",
                         "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/",
                         "'sha256-1CldwzdEg2k1wTmf7s5RWVd7NMXI/7nxxjJM2C4DqII='",
@@ -283,8 +281,6 @@ def test_includeme():
                         "'self'",
                         "fonts.googleapis.com",
                         "*.ethicalads.io",
-                        "donate.python.org",
-                        "https://fonts.cdnfonts.com",
                         "'sha256-2YHqZokjiizkHi1Zt+6ar0XJ0OeEy/egBnlm+MDMtrM='",
                         "'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='",
                         "'sha256-JLEjeN9e5dGsz5475WyRaoA4eQOdNPxDIeUhclnJDCE='",
