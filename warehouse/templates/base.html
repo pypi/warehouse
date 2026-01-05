@@ -200,8 +200,6 @@
             integrity="sha256-U3hKDidudIaxBDEzwGJApJgPEf2mWk6cfMWghrAa6i0= sha384-UcmsCqcNRSLW/dV3Lo1oCi2/VaurXbib6p4HyUEOeIa/4OpsrnucrugAefzVZJfI sha512-q4t1L4xEjGV2R4hzqCa41P8jrgFUS8xTb8rdNv4FGvw7FpydVj/kkxBJHOiaoxHa8olCcx1Slk9K+3sNbsM4ug=="
             crossorigin="anonymous"></script>
     {% if devPyPI %}<script src="{{ request.registry.settings.get("livereload.url") }}/livereload.js"></script>{% endif %}
-    <script async
-            src="https://donate.python.org/fundraiser-banner/fundraiser-banner.js"></script>
   </head>
   <body data-controller="viewport-toggle"
         data-allowed-domains="{{ request.hashed_domains }}"
