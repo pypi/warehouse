@@ -1,0 +1,23 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+// Self-hosted fonts via Fontsource SCSS mixins
+
+@use "@fontsource/source-sans-3/scss/mixins" as source-sans-3 with (
+  $directory: "~@fontsource/source-sans-3/files"
+);
+
+@use "@fontsource/source-code-pro/scss/mixins" as source-code-pro with (
+  $directory: "~@fontsource/source-code-pro/files"
+);
+
+// Source Sans 3 - Main body font
+@include source-sans-3.faces(
+  $weights: (400, 600, 700),
+  $styles: (normal, italic)
+);
+
+// Source Code Pro - Monospace/code font
+@include source-code-pro.faces(
+  $weights: (500),
+  $styles: (normal)
+);

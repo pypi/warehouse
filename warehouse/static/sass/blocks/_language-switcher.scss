@@ -48,7 +48,7 @@
       @include link-utilities.link-without-underline;
 
       &::before {
-        font-family: "Font Awesome 6 Free";
+        font-family: fonts.$fa-font-family;
         font-weight: 900;
         content: "\f105"#{'/*rtl:"\f104"*/'};
         margin-right: 4px;

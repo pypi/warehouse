@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @use "../settings/colours";
+@use "../settings/fonts";
 
 /*
   List with check marks, with items divided by a borer:
@@ -21,7 +22,7 @@
     position: relative;
 
     &::before {
-      font-family: "Font Awesome 6 Free";
+      font-family: fonts.$fa-font-family;
       font-weight: 900;
       content: "\f00c";
       color: colours.$text-color;
