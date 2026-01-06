@@ -156,6 +156,7 @@ class TestCSPTween:
                 "frame-src": ["'none'"],
                 "img-src": ["'self'"],
                 "connect-src": [],
+                "style-src": ["'self'"],
             },
             "camo.url": "http://localhost:9000",
         }
@@ -177,7 +178,9 @@ class TestCSPTween:
                 "connect-src http://localhost:9000; "
                 "default-src 'none'; "
                 "frame-src https://inspector.pypi.io; "
-                "img-src 'self' data:"
+                "img-src 'self' data:; "
+                "style-src 'self' "
+                "'sha256-kwpt3lQZ21rs4cld7/uEm9qI5yAbjYzx+9FGm/XmwNU='"
             )
         }
 
