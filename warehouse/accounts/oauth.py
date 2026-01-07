@@ -10,12 +10,15 @@ from __future__ import annotations
 
 import secrets
 import urllib.parse
+import warnings
 
 from typing import TYPE_CHECKING, Self
 
 import requests
 
 from zope.interface import Interface, implementer
+
+from warehouse.utils.exceptions import NullOAuthProviderServiceWarning
 
 if TYPE_CHECKING:
     from pyramid.request import Request
@@ -177,7 +180,11 @@ class GitHubAppClient:
 @implementer(IOAuthProviderService)
 class NullOAuthClient:
     """
-    Null OAuth client for testing and development.
+    Null OAuth client for testing and development ONLY.
+
+    WARNING: This service should NEVER be used in production environments.
+    It creates fake user associations without any actual OAuth verification,
+    which would allow anyone to associate arbitrary external accounts.
 
     Returns mock data without making real OAuth requests.
     Useful for local development without configuring OAuth apps.
@@ -189,6 +196,13 @@ class NullOAuthClient:
         client_secret: str = "null",
         redirect_uri: str = "http://localhost",
     ):
+        warnings.warn(
+            "NullOAuthClient is intended only for use in development, "
+            "you should not use it in production due to the creation of "
+            "fake user associations without actual OAuth verification.",
+            NullOAuthProviderServiceWarning,
+        )
+
         self.client_id = client_id
         self.client_secret = client_secret
         self.redirect_uri = redirect_uri

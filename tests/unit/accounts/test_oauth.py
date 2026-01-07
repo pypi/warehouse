@@ -17,6 +17,7 @@ from warehouse.accounts.oauth import (
     NullOAuthClient,
     generate_state_token,
 )
+from warehouse.utils.exceptions import NullOAuthProviderServiceWarning
 
 
 class TestIOAuthProviderService:
@@ -194,6 +195,18 @@ class TestGitHubAppClient:
 
 
 class TestNullOAuthClient:
+    def test_warns_on_init(self):
+        with pytest.warns(NullOAuthProviderServiceWarning) as record:
+            client = NullOAuthClient(redirect_uri="http://localhost/callback")
+
+        assert client is not None
+        assert len(record) == 1
+        assert record[0].message.args[0] == (
+            "NullOAuthClient is intended only for use in development, "
+            "you should not use it in production due to the creation of "
+            "fake user associations without actual OAuth verification."
+        )
+
     def test_initialization(self):
         client = NullOAuthClient(redirect_uri="http://localhost/callback")
         assert client.client_id == "null"

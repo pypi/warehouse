@@ -353,6 +353,7 @@ def get_app_config(database, nondefaults=None):
         "oidc.jwk_cache_url": "redis://localhost:0/",
         "warehouse.oidc.audience": "pypi",
         "oidc.backend": "warehouse.oidc.services.NullOIDCPublisherService",
+        "github.oauth.backend": "warehouse.accounts.oauth.NullOAuthClient",
         "captcha.backend": "warehouse.captcha.hcaptcha.Service",
     }
 

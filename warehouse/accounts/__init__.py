@@ -147,10 +147,10 @@ def includeme(config):
     )
 
     # Register our GitHub App service for account associations.
-    # Default to NullOAuthClient for development/testing, override in production
-    # with GitHubAppClient for real GitHub App integration.
+    # Setting must be explicitly configured - use NullOAuthClient for development
+    # or GitHubAppClient for production with real GitHub App integration.
     github_app_class = config.maybe_dotted(
-        config.registry.settings.get("github.oauth.backend", NullOAuthClient)
+        config.registry.settings["github.oauth.backend"]
     )
     config.register_service_factory(
         github_app_class.create_service, IOAuthProviderService, name="github"
