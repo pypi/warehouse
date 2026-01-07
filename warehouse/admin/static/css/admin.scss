@@ -66,3 +66,10 @@
     cursor: help;
   }
 }
+
+/* Chart container for CSP-compliant Chart.js rendering */
+.chart-container {
+  position: relative;
+  height: 300px;
+  width: 100%;
+}

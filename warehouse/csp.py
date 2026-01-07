@@ -42,6 +42,10 @@ def content_security_policy_tween_factory(handler, registry):
             policy["img-src"].extend(["data:"])
             # Link checking
             policy["connect-src"].extend([request.registry.settings["camo.url"]])
+            # Chart.js v2.9.4 inline style for canvas sizing
+            policy["style-src"].extend(
+                ["'sha256-kwpt3lQZ21rs4cld7/uEm9qI5yAbjYzx+9FGm/XmwNU='"]
+            )
 
         # We don't want to apply our Content Security Policy to the debug
         # toolbar, that's not part of our application and it doesn't work with
