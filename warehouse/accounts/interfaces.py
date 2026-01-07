@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from datetime import datetime
-
 from zope.interface import Attribute, Interface
 
 from warehouse.rate_limiting.interfaces import RateLimiterException
@@ -249,44 +247,6 @@ class IUserService(Interface):
         """
         Add a record of end user being flashed about, notified of, viewing, or agreeing
         to a terms of service change.
-        """
-
-    def get_account_associations(user_id: str) -> list:
-        """
-        Return all AccountAssociation objects for the given user.
-        """
-
-    def get_account_association(association_id: str):
-        """
-        Return the AccountAssociation object for the given ID, or None.
-        """
-
-    def get_account_association_by_oauth_service(
-        user_id: str, service: str, external_user_id: str
-    ):
-        """
-        Return the AccountAssociation for a specific external account, or None.
-        """
-
-    def add_account_association(
-        user_id: str,
-        service: str,
-        external_user_id: str,
-        external_username: str,
-        **kwargs,
-    ):
-        """
-        Create a new account association.
-
-        Returns the created AccountAssociation object.
-        Raises ValueError if association already exists.
-        """
-
-    def delete_account_association(association_id: str) -> bool:
-        """
-        Delete an account association by ID.
-
-        Returns True if deleted, False if not found.
         """
 
 

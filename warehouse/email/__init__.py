@@ -1,9 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
-from __future__ import annotations
 
 import datetime
 import functools
-import typing
 
 from email.headerregistry import Address
 
@@ -23,11 +21,6 @@ from warehouse.email.services import EmailMessage
 from warehouse.email.ses.tasks import cleanup as ses_cleanup
 from warehouse.events.tags import EventTag
 from warehouse.metrics.interfaces import IMetricsService
-
-if typing.TYPE_CHECKING:
-    from pyramid.request import Request
-
-    from warehouse.accounts.models import User
 
 
 def _compute_recipient(user, email):
@@ -135,12 +128,12 @@ def _send_email_to_user(
 
 
 def _email(
-    name: str,
+    name,
     *,
-    allow_unverified: bool = False,
-    repeat_window: int | None = None,
-    override_from: str | None = None,
-) -> typing.Callable:
+    allow_unverified=False,
+    repeat_window=None,
+    override_from=None,
+):
     """
     This decorator is used to turn an e function into an email sending function!
 
@@ -1061,36 +1054,6 @@ def send_wheel_record_mismatch_email(request, users, project_name, filename):
     return {
         "project_name": project_name,
         "filename": filename,
-    }
-
-
-@_email("account-association-added")
-def send_account_association_added_email(
-    request: Request,
-    user: User,
-    *,
-    service: str,
-    external_username: str,
-) -> dict[str, str]:
-    return {
-        "username": user.username,
-        "service": service,
-        "external_username": external_username,
-    }
-
-
-@_email("account-association-removed")
-def send_account_association_removed_email(
-    request: Request,
-    user: User,
-    *,
-    service: str,
-    external_username: str,
-) -> dict[str, str]:
-    return {
-        "username": user.username,
-        "service": service,
-        "external_username": external_username,
     }
 
 

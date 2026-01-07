@@ -268,10 +268,6 @@ class ManageUnverifiedAccountViews(ManageAccountMixin):
 @lift()
 class ManageVerifiedAccountViews(ManageAccountMixin):
     @property
-    def account_associations(self):
-        return self.user_service.get_account_associations(self.request.user.id)
-
-    @property
     def active_projects(self):
         return user_projects(request=self.request)["projects_sole_owned"]
 
@@ -294,7 +290,6 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
                 user_service=self.user_service,
                 breach_service=self.breach_service,
             ),
-            "account_associations": self.account_associations,
             "active_projects": self.active_projects,
         }
 

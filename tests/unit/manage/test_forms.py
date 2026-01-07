@@ -13,7 +13,6 @@ from warehouse.accounts.models import ProhibitedEmailDomain
 from warehouse.manage import forms
 
 from ...common.constants import REMOTE_ADDR
-from ...common.db.accounts import OAuthAccountAssociationFactory, UserFactory
 from ...common.db.organizations import OrganizationFactory
 from ...common.db.packaging import ProjectFactory
 
@@ -1105,97 +1104,3 @@ class TestCreateTeamForm:
         # NOTE(jleightcap): testing with Regexp validators returns raw LazyString
         # objects in the error dict's values. Just assert on keys.
         assert list(form.errors.keys()) == errors
-
-
-class TestDeleteAccountAssociationForm:
-    def test_validate_association_id_valid(self, db_request):
-        user = UserFactory.create()
-        association = OAuthAccountAssociationFactory.create(user=user)
-
-        user_service = pretend.stub(
-            get_account_association=pretend.call_recorder(lambda _: association)
-        )
-
-        form = forms.DeleteAccountAssociationForm(
-            MultiDict({"association_id": str(association.id)}),
-            user_service=user_service,
-            user_id=str(user.id),
-        )
-
-        assert form.validate()
-        assert form.association == association
-        assert user_service.get_account_association.calls == [
-            pretend.call(str(association.id))
-        ]
-
-    def test_validate_association_id_missing(self):
-        user_service = pretend.stub()
-
-        form = forms.DeleteAccountAssociationForm(
-            MultiDict({}), user_service=user_service, user_id="some-user-id"
-        )
-
-        assert not form.validate()
-        assert "association_id" in form.errors
-        assert form.errors["association_id"][0] == "Specify an association ID"
-
-    def test_validate_association_id_invalid_uuid(self):
-        user_service = pretend.stub(
-            get_account_association=pretend.call_recorder(lambda _: None)
-        )
-
-        form = forms.DeleteAccountAssociationForm(
-            MultiDict({"association_id": "not-a-uuid"}),
-            user_service=user_service,
-            user_id="some-user-id",
-        )
-
-        assert not form.validate()
-        assert "association_id" in form.errors
-        assert form.errors["association_id"][0] == "Association must be specified by ID"
-
-    def test_validate_association_id_not_found(self):
-        user_service = pretend.stub(
-            get_account_association=pretend.call_recorder(lambda _: None)
-        )
-
-        association_id = "12345678-1234-1234-1234-123456789012"
-        form = forms.DeleteAccountAssociationForm(
-            MultiDict({"association_id": association_id}),
-            user_service=user_service,
-            user_id="some-user-id",
-        )
-
-        assert not form.validate()
-        assert "association_id" in form.errors
-        assert (
-            form.errors["association_id"][0] == "No account association with given ID"
-        )
-        assert user_service.get_account_association.calls == [
-            pretend.call(association_id)
-        ]
-
-    def test_validate_association_id_wrong_user(self, db_request):
-        user = UserFactory.create()
-        other_user = UserFactory.create()
-        association = OAuthAccountAssociationFactory.create(user=other_user)
-
-        user_service = pretend.stub(
-            get_account_association=pretend.call_recorder(lambda _: association)
-        )
-
-        form = forms.DeleteAccountAssociationForm(
-            MultiDict({"association_id": str(association.id)}),
-            user_service=user_service,
-            user_id=str(user.id),
-        )
-
-        assert not form.validate()
-        assert "association_id" in form.errors
-        assert (
-            form.errors["association_id"][0]
-            == "This association does not belong to you"
-        )
-        assert user_service.get_account_association.calls == [
-            pretend.call(str(association.id))
-        ]
