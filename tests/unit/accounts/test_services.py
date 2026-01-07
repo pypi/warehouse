@@ -46,6 +46,7 @@ from warehouse.rate_limiting.interfaces import IRateLimiter
 from ...common.constants import REMOTE_ADDR
 from ...common.db.accounts import (
     EmailFactory,
+    OAuthAccountAssociationFactory,
     UserFactory,
     UserTermsOfServiceEngagementFactory,
     UserUniqueLoginFactory,
@@ -1441,6 +1442,146 @@ class TestDatabaseUserService:
             )
             .count()
         ) == 1
+
+    def test_get_account_associations(self, user_service):
+        user = UserFactory.create()
+        # Create multiple associations
+        assoc1 = OAuthAccountAssociationFactory.create(
+            user=user, service="github", external_user_id="123"
+        )
+        assoc2 = OAuthAccountAssociationFactory.create(
+            user=user, service="github", external_user_id="456"
+        )
+        # Create association for different user (should not be returned)
+        other_user = UserFactory.create()
+        OAuthAccountAssociationFactory.create(user=other_user, service="github")
+
+        associations = user_service.get_account_associations(str(user.id))
+
+        assert len(associations) == 2
+        # Verify both associations are returned (order may vary due to same timestamps)
+        assoc_ids = {assoc.id for assoc in associations}
+        assert assoc_ids == {assoc1.id, assoc2.id}
+
+    def test_get_account_associations_empty(self, user_service):
+        user = UserFactory.create()
+
+        associations = user_service.get_account_associations(str(user.id))
+
+        assert associations == []
+
+    def test_get_account_association(self, user_service):
+        user = UserFactory.create()
+        assoc = OAuthAccountAssociationFactory.create(user=user)
+
+        result = user_service.get_account_association(str(assoc.id))
+
+        assert result is not None
+        assert result.id == assoc.id
+        assert result.user == user
+
+    def test_get_account_association_not_found(self, user_service):
+        import uuid
+
+        result = user_service.get_account_association(str(uuid.uuid4()))
+
+        assert result is None
+
+    def test_get_account_association_by_service(self, user_service):
+        user = UserFactory.create()
+        assoc = OAuthAccountAssociationFactory.create(
+            user=user, service="github", external_user_id="123"
+        )
+        # Create another association with different external_user_id
+        OAuthAccountAssociationFactory.create(
+            user=user, service="github", external_user_id="456"
+        )
+
+        result = user_service.get_account_association_by_oauth_service(
+            str(user.id), "github", "123"
+        )
+
+        assert result is not None
+        assert result.id == assoc.id
+        assert result.external_user_id == "123"
+
+    def test_get_account_association_by_service_not_found(self, user_service):
+        user = UserFactory.create()
+
+        result = user_service.get_account_association_by_oauth_service(
+            str(user.id), "github", "999"
+        )
+
+        assert result is None
+
+    def test_add_account_association_minimal(self, user_service):
+        user = UserFactory.create()
+
+        association = user_service.add_account_association(
+            user_id=str(user.id),
+            service="github",
+            external_user_id="123",
+            external_username="testuser",
+        )
+
+        assert association.id is not None
+        assert association.user == user
+        assert association.service == "github"
+        assert association.external_user_id == "123"
+        assert association.external_username == "testuser"
+        # metadata_ defaults to empty dict
+        assert association.metadata_ == {}
+
+    def test_add_account_association_with_metadata(self, user_service):
+        user = UserFactory.create()
+
+        metadata = {"email": "test@example.com", "avatar_url": "https://..."}
+        association = user_service.add_account_association(
+            user_id=str(user.id),
+            service="github",
+            external_user_id="123",
+            external_username="testuser",
+            metadata=metadata,
+        )
+
+        assert association.metadata_ == metadata
+
+    def test_add_account_association_duplicate(self, user_service):
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+
+        # User1 creates an association
+        user_service.add_account_association(
+            user_id=str(user1.id),
+            service="github",
+            external_user_id="123",
+            external_username="testuser",
+        )
+
+        # User2 tries to associate the same external account - should raise ValueError
+        with pytest.raises(ValueError, match="already associated"):
+            user_service.add_account_association(
+                user_id=str(user2.id),
+                service="github",
+                external_user_id="123",
+                external_username="testuser",
+            )
+
+    def test_delete_account_association(self, user_service, db_request):
+        user = UserFactory.create()
+        assoc = OAuthAccountAssociationFactory.create(user=user)
+        assoc_id = str(assoc.id)
+
+        result = user_service.delete_account_association(assoc_id)
+
+        assert result is True
+        # Verify it's actually deleted
+        assert user_service.get_account_association(assoc_id) is None
+
+    def test_delete_account_association_not_found(self, user_service):
+        result = user_service.delete_account_association(str(uuid.uuid4()))
+
+        assert result is False
 
 
 class TestTokenService:
