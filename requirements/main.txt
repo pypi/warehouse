@@ -577,9 +577,9 @@ deprecated==1.3.1 \
     --hash=sha256:597bfef186b6f60181535a29fbe44865ce137a5079f295b479886c82729d5f3f \
     --hash=sha256:b1b50e0ff0c1fddaa5708a2c6b0a6588bb09b892825ab2b214ac9ea9d92a5223
     # via limits
-disposable-email-domains==0.0.153 \
-    --hash=sha256:08f616bb49777299b554c45a87ef7877a47270a8e380fd1c4bab34f2b9046551 \
-    --hash=sha256:6f80bf38a04c478f25279f9ed4cc7b3c93b666f213bdaaf6d77a9892b167995d
+disposable-email-domains==0.0.154 \
+    --hash=sha256:3e60de1095c26148882e964578ef9822de6fa0e227f2aa146beb90344b791c47 \
+    --hash=sha256:7ad96801396342eb1714aa75727f7e81c52147a192a4fcb1b4190217b6675476
     # via -r requirements/main.in
 dnspython==2.8.0 \
     --hash=sha256:01d9bbc4a2d76bf0db7c1f729812ded6d912bd318d3b1cf81d30c0f845dbf3af \
@@ -628,9 +628,9 @@ google-auth==2.45.0 \
     #   google-cloud-bigquery
     #   google-cloud-core
     #   google-cloud-storage
-google-cloud-bigquery==3.39.0 \
-    --hash=sha256:cb375e1d63dea9bd5bf735e66024338f294159d43afdf63e1d023f5fcbbf55ea \
-    --hash=sha256:dc7a64921465859105461b43c42562e38e797d7a73feb72b3cfc4865b7b1c5ef
+google-cloud-bigquery==3.40.0 \
+    --hash=sha256:0469bcf9e3dad3cab65b67cce98180c8c0aacf3253d47f0f8e976f299b49b5ab \
+    --hash=sha256:b3ccb11caf0029f15b29569518f667553fe08f6f1459b959020c83fbbd8f2e68
     # via -r requirements/main.in
 google-cloud-core==2.5.0 \
     --hash=sha256:67d977b41ae6c7211ee830c7912e41003ea8194bff15ae7d72fd6f51e57acabc \
@@ -961,9 +961,9 @@ jmespath==1.0.1 \
     # via
     #   boto3
     #   botocore
-jsonschema==4.25.1 \
-    --hash=sha256:3fba0169e345c7175110351d456342c364814cfcf3b964ba4587f22915230a63 \
-    --hash=sha256:e4a9655ce0da0c0b67a085847e00a3a51449e1157f4f75e9fb5aa545e122eb85
+jsonschema==4.26.0 \
+    --hash=sha256:0c26707e2efad8aa1bfc5b7ce170f3fccc2e4918ff85989ba9ffa9facb2be326 \
+    --hash=sha256:d489f15263b8d200f8387e64b4c3a75f06629559fb73deb8fdfb525f2dab50ce
     # via
     #   openapi-core
     #   openapi-schema-validator

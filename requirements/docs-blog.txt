@@ -410,9 +410,9 @@ mkdocs-material-extensions==1.3.1 \
     --hash=sha256:10c9511cea88f568257f960358a467d12b970e1f7b2c0e5fb2bb48cab1928443 \
     --hash=sha256:adff8b62700b25cb77b53358dad940f3ef973dd6db797907c49e3c2ef3ab4e31
     # via mkdocs-material
-mkdocs-rss-plugin==1.17.7 \
-    --hash=sha256:17b7b78c2c0b6418b83644b701867d5b2c48ecf069609917250b829bd4c3a718 \
-    --hash=sha256:6903f85e75ee976ae5f21eb05a54fa4d848bc246a227523945eaf6be7580c930
+mkdocs-rss-plugin==1.17.9 \
+    --hash=sha256:1c30b192a73a46714c3c5f2f1fbc4b15850ed719106eb241de99891adb7e6258 \
+    --hash=sha256:7aaa607d0a19f03343e83f4ee1b193e1d6f5af19b853546878c4b57fe406e0c4
     # via -r requirements/docs-blog.in
 msgpack==1.1.2 \
     --hash=sha256:0051fffef5a37ca2cd16978ae4f0aef92f164df86823871b5162812bebecd8e2 \
@@ -486,9 +486,9 @@ paginate==0.5.7 \
     --hash=sha256:22bd083ab41e1a8b4f3690544afb2c60c25e5c9a63a30fa2f483f6c60c8e5945 \
     --hash=sha256:b885e2af73abcf01d9559fd5216b57ef722f8c42affbb63942377668e35c7591
     # via mkdocs-material
-pathspec==0.12.1 \
-    --hash=sha256:a0d503e138a4c123b27490a4f7beda6a01c6f288df0e4a8b79c7eb0dc7b4cc08 \
-    --hash=sha256:a482d51503a1ab33b1c67a6c3813a26953dbdc71c31dacaef9a838c4e29f5712
+pathspec==1.0.2 \
+    --hash=sha256:62f8558917908d237d399b9b338ef455a814801a4688bc41074b25feefd93472 \
+    --hash=sha256:fa32b1eb775ed9ba8d599b22c5f906dc098113989da2c00bf8b210078ca7fb92
     # via mkdocs
 pillow==12.1.0 \
     --hash=sha256:00162e9ca6d22b7c3ee8e61faa3c3253cd19b6a37f126cad04f2f88b306f557d \
