@@ -23,7 +23,8 @@ class TestClassifyObservation:
             (None, "some-uuid", "pending"),  # project exists
             (None, None, "true_positive"),  # project removed
             ({}, "some-uuid", "pending"),  # empty actions, project exists
-            # Single action cases
+            ({}, None, "true_positive"),  # empty actions, project removed
+            # Single action cases - project exists
             (
                 {123: {"action": "remove_malware", "actor": "admin"}},
                 "some-uuid",
@@ -38,6 +39,24 @@ class TestClassifyObservation:
                 {123: {"action": "some_other_action", "actor": "admin"}},
                 "some-uuid",
                 "pending",
+            ),
+            # Project removed cases - removal takes precedence
+            (
+                {123: {"action": "remove_malware", "actor": "admin"}},
+                None,
+                "true_positive",
+            ),
+            # Key case: verdict_not_malware but project later removed for other reason
+            # Observer should NOT be penalized - they correctly identified a problem
+            (
+                {123: {"action": "verdict_not_malware", "actor": "admin"}},
+                None,
+                "true_positive",
+            ),
+            (
+                {123: {"action": "some_other_action", "actor": "admin"}},
+                None,
+                "true_positive",
             ),
             # Precedence: remove_malware wins over verdict_not_malware
             (
