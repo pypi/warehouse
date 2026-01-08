@@ -30,7 +30,7 @@ cairocffi==1.7.1 \
 cairosvg==2.8.2 \
     --hash=sha256:07cbf4e86317b27a92318a4cac2a4bb37a5e9c1b8a27355d06874b22f85bef9f \
     --hash=sha256:eab46dad4674f33267a671dce39b64be245911c901c70d65d2b7b0821e852bf5
-    # via -r requirements/docs-blog.in
+    # via -r docs-blog.in
 certifi==2026.1.4 \
     --hash=sha256:9943707519e4add1115f44c2bc244f782c0249876bf51b6599fee1ffbedd685c \
     --hash=sha256:ac726dd470482006e014ad384921ed6438c457018f4b3d204aea4281258b2120
@@ -381,7 +381,7 @@ markupsafe==3.0.3 \
 material-plausible-plugin==0.3.0 \
     --hash=sha256:31c872608bfa4e94ef05c128f7bf1e476c55b0576ba418a983977a75216d10cc \
     --hash=sha256:4e1cbaf0eef86dbd34fafa2f25830960416c989f80e0b1d1fabceed6cf6b40aa
-    # via -r requirements/docs-blog.in
+    # via -r docs-blog.in
 mergedeep==1.3.4 \
     --hash=sha256:0096d52e9dad9939c3d975a774666af186eda617e6ca84df4c94dec30004f2a8 \
     --hash=sha256:70775750742b25c0d8f36c55aed03d24c3384d17c951b3175d898bd778ef0307
@@ -392,7 +392,7 @@ mkdocs==1.6.1 \
     --hash=sha256:7b432f01d928c084353ab39c57282f29f92136665bdd6abf7c1ec8d822ef86f2 \
     --hash=sha256:db91759624d1647f3f34aa0c3f327dd2601beae39a366d6e064c03468d35c20e
     # via
-    #   -r requirements/docs-blog.in
+    #   -r docs-blog.in
     #   material-plausible-plugin
     #   mkdocs-material
     #   mkdocs-rss-plugin
@@ -404,7 +404,7 @@ mkdocs-material==9.7.1 \
     --hash=sha256:3f6100937d7d731f87f1e3e3b021c97f7239666b9ba1151ab476cabb96c60d5c \
     --hash=sha256:89601b8f2c3e6c6ee0a918cc3566cb201d40bf37c3cd3c2067e26fadb8cce2b8
     # via
-    #   -r requirements/docs-blog.in
+    #   -r docs-blog.in
     #   material-plausible-plugin
 mkdocs-material-extensions==1.3.1 \
     --hash=sha256:10c9511cea88f568257f960358a467d12b970e1f7b2c0e5fb2bb48cab1928443 \
@@ -413,7 +413,7 @@ mkdocs-material-extensions==1.3.1 \
 mkdocs-rss-plugin==1.17.7 \
     --hash=sha256:17b7b78c2c0b6418b83644b701867d5b2c48ecf069609917250b829bd4c3a718 \
     --hash=sha256:6903f85e75ee976ae5f21eb05a54fa4d848bc246a227523945eaf6be7580c930
-    # via -r requirements/docs-blog.in
+    # via -r docs-blog.in
 msgpack==1.1.2 \
     --hash=sha256:0051fffef5a37ca2cd16978ae4f0aef92f164df86823871b5162812bebecd8e2 \
     --hash=sha256:04fb995247a6e83830b62f0b07bf36540c213f6eac8e851166d8d86d83cbd014 \
@@ -583,7 +583,7 @@ pillow==12.1.0 \
     --hash=sha256:f61333d817698bdcdd0f9d7793e365ac3d2a21c1f1eb02b32ad6aefb8d8ea831 \
     --hash=sha256:fb125d860738a09d363a88daa0f59c4533529a90e564785e20fe875b200b6dbd
     # via
-    #   -r requirements/docs-blog.in
+    #   -r docs-blog.in
     #   cairosvg
 platformdirs==4.5.1 \
     --hash=sha256:61d5cdcc6065745cdd94f0f878977f8de9437be93de97c1c12f853c9c0cdcbda \
@@ -709,9 +709,9 @@ tinycss2==1.5.1 \
     # via
     #   cairosvg
     #   cssselect2
-urllib3==2.6.2 \
-    --hash=sha256:016f9c98bb7e98085cb2b4b17b87d2c702975664e4f060c6532e64d1c1a5e797 \
-    --hash=sha256:ec21cddfe7724fc7cb4ba4bea7aa8e2ef36f607a4bab81aa6ce42a13dc3f03dd
+urllib3==2.6.3 \
+    --hash=sha256:1b62b6884944a57dbe321509ab94fd4d3b307075e0c2eae991ac71ee15ad38ed \
+    --hash=sha256:bf272323e553dfb2e87d9bfd225ca7b0f467b919d7bbd355436d3fd37cb0acd4
     # via requests
 watchdog==6.0.0 \
     --hash=sha256:07df1fdd701c5d4c8e55ef6cf55b8f0120fe1aef7ef39a1c6fc6bc2e606d517a \

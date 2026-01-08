@@ -32,11 +32,11 @@ black==25.12.0 \
     --hash=sha256:d0cfa263e85caea2cff57d8f917f9f51adae8e20b610e2b23de35b5b11ce691a \
     --hash=sha256:d3e1b65634b0e471d07ff86ec338819e2ef860689859ef4501ab7ac290431f9b \
     --hash=sha256:f85ba1ad15d446756b4ab5f3044731bf68b777f8f9ac9cdabd2425b97cd9c4e8
-    # via -r requirements/lint.in
+    # via -r lint.in
 boto3-stubs==1.40.56 \
     --hash=sha256:638398e9b58769db8d050f93cd81aab8213e6a617f13dcd1632c4b09c870c732 \
     --hash=sha256:e5644523eff7f50bade5e9f4a24544b40f849e9051949e3501203a20627f4263
-    # via -r requirements/lint.in
+    # via -r lint.in
 botocore-stubs==1.40.56 \
     --hash=sha256:aa9535b8a0f7135b062504e39e7cbc83fb3f00b2d4dc2baba6170436b494b696 \
     --hash=sha256:e6494eef30a5979e8f270f058bd81bc803641fa0ea97414b53c7f0e52d82d227
@@ -44,7 +44,7 @@ botocore-stubs==1.40.56 \
 celery-types==0.23.0 \
     --hash=sha256:0cc495b8d7729891b7e070d0ec8d4906d2373209656a6e8b8276fe1ed306af9a \
     --hash=sha256:402ed0555aea3cd5e1e6248f4632e4f18eec8edb2435173f9e6dc08449fa101e
-    # via -r requirements/lint.in
+    # via -r lint.in
 cffi==2.0.0 \
     --hash=sha256:00bdf7acc5f795150faa6957054fbbca2439db2f775ce831222b66f192f03beb \
     --hash=sha256:07b271772c100085dd28b74fa0cd81c8fb1a3ba18b21e03d7c27f3436a10606b \
@@ -226,7 +226,7 @@ djlint==1.36.4 \
     --hash=sha256:e9699b8ac3057a6ed04fb90835b89bee954ed1959c01541ce4f8f729c938afdd \
     --hash=sha256:ead475013bcac46095b1bbc8cf97ed2f06e83422335734363f8a76b4ba7e47c2 \
     --hash=sha256:ff9faffd7d43ac20467493fa71d5355b5b330a00ade1c4d1e859022f4195223b
-    # via -r requirements/lint.in
+    # via -r lint.in
 editorconfig==0.17.1 \
     --hash=sha256:1eda9c2c0db8c16dbd50111b710572a5e6de934e39772de1959d41f64fc17c82 \
     --hash=sha256:23c08b00e8e08cc3adcddb825251c497478df1dada6aefeb01e626ad37303745
@@ -237,7 +237,7 @@ flake8==7.3.0 \
     --hash=sha256:b9696257b9ce8beb888cdbe31cf885c90d31928fe202be0889a7cdafad32f01e \
     --hash=sha256:fe044858146b9fc69b551a4b490d69cf960fcb78ad1edcb84e7fbb1b4a8e3872
     # via
-    #   -r requirements/lint.in
+    #   -r lint.in
     #   pep8-naming
 flake8-plugin-utils==1.3.3 \
     --hash=sha256:39f6f338d038b301c6fd344b06f2e81e382b68fa03c0560dff0d9b1791a11a2c \
@@ -246,11 +246,11 @@ flake8-plugin-utils==1.3.3 \
 flake8-pytest-style==2.2.0 \
     --hash=sha256:d01c4198a6c4e0ab759a92a0fa7710f10d83ec28e32a50ab6fb2e10f973a2f36 \
     --hash=sha256:d23a33294bccfb9f1b11aaf5212256727b299b9c9b17cf21e230c52c1095a468
-    # via -r requirements/lint.in
+    # via -r lint.in
 isort==7.0.0 \
     --hash=sha256:1bcabac8bc3c36c7fb7b98a76c8abb18e0f841a3ba81decac7691008592499c1 \
     --hash=sha256:5513527951aadb3ac4292a41a16cbc50dd1642432f5e8c20057d414bdafb4187
-    # via -r requirements/lint.in
+    # via -r lint.in
 jsbeautifier==1.15.4 \
     --hash=sha256:5bb18d9efb9331d825735fbc5360ee8f1aac5e52780042803943aa7f854f7592 \
     --hash=sha256:72f65de312a3f10900d7685557f84cb61a9733c50dcc27271a39f5b0051bf528
@@ -501,7 +501,7 @@ msgpack==1.1.2 \
 msgpack-types==0.5.0 \
     --hash=sha256:8b633ed75e495a555fa0615843de559a74b1d176828d59bb393d266e51f6bda7 \
     --hash=sha256:aebd1b8da23f8f9966d66ebb1a43bd261b95751c6a267bd21a124d2ccac84201
-    # via -r requirements/lint.in
+    # via -r lint.in
 mypy==1.19.1 \
     --hash=sha256:016f2246209095e8eda7538944daa1d60e1e8134d98983b9fc1e92c1fc0cb8dd \
     --hash=sha256:022ea7279374af1a5d78dfcab853fe6a536eebfda4b59deab53cd21f6cd9f00b \
@@ -542,7 +542,7 @@ mypy==1.19.1 \
     --hash=sha256:f859fb09d9583a985be9a493d5cfc5515b56b08f7447759a0c5deaf68d80506e \
     --hash=sha256:ffcebe56eb09ff0c0885e750036a095e23793ba6c2e894e7e63f6d89ad51f22e
     # via
-    #   -r requirements/lint.in
+    #   -r lint.in
     #   mypy-zope
 mypy-extensions==1.1.0 \
     --hash=sha256:1be4cccdb0f2482337c4743e60421de3a356cd97508abadd57d47403e94f5505 \
@@ -553,7 +553,7 @@ mypy-extensions==1.1.0 \
 mypy-zope==1.0.14 \
     --hash=sha256:42555ad4703f2e50c912de3ebe0c7197619c3f71864817fabc5385ecea0f8449 \
     --hash=sha256:8842ade93630421dbec0c9906d6515f6e65c6407ef8b9b2eb7f4f73ae1e8a42a
-    # via -r requirements/lint.in
+    # via -r lint.in
 packaging==25.0 \
     --hash=sha256:29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484 \
     --hash=sha256:d443872c98d677bf60f6a1f2f8c1cb748e8fe762d2bf9d3148b5599295b0fc4f
@@ -568,7 +568,7 @@ pathspec==0.12.1 \
 pep8-naming==0.15.1 \
     --hash=sha256:eb63925e7fd9e028c7f7ee7b1e413ec03d1ee5de0e627012102ee0222c273c86 \
     --hash=sha256:f6f4a499aba2deeda93c1f26ccc02f3da32b035c8b2db9696b730ef2c9639d29
-    # via -r requirements/lint.in
+    # via -r lint.in
 platformdirs==4.5.1 \
     --hash=sha256:61d5cdcc6065745cdd94f0f878977f8de9437be93de97c1c12f853c9c0cdcbda \
     --hash=sha256:d03afa3963c806a9bed9d5125c8f4cb2fdaf74a55ab60e5d59b3fde758104d31
@@ -596,7 +596,7 @@ pytokens==0.3.0 \
 pyupgrade==3.21.2 \
     --hash=sha256:1a361bea39deda78d1460f65d9dd548d3a36ff8171d2482298539b9dc11c9c06 \
     --hash=sha256:2ac7b95cbd176475041e4dfe8ef81298bd4654a244f957167bd68af37d52be9f
-    # via -r requirements/lint.in
+    # via -r lint.in
 pyyaml==6.0.3 \
     --hash=sha256:00c4bdeba853cc34e7dd471f16b4114f4162dc03e6b7afcc2128711f0eca823c \
     --hash=sha256:0150219816b6a1fa26fb4699fb7daa9caf09eb1999f3b70fb6e786805e80375a \
@@ -800,7 +800,7 @@ six==1.17.0 \
 sphinx-lint==1.0.2 \
     --hash=sha256:4e7fc12f44f750b0006eaad237d7db9b1d8aba92adda9c838af891654b371d35 \
     --hash=sha256:edcd0fa4d916386c5a3ef7ef0f5136f0bb4a15feefc83c1068ba15bc16eec652
-    # via -r requirements/lint.in
+    # via -r lint.in
 tokenize-rt==6.2.0 \
     --hash=sha256:8439c042b330c553fdbe1758e4a05c0ed460dbbbb24a606f11f0dee75da4cad6 \
     --hash=sha256:a152bf4f249c847a66497a4a95f63376ed68ac6abf092a2f7cfb29d044ecff44
@@ -816,11 +816,11 @@ types-awscrt==0.30.0 \
 types-babel==2.11.0.15 \
     --hash=sha256:282c184c8c9d81e8269212c1b8fa0d39ee88fb8bc43be47980412781c9c85f7e \
     --hash=sha256:d0579f2e8adeaef3fbe2eb63e5a2ecf01767fc018e5f3f36a3c9d8b723bd62c7
-    # via -r requirements/lint.in
+    # via -r lint.in
 types-certifi==2021.10.8.3 \
     --hash=sha256:72cf7798d165bc0b76e1c10dd1ea3097c7063c42c21d664523b928e88b554a4f \
     --hash=sha256:b2d1e325e69f71f7c78e5943d410e650b4707bb0ef32e4ddf3da37f54176e88a
-    # via -r requirements/lint.in
+    # via -r lint.in
 types-cffi==1.17.0.20250915 \
     --hash=sha256:4362e20368f78dabd5c56bca8004752cc890e07a71605d9e0d9e069dbaac8c06 \
     --hash=sha256:cef4af1116c83359c11bb4269283c50f0688e9fc1d7f0eeb390f3661546da52c
@@ -828,19 +828,19 @@ types-cffi==1.17.0.20250915 \
 types-first==2.0.5.20240806 \
     --hash=sha256:11e3eba5bfc294be7afc6cea00be69cb20244674df117aa67648dcbd26c96766 \
     --hash=sha256:d630f9e7f4816731ec05389ccea80d7668cbf879a9c3fade9e5ad3aa6cece27c
-    # via -r requirements/lint.in
+    # via -r lint.in
 types-html5lib==1.1.11.20251117 \
     --hash=sha256:1a6a3ac5394aa12bf547fae5d5eff91dceec46b6d07c4367d9b39a37f42f201a \
     --hash=sha256:2a3fc935de788a4d2659f4535002a421e05bea5e172b649d33232e99d4272d08
-    # via -r requirements/lint.in
+    # via -r lint.in
 types-itsdangerous==1.1.6 \
     --hash=sha256:21c6966c10e353a5d35d36c82aaa2c5598d3bc32ddc8e0591276da5ad2e3c638 \
     --hash=sha256:aef2535c2fa0527dcce244ece0792b20ec02ee46533800735275f82a45a0244d
-    # via -r requirements/lint.in
+    # via -r lint.in
 types-passlib==1.7.7.20250602 \
     --hash=sha256:cf2350e78d36b6b09e4db44284d96651b57285f499cfabf111b616065abab7b3 \
     --hash=sha256:ed73a91be9a22484ebd62cc0d127675ded542b892b99776db92dab760bbfe274
-    # via -r requirements/lint.in
+    # via -r lint.in
 types-pyopenssl==24.1.0.20240722 \
     --hash=sha256:47913b4678a01d879f503a12044468221ed8576263c1540dcb0484ca21b08c39 \
     --hash=sha256:6a7a5d2ec042537934cfb4c9d4deb0e16c4c6250b09358df1f083682fe6fda54
@@ -848,21 +848,21 @@ types-pyopenssl==24.1.0.20240722 \
 types-python-slugify==8.0.2.20240310 \
     --hash=sha256:0efec18b802c69ebd22dcee55c91afaeaa80e1e40ddd66ccabf69fd42ce87b74 \
     --hash=sha256:5157b508c7fed587520c70d77f62aea0fafdc6620893c2ec8972f13a1faf5560
-    # via -r requirements/lint.in
+    # via -r lint.in
 types-pytz==2025.2.0.20251108 \
     --hash=sha256:0f1c9792cab4eb0e46c52f8845c8f77cf1e313cb3d68bf826aa867fe4717d91c \
     --hash=sha256:fca87917836ae843f07129567b74c1929f1870610681b4c92cb86a3df5817bdb
     # via
-    #   -r requirements/lint.in
+    #   -r lint.in
     #   types-babel
 types-redis==4.6.0.20241004 \
     --hash=sha256:5f17d2b3f9091ab75384153bfa276619ffa1cf6a38da60e10d5e6749cc5b902e \
     --hash=sha256:ef5da68cb827e5f606c8f9c0b49eeee4c2669d6d97122f301d3a55dc6a63f6ed
-    # via -r requirements/lint.in
+    # via -r lint.in
 types-requests==2.32.4.20250913 \
     --hash=sha256:78c9c1fffebbe0fa487a418e0fa5252017e9c60d1a2da394077f1780f655d7e1 \
     --hash=sha256:abd6d4f9ce3a9383f269775a9835a4c24e5cd6b9f647d64f88aa4613c33def5d
-    # via -r requirements/lint.in
+    # via -r lint.in
 types-s3transfer==0.16.0 \
     --hash=sha256:1c0cd111ecf6e21437cb410f5cddb631bfb2263b77ad973e79b9c6d0cb24e0ef \
     --hash=sha256:b4636472024c5e2b62278c5b759661efeb52a81851cde5f092f24100b1ecb443
@@ -876,7 +876,7 @@ types-setuptools==80.9.0.20251223 \
 types-stripe==3.5.2.20240106 \
     --hash=sha256:63a36958f0dc4a71685b027f0b6d807ff197ee337135ac19a0f8b6132365ca52 \
     --hash=sha256:9ea7bc9b9889a3d8606114c52dcc70a8fc62d44a46da4bc5ee19f0d463674bb8
-    # via -r requirements/lint.in
+    # via -r lint.in
 types-webencodings==0.5.0.20251108 \
     --hash=sha256:2378e2ceccced3d41bb5e21387586e7b5305e11519fc6b0659c629f23b2e5de4 \
     --hash=sha256:e21f81ff750795faffddaffd70a3d8bfff77d006f22c27e393eb7812586249d8
@@ -884,15 +884,15 @@ types-webencodings==0.5.0.20251108 \
 types-webob==1.8.0.20250822 \
     --hash=sha256:d11fcfc7d3f210dc45014100b3b68134dcda84f02d421d7593692603b8ef7e2f \
     --hash=sha256:d3ed709800a601e3bd7ad352e54d85ad9ddbd8ad90ecacc1595c722d2e7709ea
-    # via -r requirements/lint.in
+    # via -r lint.in
 types-wtforms==3.2.1.20250809 \
     --hash=sha256:9108399333be3bde66179f69a610a5d05c25485024f698d5adc3f6a9df20d029 \
     --hash=sha256:d254cf027c6725e21ad50044da692d57586dd29f38abd3a6b4ec10993f6741cc
-    # via -r requirements/lint.in
+    # via -r lint.in
 types-zxcvbn==4.5.0.20250809 \
     --hash=sha256:2cd151a5b35a976ae22017b5caed8f99d5e1be455cf9f9497cd86419073bc9cb \
     --hash=sha256:da19c7c416ad26ecb934110260375e687f37f1ed897522214d97ca2e9ccb2de5
-    # via -r requirements/lint.in
+    # via -r lint.in
 typing-extensions==4.15.0 \
     --hash=sha256:0cea48d173cc12fa28ecabc3b837ea3cf6f38c6d1136f85cbaaf598984861466 \
     --hash=sha256:f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548
@@ -900,9 +900,9 @@ typing-extensions==4.15.0 \
     #   celery-types
     #   msgpack-types
     #   mypy
-urllib3==2.6.2 \
-    --hash=sha256:016f9c98bb7e98085cb2b4b17b87d2c702975664e4f060c6532e64d1c1a5e797 \
-    --hash=sha256:ec21cddfe7724fc7cb4ba4bea7aa8e2ef36f607a4bab81aa6ce42a13dc3f03dd
+urllib3==2.6.3 \
+    --hash=sha256:1b62b6884944a57dbe321509ab94fd4d3b307075e0c2eae991ac71ee15ad38ed \
+    --hash=sha256:bf272323e553dfb2e87d9bfd225ca7b0f467b919d7bbd355436d3fd37cb0acd4
     # via types-requests
 zope-event==6.1 \
     --hash=sha256:0ca78b6391b694272b23ec1335c0294cc471065ed10f7f606858fc54566c25a0 \
