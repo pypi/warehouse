@@ -410,9 +410,9 @@ mkdocs-material-extensions==1.3.1 \
     --hash=sha256:10c9511cea88f568257f960358a467d12b970e1f7b2c0e5fb2bb48cab1928443 \
     --hash=sha256:adff8b62700b25cb77b53358dad940f3ef973dd6db797907c49e3c2ef3ab4e31
     # via mkdocs-material
-mkdocs-rss-plugin==1.17.7 \
-    --hash=sha256:17b7b78c2c0b6418b83644b701867d5b2c48ecf069609917250b829bd4c3a718 \
-    --hash=sha256:6903f85e75ee976ae5f21eb05a54fa4d848bc246a227523945eaf6be7580c930
+mkdocs-rss-plugin==1.17.9 \
+    --hash=sha256:1c30b192a73a46714c3c5f2f1fbc4b15850ed719106eb241de99891adb7e6258 \
+    --hash=sha256:7aaa607d0a19f03343e83f4ee1b193e1d6f5af19b853546878c4b57fe406e0c4
     # via -r requirements/docs-blog.in
 msgpack==1.1.2 \
     --hash=sha256:0051fffef5a37ca2cd16978ae4f0aef92f164df86823871b5162812bebecd8e2 \
