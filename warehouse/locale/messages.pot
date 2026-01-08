@@ -1227,12 +1227,12 @@ msgstr ""
 msgid "Password strength:"
 msgstr ""
 
-#: warehouse/templates/base.html:30 warehouse/templates/base.html:53
+#: warehouse/templates/base.html:31 warehouse/templates/base.html:54
 #: warehouse/templates/includes/current-user-indicator.html:17
 msgid "Main navigation"
 msgstr ""
 
-#: warehouse/templates/base.html:33 warehouse/templates/base.html:68
+#: warehouse/templates/base.html:34 warehouse/templates/base.html:69
 #: warehouse/templates/base.html:340
 #: warehouse/templates/includes/current-user-indicator.html:77
 #: warehouse/templates/pages/help.html:209
@@ -1240,11 +1240,11 @@ msgstr ""
 msgid "Help"
 msgstr ""
 
-#: warehouse/templates/base.html:36 warehouse/templates/base.html:71
+#: warehouse/templates/base.html:37 warehouse/templates/base.html:72
 msgid "Docs"
 msgstr ""
 
-#: warehouse/templates/base.html:40 warehouse/templates/base.html:74
+#: warehouse/templates/base.html:41 warehouse/templates/base.html:75
 #: warehouse/templates/includes/current-user-indicator.html:83
 #: warehouse/templates/pages/sitemap.html:43
 #: warehouse/templates/pages/sponsors.html:4
@@ -1252,26 +1252,26 @@ msgid "Sponsors"
 msgstr ""
 
 #: warehouse/templates/accounts/login.html:7
-#: warehouse/templates/accounts/login.html:90 warehouse/templates/base.html:44
+#: warehouse/templates/accounts/login.html:90 warehouse/templates/base.html:45
 #: warehouse/templates/base.html:78
 msgid "Log in"
 msgstr ""
 
-#: warehouse/templates/base.html:48 warehouse/templates/base.html:82
+#: warehouse/templates/base.html:49 warehouse/templates/base.html:82
 #: warehouse/templates/pages/sitemap.html:28
 msgid "Register"
 msgstr ""
 
-#: warehouse/templates/base.html:58
+#: warehouse/templates/base.html:59
 #: warehouse/templates/includes/current-user-indicator.html:23
 msgid "View menu"
 msgstr ""
 
-#: warehouse/templates/base.html:59
+#: warehouse/templates/base.html:60
 msgid "Menu"
 msgstr ""
 
-#: warehouse/templates/base.html:66
+#: warehouse/templates/base.html:67
 #: warehouse/templates/includes/current-user-indicator.html:34
 msgid "Main menu"
 msgstr ""
