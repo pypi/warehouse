@@ -20,14 +20,15 @@
   {{ form_errors(pending_github_publisher_form) }}
   <div class="form-group">
     <label for="project_name" class="form-group__label">
-      {% trans %}PyPI Project Name{% endtrans %}
+      {{ sitename }}
+      {% trans %}Project Name{% endtrans %}
       {% if pending_github_publisher_form.project_name.flags.required %}
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
       {% endif %}
     </label>
     {{ pending_github_publisher_form.project_name(placeholder=gettext("project name") , autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", aria_describedby="project_name-errors") }}
     <p class="form-group__help-text">
-      {% trans %}The project (on PyPI) that will be created when this publisher is used{% endtrans %}
+      {% trans sitename=sitename %}The project that will be created on {{ sitename }} when this publisher is used{% endtrans %}
     </p>
     <div id="project_name-errors">{{ field_errors(pending_github_publisher_form.project_name) }}</div>
   </div>
