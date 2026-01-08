@@ -2,7 +2,6 @@
 {% extends "base.html" %}
 {% block title %}Unrecognized device{% endblock %}
 {% set domain = request.registry.settings.get('warehouse.domain') %}
-{% set sitename = "TestPyPI" if testPyPI else "PyPI" %}
 {% block content %}
   <div class="horizontal-section">
     <div class="site-container">
