@@ -6,7 +6,6 @@ import string
 import typing
 
 import email_validator
-
 from packaging.metadata import (
     _LIST_FIELDS,
     _RAW_TO_EMAIL_MAPPING,
@@ -296,6 +295,8 @@ _override = {
     "platforms": "platform",
     "supported_platforms": "supported_platform",
     "license_files": "license_file",
+    "import_names": "import_name",
+    "import_namespaces": "import_namespace",
 }
 _FORM_TO_RAW_MAPPING = {_override.get(k, k): k for k in _RAW_TO_EMAIL_MAPPING}
 
