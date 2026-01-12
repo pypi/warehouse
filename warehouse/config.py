@@ -511,6 +511,11 @@ def configure(settings=None):
     # Configure our ratelimiters
     maybe_set(
         settings,
+        "warehouse.ip_requests_ratelimit_string",
+        "IP_REQUESTS_RATE_LIMIT_STRING",
+    )
+    maybe_set(
+        settings,
         "warehouse.account.user_login_ratelimit_string",
         "USER_LOGIN_RATELIMIT_STRING",
         default="10 per 5 minutes",
