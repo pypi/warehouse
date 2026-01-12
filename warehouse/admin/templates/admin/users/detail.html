@@ -780,6 +780,52 @@
 
       <div class="card">
         <div class="card-header with-border">
+          <h3 class="card-title">Account Associations</h3>
+        </div>
+        <div class="card-body">
+          {% if user.account_associations %}
+          <table class="table table-hover" id="account-associations">
+            <thead>
+              <tr>
+                <th scope="col">Service</th>
+                <th scope="col">External Account</th>
+                <th scope="col">External ID</th>
+                <th scope="col">Connected</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for association in user.account_associations %}
+              <tr>
+                <td>
+                  {% if association.service == 'github' %}
+                  <i class="fa-brands fa-github"></i> GitHub
+                  {% else %}
+                  {{ association.service }}
+                  {% endif %}
+                </td>
+                <td>
+                  {% if association.service == 'github' %}
+                  <a href="https://github.com/{{ association.external_username }}" target="_blank" rel="noopener">
+                    {{ association.external_username }}
+                  </a>
+                  {% else %}
+                  {{ association.external_username }}
+                {% endif %}
+                </td>
+                <td><code>{{ association.external_user_id }}</code></td>
+                <td>{{ association.created|format_datetime() }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          No account associations configured.
+          {% endif %}
+        </div>
+      </div> <!-- .card -->
+
+      <div class="card">
+        <div class="card-header with-border">
           <h3 class="card-title">Invitations</h3>
         </div>
 

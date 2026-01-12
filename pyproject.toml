@@ -53,7 +53,7 @@ combine_as_imports = true
 known_first_party = ['warehouse', 'tests']
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.14"
 warn_unreachable = true
 warn_unused_configs = true
 warn_unused_ignores = true
@@ -68,6 +68,7 @@ module = [
     "b2sdk.*",  # https://github.com/Backblaze/b2-sdk-python/issues/148
     "celery.app.backends.*",  # https://github.com/celery/celery/issues/7394
     "celery.backends.redis.*",  # https://github.com/celery/celery/issues/7394
+    "cgi.*",  # legacy stdlib module for webob, installed via `legacy_cgi` package
     "google.cloud.storage.*",  # https://github.com/googleapis/python-storage/issues/393
     "forcediphttpsadapter.*",
     "IPython.*",  # has types, but only installed in dev

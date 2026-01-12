@@ -9,6 +9,11 @@ from warehouse.accounts.interfaces import (
     ITokenService,
     IUserService,
 )
+from warehouse.accounts.oauth import (
+    GitHubAppClient,
+    IOAuthProviderService,
+    NullOAuthClient,
+)
 from warehouse.accounts.security_policy import (
     BasicAuthSecurityPolicy,
     SessionSecurityPolicy,
@@ -41,6 +46,8 @@ __all__ = [
     "HaveIBeenPwnedPasswordBreachedService",
     "NullEmailBreachedService",
     "HaveIBeenPwnedEmailBreachedService",
+    "GitHubAppClient",
+    "NullOAuthClient",
 ]
 
 
@@ -137,6 +144,16 @@ def includeme(config):
     )
     config.register_service_factory(
         domain_status_class.create_service, IDomainStatusService
+    )
+
+    # Register our GitHub App service for account associations.
+    # Setting must be explicitly configured - use NullOAuthClient for development
+    # or GitHubAppClient for production with real GitHub App integration.
+    github_app_class = config.maybe_dotted(
+        config.registry.settings["github.oauth.backend"]
+    )
+    config.register_service_factory(
+        github_app_class.create_service, IOAuthProviderService, name="github"
     )
 
     # Register our security policies.

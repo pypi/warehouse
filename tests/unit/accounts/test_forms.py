@@ -1260,12 +1260,20 @@ class TestRecoveryCodeForm:
     @pytest.mark.parametrize(
         ("input_string", "validates"),
         [
-            (" deadbeef00001111 ", True),
-            ("deadbeef00001111 ", True),
-            (" deadbeef00001111", True),
+            # Valid: no spaces
             ("deadbeef00001111", True),
+            # Valid: spaces are stripped before validation
+            ("dead beef 0000 1111", True),
+            ("deadbeef 00001111", True),
+            (" deadbeef00001111 ", True),
+            ("d e a d b e e f 0 0 0 0 1 1 1 1", True),
+            # Invalid: wrong characters
             ("wu-tang", False),
+            ("ghijklmnopqrstuv", False),
+            # Invalid: wrong length (too many hex chars after spaces removed)
             ("deadbeef00001111 deadbeef11110000", False),
+            # Invalid: too short
+            ("deadbeef", False),
         ],
     )
     def test_recovery_code_string_validation(

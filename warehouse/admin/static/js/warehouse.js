@@ -15,10 +15,14 @@ import "admin-lte/plugins/datatables-buttons/js/buttons.colVis";
 import "admin-lte/plugins/datatables-rowgroup/js/dataTables.rowGroup";
 import "admin-lte/plugins/datatables-rowgroup/js/rowGroup.bootstrap4";
 
+// Import Chart JS
+import "admin-lte/plugins/chart.js/Chart";
+
 // Import AdminLTE JS
 import "admin-lte/build/js/AdminLTE";
 
 import "./treeview";
+import "./observer_charts";
 
 // Get our timeago function
 import timeAgo from "warehouse/utils/timeago";
