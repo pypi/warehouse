@@ -5685,6 +5685,99 @@ class TestFileUpload:
             ("v1.0", "1.0", "bdist_wheel", "application/zip"),
         ],
     )
+    def test_upload_succeeds_creates_release_metadata_2_5(
+        self,
+        pyramid_config,
+        db_request,
+        monkeypatch,
+        version,
+        expected_version,
+        filetype,
+        mimetype,
+    ):
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+
+        if filetype == "sdist":
+            filename = "{}-{}.tar.gz".format(
+                project.normalized_name.replace("-", "_"), "1.0"
+            )
+            digest = _TAR_GZ_PKG_MD5
+            data = _TAR_GZ_PKG_TESTDATA
+        elif filetype == "bdist_wheel":  # pragma: no branch
+            filename = "{}-{}-py3-none-any.whl".format(
+                project.normalized_name.replace("-", "_"), "1.0"
+            )
+            data = _get_whl_testdata(
+                name=project.normalized_name.replace("-", "_"), version="1.0"
+            )
+            digest = hashlib.md5(data).hexdigest()
+            monkeypatch.setattr(
+                legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+            )
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "2.5",
+                "name": project.name,
+                "version": version,
+                "summary": "This is my summary!",
+                "filetype": filetype,
+                "md5_digest": digest,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(data),
+                    type=mimetype,
+                ),
+            }
+        )
+        if filetype == "bdist_wheel":
+            db_request.POST.extend([("pyversion", "py3")])
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        # Ensure that a Release object has been created.
+        release = (
+            db_request.db.query(Release)
+            .filter(
+                (Release.project == project) & (Release.version == expected_version)
+            )
+            .one()
+        )
+        assert release.summary == "This is my summary!"
+        assert release.version == expected_version
+        assert release.canonical_version == "1"
+        assert release.uploaded_via == "warehouse-tests/6.6.6"
+
+        # Ensure that a File object has been created.
+        db_request.db.query(File).filter(
+            (File.release == release) & (File.filename == filename)
+        ).one()
+
+        # Ensure that a Filename object has been created.
+        db_request.db.query(Filename).filter(Filename.filename == filename).one()
+
+    @pytest.mark.parametrize(
+        ("version", "expected_version", "filetype", "mimetype"),
+        [
+            ("1.0", "1.0", "sdist", "application/tar"),
+            ("v1.0", "1.0", "sdist", "application/tar"),
+            ("1.0", "1.0", "bdist_wheel", "application/zip"),
+            ("v1.0", "1.0", "bdist_wheel", "application/zip"),
+        ],
+    )
     def test_upload_fails_missing_license_file_metadata_2_4(
         self,
         pyramid_config,
@@ -5940,7 +6033,8 @@ class TestFileUpload:
         self, pyramid_config, db_request, monkeypatch
     ):
         organization = OrganizationFactory.create(
-            orgtype="Company", upload_limit=120 * (1024**2)  # 120 MiB
+            orgtype="Company",
+            upload_limit=120 * (1024**2),  # 120 MiB
         )
         user = UserFactory.create(with_verified_primary_email=True)
         OrganizationRoleFactory.create(organization=organization, user=user)
@@ -6011,7 +6105,8 @@ class TestFileUpload:
         self, pyramid_config, db_request, monkeypatch
     ):
         organization = OrganizationFactory.create(
-            orgtype="Company", total_size_limit=100 * (1024**3)  # 100 GiB
+            orgtype="Company",
+            total_size_limit=100 * (1024**3),  # 100 GiB
         )
         user = UserFactory.create(with_verified_primary_email=True)
         OrganizationRoleFactory.create(organization=organization, user=user)
@@ -6147,7 +6242,8 @@ class TestFileUpload:
         """Integration test: verify upload uses project.upload_limit_size property"""
         # Create organization with generous limit
         organization = OrganizationFactory.create(
-            orgtype="Company", upload_limit=150 * (1024**2)  # 150 MiB
+            orgtype="Company",
+            upload_limit=150 * (1024**2),  # 150 MiB
         )
         user = UserFactory.create(with_verified_primary_email=True)
         OrganizationRoleFactory.create(organization=organization, user=user)
@@ -6216,7 +6312,8 @@ class TestFileUpload:
         """Integration test: verify upload uses total_size_limit_value property"""
         # Create organization with generous total size limit
         organization = OrganizationFactory.create(
-            orgtype="Company", total_size_limit=60 * (1024**3)  # 60 GiB
+            orgtype="Company",
+            total_size_limit=60 * (1024**3),  # 60 GiB
         )
         user = UserFactory.create(with_verified_primary_email=True)
         OrganizationRoleFactory.create(organization=organization, user=user)

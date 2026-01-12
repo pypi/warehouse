@@ -2,6 +2,7 @@
 
 import packaging.metadata
 import pytest
+
 from packaging.version import Version
 from webob.multidict import MultiDict
 

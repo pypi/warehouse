@@ -6,6 +6,7 @@ import string
 import typing
 
 import email_validator
+
 from packaging.metadata import (
     _LIST_FIELDS,
     _RAW_TO_EMAIL_MAPPING,
