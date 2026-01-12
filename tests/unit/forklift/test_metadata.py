@@ -17,7 +17,7 @@ def _assert_invalid_metadata(exc, field):
 
 
 class TestParse:
-    def test_valid_from_file_24(self):
+    def test_valid_from_file_2_4(self):
         meta = metadata.parse(
             b"Metadata-Version: 2.4\nName: foo\nVersion: 1.0\n"
             b"License-File: Something\nLicense-File: Something Else\n"
@@ -29,7 +29,7 @@ class TestParse:
             "Something Else",
         ]
 
-    def test_valid_from_file_25(self):
+    def test_valid_from_file_2_5(self):
         meta = metadata.parse(
             b"Metadata-Version: 2.5\nName: foo\nVersion: 1.0\n"
             b"License-File: Something\nLicense-File: Something Else\n"
@@ -44,7 +44,7 @@ class TestParse:
         assert meta.import_names == ["widget"]
         assert meta.import_namespaces == ["gadget"]
 
-    def test_valid_from_form_24(self):
+    def test_valid_from_form_2_4(self):
         data = MultiDict(metadata_version="2.4", name="spam", version="2.0")
         data.extend([("license_file", "Something"), ("license_file", "Something Else")])
         meta = metadata.parse(None, form_data=data)
@@ -55,7 +55,7 @@ class TestParse:
             "Something Else",
         ]
 
-    def test_valid_from_form_25(self):
+    def test_valid_from_form_2_5(self):
         data = MultiDict(metadata_version="2.5", name="spam", version="2.0")
         data.extend([("license_file", "Something"), ("license_file", "Something Else")])
         data.add("import_name", "widget")
