@@ -7,8 +7,6 @@ Revises: a6cae8e65f1a
 Create Date: 2026-01-12 22:01:38.715040
 """
 
-import sqlalchemy as sa
-
 from alembic import op
 from alembic_postgresql_enum import ColumnType, TableReference
 
