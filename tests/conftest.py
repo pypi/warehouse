@@ -81,7 +81,7 @@ def metrics_timing(*args, **kwargs):
 
 
 @pytest.fixture
-def no_deliverability_check(monkeypatch):
+def _no_deliverability_check(monkeypatch):
     """
     Prevents the email_validator library from checking deliverability of email
     """

@@ -597,7 +597,7 @@ class TestRegistrationForm:
             "different email."
         )
 
-    @pytest.mark.usefixtures("no_deliverability_check")
+    @pytest.mark.usefixtures("_no_deliverability_check")
     @pytest.mark.parametrize(
         ("email", "prohibited_domain"),
         [
