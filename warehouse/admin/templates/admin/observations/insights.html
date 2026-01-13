@@ -1,0 +1,627 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
+{% extends "admin/base.html" %}
+
+{% block title %}Malware Insights{% endblock %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item">
+    <a href="{{ request.route_path('admin.observations.list') }}">Observations</a>
+  </li>
+  <li class="breadcrumb-item active">Malware Insights</li>
+{% endblock %}
+
+{% block content %}
+{# Page Header with Time Period Selector #}
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <i class="fa-solid fa-chart-pie mr-2"></i>
+          Malware Insights
+        </h3>
+        <div class="card-tools">
+          <div class="btn-group">
+            <a href="{{ request.route_path('admin.observations.insights', _query={'days': 30}) }}"
+               class="btn btn-sm {{ 'btn-primary' if days == 30 else 'btn-default' }}">30 Days</a>
+            <a href="{{ request.route_path('admin.observations.insights', _query={'days': 60}) }}"
+               class="btn btn-sm {{ 'btn-primary' if days == 60 else 'btn-default' }}">60 Days</a>
+            <a href="{{ request.route_path('admin.observations.insights', _query={'days': 90}) }}"
+               class="btn btn-sm {{ 'btn-primary' if days == 90 else 'btn-default' }}">90 Days</a>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="text-muted mb-0">
+          These metrics help assess the quality and effectiveness of malware reporting.
+          Higher corroboration rates and faster response times indicate a healthy detection system.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# Corroboration Stats #}
+<div class="row">
+  <div class="col-12">
+    <div class="card card-outline card-info">
+      <div class="card-header">
+        <h3 class="card-title">
+          <i class="fa-solid fa-users mr-2"></i>
+          Report Corroboration
+        </h3>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">
+          <strong>Corroboration</strong> measures how often multiple independent observers report the same package.
+          Higher corroboration suggests stronger consensus and more reliable detection.
+        </p>
+
+        <div class="row">
+          <div class="col-lg-3 col-md-6 col-sm-6">
+            <div class="info-box">
+              <span class="info-box-icon bg-info"><i class="fa-solid fa-bullhorn"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">Total Reports</span>
+                <span class="info-box-number">{{ corroboration.total_reports }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 col-sm-6">
+            <div class="info-box">
+              <span class="info-box-icon bg-success"><i class="fa-solid fa-check-double"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">Corroborated Reports</span>
+                <span class="info-box-number">{{ corroboration.corroborated_reports }}</span>
+                <span class="info-box-text small">packages with 2+ observers</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 col-sm-6">
+            <div class="info-box">
+              <span class="info-box-icon bg-primary"><i class="fa-solid fa-percentage"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">Corroboration Rate</span>
+                <span class="info-box-number">
+                  {% if corroboration.corroboration_rate is not none %}
+                    {{ corroboration.corroboration_rate }}%
+                  {% else %}
+                    N/A
+                  {% endif %}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 col-sm-6">
+            <div class="info-box">
+              <span class="info-box-icon bg-secondary"><i class="fa-solid fa-box"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">Unique Packages</span>
+                <span class="info-box-number">{{ corroboration.total_packages }}</span>
+                <span class="info-box-text small">
+                  {{ corroboration.multi_report_packages }} with multiple reports
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {# Accuracy Comparison #}
+        <h5 class="mt-4">Accuracy by Report Count</h5>
+        <p class="text-muted small">
+          Comparing accuracy between packages reported by a single observer vs. multiple observers.
+        </p>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card card-outline card-secondary">
+              <div class="card-header">
+                <h3 class="card-title">Single Observer Reports</h3>
+              </div>
+              <div class="card-body">
+                <div class="row text-center">
+                  <div class="col-4 border-right">
+                    <span class="text-muted small d-block">Reports</span>
+                    <span class="h4">{{ corroborated_accuracy.single.total }}</span>
+                  </div>
+                  <div class="col-4 border-right">
+                    <span class="text-muted small d-block">True Positives</span>
+                    <span class="h4 text-success">{{ corroborated_accuracy.single.true_pos }}</span>
+                  </div>
+                  <div class="col-4">
+                    <span class="text-muted small d-block">Accuracy</span>
+                    <span class="h4">
+                      {% if corroborated_accuracy.single.accuracy is not none %}
+                        {{ corroborated_accuracy.single.accuracy }}%
+                      {% else %}
+                        N/A
+                      {% endif %}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card card-outline card-success">
+              <div class="card-header">
+                <h3 class="card-title">Multiple Observer Reports (2+)</h3>
+              </div>
+              <div class="card-body">
+                <div class="row text-center">
+                  <div class="col-4 border-right">
+                    <span class="text-muted small d-block">Reports</span>
+                    <span class="h4">{{ corroborated_accuracy.multi.total }}</span>
+                  </div>
+                  <div class="col-4 border-right">
+                    <span class="text-muted small d-block">True Positives</span>
+                    <span class="h4 text-success">{{ corroborated_accuracy.multi.true_pos }}</span>
+                  </div>
+                  <div class="col-4">
+                    <span class="text-muted small d-block">Accuracy</span>
+                    <span class="h4">
+                      {% if corroborated_accuracy.multi.accuracy is not none %}
+                        {{ corroborated_accuracy.multi.accuracy }}%
+                      {% else %}
+                        N/A
+                      {% endif %}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# Observer Type Stats #}
+<div class="row">
+  <div class="col-lg-6">
+    <div class="card card-outline card-primary">
+      <div class="card-header">
+        <h3 class="card-title">
+          <i class="fa-solid fa-user-shield mr-2"></i>
+          Reports by Observer Type
+        </h3>
+      </div>
+      <div class="card-body">
+        <p class="text-muted small">
+          <strong>Trusted Observers</strong> are users with explicit observer status (<code>is_observer=True</code>).
+          Non-trusted are regular users who submitted reports.
+        </p>
+        <table class="table table-sm table-bordered">
+          <thead class="thead-light">
+            <tr>
+              <th>Observer Type</th>
+              <th class="text-center">Reports</th>
+              <th class="text-center">True Pos</th>
+              <th class="text-center">False Pos</th>
+              <th class="text-center">Accuracy</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <i class="fa-solid fa-shield-halved text-success mr-1"></i>
+                Trusted Observers
+              </td>
+              <td class="text-center">{{ observer_types.trusted.total }}</td>
+              <td class="text-center text-success">{{ observer_types.trusted.true_pos }}</td>
+              <td class="text-center text-danger">{{ observer_types.trusted.false_pos }}</td>
+              <td class="text-center">
+                {% if observer_types.trusted.accuracy is not none %}
+                  <span class="badge badge-{{ 'success' if observer_types.trusted.accuracy >= 80 else 'warning' if observer_types.trusted.accuracy >= 50 else 'danger' }}">
+                    {{ observer_types.trusted.accuracy }}%
+                  </span>
+                {% else %}
+                  <span class="badge badge-secondary">N/A</span>
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <i class="fa-solid fa-user text-secondary mr-1"></i>
+                Non-Trusted Users
+              </td>
+              <td class="text-center">{{ observer_types.non_trusted.total }}</td>
+              <td class="text-center text-success">{{ observer_types.non_trusted.true_pos }}</td>
+              <td class="text-center text-danger">{{ observer_types.non_trusted.false_pos }}</td>
+              <td class="text-center">
+                {% if observer_types.non_trusted.accuracy is not none %}
+                  <span class="badge badge-{{ 'success' if observer_types.non_trusted.accuracy >= 80 else 'warning' if observer_types.non_trusted.accuracy >= 50 else 'danger' }}">
+                    {{ observer_types.non_trusted.accuracy }}%
+                  </span>
+                {% else %}
+                  <span class="badge badge-secondary">N/A</span>
+                {% endif %}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  {# Auto-Quarantine Stats #}
+  <div class="col-lg-6">
+    <div class="card card-outline card-warning">
+      <div class="card-header">
+        <h3 class="card-title">
+          <i class="fa-solid fa-lock mr-2"></i>
+          Auto-Quarantine Rate
+        </h3>
+      </div>
+      <div class="card-body">
+        <p class="text-muted small">
+          <strong>Auto-quarantine</strong> occurs when the system automatically restricts a reported package
+          before manual review. This is tracked via journal entries from the <code>admin</code> user.
+        </p>
+        <div class="row text-center">
+          <div class="col-4 border-right">
+            <span class="text-muted small d-block">Reported Packages</span>
+            <span class="h3">{{ auto_quarantine.total_reported }}</span>
+          </div>
+          <div class="col-4 border-right">
+            <span class="text-muted small d-block">Auto-Quarantined</span>
+            <span class="h3 text-warning">{{ auto_quarantine.auto_quarantined }}</span>
+          </div>
+          <div class="col-4">
+            <span class="text-muted small d-block">Quarantine Rate</span>
+            <span class="h3">
+              {% if auto_quarantine.quarantine_rate is not none %}
+                {{ auto_quarantine.quarantine_rate }}%
+              {% else %}
+                N/A
+              {% endif %}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# Response Timeline #}
+<div class="row">
+  <div class="col-12">
+    <div class="card card-outline card-danger">
+      <div class="card-header">
+        <h3 class="card-title">
+          <i class="fa-solid fa-clock mr-2"></i>
+          Response Timeline
+        </h3>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">
+          How quickly is malware detected and removed? These metrics track the lifecycle of confirmed malicious packages.
+          <strong>Lower times are better</strong> – they indicate faster detection and response.
+        </p>
+
+        {% if timeline.sample_size == 0 %}
+        <div class="alert alert-info">
+          <i class="fa-solid fa-info-circle mr-2"></i>
+          No confirmed malware removals in this time period to calculate response times.
+        </div>
+        {% else %}
+        <p class="text-muted small mb-3">
+          Based on <strong>{{ timeline.sample_size }}</strong> reported packages in the last {{ days }} days.
+        </p>
+
+        <div class="row">
+          {# Detection Time - Info/Cyan - matches chart #}
+          <div class="col-lg-4 col-md-6">
+            <div class="card bg-info text-white">
+              <div class="card-body text-center">
+                <h6>
+                  <i class="fa-solid fa-magnifying-glass mr-1"></i>
+                  Detection Time
+                </h6>
+                <p class="small mb-2 text-white-muted">Upload → First report</p>
+                {% if timeline.detection_time %}
+                  <span class="h2 d-block">{{ timeline.detection_time.median }} hrs</span>
+                  <span class="small text-white-muted">median ({{ timeline.detection_time.count }} samples)</span>
+                  <div class="mt-2 small text-white-muted">
+                    <span>Avg:</span> {{ timeline.detection_time.average }} hrs
+                    <span class="mx-2">|</span>
+                    <span>P90:</span> {{ timeline.detection_time.p90 }} hrs
+                  </div>
+                {% else %}
+                  <span class="h4 text-white-muted">No data</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          {# Response Time - Warning/Yellow - matches chart #}
+          <div class="col-lg-4 col-md-6">
+            <div class="card bg-warning">
+              <div class="card-body text-center">
+                <h6>
+                  <i class="fa-solid fa-bolt mr-1"></i>
+                  Response Time
+                </h6>
+                <p class="small mb-2">First report → Action taken</p>
+                {% if timeline.response_time %}
+                  <span class="h2 d-block">{{ timeline.response_time.median }} hrs</span>
+                  <span class="small">median ({{ timeline.response_time.count }} samples)</span>
+                  <div class="mt-2 small">
+                    <span>Avg:</span> {{ timeline.response_time.average }} hrs
+                    <span class="mx-2">|</span>
+                    <span>P90:</span> {{ timeline.response_time.p90 }} hrs
+                  </div>
+                {% else %}
+                  <span class="h4">No data</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          {# Total Exposure - Sum of above #}
+          <div class="col-lg-4 col-md-12">
+            <div class="card bg-secondary text-white">
+              <div class="card-body text-center">
+                <h6>
+                  <i class="fa-solid fa-hourglass-half mr-1"></i>
+                  Total Exposure
+                </h6>
+                <p class="small mb-2 text-white-muted">Upload → Action (Detection + Response)</p>
+                {% if timeline.total_exposure %}
+                  <span class="h2 d-block">{{ timeline.total_exposure.median }} hrs</span>
+                  <span class="small text-white-muted">median ({{ timeline.total_exposure.count }} samples)</span>
+                  <div class="mt-2 small text-white-muted">
+                    <span>Avg:</span> {{ timeline.total_exposure.average }} hrs
+                    <span class="mx-2">|</span>
+                    <span>P90:</span> {{ timeline.total_exposure.p90 }} hrs
+                  </div>
+                {% else %}
+                  <span class="h4 text-white-muted">No data</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {# Response Breakdown - Quarantine vs Removal effectiveness #}
+        {% if timeline.quarantine_time or timeline.removal_time %}
+        <div class="row mt-2">
+          <div class="col-12">
+            <div class="card card-outline card-warning">
+              <div class="card-header py-2">
+                <h3 class="card-title">
+                  <i class="fa-solid fa-bolt mr-1"></i>
+                  Response Breakdown
+                </h3>
+              </div>
+              <div class="card-body py-2">
+                <div class="row text-center">
+                  {% if timeline.quarantine_time %}
+                  <div class="col-md-6 border-right">
+                    <span class="text-warning">
+                      <i class="fa-solid fa-lock mr-1"></i>
+                      <strong>Auto-Quarantine</strong>
+                    </span>
+                    <p class="mb-1 small text-muted">Blocks downloads before manual review</p>
+                    <span class="h4">{{ timeline.quarantine_time.median }} hrs</span>
+                    <span class="text-muted small">median</span>
+                    <span class="badge badge-warning ml-2">{{ timeline.quarantine_time.count }} packages</span>
+                  </div>
+                  {% endif %}
+                  {% if timeline.removal_time %}
+                  <div class="col-md-6">
+                    <span class="text-success">
+                      <i class="fa-solid fa-trash mr-1"></i>
+                      <strong>Full Removal</strong>
+                    </span>
+                    <p class="mb-1 small text-muted">Permanently deleted from index</p>
+                    <span class="h4">{{ timeline.removal_time.median }} hrs</span>
+                    <span class="text-muted small">median</span>
+                    <span class="badge badge-success ml-2">{{ timeline.removal_time.count }} packages</span>
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        {# Timeline Trends Chart - Stacked Bar #}
+        {% if timeline_trends.labels %}
+        <div class="mt-4">
+          <h6 class="text-muted">
+            <i class="fa-solid fa-chart-bar mr-1"></i>
+            Exposure Breakdown by Week
+          </h6>
+          <p class="text-muted small">
+            Bars: <span class="badge badge-info">Detection</span> +
+            <span class="badge badge-warning">Response</span> =
+            <span class="badge badge-secondary">Total Exposure</span>
+            <br>
+            <span class="text-warning font-weight-bold">- - -</span> Line: Time to Auto-Quarantine (upload → blocked)
+          </p>
+          <div class="chart-container">
+            <canvas id="exposureBreakdownChart"></canvas>
+          </div>
+        </div>
+        <script type="application/json" id="timelineTrendsChartData">
+          {
+            "labels": {{ timeline_trends.labels | tojson }},
+            "detection": {{ timeline_trends.detection | tojson }},
+            "response": {{ timeline_trends.response | tojson }},
+            "timeToQuarantine": {{ timeline_trends.time_to_quarantine | tojson }}
+          }
+        </script>
+        {% endif %}
+
+        {% if timeline.total_exposure %}
+        <div class="mt-3">
+          <h6 class="text-muted">Timeline Ranges</h6>
+          <table class="table table-sm table-bordered">
+            <thead class="thead-light">
+              <tr>
+                <th>Metric</th>
+                <th class="text-center">Min</th>
+                <th class="text-center">Median</th>
+                <th class="text-center">Average</th>
+                <th class="text-center">P90</th>
+                <th class="text-center">Max</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if timeline.detection_time %}
+              <tr class="table-info">
+                <td>Detection Time</td>
+                <td class="text-center">{{ timeline.detection_time.min }} hrs</td>
+                <td class="text-center">{{ timeline.detection_time.median }} hrs</td>
+                <td class="text-center">{{ timeline.detection_time.average }} hrs</td>
+                <td class="text-center">{{ timeline.detection_time.p90 }} hrs</td>
+                <td class="text-center">{{ timeline.detection_time.max }} hrs</td>
+              </tr>
+              {% endif %}
+              {% if timeline.response_time %}
+              <tr class="table-warning">
+                <td>Response Time</td>
+                <td class="text-center">{{ timeline.response_time.min }} hrs</td>
+                <td class="text-center">{{ timeline.response_time.median }} hrs</td>
+                <td class="text-center">{{ timeline.response_time.average }} hrs</td>
+                <td class="text-center">{{ timeline.response_time.p90 }} hrs</td>
+                <td class="text-center">{{ timeline.response_time.max }} hrs</td>
+              </tr>
+              {% endif %}
+              {% if timeline.total_exposure %}
+              <tr class="table-secondary">
+                <td><strong>Total Exposure</strong></td>
+                <td class="text-center">{{ timeline.total_exposure.min }} hrs</td>
+                <td class="text-center">{{ timeline.total_exposure.median }} hrs</td>
+                <td class="text-center">{{ timeline.total_exposure.average }} hrs</td>
+                <td class="text-center">{{ timeline.total_exposure.p90 }} hrs</td>
+                <td class="text-center">{{ timeline.total_exposure.max }} hrs</td>
+              </tr>
+              {% endif %}
+              {% if timeline.quarantine_time or timeline.removal_time %}
+              <tr>
+                <td colspan="6" class="text-muted small pt-3">
+                  <em>Response breakdown:</em>
+                  {% if timeline.quarantine_time %}
+                    Quarantine {{ timeline.quarantine_time.median }} hrs median
+                  {% endif %}
+                  {% if timeline.quarantine_time and timeline.removal_time %}|{% endif %}
+                  {% if timeline.removal_time %}
+                    Removal {{ timeline.removal_time.median }} hrs median
+                  {% endif %}
+                </td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+        {% endif %}
+
+        {# Longest-Lived Packages #}
+        {% if timeline.longest_lived %}
+        <div class="card collapsed-card mt-3">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="fa-solid fa-skull-crossbones mr-2"></i>
+              Top 5 Longest-Lived Malware Packages
+            </h3>
+            <div class="card-tools">
+              <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <p class="text-muted small">
+              These packages had the longest exposure time on PyPI before being quarantined or removed.
+            </p>
+            <table class="table table-sm table-bordered table-hover">
+              <thead class="thead-light">
+                <tr>
+                  <th>Package Name</th>
+                  <th class="text-center">Exposure Time</th>
+                  <th class="text-center">Uploaded</th>
+                  <th class="text-center">First Report</th>
+                  <th class="text-center">Quarantined</th>
+                  <th class="text-center">Removed</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for pkg in timeline.longest_lived %}
+                <tr>
+                  <td><code>{{ pkg.name }}</code></td>
+                  <td class="text-center text-danger"><strong>{{ pkg.exposure_hours }} hrs</strong></td>
+                  <td class="text-center">{{ pkg.project_created.strftime('%Y-%m-%d %H:%M') if pkg.project_created else 'N/A' }}</td>
+                  <td class="text-center">{{ pkg.first_report.strftime('%Y-%m-%d %H:%M') if pkg.first_report else 'N/A' }}</td>
+                  <td class="text-center">{{ pkg.quarantine_time.strftime('%Y-%m-%d %H:%M') if pkg.quarantine_time else '-' }}</td>
+                  <td class="text-center">{{ pkg.removal_time.strftime('%Y-%m-%d %H:%M') if pkg.removal_time else '-' }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {% endif %}
+
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{# Help / Legend #}
+<div class="row">
+  <div class="col-12">
+    <div class="card collapsed-card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <i class="fa-solid fa-question-circle mr-2"></i>
+          Understanding These Metrics
+        </h3>
+        <div class="card-tools">
+          <button type="button" class="btn btn-tool" data-card-widget="collapse">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <h6>Corroboration</h6>
+            <ul class="text-muted small">
+              <li><strong>Why it matters:</strong> Multiple independent observers reporting the same package increases confidence it's actually malware.</li>
+              <li><strong>Good sign:</strong> High corroboration rate with high accuracy suggests effective crowd-sourced detection.</li>
+              <li><strong>Warning sign:</strong> Many single-observer reports with low accuracy may indicate false positives or gaming.</li>
+            </ul>
+
+            <h6>Observer Types</h6>
+            <ul class="text-muted small">
+              <li><strong>Trusted Observers:</strong> Users explicitly granted observer status. Expected to have higher accuracy.</li>
+              <li><strong>Non-Trusted:</strong> Regular users who submitted reports. Valuable for coverage but may have lower accuracy.</li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <h6>Response Timeline</h6>
+            <ul class="text-muted small">
+              <li><strong>Detection Time:</strong> How long malware existed before being reported. Lower is better.</li>
+              <li><strong>Quarantine Time:</strong> How long from first report to auto-quarantine. When quarantined, packages are unavailable for download.</li>
+              <li><strong>Removal Time:</strong> How long from first report to full removal action.</li>
+              <li><strong>Total Exposure:</strong> Time from upload until quarantine or removal (whichever came first). The key metric for user safety.</li>
+              <li><strong>P90:</strong> 90th percentile – 90% of cases were faster than this value.</li>
+            </ul>
+
+            <h6>Auto-Quarantine</h6>
+            <ul class="text-muted small">
+              <li><strong>What it is:</strong> Automatic restriction of reported packages before manual review.</li>
+              <li><strong>Higher rate:</strong> More proactive protection, but requires good accuracy to avoid blocking legitimate packages.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
