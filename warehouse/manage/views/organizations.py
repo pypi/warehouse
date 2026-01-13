@@ -57,6 +57,7 @@ from warehouse.manage.views.view_helpers import (
 from warehouse.observations.models import Observation
 from warehouse.oidc.forms import (
     PendingActiveStatePublisherForm,
+    PendingCircleCIPublisherForm,
     PendingGitHubPublisherForm,
     PendingGitLabPublisherForm,
     PendingGooglePublisherForm,
@@ -64,6 +65,7 @@ from warehouse.oidc.forms import (
 from warehouse.oidc.models import (
     GitLabPublisher,
     PendingActiveStatePublisher,
+    PendingCircleCIPublisher,
     PendingGitHubPublisher,
     PendingGitLabPublisher,
     PendingGooglePublisher,
@@ -1768,6 +1770,12 @@ class ManageOrganizationPublishingViews:
             check_project_name=self.project_service.check_project_name,
             user=request.user,
         )
+        self.pending_circleci_publisher_form = PendingCircleCIPublisherForm(
+            self.request.POST,
+            route_url=self.request.route_url,
+            check_project_name=self.project_service.check_project_name,
+            user=request.user,
+        )
 
     @property
     def default_response(self):
@@ -1780,6 +1788,7 @@ class ManageOrganizationPublishingViews:
             "pending_gitlab_publisher_form": self.pending_gitlab_publisher_form,
             "pending_google_publisher_form": self.pending_google_publisher_form,
             "pending_activestate_publisher_form": self.pending_activestate_publisher_form,  # noqa: E501
+            "pending_circleci_publisher_form": self.pending_circleci_publisher_form,
             "pending_oidc_publishers": pending_oidc_publishers,
             "disabled": {
                 "GitHub": self.request.flags.disallow_oidc(
@@ -1793,6 +1802,9 @@ class ManageOrganizationPublishingViews:
                 ),
                 "ActiveState": self.request.flags.disallow_oidc(
                     AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC
+                ),
+                "CircleCI": self.request.flags.disallow_oidc(
+                    AdminFlagValue.DISALLOW_CIRCLECI_OIDC
                 ),
             },
         }
@@ -2012,5 +2024,29 @@ class ManageOrganizationPublishingViews:
                 activestate_project_name=form.project.data,
                 actor=form.actor.data,
                 actor_id=form.actor_id,
+            ),
+        )
+
+    @view_config(
+        request_method="POST", request_param=PendingCircleCIPublisherForm.__params__
+    )
+    def add_pending_circleci_oidc_publisher(self):
+        form = self.pending_circleci_publisher_form
+        return self._add_pending_oidc_publisher(
+            publisher_name="CircleCI",
+            publisher_class=PendingCircleCIPublisher,
+            admin_flag=AdminFlagValue.DISALLOW_CIRCLECI_OIDC,
+            form=form,
+            make_pending_publisher=lambda request, form: PendingCircleCIPublisher(
+                project_name=form.project_name.data,
+                added_by=request.user,
+                circleci_org_id=form.circleci_org_id.data,
+                circleci_project_id=form.circleci_project_id.data,
+                pypi_organization=self.organization,
+            ),
+            make_existence_filters=lambda form: dict(
+                project_name=form.project_name.data,
+                circleci_org_id=form.circleci_org_id.data,
+                circleci_project_id=form.circleci_project_id.data,
             ),
         )
