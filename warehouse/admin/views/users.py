@@ -522,9 +522,7 @@ def user_recover_account_initiate(user, request):
                         override_to_email, check_deliverability=False
                     )
                 except email_validator.EmailNotValidError:
-                    request.session.flash(
-                        "Invalid email address format", queue="error"
-                    )
+                    request.session.flash("Invalid email address format", queue="error")
                     return HTTPSeeOther(
                         request.route_path(
                             "admin.user.account_recovery.initiate",

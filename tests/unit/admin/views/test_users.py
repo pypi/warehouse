@@ -1057,7 +1057,9 @@ class TestUserRecoverAccountInitiate:
         db_request.method = "POST"
         db_request.user = admin_user
         db_request.POST["project_name"] = ""
-        db_request.POST["support_issue_link"] = "https://github.com/pypi/support/issues/1"
+        db_request.POST["support_issue_link"] = (
+            "https://github.com/pypi/support/issues/1"
+        )
         db_request.POST["override_to_email"] = "ivalid-email"
         db_request.route_path = pretend.call_recorder(
             lambda route_name, **kwargs: "/user/the-redirect/"
