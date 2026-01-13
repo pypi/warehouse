@@ -386,6 +386,82 @@
   </div>
 </form>
 {% endmacro %}
+{% macro circleci_form(request, pending_circleci_publisher_form, organization) %}
+  <p>
+    {% trans href="https://circleci.com/docs/openid-connect-tokens/" %}
+    Read more about CircleCI's OpenID Connect support <a href="{{ href }}">here</a>.
+  {% endtrans %}
+</p>
+{{ form_error_anchor(pending_circleci_publisher_form) }}
+<form id="pending-circleci-publisher-form"
+      method="post"
+      action="{{ request.route_path('manage.organization.publishing', organization_name=organization.normalized_name) }}#errors">
+  <input name="csrf_token"
+         type="hidden"
+         value="{{ request.session.get_csrf_token() }}">
+  {{ form_errors(pending_circleci_publisher_form) }}
+  <div class="form-group">
+    <label for="project_name" class="form-group__label">
+      {% trans %}PyPI Project Name{% endtrans %}
+      {% if pending_circleci_publisher_form.project_name.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+      {% endif %}
+    </label>
+    {{ pending_circleci_publisher_form.project_name(placeholder=gettext("project name") ,
+    autocomplete="off",
+    autocapitalize="off",
+    spellcheck="false",
+    class_="form-group__field",
+    aria_describedby="project_name-errors")
+    }}
+    <p class="form-group__help-text">
+      {% trans organization_name=organization.name %}The project (on PyPI) that will be created and owned by the '{{ organization_name }}' organization when this publisher is used{% endtrans %}
+    </p>
+    <div id="project_name-errors">{{ field_errors(pending_circleci_publisher_form.project_name) }}</div>
+  </div>
+  <div class="form-group">
+    <label for="circleci_org_id" class="form-group__label">
+      {% trans %}Organization ID{% endtrans %}
+      {% if pending_circleci_publisher_form.circleci_org_id.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+      {% endif %}
+    </label>
+    {{ pending_circleci_publisher_form.circleci_org_id(placeholder=gettext("xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx") ,
+    autocomplete="off",
+    autocapitalize="off",
+    spellcheck="false",
+    class_="form-group__field",
+    aria_describedby="circleci_org_id-errors")
+    }}
+    <p class="form-group__help-text">{% trans %}The CircleCI organization ID (UUID) that owns the project{% endtrans %}</p>
+    <div id="circleci_org_id-errors">{{ field_errors(pending_circleci_publisher_form.circleci_org_id) }}</div>
+  </div>
+  <div class="form-group">
+    <label for="circleci_project_id" class="form-group__label">
+      {% trans %}Project ID{% endtrans %}
+      {% if pending_circleci_publisher_form.circleci_project_id.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+      {% endif %}
+    </label>
+    {{ pending_circleci_publisher_form.circleci_project_id(placeholder=gettext("xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx") ,
+    autocomplete="off",
+    autocapitalize="off",
+    spellcheck="false",
+    class_="form-group__field",
+    aria_describedby="circleci_project_id-errors")
+    }}
+    <p class="form-group__help-text">
+      {% trans %}The CircleCI project ID (UUID) that will publish to PyPI{% endtrans %}
+    </p>
+    <div id="circleci_project_id-errors">{{ field_errors(pending_circleci_publisher_form.circleci_project_id) }}</div>
+  </div>
+  <div>
+    <input type="submit"
+           value="{% trans %}Add{% endtrans %}"
+           class="button button--primary">
+  </div>
+</form>
+{% endmacro %}
 {% block main %}
   <section>
     <h1 class="page-title">{{ oidc_title() }}</h1>
@@ -452,6 +528,7 @@
   ("GitLab", gitlab_form(request, pending_gitlab_publisher_form, organization)),
   ("Google", google_form(request, pending_google_publisher_form, organization)),
   ("ActiveState", activestate_form(request, pending_activestate_publisher_form, organization)),
+  ("CircleCI", circleci_form(request, pending_circleci_publisher_form, organization)),
 ] %}
 <div class="horizontal-tabs"
      data-controller="horizontal-tabs"
