@@ -519,7 +519,7 @@ def user_recover_account_initiate(user, request):
             if override_to_email is not None:
                 try:
                     email_validator.validate_email(
-                        override_to_email, check_deliverability=False
+                        override_to_email, check_deliverability=True
                     )
                 except email_validator.EmailNotValidError:
                     request.session.flash("Invalid email address format", queue="error")
