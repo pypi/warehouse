@@ -12,6 +12,7 @@ from unittest import mock
 
 import alembic.command
 import click.testing
+import email_validator
 import pretend
 import pyramid.testing
 import pytest
@@ -77,6 +78,21 @@ _FIXTURES = _HERE / "_fixtures"
 @contextmanager
 def metrics_timing(*args, **kwargs):
     yield None
+
+
+@pytest.fixture
+def no_deliverability_check(monkeypatch):
+    """
+    Prevents the email_validator library from checking deliverability of email
+    """
+    original_validate_email = email_validator.validate_email
+
+    def mock_validate_email(email, check_deliverability=True, *args, **kwargs):
+        return original_validate_email(
+            email, check_deliverability=False, *args, **kwargs
+        )
+
+    monkeypatch.setattr("email_validator.validate_email", mock_validate_email)
 
 
 def _event(
