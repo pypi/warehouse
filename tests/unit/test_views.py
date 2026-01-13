@@ -135,7 +135,10 @@ class TestHTTPExceptionView:
         context = HTTPNotFound()
         for path in ("/simple/not_found_package", "/simple/some/unusual/path/"):
             request = pretend.stub(
-                find_service=lambda name: services[name], path=path, context=None
+                find_service=lambda name: services[name],
+                path=path,
+                context=None,
+                accept=pretend.stub(acceptable_offers=lambda offers: []),
             )
             response = httpexception_view(context, request)
             assert response.status_code == 404
@@ -143,6 +146,70 @@ class TestHTTPExceptionView:
             assert response.content_type == "text/plain"
             assert response.text == "404 Not Found"
             _assert_has_cors_headers(response.headers)
+
+    def test_simple_404_with_rfc9457(self):
+        """Test /simple/ 404 returns RFC 9457 format when accepted."""
+        csp = {}
+        services = {"csp": pretend.stub(merge=csp.update)}
+        context = HTTPNotFound()
+        for path in ("/simple/not_found_package", "/simple/some/unusual/path/"):
+            request = pretend.stub(
+                find_service=lambda name: services[name],
+                path=path,
+                context=None,
+                accept=pretend.stub(
+                    acceptable_offers=lambda offers: [("application/problem+json", 1.0)]
+                ),
+            )
+            response = httpexception_view(context, request)
+            assert response.status_code == 404
+            assert response.status == "404 Not Found"
+            assert response.content_type == "application/problem+json"
+
+            # Parse and validate RFC 9457 response
+            import json
+
+            problem = json.loads(response.text)
+            assert problem["status"] == 404
+            assert problem["title"] == "Not Found"
+            assert "detail" in problem
+            _assert_has_cors_headers(response.headers)
+
+    @pytest.mark.parametrize(
+        "exception_class,status_code,title",
+        [
+            (HTTPNotFound, 404, "Not Found"),
+            (HTTPBadRequest, 400, "Bad Request"),
+            (HTTPServiceUnavailable, 503, "Service Unavailable"),
+        ],
+    )
+    def test_simple_rfc9457_various_errors(
+        self, exception_class, status_code, title
+    ):
+        """Test various HTTP errors on /simple/ with RFC 9457 format."""
+        csp = {}
+        services = {"csp": pretend.stub(merge=csp.update)}
+        context = exception_class()
+        request = pretend.stub(
+            find_service=lambda name: services[name],
+            path="/simple/test-package",
+            context=None,
+            accept=pretend.stub(
+                acceptable_offers=lambda offers: [("application/problem+json", 1.0)]
+            ),
+        )
+        response = httpexception_view(context, request)
+
+        assert response.status_code == status_code
+        assert response.content_type == "application/problem+json"
+
+        # Parse and validate RFC 9457 response
+        import json
+
+        problem = json.loads(response.text)
+        assert problem["status"] == status_code
+        assert problem["title"] == title
+        _assert_has_cors_headers(response.headers)
 
     def test_json_404(self):
         csp = {}
