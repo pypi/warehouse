@@ -9,6 +9,7 @@ import typing
 from collections import defaultdict
 from secrets import token_urlsafe
 
+import email_validator
 import wtforms
 import wtforms.fields
 import wtforms.validators
@@ -516,6 +517,21 @@ def user_recover_account_initiate(user, request):
             )
 
             if override_to_email is not None:
+                try:
+                    email_validator.validate_email(
+                        override_to_email, check_deliverability=False
+                    )
+                except email_validator.EmailNotValidError:
+                    request.session.flash(
+                        "Invalid email address format", queue="error"
+                    )
+                    return HTTPSeeOther(
+                        request.route_path(
+                            "admin.user.account_recovery.initiate",
+                            username=user.username,
+                        )
+                    )
+
                 user_service = request.find_service(IUserService, context=None)
                 _user = user_service.get_user_by_email(override_to_email)
                 if _user is None:
