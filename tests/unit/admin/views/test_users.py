@@ -1035,6 +1035,50 @@ class TestUserRecoverAccountInitiate:
         ]
         assert len(user.active_account_recoveries) == 0
 
+    def test_user_recover_account_initiate_invalid_email_format(
+        self, db_request, db_session, monkeypatch
+    ):
+        admin_user = UserFactory.create()
+        user = UserFactory.create(
+            totp_secret=b"aaaaabbbbbcccccddddd",
+            webauthn=[
+                WebAuthn(
+                    label="fake", credential_id="fake", public_key="extremely fake"
+                )
+            ],
+            recovery_codes=[
+                RecoveryCode(code="fake"),
+            ],
+        )
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_account_recovery_initiated_email", send_email)
+
+        db_request.method = "POST"
+        db_request.user = admin_user
+        db_request.POST["project_name"] = ""
+        db_request.POST["support_issue_link"] = "https://github.com/pypi/support/issues/1"
+        db_request.POST["override_to_email"] = "ivalid-email"
+        db_request.route_path = pretend.call_recorder(
+            lambda route_name, **kwargs: "/user/the-redirect/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.user_recover_account_initiate(user, db_request)
+
+        assert send_email.calls == []
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/user/the-redirect/"
+        assert db_request.route_path.calls == [
+            pretend.call("admin.user.account_recovery.initiate", username=user.username)
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call("Invalid email address format", queue="error")
+        ]
+        assert len(user.active_account_recoveries) == 0
+
     def test_user_recover_account_initiate_no_support_issue_link_submit(
         self, db_request, db_session
     ):
