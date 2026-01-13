@@ -498,9 +498,9 @@ msgpack==1.1.2 \
     --hash=sha256:fac4be746328f90caa3cd4bc67e6fe36ca2bf61d5c6eb6d895b6527e3f05071e \
     --hash=sha256:fffee09044073e69f2bad787071aeec727183e7580443dfeb8556cbf1978d162
     # via msgpack-types
-msgpack-types==0.5.0 \
-    --hash=sha256:8b633ed75e495a555fa0615843de559a74b1d176828d59bb393d266e51f6bda7 \
-    --hash=sha256:aebd1b8da23f8f9966d66ebb1a43bd261b95751c6a267bd21a124d2ccac84201
+msgpack-types==0.6.0 \
+    --hash=sha256:9c7b14ede1eb5a3a894b50f8529cd9dc075f4f40959edf98b9ebfe114e9bcf77 \
+    --hash=sha256:ab2c2c494dc9ab7657ee2dacbe0dc8d3026cc1d6ca7790395f7584aa1da08d9d
     # via -r requirements/lint.in
 mypy==1.19.1 \
     --hash=sha256:016f2246209095e8eda7538944daa1d60e1e8134d98983b9fc1e92c1fc0cb8dd \
