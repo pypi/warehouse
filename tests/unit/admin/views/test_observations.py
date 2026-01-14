@@ -446,18 +446,22 @@ class TestGetResponseTimelineStats:
             submitted_date=project_created,
         )
 
-        now = datetime.now(tz=timezone.utc)
+        # Report happens first, removal happens 1 hour later (realistic scenario)
+        report_time = datetime.now(tz=timezone.utc).replace(tzinfo=None) - timedelta(
+            hours=2
+        )
+        removal_time = datetime.now(tz=timezone.utc) - timedelta(hours=1)
 
         # Create observation with removal action
         ProjectObservationFactory.create(
             kind="is_malware",
             observer=observer,
             related=project,
+            created=report_time,
             actions={
-                int(now.timestamp()): {
+                int(removal_time.timestamp()): {
                     "action": "remove_malware",
                     "actor": "admin",
-                    "created_at": str(now),
                 }
             },
         )
@@ -1033,26 +1037,35 @@ class TestGetTimelineTrends:
         assert len(result["labels"]) >= 1
         assert len(result["response"]) >= 1
 
-    def test_removal_action_without_created_at(self, db_request):
-        """Test remove_malware action missing created_at."""
+    def test_removal_action_uses_timestamp_key(self, db_request):
+        """Test that removal time is parsed from the dict key (unix timestamp).
+
+        The actions dict is keyed by unix timestamp, so we use that directly
+        rather than parsing the created_at string.
+        """
         observer = ObserverFactory.create()
         project = ProjectFactory.create(
             created=datetime.now(tz=timezone.utc).replace(tzinfo=None)
             - timedelta(hours=24)
         )
 
-        now = datetime.now(tz=timezone.utc)
+        # Report happens first, removal happens 1 hour later (realistic scenario)
+        report_time = datetime.now(tz=timezone.utc).replace(tzinfo=None) - timedelta(
+            hours=2
+        )
+        removal_time = datetime.now(tz=timezone.utc) - timedelta(hours=1)
 
-        # Removal action without created_at field
+        # Removal action - created_at is optional since we use the dict key
         ProjectObservationFactory.create(
             kind="is_malware",
             observer=observer,
             related=project,
+            created=report_time,
             actions={
-                int(now.timestamp()): {
+                int(removal_time.timestamp()): {
                     "action": "remove_malware",
                     "actor": "admin",
-                    # no created_at field
+                    # created_at not needed - we use the dict key
                 },
             },
         )
@@ -1063,40 +1076,8 @@ class TestGetTimelineTrends:
         )
 
         assert len(result["labels"]) >= 1
-        # No response time since removal time couldn't be parsed
-        assert result["response"][0] is None
-
-    def test_naive_datetime_in_action(self, db_request):
-        """Test action with naive datetime string (no timezone)."""
-        observer = ObserverFactory.create()
-        project = ProjectFactory.create(
-            created=datetime.now(tz=timezone.utc).replace(tzinfo=None)
-            - timedelta(hours=24)
-        )
-
-        now = datetime.now(tz=timezone.utc).replace(tzinfo=None)
-
-        # Use naive datetime string (no timezone)
-        ProjectObservationFactory.create(
-            kind="is_malware",
-            observer=observer,
-            related=project,
-            actions={
-                int(now.timestamp()): {
-                    "action": "remove_malware",
-                    "actor": "admin",
-                    "created_at": now.isoformat(),  # naive - no timezone suffix
-                },
-            },
-        )
-
-        result = views._get_timeline_trends(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
-
-        assert len(result["labels"]) >= 1
-        assert len(result["response"]) >= 1
+        # Response time is available because we use the timestamp key
+        assert result["response"][0] is not None
 
     def test_multiple_removal_actions_keeps_earliest(self, db_request):
         """Test multiple removal actions where later one is ignored."""

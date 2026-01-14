@@ -287,23 +287,19 @@ def _parse_removal_time(actions: dict | None) -> datetime | None:
     """
     Extract the earliest removal time from observation actions.
 
+    Actions dict is keyed by unix timestamp, so we use that directly.
     Returns naive datetime for comparison with DB datetimes.
     """
     if not actions:
         return None
 
     removal_time = None
-    for action_data in actions.values():
+    for timestamp, action_data in actions.items():
         if action_data.get("action") != "remove_malware":
             continue
-        action_time = action_data.get("created_at")
-        if not action_time:
-            continue
 
-        removal_dt = datetime.fromisoformat(action_time)
-        # Strip timezone for comparison with naive DB datetimes
-        if removal_dt.tzinfo is not None:
-            removal_dt = removal_dt.replace(tzinfo=None)
+        removal_dt = datetime.fromtimestamp(int(timestamp), tz=timezone.utc)
+        removal_dt = removal_dt.replace(tzinfo=None)  # naive for DB comparison
         if removal_time is None or removal_dt < removal_time:
             removal_time = removal_dt
 
