@@ -186,6 +186,12 @@
           <i class="fa-solid fa-user-shield mr-2"></i>
           Reports by Observer Type
         </h3>
+        <div class="card-tools">
+          <a href="{{ request.route_path('admin.observers.reputation') }}" class="btn btn-sm btn-primary">
+            <i class="fa-solid fa-chart-line mr-1"></i>
+            Observer Reputation
+          </a>
+        </div>
       </div>
       <div class="card-body">
         <p class="text-muted small">
@@ -385,7 +391,6 @@
         </div>
 
         {# Response Breakdown - Quarantine vs Removal effectiveness #}
-        {% if timeline.quarantine_time or timeline.removal_time %}
         <div class="row mt-2">
           <div class="col-12">
             <div class="card card-outline card-warning">
@@ -397,36 +402,39 @@
               </div>
               <div class="card-body py-2">
                 <div class="row text-center">
-                  {% if timeline.quarantine_time %}
                   <div class="col-md-6 border-right">
                     <span class="text-warning">
                       <i class="fa-solid fa-lock mr-1"></i>
                       <strong>Auto-Quarantine</strong>
                     </span>
                     <p class="mb-1 small text-muted">Blocks downloads before manual review</p>
+                    {% if timeline.quarantine_time %}
                     <span class="h4">{{ timeline.quarantine_time.median }} hrs</span>
                     <span class="text-muted small">median</span>
                     <span class="badge badge-warning ml-2">{{ timeline.quarantine_time.count }} packages</span>
+                    {% else %}
+                    <span class="text-muted">No auto-quarantine activity in this period</span>
+                    {% endif %}
                   </div>
-                  {% endif %}
-                  {% if timeline.removal_time %}
                   <div class="col-md-6">
                     <span class="text-success">
                       <i class="fa-solid fa-trash mr-1"></i>
                       <strong>Full Removal</strong>
                     </span>
                     <p class="mb-1 small text-muted">Permanently deleted from index</p>
+                    {% if timeline.removal_time %}
                     <span class="h4">{{ timeline.removal_time.median }} hrs</span>
                     <span class="text-muted small">median</span>
                     <span class="badge badge-success ml-2">{{ timeline.removal_time.count }} packages</span>
+                    {% else %}
+                    <span class="text-muted">No removal activity in this period</span>
+                    {% endif %}
                   </div>
-                  {% endif %}
                 </div>
               </div>
             </div>
           </div>
         </div>
-        {% endif %}
 
         {# Timeline Trends Chart - Stacked Bar #}
         {% if timeline_trends.labels %}

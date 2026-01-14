@@ -82,15 +82,68 @@ class TestParseDaysParam:
         assert views._parse_days_param(request) == expected
 
 
+class TestHoursBetween:
+    """Tests for the _hours_between helper function.
+
+    This helper calculates hours between two timestamps, returning None for:
+    - Missing timestamps (either or both)
+    - Negative time differences (indicates data inconsistency)
+    """
+
+    # Reference timestamps for parametrized tests
+    T0 = datetime(2025, 1, 1, 0, 0, 0)  # Base time
+    T1 = datetime(2025, 1, 1, 1, 0, 0)  # 1 hour later
+    T2_5 = datetime(2025, 1, 1, 2, 30, 0)  # 2.5 hours later
+    T3 = datetime(2025, 1, 1, 3, 0, 0)  # 3 hours later
+
+    @pytest.mark.parametrize(
+        ("start", "end", "expected"),
+        [
+            # Valid positive differences
+            (T0, T2_5, 2.5),  # 2.5 hours later
+            (T0, T1, 1.0),  # 1 hour later
+            (T0, T0, 0.0),  # Same time (zero difference is valid)
+            # Invalid: negative difference (end before start)
+            (T3, T1, None),  # End is 2 hours before start
+            # Invalid: missing timestamps
+            (None, T1, None),  # Missing start
+            (T0, None, None),  # Missing end
+            (None, None, None),  # Both missing
+        ],
+        ids=[
+            "positive_2.5_hours",
+            "positive_1_hour",
+            "zero_difference",
+            "negative_difference",
+            "missing_start",
+            "missing_end",
+            "both_missing",
+        ],
+    )
+    def test_hours_between(self, start, end, expected):
+        """Test _hours_between with various input combinations."""
+        assert views._hours_between(start, end) == expected
+
+
+def _fetch_observations(db_request):
+    """Helper to fetch observations for tests using the new API."""
+    cutoff_date = datetime.now(tz=timezone.utc) - timedelta(days=90)
+    return views._fetch_malware_observations(db_request, cutoff_date), cutoff_date
+
+
+def _get_project_data(db_request):
+    """Helper to get project_data for timeline tests using the new API."""
+    observations, _ = _fetch_observations(db_request)
+    return views._get_timeline_data(db_request, observations)
+
+
 class TestGetCorroborationStats:
     """Tests for _get_corroboration_stats which returns (corroboration, accuracy)."""
 
     def test_empty_observations(self, db_request):
         """Test with no observations returns empty stats."""
-        corroboration, accuracy = views._get_corroboration_stats(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        observations, _ = _fetch_observations(db_request)
+        corroboration, accuracy = views._get_corroboration_stats(observations)
 
         assert corroboration["total_packages"] == 0
         assert corroboration["total_reports"] == 0
@@ -107,10 +160,8 @@ class TestGetCorroborationStats:
         ProjectObservationFactory.create(kind="is_malware", observer=observer1)
         ProjectObservationFactory.create(kind="is_malware", observer=observer2)
 
-        corroboration, accuracy = views._get_corroboration_stats(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        observations, _ = _fetch_observations(db_request)
+        corroboration, accuracy = views._get_corroboration_stats(observations)
 
         assert corroboration["total_packages"] == 2
         assert corroboration["single_report_packages"] == 2
@@ -133,10 +184,8 @@ class TestGetCorroborationStats:
             kind="is_malware", observer=observer2, related=project
         )
 
-        corroboration, accuracy = views._get_corroboration_stats(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        observations, _ = _fetch_observations(db_request)
+        corroboration, accuracy = views._get_corroboration_stats(observations)
 
         assert corroboration["total_packages"] == 1
         assert corroboration["multi_report_packages"] == 1
@@ -169,10 +218,8 @@ class TestGetCorroborationStats:
             kind="is_malware", observer=observer2, related=project
         )
 
-        corroboration, accuracy = views._get_corroboration_stats(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        observations, _ = _fetch_observations(db_request)
+        corroboration, accuracy = views._get_corroboration_stats(observations)
 
         assert corroboration["multi_report_packages"] == 1
         assert accuracy["multi"]["total"] == 2
@@ -200,10 +247,8 @@ class TestGetCorroborationStats:
             },
         )
 
-        corroboration, accuracy = views._get_corroboration_stats(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        observations, _ = _fetch_observations(db_request)
+        corroboration, accuracy = views._get_corroboration_stats(observations)
 
         assert corroboration["single_report_packages"] == 1
         assert accuracy["single"]["total"] == 1
@@ -214,10 +259,8 @@ class TestGetCorroborationStats:
 class TestGetObserverTypeStats:
     def test_empty_observations(self, db_request):
         """Test observer type stats with no observations."""
-        result = views._get_observer_type_stats(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        observations, _ = _fetch_observations(db_request)
+        result = views._get_observer_type_stats(db_request, observations)
 
         assert result["trusted"]["total"] == 0
         assert result["non_trusted"]["total"] == 0
@@ -237,10 +280,8 @@ class TestGetObserverTypeStats:
         ProjectObservationFactory.create(kind="is_malware", observer=trusted_observer)
         ProjectObservationFactory.create(kind="is_malware", observer=regular_observer)
 
-        result = views._get_observer_type_stats(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        observations, _ = _fetch_observations(db_request)
+        result = views._get_observer_type_stats(db_request, observations)
 
         assert result["trusted"]["total"] == 1
         assert result["non_trusted"]["total"] == 1
@@ -286,10 +327,8 @@ class TestGetObserverTypeStats:
             },
         )
 
-        result = views._get_observer_type_stats(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        observations, _ = _fetch_observations(db_request)
+        result = views._get_observer_type_stats(db_request, observations)
 
         assert result["trusted"]["total"] == 1
         assert result["trusted"]["true_pos"] == 1
@@ -302,10 +341,8 @@ class TestGetObserverTypeStats:
 class TestGetAutoQuarantineStats:
     def test_no_reported_packages(self, db_request):
         """Test with no reported packages."""
-        result = views._get_auto_quarantine_stats(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        observations, cutoff_date = _fetch_observations(db_request)
+        result = views._get_auto_quarantine_stats(db_request, observations, cutoff_date)
 
         assert result["total_reported"] == 0
         assert result["auto_quarantined"] == 0
@@ -341,10 +378,8 @@ class TestGetAutoQuarantineStats:
             submitted_date=now.replace(tzinfo=None),
         )
 
-        result = views._get_auto_quarantine_stats(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        observations, cutoff_date = _fetch_observations(db_request)
+        result = views._get_auto_quarantine_stats(db_request, observations, cutoff_date)
 
         assert result["total_reported"] == 1
         assert result["auto_quarantined"] == 1
@@ -373,10 +408,8 @@ class TestGetAutoQuarantineStats:
             submitted_date=datetime.now(tz=timezone.utc).replace(tzinfo=None),
         )
 
-        result = views._get_auto_quarantine_stats(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        observations, cutoff_date = _fetch_observations(db_request)
+        result = views._get_auto_quarantine_stats(db_request, observations, cutoff_date)
 
         assert result["total_reported"] == 1
         assert result["auto_quarantined"] == 1
@@ -407,23 +440,43 @@ class TestGetAutoQuarantineStats:
             submitted_date=datetime.now(tz=timezone.utc).replace(tzinfo=None),
         )
 
-        result = views._get_auto_quarantine_stats(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        observations, cutoff_date = _fetch_observations(db_request)
+        result = views._get_auto_quarantine_stats(db_request, observations, cutoff_date)
 
         assert result["total_reported"] == 2
         assert result["auto_quarantined"] == 1
         assert result["quarantine_rate"] == 50.0
 
+    def test_invalid_related_name_format(self, db_request):
+        """Test with observations that have unparseable related_name format.
+
+        When related_name doesn't match the expected Project(name='...') format,
+        the observation is skipped for quarantine stats.
+        """
+        observer = ObserverFactory.create()
+
+        # Create observation with invalid related_name (no name='...' pattern)
+        ProjectObservationFactory.create(
+            kind="is_malware",
+            observer=observer,
+            related=None,
+            related_name="invalid-format-without-name-field",
+        )
+
+        observations, cutoff_date = _fetch_observations(db_request)
+        result = views._get_auto_quarantine_stats(db_request, observations, cutoff_date)
+
+        # Should return empty stats since no valid project names could be parsed
+        assert result["total_reported"] == 0
+        assert result["auto_quarantined"] == 0
+        assert result["quarantine_rate"] is None
+
 
 class TestGetResponseTimelineStats:
     def test_no_observations(self, db_request):
         """Test timeline with no observations."""
-        result = views._get_response_timeline_stats(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        project_data = _get_project_data(db_request)
+        result = views._get_response_timeline_stats(project_data)
 
         assert result["sample_size"] == 0
         assert result["detection_time"] is None
@@ -466,10 +519,8 @@ class TestGetResponseTimelineStats:
             },
         )
 
-        result = views._get_response_timeline_stats(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        project_data = _get_project_data(db_request)
+        result = views._get_response_timeline_stats(project_data)
 
         assert result["sample_size"] == 1
         assert result["detection_time"] is not None
@@ -501,10 +552,8 @@ class TestGetResponseTimelineStats:
             submitted_date=datetime.now(tz=timezone.utc).replace(tzinfo=None),
         )
 
-        result = views._get_response_timeline_stats(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        project_data = _get_project_data(db_request)
+        result = views._get_response_timeline_stats(project_data)
 
         assert result["sample_size"] == 1
         assert result["quarantine_time"] is not None
@@ -543,10 +592,8 @@ class TestGetResponseTimelineStats:
                 },
             )
 
-        result = views._get_response_timeline_stats(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        project_data = _get_project_data(db_request)
+        result = views._get_response_timeline_stats(project_data)
 
         assert result["sample_size"] == 7
         assert len(result["longest_lived"]) == 5  # Top 5
@@ -601,19 +648,25 @@ class TestGetResponseTimelineStats:
             },
         )
 
-        # Third observation: even earlier (tests updating first_report)
+        # Third observation: even earlier, with an earlier removal time
+        # This tests the branch where we update removal_time to an earlier value
         even_earlier = now - timedelta(hours=4)
+        earlier_removal = now - timedelta(hours=3)  # Earlier than first observation
         ProjectObservationFactory.create(
             kind="is_malware",
             observer=ObserverFactory.create(),
             related=project,
             created=even_earlier.replace(tzinfo=None),
+            actions={
+                int(earlier_removal.timestamp()): {
+                    "action": "remove_malware",
+                    "actor": "admin",
+                }
+            },
         )
 
-        result = views._get_response_timeline_stats(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        project_data = _get_project_data(db_request)
+        result = views._get_response_timeline_stats(project_data)
 
         assert result["sample_size"] == 1  # One project
         assert result["detection_time"] is not None
@@ -661,10 +714,8 @@ class TestGetResponseTimelineStats:
             submitted_date=quarantine_time,
         )
 
-        result = views._get_response_timeline_stats(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        project_data = _get_project_data(db_request)
+        result = views._get_response_timeline_stats(project_data)
 
         assert result["sample_size"] == 1
         assert result["quarantine_time"] is not None
@@ -714,10 +765,8 @@ class TestGetResponseTimelineStats:
             submitted_date=now.replace(tzinfo=None) - timedelta(hours=12),
         )
 
-        result = views._get_response_timeline_stats(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        project_data = _get_project_data(db_request)
+        result = views._get_response_timeline_stats(project_data)
 
         # Should find the deleted project and calculate timeline stats
         assert result["sample_size"] == 1
@@ -779,14 +828,67 @@ class TestObservationsInsights:
         assert result["days"] == expected_days
 
 
+class TestGetTimelineData:
+    """Tests for _get_timeline_data function."""
+
+    def test_invalid_related_names_skip_journal_lookup(self, db_request):
+        """Test that observations with unparseable related_name skip journal lookup.
+
+        When no valid project names can be parsed from related_name,
+        the function returns early without querying journal entries.
+        """
+        observer = ObserverFactory.create()
+
+        # Create observation with invalid related_name (no name='...' pattern)
+        ProjectObservationFactory.create(
+            kind="is_malware",
+            observer=observer,
+            related=None,
+            related_name="invalid-format-no-name-field",
+        )
+
+        observations, _ = _fetch_observations(db_request)
+        result = views._get_timeline_data(db_request, observations)
+
+        # Should return project_data with None for name and no journal data
+        assert len(result) == 1
+        key = "invalid-format-no-name-field"
+        assert result[key]["name"] is None
+        assert result[key]["project_created"] is None
+        assert result[key]["quarantine_time"] is None
+
+
 class TestGetTimelineTrends:
     def test_no_observations(self, db_request):
         """Test timeline trends with no observations."""
-        result = views._get_timeline_trends(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        project_data = _get_project_data(db_request)
+        result = views._get_timeline_trends(project_data)
 
+        assert result["labels"] == []
+        assert result["detection"] == []
+        assert result["response"] == []
+        assert result["time_to_quarantine"] == []
+
+    def test_missing_first_report_skipped(self):
+        """Test that entries with missing first_report are skipped.
+
+        This is a defensive check - in practice first_report should always
+        be set from the observation's created timestamp.
+        """
+        # Directly test with project_data that has first_report=None
+        project_data = {
+            "project-key": {
+                "name": "test-project",
+                "project_created": datetime.now(tz=timezone.utc).replace(tzinfo=None),
+                "first_report": None,  # Missing first_report
+                "quarantine_time": None,
+                "removal_time": None,
+            }
+        }
+
+        result = views._get_timeline_trends(project_data)
+
+        # Should return empty results since first_report is missing
         assert result["labels"] == []
         assert result["detection"] == []
         assert result["response"] == []
@@ -799,10 +901,8 @@ class TestGetTimelineTrends:
         # Create observation
         ProjectObservationFactory.create(kind="is_malware", observer=observer)
 
-        result = views._get_timeline_trends(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        project_data = _get_project_data(db_request)
+        result = views._get_timeline_trends(project_data)
 
         # Should have at least one week of data
         assert len(result["labels"]) >= 1
@@ -815,12 +915,20 @@ class TestGetTimelineTrends:
         admin_user = UserFactory.create(username="admin")
 
         observer = ObserverFactory.create()
-        project = ProjectFactory.create(
-            created=datetime.now(tz=timezone.utc).replace(tzinfo=None)
-            - timedelta(hours=48)
-        )
+        project_created = datetime.now(tz=timezone.utc).replace(
+            tzinfo=None
+        ) - timedelta(hours=48)
+        project = ProjectFactory.create(created=project_created)
 
         now = datetime.now(tz=timezone.utc)
+
+        # Create project creation journal entry (required for time_to_quarantine)
+        JournalEntryFactory.create(
+            name=project.name,
+            action="create",
+            submitted_by=admin_user,
+            submitted_date=project_created,
+        )
 
         # Create observation with removal action
         ProjectObservationFactory.create(
@@ -845,15 +953,15 @@ class TestGetTimelineTrends:
             - timedelta(hours=1),
         )
 
-        result = views._get_timeline_trends(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        project_data = _get_project_data(db_request)
+        result = views._get_timeline_trends(project_data)
 
         assert len(result["labels"]) >= 1
         assert len(result["detection"]) >= 1
         assert len(result["response"]) >= 1
         assert len(result["time_to_quarantine"]) >= 1
+        # Ensure time_to_quarantine has actual data (not None)
+        assert result["time_to_quarantine"][0] is not None
 
     def test_with_only_quarantine(self, db_request):
         """Test timeline trends with only quarantine (no removal)."""
@@ -881,10 +989,8 @@ class TestGetTimelineTrends:
             submitted_date=datetime.now(tz=timezone.utc).replace(tzinfo=None),
         )
 
-        result = views._get_timeline_trends(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        project_data = _get_project_data(db_request)
+        result = views._get_timeline_trends(project_data)
 
         assert len(result["labels"]) >= 1
         # Response should have data (quarantine is an action)
@@ -914,10 +1020,8 @@ class TestGetTimelineTrends:
             },
         )
 
-        result = views._get_timeline_trends(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        project_data = _get_project_data(db_request)
+        result = views._get_timeline_trends(project_data)
 
         assert len(result["labels"]) >= 1
         assert len(result["response"]) >= 1
@@ -959,10 +1063,8 @@ class TestGetTimelineTrends:
             - timedelta(hours=2),
         )
 
-        result = views._get_timeline_trends(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        project_data = _get_project_data(db_request)
+        result = views._get_timeline_trends(project_data)
 
         assert len(result["labels"]) >= 1
         assert len(result["detection"]) >= 1
@@ -992,10 +1094,8 @@ class TestGetTimelineTrends:
             created=datetime.now(tz=timezone.utc).replace(tzinfo=None),
         )
 
-        result = views._get_timeline_trends(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        project_data = _get_project_data(db_request)
+        result = views._get_timeline_trends(project_data)
 
         assert len(result["labels"]) >= 1
         assert len(result["detection"]) >= 1
@@ -1029,10 +1129,8 @@ class TestGetTimelineTrends:
             },
         )
 
-        result = views._get_timeline_trends(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        project_data = _get_project_data(db_request)
+        result = views._get_timeline_trends(project_data)
 
         assert len(result["labels"]) >= 1
         assert len(result["response"]) >= 1
@@ -1070,10 +1168,8 @@ class TestGetTimelineTrends:
             },
         )
 
-        result = views._get_timeline_trends(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        project_data = _get_project_data(db_request)
+        result = views._get_timeline_trends(project_data)
 
         assert len(result["labels"]) >= 1
         # Response time is available because we use the timestamp key
@@ -1110,10 +1206,8 @@ class TestGetTimelineTrends:
             },
         )
 
-        result = views._get_timeline_trends(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        project_data = _get_project_data(db_request)
+        result = views._get_timeline_trends(project_data)
 
         assert len(result["labels"]) >= 1
         assert len(result["response"]) >= 1
@@ -1158,10 +1252,8 @@ class TestGetTimelineTrends:
             created=now - timedelta(hours=20),  # same week
         )
 
-        result = views._get_timeline_trends(
-            db_request,
-            datetime.now(tz=timezone.utc) - timedelta(days=90),
-        )
+        project_data = _get_project_data(db_request)
+        result = views._get_timeline_trends(project_data)
 
         # Should have exactly one week with data from both projects
         assert len(result["labels"]) == 1

@@ -30,6 +30,30 @@ DEFAULT_DAYS = 30
 _PROJECT_NAME_PATTERN = re.compile(r"name='([^']+)'")
 
 
+def _calc_stats(times: list) -> dict | None:
+    """Calculate statistical summary for a list of time values."""
+    if not times:
+        return None
+    times.sort()
+    n = len(times)
+    return {
+        "median": round(times[n // 2], 1),
+        "average": round(sum(times) / n, 1),
+        "p90": round(times[int(n * 0.9)] if n >= 10 else times[-1], 1),
+        "min": round(min(times), 1),
+        "max": round(max(times), 1),
+        "count": n,
+    }
+
+
+def _calc_median(values: list) -> float | None:
+    """Calculate median of a list of values."""
+    if not values:
+        return None
+    values.sort()
+    return round(values[len(values) // 2], 1)
+
+
 def _parse_days_param(request: Request, allowed: tuple[int, ...] = ALLOWED_DAYS) -> int:
     """Parse and validate the days query parameter."""
     try:
@@ -37,6 +61,29 @@ def _parse_days_param(request: Request, allowed: tuple[int, ...] = ALLOWED_DAYS)
         return days if days in allowed else DEFAULT_DAYS
     except (ValueError, TypeError):
         return DEFAULT_DAYS
+
+
+def _fetch_malware_observations(request: Request, cutoff_date: datetime) -> list:
+    """
+    Fetch all malware observations with all fields needed by stats functions.
+
+    This single query replaces multiple individual queries, reducing DB round trips.
+    Uses a window function to include report_count per package in each row.
+    """
+    stmt = select(
+        Observation.related_name,  # type: ignore[attr-defined]
+        Observation.related_id,  # type: ignore[attr-defined]
+        Observation.observer_id,  # type: ignore[attr-defined]
+        Observation.actions,
+        Observation.created.label("report_created"),
+        func.count()
+        .over(partition_by=Observation.related_name)  # type: ignore[attr-defined]
+        .label("report_count"),
+    ).where(
+        Observation.kind == "is_malware",
+        Observation.created >= cutoff_date,
+    )
+    return request.db.execute(stmt).all()
 
 
 @view_config(
@@ -71,14 +118,15 @@ def observations_list(request):
     return {"kind_groups": grouped_observations}
 
 
-def _get_corroboration_stats(
-    request: Request, cutoff_date: datetime
-) -> tuple[dict, dict]:
+def _get_corroboration_stats(observations: list) -> tuple[dict, dict]:
     """
     Calculate corroboration and accuracy statistics for malware reports.
 
     Corroboration = multiple independent observers reporting the same package.
     Higher corroboration suggests higher confidence in the report.
+
+    Args:
+        observations: Pre-fetched observations from _fetch_malware_observations()
 
     Returns tuple of (corroboration_stats, accuracy_stats).
     """
@@ -94,20 +142,6 @@ def _get_corroboration_stats(
         "single": {"total": 0, "true_pos": 0, "false_pos": 0, "accuracy": None},
         "multi": {"total": 0, "true_pos": 0, "false_pos": 0, "accuracy": None},
     }
-
-    # Use window function to include report_count per package in each row
-    stmt = select(
-        Observation.related_name,  # type: ignore[attr-defined]
-        Observation.related_id,  # type: ignore[attr-defined]
-        Observation.actions,
-        func.count()
-        .over(partition_by=Observation.related_name)  # type: ignore[attr-defined]
-        .label("report_count"),
-    ).where(
-        Observation.kind == "is_malware",
-        Observation.created >= cutoff_date,
-    )
-    observations = request.db.execute(stmt).all()
 
     if not observations:
         return empty_corroboration, empty_accuracy
@@ -168,24 +202,16 @@ def _get_corroboration_stats(
     return corroboration, {"single": single_accuracy, "multi": multi_accuracy}
 
 
-def _get_observer_type_stats(request: Request, cutoff_date: datetime) -> dict:
+def _get_observer_type_stats(request: Request, observations: list) -> dict:
     """
     Break down reports by observer type (trusted vs non-trusted).
 
     Trusted observers have is_observer=True on their user account.
+
+    Args:
+        request: Pyramid request (needed for user lookup)
+        observations: Pre-fetched observations from _fetch_malware_observations()
     """
-
-    # Get observations first
-    obs_stmt = select(
-        Observation.observer_id,  # type: ignore[attr-defined]
-        Observation.actions,
-        Observation.related_id,  # type: ignore[attr-defined]
-    ).where(
-        Observation.kind == "is_malware",
-        Observation.created >= cutoff_date,
-    )
-    observations = request.db.execute(obs_stmt).all()
-
     if not observations:
         return {
             "trusted": {"total": 0, "true_pos": 0, "false_pos": 0, "accuracy": None},
@@ -229,13 +255,20 @@ def _get_observer_type_stats(request: Request, cutoff_date: datetime) -> dict:
     return {"trusted": trusted, "non_trusted": non_trusted}
 
 
-def _get_auto_quarantine_stats(request: Request, cutoff_date: datetime) -> dict:
+def _get_auto_quarantine_stats(
+    request: Request, observations: list, cutoff_date: datetime
+) -> dict:
     """
     Calculate auto-quarantine statistics.
 
     Auto-quarantined packages are identified by journal entries with
     action='project quarantined' submitted by 'admin' user.
     Uses related_name to include observations for deleted projects.
+
+    Args:
+        request: Pyramid request (needed for journal query)
+        observations: Pre-fetched observations from _fetch_malware_observations()
+        cutoff_date: Cutoff date for journal entry lookup
     """
     empty_result = {
         "total_reported": 0,
@@ -243,18 +276,14 @@ def _get_auto_quarantine_stats(request: Request, cutoff_date: datetime) -> dict:
         "quarantine_rate": None,
     }
 
-    # Get reported package names from observations (includes deleted projects)
-    obs_stmt = select(Observation.related_name).where(  # type: ignore[attr-defined]
-        Observation.kind == "is_malware",
-        Observation.created >= cutoff_date,
-    )
-    observations = request.db.execute(obs_stmt).all()
+    if not observations:
+        return empty_result
 
     # Parse project names from related_name
     reported_names: set[str] = set()
     for obs in observations:
         name = _parse_project_name_from_repr(obs.related_name)
-        if name:  # pragma: no cover
+        if name:
             reported_names.add(name)
 
     if not reported_names:
@@ -317,30 +346,22 @@ def _parse_project_name_from_repr(related_name: str) -> str | None:
     return match.group(1) if match else None
 
 
-def _get_timeline_data(request: Request, cutoff_date: datetime) -> tuple[dict, dict]:
+def _get_timeline_data(request: Request, observations: list) -> dict:
     """
-    Fetch and process timeline data for malware observations.
+    Process timeline data for malware observations.
 
-    Returns (project_data, quarantine_dates) where project_data contains
-    per-project timeline information.
+    Args:
+        request: Pyramid request (needed for journal queries)
+        observations: Pre-fetched observations from _fetch_malware_observations()
+
+    Returns project_data dict containing per-project timeline information.
 
     All observations have related_name (always present) and created time.
     related_id indicates whether the project still exists (non-NULL = exists).
     Project creation times and quarantine times are looked up from JournalEntry.
     """
-    # Get malware observations - no join needed
-    obs_stmt = select(
-        Observation.related_name,  # type: ignore[attr-defined]
-        Observation.actions,
-        Observation.created.label("report_created"),
-    ).where(
-        Observation.kind == "is_malware",
-        Observation.created >= cutoff_date,
-    )
-    observations = request.db.execute(obs_stmt).all()
-
     if not observations:
-        return {}, {}
+        return {}
 
     # Build project_data grouped by related_name, collecting project names
     project_data: dict = {}
@@ -350,7 +371,7 @@ def _get_timeline_data(request: Request, cutoff_date: datetime) -> tuple[dict, d
         key = obs.related_name
         name = _parse_project_name_from_repr(obs.related_name)
 
-        if name:  # pragma: no cover
+        if name:
             project_names.add(name)
 
         if key not in project_data:
@@ -365,56 +386,49 @@ def _get_timeline_data(request: Request, cutoff_date: datetime) -> tuple[dict, d
             # Track the earliest report
             if obs.report_created < project_data[key]["first_report"]:
                 project_data[key]["first_report"] = obs.report_created
-            # Track the earliest removal
-            obs_removal = _parse_removal_time(obs.actions)
-            if obs_removal:  # pragma: no cover
-                current = project_data[key]["removal_time"]
-                if current is None or obs_removal < current:
+            # Track the earliest removal - only parse if we might update
+            current_removal = project_data[key]["removal_time"]
+            if obs.actions:  # Only parse if actions exist
+                obs_removal = _parse_removal_time(obs.actions)
+                if obs_removal and (
+                    current_removal is None or obs_removal < current_removal
+                ):
                     project_data[key]["removal_time"] = obs_removal
 
-    if not project_names:  # pragma: no cover
-        return project_data, {}
+    if not project_names:
+        return project_data
 
-    # Look up creation times from journal entries
-    creation_stmt = (
+    # Look up creation and quarantine times from journal entries in one query
+    # Using conditional aggregation to get both in a single round-trip
+    journal_stmt = (
         select(
             JournalEntry.name,
-            func.min(JournalEntry.submitted_date).label("created_date"),
+            func.min(JournalEntry.submitted_date)
+            .filter(JournalEntry.action == "create")
+            .label("created_date"),
+            func.min(JournalEntry.submitted_date)
+            .filter(
+                JournalEntry.action == "project quarantined",
+                JournalEntry._submitted_by == "admin",
+            )
+            .label("quarantine_date"),
         )
-        .where(
-            JournalEntry.name.in_(project_names),
-            JournalEntry.action == "create",
-        )
+        .where(JournalEntry.name.in_(project_names))
         .group_by(JournalEntry.name)
     )
-    creation_dates = {
-        row.name: row.created_date for row in request.db.execute(creation_stmt).all()
-    }
-
-    # Look up quarantine times from journal entries
-    quarantine_stmt = (
-        select(
-            JournalEntry.name,
-            func.min(JournalEntry.submitted_date).label("quarantine_date"),
-        )
-        .where(
-            JournalEntry.name.in_(project_names),
-            JournalEntry.action == "project quarantined",
-            JournalEntry._submitted_by == "admin",
-        )
-        .group_by(JournalEntry.name)
-    )
-    quarantine_dates = {
-        q.name: q.quarantine_date for q in request.db.execute(quarantine_stmt).all()
+    journal_data = {
+        row.name: (row.created_date, row.quarantine_date)
+        for row in request.db.execute(journal_stmt).all()
     }
 
     # Fill in creation and quarantine times
     for data in project_data.values():
-        if data["name"]:  # pragma: no cover
-            data["project_created"] = creation_dates.get(data["name"])
-            data["quarantine_time"] = quarantine_dates.get(data["name"])
+        if data["name"] and data["name"] in journal_data:
+            created, quarantined = journal_data[data["name"]]
+            data["project_created"] = created
+            data["quarantine_time"] = quarantined
 
-    return project_data, quarantine_dates
+    return project_data
 
 
 def _calc_action_time(
@@ -426,7 +440,20 @@ def _calc_action_time(
     return quarantine_time or removal_time
 
 
-def _get_response_timeline_stats(request: Request, cutoff_date: datetime) -> dict:
+def _hours_between(start: datetime | None, end: datetime | None) -> float | None:
+    """
+    Calculate hours between two timestamps.
+
+    Returns None if either timestamp is missing or if the result would be negative
+    (which indicates data inconsistency - e.g., removal before report).
+    """
+    if not start or not end:
+        return None
+    hours = (end - start).total_seconds() / 3600
+    return hours if hours >= 0 else None
+
+
+def _get_response_timeline_stats(project_data: dict) -> dict:
     """
     Calculate response timeline statistics for confirmed malware.
 
@@ -435,6 +462,9 @@ def _get_response_timeline_stats(request: Request, cutoff_date: datetime) -> dic
     - Time to Quarantine: First report -> Auto-quarantine (project unavailable)
     - Time to Removal: First report -> remove_malware action (project deleted)
     - Total Exposure: Project creation -> Quarantine or Removal (whichever is first)
+
+    Args:
+        project_data: Pre-computed project data from _get_timeline_data()
     """
     empty_result: dict = {
         "sample_size": 0,
@@ -446,7 +476,6 @@ def _get_response_timeline_stats(request: Request, cutoff_date: datetime) -> dic
         "longest_lived": [],
     }
 
-    project_data, _ = _get_timeline_data(request, cutoff_date)
     if not project_data:
         return empty_result
 
@@ -463,81 +492,60 @@ def _get_response_timeline_stats(request: Request, cutoff_date: datetime) -> dic
         first_report = data["first_report"]
         quarantine_time = data["quarantine_time"]
         removal_time = data["removal_time"]
+        action_time = _calc_action_time(quarantine_time, removal_time)
 
         # Time to Detection: project created -> first report
-        if project_created and first_report:
-            detection_hours = (first_report - project_created).total_seconds() / 3600
-            if detection_hours >= 0:  # pragma: no cover
-                detection_times.append(detection_hours)
+        if (hours := _hours_between(project_created, first_report)) is not None:
+            detection_times.append(hours)
 
         # Time to Quarantine: first report -> quarantine
-        if quarantine_time and first_report:
-            quarantine_hours = (quarantine_time - first_report).total_seconds() / 3600
-            if quarantine_hours >= 0:  # pragma: no cover
-                quarantine_times.append(quarantine_hours)
+        if (hours := _hours_between(first_report, quarantine_time)) is not None:
+            quarantine_times.append(hours)
 
         # Time to Removal: first report -> removal
-        if removal_time and first_report:
-            removal_hours = (removal_time - first_report).total_seconds() / 3600
-            if removal_hours >= 0:  # pragma: no cover
-                removal_times.append(removal_hours)
+        if (hours := _hours_between(first_report, removal_time)) is not None:
+            removal_times.append(hours)
 
         # Response Time: first report -> earliest action
-        action_time = _calc_action_time(quarantine_time, removal_time)
-        if action_time and first_report:  # pragma: no cover
-            response_hours = (action_time - first_report).total_seconds() / 3600
-            if response_hours >= 0:
-                response_times.append(response_hours)
+        if (hours := _hours_between(first_report, action_time)) is not None:
+            response_times.append(hours)
 
         # Total Exposure: project created -> earliest action
-        if action_time and project_created:
-            exposure_hours = (action_time - project_created).total_seconds() / 3600
-            if exposure_hours >= 0:  # pragma: no cover
-                exposure_times.append(exposure_hours)
-                exposure_details.append(
-                    {
-                        "name": data["name"],
-                        "exposure_hours": round(exposure_hours, 1),
-                        "project_created": project_created,
-                        "first_report": first_report,
-                        "quarantine_time": quarantine_time,
-                        "removal_time": removal_time,
-                    }
-                )
-
-    def calc_stats(times: list) -> dict | None:
-        if not times:
-            return None
-        times.sort()
-        n = len(times)
-        return {
-            "median": round(times[n // 2], 1),
-            "average": round(sum(times) / n, 1),
-            "p90": round(times[int(n * 0.9)] if n >= 10 else times[-1], 1),
-            "min": round(min(times), 1),
-            "max": round(max(times), 1),
-            "count": n,
-        }
+        if (hours := _hours_between(project_created, action_time)) is not None:
+            exposure_times.append(hours)
+            exposure_details.append(
+                {
+                    "name": data["name"],
+                    "exposure_hours": round(hours, 1),
+                    "project_created": project_created,
+                    "first_report": first_report,
+                    "quarantine_time": quarantine_time,
+                    "removal_time": removal_time,
+                }
+            )
 
     # Sort by exposure and get top 5 longest-lived
     exposure_details.sort(key=lambda x: x["exposure_hours"], reverse=True)
 
     return {
         "sample_size": len(project_data),
-        "detection_time": calc_stats(detection_times),
-        "quarantine_time": calc_stats(quarantine_times),
-        "removal_time": calc_stats(removal_times),
-        "response_time": calc_stats(response_times),
-        "total_exposure": calc_stats(exposure_times),
+        "detection_time": _calc_stats(detection_times),
+        "quarantine_time": _calc_stats(quarantine_times),
+        "removal_time": _calc_stats(removal_times),
+        "response_time": _calc_stats(response_times),
+        "total_exposure": _calc_stats(exposure_times),
         "longest_lived": exposure_details[:5],
     }
 
 
-def _get_timeline_trends(request: Request, cutoff_date: datetime) -> dict[str, list]:
+def _get_timeline_trends(project_data: dict) -> dict[str, list]:
     """
     Calculate weekly timeline trends for visualization.
 
     Returns weekly median values for detection, response, and time-to-quarantine.
+
+    Args:
+        project_data: Pre-computed project data from _get_timeline_data()
     """
     empty_result: dict[str, list] = {
         "labels": [],
@@ -546,7 +554,6 @@ def _get_timeline_trends(request: Request, cutoff_date: datetime) -> dict[str, l
         "time_to_quarantine": [],
     }
 
-    project_data, _ = _get_timeline_data(request, cutoff_date)
     if not project_data:
         return empty_result
 
@@ -558,8 +565,9 @@ def _get_timeline_trends(request: Request, cutoff_date: datetime) -> dict[str, l
         first_report = data["first_report"]
         quarantine_time = data["quarantine_time"]
         removal_time = data["removal_time"]
+        action_time = _calc_action_time(quarantine_time, removal_time)
 
-        if not first_report:  # pragma: no cover
+        if not first_report:
             continue
 
         # Use the week of the first report as the grouping key
@@ -574,31 +582,18 @@ def _get_timeline_trends(request: Request, cutoff_date: datetime) -> dict[str, l
             }
 
         # Detection time: upload -> first report
-        if project_created:
-            detection_hours = (first_report - project_created).total_seconds() / 3600
-            if detection_hours >= 0:  # pragma: no cover
-                weekly_data[week_key]["detection"].append(detection_hours)
+        if (hours := _hours_between(project_created, first_report)) is not None:
+            weekly_data[week_key]["detection"].append(hours)
 
         # Response time: first report -> action
-        action_time = _calc_action_time(quarantine_time, removal_time)
-        if action_time and first_report:
-            response_hours = (action_time - first_report).total_seconds() / 3600
-            if response_hours >= 0:
-                weekly_data[week_key]["response"].append(response_hours)
+        if (hours := _hours_between(first_report, action_time)) is not None:
+            weekly_data[week_key]["response"].append(hours)
 
         # Time to Quarantine: upload -> quarantine
-        if quarantine_time and project_created:  # pragma: no cover
-            ttq_hours = (quarantine_time - project_created).total_seconds() / 3600
-            if ttq_hours >= 0:
-                weekly_data[week_key]["time_to_quarantine"].append(ttq_hours)
+        if (hours := _hours_between(project_created, quarantine_time)) is not None:
+            weekly_data[week_key]["time_to_quarantine"].append(hours)
 
     # Calculate medians for each week
-    def median(values: list) -> float | None:
-        if not values:
-            return None
-        values.sort()
-        return round(values[len(values) // 2], 1)
-
     sorted_weeks = sorted(weekly_data.keys())
     labels = []
     detection_medians = []
@@ -610,9 +605,9 @@ def _get_timeline_trends(request: Request, cutoff_date: datetime) -> dict[str, l
         labels.append(week_date.strftime("%b %d"))
 
         week_data = weekly_data[week]
-        detection_medians.append(median(week_data["detection"]))
-        response_medians.append(median(week_data["response"]))
-        time_to_quarantine_medians.append(median(week_data["time_to_quarantine"]))
+        detection_medians.append(_calc_median(week_data["detection"]))
+        response_medians.append(_calc_median(week_data["response"]))
+        time_to_quarantine_medians.append(_calc_median(week_data["time_to_quarantine"]))
 
     return {
         "labels": labels,
@@ -636,13 +631,17 @@ def observations_insights(request: Request):
     days = _parse_days_param(request)
     cutoff_date = datetime.now(tz=timezone.utc) - timedelta(days=days)
 
-    corroboration, corroborated_accuracy = _get_corroboration_stats(
-        request, cutoff_date
-    )
-    observer_types = _get_observer_type_stats(request, cutoff_date)
-    auto_quarantine = _get_auto_quarantine_stats(request, cutoff_date)
-    timeline = _get_response_timeline_stats(request, cutoff_date)
-    timeline_trends = _get_timeline_trends(request, cutoff_date)
+    observations = _fetch_malware_observations(request, cutoff_date)
+
+    # Process observations through each stats function
+    corroboration, corroborated_accuracy = _get_corroboration_stats(observations)
+    observer_types = _get_observer_type_stats(request, observations)
+    auto_quarantine = _get_auto_quarantine_stats(request, observations, cutoff_date)
+
+    # Single call for timeline data - used by both timeline stats and trends
+    project_data = _get_timeline_data(request, observations)
+    timeline = _get_response_timeline_stats(project_data)
+    timeline_trends = _get_timeline_trends(project_data)
 
     return {
         "days": days,
