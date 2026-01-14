@@ -227,6 +227,13 @@
                     Since you don't have a project already, we need to know what your reason for applying for a PyPI Org account is and how having a PyPI Org account might help you.
                     Let us know and we will go from there, thanks!
                 </div>
+                <div class="hidden" id="GitHubAssociationTemplate">
+                    Please ensure that your membership to the GitHub organization you've linked is public,
+                    and complete an Account Association to link your PyPI and GitHub accounts at
+                    https://pypi.org/manage/account/#account-associations
+
+                    Let us know when that is complete and we can proceed with your request.
+                </div>
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
                 <input name="organization_applications_turbo_mode" type="hidden" value=0>
                 <div class="modal-dialog" role="document">
@@ -249,6 +256,7 @@
                         <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="UnverifiableURLTemplate">Unverifiable URL</button>
                         <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="ShouldBeCompanyTemplate">Should Be Company</button>
                         <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="ReasonForApplicationTemplate">Reason For Application</button>
+                        <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="GitHubAssociationTemplate">GitHub Organization and Association</button>
                       </div>
                       <div class="form-group">
                         <label for="requestMoreInfoModalMessage">
@@ -357,6 +365,17 @@
                 {% for email in user.emails %}
                 <i class="fa-solid fa-envelope"></i> <a href="mailto:{{ email.email }}">{{ email.email }}</a> {% if email.primary %}(primary){% endif %} {% if email.verified %}<i class="fa fa-check text-green"></i>{% else %}<i class="fa fa-times text-red"></i>{% endif %}<br>
                 {% endfor %}
+
+                {% if user.account_associations %}
+                  {% for association in user.account_associations %}
+                    {% if association.service == 'github' %}
+                      <i class="fa-brands fa-github"></i>
+                      <a href="https://github.com/{{ association.external_username }}" target="_blank" rel="noopener">
+                        {{ association.external_username }}
+                      </a>
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
                 {% else %}
                 <i>n/a</i>
                 {% endif %}
