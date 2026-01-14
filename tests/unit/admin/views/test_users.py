@@ -833,8 +833,9 @@ class TestUserRecoverAccountInitiate:
         }
         assert account_recovery.additional == {"status": "initiated"}
 
+    @pytest.mark.usefixtures("_no_deliverability_check")
     def test_user_recover_account_initiate_override_email(
-        self, db_request, db_session, monkeypatch, _no_deliverability_check
+        self, db_request, db_session, monkeypatch
     ):
         admin_user = UserFactory.create()
         user = UserFactory.create(
@@ -904,8 +905,9 @@ class TestUserRecoverAccountInitiate:
         }
         assert account_recovery.additional == {"status": "initiated"}
 
+    @pytest.mark.usefixtures("_no_deliverability_check")
     def test_user_recover_account_initiate_override_email_exists(
-        self, db_request, db_session, monkeypatch, _no_deliverability_check
+        self, db_request, db_session, monkeypatch
     ):
         admin_user = UserFactory.create()
         user = UserFactory.create(
@@ -978,8 +980,9 @@ class TestUserRecoverAccountInitiate:
         }
         assert account_recovery.additional == {"status": "initiated"}
 
+    @pytest.mark.usefixtures("_no_deliverability_check")
     def test_user_recover_account_initiate_override_email_exists_wrong_user(
-        self, db_request, db_session, monkeypatch, _no_deliverability_check
+        self, db_request, db_session, monkeypatch
     ):
         admin_user = UserFactory.create()
         user = UserFactory.create(
