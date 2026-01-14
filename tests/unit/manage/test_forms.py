@@ -814,7 +814,7 @@ class TestCreateOrganizationApplicationForm:
             organization_service=organization_service,
             user=user,
         )
-        field = pretend.stub(data="my_organization_name")
+        field = pretend.stub(data="my_organization_name", errors=[])
         forms._ = lambda string: string
 
         form.validate_name(field)
@@ -838,7 +838,7 @@ class TestCreateOrganizationApplicationForm:
             organization_service=organization_service,
             user=user,
         )
-        field = pretend.stub(data="my_organization_name")
+        field = pretend.stub(data="my_organization_name", errors=[])
         forms._ = lambda string: string
 
         with pytest.raises(wtforms.validators.ValidationError):
@@ -910,7 +910,7 @@ class TestCreateOrganizationApplicationForm:
             organization_service=organization_service,
             user=pretend.stub(),
         )
-        field = pretend.stub(data="my_organization_name")
+        field = pretend.stub(data="my_organization_name", errors=[])
 
         with pytest.raises(wtforms.validators.ValidationError):
             form.validate_name(field)
