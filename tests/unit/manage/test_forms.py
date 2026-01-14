@@ -928,7 +928,7 @@ class TestCreateOrganizationApplicationForm:
             organization_service=organization_service,
             user=pretend.stub(),
         )
-        form.validate()
+        assert not form.validate()
         assert "Null bytes are not allowed." in form.name.errors
         assert organization_service.find_organizationid.calls == []
 
