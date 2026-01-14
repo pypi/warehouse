@@ -919,6 +919,15 @@ class TestCreateOrganizationApplicationForm:
             pretend.call("my_organization_name")
         ]
 
+    def test_validate_name_with_null_bytes(self):
+        form = forms.CreateOrganizationApplicationForm(
+            MultiDict({"name": "test\x00name"}),
+            organization_service=pretend.stub(),
+            user=pretend.stub(),
+        )
+        form.validate()
+        assert "Null bytes are not allowed." in form.name.errors
+
 
 class TestSaveOrganizationNameForm:
     def test_save(self, pyramid_request):
