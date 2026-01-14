@@ -99,8 +99,8 @@ msgid ""
 "different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:422 warehouse/manage/forms.py:131
-#: warehouse/manage/forms.py:818
+#: warehouse/accounts/forms.py:422 warehouse/manage/forms.py:132
+#: warehouse/manage/forms.py:822
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 
@@ -404,31 +404,31 @@ msgstr ""
 msgid "Banner Preview"
 msgstr ""
 
-#: warehouse/manage/forms.py:287
+#: warehouse/manage/forms.py:288
 msgid "Specify an association ID"
 msgstr ""
 
-#: warehouse/manage/forms.py:288
+#: warehouse/manage/forms.py:289
 msgid "Association must be specified by ID"
 msgstr ""
 
-#: warehouse/manage/forms.py:303
+#: warehouse/manage/forms.py:304
 msgid "No account association with given ID"
 msgstr ""
 
-#: warehouse/manage/forms.py:308
+#: warehouse/manage/forms.py:309
 msgid "This association does not belong to you"
 msgstr ""
 
-#: warehouse/manage/forms.py:412
+#: warehouse/manage/forms.py:413
 msgid "Provide your response to the request."
 msgstr ""
 
-#: warehouse/manage/forms.py:453
+#: warehouse/manage/forms.py:455
 msgid "Choose an organization account name with 50 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:461
+#: warehouse/manage/forms.py:463
 msgid ""
 "The organization account name is invalid. Organization account names must"
 " be composed of letters, numbers, dots, hyphens and underscores. And must"
@@ -436,100 +436,100 @@ msgid ""
 "organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:484
+#: warehouse/manage/forms.py:488
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:499
+#: warehouse/manage/forms.py:503
 msgid ""
 "You have already submitted an application for that name. Choose a "
 "different organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:534
+#: warehouse/manage/forms.py:538
 msgid "Select project"
 msgstr ""
 
-#: warehouse/manage/forms.py:539 warehouse/oidc/forms/_core.py:36
+#: warehouse/manage/forms.py:543 warehouse/oidc/forms/_core.py:36
 #: warehouse/oidc/forms/gitlab.py:54
 msgid "Specify project name"
 msgstr ""
 
-#: warehouse/manage/forms.py:543
+#: warehouse/manage/forms.py:547
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
 
-#: warehouse/manage/forms.py:550
+#: warehouse/manage/forms.py:554
 msgid "This project name has already been used. Choose a different project name."
 msgstr ""
 
-#: warehouse/manage/forms.py:583
+#: warehouse/manage/forms.py:587
 msgid "Cannot transfer to Company Organization with inactive billing"
 msgstr ""
 
-#: warehouse/manage/forms.py:636
+#: warehouse/manage/forms.py:640
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:648
+#: warehouse/manage/forms.py:652
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:654
+#: warehouse/manage/forms.py:658
 msgid "The organization URL must start with http:// or https://"
 msgstr ""
 
-#: warehouse/manage/forms.py:666
+#: warehouse/manage/forms.py:670
 msgid ""
 "The organization description is too long. Choose a organization "
 "description with 400 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:709
+#: warehouse/manage/forms.py:713
 msgid ""
 "We don't need to know quite that much :), limit your usage description to"
 " 1024 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:731
+#: warehouse/manage/forms.py:735
 msgid "You have already submitted the maximum number of "
 msgstr ""
 
-#: warehouse/manage/forms.py:760
+#: warehouse/manage/forms.py:764
 msgid "Choose a team name with 50 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:767
+#: warehouse/manage/forms.py:771
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:795
+#: warehouse/manage/forms.py:799
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:813
+#: warehouse/manage/forms.py:817
 msgid "Specify your alternate repository name"
 msgstr ""
 
-#: warehouse/manage/forms.py:827
+#: warehouse/manage/forms.py:831
 msgid "Specify your alternate repository URL"
 msgstr ""
 
-#: warehouse/manage/forms.py:832
+#: warehouse/manage/forms.py:836
 msgid "The URL is too long. Choose a URL with 400 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:846
+#: warehouse/manage/forms.py:850
 msgid ""
 "The description is too long. Choose a description with 400 characters or "
 "less."
