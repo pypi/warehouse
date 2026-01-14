@@ -474,7 +474,9 @@ class OrganizationNameMixin:
     organization_id = None
 
     def validate_name(self, field):
-        # Find organization by name.
+        if field.errors:
+            return
+
         organization_id = self.organization_service.find_organizationid(field.data)
 
         # Name is valid if one of the following is true:

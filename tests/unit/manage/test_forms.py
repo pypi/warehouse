@@ -920,13 +920,17 @@ class TestCreateOrganizationApplicationForm:
         ]
 
     def test_validate_name_with_null_bytes(self):
+        organization_service = pretend.stub(
+            find_organizationid=pretend.call_recorder(lambda name: None),
+        )
         form = forms.CreateOrganizationApplicationForm(
             MultiDict({"name": "test\x00name"}),
-            organization_service=pretend.stub(),
+            organization_service=organization_service,
             user=pretend.stub(),
         )
         form.validate()
         assert "Null bytes are not allowed." in form.name.errors
+        assert organization_service.find_organizationid.calls == []
 
 
 class TestSaveOrganizationNameForm:
