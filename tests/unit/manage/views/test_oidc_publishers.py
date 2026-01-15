@@ -137,12 +137,14 @@ class TestManageOIDCPublisherViews:
                 "GitLab": False,
                 "Google": False,
                 "ActiveState": False,
+                "CircleCI": False,
             },
             "project": project,
             "github_publisher_form": view.github_publisher_form,
             "gitlab_publisher_form": view.gitlab_publisher_form,
             "google_publisher_form": view.google_publisher_form,
             "activestate_publisher_form": view.activestate_publisher_form,
+            "circleci_publisher_form": view.circleci_publisher_form,
             "prefilled_provider": view.prefilled_provider,
         }
 
@@ -152,6 +154,7 @@ class TestManageOIDCPublisherViews:
             pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_CIRCLECI_OIDC),
         ]
 
     def test_manage_project_oidc_publishers_admin_disabled(
@@ -181,12 +184,14 @@ class TestManageOIDCPublisherViews:
                 "GitLab": True,
                 "Google": True,
                 "ActiveState": True,
+                "CircleCI": True,
             },
             "project": project,
             "github_publisher_form": view.github_publisher_form,
             "gitlab_publisher_form": view.gitlab_publisher_form,
             "google_publisher_form": view.google_publisher_form,
             "activestate_publisher_form": view.activestate_publisher_form,
+            "circleci_publisher_form": view.circleci_publisher_form,
             "prefilled_provider": view.prefilled_provider,
         }
 
@@ -196,6 +201,7 @@ class TestManageOIDCPublisherViews:
             pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_CIRCLECI_OIDC),
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
@@ -291,12 +297,14 @@ class TestManageOIDCPublisherViews:
                 "GitLab": False,
                 "Google": False,
                 "ActiveState": False,
+                "CircleCI": False,
             },
             "project": project,
             "github_publisher_form": view.github_publisher_form,
             "gitlab_publisher_form": view.gitlab_publisher_form,
             "google_publisher_form": view.google_publisher_form,
             "activestate_publisher_form": view.activestate_publisher_form,
+            "circleci_publisher_form": view.circleci_publisher_form,
             "prefilled_provider": prefilled_data["provider"].lower(),
         }
 
@@ -374,12 +382,14 @@ class TestManageOIDCPublisherViews:
                 "GitLab": False,
                 "Google": False,
                 "ActiveState": False,
+                "CircleCI": False,
             },
             "project": project,
             "github_publisher_form": view.github_publisher_form,
             "gitlab_publisher_form": view.gitlab_publisher_form,
             "google_publisher_form": view.google_publisher_form,
             "activestate_publisher_form": view.activestate_publisher_form,
+            "circleci_publisher_form": view.circleci_publisher_form,
             "prefilled_provider": prefilled_data["provider"].lower(),
         }
 
@@ -427,12 +437,14 @@ class TestManageOIDCPublisherViews:
                 "GitLab": False,
                 "Google": False,
                 "ActiveState": False,
+                "CircleCI": False,
             },
             "project": project,
             "github_publisher_form": view.github_publisher_form,
             "gitlab_publisher_form": view.gitlab_publisher_form,
             "google_publisher_form": view.google_publisher_form,
             "activestate_publisher_form": view.activestate_publisher_form,
+            "circleci_publisher_form": view.circleci_publisher_form,
             "prefilled_provider": None,
         }
 
@@ -1137,6 +1149,7 @@ class TestManageOIDCPublisherViews:
         monkeypatch.setattr(oidc_views, "GitLabPublisherForm", publisher_form_cls)
         monkeypatch.setattr(oidc_views, "GooglePublisherForm", publisher_form_cls)
         monkeypatch.setattr(oidc_views, "ActiveStatePublisherForm", publisher_form_cls)
+        monkeypatch.setattr(oidc_views, "CircleCIPublisherForm", publisher_form_cls)
 
         view = oidc_views.ManageOIDCPublisherViews(project, request)
         monkeypatch.setattr(
@@ -1283,6 +1296,7 @@ class TestManageOIDCPublisherViews:
         monkeypatch.setattr(oidc_views, "GitLabPublisherForm", publisher_form_cls)
         monkeypatch.setattr(oidc_views, "GooglePublisherForm", publisher_form_cls)
         monkeypatch.setattr(oidc_views, "ActiveStatePublisherForm", publisher_form_cls)
+        monkeypatch.setattr(oidc_views, "CircleCIPublisherForm", publisher_form_cls)
         monkeypatch.setattr(
             oidc_views,
             "send_trusted_publisher_added_email",
@@ -1487,12 +1501,14 @@ class TestManageOIDCPublisherViews:
                 "GitLab": False,
                 "Google": False,
                 "ActiveState": False,
+                "CircleCI": False,
             },
             "project": project,
             "github_publisher_form": view.github_publisher_form,
             "gitlab_publisher_form": view.gitlab_publisher_form,
             "google_publisher_form": view.google_publisher_form,
             "activestate_publisher_form": view.activestate_publisher_form,
+            "circleci_publisher_form": view.circleci_publisher_form,
             "prefilled_provider": view.prefilled_provider,
         }
         assert view.metrics.increment.calls == [
@@ -1572,12 +1588,14 @@ class TestManageOIDCPublisherViews:
                 "GitLab": False,
                 "Google": False,
                 "ActiveState": False,
+                "CircleCI": False,
             },
             "project": project,
             "github_publisher_form": view.github_publisher_form,
             "gitlab_publisher_form": view.gitlab_publisher_form,
             "google_publisher_form": view.google_publisher_form,
             "activestate_publisher_form": view.activestate_publisher_form,
+            "circleci_publisher_form": view.circleci_publisher_form,
             "prefilled_provider": view.prefilled_provider,
         }
         assert view.metrics.increment.calls == [
