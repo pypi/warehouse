@@ -1116,7 +1116,9 @@ class TestManageOIDCPublisherViews:
                 lambda publisher: pretend.stub(
                     validate=pretend.call_recorder(lambda: True),
                     circleci_org_id=pretend.stub(data=publisher.circleci_org_id),
-                    circleci_project_id=pretend.stub(data=publisher.circleci_project_id),
+                    circleci_project_id=pretend.stub(
+                        data=publisher.circleci_project_id
+                    ),
                 ),
             ),
         ],
@@ -1753,6 +1755,7 @@ class TestManageOIDCPublisherViews:
             ("add_gitlab_oidc_publisher", "GitLab"),
             ("add_google_oidc_publisher", "Google"),
             ("add_activestate_oidc_publisher", "ActiveState"),
+            ("add_circleci_oidc_publisher", "CircleCI"),
         ],
     )
     def test_add_oidc_publisher_invalid_form(
@@ -1779,6 +1782,7 @@ class TestManageOIDCPublisherViews:
         monkeypatch.setattr(oidc_views, "GitLabPublisherForm", publisher_form_cls)
         monkeypatch.setattr(oidc_views, "GooglePublisherForm", publisher_form_cls)
         monkeypatch.setattr(oidc_views, "ActiveStatePublisherForm", publisher_form_cls)
+        monkeypatch.setattr(oidc_views, "CircleCIPublisherForm", publisher_form_cls)
 
         view = oidc_views.ManageOIDCPublisherViews(project, request)
         default_response = {
@@ -1786,6 +1790,7 @@ class TestManageOIDCPublisherViews:
             "gitlab_publisher_form": publisher_form_obj,
             "google_publisher_form": publisher_form_obj,
             "activestate_publisher_form": publisher_form_obj,
+            "circleci_publisher_form": publisher_form_obj,
         }
         monkeypatch.setattr(
             oidc_views.ManageOIDCPublisherViews, "default_response", default_response
