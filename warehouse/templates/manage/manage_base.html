@@ -608,9 +608,9 @@
           <b>Actor:</b> {{ publisher.actor }}
           <br>
         {% elif publisher.publisher_name == "CircleCI" %}
-          <b>Organization ID:</b> {{ publisher.organization_id }}
+          <b>Organization ID:</b> {{ publisher.circleci_org_id }}
           <br>
-          <b>Project ID:</b> {{ publisher.project_id }}
+          <b>Project ID:</b> {{ publisher.circleci_project_id }}
           <br>
         {% else %}
           -
