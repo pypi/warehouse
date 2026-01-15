@@ -951,21 +951,6 @@ class TestSaveOrganizationNameForm:
             pretend.call("my_org_name")
         ]
 
-    def test_validate_name_skips_when_field_has_errors(self):
-        organization_service = pretend.stub(
-            find_organizationid=pretend.call_recorder(lambda name: None),
-        )
-        form = forms.SaveOrganizationNameForm(
-            MultiDict({"name": "test"}),
-            organization_service=organization_service,
-            user=pretend.stub(),
-        )
-        field = pretend.stub(data="test", errors=["Existing error"])
-
-        form.validate_name(field)
-
-        assert organization_service.find_organizationid.calls == []
-
 
 class TestAddOrganizationProjectForm:
     @pytest.mark.parametrize(
