@@ -450,9 +450,7 @@
     class_="form-group__field",
     aria_describedby="circleci_project_id-errors")
     }}
-    <p class="form-group__help-text">
-      {% trans %}The CircleCI project ID (UUID) that will publish to PyPI{% endtrans %}
-    </p>
+    <p class="form-group__help-text">{% trans %}The CircleCI project ID (UUID) that will publish to PyPI{% endtrans %}</p>
     <div id="circleci_project_id-errors">{{ field_errors(pending_circleci_publisher_form.circleci_project_id) }}</div>
   </div>
   <div>

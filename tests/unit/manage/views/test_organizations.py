@@ -3498,6 +3498,40 @@ class TestManageOrganizationPublishingViews:
             tags=["publisher:GitLab", "organization:true"],
         )
 
+    def test_add_pending_circleci_oidc_publisher_success(self, db_request, monkeypatch):
+        """Test successfully adding a pending CircleCI OIDC publisher"""
+        organization = OrganizationFactory.create()
+        user = UserFactory.create(with_verified_primary_email=True)
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda *a: False)
+        )
+        db_request.POST = MultiDict()
+        db_request.path = "/fake/path"
+        db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/fake/route")
+        db_request.user = user
+
+        # Mock form
+        form = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            project_name=pretend.stub(data="test-project"),
+            circleci_org_id=pretend.stub(data="00000000-0000-1000-8000-000000000001"),
+            circleci_project_id=pretend.stub(
+                data="00000000-0000-1000-8000-000000000002"
+            ),
+        )
+        monkeypatch.setattr(
+            org_views, "PendingCircleCIPublisherForm", lambda *a, **kw: form
+        )
+
+        view = org_views.ManageOrganizationPublishingViews(organization, db_request)
+        result = view.add_pending_circleci_oidc_publisher()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.metrics.increment.calls[-1] == pretend.call(
+            "warehouse.oidc.add_pending_publisher.ok",
+            tags=["publisher:CircleCI", "organization:true"],
+        )
+
     def test_gitlab_form_includes_issuer_url_choices(self, db_request, monkeypatch):
         """Test that GitLab form is created with issuer_url_choices"""
         organization = OrganizationFactory.create()

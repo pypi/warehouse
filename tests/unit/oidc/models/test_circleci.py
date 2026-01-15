@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
 import pytest
 
 from tests.common.db.oidc import (
@@ -9,10 +8,7 @@ from tests.common.db.oidc import (
 )
 from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import SignedClaims
-from warehouse.oidc.models.circleci import (
-    CircleCIPublisher,
-    PendingCircleCIPublisher,
-)
+from warehouse.oidc.models.circleci import CircleCIPublisher
 
 ORG_ID = "00000000-0000-1000-8000-000000000001"
 PROJECT_ID = "00000000-0000-1000-8000-000000000002"
@@ -66,7 +62,9 @@ class TestCircleCIPublisher:
             circleci_org_id=ORG_ID, circleci_project_id=PROJECT_ID
         )
 
-        assert str(publisher) == f"CircleCI project {PROJECT_ID} in organization {ORG_ID}"
+        assert (
+            str(publisher) == f"CircleCI project {PROJECT_ID} in organization {ORG_ID}"
+        )
 
     def test_admin_details(self):
         publisher = CircleCIPublisher(
@@ -77,6 +75,38 @@ class TestCircleCIPublisher:
             ("Organization ID", ORG_ID),
             ("Project ID", PROJECT_ID),
         ]
+
+    def test_stored_claims(self):
+        publisher = CircleCIPublisher(
+            circleci_org_id=ORG_ID, circleci_project_id=PROJECT_ID
+        )
+
+        assert publisher.stored_claims() == {}
+        assert publisher.stored_claims(new_signed_claims()) == {}
+
+    def test_ssh_rerun_property(self):
+        publisher = CircleCIPublisher(
+            circleci_org_id=ORG_ID, circleci_project_id=PROJECT_ID
+        )
+
+        assert publisher.ssh_rerun is False
+
+    def test_getattr_maps_claims_to_attributes(self):
+        publisher = CircleCIPublisher(
+            circleci_org_id=ORG_ID, circleci_project_id=PROJECT_ID
+        )
+
+        assert getattr(publisher, "oidc.circleci.com/org-id") == ORG_ID
+        assert getattr(publisher, "oidc.circleci.com/project-id") == PROJECT_ID
+        assert getattr(publisher, "oidc.circleci.com/ssh-rerun") is False
+
+    def test_getattr_raises_for_unknown_attribute(self):
+        publisher = CircleCIPublisher(
+            circleci_org_id=ORG_ID, circleci_project_id=PROJECT_ID
+        )
+
+        with pytest.raises(AttributeError, match="unknown_attribute"):
+            getattr(publisher, "unknown_attribute")
 
     def test_ssh_rerun_claim_is_false(self):
         publisher = CircleCIPublisher(
@@ -94,7 +124,9 @@ class TestCircleCIPublisher:
         signed_claims = new_signed_claims(ssh_rerun=True)
 
         # Verify the ssh-rerun claim check fails when True
-        check_fn = publisher.__required_verifiable_claims__["oidc.circleci.com/ssh-rerun"]
+        check_fn = publisher.__required_verifiable_claims__[
+            "oidc.circleci.com/ssh-rerun"
+        ]
         assert check_fn(False, True, signed_claims) is False
 
     def test_accepts_ssh_rerun_false(self):
@@ -105,7 +137,9 @@ class TestCircleCIPublisher:
         signed_claims = new_signed_claims(ssh_rerun=False)
 
         # Verify the ssh-rerun claim check passes when False
-        check_fn = publisher.__required_verifiable_claims__["oidc.circleci.com/ssh-rerun"]
+        check_fn = publisher.__required_verifiable_claims__[
+            "oidc.circleci.com/ssh-rerun"
+        ]
         assert check_fn(False, False, signed_claims) is True
 
     def test_lookup_by_claims_hits(self, db_request):
@@ -131,6 +165,19 @@ class TestCircleCIPublisher:
 
         with pytest.raises(InvalidPublisherError):
             CircleCIPublisher.lookup_by_claims(db_request.db, signed_claims)
+
+    @pytest.mark.parametrize("exists_in_db", [True, False])
+    def test_exists(self, db_request, exists_in_db):
+        publisher = CircleCIPublisher(
+            circleci_org_id=ORG_ID,
+            circleci_project_id=PROJECT_ID,
+        )
+
+        if exists_in_db:
+            db_request.db.add(publisher)
+            db_request.db.flush()
+
+        assert publisher.exists(db_request.db) == exists_in_db
 
 
 class TestPendingCircleCIPublisher:
