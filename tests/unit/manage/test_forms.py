@@ -814,7 +814,7 @@ class TestCreateOrganizationApplicationForm:
             organization_service=organization_service,
             user=user,
         )
-        field = pretend.stub(data="my_organization_name", errors=[])
+        field = pretend.stub(data="my_organization_name")
         forms._ = lambda string: string
 
         form.validate_name(field)
