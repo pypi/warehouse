@@ -133,6 +133,8 @@ class CircleCIPublisherFactory(WarehouseFactory):
     id = factory.Faker("uuid4", cast_to=None)
     circleci_org_id = factory.Faker("uuid4")
     circleci_project_id = factory.Faker("uuid4")
+    pipeline_definition_id = factory.Faker("uuid4")
+    context_id = ""
 
 
 class PendingCircleCIPublisherFactory(WarehouseFactory):
@@ -143,4 +145,6 @@ class PendingCircleCIPublisherFactory(WarehouseFactory):
     project_name = factory.Faker("pystr", max_chars=12)
     circleci_org_id = factory.Faker("uuid4")
     circleci_project_id = factory.Faker("uuid4")
+    pipeline_definition_id = factory.Faker("uuid4")
+    context_id = ""
     added_by = factory.SubFactory(UserFactory)

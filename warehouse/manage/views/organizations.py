@@ -2043,6 +2043,7 @@ class ManageOrganizationPublishingViews:
                 circleci_org_id=form.circleci_org_id.data,
                 circleci_project_id=form.circleci_project_id.data,
                 pipeline_definition_id=form.pipeline_definition_id.data,
+                context_id=form.context_id.data or "",
                 pypi_organization=self.organization,
             ),
             make_existence_filters=lambda form: dict(
@@ -2050,5 +2051,6 @@ class ManageOrganizationPublishingViews:
                 circleci_org_id=form.circleci_org_id.data,
                 circleci_project_id=form.circleci_project_id.data,
                 pipeline_definition_id=form.pipeline_definition_id.data,
+                context_id=form.context_id.data or "",
             ),
         )

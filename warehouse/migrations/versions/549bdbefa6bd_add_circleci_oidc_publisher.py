@@ -22,6 +22,7 @@ def upgrade():
         sa.Column("circleci_org_id", sa.String(), nullable=False),
         sa.Column("circleci_project_id", sa.String(), nullable=False),
         sa.Column("pipeline_definition_id", sa.String(), nullable=False),
+        sa.Column("context_id", sa.String(), nullable=True),
         sa.ForeignKeyConstraint(
             ["id"],
             ["oidc_publishers.id"],
@@ -31,6 +32,7 @@ def upgrade():
             "circleci_org_id",
             "circleci_project_id",
             "pipeline_definition_id",
+            "context_id",
             name="_circleci_oidc_publisher_uc",
         ),
     )
@@ -40,6 +42,7 @@ def upgrade():
         sa.Column("circleci_org_id", sa.String(), nullable=False),
         sa.Column("circleci_project_id", sa.String(), nullable=False),
         sa.Column("pipeline_definition_id", sa.String(), nullable=False),
+        sa.Column("context_id", sa.String(), nullable=True),
         sa.ForeignKeyConstraint(
             ["id"],
             ["pending_oidc_publishers.id"],
@@ -49,6 +52,7 @@ def upgrade():
             "circleci_org_id",
             "circleci_project_id",
             "pipeline_definition_id",
+            "context_id",
             name="_pending_circleci_oidc_publisher_uc",
         ),
     )

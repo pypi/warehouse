@@ -7,7 +7,12 @@ from warehouse.oidc.forms._core import PendingPublisherMixin
 
 
 class CircleCIPublisherBase(wtforms.Form):
-    __params__ = ["circleci_org_id", "circleci_project_id", "pipeline_definition_id"]
+    __params__ = [
+        "circleci_org_id",
+        "circleci_project_id",
+        "pipeline_definition_id",
+        "context_id",
+    ]
 
     circleci_org_id = wtforms.StringField(
         validators=[
@@ -30,6 +35,12 @@ class CircleCIPublisherBase(wtforms.Form):
             wtforms.validators.InputRequired(
                 message=_("Specify CircleCI pipeline definition ID"),
             ),
+        ]
+    )
+
+    context_id = wtforms.StringField(
+        validators=[
+            wtforms.validators.Optional(),
         ]
     )
 
