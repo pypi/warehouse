@@ -910,7 +910,7 @@ class TestCreateOrganizationApplicationForm:
             organization_service=organization_service,
             user=pretend.stub(),
         )
-        field = pretend.stub(data="my_organization_name", errors=[])
+        field = pretend.stub(data="my_organization_name")
 
         with pytest.raises(wtforms.validators.ValidationError):
             form.validate_name(field)
