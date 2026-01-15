@@ -17,6 +17,7 @@ from warehouse.metrics import IMetricsService
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import (
     ActiveStatePublisher,
+    CircleCIPublisher,
     GitHubPublisher,
     GitLabPublisher,
     GooglePublisher,
@@ -1103,6 +1104,21 @@ class TestManageOIDCPublisherViews:
                     actor_id="some-user-id",
                 ),
             ),
+            (
+                "add_circleci_oidc_publisher",
+                pretend.stub(
+                    id="fakeid",
+                    publisher_name="CircleCI",
+                    publisher_url=lambda x=None: None,
+                    circleci_org_id="some-org-id",
+                    circleci_project_id="some-project-id",
+                ),
+                lambda publisher: pretend.stub(
+                    validate=pretend.call_recorder(lambda: True),
+                    circleci_org_id=pretend.stub(data=publisher.circleci_org_id),
+                    circleci_project_id=pretend.stub(data=publisher.circleci_project_id),
+                ),
+            ),
         ],
     )
     def test_add_oidc_publisher_preexisting(
@@ -1252,6 +1268,15 @@ class TestManageOIDCPublisherViews:
                     actor_id="some-user-id",
                 ),
                 "ActiveState",
+            ),
+            (
+                "add_circleci_oidc_publisher",
+                pretend.stub(
+                    validate=pretend.call_recorder(lambda: True),
+                    circleci_org_id=pretend.stub(data="fake-org-id"),
+                    circleci_project_id=pretend.stub(data="fake-project-id"),
+                ),
+                "CircleCI",
             ),
         ],
     )
@@ -1439,6 +1464,20 @@ class TestManageOIDCPublisherViews:
                     }
                 ),
             ),
+            (
+                "add_circleci_oidc_publisher",
+                "CircleCI",
+                CircleCIPublisher(
+                    circleci_org_id="some-org-id",
+                    circleci_project_id="some-project-id",
+                ),
+                MultiDict(
+                    {
+                        "circleci_org_id": "some-org-id",
+                        "circleci_project_id": "some-project-id",
+                    }
+                ),
+            ),
         ],
     )
     def test_add_oidc_publisher_already_registered_with_project(
@@ -1619,6 +1658,7 @@ class TestManageOIDCPublisherViews:
             ("add_gitlab_oidc_publisher", "GitLab"),
             ("add_google_oidc_publisher", "Google"),
             ("add_activestate_oidc_publisher", "ActiveState"),
+            ("add_circleci_oidc_publisher", "CircleCI"),
         ],
     )
     def test_add_oidc_publisher_ratelimited(
@@ -1669,6 +1709,7 @@ class TestManageOIDCPublisherViews:
             ("add_gitlab_oidc_publisher", "GitLab"),
             ("add_google_oidc_publisher", "Google"),
             ("add_activestate_oidc_publisher", "ActiveState"),
+            ("add_circleci_oidc_publisher", "CircleCI"),
         ],
     )
     def test_add_oidc_publisher_admin_disabled(

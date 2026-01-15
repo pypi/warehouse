@@ -841,7 +841,9 @@ class ManageOIDCPublisherViews:
         )
 
         self.request.session.flash(
-            f"Added {publisher} to {self.project.name}",
+            f"Added {publisher} "
+            + (f"in {publisher.publisher_url()}" if publisher.publisher_url() else "")
+            + f" to {self.project.name}",
             queue="success",
         )
 

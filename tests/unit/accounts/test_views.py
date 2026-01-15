@@ -4068,6 +4068,11 @@ class TestManageAccountPublishingViews:
                 AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
                 "ActiveState",
             ),
+            (
+                "add_pending_circleci_oidc_publisher",
+                AdminFlagValue.DISALLOW_CIRCLECI_OIDC,
+                "CircleCI",
+            ),
         ],
     )
     def test_add_pending_oidc_publisher_admin_disabled(
@@ -4214,6 +4219,11 @@ class TestManageAccountPublishingViews:
                 "add_pending_activestate_oidc_publisher",
                 AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
                 "ActiveState",
+            ),
+            (
+                "add_pending_circleci_oidc_publisher",
+                AdminFlagValue.DISALLOW_CIRCLECI_OIDC,
+                "CircleCI",
             ),
         ],
     )
@@ -4503,6 +4513,10 @@ class TestManageAccountPublishingViews:
                 "add_pending_activestate_oidc_publisher",
                 "ActiveState",
             ),
+            (
+                "add_pending_circleci_oidc_publisher",
+                "CircleCI",
+            ),
         ],
     )
     def test_add_pending_oidc_publisher_ratelimited(
@@ -4576,6 +4590,10 @@ class TestManageAccountPublishingViews:
             (
                 "add_pending_activestate_oidc_publisher",
                 "ActiveState",
+            ),
+            (
+                "add_pending_circleci_oidc_publisher",
+                "CircleCI",
             ),
         ],
     )
