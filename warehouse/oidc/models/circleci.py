@@ -41,6 +41,8 @@ class CircleCIPublisherMixin:
     __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "oidc.circleci.com/org-id": oidccore.check_claim_binary(str.__eq__),
         "oidc.circleci.com/project-id": oidccore.check_claim_binary(str.__eq__),
+        # Reject tokens from SSH re-run jobs (human access to build environment)
+        "oidc.circleci.com/ssh-rerun": oidccore.check_claim_invariant(False),
     }
 
     __unchecked_claims__: set[str] = {
@@ -48,7 +50,6 @@ class CircleCIPublisherMixin:
         "oidc.circleci.com/job-id",
         "oidc.circleci.com/pipeline-definition-id",
         "oidc.circleci.com/pipeline-id",
-        "oidc.circleci.com/ssh-rerun",
         "oidc.circleci.com/vcs-ref",
         "oidc.circleci.com/vcs-origin",
         "oidc.circleci.com/workflow-id",
@@ -91,11 +92,18 @@ class CircleCIPublisherMixin:
             ("Project ID", self.circleci_project_id),
         ]
 
+    @property
+    def ssh_rerun(self) -> bool:
+        return False
+
     def __getattr__(self, name: str) -> Any:
-        # Map dotted claim names to actual model attributes for claim verification
+        # Map dotted claim names to actual model attributes for claim verification.
+        # CircleCI uses namespaced claims like "oidc.circleci.com/org-id" which
+        # can't be Python attribute names, so we map them here.
         claim_to_attr = {
             "oidc.circleci.com/org-id": "circleci_org_id",
             "oidc.circleci.com/project-id": "circleci_project_id",
+            "oidc.circleci.com/ssh-rerun": "ssh_rerun",
         }
         if name in claim_to_attr:
             return object.__getattribute__(self, claim_to_attr[name])
