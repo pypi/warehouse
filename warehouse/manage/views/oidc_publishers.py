@@ -787,13 +787,15 @@ class ManageOIDCPublisherViews:
             return response
 
         # CircleCI OIDC publishers are unique on the tuple of
-        # (circleci_org_id, circleci_project_id), so we check for an already
-        # registered one before creating.
+        # (circleci_org_id, circleci_project_id, pipeline_definition_id),
+        # so we check for an already registered one before creating.
         publisher = (
             self.request.db.query(CircleCIPublisher)
             .filter(
                 CircleCIPublisher.circleci_org_id == form.circleci_org_id.data,
                 CircleCIPublisher.circleci_project_id == form.circleci_project_id.data,
+                CircleCIPublisher.pipeline_definition_id
+                == form.pipeline_definition_id.data,
             )
             .one_or_none()
         )
@@ -801,6 +803,7 @@ class ManageOIDCPublisherViews:
             publisher = CircleCIPublisher(
                 circleci_org_id=form.circleci_org_id.data,
                 circleci_project_id=form.circleci_project_id.data,
+                pipeline_definition_id=form.pipeline_definition_id.data,
             )
 
             self.request.db.add(publisher)
