@@ -21,6 +21,7 @@ PROJECT_ID = "00000000-0000-1000-8000-000000000002"
 def new_signed_claims(
     org_id: str = ORG_ID,
     project_id: str = PROJECT_ID,
+    ssh_rerun: bool = False,
 ) -> SignedClaims:
     claims = SignedClaims(
         {
@@ -30,7 +31,7 @@ def new_signed_claims(
             "oidc.circleci.com/job-id": "fake-job-id",
             "oidc.circleci.com/pipeline-definition-id": "fake-pipeline-def-id",
             "oidc.circleci.com/pipeline-id": "fake-pipeline-id",
-            "oidc.circleci.com/ssh-rerun": False,
+            "oidc.circleci.com/ssh-rerun": ssh_rerun,
             "oidc.circleci.com/vcs-ref": "refs/heads/main",
             "oidc.circleci.com/vcs-origin": "https://github.com/org/repo",
             "oidc.circleci.com/workflow-id": "fake-workflow-id",
@@ -76,6 +77,36 @@ class TestCircleCIPublisher:
             ("Organization ID", ORG_ID),
             ("Project ID", PROJECT_ID),
         ]
+
+    def test_ssh_rerun_claim_is_false(self):
+        publisher = CircleCIPublisher(
+            circleci_org_id=ORG_ID, circleci_project_id=PROJECT_ID
+        )
+
+        # The publisher expects ssh-rerun to always be False
+        assert getattr(publisher, "oidc.circleci.com/ssh-rerun") is False
+
+    def test_rejects_ssh_rerun_true(self):
+        publisher = CircleCIPublisher(
+            circleci_org_id=ORG_ID, circleci_project_id=PROJECT_ID
+        )
+
+        signed_claims = new_signed_claims(ssh_rerun=True)
+
+        # Verify the ssh-rerun claim check fails when True
+        check_fn = publisher.__required_verifiable_claims__["oidc.circleci.com/ssh-rerun"]
+        assert check_fn(False, True, signed_claims) is False
+
+    def test_accepts_ssh_rerun_false(self):
+        publisher = CircleCIPublisher(
+            circleci_org_id=ORG_ID, circleci_project_id=PROJECT_ID
+        )
+
+        signed_claims = new_signed_claims(ssh_rerun=False)
+
+        # Verify the ssh-rerun claim check passes when False
+        check_fn = publisher.__required_verifiable_claims__["oidc.circleci.com/ssh-rerun"]
+        assert check_fn(False, False, signed_claims) is True
 
     def test_lookup_by_claims_hits(self, db_request):
         publisher = CircleCIPublisherFactory.create(
