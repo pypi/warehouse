@@ -7,6 +7,7 @@ import typing
 from typing import Any, Self
 from uuid import UUID
 
+from more_itertools import first_true
 from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, Query, mapped_column
@@ -27,6 +28,25 @@ if typing.TYPE_CHECKING:
 CIRCLECI_OIDC_ISSUER_URL = "https://oidc.circleci.com"
 
 
+def _check_context_id(
+    ground_truth: str,
+    signed_claim: list[str] | None,
+    _all_signed_claims: SignedClaims,
+    **_kwargs,
+) -> bool:
+    # The context-ids claim is an array of UUIDs for contexts used in the job.
+    # If we haven't set a context_id for the publisher, we don't need to check.
+    if ground_truth == "":
+        return True
+
+    # If we require a context but the token has no context-ids, fail.
+    if not signed_claim:
+        return False
+
+    # Check if our required context_id is in the array of context IDs.
+    return ground_truth in signed_claim
+
+
 class CircleCIPublisherMixin:
     """
     Common functionality for both pending and concrete CircleCI OIDC publishers.
@@ -38,6 +58,7 @@ class CircleCIPublisherMixin:
     circleci_org_id: Mapped[str] = mapped_column(String, nullable=False)
     circleci_project_id: Mapped[str] = mapped_column(String, nullable=False)
     pipeline_definition_id: Mapped[str] = mapped_column(String, nullable=False)
+    context_id: Mapped[str | None] = mapped_column(String, nullable=True)
 
     __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "oidc.circleci.com/org-id": oidccore.check_claim_binary(str.__eq__),
@@ -49,8 +70,11 @@ class CircleCIPublisherMixin:
         "oidc.circleci.com/ssh-rerun": oidccore.check_claim_invariant(False),
     }
 
+    __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
+        "oidc.circleci.com/context-ids": _check_context_id,
+    }
+
     __unchecked_claims__: set[str] = {
-        "oidc.circleci.com/context-ids",
         "oidc.circleci.com/job-id",
         "oidc.circleci.com/pipeline-id",
         "oidc.circleci.com/vcs-ref",
@@ -88,6 +112,7 @@ class CircleCIPublisherMixin:
                     cls.circleci_org_id == self.circleci_org_id,
                     cls.circleci_project_id == self.circleci_project_id,
                     cls.pipeline_definition_id == self.pipeline_definition_id,
+                    cls.context_id == self.context_id,
                 )
             )
         ).scalar()
@@ -95,11 +120,14 @@ class CircleCIPublisherMixin:
     @property
     def admin_details(self) -> list[tuple[str, str]]:
         """Returns CircleCI publisher configuration details for admin display."""
-        return [
+        details = [
             ("Organization ID", self.circleci_org_id),
             ("Project ID", self.circleci_project_id),
             ("Pipeline Definition ID", self.pipeline_definition_id),
         ]
+        if self.context_id:
+            details.append(("Context ID", self.context_id))
+        return details
 
     @property
     def ssh_rerun(self) -> bool:
@@ -114,13 +142,36 @@ class CircleCIPublisherMixin:
             "oidc.circleci.com/project-id": "circleci_project_id",
             "oidc.circleci.com/pipeline-definition-id": "pipeline_definition_id",
             "oidc.circleci.com/ssh-rerun": "ssh_rerun",
+            "oidc.circleci.com/context-ids": "context_id",
         }
         if name in claim_to_attr:
             return object.__getattribute__(self, claim_to_attr[name])
         raise AttributeError(name)
 
     @classmethod
+    def _get_publisher_for_context(
+        cls, publishers: list[Self], context_ids: list[str] | None
+    ) -> Self | None:
+        # Find the most specific publisher: one with a matching context_id takes
+        # precedence over a publisher without context_id constraint.
+        if context_ids:
+            if specific_publisher := first_true(
+                publishers, pred=lambda p: p.context_id in context_ids
+            ):
+                return specific_publisher
+
+        # Fall back to a publisher without context_id constraint (empty string)
+        if general_publisher := first_true(
+            publishers, pred=lambda p: p.context_id == ""
+        ):
+            return general_publisher
+
+        return None
+
+    @classmethod
     def lookup_by_claims(cls, session: Session, signed_claims: SignedClaims) -> Self:
+        context_ids = signed_claims.get("oidc.circleci.com/context-ids")
+
         query: Query = Query(cls).filter_by(
             circleci_org_id=signed_claims["oidc.circleci.com/org-id"],
             circleci_project_id=signed_claims["oidc.circleci.com/project-id"],
@@ -128,7 +179,9 @@ class CircleCIPublisherMixin:
                 "oidc.circleci.com/pipeline-definition-id"
             ],
         )
-        if publisher := query.with_session(session).one_or_none():
+        publishers = query.with_session(session).all()
+
+        if publisher := cls._get_publisher_for_context(publishers, context_ids):
             return publisher
         raise InvalidPublisherError("Publisher with matching claims was not found")
 
@@ -141,6 +194,7 @@ class CircleCIPublisher(CircleCIPublisherMixin, OIDCPublisher):
             "circleci_org_id",
             "circleci_project_id",
             "pipeline_definition_id",
+            "context_id",
             name="_circleci_oidc_publisher_uc",
         ),
     )
@@ -158,6 +212,7 @@ class PendingCircleCIPublisher(CircleCIPublisherMixin, PendingOIDCPublisher):
             "circleci_org_id",
             "circleci_project_id",
             "pipeline_definition_id",
+            "context_id",
             name="_pending_circleci_oidc_publisher_uc",
         ),
     )
@@ -177,6 +232,7 @@ class PendingCircleCIPublisher(CircleCIPublisherMixin, PendingOIDCPublisher):
                 CircleCIPublisher.circleci_org_id == self.circleci_org_id,
                 CircleCIPublisher.circleci_project_id == self.circleci_project_id,
                 CircleCIPublisher.pipeline_definition_id == self.pipeline_definition_id,
+                CircleCIPublisher.context_id == self.context_id,
             )
             .one_or_none()
         )
@@ -185,6 +241,7 @@ class PendingCircleCIPublisher(CircleCIPublisherMixin, PendingOIDCPublisher):
             circleci_org_id=self.circleci_org_id,
             circleci_project_id=self.circleci_project_id,
             pipeline_definition_id=self.pipeline_definition_id,
+            context_id=self.context_id,
         )
 
         session.delete(self)
